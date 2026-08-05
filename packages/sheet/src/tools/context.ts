@@ -1,7 +1,9 @@
 import type { CellAddress, CellRange } from '../core/address'
 import type { CellData, CellValue } from '../core/cell-store'
 import type { HistoryState } from '../core/command/history'
+import type { ImageUpdateFields } from '../core/command/image'
 import type { SetCellValueItem } from '../core/command/set-cell-value'
+import type { ImageInput, SheetImage } from '../core/image'
 import type { CellInfo } from '../core/merge-manager'
 import type { SelectionState } from '../core/selection'
 import type { FrozenState, Sheet } from '../core/sheet'
@@ -85,10 +87,22 @@ export interface SheetContext {
   /** 删除 [at, at+count) 列 */
   deleteCols(at: number, count?: number): void
 
+  // ─── 浮动图片（写入经命令系统，可 undo） ──────────────────
+  /** 插入浮动图片；返回生成的 id */
+  insertImage(input: ImageInput): string
+  /** 删除浮动图片；不存在则无操作 */
+  removeImage(id: string): void
+  /** 更新浮动图片锚点/尺寸/文案；不存在或无变更则无操作 */
+  updateImage(id: string, patch: ImageUpdateFields): void
+  /** 只读图片列表（快照副本） */
+  getImages(): readonly SheetImage[]
+
   // ─── 事件订阅（订阅时绑定到当前活动 sheet；tab 切换后需重新订阅） ──
   onSelectionChange(handler: (state: SelectionState) => void): () => void
   onHistoryChange(handler: (state: HistoryState) => void): () => void
   onFrozenChange(handler: (state: FrozenState) => void): () => void
+  /** 图片集合变化（单图带 id；整表替换时 id 缺省） */
+  onImageChange(handler: (payload: { id?: string }) => void): () => void
 }
 
 /**
@@ -144,6 +158,11 @@ export function createSheetContext(
     deleteRows: (at, count) => sheet().deleteRows(at, count),
     deleteCols: (at, count) => sheet().deleteCols(at, count),
 
+    insertImage: (input) => sheet().insertImage(input),
+    removeImage: (id) => sheet().removeImage(id),
+    updateImage: (id, patch) => sheet().updateImage(id, patch),
+    getImages: () => sheet().getImages(),
+
     beginTransaction: () => sheet().beginTransaction(),
     commit: () => sheet().commit(),
     rollback: () => sheet().rollback(),
@@ -159,6 +178,7 @@ export function createSheetContext(
 
     onSelectionChange: (handler) => sheet().on('selection-change', handler),
     onHistoryChange: (handler) => sheet().on('history-change', handler),
-    onFrozenChange: (handler) => sheet().on('frozen-change', handler)
+    onFrozenChange: (handler) => sheet().on('frozen-change', handler),
+    onImageChange: (handler) => sheet().on('image-change', handler)
   }
 }

@@ -92,7 +92,7 @@ describe('USheet 组件', () => {
     expect(workbook.activeSheet.getSelection().activeCell).toEqual({ row: 0, col: 0 })
   })
 
-  it('挂载：工具栏图标化分组（history｜cell｜text｜edit｜file），tabs 与 grid 挂载', async () => {
+  it('挂载：工具栏图标化分组（history｜cell｜text｜edit｜insert｜file），tabs 与 grid 挂载', async () => {
     const { el } = mount(() => ({ workbook: createWorkbook(), rows: 10, cols: 6 }))
     await nextTick()
 
@@ -120,11 +120,12 @@ describe('USheet 组件', () => {
       'valign-bottom',
       'wrap-text',
       'find',
+      'insert-image',
       'import',
       'export'
     ])
-    // 五组之间四个分隔符
-    expect(el.querySelectorAll('.u-sheet__toolbar-divider')).toHaveLength(4)
+    // 六组之间五个分隔符
+    expect(el.querySelectorAll('.u-sheet__toolbar-divider')).toHaveLength(5)
     // 图标化：每个内置工具有 icon，按钮无可见文字
     for (const button of el.querySelectorAll<HTMLButtonElement>('.u-sheet__tool')) {
       expect(button.querySelector('.u-sheet__tool-icon')).not.toBeNull()
@@ -487,14 +488,18 @@ describe('USheet 组件', () => {
     await flushPopup()
 
     const presetButtons = [...document.querySelectorAll('#pop-container .u-sheet__popup-preset')]
-    expect(presetButtons.map((button) => button.textContent?.trim())).toEqual([
-      '全边框',
+    expect(presetButtons.map((button) => (button as HTMLElement).title)).toEqual([
       '外边框',
+      '内边框',
+      '所有边框',
+      '上边框',
       '下边框',
+      '左边框',
+      '右边框',
       '无边框'
     ])
 
-    presetButtons.find((button) => button.textContent?.trim() === '全边框')!.click()
+    presetButtons.find((button) => (button as HTMLElement).title === '所有边框')!.click()
     await nextTick()
     // 选区内每格四边都有边框
     expect(sheet.getCellStyle({ row: 0, col: 0 })?.border?.top).toBeDefined()
@@ -502,7 +507,7 @@ describe('USheet 组件', () => {
     expect(sheet.getCellStyle({ row: 0, col: 1 })?.border?.left).toBeDefined()
 
     // 无边框 → 清除边框
-    presetButtons.find((button) => button.textContent?.trim() === '无边框')!.click()
+    presetButtons.find((button) => (button as HTMLElement).title === '无边框')!.click()
     await nextTick()
     expect(sheet.getCellStyle({ row: 0, col: 0 })?.border).toBeUndefined()
 
@@ -539,22 +544,27 @@ describe('USheet 组件', () => {
     expect(sheet.frozen).toEqual({ rows: 0, cols: 0 })
   })
 
-  it('导入弹层：点击打开（UFilePicker 渲染），点击外部关闭且不产生历史条目', async () => {
+  it('导入：点击直接拉起系统文件选择，不打开弹层、不产生历史条目', async () => {
     const workbook = createWorkbook()
     const sheet = workbook.activeSheet
     const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
     await nextTick()
 
-    toolButton(el, 'import')!.click()
-    await flushPopup()
-    expect(document.querySelector('#pop-container .u-sheet__popup')).not.toBeNull()
-    expect(document.querySelector('#pop-container .u-file-picker')).not.toBeNull()
-
-    // 导入面板不参与事务：关闭不产生历史条目
-    el.querySelector('.u-sheet__grid')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-    await nextTick()
-    expect(document.querySelector('#pop-container .u-sheet__popup')).toBeNull()
-    expect(sheet.history.undoSize).toBe(0)
+    const click = vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(() => {})
+    try {
+      toolButton(el, 'import')!.click()
+      await nextTick()
+      expect(document.querySelector('#pop-container .u-sheet__popup')).toBeNull()
+      const input = document.body.querySelector<HTMLInputElement>('input[type="file"]')
+      expect(input).toBeTruthy()
+      expect(input!.accept).toBe('.xlsx,.csv')
+      expect(input!.hidden).toBe(true)
+      expect(click).toHaveBeenCalled()
+      expect(sheet.history.undoSize).toBe(0)
+    } finally {
+      click.mockRestore()
+      document.body.querySelectorAll('input[type="file"]').forEach((node) => node.remove())
+    }
   })
 
   it('导出弹层：单按钮打开两选项；点击选项触发下载并关闭，不产生历史', async () => {

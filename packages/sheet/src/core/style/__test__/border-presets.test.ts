@@ -29,7 +29,7 @@ function build(rangeText: string, preset: BorderPreset, getStyle = noStyle) {
 }
 
 describe('buildBorderPresetItems：选区内补丁', () => {
-  it('1x1：全边框 = 四边写入；外边框同；下边框仅 bottom；无边框四边 null', () => {
+  it('1x1：全边框 = 四边写入；外边框同；下边框仅 bottom；内边框空；无边框四边 null', () => {
     const all = borderPatchMap(build('B2', 'all'))
     expect(all.get(cellKey({ row: 1, col: 1 }))).toEqual({
       top: EDGE,
@@ -50,6 +50,8 @@ describe('buildBorderPresetItems：选区内补丁', () => {
 
     const bottom = borderPatchMap(build('B2', 'bottom'))
     expect(bottom.get(cellKey({ row: 1, col: 1 }))).toEqual({ bottom: EDGE })
+
+    expect(build('B2', 'inner')).toHaveLength(0)
 
     const none = borderPatchMap(build('B2', 'none'))
     expect(none.get(cellKey({ row: 1, col: 1 }))).toEqual({
@@ -115,6 +117,75 @@ describe('buildBorderPresetItems：选区内补丁', () => {
       expect(map.get(cellKey({ row: 2, col }))).toEqual({ bottom: EDGE })
     }
   })
+
+  it('上边框：仅顶行写 top（多行选区只作用顶行）', () => {
+    const map = borderPatchMap(build('A1:C3', 'top'))
+    expect(map.size).toBe(3)
+    for (let col = 0; col <= 2; col++) {
+      expect(map.get(cellKey({ row: 0, col }))).toEqual({ top: EDGE })
+    }
+  })
+
+  it('左边框：仅左列写 left（多列选区只作用左列）', () => {
+    const map = borderPatchMap(build('A1:C3', 'left'))
+    expect(map.size).toBe(3)
+    for (let row = 0; row <= 2; row++) {
+      expect(map.get(cellKey({ row, col: 0 }))).toEqual({ left: EDGE })
+    }
+  })
+
+  it('右边框：仅右列写 right（多列选区只作用右列）', () => {
+    const map = borderPatchMap(build('A1:C3', 'right'))
+    expect(map.size).toBe(3)
+    for (let row = 0; row <= 2; row++) {
+      expect(map.get(cellKey({ row, col: 2 }))).toEqual({ right: EDGE })
+    }
+  })
+
+  it('内边框：共享边双写一致，不写外缘；单格选区 = 空操作', () => {
+    expect(build('B2', 'inner')).toHaveLength(0)
+
+    const map = borderPatchMap(build('A1:B2', 'inner'))
+    expect(map.size).toBe(4)
+    // 竖向共享边：A1.right ↔ B1.left；横向共享边：A1.bottom ↔ A2.top
+    expect(map.get(cellKey({ row: 0, col: 0 }))).toEqual({ right: EDGE, bottom: EDGE })
+    expect(map.get(cellKey({ row: 0, col: 1 }))).toEqual({ left: EDGE, bottom: EDGE })
+    expect(map.get(cellKey({ row: 1, col: 0 }))).toEqual({ right: EDGE, top: EDGE })
+    expect(map.get(cellKey({ row: 1, col: 1 }))).toEqual({ left: EDGE, top: EDGE })
+    expect(map.get(cellKey({ row: 0, col: 0 }))?.right).toEqual(
+      map.get(cellKey({ row: 0, col: 1 }))?.left
+    )
+  })
+
+  it('3x3 内边框：中心格四边、边格三边、角格两边；无外缘边', () => {
+    const map = borderPatchMap(build('A1:C3', 'inner'))
+    expect(map.size).toBe(9)
+    expect(map.get(cellKey({ row: 1, col: 1 }))).toEqual({
+      top: EDGE,
+      right: EDGE,
+      bottom: EDGE,
+      left: EDGE
+    })
+    expect(map.get(cellKey({ row: 0, col: 1 }))).toEqual({ right: EDGE, bottom: EDGE, left: EDGE })
+    expect(map.get(cellKey({ row: 0, col: 0 }))).toEqual({ right: EDGE, bottom: EDGE })
+    // 外缘边不写
+    expect(map.get(cellKey({ row: 0, col: 0 }))).not.toHaveProperty('top')
+    expect(map.get(cellKey({ row: 0, col: 0 }))).not.toHaveProperty('left')
+  })
+
+  it('单行 / 单列内边框：只产生内部竖边 / 横边', () => {
+    const row = borderPatchMap(build('A1:C1', 'inner'))
+    expect(row.size).toBe(3)
+    expect(row.get(cellKey({ row: 0, col: 0 }))).toEqual({ right: EDGE })
+    expect(row.get(cellKey({ row: 0, col: 1 }))).toEqual({ left: EDGE, right: EDGE })
+    expect(row.get(cellKey({ row: 0, col: 2 }))).toEqual({ left: EDGE })
+
+    const col = borderPatchMap(build('A1:A3', 'inner'))
+    expect(col.size).toBe(3)
+    expect(col.get(cellKey({ row: 0, col: 0 }))).toEqual({ bottom: EDGE })
+    expect(col.get(cellKey({ row: 1, col: 0 }))).toEqual({ top: EDGE, bottom: EDGE })
+    expect(col.get(cellKey({ row: 2, col: 0 }))).toEqual({ top: EDGE })
+  })
 })
 
 describe('buildBorderPresetItems：邻居同步（共享边置空）', () => {
@@ -141,6 +212,10 @@ describe('buildBorderPresetItems：邻居同步（共享边置空）', () => {
     expect(build('B2:C3', 'outer', noStyle)).toHaveLength(4)
     expect(build('B2:C3', 'none', noStyle)).toHaveLength(4)
     expect(build('B2:C3', 'bottom', noStyle)).toHaveLength(2)
+    expect(build('B2:C3', 'top', noStyle)).toHaveLength(2)
+    expect(build('B2:C3', 'left', noStyle)).toHaveLength(2)
+    expect(build('B2:C3', 'right', noStyle)).toHaveLength(2)
+    expect(build('B2:C3', 'inner', noStyle)).toHaveLength(4)
   })
 
   it('下边框：只同步底行下一行邻居的 top', () => {
@@ -150,6 +225,44 @@ describe('buildBorderPresetItems：邻居同步（共享边置空）', () => {
     expect(map.size).toBe(4)
     expect(map.get(cellKey({ row: 3, col: 1 }))).toEqual({ top: null })
     expect(map.get(cellKey({ row: 3, col: 2 }))).toEqual({ top: null })
+  })
+
+  it('上边框：只同步顶行上一行邻居的 bottom', () => {
+    const items = build('B2:C3', 'top', fullStyle)
+    const map = borderPatchMap(items)
+    // 顶行 2 格 + 上一行邻居 2 格
+    expect(map.size).toBe(4)
+    expect(map.get(cellKey({ row: 0, col: 1 }))).toEqual({ bottom: null })
+    expect(map.get(cellKey({ row: 0, col: 2 }))).toEqual({ bottom: null })
+  })
+
+  it('左边框：只同步左列左侧邻居的 right', () => {
+    const items = build('B2:C3', 'left', fullStyle)
+    const map = borderPatchMap(items)
+    // 左列 2 格 + 左侧邻居 2 格
+    expect(map.size).toBe(4)
+    expect(map.get(cellKey({ row: 1, col: 0 }))).toEqual({ right: null })
+    expect(map.get(cellKey({ row: 2, col: 0 }))).toEqual({ right: null })
+  })
+
+  it('右边框：只同步右列右侧邻居的 left', () => {
+    const items = build('B2:C3', 'right', fullStyle)
+    const map = borderPatchMap(items)
+    // 右列 2 格 + 右侧邻居 2 格
+    expect(map.size).toBe(4)
+    expect(map.get(cellKey({ row: 1, col: 3 }))).toEqual({ left: null })
+    expect(map.get(cellKey({ row: 2, col: 3 }))).toEqual({ left: null })
+  })
+
+  it('内边框：不触碰选区外邻居（即使邻居有边）', () => {
+    const items = build('B2:C3', 'inner', fullStyle)
+    const map = borderPatchMap(items)
+    // 仅选区 4 格，无邻居补丁
+    expect(map.size).toBe(4)
+    expect(map.has(cellKey({ row: 0, col: 1 }))).toBe(false)
+    expect(map.has(cellKey({ row: 3, col: 1 }))).toBe(false)
+    expect(map.has(cellKey({ row: 1, col: 0 }))).toBe(false)
+    expect(map.has(cellKey({ row: 1, col: 3 }))).toBe(false)
   })
 
   it('无边框：选区四边 null + 选区外一圈邻居对侧边 null', () => {
@@ -273,5 +386,45 @@ describe('边框预设 × SetCellStyleCommand（Sheet 集成）', () => {
     expect(sheet.getCellStyle({ row: 1, col: 1 })).toBeUndefined()
     // 底行下一行邻居 B4 的 top 被清除
     expect(sheet.getCellStyle({ row: 3, col: 1 })).toBeUndefined()
+  })
+
+  it('上边框：顶行写入 top，上一行邻居 bottom 置空', () => {
+    const sheet = new Sheet()
+    sheet.setCellStyle(parseRange('B1')!, { border: { bottom: { ...EDGE } } })
+    applyPreset(sheet, 'B2:C3', 'top')
+    expect(sheet.getCellStyle({ row: 1, col: 1 })?.border).toEqual({ top: EDGE })
+    expect(sheet.getCellStyle({ row: 1, col: 2 })?.border).toEqual({ top: EDGE })
+    expect(sheet.getCellStyle({ row: 2, col: 1 })).toBeUndefined()
+    expect(sheet.getCellStyle({ row: 0, col: 1 })).toBeUndefined()
+  })
+
+  it('左边框：左列写入 left，左侧邻居 right 置空', () => {
+    const sheet = new Sheet()
+    sheet.setCellStyle(parseRange('A2')!, { border: { right: { ...EDGE } } })
+    applyPreset(sheet, 'B2:C3', 'left')
+    expect(sheet.getCellStyle({ row: 1, col: 1 })?.border).toEqual({ left: EDGE })
+    expect(sheet.getCellStyle({ row: 2, col: 1 })?.border).toEqual({ left: EDGE })
+    expect(sheet.getCellStyle({ row: 1, col: 2 })).toBeUndefined()
+    expect(sheet.getCellStyle({ row: 1, col: 0 })).toBeUndefined()
+  })
+
+  it('右边框：右列写入 right，右侧邻居 left 置空', () => {
+    const sheet = new Sheet()
+    sheet.setCellStyle(parseRange('D2')!, { border: { left: { ...EDGE } } })
+    applyPreset(sheet, 'B2:C3', 'right')
+    expect(sheet.getCellStyle({ row: 1, col: 2 })?.border).toEqual({ right: EDGE })
+    expect(sheet.getCellStyle({ row: 2, col: 2 })?.border).toEqual({ right: EDGE })
+    expect(sheet.getCellStyle({ row: 1, col: 1 })).toBeUndefined()
+    expect(sheet.getCellStyle({ row: 1, col: 3 })).toBeUndefined()
+  })
+
+  it('内边框：只写内部共享边，不触邻居', () => {
+    const sheet = new Sheet()
+    sheet.setCellStyle(parseRange('D2')!, { border: { left: { ...EDGE } } })
+    applyPreset(sheet, 'B2:C3', 'inner')
+    expect(sheet.getCellStyle({ row: 1, col: 1 })?.border).toEqual({ right: EDGE, bottom: EDGE })
+    expect(sheet.getCellStyle({ row: 1, col: 2 })?.border).toEqual({ left: EDGE, bottom: EDGE })
+    // 邻居残留边保留
+    expect(sheet.getCellStyle({ row: 1, col: 3 })?.border?.left).toEqual(EDGE)
   })
 })

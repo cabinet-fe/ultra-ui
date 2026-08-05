@@ -5,6 +5,7 @@ import { createRange, type CellAddress, type CellRange } from '../core/address'
 import type { SheetContext } from '../tools/context'
 import { defaultToolRegistry } from '../tools/registry'
 import InsertCountMenuItem from './insert-count-menu-item.vue'
+import { pickAndInsertImage } from './insert-image'
 
 /** 插入数量钳制范围（对齐 univer） */
 export const INSERT_COUNT_MIN = 1
@@ -164,23 +165,11 @@ export function buildColHeaderMenus(ctx: SheetContext): ContextmenuItem[] {
   ]
 }
 
-/** body 格右键菜单：合并/取消合并 + 内嵌插入行/列 + 删除行/列 */
+/** body 格右键菜单：合并/取消合并 + 插入图片（行列插入/删除仅行号/列头菜单） */
 export function buildBodyMenus(ctx: SheetContext): ContextmenuItem[] {
   const mergeTool = defaultToolRegistry.get('merge')
   const unmergeTool = defaultToolRegistry.get('unmerge')
-  const range = primaryRange(ctx)
   const active = ctx.getSelection().activeCell
-  const rowCount = defaultInsertCount(range, 'row')
-  const colCount = defaultInsertCount(range, 'col')
-  const insertRowAt = active?.row ?? range?.start.row ?? 0
-  const insertColAt = active?.col ?? range?.start.col ?? 0
-  // 删除相对选区首末行/列（与行列头菜单一致；不再依赖已移除的 structure 工具）
-  const startRow = range?.start.row ?? insertRowAt
-  const endRow = range?.end.row ?? startRow
-  const startCol = range?.start.col ?? insertColAt
-  const endCol = range?.end.col ?? startCol
-  const deleteRowCount = endRow - startRow + 1
-  const deleteColCount = endCol - startCol + 1
 
   return [
     {
@@ -193,28 +182,7 @@ export function buildBodyMenus(ctx: SheetContext): ContextmenuItem[] {
       disabled: unmergeTool?.disabled?.(ctx) ?? true,
       callback: () => unmergeTool?.onClick(ctx)
     },
-    {
-      label: '插入行',
-      keepOpen: true,
-      render: insertCountRender({
-        prefix: '插入',
-        suffix: '行',
-        defaultValue: rowCount,
-        onConfirm: (n) => ctx.insertRows(insertRowAt, n)
-      })
-    },
-    {
-      label: '插入列',
-      keepOpen: true,
-      render: insertCountRender({
-        prefix: '插入',
-        suffix: '列',
-        defaultValue: colCount,
-        onConfirm: (n) => ctx.insertCols(insertColAt, n)
-      })
-    },
-    { label: '删除行', callback: () => ctx.deleteRows(startRow, deleteRowCount) },
-    { label: '删除列', callback: () => ctx.deleteCols(startCol, deleteColCount) }
+    { label: '插入图片', disabled: !active, callback: () => pickAndInsertImage(ctx) }
   ]
 }
 

@@ -42,13 +42,48 @@ function mountItem(options?: { defaultValue?: number }) {
 }
 
 describe('InsertCountMenuItem', () => {
-  it('确认按钮提交并经 DI 关闭', async () => {
+  it('无确认按钮', async () => {
+    const { host, unmount } = mountItem()
+    try {
+      await nextTick()
+      expect(host.querySelector('button')?.textContent).not.toBe('确认')
+      expect(
+        Array.from(host.querySelectorAll('button')).some((b) => b.textContent === '确认')
+      ).toBe(false)
+    } finally {
+      unmount()
+    }
+  })
+
+  it('点击菜单项本体按当前值执行并关闭', async () => {
     const { host, onConfirm, onItemClickEnd, unmount } = mountItem({ defaultValue: 3 })
     try {
       await nextTick()
-      host.querySelector<HTMLButtonElement>('button')!.click()
+      host.querySelector<HTMLElement>('.u-sheet__insert-count-menu')!.click()
       expect(onConfirm).toHaveBeenCalledWith(3)
       expect(onItemClickEnd).toHaveBeenCalledOnce()
+    } finally {
+      unmount()
+    }
+  })
+
+  it('点击输入框区域不执行', async () => {
+    const { host, onConfirm, onItemClickEnd, unmount } = mountItem({ defaultValue: 3 })
+    try {
+      await nextTick()
+      host.querySelector<HTMLElement>('.u-sheet__insert-count-input')!.click()
+      expect(onConfirm).not.toHaveBeenCalled()
+      expect(onItemClickEnd).not.toHaveBeenCalled()
+    } finally {
+      unmount()
+    }
+  })
+
+  it('UNumberInput clearable=false（无清除钮）', async () => {
+    const { host, unmount } = mountItem({ defaultValue: 3 })
+    try {
+      await nextTick()
+      expect(host.querySelector('.u-number-input__clear')).toBeNull()
     } finally {
       unmount()
     }

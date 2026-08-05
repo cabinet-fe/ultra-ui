@@ -18,6 +18,7 @@ import {
   type BorderSide,
   type CellStyle
 } from '../core/style/types'
+import { ImageLayer } from './image-layer'
 import {
   GRID_BORDER,
   SHEET_CELL_PADDING,
@@ -68,6 +69,8 @@ const LINE_HEIGHT_RATIO = 1.25
  * - 编辑器：全局单例 + 按发起编辑的 table 反查所属实例（见 EDITOR_NAME / gridByTable），
  *   不随实例注册，消除 VTable 全局编辑器注册表随 grid 创建永久累积的泄露；
  *   多实例同页时 hook 由 EditContext.table 精确定位，不依赖「当前激活」全局槽。
+ * - 浮动图片：ImageLayer DOM 叠层（见 image-layer.ts）；订阅 SCROLL / resize /
+ *   image-change / content-reset / structure-change / frozen-change；LRU 隐藏置脏。
  */
 
 /** 公式感知编辑器：进入编辑时公式格显示原文（同 Excel），其余格显示当前值 */
@@ -332,6 +335,8 @@ export class SheetGrid {
    * （插入后光标移到引用后，isRefSelecting 会变 false，否则会误写模型选区）。
    */
   private selectionIntercepted = false
+  /** 浮动图片 DOM 叠层（随本实例生命周期） */
+  private readonly imageLayer: ImageLayer
 
   constructor(options: SheetGridOptions) {
     this.sheet = options.sheet
@@ -362,6 +367,15 @@ export class SheetGrid {
     this.bindTableEvents()
     this.bindSheetEvents()
     this.bindKeyboard()
+    // 浮动图片叠层：依赖 table + 坐标换算，须在 table 创建后
+    this.imageLayer = new ImageLayer({
+      container: this.container,
+      table: this.table,
+      sheet: this.sheet,
+      toTableCoord: (addr) => this.toTableCoord(this.table, addr),
+      toSheetAddr: (col, row) => this.toSheetAddr(this.table, col, row)
+    })
+    this.disposers.push(() => this.imageLayer.dispose())
     // 构造后按模型冻结值校正一次（构造选项已含偏移，此处覆盖外部在构造前的变更）
     this.applyFrozen()
     // 模型已有选区（如 tab 切换重建）→ 回驱 VTable 高亮
@@ -371,6 +385,11 @@ export class SheetGrid {
   /** 底层 ListTable 实例（调试与测试用） */
   getTable(): ListTable {
     return this.table
+  }
+
+  /** 浮动图片叠层（调试与测试用） */
+  getImageLayer(): ImageLayer {
+    return this.imageLayer
   }
 
   /** 全量刷新（合并结构变化、批量数据变更后调用） */
@@ -397,6 +416,7 @@ export class SheetGrid {
       this.mergeDirty = false
       if (!this.released) this.refresh()
     }
+    this.imageLayer.flush()
   }
 
   /**
@@ -408,6 +428,7 @@ export class SheetGrid {
   syncFromModel(): void {
     if (this.released) return
     this.visible = true
+    this.imageLayer.setVisible(true)
     this.applyFrozen()
     this.pushSelectionToTable(this.sheet.getSelection())
     this.flushPendingBatch(true)
@@ -421,6 +442,7 @@ export class SheetGrid {
   /** 激活/停用（LRU 缓存可见性）：激活时同步隐藏期间挂起的变更；隐藏时停用 */
   setVisible(on: boolean): void {
     this.visible = on
+    this.imageLayer.setVisible(on)
     if (on && !this.released) {
       // 隐藏期间挂起的批量变更（微任务可能已被跳过）→ 立即一次性同步
       this.flushPendingBatch(true)
@@ -738,6 +760,8 @@ export class SheetGrid {
       excelOptions: { fillHandle: true },
       // 禁止浏览器默认右键菜单，改由 CONTEXTMENU_CELL → UContextmenu
       eventOptions: { preventDefaultContextMenu: true },
+      // 关闭 body 格 hover 高亮；行号/列头 hover 保留（不设 disableHeaderHover）
+      hover: { disableHover: true },
       editor: this.editorName,
       editCellTrigger: 'doubleclick',
       // 冻结：模型 rows/cols + 偏移 1（列头行 / 行号列；与 frozenToVTableCounts 一致，

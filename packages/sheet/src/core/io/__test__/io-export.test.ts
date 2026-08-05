@@ -4,7 +4,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { parseRange } from '../../address'
 import { Sheet } from '../../sheet'
 import { Workbook } from '../../workbook'
-import { exportSheetCsv, exportWorkbookXlsx, rangeToHucre, styleToHucre } from '../export'
+import {
+  exportSheetCsv,
+  exportWorkbookXlsx,
+  imageToHucre,
+  rangeToHucre,
+  styleToHucre
+} from '../export'
 
 /**
  * 导出映射测试：模型 → hucre WriteOptions 结构（writeXlsx 参数捕获）。
@@ -25,7 +31,16 @@ beforeEach(() => {
   })
 })
 
-describe('styleToHucre / rangeToHucre（样式与合并映射）', () => {
+/** 1×1 红 PNG（最小合法字节） */
+const PNG_1X1 = new Uint8Array([
+  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52,
+  0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53,
+  0xde, 0x00, 0x00, 0x00, 0x0c, 0x49, 0x44, 0x41, 0x54, 0x08, 0xd7, 0x63, 0xf8, 0xcf, 0xc0, 0x00,
+  0x00, 0x00, 0x03, 0x00, 0x01, 0x00, 0x05, 0xfe, 0xd4, 0xef, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45,
+  0x4e, 0x44, 0xae, 0x42, 0x60, 0x82
+])
+
+describe('styleToHucre / rangeToHucre / imageToHucre（样式与合并与图片映射）', () => {
   it('fill → solid pattern + fgColor（去掉 #）；border → 四边 { style, color }（无宽度字段）', () => {
     expect(
       styleToHucre({
@@ -77,6 +92,29 @@ describe('styleToHucre / rangeToHucre（样式与合并映射）', () => {
         size: 14
       },
       alignment: { horizontal: 'center', vertical: 'center', wrapText: true }
+    })
+  })
+
+  it('imageToHucre 剥离 id，保留 data/type/anchor/尺寸/alt/title', () => {
+    expect(
+      imageToHucre({
+        id: 'img-1',
+        data: PNG_1X1,
+        type: 'png',
+        anchor: { from: { row: 1, col: 2 }, to: { row: 3, col: 4 } },
+        width: 120,
+        height: 80,
+        altText: 'logo',
+        title: 'Brand'
+      })
+    ).toEqual({
+      data: PNG_1X1,
+      type: 'png',
+      anchor: { from: { row: 1, col: 2 }, to: { row: 3, col: 4 } },
+      width: 120,
+      height: 80,
+      altText: 'logo',
+      title: 'Brand'
     })
   })
 })
@@ -142,6 +180,33 @@ describe('exportWorkbookXlsx 映射（hucre 输入结构）', () => {
     expect(options.sheets[1]!.rows![0]).toMatchObject(['x'])
   })
 
+  it('浮动图写入 images（剥离 id）', async () => {
+    const workbook = new Workbook()
+    workbook.activeSheet.insertImage({
+      id: 'keep-me-out',
+      data: PNG_1X1,
+      type: 'png',
+      anchor: { from: { row: 2, col: 1 }, to: { row: 4, col: 3 } },
+      width: 200,
+      height: 100,
+      altText: 'chart',
+      title: 'Q1'
+    })
+    await exportWorkbookXlsx(workbook)
+    const images = lastOptions!.sheets[0]!.images
+    expect(images).toHaveLength(1)
+    expect(images![0]).toEqual({
+      data: PNG_1X1,
+      type: 'png',
+      anchor: { from: { row: 2, col: 1 }, to: { row: 4, col: 3 } },
+      width: 200,
+      height: 100,
+      altText: 'chart',
+      title: 'Q1'
+    })
+    expect(images![0]).not.toHaveProperty('id')
+  })
+
   it('纯样式格（无值）也导出（cells 覆盖仅含 style，值保留 rows 语义）', async () => {
     const workbook = new Workbook()
     const sheet = workbook.activeSheet
@@ -179,5 +244,19 @@ describe('exportSheetCsv', () => {
 
   it('空表导出仅 BOM', () => {
     expect(exportSheetCsv(new Sheet())).toBe('\uFEFF')
+  })
+
+  it('含图片时 CSV 导出忽略图片不报错', () => {
+    const sheet = new Sheet()
+    sheet.setCellValue({ row: 0, col: 0 }, 1)
+    sheet.insertImage({
+      data: PNG_1X1,
+      type: 'png',
+      anchor: { from: { row: 0, col: 0 } },
+      width: 64,
+      height: 64
+    })
+    expect(() => exportSheetCsv(sheet)).not.toThrow()
+    expect(exportSheetCsv(sheet)).toBe('\uFEFF1')
   })
 })

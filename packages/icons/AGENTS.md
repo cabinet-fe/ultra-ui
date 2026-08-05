@@ -6,7 +6,7 @@ SVG 图标 → Vue SFC，支持 tree-shaking。
 
 ```ts
 import { Search, Close } from '@veltra/icons/normal'
-import { Logo } from '@veltra/icons/colorful'
+import { Logo, FontColor } from '@veltra/icons/colorful'
 ```
 
 ## 目录结构

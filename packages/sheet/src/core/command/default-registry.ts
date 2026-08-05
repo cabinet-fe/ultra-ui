@@ -1,3 +1,4 @@
+import { InsertImageCommand, RemoveImageCommand, UpdateImageCommand } from './image'
 import { InsertCellsCommand } from './insert-delete-cells'
 import { MergeCellsBatchCommand, MergeCellsCommand, UnmergeCellsCommand } from './merge-cells'
 import { CommandRegistry } from './registry'
@@ -20,3 +21,6 @@ defaultCommandRegistry.register(MergeCellsCommand)
 defaultCommandRegistry.register(MergeCellsBatchCommand)
 defaultCommandRegistry.register(UnmergeCellsCommand)
 defaultCommandRegistry.register(RestoreSheetCommand)
+defaultCommandRegistry.register(InsertImageCommand)
+defaultCommandRegistry.register(RemoveImageCommand)
+defaultCommandRegistry.register(UpdateImageCommand)

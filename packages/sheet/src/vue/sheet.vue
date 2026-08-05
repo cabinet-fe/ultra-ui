@@ -3,9 +3,10 @@
     <div :class="cls.e('toolbar-wrap')">
       <u-sheet-toolbar v-if="showToolbar" :groups="toolGroups" @tool-click="handleToolClick" />
 
-      <!-- 弹层型工具面板（填充/边框/字体色/字号/查找/导入/导出）：UDropdown（Teleport 到
+      <!-- 弹层型工具面板（填充/边框/字体色/字号/查找/插入图片/导出）：UDropdown（Teleport 到
            #pop-container + floating-ui 定位：锚点跟随触发按钮、自动翻转/边界位移；
-           触发元素滚动/窗口缩放时自动关闭）。面板交互走 SheetContext 命令入口 -->
+           触发元素滚动/窗口缩放时自动关闭）。面板交互走 SheetContext 命令入口。
+           导入无弹层：点击直接系统文件选择（见 handleToolClick → pickAndImportFile） -->
       <u-dropdown
         ref="popupDropdownRef"
         trigger="custom"
@@ -31,14 +32,10 @@
               :context="context"
               @close="closePopup"
             />
-            <u-sheet-import-popup
-              v-else-if="popupTool.popup === 'import'"
-              :workbook="workbook"
-              :active-sheet="activeSheet"
+            <u-sheet-insert-image-popup
+              v-else-if="popupTool.popup === 'insert-image'"
+              :context="context"
               @close="closePopup"
-              @csv-imported="rebuildGrid"
-              @workbook-replaced="syncFromWorkbook"
-              @parsing="parsing = $event"
             />
             <u-sheet-export-popup
               v-else-if="popupTool.popup === 'export'"
@@ -78,18 +75,19 @@
 <script lang="ts" setup>
 import { UDropdown } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
-import { computed, provide, ref, useTemplateRef, watch } from 'vue'
+import { computed, ref, useTemplateRef, watch } from 'vue'
 
+import type { SheetTool } from '../tools/registry'
 import type { SheetEmits, SheetProps, _SheetExposed } from '../types'
 import UFormulaBar from './formula-bar.vue'
-import { SHEET_PARSE_PROGRESS_KEY, SHEET_PARSING_KEY } from './parsing'
+import { pickAndImportFile } from './import-file'
 import USheetBorderPopup from './popups/border-popup.vue'
 import USheetExportPopup from './popups/export-popup.vue'
 import USheetFillColorPopup from './popups/fill-color-popup.vue'
 import USheetFindPopup from './popups/find-popup.vue'
 import USheetFontColorPopup from './popups/font-color-popup.vue'
 import USheetFontSizePopup from './popups/font-size-popup.vue'
-import USheetImportPopup from './popups/import-popup.vue'
+import USheetInsertImagePopup from './popups/insert-image-popup.vue'
 import USheetTabs from './sheet-tabs.vue'
 import USheetToolbar from './sheet-toolbar.vue'
 import { useSheetGrid } from './use-sheet-grid'
@@ -128,20 +126,38 @@ const { workbook, activeIndex, sheetList, activeSheet, context, stateTick, syncF
 
 // ─── 弹层型工具编排（打开 / 关闭 / 面板事务）─────────────────────
 
-const { popupTool, popupAnchor, closePopup, handleToolClick } = useToolPopup(context, rootRef)
-// xlsx 解析中（worker）：grid 容器显示自绘覆盖层（import-popup 经 provide/inject
-// 写入；遮罩 + 动画 + 文字同层展示——动画在上、文字在下）
+const {
+  popupTool,
+  popupAnchor,
+  closePopup,
+  handleToolClick: openOrRunTool
+} = useToolPopup(context, rootRef)
+// xlsx 解析中（worker）：grid 容器显示自绘覆盖层（import-file 写入 parsing /
+// parseProgress；遮罩 + 动画 + 文字同层——动画在上、文字在下）
 const parsing = ref(false)
-provide(SHEET_PARSING_KEY, parsing)
-// 解析进度（worker 分片构建期间 done/total；total=0 表示 readXlsx 同步解析段）
 const parseProgress = ref({ done: 0, total: 0 })
-provide(SHEET_PARSE_PROGRESS_KEY, parseProgress)
-// 覆盖层说明文字：readXlsx 段文案 / 分片构建段计数
 const parseText = computed(() =>
   parseProgress.value.total > 0
     ? `正在解析… ${parseProgress.value.done}/${parseProgress.value.total}`
     : '正在读取文件结构…'
 )
+
+/** 导入无弹层：直接系统文件选择；其余工具走 useToolPopup */
+function handleToolClick(tool: SheetTool, event?: MouseEvent): void {
+  if (tool.id === 'import') {
+    if (tool.disabled?.(context)) return
+    pickAndImportFile({
+      workbook: workbook.value,
+      activeSheet: activeSheet.value,
+      parsing,
+      parseProgress,
+      onCsvImported: () => rebuildGrid(),
+      onWorkbookReplaced: () => syncFromWorkbook()
+    })
+    return
+  }
+  openOrRunTool(tool, event)
+}
 
 // ─── UDropdown 面板：锚点跟随触发按钮（floating-ui 定位）──────────
 

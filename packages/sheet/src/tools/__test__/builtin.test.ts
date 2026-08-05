@@ -19,9 +19,16 @@ function isDisabled(tool: SheetTool, sheet: Sheet): boolean {
 }
 
 describe('内置工具（dogfood 扩展机制）', () => {
-  it('注册布局：history / cell / text / edit / file 五组；structure/freeze 已移除', () => {
+  it('注册布局：history / cell / text / edit / insert / file 六组；structure/freeze 已移除', () => {
     const groups = defaultToolRegistry.getGroups()
-    expect(groups.map((group) => group.name)).toEqual(['history', 'cell', 'text', 'edit', 'file'])
+    expect(groups.map((group) => group.name)).toEqual([
+      'history',
+      'cell',
+      'text',
+      'edit',
+      'insert',
+      'file'
+    ])
     expect(groups[0]!.tools.map((tool) => tool.id)).toEqual(['undo', 'redo'])
     expect(groups[1]!.tools.map((tool) => tool.id)).toEqual([
       'border',
@@ -45,7 +52,8 @@ describe('内置工具（dogfood 扩展机制）', () => {
       'wrap-text'
     ])
     expect(groups[3]!.tools.map((tool) => tool.id)).toEqual(['find'])
-    expect(groups[4]!.tools.map((tool) => tool.id)).toEqual(['import', 'export'])
+    expect(groups[4]!.tools.map((tool) => tool.id)).toEqual(['insert-image'])
+    expect(groups[5]!.tools.map((tool) => tool.id)).toEqual(['import', 'export'])
 
     for (const id of [
       'insert-rows',
@@ -71,13 +79,13 @@ describe('内置工具（dogfood 扩展机制）', () => {
     }
   })
 
-  it('导入导出工具：import / export 为弹层型；导出下载辅助不依赖选区', async () => {
+  it('导入导出工具：import 直接选文件、export 为弹层型；导出下载辅助不依赖选区', async () => {
     const sheet = new Sheet()
     const ctx = createSheetContext(sheet)
     const exportTool = mustGet('export')
     const importTool = mustGet('import')
 
-    expect(importTool.popup).toBe('import')
+    expect(importTool.popup).toBeUndefined()
     expect(exportTool.popup).toBe('export')
     // 无 workbook 的上下文：导出辅助空操作（不抛错）
     expect(() => exportWorkbookFile(ctx)).not.toThrow()
@@ -203,6 +211,17 @@ describe('内置工具（dogfood 扩展机制）', () => {
     expect(find.popup).toBe('find')
     expect(find.group).toBe('edit')
     expect(find.disabled).toBeUndefined()
+  })
+
+  it('插入图片工具：弹层型声明（popup: insert-image），组 insert；无选区禁用', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    const tool = mustGet('insert-image')
+    expect(tool.popup).toBe('insert-image')
+    expect(tool.group).toBe('insert')
+    expect(tool.disabled?.(ctx)).toBe(false)
+    sheet.selection.clear()
+    expect(tool.disabled?.(ctx)).toBe(true)
   })
 
   it('文本工具：toggle 以活动格为基准统一翻转；active 高亮；对齐互斥取反', () => {

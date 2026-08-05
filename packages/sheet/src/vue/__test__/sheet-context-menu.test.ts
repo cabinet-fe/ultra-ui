@@ -146,55 +146,47 @@ describe('build*Menus', () => {
     ])
   })
 
-  it('body 菜单六项且插入项 keepOpen + render', () => {
+  it('body 菜单三项：合并/取消合并/插入图片，不含行列插入删除', () => {
     const sheet = new Sheet()
     const ctx = createSheetContext(sheet)
     sheet.selectCell({ row: 0, col: 0 })
     const menus = buildBodyMenus(ctx)
-    expect(menus).toHaveLength(6)
-    expect(menus.map((m) => m.label)).toEqual([
-      '合并单元格',
-      '取消合并单元格',
-      '插入行',
-      '插入列',
-      '删除行',
-      '删除列'
-    ])
-    const insertRows = menus.find((m) => m.label === '插入行')!
-    const insertCols = menus.find((m) => m.label === '插入列')!
-    expect(insertRows.keepOpen).toBe(true)
-    expect(insertCols.keepOpen).toBe(true)
-    expect(insertRows.render).toBeTruthy()
-    expect(insertCols.render).toBeTruthy()
+    expect(menus).toHaveLength(3)
+    expect(menus.map((m) => m.label)).toEqual(['合并单元格', '取消合并单元格', '插入图片'])
+    const insertImage = menus.find((m) => m.label === '插入图片')!
+    expect(insertImage.disabled).toBeFalsy()
+    expect(insertImage.callback).toBeTruthy()
+    const labels = menus.map((m) => m.label).join()
+    expect(labels).not.toContain('插入行')
+    expect(labels).not.toContain('插入列')
+    expect(labels).not.toContain('删除行')
+    expect(labels).not.toContain('删除列')
   })
 
-  it('body 删除行/列：相对选区直调 ctx，不依赖已移除的 structure 工具', () => {
+  it('body 插入图片：无活动格时禁用', () => {
     const sheet = new Sheet()
     const ctx = createSheetContext(sheet)
-    sheet.setCellValue({ row: 1, col: 0 }, 'r1')
-    sheet.setCellValue({ row: 2, col: 0 }, 'r2')
-    sheet.setCellValue({ row: 3, col: 0 }, 'r3')
-    sheet.setCellValue({ row: 0, col: 1 }, 'c1')
-    sheet.setCellValue({ row: 0, col: 2 }, 'c2')
-    sheet.setCellValue({ row: 0, col: 3 }, 'c3')
-    sheet.selectRange(createRange({ row: 1, col: 1 }, { row: 2, col: 2 }))
+    sheet.selection.clear()
     const menus = buildBodyMenus(ctx)
-    const deleteRows = menus.find((m) => m.label === '删除行')!
-    const deleteCols = menus.find((m) => m.label === '删除列')!
-    expect(deleteRows.disabled).toBeFalsy()
-    expect(deleteCols.disabled).toBeFalsy()
+    expect(menus.find((m) => m.label === '插入图片')?.disabled).toBe(true)
+  })
 
-    deleteRows.callback?.()
-    // 删 row1-2 后 r3 上移到 row1
-    expect(sheet.getDisplayValue({ row: 1, col: 0 })).toBe('r3')
-    expect(sheet.getDisplayValue({ row: 3, col: 0 })).toBeUndefined()
-
-    sheet.undo()
-    deleteCols.callback?.()
-    // 删 col1-2 后 c3 左移到 col1；c1/c2 移除
-    expect(sheet.getDisplayValue({ row: 0, col: 1 })).toBe('c3')
-    expect(sheet.getDisplayValue({ row: 0, col: 2 })).toBeUndefined()
-    expect(sheet.getDisplayValue({ row: 0, col: 3 })).toBeUndefined()
+  it('行号/列头菜单仍含插入删除行列', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    sheet.selectCell({ row: 0, col: 0 })
+    const rowLabels = buildRowHeaderMenus(ctx)
+      .map((m) => m.label)
+      .join()
+    const colLabels = buildColHeaderMenus(ctx)
+      .map((m) => m.label)
+      .join()
+    expect(rowLabels).toContain('在上方插入行')
+    expect(rowLabels).toContain('在下方插入行')
+    expect(rowLabels).toContain('删除行')
+    expect(colLabels).toContain('在左侧插入列')
+    expect(colLabels).toContain('在右侧插入列')
+    expect(colLabels).toContain('删除列')
   })
 
   it('行号菜单：上方插入落在选区首行、下方插入落在末行+1', () => {

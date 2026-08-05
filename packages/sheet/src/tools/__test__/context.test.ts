@@ -179,4 +179,39 @@ describe('SheetContext', () => {
     expect(ctx.undo()).toBe(true)
     expect(sheet.getCellData({ row: 0, col: 0 })).toEqual({ v: 'keep', t: 's' })
   })
+
+  it('图片门面：insertImage / removeImage / updateImage / getImages / onImageChange，经命令可 undo', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    const onImage = vi.fn()
+    const off = ctx.onImageChange(onImage)
+
+    const data = new Uint8Array([1, 2, 3])
+    const id = ctx.insertImage({ data, type: 'png', anchor: { from: { row: 1, col: 2 } } })
+    expect(id).toBeTruthy()
+    expect(ctx.getImages()).toHaveLength(1)
+    expect(ctx.getImages()[0]?.anchor.from).toEqual({ row: 1, col: 2 })
+    expect(onImage).toHaveBeenCalledWith({ id })
+
+    ctx.updateImage(id, { anchor: { from: { row: 3, col: 4 } } })
+    expect(ctx.getImages()[0]?.anchor.from).toEqual({ row: 3, col: 4 })
+    expect(onImage).toHaveBeenCalledWith({ id })
+
+    ctx.removeImage(id)
+    expect(ctx.getImages()).toHaveLength(0)
+    expect(onImage).toHaveBeenCalledWith({ id })
+
+    expect(ctx.undo()).toBe(true)
+    expect(ctx.getImages()).toHaveLength(1)
+    expect(ctx.getImages()[0]?.anchor.from).toEqual({ row: 3, col: 4 })
+
+    expect(ctx.undo()).toBe(true)
+    expect(ctx.getImages()[0]?.anchor.from).toEqual({ row: 1, col: 2 })
+
+    off()
+    onImage.mockClear()
+    ctx.removeImage(id)
+    expect(ctx.getImages()).toHaveLength(0)
+    expect(onImage).not.toHaveBeenCalled()
+  })
 })

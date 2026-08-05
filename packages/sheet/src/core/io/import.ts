@@ -5,6 +5,7 @@ import type {
   CellValue as HucreCellValue,
   FontStyle as HucreFont,
   Sheet as HucreSheet,
+  SheetImage as HucreSheetImage,
   Workbook as HucreWorkbook
 } from 'hucre'
 import { parseCsv } from 'hucre/csv'
@@ -14,6 +15,7 @@ import type { CellData } from '../cell-store'
 import { inferCellType } from '../cell-store'
 import { RestoreSheetCommand } from '../command/restore-sheet'
 import type { SetCellValueItem } from '../command/set-cell-value'
+import type { ImageInput } from '../image'
 import type { Sheet, SheetSnapshot } from '../sheet'
 import {
   BORDER_STYLE_WIDTH,
@@ -41,6 +43,8 @@ import { Workbook } from '../workbook'
  *   hucreStyleToModel）
  * - 合并：MergeRange（0-based 闭区间）→ mergeCells（相交自动包围盒）
  * - 冻结：freezePane → setFrozen；行高：points → 像素（×4/3 取整）
+ * - 图片：source.images → insertImage（剥离后生成模型 id；纳入同事务 = 单 undo 单元）；
+ *   cellImages（WPS 内嵌图）本期跳过
  * - CSV：parseCsv（typeInference 开，前导零保留）→ 从 A1 覆盖写入既有活动表
  */
 
@@ -258,10 +262,27 @@ function hucreMergeToRange(m: {
   return { start: { row: m.startRow, col: m.startCol }, end: { row: m.endRow, col: m.endCol } }
 }
 
+/** hucre 浮动图 → 模型插入入参（无 id，由 insert-image 命令生成） */
+function hucreImageToInput(image: HucreSheetImage): ImageInput {
+  return {
+    data: image.data,
+    type: image.type,
+    anchor: {
+      from: { row: image.anchor.from.row, col: image.anchor.from.col },
+      ...(image.anchor.to ? { to: { row: image.anchor.to.row, col: image.anchor.to.col } } : {})
+    },
+    ...(image.width != null ? { width: image.width } : {}),
+    ...(image.height != null ? { height: image.height } : {}),
+    ...(image.altText != null ? { altText: image.altText } : {}),
+    ...(image.title != null ? { title: image.title } : {})
+  }
+}
+
 /**
  * 把一个 hucre Sheet 写入模型 Sheet：
- * 清空既有内容 + 批量写入（值/公式/样式）→ 合并 → 冻结 → 行高。
+ * 清空既有内容 + 批量写入（值/公式/样式）→ 合并 → 图片 → 冻结 → 行高。
  * 清空与写入同在一个事务 = 单 undo 单元（undo 恢复导入前状态）。
+ * cellImages（WPS 内嵌图）本期跳过。
  */
 function applyHucreSheet(
   target: Sheet,
@@ -269,7 +290,7 @@ function applyHucreSheet(
   themeColors: readonly string[] | undefined,
   styleMemo: StyleMemo
 ): void {
-  // 实际使用范围（有值格 ∪ 合并 ∪ 行高定义）：渲染尺寸据此收敛，避免稠密
+  // 实际使用范围（有值格 ∪ 合并 ∪ 行高定义 ∪ 图片锚点）：渲染尺寸据此收敛，避免稠密
   // 行数组几何（Excel 最大 16384 列 → VTable 构造 16384 列实测 ~15s 卡死）
   let maxUsedRow = 0
   let maxUsedCol = 0
@@ -280,6 +301,8 @@ function applyHucreSheet(
     const clearItems: SetCellValueItem[] = []
     for (const [addr] of target.store.entries()) clearItems.push({ addr, data: undefined })
     if (clearItems.length > 0) target.setCells(clearItems)
+    // 清空既有浮动图（与单元格同事务，undo 一并恢复）
+    for (const image of target.getImages()) target.removeImage(image.id)
 
     // 合并区域内的非锚点格：模型不支持覆盖格数据（锚点语义），跳过不写。
     // 整数 key（行 × 2^20 + 列）替代字符串拼接（主循环每格一次，75 万格量级）
@@ -357,6 +380,17 @@ function applyHucreSheet(
       if (m.endRow > maxUsedRow) maxUsedRow = m.endRow
       if (m.endCol > maxUsedCol) maxUsedCol = m.endCol
     }
+
+    // 浮动图（hucre SheetImage → insertImage；id 由命令生成；cellImages 跳过）
+    for (const src of source.images ?? []) {
+      target.insertImage(hucreImageToInput(src))
+      if (src.anchor.from.row > maxUsedRow) maxUsedRow = src.anchor.from.row
+      if (src.anchor.from.col > maxUsedCol) maxUsedCol = src.anchor.from.col
+      if (src.anchor.to) {
+        if (src.anchor.to.row > maxUsedRow) maxUsedRow = src.anchor.to.row
+        if (src.anchor.to.col > maxUsedCol) maxUsedCol = src.anchor.to.col
+      }
+    }
     target.commit()
   } catch (error) {
     // 失败回滚：还原事务缓冲中的变更并放弃事务（不留半导入状态）
@@ -371,7 +405,7 @@ function applyHucreSheet(
       if (row > maxUsedRow) maxUsedRow = row
     }
   }
-  // 渲染尺寸 = 实际使用范围（有值格 ∪ 合并 ∪ 行高定义），不进 undo。
+  // 渲染尺寸 = 实际使用范围（有值格 ∪ 合并 ∪ 行高定义 ∪ 图片锚点），不进 undo。
   // 不做「稠密行数组几何扩张」：XML 里空格式行/列（如 16384 列宽行）会让
   // VTable 构造超大表格（实测附表33-2 16384 列 × 13328 行重建 ~15s）。
   target.ensureTableSize(Math.max(1, maxUsedRow + 1), Math.max(1, maxUsedCol + 1))
@@ -387,7 +421,7 @@ function uniqueName(name: string, used: Set<string>): string {
 }
 
 /**
- * 从 XLSX 字节导入为新工作簿（多 sheet：值 / 公式 / 合并 / 样式（样式池去重）/ 冻结 / 行高）。
+ * 从 XLSX 字节导入为新工作簿（多 sheet：值 / 公式 / 合并 / 样式（样式池去重）/ 冻结 / 行高 / 浮动图）。
  * 每个 sheet 的数据写入 = 单 undo 单元（在其自身历史栈上）。
  */
 export async function importXlsx(buffer: ArrayBuffer | Uint8Array): Promise<Workbook> {

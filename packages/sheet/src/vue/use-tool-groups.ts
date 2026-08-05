@@ -17,10 +17,10 @@ export interface ToolGroupView {
 }
 
 /**
- * 内置组稳定顺序：history ｜ cell ｜ text ｜ edit ｜ file。
+ * 内置组稳定顺序：history ｜ cell ｜ text ｜ edit ｜ insert ｜ file。
  * 未列出的自定义组按注册先后排在已知组之后。
  */
-const BUILTIN_GROUP_ORDER = ['history', 'cell', 'text', 'edit', 'file'] as const
+const BUILTIN_GROUP_ORDER = ['history', 'cell', 'text', 'edit', 'insert', 'file'] as const
 
 /**
  * 工具栏分组视图模型：工具的 visible/disabled/active 是 (ctx) => boolean 纯函数，

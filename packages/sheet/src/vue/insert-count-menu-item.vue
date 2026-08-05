@@ -1,6 +1,7 @@
 <template>
   <div
     :class="cls.e('insert-count-menu')"
+    @click="confirm"
     @keydown.enter.capture.prevent="confirm"
     @keydown.escape.capture.prevent="close"
   >
@@ -11,10 +12,11 @@
       :min="min"
       :max="max"
       :step="1"
+      :clearable="false"
       :class="cls.e('insert-count-input')"
+      @click.stop
     />
     <span :class="cls.e('insert-count-suffix')">{{ suffix }}</span>
-    <button type="button" :class="cls.e('insert-btn')" @click="confirm">确认</button>
   </div>
 </template>
 
@@ -26,7 +28,8 @@ import { inject, ref } from 'vue'
 defineOptions({ name: 'USheetInsertCountMenuItem' })
 
 /**
- * 右键菜单内嵌数量输入项：文案 + UNumberInput + 确认。
+ * 右键菜单内嵌数量输入项：文案 + UNumberInput。
+ * 点击菜单项本体按当前值执行；输入框区域点击不冒泡。
  * Enter 提交、Esc 关闭；提交/取消均经 ContextmenuRootDIKey 关闭菜单。
  * Enter/Esc 使用 capture：UNumberInput 内部 `@keydown.stop`，冒泡阶段收不到。
  */

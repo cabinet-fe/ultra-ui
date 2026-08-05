@@ -25,9 +25,10 @@
       :key="preset.id"
       type="button"
       :class="cls.e('popup-preset')"
+      :title="preset.title"
       @click="applyBorderPreset(preset.id)"
     >
-      {{ preset.title }}
+      <u-sheet-border-preset-glyph :glyph="preset.glyph" />
     </button>
   </div>
 </template>
@@ -49,11 +50,12 @@ import {
   lineSwatchStyle,
   type BorderPresetId
 } from '../popup-helpers'
+import USheetBorderPresetGlyph from './border-preset-glyph.vue'
 
 defineOptions({ name: 'USheetBorderPopup' })
 
 /**
- * 边框面板（全边框 / 外边框 / 下边框 / 无边框预设 + 线型 / 颜色子选项）。
+ * 边框面板（外边框 / 内边框 / 所有边框 / 单侧边框 / 无边框预设 + 线型 / 颜色）。
  * 预设补丁由 core/style/border-presets 生成（含邻居格共享边同步，对齐
  * Excel「写入时同步、最近设置生效」）；面板打开期间的写入由
  * use-tool-popup 事务包裹为一个 undo 单元。

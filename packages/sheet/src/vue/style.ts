@@ -8,6 +8,6 @@ import '@veltra/desktop/components/tip/style'
 import '@veltra/desktop/components/loading/style' // v-loading（sheet.vue grid 容器）
 import '@veltra/desktop/components/message/style' // message / messageConfirm（弹层、tabs、公式栏）
 import '@veltra/desktop/components/input/style' // UInput（find-popup）
-import '@veltra/desktop/components/file-picker/style' // UFilePicker（import-popup）
+import '@veltra/desktop/components/file-picker/style' // UFilePicker（insert-image-popup）
 import '@veltra/desktop/components/icon/style' // UIcon（sheet-toolbar / sheet-tabs）
 import './style.scss'

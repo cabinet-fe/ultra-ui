@@ -1,3 +1,4 @@
+import { FontColor } from '@veltra/icons/colorful'
 import {
   AlignBottom,
   AlignCenter,
@@ -6,10 +7,10 @@ import {
   Border,
   Download,
   Fill,
-  FontColor,
   FontSize,
   Italic,
   MergeCells,
+  PictureRounded,
   Rollback,
   Rollfront,
   Search,
@@ -66,7 +67,7 @@ function toggleAlign(
 /**
  * 内置工具（dogfood 扩展机制）。
  *
- * 分组：history ｜ cell ｜ text ｜ edit ｜ file。
+ * 分组：history ｜ cell ｜ text ｜ edit ｜ insert ｜ file。
  * 与第三方工具走同一注册通道，可由宿主 unregisterTool 移除或同 id 覆盖。
  * 本模块由包入口引入：经包入口导入即完成注册。
  */
@@ -377,25 +378,39 @@ registerTool({
   onClick: () => {}
 })
 
+// ─── insert（插入图片）─────────────────────────────────────
+
+registerTool({
+  id: 'insert-image',
+  title: '插入图片',
+  icon: PictureRounded,
+  tooltip: '插入浮动图片',
+  group: 'insert',
+  order: 0,
+  popup: 'insert-image',
+  disabled: (ctx) => !ctx.getSelection().activeCell,
+  onClick: () => {}
+})
+
 // ─── file（导入 / 导出）────────────────────────────────────
-// 导出 = 弹层选 xlsx / csv；导入 = 弹层型 UFilePicker。
+// 导出 = 弹层选 xlsx / csv；导入 = 点击直接系统文件选择（vue/import-file.ts，
+// sheet.vue 覆盖 onClick；tools 层不 import vue）。
 // 下载逻辑见 tools/download.ts（core/io 保持纯 TS 无头可测）。
 
 registerTool({
   id: 'import',
   title: '导入',
-  icon: Upload,
+  icon: Download,
   tooltip: '从 .xlsx / .csv 文件导入',
   group: 'file',
   order: 0,
-  popup: 'import',
   onClick: () => {}
 })
 
 registerTool({
   id: 'export',
   title: '导出',
-  icon: Download,
+  icon: Upload,
   tooltip: '导出为 Excel 或 CSV',
   group: 'file',
   order: 1,

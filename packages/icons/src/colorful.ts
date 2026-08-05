@@ -5,6 +5,7 @@
 export { default as Archive } from './vue/colorful/archive.vue'
 export { default as Excel } from './vue/colorful/excel.vue'
 export { default as Fold } from './vue/colorful/fold.vue'
+export { default as FontColor } from './vue/colorful/font-color.vue'
 export { default as Image } from './vue/colorful/image.vue'
 export { default as MiddleGround } from './vue/colorful/middle-ground.vue'
 export { default as Pdf } from './vue/colorful/pdf.vue'

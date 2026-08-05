@@ -68,6 +68,16 @@ export { SelectionModel, type SelectionState } from './core/selection'
 export { Sheet, type FrozenState, type SheetSnapshot, type SheetEvents } from './core/sheet'
 
 export {
+  createImageId,
+  cloneImageAnchor,
+  cloneSheetImage,
+  type SheetImageType,
+  type SheetImageAnchor,
+  type SheetImage,
+  type ImageInput
+} from './core/image'
+
+export {
   BORDER_SIDES,
   BORDER_STYLE_WIDTH,
   BORDER_EDGE_DEFAULTS,
@@ -103,6 +113,8 @@ export {
   type MergePatch,
   type StructureChange,
   type StructurePatch,
+  type SnapshotPatch,
+  type ImagePatch,
   type Patch,
   type Mutation,
   type CommandResult,
@@ -122,6 +134,13 @@ export {
   MergeCellsCommand,
   type UnmergeCellsParams,
   UnmergeCellsCommand,
+  type InsertImageParams,
+  InsertImageCommand,
+  type RemoveImageParams,
+  RemoveImageCommand,
+  type ImageUpdateFields,
+  type UpdateImageParams,
+  UpdateImageCommand,
   defaultCommandRegistry
 } from './core/command'
 

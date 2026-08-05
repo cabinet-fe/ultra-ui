@@ -4,11 +4,13 @@ import type {
   CellValue as HucreCellValue,
   MergeRange as HucreMergeRange,
   RowDef as HucreRowDef,
+  SheetImage as HucreSheetImage,
   WriteSheet as HucreWriteSheet
 } from 'hucre'
 import { writeCsv } from 'hucre/csv'
 import { writeXlsx } from 'hucre/xlsx'
 
+import type { SheetImage } from '../image'
 import type { Sheet } from '../sheet'
 import { BORDER_SIDES, type CellStyle } from '../style/types'
 import type { Workbook } from '../workbook'
@@ -27,8 +29,9 @@ import type { Workbook } from '../workbook'
  *   font.size pt 直存；align.vertical middle ↔ hucre center；wrap ↔ wrapText）
  * - 冻结：Sheet.frozen → freezePane { rows, columns }
  * - 行高：模型像素 → hucre RowDef.height（points，×0.75）
+ * - 图片：模型 SheetImage → hucre SheetImage（剥离 id；data/type/anchor/宽高/alt/title 直写）
  * - CSV：活动表从 A1 到最后一个有值行/列的矩形，公式格导计算缓存值（getDisplayValue），
- *   合并格显示锚点值（同 Excel），带 UTF-8 BOM
+ *   合并格显示锚点值（同 Excel），带 UTF-8 BOM；不支持图片（忽略，不报错）
  */
 
 /** 像素 → Excel points（96dpi / 72pt 精确比 0.75） */
@@ -85,6 +88,23 @@ export function rangeToHucre(range: {
   }
 }
 
+/** 模型浮动图 → hucre SheetImage（剥离模型侧 id） */
+export function imageToHucre(image: SheetImage): HucreSheetImage {
+  const hucre: HucreSheetImage = {
+    data: image.data,
+    type: image.type,
+    anchor: {
+      from: { row: image.anchor.from.row, col: image.anchor.from.col },
+      ...(image.anchor.to ? { to: { row: image.anchor.to.row, col: image.anchor.to.col } } : {})
+    }
+  }
+  if (image.width != null) hucre.width = image.width
+  if (image.height != null) hucre.height = image.height
+  if (image.altText != null) hucre.altText = image.altText
+  if (image.title != null) hucre.title = image.title
+  return hucre
+}
+
 /** 单元格数据 → hucre 写侧 Cell 覆盖项（rows 网格已承载普通值） */
 function cellToHucreCell(
   sheet: Sheet,
@@ -116,7 +136,7 @@ function cellToHucreCell(
 }
 
 /**
- * 导出整个工作簿为 XLSX（多 sheet：值 / 公式 / 合并 / 样式（fill+border）/ 冻结 / 行高）。
+ * 导出整个工作簿为 XLSX（多 sheet：值 / 公式 / 合并 / 样式（fill+border）/ 冻结 / 行高 / 浮动图）。
  * 纯 TS，可无头测试；返回 ZIP 字节。
  */
 export async function exportWorkbookXlsx(workbook: Workbook): Promise<Uint8Array> {
@@ -168,6 +188,8 @@ export async function exportWorkbookXlsx(workbook: Workbook): Promise<Uint8Array
       rowDefs.set(row, { height: pxToPt(height) })
     }
     if (rowDefs.size > 0) sheetOut.rowDefs = rowDefs
+    const images = sheet.getImages()
+    if (images.length > 0) sheetOut.images = images.map(imageToHucre)
     return sheetOut
   })
   return writeXlsx({ sheets, activeSheet: workbook.activeSheetIndex })

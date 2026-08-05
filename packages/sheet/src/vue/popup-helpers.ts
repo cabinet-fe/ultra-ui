@@ -21,11 +21,22 @@ export const BORDER_LINE_TITLES: Record<BorderLineStyle, string> = {
   dotted: '点线'
 }
 
-export const BORDER_PRESETS: ReadonlyArray<{ id: BorderPreset; title: string }> = [
-  { id: 'all', title: '全边框' },
-  { id: 'outer', title: '外边框' },
-  { id: 'bottom', title: '下边框' },
-  { id: 'none', title: '无边框' }
+/** 田字格 glyph 标识（与预设 id 对齐，供 SVG 高亮对应边） */
+export type BorderPresetGlyph = BorderPreset
+
+export const BORDER_PRESETS: ReadonlyArray<{
+  id: BorderPreset
+  title: string
+  glyph: BorderPresetGlyph
+}> = [
+  { id: 'outer', title: '外边框', glyph: 'outer' },
+  { id: 'inner', title: '内边框', glyph: 'inner' },
+  { id: 'all', title: '所有边框', glyph: 'all' },
+  { id: 'top', title: '上边框', glyph: 'top' },
+  { id: 'bottom', title: '下边框', glyph: 'bottom' },
+  { id: 'left', title: '左边框', glyph: 'left' },
+  { id: 'right', title: '右边框', glyph: 'right' },
+  { id: 'none', title: '无边框', glyph: 'none' }
 ]
 
 /** 边框预设 id（= core BorderPreset；预设补丁生成见 core/style/border-presets） */

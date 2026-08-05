@@ -1,12 +1,8 @@
 import type { InjectionKey, Ref } from 'vue'
 
 /**
- * xlsx 解析中状态：import-popup 写入（worker 解析 3~5s 期间 true），
- * sheet.vue 读取并挂 v-loading。
- *
- * 用 provide/inject 而非 emit：选文件后面板关闭（v-if 卸载 import-popup），
- * 卸载组件的 emit 无法送达父组件（实测 parsing 收不到）；inject 拿到的是
- * 父作用域 ref 对象，卸载后修改 ref.value 仍驱动父组件响应式更新。
+ * xlsx 解析中状态（历史 inject key，现由 import-file 直接写 sheet.vue 持有的 ref）。
+ * 保留导出以便测试或扩展仍可 provide/inject。
  */
 export const SHEET_PARSING_KEY: InjectionKey<Ref<boolean>> = Symbol('sheet-parsing')
 

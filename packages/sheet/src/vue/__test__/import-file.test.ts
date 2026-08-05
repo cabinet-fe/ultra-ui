@@ -1,14 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { createApp, h, provide, ref, type App } from 'vue'
+import { ref } from 'vue'
 
 import type { Sheet } from '../../core/sheet'
 import { Workbook } from '../../core/workbook'
-import { SHEET_PARSING_KEY } from '../parsing'
-import USheetImportPopup from '../popups/import-popup.vue'
+import { IMPORT_FILE_ACCEPT, importFromFile, pickAndImportFile } from '../import-file'
 
 const mocks = vi.hoisted(() => {
   const message = vi.fn(() => ({ close: vi.fn(), id: 'loading', onClosed: Promise.resolve() }))
-  // 真实 message 为函数 + 静态快捷方法（success/warn/info/error/default）
   for (const type of ['success', 'warn', 'info', 'error', 'default']) {
     message[type] = vi.fn()
   }
@@ -16,8 +14,6 @@ const mocks = vi.hoisted(() => {
     message,
     messageConfirm: { danger: vi.fn() },
     importCsv: vi.fn(),
-    // worker 不可用（测试环境）降级主线程解析：importXlsx 需返回 Workbook 形态
-    // （toSnapshotArray 读 getSheets / activeSheetIndex 转快照数组）
     importXlsx: vi.fn(() =>
       Promise.resolve({
         getSheets: () => [{ name: 'S1', snapshot: () => EMPTY_SNAPSHOT }],
@@ -38,35 +34,7 @@ const EMPTY_SNAPSHOT = {
   cols: 0
 }
 
-vi.mock('@veltra/desktop', async () => {
-  const { defineComponent, h } = await import('vue')
-  return {
-    message: mocks.message,
-    messageConfirm: mocks.messageConfirm,
-    // 用 render 函数而非 template 字符串：测试环境 runtime-only Vue 不编译
-    // 内联 template（@click 监听不绑定），render 走 vnode props 必然生效
-    UFilePicker: defineComponent({
-      name: 'UFilePickerStub',
-      props: ['accept'],
-      emits: ['pick'],
-      setup(_props, { emit }) {
-        return () =>
-          h(
-            'button',
-            {
-              class: 'picker-stub-btn',
-              onClick: () =>
-                // UFilePicker 的 pick 事件载荷为 File[]（handleImportPick 取 files[0]）
-                emit('pick', [
-                  { name: 'test.xlsx', arrayBuffer: () => Promise.resolve(new ArrayBuffer(8)) }
-                ])
-            },
-            'pick'
-          )
-      }
-    })
-  }
-})
+vi.mock('@veltra/desktop', () => ({ message: mocks.message, messageConfirm: mocks.messageConfirm }))
 
 vi.mock('../../core/io/import', () => ({
   importCsv: mocks.importCsv,
@@ -74,29 +42,36 @@ vi.mock('../../core/io/import', () => ({
   replaceWorkbookWithSnapshots: mocks.replaceWorkbookWithSnapshots
 }))
 
-const apps: App[] = []
-const containers: HTMLElement[] = []
-
-function mountPopup(onWorkbookReplaced?: () => void, parsingRef?: ReturnType<typeof ref<boolean>>) {
+function makeOptions(
+  overrides: {
+    onWorkbookReplaced?: () => void
+    onCsvImported?: () => void
+    parsing?: ReturnType<typeof ref<boolean>>
+  } = {}
+) {
   const workbook = new Workbook()
   const activeSheet = workbook.activeSheet as Sheet
-  const el = document.createElement('div')
-  document.body.appendChild(el)
-  containers.push(el)
-  const app = createApp({
-    setup() {
-      if (parsingRef) provide(SHEET_PARSING_KEY, parsingRef)
-      return () => h(USheetImportPopup, { workbook, activeSheet, onWorkbookReplaced })
-    }
-  })
-  app.mount(el)
-  apps.push(app)
-  return el
+  return {
+    workbook,
+    activeSheet,
+    parsing: overrides.parsing ?? ref(false),
+    parseProgress: ref({ done: 0, total: 0 }),
+    onCsvImported: overrides.onCsvImported,
+    onWorkbookReplaced: overrides.onWorkbookReplaced
+  }
 }
 
-/** 触发文件选择（stub pick）并等异步链（arrayBuffer → importXlsx → danger）完成 */
-async function triggerPickAndAwait(el: HTMLElement): Promise<void> {
-  el.querySelector<HTMLButtonElement>('.picker-stub-btn')!.click()
+/** 触发 xlsx 导入并等异步链（arrayBuffer → importXlsx → danger）完成 */
+async function triggerXlsxAndAwait(
+  options: ReturnType<typeof makeOptions>,
+  name = 'test.xlsx'
+): Promise<void> {
+  const file = {
+    name,
+    arrayBuffer: () => Promise.resolve(new ArrayBuffer(8)),
+    text: () => Promise.resolve('')
+  } as File
+  importFromFile(file, options)
   await Promise.resolve()
   await Promise.resolve()
   await Promise.resolve()
@@ -111,35 +86,30 @@ function getOnClosed(): (action: string) => void {
 }
 
 afterEach(() => {
-  apps.splice(0).forEach((app) => app.unmount())
-  containers.splice(0).forEach((el) => el.remove())
   vi.clearAllMocks()
+  document.body.querySelectorAll('input[type="file"]').forEach((el) => el.remove())
 })
 
-describe('USheetImportPopup 导入确认兜底', () => {
+describe('importFromFile 导入确认兜底', () => {
   it('确认后：loading 提示 → replaceWorkbookWithSnapshots → 成功提示', async () => {
     const replaced = vi.fn()
     const parsingRef = ref(false)
-    const el = mountPopup(replaced, parsingRef)
-    await triggerPickAndAwait(el)
+    const options = makeOptions({ onWorkbookReplaced: replaced, parsing: parsingRef })
+    await triggerXlsxAndAwait(options)
     const onClosed = getOnClosed()
     await onClosed('confirm')
 
-    // 解析期 v-loading 状态：开始 true → 完成（弹确认框前）false
-    // 解析期 v-loading 状态：解析完成（弹确认框前）已复位 false（解析中 true 由浏览器端到端验证）
     expect(parsingRef.value).toBe(false)
     expect(mocks.message).toHaveBeenCalledWith(
       expect.objectContaining({ message: '正在导入…', duration: 0 })
     )
     expect(mocks.replaceWorkbookWithSnapshots).toHaveBeenCalledTimes(1)
-    // 快照数组直接替换（主线程不再 restore 重建临时 Workbook）
     expect(mocks.replaceWorkbookWithSnapshots).toHaveBeenCalledWith(
       expect.anything(),
       [{ name: 'S1', snapshot: EMPTY_SNAPSHOT }],
       0
     )
     expect(replaced).toHaveBeenCalledTimes(1)
-    // 「导入完成」在 2 帧后（等首帧渲染完成）才报：flush 两帧
     await new Promise((resolve) =>
       requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
     )
@@ -148,8 +118,8 @@ describe('USheetImportPopup 导入确认兜底', () => {
 
   it('replaceWorkbookWithSnapshots 抛错：报错提示 + 不误报成功 + 不通知宿主', async () => {
     const replaced = vi.fn()
-    const el = mountPopup(replaced, ref(false))
-    await triggerPickAndAwait(el)
+    const options = makeOptions({ onWorkbookReplaced: replaced, parsing: ref(false) })
+    await triggerXlsxAndAwait(options)
     const loadingClose = vi.fn()
     mocks.message.mockReturnValueOnce({
       close: loadingClose,
@@ -166,20 +136,48 @@ describe('USheetImportPopup 导入确认兜底', () => {
     expect(mocks.replaceWorkbookWithSnapshots).toHaveBeenCalledTimes(1)
     expect(replaced).not.toHaveBeenCalled()
     expect(mocks.message.error).toHaveBeenCalledWith('导入失败：内存不足 boom')
-    // 失败时不出现「导入完成」
     expect(mocks.message.success).not.toHaveBeenCalled()
-    // loading 必然关闭
     expect(loadingClose).toHaveBeenCalledTimes(1)
   })
 
   it('取消（非 confirm）：不触发导入', async () => {
-    const el = mountPopup(undefined, ref(false))
-    await triggerPickAndAwait(el)
+    const options = makeOptions({ parsing: ref(false) })
+    await triggerXlsxAndAwait(options)
     const onClosed = getOnClosed()
     await onClosed('cancel')
     expect(mocks.replaceWorkbookWithSnapshots).not.toHaveBeenCalled()
-    // 解析前的「正在解析文件…」loading 是预期反馈；取消后不应出现导入/成功/失败提示
     expect(mocks.message.success).not.toHaveBeenCalled()
     expect(mocks.message.error).not.toHaveBeenCalled()
+  })
+
+  it('csv：写入活动表并回调 onCsvImported', async () => {
+    const csvImported = vi.fn()
+    const options = makeOptions({ onCsvImported: csvImported })
+    const file = {
+      name: 'data.csv',
+      text: () => Promise.resolve('a,b\n1,2'),
+      arrayBuffer: () => Promise.resolve(new ArrayBuffer(0))
+    } as File
+    importFromFile(file, options)
+    await Promise.resolve()
+    await Promise.resolve()
+    expect(mocks.importCsv).toHaveBeenCalledWith('a,b\n1,2', options.activeSheet)
+    expect(csvImported).toHaveBeenCalledTimes(1)
+    expect(mocks.message.success).toHaveBeenCalledWith(
+      expect.stringContaining('已从 data.csv 导入')
+    )
+  })
+})
+
+describe('pickAndImportFile', () => {
+  it('创建隐藏 file input（同一 accept）并 click', () => {
+    const click = vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(() => {})
+    pickAndImportFile(makeOptions())
+    const input = document.body.querySelector<HTMLInputElement>('input[type="file"]')
+    expect(input).toBeTruthy()
+    expect(input!.accept).toBe(IMPORT_FILE_ACCEPT)
+    expect(input!.hidden).toBe(true)
+    expect(click).toHaveBeenCalled()
+    click.mockRestore()
   })
 })

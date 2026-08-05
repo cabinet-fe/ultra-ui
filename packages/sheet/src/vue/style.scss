@@ -343,12 +343,16 @@
   }
 
   @include m.e(popup-preset) {
-    padding: 3px 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
     border: 1px solid fn.use-var(border, muted-color);
     border-radius: fn.use-var(radius, small);
     background: transparent;
     color: fn.use-var(text-color, main);
-    font-size: fn.use-var(font-size-main, small);
     cursor: pointer;
 
     &:hover {
@@ -358,6 +362,11 @@
     @include m.is(active) {
       border-color: fn.use-var(color, primary);
     }
+  }
+
+  @include m.e(popup-preset-glyph) {
+    display: block;
+    flex-shrink: 0;
   }
 
   /* UScroll 容器：滚动条/滚动由 desktop scroll 组件承担（popup-size-list 不再自滚） */
@@ -410,21 +419,6 @@
   @include m.e(insert-count-input) {
     width: 72px;
     flex-shrink: 0;
-  }
-
-  @include m.e(insert-btn) {
-    padding: 3px 10px;
-    border: 1px solid fn.use-var(border, muted-color);
-    border-radius: fn.use-var(radius, small);
-    background: transparent;
-    color: fn.use-var(text-color, main);
-    font-size: fn.use-var(font-size-main, small);
-    cursor: pointer;
-    flex-shrink: 0;
-
-    &:hover {
-      background-color: fn.use-var(bg-color, hover);
-    }
   }
 
   @include m.e(find-row) {
@@ -522,7 +516,7 @@
     font-size: fn.use-var(font-size-main, small);
   }
 
-  @include m.e(import-picker) {
+  @include m.e(insert-image-picker) {
     min-width: 220px;
     cursor: pointer;
 
@@ -531,7 +525,7 @@
     }
   }
 
-  @include m.e(import-hint) {
+  @include m.e(insert-image-hint) {
     padding: 8px 10px;
     border: 1px dashed fn.use-var(border, muted-color);
     border-radius: fn.use-var(radius, small);
@@ -539,7 +533,7 @@
     font-size: fn.use-var(font-size-main, small);
   }
 
-  @include m.e(import-sub) {
+  @include m.e(insert-image-sub) {
     margin-top: 4px;
     color: fn.use-var(text-color, second);
     font-size: fn.use-var(font-size-assist, small);

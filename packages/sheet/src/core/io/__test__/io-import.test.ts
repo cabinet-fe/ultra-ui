@@ -29,6 +29,15 @@ beforeEach(() => {
   csvMock.parseCsv.mockReset()
 })
 
+/** 1×1 红 PNG（最小合法字节） */
+const PNG_1X1 = new Uint8Array([
+  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52,
+  0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53,
+  0xde, 0x00, 0x00, 0x00, 0x0c, 0x49, 0x44, 0x41, 0x54, 0x08, 0xd7, 0x63, 0xf8, 0xcf, 0xc0, 0x00,
+  0x00, 0x00, 0x03, 0x00, 0x01, 0x00, 0x05, 0xfe, 0xd4, 0xef, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45,
+  0x4e, 0x44, 0xae, 0x42, 0x60, 0x82
+])
+
 /** 构造 hucre 形态的 Workbook（值 / 公式 / 样式 / 合并 / 冻结 / 行高 / 主题色） */
 function hucreWorkbook(): HucreWorkbook {
   return {
@@ -210,6 +219,52 @@ describe('importXlsx 映射（hucre 读取结果 → 模型）', () => {
 
     // Sheet2
     expect(workbook.getSheet('Sheet2')!.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'b' })
+  })
+
+  it('浮动图 images → 模型；cellImages 跳过；纳入同事务 undo', async () => {
+    xlsxMock.readXlsx.mockResolvedValue({
+      sheets: [
+        {
+          name: '图',
+          rows: [['ok']],
+          images: [
+            {
+              data: PNG_1X1,
+              type: 'png',
+              anchor: { from: { row: 1, col: 2 }, to: { row: 5, col: 4 } },
+              width: 160,
+              height: 90,
+              altText: 'chart',
+              title: 'Q1'
+            }
+          ]
+        }
+      ],
+      activeSheet: 0,
+      // WPS 内嵌图在工作簿级；本期跳过（applyHucreSheet 不读）
+      cellImages: [{ id: 'ID_xxx', data: PNG_1X1, type: 'png' }]
+    })
+    const workbook = await importXlsx(new Uint8Array())
+    const sheet = workbook.activeSheet
+    const images = sheet.getImages()
+    expect(images).toHaveLength(1)
+    expect(images[0]!.type).toBe('png')
+    expect(images[0]!.anchor).toEqual({ from: { row: 1, col: 2 }, to: { row: 5, col: 4 } })
+    expect(images[0]!.width).toBe(160)
+    expect(images[0]!.height).toBe(90)
+    expect(images[0]!.altText).toBe('chart')
+    expect(images[0]!.title).toBe('Q1')
+    expect([...images[0]!.data]).toEqual([...PNG_1X1])
+    // 锚点计入渲染尺寸
+    expect(sheet.rows).toBeGreaterThanOrEqual(6)
+    expect(sheet.cols).toBeGreaterThanOrEqual(5)
+
+    expect(sheet.history.undoSize).toBe(1)
+    expect(sheet.undo()).toBe(true)
+    expect(sheet.getImages()).toHaveLength(0)
+    expect(sheet.store.size).toBe(0)
+    expect(sheet.redo()).toBe(true)
+    expect(sheet.getImages()).toHaveLength(1)
   })
 
   it('导入为单 undo 单元；undo 恢复导入前状态（空表）', async () => {

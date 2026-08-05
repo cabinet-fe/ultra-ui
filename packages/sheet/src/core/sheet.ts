@@ -10,6 +10,12 @@ import {
 } from './cell-store'
 import { defaultCommandRegistry } from './command/default-registry'
 import { HistoryManager, type HistoryState } from './command/history'
+import {
+  InsertImageCommand,
+  RemoveImageCommand,
+  UpdateImageCommand,
+  type ImageUpdateFields
+} from './command/image'
 import { InsertCellsCommand } from './command/insert-delete-cells'
 import {
   MergeCellsBatchCommand,
@@ -19,10 +25,18 @@ import {
 import { SetCellFormulaCommand } from './command/set-cell-formula'
 import { SetCellStyleCommand, type SetCellStyleItem } from './command/set-cell-style'
 import { SetCellValueCommand, type SetCellValueItem } from './command/set-cell-value'
-import type { Mutation, Patch, PatchDirection, CellPatch, StructureChange } from './command/types'
+import type {
+  Mutation,
+  Patch,
+  PatchDirection,
+  CellPatch,
+  ImagePatch,
+  StructureChange
+} from './command/types'
 import { TypedEventEmitter } from './events'
 import { DependencyGraph } from './formula/dependency-graph'
 import { shiftFormulaText } from './formula/shift'
+import { cloneSheetImage, imageAnchorsEqual, type ImageInput, type SheetImage } from './image'
 import { MergeManager, type CellInfo } from './merge-manager'
 import { SelectionModel, type SelectionState } from './selection'
 import { StylePool } from './style/style-pool'
@@ -69,6 +83,10 @@ export interface SheetSnapshot {
    * 旧快照缺省 → 无自定义行高（与此前版本行为一致）。
    */
   rowHeights?: [number, number][]
+  /**
+   * 浮动图片（可选，向后兼容）。旧快照缺省 → 无图片。
+   */
+  images?: SheetImage[]
 }
 
 export type SheetEvents = {
@@ -90,6 +108,11 @@ export type SheetEvents = {
    * 状态源 bump 都以此为信号。
    */
   'content-reset': undefined
+  /**
+   * 图片集合变化（插入/删除/结构移除/restoreContent 整表替换）。
+   * 单图变更带 id；整表替换时 id 缺省（视图层全量重排）。
+   */
+  'image-change': { id?: string }
 }
 
 export class Sheet {
@@ -107,6 +130,8 @@ export class Sheet {
    * 供 SheetGrid 在 tab 切换重建时还原；本期不进 undo。
    */
   private readonly rowHeights = new Map<number, number>()
+  /** 浮动图片（id → SheetImage）；写操作经 ImagePatch / 结构变更通道 */
+  private readonly images = new Map<string, SheetImage>()
   /** 冻结状态（模型持有；不进 undo，随快照序列化/还原，grid 重建时还原） */
   private frozenState: FrozenState = { rows: 0, cols: 0 }
   /** 表格尺寸（0 = 未声明，grid 用渲染 props；行列操作后增长，随快照持久化） */
@@ -329,6 +354,34 @@ export class Sheet {
     this.executeCommand(UnmergeCellsCommand.id, { range })
   }
 
+  // ─── 图片 ────────────────────────────────────────────────
+
+  /** 只读图片列表（快照副本，外部修改不影响模型） */
+  getImages(): readonly SheetImage[] {
+    return [...this.images.values()].map(cloneSheetImage)
+  }
+
+  /** 按 id 读取单张图片（副本）；不存在返回 undefined */
+  getImage(id: string): SheetImage | undefined {
+    const image = this.images.get(id)
+    return image ? cloneSheetImage(image) : undefined
+  }
+
+  /** 插入浮动图片（经命令，可撤销）；返回生成的 id */
+  insertImage(input: ImageInput): string {
+    return this.executeCommand<string>(InsertImageCommand.id, { image: input })!
+  }
+
+  /** 删除浮动图片（经命令，可撤销）；不存在则无操作 */
+  removeImage(id: string): void {
+    this.executeCommand(RemoveImageCommand.id, { id })
+  }
+
+  /** 更新浮动图片锚点/尺寸/文案（经命令，可撤销）；不存在或无变更则无操作 */
+  updateImage(id: string, patch: ImageUpdateFields): void {
+    this.executeCommand(UpdateImageCommand.id, { id, patch })
+  }
+
   // ─── 命令与历史 ──────────────────────────────────────────
 
   /** 经默认注册表执行命令；产生的 mutation 与公式重算派生 mutation 一并推入历史 */
@@ -467,6 +520,8 @@ export class Sheet {
       else this.merges.shiftColsDelete(at, count)
     }
 
+    this.shiftImages(change)
+
     this.emitter.emit('structure-change', change)
   }
 
@@ -540,6 +595,132 @@ export class Sheet {
     return patches
   }
 
+  /**
+   * 捕获删除区间内将被移除的图片（from 锚点落在删除区间），供 undo 在反向结构之后还原。
+   * 插入操作返回空数组。语义对齐 hucre：from 在删除区间内 → 移除。
+   * @internal 结构命令 handler 使用
+   */
+  prepareDeletedImagePatches(change: StructureChange): ImagePatch[] {
+    if (!change.kind.startsWith('delete')) return []
+    const { at, count } = change
+    const end = at + count
+    const axis = change.kind === 'delete-rows' ? 'row' : 'col'
+    const patches: ImagePatch[] = []
+    for (const image of this.images.values()) {
+      const coord = axis === 'row' ? image.anchor.from.row : image.anchor.from.col
+      if (coord < at || coord >= end) continue
+      patches.push({
+        kind: 'image',
+        id: image.id,
+        before: cloneSheetImage(image),
+        after: undefined
+      })
+    }
+    return patches
+  }
+
+  /**
+   * 捕获删除后仍存活但锚点发生变化的图片（如 to 落入删除区间被收缩）。
+   * 反向结构 insert 无法从 at-1 还原原始 to，故把 before 写入 undo，在反向结构之后精确恢复。
+   * @internal 结构命令 handler 使用
+   */
+  prepareShiftedImagePatches(change: StructureChange): ImagePatch[] {
+    if (!change.kind.startsWith('delete')) return []
+    const patches: ImagePatch[] = []
+    for (const image of this.images.values()) {
+      const preview = Sheet.previewImageAfterStructure(image, change)
+      if (preview === 'remove') continue
+      if (imageAnchorsEqual(image.anchor, preview.anchor)) continue
+      patches.push({ kind: 'image', id: image.id, before: cloneSheetImage(image), after: preview })
+    }
+    return patches
+  }
+
+  /**
+   * 结构变更引起的图片锚点平移 / 移除（在 merges 平移之后调用）。
+   * - 插入：from/to 坐标 ≥ at → +count（同 hucre）
+   * - 删除：仅 from 落在 [at, end) → 移除；to ∈ [at, end) → 收缩为 at-1
+   *   （若 to < from 或 to < 0 则去掉 to）；其余 ≥ end → -count
+   * 被移除 / 锚点收缩的图由 prepare*ImagePatches 捕获进同一 undo 单元。
+   */
+  private shiftImages(change: StructureChange): void {
+    const removedIds: string[] = []
+
+    for (const image of this.images.values()) {
+      const preview = Sheet.previewImageAfterStructure(image, change)
+      if (preview === 'remove') {
+        removedIds.push(image.id)
+        continue
+      }
+      image.anchor = preview.anchor
+    }
+
+    for (const id of removedIds) {
+      this.images.delete(id)
+      this.emitter.emit('image-change', { id })
+    }
+  }
+
+  /**
+   * 计算结构变更后的图片状态（不修改原对象）。
+   * @returns `'remove'` = from 落在删除区间；否则为锚点已平移/收缩的副本
+   */
+  private static previewImageAfterStructure(
+    image: SheetImage,
+    change: StructureChange
+  ): SheetImage | 'remove' {
+    const axis = change.kind.endsWith('rows') ? 'row' : 'col'
+    const isInsert = change.kind.startsWith('insert')
+    const { at, count } = change
+    const end = at + count
+    const next = cloneSheetImage(image)
+    const fromCoord = axis === 'row' ? next.anchor.from.row : next.anchor.from.col
+
+    if (isInsert) {
+      if (fromCoord >= at) {
+        if (axis === 'row') next.anchor.from.row += count
+        else next.anchor.from.col += count
+      }
+      if (next.anchor.to) {
+        const toCoord = axis === 'row' ? next.anchor.to.row : next.anchor.to.col
+        if (toCoord >= at) {
+          if (axis === 'row') next.anchor.to.row += count
+          else next.anchor.to.col += count
+        }
+      }
+      return next
+    }
+
+    // 删除：仅 from 在区间内 → 移除
+    if (fromCoord >= at && fromCoord < end) return 'remove'
+
+    if (fromCoord >= end) {
+      if (axis === 'row') next.anchor.from.row -= count
+      else next.anchor.from.col -= count
+    }
+
+    if (next.anchor.to) {
+      const toCoord = axis === 'row' ? next.anchor.to.row : next.anchor.to.col
+      if (toCoord >= end) {
+        if (axis === 'row') next.anchor.to.row -= count
+        else next.anchor.to.col -= count
+      } else if (toCoord >= at) {
+        // to 落在删除区间 → 收缩为 at - 1；非法则去掉 to
+        const shrunk = at - 1
+        const fromAfter = axis === 'row' ? next.anchor.from.row : next.anchor.from.col
+        if (shrunk < 0 || shrunk < fromAfter) {
+          delete next.anchor.to
+        } else if (axis === 'row') {
+          next.anchor.to.row = shrunk
+        } else {
+          next.anchor.to.col = shrunk
+        }
+      }
+    }
+
+    return next
+  }
+
   /** 行高稀疏表随行平移（插入 +count / 删除 -count，区间内删除） */
   private shiftRowHeights(at: number, count: number, delta: 1 | -1): void {
     if (delta === 1) {
@@ -580,7 +761,7 @@ export class Sheet {
 
   // ─── 快照 ────────────────────────────────────────────────
 
-  /** 全量快照：单元格 + 样式池 + 合并 + 冻结 + 选区 + 尺寸 + 行高（宿主序列化持久化用） */
+  /** 全量快照：单元格 + 样式池 + 合并 + 冻结 + 选区 + 尺寸 + 行高 + 图片（宿主序列化持久化用） */
   snapshot(): SheetSnapshot {
     const selection = this.selection.getState()
     return {
@@ -592,6 +773,8 @@ export class Sheet {
       cols: this._cols,
       // 仅在设置过自定义行高时写入（空数组不序列化）
       ...(this.rowHeights.size > 0 ? { rowHeights: [...this.rowHeights] } : {}),
+      // 仅在有图片时写入（旧快照无 images 字段 → 向后兼容）
+      ...(this.images.size > 0 ? { images: [...this.images.values()].map(cloneSheetImage) } : {}),
       // 仅在有活动格时写入（空选区不序列化；restore 缺省回落 A1）
       ...(selection.activeCell
         ? { selection: { activeCell: selection.activeCell, ranges: selection.ranges } }
@@ -600,9 +783,9 @@ export class Sheet {
   }
 
   /**
-   * 从快照还原。单元格 / 样式 / 合并 / 选区静默恢复（与 cell-store.restore 先例一致，不发事件）；
+   * 从快照还原。单元格 / 样式 / 合并 / 选区 / 图片静默恢复（与 cell-store.restore 先例一致，不发事件）；
    * 冻结状态变化时发 frozen-change（grid 层据此更新冻结布局）。
-   * 旧快照无 selection → 回落默认 A1；无 rowHeights → 无自定义行高。
+   * 旧快照无 selection → 回落默认 A1；无 rowHeights → 无自定义行高；无 images → 无图片。
    */
   restore(snapshot: SheetSnapshot): void {
     this.store.restore(snapshot.cells)
@@ -614,15 +797,16 @@ export class Sheet {
     this._cols = snapshot.cols ?? 0
     this.rowHeights.clear()
     for (const [row, height] of snapshot.rowHeights ?? []) this.setRowHeight(row, height)
+    this.replaceImages(snapshot.images, false)
     this.restoreSelection(snapshot.selection)
   }
 
   /**
    * 整表内容替换（SnapshotPatch 应用：RestoreSheetCommand 执行 / undo/redo 回放）。
-   * 只替换 cells/styles/merges（含公式依赖图重建）；冻结 / 行高 / 尺寸 / 选区
+   * 只替换 cells/styles/merges/images（含公式依赖图重建）；冻结 / 行高 / 尺寸 / 选区
    * 保持当前——对齐「冻结与行高不进 undo」「选区不进 undo」「渲染尺寸不进 undo」
    * 既有约定（undo 导入后冻结/行高/尺寸保留导入后状态，同现状逐格补丁回放行为）。
-   * 静默（不发 cell-change / merge-change），发 content-reset 供视图层全量刷新。
+   * 静默（不发 cell-change / merge-change），发 content-reset + image-change 供视图层全量刷新。
    * @internal 命令与 undo/redo 回放调用
    */
   restoreContent(snapshot: SheetSnapshot): void {
@@ -630,8 +814,18 @@ export class Sheet {
     this.stylePool.restore(snapshot.styles)
     this.merges.clear()
     for (const range of snapshot.merges) this.merges.addMerge(range)
+    this.replaceImages(snapshot.images, true)
     this.formulaGraph.rebuildSheet(this, snapshot.cells)
     this.emitter.emit('content-reset', undefined)
+  }
+
+  /** 替换图片集合；emitEvent 时发 image-change（无 id = 整表替换） */
+  private replaceImages(images: SheetImage[] | undefined, emitEvent: boolean): void {
+    this.images.clear()
+    for (const image of images ?? []) {
+      this.images.set(image.id, cloneSheetImage(image))
+    }
+    if (emitEvent) this.emitter.emit('image-change', {})
   }
 
   /**
@@ -695,6 +889,16 @@ export class Sheet {
         this.merges.removeMerge(patch.range)
       }
       this.emitter.emit('merge-change', { range: patch.range })
+      return
+    }
+    if (patch.kind === 'image') {
+      const next = direction === 'redo' ? patch.after : patch.before
+      if (next) {
+        this.images.set(next.id, cloneSheetImage(next))
+      } else {
+        this.images.delete(patch.id)
+      }
+      this.emitter.emit('image-change', { id: patch.id })
       return
     }
     if (patch.kind === 'snapshot') {

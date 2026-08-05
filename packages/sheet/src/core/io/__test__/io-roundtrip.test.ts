@@ -8,8 +8,17 @@ import { importCsv, importXlsx } from '../import'
 
 /**
  * round-trip 保真（真实 hucre 读写，非 mock）：
- * 导出 → 再导入 → 值 / 公式 / 合并 / 样式 / 冻结 / 行高抽样断言一致。
+ * 导出 → 再导入 → 值 / 公式 / 合并 / 样式 / 冻结 / 行高 / 浮动图抽样断言一致。
  */
+
+/** 1×1 红 PNG（最小合法字节） */
+const PNG_1X1 = new Uint8Array([
+  0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00, 0x00, 0x00, 0x0d, 0x49, 0x48, 0x44, 0x52,
+  0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x02, 0x00, 0x00, 0x00, 0x90, 0x77, 0x53,
+  0xde, 0x00, 0x00, 0x00, 0x0c, 0x49, 0x44, 0x41, 0x54, 0x08, 0xd7, 0x63, 0xf8, 0xcf, 0xc0, 0x00,
+  0x00, 0x00, 0x03, 0x00, 0x01, 0x00, 0x05, 0xfe, 0xd4, 0xef, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45,
+  0x4e, 0x44, 0xae, 0x42, 0x60, 0x82
+])
 
 /** 构造含公式 / 合并 / 样式 / 冻结 / 行高 / 日期 / 跨表公式的工作簿 */
 function buildWorkbook(): Workbook {
@@ -135,6 +144,35 @@ describe('XLSX round-trip（导出 → 导入）', () => {
     expect(s1.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 42 })
     expect(s1.merges.size).toBe(1)
   })
+
+  it('浮动图：字节 / 类型 / 锚点 / 尺寸 round-trip 一致', async () => {
+    const source = new Workbook()
+    source.activeSheet.setCellValue({ row: 0, col: 0 }, 'with-image')
+    source.activeSheet.insertImage({
+      data: PNG_1X1,
+      type: 'png',
+      anchor: { from: { row: 2, col: 1 }, to: { row: 6, col: 3 } },
+      width: 200,
+      height: 120,
+      altText: 'demo',
+      title: 'Logo'
+    })
+
+    const buffer = await exportWorkbookXlsx(source)
+    const imported = await importXlsx(buffer)
+    const images = imported.activeSheet.getImages()
+    expect(images).toHaveLength(1)
+    const img = images[0]!
+    expect(img.type).toBe('png')
+    expect(img.anchor).toEqual({ from: { row: 2, col: 1 }, to: { row: 6, col: 3 } })
+    expect(img.width).toBe(200)
+    expect(img.height).toBe(120)
+    expect(img.altText).toBe('demo')
+    expect(img.title).toBe('Logo')
+    expect([...img.data]).toEqual([...PNG_1X1])
+    // id 为导入端新生成，不必与导出去重
+    expect(img.id).toBeTruthy()
+  })
 })
 
 describe('CSV round-trip（导出 → 导入）', () => {
@@ -159,5 +197,19 @@ describe('CSV round-trip（导出 → 导入）', () => {
     // CSV 无公式语义：计算值 3 以数字文本回写（typeInference 转数字）
     expect(target.getCellData({ row: 0, col: 2 })).toEqual({ v: 3, t: 'n' })
     expect(target.getCellData({ row: 1, col: 0 })).toEqual({ v: 'anchor', t: 's' })
+  })
+
+  it('含图片时 CSV 导出忽略图片不报错', () => {
+    const sheet = new Sheet()
+    sheet.setCellValue({ row: 0, col: 0 }, 9)
+    sheet.insertImage({
+      data: PNG_1X1,
+      type: 'png',
+      anchor: { from: { row: 0, col: 1 } },
+      width: 32,
+      height: 32
+    })
+    expect(() => exportSheetCsv(sheet)).not.toThrow()
+    expect(exportSheetCsv(sheet)).toBe('\uFEFF9')
   })
 })

@@ -8,8 +8,8 @@ type ElRef = { readonly value: HTMLElement | null | undefined }
 
 /**
  * 面板打开期间的写入是否合并为一个 undo 单元（关闭时提交）：
- * 填充颜色 / 边框 / 字体颜色 / 字号参与事务；查找（每次替换独立 undo）、导入 /
- * 导出（下载侧效应，无模型写入）不参与。
+ * 填充颜色 / 边框 / 字体颜色 / 字号参与事务；查找（每次替换独立 undo）、
+ * 导出（下载侧效应，无模型写入）不参与。导入无弹层，不经此路径。
  */
 function joinsTransaction(tool: SheetTool): boolean {
   return (
@@ -21,12 +21,13 @@ function joinsTransaction(tool: SheetTool): boolean {
 }
 
 /**
- * 弹层型工具编排（填充颜色 / 边框 / 查找 / 导入 / 导出）：
+ * 弹层型工具编排（填充颜色 / 边框 / 查找 / 插入图片 / 导出）：
  * - popupTool：当前打开的弹层工具（null = 未打开）
  * - popupAnchor：触发按钮元素（面板定位参照，见 sheet.vue 的 left 计算）
  * - 打开 / 关闭时的事务包裹（面板期间写入合并为一个 undo 单元，关闭时提交）
  * - 点击面板外关闭（面板内 @click.stop 不冒泡到 window）
  * - Ctrl/Cmd+F 开合查找条（与工具按钮同一 toggle 逻辑）
+ * 导入在 sheet.vue 特殊处理（直接系统文件选择），不经弹层。
  */
 export function useToolPopup(context: SheetContext, rootEl: ElRef) {
   /** 当前打开的弹层工具（null = 未打开） */

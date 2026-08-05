@@ -71,6 +71,8 @@ describe('SheetGrid（happy-dom smoke）', () => {
       expect(options.keyboardOptions?.moveEditCellOnArrowKeys).toBe(false)
       expect(options.defaultRowHeight).toBe(28)
       expect(options.eventOptions?.preventDefaultContextMenu).toBe(true)
+      expect(options.hover?.disableHover).toBe(true)
+      expect(options.hover?.disableHeaderHover).not.toBe(true)
       // theme 为 TableTheme 实例（DEFAULT.extends），读运行时解析值
       const theme = table.theme
       expect(theme.bodyStyle?.bgColor).toBe('#FFF')

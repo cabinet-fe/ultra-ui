@@ -1,10 +1,12 @@
 <template>
   <div class="sheet-demo">
     <div class="sheet-demo__hint">
-      USheet：工具栏图标化（history / cell / text / edit / file）。输入 =
+      USheet：工具栏图标化（history / cell / text / edit / insert / file）。输入 =
       开头即公式；拖选后可合并或右键菜单；
       单元格右下角拖填充柄可复制/数字序列/公式相对引用；行边界可拖行高。快捷键：Ctrl/Cmd+Z 撤销，
       Ctrl/Cmd+Shift+Z 或 Ctrl+Y 重做；编辑中方向键只移光标。行列插入/删除与冻结见行列头右键菜单。
+      预置浮动图见 F2；工具栏「插入图片」或右键可再插；选中图按 Delete 删除。观察区刷新后 snapshot
+      可见 images 字段。
     </div>
     <u-sheet ref="sheetRef" :workbook="workbook" :rows="30" class="sheet-demo__sheet" />
 
@@ -148,13 +150,13 @@
               <span class="sheet-demo__inspector-block-caret">{{
                 inspectorExpanded.meta ? '▾' : '▸'
               }}</span>
-              合并 / 冻结 / 行高 / 历史 / 公式节点
+              合并 / 冻结 / 行高 / 图片 / 历史 / 公式节点
             </h4>
             <div v-if="inspectorExpanded.meta" class="sheet-demo__inspector-code">
               <div class="sheet-demo__inspector-code-bar">
                 <span class="sheet-demo__inspector-code-lang">json</span>
                 <span class="sheet-demo__inspector-code-source"
-                  >merges / frozen / getRowHeights() / history</span
+                  >merges / frozen / getRowHeights() / getImages() / history</span
                 >
                 <button
                   type="button"
@@ -168,7 +170,7 @@
                   type="button"
                   class="sheet-demo__inspector-code-zoom"
                   title="放大展示"
-                  @click="enlarge('meta', '合并 / 冻结 / 行高 / 历史 / 公式节点')"
+                  @click="enlarge('meta', '合并 / 冻结 / 行高 / 图片 / 历史 / 公式节点')"
                 >
                   放大
                 </button>
@@ -335,9 +337,43 @@ sheet1.setCellValue({ row: 2, col: 3 }, 2)
 sheet1.setCellValue({ row: 0, col: 4 }, 'tile')
 sheet1.setCellValue({ row: 1, col: 4 }, 'a')
 sheet1.setCellValue({ row: 2, col: 4 }, 'b')
+// 预置浮动示例图（canvas 生成小 png；锚定 F2，可删除/undo 后需重新插入）
+sheet1.setCellValue({ row: 0, col: 5 }, '示例图→')
+sheet1.insertImage({
+  data: createDemoPngBytes(),
+  type: 'png',
+  anchor: { from: { row: 1, col: 5 } },
+  width: 64,
+  height: 48,
+  altText: 'demo',
+  title: 'playground demo'
+})
 // 预置数据作为初始状态，不进入 undo 历史
 sheet1.history.clear()
 sheet2.history.clear()
+
+/** canvas 导出小尺寸 png 字节，供演示预置（不依赖外部资源） */
+function createDemoPngBytes(): Uint8Array {
+  const canvas = document.createElement('canvas')
+  canvas.width = 64
+  canvas.height = 48
+  const ctx = canvas.getContext('2d')!
+  ctx.fillStyle = '#2563eb'
+  ctx.fillRect(0, 0, 64, 48)
+  ctx.fillStyle = '#93c5fd'
+  ctx.fillRect(4, 4, 56, 40)
+  ctx.fillStyle = '#1e3a8a'
+  ctx.font = 'bold 16px sans-serif'
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText('IMG', 32, 24)
+  const dataUrl = canvas.toDataURL('image/png')
+  const base64 = dataUrl.slice(dataUrl.indexOf(',') + 1)
+  const binary = atob(base64)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i)
+  return bytes
+}
 
 const sheetRef = useTemplateRef<SheetExposed>('sheetRef')
 
@@ -419,6 +455,19 @@ function refreshInspect(): void {
     merges: sheet.merges.getMerges().map(formatRange),
     frozen: sheet.frozen,
     rowHeights: Object.fromEntries(sheet.getRowHeights()),
+    // 浮动图摘要（完整字节见下方 payload 的 SheetSnapshot.images）
+    images: sheet
+      .getImages()
+      .map((image) => ({
+        id: image.id,
+        type: image.type,
+        anchor: image.anchor,
+        width: image.width,
+        height: image.height,
+        dataByteLength: image.data.byteLength,
+        altText: image.altText,
+        title: image.title
+      })),
     history: {
       canUndo: sheet.history.canUndo,
       canRedo: sheet.history.canRedo,

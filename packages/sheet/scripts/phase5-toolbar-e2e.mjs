@@ -136,12 +136,11 @@ async function main() {
   )
   check('加粗 active 态', !!boldActive)
 
-  // fill / border / find / import popups
+  // fill / border / find popups（import 无弹层，直接系统文件选择）
   for (const [id, selector] of [
     ['fill-color', '.u-palette'],
     ['border', '.u-sheet__popup-preset'],
-    ['find', '.u-sheet__find-input'],
-    ['import', '.u-file-picker']
+    ['find', '.u-sheet__find-input']
   ]) {
     await page.click(`[data-tool-id="${id}"]`)
     await page.waitForTimeout(50)
@@ -150,6 +149,24 @@ async function main() {
     await page.click('.u-sheet__grid')
     await page.waitForTimeout(50)
   }
+
+  // import：点击拉起隐藏 file input（无弹层）
+  await page.evaluate(() => {
+    // 阻止真实系统对话框；仅验证 input 被创建并 click
+    HTMLInputElement.prototype.click = function () {
+      window.__importInputAccept = this.accept
+      window.__importInputHidden = this.hidden
+    }
+  })
+  await page.click('[data-tool-id="import"]')
+  await page.waitForTimeout(50)
+  const importPick = await page.evaluate(() => ({
+    accept: window.__importInputAccept,
+    hidden: window.__importInputHidden,
+    popup: !!document.querySelector('#pop-container .u-sheet__popup')
+  }))
+  check('import 直接选文件', importPick.accept === '.xlsx,.csv' && importPick.hidden === true)
+  check('import 无弹层', !importPick.popup)
 
   // merge
   await page.evaluate(() => {
