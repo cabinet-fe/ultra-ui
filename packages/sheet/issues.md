@@ -8,7 +8,8 @@
 
 修复要点（详见各条目内注；验证：`bun run lint` 0 error、全仓 632 测试通过、全量 build 通过）：
 
-- P0-1 编辑器全局注册泄露 → 单例 + `editorTarget` 动态目标（grid 不再持有编辑器注册）；
+- P0-1 编辑器全局注册泄露 → 单例 + hook 按发起编辑的 table 经 `WeakMap<ListTable, SheetGrid>`
+  反查所属 grid（后取代 `editorTarget` 动态目标，修复多实例编辑串台；grid 不再持有编辑器注册）；
 - P0-2 context 过期 workbook → `createSheetContext` 第二参支持解析函数；
 - P0-3 / P0-4 / P0-5 / P0-12 / P0-25 → 微任务批量合并（merge-change 一次 refresh、
   cell-change 阈值内一次重建、隐藏实例只置脏、公式栏按活动格过滤 + autosize 合并、

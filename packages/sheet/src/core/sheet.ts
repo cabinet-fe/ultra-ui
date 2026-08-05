@@ -64,6 +64,11 @@ export interface SheetSnapshot {
    * 有则还原；旧快照缺省 → 回落 A1。不进 undo 历史（与 Excel 不同，有意为之）。
    */
   selection?: { activeCell: CellAddress; ranges: CellRange[] }
+  /**
+   * 自定义行高（可选，向后兼容）：[行号, 像素] 元组。
+   * 旧快照缺省 → 无自定义行高（与此前版本行为一致）。
+   */
+  rowHeights?: [number, number][]
 }
 
 export type SheetEvents = {
@@ -575,7 +580,7 @@ export class Sheet {
 
   // ─── 快照 ────────────────────────────────────────────────
 
-  /** 全量快照：单元格 + 样式池 + 合并 + 冻结 + 选区 + 尺寸（宿主序列化持久化用） */
+  /** 全量快照：单元格 + 样式池 + 合并 + 冻结 + 选区 + 尺寸 + 行高（宿主序列化持久化用） */
   snapshot(): SheetSnapshot {
     const selection = this.selection.getState()
     return {
@@ -585,6 +590,8 @@ export class Sheet {
       frozen: this.frozen,
       rows: this._rows,
       cols: this._cols,
+      // 仅在设置过自定义行高时写入（空数组不序列化）
+      ...(this.rowHeights.size > 0 ? { rowHeights: [...this.rowHeights] } : {}),
       // 仅在有活动格时写入（空选区不序列化；restore 缺省回落 A1）
       ...(selection.activeCell
         ? { selection: { activeCell: selection.activeCell, ranges: selection.ranges } }
@@ -595,7 +602,7 @@ export class Sheet {
   /**
    * 从快照还原。单元格 / 样式 / 合并 / 选区静默恢复（与 cell-store.restore 先例一致，不发事件）；
    * 冻结状态变化时发 frozen-change（grid 层据此更新冻结布局）。
-   * 旧快照无 selection → 回落默认 A1。
+   * 旧快照无 selection → 回落默认 A1；无 rowHeights → 无自定义行高。
    */
   restore(snapshot: SheetSnapshot): void {
     this.store.restore(snapshot.cells)
@@ -605,6 +612,8 @@ export class Sheet {
     this.setFrozen(snapshot.frozen.rows, snapshot.frozen.cols)
     this._rows = snapshot.rows ?? 0
     this._cols = snapshot.cols ?? 0
+    this.rowHeights.clear()
+    for (const [row, height] of snapshot.rowHeights ?? []) this.setRowHeight(row, height)
     this.restoreSelection(snapshot.selection)
   }
 

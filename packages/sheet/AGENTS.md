@@ -44,7 +44,7 @@ src/
 - **空单元格不占存储**：无公式且 `v` 为空即删除；`rowCount`/`colCount` 只是渲染高水位。
 - **合并**：锚点 = 区域左上角，数据只存锚点；`MergeManager` 只管几何，值保留规则在 `Sheet.mergeCells`。
 - **两种读取**：`getCellData` = 原始存储（被覆盖格 → undefined）；`getDisplayValue` = 锚点解析。写入/选中内部先 `resolveAnchor`。
-- **不进 undo**：选区、冻结、行高。选区可随 `SheetSnapshot.selection?` 序列化；冻结随快照；列宽未持久化。
+- **不进 undo**：选区、冻结、行高。选区可随 `SheetSnapshot.selection?` 序列化；冻结随快照；行高随 `SheetSnapshot.rowHeights?`；列宽未持久化。
 - **样式**：`CellData.s: StyleId` → `StylePool` 按内容去重；部分合并见 `CellStylePatch`（fill 覆盖、border 边级、font/align 逐字段；`null` 删字段）。边框预设经 `buildBorderPresetItems`（含邻居对侧边同步）。
 - **公式**：`f` 原文（无 `=`），`v`/`t` 为缓存；重算派生补丁并入同一 undo 单元；undo/redo 纯补丁回放。跨表依赖图在 `Workbook` 级共享。
 
@@ -71,7 +71,9 @@ src/
 - `core/io`：`exportWorkbookXlsx` / `exportSheetCsv` / `importXlsx` / `importCsv` /
   `replaceWorkbook`（内部走快照整表替换）/ `replaceWorkbookWithSnapshots`（worker 链路入口）
 - 大 xlsx 在 Web Worker 解析（`popups/import.worker.ts`）：worker 返回快照数组，主线程
-  **不再 restore 重建临时工作簿**——确认后快照直接替换进目标；worker 须列入 pack entry
+  **不再 restore 重建临时工作簿**——确认后快照直接替换进目标；导出对称地在 Worker 序列化
+  （`tools/export.worker.ts`，`tools/download.ts` 采集快照发起，失败回退主线程）；worker
+  均须列入 pack entry。行高随 `SheetSnapshot.rowHeights?` 跨 worker / 持久化传输
 - 导入迭代 hucre 稠密 `rows` 时先跳过空槽；表格尺寸按有值格收敛，勿用稠密几何撑到
   Excel 极限列数；补漏遍历先解析行号、带外直接跳过
 - **快照整表替换**：`RestoreSheetCommand`（`sheet.restore-sheet`）+ `SnapshotPatch`——
@@ -86,6 +88,10 @@ src/
 - worker 分片构建（`buildWorkbookFromHucre`）按 10% 粒度回报进度；sheet 自绘
   「遮罩+动画+文字」覆盖层（`.u-sheet__loading-mask`，动画上文字下同层），不动 desktop
   Loading 组件
+- hucre 1.0 起 `writeXlsx` 校验 sheet 名（Excel 非法字符 `[ ] : * ? / \`、>31 字符、保留名
+  History、大小写不敏感重名）抛 `InvalidArgumentError`；模型层不限制表名，导出失败由
+  export-popup 提示。流式 API（`streamXlsxRows` / `writeXlsxStream`）不支持样式/合并/公式，
+  与导入导出的保真需求不匹配，不采用
 
 ## 依赖
 
@@ -98,8 +104,11 @@ src/
 - **批量同步**：grid 的 `cell-change` / `merge-change` **不逐补丁同步**——排入微任务合并为
   一次 flush（同步执行块内 N 补丁 = 1 次视图同步；超过 64 格走一次 `setRecords` 全量重建
   替代逐格增量）。LRU 隐藏实例只保留脏标记，激活时一次性同步。
-- **编辑器单例**：`veltra-sheet-input` 全局只注册一次，hook 经 `editorTarget` 动态路由到
-  激活实例（VTable 全局编辑器注册表无单条注销 API，旧实现每实例注册一个会永久累积）。
+- **编辑器单例**：`veltra-sheet-input` 全局只注册一次（VTable 全局编辑器注册表无单条
+  注销 API，旧实现每实例注册一个会永久累积）。hook 由发起编辑的 ListTable
+  （onStart 的 `EditContext.table`；onEnd 无参，用 onStart 捕获的会话 table）经模块级
+  `WeakMap<ListTable, SheetGrid>` 反查所属实例——多实例同页时路由精确，
+  不依赖「当前激活」全局槽。
 - **渲染热路径**：`store.peekCell` / `stylePool.peek` 只读访问器，避免逐格防御性拷贝；
   `entriesInRange` 迭代稀疏键、`rowsForColumn` 按列找行，不做稠密列扫描。
 - **公式重算**：依赖图反向索引按表批量标脏（变更格按行区间合并判定），非逐格全表扫描。

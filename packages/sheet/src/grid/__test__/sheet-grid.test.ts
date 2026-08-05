@@ -730,3 +730,104 @@ describe('SheetGrid（happy-dom smoke）', () => {
     }
   })
 })
+
+describe('多实例编辑路由（编辑器 hook 按发起编辑的 table 反查所属 grid）', () => {
+  function createGridWithEditCallbacks(callbacks: {
+    onEditStart?: (addr: { row: number; col: number }) => void
+    onEditEnd?: (addr: { row: number; col: number }) => void
+  }) {
+    const sheet = new Sheet()
+    const grid = new SheetGrid({
+      container: createContainer(),
+      sheet,
+      rows: 20,
+      cols: 6,
+      ...callbacks
+    })
+    return { sheet, grid, table: grid.getTable() }
+  }
+
+  it('B 后创建时在 A 上编辑：初始文本读 A 的 sheet 数据（公式格显示原文）', () => {
+    const a = createGrid()
+    const b = createGrid()
+    try {
+      const addr = { row: 0, col: 0 }
+      // 同坐标：A 公式格、B 纯值格
+      a.sheet.setCellFormula(addr, '=1+1')
+      b.sheet.setCellValue(addr, 'b-value')
+
+      a.table.startEditCell(1, 1)
+      // 路由正确 → 显示 A 的公式原文；错路由到 B → 显示 A 的缓存值 '2'（公式被覆盖风险）
+      expect(editorInput(a.table)!.value).toBe('=1+1')
+      a.table.completeEditCell()
+
+      // 反向：A 纯值格、B 公式格，A 的编辑器不得显示 B 的公式原文
+      a.sheet.setCellValue(addr, 'a-value')
+      b.sheet.setCellFormula(addr, '=3+4')
+      // 纯值格初始文本取 VTable record 值（模型直读只对公式格生效）→ 先 flush 批量同步
+      a.grid.flushPending()
+      a.table.startEditCell(1, 1)
+      expect(editorInput(a.table)!.value).toBe('a-value')
+      a.table.completeEditCell()
+      // 提交后 A 为字面值、B 的公式不受影响（无跨实例污染）
+      expect(a.sheet.getCellData(addr)).toMatchObject({ v: 'a-value' })
+      expect(b.sheet.getCellData(addr)).toMatchObject({ f: '3+4' })
+    } finally {
+      a.grid.release()
+      b.grid.release()
+    }
+  })
+
+  it('onEditStart/onEditEnd 路由到发起编辑的实例（A），不触达 B', () => {
+    const startsA: Array<{ row: number; col: number }> = []
+    const endsA: Array<{ row: number; col: number }> = []
+    const startsB: Array<{ row: number; col: number }> = []
+    const endsB: Array<{ row: number; col: number }> = []
+    const a = createGridWithEditCallbacks({
+      onEditStart: (addr) => startsA.push(addr),
+      onEditEnd: (addr) => endsA.push(addr)
+    })
+    const b = createGridWithEditCallbacks({
+      onEditStart: (addr) => startsB.push(addr),
+      onEditEnd: (addr) => endsB.push(addr)
+    })
+    try {
+      a.table.startEditCell(1, 1)
+      expect(startsA).toEqual([{ row: 0, col: 0 }])
+      expect(startsB).toEqual([])
+
+      a.table.completeEditCell()
+      expect(endsA).toEqual([{ row: 0, col: 0 }])
+      expect(endsB).toEqual([])
+    } finally {
+      a.grid.release()
+      b.grid.release()
+    }
+  })
+
+  it('B 释放后 A 的编辑 hook 仍正常工作（无 no-op 降级）', () => {
+    const startsA: Array<{ row: number; col: number }> = []
+    const endsA: Array<{ row: number; col: number }> = []
+    const a = createGridWithEditCallbacks({
+      onEditStart: (addr) => startsA.push(addr),
+      onEditEnd: (addr) => endsA.push(addr)
+    })
+    const b = createGrid()
+    // B 后创建随即释放：旧实现会把全局 editorTarget 清为 null
+    b.grid.release()
+    try {
+      const addr = { row: 0, col: 0 }
+      a.sheet.setCellFormula(addr, '=1+1')
+
+      a.table.startEditCell(1, 1)
+      // 公式格仍显示原文（hook 未降级为 no-op）
+      expect(editorInput(a.table)!.value).toBe('=1+1')
+      expect(startsA).toEqual([{ row: 0, col: 0 }])
+
+      a.table.completeEditCell()
+      expect(endsA).toEqual([{ row: 0, col: 0 }])
+    } finally {
+      a.grid.release()
+    }
+  })
+})

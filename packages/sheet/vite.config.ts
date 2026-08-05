@@ -24,12 +24,18 @@ const config = {
   },
 
   pack: {
-    // import.worker.ts：xlsx 解析 worker（import-popup 经 new Worker(new URL()) 引用，
-    // 非 import 可达——unbundle 模式下必须显式列为 entry 才会编译进 dist）
-    entry: ['src/index.ts', 'src/vue/style.ts', 'src/vue/popups/import.worker.ts'],
+    // import.worker.ts / export.worker.ts：xlsx 解析 / 序列化 worker（经
+    // new Worker(new URL()) 引用，非 import 可达——unbundle 模式下必须显式
+    // 列为 entry 才会编译进 dist）
+    entry: [
+      'src/index.ts',
+      'src/vue/style.ts',
+      'src/vue/popups/import.worker.ts',
+      'src/tools/export.worker.ts'
+    ],
     platform: 'browser',
     unbundle: true,
-    sourcemap: true,
+    sourcemap: false,
     clean: true,
     treeshake: {
       moduleSideEffects: [
@@ -43,6 +49,7 @@ const config = {
         '@cat-kit/fe',
         'vue',
         '@veltra/desktop',
+        '@veltra/icons',
         '@veltra/styles',
         '@veltra/utils',
         '@visactor/vtable',

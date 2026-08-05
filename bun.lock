@@ -139,7 +139,7 @@
       "dependencies": {
         "@visactor/vtable": "^1.26.5",
         "@visactor/vtable-editors": "^1.26.5",
-        "hucre": "^0.6.2",
+        "hucre": "^1.0.0",
       },
       "peerDependencies": {
         "@cat-kit/core": ">=1.1.8",
@@ -1087,7 +1087,7 @@
 
     "hookable": ["hookable@6.1.1", "https://mirrors.tencent.com/npm/hookable/-/hookable-6.1.1.tgz", {}, "sha512-U9LYDy1CwhMCnprUfeAZWZGByVbhd54hwepegYTK7Pi5NvqEj63ifz5z+xukznehT7i6NIZRu89Ay1AZmRsLEQ=="],
 
-    "hucre": ["hucre@0.6.2", "https://registry.npmmirror.com/hucre/-/hucre-0.6.2.tgz", { "bin": { "hucre": "./dist/cli.mjs" } }, "sha512-o1PqTiKfx37tFmiiPElwpEfFvlXcXn5CEgDbt1uYk1bVvzDNEIAIKnxrKhfcHLZx6jc5PdofOy8PuwJcIZsqUg=="],
+    "hucre": ["hucre@1.0.0", "https://mirrors.tencent.com/npm/hucre/-/hucre-1.0.0.tgz", { "bin": { "hucre": "./dist/cli.mjs" } }, "sha512-+K5H8z3P8/oAxPpHgvzWbTcsae2X+XoeXk9YqxAvYsuuIoXMK8PMAxmsbeRb3MuHA4fgJlBBCY/G016eQkNokA=="],
 
     "human-id": ["human-id@4.2.0", "https://mirrors.tencent.com/npm/human-id/-/human-id-4.2.0.tgz", { "bin": { "human-id": "dist/cli.js" } }, "sha512-K3GbkIWqyvvlpfhBPlbEvD97TtqBpAYA4kt+cn2lD2x2HuohzZCibcA2nOlnJT6exqvJLggoB5nv2dNf192nEA=="],
 

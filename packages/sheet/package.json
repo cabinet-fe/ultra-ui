@@ -29,7 +29,7 @@
   "dependencies": {
     "@visactor/vtable": "^1.26.5",
     "@visactor/vtable-editors": "^1.26.5",
-    "hucre": "^0.6.2"
+    "hucre": "^1.0.0"
   },
   "peerDependencies": {
     "@cat-kit/core": ">=1.1.8",

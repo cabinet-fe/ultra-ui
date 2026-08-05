@@ -683,7 +683,7 @@ describe('USheet 组件', () => {
     )!
     queryInput.value = 'foo'
     queryInput.dispatchEvent(new Event('input', { bubbles: true }))
-    await nextTick()
+    await flushFind()
     expect(document.querySelector('#pop-container .u-sheet__find-count')!.textContent?.trim()).toBe(
       '1 / 3'
     )
@@ -727,7 +727,7 @@ describe('USheet 组件', () => {
     )!
     queryInput.value = 'foo'
     queryInput.dispatchEvent(new Event('input', { bubbles: true }))
-    await nextTick()
+    await flushFind()
     // 普通格 + 公式格显示值都命中
     expect(document.querySelector('#pop-container .u-sheet__find-count')!.textContent?.trim()).toBe(
       '1 / 2'
@@ -746,6 +746,86 @@ describe('USheet 组件', () => {
     expect(sheet.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'bar' })
     expect(sheet.getCellData({ row: 1, col: 0 })).toMatchObject({ f: 'A1&"!"' })
     expect(sheet.getCellData({ row: 1, col: 0 })?.v).toBe('bar!')
+  })
+
+  it('防抖窗口内全部替换：按输入框当前关键词补扫，不用旧缓存的命中集', async () => {
+    const workbook = createWorkbook()
+    const sheet = workbook.activeSheet
+    sheet.setCellValue({ row: 0, col: 0 }, 'foo')
+    sheet.setCellValue({ row: 0, col: 1 }, 'f')
+    sheet.setCellValue({ row: 1, col: 0 }, 'f')
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
+    await nextTick()
+
+    toolButton(el, 'find')!.click()
+    await flushPopup()
+
+    const queryInput = document.querySelector<HTMLInputElement>(
+      '#pop-container .u-sheet__find-input .u-input__native'
+    )!
+    queryInput.value = 'foo'
+    queryInput.dispatchEvent(new Event('input', { bubbles: true }))
+    await flushFind()
+    expect(document.querySelector('#pop-container .u-sheet__find-count')!.textContent?.trim()).toBe(
+      '1 / 1'
+    )
+
+    // 快速改输 'f'（不等 300ms 防抖触发）→ 立刻全部替换。
+    // 'f' 命中全部 3 格（foo 含 f）；若误用 'foo' 的旧缓存只会改写 A1
+    queryInput.value = 'f'
+    queryInput.dispatchEvent(new Event('input', { bubbles: true }))
+    await nextTick()
+
+    const replaceInputs = [
+      ...document.querySelectorAll('#pop-container .u-sheet__find-input .u-input__native')
+    ]
+    replaceInputs[1]!.value = 'x'
+    replaceInputs[1]!.dispatchEvent(new Event('input', { bubbles: true }))
+    await nextTick()
+    document.querySelectorAll('#pop-container .u-sheet__find-btn')[1]!.click()
+    await nextTick()
+
+    expect(sheet.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'x' })
+    expect(sheet.getCellData({ row: 0, col: 1 })).toMatchObject({ v: 'x' })
+    expect(sheet.getCellData({ row: 1, col: 0 })).toMatchObject({ v: 'x' })
+  })
+
+  it('Ctrl+F：容器外按键不劫持浏览器查找；查找条聚焦时（弹层在 root 外）可 toggle 关闭', async () => {
+    const workbook = createWorkbook()
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
+    await nextTick()
+
+    // 容器外（body）按 Ctrl+F：不弹查找条、不 preventDefault
+    const outside = new KeyboardEvent('keydown', {
+      key: 'f',
+      ctrlKey: true,
+      bubbles: true,
+      cancelable: true
+    })
+    document.body.dispatchEvent(outside)
+    await flushPopup()
+    expect(outside.defaultPrevented).toBe(false)
+    expect(document.querySelector('#pop-container .u-sheet__popup')).toBeNull()
+
+    // 打开查找条，焦点进入弹层输入框（Teleport 到 #pop-container，不在实例 root 内）
+    toolButton(el, 'find')!.click()
+    await flushPopup()
+    const input = document.querySelector<HTMLInputElement>(
+      '#pop-container .u-sheet__find-input .u-input__native'
+    )!
+    input.focus()
+
+    // 弹层内再按 Ctrl+F：toggle 关闭查找条，且拦截浏览器原生查找
+    const toggle = new KeyboardEvent('keydown', {
+      key: 'f',
+      ctrlKey: true,
+      bubbles: true,
+      cancelable: true
+    })
+    input.dispatchEvent(toggle)
+    await nextTick()
+    expect(toggle.defaultPrevented).toBe(true)
+    expect(document.querySelector('#pop-container .u-sheet__popup')).toBeNull()
   })
 })
 

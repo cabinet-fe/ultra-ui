@@ -8,3 +8,14 @@ declare module '*.scss' {}
 
 // 跨包样式副作用子路径（veltra-dev → src/* 无扩展名，TS 不做扩展探测）
 declare module '@veltra/desktop/components/*/style' {}
+
+// 供 lint typeCheck 识别 import.meta.env（worker 的 dev/prod URL 分支），无需安装 vite
+interface ImportMetaEnv {
+  readonly DEV: boolean
+  readonly PROD: boolean
+  readonly MODE: string
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv
+}

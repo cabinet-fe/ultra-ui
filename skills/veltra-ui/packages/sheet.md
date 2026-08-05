@@ -48,9 +48,9 @@ import '@veltra/sheet/vue/style'
   函数注册表可经 `registerFormulaFunction` 扩展；`listFormulaFunctions()` 枚举名称与可选
   `meta`（`params` / 中文 `description`）供补全 UI（无 meta 时仅显示名称）。
 - 新建 / `addSheet` 默认选中 A1（名称框、画布高亮、fx 输入栏联动）。
-- 快照：`sheet.snapshot()` 返回 `{ cells, styles, merges, frozen, rows, cols, selection? }`
+- 快照：`sheet.snapshot()` 返回 `{ cells, styles, merges, frozen, rows, cols, selection?, rowHeights? }`
   （宿主 JSON 序列化持久化）；`sheet.restore(snap)` 整体还原（冻结变化发 `frozen-change`；
-  选区静默还原、旧快照无 `selection` 回落 A1）。选区不进 undo 历史。
+  选区静默还原、旧快照无 `selection` 回落 A1、无 `rowHeights` 则无自定义行高）。选区不进 undo 历史。
 - 导入 xlsx 无法恢复文件中的选中格（hucre 不解析 OOXML `<selection>`）→ 默认 A1；
   导出写入 `activeTab`（活动表）。
 

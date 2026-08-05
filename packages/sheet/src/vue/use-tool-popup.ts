@@ -113,7 +113,12 @@ export function useToolPopup(context: SheetContext, rootEl: ElRef) {
       const active = document.activeElement instanceof Node ? document.activeElement : null
       const inside =
         (target !== null && root.contains(target)) || (active !== null && root.contains(active))
-      if (!inside) return
+      // 例外：弹层 Teleport 到 body 级 #pop-container（不在 root 内），本实例弹层
+      // 打开期间焦点在弹层输入框里（如查找条内再按 Ctrl+F）——同样视为本实例的
+      // 按键，否则查找条无法 toggle 关闭，且放行浏览器原生查找盖在上面。
+      // （弹层打开期间点击容器外任意处会先经 onWindowClick 关闭弹层，故
+      // popupTool 非空时焦点必然属于本实例，多实例不会互相抢占）
+      if (!inside && popupTool.value === null) return
     }
     event.preventDefault()
     const findTool = defaultToolRegistry.get('find')

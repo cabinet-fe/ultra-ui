@@ -147,9 +147,8 @@ export function useSheetGrid(options: UseSheetGridOptions) {
     for (const item of cache.values()) {
       const on = item === target
       item.el.style.visibility = on ? 'visible' : 'hidden'
-      // 隐藏实例停用视图同步（只置脏），激活实例立即接管编辑器目标（#1/#12）
+      // 隐藏实例停用视图同步（只置脏），激活实例立即同步挂起变更（#12）
       item.grid.setVisible(on)
-      if (on) item.grid.attachEditor()
     }
   }
 

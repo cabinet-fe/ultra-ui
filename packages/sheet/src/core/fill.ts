@@ -222,8 +222,8 @@ export function shiftFormulaRefs(formula: string, deltaRow: number, deltaCol: nu
       i++
       continue
     }
-    // 引用形态后紧跟 '(' → 函数名（如 LOG10(），不平移（fill 语义比 shift 更严格，
-    // 原手写 matchOneCell 即有此保护）
+    // 引用形态后紧跟 '(' → 函数名（如 LOG10(），不平移（shift.ts 的
+    // shiftFormulaText 有同一保护；源自原手写 matchOneCell）
     const after = tokens[j + 1]
     if (after?.type === 'op' && after.op === '(') {
       if (sheetPrefix !== null && j > i) {

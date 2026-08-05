@@ -49,9 +49,19 @@ export function useFindReplace(options: UseFindReplaceOptions) {
     }
   }
 
+  /** 上次全扫时的关键词 / 选项快照（识别防抖窗口内的脏缓存，见 ensureFreshMatches） */
+  let scannedQuery = ''
+  let scannedOptions = ''
+
+  function optionsSnapshot(): string {
+    return `${caseSensitive.value}|${wholeCell.value}|${searchIn.value}`
+  }
+
   /** 关键词或选项变化：重新查找并定位第一个命中（否则保持当前位置附近） */
   function refreshFind(initial: boolean): void {
     const matches = findAll(getSheet(), findQuery.value, findOptions())
+    scannedQuery = findQuery.value
+    scannedOptions = optionsSnapshot()
     findMatches.value = matches
     if (matches.length === 0) {
       findCursor.value = -1
@@ -65,6 +75,17 @@ export function useFindReplace(options: UseFindReplaceOptions) {
     }
   }
 
+  /**
+   * 防抖窗口内（关键词已输入、尚未触发全扫）Enter 导航 / 替换仍持有旧关键词的
+   * 命中缓存——先同步补扫一次，保证导航与替换作用于当前输入框里的关键词
+   * （否则「全部替换」会把旧关键词的命中集批量改写，与屏幕上看到的查找词不符）
+   */
+  function ensureFreshMatches(): void {
+    if (findQuery.value !== scannedQuery || optionsSnapshot() !== scannedOptions) {
+      refreshFind(false)
+    }
+  }
+
   /** 定位到 findMatches 中与目标地址相同的命中（找不到则保持） */
   function locateMatch(match: FindMatch): void {
     const index = findMatches.value.findIndex(
@@ -75,6 +96,7 @@ export function useFindReplace(options: UseFindReplaceOptions) {
   }
 
   function findForward(): void {
+    ensureFreshMatches()
     const matches = findMatches.value
     if (matches.length === 0) return
     const active = context.getSelection().activeCell
@@ -85,6 +107,7 @@ export function useFindReplace(options: UseFindReplaceOptions) {
   }
 
   function findPrevious(): void {
+    ensureFreshMatches()
     const matches = findMatches.value
     if (matches.length === 0) return
     const active = context.getSelection().activeCell
@@ -119,6 +142,7 @@ export function useFindReplace(options: UseFindReplaceOptions) {
 
   /** 替换当前命中格（一次 setCells = 一个 undo 单元）；替换后重新查找 */
   function replaceCurrent(): void {
+    ensureFreshMatches()
     const match = findMatches.value[findCursor.value]
     if (!match || !isReplaceable(match)) return
     context.setCells([{ addr: match.addr, data: replaceData() }])
@@ -127,6 +151,7 @@ export function useFindReplace(options: UseFindReplaceOptions) {
 
   /** 全部替换（一次 setCells 批量 = 单 undo 单元，undo 一次全部还原）；公式格自动跳过 */
   function replaceAll(): void {
+    ensureFreshMatches()
     const matches = findMatches.value.filter(isReplaceable)
     if (matches.length === 0) return
     context.setCells(matches.map((match) => ({ addr: match.addr, data: replaceData() })))
@@ -134,9 +159,17 @@ export function useFindReplace(options: UseFindReplaceOptions) {
   }
 
   // 关键词 / 选项变化 → 重新查找（定位第一个命中）。
-  // 每击键全扫 440ms 级：连续击键时防抖合并（300ms 停键才扫，#28），
-  // 避免每键一次全表扫描把 UI 卡死
-  const refreshFindDebounced = debounce(() => refreshFind(true), 300)
+  // 每击键全扫 440ms 级：连续击键时防抖合并（300ms 停键才扫，immediate=false 即
+  // 首键不抢扫，#28），避免每键一次全表扫描把 UI 卡死；若停键前已 Enter / 替换
+  // （ensureFreshMatches 同步补扫），快照已新鲜则跳过多余的补扫
+  const refreshFindDebounced = debounce(
+    () => {
+      if (findQuery.value === scannedQuery && optionsSnapshot() === scannedOptions) return
+      refreshFind(true)
+    },
+    300,
+    false
+  )
   watch([findQuery, caseSensitive, wholeCell, searchIn], refreshFindDebounced)
 
   return {

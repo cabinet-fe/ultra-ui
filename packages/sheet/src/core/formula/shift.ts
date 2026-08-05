@@ -214,6 +214,18 @@ export function shiftFormulaText(
     }
 
     const startParts = parseRefParts(refTok!.name)!
+    // 引用形态后紧跟 '(' → 函数名（如 LOG10(），不平移（与 fill.ts 同一保护）
+    const after = tokens[j + 1]
+    if (after?.type === 'op' && after.op === '(') {
+      if (sheetPrefix !== null && j > i) {
+        out.push(sheetPrefix, '!')
+        i = j
+        continue
+      }
+      out.push(tokenText(tok))
+      i++
+      continue
+    }
     // 区域终点
     let endParts: RefParts | null = null
     let k = j + 1

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 import { parseRange } from '../address'
-import { Sheet } from '../sheet'
+import { Sheet, type SheetSnapshot } from '../sheet'
 import { Workbook } from '../workbook'
 
 const B2 = { row: 1, col: 1 }
@@ -140,5 +140,37 @@ describe('Workbook', () => {
 
     wb.activateSheet('Data')
     expect(handler).toHaveBeenCalledWith({ sheet: wb.getSheet('Data'), index: 1 })
+  })
+})
+
+describe('Sheet 快照行高', () => {
+  it('snapshot/restore 保留自定义行高（worker 导入/导出与宿主持久化经快照传输）', () => {
+    const sheet = new Sheet()
+    sheet.setRowHeight(2, 40)
+    sheet.setRowHeight(5, 24)
+
+    // 经 JSON 序列化模拟结构化克隆 / 持久化边界
+    const restored = new Sheet()
+    restored.restore(JSON.parse(JSON.stringify(sheet.snapshot())) as SheetSnapshot)
+    expect([...restored.getRowHeights()]).toEqual([
+      [2, 40],
+      [5, 24]
+    ])
+  })
+
+  it('旧快照无 rowHeights 字段 → 还原为空（向后兼容）', () => {
+    const sheet = new Sheet()
+    sheet.setRowHeight(1, 30)
+    const legacy = sheet.snapshot() as SheetSnapshot
+    delete legacy.rowHeights
+
+    const restored = new Sheet()
+    restored.restore(legacy)
+    expect(restored.getRowHeights().size).toBe(0)
+  })
+
+  it('未设置行高时快照不携带 rowHeights 字段', () => {
+    const sheet = new Sheet()
+    expect(sheet.snapshot().rowHeights).toBeUndefined()
   })
 })
