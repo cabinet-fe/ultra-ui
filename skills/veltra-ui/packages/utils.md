@@ -138,6 +138,15 @@ new ExpandTransition({ transition: 'height 0.25s ease', opacity: true })
 new Tween({ from, to, duration, easing, onUpdate }) // 简易补间
 ```
 
+## 溢出滚动导航（tabs / toolbar 共享）
+
+```ts
+computeOverflowNavState(vp) // { overflowing, canPrev, canNext } — 滚动按钮状态
+scrollViewportByStep(vp, dir) // 箭头按视口宽度 80% 平滑步进
+scrollElementIntoView(vp, el, offset = 8) // 活动项滚入视野
+applyWheelHorizontalScroll(e, vp, navActive) // 纵向滚轮转横滚（触控板横滑不拦截）
+```
+
 ## 相关
 
 - `styles/index.md` — SCSS BEM mixins（与 `bem()` 对应的 SCSS 端实现）、主题运行时

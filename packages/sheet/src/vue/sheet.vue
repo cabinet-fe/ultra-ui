@@ -1,5 +1,5 @@
 <template>
-  <div :class="cls.b">
+  <div ref="rootRef" :class="cls.b">
     <div :class="cls.e('toolbar-wrap')">
       <u-sheet-toolbar v-if="showToolbar" :groups="toolGroups" @tool-click="handleToolClick" />
 
@@ -111,6 +111,9 @@ const emit = defineEmits<SheetEmits>()
 
 const cls = bem('sheet')
 
+/** 根容器 ref：Ctrl/Cmd+F 判定焦点是否在本实例内（#6，避免劫持浏览器查找） */
+const rootRef = useTemplateRef<HTMLElement>('rootRef')
+
 // ─── 状态源（workbook / sheet 列表 / 活动 sheet / 工具上下文）────────
 // hooks 引用的 closePopup / rebuildGrid 由下方组合提供：箭头函数在事件触发时才
 // 求值（彼时已完成全部 setup），组合声明顺序不构成循环依赖。
@@ -125,7 +128,7 @@ const { workbook, activeIndex, sheetList, activeSheet, context, stateTick, syncF
 
 // ─── 弹层型工具编排（打开 / 关闭 / 面板事务）─────────────────────
 
-const { popupTool, popupAnchor, closePopup, handleToolClick } = useToolPopup(context)
+const { popupTool, popupAnchor, closePopup, handleToolClick } = useToolPopup(context, rootRef)
 // xlsx 解析中（worker）：grid 容器显示自绘覆盖层（import-popup 经 provide/inject
 // 写入；遮罩 + 动画 + 文字同层展示——动画在上、文字在下）
 const parsing = ref(false)

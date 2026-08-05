@@ -187,13 +187,6 @@ export class Workbook {
     return this.emitter.on(type, handler)
   }
 
-  off<K extends keyof WorkbookEvents>(
-    type: K,
-    handler: (payload: WorkbookEvents[K]) => void
-  ): void {
-    this.emitter.off(type, handler)
-  }
-
   private nextDefaultName(): string {
     let n = this.sheets.length + 1
     while (this.getSheet(`Sheet${n}`)) n++

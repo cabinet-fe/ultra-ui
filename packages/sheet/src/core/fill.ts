@@ -1,7 +1,9 @@
 import type { CellAddress, CellRange } from './address'
-import { colIndexToName, colNameToIndex, createRange, iterateRange } from './address'
+import { createRange, iterateRange } from './address'
 import type { CellData, CellType } from './cell-store'
 import type { SetCellValueItem } from './command/set-cell-value'
+import { formatRef, parseRefParts, tokenText, type RefParts } from './formula/shift'
+import { FormulaParseError, tokenizeFormula, type FormulaToken } from './formula/tokenizer'
 
 /** 填充柄拖拽方向（与 VTable drag_fill_handle_end 一致） */
 export type FillDirection = 'top' | 'bottom' | 'left' | 'right'
@@ -174,141 +176,98 @@ function positiveMod(n: number, mod: number): number {
 }
 
 /**
- * 公式引用字符串级位移：尊重 `$` 绝对行列；出界 → `#REF!`。
- * 跳过双引号字符串字面量，避免改写文本中的 A1 片段。
+ * 公式引用按 delta 平移（填充柄复制语义）：尊重 `$` 绝对行列；出界 → `#REF!`。
+ *
+ * 与 `formula/shift.ts` 的 `shiftFormulaText`（行列插入/删除的区间平移）共享同一套
+ * token 级引用识别（tokenizeFormula + parseRefParts + formatRef，#18）：
+ * 字符串字面量、数字精度、函数名等 token 原样保留，只平移引用 token。
+ * 差异仅在于位移方式：本函数按 deltaRow/deltaCol 直接加减（填充复制），
+ * shiftFormulaText 按插入/删除区间重映射。
  */
 export function shiftFormulaRefs(formula: string, deltaRow: number, deltaCol: number): string {
   if (deltaRow === 0 && deltaCol === 0) return formula
 
-  let result = ''
+  let tokens: FormulaToken[]
+  try {
+    tokens = tokenizeFormula(formula)
+  } catch (error) {
+    if (error instanceof FormulaParseError) return formula
+    throw error
+  }
+
+  const out: string[] = []
   let i = 0
-  while (i < formula.length) {
-    const ch = formula[i]!
-    if (ch === '"') {
-      const end = skipExcelString(formula, i)
-      result += formula.slice(i, end)
-      i = end
-      continue
+  while (i < tokens.length) {
+    const tok = tokens[i]!
+    // 跨表前缀：ident / quoted-name + '!'
+    let sheetPrefix: string | null = null
+    let j = i
+    if (tok.type === 'ident' || tok.type === 'quoted-name') {
+      const bang = tokens[j + 1]
+      if (bang?.type === 'op' && bang.op === '!') {
+        sheetPrefix = tok.name
+        j += 2
+      }
     }
-
-    const sheetMatch = matchSheetPrefix(formula, i)
-    const addrStart = sheetMatch ? sheetMatch.end : i
-    const addrMatch = matchCellOrRange(formula, addrStart)
-    if (addrMatch && (sheetMatch || isRefBoundary(formula, i - 1))) {
-      const sheetPrefix = sheetMatch ? formula.slice(sheetMatch.start, sheetMatch.end) : ''
-      // 有 sheet 前缀时，前缀前也需是边界
-      if (sheetMatch && !isRefBoundary(formula, sheetMatch.start - 1)) {
-        result += ch
-        i++
+    const refTok = tokens[j]
+    const startParts = refTok?.type === 'ident' ? parseRefParts(refTok.name) : null
+    if (!startParts) {
+      // 原样输出（含前缀 token；无引用时前缀是函数名/表名的一部分）
+      if (sheetPrefix !== null && j > i) {
+        out.push(sheetPrefix, '!')
+        i = j
         continue
       }
-      const shifted = shiftAddrPart(addrMatch.text, deltaRow, deltaCol)
-      result += sheetPrefix + shifted
-      i = addrMatch.end
-      continue
-    }
-
-    result += ch
-    i++
-  }
-  return result
-}
-
-function skipExcelString(text: string, start: number): number {
-  // start 指向开引号；Excel 字符串内 "" 为转义
-  let i = start + 1
-  while (i < text.length) {
-    if (text[i] === '"') {
-      if (text[i + 1] === '"') {
-        i += 2
-        continue
-      }
-      return i + 1
-    }
-    i++
-  }
-  return text.length
-}
-
-function matchSheetPrefix(text: string, start: number): { start: number; end: number } | null {
-  if (text[start] === "'") {
-    let i = start + 1
-    while (i < text.length) {
-      if (text[i] === "'") {
-        if (text[i + 1] === "'") {
-          i += 2
-          continue
-        }
-        if (text[i + 1] === '!') {
-          return { start, end: i + 2 }
-        }
-        return null
-      }
+      out.push(tokenText(tok))
       i++
+      continue
     }
-    return null
+    // 引用形态后紧跟 '(' → 函数名（如 LOG10(），不平移（fill 语义比 shift 更严格，
+    // 原手写 matchOneCell 即有此保护）
+    const after = tokens[j + 1]
+    if (after?.type === 'op' && after.op === '(') {
+      if (sheetPrefix !== null && j > i) {
+        out.push(sheetPrefix, '!')
+        i = j
+        continue
+      }
+      out.push(tokenText(tok))
+      i++
+      continue
+    }
+    // 区域终点
+    let endParts: RefParts | null = null
+    let k = j + 1
+    const colon = tokens[k]
+    const endTok = tokens[k + 1]
+    if (colon?.type === 'op' && colon.op === ':' && endTok?.type === 'ident') {
+      const parsed = parseRefParts(endTok.name)
+      if (parsed) {
+        endParts = parsed
+        k += 2
+      }
+    }
+    const startAddr = shiftRefByDelta(startParts, deltaRow, deltaCol)
+    const endAddr = endParts ? shiftRefByDelta(endParts, deltaRow, deltaCol) : null
+    if (sheetPrefix !== null) out.push(sheetPrefix, '!')
+    // 任一端出界 → 整个引用 #REF!（与原实现 shiftAddrPart 语义一致）
+    if (startAddr === null || (endParts !== null && endAddr === null)) {
+      out.push('#REF!')
+    } else {
+      out.push(formatRef(startParts, startAddr))
+      if (endParts !== null && endAddr !== null) {
+        out.push(':', formatRef(endParts, endAddr))
+      }
+    }
+    i = k
   }
-
-  // 简单表名：字母/下划线开头
-  if (!/[A-Za-z_]/.test(text[start] ?? '')) return null
-  let i = start + 1
-  while (i < text.length && /[\w.]/.test(text[i]!)) i++
-  if (text[i] === '!') return { start, end: i + 1 }
-  return null
+  return out.join('')
 }
 
-const CELL_REF_RE = /^(\$?)([A-Za-z]+)(\$?)([1-9]\d*)/
-
-function matchCellOrRange(text: string, start: number): { text: string; end: number } | null {
-  const first = matchOneCell(text, start)
-  if (!first) return null
-  if (text[first.end] === ':') {
-    const second = matchOneCell(text, first.end + 1)
-    if (!second) return { text: first.text, end: first.end }
-    return { text: text.slice(start, second.end), end: second.end }
-  }
-  return first
-}
-
-function matchOneCell(text: string, start: number): { text: string; end: number } | null {
-  const slice = text.slice(start)
-  const m = CELL_REF_RE.exec(slice)
-  if (!m) return null
-  const end = start + m[0].length
-  const next = text[end]
-  // 行号后紧跟字母 → 不是 A1；紧跟 `(` → 函数名（如 LOG10(）
-  if (next && (/[A-Za-z]/.test(next) || next === '(')) return null
-  return { text: m[0], end }
-}
-
-function isRefBoundary(text: string, index: number): boolean {
-  if (index < 0) return true
-  const ch = text[index]!
-  // 引用前不能是字母/数字（避免 FOOA1）；`!` 已由 sheet 前缀消费
-  return !/[A-Za-z0-9_$]/.test(ch)
-}
-
-function shiftAddrPart(part: string, deltaRow: number, deltaCol: number): string {
-  if (part.includes(':')) {
-    const [a, b] = part.split(':')
-    const left = shiftOneRef(a!, deltaRow, deltaCol)
-    const right = shiftOneRef(b!, deltaRow, deltaCol)
-    if (left === '#REF!' || right === '#REF!') return '#REF!'
-    return `${left}:${right}`
-  }
-  return shiftOneRef(part, deltaRow, deltaCol)
-}
-
-function shiftOneRef(ref: string, deltaRow: number, deltaCol: number): string {
-  const m = CELL_REF_RE.exec(ref)
-  if (!m) return ref
-  const colAbs = m[1] === '$'
-  const rowAbs = m[3] === '$'
-  let col = colNameToIndex(m[2]!)
-  let row = Number.parseInt(m[4]!, 10) - 1
-  if (col < 0 || row < 0) return '#REF!'
-  if (!colAbs) col += deltaCol
-  if (!rowAbs) row += deltaRow
-  if (col < 0 || row < 0) return '#REF!'
-  return `${colAbs ? '$' : ''}${colIndexToName(col)}${rowAbs ? '$' : ''}${row + 1}`
+/** 引用按 delta 平移（非绝对轴）；出界（负坐标）返回 null */
+function shiftRefByDelta(parts: RefParts, deltaRow: number, deltaCol: number): CellAddress | null {
+  const col = parts.colAbs ? parts.addr.col : parts.addr.col + deltaCol
+  const row = parts.rowAbs ? parts.addr.row : parts.addr.row + deltaRow
+  if (col < 0 || row < 0) return null
+  return { row, col }
 }

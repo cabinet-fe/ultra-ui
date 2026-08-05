@@ -185,7 +185,18 @@ function refreshFx(): void {
   fxDraft.value = active ? cellText(active) : ''
   fxCursor.value = fxDraft.value.length
   closeSuggest()
-  void nextTick(autosizeFx)
+  scheduleAutosize()
+}
+
+/** 每帧合并一次的 autosizeFx（批量 cell-change 同帧 N 次 nextTick → 1 次强制布局） */
+let autosizePending = false
+function scheduleAutosize(): void {
+  if (autosizePending) return
+  autosizePending = true
+  nextTick(() => {
+    autosizePending = false
+    autosizeFx()
+  })
 }
 
 function autosizeFx(): void {
@@ -379,6 +390,10 @@ function handleCellChange({ addr }: { addr: CellAddress }): void {
     }
     return
   }
+  // 公式栏只显示活动格：非活动格变更（批量写入的绝大多数补丁）直接忽略，
+  // 避免每个 cell-change 都 refreshFx + nextTick(autosizeFx) 强制同步布局（#5）
+  const active = selection.value.activeCell
+  if (!active || addr.row !== active.row || addr.col !== active.col) return
   refreshFx()
 }
 

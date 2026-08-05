@@ -305,9 +305,12 @@ function applyHucreSheet(
       for (let c = 0; c < row.length; c++) {
         const value = row[c]
         if (value == null) continue
+        if (value == null) continue
         if (covered.has(r * COVERED_STRIDE + c)) continue
         const data = hucreCellToData(cells.get(`${r},${c}`), value, target, themeColors, styleMemo)
-        if (data === undefined && value == null) continue
+        // 主循环已保证 value 非空；data 为 undefined 只可能是「有值但样式转换后为空」或
+        // 纯样式格之外的无值格——一律跳过，不再产生无效删除补丁（#16）
+        if (data === undefined) continue
         items.push({ addr: { row: r, col: c }, data })
         if (r > maxUsedRow) maxUsedRow = r
         if (c > maxUsedCol) maxUsedCol = c

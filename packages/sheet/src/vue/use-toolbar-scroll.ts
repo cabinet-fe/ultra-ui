@@ -1,3 +1,8 @@
+import {
+  applyWheelHorizontalScroll,
+  computeOverflowNavState,
+  scrollViewportByStep
+} from '@veltra/utils'
 import { onBeforeUnmount, onMounted, shallowRef, watch, type Ref } from 'vue'
 
 /** 模板 ref（useTemplateRef / shallowRef 均可） */
@@ -13,7 +18,8 @@ interface UseToolbarScrollOptions {
 }
 
 /**
- * 工具栏溢出滚动（对齐 use-sheet-tabs-bar 的交互模式，无活动项跟随）：
+ * 工具栏溢出滚动（滚动几何/滚轮转横滚共享 @veltra/utils overflow-nav，见 #17；
+ * 无活动项跟随）：
  * - 内容超出视口宽度时显示左右箭头（showNav / canPrev / canNext）
  * - 箭头按视口宽度 ~80% 步进
  * - 纵向滚轮转横滚；触控板横滑不拦截
@@ -31,28 +37,23 @@ export function useToolbarScroll(options: UseToolbarScrollOptions) {
   const updateNavState = () => {
     const vp = viewportRef.value
     if (!vp) return
-    const { scrollLeft, scrollWidth, clientWidth } = vp
-    const overflowing = scrollWidth - clientWidth > 1
-    showNav.value = overflowing
-    canPrev.value = overflowing && scrollLeft > 0
-    canNext.value = overflowing && scrollLeft + clientWidth < scrollWidth - 1
+    const state = computeOverflowNavState(vp)
+    showNav.value = state.overflowing
+    canPrev.value = state.canPrev
+    canNext.value = state.canNext
   }
 
   const scrollByStep = (dir: 1 | -1) => {
     const vp = viewportRef.value
     if (!vp) return
-    vp.scrollTo({ left: vp.scrollLeft + dir * vp.clientWidth * 0.8, behavior: 'smooth' })
+    scrollViewportByStep(vp, dir)
   }
 
   /** 鼠标滚轮（纵向）驱动水平滚动；触控板横滑（已有 deltaX）不拦截 */
   const handleWheel = (e: WheelEvent) => {
-    if (!showNav.value) return
     const vp = viewportRef.value
     if (!vp) return
-    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return
-    if (e.deltaY === 0) return
-    e.preventDefault()
-    vp.scrollLeft += e.deltaY
+    applyWheelHorizontalScroll(e, vp, showNav.value)
   }
 
   // 工具显隐 / 分组变化后宽度改变 → 刷新导航状态（等 DOM 更新完成再测）
@@ -90,5 +91,5 @@ export function useToolbarScroll(options: UseToolbarScrollOptions) {
     resizeObserver = undefined
   })
 
-  return { showNav, canPrev, canNext, updateNavState, scrollByStep }
+  return { showNav, canPrev, canNext, scrollByStep }
 }

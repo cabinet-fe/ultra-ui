@@ -35,6 +35,8 @@ describe('SheetGrid 公式集成（happy-dom）', () => {
     try {
       sheet.setCellValue({ row: 0, col: 0 }, 21)
       sheet.setCellFormula({ row: 0, col: 1 }, '=A1*2')
+      // 批量同步走微任务合并：测试断言前同步 flush
+      grid.flushPending()
       // 模型 (0,1) → 表格 (2,1)
       expect(table.getCellValue(2, 1)).toBe(42)
     } finally {
@@ -62,6 +64,7 @@ describe('SheetGrid 公式集成（happy-dom）', () => {
       sheet.setCellValue({ row: 0, col: 0 }, 1)
       sheet.setCellFormula({ row: 0, col: 1 }, '=A1*2')
       sheet.setCellFormula({ row: 0, col: 2 }, '=B1+1')
+      grid.flushPending()
       expect(table.getCellValue(2, 1)).toBe(2)
       expect(table.getCellValue(3, 1)).toBe(3)
 
@@ -69,6 +72,7 @@ describe('SheetGrid 公式集成（happy-dom）', () => {
       // （编辑提交回写的是输入文本，setCellValue 规范化为 number）
       table.changeCellValue(1, 1, '10', false, true)
       expect(sheet.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 10, t: 'n' })
+      grid.flushPending()
       expect(table.getCellValue(1, 1)).toBe(10)
       expect(table.getCellValue(2, 1)).toBe(20)
       expect(table.getCellValue(3, 1)).toBe(21)
@@ -103,6 +107,7 @@ describe('SheetGrid 公式集成（happy-dom）', () => {
     const { sheet, grid, table } = createGrid()
     try {
       sheet.setCellValue({ row: 0, col: 0 }, 'plain')
+      grid.flushPending()
       table.startEditCell(1, 1)
       expect(editorInput(table)!.value).toBe('plain')
       table.completeEditCell()
@@ -115,6 +120,7 @@ describe('SheetGrid 公式集成（happy-dom）', () => {
     const { sheet, grid, table } = createGrid()
     try {
       sheet.setCellFormula({ row: 0, col: 0 }, '=1/0')
+      grid.flushPending()
       expect(table.getCellValue(1, 1)).toBe('#DIV/0!')
     } finally {
       grid.release()
@@ -126,12 +132,15 @@ describe('SheetGrid 公式集成（happy-dom）', () => {
     try {
       sheet.setCellValue({ row: 0, col: 0 }, 21)
       sheet.setCellFormula({ row: 0, col: 1 }, '=A1*2')
+      grid.flushPending()
       expect(table.getCellValue(2, 1)).toBe(42)
 
       sheet.undo()
+      grid.flushPending()
       expect(table.getCellValue(2, 1)).toBeUndefined()
 
       sheet.redo()
+      grid.flushPending()
       expect(table.getCellValue(2, 1)).toBe(42)
     } finally {
       grid.release()

@@ -75,7 +75,7 @@ export function normalizeStyle(style: CellStyle): CellStyle | undefined {
 }
 
 /** 样式副本（深拷贝一层：fill / 各边 / font / align 独立对象，外部修改不影响池内定义） */
-export function cloneStyle(style: CellStyle): CellStyle {
+function cloneStyle(style: CellStyle): CellStyle {
   const border: NonNullable<CellStyle['border']> = {}
   for (const side of BORDER_SIDES) {
     const edge = style.border?.[side]
@@ -93,7 +93,7 @@ export function cloneStyle(style: CellStyle): CellStyle {
  * 稳定序列化：fill → border 按固定边序 → font → align，字段固定顺序，输出与书写顺序无关。
  * 调用方需先 normalize（本函数对空字段做同样剔除，保证 key 最小化）。
  */
-export function serializeStyleKey(style: CellStyle): string {
+function serializeStyleKey(style: CellStyle): string {
   const border: Record<string, unknown> = {}
   for (const side of BORDER_SIDES) {
     const edge = style.border?.[side]
@@ -156,6 +156,11 @@ export class StylePool {
   get(id: StyleId): CellStyle | undefined {
     const style = this.styles.get(id)
     return style ? cloneStyle(style) : undefined
+  }
+
+  /** 只读访问内部定义（渲染层热路径用；调用方不得修改返回对象，#11） */
+  peek(id: StyleId): CellStyle | undefined {
+    return this.styles.get(id)
   }
 
   /** 序列化导出：按 id 升序的样式定义数组（供快照；与单元格 s 引用配套） */

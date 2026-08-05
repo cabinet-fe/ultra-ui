@@ -1,5 +1,11 @@
 import { useResizeObserver } from '@veltra/compositions'
 import {
+  applyWheelHorizontalScroll,
+  computeOverflowNavState,
+  scrollElementIntoView,
+  scrollViewportByStep
+} from '@veltra/utils'
+import {
   type ModelRef,
   type Ref,
   type ShallowRef,
@@ -20,7 +26,8 @@ interface UseTabsBarOptions {
 }
 
 /**
- * 水平标签栏的溢出滚动逻辑：
+ * 水平标签栏的溢出滚动逻辑（滚动几何/滚轮转横滚/元素滚入视野共享
+ * @veltra/utils overflow-nav，见 #17；此处保留 useResizeObserver 与 watch 差异）：
  * - 计算 nav 按钮显隐与可用状态
  * - 提供按步滚动与活动标签自动滚入视野的方法
  * - 绑定 wheel / scroll / resize 事件
@@ -36,18 +43,17 @@ export function useTabsBar(options: UseTabsBarOptions) {
   const updateNavState = () => {
     const vp = viewportRef.value
     if (!vp) return
-    const { scrollLeft, scrollWidth, clientWidth } = vp
-    const overflowing = scrollWidth - clientWidth > 1
-    showNav.value = overflowing
-    canPrev.value = overflowing && scrollLeft > 0
-    canNext.value = overflowing && scrollLeft + clientWidth < scrollWidth - 1
+    const state = computeOverflowNavState(vp)
+    showNav.value = state.overflowing
+    canPrev.value = state.canPrev
+    canNext.value = state.canNext
   }
 
   /** 箭头按钮：按视口宽度 80% 的步长平滑滚动 */
   const scrollByStep = (dir: 1 | -1) => {
     const vp = viewportRef.value
     if (!vp) return
-    vp.scrollTo({ left: vp.scrollLeft + dir * vp.clientWidth * 0.8, behavior: 'smooth' })
+    scrollViewportByStep(vp, dir)
   }
 
   /** 活动标签自动滚入视野 */
@@ -61,25 +67,14 @@ export function useTabsBar(options: UseTabsBarOptions) {
     if (activeIndex < 0) return
     const el = list.children[activeIndex] as HTMLElement | undefined
     if (!el) return
-
-    const vpRect = vp.getBoundingClientRect()
-    const elRect = el.getBoundingClientRect()
-    if (elRect.left < vpRect.left) {
-      vp.scrollTo({ left: vp.scrollLeft + (elRect.left - vpRect.left) - 8, behavior: 'smooth' })
-    } else if (elRect.right > vpRect.right) {
-      vp.scrollTo({ left: vp.scrollLeft + (elRect.right - vpRect.right) + 8, behavior: 'smooth' })
-    }
+    scrollElementIntoView(vp, el)
   }
 
   /** 鼠标滚轮（纵向）驱动水平滚动；触控板横滑（已有 deltaX）不拦截 */
   const handleWheel = (e: WheelEvent) => {
-    if (!showNav.value) return
     const vp = viewportRef.value
     if (!vp) return
-    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return
-    if (e.deltaY === 0) return
-    e.preventDefault()
-    vp.scrollLeft += e.deltaY
+    applyWheelHorizontalScroll(e, vp, showNav.value)
   }
 
   useResizeObserver({ targets: [viewportRef, listRef], onResize: () => updateNavState() })

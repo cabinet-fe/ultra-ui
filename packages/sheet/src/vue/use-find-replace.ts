@@ -1,7 +1,8 @@
+import { debounce } from '@cat-kit/core'
 import { computed, ref, shallowRef, watch } from 'vue'
 
 import { inferCellType, normalizeInputValue, type CellData } from '../core/cell-store'
-import { findAll, findNext, findPrev, type FindMatch, type FindOptions } from '../core/find'
+import { findAll, findNextFrom, findPrevFrom, type FindMatch, type FindOptions } from '../core/find'
 import type { Sheet } from '../core/sheet'
 import type { SheetContext } from '../tools/context'
 
@@ -77,7 +78,8 @@ export function useFindReplace(options: UseFindReplaceOptions) {
     const matches = findMatches.value
     if (matches.length === 0) return
     const active = context.getSelection().activeCell
-    const next = active ? findNext(getSheet(), findQuery.value, active, findOptions()) : matches[0]
+    // 在已缓存的全量命中数组上二分导航——原 findNext 每次重跑 findAll 全表扫描（#9）
+    const next = active ? findNextFrom(matches, active) : matches[0]
     if (!next) return
     locateMatch(next)
   }
@@ -86,9 +88,7 @@ export function useFindReplace(options: UseFindReplaceOptions) {
     const matches = findMatches.value
     if (matches.length === 0) return
     const active = context.getSelection().activeCell
-    const prev = active
-      ? findPrev(getSheet(), findQuery.value, active, findOptions())
-      : matches[matches.length - 1]
+    const prev = active ? findPrevFrom(matches, active) : matches[matches.length - 1]
     if (!prev) return
     locateMatch(prev)
   }
@@ -133,8 +133,11 @@ export function useFindReplace(options: UseFindReplaceOptions) {
     refreshFind(false)
   }
 
-  // 关键词 / 选项变化 → 重新查找（定位第一个命中）
-  watch([findQuery, caseSensitive, wholeCell, searchIn], () => refreshFind(true))
+  // 关键词 / 选项变化 → 重新查找（定位第一个命中）。
+  // 每击键全扫 440ms 级：连续击键时防抖合并（300ms 停键才扫，#28），
+  // 避免每键一次全表扫描把 UI 卡死
+  const refreshFindDebounced = debounce(() => refreshFind(true), 300)
+  watch([findQuery, caseSensitive, wholeCell, searchIn], refreshFindDebounced)
 
   return {
     findQuery,

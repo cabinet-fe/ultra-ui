@@ -659,10 +659,6 @@ export class Sheet {
     return this.emitter.on(type, handler)
   }
 
-  off<K extends keyof SheetEvents>(type: K, handler: (payload: SheetEvents[K]) => void): void {
-    this.emitter.off(type, handler)
-  }
-
   // ─── 内部 ────────────────────────────────────────────────
 
   private readonly boundApplyPatch = (patch: Patch, direction: PatchDirection): void => {

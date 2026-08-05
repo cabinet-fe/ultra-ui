@@ -31,8 +31,11 @@ export interface CellSnapshotItem extends CellData {
   col: number
 }
 
-/** 数字文本（与公式引擎 `coerceToNumber` 对齐，不含 TRUE/FALSE） */
-const NUMERIC_TEXT_RE = /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/
+/**
+ * 数字文本正则（与公式引擎 `coerceToNumber` 共享同一份定义，见 #29；不含 TRUE/FALSE）。
+ * 用户输入规范化（normalizeInputValue）与公式强转数字共用。
+ */
+export const NUMERIC_TEXT_RE = /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/
 
 /**
  * 规范化用户输入值（对齐 Excel 键入语义）：
@@ -161,11 +164,28 @@ export class CellStore {
     for (let row = range.start.row; row <= range.end.row; row++) {
       const rowMap = this.cells.get(row)
       if (!rowMap) continue
-      for (let col = range.start.col; col <= range.end.col; col++) {
-        const data = rowMap.get(col)
-        if (data) yield [{ row, col }, { ...data }]
+      // 迭代行内稀疏键再按列范围过滤：宽区域（如 =SUM(A1:XFD100000)）下
+      // 代价 = O(有数据的行数 + 行内键数)，而非 O(行数 × 列范围宽)（#7）
+      for (const [col, data] of rowMap) {
+        if (col < range.start.col || col > range.end.col) continue
+        yield [{ row, col }, { ...data }]
       }
     }
+  }
+
+  /**
+   * 该列有数据的行号（稀疏遍历各行的列 Map，O(有数据的行数)）。
+   * 列宽拖拽等「按列找行」场景替代全表 entries() 扫描（#10）。
+   */
+  *rowsForColumn(col: number): Generator<number, void, undefined> {
+    for (const [row, rowMap] of this.cells) {
+      if (rowMap.has(col)) yield row
+    }
+  }
+
+  /** 只读访问内部引用（渲染层热路径用；调用方不得修改返回对象，#11） */
+  peekCell(addr: CellAddress): CellData | undefined {
+    return this.cells.get(addr.row)?.get(addr.col)
   }
 
   /** 序列化（只含真实存在的格） */

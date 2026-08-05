@@ -1,3 +1,9 @@
+import {
+  applyWheelHorizontalScroll,
+  computeOverflowNavState,
+  scrollElementIntoView,
+  scrollViewportByStep
+} from '@veltra/utils'
 import { type Ref, nextTick, onBeforeUnmount, onMounted, shallowRef, watch } from 'vue'
 
 /** 模板 ref（useTemplateRef / shallowRef 均可） */
@@ -13,7 +19,8 @@ interface UseSheetTabsBarOptions {
 }
 
 /**
- * Sheet 底部标签栏溢出滚动（对齐 desktop useTabsBar，但保留可见横向滚动条）：
+ * Sheet 底部标签栏溢出滚动（滚动几何/滚轮转横滚/元素滚入视野共享
+ * @veltra/utils overflow-nav，见 #17；此处保留事件绑定与 watch 差异）：
  * - showNav / canPrev / canNext
  * - 箭头按视口宽度 ~80% 步进
  * - 活动 tab 滚入视野
@@ -32,17 +39,16 @@ export function useSheetTabsBar(options: UseSheetTabsBarOptions) {
   const updateNavState = () => {
     const vp = viewportRef.value
     if (!vp) return
-    const { scrollLeft, scrollWidth, clientWidth } = vp
-    const overflowing = scrollWidth - clientWidth > 1
-    showNav.value = overflowing
-    canPrev.value = overflowing && scrollLeft > 0
-    canNext.value = overflowing && scrollLeft + clientWidth < scrollWidth - 1
+    const state = computeOverflowNavState(vp)
+    showNav.value = state.overflowing
+    canPrev.value = state.canPrev
+    canNext.value = state.canNext
   }
 
   const scrollByStep = (dir: 1 | -1) => {
     const vp = viewportRef.value
     if (!vp) return
-    vp.scrollTo({ left: vp.scrollLeft + dir * vp.clientWidth * 0.8, behavior: 'smooth' })
+    scrollViewportByStep(vp, dir)
   }
 
   const ensureActiveVisible = () => {
@@ -53,25 +59,14 @@ export function useSheetTabsBar(options: UseSheetTabsBarOptions) {
     if (index < 0) return
     const el = list.children[index] as HTMLElement | undefined
     if (!el) return
-
-    const vpRect = vp.getBoundingClientRect()
-    const elRect = el.getBoundingClientRect()
-    if (elRect.left < vpRect.left) {
-      vp.scrollTo({ left: vp.scrollLeft + (elRect.left - vpRect.left) - 8, behavior: 'smooth' })
-    } else if (elRect.right > vpRect.right) {
-      vp.scrollTo({ left: vp.scrollLeft + (elRect.right - vpRect.right) + 8, behavior: 'smooth' })
-    }
+    scrollElementIntoView(vp, el)
   }
 
   /** 鼠标滚轮（纵向）驱动水平滚动；触控板横滑（已有 deltaX）不拦截 */
   const handleWheel = (e: WheelEvent) => {
-    if (!showNav.value) return
     const vp = viewportRef.value
     if (!vp) return
-    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return
-    if (e.deltaY === 0) return
-    e.preventDefault()
-    vp.scrollLeft += e.deltaY
+    applyWheelHorizontalScroll(e, vp, showNav.value)
   }
 
   watch(activeIndex, async () => {
@@ -116,5 +111,5 @@ export function useSheetTabsBar(options: UseSheetTabsBarOptions) {
     resizeObserver = undefined
   })
 
-  return { showNav, canPrev, canNext, updateNavState, scrollByStep, ensureActiveVisible }
+  return { showNav, canPrev, canNext, scrollByStep }
 }

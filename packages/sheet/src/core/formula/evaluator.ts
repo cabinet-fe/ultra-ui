@@ -1,4 +1,5 @@
 import type { CellAddress, CellRange } from '../address'
+import { NUMERIC_TEXT_RE } from '../cell-store'
 import type { AstNode, BinaryOperator } from './ast'
 import { formulaError, isFormulaError, type FormulaError } from './errors'
 
@@ -29,8 +30,6 @@ export interface FormulaEvalContext {
   /** 调用函数（名称未知 → #NAME?；参数个数非法 → #VALUE!） */
   callFunction(name: string, nodes: AstNode[], evalNode: (node: AstNode) => EvalValue): EvalValue
 }
-
-const NUMERIC_TEXT_RE = /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/
 
 /** 强转数字：null→0，布尔→1/0，数字文本→数字，其余文本→#VALUE!，错误传播 */
 export function coerceToNumber(value: EvalValue): number | FormulaError {
@@ -88,7 +87,7 @@ export function coerceToBoolean(value: EvalValue): boolean | FormulaError {
 }
 
 /** 比较：同类型按类型规则（文本大小写不敏感）；混合类型 数字 < 文本 < 布尔；null 归一为对方零值 */
-export function compareScalars(left: ScalarValue, right: ScalarValue): number {
+function compareScalars(left: ScalarValue, right: ScalarValue): number {
   if (left === null || right === null) {
     if (left === null && right === null) return 0
     if (left === null) return compareScalars(zeroLike(right), right)

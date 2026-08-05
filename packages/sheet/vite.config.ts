@@ -40,6 +40,7 @@ const config = {
     deps: {
       neverBundle: [
         '@cat-kit/core',
+        '@cat-kit/fe',
         'vue',
         '@veltra/desktop',
         '@veltra/styles',

@@ -55,6 +55,21 @@ async function flushPopup(): Promise<void> {
   await nextTick()
 }
 
+/** 等待查找防抖（use-find-replace 300ms 停键才全扫）+ 微任务 */
+async function flushFind(): Promise<void> {
+  await new Promise((resolve) => setTimeout(resolve, 320))
+  await nextTick()
+}
+
+/**
+ * 等待工具栏状态落定：stateTick bump 走微任务合并（#25），一次 nextTick 只等到
+ * bump 微任务执行（Vue 渲染在其后的微任务），需要两个周期才能拿到新渲染结果。
+ */
+async function flushState(): Promise<void> {
+  await nextTick()
+  await nextTick()
+}
+
 function tabs(el: HTMLElement): HTMLButtonElement[] {
   return [...el.querySelectorAll<HTMLButtonElement>('.u-sheet__tab')]
 }
@@ -167,18 +182,18 @@ describe('USheet 组件', () => {
     expect(redoButton.disabled).toBe(true)
 
     sheet.setCellValue({ row: 0, col: 0 }, 'x')
-    await nextTick()
+    await flushState()
     expect(undoButton.disabled).toBe(false)
     expect(redoButton.disabled).toBe(true)
 
     undoButton.click()
-    await nextTick()
+    await flushState()
     expect(sheet.getCellData({ row: 0, col: 0 })).toBeUndefined()
     expect(undoButton.disabled).toBe(true)
     expect(redoButton.disabled).toBe(false)
 
     redoButton.click()
-    await nextTick()
+    await flushState()
     expect(sheet.getCellData({ row: 0, col: 0 })).toEqual({ v: 'x', t: 's' })
   })
 
@@ -365,7 +380,7 @@ describe('USheet 组件', () => {
 
     // 拖选区域（经模型 API 模拟 grid 拖选回写）
     sheet.selectRange({ start: { row: 0, col: 0 }, end: { row: 1, col: 1 } })
-    await nextTick()
+    await flushState()
     expect(mergeButton.disabled).toBe(false)
 
     mergeButton.click()
@@ -420,11 +435,11 @@ describe('USheet 组件', () => {
     const boldButton = toolButton(el, 'bold')!
     expect(boldButton.classList.contains('is-active')).toBe(false)
     boldButton.click()
-    await nextTick()
+    await flushState()
     expect(sheet.getCellStyle({ row: 0, col: 0 })?.font?.bold).toBe(true)
     expect(boldButton.classList.contains('is-active')).toBe(true)
     boldButton.click()
-    await nextTick()
+    await flushState()
     expect(sheet.getCellStyle({ row: 0, col: 0 })).toBeUndefined()
     expect(boldButton.classList.contains('is-active')).toBe(false)
 
@@ -608,7 +623,7 @@ describe('USheet 组件', () => {
     )!
     input.value = 'hello'
     input.dispatchEvent(new Event('input', { bubbles: true }))
-    await nextTick()
+    await flushFind()
     expect(sheet.getSelection().activeCell).toEqual({ row: 0, col: 0 })
     expect(document.querySelector('#pop-container .u-sheet__find-count')!.textContent?.trim()).toBe(
       '1 / 2'
@@ -637,7 +652,7 @@ describe('USheet 组件', () => {
     // 无命中 → 计数 0 / 0，导航禁用
     input.value = '不存在'
     input.dispatchEvent(new Event('input', { bubbles: true }))
-    await nextTick()
+    await flushFind()
     expect(document.querySelector('#pop-container .u-sheet__find-count')!.textContent?.trim()).toBe(
       '0 / 0'
     )

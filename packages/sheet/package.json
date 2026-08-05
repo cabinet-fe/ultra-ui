@@ -33,6 +33,7 @@
   },
   "peerDependencies": {
     "@cat-kit/core": ">=1.1.8",
+    "@cat-kit/fe": ">=1.1.8",
     "@veltra/desktop": "workspace:*",
     "@veltra/icons": "workspace:*",
     "@veltra/styles": "workspace:*",

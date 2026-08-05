@@ -163,7 +163,14 @@ registerFormulaFunction('MAX', {
   impl(args) {
     const numbers = collectNumbers(args)
     if (isFormulaError(numbers)) return numbers
-    return numbers.length === 0 ? 0 : Math.max(...numbers)
+    if (numbers.length === 0) return 0
+    // for 循环比较：Math.max(...spread) 对超大区域（实参 > ~6.5 万）会 RangeError
+    // 爆栈并被上层兜成 #ERROR!（#13）；循环无实参展开上限
+    let max = numbers[0]!
+    for (let i = 1; i < numbers.length; i++) {
+      if (numbers[i]! > max) max = numbers[i]!
+    }
+    return max
   }
 })
 
@@ -173,7 +180,12 @@ registerFormulaFunction('MIN', {
   impl(args) {
     const numbers = collectNumbers(args)
     if (isFormulaError(numbers)) return numbers
-    return numbers.length === 0 ? 0 : Math.min(...numbers)
+    if (numbers.length === 0) return 0
+    let min = numbers[0]!
+    for (let i = 1; i < numbers.length; i++) {
+      if (numbers[i]! < min) min = numbers[i]!
+    }
+    return min
   }
 })
 
