@@ -1,21 +1,65 @@
 # UAiChat 示例
 
-## 基础对话（OpenAI 兼容端点）
+## 基础对话（多 Provider OpenAI 兼容端点）
 
 ```vue
 <template>
-  <u-ai-chat :transport="transport" welcome="有什么可以帮你？" />
+  <u-ai-chat
+    :transport="transport"
+    :models="transport.models"
+    :model="transport.defaultModel"
+    welcome="有什么可以帮你？"
+  />
 </template>
 
 <script lang="ts" setup>
 import { createOpenAITransport } from '@veltra/ai'
 
 const transport = createOpenAITransport({
-  endpoint: 'https://api.deepseek.com/v1/chat/completions',
-  apiKey: import.meta.env.VITE_DEEPSEEK_KEY,
-  model: 'deepseek-chat'
+  providers: [
+    {
+      id: 'deepseek',
+      label: 'DeepSeek',
+      endpoint: 'https://api.deepseek.com/v1/chat/completions',
+      apiKey: import.meta.env.VITE_DEEPSEEK_KEY,
+      models: [{ id: 'deepseek-chat', label: 'DeepSeek Chat' }]
+    },
+    {
+      id: 'proxy',
+      label: '业务代理',
+      // 相对路径走当前 origin；鉴权可用 cookie 或 headers
+      endpoint: '/api/ai/chat',
+      models: [
+        {
+          id: 'o3-mini',
+          label: 'o3-mini',
+          reasoningLevels: [
+            { value: 'low', label: '低' },
+            { value: 'medium', label: '中' },
+            { value: 'high', label: '高' }
+          ],
+          defaultReasoningLevel: 'medium'
+        }
+      ]
+    }
+  ]
 })
 </script>
+```
+
+输入栏会展示模型选择器；选中带 `reasoningLevels` 的模型时再展示推理等级选择器。支持 `v-model:model` / `v-model:reasoning-level`。
+
+自定义推理字段名可用 Provider 级 `applyReasoning`（缺省写 `reasoning_effort`）：
+
+```ts
+{
+  id: 'custom',
+  endpoint: 'https://custom.example/chat',
+  applyReasoning: (level, body) => {
+    body.thinking = { budget: level }
+  },
+  models: [{ id: 'custom-model', reasoningLevels: [{ value: '8k', label: '8K' }] }]
+}
 ```
 
 ## 工具定义（组件自动编排工具调用循环）
@@ -24,16 +68,21 @@ const transport = createOpenAITransport({
 
 ```vue
 <template>
-  <u-ai-chat :transport="transport" :tools="tools" />
+  <u-ai-chat :transport="transport" :models="transport.models" :tools="tools" />
 </template>
 
 <script lang="ts" setup>
 import { createOpenAITransport, type ChatTool } from '@veltra/ai'
 
 const transport = createOpenAITransport({
-  endpoint: 'https://api.deepseek.com/v1/chat/completions',
-  apiKey: import.meta.env.VITE_DEEPSEEK_KEY,
-  model: 'deepseek-chat'
+  providers: [
+    {
+      id: 'deepseek',
+      endpoint: 'https://api.deepseek.com/v1/chat/completions',
+      apiKey: import.meta.env.VITE_DEEPSEEK_KEY,
+      models: [{ id: 'deepseek-chat' }]
+    }
+  ]
 })
 
 const tools: ChatTool[] = [
@@ -115,20 +164,18 @@ const tools: ChatTool[] = [
 
 ## 内置提问工具
 
-`createAskQuestionTool()`：模型可在需求不明确时发起提问，用户在分页表单中逐题作答（选项或自定义输入），提交后回答回灌模型。
+提问工具 `askQuestion` 由 `useChat` / `UAiChat` 始终自动注入，无需手动创建或传入。模型可在需求不明确时发起提问，用户在分页表单中逐题作答（选项或自定义输入），提交后回答回灌模型。用户传入同名工具将被忽略（内置优先）。
 
-```ts
-import { createAskQuestionTool } from '@veltra/ai'
-
-const tools: ChatTool[] = [
-  createAskQuestionTool() // 可传 { name, description, label, icon } 覆盖默认值
-  // ...其他工具
-]
+```vue
+<template>
+  <!-- 只需传入业务工具；askQuestion 已内置 -->
+  <u-ai-chat :transport="transport" :tools="tools" />
+</template>
 ```
 
 ## 自定义 transport 接入任意后端
 
-实现 ChatTransport 接口即可，组件不关心具体协议。
+实现 ChatTransport 接口即可，组件不关心具体协议。自定义 transport 可忽略 `req.model` / `req.reasoningLevel`；未传 `models` 时输入栏不显示选择器。
 
 ```ts
 import type { ChatTransport } from '@veltra/ai'
@@ -137,7 +184,12 @@ const transport: ChatTransport = async (req, handlers) => {
   const res = await fetch('/my-chat-api', {
     method: 'POST',
     signal: req.signal,
-    body: JSON.stringify({ messages: req.messages, tools: req.tools })
+    body: JSON.stringify({
+      messages: req.messages,
+      tools: req.tools,
+      model: req.model,
+      reasoningLevel: req.reasoningLevel
+    })
   })
   // 自行解析响应，通过 handlers 回调流式抛出
   handlers.onReasoningDelta?.('思考内容')
@@ -150,19 +202,39 @@ const transport: ChatTransport = async (req, handlers) => {
 
 ```vue
 <template>
-  <u-ai-chat ref="chatRef" v-model:messages="messages" :transport="transport" />
+  <u-ai-chat
+    ref="chatRef"
+    v-model:messages="messages"
+    v-model:model="model"
+    v-model:reasoning-level="reasoningLevel"
+    :transport="transport"
+    :models="transport.models"
+  />
 </template>
 
 <script lang="ts" setup>
-import type { AiChatExposed, ChatMessage } from '@veltra/ai'
-import { ref, shallowRef } from 'vue'
+import { ref, useTemplateRef } from 'vue'
+import { createOpenAITransport, type AiChatExposed, type ChatMessage } from '@veltra/ai'
+
+const transport = createOpenAITransport({
+  providers: [
+    {
+      id: 'deepseek',
+      endpoint: 'https://api.deepseek.com/v1/chat/completions',
+      apiKey: import.meta.env.VITE_DEEPSEEK_KEY,
+      models: [{ id: 'deepseek-chat' }]
+    }
+  ]
+})
 
 const messages = ref<ChatMessage[]>([])
-const chatRef = shallowRef<AiChatExposed>()
+const model = ref(transport.defaultModel)
+const reasoningLevel = ref<string>()
+const chatRef = useTemplateRef<AiChatExposed>('chatRef')
 
-// chatRef.value?.send('你好')      发送消息
-// chatRef.value?.abort()           中断生成
-// chatRef.value?.regenerate()      重新生成最后一轮回复
-// chatRef.value?.clear()           清空消息
+chatRef.value?.send('你好')
+chatRef.value?.abort()
+chatRef.value?.regenerate()
+chatRef.value?.clear()
 </script>
 ```

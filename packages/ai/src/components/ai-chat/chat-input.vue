@@ -24,35 +24,66 @@
     />
 
     <div :class="cls.e('input-toolbar')">
-      <UIcon :class="cls.e('input-attach')" title="添加图片" @click="fileRef?.click()">
-        <Attach />
-      </UIcon>
-      <input
-        ref="fileRef"
-        type="file"
-        hidden
-        multiple
-        :accept="accept ?? 'image/*'"
-        @change="handleFiles"
-      />
+      <div :class="cls.e('input-toolbar-left')">
+        <UFilePicker multiple :accept="accept ?? 'image/*'" @pick="handlePick">
+          <UIcon :class="cls.e('input-attach')" title="添加图片">
+            <Attach />
+          </UIcon>
+        </UFilePicker>
+      </div>
 
-      <UButton v-if="running" type="danger" circle @click="emit('abort')">
-        <span :class="cls.e('input-stop')" />
-      </UButton>
-      <UButton v-else type="primary" circle :disabled="!canSend" @click="handleSend">
-        <UIcon><Send /></UIcon>
-      </UButton>
+      <!-- 右簇：模型 → 推理 → 发送/停止，贴近发送按钮 -->
+      <div :class="cls.e('input-toolbar-right')">
+        <USelect
+          v-if="models?.length"
+          v-model="model"
+          :class="cls.e('input-model')"
+          size="small"
+          :clearable="false"
+          :options="modelOptions"
+          value-key="value"
+          label-key="label"
+          placeholder="模型"
+        />
+
+        <USelect
+          v-if="showReasoning"
+          v-model="reasoningLevel"
+          :class="cls.e('input-reasoning')"
+          size="small"
+          :clearable="false"
+          :options="reasoningOptions"
+          value-key="value"
+          label-key="label"
+          placeholder="推理"
+        />
+
+        <UButton v-if="running" size="small" type="danger" circle @click="emit('abort')">
+          <span :class="cls.e('input-stop')" />
+        </UButton>
+        <UButton
+          v-else
+          size="small"
+          type="primary"
+          circle
+          :disabled="!canSend"
+          :icon="Up"
+          @click="handleSend"
+        >
+        </UButton>
+      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { UButton, UIcon } from '@veltra/desktop'
-import { Attach, Close, Send } from '@veltra/icons/normal'
+import { UButton, UFilePicker, UIcon, USelect } from '@veltra/desktop'
+import { Attach, Close, Up } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { computed, inject, ref, shallowRef } from 'vue'
 
 import type { ChatAttachment } from '../../chat/types'
+import type { ChatModelOption } from '../../providers'
 import { AiChatDIKey } from './di'
 
 defineOptions({ name: 'UAiChatInput' })
@@ -60,6 +91,8 @@ defineOptions({ name: 'UAiChatInput' })
 const props = defineProps<{
   /** 是否生成中（显示停止按钮） */
   running: boolean
+  /** 可选模型列表；有值则显示选择器 */
+  models?: ChatModelOption[]
   /** 输入框占位文本 */
   placeholder?: string
   /** 附件 accept 类型 */
@@ -67,6 +100,9 @@ const props = defineProps<{
   /** 单个附件最大字节数 */
   maxAttachmentSize?: number
 }>()
+
+const model = defineModel<string>('model')
+const reasoningLevel = defineModel<string>('reasoningLevel')
 
 const emit = defineEmits<{
   (e: 'send', content: string, attachments: ChatAttachment[]): void
@@ -79,12 +115,24 @@ const cls = di?.cls ?? bem('ai-chat')
 const text = ref('')
 const attachments = ref<ChatAttachment[]>([])
 const textareaRef = shallowRef<HTMLTextAreaElement>()
-const fileRef = shallowRef<HTMLInputElement>()
 
 const canSend = computed(() => {
   return !props.running && (!!text.value.trim() || attachments.value.length > 0)
 })
 
+const modelOptions = computed(() => {
+  return (props.models ?? []).map((m) => ({ value: m.id, label: m.label ?? m.id }))
+})
+
+const currentModel = computed(() => {
+  return props.models?.find((m) => m.id === model.value)
+})
+
+const reasoningOptions = computed(() => currentModel.value?.reasoningLevels ?? [])
+
+const showReasoning = computed(() => !!reasoningOptions.value.length)
+
+/** 多行自适应高度，上限 160px */
 const autoResize = () => {
   const el = textareaRef.value
   if (!el) return
@@ -100,11 +148,8 @@ const handleSend = () => {
   autoResize()
 }
 
-const handleFiles = (event: Event) => {
-  const input = event.target as HTMLInputElement
-  const files = Array.from(input.files ?? [])
-  input.value = ''
-
+/** 将拾取的文件转为 dataUrl 附件（超限忽略） */
+const handlePick = (files: File[]) => {
   const maxSize = props.maxAttachmentSize ?? 10 * 1024 * 1024
 
   for (const file of files) {

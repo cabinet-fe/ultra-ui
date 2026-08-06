@@ -1,3 +1,4 @@
+import type { ChatModelOption, ChatProvider } from '../../providers'
 import type {
   ChatMessage,
   ChatTool,
@@ -6,18 +7,22 @@ import type {
   ChatTransportRequest
 } from '../types'
 
-/** createOpenAITransport 的配置项 */
+/** createOpenAITransport 的配置项（多 Provider） */
 export interface OpenAITransportOptions {
-  /** chat completions 端点，如 https://api.openai.com/v1/chat/completions */
-  endpoint: string
-  /** API Key（Bearer 鉴权） */
-  apiKey?: string
-  /** 模型名 */
-  model: string
-  /** 额外请求头 */
+  /** 至少一个 Provider；模型 id 须跨 Provider 全局唯一 */
+  providers: ChatProvider[]
+  /** 全局额外请求头（与各 Provider headers 合并，Provider 优先） */
   headers?: Record<string, string>
-  /** 额外请求体字段，如 temperature、top_p */
+  /** 全局额外请求体字段，如 temperature、top_p */
   body?: Record<string, unknown>
+}
+
+/** 带扁平模型列表元数据的 OpenAI 兼容 transport */
+export type OpenAITransport = ChatTransport & {
+  /** 供 UI 使用的扁平模型列表 */
+  readonly models: ChatModelOption[]
+  /** 默认模型 id（首个 Provider 的首个模型） */
+  readonly defaultModel: string
 }
 
 interface OpenAIMessage {
@@ -178,33 +183,88 @@ async function parseSSE(
   flushToolCalls()
 }
 
+/** 校验 providers 并展开扁平模型列表 */
+function flattenModels(providers: ChatProvider[]): {
+  models: ChatModelOption[]
+  byModelId: Map<string, ChatProvider>
+} {
+  if (!providers.length) {
+    throw new Error('[createOpenAITransport] providers 不能为空')
+  }
+
+  const models: ChatModelOption[] = []
+  const byModelId = new Map<string, ChatProvider>()
+
+  for (const provider of providers) {
+    if (!provider.models?.length) {
+      throw new Error(`[createOpenAITransport] Provider "${provider.id}" 未配置 models`)
+    }
+    for (const model of provider.models) {
+      if (byModelId.has(model.id)) {
+        throw new Error(
+          `[createOpenAITransport] 模型 id "${model.id}" 重复（跨 Provider 须全局唯一）`
+        )
+      }
+      byModelId.set(model.id, provider)
+      models.push({ ...model, providerId: provider.id, providerLabel: provider.label })
+    }
+  }
+
+  return { models, byModelId }
+}
+
+/** 缺省：写入 OpenAI 兼容的 reasoning_effort */
+function defaultApplyReasoning(level: string, body: Record<string, unknown>) {
+  body.reasoning_effort = level
+}
+
 /**
  * 创建 OpenAI 兼容协议的传输层（chat/completions SSE）。
- * 手写 fetch + SSE 解析，无任何第三方依赖。
+ * 按 request.model 路由到对应 Provider 的 endpoint；手写 fetch + SSE，无第三方依赖。
  */
-export function createOpenAITransport(options: OpenAITransportOptions): ChatTransport {
-  const { endpoint, apiKey, model, headers, body } = options
+export function createOpenAITransport(options: OpenAITransportOptions): OpenAITransport {
+  const { providers, headers: globalHeaders, body: globalBody } = options
+  const { models, byModelId } = flattenModels(providers)
+  const defaultModel = models[0]!.id
 
-  return async (request: ChatTransportRequest, handlers: ChatTransportHandlers) => {
-    const { messages, systemPrompt, tools, signal } = request
+  const send: ChatTransport = async (
+    request: ChatTransportRequest,
+    handlers: ChatTransportHandlers
+  ) => {
+    const { messages, systemPrompt, tools, signal, reasoningLevel } = request
+    const modelId = request.model ?? defaultModel
+    const provider = byModelId.get(modelId)
+
+    if (!provider) {
+      handlers.onError?.(new Error(`未找到模型 "${modelId}" 对应的 Provider`))
+      return
+    }
+
+    const requestBody: Record<string, unknown> = {
+      ...globalBody,
+      model: modelId,
+      stream: true,
+      messages: toOpenAIMessages(messages, systemPrompt),
+      ...(tools?.length ? { tools: toOpenAITools(tools) } : {})
+    }
+
+    if (reasoningLevel) {
+      const apply = provider.applyReasoning ?? defaultApplyReasoning
+      apply(reasoningLevel, requestBody)
+    }
 
     let response: Response
     try {
-      response = await fetch(endpoint, {
+      response = await fetch(provider.endpoint, {
         method: 'POST',
         signal,
         headers: {
           'Content-Type': 'application/json',
-          ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
-          ...headers
+          ...(provider.apiKey ? { Authorization: `Bearer ${provider.apiKey}` } : {}),
+          ...globalHeaders,
+          ...provider.headers
         },
-        body: JSON.stringify({
-          model,
-          stream: true,
-          ...body,
-          messages: toOpenAIMessages(messages, systemPrompt),
-          ...(tools?.length ? { tools: toOpenAITools(tools) } : {})
-        })
+        body: JSON.stringify(requestBody)
       })
     } catch (error) {
       if (!signal.aborted) {
@@ -234,4 +294,6 @@ export function createOpenAITransport(options: OpenAITransportOptions): ChatTran
       }
     }
   }
+
+  return Object.assign(send, { models, defaultModel })
 }

@@ -1,0 +1,239 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+
+import type { ChatTransportHandlers } from '../../types'
+import { createOpenAITransport } from '../openai'
+
+const baseHandlers = (): ChatTransportHandlers => ({
+  onTextDelta: vi.fn(),
+  onReasoningDelta: vi.fn(),
+  onToolCall: vi.fn(),
+  onError: vi.fn()
+})
+
+afterEach(() => {
+  vi.unstubAllGlobals()
+  vi.restoreAllMocks()
+})
+
+describe('createOpenAITransport', () => {
+  it('providers 为空时抛错', () => {
+    expect(() => createOpenAITransport({ providers: [] })).toThrow(/providers 不能为空/)
+  })
+
+  it('跨 Provider 模型 id 重复时抛错', () => {
+    expect(() =>
+      createOpenAITransport({
+        providers: [
+          {
+            id: 'a',
+            endpoint: 'https://a.example/v1/chat/completions',
+            models: [{ id: 'shared' }]
+          },
+          { id: 'b', endpoint: 'https://b.example/v1/chat/completions', models: [{ id: 'shared' }] }
+        ]
+      })
+    ).toThrow(/模型 id "shared" 重复/)
+  })
+
+  it('挂载 models 与 defaultModel', () => {
+    const transport = createOpenAITransport({
+      providers: [
+        {
+          id: 'openai',
+          label: 'OpenAI',
+          endpoint: 'https://api.openai.com/v1/chat/completions',
+          apiKey: 'sk-test',
+          models: [
+            { id: 'gpt-4o', label: 'GPT-4o' },
+            { id: 'o3-mini', label: 'o3-mini' }
+          ]
+        }
+      ]
+    })
+
+    expect(transport.defaultModel).toBe('gpt-4o')
+    expect(transport.models).toEqual([
+      { id: 'gpt-4o', label: 'GPT-4o', providerId: 'openai', providerLabel: 'OpenAI' },
+      { id: 'o3-mini', label: 'o3-mini', providerId: 'openai', providerLabel: 'OpenAI' }
+    ])
+  })
+
+  it('按 model 路由到不同 endpoint，相对路径原样 fetch', async () => {
+    const fetchMock = vi.fn(async () => {
+      return new Response('data: {"choices":[{"delta":{"content":"ok"}}]}\n\ndata: [DONE]\n\n', {
+        status: 200,
+        headers: { 'Content-Type': 'text/event-stream' }
+      })
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const transport = createOpenAITransport({
+      providers: [
+        { id: 'proxy', endpoint: '/api/ai/chat', models: [{ id: 'proxy-model' }] },
+        {
+          id: 'remote',
+          endpoint: 'https://api.example.com/v1/chat/completions',
+          apiKey: 'sk-remote',
+          models: [{ id: 'remote-model' }]
+        }
+      ]
+    })
+
+    const handlers = baseHandlers()
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        model: 'remote-model',
+        signal: new AbortController().signal
+      },
+      handlers
+    )
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock.mock.calls[0]![0]).toBe('https://api.example.com/v1/chat/completions')
+    const remoteInit = fetchMock.mock.calls[0]![1] as RequestInit
+    expect(remoteInit.headers).toMatchObject({ Authorization: 'Bearer sk-remote' })
+    expect(JSON.parse(String(remoteInit.body))).toMatchObject({
+      model: 'remote-model',
+      stream: true
+    })
+
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        model: 'proxy-model',
+        signal: new AbortController().signal
+      },
+      handlers
+    )
+
+    expect(fetchMock.mock.calls[1]![0]).toBe('/api/ai/chat')
+    const proxyInit = fetchMock.mock.calls[1]![1] as RequestInit
+    expect((proxyInit.headers as Record<string, string>).Authorization).toBeUndefined()
+  })
+
+  it('无 apiKey 时不带 Authorization', async () => {
+    const fetchMock = vi.fn(async () => {
+      return new Response('data: [DONE]\n\n', {
+        status: 200,
+        headers: { 'Content-Type': 'text/event-stream' }
+      })
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const transport = createOpenAITransport({
+      providers: [{ id: 'local', endpoint: '/api/chat', models: [{ id: 'local-model' }] }]
+    })
+
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        signal: new AbortController().signal
+      },
+      baseHandlers()
+    )
+
+    const headers = fetchMock.mock.calls[0]![1]!.headers as Record<string, string>
+    expect(headers.Authorization).toBeUndefined()
+    expect(JSON.parse(String(fetchMock.mock.calls[0]![1]!.body))).toMatchObject({
+      model: 'local-model'
+    })
+  })
+
+  it('缺省将 reasoningLevel 写入 reasoning_effort', async () => {
+    const fetchMock = vi.fn(async () => {
+      return new Response('data: [DONE]\n\n', {
+        status: 200,
+        headers: { 'Content-Type': 'text/event-stream' }
+      })
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const transport = createOpenAITransport({
+      providers: [
+        {
+          id: 'openai',
+          endpoint: 'https://api.openai.com/v1/chat/completions',
+          apiKey: 'sk',
+          models: [{ id: 'o3-mini' }]
+        }
+      ]
+    })
+
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        model: 'o3-mini',
+        reasoningLevel: 'high',
+        signal: new AbortController().signal
+      },
+      baseHandlers()
+    )
+
+    expect(JSON.parse(String(fetchMock.mock.calls[0]![1]!.body))).toMatchObject({
+      model: 'o3-mini',
+      reasoning_effort: 'high'
+    })
+  })
+
+  it('applyReasoning 可自定义写入字段', async () => {
+    const fetchMock = vi.fn(async () => {
+      return new Response('data: [DONE]\n\n', {
+        status: 200,
+        headers: { 'Content-Type': 'text/event-stream' }
+      })
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const transport = createOpenAITransport({
+      providers: [
+        {
+          id: 'custom',
+          endpoint: 'https://custom.example/chat',
+          applyReasoning: (level, body) => {
+            body.thinking = { budget: level }
+          },
+          models: [{ id: 'custom-model' }]
+        }
+      ]
+    })
+
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        reasoningLevel: '8k',
+        signal: new AbortController().signal
+      },
+      baseHandlers()
+    )
+
+    expect(JSON.parse(String(fetchMock.mock.calls[0]![1]!.body))).toMatchObject({
+      thinking: { budget: '8k' }
+    })
+    expect(JSON.parse(String(fetchMock.mock.calls[0]![1]!.body)).reasoning_effort).toBeUndefined()
+  })
+
+  it('未知 model 时通过 onError 报错且不发请求', async () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    const handlers = baseHandlers()
+
+    const transport = createOpenAITransport({
+      providers: [{ id: 'a', endpoint: 'https://a.example/chat', models: [{ id: 'known' }] }]
+    })
+
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        model: 'unknown',
+        signal: new AbortController().signal
+      },
+      handlers
+    )
+
+    expect(fetchMock).not.toHaveBeenCalled()
+    expect(handlers.onError).toHaveBeenCalledWith(
+      expect.objectContaining({ message: expect.stringContaining('unknown') })
+    )
+  })
+})

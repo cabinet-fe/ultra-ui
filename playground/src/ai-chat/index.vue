@@ -1,35 +1,119 @@
 <template>
   <div>
-    <CustomCard title="AI 对话助手（mock transport，工具自动编排）">
+    <CustomCard title="AI 对话助手（mock transport，多 Provider 模型 / 推理选择）">
       <div class="ai-chat-wrap">
         <u-ai-chat
+          v-model:model="model"
+          v-model:reasoning-level="reasoningLevel"
           :transport="transport"
           :tools="tools"
-          welcome="试试：「算一下 128*46」「北京天气怎么样」「删除 /tmp/app.log」「帮我做个活动页面」"
+          :models="models"
+          welcome="试试：「算一下 128*46」「北京天气怎么样」「删除 /tmp/app.log」「帮我做个活动页面」；也可切换模型/推理后再发一句通用问题"
         >
           <template #tool-getWeather="{ toolCall }">
             <div class="weather-result">🌤️ {{ toolCall.result }}</div>
           </template>
         </u-ai-chat>
       </div>
+      <div class="selection-hint">当前选择：{{ selectionSummary }}</div>
     </CustomCard>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { UAiChat, createAskQuestionTool, type ChatTool, type ChatTransport } from '@veltra/ai'
+import { UAiChat, type ChatModelOption, type ChatTool, type ChatTransport } from '@veltra/ai'
 import '@veltra/ai/style'
 import { Delete, Sun } from '@veltra/icons/normal'
+import { computed, ref } from 'vue'
 
 import CustomCard from '../desktop/card/custom-card.vue'
 
-// 真实接入时替换为内置 OpenAI 兼容 transport：
+// 真实接入时替换为内置 OpenAI 兼容 transport（多 Provider）：
 // import { createOpenAITransport } from '@veltra/ai'
 // const transport = createOpenAITransport({
-//   endpoint: 'https://api.deepseek.com/v1/chat/completions',
-//   apiKey: import.meta.env.VITE_DEEPSEEK_KEY,
-//   model: 'deepseek-chat'
+//   providers: [
+//     {
+//       id: 'deepseek',
+//       label: 'DeepSeek',
+//       // 完整 URL
+//       endpoint: 'https://api.deepseek.com/v1/chat/completions',
+//       apiKey: import.meta.env.VITE_DEEPSEEK_KEY,
+//       models: [{ id: 'deepseek-chat', label: 'DeepSeek Chat' }]
+//     },
+//     {
+//       id: 'proxy',
+//       label: '业务代理',
+//       // 相对路径走当前 origin，鉴权可用 cookie / headers
+//       endpoint: '/api/ai/chat',
+//       // 可选：自定义推理字段写入方式（缺省 body.reasoning_effort）
+//       // applyReasoning: (level, body) => { body.thinking = { budget: level } },
+//       models: [
+//         {
+//           id: 'o3-mini',
+//           label: 'o3-mini',
+//           reasoningLevels: [
+//             { value: 'low', label: '低' },
+//             { value: 'medium', label: '中' },
+//             { value: 'high', label: '高' }
+//           ],
+//           defaultReasoningLevel: 'medium'
+//         }
+//       ]
+//     }
+//   ]
 // })
+// const models = transport.models
+// const model = ref(transport.defaultModel)
+
+/**
+ * 演示用扁平模型列表（mock transport 不按 endpoint 路由，仅驱动选择器）。
+ * 结构对齐 createOpenAITransport().models：两家虚构 Provider。
+ */
+const models: ChatModelOption[] = [
+  // —— 外部云端（完整 URL 风格）——
+  { id: 'nova-flash', label: 'Nova Flash', providerId: 'nova', providerLabel: 'Nova Cloud' },
+  {
+    id: 'nova-reasoner',
+    label: 'Nova Reasoner',
+    providerId: 'nova',
+    providerLabel: 'Nova Cloud',
+    reasoningLevels: [
+      { value: 'low', label: '低' },
+      { value: 'medium', label: '中' },
+      { value: 'high', label: '高' }
+    ],
+    defaultReasoningLevel: 'medium'
+  },
+  // —— 内部代理（相对路径风格）——
+  { id: 'internal-chat', label: '内部 Chat', providerId: 'internal', providerLabel: '内部代理' },
+  {
+    id: 'internal-think',
+    label: '内部 Think',
+    providerId: 'internal',
+    providerLabel: '内部代理',
+    // 与外部不同的推理词表（thinking budget）
+    reasoningLevels: [
+      { value: '4k', label: '4K' },
+      { value: '8k', label: '8K' },
+      { value: '16k', label: '16K' }
+    ],
+    defaultReasoningLevel: '8k'
+  }
+]
+
+const model = ref('nova-flash')
+const reasoningLevel = ref<string>()
+
+const selectedModel = computed(() => models.find((m) => m.id === model.value))
+
+const selectionSummary = computed(() => {
+  const m = selectedModel.value
+  if (!m) return model.value
+  const provider = m.providerLabel ?? m.providerId
+  const name = m.label ?? m.id
+  const level = reasoningLevel.value
+  return level ? `${provider} / ${name} · 推理 ${level}` : `${provider} / ${name} · 无推理`
+})
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
@@ -49,7 +133,7 @@ const streamText = async (
   return pump(0)
 }
 
-/** mock transport：按关键词模拟流式输出与工具调用 */
+/** mock transport：按关键词模拟流式输出与工具调用；通用回复会带上当前模型/推理 */
 const transport: ChatTransport = async (req, handlers) => {
   const lastUser = [...req.messages].reverse().find((m) => m.role === 'user')
   const question = lastUser?.content ?? ''
@@ -112,8 +196,12 @@ const transport: ChatTransport = async (req, handlers) => {
     return
   }
 
+  // 通用路径：在回复中回显当前选择，便于验证选择器
+  const modelHint = req.model
+    ? `（模型：\`${req.model}\`${req.reasoningLevel ? ` / 推理：\`${req.reasoningLevel}\`` : ''}）`
+    : ''
   handlers.onReasoningDelta?.('用户问了一个通用问题，我应该用 markdown 格式给出回答。')
-  const answer = `你问的是：**${question}**\n\n这是一个 mock 回复，支持流式 markdown 渲染：\n\n- 列表项一\n- 列表项二\n\n\`\`\`ts\nconst hello: string = 'world'\n\`\`\``
+  const answer = `你问的是：**${question}**${modelHint}\n\n这是一个 mock 回复，支持流式 markdown 渲染：\n\n- 列表项一\n- 列表项二\n\n\`\`\`ts\nconst hello: string = 'world'\n\`\`\``
   await streamText(answer, req.signal, (ch) => handlers.onTextDelta(ch))
 }
 
@@ -163,9 +251,8 @@ const tools: ChatTool[] = [
       await sleep(800)
       return { deleted: path }
     }
-  },
-  // 内置提问工具：需求不明确时由代理发起提问，分页作答后结果回灌模型
-  createAskQuestionTool()
+  }
+  // 提问工具 askQuestion 由 UAiChat 内置自动注入，无需手动创建
 ]
 </script>
 
@@ -175,6 +262,12 @@ const tools: ChatTool[] = [
   border: 1px solid var(--u-border-muted-color);
   border-radius: var(--u-radius-large);
   overflow: hidden;
+}
+
+.selection-hint {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--u-text-color-second);
 }
 
 .weather-result {

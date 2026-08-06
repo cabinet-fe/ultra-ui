@@ -1,8 +1,9 @@
 import { useModel } from '@veltra/compositions'
-import { reactive, ref, type Ref } from 'vue'
+import { reactive, ref, watch, type Ref } from 'vue'
 
+import { createBuiltinTools } from '../tools'
 import type { AiChatEmits, AiChatProps } from '../types'
-import type { ChatAttachment, ChatMessage, ChatToolCall } from './types'
+import type { ChatAttachment, ChatMessage, ChatTool, ChatToolCall } from './types'
 
 export interface UseChatOptions {
   props: AiChatProps
@@ -24,9 +25,17 @@ function serializeResult(result: unknown): string {
   }
 }
 
+/** 内置工具 + 用户工具，同名时内置优先 */
+function resolveTools(userTools?: ChatTool[]): ChatTool[] {
+  const builtins = createBuiltinTools()
+  const names = new Set(builtins.map((t) => t.name))
+  return [...builtins, ...(userTools ?? []).filter((t) => !names.has(t.name))]
+}
+
 /**
  * AI 对话核心状态机：消息管理、流式追加、工具调用循环编排。
  * 与 UI 解耦，ai-chat.vue 只负责渲染与交互转发。
+ * 始终注入内置工具（如 askQuestion），无需经 props 传入。
  */
 export function useChat(options: UseChatOptions) {
   const { props, emit } = options
@@ -39,12 +48,46 @@ export function useChat(options: UseChatOptions) {
     defaultValue: []
   }) as Ref<ChatMessage[]>
 
+  const model = useModel({ props, propName: 'model', emit, local: true }) as Ref<string | undefined>
+
+  const reasoningLevel = useModel({ props, propName: 'reasoningLevel', emit, local: true }) as Ref<
+    string | undefined
+  >
+
   /** 是否正在生成中（含工具执行与多轮循环） */
   const running = ref(false)
 
   let abortController: AbortController | null = null
   /** needsConfirm 工具的挂起确认器，key 为 toolCallId */
   const confirmResolvers = new Map<string, (approved: boolean) => void>()
+
+  /** 按当前模型校正推理等级（无 levels 则清空；值不合法则落到默认/首项） */
+  const syncReasoningForModel = (modelId: string | undefined) => {
+    const option = props.models?.find((m) => m.id === modelId)
+    if (!option?.reasoningLevels?.length) {
+      if (reasoningLevel.value !== undefined) {
+        reasoningLevel.value = undefined
+      }
+      return
+    }
+    const levels = option.reasoningLevels
+    if (reasoningLevel.value && levels.some((l) => l.value === reasoningLevel.value)) return
+    reasoningLevel.value = option.defaultReasoningLevel ?? levels[0]?.value
+  }
+
+  // models / model 变化时：确保有合法选中模型，并校正推理等级
+  watch(
+    () => [props.models, model.value] as const,
+    ([models, current]) => {
+      if (!models?.length) return
+      if (!current || !models.some((m) => m.id === current)) {
+        model.value = models[0]!.id
+        return
+      }
+      syncReasoningForModel(current)
+    },
+    { immediate: true }
+  )
 
   /** 向父组件同步消息快照（流式 delta 过于频繁，不同步，只在关键节点同步） */
   const snapshot = () => {
@@ -65,14 +108,18 @@ export function useChat(options: UseChatOptions) {
   }
 
   /** 执行单个工具调用（含确认门控），结果以 tool 消息追加 */
-  const executeToolCall = async (toolCall: ChatToolCall, signal: AbortSignal) => {
+  const executeToolCall = async (
+    toolCall: ChatToolCall,
+    signal: AbortSignal,
+    tools: ChatTool[]
+  ) => {
     const appendToolMessage = (content: string) => {
       messages.value.push(
         reactive<ChatMessage>({ id: uid(), role: 'tool', toolCallId: toolCall.id, content })
       )
     }
 
-    const tool = props.tools?.find((t) => t.name === toolCall.name)
+    const tool = tools.find((t) => t.name === toolCall.name)
 
     if (!tool) {
       toolCall.status = 'error'
@@ -131,6 +178,7 @@ export function useChat(options: UseChatOptions) {
   const runRound = async (controller: AbortController): Promise<void> => {
     if (!props.transport) return
     const { signal } = controller
+    const tools = resolveTools(props.tools)
 
     const assistant = reactive<ChatMessage>({
       id: uid(),
@@ -149,7 +197,9 @@ export function useChat(options: UseChatOptions) {
           // 排除刚追加的 assistant 占位消息
           messages: messages.value.slice(0, -1),
           systemPrompt: props.systemPrompt,
-          tools: props.tools,
+          tools,
+          model: model.value,
+          reasoningLevel: reasoningLevel.value,
           signal
         },
         {
@@ -195,7 +245,7 @@ export function useChat(options: UseChatOptions) {
     // 工具串行执行（保持结果消息与调用顺序一致），用 Promise 链避免 await-in-loop
     await toolCalls.reduce<Promise<void>>(
       (prev, toolCall) =>
-        prev.then(() => (signal.aborted ? undefined : executeToolCall(toolCall, signal))),
+        prev.then(() => (signal.aborted ? undefined : executeToolCall(toolCall, signal, tools))),
       Promise.resolve()
     )
     snapshot()
@@ -241,5 +291,15 @@ export function useChat(options: UseChatOptions) {
     snapshot()
   }
 
-  return { messages, running, send, abort, regenerate, clear, respondToolCall }
+  return {
+    messages,
+    model,
+    reasoningLevel,
+    running,
+    send,
+    abort,
+    regenerate,
+    clear,
+    respondToolCall
+  }
 }

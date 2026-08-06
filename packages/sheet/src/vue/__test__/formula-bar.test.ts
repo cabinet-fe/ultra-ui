@@ -1,10 +1,12 @@
+import { parseRange } from '@veltra/sheet-core/core/address'
 import { Workbook } from '@veltra/sheet-core/core/workbook'
-import { ListTable } from '@visactor/vtable'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createApp, h, nextTick, type App } from 'vue'
 
 import { USheet } from '../../index'
+import { createSheetContext } from '../../tools/context'
 import type { SheetExposed } from '../../types'
+import UFormulaBar from '../formula-bar.vue'
 
 const apps: App[] = []
 const containers: HTMLElement[] = []
@@ -30,6 +32,26 @@ function mount(
   app.mount(el)
   apps.push(app)
   return { app, el }
+}
+
+function mountFormulaBar(sheet: Workbook['activeSheet']) {
+  const el = document.createElement('div')
+  document.body.appendChild(el)
+  containers.push(el)
+  const exposed: { value: InstanceType<typeof UFormulaBar> | undefined } = { value: undefined }
+  const app = createApp({
+    render: () =>
+      h(UFormulaBar, {
+        sheet,
+        context: createSheetContext(sheet),
+        ref: (value: unknown) => {
+          exposed.value = value as InstanceType<typeof UFormulaBar> | undefined
+        }
+      })
+  })
+  app.mount(el)
+  apps.push(app)
+  return { el, exposed }
 }
 
 function createWorkbook() {
@@ -397,15 +419,16 @@ describe('USheet 公式栏：函数补全与引用选择', () => {
     expect(sheet.getCellData({ row: 2, col: 0 })).toBeUndefined()
     expect(input.value).toBe('=SUM(')
 
-    // 与 grid 选区测试同路径：selectCells 设视觉选区 + fire SELECTED_CELL
-    const table = exposed.value!.getGrid()!.getTable()
-    table.selectCells([{ start: { col: 1, row: 1 }, end: { col: 2, row: 2 } }])
-    table.fireListeners(ListTable.EVENT_TYPE.SELECTED_CELL, { col: 2, row: 2 })
+    // 网格选区拦截 → handleRefSelect 路径（VTable 时序见 sheet-core selection-debug）
+    const { el: barEl, exposed: barExposed } = mountFormulaBar(sheet)
     await nextTick()
-    expect(input.value).toBe('=SUM(A1:B2')
-    expect(input.selectionStart).toBe('=SUM(A1:B2'.length)
-    // intercept 不写模型选区
-    expect(sheet.getSelection().activeCell).toEqual({ row: 2, col: 0 })
+    setFxText(barEl, '=SUM(')
+    await nextTick()
+    barExposed.value!.handleRefSelect(parseRange('A1:B2'))
+    await nextTick()
+    const barInput = fxInput(barEl)
+    expect(barInput.value).toBe('=SUM(A1:B2')
+    expect(barInput.selectionStart).toBe('=SUM(A1:B2'.length)
 
     // 非引用选择场景失焦提交
     setFxText(el, 'plain')
@@ -436,19 +459,15 @@ describe('USheet 公式栏：函数补全与引用选择', () => {
   })
 
   it('连续引用选择：=A1+ 后再插入 B1', async () => {
-    const workbook = new Workbook()
-    const sheet = workbook.activeSheet
-    const exposed: { value: SheetExposed | undefined } = { value: undefined }
-    const { el } = mount(() => ({ workbook, rows: 20, cols: 8 }), exposed)
+    const sheet = new Workbook().activeSheet
+    const { el, exposed } = mountFormulaBar(sheet)
     await nextTick()
     sheet.selectCell({ row: 2, col: 0 })
     await nextTick()
 
     setFxText(el, '=A1+')
     await nextTick()
-    const table = exposed.value!.getGrid()!.getTable()
-    table.selectCells([{ start: { col: 2, row: 1 }, end: { col: 2, row: 1 } }])
-    table.fireListeners(ListTable.EVENT_TYPE.SELECTED_CELL, { col: 2, row: 1 })
+    exposed.value!.handleRefSelect(parseRange('B1'))
     await nextTick()
     expect(fxInput(el).value).toBe('=A1+B1')
   })

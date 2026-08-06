@@ -100,6 +100,51 @@ export interface ChatToolRenderProps {
   toolCall: ChatToolCall
 }
 
+/** 推理等级选项（值不透明，由宿主/服务商约定） */
+export interface ChatReasoningLevel {
+  /** 写入请求的值 */
+  value: string
+  /** UI 文案 */
+  label: string
+}
+
+/** 单个模型配置 */
+export interface ChatModel {
+  /** 模型 id（跨 Provider 全局唯一） */
+  id: string
+  /** UI 显示名，缺省取 id */
+  label?: string
+  /** 未设或空数组 → 不展示推理选择器 */
+  reasoningLevels?: ChatReasoningLevel[]
+  /** 默认推理等级（须落在 reasoningLevels 内） */
+  defaultReasoningLevel?: string
+}
+
+/** 模型服务商配置（内嵌 models） */
+export interface ChatProvider {
+  id: string
+  /** UI 显示名 */
+  label?: string
+  /** 完整 http(s) URL 或相对路径，如 /api/ai/chat */
+  endpoint: string
+  /** API Key（有则带 Bearer；相对路径场景可省略） */
+  apiKey?: string
+  /** Provider 级额外请求头 */
+  headers?: Record<string, string>
+  /**
+   * 将选中的推理等级写入 body。
+   * 缺省：若 level 存在则 `body.reasoning_effort = level`。
+   */
+  applyReasoning?: (level: string, body: Record<string, unknown>) => void
+  models: ChatModel[]
+}
+
+/** UI / useChat 使用的扁平模型项（带 providerId） */
+export interface ChatModelOption extends ChatModel {
+  providerId: string
+  providerLabel?: string
+}
+
 /** transport 请求参数 */
 export interface ChatTransportRequest {
   /** 完整消息历史（内部模型，transport 自行转换为 wire 格式） */
@@ -108,6 +153,10 @@ export interface ChatTransportRequest {
   systemPrompt?: string
   /** 可用工具 */
   tools?: ChatTool[]
+  /** 选中的模型 id（内置 OpenAI transport 按此路由 Provider） */
+  model?: string
+  /** 选中的推理等级（不透明字符串，由 Provider.applyReasoning 写入请求体） */
+  reasoningLevel?: string
   /** 中断信号 */
   signal: AbortSignal
 }
@@ -136,6 +185,30 @@ export type ChatTransport = (
   handlers: ChatTransportHandlers
 ) => Promise<void> | void
 
+/** createOpenAITransport 的配置项（多 Provider） */
+export interface OpenAITransportOptions {
+  /** 至少一个 Provider；模型 id 须跨 Provider 全局唯一 */
+  providers: ChatProvider[]
+  /** 全局额外请求头（与各 Provider headers 合并，Provider 优先） */
+  headers?: Record<string, string>
+  /** 全局额外请求体字段，如 temperature、top_p */
+  body?: Record<string, unknown>
+}
+
+/** 带扁平模型列表元数据的 OpenAI 兼容 transport */
+export type OpenAITransport = ChatTransport & {
+  /** 供 UI 使用的扁平模型列表 */
+  readonly models: ChatModelOption[]
+  /** 默认模型 id（首个 Provider 的首个模型） */
+  readonly defaultModel: string
+}
+
+/**
+ * 创建 OpenAI 兼容协议的传输层（chat/completions SSE）。
+ * 按 request.model 路由到对应 Provider；旧单字段配置已移除。
+ */
+export declare function createOpenAITransport(options: OpenAITransportOptions): OpenAITransport
+
 export interface AiChatProps {
   /** 传输层（必填），可使用导出的 createOpenAITransport() 创建 */
   transport: ChatTransport
@@ -145,6 +218,15 @@ export interface AiChatProps {
   systemPrompt?: string
   /** 消息列表，支持 v-model:messages 受控 */
   messages?: ChatMessage[]
+  /**
+   * 可选模型列表；有值则在输入栏展示模型选择器。
+   * 可从 createOpenAITransport() 返回值的 `.models` 直接传入。
+   */
+  models?: ChatModelOption[]
+  /** 当前模型 id，支持 v-model:model */
+  model?: string
+  /** 当前推理等级，支持 v-model:reasoning-level */
+  reasoningLevel?: string
   /** 空状态欢迎语 */
   welcome?: string
   /** 输入框占位文本 */
@@ -160,6 +242,10 @@ export interface AiChatProps {
 export interface AiChatEmits {
   /** 消息列表变化 */
   (e: 'update:messages', messages: ChatMessage[]): void
+  /** 当前模型变化 */
+  (e: 'update:model', model: string | undefined): void
+  /** 当前推理等级变化 */
+  (e: 'update:reasoningLevel', reasoningLevel: string | undefined): void
   /** 用户发送消息 */
   (e: 'send', message: ChatMessage): void
   /** 一轮对话完成（无更多工具调用） */
@@ -196,6 +282,10 @@ export interface UseChatOptions {
 export declare function useChat(options: UseChatOptions): {
   /** 消息列表（本地受控，随 props.messages 同步） */
   messages: Ref<ChatMessage[]>
+  /** 当前模型 id */
+  model: Ref<string | undefined>
+  /** 当前推理等级 */
+  reasoningLevel: Ref<string | undefined>
   /** 是否正在生成中（含工具执行与多轮循环） */
   running: Ref<boolean>
   /** 发送一条用户消息并启动对话循环 */
@@ -210,7 +300,7 @@ export declare function useChat(options: UseChatOptions): {
   respondToolCall: (toolCallId: string, approved: boolean) => void
 }
 
-/** 单个提问项（createAskQuestionTool 的模型输出） */
+/** 单个提问项（内置 askQuestion 工具的模型输出） */
 export interface AskQuestionItem {
   /** 问题文案 */
   question: string
@@ -237,23 +327,3 @@ export interface AskQuestionArgs {
 export interface AskQuestionResult {
   answers: AskQuestionAnswer[]
 }
-
-export interface CreateAskQuestionToolOptions {
-  /** 工具名（传给模型），默认 askQuestion */
-  name?: string
-  /** 工具描述（传给模型） */
-  description?: string
-  /** 工具显示名，默认「提问」 */
-  label?: string
-  /** 工具图标，默认 QuestionFilled */
-  icon?: Component
-}
-
-/**
- * 创建内置提问工具：需求不明确或存在歧义时由模型发起提问，
- * execute 挂起等待用户在分页表单中作答（选项 + 自定义输入），
- * 提交后结果回灌模型，卡片展示问答摘要且不自动折叠。
- */
-export declare function createAskQuestionTool(
-  options?: CreateAskQuestionToolOptions
-): ChatTool<AskQuestionArgs>

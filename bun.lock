@@ -139,9 +139,6 @@
       "dependencies": {
         "hucre": "^1.0.0",
       },
-      "devDependencies": {
-        "@visactor/vtable": "^1.26.6",
-      },
       "peerDependencies": {
         "@cat-kit/core": ">=1.1.8",
         "@cat-kit/fe": ">=1.1.8",
@@ -218,6 +215,9 @@
         "@veltra/vite": "workspace:*",
       },
     },
+  },
+  "patchedDependencies": {
+    "simple-git-hooks@2.13.1": "patches/simple-git-hooks@2.13.1.patch",
   },
   "overrides": {
     "@codemirror/autocomplete": "6.20.3",

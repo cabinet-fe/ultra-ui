@@ -7,6 +7,7 @@ import type {
   ChatToolCall,
   ChatTransport
 } from '../chat/types'
+import type { ChatModelOption } from '../providers'
 
 export interface AiChatProps {
   /** 传输层（必填），可使用导出的 createOpenAITransport() 创建 */
@@ -17,6 +18,15 @@ export interface AiChatProps {
   systemPrompt?: string
   /** 消息列表，支持 v-model:messages 受控 */
   messages?: ChatMessage[]
+  /**
+   * 可选模型列表；有值则在输入栏展示模型选择器。
+   * 可从 createOpenAITransport() 返回值的 `.models` 直接传入。
+   */
+  models?: ChatModelOption[]
+  /** 当前模型 id，支持 v-model:model */
+  model?: string
+  /** 当前推理等级，支持 v-model:reasoning-level */
+  reasoningLevel?: string
   /** 空状态欢迎语 */
   welcome?: string
   /** 输入框占位文本 */
@@ -32,6 +42,10 @@ export interface AiChatProps {
 export interface AiChatEmits {
   /** 消息列表变化 */
   (e: 'update:messages', messages: ChatMessage[]): void
+  /** 当前模型变化 */
+  (e: 'update:model', model: string | undefined): void
+  /** 当前推理等级变化 */
+  (e: 'update:reasoningLevel', reasoningLevel: string | undefined): void
   /** 用户发送消息 */
   (e: 'send', message: ChatMessage): void
   /** 一轮对话完成（无更多工具调用） */

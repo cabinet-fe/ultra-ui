@@ -374,13 +374,69 @@ $root-name: ai-chat;
 
   @include m.e(input-toolbar) {
     @include m.flex(flex, space-between, center);
+    gap: fn.use-var(gap, small);
     padding: 0 fn.use-var(gap, small);
+  }
+
+  @include m.e(input-toolbar-left) {
+    @include m.flex(flex, flex-start, center);
+    gap: fn.use-var(gap, small);
+    flex-shrink: 0;
+  }
+
+  @include m.e(input-toolbar-right) {
+    @include m.flex(flex, flex-end, center);
+    gap: fn.use-var(gap, small);
+    min-width: 0;
+  }
+
+  // 无边框 USelect：覆盖内部 UInput 边框/阴影，文本右对齐
+  @mixin input-select-plain {
+    flex-shrink: 0;
+    width: fit-content;
+    max-width: 160px;
+    min-width: 0;
+
+    .u-input {
+      border: none;
+      box-shadow: none;
+      background: transparent;
+      padding-inline: 0;
+
+      &:hover {
+        border-color: transparent;
+      }
+
+      &.is-focus {
+        border-color: transparent;
+        box-shadow: none;
+      }
+    }
+
+    .u-input__native {
+      text-align: right;
+      cursor: pointer;
+    }
+
+    .u-input__suffix {
+      color: fn.use-var(text-color, assist);
+    }
+  }
+
+  @include m.e(input-model) {
+    @include input-select-plain;
+  }
+
+  @include m.e(input-reasoning) {
+    @include input-select-plain;
+    max-width: 100px;
   }
 
   @include m.e(input-attach) {
     color: fn.use-var(text-color, assist);
     cursor: pointer;
     font-size: 18px;
+    flex-shrink: 0;
 
     &:hover {
       color: fn.use-var(color, primary);

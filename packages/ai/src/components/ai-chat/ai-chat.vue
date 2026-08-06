@@ -13,7 +13,10 @@
     </MessageList>
 
     <ChatInput
+      v-model:model="model"
+      v-model:reasoning-level="reasoningLevel"
       :running="running"
+      :models="models"
       :placeholder="placeholder"
       :accept="accept"
       :max-attachment-size="maxAttachmentSize"
@@ -27,8 +30,9 @@
 import { bem } from '@veltra/utils'
 import { computed, provide, useSlots } from 'vue'
 
-import type { ChatTool, ChatToolCall } from '../../chat/types'
+import type { ChatToolCall } from '../../chat/types'
 import { useChat } from '../../chat/use-chat'
+import { createBuiltinTools } from '../../tools'
 import type { _AiChatExposed, AiChatEmits, AiChatProps } from '../../types'
 import ChatInput from './chat-input.vue'
 import { AiChatDIKey } from './di'
@@ -51,17 +55,27 @@ const cls = bem('ai-chat')
 
 const slots = useSlots()
 
-/** 按 name 索引的工具定义，供工具卡片解析 icon/label/render/autoCollapse */
-const toolMap = computed<Record<string, ChatTool | undefined>>(() => {
-  return Object.fromEntries((props.tools ?? []).map((tool) => [tool.name, tool]))
+/** 内置 + 用户工具（同名内置优先），供工具卡片解析 icon/label/render/autoCollapse */
+const toolMap = computed(() => {
+  const builtins = createBuiltinTools()
+  const names = new Set(builtins.map((t) => t.name))
+  const tools = [...builtins, ...(props.tools ?? []).filter((t) => !names.has(t.name))]
+  return Object.fromEntries(tools.map((t) => [t.name, t]))
 })
 
 provide(AiChatDIKey, { cls, slots, tools: toolMap })
 
-const { messages, running, send, abort, regenerate, clear, respondToolCall } = useChat({
-  props,
-  emit
-})
+const {
+  messages,
+  model,
+  reasoningLevel,
+  running,
+  send,
+  abort,
+  regenerate,
+  clear,
+  respondToolCall
+} = useChat({ props, emit })
 
 defineExpose<_AiChatExposed>({ send, abort, regenerate, clear })
 </script>

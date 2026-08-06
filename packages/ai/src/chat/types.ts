@@ -107,6 +107,10 @@ export interface ChatTransportRequest {
   systemPrompt?: string
   /** 可用工具 */
   tools?: ChatTool[]
+  /** 选中的模型 id（内置 OpenAI transport 按此路由 Provider） */
+  model?: string
+  /** 选中的推理等级（不透明字符串，由 Provider.applyReasoning 写入请求体） */
+  reasoningLevel?: string
   /** 中断信号 */
   signal: AbortSignal
 }

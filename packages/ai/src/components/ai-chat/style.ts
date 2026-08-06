@@ -1,6 +1,8 @@
 import '@veltra/desktop/components/button/style'
+import '@veltra/desktop/components/file-picker/style'
 import '@veltra/desktop/components/icon/style'
 import '@veltra/desktop/components/input/style'
 import '@veltra/desktop/components/scroll/style'
+import '@veltra/desktop/components/select/style'
 import 'markstream-vue/index.css'
 import './style.scss'

@@ -243,4 +243,75 @@ describe('useChat', () => {
     await nextTick()
     expect(chat.messages.value).toHaveLength(0)
   })
+
+  it('请求携带 model 与 reasoningLevel', async () => {
+    const emit = createEmit()
+    const requests: ChatTransportRequest[] = []
+
+    const transport: ChatTransport = (req, handlers) => {
+      requests.push(req)
+      handlers.onTextDelta('ok')
+    }
+
+    const chat = useChat({
+      props: {
+        transport,
+        models: [
+          {
+            id: 'gpt-4o',
+            providerId: 'openai',
+            reasoningLevels: [
+              { value: 'low', label: '低' },
+              { value: 'high', label: '高' }
+            ],
+            defaultReasoningLevel: 'low'
+          }
+        ],
+        model: 'gpt-4o',
+        reasoningLevel: 'high'
+      },
+      emit
+    })
+
+    chat.send('hi')
+    await waitFinish(emit)
+
+    expect(requests[0]).toMatchObject({ model: 'gpt-4o', reasoningLevel: 'high' })
+  })
+
+  it('切换模型时校正推理等级', async () => {
+    const emit = createEmit()
+    const chat = useChat({
+      props: {
+        transport: textTransport('x'),
+        models: [
+          {
+            id: 'with-reason',
+            providerId: 'a',
+            reasoningLevels: [
+              { value: 'low', label: '低' },
+              { value: 'high', label: '高' }
+            ],
+            defaultReasoningLevel: 'low'
+          },
+          { id: 'no-reason', providerId: 'a' }
+        ],
+        model: 'with-reason',
+        reasoningLevel: 'high'
+      },
+      emit
+    })
+
+    await nextTick()
+    expect(chat.model.value).toBe('with-reason')
+    expect(chat.reasoningLevel.value).toBe('high')
+
+    chat.model.value = 'no-reason'
+    await nextTick()
+    expect(chat.reasoningLevel.value).toBeUndefined()
+
+    chat.model.value = 'with-reason'
+    await nextTick()
+    expect(chat.reasoningLevel.value).toBe('low')
+  })
 })

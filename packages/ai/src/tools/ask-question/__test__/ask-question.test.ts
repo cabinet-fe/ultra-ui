@@ -4,7 +4,6 @@ import { createApp, defineComponent, h, nextTick, ref } from 'vue'
 import type { ChatMessage, ChatTransport } from '../../../chat/types'
 import UAiChat from '../../../components/ai-chat/ai-chat.vue'
 import type { AiChatExposed } from '../../../types'
-import { createAskQuestionTool } from '../ask-question'
 
 // happy-dom 环境下用桩组件替换 MarkdownRender，仅验证组件自身逻辑
 vi.mock('markstream-vue', () => ({
@@ -24,7 +23,8 @@ function mountAiChat(transport: ChatTransport) {
 
   const app = createApp({
     render() {
-      return h(UAiChat, { ref: chatRef, transport, tools: [createAskQuestionTool()] })
+      // 不传 tools：验证提问工具由 UAiChat 内置自动注入
+      return h(UAiChat, { ref: chatRef, transport })
     }
   })
 
@@ -81,7 +81,7 @@ const optionButton = (host: HTMLElement, text: string) => {
   )
 }
 
-describe('createAskQuestionTool', () => {
+describe('内置提问工具', () => {
   it('分页提问：导航、作答、提交后展示问答摘要', async () => {
     const rounds: ChatMessage[][] = []
     const { host, chat, unmount } = mountAiChat(createAskTransport(rounds))

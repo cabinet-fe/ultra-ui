@@ -1,4 +1,6 @@
-import { nextTick, provide, shallowRef, watchEffect, type ShallowRef } from 'vue'
+import { debounce } from '@cat-kit/core'
+import { useResizeObserver } from '@veltra/compositions'
+import { computed, nextTick, provide, shallowRef, watchEffect, type ShallowRef } from 'vue'
 
 import type { ScrollExposed } from '../../types'
 import { allocateLeafColumnWidths } from './allocate-column-widths'
@@ -52,6 +54,12 @@ export function useColResize(options: Options): UseColResizeReturned {
   }
 
   watchEffect(correctColumnStyle)
+
+  // 容器宽度变化（窗口缩放、父布局变化、纵向滚动条出现/消失等）时重新分配列宽，
+  // 直到所有未显式设宽的列回落到 minWidth。计算开销较大，用防抖合并连续的 resize 触发。
+  const debouncedCorrectColumnStyle = debounce(correctColumnStyle)
+  const containerRef = computed(() => scrollRef.value?.containerRef ?? null)
+  useResizeObserver({ targets: containerRef, onResize: debouncedCorrectColumnStyle })
 
   function updateResizeLine(transformX: number): void {
     if (!resizeLineRef.value) return

@@ -62,5 +62,8 @@
     "commit-msg": "bun cat-cli verify-commit",
     "pre-commit": "vp staged"
   },
-  "packageManager": "bun@1.3.14"
+  "packageManager": "bun@1.3.14",
+  "patchedDependencies": {
+    "simple-git-hooks@2.13.1": "patches/simple-git-hooks@2.13.1.patch"
+  }
 }

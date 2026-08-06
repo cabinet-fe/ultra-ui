@@ -120,6 +120,35 @@ describe('选区交互时序', () => {
     }
   })
 
+  it('interceptSelection：连续 SELECTED_CELL 各触发 onSelectionIntercept 且不写模型', () => {
+    const sheet = new Sheet()
+    sheet.selectCell({ row: 2, col: 0 })
+    const intercepted: string[] = []
+    const container = createContainer()
+    const grid = new SheetGrid({
+      container,
+      sheet,
+      rows: 20,
+      cols: 8,
+      interceptSelection: () => true,
+      onSelectionIntercept: (range) => {
+        intercepted.push(`${range.start.row},${range.start.col}:${range.end.row},${range.end.col}`)
+      }
+    })
+    const table = grid.getTable()
+    try {
+      table.selectCells([{ start: { col: 2, row: 1 }, end: { col: 2, row: 1 } }])
+      table.fireListeners(ListTable.EVENT_TYPE.SELECTED_CELL, { col: 2, row: 1 })
+      expect(intercepted).toEqual(['0,1:0,1'])
+      table.selectCells([{ start: { col: 3, row: 2 }, end: { col: 3, row: 2 } }])
+      table.fireListeners(ListTable.EVENT_TYPE.SELECTED_CELL, { col: 3, row: 2 })
+      expect(intercepted).toEqual(['0,1:0,1', '1,2:1,2'])
+      expect(sheet.getSelection().activeCell).toEqual({ row: 2, col: 0 })
+    } finally {
+      grid.release()
+    }
+  })
+
   it('interceptSelection：仅 DRAG_SELECT_END 时仍插入且不写模型', () => {
     const sheet = new Sheet()
     sheet.selectCell({ row: 3, col: 3 })

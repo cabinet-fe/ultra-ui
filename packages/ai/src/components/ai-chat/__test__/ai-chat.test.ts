@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { createApp, defineComponent, h, nextTick, ref, type PropType } from 'vue'
 
 import type { ChatTool, ChatToolCall, ChatTransport } from '../../../chat/types'
+import type { ChatModelOption } from '../../../providers'
 import type { AiChatExposed } from '../../../types'
 import UAiChat from '../ai-chat.vue'
 
@@ -19,6 +20,9 @@ function mountAiChat(options: {
   transport: ChatTransport
   tools?: ChatTool[]
   welcome?: string
+  models?: ChatModelOption[]
+  model?: string
+  reasoningLevel?: string
   slots?: Record<string, (scope: any) => any>
 }) {
   const host = document.createElement('div')
@@ -34,7 +38,10 @@ function mountAiChat(options: {
           ref: chatRef,
           transport: options.transport,
           tools: options.tools,
-          welcome: options.welcome
+          welcome: options.welcome,
+          models: options.models,
+          model: options.model,
+          reasoningLevel: options.reasoningLevel
         },
         options.slots
       )
@@ -294,6 +301,14 @@ describe('UAiChat', () => {
     unmount()
   })
 
+  it('输入区使用原生 textarea 与 UFilePicker', () => {
+    const { host, unmount } = mountAiChat({ transport: () => {} })
+
+    expect(host.querySelector('textarea.u-ai-chat__input')).toBeTruthy()
+    expect(host.querySelector('.u-ai-chat__input-toolbar-left .u-file-picker')).toBeTruthy()
+    unmount()
+  })
+
   it('生成中输入区显示停止按钮', async () => {
     const transport: ChatTransport = (req) => {
       return new Promise<void>((resolve) => {
@@ -312,5 +327,87 @@ describe('UAiChat', () => {
       expect(host.querySelector('.u-ai-chat__input-stop')).toBeFalsy()
     })
     unmount()
+  })
+
+  it('有 models 时渲染模型选择器；有 reasoningLevels 时渲染推理选择器', async () => {
+    const { host, unmount } = mountAiChat({
+      transport: () => {},
+      models: [
+        { id: 'gpt-4o', label: 'GPT-4o', providerId: 'openai' },
+        {
+          id: 'o3-mini',
+          label: 'o3-mini',
+          providerId: 'openai',
+          reasoningLevels: [
+            { value: 'low', label: '低' },
+            { value: 'high', label: '高' }
+          ],
+          defaultReasoningLevel: 'low'
+        }
+      ],
+      model: 'gpt-4o'
+    })
+
+    await nextTick()
+    // 模型选择器在右簇（发送按钮左侧），不在附件侧
+    expect(
+      host.querySelector('.u-ai-chat__input-toolbar-right .u-ai-chat__input-model')
+    ).toBeTruthy()
+    expect(host.querySelector('.u-ai-chat__input-toolbar-left .u-ai-chat__input-model')).toBeFalsy()
+    // 当前模型无 reasoningLevels，不展示推理选择器
+    expect(host.querySelector('.u-ai-chat__input-reasoning')).toBeFalsy()
+    unmount()
+  })
+
+  it('切换到带 reasoningLevels 的模型后显示推理选择器', async () => {
+    const model = ref('gpt-4o')
+    const reasoningLevel = ref<string | undefined>()
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
+    const app = createApp({
+      setup() {
+        return () =>
+          h(UAiChat, {
+            transport: () => {},
+            models: [
+              { id: 'gpt-4o', label: 'GPT-4o', providerId: 'openai' },
+              {
+                id: 'o3-mini',
+                label: 'o3-mini',
+                providerId: 'openai',
+                reasoningLevels: [
+                  { value: 'low', label: '低' },
+                  { value: 'high', label: '高' }
+                ],
+                defaultReasoningLevel: 'low'
+              }
+            ],
+            model: model.value,
+            'onUpdate:model': (v: string | undefined) => {
+              model.value = v ?? ''
+            },
+            reasoningLevel: reasoningLevel.value,
+            'onUpdate:reasoningLevel': (v: string | undefined) => {
+              reasoningLevel.value = v
+            }
+          })
+      }
+    })
+    app.mount(host)
+    await nextTick()
+
+    expect(host.querySelector('.u-ai-chat__input-reasoning')).toBeFalsy()
+
+    model.value = 'o3-mini'
+    await nextTick()
+
+    expect(
+      host.querySelector('.u-ai-chat__input-toolbar-right .u-ai-chat__input-reasoning')
+    ).toBeTruthy()
+    expect(reasoningLevel.value).toBe('low')
+
+    app.unmount()
+    host.remove()
   })
 })
