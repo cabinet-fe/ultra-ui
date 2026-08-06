@@ -1,4 +1,5 @@
 import { Workbook } from '@veltra/sheet-core/core/workbook'
+import { ListTable } from '@visactor/vtable'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createApp, h, nextTick, type App } from 'vue'
 
@@ -398,7 +399,6 @@ describe('USheet 公式栏：函数补全与引用选择', () => {
 
     // 与 grid 选区测试同路径：selectCells 设视觉选区 + fire SELECTED_CELL
     const table = exposed.value!.getGrid()!.getTable()
-    const { ListTable } = await import('@visactor/vtable')
     table.selectCells([{ start: { col: 1, row: 1 }, end: { col: 2, row: 2 } }])
     table.fireListeners(ListTable.EVENT_TYPE.SELECTED_CELL, { col: 2, row: 2 })
     await nextTick()
@@ -447,7 +447,6 @@ describe('USheet 公式栏：函数补全与引用选择', () => {
     setFxText(el, '=A1+')
     await nextTick()
     const table = exposed.value!.getGrid()!.getTable()
-    const { ListTable } = await import('@visactor/vtable')
     table.selectCells([{ start: { col: 2, row: 1 }, end: { col: 2, row: 1 } }])
     table.fireListeners(ListTable.EVENT_TYPE.SELECTED_CELL, { col: 2, row: 1 })
     await nextTick()

@@ -139,6 +139,9 @@
       "dependencies": {
         "hucre": "^1.0.0",
       },
+      "devDependencies": {
+        "@visactor/vtable": "^1.26.6",
+      },
       "peerDependencies": {
         "@cat-kit/core": ">=1.1.8",
         "@cat-kit/fe": ">=1.1.8",
