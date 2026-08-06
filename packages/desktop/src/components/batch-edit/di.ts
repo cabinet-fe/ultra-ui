@@ -22,5 +22,7 @@ export const BatchEditDIKey: InjectionKey<
     >
     /** 组件或其子节点是否处于聚焦状态 */
     focused: ShallowRef<boolean>
+    /** 是否正在以编程方式重置/回显表单，此期间禁止 quick-edit 回写行数据 */
+    syncing: ShallowRef<boolean>
   } & EditReturned
 > = Symbol('BatchEditDIKey')

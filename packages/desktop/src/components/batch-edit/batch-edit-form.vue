@@ -1,5 +1,6 @@
 <template>
-  <aside :class="cls.e('form')" v-if="state.formVisible && !!props.model">
+  <!-- 表单常驻挂载（快照只在挂载时对传入的 model 拍一次），仅用 v-show 控制显隐 -->
+  <aside :class="cls.e('form')" v-if="!!props.model" v-show="state.formVisible">
     <header :class="cls.e('form-header')">
       <span :class="[cls.e('form-icon'), bem.is(state.formActionType)]">
         <u-icon>
@@ -20,7 +21,7 @@
       />
     </header>
 
-    <u-scroll always :class="cls.e('form-body')" :key="bodyKey">
+    <u-scroll always :class="cls.e('form-body')">
       <transition name="fade" appear mode="out-in">
         <u-form
           ref="formComponentRef"
@@ -90,7 +91,8 @@ defineOptions({ name: 'UBatchEditForm' })
 
 const batchEditCtx = inject(BatchEditDIKey)!
 
-const { cls, props, state, handleClose, handleSave, staticFeatures, dynamicFeatures } = batchEditCtx
+const { cls, props, state, handleClose, handleSave, staticFeatures, dynamicFeatures, syncing } =
+  batchEditCtx
 
 const focused = toRef(batchEditCtx, 'focused')
 
@@ -104,6 +106,9 @@ defineExpose<_FormExposed>({
 })
 
 function handleFieldChange(field: string, value: any) {
+  // 编程方式重置/回显期间不写回行数据，避免默认值污染源数据
+  if (syncing.value) return
+
   if (state.row && props.quickEdit) {
     o(state.row.data).set(field, value)
   }
@@ -133,9 +138,4 @@ const showSaveBtn = computed(() => {
 })
 
 const headerInfo = computed(() => FORM_ACTION_HEADER_MAP[state.formActionType])
-
-/** 通过 row 切换 / 类型切换驱动表单内容淡出淡入 */
-const bodyKey = computed(() => {
-  return `${state.formActionType}-${state.row?.uid ?? 'create'}-${state.parentRow?.uid ?? 'root'}`
-})
 </script>
