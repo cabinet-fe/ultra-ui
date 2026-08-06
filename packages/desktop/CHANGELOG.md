@@ -1,5 +1,40 @@
 # @veltra/desktop
 
+## 1.5.0
+
+### Minor Changes
+
+- 9aa6c0c: 右键菜单增强 + 行列头菜单：
+
+  - `@veltra/desktop` `ContextmenuItem` 新增 `divider` / `render` / `keepOpen`；导出
+    `ContextmenuRootDIKey` 供内嵌组件主动关闭菜单
+  - `@veltra/sheet` 行号/列头右键独立菜单（插入上下/左右 + 删除 + 冻结/取消冻结）；
+    body 插入行/列改为菜单内嵌 `UNumberInput`（默认 N = 选区覆盖行/列数），不再弹独立面板
+  - 修复 `deleteRows` / `deleteCols` undo 不还原删除区间内单元格数据的问题
+    （`prepareDeletedCellPatches` + undo 在反向结构之后恢复）
+
+- 4368035: 新增 `@veltra/sheet-core` 包，file-viewer Excel 预览迁移：
+
+  - **@veltra/sheet-core（新包）**：框架无关表格核心——`core/`（数据模型 / 命令 / 公式 / IO）+
+    `grid/`（VTable 适配层 SheetGrid / ImageLayer）自 `@veltra/sheet` 迁入；SheetGrid 新增
+    `readonly` 模式（不挂编辑器、禁编辑回写 / 填充柄 / undo 快捷键 / 行列 resize / 图片拖动删除，
+    保留选择 / 滚动 / 右键回调），供只读预览场景使用
+  - **@veltra/sheet**：core/grid 迁至 sheet-core，`src/index.ts` 从其 re-export 白名单，
+    公开 API 不变；peer 新增 `@veltra/sheet-core`，`@visactor/vtable(-editors)` 不再直接依赖
+  - **@veltra/desktop**：file-viewer 的 Excel/CSV 预览从 `@cat-kit/excel` + 裸 `ListTable`
+    迁移到 `@veltra/sheet-core`（readonly SheetGrid）——样式 / 合并单元格 / 行高 / 冻结 /
+    公式计算保真；peer 移除 `@cat-kit/excel`、新增 `@veltra/sheet-core`，dependencies
+    移除 `@visactor/vtable`；`sheetMaxRows` 不再硬裁模型（超限时提示条文案改为如实说明）
+
+### Patch Changes
+
+- 34dca61: xlsx 导入性能与交互反馈优化：
+
+  - **解析提速**（`core/io/import.ts`）：hucre 稠密行数组空槽快速跳过 + 表格尺寸按实际使用范围收敛。实测 196 sheet / 75 万格预算套表：解析 110s → 3.5s；含「全选设边框」残留（整表 13327 行 × 16384 列空白格式格）的 sheet 不再把渲染尺寸撑到 Excel 极限，切换 30s → 0.3s
+  - **解析移入 Web Worker**（`vue/popups/import.worker.ts`）：选文件后主线程空闲（loading 动画正常转、页面可交互），解析完成才弹确认框；worker 不可用（构造失败/加载失败）自动降级主线程解析
+  - **交互反馈**：解析期经 provide/inject 状态在 grid 容器挂 desktop `v-loading`；replaceWorkbook 前「正在导入…」常驻提示（try/catch/finally 兜底，失败明确报错）；等首帧渲染完成再报「导入完成」（导入后立即点单元格/滚动不再撞上 vrender 渲染任务，实测 3~5s → 16ms）
+  - **desktop message-confirm**：根元素补基础 `transition`——Vue transition-group 检测不到根过渡时 after-leave 同步触发，弹窗关闭动画被 onClosed 同步重活阻塞（点击后卡 1.6s 才关）
+
 ## 1.4.0
 
 ### Patch Changes

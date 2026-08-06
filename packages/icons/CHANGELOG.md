@@ -1,5 +1,17 @@
 # @veltra/icons
 
+## 1.5.0
+
+### Minor Changes
+
+- c00bf59: 浮动图按 Excel 两点锚定定位并支持拖动；导入直接打开文件选择并调换导入/导出图标；重绘换行图标，新增彩色字体颜色图标。
+- 9aa6c0c: 工具栏重构（图标化 / 分区 / 精简 / 导出合并）：
+
+  - `@veltra/icons`：新增 sheet 工具栏缺口图标（bold/italic/underline/strikethrough/font-color/font-size/fill/border/merge-cells/unmerge-cells/wrap）
+  - `@veltra/sheet`：内置工具重组为 history ｜ cell ｜ text ｜ edit ｜ file；全面图标 + UTip tooltip
+  - 移除 structure/freeze 工具栏入口与 insert-cells-popup（行列插入删除/冻结改由右键菜单）
+  - 导出合并为单 `export` 弹层（Excel / CSV）；playground 清理 demo 工具
+
 ## 1.4.0
 
 ## 1.3.10
