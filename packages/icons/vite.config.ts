@@ -17,7 +17,7 @@ const config = {
     clean: true,
     treeshake: true,
     deps: { neverBundle: ['vue'] },
-    dts: { vue: true },
+    dts: true,
     plugins: [unpluginVue({ isProduction: true })]
   }
 }

@@ -57,7 +57,7 @@ const config = {
         'hucre'
       ]
     },
-    dts: { vue: true },
+    dts: true,
     css: {
       inject: true,
       preprocessorOptions: { scss: { importers: [new NodePackageImporter(repoRoot)] } }
