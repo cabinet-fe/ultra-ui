@@ -135,7 +135,7 @@
     },
     "packages/sheet": {
       "name": "@veltra/sheet",
-      "version": "2.1.0",
+      "version": "2.1.1",
       "dependencies": {
         "hucre": "^1.0.0",
       },
@@ -155,7 +155,7 @@
     },
     "packages/sheet-core": {
       "name": "@veltra/sheet-core",
-      "version": "2.1.0",
+      "version": "2.1.1",
       "dependencies": {
         "@visactor/vtable": "^1.26.6",
         "@visactor/vtable-editors": "^1.26.6",

@@ -1,5 +1,11 @@
 # @veltra/sheet
 
+## 2.1.1
+
+### Patch Changes
+
+- a81199d: fix(sheet): formula-bar 测试在 CI 中正确解析 @visactor/vtable 依赖
+
 ## 2.1.0
 
 ### Minor Changes
