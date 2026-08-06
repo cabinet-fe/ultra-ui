@@ -324,7 +324,7 @@ function suggestList(el: HTMLElement): HTMLElement | null {
 }
 
 describe('USheet 公式栏：函数补全与引用选择', () => {
-  it('输入 = 弹出候选；SU 过滤到 SUM；↓+Enter 替换为 =SUM( 且光标在括号内', async () => {
+  it('输入 = 弹出候选含 SUM；SU 过滤到 SUM；↓+Enter 替换为 =SUM() 且光标在括号内', async () => {
     const workbook = new Workbook()
     const { el } = mount(() => ({ workbook, rows: 20, cols: 8 }))
     await nextTick()
@@ -332,7 +332,11 @@ describe('USheet 公式栏：函数补全与引用选择', () => {
     setFxText(el, '=')
     await nextTick()
     expect(suggestList(el)).not.toBeNull()
-    expect(el.querySelectorAll('.u-sheet__fx-suggest-item').length).toBeGreaterThan(0)
+    const emptyPrefixNames = [...el.querySelectorAll('.u-sheet__fx-suggest-item')].map(
+      (n) => n.querySelector('.u-sheet__fx-suggest-sig')!.textContent
+    )
+    expect(emptyPrefixNames.length).toBeGreaterThan(0)
+    expect(emptyPrefixNames.some((t) => t?.startsWith('SUM('))).toBe(true)
 
     setFxText(el, '=SU')
     await nextTick()
@@ -345,7 +349,7 @@ describe('USheet 公式栏：函数补全与引用选择', () => {
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
     await nextTick()
-    expect(input.value).toBe('=SUM(')
+    expect(input.value).toBe('=SUM()')
     expect(input.selectionStart).toBe(5)
     expect(suggestList(el)).toBeNull()
   })

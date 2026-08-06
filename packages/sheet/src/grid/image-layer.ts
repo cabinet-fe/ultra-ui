@@ -91,7 +91,8 @@ export class ImageLayer {
       inset: '0',
       overflow: 'hidden',
       pointerEvents: 'none',
-      zIndex: '2'
+      // 高于 VTable canvas，低于公式栏候选（formula-bar z-index:30）
+      zIndex: '1'
     } satisfies Partial<CSSStyleDeclaration>)
     this.container.appendChild(this.root)
 

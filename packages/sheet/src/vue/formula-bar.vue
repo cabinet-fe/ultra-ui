@@ -270,7 +270,7 @@ function confirmSuggest(item?: FormulaSuggestItem): void {
     el.focus()
     el.setSelectionRange(result.cursor, result.cursor)
     autosizeFx()
-    // 替换为 NAME( 后通常进入引用选择上下文，不再弹补全
+    // 替换为 NAME() 后通常进入引用选择上下文，不再弹补全
     refreshSuggest()
   })
 }

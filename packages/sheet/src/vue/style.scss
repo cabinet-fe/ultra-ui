@@ -147,9 +147,9 @@
     gap: fn.use-var(gap, small);
     padding: fn.use-var(gap, small);
     border-bottom: 1px solid fn.use-var(border, muted-color);
-    // 浮起的 fx 输入面板需盖住下方 grid；候选列表也挂在此层
+    // 浮起的 fx 输入面板 / 候选列表需盖住下方 grid 与浮动图片叠层（image-layer z-index:1）
     position: relative;
-    z-index: 2;
+    z-index: 30;
   }
 
   // 文档流只占单行高度；真正的输入区在 fx-input-panel 内绝对定位浮出
@@ -179,16 +179,22 @@
     top: calc(100% + 2px);
     left: 0;
     z-index: 20;
-    max-height: 240px;
     min-width: 280px;
-    margin: 0;
-    padding: 4px 0;
-    overflow: auto;
-    list-style: none;
     border: 1px solid fn.use-var(border, muted-color);
     border-radius: fn.use-var(radius, small);
     background-color: fn.use-var(bg-color, top);
     box-shadow: fn.use-var(shadow, sm);
+  }
+
+  /* UScroll 容器：滚动条由 desktop scroll 承担（不再用原生 overflow） */
+  @include m.e(fx-suggest-scroll) {
+    width: 100%;
+  }
+
+  @include m.e(fx-suggest-list) {
+    margin: 0;
+    padding: 4px 0;
+    list-style: none;
   }
 
   @include m.e(fx-suggest-item) {

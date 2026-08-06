@@ -46,10 +46,12 @@ describe('getSuggestContext', () => {
 })
 
 describe('filterFormulaSuggestions / applySuggest / moveSuggestIndex', () => {
-  it('空前缀返回至多 10 条；SU 过滤到 SUM', () => {
+  it('空前缀优先常用函数（含 SUM），至多 10 条；SU 过滤到 SUM', () => {
     const all = filterFormulaSuggestions('')
     expect(all.length).toBeGreaterThan(0)
     expect(all.length).toBeLessThanOrEqual(FORMULA_SUGGEST_LIMIT)
+    expect(all[0]!.name).toBe('SUM')
+    expect(all.map((s) => s.name)).toContain('SUM')
     const su = filterFormulaSuggestions('SU')
     expect(su.map((s) => s.name)).toEqual(['SUM'])
     expect(su[0]!.signature).toBe(formatFunctionSignature('SUM', su[0]!.params))
@@ -66,11 +68,11 @@ describe('filterFormulaSuggestions / applySuggest / moveSuggestIndex', () => {
     }
   })
 
-  it('applySuggest：token → NAME( 且光标入括号', () => {
+  it('applySuggest：token → NAME() 且光标入括号', () => {
     const r = applySuggest('=SU', 1, 3, 'SUM')
-    expect(r).toEqual({ text: '=SUM(', cursor: 5 })
+    expect(r).toEqual({ text: '=SUM()', cursor: 5 })
     const r2 = applySuggest('=1+av', 3, 5, 'AVERAGE')
-    expect(r2).toEqual({ text: '=1+AVERAGE(', cursor: 11 })
+    expect(r2).toEqual({ text: '=1+AVERAGE()', cursor: 11 })
   })
 
   it('moveSuggestIndex 循环', () => {

@@ -3,6 +3,23 @@ import { listFormulaFunctions, type FormulaFunctionMeta } from '../core/formula/
 /** 补全候选上限 */
 export const FORMULA_SUGGEST_LIMIT = 10
 
+/**
+ * 空前缀时优先展示的常用函数（其余按名称升序补齐至上限）。
+ * 纯字典序会把 SUM / OR / ROUND 挤出前 10（ABS…NOT），导致输入 `=` 看不到 SUM。
+ */
+export const COMMON_FORMULA_NAMES = [
+  'SUM',
+  'AVERAGE',
+  'COUNT',
+  'MAX',
+  'MIN',
+  'IF',
+  'ROUND',
+  'ABS',
+  'AND',
+  'OR'
+] as const
+
 /** 函数名 token 前合法的「触发」字符（= / 运算符 / ( / ,） */
 const SUGGEST_TRIGGER_CHARS = new Set(['=', '(', ',', '+', '-', '*', '/', '^', '&', '<', '>'])
 
@@ -57,12 +74,35 @@ export function getSuggestContext(text: string, cursor: number): FormulaSuggestC
   return { prefix, start, end: cursor }
 }
 
-/** 前缀过滤函数表（大小写不敏感），上限 FORMULA_SUGGEST_LIMIT，名称升序 */
+/**
+ * 前缀过滤函数表（大小写不敏感），上限 FORMULA_SUGGEST_LIMIT。
+ * 空前缀：常用函数优先，其余名称升序补齐；有前缀：名称升序。
+ */
 export function filterFormulaSuggestions(prefix: string): FormulaSuggestItem[] {
   const upper = prefix.toUpperCase()
+  const all = listFormulaFunctions()
+  if (!upper) {
+    const byName = new Map(all.map((fn) => [fn.name, fn]))
+    const items: FormulaSuggestItem[] = []
+    const used = new Set<string>()
+    for (const name of COMMON_FORMULA_NAMES) {
+      const fn = byName.get(name)
+      if (!fn) continue
+      items.push(toSuggestItem(fn))
+      used.add(name)
+      if (items.length >= FORMULA_SUGGEST_LIMIT) return items
+    }
+    for (const fn of all) {
+      if (used.has(fn.name)) continue
+      items.push(toSuggestItem(fn))
+      if (items.length >= FORMULA_SUGGEST_LIMIT) break
+    }
+    return items
+  }
+
   const items: FormulaSuggestItem[] = []
-  for (const fn of listFormulaFunctions()) {
-    if (upper && !fn.name.startsWith(upper)) continue
+  for (const fn of all) {
+    if (!fn.name.startsWith(upper)) continue
     items.push(toSuggestItem(fn))
     if (items.length >= FORMULA_SUGGEST_LIMIT) break
   }
@@ -80,20 +120,20 @@ function toSuggestItem(fn: { name: string } & FormulaFunctionMeta): FormulaSugge
 
 export interface ApplySuggestResult {
   text: string
-  /** 替换后光标位置（落在 `NAME(` 的括号内） */
+  /** 替换后光标位置（落在 `NAME()` 的括号内） */
   cursor: number
 }
 
-/** 将 [start, end) 的 token 替换为 `NAME(`，光标入括号内 */
+/** 将 [start, end) 的 token 替换为 `NAME()`，光标入括号内（免手动补右括号） */
 export function applySuggest(
   text: string,
   start: number,
   end: number,
   name: string
 ): ApplySuggestResult {
-  const insert = `${name}(`
+  const insert = `${name}()`
   const next = text.slice(0, start) + insert + text.slice(end)
-  return { text: next, cursor: start + insert.length }
+  return { text: next, cursor: start + name.length + 1 }
 }
 
 /**
