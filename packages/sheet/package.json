@@ -27,8 +27,8 @@
     }
   },
   "dependencies": {
-    "@visactor/vtable": "^1.26.5",
-    "@visactor/vtable-editors": "^1.26.5",
+    "@visactor/vtable": "^1.26.6",
+    "@visactor/vtable-editors": "^1.26.6",
     "hucre": "^1.0.0"
   },
   "peerDependencies": {
@@ -38,6 +38,6 @@
     "@veltra/icons": "workspace:*",
     "@veltra/styles": "workspace:*",
     "@veltra/utils": "workspace:*",
-    "vue": ">=3.5.40"
+    "vue": ">=3.5.41"
   }
 }
