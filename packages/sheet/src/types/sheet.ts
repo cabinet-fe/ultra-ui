@@ -1,9 +1,9 @@
+import type { Sheet } from '@veltra/sheet-core/core/sheet'
+import type { Workbook } from '@veltra/sheet-core/core/workbook'
+import type { SheetGrid } from '@veltra/sheet-core/grid/sheet-grid'
 import type { DeconstructValue } from '@veltra/utils'
 import type { ComputedRef } from 'vue'
 
-import type { Sheet } from '../core/sheet'
-import type { Workbook } from '../core/workbook'
-import type { SheetGrid } from '../grid/sheet-grid'
 import type { SheetContext } from '../tools/context'
 
 /** 电子表格组件属性 */

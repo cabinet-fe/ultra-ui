@@ -1,7 +1,7 @@
 import type { ContextmenuItem } from '@veltra/desktop'
+import { createRange, type CellAddress, type CellRange } from '@veltra/sheet-core/core/address'
 import { defineComponent, h } from 'vue'
 
-import { createRange, type CellAddress, type CellRange } from '../core/address'
 import type { SheetContext } from '../tools/context'
 import { defaultToolRegistry } from '../tools/registry'
 import InsertCountMenuItem from './insert-count-menu-item.vue'

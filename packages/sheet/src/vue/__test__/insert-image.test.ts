@@ -1,6 +1,6 @@
+import { Sheet } from '@veltra/sheet-core/core/sheet'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { Sheet } from '../../core/sheet'
 import { createSheetContext } from '../../tools/context'
 import {
   INSERT_IMAGE_ACCEPT,

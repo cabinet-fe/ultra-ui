@@ -1,4 +1,7 @@
-import { listFormulaFunctions, type FormulaFunctionMeta } from '../core/formula/functions'
+import {
+  listFormulaFunctions,
+  type FormulaFunctionMeta
+} from '@veltra/sheet-core/core/formula/functions'
 
 /** 补全候选上限 */
 export const FORMULA_SUGGEST_LIMIT = 10

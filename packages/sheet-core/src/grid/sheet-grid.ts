@@ -71,6 +71,9 @@ const LINE_HEIGHT_RATIO = 1.25
  *   多实例同页时 hook 由 EditContext.table 精确定位，不依赖「当前激活」全局槽。
  * - 浮动图片：ImageLayer DOM 叠层（见 image-layer.ts）；订阅 SCROLL / resize /
  *   image-change / content-reset / structure-change / frozen-change；LRU 隐藏置脏。
+ * - 只读（readonly）：渲染/选择/滚动/右键/键盘导航不变；关闭一切写模型入口——
+ *   不挂编辑器与 CHANGE_CELL_VALUE 回写、禁用填充柄与行列 resize、不绑 undo/redo、
+ *   ImageLayer 禁拖动/删除（模型层不设防，仅守 grid 入口）。
  */
 
 /** 公式感知编辑器：进入编辑时公式格显示原文（同 Excel），其余格显示当前值 */
@@ -293,6 +296,11 @@ export interface SheetGridOptions {
   interceptSelection?: () => boolean
   /** 拦截时回调当前 VTable 选区（模型坐标，已规范化） */
   onSelectionIntercept?: (range: CellRange) => void
+  /**
+   * 只读模式（只读预览场景）：正常渲染 + 选择/滚动/右键/键盘导航，
+   * 关闭一切写模型的入口（编辑、填充柄、行列尺寸拖拽、undo/redo、图片拖动/删除）
+   */
+  readonly?: boolean
 }
 
 export class SheetGrid {
@@ -307,6 +315,8 @@ export class SheetGrid {
   private readonly onEditEnd?: (addr: CellAddress) => void
   private readonly interceptSelection?: () => boolean
   private readonly onSelectionIntercept?: (range: CellRange) => void
+  /** 只读模式：见 SheetGridOptions.readonly */
+  private readonly isReadonly: boolean
   /** 是否已释放（release 后拒绝一切视图同步，微任务 flush 直接跳过） */
   private released = false
   /** 是否可见（LRU 缓存非激活实例 = false；隐藏期间批量变更只置脏，激活时一次性同步） */
@@ -356,6 +366,7 @@ export class SheetGrid {
     this.onEditEnd = options.onEditEnd
     this.interceptSelection = options.interceptSelection
     this.onSelectionIntercept = options.onSelectionIntercept
+    this.isReadonly = options.readonly ?? false
 
     // 编辑器为全局单例：hook 由发起编辑的 table 经 gridByTable 反查本实例
     this.editorName = EDITOR_NAME
@@ -373,7 +384,8 @@ export class SheetGrid {
       table: this.table,
       sheet: this.sheet,
       toTableCoord: (addr) => this.toTableCoord(this.table, addr),
-      toSheetAddr: (col, row) => this.toSheetAddr(this.table, col, row)
+      toSheetAddr: (col, row) => this.toSheetAddr(this.table, col, row),
+      readonly: this.isReadonly
     })
     this.disposers.push(() => this.imageLayer.dispose())
     // 构造后按模型冻结值校正一次（构造选项已含偏移，此处覆盖外部在构造前的变更）
@@ -754,23 +766,30 @@ export class SheetGrid {
       // 列宽只在列头（A/B/C…）。行高：VTable rowResizeMode:'header' 以 isHeader()
       // 判定，而行号列 body 格不是 header——设 'header' 会禁用行号列调行高。
       // 因此 row 用 'all'，构造后限制到行号列（见 restrictRowResizeToSeriesNumber）。
-      resize: { columnResizeMode: 'header', rowResizeMode: 'all' },
+      // 只读：RESIZE 事件会写模型（setRowHeight / wrap 行高重算），整体禁用
+      resize: this.isReadonly
+        ? { columnResizeMode: 'none', rowResizeMode: 'none' }
+        : { columnResizeMode: 'header', rowResizeMode: 'all' },
       theme: sheetVTableTheme,
       rowSeriesNumber: { width: 46, style: sheetRowSeriesNumberStyle },
-      excelOptions: { fillHandle: true },
+      // 填充柄拖拽会写模型（generateFill → setCells），只读禁用
+      excelOptions: { fillHandle: !this.isReadonly },
       // 禁止浏览器默认右键菜单，改由 CONTEXTMENU_CELL → UContextmenu
       eventOptions: { preventDefaultContextMenu: true },
       // 关闭 body 格 hover 高亮；行号/列头 hover 保留（不设 disableHeaderHover）
       hover: { disableHover: true },
-      editor: this.editorName,
-      editCellTrigger: 'doubleclick',
+      // 只读不挂编辑器、不响应双击进编辑（编辑器全局单例仍注册，见 EDITOR_NAME）
+      ...(this.isReadonly
+        ? {}
+        : { editor: this.editorName, editCellTrigger: 'doubleclick' as const }),
       // 冻结：模型 rows/cols + 偏移 1（列头行 / 行号列；与 frozenToVTableCounts 一致，
       // 此处无法调用需 table 实例的 getOffsets，当前配置偏移恒为 1）
       frozenRowCount: Math.min(this.sheet.frozen.rows + 1, Math.max(this.rows, 1)),
       frozenColCount: Math.min(this.sheet.frozen.cols + 1, Math.max(this.cols, 1)),
       keyboardOptions: {
         moveFocusCellOnTab: true,
-        editCellOnEnter: true,
+        // 只读禁用 Enter 进编辑；其余导航键保留
+        editCellOnEnter: !this.isReadonly,
         moveFocusCellOnEnter: true,
         // 编辑中方向键只移输入光标；未编辑时选区导航不受影响
         moveEditCellOnArrowKeys: false,
@@ -927,39 +946,42 @@ export class SheetGrid {
   // ─── 事件桥接 ─────────────────────────────────────────────
 
   private bindTableEvents(): void {
-    this.table.on(ListTable.EVENT_TYPE.CHANGE_CELL_VALUE, (args) => {
-      const addr = this.toSheetAddr(this.table, args.col, args.row)
-      if (addr == null) return
-      // 空提交且原格无内容（纯样式格 / 空格）：跳过 setCellValue，避免被当成清除值删掉 s
-      // 有值/公式格显式清空仍走 setCellValue(null)（删整格含样式，符合约定）
-      const next = args.changedValue ?? null
-      const before = this.sheet.getCellData(this.sheet.merges.resolveAnchor(addr))
-      const isEmptyCommit = next == null || next === ''
-      const hadContent =
-        before != null &&
-        ((before.v != null && before.v !== '') || (before.f != null && before.f !== ''))
-      // 编辑提交期间模型变更（含公式重算派生格）先入队列，提交结束统一回推。
-      // 被编辑格自身也入队：VTable 已把输入文本写进 record，公式格需回推计算值
-      this.pendingTableSync = new Map([[cellKey(addr), addr]])
-      try {
-        if (!(isEmptyCommit && !hadContent)) {
-          this.sheet.setCellValue(addr, next)
-        }
-      } finally {
-        const pending = this.pendingTableSync
-        this.pendingTableSync = null
-        if (pending) {
-          const wrapRows = new Set<number>()
-          for (const pendingAddr of pending.values()) {
-            this.pushCellToTable(pendingAddr)
-            this.refreshCellStyle(pendingAddr)
-            this.refreshFacingConsumers(pendingAddr)
-            wrapRows.add(pendingAddr.row)
+    // 只读：CHANGE_CELL_VALUE 回写是唯一编辑写入口，整个不挂
+    if (!this.isReadonly) {
+      this.table.on(ListTable.EVENT_TYPE.CHANGE_CELL_VALUE, (args) => {
+        const addr = this.toSheetAddr(this.table, args.col, args.row)
+        if (addr == null) return
+        // 空提交且原格无内容（纯样式格 / 空格）：跳过 setCellValue，避免被当成清除值删掉 s
+        // 有值/公式格显式清空仍走 setCellValue(null)（删整格含样式，符合约定）
+        const next = args.changedValue ?? null
+        const before = this.sheet.getCellData(this.sheet.merges.resolveAnchor(addr))
+        const isEmptyCommit = next == null || next === ''
+        const hadContent =
+          before != null &&
+          ((before.v != null && before.v !== '') || (before.f != null && before.f !== ''))
+        // 编辑提交期间模型变更（含公式重算派生格）先入队列，提交结束统一回推。
+        // 被编辑格自身也入队：VTable 已把输入文本写进 record，公式格需回推计算值
+        this.pendingTableSync = new Map([[cellKey(addr), addr]])
+        try {
+          if (!(isEmptyCommit && !hadContent)) {
+            this.sheet.setCellValue(addr, next)
           }
-          for (const row of wrapRows) this.syncWrapRowHeight(row)
+        } finally {
+          const pending = this.pendingTableSync
+          this.pendingTableSync = null
+          if (pending) {
+            const wrapRows = new Set<number>()
+            for (const pendingAddr of pending.values()) {
+              this.pushCellToTable(pendingAddr)
+              this.refreshCellStyle(pendingAddr)
+              this.refreshFacingConsumers(pendingAddr)
+              wrapRows.add(pendingAddr.row)
+            }
+            for (const row of wrapRows) this.syncWrapRowHeight(row)
+          }
         }
-      }
-    })
+      })
+    }
 
     this.table.on(ListTable.EVENT_TYPE.SELECTED_CELL, (args) => {
       // 回驱期间的 SELECTED_CELL（selectCells 同步派发）不写回模型，防递归
@@ -1005,49 +1027,52 @@ export class SheetGrid {
     })
 
     // 行高拖拽结束 → 写入模型稀疏表（不进 undo）；同步 config 防滚动增量覆盖
-    this.table.on(ListTable.EVENT_TYPE.RESIZE_ROW_END, (args) => {
-      const addr = this.toSheetAddr(this.table, this.getOffsets(this.table).colOffset, args.row)
-      if (!addr) return
-      this.sheet.setRowHeight(addr.row, args.rowHeight)
-      this.setTableRowHeight(this.toTableCoord(this.table, addr).row, args.rowHeight)
-    })
-
-    // 列宽拖拽结束 → 重算该列相关行的 wrap 行高
-    this.table.on(ListTable.EVENT_TYPE.RESIZE_COLUMN_END, (args) => {
-      const col = args.col
-      const addr = this.toSheetAddr(this.table, col, this.getOffsets(this.table).rowOffset)
-      if (!addr) return
-      // 只遍历该列有数据的行（稀疏行 Map），不再全表 entries() 扫描（#10）
-      for (const row of this.sheet.store.rowsForColumn(addr.col)) {
-        this.syncWrapRowHeight(row)
-      }
-    })
-
-    // 填充柄：记下源选区
-    this.table.on(ListTable.EVENT_TYPE.MOUSEDOWN_FILL_HANDLE, () => {
-      this.fillSourceRange = this.readSelectedModelRange()
-    })
-
-    // 填充柄拖拽结束 → generateFill → setCells
-    this.table.on(ListTable.EVENT_TYPE.DRAG_FILL_HANDLE_END, (args) => {
-      const source = this.fillSourceRange
-      this.fillSourceRange = null
-      const direction = args.direction as FillDirection | undefined
-      if (!source || !direction) return
-      const expanded = this.readSelectedModelRange()
-      if (!expanded) return
-      const target = computeFillTargetRange(source, direction, expanded)
-      if (!target) return
-      const items = generateFill({
-        source,
-        target,
-        direction,
-        getCellData: (addr) => this.sheet.getCellData(addr)
+    // 只读：resize 已在 buildOptions 禁用（事件不会触发），此处仍跳过兜底
+    if (!this.isReadonly) {
+      this.table.on(ListTable.EVENT_TYPE.RESIZE_ROW_END, (args) => {
+        const addr = this.toSheetAddr(this.table, this.getOffsets(this.table).colOffset, args.row)
+        if (!addr) return
+        this.sheet.setRowHeight(addr.row, args.rowHeight)
+        this.setTableRowHeight(this.toTableCoord(this.table, addr).row, args.rowHeight)
       })
-      if (items.length === 0) return
-      this.sheet.setCells(items)
-      this.sheet.selectRange(createRange(source.start, expanded.end))
-    })
+
+      // 列宽拖拽结束 → 重算该列相关行的 wrap 行高
+      this.table.on(ListTable.EVENT_TYPE.RESIZE_COLUMN_END, (args) => {
+        const col = args.col
+        const addr = this.toSheetAddr(this.table, col, this.getOffsets(this.table).rowOffset)
+        if (!addr) return
+        // 只遍历该列有数据的行（稀疏行 Map），不再全表 entries() 扫描（#10）
+        for (const row of this.sheet.store.rowsForColumn(addr.col)) {
+          this.syncWrapRowHeight(row)
+        }
+      })
+
+      // 填充柄：记下源选区
+      this.table.on(ListTable.EVENT_TYPE.MOUSEDOWN_FILL_HANDLE, () => {
+        this.fillSourceRange = this.readSelectedModelRange()
+      })
+
+      // 填充柄拖拽结束 → generateFill → setCells
+      this.table.on(ListTable.EVENT_TYPE.DRAG_FILL_HANDLE_END, (args) => {
+        const source = this.fillSourceRange
+        this.fillSourceRange = null
+        const direction = args.direction as FillDirection | undefined
+        if (!source || !direction) return
+        const expanded = this.readSelectedModelRange()
+        if (!expanded) return
+        const target = computeFillTargetRange(source, direction, expanded)
+        if (!target) return
+        const items = generateFill({
+          source,
+          target,
+          direction,
+          getCellData: (addr) => this.sheet.getCellData(addr)
+        })
+        if (items.length === 0) return
+        this.sheet.setCells(items)
+        this.sheet.selectRange(createRange(source.start, expanded.end))
+      })
+    }
 
     // 右键 → vue 层 UContextmenu（grid 不依赖 desktop）
     // VTable 在 rightdown 上派发 CONTEXTMENU_CELL（非原生 contextmenu）
@@ -1321,8 +1346,10 @@ export class SheetGrid {
   /**
    * 键盘绑定：Cmd/Ctrl+Z undo，Cmd/Ctrl+Shift+Z 与 Ctrl+Y redo。
    * 编辑器打开时（事件来自编辑器 input）不拦截，保留文本编辑自身的撤销行为。
+   * 只读：undo/redo 均为写操作，整个不绑定。
    */
   private bindKeyboard(): void {
+    if (this.isReadonly) return
     const onKeyDown = (event: KeyboardEvent): void => {
       if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
         return

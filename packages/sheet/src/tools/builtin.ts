@@ -23,9 +23,9 @@ import {
   VerticalAlignRight,
   Wrap
 } from '@veltra/icons/normal'
+import { rangesEqual } from '@veltra/sheet-core/core/address'
+import type { HorizontalAlign, VerticalAlign } from '@veltra/sheet-core/core/style/types'
 
-import { rangesEqual } from '../core/address'
-import type { HorizontalAlign, VerticalAlign } from '../core/style/types'
 import type { SheetContext } from './context'
 import { registerTool } from './registry'
 

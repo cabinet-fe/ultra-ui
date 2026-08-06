@@ -1,9 +1,9 @@
 import { contextmenu } from '@veltra/desktop'
+import type { CellAddress, CellRange } from '@veltra/sheet-core/core/address'
+import type { Sheet } from '@veltra/sheet-core/core/sheet'
+import { SheetGrid, type SheetGridContextMenuInfo } from '@veltra/sheet-core/grid/sheet-grid'
 import { onBeforeUnmount, onMounted, watch } from 'vue'
 
-import type { CellAddress, CellRange } from '../core/address'
-import type { Sheet } from '../core/sheet'
-import { SheetGrid, type SheetGridContextMenuInfo } from '../grid/sheet-grid'
 import type { SheetContext } from '../tools/context'
 import type { SheetProps } from '../types'
 import {

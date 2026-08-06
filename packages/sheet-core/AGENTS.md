@@ -1,0 +1,115 @@
+# AGENTS.md — @veltra/sheet-core
+
+框架无关的表格核心：数据模型 / 命令系统 / 公式引擎 / xlsx/csv IO（`core/`，纯 TS）+ VTable 适配层 SheetGrid（`grid/`）。供 `@veltra/sheet`（USheet 编辑器）与 `@veltra/desktop` file-viewer（只读预览）共用。**数据模型完全自持有，VTable 只做渲染与输入**：单元格操作都作用在自己的模型上，VTable 经适配层被动刷新。
+
+## 目录结构
+
+```
+src/
+├── index.ts              # 聚合导出（公开 API 白名单；白名单外符号一律深导入 src 子路径）
+├── core/                 # 框架无关纯 TS（不 import vue / vtable），可无头单测
+│   ├── address.ts        # A1 地址（0-based）
+│   ├── cell-store.ts     # 稀疏矩阵
+│   ├── sheet.ts          # Sheet = store + merge + selection + history + images
+│   ├── image.ts          # SheetImage / ImageInput（浮动图片模型）
+│   ├── workbook.ts       # 多 Sheet + 共享公式依赖图
+│   ├── command/          # 命令系统（undo/redo；含 insert-image / remove-image）
+│   ├── style/            # StylePool + 边框预设
+│   ├── formula/          # 公式引擎
+│   ├── io/               # xlsx/csv（hucre；浮动图 round-trip）
+│   ├── fill.ts / find.ts / merge-manager.ts / selection.ts
+│   └── events.ts
+└── grid/                 # VTable 适配层
+    ├── sheet-grid.ts     # SheetGrid（模型 ↔ ListTable；支持 readonly）
+    ├── image-layer.ts    # 浮动图片 DOM 叠层
+    └── vtable-theme.ts   # themes.DEFAULT.extends 主题
+```
+
+## 分层约定
+
+| 层      | 职责                        | 禁止                                                              |
+| ------- | --------------------------- | ----------------------------------------------------------------- |
+| `core/` | 模型、命令、公式、IO        | import `vue` / `@visactor/*`；零外向依赖（唯一外部运行时依赖 hucre） |
+| `grid/` | VTable 渲染、编辑回写、键盘 | 业务编排；只依赖 `core/` + `@visactor/*`                          |
+
+- **禁止反向依赖**：`core/` 不得 import `grid/`；grid 对 core 单向依赖。
+- **写操作一律走命令**：`setCellValue` / `setCells` / `setCellFormula` / `setCellStyle` / `mergeCells` / `insertRows` / `insertImage` / `removeImage` / `updateImage` 等经 `defaultCommandRegistry` → `sheet.history`；`Sheet.applyPatch` 是唯一变更通道。
+- **工作簿结构操作**（增删改名 sheet）走 `Workbook`，**不进 undo**。
+
+## 核心语义
+
+- **坐标 0-based**：`{ row: 0, col: 0 }` = A1；`CellRange` 闭区间，start 恒为左上角。
+- **空单元格不占存储**：无公式且 `v` 为空即删除；`rowCount`/`colCount` 只是渲染高水位。
+- **合并**：锚点 = 区域左上角，数据只存锚点；`MergeManager` 只管几何，值保留规则在 `Sheet.mergeCells`。
+- **两种读取**：`getCellData` = 原始存储（被覆盖格 → undefined）；`getDisplayValue` = 锚点解析。写入/选中内部先 `resolveAnchor`。
+- **不进 undo**：选区、冻结、行高。选区可随 `SheetSnapshot.selection?` 序列化；冻结随快照；行高随 `SheetSnapshot.rowHeights?`；列宽未持久化。
+- **样式**：`CellData.s: StyleId` → `StylePool` 按内容去重；部分合并见 `CellStylePatch`（fill 覆盖、border 边级、font/align 逐字段；`null` 删字段）。边框预设经 `buildBorderPresetItems`（`outer`/`inner`/`all`/`top`/`bottom`/`left`/`right`/`none` → 外边框/内边框/所有边框/上/下/左/右边框 + 无边框；含邻居对侧边同步）。
+- **公式**：`f` 原文（无 `=`），`v`/`t` 为缓存；重算派生补丁并入同一 undo 单元；undo/redo 纯补丁回放。跨表依赖图在 `Workbook` 级共享。
+- **浮动图片**：`SheetImage`（`id` + `Uint8Array` 字节 + `type` + `anchor.from`/`to?` + 可选宽高/alt/title；`from` 可带格内像素偏移 `offsetX/offsetY`，缺省 0）；写入经 `insertImage` / `removeImage` / `updateImage`（命令 `sheet.insert-image` / `sheet.remove-image` / `sheet.update-image`，`ImagePatch`）；快照字段 `SheetSnapshot.images?`；`restoreContent` 整表替换图片并发 `image-change`。行列插入/删除时锚点平移（offset 随 from 格保留）；锚点区间被完整删除时图片移除（同 undo 单元）。格式：`png` / `jpeg` / `gif` / `svg` / `webp`（与 hucre 对齐）。
+- 注：`Sheet.setCell` / `setCellStyles` / `CellStore.setCellValue` 为内部便捷写入口（生产零调用、测试直用），非公开承诺 API——包入口不单独导出，宿主请用 `setCells` / `setCellStyle`。
+
+## SheetGrid readonly 模式
+
+`SheetGridOptions.readonly`（构造选项，`grid/sheet-grid.ts`），面向只读预览场景（desktop file-viewer 的 Excel/CSV 预览）：
+
+- **关闭一切写模型入口**：不挂编辑器与 `CHANGE_CELL_VALUE` 编辑回写、禁用填充柄与行/列 resize、不绑 undo/redo 快捷键；ImageLayer 禁图片拖动与 `Delete`/`Backspace` 删除（仅保留点击选中）。
+- **保留**：渲染、选区、滚动、键盘导航、右键回调（`onContextMenu` 照常触发，菜单内容由宿主决定）。
+- **模型层不设防，仅守 grid 入口**——绕过 SheetGrid 直接调命令仍可写模型，宿主只读场景不要暴露命令入口。
+
+## 浮动图片渲染（grid/image-layer.ts）
+
+- **叠层渲染**：grid 容器内绝对定位 `<img>`，按 `computeImageRect` 布置——`from` 左上 + 格内像素偏移（`from.offsetX/offsetY`，px，缺省 0）；宽高**优先取 `image.width/height`**（xlsx 导入的精确 px），宽高缺失且有 `to` 时按 from→to 跨度兜底（Excel `twoCellAnchor` 拉伸语义），都缺失时取自然尺寸；`Map<id, objectURL>` 缓存，销毁时 revoke。监听 SCROLL / resize / `image-change` / `content-reset` / 冻结与行高变化重排。
+- **交互**：点击图片选中（拦截进 VTable）；选中后可拖动，落点反查单元格经 `sheet.updateImage` 平移 `from`（有 `to` 则同 delta，保持跨度/宽高），**落点相对目标格左上的像素余量写回 `offsetX/offsetY`（负值 clamp 到 0），自由定位不吸附**；`Delete`/`Backspace` 经命令删除；点网格其他位置取消选中。readonly 时仅保留选中。本期不做缩放/旋转。
+- **LRU**：隐藏实例不渲染叠层；激活时一次性重排（脏标记）。
+
+## VTable 适配要点
+
+- 主题必须 `themes.DEFAULT.extends(...)`，裸对象会丢默认色。
+- `customMergeCell` 的 `text` **必须读 VTable records**（`getCellOriginValue`），不能读模型——否则编辑提交后重绘显示旧值。
+- 模型冻结 N 行/列 → VTable `frozenRowCount/ColCount = N + 1`（含列头/行号）。
+- 选区回驱：`selection-change` → `selectCells` + `scrollToCell`；用 `syncingSelection` 防递归。回驱前需临时清 `eventManager.isDraging` 并清选区 overlay（VTable 1.26.5 拖选时序缺陷，否则多框残留 / 反向拖选畸形）。
+- 事件用 `ListTable.EVENT_TYPE`（`core.EVENT_TYPE` 运行时为 undefined）。
+
+## 导入导出（core/io）
+
+- 主入口白名单：`exportWorkbookXlsx` / `exportSheetCsv` / `importXlsx` / `importCsv` / `replaceWorkbook`（内部走快照整表替换）。worker 链路入口 `buildWorkbookFromHucre` / `replaceWorkbookWithSnapshots` 不在白名单，消费方深导入 `@veltra/sheet-core/core/io/import`。
+- **IO 保真度约定**：导入迭代 hucre 稠密 `rows` 时先跳过空槽；表格尺寸按有值格收敛，勿用稠密几何撑到 Excel 极限列数；补漏遍历先解析行号、带外直接跳过。
+- **快照整表替换**：`RestoreSheetCommand`（`sheet.restore-sheet`）+ `SnapshotPatch`——导入替换与 undo/redo 回放走整表 `restoreContent`（cells/styles/merges/images + 公式图 `rebuildSheet` 重建），不发逐格 cell-change（避免十万级视图同步），发 `content-reset` 事件（grid `setRecords` 一次、状态源 bump）+ `image-change`；冻结/行高/尺寸/选区不进 undo；跨表引用方经 recalcAfterCommand 联动（含被清空的旧格标脏）。
+- **批量**：`Workbook.beginBatch/endBatch` 合并结构事件补发（196 sheet 导入的 195 次 `sheets-change` 收敛为 1 次）；`Sheet.mergeCellsBatch` 批量合并 = 单 undo 单元（批量内相交边收集边应用与逐条语义一致）；样式导入按 hucre 共享子对象引用组合 key memo 跳过重复解析/intern。
+- **分片构建**：`buildWorkbookFromHucre` 按 10% 粒度经回调回报进度（供 worker 链路驱动进度 UI）。
+- hucre 1.0 起 `writeXlsx` 校验 sheet 名（Excel 非法字符 `[ ] : * ? / \`、>31 字符、保留名 History、大小写不敏感重名）抛 `InvalidArgumentError`；模型层不限制表名，导出失败由调用方 UI 提示。流式 API（`streamXlsxRows` / `writeXlsxStream`）不支持样式/合并/公式，与导入导出的保真需求不匹配，不采用。
+- xlsx 导入导出 round-trip 保留浮动图；CSV 忽略图片；WPS 单元格内嵌图（`cellImages`）本期跳过。
+
+## 依赖
+
+- **dependencies**：`@visactor/vtable`、`@visactor/vtable-editors`、`hucre`（无 peer）
+- **被依赖**：`@veltra/sheet`（编辑器）、`@veltra/desktop`（file-viewer 只读预览）
+
+## 性能要点（百万格 / 数百 sheet 规模）
+
+- **批量同步**：grid 的 `cell-change` / `merge-change` **不逐补丁同步**——排入微任务合并为一次 flush（同步执行块内 N 补丁 = 1 次视图同步；超过 64 格走一次 `setRecords` 全量重建替代逐格增量）。LRU 隐藏实例只保留脏标记，激活时一次性同步。
+- **编辑器单例**：`veltra-sheet-input` 全局只注册一次（VTable 全局编辑器注册表无单条注销 API，旧实现每实例注册一个会永久累积）。hook 由发起编辑的 ListTable（onStart 的 `EditContext.table`；onEnd 无参，用 onStart 捕获的会话 table）经模块级 `WeakMap<ListTable, SheetGrid>` 反查所属实例——多实例同页时路由精确，不依赖「当前激活」全局槽。
+- **渲染热路径**：`store.peekCell` / `stylePool.peek` 只读访问器，避免逐格防御性拷贝；`entriesInRange` 迭代稀疏键、`rowsForColumn` 按列找行，不做稠密列扫描。
+- **公式重算**：依赖图反向索引按表批量标脏（变更格按行区间合并判定），非逐格全表扫描。
+
+## 已知限制
+
+- undo 按 sheet 分栈，跨表交错撤销可能短暂显示过期缓存（再触发重算自愈）。
+- 替换 = 整格覆盖（非 Excel 子串）；公式格不参与替换。
+- 浮动图片：定位渲染、拖动平移锚点（含格内像素偏移 `offsetX/offsetY`，自由定位不吸附）、删除；无缩放/旋转；无剪贴板复制粘贴图；无单元格内嵌图（WPS `cellImages` / `DISPIMG`）导入转换；CSV 不携带图片。
+- xlsx round-trip 丢失格内像素偏移（hucre 不支持 colOff/rowOff）：导入后图片对齐 from 格左上角（`offsetX/offsetY` 不随 xlsx 导入导出保留）。
+- 未做：字体族、数字格式、图表、协同、列宽持久化、双击填充柄。
+
+## 已知问题
+
+- **`exports["./*"]` 通配深导入对 tsc 不友好**：tsc 不经 exports 通配做扩展名探测（`veltra-dev → ./src/*` 无扩展名解析失败），消费方深导入 `@veltra/sheet-core/core/*` 时需在其 tsconfig 配 `paths` 直指源码兜底（参考 `packages/sheet/tsconfig.json`），并加 `references` 避免 composite 项目的 TS6059/TS6307。仅走主入口无此问题。
+
+## 测试与验证
+
+- happy-dom 环境；grid 测试依赖 canvas mock（`src/grid/__test__/canvas-mock.ts`，经 `src/grid/__test__/setup.ts` 全局挂载，即 vite.config 的 `setupFiles`）；core 测试无 DOM 依赖，无头直跑。
+
+```bash
+cd packages/sheet-core && vp test
+vp pack          # 同目录，库构建
+bun run lint     # 仓库根
+```

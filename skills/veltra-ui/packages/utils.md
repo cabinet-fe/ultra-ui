@@ -143,7 +143,7 @@ new Tween({ from, to, duration, easing, onUpdate }) // 简易补间
 ```ts
 computeOverflowNavState(vp) // { overflowing, canPrev, canNext } — 滚动按钮状态
 scrollViewportByStep(vp, dir) // 箭头按视口宽度 80% 平滑步进
-scrollElementIntoView(vp, el, offset = 8) // 活动项滚入视野
+scrollElementIntoView(vp, el, (offset = 8)) // 活动项滚入视野
 applyWheelHorizontalScroll(e, vp, navActive) // 纵向滚轮转横滚（触控板横滑不拦截）
 ```
 

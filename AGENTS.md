@@ -63,7 +63,8 @@ ultra-ui/
 │   ├── compositions/    # @veltra/compositions — Vue 组合式函数
 │   ├── directives/      # @veltra/directives — Vue 自定义指令
 │   ├── desktop/         # @veltra/desktop — 桌面端组件库主包
-│   ├── sheet/           # @veltra/sheet — 电子表格（VTable 渲染 + 自持有数据模型）
+│   ├── sheet-core/      # @veltra/sheet-core — 表格核心（数据模型/公式/IO + VTable 适配层，框架无关）
+│   ├── sheet/           # @veltra/sheet — 电子表格 Vue 编辑器（USheet，基于 sheet-core）
 │   ├── ai/              # @veltra/ai — AI 能力包（对话组件 + 编排 + 可插拔 transport）
 │   ├── icons/           # @veltra/icons — SVG 图标组件
 │   ├── vite/            # @veltra/vite — Vite 辅助（组件 resolver）
@@ -86,6 +87,7 @@ ultra-ui/
 | `@veltra/compositions` | `packages/compositions/AGENTS.md` |
 | `@veltra/directives`   | `packages/directives/AGENTS.md`   |
 | `@veltra/desktop`      | `packages/desktop/AGENTS.md`      |
+| `@veltra/sheet-core`   | `packages/sheet-core/AGENTS.md`   |
 | `@veltra/sheet`        | `packages/sheet/AGENTS.md`        |
 | `@veltra/ai`           | `packages/ai/AGENTS.md`           |
 | `@veltra/icons`        | `packages/icons/AGENTS.md`        |
@@ -104,10 +106,12 @@ ultra-ui/
     └──────────┬───────────┘
                ↓
         @veltra/desktop ←── (peer) @veltra/icons
-               ↑  ↑
+               ↑  ↑   ↑
+               │  │   └── (peer) @veltra/sheet-core ←── (peer) @veltra/sheet（Vue 编辑器；peer: sheet-core/desktop/icons/styles/utils、@cat-kit/*、vue；deps: hucre）
+               │  │            （deps: @visactor/vtable(-editors)、hucre；file-viewer 的 Excel 预览也走它）
                │  └── @veltra/ai（peer: desktop/icons/compositions/utils/styles）
                ↓
-     playground ←── @veltra/sheet（独立分支，deps: @visactor/vtable(-editors)、hucre；peer: @cat-kit/core、@cat-kit/fe、vue、desktop/icons/styles/utils）
+     playground ←── @veltra/sheet
 ```
 
 `@veltra/styles`（SCSS + `@veltra/styles/theme`）被 desktop、directives、playground 等使用。**`theme` 运行时依赖 `@veltra/compositions`（`useConfig`），compositions 不得再导出 theme，避免循环依赖。** Sass 使用 `pkg:@veltra/styles/...`，构建与预览需 `NodePackageImporter`（见 `packages/styles/AGENTS.md`）。
@@ -121,6 +125,7 @@ browser/neutral 的 `@cat-kit/*` 与 `@veltra/*` 在 library 包中声明为 **p
 | `@veltra/utils`        | `packages/utils/src`        |
 | `@veltra/styles`       | `packages/styles/src`       |
 | `@veltra/desktop`      | `packages/desktop/src`      |
+| `@veltra/sheet-core`   | `packages/sheet-core/src`   |
 | `@veltra/sheet`        | `packages/sheet/src`        |
 | `@veltra/ai`           | `packages/ai/src`           |
 | `@veltra/compositions` | `packages/compositions/src` |

@@ -75,7 +75,6 @@
         "@lexical/rich-text": "^0.49.0",
         "@lexical/selection": "^0.49.0",
         "@lexical/utils": "^0.49.0",
-        "@visactor/vtable": "^1.26.6",
         "docx-preview": "^0.4.0",
         "lexical": "^0.49.0",
       },
@@ -97,11 +96,11 @@
       },
       "peerDependencies": {
         "@cat-kit/core": ">=1.1.8",
-        "@cat-kit/excel": ">=1.0.0",
         "@cat-kit/fe": "^1.1.8",
         "@veltra/compositions": "workspace:*",
         "@veltra/directives": "workspace:*",
         "@veltra/icons": "workspace:*",
+        "@veltra/sheet-core": "workspace:*",
         "@veltra/styles": "workspace:*",
         "@veltra/utils": "workspace:*",
         "vue": ">=3.5.41",
@@ -137,8 +136,6 @@
       "name": "@veltra/sheet",
       "version": "2.0.1",
       "dependencies": {
-        "@visactor/vtable": "^1.26.6",
-        "@visactor/vtable-editors": "^1.26.6",
         "hucre": "^1.0.0",
       },
       "peerDependencies": {
@@ -146,9 +143,19 @@
         "@cat-kit/fe": ">=1.1.8",
         "@veltra/desktop": "workspace:*",
         "@veltra/icons": "workspace:*",
+        "@veltra/sheet-core": "workspace:*",
         "@veltra/styles": "workspace:*",
         "@veltra/utils": "workspace:*",
         "vue": ">=3.5.41",
+      },
+    },
+    "packages/sheet-core": {
+      "name": "@veltra/sheet-core",
+      "version": "1.0.0",
+      "dependencies": {
+        "@visactor/vtable": "^1.26.6",
+        "@visactor/vtable-editors": "^1.26.6",
+        "hucre": "^1.0.0",
       },
     },
     "packages/styles": {
@@ -192,6 +199,7 @@
         "@veltra/directives": "workspace:*",
         "@veltra/icons": "workspace:*",
         "@veltra/sheet": "workspace:*",
+        "@veltra/sheet-core": "workspace:*",
         "@veltra/styles": "workspace:*",
         "@veltra/utils": "workspace:*",
         "vue": "^3.5.41",
@@ -717,6 +725,8 @@
 
     "@veltra/sheet": ["@veltra/sheet@workspace:packages/sheet"],
 
+    "@veltra/sheet-core": ["@veltra/sheet-core@workspace:packages/sheet-core"],
+
     "@veltra/styles": ["@veltra/styles@workspace:packages/styles"],
 
     "@veltra/utils": ["@veltra/utils@workspace:packages/utils"],
@@ -1127,7 +1137,7 @@
 
     "is-wsl": ["is-wsl@3.1.1", "https://mirrors.tencent.com/npm/is-wsl/-/is-wsl-3.1.1.tgz", { "dependencies": { "is-inside-container": "^1.0.0" } }, "sha512-e6rvdUCiQCAuumZslxRJWR/Doq4VpPR82kqclvcS0efgt430SlGIk05vdCN58+VrzgtIcfNODjozVielycD4Sw=="],
 
-    "isarray": ["isarray@0.0.1", "https://mirrors.tencent.com/npm/isarray/-/isarray-0.0.1.tgz", {}, "sha512-D2S+3GLxWH+uhrNEcoh/fnmYeP8E8/zHl644d/jdA0g2uyXvy3sb0qxotE+ne0LtccHknQzWwZEzhak7oJ0COQ=="],
+    "isarray": ["isarray@1.0.0", "https://mirrors.tencent.com/npm/isarray/-/isarray-1.0.0.tgz", {}, "sha512-VLghIWNM6ELQzo7zwmcg0NmTVyWKYjvIeM83yjp0wRDTmUnrM678fQbcKBo6n2CJEF0szoG//ytg+TKla89ALQ=="],
 
     "isexe": ["isexe@2.0.0", "https://mirrors.tencent.com/npm/isexe/-/isexe-2.0.0.tgz", {}, "sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw=="],
 
@@ -1685,9 +1695,9 @@
 
     "mlly/pkg-types": ["pkg-types@1.3.1", "https://mirrors.tencent.com/npm/pkg-types/-/pkg-types-1.3.1.tgz", { "dependencies": { "confbox": "^0.1.8", "mlly": "^1.7.4", "pathe": "^2.0.1" } }, "sha512-/Jm5M4RvtBFVkKWRu2BLUTNP8/M2a+UwuAX+ae4770q1qVGtfjG+WTCupoZixokjmHiry8uI+dlY8KXYV5HVVQ=="],
 
-    "read-yaml-file/js-yaml": ["js-yaml@3.14.2", "https://mirrors.tencent.com/npm/js-yaml/-/js-yaml-3.14.2.tgz", { "dependencies": { "argparse": "^1.0.7", "esprima": "^4.0.0" }, "bin": { "js-yaml": "bin/js-yaml.js" } }, "sha512-PMSmkqxr106Xa156c2M265Z+FTrPl+oxd/rgOQy2tijQeK5TxQ43psO1ZCwhVOSdnn+RzkzlRz/eY4BgJBYVpg=="],
+    "point-at-length/isarray": ["isarray@0.0.1", "https://mirrors.tencent.com/npm/isarray/-/isarray-0.0.1.tgz", {}, "sha512-D2S+3GLxWH+uhrNEcoh/fnmYeP8E8/zHl644d/jdA0g2uyXvy3sb0qxotE+ne0LtccHknQzWwZEzhak7oJ0COQ=="],
 
-    "readable-stream/isarray": ["isarray@1.0.0", "https://mirrors.tencent.com/npm/isarray/-/isarray-1.0.0.tgz", {}, "sha512-VLghIWNM6ELQzo7zwmcg0NmTVyWKYjvIeM83yjp0wRDTmUnrM678fQbcKBo6n2CJEF0szoG//ytg+TKla89ALQ=="],
+    "read-yaml-file/js-yaml": ["js-yaml@3.14.2", "https://mirrors.tencent.com/npm/js-yaml/-/js-yaml-3.14.2.tgz", { "dependencies": { "argparse": "^1.0.7", "esprima": "^4.0.0" }, "bin": { "js-yaml": "bin/js-yaml.js" } }, "sha512-PMSmkqxr106Xa156c2M265Z+FTrPl+oxd/rgOQy2tijQeK5TxQ43psO1ZCwhVOSdnn+RzkzlRz/eY4BgJBYVpg=="],
 
     "rolldown/@oxc-project/types": ["@oxc-project/types@0.140.0", "https://mirrors.tencent.com/npm/@oxc-project/types/-/types-0.140.0.tgz", {}, "sha512-h5LUOzGArYemnW1NMz/DuuQhBi96J6JL2Bk8zE4kvqxB5Sg3jxmCiH4uyOWHDkiKSt5vWlG4FIwCR/DbstcNRQ=="],
 
@@ -1920,6 +1930,8 @@
     "@vue/language-core/@vue/compiler-dom/@vue/compiler-core/estree-walker": ["estree-walker@2.0.2", "https://mirrors.tencent.com/npm/estree-walker/-/estree-walker-2.0.2.tgz", {}, "sha512-Rfkk/Mp/DL7JVje3u18FxFujQlTNR2q6QfMSMB7AvCBx91NGj/ba3kCfza0f6dVDbw7YlRf/nDrn7pQrCCyQ/w=="],
 
     "rolldown-plugin-dts/@babel/parser/@babel/types/@babel/helper-string-parser": ["@babel/helper-string-parser@8.0.0", "https://mirrors.tencent.com/npm/@babel/helper-string-parser/-/helper-string-parser-8.0.0.tgz", {}, "sha512-6mJgmFFFIIO82vvoLt9XtRC7/TkzXfts1t/SpRX4IHSzMgqoPYCWesVu1udUPUWioAE/2fcG6WuI8zrkE1gwrg=="],
+
+    "simplify-geojson/concat-stream/readable-stream/isarray": ["isarray@0.0.1", "https://mirrors.tencent.com/npm/isarray/-/isarray-0.0.1.tgz", {}, "sha512-D2S+3GLxWH+uhrNEcoh/fnmYeP8E8/zHl644d/jdA0g2uyXvy3sb0qxotE+ne0LtccHknQzWwZEzhak7oJ0COQ=="],
 
     "simplify-geojson/concat-stream/readable-stream/string_decoder": ["string_decoder@0.10.31", "https://mirrors.tencent.com/npm/string_decoder/-/string_decoder-0.10.31.tgz", {}, "sha512-ev2QzSzWPYmy9GuqfIVildA4OdcGLeFZQrq5ys6RtiuF+RQQiZWr8TZNyAcuVXyQRYfEO+MsoB/1BuQVhOJuoQ=="],
 

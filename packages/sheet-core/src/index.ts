@@ -1,15 +1,8 @@
-// 内置工具注册（undo/redo/合并/取消合并）：随包入口完成，
-// 与 sheet-core command 的 default-registry 同构；深导入 sheet-core 子路径的
-// 无头场景不涉及
-import './tools/builtin'
-
-// 数据模型 / 渲染内核（原 src/core、src/grid）已迁至 @veltra/sheet-core，
-// 下方 core/grid 来源的导出全部为其主入口白名单的 re-export（公开 API 不变）。
 // 聚合导出为**公开 API 白名单**：仅测试引用的内部符号（如 rangeContainsRange、
-// mergeCellStyle、shiftFormulaRefs、io 转换函数、grid 样式映射、normalizeStyle、
-// ToolRegistry 类等，见 #31）不在此导出，测试一律深导入 @veltra/sheet-core 子路径。
+// mergeCellStyle、shiftFormulaRefs、io 转换函数、grid 样式映射、normalizeStyle
+// 等，见 #31）不在此导出，测试一律深导入 src 子路径。
 // 类成员方法（Sheet.setCell / setCellStyles、CellStore.setCellValue 等）随类整体
-// 导出，属内部实现细节，见 packages/sheet/AGENTS.md「核心语义」注。
+// 导出，属内部实现细节，见 packages/sheet-core/AGENTS.md「核心语义」注。
 
 export {
   cellKey,
@@ -27,7 +20,7 @@ export {
   iterateRange,
   type CellAddress,
   type CellRange
-} from '@veltra/sheet-core'
+} from './core/address'
 
 export {
   NUMERIC_TEXT_RE,
@@ -40,14 +33,14 @@ export {
   type CellValue,
   type CellData,
   type CellSnapshotItem
-} from '@veltra/sheet-core'
+} from './core/cell-store'
 
 export {
   computeFillTargetRange,
   generateFill,
   type FillDirection,
   type GenerateFillOptions
-} from '@veltra/sheet-core'
+} from './core/fill'
 
 export {
   findAll,
@@ -57,18 +50,18 @@ export {
   findPrevFrom,
   type FindOptions,
   type FindMatch
-} from '@veltra/sheet-core'
+} from './core/find'
 
 export {
   MergeManager,
   type MergedCellKind,
   type CellInfo,
   type MergeResult
-} from '@veltra/sheet-core'
+} from './core/merge-manager'
 
-export { SelectionModel, type SelectionState } from '@veltra/sheet-core'
+export { SelectionModel, type SelectionState } from './core/selection'
 
-export { Sheet, type FrozenState, type SheetSnapshot, type SheetEvents } from '@veltra/sheet-core'
+export { Sheet, type FrozenState, type SheetSnapshot, type SheetEvents } from './core/sheet'
 
 export {
   createImageId,
@@ -78,7 +71,7 @@ export {
   type SheetImageAnchor,
   type SheetImage,
   type ImageInput
-} from '@veltra/sheet-core'
+} from './core/image'
 
 export {
   BORDER_SIDES,
@@ -96,17 +89,17 @@ export {
   type CellStyle,
   type StyleId,
   type CellStylePatch
-} from '@veltra/sheet-core'
+} from './core/style/types'
 
-export { StylePool } from '@veltra/sheet-core'
+export { StylePool } from './core/style/style-pool'
 
 export {
   buildBorderPresetItems,
   type BorderPreset,
   type BorderPresetItem
-} from '@veltra/sheet-core'
+} from './core/style/border-presets'
 
-export { Workbook, type WorkbookEvents } from '@veltra/sheet-core'
+export { Workbook, type WorkbookEvents } from './core/workbook'
 
 export {
   HistoryManager,
@@ -145,7 +138,7 @@ export {
   type UpdateImageParams,
   UpdateImageCommand,
   defaultCommandRegistry
-} from '@veltra/sheet-core'
+} from './core/command'
 
 export {
   FORMULA_ERROR_CODES,
@@ -178,29 +171,14 @@ export {
   type FormulaDependency,
   type FormulaNode,
   DependencyGraph
-} from '@veltra/sheet-core'
+} from './core/formula'
 
-export { exportWorkbookXlsx, exportSheetCsv } from '@veltra/sheet-core'
-export { importXlsx, importCsv, replaceWorkbook } from '@veltra/sheet-core'
+export { exportWorkbookXlsx, exportSheetCsv } from './core/io/export'
+export { importXlsx, importCsv, replaceWorkbook } from './core/io/import'
 
 export {
   SheetGrid,
   type SheetGridOptions,
   type SheetGridContextMenuKind,
   type SheetGridContextMenuInfo
-} from '@veltra/sheet-core'
-
-export { createSheetContext, type SheetContext } from './tools/context'
-
-export {
-  defaultToolRegistry,
-  registerTool,
-  unregisterTool,
-  type SheetToolPopupType,
-  type SheetTool,
-  type SheetToolGroup
-} from './tools/registry'
-
-export { type SheetProps, type SheetEmits, type _SheetExposed, type SheetExposed } from './types'
-
-export { default as USheet } from './vue/sheet.vue'
+} from './grid/sheet-grid'

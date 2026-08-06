@@ -1,9 +1,19 @@
 import { debounce } from '@cat-kit/core'
+import {
+  inferCellType,
+  normalizeInputValue,
+  type CellData
+} from '@veltra/sheet-core/core/cell-store'
+import {
+  findAll,
+  findNextFrom,
+  findPrevFrom,
+  type FindMatch,
+  type FindOptions
+} from '@veltra/sheet-core/core/find'
+import type { Sheet } from '@veltra/sheet-core/core/sheet'
 import { computed, ref, shallowRef, watch } from 'vue'
 
-import { inferCellType, normalizeInputValue, type CellData } from '../core/cell-store'
-import { findAll, findNextFrom, findPrevFrom, type FindMatch, type FindOptions } from '../core/find'
-import type { Sheet } from '../core/sheet'
 import type { SheetContext } from '../tools/context'
 
 interface UseFindReplaceOptions {

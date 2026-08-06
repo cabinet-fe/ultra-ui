@@ -27,6 +27,8 @@ export interface ImageLayerOptions {
   toTableCoord: (addr: CellAddress) => { col: number; row: number }
   /** VTable 坐标 → 模型地址；行号列/列头返回 null */
   toSheetAddr: (col: number, row: number) => CellAddress | null
+  /** 只读模式：图片可选中查看，但禁用拖动（不写锚点）与 Delete/Backspace 删除 */
+  readonly?: boolean
 }
 
 /** 视口相对矩形（叠层 left/top/width/height） */
@@ -55,7 +57,7 @@ interface DragSession {
  * - 数据：`Map<id, objectURL>` 缓存，dispose 时 revoke
  * - LRU：隐藏只置脏，激活时一次性重排
  * - 交互：点击选中；选中后拖动经 `sheet.updateImage` 平移锚点（含格内余量，可 undo）；
- *   Delete/Backspace 经 `sheet.removeImage` 删除
+ *   Delete/Backspace 经 `sheet.removeImage` 删除；只读（readonly）时仅保留选中
  */
 export class ImageLayer {
   private readonly container: HTMLElement
@@ -63,6 +65,8 @@ export class ImageLayer {
   private readonly sheet: Sheet
   private readonly toTableCoord: (addr: CellAddress) => { col: number; row: number }
   private readonly toSheetAddr: (col: number, row: number) => CellAddress | null
+  /** 只读模式：见 ImageLayerOptions.readonly */
+  private readonly isReadonly: boolean
   private readonly root: HTMLDivElement
   private readonly urls = new Map<string, string>()
   /** 与 urls 对应的 data 引用：同引用复用 objectURL，换字节则重建 */
@@ -83,6 +87,7 @@ export class ImageLayer {
     this.sheet = options.sheet
     this.toTableCoord = options.toTableCoord
     this.toSheetAddr = options.toSheetAddr
+    this.isReadonly = options.readonly ?? false
 
     this.root = document.createElement('div')
     this.root.className = 'u-sheet__image-layer'
@@ -191,7 +196,8 @@ export class ImageLayer {
         const id = wrap.dataset.sheetImageId
         if (!id) return
         this.select(id)
-        this.beginDrag(event, id, wrap)
+        // 只读：选中保留（可查看），不开拖动会话（commitDrag 会写模型锚点）
+        if (!this.isReadonly) this.beginDrag(event, id, wrap)
         return
       }
       // 点击网格其他位置 → 取消选中
@@ -204,7 +210,8 @@ export class ImageLayer {
     )
 
     const onKeyDown = (event: KeyboardEvent): void => {
-      if (!this.selectedId || this.released || !this.visible) return
+      // 只读：Delete/Backspace 删除走 removeImage 写模型，整个不响应
+      if (!this.selectedId || this.released || !this.visible || this.isReadonly) return
       if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
         return
       }
@@ -544,6 +551,7 @@ export class ImageLayer {
   private applySelectionStyle(wrap: HTMLDivElement | undefined, on: boolean): void {
     if (!wrap) return
     wrap.style.outline = on ? `2px solid ${SELECTION_COLOR}` : 'none'
-    wrap.style.cursor = on ? 'move' : 'pointer'
+    // 只读选中态不给 move 光标（不可拖动）
+    wrap.style.cursor = on && !this.isReadonly ? 'move' : 'pointer'
   }
 }

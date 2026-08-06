@@ -65,6 +65,15 @@
 
 <script lang="ts" setup>
 import { message } from '@veltra/desktop'
+import {
+  formatAddress,
+  formatRange,
+  parseRange,
+  type CellAddress,
+  type CellRange
+} from '@veltra/sheet-core/core/address'
+import type { SelectionState } from '@veltra/sheet-core/core/selection'
+import type { Sheet } from '@veltra/sheet-core/core/sheet'
 import { bem } from '@veltra/utils'
 import {
   computed,
@@ -77,15 +86,6 @@ import {
   watch
 } from 'vue'
 
-import {
-  formatAddress,
-  formatRange,
-  parseRange,
-  type CellAddress,
-  type CellRange
-} from '../core/address'
-import type { SelectionState } from '../core/selection'
-import type { Sheet } from '../core/sheet'
 import type { SheetContext } from '../tools/context'
 import UFormulaSuggestList from './formula-suggest-list.vue'
 import { insertRefText, isRefSelectContext } from './use-formula-ref-select'

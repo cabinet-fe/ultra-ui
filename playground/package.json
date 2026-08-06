@@ -18,6 +18,7 @@
     "@veltra/directives": "workspace:*",
     "@veltra/icons": "workspace:*",
     "@veltra/sheet": "workspace:*",
+    "@veltra/sheet-core": "workspace:*",
     "@veltra/styles": "workspace:*",
     "@veltra/utils": "workspace:*",
     "vue": "^3.5.41",

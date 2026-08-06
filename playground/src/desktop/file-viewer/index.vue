@@ -57,7 +57,7 @@ const sampleTxt =
       '  - 图片 (<img>)',
       '  - 视频 (<video>)',
       '  - PDF  (EmbedPDF)',
-      '  - 表格 (字节 VTable + @cat-kit/excel)',
+      '  - 表格 (@veltra/sheet-core 只读预览)',
       '  - Word (docx-preview)',
       '  - 纯文本',
       '',

@@ -1,8 +1,8 @@
+import type { Sheet } from '@veltra/sheet-core/core/sheet'
+import { Workbook } from '@veltra/sheet-core/core/workbook'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
-import type { Sheet } from '../../core/sheet'
-import { Workbook } from '../../core/workbook'
 import { IMPORT_FILE_ACCEPT, importFromFile, pickAndImportFile } from '../import-file'
 
 const mocks = vi.hoisted(() => {
@@ -36,7 +36,7 @@ const EMPTY_SNAPSHOT = {
 
 vi.mock('@veltra/desktop', () => ({ message: mocks.message, messageConfirm: mocks.messageConfirm }))
 
-vi.mock('../../core/io/import', () => ({
+vi.mock('@veltra/sheet-core/core/io/import', () => ({
   importCsv: mocks.importCsv,
   importXlsx: mocks.importXlsx,
   replaceWorkbookWithSnapshots: mocks.replaceWorkbookWithSnapshots

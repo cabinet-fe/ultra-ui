@@ -1,3 +1,4 @@
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 /**
  * Phase 7 Playwright e2e：工具栏单行溢出滚动（窄窗口箭头导航 / 滚轮横滚，chromium）
  * 需 playground：http://localhost:7788/sheet/index
@@ -6,7 +7,6 @@
  * （macOS mise @playwright/cli / Windows Temp 内临时安装）。
  */
 import { createRequire } from 'node:module'
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -32,8 +32,20 @@ function findChromiumExecutable() {
   const candidates = [
     process.env.PLAYWRIGHT_CHROMIUM_PATH,
     // Windows
-    join(process.env.LOCALAPPDATA || '', 'ms-playwright', 'chromium-1067', 'chrome-win', 'chrome.exe'),
-    join(process.env.LOCALAPPDATA || '', 'ms-playwright', 'chromium-1055', 'chrome-win', 'chrome.exe'),
+    join(
+      process.env.LOCALAPPDATA || '',
+      'ms-playwright',
+      'chromium-1067',
+      'chrome-win',
+      'chrome.exe'
+    ),
+    join(
+      process.env.LOCALAPPDATA || '',
+      'ms-playwright',
+      'chromium-1055',
+      'chrome-win',
+      'chrome.exe'
+    ),
     // macOS
     '/Users/whj/Library/Caches/ms-playwright/chromium-1067/chrome-mac/Chromium.app/Contents/MacOS/Chromium',
     '/Users/whj/Library/Caches/ms-playwright/chromium-1055/chrome-mac/Chromium.app/Contents/MacOS/Chromium'
@@ -73,9 +85,7 @@ async function main() {
     check('宽视口工具栏单行（不换行）', (await toolbarHeight()) < 60)
 
     // 工具按钮全部在滚动视口内
-    const toolsInScroll = await page
-      .locator('.u-sheet__toolbar-scroll .u-sheet__tool')
-      .count()
+    const toolsInScroll = await page.locator('.u-sheet__toolbar-scroll .u-sheet__tool').count()
     check('工具按钮位于滚动视口内', toolsInScroll >= 20, `count=${toolsInScroll}`)
 
     // ─── 场景 2：容器变窄 → 箭头出现且仍单行 ────────────────
@@ -134,7 +144,10 @@ async function main() {
     await browser.close()
 
     const failed = results.filter((r) => !r.ok)
-    writeFileSync(join(OUT, 'phase7-toolbar-overflow-results.json'), JSON.stringify(results, null, 2))
+    writeFileSync(
+      join(OUT, 'phase7-toolbar-overflow-results.json'),
+      JSON.stringify(results, null, 2)
+    )
     console.log(`\n${results.length - failed.length}/${results.length} passed`)
     if (failed.length) {
       console.error('FAILED:', failed)

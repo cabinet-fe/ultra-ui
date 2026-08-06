@@ -39,6 +39,7 @@ const config = {
         '@veltra/directives',
         '@veltra/styles',
         '@veltra/icons',
+        '@veltra/sheet-core',
         '@cat-kit/core',
         '@embedpdf/core',
         '@embedpdf/engines',
@@ -47,7 +48,6 @@ const config = {
         '@embedpdf/plugin-scroll',
         '@embedpdf/plugin-viewport',
         '@embedpdf/plugin-zoom',
-        '@cat-kit/excel',
         '@lexical/clipboard',
         '@lexical/history',
         '@lexical/html',
@@ -56,7 +56,6 @@ const config = {
         '@lexical/rich-text',
         '@lexical/selection',
         '@lexical/utils',
-        '@visactor/vtable',
         'codemirror',
         'docx-preview',
         'lexical'

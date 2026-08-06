@@ -1,9 +1,10 @@
-import { describe, expect, it, vi } from 'vitest'
+import { createRange } from '@veltra/sheet-core/core/address'
 
 import '../builtin'
-import { createRange } from '../../core/address'
-import { Sheet } from '../../core/sheet'
-import { Workbook } from '../../core/workbook'
+import { Sheet } from '@veltra/sheet-core/core/sheet'
+import { Workbook } from '@veltra/sheet-core/core/workbook'
+import { describe, expect, it, vi } from 'vitest'
+
 import { createSheetContext } from '../context'
 import { exportSheetCsvFile, exportWorkbookFile } from '../download'
 import { defaultToolRegistry, type SheetTool } from '../registry'

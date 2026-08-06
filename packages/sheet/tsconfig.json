@@ -6,8 +6,14 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "skipDefaultLibCheck": true,
-    "customConditions": ["veltra-dev"]
+    "customConditions": ["veltra-dev"],
+    // tsc 不经 exports 的 `./*` 通配做扩展名探测（veltra-dev → ./src/* 无扩展名
+    // 解析失败），sheet-core 深导入改走 paths 直指源码
+    "paths": { "@veltra/sheet-core/*": ["../sheet-core/src/*"] }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "src/env.d.ts"],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  // paths 命中的 sheet-core 源码归属被引用项目，避免 composite 项目的
+  // rootDir/文件清单检查（TS6059/TS6307）
+  "references": [{ "path": "../sheet-core/tsconfig.json" }]
 }

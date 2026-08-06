@@ -1,10 +1,14 @@
 import { message, messageConfirm } from '@veltra/desktop'
+import {
+  importCsv,
+  importXlsx,
+  replaceWorkbookWithSnapshots
+} from '@veltra/sheet-core/core/io/import'
+import type { Sheet, SheetSnapshot } from '@veltra/sheet-core/core/sheet'
+import type { Workbook } from '@veltra/sheet-core/core/workbook'
 import { nextFrame } from '@veltra/utils'
 import type { Ref } from 'vue'
 
-import { importCsv, importXlsx, replaceWorkbookWithSnapshots } from '../core/io/import'
-import type { Sheet, SheetSnapshot } from '../core/sheet'
-import type { Workbook } from '../core/workbook'
 import type { ImportWorkerResponse } from './popups/import.worker'
 
 /** 导入文件 accept（工具栏直接选文件） */

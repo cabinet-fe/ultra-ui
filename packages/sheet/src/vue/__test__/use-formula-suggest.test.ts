@@ -1,6 +1,6 @@
+import { registerFormulaFunction } from '@veltra/sheet-core/core/formula/functions'
 import { describe, expect, it } from 'vitest'
 
-import { registerFormulaFunction } from '../../core/formula/functions'
 import {
   applySuggest,
   filterFormulaSuggestions,

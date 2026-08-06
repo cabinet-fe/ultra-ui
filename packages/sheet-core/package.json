@@ -1,0 +1,27 @@
+{
+  "name": "@veltra/sheet-core",
+  "version": "1.0.0",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "veltra-dev": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./*": {
+      "veltra-dev": "./src/*",
+      "types": "./dist/*",
+      "import": "./dist/*"
+    }
+  },
+  "dependencies": {
+    "@visactor/vtable": "^1.26.6",
+    "@visactor/vtable-editors": "^1.26.6",
+    "hucre": "^1.0.0"
+  }
+}

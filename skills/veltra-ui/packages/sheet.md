@@ -2,6 +2,8 @@
 
 电子表格包：基于 `@visactor/vtable`（ListTable）渲染，**数据模型完全自持有，VTable 只做视图层**。单元格读写、合并单元格、公式（含跨表引用）、undo/redo（命令系统）、填充柄、行高、**冻结行列**、**查找/替换**、右键合并菜单、工具栏扩展机制、**单元格样式系统（填充 / 边框 / 字体颜色加粗斜体下划线删除线 / 字号 / 对齐 / 换行，样式池按内容去重）**、**公式栏（名称框 + fx 输入栏）**、**浮动图片（插入 / 两点锚定叠层 / 拖动 / 删除 / xlsx round-trip）**、**导入导出（XLSX / CSV，hucre 引擎）**、`USheet` 组件。
 
+> 数据模型 / 公式 / IO / SheetGrid 渲染层（core/grid）在 **`@veltra/sheet-core`**；本包主入口 re-export 其公开白名单，**下文所有 `from '@veltra/sheet'` 的写法不变**。无头场景（不挂 USheet）建议直接用 `@veltra/sheet-core`，见 `packages/sheet-core.md`。
+
 ```ts
 import {
   USheet,
@@ -28,7 +30,11 @@ import '@veltra/sheet/vue/style'
 
 - **`USheet` 组件**（多数场景）：toolbar + formula-bar + grid + 底部 sheet tabs，一个组件即用。
 - **无头 / 自组 UI**：`Workbook`（多 sheet + 共享公式依赖图）→ `Sheet`（统一操作入口）；
-  `SheetGrid`（VTable 适配层，自行挂载到容器）。core 不依赖 vue/desktop，可单独测试与复用。
+  `SheetGrid`（VTable 适配层，自行挂载到容器；`readonly: true` 即只读预览）。
+  core/grid 已迁至 **`@veltra/sheet-core`**（不依赖 vue/desktop，可单独测试与复用）——
+  无头场景建议直接 `from '@veltra/sheet-core'`；本包 re-export 其白名单，从
+  `@veltra/sheet` 导入同一符号亦可。细节（导出分组、IO 保真度、readonly 语义、
+  深导入注意）见 `packages/sheet-core.md`。
 - 组件高度由宿主控制（grid 区 `flex:1`），需给 `.u-sheet` 一个高度。
 - 交互：填充柄（复制 / 数字日期等差 / 公式 `$` 感知位移）、行高拖拽（稀疏存模型、不进 undo）、
   冻结行列（模型持有、不进 undo）、查找/替换（Ctrl/Cmd+F 或工具栏「查找」）、
@@ -217,7 +223,8 @@ registerTool({
 
 ## 导入导出（XLSX / CSV）
 
-基于 `hucre`（零依赖纯 TS）的导入导出，`core/io` 纯 TS 可无头使用：
+基于 `hucre`（零依赖纯 TS）的导入导出，实现在 `@veltra/sheet-core` 的 `core/io`（纯 TS 可无头使用，
+保真度细节见 `packages/sheet-core.md`），本包主入口 re-export：
 
 ```ts
 import { exportWorkbookXlsx, exportSheetCsv, importXlsx, importCsv } from '@veltra/sheet'
@@ -255,4 +262,4 @@ wrap 行高为估算（非精确测字，合并格未按跨度加宽；只升不
 公式栏补全/引用选择为基础版（仅 fx 栏；无网格内编辑器同等能力、无引用高亮联动、
 无拖动调整引用、无参数高亮、无跨 sheet 引用辅助）。
 浮动图片无缩放/旋转/剪贴板/单元格内嵌图导入。
-详见 `packages/sheet/AGENTS.md`。
+详见 `packages/sheet/AGENTS.md` 与 `packages/sheet-core/AGENTS.md`。

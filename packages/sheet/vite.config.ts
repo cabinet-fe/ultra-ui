@@ -18,7 +18,8 @@ const config = {
 
   test: {
     include: ['src/**/*.test.ts'],
-    setupFiles: ['src/grid/__test__/setup.ts'],
+    // canvas mock 等测试环境初始化已随 grid 迁至 sheet-core，跨包引用其 setup
+    setupFiles: ['../sheet-core/src/grid/__test__/setup.ts'],
     globals: true,
     environment: 'happy-dom'
   },
@@ -50,10 +51,9 @@ const config = {
         'vue',
         '@veltra/desktop',
         '@veltra/icons',
+        '@veltra/sheet-core',
         '@veltra/styles',
         '@veltra/utils',
-        '@visactor/vtable',
-        '@visactor/vtable-editors',
         'hucre'
       ]
     },

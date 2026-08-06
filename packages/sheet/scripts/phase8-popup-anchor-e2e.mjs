@@ -1,3 +1,4 @@
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 /**
  * Phase 8 Playwright e2e：弹层面板锚点跟随触发按钮（UDropdown + floating-ui，chromium）
  * 需 playground：http://localhost:7788/sheet/index
@@ -10,7 +11,6 @@
  * - 点击面板外 / 再点同按钮 → 关闭
  */
 import { createRequire } from 'node:module'
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -33,8 +33,20 @@ const { chromium } = require(PW_PATH)
 function findChromiumExecutable() {
   const candidates = [
     process.env.PLAYWRIGHT_CHROMIUM_PATH,
-    join(process.env.LOCALAPPDATA || '', 'ms-playwright', 'chromium-1067', 'chrome-win', 'chrome.exe'),
-    join(process.env.LOCALAPPDATA || '', 'ms-playwright', 'chromium-1055', 'chrome-win', 'chrome.exe'),
+    join(
+      process.env.LOCALAPPDATA || '',
+      'ms-playwright',
+      'chromium-1067',
+      'chrome-win',
+      'chrome.exe'
+    ),
+    join(
+      process.env.LOCALAPPDATA || '',
+      'ms-playwright',
+      'chromium-1055',
+      'chrome-win',
+      'chrome.exe'
+    ),
     '/Users/whj/Library/Caches/ms-playwright/chromium-1067/chrome-mac/Chromium.app/Contents/MacOS/Chromium',
     '/Users/whj/Library/Caches/ms-playwright/chromium-1055/chrome-mac/Chromium.app/Contents/MacOS/Chromium'
   ]
@@ -64,8 +76,7 @@ async function main() {
     await page.waitForSelector('.u-sheet__toolbar')
     await page.waitForTimeout(600)
 
-    const popupBox = () =>
-      page.locator('#pop-container .u-sheet__popup').boundingBox()
+    const popupBox = () => page.locator('#pop-container .u-sheet__popup').boundingBox()
     const toolBox = (id) => page.locator(`[data-tool-id="${id}"]`).boundingBox()
 
     // ─── 场景 1：面板左缘对齐触发按钮（alignment: start + offset 6）────
@@ -89,7 +100,10 @@ async function main() {
     // ─── 场景 2：不同按钮 → 面板跟随 ─────────────────────────────
     await page.locator('[data-tool-id="fill-color"]').click() // 同按钮 toggle 关闭
     await page.waitForTimeout(300)
-    check('再点同按钮关闭面板', (await page.locator('#pop-container .u-sheet__popup').count()) === 0)
+    check(
+      '再点同按钮关闭面板',
+      (await page.locator('#pop-container .u-sheet__popup').count()) === 0
+    )
 
     await page.locator('[data-tool-id="font-color"]').click()
     await page.waitForSelector('#pop-container .u-sheet__popup')
@@ -127,9 +141,7 @@ async function main() {
     // 注意：场景 3 的 force click 会把工具栏滚到底（playwright 自动滚动），
     // 此时 wheel 无法再滚动（scrollLeft 已到上限，scroll 事件不触发），
     // 故用 JS 回滚触发 scroll 事件验证「滚动自动关闭」
-    await page
-      .locator('.u-sheet__toolbar-scroll')
-      .evaluate((el) => (el.scrollLeft = 0))
+    await page.locator('.u-sheet__toolbar-scroll').evaluate((el) => (el.scrollLeft = 0))
     await page.waitForTimeout(600)
     check(
       '工具栏滚动后面板自动关闭',

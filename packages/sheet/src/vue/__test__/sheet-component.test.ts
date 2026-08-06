@@ -1,7 +1,7 @@
+import { Workbook } from '@veltra/sheet-core/core/workbook'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createApp, h, nextTick, ref, type App } from 'vue'
 
-import { Workbook } from '../../core/workbook'
 import { USheet } from '../../index'
 import { registerTool, unregisterTool } from '../../tools/registry'
 import type { SheetExposed } from '../../types'

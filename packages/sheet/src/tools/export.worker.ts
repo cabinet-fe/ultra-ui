@@ -12,7 +12,7 @@
  * 静态 import 在 vite dev 的 worker 上下文中会因模块图加载顺序导致
  * `Workbook is not defined`（实测）。
  */
-import type { SheetSnapshot } from '../core/sheet'
+import type { SheetSnapshot } from '@veltra/sheet-core/core/sheet'
 
 export interface ExportWorkerPayload {
   sheets: { name: string; snapshot: SheetSnapshot }[]
@@ -26,7 +26,10 @@ export interface ExportWorkerResponse {
 }
 
 self.onmessage = (e: MessageEvent<ExportWorkerPayload>): void => {
-  void Promise.all([import('../core/io/export'), import('../core/workbook')])
+  void Promise.all([
+    import('@veltra/sheet-core/core/io/export'),
+    import('@veltra/sheet-core/core/workbook')
+  ])
     .then(([{ exportWorkbookXlsx }, { Workbook }]) => {
       const wb = new Workbook()
       const sheets = e.data.sheets

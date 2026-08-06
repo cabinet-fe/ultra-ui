@@ -1,7 +1,7 @@
+import { createRange } from '@veltra/sheet-core/core/address'
+import { Sheet } from '@veltra/sheet-core/core/sheet'
 import { describe, expect, it } from 'vitest'
 
-import { createRange } from '../../core/address'
-import { Sheet } from '../../core/sheet'
 import { createSheetContext } from '../../tools/context'
 import {
   buildBodyMenus,

@@ -1,16 +1,16 @@
+import { mkdirSync, writeFileSync } from 'node:fs'
 /**
  * Phase 5 Playwright e2e：工具栏图标化 / 分组 / 导出合并（chromium）
  * 需 playground：http://localhost:7788/sheet/index
  */
 import { createRequire } from 'node:module'
-import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const require = createRequire(import.meta.url)
-const { chromium } = require(
-  '/Users/whj/.local/share/mise/installs/node/26.1.0/lib/node_modules/@playwright/cli/node_modules/playwright'
-)
+const {
+  chromium
+} = require('/Users/whj/.local/share/mise/installs/node/26.1.0/lib/node_modules/@playwright/cli/node_modules/playwright')
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '../../..')
 const OUT = join(ROOT, '.playwright-cli')
@@ -102,14 +102,17 @@ async function main() {
 
   // tooltip：悬停可用按钮（disabled 工具 UTip.disabled=true 不弹出）
   await page.locator('[data-tool-id="find"]').hover()
-  await page.waitForSelector('.u-tip__content', { state: 'visible', timeout: 3000 }).catch(() => null)
+  await page
+    .waitForSelector('.u-tip__content', { state: 'visible', timeout: 3000 })
+    .catch(() => null)
   const tipText = await page
     .locator('.u-tip__content')
     .first()
     .textContent()
     .catch(() => '')
   const nativeTitle = await page.getAttribute('[data-tool-id="find"]', 'title')
-  const tipOk = !!(tipText && tipText.includes('Ctrl')) || !!(nativeTitle && nativeTitle.includes('Ctrl'))
+  const tipOk =
+    !!(tipText && tipText.includes('Ctrl')) || !!(nativeTitle && nativeTitle.includes('Ctrl'))
   check('tooltip 悬停可见', tipOk, `tip=${tipText || '-'} | title=${nativeTitle || '-'}`)
 
   // undo/redo disabled 联动
@@ -192,8 +195,7 @@ async function main() {
   )
   check(
     '导出面板两选项',
-    JSON.stringify(exportOpts) ===
-      JSON.stringify(['导出 Excel (.xlsx)', '导出 CSV (.csv)']),
+    JSON.stringify(exportOpts) === JSON.stringify(['导出 Excel (.xlsx)', '导出 CSV (.csv)']),
     exportOpts.join(' | ')
   )
 

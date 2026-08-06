@@ -1,16 +1,16 @@
+import { mkdirSync } from 'node:fs'
 /**
  * Phase 6 Playwright e2e：fx 补全 + 引用选择（chromium）
  * 需 playground：http://localhost:7788/sheet/index
  */
 import { createRequire } from 'node:module'
-import { mkdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const require = createRequire(import.meta.url)
-const { chromium } = require(
-  '/Users/whj/.local/share/mise/installs/node/26.1.0/lib/node_modules/@playwright/cli/node_modules/playwright'
-)
+const {
+  chromium
+} = require('/Users/whj/.local/share/mise/installs/node/26.1.0/lib/node_modules/@playwright/cli/node_modules/playwright')
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '../../..')
 const OUT = join(ROOT, '.playwright-cli')
@@ -60,7 +60,11 @@ async function main() {
 
   await typeFx('=SU')
   const sigs = await page.locator('.u-sheet__fx-suggest-sig').allTextContents()
-  check('SU 过滤到 SUM', sigs.some((s) => s.startsWith('SUM(')), sigs.join('|'))
+  check(
+    'SU 过滤到 SUM',
+    sigs.some((s) => s.startsWith('SUM(')),
+    sigs.join('|')
+  )
 
   await page.keyboard.press('ArrowDown')
   await page.keyboard.press('Enter')
@@ -159,7 +163,9 @@ async function main() {
   check('候选打开', await page.locator('.u-sheet__fx-suggest').isVisible())
   await fx.evaluate((el) => {
     el.focus()
-    el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }))
+    el.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+    )
   })
   await page.waitForTimeout(40)
   check(
@@ -169,7 +175,9 @@ async function main() {
   )
   await fx.evaluate((el) => {
     el.focus()
-    el.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }))
+    el.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+    )
   })
   await page.waitForTimeout(40)
   check('再 Esc 取消还原', (await fx.inputValue()) === 'keep-me', await fx.inputValue())
@@ -190,9 +198,7 @@ async function main() {
   await page.keyboard.type('B2')
   await page.keyboard.press('Enter')
   await page.waitForTimeout(50)
-  const nameJump = await page.evaluate(
-    () => window.__sheetDemo.sheet1.getSelection().activeCell
-  )
+  const nameJump = await page.evaluate(() => window.__sheetDemo.sheet1.getSelection().activeCell)
   check('名称框跳转 B2', nameJump?.row === 1 && nameJump?.col === 1, JSON.stringify(nameJump))
 
   // 框选后 Esc 取消（独立回归）

@@ -54,11 +54,11 @@
 <script lang="ts" setup>
 import { contextmenu, message, messageConfirm, UIcon } from '@veltra/desktop'
 import { ArrowLeft, ArrowRight } from '@veltra/icons/normal'
+import type { Sheet } from '@veltra/sheet-core/core/sheet'
+import type { Workbook } from '@veltra/sheet-core/core/workbook'
 import { bem } from '@veltra/utils'
 import { nextTick, ref, toRef, useTemplateRef } from 'vue'
 
-import type { Sheet } from '../core/sheet'
-import type { Workbook } from '../core/workbook'
 import { useSheetTabsBar } from './use-sheet-tabs-bar'
 
 defineOptions({ name: 'USheetTabs' })

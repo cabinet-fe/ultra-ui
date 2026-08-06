@@ -104,59 +104,6 @@ export function toBlobUrl(
   return { url, revoke: () => URL.revokeObjectURL(url) }
 }
 
-/**
- * RFC-4180 子集 CSV 解析：支持 "" 转义、\r\n 与 \n 换行、, 分隔。
- * 为性能起见采用状态机而非 split。
- */
-export function parseCsv(text: string): string[][] {
-  const rows: string[][] = []
-  let row: string[] = []
-  let field = ''
-  let inQuotes = false
-  const len = text.length
-
-  for (let i = 0; i < len; i++) {
-    const ch = text[i]
-
-    if (inQuotes) {
-      if (ch === '"') {
-        if (text[i + 1] === '"') {
-          field += '"'
-          i++
-        } else {
-          inQuotes = false
-        }
-      } else {
-        field += ch
-      }
-      continue
-    }
-
-    if (ch === '"') {
-      inQuotes = true
-    } else if (ch === ',') {
-      row.push(field)
-      field = ''
-    } else if (ch === '\n') {
-      row.push(field)
-      rows.push(row)
-      row = []
-      field = ''
-    } else if (ch === '\r') {
-      // swallow CR; LF will commit the row
-    } else {
-      field += ch
-    }
-  }
-
-  // 最后一行
-  if (field.length > 0 || row.length > 0) {
-    row.push(field)
-    rows.push(row)
-  }
-  return rows
-}
-
 export function formatBytes(bytes?: number): string {
   if (bytes === undefined || bytes === null || Number.isNaN(bytes)) return '-'
   if (bytes < 1024) return `${bytes} B`

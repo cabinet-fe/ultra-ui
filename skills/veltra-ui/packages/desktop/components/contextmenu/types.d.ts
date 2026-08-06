@@ -30,8 +30,8 @@ export interface ContextmenuProps extends ComponentProps {
   /** 鼠标位置 */
   mousePosition: { x: number; y: number }
   /**
-   * 菜单宽度
-   * @default 200
+   * 菜单宽度。传数字为固定 px；传 `'max-content'` 时由内容撑开（配合根样式 min-width: 120px）。
+   * @default 150
    */
   width?: number | string
   /** 菜单项 */
