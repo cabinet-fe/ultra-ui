@@ -48,7 +48,6 @@ const config = {
         '@embedpdf/plugin-scroll',
         '@embedpdf/plugin-viewport',
         '@embedpdf/plugin-zoom',
-        '@lexical/clipboard',
         '@lexical/history',
         '@lexical/html',
         '@lexical/link',

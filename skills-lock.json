@@ -6,7 +6,7 @@
       "ref": "main",
       "sourceType": "github",
       "skillPath": "skills/build-lib-skill/SKILL.md",
-      "computedHash": "d58b318b9cbea075cd91baa5fb5a13bc6652a411c5f1cf991bc7d31db19f5f2b"
+      "computedHash": "6cb10a5bbab395b2f1d9ee114f9cee029369e7d5ce6e17219422e15a322ab3ed"
     },
     "cat-kit": {
       "source": "cabinet-fe/cat-kit",

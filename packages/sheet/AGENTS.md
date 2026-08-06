@@ -25,6 +25,7 @@ src/
 - **工具只经 `SheetContext`**：不暴露 `Sheet` 实例；扩展天然可 undo。
 - **工作簿结构操作**（增删改名 sheet）走 `Workbook`，**不进 undo**，也不经 `SheetContext`；tabs UI 直接调 `Workbook`。
 - 内置工具副作用注册必须挂在包入口（`src/index.ts`）；放 vue 层会被 pack treeshake 丢掉。
+- `src/vue` 整体是 `@veltra/vite` 眼中的一个组件目录（`index.ts` + `style.ts`）：其 `index.ts` 增删 `U*` 导出后，在仓库根运行 `bun run resolver:gen` 刷新组件表。
 
 ## 引用 sheet-core
 

@@ -23,8 +23,8 @@
     }
   },
   "peerDependencies": {
-    "@veltra/styles": "workspace:*",
-    "@veltra/utils": "workspace:*",
+    "@veltra/styles": "workspace:^",
+    "@veltra/utils": "workspace:^",
     "vue": ">=3.5.41"
   }
 }

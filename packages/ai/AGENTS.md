@@ -32,6 +32,7 @@ src/
 
 - **域划分**：`chat/` 是纯逻辑域（类型、编排、transport），禁止依赖 Vue 组件（`import type` 类型导入允许）；`components/` 只放 UI，通过 `chat/` 复用核心逻辑；`tools/` 是工具定义辅助域，可依赖 `components/` 提供带 UI 的内置工具（如 `createAskQuestionTool`）。新能力开新顶层域目录（如 `providers/`），不要塞进组件目录。
 - 组件遵循 `packages/desktop/AGENTS.md` 的模式（BEM + token 样式、types 目录、style.ts 副作用入口）。
+- **新增/删除 `components/<name>/`（含 `index.ts` + `style.ts`）后，在仓库根运行 `bun run resolver:gen`** 刷新 `@veltra/vite` 组件表，否则宿主无法按需解析 `<u-ai-chat>` 这类标签。
 - 跨包导入 desktop 组件用包名：`import { UButton } from '@veltra/desktop'`；样式副作用用子路径 `'@veltra/desktop/components/<dir>/style'`。
 - transport 不引入 ai-sdk 等第三方依赖，SSE 手写解析；新增协议在 `chat/transports/` 以独立 `createXxxTransport` 工厂导出。
 - 工具串行执行（保持结果消息与调用顺序一致）；循环/泵取一律用递归或 Promise 链，禁止 await-in-loop（lint 硬性约束，不允许 disable 注释）。

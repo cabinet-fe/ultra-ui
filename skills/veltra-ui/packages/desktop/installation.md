@@ -71,11 +71,9 @@ bun add @veltra/vite unplugin-vue-components -D
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import Components from 'unplugin-vue-components/vite'
-import { VeltraDesktopUIResolver } from '@veltra/vite'
+import { VeltraUIResolver } from '@veltra/vite'
 
-export default defineConfig({
-  plugins: [vue(), Components({ resolvers: [VeltraDesktopUIResolver()] })]
-})
+export default defineConfig({ plugins: [vue(), Components({ resolvers: [VeltraUIResolver()] })] })
 ```
 
 配置后可直接在模板中使用：

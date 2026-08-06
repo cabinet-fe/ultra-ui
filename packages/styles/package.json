@@ -40,8 +40,8 @@
   },
   "peerDependencies": {
     "@cat-kit/core": ">=1.1.8",
-    "@veltra/compositions": "workspace:*",
-    "@veltra/utils": "workspace:*",
+    "@veltra/compositions": "workspace:^",
+    "@veltra/utils": "workspace:^",
     "vue": ">=3.5.41"
   }
 }

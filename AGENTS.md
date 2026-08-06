@@ -15,6 +15,7 @@ bun run lint                        # Oxlint + 类型检查（lint.options.typeC
 bun run fmt                         # Oxfmt 格式化
 bun run test                        # Vitest（根 vite.config.ts test 块）
 bun run skill:gen                   # 生成 skills/veltra-ui/generated 索引与各组件 types.d.ts、api.md
+bun run resolver:gen                # 生成 @veltra/vite 组件表（desktop/ai/sheet 增删组件后必须运行）
 vp changeset                        # 记录变更（见 RELEASE.md）
 bun run release                     # dev 分支落版本并推送；CI 负责测试/构建/发布
 ```
@@ -116,7 +117,9 @@ ultra-ui/
 
 `@veltra/styles`（SCSS + `@veltra/styles/theme`）被 desktop、directives、playground 等使用。**`theme` 运行时依赖 `@veltra/compositions`（`useConfig`），compositions 不得再导出 theme，避免循环依赖。** Sass 使用 `pkg:@veltra/styles/...`，构建与预览需 `NodePackageImporter`（见 `packages/styles/AGENTS.md`）。
 
-browser/neutral 的 `@cat-kit/*` 与 `@veltra/*` 在 library 包中声明为 **peerDependencies**（`>=` 下限版本）；宿主或 playground 在 dependencies 中安装实际版本。
+browser/neutral 的 `@cat-kit/*` 在 library 包中声明为 **peerDependencies**（`>=` 下限版本）；内部 `@veltra/*` peer 一律 `workspace:^`（发布时替换为 `^` 范围）；宿主或 playground 在 dependencies 中安装实际版本。
+
+版本策略（`.changeset/config.json`）：fixed 分两组同版本发布——核心组 `utils/styles/compositions/directives/desktop`、表格组 `sheet/sheet-core`；`ai`/`icons`/`vite` 独立版本线。`___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH.onlyUpdatePeerDependentsWhenOutOfRange` 已开启：范围内升级不连锁。**不要把内部 peer 改回 `workspace:*`**（发布为精确版本，跨组 minor 会触发 changesets 连锁 major 雪球）。
 
 ## 路径别名
 

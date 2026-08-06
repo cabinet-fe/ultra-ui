@@ -33,7 +33,7 @@ vp dev    # 端口 7788，host: true
 ## Vite 要点
 
 - SCSS：`NodePackageImporter`（仓库根）解析 `pkg:@veltra/styles/...`
-- `VeltraDesktopUIResolver`（`@veltra/vite`）：`U*` 组件 + 对应 `style.ts`
+- `VeltraUIResolver`（`@veltra/vite`）：desktop / ai / sheet 的 `U*` 组件 + 对应 `style.ts`
 - `@veltra/vite` 为本 playground 的 devDependency
 
 ## 结构
@@ -58,8 +58,8 @@ src/sheet-big-data/index.vue  # @veltra/sheet 大数据量演示（Phase 6：10 
 
 ## 依赖
 
-- **dependencies**：`@veltra/*`、`@cat-kit/core`、`@cat-kit/fe`、`@cat-kit/excel`、`vue`、`vue-router`
-- **devDependencies**：`@veltra/vite`、`vite-plugin-vue-devtools`
+- **dependencies**：`@cat-kit/core`、`@cat-kit/fe`、`@veltra/ai`、`@veltra/compositions`、`@veltra/desktop`、`@veltra/directives`、`@veltra/icons`、`@veltra/sheet`、`@veltra/sheet-core`、`@veltra/styles`、`@veltra/utils`、`vue`、`vue-router`
+- **devDependencies**：`@veltra/vite`
 
 ## 验证
 

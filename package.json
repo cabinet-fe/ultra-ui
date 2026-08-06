@@ -18,7 +18,7 @@
   "scripts": {
     "build": "vp run -r build",
     "build:packages": "vp run --filter '@veltra/*' --filter '!@veltra/mobile' build",
-    "ci:verify": "vp lint && vp run --filter '@veltra/*' --filter '!@veltra/mobile' build && vp test",
+    "ci:verify": "bun run resolver:gen -- --check && vp lint && vp run --filter '@veltra/*' --filter '!@veltra/mobile' build && vp test",
     "lint": "vp lint",
     "fmt": "vp fmt",
     "dev": "vp run -r dev",
@@ -28,13 +28,13 @@
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "bun run scripts/release.ts",
+    "resolver:gen": "bun run scripts/gen-vite-resolver.ts",
     "skill:gen": "bun run scripts/gen-veltra-skill.ts"
   },
   "devDependencies": {
     "@cat-kit/cli": "^1.0.6",
     "@cat-kit/tsconfig": "^2.0.1",
     "@changesets/cli": "^2.31.1",
-    "@tsdown/css": "0.22.14",
     "@types/bun": "^1.3.14",
     "@types/node": "^26.1.2",
     "@vitejs/plugin-vue": "^6.0.8",
@@ -47,8 +47,7 @@
     "unplugin-vue-components": "^32.1.0",
     "unplugin-vue-jsx": "^0.10.0",
     "vite-plus": "0.2.8",
-    "vue": "^3.5.41",
-    "vue-tsc": "^3.3.9"
+    "vue": "^3.5.41"
   },
   "overrides": {
     "@codemirror/autocomplete": "6.20.3",

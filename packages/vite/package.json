@@ -1,7 +1,7 @@
 {
   "name": "@veltra/vite",
   "version": "3.0.0",
-  "description": "Vite helpers for Veltra UI (e.g. unplugin-vue-components resolver for @veltra/desktop)",
+  "description": "Vite helpers for Veltra UI (e.g. unplugin-vue-components resolver for @veltra/desktop, @veltra/ai and @veltra/sheet)",
   "files": [
     "dist",
     "src"
@@ -18,7 +18,17 @@
     "@veltra/desktop": "workspace:*"
   },
   "peerDependencies": {
-    "@veltra/desktop": "workspace:*",
+    "@veltra/ai": "workspace:^",
+    "@veltra/desktop": "workspace:^",
+    "@veltra/sheet": "workspace:^",
     "unplugin-vue-components": ">=32.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@veltra/ai": {
+      "optional": true
+    },
+    "@veltra/sheet": {
+      "optional": true
+    }
   }
 }

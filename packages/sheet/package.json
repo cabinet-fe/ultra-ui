@@ -32,11 +32,11 @@
   "peerDependencies": {
     "@cat-kit/core": ">=1.1.8",
     "@cat-kit/fe": ">=1.1.8",
-    "@veltra/desktop": "workspace:*",
-    "@veltra/icons": "workspace:*",
-    "@veltra/sheet-core": "workspace:*",
-    "@veltra/styles": "workspace:*",
-    "@veltra/utils": "workspace:*",
+    "@veltra/desktop": "workspace:^",
+    "@veltra/icons": "workspace:^",
+    "@veltra/sheet-core": "workspace:^",
+    "@veltra/styles": "workspace:^",
+    "@veltra/utils": "workspace:^",
     "vue": ">=3.5.41"
   }
 }

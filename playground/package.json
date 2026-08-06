@@ -10,7 +10,6 @@
   },
   "dependencies": {
     "@cat-kit/core": "^1.1.8",
-    "@cat-kit/excel": "^1.0.1",
     "@cat-kit/fe": "^1.1.8",
     "@veltra/ai": "workspace:*",
     "@veltra/compositions": "workspace:*",
@@ -25,7 +24,6 @@
     "vue-router": "^5.2.0"
   },
   "devDependencies": {
-    "@veltra/vite": "workspace:*",
-    "vite-plugin-vue-devtools": "^8.2.1"
+    "@veltra/vite": "workspace:*"
   }
 }

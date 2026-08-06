@@ -8,14 +8,22 @@
       "@veltra/styles",
       "@veltra/compositions",
       "@veltra/directives",
-      "@veltra/desktop",
-      "@veltra/ai",
-      "@veltra/icons"
+      "@veltra/desktop"
+    ],
+    [
+      "@veltra/sheet",
+      "@veltra/sheet-core"
     ]
   ],
   "linked": [],
   "access": "public",
   "baseBranch": "dev",
   "updateInternalDependencies": "patch",
-  "ignore": ["@veltra/mobile", "playground"]
+  "ignore": [
+    "@veltra/mobile",
+    "playground"
+  ],
+  "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {
+    "onlyUpdatePeerDependentsWhenOutOfRange": true
+  }
 }

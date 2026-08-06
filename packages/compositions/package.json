@@ -23,7 +23,7 @@
   "peerDependencies": {
     "@cat-kit/core": ">=1.1.8",
     "@cat-kit/fe": ">=1.1.8",
-    "@veltra/utils": "workspace:*",
+    "@veltra/utils": "workspace:^",
     "vue": ">=3.5.41"
   }
 }

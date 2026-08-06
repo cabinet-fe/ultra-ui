@@ -33,11 +33,11 @@
     "markstream-vue": "^1.0.9"
   },
   "peerDependencies": {
-    "@veltra/compositions": "workspace:*",
-    "@veltra/desktop": "workspace:*",
-    "@veltra/icons": "workspace:*",
-    "@veltra/styles": "workspace:*",
-    "@veltra/utils": "workspace:*",
+    "@veltra/compositions": "workspace:^",
+    "@veltra/desktop": "workspace:^",
+    "@veltra/icons": "workspace:^",
+    "@veltra/styles": "workspace:^",
+    "@veltra/utils": "workspace:^",
     "vue": ">=3.5.41"
   }
 }

@@ -1,2 +1,2 @@
-export { VeltraDesktopUIResolver } from './resolver'
-export type { VeltraDesktopUIResolverOptions } from './resolver'
+export { VeltraUIResolver } from './resolver'
+export type { VeltraUIResolverOptions } from './resolver'
