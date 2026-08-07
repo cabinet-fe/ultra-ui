@@ -16,7 +16,8 @@ export default defineConfig({
       'packages/utils',
       'packages/compositions',
       'packages/sheet-core',
-      'packages/sheet'
+      'packages/sheet',
+      'playground'
     ]
   },
 

@@ -15,6 +15,8 @@ const repoRoot = resolve(__dirname, '..')
 const nodePkgImporter = new NodePackageImporter(repoRoot)
 
 const config = {
+  test: { include: ['src/**/*.test.ts'], globals: true, environment: 'node' },
+
   base: '/',
 
   css: { preprocessorOptions: { scss: { importers: [nodePkgImporter] } } },
