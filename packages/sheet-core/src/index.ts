@@ -74,6 +74,16 @@ export {
 } from './core/image'
 
 export {
+  cellMetaKey,
+  cellMetaKeyFrom,
+  cloneCellMetaPayload,
+  cellMetaPayloadEqual,
+  type CellMetaSnapshotItem
+} from './core/cell-meta'
+
+export { CellMetaStore } from './core/cell-meta-store'
+
+export {
   BORDER_SIDES,
   BORDER_STYLE_WIDTH,
   BORDER_EDGE_DEFAULTS,
@@ -111,6 +121,7 @@ export {
   type StructurePatch,
   type SnapshotPatch,
   type ImagePatch,
+  type CellMetaPatch,
   type Patch,
   type Mutation,
   type CommandResult,
@@ -137,6 +148,10 @@ export {
   type ImageUpdateFields,
   type UpdateImageParams,
   UpdateImageCommand,
+  type SetCellMetaParams,
+  SetCellMetaCommand,
+  type ClearCellMetaParams,
+  ClearCellMetaCommand,
   defaultCommandRegistry
 } from './core/command'
 

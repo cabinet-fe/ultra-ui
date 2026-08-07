@@ -1,5 +1,7 @@
 import type { CellAddress, CellRange } from './address'
 import { createRange, iterateRange } from './address'
+import type { CellMetaSnapshotItem } from './cell-meta'
+import { CellMetaStore } from './cell-meta-store'
 import {
   inferCellType,
   normalizeInputValue,
@@ -8,6 +10,7 @@ import {
   type CellSnapshotItem,
   type CellValue
 } from './cell-store'
+import { ClearCellMetaCommand, SetCellMetaCommand } from './command/cell-meta'
 import { defaultCommandRegistry } from './command/default-registry'
 import { HistoryManager, type HistoryState } from './command/history'
 import {
@@ -87,6 +90,10 @@ export interface SheetSnapshot {
    * 浮动图片（可选，向后兼容）。旧快照缺省 → 无图片。
    */
   images?: SheetImage[]
+  /**
+   * Cell Meta 侧车数据（可选，向后兼容）。旧快照缺省 → 无 meta。
+   */
+  meta?: CellMetaSnapshotItem[]
 }
 
 export type SheetEvents = {
@@ -113,6 +120,11 @@ export type SheetEvents = {
    * 单图变更带 id；整表替换时 id 缺省（视图层全量重排）。
    */
   'image-change': { id?: string }
+  /**
+   * Cell Meta 变化（设置/清除/restoreContent 整表替换）。
+   * 单条变更带 addr + namespace；整表替换时二者缺省（视图层全量刷新）。
+   */
+  'meta-change': { addr?: CellAddress; namespace?: string }
 }
 
 export class Sheet {
@@ -132,6 +144,8 @@ export class Sheet {
   private readonly rowHeights = new Map<number, number>()
   /** 浮动图片（id → SheetImage）；写操作经 ImagePatch / 结构变更通道 */
   private readonly images = new Map<string, SheetImage>()
+  /** Cell Meta 侧车（与 CellStore 平行；写操作经 CellMetaPatch） */
+  private readonly cellMeta = new CellMetaStore()
   /** 冻结状态（模型持有；不进 undo，随快照序列化/还原，grid 重建时还原） */
   private frozenState: FrozenState = { rows: 0, cols: 0 }
   /** 表格尺寸（0 = 未声明，grid 用渲染 props；行列操作后增长，随快照持久化） */
@@ -380,6 +394,26 @@ export class Sheet {
   /** 更新浮动图片锚点/尺寸/文案（经命令，可撤销）；不存在或无变更则无操作 */
   updateImage(id: string, patch: ImageUpdateFields): void {
     this.executeCommand(UpdateImageCommand.id, { id, patch })
+  }
+
+  // ─── Cell Meta ───────────────────────────────────────────
+
+  /** 读取指定地址与 namespace 的 Cell Meta（副本）；不存在返回 undefined */
+  getCellMeta<T = unknown>(addr: CellAddress, namespace: string): T | undefined {
+    const resolved = this.merges.resolveAnchor(addr)
+    return this.cellMeta.get(resolved, namespace) as T | undefined
+  }
+
+  /** 设置 Cell Meta（经命令，可撤销） */
+  setCellMeta(addr: CellAddress, namespace: string, payload: unknown): void {
+    const resolved = this.merges.resolveAnchor(addr)
+    this.executeCommand(SetCellMetaCommand.id, { addr: resolved, namespace, payload })
+  }
+
+  /** 清除 Cell Meta（经命令，可撤销）；不存在则无操作 */
+  clearCellMeta(addr: CellAddress, namespace: string): void {
+    const resolved = this.merges.resolveAnchor(addr)
+    this.executeCommand(ClearCellMetaCommand.id, { addr: resolved, namespace })
   }
 
   // ─── 命令与历史 ──────────────────────────────────────────
@@ -764,6 +798,7 @@ export class Sheet {
   /** 全量快照：单元格 + 样式池 + 合并 + 冻结 + 选区 + 尺寸 + 行高 + 图片（宿主序列化持久化用） */
   snapshot(): SheetSnapshot {
     const selection = this.selection.getState()
+    const metaSnapshot = this.cellMeta.snapshot()
     return {
       cells: this.store.snapshot(),
       styles: this.stylePool.snapshot(),
@@ -775,6 +810,8 @@ export class Sheet {
       ...(this.rowHeights.size > 0 ? { rowHeights: [...this.rowHeights] } : {}),
       // 仅在有图片时写入（旧快照无 images 字段 → 向后兼容）
       ...(this.images.size > 0 ? { images: [...this.images.values()].map(cloneSheetImage) } : {}),
+      // 仅在有 meta 时写入（旧快照无 meta 字段 → 向后兼容）
+      ...(metaSnapshot.length > 0 ? { meta: metaSnapshot } : {}),
       // 仅在有活动格时写入（空选区不序列化；restore 缺省回落 A1）
       ...(selection.activeCell
         ? { selection: { activeCell: selection.activeCell, ranges: selection.ranges } }
@@ -798,6 +835,7 @@ export class Sheet {
     this.rowHeights.clear()
     for (const [row, height] of snapshot.rowHeights ?? []) this.setRowHeight(row, height)
     this.replaceImages(snapshot.images, false)
+    this.replaceMeta(snapshot.meta, false)
     this.restoreSelection(snapshot.selection)
   }
 
@@ -815,6 +853,7 @@ export class Sheet {
     this.merges.clear()
     for (const range of snapshot.merges) this.merges.addMerge(range)
     this.replaceImages(snapshot.images, true)
+    this.replaceMeta(snapshot.meta, true)
     this.formulaGraph.rebuildSheet(this, snapshot.cells)
     this.emitter.emit('content-reset', undefined)
   }
@@ -826,6 +865,12 @@ export class Sheet {
       this.images.set(image.id, cloneSheetImage(image))
     }
     if (emitEvent) this.emitter.emit('image-change', {})
+  }
+
+  /** 替换 Cell Meta 集合；emitEvent 时发 meta-change（无 addr = 整表替换） */
+  private replaceMeta(meta: CellMetaSnapshotItem[] | undefined, emitEvent: boolean): void {
+    this.cellMeta.restore(meta)
+    if (emitEvent) this.emitter.emit('meta-change', {})
   }
 
   /**
@@ -899,6 +944,12 @@ export class Sheet {
         this.images.delete(patch.id)
       }
       this.emitter.emit('image-change', { id: patch.id })
+      return
+    }
+    if (patch.kind === 'cell-meta') {
+      const next = direction === 'redo' ? patch.after : patch.before
+      this.cellMeta.set(patch.addr, patch.namespace, next)
+      this.emitter.emit('meta-change', { addr: patch.addr, namespace: patch.namespace })
       return
     }
     if (patch.kind === 'snapshot') {

@@ -81,7 +81,27 @@ export interface ImagePatch {
   after?: SheetImage
 }
 
-export type Patch = CellPatch | MergePatch | StructurePatch | SnapshotPatch | ImagePatch
+/**
+ * Cell Meta 差量补丁（按地址 + namespace）。
+ * before/after = 该侧 meta 载荷（undefined = 无）；与 CellData 平行，不写入 v/f。
+ */
+export interface CellMetaPatch {
+  kind: 'cell-meta'
+  addr: CellAddress
+  namespace: string
+  /** 变更前（undefined = 原本无此 meta） */
+  before?: unknown
+  /** 变更后（undefined = 变更后无此 meta） */
+  after?: unknown
+}
+
+export type Patch =
+  | CellPatch
+  | MergePatch
+  | StructurePatch
+  | SnapshotPatch
+  | ImagePatch
+  | CellMetaPatch
 
 /**
  * 一次命令执行产生的变更单元。

@@ -1,3 +1,4 @@
+import { ClearCellMetaCommand, SetCellMetaCommand } from './cell-meta'
 import { InsertImageCommand, RemoveImageCommand, UpdateImageCommand } from './image'
 import { InsertCellsCommand } from './insert-delete-cells'
 import { MergeCellsBatchCommand, MergeCellsCommand, UnmergeCellsCommand } from './merge-cells'
@@ -24,3 +25,5 @@ defaultCommandRegistry.register(RestoreSheetCommand)
 defaultCommandRegistry.register(InsertImageCommand)
 defaultCommandRegistry.register(RemoveImageCommand)
 defaultCommandRegistry.register(UpdateImageCommand)
+defaultCommandRegistry.register(SetCellMetaCommand)
+defaultCommandRegistry.register(ClearCellMetaCommand)
