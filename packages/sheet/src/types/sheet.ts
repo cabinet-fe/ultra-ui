@@ -24,6 +24,8 @@ export interface SheetProps {
   showFormulaBar?: boolean
   /** 是否显示底部 sheet 标签栏，默认 true */
   showTabs?: boolean
+  /** 只读预览（关闭编辑回写、填充柄等写入口） */
+  readonly?: boolean
 }
 
 export interface SheetEmits {

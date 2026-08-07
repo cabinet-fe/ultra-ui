@@ -114,6 +114,7 @@ export function useSheetGrid(options: UseSheetGridOptions) {
       sheet,
       rows: props.rows,
       cols: props.cols,
+      readonly: props.readonly,
       resolveDisplayValue: props.resolveDisplayValue,
       onContextMenu: handleContextMenu,
       onEditStart: (addr) => formulaBarRef.value?.mirrorGridEdit(addr),
@@ -234,7 +235,7 @@ export function useSheetGrid(options: UseSheetGridOptions) {
 
   onMounted(activateGrid)
 
-  watch(() => [props.rows, props.cols], rebuildGrid)
+  watch(() => [props.rows, props.cols, props.readonly], rebuildGrid)
 
   onBeforeUnmount(() => {
     invalidateAll()

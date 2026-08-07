@@ -102,7 +102,8 @@ const props = withDefaults(defineProps<SheetProps>(), {
   cols: 26,
   showToolbar: true,
   showFormulaBar: true,
-  showTabs: true
+  showTabs: true,
+  readonly: false
 })
 
 const emit = defineEmits<SheetEmits>()

@@ -31,3 +31,6 @@ export interface MockDataset {
   label: string
   fields: DatasetField[]
 }
+
+/** Dataset id → 行记录（渲染 Filled Report 用） */
+export type DatasetRecords = Record<string, Record<string, unknown>[]>

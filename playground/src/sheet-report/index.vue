@@ -2,23 +2,47 @@
   <div class="sheet-report-demo">
     <header class="sheet-report-demo__header">
       <div>
-        <h2 class="sheet-report-demo__title">报表模板 · Design Mode</h2>
+        <h2 class="sheet-report-demo__title">
+          报表模板 · {{ viewMode === 'design' ? 'Design Mode' : 'Preview Mode' }}
+        </h2>
         <p class="sheet-report-demo__hint">
           选中单元格后点击或拖入字段写入 Binding（namespace
           <code>report</code>）；设计态显示 Binding Placeholder，不写 <code>v</code>。可配置
-          Aggregate、Expand、Left Parent 构建分组明细与 Subtotal Row。Ctrl/Cmd+Z 可撤销绑定。
+          Aggregate、Expand、Left Parent 构建分组明细与 Subtotal Row。预览模式按 Dataset 渲染 Filled
+          Report 且只读。
         </p>
       </div>
       <div class="sheet-report-demo__actions">
-        <label class="sheet-report-demo__mode">
-          <input v-model="designMode" type="checkbox" />
-          Design Mode（占位覆盖）
-        </label>
-        <button type="button" class="sheet-report-demo__btn" @click="saveSnapshot">保存快照</button>
+        <div class="sheet-report-demo__mode-toggle" role="group" aria-label="视图模式">
+          <button
+            type="button"
+            class="sheet-report-demo__mode-btn"
+            :class="{ 'sheet-report-demo__mode-btn--active': viewMode === 'design' }"
+            @click="setViewMode('design')"
+          >
+            设计模式
+          </button>
+          <button
+            type="button"
+            class="sheet-report-demo__mode-btn"
+            :class="{ 'sheet-report-demo__mode-btn--active': viewMode === 'preview' }"
+            @click="setViewMode('preview')"
+          >
+            预览模式
+          </button>
+        </div>
         <button
           type="button"
           class="sheet-report-demo__btn"
-          :disabled="!savedSnapshot"
+          :disabled="viewMode === 'preview'"
+          @click="saveSnapshot"
+        >
+          保存快照
+        </button>
+        <button
+          type="button"
+          class="sheet-report-demo__btn"
+          :disabled="viewMode === 'preview' || !savedSnapshot"
           @click="restoreSnapshot"
         >
           恢复快照
@@ -27,7 +51,10 @@
     </header>
 
     <div class="sheet-report-demo__body">
-      <aside class="sheet-report-demo__panel">
+      <aside
+        class="sheet-report-demo__panel"
+        :class="{ 'sheet-report-demo__panel--disabled': isPreview }"
+      >
         <h3 class="sheet-report-demo__panel-title">数据集字段</h3>
         <p class="sheet-report-demo__panel-meta">当前选区：{{ selectionLabel }}</p>
         <section v-for="dataset in datasets" :key="dataset.id" class="sheet-report-demo__dataset">
@@ -55,11 +82,17 @@
           :rows="24"
           :cols="10"
           :show-tabs="false"
+          :show-toolbar="!isPreview"
+          :show-formula-bar="!isPreview"
+          :readonly="isPreview"
           :resolve-display-value="resolveDisplayValue"
         />
       </div>
 
-      <aside class="sheet-report-demo__props">
+      <aside
+        class="sheet-report-demo__props"
+        :class="{ 'sheet-report-demo__panel--disabled': isPreview }"
+      >
         <h3 class="sheet-report-demo__panel-title">Binding 属性</h3>
         <template v-if="activeBinding && activeCell">
           <p class="sheet-report-demo__props-placeholder">
@@ -154,11 +187,15 @@ import {
   parseCellAddress,
   resolveLeftParent
 } from './binding'
-import { MOCK_DATASETS, ORDERS_DATASET } from './mock-dataset'
+import { MOCK_DATA_RECORDS, MOCK_DATASETS, ORDERS_DATASET } from './mock-dataset'
+import { renderReport } from './render'
 import type { ReportAggregate, ReportBinding, ReportExpand, ReportLeftParent } from './types'
 
+type ViewMode = 'design' | 'preview'
+
 const datasets = MOCK_DATASETS
-const designMode = ref(true)
+const viewMode = ref<ViewMode>('design')
+const templateSnapshot = ref<string | null>(null)
 const savedSnapshot = ref<string | null>(null)
 const selectionTick = ref(0)
 const leftParentAddressInput = ref('')
@@ -185,6 +222,8 @@ const leftParentModeOptions = [
   { value: 'default' as const, label: '默认（同行向左）' },
   { value: 'specify' as const, label: '指定设计地址' }
 ]
+
+const isPreview = computed(() => viewMode.value === 'preview')
 
 const selectionLabel = computed(() => {
   selectionTick.value
@@ -247,19 +286,38 @@ function refreshGrid(): void {
 
 /** Design Mode：Binding Placeholder 覆盖显示，不写 v */
 const resolveDisplayValue: ResolveDisplayValue = (addr, base) => {
-  if (!designMode.value) return base
+  if (isPreview.value) return base
   const binding = getBindingAt(addr)
   if (binding) return formatBindingPlaceholder(binding)
   return base
 }
 
-watch(designMode, refreshGrid)
+function setViewMode(mode: ViewMode): void {
+  if (viewMode.value === mode) return
+
+  if (mode === 'preview') {
+    templateSnapshot.value = JSON.stringify(activeSheet().snapshot())
+    const filled = renderReport(JSON.parse(templateSnapshot.value), MOCK_DATA_RECORDS)
+    activeSheet().restore(filled)
+    activeSheet().history.clear()
+  } else if (templateSnapshot.value) {
+    activeSheet().restore(JSON.parse(templateSnapshot.value))
+    activeSheet().history.clear()
+  }
+
+  viewMode.value = mode
+  refreshGrid()
+  bumpSelection()
+}
+
+watch(viewMode, refreshGrid)
 
 function bumpSelection(): void {
   selectionTick.value++
 }
 
 function patchActiveBinding(patch: Partial<ReportBinding>): void {
+  if (isPreview.value) return
   const cell = activeCell.value
   const binding = activeBinding.value
   if (!cell || !binding) return
@@ -299,6 +357,7 @@ function commitLeftParentAddress(): void {
 }
 
 function bindField(datasetId: string, fieldName: string, addr?: CellAddress): void {
+  if (isPreview.value) return
   const dataset = datasets.find((d) => d.id === datasetId)
   if (!dataset) return
 
@@ -357,11 +416,11 @@ function seedTemplate(): void {
   const sheet = workbook.activeSheet
 
   sheet.setCells([
-    { addr: { row: 0, col: 0 }, value: '客户' },
-    { addr: { row: 0, col: 1 }, value: '订单号' },
-    { addr: { row: 0, col: 2 }, value: '金额' },
-    { addr: { row: 0, col: 3 }, value: '下单日期' },
-    { addr: { row: 3, col: 1 }, value: '合计' }
+    { addr: { row: 0, col: 0 }, data: { v: '客户' } },
+    { addr: { row: 0, col: 1 }, data: { v: '订单号' } },
+    { addr: { row: 0, col: 2 }, data: { v: '金额' } },
+    { addr: { row: 0, col: 3 }, data: { v: '下单日期' } },
+    { addr: { row: 3, col: 1 }, data: { v: '合计' } }
   ])
 
   const customerGroup = createReportBinding(ORDERS_DATASET, 'customer')
@@ -451,12 +510,30 @@ onBeforeUnmount(() => {
   gap: 8px;
 }
 
-.sheet-report-demo__mode {
+.sheet-report-demo__mode-toggle {
   display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  border: 1px solid var(--u-border-color, #e2e8f0);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.sheet-report-demo__mode-btn {
+  padding: 6px 12px;
   font-size: 13px;
-  user-select: none;
+  border: none;
+  background: var(--u-bg-color, #fff);
+  cursor: pointer;
+
+  &--active {
+    color: var(--u-color-primary, #2563eb);
+    background: var(--u-fill-color-light, #eff6ff);
+    font-weight: 500;
+  }
+}
+
+.sheet-report-demo__panel--disabled {
+  opacity: 0.55;
+  pointer-events: none;
 }
 
 .sheet-report-demo__btn {
