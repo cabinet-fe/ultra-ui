@@ -33,6 +33,8 @@ const transport = createOpenAITransport({
         {
           id: 'o3-mini',
           label: 'o3-mini',
+          // 选择器面板中的副标题描述
+          description: '擅长对话与 Agent 任务，全能旗舰',
           reasoningLevels: [
             { value: 'low', label: '低' },
             { value: 'medium', label: '中' },
@@ -47,7 +49,7 @@ const transport = createOpenAITransport({
 </script>
 ```
 
-输入栏会展示模型选择器；选中带 `reasoningLevels` 的模型时再展示推理等级选择器。支持 `v-model:model` / `v-model:reasoning-level`。
+输入栏会展示模型选择器（`description` 作为选项副标题）；选中带 `reasoningLevels` 的模型时，选择器面板底部出现「思考强度」区。支持 `v-model:model` / `v-model:reasoning-level`。
 
 自定义推理字段名可用 Provider 级 `applyReasoning`（缺省写 `reasoning_effort`）：
 

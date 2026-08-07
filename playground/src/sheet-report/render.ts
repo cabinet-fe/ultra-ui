@@ -63,6 +63,9 @@ function bindingsOnRow(template: SheetSnapshot, row: number): BindingCell[] {
 }
 
 function isConsumedByParent(template: SheetSnapshot, row: number): boolean {
+  // 扩展带根行（含 group 且自身为扩展根）由主循环 expand，不能当作子行跳过
+  if (isGroupExpansionRoot(template, row)) return false
+
   for (const { addr, binding } of bindingsOnRow(template, row)) {
     const parent = resolveLeftParent(binding, addr, getBindingAt(template))
     if (parent) return true

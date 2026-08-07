@@ -32,30 +32,13 @@
         </UFilePicker>
       </div>
 
-      <!-- 右簇：模型 → 推理 → 发送/停止，贴近发送按钮 -->
+      <!-- 右簇：模型/推理选择 → 发送/停止，贴近发送按钮 -->
       <div :class="cls.e('input-toolbar-right')">
-        <USelect
+        <ModelPicker
           v-if="models?.length"
-          v-model="model"
-          :class="cls.e('input-model')"
-          size="small"
-          :clearable="false"
-          :options="modelOptions"
-          value-key="value"
-          label-key="label"
-          placeholder="模型"
-        />
-
-        <USelect
-          v-if="showReasoning"
-          v-model="reasoningLevel"
-          :class="cls.e('input-reasoning')"
-          size="small"
-          :clearable="false"
-          :options="reasoningOptions"
-          value-key="value"
-          label-key="label"
-          placeholder="推理"
+          v-model:model="model"
+          v-model:reasoning-level="reasoningLevel"
+          :models="models"
         />
 
         <UButton v-if="running" size="small" type="danger" circle @click="emit('abort')">
@@ -77,7 +60,7 @@
 </template>
 
 <script lang="ts" setup>
-import { UButton, UFilePicker, UIcon, USelect } from '@veltra/desktop'
+import { UButton, UFilePicker, UIcon } from '@veltra/desktop'
 import { Attach, Close, Up } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { computed, inject, ref, shallowRef } from 'vue'
@@ -85,6 +68,7 @@ import { computed, inject, ref, shallowRef } from 'vue'
 import type { ChatAttachment } from '../../chat/types'
 import type { ChatModelOption } from '../../providers'
 import { AiChatDIKey } from './di'
+import ModelPicker from './model-picker.vue'
 
 defineOptions({ name: 'UAiChatInput' })
 
@@ -119,18 +103,6 @@ const textareaRef = shallowRef<HTMLTextAreaElement>()
 const canSend = computed(() => {
   return !props.running && (!!text.value.trim() || attachments.value.length > 0)
 })
-
-const modelOptions = computed(() => {
-  return (props.models ?? []).map((m) => ({ value: m.id, label: m.label ?? m.id }))
-})
-
-const currentModel = computed(() => {
-  return props.models?.find((m) => m.id === model.value)
-})
-
-const reasoningOptions = computed(() => currentModel.value?.reasoningLevels ?? [])
-
-const showReasoning = computed(() => !!reasoningOptions.value.length)
 
 /** 多行自适应高度，上限 160px */
 const autoResize = () => {

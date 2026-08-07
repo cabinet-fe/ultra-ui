@@ -22,6 +22,24 @@
       "skillPath": "skills/git-commit/SKILL.md",
       "computedHash": "c38af995173ff71610d9485e0461e8e4bb1808f682fb4bd31692a96aa7075aa7"
     },
+    "markstream-custom-components": {
+      "source": "Simon-He95/markstream-vue",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/markstream-custom-components/SKILL.md",
+      "computedHash": "2639e7ee8126129a406c9d5d6b1008ed1f3e3536b3be89479c5dd5df93538eb8"
+    },
+    "markstream-install": {
+      "source": "Simon-He95/markstream-vue",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/markstream-install/SKILL.md",
+      "computedHash": "ce0f67bf2d2053597116a91108c73eac61affaa77a26fcd244c513054c93bd94"
+    },
+    "markstream-vue": {
+      "source": "Simon-He95/markstream-vue",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/markstream-vue/SKILL.md",
+      "computedHash": "fe659328cc6723e0ef67374a8550a93f9a9f0ef56f5053ab82d04715893667b9"
+    },
     "vue-best-practices": {
       "source": "cabinet-fe/prompt-engineering",
       "ref": "main",

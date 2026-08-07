@@ -6,10 +6,8 @@
           报表模板 · {{ viewMode === 'design' ? 'Design Mode' : 'Preview Mode' }}
         </h2>
         <p class="sheet-report-demo__hint">
-          选中单元格后点击或拖入字段写入 Binding（namespace
-          <code>report</code>）；设计态显示 Binding Placeholder，不写 <code>v</code>。可配置
-          Aggregate、Expand、Left Parent 构建分组明细与 Subtotal Row。预览模式按 Dataset 渲染 Filled
-          Report 且只读。
+          第 2 行为扩展带（客户分组 + 订单明细），第 3 行为合计。选中单元格后从左侧拖入/点击字段；点
+          <strong>预览模式</strong> 按 mock 数据展开。
         </p>
       </div>
       <div class="sheet-report-demo__actions">
@@ -78,6 +76,7 @@
       <div class="sheet-report-demo__grid" @dragover.prevent @drop="onGridDrop">
         <u-sheet
           ref="sheetRef"
+          class="sheet-report-demo__sheet"
           :workbook="workbook"
           :rows="24"
           :cols="10"
@@ -173,10 +172,11 @@
 <script lang="ts" setup>
 import { USheet, type SheetExposed } from '@veltra/sheet'
 import type { CellAddress } from '@veltra/sheet-core'
+import type { SheetSnapshot } from '@veltra/sheet-core'
 import { Workbook } from '@veltra/sheet-core'
 import type { ResolveDisplayValue } from '@veltra/sheet-core/grid/sheet-grid'
 import '@veltra/sheet/vue/style'
-import { computed, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import {
   REPORT_META_NAMESPACE,
@@ -187,8 +187,9 @@ import {
   parseCellAddress,
   resolveLeftParent
 } from './binding'
-import { MOCK_DATA_RECORDS, MOCK_DATASETS, ORDERS_DATASET } from './mock-dataset'
+import { MOCK_DATA_RECORDS, MOCK_DATASETS } from './mock-dataset'
 import { renderReport } from './render'
+import { seedGroupDetailTemplate } from './template'
 import type { ReportAggregate, ReportBinding, ReportExpand, ReportLeftParent } from './types'
 
 type ViewMode = 'design' | 'preview'
@@ -292,25 +293,39 @@ const resolveDisplayValue: ResolveDisplayValue = (addr, base) => {
   return base
 }
 
+function syncGridView(): void {
+  const grid = sheetRef.value?.getGrid()
+  grid?.flushPending()
+  grid?.refresh()
+}
+
+/** restore 不发 content-reset，需显式刷新网格；readonly 切换会 rebuildGrid，再刷一次 */
+function applySheetSnapshot(snapshot: SheetSnapshot): void {
+  const sheet = activeSheet()
+  sheet.restore(snapshot)
+  sheet.restoreContent(snapshot)
+  sheet.history.clear()
+  void nextTick(syncGridView)
+}
+
 function setViewMode(mode: ViewMode): void {
   if (viewMode.value === mode) return
 
   if (mode === 'preview') {
     templateSnapshot.value = JSON.stringify(activeSheet().snapshot())
     const filled = renderReport(JSON.parse(templateSnapshot.value), MOCK_DATA_RECORDS)
-    activeSheet().restore(filled)
-    activeSheet().history.clear()
+    applySheetSnapshot(filled)
   } else if (templateSnapshot.value) {
-    activeSheet().restore(JSON.parse(templateSnapshot.value))
-    activeSheet().history.clear()
+    applySheetSnapshot(JSON.parse(templateSnapshot.value))
   }
 
   viewMode.value = mode
-  refreshGrid()
   bumpSelection()
 }
 
-watch(viewMode, refreshGrid)
+watch(isPreview, () => {
+  void nextTick(syncGridView)
+})
 
 function bumpSelection(): void {
   selectionTick.value++
@@ -368,6 +383,15 @@ function bindField(datasetId: string, fieldName: string, addr?: CellAddress): vo
   if (!target) return
 
   const binding = createReportBinding(dataset, fieldName)
+  if (fieldName === 'customer') {
+    binding.aggregate = 'group'
+    binding.leftParent = 'none'
+  } else if (target.row === 1 && target.col === 0) {
+    // 分组格勿被普通 list 覆盖
+    binding.aggregate = 'group'
+    binding.leftParent = 'none'
+  }
+
   activeSheet().setCellMeta(target, REPORT_META_NAMESPACE, binding)
   refreshGrid()
 }
@@ -405,50 +429,14 @@ function saveSnapshot(): void {
 
 function restoreSnapshot(): void {
   if (!savedSnapshot.value) return
-  const snap = JSON.parse(savedSnapshot.value)
-  activeSheet().restore(snap)
-  refreshGrid()
+  applySheetSnapshot(JSON.parse(savedSnapshot.value))
   bumpSelection()
 }
 
-/** 预置：客户 group → 订单明细 → Subtotal Row */
+/** 预置模板见 template.ts */
 function seedTemplate(): void {
-  const sheet = workbook.activeSheet
-
-  sheet.setCells([
-    { addr: { row: 0, col: 0 }, data: { v: '客户' } },
-    { addr: { row: 0, col: 1 }, data: { v: '订单号' } },
-    { addr: { row: 0, col: 2 }, data: { v: '金额' } },
-    { addr: { row: 0, col: 3 }, data: { v: '下单日期' } },
-    { addr: { row: 3, col: 1 }, data: { v: '合计' } }
-  ])
-
-  const customerGroup = createReportBinding(ORDERS_DATASET, 'customer')
-  customerGroup.aggregate = 'group'
-  customerGroup.leftParent = 'none'
-  sheet.setCellMeta({ row: 1, col: 0 }, REPORT_META_NAMESPACE, customerGroup)
-
-  const groupParent = { row: 1, col: 0 }
-
-  const orderNo = createReportBinding(ORDERS_DATASET, 'orderNo')
-  orderNo.leftParent = groupParent
-  sheet.setCellMeta({ row: 2, col: 1 }, REPORT_META_NAMESPACE, orderNo)
-
-  const amount = createReportBinding(ORDERS_DATASET, 'amount')
-  amount.leftParent = groupParent
-  sheet.setCellMeta({ row: 2, col: 2 }, REPORT_META_NAMESPACE, amount)
-
-  const orderDate = createReportBinding(ORDERS_DATASET, 'orderDate')
-  orderDate.leftParent = groupParent
-  sheet.setCellMeta({ row: 2, col: 3 }, REPORT_META_NAMESPACE, orderDate)
-
-  const subtotal = createReportBinding(ORDERS_DATASET, 'amount')
-  subtotal.aggregate = 'sum'
-  subtotal.expand = 'none'
-  subtotal.leftParent = groupParent
-  sheet.setCellMeta({ row: 3, col: 2 }, REPORT_META_NAMESPACE, subtotal)
-
-  sheet.history.clear()
+  seedGroupDetailTemplate(workbook.activeSheet)
+  workbook.activeSheet.history.clear()
 }
 
 let offSelection: (() => void) | undefined
@@ -456,6 +444,7 @@ let offSelection: (() => void) | undefined
 onMounted(() => {
   seedTemplate()
   offSelection = workbook.activeSheet.on('selection-change', bumpSelection)
+  void nextTick(syncGridView)
 })
 
 onBeforeUnmount(() => {
@@ -624,6 +613,13 @@ onBeforeUnmount(() => {
   min-height: 0;
   display: flex;
   flex-direction: column;
+}
+
+/* USheet 根为 flex 列，grid 区 flex:1；宿主必须给 .u-sheet 明确高度，否则网格高度为 0 */
+.sheet-report-demo__sheet {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
 }
 
 .sheet-report-demo__props-placeholder {

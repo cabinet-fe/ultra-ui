@@ -329,7 +329,7 @@ describe('UAiChat', () => {
     unmount()
   })
 
-  it('有 models 时渲染模型选择器；有 reasoningLevels 时渲染推理选择器', async () => {
+  it('有 models 时渲染模型选择器；当前模型无 reasoningLevels 时不展示推理等级', async () => {
     const { host, unmount } = mountAiChat({
       transport: () => {},
       models: [
@@ -351,15 +351,17 @@ describe('UAiChat', () => {
     await nextTick()
     // 模型选择器在右簇（发送按钮左侧），不在附件侧
     expect(
-      host.querySelector('.u-ai-chat__input-toolbar-right .u-ai-chat__input-model')
+      host.querySelector('.u-ai-chat__input-toolbar-right .u-ai-chat__model-trigger')
     ).toBeTruthy()
-    expect(host.querySelector('.u-ai-chat__input-toolbar-left .u-ai-chat__input-model')).toBeFalsy()
-    // 当前模型无 reasoningLevels，不展示推理选择器
-    expect(host.querySelector('.u-ai-chat__input-reasoning')).toBeFalsy()
+    expect(
+      host.querySelector('.u-ai-chat__input-toolbar-left .u-ai-chat__model-trigger')
+    ).toBeFalsy()
+    // 当前模型无 reasoningLevels，触发器不展示推理等级
+    expect(host.querySelector('.u-ai-chat__model-trigger-reasoning')).toBeFalsy()
     unmount()
   })
 
-  it('切换到带 reasoningLevels 的模型后显示推理选择器', async () => {
+  it('切换到带 reasoningLevels 的模型后触发器展示推理等级', async () => {
     const model = ref('gpt-4o')
     const reasoningLevel = ref<string | undefined>()
     const host = document.createElement('div')
@@ -397,14 +399,16 @@ describe('UAiChat', () => {
     app.mount(host)
     await nextTick()
 
-    expect(host.querySelector('.u-ai-chat__input-reasoning')).toBeFalsy()
+    expect(host.querySelector('.u-ai-chat__model-trigger-reasoning')).toBeFalsy()
 
     model.value = 'o3-mini'
     await nextTick()
 
-    expect(
-      host.querySelector('.u-ai-chat__input-toolbar-right .u-ai-chat__input-reasoning')
-    ).toBeTruthy()
+    const reasoning = host.querySelector(
+      '.u-ai-chat__input-toolbar-right .u-ai-chat__model-trigger-reasoning'
+    )
+    expect(reasoning).toBeTruthy()
+    expect(reasoning?.textContent).toBe('低')
     expect(reasoningLevel.value).toBe('low')
 
     app.unmount()

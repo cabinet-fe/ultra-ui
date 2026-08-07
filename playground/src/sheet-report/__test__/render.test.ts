@@ -1,46 +1,13 @@
 import { Sheet } from '@veltra/sheet-core'
 import { describe, expect, it } from 'vitest'
 
-import { REPORT_META_NAMESPACE, createReportBinding } from '../binding'
-import { MOCK_DATA_RECORDS, ORDERS_DATASET } from '../mock-dataset'
+import { MOCK_DATA_RECORDS } from '../mock-dataset'
 import { renderReport } from '../render'
+import { seedGroupDetailTemplate } from '../template'
 
-/** 与 index.vue seedTemplate 一致的客户分组 + 明细 + 合计模板 */
 function buildGroupDetailTemplate() {
   const sheet = new Sheet()
-  sheet.setCells([
-    { addr: { row: 0, col: 0 }, data: { v: '客户' } },
-    { addr: { row: 0, col: 1 }, data: { v: '订单号' } },
-    { addr: { row: 0, col: 2 }, data: { v: '金额' } },
-    { addr: { row: 0, col: 3 }, data: { v: '下单日期' } },
-    { addr: { row: 3, col: 1 }, data: { v: '合计' } }
-  ])
-
-  const customerGroup = createReportBinding(ORDERS_DATASET, 'customer')
-  customerGroup.aggregate = 'group'
-  customerGroup.leftParent = 'none'
-  sheet.setCellMeta({ row: 1, col: 0 }, REPORT_META_NAMESPACE, customerGroup)
-
-  const groupParent = { row: 1, col: 0 }
-
-  const orderNo = createReportBinding(ORDERS_DATASET, 'orderNo')
-  orderNo.leftParent = groupParent
-  sheet.setCellMeta({ row: 2, col: 1 }, REPORT_META_NAMESPACE, orderNo)
-
-  const amount = createReportBinding(ORDERS_DATASET, 'amount')
-  amount.leftParent = groupParent
-  sheet.setCellMeta({ row: 2, col: 2 }, REPORT_META_NAMESPACE, amount)
-
-  const orderDate = createReportBinding(ORDERS_DATASET, 'orderDate')
-  orderDate.leftParent = groupParent
-  sheet.setCellMeta({ row: 2, col: 3 }, REPORT_META_NAMESPACE, orderDate)
-
-  const subtotal = createReportBinding(ORDERS_DATASET, 'amount')
-  subtotal.aggregate = 'sum'
-  subtotal.expand = 'none'
-  subtotal.leftParent = groupParent
-  sheet.setCellMeta({ row: 3, col: 2 }, REPORT_META_NAMESPACE, subtotal)
-
+  seedGroupDetailTemplate(sheet)
   return sheet.snapshot()
 }
 
@@ -104,6 +71,18 @@ describe('renderReport', () => {
     expect(hasMerge(filled, { row: 5, col: 0 }, { row: 6, col: 0 })).toBe(true)
   })
 
+  it('分组格被误设为 list 时仅输出表头（回归：预览空白根因）', () => {
+    const template = buildGroupDetailTemplate()
+    const broken = JSON.parse(JSON.stringify(template)) as ReturnType<
+      typeof buildGroupDetailTemplate
+    >
+    const groupMeta = broken.meta!.find((m) => m.row === 1 && m.col === 0)!
+    ;(groupMeta.payload as { aggregate: string }).aggregate = 'select'
+
+    const filled = renderReport(broken, MOCK_DATA_RECORDS)
+    expect(filled.cells.filter((c) => c.row > 0)).toHaveLength(0)
+  })
+
   it('Filled Report 不携带 Binding meta', () => {
     const template = buildGroupDetailTemplate()
     const filled = renderReport(template, MOCK_DATA_RECORDS)
@@ -112,22 +91,13 @@ describe('renderReport', () => {
 
   it('模板样式 id 随扩展实例复制', () => {
     const sheet = new Sheet()
+    seedGroupDetailTemplate(sheet)
     sheet.setCellStyle(
-      { start: { row: 2, col: 2 }, end: { row: 2, col: 2 } },
+      { start: { row: 1, col: 2 }, end: { row: 1, col: 2 } },
       { font: { bold: true } }
     )
-    const styleId = sheet.getCellData({ row: 2, col: 2 })?.s
+    const styleId = sheet.getCellData({ row: 1, col: 2 })?.s
     expect(styleId).toBeDefined()
-
-    const customerGroup = createReportBinding(ORDERS_DATASET, 'customer')
-    customerGroup.aggregate = 'group'
-    customerGroup.leftParent = 'none'
-    sheet.setCellMeta({ row: 1, col: 0 }, REPORT_META_NAMESPACE, customerGroup)
-
-    const groupParent = { row: 1, col: 0 }
-    const amount = createReportBinding(ORDERS_DATASET, 'amount')
-    amount.leftParent = groupParent
-    sheet.setCellMeta({ row: 2, col: 2 }, REPORT_META_NAMESPACE, amount)
 
     const filled = renderReport(sheet.snapshot(), MOCK_DATA_RECORDS)
     const firstAmount = filled.cells.find((c) => c.row === 1 && c.col === 2)

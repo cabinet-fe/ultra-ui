@@ -390,46 +390,38 @@ $root-name: ai-chat;
     min-width: 0;
   }
 
-  // 无边框 USelect：覆盖内部 UInput 边框/阴影，文本右对齐
-  @mixin input-select-plain {
+  @include m.e(model-trigger) {
+    @include m.flex(flex, flex-start, center);
+    gap: 4px;
+    max-width: 220px;
+    padding: 2px fn.use-var(gap, small);
+    border: none;
+    border-radius: fn.use-var(radius, default);
+    background: transparent;
+    color: fn.use-var(text-color, main);
+    font-family: inherit;
+    font-size: inherit;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: var(--u-nav-hover-bg);
+    }
+  }
+
+  @include m.e(model-trigger-label) {
+    @include m.ellipsis;
+  }
+
+  @include m.e(model-trigger-reasoning) {
     flex-shrink: 0;
-    width: fit-content;
-    max-width: 160px;
-    min-width: 0;
-
-    .u-input {
-      border: none;
-      box-shadow: none;
-      background: transparent;
-      padding-inline: 0;
-
-      &:hover {
-        border-color: transparent;
-      }
-
-      &.is-focus {
-        border-color: transparent;
-        box-shadow: none;
-      }
-    }
-
-    .u-input__native {
-      text-align: right;
-      cursor: pointer;
-    }
-
-    .u-input__suffix {
-      color: fn.use-var(text-color, assist);
-    }
+    color: fn.use-var(text-color, assist);
   }
 
-  @include m.e(input-model) {
-    @include input-select-plain;
-  }
-
-  @include m.e(input-reasoning) {
-    @include input-select-plain;
-    max-width: 100px;
+  @include m.e(model-trigger-arrow) {
+    flex-shrink: 0;
+    font-size: 12px;
+    color: fn.use-var(text-color, assist);
   }
 
   @include m.e(input-attach) {
@@ -491,5 +483,82 @@ $root-name: ai-chat;
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+// 模型选择面板经 teleport 挂载到 popper 容器，不处于 .u-ai-chat 内，需独立定义
+.u-#{$root-name}__model-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 4px;
+  user-select: none;
+
+  .u-#{$root-name}__model-option {
+    padding: 6px 8px;
+    border-radius: calc(fn.use-var(radius, default) + 1px);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: var(--u-nav-hover-bg);
+    }
+  }
+
+  .u-#{$root-name}__model-option-head {
+    @include m.flex(flex, space-between, center);
+    gap: 16px;
+    color: fn.use-var(text-color, main);
+  }
+
+  .u-#{$root-name}__model-option-check {
+    flex-shrink: 0;
+    font-size: 14px;
+    color: fn.use-var(color, primary);
+  }
+
+  .u-#{$root-name}__model-option-desc {
+    margin-top: 2px;
+    font-size: fn.use-var(font-size-main, small);
+    color: fn.use-var(text-color, assist);
+  }
+
+  .u-#{$root-name}__model-divider {
+    height: 0;
+    margin: 4px 8px;
+    border-top: 1px solid fn.use-var(border, color);
+  }
+
+  .u-#{$root-name}__reasoning-row {
+    @include m.flex(flex, space-between, center);
+    padding: 6px 8px;
+    border-radius: calc(fn.use-var(radius, default) + 1px);
+    color: fn.use-var(text-color, main);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: var(--u-nav-hover-bg);
+    }
+  }
+
+  .u-#{$root-name}__reasoning-row-value {
+    @include m.flex(flex, flex-start, center);
+    gap: 4px;
+    color: fn.use-var(text-color, assist);
+  }
+
+  .u-#{$root-name}__reasoning-option {
+    @include m.flex(flex, space-between, center);
+    gap: 16px;
+    padding: 6px 8px 6px 20px;
+    border-radius: calc(fn.use-var(radius, default) + 1px);
+    color: fn.use-var(text-color, main);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: var(--u-nav-hover-bg);
+    }
   }
 }

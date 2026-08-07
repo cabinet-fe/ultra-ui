@@ -114,6 +114,8 @@ export interface ChatModel {
   id: string
   /** UI 显示名，缺省取 id */
   label?: string
+  /** 模型一句话描述（选择器面板副标题） */
+  description?: string
   /** 未设或空数组 → 不展示推理选择器 */
   reasoningLevels?: ChatReasoningLevel[]
   /** 默认推理等级（须落在 reasoningLevels 内） */

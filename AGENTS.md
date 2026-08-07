@@ -192,3 +192,13 @@ bun run build     # 全量拓扑构建；任一 @veltra/* 包编译失败即未�
 ### 发版
 
 如果提及发版，请参考 `release.md` 文件
+
+## Agent skills
+
+### Issue tracker
+
+Issues live as local markdown under `.scratch/<feature-slug>/`. See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Multi-context via root `CONTEXT-MAP.md`. See `docs/agents/domain.md`.

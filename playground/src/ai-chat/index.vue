@@ -71,10 +71,17 @@ import CustomCard from '../desktop/card/custom-card.vue'
  */
 const models: ChatModelOption[] = [
   // —— 外部云端（完整 URL 风格）——
-  { id: 'nova-flash', label: 'Nova Flash', providerId: 'nova', providerLabel: 'Nova Cloud' },
+  {
+    id: 'nova-flash',
+    label: 'Nova Flash',
+    description: '快速对话，即时响应',
+    providerId: 'nova',
+    providerLabel: 'Nova Cloud'
+  },
   {
     id: 'nova-reasoner',
     label: 'Nova Reasoner',
+    description: '擅长对话与 Agent 任务，全能旗舰',
     providerId: 'nova',
     providerLabel: 'Nova Cloud',
     reasoningLevels: [
@@ -85,10 +92,17 @@ const models: ChatModelOption[] = [
     defaultReasoningLevel: 'medium'
   },
   // —— 内部代理（相对路径风格）——
-  { id: 'internal-chat', label: '内部 Chat', providerId: 'internal', providerLabel: '内部代理' },
+  {
+    id: 'internal-chat',
+    label: '内部 Chat',
+    description: '内部业务代理，通用对话',
+    providerId: 'internal',
+    providerLabel: '内部代理'
+  },
   {
     id: 'internal-think',
     label: '内部 Think',
+    description: '内部推理模型，按 budget 计费',
     providerId: 'internal',
     providerLabel: '内部代理',
     // 与外部不同的推理词表（thinking budget）

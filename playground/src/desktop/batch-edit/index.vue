@@ -220,17 +220,17 @@ const collapseValue = ref<CollapseModelValue>([])
 
 const columns = defineTableColumns([
   { name: '姓名', key: 'name', rules: { required: true }, width: 120 },
-  { name: '年龄', key: 'age', rules: { max: 120 }, width: 80 },
-  { name: '性别', key: 'gender', width: 80 },
-  { name: '部门', key: 'department', width: 120 },
-  { name: '职位', key: 'position', width: 120 },
-  { name: '邮箱', key: 'email', width: 180 },
-  { name: '电话', key: 'phone', width: 120 },
-  { name: '薪资', key: 'salary', width: 100 },
-  { name: '评分', key: 'score', width: 80 },
-  { name: '工作类型', key: 'workType', width: 100 },
-  { name: '入职日期', key: 'joinDate', width: 120 },
-  { name: '单选级联选择器', key: 'cascade', width: 150 }
+  { name: '年龄', key: 'age', rules: { max: 120 } },
+  { name: '性别', key: 'gender' },
+  { name: '部门', key: 'department' },
+  { name: '职位', key: 'position' },
+  { name: '邮箱', key: 'email' },
+  { name: '电话', key: 'phone' },
+  { name: '薪资', key: 'salary' },
+  { name: '评分', key: 'score' },
+  { name: '工作类型', key: 'workType' },
+  { name: '入职日期', key: 'joinDate' },
+  { name: '单选级联选择器', key: 'cascade' }
 ])
 
 const data = shallowRef()
