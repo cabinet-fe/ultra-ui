@@ -845,4 +845,44 @@ describe('多实例编辑路由（编辑器 hook 按发起编辑的 table 反查
       a.grid.release()
     }
   })
+
+  it('resolveDisplayValue 覆盖显示；meta-change 同步占位（不写 v）', () => {
+    const container = createContainer()
+    const sheet = new Sheet()
+    const grid = new SheetGrid({
+      container,
+      sheet,
+      rows: 10,
+      cols: 6,
+      resolveDisplayValue: (addr, base) => {
+        const binding = sheet.getCellMeta<{ label: string }>(addr, 'report')
+        if (binding) return binding.label
+        return base
+      }
+    })
+    try {
+      const table = grid.getTable()
+      const addr = { row: 1, col: 1 }
+
+      sheet.setCellMeta(addr, 'report', { label: 'orders.amount' })
+      grid.flushPending()
+
+      expect(table.getCellValue(2, 2)).toBe('orders.amount')
+      expect(sheet.getCellData(addr)?.v).toBeUndefined()
+
+      sheet.setCellValue(addr, '静态表头')
+      grid.flushPending()
+      expect(table.getCellValue(2, 2)).toBe('orders.amount')
+
+      sheet.clearCellMeta(addr, 'report')
+      grid.flushPending()
+      expect(table.getCellValue(2, 2)).toBe('静态表头')
+
+      sheet.undo()
+      grid.flushPending()
+      expect(table.getCellValue(2, 2)).toBe('orders.amount')
+    } finally {
+      grid.release()
+    }
+  })
 })

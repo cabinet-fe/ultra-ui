@@ -275,6 +275,12 @@ function clientPointFromEvent(event: unknown): { x: number; y: number } | null {
   return null
 }
 
+/** 覆盖网格显示值（不写入模型 v）；返回 undefined 表示沿用 base */
+export type ResolveDisplayValue = (
+  addr: CellAddress,
+  base: CellValue | undefined
+) => CellValue | undefined
+
 export interface SheetGridOptions {
   container: HTMLElement
   sheet: Sheet
@@ -282,6 +288,11 @@ export interface SheetGridOptions {
   rows?: number
   /** 渲染列数，默认 26（A..Z） */
   cols?: number
+  /**
+   * 显示值覆盖（设计态 Binding Placeholder 等）：在 getDisplayValue 之上
+   * 覆盖 VTable record，不写 CellData.v。
+   */
+  resolveDisplayValue?: ResolveDisplayValue
   /** 单元格右键（已 preventDefault）；由 vue 层弹出菜单 */
   onContextMenu?: (info: SheetGridContextMenuInfo) => void
   /** 进入单元格编辑（双击 / 程序化）时通知（模型地址）；公式栏镜像实时文本用 */
@@ -315,6 +326,7 @@ export class SheetGrid {
   private readonly onEditEnd?: (addr: CellAddress) => void
   private readonly interceptSelection?: () => boolean
   private readonly onSelectionIntercept?: (range: CellRange) => void
+  private readonly resolveDisplayValue?: ResolveDisplayValue
   /** 只读模式：见 SheetGridOptions.readonly */
   private readonly isReadonly: boolean
   /** 是否已释放（release 后拒绝一切视图同步，微任务 flush 直接跳过） */
@@ -366,6 +378,7 @@ export class SheetGrid {
     this.onEditEnd = options.onEditEnd
     this.interceptSelection = options.interceptSelection
     this.onSelectionIntercept = options.onSelectionIntercept
+    this.resolveDisplayValue = options.resolveDisplayValue
     this.isReadonly = options.readonly ?? false
 
     // 编辑器为全局单例：hook 由发起编辑的 table 经 gridByTable 反查本实例
@@ -407,6 +420,16 @@ export class SheetGrid {
   /** 全量刷新（合并结构变化、批量数据变更后调用） */
   refresh(): void {
     this.table.setRecords(this.buildRecords())
+  }
+
+  /**
+   * 容器内相对坐标 → 模型地址（行号/列头返回 null）。
+   * 供宿主拖放等场景命中单元格。
+   */
+  hitTestSheetAddr(relativeX: number, relativeY: number): CellAddress | null {
+    const cell = this.table.getCellAtRelativePosition(relativeX, relativeY)
+    if (!cell) return null
+    return this.toSheetAddr(this.table, cell.col, cell.row)
   }
 
   /**
@@ -740,13 +763,38 @@ export class SheetGrid {
     return data?.s != null ? this.sheet.stylePool.peek(data.s) : undefined
   }
 
+  /** 模型格 → VTable record 显示值（含 resolveDisplayValue 覆盖） */
+  private getTableCellValue(addr: CellAddress): CellValue | undefined {
+    const base = this.sheet.getDisplayValue(addr)
+    if (!this.resolveDisplayValue) return base
+    const resolved = this.resolveDisplayValue(addr, base)
+    return resolved !== undefined ? resolved : base
+  }
+
   private buildRecords(): Record<string, CellValue>[] {
     const records: Record<string, CellValue>[] = Array.from({ length: this.rows }, () => ({}))
-    for (const [addr, data] of this.sheet.store.entries()) {
-      if (addr.row < this.rows && addr.col < this.cols && data.v != null) {
-        records[addr.row]![String(addr.col)] = data.v
+
+    const writeCell = (addr: CellAddress): void => {
+      if (addr.row >= this.rows || addr.col >= this.cols) return
+      const value = this.getTableCellValue(addr)
+      if (value != null && value !== '') {
+        records[addr.row]![String(addr.col)] = value
       }
     }
+
+    for (const [addr] of this.sheet.store.entries()) {
+      writeCell(addr)
+    }
+
+    // Meta-only 占位：有 resolver 时扫描 meta，补上无 v 的覆盖显示格
+    if (this.resolveDisplayValue) {
+      for (const [addr] of this.sheet.entriesCellMeta()) {
+        if (this.sheet.store.peekCell(addr)?.v == null) {
+          writeCell(addr)
+        }
+      }
+    }
+
     return records
   }
 
@@ -1213,6 +1261,22 @@ export class SheetGrid {
       })
     )
 
+    // Cell Meta 变更 → 同步占位覆盖显示（ADR-0004：不写 v）
+    this.disposers.push(
+      this.sheet.on('meta-change', ({ addr }) => {
+        if (this.released) return
+        if (!addr) {
+          if (!this.visible) {
+            this.mergeDirty = true
+            return
+          }
+          this.refresh()
+          return
+        }
+        this.enqueueCellSync(addr)
+      })
+    )
+
     // 冻结变更 → 即时更新 VTable 冻结布局
     this.disposers.push(
       this.sheet.on('frozen-change', () => {
@@ -1286,10 +1350,10 @@ export class SheetGrid {
     for (const row of rows) this.syncWrapRowHeight(row)
   }
 
-  /** 模型格 → 表格 record（显示值；公式格为计算缓存） */
+  /** 模型格 → 表格 record（显示值；公式格为计算缓存；含占位覆盖） */
   private pushCellToTable(addr: CellAddress): void {
     const { col, row } = this.toTableCoord(this.table, addr)
-    const value = this.sheet.getDisplayValue(addr)
+    const value = this.getTableCellValue(addr)
     this.table.changeCellValue(col, row, value as string | number | null, false, false)
   }
 

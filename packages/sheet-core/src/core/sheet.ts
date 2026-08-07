@@ -416,6 +416,11 @@ export class Sheet {
     this.executeCommand(ClearCellMetaCommand.id, { addr: resolved, namespace })
   }
 
+  /** 迭代所有 Cell Meta 条目（视图层占位覆盖等场景） */
+  *entriesCellMeta(): Generator<[CellAddress, string, unknown]> {
+    yield* this.cellMeta.entries()
+  }
+
   // ─── 命令与历史 ──────────────────────────────────────────
 
   /** 经默认注册表执行命令；产生的 mutation 与公式重算派生 mutation 一并推入历史 */

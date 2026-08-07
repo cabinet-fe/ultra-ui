@@ -40,6 +40,7 @@ export const demoMeta: Record<string, DemoMeta> = {
   'ai-chat': { zh: 'AI 对话', en: 'AiChat', category: 'data' },
   sheet: { zh: '电子表格', en: 'Sheet', category: 'data' },
   'sheet-big-data': { zh: '大数据量演示', en: 'BigData', category: 'data' },
+  'sheet-report': { zh: '报表配置', en: 'SheetReport', category: 'data' },
   'auto-complete': { zh: '自动补全', en: 'AutoComplete', category: 'form' },
   badge: { zh: '徽标', en: 'Badge', category: 'basic' },
   'batch-edit': { zh: '批量编辑', en: 'BatchEdit', category: 'other' },
@@ -113,7 +114,7 @@ export const demoMeta: Record<string, DemoMeta> = {
 }
 
 /** 顶层独立入口（不挂在 Desktop 分类下） */
-const TOP_LEVEL_DEMO_KEYS = new Set(['icons', 'ai-chat', 'sheet', 'sheet-big-data'])
+const TOP_LEVEL_DEMO_KEYS = new Set(['icons', 'ai-chat', 'sheet', 'sheet-big-data', 'sheet-report'])
 
 const ICONS_ROOT = '/icons'
 
@@ -163,7 +164,8 @@ export function buildPlaygroundMenus(): NavItem[] {
       path: '/sheet',
       children: [
         { title: '基础演示', path: '/sheet/index' },
-        { title: '大数据量演示', path: '/sheet-big-data/index' }
+        { title: '大数据量演示', path: '/sheet-big-data/index' },
+        { title: '报表配置', path: '/sheet-report/index' }
       ]
     }
   ]
