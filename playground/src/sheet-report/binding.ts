@@ -1,13 +1,14 @@
 import type { CellAddress } from '@veltra/sheet-core'
 
+import { MOCK_DATASETS } from './mock-dataset'
 import type { MockDataset, ReportAggregate, ReportBinding } from './types'
 
 export const REPORT_META_NAMESPACE = 'report'
 
 const AGGREGATE_PLACEHOLDER_TAG: Record<ReportAggregate, string> = {
-  select: 'list',
-  group: 'group',
-  sum: 'sum'
+  select: '明细',
+  group: '分组',
+  sum: '求和'
 }
 
 /** 默认列表 + 纵向扩展 + 默认左父格 */
@@ -70,10 +71,17 @@ export function parseCellAddress(label: string): CellAddress | null {
   return { row, col }
 }
 
-/** Binding Placeholder 可读文案（如 [group] orders.customer） */
+/** 解析字段中文标签（找不到时回退字段名） */
+function resolveFieldLabel(datasetId: string, fieldName: string): string {
+  const dataset = MOCK_DATASETS.find((d) => d.id === datasetId)
+  const field = dataset?.fields.find((f) => f.name === fieldName)
+  return field?.label ?? fieldName
+}
+
+/** Binding Placeholder 中文可读文案（如「分组 · 客户」） */
 export function formatBindingPlaceholder(binding: ReportBinding): string {
   const tag = AGGREGATE_PLACEHOLDER_TAG[binding.aggregate]
-  return `[${tag}] ${binding.dataset}.${binding.field}`
+  return `${tag} · ${resolveFieldLabel(binding.dataset, binding.field)}`
 }
 
 /** sum 聚合默认不扩展 */

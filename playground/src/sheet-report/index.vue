@@ -2,78 +2,34 @@
   <div class="sheet-report-demo">
     <header class="sheet-report-demo__header">
       <div>
-        <h2 class="sheet-report-demo__title">
-          报表模板 · {{ viewMode === 'design' ? 'Design Mode' : 'Preview Mode' }}
-        </h2>
+        <h2 class="sheet-report-demo__title">报表模板设计</h2>
         <p class="sheet-report-demo__hint">
-          第 2 行为扩展带（客户分组 + 订单明细），第 3 行为合计。选中单元格后从左侧拖入/点击字段；点
-          <strong>预览模式</strong> 按 mock 数据展开。
+          左侧点击或拖拽字段绑定到选中格；选中已绑定格可就地编辑聚合/扩展/左父格；右侧为 mock
+          数据实时预览。
         </p>
       </div>
       <div class="sheet-report-demo__actions">
-        <div class="sheet-report-demo__mode-toggle" role="group" aria-label="视图模式">
-          <button
-            type="button"
-            class="sheet-report-demo__mode-btn"
-            :class="{ 'sheet-report-demo__mode-btn--active': viewMode === 'design' }"
-            @click="setViewMode('design')"
-          >
-            设计模式
-          </button>
-          <button
-            type="button"
-            class="sheet-report-demo__mode-btn"
-            :class="{ 'sheet-report-demo__mode-btn--active': viewMode === 'preview' }"
-            @click="setViewMode('preview')"
-          >
-            预览模式
-          </button>
-        </div>
-        <button
-          type="button"
-          class="sheet-report-demo__btn"
-          :disabled="viewMode === 'preview'"
-          @click="saveSnapshot"
-        >
-          保存快照
-        </button>
-        <button
-          type="button"
-          class="sheet-report-demo__btn"
-          :disabled="viewMode === 'preview' || !savedSnapshot"
-          @click="restoreSnapshot"
-        >
+        <u-button size="small" @click="saveSnapshot">保存快照</u-button>
+        <u-button size="small" :disabled="!savedSnapshot" @click="restoreSnapshot">
           恢复快照
-        </button>
+        </u-button>
+        <u-pop-confirm title="确定重置为默认模板？当前绑定与编辑将丢失。" @confirm="resetTemplate">
+          <template #reference>
+            <u-button size="small" type="warning" plain>重置模板</u-button>
+          </template>
+        </u-pop-confirm>
       </div>
     </header>
 
     <div class="sheet-report-demo__body">
-      <aside
-        class="sheet-report-demo__panel"
-        :class="{ 'sheet-report-demo__panel--disabled': isPreview }"
-      >
-        <h3 class="sheet-report-demo__panel-title">数据集字段</h3>
-        <p class="sheet-report-demo__panel-meta">当前选区：{{ selectionLabel }}</p>
-        <section v-for="dataset in datasets" :key="dataset.id" class="sheet-report-demo__dataset">
-          <h4 class="sheet-report-demo__dataset-name">{{ dataset.label }}</h4>
-          <ul class="sheet-report-demo__fields">
-            <li
-              v-for="field in dataset.fields"
-              :key="field.name"
-              class="sheet-report-demo__field"
-              draggable="true"
-              @click="bindField(dataset.id, field.name)"
-              @dragstart="onFieldDragStart($event, dataset.id, field.name)"
-            >
-              <span class="sheet-report-demo__field-name">{{ field.name }}</span>
-              <span class="sheet-report-demo__field-label">{{ field.label }}</span>
-            </li>
-          </ul>
-        </section>
-      </aside>
+      <field-panel
+        :datasets="datasets"
+        :selection-label="selectionLabel"
+        :bound-keys="boundKeys"
+        @bind="(datasetId, fieldName) => bindField(datasetId, fieldName)"
+      />
 
-      <div class="sheet-report-demo__grid" @dragover.prevent @drop="onGridDrop">
+      <div ref="gridHostRef" class="sheet-report-demo__grid" @dragover.prevent @drop="onGridDrop">
         <u-sheet
           ref="sheetRef"
           class="sheet-report-demo__sheet"
@@ -81,150 +37,68 @@
           :rows="24"
           :cols="10"
           :show-tabs="false"
-          :show-toolbar="!isPreview"
-          :show-formula-bar="!isPreview"
-          :readonly="isPreview"
           :resolve-display-value="resolveDisplayValue"
+        />
+
+        <binding-editor
+          :cell="activeCell"
+          :binding="activeBinding ?? null"
+          :resolved-left-parent-label="resolvedLeftParentLabel"
+          :host-el="gridHostEl"
+          :get-grid="getDesignGrid"
+          @patch="patchActiveBinding"
+          @remove="removeActiveBinding"
         />
       </div>
 
-      <aside
-        class="sheet-report-demo__props"
-        :class="{ 'sheet-report-demo__panel--disabled': isPreview }"
-      >
-        <h3 class="sheet-report-demo__panel-title">Binding 属性</h3>
-        <template v-if="activeBinding && activeCell">
-          <p class="sheet-report-demo__props-placeholder">
-            {{ formatBindingPlaceholder(activeBinding) }}
-          </p>
-
-          <fieldset class="sheet-report-demo__fieldset">
-            <legend>Aggregate</legend>
-            <label
-              v-for="opt in aggregateOptions"
-              :key="opt.value"
-              class="sheet-report-demo__radio"
-            >
-              <input
-                type="radio"
-                name="aggregate"
-                :value="opt.value"
-                :checked="activeBinding.aggregate === opt.value"
-                @change="setAggregate(opt.value)"
-              />
-              {{ opt.label }}
-            </label>
-          </fieldset>
-
-          <fieldset class="sheet-report-demo__fieldset">
-            <legend>Expand</legend>
-            <label v-for="opt in expandOptions" :key="opt.value" class="sheet-report-demo__radio">
-              <input
-                type="radio"
-                name="expand"
-                :value="opt.value"
-                :checked="activeBinding.expand === opt.value"
-                :disabled="activeBinding.aggregate === 'sum' && opt.value === 'down'"
-                @change="setExpand(opt.value)"
-              />
-              {{ opt.label }}
-            </label>
-          </fieldset>
-
-          <fieldset class="sheet-report-demo__fieldset">
-            <legend>Left Parent</legend>
-            <label
-              v-for="opt in leftParentModeOptions"
-              :key="opt.value"
-              class="sheet-report-demo__radio"
-            >
-              <input
-                type="radio"
-                name="leftParent"
-                :value="opt.value"
-                :checked="leftParentMode === opt.value"
-                @change="setLeftParentMode(opt.value)"
-              />
-              {{ opt.label }}
-            </label>
-            <label v-if="leftParentMode === 'specify'" class="sheet-report-demo__address">
-              设计地址
-              <input
-                v-model="leftParentAddressInput"
-                class="sheet-report-demo__address-input"
-                placeholder="如 B2"
-                @change="commitLeftParentAddress"
-              />
-            </label>
-            <p v-if="leftParentMode === 'default'" class="sheet-report-demo__props-meta">
-              解析结果：{{ resolvedLeftParentLabel }}
-            </p>
-          </fieldset>
-        </template>
-        <p v-else class="sheet-report-demo__props-empty">
-          选中含 Binding 的单元格以编辑 Aggregate、Expand、Left Parent。
-        </p>
-      </aside>
+      <preview-pane :design-sheet="designSheet" />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { USheet, type SheetExposed } from '@veltra/sheet'
-import type { CellAddress } from '@veltra/sheet-core'
-import type { SheetSnapshot } from '@veltra/sheet-core'
+import type { CellAddress, Sheet, SheetSnapshot } from '@veltra/sheet-core'
 import { Workbook } from '@veltra/sheet-core'
 import type { ResolveDisplayValue } from '@veltra/sheet-core/grid/sheet-grid'
 import '@veltra/sheet/vue/style'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  shallowRef,
+  useTemplateRef
+} from 'vue'
 
 import {
   REPORT_META_NAMESPACE,
-  aggregateDefaultExpand,
   createReportBinding,
   formatBindingPlaceholder,
   formatCellAddress,
-  parseCellAddress,
   resolveLeftParent
 } from './binding'
-import { MOCK_DATA_RECORDS, MOCK_DATASETS } from './mock-dataset'
-import { renderReport } from './render'
+import BindingEditor from './binding-editor.vue'
+import FieldPanel from './field-panel.vue'
+import { MOCK_DATASETS } from './mock-dataset'
+import PreviewPane from './preview-pane.vue'
 import { seedGroupDetailTemplate } from './template'
-import type { ReportAggregate, ReportBinding, ReportExpand, ReportLeftParent } from './types'
+import type { ReportBinding } from './types'
 
-type ViewMode = 'design' | 'preview'
+defineOptions({ name: 'SheetReportDemo' })
 
 const datasets = MOCK_DATASETS
-const viewMode = ref<ViewMode>('design')
-const templateSnapshot = ref<string | null>(null)
 const savedSnapshot = ref<string | null>(null)
 const selectionTick = ref(0)
-const leftParentAddressInput = ref('')
+const metaTick = ref(0)
 
 const workbook = new Workbook()
+const designSheet = shallowRef<Sheet | null>(null)
 
 const sheetRef = useTemplateRef<SheetExposed>('sheetRef')
-
-const aggregateOptions = [
-  { value: 'select' as const, label: 'List (select)' },
-  { value: 'group' as const, label: 'Group' },
-  { value: 'sum' as const, label: 'Sum' }
-]
-
-const expandOptions = [
-  { value: 'down' as const, label: '纵向 (down)' },
-  { value: 'none' as const, label: '不扩展 (none)' }
-]
-
-type LeftParentMode = 'none' | 'default' | 'specify'
-
-const leftParentModeOptions = [
-  { value: 'none' as const, label: '无' },
-  { value: 'default' as const, label: '默认（同行向左）' },
-  { value: 'specify' as const, label: '指定设计地址' }
-]
-
-const isPreview = computed(() => viewMode.value === 'preview')
+const gridHostRef = useTemplateRef<HTMLElement>('gridHostRef')
+const gridHostEl = computed(() => gridHostRef.value ?? null)
 
 const selectionLabel = computed(() => {
   selectionTick.value
@@ -239,41 +113,37 @@ const activeCell = computed((): CellAddress | null => {
 })
 
 const activeBinding = computed((): ReportBinding | undefined => {
+  metaTick.value
   const cell = activeCell.value
   if (!cell) return undefined
   return activeSheet().getCellMeta<ReportBinding>(cell, REPORT_META_NAMESPACE)
 })
 
-const leftParentMode = computed((): LeftParentMode => {
-  const binding = activeBinding.value
-  if (!binding) return 'default'
-  if (binding.leftParent === 'none') return 'none'
-  if (binding.leftParent === 'default') return 'default'
-  return 'specify'
+const boundKeys = computed(() => {
+  metaTick.value
+  const keys = new Set<string>()
+  const sheet = designSheet.value ?? workbook.activeSheet
+  for (const [, namespace, payload] of sheet.entriesCellMeta()) {
+    if (namespace !== REPORT_META_NAMESPACE) continue
+    const binding = payload as ReportBinding
+    keys.add(`${binding.dataset}:${binding.field}`)
+  }
+  return keys
 })
 
 const resolvedLeftParentLabel = computed(() => {
+  metaTick.value
   const binding = activeBinding.value
   const cell = activeCell.value
   if (!binding || !cell) return '—'
-
   const resolved = resolveLeftParent(binding, cell, getBindingAt)
   return resolved ? formatCellAddress(resolved) : '—'
 })
 
-watch(
-  activeBinding,
-  (binding) => {
-    if (!binding || binding.leftParent === 'none' || binding.leftParent === 'default') {
-      leftParentAddressInput.value = ''
-      return
-    }
-    leftParentAddressInput.value = formatCellAddress(binding.leftParent)
-  },
-  { immediate: true }
-)
+let offSelection: (() => void) | undefined
+let offMeta: (() => void) | undefined
 
-function activeSheet() {
+function activeSheet(): Sheet {
   return sheetRef.value?.getActiveSheet() ?? workbook.activeSheet
 }
 
@@ -281,13 +151,24 @@ function getBindingAt(addr: CellAddress): ReportBinding | undefined {
   return activeSheet().getCellMeta<ReportBinding>(addr, REPORT_META_NAMESPACE)
 }
 
+function getDesignGrid() {
+  return sheetRef.value?.getGrid()
+}
+
+function bumpSelection(): void {
+  selectionTick.value++
+}
+
+function bumpMeta(): void {
+  metaTick.value++
+}
+
 function refreshGrid(): void {
   sheetRef.value?.getGrid()?.refresh()
 }
 
-/** Design Mode：Binding Placeholder 覆盖显示，不写 v */
+/** 设计格恒显示绑定占位符 */
 const resolveDisplayValue: ResolveDisplayValue = (addr, base) => {
-  if (isPreview.value) return base
   const binding = getBindingAt(addr)
   if (binding) return formatBindingPlaceholder(binding)
   return base
@@ -299,80 +180,38 @@ function syncGridView(): void {
   grid?.refresh()
 }
 
-/** restore 不发 content-reset，需显式刷新网格；readonly 切换会 rebuildGrid，再刷一次 */
+/** 演示 snapshot API：restore 后显式刷网格 */
 function applySheetSnapshot(snapshot: SheetSnapshot): void {
   const sheet = activeSheet()
   sheet.restore(snapshot)
   sheet.restoreContent(snapshot)
   sheet.history.clear()
+  bumpMeta()
   void nextTick(syncGridView)
-}
-
-function setViewMode(mode: ViewMode): void {
-  if (viewMode.value === mode) return
-
-  if (mode === 'preview') {
-    templateSnapshot.value = JSON.stringify(activeSheet().snapshot())
-    const filled = renderReport(JSON.parse(templateSnapshot.value), MOCK_DATA_RECORDS)
-    applySheetSnapshot(filled)
-  } else if (templateSnapshot.value) {
-    applySheetSnapshot(JSON.parse(templateSnapshot.value))
-  }
-
-  viewMode.value = mode
-  bumpSelection()
-}
-
-watch(isPreview, () => {
-  void nextTick(syncGridView)
-})
-
-function bumpSelection(): void {
-  selectionTick.value++
 }
 
 function patchActiveBinding(patch: Partial<ReportBinding>): void {
-  if (isPreview.value) return
   const cell = activeCell.value
   const binding = activeBinding.value
   if (!cell || !binding) return
 
   const next: ReportBinding = { ...binding, ...patch }
-  if (patch.aggregate) {
-    next.expand = aggregateDefaultExpand(patch.aggregate)
-  }
-
   activeSheet().setCellMeta(cell, REPORT_META_NAMESPACE, next)
   refreshGrid()
+  bumpMeta()
   bumpSelection()
 }
 
-function setAggregate(aggregate: ReportAggregate): void {
-  patchActiveBinding({ aggregate })
-}
-
-function setExpand(expand: ReportExpand): void {
-  patchActiveBinding({ expand })
-}
-
-function setLeftParentMode(mode: LeftParentMode): void {
-  if (mode === 'specify') {
-    const fallback = activeCell.value ?? { row: 0, col: 0 }
-    leftParentAddressInput.value = formatCellAddress(fallback)
-    patchActiveBinding({ leftParent: fallback })
-    return
-  }
-  patchActiveBinding({ leftParent: mode satisfies ReportLeftParent })
-}
-
-function commitLeftParentAddress(): void {
-  const parsed = parseCellAddress(leftParentAddressInput.value)
-  if (!parsed) return
-  patchActiveBinding({ leftParent: parsed })
+function removeActiveBinding(): void {
+  const cell = activeCell.value
+  if (!cell) return
+  activeSheet().clearCellMeta(cell, REPORT_META_NAMESPACE)
+  refreshGrid()
+  bumpMeta()
+  bumpSelection()
 }
 
 function bindField(datasetId: string, fieldName: string, addr?: CellAddress): void {
-  if (isPreview.value) return
   const dataset = datasets.find((d) => d.id === datasetId)
   if (!dataset) return
 
@@ -394,11 +233,7 @@ function bindField(datasetId: string, fieldName: string, addr?: CellAddress): vo
 
   activeSheet().setCellMeta(target, REPORT_META_NAMESPACE, binding)
   refreshGrid()
-}
-
-function onFieldDragStart(event: DragEvent, datasetId: string, fieldName: string): void {
-  event.dataTransfer?.setData('application/x-sheet-report-field', `${datasetId}:${fieldName}`)
-  event.dataTransfer!.effectAllowed = 'copy'
+  bumpMeta()
 }
 
 function onGridDrop(event: DragEvent): void {
@@ -414,10 +249,10 @@ function onGridDrop(event: DragEvent): void {
   if (!grid || !gridEl) return
 
   const rect = gridEl.getBoundingClientRect()
-  const addr = grid.hitTestSheetAddr(event.clientX - rect.left, event.clientY - rect.top)
-  if (addr) {
-    bindField(datasetId, fieldName, addr)
-    sheetRef.value?.getContext().selectCell(addr)
+  const dropAddr = grid.hitTestSheetAddr(event.clientX - rect.left, event.clientY - rect.top)
+  if (dropAddr) {
+    bindField(datasetId, fieldName, dropAddr)
+    sheetRef.value?.getContext().selectCell(dropAddr)
   } else {
     bindField(datasetId, fieldName)
   }
@@ -433,22 +268,42 @@ function restoreSnapshot(): void {
   bumpSelection()
 }
 
-/** 预置模板见 template.ts */
 function seedTemplate(): void {
   seedGroupDetailTemplate(workbook.activeSheet)
   workbook.activeSheet.history.clear()
+  designSheet.value = workbook.activeSheet
+  bumpMeta()
 }
 
-let offSelection: (() => void) | undefined
+function resetTemplate(): void {
+  const sheet = activeSheet()
+  // 清空内容与 meta 后重新灌入默认模板
+  sheet.restoreContent({
+    cells: [],
+    styles: [],
+    merges: [],
+    meta: [],
+    frozen: { rows: 0, cols: 0 },
+    rows: sheet.rowCount,
+    cols: sheet.colCount
+  })
+  seedGroupDetailTemplate(sheet)
+  sheet.history.clear()
+  bumpMeta()
+  bumpSelection()
+  void nextTick(syncGridView)
+}
 
 onMounted(() => {
   seedTemplate()
   offSelection = workbook.activeSheet.on('selection-change', bumpSelection)
+  offMeta = workbook.activeSheet.on('meta-change', bumpMeta)
   void nextTick(syncGridView)
 })
 
 onBeforeUnmount(() => {
   offSelection?.()
+  offMeta?.()
 })
 </script>
 
@@ -483,13 +338,6 @@ onBeforeUnmount(() => {
   color: var(--u-text-color-secondary, #64748b);
   max-width: 720px;
   line-height: 1.5;
-
-  code {
-    font-size: 12px;
-    padding: 0 4px;
-    border-radius: 4px;
-    background: var(--u-fill-color-light, #f1f5f9);
-  }
 }
 
 .sheet-report-demo__actions {
@@ -499,46 +347,6 @@ onBeforeUnmount(() => {
   gap: 8px;
 }
 
-.sheet-report-demo__mode-toggle {
-  display: inline-flex;
-  border: 1px solid var(--u-border-color, #e2e8f0);
-  border-radius: 6px;
-  overflow: hidden;
-}
-
-.sheet-report-demo__mode-btn {
-  padding: 6px 12px;
-  font-size: 13px;
-  border: none;
-  background: var(--u-bg-color, #fff);
-  cursor: pointer;
-
-  &--active {
-    color: var(--u-color-primary, #2563eb);
-    background: var(--u-fill-color-light, #eff6ff);
-    font-weight: 500;
-  }
-}
-
-.sheet-report-demo__panel--disabled {
-  opacity: 0.55;
-  pointer-events: none;
-}
-
-.sheet-report-demo__btn {
-  padding: 6px 12px;
-  font-size: 13px;
-  border: 1px solid var(--u-border-color, #e2e8f0);
-  border-radius: 6px;
-  background: var(--u-bg-color, #fff);
-  cursor: pointer;
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-}
-
 .sheet-report-demo__body {
   display: flex;
   flex: 1;
@@ -546,68 +354,8 @@ onBeforeUnmount(() => {
   gap: 12px;
 }
 
-.sheet-report-demo__panel,
-.sheet-report-demo__props {
-  width: 220px;
-  flex-shrink: 0;
-  overflow: auto;
-  padding: 12px;
-  border: 1px solid var(--u-border-color, #e2e8f0);
-  border-radius: 8px;
-  background: var(--u-bg-color, #fff);
-}
-
-.sheet-report-demo__panel-title {
-  margin: 0 0 4px;
-  font-size: 14px;
-  font-weight: 600;
-}
-
-.sheet-report-demo__panel-meta {
-  margin: 0 0 12px;
-  font-size: 12px;
-  color: var(--u-text-color-secondary, #64748b);
-}
-
-.sheet-report-demo__dataset-name {
-  margin: 0 0 8px;
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.sheet-report-demo__fields {
-  margin: 0 0 16px;
-  padding: 0;
-  list-style: none;
-}
-
-.sheet-report-demo__field {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 8px 10px;
-  margin-bottom: 6px;
-  border: 1px dashed var(--u-border-color, #cbd5e1);
-  border-radius: 6px;
-  cursor: grab;
-  transition: background 0.15s;
-
-  &:hover {
-    background: var(--u-fill-color-light, #f8fafc);
-  }
-}
-
-.sheet-report-demo__field-name {
-  font-family: ui-monospace, monospace;
-  font-size: 12px;
-}
-
-.sheet-report-demo__field-label {
-  font-size: 12px;
-  color: var(--u-text-color-secondary, #64748b);
-}
-
 .sheet-report-demo__grid {
+  position: relative;
   flex: 1;
   min-width: 0;
   min-height: 0;
@@ -615,68 +363,10 @@ onBeforeUnmount(() => {
   flex-direction: column;
 }
 
-/* USheet 根为 flex 列，grid 区 flex:1；宿主必须给 .u-sheet 明确高度，否则网格高度为 0 */
+/* USheet 根为 flex 列，grid 区 flex:1；宿主必须给 .u-sheet 明确高度 */
 .sheet-report-demo__sheet {
   flex: 1;
   min-height: 0;
   min-width: 0;
-}
-
-.sheet-report-demo__props-placeholder {
-  margin: 0 0 12px;
-  font-family: ui-monospace, monospace;
-  font-size: 12px;
-  color: var(--u-color-primary, #2563eb);
-  word-break: break-all;
-}
-
-.sheet-report-demo__props-empty,
-.sheet-report-demo__props-meta {
-  margin: 0;
-  font-size: 12px;
-  color: var(--u-text-color-secondary, #64748b);
-  line-height: 1.5;
-}
-
-.sheet-report-demo__fieldset {
-  margin: 0 0 12px;
-  padding: 8px 10px 10px;
-  border: 1px solid var(--u-border-color, #e2e8f0);
-  border-radius: 6px;
-
-  legend {
-    padding: 0 4px;
-    font-size: 12px;
-    font-weight: 500;
-  }
-}
-
-.sheet-report-demo__radio {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 6px;
-  font-size: 12px;
-  cursor: pointer;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
-}
-
-.sheet-report-demo__address {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 8px;
-  font-size: 12px;
-}
-
-.sheet-report-demo__address-input {
-  padding: 4px 8px;
-  font-family: ui-monospace, monospace;
-  font-size: 12px;
-  border: 1px solid var(--u-border-color, #cbd5e1);
-  border-radius: 4px;
 }
 </style>

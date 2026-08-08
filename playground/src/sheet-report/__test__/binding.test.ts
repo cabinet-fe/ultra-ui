@@ -32,19 +32,22 @@ describe('sheet-report binding', () => {
     })
   })
 
-  it('formatBindingPlaceholder 带 aggregate 标签', () => {
+  it('formatBindingPlaceholder 中文标签', () => {
     expect(formatBindingPlaceholder(createReportBinding(ORDERS_DATASET, 'amount'))).toBe(
-      '[list] orders.amount'
+      '明细 · 金额'
     )
 
     const group = createReportBinding(ORDERS_DATASET, 'customer')
     group.aggregate = 'group'
-    expect(formatBindingPlaceholder(group)).toBe('[group] orders.customer')
+    expect(formatBindingPlaceholder(group)).toBe('分组 · 客户')
 
     const sum = createReportBinding(ORDERS_DATASET, 'amount')
     sum.aggregate = 'sum'
     sum.expand = 'none'
-    expect(formatBindingPlaceholder(sum)).toBe('[sum] orders.amount')
+    expect(formatBindingPlaceholder(sum)).toBe('求和 · 金额')
+
+    const detail = createReportBinding(ORDERS_DATASET, 'orderNo')
+    expect(formatBindingPlaceholder(detail)).toBe('明细 · 订单号')
   })
 
   it('findDefaultLeftParent 同行向左取最近可扩展绑定', () => {
