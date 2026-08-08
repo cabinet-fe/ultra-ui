@@ -71,17 +71,26 @@ export function parseCellAddress(label: string): CellAddress | null {
   return { row, col }
 }
 
-/** 解析字段中文标签（找不到时回退字段名） */
-function resolveFieldLabel(datasetId: string, fieldName: string): string {
+/** 解析字段中文标签（找不到时回退字段名）；可传入报表配置中的 label */
+function resolveFieldLabel(
+  datasetId: string,
+  fieldName: string,
+  resolveLabel?: (datasetId: string, fieldName: string) => string
+): string {
+  const override = resolveLabel?.(datasetId, fieldName)
+  if (override) return override
   const dataset = MOCK_DATASETS.find((d) => d.id === datasetId)
   const field = dataset?.fields.find((f) => f.name === fieldName)
   return field?.label ?? fieldName
 }
 
 /** Binding Placeholder 中文可读文案（如「分组 · 客户」） */
-export function formatBindingPlaceholder(binding: ReportBinding): string {
+export function formatBindingPlaceholder(
+  binding: ReportBinding,
+  resolveLabel?: (datasetId: string, fieldName: string) => string
+): string {
   const tag = AGGREGATE_PLACEHOLDER_TAG[binding.aggregate]
-  return `${tag} · ${resolveFieldLabel(binding.dataset, binding.field)}`
+  return `${tag} · ${resolveFieldLabel(binding.dataset, binding.field, resolveLabel)}`
 }
 
 /** sum 聚合默认不扩展 */

@@ -3,7 +3,13 @@ import { describe, expect, it } from 'vitest'
 
 import { MOCK_DATA_RECORDS } from '../mock-dataset'
 import { renderReport } from '../render'
-import { seedGroupDetailTemplate } from '../template'
+import {
+  DEMO_COL_WIDTHS,
+  applyColWidths,
+  applyDemoColWidths,
+  readDemoColWidths,
+  seedGroupDetailTemplate
+} from '../template'
 
 function buildGroupDetailTemplate() {
   const sheet = new Sheet()
@@ -127,5 +133,61 @@ describe('renderReport', () => {
     const subtotalLabelStyle = template.cells.find((c) => c.row === 2 && c.col === 1)?.s
     expect(headerStyle).toBeDefined()
     expect(subtotalLabelStyle).toBeDefined()
+  })
+
+  it('演示提供 5 个关联数据集且订单仍是默认模板主源', () => {
+    expect(Object.keys(MOCK_DATA_RECORDS).sort()).toEqual([
+      'customers',
+      'employees',
+      'orders',
+      'payments',
+      'products'
+    ])
+    expect(MOCK_DATA_RECORDS.orders).toHaveLength(14)
+    expect(MOCK_DATA_RECORDS.customers!.length).toBeGreaterThanOrEqual(6)
+    expect(MOCK_DATA_RECORDS.products!.length).toBeGreaterThanOrEqual(6)
+    expect(MOCK_DATA_RECORDS.employees!.length).toBeGreaterThanOrEqual(6)
+    expect(MOCK_DATA_RECORDS.payments!.length).toBeGreaterThanOrEqual(10)
+
+    const filled = renderReport(buildGroupDetailTemplate(), MOCK_DATA_RECORDS)
+    expect(filled.rows).toBe(19)
+  })
+
+  it('演示列宽覆盖模板 5 列且不进快照（sheet-core 未持久化列宽）', () => {
+    expect(DEMO_COL_WIDTHS.map(([col]) => col)).toEqual([0, 1, 2, 3, 4])
+    expect(DEMO_COL_WIDTHS.every(([, w]) => w > 0)).toBe(true)
+
+    const template = buildGroupDetailTemplate()
+    expect(template).not.toHaveProperty('colWidths')
+    const filled = renderReport(template, MOCK_DATA_RECORDS)
+    expect(filled).not.toHaveProperty('colWidths')
+  })
+
+  it('readDemoColWidths / applyColWidths 经 VTable 偏移读写，不强制 DEMO 常量', () => {
+    const widths = new Map<number, number>()
+    const grid = {
+      getTable: () => ({
+        setColWidth: (col: number, width: number) => {
+          widths.set(col, width)
+        },
+        getColWidth: (col: number) => widths.get(col) ?? 0
+      })
+    }
+
+    applyColWidths(grid, [
+      [0, 200],
+      [1, 150]
+    ])
+    expect(widths.get(1)).toBe(200) // 模型列 0 → table 列 1
+    expect(widths.get(2)).toBe(150)
+
+    const read = readDemoColWidths(grid, [0, 1])
+    expect(read).toEqual([
+      [0, 200],
+      [1, 150]
+    ])
+
+    applyDemoColWidths(grid)
+    expect(widths.get(1)).toBe(DEMO_COL_WIDTHS[0]![1])
   })
 })

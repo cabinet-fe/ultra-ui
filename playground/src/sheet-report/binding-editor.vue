@@ -3,7 +3,9 @@
     <template v-if="binding && cell">
       <header class="binding-editor__header">
         <span class="binding-editor__addr">{{ formatCellAddress(cell) }}</span>
-        <span class="binding-editor__placeholder">{{ formatBindingPlaceholder(binding) }}</span>
+        <span class="binding-editor__placeholder">{{
+          formatBindingPlaceholder(binding, resolveFieldLabel)
+        }}</span>
       </header>
 
       <section class="binding-editor__section">
@@ -78,6 +80,8 @@ const props = defineProps<{
   resolvedLeftParentLabel: string
   /** 网格宿主（相对定位容器） */
   hostEl: HTMLElement | null
+  /** 可选：用报表字段配置解析中文 label */
+  resolveFieldLabel?: (datasetId: string, fieldName: string) => string
   getGrid: () => SheetGrid | undefined
 }>()
 

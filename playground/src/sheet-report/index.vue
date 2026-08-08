@@ -2,28 +2,61 @@
   <div class="sheet-report-demo">
     <header class="sheet-report-demo__header">
       <div>
-        <h2 class="sheet-report-demo__title">报表模板设计</h2>
+        <h2 class="sheet-report-demo__title">
+          报表模板设计 · {{ isPreview ? '预览模式' : '设计模式' }}
+        </h2>
         <p class="sheet-report-demo__hint">
-          左侧点击或拖拽字段绑定到选中格；选中已绑定格可就地编辑聚合/扩展/左父格；右侧为 mock
-          数据实时预览。
+          左侧点击或拖拽字段绑定到选中格；选中已绑定格可就地编辑聚合/扩展/左父格。点
+          <strong>预览模式</strong> 按 mock 数据展开渲染结果。点「数据集」选用并配置字段中文名。
         </p>
       </div>
       <div class="sheet-report-demo__actions">
-        <u-button size="small" @click="saveSnapshot">保存快照</u-button>
-        <u-button size="small" :disabled="!savedSnapshot" @click="restoreSnapshot">
+        <u-button size="small" plain @click="helpVisible = true">使用说明</u-button>
+        <u-button size="small" plain @click="datasetVisible = true">数据集</u-button>
+        <div class="sheet-report-demo__mode-toggle" role="group" aria-label="视图模式">
+          <u-button
+            size="small"
+            :type="viewMode === 'design' ? 'primary' : undefined"
+            :plain="viewMode !== 'design'"
+            @click="setViewMode('design')"
+          >
+            设计模式
+          </u-button>
+          <u-button
+            size="small"
+            :type="viewMode === 'preview' ? 'primary' : undefined"
+            :plain="viewMode !== 'preview'"
+            @click="setViewMode('preview')"
+          >
+            预览模式
+          </u-button>
+        </div>
+        <u-button size="small" :disabled="isPreview" @click="saveSnapshot">保存快照</u-button>
+        <u-button size="small" :disabled="isPreview || !savedSnapshot" @click="restoreSnapshot">
           恢复快照
         </u-button>
         <u-pop-confirm title="确定重置为默认模板？当前绑定与编辑将丢失。" @confirm="resetTemplate">
           <template #reference>
-            <u-button size="small" type="warning" plain>重置模板</u-button>
+            <u-button size="small" type="warning" plain :disabled="isPreview">重置模板</u-button>
           </template>
         </u-pop-confirm>
       </div>
     </header>
 
+    <help-dialog v-model="helpVisible" />
+    <dataset-dialog
+      v-model="datasetVisible"
+      :records="MOCK_DATA_RECORDS"
+      :items="reportDatasets"
+      @update:items="reportDatasets = $event"
+      @reset="resetReportDatasets"
+    />
+
     <div class="sheet-report-demo__body">
       <field-panel
-        :datasets="datasets"
+        class="sheet-report-demo__field-panel"
+        :class="{ 'sheet-report-demo__field-panel--disabled': isPreview }"
+        :datasets="panelDatasets"
         :selection-label="selectionLabel"
         :bound-keys="boundKeys"
         @bind="(datasetId, fieldName) => bindField(datasetId, fieldName)"
@@ -34,24 +67,27 @@
           ref="sheetRef"
           class="sheet-report-demo__sheet"
           :workbook="workbook"
-          :rows="24"
+          :rows="isPreview ? 50 : 24"
           :cols="10"
           :show-tabs="false"
+          :show-toolbar="!isPreview"
+          :show-formula-bar="!isPreview"
+          :readonly="isPreview"
           :resolve-display-value="resolveDisplayValue"
         />
 
         <binding-editor
+          v-if="!isPreview"
           :cell="activeCell"
           :binding="activeBinding ?? null"
           :resolved-left-parent-label="resolvedLeftParentLabel"
           :host-el="gridHostEl"
           :get-grid="getDesignGrid"
+          :resolve-field-label="resolveReportFieldLabel"
           @patch="patchActiveBinding"
           @remove="removeActiveBinding"
         />
       </div>
-
-      <preview-pane :design-sheet="designSheet" />
     </div>
   </div>
 </template>
@@ -62,15 +98,7 @@ import type { CellAddress, Sheet, SheetSnapshot } from '@veltra/sheet-core'
 import { Workbook } from '@veltra/sheet-core'
 import type { ResolveDisplayValue } from '@veltra/sheet-core/grid/sheet-grid'
 import '@veltra/sheet/vue/style'
-import {
-  computed,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  shallowRef,
-  useTemplateRef
-} from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import {
   REPORT_META_NAMESPACE,
@@ -80,25 +108,78 @@ import {
   resolveLeftParent
 } from './binding'
 import BindingEditor from './binding-editor.vue'
+import DatasetDialog from './dataset-dialog.vue'
 import FieldPanel from './field-panel.vue'
-import { MOCK_DATASETS } from './mock-dataset'
-import PreviewPane from './preview-pane.vue'
-import { seedGroupDetailTemplate } from './template'
-import type { ReportBinding } from './types'
+import HelpDialog from './help-dialog.vue'
+import { DATASET_CATALOG, DEFAULT_SELECTED_DATASET_IDS, MOCK_DATA_RECORDS } from './mock-dataset'
+import { renderReport } from './render'
+import {
+  DEMO_COL_WIDTHS,
+  applyColWidths,
+  readDemoColWidths,
+  seedGroupDetailTemplate
+} from './template'
+import type { DatasetCatalogItem, ReportBinding, ReportDatasetConfig } from './types'
 
 defineOptions({ name: 'SheetReportDemo' })
 
-const datasets = MOCK_DATASETS
+type ViewMode = 'design' | 'preview'
+
+/** 演示层快照：SheetSnapshot 不含列宽，一并持久化 */
+type DemoSnapshotPayload = { sheet: SheetSnapshot; colWidths: Array<[number, number]> }
+
+/** 从 catalog 生成报表数据集配置；默认选用订单 + 客户 */
+function buildReportDatasets(): ReportDatasetConfig[] {
+  const defaults = new Set<string>(DEFAULT_SELECTED_DATASET_IDS)
+  return DATASET_CATALOG.map((dataset) => ({
+    id: dataset.id,
+    label: dataset.label,
+    selected: defaults.has(dataset.id),
+    fields: dataset.fields.map((field) => ({ ...field })),
+    rowCount: MOCK_DATA_RECORDS[dataset.id]?.length ?? 0
+  }))
+}
+
+const viewMode = ref<ViewMode>('design')
+const helpVisible = ref(false)
+const datasetVisible = ref(false)
+/** 本报表选用与字段 schema 配置（可改中文 label；不改 catalog 源） */
+const reportDatasets = ref<ReportDatasetConfig[]>(buildReportDatasets())
+
+const panelDatasets = computed((): DatasetCatalogItem[] =>
+  reportDatasets.value
+    .filter((item) => item.selected)
+    .map((item) => ({ id: item.id, label: item.label, fields: item.fields }))
+)
+
+function resetReportDatasets(): void {
+  reportDatasets.value = buildReportDatasets()
+}
+
+/** 用报表字段配置解析中文 label（占位 / 编辑卡片） */
+function resolveReportFieldLabel(datasetId: string, fieldName: string): string {
+  const item = reportDatasets.value.find((dataset) => dataset.id === datasetId)
+  const field = item?.fields.find((f) => f.name === fieldName)
+  return field?.label ?? fieldName
+}
+
+/** 进入预览前保存的模板快照，切回设计态时恢复 */
+const templateSnapshot = ref<string | null>(null)
 const savedSnapshot = ref<string | null>(null)
+/** 当前设计态列宽；DEMO_COL_WIDTHS 仅作初始/重置种子 */
+const designColWidths = ref<Array<[number, number]>>(
+  DEMO_COL_WIDTHS.map(([col, width]) => [col, width])
+)
 const selectionTick = ref(0)
 const metaTick = ref(0)
 
 const workbook = new Workbook()
-const designSheet = shallowRef<Sheet | null>(null)
 
 const sheetRef = useTemplateRef<SheetExposed>('sheetRef')
 const gridHostRef = useTemplateRef<HTMLElement>('gridHostRef')
 const gridHostEl = computed(() => gridHostRef.value ?? null)
+
+const isPreview = computed(() => viewMode.value === 'preview')
 
 const selectionLabel = computed(() => {
   selectionTick.value
@@ -122,7 +203,7 @@ const activeBinding = computed((): ReportBinding | undefined => {
 const boundKeys = computed(() => {
   metaTick.value
   const keys = new Set<string>()
-  const sheet = designSheet.value ?? workbook.activeSheet
+  const sheet = workbook.activeSheet
   for (const [, namespace, payload] of sheet.entriesCellMeta()) {
     if (namespace !== REPORT_META_NAMESPACE) continue
     const binding = payload as ReportBinding
@@ -167,20 +248,39 @@ function refreshGrid(): void {
   sheetRef.value?.getGrid()?.refresh()
 }
 
-/** 设计格恒显示绑定占位符 */
+/** 字段中文名变更后刷新设计态占位 */
+watch(
+  reportDatasets,
+  () => {
+    refreshGrid()
+    bumpMeta()
+  },
+  { deep: true }
+)
+
+/** 设计态显示绑定占位符；预览态用渲染后的真实值 */
 const resolveDisplayValue: ResolveDisplayValue = (addr, base) => {
+  if (isPreview.value) return base
   const binding = getBindingAt(addr)
-  if (binding) return formatBindingPlaceholder(binding)
+  if (binding) return formatBindingPlaceholder(binding, resolveReportFieldLabel)
   return base
+}
+
+/** 从当前网格捕获设计列宽到 designColWidths（网格未就绪则保留旧值） */
+function captureDesignColWidths(): void {
+  const widths = readDemoColWidths(sheetRef.value?.getGrid())
+  if (widths) designColWidths.value = widths
 }
 
 function syncGridView(): void {
   const grid = sheetRef.value?.getGrid()
   grid?.flushPending()
   grid?.refresh()
+  // 写入当前设计态列宽（非 DEMO 常量），避免模式切换覆盖用户拖拽
+  applyColWidths(grid, designColWidths.value)
 }
 
-/** 演示 snapshot API：restore 后显式刷网格 */
+/** restore 不发 content-reset，需显式刷新；readonly 切换会 rebuildGrid，再刷列宽 */
 function applySheetSnapshot(snapshot: SheetSnapshot): void {
   const sheet = activeSheet()
   sheet.restore(snapshot)
@@ -190,7 +290,31 @@ function applySheetSnapshot(snapshot: SheetSnapshot): void {
   void nextTick(syncGridView)
 }
 
+function setViewMode(mode: ViewMode): void {
+  if (viewMode.value === mode) return
+
+  if (mode === 'preview') {
+    // 进预览前先记下设计态列宽；快照不含列宽
+    captureDesignColWidths()
+    templateSnapshot.value = JSON.stringify(activeSheet().snapshot())
+    const filled = renderReport(JSON.parse(templateSnapshot.value), MOCK_DATA_RECORDS)
+    applySheetSnapshot(filled)
+  } else if (templateSnapshot.value) {
+    // 切回设计：恢复模板；列宽仍用进预览前捕获的 designColWidths
+    applySheetSnapshot(JSON.parse(templateSnapshot.value))
+  }
+
+  viewMode.value = mode
+  bumpSelection()
+}
+
+// readonly / rows 变化会 rebuildGrid，重建后补列宽
+watch(isPreview, () => {
+  void nextTick(syncGridView)
+})
+
 function patchActiveBinding(patch: Partial<ReportBinding>): void {
+  if (isPreview.value) return
   const cell = activeCell.value
   const binding = activeBinding.value
   if (!cell || !binding) return
@@ -203,6 +327,7 @@ function patchActiveBinding(patch: Partial<ReportBinding>): void {
 }
 
 function removeActiveBinding(): void {
+  if (isPreview.value) return
   const cell = activeCell.value
   if (!cell) return
   activeSheet().clearCellMeta(cell, REPORT_META_NAMESPACE)
@@ -212,7 +337,8 @@ function removeActiveBinding(): void {
 }
 
 function bindField(datasetId: string, fieldName: string, addr?: CellAddress): void {
-  const dataset = datasets.find((d) => d.id === datasetId)
+  if (isPreview.value) return
+  const dataset = reportDatasets.value.find((d) => d.id === datasetId && d.selected)
   if (!dataset) return
 
   const target =
@@ -237,6 +363,7 @@ function bindField(datasetId: string, fieldName: string, addr?: CellAddress): vo
 }
 
 function onGridDrop(event: DragEvent): void {
+  if (isPreview.value) return
   const raw = event.dataTransfer?.getData('application/x-sheet-report-field')
   if (!raw) return
 
@@ -259,25 +386,42 @@ function onGridDrop(event: DragEvent): void {
 }
 
 function saveSnapshot(): void {
-  savedSnapshot.value = JSON.stringify(activeSheet().snapshot())
+  if (isPreview.value) return
+  captureDesignColWidths()
+  const payload: DemoSnapshotPayload = {
+    sheet: activeSheet().snapshot(),
+    colWidths: designColWidths.value.map(([col, width]) => [col, width])
+  }
+  savedSnapshot.value = JSON.stringify(payload)
 }
 
 function restoreSnapshot(): void {
-  if (!savedSnapshot.value) return
-  applySheetSnapshot(JSON.parse(savedSnapshot.value))
+  if (isPreview.value || !savedSnapshot.value) return
+  const parsed = JSON.parse(savedSnapshot.value) as DemoSnapshotPayload | SheetSnapshot
+  if (
+    parsed &&
+    typeof parsed === 'object' &&
+    'sheet' in parsed &&
+    'colWidths' in parsed &&
+    Array.isArray(parsed.colWidths)
+  ) {
+    designColWidths.value = parsed.colWidths.map(([col, width]) => [col, width])
+    applySheetSnapshot(parsed.sheet)
+  } else {
+    applySheetSnapshot(parsed as SheetSnapshot)
+  }
   bumpSelection()
 }
 
 function seedTemplate(): void {
   seedGroupDetailTemplate(workbook.activeSheet)
   workbook.activeSheet.history.clear()
-  designSheet.value = workbook.activeSheet
   bumpMeta()
 }
 
 function resetTemplate(): void {
+  if (isPreview.value) return
   const sheet = activeSheet()
-  // 清空内容与 meta 后重新灌入默认模板
   sheet.restoreContent({
     cells: [],
     styles: [],
@@ -289,6 +433,8 @@ function resetTemplate(): void {
   })
   seedGroupDetailTemplate(sheet)
   sheet.history.clear()
+  // 重置回演示种子列宽
+  designColWidths.value = DEMO_COL_WIDTHS.map(([col, width]) => [col, width])
   bumpMeta()
   bumpSelection()
   void nextTick(syncGridView)
@@ -347,11 +493,22 @@ onBeforeUnmount(() => {
   gap: 8px;
 }
 
+.sheet-report-demo__mode-toggle {
+  display: inline-flex;
+  gap: 4px;
+  margin-right: 4px;
+}
+
 .sheet-report-demo__body {
   display: flex;
   flex: 1;
   min-height: 0;
   gap: 12px;
+}
+
+.sheet-report-demo__field-panel--disabled {
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 .sheet-report-demo__grid {

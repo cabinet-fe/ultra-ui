@@ -5,6 +5,7 @@
       当前选区：
       <u-tag size="small" type="primary">{{ selectionLabel }}</u-tag>
     </p>
+    <p class="field-panel__hint">仅展示本报表已选用的数据集；中文名为主，英文键为绑定标识。</p>
 
     <section v-for="dataset in datasets" :key="dataset.id" class="field-panel__dataset">
       <h4 class="field-panel__dataset-name">{{ dataset.label }}</h4>
@@ -30,18 +31,23 @@
         </li>
       </ul>
     </section>
+
+    <p v-if="datasets.length === 0" class="field-panel__empty">
+      尚未选用数据集，请点「数据集」配置。
+    </p>
   </aside>
 </template>
 
 <script lang="ts" setup>
 import type { ColorType } from '@veltra/utils'
 
-import type { DatasetField, MockDataset } from './types'
+import type { DatasetCatalogItem, DatasetField } from './types'
 
 defineOptions({ name: 'SheetReportFieldPanel' })
 
 const props = defineProps<{
-  datasets: MockDataset[]
+  /** 本报表已选用的数据集（含可编辑中文 label） */
+  datasets: DatasetCatalogItem[]
   selectionLabel: string
   /** 已绑定字段键：`${datasetId}:${fieldName}` */
   boundKeys: Set<string>
@@ -90,7 +96,20 @@ function onDragStart(event: DragEvent, datasetId: string, fieldName: string): vo
   display: flex;
   align-items: center;
   gap: 6px;
+  margin: 0 0 6px;
+  font-size: 12px;
+  color: var(--u-text-color-secondary, #64748b);
+}
+
+.field-panel__hint {
   margin: 0 0 12px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--u-text-color-secondary, #64748b);
+}
+
+.field-panel__empty {
+  margin: 8px 0 0;
   font-size: 12px;
   color: var(--u-text-color-secondary, #64748b);
 }
