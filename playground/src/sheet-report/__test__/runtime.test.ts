@@ -58,7 +58,7 @@ describe('report presets', () => {
     ])
   })
 
-  it('库存预警模板可渲染并保留条件格式', () => {
+  it('库存预警模板可渲染并保留条件样式', () => {
     const sheet = new Sheet()
     seedInventoryAlertTemplate(sheet)
     const filled = renderReport(sheet.snapshot(), MOCK_DATA_RECORDS)

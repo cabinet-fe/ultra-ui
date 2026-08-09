@@ -234,35 +234,43 @@ class FilledReportBuilder {
   }
 
   emitDetailBand(
-    templateRow: number,
+    templateRows: number[],
     dataRows: Record<string, unknown>[],
     groupValues: Array<{ col: number; value: unknown }>
   ): number {
-    if (dataRows.length === 0) return 0
+    if (dataRows.length === 0 || templateRows.length === 0) return 0
 
     const startRow = this.rowCursor
-    const listBindings = bindingsOnRow(this.template, templateRow).filter(
-      (c) => resolveReportRole(c.binding) === 'detail'
-    )
+    const groupTemplateRow = templateRows[0]!
+    const listBindings: Array<{ templateRow: number; col: number; binding: ReportBinding }> = []
+
+    for (const templateRow of templateRows) {
+      for (const { addr, binding } of bindingsOnRow(this.template, templateRow)) {
+        if (resolveReportRole(binding) !== 'detail') continue
+        listBindings.push({ templateRow, col: addr.col, binding })
+      }
+    }
 
     for (let i = 0; i < dataRows.length; i++) {
       const dataRow = dataRows[i]!
 
       for (const group of groupValues) {
         if (i > 0) continue
-        this.emitFilledBindingCell(templateRow, group.col, group.value)
+        this.emitFilledBindingCell(groupTemplateRow, group.col, group.value)
       }
 
-      for (const cell of this.template.cells) {
-        if (cell.row !== templateRow) continue
-        if (bindingAt(this.template, { row: cell.row, col: cell.col })) continue
-        const item: CellSnapshotItem = { ...cell, row: this.rowCursor }
-        item.s = this.styles.resolve(templateRow, cell.col, cell.v)
-        this.cells.push(item)
+      for (const templateRow of templateRows) {
+        for (const cell of this.template.cells) {
+          if (cell.row !== templateRow) continue
+          if (bindingAt(this.template, { row: cell.row, col: cell.col })) continue
+          const item: CellSnapshotItem = { ...cell, row: this.rowCursor }
+          item.s = this.styles.resolve(templateRow, cell.col, cell.v)
+          this.cells.push(item)
+        }
       }
 
-      for (const { addr, binding } of listBindings) {
-        this.emitFilledBindingCell(templateRow, addr.col, dataRow[binding.field], binding)
+      for (const { templateRow, col, binding } of listBindings) {
+        this.emitFilledBindingCell(templateRow, col, dataRow[binding.field], binding)
       }
 
       this.rowCursor++
@@ -286,6 +294,16 @@ function isGroupBinding(binding: ReportBinding): boolean {
 
 function groupBindingsOnRow(template: SheetSnapshot, row: number): BindingCell[] {
   return bindingsOnRow(template, row).filter((c) => isGroupBinding(c.binding))
+}
+
+/** 扩展带首条明细绑定的数据集 id（无分组锚点时用） */
+function detailDatasetId(template: SheetSnapshot, expansionRows: number[]): string | undefined {
+  for (const row of expansionRows) {
+    for (const { binding } of bindingsOnRow(template, row)) {
+      if (resolveReportRole(binding) === 'detail') return binding.dataset
+    }
+  }
+  return undefined
 }
 
 function expansionBlocks(template: SheetSnapshot): ExpansionBlock[] {
@@ -367,11 +385,11 @@ function expandNestedGroups(
     rows: Record<string, unknown>[]
   ): void {
     if (level >= block.expansionRows.length) {
-      const detailRow = block.expansionRows[block.expansionRows.length - 1]!
+      const groupRow = block.expansionRows[0]!
       builder.emitDetailBand(
-        detailRow,
+        block.expansionRows,
         rows,
-        groupBindingsOnRow(template, detailRow).map((group) => ({
+        groupBindingsOnRow(template, groupRow).map((group) => ({
           col: group.addr.col,
           value: filter[group.binding.field]
         }))
@@ -406,15 +424,43 @@ function expandNestedGroups(
         continue
       }
 
-      builder.emitDetailBand(
-        templateRow,
-        instanceRows,
-        groups.map((item) => ({ col: item.addr.col, value: groupValue }))
-      )
+      const rootRow = blockRootRow(block)
+      const groupValues = [
+        ...groupBindingsOnRow(template, rootRow).map((item) => ({
+          col: item.addr.col,
+          value: nextFilter[item.binding.field]
+        })),
+        ...groups
+          .filter((item) => item.addr.row !== rootRow)
+          .map((item) => ({ col: item.addr.col, value: groupValue }))
+      ]
+
+      builder.emitDetailBand(block.expansionRows, instanceRows, groupValues)
     }
   }
 
   walk(0, ancestorFilter, scoped)
+}
+
+/** 无分组锚点的明细扩展带：按数据集全量展开 */
+function expandListBlock(
+  template: SheetSnapshot,
+  data: DatasetRecords,
+  block: ExpansionBlock,
+  builder: FilledReportBuilder,
+  ancestorFilter: Record<string, unknown>
+): void {
+  const datasetId = detailDatasetId(template, block.expansionRows)
+  if (!datasetId) return
+
+  const datasetRows = data[datasetId] ?? []
+  const scoped = filterRows(datasetRows, ancestorFilter)
+
+  builder.emitDetailBand(block.expansionRows, scoped, [])
+
+  for (const subtotalRow of block.subtotalRows) {
+    builder.emitAggregateRow(subtotalRow, scoped)
+  }
 }
 
 function expandGroupBlock(
@@ -426,7 +472,10 @@ function expandGroupBlock(
 ): void {
   const rootRow = blockRootRow(block)
   const rootGroups = groupBindingsOnRow(template, rootRow)
-  if (rootGroups.length === 0) return
+  if (rootGroups.length === 0) {
+    expandListBlock(template, data, block, builder, ancestorFilter)
+    return
+  }
 
   const datasetId = rootGroups[0]!.binding.dataset
   const datasetRows = data[datasetId] ?? []
@@ -447,7 +496,7 @@ function expandGroupBlock(
     const filter = { ...ancestorFilter, [group.binding.field]: groupValue }
     const instanceRows = filterRows(datasetRows, filter)
 
-    builder.emitDetailBand(rootRow, instanceRows, [{ col: group.addr.col, value: groupValue }])
+    builder.emitDetailBand([rootRow], instanceRows, [{ col: group.addr.col, value: groupValue }])
 
     for (const subtotalRow of block.subtotalRows) {
       builder.emitAggregateRow(subtotalRow, instanceRows)

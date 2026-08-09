@@ -1,9 +1,10 @@
 <template>
-  <u-drawer
+  <u-dialog
     v-model="visible"
-    direction="right"
     title="数据源中心"
-    class="dataset-center-drawer"
+    :modal="false"
+    class="dataset-center-dialog"
+    style="width: min(960px, 92vw); max-height: 85vh"
     :show-close="true"
   >
     <div class="dataset-center">
@@ -44,7 +45,7 @@
     <template #footer>
       <u-button type="primary" @click="visible = false">完成</u-button>
     </template>
-  </u-drawer>
+  </u-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -177,8 +178,8 @@ function removeActiveDataset(): void {
 .dataset-center {
   display: flex;
   gap: 16px;
-  height: calc(100vh - 160px);
-  min-height: 480px;
+  height: min(560px, calc(85vh - 120px));
+  min-height: 400px;
   padding: 4px 8px 0;
   box-sizing: border-box;
 }
@@ -199,12 +200,5 @@ function removeActiveDataset(): void {
   color: var(--u-text-color-secondary, #64748b);
   text-align: center;
   padding: 24px;
-}
-</style>
-
-<style lang="scss">
-.dataset-center-drawer.u-drawer.is-right {
-  width: 80vw;
-  max-width: calc(100vw - 16px);
 }
 </style>

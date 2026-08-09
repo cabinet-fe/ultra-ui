@@ -48,6 +48,7 @@
           <u-input
             v-else-if="rule.operator === 'contains' || (!numericField && rule.operator === 'eq')"
             size="small"
+            class="conditional-rule-row__scalar-input"
             :model-value="String(rule.value ?? '')"
             placeholder="比较值"
             @update:model-value="(v) => patchValue(String(v ?? ''))"
@@ -56,10 +57,13 @@
           <u-number-input
             v-else
             size="small"
+            class="conditional-rule-row__scalar-input"
             :model-value="scalarNumber"
             @update:model-value="(v) => patchValue(v ?? 0)"
           />
         </div>
+
+        <conditional-rule-preview class="conditional-rule-row__preview" :rule="rule" />
       </div>
 
       <div class="conditional-rule-row__style">
@@ -103,8 +107,6 @@
       </u-button>
       <u-button size="small" text type="danger" @click="emit('remove')">删除</u-button>
     </div>
-
-    <conditional-rule-preview class="conditional-rule-row__preview" :rule="rule" />
   </div>
 </template>
 
@@ -230,14 +232,14 @@ function toggleItalic(): void {
 }
 
 .conditional-rule-row__condition {
-  display: flex;
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr) auto;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
 }
 
 .conditional-rule-row__operator {
-  width: 108px;
+  width: 72px;
   flex: none;
 }
 
@@ -245,12 +247,17 @@ function toggleItalic(): void {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex: 1;
-  min-width: 120px;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.conditional-rule-row__scalar-input {
+  width: 112px;
+  flex: none;
 }
 
 .conditional-rule-row__between-input {
-  width: 88px;
+  width: 96px;
   flex: none;
 }
 

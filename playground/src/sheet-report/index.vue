@@ -6,7 +6,7 @@
           报表模板设计 · {{ isPreview ? '预览模式' : '设计模式' }}
         </h2>
         <p class="sheet-report-demo__hint">
-          左侧点击或拖拽字段绑定到选中格；选中已绑定格可通过悬浮胶囊或右侧检查器编辑角色与聚合。点
+          左侧点击或拖拽字段绑定到选中格；选中已绑定格可通过悬浮编辑卡片调整角色、聚合与条件样式。点
           <strong>预览模式</strong> 按 mock 数据展开渲染结果。点「数据源」管理模拟数据库与查询参数。
         </p>
       </div>
@@ -34,10 +34,6 @@
             预览模式
           </u-button>
         </div>
-        <u-button size="small" :disabled="isPreview" @click="saveSnapshot">保存快照</u-button>
-        <u-button size="small" :disabled="isPreview || !savedSnapshot" @click="restoreSnapshot">
-          恢复快照
-        </u-button>
         <u-button
           v-if="isPreview"
           size="small"
@@ -48,11 +44,6 @@
         >
           导出 XLSX
         </u-button>
-        <u-pop-confirm title="确定重置为默认模板？当前绑定与编辑将丢失。" @confirm="resetTemplate">
-          <template #reference>
-            <u-button size="small" type="warning" plain :disabled="isPreview">重置模板</u-button>
-          </template>
-        </u-pop-confirm>
       </div>
     </header>
 
@@ -84,7 +75,7 @@
       :revision="hubRevision"
       :param-values="paramValues"
     />
-    <params-config-drawer
+    <params-config-dialog
       v-model="paramsVisible"
       :hub="dataHub"
       :revision="hubRevision"
@@ -96,8 +87,8 @@
 
     <div class="sheet-report-demo__body">
       <field-panel
+        v-if="!isPreview"
         class="sheet-report-demo__field-panel"
-        :class="{ 'sheet-report-demo__field-panel--disabled': isPreview }"
         :datasets="panelDatasets"
         :selection-label="selectionLabel"
         :bound-keys="boundKeys"
@@ -147,28 +138,19 @@
           :get-grid="getDesignGrid"
         />
 
-        <action-pill
+        <binding-float-panel
           v-if="!isPreview"
           :cell="activeCell"
           :binding="activeBinding ?? null"
+          :resolved-left-parent-label="resolvedLeftParentLabel"
+          :resolve-field-label="resolveFieldLabelFromCatalog"
           :host-el="gridHostEl"
           :get-grid="getDesignGrid"
           @patch="patchActiveBinding"
+          @remove="removeActiveBinding"
           @open-rules="rulesDialogVisible = true"
         />
       </div>
-
-      <inspector-panel
-        v-if="!isPreview"
-        class="sheet-report-demo__inspector"
-        :cell="activeCell"
-        :binding="activeBinding ?? null"
-        :resolved-left-parent-label="resolvedLeftParentLabel"
-        :resolve-field-label="resolveFieldLabelFromCatalog"
-        @patch="patchActiveBinding"
-        @remove="removeActiveBinding"
-        @open-rules="rulesDialogVisible = true"
-      />
     </div>
 
     <conditional-rules-dialog
@@ -203,15 +185,15 @@ import {
   formatBindingPlaceholder,
   formatCellAddress,
   resolveLeftParent,
+  resolveReportRole,
   setBindingCatalog
 } from './binding'
 import DatasetCenter from './dataset-center.vue'
 import { createDataHub } from './dataset-hub'
-import ActionPill from './designer/action-pill.vue'
+import BindingFloatPanel from './designer/binding-float-panel.vue'
 import { resolveGridDropAddress } from './designer/cell-coords'
 import ConditionalRulesDialog from './designer/conditional-rules-dialog.vue'
 import DropHighlightOverlay from './designer/drop-highlight-overlay.vue'
-import InspectorPanel from './designer/inspector-panel.vue'
 import type { TopologyBindingEntry } from './designer/topology'
 import TopologyOverlay from './designer/topology-overlay.vue'
 import { downloadFilledReportXlsx } from './export-xlsx'
@@ -219,7 +201,7 @@ import FieldPanel from './field-panel.vue'
 import FilterBar from './filter-bar.vue'
 import HelpDialog from './help-dialog.vue'
 import { resolveBoundDatasetParams } from './params'
-import ParamsConfigDrawer from './params-config-drawer.vue'
+import ParamsConfigDialog from './params-config-dialog.vue'
 import { REPORT_PRESETS, findReportPreset } from './presets'
 import { renderReport } from './render'
 import {
@@ -232,8 +214,8 @@ import type { ConditionalRule, DatasetCatalogItem, DatasetField, ReportBinding }
 
 type ViewMode = 'design' | 'preview'
 
-/** 演示层快照：SheetSnapshot 不含列宽，一并持久化 */
-type DemoSnapshotPayload = { sheet: SheetSnapshot; colWidths: Array<[number, number]> }
+/** 条件样式弹窗在无绑定格时的空规则占位 */
+const EMPTY_CONDITIONAL_RULES: ConditionalRule[] = []
 
 /** Data Hub：数据连接 + SQL 数据集 + 查询执行 */
 const dataHub = createDataHub()
@@ -281,7 +263,6 @@ function resolveFieldLabelFromCatalog(datasetId: string, fieldName: string): str
 
 /** 进入预览前保存的模板快照，切回设计态时恢复 */
 const templateSnapshot = ref<string | null>(null)
-const savedSnapshot = ref<string | null>(null)
 /** 当前设计态列宽；DEMO_COL_WIDTHS 仅作初始/重置种子 */
 const designColWidths = ref<Array<[number, number]>>(
   DEMO_COL_WIDTHS.map(([col, width]) => [col, width])
@@ -528,11 +509,32 @@ watch(isPreview, () => {
   void nextTick(syncGridView)
 })
 
+function isGroupAnchorCell(addr: CellAddress, binding?: ReportBinding): boolean {
+  if (addr.row === 1 && addr.col === 0) return true
+  if (!binding) return false
+  return resolveReportRole(binding) === 'group' && binding.leftParent === 'none'
+}
+
+function resolveParentGroupDataset(addr: CellAddress): string | undefined {
+  for (let col = addr.col - 1; col >= 0; col--) {
+    const binding = getBindingAt({ row: addr.row, col })
+    if (!binding) continue
+    if (resolveReportRole(binding) === 'group') return binding.dataset
+  }
+  return undefined
+}
+
 function patchActiveBinding(patch: Partial<ReportBinding>): void {
   if (isPreview.value) return
   const cell = activeCell.value
   const binding = activeBinding.value
   if (!cell || !binding) return
+
+  if (isGroupAnchorCell(cell, binding)) {
+    const nextRole = patch.role ?? resolveReportRole({ ...binding, ...patch })
+    const nextAggregate = patch.aggregate ?? binding.aggregate
+    if (nextRole === 'detail' || nextAggregate === 'select') return
+  }
 
   const next: ReportBinding = { ...binding, ...patch }
   activeSheet().setCellMeta(cell, REPORT_META_NAMESPACE, next)
@@ -567,13 +569,16 @@ function bindField(datasetId: string, fieldName: string, addr?: CellAddress): vo
   if (!target) return
 
   const binding = createReportBinding(dataset, fieldName)
-  if (fieldName === 'customer') {
+  const existing = getBindingAt(target)
+  if (isGroupAnchorCell(target, existing)) {
     binding.aggregate = 'group'
     binding.leftParent = 'none'
-  } else if (target.row === 1 && target.col === 0) {
-    // 分组格勿被普通 list 覆盖
-    binding.aggregate = 'group'
-    binding.leftParent = 'none'
+    binding.role = 'group'
+  }
+
+  const parentDataset = resolveParentGroupDataset(target)
+  if (parentDataset) {
+    binding.dataset = parentDataset
   }
 
   activeSheet().setCellMeta(target, REPORT_META_NAMESPACE, binding)
@@ -637,40 +642,7 @@ function onGridDrop(event: DragEvent): void {
   }
 }
 
-function saveSnapshot(): void {
-  if (isPreview.value) return
-  captureDesignColWidths()
-  const payload: DemoSnapshotPayload = {
-    sheet: activeSheet().snapshot(),
-    colWidths: designColWidths.value.map(([col, width]) => [col, width])
-  }
-  savedSnapshot.value = JSON.stringify(payload)
-}
-
-function restoreSnapshot(): void {
-  if (isPreview.value || !savedSnapshot.value) return
-  const parsed = JSON.parse(savedSnapshot.value) as DemoSnapshotPayload | SheetSnapshot
-  if (
-    parsed &&
-    typeof parsed === 'object' &&
-    'sheet' in parsed &&
-    'colWidths' in parsed &&
-    Array.isArray(parsed.colWidths)
-  ) {
-    designColWidths.value = parsed.colWidths.map(([col, width]) => [col, width])
-    applySheetSnapshot(parsed.sheet)
-  } else {
-    applySheetSnapshot(parsed as SheetSnapshot)
-  }
-  bumpSelection()
-}
-
 function seedTemplate(): void {
-  loadPresetTemplate(activePreset.value)
-}
-
-function resetTemplate(): void {
-  if (isPreview.value) return
   loadPresetTemplate(activePreset.value)
 }
 
@@ -798,11 +770,6 @@ onBeforeUnmount(() => {
   }
 }
 
-.sheet-report-demo__field-panel--disabled {
-  opacity: 0.5;
-  pointer-events: none;
-}
-
 .sheet-report-demo__grid {
   position: relative;
   flex: 1;
@@ -817,9 +784,5 @@ onBeforeUnmount(() => {
   flex: 1;
   min-height: 0;
   min-width: 0;
-}
-
-.sheet-report-demo__inspector {
-  align-self: stretch;
 }
 </style>

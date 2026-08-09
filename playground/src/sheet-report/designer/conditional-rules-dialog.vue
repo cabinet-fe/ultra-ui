@@ -1,5 +1,10 @@
 <template>
-  <u-dialog v-model="visible" title="条件格式" width="680px" @close="onClose">
+  <u-dialog
+    v-model="visible"
+    title="条件样式"
+    style="width: min(960px, 92vw); max-height: 85vh"
+    @close="onClose"
+  >
     <div class="conditional-rules-dialog">
       <p class="conditional-rules-dialog__hint">
         按列表顺序依次求值并合并样式；仅对当前绑定格自身的值生效。

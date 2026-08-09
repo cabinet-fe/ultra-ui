@@ -66,7 +66,7 @@ export function evaluateCondition(cellValue: unknown, rule: ConditionalRule): bo
 }
 
 /**
- * 按规则数组顺序评估条件格式，将命中规则的 style 增量依次合并到 baseStyle。
+ * 按规则数组顺序评估条件样式，将命中规则的 style 增量依次合并到 baseStyle。
  * 无规则或未命中时原样返回 baseStyle。
  */
 export function evaluateConditionalStyle(

@@ -8,6 +8,7 @@ import {
   formatCellAddress,
   parseCellAddress,
   resolveLeftParent,
+  resolveReportRole,
   setBindingCatalog
 } from '../binding'
 import { ORDERS_DATASET } from '../dataset-hub'
@@ -122,5 +123,22 @@ describe('sheet-report binding', () => {
     expect(formatCellAddress(addr)).toBe('B3')
     expect(parseCellAddress('B3')).toEqual(addr)
     expect(parseCellAddress('bad')).toBeNull()
+  })
+
+  it('分组锚点 aggregate 不可降为明细', () => {
+    const anchor = createReportBinding(ORDERS_DATASET, 'customer')
+    anchor.role = 'group'
+    anchor.aggregate = 'group'
+    anchor.leftParent = 'none'
+
+    const patched = { ...anchor, aggregate: 'select' as const, role: 'detail' as const }
+    expect(resolveReportRole(anchor)).toBe('group')
+    expect(resolveReportRole(patched)).toBe('detail')
+
+    const wouldReject =
+      resolveReportRole(anchor) === 'group' &&
+      anchor.leftParent === 'none' &&
+      (patched.role === 'detail' || patched.aggregate === 'select')
+    expect(wouldReject).toBe(true)
   })
 })

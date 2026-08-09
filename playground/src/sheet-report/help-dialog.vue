@@ -11,100 +11,67 @@
         <h3 class="help-dialog__heading">推荐流程</h3>
         <ol class="help-dialog__list">
           <li>
-            <strong>选用数据集</strong>：点头部「数据集」，从目录勾选本报表要用的集（默认订单 +
-            客户；产品 / 员工 / 回款可按需追加）。可组合多个数据集的字段绑定到同一模板。
+            <strong>配置数据源</strong>：点头部「数据源」，打开非 modal Dialog
+            管理连接与数据集（默认订单 + 客户；产品 / 员工 / 回款可按需追加）。
           </li>
           <li>
-            <strong>配置字段中文名</strong>：在已选用集上打开「字段配置」表。
-            <code>name</code> 是绑定键（写入 Binding，英文标识，只读）；
-            <code>label</code> 是中文显示名（字段面板与格子占位可读名，可改）。二者来自数据集 schema
-            配置（demo mock），不是运行时猜的。
+            <strong>配置字段中文名</strong>：在数据集编辑器中维护字段 schema。
+            <code>name</code> 是绑定键（英文标识）；<code>label</code>
+            是中文显示名（字段面板与格子占位）。
           </li>
           <li>
-            <strong>拖到格子</strong>：左侧字段面板只列出已选用集；中文 label
-            为主，点选或拖拽绑定到单元格。选中已绑定格可编辑聚合 / 扩展 / 左父格。
+            <strong>拖到格子</strong
+            >：左侧字段面板点选或拖拽绑定到单元格。选中已绑定格会出现<strong>悬浮编辑卡片</strong>（默认精简，可展开排序、父分组、删除等）。
+          </li>
+          <li>
+            <strong>筛选参数</strong>：点「筛选参数」打开非 modal
+            Dialog，配置查询参数与默认值；预览筛选栏会同步。
           </li>
           <li>
             <strong>预览模式</strong>：用 mock
-            数据把模板展开成真实报表（只读）。再回「设计模式」会恢复模板，不丢绑定。
+            数据把模板展开成真实报表（只读）。回「设计模式」会恢复模板，不丢绑定。
           </li>
         </ol>
+      </section>
+
+      <section class="help-dialog__section">
+        <h3 class="help-dialog__heading">语义角色</h3>
+        <p>绑定格通过<strong>语义角色</strong>表达在报表中的位置，配合聚合与排序控制展开行为：</p>
+        <ul class="help-dialog__list">
+          <li><strong>分组头（group）</strong>：按字段值拆组，组内再展开明细；同一组纵向合并。</li>
+          <li><strong>明细行（detail）</strong>：每条数据各占一行，跟随左侧分组父格。</li>
+          <li>
+            <strong>小计行（subtotal）</strong>：对当前组做 sum / avg / count 等聚合，每组一行。
+          </li>
+          <li><strong>总计行（grandTotal）</strong>：对全量数据汇总。</li>
+          <li><strong>矩阵交叉（matrix）</strong>：行分组 × 列分组交叉填值。</li>
+        </ul>
       </section>
 
       <section class="help-dialog__section">
         <h3 class="help-dialog__heading">name 与 label</h3>
         <ul class="help-dialog__list">
           <li>
-            <strong>name</strong>：字段英文键，写入单元格 Binding 的
+            <strong>name</strong>：字段英文键，写入 Binding 的
             <code>field</code>，渲染时按此键取行数据。
           </li>
-          <li>
-            <strong>label</strong>：中文描述，仅影响面板展示与设计态占位文案（如「分组 ·
-            客户」），不改变绑定键。
-          </li>
+          <li><strong>label</strong>：中文描述，仅影响面板展示与设计态占位文案，不改变绑定键。</li>
         </ul>
       </section>
 
       <section class="help-dialog__section">
-        <h3 class="help-dialog__heading">字段绑定</h3>
-        <p>
-          把已选用数据集里的某一列挂到模板格子上。设计态格子显示中文占位；预览时才填入真实数据。
-        </p>
-      </section>
-
-      <section class="help-dialog__section">
-        <h3 class="help-dialog__heading">聚合方式（Aggregate）</h3>
-        <p>决定这个绑定字段在预览时怎么取值：</p>
+        <h3 class="help-dialog__heading">聚合与排序</h3>
         <ul class="help-dialog__list">
-          <li>
-            <strong>列表（select）</strong
-            >：每条明细各占一行。例如订单号、地区，会跟着订单一条条列出来。
-          </li>
-          <li>
-            <strong>分组（group）</strong
-            >：按字段值把相同的合并成一组，组内再展开明细。本示例用「客户」分组——同一客户的多笔订单挤在一组里，客户名只在组顶出现一次（并纵向合并单元格）。
-          </li>
-          <li>
-            <strong>求和（sum）</strong
-            >：对当前组（或范围内）的数值字段做合计。本示例合计行的「金额」就是求和，预览时显示该客户订单金额之和。
-          </li>
-        </ul>
-      </section>
-
-      <section class="help-dialog__section">
-        <h3 class="help-dialog__heading">扩展方向（Expand）</h3>
-        <p>决定预览时这一行模板会不会「长出」多行：</p>
-        <ul class="help-dialog__list">
-          <li>
-            <strong>纵向（down）</strong
-            >：有多少条匹配数据，就向下复制多少行。分组格、明细列表通常用这个。
-          </li>
-          <li>
-            <strong>不扩展（none）</strong
-            >：始终只占模板里的那一行。合计（求和）行一般选这个——每组只出一行小计，不会跟着明细条数变长。
-          </li>
-        </ul>
-      </section>
-
-      <section class="help-dialog__section">
-        <h3 class="help-dialog__heading">左父格（Left Parent）</h3>
-        <p>用来表达「我挂在哪一层分组下面」。预览时引擎按父格把明细/合计收进对应组。</p>
-        <ul class="help-dialog__list">
-          <li>
-            <strong>无（none）</strong
-            >：自己就是最外层。本示例的「客户」分组格就是「无」——它不从属于别人。
-          </li>
-          <li>
-            <strong>默认（default）</strong
-            >：自动找<strong>同一行、左边最近</strong>的分组格当父亲。明细列（订单号、金额等）通常用默认，这样不用手写地址。
-          </li>
-          <li>
-            <strong>指定（specify）</strong>：手动写一个设计地址（如
-            A2），明确挂到某个分组格。跨行小计、结构复杂时用。
-          </li>
+          <li><strong>明细（select）</strong>：逐条列出字段值。</li>
+          <li><strong>分组（group）</strong>：作为分组锚点，驱动扩展带。</li>
+          <li><strong>求和 / 平均 / 计数</strong>：用于小计或总计行。</li>
+          <li><strong>排序</strong>：分组头可按字段值升序或降序排列组实例。</li>
         </ul>
         <p class="help-dialog__note">
-          和分组明细的关系：父格是「组」的锚点，子格（明细、合计）声明左父格后，预览才会按客户拆组、组内铺明细、组尾出合计。父格设错时，常见现象是预览空白或结构错乱。
+          父分组由左父格解析：明细与小计自动挂到左侧最近的分组格；用于设计拓扑与同格同行上的数据集继承。分组锚点设错时，常见现象是预览空白或结构错乱。
+        </p>
+        <p class="help-dialog__note">
+          报表可通过<strong>独立扩展带</strong>使用多个数据集：同一扩展带共享一个数据集；另起一行单独绑定第二数据源的明细字段即可并列展示。
         </p>
       </section>
     </div>

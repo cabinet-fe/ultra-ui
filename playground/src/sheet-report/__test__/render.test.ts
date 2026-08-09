@@ -1,7 +1,8 @@
 import { Sheet } from '@veltra/sheet-core'
 import { describe, expect, it } from 'vitest'
 
-import { REPORT_META_NAMESPACE } from '../binding'
+import { REPORT_META_NAMESPACE, createReportBinding } from '../binding'
+import { CUSTOMERS_DATASET, ORDERS_DATASET } from '../dataset-hub'
 import { MOCK_DATA_RECORDS, MOCK_SALES_MATRIX_ROWS } from '../mock-dataset'
 import { renderReport } from '../render'
 import {
@@ -101,7 +102,7 @@ describe('renderReport', () => {
     expect(hasMerge(filled, { row: 15, col: 0 }, { row: 17, col: 0 })).toBe(true)
   })
 
-  it('分组格被误设为 list 时仅输出表头（回归：预览空白根因）', () => {
+  it('分组格被误设为 list 时按明细全量展开（无分组锚点）', () => {
     const template = buildGroupDetailTemplate()
     const broken = JSON.parse(JSON.stringify(template)) as ReturnType<
       typeof buildGroupDetailTemplate
@@ -110,7 +111,9 @@ describe('renderReport', () => {
     ;(groupMeta.payload as { aggregate: string }).aggregate = 'select'
 
     const filled = renderReport(broken, MOCK_DATA_RECORDS)
-    expect(filled.cells.filter((c) => c.row > 0)).toHaveLength(0)
+    // 无分组锚点时走 expandListBlock：全量订单明细 + 小计
+    expect(filled.rows).toBe(1 + MOCK_DATA_RECORDS.orders!.length + 1)
+    expect(cellValue(filled, 1, 1)).toBe('O-1001')
   })
 
   it('Filled Report 不携带 Binding meta', () => {
@@ -247,7 +250,7 @@ describe('renderReport', () => {
     expect(filled.cells.find((c) => c.v === 4180 && c.col === 3)?.v).toBe(4180)
   })
 
-  it('条件格式规则固化到 Filled Report 样式表', () => {
+  it('条件样式规则固化到 Filled Report 样式表', () => {
     const sheet = new Sheet()
     seedGroupDetailTemplate(sheet)
     sheet.setCellMeta({ row: 1, col: 3 }, REPORT_META_NAMESPACE, {
@@ -292,5 +295,76 @@ describe('renderReport', () => {
     // 总计
     const grandTotal = MOCK_SALES_MATRIX_ROWS.reduce((sum, row) => sum + (row.amount as number), 0)
     expect(cellValue(filled, 5, 6)).toBe(grandTotal)
+  })
+
+  it('同扩展带追加明细列：预览行数与值正确', () => {
+    const sheet = new Sheet()
+    seedGroupDetailTemplate(sheet)
+    sheet.setCells([{ addr: { row: 0, col: 5 }, data: { v: '备注' } }])
+    const remark = createReportBinding(ORDERS_DATASET, 'orderNo')
+    remark.leftParent = { row: 1, col: 0 }
+    sheet.setCellMeta({ row: 1, col: 5 }, REPORT_META_NAMESPACE, remark)
+
+    const filled = renderReport(sheet.snapshot(), MOCK_DATA_RECORDS)
+    expect(filled.rows).toBe(19)
+    expect(cellValue(filled, 1, 0)).toBe('甲公司')
+    expect(cellValue(filled, 1, 1)).toBe('O-1001')
+    expect(cellValue(filled, 1, 5)).toBe('O-1001')
+  })
+
+  it('独立扩展带：第二数据源 customers 明细正确渲染', () => {
+    const sheet = new Sheet()
+    seedGroupDetailTemplate(sheet)
+    sheet.setCells([{ addr: { row: 0, col: 5 }, data: { v: '客户ID' } }])
+    const customerId = createReportBinding(CUSTOMERS_DATASET, 'id')
+    customerId.leftParent = 'none'
+    sheet.setCellMeta({ row: 4, col: 5 }, REPORT_META_NAMESPACE, customerId)
+
+    const filled = renderReport(sheet.snapshot(), MOCK_DATA_RECORDS)
+    const customers = MOCK_DATA_RECORDS.customers!
+
+    // 订单扩展 19 行（含表头）+ 客户列表
+    expect(filled.rows).toBe(19 + customers.length)
+    expect(cellValue(filled, 0, 5)).toBe('客户ID')
+    expect(cellValue(filled, 19, 5)).toBe(customers[0]!.id)
+    expect(cellValue(filled, 19 + customers.length - 1, 5)).toBe(
+      customers[customers.length - 1]!.id
+    )
+  })
+
+  it('多行扩展带合并明细输出：分组列与首行明细不丢失', () => {
+    const sheet = new Sheet()
+    seedGroupDetailTemplate(sheet)
+    sheet.clearCellMeta({ row: 1, col: 3 }, REPORT_META_NAMESPACE)
+    sheet.clearCellMeta({ row: 1, col: 4 }, REPORT_META_NAMESPACE)
+    sheet.clearCellMeta({ row: 2, col: 3 }, REPORT_META_NAMESPACE)
+    const snap = sheet.snapshot()
+    snap.cells = snap.cells.filter((cell) => !(cell.row === 2 && cell.col === 1))
+    sheet.restore(snap)
+    sheet.restoreContent(snap)
+
+    const amount = createReportBinding(ORDERS_DATASET, 'amount')
+    amount.leftParent = { row: 1, col: 0 }
+    sheet.setCellMeta({ row: 2, col: 3 }, REPORT_META_NAMESPACE, amount)
+
+    const orderDate = createReportBinding(ORDERS_DATASET, 'orderDate')
+    orderDate.leftParent = { row: 1, col: 0 }
+    sheet.setCellMeta({ row: 2, col: 4 }, REPORT_META_NAMESPACE, orderDate)
+
+    const subtotal = createReportBinding(ORDERS_DATASET, 'amount')
+    subtotal.role = 'subtotal'
+    subtotal.aggregate = 'sum'
+    subtotal.expand = 'none'
+    subtotal.leftParent = { row: 1, col: 0 }
+    sheet.setCellMeta({ row: 3, col: 3 }, REPORT_META_NAMESPACE, subtotal)
+    sheet.setCells([{ addr: { row: 3, col: 1 }, data: { v: '合计' } }])
+
+    const filled = renderReport(sheet.snapshot(), MOCK_DATA_RECORDS)
+    expect(filled.rows).toBe(19)
+    expect(cellValue(filled, 1, 0)).toBe('甲公司')
+    expect(cellValue(filled, 1, 1)).toBe('O-1001')
+    expect(cellValue(filled, 1, 3)).toBe(100)
+    expect(cellValue(filled, 1, 4)).toBe('2024-01-05')
+    expect(cellValue(filled, 5, 3)).toBe(630)
   })
 })

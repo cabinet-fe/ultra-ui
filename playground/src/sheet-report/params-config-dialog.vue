@@ -1,22 +1,22 @@
 <template>
-  <u-drawer
+  <u-dialog
     v-model="visible"
-    direction="right"
     title="筛选参数"
-    class="params-config-drawer"
-    :show-close="true"
+    :modal="false"
+    class="params-config-dialog"
+    style="width: min(720px, 92vw); max-height: 85vh"
   >
-    <p class="params-config-drawer__hint">
+    <p class="params-config-dialog__hint">
       汇总当前模板已绑定数据集使用的查询参数；修改显示名、默认值与控件类型后，预览筛选栏将同步更新。
     </p>
 
-    <p v-if="paramRows.length === 0" class="params-config-drawer__empty">
+    <p v-if="paramRows.length === 0" class="params-config-dialog__empty">
       当前模板尚未绑定带参数的数据集字段。
     </p>
 
     <u-table
       v-else
-      class="params-config-drawer__table"
+      class="params-config-dialog__table"
       :data="paramRows"
       :columns="columns"
       border
@@ -75,7 +75,7 @@
       <u-button plain @click="emit('reset-params')">重置参数</u-button>
       <u-button type="primary" @click="visible = false">完成</u-button>
     </template>
-  </u-drawer>
+  </u-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -84,7 +84,7 @@ import { computed } from 'vue'
 
 import type { DataHub, QueryParamDef, QueryParamType } from './dataset-hub'
 
-defineOptions({ name: 'SheetReportParamsConfigDrawer' })
+defineOptions({ name: 'SheetReportParamsConfigDialog' })
 
 const props = defineProps<{
   hub: DataHub
@@ -154,28 +154,22 @@ function applyDefault(row: QueryParamDef): void {
 </script>
 
 <style scoped lang="scss">
-.params-config-drawer__hint {
+.params-config-dialog__hint {
   margin: 0 0 12px;
   font-size: 12px;
   line-height: 1.5;
   color: var(--u-text-color-secondary, #64748b);
 }
 
-.params-config-drawer__empty {
+.params-config-dialog__empty {
   margin: 24px 0;
   font-size: 13px;
   color: var(--u-text-color-secondary, #64748b);
   text-align: center;
 }
 
-.params-config-drawer__table {
+.params-config-dialog__table {
   min-height: 280px;
   height: 360px;
-}
-</style>
-
-<style lang="scss">
-.params-config-drawer.u-drawer.is-right {
-  width: min(640px, 92vw);
 }
 </style>

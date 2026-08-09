@@ -15,10 +15,10 @@ export type ReportExpand = 'down' | 'none'
 /** 左父格：无 / 默认规则 / 指定设计地址 */
 export type ReportLeftParent = 'none' | 'default' | CellAddress
 
-/** 条件格式比较运算符 */
+/** 条件样式比较运算符 */
 export type ConditionalOperator = 'gt' | 'gte' | 'lt' | 'lte' | 'eq' | 'between' | 'contains'
 
-/** 条件格式规则：命中后叠加 CellStyle 增量 */
+/** 条件样式规则：命中后叠加 CellStyle 增量 */
 export interface ConditionalRule {
   operator: ConditionalOperator
   /** 单值比较用标量；`between` 用 `[min, max]`（含端点） */
@@ -37,7 +37,7 @@ export interface ReportBinding {
   leftParent: ReportLeftParent
   /** 分组/明细排序；缺省视为 none */
   sort?: ReportSort
-  /** 条件格式规则（按数组顺序优先级依次求值并合并样式） */
+  /** 条件样式规则（按数组顺序优先级依次求值并合并样式） */
   conditionalRules?: ConditionalRule[]
 }
 

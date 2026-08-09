@@ -14,7 +14,7 @@ function pxToPt(px: number): number {
 
 /**
  * 将已填充的 Sheet 导出为保真 XLSX（合并 / 样式 / 行高 / 列宽）。
- * 条件格式颜色已在 renderReport 阶段固化进 StylePool。
+ * 条件样式颜色已在 renderReport 阶段固化进 StylePool。
  */
 export async function exportFilledReportXlsx(
   sheet: Sheet,
