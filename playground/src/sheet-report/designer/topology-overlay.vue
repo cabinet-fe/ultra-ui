@@ -32,11 +32,11 @@
 <script lang="ts" setup>
 import type { CellAddress } from '@veltra/sheet-core'
 import type { SheetGrid } from '@veltra/sheet-core/grid/sheet-grid'
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, ref, toRef } from 'vue'
 
 import type { ReportBinding } from '../types'
-import { getCellOverlayRect, resolveGridOverlayLayout } from './cell-coords'
 import { buildTopologyArcPath, collectTopologyLinks, type TopologyBindingEntry } from './topology'
+import { readCellOverlayRect, readGridOverlaySize, useGridOverlaySync } from './use-grid-overlay'
 
 defineOptions({ name: 'SheetReportTopologyOverlay' })
 
@@ -44,66 +44,49 @@ const props = defineProps<{
   cell: CellAddress | null
   binding: ReportBinding | null
   entries: TopologyBindingEntry[]
+  metaTick: number
   hostEl: HTMLElement | null
   getGrid: () => SheetGrid | undefined
   getBindingAt: (addr: CellAddress) => ReportBinding | undefined
 }>()
+
+const hostEl = toRef(props, 'hostEl')
 
 const svgWidth = ref(0)
 const svgHeight = ref(0)
 const arcPaths = ref<string[]>([])
 const inView = ref(false)
 
-let offScroll: (() => void) | undefined
-let rafId = 0
-
 const visible = computed(
   () => !!props.binding && !!props.cell && inView.value && arcPaths.value.length > 0
 )
-
-watch(
-  () => [props.cell, props.binding, props.entries, props.hostEl] as const,
-  () => {
-    bindScroll()
-    scheduleUpdate()
-  },
-  { immediate: true, flush: 'post' }
-)
-
-function scheduleUpdate(): void {
-  cancelAnimationFrame(rafId)
-  rafId = requestAnimationFrame(updateOverlay)
-}
 
 function updateOverlay(): void {
   const cell = props.cell
   const binding = props.binding
   const host = props.hostEl
-  const grid = props.getGrid()
-
-  if (!cell || !binding || !host || !grid) {
+  if (!cell || !binding || !host) {
     inView.value = false
     arcPaths.value = []
     return
   }
 
-  const resolved = resolveGridOverlayLayout(host)
-  if (!resolved) {
+  const size = readGridOverlaySize(host)
+  if (!size) {
     inView.value = false
     arcPaths.value = []
     return
   }
 
-  const { layout } = resolved
-  svgWidth.value = layout.viewW + layout.offsetX
-  svgHeight.value = layout.viewH + layout.offsetY
+  svgWidth.value = size.width
+  svgHeight.value = size.height
 
   const links = collectTopologyLinks(cell, binding, props.entries, props.getBindingAt)
   const paths: string[] = []
 
   for (const link of links) {
-    const fromRect = getCellOverlayRect(grid, link.from, layout)
-    const toRect = getCellOverlayRect(grid, link.to, layout)
+    const fromRect = readCellOverlayRect(link.from, host, props.getGrid)
+    const toRect = readCellOverlayRect(link.to, host, props.getGrid)
     if (!fromRect || !toRect) continue
     paths.push(
       buildTopologyArcPath(
@@ -117,22 +100,12 @@ function updateOverlay(): void {
   inView.value = paths.length > 0
 }
 
-function bindScroll(): void {
-  offScroll?.()
-  offScroll = undefined
-  const grid = props.getGrid()
-  if (!grid) return
-
-  const table = grid.getTable()
-  const onScroll = (): void => scheduleUpdate()
-  const scrollEvent = 'scroll'
-  table.on(scrollEvent, onScroll)
-  offScroll = () => table.off(scrollEvent, onScroll)
-}
-
-onBeforeUnmount(() => {
-  cancelAnimationFrame(rafId)
-  offScroll?.()
+useGridOverlaySync({
+  hostEl,
+  getGrid: () => props.getGrid(),
+  watchSources: () =>
+    [props.cell?.row, props.cell?.col, props.binding, props.metaTick, props.hostEl] as const,
+  update: updateOverlay
 })
 </script>
 

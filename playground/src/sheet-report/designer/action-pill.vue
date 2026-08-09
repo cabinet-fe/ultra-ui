@@ -1,5 +1,12 @@
 <template>
-  <div v-show="visible" class="action-pill" :style="pillStyle" @mousedown.stop @pointerdown.stop>
+  <div
+    v-if="binding && cell"
+    v-show="visible"
+    class="action-pill"
+    :style="pillStyle"
+    @mousedown.stop
+    @pointerdown.stop
+  >
     <u-select
       size="small"
       class="action-pill__select"
@@ -10,7 +17,7 @@
     <u-select
       size="small"
       class="action-pill__select"
-      :model-value="binding!.aggregate"
+      :model-value="binding.aggregate"
       :options="aggregateOptions"
       @update:model-value="onAggregate"
     />
@@ -21,12 +28,12 @@
 <script lang="ts" setup>
 import type { CellAddress } from '@veltra/sheet-core'
 import type { SheetGrid } from '@veltra/sheet-core/grid/sheet-grid'
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, ref, toRef } from 'vue'
 
-import { resolveReportRole, aggregateDefaultExpand } from '../binding'
+import { aggregateDefaultExpand, resolveReportRole } from '../binding'
 import type { ReportAggregate, ReportBinding, ReportRole } from '../types'
-import { getCellOverlayRect, resolveGridOverlayLayout } from './cell-coords'
 import { REPORT_ROLE_OPTIONS, roleBindingDefaults } from './role'
+import { readCellOverlayRect, useGridOverlaySync } from './use-grid-overlay'
 
 defineOptions({ name: 'SheetReportActionPill' })
 
@@ -38,6 +45,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{ patch: [patch: Partial<ReportBinding>]; 'open-rules': [] }>()
+
+const hostEl = toRef(props, 'hostEl')
 
 const roleOptions = REPORT_ROLE_OPTIONS
 
@@ -53,9 +62,6 @@ const pillLeft = ref(0)
 const pillTop = ref(0)
 const inView = ref(false)
 
-let offScroll: (() => void) | undefined
-let rafId = 0
-
 const currentRole = computed((): ReportRole => {
   if (!props.binding) return 'detail'
   return resolveReportRole(props.binding)
@@ -65,15 +71,6 @@ const visible = computed(() => !!props.binding && !!props.cell && inView.value)
 
 const pillStyle = computed(() => ({ left: `${pillLeft.value}px`, top: `${pillTop.value}px` }))
 
-watch(
-  () => [props.cell, props.binding, props.hostEl] as const,
-  () => {
-    bindScroll()
-    scheduleUpdate()
-  },
-  { immediate: true, flush: 'post' }
-)
-
 function onRole(role: ReportRole): void {
   emit('patch', roleBindingDefaults(role))
 }
@@ -82,54 +79,30 @@ function onAggregate(aggregate: ReportAggregate): void {
   emit('patch', { aggregate, expand: aggregateDefaultExpand(aggregate) })
 }
 
-function scheduleUpdate(): void {
-  cancelAnimationFrame(rafId)
-  rafId = requestAnimationFrame(updatePosition)
-}
-
 function updatePosition(): void {
   const cell = props.cell
   const host = props.hostEl
-  const grid = props.getGrid()
-  if (!cell || !host || !grid) {
+  if (!cell || !host) {
     inView.value = false
     return
   }
 
-  const resolved = resolveGridOverlayLayout(host)
-  if (!resolved) {
-    inView.value = false
-    return
-  }
-
-  const rect = getCellOverlayRect(grid, cell, resolved.layout)
+  const rect = readCellOverlayRect(cell, host, props.getGrid)
   if (!rect) {
     inView.value = false
     return
   }
 
   inView.value = true
-  // 胶囊居中悬浮于单元格正上方
   pillLeft.value = Math.round(rect.centerX)
   pillTop.value = Math.round(rect.top - 8)
 }
 
-function bindScroll(): void {
-  offScroll?.()
-  offScroll = undefined
-  const grid = props.getGrid()
-  if (!grid) return
-
-  const table = grid.getTable()
-  const onScroll = (): void => scheduleUpdate()
-  const scrollEvent = 'scroll'
-  table.on(scrollEvent, onScroll)
-  offScroll = () => table.off(scrollEvent, onScroll)
-}
-
-onBeforeUnmount(() => {
-  cancelAnimationFrame(rafId)
-  offScroll?.()
+useGridOverlaySync({
+  hostEl,
+  getGrid: () => props.getGrid(),
+  watchSources: () => [props.cell?.row, props.cell?.col, props.binding, props.hostEl] as const,
+  update: updatePosition
 })
 </script>
 

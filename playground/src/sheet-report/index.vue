@@ -85,6 +85,7 @@
           :cell="activeCell"
           :binding="activeBinding ?? null"
           :entries="topologyEntries"
+          :meta-tick="metaTick"
           :host-el="gridHostEl"
           :get-grid="getDesignGrid"
           :get-binding-at="getBindingAt"
@@ -116,7 +117,7 @@
 
     <conditional-rules-dialog
       v-model="rulesDialogVisible"
-      :rules="activeBinding?.conditionalRules ?? []"
+      :rules="activeBinding?.conditionalRules ?? EMPTY_CONDITIONAL_RULES"
       @save="saveConditionalRules"
     />
   </div>
@@ -128,7 +129,16 @@ import type { CellAddress, Sheet, SheetSnapshot } from '@veltra/sheet-core'
 import { Workbook } from '@veltra/sheet-core'
 import type { ResolveDisplayValue } from '@veltra/sheet-core/grid/sheet-grid'
 import '@veltra/sheet/vue/style'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  shallowRef,
+  useTemplateRef,
+  watch
+} from 'vue'
 
 import {
   REPORT_META_NAMESPACE,
@@ -161,6 +171,8 @@ import type {
 } from './types'
 
 defineOptions({ name: 'SheetReportDemo' })
+
+const EMPTY_CONDITIONAL_RULES: ConditionalRule[] = []
 
 type ViewMode = 'design' | 'preview'
 
@@ -241,8 +253,18 @@ const designColWidths = ref<Array<[number, number]>>(
 )
 const selectionTick = ref(0)
 const metaTick = ref(0)
+/** 稳定选区地址引用，避免 getSelection() 每次返回新对象触发子组件 watcher */
+const activeCell = shallowRef<CellAddress | null>(null)
+const topologyEntries = shallowRef<TopologyBindingEntry[]>([])
 
 const workbook = new Workbook()
+
+const activeBinding = computed((): ReportBinding | undefined => {
+  metaTick.value
+  const cell = activeCell.value
+  if (!cell) return undefined
+  return activeSheet().getCellMeta<ReportBinding>(cell, REPORT_META_NAMESPACE)
+})
 
 const sheetRef = useTemplateRef<SheetExposed>('sheetRef')
 const gridHostRef = useTemplateRef<HTMLElement>('gridHostRef')
@@ -252,21 +274,9 @@ const isPreview = computed(() => viewMode.value === 'preview')
 
 const selectionLabel = computed(() => {
   selectionTick.value
-  const selection = sheetRef.value?.getContext().getSelection()
-  if (!selection?.activeCell) return '—'
-  return formatCellAddress(selection.activeCell)
-})
-
-const activeCell = computed((): CellAddress | null => {
-  selectionTick.value
-  return sheetRef.value?.getContext().getSelection().activeCell ?? null
-})
-
-const activeBinding = computed((): ReportBinding | undefined => {
-  metaTick.value
   const cell = activeCell.value
-  if (!cell) return undefined
-  return activeSheet().getCellMeta<ReportBinding>(cell, REPORT_META_NAMESPACE)
+  if (!cell) return '—'
+  return formatCellAddress(cell)
 })
 
 const boundKeys = computed(() => {
@@ -290,15 +300,25 @@ const resolvedLeftParentLabel = computed(() => {
   return resolved ? formatCellAddress(resolved) : '—'
 })
 
-const topologyEntries = computed((): TopologyBindingEntry[] => {
-  metaTick.value
+function syncActiveCell(): void {
+  const next = sheetRef.value?.getContext().getSelection().activeCell ?? null
+  if (!next) {
+    activeCell.value = null
+    return
+  }
+  const prev = activeCell.value
+  if (prev && prev.row === next.row && prev.col === next.col) return
+  activeCell.value = { row: next.row, col: next.col }
+}
+
+function syncTopologyEntries(): void {
   const entries: TopologyBindingEntry[] = []
   for (const [addr, namespace, payload] of activeSheet().entriesCellMeta()) {
     if (namespace !== REPORT_META_NAMESPACE) continue
     entries.push({ addr, binding: payload as ReportBinding })
   }
-  return entries
-})
+  topologyEntries.value = entries
+}
 
 let offSelection: (() => void) | undefined
 let offMeta: (() => void) | undefined
@@ -317,10 +337,12 @@ function getDesignGrid() {
 
 function bumpSelection(): void {
   selectionTick.value++
+  syncActiveCell()
 }
 
 function bumpMeta(): void {
   metaTick.value++
+  syncTopologyEntries()
 }
 
 function refreshGrid(): void {
@@ -532,8 +554,10 @@ function resetTemplate(): void {
 
 onMounted(() => {
   seedTemplate()
+  syncTopologyEntries()
   offSelection = workbook.activeSheet.on('selection-change', bumpSelection)
   offMeta = workbook.activeSheet.on('meta-change', bumpMeta)
+  bumpSelection()
   void nextTick(syncGridView)
 })
 
