@@ -1,14 +1,16 @@
 import { Sheet } from '@veltra/sheet-core'
 import { describe, expect, it } from 'vitest'
 
-import { MOCK_DATA_RECORDS } from '../mock-dataset'
+import { REPORT_META_NAMESPACE } from '../binding'
+import { MOCK_DATA_RECORDS, MOCK_SALES_MATRIX_ROWS } from '../mock-dataset'
 import { renderReport } from '../render'
 import {
   DEMO_COL_WIDTHS,
   applyColWidths,
   applyDemoColWidths,
   readDemoColWidths,
-  seedGroupDetailTemplate
+  seedGroupDetailTemplate,
+  seedMatrixTemplate
 } from '../template'
 
 function buildGroupDetailTemplate() {
@@ -37,6 +39,12 @@ function hasMerge(
       m.end.row === end.row &&
       m.end.col === end.col
   )
+}
+
+function buildMatrixTemplate() {
+  const sheet = new Sheet()
+  seedMatrixTemplate(sheet)
+  return sheet.snapshot()
 }
 
 describe('renderReport', () => {
@@ -191,5 +199,98 @@ describe('renderReport', () => {
 
     applyDemoColWidths(grid)
     expect(widths.get(1)).toBe(DEMO_COL_WIDTHS[0]![1])
+  })
+
+  it('subtotal 支持 avg / count 聚合', () => {
+    const sheet = new Sheet()
+    seedGroupDetailTemplate(sheet)
+    sheet.setCellMeta({ row: 2, col: 3 }, REPORT_META_NAMESPACE, {
+      dataset: 'orders',
+      field: 'amount',
+      role: 'subtotal',
+      aggregate: 'avg',
+      expand: 'none',
+      leftParent: { row: 1, col: 0 }
+    })
+    const avgFilled = renderReport(sheet.snapshot(), MOCK_DATA_RECORDS)
+    // 甲公司 4 单金额均值 (100+200+150+180)/4 = 157.5
+    expect(avgFilled.cells.find((c) => c.row === 5 && c.col === 3)?.v).toBe(157.5)
+
+    const sheet2 = new Sheet()
+    seedGroupDetailTemplate(sheet2)
+    sheet2.setCellMeta({ row: 2, col: 3 }, REPORT_META_NAMESPACE, {
+      dataset: 'orders',
+      field: 'orderNo',
+      role: 'subtotal',
+      aggregate: 'count',
+      expand: 'none',
+      leftParent: { row: 1, col: 0 }
+    })
+    const countFilled = renderReport(sheet2.snapshot(), MOCK_DATA_RECORDS)
+    expect(countFilled.cells.find((c) => c.row === 5 && c.col === 3)?.v).toBe(4)
+  })
+
+  it('grandTotal 行对全量数据汇总', () => {
+    const sheet = new Sheet()
+    seedGroupDetailTemplate(sheet)
+    sheet.setCells([{ addr: { row: 3, col: 1 }, data: { v: '总计' } }])
+    sheet.setCellMeta({ row: 3, col: 3 }, REPORT_META_NAMESPACE, {
+      dataset: 'orders',
+      field: 'amount',
+      role: 'grandTotal',
+      aggregate: 'sum',
+      expand: 'none',
+      leftParent: 'none'
+    })
+    const filled = renderReport(sheet.snapshot(), MOCK_DATA_RECORDS)
+    // 全量金额 4180
+    expect(filled.cells.find((c) => c.v === 4180 && c.col === 3)?.v).toBe(4180)
+  })
+
+  it('条件格式规则固化到 Filled Report 样式表', () => {
+    const sheet = new Sheet()
+    seedGroupDetailTemplate(sheet)
+    sheet.setCellMeta({ row: 1, col: 3 }, REPORT_META_NAMESPACE, {
+      dataset: 'orders',
+      field: 'amount',
+      role: 'detail',
+      aggregate: 'select',
+      expand: 'down',
+      leftParent: { row: 1, col: 0 },
+      conditionalRules: [{ operator: 'gt', value: 100, style: { fill: { color: '#FFCCCC' } } }]
+    })
+
+    const filled = renderReport(sheet.snapshot(), MOCK_DATA_RECORDS)
+    const hotCell = filled.cells.find((c) => c.col === 3 && c.v === 150)
+    expect(hotCell?.s).toBeDefined()
+    expect(filled.styles[(hotCell!.s ?? 1) - 1]?.fill?.color).toBe('#FFCCCC')
+
+    const coldCell = filled.cells.find((c) => c.col === 3 && c.v === 100)
+    expect(filled.styles[(coldCell!.s ?? 1) - 1]?.fill?.color).not.toBe('#FFCCCC')
+  })
+
+  it('二维矩阵：地区 × 品类销售额交叉扩展', () => {
+    const filled = renderReport(buildMatrixTemplate(), { 'sales-matrix': MOCK_SALES_MATRIX_ROWS })
+
+    // 表头 1 + 4 地区 + 1 合计 = 6 行
+    expect(filled.rows).toBe(6)
+    expect(cellValue(filled, 0, 0)).toBe('地区 \\ 品类')
+    expect(cellValue(filled, 0, 1)).toBe('办公设备')
+    expect(cellValue(filled, 0, 5)).toBe('网络')
+
+    // 华东 × 办公设备 = 50400
+    expect(cellValue(filled, 1, 0)).toBe('华东')
+    expect(cellValue(filled, 1, 1)).toBe(50400)
+
+    // 列合计：办公设备四地区之和
+    const officeTotal = MOCK_SALES_MATRIX_ROWS.filter((r) => r.category === '办公设备').reduce(
+      (sum, row) => sum + (row.amount as number),
+      0
+    )
+    expect(cellValue(filled, 5, 1)).toBe(officeTotal)
+
+    // 总计
+    const grandTotal = MOCK_SALES_MATRIX_ROWS.reduce((sum, row) => sum + (row.amount as number), 0)
+    expect(cellValue(filled, 5, 6)).toBe(grandTotal)
   })
 })

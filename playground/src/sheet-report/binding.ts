@@ -15,7 +15,7 @@ const AGGREGATE_PLACEHOLDER_TAG: Record<ReportAggregate, string> = {
 
 /** 从旧版 aggregate/expand 推导语义角色（快照向下兼容） */
 export function resolveReportRole(binding: ReportBinding): ReportRole {
-  if (binding.role) return binding.role
+  if (binding.role === 'grandTotal' || binding.role === 'matrix') return binding.role
   if (binding.aggregate === 'group') return 'group'
   if (
     (binding.aggregate === 'sum' || binding.aggregate === 'avg' || binding.aggregate === 'count') &&
@@ -23,6 +23,7 @@ export function resolveReportRole(binding: ReportBinding): ReportRole {
   ) {
     return 'subtotal'
   }
+  if (binding.role) return binding.role
   return 'detail'
 }
 

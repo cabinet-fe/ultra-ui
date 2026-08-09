@@ -1,7 +1,7 @@
 import type { Sheet } from '@veltra/sheet-core'
 
 import { REPORT_META_NAMESPACE, createReportBinding } from './binding'
-import { ORDERS_DATASET } from './mock-dataset'
+import { ORDERS_DATASET, SALES_MATRIX_DATASET } from './mock-dataset'
 
 /**
  * 演示列宽初始种子（模型列索引 → px）。
@@ -87,6 +87,7 @@ export function seedGroupDetailTemplate(sheet: Sheet): void {
   const groupParent = { row: 1, col: 0 }
 
   const customerGroup = createReportBinding(ORDERS_DATASET, 'customer')
+  customerGroup.role = 'group'
   customerGroup.aggregate = 'group'
   customerGroup.leftParent = 'none'
   sheet.setCellMeta(groupParent, REPORT_META_NAMESPACE, customerGroup)
@@ -108,8 +109,62 @@ export function seedGroupDetailTemplate(sheet: Sheet): void {
   sheet.setCellMeta({ row: 1, col: 4 }, REPORT_META_NAMESPACE, orderDate)
 
   const subtotal = createReportBinding(ORDERS_DATASET, 'amount')
+  subtotal.role = 'subtotal'
   subtotal.aggregate = 'sum'
   subtotal.expand = 'none'
   subtotal.leftParent = groupParent
   sheet.setCellMeta({ row: 2, col: 3 }, REPORT_META_NAMESPACE, subtotal)
+}
+
+/**
+ * 预置二维矩阵模板：地区（行）× 品类（列）销售额交叉表。
+ * 行 0 列头分组；行 1 行头 + 交叉点；行 2 列小计 + 总计。
+ */
+export function seedMatrixTemplate(sheet: Sheet): void {
+  sheet.setCells([
+    { addr: { row: 0, col: 0 }, data: { v: '地区 \\ 品类' } },
+    { addr: { row: 2, col: 0 }, data: { v: '合计' } }
+  ])
+
+  sheet.setCellStyle(
+    { start: { row: 0, col: 0 }, end: { row: 0, col: 0 } },
+    { font: { bold: true }, fill: { color: '#E8EEF7' } }
+  )
+  sheet.setCellStyle(
+    { start: { row: 2, col: 0 }, end: { row: 2, col: 0 } },
+    { font: { bold: true } }
+  )
+
+  const categoryGroup = createReportBinding(SALES_MATRIX_DATASET, 'category')
+  categoryGroup.role = 'group'
+  categoryGroup.aggregate = 'group'
+  categoryGroup.leftParent = 'none'
+  sheet.setCellMeta({ row: 0, col: 1 }, REPORT_META_NAMESPACE, categoryGroup)
+
+  const regionGroup = createReportBinding(SALES_MATRIX_DATASET, 'region')
+  regionGroup.role = 'group'
+  regionGroup.aggregate = 'group'
+  regionGroup.leftParent = 'none'
+  sheet.setCellMeta({ row: 1, col: 0 }, REPORT_META_NAMESPACE, regionGroup)
+
+  const cross = createReportBinding(SALES_MATRIX_DATASET, 'amount')
+  cross.role = 'matrix'
+  cross.aggregate = 'sum'
+  cross.expand = 'none'
+  cross.leftParent = 'none'
+  sheet.setCellMeta({ row: 1, col: 1 }, REPORT_META_NAMESPACE, cross)
+
+  const colSubtotal = createReportBinding(SALES_MATRIX_DATASET, 'amount')
+  colSubtotal.role = 'subtotal'
+  colSubtotal.aggregate = 'sum'
+  colSubtotal.expand = 'none'
+  colSubtotal.leftParent = 'none'
+  sheet.setCellMeta({ row: 2, col: 1 }, REPORT_META_NAMESPACE, colSubtotal)
+
+  const grandTotal = createReportBinding(SALES_MATRIX_DATASET, 'amount')
+  grandTotal.role = 'grandTotal'
+  grandTotal.aggregate = 'sum'
+  grandTotal.expand = 'none'
+  grandTotal.leftParent = 'none'
+  sheet.setCellMeta({ row: 2, col: 6 }, REPORT_META_NAMESPACE, grandTotal)
 }
