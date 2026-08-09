@@ -69,9 +69,8 @@
 
     <filter-bar
       v-if="isPreview"
-      :query-params="dataHub.queryParams"
+      :query-params="previewQueryParams"
       :values="paramValues"
-      :active-dataset-ids="activePreset.datasetIds"
       @update:values="onParamValuesChange"
     />
 
@@ -80,7 +79,7 @@
       v-model="datasetVisible"
       :records="datasetRecords"
       :items="reportDatasets"
-      :query-params="dataHub.queryParams"
+      :query-params="dataHub.getQueryParams()"
       :param-values="paramValues"
       @update:items="reportDatasets = $event"
       @update:param-values="onParamValuesChange"
@@ -182,10 +181,11 @@ import {
   createReportBinding,
   formatBindingPlaceholder,
   formatCellAddress,
-  resolveLeftParent
+  resolveLeftParent,
+  setBindingCatalog
 } from './binding'
 import DatasetDialog from './dataset-dialog.vue'
-import { DATASET_CATALOG, DEFAULT_SELECTED_DATASET_IDS, createMockDataHub } from './dataset-hub'
+import { DEFAULT_SELECTED_DATASET_IDS, createDataHub } from './dataset-hub'
 import ActionPill from './designer/action-pill.vue'
 import ConditionalRulesDialog from './designer/conditional-rules-dialog.vue'
 import InspectorPanel from './designer/inspector-panel.vue'
@@ -195,6 +195,7 @@ import { downloadFilledReportXlsx } from './export-xlsx'
 import FieldPanel from './field-panel.vue'
 import FilterBar from './filter-bar.vue'
 import HelpDialog from './help-dialog.vue'
+import { resolveBoundDatasetParams } from './params'
 import { REPORT_PRESETS, findReportPreset } from './presets'
 import { renderReport } from './render'
 import {
@@ -219,13 +220,15 @@ type ViewMode = 'design' | 'preview'
 /** 演示层快照：SheetSnapshot 不含列宽，一并持久化 */
 type DemoSnapshotPayload = { sheet: SheetSnapshot; colWidths: Array<[number, number]> }
 
-/** Mock Data Hub：模拟数据库 Catalog + 查询参数 + Records 生成 */
-const dataHub = createMockDataHub()
+/** Data Hub：数据连接 + SQL 数据集 + 查询执行 */
+const dataHub = createDataHub()
+setBindingCatalog(dataHub.getCatalog())
 const paramValues = ref(dataHub.getParamValues())
 const datasetRecords = computed(() => {
   paramValues.value
   return dataHub.getRecords()
 })
+const datasetCatalog = computed(() => dataHub.getCatalog())
 
 /** 从 catalog 生成报表数据集配置；默认选用订单 + 客户 */
 function buildReportDatasets(
@@ -233,7 +236,7 @@ function buildReportDatasets(
 ): ReportDatasetConfig[] {
   const defaults = new Set<string>(selectedIds)
   const records = dataHub.getRecords()
-  return DATASET_CATALOG.map((dataset) => ({
+  return datasetCatalog.value.map((dataset) => ({
     id: dataset.id,
     label: dataset.label,
     selected: defaults.has(dataset.id),
@@ -339,6 +342,22 @@ const boundKeys = computed(() => {
   return keys
 })
 
+const boundDatasetIds = computed(() => {
+  metaTick.value
+  const ids = new Set<string>()
+  for (const [, namespace, payload] of activeSheet().entriesCellMeta()) {
+    if (namespace !== REPORT_META_NAMESPACE) continue
+    ids.add((payload as ReportBinding).dataset)
+  }
+  return [...ids]
+})
+
+const previewQueryParams = computed(() =>
+  resolveBoundDatasetParams(dataHub.getQueryParams(), boundDatasetIds.value, (datasetId) =>
+    dataHub.getQueryParams([datasetId])
+  )
+)
+
 const resolvedLeftParentLabel = computed(() => {
   metaTick.value
   const binding = activeBinding.value
@@ -370,6 +389,7 @@ function syncTopologyEntries(): void {
 
 let offSelection: (() => void) | undefined
 let offMeta: (() => void) | undefined
+let offDataHub: (() => void) | undefined
 
 function activeSheet(): Sheet {
   return sheetRef.value?.getActiveSheet() ?? workbook.activeSheet
@@ -639,6 +659,10 @@ function resetTemplate(): void {
 }
 
 onMounted(() => {
+  offDataHub = dataHub.subscribe(() => {
+    setBindingCatalog(dataHub.getCatalog())
+    syncDatasetRowCounts()
+  })
   seedTemplate()
   syncTopologyEntries()
   offSelection = workbook.activeSheet.on('selection-change', bumpSelection)
@@ -650,6 +674,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   offSelection?.()
   offMeta?.()
+  offDataHub?.()
 })
 </script>
 

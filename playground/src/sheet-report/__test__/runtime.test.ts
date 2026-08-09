@@ -1,23 +1,31 @@
 import { Sheet } from '@veltra/sheet-core'
 import { describe, expect, it } from 'vitest'
 
-import { QUERY_PARAMS } from '../dataset-hub'
+import { createDataHub } from '../dataset-hub'
 import { buildColumnDefs, pxToExcelColWidth } from '../export-xlsx-helpers'
 import { MOCK_DATA_RECORDS } from '../mock-dataset'
-import { resolveVisibleParams } from '../params'
+import { resolveBoundDatasetParams } from '../params'
 import { REPORT_PRESETS } from '../presets'
 import { renderReport } from '../render'
 import { seedInventoryAlertTemplate } from '../template'
 
-describe('resolveVisibleParams', () => {
-  it('按模板关联数据集筛选查询参数', () => {
-    const salesGroup = resolveVisibleParams(QUERY_PARAMS, ['orders', 'customers'])
+describe('resolveBoundDatasetParams', () => {
+  it('按绑定数据集合并查询参数', () => {
+    const hub = createDataHub()
+    const allParams = hub.getQueryParams()
+    const getDatasetParams = (datasetId: string) => hub.getQueryParams([datasetId])
+
+    const salesGroup = resolveBoundDatasetParams(
+      allParams,
+      ['orders', 'customers'],
+      getDatasetParams
+    )
     expect(salesGroup.map((item) => item.id).sort()).toEqual(['dateFrom', 'dateTo', 'region'])
 
-    const matrix = resolveVisibleParams(QUERY_PARAMS, ['sales-matrix'])
+    const matrix = resolveBoundDatasetParams(allParams, ['sales-matrix'], getDatasetParams)
     expect(matrix.map((item) => item.id)).toEqual(['region'])
 
-    const inventory = resolveVisibleParams(QUERY_PARAMS, ['inventory-alerts'])
+    const inventory = resolveBoundDatasetParams(allParams, ['inventory-alerts'], getDatasetParams)
     expect(inventory.map((item) => item.id)).toEqual(['alertThreshold'])
   })
 })

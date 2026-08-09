@@ -1,7 +1,19 @@
 import type { CellAddress } from '@veltra/sheet-core'
 
-import { DATASET_CATALOG } from './dataset-hub'
-import type { MockDataset, ReportAggregate, ReportBinding, ReportRole } from './types'
+import type {
+  DatasetCatalogItem,
+  MockDataset,
+  ReportAggregate,
+  ReportBinding,
+  ReportRole
+} from './types'
+
+/** 字段 label 解析用的 catalog（由 DataHub 注入） */
+let bindingCatalog: DatasetCatalogItem[] = []
+
+export function setBindingCatalog(catalog: DatasetCatalogItem[]): void {
+  bindingCatalog = catalog
+}
 
 export const REPORT_META_NAMESPACE = 'report'
 
@@ -98,7 +110,7 @@ function resolveFieldLabel(
 ): string {
   const override = resolveLabel?.(datasetId, fieldName)
   if (override) return override
-  const dataset = DATASET_CATALOG.find((d) => d.id === datasetId)
+  const dataset = bindingCatalog.find((d) => d.id === datasetId)
   const field = dataset?.fields.find((f) => f.name === fieldName)
   return field?.label ?? fieldName
 }

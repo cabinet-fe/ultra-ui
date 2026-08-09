@@ -1,4 +1,4 @@
-Status: in-progress
+Status: done
 
 # 07 — 数据连接与 SQL 数据集模型（报表的数据基座）
 
@@ -12,9 +12,9 @@ Status: in-progress
 
 **Blocked by:** None — can start immediately.
 
-- [ ] 重写 `dataset-hub/types.ts`：DataConnection / DatasetDef / QueryParamDef / TableSchema / DataHub
-- [ ] 实现 `dataset-hub/sql.ts` 微型解析器与执行器（含 `${param}` 提取与参数类型推断）
-- [ ] `dataset-hub/database.ts`：mock 库表（复用 seeds 行数据，snake_case 表名 + 列 schema）
-- [ ] `dataset-hub/hub.ts` + `defaults.ts`：默认连接「演示业务库」+ 预置 SQL 数据集
-- [ ] 改造 binding.ts / template.ts / params.ts / index.vue 数据流（filter-bar 参数来源改为实际绑定的数据集）
-- [ ] 重写 dataset-hub 测试（解析器 + 执行 + 参数提取），更新 runtime/render 测试
+- [x] 重写 `dataset-hub/types.ts`：DataConnection / DatasetDef / QueryParamDef / TableSchema / DataHub
+- [x] 实现 `dataset-hub/sql.ts` 微型解析器与执行器（含 `${param}` 提取与参数类型推断）
+- [x] `dataset-hub/database.ts`：mock 库表（复用 seeds 行数据，snake_case 表名 + 列 schema）
+- [x] `dataset-hub/hub.ts` + `defaults.ts`：默认连接「演示业务库」+ 预置 SQL 数据集
+- [x] 改造 binding.ts / template.ts / params.ts / index.vue 数据流（filter-bar 参数来源改为实际绑定的数据集）
+- [x] 重写 dataset-hub 测试（解析器 + 执行 + 参数提取），更新 runtime/render 测试

@@ -7,10 +7,13 @@ import {
   formatBindingPlaceholder,
   formatCellAddress,
   parseCellAddress,
-  resolveLeftParent
+  resolveLeftParent,
+  setBindingCatalog
 } from '../binding'
 import { ORDERS_DATASET } from '../dataset-hub'
 import type { ReportBinding } from '../types'
+
+setBindingCatalog([ORDERS_DATASET])
 
 function bindingMap(cells: Array<{ addr: CellAddress; binding: ReportBinding }>) {
   const map = new Map<string, ReportBinding>()

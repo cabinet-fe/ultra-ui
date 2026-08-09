@@ -1,63 +1,45 @@
 import type { DatasetRecords } from '../types'
+import { createMockDatabase } from './database'
 import {
-  DATASET_CATALOG,
-  DEFAULT_SELECTED_DATASET_IDS,
   CUSTOMERS_DATASET,
+  DATASET_CATALOG,
+  DEFAULT_CONNECTION,
+  DEFAULT_DATASETS,
+  DEFAULT_SELECTED_DATASET_IDS,
   EMPLOYEES_DATASET,
   INVENTORY_ALERTS_DATASET,
   ORDERS_DATASET,
   PAYMENTS_DATASET,
   PRODUCTS_DATASET,
   SALES_MATRIX_DATASET
-} from './catalog'
-import { createDefaultParamValues, generateRecords } from './generate'
-import { QUERY_PARAMS } from './params'
-import type { DatasetSeeds } from './seeds'
+} from './defaults'
+import { createDataHub, createMockDataHub, QUERY_PARAMS, type CreateDataHubOptions } from './hub'
 import { DEFAULT_SEEDS } from './seeds'
-import type { DatasetQueryParam, DatasetQueryParamValues, MockDataHub } from './types'
+import { createDefaultParamValues, executeSql, parseSql, extractParamIds } from './sql'
 
-export interface CreateMockDataHubOptions {
-  seeds?: DatasetSeeds
-  queryParams?: DatasetQueryParam[]
-  initialParamValues?: DatasetQueryParamValues
-}
+export interface CreateMockDataHubOptions extends CreateDataHubOptions {}
 
-/** 创建 Mock Data Hub 实例 */
-export function createMockDataHub(options: CreateMockDataHubOptions = {}): MockDataHub {
-  const seeds = options.seeds ?? DEFAULT_SEEDS
-  const queryParams = options.queryParams ?? QUERY_PARAMS
-  let paramValues: DatasetQueryParamValues = {
-    ...createDefaultParamValues(queryParams),
-    ...options.initialParamValues
-  }
-
-  return {
-    catalog: DATASET_CATALOG,
-    queryParams,
-    getParamValues() {
-      return { ...paramValues }
-    },
-    setParamValues(patch) {
-      paramValues = { ...paramValues, ...patch }
-    },
-    resetParamValues() {
-      paramValues = createDefaultParamValues(queryParams)
-    },
-    getRecords() {
-      return generateRecords(paramValues, seeds)
-    }
-  }
-}
+const defaultHub = createDataHub()
 
 /** 默认参数下的全量 Records（兼容旧 MOCK_DATA_RECORDS） */
-export const DEFAULT_DATASET_RECORDS: DatasetRecords = generateRecords(
-  createDefaultParamValues(QUERY_PARAMS)
-)
+export const DEFAULT_DATASET_RECORDS: DatasetRecords = defaultHub.getRecords()
+
+/** @deprecated 使用 executeSql + createDataHub */
+export function generateRecords(
+  params: Record<string, unknown>,
+  _seeds = DEFAULT_SEEDS
+): DatasetRecords {
+  const hub = createDataHub()
+  hub.setParamValues(params)
+  return hub.getRecords()
+}
 
 export {
-  DATASET_CATALOG,
-  DEFAULT_SELECTED_DATASET_IDS,
   CUSTOMERS_DATASET,
+  DATASET_CATALOG,
+  DEFAULT_CONNECTION,
+  DEFAULT_DATASETS,
+  DEFAULT_SELECTED_DATASET_IDS,
   EMPLOYEES_DATASET,
   INVENTORY_ALERTS_DATASET,
   ORDERS_DATASET,
@@ -65,14 +47,28 @@ export {
   PRODUCTS_DATASET,
   QUERY_PARAMS,
   SALES_MATRIX_DATASET,
+  createDataHub,
   createDefaultParamValues,
-  generateRecords
+  createMockDataHub,
+  createMockDatabase,
+  executeSql,
+  extractParamIds,
+  parseSql
 }
 
 export type {
+  DataConnection,
+  DataHub,
+  DatasetDef,
   DatasetQueryParam,
   DatasetQueryParamOption,
   DatasetQueryParamType,
   DatasetQueryParamValues,
-  MockDataHub
+  MockDataHub,
+  ParamValues,
+  QueryParamDef,
+  QueryParamOption,
+  QueryParamType,
+  TableColumn,
+  TableSchema
 } from './types'
