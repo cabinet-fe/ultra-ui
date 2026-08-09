@@ -1,14 +1,14 @@
 <template>
   <section v-if="dataset" class="dataset-editor">
     <div class="dataset-editor__head">
-      <label class="dataset-editor__rename">
+      <div class="dataset-editor__rename">
         <span class="dataset-editor__label">数据集名称</span>
         <u-input
           :model-value="dataset.label"
           size="small"
           @update:model-value="(v) => patchDataset({ label: String(v ?? '') })"
         />
-      </label>
+      </div>
       <u-pop-confirm title="确定删除该数据集？" @confirm="emit('remove')">
         <template #reference>
           <u-button size="small" type="danger" plain>删除数据集</u-button>

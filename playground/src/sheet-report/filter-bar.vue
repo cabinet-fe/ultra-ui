@@ -3,29 +3,19 @@
     <span class="report-filter-bar__label">筛选参数</span>
     <div class="report-filter-bar__fields">
       <div v-for="param in queryParams" :key="param.id" class="report-filter-bar__field">
-        <label class="report-filter-bar__field-label">{{ param.label }}</label>
-        <u-input
+        <span class="report-filter-bar__field-label">{{ param.label }}</span>
+        <u-date-picker
           v-if="param.type === 'date'"
           :model-value="String(values[param.id] ?? '')"
           size="small"
-          type="date"
           @update:model-value="(v) => emitChange(param.id, v)"
         />
-        <template v-else-if="param.type === 'date-range'">
-          <u-input
-            :model-value="dateRangeFrom(param)"
-            size="small"
-            type="date"
-            @update:model-value="(v) => emitDateRangeChange(param.id, v, dateRangeTo(param))"
-          />
-          <span class="report-filter-bar__range-sep">—</span>
-          <u-input
-            :model-value="dateRangeTo(param)"
-            size="small"
-            type="date"
-            @update:model-value="(v) => emitDateRangeChange(param.id, dateRangeFrom(param), v)"
-          />
-        </template>
+        <u-date-range-picker
+          v-else-if="param.type === 'date-range'"
+          :model-value="dateRangeModel(param.id)"
+          size="small"
+          @update:model-value="(v) => emitDateRangeChange(param.id, v)"
+        />
         <u-select
           v-else-if="param.type === 'select'"
           :model-value="String(values[param.id] ?? '')"
@@ -33,12 +23,11 @@
           :options="param.options ?? []"
           @update:model-value="(v) => emitChange(param.id, v)"
         />
-        <u-input
+        <u-number-input
           v-else-if="param.type === 'number'"
-          :model-value="String(values[param.id] ?? '')"
+          :model-value="numberModel(param.id)"
           size="small"
-          type="number"
-          @update:model-value="(v) => emitChange(param.id, Number(v))"
+          @update:model-value="(v) => emitChange(param.id, v)"
         />
         <u-input
           v-else
@@ -53,6 +42,11 @@
 
 <script lang="ts" setup>
 import type { DatasetQueryParam, DatasetQueryParamValues, QueryParamDef } from './dataset-hub'
+import {
+  parseDateRangeValue,
+  patchParamValues,
+  resolveNumberParamValue
+} from './filter-bar-helpers'
 
 defineOptions({ name: 'SheetReportFilterBar' })
 
@@ -63,32 +57,20 @@ const props = defineProps<{
 
 const emit = defineEmits<{ 'update:values': [values: DatasetQueryParamValues] }>()
 
-function dateRangeFrom(param: QueryParamDef): string {
-  const raw = props.values[param.id]
-  if (Array.isArray(raw)) return String(raw[0] ?? '')
-  if (raw && typeof raw === 'object') {
-    const obj = raw as Record<string, unknown>
-    return String(obj.from ?? obj.start ?? '')
-  }
-  return ''
+function dateRangeModel(paramId: string): [string, string] {
+  return parseDateRangeValue(props.values[paramId])
 }
 
-function dateRangeTo(param: QueryParamDef): string {
-  const raw = props.values[param.id]
-  if (Array.isArray(raw)) return String(raw[1] ?? '')
-  if (raw && typeof raw === 'object') {
-    const obj = raw as Record<string, unknown>
-    return String(obj.to ?? obj.end ?? '')
-  }
-  return ''
+function numberModel(paramId: string): number | undefined {
+  return resolveNumberParamValue(props.values[paramId])
 }
 
 function emitChange(id: string, value: unknown): void {
-  emit('update:values', { ...props.values, [id]: value })
+  emit('update:values', patchParamValues(props.values, id, value))
 }
 
-function emitDateRangeChange(id: string, from: string, to: string): void {
-  emit('update:values', { ...props.values, [id]: [from, to] })
+function emitDateRangeChange(id: string, value?: [string, string]): void {
+  emit('update:values', patchParamValues(props.values, id, value ?? ['', '']))
 }
 </script>
 
@@ -128,11 +110,6 @@ function emitDateRangeChange(id: string, from: string, to: string): void {
 
 .report-filter-bar__field-label {
   flex-shrink: 0;
-  font-size: 12px;
-  color: var(--u-text-color-secondary, #64748b);
-}
-
-.report-filter-bar__range-sep {
   font-size: 12px;
   color: var(--u-text-color-secondary, #64748b);
 }

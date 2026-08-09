@@ -1,4 +1,4 @@
-Status: pending
+Status: resolved
 
 # 11 — desktop 组件全量复用整改（filter-bar 等）
 
@@ -12,6 +12,6 @@ sheet-report 模块内禁用原生表单元素，全量改用 `@veltra/desktop` 
 
 **Blocked by:** 07 — 数据连接与 SQL 数据集模型（参数类型体系）, 08 — 数据源中心 drawer 重构（drawer 内原生元素）.
 
-- [ ] filter-bar 控件按新参数类型体系映射（含 date-range → UDateRangePicker）
-- [ ] 全模块原生表单元素清零（约定：禁用原生表单元素）
-- [ ] 更新 filter-bar 相关测试
+- [x] filter-bar 控件按新参数类型体系映射（含 date-range → UDateRangePicker）
+- [x] 全模块原生表单元素清零（约定：禁用原生表单元素）
+- [x] 更新 filter-bar 相关测试

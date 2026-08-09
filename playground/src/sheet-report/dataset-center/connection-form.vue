@@ -2,34 +2,34 @@
   <section class="connection-form">
     <h4 class="connection-form__title">{{ isNew ? '新建连接' : '编辑连接' }}</h4>
     <div class="connection-form__grid">
-      <label class="connection-form__field">
+      <div class="connection-form__field">
         <span class="connection-form__label">显示名</span>
         <u-input v-model="draft.label" size="small" placeholder="连接名称" />
-      </label>
-      <label class="connection-form__field">
+      </div>
+      <div class="connection-form__field">
         <span class="connection-form__label">类型</span>
         <u-select v-model="draft.type" size="small" :options="typeOptions" />
-      </label>
-      <label class="connection-form__field">
+      </div>
+      <div class="connection-form__field">
         <span class="connection-form__label">主机</span>
         <u-input v-model="draft.host" size="small" placeholder="127.0.0.1" />
-      </label>
-      <label class="connection-form__field">
+      </div>
+      <div class="connection-form__field">
         <span class="connection-form__label">端口</span>
         <u-input v-model="portText" size="small" type="number" placeholder="3306" />
-      </label>
-      <label class="connection-form__field">
+      </div>
+      <div class="connection-form__field">
         <span class="connection-form__label">数据库</span>
         <u-input v-model="draft.database" size="small" placeholder="demo_business" />
-      </label>
-      <label class="connection-form__field">
+      </div>
+      <div class="connection-form__field">
         <span class="connection-form__label">用户名</span>
         <u-input v-model="draft.username" size="small" />
-      </label>
-      <label class="connection-form__field">
+      </div>
+      <div class="connection-form__field">
         <span class="connection-form__label">密码</span>
         <u-input v-model="draft.password" size="small" type="password" show-password />
-      </label>
+      </div>
     </div>
 
     <div v-if="testMessage" class="connection-form__test" :class="{ 'is-ok': testOk }">

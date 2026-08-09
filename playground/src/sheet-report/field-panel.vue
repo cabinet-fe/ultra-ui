@@ -17,8 +17,9 @@
     <p class="field-panel__hint">点击或拖拽字段到网格；中文名为主，英文键为绑定标识。</p>
 
     <section v-for="dataset in visibleDatasets" :key="dataset.id" class="field-panel__dataset">
-      <button
-        type="button"
+      <u-button
+        text
+        size="small"
         class="field-panel__dataset-toggle"
         :aria-expanded="isDatasetExpanded(dataset.id)"
         @click="toggleDataset(dataset.id)"
@@ -32,18 +33,21 @@
         </span>
         <span class="field-panel__dataset-name">{{ dataset.label }}</span>
         <span class="field-panel__dataset-count">{{ dataset.fields.length }}</span>
-      </button>
+      </u-button>
 
       <div v-show="isDatasetExpanded(dataset.id)" class="field-panel__fields">
-        <button
+        <div
           v-for="field in dataset.fields"
           :key="field.name"
-          type="button"
+          role="button"
+          tabindex="0"
           class="field-panel__pill"
           :class="{ 'field-panel__pill--bound': isBound(dataset.id, field.name) }"
           draggable="true"
           :title="`${field.label}（${field.name}）`"
           @click="emit('bind', dataset.id, field.name)"
+          @keydown.enter.prevent="emit('bind', dataset.id, field.name)"
+          @keydown.space.prevent="emit('bind', dataset.id, field.name)"
           @dragstart="onDragStart($event, dataset.id, field.name)"
         >
           <span class="field-panel__pill-icon" :data-type="field.type">{{
@@ -56,7 +60,7 @@
             title="已绑定"
             >✓</span
           >
-        </button>
+        </div>
       </div>
     </section>
 
@@ -180,10 +184,9 @@ function onDragStart(event: DragEvent, datasetId: string, fieldName: string): vo
   width: 100%;
   margin: 0 0 8px;
   padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  text-align: left;
+  justify-content: flex-start;
+  height: auto;
+  min-height: 0;
   color: inherit;
 }
 
@@ -243,6 +246,7 @@ function onDragStart(event: DragEvent, datasetId: string, fieldName: string): vo
   transition:
     background 0.15s,
     border-color 0.15s;
+  outline: none;
 
   &:hover {
     background: var(--u-fill-color-light, #f8fafc);
@@ -251,6 +255,13 @@ function onDragStart(event: DragEvent, datasetId: string, fieldName: string): vo
 
   &:active {
     cursor: grabbing;
+  }
+
+  &:focus-visible {
+    box-shadow: var(
+      --u-focus-ring,
+      0 0 0 2px color-mix(in srgb, var(--u-color-primary) 35%, transparent)
+    );
   }
 }
 
