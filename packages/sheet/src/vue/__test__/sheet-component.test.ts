@@ -258,6 +258,43 @@ describe('USheet 组件', () => {
     expect(gridAfter).not.toBe(gridBefore)
   })
 
+  it('resolveCellStyle prop 传入 SheetGrid 视口渲染', async () => {
+    const workbook = createWorkbook()
+    const sheet = workbook.activeSheet
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    mount(
+      () => ({
+        workbook,
+        rows: 10,
+        cols: 6,
+        resolveCellStyle: (
+          addr: { row: number; col: number },
+          baseStyle?: { fill?: { color: string } }
+        ) => {
+          if (addr.row === 1 && addr.col === 1) {
+            return { ...baseStyle, fill: { color: '#FFE0E0' } }
+          }
+          return baseStyle
+        }
+      }),
+      exposed
+    )
+    await nextTick()
+
+    const addr = { row: 1, col: 1 }
+    sheet.setCellStyle({ start: addr, end: addr }, { fill: { color: '#CCCCCC' } })
+    await nextTick()
+
+    const table = exposed.value?.getGrid()?.getTable()
+    expect(table).toBeDefined()
+    const column = table!.getBodyColumnDefine(2, 2) as {
+      style?: (arg: { row: number; col: number; table: unknown }) => Record<string, unknown>
+    }
+    const rendered = column.style!({ row: 2, col: 2, table })
+    expect(rendered.bgColor).toBe('#FFE0E0')
+    expect(sheet.getCellStyle(addr)?.fill?.color).toBe('#CCCCCC')
+  })
+
   it('workbook prop 变更：tabs 与 grid 切到新工作簿', async () => {
     const workbook1 = createWorkbook()
     const workbook2 = new Workbook()

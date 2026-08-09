@@ -1,6 +1,10 @@
 import type { Sheet } from '@veltra/sheet-core/core/sheet'
 import type { Workbook } from '@veltra/sheet-core/core/workbook'
-import type { ResolveDisplayValue, SheetGrid } from '@veltra/sheet-core/grid/sheet-grid'
+import type {
+  ResolveCellStyleHook,
+  ResolveDisplayValue,
+  SheetGrid
+} from '@veltra/sheet-core/grid/sheet-grid'
 import type { DeconstructValue } from '@veltra/utils'
 import type { ComputedRef } from 'vue'
 
@@ -18,6 +22,10 @@ export interface SheetProps {
    * 显示值覆盖（设计态 Binding Placeholder 等）：覆盖 VTable record，不写 CellData.v
    */
   resolveDisplayValue?: ResolveDisplayValue
+  /**
+   * 动态单元格样式：视口渲染时叠加条件样式补丁，不写 CellData.s / StylePool
+   */
+  resolveCellStyle?: ResolveCellStyleHook
   /** 是否显示工具栏，默认 true */
   showToolbar?: boolean
   /** 是否显示顶部公式栏（名称框 + fx 输入栏），默认 true */

@@ -885,4 +885,72 @@ describe('多实例编辑路由（编辑器 hook 按发起编辑的 table 反查
       grid.release()
     }
   })
+
+  it('resolveCellStyle 视口渲染叠加动态样式；不写 CellData.s', () => {
+    const container = createContainer()
+    const sheet = new Sheet()
+    const hookCalls: Array<{
+      addr: { row: number; col: number }
+      base?: { fill?: { color: string } }
+    }> = []
+    const grid = new SheetGrid({
+      container,
+      sheet,
+      rows: 10,
+      cols: 6,
+      resolveCellStyle: (addr, baseStyle) => {
+        hookCalls.push({ addr, base: baseStyle })
+        const value = sheet.getDisplayValue(addr)
+        if (typeof value === 'number' && value > 100) {
+          return { ...baseStyle, fill: { color: '#FFCCCC' } }
+        }
+        return baseStyle
+      }
+    })
+    try {
+      const table = grid.getTable()
+      const hot = { row: 1, col: 1 }
+      const cold = { row: 2, col: 1 }
+
+      sheet.setCellValue(hot, 200)
+      sheet.setCellValue(cold, 50)
+      sheet.setCellStyle({ start: hot, end: hot }, { fill: { color: '#EEEEEE' } })
+      grid.flushPending()
+
+      const styleFn = columnStyleFn(table)
+      hookCalls.length = 0
+      expect(styleFn({ row: 2, col: 2, table }).bgColor).toBe('#FFCCCC')
+      expect(styleFn({ row: 3, col: 2, table }).bgColor).toBeUndefined()
+
+      expect(sheet.getCellStyle(hot)?.fill?.color).toBe('#EEEEEE')
+      expect(sheet.getCellData(hot)?.s).toBeDefined()
+
+      const hotCall = hookCalls.find((c) => c.addr.row === hot.row && c.addr.col === hot.col)
+      expect(hotCall?.base).toMatchObject({ fill: { color: '#EEEEEE' } })
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('resolveCellStyle 返回 undefined 时回落 baseStyle', () => {
+    const container = createContainer()
+    const sheet = new Sheet()
+    const grid = new SheetGrid({
+      container,
+      sheet,
+      rows: 10,
+      cols: 6,
+      resolveCellStyle: () => undefined
+    })
+    try {
+      const table = grid.getTable()
+      const addr = { row: 0, col: 0 }
+      sheet.setCellStyle({ start: addr, end: addr }, { fill: { color: '#AABBCC' } })
+      grid.flushPending()
+
+      expect(columnStyleFn(table)({ row: 1, col: 1, table }).bgColor).toBe('#AABBCC')
+    } finally {
+      grid.release()
+    }
+  })
 })

@@ -1,4 +1,4 @@
-Status: ready-for-agent
+Status: completed
 
 # 01 — `@veltra/sheet` 动态单元格样式 Hook (`resolveCellStyle`)
 
@@ -7,7 +7,7 @@ Status: ready-for-agent
 
 **Blocked by: `00-sheet-grid-refactor.md`
 
-- [ ] `SheetGrid` 和 `USheet` 支持传入 `resolveCellStyle` 属性/回调
-- [ ] 视口单元格渲染时，`resolveCellStyle` 能接收到单元格地址 `(row, col)` 与从 `StylePool` 获取的 `baseStyle`，并正确返回合并后的 `CellStyle`
-- [ ] 未指定 `resolveCellStyle` 或 Hook 返回 `undefined` 时，原样应用 `baseStyle`，无性能衰减
-- [ ] 编写自动化单元测试，验证 `resolveCellStyle` 的触发时机与样式叠加正确性
+- [x] `SheetGrid` 和 `USheet` 支持传入 `resolveCellStyle` 属性/回调
+- [x] 视口单元格渲染时，`resolveCellStyle` 能接收到单元格地址 `(row, col)` 与从 `StylePool` 获取的 `baseStyle`，并正确返回合并后的 `CellStyle`
+- [x] 未指定 `resolveCellStyle` 或 Hook 返回 `undefined` 时，原样应用 `baseStyle`，无性能衰减
+- [x] 编写自动化单元测试，验证 `resolveCellStyle` 的触发时机与样式叠加正确性

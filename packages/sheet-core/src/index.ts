@@ -196,5 +196,6 @@ export {
   type SheetGridOptions,
   type SheetGridContextMenuKind,
   type SheetGridContextMenuInfo,
-  type ResolveDisplayValue
+  type ResolveDisplayValue,
+  type ResolveCellStyleHook
 } from './grid/sheet-grid'
