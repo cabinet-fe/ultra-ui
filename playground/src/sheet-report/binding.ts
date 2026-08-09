@@ -1,14 +1,29 @@
 import type { CellAddress } from '@veltra/sheet-core'
 
 import { MOCK_DATASETS } from './mock-dataset'
-import type { MockDataset, ReportAggregate, ReportBinding } from './types'
+import type { MockDataset, ReportAggregate, ReportBinding, ReportRole } from './types'
 
 export const REPORT_META_NAMESPACE = 'report'
 
 const AGGREGATE_PLACEHOLDER_TAG: Record<ReportAggregate, string> = {
   select: '明细',
   group: '分组',
-  sum: '求和'
+  sum: '求和',
+  avg: '平均',
+  count: '计数'
+}
+
+/** 从旧版 aggregate/expand 推导语义角色（快照向下兼容） */
+export function resolveReportRole(binding: ReportBinding): ReportRole {
+  if (binding.role) return binding.role
+  if (binding.aggregate === 'group') return 'group'
+  if (
+    (binding.aggregate === 'sum' || binding.aggregate === 'avg' || binding.aggregate === 'count') &&
+    binding.expand === 'none'
+  ) {
+    return 'subtotal'
+  }
+  return 'detail'
 }
 
 /** 默认列表 + 纵向扩展 + 默认左父格 */
@@ -16,9 +31,12 @@ export function createReportBinding(dataset: MockDataset, fieldName: string): Re
   return {
     dataset: dataset.id,
     field: fieldName,
+    role: 'detail',
     aggregate: 'select',
     expand: 'down',
-    leftParent: 'default'
+    leftParent: 'default',
+    sort: 'none',
+    conditionalRules: []
   }
 }
 
@@ -93,7 +111,7 @@ export function formatBindingPlaceholder(
   return `${tag} · ${resolveFieldLabel(binding.dataset, binding.field, resolveLabel)}`
 }
 
-/** sum 聚合默认不扩展 */
+/** sum / avg / count 聚合默认不扩展 */
 export function aggregateDefaultExpand(aggregate: ReportAggregate): ReportBinding['expand'] {
-  return aggregate === 'sum' ? 'none' : 'down'
+  return aggregate === 'sum' || aggregate === 'avg' || aggregate === 'count' ? 'none' : 'down'
 }

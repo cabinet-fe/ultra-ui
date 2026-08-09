@@ -6,8 +6,10 @@
     "skipLibCheck": true,
     "noImplicitAny": false,
     "skipDefaultLibCheck": true,
-    "customConditions": ["veltra-dev"]
+    "customConditions": ["veltra-dev"],
+    "paths": { "@veltra/sheet-core/*": ["../packages/sheet-core/src/*"] }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "env.d.ts", "*.d.ts", "*.ts", "*.vue"],
-  "exclude": ["node_modules", "vite.config.ts"]
+  "exclude": ["node_modules", "vite.config.ts"],
+  "references": [{ "path": "../packages/sheet-core/tsconfig.json" }]
 }

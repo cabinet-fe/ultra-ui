@@ -26,9 +26,12 @@ describe('sheet-report binding', () => {
     expect(binding).toEqual({
       dataset: 'orders',
       field: 'amount',
+      role: 'detail',
       aggregate: 'select',
       expand: 'down',
-      leftParent: 'default'
+      leftParent: 'default',
+      sort: 'none',
+      conditionalRules: []
     })
   })
 

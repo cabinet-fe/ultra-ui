@@ -1,4 +1,4 @@
-Status: ready-for-agent
+Status: completed
 
 # 02 — 报表绑定 Schema 扩展与条件样式评估引擎
 
@@ -7,7 +7,7 @@ Status: ready-for-agent
 
 **Blocked by:** None — can start immediately.
 
-- [ ] `ReportBinding` 类型包含 `role` (`group` | `detail` | `subtotal` | `grandTotal` | `matrix`)、`aggregate`、`sort` 以及 `conditionalRules` 数组结构
-- [ ] 定义 `ConditionalRule` 结构（比较运算符如 `gt`/`eq`/`between` 等、对比值、样式 Patch 增量）
-- [ ] 实现 `evaluateCondition` 纯函数评估器，支持各种运算符求值与样式增量合并
-- [ ] 编写条件样式引擎单测，覆盖数值匹配、范围比较、多规则优先级与样式合并逻辑
+- [x] `ReportBinding` 类型包含 `role` (`group` | `detail` | `subtotal` | `grandTotal` | `matrix`)、`aggregate`、`sort` 以及 `conditionalRules` 数组结构
+- [x] 定义 `ConditionalRule` 结构（比较运算符如 `gt`/`eq`/`between` 等、对比值、样式 Patch 增量）
+- [x] 实现 `evaluateCondition` 纯函数评估器，支持各种运算符求值与样式增量合并
+- [x] 编写条件样式引擎单测，覆盖数值匹配、范围比较、多规则优先级与样式合并逻辑
