@@ -1,4 +1,4 @@
-Status: ready-for-agent
+Status: completed
 
 # 05 — 智能画布交互 Overlay (SVG 拓扑关联弧线与悬浮 Action Pill)
 
@@ -7,7 +7,7 @@ Status: ready-for-agent
 
 **Blocked by:** 02 — 报表绑定 Schema 扩展与条件样式评估引擎.
 
-- [ ] 实现 SVG 画布 Overlay，根据选中的单元格绑定信息实时计算坐标并绘制依赖弧线
-- [ ] 实现悬浮 Action Pill 快捷胶囊组件，随着选区位置滑动定位
-- [ ] Action Pill 包含就地快速操作（切换 Role 角色、修改 Aggregate 聚合方式、添加条件格式）
-- [ ] 配合右侧 Inspector 检查器卡片，同步响应单元格绑定的微调与更新
+- [x] 实现 SVG 画布 Overlay，根据选中的单元格绑定信息实时计算坐标并绘制依赖弧线
+- [x] 实现悬浮 Action Pill 快捷胶囊组件，随着选区位置滑动定位
+- [x] Action Pill 包含就地快速操作（切换 Role 角色、修改 Aggregate 聚合方式、添加条件格式）
+- [x] 配合右侧 Inspector 检查器卡片，同步响应单元格绑定的微调与更新

@@ -6,7 +6,7 @@
           报表模板设计 · {{ isPreview ? '预览模式' : '设计模式' }}
         </h2>
         <p class="sheet-report-demo__hint">
-          左侧点击或拖拽字段绑定到选中格；选中已绑定格可就地编辑聚合/扩展/左父格。点
+          左侧点击或拖拽字段绑定到选中格；选中已绑定格可通过悬浮胶囊或右侧检查器编辑角色与聚合。点
           <strong>预览模式</strong> 按 mock 数据展开渲染结果。点「数据源」管理模拟数据库与查询参数。
         </p>
       </div>
@@ -80,19 +80,45 @@
           :resolve-display-value="resolveDisplayValue"
         />
 
-        <binding-editor
+        <topology-overlay
           v-if="!isPreview"
           :cell="activeCell"
           :binding="activeBinding ?? null"
-          :resolved-left-parent-label="resolvedLeftParentLabel"
+          :entries="topologyEntries"
           :host-el="gridHostEl"
           :get-grid="getDesignGrid"
-          :resolve-field-label="resolveReportFieldLabel"
+          :get-binding-at="getBindingAt"
+        />
+
+        <action-pill
+          v-if="!isPreview"
+          :cell="activeCell"
+          :binding="activeBinding ?? null"
+          :host-el="gridHostEl"
+          :get-grid="getDesignGrid"
           @patch="patchActiveBinding"
-          @remove="removeActiveBinding"
+          @open-rules="rulesDialogVisible = true"
         />
       </div>
+
+      <inspector-panel
+        v-if="!isPreview"
+        class="sheet-report-demo__inspector"
+        :cell="activeCell"
+        :binding="activeBinding ?? null"
+        :resolved-left-parent-label="resolvedLeftParentLabel"
+        :resolve-field-label="resolveReportFieldLabel"
+        @patch="patchActiveBinding"
+        @remove="removeActiveBinding"
+        @open-rules="rulesDialogVisible = true"
+      />
     </div>
+
+    <conditional-rules-dialog
+      v-model="rulesDialogVisible"
+      :rules="activeBinding?.conditionalRules ?? []"
+      @save="saveConditionalRules"
+    />
   </div>
 </template>
 
@@ -111,9 +137,13 @@ import {
   formatCellAddress,
   resolveLeftParent
 } from './binding'
-import BindingEditor from './binding-editor.vue'
 import DatasetDialog from './dataset-dialog.vue'
 import { DATASET_CATALOG, DEFAULT_SELECTED_DATASET_IDS, createMockDataHub } from './dataset-hub'
+import ActionPill from './designer/action-pill.vue'
+import ConditionalRulesDialog from './designer/conditional-rules-dialog.vue'
+import InspectorPanel from './designer/inspector-panel.vue'
+import type { TopologyBindingEntry } from './designer/topology'
+import TopologyOverlay from './designer/topology-overlay.vue'
 import FieldPanel from './field-panel.vue'
 import HelpDialog from './help-dialog.vue'
 import { renderReport } from './render'
@@ -123,7 +153,12 @@ import {
   readDemoColWidths,
   seedGroupDetailTemplate
 } from './template'
-import type { DatasetCatalogItem, ReportBinding, ReportDatasetConfig } from './types'
+import type {
+  ConditionalRule,
+  DatasetCatalogItem,
+  ReportBinding,
+  ReportDatasetConfig
+} from './types'
 
 defineOptions({ name: 'SheetReportDemo' })
 
@@ -176,6 +211,7 @@ function syncDatasetRowCounts(): void {
 const viewMode = ref<ViewMode>('design')
 const helpVisible = ref(false)
 const datasetVisible = ref(false)
+const rulesDialogVisible = ref(false)
 /** 本报表选用与字段 schema 配置（可改中文 label；不改 catalog 源） */
 const reportDatasets = ref<ReportDatasetConfig[]>(buildReportDatasets())
 
@@ -252,6 +288,16 @@ const resolvedLeftParentLabel = computed(() => {
   if (!binding || !cell) return '—'
   const resolved = resolveLeftParent(binding, cell, getBindingAt)
   return resolved ? formatCellAddress(resolved) : '—'
+})
+
+const topologyEntries = computed((): TopologyBindingEntry[] => {
+  metaTick.value
+  const entries: TopologyBindingEntry[] = []
+  for (const [addr, namespace, payload] of activeSheet().entriesCellMeta()) {
+    if (namespace !== REPORT_META_NAMESPACE) continue
+    entries.push({ addr, binding: payload as ReportBinding })
+  }
+  return entries
 })
 
 let offSelection: (() => void) | undefined
@@ -374,6 +420,10 @@ function removeActiveBinding(): void {
   refreshGrid()
   bumpMeta()
   bumpSelection()
+}
+
+function saveConditionalRules(rules: ConditionalRule[]): void {
+  patchActiveBinding({ conditionalRules: rules })
 }
 
 function bindField(datasetId: string, fieldName: string, addr?: CellAddress): void {
@@ -565,5 +615,9 @@ onBeforeUnmount(() => {
   flex: 1;
   min-height: 0;
   min-width: 0;
+}
+
+.sheet-report-demo__inspector {
+  align-self: stretch;
 }
 </style>
