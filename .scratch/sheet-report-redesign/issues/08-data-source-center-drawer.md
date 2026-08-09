@@ -1,4 +1,4 @@
-Status: pending
+Status: done
 
 # 08 — 数据源中心重构（drawer 形态）
 
@@ -13,8 +13,8 @@ Status: pending
 
 **Blocked by:** 07 — 数据连接与 SQL 数据集模型（报表的数据基座）.
 
-- [ ] 新建 `dataset-center.vue`（drawer）替代 `dataset-dialog.vue`
-- [ ] 连接管理：列表/表单/删除/测试连接动效
-- [ ] 数据集编辑：SQL 编辑器 + 参数表 + 字段 schema / 数据预览 tabs
-- [ ] 设计态顶栏「筛选参数」汇总 drawer（第二入口）
-- [ ] 原生 `<table>`/`<button>` 全部替换为 desktop 组件
+- [x] 新建 `dataset-center.vue`（drawer）替代 `dataset-dialog.vue`
+- [x] 连接管理：列表/表单/删除/测试连接动效
+- [x] 数据集编辑：SQL 编辑器 + 参数表 + 字段 schema / 数据预览 tabs
+- [x] 设计态顶栏「筛选参数」汇总 drawer（第二入口）
+- [x] 原生 `<table>`/`<button>` 全部替换为 desktop 组件

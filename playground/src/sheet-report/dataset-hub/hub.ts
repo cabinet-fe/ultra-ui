@@ -59,7 +59,7 @@ export function createDataHub(options: CreateDataHubOptions = {}): DataHub {
   }
 
   function describeDataset(dataset: DatasetDef): DatasetCatalogItem | undefined {
-    const described = describeSql(dataset.sql, db, dataset.paramOverrides)
+    const described = describeSql(dataset.sql, db, dataset.paramOverrides, dataset.fieldOverrides)
     if (described.error) return undefined
     return { id: dataset.id, label: dataset.label, fields: described.fields }
   }
@@ -130,8 +130,12 @@ export function createDataHub(options: CreateDataHubOptions = {}): DataHub {
       notify()
     },
 
-    describe(sql: string, paramOverrides?: DatasetDef['paramOverrides']): SqlDescribeResult {
-      return describeSql(sql, db, paramOverrides)
+    describe(
+      sql: string,
+      paramOverrides?: DatasetDef['paramOverrides'],
+      fieldOverrides?: DatasetDef['fieldOverrides']
+    ): SqlDescribeResult {
+      return describeSql(sql, db, paramOverrides, fieldOverrides)
     },
 
     query(datasetId: string, values?: ParamValues): Record<string, unknown>[] | SqlExecuteError {

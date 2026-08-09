@@ -61,6 +61,8 @@ export interface DatasetDef {
   sql: string
   /** 参数元数据覆盖（label / 类型 / 默认值 / 选项） */
   paramOverrides?: Record<string, Partial<Omit<QueryParamDef, 'id'>>>
+  /** 字段中文名覆盖（name → label） */
+  fieldOverrides?: Record<string, Partial<Pick<DatasetField, 'label'>>>
 }
 
 /** describe(sql) 结果 */
@@ -96,7 +98,11 @@ export interface DataHub {
   updateDataset(id: string, patch: Partial<DatasetDef>): void
   removeDataset(id: string): void
 
-  describe(sql: string, paramOverrides?: DatasetDef['paramOverrides']): SqlDescribeResult
+  describe(
+    sql: string,
+    paramOverrides?: DatasetDef['paramOverrides'],
+    fieldOverrides?: DatasetDef['fieldOverrides']
+  ): SqlDescribeResult
   query(datasetId: string, values?: ParamValues): Record<string, unknown>[] | SqlExecuteError
 
   getCatalog(): DatasetCatalogItem[]

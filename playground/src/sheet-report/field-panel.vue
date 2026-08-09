@@ -5,7 +5,7 @@
       当前选区：
       <u-tag size="small" type="primary">{{ selectionLabel }}</u-tag>
     </p>
-    <p class="field-panel__hint">仅展示本报表已选用的数据集；中文名为主，英文键为绑定标识。</p>
+    <p class="field-panel__hint">展示全部已配置数据集；中文名为主，英文键为绑定标识。</p>
 
     <section v-for="dataset in datasets" :key="dataset.id" class="field-panel__dataset">
       <h4 class="field-panel__dataset-name">{{ dataset.label }}</h4>
@@ -33,7 +33,7 @@
     </section>
 
     <p v-if="datasets.length === 0" class="field-panel__empty">
-      尚未选用数据集，请点「数据源」配置。
+      尚无可用数据集，请点「数据源」创建连接与 SQL 数据集。
     </p>
   </aside>
 </template>

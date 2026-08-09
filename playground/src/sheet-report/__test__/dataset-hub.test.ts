@@ -190,6 +190,16 @@ describe('dataset-hub', () => {
     )
   })
 
+  it('fieldOverrides 覆盖字段中文名', () => {
+    const hub = createDataHub()
+    const described = hub.describe('SELECT customer, amount FROM orders', undefined, {
+      customer: { label: '客户简称' }
+    })
+    expect(described.error).toBeUndefined()
+    const customer = described.fields.find((f) => f.name === 'customer')
+    expect(customer?.label).toBe('客户简称')
+  })
+
   it('连接 CRUD 与模拟测试连接', async () => {
     const hub = createDataHub()
     hub.addConnection({

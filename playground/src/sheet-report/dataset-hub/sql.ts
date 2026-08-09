@@ -608,7 +608,8 @@ function defaultValueForType(type: QueryParamType): unknown {
 export function describeSql(
   sql: string,
   db: MockDatabase,
-  overrides?: Record<string, Partial<Omit<QueryParamDef, 'id'>>>
+  overrides?: Record<string, Partial<Omit<QueryParamDef, 'id'>>>,
+  fieldOverrides?: Record<string, Partial<Pick<DatasetField, 'label'>>>
 ): { fields: DatasetField[]; params: QueryParamDef[]; error?: string } {
   const parsed = parseSql(sql)
   if ('error' in parsed) return { fields: [], params: [], error: parsed.error }
@@ -622,7 +623,9 @@ export function describeSql(
   for (const item of parsed.selectItems) {
     if (item.isStar) {
       for (const col of tableSchema.columns) {
-        fields.push(columnToField(col))
+        const field = columnToField(col)
+        const override = fieldOverrides?.[field.name]
+        fields.push(override?.label ? { ...field, label: override.label } : field)
       }
       continue
     }
@@ -630,11 +633,11 @@ export function describeSql(
     const sourceCol = tableSchema.columns.find(
       (c) => c.name === item.column || c.name === outputName
     )
-    if (sourceCol) {
-      fields.push({ name: outputName, label: sourceCol.label, type: sourceCol.type })
-    } else {
-      fields.push({ name: outputName, label: outputName, type: 'string' })
-    }
+    const base = sourceCol
+      ? { name: outputName, label: sourceCol.label, type: sourceCol.type }
+      : { name: outputName, label: outputName, type: 'string' as const }
+    const override = fieldOverrides?.[outputName]
+    fields.push(override?.label ? { ...base, label: override.label } : base)
   }
 
   return { fields, params: buildParamDefs(sql, overrides) }

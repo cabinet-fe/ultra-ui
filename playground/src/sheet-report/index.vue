@@ -12,6 +12,9 @@
       </div>
       <div class="sheet-report-demo__actions">
         <u-button size="small" plain @click="helpVisible = true">使用说明</u-button>
+        <u-button size="small" plain :disabled="isPreview" @click="paramsVisible = true">
+          筛选参数
+        </u-button>
         <u-button size="small" plain @click="datasetVisible = true">数据源</u-button>
         <div class="sheet-report-demo__mode-toggle" role="group" aria-label="视图模式">
           <u-button
@@ -75,15 +78,19 @@
     />
 
     <help-dialog v-model="helpVisible" />
-    <dataset-dialog
+    <dataset-center
       v-model="datasetVisible"
-      :records="datasetRecords"
-      :items="reportDatasets"
-      :query-params="dataHub.getQueryParams()"
+      :hub="dataHub"
+      :revision="hubRevision"
       :param-values="paramValues"
-      @update:items="reportDatasets = $event"
-      @update:param-values="onParamValuesChange"
-      @reset="resetReportDatasets"
+    />
+    <params-config-drawer
+      v-model="paramsVisible"
+      :hub="dataHub"
+      :revision="hubRevision"
+      :bound-dataset-ids="boundDatasetIds"
+      :values="paramValues"
+      @update:values="onParamValuesChange"
       @reset-params="resetParamValues"
     />
 
@@ -144,7 +151,7 @@
         :cell="activeCell"
         :binding="activeBinding ?? null"
         :resolved-left-parent-label="resolvedLeftParentLabel"
-        :resolve-field-label="resolveReportFieldLabel"
+        :resolve-field-label="resolveFieldLabelFromCatalog"
         @patch="patchActiveBinding"
         @remove="removeActiveBinding"
         @open-rules="rulesDialogVisible = true"
@@ -184,8 +191,8 @@ import {
   resolveLeftParent,
   setBindingCatalog
 } from './binding'
-import DatasetDialog from './dataset-dialog.vue'
-import { DEFAULT_SELECTED_DATASET_IDS, createDataHub } from './dataset-hub'
+import DatasetCenter from './dataset-center.vue'
+import { createDataHub } from './dataset-hub'
 import ActionPill from './designer/action-pill.vue'
 import ConditionalRulesDialog from './designer/conditional-rules-dialog.vue'
 import InspectorPanel from './designer/inspector-panel.vue'
@@ -196,6 +203,7 @@ import FieldPanel from './field-panel.vue'
 import FilterBar from './filter-bar.vue'
 import HelpDialog from './help-dialog.vue'
 import { resolveBoundDatasetParams } from './params'
+import ParamsConfigDrawer from './params-config-drawer.vue'
 import { REPORT_PRESETS, findReportPreset } from './presets'
 import { renderReport } from './render'
 import {
@@ -204,16 +212,7 @@ import {
   readDemoColWidths,
   type DemoColWidthEntry
 } from './template'
-import type {
-  ConditionalRule,
-  DatasetCatalogItem,
-  ReportBinding,
-  ReportDatasetConfig
-} from './types'
-
-defineOptions({ name: 'SheetReportDemo' })
-
-const EMPTY_CONDITIONAL_RULES: ConditionalRule[] = []
+import type { ConditionalRule, DatasetCatalogItem, ReportBinding } from './types'
 
 type ViewMode = 'design' | 'preview'
 
@@ -222,47 +221,27 @@ type DemoSnapshotPayload = { sheet: SheetSnapshot; colWidths: Array<[number, num
 
 /** Data Hub：数据连接 + SQL 数据集 + 查询执行 */
 const dataHub = createDataHub()
+const hubRevision = ref(0)
 setBindingCatalog(dataHub.getCatalog())
 const paramValues = ref(dataHub.getParamValues())
 const datasetRecords = computed(() => {
+  hubRevision.value
   paramValues.value
   return dataHub.getRecords()
 })
-const datasetCatalog = computed(() => dataHub.getCatalog())
-
-/** 从 catalog 生成报表数据集配置；默认选用订单 + 客户 */
-function buildReportDatasets(
-  selectedIds: readonly string[] = DEFAULT_SELECTED_DATASET_IDS
-): ReportDatasetConfig[] {
-  const defaults = new Set<string>(selectedIds)
-  const records = dataHub.getRecords()
-  return datasetCatalog.value.map((dataset) => ({
-    id: dataset.id,
-    label: dataset.label,
-    selected: defaults.has(dataset.id),
-    fields: dataset.fields.map((field) => ({ ...field })),
-    rowCount: records[dataset.id]?.length ?? 0
-  }))
-}
+const datasetCatalog = computed((): DatasetCatalogItem[] => {
+  hubRevision.value
+  return dataHub.getCatalog()
+})
 
 function onParamValuesChange(values: typeof paramValues.value): void {
   dataHub.setParamValues(values)
   paramValues.value = dataHub.getParamValues()
-  syncDatasetRowCounts()
 }
 
 function resetParamValues(): void {
   dataHub.resetParamValues()
   paramValues.value = dataHub.getParamValues()
-  syncDatasetRowCounts()
-}
-
-function syncDatasetRowCounts(): void {
-  const records = dataHub.getRecords()
-  reportDatasets.value = reportDatasets.value.map((item) => ({
-    ...item,
-    rowCount: records[item.id]?.length ?? 0
-  }))
 }
 
 const viewMode = ref<ViewMode>('design')
@@ -272,26 +251,15 @@ const previewLoading = ref(false)
 const exporting = ref(false)
 const helpVisible = ref(false)
 const datasetVisible = ref(false)
+const paramsVisible = ref(false)
 const rulesDialogVisible = ref(false)
-/** 本报表选用与字段 schema 配置（可改中文 label；不改 catalog 源） */
-const reportDatasets = ref<ReportDatasetConfig[]>(
-  buildReportDatasets(activePreset.value.datasetIds)
-)
 
-const panelDatasets = computed((): DatasetCatalogItem[] =>
-  reportDatasets.value
-    .filter((item) => item.selected)
-    .map((item) => ({ id: item.id, label: item.label, fields: item.fields }))
-)
+const panelDatasets = computed((): DatasetCatalogItem[] => datasetCatalog.value)
 
-function resetReportDatasets(): void {
-  reportDatasets.value = buildReportDatasets(activePreset.value.datasetIds)
-}
-
-/** 用报表字段配置解析中文 label（占位 / 编辑卡片） */
-function resolveReportFieldLabel(datasetId: string, fieldName: string): string {
-  const item = reportDatasets.value.find((dataset) => dataset.id === datasetId)
-  const field = item?.fields.find((f) => f.name === fieldName)
+function resolveFieldLabelFromCatalog(datasetId: string, fieldName: string): string {
+  hubRevision.value
+  const dataset = datasetCatalog.value.find((item) => item.id === datasetId)
+  const field = dataset?.fields.find((f) => f.name === fieldName)
   return field?.label ?? fieldName
 }
 
@@ -423,21 +391,11 @@ watch(datasetRecords, () => {
   void refreshPreview()
 })
 
-/** 字段中文名变更后刷新设计态占位 */
-watch(
-  reportDatasets,
-  () => {
-    refreshGrid()
-    bumpMeta()
-  },
-  { deep: true }
-)
-
 /** 设计态显示绑定占位符；预览态用渲染后的真实值 */
 const resolveDisplayValue: ResolveDisplayValue = (addr, base) => {
   if (isPreview.value) return base
   const binding = getBindingAt(addr)
-  if (binding) return formatBindingPlaceholder(binding, resolveReportFieldLabel)
+  if (binding) return formatBindingPlaceholder(binding)
   return base
 }
 
@@ -518,7 +476,6 @@ async function switchPreset(presetId: string): Promise<void> {
   if (!preset || activePresetId.value === presetId) return
 
   activePresetId.value = presetId
-  reportDatasets.value = buildReportDatasets(preset.datasetIds)
   const inPreview = isPreview.value
   loadPresetTemplate(preset)
   if (inPreview) {
@@ -574,7 +531,7 @@ function saveConditionalRules(rules: ConditionalRule[]): void {
 
 function bindField(datasetId: string, fieldName: string, addr?: CellAddress): void {
   if (isPreview.value) return
-  const dataset = reportDatasets.value.find((d) => d.id === datasetId && d.selected)
+  const dataset = panelDatasets.value.find((d) => d.id === datasetId)
   if (!dataset) return
 
   const target =
@@ -660,8 +617,12 @@ function resetTemplate(): void {
 
 onMounted(() => {
   offDataHub = dataHub.subscribe(() => {
+    hubRevision.value++
     setBindingCatalog(dataHub.getCatalog())
-    syncDatasetRowCounts()
+    if (!isPreview.value) {
+      refreshGrid()
+      bumpMeta()
+    }
   })
   seedTemplate()
   syncTopologyEntries()
