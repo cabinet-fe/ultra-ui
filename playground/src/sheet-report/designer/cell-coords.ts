@@ -42,6 +42,17 @@ export function resolveGridOverlayLayout(
   }
 }
 
+/** 将屏幕坐标换算为网格落点地址（用于字段拖拽 bind） */
+export function resolveGridDropAddress(
+  grid: SheetGrid,
+  gridEl: HTMLElement,
+  clientX: number,
+  clientY: number
+): CellAddress | null {
+  const rect = gridEl.getBoundingClientRect()
+  return grid.hitTestSheetAddr(clientX - rect.left, clientY - rect.top) ?? null
+}
+
 export function getCellOverlayRect(
   grid: SheetGrid,
   cell: CellAddress,

@@ -1,4 +1,4 @@
-Status: pending
+Status: completed
 
 # 10 — 字段面板胶囊化与拖拽落点高亮
 
@@ -13,7 +13,7 @@ Status: pending
 
 **Blocked by:** 07 — 数据连接与 SQL 数据集模型（字段面板数据源切换为 hub.listDatasets()）.
 
-- [ ] 胶囊字段项 + flex-wrap 布局
-- [ ] 数据集分组折叠 + 字段搜索
-- [ ] 网格 dragover 落点高亮 overlay
-- [ ] 已绑定标识保留（胶囊内 ✓）
+- [x] 胶囊字段项 + flex-wrap 布局
+- [x] 数据集分组折叠 + 字段搜索
+- [x] 网格 dragover 落点高亮 overlay
+- [x] 已绑定标识保留（胶囊内 ✓）

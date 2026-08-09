@@ -5,43 +5,73 @@
       当前选区：
       <u-tag size="small" type="primary">{{ selectionLabel }}</u-tag>
     </p>
-    <p class="field-panel__hint">展示全部已配置数据集；中文名为主，英文键为绑定标识。</p>
 
-    <section v-for="dataset in datasets" :key="dataset.id" class="field-panel__dataset">
-      <h4 class="field-panel__dataset-name">{{ dataset.label }}</h4>
-      <ul class="field-panel__fields">
-        <li
+    <u-input
+      v-model="searchQuery"
+      class="field-panel__search"
+      size="small"
+      clearable
+      placeholder="搜索字段…"
+    />
+
+    <p class="field-panel__hint">点击或拖拽字段到网格；中文名为主，英文键为绑定标识。</p>
+
+    <section v-for="dataset in visibleDatasets" :key="dataset.id" class="field-panel__dataset">
+      <button
+        type="button"
+        class="field-panel__dataset-toggle"
+        :aria-expanded="isDatasetExpanded(dataset.id)"
+        @click="toggleDataset(dataset.id)"
+      >
+        <span
+          class="field-panel__dataset-chevron"
+          :class="{ 'field-panel__dataset-chevron--expanded': isDatasetExpanded(dataset.id) }"
+          aria-hidden="true"
+        >
+          ▸
+        </span>
+        <span class="field-panel__dataset-name">{{ dataset.label }}</span>
+        <span class="field-panel__dataset-count">{{ dataset.fields.length }}</span>
+      </button>
+
+      <div v-show="isDatasetExpanded(dataset.id)" class="field-panel__fields">
+        <button
           v-for="field in dataset.fields"
           :key="field.name"
-          class="field-panel__field"
+          type="button"
+          class="field-panel__pill"
+          :class="{ 'field-panel__pill--bound': isBound(dataset.id, field.name) }"
           draggable="true"
+          :title="`${field.label}（${field.name}）`"
           @click="emit('bind', dataset.id, field.name)"
           @dragstart="onDragStart($event, dataset.id, field.name)"
         >
-          <div class="field-panel__field-main">
-            <span class="field-panel__field-label">{{ field.label }}</span>
-            <span v-if="isBound(dataset.id, field.name)" class="field-panel__bound" title="已绑定"
-              >✓</span
-            >
-          </div>
-          <div class="field-panel__field-sub">
-            <span class="field-panel__field-name">{{ field.name }}</span>
-            <u-tag size="small" :type="fieldTypeColor(field.type)">{{ field.type }}</u-tag>
-          </div>
-        </li>
-      </ul>
+          <span class="field-panel__pill-icon" :data-type="field.type">{{
+            fieldTypeGlyph(field.type)
+          }}</span>
+          <span class="field-panel__pill-label">{{ field.label }}</span>
+          <span
+            v-if="isBound(dataset.id, field.name)"
+            class="field-panel__pill-bound"
+            title="已绑定"
+            >✓</span
+          >
+        </button>
+      </div>
     </section>
 
     <p v-if="datasets.length === 0" class="field-panel__empty">
       尚无可用数据集，请点「数据源」创建连接与 SQL 数据集。
     </p>
+    <p v-else-if="visibleDatasets.length === 0" class="field-panel__empty">没有匹配的字段。</p>
   </aside>
 </template>
 
 <script lang="ts" setup>
-import type { ColorType } from '@veltra/utils'
+import { computed, ref } from 'vue'
 
-import type { DatasetCatalogItem, DatasetField } from './types'
+import { fieldTypeGlyph, filterDatasetsByQuery } from './designer/field-panel-helpers'
+import type { DatasetCatalogItem } from './types'
 
 defineOptions({ name: 'SheetReportFieldPanel' })
 
@@ -53,25 +83,46 @@ const props = defineProps<{
   boundKeys: Set<string>
 }>()
 
-const emit = defineEmits<{
-  bind: [datasetId: string, fieldName: string]
-  'drag-start': [event: DragEvent, datasetId: string, fieldName: string]
-}>()
+const emit = defineEmits<{ bind: [datasetId: string, fieldName: string] }>()
+
+const searchQuery = ref('')
+const collapsedDatasetIds = ref<Set<string>>(new Set())
+
+const visibleDatasets = computed(() => filterDatasetsByQuery(props.datasets, searchQuery.value))
+
+const effectiveExpanded = computed(() => {
+  const keyword = searchQuery.value.trim()
+  if (!keyword) return collapsedDatasetIds.value
+  return new Set<string>()
+})
+
+function isDatasetExpanded(datasetId: string): boolean {
+  return !effectiveExpanded.value.has(datasetId)
+}
 
 function isBound(datasetId: string, fieldName: string): boolean {
   return props.boundKeys.has(`${datasetId}:${fieldName}`)
 }
 
-function fieldTypeColor(type: DatasetField['type']): ColorType {
-  if (type === 'number') return 'success'
-  if (type === 'date') return 'warning'
-  return 'info'
+function toggleDataset(datasetId: string): void {
+  const next = new Set(collapsedDatasetIds.value)
+  if (next.has(datasetId)) next.delete(datasetId)
+  else next.add(datasetId)
+  collapsedDatasetIds.value = next
 }
 
 function onDragStart(event: DragEvent, datasetId: string, fieldName: string): void {
   event.dataTransfer?.setData('application/x-sheet-report-field', `${datasetId}:${fieldName}`)
-  event.dataTransfer!.effectAllowed = 'copy'
-  emit('drag-start', event, datasetId, fieldName)
+  if (event.dataTransfer) event.dataTransfer.effectAllowed = 'copy'
+
+  const target = event.currentTarget
+  if (event.dataTransfer && target instanceof HTMLElement) {
+    event.dataTransfer.setDragImage(
+      target,
+      Math.round(target.offsetWidth / 2),
+      Math.round(target.offsetHeight / 2)
+    )
+  }
 }
 </script>
 
@@ -96,9 +147,13 @@ function onDragStart(event: DragEvent, datasetId: string, fieldName: string): vo
   display: flex;
   align-items: center;
   gap: 6px;
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   font-size: 12px;
   color: var(--u-text-color-secondary, #64748b);
+}
+
+.field-panel__search {
+  margin-bottom: 8px;
 }
 
 .field-panel__hint {
@@ -114,62 +169,139 @@ function onDragStart(event: DragEvent, datasetId: string, fieldName: string): vo
   color: var(--u-text-color-secondary, #64748b);
 }
 
-.field-panel__dataset-name {
+.field-panel__dataset {
+  margin-bottom: 12px;
+}
+
+.field-panel__dataset-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
   margin: 0 0 8px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+}
+
+.field-panel__dataset-chevron {
+  display: inline-block;
+  font-size: 11px;
+  color: var(--u-text-color-secondary, #64748b);
+  transition: transform 0.15s ease;
+  transform: rotate(0deg);
+}
+
+.field-panel__dataset-chevron--expanded {
+  transform: rotate(90deg);
+}
+
+.field-panel__dataset-name {
+  flex: 1;
+  min-width: 0;
   font-size: 13px;
   font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.field-panel__dataset-count {
+  flex-shrink: 0;
+  min-width: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--u-fill-color-light, #f1f5f9);
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+  color: var(--u-text-color-secondary, #64748b);
 }
 
 .field-panel__fields {
-  margin: 0 0 16px;
-  padding: 0;
-  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
-.field-panel__field {
-  display: flex;
-  flex-direction: column;
+.field-panel__pill {
+  display: inline-flex;
+  align-items: center;
   gap: 4px;
-  padding: 8px 10px;
-  margin-bottom: 6px;
-  border: 1px dashed var(--u-border-color, #cbd5e1);
-  border-radius: 6px;
+  flex: 0 0 calc(50% - 3px);
+  min-width: 0;
+  max-width: calc(50% - 3px);
+  height: 24px;
+  padding: 0 8px 0 4px;
+  border: 1px solid var(--u-border-color, #cbd5e1);
+  border-radius: 999px;
+  background: var(--u-bg-color, #fff);
   cursor: grab;
-  transition: background 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
 
   &:hover {
     background: var(--u-fill-color-light, #f8fafc);
+    border-color: var(--u-color-primary-light-5, #93c5fd);
+  }
+
+  &:active {
+    cursor: grabbing;
   }
 }
 
-.field-panel__field-main {
-  display: flex;
+.field-panel__pill--bound {
+  border-color: color-mix(
+    in srgb,
+    var(--u-color-success, #16a34a) 45%,
+    var(--u-border-color, #cbd5e1)
+  );
+}
+
+.field-panel__pill-icon {
+  flex-shrink: 0;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 6px;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--u-color-info, #0ea5e9);
+  background: color-mix(in srgb, var(--u-color-info, #0ea5e9) 12%, transparent);
+
+  &[data-type='number'] {
+    color: var(--u-color-success, #16a34a);
+    background: color-mix(in srgb, var(--u-color-success, #16a34a) 12%, transparent);
+  }
+
+  &[data-type='date'] {
+    color: var(--u-color-warning, #d97706);
+    background: color-mix(in srgb, var(--u-color-warning, #d97706) 12%, transparent);
+  }
 }
 
-.field-panel__field-label {
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.field-panel__bound {
-  color: var(--u-color-success, #16a34a);
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.field-panel__field-sub {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-}
-
-.field-panel__field-name {
-  font-family: ui-monospace, monospace;
+.field-panel__pill-label {
+  flex: 1;
+  min-width: 0;
   font-size: 11px;
-  color: var(--u-text-color-secondary, #64748b);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.field-panel__pill-bound {
+  flex-shrink: 0;
+  color: var(--u-color-success, #16a34a);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
 }
 </style>

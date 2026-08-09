@@ -104,7 +104,13 @@
         @bind="(datasetId, fieldName) => bindField(datasetId, fieldName)"
       />
 
-      <div ref="gridHostRef" class="sheet-report-demo__grid" @dragover.prevent @drop="onGridDrop">
+      <div
+        ref="gridHostRef"
+        class="sheet-report-demo__grid"
+        @dragover="onGridDragOver"
+        @dragleave="onGridDragLeave"
+        @drop="onGridDrop"
+      >
         <div v-if="previewLoading" class="sheet-report-demo__loading" aria-live="polite">
           <div class="sheet-report-demo__loading-spinner" />
           <span>正在按参数重新计算报表…</span>
@@ -132,6 +138,13 @@
           :host-el="gridHostEl"
           :get-grid="getDesignGrid"
           :get-binding-at="getBindingAt"
+        />
+
+        <drop-highlight-overlay
+          v-if="!isPreview"
+          :cell="dropTargetAddr"
+          :host-el="gridHostEl"
+          :get-grid="getDesignGrid"
         />
 
         <action-pill
@@ -195,7 +208,9 @@ import {
 import DatasetCenter from './dataset-center.vue'
 import { createDataHub } from './dataset-hub'
 import ActionPill from './designer/action-pill.vue'
+import { resolveGridDropAddress } from './designer/cell-coords'
 import ConditionalRulesDialog from './designer/conditional-rules-dialog.vue'
+import DropHighlightOverlay from './designer/drop-highlight-overlay.vue'
 import InspectorPanel from './designer/inspector-panel.vue'
 import type { TopologyBindingEntry } from './designer/topology'
 import TopologyOverlay from './designer/topology-overlay.vue'
@@ -298,6 +313,7 @@ const activeFieldType = computed((): DatasetField['type'] => {
 const sheetRef = useTemplateRef<SheetExposed>('sheetRef')
 const gridHostRef = useTemplateRef<HTMLElement>('gridHostRef')
 const gridHostEl = computed(() => gridHostRef.value ?? null)
+const dropTargetAddr = ref<CellAddress | null>(null)
 
 const isPreview = computed(() => viewMode.value === 'preview')
 
@@ -565,21 +581,54 @@ function bindField(datasetId: string, fieldName: string, addr?: CellAddress): vo
   bumpMeta()
 }
 
-function onGridDrop(event: DragEvent): void {
-  if (isPreview.value) return
-  const raw = event.dataTransfer?.getData('application/x-sheet-report-field')
-  if (!raw) return
+function clearDropTarget(): void {
+  dropTargetAddr.value = null
+}
 
-  const [datasetId, fieldName] = raw.split(':')
-  if (!datasetId || !fieldName) return
+function onGridDragOver(event: DragEvent): void {
+  if (isPreview.value) return
+  if (!event.dataTransfer?.types.includes('application/x-sheet-report-field')) return
+
+  event.preventDefault()
+  event.dataTransfer.dropEffect = 'copy'
 
   const grid = sheetRef.value?.getGrid()
-  const host = event.currentTarget as HTMLElement
-  const gridEl = host.querySelector('.u-sheet__grid-instance') as HTMLElement | null
+  const host = gridHostRef.value
+  const gridEl = host?.querySelector('.u-sheet__grid-instance') as HTMLElement | null
+  if (!grid || !gridEl) {
+    clearDropTarget()
+    return
+  }
+
+  dropTargetAddr.value = resolveGridDropAddress(grid, gridEl, event.clientX, event.clientY)
+}
+
+function onGridDragLeave(event: DragEvent): void {
+  const host = gridHostRef.value
+  const related = event.relatedTarget
+  if (host && related instanceof Node && host.contains(related)) return
+  clearDropTarget()
+}
+
+function onGridDrop(event: DragEvent): void {
+  if (isPreview.value) return
+  event.preventDefault()
+  const raw = event.dataTransfer?.getData('application/x-sheet-report-field')
+  clearDropTarget()
+  if (!raw) return
+
+  const sep = raw.indexOf(':')
+  if (sep <= 0) return
+  const datasetId = raw.slice(0, sep)
+  const fieldName = raw.slice(sep + 1)
+  if (!fieldName) return
+
+  const grid = sheetRef.value?.getGrid()
+  const host = gridHostRef.value
+  const gridEl = host?.querySelector('.u-sheet__grid-instance') as HTMLElement | null
   if (!grid || !gridEl) return
 
-  const rect = gridEl.getBoundingClientRect()
-  const dropAddr = grid.hitTestSheetAddr(event.clientX - rect.left, event.clientY - rect.top)
+  const dropAddr = resolveGridDropAddress(grid, gridEl, event.clientX, event.clientY)
   if (dropAddr) {
     bindField(datasetId, fieldName, dropAddr)
     sheetRef.value?.getContext().selectCell(dropAddr)
@@ -625,7 +674,12 @@ function resetTemplate(): void {
   loadPresetTemplate(activePreset.value)
 }
 
+function onWindowDragEnd(): void {
+  clearDropTarget()
+}
+
 onMounted(() => {
+  window.addEventListener('dragend', onWindowDragEnd)
   offDataHub = dataHub.subscribe(() => {
     hubRevision.value++
     setBindingCatalog(dataHub.getCatalog())
@@ -643,6 +697,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  window.removeEventListener('dragend', onWindowDragEnd)
   offSelection?.()
   offMeta?.()
   offDataHub?.()
