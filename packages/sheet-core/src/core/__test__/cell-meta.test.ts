@@ -1,7 +1,18 @@
 import { describe, expect, it } from 'vitest'
 
+import { cloneCellMetaPayload } from '../cell-meta'
 import type { SheetSnapshot } from '../sheet'
 import { Sheet } from '../sheet'
+
+describe('cloneCellMetaPayload', () => {
+  it('structuredClone 不可克隆时回退 JSON 深拷贝', () => {
+    const raw = { a: 1, b: { c: 2 } }
+    const payload = { ...raw, fn: () => 1 }
+    const cloned = cloneCellMetaPayload(payload) as typeof raw
+    expect(cloned).toEqual({ a: 1, b: { c: 2 } })
+    expect(cloned.b).not.toBe(raw.b)
+  })
+})
 
 describe('Sheet Cell Meta：设置 / 读取 / 清除', () => {
   it('setCellMeta / getCellMeta 按地址与 namespace 存取', () => {

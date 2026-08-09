@@ -81,11 +81,7 @@ watch(
   () => props.modelValue,
   (open) => {
     if (!open) return
-    draftRules.value = props.rules.map((rule) => ({
-      operator: rule.operator,
-      value: rule.value,
-      style: { ...rule.style, fill: rule.style.fill ? { ...rule.style.fill } : undefined }
-    }))
+    draftRules.value = cloneRules(props.rules)
   }
 )
 
@@ -111,8 +107,16 @@ function removeRule(index: number): void {
   draftRules.value = draftRules.value.filter((_, i) => i !== index)
 }
 
+function cloneRules(rules: ConditionalRule[]): ConditionalRule[] {
+  return rules.map((rule) => ({
+    operator: rule.operator,
+    value: rule.value,
+    style: { ...rule.style, fill: rule.style.fill ? { ...rule.style.fill } : undefined }
+  }))
+}
+
 function confirm(): void {
-  emit('save', draftRules.value)
+  emit('save', cloneRules(draftRules.value))
   visible.value = false
 }
 

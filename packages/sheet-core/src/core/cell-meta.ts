@@ -13,11 +13,22 @@ export function cellMetaKey(row: number, col: number, namespace: string): string
   return `${row},${col}\0${namespace}`
 }
 
+/** JSON 深拷贝（meta 约定为可序列化载荷；用于 structuredClone 不可克隆时回退） */
+function cloneCellMetaPayloadJson(payload: unknown): unknown {
+  return JSON.parse(JSON.stringify(payload)) as unknown
+}
+
 /** 深拷贝 meta 载荷（快照 / 补丁用，避免共享可变引用） */
 export function cloneCellMetaPayload(payload: unknown): unknown {
   if (payload === undefined) return undefined
-  if (typeof structuredClone === 'function') return structuredClone(payload)
-  return JSON.parse(JSON.stringify(payload)) as unknown
+  if (typeof structuredClone === 'function') {
+    try {
+      return structuredClone(payload)
+    } catch {
+      // Proxy / DOM 等不可克隆对象（如 Vue reactive）回退 JSON
+    }
+  }
+  return cloneCellMetaPayloadJson(payload)
 }
 
 /** 判断两个 meta 载荷是否相等（用于无变更跳过） */
