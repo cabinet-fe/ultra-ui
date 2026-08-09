@@ -1,31 +1,31 @@
 <template>
-  <u-dialog v-model="visible" title="条件格式" width="420px" @close="onClose">
+  <u-dialog v-model="visible" title="条件格式" width="680px" @close="onClose">
     <div class="conditional-rules-dialog">
-      <p class="conditional-rules-dialog__hint">命中规则后叠加样式；多条规则按顺序合并。</p>
+      <p class="conditional-rules-dialog__hint">
+        按列表顺序依次求值并合并样式；仅对当前绑定格自身的值生效。
+      </p>
 
-      <ul v-if="draftRules.length" class="conditional-rules-dialog__list">
-        <li v-for="(rule, index) in draftRules" :key="index" class="conditional-rules-dialog__item">
-          <span>{{ formatRule(rule) }}</span>
-          <u-button size="small" type="danger" plain @click="removeRule(index)">删除</u-button>
+      <ul v-if="draftItems.length" ref="parentRef" class="conditional-rules-dialog__list">
+        <li
+          v-for="(item, index) in draftItems"
+          :key="item.id"
+          class="conditional-rules-dialog__item"
+        >
+          <conditional-rule-row
+            :rule="item.rule"
+            :field-type="fieldType"
+            :index="index"
+            :total="draftItems.length"
+            @update:rule="item.rule = $event"
+            @remove="removeRule(index)"
+            @move-up="moveRule(index, -1)"
+            @move-down="moveRule(index, 1)"
+          />
         </li>
       </ul>
-      <p v-else class="conditional-rules-dialog__empty">暂无规则</p>
+      <p v-else class="conditional-rules-dialog__empty">暂无规则，点击下方按钮添加。</p>
 
-      <section class="conditional-rules-dialog__form">
-        <div class="conditional-rules-dialog__row">
-          <span class="conditional-rules-dialog__label">运算符</span>
-          <u-select v-model="operator" size="small" :options="operatorOptions" />
-        </div>
-        <div class="conditional-rules-dialog__row">
-          <span class="conditional-rules-dialog__label">比较值</span>
-          <u-input v-model="valueInput" size="small" placeholder="如 100" />
-        </div>
-        <div class="conditional-rules-dialog__row">
-          <span class="conditional-rules-dialog__label">背景色</span>
-          <u-input v-model="fillColor" size="small" placeholder="#FEE2E2" />
-        </div>
-        <u-button size="small" plain @click="addRule">添加规则</u-button>
-      </section>
+      <u-button size="small" plain @click="addRule">添加规则</u-button>
     </div>
 
     <template #footer>
@@ -36,41 +36,41 @@
 </template>
 
 <script lang="ts" setup>
+import { animations, useDnD } from '@veltra/compositions'
 import { computed, ref, watch } from 'vue'
 
-import type { ConditionalOperator, ConditionalRule } from '../types'
+import type { ConditionalRule, DatasetField } from '../types'
+import {
+  cloneRulesFromDraft,
+  createDraftItem,
+  initDraftFromRules,
+  type DraftRuleItem
+} from './conditional-rules/helpers'
+import ConditionalRuleRow from './conditional-rules/rule-row.vue'
 
 defineOptions({ name: 'SheetReportConditionalRulesDialog' })
 
-const props = defineProps<{ modelValue: boolean; rules: ConditionalRule[] }>()
+const props = withDefaults(
+  defineProps<{
+    modelValue: boolean
+    rules: ConditionalRule[]
+    fieldType?: DatasetField['type']
+  }>(),
+  { fieldType: 'number' }
+)
 
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
   save: [rules: ConditionalRule[]]
 }>()
 
-const operatorOptions = [
-  { value: 'gt' as const, label: '大于' },
-  { value: 'gte' as const, label: '大于等于' },
-  { value: 'lt' as const, label: '小于' },
-  { value: 'lte' as const, label: '小于等于' },
-  { value: 'eq' as const, label: '等于' }
-]
+const draftItems = ref<DraftRuleItem[]>([])
 
-const operatorLabels: Record<ConditionalOperator, string> = {
-  gt: '>',
-  gte: '≥',
-  lt: '<',
-  lte: '≤',
-  eq: '=',
-  between: '介于',
-  contains: '包含'
-}
-
-const draftRules = ref<ConditionalRule[]>([])
-const operator = ref<ConditionalOperator>('gt')
-const valueInput = ref('100')
-const fillColor = ref('#FEE2E2')
+const { parentRef } = useDnD<DraftRuleItem>({
+  values: draftItems,
+  dragHandle: '.conditional-rule-row__handle',
+  plugins: [animations()]
+})
 
 const visible = computed({
   get: () => props.modelValue,
@@ -81,42 +81,30 @@ watch(
   () => props.modelValue,
   (open) => {
     if (!open) return
-    draftRules.value = cloneRules(props.rules)
+    draftItems.value = initDraftFromRules(props.rules, props.fieldType)
   }
 )
 
-function formatRule(rule: ConditionalRule): string {
-  return `${operatorLabels[rule.operator]} ${String(rule.value)} → 背景 ${rule.style.fill?.color ?? '—'}`
-}
-
-function parseValueInput(): number | null {
-  const parsed = Number(valueInput.value)
-  return Number.isFinite(parsed) ? parsed : null
-}
-
 function addRule(): void {
-  const value = parseValueInput()
-  if (value === null) return
-  draftRules.value = [
-    ...draftRules.value,
-    { operator: operator.value, value, style: { fill: { color: fillColor.value || '#FEE2E2' } } }
-  ]
+  draftItems.value = [...draftItems.value, createDraftItem(undefined, props.fieldType)]
 }
 
 function removeRule(index: number): void {
-  draftRules.value = draftRules.value.filter((_, i) => i !== index)
+  draftItems.value = draftItems.value.filter((_, i) => i !== index)
 }
 
-function cloneRules(rules: ConditionalRule[]): ConditionalRule[] {
-  return rules.map((rule) => ({
-    operator: rule.operator,
-    value: rule.value,
-    style: { ...rule.style, fill: rule.style.fill ? { ...rule.style.fill } : undefined }
-  }))
+function moveRule(index: number, delta: -1 | 1): void {
+  const target = index + delta
+  if (target < 0 || target >= draftItems.value.length) return
+  const next = [...draftItems.value]
+  const [item] = next.splice(index, 1)
+  if (!item) return
+  next.splice(target, 0, item)
+  draftItems.value = next
 }
 
 function confirm(): void {
-  emit('save', cloneRules(draftRules.value))
+  emit('save', cloneRulesFromDraft(draftItems.value))
   visible.value = false
 }
 
@@ -144,42 +132,17 @@ function onClose(): void {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  max-height: 420px;
+  overflow: auto;
 }
 
 .conditional-rules-dialog__item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 6px 8px;
-  border-radius: 6px;
-  background: var(--u-fill-color-light, #f8fafc);
-  font-size: 12px;
+  margin: 0;
 }
 
 .conditional-rules-dialog__empty {
   margin: 0;
-  font-size: 12px;
-  color: var(--u-text-color-secondary, #64748b);
-}
-
-.conditional-rules-dialog__form {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding-top: 8px;
-  border-top: 1px solid var(--u-border-color-light, #f1f5f9);
-}
-
-.conditional-rules-dialog__row {
-  display: grid;
-  grid-template-columns: 64px 1fr;
-  align-items: center;
-  gap: 8px;
-}
-
-.conditional-rules-dialog__label {
   font-size: 12px;
   color: var(--u-text-color-secondary, #64748b);
 }

@@ -1,4 +1,4 @@
-Status: pending
+Status: completed
 
 # 09 — 条件样式规则编辑器重做
 
@@ -13,7 +13,7 @@ Status: pending
 
 **Blocked by:** None — can start immediately.
 
-- [ ] 重做条件样式规则编辑器（680px，可编辑规则行）
-- [ ] 运算符/值控件/样式项完整化 + 效果预览
-- [ ] 规则排序（上移/下移或拖拽）
-- [ ] 更新 rules 测试（如有 UI 相关）
+- [x] 重做条件样式规则编辑器（680px，可编辑规则行）
+- [x] 运算符/值控件/样式项完整化 + 效果预览
+- [x] 规则排序（上移/下移或拖拽）
+- [x] 更新 rules 测试（如有 UI 相关）

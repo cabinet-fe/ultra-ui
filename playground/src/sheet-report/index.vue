@@ -161,6 +161,7 @@
     <conditional-rules-dialog
       v-model="rulesDialogVisible"
       :rules="activeBinding?.conditionalRules ?? EMPTY_CONDITIONAL_RULES"
+      :field-type="activeFieldType"
       @save="saveConditionalRules"
     />
   </div>
@@ -212,7 +213,7 @@ import {
   readDemoColWidths,
   type DemoColWidthEntry
 } from './template'
-import type { ConditionalRule, DatasetCatalogItem, ReportBinding } from './types'
+import type { ConditionalRule, DatasetCatalogItem, DatasetField, ReportBinding } from './types'
 
 type ViewMode = 'design' | 'preview'
 
@@ -283,6 +284,15 @@ const activeBinding = computed((): ReportBinding | undefined => {
   const cell = activeCell.value
   if (!cell) return undefined
   return activeSheet().getCellMeta<ReportBinding>(cell, REPORT_META_NAMESPACE)
+})
+
+const activeFieldType = computed((): DatasetField['type'] => {
+  const binding = activeBinding.value
+  if (!binding) return 'number'
+  hubRevision.value
+  const dataset = datasetCatalog.value.find((item) => item.id === binding.dataset)
+  const field = dataset?.fields.find((f) => f.name === binding.field)
+  return field?.type ?? 'number'
 })
 
 const sheetRef = useTemplateRef<SheetExposed>('sheetRef')
