@@ -7,7 +7,12 @@
     "noImplicitAny": false,
     "skipDefaultLibCheck": true,
     "customConditions": ["veltra-dev"],
-    "paths": { "@veltra/sheet-core/*": ["../packages/sheet-core/src/*"] }
+    "paths": {
+      "@veltra/sheet-core/*": ["../packages/sheet-core/src/*"],
+      "hucre": ["../packages/sheet-core/node_modules/hucre/dist/index.d.mts"],
+      "hucre/xlsx": ["../packages/sheet-core/node_modules/hucre/dist/xlsx.d.mts"],
+      "hucre/csv": ["../packages/sheet-core/node_modules/hucre/dist/csv.d.mts"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "env.d.ts", "*.d.ts", "*.ts", "*.vue"],
   "exclude": ["node_modules", "vite.config.ts"],

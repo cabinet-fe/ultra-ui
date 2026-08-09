@@ -12,6 +12,7 @@ import { VeltraUIResolver } from '../packages/vite/src/resolver'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(__dirname, '..')
+const hucreRoot = resolve(repoRoot, 'packages/sheet-core/node_modules/hucre')
 const nodePkgImporter = new NodePackageImporter(repoRoot)
 
 const config = {
@@ -21,7 +22,14 @@ const config = {
 
   css: { preprocessorOptions: { scss: { importers: [nodePkgImporter] } } },
 
-  resolve: { extensions: ['.ts', '.js', '.json', '.tsx'], conditions: ['veltra-dev'] },
+  resolve: {
+    extensions: ['.ts', '.js', '.json', '.tsx'],
+    conditions: ['veltra-dev'],
+    alias: {
+      'hucre/xlsx': resolve(hucreRoot, 'dist/xlsx.mjs'),
+      'hucre/csv': resolve(hucreRoot, 'dist/csv.mjs')
+    }
+  },
 
   plugins: [vue(), vueJsx(), Components({ resolvers: [VeltraUIResolver()], dts: true })],
 

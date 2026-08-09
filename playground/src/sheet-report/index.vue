@@ -35,6 +35,16 @@
         <u-button size="small" :disabled="isPreview || !savedSnapshot" @click="restoreSnapshot">
           恢复快照
         </u-button>
+        <u-button
+          v-if="isPreview"
+          size="small"
+          type="primary"
+          plain
+          :loading="exporting"
+          @click="exportPreviewXlsx"
+        >
+          导出 XLSX
+        </u-button>
         <u-pop-confirm title="确定重置为默认模板？当前绑定与编辑将丢失。" @confirm="resetTemplate">
           <template #reference>
             <u-button size="small" type="warning" plain :disabled="isPreview">重置模板</u-button>
@@ -42,6 +52,28 @@
         </u-pop-confirm>
       </div>
     </header>
+
+    <div class="sheet-report-demo__presets" role="tablist" aria-label="商业报表模板">
+      <u-button
+        v-for="preset in REPORT_PRESETS"
+        :key="preset.id"
+        size="small"
+        :type="activePresetId === preset.id ? 'primary' : undefined"
+        :plain="activePresetId !== preset.id"
+        @click="switchPreset(preset.id)"
+      >
+        {{ preset.label }}
+      </u-button>
+      <span class="sheet-report-demo__preset-hint">{{ activePreset.description }}</span>
+    </div>
+
+    <filter-bar
+      v-if="isPreview"
+      :query-params="dataHub.queryParams"
+      :values="paramValues"
+      :active-dataset-ids="activePreset.datasetIds"
+      @update:values="onParamValuesChange"
+    />
 
     <help-dialog v-model="helpVisible" />
     <dataset-dialog
@@ -67,6 +99,11 @@
       />
 
       <div ref="gridHostRef" class="sheet-report-demo__grid" @dragover.prevent @drop="onGridDrop">
+        <div v-if="previewLoading" class="sheet-report-demo__loading" aria-live="polite">
+          <div class="sheet-report-demo__loading-spinner" />
+          <span>正在按参数重新计算报表…</span>
+        </div>
+
         <u-sheet
           ref="sheetRef"
           class="sheet-report-demo__sheet"
@@ -154,14 +191,17 @@ import ConditionalRulesDialog from './designer/conditional-rules-dialog.vue'
 import InspectorPanel from './designer/inspector-panel.vue'
 import type { TopologyBindingEntry } from './designer/topology'
 import TopologyOverlay from './designer/topology-overlay.vue'
+import { downloadFilledReportXlsx } from './export-xlsx'
 import FieldPanel from './field-panel.vue'
+import FilterBar from './filter-bar.vue'
 import HelpDialog from './help-dialog.vue'
+import { REPORT_PRESETS, findReportPreset } from './presets'
 import { renderReport } from './render'
 import {
   DEMO_COL_WIDTHS,
   applyColWidths,
   readDemoColWidths,
-  seedGroupDetailTemplate
+  type DemoColWidthEntry
 } from './template'
 import type {
   ConditionalRule,
@@ -188,8 +228,10 @@ const datasetRecords = computed(() => {
 })
 
 /** 从 catalog 生成报表数据集配置；默认选用订单 + 客户 */
-function buildReportDatasets(): ReportDatasetConfig[] {
-  const defaults = new Set<string>(DEFAULT_SELECTED_DATASET_IDS)
+function buildReportDatasets(
+  selectedIds: readonly string[] = DEFAULT_SELECTED_DATASET_IDS
+): ReportDatasetConfig[] {
+  const defaults = new Set<string>(selectedIds)
   const records = dataHub.getRecords()
   return DATASET_CATALOG.map((dataset) => ({
     id: dataset.id,
@@ -221,11 +263,17 @@ function syncDatasetRowCounts(): void {
 }
 
 const viewMode = ref<ViewMode>('design')
+const activePresetId = ref(REPORT_PRESETS[0]!.id)
+const activePreset = computed(() => findReportPreset(activePresetId.value) ?? REPORT_PRESETS[0]!)
+const previewLoading = ref(false)
+const exporting = ref(false)
 const helpVisible = ref(false)
 const datasetVisible = ref(false)
 const rulesDialogVisible = ref(false)
 /** 本报表选用与字段 schema 配置（可改中文 label；不改 catalog 源） */
-const reportDatasets = ref<ReportDatasetConfig[]>(buildReportDatasets())
+const reportDatasets = ref<ReportDatasetConfig[]>(
+  buildReportDatasets(activePreset.value.datasetIds)
+)
 
 const panelDatasets = computed((): DatasetCatalogItem[] =>
   reportDatasets.value
@@ -234,7 +282,7 @@ const panelDatasets = computed((): DatasetCatalogItem[] =>
 )
 
 function resetReportDatasets(): void {
-  reportDatasets.value = buildReportDatasets()
+  reportDatasets.value = buildReportDatasets(activePreset.value.datasetIds)
 }
 
 /** 用报表字段配置解析中文 label（占位 / 编辑卡片） */
@@ -352,8 +400,7 @@ function refreshGrid(): void {
 /** 预览态下查询参数变更时重新渲染 */
 watch(datasetRecords, () => {
   if (!isPreview.value || !templateSnapshot.value) return
-  const filled = renderReport(JSON.parse(templateSnapshot.value), datasetRecords.value)
-  applySheetSnapshot(filled)
+  void refreshPreview()
 })
 
 /** 字段中文名变更后刷新设计态占位 */
@@ -402,18 +449,75 @@ function setViewMode(mode: ViewMode): void {
   if (viewMode.value === mode) return
 
   if (mode === 'preview') {
-    // 进预览前先记下设计态列宽；快照不含列宽
     captureDesignColWidths()
     templateSnapshot.value = JSON.stringify(activeSheet().snapshot())
-    const filled = renderReport(JSON.parse(templateSnapshot.value), datasetRecords.value)
-    applySheetSnapshot(filled)
+    void refreshPreview()
   } else if (templateSnapshot.value) {
-    // 切回设计：恢复模板；列宽仍用进预览前捕获的 designColWidths
     applySheetSnapshot(JSON.parse(templateSnapshot.value))
   }
 
   viewMode.value = mode
   bumpSelection()
+}
+
+async function refreshPreview(): Promise<void> {
+  if (!templateSnapshot.value) return
+  previewLoading.value = true
+  await nextTick()
+  // 让浏览器先绘制遮罩，再执行同步 renderReport
+  await new Promise<void>((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+  })
+  const filled = renderReport(JSON.parse(templateSnapshot.value), datasetRecords.value)
+  applySheetSnapshot(filled)
+  previewLoading.value = false
+}
+
+function loadPresetTemplate(preset: (typeof REPORT_PRESETS)[number]): void {
+  const sheet = activeSheet()
+  sheet.restoreContent({
+    cells: [],
+    styles: [],
+    merges: [],
+    meta: [],
+    frozen: { rows: 0, cols: 0 },
+    rows: sheet.rowCount,
+    cols: sheet.colCount
+  })
+  preset.seed(sheet)
+  sheet.history.clear()
+  designColWidths.value = preset.colWidths.map(([col, width]) => [col, width])
+  templateSnapshot.value = null
+  bumpMeta()
+  bumpSelection()
+  void nextTick(syncGridView)
+}
+
+async function switchPreset(presetId: string): Promise<void> {
+  const preset = findReportPreset(presetId)
+  if (!preset || activePresetId.value === presetId) return
+
+  activePresetId.value = presetId
+  reportDatasets.value = buildReportDatasets(preset.datasetIds)
+  const inPreview = isPreview.value
+  loadPresetTemplate(preset)
+  if (inPreview) {
+    templateSnapshot.value = JSON.stringify(activeSheet().snapshot())
+    await refreshPreview()
+  }
+}
+
+async function exportPreviewXlsx(): Promise<void> {
+  if (!isPreview.value || exporting.value) return
+  exporting.value = true
+  try {
+    captureDesignColWidths()
+    const widths: DemoColWidthEntry[] = designColWidths.value
+    const fileName = `${activePreset.value.label}.xlsx`
+    await downloadFilledReportXlsx(activeSheet(), widths, fileName)
+  } finally {
+    exporting.value = false
+  }
 }
 
 // readonly / rows 变化会 rebuildGrid，重建后补列宽
@@ -526,30 +630,12 @@ function restoreSnapshot(): void {
 }
 
 function seedTemplate(): void {
-  seedGroupDetailTemplate(workbook.activeSheet)
-  workbook.activeSheet.history.clear()
-  bumpMeta()
+  loadPresetTemplate(activePreset.value)
 }
 
 function resetTemplate(): void {
   if (isPreview.value) return
-  const sheet = activeSheet()
-  sheet.restoreContent({
-    cells: [],
-    styles: [],
-    merges: [],
-    meta: [],
-    frozen: { rows: 0, cols: 0 },
-    rows: sheet.rowCount,
-    cols: sheet.colCount
-  })
-  seedGroupDetailTemplate(sheet)
-  sheet.history.clear()
-  // 重置回演示种子列宽
-  designColWidths.value = DEMO_COL_WIDTHS.map(([col, width]) => [col, width])
-  bumpMeta()
-  bumpSelection()
-  void nextTick(syncGridView)
+  loadPresetTemplate(activePreset.value)
 }
 
 onMounted(() => {
@@ -618,6 +704,47 @@ onBeforeUnmount(() => {
   flex: 1;
   min-height: 0;
   gap: 12px;
+}
+
+.sheet-report-demo__presets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.sheet-report-demo__preset-hint {
+  font-size: 12px;
+  color: var(--u-text-color-secondary, #64748b);
+}
+
+.sheet-report-demo__loading {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: color-mix(in srgb, var(--u-bg-color, #fff) 72%, transparent);
+  font-size: 13px;
+  color: var(--u-text-color-secondary, #64748b);
+}
+
+.sheet-report-demo__loading-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid var(--u-border-color-light, #e2e8f0);
+  border-top-color: var(--u-color-primary, #2563eb);
+  border-radius: 50%;
+  animation: sheet-report-spin 0.8s linear infinite;
+}
+
+@keyframes sheet-report-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .sheet-report-demo__field-panel--disabled {

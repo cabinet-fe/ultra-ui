@@ -1,7 +1,7 @@
 import type { Sheet } from '@veltra/sheet-core'
 
 import { REPORT_META_NAMESPACE, createReportBinding } from './binding'
-import { ORDERS_DATASET, SALES_MATRIX_DATASET } from './mock-dataset'
+import { INVENTORY_ALERTS_DATASET, ORDERS_DATASET, SALES_MATRIX_DATASET } from './mock-dataset'
 
 /**
  * 演示列宽初始种子（模型列索引 → px）。
@@ -14,6 +14,28 @@ export const DEMO_COL_WIDTHS: ReadonlyArray<readonly [number, number]> = [
   [2, 80], // 地区
   [3, 90], // 金额
   [4, 120] // 下单日期
+]
+
+/** 库存预警表明格列宽种子 */
+export const INVENTORY_COL_WIDTHS: ReadonlyArray<readonly [number, number]> = [
+  [0, 100],
+  [1, 140],
+  [2, 90],
+  [3, 90],
+  [4, 90],
+  [5, 80],
+  [6, 90]
+]
+
+/** 二维矩阵报表列宽种子 */
+export const MATRIX_COL_WIDTHS: ReadonlyArray<readonly [number, number]> = [
+  [0, 100],
+  [1, 96],
+  [2, 96],
+  [3, 96],
+  [4, 96],
+  [5, 96],
+  [6, 96]
 ]
 
 /** VTable 列 = 模型列 + 行号列偏移 */
@@ -167,4 +189,60 @@ export function seedMatrixTemplate(sheet: Sheet): void {
   grandTotal.expand = 'none'
   grandTotal.leftParent = 'none'
   sheet.setCellMeta({ row: 2, col: 6 }, REPORT_META_NAMESPACE, grandTotal)
+}
+
+/**
+ * 预置库存预警明细表：按仓库分组 + 明细扩展，按预警级别条件着色。
+ */
+export function seedInventoryAlertTemplate(sheet: Sheet): void {
+  const headers = [
+    '仓库',
+    '产品编号',
+    '产品名称',
+    '品类',
+    '当前库存',
+    '安全库存',
+    '预警级别'
+  ] as const
+  const fields = [
+    'warehouse',
+    'productId',
+    'productName',
+    'category',
+    'stock',
+    'safetyStock',
+    'alertLevel'
+  ] as const
+
+  sheet.setCells(headers.map((label, col) => ({ addr: { row: 0, col }, data: { v: label } })))
+
+  sheet.setCellStyle(
+    { start: { row: 0, col: 0 }, end: { row: 0, col: headers.length - 1 } },
+    { font: { bold: true }, fill: { color: '#E8EEF7' } }
+  )
+
+  const warehouseGroup = createReportBinding(INVENTORY_ALERTS_DATASET, 'warehouse')
+  warehouseGroup.role = 'group'
+  warehouseGroup.aggregate = 'group'
+  warehouseGroup.leftParent = 'none'
+  sheet.setCellMeta({ row: 1, col: 0 }, REPORT_META_NAMESPACE, warehouseGroup)
+
+  fields.slice(1).forEach((fieldName, index) => {
+    const col = index + 1
+    const binding = createReportBinding(INVENTORY_ALERTS_DATASET, fieldName)
+    binding.leftParent = { row: 1, col: 0 }
+    if (fieldName === 'alertLevel') {
+      binding.conditionalRules = [
+        { operator: 'eq', value: '高', style: { fill: { color: '#FFCCCC' } } },
+        { operator: 'eq', value: '中', style: { fill: { color: '#FFF4CC' } } },
+        { operator: 'eq', value: '低', style: { fill: { color: '#FFFFCC' } } }
+      ]
+    }
+    if (fieldName === 'stock') {
+      binding.conditionalRules = [
+        { operator: 'lte', value: 40, style: { font: { color: '#DC2626', bold: true } } }
+      ]
+    }
+    sheet.setCellMeta({ row: 1, col }, REPORT_META_NAMESPACE, binding)
+  })
 }
