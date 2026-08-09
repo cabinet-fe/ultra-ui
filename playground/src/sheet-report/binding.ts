@@ -1,6 +1,6 @@
 import type { CellAddress } from '@veltra/sheet-core'
 
-import { MOCK_DATASETS } from './mock-dataset'
+import { DATASET_CATALOG } from './dataset-hub'
 import type { MockDataset, ReportAggregate, ReportBinding, ReportRole } from './types'
 
 export const REPORT_META_NAMESPACE = 'report'
@@ -97,7 +97,7 @@ function resolveFieldLabel(
 ): string {
   const override = resolveLabel?.(datasetId, fieldName)
   if (override) return override
-  const dataset = MOCK_DATASETS.find((d) => d.id === datasetId)
+  const dataset = DATASET_CATALOG.find((d) => d.id === datasetId)
   const field = dataset?.fields.find((f) => f.name === fieldName)
   return field?.label ?? fieldName
 }

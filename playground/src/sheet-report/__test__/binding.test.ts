@@ -9,7 +9,7 @@ import {
   parseCellAddress,
   resolveLeftParent
 } from '../binding'
-import { ORDERS_DATASET } from '../mock-dataset'
+import { ORDERS_DATASET } from '../dataset-hub'
 import type { ReportBinding } from '../types'
 
 function bindingMap(cells: Array<{ addr: CellAddress; binding: ReportBinding }>) {

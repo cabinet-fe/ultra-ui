@@ -7,12 +7,12 @@
         </h2>
         <p class="sheet-report-demo__hint">
           左侧点击或拖拽字段绑定到选中格；选中已绑定格可就地编辑聚合/扩展/左父格。点
-          <strong>预览模式</strong> 按 mock 数据展开渲染结果。点「数据集」选用并配置字段中文名。
+          <strong>预览模式</strong> 按 mock 数据展开渲染结果。点「数据源」管理模拟数据库与查询参数。
         </p>
       </div>
       <div class="sheet-report-demo__actions">
         <u-button size="small" plain @click="helpVisible = true">使用说明</u-button>
-        <u-button size="small" plain @click="datasetVisible = true">数据集</u-button>
+        <u-button size="small" plain @click="datasetVisible = true">数据源</u-button>
         <div class="sheet-report-demo__mode-toggle" role="group" aria-label="视图模式">
           <u-button
             size="small"
@@ -46,10 +46,14 @@
     <help-dialog v-model="helpVisible" />
     <dataset-dialog
       v-model="datasetVisible"
-      :records="MOCK_DATA_RECORDS"
+      :records="datasetRecords"
       :items="reportDatasets"
+      :query-params="dataHub.queryParams"
+      :param-values="paramValues"
       @update:items="reportDatasets = $event"
+      @update:param-values="onParamValuesChange"
       @reset="resetReportDatasets"
+      @reset-params="resetParamValues"
     />
 
     <div class="sheet-report-demo__body">
@@ -109,9 +113,9 @@ import {
 } from './binding'
 import BindingEditor from './binding-editor.vue'
 import DatasetDialog from './dataset-dialog.vue'
+import { DATASET_CATALOG, DEFAULT_SELECTED_DATASET_IDS, createMockDataHub } from './dataset-hub'
 import FieldPanel from './field-panel.vue'
 import HelpDialog from './help-dialog.vue'
-import { DATASET_CATALOG, DEFAULT_SELECTED_DATASET_IDS, MOCK_DATA_RECORDS } from './mock-dataset'
 import { renderReport } from './render'
 import {
   DEMO_COL_WIDTHS,
@@ -128,15 +132,44 @@ type ViewMode = 'design' | 'preview'
 /** 演示层快照：SheetSnapshot 不含列宽，一并持久化 */
 type DemoSnapshotPayload = { sheet: SheetSnapshot; colWidths: Array<[number, number]> }
 
+/** Mock Data Hub：模拟数据库 Catalog + 查询参数 + Records 生成 */
+const dataHub = createMockDataHub()
+const paramValues = ref(dataHub.getParamValues())
+const datasetRecords = computed(() => {
+  paramValues.value
+  return dataHub.getRecords()
+})
+
 /** 从 catalog 生成报表数据集配置；默认选用订单 + 客户 */
 function buildReportDatasets(): ReportDatasetConfig[] {
   const defaults = new Set<string>(DEFAULT_SELECTED_DATASET_IDS)
+  const records = dataHub.getRecords()
   return DATASET_CATALOG.map((dataset) => ({
     id: dataset.id,
     label: dataset.label,
     selected: defaults.has(dataset.id),
     fields: dataset.fields.map((field) => ({ ...field })),
-    rowCount: MOCK_DATA_RECORDS[dataset.id]?.length ?? 0
+    rowCount: records[dataset.id]?.length ?? 0
+  }))
+}
+
+function onParamValuesChange(values: typeof paramValues.value): void {
+  dataHub.setParamValues(values)
+  paramValues.value = dataHub.getParamValues()
+  syncDatasetRowCounts()
+}
+
+function resetParamValues(): void {
+  dataHub.resetParamValues()
+  paramValues.value = dataHub.getParamValues()
+  syncDatasetRowCounts()
+}
+
+function syncDatasetRowCounts(): void {
+  const records = dataHub.getRecords()
+  reportDatasets.value = reportDatasets.value.map((item) => ({
+    ...item,
+    rowCount: records[item.id]?.length ?? 0
   }))
 }
 
@@ -248,6 +281,13 @@ function refreshGrid(): void {
   sheetRef.value?.getGrid()?.refresh()
 }
 
+/** 预览态下查询参数变更时重新渲染 */
+watch(datasetRecords, () => {
+  if (!isPreview.value || !templateSnapshot.value) return
+  const filled = renderReport(JSON.parse(templateSnapshot.value), datasetRecords.value)
+  applySheetSnapshot(filled)
+})
+
 /** 字段中文名变更后刷新设计态占位 */
 watch(
   reportDatasets,
@@ -297,7 +337,7 @@ function setViewMode(mode: ViewMode): void {
     // 进预览前先记下设计态列宽；快照不含列宽
     captureDesignColWidths()
     templateSnapshot.value = JSON.stringify(activeSheet().snapshot())
-    const filled = renderReport(JSON.parse(templateSnapshot.value), MOCK_DATA_RECORDS)
+    const filled = renderReport(JSON.parse(templateSnapshot.value), datasetRecords.value)
     applySheetSnapshot(filled)
   } else if (templateSnapshot.value) {
     // 切回设计：恢复模板；列宽仍用进预览前捕获的 designColWidths

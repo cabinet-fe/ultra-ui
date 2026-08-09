@@ -135,13 +135,15 @@ describe('renderReport', () => {
     expect(subtotalLabelStyle).toBeDefined()
   })
 
-  it('演示提供 5 个关联数据集且订单仍是默认模板主源', () => {
+  it('演示提供 7 个关联数据集且订单仍是默认模板主源', () => {
     expect(Object.keys(MOCK_DATA_RECORDS).sort()).toEqual([
       'customers',
       'employees',
+      'inventory-alerts',
       'orders',
       'payments',
-      'products'
+      'products',
+      'sales-matrix'
     ])
     expect(MOCK_DATA_RECORDS.orders).toHaveLength(14)
     expect(MOCK_DATA_RECORDS.customers!.length).toBeGreaterThanOrEqual(6)

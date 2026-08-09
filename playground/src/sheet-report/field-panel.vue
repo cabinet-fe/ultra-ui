@@ -33,7 +33,7 @@
     </section>
 
     <p v-if="datasets.length === 0" class="field-panel__empty">
-      尚未选用数据集，请点「数据集」配置。
+      尚未选用数据集，请点「数据源」配置。
     </p>
   </aside>
 </template>

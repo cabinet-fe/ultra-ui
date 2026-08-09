@@ -1,12 +1,46 @@
 <template>
   <u-dialog
     v-model="visible"
-    title="数据集配置"
+    title="数据源中心"
     :modal="true"
     class="dataset-dialog"
-    style="width: min(960px, 96vw); max-height: 88vh"
+    style="width: min(1040px, 96vw); max-height: 88vh"
   >
     <div class="dataset-dialog__body">
+      <!-- 查询参数 -->
+      <section v-if="queryParams.length" class="dataset-dialog__params">
+        <h4 class="dataset-dialog__heading">查询参数</h4>
+        <p class="dataset-dialog__note">
+          模拟 SQL 参数筛选；更改后数据预览与报表预览将按参数重新生成 Records。
+        </p>
+        <div class="dataset-dialog__param-grid">
+          <div v-for="param in queryParams" :key="param.id" class="dataset-dialog__param">
+            <label class="dataset-dialog__label">{{ param.label }}</label>
+            <u-input
+              v-if="param.type === 'date'"
+              :model-value="String(paramValues[param.id] ?? '')"
+              size="small"
+              type="date"
+              @update:model-value="(v) => onParamChange(param.id, v)"
+            />
+            <u-select
+              v-else-if="param.type === 'select'"
+              :model-value="String(paramValues[param.id] ?? '')"
+              size="small"
+              :options="param.options ?? []"
+              @update:model-value="(v) => onParamChange(param.id, v)"
+            />
+            <u-input
+              v-else-if="param.type === 'number'"
+              :model-value="String(paramValues[param.id] ?? '')"
+              size="small"
+              type="number"
+              @update:model-value="(v) => onParamChange(param.id, Number(v))"
+            />
+          </div>
+        </div>
+      </section>
+
       <!-- A：本报表选用哪些数据集 -->
       <section class="dataset-dialog__select">
         <h4 class="dataset-dialog__heading">本报表选用的数据集</h4>
@@ -120,6 +154,7 @@
     </div>
 
     <template #footer>
+      <u-button plain @click="resetParams">重置参数</u-button>
       <u-button plain @click="resetConfig">重置配置</u-button>
       <u-button type="primary" @click="visible = false">完成</u-button>
     </template>
@@ -131,6 +166,7 @@ import { defineTableColumns } from '@veltra/desktop'
 import type { ColorType } from '@veltra/utils'
 import { computed, ref, watch } from 'vue'
 
+import type { DatasetQueryParam, DatasetQueryParamValues } from './dataset-hub'
 import type { DatasetField, DatasetRecords, ReportDatasetConfig } from './types'
 
 defineOptions({ name: 'SheetReportDatasetDialog' })
@@ -139,9 +175,19 @@ const props = defineProps<{
   records: DatasetRecords
   /** 本报表数据集选用与字段配置 */
   items: ReportDatasetConfig[]
+  queryParams?: DatasetQueryParam[]
+  paramValues?: DatasetQueryParamValues
 }>()
 
-const emit = defineEmits<{ 'update:items': [items: ReportDatasetConfig[]]; reset: [] }>()
+const emit = defineEmits<{
+  'update:items': [items: ReportDatasetConfig[]]
+  'update:paramValues': [values: DatasetQueryParamValues]
+  reset: []
+  'reset-params': []
+}>()
+
+const queryParams = computed(() => props.queryParams ?? [])
+const paramValues = computed(() => props.paramValues ?? {})
 
 const visible = defineModel<boolean>({ default: false })
 const detailTab = ref('schema')
@@ -225,6 +271,14 @@ function onFieldLabel(fieldName: string, label: string): void {
   )
 }
 
+function onParamChange(id: string, value: unknown): void {
+  emit('update:paramValues', { ...paramValues.value, [id]: value })
+}
+
+function resetParams(): void {
+  emit('reset-params')
+}
+
 function resetConfig(): void {
   emit('reset')
 }
@@ -239,12 +293,26 @@ function resetConfig(): void {
   max-height: calc(88vh - 140px);
 }
 
+.dataset-dialog__params,
 .dataset-dialog__select {
   flex-shrink: 0;
   padding: 12px 14px;
   border-radius: 8px;
   background: var(--u-fill-color-light, #f8fafc);
   border: 1px solid var(--u-border-color-light, #f1f5f9);
+}
+
+.dataset-dialog__param-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+}
+
+.dataset-dialog__param {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 160px;
 }
 
 .dataset-dialog__heading {

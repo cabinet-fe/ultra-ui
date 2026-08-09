@@ -1,4 +1,4 @@
-Status: ready-for-agent
+Status: completed
 
 # 03 — 可视化 Mock Data Hub (数据源与参数配置中心)
 
@@ -7,7 +7,7 @@ Status: ready-for-agent
 
 **Blocked by:** None — can start immediately.
 
-- [ ] 实现 `dataset-hub/` 的 Mock 数据库 Catalog 数据模型与 Records 生成器
-- [ ] 界面支持展示多张模拟数据表、字段名称、数据类型及样例记录
-- [ ] 支持在数据源中心配置查询参数（例如日期范围、地区下拉框、警报阈值数字），并定义参数默认值
-- [ ] 导出统一的 Dataset 访问接口，供设计师面板拖拽绑定与填报引擎读取
+- [x] 实现 `dataset-hub/` 的 Mock 数据库 Catalog 数据模型与 Records 生成器
+- [x] 界面支持展示多张模拟数据表、字段名称、数据类型及样例记录
+- [x] 支持在数据源中心配置查询参数（例如日期范围、地区下拉框、警报阈值数字），并定义参数默认值
+- [x] 导出统一的 Dataset 访问接口，供设计师面板拖拽绑定与填报引擎读取
