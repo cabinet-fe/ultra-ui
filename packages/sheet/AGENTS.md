@@ -1,12 +1,12 @@
 # AGENTS.md — @veltra/sheet
 
-基于 `@veltra/sheet-core` 的 Vue 电子表格编辑器（USheet）。数据模型 / 渲染内核（原 `src/core`、`src/grid`）已迁至 `@veltra/sheet-core`（见 `packages/sheet-core/AGENTS.md`），本包只做工具系统与 Vue UI 编排；`src/index.ts` re-export 其主入口白名单，公开 API 不变。
+基于 `@veltra/sheet-core` 的 Vue 电子表格编辑器（USheet）。数据模型 / 渲染内核（原 `src/core`、`src/grid`）已迁至 `@veltra/sheet-core`（见 `packages/sheet-core/AGENTS.md`），本包只做工具系统与 Vue UI 编排。core 符号**不做 re-export**（sheet-core 独立发包，消费方直导，见「引用 sheet-core」）。
 
 ## 目录结构
 
 ```
 src/
-├── index.ts              # 聚合导出：sheet-core 主入口白名单 re-export + tools/types/components；内置工具注册（import './tools/builtin'）
+├── index.ts              # 聚合导出：仅 sheet 自有能力（components/tools/types）；内置工具注册（import './tools/builtin'）
 ├── components/           # 组件目录（对齐 desktop 模式，Vue 只在这一层；resolver 按目录扫描 index.ts + style.ts）
 │   └── sheet/            # USheet 组件（insert-image 弹层 / 右键）
 ├── tools/                # 工具扩展（不 import 组件层）；SheetContext 门面
@@ -30,7 +30,7 @@ src/
 
 ## 引用 sheet-core
 
-- 公开 API 一律走主入口（`from '@veltra/sheet-core'`；`src/index.ts` 的 re-export 即其白名单镜像）。
+- 公开 API 一律走主入口（`from '@veltra/sheet-core'`）。本包主入口**不 re-export** sheet-core 符号——sheet-core 独立发包，消费方（含 playground）直导；不要为图省事把 core 符号挂回 `@veltra/sheet`。
 - 白名单外符号（io 转换函数、内部类型等）深导入 `@veltra/sheet-core/core/*`：tsc 不经 exports `./*` 通配做扩展名探测，`tsconfig.json` 以 `paths: { "@veltra/sheet-core/*": ["../sheet-core/src/*"] }` 兜底，并配 `references` 指向 sheet-core（paths 命中的源码归属被引用项目，避免 composite 的 TS6059/TS6307）。
 - 类成员方法（`Sheet.setCell` / `setCellStyles` / `CellStore.setCellValue` 等）为内部便捷写入口，非公开承诺 API——见 `packages/sheet-core/AGENTS.md`「核心语义」注。
 

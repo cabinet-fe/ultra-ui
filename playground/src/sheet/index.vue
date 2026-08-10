@@ -294,14 +294,8 @@
 
 <script lang="ts" setup>
 import { UDialog } from '@veltra/desktop'
-import {
-  USheet,
-  Workbook,
-  formatAddress,
-  formatRange,
-  type Sheet,
-  type SheetExposed
-} from '@veltra/sheet'
+import { USheet, type SheetExposed } from '@veltra/sheet'
+import { Workbook, formatAddress, formatRange, type Sheet } from '@veltra/sheet-core'
 import '@veltra/desktop/components/dialog/style'
 import '@veltra/sheet/components/sheet/style'
 import { computed, onBeforeUnmount, ref, shallowRef, useTemplateRef } from 'vue'

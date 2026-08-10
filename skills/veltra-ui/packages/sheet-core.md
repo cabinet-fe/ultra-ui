@@ -22,7 +22,7 @@ import {
 
 - 需要完整编辑器 UI（工具栏 / 公式栏 / sheet tabs）→ `@veltra/sheet` 的 `USheet`（见 `packages/sheet.md`）。
 - 无头模型操作、xlsx/csv 解析、自组渲染 UI、只读预览 → 本包。
-- `@veltra/sheet` 主入口 re-export 本包白名单，两边导入的符号相同；新代码的无头场景直接导入本包即可。
+- core 符号只从本包主入口（或深导入子路径）获取；`@veltra/sheet` 不做 re-export。
 
 ## 主入口导出分组
 

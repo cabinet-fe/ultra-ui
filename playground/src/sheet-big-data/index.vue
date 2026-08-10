@@ -87,8 +87,8 @@
 </template>
 
 <script lang="ts" setup>
+import { USheet } from '@veltra/sheet'
 import {
-  USheet,
   Workbook,
   exportWorkbookXlsx,
   findAll,
@@ -96,7 +96,7 @@ import {
   type CellValue,
   type SetCellValueItem,
   type Sheet
-} from '@veltra/sheet'
+} from '@veltra/sheet-core'
 import '@veltra/sheet/components/sheet/style'
 import { nextTick, ref, shallowRef, computed } from 'vue'
 
