@@ -192,10 +192,13 @@ export { exportWorkbookXlsx, exportSheetCsv } from './core/io/export'
 export { importXlsx, importCsv, replaceWorkbook } from './core/io/import'
 
 export {
+  CustomLayout,
   SheetGrid,
   type SheetGridOptions,
   type SheetGridContextMenuKind,
   type SheetGridContextMenuInfo,
+  type ICustomLayoutObj,
+  type ResolveCellRenderer,
   type ResolveDisplayValue,
   type ResolveCellStyleHook
 } from './grid/sheet-grid'

@@ -1,6 +1,7 @@
 import type { Sheet } from '@veltra/sheet-core/core/sheet'
 import type { Workbook } from '@veltra/sheet-core/core/workbook'
 import type {
+  ResolveCellRenderer,
   ResolveCellStyleHook,
   ResolveDisplayValue,
   SheetGrid
@@ -26,6 +27,12 @@ export interface SheetProps {
    * 动态单元格样式：视口渲染时叠加条件样式补丁，不写 CellData.s / StylePool
    */
   resolveCellStyle?: ResolveCellStyleHook
+  /**
+   * 动态单元格渲染（ADR-0004）：视口布局时按格自定义渲染形态（VTable
+   * customLayout，布局构建用 sheet-core 导出的 CustomLayout），返回 undefined
+   * 回落默认渲染；不写模型、不进快照
+   */
+  resolveCellRenderer?: ResolveCellRenderer
   /** 是否显示工具栏，默认 true */
   showToolbar?: boolean
   /** 是否显示顶部公式栏（名称框 + fx 输入栏），默认 true */

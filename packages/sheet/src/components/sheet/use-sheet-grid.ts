@@ -117,6 +117,7 @@ export function useSheetGrid(options: UseSheetGridOptions) {
       readonly: props.readonly,
       resolveDisplayValue: props.resolveDisplayValue,
       resolveCellStyle: props.resolveCellStyle,
+      resolveCellRenderer: props.resolveCellRenderer,
       onContextMenu: handleContextMenu,
       onEditStart: (addr) => formulaBarRef.value?.mirrorGridEdit(addr),
       onEditEnd: (addr) => formulaBarRef.value?.exitMirror(addr),

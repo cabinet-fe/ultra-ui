@@ -34,3 +34,4 @@
    - 视口计算样式通过 `resolveCellStyle` Hook 在绘制时叠加，保持视口虚拟化零性能损耗。
 3. **导出打平机制**：生成持久化快照或导出 XLSX 时，必须将满足条件的动态样式合并写入 `SheetSnapshot.styles` 与 `StylePool`，确保 Excel 打开文件完全保真。
 4. **连接器边界**：报表引擎与 UI 只依赖 `DataConnector` 接口；前端包（`sheet`/`sheet-core`）严禁引入数据库驱动或 Node-only 依赖；库不内置任何凭据持久化。
+5. **格内渲染扩展**：单元格形态自定义经 `resolveCellRenderer` Hook（VTable customLayout，ADR-0004）按格扩展，遵守 cell hook 性能契约（纯函数/同步/O(1)，见 `packages/sheet-core/AGENTS.md`）；格内内容走 renderer hook，跨格浮动内容走 ImageLayer。

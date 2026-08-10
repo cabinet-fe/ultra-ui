@@ -1,5 +1,7 @@
-import { ListTable } from '@visactor/vtable'
+import { CustomLayout, ListTable } from '@visactor/vtable'
 import type { ListTableConstructorOptions } from '@visactor/vtable'
+import type { CustomRenderFunctionArg } from '@visactor/vtable/es/ts-types/customElement'
+import type { ICustomLayoutFuc, ICustomLayoutObj } from '@visactor/vtable/es/ts-types/customLayout'
 
 import type { CellAddress, CellRange } from '../core/address'
 import { colIndexToName } from '../core/address'
@@ -29,9 +31,11 @@ import {
 } from './vtable-theme'
 
 export {
+  CustomLayout,
   cellStyleToVTableStyle,
   estimateWrapRowHeight,
   fontSizePtToPx,
+  type ICustomLayoutObj,
   type ResolveCellStyleHook,
   type SheetGridContextMenuInfo,
   type SheetGridContextMenuKind
@@ -42,6 +46,22 @@ export type ResolveDisplayValue = (
   base: CellValue | undefined
 ) => CellValue | undefined
 
+/**
+ * 动态单元格渲染 Hook（ADR-0004）：视口单元格布局时按格触发。
+ * 返回 VTable customLayout 布局对象以自定义该格渲染形态（`renderDefault`
+ * 控制是否叠加默认文本）；返回 `undefined` 回落默认渲染。
+ * `base` 为 record 显示值（即经 `resolveDisplayValue` 覆盖后的值，空串格为
+ * undefined，与 VTable 收到的一致）；合并区域非锚点格 base 为该格自身的空值
+ * （值只存锚点），宿主如需合并文本应自行读锚点。纯函数、同步返回、O(1) 查找，
+ * 禁止异步操作与大对象分配（见 AGENTS.md「cell hook 性能契约」）。不写模型、
+ * 不进快照。布局构建用 `CustomLayout`（Container/Text/Rect…，本模块已
+ * re-export）。
+ */
+export type ResolveCellRenderer = (
+  addr: CellAddress,
+  base: CellValue | undefined
+) => ICustomLayoutObj | undefined
+
 export interface SheetGridOptions {
   container: HTMLElement
   sheet: Sheet
@@ -49,6 +69,7 @@ export interface SheetGridOptions {
   cols?: number
   resolveDisplayValue?: ResolveDisplayValue
   resolveCellStyle?: ResolveCellStyleHook
+  resolveCellRenderer?: ResolveCellRenderer
   onContextMenu?: (info: SheetGridContextMenuInfo) => void
   onEditStart?: (addr: CellAddress) => void
   onEditEnd?: (addr: CellAddress) => void
@@ -68,6 +89,7 @@ export class SheetGrid {
   private readonly onEditStart?: (addr: CellAddress) => void
   private readonly onEditEnd?: (addr: CellAddress) => void
   private readonly resolveDisplayValue?: ResolveDisplayValue
+  private readonly resolveCellRenderer?: ResolveCellRenderer
   private readonly isReadonly: boolean
   private readonly disposers: (() => void)[] = []
   private editingAddr: CellAddress | null = null
@@ -90,6 +112,7 @@ export class SheetGrid {
     this.onEditStart = options.onEditStart
     this.onEditEnd = options.onEditEnd
     this.resolveDisplayValue = options.resolveDisplayValue
+    this.resolveCellRenderer = options.resolveCellRenderer
     this.isReadonly = options.readonly ?? false
 
     this.coords = new GridCoords()
@@ -268,8 +291,29 @@ export class SheetGrid {
     return Array.from({ length: this.cols }, (_, col) => ({
       field: String(col),
       title: colIndexToName(col),
-      style: (styleArg: any) => this.styleResolver.resolveCellStyle(styleArg, this.coords)
+      style: (styleArg: any) => this.styleResolver.resolveCellStyle(styleArg, this.coords),
+      // 仅宿主提供 hook 时安装分发器：customLayout 存在会使 VTable 对该列
+      // 关闭 fast-update 快路径，默认场景必须保持零差异（ADR-0004）。
+      // 分发器返回 undefined 回落默认渲染（VTable 运行时支持 falsy 返回值，
+      // 但其声明类型不含 undefined，故以 ICustomLayoutFuc 收敛）
+      ...(this.resolveCellRenderer
+        ? {
+            customLayout: ((args: CustomRenderFunctionArg) =>
+              this.resolveCellLayout(args)) as ICustomLayoutFuc
+          }
+        : {})
     }))
+  }
+
+  /**
+   * customLayout 按格分发器（ADR-0004）：表格坐标 → 模型地址，仅 body 格
+   * 回调宿主 hook（合并格 VTable 传入锚点坐标，天然落锚）；行号列/列头或
+   * hook 返回 undefined 时回落默认渲染（VTable 对 falsy 返回值走默认绘制）。
+   */
+  private resolveCellLayout(args: CustomRenderFunctionArg): ICustomLayoutObj | undefined {
+    const addr = this.coords.toSheetAddr(args.table as ListTable, args.col, args.row)
+    if (!addr) return undefined
+    return this.resolveCellRenderer?.(addr, args.dataValue)
   }
 
   private getTableCellValue(addr: CellAddress): CellValue | undefined {

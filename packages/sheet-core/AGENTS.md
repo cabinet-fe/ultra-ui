@@ -48,6 +48,18 @@ src/
 - **浮动图片**：`SheetImage`（`id` + `Uint8Array` 字节 + `type` + `anchor.from`/`to?` + 可选宽高/alt/title；`from` 可带格内像素偏移 `offsetX/offsetY`，缺省 0）；写入经 `insertImage` / `removeImage` / `updateImage`（命令 `sheet.insert-image` / `sheet.remove-image` / `sheet.update-image`，`ImagePatch`）；快照字段 `SheetSnapshot.images?`；`restoreContent` 整表替换图片并发 `image-change`。行列插入/删除时锚点平移（offset 随 from 格保留）；锚点区间被完整删除时图片移除（同 undo 单元）。格式：`png` / `jpeg` / `gif` / `svg` / `webp`（与 hucre 对齐）。
 - 注：`Sheet.setCell` / `setCellStyles` / `CellStore.setCellValue` 为内部便捷写入口（生产零调用、测试直用），非公开承诺 API——包入口不单独导出，宿主请用 `setCells` / `setCellStyle`。
 
+## cell hook 性能契约（ADR-0004 决策 3）
+
+cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `resolveCellRenderer`，见 `grid/sheet-grid.ts`），全部运行在渲染热路径上，必须遵守：
+
+- **纯函数、同步返回**：禁止异步操作（IO/请求/定时器）与副作用；返回 `undefined` 即回落默认行为。
+- **O(1) 查找**：按格索引只允许稀疏 Map / 地址直查（Cell Meta 为稀疏 Map），禁止线性扫描或全表遍历。
+- **禁止大对象分配**：不构造长数组/大字符串/闭包链；每次调用只分配必要的最小对象。
+
+调用节奏（三者不同，勿合并）：`resolveDisplayValue` 在 record 构建时（数据变更才触发）、`resolveCellStyle` 在每次场景图重绘（视口可见格 × 重绘次数 × facing 边溯源最多 4 倍放大，最热）、`resolveCellRenderer` 在布局时（视口可见格 × 布局次数）。
+
+`resolveCellRenderer` 经列级 `customLayout` 按格分发器回调宿主：**仅宿主提供 hook 时才安装**（customLayout 存在会使 VTable 对该列关闭 fast-update 快路径，默认场景必须零差异）。hook 不写模型、不进快照。嵌入路线分工：格内内容走 renderer hook；跨格浮动内容走 ImageLayer。
+
 ## SheetGrid readonly 模式
 
 `SheetGridOptions.readonly`（构造选项，`grid/sheet-grid.ts`），面向只读预览场景（desktop file-viewer 的 Excel/CSV 预览）：
