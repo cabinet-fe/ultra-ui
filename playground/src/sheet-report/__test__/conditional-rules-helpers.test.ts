@@ -1,3 +1,4 @@
+import type { ConditionalRule } from '@veltra/sheet'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -10,7 +11,6 @@ import {
   readBetweenValue,
   writeBetweenValue
 } from '../designer/conditional-rules/helpers'
-import type { ConditionalRule } from '../types'
 
 describe('conditional-rules helpers', () => {
   it('按字段类型返回运算符列表', () => {

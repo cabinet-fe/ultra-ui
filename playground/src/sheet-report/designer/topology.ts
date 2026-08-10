@@ -1,7 +1,6 @@
+import type { ReportBinding } from '@veltra/sheet'
+import { resolveLeftParent } from '@veltra/sheet'
 import type { CellAddress } from '@veltra/sheet-core'
-
-import { resolveLeftParent } from '../binding'
-import type { ReportBinding } from '../types'
 
 export interface TopologyLink {
   /** 子格（依赖方） */

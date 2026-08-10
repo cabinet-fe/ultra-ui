@@ -1,6 +1,26 @@
-import type { DatasetCatalogItem, DatasetField, DatasetRecords } from '../types'
+import type {
+  DatasetCatalogItem,
+  DatasetField,
+  DatasetRecords,
+  ParamValues,
+  QueryParamDef,
+  QueryParamOption,
+  QueryParamType
+} from '@veltra/sheet'
 
-/** 数据连接类型 */
+// 数据集模型类型（DatasetCatalogItem / DatasetField / DatasetRecords / 查询参数族）
+// 单一事实源在 @veltra/sheet 的 report 模块；本 mock hub 仅 re-export。
+export type {
+  DatasetCatalogItem,
+  DatasetField,
+  DatasetRecords,
+  ParamValues,
+  QueryParamDef,
+  QueryParamOption,
+  QueryParamType
+} from '@veltra/sheet'
+
+/** 数据连接类型（mock hub 暂留 'api'；产品化连接器收敛为 mysql / postgresql） */
 export type ConnectionType = 'mysql' | 'postgresql' | 'api'
 
 /** 数据连接 */
@@ -14,27 +34,6 @@ export interface DataConnection {
   username: string
   password: string
 }
-
-/** 查询参数控件类型 */
-export type QueryParamType = 'text' | 'number' | 'date' | 'date-range' | 'select'
-
-/** 下拉选项 */
-export interface QueryParamOption {
-  label: string
-  value: string
-}
-
-/** 查询参数定义（从 SQL `${param}` 提取，可在数据集编辑器覆盖元数据） */
-export interface QueryParamDef {
-  id: string
-  label: string
-  type: QueryParamType
-  defaultValue: unknown
-  options?: QueryParamOption[]
-}
-
-/** 运行时参数值 */
-export type ParamValues = Record<string, unknown>
 
 /** @deprecated 别名，兼容旧引用 */
 export type DatasetQueryParamValues = ParamValues

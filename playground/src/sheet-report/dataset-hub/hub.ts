@@ -1,4 +1,5 @@
-import type { DatasetCatalogItem, DatasetRecords } from '../types'
+import type { DatasetCatalogItem, DatasetRecords } from '@veltra/sheet'
+
 import { createMockDatabase, type MockDatabase } from './database'
 import {
   DATASET_CATALOG,

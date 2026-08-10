@@ -111,9 +111,9 @@
 </template>
 
 <script lang="ts" setup>
+import type { ConditionalOperator, ConditionalRule, DatasetField } from '@veltra/sheet'
 import { computed } from 'vue'
 
-import type { ConditionalOperator, ConditionalRule, DatasetField } from '../../types'
 import {
   coerceValueForOperator,
   operatorsForFieldType,

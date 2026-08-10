@@ -73,12 +73,12 @@
 </template>
 
 <script lang="ts" setup>
+import { aggregateDefaultExpand, formatBindingPlaceholder, resolveReportRole } from '@veltra/sheet'
+import type { ReportAggregate, ReportBinding, ReportRole, ReportSort } from '@veltra/sheet'
 import type { CellAddress } from '@veltra/sheet-core'
 import type { SheetGrid } from '@veltra/sheet-core/grid/sheet-grid'
 import { computed, nextTick, ref, toRef, watch } from 'vue'
 
-import { aggregateDefaultExpand, formatBindingPlaceholder, resolveReportRole } from '../binding'
-import type { ReportAggregate, ReportBinding, ReportRole, ReportSort } from '../types'
 import { resolveGridOverlayLayout } from './cell-coords'
 import { REPORT_ROLE_OPTIONS, roleBindingDefaults } from './role'
 import {

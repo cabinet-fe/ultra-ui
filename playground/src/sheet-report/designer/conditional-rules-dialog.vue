@@ -42,9 +42,9 @@
 
 <script lang="ts" setup>
 import { animations, useDnD } from '@veltra/compositions'
+import type { ConditionalRule, DatasetField } from '@veltra/sheet'
 import { computed, ref, watch } from 'vue'
 
-import type { ConditionalRule, DatasetField } from '../types'
 import {
   cloneRulesFromDraft,
   createDraftItem,

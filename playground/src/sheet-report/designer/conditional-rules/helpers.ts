@@ -1,4 +1,4 @@
-import type { ConditionalOperator, ConditionalRule, DatasetField } from '../../types'
+import type { ConditionalOperator, ConditionalRule, DatasetField } from '@veltra/sheet'
 
 export interface DraftRuleItem {
   id: string

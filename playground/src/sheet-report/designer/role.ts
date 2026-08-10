@@ -1,4 +1,4 @@
-import type { ReportBinding, ReportRole } from '../types'
+import type { ReportBinding, ReportRole } from '@veltra/sheet'
 
 const ROLE_LABELS: Record<ReportRole, string> = {
   group: '分组头',

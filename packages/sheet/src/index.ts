@@ -22,3 +22,6 @@ export {
 export { type SheetProps, type SheetEmits, type _SheetExposed, type SheetExposed } from './types'
 
 export { USheet } from './components/sheet'
+
+// 报表纯 TS 内核：renderReport / binding / rules / params / DataConnector（结构见 packages/sheet/AGENTS.md）
+export * from './report'

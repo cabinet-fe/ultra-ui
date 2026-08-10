@@ -135,11 +135,11 @@
 
 <script lang="ts" setup>
 import { defineTableColumns } from '@veltra/desktop'
+import type { DatasetField } from '@veltra/sheet'
 import type { ColorType } from '@veltra/utils'
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 
 import type { DataHub, DatasetDef, QueryParamDef, QueryParamType } from '../dataset-hub'
-import type { DatasetField } from '../types'
 
 defineOptions({ name: 'SheetReportDatasetEditor' })
 

@@ -72,10 +72,10 @@
 </template>
 
 <script lang="ts" setup>
+import type { DatasetCatalogItem } from '@veltra/sheet'
 import { computed, ref } from 'vue'
 
 import { fieldTypeGlyph, filterDatasetsByQuery } from './designer/field-panel-helpers'
-import type { DatasetCatalogItem } from './types'
 
 defineOptions({ name: 'SheetReportFieldPanel' })
 

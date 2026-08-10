@@ -30,11 +30,11 @@
 </template>
 
 <script lang="ts" setup>
+import type { ReportBinding } from '@veltra/sheet'
 import type { CellAddress } from '@veltra/sheet-core'
 import type { SheetGrid } from '@veltra/sheet-core/grid/sheet-grid'
 import { computed, ref, toRef } from 'vue'
 
-import type { ReportBinding } from '../types'
 import { buildTopologyArcPath, collectTopologyLinks, type TopologyBindingEntry } from './topology'
 import { readCellOverlayRect, readGridOverlaySize, useGridOverlaySync } from './use-grid-overlay'
 

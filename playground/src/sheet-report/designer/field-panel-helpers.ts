@@ -1,4 +1,4 @@
-import type { DatasetCatalogItem, DatasetField } from '../types'
+import type { DatasetCatalogItem, DatasetField } from '@veltra/sheet'
 
 export function fieldTypeGlyph(type: DatasetField['type']): string {
   if (type === 'number') return '#'

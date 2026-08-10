@@ -1,6 +1,12 @@
-import type { DatasetField } from '../types'
+import type { DatasetField } from '@veltra/sheet'
+import { buildParamDefs, extractParamIds } from '@veltra/sheet'
+
 import type { MockDatabase } from './database'
-import type { ParamValues, QueryParamDef, QueryParamType } from './types'
+import type { ParamValues, QueryParamDef } from './types'
+
+// ${param} 提取与参数定义构建的单一事实源在 @veltra/sheet 的 report 模块；
+// 本 mock 执行器只保留 SQL 解析 / 求值（随 mock hub 一并下线）。
+export { buildParamDefs, extractParamIds }
 
 const KEYWORDS = new Set([
   'SELECT',
@@ -378,48 +384,6 @@ class Parser {
   }
 }
 
-/** 从 SQL 提取 `${param}` 占位符 id */
-export function extractParamIds(sql: string): string[] {
-  const ids: string[] = []
-  const re = /\$\{([^}]+)\}/g
-  let match: RegExpExecArray | null
-  while ((match = re.exec(sql)) !== null) {
-    const id = match[1]!.trim()
-    if (id && !ids.includes(id)) ids.push(id)
-  }
-  return ids
-}
-
-function inferParamTypeFromSql(sql: string, paramId: string): QueryParamType {
-  const betweenSingle = new RegExp(
-    `\\bBETWEEN\\s+\\$\\{${escapeRegExp(paramId)}\\}(?!\\s+AND)`,
-    'i'
-  )
-  if (betweenSingle.test(sql)) return 'date-range'
-
-  const betweenPair = new RegExp(
-    `\\bBETWEEN\\s+\\$\\{${escapeRegExp(paramId)}\\}\\s+AND\\s+\\$\\{([^}]+)\\}`,
-    'i'
-  )
-  const pairMatch = betweenPair.exec(sql)
-  if (pairMatch && pairMatch[1]!.trim() !== paramId) return 'date'
-
-  const like = new RegExp(`\\bLIKE\\s+\\$\\{${escapeRegExp(paramId)}\\}`, 'i')
-  if (like.test(sql)) return 'text'
-
-  const numericCompare = new RegExp(
-    `[<>=]+\\s+\\$\\{${escapeRegExp(paramId)}\\}|\\$\\{${escapeRegExp(paramId)}\\}\\s*[<>=]+`,
-    'i'
-  )
-  if (numericCompare.test(sql)) return 'number'
-
-  return 'text'
-}
-
-function escapeRegExp(value: string): string {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-}
-
 function isEmptyParamValue(value: unknown): boolean {
   if (value == null) return true
   if (typeof value === 'string' && value.trim() === '') return true
@@ -572,37 +536,6 @@ export function parseSql(sql: string): ParsedQuery | SqlParseError {
   const tokens = tokenize(sql.trim())
   if ('error' in tokens) return tokens
   return new Parser(tokens).parse()
-}
-
-export function buildParamDefs(
-  sql: string,
-  overrides?: Record<string, Partial<Omit<QueryParamDef, 'id'>>>
-): QueryParamDef[] {
-  const ids = extractParamIds(sql)
-  return ids.map((id) => {
-    const inferred = inferParamTypeFromSql(sql, id)
-    const override = overrides?.[id]
-    return {
-      id,
-      label: override?.label ?? id,
-      type: override?.type ?? inferred,
-      defaultValue: override?.defaultValue ?? defaultValueForType(override?.type ?? inferred),
-      options: override?.options
-    }
-  })
-}
-
-function defaultValueForType(type: QueryParamType): unknown {
-  switch (type) {
-    case 'number':
-      return 0
-    case 'date-range':
-      return ['', '']
-    case 'select':
-      return ''
-    default:
-      return ''
-  }
 }
 
 export function describeSql(

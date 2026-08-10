@@ -164,10 +164,25 @@
 
 <script lang="ts" setup>
 import { USheet, type SheetExposed } from '@veltra/sheet'
+import {
+  REPORT_META_NAMESPACE,
+  createReportBinding,
+  formatBindingPlaceholder,
+  formatCellAddress,
+  resolveLeftParent,
+  resolveReportRole,
+  resolveBoundDatasetParams,
+  renderReport,
+  setBindingCatalog,
+  type ConditionalRule,
+  type DatasetCatalogItem,
+  type DatasetField,
+  type ReportBinding
+} from '@veltra/sheet'
 import type { CellAddress, Sheet, SheetSnapshot } from '@veltra/sheet-core'
 import { Workbook } from '@veltra/sheet-core'
-import type { ResolveDisplayValue } from '@veltra/sheet-core/grid/sheet-grid'
 import '@veltra/sheet/components/sheet/style'
+import type { ResolveDisplayValue } from '@veltra/sheet-core/grid/sheet-grid'
 import {
   computed,
   nextTick,
@@ -179,15 +194,6 @@ import {
   watch
 } from 'vue'
 
-import {
-  REPORT_META_NAMESPACE,
-  createReportBinding,
-  formatBindingPlaceholder,
-  formatCellAddress,
-  resolveLeftParent,
-  resolveReportRole,
-  setBindingCatalog
-} from './binding'
 import DatasetCenter from './dataset-center.vue'
 import { createDataHub } from './dataset-hub'
 import BindingFloatPanel from './designer/binding-float-panel.vue'
@@ -200,17 +206,14 @@ import { downloadFilledReportXlsx } from './export-xlsx'
 import FieldPanel from './field-panel.vue'
 import FilterBar from './filter-bar.vue'
 import HelpDialog from './help-dialog.vue'
-import { resolveBoundDatasetParams } from './params'
 import ParamsConfigDialog from './params-config-dialog.vue'
 import { REPORT_PRESETS, findReportPreset } from './presets'
-import { renderReport } from './render'
 import {
   DEMO_COL_WIDTHS,
   applyColWidths,
   readDemoColWidths,
   type DemoColWidthEntry
 } from './template'
-import type { ConditionalRule, DatasetCatalogItem, DatasetField, ReportBinding } from './types'
 
 type ViewMode = 'design' | 'preview'
 

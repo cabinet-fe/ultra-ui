@@ -3,9 +3,8 @@
 </template>
 
 <script lang="ts" setup>
+import type { ConditionalRule } from '@veltra/sheet'
 import { computed } from 'vue'
-
-import type { ConditionalRule } from '../../types'
 
 defineOptions({ name: 'SheetReportConditionalRulePreview' })
 

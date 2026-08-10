@@ -1,14 +1,8 @@
 import type { CellAddress } from '@veltra/sheet-core'
 
-import type {
-  DatasetCatalogItem,
-  MockDataset,
-  ReportAggregate,
-  ReportBinding,
-  ReportRole
-} from './types'
+import type { DatasetCatalogItem, ReportAggregate, ReportBinding, ReportRole } from './types'
 
-/** 字段 label 解析用的 catalog（由 DataHub 注入） */
+/** 字段 label 解析用的 catalog（由宿主注入） */
 let bindingCatalog: DatasetCatalogItem[] = []
 
 export function setBindingCatalog(catalog: DatasetCatalogItem[]): void {
@@ -40,7 +34,7 @@ export function resolveReportRole(binding: ReportBinding): ReportRole {
 }
 
 /** 默认列表 + 纵向扩展 + 默认左父格 */
-export function createReportBinding(dataset: MockDataset, fieldName: string): ReportBinding {
+export function createReportBinding(dataset: DatasetCatalogItem, fieldName: string): ReportBinding {
   return {
     dataset: dataset.id,
     field: fieldName,

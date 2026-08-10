@@ -1,4 +1,5 @@
-import type { DatasetCatalogItem } from '../types'
+import type { DatasetCatalogItem } from '@veltra/sheet'
+
 import type { DataConnection, DatasetDef } from './types'
 
 export const DEFAULT_REGION_OPTIONS = [

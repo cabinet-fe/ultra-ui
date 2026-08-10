@@ -12,7 +12,7 @@ function rule(
   return { operator, value, style }
 }
 
-describe('sheet-report rules', () => {
+describe('report rules', () => {
   describe('evaluateCondition', () => {
     it('数值比较运算符', () => {
       expect(evaluateCondition(150, rule('gt', 100, {}))).toBe(true)

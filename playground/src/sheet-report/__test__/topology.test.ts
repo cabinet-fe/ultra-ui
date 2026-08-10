@@ -1,13 +1,13 @@
+import { createReportBinding } from '@veltra/sheet'
+import type { ReportBinding } from '@veltra/sheet'
 import { describe, expect, it } from 'vitest'
 
-import { createReportBinding } from '../binding'
 import { ORDERS_DATASET } from '../dataset-hub'
 import {
   buildTopologyArcPath,
   collectTopologyLinks,
   findCellsWithLeftParent
 } from '../designer/topology'
-import type { ReportBinding } from '../types'
 
 function bindingMap(cells: Array<{ addr: { row: number; col: number }; binding: ReportBinding }>) {
   const map = new Map<string, ReportBinding>()

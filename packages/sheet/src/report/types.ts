@@ -53,7 +53,7 @@ export interface DatasetField {
 }
 
 /**
- * 全局数据集目录项（catalog）：系统里可用的数据集定义（demo mock 源）。
+ * 全局数据集目录项（catalog）：系统里可用的数据集定义。
  * 与「本报表选用哪些」无关。
  */
 export interface DatasetCatalogItem {
@@ -62,23 +62,26 @@ export interface DatasetCatalogItem {
   fields: DatasetField[]
 }
 
-/** @deprecated 使用 DatasetCatalogItem；保留别名以免测试/旧引用断裂 */
-export type MockDataset = DatasetCatalogItem
-
-/**
- * 本报表对某数据集的选用与字段配置。
- * 从 catalog 拷贝；可改显示名与字段中文 label；`selected` 控制是否进入字段面板。
- */
-export interface ReportDatasetConfig {
-  id: string
-  /** 数据集显示名（可覆盖 catalog） */
-  label: string
-  /** 是否选用到本报表（出现在左侧字段面板） */
-  selected: boolean
-  /** 字段 schema 配置（可编辑中文 label；name 为绑定键） */
-  fields: DatasetField[]
-  rowCount: number
-}
-
 /** Dataset id → 行记录（渲染 Filled Report 用） */
 export type DatasetRecords = Record<string, Record<string, unknown>[]>
+
+/** 查询参数控件类型 */
+export type QueryParamType = 'text' | 'number' | 'date' | 'date-range' | 'select'
+
+/** 下拉选项 */
+export interface QueryParamOption {
+  label: string
+  value: string
+}
+
+/** 查询参数定义（从 SQL `${param}` 提取，可在数据集编辑器覆盖元数据） */
+export interface QueryParamDef {
+  id: string
+  label: string
+  type: QueryParamType
+  defaultValue: unknown
+  options?: QueryParamOption[]
+}
+
+/** 运行时参数值 */
+export type ParamValues = Record<string, unknown>

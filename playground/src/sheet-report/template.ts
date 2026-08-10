@@ -1,6 +1,6 @@
+import { REPORT_META_NAMESPACE, createReportBinding } from '@veltra/sheet'
 import type { Sheet } from '@veltra/sheet-core'
 
-import { REPORT_META_NAMESPACE, createReportBinding } from './binding'
 import { INVENTORY_ALERTS_DATASET, ORDERS_DATASET, SALES_MATRIX_DATASET } from './mock-dataset'
 
 /**

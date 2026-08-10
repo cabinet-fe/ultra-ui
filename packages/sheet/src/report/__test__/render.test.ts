@@ -2,17 +2,200 @@ import { Sheet } from '@veltra/sheet-core'
 import { describe, expect, it } from 'vitest'
 
 import { REPORT_META_NAMESPACE, createReportBinding } from '../binding'
-import { CUSTOMERS_DATASET, ORDERS_DATASET } from '../dataset-hub'
-import { MOCK_DATA_RECORDS, MOCK_SALES_MATRIX_ROWS } from '../mock-dataset'
 import { renderReport } from '../render'
-import {
-  DEMO_COL_WIDTHS,
-  applyColWidths,
-  applyDemoColWidths,
-  readDemoColWidths,
-  seedGroupDetailTemplate,
-  seedMatrixTemplate
-} from '../template'
+import type { DatasetCatalogItem, DatasetRecords } from '../types'
+
+// ---- 内联 fixtures（单一事实源在测试自身，不依赖 playground mock hub）----
+
+const ORDERS_DATASET: DatasetCatalogItem = {
+  id: 'orders',
+  label: '销售明细',
+  fields: [
+    { name: 'customer', label: '客户', type: 'string' },
+    { name: 'orderNo', label: '订单号', type: 'string' },
+    { name: 'region', label: '地区', type: 'string' },
+    { name: 'amount', label: '金额', type: 'number' },
+    { name: 'orderDate', label: '下单日期', type: 'date' }
+  ]
+}
+
+const CUSTOMERS_DATASET: DatasetCatalogItem = {
+  id: 'customers',
+  label: '客户',
+  fields: [
+    { name: 'id', label: '客户ID', type: 'string' },
+    { name: 'region', label: '地区', type: 'string' }
+  ]
+}
+
+const SALES_MATRIX_DATASET: DatasetCatalogItem = {
+  id: 'sales-matrix',
+  label: '销售矩阵',
+  fields: [
+    { name: 'region', label: '地区', type: 'string' },
+    { name: 'category', label: '品类', type: 'string' },
+    { name: 'amount', label: '销售额', type: 'number' }
+  ]
+}
+
+/** 4 客户 × 14 订单（与模板断言严格对应） */
+const ORDER_ROWS: Record<string, unknown>[] = [
+  { customer: '甲公司', region: '华东', orderNo: 'O-1001', amount: 100, orderDate: '2024-01-05' },
+  { customer: '甲公司', region: '华东', orderNo: 'O-1002', amount: 200, orderDate: '2024-01-12' },
+  { customer: '甲公司', region: '华东', orderNo: 'O-1003', amount: 150, orderDate: '2024-01-20' },
+  { customer: '甲公司', region: '华东', orderNo: 'O-1004', amount: 180, orderDate: '2024-01-28' },
+  { customer: '乙公司', region: '华南', orderNo: 'O-2001', amount: 300, orderDate: '2024-02-01' },
+  { customer: '乙公司', region: '华南', orderNo: 'O-2002', amount: 250, orderDate: '2024-02-08' },
+  { customer: '乙公司', region: '华南', orderNo: 'O-2003', amount: 220, orderDate: '2024-02-15' },
+  { customer: '乙公司', region: '华南', orderNo: 'O-2004', amount: 280, orderDate: '2024-02-22' },
+  { customer: '丙公司', region: '华北', orderNo: 'O-3001', amount: 400, orderDate: '2024-03-01' },
+  { customer: '丙公司', region: '华北', orderNo: 'O-3002', amount: 350, orderDate: '2024-03-10' },
+  { customer: '丙公司', region: '华北', orderNo: 'O-3003', amount: 320, orderDate: '2024-03-18' },
+  { customer: '丁公司', region: '西部', orderNo: 'O-4001', amount: 500, orderDate: '2024-04-02' },
+  { customer: '丁公司', region: '西部', orderNo: 'O-4002', amount: 450, orderDate: '2024-04-11' },
+  { customer: '丁公司', region: '西部', orderNo: 'O-4003', amount: 480, orderDate: '2024-04-20' }
+]
+
+const CUSTOMER_ROWS: Record<string, unknown>[] = [
+  { id: 'C-01', name: '甲公司', region: '华东' },
+  { id: 'C-02', name: '乙公司', region: '华南' },
+  { id: 'C-03', name: '丙公司', region: '华北' },
+  { id: 'C-04', name: '丁公司', region: '西部' },
+  { id: 'C-05', name: '戊公司', region: '华东' },
+  { id: 'C-06', name: '己公司', region: '华南' },
+  { id: 'C-07', name: '庚公司', region: '华北' },
+  { id: 'C-08', name: '辛公司', region: '西部' }
+]
+
+/** 地区 × 品类矩阵交叉数据（4 地区 × 5 品类 = 20 行） */
+const SALES_MATRIX_ROWS: Record<string, unknown>[] = [
+  { region: '华东', category: '办公设备', qty: 42, amount: 50400, month: '2024-Q1' },
+  { region: '华东', category: '耗材', qty: 128, amount: 8640, month: '2024-Q1' },
+  { region: '华东', category: '家具', qty: 18, amount: 46440, month: '2024-Q1' },
+  { region: '华东', category: '外设', qty: 35, amount: 73465, month: '2024-Q1' },
+  { region: '华东', category: '网络', qty: 12, amount: 8640, month: '2024-Q1' },
+  { region: '华南', category: '办公设备', qty: 28, amount: 33600, month: '2024-Q1' },
+  { region: '华南', category: '耗材', qty: 96, amount: 6480, month: '2024-Q1' },
+  { region: '华南', category: '家具', qty: 22, amount: 56760, month: '2024-Q1' },
+  { region: '华南', category: '外设', qty: 30, amount: 62970, month: '2024-Q1' },
+  { region: '华南', category: '网络', qty: 8, amount: 5760, month: '2024-Q1' },
+  { region: '华北', category: '办公设备', qty: 20, amount: 24000, month: '2024-Q1' },
+  { region: '华北', category: '耗材', qty: 72, amount: 4860, month: '2024-Q1' },
+  { region: '华北', category: '家具', qty: 14, amount: 36120, month: '2024-Q1' },
+  { region: '华北', category: '外设', qty: 18, amount: 37782, month: '2024-Q1' },
+  { region: '华北', category: '网络', qty: 10, amount: 7200, month: '2024-Q1' },
+  { region: '西部', category: '办公设备', qty: 16, amount: 19200, month: '2024-Q1' },
+  { region: '西部', category: '耗材', qty: 54, amount: 3645, month: '2024-Q1' },
+  { region: '西部', category: '家具', qty: 12, amount: 30960, month: '2024-Q1' },
+  { region: '西部', category: '外设', qty: 14, amount: 29386, month: '2024-Q1' },
+  { region: '西部', category: '网络', qty: 6, amount: 4320, month: '2024-Q1' }
+]
+
+const MOCK_DATA_RECORDS: DatasetRecords = { orders: ORDER_ROWS, customers: CUSTOMER_ROWS }
+
+// ---- 内联模板种子 ----
+
+/** 预置 Report Template：表头（5 列）+ 同一扩展带（分组 + 明细）+ 合计行 */
+function seedGroupDetailTemplate(sheet: Sheet): void {
+  sheet.setCells([
+    { addr: { row: 0, col: 0 }, data: { v: '客户' } },
+    { addr: { row: 0, col: 1 }, data: { v: '订单号' } },
+    { addr: { row: 0, col: 2 }, data: { v: '地区' } },
+    { addr: { row: 0, col: 3 }, data: { v: '金额' } },
+    { addr: { row: 0, col: 4 }, data: { v: '下单日期' } },
+    { addr: { row: 2, col: 1 }, data: { v: '合计' } }
+  ])
+
+  sheet.setCellStyle(
+    { start: { row: 0, col: 0 }, end: { row: 0, col: 4 } },
+    { font: { bold: true }, fill: { color: '#E8EEF7' } }
+  )
+  sheet.setCellStyle(
+    { start: { row: 2, col: 0 }, end: { row: 2, col: 4 } },
+    { font: { bold: true } }
+  )
+
+  const groupParent = { row: 1, col: 0 }
+
+  const customerGroup = createReportBinding(ORDERS_DATASET, 'customer')
+  customerGroup.role = 'group'
+  customerGroup.aggregate = 'group'
+  customerGroup.leftParent = 'none'
+  sheet.setCellMeta(groupParent, REPORT_META_NAMESPACE, customerGroup)
+
+  const orderNo = createReportBinding(ORDERS_DATASET, 'orderNo')
+  orderNo.leftParent = groupParent
+  sheet.setCellMeta({ row: 1, col: 1 }, REPORT_META_NAMESPACE, orderNo)
+
+  const region = createReportBinding(ORDERS_DATASET, 'region')
+  region.leftParent = groupParent
+  sheet.setCellMeta({ row: 1, col: 2 }, REPORT_META_NAMESPACE, region)
+
+  const amount = createReportBinding(ORDERS_DATASET, 'amount')
+  amount.leftParent = groupParent
+  sheet.setCellMeta({ row: 1, col: 3 }, REPORT_META_NAMESPACE, amount)
+
+  const orderDate = createReportBinding(ORDERS_DATASET, 'orderDate')
+  orderDate.leftParent = groupParent
+  sheet.setCellMeta({ row: 1, col: 4 }, REPORT_META_NAMESPACE, orderDate)
+
+  const subtotal = createReportBinding(ORDERS_DATASET, 'amount')
+  subtotal.role = 'subtotal'
+  subtotal.aggregate = 'sum'
+  subtotal.expand = 'none'
+  subtotal.leftParent = groupParent
+  sheet.setCellMeta({ row: 2, col: 3 }, REPORT_META_NAMESPACE, subtotal)
+}
+
+/** 预置二维矩阵模板：地区（行）× 品类（列）销售额交叉表 */
+function seedMatrixTemplate(sheet: Sheet): void {
+  sheet.setCells([
+    { addr: { row: 0, col: 0 }, data: { v: '地区 \\ 品类' } },
+    { addr: { row: 2, col: 0 }, data: { v: '合计' } }
+  ])
+
+  sheet.setCellStyle(
+    { start: { row: 0, col: 0 }, end: { row: 0, col: 0 } },
+    { font: { bold: true }, fill: { color: '#E8EEF7' } }
+  )
+  sheet.setCellStyle(
+    { start: { row: 2, col: 0 }, end: { row: 2, col: 0 } },
+    { font: { bold: true } }
+  )
+
+  const categoryGroup = createReportBinding(SALES_MATRIX_DATASET, 'category')
+  categoryGroup.role = 'group'
+  categoryGroup.aggregate = 'group'
+  categoryGroup.leftParent = 'none'
+  sheet.setCellMeta({ row: 0, col: 1 }, REPORT_META_NAMESPACE, categoryGroup)
+
+  const regionGroup = createReportBinding(SALES_MATRIX_DATASET, 'region')
+  regionGroup.role = 'group'
+  regionGroup.aggregate = 'group'
+  regionGroup.leftParent = 'none'
+  sheet.setCellMeta({ row: 1, col: 0 }, REPORT_META_NAMESPACE, regionGroup)
+
+  const cross = createReportBinding(SALES_MATRIX_DATASET, 'amount')
+  cross.role = 'matrix'
+  cross.aggregate = 'sum'
+  cross.expand = 'none'
+  cross.leftParent = 'none'
+  sheet.setCellMeta({ row: 1, col: 1 }, REPORT_META_NAMESPACE, cross)
+
+  const colSubtotal = createReportBinding(SALES_MATRIX_DATASET, 'amount')
+  colSubtotal.role = 'subtotal'
+  colSubtotal.aggregate = 'sum'
+  colSubtotal.expand = 'none'
+  colSubtotal.leftParent = 'none'
+  sheet.setCellMeta({ row: 2, col: 1 }, REPORT_META_NAMESPACE, colSubtotal)
+
+  const grandTotal = createReportBinding(SALES_MATRIX_DATASET, 'amount')
+  grandTotal.role = 'grandTotal'
+  grandTotal.aggregate = 'sum'
+  grandTotal.expand = 'none'
+  grandTotal.leftParent = 'none'
+  sheet.setCellMeta({ row: 2, col: 6 }, REPORT_META_NAMESPACE, grandTotal)
+}
 
 function buildGroupDetailTemplate() {
   const sheet = new Sheet()
@@ -112,7 +295,7 @@ describe('renderReport', () => {
 
     const filled = renderReport(broken, MOCK_DATA_RECORDS)
     // 无分组锚点时走 expandListBlock：全量订单明细 + 小计
-    expect(filled.rows).toBe(1 + MOCK_DATA_RECORDS.orders!.length + 1)
+    expect(filled.rows).toBe(1 + ORDER_ROWS.length + 1)
     expect(cellValue(filled, 1, 1)).toBe('O-1001')
   })
 
@@ -136,72 +319,6 @@ describe('renderReport', () => {
     const filled = renderReport(sheet.snapshot(), MOCK_DATA_RECORDS)
     const firstAmount = filled.cells.find((c) => c.row === 1 && c.col === 3)
     expect(firstAmount?.s).toBe(styleId)
-  })
-
-  it('表头与合计行带有样式', () => {
-    const template = buildGroupDetailTemplate()
-    const headerStyle = template.cells.find((c) => c.row === 0 && c.col === 0)?.s
-    const subtotalLabelStyle = template.cells.find((c) => c.row === 2 && c.col === 1)?.s
-    expect(headerStyle).toBeDefined()
-    expect(subtotalLabelStyle).toBeDefined()
-  })
-
-  it('演示提供 7 个关联数据集且订单仍是默认模板主源', () => {
-    expect(Object.keys(MOCK_DATA_RECORDS).sort()).toEqual([
-      'customers',
-      'employees',
-      'inventory-alerts',
-      'orders',
-      'payments',
-      'products',
-      'sales-matrix'
-    ])
-    expect(MOCK_DATA_RECORDS.orders).toHaveLength(14)
-    expect(MOCK_DATA_RECORDS.customers!.length).toBeGreaterThanOrEqual(6)
-    expect(MOCK_DATA_RECORDS.products!.length).toBeGreaterThanOrEqual(6)
-    expect(MOCK_DATA_RECORDS.employees!.length).toBeGreaterThanOrEqual(6)
-    expect(MOCK_DATA_RECORDS.payments!.length).toBeGreaterThanOrEqual(10)
-
-    const filled = renderReport(buildGroupDetailTemplate(), MOCK_DATA_RECORDS)
-    expect(filled.rows).toBe(19)
-  })
-
-  it('演示列宽覆盖模板 5 列且不进快照（sheet-core 未持久化列宽）', () => {
-    expect(DEMO_COL_WIDTHS.map(([col]) => col)).toEqual([0, 1, 2, 3, 4])
-    expect(DEMO_COL_WIDTHS.every(([, w]) => w > 0)).toBe(true)
-
-    const template = buildGroupDetailTemplate()
-    expect(template).not.toHaveProperty('colWidths')
-    const filled = renderReport(template, MOCK_DATA_RECORDS)
-    expect(filled).not.toHaveProperty('colWidths')
-  })
-
-  it('readDemoColWidths / applyColWidths 经 VTable 偏移读写，不强制 DEMO 常量', () => {
-    const widths = new Map<number, number>()
-    const grid = {
-      getTable: () => ({
-        setColWidth: (col: number, width: number) => {
-          widths.set(col, width)
-        },
-        getColWidth: (col: number) => widths.get(col) ?? 0
-      })
-    }
-
-    applyColWidths(grid, [
-      [0, 200],
-      [1, 150]
-    ])
-    expect(widths.get(1)).toBe(200) // 模型列 0 → table 列 1
-    expect(widths.get(2)).toBe(150)
-
-    const read = readDemoColWidths(grid, [0, 1])
-    expect(read).toEqual([
-      [0, 200],
-      [1, 150]
-    ])
-
-    applyDemoColWidths(grid)
-    expect(widths.get(1)).toBe(DEMO_COL_WIDTHS[0]![1])
   })
 
   it('subtotal 支持 avg / count 聚合', () => {
@@ -273,7 +390,7 @@ describe('renderReport', () => {
   })
 
   it('二维矩阵：地区 × 品类销售额交叉扩展', () => {
-    const filled = renderReport(buildMatrixTemplate(), { 'sales-matrix': MOCK_SALES_MATRIX_ROWS })
+    const filled = renderReport(buildMatrixTemplate(), { 'sales-matrix': SALES_MATRIX_ROWS })
 
     // 表头 1 + 4 地区 + 1 合计 = 6 行
     expect(filled.rows).toBe(6)
@@ -286,14 +403,14 @@ describe('renderReport', () => {
     expect(cellValue(filled, 1, 1)).toBe(50400)
 
     // 列合计：办公设备四地区之和
-    const officeTotal = MOCK_SALES_MATRIX_ROWS.filter((r) => r.category === '办公设备').reduce(
+    const officeTotal = SALES_MATRIX_ROWS.filter((r) => r.category === '办公设备').reduce(
       (sum, row) => sum + (row.amount as number),
       0
     )
     expect(cellValue(filled, 5, 1)).toBe(officeTotal)
 
     // 总计
-    const grandTotal = MOCK_SALES_MATRIX_ROWS.reduce((sum, row) => sum + (row.amount as number), 0)
+    const grandTotal = SALES_MATRIX_ROWS.reduce((sum, row) => sum + (row.amount as number), 0)
     expect(cellValue(filled, 5, 6)).toBe(grandTotal)
   })
 
@@ -321,7 +438,7 @@ describe('renderReport', () => {
     sheet.setCellMeta({ row: 4, col: 5 }, REPORT_META_NAMESPACE, customerId)
 
     const filled = renderReport(sheet.snapshot(), MOCK_DATA_RECORDS)
-    const customers = MOCK_DATA_RECORDS.customers!
+    const customers = CUSTOMER_ROWS
 
     // 订单扩展 19 行（含表头）+ 客户列表
     expect(filled.rows).toBe(19 + customers.length)

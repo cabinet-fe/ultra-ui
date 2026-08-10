@@ -11,8 +11,20 @@ import {
   resolveReportRole,
   setBindingCatalog
 } from '../binding'
-import { ORDERS_DATASET } from '../dataset-hub'
-import type { ReportBinding } from '../types'
+import type { DatasetCatalogItem, ReportBinding } from '../types'
+
+/** 内联 catalog fixture（单一事实源在测试自身，不依赖 playground mock） */
+const ORDERS_DATASET: DatasetCatalogItem = {
+  id: 'orders',
+  label: '销售明细',
+  fields: [
+    { name: 'customer', label: '客户', type: 'string' },
+    { name: 'orderNo', label: '订单号', type: 'string' },
+    { name: 'region', label: '地区', type: 'string' },
+    { name: 'amount', label: '金额', type: 'number' },
+    { name: 'orderDate', label: '下单日期', type: 'date' }
+  ]
+}
 
 setBindingCatalog([ORDERS_DATASET])
 
@@ -24,7 +36,7 @@ function bindingMap(cells: Array<{ addr: CellAddress; binding: ReportBinding }>)
   return (addr: CellAddress) => map.get(`${addr.row},${addr.col}`)
 }
 
-describe('sheet-report binding', () => {
+describe('report binding', () => {
   it('createReportBinding 默认 list + 纵向扩展 + 默认左父格', () => {
     const binding = createReportBinding(ORDERS_DATASET, 'amount')
     expect(binding).toEqual({

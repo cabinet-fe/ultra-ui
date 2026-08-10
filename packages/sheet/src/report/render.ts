@@ -7,9 +7,6 @@ import { REPORT_META_NAMESPACE, resolveReportRole } from './binding'
 import { evaluateConditionalStyle } from './rules'
 import type { DatasetRecords, ReportAggregate, ReportBinding } from './types'
 
-/** 数据集 id → 行记录 */
-export type { DatasetRecords } from './types'
-
 interface BindingCell {
   addr: CellAddress
   binding: ReportBinding
@@ -36,7 +33,7 @@ interface MatrixLayout {
   grandTotalCells: BindingCell[]
 }
 
-/** 将 mock 字段值写入单元格快照 */
+/** 将字段值写入单元格快照 */
 function toCellValue(value: unknown): { v: CellValue; t?: CellType } {
   if (value === null || value === undefined) return { v: '' }
   if (typeof value === 'number' && !Number.isNaN(value)) return { v: value, t: 'n' }
