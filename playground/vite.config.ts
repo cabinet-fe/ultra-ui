@@ -9,6 +9,9 @@ import { defineConfig } from 'vite-plus'
 
 // vp run 加载配置时用 Node 解析模块，不走 veltra-dev；@veltra/vite 的 import 指向 dist，dist 缺失时 vp run 会在构建前失败
 import { VeltraUIResolver } from '../packages/vite/src/resolver'
+// 契约参考服务（hono + mysql2/pg）：dev 时联动启动，前端经 /report-api 代理访问；不进发布产物
+import { REPORT_SERVER_PORT } from './server/port'
+import { reportServerPlugin } from './server/vite-plugin'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(__dirname, '..')
@@ -31,9 +34,25 @@ const config = {
     }
   },
 
-  plugins: [vue(), vueJsx(), Components({ resolvers: [VeltraUIResolver()], dts: true })],
+  plugins: [
+    vue(),
+    vueJsx(),
+    Components({ resolvers: [VeltraUIResolver()], dts: true }),
+    reportServerPlugin()
+  ],
 
-  server: { port: 7788, host: true }
+  server: {
+    port: 7788,
+    host: true,
+    proxy: {
+      // 前端 createHttpConnector({ endpoint: '/report-api' }) → 契约参考服务（去前缀转发）
+      '/report-api': {
+        target: `http://localhost:${REPORT_SERVER_PORT}`,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/report-api/, '')
+      }
+    }
+  }
 }
 
 export default defineConfig(config as Parameters<typeof defineConfig>[0])

@@ -6,7 +6,8 @@
     "dev": "vp dev",
     "build": "vp build",
     "preview": "vp preview",
-    "test": "vp test"
+    "test": "vp test",
+    "server": "bun server/dev.ts"
   },
   "dependencies": {
     "@cat-kit/core": "^1.1.8",
@@ -24,6 +25,12 @@
     "vue-router": "^5.2.0"
   },
   "devDependencies": {
-    "@veltra/vite": "workspace:*"
+    "@hono/node-server": "^2.1.0",
+    "@types/pg": "^8.21.0",
+    "@veltra/vite": "workspace:*",
+    "hono": "^4.13.1",
+    "mysql2": "^3.23.3",
+    "pg": "^8.23.0",
+    "vite": "^8.1.0"
   }
 }

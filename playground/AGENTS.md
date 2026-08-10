@@ -35,6 +35,17 @@ vp dev    # 端口 7788，host: true
 - SCSS：`NodePackageImporter`（仓库根）解析 `pkg:@veltra/styles/...`
 - `VeltraUIResolver`（`@veltra/vite`）：desktop / ai / sheet 的 `U*` 组件 + 对应 `style.ts`
 - `@veltra/vite` 为本 playground 的 devDependency
+- `reportServerPlugin`（`server/vite-plugin.ts`）：dev 时联动启动契约参考服务（独立端口），`vp build` 不生效（`apply: 'serve'`）
+
+## 契约参考服务（report connector）
+
+`server/` 为 `@veltra/sheet` DataConnector HTTP 契约（ADR-0003 决策 3）的 dev-only 参考实现：
+
+- hono + TS，`mysql2` / `pg` 真实驱动；只存在于 playground（devDependencies），不进任何发布产物
+- 三端点 `POST /test|describe|query`（无版本段），业务错误一律 `200 + { ok: false, error: { code, message } }`
+- 无状态、不内置默认连接；每次调用按请求连接信息新建短连接
+- 随 `vp dev` 自动启动（默认端口 8787，`REPORT_SERVER_PORT` 覆盖）；前端经 vite proxy `/report-api` 访问（`createHttpConnector({ endpoint: '/report-api' })`）
+- 独立启动：`bun run server`；`GET /` 返回契约活体文档；详见 `server/README.md`
 
 ## 结构
 
@@ -59,7 +70,7 @@ src/sheet-big-data/index.vue  # @veltra/sheet 大数据量演示（Phase 6：10 
 ## 依赖
 
 - **dependencies**：`@cat-kit/core`、`@cat-kit/fe`、`@veltra/ai`、`@veltra/compositions`、`@veltra/desktop`、`@veltra/directives`、`@veltra/icons`、`@veltra/sheet`、`@veltra/sheet-core`、`@veltra/styles`、`@veltra/utils`、`vue`、`vue-router`
-- **devDependencies**：`@veltra/vite`
+- **devDependencies**：`@veltra/vite`；契约参考服务：`hono`、`@hono/node-server`、`mysql2`、`pg`、`@types/pg`、`vite`（类型）
 
 ## 验证
 
