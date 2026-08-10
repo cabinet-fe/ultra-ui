@@ -31,6 +31,7 @@ const config = {
     entry: [
       'src/index.ts',
       'src/components/sheet/style.ts',
+      'src/components/report/style.ts',
       'src/components/sheet/popups/import.worker.ts',
       'src/tools/export.worker.ts'
     ],
@@ -41,6 +42,7 @@ const config = {
     treeshake: {
       moduleSideEffects: [
         { test: /\/components\/sheet\/style\.ts$/, sideEffects: true },
+        { test: /\/components\/report\/style\.ts$/, sideEffects: true },
         { test: /\/tools\/builtin\.ts$/, sideEffects: true }
       ]
     },

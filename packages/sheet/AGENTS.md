@@ -8,10 +8,11 @@
 src/
 ├── index.ts              # 聚合导出：仅 sheet 自有能力（components/report 内核/tools/types）；内置工具注册（import './tools/builtin'）
 ├── components/           # 组件目录（对齐 desktop 模式，Vue 只在这一层；resolver 按目录扫描 index.ts + style.ts）
-│   └── sheet/            # USheet 组件（insert-image 弹层 / 右键）
-├── report/               # 报表纯 TS 内核（renderReport / binding / rules / params / DataConnector，框架无关、无 DOM）
+│   ├── sheet/            # USheet 组件（insert-image 弹层 / 右键）
+│   └── report/           # UReportViewer（+ 后续 UReportDesigner 同族共置）；内部 filter-bar 不导出
+├── report/               # 报表纯 TS 内核（renderReport / binding / rules / params / DataConnector / Report Template / Filter Bar 值规范化，框架无关、无 DOM）
 ├── tools/                # 工具扩展（不 import 组件层）；SheetContext 门面
-└── types/                # SheetProps / SheetEmits / SheetExposed
+└── types/                # SheetProps / SheetEmits / SheetExposed / ReportViewerProps / ReportViewerExposed
 ```
 
 模型、命令、公式、IO、SheetGrid、ImageLayer 等 core/grid 内容全部在 `packages/sheet-core/src/`（`core/`、`grid/`），其分层约定、核心语义、VTable 适配要点、性能要点与已知限制见 `packages/sheet-core/AGENTS.md`，本文件不再重复。
@@ -19,9 +20,19 @@ src/
 ## 报表内核（src/report/，ADR-0003 决策 1）
 
 - 纯 TS、headless、无 DOM：渲染引擎 `renderReport`（模板 + records → Filled Report 快照，分组/小计/总计/矩阵展开 + 条件样式打平）、绑定（`REPORT_META_NAMESPACE` / `createReportBinding` / 角色推导 `resolveReportRole` 等）、条件规则（`evaluateCondition` / `evaluateConditionalStyle`）、查询参数（`${param}` 提取 `extractParamIds` / `buildParamDefs` / `resolveBoundDatasetParams`）。
+- **Report Template（template.ts）**：自包含模板 = `SheetSnapshot` + 内嵌数据集定义（`ReportTemplate.datasets: ReportDatasetDef[]`，connection 为完整连接对象）。`Sheet.snapshot()` 不产生该字段、`restore()`/`snapshot()` 往返会丢失，由设计器 `getTemplate()` 吐出时附加。配套纯函数：`getTemplateDatasets` / `getBoundDatasetIds`（绑定即真相）/ `resolveTemplateParams`（绑定数据集参数并集，同名先见为准）/ `resolveParamDefaults` / `fetchTemplateRecords`（连接器并行取数 → `DatasetRecords`，业务错误整体透传）。
+- **Filter Bar 值规范化（filter-bar.ts）**：`parseDateRangeValue` / `resolveNumberParamValue` / `patchParamValues`（playground 平移，单一事实源；playground 旧文件已删）。
 - **数据连接器（词汇表：Data Connector）**：`DataConnector` 接口（`test`/`describe`/`query`）+ `createHttpConnector({ endpoint })`。三端点 `POST {endpoint}/test|describe|query`（无版本段）：请求体 `{ connection }` / `{ connection, sql }` / `{ connection, sql, values }`；业务错误一律 `200 + { ok: false, error: { code, message } }` 原样透传，传输层错误（非 2xx / 网络异常）折叠为 `{ ok: false, error }`，连接器不抛异常。`describe`/`query` 的 fields 归一化为 `DatasetField`（label 回退 name、type 缺省 string）。
 - **连接器边界（架构约束）**：report 模块只依赖 `DataConnector` 接口；本包严禁引入数据库驱动或 Node-only 依赖；凭据只驻留内存（无任何持久化，ADR-0003 决策 4）。
-- 测试见 `src/report/__test__/`：纯 headless 测试 + `createHttpConnector` mock-fetch 契约测试；fixtures 一律内联，不依赖 playground mock。
+- 测试见 `src/report/__test__/`：纯 headless 测试 + `createHttpConnector` mock-fetch 契约测试 + template/filter-bar 内联 fixtures；不依赖 playground mock。
+
+## UReportViewer（components/report/，ADR-0003 决策 2）
+
+- Props：`connector`（必填）、`template`（必填，`ReportTemplate`）、`workbook?`（USheet 先例，缺省内部自建）。Exposed：`refresh()`（重新取数并展开渲染）。
+- 运行态闭环：`useReportViewer`（headless：参数提取 → Filter Bar → `fetchTemplateRecords` 取数 → `renderReport` 展开，并发守卫只应用最后一次取数）+ 薄 UI 壳（`report-viewer.vue`）。内部 `UReportFilterBar` 按参数类型映射 `UInput/UNumberInput/USelect/UDatePicker/UDateRangePicker`（text/number/select/date/date-range），改值即重新取数；取数有 loading 遮罩、业务错误（`ok:false`）有可读 banner。
+- 展示：内嵌只读 USheet（无工具栏/公式栏/tabs）；先铺模板静态结构，取数成功后 `restore` + `restoreContent` 替换为 Filled Report（网格渲染行列数 = max(50×10 下限, 快照尺寸)）。
+- 样式入口 `@veltra/sheet/components/report/style`（自含 USheet 与 Filter Bar 桌面组件样式）。
+- 组件级测试（缝隙 3）：`components/report/__test__/report-viewer.test.ts`（happy-dom + 内存 stub connector 全流程）。
 
 ## 分层约定
 
@@ -82,8 +93,8 @@ src/
 
 ## 构建与测试配置
 
-- **pack entry**：`src/index.ts`、`src/components/sheet/style.ts`、`src/components/sheet/popups/import.worker.ts`、`src/tools/export.worker.ts`（worker 经 `new Worker(new URL())` 引用，非 import 可达——unbundle 模式下必须显式列为 entry 才会编译进 dist）
-- **neverBundle**：全部 peer + `hucre`（含 `@veltra/sheet-core`）；treeshake `moduleSideEffects` 保留 `components/sheet/style.ts` 与 `tools/builtin.ts`
+- **pack entry**：`src/index.ts`、`src/components/sheet/style.ts`、`src/components/report/style.ts`、`src/components/sheet/popups/import.worker.ts`、`src/tools/export.worker.ts`（worker 经 `new Worker(new URL())` 引用，非 import 可达——unbundle 模式下必须显式列为 entry 才会编译进 dist）
+- **neverBundle**：全部 peer + `hucre`（含 `@veltra/sheet-core`）；treeshake `moduleSideEffects` 保留 `components/*/style.ts` 与 `tools/builtin.ts`
 - **测试**：happy-dom；canvas mock 等测试环境初始化已随 grid 迁至 sheet-core，`setupFiles` 跨包引用 `../sheet-core/src/grid/__test__/setup.ts`
 
 ## 已知限制

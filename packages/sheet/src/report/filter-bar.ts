@@ -1,4 +1,6 @@
-import type { DatasetQueryParamValues } from './dataset-hub'
+import type { ParamValues } from './types'
+
+// Filter Bar 控件值规范化（自 playground filter-bar-helpers 平移，行为不变）
 
 function toParamString(value: unknown): string {
   if (value == null || value === '') return ''
@@ -29,10 +31,6 @@ export function resolveNumberParamValue(raw: unknown): number | undefined {
 }
 
 /** 合并单参数变更，保持其余参数值不变 */
-export function patchParamValues(
-  values: DatasetQueryParamValues,
-  id: string,
-  value: unknown
-): DatasetQueryParamValues {
+export function patchParamValues(values: ParamValues, id: string, value: unknown): ParamValues {
   return { ...values, [id]: value }
 }

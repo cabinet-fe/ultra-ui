@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  parseDateRangeValue,
-  patchParamValues,
-  resolveNumberParamValue
-} from '../filter-bar-helpers'
+import { parseDateRangeValue, patchParamValues, resolveNumberParamValue } from '../filter-bar'
 
 describe('parseDateRangeValue', () => {
   it('解析数组形式的日期范围', () => {
