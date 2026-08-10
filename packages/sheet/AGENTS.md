@@ -9,10 +9,10 @@ src/
 ├── index.ts              # 聚合导出：仅 sheet 自有能力（components/report 内核/tools/types）；内置工具注册（import './tools/builtin'）
 ├── components/           # 组件目录（对齐 desktop 模式，Vue 只在这一层；resolver 按目录扫描 index.ts + style.ts）
 │   ├── sheet/            # USheet 组件（insert-image 弹层 / 右键）
-│   └── report/           # UReportViewer（+ 后续 UReportDesigner 同族共置）；内部 filter-bar 不导出
+│   └── report/           # UReportViewer + UReportDesigner 同族共置；内部 filter-bar / 数据中枢 / 字段面板不导出
 ├── report/               # 报表纯 TS 内核（renderReport / binding / rules / params / DataConnector / Report Template / Filter Bar 值规范化，框架无关、无 DOM）
 ├── tools/                # 工具扩展（不 import 组件层）；SheetContext 门面
-└── types/                # SheetProps / SheetEmits / SheetExposed / ReportViewerProps / ReportViewerExposed
+└── types/                # SheetProps / SheetEmits / SheetExposed / ReportViewerProps / ReportViewerExposed / ReportDesignerProps / ReportDesignerEmits / ReportDesignerExposed
 ```
 
 模型、命令、公式、IO、SheetGrid、ImageLayer 等 core/grid 内容全部在 `packages/sheet-core/src/`（`core/`、`grid/`），其分层约定、核心语义、VTable 适配要点、性能要点与已知限制见 `packages/sheet-core/AGENTS.md`，本文件不再重复。
@@ -33,6 +33,16 @@ src/
 - 展示：内嵌只读 USheet（无工具栏/公式栏/tabs）；先铺模板静态结构，取数成功后 `restore` + `restoreContent` 替换为 Filled Report（网格渲染行列数 = max(50×10 下限, 快照尺寸)）。
 - 样式入口 `@veltra/sheet/components/report/style`（自含 USheet 与 Filter Bar 桌面组件样式）。
 - 组件级测试（缝隙 3）：`components/report/__test__/report-viewer.test.ts`（happy-dom + 内存 stub connector 全流程）。
+
+## UReportDesigner（components/report/，ADR-0003 决策 2 / ADR-0004 首个消费者）
+
+- Props：`connector`（必填）、`v-model:connections`（纯序列化连接对象，仅驻留内存，ADR-0003 决策 4）、`workbook?`（USheet 先例，缺省内部自建）。Exposed：`getTemplate()`（取回含 meta 绑定与内嵌数据集定义的 `ReportTemplate`）。
+- 最小闭环（issue 06）：数据中枢 drawer + 字段面板拖拽绑定 + 角色徽章 + `getTemplate()`。Action Pill / 拓扑连线 / 条件规则对话框 / 预览模式 / `template` prop 载入 / XLSX 导出属 issue 07。
+- `useReportDesigner`（headless，不持有 DOM / 网格引用）：连接 / 数据集状态、绑定写 Cell Meta、徽章 hook、模板吐出。内部数据集 `DesignerDataset` 以 `connectionId` 引用连接（v-model 连接列表是单一事实源），`getTemplate()` 吐出时解析为内嵌连接对象、丢弃 `fields` 缓存；无匹配连接的数据集不吐出。绑定角色推导与 playground 旧设计器一致（`createReportBinding` 默认值、首列第二行分组锚点约定、同行右侧落格继承分组数据集）。
+- 数据中枢 drawer（`designer-hub.vue` + `hub-connection-form.vue` + `hub-dataset-editor.vue`，内部不导出）：连接 CRUD 走 `v-model:connections`（删连接级联删其数据集）；测试连接 / describe 字段解析 / 记录预览全经 `DataConnector`（无 mock）；`${param}` 参数提取用内核 `buildParamDefs`（纯函数），describe 成功的字段写入数据集 `fields` 缓存（字段面板 catalog 数据源，`fieldOverrides` 在 catalog 层应用）。
+- 字段面板（`field-panel.vue`）：HTML5 拖拽（`FIELD_DRAG_MIME` 负载 `datasetId:fieldName`，编解码在 `field-panel-helpers.ts`）；网格宿主 drop 经 VTable hit-test 解析落点，落空回退当前选区。
+- 绑定格富渲染徽章（`binding-badge.ts`）：`resolveCellRenderer` 按格返回角色色彩徽章（`CustomLayout` 容器 + 文本，`renderDefault: false`），未绑定格返回 `undefined` 回落默认渲染；canvas 绘制需具体色值，`REPORT_ROLE_BADGE_COLORS` 为硬编码角色配色。遵守 cell hook 性能契约（纯函数、同步、O(1) 查找；label 经 `fieldLabelMap` 查找表，不用 `setBindingCatalog` 全局态）。
+- 组件级测试（缝隙 3）：`components/report/__test__/report-designer.test.ts`（全流程：drawer 建连接/数据集 → drop 写 meta → getTemplate 快照）+ `use-report-designer.test.ts`（headless：CRUD / describe / preview / 角色推导 / 徽章 / getTemplate）。
 
 ## 分层约定
 
