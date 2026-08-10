@@ -2,7 +2,7 @@ import { Sheet } from '@veltra/sheet-core/core/sheet'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createApp, h, type App } from 'vue'
 
-import { createSheetContext } from '../../tools/context'
+import { createSheetContext } from '../../../tools/context'
 import USheetInsertImagePopup from '../popups/insert-image-popup.vue'
 
 const mocks = vi.hoisted(() => {

@@ -1,7 +1,7 @@
 import { onBeforeUnmount, onMounted, shallowRef } from 'vue'
 
-import type { SheetContext } from '../tools/context'
-import { defaultToolRegistry, type SheetTool } from '../tools/registry'
+import type { SheetContext } from '../../tools/context'
+import { defaultToolRegistry, type SheetTool } from '../../tools/registry'
 
 /** 模板 ref 只读形态 */
 type ElRef = { readonly value: HTMLElement | null | undefined }

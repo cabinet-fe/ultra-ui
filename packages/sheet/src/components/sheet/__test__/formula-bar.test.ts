@@ -3,9 +3,9 @@ import { Workbook } from '@veltra/sheet-core/core/workbook'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createApp, h, nextTick, type App } from 'vue'
 
-import { USheet } from '../../index'
-import { createSheetContext } from '../../tools/context'
-import type { SheetExposed } from '../../types'
+import { USheet } from '../../../index'
+import { createSheetContext } from '../../../tools/context'
+import type { SheetExposed } from '../../../types'
 import UFormulaBar from '../formula-bar.vue'
 
 const apps: App[] = []

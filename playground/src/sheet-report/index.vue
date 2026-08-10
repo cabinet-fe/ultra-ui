@@ -167,7 +167,7 @@ import { USheet, type SheetExposed } from '@veltra/sheet'
 import type { CellAddress, Sheet, SheetSnapshot } from '@veltra/sheet-core'
 import { Workbook } from '@veltra/sheet-core'
 import type { ResolveDisplayValue } from '@veltra/sheet-core/grid/sheet-grid'
-import '@veltra/sheet/vue/style'
+import '@veltra/sheet/components/sheet/style'
 import {
   computed,
   nextTick,

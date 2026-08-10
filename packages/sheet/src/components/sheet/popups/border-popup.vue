@@ -45,7 +45,7 @@ import {
 import { bem } from '@veltra/utils'
 import { ref } from 'vue'
 
-import type { SheetContext } from '../../tools/context'
+import type { SheetContext } from '../../../tools/context'
 import {
   BORDER_LINE_STYLES,
   BORDER_LINE_TITLES,

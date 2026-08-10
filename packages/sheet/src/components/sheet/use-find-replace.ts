@@ -14,7 +14,7 @@ import {
 import type { Sheet } from '@veltra/sheet-core/core/sheet'
 import { computed, ref, shallowRef, watch } from 'vue'
 
-import type { SheetContext } from '../tools/context'
+import type { SheetContext } from '../../tools/context'
 
 interface UseFindReplaceOptions {
   /** 目标 sheet（弹层存活期间固定；tab 切换会关闭并销毁弹层） */

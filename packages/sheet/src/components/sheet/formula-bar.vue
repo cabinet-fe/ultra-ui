@@ -86,7 +86,7 @@ import {
   watch
 } from 'vue'
 
-import type { SheetContext } from '../tools/context'
+import type { SheetContext } from '../../tools/context'
 import UFormulaSuggestList from './formula-suggest-list.vue'
 import { insertRefText, isRefSelectContext } from './use-formula-ref-select'
 import {

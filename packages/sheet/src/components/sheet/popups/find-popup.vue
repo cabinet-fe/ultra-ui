@@ -72,7 +72,7 @@ import { UInput } from '@veltra/desktop'
 import type { Sheet } from '@veltra/sheet-core/core/sheet'
 import { bem } from '@veltra/utils'
 
-import type { SheetContext } from '../../tools/context'
+import type { SheetContext } from '../../../tools/context'
 import { useFindReplace } from '../use-find-replace'
 
 defineOptions({ name: 'USheetFindPopup' })

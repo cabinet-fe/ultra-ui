@@ -2,7 +2,7 @@ import type { CellRange } from '@veltra/sheet-core/core/address'
 import type { BorderPreset } from '@veltra/sheet-core/core/style/border-presets'
 import { BORDER_STYLE_WIDTH, type BorderLineStyle } from '@veltra/sheet-core/core/style/types'
 
-import type { SheetContext } from '../tools/context'
+import type { SheetContext } from '../../tools/context'
 
 /** 当前选区（ranges[0] 优先；无区域选区时用活动格单格） */
 export function currentRange(context: SheetContext): CellRange | null {

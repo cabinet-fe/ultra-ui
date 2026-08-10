@@ -61,8 +61,8 @@ import { ArrowLeft, ArrowRight } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { toRef, useTemplateRef } from 'vue'
 
-import type { SheetTool } from '../tools/registry'
-import type { ToolGroupView } from '../use-tool-groups'
+import type { SheetTool } from '../../tools/registry'
+import type { ToolGroupView } from './use-tool-groups'
 import { useToolbarScroll } from './use-toolbar-scroll'
 
 defineOptions({ name: 'USheetToolbar' })

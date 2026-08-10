@@ -35,7 +35,7 @@ bun run resolver:gen -- --check # 校验是否为最新，过期则报错退出�
 | ----------------- | ---------------- | --------------------------------- |
 | `@veltra/desktop` | `src/components` | `components/button/style`         |
 | `@veltra/ai`      | `src/components` | `components/ai-chat/style`        |
-| `@veltra/sheet`   | `src`            | `vue/style`（Vue 层整体一个目录） |
+| `@veltra/sheet`   | `src/components` | `components/sheet/style`         |
 
 同目录多组件（`UButton` / `UButtonGroup`）自动共用父目录样式，无需再维护映射表。
 跨包重名会让生成器直接报错。

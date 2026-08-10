@@ -1,7 +1,7 @@
 import { message } from '@veltra/desktop'
 import type { SheetImageType } from '@veltra/sheet-core/core/image'
 
-import type { SheetContext } from '../tools/context'
+import type { SheetContext } from '../../tools/context'
 
 /** 文件选择 accept（工具栏弹层与右键菜单共用；不用裸 image/*） */
 export const INSERT_IMAGE_ACCEPT = '.png,.jpg,.jpeg,.gif,.svg,.webp'

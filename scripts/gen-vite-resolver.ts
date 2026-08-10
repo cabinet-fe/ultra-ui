@@ -29,8 +29,7 @@ interface ScanSource {
 const SOURCES: ScanSource[] = [
   { from: '@veltra/desktop', pkgDir: 'packages/desktop', scanDir: 'src/components' },
   { from: '@veltra/ai', pkgDir: 'packages/ai', scanDir: 'src/components' },
-  // sheet 的 Vue 层整体是一个组件目录（src/vue），不按组件拆分样式
-  { from: '@veltra/sheet', pkgDir: 'packages/sheet', scanDir: 'src' }
+  { from: '@veltra/sheet', pkgDir: 'packages/sheet', scanDir: 'src/components' }
 ]
 
 const EXPORT_BLOCK_RE = /export\s+(type\s+)?\{([^}]*)\}/g

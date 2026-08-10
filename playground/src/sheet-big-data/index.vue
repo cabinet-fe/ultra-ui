@@ -97,7 +97,7 @@ import {
   type SetCellValueItem,
   type Sheet
 } from '@veltra/sheet'
-import '@veltra/sheet/vue/style'
+import '@veltra/sheet/components/sheet/style'
 import { nextTick, ref, shallowRef, computed } from 'vue'
 
 /** 列数固定 12（A..L） */

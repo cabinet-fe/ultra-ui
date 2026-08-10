@@ -1,7 +1,7 @@
 import { computed, type ComputedRef, type Ref } from 'vue'
 
-import type { SheetContext } from '../tools/context'
-import { defaultToolRegistry, type SheetTool } from '../tools/registry'
+import type { SheetContext } from '../../tools/context'
+import { defaultToolRegistry, type SheetTool } from '../../tools/registry'
 
 /** 工具栏按钮视图模型 */
 export interface ToolGroupItem {

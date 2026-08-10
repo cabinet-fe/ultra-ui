@@ -303,7 +303,7 @@ import {
   type SheetExposed
 } from '@veltra/sheet'
 import '@veltra/desktop/components/dialog/style'
-import '@veltra/sheet/vue/style'
+import '@veltra/sheet/components/sheet/style'
 import { computed, onBeforeUnmount, ref, shallowRef, useTemplateRef } from 'vue'
 
 // 工作簿：两个 sheet 共享公式依赖图（跨表引用与联动重算的中枢）

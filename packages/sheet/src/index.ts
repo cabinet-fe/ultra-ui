@@ -203,4 +203,4 @@ export {
 
 export { type SheetProps, type SheetEmits, type _SheetExposed, type SheetExposed } from './types'
 
-export { default as USheet } from './vue/sheet.vue'
+export { USheet } from './components/sheet'

@@ -104,5 +104,5 @@ export const VELTRA_COMPONENT_PACKAGES: VeltraComponentPackage[] = [
     }
   },
   { from: '@veltra/ai', components: { UAiChat: 'components/ai-chat/style' } },
-  { from: '@veltra/sheet', components: { USheet: 'vue/style' } }
+  { from: '@veltra/sheet', components: { USheet: 'components/sheet/style' } }
 ]

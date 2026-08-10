@@ -20,7 +20,7 @@ import { UScroll } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
 import { onMounted, ref } from 'vue'
 
-import type { SheetContext } from '../../tools/context'
+import type { SheetContext } from '../../../tools/context'
 import { currentRange } from '../popup-helpers'
 
 defineOptions({ name: 'USheetFontSizePopup' })

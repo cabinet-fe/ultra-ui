@@ -2,9 +2,9 @@ import type { Sheet } from '@veltra/sheet-core/core/sheet'
 import { Workbook } from '@veltra/sheet-core/core/workbook'
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 
-import { createSheetContext } from '../tools/context'
-import { defaultToolRegistry } from '../tools/registry'
-import type { SheetProps } from '../types'
+import { createSheetContext } from '../../tools/context'
+import { defaultToolRegistry } from '../../tools/registry'
+import type { SheetProps } from '../../types'
 
 /**
  * useSheetState 与宿主组件的协作钩子。

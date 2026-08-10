@@ -21,7 +21,7 @@ import type {
   SheetImage,
   ImageInput
 } from '@veltra/sheet'
-import '@veltra/sheet/vue/style'
+import '@veltra/sheet/components/sheet/style'
 ```
 
 宿主需安装 peer `@veltra/desktop`（右键菜单）。

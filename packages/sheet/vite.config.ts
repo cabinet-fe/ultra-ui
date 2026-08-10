@@ -30,8 +30,8 @@ const config = {
     // 列为 entry 才会编译进 dist）
     entry: [
       'src/index.ts',
-      'src/vue/style.ts',
-      'src/vue/popups/import.worker.ts',
+      'src/components/sheet/style.ts',
+      'src/components/sheet/popups/import.worker.ts',
       'src/tools/export.worker.ts'
     ],
     platform: 'browser',
@@ -40,7 +40,7 @@ const config = {
     clean: true,
     treeshake: {
       moduleSideEffects: [
-        { test: /\/vue\/style\.ts$/, sideEffects: true },
+        { test: /\/components\/sheet\/style\.ts$/, sideEffects: true },
         { test: /\/tools\/builtin\.ts$/, sideEffects: true }
       ]
     },

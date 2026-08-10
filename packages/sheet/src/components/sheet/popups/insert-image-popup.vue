@@ -15,7 +15,7 @@
 import { UFilePicker } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
 
-import type { SheetContext } from '../../tools/context'
+import type { SheetContext } from '../../../tools/context'
 import { INSERT_IMAGE_ACCEPT, insertImageFromFile } from '../insert-image'
 
 defineOptions({ name: 'USheetInsertImagePopup' })

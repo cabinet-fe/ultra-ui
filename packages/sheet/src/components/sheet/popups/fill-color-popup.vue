@@ -6,7 +6,7 @@
 import { UPalette } from '@veltra/desktop'
 import { onMounted, ref } from 'vue'
 
-import type { SheetContext } from '../../tools/context'
+import type { SheetContext } from '../../../tools/context'
 import { currentRange } from '../popup-helpers'
 
 defineOptions({ name: 'USheetFillColorPopup' })

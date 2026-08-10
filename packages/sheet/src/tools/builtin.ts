@@ -393,8 +393,8 @@ registerTool({
 })
 
 // ─── file（导入 / 导出）────────────────────────────────────
-// 导出 = 弹层选 xlsx / csv；导入 = 点击直接系统文件选择（vue/import-file.ts，
-// sheet.vue 覆盖 onClick；tools 层不 import vue）。
+// 导出 = 弹层选 xlsx / csv；导入 = 点击直接系统文件选择（components/sheet/import-file.ts，
+// sheet.vue 覆盖 onClick；tools 层不 import 组件层）。
 // 下载逻辑见 tools/download.ts（core/io 保持纯 TS 无头可测）。
 
 registerTool({
