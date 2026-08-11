@@ -4,8 +4,8 @@
 
 **Blocked by:** 04 — playground hono 连接器参考服务；07 — UReportDesigner 全量
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] 演示页仅用包内组件完成"配连接 → 建数据集 → 绑定 → 预览 → Filter Bar 筛选"全流程
-- [ ] 旧 sheet-report 模块与 mock 相关文件、种子模板、dataset-hub 测试零残留
+- [x] 演示页仅用包内组件完成"配连接 → 建数据集 → 绑定 → 预览 → Filter Bar 筛选"全流程
+- [x] 旧 sheet-report 模块与 mock 相关文件、种子模板、dataset-hub 测试零残留
 - [ ] 负责人用真实 MySQL 与 PG 各完成一次端到端演练
