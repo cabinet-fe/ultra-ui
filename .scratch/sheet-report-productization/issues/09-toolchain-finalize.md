@@ -4,9 +4,9 @@
 
 **Blocked by:** 08 — playground 演示页重写 + 旧模块/mock 删除
 
-**Status:** ready-for-agent
+**Status:** done
 
-- [ ] resolver 组件表包含 `UReportDesigner` / `UReportViewer`
-- [ ] `skills/veltra-ui` 反映新 API（report 组件、DataConnector/createHttpConnector、resolveCellRenderer）
-- [ ] changeset 含 `vue/` → `components/sheet/` 的 breaking 说明
-- [ ] `bun run lint` / `bun run test` / `bun run build` 全绿
+- [x] resolver 组件表包含 `UReportDesigner` / `UReportViewer`
+- [x] `skills/veltra-ui` 反映新 API（report 组件、DataConnector/createHttpConnector、resolveCellRenderer）
+- [x] changeset 含 `vue/` → `components/sheet/` 的 breaking 说明
+- [x] `bun run lint` / `bun run test` / `bun run build` 全绿

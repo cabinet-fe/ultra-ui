@@ -1,12 +1,28 @@
 # @veltra/sheet
 
-电子表格包：基于 `@visactor/vtable`（ListTable）渲染，**数据模型完全自持有，VTable 只做视图层**。单元格读写、合并单元格、公式（含跨表引用）、undo/redo（命令系统）、填充柄、行高、**冻结行列**、**查找/替换**、右键合并菜单、工具栏扩展机制、**单元格样式系统（填充 / 边框 / 字体颜色加粗斜体下划线删除线 / 字号 / 对齐 / 换行，样式池按内容去重）**、**公式栏（名称框 + fx 输入栏）**、**浮动图片（插入 / 两点锚定叠层 / 拖动 / 删除 / xlsx round-trip）**、**导入导出（XLSX / CSV，hucre 引擎）**、`USheet` 组件。
+电子表格包：基于 `@visactor/vtable`（ListTable）渲染，**数据模型完全自持有，VTable 只做视图层**。单元格读写、合并单元格、公式（含跨表引用）、undo/redo（命令系统）、填充柄、行高、**冻结行列**、**查找/替换**、右键合并菜单、工具栏扩展机制、**单元格样式系统（填充 / 边框 / 字体颜色加粗斜体下划线删除线 / 字号 / 对齐 / 换行，样式池按内容去重）**、**公式栏（名称框 + fx 输入栏）**、**浮动图片（插入 / 两点锚定叠层 / 拖动 / 删除 / xlsx round-trip）**、**导入导出（XLSX / CSV，hucre 引擎）**、`USheet` 组件；**报表设计器 `UReportDesigner` / 查看器 `UReportViewer`**（ADR-0003）；报表纯 TS 内核（`renderReport` / `DataConnector` / `ReportTemplate` 等）与 **`resolveCellRenderer` 按格自定义渲染**（ADR-0004，经 `USheet` / `SheetGrid` 对称 hook）。
 
 > 数据模型 / 公式 / IO / SheetGrid 渲染层（core/grid）在 **`@veltra/sheet-core`**（独立发包）；本包**不 re-export** 其符号——core API 一律 `from '@veltra/sheet-core'` 直导（无头场景同样直接用它），见 `packages/sheet-core.md`。
 
 ```ts
-import { USheet, registerTool } from '@veltra/sheet'
-import type { SheetProps, SheetExposed, SheetTool, SheetContext } from '@veltra/sheet'
+import {
+  USheet,
+  UReportDesigner,
+  UReportViewer,
+  registerTool,
+  createHttpConnector,
+  renderReport
+} from '@veltra/sheet'
+import type {
+  SheetProps,
+  SheetExposed,
+  SheetTool,
+  SheetContext,
+  ReportDesignerProps,
+  ReportViewerProps,
+  DataConnector,
+  ReportTemplate
+} from '@veltra/sheet'
 import {
   Workbook,
   registerFormulaFunction,
@@ -14,12 +30,14 @@ import {
 } from '@veltra/sheet-core'
 import type { FormulaFunctionMeta, SheetImage, ImageInput } from '@veltra/sheet-core'
 import '@veltra/sheet/components/sheet/style'
+import '@veltra/sheet/components/report/style'
 ```
 
 宿主需安装 peer `@veltra/desktop`（右键菜单）。
 
 ## 分层与入口选择
 
+- **`UReportDesigner` / `UReportViewer`**（报表场景）：设计态编排 + 运行态取数展开；样式 `@veltra/sheet/components/report/style`（自含 USheet 与 Filter Bar 桌面组件样式）。见下文「报表组件与内核」。
 - **`USheet` 组件**（多数场景）：toolbar + formula-bar + grid + 底部 sheet tabs，一个组件即用。
 - **无头 / 自组 UI**：`Workbook`（多 sheet + 共享公式依赖图）→ `Sheet`（统一操作入口）；
   `SheetGrid`（VTable 适配层，自行挂载到容器；`readonly: true` 即只读预览）。
@@ -241,10 +259,61 @@ importCsv(text, sheet) // 写入既有活动表（事务 = 单 undo 单元）
 
 ## 组件 API 摘要
 
+### USheet
+
 - **Props**：`workbook?`（缺省内部自建）、`rows?`(100)、`cols?`(26)、`showToolbar?`(true)、
-  `showFormulaBar?`(true)、`showTabs?`(true)
+  `showFormulaBar?`(true)、`showTabs?`(true)、`readonly?`、`resolveDisplayValue?`、
+  `resolveCellStyle?`、**`resolveCellRenderer?`**（按格 customLayout，见下）
 - **Emits**：`active-sheet-change`
 - **Exposed**（`SheetExposed`）：`workbook`、`getActiveSheet()`、`getContext()`、`getGrid()`
+
+### resolveCellRenderer（ADR-0004）
+
+`USheet` 与 `@veltra/sheet-core` 的 `SheetGrid` 对称提供 `resolveCellRenderer` hook：视口渲染时按格回调（表格坐标转模型地址，合并格落锚点；第二参 `base` 为单元格原始值），返回 VTable `customLayout` 对象则自定义渲染，返回 `undefined` 回落默认渲染。**不写模型、不进快照**。布局构建用 sheet-core 导出的 `CustomLayout`（`Container` / `Text` / `Rect` 等）与类型 `ICustomLayoutObj`、`ResolveCellRenderer`。
+
+性能契约：纯函数、同步、O(1) 查找、禁止大对象分配（见 `packages/sheet-core/AGENTS.md`）。
+
+```ts
+import { CustomLayout, type ResolveCellRenderer } from '@veltra/sheet-core'
+
+const resolveCellRenderer: ResolveCellRenderer = (addr, base) => {
+  // 按 addr / base 决定是否自定义；未命中返回 undefined
+  return {
+    rootContainer: new CustomLayout.Container({ /* ... */ }),
+    renderDefault: false
+  }
+}
+```
+
+## 报表组件与内核（ADR-0003）
+
+### 数据连接器 DataConnector
+
+报表取数经 **`DataConnector`** 接口（`test` / `describe` / `query`），前端包**零数据库驱动**。内置 **`createHttpConnector({ endpoint })`**：`POST {endpoint}/test|describe|query`（无版本段），请求体分别为 `{ connection }` / `{ connection, sql }` / `{ connection, sql, values }`；业务错误一律 `200 + { ok: false, error: { code, message } }` 原样透传，传输层错误折叠为 `{ ok: false, error }`，**连接器不抛异常**。
+
+```ts
+import { createHttpConnector } from '@veltra/sheet'
+import type { DataConnection, DataConnector } from '@veltra/sheet'
+
+const connector = createHttpConnector({ endpoint: '/api/report' })
+// connections 纯序列化对象，仅驻留内存；凭据持久化由宿主负责
+```
+
+### ReportTemplate 与纯函数内核
+
+`ReportTemplate` = `SheetSnapshot` + 内嵌 `datasets: ReportDatasetDef[]`（connection 为完整连接对象，可 JSON 序列化）。主入口还导出 `renderReport`（模板 + records → Filled Report 快照）、绑定（`createReportBinding` / `resolveReportRole` 等）、条件规则、查询参数（`${param}` → `extractParamIds` / `buildParamDefs`）、`fetchTemplateRecords`、`exportFilledReportXlsx`、Filter Bar 值规范化（`parseDateRangeValue` / `resolveNumberParamValue` / `patchParamValues`）等纯 TS 函数（`src/report/`，框架无关、无 DOM）。
+
+### UReportViewer（运行态）
+
+- **Props**：`connector`（必填）、`template`（必填，`ReportTemplate`）、`workbook?`
+- **Exposed**：`refresh()` — 重新取数并展开渲染
+- 内部闭环：从模板实际绑定数据集提取查询参数并集 → Filter Bar → `fetchTemplateRecords` → `renderReport` → 只读 USheet 展示；loading 遮罩与业务错误 banner
+
+### UReportDesigner（设计态）
+
+- **Props**：`connector`（必填）、`v-model:connections`、`template?`（载入既有模板继续设计）、`workbook?`
+- **Exposed**：`getTemplate()` — 取回含 meta 绑定与内嵌数据集定义的 `ReportTemplate`
+- 设计态：数据中枢 drawer（连接 CRUD / 测试 / SQL 数据集 / describe 字段解析 / 记录预览）、字段面板 HTML5 拖拽绑定、角色徽章（`resolveCellRenderer` 首个消费者）、Action Pill、拓扑连线、条件规则对话框、预览模式（内嵌 `UReportViewer`）、XLSX 导出
 
 ## 已知限制
 

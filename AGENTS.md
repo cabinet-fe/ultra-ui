@@ -65,7 +65,7 @@ ultra-ui/
 │   ├── directives/      # @veltra/directives — Vue 自定义指令
 │   ├── desktop/         # @veltra/desktop — 桌面端组件库主包
 │   ├── sheet-core/      # @veltra/sheet-core — 表格核心（数据模型/公式/IO + VTable 适配层，框架无关）
-│   ├── sheet/           # @veltra/sheet — 电子表格 Vue 编辑器（USheet，基于 sheet-core）
+│   ├── sheet/           # @veltra/sheet — 电子表格 Vue 编辑器（USheet + 报表 UReportDesigner/UReportViewer，基于 sheet-core）
 │   ├── ai/              # @veltra/ai — AI 能力包（对话组件 + 编排 + 可插拔 transport）
 │   ├── icons/           # @veltra/icons — SVG 图标组件
 │   ├── vite/            # @veltra/vite — Vite 辅助（组件 resolver）
