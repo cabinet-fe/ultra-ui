@@ -240,6 +240,13 @@ describe('useReportDesigner：角色徽章渲染 hook（ADR-0004 首个消费者
     expect(layout).toBeTruthy()
     expect(layout!.renderDefault).toBe(false)
     expect(layout!.rootContainer).toBeTruthy()
+    // 根容器不得挂 percentCalc 宽高（VTable 会与 cellSize Math.max 出 NaN）
+    expect(layout!.rootContainer.attribute.width).toBeUndefined()
+    expect(layout!.rootContainer.attribute.height).toBeUndefined()
+    expect(layout!.rootContainer.attribute.fill).toBeUndefined()
+
+    const style = designer.resolveCellStyle({ row: 0, col: 0 }, undefined)
+    expect(style?.fill).toEqual({ color: '#d1fae5' })
 
     // 模型与快照无 renderer 残留
     expect(workbook.activeSheet.getCellData({ row: 0, col: 0 })).toBeUndefined()

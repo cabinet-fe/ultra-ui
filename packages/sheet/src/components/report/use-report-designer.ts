@@ -1,5 +1,5 @@
 import type { CellAddress } from '@veltra/sheet-core'
-import type { ResolveCellRenderer } from '@veltra/sheet-core'
+import type { ResolveCellRenderer, ResolveCellStyleHook } from '@veltra/sheet-core'
 import { Workbook } from '@veltra/sheet-core'
 import { computed, onScopeDispose, ref, watch, type ComputedRef, type Ref } from 'vue'
 
@@ -20,7 +20,7 @@ import {
 } from '../../report/template'
 import type { DatasetCatalogItem, DatasetField, ReportBinding } from '../../report/types'
 import type { ReportDesignerProps } from '../../types'
-import { createBindingBadgeRenderer } from './binding-badge'
+import { createBindingBadgeRenderer, createBindingBadgeStyleResolver } from './binding-badge'
 import type { TopologyBindingEntry } from './designer/topology'
 
 /**
@@ -88,6 +88,8 @@ export interface UseReportDesignerReturn extends DatasetHubController {
   patchActiveBinding: (patch: Partial<ReportBinding>) => void
   /** 清除当前选区绑定 */
   removeActiveBinding: () => void
+  /** 绑定格角色底色样式 hook（与徽章 renderer 配套） */
+  resolveCellStyle: ResolveCellStyleHook
   /** 绑定格角色徽章渲染 hook（ADR-0004） */
   resolveCellRenderer: ResolveCellRenderer
   /** 取回含 meta 绑定与内嵌数据集定义的 Report Template */
@@ -361,6 +363,7 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
 
   // ---- 渲染与模板 ----
 
+  const resolveCellStyle = createBindingBadgeStyleResolver(getBindingAt)
   const resolveCellRenderer = createBindingBadgeRenderer(getBindingAt, resolveFieldLabel)
 
   function getTemplate(): ReportTemplate {
@@ -448,6 +451,7 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
     bindField,
     patchActiveBinding,
     removeActiveBinding,
+    resolveCellStyle,
     resolveCellRenderer,
     getTemplate,
     addConnection,

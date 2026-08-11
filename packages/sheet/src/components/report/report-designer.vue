@@ -56,6 +56,7 @@
           :rows="DESIGN_ROWS"
           :cols="DESIGN_COLS"
           :show-tabs="false"
+          :resolve-cell-style="resolveCellStyle"
           :resolve-cell-renderer="resolveCellRenderer"
         />
 
@@ -166,6 +167,7 @@ const {
   bindField,
   patchActiveBinding,
   removeActiveBinding,
+  resolveCellStyle,
   resolveCellRenderer,
   getTemplate
 } = designer
