@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { createHttpConnector } from '../connector'
+import { createHttpConnector, resolvePortOnTypeChange } from '../connector'
 import type { DataConnection } from '../connector'
 import type { ParamValues } from '../types'
 
@@ -198,5 +198,21 @@ describe('createHttpConnector', () => {
       ok: false,
       error: { code: 'SERVER_ERROR', message: '服务端返回未知错误' }
     })
+  })
+})
+
+describe('resolvePortOnTypeChange', () => {
+  it('默认端口随类型切换：MySQL 3306 ↔ PostgreSQL 5432', () => {
+    expect(resolvePortOnTypeChange('mysql', 'postgresql', 3306)).toBe(5432)
+    expect(resolvePortOnTypeChange('postgresql', 'mysql', 5432)).toBe(3306)
+  })
+
+  it('自定义端口不随类型切换而改变', () => {
+    expect(resolvePortOnTypeChange('mysql', 'postgresql', 3307)).toBe(3307)
+    expect(resolvePortOnTypeChange('postgresql', 'mysql', 5433)).toBe(5433)
+  })
+
+  it('端口为 0 时切到新类型默认端口', () => {
+    expect(resolvePortOnTypeChange('mysql', 'postgresql', 0)).toBe(5432)
   })
 })

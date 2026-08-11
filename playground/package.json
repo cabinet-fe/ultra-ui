@@ -3,11 +3,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vp dev",
+    "dev": "bun scripts/dev.ts",
+    "dev:web": "vp dev",
     "build": "vp build",
     "preview": "vp preview",
     "test": "vp test",
-    "server": "bun server/dev.ts"
+    "server": "bun server/dev.ts",
+    "seed-demo": "bun server/demo-data/seed.ts"
   },
   "dependencies": {
     "@cat-kit/core": "^1.1.8",

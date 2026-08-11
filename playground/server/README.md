@@ -3,13 +3,15 @@
 `@veltra/sheet` DataConnector HTTP 契约（[ADR-0003 决策 3](../../docs/adr/0003-sheet-report-productization.md)）的 dev-only 参考实现：hono + TS，`mysql2` / `pg` 真实驱动。
 
 - 只存在于 playground（devDependencies），**不进任何发布产物**。
-- 服务无状态：不内置任何默认连接，每次调用按请求携带的 connection 新建短连接。
+- 查询代理无状态：每次调用按请求携带的 connection 新建短连接，不内置默认连接。
+- **工作区持久化**（playground 演示专用）：`GET|PUT /workspace` 将连接与数据集存入本地 SQLite（`playground/server/data/report-hub.db`，可用 `REPORT_HUB_DB` 覆盖）。
 - 前端经 vite proxy 访问：`createHttpConnector({ endpoint: '/report-api' })`（vite dev 自动转发到本服务）。
 
 ## 启动
 
-- **随 dev 联动**：`cd playground && vp dev`，`reportServerPlugin` 自动拉起服务（默认端口 8787）。
-- **独立启动**：`bun run server`（playground/server/dev.ts）。
+- **推荐（报表演示）**：`cd playground && bun run dev` — 并行拉起本服务（默认 8787）与前端（7788）。
+- **仅契约服务**：`bun run server`（`server/dev.ts`，Bun 运行，含 SQLite 工作区）。
+- **仅前端**：`bun run dev:web`；报表页需另开 `bun run server`，或改用 `bun run dev`。
 - 端口：`REPORT_SERVER_PORT` 环境变量覆盖（默认 8787）。
 
 ## 端点（无版本段）
@@ -19,6 +21,8 @@
 | `POST /test` | `{ connection }` | `{ ok: true }` | `200 + { ok: false, error: { code, message } }` |
 | `POST /describe` | `{ connection, sql }` | `{ ok: true, fields: [{ name, type? }] }` | 同上 |
 | `POST /query` | `{ connection, sql, values }` | `{ ok: true, fields, rows }` | 同上 |
+| `GET /workspace` | — | `{ ok: true, connections, datasets }` | — |
+| `PUT /workspace` | `{ connections, datasets }` | `{ ok: true }` | `400` 形状不合法 |
 | `GET /` | — | 契约活体文档（JSON） | — |
 
 `connection`：`{ id, label, type: 'mysql' | 'postgresql', host, port, database, username, password }`。
@@ -57,3 +61,7 @@ curl -X POST http://localhost:8787/test -H "Content-Type: application/json" \
 ```
 
 验收：test / describe / query 各一次，用真实 MySQL 与 PostgreSQL 连接。
+
+## PostgreSQL 演示数据
+
+`demo-data/` 提供建表 + 种子数据 SQL（7 张业务表，对齐原 mock Data Hub），连接串占位符见 `demo-data/README.md`。

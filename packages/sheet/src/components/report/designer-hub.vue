@@ -77,6 +77,7 @@ import { bem } from '@veltra/utils'
 import { computed, ref, watch } from 'vue'
 
 import type { DataConnection } from '../../report/connector'
+import { DEFAULT_CONNECTION_PORTS } from '../../report/connector'
 import UReportHubConnectionForm from './hub-connection-form.vue'
 import UReportHubDatasetEditor from './hub-dataset-editor.vue'
 import type { DatasetHubController } from './use-report-designer'
@@ -148,7 +149,7 @@ function startNewConnection(): void {
     label: '新连接',
     type: 'mysql',
     host: '127.0.0.1',
-    port: 3306,
+    port: DEFAULT_CONNECTION_PORTS.mysql,
     database: '',
     username: '',
     password: ''

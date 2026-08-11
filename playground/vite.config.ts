@@ -9,9 +9,8 @@ import { defineConfig } from 'vite-plus'
 
 // vp run 加载配置时用 Node 解析模块，不走 veltra-dev；@veltra/vite 的 import 指向 dist，dist 缺失时 vp run 会在构建前失败
 import { VeltraUIResolver } from '../packages/vite/src/resolver'
-// 契约参考服务（hono + mysql2/pg）：dev 时联动启动，前端经 /report-api 代理访问；不进发布产物
+// 契约参考服务（hono + mysql2/pg）：前端经 /report-api 代理访问；由 scripts/dev.ts 或 bun run server 独立启动
 import { REPORT_SERVER_PORT } from './server/port'
-import { reportServerPlugin } from './server/vite-plugin'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(__dirname, '..')
@@ -34,12 +33,7 @@ const config = {
     }
   },
 
-  plugins: [
-    vue(),
-    vueJsx(),
-    Components({ resolvers: [VeltraUIResolver()], dts: true }),
-    reportServerPlugin()
-  ],
+  plugins: [vue(), vueJsx(), Components({ resolvers: [VeltraUIResolver()], dts: true })],
 
   server: {
     port: 7788,

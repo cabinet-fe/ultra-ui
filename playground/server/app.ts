@@ -14,6 +14,7 @@ import { logger } from 'hono/logger'
 import { ERROR_CODES } from './errors'
 import { runMysqlDescribe, runMysqlQuery, runMysqlTest } from './mysql'
 import { runPgDescribe, runPgQuery, runPgTest } from './pg'
+import { loadWorkspace, saveWorkspace, type StoredDataset } from './workspace'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -85,6 +86,25 @@ function toContractFields(fields: DatasetField[]): { name: string; type?: Datase
   return fields.map(({ name, type }) => ({ name, type }))
 }
 
+function validateStoredDataset(input: unknown): StoredDataset | null {
+  if (!isRecord(input)) return null
+  const { id, label, connectionId, sql, paramOverrides, fieldOverrides } = input
+  if (typeof id !== 'string' || id === '') return null
+  if (typeof label !== 'string' || label === '') return null
+  if (typeof connectionId !== 'string' || connectionId === '') return null
+  if (typeof sql !== 'string') return null
+  if (paramOverrides !== undefined && !isRecord(paramOverrides)) return null
+  if (fieldOverrides !== undefined && !isRecord(fieldOverrides)) return null
+  return {
+    id,
+    label,
+    connectionId,
+    sql,
+    ...(paramOverrides ? { paramOverrides } : {}),
+    ...(fieldOverrides ? { fieldOverrides } : {})
+  }
+}
+
 export const reportApp = new Hono()
 
 reportApp.use(logger())
@@ -135,6 +155,17 @@ reportApp.get('/', (c) =>
       SQL_ERROR: 'HTTP 200：SQL 语法或执行报错',
       MISSING_PARAM: 'HTTP 200：SQL 引用了 ${param} 但请求未提供对应值'
     },
+    workspace: {
+      load: { method: 'GET', path: '/workspace', success: '{ ok: true, connections, datasets }' },
+      save: {
+        method: 'PUT',
+        path: '/workspace',
+        request: '{ connections: DataConnection[], datasets: StoredDataset[] }',
+        success: '{ ok: true }'
+      },
+      storage:
+        'SQLite（Bun 内置 bun:sqlite），默认 playground/server/data/report-hub.db，可用 REPORT_HUB_DB 覆盖'
+    },
     usage: {
       devProxy:
         'vite dev 下前端用 createHttpConnector({ endpoint: "/report-api" })，经 vite proxy 转发到本服务',
@@ -147,6 +178,56 @@ reportApp.get('/', (c) =>
     }
   })
 )
+
+/** GET /workspace — 读取持久化的连接与数据集（playground 演示用） */
+reportApp.get('/workspace', (c) => {
+  const workspace = loadWorkspace()
+  return c.json({ ok: true, ...workspace })
+})
+
+/** PUT /workspace — 全量保存连接与数据集（playground 演示用） */
+reportApp.put('/workspace', async (c) => {
+  const body = await readJsonBody(c)
+  if (!body.ok) return body.response
+
+  const rawConnections = body.value.connections
+  const rawDatasets = body.value.datasets
+  if (!Array.isArray(rawConnections) || !Array.isArray(rawDatasets)) {
+    return c.json({ ok: false, error: invalid('connections 与 datasets 必须是数组') }, 400)
+  }
+
+  const connections: DataConnection[] = []
+  for (const item of rawConnections) {
+    const connection = validateConnection(item)
+    if (!connection.ok) return c.json({ ok: false, error: connection.error }, 400)
+    connections.push(connection.value)
+  }
+
+  const datasets: StoredDataset[] = []
+  for (const item of rawDatasets) {
+    const dataset = validateStoredDataset(item)
+    if (!dataset) {
+      return c.json({ ok: false, error: invalid('datasets 项形状不合法') }, 400)
+    }
+    datasets.push(dataset)
+  }
+
+  const connectionIds = new Set(connections.map((item) => item.id))
+  for (const dataset of datasets) {
+    if (!connectionIds.has(dataset.connectionId)) {
+      return c.json(
+        {
+          ok: false,
+          error: invalid(`数据集 ${dataset.id} 引用了不存在的连接 ${dataset.connectionId}`)
+        },
+        400
+      )
+    }
+  }
+
+  saveWorkspace({ connections, datasets })
+  return c.json({ ok: true })
+})
 
 reportApp.post('/test', async (c) => {
   const body = await readJsonBody(c)

@@ -123,4 +123,7 @@ dist/*
 
 .playwright-cli/
 
+# playground report hub SQLite（本地 dev 持久化）
+playground/server/data/
+
 docs/superpowers

@@ -6,7 +6,9 @@
 
 ```bash
 cd playground
-vp dev    # 端口 7788，host: true
+bun run dev      # 契约参考服务（8787）+ 前端（7788），报表演示用
+bun run dev:web  # 仅前端；报表页需另开 bun run server
+bun run server   # 仅契约参考服务
 ```
 
 ## 导航
@@ -35,7 +37,7 @@ vp dev    # 端口 7788，host: true
 - SCSS：`NodePackageImporter`（仓库根）解析 `pkg:@veltra/styles/...`
 - `VeltraUIResolver`（`@veltra/vite`）：desktop / ai / sheet 的 `U*` 组件 + 对应 `style.ts`
 - `@veltra/vite` 为本 playground 的 devDependency
-- `reportServerPlugin`（`server/vite-plugin.ts`）：dev 时联动启动契约参考服务（独立端口），`vp build` 不生效（`apply: 'serve'`）
+- 契约参考服务（`server/`）：`bun run dev` 并行拉起，或 `bun run server` 单独启动；`vp build` 不依赖该服务
 
 ## 契约参考服务（report connector）
 
@@ -43,9 +45,10 @@ vp dev    # 端口 7788，host: true
 
 - hono + TS，`mysql2` / `pg` 真实驱动；只存在于 playground（devDependencies），不进任何发布产物
 - 三端点 `POST /test|describe|query`（无版本段），业务错误一律 `200 + { ok: false, error: { code, message } }`
-- 无状态、不内置默认连接；每次调用按请求连接信息新建短连接
-- 随 `vp dev` 自动启动（默认端口 8787，`REPORT_SERVER_PORT` 覆盖）；前端经 vite proxy `/report-api` 访问（`createHttpConnector({ endpoint: '/report-api' })`）
-- 独立启动：`bun run server`；`GET /` 返回契约活体文档；详见 `server/README.md`
+- 无状态查询代理；连接/数据集经 `GET|PUT /workspace` 持久化到本地 SQLite（`server/data/report-hub.db`）
+- `bun run dev` 并行启动本服务（默认 8787）与前端；亦可 `bun run server` 单独启动（`REPORT_SERVER_PORT` 覆盖）
+- 前端经 vite proxy `/report-api` 访问（`createHttpConnector({ endpoint: '/report-api' })`）
+- 详见 `server/README.md`
 
 ## 结构
 

@@ -3,6 +3,28 @@ import type { DatasetField, ParamValues } from './types'
 /** 数据连接类型（ADR-0003 决策 3：收敛为 MySQL / PostgreSQL） */
 export type ConnectionType = 'mysql' | 'postgresql'
 
+/** 各连接类型的默认端口 */
+export const DEFAULT_CONNECTION_PORTS: Record<ConnectionType, number> = {
+  mysql: 3306,
+  postgresql: 5432
+}
+
+/**
+ * 切换连接类型时解析端口：若当前端口仍是上一类型的默认值（或 0），则切到新类型默认端口；
+ * 用户已自定义的端口保持不变。
+ */
+export function resolvePortOnTypeChange(
+  prevType: ConnectionType,
+  nextType: ConnectionType,
+  currentPort: number
+): number {
+  if (prevType === nextType) return currentPort
+  if (currentPort === DEFAULT_CONNECTION_PORTS[prevType] || currentPort === 0) {
+    return DEFAULT_CONNECTION_PORTS[nextType]
+  }
+  return currentPort
+}
+
 /**
  * 数据连接（纯序列化对象，仅驻留内存）。
  * 凭据持久化与安全存储由下游负责（ADR-0003 决策 4）。

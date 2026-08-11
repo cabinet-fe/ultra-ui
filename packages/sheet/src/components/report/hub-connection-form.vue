@@ -16,7 +16,7 @@
       </div>
       <div :class="cls.e('field')">
         <span :class="cls.e('label')">端口</span>
-        <u-input v-model="portText" size="small" type="number" placeholder="3306" />
+        <u-input v-model="portText" size="small" type="number" :placeholder="String(defaultPort)" />
       </div>
       <div :class="cls.e('field')">
         <span :class="cls.e('label')">数据库</span>
@@ -52,6 +52,7 @@ import { bem } from '@veltra/utils'
 import { computed, reactive, ref, watch } from 'vue'
 
 import type { ConnectionType, DataConnection, Result } from '../../report/connector'
+import { DEFAULT_CONNECTION_PORTS, resolvePortOnTypeChange } from '../../report/connector'
 
 defineOptions({ name: 'UReportHubConnectionForm' })
 
@@ -74,6 +75,8 @@ const typeOptions: { label: string; value: ConnectionType }[] = [
 
 const draft = reactive<DataConnection>({ ...props.connection })
 
+const defaultPort = computed(() => DEFAULT_CONNECTION_PORTS[draft.type])
+
 const portText = computed({
   get: () => String(draft.port),
   set: (value: string) => {
@@ -94,6 +97,14 @@ watch(
     Object.assign(draft, conn)
   },
   { immediate: true }
+)
+
+watch(
+  () => draft.type,
+  (type, prevType) => {
+    if (!prevType) return
+    draft.port = resolvePortOnTypeChange(prevType, type, draft.port)
+  }
 )
 
 async function onTest(): Promise<void> {

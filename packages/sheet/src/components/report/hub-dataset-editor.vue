@@ -37,58 +37,58 @@
         border
         text-ellipsis
       >
-        <template #column:label="{ row }">
+        <template #column:label="{ rowData }">
           <u-input
-            :model-value="row.label"
+            :model-value="rowData.label"
             size="small"
-            @update:model-value="(v) => patchParam(row.id, { label: String(v ?? '') })"
+            @update:model-value="(v) => patchParam(rowData.id, { label: String(v ?? '') })"
           />
         </template>
-        <template #column:type="{ row }">
+        <template #column:type="{ rowData }">
           <u-select
-            :model-value="row.type"
+            :model-value="rowData.type"
             size="small"
             :options="paramTypeOptions"
-            @update:model-value="(v) => patchParam(row.id, { type: v as QueryParamType })"
+            @update:model-value="(v) => patchParam(rowData.id, { type: v as QueryParamType })"
           />
         </template>
-        <template #column:defaultValue="{ row }">
+        <template #column:defaultValue="{ rowData }">
           <u-input
-            v-if="row.type === 'number'"
-            :model-value="String(row.defaultValue ?? '')"
+            v-if="rowData.type === 'number'"
+            :model-value="String(rowData.defaultValue ?? '')"
             size="small"
             type="number"
-            @update:model-value="(v) => patchParam(row.id, { defaultValue: Number(v) })"
+            @update:model-value="(v) => patchParam(rowData.id, { defaultValue: Number(v) })"
           />
           <u-input
-            v-else-if="row.type === 'date'"
-            :model-value="String(row.defaultValue ?? '')"
+            v-else-if="rowData.type === 'date'"
+            :model-value="String(rowData.defaultValue ?? '')"
             size="small"
             type="date"
-            @update:model-value="(v) => patchParam(row.id, { defaultValue: v })"
+            @update:model-value="(v) => patchParam(rowData.id, { defaultValue: v })"
           />
           <u-select
-            v-else-if="row.type === 'select'"
-            :model-value="String(row.defaultValue ?? '')"
+            v-else-if="rowData.type === 'select'"
+            :model-value="String(rowData.defaultValue ?? '')"
             size="small"
-            :options="row.options ?? []"
-            @update:model-value="(v) => patchParam(row.id, { defaultValue: v })"
+            :options="rowData.options ?? []"
+            @update:model-value="(v) => patchParam(rowData.id, { defaultValue: v })"
           />
           <u-input
             v-else
-            :model-value="formatDefaultValue(row.defaultValue)"
+            :model-value="formatDefaultValue(rowData.defaultValue)"
             size="small"
-            @update:model-value="(v) => patchParam(row.id, { defaultValue: v })"
+            @update:model-value="(v) => patchParam(rowData.id, { defaultValue: v })"
           />
         </template>
-        <template #column:options="{ row }">
+        <template #column:options="{ rowData }">
           <u-input
-            v-if="row.type === 'select'"
-            :model-value="formatOptions(row.options)"
+            v-if="rowData.type === 'select'"
+            :model-value="formatOptions(rowData.options)"
             size="small"
             placeholder="华东|华东,华南|华南"
             @update:model-value="
-              (v) => patchParam(row.id, { options: parseOptions(String(v ?? '')) })
+              (v) => patchParam(rowData.id, { options: parseOptions(String(v ?? '')) })
             "
           />
           <span v-else :class="cls.e('muted')">—</span>
@@ -107,16 +107,16 @@
           border
           text-ellipsis
         >
-          <template #column:label="{ row }">
+          <template #column:label="{ rowData }">
             <u-input
-              :model-value="row.label"
+              :model-value="rowData.label"
               size="small"
               placeholder="中文显示名"
-              @update:model-value="(v) => patchFieldLabel(row.name, String(v ?? ''))"
+              @update:model-value="(v) => patchFieldLabel(rowData.name, String(v ?? ''))"
             />
           </template>
-          <template #column:type="{ row }">
-            <u-tag size="small" :type="fieldTypeColor(row.type)">{{ row.type }}</u-tag>
+          <template #column:type="{ rowData }">
+            <u-tag size="small" :type="fieldTypeColor(rowData.type)">{{ rowData.type }}</u-tag>
           </template>
         </u-table>
       </template>
