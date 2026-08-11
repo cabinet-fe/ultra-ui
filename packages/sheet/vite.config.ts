@@ -51,6 +51,7 @@ const config = {
         '@cat-kit/core',
         '@cat-kit/fe',
         'vue',
+        '@veltra/compositions',
         '@veltra/desktop',
         '@veltra/icons',
         '@veltra/sheet-core',

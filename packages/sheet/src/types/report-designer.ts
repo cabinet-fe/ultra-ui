@@ -12,6 +12,11 @@ export interface ReportDesignerProps {
    * 凭据的持久化与安全存储完全由宿主掌控（ADR-0003 决策 4）
    */
   connections?: DataConnection[]
+  /**
+   * 载入既有 Report Template 继续设计：恢复网格绑定与设计态数据集；
+   * 内嵌连接按 id 合并进 `v-model:connections`（仅缺省时追加，宿主列表是单一事实源）
+   */
+  template?: ReportTemplate
   /** 承载设计态的工作簿（USheet 先例：缺省内部自建单 sheet 工作簿） */
   workbook?: Workbook
 }

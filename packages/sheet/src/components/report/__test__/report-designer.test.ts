@@ -5,6 +5,7 @@ import { createApp, h, nextTick, ref, type App } from 'vue'
 import { UReportDesigner } from '../../../index'
 import { REPORT_META_NAMESPACE } from '../../../report/binding'
 import type { DataConnection, DataConnector } from '../../../report/connector'
+import type { ReportTemplate } from '../../../report/template'
 import type { ParamValues, ReportBinding } from '../../../report/types'
 import type { ReportDesignerExposed } from '../../../types'
 import { FIELD_DRAG_MIME } from '../field-panel-helpers'
@@ -28,11 +29,29 @@ function createStubConnector() {
     },
     describe: (connection, sql) => {
       calls.describe.push({ connection, sql })
-      return Promise.resolve({ ok: true, data: [] })
+      return Promise.resolve({
+        ok: true,
+        data: [
+          { name: 'customer', label: '客户', type: 'string' as const },
+          { name: 'amount', label: '金额', type: 'number' as const }
+        ]
+      })
     },
     query: (connection, sql, values) => {
       calls.query.push({ connection, sql, values })
-      return Promise.resolve({ ok: true, data: { fields: [], rows: [] } })
+      return Promise.resolve({
+        ok: true,
+        data: {
+          fields: [
+            { name: 'customer', label: '客户', type: 'string' as const },
+            { name: 'amount', label: '金额', type: 'number' as const }
+          ],
+          rows: [
+            { customer: '甲公司', amount: 100 },
+            { customer: '乙公司', amount: 400 }
+          ]
+        }
+      })
     }
   }
   return { connector, calls, state }
@@ -43,7 +62,7 @@ function createStubConnector() {
 const apps: App[] = []
 const containers: HTMLElement[] = []
 
-function mountDesigner(workbook: Workbook) {
+function mountDesigner(workbook: Workbook, options?: { template?: ReportTemplate }) {
   const { connector, calls, state } = createStubConnector()
   const el = document.createElement('div')
   el.style.width = '960px'
@@ -58,6 +77,7 @@ function mountDesigner(workbook: Workbook) {
         connector,
         workbook,
         connections: connections.value,
+        template: options?.template,
         'onUpdate:connections': (value: DataConnection[]) => {
           connections.value = value
         },
@@ -199,5 +219,105 @@ describe('UReportDesigner 最小闭环（数据中枢 + 拖拽绑定 + getTempla
     const banner = document.querySelector('.u-report-hub-connection-form__test')
     expect(banner?.textContent).toContain('数据库连接失败')
     expect(banner?.classList.contains('is-ok')).toBe(false)
+  })
+})
+
+describe('UReportDesigner 全量：template 载入与预览模式（内嵌查看器路径）', () => {
+  const TEMPLATE_CONNECTION: DataConnection = {
+    id: 'conn-template',
+    label: '模板连接',
+    type: 'mysql',
+    host: '127.0.0.1',
+    port: 3306,
+    database: 'demo',
+    username: 'root',
+    password: ''
+  }
+
+  function buildTemplate(): ReportTemplate {
+    const group: ReportBinding = {
+      dataset: 'ds-template',
+      field: 'customer',
+      role: 'group',
+      aggregate: 'group',
+      expand: 'down',
+      leftParent: 'none',
+      sort: 'none',
+      conditionalRules: []
+    }
+    return {
+      cells: [{ row: 0, col: 0, v: '客户' }],
+      styles: [],
+      merges: [],
+      frozen: { rows: 0, cols: 0 },
+      rows: 24,
+      cols: 10,
+      meta: [{ row: 1, col: 0, namespace: REPORT_META_NAMESPACE, payload: group }],
+      datasets: [
+        {
+          id: 'ds-template',
+          label: '订单',
+          connection: TEMPLATE_CONNECTION,
+          sql: 'SELECT customer, amount FROM orders'
+        }
+      ]
+    }
+  }
+
+  function reportMetas(workbook: Workbook) {
+    return [...workbook.activeSheet.entriesCellMeta()].filter(
+      ([, namespace]) => namespace === REPORT_META_NAMESPACE
+    )
+  }
+
+  it('template prop 载入恢复绑定与连接；预览切换经内嵌查看器取数展开；切回设计态绑定不丢', async () => {
+    const workbook = new Workbook()
+    const { el, connections, exposedRef, calls } = mountDesigner(workbook, {
+      template: buildTemplate()
+    })
+    await flush()
+
+    // 模板载入：绑定恢复 + 内嵌连接合并进 v-model 列表
+    expect(reportMetas(workbook)).toHaveLength(1)
+    expect(connections.value.map((item) => item.id)).toEqual(['conn-template'])
+
+    // 切预览：内嵌查看器按模板内嵌数据集取数（含 Filter Bar 参数默认值）
+    await click(findButton('预览模式')!)
+    expect(el.querySelector('.u-report-viewer')).toBeTruthy()
+    expect(calls.query).toHaveLength(1)
+    expect(calls.query[0]!.connection.id).toBe('conn-template')
+    expect(calls.query[0]!.sql).toBe('SELECT customer, amount FROM orders')
+    // 取数成功：无业务错误 banner；设计格线已卸载
+    expect(el.querySelector('.u-report-viewer__error')).toBeFalsy()
+    expect(el.querySelector('.u-report-designer__grid')).toBeFalsy()
+
+    // 切回设计态：绑定不丢，可继续设计
+    await click(findButton('设计模式')!)
+    expect(el.querySelector('.u-report-viewer')).toBeFalsy()
+    expect(el.querySelector('.u-report-designer__grid')).toBeTruthy()
+    expect(reportMetas(workbook)).toHaveLength(1)
+
+    // getTemplate 往返：绑定与内嵌数据集定义完整
+    const roundTrip = exposedRef.value!.getTemplate()
+    expect(roundTrip.meta).toHaveLength(1)
+    expect(roundTrip.datasets).toHaveLength(1)
+    expect(roundTrip.datasets![0]).toMatchObject({ id: 'ds-template', label: '订单' })
+    expect(roundTrip.datasets![0]!.connection.id).toBe('conn-template')
+  })
+
+  it('预览态导出 XLSX 按钮可见且导出填充字节（条件样式已在 renderReport 打平）', async () => {
+    const workbook = new Workbook()
+    const { el } = mountDesigner(workbook, { template: buildTemplate() })
+    await flush()
+
+    // 设计态无导出按钮
+    expect(findButton('导出 XLSX')).toBeUndefined()
+
+    await click(findButton('预览模式')!)
+    const exportButton = findButton('导出 XLSX')
+    expect(exportButton).toBeTruthy()
+    // 点击触发导出（saveBlob 在 happy-dom 下无 DOM 写盘副作用，断言语义由内核 export-xlsx 测试覆盖）
+    await click(exportButton!)
+    expect(el.querySelector('.u-report-viewer')).toBeTruthy()
   })
 })

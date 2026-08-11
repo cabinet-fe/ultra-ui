@@ -130,6 +130,24 @@
     gap: fn.use-var(gap, default);
   }
 
+  @include m.e(mode-toggle) {
+    display: inline-flex;
+    gap: 4px;
+  }
+
+  /* 预览态：内嵌查看器路径（UReportViewer 撑满） */
+  @include m.e(preview) {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+
+    .u-report-viewer {
+      flex: 1;
+      min-height: 0;
+    }
+  }
+
   @include m.e(grid) {
     position: relative;
     flex: 1;
@@ -150,6 +168,270 @@
   @include m.e(hub-drawer) {
     width: min(960px, 92vw);
   }
+}
+
+/* 拓扑连线覆层（SVG 弧线，选中绑定格时高亮父子扩展依赖） */
+@include m.b(report-topology) {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+  overflow: visible;
+
+  @include m.e(arc) {
+    fill: none;
+    stroke: fn.use-var(color, primary);
+    stroke-width: 2;
+    stroke-linecap: round;
+    opacity: 0.72;
+  }
+}
+
+/* Action Pill：选中绑定格上方的悬浮编辑卡（角色 / 聚合 / 条件样式 / 排序 / 清除绑定） */
+@include m.b(report-float-panel) {
+  position: absolute;
+  z-index: 18;
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  min-width: 400px;
+  max-width: min(480px, calc(100% - 20px));
+  border: fn.use-var(border);
+  border-radius: 10px;
+  background: fn.use-var(bg-color, top);
+  box-shadow: 0 8px 24px rgb(15 23 42 / 12%);
+  pointer-events: auto;
+
+  @include m.m(above) {
+    transform: translate(-50%, -100%);
+  }
+
+  @include m.m(below) {
+    transform: translate(-50%, 0);
+  }
+
+  @include m.e(bar) {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px 10px;
+  }
+
+  @include m.e(summary) {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.35;
+    color: fn.use-var(color, primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @include m.e(toolbar) {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  @include m.e(select) {
+    flex: none;
+
+    @include m.em(select, role) {
+      width: 84px;
+    }
+
+    @include m.em(select, aggregate) {
+      width: 76px;
+    }
+  }
+
+  @include m.e(expand) {
+    flex: none;
+    margin-left: auto;
+    padding-inline: 6px;
+  }
+
+  @include m.e(body) {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 12px 12px;
+    border-top: fn.use-var(border-muted);
+    background: fn.use-var(bg-color, middle);
+  }
+
+  @include m.e(section) {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  @include m.e(section-label) {
+    font-size: 12px;
+    font-weight: 600;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(hint) {
+    margin: 0;
+    font-size: 12px;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(footer) {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 4px;
+    margin-top: 2px;
+    border-top: fn.use-var(border-muted);
+  }
+}
+
+/* 条件样式规则对话框内容 */
+@include m.b(report-rules-dialog) {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  @include m.e(hint) {
+    margin: 0;
+    font-size: 12px;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(list) {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 420px;
+    overflow: auto;
+  }
+
+  @include m.e(item) {
+    margin: 0;
+  }
+
+  @include m.e(empty) {
+    margin: 0;
+    font-size: 12px;
+    color: fn.use-var(text-color, second);
+  }
+}
+
+@include m.b(report-rule-row) {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px;
+  border: fn.use-var(border-muted);
+  border-radius: 8px;
+  background: fn.use-var(bg-color, top);
+
+  @include m.e(handle) {
+    flex: none;
+    width: 20px;
+    margin-top: 4px;
+    color: fn.use-var(text-color, second);
+    font-size: 16px;
+    line-height: 1;
+    cursor: grab;
+    user-select: none;
+    text-align: center;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  @include m.e(main) {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  @include m.e(condition) {
+    display: grid;
+    grid-template-columns: 72px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+  }
+
+  @include m.e(operator) {
+    width: 72px;
+    flex: none;
+  }
+
+  @include m.e(value) {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  @include m.e(scalar-input) {
+    width: 112px;
+    flex: none;
+  }
+
+  @include m.e(between-input) {
+    width: 96px;
+    flex: none;
+  }
+
+  @include m.e(between-sep) {
+    font-size: 12px;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(style) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  @include m.e(style-label) {
+    font-size: 12px;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(toggle) {
+    min-width: 28px;
+    padding-inline: 6px;
+  }
+
+  @include m.e(preview) {
+    flex: none;
+    margin-top: 2px;
+  }
+
+  @include m.e(actions) {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+@include m.b(report-rule-preview) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 28px;
+  padding: 0 8px;
+  border: fn.use-var(border);
+  border-radius: 4px;
+  font-size: 13px;
+  line-height: 1;
+  box-sizing: border-box;
 }
 
 @include m.b(report-field-panel) {

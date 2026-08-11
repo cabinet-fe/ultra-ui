@@ -4,7 +4,9 @@ import { effectScope, ref, type EffectScope, type Ref } from 'vue'
 
 import { REPORT_META_NAMESPACE } from '../../../report/binding'
 import type { DataConnection, DataConnector } from '../../../report/connector'
+import type { ReportTemplate } from '../../../report/template'
 import type { DatasetField, ParamValues, ReportBinding } from '../../../report/types'
+import { roleBindingDefaults } from '../designer/role'
 import { useReportDesigner, type UseReportDesignerReturn } from '../use-report-designer'
 
 // ---- 内联 fixtures：stub connector（实现 DataConnector 接口的内存测试夹具）----
@@ -78,13 +80,16 @@ interface DesignerFixture {
   calls: StubCalls
 }
 
-function createDesigner(initial: DataConnection[] = [MYSQL]): DesignerFixture {
+function createDesigner(
+  initial: DataConnection[] = [MYSQL],
+  options?: { template?: ReportTemplate }
+): DesignerFixture {
   const { connector, calls } = createStubConnector()
   const connections = ref<DataConnection[]>(initial)
   const workbook = new Workbook()
   const scope = effectScope()
   const designer = scope.run(() =>
-    useReportDesigner({ props: { connector, workbook }, connections })
+    useReportDesigner({ props: { connector, workbook, template: options?.template }, connections })
   )!
   return { scope, designer, connections, workbook, calls }
 }
@@ -282,5 +287,185 @@ describe('useReportDesigner：getTemplate', () => {
     designer.updateDataset(orphan.id, { sql: 'SELECT 1' })
 
     expect(designer.getTemplate().datasets).toEqual([])
+  })
+})
+
+describe('useReportDesigner：Action Pill 就地编辑（角色 / 聚合 / 条件规则 / 清除绑定）', () => {
+  async function seedAndBind(
+    designer: UseReportDesignerReturn,
+    addr: { row: number; col: number }
+  ) {
+    const dataset = designer.addDataset('c1')
+    designer.updateDataset(dataset.id, { sql: 'SELECT customer, amount FROM orders' })
+    await designer.describeDataset(dataset.id)
+    designer.bindField(dataset.id, 'amount', addr)
+    return dataset
+  }
+
+  it('角色切换写入 roleBindingDefaults 默认值；聚合切换同步 expand 缺省', async () => {
+    const { designer, workbook } = createDesigner()
+    await seedAndBind(designer, { row: 0, col: 0 })
+    workbook.activeSheet.selectCell({ row: 0, col: 0 })
+
+    designer.patchActiveBinding(roleBindingDefaults('subtotal'))
+    let binding = designer.activeBinding.value
+    expect(binding).toMatchObject({ role: 'subtotal', aggregate: 'sum', expand: 'none' })
+
+    // 聚合切回明细：expand 缺省随聚合联动（aggregateDefaultExpand）
+    designer.patchActiveBinding({ aggregate: 'select', expand: 'down' })
+    binding = designer.activeBinding.value
+    expect(binding).toMatchObject({ aggregate: 'select', expand: 'down' })
+
+    // 字段类型解析供条件规则对话框控件映射
+    expect(designer.activeFieldType.value).toBe('number')
+  })
+
+  it('条件规则与排序经 patch 写入绑定；拓扑条目跟随 meta 变更', async () => {
+    const { designer, workbook } = createDesigner()
+    const dataset = await seedAndBind(designer, { row: 0, col: 0 })
+    workbook.activeSheet.selectCell({ row: 0, col: 0 })
+
+    designer.patchActiveBinding({
+      sort: 'desc',
+      conditionalRules: [{ operator: 'gt', value: 100, style: { font: { color: '#DC2626' } } }]
+    })
+
+    const binding = workbook.activeSheet.getCellMeta<ReportBinding>(
+      { row: 0, col: 0 },
+      REPORT_META_NAMESPACE
+    )
+    expect(binding?.sort).toBe('desc')
+    expect(binding?.conditionalRules).toHaveLength(1)
+
+    const entries = designer.bindingEntries.value
+    expect(entries).toHaveLength(1)
+    expect(entries[0]).toMatchObject({ addr: { row: 0, col: 0 }, binding: { dataset: dataset.id } })
+  })
+
+  it('分组锚点守卫：锚点格不允许降级为明细', async () => {
+    const { designer, workbook } = createDesigner()
+    // 首列第二行为分组锚点（落格即推导为 group）
+    await seedAndBind(designer, { row: 1, col: 0 })
+    workbook.activeSheet.selectCell({ row: 1, col: 0 })
+    expect(designer.activeBinding.value).toMatchObject({ role: 'group', aggregate: 'group' })
+
+    designer.patchActiveBinding(roleBindingDefaults('detail'))
+    expect(designer.activeBinding.value).toMatchObject({ role: 'group', aggregate: 'group' })
+
+    designer.patchActiveBinding({ aggregate: 'select' })
+    expect(designer.activeBinding.value!.aggregate).toBe('group')
+
+    // 但允许切换为小计等其他角色
+    designer.patchActiveBinding(roleBindingDefaults('subtotal'))
+    expect(designer.activeBinding.value).toMatchObject({ role: 'subtotal', aggregate: 'sum' })
+  })
+
+  it('清除绑定移除 Cell Meta；有效左父格标签随行内扩展带解析', async () => {
+    const { designer, workbook } = createDesigner()
+    const dataset = designer.addDataset('c1')
+    designer.updateDataset(dataset.id, { sql: 'SELECT customer, amount FROM orders' })
+    await designer.describeDataset(dataset.id)
+
+    // 分组锚点 + 同行右侧明细（默认左父格解析到锚点）
+    designer.bindField(dataset.id, 'customer', { row: 1, col: 0 })
+    designer.bindField(dataset.id, 'amount', { row: 1, col: 1 })
+
+    workbook.activeSheet.selectCell({ row: 1, col: 1 })
+    expect(designer.resolvedLeftParentLabel.value).toBe('A2')
+
+    designer.removeActiveBinding()
+    expect(
+      workbook.activeSheet.getCellMeta({ row: 1, col: 1 }, REPORT_META_NAMESPACE)
+    ).toBeUndefined()
+    expect(designer.activeBinding.value).toBeUndefined()
+    expect(designer.boundKeys.value.has(`${dataset.id}:amount`)).toBe(false)
+  })
+})
+
+describe('useReportDesigner：template prop 载入既有模板', () => {
+  function buildTemplate(): ReportTemplate {
+    const group = createReportBindingFixture()
+    return {
+      cells: [{ row: 0, col: 0, v: '客户' }],
+      styles: [],
+      merges: [],
+      frozen: { rows: 0, cols: 0 },
+      rows: 24,
+      cols: 10,
+      meta: [{ row: 1, col: 0, namespace: REPORT_META_NAMESPACE, payload: group }],
+      datasets: [
+        {
+          id: 'ds-template',
+          label: '模板数据集',
+          connection: { ...PG, id: 'conn-template' },
+          sql: 'SELECT customer, amount FROM orders',
+          paramOverrides: { keyword: { label: '客户关键词' } },
+          fieldOverrides: { customer: { label: '客户名称' } }
+        }
+      ]
+    }
+  }
+
+  function createReportBindingFixture(): ReportBinding {
+    return {
+      dataset: 'ds-template',
+      field: 'customer',
+      role: 'group',
+      aggregate: 'group',
+      expand: 'down',
+      leftParent: 'none',
+      sort: 'none',
+      conditionalRules: [{ operator: 'eq', value: '甲公司', style: { fill: { color: '#FFCCCC' } } }]
+    }
+  }
+
+  it('恢复网格绑定与设计态数据集；内嵌连接按 id 合并进 v-model 列表；describe 恢复字段缓存', async () => {
+    const { designer, connections, workbook, calls } = createDesigner([MYSQL], {
+      template: buildTemplate()
+    })
+
+    // 绑定随快照恢复（含条件规则）
+    const binding = workbook.activeSheet.getCellMeta<ReportBinding>(
+      { row: 1, col: 0 },
+      REPORT_META_NAMESPACE
+    )
+    expect(binding).toEqual(createReportBindingFixture())
+
+    // 数据集还原为设计态（connectionId 引用；fields 缓存经 describe 恢复）
+    expect(designer.datasets.value).toHaveLength(1)
+    expect(designer.datasets.value[0]).toMatchObject({
+      id: 'ds-template',
+      label: '模板数据集',
+      connectionId: 'conn-template',
+      sql: 'SELECT customer, amount FROM orders'
+    })
+    await Promise.resolve()
+    expect(calls.describe).toHaveLength(1)
+    expect(calls.describe[0]!.connection.id).toBe('conn-template')
+
+    // 内嵌连接按 id 合并（已有连接不重复追加）
+    expect(connections.value.map((item) => item.id)).toEqual(['c1', 'conn-template'])
+
+    // catalog 应用 fieldOverrides（字段面板与徽章 label 数据源）
+    const catalog = designer.catalog.value
+    expect(catalog[0]!.fields.map((field) => field.label)).toEqual(['客户名称', '金额'])
+  })
+
+  it('载入后 getTemplate 往返保持绑定与数据集定义；宿主已有同 id 连接时不覆盖', async () => {
+    const template = buildTemplate()
+    const { designer } = createDesigner(
+      [MYSQL, { ...PG, id: 'conn-template', label: '宿主连接' }],
+      { template }
+    )
+
+    // 宿主同 id 连接优先（单一事实源），模板内嵌连接不覆盖
+    const roundTrip = designer.getTemplate()
+    expect(roundTrip.datasets).toHaveLength(1)
+    expect(roundTrip.datasets![0]!.connection.label).toBe('宿主连接')
+
+    // 绑定完整往返
+    const meta = roundTrip.meta ?? []
+    expect(meta).toHaveLength(1)
+    expect(meta[0]!.payload).toEqual(createReportBindingFixture())
   })
 })

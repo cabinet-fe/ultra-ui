@@ -1,17 +1,19 @@
 import type { CellAddress } from '@veltra/sheet-core'
 import type { ResolveCellRenderer } from '@veltra/sheet-core'
 import { Workbook } from '@veltra/sheet-core'
-import { computed, onScopeDispose, ref, type ComputedRef, type Ref } from 'vue'
+import { computed, onScopeDispose, ref, watch, type ComputedRef, type Ref } from 'vue'
 
 import {
   REPORT_META_NAMESPACE,
   createReportBinding,
   formatCellAddress,
+  resolveLeftParent,
   resolveReportRole
 } from '../../report/binding'
 import type { DataConnection, QueryResult, Result } from '../../report/connector'
 import { buildParamDefs } from '../../report/params'
 import {
+  getTemplateDatasets,
   resolveParamDefaults,
   type ReportDatasetDef,
   type ReportTemplate
@@ -19,6 +21,7 @@ import {
 import type { DatasetCatalogItem, DatasetField, ReportBinding } from '../../report/types'
 import type { ReportDesignerProps } from '../../types'
 import { createBindingBadgeRenderer } from './binding-badge'
+import type { TopologyBindingEntry } from './designer/topology'
 
 /**
  * 设计器内部数据集：以 `connectionId` 引用连接（连接列表经 `v-model:connections`
@@ -66,9 +69,25 @@ export interface UseReportDesignerReturn extends DatasetHubController {
   activeCell: Ref<CellAddress | null>
   /** 当前选区 A1 标签 */
   selectionLabel: ComputedRef<string>
+  /** 当前选区绑定（跟随 meta-change） */
+  activeBinding: ComputedRef<ReportBinding | undefined>
+  /** 当前选区绑定字段的数据类型（条件规则对话框控件映射用；缺省 number） */
+  activeFieldType: ComputedRef<DatasetField['type']>
+  /** 当前选区绑定的有效左父格 A1 标签（无左父格显示 —） */
+  resolvedLeftParentLabel: ComputedRef<string>
+  /** 全部绑定条目（拓扑连线数据源；跟随 meta-change） */
+  bindingEntries: ComputedRef<TopologyBindingEntry[]>
+  /** meta 变更计数（网格覆层组件的同步信号） */
+  metaTick: Ref<number>
   getBindingAt: (addr: CellAddress) => ReportBinding | undefined
+  /** 字段 label 解析（catalog O(1) 查找；Action Pill 摘要与徽章共用） */
+  resolveFieldLabel: (datasetId: string, fieldName: string) => string
   /** 拖拽/点击落格写 Cell Meta 绑定（角色推导与 playground 设计器一致） */
   bindField: (datasetId: string, fieldName: string, addr?: CellAddress) => void
+  /** 就地修补当前选区绑定（Action Pill：角色切换 / 聚合配置 / 排序 / 条件规则） */
+  patchActiveBinding: (patch: Partial<ReportBinding>) => void
+  /** 清除当前选区绑定 */
+  removeActiveBinding: () => void
   /** 绑定格角色徽章渲染 hook（ADR-0004） */
   resolveCellRenderer: ResolveCellRenderer
   /** 取回含 meta 绑定与内嵌数据集定义的 Report Template */
@@ -201,6 +220,63 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
     workbook.value.activeSheet.setCellMeta(target, REPORT_META_NAMESPACE, binding)
   }
 
+  // ---- Action Pill / 拓扑连线（playground 设计器平移，行为不变） ----
+
+  const activeBinding = computed((): ReportBinding | undefined => {
+    metaTick.value
+    const cell = activeCell.value
+    if (!cell) return undefined
+    return getBindingAt(cell)
+  })
+
+  const activeFieldType = computed((): DatasetField['type'] => {
+    const binding = activeBinding.value
+    if (!binding) return 'number'
+    const dataset = catalog.value.find((item) => item.id === binding.dataset)
+    const field = dataset?.fields.find((item) => item.name === binding.field)
+    return field?.type ?? 'number'
+  })
+
+  const resolvedLeftParentLabel = computed(() => {
+    metaTick.value
+    const binding = activeBinding.value
+    const cell = activeCell.value
+    if (!binding || !cell) return '—'
+    const resolved = resolveLeftParent(binding, cell, getBindingAt)
+    return resolved ? formatCellAddress(resolved) : '—'
+  })
+
+  const bindingEntries = computed((): TopologyBindingEntry[] => {
+    metaTick.value
+    const entries: TopologyBindingEntry[] = []
+    for (const [addr, namespace, payload] of workbook.value.activeSheet.entriesCellMeta()) {
+      if (namespace !== REPORT_META_NAMESPACE) continue
+      entries.push({ addr, binding: payload as ReportBinding })
+    }
+    return entries
+  })
+
+  function patchActiveBinding(patch: Partial<ReportBinding>): void {
+    const cell = activeCell.value
+    const binding = activeBinding.value
+    if (!cell || !binding) return
+
+    // 分组锚点守卫：锚点格不允许降级为明细（保持扩展带结构完整）
+    if (isGroupAnchorCell(cell, binding)) {
+      const nextRole = patch.role ?? resolveReportRole({ ...binding, ...patch })
+      const nextAggregate = patch.aggregate ?? binding.aggregate
+      if (nextRole === 'detail' || nextAggregate === 'select') return
+    }
+
+    workbook.value.activeSheet.setCellMeta(cell, REPORT_META_NAMESPACE, { ...binding, ...patch })
+  }
+
+  function removeActiveBinding(): void {
+    const cell = activeCell.value
+    if (!cell) return
+    workbook.value.activeSheet.clearCellMeta(cell, REPORT_META_NAMESPACE)
+  }
+
   // ---- 数据中枢：连接 / 数据集 CRUD 与连接器调用 ----
 
   function addConnection(connection: DataConnection): void {
@@ -306,6 +382,54 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
     return { ...workbook.value.activeSheet.snapshot(), datasets: resolved }
   }
 
+  /**
+   * 载入既有 Report Template 继续设计（`template` prop）：
+   * 快照恢复网格绑定（restore + restoreContent 与查看器同路径）；
+   * 内嵌数据集定义还原为设计态（connectionId 引用），内嵌连接按 id 合并进
+   * v-model 连接列表（仅缺省追加，宿主列表是单一事实源）；
+   * describe 恢复字段缓存（字段面板数据源），业务错误忽略（字段留空，可在数据中枢重试）。
+   */
+  function loadTemplate(template: ReportTemplate): void {
+    const sheet = workbook.value.activeSheet
+    sheet.restore(template)
+    sheet.restoreContent(template)
+    sheet.history.clear()
+    syncActiveCell()
+
+    const defs = getTemplateDatasets(template)
+    datasets.value = defs.map((def) => ({
+      id: def.id,
+      label: def.label,
+      connectionId: def.connection.id,
+      sql: def.sql,
+      ...(def.paramOverrides ? { paramOverrides: def.paramOverrides } : {}),
+      ...(def.fieldOverrides ? { fieldOverrides: def.fieldOverrides } : {})
+    }))
+
+    const missing = defs
+      .map((def) => def.connection)
+      .filter((connection) => !connections.value.some((item) => item.id === connection.id))
+    if (missing.length > 0) {
+      connections.value = [
+        ...connections.value,
+        ...missing.map((connection) => ({ ...connection }))
+      ]
+    }
+
+    for (const dataset of datasets.value) {
+      if (dataset.sql.trim()) void describeDataset(dataset.id)
+    }
+  }
+
+  // 模板更换：重新载入（仅在提供了 template 时；缺省为空白设计态）
+  watch(
+    () => props.template,
+    (template) => {
+      if (template) loadTemplate(template)
+    },
+    { immediate: true }
+  )
+
   return {
     workbook,
     connections,
@@ -314,8 +438,16 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
     boundKeys,
     activeCell,
     selectionLabel,
+    activeBinding,
+    activeFieldType,
+    resolvedLeftParentLabel,
+    bindingEntries,
+    metaTick,
     getBindingAt,
+    resolveFieldLabel,
     bindField,
+    patchActiveBinding,
+    removeActiveBinding,
     resolveCellRenderer,
     getTemplate,
     addConnection,
