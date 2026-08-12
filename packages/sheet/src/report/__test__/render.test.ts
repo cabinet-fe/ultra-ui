@@ -2,7 +2,7 @@ import { Sheet } from '@veltra/sheet-core'
 import { describe, expect, it } from 'vitest'
 
 import { REPORT_META_NAMESPACE, createReportBinding } from '../binding'
-import { renderReport } from '../render'
+import { renderReport, resolveFilledColWidths } from '../render'
 import type { DatasetCatalogItem, DatasetRecords } from '../types'
 
 // ---- 内联 fixtures（单一事实源在测试自身，不依赖 playground mock hub）----
@@ -298,7 +298,7 @@ describe('renderReport', () => {
     ;(groupMeta.payload as { aggregate: string }).aggregate = 'list'
 
     const filled = renderReport(broken, MOCK_DATA_RECORDS)
-    // 无分组锚点时走 expandListBlock：全量订单明细 + 小计
+    // 分组格误设为 list 时按全量明细展开 + 小计
     expect(filled.rows).toBe(1 + ORDER_ROWS.length + 1)
     expect(cellValue(filled, 1, 1)).toBe('O-1001')
   })
@@ -487,5 +487,166 @@ describe('renderReport', () => {
     expect(cellValue(filled, 1, 3)).toBe(100)
     expect(cellValue(filled, 1, 4)).toBe('2024-01-05')
     expect(cellValue(filled, 5, 3)).toBe(630)
+  })
+
+  it('横向展开 right + group：列头向右延展', () => {
+    const sheet = new Sheet()
+    sheet.setCells([{ addr: { row: 0, col: 0 }, data: { v: '品类' } }])
+    const category = createReportBinding(SALES_MATRIX_DATASET, 'category')
+    category.aggregate = 'group'
+    category.expand = 'right'
+    sheet.setCellMeta({ row: 0, col: 1 }, REPORT_META_NAMESPACE, category)
+
+    const filled = renderReport(sheet.snapshot(), { 'sales-matrix': SALES_MATRIX_ROWS })
+    expect(cellValue(filled, 0, 1)).toBe('办公设备')
+    expect(cellValue(filled, 0, 5)).toBe('网络')
+  })
+
+  it('转置明细 right + list：一条记录一列', () => {
+    const sheet = new Sheet()
+    sheet.setCells([{ addr: { row: 0, col: 0 }, data: { v: '订单号' } }])
+    const orderNo = createReportBinding(ORDERS_DATASET, 'orderNo')
+    orderNo.aggregate = 'list'
+    orderNo.expand = 'right'
+    sheet.setCellMeta({ row: 0, col: 1 }, REPORT_META_NAMESPACE, orderNo)
+
+    const filled = renderReport(sheet.snapshot(), { orders: ORDER_ROWS.slice(0, 3) })
+    expect(cellValue(filled, 0, 1)).toBe('O-1001')
+    expect(cellValue(filled, 0, 2)).toBe('O-1002')
+    expect(cellValue(filled, 0, 3)).toBe('O-1003')
+  })
+
+  it('多级列头：年 → 季度列头值正确', () => {
+    const sheet = new Sheet()
+    const data = [
+      { year: '2024', quarter: 'Q1', amount: 10 },
+      { year: '2024', quarter: 'Q2', amount: 20 },
+      { year: '2025', quarter: 'Q1', amount: 30 }
+    ]
+    const year = createReportBinding({ id: 'sales', label: 's', fields: [] }, 'year')
+    year.aggregate = 'group'
+    year.expand = 'right'
+    sheet.setCellMeta({ row: 0, col: 0 }, REPORT_META_NAMESPACE, year)
+
+    const quarter = createReportBinding({ id: 'sales', label: 's', fields: [] }, 'quarter')
+    quarter.aggregate = 'group'
+    quarter.expand = 'right'
+    quarter.colParent = { row: 0, col: 0 }
+    sheet.setCellMeta({ row: 1, col: 0 }, REPORT_META_NAMESPACE, quarter)
+
+    const filled = renderReport(sheet.snapshot(), { sales: data })
+    expect(cellValue(filled, 0, 0)).toBe('2024')
+    expect(cellValue(filled, 0, 2)).toBe('2025')
+    expect(cellValue(filled, 1, 0)).toBe('Q1')
+    expect(cellValue(filled, 1, 1)).toBe('Q2')
+    expect(cellValue(filled, 1, 2)).toBe('Q1')
+  })
+
+  it('顶部标题行的交叉表照常展开', () => {
+    const sheet = new Sheet()
+    sheet.setCells([
+      { addr: { row: 0, col: 0 }, data: { v: '销售交叉表' } },
+      { addr: { row: 2, col: 0 }, data: { v: '合计' } }
+    ])
+
+    const category = createReportBinding(SALES_MATRIX_DATASET, 'category')
+    category.aggregate = 'group'
+    category.expand = 'right'
+    sheet.setCellMeta({ row: 1, col: 1 }, REPORT_META_NAMESPACE, category)
+
+    const region = createReportBinding(SALES_MATRIX_DATASET, 'region')
+    region.aggregate = 'group'
+    region.expand = 'down'
+    sheet.setCellMeta({ row: 2, col: 0 }, REPORT_META_NAMESPACE, region)
+
+    const cross = createReportBinding(SALES_MATRIX_DATASET, 'amount')
+    cross.aggregate = 'sum'
+    cross.expand = 'none'
+    cross.rowParent = { row: 2, col: 0 }
+    cross.colParent = { row: 1, col: 1 }
+    sheet.setCellMeta({ row: 2, col: 1 }, REPORT_META_NAMESPACE, cross)
+
+    const filled = renderReport(sheet.snapshot(), { 'sales-matrix': SALES_MATRIX_ROWS })
+    expect(cellValue(filled, 0, 0)).toBe('销售交叉表')
+    expect(cellValue(filled, 1, 1)).toBe('办公设备')
+    expect(cellValue(filled, 2, 0)).toBe('华东')
+    expect(cellValue(filled, 2, 1)).toBe(50400)
+  })
+
+  it('空数据集：展开块为 0，表头仍输出', () => {
+    const filled = renderReport(buildGroupDetailTemplate(), { orders: [], customers: [] })
+    expect(filled.rows).toBe(1)
+    expect(cellValue(filled, 0, 0)).toBe('客户')
+  })
+
+  it('max / min 聚合', () => {
+    const sheet = new Sheet()
+    seedGroupDetailTemplate(sheet)
+    sheet.setCellMeta({ row: 2, col: 3 }, REPORT_META_NAMESPACE, {
+      dataset: 'orders',
+      field: 'amount',
+      preset: 'subtotal',
+      aggregate: 'max',
+      expand: 'none',
+      rowParent: { row: 1, col: 0 }
+    })
+    const maxFilled = renderReport(sheet.snapshot(), MOCK_DATA_RECORDS)
+    expect(maxFilled.cells.find((c) => c.row === 5 && c.col === 3)?.v).toBe(200)
+
+    const sheet2 = new Sheet()
+    seedGroupDetailTemplate(sheet2)
+    sheet2.setCellMeta({ row: 2, col: 3 }, REPORT_META_NAMESPACE, {
+      dataset: 'orders',
+      field: 'amount',
+      preset: 'subtotal',
+      aggregate: 'min',
+      expand: 'none',
+      rowParent: { row: 1, col: 0 }
+    })
+    const minFilled = renderReport(sheet2.snapshot(), MOCK_DATA_RECORDS)
+    expect(minFilled.cells.find((c) => c.row === 5 && c.col === 3)?.v).toBe(100)
+  })
+
+  it('mergeSpan: false 时扩展格不合并', () => {
+    const sheet = new Sheet()
+    const group = createReportBinding(ORDERS_DATASET, 'customer')
+    group.aggregate = 'group'
+    group.expand = 'down'
+    group.mergeSpan = false
+    sheet.setCellMeta({ row: 1, col: 0 }, REPORT_META_NAMESPACE, group)
+
+    const detail = createReportBinding(ORDERS_DATASET, 'orderNo')
+    detail.aggregate = 'list'
+    detail.expand = 'down'
+    detail.rowParent = { row: 1, col: 0 }
+    sheet.setCellMeta({ row: 1, col: 1 }, REPORT_META_NAMESPACE, detail)
+
+    const filled = renderReport(sheet.snapshot(), MOCK_DATA_RECORDS)
+    expect(hasMerge(filled, { row: 1, col: 0 }, { row: 4, col: 0 })).toBe(false)
+    expect(cellValue(filled, 1, 0)).toBe('甲公司')
+    expect(cellValue(filled, 2, 0)).toBe('甲公司')
+  })
+
+  it('横向展开列继承列方向父格的模板列宽', () => {
+    const template = buildMatrixTemplate()
+    const templateWidths: Array<[number, number]> = [
+      [0, 80],
+      [1, 120]
+    ]
+    const filledWidths = resolveFilledColWidths(
+      template,
+      { 'sales-matrix': SALES_MATRIX_ROWS },
+      templateWidths
+    )
+    expect(filledWidths).toEqual(
+      expect.arrayContaining([
+        [0, 80],
+        [1, 120],
+        [2, 120],
+        [3, 120],
+        [4, 120],
+        [5, 120]
+      ])
+    )
   })
 })

@@ -212,6 +212,35 @@ function findRowSubtreeRootOnRow(index: TemplateIndex, row: number): CellAddress
   return null
 }
 
+/** 扩展带终止行：新的纵向子树根，或无父格的汇总行（如总计） */
+function isExpansionBandTerminatorRow(index: TemplateIndex, row: number, rootRow: number): boolean {
+  if (row <= rootRow) return false
+  const rowRoot = findRowSubtreeRootOnRow(index, row)
+  if (rowRoot && rowRoot.row !== rootRow) return true
+  return !isCompanionRow(index, row)
+}
+
+/** 扩展带内随行：全部绑定均带 rowParent（纯静态行不算带内行） */
+function isCompanionRow(index: TemplateIndex, row: number): boolean {
+  const bindings = index.bindingsOnRow(row)
+  if (bindings.length === 0) return false
+  return bindings.every(({ binding }) => binding.rowParent !== undefined)
+}
+
+/** 纵向扩展带覆盖的模板行：子树行 + 紧随其后的带内汇总行 */
+function expansionBandRows(rootAddr: CellAddress, index: TemplateIndex): number[] {
+  const subtreeRows = rowSubtreeRows(rootAddr, index)
+  const maxSubtreeRow = Math.max(...subtreeRows)
+  const rows = new Set(subtreeRows)
+  for (const row of index.logicalRows) {
+    if (row <= maxSubtreeRow) continue
+    if (isExpansionBandTerminatorRow(index, row, rootAddr.row)) break
+    if (!isCompanionRow(index, row)) break
+    rows.add(row)
+  }
+  return index.logicalRows.filter((row) => rows.has(row))
+}
+
 function findNestedColChild(rootAddr: CellAddress, index: TemplateIndex): CellAddress | null {
   for (const child of index.colChildren.get(cellKey(rootAddr)) ?? []) {
     const binding = index.bindingAt(child)
@@ -254,7 +283,7 @@ class CoordinateEngine {
         placements.push(...result.placements)
         physRow += result.rowSpan
         maxCol = Math.max(maxCol, result.colSpan)
-        for (const row of rowSubtreeRows(rowRoot, this.index)) consumedRows.add(row)
+        for (const row of expansionBandRows(rowRoot, this.index)) consumedRows.add(row)
         continue
       }
 
@@ -295,7 +324,7 @@ class CoordinateEngine {
       this.data,
       mergeFilters(parentFilter, ctx.rowFilter)
     )
-    const subtreeRows = rowSubtreeRows(rootAddr, this.index)
+    const bandRows = expansionBandRows(rootAddr, this.index)
 
     if (instances.length === 0) return { rowSpan: 0, colSpan: 0, placements: [] }
 
@@ -314,11 +343,24 @@ class CoordinateEngine {
         rootAddr,
         instances.length
       )
-      return {
-        rowSpan: instances.length,
-        colSpan: rowResult.colSpan,
-        placements: rowResult.placements
+      const placements = [...rowResult.placements]
+      let totalRowSpan = instances.length
+
+      for (const templateRow of bandRows) {
+        if (templateRow === rootAddr.row) continue
+        const companionResult = this.layoutTemplateRow(
+          templateRow,
+          listCtx,
+          physRowStart + totalRowSpan,
+          physColStart,
+          null,
+          1
+        )
+        placements.push(...companionResult.placements)
+        totalRowSpan += companionResult.rowSpan
       }
+
+      return { rowSpan: totalRowSpan, colSpan: rowResult.colSpan, placements }
     }
 
     const placements: PhysicalPlacement[] = []
@@ -332,18 +374,37 @@ class CoordinateEngine {
         rowPath: [...ctx.rowPath, instance.index],
         colPath: ctx.colPath
       }
-      const instanceHeight = this.measureSubtreeInstanceHeight(subtreeRows, rootAddr, instanceCtx)
+      const instanceHeight = this.measureSubtreeInstanceHeight(bandRows, rootAddr, instanceCtx)
+      const groupMergeHeight = this.measureTemplateRowHeight(rootAddr.row, instanceCtx, null)
+
+      if (this.bandHasMultiRowList(bandRows, instanceCtx)) {
+        const bandResult = this.layoutMultiRowListBand(
+          bandRows,
+          rootAddr,
+          instanceCtx,
+          physRowStart + totalRowSpan,
+          physColStart,
+          groupMergeHeight
+        )
+        placements.push(...bandResult.placements)
+        maxColSpan = Math.max(maxColSpan, bandResult.colSpan)
+        totalRowSpan += instanceHeight
+        continue
+      }
+
       let rowOffset = 0
 
-      for (const templateRow of subtreeRows) {
+      for (const templateRow of bandRows) {
         const rowHeight = this.measureTemplateRowHeight(templateRow, instanceCtx, rootAddr)
+        const mergeHeight =
+          templateRow === rootAddr.row ? groupMergeHeight : instanceHeight - rowOffset
         const rowResult = this.layoutTemplateRow(
           templateRow,
           instanceCtx,
           physRowStart + totalRowSpan + rowOffset,
           physColStart,
           rootAddr,
-          instanceHeight - rowOffset
+          mergeHeight
         )
         placements.push(...rowResult.placements)
         rowOffset += rowHeight
@@ -357,19 +418,88 @@ class CoordinateEngine {
   }
 
   private measureSubtreeInstanceHeight(
-    subtreeRows: number[],
+    bandRows: number[],
     rootAddr: CellAddress,
     ctx: LayoutContext
   ): number {
-    let total = 0
-    for (const row of subtreeRows) {
+    let listDrivenHeight = 0
+    let companionHeight = 0
+
+    for (const row of bandRows) {
+      const listCount = this.listInstanceCountOnRow(row, ctx)
+      if (listCount > 0) {
+        listDrivenHeight = Math.max(listDrivenHeight, listCount)
+        continue
+      }
       if (row === rootAddr.row) continue
-      total += this.measureTemplateRowHeight(row, ctx, rootAddr)
+      companionHeight += this.measureTemplateRowHeight(row, ctx, rootAddr)
     }
-    if (total === 0) {
+
+    if (listDrivenHeight === 0) {
       return this.measureTemplateRowHeight(rootAddr.row, ctx, null)
     }
-    return total
+
+    return listDrivenHeight + companionHeight
+  }
+
+  private bandHasMultiRowList(bandRows: number[], ctx: LayoutContext): boolean {
+    let count = 0
+    for (const row of bandRows) {
+      if (this.listInstanceCountOnRow(row, ctx) > 0) count++
+      if (count > 1) return true
+    }
+    return false
+  }
+
+  private layoutMultiRowListBand(
+    bandRows: number[],
+    rootAddr: CellAddress,
+    ctx: LayoutContext,
+    physRowStart: number,
+    physColStart: number,
+    groupMergeHeight: number
+  ): SegmentResult {
+    const listRows = bandRows.filter((row) => this.listInstanceCountOnRow(row, ctx) > 0)
+    const companionRows = bandRows.filter((row) => !listRows.includes(row))
+    const listCount = Math.max(...listRows.map((row) => this.listInstanceCountOnRow(row, ctx)), 1)
+
+    const placements: PhysicalPlacement[] = []
+    let maxColSpan = 0
+
+    for (let listIndex = 0; listIndex < listCount; listIndex++) {
+      for (const templateRow of listRows) {
+        const rowResult = this.layoutTemplateRow(
+          templateRow,
+          ctx,
+          physRowStart + listIndex,
+          physColStart,
+          templateRow === rootAddr.row ? rootAddr : null,
+          groupMergeHeight,
+          false,
+          listIndex,
+          listCount
+        )
+        placements.push(...rowResult.placements)
+        maxColSpan = Math.max(maxColSpan, rowResult.colSpan)
+      }
+    }
+
+    let rowOffset = listCount
+    for (const templateRow of companionRows) {
+      const rowResult = this.layoutTemplateRow(
+        templateRow,
+        ctx,
+        physRowStart + rowOffset,
+        physColStart,
+        null,
+        1
+      )
+      placements.push(...rowResult.placements)
+      maxColSpan = Math.max(maxColSpan, rowResult.colSpan)
+      rowOffset += rowResult.rowSpan
+    }
+
+    return { rowSpan: rowOffset, colSpan: maxColSpan, placements }
   }
 
   private measureTemplateRowHeight(
@@ -427,7 +557,27 @@ class CoordinateEngine {
     physRowStart: number,
     physColStart: number
   ): SegmentResult {
-    return this.layoutTemplateRow(templateRow, ctx, physRowStart, physColStart, null, 1)
+    return this.layoutTemplateRow(
+      templateRow,
+      ctx,
+      physRowStart,
+      physColStart,
+      null,
+      1,
+      !this.rowUsesPackedColumns(templateRow)
+    )
+  }
+
+  private rowUsesPackedColumns(templateRow: number): boolean {
+    for (const entry of this.index.bindingsOnRow(templateRow)) {
+      if (isColSubtreeRoot(entry.binding, this.index)) return true
+      if (isNestedColExpander(entry.binding, this.index)) return true
+      if (entry.binding.colParent) {
+        const parent = this.index.bindingAt(entry.binding.colParent)
+        if (parent && isColExpanding(parent)) return true
+      }
+    }
+    return false
   }
 
   private layoutTemplateRow(
@@ -436,7 +586,10 @@ class CoordinateEngine {
     physRowStart: number,
     physColStart: number,
     rowSubtreeRoot: CellAddress | null,
-    groupMergeHeight: number
+    groupMergeHeight: number,
+    preserveLogicalCols = false,
+    fixedListIndex?: number,
+    mergeListCount?: number
   ): SegmentResult {
     for (const entry of this.index.bindingsOnRow(templateRow)) {
       if (isNestedRowExpander(entry.binding, this.index)) {
@@ -454,25 +607,32 @@ class CoordinateEngine {
     const cols = columnsOnRow(this.index, templateRow)
     const placements: PhysicalPlacement[] = []
     let physCol = physColStart
+    const packedCols = !preserveLogicalCols && this.rowUsesPackedColumns(templateRow)
 
     const listCount = this.listInstanceCountOnRow(templateRow, ctx)
-    const rowSpan = Math.max(listCount, 1)
+    const rowSpan = fixedListIndex !== undefined ? 1 : Math.max(listCount, 1)
+    const leadingGap = cols.length > 0 && cols[0]! > physColStart
 
     for (const col of cols) {
       const addr = { row: templateRow, col }
       const binding = this.index.bindingAt(addr)
+      const targetCol = packedCols && !leadingGap ? physCol : col
 
       if (binding && isColSubtreeRoot(binding, this.index)) {
-        const colResult = this.layoutColSubtree(addr, ctx, physRowStart, physCol)
+        const colResult = this.layoutColSubtree(addr, ctx, physRowStart, targetCol)
         placements.push(...colResult.placements)
-        physCol += colResult.colSpan
+        if (packedCols) {
+          physCol = leadingGap ? targetCol + colResult.colSpan : physCol + colResult.colSpan
+        }
         continue
       }
 
       if (binding && isNestedColExpander(binding, this.index)) {
-        const colResult = this.layoutNestedColBand(addr, binding, ctx, physRowStart, physCol)
+        const colResult = this.layoutNestedColBand(addr, binding, ctx, physRowStart, targetCol)
         placements.push(...colResult.placements)
-        physCol += colResult.colSpan
+        if (packedCols) {
+          physCol = leadingGap ? targetCol + colResult.colSpan : physCol + colResult.colSpan
+        }
         continue
       }
 
@@ -484,11 +644,13 @@ class CoordinateEngine {
           binding,
           ctx,
           physRowStart,
-          physCol,
+          targetCol,
           rowSpan
         )
         placements.push(...colResult.placements)
-        physCol += colResult.colSpan
+        if (packedCols) {
+          physCol = leadingGap ? targetCol + colResult.colSpan : physCol + colResult.colSpan
+        }
         continue
       }
 
@@ -498,13 +660,17 @@ class CoordinateEngine {
           binding,
           ctx,
           physRowStart,
-          physCol,
+          targetCol,
           rowSpan,
           rowSubtreeRoot,
-          groupMergeHeight
+          groupMergeHeight,
+          fixedListIndex,
+          mergeListCount
         )
         placements.push(...cellResult.placements)
-        physCol += cellResult.colSpan
+        if (packedCols) {
+          physCol = leadingGap ? targetCol + cellResult.colSpan : physCol + cellResult.colSpan
+        }
         continue
       }
 
@@ -515,7 +681,7 @@ class CoordinateEngine {
             placements.push(
               this.makePlacement(
                 addr,
-                singleCellRange(physRowStart + i, physCol),
+                singleCellRange(physRowStart + i, targetCol),
                 ctx,
                 undefined,
                 i,
@@ -527,7 +693,7 @@ class CoordinateEngine {
           placements.push(
             this.makePlacement(
               addr,
-              singleCellRange(physRowStart, physCol),
+              singleCellRange(physRowStart, targetCol),
               ctx,
               undefined,
               0,
@@ -535,13 +701,23 @@ class CoordinateEngine {
             )
           )
         }
-        physCol++
+        if (packedCols) {
+          physCol = leadingGap ? targetCol + 1 : physCol + 1
+        }
       }
     }
 
+    const effectiveColSpan = packedCols
+      ? leadingGap && cols.length > 0
+        ? Math.max(...cols) + 1 - physColStart
+        : physCol - physColStart
+      : cols.length > 0
+        ? Math.max(...cols) + 1 - physColStart
+        : 0
+
     const effectiveRowSpan =
       rowSubtreeRoot && templateRow === rowSubtreeRoot.row && listCount === 0 ? 0 : rowSpan
-    return { rowSpan: effectiveRowSpan, colSpan: physCol - physColStart, placements }
+    return { rowSpan: effectiveRowSpan, colSpan: effectiveColSpan, placements }
   }
 
   private layoutNestedRowBand(
@@ -658,7 +834,9 @@ class CoordinateEngine {
     physColStart: number,
     rowSpan: number,
     rowSubtreeRoot: CellAddress | null,
-    groupMergeHeight: number
+    groupMergeHeight: number,
+    fixedListIndex?: number,
+    mergeListCount?: number
   ): SegmentResult {
     if (
       rowSubtreeRoot &&
@@ -666,7 +844,13 @@ class CoordinateEngine {
       binding.aggregate === 'group' &&
       sameAddress(addr, rowSubtreeRoot)
     ) {
-      const mergeRows = Math.max(groupMergeHeight, 1)
+      if (fixedListIndex !== undefined && fixedListIndex > 0) {
+        return { rowSpan: 0, colSpan: 1, placements: [] }
+      }
+      const mergeRows = Math.max(
+        fixedListIndex !== undefined ? (mergeListCount ?? groupMergeHeight) : groupMergeHeight,
+        1
+      )
       if (!mergeSpanEnabled(binding)) {
         const placements = Array.from({ length: mergeRows }, (_, listIndex) =>
           this.makePlacement(
@@ -692,6 +876,22 @@ class CoordinateEngine {
     }
 
     if (isRowExpanding(binding) && binding.aggregate === 'list') {
+      if (fixedListIndex !== undefined) {
+        return {
+          rowSpan: 0,
+          colSpan: 1,
+          placements: [
+            this.makePlacement(
+              addr,
+              singleCellRange(physRowStart, physColStart),
+              ctx,
+              binding,
+              fixedListIndex,
+              false
+            )
+          ]
+        }
+      }
       const placements = Array.from({ length: rowSpan }, (_, listIndex) =>
         this.makePlacement(
           addr,
@@ -763,7 +963,7 @@ class CoordinateEngine {
           range,
           instanceCtx,
           rootBinding,
-          0,
+          rootBinding.aggregate === 'list' ? instance.index : 0,
           mergeSpanEnabled(rootBinding)
         )
       )
