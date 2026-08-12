@@ -392,6 +392,82 @@ describe('renderReport', () => {
     expect(filled.styles[(coldCell!.s ?? 1) - 1]?.fill?.color).not.toBe('#FFCCCC')
   })
 
+  it('条件样式按另一字段求值', () => {
+    const sheet = new Sheet()
+    seedGroupDetailTemplate(sheet)
+    sheet.setCellMeta({ row: 1, col: 3 }, REPORT_META_NAMESPACE, {
+      dataset: 'orders',
+      field: 'amount',
+      preset: 'detail',
+      aggregate: 'list',
+      expand: 'down',
+      rowParent: { row: 1, col: 0 },
+      conditionalRules: [
+        { operator: 'eq', value: '华东', field: 'region', style: { fill: { color: '#FFCCCC' } } }
+      ]
+    })
+
+    const filled = renderReport(sheet.snapshot(), MOCK_DATA_RECORDS)
+    const eastCell = filled.cells.find((c) => c.col === 3 && c.v === 150)
+    expect(filled.styles[(eastCell!.s ?? 1) - 1]?.fill?.color).toBe('#FFCCCC')
+
+    const southCell = filled.cells.find((c) => c.col === 3 && c.v === 300)
+    expect(filled.styles[(southCell!.s ?? 1) - 1]?.fill?.color).not.toBe('#FFCCCC')
+  })
+
+  it('scope: row 染满整行含静态格与横向展开列', () => {
+    const sheet = new Sheet()
+    seedGroupDetailTemplate(sheet)
+    sheet.setCellMeta({ row: 1, col: 3 }, REPORT_META_NAMESPACE, {
+      dataset: 'orders',
+      field: 'amount',
+      preset: 'detail',
+      aggregate: 'list',
+      expand: 'down',
+      rowParent: { row: 1, col: 0 },
+      conditionalRules: [
+        { operator: 'gt', value: 100, scope: 'row', style: { fill: { color: '#FFCCCC' } } }
+      ]
+    })
+
+    const filled = renderReport(sheet.snapshot(), MOCK_DATA_RECORDS)
+    const hotRow = filled.cells.find((c) => c.col === 3 && c.v === 150)!.row
+    const hotStyle =
+      filled.styles[(filled.cells.find((c) => c.col === 3 && c.v === 150)!.s ?? 1) - 1]
+    expect(hotStyle?.fill?.color).toBe('#FFCCCC')
+
+    const staticOrderNo = filled.cells.find(
+      (c) => c.row === hotRow && c.col === 1 && c.v === 'O-1003'
+    )
+    expect(filled.styles[(staticOrderNo!.s ?? 1) - 1]?.fill?.color).toBe('#FFCCCC')
+
+    const coldRow = filled.cells.find((c) => c.col === 3 && c.v === 100)!.row
+    const coldAmount = filled.cells.find((c) => c.row === coldRow && c.col === 3)
+    expect(filled.styles[(coldAmount!.s ?? 1) - 1]?.fill?.color).not.toBe('#FFCCCC')
+  })
+
+  it('横向展开明细列同行继承 scope: row 行级样式', () => {
+    const sheet = new Sheet()
+    sheet.setCells([{ addr: { row: 0, col: 0 }, data: { v: '备注' } }])
+    const amount = createReportBinding(ORDERS_DATASET, 'amount')
+    amount.aggregate = 'list'
+    amount.expand = 'right'
+    amount.conditionalRules = [
+      { operator: 'gt', value: 100, scope: 'row', style: { fill: { color: '#FFCCCC' } } }
+    ]
+    sheet.setCellMeta({ row: 0, col: 1 }, REPORT_META_NAMESPACE, amount)
+
+    const filled = renderReport(sheet.snapshot(), { orders: [ORDER_ROWS[2]!] })
+    const amountCell = filled.cells.find((c) => c.row === 0 && c.v === 150)
+    const staticNote = filled.cells.find((c) => c.row === 0 && c.col === 0)
+    expect(filled.styles[(amountCell!.s ?? 1) - 1]?.fill?.color).toBe('#FFCCCC')
+    expect(filled.styles[(staticNote!.s ?? 1) - 1]?.fill?.color).toBe('#FFCCCC')
+
+    const coldFilled = renderReport(sheet.snapshot(), { orders: [ORDER_ROWS[0]!] })
+    const coldAmount = coldFilled.cells.find((c) => c.row === 0 && c.v === 100)
+    expect(coldFilled.styles[(coldAmount!.s ?? 1) - 1]?.fill?.color).not.toBe('#FFCCCC')
+  })
+
   it('二维矩阵：地区 × 品类销售额交叉扩展', () => {
     const filled = renderReport(buildMatrixTemplate(), { 'sales-matrix': SALES_MATRIX_ROWS })
 

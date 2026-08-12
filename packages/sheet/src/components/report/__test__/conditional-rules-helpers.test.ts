@@ -9,6 +9,9 @@ import {
   initDraftFromRules,
   operatorsForFieldType,
   readBetweenValue,
+  resolveEvalFieldType,
+  ruleEvalFieldOptions,
+  RULE_SCOPE_OPTIONS,
   writeBetweenValue
 } from '../designer/conditional-rules/helpers'
 
@@ -58,5 +61,27 @@ describe('conditional-rules helpers', () => {
     expect(item.rule.operator).toBe('eq')
     expect(item.rule.value).toBe('')
     expect(item.rule.style.fill?.color).toBeTruthy()
+  })
+
+  it('求值字段与作用范围选项', () => {
+    const fields = [
+      { name: 'amount', label: '金额', type: 'number' as const },
+      { name: 'region', label: '地区', type: 'string' as const }
+    ]
+    expect(ruleEvalFieldOptions('amount', fields).map((item) => item.label)).toEqual([
+      '本格字段',
+      '地区'
+    ])
+    expect(RULE_SCOPE_OPTIONS.map((item) => item.label)).toEqual(['本格', '整行'])
+    expect(resolveEvalFieldType({ operator: 'eq', value: '', style: {} }, 'amount', fields)).toBe(
+      'number'
+    )
+    expect(
+      resolveEvalFieldType(
+        { operator: 'eq', value: '', style: {}, field: 'region' },
+        'amount',
+        fields
+      )
+    ).toBe('string')
   })
 })

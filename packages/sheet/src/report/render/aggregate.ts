@@ -223,3 +223,18 @@ export function resolvePlacementValue(
 
   return aggregateField(rows, binding.field, binding.aggregate)
 }
+
+/** 解析 `list` 明细落点对应的源数据行；非 list 绑定无单条记录上下文 */
+export function resolvePlacementRecord(
+  placement: PhysicalPlacement,
+  index: TemplateIndex,
+  data: DatasetRecords,
+  aggregateIndex: AggregateIndex
+): Record<string, unknown> | undefined {
+  const binding = placement.binding
+  if (!binding || binding.aggregate !== 'list') return undefined
+
+  const filter = resolveAncestorFilters(binding, placement, index, data)
+  const rows = aggregateIndex.rowsFor(binding.dataset, filter)
+  return rows[placement.listIndex]
+}

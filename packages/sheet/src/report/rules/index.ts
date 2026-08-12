@@ -1,1 +1,7 @@
-export { evaluateCondition, evaluateConditionalStyle, toComparableNumber } from './evaluate'
+export {
+  evaluateCondition,
+  evaluateConditionalStyle,
+  resolveRuleCompareValue,
+  toComparableNumber,
+  type ConditionalEvalContext
+} from './evaluate'

@@ -88,6 +88,8 @@ export interface UseReportDesignerReturn extends DatasetHubController {
   activeBinding: ComputedRef<ReportBinding | undefined>
   /** 当前选区绑定字段的数据类型（条件规则对话框控件映射用；缺省 number） */
   activeFieldType: ComputedRef<DatasetField['type']>
+  /** 当前绑定所属数据集的字段列表（条件规则求值字段选择） */
+  activeDatasetFields: ComputedRef<DatasetField[]>
   /** 当前选区绑定的行方向父格 A1 标签（无父格显示 —） */
   resolvedRowParentLabel: ComputedRef<string>
   /** 当前选区绑定的列方向父格 A1 标签（无父格显示 —） */
@@ -248,6 +250,12 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
     const dataset = catalog.value.find((item) => item.id === binding.dataset)
     const field = dataset?.fields.find((item) => item.name === binding.field)
     return field?.type ?? 'number'
+  })
+
+  const activeDatasetFields = computed((): DatasetField[] => {
+    const binding = activeBinding.value
+    if (!binding) return []
+    return catalog.value.find((item) => item.id === binding.dataset)?.fields ?? []
   })
 
   const resolvedRowParentLabel = computed(() => {
@@ -506,6 +514,7 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
     selectionLabel,
     activeBinding,
     activeFieldType,
+    activeDatasetFields,
     resolvedRowParentLabel,
     resolvedColParentLabel,
     parentPick,

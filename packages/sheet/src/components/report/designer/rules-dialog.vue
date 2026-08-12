@@ -6,13 +6,16 @@
     @close="onClose"
   >
     <div :class="cls.b">
-      <p :class="cls.e('hint')">按列表顺序依次求值并合并样式；仅对当前绑定格自身的值生效。</p>
+      <p :class="cls.e('hint')">
+        按列表顺序依次求值并合并样式。可指定求值字段（默认同绑定格字段）；作用范围为「整行」时染满物理输出行（含横向展开列与静态格）。交叉表下整行高亮会覆盖同行所有列，明细行报表更合适。
+      </p>
 
       <ul v-if="draftItems.length" ref="parentRef" :class="cls.e('list')">
         <li v-for="(item, index) in draftItems" :key="item.id" :class="cls.e('item')">
           <u-report-rule-row
             :rule="item.rule"
-            :field-type="fieldType"
+            :binding-field="bindingField"
+            :dataset-fields="datasetFields"
             :index="index"
             :total="draftItems.length"
             @update:rule="item.rule = $event"
@@ -55,9 +58,12 @@ const props = withDefaults(
   defineProps<{
     modelValue: boolean
     rules: ConditionalRule[]
+    bindingField: string
+    datasetFields?: readonly DatasetField[]
+    /** @deprecated 使用 datasetFields + resolveEvalFieldType */
     fieldType?: DatasetField['type']
   }>(),
-  { fieldType: 'number' }
+  { datasetFields: () => [], fieldType: 'number' }
 )
 
 const emit = defineEmits<{
@@ -84,12 +90,15 @@ watch(
   () => props.modelValue,
   (open) => {
     if (!open) return
-    draftItems.value = initDraftFromRules(props.rules, props.fieldType)
+    draftItems.value = initDraftFromRules(props.rules, props.fieldType, props.bindingField)
   }
 )
 
 function addRule(): void {
-  draftItems.value = [...draftItems.value, createDraftItem(undefined, props.fieldType)]
+  draftItems.value = [
+    ...draftItems.value,
+    createDraftItem(undefined, props.fieldType, props.bindingField)
+  ]
 }
 
 function removeRule(index: number): void {

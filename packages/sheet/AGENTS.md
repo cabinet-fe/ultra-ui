@@ -19,7 +19,7 @@ src/
 
 ## 报表内核（src/report/，ADR-0003 决策 1）
 
-- 纯 TS、headless、无 DOM：渲染引擎 `renderReport`（模板 + records → Filled Report 快照，分组/小计/总计/矩阵展开 + 条件样式打平）、绑定（`REPORT_META_NAMESPACE` / `createReportBinding` / 角色推导 `resolveReportRole` 等）、条件规则（`evaluateCondition` / `evaluateConditionalStyle`）、查询参数（`${param}` 提取 `extractParamIds` / `buildParamDefs` / `resolveBoundDatasetParams`）。
+- 纯 TS、headless、无 DOM：渲染引擎 `renderReport`（模板 + records → Filled Report 快照，分组/小计/总计/矩阵展开 + 条件样式打平）、绑定（`REPORT_META_NAMESPACE` / `createReportBinding` 等）、条件规则（`evaluateCondition` / `evaluateConditionalStyle` / `resolveRuleCompareValue`；`ConditionalRule.field` 跨字段求值、`scope: 'row'` 两阶段行级叠加；交叉表下整行高亮会染满同行所有列，明细行报表更合适）、查询参数（`${param}` 提取 `extractParamIds` / `buildParamDefs` / `resolveBoundDatasetParams`）。
 - **Report Template（template.ts）**：自包含模板 = `SheetSnapshot` + 内嵌数据集定义（`ReportTemplate.datasets: ReportDatasetDef[]`，connection 为完整连接对象）。`Sheet.snapshot()` 不产生该字段、`restore()`/`snapshot()` 往返会丢失，由设计器 `getTemplate()` 吐出时附加。配套纯函数：`getTemplateDatasets` / `getBoundDatasetIds`（绑定即真相）/ `resolveTemplateParams`（绑定数据集参数并集，同名先见为准）/ `resolveParamDefaults` / `fetchTemplateRecords`（连接器并行取数 → `DatasetRecords`，业务错误整体透传）。
 - **Filter Bar 值规范化（filter-bar.ts）**：`parseDateRangeValue` / `resolveNumberParamValue` / `patchParamValues`（playground 平移，单一事实源；playground 旧文件已删）。
 - **Filled Report XLSX 导出（export-xlsx.ts）**：`exportFilledReportXlsx(sheet, colWidths)`（合并 / 样式 / 行高 / 列宽保真；条件样式已在 `renderReport` 展开阶段打平进 StylePool，ADR-0001 决策 2）。列宽未进 SheetSnapshot，只能经 VTable 运行时读取后显式传入（`ReportColWidthEntry`）；与 sheet-core `exportWorkbookXlsx` 的差异即 columns 定义。`buildColumnDefs` / `pxToExcelColWidth` 同文件导出。浏览器下载（saveBlob）在组件层，内核保持无 DOM。

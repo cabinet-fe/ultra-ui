@@ -3,6 +3,24 @@
     <span :class="cls.e('handle')" title="拖拽排序">≡</span>
 
     <div :class="cls.e('main')">
+      <div :class="cls.e('meta')">
+        <u-select
+          size="small"
+          :class="cls.e('field-select')"
+          :model-value="rule.field"
+          :options="fieldOptions"
+          placeholder="求值字段"
+          @update:model-value="onEvalField"
+        />
+        <u-select
+          size="small"
+          :class="cls.e('scope-select')"
+          :model-value="rule.scope ?? 'cell'"
+          :options="scopeOptions"
+          @update:model-value="onScope"
+        />
+      </div>
+
       <div :class="cls.e('condition')">
         <u-select
           size="small"
@@ -118,10 +136,13 @@ import { computed } from 'vue'
 import type { ConditionalOperator, ConditionalRule, DatasetField } from '../../../report/types'
 import {
   coerceValueForOperator,
+  isNumericFieldType,
   operatorsForFieldType,
   readBetweenValue,
-  writeBetweenValue,
-  isNumericFieldType
+  resolveEvalFieldType,
+  RULE_SCOPE_OPTIONS,
+  ruleEvalFieldOptions,
+  writeBetweenValue
 } from './conditional-rules/helpers'
 import UReportRulePreview from './rule-preview.vue'
 
@@ -129,7 +150,8 @@ defineOptions({ name: 'UReportRuleRow' })
 
 const props = defineProps<{
   rule: ConditionalRule
-  fieldType: DatasetField['type']
+  bindingField: string
+  datasetFields: readonly DatasetField[]
   index: number
   total: number
 }>()
@@ -143,11 +165,18 @@ const emit = defineEmits<{
 
 const cls = bem('report-rule-row')
 
-const operatorOptions = computed(() => operatorsForFieldType(props.fieldType))
-const numericField = computed(() => isNumericFieldType(props.fieldType))
+const evalFieldType = computed(() =>
+  resolveEvalFieldType(props.rule, props.bindingField, props.datasetFields)
+)
+const operatorOptions = computed(() => operatorsForFieldType(evalFieldType.value))
+const numericField = computed(() => isNumericFieldType(evalFieldType.value))
+const fieldOptions = computed(() => ruleEvalFieldOptions(props.bindingField, props.datasetFields))
+const scopeOptions = computed(() =>
+  RULE_SCOPE_OPTIONS.map((option) => ({ value: option.value, label: option.label }))
+)
 
-const betweenStart = computed(() => readBetweenValue(props.rule.value, 0, props.fieldType))
-const betweenEnd = computed(() => readBetweenValue(props.rule.value, 1, props.fieldType))
+const betweenStart = computed(() => readBetweenValue(props.rule.value, 0, evalFieldType.value))
+const betweenEnd = computed(() => readBetweenValue(props.rule.value, 1, evalFieldType.value))
 
 const scalarNumber = computed((): number => {
   const raw = props.rule.value
@@ -160,10 +189,32 @@ function patchRule(patch: Partial<ConditionalRule>): void {
   emit('update:rule', { ...props.rule, ...patch })
 }
 
+function onEvalField(field: string | undefined): void {
+  const next: Partial<ConditionalRule> = {}
+  if (field === undefined) {
+    next.field = undefined
+  } else {
+    next.field = field
+  }
+  const nextType = resolveEvalFieldType(
+    { ...props.rule, ...next },
+    props.bindingField,
+    props.datasetFields
+  )
+  const operator = operatorsForFieldType(nextType)[0]?.value ?? props.rule.operator
+  next.operator = operator
+  next.value = coerceValueForOperator(operator, nextType, props.rule.value)
+  patchRule(next)
+}
+
+function onScope(scope: 'cell' | 'row'): void {
+  patchRule({ scope: scope === 'cell' ? undefined : scope })
+}
+
 function onOperator(operator: ConditionalOperator): void {
   patchRule({
     operator,
-    value: coerceValueForOperator(operator, props.fieldType, props.rule.value)
+    value: coerceValueForOperator(operator, evalFieldType.value, props.rule.value)
   })
 }
 
@@ -172,7 +223,7 @@ function patchValue(value: unknown): void {
 }
 
 function patchBetween(index: 0 | 1, next: number | string): void {
-  patchRule({ value: writeBetweenValue(props.rule.value, index, next, props.fieldType) })
+  patchRule({ value: writeBetweenValue(props.rule.value, index, next, evalFieldType.value) })
 }
 
 function patchFillColor(color: string): void {

@@ -409,6 +409,23 @@
     gap: 8px;
   }
 
+  @include m.e(meta) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  @include m.e(field-select) {
+    width: 120px;
+    flex: none;
+  }
+
+  @include m.e(scope-select) {
+    width: 72px;
+    flex: none;
+  }
+
   @include m.e(condition) {
     display: grid;
     grid-template-columns: 72px minmax(0, 1fr) auto;
@@ -486,6 +503,11 @@
   font-size: 13px;
   line-height: 1;
   box-sizing: border-box;
+
+  @include m.m(row) {
+    min-width: 48px;
+    font-size: 11px;
+  }
 }
 
 @include m.b(report-field-panel) {

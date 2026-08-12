@@ -1,5 +1,11 @@
 <template>
-  <span :class="cls.b" :style="previewStyle" title="规则效果预览"> Aa </span>
+  <span
+    :class="[cls.b, rule.scope === 'row' && cls.m('row')]"
+    :style="previewStyle"
+    :title="previewTitle"
+  >
+    {{ previewLabel }}
+  </span>
 </template>
 
 <script lang="ts" setup>
@@ -23,4 +29,12 @@ const previewStyle = computed(() => {
     fontStyle: font?.italic ? 'italic' : 'normal'
   }
 })
+
+const previewLabel = computed(() => (props.rule.scope === 'row' ? '整行' : 'Aa'))
+
+const previewTitle = computed(() =>
+  props.rule.scope === 'row'
+    ? '整行作用范围：命中后染满物理输出行（交叉表会染满整行，明细行报表更合适）'
+    : '本格作用范围'
+)
 </script>

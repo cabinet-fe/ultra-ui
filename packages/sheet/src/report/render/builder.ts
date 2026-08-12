@@ -8,8 +8,9 @@ import type {
 import { cellKey } from '@veltra/sheet-core'
 
 import type { ReportColWidthEntry } from '../export-xlsx'
+import type { ConditionalEvalContext } from '../rules'
 import type { DatasetRecords } from '../types'
-import { AggregateIndex, resolvePlacementValue } from './aggregate'
+import { AggregateIndex, resolvePlacementRecord, resolvePlacementValue } from './aggregate'
 import type { ExpansionLayout, PhysicalPlacement } from './coordinate'
 import { physicalColSpan, physicalRowSpan } from './coordinate'
 import { StyleResolver } from './style-resolver'
@@ -87,6 +88,44 @@ export function mapFilledColWidths(
   return [...physicalWidths.entries()].sort((a, b) => a[0] - b[0])
 }
 
+function placementEvalContext(
+  placement: PhysicalPlacement,
+  value: unknown,
+  template: SheetSnapshot,
+  index: TemplateIndex,
+  data: DatasetRecords,
+  aggregateIndex: AggregateIndex
+): ConditionalEvalContext {
+  const binding = placement.binding
+  return {
+    cellValue: value,
+    bindingField: binding?.field ?? '',
+    record: binding ? resolvePlacementRecord(placement, index, data, aggregateIndex) : undefined
+  }
+}
+
+function collectRowConditionalStyles(
+  layout: ExpansionLayout,
+  template: SheetSnapshot,
+  index: TemplateIndex,
+  data: DatasetRecords,
+  styles: StyleResolver
+): void {
+  const aggregateIndex = new AggregateIndex(data)
+
+  for (const placement of layout.placements) {
+    const binding = placement.binding
+    if (!binding?.conditionalRules?.some((rule) => rule.scope === 'row')) continue
+
+    const value = placementSourceValue(placement, template, index, data, aggregateIndex)
+    const ctx = placementEvalContext(placement, value, template, index, data, aggregateIndex)
+
+    for (let row = placement.physical.start.row; row <= placement.physical.end.row; row++) {
+      styles.collectRowStyle(row, ctx, binding.conditionalRules)
+    }
+  }
+}
+
 /** 由扩展坐标布局组装 Filled Report 快照 */
 export function buildFilledReport(
   template: SheetSnapshot,
@@ -95,6 +134,8 @@ export function buildFilledReport(
   data: DatasetRecords
 ): SheetSnapshot {
   const styles = new StyleResolver(template)
+  collectRowConditionalStyles(layout, template, index, data, styles)
+
   const aggregateIndex = new AggregateIndex(data)
   const cells: CellSnapshotItem[] = []
   const merges: CellRange[] = [...layout.mappedMerges]
@@ -107,10 +148,24 @@ export function buildFilledReport(
     merges.push(range)
   }
 
+  const resolveStyleId = (
+    placement: PhysicalPlacement,
+    templateRow: number,
+    templateCol: number,
+    value: unknown,
+    physicalRow: number
+  ): number | undefined => {
+    const binding = placement.binding
+    const ctx = placementEvalContext(placement, value, template, index, data, aggregateIndex)
+    const baseStyleId = binding
+      ? styles.resolveCell(templateRow, templateCol, ctx, binding.conditionalRules)
+      : styles.resolveStatic(templateRow, templateCol)
+    return styles.mergeRowStyle(baseStyleId, physicalRow)
+  }
+
   for (const placement of layout.placements) {
     const value = placementSourceValue(placement, template, index, data, aggregateIndex)
     const { row: templateRow, col: templateCol } = placement.logical
-    const styleId = styles.resolve(templateRow, templateCol, value, placement.binding)
 
     const rowSpan = physicalRowSpan(placement)
     const colSpan = physicalColSpan(placement)
@@ -122,6 +177,13 @@ export function buildFilledReport(
         col: placement.physical.start.col,
         ...toCellValue(value)
       }
+      const styleId = resolveStyleId(
+        placement,
+        templateRow,
+        templateCol,
+        value,
+        placement.physical.start.row
+      )
       if (styleId !== undefined) item.s = styleId
       cells.push(item)
       if (rowSpan > 1 || colSpan > 1) {
@@ -132,6 +194,7 @@ export function buildFilledReport(
 
     for (const pos of rangeCells(placement.physical)) {
       const item: CellSnapshotItem = { row: pos.row, col: pos.col, ...toCellValue(value) }
+      const styleId = resolveStyleId(placement, templateRow, templateCol, value, pos.row)
       if (styleId !== undefined) item.s = styleId
       cells.push(item)
     }

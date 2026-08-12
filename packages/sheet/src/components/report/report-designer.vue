@@ -122,6 +122,8 @@
     <u-report-rules-dialog
       v-model="rulesDialogVisible"
       :rules="activeBinding?.conditionalRules ?? EMPTY_CONDITIONAL_RULES"
+      :binding-field="activeBinding?.field ?? ''"
+      :dataset-fields="activeDatasetFields"
       :field-type="activeFieldType"
       @save="saveConditionalRules"
     />
@@ -186,6 +188,7 @@ const {
   selectionLabel,
   activeBinding,
   activeFieldType,
+  activeDatasetFields,
   resolvedRowParentLabel,
   resolvedColParentLabel,
   parentPick,

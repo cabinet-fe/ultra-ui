@@ -15,6 +15,34 @@ export const OPERATOR_LABELS: Record<ConditionalOperator, string> = {
   contains: '包含'
 }
 
+export const RULE_SCOPE_OPTIONS = [
+  { value: 'cell' as const, label: '本格' },
+  { value: 'row' as const, label: '整行' }
+]
+
+/** 求值字段下拉：缺省项表示本格绑定字段 */
+export function ruleEvalFieldOptions(
+  bindingField: string,
+  datasetFields: readonly DatasetField[]
+): Array<{ value: string | undefined; label: string }> {
+  return [
+    { value: undefined, label: '本格字段' },
+    ...datasetFields
+      .filter((field) => field.name !== bindingField)
+      .map((field) => ({ value: field.name, label: field.label || field.name }))
+  ]
+}
+
+/** 按规则所选求值字段解析字段类型（运算符映射用） */
+export function resolveEvalFieldType(
+  rule: ConditionalRule,
+  bindingField: string,
+  datasetFields: readonly DatasetField[]
+): DatasetField['type'] {
+  const fieldName = rule.field ?? bindingField
+  return datasetFields.find((field) => field.name === fieldName)?.type ?? 'number'
+}
+
 const NUMERIC_OPERATORS: ConditionalOperator[] = ['gt', 'gte', 'lt', 'lte', 'eq', 'between']
 const STRING_OPERATORS: ConditionalOperator[] = ['eq', 'contains']
 
@@ -56,7 +84,8 @@ export function defaultRuleStyle(): ConditionalRule['style'] {
 
 export function createDraftItem(
   rule?: ConditionalRule,
-  fieldType: DatasetField['type'] = 'number'
+  fieldType: DatasetField['type'] = 'number',
+  _bindingField?: string
 ): DraftRuleItem {
   if (rule) {
     return { id: nextDraftId(), rule: cloneRule(rule) }
@@ -70,16 +99,19 @@ export function createDraftItem(
 
 export function initDraftFromRules(
   rules: readonly ConditionalRule[],
-  fieldType: DatasetField['type']
+  fieldType: DatasetField['type'],
+  bindingField?: string
 ): DraftRuleItem[] {
   if (rules.length === 0) return []
-  return rules.map((rule) => createDraftItem(rule, fieldType))
+  return rules.map((rule) => createDraftItem(rule, fieldType, bindingField))
 }
 
 export function cloneRule(rule: ConditionalRule): ConditionalRule {
   return {
     operator: rule.operator,
     value: cloneRuleValue(rule.value),
+    field: rule.field,
+    scope: rule.scope,
     style: {
       ...rule.style,
       fill: rule.style.fill ? { ...rule.style.fill } : undefined,

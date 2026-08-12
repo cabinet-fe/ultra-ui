@@ -3,6 +3,28 @@ import { mergeCellStyle } from '@veltra/sheet-core/core/command/set-cell-style'
 
 import type { ConditionalRule } from '../types'
 
+/** 条件样式求值上下文：当前展示值 + 可选同记录字段 */
+export interface ConditionalEvalContext {
+  cellValue: unknown
+  bindingField: string
+  record?: Record<string, unknown>
+}
+
+function ruleScope(rule: ConditionalRule): 'cell' | 'row' {
+  return rule.scope ?? 'cell'
+}
+
+/** 按规则配置的求值字段从上下文取比较值 */
+export function resolveRuleCompareValue(
+  ctx: ConditionalEvalContext,
+  rule: ConditionalRule
+): unknown {
+  if (rule.field !== undefined && ctx.record !== undefined) {
+    return ctx.record[rule.field]
+  }
+  return ctx.cellValue
+}
+
 /** 将单元格值转为可比较的有限数值；无法转换时返回 null */
 export function toComparableNumber(value: unknown): number | null {
   if (typeof value === 'number' && Number.isFinite(value)) return value
@@ -70,9 +92,10 @@ export function evaluateCondition(cellValue: unknown, rule: ConditionalRule): bo
  * 无规则或未命中时原样返回 baseStyle。
  */
 export function evaluateConditionalStyle(
-  cellValue: unknown,
+  ctx: ConditionalEvalContext,
   baseStyle: CellStyle | undefined,
-  rules: readonly ConditionalRule[] | undefined
+  rules: readonly ConditionalRule[] | undefined,
+  scope: 'cell' | 'row' = 'cell'
 ): CellStyle | undefined {
   if (!rules || rules.length === 0) return baseStyle
 
@@ -80,7 +103,8 @@ export function evaluateConditionalStyle(
   let matched = false
 
   for (const rule of rules) {
-    if (!evaluateCondition(cellValue, rule)) continue
+    if (ruleScope(rule) !== scope) continue
+    if (!evaluateCondition(resolveRuleCompareValue(ctx, rule), rule)) continue
     merged = mergeCellStyle(merged, rule.style)
     matched = true
   }
