@@ -41,13 +41,13 @@ function buildFilledSheet(): Sheet {
 
   const groupAddr = { row: 1, col: 0 }
   const group = createReportBinding(ORDERS_DATASET, 'customer')
-  group.role = 'group'
+  group.preset = 'groupHeader'
   group.aggregate = 'group'
-  group.leftParent = 'none'
+  group.expand = 'down'
   sheet.setCellMeta(groupAddr, REPORT_META_NAMESPACE, group)
 
   const amount = createReportBinding(ORDERS_DATASET, 'amount')
-  amount.leftParent = groupAddr
+  amount.rowParent = groupAddr
   amount.conditionalRules = [RED_RULE]
   sheet.setCellMeta({ row: 1, col: 1 }, REPORT_META_NAMESPACE, amount)
 

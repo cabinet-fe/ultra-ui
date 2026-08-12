@@ -2,13 +2,13 @@ import type { CellAddress } from '@veltra/sheet-core'
 import { describe, expect, it } from 'vitest'
 
 import {
+  applyReportPreset,
   createReportBinding,
-  findDefaultLeftParent,
   formatBindingPlaceholder,
   formatCellAddress,
+  inferReportPreset,
   parseCellAddress,
-  resolveLeftParent,
-  resolveReportRole,
+  presetBindingPatch,
   setBindingCatalog
 } from '../binding'
 import type { DatasetCatalogItem, ReportBinding } from '../types'
@@ -28,30 +28,21 @@ const ORDERS_DATASET: DatasetCatalogItem = {
 
 setBindingCatalog([ORDERS_DATASET])
 
-function bindingMap(cells: Array<{ addr: CellAddress; binding: ReportBinding }>) {
-  const map = new Map<string, ReportBinding>()
-  for (const { addr, binding } of cells) {
-    map.set(`${addr.row},${addr.col}`, binding)
-  }
-  return (addr: CellAddress) => map.get(`${addr.row},${addr.col}`)
-}
-
 describe('report binding', () => {
-  it('createReportBinding 默认 list + 纵向扩展 + 默认左父格', () => {
+  it('createReportBinding 默认 list + 纵向扩展 + 明细预设', () => {
     const binding = createReportBinding(ORDERS_DATASET, 'amount')
     expect(binding).toEqual({
       dataset: 'orders',
       field: 'amount',
-      role: 'detail',
-      aggregate: 'select',
+      aggregate: 'list',
       expand: 'down',
-      leftParent: 'default',
+      preset: 'detail',
       sort: 'none',
       conditionalRules: []
     })
   })
 
-  it('formatBindingPlaceholder 中文标签', () => {
+  it('formatBindingPlaceholder 中文标签（含 list / max / min）', () => {
     expect(formatBindingPlaceholder(createReportBinding(ORDERS_DATASET, 'amount'))).toBe(
       '明细 · 金额'
     )
@@ -65,92 +56,144 @@ describe('report binding', () => {
     sum.expand = 'none'
     expect(formatBindingPlaceholder(sum)).toBe('求和 · 金额')
 
-    const detail = createReportBinding(ORDERS_DATASET, 'orderNo')
-    expect(formatBindingPlaceholder(detail)).toBe('明细 · 订单号')
+    const max = createReportBinding(ORDERS_DATASET, 'amount')
+    max.aggregate = 'max'
+    max.expand = 'none'
+    expect(formatBindingPlaceholder(max)).toBe('最大 · 金额')
+
+    const min = createReportBinding(ORDERS_DATASET, 'amount')
+    min.aggregate = 'min'
+    min.expand = 'none'
+    expect(formatBindingPlaceholder(min)).toBe('最小 · 金额')
   })
 
-  it('findDefaultLeftParent 同行向左取最近可扩展绑定', () => {
-    const parent = createReportBinding(ORDERS_DATASET, 'customer')
-    parent.aggregate = 'group'
+  it('presetBindingPatch / applyReportPreset 映射表', () => {
+    const rowParent = { row: 1, col: 0 }
+    const colParent = { row: 0, col: 1 }
+    const base: ReportBinding = {
+      dataset: 'orders',
+      field: 'amount',
+      expand: 'down',
+      aggregate: 'list',
+      rowParent,
+      colParent
+    }
 
-    const child = createReportBinding(ORDERS_DATASET, 'orderNo')
-    const getBindingAt = bindingMap([
-      { addr: { row: 2, col: 0 }, binding: parent },
-      { addr: { row: 2, col: 2 }, binding: child }
-    ])
-
-    expect(findDefaultLeftParent({ row: 2, col: 2 }, getBindingAt)).toEqual({ row: 2, col: 0 })
-    expect(findDefaultLeftParent({ row: 2, col: 0 }, getBindingAt)).toBeNull()
-  })
-
-  it('findDefaultLeftParent 跳过不扩展的绑定', () => {
-    const sum = createReportBinding(ORDERS_DATASET, 'amount')
-    sum.aggregate = 'sum'
-    sum.expand = 'none'
-
-    const group = createReportBinding(ORDERS_DATASET, 'customer')
-    group.aggregate = 'group'
-
-    const getBindingAt = bindingMap([
-      { addr: { row: 3, col: 0 }, binding: sum },
-      { addr: { row: 3, col: 1 }, binding: group }
-    ])
-
-    expect(findDefaultLeftParent({ row: 3, col: 2 }, getBindingAt)).toEqual({ row: 3, col: 1 })
-  })
-
-  it('resolveLeftParent 支持 none / default / 指定地址', () => {
-    const parentAddr = { row: 1, col: 0 }
-    const parent = createReportBinding(ORDERS_DATASET, 'customer')
-    parent.aggregate = 'group'
-    parent.leftParent = 'none'
-
-    const detail = createReportBinding(ORDERS_DATASET, 'orderNo')
-    detail.leftParent = { row: 1, col: 0 }
-
-    const subtotal = createReportBinding(ORDERS_DATASET, 'amount')
-    subtotal.aggregate = 'sum'
-    subtotal.expand = 'none'
-    subtotal.leftParent = 'none'
-
-    const getBindingAt = bindingMap([{ addr: parentAddr, binding: parent }])
-
-    expect(resolveLeftParent(subtotal, { row: 3, col: 2 }, getBindingAt)).toBeNull()
-    expect(resolveLeftParent(detail, { row: 2, col: 1 }, getBindingAt)).toEqual(parentAddr)
-
-    const defaultChild = createReportBinding(ORDERS_DATASET, 'orderNo')
-    defaultChild.leftParent = 'default'
-    const bandGetBindingAt = bindingMap([
-      { addr: { row: 2, col: 0 }, binding: parent },
-      { addr: { row: 2, col: 1 }, binding: defaultChild }
-    ])
-    expect(resolveLeftParent(defaultChild, { row: 2, col: 1 }, bandGetBindingAt)).toEqual({
-      row: 2,
-      col: 0
+    expect(presetBindingPatch('groupHeader')).toEqual({
+      preset: 'groupHeader',
+      expand: 'down',
+      aggregate: 'group'
     })
+    expect(presetBindingPatch('groupHeader', { transpose: true })).toMatchObject({
+      expand: 'right',
+      aggregate: 'group'
+    })
+
+    expect(presetBindingPatch('detail')).toEqual({
+      preset: 'detail',
+      expand: 'down',
+      aggregate: 'list'
+    })
+    expect(presetBindingPatch('detail', { transpose: true })).toMatchObject({
+      expand: 'right',
+      aggregate: 'list'
+    })
+
+    expect(presetBindingPatch('subtotal')).toEqual({
+      preset: 'subtotal',
+      expand: 'none',
+      aggregate: 'sum'
+    })
+    expect(applyReportPreset(base, 'subtotal').rowParent).toEqual(rowParent)
+
+    expect(presetBindingPatch('grandTotal')).toEqual({
+      preset: 'grandTotal',
+      expand: 'none',
+      aggregate: 'sum',
+      rowParent: undefined,
+      colParent: undefined
+    })
+    expect(applyReportPreset(base, 'grandTotal').rowParent).toBeUndefined()
+    expect(applyReportPreset(base, 'grandTotal').colParent).toBeUndefined()
+
+    expect(presetBindingPatch('cross')).toEqual({
+      preset: 'cross',
+      expand: 'none',
+      aggregate: 'sum'
+    })
+    expect(applyReportPreset(base, 'cross').rowParent).toEqual(rowParent)
+    expect(applyReportPreset(base, 'cross').colParent).toEqual(colParent)
   })
 
-  it('formatCellAddress / parseCellAddress 互逆', () => {
-    const addr = { row: 2, col: 1 }
-    expect(formatCellAddress(addr)).toBe('B3')
-    expect(parseCellAddress('B3')).toEqual(addr)
+  it('inferReportPreset 从字段组合推断预设', () => {
+    expect(
+      inferReportPreset({
+        dataset: 'orders',
+        field: 'customer',
+        aggregate: 'group',
+        expand: 'down'
+      })
+    ).toBe('groupHeader')
+
+    expect(
+      inferReportPreset({
+        dataset: 'orders',
+        field: 'orderNo',
+        aggregate: 'list',
+        expand: 'down',
+        rowParent: { row: 1, col: 0 }
+      })
+    ).toBe('detail')
+
+    expect(
+      inferReportPreset({
+        dataset: 'orders',
+        field: 'amount',
+        aggregate: 'sum',
+        expand: 'none',
+        rowParent: { row: 1, col: 0 }
+      })
+    ).toBe('subtotal')
+
+    expect(
+      inferReportPreset({ dataset: 'orders', field: 'amount', aggregate: 'sum', expand: 'none' })
+    ).toBe('grandTotal')
+
+    expect(
+      inferReportPreset({
+        dataset: 'orders',
+        field: 'amount',
+        aggregate: 'sum',
+        expand: 'none',
+        rowParent: { row: 1, col: 0 },
+        colParent: { row: 0, col: 1 }
+      })
+    ).toBe('cross')
+
+    expect(
+      inferReportPreset({
+        dataset: 'orders',
+        field: 'amount',
+        aggregate: 'avg',
+        expand: 'none',
+        rowParent: { row: 1, col: 0 }
+      })
+    ).toBeNull()
+  })
+
+  it('formatCellAddress / parseCellAddress 支持多字母列互逆', () => {
+    const single = { row: 2, col: 1 }
+    expect(formatCellAddress(single)).toBe('B3')
+    expect(parseCellAddress('B3')).toEqual(single)
+
+    const wide = { row: 0, col: 26 }
+    expect(formatCellAddress(wide)).toBe('AA1')
+    expect(parseCellAddress('AA1')).toEqual(wide)
+
+    const wider = { row: 99, col: 701 }
+    expect(formatCellAddress(wider)).toBe('ZZ100')
+    expect(parseCellAddress('ZZ100')).toEqual(wider)
+
     expect(parseCellAddress('bad')).toBeNull()
-  })
-
-  it('分组锚点 aggregate 不可降为明细', () => {
-    const anchor = createReportBinding(ORDERS_DATASET, 'customer')
-    anchor.role = 'group'
-    anchor.aggregate = 'group'
-    anchor.leftParent = 'none'
-
-    const patched = { ...anchor, aggregate: 'select' as const, role: 'detail' as const }
-    expect(resolveReportRole(anchor)).toBe('group')
-    expect(resolveReportRole(patched)).toBe('detail')
-
-    const wouldReject =
-      resolveReportRole(anchor) === 'group' &&
-      anchor.leftParent === 'none' &&
-      (patched.role === 'detail' || patched.aggregate === 'select')
-    expect(wouldReject).toBe(true)
   })
 })

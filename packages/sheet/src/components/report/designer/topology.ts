@@ -1,12 +1,11 @@
 import type { CellAddress } from '@veltra/sheet-core'
 
-import { resolveLeftParent } from '../../../report/binding'
 import type { ReportBinding } from '../../../report/types'
 
 export interface TopologyLink {
   /** 子格（依赖方） */
   from: CellAddress
-  /** 父分组格 */
+  /** 父绑定格 */
   to: CellAddress
 }
 
@@ -19,23 +18,25 @@ function linkKey(from: CellAddress, to: CellAddress): string {
   return `${from.row},${from.col}->${to.row},${to.col}`
 }
 
-/** 查找将指定格作为有效左父格的绑定格 */
-export function findCellsWithLeftParent(
+function sameAddress(a: CellAddress, b: CellAddress): boolean {
+  return a.row === b.row && a.col === b.col
+}
+
+/** 查找将指定格作为行方向父格的绑定格 */
+export function findCellsWithRowParent(
   parent: CellAddress,
-  entries: readonly TopologyBindingEntry[],
-  getBindingAt: (addr: CellAddress) => ReportBinding | undefined
+  entries: readonly TopologyBindingEntry[]
 ): CellAddress[] {
   const children: CellAddress[] = []
   for (const { addr, binding } of entries) {
-    const resolved = resolveLeftParent(binding, addr, getBindingAt)
-    if (resolved?.row === parent.row && resolved.col === parent.col) {
+    if (binding.rowParent && sameAddress(binding.rowParent, parent)) {
       children.push(addr)
     }
   }
   return children
 }
 
-/** 收集选中格相关的拓扑连线：沿父链上行、下行到直接子绑定 */
+/** 收集选中格相关的拓扑连线：沿 rowParent 链上行、下行到直接子绑定 */
 export function collectTopologyLinks(
   cell: CellAddress,
   binding: ReportBinding,
@@ -47,9 +48,8 @@ export function collectTopologyLinks(
 
   let cursor = cell
   let cursorBinding: ReportBinding | undefined = binding
-  while (cursorBinding) {
-    const parent = resolveLeftParent(cursorBinding, cursor, getBindingAt)
-    if (!parent) break
+  while (cursorBinding?.rowParent) {
+    const parent = cursorBinding.rowParent
     const key = linkKey(cursor, parent)
     if (!seen.has(key)) {
       links.push({ from: cursor, to: parent })
@@ -59,7 +59,7 @@ export function collectTopologyLinks(
     cursorBinding = getBindingAt(parent)
   }
 
-  for (const child of findCellsWithLeftParent(cell, entries, getBindingAt)) {
+  for (const child of findCellsWithRowParent(cell, entries)) {
     const key = linkKey(child, cell)
     if (seen.has(key)) continue
     links.push({ from: child, to: cell })
@@ -68,6 +68,9 @@ export function collectTopologyLinks(
 
   return links
 }
+
+/** @deprecated 05 将删除；暂保留别名 */
+export const findCellsWithLeftParent = findCellsWithRowParent
 
 /** 子格 → 父格的二次贝塞尔弧线路径 */
 export function buildTopologyArcPath(

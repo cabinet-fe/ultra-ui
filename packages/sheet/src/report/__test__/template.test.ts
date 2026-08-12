@@ -4,9 +4,13 @@ import { describe, expect, it } from 'vitest'
 import { REPORT_META_NAMESPACE } from '../binding'
 import type { DataConnection, DataConnector } from '../connector'
 import {
+  assertCompatibleTemplateVersion,
+  createReportTemplate,
   fetchTemplateRecords,
   getBoundDatasetIds,
   getTemplateDatasets,
+  IncompatibleTemplateVersionError,
+  REPORT_TEMPLATE_VERSION,
   resolveParamDefaults,
   resolveTemplateParams,
   type ReportDatasetDef,
@@ -76,14 +80,7 @@ const UNUSED_DATASET: ReportDatasetDef = {
 }
 
 function binding(dataset: string, field: string): ReportBinding {
-  return {
-    dataset,
-    field,
-    role: 'detail',
-    aggregate: 'select',
-    expand: 'down',
-    leftParent: 'default'
-  }
+  return { dataset, field, aggregate: 'list', expand: 'down', preset: 'detail' }
 }
 
 /** 构造自包含 Report Template：SheetSnapshot + 内嵌数据集定义 */
@@ -99,8 +96,38 @@ function createTemplate(
       binding(item.dataset, item.field)
     )
   }
-  return { ...sheet.snapshot(), datasets }
+  return createReportTemplate(sheet.snapshot(), datasets)
 }
+
+describe('ReportTemplate version', () => {
+  it('createReportTemplate 写入当前版本', () => {
+    const template = createTemplate([ORDERS_DATASET], [])
+    expect(template.version).toBe(REPORT_TEMPLATE_VERSION)
+  })
+
+  it('version 缺失时 assertCompatibleTemplateVersion 抛可读错误', () => {
+    const sheet = new Sheet()
+    const template = sheet.snapshot() as ReportTemplate
+    expect(() => assertCompatibleTemplateVersion(template)).toThrow(
+      IncompatibleTemplateVersionError
+    )
+    expect(() => assertCompatibleTemplateVersion(template)).toThrow(/缺少 version/)
+  })
+
+  it('version 高于当前支持时 assertCompatibleTemplateVersion 抛可读错误', () => {
+    const template = createTemplate([ORDERS_DATASET], [])
+    template.version = REPORT_TEMPLATE_VERSION + 1
+    expect(() => assertCompatibleTemplateVersion(template)).toThrow(
+      IncompatibleTemplateVersionError
+    )
+    expect(() => assertCompatibleTemplateVersion(template)).toThrow(/高于当前支持/)
+  })
+
+  it('version 为当前值时通过校验', () => {
+    const template = createTemplate([ORDERS_DATASET], [])
+    expect(() => assertCompatibleTemplateVersion(template)).not.toThrow()
+  })
+})
 
 describe('getTemplateDatasets', () => {
   it('返回模板内嵌的数据集定义', () => {

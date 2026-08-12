@@ -183,14 +183,14 @@ describe('UReportDesigner 最小闭环（数据中枢 + 拖拽绑定 + getTempla
     expect(payload as ReportBinding).toMatchObject({
       dataset: datasetId,
       field: 'customer',
-      role: 'detail',
-      aggregate: 'select',
-      expand: 'down',
-      leftParent: 'default'
+      preset: 'detail',
+      aggregate: 'list',
+      expand: 'down'
     })
 
     // getTemplate() 返回含 meta 绑定与内嵌数据集定义（连接对象内嵌，凭据随模板流转）
     const template = exposedRef.value!.getTemplate()
+    expect(template.version).toBe(1)
     expect(template.meta).toHaveLength(1)
     expect(template.meta![0]).toMatchObject({ row: 0, col: 0, namespace: 'report' })
     expect(template.datasets).toEqual([
@@ -238,14 +238,14 @@ describe('UReportDesigner 全量：template 载入与预览模式（内嵌查看
     const group: ReportBinding = {
       dataset: 'ds-template',
       field: 'customer',
-      role: 'group',
+      preset: 'groupHeader',
       aggregate: 'group',
       expand: 'down',
-      leftParent: 'none',
       sort: 'none',
       conditionalRules: []
     }
     return {
+      version: 1,
       cells: [{ row: 0, col: 0, v: '客户' }],
       styles: [],
       merges: [],

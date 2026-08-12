@@ -171,7 +171,7 @@ describe('useReportDesigner：拖拽落格写 Cell Meta', () => {
     return dataset
   }
 
-  it('落格写入 createReportBinding 默认绑定（detail/select/down/default）', async () => {
+  it('落格写入 createReportBinding 默认绑定（detail/list/down）', async () => {
     const { designer, workbook } = createDesigner()
     const dataset = await seedDataset(designer)
 
@@ -184,10 +184,9 @@ describe('useReportDesigner：拖拽落格写 Cell Meta', () => {
     expect(binding).toEqual({
       dataset: dataset.id,
       field: 'customer',
-      role: 'detail',
-      aggregate: 'select',
+      aggregate: 'list',
       expand: 'down',
-      leftParent: 'default',
+      preset: 'detail',
       sort: 'none',
       conditionalRules: []
     })
@@ -205,7 +204,8 @@ describe('useReportDesigner：拖拽落格写 Cell Meta', () => {
       { row: 1, col: 0 },
       REPORT_META_NAMESPACE
     )
-    expect(group).toMatchObject({ role: 'group', aggregate: 'group', leftParent: 'none' })
+    expect(group).toMatchObject({ preset: 'groupHeader', aggregate: 'group', expand: 'down' })
+    expect(group?.rowParent).toBeUndefined()
 
     // 同行右侧落格（另一数据集的字段）继承分组数据集
     designer.bindField(inventory.id, 'amount', { row: 1, col: 1 })
@@ -213,7 +213,12 @@ describe('useReportDesigner：拖拽落格写 Cell Meta', () => {
       { row: 1, col: 1 },
       REPORT_META_NAMESPACE
     )
-    expect(detail).toMatchObject({ dataset: orders.id, field: 'amount', role: 'detail' })
+    expect(detail).toMatchObject({
+      dataset: orders.id,
+      field: 'amount',
+      preset: 'detail',
+      rowParent: { row: 1, col: 0 }
+    })
   })
 
   it('未给落点地址时回退到当前选区', async () => {
@@ -268,6 +273,8 @@ describe('useReportDesigner：getTemplate', () => {
 
     const template = designer.getTemplate()
 
+    expect(template.version).toBe(1)
+
     // meta 绑定随快照吐出
     const meta = template.meta ?? []
     expect(meta).toHaveLength(1)
@@ -309,19 +316,18 @@ describe('useReportDesigner：Action Pill 就地编辑（角色 / 聚合 / 条�
     return dataset
   }
 
-  it('角色切换写入 roleBindingDefaults 默认值；聚合切换同步 expand 缺省', async () => {
+  it('预设切换写入 presetBindingDefaults 默认值；聚合切换同步 expand 缺省', async () => {
     const { designer, workbook } = createDesigner()
     await seedAndBind(designer, { row: 0, col: 0 })
     workbook.activeSheet.selectCell({ row: 0, col: 0 })
 
     designer.patchActiveBinding(roleBindingDefaults('subtotal'))
     let binding = designer.activeBinding.value
-    expect(binding).toMatchObject({ role: 'subtotal', aggregate: 'sum', expand: 'none' })
+    expect(binding).toMatchObject({ preset: 'subtotal', aggregate: 'sum', expand: 'none' })
 
-    // 聚合切回明细：expand 缺省随聚合联动（aggregateDefaultExpand）
-    designer.patchActiveBinding({ aggregate: 'select', expand: 'down' })
+    designer.patchActiveBinding({ aggregate: 'list', expand: 'down' })
     binding = designer.activeBinding.value
-    expect(binding).toMatchObject({ aggregate: 'select', expand: 'down' })
+    expect(binding).toMatchObject({ aggregate: 'list', expand: 'down' })
 
     // 字段类型解析供条件规则对话框控件映射
     expect(designer.activeFieldType.value).toBe('number')
@@ -354,26 +360,31 @@ describe('useReportDesigner：Action Pill 就地编辑（角色 / 聚合 / 条�
     // 首列第二行为分组锚点（落格即推导为 group）
     await seedAndBind(designer, { row: 1, col: 0 })
     workbook.activeSheet.selectCell({ row: 1, col: 0 })
-    expect(designer.activeBinding.value).toMatchObject({ role: 'group', aggregate: 'group' })
+    expect(designer.activeBinding.value).toMatchObject({
+      preset: 'groupHeader',
+      aggregate: 'group'
+    })
 
     designer.patchActiveBinding(roleBindingDefaults('detail'))
-    expect(designer.activeBinding.value).toMatchObject({ role: 'group', aggregate: 'group' })
+    expect(designer.activeBinding.value).toMatchObject({
+      preset: 'groupHeader',
+      aggregate: 'group'
+    })
 
-    designer.patchActiveBinding({ aggregate: 'select' })
+    designer.patchActiveBinding({ aggregate: 'list' })
     expect(designer.activeBinding.value!.aggregate).toBe('group')
 
-    // 但允许切换为小计等其他角色
     designer.patchActiveBinding(roleBindingDefaults('subtotal'))
-    expect(designer.activeBinding.value).toMatchObject({ role: 'subtotal', aggregate: 'sum' })
+    expect(designer.activeBinding.value).toMatchObject({ preset: 'subtotal', aggregate: 'sum' })
   })
 
-  it('清除绑定移除 Cell Meta；有效左父格标签随行内扩展带解析', async () => {
+  it('清除绑定移除 Cell Meta；行方向父格标签读取绑定存储值', async () => {
     const { designer, workbook } = createDesigner()
     const dataset = designer.addDataset('c1')
     designer.updateDataset(dataset.id, { sql: 'SELECT customer, amount FROM orders' })
     await designer.describeDataset(dataset.id)
 
-    // 分组锚点 + 同行右侧明细（默认左父格解析到锚点）
+    // 分组锚点 + 同行右侧明细（rowParent 推断到锚点）
     designer.bindField(dataset.id, 'customer', { row: 1, col: 0 })
     designer.bindField(dataset.id, 'amount', { row: 1, col: 1 })
 
@@ -393,6 +404,7 @@ describe('useReportDesigner：template prop 载入既有模板', () => {
   function buildTemplate(): ReportTemplate {
     const group = createReportBindingFixture()
     return {
+      version: 1,
       cells: [{ row: 0, col: 0, v: '客户' }],
       styles: [],
       merges: [],
@@ -417,10 +429,9 @@ describe('useReportDesigner：template prop 载入既有模板', () => {
     return {
       dataset: 'ds-template',
       field: 'customer',
-      role: 'group',
+      preset: 'groupHeader',
       aggregate: 'group',
       expand: 'down',
-      leftParent: 'none',
       sort: 'none',
       conditionalRules: [{ operator: 'eq', value: '甲公司', style: { fill: { color: '#FFCCCC' } } }]
     }

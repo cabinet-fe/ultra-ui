@@ -3,7 +3,7 @@ import type { CellSnapshotItem, CellStyle, CellType, CellValue } from '@veltra/s
 import type { SheetSnapshot } from '@veltra/sheet-core'
 import { StylePool } from '@veltra/sheet-core'
 
-import { REPORT_META_NAMESPACE, resolveReportRole } from './binding'
+import { REPORT_META_NAMESPACE } from './binding'
 import { evaluateConditionalStyle } from './rules'
 import type { DatasetRecords, ReportAggregate, ReportBinding } from './types'
 
@@ -11,6 +11,8 @@ interface BindingCell {
   addr: CellAddress
   binding: ReportBinding
 }
+
+type LegacyBindingKind = 'group' | 'detail' | 'subtotal' | 'grandTotal' | 'matrix'
 
 type TemplateRowKind = 'static' | 'expansion' | 'subtotal' | 'grandTotal' | 'matrixHeader'
 
@@ -78,11 +80,29 @@ function bindingsOnRow(template: SheetSnapshot, row: number): BindingCell[] {
   return bindingCells(template).filter((c) => c.addr.row === row)
 }
 
+function inferLegacyBindingKind(binding: ReportBinding): LegacyBindingKind {
+  if (
+    binding.rowParent &&
+    binding.colParent &&
+    binding.expand === 'none' &&
+    binding.aggregate !== 'group' &&
+    binding.aggregate !== 'list'
+  ) {
+    return 'matrix'
+  }
+  if (binding.aggregate === 'group') return 'group'
+  if (binding.expand === 'none' && binding.aggregate !== 'list') {
+    if (!binding.rowParent && !binding.colParent) return 'grandTotal'
+    return 'subtotal'
+  }
+  return 'detail'
+}
+
 function classifyTemplateRow(template: SheetSnapshot, row: number): TemplateRowKind {
   const bindings = bindingsOnRow(template, row)
   if (bindings.length === 0) return 'static'
 
-  const roles = bindings.map((c) => resolveReportRole(c.binding))
+  const roles = bindings.map((c) => inferLegacyBindingKind(c.binding))
   if (roles.some((role) => role === 'matrix')) return 'matrixHeader'
   if (roles.some((role) => role === 'grandTotal')) return 'grandTotal'
   if (roles.some((role) => role === 'subtotal')) return 'subtotal'
@@ -125,7 +145,7 @@ function aggregateField(
   aggregate: ReportAggregate
 ): unknown {
   if (aggregate === 'count') return rows.length
-  if (aggregate === 'select' || aggregate === 'group') {
+  if (aggregate === 'list' || aggregate === 'group') {
     return rows[0]?.[field]
   }
 
@@ -137,6 +157,8 @@ function aggregateField(
   if (numbers.length === 0) return 0
   const sum = numbers.reduce((acc, value) => acc + value, 0)
   if (aggregate === 'avg') return sum / numbers.length
+  if (aggregate === 'max') return Math.max(...numbers)
+  if (aggregate === 'min') return Math.min(...numbers)
   return sum
 }
 
@@ -221,7 +243,7 @@ class FilledReportBuilder {
     }
 
     for (const { addr, binding } of bindingsOnRow(this.template, templateRow)) {
-      const role = resolveReportRole(binding)
+      const role = inferLegacyBindingKind(binding)
       if (role !== 'subtotal' && role !== 'grandTotal') continue
       const value = aggregateField(dataRows, binding.field, binding.aggregate)
       this.emitFilledBindingCell(templateRow, addr.col, value, binding)
@@ -243,7 +265,7 @@ class FilledReportBuilder {
 
     for (const templateRow of templateRows) {
       for (const { addr, binding } of bindingsOnRow(this.template, templateRow)) {
-        if (resolveReportRole(binding) !== 'detail') continue
+        if (inferLegacyBindingKind(binding) !== 'detail') continue
         listBindings.push({ templateRow, col: addr.col, binding })
       }
     }
@@ -297,7 +319,7 @@ function groupBindingsOnRow(template: SheetSnapshot, row: number): BindingCell[]
 function detailDatasetId(template: SheetSnapshot, expansionRows: number[]): string | undefined {
   for (const row of expansionRows) {
     for (const { binding } of bindingsOnRow(template, row)) {
-      if (resolveReportRole(binding) === 'detail') return binding.dataset
+      if (inferLegacyBindingKind(binding) === 'detail') return binding.dataset
     }
   }
   return undefined
@@ -503,26 +525,34 @@ function expandGroupBlock(
 
 function detectMatrixLayout(template: SheetSnapshot): MatrixLayout | null {
   const matrixCells = bindingCells(template).filter(
-    (c) => resolveReportRole(c.binding) === 'matrix'
+    (c) =>
+      c.binding.rowParent &&
+      c.binding.colParent &&
+      c.binding.expand === 'none' &&
+      c.binding.aggregate !== 'group' &&
+      c.binding.aggregate !== 'list'
   )
   if (matrixCells.length === 0) return null
 
-  const colGroup = bindingCells(template).find(
-    (c) => resolveReportRole(c.binding) === 'group' && c.addr.row < c.addr.col
-  )
+  const matrix = matrixCells[0]!
   const rowGroup = bindingCells(template).find(
-    (c) => resolveReportRole(c.binding) === 'group' && c.addr.col < c.addr.row
+    (c) =>
+      c.addr.row === matrix.binding.rowParent!.row && c.addr.col === matrix.binding.rowParent!.col
   )
-  if (!colGroup || !rowGroup) return null
+  const colGroup = bindingCells(template).find(
+    (c) =>
+      c.addr.row === matrix.binding.colParent!.row && c.addr.col === matrix.binding.colParent!.col
+  )
+  if (!rowGroup || !colGroup) return null
 
   const cornerRow = Math.min(colGroup.addr.row, rowGroup.addr.row)
   const cornerCol = Math.min(colGroup.addr.col, rowGroup.addr.col)
   const headerRow = colGroup.addr.row
   const rowHeaderCol = rowGroup.addr.col
-  const datasetId = matrixCells[0]!.binding.dataset
+  const datasetId = matrix.binding.dataset
 
-  const matrixRow = matrixCells[0]!.addr.row
-  const matrixCol = matrixCells[0]!.addr.col
+  const matrixRow = matrix.addr.row
+  const matrixCol = matrix.addr.col
   const totalRow = matrixRow + 1
 
   return {
@@ -536,15 +566,15 @@ function detectMatrixLayout(template: SheetSnapshot): MatrixLayout | null {
     matrixCells,
     rowSubtotalCells: bindingCells(template).filter(
       (c) =>
-        resolveReportRole(c.binding) === 'subtotal' &&
+        inferLegacyBindingKind(c.binding) === 'subtotal' &&
         c.addr.row === matrixRow &&
         c.addr.col > matrixCol
     ),
     colSubtotalCells: bindingCells(template).filter(
-      (c) => resolveReportRole(c.binding) === 'subtotal' && c.addr.row === totalRow
+      (c) => inferLegacyBindingKind(c.binding) === 'subtotal' && c.addr.row === totalRow
     ),
     grandTotalCells: bindingCells(template).filter(
-      (c) => resolveReportRole(c.binding) === 'grandTotal'
+      (c) => inferLegacyBindingKind(c.binding) === 'grandTotal'
     )
   }
 }

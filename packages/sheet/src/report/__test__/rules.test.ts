@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { resolveReportRole } from '../binding'
 import { evaluateCondition, evaluateConditionalStyle } from '../rules'
-import type { ConditionalRule, ReportBinding } from '../types'
+import type { ConditionalRule } from '../types'
 
 function rule(
   operator: ConditionalRule['operator'],
@@ -79,52 +78,6 @@ describe('report rules', () => {
     it('无规则或未传规则时返回 baseStyle', () => {
       expect(evaluateConditionalStyle(100, baseStyle, undefined)).toBe(baseStyle)
       expect(evaluateConditionalStyle(100, baseStyle, [])).toBe(baseStyle)
-    })
-  })
-
-  describe('resolveReportRole', () => {
-    it('显式 role 优先', () => {
-      const binding: ReportBinding = {
-        dataset: 'orders',
-        field: 'amount',
-        role: 'grandTotal',
-        aggregate: 'select',
-        expand: 'down',
-        leftParent: 'default'
-      }
-      expect(resolveReportRole(binding)).toBe('grandTotal')
-    })
-
-    it('旧快照从 aggregate/expand 推导', () => {
-      expect(
-        resolveReportRole({
-          dataset: 'orders',
-          field: 'customer',
-          aggregate: 'group',
-          expand: 'down',
-          leftParent: 'none'
-        })
-      ).toBe('group')
-
-      expect(
-        resolveReportRole({
-          dataset: 'orders',
-          field: 'amount',
-          aggregate: 'sum',
-          expand: 'none',
-          leftParent: 'none'
-        })
-      ).toBe('subtotal')
-
-      expect(
-        resolveReportRole({
-          dataset: 'orders',
-          field: 'orderNo',
-          aggregate: 'select',
-          expand: 'down',
-          leftParent: 'default'
-        })
-      ).toBe('detail')
     })
   })
 })

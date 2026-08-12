@@ -1,6 +1,13 @@
 import type { CellAddress } from '@veltra/sheet-core'
+import { formatAddress, parseAddress } from '@veltra/sheet-core'
 
-import type { DatasetCatalogItem, ReportAggregate, ReportBinding, ReportRole } from './types'
+import type {
+  DatasetCatalogItem,
+  ReportAggregate,
+  ReportBinding,
+  ReportExpand,
+  ReportPreset
+} from './types'
 
 /** 字段 label 解析用的 catalog（由宿主注入） */
 let bindingCatalog: DatasetCatalogItem[] = []
@@ -12,88 +19,158 @@ export function setBindingCatalog(catalog: DatasetCatalogItem[]): void {
 export const REPORT_META_NAMESPACE = 'report'
 
 const AGGREGATE_PLACEHOLDER_TAG: Record<ReportAggregate, string> = {
-  select: '明细',
+  list: '明细',
   group: '分组',
   sum: '求和',
   avg: '平均',
-  count: '计数'
+  count: '计数',
+  max: '最大',
+  min: '最小'
 }
 
-/** 从旧版 aggregate/expand 推导语义角色（快照向下兼容） */
-export function resolveReportRole(binding: ReportBinding): ReportRole {
-  if (binding.role === 'grandTotal' || binding.role === 'matrix') return binding.role
-  if (binding.aggregate === 'group') return 'group'
-  if (
-    (binding.aggregate === 'sum' || binding.aggregate === 'avg' || binding.aggregate === 'count') &&
-    binding.expand === 'none'
-  ) {
-    return 'subtotal'
+/** 预设 → 绑定字段补丁（父格除 grandTotal 外均保留推断值） */
+export function presetBindingPatch(
+  preset: ReportPreset,
+  options?: { transpose?: boolean }
+): Partial<ReportBinding> {
+  const expand: ReportExpand = options?.transpose ? 'right' : 'down'
+  switch (preset) {
+    case 'groupHeader':
+      return { preset, expand, aggregate: 'group' }
+    case 'detail':
+      return { preset, expand, aggregate: 'list' }
+    case 'subtotal':
+      return { preset, expand: 'none', aggregate: 'sum' }
+    case 'grandTotal':
+      return {
+        preset,
+        expand: 'none',
+        aggregate: 'sum',
+        rowParent: undefined,
+        colParent: undefined
+      }
+    case 'cross':
+      return { preset, expand: 'none', aggregate: 'sum' }
   }
-  if (binding.role) return binding.role
-  return 'detail'
 }
 
-/** 默认列表 + 纵向扩展 + 默认左父格 */
-export function createReportBinding(dataset: DatasetCatalogItem, fieldName: string): ReportBinding {
-  return {
-    dataset: dataset.id,
-    field: fieldName,
-    role: 'detail',
-    aggregate: 'select',
-    expand: 'down',
-    leftParent: 'default',
-    sort: 'none',
-    conditionalRules: []
+/** 将预设写入绑定（grandTotal 清空双父格；其余保留既有父格） */
+export function applyReportPreset(
+  binding: ReportBinding,
+  preset: ReportPreset,
+  options?: { transpose?: boolean }
+): ReportBinding {
+  const patch = presetBindingPatch(preset, options)
+  const next: ReportBinding = { ...binding, ...patch }
+  if (preset === 'grandTotal') {
+    delete next.rowParent
+    delete next.colParent
   }
+  return next
 }
 
-/** 绑定是否沿纵向扩展 */
-export function isExpandingBinding(binding: ReportBinding): boolean {
-  return binding.expand === 'down'
+function isVerticalExpandBinding(binding: ReportBinding): boolean {
+  return (
+    binding.expand === 'down' && (binding.aggregate === 'group' || binding.aggregate === 'list')
+  )
 }
 
-/** 同行向左扫描最近的可扩展绑定格，作为默认左父格 */
-export function findDefaultLeftParent(
+function isHorizontalExpandBinding(binding: ReportBinding): boolean {
+  return binding.expand === 'right' && binding.aggregate === 'group'
+}
+
+/** 同列向上找最近的纵向扩展绑定，作为 rowParent 候选 */
+export function inferRowParentCandidate(
   addr: CellAddress,
   getBindingAt: (addr: CellAddress) => ReportBinding | undefined
 ): CellAddress | null {
+  for (let row = addr.row - 1; row >= 0; row--) {
+    const binding = getBindingAt({ row, col: addr.col })
+    if (binding && isVerticalExpandBinding(binding)) {
+      return { row, col: addr.col }
+    }
+  }
   for (let col = addr.col - 1; col >= 0; col--) {
     const binding = getBindingAt({ row: addr.row, col })
-    if (binding && isExpandingBinding(binding)) {
+    if (binding?.expand === 'down' && binding.aggregate === 'group') {
       return { row: addr.row, col }
     }
   }
   return null
 }
 
-/** 解析有效左父格设计地址；无左父格时返回 null */
-export function resolveLeftParent(
-  binding: ReportBinding,
+/** 同行向左找最近的横向扩展绑定，作为 colParent 候选 */
+export function inferColParentCandidate(
   addr: CellAddress,
   getBindingAt: (addr: CellAddress) => ReportBinding | undefined
 ): CellAddress | null {
-  if (binding.leftParent === 'none') return null
-  if (binding.leftParent === 'default') {
-    return findDefaultLeftParent(addr, getBindingAt)
+  for (let col = addr.col - 1; col >= 0; col--) {
+    const binding = getBindingAt({ row: addr.row, col })
+    if (binding && isHorizontalExpandBinding(binding)) {
+      return { row: addr.row, col }
+    }
   }
-  return binding.leftParent
+  return null
 }
 
-/** 设计地址 → A1 标签（列仅支持 A–Z） */
+/** 从绑定字段推断预设；不匹配任何预设时返回 null（自定义） */
+export function inferReportPreset(binding: ReportBinding): ReportPreset | null {
+  if (binding.preset) return binding.preset
+
+  if (
+    binding.expand === 'none' &&
+    binding.aggregate === 'sum' &&
+    binding.rowParent &&
+    binding.colParent
+  ) {
+    return 'cross'
+  }
+  if (
+    binding.expand === 'none' &&
+    binding.aggregate === 'sum' &&
+    !binding.rowParent &&
+    !binding.colParent
+  ) {
+    return 'grandTotal'
+  }
+  if (
+    binding.expand === 'none' &&
+    binding.aggregate === 'sum' &&
+    binding.rowParent &&
+    !binding.colParent
+  ) {
+    return 'subtotal'
+  }
+  if (binding.aggregate === 'group' && (binding.expand === 'down' || binding.expand === 'right')) {
+    return 'groupHeader'
+  }
+  if (binding.aggregate === 'list' && (binding.expand === 'down' || binding.expand === 'right')) {
+    return 'detail'
+  }
+  return null
+}
+
+/** 默认明细 + 纵向扩展 */
+export function createReportBinding(dataset: DatasetCatalogItem, fieldName: string): ReportBinding {
+  return {
+    dataset: dataset.id,
+    field: fieldName,
+    aggregate: 'list',
+    expand: 'down',
+    preset: 'detail',
+    sort: 'none',
+    conditionalRules: []
+  }
+}
+
+/** 设计地址 → A1 标签（支持多字母列） */
 export function formatCellAddress(addr: CellAddress): string {
-  return `${String.fromCharCode(65 + addr.col)}${addr.row + 1}`
+  return formatAddress(addr)
 }
 
 /** A1 标签 → 设计地址；非法输入返回 null */
 export function parseCellAddress(label: string): CellAddress | null {
-  const match = /^([A-Z])(\d+)$/i.exec(label.trim())
-  if (!match) return null
-
-  const col = match[1]!.toUpperCase().charCodeAt(0) - 65
-  const row = Number(match[2]) - 1
-  if (col < 0 || row < 0 || Number.isNaN(row)) return null
-
-  return { row, col }
+  return parseAddress(label)
 }
 
 /** 解析字段中文标签（找不到时回退字段名）；可传入报表配置中的 label */
@@ -116,9 +193,4 @@ export function formatBindingPlaceholder(
 ): string {
   const tag = AGGREGATE_PLACEHOLDER_TAG[binding.aggregate]
   return `${tag} · ${resolveFieldLabel(binding.dataset, binding.field, resolveLabel)}`
-}
-
-/** sum / avg / count 聚合默认不扩展 */
-export function aggregateDefaultExpand(aggregate: ReportAggregate): ReportBinding['expand'] {
-  return aggregate === 'sum' || aggregate === 'avg' || aggregate === 'count' ? 'none' : 'down'
 }

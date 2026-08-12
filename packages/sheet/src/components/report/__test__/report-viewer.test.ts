@@ -5,6 +5,7 @@ import { createApp, h, nextTick, type App } from 'vue'
 import { UReportViewer } from '../../../index'
 import { REPORT_META_NAMESPACE } from '../../../report/binding'
 import type { DataConnection, DataConnector } from '../../../report/connector'
+import { createReportTemplate } from '../../../report/template'
 import type { ReportDatasetDef, ReportTemplate } from '../../../report/template'
 import type { ParamValues, ReportBinding } from '../../../report/types'
 import type { ReportViewerExposed } from '../../../types'
@@ -74,24 +75,23 @@ function createViewerTemplate(datasets: ReportDatasetDef[] = [ORDERS_DATASET]): 
   const group: ReportBinding = {
     dataset: 'orders',
     field: 'customer',
-    role: 'group',
+    preset: 'groupHeader',
     aggregate: 'group',
-    expand: 'down',
-    leftParent: 'none'
+    expand: 'down'
   }
   sheet.setCellMeta({ row: 1, col: 0 }, REPORT_META_NAMESPACE, group)
 
   const amount: ReportBinding = {
     dataset: 'orders',
     field: 'amount',
-    role: 'detail',
-    aggregate: 'select',
+    preset: 'detail',
+    aggregate: 'list',
     expand: 'down',
-    leftParent: { row: 1, col: 0 }
+    rowParent: { row: 1, col: 0 }
   }
   sheet.setCellMeta({ row: 1, col: 1 }, REPORT_META_NAMESPACE, amount)
 
-  return { ...sheet.snapshot(), datasets }
+  return createReportTemplate(sheet.snapshot(), datasets)
 }
 
 interface QueryCall {

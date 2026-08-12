@@ -16,9 +16,9 @@
         <u-select
           size="small"
           :class="[cls.e('select'), cls.em('select', 'role')]"
-          :model-value="currentRole"
-          :options="roleOptions"
-          @update:model-value="onRole"
+          :model-value="currentPreset"
+          :options="presetOptions"
+          @update:model-value="onPreset"
         />
         <u-select
           size="small"
@@ -74,14 +74,15 @@ import type { CellAddress, SheetGrid } from '@veltra/sheet-core'
 import { bem } from '@veltra/utils'
 import { computed, nextTick, ref, toRef, watch } from 'vue'
 
-import {
-  aggregateDefaultExpand,
-  formatBindingPlaceholder,
-  resolveReportRole
-} from '../../../report/binding'
-import type { ReportAggregate, ReportBinding, ReportRole, ReportSort } from '../../../report/types'
+import { formatBindingPlaceholder, inferReportPreset } from '../../../report/binding'
+import type {
+  ReportAggregate,
+  ReportBinding,
+  ReportPreset,
+  ReportSort
+} from '../../../report/types'
 import { resolveGridOverlayLayout } from './cell-coords'
-import { REPORT_ROLE_OPTIONS, roleBindingDefaults } from './role'
+import { REPORT_PRESET_OPTIONS, presetBindingDefaults } from './role'
 import {
   readCellOverlayRect,
   resolveBindingFloatPanelPosition,
@@ -108,14 +109,16 @@ const panelRef = ref<HTMLElement | null>(null)
 const expanded = ref(false)
 const placement = ref<'above' | 'below'>('above')
 
-const roleOptions = REPORT_ROLE_OPTIONS
+const presetOptions = REPORT_PRESET_OPTIONS
 
 const aggregateOptions = [
-  { value: 'select' as const, label: '明细' },
+  { value: 'list' as const, label: '明细' },
   { value: 'group' as const, label: '分组' },
   { value: 'sum' as const, label: '求和' },
   { value: 'avg' as const, label: '平均' },
-  { value: 'count' as const, label: '计数' }
+  { value: 'count' as const, label: '计数' },
+  { value: 'max' as const, label: '最大' },
+  { value: 'min' as const, label: '最小' }
 ]
 
 const sortOptions = [
@@ -128,9 +131,9 @@ const panelLeft = ref(0)
 const panelTop = ref(0)
 const inView = ref(false)
 
-const currentRole = computed((): ReportRole => {
+const currentPreset = computed((): ReportPreset => {
   if (!props.binding) return 'detail'
-  return resolveReportRole(props.binding)
+  return inferReportPreset(props.binding) ?? 'detail'
 })
 
 const summaryText = computed(() => {
@@ -158,8 +161,18 @@ watch(visible, (show) => {
   nextTick(() => updatePosition())
 })
 
-function onRole(role: ReportRole): void {
-  emit('patch', roleBindingDefaults(role))
+function onPreset(preset: ReportPreset): void {
+  emit('patch', presetBindingDefaults(preset))
+}
+
+function aggregateDefaultExpand(aggregate: ReportAggregate): ReportBinding['expand'] {
+  return aggregate === 'sum' ||
+    aggregate === 'avg' ||
+    aggregate === 'count' ||
+    aggregate === 'max' ||
+    aggregate === 'min'
+    ? 'none'
+    : 'down'
 }
 
 function onAggregate(aggregate: ReportAggregate): void {

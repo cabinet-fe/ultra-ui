@@ -118,32 +118,32 @@ function seedGroupDetailTemplate(sheet: Sheet): void {
   const groupParent = { row: 1, col: 0 }
 
   const customerGroup = createReportBinding(ORDERS_DATASET, 'customer')
-  customerGroup.role = 'group'
+  customerGroup.preset = 'groupHeader'
   customerGroup.aggregate = 'group'
-  customerGroup.leftParent = 'none'
+  customerGroup.expand = 'down'
   sheet.setCellMeta(groupParent, REPORT_META_NAMESPACE, customerGroup)
 
   const orderNo = createReportBinding(ORDERS_DATASET, 'orderNo')
-  orderNo.leftParent = groupParent
+  orderNo.rowParent = groupParent
   sheet.setCellMeta({ row: 1, col: 1 }, REPORT_META_NAMESPACE, orderNo)
 
   const region = createReportBinding(ORDERS_DATASET, 'region')
-  region.leftParent = groupParent
+  region.rowParent = groupParent
   sheet.setCellMeta({ row: 1, col: 2 }, REPORT_META_NAMESPACE, region)
 
   const amount = createReportBinding(ORDERS_DATASET, 'amount')
-  amount.leftParent = groupParent
+  amount.rowParent = groupParent
   sheet.setCellMeta({ row: 1, col: 3 }, REPORT_META_NAMESPACE, amount)
 
   const orderDate = createReportBinding(ORDERS_DATASET, 'orderDate')
-  orderDate.leftParent = groupParent
+  orderDate.rowParent = groupParent
   sheet.setCellMeta({ row: 1, col: 4 }, REPORT_META_NAMESPACE, orderDate)
 
   const subtotal = createReportBinding(ORDERS_DATASET, 'amount')
-  subtotal.role = 'subtotal'
+  subtotal.preset = 'subtotal'
   subtotal.aggregate = 'sum'
   subtotal.expand = 'none'
-  subtotal.leftParent = groupParent
+  subtotal.rowParent = groupParent
   sheet.setCellMeta({ row: 2, col: 3 }, REPORT_META_NAMESPACE, subtotal)
 }
 
@@ -163,37 +163,41 @@ function seedMatrixTemplate(sheet: Sheet): void {
     { font: { bold: true } }
   )
 
+  const colGroupAddr = { row: 0, col: 1 }
+  const rowGroupAddr = { row: 1, col: 0 }
+  const crossAddr = { row: 1, col: 1 }
+
   const categoryGroup = createReportBinding(SALES_MATRIX_DATASET, 'category')
-  categoryGroup.role = 'group'
+  categoryGroup.preset = 'groupHeader'
   categoryGroup.aggregate = 'group'
-  categoryGroup.leftParent = 'none'
-  sheet.setCellMeta({ row: 0, col: 1 }, REPORT_META_NAMESPACE, categoryGroup)
+  categoryGroup.expand = 'right'
+  sheet.setCellMeta(colGroupAddr, REPORT_META_NAMESPACE, categoryGroup)
 
   const regionGroup = createReportBinding(SALES_MATRIX_DATASET, 'region')
-  regionGroup.role = 'group'
+  regionGroup.preset = 'groupHeader'
   regionGroup.aggregate = 'group'
-  regionGroup.leftParent = 'none'
-  sheet.setCellMeta({ row: 1, col: 0 }, REPORT_META_NAMESPACE, regionGroup)
+  regionGroup.expand = 'down'
+  sheet.setCellMeta(rowGroupAddr, REPORT_META_NAMESPACE, regionGroup)
 
   const cross = createReportBinding(SALES_MATRIX_DATASET, 'amount')
-  cross.role = 'matrix'
+  cross.preset = 'cross'
   cross.aggregate = 'sum'
   cross.expand = 'none'
-  cross.leftParent = 'none'
-  sheet.setCellMeta({ row: 1, col: 1 }, REPORT_META_NAMESPACE, cross)
+  cross.rowParent = rowGroupAddr
+  cross.colParent = colGroupAddr
+  sheet.setCellMeta(crossAddr, REPORT_META_NAMESPACE, cross)
 
   const colSubtotal = createReportBinding(SALES_MATRIX_DATASET, 'amount')
-  colSubtotal.role = 'subtotal'
+  colSubtotal.preset = 'subtotal'
   colSubtotal.aggregate = 'sum'
   colSubtotal.expand = 'none'
-  colSubtotal.leftParent = 'none'
+  colSubtotal.colParent = colGroupAddr
   sheet.setCellMeta({ row: 2, col: 1 }, REPORT_META_NAMESPACE, colSubtotal)
 
   const grandTotal = createReportBinding(SALES_MATRIX_DATASET, 'amount')
-  grandTotal.role = 'grandTotal'
+  grandTotal.preset = 'grandTotal'
   grandTotal.aggregate = 'sum'
   grandTotal.expand = 'none'
-  grandTotal.leftParent = 'none'
   sheet.setCellMeta({ row: 2, col: 6 }, REPORT_META_NAMESPACE, grandTotal)
 }
 
@@ -291,7 +295,7 @@ describe('renderReport', () => {
       typeof buildGroupDetailTemplate
     >
     const groupMeta = broken.meta!.find((m) => m.row === 1 && m.col === 0)!
-    ;(groupMeta.payload as { aggregate: string }).aggregate = 'select'
+    ;(groupMeta.payload as { aggregate: string }).aggregate = 'list'
 
     const filled = renderReport(broken, MOCK_DATA_RECORDS)
     // 无分组锚点时走 expandListBlock：全量订单明细 + 小计
@@ -327,10 +331,10 @@ describe('renderReport', () => {
     sheet.setCellMeta({ row: 2, col: 3 }, REPORT_META_NAMESPACE, {
       dataset: 'orders',
       field: 'amount',
-      role: 'subtotal',
+      preset: 'subtotal',
       aggregate: 'avg',
       expand: 'none',
-      leftParent: { row: 1, col: 0 }
+      rowParent: { row: 1, col: 0 }
     })
     const avgFilled = renderReport(sheet.snapshot(), MOCK_DATA_RECORDS)
     // 甲公司 4 单金额均值 (100+200+150+180)/4 = 157.5
@@ -341,10 +345,10 @@ describe('renderReport', () => {
     sheet2.setCellMeta({ row: 2, col: 3 }, REPORT_META_NAMESPACE, {
       dataset: 'orders',
       field: 'orderNo',
-      role: 'subtotal',
+      preset: 'subtotal',
       aggregate: 'count',
       expand: 'none',
-      leftParent: { row: 1, col: 0 }
+      rowParent: { row: 1, col: 0 }
     })
     const countFilled = renderReport(sheet2.snapshot(), MOCK_DATA_RECORDS)
     expect(countFilled.cells.find((c) => c.row === 5 && c.col === 3)?.v).toBe(4)
@@ -357,10 +361,9 @@ describe('renderReport', () => {
     sheet.setCellMeta({ row: 3, col: 3 }, REPORT_META_NAMESPACE, {
       dataset: 'orders',
       field: 'amount',
-      role: 'grandTotal',
+      preset: 'grandTotal',
       aggregate: 'sum',
-      expand: 'none',
-      leftParent: 'none'
+      expand: 'none'
     })
     const filled = renderReport(sheet.snapshot(), MOCK_DATA_RECORDS)
     // 全量金额 4180
@@ -373,10 +376,10 @@ describe('renderReport', () => {
     sheet.setCellMeta({ row: 1, col: 3 }, REPORT_META_NAMESPACE, {
       dataset: 'orders',
       field: 'amount',
-      role: 'detail',
-      aggregate: 'select',
+      preset: 'detail',
+      aggregate: 'list',
       expand: 'down',
-      leftParent: { row: 1, col: 0 },
+      rowParent: { row: 1, col: 0 },
       conditionalRules: [{ operator: 'gt', value: 100, style: { fill: { color: '#FFCCCC' } } }]
     })
 
@@ -419,7 +422,7 @@ describe('renderReport', () => {
     seedGroupDetailTemplate(sheet)
     sheet.setCells([{ addr: { row: 0, col: 5 }, data: { v: '备注' } }])
     const remark = createReportBinding(ORDERS_DATASET, 'orderNo')
-    remark.leftParent = { row: 1, col: 0 }
+    remark.rowParent = { row: 1, col: 0 }
     sheet.setCellMeta({ row: 1, col: 5 }, REPORT_META_NAMESPACE, remark)
 
     const filled = renderReport(sheet.snapshot(), MOCK_DATA_RECORDS)
@@ -434,7 +437,8 @@ describe('renderReport', () => {
     seedGroupDetailTemplate(sheet)
     sheet.setCells([{ addr: { row: 0, col: 5 }, data: { v: '客户ID' } }])
     const customerId = createReportBinding(CUSTOMERS_DATASET, 'id')
-    customerId.leftParent = 'none'
+    customerId.expand = 'down'
+    customerId.aggregate = 'list'
     sheet.setCellMeta({ row: 4, col: 5 }, REPORT_META_NAMESPACE, customerId)
 
     const filled = renderReport(sheet.snapshot(), MOCK_DATA_RECORDS)
@@ -461,18 +465,18 @@ describe('renderReport', () => {
     sheet.restoreContent(snap)
 
     const amount = createReportBinding(ORDERS_DATASET, 'amount')
-    amount.leftParent = { row: 1, col: 0 }
+    amount.rowParent = { row: 1, col: 0 }
     sheet.setCellMeta({ row: 2, col: 3 }, REPORT_META_NAMESPACE, amount)
 
     const orderDate = createReportBinding(ORDERS_DATASET, 'orderDate')
-    orderDate.leftParent = { row: 1, col: 0 }
+    orderDate.rowParent = { row: 1, col: 0 }
     sheet.setCellMeta({ row: 2, col: 4 }, REPORT_META_NAMESPACE, orderDate)
 
     const subtotal = createReportBinding(ORDERS_DATASET, 'amount')
-    subtotal.role = 'subtotal'
+    subtotal.preset = 'subtotal'
     subtotal.aggregate = 'sum'
     subtotal.expand = 'none'
-    subtotal.leftParent = { row: 1, col: 0 }
+    subtotal.rowParent = { row: 1, col: 0 }
     sheet.setCellMeta({ row: 3, col: 3 }, REPORT_META_NAMESPACE, subtotal)
     sheet.setCells([{ addr: { row: 3, col: 1 }, data: { v: '合计' } }])
 

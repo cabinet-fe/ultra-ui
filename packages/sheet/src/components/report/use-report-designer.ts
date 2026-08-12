@@ -7,12 +7,15 @@ import {
   REPORT_META_NAMESPACE,
   createReportBinding,
   formatCellAddress,
-  resolveLeftParent,
-  resolveReportRole
+  inferColParentCandidate,
+  inferReportPreset,
+  inferRowParentCandidate
 } from '../../report/binding'
 import type { DataConnection, QueryResult, Result } from '../../report/connector'
 import { buildParamDefs } from '../../report/params'
 import {
+  assertCompatibleTemplateVersion,
+  createReportTemplate,
   getTemplateDatasets,
   resolveParamDefaults,
   type ReportDatasetDef,
@@ -73,7 +76,7 @@ export interface UseReportDesignerReturn extends DatasetHubController {
   activeBinding: ComputedRef<ReportBinding | undefined>
   /** 当前选区绑定字段的数据类型（条件规则对话框控件映射用；缺省 number） */
   activeFieldType: ComputedRef<DatasetField['type']>
-  /** 当前选区绑定的有效左父格 A1 标签（无左父格显示 —） */
+  /** 当前选区绑定的行方向父格 A1 标签（无父格显示 —） */
   resolvedLeftParentLabel: ComputedRef<string>
   /** 全部绑定条目（拓扑连线数据源；跟随 meta-change） */
   bindingEntries: ComputedRef<TopologyBindingEntry[]>
@@ -188,7 +191,7 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
   function isGroupAnchorCell(addr: CellAddress, binding?: ReportBinding): boolean {
     if (addr.row === 1 && addr.col === 0) return true
     if (!binding) return false
-    return resolveReportRole(binding) === 'group' && binding.leftParent === 'none'
+    return inferReportPreset(binding) === 'groupHeader' && !binding.rowParent
   }
 
   /** 同行向左找最近分组绑定，命中则继承其数据集（同扩展带数据集继承） */
@@ -196,7 +199,7 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
     for (let col = addr.col - 1; col >= 0; col--) {
       const binding = getBindingAt({ row: addr.row, col })
       if (!binding) continue
-      if (resolveReportRole(binding) === 'group') return binding.dataset
+      if (inferReportPreset(binding) === 'groupHeader') return binding.dataset
     }
     return undefined
   }
@@ -212,12 +215,18 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
     const existing = getBindingAt(target)
     if (isGroupAnchorCell(target, existing)) {
       binding.aggregate = 'group'
-      binding.leftParent = 'none'
-      binding.role = 'group'
+      binding.expand = 'down'
+      binding.preset = 'groupHeader'
+      delete binding.rowParent
     }
 
     const parentDataset = resolveParentGroupDataset(target)
     if (parentDataset) binding.dataset = parentDataset
+
+    const rowParent = inferRowParentCandidate(target, getBindingAt)
+    if (rowParent) binding.rowParent = rowParent
+    const colParent = inferColParentCandidate(target, getBindingAt)
+    if (colParent) binding.colParent = colParent
 
     workbook.value.activeSheet.setCellMeta(target, REPORT_META_NAMESPACE, binding)
   }
@@ -242,10 +251,8 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
   const resolvedLeftParentLabel = computed(() => {
     metaTick.value
     const binding = activeBinding.value
-    const cell = activeCell.value
-    if (!binding || !cell) return '—'
-    const resolved = resolveLeftParent(binding, cell, getBindingAt)
-    return resolved ? formatCellAddress(resolved) : '—'
+    if (!binding?.rowParent) return '—'
+    return formatCellAddress(binding.rowParent)
   })
 
   const bindingEntries = computed((): TopologyBindingEntry[] => {
@@ -265,9 +272,9 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
 
     // 分组锚点守卫：锚点格不允许降级为明细（保持扩展带结构完整）
     if (isGroupAnchorCell(cell, binding)) {
-      const nextRole = patch.role ?? resolveReportRole({ ...binding, ...patch })
+      const nextPreset = patch.preset ?? inferReportPreset({ ...binding, ...patch })
       const nextAggregate = patch.aggregate ?? binding.aggregate
-      if (nextRole === 'detail' || nextAggregate === 'select') return
+      if (nextPreset === 'detail' || nextAggregate === 'list') return
     }
 
     workbook.value.activeSheet.setCellMeta(cell, REPORT_META_NAMESPACE, { ...binding, ...patch })
@@ -382,7 +389,7 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
       ]
     })
     // `Sheet.snapshot()` 不产生 datasets 字段（restore 往返会丢失），吐出时附加内嵌数据集定义
-    return { ...workbook.value.activeSheet.snapshot(), datasets: resolved }
+    return createReportTemplate(workbook.value.activeSheet.snapshot(), resolved)
   }
 
   /**
@@ -393,6 +400,7 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
    * describe 恢复字段缓存（字段面板数据源），业务错误忽略（字段留空，可在数据中枢重试）。
    */
   function loadTemplate(template: ReportTemplate): void {
+    assertCompatibleTemplateVersion(template)
     const sheet = workbook.value.activeSheet
     sheet.restore(template)
     sheet.restoreContent(template)

@@ -5,7 +5,7 @@ import type { DatasetCatalogItem, ReportBinding } from '../../../report/types'
 import {
   buildTopologyArcPath,
   collectTopologyLinks,
-  findCellsWithLeftParent
+  findCellsWithRowParent
 } from '../designer/topology'
 
 // ---- 内联 fixtures ----
@@ -30,22 +30,22 @@ function bindingMap(cells: Array<{ addr: { row: number; col: number }; binding: 
 }
 
 describe('report topology', () => {
-  it('collectTopologyLinks 沿父链上行并包含直接子格', () => {
+  it('collectTopologyLinks 沿 rowParent 链上行并包含直接子格', () => {
     const parentAddr = { row: 1, col: 0 }
     const parent = createReportBinding(ORDERS_DATASET, 'customer')
     parent.aggregate = 'group'
-    parent.leftParent = 'none'
+    parent.preset = 'groupHeader'
 
     const mid = createReportBinding(ORDERS_DATASET, 'orderNo')
-    mid.leftParent = parentAddr
+    mid.rowParent = parentAddr
 
     const detail = createReportBinding(ORDERS_DATASET, 'region')
-    detail.leftParent = { row: 1, col: 1 }
+    detail.rowParent = { row: 1, col: 1 }
 
     const subtotal = createReportBinding(ORDERS_DATASET, 'amount')
     subtotal.aggregate = 'sum'
     subtotal.expand = 'none'
-    subtotal.leftParent = parentAddr
+    subtotal.rowParent = parentAddr
 
     const entries = [
       { addr: parentAddr, binding: parent },
@@ -66,26 +66,24 @@ describe('report topology', () => {
     ])
   })
 
-  it('findCellsWithLeftParent 仅返回解析到目标父格的子格', () => {
+  it('findCellsWithRowParent 仅返回 rowParent 指向目标父格的子格', () => {
     const parentAddr = { row: 1, col: 0 }
     const parent = createReportBinding(ORDERS_DATASET, 'customer')
     parent.aggregate = 'group'
-    parent.leftParent = 'none'
+    parent.preset = 'groupHeader'
 
     const child = createReportBinding(ORDERS_DATASET, 'orderNo')
-    child.leftParent = parentAddr
+    child.rowParent = parentAddr
 
     const other = createReportBinding(ORDERS_DATASET, 'region')
-    other.leftParent = 'default'
 
     const entries = [
       { addr: parentAddr, binding: parent },
       { addr: { row: 1, col: 1 }, binding: child },
       { addr: { row: 1, col: 2 }, binding: other }
     ]
-    const getBindingAt = bindingMap(entries)
 
-    expect(findCellsWithLeftParent(parentAddr, entries, getBindingAt)).toEqual([{ row: 1, col: 1 }])
+    expect(findCellsWithRowParent(parentAddr, entries)).toEqual([{ row: 1, col: 1 }])
   })
 
   it('buildTopologyArcPath 输出合法 SVG 路径', () => {
