@@ -44,8 +44,8 @@ function toggleFontFlag(
 ): void {
   const sel = selectionRange(ctx)
   if (!sel) return
-  const on = ctx.getCellStyle(sel.activeCell)?.font?.[field] === true
-  ctx.setCellStyle(sel.range, { font: { [field]: on ? null : true } })
+  const on = ctx.getEffectiveStyle(sel.activeCell)?.font?.[field] === true
+  ctx.applyStyle(sel.range, { font: { [field]: on ? null : true } })
 }
 
 /** 对齐 toggle：点当前档 = 清除，点其它档 = 切换 */
@@ -56,11 +56,11 @@ function toggleAlign(
 ): void {
   const sel = selectionRange(ctx)
   if (!sel) return
-  const current = ctx.getCellStyle(sel.activeCell)?.align?.[axis]
+  const current = ctx.getEffectiveStyle(sel.activeCell)?.align?.[axis]
   if (current === value) {
-    ctx.setCellStyle(sel.range, { align: { [axis]: null } })
+    ctx.applyStyle(sel.range, { align: { [axis]: null } })
   } else {
-    ctx.setCellStyle(sel.range, { align: { [axis]: value } })
+    ctx.applyStyle(sel.range, { align: { [axis]: value } })
   }
 }
 
@@ -181,7 +181,7 @@ registerTool({
   disabled: (ctx) => !ctx.getSelection().activeCell,
   active: (ctx) => {
     const active = ctx.getSelection().activeCell
-    return !!active && ctx.getCellStyle(active)?.font?.bold === true
+    return !!active && ctx.getEffectiveStyle(active)?.font?.bold === true
   },
   onClick: (ctx) => toggleFontFlag(ctx, 'bold')
 })
@@ -196,7 +196,7 @@ registerTool({
   disabled: (ctx) => !ctx.getSelection().activeCell,
   active: (ctx) => {
     const active = ctx.getSelection().activeCell
-    return !!active && ctx.getCellStyle(active)?.font?.italic === true
+    return !!active && ctx.getEffectiveStyle(active)?.font?.italic === true
   },
   onClick: (ctx) => toggleFontFlag(ctx, 'italic')
 })
@@ -211,7 +211,7 @@ registerTool({
   disabled: (ctx) => !ctx.getSelection().activeCell,
   active: (ctx) => {
     const active = ctx.getSelection().activeCell
-    return !!active && ctx.getCellStyle(active)?.font?.underline === true
+    return !!active && ctx.getEffectiveStyle(active)?.font?.underline === true
   },
   onClick: (ctx) => toggleFontFlag(ctx, 'underline')
 })
@@ -226,7 +226,7 @@ registerTool({
   disabled: (ctx) => !ctx.getSelection().activeCell,
   active: (ctx) => {
     const active = ctx.getSelection().activeCell
-    return !!active && ctx.getCellStyle(active)?.font?.strikethrough === true
+    return !!active && ctx.getEffectiveStyle(active)?.font?.strikethrough === true
   },
   onClick: (ctx) => toggleFontFlag(ctx, 'strikethrough')
 })
@@ -265,7 +265,7 @@ registerTool({
   disabled: (ctx) => !ctx.getSelection().activeCell,
   active: (ctx) => {
     const active = ctx.getSelection().activeCell
-    return !!active && ctx.getCellStyle(active)?.align?.horizontal === 'left'
+    return !!active && ctx.getEffectiveStyle(active)?.align?.horizontal === 'left'
   },
   onClick: (ctx) => toggleAlign(ctx, 'horizontal', 'left')
 })
@@ -280,7 +280,7 @@ registerTool({
   disabled: (ctx) => !ctx.getSelection().activeCell,
   active: (ctx) => {
     const active = ctx.getSelection().activeCell
-    return !!active && ctx.getCellStyle(active)?.align?.horizontal === 'center'
+    return !!active && ctx.getEffectiveStyle(active)?.align?.horizontal === 'center'
   },
   onClick: (ctx) => toggleAlign(ctx, 'horizontal', 'center')
 })
@@ -295,7 +295,7 @@ registerTool({
   disabled: (ctx) => !ctx.getSelection().activeCell,
   active: (ctx) => {
     const active = ctx.getSelection().activeCell
-    return !!active && ctx.getCellStyle(active)?.align?.horizontal === 'right'
+    return !!active && ctx.getEffectiveStyle(active)?.align?.horizontal === 'right'
   },
   onClick: (ctx) => toggleAlign(ctx, 'horizontal', 'right')
 })
@@ -310,7 +310,7 @@ registerTool({
   disabled: (ctx) => !ctx.getSelection().activeCell,
   active: (ctx) => {
     const active = ctx.getSelection().activeCell
-    return !!active && ctx.getCellStyle(active)?.align?.vertical === 'top'
+    return !!active && ctx.getEffectiveStyle(active)?.align?.vertical === 'top'
   },
   onClick: (ctx) => toggleAlign(ctx, 'vertical', 'top')
 })
@@ -325,7 +325,7 @@ registerTool({
   disabled: (ctx) => !ctx.getSelection().activeCell,
   active: (ctx) => {
     const active = ctx.getSelection().activeCell
-    return !!active && ctx.getCellStyle(active)?.align?.vertical === 'middle'
+    return !!active && ctx.getEffectiveStyle(active)?.align?.vertical === 'middle'
   },
   onClick: (ctx) => toggleAlign(ctx, 'vertical', 'middle')
 })
@@ -340,7 +340,7 @@ registerTool({
   disabled: (ctx) => !ctx.getSelection().activeCell,
   active: (ctx) => {
     const active = ctx.getSelection().activeCell
-    return !!active && ctx.getCellStyle(active)?.align?.vertical === 'bottom'
+    return !!active && ctx.getEffectiveStyle(active)?.align?.vertical === 'bottom'
   },
   onClick: (ctx) => toggleAlign(ctx, 'vertical', 'bottom')
 })
@@ -355,13 +355,13 @@ registerTool({
   disabled: (ctx) => !ctx.getSelection().activeCell,
   active: (ctx) => {
     const active = ctx.getSelection().activeCell
-    return !!active && ctx.getCellStyle(active)?.align?.wrap === true
+    return !!active && ctx.getEffectiveStyle(active)?.align?.wrap === true
   },
   onClick: (ctx) => {
     const sel = selectionRange(ctx)
     if (!sel) return
-    const on = ctx.getCellStyle(sel.activeCell)?.align?.wrap === true
-    ctx.setCellStyle(sel.range, { align: { wrap: on ? null : true } })
+    const on = ctx.getEffectiveStyle(sel.activeCell)?.align?.wrap === true
+    ctx.applyStyle(sel.range, { align: { wrap: on ? null : true } })
   }
 })
 

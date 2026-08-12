@@ -2,7 +2,6 @@ import type { SheetSnapshot } from '@veltra/sheet-core'
 
 import { REPORT_META_NAMESPACE } from './binding'
 import type { DataConnection, DataConnector, Result } from './connector'
-import type { ReportColWidthEntry } from './export-xlsx'
 import { buildParamDefs } from './params'
 import type {
   DatasetField,
@@ -13,7 +12,7 @@ import type {
 } from './types'
 
 /**
- * 模板内嵌的数据集定义（Dataset = Data Connection + SQL，ADR-0002 决策 2）。
+ * 模板内嵌的数据集定义
  * 与 playground DatasetDef 同构，connectionId 替换为内嵌的完整连接对象。
  */
 export interface ReportDatasetDef {
@@ -27,7 +26,7 @@ export interface ReportDatasetDef {
   fieldOverrides?: Record<string, Partial<Pick<DatasetField, 'label'>>>
 }
 
-/** 当前支持的报表模板版本（ADR-0005 决策 4） */
+/** 当前支持的报表模板版本 */
 export const REPORT_TEMPLATE_VERSION = 1
 
 /** 模板版本不兼容时抛出 */
@@ -41,8 +40,9 @@ export class IncompatibleTemplateVersionError extends Error {
 /**
  * 自包含 Report Template：SheetSnapshot + 内嵌数据集定义 + 版本段。
  * 查看器仅凭 `template` + `connector` 即可完成「参数提取 → 取数 → 展开渲染」闭环；
- * 模板可 JSON 序列化流转（凭据随之流转，持久化与安全存储由下游负责，ADR-0003 决策 4）。
+ * 模板可 JSON 序列化流转。
  *
+ * `colWidths` 继承自 `SheetSnapshot.colWidths`（模型列索引 → 像素）。
  * 注意：`Sheet.snapshot()` 不产生 `datasets` / `version` 字段，经 `restore()`/`snapshot()` 往返会丢失，
  * 由设计器 `getTemplate()` 在吐出快照时重新附加。
  */
@@ -50,11 +50,6 @@ export interface ReportTemplate extends SheetSnapshot {
   /** 模板结构版本；当前值为 `REPORT_TEMPLATE_VERSION` */
   version?: number
   datasets?: ReportDatasetDef[]
-  /**
-   * 设计态列宽（模型列索引 → 像素宽）。
-   * sheet-core 列宽未进 SheetSnapshot，由设计器 `getTemplate()` 捕获并随模板序列化。
-   */
-  colWidths?: ReportColWidthEntry[]
 }
 
 /** 载入模板前校验版本：缺失或高于当前支持版本时抛可读错误 */
@@ -71,18 +66,15 @@ export function assertCompatibleTemplateVersion(template: ReportTemplate): void 
   }
 }
 
-/** 由工作簿快照构造带版本段的 Report Template */
+/**
+ * 由工作簿快照构造带版本段的 Report Template。
+ * `colWidths` 随 `snapshot` 展开（已在 `SheetSnapshot.colWidths`）。
+ */
 export function createReportTemplate(
   snapshot: SheetSnapshot,
-  datasets?: ReportDatasetDef[],
-  colWidths?: ReportColWidthEntry[]
+  datasets?: ReportDatasetDef[]
 ): ReportTemplate {
-  return {
-    ...snapshot,
-    version: REPORT_TEMPLATE_VERSION,
-    datasets,
-    ...(colWidths?.length ? { colWidths } : {})
-  }
+  return { ...snapshot, version: REPORT_TEMPLATE_VERSION, datasets }
 }
 
 /** 读取模板内嵌的数据集定义（旧模板未内嵌时回退空数组） */

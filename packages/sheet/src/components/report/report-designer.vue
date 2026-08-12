@@ -111,7 +111,6 @@
         :connector="props.connector"
         :template="previewTemplate"
         :workbook="previewWorkbook"
-        :col-widths="designColWidths"
       />
     </div>
 
@@ -149,7 +148,7 @@ import type {
 import { USheet } from '../sheet'
 import UReportDatasetHub from './designer-hub.vue'
 import { resolveGridDropAddress } from './designer/cell-coords'
-import { applyGridColWidths, readGridColWidths } from './designer/col-widths'
+import { applyGridColWidths, applySheetColWidths, readGridColWidths } from './designer/col-widths'
 import UReportDropHighlightOverlay from './designer/drop-highlight-overlay.vue'
 import UReportFloatPanel from './designer/float-panel.vue'
 import UReportRulesDialog from './designer/rules-dialog.vue'
@@ -247,17 +246,21 @@ const isPreview = computed(() => viewMode.value === 'preview')
 const previewTemplate = shallowRef<ReportTemplate | null>(null)
 /** 预览工作簿自持（XLSX 导出需要拿到填充后的 sheet，05 票 workbook? prop 先例） */
 const previewWorkbook = new Workbook()
-/** 当前设计态列宽（sheet-core 列宽未进快照，经 VTable 运行时捕获；导出随快照写宽） */
+/** 当前设计态列宽（与 Sheet 模型同步；getTemplate 经 snapshot.colWidths 吐出） */
 const designColWidths = ref<Array<[number, number]>>([])
 const exporting = ref(false)
 
-/** 从当前设计网格捕获列宽（网格未就绪则保留旧值） */
+/** 从当前设计网格捕获列宽并写回 Sheet 模型（网格未就绪则保留旧值） */
 function captureDesignColWidths(): void {
   const widths = readGridColWidths(
     getDesignGrid(),
     Array.from({ length: gridCols.value }, (_, col) => col)
   )
-  if (widths) designColWidths.value = widths
+  if (!widths) return
+  // 仅保留相对默认列宽有变化的条目，避免快照膨胀
+  const custom = widths.filter(([, width]) => width > 0)
+  designColWidths.value = custom
+  applySheetColWidths(workbook.value.activeSheet, custom)
 }
 
 /** 设计网格重建后补刷新与列宽（restore 不发 content-reset 的场景由 grid 自行订阅，这里只管列宽） */
@@ -286,6 +289,9 @@ watch(
     designColWidths.value = template?.colWidths?.length
       ? template.colWidths.map(([col, width]) => [col, width] as [number, number])
       : []
+    if (designColWidths.value.length) {
+      applySheetColWidths(workbook.value.activeSheet, designColWidths.value)
+    }
     void nextTick(syncDesignGridView)
   }
 )
@@ -374,9 +380,7 @@ function onGridDrop(event: DragEvent): void {
 defineExpose<_ReportDesignerExposed>({
   getTemplate: () => {
     captureDesignColWidths()
-    const template = getTemplate()
-    if (designColWidths.value.length === 0) return template
-    return { ...template, colWidths: [...designColWidths.value] }
+    return getTemplate()
   }
 })
 </script>

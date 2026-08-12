@@ -26,7 +26,7 @@ const fontColor = ref('')
 // 打开时初始化为活动格当前字体色
 onMounted(() => {
   const active = props.context.getSelection().activeCell
-  const style = active ? props.context.getCellStyle(active) : undefined
+  const style = active ? props.context.getEffectiveStyle(active) : undefined
   fontColor.value = style?.font?.color ?? ''
 })
 
@@ -34,6 +34,6 @@ onMounted(() => {
 function applyFontColor(color: string): void {
   const range = currentRange(props.context)
   if (!range) return
-  props.context.setCellStyle(range, color ? { font: { color } } : { font: { color: null } })
+  props.context.applyStyle(range, color ? { font: { color } } : { font: { color: null } })
 }
 </script>

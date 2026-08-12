@@ -109,11 +109,13 @@ export function useSheetGrid(options: UseSheetGridOptions) {
     const el = document.createElement('div')
     el.className = 'u-sheet__grid-instance'
     host.appendChild(el)
+    // 模型已声明尺寸时传入模型值，避免删行后被 props 经 ensureTableSize 撑回
+    const { rows, cols } = resolveRenderSize(props.rows, props.cols, sheet.rows, sheet.cols)
     const grid = new SheetGrid({
       container: el,
       sheet,
-      rows: props.rows,
-      cols: props.cols,
+      rows,
+      cols,
       readonly: props.readonly,
       resolveDisplayValue: props.resolveDisplayValue,
       resolveCellStyle: props.resolveCellStyle,
@@ -237,7 +239,16 @@ export function useSheetGrid(options: UseSheetGridOptions) {
 
   onMounted(activateGrid)
 
-  watch(() => [props.rows, props.cols, props.readonly], rebuildGrid)
+  // props 尺寸显式增大时先扩张模型，再重建（删行缩小不走这条路径）
+  watch(
+    () => [props.rows, props.cols, props.readonly] as const,
+    ([nextRows, nextCols]) => {
+      const sheet = getActiveSheet()
+      if (nextRows != null) sheet.ensureTableSize(nextRows, 0)
+      if (nextCols != null) sheet.ensureTableSize(0, nextCols)
+      rebuildGrid()
+    }
+  )
 
   onBeforeUnmount(() => {
     invalidateAll()

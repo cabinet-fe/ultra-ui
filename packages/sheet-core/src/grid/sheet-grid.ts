@@ -21,7 +21,7 @@ import {
   fontSizePtToPx,
   type ResolveCellStyleHook
 } from './grid-style-resolver'
-import { GridSyncManager } from './grid-sync-manager'
+import { GridSyncManager, applyColWidthsFromModel } from './grid-sync-manager'
 import { ImageLayer } from './image-layer'
 import {
   SHEET_DEFAULT_COL_WIDTH,
@@ -104,10 +104,11 @@ export class SheetGrid {
   constructor(options: SheetGridOptions) {
     this.sheet = options.sheet
     this.container = options.container
+    // options 仅扩张：已声明更小的模型尺寸（删行后）不被 props 下限撑回
     this.sheet.ensureTableSize(options.rows ?? 100, options.cols ?? 26)
     this.sheet.ensureTableSize(this.sheet.rowCount, this.sheet.colCount)
-    this.rows = Math.max(options.rows ?? 100, this.sheet.rows)
-    this.cols = Math.max(options.cols ?? 26, this.sheet.cols)
+    this.rows = Math.max(this.sheet.rows, 1)
+    this.cols = Math.max(this.sheet.cols, 1)
     this.onContextMenu = options.onContextMenu
     this.onEditStart = options.onEditStart
     this.onEditEnd = options.onEditEnd
@@ -173,6 +174,7 @@ export class SheetGrid {
     })
     this.disposers.push(() => this.imageLayer.dispose())
     this.applyFrozen()
+    applyColWidthsFromModel(this.table, this.sheet, this.coords)
     this.selectionController.pushSelectionToTable(this.sheet.getSelection(), this.rows, this.cols)
   }
 
@@ -208,7 +210,8 @@ export class SheetGrid {
           this.rows,
           this.cols
         ),
-      (v) => this.imageLayer.setVisible(v)
+      (v) => this.imageLayer.setVisible(v),
+      () => applyColWidthsFromModel(this.table, this.sheet, this.coords)
     )
   }
 

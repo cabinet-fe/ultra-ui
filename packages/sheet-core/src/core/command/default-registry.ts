@@ -4,6 +4,7 @@ import { InsertCellsCommand } from './insert-delete-cells'
 import { MergeCellsBatchCommand, MergeCellsCommand, UnmergeCellsCommand } from './merge-cells'
 import { CommandRegistry } from './registry'
 import { RestoreSheetCommand } from './restore-sheet'
+import { SetAxisStyleCommand } from './set-axis-style'
 import { SetCellFormulaCommand } from './set-cell-formula'
 import { SetCellStyleCommand } from './set-cell-style'
 import { SetCellValueCommand } from './set-cell-value'
@@ -18,6 +19,7 @@ defaultCommandRegistry.register(SetCellValueCommand)
 defaultCommandRegistry.register(SetCellFormulaCommand)
 defaultCommandRegistry.register(InsertCellsCommand)
 defaultCommandRegistry.register(SetCellStyleCommand)
+defaultCommandRegistry.register(SetAxisStyleCommand)
 defaultCommandRegistry.register(MergeCellsCommand)
 defaultCommandRegistry.register(MergeCellsBatchCommand)
 defaultCommandRegistry.register(UnmergeCellsCommand)

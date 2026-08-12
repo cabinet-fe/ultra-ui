@@ -57,8 +57,9 @@ export interface StructurePatch {
  * 整表快照替换补丁（导入 replaceWorkbook / undo/redo 回放）。
  * 与 cell/merge 差量补丁不同：整表内容一次替换，静默（不发逐格 cell-change），
  * 由调用方按 content-reset 事件全量刷新视图——避免十万级逐格视图同步。
- * 只替换 cells/styles/merges/images（含公式图重建）；冻结/行高/尺寸/选区保持当前
- * （对齐「冻结与行高不进 undo」「选区不进 undo」「渲染尺寸不进 undo」约定）。
+ * 只替换 cells/styles/merges/images/rowStyles/colStyles（含公式图重建）；
+ * 冻结/行高/列宽/尺寸/选区保持当前
+ * （对齐「冻结与行高/列宽不进 undo」「选区不进 undo」「渲染尺寸不进 undo」约定）。
  */
 export interface SnapshotPatch {
   kind: 'snapshot'
@@ -95,6 +96,20 @@ export interface CellMetaPatch {
   after?: unknown
 }
 
+/**
+ * 行/列默认样式差量补丁（StyleId 引用同一 styles 池）。
+ * before/after = 该侧 StyleId（undefined = 无）。
+ */
+export interface AxisStylePatch {
+  kind: 'axis-style'
+  axis: 'row' | 'col'
+  index: number
+  /** 变更前（undefined = 原本无默认样式） */
+  before?: number
+  /** 变更后（undefined = 变更后无默认样式） */
+  after?: number
+}
+
 export type Patch =
   | CellPatch
   | MergePatch
@@ -102,6 +117,7 @@ export type Patch =
   | SnapshotPatch
   | ImagePatch
   | CellMetaPatch
+  | AxisStylePatch
 
 /**
  * 一次命令执行产生的变更单元。

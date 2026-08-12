@@ -63,6 +63,9 @@ function buildWorkbook(): Workbook {
   s1.setFrozen(1, 2)
   s1.setRowHeight(1, 40)
   s1.setRowHeight(5, 24)
+  // 选用换算对称的像素值：chars = round((px-5)/7)，px' = chars*7+5
+  s1.setColWidth(0, 117) // 16 chars
+  s1.setColWidth(2, 145) // 20 chars
 
   const s2 = workbook.addSheet('S2')
   s2.setCellValue({ row: 0, col: 0 }, 10)
@@ -71,7 +74,7 @@ function buildWorkbook(): Workbook {
 }
 
 describe('XLSX round-trip（导出 → 导入）', () => {
-  it('值 / 公式 / 合并 / 样式 / 冻结 / 行高 / 日期 / 错误格 / 跨表公式一致', async () => {
+  it('值 / 公式 / 合并 / 样式 / 冻结 / 行高 / 列宽 / 日期 / 错误格 / 跨表公式一致', async () => {
     const source = buildWorkbook()
     const buffer = await exportWorkbookXlsx(source)
     expect(buffer).toBeInstanceOf(Uint8Array)
@@ -123,6 +126,9 @@ describe('XLSX round-trip（导出 → 导入）', () => {
     expect(s1.frozen).toEqual({ rows: 1, cols: 2 })
     expect(s1.getRowHeight(1)).toBe(40)
     expect(s1.getRowHeight(5)).toBe(24)
+    // 列宽（117px ↔ 16 chars；145px ↔ 20 chars）
+    expect(s1.getColWidth(0)).toBe(117)
+    expect(s1.getColWidth(2)).toBe(145)
     // 跨表公式
     expect(s2.getCellData({ row: 0, col: 1 })).toMatchObject({ f: 'Sheet1!A1+1', v: 43 })
     // 触发跨表重算仍正确

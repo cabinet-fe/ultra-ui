@@ -5,6 +5,7 @@ import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vu
 import { createSheetContext } from '../../tools/context'
 import { defaultToolRegistry } from '../../tools/registry'
 import type { SheetProps } from '../../types'
+import { resolveRenderSize } from './sheet-context-menu'
 
 /**
  * useSheetState 与宿主组件的协作钩子。
@@ -44,10 +45,14 @@ export function useSheetState(props: SheetProps, emit: Emit, hooks: SheetStateHo
     () => sheetList.value[activeIndex.value] ?? workbook.value.activeSheet
   )
 
-  /** 工具上下文：动态解析活动 sheet 与当前工作簿，tab 切换 / workbook prop 切换后自动指向最新值 */
+  /** 工具上下文：动态解析活动 sheet / 工作簿 / 渲染尺寸，tab 切换后自动指向最新值 */
   const context = createSheetContext(
     () => activeSheet.value,
-    () => workbook.value
+    () => workbook.value,
+    {
+      resolveGridSize: () =>
+        resolveRenderSize(props.rows, props.cols, activeSheet.value.rows, activeSheet.value.cols)
+    }
   )
 
   /** 工具栏状态版本号：visible/disabled/active 是 (ctx) => boolean 纯函数，状态源变化时 bump 触发重算 */
@@ -80,7 +85,7 @@ export function useSheetState(props: SheetProps, emit: Emit, hooks: SheetStateHo
       // 整表内容替换（导入 / undo/redo 回放）：restore 静默不发 cell-change，
       // 状态源需 bump（grid 层自行订阅 content-reset 全量刷新，此处不重建）
       sheet.on('content-reset', scheduleBump),
-      // 行列插入/删除 → 重建网格（渲染行列数 = max(props, sheet.rows/cols)，
+      // 行列插入/删除 → 重建网格（渲染行列数跟随模型 sheet.rows/cols，
       // 数据/选区/冻结/行高随重建恢复；低频操作直接重建）
       sheet.on('structure-change', hooks.rebuildGrid)
     ]

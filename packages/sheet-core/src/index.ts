@@ -103,6 +103,8 @@ export {
 
 export { StylePool } from './core/style/style-pool'
 
+export { composeCellStyles } from './core/style/compose'
+
 export {
   buildBorderPresetItems,
   type BorderPreset,
@@ -122,6 +124,7 @@ export {
   type SnapshotPatch,
   type ImagePatch,
   type CellMetaPatch,
+  type AxisStylePatch,
   type Patch,
   type Mutation,
   type CommandResult,
@@ -135,6 +138,9 @@ export {
   type SetCellStyleItem,
   type SetCellStyleParams,
   SetCellStyleCommand,
+  type SetAxisStyleItem,
+  type SetAxisStyleParams,
+  SetAxisStyleCommand,
   type InsertCellsParams,
   InsertCellsCommand,
   type MergeCellsParams,

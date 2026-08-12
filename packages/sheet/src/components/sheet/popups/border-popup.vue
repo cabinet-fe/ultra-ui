@@ -40,7 +40,8 @@ import { buildBorderPresetItems } from '@veltra/sheet-core/core/style/border-pre
 import {
   BORDER_STYLE_WIDTH,
   type BorderEdge,
-  type BorderLineStyle
+  type BorderLineStyle,
+  type CellStylePatch
 } from '@veltra/sheet-core/core/style/types'
 import { bem } from '@veltra/utils'
 import { ref } from 'vue'
@@ -63,6 +64,7 @@ defineOptions({ name: 'USheetBorderPopup' })
  * 预设补丁由 core/style/border-presets 生成（含邻居格共享边同步，对齐
  * Excel「写入时同步、最近设置生效」）；面板打开期间的写入由
  * use-tool-popup 事务包裹为一个 undo 单元。
+ * 整行/整列选区下，均匀预设（all/none/单侧）走 applyStyle → 行列默认样式。
  */
 const props = defineProps<{
   /** 工具上下文（写入走命令系统，天然可撤销） */
@@ -75,7 +77,27 @@ const cls = bem('sheet')
 const borderLineStyle = ref<BorderLineStyle>('thin')
 const borderColor = ref('#000000')
 
-/** 应用边框预设：一次 executeCommand（items 批量，含邻居同步补丁）= 一个 undo 单元 */
+/** 均匀边框补丁（可写进行/列默认样式）；outer/inner 几何相关 → null */
+function uniformBorderPatch(preset: BorderPresetId, edge: BorderEdge): CellStylePatch | null {
+  switch (preset) {
+    case 'all':
+      return { border: { top: edge, right: edge, bottom: edge, left: edge } }
+    case 'none':
+      return { border: { top: null, right: null, bottom: null, left: null } }
+    case 'top':
+      return { border: { top: edge } }
+    case 'bottom':
+      return { border: { bottom: edge } }
+    case 'left':
+      return { border: { left: edge } }
+    case 'right':
+      return { border: { right: edge } }
+    default:
+      return null
+  }
+}
+
+/** 应用边框预设：整行/整列均匀预设走 applyStyle；其余逐格批量（含邻居同步） */
 function applyBorderPreset(preset: BorderPresetId): void {
   const range = currentRange(props.context)
   if (!range) return
@@ -84,8 +106,14 @@ function applyBorderPreset(preset: BorderPresetId): void {
     width: BORDER_STYLE_WIDTH[borderLineStyle.value],
     color: borderColor.value
   }
+  const target = props.context.resolveStyleTarget(range)
+  const uniform = target !== 'cell' ? uniformBorderPatch(preset, edge) : null
+  if (uniform) {
+    props.context.applyStyle(range, uniform)
+    return
+  }
   const items: SetCellStyleItem[] = buildBorderPresetItems(range, preset, edge, (addr) =>
-    props.context.getCellStyle(addr)
+    props.context.getEffectiveStyle(addr)
   ).map(({ addr, patch }) => ({ addr, partial: patch }))
   if (items.length === 0) return
   props.context.executeCommand('sheet.command.set-cell-style', { items })

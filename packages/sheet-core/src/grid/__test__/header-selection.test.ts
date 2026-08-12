@@ -119,4 +119,108 @@ describe('行号/列头选区锚点（Excel 语义）', () => {
       grid.release()
     }
   })
+
+  it('整行选区回驱：VTable 选区含行号列（col 0），行头可高亮', () => {
+    const { sheet, grid, table } = createGrid(20, 6)
+    try {
+      sheet.selectRange(parseRange('A3:F5'))
+      const ranges = table.getSelectedCellRanges()
+      expect(ranges).toHaveLength(1)
+      expect(ranges[0]!.start.col).toBe(0)
+      expect(ranges[0]!.start.row).toBe(3)
+      expect(ranges[0]!.end.col).toBe(6)
+      expect(ranges[0]!.end.row).toBe(5)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('整列选区回驱：VTable 选区含列头行（row 0），列头可高亮', () => {
+    const { sheet, grid, table } = createGrid(20, 6)
+    try {
+      sheet.selectRange(parseRange('C1:C20'))
+      const ranges = table.getSelectedCellRanges()
+      expect(ranges).toHaveLength(1)
+      expect(ranges[0]!.start.col).toBe(3)
+      expect(ranges[0]!.start.row).toBe(0)
+      expect(ranges[0]!.end.col).toBe(3)
+      expect(ranges[0]!.end.row).toBe(20)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('列头拖选仅覆盖列头行时：扩展为整列选区', () => {
+    const { sheet, grid, table } = createGrid(20, 10)
+    try {
+      // VTable 列头多选常见形态：只覆盖 header 行，未扩到 body
+      table.selectCells([{ start: { col: 3, row: 0 }, end: { col: 5, row: 0 } }])
+      table.fireListeners(ListTable.EVENT_TYPE.SELECTED_CELL, {
+        col: 5,
+        row: 0,
+        ranges: table.getSelectedCellRanges()
+      })
+
+      const { ranges } = sheet.getSelection()
+      expect(ranges).toEqual([parseRange('C1:E20')])
+      const synced = table.getSelectedCellRanges()
+      expect(synced[0]!.start.row).toBe(0)
+      expect(synced[0]!.end.row).toBe(20)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('行号拖选仅覆盖行号列时：扩展为整行选区', () => {
+    const { sheet, grid, table } = createGrid(20, 6)
+    try {
+      table.selectCells([{ start: { col: 0, row: 4 }, end: { col: 0, row: 7 } }])
+      table.fireListeners(ListTable.EVENT_TYPE.SELECTED_CELL, {
+        col: 0,
+        row: 7,
+        ranges: table.getSelectedCellRanges()
+      })
+
+      const { ranges } = sheet.getSelection()
+      expect(ranges).toEqual([parseRange('A4:F7')])
+      const synced = table.getSelectedCellRanges()
+      expect(synced[0]!.start.col).toBe(0)
+      expect(synced[0]!.end.col).toBe(6)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('列头拖选过程中实时扩整列（对齐行号拖选，不等松手）', () => {
+    const { sheet, grid, table } = createGrid(20, 10)
+    try {
+      const sm = (table as unknown as { stateManager: any }).stateManager
+      // pointerdown 列头 C → VTable 初始已是整列
+      sm.updateSelectPos(3, 0, false, false, false, true)
+      let ranges = table.getSelectedCellRanges()
+      expect(ranges[0]!.start.row).toBe(0)
+      expect(ranges[0]!.end.row).toBe(20)
+
+      // 拖到列头 E：补丁在入口把 row 改成末行，VTable 一次画整列（不事后清边框）
+      sm.updateInteractionState('grabing')
+      sm.updateSelectPos(5, 0, false, false, false, true)
+      ranges = table.getSelectedCellRanges()
+      expect(ranges).toHaveLength(1)
+      expect(Math.min(ranges[0]!.start.col, ranges[0]!.end.col)).toBe(3)
+      expect(Math.max(ranges[0]!.start.col, ranges[0]!.end.col)).toBe(5)
+      expect(Math.min(ranges[0]!.start.row, ranges[0]!.end.row)).toBe(0)
+      expect(Math.max(ranges[0]!.start.row, ranges[0]!.end.row)).toBe(20)
+      // 拖选过程中 selecting 边框应存在（回归：事后 updateCellSelectBorder 曾导致高亮全无）
+      const selecting = (
+        table as unknown as { scenegraph: { selectingRangeComponents: Map<string, unknown> } }
+      ).scenegraph.selectingRangeComponents
+      expect(selecting.size).toBeGreaterThan(0)
+
+      sm.endSelectCells()
+      table.fireListeners(ListTable.EVENT_TYPE.DRAG_SELECT_END, {})
+      expect(sheet.getSelection().ranges).toEqual([parseRange('C1:E20')])
+    } finally {
+      grid.release()
+    }
+  })
 })

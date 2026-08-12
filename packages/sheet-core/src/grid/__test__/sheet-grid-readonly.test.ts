@@ -88,6 +88,11 @@ describe('SheetGrid readonly（只读预览）', () => {
     try {
       table.fireListeners(ListTable.EVENT_TYPE.RESIZE_ROW_END, { row: 2, rowHeight: 48 })
       expect(sheet.getRowHeight(1)).toBeUndefined()
+      table.fireListeners(ListTable.EVENT_TYPE.RESIZE_COLUMN_END, {
+        col: 2,
+        colWidths: [46, 80, 120, 80, 80, 80]
+      })
+      expect(sheet.getColWidth(1)).toBeUndefined()
     } finally {
       grid.release()
     }

@@ -2,6 +2,7 @@ import type {
   Cell as HucreCell,
   CellStyle as HucreCellStyle,
   CellValue as HucreCellValue,
+  ColumnDef as HucreColumnDef,
   MergeRange as HucreMergeRange,
   RowDef as HucreRowDef,
   SheetImage as HucreSheetImage,
@@ -37,6 +38,16 @@ import type { Workbook } from '../workbook'
 /** 像素 → Excel points（96dpi / 72pt 精确比 0.75） */
 function pxToPt(px: number): number {
   return px * 0.75
+}
+
+/** VTable / 模型像素列宽 → Excel 字符宽度（与报表 export-xlsx 对称） */
+export function pxToExcelColWidth(px: number): number {
+  return Math.max(1, Math.round((px - 5) / 7))
+}
+
+/** Excel 字符宽度 → 模型像素列宽 */
+export function excelColWidthToPx(chars: number): number {
+  return Math.round(chars * 7 + 5)
 }
 
 /** 模型样式 → hucre 单元格样式（fill / border / font / alignment；无边宽字段） */
@@ -108,13 +119,13 @@ export function imageToHucre(image: SheetImage): HucreSheetImage {
 /** 单元格数据 → hucre 写侧 Cell 覆盖项（rows 网格已承载普通值） */
 function cellToHucreCell(
   sheet: Sheet,
+  addr: { row: number; col: number },
   data: NonNullable<ReturnType<Sheet['getCellData']>>
 ): Partial<HucreCell> | undefined {
   const cell: Partial<HucreCell> = {}
-  if (data.s != null) {
-    const style = sheet.stylePool.get(data.s)
-    if (style) cell.style = styleToHucre(style)
-  }
+  // 有值格用有效样式（列 → 行 → 格叠加），保证行列默认样式可见内容保真
+  const style = sheet.getEffectiveStyle(addr)
+  if (style) cell.style = styleToHucre(style)
   if (data.f != null && data.f !== '') {
     cell.formula = data.f
     if (data.v != null) cell.formulaResult = data.v as HucreCellValue
@@ -136,7 +147,7 @@ function cellToHucreCell(
 }
 
 /**
- * 导出整个工作簿为 XLSX（多 sheet：值 / 公式 / 合并 / 样式（fill+border）/ 冻结 / 行高 / 浮动图）。
+ * 导出整个工作簿为 XLSX（多 sheet：值 / 公式 / 合并 / 样式（fill+border）/ 冻结 / 行高 / 列宽 / 浮动图）。
  * 纯 TS，可无头测试；返回 ZIP 字节。
  */
 export async function exportWorkbookXlsx(workbook: Workbook): Promise<Uint8Array> {
@@ -144,18 +155,23 @@ export async function exportWorkbookXlsx(workbook: Workbook): Promise<Uint8Array
     // 行范围 = 数据行 ∪ rowDefs 行；稠密数组（hucre 写侧只遍历 rows 范围内的行，
     // rowDefs 覆盖的无数据行必须出现在 rows 中，否则行高丢失）
     let maxRow = -1
+    let maxCol = -1
     for (const [addr] of sheet.store.entries()) {
       if (addr.row > maxRow) maxRow = addr.row
+      if (addr.col > maxCol) maxCol = addr.col
     }
     for (const [row] of sheet.getRowHeights()) {
       if (row > maxRow) maxRow = row
+    }
+    for (const [col] of sheet.getColWidths()) {
+      if (col > maxCol) maxCol = col
     }
     const rows: HucreCellValue[][] = maxRow < 0 ? [] : Array.from({ length: maxRow + 1 }, () => [])
     const cells = new Map<string, Partial<HucreCell>>()
     for (const [addr, data] of sheet.store.entries()) {
       const row = rows[addr.row]!
       const key = `${addr.row},${addr.col}`
-      const detail = cellToHucreCell(sheet, data)
+      const detail = cellToHucreCell(sheet, addr, data)
       if (data.f != null && data.f !== '') {
         // 公式格：计算值进 rows，公式/样式进 cells
         row[addr.col] = (data.v as HucreCellValue) ?? null
@@ -188,6 +204,13 @@ export async function exportWorkbookXlsx(workbook: Workbook): Promise<Uint8Array
       rowDefs.set(row, { height: pxToPt(height) })
     }
     if (rowDefs.size > 0) sheetOut.rowDefs = rowDefs
+    if (sheet.getColWidths().size > 0 && maxCol >= 0) {
+      const columns: HucreColumnDef[] = Array.from({ length: maxCol + 1 }, () => ({}))
+      for (const [col, width] of sheet.getColWidths()) {
+        columns[col] = { width: pxToExcelColWidth(width) }
+      }
+      sheetOut.columns = columns
+    }
     const images = sheet.getImages()
     if (images.length > 0) sheetOut.images = images.map(imageToHucre)
     return sheetOut

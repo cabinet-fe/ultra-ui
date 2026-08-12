@@ -10,6 +10,8 @@ import type { FrozenState, Sheet } from '@veltra/sheet-core/core/sheet'
 import type { CellStyle, CellStylePatch } from '@veltra/sheet-core/core/style/types'
 import type { Workbook } from '@veltra/sheet-core/core/workbook'
 
+import { axisStyleItemsForRange, classifySelectionStyleTarget } from './apply-style'
+
 /**
  * SheetContext：工具的唯一操作门面。
  *
@@ -43,12 +45,33 @@ export interface SheetContext {
   getCellInfo(addr: CellAddress): CellInfo
 
   // ─── 样式（写入经命令系统，可 undo） ───────────────────────
-  /** 设置区域样式（部分合并语义，见 CellStylePatch）；空样式 = 删除 s 字段 */
+  /**
+   * 按选区形态写样式（Excel 语义）：
+   * 整行选区 → rowStyles；整列选区 → colStyles；其余 → 逐格。
+   * 判定依赖 createSheetContext 注入的渲染尺寸；未注入时一律走 setCellStyle。
+   */
+  applyStyle(range: CellRange, partial: CellStylePatch): void
+  /**
+   * 选区样式目标（与 applyStyle 同一判定）；未注入渲染尺寸时恒为 'cell'。
+   */
+  resolveStyleTarget(range: CellRange): 'row' | 'col' | 'cell'
+  /**
+   * 按选区形态清除样式：整行/整列清对应默认样式；其余清单元格 s。
+   * 未注入渲染尺寸时一律走 clearCellStyle。
+   */
+  clearStyle(range: CellRange): void
+  /** 设置区域单元格样式（部分合并语义，见 CellStylePatch）；空样式 = 删除 s 字段 */
   setCellStyle(range: CellRange, partial: CellStylePatch): void
-  /** 清除区域样式（保留值 / 公式） */
+  /** 清除区域单元格样式（保留值 / 公式） */
   clearCellStyle(range: CellRange): void
-  /** 读取单元格样式（原始存储语义：被覆盖格 → undefined） */
+  /** 设置行默认样式（部分合并，进 undo） */
+  setRowStyle(row: number, partial: CellStylePatch): void
+  /** 设置列默认样式（部分合并，进 undo） */
+  setColStyle(col: number, partial: CellStylePatch): void
+  /** 读取单元格样式（原始存储语义：被覆盖格 → undefined；不含行列默认） */
   getCellStyle(addr: CellAddress): CellStyle | undefined
+  /** 有效样式：列 → 行 → 格字段级叠加（空格可继承行列默认） */
+  getEffectiveStyle(addr: CellAddress): CellStyle | undefined
 
   // ─── 写入（全部经命令系统，可 undo） ───────────────────────
   setCellValue(addr: CellAddress, value: CellValue): void
@@ -105,6 +128,15 @@ export interface SheetContext {
   onImageChange(handler: (payload: { id?: string }) => void): () => void
 }
 
+/** createSheetContext 可选配置 */
+export interface SheetContextOptions {
+  /**
+   * 当前渲染网格尺寸（与 SheetGrid / resolveRenderSize 一致）。
+   * applyStyle / clearStyle 用其判定整行/整列；缺省时不走行列默认样式。
+   */
+  resolveGridSize?: () => { rows: number; cols: number }
+}
+
 /**
  * 创建工具上下文。
  * @param resolveSheet 活动 sheet 解析器（USheet 传 `() => activeSheet`，
@@ -113,14 +145,21 @@ export interface SheetContext {
  *   支持传解析函数 `() => Workbook`——USheet 在 props.workbook 动态切换后，
  *   上下文始终解析到**当前**工作簿（#2：旧实现取构造时值快照，宿主切换
  *   workbook prop 后导出工具仍导出旧工作簿）
+ * @param options.resolveGridSize 渲染尺寸解析器（整行/整列样式路由）
  */
 export function createSheetContext(
   resolveSheet: Sheet | (() => Sheet),
-  workbook?: Workbook | (() => Workbook)
+  workbook?: Workbook | (() => Workbook),
+  options?: SheetContextOptions
 ): SheetContext {
   const sheet = typeof resolveSheet === 'function' ? resolveSheet : () => resolveSheet
   const resolveWorkbook =
     typeof workbook === 'function' ? workbook : workbook != null ? () => workbook : undefined
+  const resolveGridSize = options?.resolveGridSize
+  const resolveTarget = (range: CellRange) => {
+    const size = resolveGridSize?.()
+    return size ? classifySelectionStyleTarget(range, size.rows, size.cols) : 'cell'
+  }
   return {
     get workbook() {
       return resolveWorkbook?.()
@@ -143,9 +182,33 @@ export function createSheetContext(
     mergeCells: (range) => sheet().mergeCells(range),
     unmergeCells: (range) => sheet().unmergeCells(range),
 
+    applyStyle: (range, partial) => {
+      const target = resolveTarget(range)
+      if (target === 'row' || target === 'col') {
+        const items = axisStyleItemsForRange(range, target, { partial })
+        if (items.length === 0) return
+        sheet().executeCommand('sheet.command.set-axis-style', { axis: target, items })
+        return
+      }
+      sheet().setCellStyle(range, partial)
+    },
+    resolveStyleTarget: (range) => resolveTarget(range),
+    clearStyle: (range) => {
+      const target = resolveTarget(range)
+      if (target === 'row' || target === 'col') {
+        const items = axisStyleItemsForRange(range, target, { clear: true })
+        if (items.length === 0) return
+        sheet().executeCommand('sheet.command.set-axis-style', { axis: target, items })
+        return
+      }
+      sheet().clearCellStyle(range)
+    },
     setCellStyle: (range, partial) => sheet().setCellStyle(range, partial),
     clearCellStyle: (range) => sheet().clearCellStyle(range),
+    setRowStyle: (row, partial) => sheet().setRowStyle(row, partial),
+    setColStyle: (col, partial) => sheet().setColStyle(col, partial),
     getCellStyle: (addr) => sheet().getCellStyle(addr),
+    getEffectiveStyle: (addr) => sheet().getEffectiveStyle(addr),
     executeCommand: <R = void>(commandId: string, params: unknown): R | undefined =>
       sheet().executeCommand<R>(commandId, params),
 

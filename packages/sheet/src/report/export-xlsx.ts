@@ -3,7 +3,7 @@ import { rangeToHucre, styleToHucre } from '@veltra/sheet-core/core/io/export'
 import type { Cell, CellValue, ColumnDef, RowDef, WriteSheet } from 'hucre'
 import { writeXlsx } from 'hucre/xlsx'
 
-/** 列宽条目：模型列索引 → 像素宽（sheet-core 列宽未进 SheetSnapshot，导出时由调用方显式传入） */
+/** 列宽条目：模型列索引 → 像素宽（与 SheetSnapshot.colWidths 同构） */
 export type ReportColWidthEntry = readonly [number, number]
 
 /** 像素 → Excel points */
@@ -30,14 +30,11 @@ export function buildColumnDefs(colWidths: ReadonlyArray<ReportColWidthEntry>): 
 /**
  * 将已填充的 Sheet（Filled Report）导出为保真 XLSX（合并 / 样式 / 行高 / 列宽）。
  * 条件样式颜色已在 renderReport 展开阶段打平进 StylePool（ADR-0001 决策 2）。
- *
- * 与 `exportWorkbookXlsx`（sheet-core）的差异：列宽未进 SheetSnapshot，
- * 只能经 VTable 运行时读取，故这里接收显式列宽并写入 columns 定义。
+ * 列宽取自 sheet 模型（`getColWidths`）。
  */
-export async function exportFilledReportXlsx(
-  sheet: Sheet,
-  colWidths: ReadonlyArray<ReportColWidthEntry>
-): Promise<Uint8Array> {
+export async function exportFilledReportXlsx(sheet: Sheet): Promise<Uint8Array> {
+  const widths: ReportColWidthEntry[] = [...sheet.getColWidths()]
+
   let maxRow = -1
   let maxCol = -1
   for (const [addr] of sheet.store.entries()) {
@@ -47,7 +44,7 @@ export async function exportFilledReportXlsx(
   for (const [row] of sheet.getRowHeights()) {
     if (row > maxRow) maxRow = row
   }
-  for (const [col] of colWidths) {
+  for (const [col] of widths) {
     if (col > maxCol) maxCol = col
   }
 
@@ -63,10 +60,8 @@ export async function exportFilledReportXlsx(
     const row = rows[addr.row]!
     const key = `${addr.row},${addr.col}`
     const cell: Partial<Cell> = {}
-    if (data.s != null) {
-      const style = sheet.stylePool.get(data.s)
-      if (style) cell.style = styleToHucre(style)
-    }
+    const style = sheet.getEffectiveStyle(addr)
+    if (style) cell.style = styleToHucre(style)
     if (data.f != null && data.f !== '') {
       cell.formula = data.f
       if (data.v != null) cell.formulaResult = data.v as CellValue
@@ -100,7 +95,7 @@ export async function exportFilledReportXlsx(
     ...(sheet.merges.size > 0
       ? { merges: sheet.merges.getMerges().map((range) => rangeToHucre(range)) }
       : {}),
-    ...(colWidths.length > 0 ? { columns: buildColumnDefs(colWidths) } : {})
+    ...(widths.length > 0 ? { columns: buildColumnDefs(widths) } : {})
   }
 
   const frozen = sheet.frozen

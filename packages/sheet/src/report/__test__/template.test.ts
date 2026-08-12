@@ -105,6 +105,17 @@ describe('ReportTemplate version', () => {
     expect(template.version).toBe(REPORT_TEMPLATE_VERSION)
   })
 
+  it('createReportTemplate 继承 snapshot.colWidths', () => {
+    const sheet = new Sheet()
+    sheet.setColWidth(0, 120)
+    sheet.setColWidth(2, 90)
+    const template = createReportTemplate(sheet.snapshot(), [ORDERS_DATASET])
+    expect(template.colWidths).toEqual([
+      [0, 120],
+      [2, 90]
+    ])
+  })
+
   it('version 缺失时 assertCompatibleTemplateVersion 抛可读错误', () => {
     const sheet = new Sheet()
     const template = sheet.snapshot() as ReportTemplate

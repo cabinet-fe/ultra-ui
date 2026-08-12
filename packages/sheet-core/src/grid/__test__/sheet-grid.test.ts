@@ -188,6 +188,27 @@ describe('SheetGrid（happy-dom smoke）', () => {
     }
   })
 
+  it('列宽：RESIZE_COLUMN_END 写入 Sheet，重建后还原', () => {
+    const container = createContainer()
+    const sheet = new Sheet()
+    let grid = new SheetGrid({ container, sheet, rows: 20, cols: 6 })
+    try {
+      grid
+        .getTable()
+        .fireListeners(ListTable.EVENT_TYPE.RESIZE_COLUMN_END, {
+          col: 2,
+          colWidths: [46, 80, 140, 80, 80, 80]
+        })
+      expect(sheet.getColWidth(1)).toBe(140)
+
+      grid.release()
+      grid = new SheetGrid({ container, sheet, rows: 20, cols: 6 })
+      expect(grid.getTable().getColWidth(2)).toBe(140)
+    } finally {
+      grid.release()
+    }
+  })
+
   it('填充柄：DRAG_FILL_HANDLE_END 数字序列写入模型', () => {
     const { sheet, grid, table } = createGrid()
     try {
@@ -593,6 +614,32 @@ describe('SheetGrid（happy-dom smoke）', () => {
       expect(sheet.cols).toBeGreaterThanOrEqual(15)
     } finally {
       grid.release()
+    }
+  })
+
+  it('删行后以模型尺寸重建：不被更大的 options.rows 撑回', () => {
+    const sheet = new Sheet()
+    const first = new SheetGrid({ container: createContainer(), sheet, rows: 10, cols: 6 })
+    first.release()
+    expect(sheet.rows).toBe(10)
+
+    sheet.deleteRows(0, 2)
+    expect(sheet.rows).toBe(8)
+
+    // 模拟错误传入旧 props（10）：ensureTableSize 会扩张，故调用方须传模型尺寸。
+    // 正确路径：传入 sheet.rows，重建后行数保持删除结果。
+    const second = new SheetGrid({
+      container: createContainer(),
+      sheet,
+      rows: sheet.rows,
+      cols: sheet.cols
+    })
+    try {
+      expect(sheet.rows).toBe(8)
+      // 列头 1 行 + 8 body
+      expect(second.getTable().rowCount).toBe(9)
+    } finally {
+      second.release()
     }
   })
 

@@ -39,14 +39,20 @@ export function wholeColRange(col: number, rowCount: number): CellRange {
   return createRange({ row: 0, col }, { row: Math.max(rowCount - 1, 0), col })
 }
 
-/** 渲染尺寸 = max(props, sheet.rows/cols)，与 SheetGrid 一致 */
+/**
+ * 渲染尺寸：模型已声明时以模型为准（删行可低于 props）；未声明时回落 props。
+ * 与 SheetGrid / useSheetGrid 一致——避免 ensureTableSize(props) 把删行结果撑回。
+ */
 export function resolveRenderSize(
   propsRows: number | undefined,
   propsCols: number | undefined,
   sheetRows: number,
   sheetCols: number
 ): { rows: number; cols: number } {
-  return { rows: Math.max(propsRows ?? 100, sheetRows), cols: Math.max(propsCols ?? 26, sheetCols) }
+  return {
+    rows: sheetRows > 0 ? sheetRows : (propsRows ?? 100),
+    cols: sheetCols > 0 ? sheetCols : (propsCols ?? 26)
+  }
 }
 
 function insertCountRender(options: {

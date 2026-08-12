@@ -42,7 +42,7 @@ import { exportFilledReportXlsx } from '../../report/export-xlsx'
 import type { ReportViewerProps, _ReportViewerExposed } from '../../types'
 import type { SheetExposed } from '../../types'
 import { USheet } from '../sheet'
-import { applyGridColWidths, readGridColWidths } from './designer/col-widths'
+import { applyGridColWidths, applySheetColWidths } from './designer/col-widths'
 import UReportFilterBar from './filter-bar.vue'
 import { useReportViewer } from './use-report-viewer'
 
@@ -83,18 +83,16 @@ const effectiveColWidths = computed(() => {
   return props.template.colWidths
 })
 
-function exportColIndexes(): number[] {
-  return Array.from({ length: renderCols.value }, (_, col) => col)
-}
-
-/** 将运行时列宽写入 VTable（sheet-core 列宽未进 SheetSnapshot） */
+/** 将运行时列宽写入模型与 VTable（模型为单一事实源；grid 构造/content-reset 也会回放） */
 function applyRuntimeColWidths(): void {
   if (!effectiveColWidths.value?.length) return
+  const sheet = workbook.value.activeSheet
+  applySheetColWidths(sheet, effectiveColWidths.value)
   applyGridColWidths(sheetRef.value?.getGrid(), effectiveColWidths.value)
 }
 
 /**
- * restore 负责尺寸/冻结/行高/选区（静默），restoreContent 发 content-reset
+ * restore 负责尺寸/冻结/行高/列宽/选区（静默），restoreContent 发 content-reset
  * 触发网格全量刷新（grid 层订阅直刷，无需手动 flush）；history.clear 使填充不进 undo
  */
 function applySnapshot(snapshot: SheetSnapshot): void {
@@ -121,8 +119,7 @@ async function exportXlsx(): Promise<void> {
   }
 
   const sheet = workbook.value.activeSheet
-  const colWidths = readGridColWidths(sheetRef.value?.getGrid(), exportColIndexes()) ?? []
-  const buffer = await exportFilledReportXlsx(sheet, colWidths)
+  const buffer = await exportFilledReportXlsx(sheet)
   saveBlob(
     new Blob([buffer as unknown as BlobPart], {
       type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'

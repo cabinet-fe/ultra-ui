@@ -42,7 +42,8 @@ import { Workbook } from '../workbook'
  *   模型 5 种，颜色缺省黑，theme 色经工作簿主题调色板解析；font/alignment 映射见
  *   hucreStyleToModel）
  * - 合并：MergeRange（0-based 闭区间）→ mergeCells（相交自动包围盒）
- * - 冻结：freezePane → setFrozen；行高：points → 像素（×4/3 取整）
+ * - 冻结：freezePane → setFrozen；行高：points → 像素（×4/3 取整）；
+ *   列宽：字符宽 → 像素（×7+5，与 export pxToExcelColWidth 对称）
  * - 图片：source.images → insertImage（剥离后生成模型 id；纳入同事务 = 单 undo 单元）；
  *   cellImages（WPS 内嵌图）本期跳过
  * - CSV：parseCsv（typeInference 开，前导零保留）→ 从 A1 覆盖写入既有活动表
@@ -397,7 +398,7 @@ function applyHucreSheet(
     target.rollback()
     throw error
   }
-  // 冻结与行高：模型状态，不进 undo（行高定义的行计入尺寸）
+  // 冻结与行高/列宽：模型状态，不进 undo（定义的行/列计入尺寸）
   target.setFrozen(source.freezePane?.rows ?? 0, source.freezePane?.columns ?? 0)
   if (source.rowDefs) {
     for (const [row, def] of source.rowDefs) {
@@ -405,7 +406,17 @@ function applyHucreSheet(
       if (row > maxUsedRow) maxUsedRow = row
     }
   }
-  // 渲染尺寸 = 实际使用范围（有值格 ∪ 合并 ∪ 行高定义 ∪ 图片锚点），不进 undo。
+  if (source.columns) {
+    for (let col = 0; col < source.columns.length; col++) {
+      const def = source.columns[col]
+      if (def?.width) {
+        // 字符宽 → px（与 export pxToExcelColWidth 对称）
+        target.setColWidth(col, Math.round(def.width * 7 + 5))
+        if (col > maxUsedCol) maxUsedCol = col
+      }
+    }
+  }
+  // 渲染尺寸 = 实际使用范围（有值格 ∪ 合并 ∪ 行高/列宽定义 ∪ 图片锚点），不进 undo。
   // 不做「稠密行数组几何扩张」：XML 里空格式行/列（如 16384 列宽行）会让
   // VTable 构造超大表格（实测附表33-2 16384 列 × 13328 行重建 ~15s）。
   target.ensureTableSize(Math.max(1, maxUsedRow + 1), Math.max(1, maxUsedCol + 1))
@@ -421,7 +432,7 @@ function uniqueName(name: string, used: Set<string>): string {
 }
 
 /**
- * 从 XLSX 字节导入为新工作簿（多 sheet：值 / 公式 / 合并 / 样式（样式池去重）/ 冻结 / 行高 / 浮动图）。
+ * 从 XLSX 字节导入为新工作簿（多 sheet：值 / 公式 / 合并 / 样式（样式池去重）/ 冻结 / 行高 / 列宽 / 浮动图）。
  * 每个 sheet 的数据写入 = 单 undo 单元（在其自身历史栈上）。
  */
 export async function importXlsx(buffer: ArrayBuffer | Uint8Array): Promise<Workbook> {
@@ -520,24 +531,31 @@ export function importCsv(text: string, sheet: Sheet): void {
  * 快照整表替换（P0 优化）：不逐格 setCells——导入执行期间不发逐格
  * cell-change（避免主线程十万级视图同步白干）；数据只搬一次（源快照直接
  * restore 进目标，不再经「restore 重建 → copySheetContent 逐格拷贝」三拷贝）。
- * 行高不在快照字段内，单独随条目传输（快照数组路径不传 → 保持现状行为）。
+ * 行高/列宽已在 SheetSnapshot 字段内；亦可经 SheetReplaceItem 显式传入覆盖。
  */
 export function replaceWorkbook(target: Workbook, source: Workbook): void {
   replaceWorkbookWithSnapshots(
     target,
     source
       .getSheets()
-      .map((s) => ({ name: s.name, snapshot: s.snapshot(), rowHeights: s.getRowHeights() })),
+      .map((s) => ({
+        name: s.name,
+        snapshot: s.snapshot(),
+        rowHeights: s.getRowHeights(),
+        colWidths: s.getColWidths()
+      })),
     source.activeSheetIndex
   )
 }
 
-/** 快照替换条目（行高不在 SheetSnapshot 字段内，单独随条目传输） */
+/** 快照替换条目（行高/列宽不进 restoreContent，单独随条目传输） */
 export interface SheetReplaceItem {
   name: string
   snapshot: SheetSnapshot
   /** 行高（不进 undo；快照数组路径不传 → 目标行高保持现状） */
   rowHeights?: ReadonlyMap<number, number>
+  /** 列宽（不进 undo；快照数组路径不传 → 目标列宽保持现状） */
+  colWidths?: ReadonlyMap<number, number>
 }
 
 /**
@@ -600,10 +618,8 @@ const EMPTY_SHEET_SNAPSHOT: SheetSnapshot = {
 
 /**
  * 单个 sheet 的快照整表替换（RestoreSheetCommand，事务保护 = 单 undo 单元）。
- * 替换 cells/styles/merges（+ 公式图重建）；行高随条目应用（不进 undo）；
- * 选区对齐快照（导入默认 A1——hucre 不解析 OOXML selection；不复制则替换后
- * 残留目标旧选区，与「导入默认 A1」不符）。选区写入不进 undo（同
- * copySheetContent 先例）。
+ * 替换 cells/styles/merges/rowStyles/colStyles（+ 公式图重建）；
+ * 行高/列宽随条目应用（不进 undo）；选区对齐快照。
  */
 function replaceSheetFromSnapshot(sheet: Sheet, item: SheetReplaceItem): void {
   const { snapshot } = item
@@ -618,6 +634,13 @@ function replaceSheetFromSnapshot(sheet: Sheet, item: SheetReplaceItem): void {
   }
   if (item.rowHeights) {
     for (const [row, height] of item.rowHeights) sheet.setRowHeight(row, height)
+  } else if (snapshot.rowHeights) {
+    for (const [row, height] of snapshot.rowHeights) sheet.setRowHeight(row, height)
+  }
+  if (item.colWidths) {
+    for (const [col, width] of item.colWidths) sheet.setColWidth(col, width)
+  } else if (snapshot.colWidths) {
+    for (const [col, width] of snapshot.colWidths) sheet.setColWidth(col, width)
   }
   // 选区静默对齐快照（导入默认 A1——hucre 不解析 OOXML selection；不复制则替换后
   // 残留目标旧选区）。用 selection.restoreState 而非 selectCell/selectRange：
@@ -674,6 +697,15 @@ export function copySheetContent(target: Sheet, source: Sheet): void {
   }
   target.setFrozen(source.frozen.rows, source.frozen.cols)
   for (const [row, height] of source.getRowHeights()) target.setRowHeight(row, height)
+  for (const [col, width] of source.getColWidths()) target.setColWidth(col, width)
+  for (const [row, id] of source.getRowStyleIds()) {
+    const style = source.stylePool.get(id)
+    if (style) target.setRowStyle(row, style)
+  }
+  for (const [col, id] of source.getColStyleIds()) {
+    const style = source.stylePool.get(id)
+    if (style) target.setColStyle(col, style)
+  }
   // 按源表声明尺寸与数据高水位扩张（不进 undo）
   target.ensureTableSize(
     Math.max(source.rows, source.rowCount),

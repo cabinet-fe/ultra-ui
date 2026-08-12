@@ -26,7 +26,7 @@ const fillColor = ref('')
 // 打开时初始化为活动格当前填充色
 onMounted(() => {
   const active = props.context.getSelection().activeCell
-  const style = active ? props.context.getCellStyle(active) : undefined
+  const style = active ? props.context.getEffectiveStyle(active) : undefined
   fillColor.value = style?.fill?.color ?? ''
 })
 
@@ -34,6 +34,6 @@ onMounted(() => {
 function applyFillColor(color: string): void {
   const range = currentRange(props.context)
   if (!range) return
-  props.context.setCellStyle(range, color ? { fill: { color } } : { fill: {} })
+  props.context.applyStyle(range, color ? { fill: { color } } : { fill: {} })
 }
 </script>

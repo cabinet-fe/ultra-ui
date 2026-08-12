@@ -36,8 +36,9 @@ describe('sheet-context-menu helpers', () => {
     expect(isColInSelection(ranges, 6)).toBe(false)
   })
 
-  it('resolveRenderSize = max(props, sheet)', () => {
-    expect(resolveRenderSize(100, 26, 120, 10)).toEqual({ rows: 120, cols: 26 })
+  it('resolveRenderSize：模型已声明时以模型为准（可低于 props）', () => {
+    expect(resolveRenderSize(100, 26, 120, 10)).toEqual({ rows: 120, cols: 10 })
+    expect(resolveRenderSize(100, 26, 29, 26)).toEqual({ rows: 29, cols: 26 })
     expect(resolveRenderSize(undefined, undefined, 0, 0)).toEqual({ rows: 100, cols: 26 })
   })
 })

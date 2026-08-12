@@ -37,6 +37,10 @@ export class GridSelectionController {
   }
 
   bindTableEvents(getRows: () => number, getCols: () => number, isReadonly: boolean): void {
+    // VTable 列头拖选不对称：行号拖选实时扩整行，列头拖选会把 end.row 写成 header 行；
+    // 在 updateSelectPos 后补全整列，松手前与选行视觉一致。
+    this.patchColumnHeaderDragExpand()
+
     this.table.on(ListTable.EVENT_TYPE.SELECTED_CELL, (args) => {
       if (this.syncingSelection) return
       this.selectionIntercepted = false
@@ -98,22 +102,110 @@ export class GridSelectionController {
     }
   }
 
+  /**
+   * 补丁：列头拖选时 VTable 把 end.row 写成列头行（行号拖选则实时扩整行）。
+   * 在 updateSelectPos 入口把 row 改成末行，让 VTable 自己画整列边框——
+   * 不要在事后再调 updateCellSelectBorder（会清 selecting 组件导致拖选过程高亮消失）。
+   */
+  private patchColumnHeaderDragExpand(): void {
+    type SelectRange = { start: { col: number; row: number }; end: { col: number; row: number } }
+    const stateManager = (
+      this.table as unknown as {
+        stateManager?: {
+          updateSelectPos: (
+            col: number,
+            row: number,
+            enableShiftSelectMode?: boolean,
+            enableCtrlSelectMode?: boolean,
+            isSelectAll?: boolean,
+            makeSelectCellVisible?: boolean,
+            skipBodyMerge?: boolean
+          ) => void
+          interactionState?: string
+          select?: { ranges?: SelectRange[] }
+        }
+        eventManager?: { isDraging?: boolean }
+      }
+    ).stateManager
+    if (!stateManager?.updateSelectPos) return
+    const original = stateManager.updateSelectPos.bind(stateManager)
+    stateManager.updateSelectPos = (
+      col: number,
+      row: number,
+      enableShiftSelectMode?: boolean,
+      enableCtrlSelectMode?: boolean,
+      isSelectAll?: boolean,
+      makeSelectCellVisible?: boolean,
+      skipBodyMerge?: boolean
+    ) => {
+      if (!this.syncingSelection) {
+        const dragging =
+          stateManager.interactionState === 'grabing' ||
+          (this.table as unknown as { eventManager?: { isDraging?: boolean } }).eventManager
+            ?.isDraging === true
+        if (dragging) {
+          const range = stateManager.select?.ranges?.[stateManager.select.ranges.length - 1]
+          const { colOffset, rowOffset } = this.coords.getOffsets(this.table)
+          // 选区已含列头行且落点仍在列头：把 row 提到末行，避免 end 塌成仅表头
+          if (
+            range &&
+            Math.min(range.start.row, range.end.row) < rowOffset &&
+            Math.max(range.start.col, range.end.col) >= colOffset &&
+            row < rowOffset &&
+            col >= colOffset
+          ) {
+            row = this.table.rowCount - 1
+          }
+        }
+      }
+      original(
+        col,
+        row,
+        enableShiftSelectMode,
+        enableCtrlSelectMode,
+        isSelectAll,
+        makeSelectCellVisible,
+        skipBodyMerge
+      )
+    }
+  }
   pushSelectionToTable(state: SelectionState, rows: number, cols: number): void {
     const range =
       state.ranges[0] ??
       (state.activeCell ? { start: state.activeCell, end: state.activeCell } : null)
     if (!range) return
+    const { colOffset, rowOffset } = this.coords.getOffsets(this.table)
     const start = this.coords.toTableCoord(this.table, range.start)
     const end = this.coords.toTableCoord(this.table, range.end)
     const scrollAddr = state.activeCell ?? range.start
     const scrollTarget = this.coords.toTableCoord(this.table, scrollAddr)
+    // 整行/整列：把选区扩到行号列（col 0）/ 列头行（row 0），否则 VTable 不高亮表头
+    const spansAllCols = range.start.col === 0 && range.end.col >= cols - 1
+    const spansAllRows = range.start.row === 0 && range.end.row >= rows - 1
+    const minCol = spansAllCols ? 0 : colOffset
+    const minRow = spansAllRows ? 0 : rowOffset
+    const maxCol = colOffset + cols - 1
+    const maxRow = rowOffset + rows - 1
     const clamp = (v: { col: number; row: number }): { col: number; row: number } => ({
-      col: Math.min(Math.max(v.col, 1), cols),
-      row: Math.min(Math.max(v.row, 1), rows)
+      col: Math.min(Math.max(v.col, minCol), maxCol),
+      row: Math.min(Math.max(v.row, minRow), maxRow)
+    })
+    // 滚动目标始终落在 body（表头格无内容锚点）
+    const clampBody = (v: { col: number; row: number }): { col: number; row: number } => ({
+      col: Math.min(Math.max(v.col, colOffset), maxCol),
+      row: Math.min(Math.max(v.row, rowOffset), maxRow)
     })
     const startClamped = clamp(start)
     const endClamped = clamp(end)
-    const scrollClamped = clamp(scrollTarget)
+    if (spansAllCols) {
+      startClamped.col = Math.min(startClamped.col, 0)
+      endClamped.col = Math.max(endClamped.col, maxCol)
+    }
+    if (spansAllRows) {
+      startClamped.row = Math.min(startClamped.row, 0)
+      endClamped.row = Math.max(endClamped.row, maxRow)
+    }
+    const scrollClamped = clampBody(scrollTarget)
     const eventManager = (this.table as unknown as { eventManager?: { isDraging: boolean } })
       .eventManager
     const wasDraging = eventManager?.isDraging === true
@@ -174,10 +266,17 @@ export class GridSelectionController {
     const maxCol = Math.max(range.start.col, range.end.col)
     const minRow = Math.min(range.start.row, range.end.row)
     const maxRow = Math.max(range.start.row, range.end.row)
+    // 仅列头行 / 仅行号列：VTable 拖选表头时常只覆盖 header 带，扩展为整列/整行
+    const headerOnlyCols = maxRow < rowOffset && maxCol >= colOffset
+    const headerOnlyRows = maxCol < colOffset && maxRow >= rowOffset
     const startCol = Math.max(minCol, colOffset)
     const startRow = Math.max(minRow, rowOffset)
-    const endCol = Math.max(maxCol, colOffset)
-    const endRow = Math.max(maxRow, rowOffset)
+    const endCol = headerOnlyRows
+      ? Math.max(this.table.colCount - 1, colOffset)
+      : Math.max(maxCol, colOffset)
+    const endRow = headerOnlyCols
+      ? Math.max(this.table.rowCount - 1, rowOffset)
+      : Math.max(maxRow, rowOffset)
     const start = this.coords.toSheetAddr(this.table, startCol, startRow)
     const end = this.coords.toSheetAddr(this.table, endCol, endRow)
     if (!start || !end) return null

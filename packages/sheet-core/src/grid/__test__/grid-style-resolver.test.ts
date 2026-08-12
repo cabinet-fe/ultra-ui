@@ -72,4 +72,16 @@ describe('GridStyleResolver.resolveCellStyle Hook', () => {
     expect(hook).toHaveBeenCalledOnce()
     expect(hook).toHaveBeenCalledWith(merged, { fill: { color: '#333333' } })
   })
+
+  it('空单元格仍可继承行列默认样式', () => {
+    const sheet = new Sheet()
+    const addr = { row: 2, col: 3 }
+    sheet.setColStyle(3, { font: { color: '#FF0000' } })
+    sheet.setRowStyle(2, { font: { bold: true } })
+
+    const resolver = new GridStyleResolver(sheet, 10, 10)
+    expect(resolver.getStoredStyle(addr)).toEqual({ font: { color: '#FF0000', bold: true } })
+    expect(resolver.getEffectiveStyle(addr)).toEqual({ font: { color: '#FF0000', bold: true } })
+    expect(sheet.getCellStyle(addr)).toBeUndefined()
+  })
 })

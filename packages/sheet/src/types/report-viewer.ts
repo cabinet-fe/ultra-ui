@@ -16,8 +16,8 @@ export interface ReportViewerProps {
   /** 承载填充报表的工作簿（USheet 先例：缺省内部自建单 sheet 工作簿） */
   workbook?: Workbook
   /**
-   * 列宽（sheet-core 列宽未进 SheetSnapshot）：载入填充结果后写入 VTable 运行时，
-   * 供 `exportXlsx()` 读取保真列宽（设计器预览态传入设计态捕获值）
+   * 列宽显式覆盖（可选）：优先于模板 `colWidths` / 展开映射结果写入模型与网格。
+   * 列宽已进 `SheetSnapshot.colWidths`，通常无需再传。
    */
   colWidths?: ReadonlyArray<ReportColWidthEntry>
 }

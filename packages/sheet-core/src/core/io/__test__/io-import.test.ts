@@ -455,18 +455,18 @@ describe('copySheetContent / replaceWorkbook', () => {
     expect(target.getSheet('B')!.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'b1' })
     expect(target.getSheet('C')!.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'c1' })
     expect(target.activeSheet.name).toBe('C')
-    // 冻结还原到目标 sheet（模型状态，随替换写入）；快照数组不传行高 → 目标行高保持现状
+    // 冻结 / 行高随快照写入（模型状态，不进 undo）；rowHeights 已在 SheetSnapshot 内
     expect(target.getSheet('Sheet1')!.frozen).toEqual({ rows: 1, cols: 0 })
-    expect(target.getSheet('Sheet1')!.getRowHeight(4)).toBeUndefined()
+    expect(target.getSheet('Sheet1')!.getRowHeight(4)).toBe(66)
     expect(target.getSheet('Old2')).toBeUndefined()
 
     // 每个 sheet 内容替换 = 单 undo 单元（第一个 sheet 的替换可 undo）
     expect(target.getSheet('Sheet1')!.undo()).toBe(true)
     expect(target.getSheet('Sheet1')!.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'old1' })
-    // 选区 / 冻结不进 undo；行高未传输（快照数组路径不携带行高）
+    // 选区 / 冻结 / 行高不进 undo（undo 内容后仍保留替换后状态）
     expect(target.getSheet('Sheet1')!.getSelection().activeCell).toEqual({ row: 0, col: 0 })
     expect(target.getSheet('Sheet1')!.frozen).toEqual({ rows: 1, cols: 0 })
-    expect(target.getSheet('Sheet1')!.getRowHeight(4)).toBeUndefined()
+    expect(target.getSheet('Sheet1')!.getRowHeight(4)).toBe(66)
   })
 
   it('replaceWorkbookWithSnapshots：空快照数组保留单个空 sheet', () => {

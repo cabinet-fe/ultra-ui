@@ -183,10 +183,11 @@ export class GridStyleResolver {
     return effectiveStyle?.border?.[side]
   }
 
-  /** 读取格静态基础样式（合并格读锚点；无样式 → undefined）；渲染热路径走 peek（#11） */
+  /**
+   * 读取格静态基础样式（列 → 行 → 格叠加；合并格读锚点；无样式 → undefined）。
+   * 空单元格无 `s` 时仍可继承行列默认样式。渲染热路径走 peek（#11）。
+   */
   getStoredStyle(addr: CellAddress): CellStyle | undefined {
-    const anchor = this.sheet.merges.resolveAnchor(addr)
-    const data = this.sheet.store.peekCell(anchor)
-    return data?.s != null ? this.sheet.stylePool.peek(data.s) : undefined
+    return this.sheet.getEffectiveStyle(addr)
   }
 }

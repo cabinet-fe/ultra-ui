@@ -42,8 +42,8 @@ src/
 - **空单元格不占存储**：无公式且 `v` 为空即删除；`rowCount`/`colCount` 只是渲染高水位。
 - **合并**：锚点 = 区域左上角，数据只存锚点；`MergeManager` 只管几何，值保留规则在 `Sheet.mergeCells`。
 - **两种读取**：`getCellData` = 原始存储（被覆盖格 → undefined）；`getDisplayValue` = 锚点解析。写入/选中内部先 `resolveAnchor`。
-- **不进 undo**：选区、冻结、行高。选区可随 `SheetSnapshot.selection?` 序列化；冻结随快照；行高随 `SheetSnapshot.rowHeights?`；列宽未持久化。
-- **样式**：`CellData.s: StyleId` → `StylePool` 按内容去重；部分合并见 `CellStylePatch`（fill 覆盖、border 边级、font/align 逐字段；`null` 删字段）。边框预设经 `buildBorderPresetItems`（`outer`/`inner`/`all`/`top`/`bottom`/`left`/`right`/`none` → 外边框/内边框/所有边框/上/下/左/右边框 + 无边框；含邻居对侧边同步）。
+- **不进 undo**：选区、冻结、行高、列宽。选区可随 `SheetSnapshot.selection?` 序列化；冻结随快照；行高随 `SheetSnapshot.rowHeights?`；列宽随 `SheetSnapshot.colWidths?`。
+- **样式**：`CellData.s: StyleId` → StylePool 按内容去重；行/列默认样式 `SheetSnapshot.rowStyles?` / `colStyles?`（同池 StyleId，进 undo，经 `setRowStyle` / `setColStyle`）；有效样式 = 列 → 行 → 格字段级叠加（`composeCellStyles` / `Sheet.getEffectiveStyle`）。部分合并见 `CellStylePatch`（fill 覆盖、border 边级、font/align 逐字段；`null` 删字段）。边框预设经 `buildBorderPresetItems`（`outer`/`inner`/`all`/`top`/`bottom`/`left`/`right`/`none` → 外边框/内边框/所有边框/上/下/左/右边框 + 无边框；含邻居对侧边同步）。
 - **公式**：`f` 原文（无 `=`），`v`/`t` 为缓存；重算派生补丁并入同一 undo 单元；undo/redo 纯补丁回放。跨表依赖图在 `Workbook` 级共享。
 - **浮动图片**：`SheetImage`（`id` + `Uint8Array` 字节 + `type` + `anchor.from`/`to?` + 可选宽高/alt/title；`from` 可带格内像素偏移 `offsetX/offsetY`，缺省 0）；写入经 `insertImage` / `removeImage` / `updateImage`（命令 `sheet.insert-image` / `sheet.remove-image` / `sheet.update-image`，`ImagePatch`）；快照字段 `SheetSnapshot.images?`；`restoreContent` 整表替换图片并发 `image-change`。行列插入/删除时锚点平移（offset 随 from 格保留）；锚点区间被完整删除时图片移除（同 undo 单元）。格式：`png` / `jpeg` / `gif` / `svg` / `webp`（与 hucre 对齐）。
 - 注：`Sheet.setCell` / `setCellStyles` / `CellStore.setCellValue` 为内部便捷写入口（生产零调用、测试直用），非公开承诺 API——包入口不单独导出，宿主请用 `setCells` / `setCellStyle`。
@@ -86,7 +86,7 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 
 - 主入口白名单：`exportWorkbookXlsx` / `exportSheetCsv` / `importXlsx` / `importCsv` / `replaceWorkbook`（内部走快照整表替换）。worker 链路入口 `buildWorkbookFromHucre` / `replaceWorkbookWithSnapshots` 不在白名单，消费方深导入 `@veltra/sheet-core/core/io/import`。
 - **IO 保真度约定**：导入迭代 hucre 稠密 `rows` 时先跳过空槽；表格尺寸按有值格收敛，勿用稠密几何撑到 Excel 极限列数；补漏遍历先解析行号、带外直接跳过。
-- **快照整表替换**：`RestoreSheetCommand`（`sheet.restore-sheet`）+ `SnapshotPatch`——导入替换与 undo/redo 回放走整表 `restoreContent`（cells/styles/merges/images + 公式图 `rebuildSheet` 重建），不发逐格 cell-change（避免十万级视图同步），发 `content-reset` 事件（grid `setRecords` 一次、状态源 bump）+ `image-change`；冻结/行高/尺寸/选区不进 undo；跨表引用方经 recalcAfterCommand 联动（含被清空的旧格标脏）。
+- **快照整表替换**：`RestoreSheetCommand`（`sheet.restore-sheet`）+ `SnapshotPatch`——导入替换与 undo/redo 回放走整表 `restoreContent`（cells/styles/merges/images/rowStyles/colStyles + 公式图 `rebuildSheet` 重建），不发逐格 cell-change（避免十万级视图同步），发 `content-reset` 事件（grid `setRecords` 一次、状态源 bump）+ `image-change`；冻结/行高/列宽/尺寸/选区不进 undo；跨表引用方经 recalcAfterCommand 联动（含被清空的旧格标脏）。
 - **批量**：`Workbook.beginBatch/endBatch` 合并结构事件补发（196 sheet 导入的 195 次 `sheets-change` 收敛为 1 次）；`Sheet.mergeCellsBatch` 批量合并 = 单 undo 单元（批量内相交边收集边应用与逐条语义一致）；样式导入按 hucre 共享子对象引用组合 key memo 跳过重复解析/intern。
 - **分片构建**：`buildWorkbookFromHucre` 按 10% 粒度经回调回报进度（供 worker 链路驱动进度 UI）。
 - hucre 1.0 起 `writeXlsx` 校验 sheet 名（Excel 非法字符 `[ ] : * ? / \`、>31 字符、保留名 History、大小写不敏感重名）抛 `InvalidArgumentError`；模型层不限制表名，导出失败由调用方 UI 提示。流式 API（`streamXlsxRows` / `writeXlsxStream`）不支持样式/合并/公式，与导入导出的保真需求不匹配，不采用。
@@ -110,7 +110,7 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 - 替换 = 整格覆盖（非 Excel 子串）；公式格不参与替换。
 - 浮动图片：定位渲染、拖动平移锚点（含格内像素偏移 `offsetX/offsetY`，自由定位不吸附）、删除；无缩放/旋转；无剪贴板复制粘贴图；无单元格内嵌图（WPS `cellImages` / `DISPIMG`）导入转换；CSV 不携带图片。
 - xlsx round-trip 丢失格内像素偏移（hucre 不支持 colOff/rowOff）：导入后图片对齐 from 格左上角（`offsetX/offsetY` 不随 xlsx 导入导出保留）。
-- 未做：字体族、数字格式、图表、协同、列宽持久化、双击填充柄。
+- 未做：字体族、数字格式、图表、协同、双击填充柄；xlsx 空格仅继承行列默认样式的 Excel 原生 round-trip（需 hucre 读 `<row s>` / `<col style>` 或导出 fan-out 物化）。
 
 ## 已知问题
 

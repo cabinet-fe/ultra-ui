@@ -11,6 +11,14 @@ import type { GridStyleResolver } from './grid-style-resolver'
 
 export const BATCH_FULL_REBUILD_THRESHOLD = 64
 
+/** 按模型稀疏列宽回放至 VTable（构造 / content-reset / 激活时） */
+export function applyColWidthsFromModel(table: ListTable, sheet: Sheet, coords: GridCoords): void {
+  for (const [col, width] of sheet.getColWidths()) {
+    const tableCol = coords.toTableCoord(table, { row: 0, col }).col
+    table.setColWidth(tableCol, width)
+  }
+}
+
 export interface BindTableSyncOptions {
   table: ListTable
   sheet: Sheet
@@ -118,13 +126,15 @@ export class GridSyncManager {
     syncWrapRowHeight: (r: number) => void,
     applyFrozen: () => void,
     pushSelection: () => void,
-    setImageVisible: (v: boolean) => void
+    setImageVisible: (v: boolean) => void,
+    applyColWidths?: () => void
   ): void {
     if (this.released) return
     this.visible = true
     setImageVisible(true)
     applyFrozen()
     pushSelection()
+    applyColWidths?.()
     this.flushPendingBatch(true, refresh, syncWrapRowHeight)
     if (this.mergeDirty) {
       this.mergeDirty = false
@@ -268,6 +278,8 @@ export class GridSyncManager {
         const col = args.col
         const addr = coords.toSheetAddr(table, col, coords.getOffsets(table).rowOffset)
         if (!addr) return
+        const width = args.colWidths?.[col] ?? table.getColWidth(col)
+        sheet.setColWidth(addr.col, width)
         for (const row of sheet.store.rowsForColumn(addr.col)) {
           rowHeightEngine.syncWrapRowHeight(row, table, coords, styleResolver)
         }
@@ -346,7 +358,23 @@ export class GridSyncManager {
       })
     )
 
-    disposers.push(sheet.on('content-reset', () => refresh()))
+    disposers.push(
+      sheet.on('content-reset', () => {
+        refresh()
+        applyColWidthsFromModel(table, sheet, coords)
+      })
+    )
+
+    disposers.push(
+      sheet.on('axis-style-change', () => {
+        if (this.released) return
+        if (!this.visible) {
+          this.mergeDirty = true
+          return
+        }
+        refresh()
+      })
+    )
 
     disposers.push(
       sheet.on('meta-change', ({ addr }) => {

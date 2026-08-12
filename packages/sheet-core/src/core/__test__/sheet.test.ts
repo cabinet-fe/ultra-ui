@@ -174,3 +174,84 @@ describe('Sheet 快照行高', () => {
     expect(sheet.snapshot().rowHeights).toBeUndefined()
   })
 })
+
+describe('Sheet 快照列宽与行列样式', () => {
+  it('snapshot/restore 保留 colWidths / rowStyles / colStyles', () => {
+    const sheet = new Sheet()
+    sheet.setColWidth(1, 120)
+    sheet.setColWidth(3, 90)
+    sheet.setRowStyle(2, { font: { color: '#FF0000' } })
+    sheet.setColStyle(1, { fill: { color: '#EEEEEE' } })
+
+    const restored = new Sheet()
+    restored.restore(JSON.parse(JSON.stringify(sheet.snapshot())) as SheetSnapshot)
+    expect([...restored.getColWidths()]).toEqual([
+      [1, 120],
+      [3, 90]
+    ])
+    expect(restored.getRowStyle(2)).toEqual({ font: { color: '#FF0000' } })
+    expect(restored.getColStyle(1)).toEqual({ fill: { color: '#EEEEEE' } })
+  })
+
+  it('旧快照缺字段 → 空 Map（向后兼容）', () => {
+    const sheet = new Sheet()
+    sheet.setColWidth(0, 100)
+    sheet.setRowStyle(0, { font: { bold: true } })
+    const legacy = sheet.snapshot() as SheetSnapshot
+    delete legacy.colWidths
+    delete legacy.rowStyles
+    delete legacy.colStyles
+
+    const restored = new Sheet()
+    restored.restore(legacy)
+    expect(restored.getColWidths().size).toBe(0)
+    expect(restored.getRowStyleIds().size).toBe(0)
+    expect(restored.getColStyleIds().size).toBe(0)
+  })
+
+  it('restoreContent 还原行列样式但不碰列宽', () => {
+    const sheet = new Sheet()
+    sheet.setColWidth(0, 100)
+    sheet.setRowStyle(0, { font: { color: '#111111' } })
+    const snap = sheet.snapshot()
+
+    const target = new Sheet()
+    target.setColWidth(2, 200)
+    target.restoreContent(snap)
+    expect(target.getColWidth(2)).toBe(200)
+    expect(target.getColWidth(0)).toBeUndefined()
+    expect(target.getRowStyle(0)).toEqual({ font: { color: '#111111' } })
+  })
+
+  it('getEffectiveStyle：空格继承行列样式；格样式字段级覆盖', () => {
+    const sheet = new Sheet()
+    sheet.setColStyle(0, { font: { color: '#FF0000', size: 14 } })
+    sheet.setRowStyle(0, { font: { bold: true } })
+    expect(sheet.getEffectiveStyle({ row: 0, col: 0 })).toEqual({
+      font: { color: '#FF0000', size: 14, bold: true }
+    })
+
+    sheet.setCellValue({ row: 0, col: 0 }, 'x')
+    sheet.setCellStyle(
+      { start: { row: 0, col: 0 }, end: { row: 0, col: 0 } },
+      { font: { color: '#0000FF' } }
+    )
+    expect(sheet.getEffectiveStyle({ row: 0, col: 0 })).toEqual({
+      font: { color: '#0000FF', size: 14, bold: true }
+    })
+  })
+
+  it('setRowStyle / setColStyle 进 undo', () => {
+    const sheet = new Sheet()
+    sheet.setRowStyle(1, { fill: { color: '#AA0000' } })
+    expect(sheet.getRowStyle(1)).toEqual({ fill: { color: '#AA0000' } })
+    expect(sheet.undo()).toBe(true)
+    expect(sheet.getRowStyle(1)).toBeUndefined()
+    expect(sheet.redo()).toBe(true)
+    expect(sheet.getRowStyle(1)).toEqual({ fill: { color: '#AA0000' } })
+
+    sheet.setColStyle(2, { font: { italic: true } })
+    expect(sheet.undo()).toBe(true)
+    expect(sheet.getColStyle(2)).toBeUndefined()
+  })
+})

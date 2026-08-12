@@ -9,7 +9,7 @@ function createSheet(name = 'Sheet1'): Sheet {
 }
 
 describe('Sheet 行插入', () => {
-  it('数据/公式引用/合并/行高整体平移 + 尺寸增长', () => {
+  it('数据/公式引用/合并/行高/行样式整体平移 + 尺寸增长', () => {
     const sheet = createSheet()
     sheet.setCellValue({ row: 0, col: 0 }, 'a')
     sheet.setCellValue({ row: 2, col: 0 }, 'b')
@@ -17,6 +17,7 @@ describe('Sheet 行插入', () => {
     sheet.setCellFormula({ row: 4, col: 1 }, '=SUM(A1:A3)')
     sheet.mergeCells(parseRange('B2:C3')!)
     sheet.setRowHeight(5, 40)
+    sheet.setRowStyle(5, { font: { color: '#FF0000' } })
     const events: string[] = []
     sheet.on('structure-change', (c) => events.push(c.kind))
 
@@ -27,6 +28,7 @@ describe('Sheet 行插入', () => {
     expect(sheet.getCellData({ row: 6, col: 1 })?.f).toBe('SUM(A1:A5)') // 区域扩展
     expect(sheet.merges.getMerges()).toEqual([parseRange('B2:C5')]) // 合并 row1-2 跨插入点 → 扩展
     expect(sheet.getRowHeight(7)).toBe(40) // 行高 row5 → 7
+    expect(sheet.getRowStyle(7)).toEqual({ font: { color: '#FF0000' } })
     expect(sheet.rows).toBe(4) // max(0, 2) + 2 = 4
     expect(sheet.cols).toBe(0)
     expect(events).toEqual(['insert-rows'])
@@ -139,19 +141,34 @@ describe('Sheet 行删除', () => {
 })
 
 describe('Sheet 列插入/删除', () => {
-  it('列插入：数据/公式/合并平移', () => {
+  it('列插入：数据/公式/合并/列宽/列样式平移', () => {
     const sheet = createSheet()
     sheet.setCellValue({ row: 0, col: 0 }, 'a')
     sheet.setCellValue({ row: 0, col: 2 }, 'b')
     sheet.setCellFormula({ row: 3, col: 3 }, '=A1+C1')
     sheet.mergeCells(parseRange('B2:D3')!)
+    sheet.setColWidth(2, 160)
+    sheet.setColStyle(2, { fill: { color: '#CCDDEE' } })
 
     sheet.insertCols(1, 2)
 
     expect(sheet.getCellData({ row: 0, col: 4 })?.v).toBe('b') // col2 → 4
     expect(sheet.getCellData({ row: 3, col: 5 })?.f).toBe('A1+E1') // C1 → E1
     expect(sheet.merges.getMerges()).toEqual([parseRange('D2:F3')]) // 合并 col1-3 在插入点 → 整体右移
+    expect(sheet.getColWidth(4)).toBe(160)
+    expect(sheet.getColStyle(4)).toEqual({ fill: { color: '#CCDDEE' } })
     expect(sheet.cols).toBe(3)
+  })
+
+  it('列删除：区间内列宽/样式裁剪，右侧左移', () => {
+    const sheet = createSheet()
+    sheet.setColWidth(1, 100)
+    sheet.setColWidth(3, 140)
+    sheet.setColStyle(3, { font: { bold: true } })
+    sheet.deleteCols(1, 1)
+    expect(sheet.getColWidth(1)).toBeUndefined()
+    expect(sheet.getColWidth(2)).toBe(140)
+    expect(sheet.getColStyle(2)).toEqual({ font: { bold: true } })
   })
 
   it('列删除：引用 broken + undo', () => {
@@ -168,6 +185,28 @@ describe('Sheet 列插入/删除', () => {
     sheet.undo()
     expect(sheet.getCellData({ row: 0, col: 3 })?.f).toBe('B1+C1')
     expect(sheet.getCellData({ row: 0, col: 3 })?.v).toBe(15)
+  })
+  it('列插入后行默认样式仍对空格生效（getEffectiveStyle）', () => {
+    const sheet = createSheet()
+    sheet.setRowStyle(0, { fill: { color: '#FFAA00' } })
+    expect(sheet.getEffectiveStyle({ row: 0, col: 5 })).toEqual({ fill: { color: '#FFAA00' } })
+
+    sheet.insertCols(1, 2)
+
+    // 行样式不随列平移；新列空格继承同一行填充
+    expect(sheet.getRowStyle(0)).toEqual({ fill: { color: '#FFAA00' } })
+    expect(sheet.getEffectiveStyle({ row: 0, col: 0 })).toEqual({ fill: { color: '#FFAA00' } })
+    expect(sheet.getEffectiveStyle({ row: 0, col: 1 })).toEqual({ fill: { color: '#FFAA00' } })
+    expect(sheet.getEffectiveStyle({ row: 0, col: 7 })).toEqual({ fill: { color: '#FFAA00' } })
+  })
+
+  it('行插入后列默认样式仍对空格生效（getEffectiveStyle）', () => {
+    const sheet = createSheet()
+    sheet.setColStyle(2, { font: { bold: true } })
+    sheet.insertRows(0, 1)
+    expect(sheet.getColStyle(2)).toEqual({ font: { bold: true } })
+    expect(sheet.getEffectiveStyle({ row: 0, col: 2 })).toEqual({ font: { bold: true } })
+    expect(sheet.getEffectiveStyle({ row: 5, col: 2 })).toEqual({ font: { bold: true } })
   })
 })
 
@@ -243,7 +282,7 @@ describe('视图声明尺寸（ensureTableSize）', () => {
     sheet.deleteRows(0, 1)
     expect(sheet.rows).toBe(30) // 删除后回 props 基准
     sheet.deleteRows(0, 1)
-    expect(sheet.rows).toBe(29) // 继续删除可低于 props（视图由 max(props, rows) 兜底）
+    expect(sheet.rows).toBe(29) // 继续删除可低于 props（视图以模型尺寸为准，不再被 props 撑回）
   })
 
   it('undo/redo 往返：尺寸精确还原到声明基准', () => {

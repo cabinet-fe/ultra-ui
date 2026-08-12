@@ -258,6 +258,24 @@ describe('USheet 组件', () => {
     expect(gridAfter).not.toBe(gridBefore)
   })
 
+  it('删除行后渲染行数跟随模型收缩（不被 props.rows 撑回）', async () => {
+    const workbook = createWorkbook()
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
+    await nextTick()
+
+    const sheet = exposed.value!.getActiveSheet()
+    expect(sheet.rows).toBe(10)
+    expect(exposed.value!.getGrid()!.getTable().rowCount).toBe(11) // 列头 + 10
+
+    sheet.deleteRows(0, 2)
+    await nextTick()
+    await nextTick()
+
+    expect(sheet.rows).toBe(8)
+    expect(exposed.value!.getGrid()!.getTable().rowCount).toBe(9) // 列头 + 8
+  })
+
   it('resolveCellStyle prop 传入 SheetGrid 视口渲染', async () => {
     const workbook = createWorkbook()
     const sheet = workbook.activeSheet

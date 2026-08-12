@@ -25,6 +25,7 @@ import {
   MergeCellsCommand,
   UnmergeCellsCommand
 } from './command/merge-cells'
+import { SetAxisStyleCommand } from './command/set-axis-style'
 import { SetCellFormulaCommand } from './command/set-cell-formula'
 import { SetCellStyleCommand, type SetCellStyleItem } from './command/set-cell-style'
 import { SetCellValueCommand, type SetCellValueItem } from './command/set-cell-value'
@@ -42,8 +43,9 @@ import { shiftFormulaText } from './formula/shift'
 import { cloneSheetImage, imageAnchorsEqual, type ImageInput, type SheetImage } from './image'
 import { MergeManager, type CellInfo } from './merge-manager'
 import { SelectionModel, type SelectionState } from './selection'
+import { composeCellStyles } from './style/compose'
 import { StylePool } from './style/style-pool'
-import type { CellStyle, CellStylePatch } from './style/types'
+import type { CellStyle, CellStylePatch, StyleId } from './style/types'
 
 /**
  * Sheet = cell-store + merge-manager + selection + history 的组合，统一操作入口。
@@ -82,16 +84,27 @@ export interface SheetSnapshot {
    */
   selection?: { activeCell: CellAddress; ranges: CellRange[] }
   /**
-   * 自定义行高（可选，向后兼容）：[行号, 像素] 元组。
-   * 旧快照缺省 → 无自定义行高（与此前版本行为一致）。
+   * 自定义行高：[行号, 像素] 元组。
    */
   rowHeights?: [number, number][]
   /**
-   * 浮动图片（可选，向后兼容）。旧快照缺省 → 无图片。
+   * 自定义列宽：[列号, 像素] 元组（对称 rowHeights；不进 undo）。
+   */
+  colWidths?: [number, number][]
+  /**
+   * 行默认样式：[行号, StyleId]，引用同一 styles 池。
+   */
+  rowStyles?: [number, StyleId][]
+  /**
+   * 列默认样式：[列号, StyleId]，引用同一 styles 池。
+   */
+  colStyles?: [number, StyleId][]
+  /**
+   * 浮动图片
    */
   images?: SheetImage[]
   /**
-   * Cell Meta 侧车数据（可选，向后兼容）。旧快照缺省 → 无 meta。
+   * Cell Meta 侧车数据
    */
   meta?: CellMetaSnapshotItem[]
 }
@@ -125,6 +138,11 @@ export type SheetEvents = {
    * 单条变更带 addr + namespace；整表替换时二者缺省（视图层全量刷新）。
    */
   'meta-change': { addr?: CellAddress; namespace?: string }
+  /**
+   * 行/列默认样式变化（setRowStyle / setColStyle / undo 回放）。
+   * grid 层据此刷新样式回调。
+   */
+  'axis-style-change': { axis: 'row' | 'col'; index: number }
 }
 
 export class Sheet {
@@ -142,6 +160,19 @@ export class Sheet {
    * 供 SheetGrid 在 tab 切换重建时还原；本期不进 undo。
    */
   private readonly rowHeights = new Map<number, number>()
+  /**
+   * 稀疏列宽（模型列号 → 像素宽度）。
+   * 对称 rowHeights；不进 undo，随快照序列化/还原。
+   */
+  private readonly colWidths = new Map<number, number>()
+  /**
+   * 行默认样式（模型行号 → StyleId）；进 undo，随 restoreContent 还原。
+   */
+  private readonly rowStyles = new Map<number, StyleId>()
+  /**
+   * 列默认样式（模型列号 → StyleId）；进 undo，随 restoreContent 还原。
+   */
+  private readonly colStyles = new Map<number, StyleId>()
   /** 浮动图片（id → SheetImage）；写操作经 ImagePatch / 结构变更通道 */
   private readonly images = new Map<string, SheetImage>()
   /** Cell Meta 侧车（与 CellStore 平行；写操作经 CellMetaPatch） */
@@ -232,6 +263,26 @@ export class Sheet {
   /** 遍历已设置的自定义行高（SheetGrid 重建还原用） */
   getRowHeights(): ReadonlyMap<number, number> {
     return this.rowHeights
+  }
+
+  /** 读取自定义列宽；未设置返回 undefined（由视图层用默认列宽） */
+  getColWidth(col: number): number | undefined {
+    return this.colWidths.get(col)
+  }
+
+  /** 设置自定义列宽（不进 undo）；width ≤ 0 时清除自定义宽度 */
+  setColWidth(col: number, width: number): void {
+    if (!Number.isInteger(col) || col < 0) return
+    if (!Number.isFinite(width) || width <= 0) {
+      this.colWidths.delete(col)
+      return
+    }
+    this.colWidths.set(col, width)
+  }
+
+  /** 遍历已设置的自定义列宽（SheetGrid 重建还原用） */
+  getColWidths(): ReadonlyMap<number, number> {
+    return this.colWidths
   }
 
   // ─── 冻结 ────────────────────────────────────────────────
@@ -335,6 +386,87 @@ export class Sheet {
   getCellStyle(addr: CellAddress): CellStyle | undefined {
     const data = this.store.getCell(addr)
     return data?.s != null ? this.stylePool.get(data.s) : undefined
+  }
+
+  /** 读取行默认样式（StyleId → 池定义）；未设置 → undefined */
+  getRowStyle(row: number): CellStyle | undefined {
+    const id = this.rowStyles.get(row)
+    return id != null ? this.stylePool.get(id) : undefined
+  }
+
+  /** 读取行默认样式 StyleId（命令 / 快照内部用） */
+  getRowStyleId(row: number): StyleId | undefined {
+    return this.rowStyles.get(row)
+  }
+
+  /** 遍历已设置的行默认样式 StyleId（拷贝 / 测试） */
+  getRowStyleIds(): ReadonlyMap<number, StyleId> {
+    return this.rowStyles
+  }
+
+  /**
+   * 设置行默认样式（部分合并语义，经命令进 undo）。
+   * 空样式 = 清除该行默认样式。
+   */
+  setRowStyle(row: number, partial: CellStylePatch): void {
+    this.executeCommand(SetAxisStyleCommand.id, { axis: 'row', items: [{ index: row, partial }] })
+  }
+
+  /** 清除行默认样式（经命令进 undo） */
+  clearRowStyle(row: number): void {
+    this.executeCommand(SetAxisStyleCommand.id, {
+      axis: 'row',
+      items: [{ index: row, clear: true }]
+    })
+  }
+
+  /** 读取列默认样式（StyleId → 池定义）；未设置 → undefined */
+  getColStyle(col: number): CellStyle | undefined {
+    const id = this.colStyles.get(col)
+    return id != null ? this.stylePool.get(id) : undefined
+  }
+
+  /** 读取列默认样式 StyleId（命令 / 快照内部用） */
+  getColStyleId(col: number): StyleId | undefined {
+    return this.colStyles.get(col)
+  }
+
+  /** 遍历已设置的列默认样式 StyleId（拷贝 / 测试） */
+  getColStyleIds(): ReadonlyMap<number, StyleId> {
+    return this.colStyles
+  }
+
+  /**
+   * 设置列默认样式（部分合并语义，经命令进 undo）。
+   * 空样式 = 清除该列默认样式。
+   */
+  setColStyle(col: number, partial: CellStylePatch): void {
+    this.executeCommand(SetAxisStyleCommand.id, { axis: 'col', items: [{ index: col, partial }] })
+  }
+
+  /** 清除列默认样式（经命令进 undo） */
+  clearColStyle(col: number): void {
+    this.executeCommand(SetAxisStyleCommand.id, {
+      axis: 'col',
+      items: [{ index: col, clear: true }]
+    })
+  }
+
+  /**
+   * 有效样式：列 → 行 → 单元格字段级叠加（合并格读锚点）。
+   * 空单元格无 `s` 时仍可继承行列默认样式。
+   */
+  getEffectiveStyle(addr: CellAddress): CellStyle | undefined {
+    const anchor = this.merges.resolveAnchor(addr)
+    const colStyle = this.colStyles.has(anchor.col)
+      ? this.stylePool.peek(this.colStyles.get(anchor.col)!)
+      : undefined
+    const rowStyle = this.rowStyles.has(anchor.row)
+      ? this.stylePool.peek(this.rowStyles.get(anchor.row)!)
+      : undefined
+    const data = this.store.peekCell(anchor)
+    const cellStyle = data?.s != null ? this.stylePool.peek(data.s) : undefined
+    return composeCellStyles(composeCellStyles(colStyle, rowStyle), cellStyle)
   }
 
   // ─── 合并 ────────────────────────────────────────────────
@@ -518,7 +650,7 @@ export class Sheet {
   }
 
   /**
-   * 应用结构变更（数据/合并/行高/表格尺寸/事件）。
+   * 应用结构变更（数据/合并/行高/列宽/行列样式/表格尺寸/事件）。
    * 公式引用的平移由 prepareFormulaShift 生成 CellPatch 后经 applyPatch 应用
    * （依赖图同步与 undo 恢复统一走补丁通道）。
    * @param restoreDims undo 回放时传入操作前尺寸（精确还原，插入/删除计算不可逆）
@@ -535,7 +667,8 @@ export class Sheet {
     if (axis === 'rows') {
       if (isInsert) this.store.insertRows(at, count)
       else this.store.deleteRows(at, count)
-      this.shiftRowHeights(at, count, isInsert ? 1 : -1)
+      this.shiftIndexMap(this.rowHeights, at, count, isInsert ? 1 : -1)
+      this.shiftIndexMap(this.rowStyles, at, count, isInsert ? 1 : -1)
       this._rows = restoreDims
         ? restoreDims.rows
         : isInsert
@@ -544,6 +677,8 @@ export class Sheet {
     } else {
       if (isInsert) this.store.insertCols(at, count)
       else this.store.deleteCols(at, count)
+      this.shiftIndexMap(this.colWidths, at, count, isInsert ? 1 : -1)
+      this.shiftIndexMap(this.colStyles, at, count, isInsert ? 1 : -1)
       this._cols = restoreDims
         ? restoreDims.cols
         : isInsert
@@ -763,27 +898,30 @@ export class Sheet {
     return next
   }
 
-  /** 行高稀疏表随行平移（插入 +count / 删除 -count，区间内删除） */
-  private shiftRowHeights(at: number, count: number, delta: 1 | -1): void {
+  /**
+   * 稀疏索引表随轴平移（插入 +count / 删除 -count，区间内删除）。
+   * 行高 / 列宽 / 行列样式共用。
+   */
+  private shiftIndexMap<T>(map: Map<number, T>, at: number, count: number, delta: 1 | -1): void {
     if (delta === 1) {
-      const shifted: Array<[number, number]> = []
-      for (const [row, height] of this.rowHeights) {
-        if (row >= at) shifted.push([row, height])
+      const shifted: Array<[number, T]> = []
+      for (const [index, value] of map) {
+        if (index >= at) shifted.push([index, value])
       }
-      for (const [row] of shifted) this.rowHeights.delete(row)
-      for (const [row, height] of shifted) this.rowHeights.set(row + count, height)
+      for (const [index] of shifted) map.delete(index)
+      for (const [index, value] of shifted) map.set(index + count, value)
       return
     }
     const end = at + count
-    for (const row of Array.from(this.rowHeights.keys())) {
-      if (row >= at && row < end) this.rowHeights.delete(row)
+    for (const index of Array.from(map.keys())) {
+      if (index >= at && index < end) map.delete(index)
     }
-    const shifted: Array<[number, number]> = []
-    for (const [row, height] of this.rowHeights) {
-      if (row >= end) shifted.push([row, height])
+    const shifted: Array<[number, T]> = []
+    for (const [index, value] of map) {
+      if (index >= end) shifted.push([index, value])
     }
-    for (const [row] of shifted) this.rowHeights.delete(row)
-    for (const [row, height] of shifted) this.rowHeights.set(row - count, height)
+    for (const [index] of shifted) map.delete(index)
+    for (const [index, value] of shifted) map.set(index - count, value)
   }
 
   // ─── 选区 ────────────────────────────────────────────────
@@ -803,7 +941,7 @@ export class Sheet {
 
   // ─── 快照 ────────────────────────────────────────────────
 
-  /** 全量快照：单元格 + 样式池 + 合并 + 冻结 + 选区 + 尺寸 + 行高 + 图片（宿主序列化持久化用） */
+  /** 全量快照：单元格 + 样式池 + 合并 + 冻结 + 选区 + 尺寸 + 行高/列宽 + 行列样式 + 图片（宿主序列化持久化用） */
   snapshot(): SheetSnapshot {
     const selection = this.selection.getState()
     const metaSnapshot = this.cellMeta.snapshot()
@@ -816,6 +954,9 @@ export class Sheet {
       cols: this._cols,
       // 仅在设置过自定义行高时写入（空数组不序列化）
       ...(this.rowHeights.size > 0 ? { rowHeights: [...this.rowHeights] } : {}),
+      ...(this.colWidths.size > 0 ? { colWidths: [...this.colWidths] } : {}),
+      ...(this.rowStyles.size > 0 ? { rowStyles: [...this.rowStyles] } : {}),
+      ...(this.colStyles.size > 0 ? { colStyles: [...this.colStyles] } : {}),
       // 仅在有图片时写入（旧快照无 images 字段 → 向后兼容）
       ...(this.images.size > 0 ? { images: [...this.images.values()].map(cloneSheetImage) } : {}),
       // 仅在有 meta 时写入（旧快照无 meta 字段 → 向后兼容）
@@ -830,7 +971,7 @@ export class Sheet {
   /**
    * 从快照还原。单元格 / 样式 / 合并 / 选区 / 图片静默恢复（与 cell-store.restore 先例一致，不发事件）；
    * 冻结状态变化时发 frozen-change（grid 层据此更新冻结布局）。
-   * 旧快照无 selection → 回落默认 A1；无 rowHeights → 无自定义行高；无 images → 无图片。
+   * 旧快照无 selection → 回落默认 A1；无 rowHeights/colWidths → 无自定义尺寸；无 images → 无图片。
    */
   restore(snapshot: SheetSnapshot): void {
     this.store.restore(snapshot.cells)
@@ -842,6 +983,9 @@ export class Sheet {
     this._cols = snapshot.cols ?? 0
     this.rowHeights.clear()
     for (const [row, height] of snapshot.rowHeights ?? []) this.setRowHeight(row, height)
+    this.colWidths.clear()
+    for (const [col, width] of snapshot.colWidths ?? []) this.setColWidth(col, width)
+    this.restoreAxisStyles(snapshot)
     this.replaceImages(snapshot.images, false)
     this.replaceMeta(snapshot.meta, false)
     this.restoreSelection(snapshot.selection)
@@ -849,9 +993,9 @@ export class Sheet {
 
   /**
    * 整表内容替换（SnapshotPatch 应用：RestoreSheetCommand 执行 / undo/redo 回放）。
-   * 只替换 cells/styles/merges/images（含公式依赖图重建）；冻结 / 行高 / 尺寸 / 选区
-   * 保持当前——对齐「冻结与行高不进 undo」「选区不进 undo」「渲染尺寸不进 undo」
-   * 既有约定（undo 导入后冻结/行高/尺寸保留导入后状态，同现状逐格补丁回放行为）。
+   * 只替换 cells/styles/merges/images/rowStyles/colStyles（含公式依赖图重建）；
+   * 冻结 / 行高 / 列宽 / 尺寸 / 选区保持当前——对齐「冻结与行高/列宽不进 undo」
+   * 「选区不进 undo」「渲染尺寸不进 undo」既有约定。
    * 静默（不发 cell-change / merge-change），发 content-reset + image-change 供视图层全量刷新。
    * @internal 命令与 undo/redo 回放调用
    */
@@ -860,10 +1004,23 @@ export class Sheet {
     this.stylePool.restore(snapshot.styles)
     this.merges.clear()
     for (const range of snapshot.merges) this.merges.addMerge(range)
+    this.restoreAxisStyles(snapshot)
     this.replaceImages(snapshot.images, true)
     this.replaceMeta(snapshot.meta, true)
     this.formulaGraph.rebuildSheet(this, snapshot.cells)
     this.emitter.emit('content-reset', undefined)
+  }
+
+  /** 还原行/列默认样式 Map（StyleId 与 styles 池同事务） */
+  private restoreAxisStyles(snapshot: SheetSnapshot): void {
+    this.rowStyles.clear()
+    for (const [row, id] of snapshot.rowStyles ?? []) {
+      if (Number.isInteger(row) && row >= 0 && Number.isInteger(id)) this.rowStyles.set(row, id)
+    }
+    this.colStyles.clear()
+    for (const [col, id] of snapshot.colStyles ?? []) {
+      if (Number.isInteger(col) && col >= 0 && Number.isInteger(id)) this.colStyles.set(col, id)
+    }
   }
 
   /** 替换图片集合；emitEvent 时发 image-change（无 id = 整表替换） */
@@ -960,9 +1117,17 @@ export class Sheet {
       this.emitter.emit('meta-change', { addr: patch.addr, namespace: patch.namespace })
       return
     }
+    if (patch.kind === 'axis-style') {
+      const next = direction === 'redo' ? patch.after : patch.before
+      const map = patch.axis === 'row' ? this.rowStyles : this.colStyles
+      if (next == null) map.delete(patch.index)
+      else map.set(patch.index, next)
+      this.emitter.emit('axis-style-change', { axis: patch.axis, index: patch.index })
+      return
+    }
     if (patch.kind === 'snapshot') {
       // 整表内容替换（导入执行 / undo/redo 回放）：restore 静默 + 发 content-reset。
-      // 不还原冻结/行高/尺寸/选区（对齐「不进 undo」约定；redo 侧尺寸由命令
+      // 不还原冻结/行高/列宽/尺寸/选区（对齐「不进 undo」约定；redo 侧尺寸由命令
       // handler 在首次执行时 ensureTableSize，回放不重复）
       this.restoreContent(patch.snapshot)
       return

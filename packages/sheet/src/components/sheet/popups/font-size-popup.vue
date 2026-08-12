@@ -39,7 +39,7 @@ const currentSize = ref<number | undefined>(undefined)
 
 onMounted(() => {
   const active = props.context.getSelection().activeCell
-  const style = active ? props.context.getCellStyle(active) : undefined
+  const style = active ? props.context.getEffectiveStyle(active) : undefined
   currentSize.value = style?.font?.size
 })
 
@@ -47,6 +47,6 @@ function applyFontSize(size: number): void {
   const range = currentRange(props.context)
   if (!range) return
   currentSize.value = size
-  props.context.setCellStyle(range, { font: { size } })
+  props.context.applyStyle(range, { font: { size } })
 }
 </script>

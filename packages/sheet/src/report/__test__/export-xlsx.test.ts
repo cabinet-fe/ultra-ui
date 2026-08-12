@@ -60,10 +60,10 @@ function buildFilledSheet(): Sheet {
 
 describe('exportFilledReportXlsx', () => {
   it('导出保真 XLSX：值 / 表头样式 / 条件样式打平后随快照导出', async () => {
-    const buffer = await exportFilledReportXlsx(buildFilledSheet(), [
-      [0, 120],
-      [1, 140]
-    ])
+    const filled = buildFilledSheet()
+    filled.setColWidth(0, 120)
+    filled.setColWidth(1, 140)
+    const buffer = await exportFilledReportXlsx(filled)
 
     // 合法 ZIP（xlsx）字节
     expect(buffer[0]).toBe(0x50)

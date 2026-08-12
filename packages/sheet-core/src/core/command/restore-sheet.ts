@@ -7,8 +7,9 @@ import type { Command } from './types'
  * - redo = 应用目标快照（SnapshotPatch：restoreContent 静默整表替换，不发逐格
  *   cell-change——导入/undo 场景避免十万级视图同步；发 content-reset 供视图层全量刷新）
  * - undo = 还原操作前快照（before，命令执行时捕获）
- * - 只替换 cells/styles/merges（+ 公式图重建）；冻结/行高/尺寸/选区保持当前
- *   （对齐「冻结与行高不进 undo」「选区不进 undo」「渲染尺寸不进 undo」约定）
+ * - 只替换 cells/styles/merges/rowStyles/colStyles（+ 公式图重建）；
+ *   冻结/行高/列宽/尺寸/选区保持当前
+ *   （对齐「冻结与行高/列宽不进 undo」「选区不进 undo」「渲染尺寸不进 undo」约定）
  * - redo 侧首次执行时 ensureTableSize 扩张尺寸（与 copySheetContent 语义一致；
  *   回放不重复——undo 不动尺寸，redo 保持）
  * - 公式重算由 Sheet.executeCommand 的 recalcAfterCommand 统一编排
