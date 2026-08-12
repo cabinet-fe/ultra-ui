@@ -171,3 +171,23 @@ describe('Sheet Cell Meta：快照 roundtrip', () => {
     expect(restored.getCellMeta({ row: 0, col: 0 }, 'report')).toEqual({ nested: { n: 42 } })
   })
 })
+
+describe('Sheet Cell Meta：结构变更平移', () => {
+  it('deleteRows 平移 meta 坐标与载荷内 rowParent', () => {
+    const sheet = new Sheet()
+    sheet.ensureTableSize(5, 3)
+    sheet.setCellMeta({ row: 2, col: 1 }, 'report', {
+      dataset: 'ds1',
+      field: 'amount',
+      rowParent: { row: 0, col: 0 }
+    })
+    sheet.deleteRows(1, 1)
+    expect(sheet.getCellMeta({ row: 1, col: 1 }, 'report')).toMatchObject({
+      dataset: 'ds1',
+      field: 'amount',
+      rowParent: { row: 0, col: 0 }
+    })
+    expect(sheet.getCellMeta({ row: 2, col: 1 }, 'report')).toBeUndefined()
+    expect(sheet.rows).toBe(4)
+  })
+})

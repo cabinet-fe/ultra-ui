@@ -7,7 +7,7 @@ import type {
   Result
 } from '@veltra/sheet'
 import { createConnection } from 'mysql2/promise'
-import type { Connection, FieldPacket, QueryValues } from 'mysql2/promise'
+import type { Connection, FieldPacket, QueryValues, RowDataPacket } from 'mysql2/promise'
 
 import { ERROR_CODES } from './errors'
 import {
@@ -77,12 +77,44 @@ function mapFieldType(type: number | undefined): DatasetField['type'] {
   return 'string'
 }
 
-function toDatasetFields(fields: FieldPacket[]): DatasetField[] {
-  return fields.map((field) => ({
+function toDatasetFields(fields: FieldPacket[], labels?: string[]): DatasetField[] {
+  return fields.map((field, index) => ({
     name: field.name,
-    label: field.name,
+    label: labels?.[index] ?? field.name,
     type: mapFieldType(field.type)
   }))
+}
+
+/** 用 information_schema.COLUMNS 读取 MySQL 列 COMMENT */
+async function resolveMysqlFieldLabels(
+  client: Connection,
+  fields: FieldPacket[]
+): Promise<string[]> {
+  return Promise.all(
+    fields.map(async (field) => {
+      const table = field.orgTable
+      const column = field.orgName
+      if (table && column) {
+        const [rows] = await client.query<RowDataPacket[]>(
+          `SELECT COLUMN_COMMENT AS comment
+           FROM information_schema.COLUMNS
+           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+          [table, column]
+        )
+        const comment = rows[0]?.comment
+        if (typeof comment === 'string' && comment.length > 0) return comment
+      }
+      return field.name
+    })
+  )
+}
+
+async function datasetFieldsFromMysqlResult(
+  client: Connection,
+  fields: FieldPacket[]
+): Promise<DatasetField[]> {
+  const labels = await resolveMysqlFieldLabels(client, fields)
+  return toDatasetFields(fields, labels)
 }
 
 /**
@@ -121,7 +153,7 @@ export function runMysqlDescribe(
   }
   return withMysql(conn, async (client) => {
     const [, fields] = await client.query(toDescribeSql(sql))
-    return toDatasetFields(fields)
+    return datasetFieldsFromMysqlResult(client, fields)
   })
 }
 
@@ -135,7 +167,7 @@ export async function runMysqlQuery(
   return withMysql(conn, async (client) => {
     const { sql: text, values: ordered } = toPositionalPlaceholders(sql, values)
     const [rows, fields] = await client.query({ sql: text, values: ordered as QueryValues })
-    const datasetFields = toDatasetFields(fields)
+    const datasetFields = await datasetFieldsFromMysqlResult(client, fields)
     return {
       fields: datasetFields,
       rows: coerceNumericRows(datasetFields, rows as Record<string, unknown>[])

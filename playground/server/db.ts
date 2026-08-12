@@ -36,6 +36,20 @@ function ensureSchema(database: DatabaseSync): void {
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS workspace_templates (
+      id TEXT PRIMARY KEY DEFAULT 'default',
+      template_json TEXT NOT NULL,
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TABLE IF NOT EXISTS report_templates (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      template_json TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
   `)
 }
 

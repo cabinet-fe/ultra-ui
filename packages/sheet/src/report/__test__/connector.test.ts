@@ -84,6 +84,27 @@ describe('createHttpConnector', () => {
     expect(calls[0]!.body).toEqual({ connection: CONNECTION, sql: SQL })
   })
 
+  it('describe：服务端返回 label 时保留中文显示名', async () => {
+    stubFetch(async () => ({
+      ok: true,
+      fields: [
+        { name: 'customer', label: '客户名称', type: 'string' },
+        { name: 'amount', label: '金额', type: 'number' }
+      ]
+    }))
+    const connector = createHttpConnector({ endpoint: ENDPOINT })
+
+    const result = await connector.describe(CONNECTION, SQL)
+
+    expect(result).toEqual({
+      ok: true,
+      data: [
+        { name: 'customer', label: '客户名称', type: 'string' },
+        { name: 'amount', label: '金额', type: 'number' }
+      ]
+    })
+  })
+
   it('query：POST {endpoint}/query，请求体 { connection, sql, values }，返回 fields + rows', async () => {
     const calls = stubFetch(async () => ({
       ok: true,

@@ -59,8 +59,8 @@
           ref="sheetRef"
           :class="cls.e('sheet')"
           :workbook="workbook"
-          :rows="DESIGN_ROWS"
-          :cols="DESIGN_COLS"
+          :rows="gridRows"
+          :cols="gridCols"
           :show-tabs="false"
           :resolve-cell-style="resolveCellStyle"
           :resolve-cell-renderer="resolveCellRenderer"
@@ -135,7 +135,7 @@ import { UButton, UDrawer } from '@veltra/desktop'
 import type { CellAddress, SheetGrid } from '@veltra/sheet-core'
 import { Workbook } from '@veltra/sheet-core'
 import { bem } from '@veltra/utils'
-import { computed, nextTick, ref, shallowRef, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, onScopeDispose, ref, shallowRef, useTemplateRef, watch } from 'vue'
 
 import type { ReportTemplate } from '../../report/template'
 import type { ConditionalRule } from '../../report/types'
@@ -166,7 +166,7 @@ const emit = defineEmits<ReportDesignerEmits>()
 
 const cls = bem('report-designer')
 
-/** 设计态网格尺寸（列宽捕获范围与之一致） */
+/** 设计态网格默认尺寸（新建模板；已声明尺寸后以模型为准，避免删行后被 props 撑回） */
 const DESIGN_ROWS = 24
 const DESIGN_COLS = 10
 
@@ -210,6 +210,16 @@ const {
   getTemplate
 } = designer
 
+/** 渲染行列数跟随模型（删行后不再被固定 props 经 ensureTableSize 撑回） */
+const gridRows = computed(() => {
+  const rows = workbook.value.activeSheet.rows
+  return rows > 0 ? rows : DESIGN_ROWS
+})
+const gridCols = computed(() => {
+  const cols = workbook.value.activeSheet.cols
+  return cols > 0 ? cols : DESIGN_COLS
+})
+
 const hubVisible = ref(false)
 const rulesDialogVisible = ref(false)
 
@@ -245,7 +255,7 @@ const exporting = ref(false)
 function captureDesignColWidths(): void {
   const widths = readGridColWidths(
     getDesignGrid(),
-    Array.from({ length: DESIGN_COLS }, (_, col) => col)
+    Array.from({ length: gridCols.value }, (_, col) => col)
   )
   if (widths) designColWidths.value = widths
 }
@@ -268,11 +278,15 @@ function setViewMode(mode: ViewMode): void {
   if (mode === 'design') void nextTick(syncDesignGridView)
 }
 
-// 模板 prop 更换：组合式函数内完成载入；组件层切回设计态（预览内容随之作废）
+// 模板更换：组合式函数内完成载入；组件层切回设计态并恢复列宽
 watch(
   () => props.template,
-  () => {
+  (template) => {
     viewMode.value = 'design'
+    designColWidths.value = template?.colWidths?.length
+      ? template.colWidths.map(([col, width]) => [col, width] as [number, number])
+      : []
+    void nextTick(syncDesignGridView)
   }
 )
 
@@ -285,6 +299,11 @@ watch(activeCell, (cell) => {
 watch(catalog, () => {
   void nextTick(() => getDesignGrid()?.refresh())
 })
+
+const offStructureChange = workbook.value.activeSheet.on('structure-change', () => {
+  void nextTick(syncDesignGridView)
+})
+onScopeDispose(offStructureChange)
 
 async function exportPreviewXlsx(): Promise<void> {
   if (!isPreview.value || exporting.value) return
@@ -352,5 +371,12 @@ function onGridDrop(event: DragEvent): void {
   }
 }
 
-defineExpose<_ReportDesignerExposed>({ getTemplate })
+defineExpose<_ReportDesignerExposed>({
+  getTemplate: () => {
+    captureDesignColWidths()
+    const template = getTemplate()
+    if (designColWidths.value.length === 0) return template
+    return { ...template, colWidths: [...designColWidths.value] }
+  }
+})
 </script>

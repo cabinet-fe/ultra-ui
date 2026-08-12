@@ -3,8 +3,11 @@ import {
   cellMetaKey,
   cellMetaKeyFrom,
   cloneCellMetaPayload,
+  shiftCellAddressForStructure,
+  shiftMetaPayloadForStructure,
   type CellMetaSnapshotItem
 } from './cell-meta'
+import type { StructureChange } from './command/types'
 
 /**
  * Cell Meta 稀疏存储（与 CellStore 平行，不写入 CellData）。
@@ -80,5 +83,23 @@ export class CellMetaStore {
       const { row, col, namespace } = this.parseKey(key)
       yield [{ row, col }, namespace, payload]
     }
+  }
+
+  /** 行列插入/删除时平移 meta 坐标与载荷内嵌地址 */
+  applyStructureChange(change: StructureChange): void {
+    const next = new Map<string, unknown>()
+    for (const [key, payload] of this.data) {
+      const { row, col, namespace } = this.parseKey(key)
+      const shiftedAddr = shiftCellAddressForStructure({ row, col }, change)
+      if (!shiftedAddr) continue
+      const shiftedPayload = shiftMetaPayloadForStructure(payload, change)
+      if (shiftedPayload === undefined) continue
+      next.set(
+        cellMetaKey(shiftedAddr.row, shiftedAddr.col, namespace),
+        cloneCellMetaPayload(shiftedPayload)
+      )
+    }
+    this.data.clear()
+    for (const [key, payload] of next) this.data.set(key, payload)
   }
 }

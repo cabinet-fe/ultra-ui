@@ -1,4 +1,5 @@
 import type { CellAddress } from './address'
+import type { StructureChange } from './command/types'
 
 /** Cell Meta 快照项（与单元格地址平行、按 namespace 存储的可序列化载荷） */
 export interface CellMetaSnapshotItem {
@@ -41,4 +42,58 @@ export function cellMetaPayloadEqual(a: unknown, b: unknown): boolean {
 /** 从地址与 namespace 生成存储键 */
 export function cellMetaKeyFrom(addr: CellAddress, namespace: string): string {
   return cellMetaKey(addr.row, addr.col, namespace)
+}
+
+/** 结构变更（插入/删除行列）时平移单元格地址；落在删除区间内返回 null */
+export function shiftCellAddressForStructure(
+  addr: CellAddress,
+  change: StructureChange
+): CellAddress | null {
+  const axis = change.kind.endsWith('rows') ? 'row' : 'col'
+  const isInsert = change.kind.startsWith('insert')
+  const { at, count } = change
+  const end = at + count
+  const coord = axis === 'row' ? addr.row : addr.col
+  const next = { ...addr }
+
+  if (isInsert) {
+    if (coord >= at) {
+      if (axis === 'row') next.row += count
+      else next.col += count
+    }
+    return next
+  }
+
+  if (coord >= at && coord < end) return null
+  if (coord >= end) {
+    if (axis === 'row') next.row -= count
+    else next.col -= count
+  }
+  return next
+}
+
+function isCellAddressLike(value: unknown): value is CellAddress {
+  if (!value || typeof value !== 'object') return false
+  const { row, col } = value as CellAddress
+  return Number.isInteger(row) && Number.isInteger(col)
+}
+
+/** 结构变更时平移载荷内嵌的单元格地址（如报表绑定的 rowParent / colParent） */
+export function shiftMetaPayloadForStructure(payload: unknown, change: StructureChange): unknown {
+  if (payload === null || payload === undefined) return payload
+  if (Array.isArray(payload)) {
+    return payload.map((item) => shiftMetaPayloadForStructure(item, change))
+  }
+  if (!isCellAddressLike(payload)) {
+    if (typeof payload !== 'object') return payload
+    const out: Record<string, unknown> = {}
+    for (const [key, value] of Object.entries(payload as Record<string, unknown>)) {
+      const shifted = shiftMetaPayloadForStructure(value, change)
+      if (shifted !== undefined) out[key] = shifted
+    }
+    return out
+  }
+
+  const shifted = shiftCellAddressForStructure(payload, change)
+  return shifted ?? undefined
 }

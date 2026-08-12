@@ -73,9 +73,10 @@ export interface CreateHttpConnectorOptions {
 // ---- HTTP 契约响应形状（ADR-0003 决策 3）----
 // 传输层错误用 HTTP 状态码；业务错误一律 `200 + { ok: false, error }`。
 
-/** 契约字段 schema：`{ name, type? }`（type 缺省视为 string） */
+/** 契约字段 schema：`{ name, label?, type? }`（label 缺省视为 name，type 缺省视为 string） */
 interface ContractField {
   name: string
+  label?: string
   type?: DatasetField['type']
 }
 
@@ -113,7 +114,7 @@ function toConnectorError(value: unknown): ConnectorError {
 
 /** 契约字段 → 内核 DatasetField（label 缺省回退 name，type 缺省 string） */
 function normalizeField(field: ContractField): DatasetField {
-  return { name: field.name, label: field.name, type: field.type ?? 'string' }
+  return { name: field.name, label: field.label ?? field.name, type: field.type ?? 'string' }
 }
 
 /** 校验并归一化契约 fields；形状不合法返回 null */

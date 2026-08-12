@@ -35,7 +35,7 @@ src/
 | `index.ts` | `renderReport` 编排 |
 
 - **条件样式**：`ConditionalRule.field` 缺省取绑定格自身字段，指定时对同一条记录的另一字段求值；`scope: 'row'` 染满整个物理输出行（交叉表下会染满同行所有列，明细行报表更合适）。
-- **Report Template（template.ts）**：自包含模板 = `SheetSnapshot` + **`version: number`（当前 `1`，必填）** + 内嵌 `datasets: ReportDatasetDef[]`。`version` 缺失或高于当前 → 抛可读错误要求重建（无迁移函数）。`Sheet.snapshot()` 不产生 `version` / `datasets`，由设计器 `getTemplate()` 吐出时附加。配套：`getTemplateDatasets` / `getBoundDatasetIds` / `resolveTemplateParams` / `resolveParamDefaults` / `fetchTemplateRecords`。
+- **Report Template（template.ts）**：自包含模板 = `SheetSnapshot` + **`version: number`（当前 `1`，必填）** + 内嵌 `datasets: ReportDatasetDef[]` + 可选 `colWidths`（设计态列宽，模型列索引 → 像素）。`version` 缺失或高于当前 → 抛可读错误要求重建（无迁移函数）。`Sheet.snapshot()` 不产生 `version` / `datasets` / `colWidths`，由设计器 `getTemplate()` 吐出时附加。配套：`getTemplateDatasets` / `getBoundDatasetIds` / `resolveTemplateParams` / `resolveParamDefaults` / `fetchTemplateRecords`。
 - **Filter Bar 值规范化（filter-bar.ts）**：`parseDateRangeValue` / `resolveNumberParamValue` / `patchParamValues`。
 - **Filled Report XLSX 导出（export-xlsx.ts）**：`exportFilledReportXlsx(sheet, colWidths)`；列宽未进 SheetSnapshot，经 VTable 运行时读取后显式传入。
 - **数据连接器**：`DataConnector` 接口 + `createHttpConnector`；report 模块严禁引入数据库驱动。
@@ -43,7 +43,7 @@ src/
 
 ## UReportViewer（components/report/，ADR-0003 决策 2）
 
-- Props：`connector`（必填）、`template`（必填，`ReportTemplate`）、`workbook?`（USheet 先例，缺省内部自建）、`colWidths?`（列宽未进快照，载入后写入 VTable 运行时供导出读取）。Exposed：`refresh()`（重新取数并展开渲染）、`exportXlsx()`（导出填充报表 XLSX；取数完成前拒绝；不内置导出按钮，工具栏由下游决定）。
+- Props：`connector`（必填）、`template`（必填，`ReportTemplate`，可含 `colWidths`）、`workbook?`（USheet 先例，缺省内部自建）、`colWidths?`（显式覆盖模板列宽，载入后写入 VTable 运行时供导出读取）。Exposed：`refresh()`（重新取数并展开渲染）、`exportXlsx()`（导出填充报表 XLSX；取数完成前拒绝；不内置导出按钮，工具栏由下游决定）。
 - 运行态闭环：`useReportViewer`（headless：参数提取 → Filter Bar → `fetchTemplateRecords` 取数 → `renderReport` 展开，并发守卫只应用最后一次取数）+ 薄 UI 壳（`report-viewer.vue`）。内部 `UReportFilterBar` 按参数类型映射 `UInput/UNumberInput/USelect/UDatePicker/UDateRangePicker`（text/number/select/date/date-range），改值即重新取数；取数有 loading 遮罩、业务错误（`ok:false`）有可读 banner。
 - 展示：内嵌只读 USheet（无工具栏/公式栏/tabs）；先铺模板静态结构，取数成功后 `restore` + `restoreContent` 替换为 Filled Report（网格渲染行列数 = max(50×10 下限, 快照尺寸)）。
 - 样式入口 `@veltra/sheet/components/report/style`（自含 USheet 与 Filter Bar 桌面组件样式）。
@@ -55,7 +55,7 @@ src/
 - 全量设计态：数据中枢 drawer、字段面板拖拽绑定、预设徽章、Action Pill、拓扑连线、条件规则对话框、预览模式（内嵌 UReportViewer）、XLSX 导出。
 - `useReportDesigner`（headless）：连接 / 数据集状态、绑定写 Cell Meta、徽章 hook、Action Pill 就地编辑（`patchActiveBinding` / `removeActiveBinding`、父格点选拾取）、拓扑条目（`bindingEntries` / `metaTick`）、模板吐出与载入。落格推断：同列向上找最近纵向扩展绑定为 `rowParent` 候选、同行向左找最近横向扩展绑定为 `colParent` 候选；默认预设「明细」；跨数据集拖拽保留字段自身 `dataset`。内部数据集 `DesignerDataset` 以 `connectionId` 引用连接，`getTemplate()` 吐出时解析为内嵌连接对象。
 - **`template` prop 载入**：快照 `restore` + `restoreContent` 恢复网格绑定；内嵌数据集还原为设计态（`connectionId` 引用），内嵌连接按 id 合并进 v-model 列表（仅缺省追加，宿主同 id 连接优先）；describe 自动恢复字段缓存（业务错误忽略，字段留空可在数据中枢重试）。
-- **预览模式**：内嵌查看器路径（05）——切预览时 `getTemplate()` 吐出快照交给 UReportViewer（自持 `previewWorkbook`，导出需拿填充后 sheet），Filter Bar / 取数 / 展开 / loading / 错误提示全走查看器；设计态工作簿不受预览影响，切回绑定不丢。设计网格列宽在切预览时经 VTable 运行时捕获（`designer/col-widths.ts`），导出 XLSX 随快照写入。
+- **预览模式**：内嵌查看器路径（05）——切预览时 `getTemplate()` 吐出快照交给 UReportViewer（自持 `previewWorkbook`，导出需拿填充后 sheet），Filter Bar / 取数 / 展开 / loading / 错误提示全走查看器；设计态工作簿不受预览影响，切回绑定不丢。`getTemplate()` 捕获设计态列宽写入 `colWidths`；载入模板时恢复至设计网格，查看器取数后按 `resolveFilledColWidths` 映射物理列宽。
 - 数据中枢 drawer（`designer-hub.vue` + `hub-connection-form.vue` + `hub-dataset-editor.vue`，内部不导出）：连接 CRUD 走 `v-model:connections`（删连接级联删其数据集）；测试连接 / describe 字段解析 / 记录预览全经 `DataConnector`（无 mock）；`${param}` 参数提取用内核 `buildParamDefs`（纯函数），describe 成功的字段写入数据集 `fields` 缓存（字段面板 catalog 数据源，`fieldOverrides` 在 catalog 层应用）。
 - 字段面板（`field-panel.vue`）：HTML5 拖拽（`FIELD_DRAG_MIME` 负载 `datasetId:fieldName`，编解码在 `field-panel-helpers.ts`）；网格宿主 drop 经 VTable hit-test 解析落点，落空回退当前选区。
 - 绑定格富渲染徽章（`binding-badge.ts`）：`resolveCellRenderer` 按格返回预设色彩徽章（`REPORT_PRESET_BADGE_COLORS`）；遵守 cell hook 性能契约（纯函数、同步、O(1) 查找；label 经 `fieldLabelMap` 查找表）。

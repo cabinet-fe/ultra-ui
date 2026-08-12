@@ -1,37 +1,49 @@
 <template>
   <div class="sheet-report-demo">
     <div class="sheet-report-demo__hint">
-      <strong>UReportDesigner</strong> + 内嵌 <strong>UReportViewer</strong>（预览模式）薄消费演示。
-      在工具栏打开<strong>数据中枢</strong>，自行输入 MySQL / PostgreSQL
-      连接（无内置默认连接），配置 SQL 数据集后拖拽字段绑定；切<strong>预览模式</strong>经
-      <code>createHttpConnector({ endpoint: '/report-api' })</code> 取数，Filter Bar
-      按绑定数据集参数并集筛选。 dev 时经 vite proxy 访问 hono
-      契约参考服务（<code>playground/server</code>）， 请用
-      <code>bun run dev</code> 一并启动后端；连接与数据集自动持久化到本地 SQLite。
+      <strong>UReportDesigner</strong> 报表演示：连接与 SQL 数据集持久化在本地 SQLite（
+      <code>GET|PUT /report-api/workspace</code>），取数经
+      <code>POST /datasets/:id/query</code> 只传参数值；模板入库时剥离凭据与
+      SQL，打开时由工作区回填。 请用 <code>bun run dev</code> 同时启动契约服务。
     </div>
 
     <div class="sheet-report-demo__toolbar">
       <template v-if="!standaloneViewer">
+        <u-input
+          v-model="templateName"
+          size="small"
+          :class="toolbarCls.e('name')"
+          placeholder="模板名称"
+        />
+        <u-button size="small" type="primary" :loading="savingTemplate" @click="saveTemplate">
+          保存模板
+        </u-button>
+        <u-button size="small" plain @click="libraryVisible = true">打开模板</u-button>
+        <u-button size="small" plain @click="createNewTemplate">新建模板</u-button>
         <u-button size="small" plain @click="openStandaloneViewer">在独立查看器中打开</u-button>
       </template>
       <template v-else>
         <u-button size="small" plain @click="standaloneViewer = false">返回设计器</u-button>
       </template>
-      <span v-if="workspaceStatus" class="sheet-report-demo__toolbar-hint">{{
-        workspaceStatus
-      }}</span>
-      <span v-if="viewerTemplate" class="sheet-report-demo__toolbar-hint">
-        已载入模板（{{ viewerTemplate.datasets.length }} 个数据集）
-      </span>
+      <span v-if="statusText" class="sheet-report-demo__toolbar-hint">{{ statusText }}</span>
     </div>
 
     <u-report-designer
+      v-if="workspaceReady"
       v-show="!standaloneViewer"
+      :key="designerSessionKey"
       ref="designerRef"
       class="sheet-report-demo__designer"
       :connector="connector"
-      :template="initialTemplate"
+      :template="loadedTemplate"
       v-model:connections="connections"
+    />
+
+    <sheet-report-template-library
+      v-model:visible="libraryVisible"
+      :active-template-id="activeTemplateId"
+      @open="openTemplate"
+      @deleted="onTemplateDeleted"
     />
 
     <u-report-viewer
@@ -44,54 +56,80 @@
 </template>
 
 <script lang="ts" setup>
+import { UButton, UInput } from '@veltra/desktop'
 import {
-  createHttpConnector,
   type DataConnection,
   type ReportDesignerExposed,
-  type ReportTemplate
+  type ReportDatasetDef,
+  type ReportTemplate,
+  createReportTemplate
 } from '@veltra/sheet'
-import { Workbook } from '@veltra/sheet-core'
+import { Sheet } from '@veltra/sheet-core'
+import { bem } from '@veltra/utils'
 import '@veltra/sheet/components/report/style'
-import { onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
 
-/** 契约参考服务：vite dev 经 /report-api 代理到 hono（playground/server） */
-const connector = createHttpConnector({ endpoint: '/report-api' })
+import {
+  createHubConnector,
+  createReportTemplateRecord,
+  extractWorkspaceDatasets,
+  fetchReportTemplate,
+  fetchWorkspace,
+  mergeConnectionsFromTemplate,
+  saveWorkspace,
+  serializeTemplateDocument,
+  updateReportTemplateRecord,
+  type WorkspaceData,
+  type WorkspaceDataset
+} from './report-api'
+import SheetReportTemplateLibrary from './template-library.vue'
 
-interface StoredDataset {
-  id: string
-  label: string
-  connectionId: string
-  sql: string
-  paramOverrides?: Record<string, unknown>
-  fieldOverrides?: Record<string, unknown>
-}
-
-interface WorkspaceResponse {
-  ok: boolean
-  connections?: DataConnection[]
-  datasets?: StoredDataset[]
-}
+const toolbarCls = bem('sheet-report-demo-toolbar')
 
 const connections = ref<DataConnection[]>([])
-const initialTemplate = ref<ReportTemplate>()
+const workspaceDatasets = ref<WorkspaceDataset[]>([])
+const savedConnectionIds = ref(new Set<string>())
+const loadedTemplate = ref<ReportTemplate>()
+const designerSessionKey = ref(0)
+const activeTemplateId = ref<string | null>(null)
+const templateName = ref('未命名模板')
 const designerRef = useTemplateRef<ReportDesignerExposed>('designerRef')
 const standaloneViewer = ref(false)
-const viewerTemplate = ref<ReportTemplate | undefined>()
-const workspaceStatus = ref('')
+const viewerTemplate = ref<ReportTemplate>()
+const libraryVisible = ref(false)
 const workspaceReady = ref(false)
+const savingTemplate = ref(false)
+const isDirty = ref(false)
+const statusText = ref('')
 
-let saveTimer: ReturnType<typeof setTimeout> | undefined
-let saveSeq = 0
-let lastPayload = ''
-let pollTimer: ReturnType<typeof setInterval> | undefined
+const connector = createHubConnector({
+  isConnectionSaved: (connectionId) => savedConnectionIds.value.has(connectionId),
+  findDatasetId: (connectionId, sql) =>
+    workspaceDatasets.value.find((item) => item.connectionId === connectionId && item.sql === sql)
+      ?.id
+})
 
-function buildTemplate(
-  conns: DataConnection[],
-  datasets: StoredDataset[]
-): ReportTemplate | undefined {
-  const connById = new Map(conns.map((item) => [item.id, item]))
-  const defs = datasets.flatMap((dataset) => {
-    const connection = connById.get(dataset.connectionId)
+let savedDocument = ''
+let workspacePayload = ''
+let workspaceSaveTimer: ReturnType<typeof setTimeout> | undefined
+let dirtyPollTimer: ReturnType<typeof setInterval> | undefined
+
+const currentDocument = computed(() =>
+  serializeTemplateDocument(
+    activeTemplateId.value,
+    templateName.value.trim(),
+    designerRef.value?.getTemplate()
+  )
+)
+
+/** 与 UReportDesigner 设计网格尺寸一致 */
+const DESIGN_ROWS = 24
+const DESIGN_COLS = 10
+
+function buildWorkspaceSeedTemplate(workspace: WorkspaceData): ReportTemplate | undefined {
+  if (workspace.datasets.length === 0) return undefined
+  const datasets: ReportDatasetDef[] = workspace.datasets.flatMap((dataset) => {
+    const connection = workspace.connections.find((item) => item.id === dataset.connectionId)
     if (!connection) return []
     return [
       {
@@ -104,114 +142,199 @@ function buildTemplate(
       }
     ]
   })
-  if (defs.length === 0) return undefined
-  const workbook = new Workbook()
-  return { ...workbook.activeSheet.snapshot(), datasets: defs }
+  if (datasets.length === 0) return undefined
+  const sheet = new Sheet({ rows: DESIGN_ROWS, cols: DESIGN_COLS })
+  return createReportTemplate(sheet.snapshot(), datasets)
 }
 
-function collectWorkspacePayload(): { connections: DataConnection[]; datasets: StoredDataset[] } {
-  const template = designerRef.value?.getTemplate()
-  const datasets =
-    template?.datasets.map((dataset) => ({
-      id: dataset.id,
-      label: dataset.label,
-      connectionId: dataset.connection.id,
-      sql: dataset.sql,
-      ...(dataset.paramOverrides ? { paramOverrides: dataset.paramOverrides } : {}),
-      ...(dataset.fieldOverrides ? { fieldOverrides: dataset.fieldOverrides } : {})
-    })) ?? []
-  return { connections: connections.value, datasets }
+function buildWorkspaceSnapshot(): WorkspaceData {
+  return {
+    connections: connections.value,
+    datasets: extractWorkspaceDatasets(designerRef.value?.getTemplate())
+  }
+}
+
+function refreshStatus(): void {
+  const parts: string[] = []
+  if (activeTemplateId.value) {
+    parts.push('已打开模板')
+  } else {
+    parts.push('新建模板')
+  }
+  parts.push(isDirty.value ? '有未保存更改' : '已保存')
+  if (connections.value.length > 0) {
+    parts.push(`${connections.value.length} 个连接`)
+  }
+  if (workspaceDatasets.value.length > 0) {
+    parts.push(`${workspaceDatasets.value.length} 个数据集`)
+  }
+  statusText.value = parts.join(' · ')
+}
+
+function markDocumentSaved(): void {
+  savedDocument = currentDocument.value
+  isDirty.value = false
+  refreshStatus()
+}
+
+function updateDirtyState(): void {
+  isDirty.value = currentDocument.value !== savedDocument
+  refreshStatus()
 }
 
 async function loadWorkspace(): Promise<void> {
-  workspaceStatus.value = '正在加载工作区…'
+  statusText.value = '正在加载工作区…'
   try {
-    const response = await fetch('/report-api/workspace')
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    const payload = (await response.json()) as WorkspaceResponse
-    if (!payload.ok) throw new Error('工作区响应异常')
-
-    const loadedConnections = payload.connections ?? []
-    const loadedDatasets = payload.datasets ?? []
-    connections.value = loadedConnections
-    initialTemplate.value = buildTemplate(loadedConnections, loadedDatasets)
-    lastPayload = JSON.stringify({ connections: loadedConnections, datasets: loadedDatasets })
-    workspaceStatus.value =
-      loadedConnections.length > 0
-        ? `已恢复 ${loadedConnections.length} 个连接、${loadedDatasets.length} 个数据集`
-        : '工作区为空，可新建连接'
+    const workspace = await fetchWorkspace()
+    connections.value = workspace.connections
+    workspaceDatasets.value = workspace.datasets
+    savedConnectionIds.value = new Set(workspace.connections.map((item) => item.id))
+    workspacePayload = JSON.stringify(workspace)
+    loadedTemplate.value = buildWorkspaceSeedTemplate(workspace)
+    designerSessionKey.value += 1
+    statusText.value =
+      workspace.connections.length > 0 || workspace.datasets.length > 0
+        ? `已恢复 ${workspace.connections.length} 个连接、${workspace.datasets.length} 个数据集`
+        : '工作区为空，可在数据中枢新建'
   } catch (error) {
-    workspaceStatus.value = `工作区加载失败：${error instanceof Error ? error.message : String(error)}`
+    statusText.value = `工作区加载失败：${error instanceof Error ? error.message : String(error)}`
   } finally {
     workspaceReady.value = true
   }
 }
 
-async function saveWorkspace(): Promise<void> {
+function scheduleWorkspaceSave(): void {
   if (!workspaceReady.value) return
-  const seq = ++saveSeq
-  workspaceStatus.value = '正在保存…'
-  try {
-    const response = await fetch('/report-api/workspace', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(collectWorkspacePayload())
-    })
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    const payload = (await response.json()) as { ok: boolean }
-    if (!payload.ok) throw new Error('保存被拒绝')
-    lastPayload = JSON.stringify(collectWorkspacePayload())
-    if (seq === saveSeq) workspaceStatus.value = '已自动保存'
-  } catch (error) {
-    if (seq === saveSeq) {
-      workspaceStatus.value = `保存失败：${error instanceof Error ? error.message : String(error)}`
-    }
-  }
-}
-
-function scheduleSave(): void {
-  if (!workspaceReady.value) return
-  if (saveTimer) clearTimeout(saveTimer)
-  saveTimer = setTimeout(() => {
-    void saveWorkspace()
+  if (workspaceSaveTimer) clearTimeout(workspaceSaveTimer)
+  workspaceSaveTimer = setTimeout(() => {
+    void saveWorkspaceState()
   }, 600)
 }
 
-onMounted(() => {
-  void loadWorkspace()
-  pollTimer = setInterval(() => {
-    if (!workspaceReady.value || !designerRef.value) return
-    const next = JSON.stringify(collectWorkspacePayload())
-    if (next === lastPayload) return
-    lastPayload = next
-    scheduleSave()
-  }, 1500)
-})
+async function saveWorkspaceState(): Promise<void> {
+  const next = JSON.stringify(buildWorkspaceSnapshot())
+  if (next === workspacePayload) return
+  try {
+    const data = JSON.parse(next) as WorkspaceData
+    await saveWorkspace(data)
+    workspacePayload = next
+    workspaceDatasets.value = data.datasets
+    savedConnectionIds.value = new Set(data.connections.map((item) => item.id))
+  } catch (error) {
+    statusText.value = `工作区保存失败：${error instanceof Error ? error.message : String(error)}`
+  }
+}
+
+async function saveTemplate(): Promise<void> {
+  const name = templateName.value.trim()
+  if (!name) {
+    statusText.value = '请先填写模板名称'
+    return
+  }
+  const template = designerRef.value?.getTemplate()
+  if (!template) {
+    statusText.value = '设计器尚未就绪'
+    return
+  }
+
+  savingTemplate.value = true
+  statusText.value = '正在保存模板…'
+  try {
+    await saveWorkspaceState()
+    const record = activeTemplateId.value
+      ? await updateReportTemplateRecord(activeTemplateId.value, { name, template })
+      : await createReportTemplateRecord(name, template)
+    activeTemplateId.value = record.id
+    templateName.value = record.name
+    markDocumentSaved()
+    statusText.value = `模板「${record.name}」已保存`
+  } catch (error) {
+    statusText.value = `模板保存失败：${error instanceof Error ? error.message : String(error)}`
+  } finally {
+    savingTemplate.value = false
+  }
+}
+
+function createNewTemplate(): void {
+  activeTemplateId.value = null
+  templateName.value = '未命名模板'
+  loadedTemplate.value = buildWorkspaceSeedTemplate({
+    connections: connections.value,
+    datasets: workspaceDatasets.value
+  })
+  designerSessionKey.value += 1
+}
+
+async function openTemplate(id: string): Promise<void> {
+  statusText.value = '正在打开模板…'
+  try {
+    const record = await fetchReportTemplate(id)
+    connections.value = mergeConnectionsFromTemplate(record.template, connections.value)
+    workspaceDatasets.value = extractWorkspaceDatasets(record.template)
+    await saveWorkspaceState()
+    activeTemplateId.value = record.id
+    templateName.value = record.name
+    loadedTemplate.value = record.template
+    designerSessionKey.value += 1
+    libraryVisible.value = false
+    statusText.value = `已打开模板「${record.name}」`
+  } catch (error) {
+    statusText.value = `打开模板失败：${error instanceof Error ? error.message : String(error)}`
+  }
+}
+
+function onTemplateDeleted(id: string): void {
+  if (activeTemplateId.value !== id) return
+  createNewTemplate()
+  statusText.value = '当前模板已删除，已切换为新建模板'
+}
+
+function openStandaloneViewer(): void {
+  const template = designerRef.value?.getTemplate()
+  if (!template?.datasets?.length) {
+    statusText.value = '请先配置数据集并保存绑定'
+    return
+  }
+  viewerTemplate.value = template
+  standaloneViewer.value = true
+}
 
 watch(
   connections,
   () => {
-    const next = JSON.stringify(collectWorkspacePayload())
-    if (next !== lastPayload) {
-      lastPayload = next
-      scheduleSave()
-    }
+    scheduleWorkspaceSave()
+    refreshStatus()
   },
   { deep: true }
 )
 
-onBeforeUnmount(() => {
-  if (saveTimer) clearTimeout(saveTimer)
-  if (pollTimer) clearInterval(pollTimer)
+watch(templateName, () => {
+  updateDirtyState()
 })
 
-function openStandaloneViewer() {
-  scheduleSave()
-  const template = designerRef.value?.getTemplate()
-  if (!template?.datasets.length) return
-  viewerTemplate.value = template
-  standaloneViewer.value = true
-}
+watch(
+  [designerSessionKey, () => designerRef.value],
+  async () => {
+    await nextTick()
+    if (!designerRef.value) return
+    markDocumentSaved()
+  },
+  { flush: 'post' }
+)
+
+onMounted(() => {
+  void loadWorkspace()
+  dirtyPollTimer = setInterval(() => {
+    if (!workspaceReady.value || !designerRef.value) return
+    updateDirtyState()
+    scheduleWorkspaceSave()
+  }, 1200)
+})
+
+onBeforeUnmount(() => {
+  if (workspaceSaveTimer) clearTimeout(workspaceSaveTimer)
+  if (dirtyPollTimer) clearInterval(dirtyPollTimer)
+})
 </script>
 
 <style scoped lang="scss">
@@ -234,6 +357,10 @@ function openStandaloneViewer() {
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+.sheet-report-demo-toolbar__name {
+  width: 220px;
 }
 
 .sheet-report-demo__toolbar-hint {

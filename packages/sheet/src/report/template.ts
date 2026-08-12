@@ -2,6 +2,7 @@ import type { SheetSnapshot } from '@veltra/sheet-core'
 
 import { REPORT_META_NAMESPACE } from './binding'
 import type { DataConnection, DataConnector, Result } from './connector'
+import type { ReportColWidthEntry } from './export-xlsx'
 import { buildParamDefs } from './params'
 import type {
   DatasetField,
@@ -49,6 +50,11 @@ export interface ReportTemplate extends SheetSnapshot {
   /** 模板结构版本；当前值为 `REPORT_TEMPLATE_VERSION` */
   version?: number
   datasets?: ReportDatasetDef[]
+  /**
+   * 设计态列宽（模型列索引 → 像素宽）。
+   * sheet-core 列宽未进 SheetSnapshot，由设计器 `getTemplate()` 捕获并随模板序列化。
+   */
+  colWidths?: ReportColWidthEntry[]
 }
 
 /** 载入模板前校验版本：缺失或高于当前支持版本时抛可读错误 */
@@ -68,9 +74,15 @@ export function assertCompatibleTemplateVersion(template: ReportTemplate): void 
 /** 由工作簿快照构造带版本段的 Report Template */
 export function createReportTemplate(
   snapshot: SheetSnapshot,
-  datasets?: ReportDatasetDef[]
+  datasets?: ReportDatasetDef[],
+  colWidths?: ReportColWidthEntry[]
 ): ReportTemplate {
-  return { ...snapshot, version: REPORT_TEMPLATE_VERSION, datasets }
+  return {
+    ...snapshot,
+    version: REPORT_TEMPLATE_VERSION,
+    datasets,
+    ...(colWidths?.length ? { colWidths } : {})
+  }
 }
 
 /** 读取模板内嵌的数据集定义（旧模板未内嵌时回退空数组） */

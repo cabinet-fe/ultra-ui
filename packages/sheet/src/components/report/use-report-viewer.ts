@@ -2,7 +2,8 @@ import type { SheetSnapshot } from '@veltra/sheet-core'
 import { computed, ref, shallowRef, watch, type ComputedRef, type Ref, type ShallowRef } from 'vue'
 
 import type { ConnectorError } from '../../report/connector'
-import { renderReport } from '../../report/render'
+import type { ReportColWidthEntry } from '../../report/export-xlsx'
+import { renderReport, resolveFilledColWidths } from '../../report/render'
 import {
   fetchTemplateRecords,
   resolveParamDefaults,
@@ -22,6 +23,8 @@ export interface UseReportViewerReturn {
   error: ShallowRef<ConnectorError | null>
   /** 最近一次成功展开渲染的 Filled Report 快照（组件壳据此替换网格内容） */
   filledSnapshot: ShallowRef<SheetSnapshot | null>
+  /** 展开后物理列宽（由模板 colWidths 映射；无模板列宽时为 undefined） */
+  filledColWidths: ShallowRef<ReadonlyArray<ReportColWidthEntry> | undefined>
   /** 重新取数并展开渲染 */
   refresh: () => Promise<void>
   /** Filter Bar 改值：写入新参数值并重新取数 */
@@ -36,6 +39,7 @@ export function useReportViewer(props: ReportViewerProps): UseReportViewerReturn
   const loading = ref(false)
   const error = shallowRef<ConnectorError | null>(null)
   const filledSnapshot = shallowRef<SheetSnapshot | null>(null)
+  const filledColWidths = shallowRef<ReadonlyArray<ReportColWidthEntry> | undefined>(undefined)
 
   const params = computed(() => resolveTemplateParams(props.template))
   // 初始值由下方 immediate watch 播种（参数默认值）
@@ -54,9 +58,13 @@ export function useReportViewer(props: ReportViewerProps): UseReportViewerReturn
     loading.value = false
     if (!result.ok) {
       error.value = result.error
+      filledColWidths.value = undefined
       return
     }
     filledSnapshot.value = renderReport(template, result.data)
+    filledColWidths.value = template.colWidths?.length
+      ? resolveFilledColWidths(template, result.data, template.colWidths)
+      : undefined
   }
 
   function setValues(next: ParamValues): void {
@@ -69,11 +77,12 @@ export function useReportViewer(props: ReportViewerProps): UseReportViewerReturn
     () => props.template,
     () => {
       filledSnapshot.value = null
+      filledColWidths.value = undefined
       values.value = resolveParamDefaults(params.value)
       void refresh()
     },
     { immediate: true }
   )
 
-  return { params, values, loading, error, filledSnapshot, refresh, setValues }
+  return { params, values, loading, error, filledSnapshot, filledColWidths, refresh, setValues }
 }

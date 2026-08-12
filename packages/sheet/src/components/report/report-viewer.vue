@@ -66,7 +66,7 @@ const workbook = computed(() => props.workbook ?? internalWorkbook)
 
 const sheetRef = useTemplateRef<SheetExposed>('sheetRef')
 
-const { params, values, loading, error, filledSnapshot, refresh, setValues } =
+const { params, values, loading, error, filledSnapshot, filledColWidths, refresh, setValues } =
   useReportViewer(props)
 
 const renderRows = computed(() =>
@@ -76,14 +76,21 @@ const renderCols = computed(() =>
   Math.max(MIN_RENDER_COLS, filledSnapshot.value?.cols ?? 0, props.template.cols)
 )
 
+/** 宿主显式传入优先；否则取数完成后用展开映射列宽；再回落模板设计态列宽 */
+const effectiveColWidths = computed(() => {
+  if (props.colWidths?.length) return props.colWidths
+  if (filledColWidths.value?.length) return filledColWidths.value
+  return props.template.colWidths
+})
+
 function exportColIndexes(): number[] {
   return Array.from({ length: renderCols.value }, (_, col) => col)
 }
 
-/** 将宿主传入的列宽写入 VTable 运行时（sheet-core 列宽未进快照） */
+/** 将运行时列宽写入 VTable（sheet-core 列宽未进 SheetSnapshot） */
 function applyRuntimeColWidths(): void {
-  if (!props.colWidths?.length) return
-  applyGridColWidths(sheetRef.value?.getGrid(), props.colWidths)
+  if (!effectiveColWidths.value?.length) return
+  applyGridColWidths(sheetRef.value?.getGrid(), effectiveColWidths.value)
 }
 
 /**
@@ -103,7 +110,7 @@ watch(() => props.template, applySnapshot, { immediate: true })
 watch(filledSnapshot, (filled) => {
   if (filled) applySnapshot(filled)
 })
-watch(() => props.colWidths, applyRuntimeColWidths)
+watch(effectiveColWidths, applyRuntimeColWidths)
 
 async function exportXlsx(): Promise<void> {
   if (loading.value) {

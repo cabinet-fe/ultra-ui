@@ -561,6 +561,9 @@ export class Sheet {
 
     this.shiftImages(change)
 
+    this.cellMeta.applyStructureChange(change)
+    this.emitter.emit('meta-change', {})
+
     this.emitter.emit('structure-change', change)
   }
 

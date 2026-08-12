@@ -44,10 +44,10 @@ bun run server   # 仅契约参考服务
 `server/` 为 `@veltra/sheet` DataConnector HTTP 契约（ADR-0003 决策 3）的 dev-only 参考实现：
 
 - hono + TS，`mysql2` / `pg` 真实驱动；只存在于 playground（devDependencies），不进任何发布产物
-- 三端点 `POST /test|describe|query`（无版本段），业务错误一律 `200 + { ok: false, error: { code, message } }`
-- 无状态查询代理；连接/数据集经 `GET|PUT /workspace` 持久化到本地 SQLite（`server/data/report-hub.db`）
+- **通用契约**：`POST /test|describe|query`（无版本段），业务错误一律 `200 + { ok: false, error: { code, message } }`
+- **playground Hub**：连接与数据集（含 SQL）经 `GET|PUT /workspace` 持久化到本地 SQLite；取数经 `POST /datasets/:id/query` 只传 `values`；命名报表模板经 `GET|POST|PUT|DELETE /templates` 入库（入库时剥离凭据/SQL，读取时由工作区回填）
 - `bun run dev` 并行启动本服务（默认 8787）与前端；亦可 `bun run server` 单独启动（`REPORT_SERVER_PORT` 覆盖）
-- 前端经 vite proxy `/report-api` 访问（`createHttpConnector({ endpoint: '/report-api' })`）
+- 前端经 vite proxy `/report-api` 访问（`createHubConnector({ endpoint: '/report-api' })`）
 - 详见 `server/README.md`
 
 ## 结构

@@ -3,30 +3,7 @@ import type { DatabaseSync } from 'node:sqlite'
 import type { DataConnection } from '@veltra/sheet'
 
 import { getDb } from './db'
-
-/** 持久化的数据集（不含 describe 字段缓存） */
-export interface StoredDataset {
-  id: string
-  label: string
-  connectionId: string
-  sql: string
-  paramOverrides?: Record<string, unknown>
-  fieldOverrides?: Record<string, unknown>
-}
-
-export interface WorkspaceData {
-  connections: DataConnection[]
-  datasets: StoredDataset[]
-}
-
-function parseJson<T>(raw: string | null): T | undefined {
-  if (!raw) return undefined
-  try {
-    return JSON.parse(raw) as T
-  } catch {
-    return undefined
-  }
-}
+import type { WorkspaceData, WorkspaceDataset } from './workspace-types'
 
 function rowToConnection(row: Record<string, unknown>): DataConnection {
   return {
@@ -41,21 +18,34 @@ function rowToConnection(row: Record<string, unknown>): DataConnection {
   }
 }
 
-function rowToDataset(row: Record<string, unknown>): StoredDataset {
-  const paramOverrides = parseJson<StoredDataset['paramOverrides']>(
-    row.param_overrides as string | null
-  )
-  const fieldOverrides = parseJson<StoredDataset['fieldOverrides']>(
-    row.field_overrides as string | null
-  )
-  return {
-    id: String(row.id),
-    label: String(row.label),
-    connectionId: String(row.connection_id),
-    sql: String(row.sql),
-    ...(paramOverrides ? { paramOverrides } : {}),
-    ...(fieldOverrides ? { fieldOverrides } : {})
+function parseJsonObject(raw: unknown): Record<string, unknown> | undefined {
+  if (raw === null || raw === undefined || raw === '') return undefined
+  if (typeof raw !== 'string') return undefined
+  try {
+    const parsed = JSON.parse(raw) as unknown
+    if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+      return parsed as Record<string, unknown>
+    }
+  } catch {
+    return undefined
   }
+  return undefined
+}
+
+function rowToDataset(row: Record<string, unknown>): WorkspaceDataset {
+  const rawSql = row.sql
+  const sql = typeof rawSql === 'string' ? rawSql : ''
+  const dataset: WorkspaceDataset = {
+    id: String(row.id),
+    connectionId: String(row.connection_id),
+    label: String(row.label),
+    sql
+  }
+  const paramOverrides = parseJsonObject(row.param_overrides)
+  if (paramOverrides) dataset.paramOverrides = paramOverrides
+  const fieldOverrides = parseJsonObject(row.field_overrides)
+  if (fieldOverrides) dataset.fieldOverrides = fieldOverrides
+  return dataset
 }
 
 function selectAll(database: DatabaseSync, sql: string): Record<string, unknown>[] {
@@ -74,7 +64,25 @@ export function loadWorkspace(): WorkspaceData {
   return { connections, datasets }
 }
 
-/** 全量替换工作区（事务） */
+/** 按 id 读取连接 */
+export function getConnectionById(id: string): DataConnection | undefined {
+  const database = getDb()
+  const row = database.prepare('SELECT * FROM connections WHERE id = ?').get(id) as
+    | Record<string, unknown>
+    | undefined
+  return row ? rowToConnection(row) : undefined
+}
+
+/** 按 id 读取数据集 */
+export function getDatasetById(id: string): WorkspaceDataset | undefined {
+  const database = getDb()
+  const row = database.prepare('SELECT * FROM datasets WHERE id = ?').get(id) as
+    | Record<string, unknown>
+    | undefined
+  return row ? rowToDataset(row) : undefined
+}
+
+/** 全量替换工作区连接与数据集（事务） */
 export function saveWorkspace(data: WorkspaceData): void {
   const database = getDb()
   const replaceConnections = database.prepare(`
@@ -90,7 +98,7 @@ export function saveWorkspace(data: WorkspaceData): void {
       password = excluded.password,
       updated_at = datetime('now')
   `)
-  const replaceDataset = database.prepare(`
+  const replaceDatasets = database.prepare(`
     INSERT INTO datasets (id, connection_id, label, sql, param_overrides, field_overrides, updated_at)
     VALUES ($id, $connection_id, $label, $sql, $param_overrides, $field_overrides, datetime('now'))
     ON CONFLICT(id) DO UPDATE SET
@@ -122,13 +130,8 @@ export function saveWorkspace(data: WorkspaceData): void {
       })
     }
 
-    for (const row of selectAll(database, 'SELECT id FROM connections')) {
-      const id = String(row.id)
-      if (!incomingConnIds.has(id)) deleteConnection.run(id)
-    }
-
     for (const dataset of data.datasets) {
-      replaceDataset.run({
+      replaceDatasets.run({
         id: dataset.id,
         connection_id: dataset.connectionId,
         label: dataset.label,
@@ -136,6 +139,11 @@ export function saveWorkspace(data: WorkspaceData): void {
         param_overrides: dataset.paramOverrides ? JSON.stringify(dataset.paramOverrides) : null,
         field_overrides: dataset.fieldOverrides ? JSON.stringify(dataset.fieldOverrides) : null
       })
+    }
+
+    for (const row of selectAll(database, 'SELECT id FROM connections')) {
+      const id = String(row.id)
+      if (!incomingConnIds.has(id)) deleteConnection.run(id)
     }
 
     for (const row of selectAll(database, 'SELECT id FROM datasets')) {

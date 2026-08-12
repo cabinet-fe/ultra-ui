@@ -1,10 +1,10 @@
 import type { ConnectorError, DataConnection, DatasetField, ParamValues } from '@veltra/sheet'
 /**
  * playground 内置 hono + TS 契约参考服务（ADR-0003 决策 3）。
- * - 三端点镜像 `DataConnector` 三方法：POST /test、/describe、/query（无版本段）；
+ * - 通用契约三端点：POST /test、/describe、/query（无版本段，供 BYO 对齐）；
+ * - playground 演示专用 Hub 端点：连接 / 数据集持久化于 SQLite，查询只传 datasetId；
  * - 业务错误（连接失败 / SQL 报错 / 参数缺失）一律 `200 + { ok: false, error: { code, message } }`；
  * - 传输层错误（请求形状不合法 / 不支持的连接类型）用 HTTP 400；
- * - 服务无状态、不内置任何默认连接；每次调用按连接信息新建短连接；
  * - GET / 返回契约活体文档（含端点、错误码与 curl 示例）。
  */
 import { Hono } from 'hono'
@@ -14,7 +14,17 @@ import { logger } from 'hono/logger'
 import { ERROR_CODES } from './errors'
 import { runMysqlDescribe, runMysqlQuery, runMysqlTest } from './mysql'
 import { runPgDescribe, runPgQuery, runPgTest } from './pg'
-import { loadWorkspace, saveWorkspace, type StoredDataset } from './workspace'
+import { hydrateTemplateFromWorkspace, stripTemplateForStorage } from './template-hydration'
+import { validateStoredTemplate } from './template-validation'
+import {
+  createReportTemplate,
+  deleteReportTemplate,
+  getReportTemplate,
+  listReportTemplates,
+  updateReportTemplate
+} from './templates'
+import { getConnectionById, getDatasetById, loadWorkspace, saveWorkspace } from './workspace'
+import type { WorkspaceDataset } from './workspace-types'
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -81,28 +91,101 @@ async function readJsonBody(
   return { ok: true, value: parsed }
 }
 
-/** 内核 DatasetField → 契约字段 `{ name, type? }`（契约形状，label 不上行） */
-function toContractFields(fields: DatasetField[]): { name: string; type?: DatasetField['type'] }[] {
-  return fields.map(({ name, type }) => ({ name, type }))
+/** 内核 DatasetField → 契约字段 `{ name, label?, type? }` */
+function toContractFields(
+  fields: DatasetField[]
+): { name: string; label?: string; type?: DatasetField['type'] }[] {
+  return fields.map(({ name, label, type }) => {
+    const field: { name: string; label?: string; type?: DatasetField['type'] } = { name }
+    if (label !== name) field.label = label
+    if (type) field.type = type
+    return field
+  })
 }
 
-function validateStoredDataset(input: unknown): StoredDataset | null {
-  if (!isRecord(input)) return null
-  const { id, label, connectionId, sql, paramOverrides, fieldOverrides } = input
-  if (typeof id !== 'string' || id === '') return null
-  if (typeof label !== 'string' || label === '') return null
-  if (typeof connectionId !== 'string' || connectionId === '') return null
-  if (typeof sql !== 'string') return null
-  if (paramOverrides !== undefined && !isRecord(paramOverrides)) return null
-  if (fieldOverrides !== undefined && !isRecord(fieldOverrides)) return null
-  return {
-    id,
-    label,
-    connectionId,
-    sql,
-    ...(paramOverrides ? { paramOverrides } : {}),
-    ...(fieldOverrides ? { fieldOverrides } : {})
+function validateTemplateName(input: unknown): string | null {
+  if (typeof input !== 'string') return null
+  const name = input.trim()
+  if (!name) return null
+  return name
+}
+
+/** 校验工作区数据集定义 */
+function validateWorkspaceDataset(
+  input: unknown,
+  connectionIds: Set<string>
+): { ok: true; value: WorkspaceDataset } | { ok: false; error: ConnectorError } {
+  if (!isRecord(input)) return { ok: false, error: invalid('dataset 必须是 JSON 对象') }
+  const { id, connectionId, label, sql } = input
+  if (typeof id !== 'string' || id === '') {
+    return { ok: false, error: invalid('dataset.id 必须是非空字符串') }
   }
+  if (typeof connectionId !== 'string' || connectionId === '') {
+    return { ok: false, error: invalid('dataset.connectionId 必须是非空字符串') }
+  }
+  if (!connectionIds.has(connectionId)) {
+    return { ok: false, error: invalid(`dataset.connectionId 未找到对应连接：${connectionId}`) }
+  }
+  if (typeof label !== 'string' || label === '') {
+    return { ok: false, error: invalid('dataset.label 必须是非空字符串') }
+  }
+  if (typeof sql !== 'string') {
+    return { ok: false, error: invalid('dataset.sql 必须是字符串') }
+  }
+  const dataset: WorkspaceDataset = { id, connectionId, label, sql }
+  if (input.paramOverrides !== undefined) {
+    if (!isRecord(input.paramOverrides)) {
+      return { ok: false, error: invalid('dataset.paramOverrides 必须是 JSON 对象') }
+    }
+    dataset.paramOverrides = input.paramOverrides
+  }
+  if (input.fieldOverrides !== undefined) {
+    if (!isRecord(input.fieldOverrides)) {
+      return { ok: false, error: invalid('dataset.fieldOverrides 必须是 JSON 对象') }
+    }
+    dataset.fieldOverrides = input.fieldOverrides
+  }
+  return { ok: true, value: dataset }
+}
+
+function notFound(message: string): ConnectorError {
+  return { code: ERROR_CODES.INVALID_REQUEST, message }
+}
+
+function resolveDatasetContext(
+  datasetId: string
+):
+  | { ok: true; dataset: WorkspaceDataset; connection: DataConnection }
+  | { ok: false; error: ConnectorError } {
+  const dataset = getDatasetById(datasetId)
+  if (!dataset) return { ok: false, error: notFound(`数据集不存在：${datasetId}`) }
+  const connection = getConnectionById(dataset.connectionId)
+  if (!connection) {
+    return { ok: false, error: notFound(`数据集所属连接不存在：${dataset.connectionId}`) }
+  }
+  return { ok: true, dataset, connection }
+}
+
+async function runDescribe(connection: DataConnection, sql: string) {
+  return connection.type === 'mysql'
+    ? runMysqlDescribe(connection, sql)
+    : runPgDescribe(connection, sql)
+}
+
+async function runQuery(connection: DataConnection, sql: string, values: ParamValues) {
+  return connection.type === 'mysql'
+    ? runMysqlQuery(connection, sql, values)
+    : runPgQuery(connection, sql, values)
+}
+
+async function runTest(connection: DataConnection) {
+  return connection.type === 'mysql' ? runMysqlTest(connection) : runPgTest(connection)
+}
+
+function hydrateTemplateRecord<
+  T extends { template: NonNullable<ReturnType<typeof validateStoredTemplate>> }
+>(item: T): T {
+  return { ...item, template: hydrateTemplateFromWorkspace(item.template, loadWorkspace()) }
 }
 
 export const reportApp = new Hono()
@@ -133,7 +216,7 @@ reportApp.get('/', (c) =>
           connection: 'DataConnection',
           sql: '含 ${param} 占位符的 SELECT（服务端以 NULL 替换占位符后只取字段元数据，不取数）'
         },
-        success: { ok: true, fields: '[{ name, type? }]，type: string | number | date' },
+        success: { ok: true, fields: '[{ name, label?, type? }]，type: string | number | date' },
         error: '200 + { ok: false, error: { code, message } }'
       },
       query: {
@@ -144,7 +227,11 @@ reportApp.get('/', (c) =>
           sql: '含 ${param} 占位符的 SELECT',
           values: 'Record<string, unknown>，与 SQL 参数一一对应'
         },
-        success: { ok: true, fields: '[{ name, type? }]', rows: 'Record<string, unknown>[]' },
+        success: {
+          ok: true,
+          fields: '[{ name, label?, type? }]',
+          rows: 'Record<string, unknown>[]'
+        },
         error: '200 + { ok: false, error: { code, message } }'
       }
     },
@@ -156,24 +243,75 @@ reportApp.get('/', (c) =>
       MISSING_PARAM: 'HTTP 200：SQL 引用了 ${param} 但请求未提供对应值'
     },
     workspace: {
-      load: { method: 'GET', path: '/workspace', success: '{ ok: true, connections, datasets }' },
+      load: {
+        method: 'GET',
+        path: '/workspace',
+        success: '{ ok: true, connections, datasets }',
+        note: '连接与数据集（含 SQL）持久化于 SQLite；playground 前端经此同步工作区'
+      },
       save: {
         method: 'PUT',
         path: '/workspace',
-        request: '{ connections: DataConnection[], datasets: StoredDataset[] }',
+        request: '{ connections: DataConnection[], datasets: WorkspaceDataset[] }',
         success: '{ ok: true }'
+      },
+      hub: {
+        testConnection: {
+          method: 'POST',
+          path: '/connections/:id/test',
+          request: '无（凭据从 SQLite 读取）',
+          success: '{ ok: true }'
+        },
+        describeDataset: {
+          method: 'POST',
+          path: '/datasets/:id/describe',
+          request: '无（SQL 与连接从 SQLite 读取）',
+          success: '{ ok: true, fields }'
+        },
+        queryDataset: {
+          method: 'POST',
+          path: '/datasets/:id/query',
+          request: '{ values?: Record<string, unknown> }',
+          success: '{ ok: true, fields, rows }'
+        }
       },
       storage:
         'SQLite（Bun 内置 bun:sqlite），默认 playground/server/data/report-hub.db，可用 REPORT_HUB_DB 覆盖'
     },
+    templates: {
+      list: {
+        method: 'GET',
+        path: '/templates',
+        success: '{ ok: true, items: [{ id, name, createdAt, updatedAt }] }'
+      },
+      get: {
+        method: 'GET',
+        path: '/templates/:id',
+        success: '{ ok: true, item: { id, name, template, createdAt, updatedAt } }'
+      },
+      create: {
+        method: 'POST',
+        path: '/templates',
+        request: '{ name: string, template: ReportTemplate }',
+        success: '{ ok: true, item }'
+      },
+      update: {
+        method: 'PUT',
+        path: '/templates/:id',
+        request: '{ name?: string, template?: ReportTemplate }',
+        success: '{ ok: true, item }'
+      },
+      delete: { method: 'DELETE', path: '/templates/:id', success: '{ ok: true }' }
+    },
     usage: {
       devProxy:
-        'vite dev 下前端用 createHttpConnector({ endpoint: "/report-api" })，经 vite proxy 转发到本服务',
+        'vite dev 下 playground 用 createHubConnector({ endpoint: "/report-api" })，经 vite proxy 转发到本服务',
       direct: `本服务独立监听 REPORT_SERVER_PORT（默认 8787），可直接 curl 调用`,
       example: {
-        test: `curl -X POST http://localhost:8787/test -H "Content-Type: application/json" -d '{"connection":{"id":"c1","label":"示例","type":"postgresql","host":"127.0.0.1","port":5432,"database":"demo","username":"postgres","password":""}}'`,
-        describe: `curl -X POST http://localhost:8787/describe -H "Content-Type: application/json" -d '{"connection":{...},"sql":"SELECT * FROM orders WHERE status = \${status}"}'`,
-        query: `curl -X POST http://localhost:8787/query -H "Content-Type: application/json" -d '{"connection":{...},"sql":"SELECT * FROM orders WHERE status = \${status}","values":{"status":"paid"}}'`
+        test: `curl -X POST http://localhost:8787/connections/c1/test`,
+        describe: `curl -X POST http://localhost:8787/datasets/ds-orders/describe`,
+        query: `curl -X POST http://localhost:8787/datasets/ds-orders/query -H "Content-Type: application/json" -d '{"values":{"status":"paid"}}'`,
+        legacyTest: `curl -X POST http://localhost:8787/test -H "Content-Type: application/json" -d '{"connection":{...}}'`
       }
     }
   })
@@ -191,9 +329,12 @@ reportApp.put('/workspace', async (c) => {
   if (!body.ok) return body.response
 
   const rawConnections = body.value.connections
+  if (!Array.isArray(rawConnections)) {
+    return c.json({ ok: false, error: invalid('connections 必须是数组') }, 400)
+  }
   const rawDatasets = body.value.datasets
-  if (!Array.isArray(rawConnections) || !Array.isArray(rawDatasets)) {
-    return c.json({ ok: false, error: invalid('connections 与 datasets 必须是数组') }, 400)
+  if (!Array.isArray(rawDatasets)) {
+    return c.json({ ok: false, error: invalid('datasets 必须是数组') }, 400)
   }
 
   const connections: DataConnection[] = []
@@ -203,44 +344,142 @@ reportApp.put('/workspace', async (c) => {
     connections.push(connection.value)
   }
 
-  const datasets: StoredDataset[] = []
-  for (const item of rawDatasets) {
-    const dataset = validateStoredDataset(item)
-    if (!dataset) {
-      return c.json({ ok: false, error: invalid('datasets 项形状不合法') }, 400)
-    }
-    datasets.push(dataset)
-  }
-
   const connectionIds = new Set(connections.map((item) => item.id))
-  for (const dataset of datasets) {
-    if (!connectionIds.has(dataset.connectionId)) {
-      return c.json(
-        {
-          ok: false,
-          error: invalid(`数据集 ${dataset.id} 引用了不存在的连接 ${dataset.connectionId}`)
-        },
-        400
-      )
-    }
+  const datasets: WorkspaceDataset[] = []
+  for (const item of rawDatasets) {
+    const dataset = validateWorkspaceDataset(item, connectionIds)
+    if (!dataset.ok) return c.json({ ok: false, error: dataset.error }, 400)
+    datasets.push(dataset.value)
   }
 
   saveWorkspace({ connections, datasets })
   return c.json({ ok: true })
 })
 
+/** GET /templates — 列出已入库的报表模板 */
+reportApp.get('/templates', (c) => {
+  return c.json({ ok: true, items: listReportTemplates() })
+})
+
+/** GET /templates/:id — 读取单个报表模板（数据集由工作区回填） */
+reportApp.get('/templates/:id', (c) => {
+  const item = getReportTemplate(c.req.param('id'))
+  if (!item) {
+    return c.json({ ok: false, error: invalid('报表模板不存在') }, 404)
+  }
+  return c.json({ ok: true, item: hydrateTemplateRecord(item) })
+})
+
+/** POST /templates — 新建报表模板 */
+reportApp.post('/templates', async (c) => {
+  const body = await readJsonBody(c)
+  if (!body.ok) return body.response
+
+  const name = validateTemplateName(body.value.name)
+  if (!name) {
+    return c.json({ ok: false, error: invalid('name 必须是非空字符串') }, 400)
+  }
+  const template = validateStoredTemplate(body.value.template)
+  if (!template) {
+    return c.json({ ok: false, error: invalid('template 形状不合法') }, 400)
+  }
+
+  const item = createReportTemplate(name, stripTemplateForStorage(template))
+  return c.json({ ok: true, item: hydrateTemplateRecord(item) }, 201)
+})
+
+/** PUT /templates/:id — 更新报表模板 */
+reportApp.put('/templates/:id', async (c) => {
+  const body = await readJsonBody(c)
+  if (!body.ok) return body.response
+
+  const patch: {
+    name?: string
+    template?: NonNullable<ReturnType<typeof validateStoredTemplate>>
+  } = {}
+  if ('name' in body.value) {
+    const name = validateTemplateName(body.value.name)
+    if (!name) {
+      return c.json({ ok: false, error: invalid('name 必须是非空字符串') }, 400)
+    }
+    patch.name = name
+  }
+  if ('template' in body.value) {
+    const template = validateStoredTemplate(body.value.template)
+    if (!template) {
+      return c.json({ ok: false, error: invalid('template 形状不合法') }, 400)
+    }
+    patch.template = stripTemplateForStorage(template)
+  }
+  if (!('name' in patch) && !('template' in patch)) {
+    return c.json({ ok: false, error: invalid('请求体需包含 name 和/或 template') }, 400)
+  }
+
+  const item = updateReportTemplate(c.req.param('id'), patch)
+  if (!item) {
+    return c.json({ ok: false, error: invalid('报表模板不存在') }, 404)
+  }
+  return c.json({ ok: true, item: hydrateTemplateRecord(item) })
+})
+
+/** DELETE /templates/:id — 删除报表模板 */
+reportApp.delete('/templates/:id', (c) => {
+  const deleted = deleteReportTemplate(c.req.param('id'))
+  if (!deleted) {
+    return c.json({ ok: false, error: invalid('报表模板不存在') }, 404)
+  }
+  return c.json({ ok: true })
+})
+
+/** POST /connections/:id/test — 按已持久化连接测试（不传凭据） */
+reportApp.post('/connections/:id/test', async (c) => {
+  const connection = getConnectionById(c.req.param('id'))
+  if (!connection) {
+    return c.json({ ok: false, error: notFound('连接不存在') }, 404)
+  }
+  const result = await runTest(connection)
+  return result.ok ? c.json({ ok: true }) : c.json({ ok: false, error: result.error })
+})
+
+/** POST /datasets/:id/describe — 按已持久化数据集解析字段（不传 SQL / 连接） */
+reportApp.post('/datasets/:id/describe', async (c) => {
+  const context = resolveDatasetContext(c.req.param('id'))
+  if (!context.ok) return c.json({ ok: false, error: context.error }, 404)
+  const result = await runDescribe(context.connection, context.dataset.sql)
+  return result.ok
+    ? c.json({ ok: true, fields: toContractFields(result.data) })
+    : c.json({ ok: false, error: result.error })
+})
+
+/** POST /datasets/:id/query — 按已持久化数据集取数（只传 values） */
+reportApp.post('/datasets/:id/query', async (c) => {
+  const context = resolveDatasetContext(c.req.param('id'))
+  if (!context.ok) return c.json({ ok: false, error: context.error }, 404)
+
+  const body = await readJsonBody(c)
+  if (!body.ok) return body.response
+  const { values } = body.value
+  if (values !== undefined && !isRecord(values)) {
+    return c.json({ ok: false, error: invalid('values 必须是 JSON 对象') }, 400)
+  }
+  const paramValues: ParamValues = values === undefined ? {} : values
+  const result = await runQuery(context.connection, context.dataset.sql, paramValues)
+  return result.ok
+    ? c.json({ ok: true, fields: toContractFields(result.data.fields), rows: result.data.rows })
+    : c.json({ ok: false, error: result.error })
+})
+
+/** POST /test — 通用契约：测试连接（草稿连接或未入库场景） */
 reportApp.post('/test', async (c) => {
   const body = await readJsonBody(c)
   if (!body.ok) return body.response
   const connection = validateConnection(body.value.connection)
   if (!connection.ok) return c.json({ ok: false, error: connection.error }, 400)
-  const result =
-    connection.value.type === 'mysql'
-      ? await runMysqlTest(connection.value)
-      : await runPgTest(connection.value)
+  const result = await runTest(connection.value)
   return result.ok ? c.json({ ok: true }) : c.json({ ok: false, error: result.error })
 })
 
+/** POST /describe — 通用契约：按连接 + SQL 解析字段 */
 reportApp.post('/describe', async (c) => {
   const body = await readJsonBody(c)
   if (!body.ok) return body.response
@@ -250,15 +489,13 @@ reportApp.post('/describe', async (c) => {
   if (typeof sql !== 'string' || sql.trim() === '') {
     return c.json({ ok: false, error: invalid('sql 必须是非空字符串') }, 400)
   }
-  const result =
-    connection.value.type === 'mysql'
-      ? await runMysqlDescribe(connection.value, sql)
-      : await runPgDescribe(connection.value, sql)
+  const result = await runDescribe(connection.value, sql)
   return result.ok
     ? c.json({ ok: true, fields: toContractFields(result.data) })
     : c.json({ ok: false, error: result.error })
 })
 
+/** POST /query — 通用契约：按连接 + SQL 取数 */
 reportApp.post('/query', async (c) => {
   const body = await readJsonBody(c)
   if (!body.ok) return body.response
@@ -272,10 +509,7 @@ reportApp.post('/query', async (c) => {
     return c.json({ ok: false, error: invalid('values 必须是 JSON 对象') }, 400)
   }
   const paramValues: ParamValues = values === undefined ? {} : values
-  const result =
-    connection.value.type === 'mysql'
-      ? await runMysqlQuery(connection.value, sql, paramValues)
-      : await runPgQuery(connection.value, sql, paramValues)
+  const result = await runQuery(connection.value, sql, paramValues)
   return result.ok
     ? c.json({ ok: true, fields: toContractFields(result.data.fields), rows: result.data.rows })
     : c.json({ ok: false, error: result.error })

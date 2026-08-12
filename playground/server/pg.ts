@@ -70,12 +70,47 @@ function mapFieldType(dataTypeID: number): DatasetField['type'] {
   return 'string'
 }
 
-function toDatasetFields(fields: FieldDef[]): DatasetField[] {
-  return fields.map((field) => ({
+function toDatasetFields(fields: FieldDef[], labels?: string[]): DatasetField[] {
+  return fields.map((field, index) => ({
     name: field.name,
-    label: field.name,
+    label: labels?.[index] ?? field.name,
     type: mapFieldType(field.dataTypeID)
   }))
+}
+
+/** 用 PostgreSQL 列元数据（tableID + columnID）读取 COMMENT ON COLUMN 中文描述 */
+async function resolvePgFieldLabels(client: Client, fields: FieldDef[]): Promise<string[]> {
+  const indexed = fields
+    .map((field, index) => ({ index, tableID: field.tableID, columnID: field.columnID }))
+    .filter((item) => item.tableID > 0 && item.columnID > 0)
+
+  if (indexed.length === 0) return fields.map((field) => field.name)
+
+  const tableIds = indexed.map((item) => item.tableID)
+  const columnIds = indexed.map((item) => item.columnID)
+  const result = await client.query<{ comment: string | null }>(
+    `SELECT col_description(t.oid, t.col)::text AS comment
+     FROM unnest($1::oid[], $2::int[]) AS t(oid, col)`,
+    [tableIds, columnIds]
+  )
+
+  const labelByIndex = new Map<number, string>()
+  for (let i = 0; i < indexed.length; i++) {
+    const comment = result.rows[i]?.comment
+    if (typeof comment === 'string' && comment.length > 0) {
+      labelByIndex.set(indexed[i]!.index, comment)
+    }
+  }
+
+  return fields.map((field, index) => labelByIndex.get(index) ?? field.name)
+}
+
+async function datasetFieldsFromPgResult(
+  client: Client,
+  fields: FieldDef[]
+): Promise<DatasetField[]> {
+  const labels = await resolvePgFieldLabels(client, fields)
+  return toDatasetFields(fields, labels)
 }
 
 /**
@@ -108,7 +143,7 @@ export function runPgTest(conn: DataConnection): Promise<Result<void>> {
 export function runPgDescribe(conn: DataConnection, sql: string): Promise<Result<DatasetField[]>> {
   return withPg(conn, async (client) => {
     const result = await client.query(toDescribeSql(sql))
-    return toDatasetFields(result.fields)
+    return datasetFieldsFromPgResult(client, result.fields)
   })
 }
 
@@ -122,7 +157,7 @@ export async function runPgQuery(
   return withPg(conn, async (client) => {
     const { sql: text, values: ordered } = toPositionalPlaceholders(sql, values)
     const result = await client.query({ text, values: ordered })
-    const datasetFields = toDatasetFields(result.fields)
+    const datasetFields = await datasetFieldsFromPgResult(client, result.fields)
     return {
       fields: datasetFields,
       rows: coerceNumericRows(datasetFields, result.rows as Record<string, unknown>[])
