@@ -1,5 +1,5 @@
 import { Sheet, Workbook } from '@veltra/sheet-core'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createApp, h, nextTick, type App } from 'vue'
 
 import { UReportViewer } from '../../../index'
@@ -290,5 +290,45 @@ describe('UReportViewer', () => {
     })
     await flushViewer()
     expect(el.querySelector('.u-report-filter-bar')).toBeNull()
+  })
+
+  it('取数前 exportXlsx() 拒绝；取数失败或未就绪时同样拒绝', async () => {
+    let gate = deferred<QueryOutcome>()
+    let outcome: QueryOutcome = { error: { code: 'CONNECTION_FAILED', message: '数据库连接失败' } }
+    const { connector } = createStubConnector(() => gate.promise)
+    const { exposedRef } = mountViewer({
+      connector,
+      template: createViewerTemplate(),
+      workbook: new Workbook()
+    })
+    await nextTick()
+
+    await expect(exposedRef.value!.exportXlsx()).rejects.toThrow('报表数据加载中')
+
+    gate.resolve(outcome)
+    await flushViewer()
+    await expect(exposedRef.value!.exportXlsx()).rejects.toThrow('报表数据尚未就绪')
+  })
+
+  it('取数后 exportXlsx() 成功产出 blob', async () => {
+    const { connector } = createStubConnector({ rows: ORDER_ROWS })
+    const workbook = new Workbook()
+    const { exposedRef } = mountViewer({ connector, template: createViewerTemplate(), workbook })
+    await flushViewer()
+
+    const exportModule = await import('../../../report/export-xlsx')
+    const catKitFe = await import('@cat-kit/fe')
+    const exportSpy = vi
+      .spyOn(exportModule, 'exportFilledReportXlsx')
+      .mockResolvedValue(new Uint8Array([80, 75, 3, 4]))
+    const saveBlobSpy = vi.spyOn(catKitFe, 'saveBlob').mockImplementation(() => {})
+
+    await exposedRef.value!.exportXlsx()
+
+    expect(exportSpy).toHaveBeenCalled()
+    expect(saveBlobSpy).toHaveBeenCalledWith(expect.any(Blob), expect.stringMatching(/\.xlsx$/))
+
+    exportSpy.mockRestore()
+    saveBlobSpy.mockRestore()
   })
 })

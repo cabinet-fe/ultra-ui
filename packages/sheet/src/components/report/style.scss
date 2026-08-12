@@ -190,6 +190,33 @@
   }
 }
 
+/* 字段拖拽落点高亮（虚线框；落空时提示回退当前选区） */
+@include m.b(report-drop-highlight) {
+  position: absolute;
+  z-index: 16;
+  box-sizing: border-box;
+  border: 2px dashed fn.use-var(color, primary);
+  border-radius: 2px;
+  background: color-mix(in srgb, fn.use-var(color, primary) 10%, transparent);
+  pointer-events: none;
+
+  @include m.e(fallback) {
+    position: absolute;
+    left: 50%;
+    bottom: fn.use-var(gap, small);
+    z-index: 16;
+    transform: translateX(-50%);
+    padding: 4px fn.use-var(gap, small);
+    border-radius: fn.use-var(radius, default);
+    background: color-mix(in srgb, fn.use-var(bg-color, top) 92%, transparent);
+    border: 1px dashed fn.use-var(color, primary);
+    font-size: fn.use-var(font-size-main, small);
+    color: fn.use-var(text-color, second);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+}
+
 /* Action Pill：选中绑定格上方的悬浮编辑卡（角色 / 聚合 / 条件样式 / 排序 / 清除绑定） */
 @include m.b(report-float-panel) {
   position: absolute;

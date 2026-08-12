@@ -48,7 +48,13 @@
         @bind="bindField"
       />
 
-      <div ref="gridHostRef" :class="cls.e('grid')" @dragover="onGridDragOver" @drop="onGridDrop">
+      <div
+        ref="gridHostRef"
+        :class="cls.e('grid')"
+        @dragover="onGridDragOver"
+        @dragleave="onGridDragLeave"
+        @drop="onGridDrop"
+      >
         <u-sheet
           ref="sheetRef"
           :class="cls.e('sheet')"
@@ -70,6 +76,14 @@
           :get-binding-at="getBindingAt"
         />
 
+        <u-report-drop-highlight-overlay
+          :cell="dropTargetAddr"
+          :host-el="gridHostEl"
+          :get-grid="getDesignGrid"
+          :dragging="isFieldDragging"
+          :fallback-label="selectionLabel"
+        />
+
         <u-report-float-panel
           :cell="activeCell"
           :binding="activeBinding ?? null"
@@ -86,9 +100,11 @@
 
     <div v-else-if="previewTemplate" :class="cls.e('preview')">
       <u-report-viewer
+        ref="previewViewerRef"
         :connector="props.connector"
         :template="previewTemplate"
         :workbook="previewWorkbook"
+        :col-widths="designColWidths"
       />
     </div>
 
@@ -106,22 +122,26 @@
 </template>
 
 <script lang="ts" setup>
-import { saveBlob } from '@cat-kit/fe'
 import { UButton, UDrawer } from '@veltra/desktop'
 import type { CellAddress, SheetGrid } from '@veltra/sheet-core'
 import { Workbook } from '@veltra/sheet-core'
 import { bem } from '@veltra/utils'
 import { computed, nextTick, ref, shallowRef, useTemplateRef, watch } from 'vue'
 
-import { exportFilledReportXlsx } from '../../report/export-xlsx'
 import type { ReportTemplate } from '../../report/template'
 import type { ConditionalRule } from '../../report/types'
-import type { SheetExposed } from '../../types'
-import type { ReportDesignerEmits, ReportDesignerProps, _ReportDesignerExposed } from '../../types'
+import type {
+  ReportDesignerEmits,
+  ReportDesignerProps,
+  ReportViewerExposed,
+  SheetExposed,
+  _ReportDesignerExposed
+} from '../../types'
 import { USheet } from '../sheet'
 import UReportDatasetHub from './designer-hub.vue'
 import { resolveGridDropAddress } from './designer/cell-coords'
 import { applyGridColWidths, readGridColWidths } from './designer/col-widths'
+import UReportDropHighlightOverlay from './designer/drop-highlight-overlay.vue'
 import UReportFloatPanel from './designer/float-panel.vue'
 import UReportRulesDialog from './designer/rules-dialog.vue'
 import UReportTopologyOverlay from './designer/topology-overlay.vue'
@@ -176,8 +196,13 @@ const hubVisible = ref(false)
 const rulesDialogVisible = ref(false)
 
 const sheetRef = useTemplateRef<SheetExposed>('sheetRef')
+const previewViewerRef = useTemplateRef<ReportViewerExposed>('previewViewerRef')
 const gridHostRef = useTemplateRef<HTMLElement>('gridHostRef')
 const gridHostEl = computed(() => gridHostRef.value ?? null)
+
+/** 字段拖拽落点高亮（dragover 时更新；落空时 overlay 提示回退当前选区） */
+const isFieldDragging = ref(false)
+const dropTargetAddr = ref<CellAddress | null>(null)
 
 function getDesignGrid(): SheetGrid | undefined {
   return sheetRef.value?.getGrid()
@@ -240,16 +265,13 @@ watch(catalog, () => {
 
 async function exportPreviewXlsx(): Promise<void> {
   if (!isPreview.value || exporting.value) return
+  const viewer = previewViewerRef.value
+  if (!viewer) {
+    throw new Error('预览查看器尚未就绪，请稍后再导出')
+  }
   exporting.value = true
   try {
-    const sheet = previewWorkbook.activeSheet
-    const buffer = await exportFilledReportXlsx(sheet, designColWidths.value)
-    saveBlob(
-      new Blob([buffer as unknown as BlobPart], {
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-      }),
-      `${sheet.name || '报表'}.xlsx`
-    )
+    await viewer.exportXlsx()
   } finally {
     exporting.value = false
   }
@@ -257,6 +279,11 @@ async function exportPreviewXlsx(): Promise<void> {
 
 function saveConditionalRules(rules: ConditionalRule[]): void {
   patchActiveBinding({ conditionalRules: rules })
+}
+
+function clearDropState(): void {
+  isFieldDragging.value = false
+  dropTargetAddr.value = null
 }
 
 function resolveDropAddress(event: DragEvent): CellAddress | null {
@@ -270,10 +297,20 @@ function onGridDragOver(event: DragEvent): void {
   if (!event.dataTransfer?.types.includes(FIELD_DRAG_MIME)) return
   event.preventDefault()
   event.dataTransfer.dropEffect = 'copy'
+  isFieldDragging.value = true
+  dropTargetAddr.value = resolveDropAddress(event)
+}
+
+function onGridDragLeave(event: DragEvent): void {
+  const host = gridHostRef.value
+  const related = event.relatedTarget
+  if (host && related instanceof Node && host.contains(related)) return
+  clearDropState()
 }
 
 function onGridDrop(event: DragEvent): void {
   event.preventDefault()
+  clearDropState()
   const raw = event.dataTransfer?.getData(FIELD_DRAG_MIME)
   const payload = raw ? parseFieldDragPayload(raw) : null
   if (!payload) return

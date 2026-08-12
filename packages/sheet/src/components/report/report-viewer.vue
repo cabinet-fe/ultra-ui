@@ -17,6 +17,7 @@
       </div>
 
       <u-sheet
+        ref="sheetRef"
         :class="cls.e('sheet')"
         :workbook="workbook"
         :rows="renderRows"
@@ -31,13 +32,17 @@
 </template>
 
 <script lang="ts" setup>
+import { saveBlob } from '@cat-kit/fe'
 import type { SheetSnapshot } from '@veltra/sheet-core'
 import { Workbook } from '@veltra/sheet-core'
 import { bem } from '@veltra/utils'
-import { computed, watch } from 'vue'
+import { computed, nextTick, useTemplateRef, watch } from 'vue'
 
+import { exportFilledReportXlsx } from '../../report/export-xlsx'
 import type { ReportViewerProps, _ReportViewerExposed } from '../../types'
+import type { SheetExposed } from '../../types'
 import { USheet } from '../sheet'
+import { applyGridColWidths, readGridColWidths } from './designer/col-widths'
 import UReportFilterBar from './filter-bar.vue'
 import { useReportViewer } from './use-report-viewer'
 
@@ -51,9 +56,15 @@ const cls = bem('report-viewer')
 const MIN_RENDER_ROWS = 50
 const MIN_RENDER_COLS = 10
 
+/** 取数未完成时拒绝导出的可读错误 */
+const EXPORT_NOT_READY_MESSAGE = '报表数据尚未就绪，请等待取数完成后再导出'
+const EXPORT_LOADING_MESSAGE = '报表数据加载中，请稍后再导出'
+
 /** 查看器工作簿：宿主可注入（同 USheet `workbook?` 先例），缺省内部自建；模板 / 填充结果都 restore 进活动 sheet 只读展示 */
 const internalWorkbook = new Workbook()
 const workbook = computed(() => props.workbook ?? internalWorkbook)
+
+const sheetRef = useTemplateRef<SheetExposed>('sheetRef')
 
 const { params, values, loading, error, filledSnapshot, refresh, setValues } =
   useReportViewer(props)
@@ -65,6 +76,16 @@ const renderCols = computed(() =>
   Math.max(MIN_RENDER_COLS, filledSnapshot.value?.cols ?? 0, props.template.cols)
 )
 
+function exportColIndexes(): number[] {
+  return Array.from({ length: renderCols.value }, (_, col) => col)
+}
+
+/** 将宿主传入的列宽写入 VTable 运行时（sheet-core 列宽未进快照） */
+function applyRuntimeColWidths(): void {
+  if (!props.colWidths?.length) return
+  applyGridColWidths(sheetRef.value?.getGrid(), props.colWidths)
+}
+
 /**
  * restore 负责尺寸/冻结/行高/选区（静默），restoreContent 发 content-reset
  * 触发网格全量刷新（grid 层订阅直刷，无需手动 flush）；history.clear 使填充不进 undo
@@ -74,6 +95,7 @@ function applySnapshot(snapshot: SheetSnapshot): void {
   sheet.restore(snapshot)
   sheet.restoreContent(snapshot)
   sheet.history.clear()
+  void nextTick(applyRuntimeColWidths)
 }
 
 // 先铺模板静态结构（取数期间 / 取数失败时可见），取数成功后替换为 Filled Report
@@ -81,6 +103,26 @@ watch(() => props.template, applySnapshot, { immediate: true })
 watch(filledSnapshot, (filled) => {
   if (filled) applySnapshot(filled)
 })
+watch(() => props.colWidths, applyRuntimeColWidths)
 
-defineExpose<_ReportViewerExposed>({ refresh })
+async function exportXlsx(): Promise<void> {
+  if (loading.value) {
+    throw new Error(EXPORT_LOADING_MESSAGE)
+  }
+  if (!filledSnapshot.value) {
+    throw new Error(EXPORT_NOT_READY_MESSAGE)
+  }
+
+  const sheet = workbook.value.activeSheet
+  const colWidths = readGridColWidths(sheetRef.value?.getGrid(), exportColIndexes()) ?? []
+  const buffer = await exportFilledReportXlsx(sheet, colWidths)
+  saveBlob(
+    new Blob([buffer as unknown as BlobPart], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    }),
+    `${sheet.name || '报表'}.xlsx`
+  )
+}
+
+defineExpose<_ReportViewerExposed>({ refresh, exportXlsx })
 </script>

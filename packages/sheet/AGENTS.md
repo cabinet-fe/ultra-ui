@@ -29,7 +29,7 @@ src/
 
 ## UReportViewer（components/report/，ADR-0003 决策 2）
 
-- Props：`connector`（必填）、`template`（必填，`ReportTemplate`）、`workbook?`（USheet 先例，缺省内部自建）。Exposed：`refresh()`（重新取数并展开渲染）。
+- Props：`connector`（必填）、`template`（必填，`ReportTemplate`）、`workbook?`（USheet 先例，缺省内部自建）、`colWidths?`（列宽未进快照，载入后写入 VTable 运行时供导出读取）。Exposed：`refresh()`（重新取数并展开渲染）、`exportXlsx()`（导出填充报表 XLSX；取数完成前拒绝；不内置导出按钮，工具栏由下游决定）。
 - 运行态闭环：`useReportViewer`（headless：参数提取 → Filter Bar → `fetchTemplateRecords` 取数 → `renderReport` 展开，并发守卫只应用最后一次取数）+ 薄 UI 壳（`report-viewer.vue`）。内部 `UReportFilterBar` 按参数类型映射 `UInput/UNumberInput/USelect/UDatePicker/UDateRangePicker`（text/number/select/date/date-range），改值即重新取数；取数有 loading 遮罩、业务错误（`ok:false`）有可读 banner。
 - 展示：内嵌只读 USheet（无工具栏/公式栏/tabs）；先铺模板静态结构，取数成功后 `restore` + `restoreContent` 替换为 Filled Report（网格渲染行列数 = max(50×10 下限, 快照尺寸)）。
 - 样式入口 `@veltra/sheet/components/report/style`（自含 USheet 与 Filter Bar 桌面组件样式）。
@@ -45,7 +45,7 @@ src/
 - 数据中枢 drawer（`designer-hub.vue` + `hub-connection-form.vue` + `hub-dataset-editor.vue`，内部不导出）：连接 CRUD 走 `v-model:connections`（删连接级联删其数据集）；测试连接 / describe 字段解析 / 记录预览全经 `DataConnector`（无 mock）；`${param}` 参数提取用内核 `buildParamDefs`（纯函数），describe 成功的字段写入数据集 `fields` 缓存（字段面板 catalog 数据源，`fieldOverrides` 在 catalog 层应用）。
 - 字段面板（`field-panel.vue`）：HTML5 拖拽（`FIELD_DRAG_MIME` 负载 `datasetId:fieldName`，编解码在 `field-panel-helpers.ts`）；网格宿主 drop 经 VTable hit-test 解析落点，落空回退当前选区。
 - 绑定格富渲染徽章（`binding-badge.ts`）：`resolveCellRenderer` 按格返回角色色彩徽章（`CustomLayout` 容器 + 文本，`renderDefault: false`），未绑定格返回 `undefined` 回落默认渲染；canvas 绘制需具体色值，`REPORT_ROLE_BADGE_COLORS` 为硬编码角色配色。遵守 cell hook 性能契约（纯函数、同步、O(1) 查找；label 经 `fieldLabelMap` 查找表，不用 `setBindingCatalog` 全局态）。
-- 设计态覆层与对话框（`designer/`，内部不导出）：Action Pill（`float-panel.vue`，角色 / 聚合 / 排序 / 条件样式入口 / 删除绑定）、拓扑连线（`topology-overlay.vue` + `topology.ts`，SVG 贝塞尔弧线沿父链上行 + 下行直接子绑定）、条件规则对话框（`rules-dialog.vue` + `rule-row.vue` + `rule-preview.vue` + `conditional-rules/helpers.ts`，运算符按字段类型映射、useDnD 拖拽排序 + 按钮排序）、网格覆层基础设施（`cell-coords.ts` 坐标换算 / `use-grid-overlay.ts` 滚动同步与浮卡锚点定位 / `col-widths.ts` 列宽捕获）、角色选项与切换默认值（`role.ts` `roleBindingDefaults`）。
+- 设计态覆层与对话框（`designer/`，内部不导出）：Action Pill（`float-panel.vue`，角色 / 聚合 / 排序 / 条件样式入口 / 删除绑定）、拓扑连线（`topology-overlay.vue` + `topology.ts`，SVG 贝塞尔弧线沿父链上行 + 下行直接子绑定）、条件规则对话框（`rules-dialog.vue` + `rule-row.vue` + `rule-preview.vue` + `conditional-rules/helpers.ts`，运算符按字段类型映射、useDnD 拖拽排序 + 按钮排序）、网格覆层基础设施（`cell-coords.ts` 坐标换算 / `use-grid-overlay.ts` 滚动同步与浮卡锚点定位 / `col-widths.ts` 列宽捕获 / `drop-highlight-overlay.vue` 字段拖拽落点虚线高亮）、角色选项与切换默认值（`role.ts` `roleBindingDefaults`）。
 - 组件级测试（缝隙 3）：`components/report/__test__/report-designer.test.ts`（最小闭环全流程 + template 载入 / 预览切换取数 / 切回绑定不丢）+ `use-report-designer.test.ts`（headless：CRUD / describe / preview / 角色推导 / 徽章 / Action Pill 编辑 / 模板载入与往返）+ `topology.test.ts` / `conditional-rules-helpers.test.ts` / `float-panel-position.test.ts`（随迁纯逻辑）。
 
 ## 分层约定

@@ -1,5 +1,5 @@
 import { Workbook } from '@veltra/sheet-core'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createApp, h, nextTick, ref, type App } from 'vue'
 
 import { UReportDesigner } from '../../../index'
@@ -8,6 +8,8 @@ import type { DataConnection, DataConnector } from '../../../report/connector'
 import type { ReportTemplate } from '../../../report/template'
 import type { ParamValues, ReportBinding } from '../../../report/types'
 import type { ReportDesignerExposed } from '../../../types'
+import * as cellCoords from '../designer/cell-coords'
+import * as gridOverlay from '../designer/use-grid-overlay'
 import { FIELD_DRAG_MIME } from '../field-panel-helpers'
 
 // ---- 内联 fixtures：stub connector（实现 DataConnector 接口的内存测试夹具）----
@@ -123,6 +125,17 @@ function dispatchFieldDrop(target: HTMLElement, payload: string): void {
   // 落点超出网格视口 → hit-test 落空，回退当前选区（确定性断言）
   Object.defineProperty(event, 'clientX', { value: 99999 })
   Object.defineProperty(event, 'clientY', { value: 99999 })
+  target.dispatchEvent(event)
+}
+
+/** 构造字段拖拽 dragover 事件 */
+function dispatchFieldDragOver(target: HTMLElement, clientX = 100, clientY = 100): void {
+  const event = new Event('dragover', { bubbles: true, cancelable: true })
+  Object.defineProperty(event, 'dataTransfer', {
+    value: { types: [FIELD_DRAG_MIME], dropEffect: 'copy' }
+  })
+  Object.defineProperty(event, 'clientX', { value: clientX })
+  Object.defineProperty(event, 'clientY', { value: clientY })
   target.dispatchEvent(event)
 }
 
@@ -305,7 +318,7 @@ describe('UReportDesigner 全量：template 载入与预览模式（内嵌查看
     expect(roundTrip.datasets![0]!.connection.id).toBe('conn-template')
   })
 
-  it('预览态导出 XLSX 按钮可见且导出填充字节（条件样式已在 renderReport 打平）', async () => {
+  it('预览态导出 XLSX 按钮可见且转调查看器 exportXlsx()', async () => {
     const workbook = new Workbook()
     const { el } = mountDesigner(workbook, { template: buildTemplate() })
     await flush()
@@ -316,8 +329,60 @@ describe('UReportDesigner 全量：template 载入与预览模式（内嵌查看
     await click(findButton('预览模式')!)
     const exportButton = findButton('导出 XLSX')
     expect(exportButton).toBeTruthy()
-    // 点击触发导出（saveBlob 在 happy-dom 下无 DOM 写盘副作用，断言语义由内核 export-xlsx 测试覆盖）
+    await flush()
+
+    const exportModule = await import('../../../report/export-xlsx')
+    const catKitFe = await import('@cat-kit/fe')
+    const exportSpy = vi
+      .spyOn(exportModule, 'exportFilledReportXlsx')
+      .mockResolvedValue(new Uint8Array([80, 75, 3, 4]))
+    const saveBlobSpy = vi.spyOn(catKitFe, 'saveBlob').mockImplementation(() => {})
+
     await click(exportButton!)
+    expect(exportSpy).toHaveBeenCalled()
+    expect(saveBlobSpy).toHaveBeenCalled()
     expect(el.querySelector('.u-report-viewer')).toBeTruthy()
+
+    exportSpy.mockRestore()
+    saveBlobSpy.mockRestore()
+  })
+
+  it('字段拖拽 dragover 时落点高亮随 hit-test 更新；落空时提示回退当前选区', async () => {
+    const workbook = new Workbook()
+    workbook.activeSheet.selectCell({ row: 2, col: 1 })
+    const { el } = mountDesigner(workbook)
+    await flush()
+
+    const gridHost = el.querySelector<HTMLElement>('.u-report-designer__grid')!
+    const overlayRect = {
+      left: 10,
+      top: 20,
+      right: 90,
+      bottom: 44,
+      width: 80,
+      height: 24,
+      centerX: 50,
+      centerY: 32
+    }
+    const hitTestSpy = vi
+      .spyOn(cellCoords, 'resolveGridDropAddress')
+      .mockReturnValueOnce({ row: 1, col: 2 })
+      .mockReturnValue(null)
+    const overlaySpy = vi.spyOn(gridOverlay, 'readCellOverlayRect').mockReturnValue(overlayRect)
+
+    dispatchFieldDragOver(gridHost, 120, 140)
+    await flush()
+    expect(el.querySelector('.u-report-drop-highlight')).toBeTruthy()
+    expect(el.querySelector('.u-report-drop-highlight__fallback')).toBeNull()
+
+    dispatchFieldDragOver(gridHost, 99999, 99999)
+    await flush()
+    expect(el.querySelector('.u-report-drop-highlight')).toBeNull()
+    const fallback = el.querySelector('.u-report-drop-highlight__fallback')
+    expect(fallback).toBeTruthy()
+    expect(fallback!.textContent).toContain('B3')
+
+    hitTestSpy.mockRestore()
+    overlaySpy.mockRestore()
   })
 })
