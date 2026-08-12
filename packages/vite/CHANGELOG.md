@@ -1,5 +1,13 @@
 # @veltra/vite
 
+## 4.0.0
+
+### Patch Changes
+
+- Updated dependencies [1a8d118]
+- Updated dependencies [1a8d118]
+  - @veltra/ai@2.0.0
+
 ## 3.0.1
 
 ### Patch Changes

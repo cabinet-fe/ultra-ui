@@ -25,7 +25,7 @@
     },
     "packages/ai": {
       "name": "@veltra/ai",
-      "version": "1.4.0",
+      "version": "2.0.0",
       "dependencies": {
         "markstream-vue": "^1.0.9",
       },
@@ -135,7 +135,7 @@
     },
     "packages/sheet": {
       "name": "@veltra/sheet",
-      "version": "2.1.1",
+      "version": "2.2.0",
       "dependencies": {
         "hucre": "^1.0.0",
       },
@@ -153,7 +153,7 @@
     },
     "packages/sheet-core": {
       "name": "@veltra/sheet-core",
-      "version": "2.1.1",
+      "version": "2.2.0",
       "dependencies": {
         "@visactor/vtable": "^1.26.6",
         "@visactor/vtable-editors": "^1.26.6",
@@ -180,7 +180,7 @@
     },
     "packages/vite": {
       "name": "@veltra/vite",
-      "version": "3.0.1",
+      "version": "4.0.0",
       "devDependencies": {
         "@veltra/desktop": "workspace:*",
       },

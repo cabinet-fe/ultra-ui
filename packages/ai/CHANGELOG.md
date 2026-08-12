@@ -1,5 +1,15 @@
 # @veltra/ai
 
+## 2.0.0
+
+### Major Changes
+
+- 1a8d118: 提问工具改为 UAiChat 始终内置自动注入；移除公开导出 `createAskQuestionTool`（保留 `AskQuestion*` 类型）。用户无需再手动创建并传入该工具，同名用户工具将被忽略。
+
+### Minor Changes
+
+- 1a8d118: `createOpenAITransport` 改为多 Provider 配置（按模型路由；支持完整 URL / 相对路径）；UAiChat 输入栏增加模型与推理等级选择器（`models` / `v-model:model` / `v-model:reasoning-level`）。旧的单字段 `{ endpoint, apiKey, model }` 选项已移除。
+
 ## 1.4.0
 
 ### Minor Changes
