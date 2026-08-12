@@ -5,6 +5,7 @@ import type { DatasetCatalogItem, ReportBinding } from '../../../report/types'
 import {
   buildTopologyArcPath,
   collectTopologyLinks,
+  findCellsWithColParent,
   findCellsWithRowParent
 } from '../designer/topology'
 
@@ -56,14 +57,62 @@ describe('report topology', () => {
     const getBindingAt = bindingMap(entries)
 
     expect(collectTopologyLinks({ row: 1, col: 2 }, detail, entries, getBindingAt)).toEqual([
-      { from: { row: 1, col: 2 }, to: { row: 1, col: 1 } },
-      { from: { row: 1, col: 1 }, to: parentAddr }
+      { from: { row: 1, col: 2 }, to: { row: 1, col: 1 }, direction: 'row' },
+      { from: { row: 1, col: 1 }, to: parentAddr, direction: 'row' }
     ])
 
     expect(collectTopologyLinks(parentAddr, parent, entries, getBindingAt)).toEqual([
-      { from: { row: 1, col: 1 }, to: parentAddr },
-      { from: { row: 2, col: 3 }, to: parentAddr }
+      { from: { row: 1, col: 1 }, to: parentAddr, direction: 'row' },
+      { from: { row: 2, col: 3 }, to: parentAddr, direction: 'row' }
     ])
+  })
+
+  it('collectTopologyLinks 沿 colParent 链上行并包含列方向子格', () => {
+    const rowParentAddr = { row: 1, col: 0 }
+    const colParentAddr = { row: 0, col: 1 }
+
+    const rowGroup = createReportBinding(ORDERS_DATASET, 'customer')
+    rowGroup.aggregate = 'group'
+    rowGroup.expand = 'down'
+
+    const colGroup = createReportBinding(ORDERS_DATASET, 'region')
+    colGroup.aggregate = 'group'
+    colGroup.expand = 'right'
+
+    const cross = createReportBinding(ORDERS_DATASET, 'amount')
+    cross.aggregate = 'sum'
+    cross.expand = 'none'
+    cross.rowParent = rowParentAddr
+    cross.colParent = colParentAddr
+
+    const entries = [
+      { addr: rowParentAddr, binding: rowGroup },
+      { addr: colParentAddr, binding: colGroup },
+      { addr: { row: 1, col: 2 }, binding: cross }
+    ]
+    const getBindingAt = bindingMap(entries)
+
+    expect(collectTopologyLinks({ row: 1, col: 2 }, cross, entries, getBindingAt)).toEqual([
+      { from: { row: 1, col: 2 }, to: rowParentAddr, direction: 'row' },
+      { from: { row: 1, col: 2 }, to: colParentAddr, direction: 'col' }
+    ])
+  })
+
+  it('findCellsWithColParent 仅返回 colParent 指向目标父格的子格', () => {
+    const parentAddr = { row: 0, col: 1 }
+    const parent = createReportBinding(ORDERS_DATASET, 'region')
+    parent.aggregate = 'group'
+    parent.expand = 'right'
+
+    const child = createReportBinding(ORDERS_DATASET, 'amount')
+    child.colParent = parentAddr
+
+    const entries = [
+      { addr: parentAddr, binding: parent },
+      { addr: { row: 1, col: 2 }, binding: child }
+    ]
+
+    expect(findCellsWithColParent(parentAddr, entries)).toEqual([{ row: 1, col: 2 }])
   })
 
   it('findCellsWithRowParent 仅返回 rowParent 指向目标父格的子格', () => {

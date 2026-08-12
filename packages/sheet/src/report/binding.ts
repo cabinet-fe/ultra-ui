@@ -69,14 +69,67 @@ export function applyReportPreset(
   return next
 }
 
-function isVerticalExpandBinding(binding: ReportBinding): boolean {
+export function isVerticalExpandBinding(binding: ReportBinding): boolean {
   return (
     binding.expand === 'down' && (binding.aggregate === 'group' || binding.aggregate === 'list')
   )
 }
 
-function isHorizontalExpandBinding(binding: ReportBinding): boolean {
+export function isHorizontalExpandBinding(binding: ReportBinding): boolean {
   return binding.expand === 'right' && binding.aggregate === 'group'
+}
+
+/** 指定模板行是否含纵向扩展绑定（展开带行） */
+export function isExpansionBandRow(
+  row: number,
+  getBindingAt: (addr: CellAddress) => ReportBinding | undefined,
+  scanCols = 64
+): boolean {
+  for (let col = 0; col < scanCols; col++) {
+    const binding = getBindingAt({ row, col })
+    if (binding && isVerticalExpandBinding(binding)) return true
+  }
+  return false
+}
+
+/** 落格时推断预设：默认明细；数值字段且位于展开带正下方相邻行 → 小计 */
+export function inferDropPreset(
+  addr: CellAddress,
+  fieldType: DatasetCatalogItem['fields'][number]['type'],
+  getBindingAt: (addr: CellAddress) => ReportBinding | undefined
+): ReportPreset {
+  if (fieldType === 'number' && addr.row > 0 && isExpansionBandRow(addr.row - 1, getBindingAt)) {
+    return 'subtotal'
+  }
+  return 'detail'
+}
+
+/** 同数据集纵向扩展绑定格（行方向父格下拉候选） */
+export function listRowParentCandidates(
+  binding: ReportBinding,
+  entries: ReadonlyArray<{ addr: CellAddress; binding: ReportBinding }>
+): CellAddress[] {
+  const candidates: CellAddress[] = []
+  for (const entry of entries) {
+    if (entry.binding.dataset !== binding.dataset) continue
+    if (!isVerticalExpandBinding(entry.binding)) continue
+    candidates.push(entry.addr)
+  }
+  return candidates
+}
+
+/** 同数据集横向扩展绑定格（列方向父格下拉候选） */
+export function listColParentCandidates(
+  binding: ReportBinding,
+  entries: ReadonlyArray<{ addr: CellAddress; binding: ReportBinding }>
+): CellAddress[] {
+  const candidates: CellAddress[] = []
+  for (const entry of entries) {
+    if (entry.binding.dataset !== binding.dataset) continue
+    if (!isHorizontalExpandBinding(entry.binding)) continue
+    candidates.push(entry.addr)
+  }
+  return candidates
 }
 
 /** 同列向上找最近的纵向扩展绑定，作为 rowParent 候选 */
@@ -88,12 +141,6 @@ export function inferRowParentCandidate(
     const binding = getBindingAt({ row, col: addr.col })
     if (binding && isVerticalExpandBinding(binding)) {
       return { row, col: addr.col }
-    }
-  }
-  for (let col = addr.col - 1; col >= 0; col--) {
-    const binding = getBindingAt({ row: addr.row, col })
-    if (binding?.expand === 'down' && binding.aggregate === 'group') {
-      return { row: addr.row, col }
     }
   }
   return null

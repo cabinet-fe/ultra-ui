@@ -2,7 +2,7 @@
   <svg v-if="visible" :class="cls.b" :width="svgWidth" :height="svgHeight" aria-hidden="true">
     <defs>
       <marker
-        :id="arrowMarkerId"
+        :id="rowArrowMarkerId"
         markerWidth="8"
         markerHeight="8"
         refX="6"
@@ -12,13 +12,24 @@
       >
         <path d="M0,0 L8,4 L0,8 Z" fill="var(--u-color-primary, #2563eb)" />
       </marker>
+      <marker
+        :id="colArrowMarkerId"
+        markerWidth="8"
+        markerHeight="8"
+        refX="6"
+        refY="4"
+        orient="auto"
+        markerUnits="strokeWidth"
+      >
+        <path d="M0,0 L8,4 L0,8 Z" fill="var(--u-color-warning, #d97706)" />
+      </marker>
     </defs>
     <path
-      v-for="(path, index) in arcPaths"
+      v-for="(item, index) in arcPaths"
       :key="index"
-      :class="cls.e('arc')"
-      :d="path"
-      :marker-end="`url(#${arrowMarkerId})`"
+      :class="[cls.e('arc'), cls.em('arc', item.direction)]"
+      :d="item.path"
+      :marker-end="`url(#${item.direction === 'row' ? rowArrowMarkerId : colArrowMarkerId})`"
     />
   </svg>
 </template>
@@ -29,7 +40,12 @@ import { bem } from '@veltra/utils'
 import { computed, ref, toRef } from 'vue'
 
 import type { ReportBinding } from '../../../report/types'
-import { buildTopologyArcPath, collectTopologyLinks, type TopologyBindingEntry } from './topology'
+import {
+  buildTopologyArcPath,
+  collectTopologyLinks,
+  type TopologyBindingEntry,
+  type TopologyLinkDirection
+} from './topology'
 import { readCellOverlayRect, readGridOverlaySize, useGridOverlaySync } from './use-grid-overlay'
 
 defineOptions({ name: 'UReportTopologyOverlay' })
@@ -46,14 +62,15 @@ const props = defineProps<{
 
 const cls = bem('report-topology')
 
-/** 箭头 marker id 按实例隔离，避免多设计器同页时 marker 引用串扰 */
-const arrowMarkerId = `u-report-topology-arrow-${Math.random().toString(36).slice(2, 8)}`
+const instanceId = Math.random().toString(36).slice(2, 8)
+const rowArrowMarkerId = `u-report-topology-row-arrow-${instanceId}`
+const colArrowMarkerId = `u-report-topology-col-arrow-${instanceId}`
 
 const hostEl = toRef(props, 'hostEl')
 
 const svgWidth = ref(0)
 const svgHeight = ref(0)
-const arcPaths = ref<string[]>([])
+const arcPaths = ref<Array<{ path: string; direction: TopologyLinkDirection }>>([])
 const inView = ref(false)
 
 const visible = computed(
@@ -81,18 +98,19 @@ function updateOverlay(): void {
   svgHeight.value = size.height
 
   const links = collectTopologyLinks(cell, binding, props.entries, props.getBindingAt)
-  const paths: string[] = []
+  const paths: Array<{ path: string; direction: TopologyLinkDirection }> = []
 
   for (const link of links) {
     const fromRect = readCellOverlayRect(link.from, host, props.getGrid)
     const toRect = readCellOverlayRect(link.to, host, props.getGrid)
     if (!fromRect || !toRect) continue
-    paths.push(
-      buildTopologyArcPath(
+    paths.push({
+      direction: link.direction,
+      path: buildTopologyArcPath(
         { x: fromRect.centerX, y: fromRect.centerY },
         { x: toRect.centerX, y: toRect.centerY }
       )
-    )
+    })
   }
 
   arcPaths.value = paths

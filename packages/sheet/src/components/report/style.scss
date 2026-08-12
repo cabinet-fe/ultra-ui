@@ -183,10 +183,18 @@
 
   @include m.e(arc) {
     fill: none;
-    stroke: fn.use-var(color, primary);
     stroke-width: 2;
     stroke-linecap: round;
     opacity: 0.72;
+
+    @include m.em(arc, row) {
+      stroke: fn.use-var(color, primary);
+    }
+
+    @include m.em(arc, col) {
+      stroke: fn.use-var(color, warning);
+      stroke-dasharray: 6 4;
+    }
   }
 }
 
@@ -307,6 +315,22 @@
     margin: 0;
     font-size: 12px;
     color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(parent-actions) {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  @include m.e(parent-select) {
+    width: 88px;
+    flex: none;
+  }
+
+  @include m.em(select, expand) {
+    width: 76px;
   }
 
   @include m.e(footer) {

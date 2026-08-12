@@ -6,7 +6,9 @@ import {
   createReportBinding,
   formatBindingPlaceholder,
   formatCellAddress,
+  inferDropPreset,
   inferReportPreset,
+  isExpansionBandRow,
   parseCellAddress,
   presetBindingPatch,
   setBindingCatalog
@@ -179,6 +181,23 @@ describe('report binding', () => {
         rowParent: { row: 1, col: 0 }
       })
     ).toBeNull()
+  })
+
+  it('inferDropPreset / isExpansionBandRow 落格推断', () => {
+    const groupAddr = { row: 1, col: 0 }
+    const group = createReportBinding(ORDERS_DATASET, 'customer')
+    group.aggregate = 'group'
+    group.expand = 'down'
+
+    const getBindingAt = (addr: CellAddress) => {
+      if (addr.row === groupAddr.row && addr.col === groupAddr.col) return group
+      return undefined
+    }
+
+    expect(isExpansionBandRow(1, getBindingAt)).toBe(true)
+    expect(isExpansionBandRow(0, getBindingAt)).toBe(false)
+    expect(inferDropPreset({ row: 2, col: 0 }, 'number', getBindingAt)).toBe('subtotal')
+    expect(inferDropPreset({ row: 2, col: 0 }, 'string', getBindingAt)).toBe('detail')
   })
 
   it('formatCellAddress / parseCellAddress 支持多字母列互逆', () => {

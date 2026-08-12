@@ -87,13 +87,20 @@
         <u-report-float-panel
           :cell="activeCell"
           :binding="activeBinding ?? null"
-          :resolved-left-parent-label="resolvedLeftParentLabel"
+          :resolved-row-parent-label="resolvedRowParentLabel"
+          :resolved-col-parent-label="resolvedColParentLabel"
+          :parent-pick-mode="parentPick?.mode ?? null"
+          :row-parent-candidates="rowParentCandidates"
+          :col-parent-candidates="colParentCandidates"
           :resolve-field-label="resolveFieldLabel"
           :host-el="gridHostEl"
           :get-grid="getDesignGrid"
           @patch="patchActiveBinding"
           @remove="removeActiveBinding"
           @open-rules="rulesDialogVisible = true"
+          @start-parent-pick="startParentPick"
+          @cancel-parent-pick="cancelParentPick"
+          @clear-parent="clearParent"
         />
       </div>
     </div>
@@ -179,13 +186,21 @@ const {
   selectionLabel,
   activeBinding,
   activeFieldType,
-  resolvedLeftParentLabel,
+  resolvedRowParentLabel,
+  resolvedColParentLabel,
+  parentPick,
+  rowParentCandidates,
+  colParentCandidates,
   bindingEntries,
   metaTick,
   getBindingAt,
   resolveFieldLabel,
   bindField,
   patchActiveBinding,
+  startParentPick,
+  cancelParentPick,
+  pickParentAt,
+  clearParent,
   removeActiveBinding,
   resolveCellStyle,
   resolveCellRenderer,
@@ -257,6 +272,11 @@ watch(
     viewMode.value = 'design'
   }
 )
+
+// 父格点选：网格选区变更时写入父格并回到源格
+watch(activeCell, (cell) => {
+  if (cell && parentPick.value) pickParentAt(cell)
+})
 
 // 徽章文案依赖 catalog（describe 完成 / label 覆盖变更后重绘绑定格；meta 变更由 grid 自行订阅）
 watch(catalog, () => {

@@ -4,7 +4,7 @@ import { effectScope, ref, type EffectScope, type Ref } from 'vue'
 
 import { REPORT_META_NAMESPACE } from '../../../report/binding'
 import type { DataConnection, DataConnector } from '../../../report/connector'
-import type { ReportTemplate } from '../../../report/template'
+import { IncompatibleTemplateVersionError, type ReportTemplate } from '../../../report/template'
 import type { DatasetField, ParamValues, ReportBinding } from '../../../report/types'
 import { roleBindingDefaults } from '../designer/role'
 import { useReportDesigner, type UseReportDesignerReturn } from '../use-report-designer'
@@ -193,30 +193,61 @@ describe('useReportDesigner：拖拽落格写 Cell Meta', () => {
     expect(designer.boundKeys.value.has(`${dataset.id}:customer`)).toBe(true)
   })
 
-  it('分组锚点（首列第二行）落格推导为 group 角色；同行右侧落格继承分组数据集', async () => {
+  it('同列向上推断 rowParent 候选', async () => {
+    const { designer, workbook } = createDesigner()
+    const dataset = await seedDataset(designer)
+
+    designer.bindField(dataset.id, 'customer', { row: 1, col: 0 })
+    designer.bindField(dataset.id, 'orderNo', { row: 2, col: 0 })
+
+    const detail = workbook.activeSheet.getCellMeta<ReportBinding>(
+      { row: 2, col: 0 },
+      REPORT_META_NAMESPACE
+    )
+    expect(detail).toMatchObject({
+      dataset: dataset.id,
+      field: 'orderNo',
+      preset: 'detail',
+      aggregate: 'list',
+      expand: 'down',
+      rowParent: { row: 1, col: 0 }
+    })
+  })
+
+  it('跨数据集拖拽保留字段自己的 dataset，不继承分组数据集', async () => {
     const { designer, workbook } = createDesigner([MYSQL, PG])
     const orders = await seedDataset(designer, 'c1')
     const inventory = await seedDataset(designer, 'c2')
 
-    // 分组锚点：B2（row 1, col 0）
     designer.bindField(orders.id, 'customer', { row: 1, col: 0 })
-    const group = workbook.activeSheet.getCellMeta<ReportBinding>(
-      { row: 1, col: 0 },
-      REPORT_META_NAMESPACE
-    )
-    expect(group).toMatchObject({ preset: 'groupHeader', aggregate: 'group', expand: 'down' })
-    expect(group?.rowParent).toBeUndefined()
+    designer.bindField(inventory.id, 'amount', { row: 2, col: 0 })
 
-    // 同行右侧落格（另一数据集的字段）继承分组数据集
-    designer.bindField(inventory.id, 'amount', { row: 1, col: 1 })
     const detail = workbook.activeSheet.getCellMeta<ReportBinding>(
-      { row: 1, col: 1 },
+      { row: 2, col: 0 },
       REPORT_META_NAMESPACE
     )
     expect(detail).toMatchObject({
-      dataset: orders.id,
+      dataset: inventory.id,
       field: 'amount',
-      preset: 'detail',
+      rowParent: { row: 1, col: 0 }
+    })
+  })
+
+  it('数值字段落至展开带下方相邻行时推断为小计预设', async () => {
+    const { designer, workbook } = createDesigner()
+    const dataset = await seedDataset(designer)
+
+    designer.bindField(dataset.id, 'customer', { row: 1, col: 0 })
+    designer.bindField(dataset.id, 'amount', { row: 2, col: 0 })
+
+    const subtotal = workbook.activeSheet.getCellMeta<ReportBinding>(
+      { row: 2, col: 0 },
+      REPORT_META_NAMESPACE
+    )
+    expect(subtotal).toMatchObject({
+      preset: 'subtotal',
+      aggregate: 'sum',
+      expand: 'none',
       rowParent: { row: 1, col: 0 }
     })
   })
@@ -316,7 +347,7 @@ describe('useReportDesigner：Action Pill 就地编辑（角色 / 聚合 / 条�
     return dataset
   }
 
-  it('预设切换写入 presetBindingDefaults 默认值；聚合切换同步 expand 缺省', async () => {
+  it('预设切换写入 presetBindingDefaults 组合值；聚合切换同步 expand 缺省', async () => {
     const { designer, workbook } = createDesigner()
     await seedAndBind(designer, { row: 0, col: 0 })
     workbook.activeSheet.selectCell({ row: 0, col: 0 })
@@ -325,12 +356,10 @@ describe('useReportDesigner：Action Pill 就地编辑（角色 / 聚合 / 条�
     let binding = designer.activeBinding.value
     expect(binding).toMatchObject({ preset: 'subtotal', aggregate: 'sum', expand: 'none' })
 
-    designer.patchActiveBinding({ aggregate: 'list', expand: 'down' })
+    designer.patchActiveBinding({ aggregate: 'avg', expand: 'none' })
     binding = designer.activeBinding.value
-    expect(binding).toMatchObject({ aggregate: 'list', expand: 'down' })
-
-    // 字段类型解析供条件规则对话框控件映射
-    expect(designer.activeFieldType.value).toBe('number')
+    expect(binding).toMatchObject({ aggregate: 'avg', expand: 'none' })
+    expect(binding?.preset).toBeUndefined()
   })
 
   it('条件规则与排序经 patch 写入绑定；拓扑条目跟随 meta 变更', async () => {
@@ -355,48 +384,95 @@ describe('useReportDesigner：Action Pill 就地编辑（角色 / 聚合 / 条�
     expect(entries[0]).toMatchObject({ addr: { row: 0, col: 0 }, binding: { dataset: dataset.id } })
   })
 
-  it('分组锚点守卫：锚点格不允许降级为明细', async () => {
-    const { designer, workbook } = createDesigner()
-    // 首列第二行为分组锚点（落格即推导为 group）
-    await seedAndBind(designer, { row: 1, col: 0 })
-    workbook.activeSheet.selectCell({ row: 1, col: 0 })
-    expect(designer.activeBinding.value).toMatchObject({
-      preset: 'groupHeader',
-      aggregate: 'group'
-    })
-
-    designer.patchActiveBinding(roleBindingDefaults('detail'))
-    expect(designer.activeBinding.value).toMatchObject({
-      preset: 'groupHeader',
-      aggregate: 'group'
-    })
-
-    designer.patchActiveBinding({ aggregate: 'list' })
-    expect(designer.activeBinding.value!.aggregate).toBe('group')
-
-    designer.patchActiveBinding(roleBindingDefaults('subtotal'))
-    expect(designer.activeBinding.value).toMatchObject({ preset: 'subtotal', aggregate: 'sum' })
-  })
-
-  it('清除绑定移除 Cell Meta；行方向父格标签读取绑定存储值', async () => {
+  it('点选式父格编辑写入模板存储的 rowParent', async () => {
     const { designer, workbook } = createDesigner()
     const dataset = designer.addDataset('c1')
     designer.updateDataset(dataset.id, { sql: 'SELECT customer, amount FROM orders' })
     await designer.describeDataset(dataset.id)
 
-    // 分组锚点 + 同行右侧明细（rowParent 推断到锚点）
     designer.bindField(dataset.id, 'customer', { row: 1, col: 0 })
-    designer.bindField(dataset.id, 'amount', { row: 1, col: 1 })
+    designer.bindField(dataset.id, 'amount', { row: 2, col: 1 })
 
-    workbook.activeSheet.selectCell({ row: 1, col: 1 })
-    expect(designer.resolvedLeftParentLabel.value).toBe('A2')
+    workbook.activeSheet.selectCell({ row: 2, col: 1 })
+    designer.startParentPick('row')
+    designer.pickParentAt({ row: 1, col: 0 })
+
+    const binding = workbook.activeSheet.getCellMeta<ReportBinding>(
+      { row: 2, col: 1 },
+      REPORT_META_NAMESPACE
+    )
+    expect(binding?.rowParent).toEqual({ row: 1, col: 0 })
+    expect(designer.parentPick.value).toBeNull()
+  })
+
+  it('清除绑定移除 Cell Meta；行 / 列方向父格标签读取绑定存储值', async () => {
+    const { designer, workbook } = createDesigner()
+    const dataset = designer.addDataset('c1')
+    designer.updateDataset(dataset.id, { sql: 'SELECT customer, amount FROM orders' })
+    await designer.describeDataset(dataset.id)
+
+    // 同列上方纵向扩展绑定 + 下方明细（rowParent 推断到上方格）
+    designer.bindField(dataset.id, 'customer', { row: 1, col: 0 })
+    designer.bindField(dataset.id, 'amount', { row: 2, col: 0 })
+
+    workbook.activeSheet.selectCell({ row: 2, col: 0 })
+    expect(designer.resolvedRowParentLabel.value).toBe('A2')
 
     designer.removeActiveBinding()
     expect(
-      workbook.activeSheet.getCellMeta({ row: 1, col: 1 }, REPORT_META_NAMESPACE)
+      workbook.activeSheet.getCellMeta({ row: 2, col: 0 }, REPORT_META_NAMESPACE)
     ).toBeUndefined()
     expect(designer.activeBinding.value).toBeUndefined()
     expect(designer.boundKeys.value.has(`${dataset.id}:amount`)).toBe(false)
+  })
+})
+
+describe('useReportDesigner：template 版本校验', () => {
+  it('载入缺少 version 的模板时抛可读错误', () => {
+    const { connector } = createStubConnector()
+    const connections = ref<DataConnection[]>([MYSQL])
+    expect(() =>
+      effectScope().run(() =>
+        useReportDesigner({
+          props: {
+            connector,
+            template: {
+              cells: [],
+              styles: [],
+              merges: [],
+              frozen: { rows: 0, cols: 0 },
+              rows: 24,
+              cols: 10
+            }
+          },
+          connections
+        })
+      )
+    ).toThrow(IncompatibleTemplateVersionError)
+  })
+
+  it('载入高于当前支持 version 的模板时抛可读错误', () => {
+    const { connector } = createStubConnector()
+    const connections = ref<DataConnection[]>([MYSQL])
+    expect(() =>
+      effectScope().run(() =>
+        useReportDesigner({
+          props: {
+            connector,
+            template: {
+              version: 99,
+              cells: [],
+              styles: [],
+              merges: [],
+              frozen: { rows: 0, cols: 0 },
+              rows: 24,
+              cols: 10
+            }
+          },
+          connections
+        })
+      )
+    ).toThrow(/高于当前支持/)
   })
 })
 

@@ -5,11 +5,16 @@ import { computed, onScopeDispose, ref, watch, type ComputedRef, type Ref } from
 
 import {
   REPORT_META_NAMESPACE,
+  applyReportPreset,
   createReportBinding,
   formatCellAddress,
   inferColParentCandidate,
-  inferReportPreset,
-  inferRowParentCandidate
+  inferDropPreset,
+  inferRowParentCandidate,
+  isHorizontalExpandBinding,
+  isVerticalExpandBinding,
+  listColParentCandidates,
+  listRowParentCandidates
 } from '../../report/binding'
 import type { DataConnection, QueryResult, Result } from '../../report/connector'
 import { buildParamDefs } from '../../report/params'
@@ -62,6 +67,13 @@ export interface DatasetHubController {
   previewDataset: (datasetId: string) => Promise<Result<QueryResult>>
 }
 
+export type ParentPickMode = 'row' | 'col'
+
+export interface ParentPickState {
+  mode: ParentPickMode
+  source: CellAddress
+}
+
 export interface UseReportDesignerReturn extends DatasetHubController {
   workbook: ComputedRef<Workbook>
   /** 字段面板目录（数据集 + 应用 fieldOverrides 后的字段 label） */
@@ -77,7 +89,15 @@ export interface UseReportDesignerReturn extends DatasetHubController {
   /** 当前选区绑定字段的数据类型（条件规则对话框控件映射用；缺省 number） */
   activeFieldType: ComputedRef<DatasetField['type']>
   /** 当前选区绑定的行方向父格 A1 标签（无父格显示 —） */
-  resolvedLeftParentLabel: ComputedRef<string>
+  resolvedRowParentLabel: ComputedRef<string>
+  /** 当前选区绑定的列方向父格 A1 标签（无父格显示 —） */
+  resolvedColParentLabel: ComputedRef<string>
+  /** 父格点选态（进入后在网格上点目标格写入父格） */
+  parentPick: Ref<ParentPickState | null>
+  /** 行方向父格下拉候选（同数据集纵向扩展绑定格） */
+  rowParentCandidates: ComputedRef<CellAddress[]>
+  /** 列方向父格下拉候选（同数据集横向扩展绑定格） */
+  colParentCandidates: ComputedRef<CellAddress[]>
   /** 全部绑定条目（拓扑连线数据源；跟随 meta-change） */
   bindingEntries: ComputedRef<TopologyBindingEntry[]>
   /** meta 变更计数（网格覆层组件的同步信号） */
@@ -87,8 +107,16 @@ export interface UseReportDesignerReturn extends DatasetHubController {
   resolveFieldLabel: (datasetId: string, fieldName: string) => string
   /** 拖拽/点击落格写 Cell Meta 绑定（角色推导与 playground 设计器一致） */
   bindField: (datasetId: string, fieldName: string, addr?: CellAddress) => void
-  /** 就地修补当前选区绑定（Action Pill：角色切换 / 聚合配置 / 排序 / 条件规则） */
+  /** 就地修补当前选区绑定（Action Pill：预设 / 展开方向 / 父格 / 聚合 / 排序 / 条件规则） */
   patchActiveBinding: (patch: Partial<ReportBinding>) => void
+  /** 进入父格点选态 */
+  startParentPick: (mode: ParentPickMode) => void
+  /** 取消父格点选态 */
+  cancelParentPick: () => void
+  /** 父格点选：将目标格写入当前编辑格的 rowParent / colParent */
+  pickParentAt: (target: CellAddress) => void
+  /** 清除行 / 列方向父格 */
+  clearParent: (mode: ParentPickMode) => void
   /** 清除当前选区绑定 */
   removeActiveBinding: () => void
   /** 绑定格角色底色样式 hook（与徽章 renderer 配套） */
@@ -120,6 +148,7 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
 
   /** meta 变更计数：boundKeys 等派生状态的响应式触发（绑定经命令系统写入后由模型发 meta-change） */
   const metaTick = ref(0)
+  const parentPick = ref<ParentPickState | null>(null)
   const offMeta = workbook.value.activeSheet.on('meta-change', () => {
     metaTick.value++
   })
@@ -184,44 +213,17 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
     return workbook.value.activeSheet.getCellMeta<ReportBinding>(addr, REPORT_META_NAMESPACE)
   }
 
-  /**
-   * 分组锚点约定（playground 设计器平移，行为不变）：首列第二行始终视为分组锚点；
-   * 已持有「分组 + 无左父格」绑定的格保持锚点语义
-   */
-  function isGroupAnchorCell(addr: CellAddress, binding?: ReportBinding): boolean {
-    if (addr.row === 1 && addr.col === 0) return true
-    if (!binding) return false
-    return inferReportPreset(binding) === 'groupHeader' && !binding.rowParent
-  }
-
-  /** 同行向左找最近分组绑定，命中则继承其数据集（同扩展带数据集继承） */
-  function resolveParentGroupDataset(addr: CellAddress): string | undefined {
-    for (let col = addr.col - 1; col >= 0; col--) {
-      const binding = getBindingAt({ row: addr.row, col })
-      if (!binding) continue
-      if (inferReportPreset(binding) === 'groupHeader') return binding.dataset
-    }
-    return undefined
-  }
-
   function bindField(datasetId: string, fieldName: string, addr?: CellAddress): void {
     const dataset = catalog.value.find((item) => item.id === datasetId)
     if (!dataset) return
 
+    const field = dataset.fields.find((item) => item.name === fieldName)
     const target = addr ?? workbook.value.activeSheet.getSelection().activeCell
     if (!target) return
 
-    const binding = createReportBinding(dataset, fieldName)
-    const existing = getBindingAt(target)
-    if (isGroupAnchorCell(target, existing)) {
-      binding.aggregate = 'group'
-      binding.expand = 'down'
-      binding.preset = 'groupHeader'
-      delete binding.rowParent
-    }
-
-    const parentDataset = resolveParentGroupDataset(target)
-    if (parentDataset) binding.dataset = parentDataset
+    const preset = inferDropPreset(target, field?.type ?? 'string', getBindingAt)
+    let binding = createReportBinding(dataset, fieldName)
+    binding = applyReportPreset(binding, preset)
 
     const rowParent = inferRowParentCandidate(target, getBindingAt)
     if (rowParent) binding.rowParent = rowParent
@@ -248,11 +250,32 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
     return field?.type ?? 'number'
   })
 
-  const resolvedLeftParentLabel = computed(() => {
+  const resolvedRowParentLabel = computed(() => {
     metaTick.value
     const binding = activeBinding.value
     if (!binding?.rowParent) return '—'
     return formatCellAddress(binding.rowParent)
+  })
+
+  const resolvedColParentLabel = computed(() => {
+    metaTick.value
+    const binding = activeBinding.value
+    if (!binding?.colParent) return '—'
+    return formatCellAddress(binding.colParent)
+  })
+
+  const rowParentCandidates = computed((): CellAddress[] => {
+    metaTick.value
+    const binding = activeBinding.value
+    if (!binding) return []
+    return listRowParentCandidates(binding, bindingEntries.value)
+  })
+
+  const colParentCandidates = computed((): CellAddress[] => {
+    metaTick.value
+    const binding = activeBinding.value
+    if (!binding) return []
+    return listColParentCandidates(binding, bindingEntries.value)
   })
 
   const bindingEntries = computed((): TopologyBindingEntry[] => {
@@ -270,14 +293,46 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
     const binding = activeBinding.value
     if (!cell || !binding) return
 
-    // 分组锚点守卫：锚点格不允许降级为明细（保持扩展带结构完整）
-    if (isGroupAnchorCell(cell, binding)) {
-      const nextPreset = patch.preset ?? inferReportPreset({ ...binding, ...patch })
-      const nextAggregate = patch.aggregate ?? binding.aggregate
-      if (nextPreset === 'detail' || nextAggregate === 'list') return
-    }
+    const next: ReportBinding = { ...binding, ...patch }
+    if ('rowParent' in patch && patch.rowParent === undefined) delete next.rowParent
+    if ('colParent' in patch && patch.colParent === undefined) delete next.colParent
+    if (('aggregate' in patch || 'expand' in patch) && !('preset' in patch)) delete next.preset
 
-    workbook.value.activeSheet.setCellMeta(cell, REPORT_META_NAMESPACE, { ...binding, ...patch })
+    workbook.value.activeSheet.setCellMeta(cell, REPORT_META_NAMESPACE, next)
+  }
+
+  function startParentPick(mode: ParentPickMode): void {
+    const cell = activeCell.value
+    if (!cell || !activeBinding.value) return
+    parentPick.value = { mode, source: { row: cell.row, col: cell.col } }
+  }
+
+  function cancelParentPick(): void {
+    parentPick.value = null
+  }
+
+  function pickParentAt(target: CellAddress): void {
+    const pick = parentPick.value
+    if (!pick) return
+    if (target.row === pick.source.row && target.col === pick.source.col) return
+
+    const sourceBinding = getBindingAt(pick.source)
+    const targetBinding = getBindingAt(target)
+    if (!sourceBinding || !targetBinding) return
+    if (targetBinding.dataset !== sourceBinding.dataset) return
+    if (pick.mode === 'row' && !isVerticalExpandBinding(targetBinding)) return
+    if (pick.mode === 'col' && !isHorizontalExpandBinding(targetBinding)) return
+
+    const patch = pick.mode === 'row' ? { rowParent: { ...target } } : { colParent: { ...target } }
+    const next: ReportBinding = { ...sourceBinding, ...patch }
+    workbook.value.activeSheet.setCellMeta(pick.source, REPORT_META_NAMESPACE, next)
+    parentPick.value = null
+    workbook.value.activeSheet.selectCell(pick.source)
+  }
+
+  function clearParent(mode: ParentPickMode): void {
+    if (mode === 'row') patchActiveBinding({ rowParent: undefined })
+    else patchActiveBinding({ colParent: undefined })
   }
 
   function removeActiveBinding(): void {
@@ -451,13 +506,21 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
     selectionLabel,
     activeBinding,
     activeFieldType,
-    resolvedLeftParentLabel,
+    resolvedRowParentLabel,
+    resolvedColParentLabel,
+    parentPick,
+    rowParentCandidates,
+    colParentCandidates,
     bindingEntries,
     metaTick,
     getBindingAt,
     resolveFieldLabel,
     bindField,
     patchActiveBinding,
+    startParentPick,
+    cancelParentPick,
+    pickParentAt,
+    clearParent,
     removeActiveBinding,
     resolveCellStyle,
     resolveCellRenderer,
