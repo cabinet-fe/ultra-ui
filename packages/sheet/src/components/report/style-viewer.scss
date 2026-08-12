@@ -1,0 +1,104 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+@include m.b(report-viewer) {
+  display: flex;
+  flex-direction: column;
+  gap: fn.use-var(gap, small);
+  min-height: 0;
+
+  @include m.e(body) {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: fn.use-var(gap, small);
+  }
+
+  /* USheet 根为 flex 列，grid 区 flex:1；宿主必须给 .u-sheet 明确高度 */
+  @include m.e(sheet) {
+    flex: 1;
+    min-height: 0;
+    min-width: 0;
+  }
+
+  @include m.e(loading) {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: fn.use-var(gap, small);
+    background: color-mix(in srgb, fn.use-var(bg-color, top) 72%, transparent);
+    font-size: fn.use-var(font-size-main, small);
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(loading-spinner) {
+    width: 28px;
+    height: 28px;
+    border: 3px solid fn.use-var(border, muted-color);
+    border-top-color: fn.use-var(color, primary);
+    border-radius: 50%;
+    animation: u-report-viewer-spin 0.8s linear infinite;
+  }
+
+  @include m.e(error) {
+    flex-shrink: 0;
+    padding: fn.use-var(gap, small);
+    border: 1px solid fn.use-var(color, danger);
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(color, danger, light-9);
+    color: fn.use-var(color, danger);
+    font-size: fn.use-var(font-size-main, small);
+  }
+}
+
+@keyframes u-report-viewer-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@include m.b(report-filter-bar) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: fn.use-var(gap, small);
+  padding: fn.use-var(gap, small);
+  border: fn.use-var(border);
+  border-radius: fn.use-var(radius, default);
+  background: fn.use-var(bg-color, top);
+
+  @include m.e(label) {
+    flex-shrink: 0;
+    font-size: fn.use-var(font-size-main, small);
+    font-weight: 600;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(fields) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: fn.use-var(gap, small);
+    flex: 1;
+    min-width: 0;
+  }
+
+  @include m.e(field) {
+    display: flex;
+    align-items: center;
+    gap: fn.use-var(gap, small);
+    min-width: 0;
+  }
+
+  @include m.e(field-label) {
+    flex-shrink: 0;
+    font-size: fn.use-var(font-size-main, small);
+    color: fn.use-var(text-color, second);
+  }
+}

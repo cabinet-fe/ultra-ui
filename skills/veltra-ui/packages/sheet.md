@@ -301,19 +301,52 @@ const connector = createHttpConnector({ endpoint: '/api/report' })
 
 ### ReportTemplate 与纯函数内核
 
-`ReportTemplate` = `SheetSnapshot` + 内嵌 `datasets: ReportDatasetDef[]`（connection 为完整连接对象，可 JSON 序列化）。主入口还导出 `renderReport`（模板 + records → Filled Report 快照）、绑定（`createReportBinding` / `resolveReportRole` 等）、条件规则、查询参数（`${param}` → `extractParamIds` / `buildParamDefs`）、`fetchTemplateRecords`、`exportFilledReportXlsx`、Filter Bar 值规范化（`parseDateRangeValue` / `resolveNumberParamValue` / `patchParamValues`）等纯 TS 函数（`src/report/`，框架无关、无 DOM）。
+`ReportTemplate` = `SheetSnapshot` + **`version: number`（当前 `1`，必填）** + 内嵌 `datasets: ReportDatasetDef[]`（connection 为完整连接对象，可 JSON 序列化）。`version` 缺失或高于当前 → 抛可读错误，存量模板须在设计器中重建。
+
+主入口还导出 `renderReport`（模板 + records → Filled Report 快照）、绑定（`createReportBinding` / `presetBindingPatch` / `applyReportPreset` 等）、条件规则、查询参数（`${param}` → `extractParamIds` / `buildParamDefs`）、`fetchTemplateRecords`、`exportFilledReportXlsx`、Filter Bar 值规范化等纯 TS 函数（`src/report/`，框架无关、无 DOM）。
+
+**`ReportBinding`（breaking，ADR-0005）**：
+
+```ts
+type ReportExpand = 'down' | 'right' | 'none'
+type ReportAggregate = 'list' | 'group' | 'sum' | 'avg' | 'count' | 'max' | 'min'
+type ReportPreset = 'groupHeader' | 'detail' | 'subtotal' | 'grandTotal' | 'cross'
+
+interface ReportBinding {
+  dataset: string
+  field: string
+  expand: ReportExpand
+  aggregate: ReportAggregate
+  rowParent?: CellAddress   // 行方向从属父格
+  colParent?: CellAddress   // 列方向从属父格
+  mergeSpan?: boolean       // 扩展实例是否合并；缺省 true
+  sort?: ReportSort
+  conditionalRules?: ConditionalRule[]
+  preset?: ReportPreset     // 设计器标签，引擎不读
+}
+
+interface ConditionalRule {
+  operator: ConditionalOperator
+  value: unknown
+  style: CellStylePatch
+  field?: string            // 求值字段；缺省取绑定格自身字段
+  scope?: 'cell' | 'row'   // 作用范围；缺省 'cell'
+}
+```
+
+已删除：`role` / `leftParent` / `resolveReportRole` / `isExpandingBinding` 等。`select` 聚合更名为 `list`；新增 `max` / `min`。
 
 ### UReportViewer（运行态）
 
-- **Props**：`connector`（必填）、`template`（必填，`ReportTemplate`）、`workbook?`
-- **Exposed**：`refresh()` — 重新取数并展开渲染
+- **Props**：`connector`（必填）、`template`（必填，`ReportTemplate`）、`workbook?`、`colWidths?`
+- **Exposed**：`refresh()` — 重新取数并展开渲染；`exportXlsx()` — 导出填充报表 XLSX（取数完成前拒绝）
 - 内部闭环：从模板实际绑定数据集提取查询参数并集 → Filter Bar → `fetchTemplateRecords` → `renderReport` → 只读 USheet 展示；loading 遮罩与业务错误 banner
 
 ### UReportDesigner（设计态）
 
 - **Props**：`connector`（必填）、`v-model:connections`、`template?`（载入既有模板继续设计）、`workbook?`
-- **Exposed**：`getTemplate()` — 取回含 meta 绑定与内嵌数据集定义的 `ReportTemplate`
-- 设计态：数据中枢 drawer（连接 CRUD / 测试 / SQL 数据集 / describe 字段解析 / 记录预览）、字段面板 HTML5 拖拽绑定、角色徽章（`resolveCellRenderer` 首个消费者）、Action Pill、拓扑连线、条件规则对话框、预览模式（内嵌 `UReportViewer`）、XLSX 导出
+- **Exposed**：`getTemplate()` — 取回含 `version`、meta 绑定与内嵌数据集定义的 `ReportTemplate`
+- 设计态：数据中枢 drawer、字段面板 HTML5 拖拽绑定（落格推断父格与预设）、预设徽章（`resolveCellRenderer`）、Action Pill（展开方向 / 父格点选 / `mergeSpan`）、拓扑连线（真实 `rowParent` / `colParent`）、条件规则对话框（`field` / `scope`）、预览模式（内嵌 `UReportViewer`）、XLSX 导出
 
 ## 已知限制
 

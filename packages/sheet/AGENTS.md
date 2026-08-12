@@ -10,22 +10,36 @@ src/
 ├── components/           # 组件目录（对齐 desktop 模式，Vue 只在这一层；resolver 按目录扫描 index.ts + style.ts）
 │   ├── sheet/            # USheet 组件（insert-image 弹层 / 右键）
 │   └── report/           # UReportViewer + UReportDesigner 同族共置；内部 filter-bar / 数据中枢 / 字段面板 / designer/（设计态覆层与对话框）不导出
-├── report/               # 报表纯 TS 内核（renderReport / binding / rules / params / DataConnector / Report Template / Filter Bar 值规范化 / Filled Report XLSX 导出，框架无关、无 DOM）
+├── report/               # 报表纯 TS 内核（render/ 展开引擎、binding、rules、params、DataConnector、Report Template、Filter Bar、Filled Report XLSX 导出）
 ├── tools/                # 工具扩展（不 import 组件层）；SheetContext 门面
 └── types/                # SheetProps / SheetEmits / SheetExposed / ReportViewerProps / ReportViewerExposed / ReportDesignerProps / ReportDesignerEmits / ReportDesignerExposed
 ```
 
 模型、命令、公式、IO、SheetGrid、ImageLayer 等 core/grid 内容全部在 `packages/sheet-core/src/`（`core/`、`grid/`），其分层约定、核心语义、VTable 适配要点、性能要点与已知限制见 `packages/sheet-core/AGENTS.md`，本文件不再重复。
 
-## 报表内核（src/report/，ADR-0003 决策 1）
+## 报表内核（src/report/，ADR-0003 / ADR-0005）
 
-- 纯 TS、headless、无 DOM：渲染引擎 `renderReport`（模板 + records → Filled Report 快照，分组/小计/总计/矩阵展开 + 条件样式打平）、绑定（`REPORT_META_NAMESPACE` / `createReportBinding` 等）、条件规则（`evaluateCondition` / `evaluateConditionalStyle` / `resolveRuleCompareValue`；`ConditionalRule.field` 跨字段求值、`scope: 'row'` 两阶段行级叠加；交叉表下整行高亮会染满同行所有列，明细行报表更合适）、查询参数（`${param}` 提取 `extractParamIds` / `buildParamDefs` / `resolveBoundDatasetParams`）。
-- **Report Template（template.ts）**：自包含模板 = `SheetSnapshot` + 内嵌数据集定义（`ReportTemplate.datasets: ReportDatasetDef[]`，connection 为完整连接对象）。`Sheet.snapshot()` 不产生该字段、`restore()`/`snapshot()` 往返会丢失，由设计器 `getTemplate()` 吐出时附加。配套纯函数：`getTemplateDatasets` / `getBoundDatasetIds`（绑定即真相）/ `resolveTemplateParams`（绑定数据集参数并集，同名先见为准）/ `resolveParamDefaults` / `fetchTemplateRecords`（连接器并行取数 → `DatasetRecords`，业务错误整体透传）。
-- **Filter Bar 值规范化（filter-bar.ts）**：`parseDateRangeValue` / `resolveNumberParamValue` / `patchParamValues`（playground 平移，单一事实源；playground 旧文件已删）。
-- **Filled Report XLSX 导出（export-xlsx.ts）**：`exportFilledReportXlsx(sheet, colWidths)`（合并 / 样式 / 行高 / 列宽保真；条件样式已在 `renderReport` 展开阶段打平进 StylePool，ADR-0001 决策 2）。列宽未进 SheetSnapshot，只能经 VTable 运行时读取后显式传入（`ReportColWidthEntry`）；与 sheet-core `exportWorkbookXlsx` 的差异即 columns 定义。`buildColumnDefs` / `pxToExcelColWidth` 同文件导出。浏览器下载（saveBlob）在组件层，内核保持无 DOM。
-- **数据连接器（词汇表：Data Connector）**：`DataConnector` 接口（`test`/`describe`/`query`）+ `createHttpConnector({ endpoint })`。三端点 `POST {endpoint}/test|describe|query`（无版本段）：请求体 `{ connection }` / `{ connection, sql }` / `{ connection, sql, values }`；业务错误一律 `200 + { ok: false, error: { code, message } }` 原样透传，传输层错误（非 2xx / 网络异常）折叠为 `{ ok: false, error }`，连接器不抛异常。`describe`/`query` 的 fields 归一化为 `DatasetField`（label 回退 name、type 缺省 string）。
-- **连接器边界（架构约束）**：report 模块只依赖 `DataConnector` 接口；本包严禁引入数据库驱动或 Node-only 依赖；凭据只驻留内存（无任何持久化，ADR-0003 决策 4）。
-- 测试见 `src/report/__test__/`：纯 headless 测试 + `createHttpConnector` mock-fetch 契约测试 + template/filter-bar 内联 fixtures；不依赖 playground mock。
+- 纯 TS、headless、无 DOM：`renderReport`（模板 + records → Filled Report 快照）经 `render/` 编排，**零几何推断**——布局语义全部来自 `ReportBinding` 显式字段。
+- **绑定模型（ADR-0005）**：`expand: 'down' | 'right' | 'none'`（展开方向）、`rowParent?` / `colParent?`（行/列方向从属父格，用户可编辑）、`aggregate`（`list` / `group` / `sum` / `avg` / `count` / `max` / `min`）、`mergeSpan?`（扩展实例是否合并为单格，缺省 `true`；`false` 时逐格重复填值，便于 Excel 筛选）、`preset?`（设计器预设标签，**引擎不读**）。已删除：`role` / `leftParent` / `resolveReportRole` 等坐标反推符号；`select` 聚合更名为 `list`。
+- **预设降级**：五个预设（分组头 / 明细行 / 小计行 / 总计行 / 交叉格）仅为设计器输入法与 Action Pill 展示标签；切换预设经 `presetBindingPatch` / `applyReportPreset` 写入一组 `expand` + `aggregate` + 父格组合，缺失时显示「自定义」。
+- **扩展坐标系**：静态格、合并区域与绑定格统一按逻辑网格 → 物理网格映射；扩展格每个实例的跨度等于其子树展开量；父格约束只在同数据集内生效，跨数据集拖拽不覆盖 `dataset`。
+- **渲染模块（`render/`）**：
+
+| 模块 | 职责 |
+| --- | --- |
+| `template-index.ts` | 模板一次性索引：绑定 Map、父子树构建、按地址直查 |
+| `coordinate.ts` | 扩展坐标系：实例枚举、子树跨度、逻辑格 → 物理区间映射（纯计算、无输出） |
+| `aggregate.ts` | 聚合求值 + 分组字段索引 |
+| `style-resolver.ts` | 静态样式 + 条件样式（含 `scope: 'row'` 两阶段行级叠加） |
+| `builder.ts` | Filled Report 快照组装 |
+| `index.ts` | `renderReport` 编排 |
+
+- **条件样式**：`ConditionalRule.field` 缺省取绑定格自身字段，指定时对同一条记录的另一字段求值；`scope: 'row'` 染满整个物理输出行（交叉表下会染满同行所有列，明细行报表更合适）。
+- **Report Template（template.ts）**：自包含模板 = `SheetSnapshot` + **`version: number`（当前 `1`，必填）** + 内嵌 `datasets: ReportDatasetDef[]`。`version` 缺失或高于当前 → 抛可读错误要求重建（无迁移函数）。`Sheet.snapshot()` 不产生 `version` / `datasets`，由设计器 `getTemplate()` 吐出时附加。配套：`getTemplateDatasets` / `getBoundDatasetIds` / `resolveTemplateParams` / `resolveParamDefaults` / `fetchTemplateRecords`。
+- **Filter Bar 值规范化（filter-bar.ts）**：`parseDateRangeValue` / `resolveNumberParamValue` / `patchParamValues`。
+- **Filled Report XLSX 导出（export-xlsx.ts）**：`exportFilledReportXlsx(sheet, colWidths)`；列宽未进 SheetSnapshot，经 VTable 运行时读取后显式传入。
+- **数据连接器**：`DataConnector` 接口 + `createHttpConnector`；report 模块严禁引入数据库驱动。
+- 测试见 `src/report/__test__/` 与 `src/report/render/__test__/`：坐标纯计算、渲染回归、连接器契约；不依赖 playground mock。
 
 ## UReportViewer（components/report/，ADR-0003 决策 2）
 
@@ -37,16 +51,16 @@ src/
 
 ## UReportDesigner（components/report/，ADR-0003 决策 2 / ADR-0004 首个消费者）
 
-- Props：`connector`（必填）、`v-model:connections`（纯序列化连接对象，仅驻留内存，ADR-0003 决策 4）、`template?`（载入既有 Report Template 继续设计）、`workbook?`（USheet 先例，缺省内部自建）。Exposed：`getTemplate()`（取回含 meta 绑定与内嵌数据集定义的 `ReportTemplate`）。
-- 全量设计态（issue 06 最小闭环 + issue 07 完备）：数据中枢 drawer、字段面板拖拽绑定、角色徽章、Action Pill、拓扑连线、条件规则对话框、预览模式（内嵌 UReportViewer）、XLSX 导出。
-- `useReportDesigner`（headless，不持有 DOM / 网格引用）：连接 / 数据集状态、绑定写 Cell Meta、徽章 hook、Action Pill 就地编辑（`patchActiveBinding` 分组锚点守卫 / `removeActiveBinding`）、拓扑条目（`bindingEntries` / `metaTick`）、模板吐出与载入。内部数据集 `DesignerDataset` 以 `connectionId` 引用连接（v-model 连接列表是单一事实源），`getTemplate()` 吐出时解析为内嵌连接对象、丢弃 `fields` 缓存；无匹配连接的数据集不吐出。绑定角色推导与 playground 旧设计器一致（`createReportBinding` 默认值、首列第二行分组锚点约定、同行右侧落格继承分组数据集）。
+- Props：`connector`（必填）、`v-model:connections`（纯序列化连接对象，仅驻留内存，ADR-0003 决策 4）、`template?`（载入既有 Report Template 继续设计）、`workbook?`（USheet 先例，缺省内部自建）。Exposed：`getTemplate()`（取回含 `version`、meta 绑定与内嵌数据集定义的 `ReportTemplate`）。
+- 全量设计态：数据中枢 drawer、字段面板拖拽绑定、预设徽章、Action Pill、拓扑连线、条件规则对话框、预览模式（内嵌 UReportViewer）、XLSX 导出。
+- `useReportDesigner`（headless）：连接 / 数据集状态、绑定写 Cell Meta、徽章 hook、Action Pill 就地编辑（`patchActiveBinding` / `removeActiveBinding`、父格点选拾取）、拓扑条目（`bindingEntries` / `metaTick`）、模板吐出与载入。落格推断：同列向上找最近纵向扩展绑定为 `rowParent` 候选、同行向左找最近横向扩展绑定为 `colParent` 候选；默认预设「明细」；跨数据集拖拽保留字段自身 `dataset`。内部数据集 `DesignerDataset` 以 `connectionId` 引用连接，`getTemplate()` 吐出时解析为内嵌连接对象。
 - **`template` prop 载入**：快照 `restore` + `restoreContent` 恢复网格绑定；内嵌数据集还原为设计态（`connectionId` 引用），内嵌连接按 id 合并进 v-model 列表（仅缺省追加，宿主同 id 连接优先）；describe 自动恢复字段缓存（业务错误忽略，字段留空可在数据中枢重试）。
 - **预览模式**：内嵌查看器路径（05）——切预览时 `getTemplate()` 吐出快照交给 UReportViewer（自持 `previewWorkbook`，导出需拿填充后 sheet），Filter Bar / 取数 / 展开 / loading / 错误提示全走查看器；设计态工作簿不受预览影响，切回绑定不丢。设计网格列宽在切预览时经 VTable 运行时捕获（`designer/col-widths.ts`），导出 XLSX 随快照写入。
 - 数据中枢 drawer（`designer-hub.vue` + `hub-connection-form.vue` + `hub-dataset-editor.vue`，内部不导出）：连接 CRUD 走 `v-model:connections`（删连接级联删其数据集）；测试连接 / describe 字段解析 / 记录预览全经 `DataConnector`（无 mock）；`${param}` 参数提取用内核 `buildParamDefs`（纯函数），describe 成功的字段写入数据集 `fields` 缓存（字段面板 catalog 数据源，`fieldOverrides` 在 catalog 层应用）。
 - 字段面板（`field-panel.vue`）：HTML5 拖拽（`FIELD_DRAG_MIME` 负载 `datasetId:fieldName`，编解码在 `field-panel-helpers.ts`）；网格宿主 drop 经 VTable hit-test 解析落点，落空回退当前选区。
-- 绑定格富渲染徽章（`binding-badge.ts`）：`resolveCellRenderer` 按格返回角色色彩徽章（`CustomLayout` 容器 + 文本，`renderDefault: false`），未绑定格返回 `undefined` 回落默认渲染；canvas 绘制需具体色值，`REPORT_ROLE_BADGE_COLORS` 为硬编码角色配色。遵守 cell hook 性能契约（纯函数、同步、O(1) 查找；label 经 `fieldLabelMap` 查找表，不用 `setBindingCatalog` 全局态）。
-- 设计态覆层与对话框（`designer/`，内部不导出）：Action Pill（`float-panel.vue`，角色 / 聚合 / 排序 / 条件样式入口 / 删除绑定）、拓扑连线（`topology-overlay.vue` + `topology.ts`，SVG 贝塞尔弧线沿父链上行 + 下行直接子绑定）、条件规则对话框（`rules-dialog.vue` + `rule-row.vue` + `rule-preview.vue` + `conditional-rules/helpers.ts`，运算符按字段类型映射、useDnD 拖拽排序 + 按钮排序）、网格覆层基础设施（`cell-coords.ts` 坐标换算 / `use-grid-overlay.ts` 滚动同步与浮卡锚点定位 / `col-widths.ts` 列宽捕获 / `drop-highlight-overlay.vue` 字段拖拽落点虚线高亮）、角色选项与切换默认值（`role.ts` `roleBindingDefaults`）。
-- 组件级测试（缝隙 3）：`components/report/__test__/report-designer.test.ts`（最小闭环全流程 + template 载入 / 预览切换取数 / 切回绑定不丢）+ `use-report-designer.test.ts`（headless：CRUD / describe / preview / 角色推导 / 徽章 / Action Pill 编辑 / 模板载入与往返）+ `topology.test.ts` / `conditional-rules-helpers.test.ts` / `float-panel-position.test.ts`（随迁纯逻辑）。
+- 绑定格富渲染徽章（`binding-badge.ts`）：`resolveCellRenderer` 按格返回预设色彩徽章（`REPORT_PRESET_BADGE_COLORS`）；遵守 cell hook 性能契约（纯函数、同步、O(1) 查找；label 经 `fieldLabelMap` 查找表）。
+- 设计态覆层与对话框（`designer/`，内部不导出）：Action Pill（`float-panel.vue`，预设 / 展开方向 / 聚合 / 父格点选 / `mergeSpan` / 条件样式 / 排序 / 删除绑定）、拓扑连线（`topology-overlay.vue` + `topology.ts`，SVG 弧线反映真实存储的 `rowParent` / `colParent`）、条件规则对话框（`rules-dialog.vue` + `rule-row.vue` + `rule-preview.vue` + `conditional-rules/helpers.ts`；`field` / `scope` 编辑）、网格覆层基础设施（`cell-coords.ts` / `use-grid-overlay.ts` / `col-widths.ts` / `drop-highlight-overlay.vue`）、预设选项与切换默认值（`role.ts` → `presetBindingDefaults` / `REPORT_PRESET_OPTIONS`）。
+- 组件级测试（缝隙 3）：`components/report/__test__/report-designer.test.ts` + `use-report-designer.test.ts`（落格推断 / 父格编辑 / 预设切换 / 跨数据集）+ `topology.test.ts` / `conditional-rules-helpers.test.ts` / `float-panel-position.test.ts`。
 
 ## 分层约定
 
