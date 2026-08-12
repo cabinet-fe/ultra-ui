@@ -41,10 +41,25 @@ export function checkParams(
   return { ok: true }
 }
 
+/** 检测 SQL 是否以 CTE（WITH）开头（忽略前导空白与分号） */
+export function hasLeadingCte(sql: string): boolean {
+  const trimmed = sql.trim().replace(/;+\s*$/, '')
+  return /^\s*WITH\b/i.test(trimmed)
+}
+
+/** MySQL describe 遇到 CTE 时的可读业务错误（派生表不支持 WITH） */
+export function describeCteUnsupportedError(): ConnectorError {
+  return {
+    code: ERROR_CODES.SQL_ERROR,
+    message:
+      'MySQL 下 describe 不支持 CTE（WITH 子句）：请将 CTE 改写为子查询后再 describe，或改用 query 取数'
+  }
+}
+
 /**
  * describe 专用 SQL：占位符以 NULL 替换（describe 不携带参数值），
  * 再包装为 `LIMIT 0` 派生表——只取字段元数据、不取数。
- * 已知边界：MySQL 8 派生表不支持 CTE（WITH）语法，含 CTE 的 SQL describe 会返回 SQL_ERROR。
+ * 已知边界：MySQL 8 派生表不支持 CTE（WITH）语法，含 CTE 的 SQL 在 MySQL describe 路径会提前返回可读错误。
  */
 export function toDescribeSql(sql: string): string {
   const trimmed = sql.trim().replace(/;+\s*$/, '')

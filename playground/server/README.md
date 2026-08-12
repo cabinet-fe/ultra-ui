@@ -62,6 +62,16 @@ curl -X POST http://localhost:8787/test -H "Content-Type: application/json" \
 
 验收：test / describe / query 各一次，用真实 MySQL 与 PostgreSQL 连接。
 
+## 已知限制
+
+### MySQL describe 不支持 CTE
+
+`describe` 会把 SQL 包成 `SELECT * FROM (...) AS __report_describe LIMIT 0` 派生表以只取字段元数据。MySQL 8 的派生表不支持 `WITH`（CTE），因此以 `WITH` 开头的 SQL 在 MySQL 连接上调用 `describe` 会直接返回可读业务错误（`SQL_ERROR`），提示改写为子查询或改用 `query`。PostgreSQL 无此限制。
+
+### MySQL 布尔列类型映射
+
+`TINYINT(1)`（协议类型 TINY）映射为 `string`，与 PostgreSQL `bool` → `string` 一致；不会为布尔列单独引入 `DatasetField.type: 'boolean'`（契约不变）。mysql2 协议类型无法区分 `TINYINT(1)` 与普通 `TINYINT`，因此所有 TINY 列均映射为 `string`。
+
 ## PostgreSQL 演示数据
 
 `demo-data/` 提供建表 + 种子数据 SQL（7 张业务表，对齐原 mock Data Hub），连接串占位符见 `demo-data/README.md`。

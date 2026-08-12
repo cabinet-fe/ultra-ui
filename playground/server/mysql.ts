@@ -10,13 +10,20 @@ import { createConnection } from 'mysql2/promise'
 import type { Connection, FieldPacket, QueryValues } from 'mysql2/promise'
 
 import { ERROR_CODES } from './errors'
-import { checkParams, coerceNumericRows, PARAM_PATTERN, toDescribeSql } from './params'
+import {
+  checkParams,
+  coerceNumericRows,
+  describeCteUnsupportedError,
+  hasLeadingCte,
+  PARAM_PATTERN,
+  toDescribeSql
+} from './params'
 
 /** 建连超时：死主机不无限挂起 */
 const CONNECT_TIMEOUT_MS = 10_000
 
-/** 数值列协议类型（mysql2 ColumnDefinition.type）：DECIMAL TINY SHORT LONG FLOAT DOUBLE LONGLONG INT24 NEWDECIMAL YEAR */
-const MYSQL_NUMBER_TYPES = new Set([0, 1, 2, 3, 4, 5, 8, 9, 13, 246])
+/** 数值列协议类型（mysql2 ColumnDefinition.type）：DECIMAL SHORT LONG FLOAT DOUBLE LONGLONG INT24 NEWDECIMAL YEAR（不含 TINYINT，与 PG bool → string 对齐） */
+const MYSQL_NUMBER_TYPES = new Set([0, 2, 3, 4, 5, 8, 9, 13, 246])
 /** 日期列协议类型：TIMESTAMP DATE DATETIME NEWDATE */
 const MYSQL_DATE_TYPES = new Set([7, 10, 12, 14])
 
@@ -79,11 +86,24 @@ function toDatasetFields(fields: FieldPacket[]): DatasetField[] {
 }
 
 /**
- * `${param}` → mysql2 命名占位符 `:param`（query 支持命名占位符 + 对象 values）。
- * 已知边界：mysql2 命名占位符不识别字符串字面量内的同名文本。
+ * `${param}` → mysql2 位置占位符 `?`（同名参数复用同一序号），
+ * values 按参数首次出现顺序取值为数组。
  */
-function toNamedPlaceholders(sql: string): string {
-  return sql.replace(PARAM_PATTERN, ':$1')
+function toPositionalPlaceholders(
+  sql: string,
+  values: ParamValues
+): { sql: string; values: unknown[] } {
+  const indexByName = new Map<string, number>()
+  const ordered: unknown[] = []
+  const transformed = sql.replace(PARAM_PATTERN, (_match: string, name: string) => {
+    let index = indexByName.get(name)
+    if (index === undefined) {
+      index = ordered.push(values[name])
+      indexByName.set(name, index)
+    }
+    return '?'
+  })
+  return { sql: transformed, values: ordered }
 }
 
 export function runMysqlTest(conn: DataConnection): Promise<Result<void>> {
@@ -96,6 +116,9 @@ export function runMysqlDescribe(
   conn: DataConnection,
   sql: string
 ): Promise<Result<DatasetField[]>> {
+  if (hasLeadingCte(sql)) {
+    return Promise.resolve({ ok: false, error: describeCteUnsupportedError() })
+  }
   return withMysql(conn, async (client) => {
     const [, fields] = await client.query(toDescribeSql(sql))
     return toDatasetFields(fields)
@@ -110,10 +133,8 @@ export async function runMysqlQuery(
   const params = checkParams(sql, values)
   if (!params.ok) return params
   return withMysql(conn, async (client) => {
-    const [rows, fields] = await client.query({
-      sql: toNamedPlaceholders(sql),
-      values: values as QueryValues
-    })
+    const { sql: text, values: ordered } = toPositionalPlaceholders(sql, values)
+    const [rows, fields] = await client.query({ sql: text, values: ordered as QueryValues })
     const datasetFields = toDatasetFields(fields)
     return {
       fields: datasetFields,
