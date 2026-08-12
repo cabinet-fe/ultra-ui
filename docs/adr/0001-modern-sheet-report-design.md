@@ -1,8 +1,10 @@
 # ADR-0001: 现代化 Sheet 报表架构与角色驱动引擎
 
-* **状态**: Accepted (已通过)
+* **状态**: Partially Superseded by ADR-0005（部分被 ADR-0005 取代）
 * **日期**: 2026-08-09
 * **领域 Context**: Sheet Report (`packages/sheet-core/CONTEXT.md`)
+
+> **取代说明**：ADR-0005 仅推翻本 ADR 的**决策 1**（布局角色替代坐标推导）。引擎从坐标反推布局关系的做法已被证明脆弱（`detectMatrixLayout` 的 `row < col` 启发式、标题行导致交叉表静默失效等），改为显式 `expand` + `rowParent` / `colParent` 输入模型。决策 2（`resolveCellStyle`）与决策 4（拓扑连线 / Action Pill）继续有效；决策 3 早已由 ADR-0003 取代。
 
 ---
 
@@ -19,7 +21,9 @@
 
 ## 决策事项 (Decision Drivers & Choices)
 
-### 决策 1：直观布局角色替代坐标推导 (Role-Driven Architecture)
+### 决策 1：直观布局角色替代坐标推导 (Role-Driven Architecture) — **已被 ADR-0005 取代**
+
+> 以下内容为 2026-08-09 原始决策，保留作历史记录。引擎输入已改为显式 `expand` + `rowParent` / `colParent`（见 ADR-0005 决策 1）；布局角色降级为设计器预设（`preset` 字段引擎不读）。
 
 放弃暴露坐标式父子格，重构 `ReportBinding` 为 5 大直观角色：
 - `Group Header`（分组头）
@@ -61,5 +65,5 @@ resolveCellStyle?: (addr: CellAddress, baseStyle?: CellStyle) => CellStyleOption
 
 ### 潜在风险与应对 (Risks & Mitigation)
 
-- **快照兼容**：原有 `ReportBinding` 中包含 `leftParent` 字段。应对：保留 `leftParent` 作为内部推导缓存，确保旧模板快照向下兼容。
+- **快照兼容**（已废止）：原有 `ReportBinding` 中包含 `leftParent` 字段。ADR-0005 起通过 `ReportTemplate.version` 校验拒绝旧模板，不写迁移函数；父格改为显式 `rowParent` / `colParent` 存储。
 - **渲染性能**：条件格式求值不可阻塞主线程。应对：依靠 VTable 视口虚拟化，且规则表达式建立预编译索引。
