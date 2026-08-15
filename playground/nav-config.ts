@@ -153,7 +153,7 @@ export function buildPlaygroundMenus(): NavItem[] {
     },
     {
       title: 'AI Chat',
-      description: '预览 @veltra/ai 对话组件，含工具调用与 mock transport',
+      description: '预览 @veltra/ai 对话组件，经 Node 代理接入 DeepSeek V4 Flash / V4 Pro',
       icon: AiChat as DefineComponent,
       path: '/ai-chat/index'
     },

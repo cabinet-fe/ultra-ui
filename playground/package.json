@@ -3,12 +3,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun scripts/dev.ts",
+    "dev": "node scripts/dev.ts",
     "dev:web": "vp dev",
     "build": "vp build",
     "preview": "vp preview",
     "test": "vp test",
     "server": "bun server/dev.ts",
+    "ai-server": "node server/ai-dev.ts",
     "seed-demo": "bun server/demo-data/seed.ts"
   },
   "dependencies": {

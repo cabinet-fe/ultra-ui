@@ -6,9 +6,10 @@
 
 ```bash
 cd playground
-bun run dev      # 契约参考服务（8787）+ 前端（7788），报表演示用
-bun run dev:web  # 仅前端；报表页需另开 bun run server
-bun run server   # 仅契约参考服务
+bun run dev        # report 服务（Bun, 8787）+ DeepSeek AI 代理（Node, 8788）+ 前端（7788）
+bun run dev:web    # 仅前端；演示服务需另开对应 server
+bun run server     # 仅 report 契约服务（Bun）
+bun run ai-server  # 仅 DeepSeek AI 代理（Node，或 node server/ai-dev.ts）
 ```
 
 ## 导航
@@ -37,7 +38,7 @@ bun run server   # 仅契约参考服务
 - SCSS：`NodePackageImporter`（仓库根）解析 `pkg:@veltra/styles/...`
 - `VeltraUIResolver`（`@veltra/vite`）：desktop / ai / sheet 的 `U*` 组件 + 对应 `style.ts`
 - `@veltra/vite` 为本 playground 的 devDependency
-- 契约参考服务（`server/`）：`bun run dev` 并行拉起，或 `bun run server` 单独启动；`vp build` 不依赖该服务
+- `server/`：report 契约服务由 `bun run dev` 并行拉起；DeepSeek AI 代理为独立 Node 服务（`server/ai-dev.ts`，默认 8788），`bun run dev` 一并拉起；`vp build` 不依赖这些服务
 
 ## 契约参考服务（report connector）
 
@@ -45,10 +46,21 @@ bun run server   # 仅契约参考服务
 
 - hono + TS，`mysql2` / `pg` 真实驱动；只存在于 playground（devDependencies），不进任何发布产物
 - **通用契约**：`POST /test|describe|query`（无版本段），业务错误一律 `200 + { ok: false, error: { code, message } }`
-- **playground Hub**：连接与数据集（含 SQL）经 `GET|PUT /workspace` 持久化到本地 SQLite；取数经 `POST /datasets/:id/query` 只传 `values`；命名报表模板经 `GET|POST|PUT|DELETE /templates` 入库（入库时剥离凭据/SQL，读取时由工作区回填）
+- **playground Hub**：连接与数据集（含 SQL）经 `GET|PUT /workspace` 持久化到本地 SQLite；取数经 `POST /datasets/:id/query` 只传 `values`；命名报表模板经 `GET|POST|PUT|DELETE /templates` 入库（入库时剥离凭据/SQL，读取时由工作区回填）。报表演示页用 `localStorage` 记下 `lastTemplateId`，刷新时优先恢复上次打开的命名模板；数据中枢关闭 / 数据集变更立即写工作区；打开、新建、切独立查看器前若有未保存模板更改则确认。
 - `bun run dev` 并行启动本服务（默认 8787）与前端；亦可 `bun run server` 单独启动（`REPORT_SERVER_PORT` 覆盖）
 - 前端经 vite proxy `/report-api` 访问（`createHubConnector({ endpoint: '/report-api' })`）
 - 详见 `server/README.md`
+
+## DeepSeek AI 代理（Node）
+
+`server/deepseek.ts`（Hono 路由）+ `server/ai-dev.ts`（Node 入口）提供 dev-only DeepSeek 代理：
+
+- Node 运行，API Key 从 `playground/.env` 的 `DEEPSEEK_API_KEY` 读取（兼容回退 `VITE_DEEPSEEK_KEY`），不下发浏览器
+- `POST /ai/chat/completions`：OpenAI 兼容请求转发到 `https://api.deepseek.com/chat/completions`，SSE 中 `content` / `reasoning_content` / `tool_calls` 原样透传
+- `GET /ai/models`：返回前端选择器模型 `deepseek-v4-flash` / `deepseek-v4-pro`（含低 / 中 / 高推理等级与默认等级）
+- 前端 `src/ai-chat/index.vue` 已用 `createOpenAITransport({ endpoint: '/ai/chat/completions' })` 接入，两个模型均配置 `reasoningLevels`；默认 transport 将选中等级写入 `reasoning_effort`
+- vite proxy 使用正则 `^/ai(?:/|$)` → `http://localhost:8788`，只代理 `/ai` 与 `/ai/*`，避免前缀匹配把 `/ai-chat` 页面路由也代理走
+- 端口 `AI_SERVER_PORT`（默认 8788）；上游地址 / 模型映射可经 `DEEPSEEK_BASE_URL` / `DEEPSEEK_V4_FLASH_MODEL` / `DEEPSEEK_V4_PRO_MODEL` 覆盖
 
 ## 结构
 

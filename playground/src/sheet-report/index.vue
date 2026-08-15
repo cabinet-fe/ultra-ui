@@ -37,6 +37,7 @@
       :connector="connector"
       :template="loadedTemplate"
       v-model:connections="connections"
+      @datasets-change="onDesignerDatasetsChange"
     />
 
     <sheet-report-template-library
@@ -56,7 +57,7 @@
 </template>
 
 <script lang="ts" setup>
-import { UButton, UInput } from '@veltra/desktop'
+import { UButton, UInput, messageConfirm } from '@veltra/desktop'
 import {
   type DataConnection,
   type ReportDesignerExposed,
@@ -82,6 +83,7 @@ import {
   type WorkspaceData,
   type WorkspaceDataset
 } from './report-api'
+import { readLastTemplateId, resolveStartupTemplate, writeLastTemplateId } from './startup'
 import SheetReportTemplateLibrary from './template-library.vue'
 
 const toolbarCls = bem('sheet-report-demo-toolbar')
@@ -190,17 +192,62 @@ async function loadWorkspace(): Promise<void> {
     workspaceDatasets.value = workspace.datasets
     savedConnectionIds.value = new Set(workspace.connections.map((item) => item.id))
     workspacePayload = JSON.stringify(workspace)
-    loadedTemplate.value = buildWorkspaceSeedTemplate(workspace)
+
+    const lastTemplateId = readLastTemplateId(localStorage)
+    let namedTemplate: { id: string; name: string; template: ReportTemplate } | null = null
+    if (lastTemplateId) {
+      try {
+        const record = await fetchReportTemplate(lastTemplateId)
+        namedTemplate = { id: record.id, name: record.name, template: record.template }
+      } catch {
+        writeLastTemplateId(localStorage, null)
+      }
+    }
+
+    const startup = resolveStartupTemplate({
+      lastTemplateId,
+      namedTemplate,
+      seedTemplate: buildWorkspaceSeedTemplate(workspace)
+    })
+    applyStartupTemplate(startup, workspace)
     designerSessionKey.value += 1
-    statusText.value =
-      workspace.connections.length > 0 || workspace.datasets.length > 0
-        ? `已恢复 ${workspace.connections.length} 个连接、${workspace.datasets.length} 个数据集`
-        : '工作区为空，可在数据中枢新建'
+    statusText.value = describeStartupStatus(startup, workspace)
   } catch (error) {
     statusText.value = `工作区加载失败：${error instanceof Error ? error.message : String(error)}`
   } finally {
     workspaceReady.value = true
   }
+}
+
+function applyStartupTemplate(
+  startup: ReturnType<typeof resolveStartupTemplate>,
+  workspace: WorkspaceData
+): void {
+  if (startup.source === 'named' && startup.template) {
+    connections.value = mergeConnectionsFromTemplate(startup.template, connections.value)
+    workspaceDatasets.value = extractWorkspaceDatasets(startup.template)
+    activeTemplateId.value = startup.activeTemplateId
+    templateName.value = startup.templateName
+    loadedTemplate.value = startup.template
+    writeLastTemplateId(localStorage, startup.activeTemplateId)
+    return
+  }
+  activeTemplateId.value = null
+  templateName.value = startup.templateName
+  loadedTemplate.value = startup.template ?? buildWorkspaceSeedTemplate(workspace)
+}
+
+function describeStartupStatus(
+  startup: ReturnType<typeof resolveStartupTemplate>,
+  workspace: WorkspaceData
+): string {
+  if (startup.source === 'named') {
+    return `已恢复模板「${startup.templateName}」`
+  }
+  if (workspace.connections.length > 0 || workspace.datasets.length > 0) {
+    return `已恢复 ${workspace.connections.length} 个连接、${workspace.datasets.length} 个数据集`
+  }
+  return '工作区为空，可在数据中枢新建'
 }
 
 function scheduleWorkspaceSave(): void {
@@ -247,6 +294,7 @@ async function saveTemplate(): Promise<void> {
     activeTemplateId.value = record.id
     templateName.value = record.name
     markDocumentSaved()
+    writeLastTemplateId(localStorage, record.id)
     statusText.value = `模板「${record.name}」已保存`
   } catch (error) {
     statusText.value = `模板保存失败：${error instanceof Error ? error.message : String(error)}`
@@ -255,7 +303,22 @@ async function saveTemplate(): Promise<void> {
   }
 }
 
-function createNewTemplate(): void {
+async function confirmDiscardIfDirty(): Promise<boolean> {
+  if (!isDirty.value) return true
+  const result = messageConfirm.warning('当前模板有未保存更改，确定继续？', {
+    title: '未保存模板更改',
+    confirmButtonText: '继续',
+    cancelButtonText: '取消'
+  })
+  return (await result.onClosed) === 'confirm'
+}
+
+function onDesignerDatasetsChange(): void {
+  if (!workspaceReady.value) return
+  void saveWorkspaceState()
+}
+
+function resetToNewTemplate(): void {
   activeTemplateId.value = null
   templateName.value = '未命名模板'
   loadedTemplate.value = buildWorkspaceSeedTemplate({
@@ -263,9 +326,16 @@ function createNewTemplate(): void {
     datasets: workspaceDatasets.value
   })
   designerSessionKey.value += 1
+  writeLastTemplateId(localStorage, null)
+}
+
+async function createNewTemplate(): Promise<void> {
+  if (!(await confirmDiscardIfDirty())) return
+  resetToNewTemplate()
 }
 
 async function openTemplate(id: string): Promise<void> {
+  if (!(await confirmDiscardIfDirty())) return
   statusText.value = '正在打开模板…'
   try {
     const record = await fetchReportTemplate(id)
@@ -277,6 +347,7 @@ async function openTemplate(id: string): Promise<void> {
     loadedTemplate.value = record.template
     designerSessionKey.value += 1
     libraryVisible.value = false
+    writeLastTemplateId(localStorage, record.id)
     statusText.value = `已打开模板「${record.name}」`
   } catch (error) {
     statusText.value = `打开模板失败：${error instanceof Error ? error.message : String(error)}`
@@ -285,11 +356,12 @@ async function openTemplate(id: string): Promise<void> {
 
 function onTemplateDeleted(id: string): void {
   if (activeTemplateId.value !== id) return
-  createNewTemplate()
+  resetToNewTemplate()
   statusText.value = '当前模板已删除，已切换为新建模板'
 }
 
-function openStandaloneViewer(): void {
+async function openStandaloneViewer(): Promise<void> {
+  if (!(await confirmDiscardIfDirty())) return
   const template = designerRef.value?.getTemplate()
   if (!template?.datasets?.length) {
     statusText.value = '请先配置数据集并保存绑定'

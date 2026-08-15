@@ -1,6 +1,7 @@
 {
   "extends": "@cat-kit/tsconfig/tsconfig.node.json",
   "compilerOptions": {
+    "allowImportingTsExtensions": true,
     "customConditions": ["veltra-dev"],
     "noEmit": true
   },

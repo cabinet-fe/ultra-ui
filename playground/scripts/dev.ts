@@ -1,12 +1,16 @@
 /**
- * 本地开发：并行拉起契约参考服务（bun + SQLite）与 playground 前端。
+ * 本地开发：并行拉起 report 契约服务（沿用 Bun）、DeepSeek AI 代理（Node）与 playground 前端。
  * 用法：`cd playground && bun run dev`（或根目录 `vp run -F playground dev`）
  */
 import { spawn, type ChildProcess } from 'node:child_process'
+import { existsSync } from 'node:fs'
 import { dirname, join } from 'node:path'
+import { loadEnvFile } from 'node:process'
 import { fileURLToPath } from 'node:url'
 
 const playgroundDir = join(dirname(fileURLToPath(import.meta.url)), '..')
+const envPath = join(playgroundDir, '.env')
+if (existsSync(envPath)) loadEnvFile(envPath)
 const children: ChildProcess[] = []
 let exiting = false
 
@@ -37,6 +41,7 @@ function shutdown(exitCode = 0): void {
 process.on('SIGINT', () => shutdown(0))
 process.on('SIGTERM', () => shutdown(0))
 
-console.log('[playground] 启动契约参考服务 + 前端（Ctrl+C 一并退出）')
+console.log('[playground] 启动 report 契约服务 + DeepSeek AI 代理 + 前端（Ctrl+C 一并退出）')
 spawnProc('bun', ['server/dev.ts'], 'report-server')
+spawnProc('node', ['server/ai-dev.ts'], 'ai-server')
 spawnProc('vp', ['dev'], 'playground')

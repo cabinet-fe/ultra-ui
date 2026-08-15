@@ -1,6 +1,6 @@
 <template>
   <div>
-    <CustomCard title="AI 对话助手（mock transport，多 Provider 模型 / 推理选择）">
+    <CustomCard title="AI 对话助手（DeepSeek V4 Flash / V4 Pro，经 Node 代理服务）">
       <div class="ai-chat-wrap">
         <u-ai-chat
           v-model:model="model"
@@ -8,7 +8,7 @@
           :transport="transport"
           :tools="tools"
           :models="models"
-          welcome="试试：「算一下 128*46」「北京天气怎么样」「删除 /tmp/app.log」「帮我做个活动页面」；也可切换模型/推理后再发一句通用问题"
+          welcome="试试：「算一下 128*46」「北京天气怎么样」「删除 /tmp/app.log」，也可以切换 V4 Flash / V4 Pro 与低 / 中 / 高推理等级；服务端密钥请在 playground/.env 配置 DEEPSEEK_API_KEY"
         >
           <template #tool-getWeather="{ toolCall }">
             <div class="weather-result">🌤️ {{ toolCall.result }}</div>
@@ -21,203 +21,72 @@
 </template>
 
 <script lang="ts" setup>
-import { UAiChat, type ChatModelOption, type ChatTool, type ChatTransport } from '@veltra/ai'
+import { UAiChat, createOpenAITransport, type ChatTool } from '@veltra/ai'
 import '@veltra/ai/style'
 import { Delete, Sun } from '@veltra/icons/normal'
 import { computed, ref } from 'vue'
 
 import CustomCard from '../desktop/card/custom-card.vue'
 
-// 真实接入时替换为内置 OpenAI 兼容 transport（多 Provider）：
-// import { createOpenAITransport } from '@veltra/ai'
-// const transport = createOpenAITransport({
-//   providers: [
-//     {
-//       id: 'deepseek',
-//       label: 'DeepSeek',
-//       // 完整 URL
-//       endpoint: 'https://api.deepseek.com/v1/chat/completions',
-//       apiKey: import.meta.env.VITE_DEEPSEEK_KEY,
-//       models: [{ id: 'deepseek-chat', label: 'DeepSeek Chat' }]
-//     },
-//     {
-//       id: 'proxy',
-//       label: '业务代理',
-//       // 相对路径走当前 origin，鉴权可用 cookie / headers
-//       endpoint: '/api/ai/chat',
-//       // 可选：自定义推理字段写入方式（缺省 body.reasoning_effort）
-//       // applyReasoning: (level, body) => { body.thinking = { budget: level } },
-//       models: [
-//         {
-//           id: 'o3-mini',
-//           label: 'o3-mini',
-//           reasoningLevels: [
-//             { value: 'low', label: '低' },
-//             { value: 'medium', label: '中' },
-//             { value: 'high', label: '高' }
-//           ],
-//           defaultReasoningLevel: 'medium'
-//         }
-//       ]
-//     }
-//   ]
-// })
-// const models = transport.models
-// const model = ref(transport.defaultModel)
-
 /**
- * 演示用扁平模型列表（mock transport 不按 endpoint 路由，仅驱动选择器）。
- * 结构对齐 createOpenAITransport().models：两家虚构 Provider。
+ * 真实 DeepSeek 接入。
+ * 前端只持有相对路径与模型元数据；API Key 由 playground 的 Node 代理服务从环境变量读取，
+ * 经 vite proxy 转发到 ai-server 的 /ai/chat/completions。
+ *
+ * V4 Flash / V4 Pro 都支持 reasoning_effort，选择器据此展示推理等级；
+ * 默认 transport 会把选中的等级写入 `reasoning_effort`。
  */
-const models: ChatModelOption[] = [
-  // —— 外部云端（完整 URL 风格）——
-  {
-    id: 'nova-flash',
-    label: 'Nova Flash',
-    description: '快速对话，即时响应',
-    providerId: 'nova',
-    providerLabel: 'Nova Cloud'
-  },
-  {
-    id: 'nova-reasoner',
-    label: 'Nova Reasoner',
-    description: '擅长对话与 Agent 任务，全能旗舰',
-    providerId: 'nova',
-    providerLabel: 'Nova Cloud',
-    reasoningLevels: [
-      { value: 'low', label: '低' },
-      { value: 'medium', label: '中' },
-      { value: 'high', label: '高' }
-    ],
-    defaultReasoningLevel: 'medium'
-  },
-  // —— 内部代理（相对路径风格）——
-  {
-    id: 'internal-chat',
-    label: '内部 Chat',
-    description: '内部业务代理，通用对话',
-    providerId: 'internal',
-    providerLabel: '内部代理'
-  },
-  {
-    id: 'internal-think',
-    label: '内部 Think',
-    description: '内部推理模型，按 budget 计费',
-    providerId: 'internal',
-    providerLabel: '内部代理',
-    // 与外部不同的推理词表（thinking budget）
-    reasoningLevels: [
-      { value: '4k', label: '4K' },
-      { value: '8k', label: '8K' },
-      { value: '16k', label: '16K' }
-    ],
-    defaultReasoningLevel: '8k'
-  }
+const deepseekReasoningLevels = [
+  { value: 'low', label: '低' },
+  { value: 'medium', label: '中' },
+  { value: 'high', label: '高' }
 ]
 
-const model = ref('nova-flash')
+const transport = createOpenAITransport({
+  providers: [
+    {
+      id: 'deepseek',
+      label: 'DeepSeek',
+      endpoint: '/ai/chat/completions',
+      models: [
+        {
+          id: 'deepseek-v4-flash',
+          label: 'DeepSeek V4 Flash',
+          description: '快速通用对话，低延迟高吞吐',
+          reasoningLevels: deepseekReasoningLevels,
+          defaultReasoningLevel: 'low'
+        },
+        {
+          id: 'deepseek-v4-pro',
+          label: 'DeepSeek V4 Pro',
+          description: '旗舰推理与 Agent 任务',
+          reasoningLevels: deepseekReasoningLevels,
+          defaultReasoningLevel: 'medium'
+        }
+      ]
+    }
+  ]
+})
+
+const models = transport.models
+const model = ref(transport.defaultModel)
 const reasoningLevel = ref<string>()
 
 const selectedModel = computed(() => models.find((m) => m.id === model.value))
+const selectedReasoningLevel = computed(() => {
+  return selectedModel.value?.reasoningLevels?.find((level) => level.value === reasoningLevel.value)
+})
 
 const selectionSummary = computed(() => {
   const m = selectedModel.value
   if (!m) return model.value
   const provider = m.providerLabel ?? m.providerId
   const name = m.label ?? m.id
-  const level = reasoningLevel.value
-  return level ? `${provider} / ${name} · 推理 ${level}` : `${provider} / ${name} · 无推理`
+  const level = selectedReasoningLevel.value
+  return level ? `${provider} / ${name} · 推理 ${level.label}` : `${provider} / ${name}`
 })
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
-
-/** 逐字流出文本（递归避免 await-in-loop） */
-const streamText = async (
-  text: string,
-  signal: AbortSignal,
-  emit: (ch: string) => void,
-  delay = 16
-): Promise<void> => {
-  const pump = async (index: number): Promise<void> => {
-    if (index >= text.length || signal.aborted) return
-    emit(text[index])
-    await sleep(delay)
-    return pump(index + 1)
-  }
-  return pump(0)
-}
-
-/** mock transport：按关键词模拟流式输出与工具调用；通用回复会带上当前模型/推理 */
-const transport: ChatTransport = async (req, handlers) => {
-  const lastUser = [...req.messages].reverse().find((m) => m.role === 'user')
-  const question = lastUser?.content ?? ''
-
-  // 上一轮是工具结果时，输出总结文本
-  const lastMessage = req.messages[req.messages.length - 1]
-  if (lastMessage?.role === 'tool') {
-    let answer: string
-    try {
-      const parsed = JSON.parse(lastMessage.content)
-      answer = Array.isArray(parsed?.answers)
-        ? `好的，我记下了：\n\n${parsed.answers.map((item: { question: string; answer: string }) => `- **${item.question}** ${item.answer}`).join('\n')}\n\n这就为你准备方案。`
-        : `工具执行完毕，结果如下：\n\n\`\`\`json\n${JSON.stringify(parsed, null, 2)}\n\`\`\``
-    } catch {
-      answer = lastMessage.content
-    }
-    await streamText(answer, req.signal, (ch) => handlers.onTextDelta(ch), 8)
-    return
-  }
-
-  if (question.includes('页面')) {
-    handlers.onToolCall?.({
-      id: `call-${Date.now()}`,
-      name: 'askQuestion',
-      arguments: JSON.stringify({
-        questions: [
-          { question: '页面给谁用？', options: ['内部团队', '外部客户', '两者都有'] },
-          { question: '偏好什么风格？', options: ['简洁', '炫酷', '商务'] },
-          { question: '还有什么补充要求？', placeholder: '例如：需要深色模式' }
-        ]
-      })
-    })
-    return
-  }
-
-  if (question.includes('算')) {
-    handlers.onToolCall?.({
-      id: `call-${Date.now()}`,
-      name: 'calculate',
-      arguments: JSON.stringify({ expression: '128*46' })
-    })
-    return
-  }
-
-  if (question.includes('天气')) {
-    handlers.onToolCall?.({
-      id: `call-${Date.now()}`,
-      name: 'getWeather',
-      arguments: JSON.stringify({ city: '北京' })
-    })
-    return
-  }
-
-  if (question.includes('删')) {
-    handlers.onToolCall?.({
-      id: `call-${Date.now()}`,
-      name: 'deleteFile',
-      arguments: JSON.stringify({ path: '/tmp/app.log' })
-    })
-    return
-  }
-
-  // 通用路径：在回复中回显当前选择，便于验证选择器
-  const modelHint = req.model
-    ? `（模型：\`${req.model}\`${req.reasoningLevel ? ` / 推理：\`${req.reasoningLevel}\`` : ''}）`
-    : ''
-  handlers.onReasoningDelta?.('用户问了一个通用问题，我应该用 markdown 格式给出回答。')
-  const answer = `你问的是：**${question}**${modelHint}\n\n这是一个 mock 回复，支持流式 markdown 渲染：\n\n- 列表项一\n- 列表项二\n\n\`\`\`ts\nconst hello: string = 'world'\n\`\`\``
-  await streamText(answer, req.signal, (ch) => handlers.onTextDelta(ch))
-}
 
 const tools: ChatTool[] = [
   {

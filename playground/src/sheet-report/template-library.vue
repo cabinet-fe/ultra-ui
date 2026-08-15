@@ -9,7 +9,11 @@
 
       <ul v-else :class="cls.e('list')">
         <li v-for="item in items" :key="item.id" :class="cls.e('item')">
-          <button type="button" :class="cls.e('open')" @click="emit('open', item.id)">
+          <button
+            type="button"
+            :class="[cls.e('open'), bem.is('active', item.id === activeTemplateId)]"
+            @click="emit('open', item.id)"
+          >
             <span :class="cls.e('name')">{{ item.name }}</span>
             <span :class="cls.e('meta')">更新于 {{ formatTime(item.updatedAt) }}</span>
           </button>
@@ -138,6 +142,12 @@ function formatTime(value: string): string {
     background: transparent;
     text-align: left;
     cursor: pointer;
+
+    &.is-active {
+      .sheet-report-template-library__name {
+        color: var(--u-color-primary);
+      }
+    }
   }
 
   &__name {
