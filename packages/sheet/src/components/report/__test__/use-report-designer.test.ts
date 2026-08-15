@@ -35,6 +35,7 @@ const PG: DataConnection = {
 
 const ORDER_FIELDS: DatasetField[] = [
   { name: 'customer', label: '客户', type: 'string' },
+  { name: 'orderNo', label: '订单号', type: 'string' },
   { name: 'amount', label: '金额', type: 'number' }
 ]
 
@@ -94,6 +95,18 @@ function createDesigner(
   return { scope, designer, connections, workbook, calls }
 }
 
+function bindGroupHeader(
+  designer: UseReportDesignerReturn,
+  workbook: Workbook,
+  datasetId: string,
+  addr: { row: number; col: number },
+  field = 'customer'
+): void {
+  designer.bindField(datasetId, field, addr)
+  workbook.activeSheet.selectCell(addr)
+  designer.patchActiveBinding(roleBindingDefaults('groupHeader'))
+}
+
 describe('useReportDesigner：连接 / 数据集 CRUD 与连接器调用', () => {
   it('连接 CRUD 全走 v-model 代理；删除连接级联删除其数据集', () => {
     const { designer, connections } = createDesigner()
@@ -132,7 +145,7 @@ describe('useReportDesigner：连接 / 数据集 CRUD 与连接器调用', () =>
 
     const catalog = designer.catalog.value
     expect(catalog).toHaveLength(1)
-    expect(catalog[0]!.fields.map((field) => field.label)).toEqual(['客户名称', '金额'])
+    expect(catalog[0]!.fields.map((field) => field.label)).toEqual(['客户名称', '订单号', '金额'])
   })
 
   it('describeDataset 业务错误整体透传且不写字段缓存', async () => {
@@ -220,7 +233,7 @@ describe('useReportDesigner：拖拽落格写 Cell Meta', () => {
     const inventory = await seedDataset(designer, 'c2')
 
     designer.bindField(orders.id, 'customer', { row: 1, col: 0 })
-    designer.bindField(inventory.id, 'amount', { row: 2, col: 0 })
+    designer.bindField(inventory.id, 'orderNo', { row: 2, col: 0 })
 
     const detail = workbook.activeSheet.getCellMeta<ReportBinding>(
       { row: 2, col: 0 },
@@ -228,7 +241,7 @@ describe('useReportDesigner：拖拽落格写 Cell Meta', () => {
     )
     expect(detail).toMatchObject({
       dataset: inventory.id,
-      field: 'amount',
+      field: 'orderNo',
       rowParent: { row: 1, col: 0 }
     })
   })
@@ -237,7 +250,7 @@ describe('useReportDesigner：拖拽落格写 Cell Meta', () => {
     const { designer, workbook } = createDesigner()
     const dataset = await seedDataset(designer)
 
-    designer.bindField(dataset.id, 'customer', { row: 1, col: 0 })
+    bindGroupHeader(designer, workbook, dataset.id, { row: 1, col: 0 })
     designer.bindField(dataset.id, 'amount', { row: 2, col: 0 })
 
     const subtotal = workbook.activeSheet.getCellMeta<ReportBinding>(
@@ -249,6 +262,66 @@ describe('useReportDesigner：拖拽落格写 Cell Meta', () => {
       aggregate: 'sum',
       expand: 'none',
       rowParent: { row: 1, col: 0 }
+    })
+  })
+
+  it('同行明细落格把 rowParent 推到左侧分组头', async () => {
+    const { designer, workbook } = createDesigner()
+    const dataset = await seedDataset(designer)
+
+    bindGroupHeader(designer, workbook, dataset.id, { row: 1, col: 0 })
+    designer.bindField(dataset.id, 'orderNo', { row: 1, col: 2 })
+
+    const detail = workbook.activeSheet.getCellMeta<ReportBinding>(
+      { row: 1, col: 2 },
+      REPORT_META_NAMESPACE
+    )
+    expect(detail).toMatchObject({
+      field: 'orderNo',
+      preset: 'detail',
+      rowParent: { row: 1, col: 0 }
+    })
+  })
+
+  it('下方跨列小计落格推到行分组头而不是同列 list', async () => {
+    const { designer, workbook } = createDesigner()
+    const dataset = await seedDataset(designer)
+
+    bindGroupHeader(designer, workbook, dataset.id, { row: 1, col: 0 })
+    designer.bindField(dataset.id, 'orderNo', { row: 1, col: 2 })
+    designer.bindField(dataset.id, 'amount', { row: 2, col: 2 })
+
+    const subtotal = workbook.activeSheet.getCellMeta<ReportBinding>(
+      { row: 2, col: 2 },
+      REPORT_META_NAMESPACE
+    )
+    expect(subtotal).toMatchObject({
+      preset: 'subtotal',
+      aggregate: 'sum',
+      expand: 'none',
+      rowParent: { row: 1, col: 0 }
+    })
+    expect(subtotal?.colParent).toBeUndefined()
+  })
+
+  it('右侧列小计落格推到列分组头', async () => {
+    const { designer, workbook } = createDesigner()
+    const dataset = await seedDataset(designer)
+
+    designer.bindField(dataset.id, 'customer', { row: 0, col: 1 })
+    workbook.activeSheet.selectCell({ row: 0, col: 1 })
+    designer.patchActiveBinding({ preset: 'groupHeader', aggregate: 'group', expand: 'right' })
+    designer.bindField(dataset.id, 'amount', { row: 0, col: 2 })
+
+    const subtotal = workbook.activeSheet.getCellMeta<ReportBinding>(
+      { row: 0, col: 2 },
+      REPORT_META_NAMESPACE
+    )
+    expect(subtotal).toMatchObject({
+      preset: 'subtotal',
+      aggregate: 'sum',
+      expand: 'none',
+      colParent: { row: 0, col: 1 }
     })
   })
 
@@ -347,7 +420,7 @@ describe('useReportDesigner：Action Pill 就地编辑（角色 / 聚合 / 条�
     return dataset
   }
 
-  it('预设切换写入 presetBindingDefaults 组合值；聚合切换同步 expand 缺省', async () => {
+  it('预设切换写入 presetBindingDefaults 组合值；同族聚合切换保留预设', async () => {
     const { designer, workbook } = createDesigner()
     await seedAndBind(designer, { row: 0, col: 0 })
     workbook.activeSheet.selectCell({ row: 0, col: 0 })
@@ -358,8 +431,17 @@ describe('useReportDesigner：Action Pill 就地编辑（角色 / 聚合 / 条�
 
     designer.patchActiveBinding({ aggregate: 'avg', expand: 'none' })
     binding = designer.activeBinding.value
-    expect(binding).toMatchObject({ aggregate: 'avg', expand: 'none' })
-    expect(binding?.preset).toBeUndefined()
+    expect(binding).toMatchObject({ preset: 'subtotal', aggregate: 'avg', expand: 'none' })
+  })
+
+  it('聚合/展开偏离预设族时清除 preset', async () => {
+    const { designer, workbook } = createDesigner()
+    await seedAndBind(designer, { row: 0, col: 0 })
+    workbook.activeSheet.selectCell({ row: 0, col: 0 })
+
+    designer.patchActiveBinding(roleBindingDefaults('subtotal'))
+    designer.patchActiveBinding({ aggregate: 'list', expand: 'down' })
+    expect(designer.activeBinding.value?.preset).toBeUndefined()
   })
 
   it('条件规则与排序经 patch 写入绑定；拓扑条目跟随 meta 变更', async () => {
@@ -393,6 +475,8 @@ describe('useReportDesigner：Action Pill 就地编辑（角色 / 聚合 / 条�
     designer.bindField(dataset.id, 'customer', { row: 1, col: 0 })
     designer.bindField(dataset.id, 'amount', { row: 2, col: 1 })
 
+    workbook.activeSheet.selectCell({ row: 1, col: 0 })
+    designer.patchActiveBinding(roleBindingDefaults('groupHeader'))
     workbook.activeSheet.selectCell({ row: 2, col: 1 })
     designer.startParentPick('row')
     designer.pickParentAt({ row: 1, col: 0 })
@@ -405,14 +489,62 @@ describe('useReportDesigner：Action Pill 就地编辑（角色 / 聚合 / 条�
     expect(designer.parentPick.value).toBeNull()
   })
 
+  it('切换小计行时纠正指向 list 的父格', async () => {
+    const { designer, workbook } = createDesigner()
+    const dataset = designer.addDataset('c1')
+    designer.updateDataset(dataset.id, { sql: 'SELECT customer, amount FROM orders' })
+    await designer.describeDataset(dataset.id)
+
+    designer.bindField(dataset.id, 'customer', { row: 1, col: 0 })
+    workbook.activeSheet.selectCell({ row: 1, col: 0 })
+    designer.patchActiveBinding(roleBindingDefaults('groupHeader'))
+    designer.bindField(dataset.id, 'orderNo', { row: 1, col: 2 })
+    designer.bindField(dataset.id, 'amount', { row: 2, col: 2 })
+
+    workbook.activeSheet.selectCell({ row: 2, col: 2 })
+    designer.patchActiveBinding({ rowParent: { row: 1, col: 2 } })
+    expect(designer.activeBinding.value?.rowParent).toEqual({ row: 1, col: 2 })
+
+    designer.patchActiveBinding(roleBindingDefaults('subtotal'))
+    expect(designer.activeBinding.value).toMatchObject({
+      preset: 'subtotal',
+      rowParent: { row: 1, col: 0 }
+    })
+  })
+
+  it('非法点选父格时选区弹回源格且保持拾取态', async () => {
+    const { designer, workbook } = createDesigner()
+    const dataset = designer.addDataset('c1')
+    designer.updateDataset(dataset.id, { sql: 'SELECT customer, amount FROM orders' })
+    await designer.describeDataset(dataset.id)
+
+    designer.bindField(dataset.id, 'customer', { row: 1, col: 0 })
+    workbook.activeSheet.selectCell({ row: 1, col: 0 })
+    designer.patchActiveBinding(roleBindingDefaults('groupHeader'))
+    designer.bindField(dataset.id, 'amount', { row: 2, col: 2 })
+
+    workbook.activeSheet.selectCell({ row: 2, col: 2 })
+    designer.startParentPick('row')
+    designer.pickParentAt({ row: 0, col: 3 })
+
+    expect(designer.parentPick.value).toEqual({ mode: 'row', source: { row: 2, col: 2 } })
+    expect(workbook.activeSheet.getSelection().activeCell).toEqual({ row: 2, col: 2 })
+    expect(
+      workbook.activeSheet.getCellMeta<ReportBinding>({ row: 2, col: 2 }, REPORT_META_NAMESPACE)
+        ?.rowParent
+    ).toEqual({ row: 1, col: 0 })
+  })
+
   it('清除绑定移除 Cell Meta；行 / 列方向父格标签读取绑定存储值', async () => {
     const { designer, workbook } = createDesigner()
     const dataset = designer.addDataset('c1')
     designer.updateDataset(dataset.id, { sql: 'SELECT customer, amount FROM orders' })
     await designer.describeDataset(dataset.id)
 
-    // 同列上方纵向扩展绑定 + 下方明细（rowParent 推断到上方格）
+    // 同列上方分组头 + 下方小计（rowParent 推断到分组头）
     designer.bindField(dataset.id, 'customer', { row: 1, col: 0 })
+    workbook.activeSheet.selectCell({ row: 1, col: 0 })
+    designer.patchActiveBinding(roleBindingDefaults('groupHeader'))
     designer.bindField(dataset.id, 'amount', { row: 2, col: 0 })
 
     workbook.activeSheet.selectCell({ row: 2, col: 0 })
@@ -542,7 +674,7 @@ describe('useReportDesigner：template prop 载入既有模板', () => {
 
     // catalog 应用 fieldOverrides（字段面板与徽章 label 数据源）
     const catalog = designer.catalog.value
-    expect(catalog[0]!.fields.map((field) => field.label)).toEqual(['客户名称', '金额'])
+    expect(catalog[0]!.fields.map((field) => field.label)).toEqual(['客户名称', '订单号', '金额'])
   })
 
   it('载入后 getTemplate 往返保持绑定与数据集定义；宿主已有同 id 连接时不覆盖', async () => {

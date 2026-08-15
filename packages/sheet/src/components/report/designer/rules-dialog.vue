@@ -2,13 +2,11 @@
   <u-dialog
     v-model="visible"
     title="条件样式"
-    style="width: min(960px, 92vw); max-height: 85vh"
+    style="width: min(600px, 92vw); max-height: 85vh"
     @close="onClose"
   >
     <div :class="cls.b">
-      <p :class="cls.e('hint')">
-        按列表顺序依次求值并合并样式。可指定求值字段（默认同绑定格字段）；作用范围为「整行」时染满物理输出行（含横向展开列与静态格）。交叉表下整行高亮会覆盖同行所有列，明细行报表更合适。
-      </p>
+      <p :class="cls.e('hint')">规则按顺序叠加。整行高亮适合明细表，交叉表会染满整行。</p>
 
       <ul v-if="draftItems.length" ref="parentRef" :class="cls.e('list')">
         <li v-for="(item, index) in draftItems" :key="item.id" :class="cls.e('item')">
@@ -16,16 +14,12 @@
             :rule="item.rule"
             :binding-field="bindingField"
             :dataset-fields="datasetFields"
-            :index="index"
-            :total="draftItems.length"
             @update:rule="item.rule = $event"
             @remove="removeRule(index)"
-            @move-up="moveRule(index, -1)"
-            @move-down="moveRule(index, 1)"
           />
         </li>
       </ul>
-      <p v-else :class="cls.e('empty')">暂无规则，点击下方按钮添加。</p>
+      <p v-else :class="cls.e('empty')">还没有规则。</p>
 
       <u-button size="small" plain @click="addRule">添加规则</u-button>
     </div>
@@ -103,16 +97,6 @@ function addRule(): void {
 
 function removeRule(index: number): void {
   draftItems.value = draftItems.value.filter((_, i) => i !== index)
-}
-
-function moveRule(index: number, delta: -1 | 1): void {
-  const target = index + delta
-  if (target < 0 || target >= draftItems.value.length) return
-  const next = [...draftItems.value]
-  const [item] = next.splice(index, 1)
-  if (!item) return
-  next.splice(target, 0, item)
-  draftItems.value = next
 }
 
 function confirm(): void {

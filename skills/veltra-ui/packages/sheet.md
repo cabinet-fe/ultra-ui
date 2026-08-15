@@ -23,11 +23,7 @@ import type {
   DataConnector,
   ReportTemplate
 } from '@veltra/sheet'
-import {
-  Workbook,
-  registerFormulaFunction,
-  listFormulaFunctions
-} from '@veltra/sheet-core'
+import { Workbook, registerFormulaFunction, listFormulaFunctions } from '@veltra/sheet-core'
 import type { FormulaFunctionMeta, SheetImage, ImageInput } from '@veltra/sheet-core'
 import '@veltra/sheet/components/sheet/style'
 import '@veltra/sheet/components/report/style'
@@ -99,7 +95,8 @@ import '@veltra/sheet/components/report/style'
 - **冻结**（Excel 语义，模型持有、**不进 undo**、随快照序列化）：
   `sheet.setFrozen(rows, cols)` / `sheet.frozen`（读）；`frozen-change` 事件。
   入口在行列头右键菜单（工具栏无 freeze 组）。
-  VTable 映射：模型 `rows` → `frozenRowCount = rows + 1`（列头行），`cols` → `frozenColCount = cols + 1`（行号列），
+  VTable 映射：模型 `rows` → `frozenRowCount = rows + 1`（列头行），`cols` → `frozenColCount = cols + 1`（行号列）；
+  `showColHeader`/`showRowHeader` 为 false 时不加 +1。
   变更即时生效、tab 切换重建时还原。
 - **查找**：`core/find` 纯函数 `findAll` / `findNext` / `findPrev`（行主序、到边界循环）；
   options：`caseSensitive`、`wholeCell`（整格）、`searchIn: 'value' | 'formula'`
@@ -262,7 +259,8 @@ importCsv(text, sheet) // 写入既有活动表（事务 = 单 undo 单元）
 ### USheet
 
 - **Props**：`workbook?`（缺省内部自建）、`rows?`(100)、`cols?`(26)、`showToolbar?`(true)、
-  `showFormulaBar?`(true)、`showTabs?`(true)、`readonly?`、`resolveDisplayValue?`、
+  `showFormulaBar?`(true)、`showTabs?`(true)、`showRowHeader?`(true)、`showColHeader?`(true)、
+  `readonly?`、`resolveDisplayValue?`、
   `resolveCellStyle?`、**`resolveCellRenderer?`**（按格 customLayout，见下）
 - **Emits**：`active-sheet-change`
 - **Exposed**（`SheetExposed`）：`workbook`、`getActiveSheet()`、`getContext()`、`getGrid()`
@@ -278,10 +276,7 @@ import { CustomLayout, type ResolveCellRenderer } from '@veltra/sheet-core'
 
 const resolveCellRenderer: ResolveCellRenderer = (addr, base) => {
   // 按 addr / base 决定是否自定义；未命中返回 undefined
-  return {
-    rootContainer: new CustomLayout.Container({ /* ... */ }),
-    renderDefault: false
-  }
+  return { rootContainer: new CustomLayout.Container({/* ... */}), renderDefault: false }
 }
 ```
 
@@ -317,20 +312,20 @@ interface ReportBinding {
   field: string
   expand: ReportExpand
   aggregate: ReportAggregate
-  rowParent?: CellAddress   // 行方向从属父格
-  colParent?: CellAddress   // 列方向从属父格
-  mergeSpan?: boolean       // 扩展实例是否合并；缺省 true
+  rowParent?: CellAddress // 行方向从属父格
+  colParent?: CellAddress // 列方向从属父格
+  mergeSpan?: boolean // 扩展实例是否合并；缺省 true
   sort?: ReportSort
   conditionalRules?: ConditionalRule[]
-  preset?: ReportPreset     // 设计器标签，引擎不读
+  preset?: ReportPreset // 设计器标签，引擎不读
 }
 
 interface ConditionalRule {
   operator: ConditionalOperator
   value: unknown
   style: CellStylePatch
-  field?: string            // 求值字段；缺省取绑定格自身字段
-  scope?: 'cell' | 'row'   // 作用范围；缺省 'cell'
+  field?: string // 求值字段；缺省取绑定格自身字段
+  scope?: 'cell' | 'row' // 作用范围；缺省 'cell'
 }
 ```
 
@@ -340,13 +335,14 @@ interface ConditionalRule {
 
 - **Props**：`connector`（必填）、`template`（必填，`ReportTemplate`）、`workbook?`、`colWidths?`
 - **Exposed**：`refresh()` — 重新取数并展开渲染；`exportXlsx()` — 导出填充报表 XLSX（取数完成前拒绝）
-- 内部闭环：从模板实际绑定数据集提取查询参数并集 → Filter Bar → `fetchTemplateRecords` → `renderReport` → 只读 USheet 展示；loading 遮罩与业务错误 banner
+- 内部闭环：从模板实际绑定数据集提取查询参数并集 → Filter Bar → `fetchTemplateRecords` → `renderReport` → 只读 USheet 展示（无行列头；网格铺到内容尺寸，无 50×10 下限）；loading 遮罩与业务错误 banner
 
 ### UReportDesigner（设计态）
 
 - **Props**：`connector`（必填）、`v-model:connections`、`template?`（载入既有模板继续设计）、`workbook?`
+- **Emits**：`update:connections`、`datasets-change`（数据集变更或数据中枢关闭）
 - **Exposed**：`getTemplate()` — 取回含 `version`、meta 绑定与内嵌数据集定义的 `ReportTemplate`
-- 设计态：数据中枢 drawer、字段面板 HTML5 拖拽绑定（落格推断父格与预设）、预设徽章（`resolveCellRenderer`）、Action Pill（展开方向 / 父格点选 / `mergeSpan`）、拓扑连线（真实 `rowParent` / `colParent`）、条件规则对话框（`field` / `scope`）、预览模式（内嵌 `UReportViewer`）、XLSX 导出
+- 设计态：数据中枢 drawer、字段面板 HTML5 拖拽绑定（落格推断：同行向左/上方整行扫描行父格、同列向上/左侧整列扫描列父格；小计优先分组头）、预设徽章（`resolveCellRenderer`）、Action Pill（默认条含预设与互补的展开方向或聚合函数、条件样式、删除绑定；展开后父格点选 / `mergeSpan`）、拓扑连线（真实 `rowParent` / `colParent`）、条件规则对话框（句式编辑 `field` / 运算符 / 样式 / `scope`）、预览模式（内嵌 `UReportViewer`）、XLSX 导出
 
 ## 已知限制
 

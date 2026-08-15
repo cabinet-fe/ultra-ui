@@ -55,6 +55,32 @@ describe('SheetGrid（happy-dom smoke）', () => {
     }
   })
 
+  it('showRowHeader/showColHeader 为 false 时不渲染行号列与列头', () => {
+    const sheet = new Sheet()
+    sheet.setCellValue({ row: 0, col: 0 }, 'hello')
+    const grid = new SheetGrid({
+      container: createContainer(),
+      sheet,
+      rows: 3,
+      cols: 2,
+      showRowHeader: false,
+      showColHeader: false
+    })
+    try {
+      const table = grid.getTable()
+      expect(table.options.showHeader).toBe(false)
+      expect(table.options.rowSeriesNumber).toBeUndefined()
+      expect(table.columnHeaderLevelCount).toBe(0)
+      expect(table.isSeriesNumber(0, 0)).toBe(false)
+      expect(table.rowCount).toBe(3)
+      expect(table.colCount).toBe(2)
+      // 无偏移：表格 (0,0) 即模型 A1
+      expect(table.getCellValue(0, 0)).toBe('hello')
+    } finally {
+      grid.release()
+    }
+  })
+
   it('主题与交互选项：fillHandle / rowResize / clip / 编辑态方向键不换格', () => {
     const { grid, table } = createGrid()
     try {

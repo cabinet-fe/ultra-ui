@@ -386,3 +386,79 @@ describe('UReportDesigner 全量：template 载入与预览模式（内嵌查看
     overlaySpy.mockRestore()
   })
 })
+
+describe('UReportDesigner Action Pill', () => {
+  const overlayRect = {
+    left: 10,
+    top: 80,
+    right: 90,
+    bottom: 104,
+    width: 80,
+    height: 24,
+    centerX: 50,
+    centerY: 92
+  }
+
+  function spyOverlay() {
+    const layoutSpy = vi
+      .spyOn(cellCoords, 'resolveGridOverlayLayout')
+      .mockReturnValue({
+        gridEl: document.createElement('div'),
+        layout: { offsetX: 0, offsetY: 77, viewW: 640, viewH: 400 }
+      })
+    const overlaySpy = vi.spyOn(gridOverlay, 'readCellOverlayRect').mockReturnValue(overlayRect)
+    return () => {
+      layoutSpy.mockRestore()
+      overlaySpy.mockRestore()
+    }
+  }
+
+  it('小计预设默认条显示聚合、隐藏展开方向，并提供删除绑定', async () => {
+    const workbook = new Workbook()
+    workbook.activeSheet.setCellMeta({ row: 0, col: 0 }, REPORT_META_NAMESPACE, {
+      dataset: 'ds',
+      field: 'amount',
+      aggregate: 'sum',
+      expand: 'none',
+      preset: 'subtotal'
+    } satisfies ReportBinding)
+    workbook.activeSheet.selectCell({ row: 0, col: 0 })
+
+    const restore = spyOverlay()
+    const { el } = mountDesigner(workbook)
+    await flush()
+
+    const panel = el.querySelector('.u-report-float-panel')
+    expect(panel).toBeTruthy()
+    expect(panel!.querySelector('.u-report-float-panel__body')).toBeNull()
+    expect(panel!.querySelector('.u-report-float-panel__select--aggregate')).toBeTruthy()
+    expect(panel!.querySelector('.u-report-float-panel__select--expand')).toBeNull()
+    const deleteBtn = [...panel!.querySelectorAll('button')].find((button) =>
+      button.textContent?.includes('删除绑定')
+    )
+    expect(deleteBtn).toBeTruthy()
+    restore()
+  })
+
+  it('明细预设默认条显示展开方向、隐藏聚合', async () => {
+    const workbook = new Workbook()
+    workbook.activeSheet.setCellMeta({ row: 0, col: 0 }, REPORT_META_NAMESPACE, {
+      dataset: 'ds',
+      field: 'orderNo',
+      aggregate: 'list',
+      expand: 'down',
+      preset: 'detail'
+    } satisfies ReportBinding)
+    workbook.activeSheet.selectCell({ row: 0, col: 0 })
+
+    const restore = spyOverlay()
+    const { el } = mountDesigner(workbook)
+    await flush()
+
+    const panel = el.querySelector('.u-report-float-panel')
+    expect(panel).toBeTruthy()
+    expect(panel!.querySelector('.u-report-float-panel__select--expand')).toBeTruthy()
+    expect(panel!.querySelector('.u-report-float-panel__select--aggregate')).toBeNull()
+    restore()
+  })
+})

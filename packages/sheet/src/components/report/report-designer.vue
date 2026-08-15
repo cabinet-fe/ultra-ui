@@ -35,7 +35,7 @@
 
       <span :class="cls.e('hint')">
         在数据中枢配置连接与 SQL
-        数据集，再将左侧字段点击或拖拽到单元格完成绑定；选中已绑定格可通过悬浮卡片调整角色、聚合与条件样式。
+        数据集，再将左侧字段点击或拖拽到单元格完成绑定；选中已绑定格可通过悬浮卡片调整预设与条件样式。
       </span>
     </div>
 
@@ -84,6 +84,20 @@
           :fallback-label="selectionLabel"
         />
 
+        <u-report-drop-highlight-overlay
+          v-for="addr in pickCandidateCells"
+          :key="`pick-${addr.row}-${addr.col}`"
+          :cell="addr"
+          :host-el="gridHostEl"
+          :get-grid="getDesignGrid"
+          :dragging="false"
+          fallback-label=""
+        />
+
+        <div v-if="parentPick" :class="cls.e('pick-hint')" role="status">
+          {{ parentPick.mode === 'row' ? '点击分组头作为行方向父格' : '点击分组头作为列方向父格' }}
+        </div>
+
         <u-report-float-panel
           :cell="activeCell"
           :binding="activeBinding ?? null"
@@ -93,6 +107,7 @@
           :row-parent-candidates="rowParentCandidates"
           :col-parent-candidates="colParentCandidates"
           :resolve-field-label="resolveFieldLabel"
+          :get-binding-at="getBindingAt"
           :host-el="gridHostEl"
           :get-grid="getDesignGrid"
           @patch="patchActiveBinding"
@@ -115,7 +130,7 @@
     </div>
 
     <u-drawer v-model="hubVisible" :class="cls.e('hub-drawer')" show-close>
-      <u-report-dataset-hub :hub="designer" @close="hubVisible = false" />
+      <u-report-dataset-hub :hub="designer" @close="onHubClose" />
     </u-drawer>
 
     <u-report-rules-dialog
@@ -221,6 +236,25 @@ const gridCols = computed(() => {
 
 const hubVisible = ref(false)
 const rulesDialogVisible = ref(false)
+
+const pickCandidateCells = computed((): CellAddress[] => {
+  if (!parentPick.value) return []
+  return parentPick.value.mode === 'row' ? rowParentCandidates.value : colParentCandidates.value
+})
+
+function onHubClose(): void {
+  hubVisible.value = false
+}
+
+watch(hubVisible, (open) => {
+  if (!open) emit('datasets-change')
+})
+
+watch(
+  () => designer.datasets.value,
+  () => emit('datasets-change'),
+  { deep: true }
+)
 
 const sheetRef = useTemplateRef<SheetExposed>('sheetRef')
 const previewViewerRef = useTemplateRef<ReportViewerExposed>('previewViewerRef')

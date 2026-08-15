@@ -6,11 +6,15 @@ import {
   createReportBinding,
   formatBindingPlaceholder,
   formatCellAddress,
+  inferColParentCandidate,
   inferDropPreset,
+  inferParentsForPreset,
   inferReportPreset,
+  inferRowParentCandidate,
   isExpansionBandRow,
   parseCellAddress,
   presetBindingPatch,
+  presetStillApplies,
   setBindingCatalog
 } from '../binding'
 import type { DatasetCatalogItem, ReportBinding } from '../types'
@@ -180,7 +184,32 @@ describe('report binding', () => {
         expand: 'none',
         rowParent: { row: 1, col: 0 }
       })
-    ).toBeNull()
+    ).toBe('subtotal')
+
+    expect(
+      inferReportPreset({
+        dataset: 'orders',
+        field: 'amount',
+        aggregate: 'sum',
+        expand: 'none',
+        colParent: { row: 0, col: 1 }
+      })
+    ).toBe('subtotal')
+  })
+
+  it('presetStillApplies 同族内改聚合仍成立', () => {
+    const subtotal: ReportBinding = {
+      dataset: 'orders',
+      field: 'amount',
+      preset: 'subtotal',
+      aggregate: 'avg',
+      expand: 'none',
+      rowParent: { row: 1, col: 0 }
+    }
+    expect(presetStillApplies(subtotal)).toBe(true)
+
+    const broken = { ...subtotal, aggregate: 'list' as const, expand: 'down' as const }
+    expect(presetStillApplies(broken)).toBe(false)
   })
 
   it('inferDropPreset / isExpansionBandRow 落格推断', () => {
@@ -198,6 +227,79 @@ describe('report binding', () => {
     expect(isExpansionBandRow(0, getBindingAt)).toBe(false)
     expect(inferDropPreset({ row: 2, col: 0 }, 'number', getBindingAt)).toBe('subtotal')
     expect(inferDropPreset({ row: 2, col: 0 }, 'string', getBindingAt)).toBe('detail')
+  })
+
+  it('inferDropPreset：数值字段落在横向展开带正右相邻列也推断为小计', () => {
+    const colGroup = createReportBinding(ORDERS_DATASET, 'region')
+    colGroup.aggregate = 'group'
+    colGroup.expand = 'right'
+
+    const getBindingAt = (addr: CellAddress) => {
+      if (addr.row === 0 && addr.col === 1) return colGroup
+      return undefined
+    }
+
+    expect(inferDropPreset({ row: 0, col: 2 }, 'number', getBindingAt)).toBe('subtotal')
+    expect(inferDropPreset({ row: 0, col: 2 }, 'string', getBindingAt)).toBe('detail')
+  })
+
+  it('inferRowParentCandidate：同行向左优先分组头', () => {
+    const group = createReportBinding(ORDERS_DATASET, 'customer')
+    group.aggregate = 'group'
+    group.expand = 'down'
+    const detail = createReportBinding(ORDERS_DATASET, 'orderNo')
+
+    const getBindingAt = (addr: CellAddress) => {
+      if (addr.row === 1 && addr.col === 0) return group
+      if (addr.row === 1 && addr.col === 1) return detail
+      return undefined
+    }
+
+    expect(inferRowParentCandidate({ row: 1, col: 2 }, getBindingAt)).toEqual({ row: 1, col: 0 })
+  })
+
+  it('inferRowParentCandidate：下方跨列小计推到行分组头而不是同列 list', () => {
+    const group = createReportBinding(ORDERS_DATASET, 'customer')
+    group.aggregate = 'group'
+    group.expand = 'down'
+    const detail = createReportBinding(ORDERS_DATASET, 'amount')
+
+    const getBindingAt = (addr: CellAddress) => {
+      if (addr.row === 1 && addr.col === 0) return group
+      if (addr.row === 1 && addr.col === 2) return detail
+      return undefined
+    }
+
+    expect(
+      inferRowParentCandidate({ row: 2, col: 2 }, getBindingAt, { preferGroup: true })
+    ).toEqual({ row: 1, col: 0 })
+    expect(inferParentsForPreset({ row: 2, col: 2 }, 'subtotal', getBindingAt)).toEqual({
+      rowParent: { row: 1, col: 0 }
+    })
+  })
+
+  it('inferColParentCandidate：右侧列小计同列向上推到列分组头', () => {
+    const colGroup = createReportBinding(ORDERS_DATASET, 'region')
+    colGroup.aggregate = 'group'
+    colGroup.expand = 'right'
+    const cross = createReportBinding(ORDERS_DATASET, 'amount')
+    cross.preset = 'cross'
+    cross.aggregate = 'sum'
+    cross.expand = 'none'
+    cross.colParent = { row: 0, col: 1 }
+
+    const getBindingAt = (addr: CellAddress) => {
+      if (addr.row === 0 && addr.col === 1) return colGroup
+      if (addr.row === 1 && addr.col === 1) return cross
+      return undefined
+    }
+
+    expect(
+      inferColParentCandidate({ row: 2, col: 1 }, getBindingAt, { preferGroup: true })
+    ).toEqual({ row: 0, col: 1 })
+    expect(inferParentsForPreset({ row: 2, col: 1 }, 'subtotal', getBindingAt)).toEqual({
+      colParent: { row: 0, col: 1 }
+    })
   })
 
   it('formatCellAddress / parseCellAddress 支持多字母列互逆', () => {

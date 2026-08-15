@@ -103,6 +103,8 @@ const props = withDefaults(defineProps<SheetProps>(), {
   showToolbar: true,
   showFormulaBar: true,
   showTabs: true,
+  showRowHeader: true,
+  showColHeader: true,
   readonly: false
 })
 

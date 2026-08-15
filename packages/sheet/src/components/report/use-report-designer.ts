@@ -8,13 +8,16 @@ import {
   applyReportPreset,
   createReportBinding,
   formatCellAddress,
-  inferColParentCandidate,
   inferDropPreset,
-  inferRowParentCandidate,
+  inferParentsForPreset,
+  isColGroupBinding,
   isHorizontalExpandBinding,
+  isRowGroupBinding,
   isVerticalExpandBinding,
   listColParentCandidates,
-  listRowParentCandidates
+  listRowParentCandidates,
+  prefersGroupParent,
+  presetStillApplies
 } from '../../report/binding'
 import type { DataConnection, QueryResult, Result } from '../../report/connector'
 import { buildParamDefs } from '../../report/params'
@@ -227,10 +230,9 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
     let binding = createReportBinding(dataset, fieldName)
     binding = applyReportPreset(binding, preset)
 
-    const rowParent = inferRowParentCandidate(target, getBindingAt)
-    if (rowParent) binding.rowParent = rowParent
-    const colParent = inferColParentCandidate(target, getBindingAt)
-    if (colParent) binding.colParent = colParent
+    const parents = inferParentsForPreset(target, preset, getBindingAt)
+    if (parents.rowParent) binding.rowParent = parents.rowParent
+    if (parents.colParent) binding.colParent = parents.colParent
 
     workbook.value.activeSheet.setCellMeta(target, REPORT_META_NAMESPACE, binding)
   }
@@ -276,14 +278,18 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
     metaTick.value
     const binding = activeBinding.value
     if (!binding) return []
-    return listRowParentCandidates(binding, bindingEntries.value)
+    return listRowParentCandidates(binding, bindingEntries.value, {
+      preferGroup: prefersGroupParent(binding)
+    })
   })
 
   const colParentCandidates = computed((): CellAddress[] => {
     metaTick.value
     const binding = activeBinding.value
     if (!binding) return []
-    return listColParentCandidates(binding, bindingEntries.value)
+    return listColParentCandidates(binding, bindingEntries.value, {
+      preferGroup: prefersGroupParent(binding)
+    })
   })
 
   const bindingEntries = computed((): TopologyBindingEntry[] => {
@@ -296,6 +302,12 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
     return entries
   })
 
+  function parentNeedsCorrection(addr: CellAddress | undefined): boolean {
+    if (!addr) return true
+    const parent = getBindingAt(addr)
+    return !parent || parent.aggregate === 'list'
+  }
+
   function patchActiveBinding(patch: Partial<ReportBinding>): void {
     const cell = activeCell.value
     const binding = activeBinding.value
@@ -304,7 +316,25 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
     const next: ReportBinding = { ...binding, ...patch }
     if ('rowParent' in patch && patch.rowParent === undefined) delete next.rowParent
     if ('colParent' in patch && patch.colParent === undefined) delete next.colParent
-    if (('aggregate' in patch || 'expand' in patch) && !('preset' in patch)) delete next.preset
+    if (
+      ('aggregate' in patch || 'expand' in patch) &&
+      !('preset' in patch) &&
+      !presetStillApplies(next)
+    ) {
+      delete next.preset
+    }
+
+    if (patch.preset === 'subtotal') {
+      const inferred = inferParentsForPreset(cell, 'subtotal', getBindingAt)
+      if (parentNeedsCorrection(next.rowParent)) {
+        if (inferred.rowParent) next.rowParent = inferred.rowParent
+        else delete next.rowParent
+      }
+      if (parentNeedsCorrection(next.colParent)) {
+        if (inferred.colParent) next.colParent = inferred.colParent
+        else delete next.colParent
+      }
+    }
 
     workbook.value.activeSheet.setCellMeta(cell, REPORT_META_NAMESPACE, next)
   }
@@ -319,17 +349,36 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
     parentPick.value = null
   }
 
+  function isValidParentTarget(
+    mode: ParentPickMode,
+    source: ReportBinding,
+    target: ReportBinding | undefined
+  ): boolean {
+    if (!target) return false
+    if (target.dataset !== source.dataset) return false
+    const groupOnly = prefersGroupParent(source)
+    if (mode === 'row') {
+      return groupOnly ? isRowGroupBinding(target) : isVerticalExpandBinding(target)
+    }
+    return groupOnly ? isColGroupBinding(target) : isHorizontalExpandBinding(target)
+  }
+
   function pickParentAt(target: CellAddress): void {
     const pick = parentPick.value
     if (!pick) return
     if (target.row === pick.source.row && target.col === pick.source.col) return
 
     const sourceBinding = getBindingAt(pick.source)
+    if (!sourceBinding) {
+      parentPick.value = null
+      return
+    }
+
     const targetBinding = getBindingAt(target)
-    if (!sourceBinding || !targetBinding) return
-    if (targetBinding.dataset !== sourceBinding.dataset) return
-    if (pick.mode === 'row' && !isVerticalExpandBinding(targetBinding)) return
-    if (pick.mode === 'col' && !isHorizontalExpandBinding(targetBinding)) return
+    if (!isValidParentTarget(pick.mode, sourceBinding, targetBinding)) {
+      workbook.value.activeSheet.selectCell(pick.source)
+      return
+    }
 
     const patch = pick.mode === 'row' ? { rowParent: { ...target } } : { colParent: { ...target } }
     const next: ReportBinding = { ...sourceBinding, ...patch }

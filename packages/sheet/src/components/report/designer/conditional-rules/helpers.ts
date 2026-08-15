@@ -20,13 +20,16 @@ export const RULE_SCOPE_OPTIONS = [
   { value: 'row' as const, label: '整行' }
 ]
 
+/** 求值字段下拉的「本格字段」哨兵值（USelect 无法匹配 undefined） */
+export const SELF_FIELD_VALUE = ''
+
 /** 求值字段下拉：缺省项表示本格绑定字段 */
 export function ruleEvalFieldOptions(
   bindingField: string,
   datasetFields: readonly DatasetField[]
-): Array<{ value: string | undefined; label: string }> {
+): Array<{ value: string; label: string }> {
   return [
-    { value: undefined, label: '本格字段' },
+    { value: SELF_FIELD_VALUE, label: '本格字段' },
     ...datasetFields
       .filter((field) => field.name !== bindingField)
       .map((field) => ({ value: field.name, label: field.label || field.name }))
@@ -79,7 +82,7 @@ export function defaultRuleValue(
 }
 
 export function defaultRuleStyle(): ConditionalRule['style'] {
-  return { fill: { color: '#FEE2E2' }, font: { color: '#DC2626' } }
+  return { fill: { color: '#FEF3C7' }, font: { color: '#B45309' } }
 }
 
 export function createDraftItem(

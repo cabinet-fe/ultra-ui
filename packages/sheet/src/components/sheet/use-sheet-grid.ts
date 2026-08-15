@@ -117,6 +117,8 @@ export function useSheetGrid(options: UseSheetGridOptions) {
       rows,
       cols,
       readonly: props.readonly,
+      showRowHeader: props.showRowHeader,
+      showColHeader: props.showColHeader,
       resolveDisplayValue: props.resolveDisplayValue,
       resolveCellStyle: props.resolveCellStyle,
       resolveCellRenderer: props.resolveCellRenderer,
@@ -241,7 +243,8 @@ export function useSheetGrid(options: UseSheetGridOptions) {
 
   // props 尺寸显式增大时先扩张模型，再重建（删行缩小不走这条路径）
   watch(
-    () => [props.rows, props.cols, props.readonly] as const,
+    () =>
+      [props.rows, props.cols, props.readonly, props.showRowHeader, props.showColHeader] as const,
     ([nextRows, nextCols]) => {
       const sheet = getActiveSheet()
       if (nextRows != null) sheet.ensureTableSize(nextRows, 0)

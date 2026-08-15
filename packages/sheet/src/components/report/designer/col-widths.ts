@@ -1,14 +1,25 @@
 import type { Sheet } from '@veltra/sheet-core'
 
 import type { ReportColWidthEntry } from '../../../report/export-xlsx'
-import { TABLE_ADDR_OFFSET } from './cell-coords'
+
+/** VTable 列宽读写所需的最小表接口（含行号列探测，隐藏行头时偏移为 0） */
+type VTableColWidthApi = {
+  setColWidth: (col: number, width: number) => void
+  getColWidth: (col: number) => number
+  readonly colCount: number
+  readonly columnHeaderLevelCount: number
+  isSeriesNumber: (col: number, row: number) => boolean
+}
 
 /** 列宽读写目标：Sheet 模型或 SheetGrid.getTable() 的最小接口（headless 测试可桩） */
-export type ColWidthTarget = {
-  getTable: () => {
-    setColWidth: (col: number, width: number) => void
-    getColWidth: (col: number) => number
-  }
+export type ColWidthTarget = { getTable: () => VTableColWidthApi }
+
+/** 行号列数（隐藏行头时为 0；与 GridCoords 探测一致） */
+function seriesNumberColCount(table: VTableColWidthApi): number {
+  const rowOffset = table.columnHeaderLevelCount
+  let col = 0
+  while (col < table.colCount && table.isSeriesNumber(col, rowOffset)) col++
+  return col
 }
 
 /** 将模型列宽写入 VTable（模型 → grid 同步辅助） */
@@ -18,8 +29,9 @@ export function applyGridColWidths(
 ): void {
   if (!grid) return
   const table = grid.getTable()
+  const colOffset = seriesNumberColCount(table)
   for (const [sheetCol, width] of widths) {
-    table.setColWidth(sheetCol + TABLE_ADDR_OFFSET, width)
+    table.setColWidth(sheetCol + colOffset, width)
   }
 }
 
@@ -39,5 +51,6 @@ export function readGridColWidths(
 ): Array<[number, number]> | null {
   if (!grid) return null
   const table = grid.getTable()
-  return cols.map((sheetCol) => [sheetCol, table.getColWidth(sheetCol + TABLE_ADDR_OFFSET)])
+  const colOffset = seriesNumberColCount(table)
+  return cols.map((sheetCol) => [sheetCol, table.getColWidth(sheetCol + colOffset)])
 }

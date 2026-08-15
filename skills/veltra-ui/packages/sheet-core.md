@@ -68,6 +68,8 @@ const grid = new SheetGrid({
   sheet,
   rows: 100, // 渲染行数，默认 100
   cols: 26, // 渲染列数，默认 26
+  showRowHeader: true, // 行号列，默认 true
+  showColHeader: true, // 列字母表头，默认 true
   onContextMenu: (info) => {} // 单元格右键（已 preventDefault），菜单由宿主实现
 })
 

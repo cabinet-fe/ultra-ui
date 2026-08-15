@@ -130,6 +130,32 @@ describe('SheetGrid 冻结映射与选区回驱（Phase 2 回归）', () => {
     }
   })
 
+  it('隐藏行列头时冻结不再加列头/行号偏移', () => {
+    const sheet = new Sheet()
+    sheet.setFrozen(2, 1)
+    const container = document.createElement('div')
+    container.style.width = '800px'
+    container.style.height = '600px'
+    document.body.appendChild(container)
+    const grid = new SheetGrid({
+      container,
+      sheet,
+      rows: 20,
+      cols: 6,
+      showRowHeader: false,
+      showColHeader: false
+    })
+    try {
+      const table = grid.getTable()
+      expect(table.columnHeaderLevelCount).toBe(0)
+      expect(table.frozenRowCount).toBe(2)
+      expect(table.frozenColCount).toBe(1)
+      expect(table.isFrozenCell(0, 0)).toMatchObject({ row: true, col: true })
+    } finally {
+      grid.release()
+    }
+  })
+
   it('冻结变更即时生效：setFrozen → frozen-change → VTable 冻结布局更新', () => {
     const sheet = new Sheet()
     const { grid, table } = createGrid(sheet)

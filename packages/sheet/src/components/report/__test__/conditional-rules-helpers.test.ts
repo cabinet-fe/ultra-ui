@@ -72,6 +72,7 @@ describe('conditional-rules helpers', () => {
       '本格字段',
       '地区'
     ])
+    expect(ruleEvalFieldOptions('amount', fields).map((item) => item.value)).toEqual(['', 'region'])
     expect(RULE_SCOPE_OPTIONS.map((item) => item.label)).toEqual(['本格', '整行'])
     expect(resolveEvalFieldType({ operator: 'eq', value: '', style: {} }, 'amount', fields)).toBe(
       'number'

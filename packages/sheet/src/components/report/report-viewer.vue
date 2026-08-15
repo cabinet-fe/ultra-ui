@@ -20,11 +20,13 @@
         ref="sheetRef"
         :class="cls.e('sheet')"
         :workbook="workbook"
-        :rows="renderRows"
-        :cols="renderCols"
+        :rows="renderSize.rows"
+        :cols="renderSize.cols"
         :show-toolbar="false"
         :show-formula-bar="false"
         :show-tabs="false"
+        :show-row-header="false"
+        :show-col-header="false"
         readonly
       />
     </div>
@@ -44,6 +46,7 @@ import type { SheetExposed } from '../../types'
 import { USheet } from '../sheet'
 import { applyGridColWidths, applySheetColWidths } from './designer/col-widths'
 import UReportFilterBar from './filter-bar.vue'
+import { previewGridSize, type PreviewGridSizeMode } from './preview-grid-size'
 import { useReportViewer } from './use-report-viewer'
 
 defineOptions({ name: 'UReportViewer' })
@@ -51,10 +54,6 @@ defineOptions({ name: 'UReportViewer' })
 const props = defineProps<ReportViewerProps>()
 
 const cls = bem('report-viewer')
-
-/** 网格最小渲染尺寸（与 playground 预览态一致）；Filled Report 超出时按快照尺寸放大 */
-const MIN_RENDER_ROWS = 50
-const MIN_RENDER_COLS = 10
 
 /** 取数未完成时拒绝导出的可读错误 */
 const EXPORT_NOT_READY_MESSAGE = '报表数据尚未就绪，请等待取数完成后再导出'
@@ -69,12 +68,11 @@ const sheetRef = useTemplateRef<SheetExposed>('sheetRef')
 const { params, values, loading, error, filledSnapshot, filledColWidths, refresh, setValues } =
   useReportViewer(props)
 
-const renderRows = computed(() =>
-  Math.max(MIN_RENDER_ROWS, filledSnapshot.value?.rows ?? 0, props.template.rows)
-)
-const renderCols = computed(() =>
-  Math.max(MIN_RENDER_COLS, filledSnapshot.value?.cols ?? 0, props.template.cols)
-)
+const renderSize = computed(() => {
+  const filled = filledSnapshot.value
+  if (filled) return previewGridSize(filled, 'filled')
+  return previewGridSize(props.template, 'template')
+})
 
 /** 宿主显式传入优先；否则取数完成后用展开映射列宽；再回落模板设计态列宽 */
 const effectiveColWidths = computed(() => {
@@ -95,18 +93,24 @@ function applyRuntimeColWidths(): void {
  * restore 负责尺寸/冻结/行高/列宽/选区（静默），restoreContent 发 content-reset
  * 触发网格全量刷新（grid 层订阅直刷，无需手动 flush）；history.clear 使填充不进 undo
  */
-function applySnapshot(snapshot: SheetSnapshot): void {
+function applySnapshot(snapshot: SheetSnapshot, mode: PreviewGridSizeMode): void {
+  const size = previewGridSize(snapshot, mode)
+  const trimmed: SheetSnapshot = { ...snapshot, rows: size.rows, cols: size.cols }
   const sheet = workbook.value.activeSheet
-  sheet.restore(snapshot)
-  sheet.restoreContent(snapshot)
+  sheet.restore(trimmed)
+  sheet.restoreContent(trimmed)
   sheet.history.clear()
   void nextTick(applyRuntimeColWidths)
 }
 
 // 先铺模板静态结构（取数期间 / 取数失败时可见），取数成功后替换为 Filled Report
-watch(() => props.template, applySnapshot, { immediate: true })
+watch(
+  () => props.template,
+  (template) => applySnapshot(template, 'template'),
+  { immediate: true }
+)
 watch(filledSnapshot, (filled) => {
-  if (filled) applySnapshot(filled)
+  if (filled) applySnapshot(filled, 'filled')
 })
 watch(effectiveColWidths, applyRuntimeColWidths)
 

@@ -258,6 +258,25 @@ describe('USheet 组件', () => {
     expect(gridAfter).not.toBe(gridBefore)
   })
 
+  it('showRowHeader/showColHeader 为 false 时隐藏行号与列头', async () => {
+    const workbook = createWorkbook()
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    mount(
+      () => ({ workbook, rows: 8, cols: 4, showRowHeader: false, showColHeader: false }),
+      exposed
+    )
+    await nextTick()
+
+    workbook.activeSheet.setCellValue({ row: 0, col: 0 }, 'A1')
+    await nextTick()
+    const table = exposed.value!.getGrid()!.getTable()
+    expect(table.options.showHeader).toBe(false)
+    expect(table.options.rowSeriesNumber).toBeUndefined()
+    expect(table.columnHeaderLevelCount).toBe(0)
+    expect(table.rowCount).toBe(8)
+    expect(table.getCellValue(0, 0)).toBe('A1')
+  })
+
   it('删除行后渲染行数跟随模型收缩（不被 props.rows 撑回）', async () => {
     const workbook = createWorkbook()
     const exposed: { value: SheetExposed | undefined } = { value: undefined }

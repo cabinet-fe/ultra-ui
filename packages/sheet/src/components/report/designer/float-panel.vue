@@ -21,6 +21,7 @@
           @update:model-value="onPreset"
         />
         <u-select
+          v-if="showAggregateSelect"
           size="small"
           :class="[cls.e('select'), cls.em('select', 'aggregate')]"
           :model-value="binding.aggregate"
@@ -28,6 +29,7 @@
           @update:model-value="onAggregate"
         />
         <u-select
+          v-if="showExpandSelect"
           size="small"
           :class="[cls.e('select'), cls.em('select', 'expand')]"
           :model-value="binding.expand"
@@ -35,6 +37,7 @@
           @update:model-value="onExpand"
         />
         <u-button size="small" plain @click="emit('open-rules')">条件样式</u-button>
+        <u-button size="small" text type="danger" @click="emit('remove')">删除绑定</u-button>
         <u-button
           size="small"
           text
@@ -138,11 +141,8 @@
         </div>
       </section>
 
-      <footer :class="cls.e('footer')">
-        <u-button v-if="parentPickMode" size="small" plain @click="emit('cancel-parent-pick')">
-          取消点选
-        </u-button>
-        <u-button size="small" type="danger" plain @click="emit('remove')">删除绑定</u-button>
+      <footer v-if="parentPickMode" :class="cls.e('footer')">
+        <u-button size="small" plain @click="emit('cancel-parent-pick')">取消点选</u-button>
       </footer>
     </div>
   </div>
@@ -157,7 +157,9 @@ import { computed, nextTick, ref, toRef, watch } from 'vue'
 import {
   formatBindingPlaceholder,
   formatCellAddress,
-  inferReportPreset
+  formatParentCandidateLabel,
+  inferReportPreset,
+  isReductionAggregate
 } from '../../../report/binding'
 import type {
   ReportAggregate,
@@ -188,6 +190,7 @@ const props = defineProps<{
   rowParentCandidates: CellAddress[]
   colParentCandidates: CellAddress[]
   resolveFieldLabel?: (datasetId: string, fieldName: string) => string
+  getBindingAt?: (addr: CellAddress) => ReportBinding | undefined
   hostEl: HTMLElement | null
   getGrid: () => SheetGrid | undefined
 }>()
@@ -216,7 +219,7 @@ const presetOptions = computed(() => {
   return options
 })
 
-const aggregateOptions = [
+const ALL_AGGREGATE_OPTIONS = [
   { value: 'list' as const, label: '明细' },
   { value: 'group' as const, label: '分组' },
   { value: 'sum' as const, label: '求和' },
@@ -225,6 +228,10 @@ const aggregateOptions = [
   { value: 'max' as const, label: '最大' },
   { value: 'min' as const, label: '最小' }
 ]
+
+const REDUCTION_AGGREGATE_OPTIONS = ALL_AGGREGATE_OPTIONS.filter((item) =>
+  isReductionAggregate(item.value)
+)
 
 const expandOptions = [
   { value: 'down' as const, label: '向下' },
@@ -247,24 +254,59 @@ const currentPresetValue = computed(() => {
   return inferReportPreset(props.binding) ?? CUSTOM_PRESET_VALUE
 })
 
-const summaryText = computed(() => {
-  if (!props.binding) return ''
-  return formatBindingPlaceholder(props.binding, props.resolveFieldLabel)
+const showAggregateSelect = computed(() => {
+  const preset = currentPresetValue.value
+  return (
+    preset === CUSTOM_PRESET_VALUE ||
+    preset === 'subtotal' ||
+    preset === 'grandTotal' ||
+    preset === 'cross'
+  )
 })
 
-const rowParentOptions = computed(() =>
-  props.rowParentCandidates.map((addr) => ({
-    value: formatCellAddress(addr),
-    label: formatCellAddress(addr)
-  }))
+const showExpandSelect = computed(() => {
+  const preset = currentPresetValue.value
+  return preset === CUSTOM_PRESET_VALUE || preset === 'groupHeader' || preset === 'detail'
+})
+
+const aggregateOptions = computed(() =>
+  currentPresetValue.value === CUSTOM_PRESET_VALUE
+    ? ALL_AGGREGATE_OPTIONS
+    : REDUCTION_AGGREGATE_OPTIONS
 )
 
-const colParentOptions = computed(() =>
-  props.colParentCandidates.map((addr) => ({
-    value: formatCellAddress(addr),
-    label: formatCellAddress(addr)
-  }))
-)
+const summaryText = computed(() => {
+  if (!props.binding) return ''
+  const parts = [formatBindingPlaceholder(props.binding, props.resolveFieldLabel)]
+  if (props.binding.rowParent && props.resolvedRowParentLabel !== '—') {
+    const parent = props.getBindingAt?.(props.binding.rowParent)
+    const name = parent
+      ? (props.resolveFieldLabel?.(parent.dataset, parent.field) ?? parent.field)
+      : props.resolvedRowParentLabel
+    parts.push(`行父格 ${name} ${props.resolvedRowParentLabel}`)
+  }
+  if (props.binding.colParent && props.resolvedColParentLabel !== '—') {
+    const parent = props.getBindingAt?.(props.binding.colParent)
+    const name = parent
+      ? (props.resolveFieldLabel?.(parent.dataset, parent.field) ?? parent.field)
+      : props.resolvedColParentLabel
+    parts.push(`列父格 ${name} ${props.resolvedColParentLabel}`)
+  }
+  return parts.join(' · ')
+})
+
+function candidateOption(addr: CellAddress): { value: string; label: string } {
+  const value = formatCellAddress(addr)
+  const binding = props.getBindingAt?.(addr)
+  return {
+    value,
+    label: binding ? formatParentCandidateLabel(addr, binding, props.resolveFieldLabel) : value
+  }
+}
+
+const rowParentOptions = computed(() => props.rowParentCandidates.map(candidateOption))
+
+const colParentOptions = computed(() => props.colParentCandidates.map(candidateOption))
 
 const rowParentSelectValue = computed(() =>
   props.binding?.rowParent ? formatCellAddress(props.binding.rowParent) : undefined
@@ -281,7 +323,15 @@ const panelStyle = computed(() => ({ left: `${panelLeft.value}px`, top: `${panel
 watch(
   () => [props.cell?.row, props.cell?.col] as const,
   () => {
+    if (props.parentPickMode) return
     expanded.value = false
+  }
+)
+
+watch(
+  () => props.parentPickMode,
+  (mode) => {
+    if (mode) expanded.value = true
   }
 )
 
@@ -300,13 +350,7 @@ function onPreset(preset: ReportPreset | typeof CUSTOM_PRESET_VALUE): void {
 }
 
 function aggregateDefaultExpand(aggregate: ReportAggregate): ReportExpand {
-  return aggregate === 'sum' ||
-    aggregate === 'avg' ||
-    aggregate === 'count' ||
-    aggregate === 'max' ||
-    aggregate === 'min'
-    ? 'none'
-    : 'down'
+  return isReductionAggregate(aggregate) ? 'none' : 'down'
 }
 
 function onAggregate(aggregate: ReportAggregate): void {

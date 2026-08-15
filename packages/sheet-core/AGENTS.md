@@ -67,6 +67,7 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 - **关闭一切写模型入口**：不挂编辑器与 `CHANGE_CELL_VALUE` 编辑回写、禁用填充柄与行/列 resize、不绑 undo/redo 快捷键；ImageLayer 禁图片拖动与 `Delete`/`Backspace` 删除（仅保留点击选中）。
 - **保留**：渲染、选区、滚动、键盘导航、右键回调（`onContextMenu` 照常触发，菜单内容由宿主决定）。
 - **模型层不设防，仅守 grid 入口**——绕过 SheetGrid 直接调命令仍可写模型，宿主只读场景不要暴露命令入口。
+- **行列头**：`showRowHeader` / `showColHeader`（默认 true）；false 时不渲染行号列 / 列字母表头，冻结映射不再 +1。
 
 ## 浮动图片渲染（grid/image-layer.ts）
 
@@ -78,7 +79,7 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 
 - 主题必须 `themes.DEFAULT.extends(...)`，裸对象会丢默认色。
 - `customMergeCell` 的 `text` **必须读 VTable records**（`getCellOriginValue`），不能读模型——否则编辑提交后重绘显示旧值。
-- 模型冻结 N 行/列 → VTable `frozenRowCount/ColCount = N + 1`（含列头/行号）。
+- 模型冻结 N 行/列 → VTable `frozenRowCount/ColCount = N + 1`（含列头/行号）；`showColHeader`/`showRowHeader` 为 false 时不加 +1。
 - 选区回驱：`selection-change` → `selectCells` + `scrollToCell`；用 `syncingSelection` 防递归。回驱前需临时清 `eventManager.isDraging` 并清选区 overlay（VTable 1.26.5 拖选时序缺陷，否则多框残留 / 反向拖选畸形）。
 - 事件用 `ListTable.EVENT_TYPE`（`core.EVENT_TYPE` 运行时为 undefined）。
 

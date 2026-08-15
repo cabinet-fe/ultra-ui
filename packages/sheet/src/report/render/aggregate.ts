@@ -55,9 +55,20 @@ function isColExpanding(binding: ReportBinding): boolean {
   )
 }
 
+function isReductionAggregate(aggregate: ReportAggregate): boolean {
+  return (
+    aggregate === 'sum' ||
+    aggregate === 'avg' ||
+    aggregate === 'count' ||
+    aggregate === 'max' ||
+    aggregate === 'min'
+  )
+}
+
 function rowExpandingAncestors(
   binding: ReportBinding,
-  index: TemplateIndex
+  index: TemplateIndex,
+  groupsOnly: boolean
 ): Array<{ addr: CellAddress; binding: ReportBinding }> {
   const chain: Array<{ addr: CellAddress; binding: ReportBinding }> = []
   let current = binding.rowParent
@@ -66,12 +77,17 @@ function rowExpandingAncestors(
     if (parentBinding) chain.unshift({ addr: current, binding: parentBinding })
     current = parentBinding?.rowParent
   }
-  return chain.filter((item) => isRowExpanding(item.binding))
+  return chain.filter((item) => {
+    if (!isRowExpanding(item.binding)) return false
+    if (groupsOnly && item.binding.aggregate !== 'group') return false
+    return true
+  })
 }
 
 function colExpandingAncestors(
   binding: ReportBinding,
-  index: TemplateIndex
+  index: TemplateIndex,
+  groupsOnly: boolean
 ): Array<{ addr: CellAddress; binding: ReportBinding }> {
   const chain: Array<{ addr: CellAddress; binding: ReportBinding }> = []
   let current = binding.colParent
@@ -80,7 +96,11 @@ function colExpandingAncestors(
     if (parentBinding) chain.unshift({ addr: current, binding: parentBinding })
     current = parentBinding?.colParent
   }
-  return chain.filter((item) => isColExpanding(item.binding))
+  return chain.filter((item) => {
+    if (!isColExpanding(item.binding)) return false
+    if (groupsOnly && item.binding.aggregate !== 'group') return false
+    return true
+  })
 }
 
 function mergeFilters(
@@ -99,8 +119,9 @@ function resolveAncestorFilters(
   const rowFilter: Record<string, unknown> = {}
   const colFilter: Record<string, unknown> = {}
   let parentFilter: Record<string, unknown> = {}
+  const groupsOnly = isReductionAggregate(binding.aggregate)
 
-  const rowAncestors = rowExpandingAncestors(binding, index)
+  const rowAncestors = rowExpandingAncestors(binding, index, groupsOnly)
   for (let i = 0; i < rowAncestors.length; i++) {
     const ancestor = rowAncestors[i]!
     if (ancestor.binding.dataset !== binding.dataset) continue
@@ -114,7 +135,7 @@ function resolveAncestorFilters(
   }
 
   parentFilter = {}
-  const colAncestors = colExpandingAncestors(binding, index)
+  const colAncestors = colExpandingAncestors(binding, index, groupsOnly)
   for (let i = 0; i < colAncestors.length; i++) {
     const ancestor = colAncestors[i]!
     if (ancestor.binding.dataset !== binding.dataset) continue
@@ -136,8 +157,8 @@ function resolveOwnGroupValue(
   index: TemplateIndex,
   data: DatasetRecords
 ): unknown {
-  const rowAncestors = rowExpandingAncestors(binding, index)
-  const colAncestors = colExpandingAncestors(binding, index)
+  const rowAncestors = rowExpandingAncestors(binding, index, false)
+  const colAncestors = colExpandingAncestors(binding, index, false)
   let parentFilter: Record<string, unknown> = {}
 
   for (let i = 0; i < rowAncestors.length; i++) {

@@ -76,6 +76,10 @@ export interface SheetGridOptions {
   interceptSelection?: () => boolean
   onSelectionIntercept?: (range: CellRange) => void
   readonly?: boolean
+  /** 是否显示行号列，默认 true */
+  showRowHeader?: boolean
+  /** 是否显示列字母表头，默认 true */
+  showColHeader?: boolean
 }
 
 /** VTable 适配层 Facade 入口类 */
@@ -91,6 +95,8 @@ export class SheetGrid {
   private readonly resolveDisplayValue?: ResolveDisplayValue
   private readonly resolveCellRenderer?: ResolveCellRenderer
   private readonly isReadonly: boolean
+  private readonly showRowHeader: boolean
+  private readonly showColHeader: boolean
   private readonly disposers: (() => void)[] = []
   private editingAddr: CellAddress | null = null
 
@@ -115,6 +121,8 @@ export class SheetGrid {
     this.resolveDisplayValue = options.resolveDisplayValue
     this.resolveCellRenderer = options.resolveCellRenderer
     this.isReadonly = options.readonly ?? false
+    this.showRowHeader = options.showRowHeader ?? true
+    this.showColHeader = options.showColHeader ?? true
 
     this.coords = new GridCoords()
     this.styleResolver = new GridStyleResolver(this.sheet, this.cols, this.rows, {
@@ -273,10 +281,18 @@ export class SheetGrid {
     this.table.release()
   }
 
-  private static frozenToVTableCounts(frozen: FrozenState, rows: number, cols: number) {
+  private static frozenToVTableCounts(
+    frozen: FrozenState,
+    rows: number,
+    cols: number,
+    showColHeader: boolean,
+    showRowHeader: boolean
+  ) {
+    const headerRows = showColHeader ? 1 : 0
+    const headerCols = showRowHeader ? 1 : 0
     return {
-      frozenRowCount: Math.min(frozen.rows + 1, Math.max(rows, 1)),
-      frozenColCount: Math.min(frozen.cols + 1, Math.max(cols, 1))
+      frozenRowCount: Math.min(frozen.rows + headerRows, Math.max(rows, 1)),
+      frozenColCount: Math.min(frozen.cols + headerCols, Math.max(cols, 1))
     }
   }
 
@@ -284,7 +300,9 @@ export class SheetGrid {
     const { frozenRowCount, frozenColCount } = SheetGrid.frozenToVTableCounts(
       this.sheet.frozen,
       this.rows,
-      this.cols
+      this.cols,
+      this.showColHeader,
+      this.showRowHeader
     )
     if (this.table.frozenRowCount !== frozenRowCount) this.table.frozenRowCount = frozenRowCount
     if (this.table.frozenColCount !== frozenColCount) this.table.frozenColCount = frozenColCount
@@ -356,13 +374,21 @@ export class SheetGrid {
         ? { columnResizeMode: 'none', rowResizeMode: 'none' }
         : { columnResizeMode: 'header', rowResizeMode: 'all' },
       theme: sheetVTableTheme,
-      rowSeriesNumber: { width: 46, style: sheetRowSeriesNumberStyle },
+      showHeader: this.showColHeader,
+      ...(this.showRowHeader
+        ? { rowSeriesNumber: { width: 46, style: sheetRowSeriesNumberStyle } }
+        : {}),
       excelOptions: { fillHandle: !this.isReadonly },
       eventOptions: { preventDefaultContextMenu: true },
       hover: { disableHover: true },
       ...(this.isReadonly ? {} : { editor: EDITOR_NAME, editCellTrigger: 'doubleclick' as const }),
-      frozenRowCount: Math.min(this.sheet.frozen.rows + 1, Math.max(this.rows, 1)),
-      frozenColCount: Math.min(this.sheet.frozen.cols + 1, Math.max(this.cols, 1)),
+      ...SheetGrid.frozenToVTableCounts(
+        this.sheet.frozen,
+        this.rows,
+        this.cols,
+        this.showColHeader,
+        this.showRowHeader
+      ),
       keyboardOptions: {
         moveFocusCellOnTab: true,
         editCellOnEnter: !this.isReadonly,

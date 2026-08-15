@@ -24,6 +24,8 @@ export interface ReportDesignerProps {
 /** 报表设计器组件定义的事件 */
 export interface ReportDesignerEmits {
   (e: 'update:connections', value: DataConnection[]): void
+  /** 数据集增删改或数据中枢关闭：宿主可立即持久化工作区 */
+  (e: 'datasets-change'): void
 }
 
 /** 在组件内部引用 */

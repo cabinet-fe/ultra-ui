@@ -62,6 +62,22 @@
     min-width: 0;
   }
 
+  @include m.e(pick-hint) {
+    position: absolute;
+    left: 50%;
+    bottom: fn.use-var(gap, small);
+    z-index: 17;
+    transform: translateX(-50%);
+    padding: 4px fn.use-var(gap, small);
+    border-radius: fn.use-var(radius, default);
+    background: color-mix(in srgb, fn.use-var(bg-color, top) 92%, transparent);
+    border: 1px dashed fn.use-var(color, primary);
+    font-size: fn.use-var(font-size-main, small);
+    color: fn.use-var(text-color, second);
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
   /* 数据中枢 drawer 面板宽度（class 经 $attrs 落到 .u-drawer 面板；须压过 .u-drawer.is-right 的 320px） */
   @include m.e(hub-drawer) {
     &.u-drawer {
@@ -123,7 +139,7 @@
   }
 }
 
-/* Action Pill：选中绑定格上方的悬浮编辑卡（角色 / 聚合 / 条件样式 / 排序 / 清除绑定） */
+/* Action Pill：选中绑定格上方的悬浮编辑卡（预设 + 互补的展开/聚合 / 条件样式 / 排序 / 清除绑定） */
 @include m.b(report-float-panel) {
   position: absolute;
   z-index: 18;
@@ -223,7 +239,7 @@
   }
 
   @include m.e(parent-select) {
-    width: 88px;
+    width: 180px;
     flex: none;
   }
 
@@ -244,11 +260,12 @@
 @include m.b(report-rules-dialog) {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 
   @include m.e(hint) {
     margin: 0;
     font-size: 12px;
+    line-height: 1.5;
     color: fn.use-var(text-color, second);
   }
 
@@ -278,17 +295,18 @@
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  padding: 10px;
+  padding: 10px 10px 10px 6px;
   border: fn.use-var(border-muted);
   border-radius: 8px;
-  background: fn.use-var(bg-color, top);
+  background: fn.use-var(bg-color, middle);
 
   @include m.e(handle) {
     flex: none;
-    width: 20px;
-    margin-top: 4px;
-    color: fn.use-var(text-color, second);
-    font-size: 16px;
+    width: 16px;
+    margin-top: 6px;
+    color: fn.use-var(text-color, placeholder);
+    font-size: 12px;
+    letter-spacing: -1px;
     line-height: 1;
     cursor: grab;
     user-select: none;
@@ -307,32 +325,33 @@
     gap: 8px;
   }
 
-  @include m.e(meta) {
+  @include m.e(when) {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     flex-wrap: wrap;
   }
 
-  @include m.e(field-select) {
-    width: 120px;
-    flex: none;
-  }
-
-  @include m.e(scope-select) {
-    width: 72px;
-    flex: none;
-  }
-
-  @include m.e(condition) {
-    display: grid;
-    grid-template-columns: 72px minmax(0, 1fr) auto;
+  @include m.e(then) {
+    display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  @include m.e(lead) {
+    flex: none;
+    font-size: 12px;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(field-select) {
+    width: 128px;
+    flex: none;
   }
 
   @include m.e(operator) {
-    width: 72px;
+    width: 96px;
     flex: none;
   }
 
@@ -345,28 +364,16 @@
   }
 
   @include m.e(scalar-input) {
-    width: 112px;
+    width: 120px;
     flex: none;
   }
 
   @include m.e(between-input) {
-    width: 96px;
+    width: 88px;
     flex: none;
   }
 
   @include m.e(between-sep) {
-    font-size: 12px;
-    color: fn.use-var(text-color, second);
-  }
-
-  @include m.e(style) {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-
-  @include m.e(style-label) {
     font-size: 12px;
     color: fn.use-var(text-color, second);
   }
@@ -378,14 +385,11 @@
 
   @include m.e(preview) {
     flex: none;
-    margin-top: 2px;
   }
 
-  @include m.e(actions) {
+  @include m.e(remove) {
     flex: none;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+    margin-top: 2px;
   }
 }
 

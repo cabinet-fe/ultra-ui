@@ -725,4 +725,106 @@ describe('renderReport', () => {
       ])
     )
   })
+
+  it('跨列行小计按组求和，不是全表合计', () => {
+    const sheet = new Sheet()
+    sheet.setCells([{ addr: { row: 0, col: 0 }, data: { v: '客户' } }])
+    const groupParent = { row: 1, col: 0 }
+
+    const customerGroup = createReportBinding(ORDERS_DATASET, 'customer')
+    customerGroup.preset = 'groupHeader'
+    customerGroup.aggregate = 'group'
+    customerGroup.expand = 'down'
+    sheet.setCellMeta(groupParent, REPORT_META_NAMESPACE, customerGroup)
+
+    const orderNo = createReportBinding(ORDERS_DATASET, 'orderNo')
+    orderNo.rowParent = groupParent
+    sheet.setCellMeta({ row: 1, col: 1 }, REPORT_META_NAMESPACE, orderNo)
+
+    const amount = createReportBinding(ORDERS_DATASET, 'amount')
+    amount.rowParent = groupParent
+    sheet.setCellMeta({ row: 1, col: 2 }, REPORT_META_NAMESPACE, amount)
+
+    const subtotal = createReportBinding(ORDERS_DATASET, 'amount')
+    subtotal.preset = 'subtotal'
+    subtotal.aggregate = 'sum'
+    subtotal.expand = 'none'
+    subtotal.rowParent = groupParent
+    sheet.setCellMeta({ row: 2, col: 2 }, REPORT_META_NAMESPACE, subtotal)
+
+    const filled = renderReport(sheet.snapshot(), MOCK_DATA_RECORDS)
+    expect(cellValue(filled, 5, 2)).toBe(630)
+    expect(cellValue(filled, 10, 2)).toBe(1050)
+    expect(cellValue(filled, 5, 2)).not.toBe(4180)
+  })
+
+  it('跨列行小计误挂明细时仍按分组祖先过滤', () => {
+    const sheet = new Sheet()
+    sheet.setCells([{ addr: { row: 0, col: 0 }, data: { v: '客户' } }])
+    const groupParent = { row: 1, col: 0 }
+    const listAddr = { row: 1, col: 2 }
+
+    const customerGroup = createReportBinding(ORDERS_DATASET, 'customer')
+    customerGroup.preset = 'groupHeader'
+    customerGroup.aggregate = 'group'
+    customerGroup.expand = 'down'
+    sheet.setCellMeta(groupParent, REPORT_META_NAMESPACE, customerGroup)
+
+    const amount = createReportBinding(ORDERS_DATASET, 'amount')
+    amount.rowParent = groupParent
+    sheet.setCellMeta(listAddr, REPORT_META_NAMESPACE, amount)
+
+    const subtotal = createReportBinding(ORDERS_DATASET, 'amount')
+    subtotal.preset = 'subtotal'
+    subtotal.aggregate = 'sum'
+    subtotal.expand = 'none'
+    subtotal.rowParent = listAddr
+    sheet.setCellMeta({ row: 2, col: 2 }, REPORT_META_NAMESPACE, subtotal)
+
+    const filled = renderReport(sheet.snapshot(), MOCK_DATA_RECORDS)
+    expect(cellValue(filled, 5, 2)).toBe(630)
+    expect(cellValue(filled, 10, 2)).toBe(1050)
+  })
+
+  it('交叉列小计仅 colParent 时按列分组求和，不是全表合计', () => {
+    const sheet = new Sheet()
+    const colGroupAddr = { row: 0, col: 1 }
+    const rowGroupAddr = { row: 1, col: 0 }
+
+    const categoryGroup = createReportBinding(SALES_MATRIX_DATASET, 'category')
+    categoryGroup.preset = 'groupHeader'
+    categoryGroup.aggregate = 'group'
+    categoryGroup.expand = 'right'
+    sheet.setCellMeta(colGroupAddr, REPORT_META_NAMESPACE, categoryGroup)
+
+    const regionGroup = createReportBinding(SALES_MATRIX_DATASET, 'region')
+    regionGroup.preset = 'groupHeader'
+    regionGroup.aggregate = 'group'
+    regionGroup.expand = 'down'
+    sheet.setCellMeta(rowGroupAddr, REPORT_META_NAMESPACE, regionGroup)
+
+    const cross = createReportBinding(SALES_MATRIX_DATASET, 'amount')
+    cross.preset = 'cross'
+    cross.aggregate = 'sum'
+    cross.expand = 'none'
+    cross.rowParent = rowGroupAddr
+    cross.colParent = colGroupAddr
+    sheet.setCellMeta({ row: 1, col: 1 }, REPORT_META_NAMESPACE, cross)
+
+    const colSubtotal = createReportBinding(SALES_MATRIX_DATASET, 'amount')
+    colSubtotal.preset = 'subtotal'
+    colSubtotal.aggregate = 'sum'
+    colSubtotal.expand = 'none'
+    colSubtotal.colParent = colGroupAddr
+    sheet.setCellMeta({ row: 2, col: 1 }, REPORT_META_NAMESPACE, colSubtotal)
+
+    const filled = renderReport(sheet.snapshot(), { 'sales-matrix': SALES_MATRIX_ROWS })
+    const officeTotal = SALES_MATRIX_ROWS.filter((row) => row.category === '办公设备').reduce(
+      (sum, row) => sum + (row.amount as number),
+      0
+    )
+    const grandTotal = SALES_MATRIX_ROWS.reduce((sum, row) => sum + (row.amount as number), 0)
+    expect(cellValue(filled, 5, 1)).toBe(officeTotal)
+    expect(cellValue(filled, 5, 1)).not.toBe(grandTotal)
+  })
 })

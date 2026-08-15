@@ -8,7 +8,7 @@ import type { DataConnection, DataConnector } from '../../../report/connector'
 import { createReportTemplate } from '../../../report/template'
 import type { ReportDatasetDef, ReportTemplate } from '../../../report/template'
 import type { ParamValues, ReportBinding } from '../../../report/types'
-import type { ReportViewerExposed } from '../../../types'
+import type { ReportViewerExposed, SheetExposed } from '../../../types'
 
 // ---- 内联 fixtures：stub connector（实现 DataConnector 接口的内存测试夹具）----
 
@@ -91,6 +91,8 @@ function createViewerTemplate(datasets: ReportDatasetDef[] = [ORDERS_DATASET]): 
   }
   sheet.setCellMeta({ row: 1, col: 1 }, REPORT_META_NAMESPACE, amount)
 
+  // 模拟设计态 canvas（旧预览用 max(50×10, 快照) 会铺出空白格）
+  sheet.ensureTableSize(50, 10)
   return createReportTemplate(sheet.snapshot(), datasets)
 }
 
@@ -158,6 +160,14 @@ function mountViewer(props: {
   return { app, el, exposedRef }
 }
 
+/** 内嵌 USheet 的 SheetGrid（报表预览断言行列头 / 渲染尺寸） */
+function nestedSheetGrid(el: HTMLElement) {
+  const sheetEl = el.querySelector('.u-sheet') as
+    | (HTMLElement & { __vueParentComponent?: { exposed?: SheetExposed } })
+    | null
+  return sheetEl?.__vueParentComponent?.exposed?.getGrid()
+}
+
 /** 等待取数（宏/微任务）+ 填充快照应用（watch + nextTick）落定 */
 async function flushViewer(): Promise<void> {
   await nextTick()
@@ -201,6 +211,19 @@ describe('UReportViewer', () => {
     expect(sheet.getCellData({ row: 2, col: 1 })?.v).toBe(200)
     expect(sheet.getDisplayValue({ row: 3, col: 0 })).toBe('乙公司')
     expect(sheet.getCellData({ row: 3, col: 1 })?.v).toBe(300)
+
+    // 网格铺到内容尺寸（表头 + 3 明细行 × 2 列），不再用 50×10 下限
+    expect(sheet.rows).toBe(4)
+    expect(sheet.cols).toBe(2)
+
+    const table = nestedSheetGrid(el)!.getTable()
+    expect(table.options.showHeader).toBe(false)
+    expect(table.options.rowSeriesNumber).toBeUndefined()
+    expect(table.columnHeaderLevelCount).toBe(0)
+    expect(table.rowCount).toBe(4)
+    expect(table.colCount).toBe(2)
+    // 无行号/列头偏移：表格 (0,0) 即模型 A1
+    expect(table.getCellValue(0, 0)).toBe('客户')
   })
 
   it('Filter Bar 改值重新取数，其余参数值保留', async () => {

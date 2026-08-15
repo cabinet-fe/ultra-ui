@@ -1,27 +1,17 @@
 <template>
   <div :class="cls.b">
-    <span :class="cls.e('handle')" title="拖拽排序">≡</span>
+    <span :class="cls.e('handle')" title="拖拽排序">⋮⋮</span>
 
     <div :class="cls.e('main')">
-      <div :class="cls.e('meta')">
+      <div :class="cls.e('when')">
+        <span :class="cls.e('lead')">当</span>
         <u-select
           size="small"
           :class="cls.e('field-select')"
-          :model-value="rule.field"
+          :model-value="rule.field ?? SELF_FIELD_VALUE"
           :options="fieldOptions"
-          placeholder="求值字段"
           @update:model-value="onEvalField"
         />
-        <u-select
-          size="small"
-          :class="cls.e('scope-select')"
-          :model-value="rule.scope ?? 'cell'"
-          :options="scopeOptions"
-          @update:model-value="onScope"
-        />
-      </div>
-
-      <div :class="cls.e('condition')">
         <u-select
           size="small"
           :class="cls.e('operator')"
@@ -29,7 +19,6 @@
           :options="operatorOptions"
           @update:model-value="onOperator"
         />
-
         <div :class="cls.e('value')">
           <template v-if="rule.operator === 'between'">
             <u-number-input
@@ -80,56 +69,76 @@
             @update:model-value="(v) => patchValue(v ?? 0)"
           />
         </div>
+        <span :class="cls.e('lead')">时</span>
+      </div>
 
+      <div :class="cls.e('then')">
+        <span :class="cls.e('lead')">样式</span>
+        <span title="背景">
+          <u-palette
+            size="small"
+            :model-value="rule.style.fill?.color ?? ''"
+            @update:model-value="patchFillColor"
+          />
+        </span>
+        <span title="文字">
+          <u-palette
+            size="small"
+            :model-value="rule.style.font?.color ?? ''"
+            @update:model-value="patchFontColor"
+          />
+        </span>
+        <u-button-group>
+          <u-button
+            size="small"
+            :class="cls.e('toggle')"
+            :type="rule.style.font?.bold ? 'primary' : undefined"
+            plain
+            title="加粗"
+            @click="toggleBold"
+          >
+            B
+          </u-button>
+          <u-button
+            size="small"
+            :class="cls.e('toggle')"
+            :type="rule.style.font?.italic ? 'primary' : undefined"
+            plain
+            title="斜体"
+            @click="toggleItalic"
+          >
+            I
+          </u-button>
+        </u-button-group>
         <u-report-rule-preview :class="cls.e('preview')" :rule="rule" />
-      </div>
 
-      <div :class="cls.e('style')">
-        <span :class="cls.e('style-label')">背景</span>
-        <u-palette
-          size="small"
-          :model-value="rule.style.fill?.color ?? ''"
-          @update:model-value="patchFillColor"
-        />
-        <span :class="cls.e('style-label')">字体</span>
-        <u-palette
-          size="small"
-          :model-value="rule.style.font?.color ?? ''"
-          @update:model-value="patchFontColor"
-        />
-        <u-button
-          size="small"
-          :class="cls.e('toggle')"
-          :type="rule.style.font?.bold ? 'primary' : undefined"
-          plain
-          @click="toggleBold"
-        >
-          B
-        </u-button>
-        <u-button
-          size="small"
-          :class="cls.e('toggle')"
-          :type="rule.style.font?.italic ? 'primary' : undefined"
-          plain
-          @click="toggleItalic"
-        >
-          I
-        </u-button>
+        <span :class="cls.e('lead')">应用到</span>
+        <u-button-group>
+          <u-button
+            v-for="option in RULE_SCOPE_OPTIONS"
+            :key="option.value"
+            size="small"
+            plain
+            :type="(rule.scope ?? 'cell') === option.value ? 'primary' : undefined"
+            :title="
+              option.value === 'row' ? '染满物理输出行（交叉表会盖住同行所有列）' : '只改本格'
+            "
+            @click="onScope(option.value)"
+          >
+            {{ option.label }}
+          </u-button>
+        </u-button-group>
       </div>
     </div>
 
-    <div :class="cls.e('actions')">
-      <u-button size="small" text :disabled="index === 0" @click="emit('move-up')">↑</u-button>
-      <u-button size="small" text :disabled="index >= total - 1" @click="emit('move-down')">
-        ↓
-      </u-button>
-      <u-button size="small" text type="danger" @click="emit('remove')">删除</u-button>
-    </div>
+    <u-button size="small" text type="danger" :class="cls.e('remove')" @click="emit('remove')">
+      删除
+    </u-button>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { UButton, UInput, UNumberInput, UPalette, USelect } from '@veltra/desktop'
+import { UButton, UButtonGroup, UInput, UNumberInput, UPalette, USelect } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
 import { computed } from 'vue'
 
@@ -142,6 +151,7 @@ import {
   resolveEvalFieldType,
   RULE_SCOPE_OPTIONS,
   ruleEvalFieldOptions,
+  SELF_FIELD_VALUE,
   writeBetweenValue
 } from './conditional-rules/helpers'
 import UReportRulePreview from './rule-preview.vue'
@@ -152,16 +162,9 @@ const props = defineProps<{
   rule: ConditionalRule
   bindingField: string
   datasetFields: readonly DatasetField[]
-  index: number
-  total: number
 }>()
 
-const emit = defineEmits<{
-  'update:rule': [rule: ConditionalRule]
-  remove: []
-  'move-up': []
-  'move-down': []
-}>()
+const emit = defineEmits<{ 'update:rule': [rule: ConditionalRule]; remove: [] }>()
 
 const cls = bem('report-rule-row')
 
@@ -171,9 +174,6 @@ const evalFieldType = computed(() =>
 const operatorOptions = computed(() => operatorsForFieldType(evalFieldType.value))
 const numericField = computed(() => isNumericFieldType(evalFieldType.value))
 const fieldOptions = computed(() => ruleEvalFieldOptions(props.bindingField, props.datasetFields))
-const scopeOptions = computed(() =>
-  RULE_SCOPE_OPTIONS.map((option) => ({ value: option.value, label: option.label }))
-)
 
 const betweenStart = computed(() => readBetweenValue(props.rule.value, 0, evalFieldType.value))
 const betweenEnd = computed(() => readBetweenValue(props.rule.value, 1, evalFieldType.value))
@@ -191,7 +191,7 @@ function patchRule(patch: Partial<ConditionalRule>): void {
 
 function onEvalField(field: string | undefined): void {
   const next: Partial<ConditionalRule> = {}
-  if (field === undefined) {
+  if (!field) {
     next.field = undefined
   } else {
     next.field = field
