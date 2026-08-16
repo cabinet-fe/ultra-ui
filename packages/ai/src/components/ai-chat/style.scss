@@ -63,7 +63,7 @@ $root-name: ai-chat;
   }
 
   @include m.e(message-content) {
-    line-height: 1.7;
+    line-height: 1.65;
   }
 
   @include m.e(message-status) {
@@ -85,7 +85,7 @@ $root-name: ai-chat;
 
   // 思考过程
   @include m.e(reasoning) {
-    margin-bottom: fn.use-var(gap, small);
+    margin-bottom: 4px;
     color: fn.use-var(text-color, assist);
 
     @include m.is(expanded) {
@@ -97,33 +97,112 @@ $root-name: ai-chat;
 
   @include m.e(reasoning-header) {
     @include m.flex(flex, flex-start, center);
-    gap: fn.use-var(gap, small);
+    gap: 4px;
     cursor: pointer;
     user-select: none;
     font-size: fn.use-var(font-size-main, small);
   }
 
+  @include m.e(reasoning-title) {
+    line-height: 1.5;
+  }
+
   @include m.e(reasoning-chevron) {
+    font-size: 12px;
     transition: transform 0.2s;
   }
 
   @include m.e(reasoning-content) {
-    margin-top: fn.use-var(gap, small);
-    padding-left: fn.use-var(gap, default);
+    margin-top: 4px;
+    padding-left: fn.use-var(gap, small);
     border-left: fn.use-var(border-muted);
+  }
+
+  @include m.e(reasoning-text) {
+    padding-right: 4px;
     white-space: pre-wrap;
     word-break: break-word;
     font-size: fn.use-var(font-size-main, small);
-    line-height: 1.6;
+    line-height: 1.55;
   }
 
-  // 工具调用卡片
+  // 扫光（思考中/工具进行中的文字高亮扫过效果，纯 CSS + GPU 合成，可直接复用该类）
+  @include m.e(shine) {
+    background: linear-gradient(
+      100deg,
+      fn.use-var(text-color, assist) 30%,
+      fn.use-var(text-color, title) 50%,
+      fn.use-var(text-color, assist) 70%
+    );
+    background-size: 200% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: u-ai-chat-shine 1.4s linear infinite;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+      background: none;
+      -webkit-text-fill-color: currentColor;
+    }
+  }
+
+  // 工具调用卡片（紧凑单行头 + 可折叠 body）
   @include m.e(tool-call) {
-    margin: fn.use-var(gap, small) 0;
+    margin: 4px 0;
+    border: fn.use-var(border-muted);
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, top);
+    overflow: hidden;
+    font-size: fn.use-var(font-size-main, small);
+  }
+
+  @include m.e(tool-call-header) {
+    @include m.flex(flex, flex-start, center);
+    gap: 6px;
+    padding: 5px fn.use-var(gap, small);
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+    border-radius: inherit;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    &:focus-visible {
+      box-shadow: inset 0 0 0 2px fn.use-var(color, primary);
+    }
+  }
+
+  @include m.e(tool-call-chevron) {
+    flex-shrink: 0;
+    font-size: 12px;
+    color: fn.use-var(text-color, assist);
+    transition: transform 0.2s;
+  }
+
+  @include m.is(expanded) {
+    @include m.bem($root-name, 'tool-call-chevron') {
+      transform: rotate(180deg);
+    }
+  }
+
+  @include m.e(tool-call-body) {
+    overflow: hidden;
+    // 缺省折叠（ExpandTransition 以内联 height 接管展开态），避免已完成消息初次渲染闪动
+    height: 0;
+  }
+
+  @include m.e(tool-call-body-inner) {
+    border-top: fn.use-var(border-muted);
+    padding: fn.use-var(gap, small);
   }
 
   @include m.e(tool-call-status) {
     flex-shrink: 0;
+    font-size: 13px;
 
     @include m.is(loading) {
       color: fn.use-var(color, primary);
@@ -144,8 +223,7 @@ $root-name: ai-chat;
   }
 
   @include m.e(tool-call-name) {
-    font-family: fn.use-var(font-family, code);
-    font-size: fn.use-var(font-size-main, small);
+    font-weight: 500;
     color: fn.use-var(text-color, title);
     flex-shrink: 0;
   }
@@ -155,31 +233,34 @@ $root-name: ai-chat;
     min-width: 0;
     @include m.ellipsis;
     color: fn.use-var(text-color, assist);
-    font-size: fn.use-var(font-size-main, small);
   }
 
   @include m.e(tool-call-confirm) {
     flex-shrink: 0;
     @include m.flex(flex, flex-start, center);
-    gap: fn.use-var(gap, small);
+    gap: 4px;
   }
 
   @include m.e(tool-call-section) {
-    font-size: fn.use-var(font-size-main, small);
     color: fn.use-var(text-color, assist);
-    margin: fn.use-var(gap, small) 0;
+    margin-bottom: 4px;
+
+    &:not(:first-child) {
+      margin-top: fn.use-var(gap, small);
+    }
   }
 
   @include m.e(tool-call-code) {
     margin: 0;
-    padding: fn.use-var(gap, small);
-    border-radius: fn.use-var(radius, default);
+    padding: 4px fn.use-var(gap, small);
+    border-radius: fn.use-var(radius, small);
     background-color: fn.use-var(bg-color, bottom);
     font-family: fn.use-var(font-family, code);
     font-size: fn.use-var(font-size-main, small);
+    line-height: 1.5;
     white-space: pre-wrap;
     word-break: break-all;
-    max-height: 240px;
+    max-height: 200px;
     overflow: auto;
   }
 
@@ -339,6 +420,72 @@ $root-name: ai-chat;
     color: fn.use-var(text-color, assist);
   }
 
+  // 待发送队列（生成中提交的消息在此排队）
+  @include m.e(queue) {
+    flex-shrink: 0;
+    margin: 0 fn.use-var(gap, default) 4px;
+    border: fn.use-var(border-muted);
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, top);
+    padding: 4px;
+    font-size: fn.use-var(font-size-main, small);
+  }
+
+  @include m.e(queue-head) {
+    padding: 2px 6px;
+    color: fn.use-var(text-color, assist);
+  }
+
+  @include m.e(queue-item) {
+    @include m.flex(flex, flex-start, center);
+    gap: 6px;
+    padding: 3px 6px;
+    border-radius: fn.use-var(radius, small);
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+    }
+  }
+
+  @include m.e(queue-text) {
+    flex: 1;
+    min-width: 0;
+    @include m.ellipsis;
+    color: fn.use-var(text-color, main);
+  }
+
+  @include m.e(queue-actions) {
+    flex-shrink: 0;
+    @include m.flex(flex, flex-start, center);
+    gap: 2px;
+  }
+
+  @include m.e(queue-action) {
+    @include m.flex(flex, flex-start, center);
+    gap: 2px;
+    border: none;
+    background: none;
+    padding: 1px 4px;
+    border-radius: fn.use-var(radius, small);
+    color: fn.use-var(text-color, assist);
+    font-size: inherit;
+    font-family: inherit;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
+
+    &:hover {
+      color: fn.use-var(color, primary);
+      background-color: fn.use-var(color, primary, 'light-9');
+    }
+
+    @include m.m(primary) {
+      color: fn.use-var(color, primary);
+    }
+  }
+
   // 输入区
   @include m.e(input-area) {
     flex-shrink: 0;
@@ -483,6 +630,15 @@ $root-name: ai-chat;
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+@keyframes u-ai-chat-shine {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
   }
 }
 

@@ -1,8 +1,10 @@
 import type { DeconstructValue } from '@veltra/utils'
+import type { Ref } from 'vue'
 
 import type {
   ChatAttachment,
   ChatMessage,
+  ChatQueuedMessage,
   ChatTool,
   ChatToolCall,
   ChatTransport
@@ -16,6 +18,11 @@ export interface AiChatProps {
   tools?: ChatTool[]
   /** 系统提示词 */
   systemPrompt?: string
+  /**
+   * 单次发送允许的最大生成轮次（一轮 = 一次模型生成 + 可能的工具执行），默认 10。
+   * 模型持续调用工具不收敛时，达到上限即停止继续请求并发出 finish，防止失控循环。
+   */
+  maxToolRounds?: number
   /** 消息列表，支持 v-model:messages 受控 */
   messages?: ChatMessage[]
   /**
@@ -48,7 +55,7 @@ export interface AiChatEmits {
   (e: 'update:reasoningLevel', reasoningLevel: string | undefined): void
   /** 用户发送消息 */
   (e: 'send', message: ChatMessage): void
-  /** 一轮对话完成（无更多工具调用） */
+  /** 一轮对话完成（无更多工具调用、命中 terminal 工具或达到 maxToolRounds 上限） */
   (e: 'finish', message: ChatMessage): void
   /** 对话出错 */
   (e: 'error', error: Error): void
@@ -57,14 +64,22 @@ export interface AiChatEmits {
 }
 
 export interface _AiChatExposed {
-  /** 发送一条用户消息 */
+  /** 发送一条用户消息（会话进行中时进入待发送队列） */
   send: (content: string, attachments?: ChatAttachment[]) => void
-  /** 中断当前生成 */
+  /** 中断当前生成（保留待发送队列） */
   abort: () => void
   /** 重新生成最后一条 assistant 回复 */
   regenerate: () => void
-  /** 清空消息 */
+  /** 清空消息与待发送队列 */
   clear: () => void
+  /** 待发送消息队列（会话进行中提交的消息按序排队，收尾后 FIFO 自动接续） */
+  queue: Ref<ChatQueuedMessage[]>
+  /** 立即执行队列中的某条：中断当前会话并插队为下一条 */
+  startQueued: (id: string) => void
+  /** 从队列移除某条（返回被移除项） */
+  removeQueued: (id: string) => ChatQueuedMessage | undefined
+  /** 向队列插入一条消息（beforeId 插到某条之前，缺省追加尾部；空闲时自动消耗队首） */
+  enqueue: (content: string, attachments?: ChatAttachment[], beforeId?: string) => ChatQueuedMessage
 }
 
 export type AiChatExposed = DeconstructValue<_AiChatExposed>

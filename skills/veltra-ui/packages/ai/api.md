@@ -39,7 +39,7 @@ const transport = createOpenAITransport({
 
 ### useChat
 
-与 UI 解耦的对话编排状态机（消息管理 + 工具调用循环），UAiChat 内部即基于它实现；需要无头（headless）对话或完全自定义 UI 时直接使用。`useChat` 会始终注入内置工具（如 `askQuestion`），与传入的 `tools` 合并（同名内置优先）。请求会携带当前 `model` / `reasoningLevel`。
+与 UI 解耦的对话编排状态机（消息管理 + 工具调用循环 + 待发送队列），UAiChat 内部即基于它实现；需要无头（headless）对话或完全自定义 UI 时直接使用。`useChat` 会始终注入内置工具（如 `askQuestion`），与传入的 `tools` 合并（同名内置优先）。请求会携带当前 `model` / `reasoningLevel`。会话进行中 `send` 的消息进入 `queue` 按 FIFO 自动接续，`startQueued(id)` 可中断插队。
 
 使用示例:
 
@@ -55,5 +55,6 @@ const chat = useChat({ props: { transport, tools, models: transport.models }, em
 
 chat.send('你好')
 // chat.messages.value / chat.model.value / chat.reasoningLevel.value / chat.running.value
+// chat.queue.value / chat.enqueue() / chat.startQueued(id) / chat.removeQueued(id)
 // chat.abort() / chat.regenerate() / chat.clear()
 ```

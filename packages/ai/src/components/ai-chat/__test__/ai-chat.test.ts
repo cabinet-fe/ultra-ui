@@ -112,11 +112,11 @@ describe('UAiChat', () => {
       expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
     })
 
-    const header = host.querySelector<HTMLElement>('.u-ai-chat__tool-call .u-collapse__header')!
+    const header = host.querySelector<HTMLElement>('.u-ai-chat__tool-call-header')!
     header.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     await nextTick()
 
-    const body = host.querySelector('.u-ai-chat__tool-call .u-collapse__content')
+    const body = host.querySelector('.u-ai-chat__tool-call .u-ai-chat__tool-call-body')
     expect(body?.textContent).toContain('"expression": "1+1"')
     expect(body?.textContent).toContain('"value": 2')
     unmount()
@@ -261,9 +261,9 @@ describe('UAiChat', () => {
     await vi.waitFor(() => {
       expect(host.querySelector('.u-ai-chat__tool-call.is-success.is-expanded')).toBeTruthy()
     })
-    expect(host.querySelector('.u-ai-chat__tool-call .u-collapse__content')?.textContent).toContain(
-      '"value": 2'
-    )
+    expect(
+      host.querySelector('.u-ai-chat__tool-call .u-ai-chat__tool-call-body')?.textContent
+    ).toContain('"value": 2')
     unmount()
   })
 
@@ -278,8 +278,8 @@ describe('UAiChat', () => {
     })
     await nextTick()
     expect(host.querySelector('.u-ai-chat__tool-call.is-expanded')).toBeFalsy()
-    const contentWrapper = host.querySelector('.u-ai-chat__tool-call .u-collapse__content-wrapper')
-    expect(contentWrapper?.getAttribute('aria-hidden')).toBe('true')
+    const body = host.querySelector('.u-ai-chat__tool-call .u-ai-chat__tool-call-body')
+    expect(body?.getAttribute('aria-hidden')).toBe('true')
     unmount()
   })
 
@@ -413,5 +413,97 @@ describe('UAiChat', () => {
 
     app.unmount()
     host.remove()
+  })
+
+  it('生成中提交的消息进入队列并渲染队列 UI', async () => {
+    const transport: ChatTransport = (req) => {
+      return new Promise<void>((resolve) => {
+        req.signal.addEventListener('abort', () => resolve(), { once: true })
+      })
+    }
+    const { host, chat, unmount } = mountAiChat({ transport })
+
+    chat.value?.send('第一条')
+    await nextTick()
+    chat.value?.send('第二条')
+    chat.value?.send('第三条')
+    await nextTick()
+
+    const items = [...host.querySelectorAll('.u-ai-chat__queue-text')].map((el) => el.textContent)
+    expect(items).toEqual(['第二条', '第三条'])
+    expect(host.querySelector('.u-ai-chat__queue-head')?.textContent).toContain('2')
+    unmount()
+  })
+
+  it('队列「立即开始」中断当前会话并插队执行', async () => {
+    const transport: ChatTransport = (req, handlers) => {
+      const lastUser = [...req.messages].reverse().find((m) => m.role === 'user')
+      if (lastUser?.content === '第一条') {
+        return new Promise<void>((resolve) => {
+          req.signal.addEventListener('abort', () => resolve(), { once: true })
+        })
+      }
+      handlers.onTextDelta(`回答:${lastUser?.content}`)
+    }
+    const { host, chat, unmount } = mountAiChat({ transport })
+
+    chat.value?.send('第一条')
+    await nextTick()
+    chat.value?.send('第二条')
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__queue-item')).toBeTruthy()
+    })
+
+    const startBtn = [...host.querySelectorAll<HTMLElement>('.u-ai-chat__queue-action')].find(
+      (btn) => btn.textContent?.includes('立即开始')
+    )!
+    startBtn.click()
+
+    await vi.waitFor(() => {
+      expect(host.querySelector('.md-stub')?.textContent).toContain('回答:第二条')
+    })
+    // 第一条被中断，队列已清空
+    expect(host.textContent).toContain('已停止生成')
+    expect(host.querySelector('.u-ai-chat__queue')).toBeFalsy()
+    unmount()
+  })
+
+  it('队列「编辑」取回输入框，重新提交后插回原位置', async () => {
+    const transport: ChatTransport = (req) => {
+      return new Promise<void>((resolve) => {
+        req.signal.addEventListener('abort', () => resolve(), { once: true })
+      })
+    }
+    const { host, chat, unmount } = mountAiChat({ transport })
+
+    chat.value?.send('第一条')
+    await nextTick()
+    chat.value?.send('A')
+    chat.value?.send('B')
+    await nextTick()
+
+    // 点击 A 的编辑按钮
+    const itemA = [...host.querySelectorAll<HTMLElement>('.u-ai-chat__queue-item')].find((el) =>
+      el.textContent?.includes('A')
+    )!
+    itemA.querySelector<HTMLElement>('[title="取回输入框编辑"]')!.click()
+    await nextTick()
+
+    const textarea = host.querySelector<HTMLTextAreaElement>('textarea.u-ai-chat__input')!
+    expect(textarea.value).toBe('A')
+    expect(
+      [...host.querySelectorAll('.u-ai-chat__queue-text')].map((el) => el.textContent)
+    ).toEqual(['B'])
+
+    // 修改内容并提交（仍在生成中）→ 回到队列原位置（B 之前）
+    textarea.value = 'A2'
+    textarea.dispatchEvent(new Event('input', { bubbles: true }))
+    textarea.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    await nextTick()
+
+    expect(
+      [...host.querySelectorAll('.u-ai-chat__queue-text')].map((el) => el.textContent)
+    ).toEqual(['A2', 'B'])
+    unmount()
   })
 })

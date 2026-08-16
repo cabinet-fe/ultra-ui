@@ -8,12 +8,8 @@
           :transport="transport"
           :tools="tools"
           :models="models"
-          welcome="试试：「算一下 128*46」「北京天气怎么样」「删除 /tmp/app.log」，也可以切换 V4 Flash / V4 Pro 与低 / 中 / 高推理等级；服务端密钥请在 playground/.env 配置 DEEPSEEK_API_KEY"
-        >
-          <template #tool-getWeather="{ toolCall }">
-            <div class="weather-result">🌤️ {{ toolCall.result }}</div>
-          </template>
-        </u-ai-chat>
+          welcome="试试：「算一下 128*46」「北京天气怎么样」（真实 Open-Meteo 数据，天气卡片即答复）「删除 /tmp/app.log」（需确认）；生成中继续提问会进入待发送队列，可插队立即开始或取回编辑；服务端密钥请在 playground/.env 配置 DEEPSEEK_API_KEY"
+        />
       </div>
       <div class="selection-hint">当前选择：{{ selectionSummary }}</div>
     </CustomCard>
@@ -27,6 +23,7 @@ import { Delete, Sun } from '@veltra/icons/normal'
 import { computed, ref } from 'vue'
 
 import CustomCard from '../desktop/card/custom-card.vue'
+import WeatherCard from './weather-card.vue'
 
 /**
  * 真实 DeepSeek 接入。
@@ -88,6 +85,48 @@ const selectionSummary = computed(() => {
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
+/** Open-Meteo Geocoding / Forecast 响应的最小形状 */
+interface GeocodingResponse {
+  results?: {
+    name: string
+    admin1?: string
+    country?: string
+    latitude: number
+    longitude: number
+  }[]
+}
+
+interface ForecastResponse {
+  current: {
+    temperature_2m: number
+    relative_humidity_2m: number
+    apparent_temperature: number
+    weather_code: number
+    wind_speed_10m: number
+  }
+  daily: { temperature_2m_max: number[]; temperature_2m_min: number[] }
+}
+
+/** WMO 天气码 → 中文描述 */
+function wmoWeatherText(code: number): string {
+  if (code === 0) return '晴'
+  if (code === 1) return '大部晴'
+  if (code === 2) return '局部多云'
+  if (code === 3) return '阴'
+  if (code === 45 || code === 48) return '雾'
+  if (code >= 51 && code <= 55) return '毛毛雨'
+  if (code === 56 || code === 57) return '冻毛毛雨'
+  if (code >= 61 && code <= 65) return ['小雨', '中雨', '大雨'][code - 61] ?? '雨'
+  if (code === 66 || code === 67) return '冻雨'
+  if (code >= 71 && code <= 75) return ['小雪', '中雪', '大雪'][code - 71] ?? '雪'
+  if (code === 77) return '雪粒'
+  if (code >= 80 && code <= 82) return '阵雨'
+  if (code === 85 || code === 86) return '阵雪'
+  if (code === 95) return '雷暴'
+  if (code === 96 || code === 99) return '雷暴伴冰雹'
+  return '未知天气'
+}
+
 const tools: ChatTool[] = [
   {
     name: 'calculate',
@@ -106,17 +145,44 @@ const tools: ChatTool[] = [
   },
   {
     name: 'getWeather',
-    description: '查询城市天气',
+    description: '查询城市实时天气，结果以天气卡片直接展示给用户，无需再用文字复述',
     label: '查天气',
     icon: Sun,
+    render: WeatherCard,
+    // 终结工具：卡片即最终答复，执行成功后不再回灌模型生成额外文字
+    terminal: true,
     parameters: {
       type: 'object',
       properties: { city: { type: 'string', description: '城市名' } },
       required: ['city']
     },
     execute: async ({ city }: { city: string }) => {
-      await sleep(600)
-      return { city, weather: '晴', temperature: '26°C' }
+      // 真实数据：Open-Meteo 地理编码 + 实时天气（免费公开 API，无需密钥）
+      const geo: GeocodingResponse = await fetch(
+        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=zh`
+      ).then((res) => res.json())
+      const place = geo.results?.[0]
+      if (!place) throw new Error(`未找到城市「${city}」，请换个写法`)
+
+      const forecast: ForecastResponse = await fetch(
+        `https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}` +
+          '&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m' +
+          '&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1'
+      ).then((res) => res.json())
+
+      const { current, daily } = forecast
+      return {
+        city: place.name,
+        region: place.admin1 ?? place.country ?? '',
+        weather: wmoWeatherText(current.weather_code),
+        code: current.weather_code,
+        temperature: Math.round(current.temperature_2m),
+        feelsLike: Math.round(current.apparent_temperature),
+        low: Math.round(daily.temperature_2m_min[0]!),
+        high: Math.round(daily.temperature_2m_max[0]!),
+        humidity: current.relative_humidity_2m,
+        wind: `${Math.round(current.wind_speed_10m)} km/h`
+      }
     }
   },
   {
@@ -131,6 +197,7 @@ const tools: ChatTool[] = [
       required: ['path']
     },
     execute: async ({ path }: { path: string }) => {
+      // 演示 needsConfirm 确认交互的模拟危险操作
       await sleep(800)
       return { deleted: path }
     }
@@ -151,10 +218,5 @@ const tools: ChatTool[] = [
   margin-top: 10px;
   font-size: 12px;
   color: var(--u-text-color-second);
-}
-
-.weather-result {
-  padding: 8px;
-  font-size: 13px;
 }
 </style>

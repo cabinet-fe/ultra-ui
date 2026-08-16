@@ -25,15 +25,19 @@
         :class="[cls.e('reasoning'), bem.is('expanded', reasoningExpanded)]"
       >
         <div :class="cls.e('reasoning-header')" @click="reasoningExpanded = !reasoningExpanded">
-          <UIcon :class="[cls.e('reasoning-icon'), isThinking && cls.is('loading')]">
+          <UIcon :class="[cls.e('reasoning-icon'), bem.is('loading', isThinking)]">
             <Loading v-if="isThinking" />
             <InfoCircle v-else />
           </UIcon>
-          <span>{{ isThinking ? '思考中…' : '思考过程' }}</span>
+          <span :class="[cls.e('reasoning-title'), isThinking && cls.e('shine')]">
+            {{ isThinking ? '思考中…' : '思考过程' }}
+          </span>
           <UIcon :class="cls.e('reasoning-chevron')"><ArrowDown /></UIcon>
         </div>
         <div v-show="reasoningExpanded" :class="cls.e('reasoning-content')">
-          {{ message.reasoning }}
+          <UScroll ref="reasoningScrollRef" container-style="max-height: 220px">
+            <div :class="cls.e('reasoning-text')">{{ message.reasoning }}</div>
+          </UScroll>
         </div>
       </div>
 
@@ -67,11 +71,11 @@
 </template>
 
 <script lang="ts" setup>
-import { UIcon } from '@veltra/desktop'
+import { UIcon, UScroll } from '@veltra/desktop'
 import { ArrowDown, InfoCircle, Loading, Refresh } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import MarkdownRender from 'markstream-vue'
-import { computed, inject, ref, watch } from 'vue'
+import { computed, inject, nextTick, ref, useTemplateRef, watch } from 'vue'
 
 import type { ChatMessage } from '../../chat/types'
 import { AiChatDIKey } from './di'
@@ -110,6 +114,18 @@ watch(
     } else if (status) {
       reasoningExpanded.value = false
     }
+  }
+)
+
+/** 思考内容滚动区：流式输出时吸附底部，始终展示最新思考 */
+const reasoningScrollRef = useTemplateRef<InstanceType<typeof UScroll>>('reasoningScrollRef')
+
+watch(
+  () => props.message.reasoning,
+  async () => {
+    if (!isThinking.value || !reasoningExpanded.value) return
+    await nextTick()
+    reasoningScrollRef.value?.scrollTo({ y: Number.MAX_SAFE_INTEGER })
   }
 )
 

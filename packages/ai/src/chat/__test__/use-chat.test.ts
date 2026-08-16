@@ -212,13 +212,59 @@ describe('useChat', () => {
     expect(chat.messages.value).toHaveLength(2)
   })
 
-  it('生成中忽略重复 send', async () => {
+  it('生成中 send 进入队列，会话结束后按 FIFO 自动接续', async () => {
     const emit = createEmit()
-    let resolveStream: (() => void) | undefined
+    const resolvers: (() => void)[] = []
 
-    const transport: ChatTransport = (req) => {
+    const transport: ChatTransport = (req, handlers) => {
+      const lastUser = [...req.messages].reverse().find((m) => m.role === 'user')
       return new Promise<void>((resolve) => {
-        resolveStream = resolve
+        resolvers.push(() => {
+          handlers.onTextDelta(`回复:${lastUser?.content}`)
+          resolve()
+        })
+      })
+    }
+
+    const chat = useChat({ props: { transport }, emit })
+    chat.send('第一条')
+    chat.send('第二条')
+    chat.send('第三条')
+
+    // 进行中提交的消息进入队列，不直接追加为用户消息
+    expect(chat.queue.value.map((q) => q.content)).toEqual(['第二条', '第三条'])
+    expect(chat.messages.value.filter((m) => m.role === 'user')).toHaveLength(1)
+
+    resolvers[0]!()
+    await vi.waitFor(() => {
+      expect(chat.messages.value.filter((m) => m.role === 'user')).toHaveLength(2)
+    })
+    expect(chat.queue.value.map((q) => q.content)).toEqual(['第三条'])
+    expect(chat.messages.value[1]?.content).toBe('回复:第一条')
+
+    resolvers[1]!()
+    await vi.waitFor(() => {
+      expect(chat.messages.value.filter((m) => m.role === 'user')).toHaveLength(3)
+    })
+
+    resolvers[2]!()
+    await vi.waitFor(() => {
+      expect(chat.running.value).toBe(false)
+    })
+    expect(chat.queue.value).toHaveLength(0)
+    expect(chat.messages.value.at(-1)?.content).toBe('回复:第三条')
+  })
+
+  it('startQueued 中断当前会话并插队执行该条，其余保持顺序', async () => {
+    const emit = createEmit()
+    const resolvers: (() => void)[] = []
+
+    const transport: ChatTransport = (req, handlers) => {
+      return new Promise<void>((resolve) => {
+        resolvers.push(() => {
+          handlers.onTextDelta('ok')
+          resolve()
+        })
         req.signal.addEventListener('abort', () => resolve(), { once: true })
       })
     }
@@ -226,22 +272,103 @@ describe('useChat', () => {
     const chat = useChat({ props: { transport }, emit })
     chat.send('第一条')
     chat.send('第二条')
-    resolveStream?.()
+    chat.send('第三条')
 
-    await waitFinish(emit)
-    expect(chat.messages.value.filter((m) => m.role === 'user')).toHaveLength(1)
+    const second = chat.queue.value[0]!
+    chat.startQueued(second.id)
+
+    // 当前会话中断，第二条插队开始执行，第三条仍在队列
+    await vi.waitFor(() => {
+      const users = chat.messages.value.filter((m) => m.role === 'user').map((m) => m.content)
+      expect(users).toEqual(['第一条', '第二条'])
+    })
+    expect(chat.messages.value[1]?.status).toBe('aborted')
+    expect(chat.queue.value.map((q) => q.content)).toEqual(['第三条'])
+
+    // 第二条完成后自动接续第三条
+    resolvers[1]!()
+    await vi.waitFor(() => {
+      expect(chat.messages.value.filter((m) => m.role === 'user')).toHaveLength(3)
+    })
   })
 
-  it('clear 清空消息', async () => {
+  it('手动 abort 后队列保留且不自动接续', async () => {
     const emit = createEmit()
-    const chat = useChat({ props: { transport: textTransport('x') }, emit })
 
-    chat.send('hi')
-    await waitFinish(emit)
+    const transport: ChatTransport = (req) => {
+      return new Promise<void>((resolve) => {
+        req.signal.addEventListener('abort', () => resolve(), { once: true })
+      })
+    }
 
+    const chat = useChat({ props: { transport }, emit })
+    chat.send('第一条')
+    chat.send('第二条')
+    chat.abort()
+
+    await vi.waitFor(() => {
+      expect(chat.running.value).toBe(false)
+    })
+    expect(chat.queue.value.map((q) => q.content)).toEqual(['第二条'])
+    expect(chat.messages.value.filter((m) => m.role === 'user')).toHaveLength(1)
+    expect(emit).not.toHaveBeenCalledWith('finish', expect.anything())
+  })
+
+  it('enqueue 支持 beforeId 锚点插入，保持前后顺序', async () => {
+    const emit = createEmit()
+
+    const transport: ChatTransport = (req) => {
+      return new Promise<void>((resolve) => {
+        req.signal.addEventListener('abort', () => resolve(), { once: true })
+      })
+    }
+
+    const chat = useChat({ props: { transport }, emit })
+    chat.send('第一条')
+    chat.enqueue('A')
+    chat.enqueue('C')
+    const cId = chat.queue.value[1]!.id
+    chat.enqueue('B', undefined, cId)
+
+    expect(chat.queue.value.map((q) => q.content)).toEqual(['A', 'B', 'C'])
+    chat.abort()
+  })
+
+  it('会话出错时不自动消耗队列', async () => {
+    const emit = createEmit()
+
+    const transport: ChatTransport = (_req, handlers) => {
+      handlers.onError?.(new Error('网络错误'))
+    }
+
+    const chat = useChat({ props: { transport }, emit })
+    chat.send('第一条')
+    chat.send('第二条')
+
+    await vi.waitFor(() => {
+      expect(emit).toHaveBeenCalledWith('error', expect.anything())
+    })
+    expect(chat.running.value).toBe(false)
+    expect(chat.queue.value.map((q) => q.content)).toEqual(['第二条'])
+  })
+
+  it('clear 同时清空待发送队列', async () => {
+    const emit = createEmit()
+
+    const transport: ChatTransport = (req) => {
+      return new Promise<void>((resolve) => {
+        req.signal.addEventListener('abort', () => resolve(), { once: true })
+      })
+    }
+
+    const chat = useChat({ props: { transport }, emit })
+    chat.send('第一条')
+    chat.send('第二条')
     chat.clear()
     await nextTick()
+
     expect(chat.messages.value).toHaveLength(0)
+    expect(chat.queue.value).toHaveLength(0)
   })
 
   it('请求携带 model 与 reasoningLevel', async () => {
@@ -313,5 +440,93 @@ describe('useChat', () => {
     chat.model.value = 'with-reason'
     await nextTick()
     expect(chat.reasoningLevel.value).toBe('low')
+  })
+
+  it('terminal 工具执行成功后结束对话，不再请求模型生成文字', async () => {
+    const emit = createEmit()
+    const requests: ChatTransportRequest[] = []
+
+    const transport: ChatTransport = (req, handlers) => {
+      requests.push(req)
+      handlers.onToolCall?.({ id: 'call-1', name: 'getWeather', arguments: '{"city":"北京"}' })
+    }
+
+    const tools: ChatTool[] = [
+      {
+        name: 'getWeather',
+        description: '查天气',
+        parameters: {},
+        terminal: true,
+        execute: () => ({ temperature: 26 })
+      }
+    ]
+
+    const chat = useChat({ props: { transport, tools }, emit })
+    chat.send('北京天气')
+    await waitFinish(emit)
+
+    // 只请求一轮；工具结果仍进入消息历史
+    expect(requests).toHaveLength(1)
+    const messages = chat.messages.value
+    expect(messages.map((m) => m.role)).toEqual(['user', 'assistant', 'tool'])
+    expect(messages[1].toolCalls?.[0]).toMatchObject({ status: 'success' })
+  })
+
+  it('terminal 工具执行失败时仍回灌模型', async () => {
+    const emit = createEmit()
+    let round = 0
+
+    const transport: ChatTransport = (_req, handlers) => {
+      round++
+      if (round === 1) {
+        handlers.onToolCall?.({ id: 'call-1', name: 'getWeather', arguments: '{}' })
+      } else {
+        handlers.onTextDelta('没查到，换个城市试试')
+      }
+    }
+
+    const tools: ChatTool[] = [
+      {
+        name: 'getWeather',
+        description: '查天气',
+        parameters: {},
+        terminal: true,
+        execute: () => {
+          throw new Error('城市不存在')
+        }
+      }
+    ]
+
+    const chat = useChat({ props: { transport, tools }, emit })
+    chat.send('火星天气')
+    await waitFinish(emit)
+
+    expect(round).toBe(2)
+    expect(chat.messages.value[1].toolCalls?.[0]).toMatchObject({ status: 'error' })
+    expect(chat.messages.value[3]).toMatchObject({
+      role: 'assistant',
+      content: '没查到，换个城市试试'
+    })
+  })
+
+  it('模型持续调用工具时达到 maxToolRounds 上限即停止', async () => {
+    const emit = createEmit()
+    const requests: ChatTransportRequest[] = []
+
+    const transport: ChatTransport = (req, handlers) => {
+      requests.push(req)
+      handlers.onToolCall?.({ id: `call-${requests.length}`, name: 'noop', arguments: '{}' })
+    }
+
+    const tools: ChatTool[] = [
+      { name: 'noop', description: '空操作', parameters: {}, execute: () => ({}) }
+    ]
+
+    const chat = useChat({ props: { transport, tools, maxToolRounds: 3 }, emit })
+    chat.send('hi')
+    await waitFinish(emit)
+
+    expect(requests).toHaveLength(3)
+    expect(chat.running.value).toBe(false)
   })
 })

@@ -3,7 +3,13 @@ import { reactive, ref, watch, type Ref } from 'vue'
 
 import { createBuiltinTools } from '../tools'
 import type { AiChatEmits, AiChatProps } from '../types'
-import type { ChatAttachment, ChatMessage, ChatTool, ChatToolCall } from './types'
+import type {
+  ChatAttachment,
+  ChatMessage,
+  ChatQueuedMessage,
+  ChatTool,
+  ChatToolCall
+} from './types'
 
 export interface UseChatOptions {
   props: AiChatProps
@@ -57,9 +63,16 @@ export function useChat(options: UseChatOptions) {
   /** 是否正在生成中（含工具执行与多轮循环） */
   const running = ref(false)
 
+  /** 待发送队列：会话进行中提交的新消息按序排队，收尾后先进先出自动接续 */
+  const queue = ref<ChatQueuedMessage[]>([])
+
   let abortController: AbortController | null = null
   /** needsConfirm 工具的挂起确认器，key 为 toolCallId */
   const confirmResolvers = new Map<string, (approved: boolean) => void>()
+  /** 当前会话是否自然完成（finish）；决定收尾后是否自动消耗队列 */
+  let finishedNaturally = false
+  /** startQueued 触发的中断需要在收尾后立即接续队首 */
+  let resumeAfterAbort = false
 
   /** 按当前模型校正推理等级（无 levels 则清空；值不合法则落到默认/首项） */
   const syncReasoningForModel = (modelId: string | undefined) => {
@@ -94,11 +107,67 @@ export function useChat(options: UseChatOptions) {
     emit('update:messages', messages.value.slice())
   }
 
-  /** 发送一条用户消息并启动对话循环 */
+  /**
+   * 发送一条用户消息。会话进行中时进入待发送队列（不丢失），
+   * 会话自然结束后按 FIFO 自动接续；空闲时立即开始新会话。
+   */
   const send = (content: string, attachments?: ChatAttachment[]) => {
-    if (running.value) return
     if (!content.trim() && !attachments?.length) return
+    enqueue(content, attachments)
+  }
 
+  /**
+   * 向队列插入一条消息；beforeId 指定插到某条之前（缺省追加到尾部）。
+   * 空闲时立即消耗队首（保持先来先发的合理顺序）。
+   */
+  const enqueue = (
+    content: string,
+    attachments?: ChatAttachment[],
+    beforeId?: string
+  ): ChatQueuedMessage => {
+    const item: ChatQueuedMessage = { id: uid(), content, attachments }
+    const anchorIndex = beforeId ? queue.value.findIndex((q) => q.id === beforeId) : -1
+    if (anchorIndex === -1) {
+      queue.value.push(item)
+    } else {
+      queue.value.splice(anchorIndex, 0, item)
+    }
+    if (!running.value) drainQueue()
+    return item
+  }
+
+  /** 消耗队首并开始新一轮会话 */
+  const drainQueue = () => {
+    const next = queue.value.shift()
+    if (next) startUserTurn(next.content, next.attachments)
+  }
+
+  /** 立即执行队列中的某条：中断当前会话，该条插队为下一条（其余保持原顺序） */
+  const startQueued = (id: string) => {
+    const item = removeQueued(id)
+    if (!item) return
+
+    if (!running.value) {
+      startUserTurn(item.content, item.attachments)
+      return
+    }
+
+    // 插回队首并中断当前会话，收尾逻辑会自动接上它
+    queue.value.unshift(item)
+    resumeAfterAbort = true
+    abort()
+  }
+
+  /** 从队列移除某条（返回被移除项；编辑场景由 UI 取回内容） */
+  const removeQueued = (id: string): ChatQueuedMessage | undefined => {
+    const index = queue.value.findIndex((item) => item.id === id)
+    if (index === -1) return undefined
+    const [item] = queue.value.splice(index, 1)
+    return item
+  }
+
+  /** 推送用户消息并启动对话循环 */
+  const startUserTurn = (content: string, attachments?: ChatAttachment[]) => {
     const message = reactive<ChatMessage>({ id: uid(), role: 'user', content, attachments })
     messages.value.push(message)
     snapshot()
@@ -162,20 +231,28 @@ export function useChat(options: UseChatOptions) {
     if (!props.transport) return
 
     running.value = true
+    finishedNaturally = false
     const controller = new AbortController()
     abortController = controller
 
     try {
-      await runRound(controller)
+      await runRound(controller, 0)
     } finally {
       running.value = false
       abortController = null
       snapshot()
+
+      // 队列接续：自然完成或 startQueued 中断插队时自动发下一条；
+      // 手动停止 / 出错时保留队列，交由用户处置
+      const shouldResume = finishedNaturally || resumeAfterAbort
+      finishedNaturally = false
+      resumeAfterAbort = false
+      if (shouldResume) drainQueue()
     }
   }
 
   /** 单轮生成；存在工具调用时执行后递归进入下一轮（递归避免 await-in-loop） */
-  const runRound = async (controller: AbortController): Promise<void> => {
+  const runRound = async (controller: AbortController, depth: number): Promise<void> => {
     if (!props.transport) return
     const { signal } = controller
     const tools = resolveTools(props.tools)
@@ -238,7 +315,7 @@ export function useChat(options: UseChatOptions) {
 
     const toolCalls = assistant.toolCalls ?? []
     if (!toolCalls.length) {
-      emit('finish', assistant)
+      completeAsFinish(assistant)
       return
     }
 
@@ -252,7 +329,28 @@ export function useChat(options: UseChatOptions) {
 
     if (signal.aborted) return
 
-    return runRound(controller)
+    // 终结工具执行成功：工具 UI 即最终答复，不再回灌模型生成文字
+    const hitTerminal = toolCalls.some(
+      (call) => call.status === 'success' && tools.some((t) => t.name === call.name && t.terminal)
+    )
+    if (hitTerminal) {
+      completeAsFinish(assistant)
+      return
+    }
+
+    // 达到最大轮次上限：停止继续请求，防止模型失控循环调用工具
+    if (depth + 1 >= (props.maxToolRounds ?? 10)) {
+      completeAsFinish(assistant)
+      return
+    }
+
+    return runRound(controller, depth + 1)
+  }
+
+  /** 标记本轮对话自然完成（收尾后据此自动消耗待发送队列） */
+  const completeAsFinish = (assistant: ChatMessage) => {
+    finishedNaturally = true
+    emit('finish', assistant)
   }
 
   /** 中断当前生成，挂起的工具确认按拒绝处理 */
@@ -284,9 +382,10 @@ export function useChat(options: UseChatOptions) {
     void runConversation()
   }
 
-  /** 清空消息，生成中则先中断 */
+  /** 清空消息与待发送队列，生成中则先中断 */
   const clear = () => {
     abort()
+    queue.value = []
     messages.value = []
     snapshot()
   }
@@ -296,10 +395,14 @@ export function useChat(options: UseChatOptions) {
     model,
     reasoningLevel,
     running,
+    queue,
     send,
     abort,
     regenerate,
     clear,
-    respondToolCall
+    respondToolCall,
+    enqueue,
+    startQueued,
+    removeQueued
   }
 }

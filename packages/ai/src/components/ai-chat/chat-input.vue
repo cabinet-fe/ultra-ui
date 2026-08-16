@@ -17,7 +17,7 @@
       ref="textareaRef"
       v-model="text"
       :class="cls.e('input')"
-      :placeholder="placeholder ?? '输入消息，Enter 发送，Shift + Enter 换行'"
+      :placeholder="placeholderText"
       rows="1"
       @keydown.enter.exact.prevent="handleSend"
       @input="autoResize"
@@ -41,15 +41,27 @@
           :models="models"
         />
 
-        <UButton v-if="running" size="small" type="danger" circle @click="emit('abort')">
-          <span :class="cls.e('input-stop')" />
-        </UButton>
+        <!-- 生成中：发送按钮变为入队（有内容时可点），旁边提供停止 -->
+        <template v-if="running">
+          <UButton
+            size="small"
+            type="primary"
+            circle
+            :disabled="!hasContent"
+            :icon="Up"
+            title="加入待发送队列"
+            @click="handleSend"
+          />
+          <UButton size="small" type="danger" circle title="停止生成" @click="emit('abort')">
+            <span :class="cls.e('input-stop')" />
+          </UButton>
+        </template>
         <UButton
           v-else
           size="small"
           type="primary"
           circle
-          :disabled="!canSend"
+          :disabled="!hasContent"
           :icon="Up"
           @click="handleSend"
         >
@@ -63,7 +75,7 @@
 import { UButton, UFilePicker, UIcon } from '@veltra/desktop'
 import { Attach, Close, Up } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
-import { computed, inject, ref, shallowRef } from 'vue'
+import { computed, inject, nextTick, ref, shallowRef } from 'vue'
 
 import type { ChatAttachment } from '../../chat/types'
 import type { ChatModelOption } from '../../providers'
@@ -73,7 +85,7 @@ import ModelPicker from './model-picker.vue'
 defineOptions({ name: 'UAiChatInput' })
 
 const props = defineProps<{
-  /** 是否生成中（显示停止按钮） */
+  /** 是否生成中（发送变为入队，并提供停止按钮） */
   running: boolean
   /** 可选模型列表；有值则显示选择器 */
   models?: ChatModelOption[]
@@ -100,8 +112,12 @@ const text = ref('')
 const attachments = ref<ChatAttachment[]>([])
 const textareaRef = shallowRef<HTMLTextAreaElement>()
 
-const canSend = computed(() => {
-  return !props.running && (!!text.value.trim() || attachments.value.length > 0)
+const hasContent = computed(() => !!text.value.trim() || attachments.value.length > 0)
+
+/** 生成中提示用户消息将进入队列 */
+const placeholderText = computed(() => {
+  if (props.running) return '会话进行中，发送的消息将进入待发送队列'
+  return props.placeholder ?? '输入消息，Enter 发送，Shift + Enter 换行'
 })
 
 /** 多行自适应高度，上限 160px */
@@ -113,12 +129,26 @@ const autoResize = () => {
 }
 
 const handleSend = () => {
-  if (!canSend.value) return
+  if (!hasContent.value) return
   emit('send', text.value.trim(), attachments.value)
   text.value = ''
   attachments.value = []
   autoResize()
 }
+
+/** 取回内容到输入框（队列编辑场景），并聚焦 */
+const setContent = (content: string) => {
+  text.value = content
+  void nextTick(() => {
+    autoResize()
+    textareaRef.value?.focus()
+  })
+}
+
+/** 读取当前输入框内容 */
+const getContent = () => text.value
+
+defineExpose({ setContent, getContent })
 
 /** 将拾取的文件转为 dataUrl 附件（超限忽略） */
 const handlePick = (files: File[]) => {

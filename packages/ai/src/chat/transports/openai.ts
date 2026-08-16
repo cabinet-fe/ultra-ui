@@ -135,8 +135,8 @@ async function parseSSE(
     if (Array.isArray(delta.tool_calls)) {
       for (const tc of delta.tool_calls) {
         const index: number = tc.index ?? 0
-        // index 回退说明新的一轮 tool_calls 开始，先把已累积的抛出去
-        if (index <= lastIndex && accumulated.size > 0) flushToolCalls()
+        // 同一调用的参数分片共享 index；index 变大才说明前一个调用已完整，先抛出去
+        if (index > lastIndex && accumulated.size > 0) flushToolCalls()
         lastIndex = Math.max(lastIndex, index)
 
         let call = accumulated.get(index)

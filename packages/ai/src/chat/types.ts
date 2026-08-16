@@ -57,6 +57,16 @@ export interface ChatMessage {
   status?: 'streaming' | 'done' | 'error' | 'aborted'
 }
 
+/** 队列中的待发送消息（会话进行中提交的消息按序排队） */
+export interface ChatQueuedMessage {
+  /** 队列项 id */
+  id: string
+  /** 消息内容 */
+  content: string
+  /** 携带的附件 */
+  attachments?: ChatAttachment[]
+}
+
 /** 工具执行上下文 */
 export interface ChatToolContext {
   /** 本次工具调用 */
@@ -89,6 +99,12 @@ export interface ChatTool<A = any> {
   render?: Component
   /** 执行完成后是否自动折叠。缺省：设置了 render 时为 false，否则为 true */
   autoCollapse?: boolean
+  /**
+   * 终结工具：执行成功后对话即结束，结果不再回灌模型生成额外文字（工具 UI 即最终答复）。
+   * 适合天气卡片这类"UI 即答案"的工具，需配合 render 或 tool-<name> 插槽提供完整结果 UI。
+   * 工具结果仍会记录到消息历史供后续轮次使用；执行失败/被拒绝时错误照常回灌模型。
+   */
+  terminal?: boolean
   /** 工具实现，返回值（或 Promise 返回值）会被 JSON 序列化后回灌给模型 */
   execute: (args: A, ctx: ChatToolContext) => unknown
 }

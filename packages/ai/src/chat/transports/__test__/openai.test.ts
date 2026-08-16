@@ -236,4 +236,82 @@ describe('createOpenAITransport', () => {
       expect.objectContaining({ message: expect.stringContaining('unknown') })
     )
   })
+
+  it('工具调用参数分片跨 chunk 累积为一次完整 onToolCall', async () => {
+    // 同一工具调用的多个分片共享 index:0，不得被误判为"新一轮"而提前 flush
+    const sse = String.raw`data: {"choices":[{"delta":{"tool_calls":[{"index":0,"id":"call_1","function":{"name":"calculate","arguments":""}}]}}]}
+
+data: {"choices":[{"delta":{"tool_calls":[{"index":0,"function":{"arguments":"{\"ex"}}]}}]}
+
+data: {"choices":[{"delta":{"tool_calls":[{"index":0,"function":{"arguments":"pression\":\"1+1\"}"}}]}}]}
+
+data: [DONE]
+`
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response(sse, { status: 200 }))
+    )
+
+    const transport = createOpenAITransport({
+      providers: [{ id: 'a', endpoint: 'https://a.example/chat', models: [{ id: 'm' }] }]
+    })
+    const handlers = baseHandlers()
+
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        signal: new AbortController().signal
+      },
+      handlers
+    )
+
+    expect(handlers.onToolCall).toHaveBeenCalledTimes(1)
+    expect(handlers.onToolCall).toHaveBeenCalledWith({
+      id: 'call_1',
+      name: 'calculate',
+      arguments: '{"expression":"1+1"}'
+    })
+  })
+
+  it('多个工具调用按 index 顺序完整抛出', async () => {
+    const sse = String.raw`data: {"choices":[{"delta":{"tool_calls":[{"index":0,"id":"call_1","function":{"name":"alpha","arguments":""}}]}}]}
+
+data: {"choices":[{"delta":{"tool_calls":[{"index":0,"function":{"arguments":"{\"x\":1}"}}]}}]}
+
+data: {"choices":[{"delta":{"tool_calls":[{"index":1,"id":"call_2","function":{"name":"beta","arguments":""}}]}}]}
+
+data: {"choices":[{"delta":{"tool_calls":[{"index":1,"function":{"arguments":"{\"y\":2}"}}]}}]}
+
+data: [DONE]
+`
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response(sse, { status: 200 }))
+    )
+
+    const transport = createOpenAITransport({
+      providers: [{ id: 'a', endpoint: 'https://a.example/chat', models: [{ id: 'm' }] }]
+    })
+    const handlers = baseHandlers()
+
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        signal: new AbortController().signal
+      },
+      handlers
+    )
+
+    expect(handlers.onToolCall).toHaveBeenCalledTimes(2)
+    expect(handlers.onToolCall).toHaveBeenNthCalledWith(1, {
+      id: 'call_1',
+      name: 'alpha',
+      arguments: '{"x":1}'
+    })
+    expect(handlers.onToolCall).toHaveBeenNthCalledWith(2, {
+      id: 'call_2',
+      name: 'beta',
+      arguments: '{"y":2}'
+    })
+  })
 })

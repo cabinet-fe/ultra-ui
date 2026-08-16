@@ -10,8 +10,8 @@ src/
 ├── style.ts                    # 全量样式入口
 ├── providers/                  # 模型提供商域（ChatProvider / ChatModel / ChatModelOption）
 ├── chat/                       # 对话核心域（UI 无关，不得 import 组件）
-│   ├── types.ts                # ChatMessage / ChatTool（含 icon/label/render/autoCollapse）/ ChatTransport 等核心类型
-│   ├── use-chat.ts             # useChat 状态机：消息管理 + 工具循环编排（runRound 递归）；透传 model / reasoningLevel
+│   ├── types.ts                # ChatMessage / ChatQueuedMessage / ChatTool（含 icon/label/render/autoCollapse/terminal）/ ChatTransport 等核心类型
+│   ├── use-chat.ts             # useChat 状态机：消息管理 + 工具循环编排（runRound 递归，受 maxToolRounds 限制，terminal 工具成功即终结）+ 待发送队列（FIFO 自动接续）；透传 model / reasoningLevel
 │   ├── transports/
 │   │   └── openai.ts           # createOpenAITransport（多 Provider，按 model 路由；OpenAI 兼容 SSE）
 │   └── __test__/
@@ -22,10 +22,11 @@ src/
 └── components/ai-chat/
     ├── ai-chat.vue             # UAiChat 主组件（useChat + provide DI；toolMap 含内置工具元信息）
     ├── message-list.vue        # UScroll 消息列表，流式吸底
-    ├── message-item.vue        # 单条消息（reasoning 折叠块 + MarkdownRender + 工具卡片）
-    ├── tool-call.vue           # Kimi 风格可折叠工具卡片（needsConfirm 确认；消费工具 icon/label/render/autoCollapse）
+    ├── message-item.vue        # 单条消息（reasoning 折叠块：UScroll 限高 220px + 思考中扫光；MarkdownRender + 工具卡片）
+    ├── tool-call.vue           # 自绘紧凑可折叠工具卡片（ExpandTransition；needsConfirm 确认；消费工具 icon/label/render/autoCollapse/terminal）
+    ├── queue-list.vue          # 待发送队列（生成中提交的消息排队；立即开始插队 / 取回编辑 / 移除）
     ├── ask-question.vue        # 提问工具的内联分页表单（由内置 askQuestion 工具挂到 render）
-    ├── chat-input.vue          # 输入区（多行自适应、图片附件、模型/推理选择、发送/停止）
+    ├── chat-input.vue          # 输入区（多行自适应、图片附件、模型/推理选择、生成中发送即入队 + 停止；暴露 setContent/getContent）
     ├── model-picker.vue        # 模型/推理选择器（UDropdown 面板：模型列表 + 思考强度内联展开）
     ├── di.ts                   # AiChatDIKey（cls + slots + tools 注入，支撑 tool-<name> 动态插槽与工具元信息）
     └── __test__/
@@ -41,6 +42,9 @@ src/
 - 跨包导入 desktop 组件用包名：`import { UButton } from '@veltra/desktop'`；样式副作用用子路径 `'@veltra/desktop/components/<dir>/style'`。
 - transport 不引入 ai-sdk 等第三方依赖，SSE 手写解析；新增协议在 `chat/transports/` 以独立 `createXxxTransport` 工厂导出。
 - 工具串行执行（保持结果消息与调用顺序一致）；循环/泵取一律用递归或 Promise 链，禁止 await-in-loop（lint 硬性约束，不允许 disable 注释）。
+- **工具循环收敛**：`maxToolRounds`（props，默认 10）限制单次发送的最大生成轮次，超限即 finish 停止；`ChatTool.terminal` 工具执行成功后对话终结（结果仍入消息历史，失败/拒绝照常回灌），配合 `render` 实现"工具 UI 即答复"。两类结束都会发出 `finish`。
+- **待发送队列**：会话进行中 `send` 的消息进入 `queue`（不再丢弃），自然完成（finish）后按 FIFO 自动接续；`startQueued(id)` 中断当前会话并插队执行（其余保持顺序）；`enqueue(content, attachments?, beforeId?)` 支持锚点插入（编辑回插保持前后项顺序）；手动 `abort()` / 出错时队列保留不自动接续；`clear()` 一并清空队列。编辑流由 ai-chat.vue 以后继 id 锚点实现（取回输入框 → 重新提交插回原位置）。
+- **扫光**：`u-ai-chat__shine`（纯 CSS，background-clip: text 扫光，含 prefers-reduced-motion 降级）为全局可复用类，随 `@veltra/ai/style` 加载；思考中与进行中的工具名自动应用。
 
 ## 依赖
 

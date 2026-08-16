@@ -150,6 +150,50 @@ const tools: ChatTool[] = [
 ]
 ```
 
+## 终结工具（terminal：工具 UI 即最终答复）
+
+`terminal: true` 的工具执行成功后对话即结束，结果不再回灌模型生成额外文字——天气卡片这类"UI 即答案"的场景用它。结果仍记录在消息历史中供后续轮次使用；执行失败/被拒绝时错误照常回灌模型。另可通过 `maxToolRounds`（默认 10）限制单次发送的最大生成轮次，防止模型失控循环调用工具。
+
+```ts
+const tools: ChatTool[] = [
+  {
+    name: 'getWeather',
+    description: '查询城市天气，结果以天气卡片直接展示，无需再用文字复述',
+    label: '查天气',
+    render: WeatherCard, // 卡片 body 渲染完整天气 UI（toolCall.result 为序列化 JSON）
+    terminal: true, // 执行成功即 finish，模型不再追加文字回答
+    parameters: {
+      type: 'object',
+      properties: { city: { type: 'string', description: '城市名' } },
+      required: ['city']
+    },
+    execute: async ({ city }: { city: string }) => {
+      const res = await fetch(`/api/weather?city=${city}`)
+      return res.json()
+    }
+  }
+]
+```
+
+## 待发送队列（生成中继续提问）
+
+会话进行中提交的消息自动进入待发送队列（不再被丢弃），会话自然结束后按 FIFO 自动接续。队列 UI 内置于输入区上方：「立即开始」中断当前会话并插队执行该条；「编辑」取回输入框，重新提交后插回原位置（保持前后项顺序）；手动停止 / 出错时队列保留不自动接续。无头场景可直接用 `useChat` 返回的 `queue` / `startQueued` / `removeQueued` / `enqueue` 自建队列 UI。
+
+```vue
+<script lang="ts" setup>
+import { useTemplateRef } from 'vue'
+import type { AiChatExposed } from '@veltra/ai'
+
+const chatRef = useTemplateRef<AiChatExposed>('chatRef')
+
+// 编程式操作队列
+chatRef.value?.queue // 当前待发送队列
+chatRef.value?.startQueued(id) // 中断当前会话，立即执行该条
+chatRef.value?.removeQueued(id) // 移出队列
+chatRef.value?.enqueue('插队问题', undefined, beforeId) // 锚点插入
+</script>
+```
+
 ## 自定义工具结果展示（插槽）
 
 通过 `tool-<name>` 插槽自定义某个工具的卡片内容（有结果时替换整个 body）；工具定义了 render 时 render 优先。
