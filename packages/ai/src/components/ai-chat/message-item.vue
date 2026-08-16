@@ -20,51 +20,55 @@
 
     <!-- assistant 消息 -->
     <template v-else>
-      <div
-        v-if="message.reasoning"
-        :class="[cls.e('reasoning'), bem.is('expanded', reasoningExpanded)]"
-      >
-        <div :class="cls.e('reasoning-header')" @click="reasoningExpanded = !reasoningExpanded">
-          <UIcon :class="[cls.e('reasoning-icon'), bem.is('loading', isThinking)]">
-            <Loading v-if="isThinking" />
-            <InfoCircle v-else />
-          </UIcon>
-          <span :class="[cls.e('reasoning-title'), isThinking && cls.e('shine')]">
-            {{ isThinking ? '思考中…' : '思考过程' }}
-          </span>
-          <UIcon :class="cls.e('reasoning-chevron')"><ArrowDown /></UIcon>
+      <UAiOrb :class="cls.e('avatar')" :size="30" :status="orbStatus" />
+
+      <div :class="cls.e('message-main')">
+        <div
+          v-if="message.reasoning"
+          :class="[cls.e('reasoning'), bem.is('expanded', reasoningExpanded)]"
+        >
+          <div :class="cls.e('reasoning-header')" @click="reasoningExpanded = !reasoningExpanded">
+            <UIcon :class="[cls.e('reasoning-icon'), bem.is('loading', isThinking)]">
+              <Loading v-if="isThinking" />
+              <InfoCircle v-else />
+            </UIcon>
+            <span :class="[cls.e('reasoning-title'), isThinking && cls.e('shine')]">
+              {{ isThinking ? '思考中…' : '思考过程' }}
+            </span>
+            <UIcon :class="cls.e('reasoning-chevron')"><ArrowDown /></UIcon>
+          </div>
+          <div v-show="reasoningExpanded" :class="cls.e('reasoning-content')">
+            <UScroll ref="reasoningScrollRef" container-style="max-height: 220px">
+              <div :class="cls.e('reasoning-text')">{{ message.reasoning }}</div>
+            </UScroll>
+          </div>
         </div>
-        <div v-show="reasoningExpanded" :class="cls.e('reasoning-content')">
-          <UScroll ref="reasoningScrollRef" container-style="max-height: 220px">
-            <div :class="cls.e('reasoning-text')">{{ message.reasoning }}</div>
-          </UScroll>
+
+        <MarkdownRender
+          v-if="message.content || isStreaming"
+          mode="chat"
+          :class="cls.e('message-content')"
+          :content="message.content"
+          :final="!isStreaming"
+          :fade="false"
+          v-bind="rendererProps"
+        />
+
+        <ToolCallCard
+          v-for="call in message.toolCalls ?? []"
+          :key="call.id"
+          :tool-call="call"
+          @respond="(approved) => emit('respond', call.id, approved)"
+        />
+
+        <div v-if="message.status === 'error'" :class="cls.e('message-status')">生成出错</div>
+        <div v-else-if="message.status === 'aborted'" :class="cls.e('message-status')">
+          已停止生成
         </div>
-      </div>
 
-      <MarkdownRender
-        v-if="message.content || isStreaming"
-        mode="chat"
-        :class="cls.e('message-content')"
-        :content="message.content"
-        :final="!isStreaming"
-        :fade="false"
-        v-bind="rendererProps"
-      />
-
-      <ToolCallCard
-        v-for="call in message.toolCalls ?? []"
-        :key="call.id"
-        :tool-call="call"
-        @respond="(approved) => emit('respond', call.id, approved)"
-      />
-
-      <div v-if="message.status === 'error'" :class="cls.e('message-status')">生成出错</div>
-      <div v-else-if="message.status === 'aborted'" :class="cls.e('message-status')">
-        已停止生成
-      </div>
-
-      <div v-if="showActions" :class="cls.e('message-actions')" @click="emit('regenerate')">
-        <UIcon title="重新生成"><Refresh /></UIcon>
+        <div v-if="showActions" :class="cls.e('message-actions')" @click="emit('regenerate')">
+          <UIcon title="重新生成"><Refresh /></UIcon>
+        </div>
       </div>
     </template>
   </div>
@@ -78,6 +82,8 @@ import MarkdownRender from 'markstream-vue'
 import { computed, inject, nextTick, ref, useTemplateRef, watch } from 'vue'
 
 import type { ChatMessage } from '../../chat/types'
+import type { AiOrbStatus } from '../../types/ai-orb'
+import UAiOrb from '../ai-orb/ai-orb.vue'
 import { AiChatDIKey } from './di'
 import ToolCallCard from './tool-call.vue'
 
@@ -102,6 +108,13 @@ const cls = di?.cls ?? bem('ai-chat')
 const isStreaming = computed(() => props.message.status === 'streaming')
 /** 思考中：流式且正文还未开始输出 */
 const isThinking = computed(() => isStreaming.value && !props.message.content)
+
+/** 头像球生命状态：思考 > 输出 > 平静 */
+const orbStatus = computed<AiOrbStatus>(() => {
+  if (isThinking.value) return 'thinking'
+  if (isStreaming.value) return 'speaking'
+  return 'idle'
+})
 
 const reasoningExpanded = ref(true)
 

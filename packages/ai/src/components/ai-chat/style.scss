@@ -25,6 +25,12 @@ $root-name: ai-chat;
     text-align: center;
   }
 
+  @include m.e(welcome-inner) {
+    @include m.flex(flex, center, center);
+    flex-direction: column;
+    gap: fn.use-var(gap, default);
+  }
+
   @include m.e(message) {
     padding: fn.use-var(gap, small) fn.use-var(gap, default);
 
@@ -32,6 +38,20 @@ $root-name: ai-chat;
       display: flex;
       justify-content: flex-end;
     }
+
+    @include m.m(assistant) {
+      display: flex;
+      gap: fn.use-var(gap, small);
+    }
+  }
+
+  @include m.e(avatar) {
+    margin-top: 2px;
+  }
+
+  @include m.e(message-main) {
+    flex: 1;
+    min-width: 0;
   }
 
   @include m.e(message-bubble) {

@@ -1,7 +1,12 @@
 <template>
   <UScroll :class="cls.e('list')" ref="scrollRef" always @scroll="handleScroll">
     <div v-if="!visibleMessages.length" :class="cls.e('welcome')">
-      <slot name="welcome">{{ welcome }}</slot>
+      <slot name="welcome">
+        <div :class="cls.e('welcome-inner')">
+          <UAiOrb :size="92" />
+          <div v-if="welcome" :class="cls.e('welcome-text')">{{ welcome }}</div>
+        </div>
+      </slot>
     </div>
 
     <MessageItem
@@ -23,6 +28,7 @@ import { bem } from '@veltra/utils'
 import { computed, inject, nextTick, ref, shallowRef, watch } from 'vue'
 
 import type { ChatMessage } from '../../chat/types'
+import UAiOrb from '../ai-orb/ai-orb.vue'
 import { AiChatDIKey } from './di'
 import MessageItem from './message-item.vue'
 

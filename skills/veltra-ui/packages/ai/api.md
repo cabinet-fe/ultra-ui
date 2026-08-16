@@ -58,3 +58,12 @@ chat.send('你好')
 // chat.queue.value / chat.enqueue() / chat.startQueued(id) / chat.removeQueued(id)
 // chat.abort() / chat.regenerate() / chat.clear()
 ```
+
+## UAiOrb - 活体球头像
+
+canvas 2D 实现的蓝色活体球（呼吸 / 弹跳 / 挤压拉伸 / 表面摆动），`UAiChat` 的 assistant 头像与默认欢迎区使用的就是它，也可单独使用。`status` 驱动动画节奏：`idle` 平静呼吸、`thinking` 快速弹跳、`speaking` 节律输出。基色自动取主题 `--u-color-primary`，性能上按可见性启停 rAF（IntersectionObserver），`prefers-reduced-motion` 下降级为静态帧。
+
+```vue
+<u-ai-orb :size="48" status="idle" />
+```
+

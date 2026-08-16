@@ -19,17 +19,23 @@ src/
 │   ├── index.ts                # createBuiltinTools 注册表（新增内置工具在此注册）
 │   └── ask-question/           # 提问工具实现（deferred 挂起等待用户作答）
 ├── types/ai-chat.ts            # 组件类型：AiChatProps / AiChatEmits / AiChatExposed
-└── components/ai-chat/
-    ├── ai-chat.vue             # UAiChat 主组件（useChat + provide DI；toolMap 含内置工具元信息）
-    ├── message-list.vue        # UScroll 消息列表，流式吸底
-    ├── message-item.vue        # 单条消息（reasoning 折叠块：UScroll 限高 220px + 思考中扫光；MarkdownRender + 工具卡片）
-    ├── tool-call.vue           # 自绘紧凑可折叠工具卡片（ExpandTransition；needsConfirm 确认；消费工具 icon/label/render/autoCollapse/terminal）
-    ├── queue-list.vue          # 待发送队列（生成中提交的消息排队；立即开始插队 / 取回编辑 / 移除）
-    ├── ask-question.vue        # 提问工具的内联分页表单（由内置 askQuestion 工具挂到 render）
-    ├── chat-input.vue          # 输入区（多行自适应、图片附件、模型/推理选择、生成中发送即入队 + 停止；暴露 setContent/getContent）
-    ├── model-picker.vue        # 模型/推理选择器（UDropdown 面板：模型列表 + 思考强度内联展开）
-    ├── di.ts                   # AiChatDIKey（cls + slots + tools 注入，支撑 tool-<name> 动态插槽与工具元信息）
-    └── __test__/
+├── types/ai-orb.ts             # AiOrbProps / AiOrbStatus
+└── components/
+    ├── ai-chat/
+    │   ├── ai-chat.vue         # UAiChat 主组件（useChat + provide DI；toolMap 含内置工具元信息）
+    │   ├── message-list.vue    # UScroll 消息列表，流式吸底；默认欢迎区为 UAiOrb + 欢迎语
+    │   ├── message-item.vue    # 单条消息（assistant 带 UAiOrb 头像：思考/输出/平静三态；reasoning 折叠块：UScroll 限高 220px + 思考中扫光；MarkdownRender + 工具卡片）
+    │   ├── tool-call.vue       # 自绘紧凑可折叠工具卡片（ExpandTransition；needsConfirm 确认；消费工具 icon/label/render/autoCollapse/terminal）
+    │   ├── queue-list.vue      # 待发送队列（生成中提交的消息排队；立即开始插队 / 取回编辑 / 移除）
+    │   ├── ask-question.vue    # 提问工具的内联分页表单（由内置 askQuestion 工具挂到 render）
+    │   ├── chat-input.vue      # 输入区（多行自适应、图片附件、模型/推理选择、生成中发送即入队 + 停止；暴露 setContent/getContent）
+    │   ├── model-picker.vue    # 模型/推理选择器（UDropdown 面板：模型列表 + 思考强度内联展开）
+    │   ├── di.ts               # AiChatDIKey（cls + slots + tools 注入，支撑 tool-<name> 动态插槽与工具元信息）
+    │   └── __test__/
+    └── ai-orb/                 # UAiOrb 活体球头像（独立于 ai-chat 可复用）
+        ├── orb-renderer.ts     # 纯 canvas 2D 渲染器：渐变缓存于单位球空间、可见性启停 rAF、reduced-motion 静态帧
+        ├── ai-orb.vue          # Vue 封装（size/status props，主题色 --u-color-primary 解析）
+        └── __test__/
 ```
 
 ## 约定

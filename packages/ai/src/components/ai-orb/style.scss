@@ -1,0 +1,8 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+
+$root-name: ai-orb;
+
+@include m.b($root-name) {
+  display: block;
+  flex-shrink: 0;
+}
