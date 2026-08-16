@@ -664,18 +664,14 @@ $root-name: ai-chat;
 
 // 模型选择面板经 teleport 挂载到 popper 容器，不处于 .u-ai-chat 内，需独立定义
 .u-#{$root-name}__model-panel {
-  display: flex;
-  align-items: stretch;
-  gap: 4px;
   padding: 4px;
   user-select: none;
 
   .u-#{$root-name}__model-panel-list {
-    flex: 1 0 220px;
     min-width: 0;
   }
 
-  .u-#{$root-name}__model-option {
+  .u-#{$root-name}__model-option-main {
     padding: 6px 8px;
     border-radius: calc(fn.use-var(radius, default) + 1px);
     cursor: pointer;
@@ -706,6 +702,10 @@ $root-name: ai-chat;
     flex-shrink: 0;
     font-size: 14px;
     color: fn.use-var(color, primary);
+
+    @include m.is(hidden) {
+      visibility: hidden;
+    }
   }
 
   .u-#{$root-name}__model-option-reasoning {
@@ -719,10 +719,23 @@ $root-name: ai-chat;
     color: fn.use-var(color, primary);
     font-size: fn.use-var(font-size-main, small);
     cursor: pointer;
-    transition: background-color 0.15s ease;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
 
     &:hover {
       background: fn.use-var(color, primary, 'light-7');
+    }
+  }
+
+  .u-#{$root-name}__model-option-reasoning-arrow {
+    font-size: 12px;
+    transition: transform 0.2s ease;
+  }
+
+  .u-#{$root-name}__model-option-reasoning.is-expanded {
+    .u-#{$root-name}__model-option-reasoning-arrow {
+      transform: rotate(180deg);
     }
   }
 
@@ -732,34 +745,34 @@ $root-name: ai-chat;
     color: fn.use-var(text-color, assist);
   }
 
-  .u-#{$root-name}__reasoning-panel {
-    flex-shrink: 0;
-    width: 136px;
-    padding-left: 8px;
-    border-left: 1px solid fn.use-var(border, color);
+  // 内联思考强度：grid 行高 0fr → 1fr 过渡，展开/收起平滑无跳变
+  .u-#{$root-name}__reasoning-levels {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+    @include m.is(expanded) {
+      grid-template-rows: 1fr;
+    }
   }
 
-  .u-#{$root-name}__reasoning-panel-title {
-    padding: 6px 8px;
-    color: fn.use-var(text-color, title);
-    font-weight: 500;
-  }
-
-  .u-#{$root-name}__reasoning-panel-model {
-    padding: 0 8px 6px;
-    font-size: fn.use-var(font-size-main, small);
-    color: fn.use-var(text-color, assist);
-    @include m.ellipsis;
+  .u-#{$root-name}__reasoning-levels-inner {
+    min-height: 0;
+    overflow: hidden;
   }
 
   .u-#{$root-name}__reasoning-option {
     @include m.flex(flex, space-between, center);
     gap: 12px;
-    padding: 6px 8px;
+    margin-left: 8px;
+    padding: 5px 8px;
     border-radius: calc(fn.use-var(radius, default) + 1px);
+    font-size: fn.use-var(font-size-main, small);
     color: fn.use-var(text-color, main);
     cursor: pointer;
-    transition: background-color 0.15s ease;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
 
     &:hover {
       background-color: var(--u-nav-hover-bg);

@@ -42,7 +42,7 @@ src/
 
 - **域划分**：`chat/` 负责类型、编排、transport；`useChat` 内部导入 `createBuiltinTools` 并始终注入内置工具（同名内置优先覆盖 `props.tools`），因此可依赖 `tools/`（进而依赖带 UI 的内置工具组件）。`components/` 只放 UI，通过 `chat/` 复用核心逻辑；`tools/` 是内置工具注册域；`providers/` 放模型/服务商配置类型（与 UI/编排解耦）。工厂函数不对外导出，包入口对 tools 用显式 `export type { AskQuestionItem, AskQuestionAnswer, AskQuestionArgs, AskQuestionResult }`（勿用 `export type *`，否则会泄漏 `createBuiltinTools` 的类型）。新能力开新顶层域目录，不要塞进组件目录。
 - **多 Provider transport**：`createOpenAITransport({ providers })` 按 `request.model` 查找 Provider 并 `fetch(endpoint)`；`endpoint` 可为完整 URL 或相对路径；模型 id 须跨 Provider 全局唯一；返回值挂载只读 `.models` / `.defaultModel` 供 UI 使用。旧的单字段 `{ endpoint, apiKey, model }` 已移除。
-- **模型/推理选择**：`AiChatProps.models` 有值时输入栏展示自定义模型选择器（`model-picker.vue`，基于 `UDropdown`）；当前模型声明了 `reasoningLevels` 时面板底部出现「思考强度」区。`ChatModel.description` 为面板副标题。选中值经 `ChatTransportRequest.model` / `reasoningLevel` 逐轮下发；切换模型时自动校正推理等级。
+- **模型/推理选择**：`AiChatProps.models` 有值时输入栏展示自定义模型选择器（`model-picker.vue`，基于 `UDropdown`）；模型行右侧的思考强度胶囊点击后在行内手风琴展开等级列表（grid 0fr→1fr 过渡，同时只展开一个），选中等级即同时切到该模型并关闭面板。`ChatModel.description` 为面板副标题。选中值经 `ChatTransportRequest.model` / `reasoningLevel` 逐轮下发；切换模型时自动校正推理等级。
 - 组件遵循 `packages/desktop/AGENTS.md` 的模式（BEM + token 样式、types 目录、style.ts 副作用入口）。
 - **新增/删除 `components/<name>/`（含 `index.ts` + `style.ts`）后，在仓库根运行 `bun run resolver:gen`** 刷新 `@veltra/vite` 组件表，否则宿主无法按需解析 `<u-ai-chat>` 这类标签。
 - 跨包导入 desktop 组件用包名：`import { UButton } from '@veltra/desktop'`；样式副作用用子路径 `'@veltra/desktop/components/<dir>/style'`。
