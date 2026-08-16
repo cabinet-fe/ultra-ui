@@ -5,24 +5,35 @@ import {
   type ResolveCellStyleHook
 } from '@veltra/sheet-core'
 
-import { formatBindingPlaceholder, inferReportPreset } from '../../report/binding'
+import { formatBindingPlaceholderParts, inferReportPreset } from '../../report/binding'
 import type { ReportBinding, ReportPreset } from '../../report/types'
 
-/** 绑定徽章预设配色（设计态富渲染徽章；canvas 绘制需具体色值，无法消费 CSS 变量） */
-export const REPORT_PRESET_BADGE_COLORS: Record<ReportPreset, { bg: string; fg: string }> = {
-  groupHeader: { bg: '#dbeafe', fg: '#1d4ed8' },
-  detail: { bg: '#d1fae5', fg: '#047857' },
-  subtotal: { bg: '#fef3c7', fg: '#b45309' },
-  grandTotal: { bg: '#ffe4e6', fg: '#be123c' },
-  cross: { bg: '#ede9fe', fg: '#6d28d9' }
+/**
+ * 绑定徽章预设配色（设计态富渲染徽章；canvas 绘制需具体色值，无法消费 CSS 变量）。
+ * `cell` 为整格极浅底色，`fg` 为强调色（聚合标签徽章底色）。
+ */
+export interface ReportBadgeColors {
+  cell: string
+  fg: string
 }
 
-const CUSTOM_PRESET_BADGE_COLOR = { bg: '#f3f4f6', fg: '#374151' }
+export const REPORT_PRESET_BADGE_COLORS: Record<ReportPreset, ReportBadgeColors> = {
+  groupHeader: { cell: '#eef4ff', fg: '#2f54eb' },
+  detail: { cell: '#effaf3', fg: '#1f9254' },
+  subtotal: { cell: '#fff7e6', fg: '#d46b08' },
+  grandTotal: { cell: '#fff1f0', fg: '#cf1322' },
+  cross: { cell: '#f8f5ff', fg: '#5f3dc4' }
+}
+
+const CUSTOM_PRESET_BADGE_COLOR: ReportBadgeColors = { cell: '#f7f8fa', fg: '#495057' }
+
+/** 徽章字段标签文字色（中性深灰，与强调色形成层次） */
+const BADGE_LABEL_COLOR = '#343a40'
 
 /** @deprecated 05 将更名 */
 export const REPORT_ROLE_BADGE_COLORS = REPORT_PRESET_BADGE_COLORS
 
-function resolveBadgeColor(binding: ReportBinding): { bg: string; fg: string } {
+function resolveBadgeColor(binding: ReportBinding): ReportBadgeColors {
   const preset = inferReportPreset(binding)
   return preset ? REPORT_PRESET_BADGE_COLORS[preset] : CUSTOM_PRESET_BADGE_COLOR
 }
@@ -35,14 +46,14 @@ export function createBindingBadgeStyleResolver(
     const binding = getBindingAt(addr)
     if (!binding) return base
 
-    const { bg } = resolveBadgeColor(binding)
-    return { ...base, fill: { color: bg } }
+    const { cell } = resolveBadgeColor(binding)
+    return { ...base, fill: { color: cell } }
   }
 }
 
 /**
  * 绑定格富渲染徽章（ADR-0004 `resolveCellRenderer` 首个消费者）：
- * 绑定单元格由纯文本占位符升级为带预设色彩的徽章（底色 + 占位文案），
+ * 绑定单元格渲染为左对齐徽章（强调色聚合标签 + 中性色字段标签），
  * 未绑定格返回 `undefined` 回落默认渲染。
  */
 export function createBindingBadgeRenderer(
@@ -54,19 +65,27 @@ export function createBindingBadgeRenderer(
     if (!binding) return undefined
 
     const { fg } = resolveBadgeColor(binding)
+    const { tag, label } = formatBindingPlaceholderParts(binding, resolveLabel)
+
     const rootContainer = new CustomLayout.Container({
       display: 'flex',
       flexDirection: 'row',
-      justifyContent: 'center',
+      justifyContent: 'flex-start',
       alignItems: 'center'
     })
+    // VTable 布局层 Tag 组件（vrender-components）与其 INode 声明存在结构性类型偏差，
+    // 运行时完全兼容（VTable 官方 customLayout 徽章用法即如此），此处仅收敛类型
+    const tagEl = new CustomLayout.Tag({
+      text: tag,
+      textStyle: { fontSize: 10, fontWeight: 600, fill: '#ffffff' },
+      panel: { visible: true, fill: fg, cornerRadius: 3 },
+      padding: [1, 4, 1, 4],
+      marginLeft: 6,
+      marginRight: 5
+    })
+    rootContainer.add(tagEl as unknown as Parameters<typeof rootContainer.add>[0])
     rootContainer.add(
-      new CustomLayout.Text({
-        text: formatBindingPlaceholder(binding, resolveLabel),
-        fontSize: 11,
-        fontWeight: 600,
-        fill: fg
-      })
+      new CustomLayout.Text({ text: label, fontSize: 11, fontWeight: 500, fill: BADGE_LABEL_COLOR })
     )
     return { rootContainer, renderDefault: false }
   }

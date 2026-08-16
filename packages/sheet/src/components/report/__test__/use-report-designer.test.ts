@@ -355,7 +355,7 @@ describe('useReportDesigner：角色徽章渲染 hook（ADR-0004 首个消费者
     expect(layout!.rootContainer.attribute.fill).toBeUndefined()
 
     const style = designer.resolveCellStyle({ row: 0, col: 0 }, undefined)
-    expect(style?.fill).toEqual({ color: '#d1fae5' })
+    expect(style?.fill).toEqual({ color: '#effaf3' })
 
     // 模型与快照无 renderer 残留
     expect(workbook.activeSheet.getCellData({ row: 0, col: 0 })).toBeUndefined()

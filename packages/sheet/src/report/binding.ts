@@ -444,13 +444,24 @@ function resolveFieldLabel(
   return field?.label ?? fieldName
 }
 
+/** Binding Placeholder 分段文案（聚合标签 + 字段标签），供徽章分色渲染等场景使用 */
+export function formatBindingPlaceholderParts(
+  binding: ReportBinding,
+  resolveLabel?: (datasetId: string, fieldName: string) => string
+): { tag: string; label: string } {
+  return {
+    tag: AGGREGATE_PLACEHOLDER_TAG[binding.aggregate],
+    label: resolveFieldLabel(binding.dataset, binding.field, resolveLabel)
+  }
+}
+
 /** Binding Placeholder 中文可读文案（如「分组 · 客户」） */
 export function formatBindingPlaceholder(
   binding: ReportBinding,
   resolveLabel?: (datasetId: string, fieldName: string) => string
 ): string {
-  const tag = AGGREGATE_PLACEHOLDER_TAG[binding.aggregate]
-  return `${tag} · ${resolveFieldLabel(binding.dataset, binding.field, resolveLabel)}`
+  const { tag, label } = formatBindingPlaceholderParts(binding, resolveLabel)
+  return `${tag} · ${label}`
 }
 
 /** 父格下拉候选文案（如「分组 · 客户 (A2)」） */
