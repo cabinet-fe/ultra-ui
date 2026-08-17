@@ -20,6 +20,15 @@ $root-name: ai-chat;
     flex-direction: column;
     align-items: center;
     padding: 0 fn.use-var(gap, default);
+
+    // 空会话：列表区与末尾占位各分一半剩余空间，输入区垂直居中，
+    // 欢迎区（orb + 快捷提问）贴于输入区上方并与之左对齐；有消息后自动回落到底部
+    @include m.is(empty) {
+      &::after {
+        content: '';
+        flex: 1;
+      }
+    }
   }
 
   // 拖拽中：固定光标，并禁用面板内容指针事件（避免 iframe 等内容吞掉 mousemove）
@@ -169,21 +178,29 @@ $root-name: ai-chat;
   @include m.e(list) {
     flex: 1;
     min-height: 0;
+
+    // 内容不足一屏时撑满滚动视口并按列排布，空会话欢迎区才能占满整列做底部对齐
+    .u-scroll__content {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
   }
 
+  // 欢迎区仅在空会话渲染：占满整列并底部对齐，使其贴在居中的输入区上方
   @include m.e(welcome) {
-    height: 100%;
-    @include m.flex(flex, center, center);
+    flex: 1;
+    @include m.flex(flex, center, flex-end);
     color: fn.use-var(text-color, assist);
-    padding: fn.use-var(gap, default);
+    padding: fn.use-var(gap, default) 0;
     text-align: center;
   }
 
   @include m.e(welcome-inner) {
-    // 固定锚点：球钉在左侧不动，文本气泡只向右延展（轮换 / 不同长度文案都不会让球瞬移）
+    // 固定锚点：球钉在左侧不动（与输入框左对齐），文本气泡只向右延展
+    //（轮换 / 不同长度文案都不会让球瞬移）
     @include m.flex(flex, flex-start, center);
     gap: fn.use-var(gap, default);
-    max-width: 480px;
     width: 100%;
   }
 
@@ -370,14 +387,9 @@ $root-name: ai-chat;
   }
 
   @include m.e(message-actions) {
-    margin-top: fn.use-var(gap, small);
-    color: fn.use-var(text-color, assist);
-    cursor: pointer;
-    display: inline-flex;
-
-    &:hover {
-      color: fn.use-var(color, primary);
-    }
+    display: flex;
+    flex-wrap: wrap;
+    gap: fn.use-var(gap, small);
   }
 
   // 思考过程

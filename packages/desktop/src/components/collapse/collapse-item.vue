@@ -19,7 +19,7 @@
       </slot>
     </div>
     <div ref="wrapperEl" :class="cls.e('content-wrapper')" :aria-hidden="!isActive">
-      <div :class="cls.e('content')">
+      <div v-if="contentMounted" :class="cls.e('content')">
         <slot />
       </div>
     </div>
@@ -30,7 +30,7 @@
 import { useModel } from '@veltra/compositions'
 import { ArrowDown } from '@veltra/icons/normal'
 import { bem, ExpandTransition } from '@veltra/utils'
-import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import type { CollapseItemEmits, CollapseItemProps } from '../../types'
 import { UIcon } from '../icon'
@@ -99,6 +99,9 @@ const handleClick = () => {
 
 const wrapperEl = ref<HTMLElement>()
 
+/** 内容是否挂载：destroyOnCollapse 时折叠态卸载内容 DOM，展开前重新挂载 */
+const contentMounted = ref(isActive.value || !props.destroyOnCollapse)
+
 onMounted(() => {
   if (context && props.value !== undefined) {
     context.register(props.value)
@@ -107,9 +110,22 @@ onMounted(() => {
   expandTransition.setExpanded(wrapperEl.value, isActive.value)
 })
 
-watch(isActive, (active) => {
+watch(isActive, async (active) => {
+  if (active) {
+    // 展开前先挂载内容，待 DOM 更新后再测量高度驱动展开动画
+    if (!contentMounted.value) {
+      contentMounted.value = true
+      await nextTick()
+    }
+    if (!wrapperEl.value || !isActive.value) return
+    expandTransition.expand(wrapperEl.value)
+    return
+  }
   if (!wrapperEl.value) return
-  active ? expandTransition.expand(wrapperEl.value) : expandTransition.collapse(wrapperEl.value)
+  // 收起动画落定后再卸载内容 DOM；期间被重新展开则不卸载
+  expandTransition.collapse(wrapperEl.value, () => {
+    if (!isActive.value && props.destroyOnCollapse) contentMounted.value = false
+  })
 })
 
 onBeforeUnmount(() => {

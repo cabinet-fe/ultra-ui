@@ -9,7 +9,7 @@
     @resize-start="resizing = true"
     @resize-end="resizing = false"
   >
-    <div :class="cls.e('main')">
+    <div :class="[cls.e('main'), bem.is('empty', isEmpty)]">
       <MessageList
         :messages="messages"
         :welcome="welcome"
@@ -111,6 +111,9 @@ const {
   startQueued,
   removeQueued
 } = useChat({ props, emit })
+
+/** 空会话（无可见消息）：输入区垂直居中，欢迎区（orb）贴于输入区上方并与之左对齐 */
+const isEmpty = computed(() => !messages.value.some((msg) => msg.role !== 'tool'))
 
 /** 所有 renderTo: 'panel' 的工具调用（按消息顺序，面板内容的来源） */
 const panelCalls = computed(() => {

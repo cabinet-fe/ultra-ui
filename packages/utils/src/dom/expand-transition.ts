@@ -93,12 +93,17 @@ export class ExpandTransition {
     this.resetTransitionStyles(el)
   }
 
-  expand(el: HTMLElement) {
-    this.animate(el, true)
+  /**
+   * 展开动画；`onEnd` 在动画落定（含无需动画直接落定）后调用，
+   * 被新的动画打断时不调用
+   */
+  expand(el: HTMLElement, onEnd?: () => void) {
+    this.animate(el, true, onEnd)
   }
 
-  collapse(el: HTMLElement) {
-    this.animate(el, false)
+  /** 收起动画；`onEnd` 语义同 `expand` */
+  collapse(el: HTMLElement, onEnd?: () => void) {
+    this.animate(el, false, onEnd)
   }
 
   setExpanded(el: HTMLElement, expanded: boolean) {
@@ -108,7 +113,7 @@ export class ExpandTransition {
     el.style.height = expanded ? 'auto' : '0px'
   }
 
-  private animate(el: HTMLElement, expanded: boolean) {
+  private animate(el: HTMLElement, expanded: boolean, onEnd?: () => void) {
     this.cancel(el)
 
     const startHeight = el.offsetHeight
@@ -117,6 +122,7 @@ export class ExpandTransition {
 
     if (startHeight === endHeight) {
       this.setExpanded(el, expanded)
+      onEnd?.()
       return
     }
 
@@ -139,21 +145,22 @@ export class ExpandTransition {
     })
 
     const cleanup = () => {
-      el.removeEventListener('transitionend', onEnd)
-      el.removeEventListener('transitioncancel', onEnd)
+      el.removeEventListener('transitionend', onEndHandler)
+      el.removeEventListener('transitioncancel', onEndHandler)
       this.cleanupMap.delete(el)
     }
 
-    const onEnd = (e: TransitionEvent) => {
+    const onEndHandler = (e: TransitionEvent) => {
       if (e.target !== el || e.propertyName !== 'height') return
       cleanup()
       this.resetTemporaryStyles(el)
       el.style.overflow = 'hidden'
       el.style.height = expanded ? 'auto' : '0px'
+      onEnd?.()
     }
 
-    el.addEventListener('transitionend', onEnd)
-    el.addEventListener('transitioncancel', onEnd)
+    el.addEventListener('transitionend', onEndHandler)
+    el.addEventListener('transitioncancel', onEndHandler)
     this.cleanupMap.set(el, cleanup)
   }
 

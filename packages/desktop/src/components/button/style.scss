@@ -47,17 +47,8 @@ $root-name: button;
   }
 
   @include m.is(plain) {
-    background-color: fn.use-var(bg-color, top);
-    border-color: fn.use-var(color, default, 'dark-1');
+    border-color: transparent;
     box-shadow: none;
-
-    &:hover {
-      border-color: fn.use-var(color, default, 'dark-1');
-    }
-
-    &.is-disabled {
-      color: fn.use-var(text-color, second);
-    }
   }
 
   // 尺寸
@@ -122,11 +113,8 @@ $root-name: button;
 
       @include m.is(text) {
         color: fn.use-var(color, $type);
+        border-color: transparent;
         box-shadow: none;
-
-        &:hover {
-          box-shadow: 0px 0px 0px 1px fn.use-var(color, $type);
-        }
 
         @include m.is-not(disabled, loading) {
           &:hover,
@@ -140,39 +128,30 @@ $root-name: button;
         }
 
         @include m.is(disabled, loading) {
+          border-color: transparent;
           color: fn.use-var(color, $type, 'light-5');
         }
       }
 
       @include m.is(plain) {
+        border-color: transparent;
         color: fn.component-var(button, #{$type}-plain-color, fn.use-var(color, $type));
         background-color: fn.component-var(
           button,
           #{$type}-plain-bg,
           fn.use-var(color, $type, light-9)
         );
-        border-color: fn.component-var(
-          button,
-          #{$type}-plain-border,
-          fn.use-var(color, $type, light-5)
-        );
-        box-shadow: none;
 
         @include m.is-not(disabled, loading) {
           &:hover {
-            color: fn.use-var(color, $type);
-            border-color: fn.use-var(color, $type);
-            background-color: fn.use-var(color, $type, light-9);
+            background-color: fn.use-var(color, $type, light-7);
           }
         }
 
-        &:active {
-          box-shadow: none;
-        }
-
-        &.is-disabled {
+        @include m.is(disabled, loading) {
+          border-color: transparent;
           color: fn.use-var(color, $type, light-5);
-          border-color: fn.use-var(color, $type, light-8);
+          background-color: fn.use-var(color, $type, light-9);
         }
       }
     }

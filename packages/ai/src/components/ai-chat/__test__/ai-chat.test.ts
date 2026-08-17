@@ -88,6 +88,37 @@ describe('UAiChat', () => {
     unmount()
   })
 
+  it('对话结束后展示复制与重新生成操作，复制写入剪贴板', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText } })
+
+    const transport: ChatTransport = (_req, handlers) => {
+      handlers.onTextDelta('可复制的内容')
+    }
+    const { host, chat, unmount } = mountAiChat({ transport })
+
+    chat.value?.send('你好')
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__message-actions')).toBeTruthy()
+    })
+
+    const actions = host.querySelectorAll('.u-ai-chat__message-actions .u-button')
+    expect(actions).toHaveLength(2)
+    expect(actions[0]?.classList.contains('is-circle')).toBe(true)
+    expect(actions[0]?.getAttribute('title')).toBe('复制')
+    expect(actions[1]?.classList.contains('is-circle')).toBe(true)
+    expect(actions[1]?.getAttribute('title')).toBe('重新生成')
+
+    actions[0]?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await vi.waitFor(() => {
+      expect(writeText).toHaveBeenCalledWith('可复制的内容')
+      expect(actions[0]?.getAttribute('title')).toBe('已复制')
+    })
+
+    vi.unstubAllGlobals()
+    unmount()
+  })
+
   it('工具调用渲染工具卡片，可展开查看结果', async () => {
     let round = 0
     const transport: ChatTransport = (_req, handlers) => {
@@ -282,6 +313,98 @@ describe('UAiChat', () => {
     expect(host.querySelector('.u-ai-chat__tool-call.is-active')).toBeFalsy()
     const body = host.querySelector('.u-ai-chat__tool-call .u-collapse__content-wrapper')
     expect(body?.getAttribute('aria-hidden')).toBe('true')
+    unmount()
+  })
+
+  it('终态工具卡片折叠后卸载内容 DOM，展开时重新挂载', async () => {
+    let round = 0
+    const transport: ChatTransport = (_req, handlers) => {
+      round++
+      if (round === 1) {
+        handlers.onToolCall?.({ id: 'c1', name: 'calculate', arguments: '{"expression":"1+1"}' })
+      } else {
+        handlers.onTextDelta('算好了')
+      }
+    }
+    const tools: ChatTool[] = [
+      { name: 'calculate', description: '计算', parameters: {}, execute: () => ({ value: 2 }) }
+    ]
+    const { host, chat, unmount } = mountAiChat({ transport, tools })
+
+    chat.value?.send('1+1 等于几')
+
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
+    })
+    await nextTick()
+
+    // 完成后自动折叠：内容 DOM 已卸载（减少内存与渲染成本），包装容器保留
+    expect(host.querySelector('.u-ai-chat__tool-call.is-active')).toBeFalsy()
+    expect(host.querySelector('.u-ai-chat__tool-call .u-collapse__content')).toBeFalsy()
+    expect(host.querySelector('.u-ai-chat__tool-call .u-collapse__content-wrapper')).toBeTruthy()
+
+    // 展开后内容重新挂载
+    const header = host.querySelector<HTMLElement>('.u-ai-chat__tool-call .u-collapse__header')!
+    header.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await nextTick()
+    await nextTick()
+    expect(host.querySelector('.u-ai-chat__tool-call .u-collapse__content')?.textContent).toContain(
+      '"value": 2'
+    )
+    unmount()
+  })
+
+  it('思考过程流式结束后自动折叠并卸载内容 DOM', async () => {
+    const transport: ChatTransport = (_req, handlers) => {
+      handlers.onReasoningDelta?.('先分析一下问题')
+      handlers.onTextDelta('答案')
+    }
+    const { host, chat, unmount } = mountAiChat({ transport })
+
+    chat.value?.send('hi')
+
+    await vi.waitFor(() => {
+      expect(host.querySelector('.md-stub')?.textContent).toContain('答案')
+    })
+
+    // 结束后自动折叠：头部保留，内容 DOM 完全卸载
+    expect(host.querySelector('.u-ai-chat__reasoning-title')?.textContent).toContain('思考过程')
+    expect(host.querySelector('.u-ai-chat__reasoning-content')).toBeFalsy()
+
+    // 展开后内容重新挂载
+    host.querySelector<HTMLElement>('.u-ai-chat__reasoning-header')!.click()
+    await nextTick()
+    expect(host.querySelector('.u-ai-chat__reasoning-text')?.textContent).toContain(
+      '先分析一下问题'
+    )
+    unmount()
+  })
+
+  it('流式期间用户上滚取消吸底，展示「最新消息」入口且不被后续输出重新吸附', async () => {
+    const transport: ChatTransport = async (_req, handlers) => {
+      handlers.onTextDelta('第一段')
+      await new Promise((resolve) => setTimeout(resolve, 30))
+      handlers.onTextDelta('第二段')
+    }
+    const { host, chat, unmount } = mountAiChat({ transport })
+
+    chat.value?.send('hi')
+    await vi.waitFor(() => {
+      expect(host.querySelector('.md-stub')?.textContent).toContain('第一段')
+    })
+    expect(host.querySelector('.u-ai-chat__to-latest')).toBeFalsy()
+
+    // 用户向上滚动 → 立即取消吸附，展示回底入口
+    const container = host.querySelector<HTMLElement>('.u-ai-chat__list .u-scroll__container')!
+    container.dispatchEvent(new WheelEvent('wheel', { deltaY: -120, bubbles: true }))
+    await nextTick()
+    expect(host.querySelector('.u-ai-chat__to-latest')).toBeTruthy()
+
+    // 后续流式输出不会把用户拉回底部（入口仍在）
+    await vi.waitFor(() => {
+      expect(host.querySelector('.md-stub')?.textContent).toContain('第二段')
+    })
+    expect(host.querySelector('.u-ai-chat__to-latest')).toBeTruthy()
     unmount()
   })
 

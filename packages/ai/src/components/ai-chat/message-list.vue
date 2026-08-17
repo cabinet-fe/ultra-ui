@@ -1,6 +1,12 @@
 <template>
   <div :class="cls.e('list-wrap')">
-    <UScroll :class="cls.e('list')" ref="scrollRef" always @scroll="handleScroll">
+    <UScroll
+      :class="cls.e('list')"
+      ref="scrollRef"
+      always
+      @scroll="handleScroll"
+      @wheel.passive="handleWheel"
+    >
       <div v-if="!visibleMessages.length" :class="cls.e('welcome')">
         <slot name="welcome">
           <div :class="cls.e('welcome-inner')">
@@ -251,6 +257,15 @@ const handleScroll = (position: Required<ScrollPosition>) => {
   lastScrollY = position.y
 }
 
+/**
+ * 用户向上滚动轮 = 明确的离开底部意图，立即取消吸附。
+ * 不能等 scroll 事件再按方向判断：流式期间每个 chunk 都会排一次吸底滚动，
+ * 滞后的 scrollTo 会把用户拉回底部并触发 atBottom 重新吸附，导致「上滚动不了」
+ */
+const handleWheel = (e: WheelEvent) => {
+  if (e.deltaY < 0) stickToBottom.value = false
+}
+
 /** 点击悬浮按钮：恢复吸附并回到底部 */
 const scrollToLatest = async () => {
   stickToBottom.value = true
@@ -277,6 +292,8 @@ watch(
     if (list[list.length - 1]?.role === 'user') stickToBottom.value = true
     if (!stickToBottom.value) return
     await nextTick()
+    // 等待 DOM 更新期间用户可能已上滚，滚动前重新确认吸附状态，避免把用户拉回底部
+    if (!stickToBottom.value) return
     scrollRef.value?.scrollTo({ y: Number.MAX_SAFE_INTEGER })
   }
 )
@@ -292,6 +309,7 @@ watch(
     clearTimeout(trailingScrollTimer)
     if (!stickToBottom.value) return
     await nextTick()
+    if (!stickToBottom.value) return
     scrollRef.value?.scrollTo({ y: Number.MAX_SAFE_INTEGER })
     trailingScrollTimer = setTimeout(() => {
       if (stickToBottom.value) scrollRef.value?.scrollTo({ y: Number.MAX_SAFE_INTEGER })

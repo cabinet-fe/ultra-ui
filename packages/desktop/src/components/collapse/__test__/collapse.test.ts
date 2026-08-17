@@ -353,3 +353,62 @@ describe('CollapseItem standalone', () => {
     }
   })
 })
+
+describe('CollapseItem destroyOnCollapse', () => {
+  it('keeps content mounted by default even when collapsed', async () => {
+    const { host, unmount } = mountStandaloneItem({ title: 'Standalone' })
+
+    try {
+      await nextTick()
+      expect(host.querySelector('.u-collapse__item.is-active')).toBeFalsy()
+      expect(host.querySelector('.u-collapse__content')?.textContent).toBe('Standalone content')
+    } finally {
+      unmount()
+    }
+  })
+
+  it('does not mount content when initially collapsed', async () => {
+    const { host, unmount } = mountStandaloneItem({ title: 'Standalone', destroyOnCollapse: true })
+
+    try {
+      await nextTick()
+      expect(host.querySelector('.u-collapse__item.is-active')).toBeFalsy()
+      // 内容未挂载，但包装容器仍在（承载高度动画与 aria-hidden）
+      expect(host.querySelector('.u-collapse__content')).toBeFalsy()
+      expect(host.querySelector('.u-collapse__content-wrapper')).toBeTruthy()
+    } finally {
+      unmount()
+    }
+  })
+
+  it('unmounts content after collapse and remounts on expand', async () => {
+    const { host, model, unmount } = mountStandaloneItem({
+      title: 'Standalone',
+      modelValue: true,
+      destroyOnCollapse: true
+    })
+
+    try {
+      await nextTick()
+      expect(host.querySelector('.u-collapse__content')?.textContent).toBe('Standalone content')
+
+      const header = host.querySelector('.u-collapse__header') as HTMLElement
+      header.click()
+      await nextTick()
+
+      expect(model.value).toBe(false)
+      // happy-dom 无真实布局，收起动画直接落定，内容随即卸载
+      await nextTick()
+      expect(host.querySelector('.u-collapse__content')).toBeFalsy()
+
+      header.click()
+      await nextTick()
+      await nextTick()
+
+      expect(model.value).toBe(true)
+      expect(host.querySelector('.u-collapse__content')?.textContent).toBe('Standalone content')
+    } finally {
+      unmount()
+    }
+  })
+})

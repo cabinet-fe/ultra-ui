@@ -2,6 +2,7 @@
   <UCollapseItem
     v-model="isExpanded"
     :class="[cls.e('tool-call'), bem.is(toolCall.status)]"
+    :destroy-on-collapse="destroyOnCollapse"
     @change="markUserToggled"
   >
     <template #header>
@@ -127,6 +128,17 @@ const statusClass = computed(() => STATUS_META[props.toolCall.status]?.class ?? 
 const isActive = computed(() => {
   return props.toolCall.status === 'pending' || props.toolCall.status === 'running'
 })
+
+/** 终态（成功/失败/拒绝） */
+const isSettled = computed(() => {
+  return ['success', 'error', 'rejected'].includes(props.toolCall.status)
+})
+
+/**
+ * 折叠后卸载内容 DOM：仅终态且非面板工具时启用——
+ * 进行中/待确认要保留内容状态（确认按钮、表单），面板工具的 body 是「查看面板」入口必须可达
+ */
+const destroyOnCollapse = computed(() => isSettled.value && !isPanelTool.value)
 
 /** 头部图标：工具自定义图标优先，缺省用状态图标 */
 const headerIcon = computed(() => tool.value?.icon ?? statusIcon.value)
