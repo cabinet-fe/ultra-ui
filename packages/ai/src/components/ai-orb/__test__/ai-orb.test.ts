@@ -11,6 +11,9 @@ function createStubContext() {
   const ctx = {
     calls,
     fillStyle: null as unknown,
+    strokeStyle: null as unknown,
+    lineWidth: 1,
+    lineCap: 'butt',
     globalAlpha: 1,
     globalCompositeOperation: 'source-over',
     save: () => {},
@@ -21,12 +24,14 @@ function createStubContext() {
     beginPath: () => {},
     moveTo: () => {},
     lineTo: () => {},
+    quadraticCurveTo: () => {},
     closePath: () => {},
     arc: () => {},
     ellipse: () => {},
     clearRect: () => {},
     fillRect: () => {},
     setTransform: () => {},
+    stroke: () => {},
     fill: () => {
       calls.fill++
     },

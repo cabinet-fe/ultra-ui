@@ -8,7 +8,12 @@
           :transport="transport"
           :tools="tools"
           :models="models"
-          welcome="试试：「算一下 128*46」「北京天气怎么样」（真实 Open-Meteo 数据，天气卡片即答复）「删除 /tmp/app.log」（需确认）；生成中继续提问会进入待发送队列，可插队立即开始或取回编辑；服务端密钥请在 playground/.env 配置 DEEPSEEK_API_KEY"
+          :welcome="[
+            '算一下 128*46',
+            '北京天气怎么样（真实 Open-Meteo 数据，天气卡片即答复）',
+            '删除 /tmp/app.log（需确认）',
+            '生成中继续提问会进入待发送队列，可插队立即开始或取回编辑'
+          ]"
         />
       </div>
       <div class="selection-hint">当前选择：{{ selectionSummary }}</div>

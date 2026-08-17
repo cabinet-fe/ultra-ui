@@ -23,8 +23,8 @@ src/
 └── components/
     ├── ai-chat/
     │   ├── ai-chat.vue         # UAiChat 主组件（useChat + provide DI；toolMap 含内置工具元信息）
-    │   ├── message-list.vue    # UScroll 消息列表，流式吸底；默认欢迎区为 UAiOrb + 欢迎语
-    │   ├── message-item.vue    # 单条消息（assistant 带 UAiOrb 头像：思考/输出/平静三态；reasoning 折叠块：UScroll 限高 220px + 思考中扫光；MarkdownRender + 工具卡片）
+    │   ├── message-list.vue    # UScroll 消息列表：方向感知的流式吸底（上翻取消吸附 +「最新消息」悬浮按钮一键回底）；生成中列表末尾展示 UAiOrb +「工作中…」；默认欢迎区为 UAiOrb + welcome 快捷提问卡片（点击即发送）
+    │   ├── message-item.vue    # 单条消息（reasoning 折叠块：UScroll 限高 220px + 思考中扫光 + ArrowRight 折叠箭头；MarkdownRender + 工具卡片）
     │   ├── tool-call.vue       # 自绘紧凑可折叠工具卡片（ExpandTransition；needsConfirm 确认；消费工具 icon/label/render/autoCollapse/terminal）
     │   ├── queue-list.vue      # 待发送队列（生成中提交的消息排队；立即开始插队 / 取回编辑 / 移除）
     │   ├── ask-question.vue    # 提问工具的内联分页表单（由内置 askQuestion 工具挂到 render）

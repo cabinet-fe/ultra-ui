@@ -19,7 +19,7 @@ vi.mock('markstream-vue', () => ({
 function mountAiChat(options: {
   transport: ChatTransport
   tools?: ChatTool[]
-  welcome?: string
+  welcome?: string | string[]
   models?: ChatModelOption[]
   model?: string
   reasoningLevel?: string
@@ -504,6 +504,51 @@ describe('UAiChat', () => {
     expect(
       [...host.querySelectorAll('.u-ai-chat__queue-text')].map((el) => el.textContent)
     ).toEqual(['A2', 'B'])
+    unmount()
+  })
+
+  it('welcome 数组渲染为可点击卡片，点击即发送', async () => {
+    const transport: ChatTransport = (_req, handlers) => {
+      handlers.onTextDelta('收到')
+    }
+    const { host, unmount } = mountAiChat({ transport, welcome: ['第一条建议', '第二条建议'] })
+    await nextTick()
+
+    const items = [...host.querySelectorAll<HTMLElement>('.u-ai-chat__welcome-item')]
+    expect(items.map((el) => el.textContent)).toEqual(['第一条建议', '第二条建议'])
+
+    items[0]!.click()
+    await nextTick()
+
+    // 点击后该文案作为用户消息发送，欢迎区消失
+    expect(host.querySelector('.u-ai-chat__welcome')).toBeFalsy()
+    const userBubble = host.querySelector('.u-ai-chat__message--user .u-ai-chat__message-bubble')
+    expect(userBubble?.textContent).toContain('第一条建议')
+    unmount()
+  })
+
+  it('生成中在列表底部展示「工作中…」指示，结束后消失', async () => {
+    const transport: ChatTransport = (req) => {
+      return new Promise<void>((resolve) => {
+        req.signal.addEventListener('abort', () => resolve(), { once: true })
+      })
+    }
+    const { host, chat, unmount } = mountAiChat({ transport })
+
+    expect(host.querySelector('.u-ai-chat__working')).toBeFalsy()
+
+    chat.value?.send('hi')
+    await nextTick()
+
+    const working = host.querySelector('.u-ai-chat__working')
+    expect(working).toBeTruthy()
+    expect(working?.textContent).toContain('工作中')
+    expect(working?.querySelector('canvas.u-ai-orb')).toBeTruthy()
+
+    chat.value?.abort()
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__working')).toBeFalsy()
+    })
     unmount()
   })
 })

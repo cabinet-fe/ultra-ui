@@ -3,9 +3,11 @@
     <MessageList
       :messages="messages"
       :welcome="welcome"
+      :running="running"
       :renderer-props="rendererProps"
       @respond="respondToolCall"
       @regenerate="regenerate"
+      @welcome-click="(text) => handleSend(text, [])"
     >
       <template v-if="$slots.welcome" #welcome>
         <slot name="welcome" />

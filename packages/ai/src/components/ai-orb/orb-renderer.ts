@@ -136,6 +136,8 @@ interface OrbGradients {
   base: CanvasGradient
   glow: CanvasGradient
   highlight: CanvasGradient
+  /** 面部（眼睛 / 嘴）用色 */
+  face: string
 }
 
 /**
@@ -159,6 +161,7 @@ export function createOrbRenderer(
 
   let target: OrbParams = { ...STATUS_PARAMS[options.status ?? 'idle'] }
   let current: OrbParams = { ...target }
+  let statusLabel: AiOrbStatus = options.status ?? 'idle'
 
   let rafId = 0
   let isRunning = false
@@ -167,6 +170,66 @@ export function createOrbRenderer(
   let lastFrameAt = 0
   /** 上一帧距当前的间隔（秒），截断防止后台切回时暴冲 */
   let frameDt = 1 / 60
+  /** 下一次眨眼时间点（秒，随机间隔 2.2s - 5.2s） */
+  let nextBlinkAt = 2 + Math.random() * 3
+  /** 眨眼起始时间，-1 表示未在眨眼 */
+  let blinkStart = -1
+
+  /** 眼睛睁开程度（1 全开 → 0.08 接近全闭），眨眼周期约 160ms */
+  function eyeOpenFactor(): number {
+    if (blinkStart < 0) return 1
+    const phase = (t - blinkStart) / 0.16
+    if (phase >= 1) {
+      blinkStart = -1
+      nextBlinkAt = t + 2.2 + Math.random() * 3
+      return 1
+    }
+    return 1 - Math.sin(Math.PI * phase) * 0.92
+  }
+
+  /** 面部：双眼（含高光点 + 眨眼 / 思考眯眼）+ 微笑 / 说话开合的嘴 */
+  function drawFace() {
+    if (!ctx || !gradients) return
+
+    if (blinkStart < 0 && t >= nextBlinkAt) blinkStart = t
+    const open = Math.max(eyeOpenFactor() * (statusLabel === 'thinking' ? 0.55 : 1), 0.08)
+
+    ctx.fillStyle = gradients.face
+    for (const side of [-1, 1]) {
+      ctx.save()
+      ctx.translate(side * 0.3, -0.12)
+      ctx.scale(1, open)
+      ctx.beginPath()
+      ctx.ellipse(0, 0, 0.11, 0.145, 0, 0, Math.PI * 2)
+      ctx.fill()
+      // 高光点只在眼睛基本睁开时绘制，避免眨眼半程闪出白点
+      if (open > 0.5) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)'
+        ctx.beginPath()
+        ctx.arc(-0.035, -0.05, 0.032, 0, Math.PI * 2)
+        ctx.fill()
+        ctx.fillStyle = gradients.face
+      }
+      ctx.restore()
+    }
+
+    if (statusLabel === 'speaking') {
+      // 说话：嘴随节奏开合
+      const mouthRy = 0.05 + 0.045 * Math.abs(Math.sin(6 * t))
+      ctx.beginPath()
+      ctx.ellipse(0, 0.2, 0.1, mouthRy, 0, 0, Math.PI * 2)
+      ctx.fill()
+    } else {
+      // 平静 / 思考：微笑弧线
+      ctx.strokeStyle = gradients.face
+      ctx.lineWidth = 0.05
+      ctx.lineCap = 'round'
+      ctx.beginPath()
+      ctx.moveTo(-0.15, 0.13)
+      ctx.quadraticCurveTo(0, 0.26, 0.15, 0.13)
+      ctx.stroke()
+    }
+  }
 
   function applySize() {
     dpr = Math.min(globalThis.devicePixelRatio || 1, 2)
@@ -198,7 +261,12 @@ export function createOrbRenderer(
     highlightGradient.addColorStop(0.55, 'rgba(255, 255, 255, 0.28)')
     highlightGradient.addColorStop(1, 'rgba(255, 255, 255, 0)')
 
-    return { base: baseGradient, glow: glowGradient, highlight: highlightGradient }
+    return {
+      base: baseGradient,
+      glow: glowGradient,
+      highlight: highlightGradient,
+      face: hslCss({ h: base.h, s: Math.min(base.s, 50), l: 16 })
+    }
   }
 
   /** 球面半径扰动：三层不同角频率的正弦叠加，营造有机感 */
@@ -264,6 +332,13 @@ export function createOrbRenderer(
     ctx.fill()
 
     ctx.restore()
+
+    // 面部在高光之后绘制（仍在球体局部空间，随挤压拉伸形变）
+    ctx.save()
+    ctx.translate(cx, cy)
+    ctx.scale(radius * scaleX, radius * scaleY)
+    drawFace()
+    ctx.restore()
   }
 
   function drawShadow(radius: number, heightFactor: number) {
@@ -319,6 +394,7 @@ export function createOrbRenderer(
     },
 
     setStatus(status: AiOrbStatus) {
+      statusLabel = status
       target = { ...STATUS_PARAMS[status] }
     },
 

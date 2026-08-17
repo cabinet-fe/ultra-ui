@@ -12,6 +12,14 @@ $root-name: ai-chat;
   font-size: fn.use-var(font-size-main, default);
   color: fn.use-var(text-color, main);
 
+  @include m.e(list-wrap) {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
   @include m.e(list) {
     flex: 1;
     min-height: 0;
@@ -29,6 +37,90 @@ $root-name: ai-chat;
     @include m.flex(flex, center, center);
     flex-direction: column;
     gap: fn.use-var(gap, default);
+    max-width: 420px;
+    width: 100%;
+  }
+
+  @include m.e(welcome-list) {
+    display: flex;
+    flex-direction: column;
+    gap: fn.use-var(gap, small);
+    width: 100%;
+  }
+
+  @include m.e(welcome-item) {
+    padding: fn.use-var(gap, small) fn.use-var(gap, default);
+    border: fn.use-var(border-muted);
+    border-radius: fn.use-var(radius, large);
+    background-color: fn.use-var(bg-color, top);
+    color: fn.use-var(text-color, second);
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+    transition:
+      border-color 0.15s ease,
+      color 0.15s ease,
+      background-color 0.15s ease;
+
+    &:hover {
+      border-color: fn.use-var(color, primary);
+      color: fn.use-var(color, primary);
+      background-color: fn.use-var(color, primary, 'light-9');
+    }
+  }
+
+  // 生成中的统一工作状态指示（列表末尾）
+  @include m.e(working) {
+    @include m.flex(flex, flex-start, center);
+    gap: fn.use-var(gap, small);
+    padding: 0 fn.use-var(gap, default) fn.use-var(gap, small);
+  }
+
+  @include m.e(working-text) {
+    font-size: fn.use-var(font-size-main, small);
+  }
+
+  // 「最新消息」悬浮按钮：上翻浏览时出现，点击回到底部
+  @include m.e(to-latest) {
+    position: absolute;
+    top: fn.use-var(gap, small);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    @include m.flex(flex, center, center);
+    gap: 4px;
+    padding: 4px 12px;
+    border: fn.use-var(border-muted);
+    border-radius: 999px;
+    background-color: fn.use-var(bg-color, top);
+    color: fn.use-var(text-color, second);
+    font-size: fn.use-var(font-size-main, small);
+    box-shadow: 0 2px 8px fn.color-a(shadow, 20, color);
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+
+    &:hover {
+      color: fn.use-var(color, primary);
+      border-color: fn.use-var(color, primary);
+    }
+  }
+
+  @include m.em(to-latest, 'fade-enter-active') {
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+
+  @include m.em(to-latest, 'fade-leave-active') {
+    transition: opacity 0.1s ease, transform 0.1s ease;
+  }
+
+  @include m.em(to-latest, 'fade-enter-from') {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px);
+  }
+
+  @include m.em(to-latest, 'fade-leave-to') {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px);
   }
 
   @include m.e(message) {
@@ -38,20 +130,6 @@ $root-name: ai-chat;
       display: flex;
       justify-content: flex-end;
     }
-
-    @include m.m(assistant) {
-      display: flex;
-      gap: fn.use-var(gap, small);
-    }
-  }
-
-  @include m.e(avatar) {
-    margin-top: 2px;
-  }
-
-  @include m.e(message-main) {
-    flex: 1;
-    min-width: 0;
   }
 
   @include m.e(message-bubble) {
@@ -83,7 +161,33 @@ $root-name: ai-chat;
   }
 
   @include m.e(message-content) {
-    line-height: 1.65;
+    font-size: 13px;
+    line-height: 1.6;
+    // 压缩 markstream 流式排版：正文字号 / 行高 / 标题档位 / 块级间距（变量见 markstream-vue 样式表）
+    --ms-text-body: 13px;
+    --ms-leading-body: 1.6;
+    --ms-text-h1: 1.55em;
+    --ms-text-h2: 1.35em;
+    --ms-text-h3: 1.15em;
+    --ms-text-h4: 1em;
+    --ms-text-h5: 1em;
+    --ms-text-h6: 1em;
+    --ms-flow-heading-1-mt: 0.9em;
+    --ms-flow-heading-1-mb: 0.35em;
+    --ms-flow-heading-2-mt: 0.8em;
+    --ms-flow-heading-2-mb: 0.3em;
+    --ms-flow-heading-3-mt: 0.7em;
+    --ms-flow-heading-3-mb: 0.25em;
+    --ms-flow-paragraph-y: 0.55em;
+    --ms-flow-list-y: 0.45em;
+    --ms-flow-list-item-y: 0.08em;
+    --ms-flow-list-indent: 1.3em;
+    --ms-flow-codeblock-y: 0.7em;
+    --ms-flow-blockquote-y: 0.55em;
+    --ms-flow-table-y: 0.7em;
+    --ms-flow-hr-y: 0.9em;
+    --ms-flow-admonition-y: 0.7em;
+    --ms-flow-diagram-y: 0.7em;
   }
 
   @include m.e(message-status) {
@@ -110,7 +214,7 @@ $root-name: ai-chat;
 
     @include m.is(expanded) {
       @include m.bem($root-name, 'reasoning-chevron') {
-        transform: rotate(180deg);
+        transform: rotate(90deg);
       }
     }
   }
@@ -226,7 +330,6 @@ $root-name: ai-chat;
 
     @include m.is(loading) {
       color: fn.use-var(color, primary);
-      animation: u-ai-chat-rotate 1s linear infinite;
     }
 
     @include m.is(warning) {
@@ -641,15 +744,6 @@ $root-name: ai-chat;
     color: fn.use-var(text-color, white);
     cursor: pointer;
     font-size: 12px;
-  }
-}
-
-@keyframes u-ai-chat-rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
   }
 }
 

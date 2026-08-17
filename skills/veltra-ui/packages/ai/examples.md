@@ -8,7 +8,7 @@
     :transport="transport"
     :models="transport.models"
     :model="transport.defaultModel"
-    welcome="有什么可以帮你？"
+    :welcome="['有什么可以帮你？', '给我讲个笑话']"
   />
 </template>
 
