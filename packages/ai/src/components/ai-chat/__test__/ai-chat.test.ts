@@ -65,6 +65,8 @@ describe('UAiChat', () => {
     const { host, unmount } = mountAiChat({ transport: () => {}, welcome: '有什么可以帮你？' })
 
     expect(host.querySelector('.u-ai-chat__welcome')?.textContent).toContain('有什么可以帮你？')
+    const orb = host.querySelector('.u-ai-chat__welcome canvas.u-ai-orb') as HTMLElement | null
+    expect(orb?.style.width).toBe('64px')
     unmount()
   })
 
@@ -301,6 +303,196 @@ describe('UAiChat', () => {
     unmount()
   })
 
+  /** 渲染 toolCall.arguments 的自定义视图桩（区分多次调用） */
+  const createArgsView = (className: string) =>
+    defineComponent({
+      props: { toolCall: { type: Object as PropType<ChatToolCall>, required: true } },
+      setup(props) {
+        return () => h('div', { class: className }, `args:${props.toolCall.arguments}`)
+      }
+    })
+
+  /** 第一轮发起 openPage 工具调用，第二轮输出文本 */
+  const createPageTransport = (calls: { id: string; arguments: string }[] = []) => {
+    let round = 0
+    const transport: ChatTransport = (_req, handlers) => {
+      round++
+      if (round === 1) {
+        const list = calls.length ? calls : [{ id: 'c1', arguments: '{"page":"form"}' }]
+        for (const call of list) {
+          handlers.onToolCall?.({ ...call, name: 'openPage' })
+        }
+      } else {
+        handlers.onTextDelta('已在右侧打开')
+      }
+    }
+    return transport
+  }
+
+  const pageTool = (extra: Partial<ChatTool> = {}): ChatTool => ({
+    name: 'openPage',
+    label: '后台页面',
+    description: '打开后台页面',
+    parameters: {},
+    execute: () => ({ opened: true }),
+    ...extra
+  })
+
+  it('renderTo: panel 工具在右侧面板渲染，卡片 body 仅提供查看入口', async () => {
+    const tools = [pageTool({ render: createResultView('page-view'), renderTo: 'panel' })]
+    const { host, chat, unmount } = mountAiChat({ transport: createPageTransport(), tools })
+
+    chat.value?.send('打开表单页')
+
+    // 面板自动打开，render 组件挂在面板中，面板标题取工具 label
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__panel .page-view')).toBeTruthy()
+    })
+    expect(host.querySelector('.u-ai-chat__panel-title')?.textContent).toBe('后台页面')
+
+    // 卡片 body 不渲染 render 组件，仅提供「查看面板」入口
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
+    })
+    expect(host.querySelector('.u-ai-chat__tool-call .page-view')).toBeFalsy()
+    expect(host.querySelector('.u-ai-chat__tool-call-panel-entry')).toBeTruthy()
+    unmount()
+  })
+
+  it('面板可关闭，点击工具卡片入口重新打开', async () => {
+    const tools = [pageTool({ render: createResultView('page-view'), renderTo: 'panel' })]
+    const { host, chat, unmount } = mountAiChat({ transport: createPageTransport(), tools })
+
+    chat.value?.send('打开表单页')
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__panel')).toBeTruthy()
+    })
+
+    host.querySelector<HTMLElement>('.u-ai-chat__panel-close')!.click()
+    await nextTick()
+    expect(host.querySelector('.u-ai-chat__panel')).toBeFalsy()
+
+    const entryBtn = [
+      ...host.querySelectorAll<HTMLElement>('.u-ai-chat__tool-call-panel-entry button')
+    ].find((btn) => btn.textContent?.includes('查看面板'))!
+    entryBtn.click()
+    await nextTick()
+    expect(host.querySelector('.u-ai-chat__panel .page-view')).toBeTruthy()
+    unmount()
+  })
+
+  it('新的面板调用自动聚焦，卡片入口可切回历史调用', async () => {
+    const tools = [pageTool({ render: createArgsView('page-view'), renderTo: 'panel' })]
+    const transport = createPageTransport([
+      { id: 'c1', arguments: '{"page":"form"}' },
+      { id: 'c2', arguments: '{"page":"list"}' }
+    ])
+    const { host, chat, unmount } = mountAiChat({ transport, tools })
+
+    chat.value?.send('打开表单页和列表页')
+
+    // 自动聚焦最近一次面板调用（list）
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__panel .page-view')?.textContent).toContain('list')
+    })
+
+    // 点击第一张卡片的「查看面板」切回 form
+    const firstCard = host.querySelectorAll<HTMLElement>('.u-ai-chat__tool-call')[0]!
+    const entryBtn = [
+      ...firstCard.querySelectorAll<HTMLElement>('.u-ai-chat__tool-call-panel-entry button')
+    ].find((btn) => btn.textContent?.includes('查看面板'))!
+    entryBtn.click()
+    await nextTick()
+    expect(host.querySelector('.u-ai-chat__panel .page-view')?.textContent).toContain('form')
+    unmount()
+  })
+
+  it('面板与会话区经 ULayout 列轨分隔并渲染拖拽手柄', async () => {
+    const tools = [pageTool({ render: createResultView('page-view'), renderTo: 'panel' })]
+    const { host, chat, unmount } = mountAiChat({ transport: createPageTransport(), tools })
+
+    chat.value?.send('打开表单页')
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__panel')).toBeTruthy()
+    })
+
+    // 面板默认宽：容器宽度未知（测试环境 clientWidth 为 0）时回退 420px，ULayout 渲染列间拖拽手柄
+    const layout = host.querySelector<HTMLElement>('.u-ai-chat')!
+    expect(layout.style.gridTemplateColumns).toBe('1fr 420px')
+    expect(host.querySelector('.u-layout__resizer')).toBeTruthy()
+
+    // 面板关闭后回到单列，手柄移除
+    host.querySelector<HTMLElement>('.u-ai-chat__panel-close')!.click()
+    await vi.waitFor(() => {
+      expect(layout.style.gridTemplateColumns).toBe('1fr')
+      expect(host.querySelector('.u-layout__resizer')).toBeFalsy()
+    })
+    unmount()
+  })
+
+  it('面板工具可通过 panelWidth 指定默认宽度', async () => {
+    const tools = [
+      pageTool({ render: createResultView('page-view'), renderTo: 'panel', panelWidth: 480 })
+    ]
+    const { host, chat, unmount } = mountAiChat({ transport: createPageTransport(), tools })
+
+    chat.value?.send('打开表单页')
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__panel')).toBeTruthy()
+    })
+    const layout = host.querySelector<HTMLElement>('.u-ai-chat')!
+    expect(layout.style.gridTemplateColumns).toBe('1fr 480px')
+    unmount()
+  })
+
+  it('不同工具面板切换时应用各自的 panelWidth', async () => {
+    const reportTool: ChatTool = {
+      name: 'openReport',
+      label: '报表页面',
+      description: '打开报表',
+      parameters: {},
+      render: createResultView('report-view'),
+      renderTo: 'panel',
+      panelWidth: 640,
+      execute: () => ({ opened: true })
+    }
+    const tools = [
+      pageTool({ render: createResultView('page-view'), renderTo: 'panel', panelWidth: 480 }),
+      reportTool
+    ]
+    let round = 0
+    const transport: ChatTransport = (_req, handlers) => {
+      round++
+      if (round === 1) {
+        handlers.onToolCall?.({ id: 'c1', name: 'openPage', arguments: '{"page":"form"}' })
+        handlers.onToolCall?.({ id: 'c2', name: 'openReport', arguments: '{}' })
+      } else {
+        handlers.onTextDelta('已打开')
+      }
+    }
+    const { host, chat, unmount } = mountAiChat({ transport, tools })
+
+    chat.value?.send('打开表单页和报表页')
+
+    // 自动聚焦最近一次调用（openReport → 640px）
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__panel .report-view')).toBeTruthy()
+    })
+    const layout = host.querySelector<HTMLElement>('.u-ai-chat')!
+    expect(layout.style.gridTemplateColumns).toBe('1fr 640px')
+
+    // 点击 openPage 卡片的「查看面板」→ 切换并应用 480px
+    const firstCard = host.querySelectorAll<HTMLElement>('.u-ai-chat__tool-call')[0]!
+    const entryBtn = [
+      ...firstCard.querySelectorAll<HTMLElement>('.u-ai-chat__tool-call-panel-entry button')
+    ].find((btn) => btn.textContent?.includes('查看面板'))!
+    entryBtn.click()
+    await nextTick()
+    expect(host.querySelector('.u-ai-chat__panel .page-view')).toBeTruthy()
+    expect(layout.style.gridTemplateColumns).toBe('1fr 480px')
+    unmount()
+  })
+
   it('输入区使用原生 textarea 与 UFilePicker', () => {
     const { host, unmount } = mountAiChat({ transport: () => {} })
 
@@ -309,7 +501,7 @@ describe('UAiChat', () => {
     unmount()
   })
 
-  it('生成中输入区显示停止按钮', async () => {
+  it('生成中空输入显示停止，有内容则显示入队发送', async () => {
     const transport: ChatTransport = (req) => {
       return new Promise<void>((resolve) => {
         req.signal.addEventListener('abort', () => resolve(), { once: true })
@@ -320,6 +512,29 @@ describe('UAiChat', () => {
     chat.value?.send('hi')
     await nextTick()
 
+    const actionButtons = () => host.querySelectorAll('.u-ai-chat__input-toolbar-right > .u-button')
+
+    expect(host.querySelector('.u-ai-chat__input-stop')).toBeTruthy()
+    expect(actionButtons()).toHaveLength(1)
+
+    const textarea = host.querySelector<HTMLTextAreaElement>('textarea.u-ai-chat__input')!
+    textarea.value = '下一条'
+    textarea.dispatchEvent(new Event('input'))
+    await nextTick()
+
+    expect(host.querySelector('.u-ai-chat__input-stop')).toBeFalsy()
+    expect(actionButtons()).toHaveLength(1)
+    const sendBtn = actionButtons()[0]!
+    expect(sendBtn.classList.contains('is-disabled')).toBe(false)
+    expect(sendBtn.getAttribute('title')).toBe('加入待发送队列')
+
+    sendBtn.click()
+    await nextTick()
+
+    expect(
+      [...host.querySelectorAll('.u-ai-chat__queue-text')].map((el) => el.textContent)
+    ).toEqual(['下一条'])
+    expect(textarea.value).toBe('')
     expect(host.querySelector('.u-ai-chat__input-stop')).toBeTruthy()
 
     chat.value?.abort()
@@ -507,74 +722,150 @@ describe('UAiChat', () => {
     unmount()
   })
 
-  it('welcome 数组渲染为可点击卡片，点击即发送', async () => {
+  it('welcome 逐条展示：点击文案发送，点击球立即换下一条', async () => {
     const transport: ChatTransport = (_req, handlers) => {
       handlers.onTextDelta('收到')
     }
     const { host, unmount } = mountAiChat({ transport, welcome: ['第一条建议', '第二条建议'] })
     await nextTick()
 
-    const items = [...host.querySelectorAll<HTMLElement>('.u-ai-chat__welcome-item')]
-    expect(items.map((el) => el.textContent)).toEqual(['第一条建议', '第二条建议'])
+    // 一次只展示一条（初始为第一条）
+    const items = host.querySelectorAll<HTMLElement>('.u-ai-chat__welcome-item')
+    expect(items.length).toBe(1)
+    expect(items[0]!.textContent).toBe('第一条建议')
 
-    items[0]!.click()
+    // 点击球 → 不等自动轮换，立即换下一条
+    host.querySelector<HTMLElement>('.u-ai-chat__welcome canvas.u-ai-orb')!.click()
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__welcome-item')?.textContent).toBe('第二条建议')
+    })
+
+    // 点击文案 → 以当前展示的文案发送，欢迎区消失
+    host.querySelector<HTMLElement>('.u-ai-chat__welcome-item')!.click()
     await nextTick()
 
-    // 点击后该文案作为用户消息发送，欢迎区消失
     expect(host.querySelector('.u-ai-chat__welcome')).toBeFalsy()
     const userBubble = host.querySelector('.u-ai-chat__message--user .u-ai-chat__message-bubble')
-    expect(userBubble?.textContent).toContain('第一条建议')
+    expect(userBubble?.textContent).toContain('第二条建议')
     unmount()
   })
 
-  it('生成中在列表底部展示「工作中…」指示，结束后消失', async () => {
-    const transport: ChatTransport = (req) => {
-      return new Promise<void>((resolve) => {
-        req.signal.addEventListener('abort', () => resolve(), { once: true })
-      })
+  it('welcome 多条时按 4s 间隔自动轮换', async () => {
+    vi.useFakeTimers()
+    try {
+      const transport: ChatTransport = (_req, handlers) => {
+        handlers.onTextDelta('收到')
+      }
+      const { host, unmount } = mountAiChat({ transport, welcome: ['第一条建议', '第二条建议'] })
+      await nextTick()
+      expect(host.querySelector('.u-ai-chat__welcome-item')?.textContent).toBe('第一条建议')
+
+      await vi.advanceTimersByTimeAsync(4100)
+      expect(host.querySelector('.u-ai-chat__welcome-item')?.textContent).toBe('第二条建议')
+
+      // 轮换回第一条
+      await vi.advanceTimersByTimeAsync(4100)
+      expect(host.querySelector('.u-ai-chat__welcome-item')?.textContent).toBe('第一条建议')
+      unmount()
+    } finally {
+      vi.useRealTimers()
     }
-    const { host, chat, unmount } = mountAiChat({ transport })
+  })
 
-    expect(host.querySelector('.u-ai-chat__working')).toBeFalsy()
+  it('生成中在列表底部展示「工作中…」指示，中断后停留再消失', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'] })
+    try {
+      const transport: ChatTransport = (req) => {
+        return new Promise<void>((resolve) => {
+          req.signal.addEventListener('abort', () => resolve(), { once: true })
+        })
+      }
+      const { host, chat, unmount } = mountAiChat({ transport })
 
-    chat.value?.send('hi')
-    await nextTick()
-
-    const working = host.querySelector('.u-ai-chat__working')
-    expect(working).toBeTruthy()
-    expect(working?.textContent).toContain('工作中')
-    expect(working?.querySelector('canvas.u-ai-orb')).toBeTruthy()
-
-    chat.value?.abort()
-    await vi.waitFor(() => {
       expect(host.querySelector('.u-ai-chat__working')).toBeFalsy()
-    })
-    unmount()
+
+      chat.value?.send('hi')
+      await nextTick()
+
+      const working = host.querySelector('.u-ai-chat__working')
+      expect(working).toBeTruthy()
+      expect(working?.textContent).toContain('工作中')
+      const orb = working?.querySelector('canvas.u-ai-orb') as HTMLElement | null
+      expect(orb).toBeTruthy()
+      expect(orb?.style.width).toBe('48px')
+
+      chat.value?.abort()
+      await nextTick()
+      await Promise.resolve()
+      await nextTick()
+
+      const lingering = host.querySelector('.u-ai-chat__working')
+      expect(lingering).toBeTruthy()
+      expect(lingering?.textContent).not.toContain('工作中')
+
+      await vi.advanceTimersByTimeAsync(2499)
+      expect(host.querySelector('.u-ai-chat__working')).toBeTruthy()
+      await vi.advanceTimersByTimeAsync(2)
+      await nextTick()
+      expect(host.querySelector('.u-ai-chat__working')).toBeFalsy()
+      unmount()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
-  it('回答完毕后工作球短暂停留播收尾表情再消失', async () => {
-    const transport: ChatTransport = (_req, handlers) => {
-      handlers.onTextDelta('完成')
-    }
-    const { host, chat, unmount } = mountAiChat({ transport })
+  it('回答完毕后工作球停留约 2.5s 再消失', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'] })
+    try {
+      const transport: ChatTransport = (_req, handlers) => {
+        handlers.onTextDelta('完成')
+      }
+      const { host, chat, unmount } = mountAiChat({ transport })
 
-    chat.value?.send('hi')
+      chat.value?.send('hi')
+      await nextTick()
+      await Promise.resolve()
+      await nextTick()
 
-    // 同步 transport 立即完成：进入收尾停留（工作球仍在，「工作中…」文案已隐藏）
-    await vi.waitFor(() => {
       const working = host.querySelector('.u-ai-chat__working')
       expect(working).toBeTruthy()
       expect(working?.textContent).not.toContain('工作中')
       expect(working?.querySelector('canvas.u-ai-orb')).toBeTruthy()
-    })
 
-    // 收尾表情播完（约 1.7s）后隐藏
-    await vi.waitFor(
-      () => {
-        expect(host.querySelector('.u-ai-chat__working')).toBeFalsy()
-      },
-      { timeout: 3000 }
-    )
-    unmount()
+      await vi.advanceTimersByTimeAsync(2499)
+      expect(host.querySelector('.u-ai-chat__working')).toBeTruthy()
+      await vi.advanceTimersByTimeAsync(2)
+      await nextTick()
+      expect(host.querySelector('.u-ai-chat__working')).toBeFalsy()
+      unmount()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('对话出错后工作球停留约 2.5s 再消失', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'] })
+    try {
+      const transport: ChatTransport = (_req, handlers) => {
+        handlers.onError?.(new Error('网络错误'))
+      }
+      const { host, chat, unmount } = mountAiChat({ transport })
+
+      chat.value?.send('hi')
+      await nextTick()
+      await Promise.resolve()
+      await nextTick()
+
+      const working = host.querySelector('.u-ai-chat__working')
+      expect(working).toBeTruthy()
+      expect(working?.textContent).not.toContain('工作中')
+
+      await vi.advanceTimersByTimeAsync(2500)
+      await nextTick()
+      expect(host.querySelector('.u-ai-chat__working')).toBeFalsy()
+      unmount()
+    } finally {
+      vi.useRealTimers()
+    }
   })
 })

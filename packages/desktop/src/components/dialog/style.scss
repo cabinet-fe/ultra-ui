@@ -76,10 +76,14 @@ $root-name: dialog;
   }
 
   @include m.e(body) {
-    padding: 8px;
     background-color: fn.use-var(bg-color, top);
     backdrop-filter: fn.use-var(bg-filter);
     flex-grow: 1;
+
+    // padding 加在滚动内容而非 body 本身：u-scroll 的 overflow 会裁切子元素 box-shadow
+    @include m.bem(scroll, content) {
+      padding: 8px;
+    }
   }
 
   @include m.e(footer) {

@@ -16,6 +16,11 @@ export interface AiOrbProps {
   status?: AiOrbStatus
 }
 
+export interface AiOrbEmits {
+  /** 点击球体（球体同时会做 Q 弹反馈） */
+  (e: 'click'): void
+}
+
 export interface AiOrbExposed {
   /** 播放一次瞬时表情（对应阶段性事件，如回答完毕 / 工具调用失败） */
   react: (reaction: AiOrbReaction) => void

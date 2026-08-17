@@ -7,7 +7,7 @@
       @item-click="handleClick"
     ></u-dual-nav>
 
-    <u-scroll tag="div" class="main">
+    <div class="main">
       <div class="content-backdrop" aria-hidden="true"></div>
 
       <div class="control-bar">
@@ -27,7 +27,7 @@
         </u-button>
       </div>
 
-      <div class="content-container">
+      <u-scroll class="content-container">
         <router-view v-slot="{ Component }">
           <transition name="page-fade" mode="out-in">
             <div class="router-content">
@@ -35,8 +35,8 @@
             </div>
           </transition>
         </router-view>
-      </div>
-    </u-scroll>
+      </u-scroll>
+    </div>
 
     <!-- <u-watermark text="Ultra UI" append-to-body /> -->
 
@@ -394,7 +394,7 @@ html[data-theme='dark'] .container1[data-theme-preset='glass'] .content-backdrop
 .content-container {
   flex: 1;
   width: 100%;
-  padding: 24px;
+  padding: 12px;
   overflow-y: auto;
   background: transparent;
   position: relative;

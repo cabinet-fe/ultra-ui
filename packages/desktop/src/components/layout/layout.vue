@@ -11,6 +11,7 @@
       direction="vertical"
       @resize="handleResize($event, index)"
       @resize-start="handleStartResize(index)"
+      @resize-end="emit('resize-end', index)"
     >
     </ULayoutResizer>
 
@@ -37,13 +38,15 @@ import {
   nextTick
 } from 'vue'
 
-import type { LayoutProps } from '../../types'
+import type { LayoutEmits, LayoutProps } from '../../types'
 import { LayoutDIKey } from './di'
 import ULayoutResizer from './layout-resizer.vue'
 
 defineOptions({ name: 'ULayout' })
 
 const props = withDefaults(defineProps<LayoutProps>(), { tag: 'div' })
+
+const emit = defineEmits<LayoutEmits>()
 
 const cls = bem('layout')
 
@@ -87,19 +90,24 @@ function getResizeOffsets() {
 
 watch([() => props.resizable, containerRef, () => props.cols], () => {
   nextTick(() => {
-    getResizeOffsets()
+    syncResizers()
   })
 })
 
 useResizeObserver({
   targets: containerRef,
   onResize() {
-    getResizeOffsets()
-    resizerRefs.value.forEach((r, i) => {
-      r.update(resizerOffsets.value![i]!)
-    })
+    syncResizers()
   }
 })
+
+/** 重新测量各列边界并同步所有拖拽手柄位置（容器尺寸或 cols 程序化变化后调用） */
+function syncResizers() {
+  getResizeOffsets()
+  resizerRefs.value.forEach((r, i) => {
+    r.update(resizerOffsets.value![i]!)
+  })
+}
 
 // const horizontalResizerList = []
 
@@ -117,11 +125,14 @@ const handleStartResize = (index: number) => {
   const nextDom = container.children[index + 1] as HTMLElement | undefined
   prevSize = prevDom ? prevDom.getBoundingClientRect().width : 0
   nextSize = nextDom ? nextDom.getBoundingClientRect().width : 0
+  emit('resize-start', index)
 }
 const handleResize = (offset: number, index: number) => {
-  // 钳位到 [-prevSize, nextSize]，避免轨道尺寸出现负值——
+  // 钳位到 [colMin-prevSize, nextSize-colMin]，避免轨道尺寸出现负值或小于列最小宽度——
   // 一旦 grid-template-columns 中带负值，整条声明会被浏览器丢弃。
-  const clamped = Math.max(-prevSize, Math.min(nextSize, offset))
+  const minPrev = props.colMinSizes?.[index] ?? 0
+  const minNext = props.colMinSizes?.[index + 1] ?? 0
+  const clamped = Math.max(minPrev - prevSize, Math.min(nextSize - minNext, offset))
   templateCols.value[index] = `${prevSize + clamped}px`
   templateCols.value[index + 1] = `${nextSize - clamped}px`
 }

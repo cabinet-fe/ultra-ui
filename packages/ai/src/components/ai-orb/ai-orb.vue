@@ -4,6 +4,10 @@
     :class="cls.b"
     :style="{ width: `${size}px`, height: `${size}px` }"
     aria-hidden="true"
+    @pointermove="handlePointerMove"
+    @pointerleave="handlePointerLeave"
+    @pointerdown="handlePointerDown"
+    @click="emit('click')"
   />
 </template>
 
@@ -11,12 +15,13 @@
 import { bem } from '@veltra/utils'
 import { onBeforeUnmount, onMounted, useTemplateRef, watch } from 'vue'
 
-import type { AiOrbExposed, AiOrbProps, AiOrbReaction } from '../../types/ai-orb'
+import type { AiOrbEmits, AiOrbExposed, AiOrbProps, AiOrbReaction } from '../../types/ai-orb'
 import { createOrbRenderer, type AiOrbRenderer } from './orb-renderer'
 
 defineOptions({ name: 'UAiOrb' })
 
 const props = withDefaults(defineProps<AiOrbProps>(), { size: 48, status: 'idle' })
+const emit = defineEmits<AiOrbEmits>()
 
 const cls = bem('ai-orb')
 
@@ -25,6 +30,22 @@ const canvasRef = useTemplateRef<HTMLCanvasElement>('canvasRef')
 let renderer: AiOrbRenderer | null = null
 let observer: IntersectionObserver | null = null
 let motionQuery: MediaQueryList | null = null
+
+/** 指针坐标 → 单位球空间（球心为原点，1 = 球半径），交给渲染器做视线跟随 */
+const handlePointerMove = (e: PointerEvent) => {
+  const el = canvasRef.value
+  if (!el || !renderer) return
+  const rect = el.getBoundingClientRect()
+  const ballRadius = rect.width * 0.36
+  renderer.setPointer({
+    x: (e.clientX - rect.left - rect.width / 2) / ballRadius,
+    y: (e.clientY - rect.top - rect.height / 2) / ballRadius
+  })
+}
+
+const handlePointerLeave = () => renderer?.setPointer(null)
+
+const handlePointerDown = () => renderer?.poke()
 
 const applyVisibility = (visible: boolean) => {
   if (!renderer) return

@@ -27,8 +27,15 @@
       <UIcon :class="cls.e('tool-call-chevron')"><ArrowDown /></UIcon>
     </template>
 
+    <!-- 面板工具：render 展示在右侧侧边面板，卡片 body 仅提供查看入口 -->
+    <div v-if="isPanelTool" :class="cls.e('tool-call-panel-entry')">
+      <span :class="cls.e('tool-call-panel-hint')">内容展示在右侧面板</span>
+      <UButton size="small" text type="primary" @click="di?.openPanel(toolCall.id)">
+        查看面板
+      </UButton>
+    </div>
     <!-- 自定义渲染：工具定义的 render 优先于 tool-<name> 插槽，均替换整个 body -->
-    <component :is="tool.render" v-if="tool?.render" :tool-call="toolCall" />
+    <component :is="tool.render" v-else-if="tool?.render" :tool-call="toolCall" />
     <component :is="slotBody" v-else-if="slotBody && hasResult" />
     <template v-else>
       <template v-if="prettyArguments">
@@ -83,8 +90,13 @@ const markUserToggled = () => {
   userToggled = true
 }
 
-/** 完成后是否自动折叠：缺省有 render 时不折叠，否则折叠 */
-const autoCollapse = computed(() => tool.value?.autoCollapse ?? !tool.value?.render)
+/** 面板工具：render 展示在右侧侧边面板，卡片 body 仅保留「查看面板」入口 */
+const isPanelTool = computed(() => tool.value?.renderTo === 'panel')
+
+/** 完成后是否自动折叠：缺省面板工具折叠；有 render 时不折叠，否则折叠 */
+const autoCollapse = computed(
+  () => tool.value?.autoCollapse ?? (isPanelTool.value || !tool.value?.render)
+)
 
 watch(
   () => props.toolCall.status,

@@ -1,33 +1,30 @@
 <template>
-  <div>
-    <CustomCard title="AI 对话助手（DeepSeek V4 Flash / V4 Pro，经 Node 代理服务）">
-      <div class="ai-chat-wrap">
-        <u-ai-chat
-          v-model:model="model"
-          v-model:reasoning-level="reasoningLevel"
-          :transport="transport"
-          :tools="tools"
-          :models="models"
-          :welcome="[
-            '算一下 128*46',
-            '北京天气怎么样（真实 Open-Meteo 数据，天气卡片即答复）',
-            '删除 /tmp/app.log（需确认）',
-            '生成中继续提问会进入待发送队列，可插队立即开始或取回编辑'
-          ]"
-        />
-      </div>
-      <div class="selection-hint">当前选择：{{ selectionSummary }}</div>
-    </CustomCard>
-  </div>
+  <u-ai-chat
+    v-model:model="model"
+    v-model:reasoning-level="reasoningLevel"
+    :transport="transport"
+    :tools="tools"
+    :models="models"
+    style="height: calc(100vh - 90px)"
+    :welcome="[
+      '算一下 128*46',
+      '北京天气怎么样（真实 Open-Meteo 数据，天气卡片即答复）',
+      '删除 /tmp/app.log（需确认）',
+      '打开后台的用户编辑表单（右侧面板，可拖拽调宽）',
+      '打开后台的销售图表',
+      '打开后台的订单列表',
+      '生成中继续提问会进入待发送队列，可插队立即开始或取回编辑'
+    ]"
+  />
 </template>
 
 <script lang="ts" setup>
 import { UAiChat, createOpenAITransport, type ChatTool } from '@veltra/ai'
 import '@veltra/ai/style'
-import { Delete, Sun } from '@veltra/icons/normal'
+import { Delete, Monitor, Sun } from '@veltra/icons/normal'
 import { computed, ref } from 'vue'
 
-import CustomCard from '../desktop/card/custom-card.vue'
+import AdminPanel from './admin-panel.vue'
 import WeatherCard from './weather-card.vue'
 
 /**
@@ -206,6 +203,48 @@ const tools: ChatTool[] = [
       await sleep(800)
       return { deleted: path }
     }
+  },
+  {
+    name: 'openAdminPage',
+    description:
+      '打开后台系统的某个页面并展示在右侧面板，供用户直接操作。' +
+      '可用页面：user-form（用户编辑表单）、sales-chart（销售图表）、order-list（订单列表）',
+    label: '打开后台页面',
+    icon: Monitor,
+    render: AdminPanel,
+    // 面板工具：render 组件渲染在右侧侧边面板，与会话区宽度可拖拽调节。
+    // 未指定 panelWidth：打开时默认尽可能大（会话区保留 860px），也可经 panelWidth 指定默认宽
+    renderTo: 'panel',
+    // 面板标题按调用参数给出「业务对象 + 动作」，而不是干巴巴的工具名
+    panelTitle: (toolCall) => {
+      try {
+        const page = JSON.parse(toolCall.arguments || '{}').page as string
+        const titles: Record<string, string> = {
+          'user-form': '编辑用户信息',
+          'sales-chart': '查看销售图表',
+          'order-list': '管理订单列表'
+        }
+        return titles[page] ?? '后台页面'
+      } catch {
+        return '后台页面'
+      }
+    },
+    parameters: {
+      type: 'object',
+      properties: {
+        page: {
+          type: 'string',
+          enum: ['user-form', 'sales-chart', 'order-list'],
+          description: '要打开的后台页面标识'
+        }
+      },
+      required: ['page']
+    },
+    execute: async ({ page }: { page: string }) => {
+      // 模拟后台页面加载
+      await sleep(600)
+      return { page, opened: true }
+    }
   }
   // 提问工具 askQuestion 由 UAiChat 内置自动注入，无需手动创建
 ]
@@ -214,7 +253,6 @@ const tools: ChatTool[] = [
 <style scoped>
 .ai-chat-wrap {
   height: 560px;
-  border: 1px solid var(--u-border-muted-color);
   border-radius: var(--u-radius-large);
   overflow: hidden;
 }

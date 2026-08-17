@@ -5,17 +5,163 @@
 $root-name: ai-chat;
 
 @include m.b($root-name) {
-  display: flex;
-  flex-direction: column;
   height: 100%;
   min-height: 0;
   font-size: fn.use-var(font-size-main, default);
   color: fn.use-var(text-color, main);
+  // 底层背景与卡片（输入区 / 侧面板等 bg-color-top 元素）形成柔和对比，替代分割线
+  background-color: fn.use-var(bg-color, bottom);
+
+  // 会话主列（消息列表 + 队列 + 输入区）：内容限宽居中，面板开合时排版不形变
+  @include m.e(main) {
+    min-width: 0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 fn.use-var(gap, default);
+  }
+
+  // 拖拽中：固定光标，并禁用面板内容指针事件（避免 iframe 等内容吞掉 mousemove）
+  @include m.is(resizing) {
+    cursor: col-resize;
+
+    .u-#{$root-name}__panel-body {
+      pointer-events: none;
+    }
+  }
+
+  // 右侧侧边面板（renderTo: 'panel' 的工具渲染区），宽度由 ULayout 列轨控制。
+  // 悬浮卡片形态：面板本体透明，以内边距让出与会话区的间距（代替生硬的左分割线），
+  // 圆角卡片仅靠底层背景对比与阴影区分；面板元素始终保持整轨宽度，避免宽度观测回环
+  @include m.e(panel) {
+    min-width: 0;
+    padding: fn.use-var(gap, small);
+    padding-left: calc(fn.use-var(gap, small) / 2);
+    box-sizing: border-box;
+    animation: u-ai-chat-panel-in 0.2s ease-out;
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: none;
+    }
+  }
+
+  @include m.e(panel-card) {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    border-radius: fn.use-var(radius, large);
+    background-color: fn.use-var(bg-color, top);
+    box-shadow: fn.use-var(shadow, sm);
+  }
+
+  @keyframes u-ai-chat-panel-in {
+    from {
+      transform: translateX(16px);
+      opacity: 0;
+    }
+
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  // 面板头部：无下分割线，靠留白与卡片边界区分内容区
+  @include m.e(panel-header) {
+    flex: none;
+    @include m.flex(flex, flex-start, center);
+    gap: fn.use-var(gap, small);
+    padding: fn.use-var(gap, default);
+    padding-bottom: fn.use-var(gap, small);
+  }
+
+  // 头部图标做成圆角底托，状态色只作用于图标本身
+  @include m.e(panel-icon) {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: fn.use-var(radius, small);
+    background-color: fn.use-var(bg-color, middle);
+    font-size: 14px;
+    @include m.flex(flex, center, center);
+
+    @include m.is(active) {
+      color: fn.use-var(color, primary);
+    }
+
+    @include m.is(warning) {
+      color: fn.use-var(color, warning);
+    }
+
+    @include m.is(success) {
+      color: fn.use-var(color, success);
+    }
+
+    @include m.is(danger) {
+      color: fn.use-var(color, danger);
+    }
+  }
+
+  @include m.e(panel-title) {
+    flex: 1;
+    min-width: 0;
+    @include m.ellipsis;
+    font-weight: 600;
+    color: fn.use-var(text-color, title);
+  }
+
+  @include m.e(panel-close) {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: fn.use-var(text-color, assist);
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
+    @include m.flex(flex, center, center);
+
+    &:hover {
+      color: fn.use-var(text-color, main);
+      background-color: fn.use-var(bg-color, hover);
+    }
+  }
+
+  @include m.e(panel-body) {
+    flex: 1;
+    min-height: 0;
+  }
+
+  @include m.e(panel-fallback) {
+    margin: 0;
+    padding: fn.use-var(gap, default);
+    font-family: fn.use-var(font-family, code);
+    font-size: fn.use-var(font-size-main, small);
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  // 面板工具卡片内的「查看面板」入口
+  @include m.e(tool-call-panel-entry) {
+    @include m.flex(flex, flex-start, center);
+    gap: fn.use-var(gap, small);
+  }
+
+  @include m.e(tool-call-panel-hint) {
+    color: fn.use-var(text-color, assist);
+  }
 
   @include m.e(list-wrap) {
     position: relative;
     flex: 1;
     min-height: 0;
+    width: 100%;
+    max-width: 800px;
     display: flex;
     flex-direction: column;
   }
@@ -34,23 +180,26 @@ $root-name: ai-chat;
   }
 
   @include m.e(welcome-inner) {
-    @include m.flex(flex, center, center);
-    flex-direction: column;
+    // 固定锚点：球钉在左侧不动，文本气泡只向右延展（轮换 / 不同长度文案都不会让球瞬移）
+    @include m.flex(flex, flex-start, center);
     gap: fn.use-var(gap, default);
-    max-width: 420px;
+    max-width: 480px;
     width: 100%;
   }
 
-  @include m.e(welcome-list) {
+  @include m.e(welcome-item-wrap) {
+    flex: 1;
+    min-width: 0;
     display: flex;
-    flex-direction: column;
-    gap: fn.use-var(gap, small);
-    width: 100%;
+    align-items: center;
+    // 预留两行高度：长文案换行时行高不抖动
+    min-height: 54px;
   }
 
   @include m.e(welcome-item) {
+    max-width: 100%;
     padding: fn.use-var(gap, small) fn.use-var(gap, default);
-    border: fn.use-var(border-muted);
+    border: none;
     border-radius: fn.use-var(radius, large);
     background-color: fn.use-var(bg-color, top);
     color: fn.use-var(text-color, second);
@@ -58,15 +207,36 @@ $root-name: ai-chat;
     text-align: left;
     cursor: pointer;
     transition:
-      border-color 0.15s ease,
       color 0.15s ease,
       background-color 0.15s ease;
 
     &:hover {
-      border-color: fn.use-var(color, primary);
       color: fn.use-var(color, primary);
       background-color: fn.use-var(color, primary, 'light-9');
     }
+  }
+
+  // 欢迎语逐条轮换的切换过渡
+  @include m.em(welcome, 'swap-enter-active') {
+    transition:
+      opacity 0.18s ease,
+      transform 0.18s ease;
+  }
+
+  @include m.em(welcome, 'swap-leave-active') {
+    transition:
+      opacity 0.12s ease,
+      transform 0.12s ease;
+  }
+
+  @include m.em(welcome, 'swap-enter-from') {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  @include m.em(welcome, 'swap-leave-to') {
+    opacity: 0;
+    transform: translateY(-6px);
   }
 
   // 生成中的统一工作状态指示（列表末尾）
@@ -90,27 +260,30 @@ $root-name: ai-chat;
     @include m.flex(flex, center, center);
     gap: 4px;
     padding: 4px 12px;
-    border: fn.use-var(border-muted);
+    border: none;
     border-radius: 999px;
     background-color: fn.use-var(bg-color, top);
     color: fn.use-var(text-color, second);
     font-size: fn.use-var(font-size-main, small);
     box-shadow: 0 2px 8px fn.color-a(shadow, 20, color);
     cursor: pointer;
-    transition: color 0.15s ease, border-color 0.15s ease;
+    transition: color 0.15s ease;
 
     &:hover {
       color: fn.use-var(color, primary);
-      border-color: fn.use-var(color, primary);
     }
   }
 
   @include m.em(to-latest, 'fade-enter-active') {
-    transition: opacity 0.15s ease, transform 0.15s ease;
+    transition:
+      opacity 0.15s ease,
+      transform 0.15s ease;
   }
 
   @include m.em(to-latest, 'fade-leave-active') {
-    transition: opacity 0.1s ease, transform 0.1s ease;
+    transition:
+      opacity 0.1s ease,
+      transform 0.1s ease;
   }
 
   @include m.em(to-latest, 'fade-enter-from') {
@@ -504,10 +677,12 @@ $root-name: ai-chat;
   // 待发送队列（生成中提交的消息在此排队）
   @include m.e(queue) {
     flex-shrink: 0;
-    margin: 0 fn.use-var(gap, default) 4px;
-    border: fn.use-var(border-muted);
+    width: 100%;
+    max-width: 800px;
+    box-sizing: border-box;
+    margin-bottom: 4px;
     border-radius: fn.use-var(radius, default);
-    background-color: fn.use-var(bg-color, top);
+    background-color: fn.use-var(bg-color, middle);
     padding: 4px;
     font-size: fn.use-var(font-size-main, small);
   }
@@ -567,18 +742,20 @@ $root-name: ai-chat;
     }
   }
 
-  // 输入区
+  // 输入区：无边框卡片，聚焦时用柔和的主色描边提示
   @include m.e(input-area) {
     flex-shrink: 0;
-    margin: fn.use-var(gap, default);
-    margin-top: fn.use-var(gap, small);
-    border: fn.use-var(border-muted);
+    width: 100%;
+    max-width: 800px;
+    box-sizing: border-box;
+    margin: fn.use-var(gap, small) 0 fn.use-var(gap, default);
     border-radius: fn.use-var(radius, large);
     background-color: fn.use-var(bg-color, top);
     padding: fn.use-var(gap, small);
+    transition: box-shadow 0.15s ease;
 
     &:focus-within {
-      border-color: fn.use-var(color, primary);
+      box-shadow: 0 0 0 1px fn.use-var(color, primary);
     }
   }
 

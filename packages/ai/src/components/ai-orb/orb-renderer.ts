@@ -22,12 +22,12 @@ const STATUS_PARAMS: Record<AiOrbStatus, OrbParams> = {
 
 /** 眼睛形态：圆眼（可眨眼 / 睁大）/ 开心弯眼 / 紧闭 >< */
 type EyeMode = 'round' | 'happy' | 'squint'
-/** 嘴部形态 */
-type MouthMode = 'smile' | 'flat' | 'talk' | 'grin' | 'frown' | 'o'
+/** 嘴部形态；none 表示无嘴（常态只有大眼睛，说话 / 表情时才出现嘴） */
+type MouthMode = 'none' | 'smile' | 'flat' | 'talk' | 'grin' | 'frown' | 'o'
 
 const STATUS_MOUTH: Record<AiOrbStatus, MouthMode> = {
-  idle: 'smile',
-  thinking: 'flat',
+  idle: 'none',
+  thinking: 'none',
   speaking: 'talk'
 }
 
@@ -44,7 +44,7 @@ interface ReactionDef {
 
 const REACTIONS: Record<AiOrbReaction, ReactionDef> = {
   happy: { duration: 1.7, eyeMode: 'happy', eyeScale: 1, mouth: 'grin', gaze: { x: 0, y: -0.05 } },
-  shock: { duration: 1.2, eyeMode: 'round', eyeScale: 1.38, mouth: 'o', gaze: { x: 0, y: -0.02 } },
+  shock: { duration: 1.2, eyeMode: 'round', eyeScale: 1.22, mouth: 'o', gaze: { x: 0, y: -0.02 } },
   frustrated: {
     duration: 1.5,
     eyeMode: 'squint',
@@ -58,21 +58,20 @@ const REACTIONS: Record<AiOrbReaction, ReactionDef> = {
 const HAPPY_WIDEN_RATIO = 0.2
 
 /**
- * 固定配色：不跟随宿主主题，保证任何场景下观感一致。
- * 主色为明亮的矢车菊蓝，内发光带一点紫，五官用深藏青。
+ * 固定配色：扁平纯色、无打光，饱满的天然蔚蓝球体 + 白色五官，
+ * 不跟随宿主主题，保证任何场景下观感一致。
  */
-const COLORS = {
-  light: '#a9c6ff',
-  base: '#5a8bff',
-  dark: '#3a5ad0',
-  glowFrom: 'rgba(146, 122, 255, 0.5)',
-  glowTo: 'rgba(146, 122, 255, 0)',
-  face: '#1f2a52',
-  eyeShine: 'rgba(255, 255, 255, 0.9)',
-  highlightFrom: 'rgba(255, 255, 255, 0.9)',
-  highlightMid: 'rgba(255, 255, 255, 0.28)',
-  highlightTo: 'rgba(255, 255, 255, 0)'
-} as const
+const COLORS = { body: '#3d9bf0', face: '#ffffff' } as const
+
+/** 球体横竖比：扁椭圆（mochi 感），呼吸在此之上微调 */
+const BODY_SCALE_X = 1.1
+const BODY_SCALE_Y = 0.92
+
+/** 竖椭圆大眼睛（单位球空间）：竖长才像眼睛，正圆容易读成鼻孔 */
+const EYE_X = 0.27
+const EYE_Y = -0.12
+const EYE_RX = 0.13
+const EYE_RY = 0.19
 
 export interface AiOrbRendererOptions {
   /** css 像素尺寸（画布为正方形） */
@@ -85,6 +84,10 @@ export interface AiOrbRenderer {
   setStatus(status: AiOrbStatus): void
   /** 播放一次瞬时表情（happy / shock / frustrated），播完自动回到常态 */
   trigger(reaction: AiOrbReaction): void
+  /** 指针位置（单位球空间，可超出球体范围），null 表示指针离开；用于视线跟随 */
+  setPointer(pos: { x: number; y: number } | null): void
+  /** 戳一下：Q 弹挤压回弹（约 0.95s） */
+  poke(): void
   resize(size: number): void
   start(): void
   stop(): void
@@ -95,13 +98,6 @@ export interface AiOrbRenderer {
 
 /** 组合圆路径的点数（越大越平滑，36 在小尺寸下已足够） */
 const SEGMENTS = 36
-
-/** 高光 / 光晕渐变在单位球空间（R=1）中的定义，颜色固定，只随画布重建一次 */
-interface OrbGradients {
-  base: CanvasGradient
-  glow: CanvasGradient
-  highlight: CanvasGradient
-}
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
@@ -123,15 +119,14 @@ function reactionEnvelope(p: number): number {
 /**
  * 纯 canvas 2D 活体球渲染器（框架无关）。
  *
- * 造型：原地呼吸的微椭圆球（无弹跳、无位移），固定配色。
+ * 造型：原地呼吸的扁椭圆纯色球（无弹跳、无打光），固定配色。
  * 灵动感的核心在眼部状态机：
- * - 随机眨眼（约 18% 概率双眨）
+ * - 白色大眼睛随机眨眼（约 18% 概率双眨），闭起为白色线条
  * - 视线游移 / 转头（面部整体平移 + 轻微倾斜，idle 随机、thinking 缓慢扫视）
  * - 瞬时表情（{@link AiOrbReaction}）：睁大眼、弯眼笑、紧闭眼 ><，配合点头 / 摇头 / 后仰
  *
  * 性能设计：
- * - 单位球空间（R=1）绘制，渐变对象创建一次复用，与每帧形变解耦
- * - 单条 36 段多边形路径 + 3 个径向渐变，无 shadowBlur、无滤镜
+ * - 单位球空间（R=1）绘制，单条 36 段多边形路径，纯色填充，无渐变 / 滤镜 / shadowBlur
  * - rAF 循环由组件侧按可见性启停；dt 截断避免后台切回时的跳变
  */
 export function createOrbRenderer(
@@ -142,7 +137,6 @@ export function createOrbRenderer(
 
   let size = options.size
   let dpr = 1
-  const gradients: OrbGradients | null = buildGradients()
 
   let target: OrbParams = { ...STATUS_PARAMS[options.status ?? 'idle'] }
   let current: OrbParams = { ...target }
@@ -170,7 +164,12 @@ export function createOrbRenderer(
   /** 进行中的瞬时表情 */
   let reaction: { type: AiOrbReaction; startAt: number } | null = null
 
-  /** 面部：双眼（圆眼 / 弯眼 / 紧闭）+ 嘴 */
+  /** 指针悬停位置（单位球空间）；null 表示未悬停，此时按 status 驱动视线 */
+  let pointerPos: { x: number; y: number } | null = null
+  /** Q 弹起始时间，-1 表示未在回弹 */
+  let pokeStart = -1
+
+  /** 面部：白色大眼睛（圆眼 / 弯眼 / 紧闭线条）+ 嘴 */
   function drawFace(eyeMode: EyeMode, eyeOpen: number, eyeScale: number, mouth: MouthMode) {
     if (!ctx) return
 
@@ -180,44 +179,31 @@ export function createOrbRenderer(
 
     for (const side of [-1, 1]) {
       ctx.save()
-      ctx.translate(side * 0.3, -0.12)
+      ctx.translate(side * EYE_X, EYE_Y)
 
       if (eyeMode === 'round') {
-        // 圆眼：竖直方向缩放表达睁眼度（眨眼 / 眯眼），eyeScale 表达睁大
-        const open = clamp(eyeOpen, 0.06, 1)
+        // 圆眼：竖直方向缩放表达睁眼度；闭起时压成白色线条
+        const open = clamp(eyeOpen, 0.07, 1)
         ctx.save()
         ctx.scale(1, open)
         ctx.beginPath()
-        ctx.ellipse(0, 0, 0.115 * eyeScale, 0.15 * eyeScale, 0, 0, Math.PI * 2)
+        ctx.ellipse(0, 0, EYE_RX * eyeScale, EYE_RY * eyeScale, 0, 0, Math.PI * 2)
         ctx.fill()
         ctx.restore()
-        // 高光点只在眼睛基本睁开时绘制，避免眨眼半程闪出白点
-        if (open > 0.45) {
-          ctx.fillStyle = COLORS.eyeShine
-          ctx.beginPath()
-          ctx.arc(-0.038 * eyeScale, -0.052 * eyeScale * open, 0.032 * eyeScale, 0, Math.PI * 2)
-          ctx.fill()
-          ctx.globalAlpha = 0.55
-          ctx.beginPath()
-          ctx.arc(0.042 * eyeScale, 0.05 * eyeScale * open, 0.015 * eyeScale, 0, Math.PI * 2)
-          ctx.fill()
-          ctx.globalAlpha = 1
-          ctx.fillStyle = COLORS.face
-        }
       } else if (eyeMode === 'happy') {
-        // 开心弯眼：上半圆弧线（∩）
-        ctx.lineWidth = 0.05
+        // 开心弯眼：上半圆白色线条（∩）
+        ctx.lineWidth = 0.06
         ctx.beginPath()
-        ctx.arc(0, 0.03, 0.125, Math.PI, Math.PI * 2)
+        ctx.arc(0, 0.05, 0.14, Math.PI, Math.PI * 2)
         ctx.stroke()
       } else {
-        // 紧闭眼：>< 折线（顶点朝向鼻梁）
-        ctx.lineWidth = 0.048
+        // 紧闭眼：>< 白色折线（顶点朝向鼻梁）
+        ctx.lineWidth = 0.055
         ctx.lineJoin = 'round'
         ctx.beginPath()
-        ctx.moveTo(0.08 * side, -0.075)
-        ctx.lineTo(-0.06 * side, 0)
-        ctx.lineTo(0.08 * side, 0.075)
+        ctx.moveTo(0.085 * side, -0.08)
+        ctx.lineTo(-0.065 * side, 0)
+        ctx.lineTo(0.085 * side, 0.08)
         ctx.stroke()
       }
 
@@ -228,24 +214,24 @@ export function createOrbRenderer(
   }
 
   function drawMouth(mouth: MouthMode) {
-    if (!ctx) return
+    if (!ctx || mouth === 'none') return
     ctx.fillStyle = COLORS.face
     ctx.strokeStyle = COLORS.face
 
     switch (mouth) {
       case 'smile':
-        ctx.lineWidth = 0.045
+        ctx.lineWidth = 0.05
         ctx.beginPath()
-        ctx.moveTo(-0.14, 0.17)
-        ctx.quadraticCurveTo(0, 0.29, 0.14, 0.17)
+        ctx.moveTo(-0.15, 0.18)
+        ctx.quadraticCurveTo(0, 0.32, 0.15, 0.18)
         ctx.stroke()
         break
       case 'flat':
         // 思考：近乎平直的小嘴
-        ctx.lineWidth = 0.04
+        ctx.lineWidth = 0.045
         ctx.beginPath()
-        ctx.moveTo(-0.09, 0.235)
-        ctx.quadraticCurveTo(0, 0.25, 0.09, 0.235)
+        ctx.moveTo(-0.09, 0.24)
+        ctx.quadraticCurveTo(0, 0.255, 0.09, 0.24)
         ctx.stroke()
         break
       case 'talk': {
@@ -264,10 +250,10 @@ export function createOrbRenderer(
         ctx.fill()
         break
       case 'frown':
-        ctx.lineWidth = 0.045
+        ctx.lineWidth = 0.05
         ctx.beginPath()
-        ctx.moveTo(-0.1, 0.27)
-        ctx.quadraticCurveTo(0, 0.19, 0.1, 0.27)
+        ctx.moveTo(-0.1, 0.28)
+        ctx.quadraticCurveTo(0, 0.2, 0.1, 0.28)
         ctx.stroke()
         break
       case 'o':
@@ -286,29 +272,6 @@ export function createOrbRenderer(
     canvas.height = px
   }
 
-  function buildGradients(): OrbGradients | null {
-    if (!ctx) return null
-
-    // 主体积光：光源在左上方
-    const baseGradient = ctx.createRadialGradient(-0.35, -0.42, 0.05, 0, 0, 1.3)
-    baseGradient.addColorStop(0, COLORS.light)
-    baseGradient.addColorStop(0.45, COLORS.base)
-    baseGradient.addColorStop(1, COLORS.dark)
-
-    // 底部内发光（微紫），让球体「透」起来
-    const glowGradient = ctx.createRadialGradient(0.1, 0.72, 0, 0.1, 0.72, 1.05)
-    glowGradient.addColorStop(0, COLORS.glowFrom)
-    glowGradient.addColorStop(1, COLORS.glowTo)
-
-    // 左上柔和高光斑
-    const highlightGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 0.42)
-    highlightGradient.addColorStop(0, COLORS.highlightFrom)
-    highlightGradient.addColorStop(0.55, COLORS.highlightMid)
-    highlightGradient.addColorStop(1, COLORS.highlightTo)
-
-    return { base: baseGradient, glow: glowGradient, highlight: highlightGradient }
-  }
-
   /** 球面半径扰动：三层不同角频率的正弦叠加，营造有机感 */
   function wobble(theta: number, params: OrbParams): number {
     const { wobbleAmp, wobbleSpeed } = params
@@ -322,7 +285,7 @@ export function createOrbRenderer(
   }
 
   function draw() {
-    if (!ctx || !gradients) return
+    if (!ctx) return
 
     // 常态参数向目标平滑过渡（约 200ms 时间常数）
     const ease = 1 - Math.exp(-frameDt * 5)
@@ -358,9 +321,12 @@ export function createOrbRenderer(
       }
     }
 
-    // 视线目标：表情 > thinking 扫视 > speaking 微动 > idle 随机游移（转头 / 转眼睛）
+    // 视线目标：表情 > 指针跟随 > thinking 扫视 > speaking 微动 > idle 随机游移（转头 / 转眼睛）
     if (reactionDef && reactionW > 0.45) {
       gazeTarget = reactionDef.gaze
+    } else if (pointerPos) {
+      // 悬停互动：看向指针所在方位
+      gazeTarget = { x: clamp(pointerPos.x, -0.18, 0.18), y: clamp(pointerPos.y, -0.1, 0.12) }
     } else if (statusLabel === 'thinking') {
       // 思考：视线略上扬并缓慢左右扫视
       gazeTarget = { x: 0.13 * Math.sin(t * 0.7), y: -0.05 + 0.03 * Math.sin(t * 0.47) }
@@ -386,7 +352,7 @@ export function createOrbRenderer(
     if (reactionDef && reaction) {
       // happy 前段先睁大双眼（round），随后才切换弯眼
       const widenPhase = reaction.type === 'happy' && reactionP < HAPPY_WIDEN_RATIO
-      eyeScale = lerp(1, widenPhase ? 1.32 : reactionDef.eyeScale, reactionW)
+      eyeScale = lerp(1, widenPhase ? 1.2 : reactionDef.eyeScale, reactionW)
       eyeOpen = lerp(eyeOpen, 1, reactionW)
       if (reactionW > 0.45) {
         eyeMode = widenPhase ? 'round' : reactionDef.eyeMode
@@ -408,61 +374,56 @@ export function createOrbRenderer(
       }
     }
 
-    // 微椭圆 + 呼吸（原地，无弹跳）
+    // 扁椭圆 + 呼吸（原地，无弹跳）；Q 弹：挤压后阻尼振荡回弹（体积近似守恒）
+    // press 包络让压下也走一个短渐入（约 80ms），避免按下瞬间球体跳变压扁
+    // 低阻尼 + 约 1.6 周期 / 0.95s（≈1.7Hz）：回弹带过冲和一次可见的二次晃动，Q 而不抖
+    let jellyX = 1
+    let jellyY = 1
+    if (pokeStart >= 0) {
+      const pp = (t - pokeStart) / 0.95
+      if (pp >= 1) {
+        pokeStart = -1
+      } else {
+        const press = 1 - Math.exp(-pp * 14)
+        const jelly = press * Math.exp(-2.6 * pp) * Math.cos(Math.PI * 2 * 1.6 * pp)
+        jellyY = 1 - 0.14 * jelly
+        jellyX = 1 + 0.085 * jelly
+      }
+    }
     const radius = size * 0.36
     const breatheScale = 1 + current.breathe * Math.sin(Math.PI * 2 * current.breatheFreq * t)
-    const scaleX = 0.97 * breatheScale * bodyScale
-    const scaleY = 1.05 * breatheScale * bodyScale
+    const scaleX = BODY_SCALE_X * breatheScale * bodyScale * jellyX
+    const scaleY = BODY_SCALE_Y * breatheScale * bodyScale * jellyY
     const cx = size / 2
     const cy = size / 2 + bodyDy * radius
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctx.clearRect(0, 0, size, size)
 
+    // 纯色球体：单条扰动路径填充，无渐变与打光
     ctx.save()
     ctx.translate(cx, cy)
     ctx.rotate(bodyRot)
     ctx.scale(radius * scaleX, radius * scaleY)
 
-    const path = new Path2D()
+    ctx.beginPath()
     for (let i = 0; i <= SEGMENTS; i++) {
       const theta = (i / SEGMENTS) * Math.PI * 2
       const r = 1 + wobble(theta, current)
       const x = r * Math.cos(theta)
       const y = r * Math.sin(theta)
-      if (i === 0) path.moveTo(x, y)
-      else path.lineTo(x, y)
+      if (i === 0) ctx.moveTo(x, y)
+      else ctx.lineTo(x, y)
     }
-    path.closePath()
-
-    ctx.fillStyle = gradients.base
-    ctx.fill(path)
-
-    ctx.clip(path)
-    ctx.globalCompositeOperation = 'lighter'
-    ctx.fillStyle = gradients.glow
-    ctx.fillRect(-1.4, -1.4, 2.8, 2.8)
-    ctx.globalCompositeOperation = 'source-over'
-
-    // 高光：旋转压扁的圆形渐变，形成椭圆光斑
-    ctx.translate(-0.3, -0.42)
-    ctx.rotate(-0.5)
-    ctx.scale(1, 0.62)
-    ctx.fillStyle = gradients.highlight
-    ctx.beginPath()
-    ctx.arc(0, 0, 1, 0, Math.PI * 2)
+    ctx.closePath()
+    ctx.fillStyle = COLORS.body
     ctx.fill()
 
-    ctx.restore()
-
-    // 面部在高光之后绘制（随球体形变，并叠加视线平移 / 头部微倾）
-    ctx.save()
-    ctx.translate(cx, cy)
-    ctx.rotate(bodyRot)
-    ctx.scale(radius * scaleX, radius * scaleY)
+    // 面部随球体形变，并叠加视线平移 / 头部微倾
     ctx.translate(gazeCur.x, gazeCur.y)
     ctx.rotate(gazeCur.x * 0.35)
     drawFace(eyeMode, eyeOpen, eyeScale, mouth)
+
     ctx.restore()
   }
 
@@ -477,8 +438,14 @@ export function createOrbRenderer(
 
   function renderOnce() {
     frameDt = 1 / 60
-    // 有未播完的表情时定格在表情中段（权重峰值），否则取常态安静帧
-    t = reaction ? reaction.startAt + REACTIONS[reaction.type].duration * 0.45 : 0.35
+    // 静态帧优先级：进行中的表情定格在中段 > Q 弹定格在挤压段 > 常态安静帧
+    if (reaction) {
+      t = reaction.startAt + REACTIONS[reaction.type].duration * 0.45
+    } else if (pokeStart >= 0) {
+      t = pokeStart + 0.2
+    } else {
+      t = 0.35
+    }
     gazeCur.x = 0
     gazeCur.y = 0
     gazeTarget = { x: 0, y: 0 }
@@ -501,6 +468,15 @@ export function createOrbRenderer(
       reaction = { type, startAt: t }
       // 表情接管眼部，中断进行中的眨眼
       blinkStart = -1
+      if (!isRunning) renderOnce()
+    },
+
+    setPointer(pos: { x: number; y: number } | null) {
+      pointerPos = pos
+    },
+
+    poke() {
+      pokeStart = t
       if (!isRunning) renderOnce()
     },
 

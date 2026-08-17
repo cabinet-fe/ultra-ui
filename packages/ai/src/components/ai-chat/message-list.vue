@@ -4,17 +4,21 @@
       <div v-if="!visibleMessages.length" :class="cls.e('welcome')">
         <slot name="welcome">
           <div :class="cls.e('welcome-inner')">
-            <UAiOrb :size="88" />
-            <div v-if="welcomeItems.length" :class="cls.e('welcome-list')">
-              <button
-                v-for="(item, index) in welcomeItems"
-                :key="index"
-                type="button"
-                :class="cls.e('welcome-item')"
-                @click="emit('welcome-click', item)"
-              >
-                {{ item }}
-              </button>
+            <UAiOrb :size="WELCOME_ORB_SIZE" @click="cycleWelcome" />
+            <!-- 快捷提问逐条展示在球右侧并自动轮换：点文案发送，点球立即换下一条。
+                 固定锚点布局：球位置钉死不动，气泡只向右延展，避免轮换时水平瞬移 -->
+            <div v-if="welcomeItems.length" :class="cls.e('welcome-item-wrap')">
+              <Transition :name="cls.em('welcome', 'swap')" mode="out-in">
+                <button
+                  v-if="currentWelcomeItem"
+                  :key="welcomeIndex"
+                  type="button"
+                  :class="cls.e('welcome-item')"
+                  @click="emit('welcome-click', currentWelcomeItem)"
+                >
+                  {{ currentWelcomeItem }}
+                </button>
+              </Transition>
             </div>
           </div>
         </slot>
@@ -30,9 +34,9 @@
         @regenerate="emit('regenerate')"
       />
 
-      <!-- 工作状态统一指示：生成中在列表末尾展示活体球 + 文案；回答完毕短暂停留播 happy 表情 -->
+      <!-- 工作状态统一指示：生成中在列表末尾展示活体球 + 文案；结束 / 失败停留片刻再隐藏 -->
       <div v-if="running || finishing" :class="cls.e('working')">
-        <UAiOrb ref="workingOrb" :size="26" :status="workingOrbStatus" />
+        <UAiOrb ref="workingOrb" :size="WORKING_ORB_SIZE" :status="workingOrbStatus" />
         <span v-if="running" :class="[cls.e('working-text'), 'u-shine']">工作中…</span>
       </div>
     </UScroll>
@@ -64,12 +68,19 @@ import {
 } from 'vue'
 
 import type { ChatMessage } from '../../chat/types'
-import type { AiOrbExposed, AiOrbStatus } from '../../types/ai-orb'
+import type { AiOrbExposed, AiOrbReaction, AiOrbStatus } from '../../types/ai-orb'
 import UAiOrb from '../ai-orb/ai-orb.vue'
 import { AiChatDIKey } from './di'
 import MessageItem from './message-item.vue'
 
 defineOptions({ name: 'UAiChatMessageList' })
+
+/** 欢迎区活体球直径（px） */
+const WELCOME_ORB_SIZE = 64
+/** 工作指示活体球直径（px） */
+const WORKING_ORB_SIZE = 48
+/** 生成结束 / 失败后工作球停留再隐藏 */
+const WORKING_LINGER_MS = 2500
 
 const props = defineProps<{
   messages: ChatMessage[]
@@ -105,14 +116,49 @@ const welcomeItems = computed(() => {
   return (Array.isArray(welcome) ? welcome : [welcome]).filter(Boolean)
 })
 
-/** 工作球状态：正文输出中 → speaking，其余生成阶段（含工具调用）→ thinking */
-const workingOrbStatus = computed<AiOrbStatus>(() => {
-  const last = visibleMessages.value[visibleMessages.value.length - 1]
-  if (last?.role === 'assistant' && last.status === 'streaming' && last.content) {
-    return 'speaking'
-  }
-  return 'thinking'
+/** 欢迎语逐条轮换：当前展示项的下标 */
+const welcomeIndex = ref(0)
+
+/** 当前展示的欢迎语 */
+const currentWelcomeItem = computed(() => {
+  const items = welcomeItems.value
+  return items.length ? items[welcomeIndex.value % items.length] : undefined
 })
+
+let welcomeTimer: ReturnType<typeof setInterval> | undefined
+
+const stopWelcomeRotation = () => {
+  clearInterval(welcomeTimer)
+  welcomeTimer = undefined
+}
+
+const startWelcomeRotation = () => {
+  stopWelcomeRotation()
+  if (welcomeItems.value.length > 1) {
+    welcomeTimer = setInterval(() => {
+      welcomeIndex.value += 1
+    }, 4000)
+  }
+}
+
+/** 点击欢迎球：不等自动轮换，立即换下一条，并重置计时 */
+const cycleWelcome = () => {
+  if (welcomeItems.value.length <= 1) return
+  welcomeIndex.value += 1
+  startWelcomeRotation()
+}
+
+// 欢迎区展示期间自动轮换；出现消息后停止
+watch(
+  () => [welcomeItems.value.length, visibleMessages.value.length] as const,
+  () => {
+    if (visibleMessages.value.length > 0) stopWelcomeRotation()
+    else startWelcomeRotation()
+  },
+  { immediate: true }
+)
+
+onBeforeUnmount(stopWelcomeRotation)
 
 const workingOrbRef = useTemplateRef<AiOrbExposed>('workingOrb')
 
@@ -139,32 +185,50 @@ watch(toolErrorIds, (ids) => {
   }
 })
 
-/** 回答完毕后工作球短暂停留：播完 happy 表情再隐藏 */
+/** 回答完毕 / 失败后工作球短暂停留，播完表情再隐藏 */
 const finishing = ref(false)
 let finishTimer: ReturnType<typeof setTimeout> | undefined
+
+const clearFinishing = () => {
+  clearTimeout(finishTimer)
+  finishing.value = false
+}
+
+/** 工作球状态：收尾停留 → idle；正文输出中 → speaking；其余生成阶段 → thinking */
+const workingOrbStatus = computed<AiOrbStatus>(() => {
+  if (finishing.value) return 'idle'
+  const last = visibleMessages.value[visibleMessages.value.length - 1]
+  if (last?.role === 'assistant' && last.status === 'streaming' && last.content) {
+    return 'speaking'
+  }
+  return 'thinking'
+})
 
 watch(
   () => props.running,
   (running, prev) => {
     if (running) {
-      // 新一轮生成开始：立即结束收尾表情
-      clearTimeout(finishTimer)
-      finishing.value = false
+      // 新一轮生成开始：立即结束收尾停留
+      clearFinishing()
       return
     }
     if (!prev) return
-    // 仅自然完成（done）时播开心；中断 / 出错直接收起
-    const last = visibleMessages.value[visibleMessages.value.length - 1]
-    if (last?.role !== 'assistant' || last.status !== 'done') return
+
     finishing.value = true
-    nextTick(() => workingOrbRef.value?.react('happy'))
-    finishTimer = setTimeout(() => {
-      finishing.value = false
-    }, 1700)
+    const last = visibleMessages.value[visibleMessages.value.length - 1]
+    let reaction: AiOrbReaction | undefined
+    if (last?.role === 'assistant') {
+      if (last.status === 'done') reaction = 'happy'
+      else if (last.status === 'error') reaction = 'frustrated'
+    }
+    if (reaction) {
+      nextTick(() => workingOrbRef.value?.react(reaction))
+    }
+    finishTimer = setTimeout(clearFinishing, WORKING_LINGER_MS)
   }
 )
 
-onBeforeUnmount(() => clearTimeout(finishTimer))
+onBeforeUnmount(clearFinishing)
 
 const scrollRef = shallowRef<{ scrollTo: (position: ScrollPosition) => void }>()
 /** 是否吸附底部（用户上翻浏览历史时取消吸附） */

@@ -23,8 +23,8 @@
       </div>
     </u-layout>
 
-    <h3>尺寸可调节</h3>
-    <u-layout cols="300px 1fr 300px" resizable>
+    <h3>尺寸可调节（列最小宽度 120px）</h3>
+    <u-layout cols="300px 1fr 300px" resizable :col-min-sizes="[120, 120, 120]">
       <div class="l-nav"></div>
       <div class="l-aside"></div>
       <div class="l-main"></div>

@@ -73,18 +73,16 @@ describe('createOrbRenderer', () => {
     vi.restoreAllMocks()
   })
 
-  it('renderOnce 绘制一帧（球体 + 高光 + 面部），并缓存渐变', () => {
+  it('renderOnce 绘制一帧（纯色球体 + 白色大眼睛，常态无嘴）', () => {
     const ctx = createStubContext()
     const renderer = createOrbRenderer(createStubCanvas(ctx), { size: 48 })
 
     renderer.renderOnce()
 
-    expect(ctx.calls.fill).toBeGreaterThanOrEqual(3)
-    expect(ctx.calls.gradient).toBe(3)
-
-    // 再次绘制不重建渐变
-    renderer.renderOnce()
-    expect(ctx.calls.gradient).toBe(3)
+    // 球体 + 双眼 = 3 次填充，常态无嘴无描边
+    expect(ctx.calls.fill).toBe(3)
+    expect(ctx.calls.stroke).toBe(0)
+    expect(ctx.calls.gradient).toBe(0)
   })
 
   it('start/stop 控制 rAF 循环', () => {
@@ -145,10 +143,10 @@ describe('createOrbRenderer', () => {
     const ctx = createStubContext()
     const renderer = createOrbRenderer(createStubCanvas(ctx), { size: 48 })
 
-    // 常态：眼睛为填充圆眼，仅微笑 1 次描边
+    // 常态：眼睛为填充圆眼，无嘴无描边
     renderer.renderOnce()
     const baseStrokes = ctx.calls.stroke
-    expect(baseStrokes).toBe(1)
+    expect(baseStrokes).toBe(0)
 
     // frustrated：双眼 >< 折线 2 次描边 + 撇嘴 1 次描边
     renderer.trigger('frustrated')
@@ -161,12 +159,10 @@ describe('createOrbRenderer', () => {
 
     renderer.renderOnce()
     const baseStrokes = ctx.calls.stroke
-    const baseFills = ctx.calls.fill
 
-    // happy：弯眼弧线描边增多，张嘴笑多一次填充
+    // happy：双眼弯月弧线 2 次描边 + 张嘴笑 1 次填充
     renderer.trigger('happy')
     expect(ctx.calls.stroke).toBeGreaterThan(baseStrokes)
-    expect(ctx.calls.fill).toBeGreaterThan(baseFills)
   })
 
   it('trigger shock 睁大眼睛（填充路径增多）', () => {
@@ -179,6 +175,20 @@ describe('createOrbRenderer', () => {
     // shock：圆眼 + 「o」嘴，填充次数增加（无描边嘴）
     renderer.trigger('shock')
     expect(ctx.calls.fill).toBeGreaterThan(baseFills)
+  })
+
+  it('setPointer / poke 交互不抛异常且保持绘制', () => {
+    const ctx = createStubContext()
+    const renderer = createOrbRenderer(createStubCanvas(ctx), { size: 48 })
+
+    renderer.setPointer({ x: 0.8, y: -0.4 })
+    renderer.poke()
+    renderer.renderOnce()
+    expect(ctx.calls.fill).toBeGreaterThan(0)
+
+    renderer.setPointer(null)
+    renderer.renderOnce()
+    expect(ctx.calls.fill).toBeGreaterThan(3)
   })
 
   it('getContext 返回 null 时所有操作静默不崩', () => {
@@ -216,6 +226,24 @@ describe('UAiOrb', () => {
     expect(canvas).toBeTruthy()
     expect(canvas?.style.width).toBe('64px')
     expect(canvas?.style.height).toBe('64px')
+
+    app.unmount()
+    host.remove()
+  })
+
+  it('点击 canvas 触发 click 事件', async () => {
+    vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null)
+
+    const onClick = vi.fn()
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
+    const app = createApp({ render: () => h(UAiOrb, { onClick }) })
+    app.mount(host)
+    await nextTick()
+
+    host.querySelector('canvas.u-ai-orb')!.dispatchEvent(new Event('click'))
+    expect(onClick).toHaveBeenCalledTimes(1)
 
     app.unmount()
     host.remove()

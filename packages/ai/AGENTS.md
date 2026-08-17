@@ -10,7 +10,7 @@ src/
 ├── style.ts                    # 全量样式入口
 ├── providers/                  # 模型提供商域（ChatProvider / ChatModel / ChatModelOption）
 ├── chat/                       # 对话核心域（UI 无关，不得 import 组件）
-│   ├── types.ts                # ChatMessage / ChatQueuedMessage / ChatTool（含 icon/label/render/autoCollapse/terminal）/ ChatTransport 等核心类型
+│   ├── types.ts                # ChatMessage / ChatQueuedMessage / ChatTool（含 icon/label/render/renderTo/panelWidth/panelTitle/autoCollapse/terminal）/ ChatTransport 等核心类型
 │   ├── use-chat.ts             # useChat 状态机：消息管理 + 工具循环编排（runRound 递归，受 maxToolRounds 限制，terminal 工具成功即终结）+ 待发送队列（FIFO 自动接续）；透传 model / reasoningLevel
 │   ├── transports/
 │   │   └── openai.ts           # createOpenAITransport（多 Provider，按 model 路由；OpenAI 兼容 SSE）
@@ -19,22 +19,23 @@ src/
 │   ├── index.ts                # createBuiltinTools 注册表（新增内置工具在此注册）
 │   └── ask-question/           # 提问工具实现（deferred 挂起等待用户作答）
 ├── types/ai-chat.ts            # 组件类型：AiChatProps / AiChatEmits / AiChatExposed
-├── types/ai-orb.ts             # AiOrbProps / AiOrbStatus / AiOrbReaction / AiOrbExposed
+├── types/ai-orb.ts             # AiOrbProps / AiOrbEmits / AiOrbStatus / AiOrbReaction / AiOrbExposed
 └── components/
     ├── ai-chat/
-    │   ├── ai-chat.vue         # UAiChat 主组件（useChat + provide DI；toolMap 含内置工具元信息）
-    │   ├── message-list.vue    # UScroll 消息列表：方向感知的流式吸底（上翻取消吸附 +「最新消息」悬浮按钮一键回底）；生成中列表末尾展示 UAiOrb +「工作中…」（工具调用失败播 frustrated；自然收尾短暂停留播 happy 再隐藏）；默认欢迎区为 UAiOrb + welcome 快捷提问卡片（点击即发送）
+    │   ├── ai-chat.vue         # UAiChat 主组件（useChat + provide DI；toolMap 含内置工具元信息；renderTo: 'panel' 调用的面板状态；ULayout 分列与面板宽度）
+    │   ├── message-list.vue    # UScroll 消息列表：方向感知的流式吸底（上翻取消吸附 +「最新消息」悬浮按钮一键回底）；生成中列表末尾展示较大 UAiOrb +「工作中…」（工具调用失败播 frustrated；结束 / 失败停留约 2.5s，成功播 happy、出错播 frustrated 再隐藏）；默认欢迎区为较小 UAiOrb + 逐条轮换的 welcome 快捷提问（点文案发送，点球立即换一条并重置轮换计时；固定锚点布局——球钉死不动，气泡只向右延展，文案长度变化不会瞬移）
     │   ├── message-item.vue    # 单条消息（reasoning 折叠块：UScroll 限高 220px + 思考中扫光 + ArrowRight 折叠箭头；MarkdownRender + 工具卡片）
-    │   ├── tool-call.vue       # 工具卡片（复用 UCollapseItem，#header 自定义紧凑单行头；needsConfirm 确认；消费工具 icon/label/render/autoCollapse/terminal）
+    │   ├── tool-call.vue       # 工具卡片（复用 UCollapseItem，#header 自定义紧凑单行头；needsConfirm 确认；消费工具 icon/label/render/renderTo/autoCollapse/terminal；面板工具 body 仅留「查看面板」入口）
+    │   ├── side-panel.vue      # 右侧侧边面板（renderTo: 'panel' 工具的渲染区：悬浮卡片——面板本体透明留白、内层圆角卡片仅靠背景对比+阴影区分，无分割线；头部 icon 底托/标题/关闭，标题取 panelTitle ?? label ?? name + UScroll 渲染体）
     │   ├── queue-list.vue      # 待发送队列（生成中提交的消息排队；立即开始插队 / 取回编辑 / 移除）
     │   ├── ask-question.vue    # 提问工具的内联分页表单（由内置 askQuestion 工具挂到 render）
-    │   ├── chat-input.vue      # 输入区（多行自适应、图片附件、模型/推理选择、生成中发送即入队 + 停止；暴露 setContent/getContent）
+    │   ├── chat-input.vue      # 输入区（多行自适应、图片附件、模型/推理选择、生成中空输入显示停止 / 有内容则发送入队；暴露 setContent/getContent）
     │   ├── model-picker.vue    # 模型/推理选择器（UDropdown 面板：模型列表 + 思考强度内联展开）
     │   ├── di.ts               # AiChatDIKey（cls + slots + tools 注入，支撑 tool-<name> 动态插槽与工具元信息）
     │   └── __test__/
     └── ai-orb/                 # UAiOrb 活体球头像（独立于 ai-chat 可复用）
-        ├── orb-renderer.ts     # 纯 canvas 2D 渲染器：固定配色微椭圆、原地呼吸无弹跳；眼部状态机（眨眼 / 双眨、视线游移转头、thinking 眯眼扫视）+ 瞬时表情 react（happy 弯眼点头 / shock 睁大眼 / frustrated 闭眼摇头）；渐变缓存于单位球空间、可见性启停 rAF、reduced-motion 静态帧
-        ├── ai-orb.vue          # Vue 封装（size/status props；expose react(reaction) 播放瞬时表情）
+        ├── orb-renderer.ts     # 纯 canvas 2D 渲染器：扁平纯色扁椭圆（蔚蓝 + 白色大眼睛，闭眼为白色线条）、原地呼吸无弹跳无打光；眼部状态机（眨眼 / 双眨、视线游移转头、thinking 眯眼扫视）+ 瞬时表情 react（happy 弯眼点头 / shock 睁大眼 / frustrated 闭眼摇头）+ 指针交互（setPointer 视线跟随、poke Q 弹回弹）；单位球空间绘制、可见性启停 rAF、reduced-motion 静态帧
+        ├── ai-orb.vue          # Vue 封装（size/status props + click emit；expose react(reaction) 播放瞬时表情；指针事件桥接渲染器）
         └── __test__/
 ```
 
@@ -49,6 +50,7 @@ src/
 - transport 不引入 ai-sdk 等第三方依赖，SSE 手写解析；新增协议在 `chat/transports/` 以独立 `createXxxTransport` 工厂导出。
 - 工具串行执行（保持结果消息与调用顺序一致）；循环/泵取一律用递归或 Promise 链，禁止 await-in-loop（lint 硬性约束，不允许 disable 注释）。
 - **工具循环收敛**：`maxToolRounds`（props，默认 10）限制单次发送的最大生成轮次，超限即 finish 停止；`ChatTool.terminal` 工具执行成功后对话终结（结果仍入消息历史，失败/拒绝照常回灌），配合 `render` 实现"工具 UI 即答复"。两类结束都会发出 `finish`。
+- **侧边面板工具**：`ChatTool.renderTo: 'panel'` 把 render 组件渲染到对话区右侧的侧边面板（side-panel.vue），契约同卡片 render（`ChatToolRenderProps`，随 toolCall 状态实时更新）；新的面板调用自动打开并聚焦，工具卡片 body 仅留「查看面板」入口（经 DI `openPanel` 切换聚焦，可切回历史调用）；布局基于 `ULayout`（`cols = 1fr + 面板宽度`，`colMinSizes` 约束会话区 ≥360px、面板 ≥320px，`useResizeObserver` 跟踪拖拽后的实际宽度）；`ChatTool.panelWidth` 可指定该工具面板的默认宽度（聚焦其调用时应用；缺省取「容器宽 - 860」，即面板默认尽可能大、会话区保留 860px）；`ChatTool.panelTitle`（字符串或按 toolCall 动态生成的函数）给出业务化面板标题（「业务对象 + 动作」），缺省取 label ?? name。组件根背景为 bg-color-bottom，消息/队列/输入区限宽 800px 居中（面板开合时排版不形变），卡片类元素（输入区、面板卡、欢迎气泡）用 bg-color-top + 阴影而非边框区分层级。
 - **待发送队列**：会话进行中 `send` 的消息进入 `queue`（不再丢弃），自然完成（finish）后按 FIFO 自动接续；`startQueued(id)` 中断当前会话并插队执行（其余保持顺序）；`enqueue(content, attachments?, beforeId?)` 支持锚点插入（编辑回插保持前后项顺序）；手动 `abort()` / 出错时队列保留不自动接续；`clear()` 一并清空队列。编辑流由 ai-chat.vue 以后继 id 锚点实现（取回输入框 → 重新提交插回原位置）。
 - **扫光**：文字扫光使用 `@veltra/styles/animations` 提供的全局可复用类 `u-shine`（纯 CSS，background-clip: text，含 prefers-reduced-motion 降级），随 ai-chat 的 `style.ts` 按需加载；思考中与进行中的工具名自动应用。
 

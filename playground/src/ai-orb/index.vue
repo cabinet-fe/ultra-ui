@@ -25,7 +25,7 @@
       <p class="ai-orb-demo__hint">
         通过模板引用调用 <code>orb.react(type)</code> 播放约 1-2s 瞬时表情：happy
         先睁大眼睛再弯眼大笑点头；shock 睁大眼睛 + 后仰；frustrated 闭紧眼睛 + 摇头。UAiChat
-        中工具调用失败会自动对工作球触发 frustrated。
+        中工具调用失败会自动对工作球触发 frustrated；对话结束或失败时工作球会停留片刻再隐藏。
       </p>
     </CustomCard>
 

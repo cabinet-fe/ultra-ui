@@ -32,7 +32,7 @@
         </UFilePicker>
       </div>
 
-      <!-- 右簇：模型/推理选择 → 发送/停止，贴近发送按钮 -->
+      <!-- 右簇：模型/推理选择 → 发送或停止（互斥） -->
       <div :class="cls.e('input-toolbar-right')">
         <ModelPicker
           v-if="models?.length"
@@ -41,31 +41,28 @@
           :models="models"
         />
 
-        <!-- 生成中：发送按钮变为入队（有内容时可点），旁边提供停止 -->
-        <template v-if="running">
-          <UButton
-            size="small"
-            type="primary"
-            circle
-            :disabled="!hasContent"
-            :icon="Up"
-            title="加入待发送队列"
-            @click="handleSend"
-          />
-          <UButton size="small" type="danger" circle title="停止生成" @click="emit('abort')">
-            <span :class="cls.e('input-stop')" />
-          </UButton>
-        </template>
+        <UButton
+          v-if="showStop"
+          key="stop"
+          size="small"
+          type="danger"
+          circle
+          title="停止生成"
+          @click="emit('abort')"
+        >
+          <span :class="cls.e('input-stop')" />
+        </UButton>
         <UButton
           v-else
+          key="send"
           size="small"
           type="primary"
           circle
           :disabled="!hasContent"
           :icon="Up"
+          :title="running ? '加入待发送队列' : undefined"
           @click="handleSend"
-        >
-        </UButton>
+        />
       </div>
     </div>
   </div>
@@ -85,7 +82,7 @@ import ModelPicker from './model-picker.vue'
 defineOptions({ name: 'UAiChatInput' })
 
 const props = defineProps<{
-  /** 是否生成中（发送变为入队，并提供停止按钮） */
+  /** 是否生成中（空输入显示停止，有内容则发送入队） */
   running: boolean
   /** 可选模型列表；有值则显示选择器 */
   models?: ChatModelOption[]
@@ -113,6 +110,9 @@ const attachments = ref<ChatAttachment[]>([])
 const textareaRef = shallowRef<HTMLTextAreaElement>()
 
 const hasContent = computed(() => !!text.value.trim() || attachments.value.length > 0)
+
+/** 生成中且输入为空时显示停止；有内容则显示发送（入队） */
+const showStop = computed(() => props.running && !hasContent.value)
 
 /** 生成中提示用户消息将进入队列 */
 const placeholderText = computed(() => {

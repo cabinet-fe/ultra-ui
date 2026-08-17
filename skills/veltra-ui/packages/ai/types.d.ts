@@ -96,9 +96,22 @@ export interface ChatTool<A = any> {
   /**
    * 自定义工具卡片内容渲染（组件或渲染函数），props 为 ChatToolRenderProps。
    * 设置后替换卡片 body 的默认参数/结果展示；优先级高于 tool-<name> 插槽。
+   * renderTo 为 'panel' 时改为在右侧侧边面板中渲染。
    */
   render?: Component
-  /** 执行完成后是否自动折叠。缺省：设置了 render 时为 false，否则为 true */
+  /**
+   * 渲染位置。缺省 'inline'：render 组件展示在会话内的工具卡片中；
+   * 'panel'：render 组件展示在对话区右侧的侧边面板（新调用自动打开面板，
+   * 工具卡片内仅保留「查看面板」入口，面板与会话区宽度可拖拽调节）。
+   * 适合打开后台页面、表单、图表、列表等需要较大交互区域的工具。
+   */
+  renderTo?: 'inline' | 'panel'
+  /**
+   * 侧边面板默认宽度（px，最小 320），仅 renderTo: 'panel' 时生效，缺省 420。
+   * 聚焦到该工具的调用时应用；未指定宽度的工具面板保持当前宽度（含用户拖拽结果）。
+   */
+  panelWidth?: number
+  /** 执行完成后是否自动折叠。缺省：renderTo 为 'panel' 时为 true；否则设置了 render 时为 false，否则为 true */
   autoCollapse?: boolean
   /**
    * 终结工具：执行成功后对话即结束，结果不再回灌模型生成额外文字（工具 UI 即最终答复）。
@@ -316,6 +329,11 @@ export interface AiOrbProps {
   size?: number
   /** 生命状态，默认 idle */
   status?: AiOrbStatus
+}
+
+export interface AiOrbEmits {
+  /** 点击球体（球体同时会做 Q 弹反馈） */
+  (e: 'click'): void
 }
 
 export interface AiOrbExposed {
