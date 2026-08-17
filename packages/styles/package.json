@@ -9,12 +9,19 @@
   "sideEffects": [
     "**/*.css",
     "**/*.scss",
+    "src/animations/index.ts",
+    "dist/animations/index.js",
     "src/normalize/index.ts",
     "dist/normalize/index.js",
     "src/transitions/index.ts",
     "dist/transitions/index.js"
   ],
   "exports": {
+    "./animations": {
+      "veltra-dev": "./src/animations/index.ts",
+      "import": "./dist/animations/index.js",
+      "default": "./dist/animations/index.js"
+    },
     "./transitions": {
       "veltra-dev": "./src/transitions/index.ts",
       "import": "./dist/transitions/index.js",

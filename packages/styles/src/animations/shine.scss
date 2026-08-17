@@ -1,0 +1,31 @@
+// 全局文字扫光效果：背景渐变扫过文字（background-clip: text，纯 CSS + GPU 合成）。
+// 任意元素添加 `u-shine` 类即可使用；通过 `--u-shine-duration` 覆盖动画时长。
+.u-shine {
+  background: linear-gradient(
+    100deg,
+    var(--u-text-color-assist) 30%,
+    var(--u-text-color-title) 50%,
+    var(--u-text-color-assist) 70%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: u-shine var(--u-shine-duration, 2.4s) linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    background: none;
+    -webkit-text-fill-color: currentColor;
+  }
+}
+
+@keyframes u-shine {
+  from {
+    background-position: 200% 0;
+  }
+
+  to {
+    background-position: -200% 0;
+  }
+}

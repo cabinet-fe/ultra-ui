@@ -52,7 +52,7 @@ export interface CollapseItemProps {
    */
   modelValue?: boolean
 
-  /** 标题文本（也可使用 #title 插槽） */
+  /** 标题文本（也可通过 #header 插槽自定义整个头部） */
   title?: string
 
   /** 是否禁用 */

@@ -30,10 +30,10 @@
         @regenerate="emit('regenerate')"
       />
 
-      <!-- 工作状态统一指示：生成中在列表末尾展示活体球 + 文案 -->
-      <div v-if="running" :class="cls.e('working')">
-        <UAiOrb :size="26" :status="workingOrbStatus" />
-        <span :class="[cls.e('working-text'), cls.e('shine')]">工作中…</span>
+      <!-- 工作状态统一指示：生成中在列表末尾展示活体球 + 文案；回答完毕短暂停留播 happy 表情 -->
+      <div v-if="running || finishing" :class="cls.e('working')">
+        <UAiOrb ref="workingOrb" :size="26" :status="workingOrbStatus" />
+        <span v-if="running" :class="[cls.e('working-text'), 'u-shine']">工作中…</span>
       </div>
     </UScroll>
 
@@ -52,10 +52,19 @@ import { UIcon, UScroll } from '@veltra/desktop'
 import type { ScrollPosition } from '@veltra/desktop'
 import { ArrowDown } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
-import { computed, inject, nextTick, onBeforeUnmount, ref, shallowRef, watch } from 'vue'
+import {
+  computed,
+  inject,
+  nextTick,
+  onBeforeUnmount,
+  ref,
+  shallowRef,
+  useTemplateRef,
+  watch
+} from 'vue'
 
 import type { ChatMessage } from '../../chat/types'
-import type { AiOrbStatus } from '../../types/ai-orb'
+import type { AiOrbExposed, AiOrbStatus } from '../../types/ai-orb'
 import UAiOrb from '../ai-orb/ai-orb.vue'
 import { AiChatDIKey } from './di'
 import MessageItem from './message-item.vue'
@@ -96,7 +105,7 @@ const welcomeItems = computed(() => {
   return (Array.isArray(welcome) ? welcome : [welcome]).filter(Boolean)
 })
 
-/** 工作球状态：正文输出中 → speaking，其余生成阶段 → thinking */
+/** 工作球状态：正文输出中 → speaking，其余生成阶段（含工具调用）→ thinking */
 const workingOrbStatus = computed<AiOrbStatus>(() => {
   const last = visibleMessages.value[visibleMessages.value.length - 1]
   if (last?.role === 'assistant' && last.status === 'streaming' && last.content) {
@@ -104,6 +113,58 @@ const workingOrbStatus = computed<AiOrbStatus>(() => {
   }
   return 'thinking'
 })
+
+const workingOrbRef = useTemplateRef<AiOrbExposed>('workingOrb')
+
+/** 工具调用失败的 id 去重集合：同一次失败只播一次沮丧表情 */
+const reactedToolErrorIds = new Set<string>()
+
+const toolErrorIds = computed(() => {
+  const ids: string[] = []
+  for (const msg of props.messages) {
+    if (msg.role !== 'assistant' || !msg.toolCalls) continue
+    for (const call of msg.toolCalls) {
+      if (call.status === 'error') ids.push(call.id)
+    }
+  }
+  return ids
+})
+
+// 工具调用失败 → 工作球闭眼摇头（frustrated）
+watch(toolErrorIds, (ids) => {
+  for (const id of ids) {
+    if (reactedToolErrorIds.has(id)) continue
+    reactedToolErrorIds.add(id)
+    workingOrbRef.value?.react('frustrated')
+  }
+})
+
+/** 回答完毕后工作球短暂停留：播完 happy 表情再隐藏 */
+const finishing = ref(false)
+let finishTimer: ReturnType<typeof setTimeout> | undefined
+
+watch(
+  () => props.running,
+  (running, prev) => {
+    if (running) {
+      // 新一轮生成开始：立即结束收尾表情
+      clearTimeout(finishTimer)
+      finishing.value = false
+      return
+    }
+    if (!prev) return
+    // 仅自然完成（done）时播开心；中断 / 出错直接收起
+    const last = visibleMessages.value[visibleMessages.value.length - 1]
+    if (last?.role !== 'assistant' || last.status !== 'done') return
+    finishing.value = true
+    nextTick(() => workingOrbRef.value?.react('happy'))
+    finishTimer = setTimeout(() => {
+      finishing.value = false
+    }, 1700)
+  }
+)
+
+onBeforeUnmount(() => clearTimeout(finishTimer))
 
 const scrollRef = shallowRef<{ scrollTo: (position: ScrollPosition) => void }>()
 /** 是否吸附底部（用户上翻浏览历史时取消吸附） */

@@ -32,33 +32,32 @@ const active = ref<CollapseModelValue>(['1'])
 </template>
 ```
 
-## 自定义图标与标题
+## 自定义头部（#header 插槽）
 
 ```vue
 <script setup lang="ts">
-import { Star, ArrowDown } from '@veltra/icons/normal'
+import { Star, ArrowDown, ArrowRight } from '@veltra/icons/normal'
 </script>
 
 <template>
   <u-collapse v-model="active" :expand-icon="ArrowDown">
+    <!-- #header 完全接管头部；作用域参数 isActive 指示展开状态 -->
     <u-collapse-item value="1">
-      <template #title>
-        <span style="display:inline-flex;align-items:center;gap:6px">
+      <template #header="{ isActive }">
+        <span style="display:inline-flex;align-items:center;gap:6px;flex:1">
           <u-icon><Star /></u-icon>
           收藏夹
         </span>
+        <u-icon :style="{ color: isActive ? 'var(--u-color-primary)' : '' }">
+          <ArrowDown v-if="isActive" />
+          <ArrowRight v-else />
+        </u-icon>
       </template>
       收藏内容
     </u-collapse-item>
 
-    <u-collapse-item value="2" title="动态图标">
-      <template #icon="{ isActive }">
-        <u-icon :style="{ color: isActive ? 'var(--u-color-primary)' : '' }">
-          <ArrowDown />
-        </u-icon>
-      </template>
-      根据展开状态切换图标样式
-    </u-collapse-item>
+    <!-- 不提供 #header 时渲染默认头部：title 文本 + 展开图标（活动态旋转 180°） -->
+    <u-collapse-item value="2" title="默认头部"> 默认头部的展开图标随状态旋转 </u-collapse-item>
   </u-collapse>
 </template>
 ```

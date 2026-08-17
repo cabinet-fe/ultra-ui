@@ -168,7 +168,7 @@ describe('内置提问工具', () => {
     expect(summary).toContain('目标用户是谁？')
     expect(summary).toContain('需要深色模式')
     expect(host.querySelector('.u-ai-chat__ask-question-chip')?.textContent).toBe('开发者')
-    expect(host.querySelector('.u-ai-chat__tool-call.is-success.is-expanded')).toBeTruthy()
+    expect(host.querySelector('.u-ai-chat__tool-call.is-success.is-active')).toBeTruthy()
     unmount()
   })
 

@@ -41,3 +41,27 @@ import '@veltra/styles/transitions/fade.scss'
 | `zoom-in`                        | 中心缩放                   |
 | `zoom-in-left` / `zoom-in-right` | 水平方向缩放               |
 | `zoom-in-top` / `zoom-in-bottom` | 垂直方向缩放               |
+
+## Animations
+
+全局动画工具类，可在应用入口一起导入。
+
+```ts
+import '@veltra/styles/animations'
+```
+
+也可以按需导入单个动画。
+
+```ts
+import '@veltra/styles/animations/shine.scss'
+```
+
+可用类：
+
+| 类名      | 用途                                                                                              |
+| --------- | ------------------------------------------------------------------------------------------------- |
+| `u-shine` | 文字扫光（background-clip: text）；`--u-shine-duration` 覆盖时长（默认 2.4s），含 reduced-motion 降级 |
+
+```vue
+<span class="u-shine">工作中…</span>
+```

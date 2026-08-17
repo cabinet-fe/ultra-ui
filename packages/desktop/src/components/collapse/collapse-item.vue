@@ -10,15 +10,13 @@
       @keydown.enter.prevent="handleClick"
       @keydown.space.prevent="handleClick"
     >
-      <span :class="cls.e('title')">
-        <slot name="title">{{ title }}</slot>
-      </span>
+      <slot name="header" :is-active="isActive">
+        <span :class="cls.e('title')">{{ title }}</span>
 
-      <span :class="cls.e('icon')">
-        <slot name="icon" :is-active="isActive">
+        <span :class="cls.e('icon')">
           <UIcon><component :is="iconComponent" /></UIcon>
-        </slot>
-      </span>
+        </span>
+      </slot>
     </div>
     <div ref="wrapperEl" :class="cls.e('content-wrapper')" :aria-hidden="!isActive">
       <div :class="cls.e('content')">
@@ -42,6 +40,13 @@ defineOptions({ name: 'UCollapseItem' })
 
 const props = withDefaults(defineProps<CollapseItemProps>(), { modelValue: false })
 const emit = defineEmits<CollapseItemEmits>()
+
+defineSlots<{
+  /** 自定义整个头部，作用域参数 `isActive` 指示展开状态；缺省渲染 title + 展开图标 */
+  header?: (scope: { isActive: boolean }) => any
+  /** 折叠面板内容 */
+  default?: () => any
+}>()
 
 const context = inject(CollapseDIKey, undefined)
 

@@ -11,7 +11,7 @@
 import { bem } from '@veltra/utils'
 import { onBeforeUnmount, onMounted, useTemplateRef, watch } from 'vue'
 
-import type { AiOrbProps } from '../../types/ai-orb'
+import type { AiOrbExposed, AiOrbProps, AiOrbReaction } from '../../types/ai-orb'
 import { createOrbRenderer, type AiOrbRenderer } from './orb-renderer'
 
 defineOptions({ name: 'UAiOrb' })
@@ -25,13 +25,6 @@ const canvasRef = useTemplateRef<HTMLCanvasElement>('canvasRef')
 let renderer: AiOrbRenderer | null = null
 let observer: IntersectionObserver | null = null
 let motionQuery: MediaQueryList | null = null
-
-/** 取主题主色作为球体基色（挂载时解析一次，失败时渲染器回退默认蓝） */
-const resolveThemeColor = () => {
-  const el = canvasRef.value
-  if (!el) return undefined
-  return getComputedStyle(el).getPropertyValue('--u-color-primary').trim() || undefined
-}
 
 const applyVisibility = (visible: boolean) => {
   if (!renderer) return
@@ -54,11 +47,7 @@ onMounted(() => {
   const canvas = canvasRef.value
   if (!canvas) return
 
-  renderer = createOrbRenderer(canvas, {
-    size: props.size,
-    status: props.status,
-    color: resolveThemeColor()
-  })
+  renderer = createOrbRenderer(canvas, { size: props.size, status: props.status })
 
   motionQuery = window.matchMedia?.('(prefers-reduced-motion: reduce)') ?? null
   motionQuery?.addEventListener?.('change', handleMotionChange)
@@ -83,6 +72,10 @@ watch(
   () => props.size,
   (size) => renderer?.resize(size)
 )
+
+const react = (reaction: AiOrbReaction) => renderer?.trigger(reaction)
+
+defineExpose<AiOrbExposed>({ react })
 
 onBeforeUnmount(() => {
   observer?.disconnect()

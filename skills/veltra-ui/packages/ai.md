@@ -13,7 +13,9 @@ import type {
   ChatProvider,
   ChatModelOption,
   AiChatExposed,
-  AiOrbStatus
+  AiOrbStatus,
+  AiOrbReaction,
+  AiOrbExposed
 } from '@veltra/ai'
 import '@veltra/ai/style'
 ```
@@ -32,7 +34,7 @@ import '@veltra/ai/style'
 - **ChatTransport**：通信层适配器，组件不绑定具体 LLM 协议。内置 `createOpenAITransport()`（OpenAI 兼容 SSE，零额外依赖），也可自行实现 `ChatTransport` 接任意后端。请求可携带 `model` / `reasoningLevel`。
 - **模型/推理选择**：传入 `models`（或 `transport.models`）后输入栏展示模型选择器（`description` 为选项副标题）；当前模型声明了 `reasoningLevels` 时，选择器面板底部出现「思考强度」区。支持 `v-model:model` / `v-model:reasoning-level`。
 - **useChat**：与 UI 解耦的对话编排状态机（UAiChat 内部同款），用于无头对话或完全自定义 UI；内部始终合并内置工具。
-- **UAiOrb**：canvas 2D 活体球（带眼睛 / 眨眼 / 微笑表情，idle / thinking / speaking 三态动画）。UAiChat 已内置：空状态欢迎区大球 + 生成中列表末尾「工作中…」指示；可独立使用，按可见性自动启停动画，不影响渲染性能。
+- **UAiOrb**：canvas 2D 活体球（固定配色微椭圆，原地呼吸无弹跳；眨眼 / 视线游移转头 / 眯眼等眼部动画，idle / thinking / speaking 三态；`react('happy'|'shock'|'frustrated')` 播放瞬时表情对应回答完毕 / 惊讶 / 工具调用失败）。UAiChat 已内置：空状态欢迎区大球 + 生成中列表末尾「工作中…」指示（工具失败播 frustrated，回答完毕短暂停留播 happy）；可独立使用，按可见性自动启停动画，不影响渲染性能。
 - **滚动行为**：流式生成时实时吸底跟随；用户上翻浏览即停止跟随，顶部悬浮「最新消息」按钮一键回底。
 - **welcome 快捷提问**：`welcome` 接受 `string | string[]`，数组渲染为可点击卡片，点击即以该文案发送消息。
 - **工具结果插槽**：`tool-<name>` 插槽自定义某个工具的结果渲染。

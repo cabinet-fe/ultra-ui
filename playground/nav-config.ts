@@ -38,6 +38,7 @@ export const demoMeta: Record<string, DemoMeta> = {
   icons: { zh: '图标', en: 'Icons', category: 'other' },
   action: { zh: '操作按钮', en: 'Action', category: 'other' },
   'ai-chat': { zh: 'AI 对话', en: 'AiChat', category: 'data' },
+  'ai-orb': { zh: '活体球', en: 'AiOrb', category: 'data' },
   sheet: { zh: '电子表格', en: 'Sheet', category: 'data' },
   'sheet-big-data': { zh: '大数据量演示', en: 'BigData', category: 'data' },
   'sheet-report': { zh: '报表配置', en: 'SheetReport', category: 'data' },
@@ -114,7 +115,14 @@ export const demoMeta: Record<string, DemoMeta> = {
 }
 
 /** 顶层独立入口（不挂在 Desktop 分类下） */
-const TOP_LEVEL_DEMO_KEYS = new Set(['icons', 'ai-chat', 'sheet', 'sheet-big-data', 'sheet-report'])
+const TOP_LEVEL_DEMO_KEYS = new Set([
+  'icons',
+  'ai-chat',
+  'ai-orb',
+  'sheet',
+  'sheet-big-data',
+  'sheet-report'
+])
 
 const ICONS_ROOT = '/icons'
 
@@ -155,7 +163,11 @@ export function buildPlaygroundMenus(): NavItem[] {
       title: 'AI Chat',
       description: '预览 @veltra/ai 对话组件，经 Node 代理接入 DeepSeek V4 Flash / V4 Pro',
       icon: AiChat as DefineComponent,
-      path: '/ai-chat/index'
+      path: '/ai-chat',
+      children: [
+        { title: 'AI 对话', path: '/ai-chat/index' },
+        { title: 'AI Orb 活体球', path: '/ai-orb/index' }
+      ]
     },
     {
       title: 'Sheet 电子表格',
@@ -173,7 +185,9 @@ export function buildPlaygroundMenus(): NavItem[] {
 
 /** 分组导航路径（非叶子页），不应触发 router 跳转 */
 export function isNavGroupPath(path: string): boolean {
-  if (path === DESKTOP_ROOT || path === ICONS_ROOT || path === '/sheet') return true
+  if (path === DESKTOP_ROOT || path === ICONS_ROOT || path === '/sheet' || path === '/ai-chat') {
+    return true
+  }
   if (path.startsWith(`${DESKTOP_ROOT}/`) && !path.endsWith('/index')) return true
   return false
 }

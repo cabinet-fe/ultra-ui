@@ -14,7 +14,12 @@ export default defineConfig({
   test: { include: ['src/**/*.test.ts'], globals: true },
 
   pack: {
-    entry: ['src/theme/index.ts', 'src/normalize/index.ts', 'src/transitions/index.ts'],
+    entry: [
+      'src/theme/index.ts',
+      'src/normalize/index.ts',
+      'src/transitions/index.ts',
+      'src/animations/index.ts'
+    ],
     platform: 'browser',
     format: ['esm'],
     unbundle: true,
@@ -29,7 +34,8 @@ export default defineConfig({
     },
     copy: [
       { from: 'src/*.scss', to: 'dist' },
-      { from: 'src/transitions/**/*.scss', to: 'dist/transitions' }
+      { from: 'src/transitions/**/*.scss', to: 'dist/transitions' },
+      { from: 'src/animations/**/*.scss', to: 'dist/animations' }
     ]
   }
 })

@@ -11,6 +11,8 @@ import { DEFAULT_ROUTE, demoMeta } from './nav-config'
 const desktopModules = import.meta.glob<{ default: RouteComponent }>('./src/desktop/**/index.vue')
 const iconsModules = import.meta.glob<{ default: RouteComponent }>('./src/icons/**/index.vue')
 const aiChatModules = import.meta.glob<{ default: RouteComponent }>('./src/ai-chat/**/index.vue')
+// 顶层独立演示页（glob 首段是字面段，`./src/ai-chat/**` 不匹配 `ai-orb`）
+const aiOrbModules = import.meta.glob<{ default: RouteComponent }>('./src/ai-orb/index.vue')
 const sheetModules = import.meta.glob<{ default: RouteComponent }>('./src/sheet/**/index.vue')
 // 顶层独立演示页（glob 首段是字面段，`./src/sheet/**` 不匹配 `sheet-big-data` / `sheet-report`）
 const sheetBigDataModules = import.meta.glob<{ default: RouteComponent }>(
@@ -24,6 +26,7 @@ const modules = {
   ...desktopModules,
   ...iconsModules,
   ...aiChatModules,
+  ...aiOrbModules,
   ...sheetModules,
   ...sheetBigDataModules,
   ...sheetReportModules

@@ -112,11 +112,11 @@ describe('UAiChat', () => {
       expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
     })
 
-    const header = host.querySelector<HTMLElement>('.u-ai-chat__tool-call-header')!
+    const header = host.querySelector<HTMLElement>('.u-ai-chat__tool-call .u-collapse__header')!
     header.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     await nextTick()
 
-    const body = host.querySelector('.u-ai-chat__tool-call .u-ai-chat__tool-call-body')
+    const body = host.querySelector('.u-ai-chat__tool-call .u-collapse__content-wrapper')
     expect(body?.textContent).toContain('"expression": "1+1"')
     expect(body?.textContent).toContain('"value": 2')
     unmount()
@@ -228,7 +228,7 @@ describe('UAiChat', () => {
 
     // 完成后保持展开，默认参数/结果区被替换
     await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__tool-call.is-success.is-expanded')).toBeTruthy()
+      expect(host.querySelector('.u-ai-chat__tool-call.is-success.is-active')).toBeTruthy()
     })
     expect(host.querySelector('.weather-view')?.textContent).toContain('{"temperature":26}')
     expect(host.querySelector('.u-ai-chat__tool-call-code')).toBeFalsy()
@@ -259,10 +259,10 @@ describe('UAiChat', () => {
     chat.value?.send('1+1')
 
     await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__tool-call.is-success.is-expanded')).toBeTruthy()
+      expect(host.querySelector('.u-ai-chat__tool-call.is-success.is-active')).toBeTruthy()
     })
     expect(
-      host.querySelector('.u-ai-chat__tool-call .u-ai-chat__tool-call-body')?.textContent
+      host.querySelector('.u-ai-chat__tool-call .u-collapse__content-wrapper')?.textContent
     ).toContain('"value": 2')
     unmount()
   })
@@ -277,8 +277,8 @@ describe('UAiChat', () => {
       expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
     })
     await nextTick()
-    expect(host.querySelector('.u-ai-chat__tool-call.is-expanded')).toBeFalsy()
-    const body = host.querySelector('.u-ai-chat__tool-call .u-ai-chat__tool-call-body')
+    expect(host.querySelector('.u-ai-chat__tool-call.is-active')).toBeFalsy()
+    const body = host.querySelector('.u-ai-chat__tool-call .u-collapse__content-wrapper')
     expect(body?.getAttribute('aria-hidden')).toBe('true')
     unmount()
   })
@@ -549,6 +549,32 @@ describe('UAiChat', () => {
     await vi.waitFor(() => {
       expect(host.querySelector('.u-ai-chat__working')).toBeFalsy()
     })
+    unmount()
+  })
+
+  it('回答完毕后工作球短暂停留播收尾表情再消失', async () => {
+    const transport: ChatTransport = (_req, handlers) => {
+      handlers.onTextDelta('完成')
+    }
+    const { host, chat, unmount } = mountAiChat({ transport })
+
+    chat.value?.send('hi')
+
+    // 同步 transport 立即完成：进入收尾停留（工作球仍在，「工作中…」文案已隐藏）
+    await vi.waitFor(() => {
+      const working = host.querySelector('.u-ai-chat__working')
+      expect(working).toBeTruthy()
+      expect(working?.textContent).not.toContain('工作中')
+      expect(working?.querySelector('canvas.u-ai-orb')).toBeTruthy()
+    })
+
+    // 收尾表情播完（约 1.7s）后隐藏
+    await vi.waitFor(
+      () => {
+        expect(host.querySelector('.u-ai-chat__working')).toBeFalsy()
+      },
+      { timeout: 3000 }
+    )
     unmount()
   })
 })

@@ -1,18 +1,14 @@
 <template>
-  <div :class="[cls.e('tool-call'), bem.is(toolCall.status), bem.is('expanded', isExpanded)]">
-    <div
-      :class="cls.e('tool-call-header')"
-      role="button"
-      :aria-expanded="isExpanded"
-      tabindex="0"
-      @click="toggle"
-      @keydown.enter.prevent="toggle"
-      @keydown.space.prevent="toggle"
-    >
+  <UCollapseItem
+    v-model="isExpanded"
+    :class="[cls.e('tool-call'), bem.is(toolCall.status)]"
+    @change="markUserToggled"
+  >
+    <template #header>
       <UIcon :class="[cls.e('tool-call-status'), statusClass]">
         <component :is="headerIcon" />
       </UIcon>
-      <span :class="[cls.e('tool-call-name'), isActive && cls.e('shine')]">
+      <span :class="[cls.e('tool-call-name'), isActive && 'u-shine']">
         {{ tool?.label ?? toolCall.name }}
       </span>
       <span v-if="summary" :class="cls.e('tool-call-summary')">{{ summary }}</span>
@@ -21,39 +17,37 @@
         v-if="toolCall.status === 'awaiting-confirm'"
         :class="cls.e('tool-call-confirm')"
         @click.stop
+        @keydown.enter.stop
+        @keydown.space.stop
       >
         <UButton size="small" type="primary" @click="emit('respond', true)">允许</UButton>
         <UButton size="small" text @click="emit('respond', false)">拒绝</UButton>
       </span>
 
       <UIcon :class="cls.e('tool-call-chevron')"><ArrowDown /></UIcon>
-    </div>
+    </template>
 
-    <div ref="bodyRef" :class="cls.e('tool-call-body')" :aria-hidden="!isExpanded">
-      <div :class="cls.e('tool-call-body-inner')">
-        <!-- 自定义渲染：工具定义的 render 优先于 tool-<name> 插槽，均替换整个 body -->
-        <component :is="tool.render" v-if="tool?.render" :tool-call="toolCall" />
-        <component :is="slotBody" v-else-if="slotBody && hasResult" />
-        <template v-else>
-          <template v-if="prettyArguments">
-            <div :class="cls.e('tool-call-section')">参数</div>
-            <pre :class="cls.e('tool-call-code')">{{ prettyArguments }}</pre>
-          </template>
+    <!-- 自定义渲染：工具定义的 render 优先于 tool-<name> 插槽，均替换整个 body -->
+    <component :is="tool.render" v-if="tool?.render" :tool-call="toolCall" />
+    <component :is="slotBody" v-else-if="slotBody && hasResult" />
+    <template v-else>
+      <template v-if="prettyArguments">
+        <div :class="cls.e('tool-call-section')">参数</div>
+        <pre :class="cls.e('tool-call-code')">{{ prettyArguments }}</pre>
+      </template>
 
-          <template v-if="hasResult">
-            <div :class="cls.e('tool-call-section')">
-              {{ toolCall.status === 'error' ? '错误' : '结果' }}
-            </div>
-            <pre :class="cls.e('tool-call-code')">{{ displayResult }}</pre>
-          </template>
-        </template>
-      </div>
-    </div>
-  </div>
+      <template v-if="hasResult">
+        <div :class="cls.e('tool-call-section')">
+          {{ toolCall.status === 'error' ? '错误' : '结果' }}
+        </div>
+        <pre :class="cls.e('tool-call-code')">{{ displayResult }}</pre>
+      </template>
+    </template>
+  </UCollapseItem>
 </template>
 
 <script lang="ts" setup>
-import { UButton, UIcon } from '@veltra/desktop'
+import { UButton, UCollapseItem, UIcon } from '@veltra/desktop'
 import {
   ArrowDown,
   CircleCheckFilled,
@@ -62,17 +56,8 @@ import {
   Loading,
   WarningFilled
 } from '@veltra/icons/normal'
-import { bem, ExpandTransition } from '@veltra/utils'
-import {
-  computed,
-  inject,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  useTemplateRef,
-  watch,
-  type Component
-} from 'vue'
+import { bem } from '@veltra/utils'
+import { computed, inject, ref, watch, type Component } from 'vue'
 
 import type { ChatToolCall } from '../../chat/types'
 import { AiChatDIKey } from './di'
@@ -93,9 +78,9 @@ const isExpanded = ref(false)
 /** 用户手动切换过后，不再随 status 自动展开/折叠 */
 let userToggled: boolean = false
 
-const toggle = () => {
+/** UCollapseItem 的 change 仅在用户点击头部时触发（程序化 v-model 变更不触发） */
+const markUserToggled = () => {
   userToggled = true
-  isExpanded.value = !isExpanded.value
 }
 
 /** 完成后是否自动折叠：缺省有 render 时不折叠，否则折叠 */
@@ -114,32 +99,9 @@ watch(
   { immediate: true }
 )
 
-const bodyRef = useTemplateRef<HTMLElement>('bodyRef')
-const expandTransition = new ExpandTransition({
-  transition: 'height 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
-})
-
-onMounted(() => {
-  if (bodyRef.value) expandTransition.setExpanded(bodyRef.value, isExpanded.value)
-})
-
-watch(isExpanded, (expanded) => {
-  const el = bodyRef.value
-  if (!el) return
-  if (expanded) {
-    expandTransition.expand(el)
-  } else {
-    expandTransition.collapse(el)
-  }
-})
-
-onBeforeUnmount(() => {
-  if (bodyRef.value) expandTransition.cancel(bodyRef.value)
-})
-
 const STATUS_META: Record<string, { icon: Component; class: string }> = {
-  pending: { icon: Loading, class: 'is-loading' },
-  running: { icon: Loading, class: 'is-loading' },
+  pending: { icon: Loading, class: 'is-active' },
+  running: { icon: Loading, class: 'is-active' },
   'awaiting-confirm': { icon: WarningFilled, class: 'is-warning' },
   success: { icon: CircleCheckFilled, class: 'is-success' },
   error: { icon: CircleClose, class: 'is-danger' },

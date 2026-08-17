@@ -29,7 +29,7 @@
             <Loading v-if="isThinking" />
             <InfoCircle v-else />
           </UIcon>
-          <span :class="[cls.e('reasoning-title'), isThinking && cls.e('shine')]">
+          <span :class="[cls.e('reasoning-title'), isThinking && 'u-shine']">
             {{ isThinking ? '思考中…' : '思考过程' }}
           </span>
           <UIcon :class="cls.e('reasoning-chevron')"><ArrowRight /></UIcon>

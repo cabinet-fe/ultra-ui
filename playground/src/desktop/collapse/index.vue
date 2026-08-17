@@ -32,36 +32,45 @@
       </u-collapse>
     </CustomCard>
 
-    <CustomCard title="标题图标">
+    <CustomCard title="自定义头部">
       <p class="desc">
-        通过 <code>#title</code> 插槽在标题前放置业务图标，右侧仍保留默认展开
-        chevron；适合设置面板、FAQ 等需要语义图标的场景。
+        通过 <code>#header</code> 插槽完全接管头部内容，作用域参数 <code>isActive</code>
+        指示展开状态；业务图标、徽标等均可自由组合。
       </p>
       <u-collapse v-model="titleIconValue">
         <u-collapse-item value="account">
-          <template #title>
-            <span class="title-with-icon">
+          <template #header="{ isActive }">
+            <span class="header-title">
               <UIcon><User /></UIcon>
               账户信息
             </span>
+            <UIcon class="header-chevron" :class="{ 'is-active': isActive }">
+              <ArrowDown />
+            </UIcon>
           </template>
           <p>头像、昵称、绑定手机等基础资料。</p>
         </u-collapse-item>
         <u-collapse-item value="notify">
-          <template #title>
-            <span class="title-with-icon">
+          <template #header="{ isActive }">
+            <span class="header-title">
               <UIcon><Bell /></UIcon>
               通知偏好
             </span>
+            <UIcon class="header-chevron" :class="{ 'is-active': isActive }">
+              <ArrowDown />
+            </UIcon>
           </template>
           <p>邮件、站内信与推送渠道的开关与频率。</p>
         </u-collapse-item>
         <u-collapse-item value="security">
-          <template #title>
-            <span class="title-with-icon">
+          <template #header="{ isActive }">
+            <span class="header-title">
               <UIcon><Setting /></UIcon>
               安全设置
             </span>
+            <UIcon class="header-chevron" :class="{ 'is-active': isActive }">
+              <ArrowDown />
+            </UIcon>
           </template>
           <p>登录密码、二次验证与设备管理。</p>
         </u-collapse-item>
@@ -112,8 +121,9 @@
         <u-collapse-item value="c1" title="点击展开 / 收起">
           <p>展开图标使用 <code>Plus</code>，旋转后呈“×”视觉，无需额外动画代码。</p>
         </u-collapse-item>
-        <u-collapse-item value="c2" title="或使用 #icon 插槽完全接管">
-          <template #icon="{ isActive }">
+        <u-collapse-item value="c2">
+          <template #header="{ isActive }">
+            <span class="header-title">或使用 #header 插槽完全接管</span>
             <UIcon
               :style="{
                 color: isActive ? 'var(--u-color-primary)' : 'var(--u-text-color-placeholder)'
@@ -123,7 +133,7 @@
               <ArrowRight v-else />
             </UIcon>
           </template>
-          <p>插槽形式可以根据 <code>isActive</code> 状态返回不同图标，完全接管显示。</p>
+          <p>#header 插槽可以根据 <code>isActive</code> 状态返回不同图标，完全接管头部显示。</p>
         </u-collapse-item>
       </u-collapse>
     </CustomCard>
@@ -282,10 +292,23 @@ const sizes: ComponentSize[] = ['small', 'default', 'large']
     }
   }
 
-  .title-with-icon {
+  .header-title {
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .header-chevron {
+    flex-shrink: 0;
+    font-size: 12px;
+    color: var(--u-text-color-assist);
+    transition: transform 0.2s;
+
+    &.is-active {
+      transform: rotate(180deg);
+    }
   }
 
   .size-grid {
