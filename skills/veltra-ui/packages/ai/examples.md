@@ -1,62 +1,75 @@
 # UAiChat 示例
 
-## 基础对话（多 Provider OpenAI 兼容端点）
+## 基础对话（多 Provider + 模型 / 推理选择）
+
+父级必须有明确高度。生产环境用相对路径代理，API Key 留在服务端。
 
 ```vue
 <template>
   <u-ai-chat
+    style="height: calc(100vh - 90px)"
     :transport="transport"
     :models="transport.models"
     :model="transport.defaultModel"
+    system-prompt="你是业务助手，优先使用工具，不要编造数据。"
     :welcome="['有什么可以帮你？', '给我讲个笑话']"
+    @finish="onFinish"
+    @error="onError"
   />
 </template>
 
 <script lang="ts" setup>
 import { createOpenAITransport } from '@veltra/ai'
+import '@veltra/ai/style'
 
 const transport = createOpenAITransport({
   providers: [
     {
       id: 'deepseek',
       label: 'DeepSeek',
-      endpoint: 'https://api.deepseek.com/v1/chat/completions',
-      apiKey: import.meta.env.VITE_DEEPSEEK_KEY,
-      models: [{ id: 'deepseek-chat', label: 'DeepSeek Chat' }]
-    },
-    {
-      id: 'proxy',
-      label: '业务代理',
-      // 相对路径走当前 origin；鉴权可用 cookie 或 headers
+      // 相对路径走当前 origin；鉴权用 cookie 或服务端代理
       endpoint: '/api/ai/chat',
       models: [
         {
-          id: 'o3-mini',
-          label: 'o3-mini',
-          // 选择器面板中的副标题描述
-          description: '擅长对话与 Agent 任务，全能旗舰',
+          id: 'deepseek-chat',
+          label: 'DeepSeek Chat',
+          description: '通用对话',
           reasoningLevels: [
             { value: 'low', label: '低' },
             { value: 'medium', label: '中' },
             { value: 'high', label: '高' }
           ],
-          defaultReasoningLevel: 'medium'
+          defaultReasoningLevel: 'low'
         }
       ]
+    },
+    {
+      id: 'proxy',
+      label: '业务代理',
+      endpoint: '/api/ai/gpt',
+      models: [{ id: 'gpt-4o', label: 'GPT-4o', description: '多模态' }]
     }
   ]
 })
+
+const onFinish = (message: { content: string }) => {
+  console.log('本轮结束', message.content)
+}
+
+const onError = (error: Error) => {
+  console.error(error)
+}
 </script>
 ```
 
-输入栏会展示模型选择器（`description` 作为选项副标题）；选中带 `reasoningLevels` 的模型时，选择器面板底部出现「思考强度」区。支持 `v-model:model` / `v-model:reasoning-level`。
+输入栏会展示模型选择器（`description` 为副标题）。当前模型有 `reasoningLevels` 时，行内可展开思考强度；选中等级即切到该模型。支持 `v-model:model` / `v-model:reasoning-level`。
 
-自定义推理字段名可用 Provider 级 `applyReasoning`（缺省写 `reasoning_effort`）：
+推理字段名不是 `reasoning_effort` 时用 Provider 级 `applyReasoning`：
 
 ```ts
 {
   id: 'custom',
-  endpoint: 'https://custom.example/chat',
+  endpoint: '/api/ai/custom',
   applyReasoning: (level, body) => {
     body.thinking = { budget: level }
   },
@@ -64,9 +77,19 @@ const transport = createOpenAITransport({
 }
 ```
 
-## 工具定义（组件自动编排工具调用循环）
+全局额外请求体 / 请求头：
 
-传入不同 tools 即可赋予助手不同能力，工具结果会自动回灌给模型继续生成。
+```ts
+createOpenAITransport({
+  headers: { 'X-App': 'web' },
+  body: { temperature: 0.2 },
+  providers: [{ id: 'p', endpoint: '/api/ai/chat', models: [{ id: 'm' }] }]
+})
+```
+
+## 工具定义（自动编排循环）
+
+`execute` 第二参数带 `signal`，长请求应监听中断。返回对象会被 `JSON.stringify` 后回灌。
 
 ```vue
 <template>
@@ -77,14 +100,7 @@ const transport = createOpenAITransport({
 import { createOpenAITransport, type ChatTool } from '@veltra/ai'
 
 const transport = createOpenAITransport({
-  providers: [
-    {
-      id: 'deepseek',
-      endpoint: 'https://api.deepseek.com/v1/chat/completions',
-      apiKey: import.meta.env.VITE_DEEPSEEK_KEY,
-      models: [{ id: 'deepseek-chat' }]
-    }
-  ]
+  providers: [{ id: 'p', endpoint: '/api/ai/chat', models: [{ id: 'm' }] }]
 })
 
 const tools: ChatTool[] = [
@@ -96,8 +112,8 @@ const tools: ChatTool[] = [
       properties: { city: { type: 'string', description: '城市名' } },
       required: ['city']
     },
-    execute: async ({ city }: { city: string }) => {
-      const res = await fetch(`/api/weather?city=${city}`)
+    execute: async ({ city }: { city: string }, { signal }) => {
+      const res = await fetch(`/api/weather?city=${encodeURIComponent(city)}`, { signal })
       return res.json()
     }
   }
@@ -107,7 +123,7 @@ const tools: ChatTool[] = [
 
 ## 需要用户确认的工具
 
-needsConfirm 工具执行前会在工具卡片中内联「允许 / 拒绝」按钮。
+`needsConfirm` 执行前在工具卡片内联「允许 / 拒绝」。拒绝仍回灌模型，不会丢上下文。
 
 ```ts
 const tools: ChatTool[] = [
@@ -121,27 +137,56 @@ const tools: ChatTool[] = [
 ]
 ```
 
-## 自定义工具卡片（icon / label / render / autoCollapse）
+## 自定义工具卡片（icon / label / render）
 
-工具定义上的 UI 元信息只影响展示，不会传给模型。render 接收 `{ toolCall }`，替换卡片 body 的默认参数/结果展示。
+UI 元信息不传给模型。`render` 接收 `{ toolCall }`，替换卡片 body；有 `render` 时默认完成后不折叠。
+
+`weather-card.vue`（`toolCall.result` 是序列化 JSON 字符串）：
+
+```vue
+<script lang="ts" setup>
+import type { ChatToolRenderProps } from '@veltra/ai'
+import { computed } from 'vue'
+
+const props = defineProps<ChatToolRenderProps>()
+
+const data = computed(() => {
+  if (!props.toolCall.result) return null
+  try {
+    return JSON.parse(props.toolCall.result) as { city: string; temperature: number }
+  } catch {
+    return null
+  }
+})
+</script>
+
+<template>
+  <div v-if="data">{{ data.city }} {{ data.temperature }}°C</div>
+  <div v-else-if="toolCall.status === 'error'">{{ toolCall.error }}</div>
+  <div v-else>查询中…</div>
+</template>
+```
+
+挂到工具：
 
 ```ts
+import WeatherCard from './weather-card.vue'
 import { Sunny } from '@veltra/icons/normal'
+import type { ChatTool } from '@veltra/ai'
 
 const tools: ChatTool[] = [
   {
     name: 'getWeather',
-    label: '查天气', // 卡片显示名，缺省取 name
-    icon: Sunny, // 卡片图标，缺省用内置状态图标
+    label: '查天气',
+    icon: Sunny,
     description: '查询城市天气',
     parameters: {
       type: 'object',
-      properties: { city: { type: 'string', description: '城市名' } },
+      properties: { city: { type: 'string' } },
       required: ['city']
     },
-    // 自定义渲染（组件或渲染函数），props: { toolCall }；设置后默认完成后不折叠
     render: WeatherCard,
-    autoCollapse: false, // 完成后是否折叠；缺省：有 render 时为 false，否则为 true
+    autoCollapse: false,
     execute: async ({ city }: { city: string }) => {
       const res = await fetch(`/api/weather?city=${city}`)
       return res.json()
@@ -150,40 +195,44 @@ const tools: ChatTool[] = [
 ]
 ```
 
-## 侧边面板工具（renderTo: 'panel'：右侧面板渲染）
+## 侧边面板工具（renderTo: 'panel'）
 
-`renderTo: 'panel'` 的工具把 render 组件渲染到对话区右侧的侧边面板：新的面板调用自动打开并聚焦面板，会话内的工具卡片仅保留「查看面板」入口（点击切回对应调用的面板），面板与会话区的宽度可拖拽调节（基于 ULayout，会话区最小 360px、面板最小 320px）；`panelWidth` 可指定该工具面板的默认宽度（聚焦其调用时应用，未指定的保持当前宽度）。render 组件契约不变（props 为 `{ toolCall }`，随调用状态实时更新），适合打开后台页面、表单、图表、列表等需要较大交互区域的工具。
+适合后台页、表单、图表、列表。`panelTitle` 用「业务对象 + 动作」，不要只用工具名。
 
 ```ts
 const tools: ChatTool[] = [
   {
     name: 'openAdminPage',
-    description: '打开后台系统的某个页面并展示在右侧面板，供用户直接操作',
+    description: '打开后台页面并展示在右侧面板。page: user-form | sales-chart | order-list',
     label: '打开后台页面',
-    render: AdminPanel, // 渲染在右侧面板（不再占用卡片 body）
+    render: AdminPanel,
     renderTo: 'panel',
-    panelWidth: 480, // 面板默认宽度（px，缺省 420，最小 320），聚焦该工具调用时应用
+    panelWidth: 480, // 省略则打开时尽量大（会话区留约 860px）
+    panelTitle: (toolCall) => {
+      try {
+        const page = JSON.parse(toolCall.arguments || '{}').page as string
+        return { 'user-form': '编辑用户信息', 'sales-chart': '查看销售图表' }[page] ?? '后台页面'
+      } catch {
+        return '后台页面'
+      }
+    },
     parameters: {
       type: 'object',
       properties: {
-        page: {
-          type: 'string',
-          enum: ['user-form', 'sales-chart', 'order-list'],
-          description: '要打开的后台页面标识'
-        }
+        page: { type: 'string', enum: ['user-form', 'sales-chart', 'order-list'] }
       },
       required: ['page']
     },
-    execute: async ({ page }: { page: string }) => {
-      return { page, opened: true }
-    }
+    execute: async ({ page }: { page: string }) => ({ page, opened: true })
   }
 ]
 ```
 
-## 终结工具（terminal：工具 UI 即最终答复）
+`AdminPanel` 同样吃 `ChatToolRenderProps`：用 `toolCall.status !== 'success'` 显示加载，用 `JSON.parse(toolCall.arguments)` 取参数。
 
-`terminal: true` 的工具执行成功后对话即结束，结果不再回灌模型生成额外文字——天气卡片这类"UI 即答案"的场景用它。结果仍记录在消息历史中供后续轮次使用；执行失败/被拒绝时错误照常回灌模型。另可通过 `maxToolRounds`（默认 10）限制单次发送的最大生成轮次，防止模型失控循环调用工具。
+## 终结工具（terminal：UI 即答复）
+
+执行成功后不再让模型复述。失败 / 拒绝仍回灌。`maxToolRounds`（默认 10）防止工具死循环。
 
 ```ts
 const tools: ChatTool[] = [
@@ -191,8 +240,8 @@ const tools: ChatTool[] = [
     name: 'getWeather',
     description: '查询城市天气，结果以天气卡片直接展示，无需再用文字复述',
     label: '查天气',
-    render: WeatherCard, // 卡片 body 渲染完整天气 UI（toolCall.result 为序列化 JSON）
-    terminal: true, // 执行成功即 finish，模型不再追加文字回答
+    render: WeatherCard,
+    terminal: true,
     parameters: {
       type: 'object',
       properties: { city: { type: 'string', description: '城市名' } },
@@ -206,9 +255,9 @@ const tools: ChatTool[] = [
 ]
 ```
 
-## 待发送队列（生成中继续提问）
+## 待发送队列
 
-会话进行中提交的消息自动进入待发送队列（不再被丢弃），会话自然结束后按 FIFO 自动接续。输入区发送与停止按钮互斥：生成中输入为空时显示停止；有内容时显示发送（入队）。队列 UI 内置于输入区上方：「立即开始」中断当前会话并插队执行该条；「编辑」取回输入框，重新提交后插回原位置（保持前后项顺序）；手动停止 / 出错时队列保留不自动接续。无头场景可直接用 `useChat` 返回的 `queue` / `startQueued` / `removeQueued` / `enqueue` 自建队列 UI。
+生成中提交的消息入队，自然结束后 FIFO 接续。输入区：空输入显示停止，有内容显示发送（入队）。队列「立即开始」中断插队；「编辑」取回输入框，再提交插回原位置。手动停止 / 出错不自动接续。
 
 ```vue
 <script lang="ts" setup>
@@ -217,42 +266,66 @@ import type { AiChatExposed } from '@veltra/ai'
 
 const chatRef = useTemplateRef<AiChatExposed>('chatRef')
 
-// 编程式操作队列
-chatRef.value?.queue // 当前待发送队列
-chatRef.value?.startQueued(id) // 中断当前会话，立即执行该条
-chatRef.value?.removeQueued(id) // 移出队列
-chatRef.value?.enqueue('插队问题', undefined, beforeId) // 锚点插入
+chatRef.value?.queue
+chatRef.value?.startQueued(id)
+chatRef.value?.removeQueued(id)
+chatRef.value?.enqueue('插队问题', undefined, beforeId)
 </script>
 ```
 
-## 自定义工具结果展示（插槽）
+## 自定义工具结果（插槽）
 
-通过 `tool-<name>` 插槽自定义某个工具的卡片内容（有结果时替换整个 body）；工具定义了 render 时 render 优先。
+`tool-<name>` 在有结果时替换卡片 body；定义了 `render` 则插槽不会生效。
 
 ```vue
 <template>
   <u-ai-chat :transport="transport" :tools="tools">
     <template #tool-getWeather="{ toolCall }">
-      <div class="weather-card">🌤 {{ toolCall.result }}</div>
+      <div>{{ toolCall.result }}</div>
     </template>
   </u-ai-chat>
 </template>
 ```
 
+覆盖欢迎区：
+
+```vue
+<u-ai-chat :transport="transport">
+  <template #welcome>
+    <div>自定义空状态</div>
+  </template>
+</u-ai-chat>
+```
+
 ## 内置提问工具
 
-提问工具 `askQuestion` 由 `useChat` / `UAiChat` 始终自动注入，无需手动创建或传入。模型可在需求不明确时发起提问，用户在分页表单中逐题作答（选项或自定义输入），提交后回答回灌模型。用户传入同名工具将被忽略（内置优先）。
+`askQuestion` 已注入，不要再传同名工具。在 `systemPrompt` 里提示模型：需求不清时调用 `askQuestion`（1–4 题，可选 `options`）。用户作答后结果为 `{ answers: [{ question, answer }] }`。
 
 ```vue
 <template>
-  <!-- 只需传入业务工具；askQuestion 已内置 -->
-  <u-ai-chat :transport="transport" :tools="tools" />
+  <u-ai-chat :transport="transport" :tools="tools" :system-prompt="prompt" />
 </template>
+
+<script lang="ts" setup>
+const prompt = '信息不足时先调用 askQuestion 向用户澄清，再继续。'
+</script>
 ```
 
-## 自定义 transport 接入任意后端
+## 图片附件
 
-实现 ChatTransport 接口即可，组件不关心具体协议。自定义 transport 可忽略 `req.model` / `req.reasoningLevel`；未传 `models` 时输入栏不显示选择器。
+输入区回形针选图，默认 `image/*`、单文件 10MB。`send(content, attachments)` 也可编程传入。内置 OpenAI transport 编成 `image_url`。
+
+```vue
+<u-ai-chat
+  :transport="transport"
+  accept="image/png,image/jpeg"
+  :max-attachment-size="5 * 1024 * 1024"
+/>
+```
+
+## 自定义 transport
+
+自行解析响应，只通过 handlers 抛流式事件。`onToolCall` 必须是完整 JSON 参数串，不要分片。
 
 ```ts
 import type { ChatTransport } from '@veltra/ai'
@@ -261,21 +334,33 @@ const transport: ChatTransport = async (req, handlers) => {
   const res = await fetch('/my-chat-api', {
     method: 'POST',
     signal: req.signal,
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       messages: req.messages,
-      tools: req.tools,
+      tools: req.tools?.map((t) => ({
+        name: t.name,
+        description: t.description,
+        parameters: t.parameters
+      })),
       model: req.model,
-      reasoningLevel: req.reasoningLevel
+      reasoningLevel: req.reasoningLevel,
+      systemPrompt: req.systemPrompt
     })
   })
-  // 自行解析响应，通过 handlers 回调流式抛出
+  if (!res.ok) {
+    handlers.onError?.(new Error(`HTTP ${res.status}`))
+    return
+  }
+  // 解析自有协议后：
   handlers.onReasoningDelta?.('思考内容')
   handlers.onTextDelta('回答内容')
   handlers.onToolCall?.({ id: 'call-1', name: 'getWeather', arguments: '{"city":"北京"}' })
 }
 ```
 
-## 受控消息与实例方法
+未传 `models` 时输入栏不显示选择器。
+
+## 受控消息与会话持久化
 
 ```vue
 <template>
@@ -290,28 +375,80 @@ const transport: ChatTransport = async (req, handlers) => {
 </template>
 
 <script lang="ts" setup>
-import { ref, useTemplateRef } from 'vue'
+import { ref, useTemplateRef, watch } from 'vue'
 import { createOpenAITransport, type AiChatExposed, type ChatMessage } from '@veltra/ai'
 
 const transport = createOpenAITransport({
-  providers: [
-    {
-      id: 'deepseek',
-      endpoint: 'https://api.deepseek.com/v1/chat/completions',
-      apiKey: import.meta.env.VITE_DEEPSEEK_KEY,
-      models: [{ id: 'deepseek-chat' }]
-    }
-  ]
+  providers: [{ id: 'p', endpoint: '/api/ai/chat', models: [{ id: 'm' }] }]
 })
 
-const messages = ref<ChatMessage[]>([])
+const messages = ref<ChatMessage[]>(loadSession())
 const model = ref(transport.defaultModel)
 const reasoningLevel = ref<string>()
 const chatRef = useTemplateRef<AiChatExposed>('chatRef')
+
+watch(messages, (list) => saveSession(list), { deep: true })
 
 chatRef.value?.send('你好')
 chatRef.value?.abort()
 chatRef.value?.regenerate()
 chatRef.value?.clear()
+
+function loadSession(): ChatMessage[] {
+  try {
+    return JSON.parse(localStorage.getItem('chat') ?? '[]') as ChatMessage[]
+  } catch {
+    return []
+  }
+}
+
+function saveSession(list: ChatMessage[]) {
+  localStorage.setItem('chat', JSON.stringify(list))
+}
+</script>
+```
+
+## 无头 useChat
+
+自绘 UI 时与 `UAiChat` 共用同一套 props/emits。`needsConfirm` 必须自己调 `respondToolCall`。
+
+```ts
+import { useChat, type AiChatEmits } from '@veltra/ai'
+
+const emit = ((event: string, ...args: unknown[]) => {
+  if (event === 'error') console.error(args[0])
+}) as AiChatEmits
+
+const chat = useChat({
+  props: {
+    transport,
+    tools,
+    models: transport.models,
+    systemPrompt: '你是助手'
+  },
+  emit
+})
+
+chat.send('你好')
+chat.messages.value
+chat.running.value
+chat.queue.value
+// needsConfirm 工具：自绘「允许 / 拒绝」后
+// chat.respondToolCall(toolCallId, true)
+```
+
+## UAiOrb 独立使用
+
+```vue
+<template>
+  <u-ai-orb ref="orb" :size="48" status="idle" @click="onClick" />
+</template>
+
+<script lang="ts" setup>
+import type { AiOrbExposed } from '@veltra/ai'
+import { useTemplateRef } from 'vue'
+
+const orbRef = useTemplateRef<AiOrbExposed>('orb')
+const onClick = () => orbRef.value?.react('happy') // 'happy' | 'shock' | 'frustrated'
 </script>
 ```

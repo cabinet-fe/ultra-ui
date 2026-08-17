@@ -31,8 +31,8 @@ export default defineConfig({
 | 包                | 组件                   |
 | ----------------- | ---------------------- |
 | `@veltra/desktop` | `UButton` 等 90 个组件 |
-| `@veltra/ai`      | `UAiChat`              |
-| `@veltra/sheet`   | `USheet`               |
+| `@veltra/ai`      | `UAiChat`、`UAiOrb`    |
+| `@veltra/sheet`   | `USheet`、`UReportDesigner`、`UReportViewer` |
 
 `@veltra/ai`、`@veltra/sheet` 是可选 peer：未安装时模板里本就不会出现对应标签，无需额外配置。
 

@@ -107,10 +107,17 @@ export interface ChatTool<A = any> {
    */
   renderTo?: 'inline' | 'panel'
   /**
-   * 侧边面板默认宽度（px，最小 320），仅 renderTo: 'panel' 时生效，缺省 420。
-   * 聚焦到该工具的调用时应用；未指定宽度的工具面板保持当前宽度（含用户拖拽结果）。
+   * 侧边面板默认宽度（px，最小 320），仅 renderTo: 'panel' 时生效。
+   * 聚焦到该工具的调用时应用；缺省时面板打开取「容器宽 - 860」（即默认尽可能大，
+   * 给会话区保留 860px）；面板已打开时切换聚焦保持当前宽度（含用户拖拽结果）。
    */
   panelWidth?: number
+  /**
+   * 侧边面板标题，仅 renderTo: 'panel' 时生效。
+   * 面板标题通常是「业务对象 + 动作」（如「编辑用户 · 张三」）而非工具名，
+   * 可传固定字符串，或传函数按本次调用的参数动态生成。缺省取 label ?? name。
+   */
+  panelTitle?: string | ((toolCall: ChatToolCall) => string)
   /** 执行完成后是否自动折叠。缺省：renderTo 为 'panel' 时为 true；否则设置了 render 时为 false，否则为 true */
   autoCollapse?: boolean
   /**
@@ -158,13 +165,13 @@ export interface ChatProvider {
   label?: string
   /** 完整 http(s) URL 或相对路径，如 /api/ai/chat */
   endpoint: string
-  /** API Key（有则带 Bearer；相对路径场景可省略） */
+  /** API Key（有则带 Bearer；相对路径场景可省略，走 cookie/`headers`） */
   apiKey?: string
   /** Provider 级额外请求头 */
   headers?: Record<string, string>
   /**
    * 将选中的推理等级写入 body。
-   * 缺省：若 level 存在则 `body.reasoning_effort = level`。
+   * 缺省：若 level 存在则 `body.reasoning_effort = level`（OpenAI 兼容约定）。
    */
   applyReasoning?: (level: string, body: Record<string, unknown>) => void
   models: ChatModel[]

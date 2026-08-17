@@ -15,23 +15,23 @@ veltra-ui 是一套 Vue 3 UI 体系。
 
 | 包                     | 版本  |
 | ---------------------- | ----- |
-| `@veltra/desktop`      | 1.5.0 |
-| `@veltra/utils`        | 1.5.0 |
-| `@veltra/styles`       | 1.5.0 |
-| `@veltra/compositions` | 1.5.0 |
-| `@veltra/directives`   | 1.5.0 |
+| `@veltra/desktop`      | 1.6.0 |
+| `@veltra/utils`        | 1.6.0 |
+| `@veltra/styles`       | 1.6.0 |
+| `@veltra/compositions` | 1.6.0 |
+| `@veltra/directives`   | 1.6.0 |
 | `@veltra/icons`        | 1.5.0 |
 | `@veltra/vite`         | 4.0.0 |
-| `@veltra/sheet`        | 2.2.0 |
-| `@veltra/sheet-core`   | 2.2.0 |
-| `@veltra/ai`           | 2.0.0 |
+| `@veltra/sheet`        | 2.3.0 |
+| `@veltra/sheet-core`   | 2.3.0 |
+| `@veltra/ai`           | 2.1.0 |
 
 ## 分包地图
 
 | 入口                       | 包                     | 用途                                                                  |
 | -------------------------- | ---------------------- | --------------------------------------------------------------------- |
 | `packages/desktop/`        | `@veltra/desktop`      | 桌面端组件（主入口）                                                  |
-| `packages/ai.md`           | `@veltra/ai`           | AI 对话组件、useChat 编排与可插拔 transport                           |
+| `packages/ai.md`           | `@veltra/ai`           | AI 对话：UAiChat、useChat、ChatTool、createOpenAITransport、UAiOrb     |
 | `packages/sheet.md`        | `@veltra/sheet`        | 电子表格（USheet、报表 UReportDesigner/UReportViewer、DataConnector、公式、undo/redo、浮动图片、工具扩展） |
 | `packages/sheet-core.md`   | `@veltra/sheet-core`   | 表格核心：数据模型/公式/IO + SheetGrid 渲染层（含 readonly 预览模式） |
 | `packages/styles/`         | `@veltra/styles`       | SCSS、主题、Design Tokens、过渡                                       |
@@ -48,7 +48,12 @@ veltra-ui 是一套 Vue 3 UI 体系。
 | **写表单 / UForm / 表单项 / 带 label 的输入控件**                     | **必读** `packages/desktop/components/form/examples.md`（再读具体控件 `examples.md` 的「在 UForm 中使用」） |
 | 显式 `UFormItem`（多控件组合、自定义 label 插槽）                     | `packages/desktop/components/form-item/examples.md`                                                         |
 | 找/用某个 UI 组件                                                     | `packages/desktop/index.md` → `components/<kebab>/api.md` + `examples.md` + `types.d.ts`                    |
-| AI 对话 / 工具调用助手                                                | `packages/ai.md` → `ai/api.md` + `examples.md`                                                              |
+| 接入 AI 对话 / OpenAI 兼容端点 / 多 Provider / 推理等级               | `packages/ai.md` → `ai/examples.md`（基础对话）+ `ai/api.md`（createOpenAITransport）                        |
+| 定义工具 / 确认 / 侧边面板 / 终结工具 / askQuestion                   | `packages/ai.md` → `ai/examples.md`（工具章节）+ `ai/api.md`（ChatTool）                                    |
+| 无头对话 / 自定义聊天 UI / useChat                                    | `packages/ai.md` → `ai/api.md`（useChat）+ `ai/examples.md`（无头）                                          |
+| 自定义 LLM 协议 / 自有后端 / ChatTransport                            | `packages/ai.md` → `ai/api.md`（ChatTransport）+ `ai/examples.md`                                            |
+| 会话持久化 / 待发送队列 / 受控消息                                    | `packages/ai.md` → `ai/examples.md` + `ai/api.md`（消息模型、队列）                                          |
+| AI 活体球头像 UAiOrb                                                  | `packages/ai.md` → `ai/api.md`（UAiOrb）+ `ai/examples.md`                                                   |
 | 电子表格 / 单元格编辑 / 公式 / 浮动图片 / 表格工具栏扩展              | `packages/sheet.md`                                                                                         |
 | 报表设计 / 报表预览 / 数据连接器 / Filter Bar / 模板取数展开        | `packages/sheet.md`（`UReportDesigner` / `UReportViewer` / `DataConnector` / `createHttpConnector`）          |
 | 按格自定义单元格渲染（customLayout 徽章等）                         | `packages/sheet.md` + `packages/sheet-core.md`（`resolveCellRenderer` / `CustomLayout`）                   |
@@ -94,3 +99,4 @@ veltra-ui 是一套 Vue 3 UI 体系。
 - [ ] 按需样式走 `VeltraUIResolver` 或显式 `style` 导入（见 `vite.md`）
 - [ ] 优先检索本技能文档，确认无合适能力后再自建或引入外部库
 - [ ] 写表单时已读 `form/examples.md`：控件有 `field`、无多余 `v-model`，且需要标签时 `field` 与 `label` 成对出现
+- [ ] 写 AI 对话时已读 `packages/ai.md`：`transport` 必填、父级有高度、生产环境不把 API Key 下发浏览器
