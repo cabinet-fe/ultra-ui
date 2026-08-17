@@ -20,16 +20,14 @@ type FetchResponse = { status: number; ok: boolean; text(): Promise<string> }
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = resolve(__dirname, '..')
-const FIXED_GROUP = [
-  '@veltra/utils',
-  '@veltra/styles',
-  '@veltra/compositions',
-  '@veltra/directives',
-  '@veltra/desktop',
-  '@veltra/icons'
-] as const
-const FIXED_GROUP_SET = new Set<string>(FIXED_GROUP)
 const DRY_RUN = process.env.DRY_RUN === '1'
+
+async function readCoreFixedGroup(): Promise<string[]> {
+  const configPath = join(REPO_ROOT, '.changeset', 'config.json')
+  const config = JSON.parse(await readFile(configPath, 'utf8')) as { fixed?: string[][] }
+
+  return config.fixed?.[0] ?? []
+}
 
 function getEnv(name: string): string {
   const value = process.env[name]?.trim()
@@ -128,13 +126,14 @@ function renderIndependentBody(pkg: PublishedPackage, changelogBody: string): st
 
 function renderFixedBody(
   version: string,
+  coreFixedGroup: readonly string[],
   sections: Array<{ packageName: string; body: string }>
 ): string {
   const lines = [
     `Released Veltra UI fixed package group \`${version}\`.`,
     '',
     'Packages:',
-    ...FIXED_GROUP.map((packageName) => `- \`${packageName}@${version}\``),
+    ...coreFixedGroup.map((packageName) => `- \`${packageName}@${version}\``),
     ''
   ]
 
@@ -152,21 +151,23 @@ async function buildReleaseSpecs(
   publishedPackages: PublishedPackage[],
   targetCommitish: string
 ): Promise<ReleaseSpec[]> {
-  const fixedPackages = publishedPackages.filter((pkg) => FIXED_GROUP_SET.has(pkg.name))
-  const independentPackages = publishedPackages.filter((pkg) => !FIXED_GROUP_SET.has(pkg.name))
+  const coreFixedGroup = await readCoreFixedGroup()
+  const coreFixedGroupSet = new Set(coreFixedGroup)
+  const fixedPackages = publishedPackages.filter((pkg) => coreFixedGroupSet.has(pkg.name))
+  const independentPackages = publishedPackages.filter((pkg) => !coreFixedGroupSet.has(pkg.name))
   const specs: ReleaseSpec[] = []
 
   if (fixedPackages.length > 0) {
     const versions = new Set(fixedPackages.map((pkg) => pkg.version))
 
-    if (fixedPackages.length !== FIXED_GROUP.length || versions.size !== 1) {
+    if (fixedPackages.length !== coreFixedGroup.length || versions.size !== 1) {
       const summary = fixedPackages.map((pkg) => `${pkg.name}@${pkg.version}`).join(', ')
       throw new Error(`fixed 组发布结果不完整，拒绝创建聚合 release: ${summary}`)
     }
 
     const version = fixedPackages[0]!.version
     const sections = await Promise.all(
-      FIXED_GROUP.map(async (packageName) => ({
+      coreFixedGroup.map(async (packageName) => ({
         packageName,
         body: await readChangelogBody(packageName, version)
       }))
@@ -175,7 +176,7 @@ async function buildReleaseSpecs(
     specs.push({
       tagName: `veltra-fixed@${version}`,
       releaseName: `Veltra UI packages v${version}`,
-      body: renderFixedBody(version, sections),
+      body: renderFixedBody(version, coreFixedGroup, sections),
       prerelease: isPrerelease(version),
       targetCommitish
     })
