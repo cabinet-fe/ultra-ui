@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { readFile } from 'node:fs/promises'
+import { readdir, readFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -53,11 +53,52 @@ function parseRepository(value: string): { owner: string; repo: string } {
   return { owner, repo }
 }
 
-function parsePublishedPackages(raw: string): PublishedPackage[] {
-  const parsed = JSON.parse(raw) as unknown
+async function collectWorkspacePackages(): Promise<PublishedPackage[]> {
+  const packagesDir = join(REPO_ROOT, 'packages')
+  const entries = await readdir(packagesDir, { withFileTypes: true })
+  const packageEntries = entries.filter((entry) => entry.isDirectory() && entry.name !== 'mobile')
+
+  const packages = await Promise.all(
+    packageEntries.map(async (entry) => {
+      try {
+        const pkgJsonPath = join(packagesDir, entry.name, 'package.json')
+        const pkg = JSON.parse(await readFile(pkgJsonPath, 'utf8')) as {
+          name?: string
+          version?: string
+          private?: boolean
+        }
+
+        if (pkg.name && pkg.version && !pkg.private) {
+          return { name: pkg.name, version: pkg.version }
+        }
+      } catch {
+        // 忽略非法目录
+      }
+
+      return null
+    })
+  )
+
+  return packages
+    .filter((pkg): pkg is PublishedPackage => pkg !== null)
+    .toSorted((a, b) => a.name.localeCompare(b.name))
+}
+
+function parsePublishedPackages(raw: string | undefined): PublishedPackage[] {
+  if (!raw?.trim()) {
+    return []
+  }
+
+  let parsed: unknown
+
+  try {
+    parsed = JSON.parse(raw)
+  } catch {
+    return []
+  }
 
   if (!Array.isArray(parsed)) {
-    throw new Error('CHANGESETS_PUBLISHED_PACKAGES 必须是数组 JSON')
+    return []
   }
 
   const deduped = new Map<string, PublishedPackage>()
@@ -182,14 +223,27 @@ async function buildReleaseSpecs(
     })
   }
 
-  const independentSpecs = await Promise.all(
-    independentPackages.map(async (pkg) => ({
-      tagName: `${pkg.name}@${pkg.version}`,
-      releaseName: `${pkg.name} v${pkg.version}`,
-      body: renderIndependentBody(pkg, await readChangelogBody(pkg.name, pkg.version)),
-      prerelease: isPrerelease(pkg.version),
-      targetCommitish
-    }))
+  const independentSpecsWithNull = await Promise.all(
+    independentPackages.map(async (pkg) => {
+      const changelogBody = await readChangelogBody(pkg.name, pkg.version)
+
+      // 在没有显式发布列表时（fallback 扫描），仅为当前版本有对应 CHANGELOG 内容的包生成 release
+      if (!changelogBody && !process.env.CHANGESETS_PUBLISHED_PACKAGES?.trim()) {
+        return null
+      }
+
+      return {
+        tagName: `${pkg.name}@${pkg.version}`,
+        releaseName: `${pkg.name} v${pkg.version}`,
+        body: renderIndependentBody(pkg, changelogBody),
+        prerelease: isPrerelease(pkg.version),
+        targetCommitish
+      }
+    })
+  )
+
+  const independentSpecs = independentSpecsWithNull.filter(
+    (item): item is ReleaseSpec => item !== null
   )
 
   return [...specs, ...independentSpecs]
@@ -284,10 +338,17 @@ async function upsertRelease(
 
 async function main(): Promise<void> {
   const targetCommitish = getEnv('GITHUB_SHA')
-  const publishedPackages = parsePublishedPackages(getEnv('CHANGESETS_PUBLISHED_PACKAGES'))
+  let publishedPackages = parsePublishedPackages(process.env.CHANGESETS_PUBLISHED_PACKAGES)
 
   if (publishedPackages.length === 0) {
-    console.log('no published packages, skipping GitHub release creation')
+    console.log(
+      '[create-github-releases] CHANGESETS_PUBLISHED_PACKAGES 为空，从各 package.json 收集包信息'
+    )
+    publishedPackages = await collectWorkspacePackages()
+  }
+
+  if (publishedPackages.length === 0) {
+    console.log('未找到需要创建 release 的包，跳过')
     return
   }
 
