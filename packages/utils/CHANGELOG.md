@@ -1,5 +1,11 @@
 # @veltra/utils
 
+## 1.6.0
+
+### Minor Changes
+
+- 14cdce4: ExpandTransition 新增 `onEnd` 回调。
+
 ## 1.5.0
 
 ### Patch Changes

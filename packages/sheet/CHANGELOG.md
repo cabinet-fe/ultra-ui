@@ -1,5 +1,15 @@
 # @veltra/sheet
 
+## 2.3.0
+
+### Minor Changes
+
+- afee8a6: 新增行/列默认样式：`Sheet.setRowStyle`/`setColStyle`（部分合并语义，经命令进 undo），有效样式 = 列 → 行 → 格字段级叠加（`getEffectiveStyle` / `composeCellStyles`）；`SheetSnapshot` 与 `SnapshotPatch` 新增 `rowStyles`/`colStyles`/`colWidths`，随 `restoreContent` 还原；列宽随快照持久化（对称 `rowHeights`，不进 undo）；报表新增 `apply-style` 工具，设计器/查看器/导出适配行列样式。
+
+### Patch Changes
+
+- 65f2e60: 优化报表设计器绑定格徽章样式：整格实心彩底 + 居中文字改为极浅同色系底色 + 左对齐「强调色聚合标签徽章（CustomLayout.Tag）+ 深灰字段名」，五预设配色更新；`binding.ts` 新增 `formatBindingPlaceholderParts` 分段输出聚合标签与字段标签。
+
 ## 2.2.0
 
 ### Minor Changes
