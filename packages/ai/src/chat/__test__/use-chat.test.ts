@@ -1,8 +1,14 @@
 import { describe, expect, it, vi } from 'vitest'
-import { nextTick } from 'vue'
+import { nextTick, reactive } from 'vue'
 
-import type { AiChatEmits } from '../../types'
-import type { ChatTool, ChatTransport, ChatTransportHandlers, ChatTransportRequest } from '../types'
+import type { AiChatEmits, AiChatProps } from '../../types'
+import type {
+  ChatMessage,
+  ChatTool,
+  ChatTransport,
+  ChatTransportHandlers,
+  ChatTransportRequest
+} from '../types'
 import { useChat } from '../use-chat'
 
 const createEmit = () => vi.fn() as unknown as AiChatEmits & ReturnType<typeof vi.fn>
@@ -528,5 +534,37 @@ describe('useChat', () => {
 
     expect(requests).toHaveLength(3)
     expect(chat.running.value).toBe(false)
+  })
+
+  it('受控 v-model:messages：父级回显快照不会冲掉流式中的 assistant 消息', async () => {
+    // 模拟受控父级：收到 update:messages 后在后续微任务把快照写回 props（v-model 回显路径）。
+    // 时序上回显必然晚于本地 push assistant 占位（同一同步块内），还原真实场景的竞态
+    const props = reactive<AiChatProps>({
+      transport: async (_req, handlers) => {
+        // 让回显先于文本到达（与真实父级 patch 时序一致）
+        await Promise.resolve()
+        handlers.onTextDelta('回答')
+      }
+    })
+    const emit = ((event: string, payload: unknown) => {
+      if (event === 'update:messages') {
+        const value = payload as ChatMessage[]
+        void Promise.resolve().then(() => {
+          props.messages = value
+        })
+      }
+    }) as unknown as AiChatEmits
+
+    const chat = useChat({ props, emit })
+    chat.send('hi')
+
+    await vi.waitFor(() => {
+      expect(chat.messages.value[1]?.status).toBe('done')
+    })
+
+    expect(chat.messages.value.map((m) => m.role)).toEqual(['user', 'assistant'])
+    expect(chat.messages.value[1].content).toBe('回答')
+    // 最终同步给父级的快照也包含 assistant 消息
+    expect(props.messages?.some((m) => m.role === 'assistant' && m.content === '回答')).toBe(true)
   })
 })

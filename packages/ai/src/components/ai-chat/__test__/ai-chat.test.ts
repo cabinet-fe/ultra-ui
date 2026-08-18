@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { createApp, defineComponent, h, nextTick, ref, type PropType } from 'vue'
 
-import type { ChatTool, ChatToolCall, ChatTransport } from '../../../chat/types'
+import type { ChatMessage, ChatTool, ChatToolCall, ChatTransport } from '../../../chat/types'
 import type { ChatModelOption } from '../../../providers'
 import type { AiChatExposed } from '../../../types'
 import UAiChat from '../ai-chat.vue'
@@ -622,6 +622,45 @@ describe('UAiChat', () => {
     expect(host.querySelector('textarea.u-ai-chat__input')).toBeTruthy()
     expect(host.querySelector('.u-ai-chat__input-toolbar-left .u-file-picker')).toBeTruthy()
     unmount()
+  })
+
+  it('受控 v-model:messages 绑定下流式回复正常渲染', async () => {
+    const messages = ref<ChatMessage[]>([])
+    const chatRef = ref<AiChatExposed>()
+    const transport: ChatTransport = async (_req, handlers) => {
+      // 留出父级 patch props 的时间窗，还原真实的回显时序
+      await new Promise((resolve) => setTimeout(resolve, 10))
+      handlers.onTextDelta('受控回答')
+    }
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
+    const app = createApp({
+      setup() {
+        return () =>
+          h(UAiChat, {
+            ref: chatRef,
+            transport,
+            messages: messages.value,
+            'onUpdate:messages': (value: ChatMessage[]) => {
+              messages.value = value
+            }
+          })
+      }
+    })
+    app.mount(host)
+
+    chatRef.value?.send('你好')
+    await vi.waitFor(() => {
+      expect(host.querySelector('.md-stub')?.textContent).toContain('受控回答')
+    })
+    // 父级持有的快照最终也包含 assistant 回复
+    expect(messages.value.some((m) => m.role === 'assistant' && m.content === '受控回答')).toBe(
+      true
+    )
+
+    app.unmount()
+    host.remove()
   })
 
   it('生成中空输入显示停止，有内容则显示入队发送', async () => {

@@ -102,9 +102,15 @@ export function useChat(options: UseChatOptions) {
     { immediate: true }
   )
 
-  /** 向父组件同步消息快照（流式 delta 过于频繁，不同步，只在关键节点同步） */
+  /**
+   * 向父组件同步消息快照（流式 delta 过于频繁，不同步，只在关键节点同步）。
+   * 必须经 setter 赋值触发 emit，而非直接 emit 切片：setter 让本地数组与下发的
+   * 快照保持同一引用，受控父级（v-model:messages）把快照回写到 props 时，
+   * useModel 同步回来的仍是这个数组（流式期间新增的 assistant 占位已 push 在其上）；
+   * 若直接 emit 切片，本地数组与快照是两个对象，回显的旧快照会把本地新增的消息冲掉。
+   */
   const snapshot = () => {
-    emit('update:messages', messages.value.slice())
+    messages.value = messages.value.slice()
   }
 
   /**
