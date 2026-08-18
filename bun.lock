@@ -40,7 +40,7 @@
     },
     "packages/compositions": {
       "name": "@veltra/compositions",
-      "version": "1.6.0",
+      "version": "1.6.1",
       "dependencies": {
         "@floating-ui/dom": "^1.8.0",
         "@formkit/drag-and-drop": "^0.6.1",
@@ -57,7 +57,7 @@
     },
     "packages/desktop": {
       "name": "@veltra/desktop",
-      "version": "1.6.0",
+      "version": "1.6.1",
       "dependencies": {
         "@embedpdf/core": "^2.15.0",
         "@embedpdf/engines": "^2.15.0",
@@ -109,7 +109,7 @@
     },
     "packages/directives": {
       "name": "@veltra/directives",
-      "version": "1.6.0",
+      "version": "1.6.1",
       "peerDependencies": {
         "@veltra/styles": "workspace:^",
         "@veltra/utils": "workspace:^",
@@ -162,7 +162,7 @@
     },
     "packages/styles": {
       "name": "@veltra/styles",
-      "version": "1.6.0",
+      "version": "1.6.1",
       "peerDependencies": {
         "@cat-kit/core": ">=1.1.8",
         "@veltra/compositions": "workspace:^",
@@ -172,7 +172,7 @@
     },
     "packages/utils": {
       "name": "@veltra/utils",
-      "version": "1.6.0",
+      "version": "1.6.1",
       "peerDependencies": {
         "@cat-kit/core": ">=1.1.8",
         "vue": ">=3.5.41",
