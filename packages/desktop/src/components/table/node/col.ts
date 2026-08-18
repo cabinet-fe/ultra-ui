@@ -46,7 +46,7 @@ export class ColumnNode extends TreeNode<TableColumn, ColumnNode> {
 
   /** 宽度 */
   get width(): number | undefined {
-    const { width } = this.data
+    const width = this.data.width ?? this.derived.allocatedWidth
     if (!width || (this.minWidth && width && width < this.minWidth)) {
       return this.minWidth
     }
@@ -57,6 +57,21 @@ export class ColumnNode extends TreeNode<TableColumn, ColumnNode> {
       val = this.minWidth
     }
     this.data.width = val
+    // 显式宽度（配置/拖拽）优先于分配宽度，旧的分配结果直接作废
+    this.derived.allocatedWidth = undefined
+  }
+
+  /**
+   * 列宽分配算法写入的宽度。
+   * 与用户列配置 `data.width` 隔离：分配结果不回写列配置对象，
+   * 避免列森林重建（重挂载 / v-if / columns 引用变化）时把上一次的
+   * 分配残留误判为显式 width，导致列宽被永久锁定、容器变窄后出现滚动条。
+   */
+  get allocatedWidth(): number | undefined {
+    return this.derived.allocatedWidth
+  }
+  set allocatedWidth(val: number | undefined) {
+    this.derived.allocatedWidth = val
   }
   /** 最小宽度 */
   get minWidth(): number | undefined {
@@ -101,6 +116,11 @@ export class ColumnNode extends TreeNode<TableColumn, ColumnNode> {
   explicitWidth: boolean
 
   style: Record<string, number> = reactive({})
+
+  /** 派生状态（响应式），与用户列配置 data 隔离 */
+  private readonly derived = shallowReactive<{ allocatedWidth?: number }>({
+    allocatedWidth: undefined
+  })
 
   constructor(val: TableColumn, index: number, depth: number, parent?: ColumnNode) {
     super(isReactive(val) ? val : shallowReactive(val), index, depth, parent)

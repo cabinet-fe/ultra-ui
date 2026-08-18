@@ -6,16 +6,19 @@ import type { ColumnNode } from './node/col'
  * - `explicitWidth` 列：保持配置/拖拽锁定的宽度
  * - `fixed` 且未显式设宽的列：保持 `minWidth`，不参与剩余宽度均分
  * - 其余未显式设宽的列：均分容器剩余宽度
+ *
+ * 分配结果写入列节点自身的 `allocatedWidth`，不回写列配置的 `data.width`，
+ * 避免污染用户数据后在列森林重建时被误判为显式宽度。
  */
 export function allocateLeafColumnWidths(leafColumns: ColumnNode[], containerWidth: number): void {
   if (!containerWidth || !leafColumns.length) return
 
   const growColumns = leafColumns.filter((column) => !column.explicitWidth && !column.fixed)
-  // fixed 且未显式设宽：清掉可能被旧算法撑大的残留 width，回落到 minWidth
+  // fixed 且未显式设宽：清掉之前的分配结果，回落到 minWidth
   const fixedFlexColumns = leafColumns.filter((column) => !column.explicitWidth && column.fixed)
 
   fixedFlexColumns.forEach((column) => {
-    column.data.width = undefined
+    column.allocatedWidth = undefined
   })
 
   const explicitWidthTotal = leafColumns
@@ -28,11 +31,11 @@ export function allocateLeafColumnWidths(leafColumns: ColumnNode[], containerWid
   if (growColumns.length > 0 && totalBase < containerWidth) {
     const allocatedWidth = (containerWidth - totalBase) / growColumns.length
     growColumns.forEach((column) => {
-      column.width = column.minWidth! + allocatedWidth
+      column.allocatedWidth = column.minWidth! + allocatedWidth
     })
   } else {
     growColumns.forEach((column) => {
-      column.data.width = undefined
+      column.allocatedWidth = undefined
     })
   }
 }
