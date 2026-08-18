@@ -1,5 +1,11 @@
 # @veltra/ai
 
+## 2.1.1
+
+### Patch Changes
+
+- 9244226: 修复受控 `v-model:messages` 下流式 assistant 回复被父级快照回显冲掉的问题。
+
 ## 2.1.0
 
 ### Minor Changes
