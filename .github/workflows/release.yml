@@ -67,11 +67,14 @@ jobs:
 
       - name: 发布到 npm 并收集发布数据
         id: changesets
-        uses: changesets/action@v2
+        uses: changesets/action@v1
         with:
-          publish-script: bun run changeset publish
-          create-github-releases: false
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          publish: bun run changeset publish
+          createGithubReleases: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: 创建 GitHub Releases
         if: steps.changesets.outputs.published == 'true' || github.event_name == 'workflow_dispatch'
