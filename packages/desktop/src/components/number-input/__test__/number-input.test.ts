@@ -57,4 +57,42 @@ describe('NumberInput', () => {
       unmount()
     }
   })
+
+  it('updates the input value immediately without animation when step is 1', async () => {
+    const { host, unmount } = mountNumberInput({ modelValue: 1, step: 1 })
+
+    try {
+      const input = host.querySelector('input')!
+      const [upIcon, downIcon] = Array.from(
+        host.querySelectorAll('.u-number-input__step .u-icon')
+      ) as HTMLElement[]
+
+      upIcon!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      await nextTick()
+      expect(input.value).toBe('2')
+
+      downIcon!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      await nextTick()
+      expect(input.value).toBe('1')
+    } finally {
+      unmount()
+    }
+  })
+
+  it('keeps the rolling animation when step is greater than 1', () => {
+    const { host, unmount } = mountNumberInput({ modelValue: 0, step: 5 })
+
+    try {
+      const input = host.querySelector('input')!
+      const [upIcon] = Array.from(
+        host.querySelectorAll('.u-number-input__step .u-icon')
+      ) as HTMLElement[]
+
+      upIcon!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      // 动画通过 requestAnimationFrame 逐帧更新, 同步阶段不应直接跳到目标值
+      expect(input.value).toBe('0')
+    } finally {
+      unmount()
+    }
+  })
 })

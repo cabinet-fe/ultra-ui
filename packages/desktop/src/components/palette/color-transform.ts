@@ -103,17 +103,34 @@ export function RGB2HSV(RGB: PaletteRGB): PaletteHSV {
 }
 
 /**
- * 将 HEX 颜色转换为 RGB 颜色
- * @param hex HEX 颜色
- * @returns RGB 颜色
+ * 将颜色字符串转换为 RGBA 颜色
+ * @description
+ * 支持 `#rgb`、`#rgba`、`#rrggbb`、`#rrggbbaa`（`#` 可省略）以及 `rgb()` / `rgba()`
+ * 函数表示；无法解析时返回 `null`，调用方应视为未绑定颜色而不是沿用错误的解析结果。
+ * @param color 颜色字符串
+ * @returns RGBA 颜色，解析失败返回 null
  */
-export function HEX2RGBA(hex: string): { RGB: PaletteRGB; alpha: number } {
-  const rgb = { r: 0, g: 0, b: 0 }
-  let alpha = 1
+export function HEX2RGBA(color: string): { RGB: PaletteRGB; alpha: number } | null {
+  const input = color.trim()
 
-  if (hex.startsWith('#')) {
-    hex = hex.slice(1)
+  // rgb() / rgba() 函数表示
+  const fnMatch = input.match(
+    /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(?:\s*,\s*(\d+(?:\.\d+)?%?)\s*)?\)$/i
+  )
+  if (fnMatch) {
+    const [, r, g, b, a] = fnMatch
+    const rgb = { r: +r!, g: +g!, b: +b! }
+    if (rgb.r > 255 || rgb.g > 255 || rgb.b > 255) return null
+
+    let alpha = 1
+    if (a !== undefined) {
+      alpha = a.endsWith('%') ? parseFloat(a) / 100 : parseFloat(a)
+      if (!Number.isFinite(alpha) || alpha < 0 || alpha > 1) return null
+    }
+    return { RGB: rgb, alpha }
   }
+
+  let hex = input.startsWith('#') ? input.slice(1) : input
 
   if (hex.length === 3 || hex.length === 4) {
     hex = hex
@@ -122,13 +139,20 @@ export function HEX2RGBA(hex: string): { RGB: PaletteRGB; alpha: number } {
       .join('')
   }
 
+  if (hex.length !== 6 && hex.length !== 8) return null
+  if (!/^[0-9a-fA-F]+$/.test(hex)) return null
+
+  let alpha = 1
   const alphaStr = hex.slice(6)
   if (alphaStr) {
     alpha = parseInt(alphaStr, 16) / 255
   }
-  rgb.r = parseInt(hex.slice(0, 2), 16)
-  rgb.g = parseInt(hex.slice(2, 4), 16)
-  rgb.b = parseInt(hex.slice(4, 6), 16)
+
+  const rgb = {
+    r: parseInt(hex.slice(0, 2), 16),
+    g: parseInt(hex.slice(2, 4), 16),
+    b: parseInt(hex.slice(4, 6), 16)
+  }
 
   return { RGB: rgb, alpha }
 }

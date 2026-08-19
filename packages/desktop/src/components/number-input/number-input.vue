@@ -301,6 +301,28 @@ const tween = new Tween(
   }
 )
 
+/**
+ * 步进后更新输入框的展示值
+ * 步长为 1 时直接展示目标值, 不播放数字滚动动画
+ * @param rawFrom 步进前的原始值（存在倍数时为除以倍数后的值）
+ * @param rawTarget 步进后的原始值（存在倍数时为除以倍数后的值）
+ */
+function updateStepDisplay(rawFrom: number, rawTarget: number): void {
+  tween.state.n = rawFrom
+
+  if (stepVal.value === 1) {
+    tween.state.n = rawTarget
+    const _rawInput = inputDom.value
+    if (!_rawInput) return
+    const { multiple } = props
+    _rawInput.value = getDisplayed(multiple ? $n.mul(rawTarget, multiple) : rawTarget)
+    return
+  }
+
+  // tween 动画在原始值上进行
+  tween.to({ n: rawTarget })
+}
+
 /** 增 */
 function increase(): void {
   if (disabled.value) return
@@ -313,17 +335,13 @@ function increase(): void {
     // 在原始值基础上加步长
     const newRawVal = $n.plus(rawVal, stepVal.value)
     // 乘以倍数得到新的实际值
-    const newVal = $n.mul(newRawVal, multiple)
-    const target = getValidValue(newVal)
+    const target = getValidValue($n.mul(newRawVal, multiple))
     model.value = target
-    // tween 动画在原始值上进行
-    tween.state.n = $n.div(target, multiple)
-    tween.to({ n: $n.div(target, multiple) })
+    updateStepDisplay($n.div(val, multiple), $n.div(target, multiple))
   } else {
-    tween.state.n = val
     const target = getValidValue($n.plus(val, stepVal.value))
     model.value = target
-    tween.to({ n: target })
+    updateStepDisplay(val, target)
   }
 }
 
@@ -339,17 +357,13 @@ function decrease(): void {
     // 在原始值基础上减步长
     const newRawVal = $n.minus(rawVal, stepVal.value)
     // 乘以倍数得到新的实际值
-    const newVal = $n.mul(newRawVal, multiple)
-    const target = getValidValue(newVal)
+    const target = getValidValue($n.mul(newRawVal, multiple))
     model.value = target
-    // tween 动画在原始值上进行
-    tween.state.n = $n.div(target, multiple)
-    tween.to({ n: $n.div(target, multiple) })
+    updateStepDisplay($n.div(val, multiple), $n.div(target, multiple))
   } else {
-    tween.state.n = val
     const target = getValidValue($n.minus(val, stepVal.value))
     model.value = target
-    tween.to({ n: target })
+    updateStepDisplay(val, target)
   }
 }
 

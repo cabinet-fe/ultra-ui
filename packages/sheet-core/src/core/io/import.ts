@@ -71,7 +71,11 @@ function resolveColor(
   color: { rgb?: string; theme?: number } | undefined,
   themeColors?: readonly string[]
 ): string | undefined {
-  if (color?.rgb) return color.rgb.length === 6 ? `#${color.rgb}` : color.rgb
+  if (color?.rgb) {
+    // xlsx 原生颜色为 AARRGGBB（8 位），去掉前导 alpha，统一归一为 '#RRGGBB'
+    const rgb = color.rgb.length === 8 ? color.rgb.slice(2) : color.rgb
+    return rgb.startsWith('#') ? rgb : `#${rgb}`
+  }
   if (color?.theme != null && themeColors) {
     const theme = themeColors[color.theme]
     if (theme) return theme.startsWith('#') ? theme : `#${theme}`

@@ -219,11 +219,27 @@ watch(
   { immediate: true }
 )
 
+/** 立即把草稿 SQL 落入数据集（v-model 实时、change 失焦才发且提交有 debounce），供预览同步拿到最新 SQL */
+function flushSqlDraft(datasetId: string): void {
+  if (sqlTimer) {
+    clearTimeout(sqlTimer)
+    sqlTimer = undefined
+  }
+  const current = dataset.value
+  if (!current || current.sql === sqlDraft.value) return
+  props.hub.updateDataset(datasetId, { sql: sqlDraft.value })
+  void runDescribe()
+}
+
 function onSqlChange(value: string): void {
   sqlDraft.value = value
+  const datasetId = props.datasetId
   if (sqlTimer) clearTimeout(sqlTimer)
   sqlTimer = setTimeout(() => {
-    props.hub.updateDataset(props.datasetId, { sql: value })
+    sqlTimer = undefined
+    // 防抖窗口内切换了数据集则丢弃，避免把旧草稿写进新数据集
+    if (props.datasetId !== datasetId) return
+    props.hub.updateDataset(datasetId, { sql: value })
     void runDescribe()
   }, 280)
 }
@@ -271,6 +287,8 @@ const schemaRows = computed(() => {
 // ---- 记录预览（按参数默认值经连接器取数） ----
 
 async function runPreview(): Promise<void> {
+  // 编辑器 change 仅在失焦时触发且提交有 debounce，先同步落草稿 SQL，避免用旧 SQL 取数
+  flushSqlDraft(props.datasetId)
   previewing.value = true
   previewError.value = ''
   const result = await props.hub.previewDataset(props.datasetId)

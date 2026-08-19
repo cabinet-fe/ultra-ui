@@ -21,7 +21,7 @@ const props = defineProps<{
 }>()
 
 /** 填充颜色（'' = 无填充） */
-const fillColor = ref('')
+const fillColor = ref<string>()
 
 // 打开时初始化为活动格当前填充色
 onMounted(() => {
@@ -31,7 +31,8 @@ onMounted(() => {
 })
 
 /** 填充颜色变化（'' = 无填充：清除 fill 保留边框） */
-function applyFillColor(color: string): void {
+function applyFillColor(color?: string): void {
+  fillColor.value = color
   const range = currentRange(props.context)
   if (!range) return
   props.context.applyStyle(range, color ? { fill: { color } } : { fill: {} })

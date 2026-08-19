@@ -94,7 +94,11 @@ watch(
     if (!color) return
     if (isUserActive()) return
 
-    const { RGB, alpha } = HEX2RGBA(color)
+    const parsed = HEX2RGBA(color)
+    // 无法解析的颜色（如非法字符）视为未绑定，跳过同步，避免把 NaN 写回 modelValue
+    if (!parsed) return
+
+    const { RGB, alpha } = parsed
     const hsv = RGB2HSV(RGB)
     rest.updateHue(hsv.h)
     rest.updateSV({ s: hsv.s, v: hsv.v })

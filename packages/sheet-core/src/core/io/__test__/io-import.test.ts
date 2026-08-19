@@ -95,6 +95,12 @@ describe('hucreStyleToModel / dateToSerial1900', () => {
     expect(
       hucreStyleToModel({ fill: { type: 'pattern', pattern: 'solid', fgColor: { rgb: 'FF0000' } } })
     ).toEqual({ fill: { color: '#FF0000' } })
+    // xlsx 原生 8 位 ARGB 去掉前导 alpha 归一为 '#RRGGBB'
+    expect(
+      hucreStyleToModel({
+        fill: { type: 'pattern', pattern: 'solid', fgColor: { rgb: 'FFFF0000' } }
+      })
+    ).toEqual({ fill: { color: '#FF0000' } })
     // 条纹 pattern 取 fgColor；none/gray125 无视觉 → 忽略
     expect(
       hucreStyleToModel({
