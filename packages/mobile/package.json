@@ -2,6 +2,15 @@
   "name": "@veltra/mobile",
   "version": "1.0.0",
   "private": true,
+  "homepage": "https://github.com/cabinet-fe/ultra-ui#readme",
+  "bugs": {
+    "url": "https://github.com/cabinet-fe/ultra-ui/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cabinet-fe/ultra-ui",
+    "directory": "packages/mobile"
+  },
   "type": "module",
   "exports": {
     ".": {

@@ -9,7 +9,15 @@
     "前端框架",
     "完全TS开发的Vue3组件库"
   ],
+  "homepage": "https://github.com/cabinet-fe/ultra-ui#readme",
+  "bugs": {
+    "url": "https://github.com/cabinet-fe/ultra-ui/issues"
+  },
   "author": "cabinet-fe",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cabinet-fe/ultra-ui"
+  },
   "workspaces": [
     "packages/*",
     "playground"

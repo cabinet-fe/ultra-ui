@@ -1,6 +1,15 @@
 {
   "name": "@veltra/directives",
   "version": "1.6.2",
+  "homepage": "https://github.com/cabinet-fe/ultra-ui#readme",
+  "bugs": {
+    "url": "https://github.com/cabinet-fe/ultra-ui/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cabinet-fe/ultra-ui",
+    "directory": "packages/directives"
+  },
   "files": [
     "dist",
     "src"
