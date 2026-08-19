@@ -1,9 +1,13 @@
 # UEmpty 示例
 
-## 基础用法
+> 注意：`UEmpty` 是 `inline-block` 元素，不会自动居中。请在外层容器用 `text-align: center` 或 flex 将其居中（见「基础用法」）。
+
+## 基础用法（容器内居中）
 
 ```vue
-<u-empty />
+<div style="text-align: center">
+  <u-empty />
+</div>
 ```
 
 ## 自定义文案与大小
