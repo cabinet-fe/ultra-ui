@@ -1,4 +1,4 @@
-name: Release
+name: 版本发布
 
 on:
   push:
@@ -18,19 +18,17 @@ permissions:
 
 jobs:
   release:
-    name: Publish packages
+    name: 构建与发布
     runs-on: ubuntu-latest
     env:
       # Bun 将依赖放在 node_modules/.bun/pkg@ver/node_modules/pkg，simple-git-hooks
       # 会误判项目根并 ENOENT；CI 也不需要写本地 git hooks。
       SKIP_INSTALL_SIMPLE_GIT_HOOKS: 1
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6.0.2
-        with:
-          fetch-depth: 0
+      - name: 检出代码
+        uses: actions/checkout@v7
 
-      - name: Validate release branch
+      - name: 校验发布分支
         run: |
           if [ "${{ github.ref }}" != "refs/heads/dev" ]; then
             echo "Manual release is only allowed from dev, current ref: ${{ github.ref }}"
@@ -38,56 +36,44 @@ jobs:
           fi
 
       # Bun 运行时（读取 package.json packageManager）；发布脚本与 changeset 依赖 bun 命令。
-      - name: Setup Bun
+      - name: 安装 Bun 运行环境
         uses: oven-sh/setup-bun@v2
 
       # setup-vp 装载 Vite+、Node.js，并通过 vp install 安装依赖。
-      - name: Setup Vite+
-        uses: voidzero-dev/setup-vp@v1.10.0
+      - name: 安装 Vite+ 与依赖
+        uses: voidzero-dev/setup-vp@v1
         with:
-          version: '0.1.22'
           node-version: '24'
           cache: true
           run-install: true
 
-      # 全量构建一次（vp run 按 workspace 拓扑排序）；lint 与构建并行，测试在构建完成后执行
-      - name: Verify
+      # Lint、Test 与全量 Build 并行执行，并统一汇聚退出状态
+      - name: 代码校验与构建测试
         run: |
           vp lint &
           lint_pid=$!
-          vp run --filter '@veltra/*' --filter '!@veltra/mobile' build
-          build_status=$?
           vp test &
           test_pid=$!
+          vp run --filter '@veltra/*' --filter '!@veltra/mobile' build
+          build_status=$?
           wait $lint_pid
           lint_status=$?
           wait $test_pid
           test_status=$?
           exit $((build_status | lint_status | test_status))
 
-      # .npmrc 不入库；发布前在 CI 写入 npmjs registry 与 token。
-      - name: Configure npm registry for publish
-        run: |
-          printf '%s\n' 'registry=https://registry.npmjs.org/' > .npmrc
-          printf '%s\n' "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> .npmrc
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Normalize package manifests for publish
+      - name: 规范化待发布 package.json
         run: bun run scripts/normalize-release-manifests.ts
 
-      - name: Publish to npm and collect release data
+      - name: 发布到 npm 并收集发布数据
         id: changesets
-        uses: changesets/action@v1.8.0
+        uses: changesets/action@v2
         with:
-          publish: bun run changeset publish
-          createGithubReleases: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          publish-script: bun run changeset publish
+          create-github-releases: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create GitHub releases
+      - name: 创建 GitHub Releases
         if: steps.changesets.outputs.published == 'true' || github.event_name == 'workflow_dispatch'
         run: bun run scripts/create-github-releases.ts
         env:
