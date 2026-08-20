@@ -163,6 +163,14 @@ export class StylePool {
     return this.styles.get(id)
   }
 
+  /** 池内是否存在 wrap 对齐（构造期行高扫描可整表跳过） */
+  hasAlignWrap(): boolean {
+    for (const style of this.styles.values()) {
+      if (style.align?.wrap) return true
+    }
+    return false
+  }
+
   /** 序列化导出：按 id 升序的样式定义数组（供快照；与单元格 s 引用配套） */
   snapshot(): CellStyle[] {
     const items: CellStyle[] = []

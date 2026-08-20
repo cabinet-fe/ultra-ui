@@ -188,6 +188,27 @@ export class CellStore {
     return this.cells.get(addr.row)?.get(addr.col)
   }
 
+  /** 只读遍历已存格（不拷贝 data；调用方不得修改返回对象） */
+  *peekEntries(): Generator<[CellAddress, CellData], void, undefined> {
+    for (const [row, rowMap] of this.cells) {
+      for (const [col, data] of rowMap) {
+        yield [{ row, col }, data]
+      }
+    }
+  }
+
+  /** 只读遍历某行已存格 [col, data]（不拷贝） */
+  *peekRow(row: number): Generator<[number, CellData], void, undefined> {
+    const rowMap = this.cells.get(row)
+    if (!rowMap) return
+    yield* rowMap
+  }
+
+  /** 有数据的行号（稀疏） */
+  *rowKeys(): Generator<number, void, undefined> {
+    yield* this.cells.keys()
+  }
+
   /** 序列化（只含真实存在的格） */
   snapshot(): CellSnapshotItem[] {
     const items: CellSnapshotItem[] = []

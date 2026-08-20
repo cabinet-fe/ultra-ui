@@ -73,7 +73,7 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 
 ## 浮动图片渲染（grid/image-layer.ts）
 
-- **叠层渲染**：grid 容器内绝对定位 `<img>`，按 `computeImageRect` 布置——`from` 左上 + 格内像素偏移（`from.offsetX/offsetY`，px，缺省 0）；宽高**优先取 `image.width/height`**（xlsx 导入的精确 px），宽高缺失且有 `to` 时按 from→to 跨度兜底（Excel `twoCellAnchor` 拉伸语义），都缺失时取自然尺寸；`Map<id, objectURL>` 缓存，销毁时 revoke。监听 SCROLL / resize / `image-change` / `content-reset` / 冻结与行高变化重排。
+- **叠层渲染**：grid 容器内绝对定位 `<img>`，按 `computeImageRect` 布置——`from` 左上 + 格内像素偏移（`from.offsetX/offsetY`，px，缺省 0）；宽高**优先取 `image.width/height`**（xlsx 导入的精确 px），宽高缺失且有 `to` 时按 from→to 跨度兜底（Excel `twoCellAnchor` 拉伸语义），都缺失时取自然尺寸。仅视口内（含预挂边距）创建 DOM / objectURL，滚出卸节点、保留 URL；`decoding=async`；销毁时 revoke。监听 SCROLL / resize / `image-change` / `content-reset` / 冻结与行高变化重排。
 - **交互**：点击图片选中（拦截进 VTable）；选中后可拖动，落点反查单元格经 `sheet.updateImage` 平移 `from`（有 `to` 则同 delta，保持跨度/宽高），**落点相对目标格左上的像素余量写回 `offsetX/offsetY`（负值 clamp 到 0），自由定位不吸附**；`Delete`/`Backspace` 经命令删除；点网格其他位置取消选中。readonly 时仅保留选中。本期不做缩放/旋转。
 - **LRU**：隐藏实例不渲染叠层；激活时一次性重排（脏标记）。
 
@@ -88,7 +88,7 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 ## 导入导出（core/io）
 
 - 主入口白名单：`exportWorkbookXlsx` / `exportSheetCsv` / `importXlsx` / `importCsv` / `replaceWorkbook`（内部走快照整表替换）。worker 链路入口 `buildWorkbookFromHucre` / `replaceWorkbookWithSnapshots` 不在白名单，消费方深导入 `@veltra/sheet-core/core/io/import`。
-- **IO 保真度约定**：xlsx 导入只读 `cells` Map（不扫稠密 `rows`）；表格尺寸按有值格收敛，勿用稠密几何或 `columns[]` 全长撑到 Excel 极限列数；纯样式格只保留有值范围外扩 100 的紧邻带。
+- **IO 保真度约定**：xlsx 导入只读 `cells` Map（不扫稠密 `rows`）；表格尺寸按有值格 ∪ 合并 ∪ 图片锚点收敛，勿用稠密几何或 `columns[]` 全长撑到 Excel 极限列数；纯样式格只保留有值范围外扩 100 的紧邻带；行高/列宽只写入渲染范围内的定义（禁止把默认 `columns[]` 外扩 KEEP_MARGIN 后逐列 setColWidth）。
 - **快照整表替换**：`RestoreSheetCommand`（`sheet.restore-sheet`）+ `SnapshotPatch`——导入替换与 undo/redo 回放走整表 `restoreContent`（cells/styles/merges/images/rowStyles/colStyles + 公式图 `rebuildSheet` 重建），不发逐格 cell-change（避免十万级视图同步），发 `content-reset` 事件（grid `setRecords` 一次、状态源 bump）+ `image-change`；冻结/行高/列宽/尺寸/选区不进 undo；跨表引用方经 recalcAfterCommand 联动（含被清空的旧格标脏）。
 - **批量**：`Workbook.beginBatch/endBatch` 合并结构事件补发（196 sheet 导入的 195 次 `sheets-change` 收敛为 1 次）；`Sheet.mergeCellsBatch` 批量合并 = 单 undo 单元（批量内相交边收集边应用与逐条语义一致）；样式导入按 hucre 共享子对象引用组合 key memo 跳过重复解析/intern。
 - **分片构建**：`buildWorkbookFromHucre` 按 10% 粒度经回调回报进度（供 worker 链路驱动进度 UI）。
@@ -104,6 +104,7 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 
 - **批量同步**：grid 的 `cell-change` / `merge-change` **不逐补丁同步**——排入微任务合并为一次 flush（同步执行块内 N 补丁 = 1 次视图同步；超过 64 格走一次 `setRecords` 全量重建替代逐格增量）。LRU 隐藏实例只保留脏标记，激活时一次性同步。
 - **编辑器单例**：`veltra-sheet-input` 全局只注册一次（VTable 全局编辑器注册表无单条注销 API，旧实现每实例注册一个会永久累积）。hook 由发起编辑的 ListTable（onStart 的 `EditContext.table`；onEnd 无参，用 onStart 捕获的会话 table）经模块级 `WeakMap<ListTable, SheetGrid>` 反查所属实例——多实例同页时路由精确，不依赖「当前激活」全局槽。
+- **列宽**：`buildColumns` 写入 `width`（构造一次布局）。禁止在 scenegraph 建成后对大量列逐次 `setColWidth`（438 行 × 130 次实测 ~3s）。`applyColWidthsFromModel` 只回放表内且宽度有变的列（content-reset / 激活）。
 - **渲染热路径**：`store.peekCell` / `stylePool.peek` 只读访问器，避免逐格防御性拷贝；`entriesInRange` 迭代稀疏键、`rowsForColumn` 按列找行，不做稠密列扫描。
 - **公式重算**：依赖图反向索引按表批量标脏（变更格按行区间合并判定），非逐格全表扫描。
 

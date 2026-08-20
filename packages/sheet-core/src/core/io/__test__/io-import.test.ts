@@ -360,6 +360,8 @@ describe('importXlsx 映射（hucre 读取结果 → 模型）', () => {
     const sheet = (await importXlsx(new Uint8Array())).activeSheet
     expect(sheet.getCellData({ row: 0, col: 1 })).toMatchObject({ v: 2 })
     expect(sheet.cols).toBeLessThan(200)
+    // 默认列宽不得外扩 KEEP_MARGIN 写进模型（否则切 sheet 会逐列 setColWidth 卡死）
+    expect(sheet.getColWidths().size).toBeLessThanOrEqual(sheet.cols)
   })
 })
 

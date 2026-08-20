@@ -189,8 +189,9 @@ export function useSheetGrid(options: UseSheetGridOptions) {
    * tab 切换：优先复用缓存实例（零重建）。
    * 命中时校验实例是否过期（隐藏期间程序化 structure-change——插入/删除/undo
    * 行列——vue 层只绑定激活 sheet 的 structure-change，隐藏实例靠自持订阅标记
-   * dirty）；过期则释放重建，否则同步模型状态（选区回驱 + 冻结校正；数据/样式/
-   * 行高由实例常驻的 sheet 事件订阅持续同步，隐藏期间跨表重算等模型变更不丢）。
+   * dirty）；过期则释放重建。命中且未过期只翻可见性：隐藏实例的 cell/merge/
+   * content-reset 已在 GridSyncManager 置脏，setVisible(true) 时一次性 flush，
+   * 不必每次切 tab 都 syncFromModel（会重放全部列宽）。
    */
   function activateGrid(): void {
     const sheet = getActiveSheet()
@@ -199,7 +200,6 @@ export function useSheetGrid(options: UseSheetGridOptions) {
     const cached = cache.get(sheet)
     if (cached && !cached.dirty) {
       cached.lastUsed = ++seq
-      cached.grid.syncFromModel()
       showOnly(cached)
       active = cached
       bindGridPointerDown(cached.el)

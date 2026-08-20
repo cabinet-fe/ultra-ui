@@ -47,35 +47,21 @@ export class GridRowHeightEngine {
   }
 
   /**
-   * 构造期行高配置（rowHeightConfig，全行覆盖）：
-   * - 模型稀疏 rowHeights（导入 / 拖拽 / 历史 wrap 估算）优先；
-   * - wrap 格按默认列宽估算（列宽不持久化，重建后恒为默认值，见 SHEET_DEFAULT_COL_WIDTH）；
-   * - 未命中行走默认行高——**必须覆盖所有行**：rowHeightConfig 使 isAutoRowHeight
-   *   生效后，未覆盖的行会走文本高度测量路径（行高变自适应）。
-   * wrap 估算结果写入模型（与构造后 syncWrapRowHeight 同语义：不进 undo、随快照持久化）。
-   * key = 表格行号（模型行 + 1：列头行偏移）。
+   * 构造前把 wrap 估算写入模型（不进 undo）。
+   * 只扫稀疏有数据的行/格，禁止按渲染行列做稠密双重循环——大表切 sheet
+   * 重建时 O(rows×cols) 的 getEffectiveStyle 是主线程卡顿主因。
+   * 样式池无 wrap 且无动态 hook 时整表跳过。
    */
-  buildRowHeightConfig(
-    styleResolver: GridStyleResolver,
-    defaultColWidth: number
-  ): { key: number; height: number }[] {
-    const config: { key: number; height: number }[] = [{ key: 0, height: SHEET_DEFAULT_ROW_HEIGHT }]
-    const dataRows = new Set<number>()
-    for (const [addr] of this.sheet.store.entries()) {
-      if (addr.row < this.rows) dataRows.add(addr.row)
+  applyWrapEstimates(styleResolver: GridStyleResolver, defaultColWidth: number): void {
+    if (!styleResolver.hasDynamicStyle() && !this.sheet.stylePool.hasAlignWrap()) return
+    for (const row of this.sheet.store.rowKeys()) {
+      if (row >= this.rows) continue
+      const estimated = this.estimateWrapRowHeightForRow(row, defaultColWidth, styleResolver)
+      if (estimated == null) continue
+      const current = this.sheet.getRowHeight(row)
+      const height = Math.max(current ?? SHEET_DEFAULT_ROW_HEIGHT, estimated)
+      if (height !== current) this.sheet.setRowHeight(row, height)
     }
-    for (let row = 0; row < this.rows; row++) {
-      let height = this.sheet.getRowHeight(row) ?? SHEET_DEFAULT_ROW_HEIGHT
-      if (dataRows.has(row)) {
-        const estimated = this.estimateWrapRowHeightForRow(row, defaultColWidth, styleResolver)
-        if (estimated != null) {
-          height = Math.max(height, estimated)
-          if (height !== this.sheet.getRowHeight(row)) this.sheet.setRowHeight(row, height)
-        }
-      }
-      config.push({ key: row + 1, height })
-    }
-    return config
   }
 
   /** 构造前单行 wrap 行高估算（不依赖 table：列宽以常量传入）；行内无 wrap 格返回 undefined */
@@ -89,10 +75,9 @@ export class GridRowHeightEngine {
   }
 
   /**
-   * 扫描单行全部 wrap 格并求最大估算行高（共享扫描，列宽来源由调用方注入：
+   * 扫描单行 wrap 格并求最大估算行高（共享扫描，列宽来源由调用方注入：
    * 构造期用默认列宽常量、动态期用 VTable 实测列宽——见 #32）。
-   * 行内无 wrap 格返回 undefined。
-   * 读取生效样式有效处理动态条件样式（resolveCellStyle）覆盖下的 wrap / font size。
+   * 只迭代该行已存格，不扫空列。行内无 wrap 格返回 undefined。
    */
   scanWrapRowHeight(
     row: number,
@@ -102,16 +87,17 @@ export class GridRowHeightEngine {
     if (row < 0 || row >= this.rows) return undefined
     let maxHeight = 0
     let hasWrap = false
-    for (let col = 0; col < this.cols; col++) {
+    for (const [col] of this.sheet.store.peekRow(row)) {
+      if (col >= this.cols) continue
       const addr = { row, col }
-      const style = styleResolver.getEffectiveStyle(addr)
-      if (!style?.align?.wrap) continue
+      const metrics = styleResolver.getWrapMetrics(addr)
+      if (!metrics.wrap) continue
       hasWrap = true
       const text = String(this.sheet.getDisplayValue(addr) ?? '')
       const height = estimateWrapRowHeight({
         text,
         colWidth: getColWidth(col),
-        fontSizePt: style.font?.size
+        fontSizePt: metrics.fontSizePt
       })
       if (height > maxHeight) maxHeight = height
     }
@@ -148,23 +134,9 @@ export class GridRowHeightEngine {
     this.setTableRowHeight(table, tableRow, next)
   }
 
-  /**
-   * table.setRowHeight + rowHeightConfig 同步。
-   * rowHeightConfig 使 isAutoRowHeight 恒 true，滚动增量重算（computeRowsHeight）
-   * 会按 config 值回写 rowHeightsMap——动态行高（拖拽 / wrap 更新）必须同步
-   * config 数组内容，否则滚动后行高被旧 config 值覆盖（视觉跳动）。
-   */
+  /** table.setRowHeight（行高由 customComputeRowHeight 读模型，不再维护 rowHeightConfig 数组） */
   setTableRowHeight(table: ListTable, tableRow: number, height: number): void {
     table.setRowHeight(tableRow, height)
-    const config = (
-      table as unknown as {
-        internalProps?: { rowHeightConfig?: { key: number; height: number }[] }
-      }
-    ).internalProps?.rowHeightConfig
-    if (!config) return
-    const item = config.find((c) => c.key === tableRow)
-    if (item) item.height = height
-    else config.push({ key: tableRow, height })
   }
 
   /**

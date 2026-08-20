@@ -390,19 +390,17 @@ function applyHucreSheet(
   }
   // 冻结与行高/列宽：模型状态，不进 undo（定义的行/列计入尺寸）
   target.setFrozen(source.freezePane?.rows ?? 0, source.freezePane?.columns ?? 0)
-  // 行高/列宽只应用到有值范围 + 紧邻带。hucre 1.1 修了无界 `<col>` 死循环后，
-  // 会把 Excel 默认列宽物化成 16384 长的 columns[]，若据此抬高水位，VTable
-  // 仍会按极限列数构造而卡死。
-  const sizeLimitRow = maxUsedRow + KEEP_MARGIN
-  const sizeLimitCol = maxUsedCol + KEEP_MARGIN
+  // 行高/列宽只应用到实际渲染范围。hucre 1.1 会把 Excel 默认列宽物化成
+  // 16384 长的 columns[]；KEEP_MARGIN 外扩再写入默认宽，随后逐列
+  // setColWidth 会把切 sheet 卡在数秒（见 SheetGrid column.width）。
   if (source.rowDefs) {
     for (const [row, def] of source.rowDefs) {
-      if (row > sizeLimitRow) continue
+      if (row > maxUsedRow) continue
       if (def?.height) target.setRowHeight(row, Math.round((def.height * 4) / 3))
     }
   }
   if (source.columns) {
-    const colEnd = Math.min(source.columns.length, sizeLimitCol + 1)
+    const colEnd = Math.min(source.columns.length, maxUsedCol + 1)
     for (let col = 0; col < colEnd; col++) {
       const def = source.columns[col]
       if (def?.width) {

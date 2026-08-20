@@ -50,7 +50,6 @@
       <MarkdownRender
         v-if="message.content || isStreaming"
         mode="chat"
-        :class="cls.e('message-content')"
         :content="message.content"
         :final="!isStreaming"
         :fade="false"

@@ -130,6 +130,9 @@ export class SheetGrid {
     })
     this.rowHeightEngine = new GridRowHeightEngine(this.sheet, this.rows, this.cols)
     this.syncManager = new GridSyncManager()
+    // wrap 估算写入模型后再建表：customComputeRowHeight 按模型 O(1) 取值，
+    // 避免 rowHeightConfig 全量数组（VTable 按数组 find，大表切 sheet 会卡死）
+    this.rowHeightEngine.applyWrapEstimates(this.styleResolver, SHEET_DEFAULT_COL_WIDTH)
 
     this.table = new ListTable(options.container, this.buildOptions())
     registerGridEditor(this.table, this)
@@ -182,7 +185,6 @@ export class SheetGrid {
     })
     this.disposers.push(() => this.imageLayer.dispose())
     this.applyFrozen()
-    applyColWidthsFromModel(this.table, this.sheet, this.coords)
     this.selectionController.pushSelectionToTable(this.sheet.getSelection(), this.rows, this.cols)
   }
 
@@ -228,7 +230,8 @@ export class SheetGrid {
       on,
       () => this.refresh(),
       (r) => this.syncWrapRowHeight(r),
-      (v) => this.imageLayer.setVisible(v)
+      (v) => this.imageLayer.setVisible(v),
+      () => applyColWidthsFromModel(this.table, this.sheet, this.coords)
     )
   }
 
@@ -312,6 +315,9 @@ export class SheetGrid {
     return Array.from({ length: this.cols }, (_, col) => ({
       field: String(col),
       title: colIndexToName(col),
+      // 列宽进 column def：构造期一次布局。构造后再逐列 setColWidth
+      // 会反复重建 scenegraph（438 行 × 130 次实测 ~3s）。
+      width: this.sheet.getColWidth(col) ?? SHEET_DEFAULT_COL_WIDTH,
       style: (styleArg: any) => this.styleResolver.resolveCellStyle(styleArg, this.coords),
       // 仅宿主提供 hook 时安装分发器：customLayout 存在会使 VTable 对该列
       // 关闭 fast-update 快路径，默认场景必须保持零差异（ADR-0004）。
@@ -351,7 +357,7 @@ export class SheetGrid {
       const val = this.getTableCellValue(addr)
       if (val != null && val !== '') records[addr.row]![String(addr.col)] = val
     }
-    for (const [addr] of this.sheet.store.entries()) writeCell(addr)
+    for (const [addr] of this.sheet.store.peekEntries()) writeCell(addr)
     if (this.resolveDisplayValue) {
       for (const [addr] of this.sheet.entriesCellMeta()) {
         if (this.sheet.store.peekCell(addr)?.v == null) writeCell(addr)
@@ -366,10 +372,14 @@ export class SheetGrid {
       columns: this.buildColumns(),
       widthMode: 'standard',
       defaultRowHeight: SHEET_DEFAULT_ROW_HEIGHT,
-      rowHeightConfig: this.rowHeightEngine.buildRowHeightConfig(
-        this.styleResolver,
-        SHEET_DEFAULT_COL_WIDTH
-      ),
+      // 稀疏行高：回调读模型 Map（导入/拖拽/wrap 估算）。不要用 rowHeightConfig
+      // 全量数组——VTable 一旦有该字段就打开 isAutoRowHeight，并按数组 find
+      // 取每一行，大表切 sheet 时主线程会卡在首屏量高。
+      customComputeRowHeight: (args: { row: number }) => {
+        const headerRows = this.showColHeader ? 1 : 0
+        if (args.row < headerRows) return SHEET_DEFAULT_ROW_HEIGHT
+        return this.sheet.getRowHeight(args.row - headerRows) ?? SHEET_DEFAULT_ROW_HEIGHT
+      },
       resize: this.isReadonly
         ? { columnResizeMode: 'none', rowResizeMode: 'none' }
         : { columnResizeMode: 'header', rowResizeMode: 'all' },

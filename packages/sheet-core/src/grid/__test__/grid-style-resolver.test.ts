@@ -84,4 +84,23 @@ describe('GridStyleResolver.resolveCellStyle Hook', () => {
     expect(resolver.getEffectiveStyle(addr)).toEqual({ font: { color: '#FF0000', bold: true } })
     expect(sheet.getCellStyle(addr)).toBeUndefined()
   })
+
+  it('getWrapMetrics：列/行/格 wrap 覆盖且不分配 compose 结果也能读到', () => {
+    const sheet = new Sheet()
+    sheet.setColStyle(1, { align: { wrap: true }, font: { size: 14 } })
+    sheet.setRowStyle(2, { font: { size: 18 } })
+    sheet.setCellStyle(
+      { start: { row: 2, col: 1 }, end: { row: 2, col: 1 } },
+      { font: { bold: true } }
+    )
+
+    const resolver = new GridStyleResolver(sheet, 10, 10)
+    expect(resolver.getWrapMetrics({ row: 0, col: 1 })).toEqual({ wrap: true, fontSizePt: 14 })
+    expect(resolver.getWrapMetrics({ row: 2, col: 0 })).toEqual({ wrap: false, fontSizePt: 18 })
+    expect(resolver.getWrapMetrics({ row: 2, col: 1 })).toEqual({ wrap: true, fontSizePt: 18 })
+    expect(resolver.getWrapMetrics({ row: 0, col: 0 })).toEqual({
+      wrap: false,
+      fontSizePt: undefined
+    })
+  })
 })

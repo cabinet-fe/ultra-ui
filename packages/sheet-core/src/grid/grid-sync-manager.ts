@@ -11,10 +11,13 @@ import type { GridStyleResolver } from './grid-style-resolver'
 
 export const BATCH_FULL_REBUILD_THRESHOLD = 64
 
-/** 按模型稀疏列宽回放至 VTable（构造 / content-reset / 激活时） */
+/** 按模型稀疏列宽回放至 VTable（content-reset / 激活时）。跳过表外列与已是目标宽度的列——逐次 setColWidth 会重建 scenegraph。 */
 export function applyColWidthsFromModel(table: ListTable, sheet: Sheet, coords: GridCoords): void {
+  const colCount = table.colCount
   for (const [col, width] of sheet.getColWidths()) {
     const tableCol = coords.toTableCoord(table, { row: 0, col }).col
+    if (tableCol < 0 || tableCol >= colCount) continue
+    if (table.getColWidth(tableCol) === width) continue
     table.setColWidth(tableCol, width)
   }
 }
@@ -146,7 +149,8 @@ export class GridSyncManager {
     on: boolean,
     refresh: () => void,
     syncWrapRowHeight: (r: number) => void,
-    setImageVisible: (v: boolean) => void
+    setImageVisible: (v: boolean) => void,
+    applyColWidths?: () => void
   ): void {
     this.visible = on
     setImageVisible(on)
@@ -155,6 +159,7 @@ export class GridSyncManager {
       if (this.mergeDirty) {
         this.mergeDirty = false
         refresh()
+        applyColWidths?.()
       }
     }
   }
@@ -360,6 +365,11 @@ export class GridSyncManager {
 
     disposers.push(
       sheet.on('content-reset', () => {
+        if (this.released) return
+        if (!this.visible) {
+          this.mergeDirty = true
+          return
+        }
         refresh()
         applyColWidthsFromModel(table, sheet, coords)
       })

@@ -63,6 +63,15 @@ describe('StylePool', () => {
     expect(pool.get(id)!.fill!.color).toBe('#FFFFFF')
   })
 
+  it('hasAlignWrap：仅 wrap 样式为 true', () => {
+    const pool = new StylePool()
+    expect(pool.hasAlignWrap()).toBe(false)
+    pool.intern({ fill: { color: '#FFFFFF' } })
+    expect(pool.hasAlignWrap()).toBe(false)
+    pool.intern({ align: { wrap: true } })
+    expect(pool.hasAlignWrap()).toBe(true)
+  })
+
   it('snapshot/restore：内容一致且 id 映射一致（相同样式继续去重到同一 id）', () => {
     const pool = new StylePool()
     const a = pool.intern({ fill: { color: '#FF0000' } })

@@ -235,6 +235,21 @@ describe('SheetGrid（happy-dom smoke）', () => {
     }
   })
 
+  it('超出渲染列的列宽不撑开 VTable，构造仍按 column.width 还原可见列', () => {
+    const container = createContainer()
+    const sheet = new Sheet()
+    sheet.ensureTableSize(20, 6)
+    for (let col = 0; col < 120; col++) sheet.setColWidth(col, 69)
+    const grid = new SheetGrid({ container, sheet, rows: 20, cols: 6 })
+    try {
+      const table = grid.getTable()
+      expect(table.colCount).toBe(7)
+      expect(table.getColWidth(2)).toBe(69)
+    } finally {
+      grid.release()
+    }
+  })
+
   it('填充柄：DRAG_FILL_HANDLE_END 数字序列写入模型', () => {
     const { sheet, grid, table } = createGrid()
     try {
@@ -734,6 +749,22 @@ describe('SheetGrid（happy-dom smoke）', () => {
       expect(sheet.getRowHeight(0)).toBe(120)
       grid.flushPending()
       expect(table.getRowHeight(1)).toBe(120)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('列默认 wrap 只估算有数据的格；宽表空列不参与扫描', () => {
+    const container = createContainer()
+    const sheet = new Sheet()
+    sheet.ensureTableSize(8, 80)
+    sheet.setColStyle(0, { align: { wrap: true } })
+    sheet.setCellValue({ row: 3, col: 0 }, '一二三四五六七八九十'.repeat(6))
+    const grid = new SheetGrid({ container, sheet, rows: 8, cols: 80 })
+    try {
+      expect(sheet.getRowHeight(3)).toBeGreaterThan(28)
+      expect(grid.getTable().getRowHeight(4)).toBe(sheet.getRowHeight(3))
+      expect(sheet.getRowHeight(0)).toBeUndefined()
     } finally {
       grid.release()
     }

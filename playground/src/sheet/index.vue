@@ -1,13 +1,5 @@
 <template>
   <div class="sheet-demo">
-    <div class="sheet-demo__hint">
-      USheet：工具栏图标化（history / cell / text / edit / insert / file）。输入 =
-      开头即公式；拖选后可合并或右键菜单；
-      单元格右下角拖填充柄可复制/数字序列/公式相对引用；行边界可拖行高。快捷键：Ctrl/Cmd+Z 撤销，
-      Ctrl/Cmd+Shift+Z 或 Ctrl+Y 重做；编辑中方向键只移光标。行列插入/删除与冻结见行列头右键菜单。
-      预置浮动图见 F2；工具栏「插入图片」或右键可再插；选中图按 Delete 删除。观察区刷新后 snapshot
-      可见 images 字段。
-    </div>
     <u-sheet ref="sheetRef" :workbook="workbook" :rows="30" class="sheet-demo__sheet" />
 
     <!-- 数据结构观察区（仅演示页，非组件内部）：实时展示活动表模型 -->
@@ -552,7 +544,7 @@ onBeforeUnmount(() => {
 }
 
 .sheet-demo__sheet {
-  height: 620px;
+  height: calc(100vh - 154px);
 }
 
 /* ─── 数据结构观察区 ─────────────────────────────── */

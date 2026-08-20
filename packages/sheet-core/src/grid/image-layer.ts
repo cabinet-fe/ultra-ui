@@ -39,6 +39,21 @@ interface ImageRect {
   height: number
 }
 
+/** 视口外预挂边距（px）：滚动近缘时提前建节点，避免露白 */
+const VIEW_PRELOAD_PX = 240
+/** 容器尚未布局时按常见首屏估算，避免把全部图片当可见 */
+const FALLBACK_VIEW_W = 1280
+const FALLBACK_VIEW_H = 800
+
+function rectIntersectsView(rect: ImageRect, viewW: number, viewH: number, pad: number): boolean {
+  return (
+    rect.left < viewW + pad &&
+    rect.top < viewH + pad &&
+    rect.left + rect.width > -pad &&
+    rect.top + rect.height > -pad
+  )
+}
+
 interface DragSession {
   id: string
   pointerId: number
@@ -54,8 +69,8 @@ interface DragSession {
  *
  * - 定位：`computeImageRect`——from 左上 + 格内像素偏移（offsetX/offsetY）；
  *   宽高优先取 `image.width/height`，缺失且有 `to` 时按 from→to 跨度兜底
- * - 数据：`Map<id, objectURL>` 缓存，dispose 时 revoke
- * - LRU：隐藏只置脏，激活时一次性重排
+ * - 数据：仅视口内图片创建 DOM / objectURL；滚出视口卸节点（URL 保留以免重建 Blob）
+ * - LRU：隐藏只置脏，激活时一次性按视口重排
  * - 交互：点击选中；选中后拖动经 `sheet.updateImage` 平移锚点（含格内余量，可 undo）；
  *   Delete/Backspace 经 `sheet.removeImage` 删除；只读（readonly）时仅保留选中
  */
@@ -132,7 +147,7 @@ export class ImageLayer {
       this.dirty = true
       return
     }
-    this.layoutAll()
+    this.syncFromModel()
   }
 
   dispose(): void {
@@ -372,32 +387,20 @@ export class ImageLayer {
     })
   }
 
-  /** 全量对齐模型：增删节点 + 布局 */
+  /** 全量对齐模型：视口内建节点，视口外卸 DOM（保留 objectURL） */
   private syncFromModel(): void {
     if (this.released) return
-    const images = this.sheet.getImages()
-    const alive = new Set(images.map((image) => image.id))
+    const alive = new Set(this.sheet.getImages().map((image) => image.id))
 
-    for (const [id, node] of this.nodes) {
+    for (const id of this.nodes.keys()) {
       if (alive.has(id)) continue
-      node.remove()
-      this.nodes.delete(id)
-      const url = this.urls.get(id)
-      if (url) {
-        URL.revokeObjectURL(url)
-        this.urls.delete(id)
-      }
-      this.dataRefs.delete(id)
-      if (this.selectedId === id) this.selectedId = null
-      if (this.drag?.id === id) {
-        this.endDragListeners()
-        this.drag = null
-      }
+      this.detachNode(id, true)
+    }
+    for (const id of this.urls.keys()) {
+      if (alive.has(id)) continue
+      this.revokeUrl(id)
     }
 
-    for (const image of images) {
-      this.upsertNode(image)
-    }
     this.layoutAll()
   }
 
@@ -419,6 +422,7 @@ export class ImageLayer {
       img.draggable = false
       img.alt = image.altText ?? ''
       if (image.title) img.title = image.title
+      img.decoding = 'async'
       Object.assign(img.style, {
         display: 'block',
         width: '100%',
@@ -506,23 +510,73 @@ export class ImageLayer {
     }
   }
 
-  private layoutAll(): void {
-    for (const image of this.sheet.getImages()) {
-      // 拖动中临时 DOM 位置优先，勿被 SCROLL 重排冲掉
-      if (this.drag?.id === image.id && this.drag.moved) continue
-      this.layoutOne(image.id, image)
+  private readViewport(): { width: number; height: number } {
+    const width = this.container.clientWidth
+    const height = this.container.clientHeight
+    return {
+      width: width > 0 ? width : FALLBACK_VIEW_W,
+      height: height > 0 ? height : FALLBACK_VIEW_H
     }
   }
 
-  private layoutOne(id: string, image: SheetImage | undefined): void {
+  private isPinned(id: string): boolean {
+    return this.selectedId === id || this.drag?.id === id
+  }
+
+  private layoutAll(): void {
+    const view = this.readViewport()
+    const keep = new Set<string>()
+    for (const image of this.sheet.getImages()) {
+      if (this.drag?.id === image.id && this.drag.moved) {
+        keep.add(image.id)
+        continue
+      }
+      const rect = this.computeImageRect(image)
+      const unknownSize = rect.width <= 0 || rect.height <= 0
+      const inView = rectIntersectsView(rect, view.width, view.height, VIEW_PRELOAD_PX)
+      if (!this.isPinned(image.id) && !unknownSize && !inView) continue
+      keep.add(image.id)
+      this.upsertNode(image)
+      this.layoutOne(image.id, image, rect)
+    }
+    for (const id of this.nodes.keys()) {
+      if (!keep.has(id)) this.detachNode(id, false)
+    }
+  }
+
+  private layoutOne(id: string, image: SheetImage | undefined, precomputed?: ImageRect): void {
     const wrap = this.nodes.get(id)
     if (!wrap || !image) return
     const img = wrap.querySelector('img')
-    const rect = this.computeImageRect(image, img)
+    const rect = precomputed ?? this.computeImageRect(image, img)
     wrap.style.left = `${rect.left}px`
     wrap.style.top = `${rect.top}px`
     if (rect.width > 0) wrap.style.width = `${rect.width}px`
     if (rect.height > 0) wrap.style.height = `${rect.height}px`
+  }
+
+  /** 卸 DOM；revokeUrl=true 时同时释放 objectURL（模型已删除） */
+  private detachNode(id: string, revokeUrl: boolean): void {
+    const wrap = this.nodes.get(id)
+    if (wrap) {
+      wrap.remove()
+      this.nodes.delete(id)
+    }
+    if (this.selectedId === id) this.selectedId = null
+    if (this.drag?.id === id) {
+      this.endDragListeners()
+      this.drag = null
+    }
+    if (revokeUrl) this.revokeUrl(id)
+  }
+
+  private revokeUrl(id: string): void {
+    const url = this.urls.get(id)
+    if (url) {
+      URL.revokeObjectURL(url)
+      this.urls.delete(id)
+    }
+    this.dataRefs.delete(id)
   }
 
   // ─── 选中 ───────────────────────────────────────────────

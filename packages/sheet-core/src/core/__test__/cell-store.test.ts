@@ -107,4 +107,18 @@ describe('snapshot / restore', () => {
     data.v = 999
     expect(store.getCell({ row: 0, col: 0 })!.v).toBe(1)
   })
+
+  it('peekEntries / peekRow 不拷贝，外部修改会影响存储', () => {
+    const store = new CellStore()
+    store.setCell({ row: 1, col: 2 }, { v: 1 })
+    const peeked = [...store.peekEntries()]
+    expect(peeked).toHaveLength(1)
+    peeked[0]![1].v = 999
+    expect(store.peekCell({ row: 1, col: 2 })!.v).toBe(999)
+
+    store.setCell({ row: 1, col: 3 }, { v: 'x' })
+    expect([...store.rowKeys()]).toEqual([1])
+    expect([...store.peekRow(1)].map(([col]) => col).sort()).toEqual([2, 3])
+    expect([...store.peekRow(0)]).toEqual([])
+  })
 })

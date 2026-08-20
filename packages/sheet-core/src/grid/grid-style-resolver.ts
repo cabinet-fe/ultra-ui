@@ -128,12 +128,38 @@ export class GridStyleResolver {
     this.resolveCellStyleHook = options?.resolveCellStyle
   }
 
+  /** 是否安装了动态样式 hook（构造期 wrap 扫描不能只看样式池） */
+  hasDynamicStyle(): boolean {
+    return this.resolveCellStyleHook != null
+  }
+
   /** 获取单元格生效样式（已通过 resolveCellStyleHook 叠加动态样式补丁） */
   getEffectiveStyle(addr: CellAddress): CellStyle | undefined {
     const baseStyle = this.getStoredStyle(addr)
     return this.resolveCellStyleHook
       ? (this.resolveCellStyleHook(addr, baseStyle) ?? baseStyle)
       : baseStyle
+  }
+
+  /**
+   * 只读 wrap / 字号（构造期行高扫描热路径）。
+   * 无 hook 时按列 → 行 → 格字段覆盖取值，不走 composeCellStyles（避免逐格分配）。
+   */
+  getWrapMetrics(addr: CellAddress): { wrap: boolean; fontSizePt?: number } {
+    if (this.resolveCellStyleHook) {
+      const style = this.getEffectiveStyle(addr)
+      return { wrap: style?.align?.wrap === true, fontSizePt: style?.font?.size }
+    }
+    const anchor = this.sheet.merges.resolveAnchor(addr)
+    const colId = this.sheet.getColStyleId(anchor.col)
+    const rowId = this.sheet.getRowStyleId(anchor.row)
+    const colStyle = colId != null ? this.sheet.stylePool.peek(colId) : undefined
+    const rowStyle = rowId != null ? this.sheet.stylePool.peek(rowId) : undefined
+    const data = this.sheet.store.peekCell(anchor)
+    const cellStyle = data?.s != null ? this.sheet.stylePool.peek(data.s) : undefined
+    const wrap = cellStyle?.align?.wrap ?? rowStyle?.align?.wrap ?? colStyle?.align?.wrap
+    const fontSizePt = cellStyle?.font?.size ?? rowStyle?.font?.size ?? colStyle?.font?.size
+    return { wrap: wrap === true, fontSizePt }
   }
 
   /**

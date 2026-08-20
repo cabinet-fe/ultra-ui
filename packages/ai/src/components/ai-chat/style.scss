@@ -416,10 +416,11 @@ $root-name: ai-chat;
     display: block;
   }
 
-  @include m.e(message-content) {
-    font-size: 13px;
-    line-height: 1.6;
-    // 压缩 markstream 流式排版：正文字号 / 行高 / 标题档位 / 块级间距（变量见 markstream-vue 样式表）
+  // 信息密度必须写在 .markstream-vue 上：该库把 --ms-flow-* / --ms-text-* 定义在根节点，
+  // 父级（如 __message-content）的 0.55em 会被同元素上的 1.5em 默认值盖掉。
+  // 选择器带 .u-ai-chat 前缀，特异性高于库默认，不依赖 CSS 加载顺序
+  //（产物里 markstream-vue/index.css 仍排在我们的 css 之后）。
+  .markstream-vue {
     --ms-text-body: 13px;
     --ms-leading-body: 1.6;
     --ms-text-h1: 1.55em;
@@ -444,6 +445,13 @@ $root-name: ai-chat;
     --ms-flow-hr-y: 0.9em;
     --ms-flow-admonition-y: 0.7em;
     --ms-flow-diagram-y: 0.7em;
+
+    // markstream 在 ≤1023px 给 ul.list-disc 写死了 ~1.33em 边距，不走 --ms-flow-list-*
+    .list-disc {
+      margin-top: var(--ms-flow-list-y);
+      margin-bottom: var(--ms-flow-list-y);
+      padding-left: var(--ms-flow-list-indent);
+    }
   }
 
   @include m.e(message-status) {
@@ -551,20 +559,21 @@ $root-name: ai-chat;
     margin: 4px 0;
     font-size: fn.use-var(font-size-main, small);
 
-    // 相邻工具卡片保持紧凑间距（覆盖 UCollapseItem 的兄弟间距）
-    & + #{fn.bem($root-name, tool-call)} {
+    // 产物里 desktop collapse 样式在本文件之后加载；
+    // `.u-collapse__item + .u-collapse__item` 与单层兄弟选择器同特异性，必须带 .u-ai-chat 前缀。
+    .u-#{$root-name} & + #{fn.bem($root-name, tool-call)} {
       margin-top: 4px;
     }
 
     // 覆盖 UCollapseItem 默认头部/内容区节奏，保持紧凑单行头
-    .u-collapse__header {
+    .u-#{$root-name} & .u-collapse__header {
       gap: 6px;
       padding: 5px fn.use-var(gap, small);
       font-weight: 400;
       letter-spacing: normal;
     }
 
-    .u-collapse__content {
+    .u-#{$root-name} & .u-collapse__content {
       padding: fn.use-var(gap, small);
       line-height: 1.5;
     }
@@ -857,7 +866,7 @@ $root-name: ai-chat;
     }
   }
 
-  // 输入区：无边框卡片，聚焦时用柔和的主色描边提示
+  // 输入区：无边框卡片，靠浅阴影区分层级；聚焦不换蓝描边，避免变成另一种框
   @include m.e(input-area) {
     flex-shrink: 0;
     width: 100%;
@@ -866,12 +875,8 @@ $root-name: ai-chat;
     margin: 0 0 fn.use-var(gap, default);
     border-radius: fn.use-var(radius, large);
     background-color: fn.use-var(bg-color, top);
+    box-shadow: fn.use-var(shadow, sm);
     padding: fn.use-var(gap, small);
-    transition: box-shadow 0.15s ease;
-
-    &:focus-within {
-      box-shadow: 0 0 0 1px fn.use-var(color, primary);
-    }
   }
 
   @include m.e(input) {

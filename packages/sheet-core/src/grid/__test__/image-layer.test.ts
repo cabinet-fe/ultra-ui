@@ -530,4 +530,56 @@ describe('ImageLayer（canvas-mock）', () => {
       revoke.mockRestore()
     }
   })
+
+  it('视口外图片不建 DOM / objectURL；滚入后才挂节点', () => {
+    const { sheet, grid, table, container, layer } = createGrid()
+    track(container)
+    try {
+      vi.spyOn(table, 'getCellRelativeRect').mockImplementation((col, row) => {
+        const left = col * 100
+        // 模型 (0,0) → 表格 (1,1)；模型 (5,0) → 表格 (1,6)
+        const top = row <= 2 ? 20 : 8000
+        return {
+          left,
+          top,
+          width: 80,
+          height: 28,
+          right: left + 80,
+          bottom: top + 28
+        } as ReturnType<ListTable['getCellRelativeRect']>
+      })
+
+      sheet.insertImage(
+        makeInput({ id: 'in-view', anchor: { from: { row: 0, col: 0 } }, width: 100, height: 80 })
+      )
+      sheet.insertImage(
+        makeInput({ id: 'off-view', anchor: { from: { row: 5, col: 0 } }, width: 100, height: 80 })
+      )
+      layer.flush()
+
+      const nodes = imageNodes(container)
+      expect(nodes).toHaveLength(1)
+      expect(nodes[0]!.dataset.sheetImageId).toBe('in-view')
+
+      vi.spyOn(table, 'getCellRelativeRect').mockImplementation((col, row) => {
+        const left = col * 100
+        const top = row <= 2 ? -8000 : 40
+        return {
+          left,
+          top,
+          width: 80,
+          height: 28,
+          right: left + 80,
+          bottom: top + 28
+        } as ReturnType<ListTable['getCellRelativeRect']>
+      })
+      layer.flush()
+
+      const after = imageNodes(container)
+      expect(after).toHaveLength(1)
+      expect(after[0]!.dataset.sheetImageId).toBe('off-view')
+    } finally {
+      grid.release()
+    }
+  })
 })
