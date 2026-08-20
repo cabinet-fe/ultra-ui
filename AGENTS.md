@@ -192,13 +192,3 @@ bun run build     # 全量拓扑构建；任一 @veltra/* 包编译失败即未�
 ### 发版
 
 如果提及发版，请参考 `release.md` 文件
-
-## Agent skills
-
-### Issue tracker
-
-Issues 均作为本地 Markdown 文件存放在 `.scratch/<feature-slug>/` 目录下。参见 `docs/agents/issue-tracker.md`。
-
-### Domain docs
-
-多 Context 架构，通过根目录 `CONTEXT-MAP.md` 索引。参见 `docs/agents/domain.md`。

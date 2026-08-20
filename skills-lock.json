@@ -3,9 +3,8 @@
   "skills": {
     "build-lib-skill": {
       "source": "cabinet-fe/prompt-engineering",
-      "ref": "main",
       "sourceType": "github",
-      "skillPath": "skills/build-lib-skill/SKILL.md",
+      "skillPath": "skills/tools/build-lib-skill/SKILL.md",
       "computedHash": "6cb10a5bbab395b2f1d9ee114f9cee029369e7d5ce6e17219422e15a322ab3ed"
     },
     "cat-kit": {
@@ -15,12 +14,17 @@
       "skillPath": "skills/cat-kit/SKILL.md",
       "computedHash": "23ef4e1e5ac2dd8072ffe34c81188191456715c32c7430fc6c98d1bb30a67d3e"
     },
+    "frontend-expert": {
+      "source": "cabinet-fe/prompt-engineering",
+      "sourceType": "github",
+      "skillPath": "skills/roles/frontend-expert/SKILL.md",
+      "computedHash": "6bda388be2b39d912d3277464b0fb91f3303d67a3fcd385366d50c7e236349ff"
+    },
     "git-commit": {
       "source": "cabinet-fe/prompt-engineering",
-      "ref": "main",
       "sourceType": "github",
-      "skillPath": "skills/git-commit/SKILL.md",
-      "computedHash": "c38af995173ff71610d9485e0461e8e4bb1808f682fb4bd31692a96aa7075aa7"
+      "skillPath": "skills/tools/git-commit/SKILL.md",
+      "computedHash": "bc06df26c4c3d756f67d0433f79e2ed1a35489224ad2578bb5d6f026068ff78c"
     },
     "markstream-custom-components": {
       "source": "Simon-He95/markstream-vue",
@@ -32,20 +36,19 @@
       "source": "Simon-He95/markstream-vue",
       "sourceType": "github",
       "skillPath": ".agents/skills/markstream-install/SKILL.md",
-      "computedHash": "ce0f67bf2d2053597116a91108c73eac61affaa77a26fcd244c513054c93bd94"
+      "computedHash": "8b73216cdb5daf105837f823130c7ab319d9c8b06abcf0a23dfcfbc88ecc1bd3"
     },
     "markstream-vue": {
       "source": "Simon-He95/markstream-vue",
       "sourceType": "github",
       "skillPath": ".agents/skills/markstream-vue/SKILL.md",
-      "computedHash": "fe659328cc6723e0ef67374a8550a93f9a9f0ef56f5053ab82d04715893667b9"
+      "computedHash": "569ecd40a162d4bfb24e0ba64e39fc0ef9b65604b3351f13427e786b4a9312b2"
     },
-    "vue-best-practices": {
+    "vue": {
       "source": "cabinet-fe/prompt-engineering",
-      "ref": "main",
       "sourceType": "github",
-      "skillPath": "skills/vue-best-practices/SKILL.md",
-      "computedHash": "cee824892a1d576ea7cea2ee8c42e762df3b844433abc4b6da29b008e034a542"
+      "skillPath": "skills/frameworks/vue/SKILL.md",
+      "computedHash": "a7013616f9ca66f61171e8ef2f6fea60f05eb9eafe58c2a27e783d406a40623c"
     }
   }
 }

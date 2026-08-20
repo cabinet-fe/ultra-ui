@@ -1,6 +1,6 @@
 ---
 name: markstream-install
-description: Install and wire markstream-vue, markstream-react, markstream-vue2, markstream-angular, or markstream-svelte into an existing repository. Use when Codex needs to choose the right package, install the smallest framework-specific peer-dependency set, fix CSS/reset order, choose Vue 3 renderer and code-block modes, decide between `content`, `nodes`, and Vue 3 virtual-scroll coordination, or add a minimal working renderer example.
+description: Install and wire markstream-vue, markstream-react, markstream-vue2, markstream-angular, or markstream-svelte into an existing repository. Use when Codex needs to choose the right package, install the smallest framework-specific peer-dependency set, fix CSS/reset order, choose Vue 3 renderer mode and built-in, plain, or custom code-block paths, decide between `content`, `nodes`, and Vue 3 virtual-scroll coordination, or add a minimal working renderer example.
 ---
 
 # Markstream Install
@@ -17,10 +17,10 @@ Read [references/scenarios.md](references/scenarios.md) before making dependency
    - Use `markstream-svelte` only for Svelte 5 apps.
 2. Install the smallest peer set that matches the requested features.
    - Add peers only for features the user actually needs. Check the chosen package's `peerDependencies`; peer availability differs by renderer.
-   - For Vue 3 code blocks, use `stream-diffs` for the enhanced File/Diff surface or `stream-markdown` with `code-renderer="shiki"` for lightweight highlighting. The public `code-renderer="monaco"` name is retained for compatibility but loads `stream-diffs`.
+   - Vue 3 fenced code uses the built-in renderer automatically. Add `stream-diffs` for the enhanced File/Diff surface, omit it for automatic `<pre><code>` fallback, or set `render-code-blocks-as-pre` to force the plain path.
    - Add `@antv/infographic` plus `setInfographicLoader(...)` only when infographic fences are needed.
    - Do not install every optional peer by default.
-   - For Vue 3 enhanced code-block preloading, use `preloadCodeBlockRuntime` from `markstream-vue`. Existing `getUseMonaco()` calls remain compatible despite the historical name.
+   - For Vue 3 enhanced code-block preloading, use `preloadCodeBlockRuntime` from `markstream-vue`. If the application intentionally owns a runtime controller, import that advanced API directly from `stream-diffs`.
 3. Fix CSS order.
    - Put reset styles before Markstream styles.
    - In Tailwind or UnoCSS projects, use `@import 'markstream-*/index.css' layer(components);`.
@@ -30,10 +30,10 @@ Read [references/scenarios.md](references/scenarios.md) before making dependency
     - Use `content` for static or low-frequency rendering.
     - In Vue 3 apps with long AI conversations, thread restore, or an existing message virtualizer such as `vue-virtual-scroller`, do not stop at a trivial renderer. Use `MarkstreamVirtualTimeline` or `useMarkstreamVirtualAdapter()` and follow `docs/guide/performance.md`.
     - For Vue 3, choose renderer `mode` by surface before tuning lower-level props.
-      - `mode="chat"`: AI chat or SSE output; lightweight batches, `<pre>` code rendering by default, `fade=false`, `max-live-nodes=0`, and `smooth-streaming="auto"`.
-      - `mode="docs"`: rich document surfaces; default mode, larger batches, tooltips, fade, and enhanced `stream-diffs` code blocks when the peer is installed.
+      - `mode="chat"`: AI chat or SSE output; lightweight batches, `fade=false`, `max-live-nodes=0`, and `smooth-streaming="auto"`.
+      - `mode="docs"`: rich document surfaces; default mode, larger batches, tooltips, and fade.
       - `mode="minimal"`: lightweight non-chat surfaces.
-      - Choose regular fenced-code rendering with `code-renderer="monaco" | "shiki" | "pre"`; `render-code-blocks-as-pre` is the legacy boolean override and takes precedence when true.
+      - Regular fenced code uses the built-in renderer, enhanced by `stream-diffs` when installed. Use `render-code-blocks-as-pre` for a forced plain path or `setCustomComponents(customId, { code_block: ... })` for a scoped application-owned renderer.
     - For streaming AI chat in other Markstream packages, start with `content` and built-in smooth streaming.
       - Auto mode is the default: `smoothStreaming="auto"` / `smooth-streaming="auto"`.
       - Auto pacing activates when `typewriter=true` or `maxLiveNodes <= 0` / `max-live-nodes <= 0`.
@@ -69,7 +69,8 @@ Read [references/scenarios.md](references/scenarios.md) before making dependency
 - Treat CSS order as a first-class part of installation, not a later cleanup.
 - When the request includes SSR, explicitly gate browser-only peers behind client-only boundaries.
 - Do not widen HTML or Mermaid security defaults unless the user explicitly needs trusted legacy compatibility.
-- Do not recommend Vue 3's compatibility-named `code-renderer="monaco"` as a reason to install `stream-monaco`; install `stream-diffs` for the current enhanced surface.
+- Enhanced code blocks in every Markstream package use `stream-diffs`; there is no `stream-monaco` or Shiki direct integration in current versions.
+- Direct `CodeBlockNode` and top-level renderer configuration use the same `codeBlockOptions` / `CodeBlockOptions` contract. Keep component chrome in `codeBlockProps`; do not nest runtime options there.
 - If compatibility requires it, scope the opt-out to the trusted surface with `htmlPolicy` / `html-policy="trusted"` and `mermaidProps.isStrict = false` instead of changing app-wide defaults blindly.
 
 ## Useful Doc Targets

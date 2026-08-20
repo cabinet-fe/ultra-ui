@@ -18,7 +18,10 @@ declare function transform<T extends (val: any) => any>(
 declare function object<S extends Record<string, Parser<any>>>(
   schema: S
 ): Validator<InferObjectSchema<S>>
-declare function optional<T>(parser: Parser<T>, options?: { default?: T }): Parser<T | undefined>
+declare function optional<T>(
+  parser: Parser<T>,
+  options?: { default?: T }
+): Parser<T | undefined>
 declare function vString(): Parser<string>
 declare function vNumber(): Parser<number>
 declare function vBoolean(): Parser<boolean>

@@ -1,7 +1,10 @@
 # HTTP 客户端 — API
 
 ```ts
-declare function mergeRequestConfig(base: RequestConfig, patch: RequestConfig): RequestConfig
+declare function mergeRequestConfig(
+  base: RequestConfig,
+  patch: RequestConfig
+): RequestConfig
 
 declare class HTTPClient implements IHTTPClient {
   constructor(prefix?: string, config?: ClientConfig)
@@ -9,14 +12,41 @@ declare class HTTPClient implements IHTTPClient {
   registerPlugin(plugin: HTTPClientPlugin): void
   group(prefix: string): HTTPClient
   abort(): void
-  request<T = any>(url: string, config?: RequestConfig): Promise<HTTPResponse<T>>
-  get<T = any>(url: string, config?: AliasRequestConfig): Promise<HTTPResponse<T>>
-  post<T = any>(url: string, body?: any, config?: AliasRequestConfig): Promise<HTTPResponse<T>>
-  put<T = any>(url: string, body?: any, config?: AliasRequestConfig): Promise<HTTPResponse<T>>
-  delete<T = any>(url: string, config?: AliasRequestConfig): Promise<HTTPResponse<T>>
-  patch<T = any>(url: string, body?: any, config?: AliasRequestConfig): Promise<HTTPResponse<T>>
-  head<T = any>(url: string, config?: AliasRequestConfig): Promise<HTTPResponse<T>>
-  options<T = any>(url: string, config?: AliasRequestConfig): Promise<HTTPResponse<T>>
+  request<T = any>(
+    url: string,
+    config?: RequestConfig
+  ): Promise<HTTPResponse<T>>
+  get<T = any>(
+    url: string,
+    config?: AliasRequestConfig
+  ): Promise<HTTPResponse<T>>
+  post<T = any>(
+    url: string,
+    body?: any,
+    config?: AliasRequestConfig
+  ): Promise<HTTPResponse<T>>
+  put<T = any>(
+    url: string,
+    body?: any,
+    config?: AliasRequestConfig
+  ): Promise<HTTPResponse<T>>
+  delete<T = any>(
+    url: string,
+    config?: AliasRequestConfig
+  ): Promise<HTTPResponse<T>>
+  patch<T = any>(
+    url: string,
+    body?: any,
+    config?: AliasRequestConfig
+  ): Promise<HTTPResponse<T>>
+  head<T = any>(
+    url: string,
+    config?: AliasRequestConfig
+  ): Promise<HTTPResponse<T>>
+  options<T = any>(
+    url: string,
+    config?: AliasRequestConfig
+  ): Promise<HTTPResponse<T>>
 }
 
 declare class HTTPError extends Error {

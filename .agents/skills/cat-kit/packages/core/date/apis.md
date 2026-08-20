@@ -30,7 +30,11 @@ declare class Dater {
   isBefore(date: DateInput): boolean
   isAfter(date: DateInput): boolean
   isSame(date: DateInput, unit?: StartEndUnit): boolean
-  isBetween(start: DateInput, end: DateInput, inclusive?: '()' | '[]' | '[)' | '(]'): boolean
+  isBetween(
+    start: DateInput,
+    end: DateInput,
+    inclusive?: '()' | '[]' | '[)' | '(]'
+  ): boolean
 }
 ```
 

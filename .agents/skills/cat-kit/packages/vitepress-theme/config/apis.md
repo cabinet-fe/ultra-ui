@@ -7,9 +7,14 @@ interface CatKitThemeOptions {
   examplesDir: string
 }
 
-declare function defineThemeConfig(options: CatKitThemeOptions): Partial<UserConfig>
+declare function defineThemeConfig(
+  options: CatKitThemeOptions
+): Partial<UserConfig>
 
-declare function demoContainer(md: MarkdownIt, options: DemoContainerOptions): Promise<void>
+declare function demoContainer(
+  md: MarkdownIt,
+  options: DemoContainerOptions
+): Promise<void>
 declare function mermaidPlugin(md: MarkdownIt): void
 declare function importExamples(options: ImportExamplesOptions): Plugin
 ```

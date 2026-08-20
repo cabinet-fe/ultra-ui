@@ -36,7 +36,7 @@
     }
   },
   "dependencies": {
-    "hucre": "^1.0.0"
+    "hucre": "^1.1.0"
   },
   "peerDependencies": {
     "@cat-kit/core": ">=1.1.8",

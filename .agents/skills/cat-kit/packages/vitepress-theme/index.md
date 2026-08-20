@@ -7,11 +7,11 @@ VitePress 文档主题：默认主题、布局、Demo/Mermaid 与配置助手。
 
 ## 主题
 
-| 主题                      | 说明                                      |
-| ------------------------- | ----------------------------------------- |
-| [theme](theme/index.md)   | 默认主题、布局、composable                |
+| 主题 | 说明 |
+| --- | --- |
+| [theme](theme/index.md) | 默认主题、布局、composable |
 | [config](config/index.md) | `defineThemeConfig` 与 markdown/vite 插件 |
-| [组合示例](examples.md)   | 接入主题 + demo 容器                      |
+| [组合示例](examples.md) | 接入主题 + demo 容器 |
 
 ## 安装
 
