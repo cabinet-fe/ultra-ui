@@ -292,7 +292,7 @@ chatRef.value?.enqueue('插队问题', undefined, beforeId)
 ```vue
 <u-ai-chat :transport="transport">
   <template #welcome>
-    <div>自定义空状态</div>
+    <div>自定义欢迎区</div>
   </template>
 </u-ai-chat>
 ```

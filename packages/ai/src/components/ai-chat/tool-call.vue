@@ -24,8 +24,6 @@
         <UButton size="small" type="primary" @click="emit('respond', true)">允许</UButton>
         <UButton size="small" text @click="emit('respond', false)">拒绝</UButton>
       </span>
-
-      <UIcon :class="cls.e('tool-call-chevron')"><ArrowDown /></UIcon>
     </template>
 
     <!-- 面板工具：render 展示在右侧侧边面板，卡片 body 仅提供查看入口 -->
@@ -56,14 +54,7 @@
 
 <script lang="ts" setup>
 import { UButton, UCollapseItem, UIcon } from '@veltra/desktop'
-import {
-  ArrowDown,
-  CircleCheckFilled,
-  CircleClose,
-  Close,
-  Loading,
-  WarningFilled
-} from '@veltra/icons/normal'
+import { CircleCheckFilled, CircleClose, Close, Loading, WarningFilled } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { computed, inject, ref, watch, type Component } from 'vue'
 

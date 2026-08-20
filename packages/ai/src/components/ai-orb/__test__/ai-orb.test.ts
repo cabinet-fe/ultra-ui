@@ -6,7 +6,14 @@ import { createOrbRenderer } from '../orb-renderer'
 
 /** 记录调用的 2D context 桩（happy-dom 无真实 canvas 实现） */
 function createStubContext() {
-  const calls = { fill: 0, clip: 0, gradient: 0, stroke: 0 }
+  const calls = {
+    fill: 0,
+    clip: 0,
+    gradient: 0,
+    stroke: 0,
+    fillText: 0,
+    fillTextColor: null as unknown
+  }
   const gradient = { addColorStop: () => {} }
   const ctx = {
     calls,
@@ -32,11 +39,18 @@ function createStubContext() {
     clearRect: () => {},
     fillRect: () => {},
     setTransform: () => {},
+    font: '',
+    textAlign: 'start' as CanvasTextAlign,
+    textBaseline: 'alphabetic' as CanvasTextBaseline,
     stroke: () => {
       calls.stroke++
     },
     fill: () => {
       calls.fill++
+    },
+    fillText() {
+      calls.fillText++
+      calls.fillTextColor = ctx.fillStyle
     },
     clip: () => {
       calls.clip++
@@ -79,10 +93,21 @@ describe('createOrbRenderer', () => {
 
     renderer.renderOnce()
 
-    // 球体 + 双眼 = 3 次填充，常态无嘴无描边
-    expect(ctx.calls.fill).toBe(3)
+    // 球体 + 双耳（外耳 + 内耳各 2）+ 双眼 = 7 次填充，常态无嘴无描边
+    expect(ctx.calls.fill).toBe(7)
     expect(ctx.calls.stroke).toBe(0)
+    expect(ctx.calls.fillText).toBe(0)
     expect(ctx.calls.gradient).toBe(0)
+  })
+
+  it('thinking 在球体右上角绘制同色问号', () => {
+    const ctx = createStubContext()
+    const renderer = createOrbRenderer(createStubCanvas(ctx), { size: 48, status: 'thinking' })
+
+    renderer.renderOnce()
+
+    expect(ctx.calls.fillText).toBe(1)
+    expect(ctx.calls.fillTextColor).toBe('#3d9bf0')
   })
 
   it('start/stop 控制 rAF 循环', () => {

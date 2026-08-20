@@ -60,13 +60,23 @@ function mountAiChat(options: {
   }
 }
 
+/** 最终答案输出后过程消息收进「已完成」折叠块：点击展开并等待过程 DOM 挂载 */
+async function expandProcess(host: HTMLElement) {
+  await vi.waitFor(() => {
+    expect(host.querySelector('.u-ai-chat__process-header')).toBeTruthy()
+  })
+  host.querySelector<HTMLElement>('.u-ai-chat__process-header')!.click()
+  await nextTick()
+}
+
 describe('UAiChat', () => {
   it('空状态显示欢迎语', () => {
     const { host, unmount } = mountAiChat({ transport: () => {}, welcome: '有什么可以帮你？' })
 
     expect(host.querySelector('.u-ai-chat__welcome')?.textContent).toContain('有什么可以帮你？')
     const orb = host.querySelector('.u-ai-chat__welcome canvas.u-ai-orb') as HTMLElement | null
-    expect(orb?.style.width).toBe('64px')
+    expect(orb?.style.width).toBe('48px')
+    expect(host.querySelector('.u-ai-chat__list .u-ai-chat__welcome')).toBeFalsy()
     unmount()
   })
 
@@ -136,17 +146,16 @@ describe('UAiChat', () => {
 
     chat.value?.send('1+1 等于几')
 
-    await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__tool-call-name')?.textContent).toBe('calculate')
-    })
+    // 最终答案输出后，工具卡片收进「已完成」过程块，先展开
+    await expandProcess(host)
+
+    expect(host.querySelector('.u-ai-chat__tool-call-name')?.textContent).toBe('calculate')
+    expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
 
     // 执行完成后自动折叠，点击头部展开
-    await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
-    })
-
     const header = host.querySelector<HTMLElement>('.u-ai-chat__tool-call .u-collapse__header')!
     header.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await nextTick()
     await nextTick()
 
     const body = host.querySelector('.u-ai-chat__tool-call .u-collapse__content-wrapper')
@@ -210,10 +219,11 @@ describe('UAiChat', () => {
 
     chat.value?.send('搜一下 vue')
 
-    await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__tool-call-name')?.textContent).toBe('搜索')
-      expect(host.querySelector('.custom-tool-icon')).toBeTruthy()
-    })
+    // 最终答案输出后工具卡片收进「已完成」过程块，展开后断言
+    await expandProcess(host)
+
+    expect(host.querySelector('.u-ai-chat__tool-call-name')?.textContent).toBe('搜索')
+    expect(host.querySelector('.custom-tool-icon')).toBeTruthy()
     unmount()
   })
 
@@ -254,10 +264,8 @@ describe('UAiChat', () => {
 
     chat.value?.send('北京天气')
 
-    // running 时 render 即渲染（render 工具默认不折叠）
-    await vi.waitFor(() => {
-      expect(host.querySelector('.weather-view')).toBeTruthy()
-    })
+    // 最终答案输出后工具卡片收进「已完成」过程块，展开后 render 保持展开态
+    await expandProcess(host)
 
     // 完成后保持展开，默认参数/结果区被替换
     await vi.waitFor(() => {
@@ -291,6 +299,8 @@ describe('UAiChat', () => {
 
     chat.value?.send('1+1')
 
+    await expandProcess(host)
+
     await vi.waitFor(() => {
       expect(host.querySelector('.u-ai-chat__tool-call.is-success.is-active')).toBeTruthy()
     })
@@ -306,10 +316,9 @@ describe('UAiChat', () => {
 
     chat.value?.send('北京天气')
 
-    await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
-    })
-    await nextTick()
+    await expandProcess(host)
+
+    expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
     expect(host.querySelector('.u-ai-chat__tool-call.is-active')).toBeFalsy()
     const body = host.querySelector('.u-ai-chat__tool-call .u-collapse__content-wrapper')
     expect(body?.getAttribute('aria-hidden')).toBe('true')
@@ -333,10 +342,8 @@ describe('UAiChat', () => {
 
     chat.value?.send('1+1 等于几')
 
-    await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
-    })
-    await nextTick()
+    // 过程块展开后，工具卡片重挂载为完成态（自动折叠）
+    await expandProcess(host)
 
     // 完成后自动折叠：内容 DOM 已卸载（减少内存与渲染成本），包装容器保留
     expect(host.querySelector('.u-ai-chat__tool-call.is-active')).toBeFalsy()
@@ -380,6 +387,63 @@ describe('UAiChat', () => {
     unmount()
   })
 
+  it('最终答案输出后过程消息收进「已完成」折叠块，可展开钻取', async () => {
+    let round = 0
+    const transport: ChatTransport = (_req, handlers) => {
+      round++
+      if (round === 1) {
+        handlers.onReasoningDelta?.('先分析一下')
+        handlers.onToolCall?.({ id: 'c1', name: 'calculate', arguments: '{"expression":"1+1"}' })
+      } else {
+        handlers.onTextDelta('答案是 2')
+      }
+    }
+    const tools: ChatTool[] = [
+      { name: 'calculate', description: '计算', parameters: {}, execute: () => ({ value: 2 }) }
+    ]
+    const { host, chat, unmount } = mountAiChat({ transport, tools })
+
+    chat.value?.send('1+1 等于几')
+
+    // 最终答案输出后：出现「已完成」折叠头，过程 DOM（思考块/工具卡片）卸载，答案仍在块外
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__process-title')?.textContent).toBe('已完成')
+    })
+    expect(host.querySelector('.u-ai-chat__process-content')).toBeFalsy()
+    expect(host.querySelector('.u-ai-chat__tool-call')).toBeFalsy()
+    expect(host.querySelector('.u-ai-chat__reasoning')).toBeFalsy()
+    expect(host.querySelector('.md-stub')?.textContent).toContain('答案是 2')
+
+    // 点击展开：过程消息可见，思考块默认折叠（可逐层钻取）
+    host.querySelector<HTMLElement>('.u-ai-chat__process-header')!.click()
+    await nextTick()
+    expect(host.querySelector('.u-ai-chat__reasoning-title')?.textContent).toContain('思考过程')
+    expect(host.querySelector('.u-ai-chat__reasoning-content')).toBeFalsy()
+    expect(host.querySelector('.u-ai-chat__tool-call-name')?.textContent).toBe('calculate')
+
+    // 再次收起：过程 DOM 重新卸载
+    host.querySelector<HTMLElement>('.u-ai-chat__process-header')!.click()
+    await nextTick()
+    expect(host.querySelector('.u-ai-chat__process-content')).toBeFalsy()
+    expect(host.querySelector('.u-ai-chat__tool-call')).toBeFalsy()
+    unmount()
+  })
+
+  it('单轮无工具对话不出现「已完成」过程块', async () => {
+    const transport: ChatTransport = (_req, handlers) => {
+      handlers.onReasoningDelta?.('想一下')
+      handlers.onTextDelta('你好')
+    }
+    const { host, chat, unmount } = mountAiChat({ transport })
+
+    chat.value?.send('hi')
+    await vi.waitFor(() => {
+      expect(host.querySelector('.md-stub')?.textContent).toContain('你好')
+    })
+    expect(host.querySelector('.u-ai-chat__process')).toBeFalsy()
+    unmount()
+  })
+
   it('流式期间用户上滚取消吸底，展示「最新消息」入口且不被后续输出重新吸附', async () => {
     const transport: ChatTransport = async (_req, handlers) => {
       handlers.onTextDelta('第一段')
@@ -418,9 +482,9 @@ describe('UAiChat', () => {
 
     chat.value?.send('北京天气')
 
-    await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
-    })
+    await expandProcess(host)
+
+    expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
     expect(host.querySelector('.weather-view')).toBeTruthy()
     expect(host.querySelector('.slot-view')).toBeFalsy()
     unmount()
@@ -473,10 +537,11 @@ describe('UAiChat', () => {
     })
     expect(host.querySelector('.u-ai-chat__panel-title')?.textContent).toBe('后台页面')
 
+    // 最终答案输出后工具卡片收进「已完成」过程块，展开后断言
+    await expandProcess(host)
+
     // 卡片 body 不渲染 render 组件，仅提供「查看面板」入口
-    await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
-    })
+    expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
     expect(host.querySelector('.u-ai-chat__tool-call .page-view')).toBeFalsy()
     expect(host.querySelector('.u-ai-chat__tool-call-panel-entry')).toBeTruthy()
     unmount()
@@ -494,6 +559,9 @@ describe('UAiChat', () => {
     host.querySelector<HTMLElement>('.u-ai-chat__panel-close')!.click()
     await nextTick()
     expect(host.querySelector('.u-ai-chat__panel')).toBeFalsy()
+
+    // 卡片已收进「已完成」过程块，展开后点击入口
+    await expandProcess(host)
 
     const entryBtn = [
       ...host.querySelectorAll<HTMLElement>('.u-ai-chat__tool-call-panel-entry button')
@@ -519,7 +587,9 @@ describe('UAiChat', () => {
       expect(host.querySelector('.u-ai-chat__panel .page-view')?.textContent).toContain('list')
     })
 
-    // 点击第一张卡片的「查看面板」切回 form
+    // 卡片已收进「已完成」过程块，展开后点击第一张卡片的「查看面板」切回 form
+    await expandProcess(host)
+
     const firstCard = host.querySelectorAll<HTMLElement>('.u-ai-chat__tool-call')[0]!
     const entryBtn = [
       ...firstCard.querySelectorAll<HTMLElement>('.u-ai-chat__tool-call-panel-entry button')
@@ -604,7 +674,9 @@ describe('UAiChat', () => {
     const layout = host.querySelector<HTMLElement>('.u-ai-chat')!
     expect(layout.style.gridTemplateColumns).toBe('1fr 640px')
 
-    // 点击 openPage 卡片的「查看面板」→ 切换并应用 480px
+    // 卡片已收进「已完成」过程块，展开后点击 openPage 卡片的「查看面板」→ 切换并应用 480px
+    await expandProcess(host)
+
     const firstCard = host.querySelectorAll<HTMLElement>('.u-ai-chat__tool-call')[0]!
     const entryBtn = [
       ...firstCard.querySelectorAll<HTMLElement>('.u-ai-chat__tool-call-panel-entry button')
@@ -902,11 +974,12 @@ describe('UAiChat', () => {
       expect(host.querySelector('.u-ai-chat__welcome-item')?.textContent).toBe('第二条建议')
     })
 
-    // 点击文案 → 以当前展示的文案发送，欢迎区消失
+    // 点击文案 → 以当前展示的文案发送；空闲欢迎立即缩小离开，列表末尾出现工作球
     host.querySelector<HTMLElement>('.u-ai-chat__welcome-item')!.click()
     await nextTick()
 
-    expect(host.querySelector('.u-ai-chat__welcome')).toBeFalsy()
+    expect(host.querySelector('.u-ai-chat__welcome')?.classList.contains('is-leaving')).toBe(true)
+    expect(host.querySelector('.u-ai-chat__list .u-ai-chat__working')).toBeTruthy()
     const userBubble = host.querySelector('.u-ai-chat__message--user .u-ai-chat__message-bubble')
     expect(userBubble?.textContent).toContain('第二条建议')
     unmount()
@@ -945,11 +1018,14 @@ describe('UAiChat', () => {
       const { host, chat, unmount } = mountAiChat({ transport })
 
       expect(host.querySelector('.u-ai-chat__working')).toBeFalsy()
+      expect(host.querySelector('.u-ai-chat__welcome')).toBeTruthy()
+      expect(host.querySelector('.u-ai-chat__list .u-ai-chat__welcome')).toBeFalsy()
 
       chat.value?.send('hi')
       await nextTick()
 
-      const working = host.querySelector('.u-ai-chat__working')
+      expect(host.querySelector('.u-ai-chat__welcome')?.classList.contains('is-leaving')).toBe(true)
+      const working = host.querySelector('.u-ai-chat__list .u-ai-chat__working')
       expect(working).toBeTruthy()
       expect(working?.textContent).toContain('工作中')
       const orb = working?.querySelector('canvas.u-ai-orb') as HTMLElement | null
@@ -969,7 +1045,16 @@ describe('UAiChat', () => {
       expect(host.querySelector('.u-ai-chat__working')).toBeTruthy()
       await vi.advanceTimersByTimeAsync(2)
       await nextTick()
+      // 停留结束 → 进入缩放退出过渡（is-leaving），元素仍在
+      const leaving = host.querySelector('.u-ai-chat__working')
+      expect(leaving).toBeTruthy()
+      expect(leaving?.classList.contains('is-leaving')).toBe(true)
+      // 过渡播完才卸载
+      await vi.advanceTimersByTimeAsync(380)
+      await nextTick()
       expect(host.querySelector('.u-ai-chat__working')).toBeFalsy()
+      expect(host.querySelector('.u-ai-chat__welcome')).toBeTruthy()
+      expect(host.querySelector('.u-ai-chat__list .u-ai-chat__welcome')).toBeFalsy()
       unmount()
     } finally {
       vi.useRealTimers()
@@ -998,7 +1083,15 @@ describe('UAiChat', () => {
       expect(host.querySelector('.u-ai-chat__working')).toBeTruthy()
       await vi.advanceTimersByTimeAsync(2)
       await nextTick()
+      // 停留结束 → 进入缩放退出过渡（is-leaving），元素仍在
+      const leaving = host.querySelector('.u-ai-chat__working')
+      expect(leaving).toBeTruthy()
+      expect(leaving?.classList.contains('is-leaving')).toBe(true)
+      // 过渡播完才卸载
+      await vi.advanceTimersByTimeAsync(380)
+      await nextTick()
       expect(host.querySelector('.u-ai-chat__working')).toBeFalsy()
+      expect(host.querySelector('.u-ai-chat__welcome')).toBeTruthy()
       unmount()
     } finally {
       vi.useRealTimers()
@@ -1024,7 +1117,15 @@ describe('UAiChat', () => {
 
       await vi.advanceTimersByTimeAsync(2500)
       await nextTick()
+      // 停留结束 → 进入缩放退出过渡（is-leaving），元素仍在
+      const leaving = host.querySelector('.u-ai-chat__working')
+      expect(leaving).toBeTruthy()
+      expect(leaving?.classList.contains('is-leaving')).toBe(true)
+      // 过渡播完才卸载
+      await vi.advanceTimersByTimeAsync(380)
+      await nextTick()
       expect(host.querySelector('.u-ai-chat__working')).toBeFalsy()
+      expect(host.querySelector('.u-ai-chat__welcome')).toBeTruthy()
       unmount()
     } finally {
       vi.useRealTimers()

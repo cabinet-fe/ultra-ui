@@ -10,13 +10,13 @@
       @keydown.enter.prevent="handleClick"
       @keydown.space.prevent="handleClick"
     >
-      <slot name="header" :is-active="isActive">
-        <span :class="cls.e('title')">{{ title }}</span>
+      <span :class="cls.e('title')">
+        <slot name="header" :is-active="isActive">{{ title }}</slot>
+      </span>
 
-        <span :class="cls.e('icon')">
-          <UIcon><component :is="iconComponent" /></UIcon>
-        </span>
-      </slot>
+      <span :class="cls.e('icon')">
+        <UIcon><component :is="iconComponent" /></UIcon>
+      </span>
     </div>
     <div ref="wrapperEl" :class="cls.e('content-wrapper')" :aria-hidden="!isActive">
       <div v-if="contentMounted" :class="cls.e('content')">
@@ -42,7 +42,7 @@ const props = withDefaults(defineProps<CollapseItemProps>(), { modelValue: false
 const emit = defineEmits<CollapseItemEmits>()
 
 defineSlots<{
-  /** 自定义整个头部，作用域参数 `isActive` 指示展开状态；缺省渲染 title + 展开图标 */
+  /** 自定义标题区，作用域参数 `isActive` 指示展开状态；缺省渲染 title。展开图标始终由组件渲染，活动态旋转 180° */
   header?: (scope: { isActive: boolean }) => any
   /** 折叠面板内容 */
   default?: () => any

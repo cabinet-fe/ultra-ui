@@ -52,7 +52,7 @@ export interface CollapseItemProps {
    */
   modelValue?: boolean
 
-  /** 标题文本（也可通过 #header 插槽自定义整个头部） */
+  /** 标题文本（也可通过 #header 插槽自定义标题区；展开图标始终保留，可用 expandIcon 替换） */
   title?: string
 
   /** 是否禁用 */

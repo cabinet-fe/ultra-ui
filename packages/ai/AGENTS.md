@@ -23,9 +23,10 @@ src/
 └── components/
     ├── ai-chat/
     │   ├── ai-chat.vue         # UAiChat 主组件（useChat + provide DI；toolMap 含内置工具元信息；renderTo: 'panel' 调用的面板状态；ULayout 分列与面板宽度）
-    │   ├── message-list.vue    # UScroll 消息列表：流式吸底（滚轮上翻立即取消吸附 + 方向感知兜底 +「最新消息」悬浮按钮一键回底；吸底滚动前二次确认吸附状态，避免流式期间把上翻用户拉回底部）；生成中列表末尾展示较大 UAiOrb +「工作中…」（工具调用失败播 frustrated；结束 / 失败停留约 2.5s，成功播 happy、出错播 frustrated 再隐藏）；默认欢迎区为较小 UAiOrb + 逐条轮换的 welcome 快捷提问（点文案发送，点球立即换一条并重置轮换计时；固定锚点布局——球钉死不动，气泡只向右延展，文案长度变化不会瞬移）
-    │   ├── message-item.vue    # 单条消息（reasoning 折叠块：折叠时 v-if 卸载内容 DOM；展开态 UScroll 限高 220px + 区内上翻取消内部吸底 + 思考中扫光 + ArrowRight 折叠箭头；MarkdownRender + 工具卡片）
-    │   ├── tool-call.vue       # 工具卡片（复用 UCollapseItem，#header 自定义紧凑单行头；needsConfirm 确认；消费工具 icon/label/render/renderTo/autoCollapse/terminal；终态折叠后 destroyOnCollapse 卸载内容 DOM——进行中/待确认保留内容状态、面板工具保留「查看面板」入口；面板工具 body 仅留「查看面板」入口）
+    │   ├── message-list.vue    # UScroll 消息列表：按轮次分组渲染（user 消息为界；一轮中最终答案之前的 assistant 过程消息在答案开始输出 / 该轮结束时收进「已完成」折叠块）；流式吸底（滚轮上翻立即取消吸附 + 方向感知兜底 +「最新消息」悬浮按钮一键回底；吸底滚动前二次确认吸附状态，避免流式期间把上翻用户拉回底部）；空闲欢迎区（较小 UAiOrb + 逐条轮换的快捷提问）钉在 UScroll 外、输入框上方，高度 48px；工作中活体球立即缩小离开输入框并在列表末尾放大出现（无延时），结束 / 失败停留约 2.5s（成功播 happy、出错播 frustrated；工具调用失败亦播 frustrated）后再对向跳回输入框上方；点文案发送，点球立即换一条并重置轮换计时；固定锚点布局——球钉死不动，气泡只向右延展
+    │   ├── message-item.vue    # 单条消息（reasoning 折叠块：折叠时 v-if 卸载内容 DOM；status watch 带 immediate，终态消息重挂载默认折叠；展开态 UScroll 限高 220px + 区内上翻取消内部吸底 + 思考中扫光 + ArrowRight 折叠箭头；MarkdownRender + 工具卡片）
+    │   ├── turn-process.vue    # 轮次「已完成」折叠块（CircleCheck + 标题 + chevron；折叠时 v-if 卸载过程 DOM，展开后复用 MessageItem 渲染过程消息，思考块/工具卡片保持各自折叠头可逐层钻取）
+    │   ├── tool-call.vue       # 工具卡片（复用 UCollapseItem，#header 只自定义标题区，展开图标走组件内置旋转；needsConfirm 确认；消费工具 icon/label/render/renderTo/autoCollapse/terminal；终态折叠后 destroyOnCollapse 卸载内容 DOM——进行中/待确认保留内容状态、面板工具保留「查看面板」入口；面板工具 body 仅留「查看面板」入口）
     │   ├── side-panel.vue      # 右侧侧边面板（renderTo: 'panel' 工具的渲染区：悬浮卡片——面板本体透明留白、内层圆角卡片仅靠背景对比+阴影区分，无分割线；头部 icon 底托/标题/关闭，标题取 panelTitle ?? label ?? name + UScroll 渲染体）
     │   ├── queue-list.vue      # 待发送队列（生成中提交的消息排队；立即开始插队 / 取回编辑 / 移除）
     │   ├── ask-question.vue    # 提问工具的内联分页表单（由内置 askQuestion 工具挂到 render）
@@ -34,7 +35,7 @@ src/
     │   ├── di.ts               # AiChatDIKey（cls + slots + tools 注入，支撑 tool-<name> 动态插槽与工具元信息）
     │   └── __test__/
     └── ai-orb/                 # UAiOrb 活体球头像（独立于 ai-chat 可复用）
-        ├── orb-renderer.ts     # 纯 canvas 2D 渲染器：扁平纯色扁椭圆（蔚蓝 + 白色大眼睛，闭眼为白色线条）、原地呼吸无弹跳无打光；眼部状态机（眨眼 / 双眨、视线游移转头、thinking 眯眼扫视）+ 瞬时表情 react（happy 弯眼点头 / shock 睁大眼 / frustrated 闭眼摇头）+ 指针交互（setPointer 视线跟随、poke Q 弹回弹）；单位球空间绘制、可见性启停 rAF、reduced-motion 静态帧
+        ├── orb-renderer.ts     # 纯 canvas 2D 渲染器：扁平纯色扁椭圆（蔚蓝 + 白色大眼睛，闭眼为白色线条）+ 头顶猫耳（圆角尖三角，身体色 + 白色内耳，先于球体绘制使根部被遮住，随球体形变；平时错相轻摆，表情时竖起 happy/shock 或耷拉 frustrated）、原地呼吸无弹跳无打光；眼部状态机（眨眼 / 双眨、视线游移转头、thinking 眯眼扫视 + 右上角同色「?」轻晃）+ 瞬时表情 react（happy 弯眼点头 / shock 睁大眼 / frustrated 闭眼摇头）+ 指针交互（setPointer 视线跟随、poke Q 弹回弹）；单位球空间绘制、可见性启停 rAF、reduced-motion 静态帧
         ├── ai-orb.vue          # Vue 封装（size/status props + click emit；expose react(reaction) 播放瞬时表情；指针事件桥接渲染器）
         └── __test__/
 ```
@@ -50,7 +51,7 @@ src/
 - transport 不引入 ai-sdk 等第三方依赖，SSE 手写解析；新增协议在 `chat/transports/` 以独立 `createXxxTransport` 工厂导出。
 - 工具串行执行（保持结果消息与调用顺序一致）；循环/泵取一律用递归或 Promise 链，禁止 await-in-loop（lint 硬性约束，不允许 disable 注释）。
 - **工具循环收敛**：`maxToolRounds`（props，默认 10）限制单次发送的最大生成轮次，超限即 finish 停止；`ChatTool.terminal` 工具执行成功后对话终结（结果仍入消息历史，失败/拒绝照常回灌），配合 `render` 实现"工具 UI 即答复"。两类结束都会发出 `finish`。
-- **侧边面板工具**：`ChatTool.renderTo: 'panel'` 把 render 组件渲染到对话区右侧的侧边面板（side-panel.vue），契约同卡片 render（`ChatToolRenderProps`，随 toolCall 状态实时更新）；新的面板调用自动打开并聚焦，工具卡片 body 仅留「查看面板」入口（经 DI `openPanel` 切换聚焦，可切回历史调用）；布局基于 `ULayout`（`cols = 1fr + 面板宽度`，`colMinSizes` 约束会话区 ≥360px、面板 ≥320px，`useResizeObserver` 跟踪拖拽后的实际宽度）；`ChatTool.panelWidth` 可指定该工具面板的默认宽度（聚焦其调用时应用；缺省取「容器宽 - 860」，即面板默认尽可能大、会话区保留 860px）；`ChatTool.panelTitle`（字符串或按 toolCall 动态生成的函数）给出业务化面板标题（「业务对象 + 动作」），缺省取 label ?? name。组件根背景为 bg-color-bottom，消息/队列/输入区限宽 800px 居中（面板开合时排版不形变），卡片类元素（输入区、面板卡、欢迎气泡）用 bg-color-top + 阴影而非边框区分层级。空会话（无可见消息）时主列挂 `is-empty`：列表区与末尾弹性占位均分剩余空间使输入区垂直居中，欢迎区（orb + 快捷提问）在滚动内容列中 `flex: 1` 底部对齐、贴于输入区上方且 orb 与输入框左对齐；出现消息（会话开始 / 载入非空会话）后自动回落到底部布局，工作状态 orb 逻辑不变。
+- **侧边面板工具**：`ChatTool.renderTo: 'panel'` 把 render 组件渲染到对话区右侧的侧边面板（side-panel.vue），契约同卡片 render（`ChatToolRenderProps`，随 toolCall 状态实时更新）；新的面板调用自动打开并聚焦，工具卡片 body 仅留「查看面板」入口（经 DI `openPanel` 切换聚焦，可切回历史调用）；布局基于 `ULayout`（`cols = 1fr + 面板宽度`，`colMinSizes` 约束会话区 ≥360px、面板 ≥320px，`useResizeObserver` 跟踪拖拽后的实际宽度）；`ChatTool.panelWidth` 可指定该工具面板的默认宽度（聚焦其调用时应用；缺省取「容器宽 - 860」，即面板默认尽可能大、会话区保留 860px）；`ChatTool.panelTitle`（字符串或按 toolCall 动态生成的函数）给出业务化面板标题（「业务对象 + 动作」），缺省取 label ?? name。组件根背景为 bg-color-bottom，消息/队列/输入区限宽 800px 居中（面板开合时排版不形变），卡片类元素（输入区、面板卡、欢迎气泡）用 bg-color-top + 阴影而非边框区分层级。空会话（无可见消息）时主列挂 `is-empty`：列表区与末尾弹性占位均分剩余空间使输入区垂直居中；空闲欢迎区钉在 UScroll 外、贴于输入框上方（有消息后布局回落到底部，欢迎区仍在输入框上方）；工作开始时活体球立即跳到列表末尾，结束后跳回。
 - **待发送队列**：会话进行中 `send` 的消息进入 `queue`（不再丢弃），自然完成（finish）后按 FIFO 自动接续；`startQueued(id)` 中断当前会话并插队执行（其余保持顺序）；`enqueue(content, attachments?, beforeId?)` 支持锚点插入（编辑回插保持前后项顺序）；手动 `abort()` / 出错时队列保留不自动接续；`clear()` 一并清空队列。编辑流由 ai-chat.vue 以后继 id 锚点实现（取回输入框 → 重新提交插回原位置）。
 - **扫光**：文字扫光使用 `@veltra/styles/animations` 提供的全局可复用类 `u-shine`（纯 CSS，background-clip: text，含 prefers-reduced-motion 降级），随 ai-chat 的 `style.ts` 按需加载；思考中与进行中的工具名自动应用。
 

@@ -87,7 +87,7 @@ src/sheet-big-data/index.vue  # @veltra/sheet 大数据量演示（Phase 6：10 
 ## 依赖
 
 - **dependencies**：`@cat-kit/core`、`@cat-kit/fe`、`@veltra/ai`、`@veltra/compositions`、`@veltra/desktop`、`@veltra/directives`、`@veltra/icons`、`@veltra/sheet`、`@veltra/sheet-core`、`@veltra/styles`、`@veltra/utils`、`vue`、`vue-router`
-- **devDependencies**：`@veltra/vite`；契约参考服务：`hono`、`@hono/node-server`、`mysql2`、`pg`、`@types/pg`、`vite`（类型）
+- **devDependencies**：`@veltra/vite`；契约参考服务：`hono`、`@hono/node-server`、`mysql2`、`pg`、`@types/pg`
 
 ## 验证
 

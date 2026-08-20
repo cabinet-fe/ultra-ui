@@ -78,7 +78,7 @@ const props = defineProps<AiChatProps>()
 const emit = defineEmits<AiChatEmits>()
 
 defineSlots<{
-  /** 空状态欢迎区插槽 */
+  /** 空闲欢迎区插槽（输入框上方；工作中跳到列表末尾） */
   welcome(): any
   /** 按工具名自定义工具结果展示，如 tool-getWeather */
   [name: `tool-${string}`]: (scope: { toolCall: ChatToolCall }) => any
@@ -112,7 +112,7 @@ const {
   removeQueued
 } = useChat({ props, emit })
 
-/** 空会话（无可见消息）：输入区垂直居中，欢迎区（orb）贴于输入区上方并与之左对齐 */
+/** 空会话（无可见消息）：输入区垂直居中；欢迎区钉在滚动容器外、贴于输入框上方 */
 const isEmpty = computed(() => !messages.value.some((msg) => msg.role !== 'tool'))
 
 /** 所有 renderTo: 'panel' 的工具调用（按消息顺序，面板内容的来源） */

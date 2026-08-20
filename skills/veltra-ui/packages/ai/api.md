@@ -18,7 +18,7 @@ interface AiChatProps {
   models?: ChatModelOption[] // 有值才显示模型选择器；可用 transport.models
   model?: string // v-model:model
   reasoningLevel?: string // v-model:reasoning-level
-  welcome?: string | string[] // 空状态快捷提问；多条时逐条轮换
+  welcome?: string | string[] // 空闲时输入框上方的快捷提问；多条时逐条轮换
   placeholder?: string
   accept?: string // 附件 accept，默认 image/*
   maxAttachmentSize?: number // 默认 10MB；超限忽略并 console.warn
@@ -54,7 +54,7 @@ interface AiChatExposed {
 
 要点：
 
-- `welcome` 插槽替换默认欢迎区（活体球 + 快捷提问）。默认：点文案即发送，点球换下一条；多条约每 4s 轮换。
+- `welcome` 插槽替换默认欢迎区（活体球 + 快捷提问，空闲时钉在输入框上方）。默认：点文案即发送，点球换下一条；多条约每 4s 轮换。工作中活体球跳到列表末尾，结束后跳回。
 - `tool-<name>` 在工具有结果时替换卡片 body；工具定义了 `render` 时 **render 优先**。
 - 输入：Enter 发送，Shift+Enter 换行。生成中空输入显示停止；有内容则发送入队。
 - 最后一条 assistant 结束后提供复制 / 重新生成。`regenerate` 会删掉最后一条用户消息之后的所有消息再跑一轮。
@@ -307,7 +307,7 @@ function useChat(options: { props: AiChatProps; emit: AiChatEmits }): {
 
 ## UAiOrb
 
-独立 canvas 活体球。`UAiChat` 空状态欢迎区与生成中「工作中…」已内置，一般不必再嵌一套。
+独立 canvas 活体球。`UAiChat` 空闲欢迎区与生成中「工作中…」已内置，一般不必再嵌一套。`status: 'thinking'` 时右上角绘制与球体同色的「?」。
 
 ```ts
 interface AiOrbProps {

@@ -67,6 +67,15 @@ function createAskTransport(rounds: ChatMessage[][]) {
 
 const click = (el: HTMLElement) => el.dispatchEvent(new MouseEvent('click', { bubbles: true }))
 
+/** 最终答案输出后过程消息收进「已完成」折叠块：点击展开并等待过程 DOM 挂载 */
+async function expandProcess(host: HTMLElement) {
+  await vi.waitFor(() => {
+    expect(host.querySelector('.u-ai-chat__process-header')).toBeTruthy()
+  })
+  click(host.querySelector<HTMLElement>('.u-ai-chat__process-header')!)
+  await nextTick()
+}
+
 /** 底部导航按钮（UButton disabled 体现为 is-disabled class） */
 const actionButton = (host: HTMLElement, text: string) => {
   return [...host.querySelectorAll<HTMLElement>('.u-ai-chat__ask-question-actions button')].find(
@@ -160,10 +169,11 @@ describe('内置提问工具', () => {
       ]
     })
 
+    // 第二轮文本输出后，提问工具卡片收进「已完成」过程块，先展开
+    await expandProcess(host)
+
     // 问答摘要视图：命中选项的回答渲染为 chip，完成后保持展开
-    await vi.waitFor(() => {
-      expect(host.querySelectorAll('.u-ai-chat__ask-question-result').length).toBe(3)
-    })
+    expect(host.querySelectorAll('.u-ai-chat__ask-question-result').length).toBe(3)
     const summary = host.querySelector('.u-ai-chat__ask-question')!.textContent!
     expect(summary).toContain('目标用户是谁？')
     expect(summary).toContain('需要深色模式')

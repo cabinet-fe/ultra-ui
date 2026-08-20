@@ -22,7 +22,7 @@ $root-name: ai-chat;
     padding: 0 fn.use-var(gap, default);
 
     // 空会话：列表区与末尾占位各分一半剩余空间，输入区垂直居中，
-    // 欢迎区（orb + 快捷提问）贴于输入区上方并与之左对齐；有消息后自动回落到底部
+    // 欢迎区钉在滚动容器外、贴于输入框上方；有消息后自动回落到底部
     @include m.is(empty) {
       &::after {
         content: '';
@@ -75,6 +75,19 @@ $root-name: ai-chat;
     to {
       transform: translateX(0);
       opacity: 1;
+    }
+  }
+
+  // 活体球在输入框上方 ↔ 列表末尾对向缩放（时长与 JUMP_MS 一致）
+  @keyframes u-ai-chat-orb-jump-in {
+    from {
+      opacity: 0;
+      transform: scale(0);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
     }
   }
 
@@ -178,22 +191,43 @@ $root-name: ai-chat;
   @include m.e(list) {
     flex: 1;
     min-height: 0;
-
-    // 内容不足一屏时撑满滚动视口并按列排布，空会话欢迎区才能占满整列做底部对齐
-    .u-scroll__content {
-      min-height: 100%;
-      display: flex;
-      flex-direction: column;
-    }
   }
 
-  // 欢迎区仅在空会话渲染：占满整列并底部对齐，使其贴在居中的输入区上方
+  // 空闲欢迎：钉在滚动容器外、输入框上方；高度锁 48px（球 + 快捷提问）
   @include m.e(welcome) {
-    flex: 1;
-    @include m.flex(flex, center, flex-end);
+    flex-shrink: 0;
+    width: 100%;
+    height: 48px;
+    @include m.flex(flex, flex-start, center);
     color: fn.use-var(text-color, assist);
-    padding: fn.use-var(gap, default) 0;
-    text-align: center;
+    padding: 0 fn.use-var(gap, default);
+
+    .u-ai-orb {
+      transform-origin: center;
+    }
+
+    @include m.is(enter) {
+      .u-ai-orb {
+        animation: u-ai-chat-orb-jump-in 0.38s ease both;
+      }
+    }
+
+    @include m.is(leaving) {
+      pointer-events: none;
+
+      .u-ai-orb {
+        opacity: 0;
+        transform: scale(0);
+        transition:
+          opacity 0.28s ease,
+          transform 0.38s ease;
+      }
+
+      .u-#{$root-name}__welcome-item-wrap {
+        opacity: 0;
+        transition: opacity 0.2s ease;
+      }
+    }
   }
 
   @include m.e(welcome-inner) {
@@ -207,14 +241,14 @@ $root-name: ai-chat;
   @include m.e(welcome-item-wrap) {
     flex: 1;
     min-width: 0;
+    height: 48px;
     display: flex;
     align-items: center;
-    // 预留两行高度：长文案换行时行高不抖动
-    min-height: 54px;
   }
 
   @include m.e(welcome-item) {
     max-width: 100%;
+    @include m.ellipsis;
     padding: fn.use-var(gap, small) fn.use-var(gap, default);
     border: none;
     border-radius: fn.use-var(radius, large);
@@ -261,10 +295,42 @@ $root-name: ai-chat;
     @include m.flex(flex, flex-start, center);
     gap: fn.use-var(gap, small);
     padding: 0 fn.use-var(gap, default) fn.use-var(gap, small);
+    width: fit-content;
+
+    // 工作开始：立即从 0 放大（无延时），与输入框上方缩小形成对向跳
+    .u-ai-orb {
+      transform-origin: center;
+      animation: u-ai-chat-orb-jump-in 0.38s ease both;
+    }
+
+    @include m.is(leaving) {
+      pointer-events: none;
+
+      .u-ai-orb {
+        animation: none;
+        opacity: 0;
+        transform: scale(0);
+        transition:
+          opacity 0.28s ease,
+          transform 0.38s ease;
+      }
+    }
   }
 
   @include m.e(working-text) {
     font-size: fn.use-var(font-size-main, small);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .u-#{$root-name}__welcome.is-enter .u-ai-orb,
+    .u-#{$root-name}__working .u-ai-orb {
+      animation: none;
+    }
+
+    .u-#{$root-name}__welcome.is-leaving .u-ai-orb,
+    .u-#{$root-name}__working.is-leaving .u-ai-orb {
+      transition: none;
+    }
   }
 
   // 「最新消息」悬浮按钮：上翻浏览时出现，点击回到底部
@@ -382,7 +448,7 @@ $root-name: ai-chat;
 
   @include m.e(message-status) {
     margin-top: fn.use-var(gap, small);
-    color: fn.use-var(text-color, assist);
+    color: fn.use-var(text-color, second);
     font-size: fn.use-var(font-size-main, small);
   }
 
@@ -395,7 +461,7 @@ $root-name: ai-chat;
   // 思考过程
   @include m.e(reasoning) {
     margin-bottom: 4px;
-    color: fn.use-var(text-color, assist);
+    color: fn.use-var(text-color, second);
 
     @include m.is(expanded) {
       @include m.bem($root-name, 'reasoning-chevron') {
@@ -435,10 +501,54 @@ $root-name: ai-chat;
     line-height: 1.55;
   }
 
-  // 工具调用卡片（复用 UCollapseItem：头部经 #header 插槽自定义，body 为折叠内容区）
+  // 轮次过程折叠块（最终答案输出后，之前的思考/工具调用过程收进「已完成」）
+  @include m.e(process) {
+    padding: 4px fn.use-var(gap, default);
+    color: fn.use-var(text-color, second);
+
+    @include m.is(expanded) {
+      @include m.bem($root-name, 'process-chevron') {
+        transform: rotate(90deg);
+      }
+    }
+  }
+
+  @include m.e(process-header) {
+    @include m.flex(flex, flex-start, center);
+    gap: 4px;
+    cursor: pointer;
+    user-select: none;
+    font-size: fn.use-var(font-size-main, small);
+  }
+
+  @include m.e(process-icon) {
+    color: fn.use-var(color, success);
+  }
+
+  @include m.e(process-title) {
+    line-height: 1.5;
+  }
+
+  @include m.e(process-chevron) {
+    font-size: 12px;
+    transition: transform 0.2s;
+  }
+
+  @include m.e(process-content) {
+    margin-top: 4px;
+    padding-left: fn.use-var(gap, small);
+    border-left: fn.use-var(border-muted);
+
+    // 过程消息在边线内对齐：抵消列表项横向 padding
+    .u-#{$root-name}__message {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+
+  // 工具调用卡片（复用 UCollapseItem：背景/边框走组件原生配色，#header 只自定义标题区）
   @include m.e(tool-call) {
     margin: 4px 0;
-    background-color: fn.use-var(bg-color, top);
     font-size: fn.use-var(font-size-main, small);
 
     // 相邻工具卡片保持紧凑间距（覆盖 UCollapseItem 的兄弟间距）
@@ -455,16 +565,9 @@ $root-name: ai-chat;
     }
 
     .u-collapse__content {
-      border-top: fn.use-var(border-muted);
       padding: fn.use-var(gap, small);
       line-height: 1.5;
     }
-  }
-
-  @include m.e(tool-call-chevron) {
-    flex-shrink: 0;
-    font-size: 12px;
-    color: fn.use-var(text-color, assist);
   }
 
   @include m.e(tool-call-status) {
@@ -760,7 +863,7 @@ $root-name: ai-chat;
     width: 100%;
     max-width: 800px;
     box-sizing: border-box;
-    margin: fn.use-var(gap, small) 0 fn.use-var(gap, default);
+    margin: 0 0 fn.use-var(gap, default);
     border-radius: fn.use-var(radius, large);
     background-color: fn.use-var(bg-color, top);
     padding: fn.use-var(gap, small);

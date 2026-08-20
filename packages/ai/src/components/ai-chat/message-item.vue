@@ -153,7 +153,7 @@ const handleReasoningScroll = (position: Required<ScrollPosition>) => {
   if (position.sh - position.ch - position.y < 8) reasoningStick.value = true
 }
 
-// 流式结束后自动折叠思考过程
+// 流式结束后自动折叠思考过程；immediate 保证终态消息重挂载（过程块展开/收起、载入历史会话）时呈折叠态
 watch(
   () => props.message.status,
   (status) => {
@@ -163,7 +163,8 @@ watch(
     } else if (status) {
       reasoningExpanded.value = false
     }
-  }
+  },
+  { immediate: true }
 )
 
 watch(

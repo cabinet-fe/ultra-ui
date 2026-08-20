@@ -40,17 +40,34 @@ interface ReactionDef {
   mouth: MouthMode
   /** 表情期间视线落点（单位球空间） */
   gaze: { x: number; y: number }
+  /** 表情期间耳朵外倒角（弧度；小 = 竖起，大 = 耷拉） */
+  earTilt: number
 }
 
 const REACTIONS: Record<AiOrbReaction, ReactionDef> = {
-  happy: { duration: 1.7, eyeMode: 'happy', eyeScale: 1, mouth: 'grin', gaze: { x: 0, y: -0.05 } },
-  shock: { duration: 1.2, eyeMode: 'round', eyeScale: 1.22, mouth: 'o', gaze: { x: 0, y: -0.02 } },
+  happy: {
+    duration: 1.7,
+    eyeMode: 'happy',
+    eyeScale: 1,
+    mouth: 'grin',
+    gaze: { x: 0, y: -0.05 },
+    earTilt: 0.14
+  },
+  shock: {
+    duration: 1.2,
+    eyeMode: 'round',
+    eyeScale: 1.22,
+    mouth: 'o',
+    gaze: { x: 0, y: -0.02 },
+    earTilt: 0.06
+  },
   frustrated: {
     duration: 1.5,
     eyeMode: 'squint',
     eyeScale: 1,
     mouth: 'frown',
-    gaze: { x: 0, y: 0.02 }
+    gaze: { x: 0, y: 0.02 },
+    earTilt: 0.62
   }
 }
 
@@ -63,15 +80,27 @@ const HAPPY_WIDEN_RATIO = 0.2
  */
 const COLORS = { body: '#3d9bf0', face: '#ffffff' } as const
 
-/** 球体横竖比：扁椭圆（mochi 感），呼吸在此之上微调 */
+/** 球体横竖比：扁椭圆（mochi 感，明显压扁），呼吸在此之上微调 */
 const BODY_SCALE_X = 1.1
-const BODY_SCALE_Y = 0.92
+const BODY_SCALE_Y = 0.84
 
 /** 竖椭圆大眼睛（单位球空间）：竖长才像眼睛，正圆容易读成鼻孔 */
 const EYE_X = 0.27
 const EYE_Y = -0.12
 const EYE_RX = 0.13
 const EYE_RY = 0.19
+
+/**
+ * 耳朵（单位球空间）：圆角尖三角（猫耳），根部埋在球体内（先于球体路径绘制，被球遮住），
+ * 只露出耳尖；基础外倒角，表情时竖起（角小）或耷拉（角大）
+ */
+const EAR_X = 0.44
+const EAR_Y = -0.8
+/** 根部半宽 */
+const EAR_W = 0.17
+/** 耳高（根部到耳尖） */
+const EAR_H = 0.46
+const EAR_TILT = 0.38
 
 export interface AiOrbRendererOptions {
   /** css 像素尺寸（画布为正方形） */
@@ -123,6 +152,7 @@ function reactionEnvelope(p: number): number {
  * 灵动感的核心在眼部状态机：
  * - 白色大眼睛随机眨眼（约 18% 概率双眨），闭起为白色线条
  * - 视线游移 / 转头（面部整体平移 + 轻微倾斜，idle 随机、thinking 缓慢扫视）
+ * - thinking 时在球体右上角绘制与身体同色的「?」，轻晃
  * - 瞬时表情（{@link AiOrbReaction}）：睁大眼、弯眼笑、紧闭眼 ><，配合点头 / 摇头 / 后仰
  *
  * 性能设计：
@@ -168,6 +198,50 @@ export function createOrbRenderer(
   let pointerPos: { x: number; y: number } | null = null
   /** Q 弹起始时间，-1 表示未在回弹 */
   let pokeStart = -1
+  /** thinking 右上角「?」显隐（0-1），随状态平滑过渡 */
+  let thinkingMark = statusLabel === 'thinking' ? 1 : 0
+
+  /** 猫耳轮廓：两侧微鼓、耳尖带小圆角、根部微弧朝下埋进球体 */
+  function earPath(w: number, h: number) {
+    if (!ctx) return
+    ctx.beginPath()
+    ctx.moveTo(-w, 0)
+    ctx.quadraticCurveTo(-w * 0.92, -h * 0.68, -0.028, -h * 0.92)
+    // 耳尖小圆角，避免锐利折点
+    ctx.quadraticCurveTo(0, -h, 0.028, -h * 0.92)
+    ctx.quadraticCurveTo(w * 0.92, -h * 0.68, w, 0)
+    ctx.quadraticCurveTo(0, 0.09, -w, 0)
+    ctx.closePath()
+  }
+
+  /** 耳朵：身体色尖耳 + 白色内耳，平时随时间轻微错相摆动 */
+  function drawEars(tilt: number) {
+    if (!ctx) return
+
+    for (const side of [-1, 1]) {
+      const swing = 0.05 * Math.sin(t * 1.9 + side * 1.2)
+      ctx.save()
+      ctx.translate(side * EAR_X, EAR_Y)
+      ctx.rotate(side * (tilt + swing))
+
+      ctx.fillStyle = COLORS.body
+      earPath(EAR_W, EAR_H)
+      ctx.fill()
+
+      // 内耳为相似缩小的尖三角，偏向耳尖，与白色五官呼应
+      ctx.fillStyle = COLORS.face
+      const iw = EAR_W * 0.48
+      ctx.beginPath()
+      ctx.moveTo(-iw, -EAR_H * 0.1)
+      ctx.quadraticCurveTo(-iw * 0.9, -EAR_H * 0.44, 0, -EAR_H * 0.6)
+      ctx.quadraticCurveTo(iw * 0.9, -EAR_H * 0.44, iw, -EAR_H * 0.1)
+      ctx.quadraticCurveTo(0, -EAR_H * 0.02, -iw, -EAR_H * 0.1)
+      ctx.closePath()
+      ctx.fill()
+
+      ctx.restore()
+    }
+  }
 
   /** 面部：白色大眼睛（圆眼 / 弯眼 / 紧闭线条）+ 嘴 */
   function drawFace(eyeMode: EyeMode, eyeOpen: number, eyeScale: number, mouth: MouthMode) {
@@ -211,6 +285,28 @@ export function createOrbRenderer(
     }
 
     drawMouth(mouth)
+  }
+
+  /**
+   * thinking 吉祥物右上角的「?」：球体同色，轻晃更像在想问题。
+   * 画在单位球变换之外，避免被扁椭圆压扁。
+   */
+  function drawThinkingMark(weight: number) {
+    if (!ctx || weight <= 0.01) return
+    const fontSize = size * 0.3
+    // 顶在画布右缘：主体在该高度大约只到 0.70，右侧空位给问号
+    const x = size * 0.93
+    const y = size * 0.24 + size * 0.02 * Math.sin(t * 3.6)
+    ctx.save()
+    ctx.globalAlpha = weight
+    ctx.translate(x, y)
+    ctx.rotate(-0.16 + 0.1 * Math.sin(t * 2.7))
+    ctx.fillStyle = COLORS.body
+    ctx.font = `700 ${fontSize}px ui-rounded, system-ui, sans-serif`
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText('?', 0, 0)
+    ctx.restore()
   }
 
   function drawMouth(mouth: MouthMode) {
@@ -344,6 +440,10 @@ export function createOrbRenderer(
     gazeCur.x += (gazeTarget.x - gazeCur.x) * gazeEase
     gazeCur.y += (gazeTarget.y - gazeCur.y) * gazeEase
 
+    const markTarget = statusLabel === 'thinking' ? 1 : 0
+    if (isRunning) thinkingMark += (markTarget - thinkingMark) * ease
+    else thinkingMark = markTarget
+
     // 眼部参数：常态 × 眨眼，再向表情目标混合
     let eyeOpen = current.eyeOpen * blinkOpen
     let eyeScale = 1
@@ -364,7 +464,10 @@ export function createOrbRenderer(
     let bodyDy = 0
     let bodyRot = gazeCur.x * 0.5
     let bodyScale = 1
+    // 耳朵外倒角：表情时向目标角度混合（开心 / 惊讶竖起，沮丧耷拉）
+    let earTilt = EAR_TILT
     if (reactionDef && reaction && reactionW > 0.01) {
+      earTilt = lerp(EAR_TILT, reactionDef.earTilt, reactionW)
       if (reaction.type === 'happy') {
         bodyDy = Math.sin(Math.min(reactionP / 0.75, 1) * Math.PI) * 0.05
       } else if (reaction.type === 'frustrated') {
@@ -406,6 +509,9 @@ export function createOrbRenderer(
     ctx.rotate(bodyRot)
     ctx.scale(radius * scaleX, radius * scaleY)
 
+    // 耳朵先于球体绘制：根部被球体遮住，像从头顶长出来，并随球体一起形变
+    drawEars(earTilt)
+
     ctx.beginPath()
     for (let i = 0; i <= SEGMENTS; i++) {
       const theta = (i / SEGMENTS) * Math.PI * 2
@@ -425,6 +531,8 @@ export function createOrbRenderer(
     drawFace(eyeMode, eyeOpen, eyeScale, mouth)
 
     ctx.restore()
+
+    drawThinkingMark(thinkingMark)
   }
 
   function tick(now: number) {

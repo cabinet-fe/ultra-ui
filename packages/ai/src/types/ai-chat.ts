@@ -34,7 +34,7 @@ export interface AiChatProps {
   model?: string
   /** 当前推理等级，支持 v-model:reasoning-level */
   reasoningLevel?: string
-  /** 空状态欢迎项（快捷提问，点击即发送）；字符串按单项处理 */
+  /** 空闲时输入框上方的快捷提问（点击即发送）；字符串按单项处理 */
   welcome?: string | string[]
   /** 输入框占位文本 */
   placeholder?: string

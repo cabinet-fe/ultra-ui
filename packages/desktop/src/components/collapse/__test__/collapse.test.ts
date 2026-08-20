@@ -223,8 +223,38 @@ describe('CollapseItem standalone', () => {
       expect(host.querySelector('.u-collapse__item')).toBeTruthy()
       expect(host.querySelector('.u-collapse__header')).toBeTruthy()
       expect(host.querySelector('.u-collapse__title')?.textContent).toBe('Standalone')
+      expect(host.querySelector('.u-collapse__icon')).toBeTruthy()
     } finally {
       unmount()
+    }
+  })
+
+  it('keeps the expand icon when #header slot is provided', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
+    const app = createApp({
+      render() {
+        return h(
+          UCollapseItem,
+          { title: 'Fallback' },
+          { header: () => 'Custom header', default: () => 'Body' }
+        )
+      }
+    })
+    app.mount(host)
+
+    try {
+      await nextTick()
+      expect(host.querySelector('.u-collapse__title')?.textContent).toBe('Custom header')
+      expect(host.querySelector('.u-collapse__icon')).toBeTruthy()
+
+      ;(host.querySelector('.u-collapse__header') as HTMLElement).click()
+      await nextTick()
+      expect(host.querySelector('.u-collapse__header.is-active')).toBeTruthy()
+    } finally {
+      app.unmount()
+      host.remove()
     }
   })
 
