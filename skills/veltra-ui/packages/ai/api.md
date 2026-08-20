@@ -23,6 +23,7 @@ interface AiChatProps {
   accept?: string // 附件 accept，默认 image/*
   maxAttachmentSize?: number // 默认 10MB；超限忽略并 console.warn
   rendererProps?: Record<string, unknown> // 透传 markstream-vue 的 MarkdownRender
+  tokenUsageDetail?: boolean // 默认 false：有 usage 时只显示「总 token」；true 再拼有数据的缓存命中/未命中
 }
 
 interface AiChatEmits {
@@ -45,6 +46,8 @@ interface AiChatExposed {
   abort(): void
   regenerate(): void
   clear(): void
+  tokenUsage: ChatTokenUsage | null // 会话累计；从未收到 usage 时为 null
+  lastTurnUsage: ChatTokenUsage | null // 最近一轮用户对话（含工具多轮）
   queue: ChatQueuedMessage[]
   startQueued(id: string): void
   removeQueued(id: string): ChatQueuedMessage | undefined
@@ -57,7 +60,9 @@ interface AiChatExposed {
 - `welcome` 插槽替换默认欢迎区（活体球 + 快捷提问，空闲时钉在输入框上方）。默认：点文案即发送，点球换下一条；多条约每 4s 轮换。工作中活体球跳到列表末尾，结束后跳回。
 - `tool-<name>` 在工具有结果时替换卡片 body；工具定义了 `render` 时 **render 优先**。
 - 输入：Enter 发送，Shift+Enter 换行。生成中空输入显示停止；有内容则发送入队。
+- 输入栏左侧有清除按钮（`UPopConfirm` 二次确认）。`clear()` 中止进行中的请求、清空消息与队列、重置 token 统计；生成中清除会立刻回到欢迎区。
 - 最后一条 assistant 结束后提供复制 / 重新生成。`regenerate` 会删掉最后一条用户消息之后的所有消息再跑一轮。
+- Token：接口返回 `usage` 后才显示会话累计。默认 `总 token N`；`tokenUsageDetail` 为 true 时再拼有数据的 `缓存命中` / `缓存未命中`。不展示本次、不拆输入/输出。数字 ≥1000 用 K、≥100 万用 M（最多 1 位小数，整数不写 `.0`）。无 usage 不展示、不补 0。
 - `UAiChat` **不**暴露 `running` / `respondToolCall`（确认按钮由工具卡片处理）。无头场景用 `useChat`。
 
 ## ChatTool
@@ -184,6 +189,7 @@ interface ChatModel {
   ...globalBody,
   model: modelId,
   stream: true,
+  stream_options: { include_usage: true },
   messages: /* 见下 */,
   tools?: [{ type: 'function', function: { name, description, parameters } }]
   // 若有 reasoningLevel：缺省 body.reasoning_effort = level；否则走 applyReasoning
@@ -197,7 +203,7 @@ interface ChatModel {
 - `assistant` + `toolCalls` → OpenAI `tool_calls`（`type: 'function'`）
 - `tool` → `{ role: 'tool', tool_call_id, content }`
 
-SSE：`delta.content` → `onTextDelta`；`delta.reasoning_content ?? delta.reasoning` → `onReasoningDelta`；`tool_calls` 按 index 累积参数，完整后才 `onToolCall`。未找到 model 时 `onError` 且不发请求。
+SSE：`delta.content` → `onTextDelta`；`delta.reasoning_content ?? delta.reasoning` → `onReasoningDelta`；`tool_calls` 按 index 累积参数，完整后才 `onToolCall`；`usage` → `onUsage`（含缓存命中/未命中，缺字段不补 0）。未找到 model 时 `onError` 且不发请求。
 
 未传 `models` 给 `UAiChat` 时不显示选择器。传入后切换模型会校正 `reasoningLevel`（无 levels 则清空；非法则落到 `defaultReasoningLevel` 或第一项）。
 
@@ -222,7 +228,17 @@ interface ChatTransportHandlers {
   onTextDelta(delta: string): void
   onReasoningDelta?(delta: string): void
   onToolCall?(call: { id: string; name: string; arguments: string }): void // 完整参数，不要分片
+  onUsage?(usage: ChatTokenUsage): void // 接口未返回 usage 时不要调用
   onError?(error: Error): void
+}
+
+interface ChatTokenUsage {
+  promptTokens: number
+  completionTokens: number
+  totalTokens: number
+  cacheHitTokens?: number // cached_tokens / prompt_cache_hit_tokens / cache_read_input_tokens
+  cacheMissTokens?: number // prompt_cache_miss_tokens，或 prompt − 命中
+  cacheCreationTokens?: number // cache_creation_input_tokens
 }
 ```
 
@@ -239,6 +255,8 @@ function useChat(options: { props: AiChatProps; emit: AiChatEmits }): {
   reasoningLevel: Ref<string | undefined>
   running: Ref<boolean>
   queue: Ref<ChatQueuedMessage[]>
+  tokenUsage: Ref<ChatTokenUsage | null>
+  lastTurnUsage: Ref<ChatTokenUsage | null>
   send(content: string, attachments?: ChatAttachment[]): void
   abort(): void
   regenerate(): void
@@ -260,7 +278,7 @@ function useChat(options: { props: AiChatProps; emit: AiChatEmits }): {
 | `startQueued(id)`                                  | 中断当前，该条插队为下一条             |
 | 手动 `abort` / 用户停止                            | 保留，不自动接续                       |
 | `error`                                            | 保留，不自动接续                       |
-| `clear()`                                          | 消息与队列一起清空（生成中会先 abort） |
+| `clear()`                                          | 消息、队列与 token 统计一起清空（生成中会先 abort） |
 
 `send` 空内容且无附件时是空操作。生成中 `send` 等价于 `enqueue`。
 

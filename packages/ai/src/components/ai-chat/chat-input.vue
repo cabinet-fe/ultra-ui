@@ -30,6 +30,26 @@
             <Attach />
           </UIcon>
         </UFilePicker>
+
+        <span :class="[cls.e('input-clear-wrap'), bem.is('disabled', !clearable)]">
+          <UPopConfirm
+            title="清空当前对话？进行中的生成将被中止。"
+            confirm-text="清空"
+            direction="top"
+            alignment="start"
+            @confirm="emit('clear')"
+          >
+            <template #reference>
+              <UIcon :class="cls.e('input-clear')" title="清除会话">
+                <Clear />
+              </UIcon>
+            </template>
+          </UPopConfirm>
+        </span>
+
+        <span v-if="tokenUsage" :class="cls.e('input-usage')" :title="usageText">
+          {{ usageText }}
+        </span>
       </div>
 
       <!-- 右簇：模型/推理选择 → 发送或停止（互斥） -->
@@ -69,12 +89,12 @@
 </template>
 
 <script lang="ts" setup>
-import { UButton, UFilePicker, UIcon } from '@veltra/desktop'
-import { Attach, Close, Up } from '@veltra/icons/normal'
+import { UButton, UFilePicker, UIcon, UPopConfirm } from '@veltra/desktop'
+import { Attach, Clear, Close, Up } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { computed, inject, nextTick, ref, shallowRef } from 'vue'
 
-import type { ChatAttachment } from '../../chat/types'
+import type { ChatAttachment, ChatTokenUsage } from '../../chat/types'
 import type { ChatModelOption } from '../../providers'
 import { AiChatDIKey } from './di'
 import ModelPicker from './model-picker.vue'
@@ -92,6 +112,12 @@ const props = defineProps<{
   accept?: string
   /** 单个附件最大字节数 */
   maxAttachmentSize?: number
+  /** 是否可清除（有消息 / 队列 / 生成中） */
+  clearable?: boolean
+  /** 会话累计 token；无 usage 时为 null，不展示 */
+  tokenUsage?: ChatTokenUsage | null
+  /** 是否展示缓存命中 / 未命中（默认只显示总 token） */
+  tokenUsageDetail?: boolean
 }>()
 
 const model = defineModel<string>('model')
@@ -100,6 +126,7 @@ const reasoningLevel = defineModel<string>('reasoningLevel')
 const emit = defineEmits<{
   (e: 'send', content: string, attachments: ChatAttachment[]): void
   (e: 'abort'): void
+  (e: 'clear'): void
 }>()
 
 const di = inject(AiChatDIKey)
@@ -113,6 +140,40 @@ const hasContent = computed(() => !!text.value.trim() || attachments.value.lengt
 
 /** 生成中且输入为空时显示停止；有内容则显示发送（入队） */
 const showStop = computed(() => props.running && !hasContent.value)
+
+/**
+ * 用量数字：不到 1000 原样；≥1000 用 K；≥100 万用 M。
+ * 最多 1 位小数，整数不写 `.0`（1000 → 1K，1500 → 1.5K）。
+ */
+const formatTokenCount = (n: number) => {
+  const scaled = (value: number, unit: 'K' | 'M') => {
+    const rounded = Math.round(value * 10) / 10
+    return `${Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1)}${unit}`
+  }
+  if (n < 1000) return String(n)
+  if (n < 1_000_000) {
+    const k = Math.round((n / 1000) * 10) / 10
+    // 四舍五入后会变成 1000K 时改用 M
+    return k >= 1000 ? scaled(n / 1_000_000, 'M') : scaled(n / 1000, 'K')
+  }
+  return scaled(n / 1_000_000, 'M')
+}
+
+/** 会话累计：总 token；明细再拼有数据的缓存项，缺字段不写 0 */
+const usageText = computed(() => {
+  const usage = props.tokenUsage
+  if (!usage) return ''
+  const parts = [`总 token ${formatTokenCount(usage.totalTokens)}`]
+  if (props.tokenUsageDetail) {
+    if (usage.cacheHitTokens != null) {
+      parts.push(`缓存命中 ${formatTokenCount(usage.cacheHitTokens)}`)
+    }
+    if (usage.cacheMissTokens != null) {
+      parts.push(`缓存未命中 ${formatTokenCount(usage.cacheMissTokens)}`)
+    }
+  }
+  return parts.join(' · ')
+})
 
 /** 生成中提示用户消息将进入队列 */
 const placeholderText = computed(() => {

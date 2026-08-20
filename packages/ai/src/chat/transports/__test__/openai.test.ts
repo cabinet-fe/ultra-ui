@@ -7,6 +7,7 @@ const baseHandlers = (): ChatTransportHandlers => ({
   onTextDelta: vi.fn(),
   onReasoningDelta: vi.fn(),
   onToolCall: vi.fn(),
+  onUsage: vi.fn(),
   onError: vi.fn()
 })
 
@@ -312,6 +313,145 @@ data: [DONE]
       id: 'call_2',
       name: 'beta',
       arguments: '{"y":2}'
+    })
+  })
+
+  it('请求体带 stream_options.include_usage', async () => {
+    const fetchMock = vi.fn(async () => {
+      return new Response('data: [DONE]\n\n', {
+        status: 200,
+        headers: { 'Content-Type': 'text/event-stream' }
+      })
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const transport = createOpenAITransport({
+      providers: [{ id: 'a', endpoint: 'https://a.example/chat', models: [{ id: 'm' }] }]
+    })
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        signal: new AbortController().signal
+      },
+      baseHandlers()
+    )
+
+    expect(JSON.parse(String(fetchMock.mock.calls[0]![1]!.body))).toMatchObject({
+      stream: true,
+      stream_options: { include_usage: true }
+    })
+  })
+
+  it('解析末包 usage，含缓存命中 / 未命中，无 usage 不回调', async () => {
+    const sse = String.raw`data: {"choices":[{"delta":{"content":"hi"}}]}
+
+data: {"choices":[],"usage":{"prompt_tokens":12,"completion_tokens":3,"total_tokens":15,"prompt_tokens_details":{"cached_tokens":8},"prompt_cache_hit_tokens":8,"prompt_cache_miss_tokens":4}}
+
+data: [DONE]
+`
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response(sse, { status: 200 }))
+    )
+
+    const transport = createOpenAITransport({
+      providers: [{ id: 'a', endpoint: 'https://a.example/chat', models: [{ id: 'm' }] }]
+    })
+    const handlers = baseHandlers()
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        signal: new AbortController().signal
+      },
+      handlers
+    )
+
+    expect(handlers.onTextDelta).toHaveBeenCalledWith('hi')
+    expect(handlers.onUsage).toHaveBeenCalledTimes(1)
+    expect(handlers.onUsage).toHaveBeenCalledWith({
+      promptTokens: 12,
+      completionTokens: 3,
+      totalTokens: 15,
+      cacheHitTokens: 8,
+      cacheMissTokens: 4
+    })
+  })
+
+  it('仅有 cached_tokens 时由 prompt − 命中得到未命中；缺 usage 不编造', async () => {
+    const withCache = String.raw`data: {"choices":[{"delta":{"content":"a"}}],"usage":{"prompt_tokens":10,"completion_tokens":1,"total_tokens":11,"prompt_tokens_details":{"cached_tokens":7}}}
+
+data: [DONE]
+`
+    const noUsage = String.raw`data: {"choices":[{"delta":{"content":"b"}}]}
+
+data: [DONE]
+`
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(withCache, { status: 200 }))
+      .mockResolvedValueOnce(new Response(noUsage, { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const transport = createOpenAITransport({
+      providers: [{ id: 'a', endpoint: 'https://a.example/chat', models: [{ id: 'm' }] }]
+    })
+
+    const withCacheHandlers = baseHandlers()
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        signal: new AbortController().signal
+      },
+      withCacheHandlers
+    )
+    expect(withCacheHandlers.onUsage).toHaveBeenCalledWith({
+      promptTokens: 10,
+      completionTokens: 1,
+      totalTokens: 11,
+      cacheHitTokens: 7,
+      cacheMissTokens: 3
+    })
+
+    const noUsageHandlers = baseHandlers()
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        signal: new AbortController().signal
+      },
+      noUsageHandlers
+    )
+    expect(noUsageHandlers.onUsage).not.toHaveBeenCalled()
+  })
+
+  it('解析 Anthropic 风格 cache_read / cache_creation', async () => {
+    const sse = String.raw`data: {"choices":[{"delta":{"content":"ok"}}],"usage":{"prompt_tokens":20,"completion_tokens":2,"total_tokens":22,"cache_read_input_tokens":15,"cache_creation_input_tokens":3}}
+
+data: [DONE]
+`
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response(sse, { status: 200 }))
+    )
+
+    const transport = createOpenAITransport({
+      providers: [{ id: 'a', endpoint: 'https://a.example/chat', models: [{ id: 'm' }] }]
+    })
+    const handlers = baseHandlers()
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        signal: new AbortController().signal
+      },
+      handlers
+    )
+
+    expect(handlers.onUsage).toHaveBeenCalledWith({
+      promptTokens: 20,
+      completionTokens: 2,
+      totalTokens: 22,
+      cacheHitTokens: 15,
+      cacheMissTokens: 5,
+      cacheCreationTokens: 3
     })
   })
 })

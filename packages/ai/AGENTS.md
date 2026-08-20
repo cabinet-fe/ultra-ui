@@ -10,10 +10,10 @@ src/
 ├── style.ts                    # 全量样式入口
 ├── providers/                  # 模型提供商域（ChatProvider / ChatModel / ChatModelOption）
 ├── chat/                       # 对话核心域（UI 无关，不得 import 组件）
-│   ├── types.ts                # ChatMessage / ChatQueuedMessage / ChatTool（含 icon/label/render/renderTo/panelWidth/panelTitle/autoCollapse/terminal）/ ChatTransport 等核心类型
-│   ├── use-chat.ts             # useChat 状态机：消息管理 + 工具循环编排（runRound 递归，受 maxToolRounds 限制，terminal 工具成功即终结）+ 待发送队列（FIFO 自动接续）；透传 model / reasoningLevel
+│   ├── types.ts                # ChatMessage / ChatQueuedMessage / ChatTokenUsage / ChatTool / ChatTransport 等核心类型
+│   ├── use-chat.ts             # useChat 状态机：消息管理 + 工具循环编排 + 待发送队列 + token 用量累计；透传 model / reasoningLevel
 │   ├── transports/
-│   │   └── openai.ts           # createOpenAITransport（多 Provider，按 model 路由；OpenAI 兼容 SSE）
+│   │   └── openai.ts           # createOpenAITransport（多 Provider，按 model 路由；OpenAI 兼容 SSE；解析 usage / 缓存字段）
 │   └── __test__/
 ├── tools/                      # 内置工具注册域（UAiChat 自动注入；工厂不对外导出；可依赖 components/）
 │   ├── index.ts                # createBuiltinTools 注册表（新增内置工具在此注册）
@@ -30,7 +30,7 @@ src/
     │   ├── side-panel.vue      # 右侧侧边面板（renderTo: 'panel' 工具的渲染区：悬浮卡片——面板本体透明留白、内层圆角卡片仅靠背景对比+阴影区分，无分割线；头部 icon 底托/标题/关闭，标题取 panelTitle ?? label ?? name + UScroll 渲染体）
     │   ├── queue-list.vue      # 待发送队列（生成中提交的消息排队；立即开始插队 / 取回编辑 / 移除）
     │   ├── ask-question.vue    # 提问工具的内联分页表单（由内置 askQuestion 工具挂到 render）
-    │   ├── chat-input.vue      # 输入区（多行自适应、图片附件、模型/推理选择、生成中空输入显示停止 / 有内容则发送入队；暴露 setContent/getContent）
+    │   ├── chat-input.vue      # 输入区（多行自适应、图片附件、清除会话确认、token 用量、模型/推理选择、生成中空输入显示停止 / 有内容则发送入队；暴露 setContent/getContent）
     │   ├── model-picker.vue    # 模型/推理选择器（UDropdown 面板：模型列表 + 思考强度内联展开）
     │   ├── di.ts               # AiChatDIKey（cls + slots + tools 注入，支撑 tool-<name> 动态插槽与工具元信息）
     │   └── __test__/
@@ -52,7 +52,8 @@ src/
 - 工具串行执行（保持结果消息与调用顺序一致）；循环/泵取一律用递归或 Promise 链，禁止 await-in-loop（lint 硬性约束，不允许 disable 注释）。
 - **工具循环收敛**：`maxToolRounds`（props，默认 10）限制单次发送的最大生成轮次，超限即 finish 停止；`ChatTool.terminal` 工具执行成功后对话终结（结果仍入消息历史，失败/拒绝照常回灌），配合 `render` 实现"工具 UI 即答复"。两类结束都会发出 `finish`。
 - **侧边面板工具**：`ChatTool.renderTo: 'panel'` 把 render 组件渲染到对话区右侧的侧边面板（side-panel.vue），契约同卡片 render（`ChatToolRenderProps`，随 toolCall 状态实时更新）；新的面板调用自动打开并聚焦，工具卡片 body 仅留「查看面板」入口（经 DI `openPanel` 切换聚焦，可切回历史调用）；布局基于 `ULayout`（`cols = 1fr + 面板宽度`，`colMinSizes` 约束会话区 ≥360px、面板 ≥320px，`useResizeObserver` 跟踪拖拽后的实际宽度）；`ChatTool.panelWidth` 可指定该工具面板的默认宽度（聚焦其调用时应用；缺省取「容器宽 - 860」，即面板默认尽可能大、会话区保留 860px）；`ChatTool.panelTitle`（字符串或按 toolCall 动态生成的函数）给出业务化面板标题（「业务对象 + 动作」），缺省取 label ?? name。组件根背景为 bg-color-bottom，消息/队列/输入区限宽 800px 居中（面板开合时排版不形变），卡片类元素（输入区、面板卡、欢迎气泡）用 bg-color-top + 阴影而非边框区分层级。空会话（无可见消息）时主列挂 `is-empty`：列表区与末尾弹性占位均分剩余空间使输入区垂直居中；空闲欢迎区钉在 UScroll 外、贴于输入框上方（有消息后布局回落到底部，欢迎区仍在输入框上方）；工作开始时活体球立即跳到列表末尾，结束后跳回。
-- **待发送队列**：会话进行中 `send` 的消息进入 `queue`（不再丢弃），自然完成（finish）后按 FIFO 自动接续；`startQueued(id)` 中断当前会话并插队执行（其余保持顺序）；`enqueue(content, attachments?, beforeId?)` 支持锚点插入（编辑回插保持前后项顺序）；手动 `abort()` / 出错时队列保留不自动接续；`clear()` 一并清空队列。编辑流由 ai-chat.vue 以后继 id 锚点实现（取回输入框 → 重新提交插回原位置）。
+- **待发送队列**：会话进行中 `send` 的消息进入 `queue`（不再丢弃），自然完成（finish）后按 FIFO 自动接续；`startQueued(id)` 中断当前会话并插队执行（其余保持顺序）；`enqueue(content, attachments?, beforeId?)` 支持锚点插入（编辑回插保持前后项顺序）；手动 `abort()` / 出错时队列保留不自动接续；`clear()` 一并清空队列、中止进行中的请求，并重置 token 统计。编辑流由 ai-chat.vue 以后继 id 锚点实现（取回输入框 → 重新提交插回原位置）。输入区清除按钮走 `UPopConfirm` 二次确认；生成中清除会跳过工作球停留、立刻回到欢迎区。
+- **Token 用量**：OpenAI 兼容 transport 请求 `stream_options.include_usage`，从 SSE 末包 `usage` 解析 `prompt/completion/total` 以及缓存命中/未命中（`prompt_tokens_details.cached_tokens`、`prompt_cache_hit_tokens` / `prompt_cache_miss_tokens`、`cache_read_input_tokens` 等）；未返回 usage 时不展示、不补 0。`useChat` 累计到 `tokenUsage`（会话）与 `lastTurnUsage`（当前用户轮，含工具多轮；供编程读取，输入栏不展示「本次」）。`tokenUsageDetail`（默认 false）为 false 时输入栏仅显示会话累计「总 token」；为 true 时再拼有数据的「缓存命中」「缓存未命中」。数字 ≥1000 用 K、≥100 万用 M（最多 1 位小数，整数不写 `.0`）。
 - **扫光**：文字扫光使用 `@veltra/styles/animations` 提供的全局可复用类 `u-shine`（纯 CSS，background-clip: text，含 prefers-reduced-motion 降级），随 ai-chat 的 `style.ts` 按需加载；思考中与进行中的工具名自动应用。
 
 ## 依赖

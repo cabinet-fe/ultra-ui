@@ -13,6 +13,7 @@
     :model="transport.defaultModel"
     system-prompt="你是业务助手，优先使用工具，不要编造数据。"
     :welcome="['有什么可以帮你？', '给我讲个笑话']"
+    token-usage-detail
     @finish="onFinish"
     @error="onError"
   />
@@ -349,6 +350,8 @@ const transport: ChatTransport = async (req, handlers) => {
   handlers.onReasoningDelta?.('思考内容')
   handlers.onTextDelta('回答内容')
   handlers.onToolCall?.({ id: 'call-1', name: 'getWeather', arguments: '{"city":"北京"}' })
+  // 接口有 usage 再回调；不要填 0 充数
+  handlers.onUsage?.({ promptTokens: 12, completionTokens: 8, totalTokens: 20 })
 }
 ```
 

@@ -5,6 +5,7 @@
     :transport="transport"
     :tools="tools"
     :models="models"
+    token-usage-detail
     style="height: calc(100vh - 90px)"
     :welcome="[
       '算一下 128*46',

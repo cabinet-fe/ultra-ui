@@ -23,6 +23,7 @@ function mountAiChat(options: {
   models?: ChatModelOption[]
   model?: string
   reasoningLevel?: string
+  tokenUsageDetail?: boolean
   slots?: Record<string, (scope: any) => any>
 }) {
   const host = document.createElement('div')
@@ -41,7 +42,8 @@ function mountAiChat(options: {
           welcome: options.welcome,
           models: options.models,
           model: options.model,
-          reasoningLevel: options.reasoningLevel
+          reasoningLevel: options.reasoningLevel,
+          tokenUsageDetail: options.tokenUsageDetail
         },
         options.slots
       )
@@ -1130,5 +1132,123 @@ describe('UAiChat', () => {
     } finally {
       vi.useRealTimers()
     }
+  })
+
+  it('输入区提供清除入口；clear 清空后回到欢迎区', async () => {
+    const transport: ChatTransport = (_req, handlers) => {
+      handlers.onTextDelta('回复')
+    }
+    const { host, chat, unmount } = mountAiChat({ transport, welcome: '有什么可以帮你？' })
+
+    expect(host.querySelector('.u-ai-chat__input-clear')).toBeTruthy()
+    expect(
+      host.querySelector('.u-ai-chat__input-clear-wrap')?.classList.contains('is-disabled')
+    ).toBe(true)
+    expect(host.querySelector('.u-ai-chat__input-usage')).toBeFalsy()
+
+    chat.value?.send('你好')
+    await vi.waitFor(() => {
+      expect(host.querySelector('.md-stub')?.textContent).toContain('回复')
+    })
+    expect(
+      host.querySelector('.u-ai-chat__input-clear-wrap')?.classList.contains('is-disabled')
+    ).toBe(false)
+
+    chat.value?.clear()
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__welcome')?.textContent).toContain('有什么可以帮你？')
+    })
+    expect(host.querySelector('.md-stub')).toBeFalsy()
+    unmount()
+  })
+
+  it('生成中 clear 中止请求并立即恢复欢迎区', async () => {
+    const transport: ChatTransport = (req) => {
+      return new Promise<void>((resolve) => {
+        req.signal.addEventListener('abort', () => resolve(), { once: true })
+      })
+    }
+    const { host, chat, unmount } = mountAiChat({ transport, welcome: '欢迎回来' })
+
+    chat.value?.send('hi')
+    await nextTick()
+    expect(host.querySelector('.u-ai-chat__working')).toBeTruthy()
+
+    chat.value?.clear()
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__working')).toBeFalsy()
+      expect(host.querySelector('.u-ai-chat__welcome')?.textContent).toContain('欢迎回来')
+    })
+    unmount()
+  })
+
+  it('有 usage 时默认只显示总 token，tokenUsageDetail 追加缓存命中/未命中', async () => {
+    const usageTransport: ChatTransport = (_req, handlers) => {
+      handlers.onTextDelta('ok')
+      handlers.onUsage?.({
+        promptTokens: 10,
+        completionTokens: 2,
+        totalTokens: 12,
+        cacheHitTokens: 4,
+        cacheMissTokens: 6
+      })
+    }
+
+    const compact = mountAiChat({ transport: usageTransport })
+    compact.chat.value?.send('hi')
+    await vi.waitFor(() => {
+      expect(compact.host.querySelector('.u-ai-chat__input-usage')?.textContent).toBe('总 token 12')
+    })
+    expect(compact.host.querySelector('.u-ai-chat__input-usage')?.textContent).not.toContain(
+      '缓存命中'
+    )
+    compact.unmount()
+
+    const detail = mountAiChat({ transport: usageTransport, tokenUsageDetail: true })
+    detail.chat.value?.send('hi')
+    await vi.waitFor(() => {
+      expect(detail.host.querySelector('.u-ai-chat__input-usage')?.textContent).toBe(
+        '总 token 12 · 缓存命中 4 · 缓存未命中 6'
+      )
+    })
+    const text = detail.host.querySelector('.u-ai-chat__input-usage')?.textContent ?? ''
+    expect(text).not.toContain('本次')
+    expect(text).not.toContain('累计')
+    expect(text).not.toContain('输入')
+    expect(text).not.toContain('输出')
+    detail.unmount()
+  })
+
+  it('token 用量数字按 K/M 缩写，缓存字段缺失时不展示该项', async () => {
+    const scaledTransport: ChatTransport = (_req, handlers) => {
+      handlers.onTextDelta('ok')
+      handlers.onUsage?.({
+        promptTokens: 800,
+        completionTokens: 700,
+        totalTokens: 1500,
+        cacheHitTokens: 1000,
+        cacheMissTokens: 1_000_000
+      })
+    }
+    const scaled = mountAiChat({ transport: scaledTransport, tokenUsageDetail: true })
+    scaled.chat.value?.send('hi')
+    await vi.waitFor(() => {
+      expect(scaled.host.querySelector('.u-ai-chat__input-usage')?.textContent).toBe(
+        '总 token 1.5K · 缓存命中 1K · 缓存未命中 1M'
+      )
+    })
+    scaled.unmount()
+
+    const noCacheTransport: ChatTransport = (_req, handlers) => {
+      handlers.onTextDelta('ok')
+      handlers.onUsage?.({ promptTokens: 10, completionTokens: 2, totalTokens: 12 })
+    }
+    const noCache = mountAiChat({ transport: noCacheTransport, tokenUsageDetail: true })
+    noCache.chat.value?.send('hi')
+    await vi.waitFor(() => {
+      expect(noCache.host.querySelector('.u-ai-chat__input-usage')?.textContent).toBe('总 token 12')
+    })
+    expect(noCache.host.querySelector('.u-ai-chat__input-usage')?.textContent).not.toContain('缓存')
+    noCache.unmount()
   })
 })

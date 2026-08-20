@@ -285,11 +285,8 @@
 </template>
 
 <script lang="ts" setup>
-import { UDialog } from '@veltra/desktop'
-import { USheet, type SheetExposed } from '@veltra/sheet'
-import { Workbook, formatAddress, formatRange, type Sheet } from '@veltra/sheet-core'
-import '@veltra/desktop/components/dialog/style'
-import '@veltra/sheet/components/sheet/style'
+import { type SheetExposed } from '@veltra/sheet'
+import { Workbook, formatAddress, formatRange } from '@veltra/sheet-core'
 import { computed, onBeforeUnmount, ref, shallowRef, useTemplateRef } from 'vue'
 
 // 工作簿：两个 sheet 共享公式依赖图（跨表引用与联动重算的中枢）

@@ -317,6 +317,15 @@ watch(
     }
     if (!prev) return
 
+    // 清除会话后列表已空：跳过结束停留，立刻回到欢迎区
+    if (visibleMessages.value.length === 0) {
+      finishing.value = false
+      workingLeaving.value = false
+      idleLeaving.value = false
+      idleEnter.value = false
+      return
+    }
+
     finishing.value = true
     idleLeaving.value = false
     const last = visibleMessages.value[visibleMessages.value.length - 1]
@@ -338,6 +347,19 @@ watch(
         idleEnter.value = false
       }, JUMP_MS)
     }, WORKING_LINGER_MS)
+  }
+)
+
+// 消息被清空（clear）：立刻收掉工作球，欢迎区恢复
+watch(
+  () => visibleMessages.value.length,
+  (len) => {
+    if (len > 0) return
+    clearJumpTimers()
+    finishing.value = false
+    workingLeaving.value = false
+    idleLeaving.value = false
+    idleEnter.value = false
   }
 )
 

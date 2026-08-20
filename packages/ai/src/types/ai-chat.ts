@@ -5,6 +5,7 @@ import type {
   ChatAttachment,
   ChatMessage,
   ChatQueuedMessage,
+  ChatTokenUsage,
   ChatTool,
   ChatToolCall,
   ChatTransport
@@ -44,6 +45,11 @@ export interface AiChatProps {
   maxAttachmentSize?: number
   /** 透传给内部 MarkdownRender 的属性 */
   rendererProps?: Record<string, unknown>
+  /**
+   * 是否展示 token 用量明细（缓存命中 / 未命中；缺字段不显示）。
+   * 默认 false：仅在拿到 usage 时显示会话累计「总 token」。接口未返回 usage 时不展示。
+   */
+  tokenUsageDetail?: boolean
 }
 
 export interface AiChatEmits {
@@ -70,8 +76,12 @@ export interface _AiChatExposed {
   abort: () => void
   /** 重新生成最后一条 assistant 回复 */
   regenerate: () => void
-  /** 清空消息与待发送队列 */
+  /** 清空消息、待发送队列与 token 统计（生成中会先中止） */
   clear: () => void
+  /** 当前会话累计 token（从未收到 usage 时为 null） */
+  tokenUsage: Ref<ChatTokenUsage | null>
+  /** 最近一轮用户对话的 token（含工具多轮请求；该轮无 usage 时为 null） */
+  lastTurnUsage: Ref<ChatTokenUsage | null>
   /** 待发送消息队列（会话进行中提交的消息按序排队，收尾后 FIFO 自动接续） */
   queue: Ref<ChatQueuedMessage[]>
   /** 立即执行队列中的某条：中断当前会话并插队为下一条 */

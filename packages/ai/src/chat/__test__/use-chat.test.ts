@@ -375,6 +375,8 @@ describe('useChat', () => {
 
     expect(chat.messages.value).toHaveLength(0)
     expect(chat.queue.value).toHaveLength(0)
+    expect(chat.tokenUsage.value).toBeNull()
+    expect(chat.lastTurnUsage.value).toBeNull()
   })
 
   it('请求携带 model 与 reasoningLevel', async () => {
@@ -566,5 +568,70 @@ describe('useChat', () => {
     expect(chat.messages.value[1].content).toBe('回答')
     // 最终同步给父级的快照也包含 assistant 消息
     expect(props.messages?.some((m) => m.role === 'assistant' && m.content === '回答')).toBe(true)
+  })
+
+  it('累计 onUsage，无 usage 时保持 null；clear 一并重置', async () => {
+    const emit = createEmit()
+    const requests: ChatTransportRequest[] = []
+    const transport: ChatTransport = (req, handlers) => {
+      requests.push(req)
+      if (requests.length === 1) {
+        handlers.onToolCall?.({ id: 'call-1', name: 'add', arguments: '{"a":1,"b":2}' })
+        handlers.onUsage?.({
+          promptTokens: 10,
+          completionTokens: 4,
+          totalTokens: 14,
+          cacheHitTokens: 6,
+          cacheMissTokens: 4
+        })
+      } else {
+        handlers.onTextDelta('3')
+        handlers.onUsage?.({
+          promptTokens: 20,
+          completionTokens: 2,
+          totalTokens: 22,
+          cacheHitTokens: 12,
+          cacheMissTokens: 8
+        })
+      }
+    }
+    const tools: ChatTool[] = [
+      { name: 'add', description: '加法', parameters: {}, execute: () => 3 }
+    ]
+    const chat = useChat({ props: { transport, tools }, emit })
+
+    expect(chat.tokenUsage.value).toBeNull()
+    chat.send('算一下')
+    await waitFinish(emit)
+
+    expect(chat.lastTurnUsage.value).toEqual({
+      promptTokens: 30,
+      completionTokens: 6,
+      totalTokens: 36,
+      cacheHitTokens: 18,
+      cacheMissTokens: 12
+    })
+    expect(chat.tokenUsage.value).toEqual(chat.lastTurnUsage.value)
+
+    chat.send('再算')
+    await vi.waitFor(() => {
+      expect(emit.mock.calls.filter((call) => call[0] === 'finish')).toHaveLength(2)
+    })
+    expect(chat.lastTurnUsage.value?.totalTokens).toBe(22)
+    expect(chat.tokenUsage.value?.totalTokens).toBe(58)
+    expect(chat.tokenUsage.value?.cacheHitTokens).toBe(30)
+
+    chat.clear()
+    expect(chat.tokenUsage.value).toBeNull()
+    expect(chat.lastTurnUsage.value).toBeNull()
+  })
+
+  it('transport 不回调 onUsage 时不编造数字', async () => {
+    const emit = createEmit()
+    const chat = useChat({ props: { transport: textTransport('ok') }, emit })
+    chat.send('hi')
+    await waitFinish(emit)
+    expect(chat.tokenUsage.value).toBeNull()
+    expect(chat.lastTurnUsage.value).toBeNull()
   })
 })

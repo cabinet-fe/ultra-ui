@@ -7,6 +7,7 @@ import type {
   ChatAttachment,
   ChatMessage,
   ChatQueuedMessage,
+  ChatTokenUsage,
   ChatTool,
   ChatToolCall
 } from './types'
@@ -38,6 +39,27 @@ function resolveTools(userTools?: ChatTool[]): ChatTool[] {
   return [...builtins, ...(userTools ?? []).filter((t) => !names.has(t.name))]
 }
 
+function mergeOptionalCount(a?: number, b?: number): number | undefined {
+  if (a == null && b == null) return undefined
+  return (a ?? 0) + (b ?? 0)
+}
+
+/** 累加两次 usage；缓存字段只在至少一侧有值时保留 */
+function addTokenUsage(a: ChatTokenUsage, b: ChatTokenUsage): ChatTokenUsage {
+  const usage: ChatTokenUsage = {
+    promptTokens: a.promptTokens + b.promptTokens,
+    completionTokens: a.completionTokens + b.completionTokens,
+    totalTokens: a.totalTokens + b.totalTokens
+  }
+  const cacheHitTokens = mergeOptionalCount(a.cacheHitTokens, b.cacheHitTokens)
+  if (cacheHitTokens != null) usage.cacheHitTokens = cacheHitTokens
+  const cacheMissTokens = mergeOptionalCount(a.cacheMissTokens, b.cacheMissTokens)
+  if (cacheMissTokens != null) usage.cacheMissTokens = cacheMissTokens
+  const cacheCreationTokens = mergeOptionalCount(a.cacheCreationTokens, b.cacheCreationTokens)
+  if (cacheCreationTokens != null) usage.cacheCreationTokens = cacheCreationTokens
+  return usage
+}
+
 /**
  * AI 对话核心状态机：消息管理、流式追加、工具调用循环编排。
  * 与 UI 解耦，ai-chat.vue 只负责渲染与交互转发。
@@ -65,6 +87,11 @@ export function useChat(options: UseChatOptions) {
 
   /** 待发送队列：会话进行中提交的新消息按序排队，收尾后先进先出自动接续 */
   const queue = ref<ChatQueuedMessage[]>([])
+
+  /** 当前会话累计 token；从未收到 usage 时为 null */
+  const tokenUsage = ref<ChatTokenUsage | null>(null)
+  /** 最近一轮用户对话（含工具多轮请求）的 token；该轮无 usage 时为 null */
+  const lastTurnUsage = ref<ChatTokenUsage | null>(null)
 
   let abortController: AbortController | null = null
   /** needsConfirm 工具的挂起确认器，key 为 toolCallId */
@@ -238,6 +265,7 @@ export function useChat(options: UseChatOptions) {
 
     running.value = true
     finishedNaturally = false
+    lastTurnUsage.value = null
     const controller = new AbortController()
     abortController = controller
 
@@ -296,6 +324,12 @@ export function useChat(options: UseChatOptions) {
             const toolCall = reactive<ChatToolCall>({ ...call, status: 'pending' })
             assistant.toolCalls!.push(toolCall)
             emit('tool-call', toolCall)
+          },
+          onUsage: (usage) => {
+            lastTurnUsage.value = lastTurnUsage.value
+              ? addTokenUsage(lastTurnUsage.value, usage)
+              : usage
+            tokenUsage.value = tokenUsage.value ? addTokenUsage(tokenUsage.value, usage) : usage
           },
           onError: (error) => {
             requestError = error
@@ -388,11 +422,13 @@ export function useChat(options: UseChatOptions) {
     void runConversation()
   }
 
-  /** 清空消息与待发送队列，生成中则先中断 */
+  /** 清空消息、待发送队列与 token 统计，生成中则先中断 */
   const clear = () => {
     abort()
     queue.value = []
     messages.value = []
+    tokenUsage.value = null
+    lastTurnUsage.value = null
     snapshot()
   }
 
@@ -402,6 +438,8 @@ export function useChat(options: UseChatOptions) {
     reasoningLevel,
     running,
     queue,
+    tokenUsage,
+    lastTurnUsage,
     send,
     abort,
     regenerate,

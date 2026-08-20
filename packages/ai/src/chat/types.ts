@@ -151,6 +151,32 @@ export interface ChatTransportRequest {
   signal: AbortSignal
 }
 
+/**
+ * 一次模型请求的 token 用量。
+ * 仅包含接口实际返回的字段；缓存类数字缺省为 undefined，不补 0。
+ */
+export interface ChatTokenUsage {
+  /** 输入 token */
+  promptTokens: number
+  /** 输出 token */
+  completionTokens: number
+  /** 合计 token */
+  totalTokens: number
+  /**
+   * 缓存命中。
+   * 来源：`prompt_tokens_details.cached_tokens` / `prompt_cache_hit_tokens` /
+   * `cache_read_input_tokens` / `cached_tokens`。
+   */
+  cacheHitTokens?: number
+  /**
+   * 缓存未命中。
+   * 来源：`prompt_cache_miss_tokens`；若无该字段但有命中与 prompt，则为 prompt − 命中。
+   */
+  cacheMissTokens?: number
+  /** 写入缓存（Anthropic 风格 `cache_creation_input_tokens`），有才有 */
+  cacheCreationTokens?: number
+}
+
 /** transport 流式事件回调 */
 export interface ChatTransportHandlers {
   /** 文本增量 */
@@ -162,6 +188,11 @@ export interface ChatTransportHandlers {
    * 流式参数片段由 transport 内部累积，参数完整后才通过该回调抛出。
    */
   onToolCall?(call: { id: string; name: string; arguments: string }): void
+  /**
+   * 本次请求的 token 用量（流式末包或非流式 usage）。
+   * 接口未返回 usage 时不要调用，不要填 0 充数。
+   */
+  onUsage?(usage: ChatTokenUsage): void
   /** 请求错误 */
   onError?(error: Error): void
 }

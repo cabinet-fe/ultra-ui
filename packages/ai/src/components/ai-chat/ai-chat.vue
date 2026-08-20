@@ -40,8 +40,12 @@
         :placeholder="placeholder"
         :accept="accept"
         :max-attachment-size="maxAttachmentSize"
+        :clearable="clearable"
+        :token-usage="tokenUsage"
+        :token-usage-detail="tokenUsageDetail"
         @send="handleSend"
         @abort="abort"
+        @clear="clear"
       />
     </div>
 
@@ -102,6 +106,8 @@ const {
   reasoningLevel,
   running,
   queue,
+  tokenUsage,
+  lastTurnUsage,
   send,
   abort,
   regenerate,
@@ -114,6 +120,11 @@ const {
 
 /** 空会话（无可见消息）：输入区垂直居中；欢迎区钉在滚动容器外、贴于输入框上方 */
 const isEmpty = computed(() => !messages.value.some((msg) => msg.role !== 'tool'))
+
+/** 有对话内容、队列或生成中才允许清除，避免误触空会话 */
+const clearable = computed(
+  () => messages.value.length > 0 || queue.value.length > 0 || running.value
+)
 
 /** 所有 renderTo: 'panel' 的工具调用（按消息顺序，面板内容的来源） */
 const panelCalls = computed(() => {
@@ -269,6 +280,8 @@ defineExpose<_AiChatExposed>({
   abort,
   regenerate,
   clear,
+  tokenUsage,
+  lastTurnUsage,
   queue,
   startQueued,
   removeQueued,

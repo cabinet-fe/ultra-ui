@@ -199,6 +199,32 @@ export interface ChatTransportRequest {
   signal: AbortSignal
 }
 
+/**
+ * 一次模型请求的 token 用量。
+ * 仅包含接口实际返回的字段；缓存类数字缺省为 undefined，不补 0。
+ */
+export interface ChatTokenUsage {
+  /** 输入 token */
+  promptTokens: number
+  /** 输出 token */
+  completionTokens: number
+  /** 合计 token */
+  totalTokens: number
+  /**
+   * 缓存命中。
+   * 来源：`prompt_tokens_details.cached_tokens` / `prompt_cache_hit_tokens` /
+   * `cache_read_input_tokens` / `cached_tokens`。
+   */
+  cacheHitTokens?: number
+  /**
+   * 缓存未命中。
+   * 来源：`prompt_cache_miss_tokens`；若无该字段但有命中与 prompt，则为 prompt − 命中。
+   */
+  cacheMissTokens?: number
+  /** 写入缓存（Anthropic 风格 `cache_creation_input_tokens`），有才有 */
+  cacheCreationTokens?: number
+}
+
 /** transport 流式事件回调 */
 export interface ChatTransportHandlers {
   /** 文本增量 */
@@ -210,6 +236,11 @@ export interface ChatTransportHandlers {
    * 流式参数片段由 transport 内部累积，参数完整后才通过该回调抛出。
    */
   onToolCall?(call: { id: string; name: string; arguments: string }): void
+  /**
+   * 本次请求的 token 用量（流式末包或非流式 usage）。
+   * 接口未返回 usage 时不要调用，不要填 0 充数。
+   */
+  onUsage?(usage: ChatTokenUsage): void
   /** 请求错误 */
   onError?(error: Error): void
 }
@@ -280,6 +311,11 @@ export interface AiChatProps {
   maxAttachmentSize?: number
   /** 透传给内部 MarkdownRender 的属性 */
   rendererProps?: Record<string, unknown>
+  /**
+   * 是否展示 token 用量明细（缓存命中 / 未命中；缺字段不显示）。
+   * 默认 false：仅在拿到 usage 时显示会话累计「总 token」。接口未返回 usage 时不展示。
+   */
+  tokenUsageDetail?: boolean
 }
 
 export interface AiChatEmits {
@@ -306,8 +342,12 @@ export interface _AiChatExposed {
   abort: () => void
   /** 重新生成最后一条 assistant 回复 */
   regenerate: () => void
-  /** 清空消息与待发送队列 */
+  /** 清空消息、待发送队列与 token 统计（生成中会先中止） */
   clear: () => void
+  /** 当前会话累计 token（从未收到 usage 时为 null） */
+  tokenUsage: Ref<ChatTokenUsage | null>
+  /** 最近一轮用户对话的 token（含工具多轮请求；该轮无 usage 时为 null） */
+  lastTurnUsage: Ref<ChatTokenUsage | null>
   /** 待发送消息队列（会话进行中提交的消息按序排队，收尾后 FIFO 自动接续） */
   queue: Ref<ChatQueuedMessage[]>
   /** 立即执行队列中的某条：中断当前会话并插队为下一条 */
@@ -369,13 +409,17 @@ export declare function useChat(options: UseChatOptions): {
   running: Ref<boolean>
   /** 待发送队列（会话进行中提交的消息按序排队，收尾后 FIFO 自动接续） */
   queue: Ref<ChatQueuedMessage[]>
+  /** 当前会话累计 token（从未收到 usage 时为 null） */
+  tokenUsage: Ref<ChatTokenUsage | null>
+  /** 最近一轮用户对话的 token（含工具多轮请求；该轮无 usage 时为 null） */
+  lastTurnUsage: Ref<ChatTokenUsage | null>
   /** 发送一条用户消息（会话进行中时进入待发送队列） */
   send: (content: string, attachments?: ChatAttachment[]) => void
   /** 中断当前生成，挂起的工具确认按拒绝处理（保留待发送队列） */
   abort: () => void
   /** 重新生成：移除最后一条用户消息之后的所有消息，重新跑对话循环 */
   regenerate: () => void
-  /** 清空消息与待发送队列，生成中则先中断 */
+  /** 清空消息、待发送队列与 token 统计，生成中则先中断 */
   clear: () => void
   /** 响应 needsConfirm 工具的用户确认 */
   respondToolCall: (toolCallId: string, approved: boolean) => void

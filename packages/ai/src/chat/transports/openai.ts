@@ -1,6 +1,7 @@
 import type { ChatModelOption, ChatProvider } from '../../providers'
 import type {
   ChatMessage,
+  ChatTokenUsage,
   ChatTool,
   ChatTransport,
   ChatTransportHandlers,
@@ -82,6 +83,58 @@ interface AccumulatedToolCall {
   arguments: string
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+/** 非负有限整数；非法或缺省返回 undefined（不把缺失当成 0） */
+function readCount(value: unknown): number | undefined {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) return undefined
+  return Math.floor(value)
+}
+
+/**
+ * 从 OpenAI 兼容 usage 对象解析。
+ * 缓存字段只在源数据出现时写入；未命中可在「有命中 + prompt」时由差值得出。
+ */
+function parseOpenAIUsage(raw: unknown): ChatTokenUsage | null {
+  if (!isRecord(raw)) return null
+
+  const promptTokens = readCount(raw.prompt_tokens) ?? readCount(raw.input_tokens)
+  const completionTokens = readCount(raw.completion_tokens) ?? readCount(raw.output_tokens)
+  if (promptTokens == null && completionTokens == null) return null
+
+  const prompt = promptTokens ?? 0
+  const completion = completionTokens ?? 0
+  const usage: ChatTokenUsage = {
+    promptTokens: prompt,
+    completionTokens: completion,
+    totalTokens: readCount(raw.total_tokens) ?? prompt + completion
+  }
+
+  const details = isRecord(raw.prompt_tokens_details) ? raw.prompt_tokens_details : undefined
+  const inputDetails = isRecord(raw.input_tokens_details) ? raw.input_tokens_details : undefined
+  const cacheHitTokens =
+    readCount(details?.cached_tokens) ??
+    readCount(inputDetails?.cached_tokens) ??
+    readCount(raw.prompt_cache_hit_tokens) ??
+    readCount(raw.cache_read_input_tokens) ??
+    readCount(raw.cached_tokens)
+  if (cacheHitTokens != null) usage.cacheHitTokens = cacheHitTokens
+
+  const cacheMissTokens =
+    readCount(raw.prompt_cache_miss_tokens) ??
+    (cacheHitTokens != null && promptTokens != null
+      ? Math.max(0, promptTokens - cacheHitTokens)
+      : undefined)
+  if (cacheMissTokens != null) usage.cacheMissTokens = cacheMissTokens
+
+  const cacheCreationTokens = readCount(raw.cache_creation_input_tokens)
+  if (cacheCreationTokens != null) usage.cacheCreationTokens = cacheCreationTokens
+
+  return usage
+}
+
 /**
  * 逐行解析 SSE 流。
  * 兼容 OpenAI 及 DeepSeek 等 reasoning_content 风格的兼容端点。
@@ -112,15 +165,21 @@ async function parseSSE(
   const handleData = (data: string) => {
     if (data === '[DONE]') return
 
-    let chunk: any
+    let chunk: unknown
     try {
       chunk = JSON.parse(data)
     } catch {
       return
     }
+    if (!isRecord(chunk)) return
 
-    const delta = chunk.choices?.[0]?.delta
-    if (!delta) return
+    const usage = parseOpenAIUsage(chunk.usage)
+    if (usage) handlers.onUsage?.(usage)
+
+    const choices = chunk.choices
+    const first = Array.isArray(choices) ? choices[0] : undefined
+    const delta = isRecord(first) ? first.delta : undefined
+    if (!isRecord(delta)) return
 
     if (typeof delta.content === 'string' && delta.content) {
       handlers.onTextDelta(delta.content)
@@ -134,7 +193,8 @@ async function parseSSE(
 
     if (Array.isArray(delta.tool_calls)) {
       for (const tc of delta.tool_calls) {
-        const index: number = tc.index ?? 0
+        if (!isRecord(tc)) continue
+        const index = typeof tc.index === 'number' ? tc.index : 0
         // 同一调用的参数分片共享 index；index 变大才说明前一个调用已完整，先抛出去
         if (index > lastIndex && accumulated.size > 0) flushToolCalls()
         lastIndex = Math.max(lastIndex, index)
@@ -144,9 +204,10 @@ async function parseSSE(
           call = { id: '', name: '', arguments: '' }
           accumulated.set(index, call)
         }
-        if (tc.id) call.id = tc.id
-        if (tc.function?.name) call.name += tc.function.name
-        if (tc.function?.arguments) call.arguments += tc.function.arguments
+        if (typeof tc.id === 'string') call.id = tc.id
+        const fn = isRecord(tc.function) ? tc.function : undefined
+        if (typeof fn?.name === 'string') call.name += fn.name
+        if (typeof fn?.arguments === 'string') call.arguments += fn.arguments
       }
     }
   }
@@ -240,10 +301,15 @@ export function createOpenAITransport(options: OpenAITransportOptions): OpenAITr
       return
     }
 
+    const extraStreamOptions = isRecord(globalBody?.stream_options)
+      ? globalBody.stream_options
+      : undefined
     const requestBody: Record<string, unknown> = {
       ...globalBody,
       model: modelId,
       stream: true,
+      // 流式默认要末包 usage；OpenAI / DeepSeek 等兼容端点靠这个字段才会返回
+      stream_options: { ...extraStreamOptions, include_usage: true },
       messages: toOpenAIMessages(messages, systemPrompt),
       ...(tools?.length ? { tools: toOpenAITools(tools) } : {})
     }
