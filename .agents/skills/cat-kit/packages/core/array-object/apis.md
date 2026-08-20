@@ -7,14 +7,8 @@
 ```ts
 declare function last<T extends any[]>(arr: [...T]): Last<T>
 declare function union<T>(...arrList: T[][]): T[]
-declare function unionBy<T extends Record<string, any>>(
-  key: string,
-  ...arrList: T[][]
-): T[]
-declare function eachRight<T>(
-  arr: T[],
-  cb: (v: T, i: number, arr: T[]) => void
-): void
+declare function unionBy<T extends Record<string, any>>(key: string, ...arrList: T[][]): T[]
+declare function eachRight<T>(arr: T[], cb: (v: T, i: number, arr: T[]) => void): void
 declare function omitArr<T>(arr: T[], indexes: number | number[]): T[]
 declare function arr<T>(arr: T[]): Arr<T>
 ```

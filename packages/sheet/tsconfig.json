@@ -5,6 +5,7 @@
     "declaration": true,
     "rootDir": "./src",
     "outDir": "./dist",
+    "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "customConditions": ["veltra-dev"],
     // tsc 不经 exports 的 `./*` 通配做扩展名探测（veltra-dev → ./src/* 无扩展名
@@ -15,5 +16,8 @@
   "exclude": ["node_modules"],
   // paths 命中的 sheet-core 源码归属被引用项目，避免 composite 项目的
   // rootDir/文件清单检查（TS6059/TS6307）
-  "references": [{ "path": "../sheet-core/tsconfig.json" }]
+  "references": [
+    { "path": "../sheet-core/tsconfig.json" },
+    { "path": "../sheet-core/tsconfig.grid.json" }
+  ]
 }

@@ -120,13 +120,7 @@ interface ChatMessage {
   status?: 'streaming' | 'done' | 'error' | 'aborted' // 仅 assistant
 }
 
-type ToolCallStatus =
-  | 'pending'
-  | 'awaiting-confirm'
-  | 'running'
-  | 'success'
-  | 'error'
-  | 'rejected'
+type ToolCallStatus = 'pending' | 'awaiting-confirm' | 'running' | 'success' | 'error' | 'rejected'
 ```
 
 一轮带工具的典型顺序：`user` → `assistant`（`toolCalls`）→ 若干 `tool`（`toolCallId`）→ 再一条 `assistant`。
@@ -260,13 +254,13 @@ function useChat(options: { props: AiChatProps; emit: AiChatEmits }): {
 
 队列：
 
-| 事件 | 队列 |
-| ---- | ---- |
-| `finish`（含 terminal 成功、触及 `maxToolRounds`） | FIFO 自动发下一条 |
-| `startQueued(id)` | 中断当前，该条插队为下一条 |
-| 手动 `abort` / 用户停止 | 保留，不自动接续 |
-| `error` | 保留，不自动接续 |
-| `clear()` | 消息与队列一起清空（生成中会先 abort） |
+| 事件                                               | 队列                                   |
+| -------------------------------------------------- | -------------------------------------- |
+| `finish`（含 terminal 成功、触及 `maxToolRounds`） | FIFO 自动发下一条                      |
+| `startQueued(id)`                                  | 中断当前，该条插队为下一条             |
+| 手动 `abort` / 用户停止                            | 保留，不自动接续                       |
+| `error`                                            | 保留，不自动接续                       |
+| `clear()`                                          | 消息与队列一起清空（生成中会先 abort） |
 
 `send` 空内容且无附件时是空操作。生成中 `send` 等价于 `enqueue`。
 

@@ -3,7 +3,10 @@
 ```ts
 import { Virtualizer } from '@cat-kit/fe'
 
-const rows = [{ id: 'a', height: 40 }, { id: 'b', height: 56 }]
+const rows = [
+  { id: 'a', height: 40 },
+  { id: 'b', height: 56 }
+]
 
 const v = new Virtualizer({
   count: rows.length,

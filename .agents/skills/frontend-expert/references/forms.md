@@ -52,7 +52,7 @@ function submitCreate() {
   return api.create({
     name: form.name,
     age: form.age,
-    email: form.email,
+    email: form.email
     // ... 再抄 50 行
   })
 }
@@ -62,7 +62,7 @@ function submitEdit() {
     id: form.id,
     name: form.name,
     age: form.age,
-    email: form.email,
+    email: form.email
     // ... 再抄 50 行
   })
 }

@@ -4,8 +4,8 @@
 import './tools/builtin'
 
 // 数据模型 / 渲染内核在 @veltra/sheet-core（独立发包）。本包**不做** re-export：
-// core API（Workbook / Sheet / SheetGrid / 公式 / IO 等）一律
-// `from '@veltra/sheet-core'` 直导，白名单外符号深导入其子路径。
+// core API（Workbook / Sheet / 公式 / IO 等）一律 `from '@veltra/sheet-core'` 直导；
+// SheetGrid 走 `@veltra/sheet-core/grid`；白名单外符号深导入其子路径。
 // 本入口只导出 sheet 自有能力：组件、tools、组件类型。
 
 export { createSheetContext, type SheetContext } from './tools/context'

@@ -44,10 +44,7 @@ function hucreWorkbook(): HucreWorkbook {
     sheets: [
       {
         name: '数据表',
-        rows: [
-          [1, 'x', null],
-          [null, null, null]
-        ],
+        rows: [],
         cells: new Map([
           // 普通格带样式（两格同样式 → 池中一份，见「样式池去重」断言）
           [
@@ -83,7 +80,7 @@ function hucreWorkbook(): HucreWorkbook {
         freezePane: { rows: 1, columns: 1 },
         rowDefs: new Map([[0, { height: 21 }]])
       },
-      { name: 'Sheet2', rows: [['b']] }
+      { name: 'Sheet2', rows: [], cells: new Map([['0,0', { value: 'b', type: 'string' }]]) }
     ],
     activeSheet: 1,
     themeColors: ['#FFFFFF', '#FF0000']
@@ -232,7 +229,8 @@ describe('importXlsx 映射（hucre 读取结果 → 模型）', () => {
       sheets: [
         {
           name: '图',
-          rows: [['ok']],
+          rows: [],
+          cells: new Map([['0,0', { value: 'ok', type: 'string' }]]),
           images: [
             {
               data: PNG_1X1,
@@ -303,14 +301,65 @@ describe('importXlsx 映射（hucre 读取结果 → 模型）', () => {
   })
 
   it('宽表导入：sheet.rows / sheet.cols ≥ 源表几何（含空行宽行）', async () => {
-    // 3 行 × 15 列（末行宽、中间空行）——列数须按 maxRowWidth，不能只看有值格
-    const wideRow = Array.from({ length: 15 }, (_, i) => (i === 14 ? '尾' : null))
-    xlsxMock.readXlsx.mockResolvedValue({ sheets: [{ name: 'Wide', rows: [['a'], [], wideRow] }] })
+    xlsxMock.readXlsx.mockResolvedValue({
+      sheets: [
+        {
+          name: 'Wide',
+          rows: [],
+          cells: new Map([
+            ['0,0', { value: 'a', type: 'string' }],
+            ['2,14', { value: '尾', type: 'string' }]
+          ])
+        }
+      ]
+    })
     const workbook = await importXlsx(new Uint8Array())
     const sheet = workbook.activeSheet
     expect(sheet.rows).toBeGreaterThanOrEqual(3)
     expect(sheet.cols).toBeGreaterThanOrEqual(15)
     expect(sheet.getCellData({ row: 2, col: 14 })).toMatchObject({ v: '尾' })
+  })
+
+  it('远格写入且尺寸按有值范围收敛', async () => {
+    xlsxMock.readXlsx.mockResolvedValue({
+      sheets: [
+        {
+          name: 'Far',
+          rows: [],
+          cells: new Map([
+            ['0,0', { value: 1, type: 'number' }],
+            ['2,3', { value: 'far', type: 'string' }]
+          ])
+        }
+      ],
+      activeSheet: 0
+    })
+    const sheet = (await importXlsx(new Uint8Array())).activeSheet
+    expect(sheet.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 1 })
+    expect(sheet.getCellData({ row: 2, col: 3 })).toMatchObject({ v: 'far' })
+    expect(sheet.rows).toBeLessThan(20)
+    expect(sheet.cols).toBeLessThan(20)
+  })
+
+  it('16384 列默认列宽不撑开渲染列数', async () => {
+    const columns = Array.from({ length: 16384 }, () => ({ width: 8.43 }))
+    xlsxMock.readXlsx.mockResolvedValue({
+      sheets: [
+        {
+          name: 'Cols',
+          rows: [],
+          cells: new Map([
+            ['0,0', { value: 1, type: 'number' }],
+            ['0,1', { value: 2, type: 'number' }]
+          ]),
+          columns
+        }
+      ],
+      activeSheet: 0
+    })
+    const sheet = (await importXlsx(new Uint8Array())).activeSheet
+    expect(sheet.getCellData({ row: 0, col: 1 })).toMatchObject({ v: 2 })
+    expect(sheet.cols).toBeLessThan(200)
   })
 })
 

@@ -20,13 +20,13 @@ postgresql://YOUR_USERNAME:YOUR_PASSWORD@YOUR_HOST:YOUR_PORT/YOUR_DATABASE
 
 在 UReportDesigner「数据中枢」中配置连接时：
 
-| 字段 | 值 |
-| --- | --- |
-| 类型 | `postgresql` |
-| host | `YOUR_HOST` |
-| port | `YOUR_PORT` |
-| database | `YOUR_DATABASE` |
-| username / password | 同上 |
+| 字段                | 值              |
+| ------------------- | --------------- |
+| 类型                | `postgresql`    |
+| host                | `YOUR_HOST`     |
+| port                | `YOUR_PORT`     |
+| database            | `YOUR_DATABASE` |
+| username / password | 同上            |
 
 前端经 `createHttpConnector({ endpoint: '/report-api' })` 取数；需先 `cd playground && vp dev` 启动契约参考服务。
 
@@ -54,11 +54,11 @@ PG_SSL=true
 
 其他方式（任选）：
 
-| 方式 | 说明 |
-| --- | --- |
-| 命令行临时传入 | `PG_HOST=... bun run seed-demo`（只对当次终端有效） |
-| 改 `seed.ts` 里 `FALLBACK` | 文件顶部占位对象，适合本地快速试，勿提交真实密码 |
-| Shell 配置 | `~/.zshrc` 等，对所有终端会话生效 |
+| 方式                       | 说明                                                |
+| -------------------------- | --------------------------------------------------- |
+| 命令行临时传入             | `PG_HOST=... bun run seed-demo`（只对当次终端有效） |
+| 改 `seed.ts` 里 `FALLBACK` | 文件顶部占位对象，适合本地快速试，勿提交真实密码    |
+| Shell 配置                 | `~/.zshrc` 等，对所有终端会话生效                   |
 
 ## 导入步骤
 

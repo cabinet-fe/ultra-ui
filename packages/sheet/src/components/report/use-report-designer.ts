@@ -1,6 +1,6 @@
 import type { CellAddress } from '@veltra/sheet-core'
-import type { ResolveCellRenderer, ResolveCellStyleHook } from '@veltra/sheet-core'
 import { Workbook } from '@veltra/sheet-core'
+import type { ResolveCellRenderer, ResolveCellStyleHook } from '@veltra/sheet-core/grid'
 import { computed, onScopeDispose, ref, watch, type ComputedRef, type Ref } from 'vue'
 
 import {

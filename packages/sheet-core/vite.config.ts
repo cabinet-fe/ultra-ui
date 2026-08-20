@@ -11,7 +11,7 @@ export default defineConfig({
   run: { tasks: { build: { command: 'vp pack', output: ['dist/**'] } } },
 
   pack: {
-    entry: ['src/index.ts'],
+    entry: ['src/index.ts', 'src/grid/index.ts'],
     platform: 'browser',
     unbundle: true,
     sourcemap: true,

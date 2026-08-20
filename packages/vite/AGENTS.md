@@ -31,11 +31,11 @@ bun run resolver:gen -- --check # 校验是否为最新，过期则报错退出�
 `index.ts` 与 `style.ts` 者，把其 `index.ts` 导出的 `U*` 值登记为组件，样式副作用指向同目录 `style.ts`。
 因此**只有真正从包主入口导出的组件才会进表**——组件内部私有子组件（如 `group-nav-item.vue`）不会被误登记。
 
-| 包                | 扫描根           | 样式子路径示例                    |
-| ----------------- | ---------------- | --------------------------------- |
-| `@veltra/desktop` | `src/components` | `components/button/style`         |
-| `@veltra/ai`      | `src/components` | `components/ai-chat/style`        |
-| `@veltra/sheet`   | `src/components` | `components/sheet/style`         |
+| 包                | 扫描根           | 样式子路径示例             |
+| ----------------- | ---------------- | -------------------------- |
+| `@veltra/desktop` | `src/components` | `components/button/style`  |
+| `@veltra/ai`      | `src/components` | `components/ai-chat/style` |
+| `@veltra/sheet`   | `src/components` | `components/sheet/style`   |
 
 同目录多组件（`UButton` / `UButtonGroup`）自动共用父目录样式，无需再维护映射表。
 跨包重名会让生成器直接报错。

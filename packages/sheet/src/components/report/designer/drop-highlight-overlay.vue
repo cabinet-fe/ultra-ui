@@ -6,7 +6,8 @@
 </template>
 
 <script lang="ts" setup>
-import type { CellAddress, SheetGrid } from '@veltra/sheet-core'
+import type { CellAddress } from '@veltra/sheet-core'
+import type { SheetGrid } from '@veltra/sheet-core/grid'
 import { bem } from '@veltra/utils'
 import { computed, ref, toRef } from 'vue'
 

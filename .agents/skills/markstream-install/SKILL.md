@@ -27,32 +27,32 @@ Read [references/scenarios.md](references/scenarios.md) before making dependency
    - Do not rely on renderer imports to inject CSS; import the package CSS subpath explicitly.
    - Import `katex/dist/katex.min.css` when math is enabled.
 4. Add the smallest working render example.
-    - Use `content` for static or low-frequency rendering.
-    - In Vue 3 apps with long AI conversations, thread restore, or an existing message virtualizer such as `vue-virtual-scroller`, do not stop at a trivial renderer. Use `MarkstreamVirtualTimeline` or `useMarkstreamVirtualAdapter()` and follow `docs/guide/performance.md`.
-    - For Vue 3, choose renderer `mode` by surface before tuning lower-level props.
-      - `mode="chat"`: AI chat or SSE output; lightweight batches, `fade=false`, `max-live-nodes=0`, and `smooth-streaming="auto"`.
-      - `mode="docs"`: rich document surfaces; default mode, larger batches, tooltips, and fade.
-      - `mode="minimal"`: lightweight non-chat surfaces.
-      - Regular fenced code uses the built-in renderer, enhanced by `stream-diffs` when installed. Use `render-code-blocks-as-pre` for a forced plain path or `setCustomComponents(customId, { code_block: ... })` for a scoped application-owned renderer.
-    - For streaming AI chat in other Markstream packages, start with `content` and built-in smooth streaming.
-      - Auto mode is the default: `smoothStreaming="auto"` / `smooth-streaming="auto"`.
-      - Auto pacing activates when `typewriter=true` or `maxLiveNodes <= 0` / `max-live-nodes <= 0`.
-      - `typewriter` only controls the blinking cursor and defaults to `false`.
-      - `fade` controls node enter and streamed-text fade animations and defaults to `true`.
-      - For high-frequency smooth streams, consider `fade=false` / `:fade="false"` / `[fade]="false"` to avoid fade stacking.
-    - **Streaming vs recovering history**: in chat UIs the same renderer starts streaming and later switches to history when `final` becomes `true`.
-      - Vue 3 streaming: `mode="chat"`, `smooth-streaming="auto"`, `:fade="false"`, `typewriter=true`.
-      - Vue 3 recovering/completed chat history: keep `mode="chat"` on the same chat row; use `:smooth-streaming="false"`, `typewriter=false`, and only set `:fade="true"` when the host explicitly wants a history-entry animation.
-      - Use `mode="minimal"` for lightweight non-chat recovered content, and use `mode="docs"` only for rich document surfaces.
-      - Other packages streaming: `smoothStreaming="auto"` / `smooth-streaming="auto"`, `fade=false`, `typewriter=true`.
-      - Other packages recovering history: `smoothStreaming=false` / `smooth-streaming=false`, `fade=true`, `typewriter=false`.
-      - Dynamic switch: `smoothStreaming={isStreaming ? 'auto' : false}`, `fade={!isStreaming}`.
-    - Use `nodes` + `final` only for worker preparsing, shared AST stores, or custom AST control.
-    - In Vue 3, use `typewriter="simple"` for a lightweight cursor on high-frequency streams; use precise mode only when the cursor must follow complex inline layout.
-    - For manual pacing with `nodes`, use `useSmoothMarkdownStream`: `enqueue()` chunks, `finish()` when done, render from `visible`, wait for `caughtUp` before final parsing.
-    - Preserve the default hardening: HTML policies now default to `safe`, and Mermaid runs in strict mode by default.
+   - Use `content` for static or low-frequency rendering.
+   - In Vue 3 apps with long AI conversations, thread restore, or an existing message virtualizer such as `vue-virtual-scroller`, do not stop at a trivial renderer. Use `MarkstreamVirtualTimeline` or `useMarkstreamVirtualAdapter()` and follow `docs/guide/performance.md`.
+   - For Vue 3, choose renderer `mode` by surface before tuning lower-level props.
+     - `mode="chat"`: AI chat or SSE output; lightweight batches, `fade=false`, `max-live-nodes=0`, and `smooth-streaming="auto"`.
+     - `mode="docs"`: rich document surfaces; default mode, larger batches, tooltips, and fade.
+     - `mode="minimal"`: lightweight non-chat surfaces.
+     - Regular fenced code uses the built-in renderer, enhanced by `stream-diffs` when installed. Use `render-code-blocks-as-pre` for a forced plain path or `setCustomComponents(customId, { code_block: ... })` for a scoped application-owned renderer.
+   - For streaming AI chat in other Markstream packages, start with `content` and built-in smooth streaming.
+     - Auto mode is the default: `smoothStreaming="auto"` / `smooth-streaming="auto"`.
+     - Auto pacing activates when `typewriter=true` or `maxLiveNodes <= 0` / `max-live-nodes <= 0`.
+     - `typewriter` only controls the blinking cursor and defaults to `false`.
+     - `fade` controls node enter and streamed-text fade animations and defaults to `true`.
+     - For high-frequency smooth streams, consider `fade=false` / `:fade="false"` / `[fade]="false"` to avoid fade stacking.
+   - **Streaming vs recovering history**: in chat UIs the same renderer starts streaming and later switches to history when `final` becomes `true`.
+     - Vue 3 streaming: `mode="chat"`, `smooth-streaming="auto"`, `:fade="false"`, `typewriter=true`.
+     - Vue 3 recovering/completed chat history: keep `mode="chat"` on the same chat row; use `:smooth-streaming="false"`, `typewriter=false`, and only set `:fade="true"` when the host explicitly wants a history-entry animation.
+     - Use `mode="minimal"` for lightweight non-chat recovered content, and use `mode="docs"` only for rich document surfaces.
+     - Other packages streaming: `smoothStreaming="auto"` / `smooth-streaming="auto"`, `fade=false`, `typewriter=true`.
+     - Other packages recovering history: `smoothStreaming=false` / `smooth-streaming=false`, `fade=true`, `typewriter=false`.
+     - Dynamic switch: `smoothStreaming={isStreaming ? 'auto' : false}`, `fade={!isStreaming}`.
+   - Use `nodes` + `final` only for worker preparsing, shared AST stores, or custom AST control.
+   - In Vue 3, use `typewriter="simple"` for a lightweight cursor on high-frequency streams; use precise mode only when the cursor must follow complex inline layout.
+   - For manual pacing with `nodes`, use `useSmoothMarkdownStream`: `enqueue()` chunks, `finish()` when done, render from `visible`, wait for `caughtUp` before final parsing.
+   - Preserve the default hardening: HTML policies now default to `safe`, and Mermaid runs in strict mode by default.
 5. Keep customization scoped.
-    - If the task requires overrides, prefer `customId` / `custom-id` plus scoped `setCustomComponents(...)`.
+   - If the task requires overrides, prefer `customId` / `custom-id` plus scoped `setCustomComponents(...)`.
 6. Validate.
    - Run the smallest relevant build, typecheck, test, or docs build command.
    - Report which peers were installed, where CSS lives, and whether the repo should later adopt `nodes`.

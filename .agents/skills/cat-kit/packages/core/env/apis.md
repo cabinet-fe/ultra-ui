@@ -17,14 +17,7 @@ declare function getEnvironmentSummary(): EnvironmentSummary
 
 type OSType = 'Windows' | 'Linux' | 'MacOS' | 'Android' | 'iOS' | 'Unknown'
 type DeviceType = 'Mobile' | 'Desktop' | 'Tablet' | 'Unknown'
-type BrowserType =
-  | 'Chrome'
-  | 'Firefox'
-  | 'Safari'
-  | 'Edge'
-  | 'IE'
-  | 'Opera'
-  | 'Unknown'
+type BrowserType = 'Chrome' | 'Firefox' | 'Safari' | 'Edge' | 'IE' | 'Opera' | 'Unknown'
 ```
 
 `EnvironmentSummary` 字段见 [env.d.ts](../../../generated/core/env/env.d.ts)。

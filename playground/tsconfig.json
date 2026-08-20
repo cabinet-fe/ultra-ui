@@ -14,7 +14,22 @@
       "hucre/csv": ["../packages/sheet-core/node_modules/hucre/dist/csv.d.mts"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "env.d.ts", "*.d.ts", "*.ts", "*.vue"],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "env.d.ts",
+    "shim.d.ts",
+    "components.d.ts",
+    "nav-config.ts",
+    "nav-search.vue",
+    "main.ts",
+    "router.ts",
+    "App.vue"
+  ],
   "exclude": ["node_modules", "vite.config.ts"],
-  "references": [{ "path": "../packages/sheet-core/tsconfig.json" }]
+  "references": [
+    { "path": "../packages/sheet-core/tsconfig.json" },
+    { "path": "../packages/sheet-core/tsconfig.grid.json" }
+  ]
 }

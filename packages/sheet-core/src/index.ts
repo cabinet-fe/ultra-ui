@@ -1,6 +1,8 @@
-// 聚合导出为**公开 API 白名单**：仅测试引用的内部符号（如 rangeContainsRange、
+// 聚合导出为**公开 API 白名单**（模型 / 命令 / 公式 / IO）：仅测试引用的内部符号（如 rangeContainsRange、
 // mergeCellStyle、shiftFormulaRefs、io 转换函数、grid 样式映射、normalizeStyle
 // 等，见 #31）不在此导出，测试一律深导入 src 子路径。
+// SheetGrid / CustomLayout / resolveCellRenderer 在 `@veltra/sheet-core/grid`，
+// 主入口不 re-export，避免无头 API 把 @visactor/vtable 类型图拉进 TS 程序。
 // 类成员方法（Sheet.setCell / setCellStyles、CellStore.setCellValue 等）随类整体
 // 导出，属内部实现细节，见 packages/sheet-core/AGENTS.md「核心语义」注。
 
@@ -196,15 +198,3 @@ export {
 
 export { exportWorkbookXlsx, exportSheetCsv } from './core/io/export'
 export { importXlsx, importCsv, replaceWorkbook } from './core/io/import'
-
-export {
-  CustomLayout,
-  SheetGrid,
-  type SheetGridOptions,
-  type SheetGridContextMenuKind,
-  type SheetGridContextMenuInfo,
-  type ICustomLayoutObj,
-  type ResolveCellRenderer,
-  type ResolveDisplayValue,
-  type ResolveCellStyleHook
-} from './grid/sheet-grid'

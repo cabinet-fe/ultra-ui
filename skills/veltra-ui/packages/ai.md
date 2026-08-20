@@ -36,13 +36,13 @@ Peer：`vue`（>=3.5.41）、`@veltra/desktop`、`@veltra/icons`、`@veltra/styl
 
 ## 选型
 
-| 需求 | 用 |
-| ---- | -- |
-| 现成对话 UI（输入、消息、工具卡片、队列、模型选择） | `UAiChat` |
-| 自绘 UI / 无头编排 | `useChat`（与 `UAiChat` 共用 `AiChatProps` / `AiChatEmits`） |
-| OpenAI 兼容 `chat/completions` SSE | `createOpenAITransport({ providers })` |
-| 其它协议或自有后端 | 实现 `ChatTransport` |
-| 活体球头像（欢迎区 / 工作中指示以外单独用） | `UAiOrb` |
+| 需求                                                | 用                                                           |
+| --------------------------------------------------- | ------------------------------------------------------------ |
+| 现成对话 UI（输入、消息、工具卡片、队列、模型选择） | `UAiChat`                                                    |
+| 自绘 UI / 无头编排                                  | `useChat`（与 `UAiChat` 共用 `AiChatProps` / `AiChatEmits`） |
+| OpenAI 兼容 `chat/completions` SSE                  | `createOpenAITransport({ providers })`                       |
+| 其它协议或自有后端                                  | 实现 `ChatTransport`                                         |
+| 活体球头像（欢迎区 / 工作中指示以外单独用）         | `UAiOrb`                                                     |
 
 不要自己写工具循环；自有协议只实现 `ChatTransport`，把完整事件交给 handlers。
 
@@ -59,8 +59,8 @@ Peer：`vue`（>=3.5.41）、`@veltra/desktop`、`@veltra/icons`、`@veltra/styl
 
 按意图下钻，不要整包预读：
 
-| 意图 | 先读 |
-| ---- | ---- |
-| Props / Emits / 插槽 / 实例方法 / 类型 | `./ai/api.md` + `./ai/types.d.ts` |
-| 拷贝场景代码（接入、工具、面板、队列、持久化） | `./ai/examples.md` |
-| 完整类型声明 | `./ai/types.d.ts` |
+| 意图                                           | 先读                              |
+| ---------------------------------------------- | --------------------------------- |
+| Props / Emits / 插槽 / 实例方法 / 类型         | `./ai/api.md` + `./ai/types.d.ts` |
+| 拷贝场景代码（接入、工具、面板、队列、持久化） | `./ai/examples.md`                |
+| 完整类型声明                                   | `./ai/types.d.ts`                 |

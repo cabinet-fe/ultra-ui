@@ -2,7 +2,6 @@ import type {
   AlignmentStyle as HucreAlignment,
   Cell as HucreCell,
   CellStyle as HucreCellStyle,
-  CellValue as HucreCellValue,
   FontStyle as HucreFont,
   Sheet as HucreSheet,
   SheetImage as HucreSheetImage,
@@ -28,6 +27,9 @@ import {
   type VerticalAlign
 } from '../style/types'
 import { Workbook } from '../workbook'
+
+/** 导入固定走 cells Map，不按 Excel 包围盒铺稠密 rows。 */
+export const XLSX_READ_OPTIONS = { readStyles: true, sparse: true } as const
 
 /**
  * 导入（Phase 5）：hucre（XLSX / CSV）→ 模型。
@@ -221,28 +223,28 @@ function internStyleMemoized(
   return id
 }
 
-/** hucre 单元格 + 行网格值 → 模型 CellData（样式经目标池 intern；空值且无样式 → undefined） */
+/** hucre Cell → 模型 CellData（样式经目标池 intern；空值且无样式 → undefined） */
 function hucreCellToData(
-  cell: HucreCell | undefined,
-  value: HucreCellValue | undefined,
+  cell: HucreCell,
   sheet: Sheet,
   themeColors: readonly string[] | undefined,
   styleMemo: StyleMemo
 ): CellData | undefined {
   let styleId: number | undefined
-  if (cell?.style) {
+  if (cell.style) {
     styleId = internStyleMemoized(cell.style, sheet, themeColors, styleMemo)
   }
-  if (cell?.formula) {
+  if (cell.formula) {
     // 只写公式原文（f）；计算缓存由命令后重算填充
     return styleId != null ? { f: cell.formula, s: styleId } : { f: cell.formula }
   }
+  const value = cell.value
   if (value instanceof Date) {
     const data: CellData = { v: dateToSerial1900(value), t: 'd' }
     if (styleId != null) data.s = styleId
     return data
   }
-  if (cell?.type === 'error') {
+  if (cell.type === 'error') {
     // 错误格：t='e'（值 = 错误码字符串）
     const data: CellData = { v: typeof value === 'string' ? value : String(value ?? ''), t: 'e' }
     if (styleId != null) data.s = styleId
@@ -295,10 +297,11 @@ function applyHucreSheet(
   themeColors: readonly string[] | undefined,
   styleMemo: StyleMemo
 ): void {
-  // 实际使用范围（有值格 ∪ 合并 ∪ 行高定义 ∪ 图片锚点）：渲染尺寸据此收敛，避免稠密
+  // 实际使用范围（有值格 ∪ 合并 ∪ 图片锚点）：渲染尺寸据此收敛，避免稠密
   // 行数组几何（Excel 最大 16384 列 → VTable 构造 16384 列实测 ~15s 卡死）
   let maxUsedRow = 0
   let maxUsedCol = 0
+  const KEEP_MARGIN = 100
   target.beginTransaction()
   try {
     // 清空：先解除既有合并（结构），再批量清除数据（空数据删除整格，样式一并移除）
@@ -321,57 +324,40 @@ function applyHucreSheet(
       }
     }
 
-    // 批量写入（一次 setCells = 单命令 = 单次重算编排）
-    // 性能关键：hucre 的 rows 是稠密数组（Excel 最大列 16384），空槽占绝大多数
-    // （实测 2.18 亿次迭代中 99.97% 为 null）——必须先跳过空槽再做
-    // covered/cells.get/样式转换，否则单文件导入可达分钟级。
+    // 批量写入（一次 setCells = 单命令 = 单次重算编排）。只读 cells Map。
+    // 纯样式格只保留有值范围外扩 100 的紧邻带——预算套表「全选设边框」会在
+    // 13327×16384 上留下十几万空白格式格，写入会把高水位撑到 Excel 极限，
+    // VTable 构造 16384 列实测 15–30s 卡死。
     const items: SetCellValueItem[] = []
-    const cells = source.cells ?? new Map<string, HucreCell>()
-    for (let r = 0; r < source.rows.length; r++) {
-      const row = source.rows[r]
-      if (!row) continue
-      for (let c = 0; c < row.length; c++) {
-        const value = row[c]
-        if (value == null) continue
-        if (value == null) continue
-        if (covered.has(r * COVERED_STRIDE + c)) continue
-        const data = hucreCellToData(cells.get(`${r},${c}`), value, target, themeColors, styleMemo)
-        // 主循环已保证 value 非空；data 为 undefined 只可能是「有值但样式转换后为空」或
-        // 纯样式格之外的无值格——一律跳过，不再产生无效删除补丁（#16）
+    const cells = source.cells
+    if (cells) {
+      for (const [key, cell] of cells) {
+        const isContent = Boolean(cell.formula) || (cell.value != null && cell.value !== '')
+        if (!isContent) continue
+        const comma = key.indexOf(',')
+        const row = Number(key.slice(0, comma))
+        const col = Number(key.slice(comma + 1))
+        if (covered.has(row * COVERED_STRIDE + col)) continue
+        const data = hucreCellToData(cell, target, themeColors, styleMemo)
         if (data === undefined) continue
-        items.push({ addr: { row: r, col: c }, data })
-        if (r > maxUsedRow) maxUsedRow = r
-        if (c > maxUsedCol) maxUsedCol = c
+        items.push({ addr: { row, col }, data })
+        if (row > maxUsedRow) maxUsedRow = row
+        if (col > maxUsedCol) maxUsedCol = col
       }
-    }
-    // 补漏：值 null/空但 cell 有详情（纯样式格 / 公式缓存空）的格——主循环的空槽
-    // 快速跳过会漏掉它们。
-    // 保留策略：有值范围外扩 100 行/列的「紧邻带」内的样式格保留（表头/边框
-    // 等紧邻格式），带外丢弃——预算套表常有「全选设边框」残留（整表 13327 行 ×
-    // 16384 列 16~20 万个空白格式格），写入它们会把 rowCount/colCount 高水位撑到
-    // Excel 极限 → VTable 构造 16384 列实测 ~15-30s（切表卡死）。带外的格式格
-    // 渲染区外不可见（用户也滚动不到），丢弃无感知损失。
-    const KEEP_MARGIN = 100
-    for (const [key, cell] of cells) {
-      // 先解析行号：带外行（占绝大多数）直接跳过，省列解析（slice 分配是
-      // 主成本，76 万格量级收益可观）
-      const comma = key.indexOf(',')
-      const r = Number(key.slice(0, comma))
-      // 公式格是真实内容：保留并计入尺寸（即使值缓存为空）
-      const isFormula = Boolean(cell?.formula)
-      if (!isFormula && r > maxUsedRow + KEEP_MARGIN) continue
-      const c = Number(key.slice(comma + 1))
-      if (!isFormula && c > maxUsedCol + KEEP_MARGIN) continue
-      if (isFormula) {
-        if (r > maxUsedRow) maxUsedRow = r
-        if (c > maxUsedCol) maxUsedCol = c
+      const styleLimitRow = maxUsedRow + KEEP_MARGIN
+      const styleLimitCol = maxUsedCol + KEEP_MARGIN
+      for (const [key, cell] of cells) {
+        const isContent = Boolean(cell.formula) || (cell.value != null && cell.value !== '')
+        if (isContent) continue
+        const comma = key.indexOf(',')
+        const row = Number(key.slice(0, comma))
+        const col = Number(key.slice(comma + 1))
+        if (row > styleLimitRow || col > styleLimitCol) continue
+        if (covered.has(row * COVERED_STRIDE + col)) continue
+        const data = hucreCellToData(cell, target, themeColors, styleMemo)
+        if (data === undefined) continue
+        items.push({ addr: { row, col }, data })
       }
-      const value = source.rows[r]?.[c]
-      if (value != null) continue
-      if (covered.has(r * COVERED_STRIDE + c)) continue
-      const data = hucreCellToData(cell, value, target, themeColors, styleMemo)
-      if (data === undefined) continue
-      items.push({ addr: { row: r, col: c }, data })
     }
     if (items.length > 0) target.setCells(items)
 
@@ -404,25 +390,28 @@ function applyHucreSheet(
   }
   // 冻结与行高/列宽：模型状态，不进 undo（定义的行/列计入尺寸）
   target.setFrozen(source.freezePane?.rows ?? 0, source.freezePane?.columns ?? 0)
+  // 行高/列宽只应用到有值范围 + 紧邻带。hucre 1.1 修了无界 `<col>` 死循环后，
+  // 会把 Excel 默认列宽物化成 16384 长的 columns[]，若据此抬高水位，VTable
+  // 仍会按极限列数构造而卡死。
+  const sizeLimitRow = maxUsedRow + KEEP_MARGIN
+  const sizeLimitCol = maxUsedCol + KEEP_MARGIN
   if (source.rowDefs) {
     for (const [row, def] of source.rowDefs) {
+      if (row > sizeLimitRow) continue
       if (def?.height) target.setRowHeight(row, Math.round((def.height * 4) / 3))
-      if (row > maxUsedRow) maxUsedRow = row
     }
   }
   if (source.columns) {
-    for (let col = 0; col < source.columns.length; col++) {
+    const colEnd = Math.min(source.columns.length, sizeLimitCol + 1)
+    for (let col = 0; col < colEnd; col++) {
       const def = source.columns[col]
       if (def?.width) {
         // 字符宽 → px（与 export pxToExcelColWidth 对称）
         target.setColWidth(col, Math.round(def.width * 7 + 5))
-        if (col > maxUsedCol) maxUsedCol = col
       }
     }
   }
-  // 渲染尺寸 = 实际使用范围（有值格 ∪ 合并 ∪ 行高/列宽定义 ∪ 图片锚点），不进 undo。
-  // 不做「稠密行数组几何扩张」：XML 里空格式行/列（如 16384 列宽行）会让
-  // VTable 构造超大表格（实测附表33-2 16384 列 × 13328 行重建 ~15s）。
+  // 渲染尺寸 = 实际使用范围（有值格 ∪ 合并 ∪ 图片锚点），不进 undo。
   target.ensureTableSize(Math.max(1, maxUsedRow + 1), Math.max(1, maxUsedCol + 1))
 }
 
@@ -440,7 +429,7 @@ function uniqueName(name: string, used: Set<string>): string {
  * 每个 sheet 的数据写入 = 单 undo 单元（在其自身历史栈上）。
  */
 export async function importXlsx(buffer: ArrayBuffer | Uint8Array): Promise<Workbook> {
-  const hucreWb: HucreWorkbook = await readXlsx(buffer, { readStyles: true })
+  const hucreWb: HucreWorkbook = await readXlsx(buffer, XLSX_READ_OPTIONS)
   return buildWorkbookFromHucre(hucreWb)
 }
 

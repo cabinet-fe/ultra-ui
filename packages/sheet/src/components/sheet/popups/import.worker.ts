@@ -30,11 +30,11 @@ self.onmessage = (e: MessageEvent<{ buffer: ArrayBuffer }>): void => {
   const { buffer } = e.data
   void (async () => {
     try {
-      const [{ readXlsx }, { buildWorkbookFromHucre }] = await Promise.all([
+      const [{ readXlsx }, { buildWorkbookFromHucre, XLSX_READ_OPTIONS }] = await Promise.all([
         import('hucre/xlsx'),
         import('@veltra/sheet-core/core/io/import')
       ])
-      const hucreWb = await readXlsx(new Uint8Array(buffer), { readStyles: true })
+      const hucreWb = await readXlsx(new Uint8Array(buffer), XLSX_READ_OPTIONS)
       // 分片构建：按 10% 粒度回报进度（避免 196 条/秒的消息风暴与文字跳变过快；
       // 模型构建段约 1s，10 次更新肉眼可见数字推进）
       let lastPercent = -1

@@ -19,24 +19,24 @@
 
 `server/deepseek.ts` 是纯 Hono + Web API 实现，`server/ai-dev.ts` 提供 Node 入口；API Key 只由服务端读取，不会下发浏览器。
 
-| 环境变量 | 默认值 | 说明 |
-| --- | --- | --- |
-| `DEEPSEEK_API_KEY` | 空（必填） | DeepSeek API Key；为空时兼容回退 `VITE_DEEPSEEK_KEY` |
-| `DEEPSEEK_BASE_URL` | `https://api.deepseek.com` | 上游 base URL |
-| `DEEPSEEK_DEFAULT_MODEL` | `deepseek-v4-flash` | 请求未传 model 时的默认模型 |
-| `DEEPSEEK_V4_FLASH_MODEL` | `deepseek-v4-flash` | 前端 id `deepseek-v4-flash` 映射到的上游模型 |
-| `DEEPSEEK_V4_PRO_MODEL` | `deepseek-v4-pro` | 前端 id `deepseek-v4-pro` 映射到的上游模型 |
-| `AI_SERVER_PORT` | `8788` | Node 代理监听端口 |
+| 环境变量                  | 默认值                     | 说明                                                 |
+| ------------------------- | -------------------------- | ---------------------------------------------------- |
+| `DEEPSEEK_API_KEY`        | 空（必填）                 | DeepSeek API Key；为空时兼容回退 `VITE_DEEPSEEK_KEY` |
+| `DEEPSEEK_BASE_URL`       | `https://api.deepseek.com` | 上游 base URL                                        |
+| `DEEPSEEK_DEFAULT_MODEL`  | `deepseek-v4-flash`        | 请求未传 model 时的默认模型                          |
+| `DEEPSEEK_V4_FLASH_MODEL` | `deepseek-v4-flash`        | 前端 id `deepseek-v4-flash` 映射到的上游模型         |
+| `DEEPSEEK_V4_PRO_MODEL`   | `deepseek-v4-pro`          | 前端 id `deepseek-v4-pro` 映射到的上游模型           |
+| `AI_SERVER_PORT`          | `8788`                     | Node 代理监听端口                                    |
 
 - 浏览器端 transport 使用相对路径 `/ai/chat/completions`，vite proxy 原样转发到 AI 服务。
 - 代理按 OpenAI 兼容协议转发 `content` / `reasoning_content` / `tool_calls`，因此 `createOpenAITransport()` 无需改协议。
 - 端点不接收、也不返回 API Key；密钥只在服务端拼 `Authorization: Bearer` 时从环境变量读取。
 
-| 端点 | 请求体 | 成功 | 说明 |
-| --- | --- | --- | --- |
-| `GET /ai` | — | 服务文档（不含密钥） | 会话代理活体文档 |
-| `GET /ai/models` | — | `{ object: "list", data: [...] }` | `deepseek-v4-flash` / `deepseek-v4-pro`，含低 / 中 / 高推理等级 |
-| `POST /ai/chat/completions` | OpenAI chat.completions 兼容 JSON | SSE 或 JSON | 校验 `messages` / `stream` / `model` 后转发 DeepSeek |
+| 端点                        | 请求体                            | 成功                              | 说明                                                            |
+| --------------------------- | --------------------------------- | --------------------------------- | --------------------------------------------------------------- |
+| `GET /ai`                   | —                                 | 服务文档（不含密钥）              | 会话代理活体文档                                                |
+| `GET /ai/models`            | —                                 | `{ object: "list", data: [...] }` | `deepseek-v4-flash` / `deepseek-v4-pro`，含低 / 中 / 高推理等级 |
+| `POST /ai/chat/completions` | OpenAI chat.completions 兼容 JSON | SSE 或 JSON                       | 校验 `messages` / `stream` / `model` 后转发 DeepSeek            |
 
 ```bash
 # 直接冒烟（请先在 playground/.env 配置 DEEPSEEK_API_KEY）
@@ -52,25 +52,25 @@ curl http://localhost:8788/ai/models
 
 ### Hub（playground 报表演示）
 
-| 端点 | 请求体 | 成功 | 说明 |
-| --- | --- | --- | --- |
-| `GET /workspace` | — | `{ ok: true, connections, datasets }` | 读取工作区 |
-| `PUT /workspace` | `{ connections, datasets }` | `{ ok: true }` | 全量保存工作区 |
-| `POST /connections/:id/test` | — | `{ ok: true }` | 凭据从 SQLite 读取 |
-| `POST /datasets/:id/describe` | — | `{ ok: true, fields }` | SQL 与连接从 SQLite 读取 |
-| `POST /datasets/:id/query` | `{ values? }` | `{ ok: true, fields, rows }` | 只传查询参数 |
-| `GET|POST|PUT|DELETE /templates` | — | — | 模板入库时剥离 connection/sql，读取时由工作区回填 |
+| 端点                          | 请求体                      | 成功                                  | 说明                     |
+| ----------------------------- | --------------------------- | ------------------------------------- | ------------------------ |
+| `GET /workspace`              | —                           | `{ ok: true, connections, datasets }` | 读取工作区               |
+| `PUT /workspace`              | `{ connections, datasets }` | `{ ok: true }`                        | 全量保存工作区           |
+| `POST /connections/:id/test`  | —                           | `{ ok: true }`                        | 凭据从 SQLite 读取       |
+| `POST /datasets/:id/describe` | —                           | `{ ok: true, fields }`                | SQL 与连接从 SQLite 读取 |
+| `POST /datasets/:id/query`    | `{ values? }`               | `{ ok: true, fields, rows }`          | 只传查询参数             |
+| `GET                          | POST                        | PUT                                   | DELETE /templates`       | —   | —   | 模板入库时剥离 connection/sql，读取时由工作区回填 |
 
 `WorkspaceDataset`：`{ id, connectionId, label, sql, paramOverrides?, fieldOverrides? }`。
 
 ### 通用契约（ADR-0003，BYO 对齐）
 
-| 端点 | 请求体 | 成功 | 业务错误 |
-| --- | --- | --- | --- |
-| `POST /test` | `{ connection }` | `{ ok: true }` | `200 + { ok: false, error: { code, message } }` |
-| `POST /describe` | `{ connection, sql }` | `{ ok: true, fields: [{ name, label?, type? }] }` | 同上 |
-| `POST /query` | `{ connection, sql, values }` | `{ ok: true, fields, rows }` | 同上 |
-| `GET /` | — | 契约活体文档（JSON） | — |
+| 端点             | 请求体                        | 成功                                              | 业务错误                                        |
+| ---------------- | ----------------------------- | ------------------------------------------------- | ----------------------------------------------- |
+| `POST /test`     | `{ connection }`              | `{ ok: true }`                                    | `200 + { ok: false, error: { code, message } }` |
+| `POST /describe` | `{ connection, sql }`         | `{ ok: true, fields: [{ name, label?, type? }] }` | 同上                                            |
+| `POST /query`    | `{ connection, sql, values }` | `{ ok: true, fields, rows }`                      | 同上                                            |
+| `GET /`          | —                             | 契约活体文档（JSON）                              | —                                               |
 
 `connection`：`{ id, label, type: 'mysql' | 'postgresql', host, port, database, username, password }`。
 
@@ -78,13 +78,13 @@ curl http://localhost:8788/ai/models
 
 ## 错误码
 
-| code | HTTP | 含义 |
-| --- | --- | --- |
-| `INVALID_REQUEST` | 400 | 请求体 / 连接对象形状不合法 |
-| `UNSUPPORTED_TYPE` | 400 | 连接类型不是 mysql / postgresql |
-| `CONNECTION_FAILED` | 200 | 数据库不可达 / 认证失败 / 连接被拒 |
-| `SQL_ERROR` | 200 | SQL 语法或执行报错 |
-| `MISSING_PARAM` | 200 | SQL 引用了 `${param}` 但未提供对应值 |
+| code                | HTTP | 含义                                 |
+| ------------------- | ---- | ------------------------------------ |
+| `INVALID_REQUEST`   | 400  | 请求体 / 连接对象形状不合法          |
+| `UNSUPPORTED_TYPE`  | 400  | 连接类型不是 mysql / postgresql      |
+| `CONNECTION_FAILED` | 200  | 数据库不可达 / 认证失败 / 连接被拒   |
+| `SQL_ERROR`         | 200  | SQL 语法或执行报错                   |
+| `MISSING_PARAM`     | 200  | SQL 引用了 `${param}` 但未提供对应值 |
 
 ## 手动冒烟（Hub 路径）
 

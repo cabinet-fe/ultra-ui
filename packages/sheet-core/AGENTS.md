@@ -6,7 +6,7 @@
 
 ```
 src/
-├── index.ts              # 聚合导出（公开 API 白名单；白名单外符号一律深导入 src 子路径）
+├── index.ts              # 聚合导出（模型/命令/公式/IO 白名单；不含 SheetGrid）
 ├── core/                 # 框架无关纯 TS（不 import vue / vtable），可无头单测
 │   ├── address.ts        # A1 地址（0-based）
 │   ├── cell-store.ts     # 稀疏矩阵
@@ -19,7 +19,8 @@ src/
 │   ├── io/               # xlsx/csv（hucre；浮动图 round-trip）
 │   ├── fill.ts / find.ts / merge-manager.ts / selection.ts
 │   └── events.ts
-└── grid/                 # VTable 适配层
+└── grid/                 # VTable 适配层（公开入口 `@veltra/sheet-core/grid`）
+    ├── index.ts          # SheetGrid / CustomLayout / resolveCellRenderer 等
     ├── sheet-grid.ts     # SheetGrid（模型 ↔ ListTable；支持 readonly）
     ├── image-layer.ts    # 浮动图片 DOM 叠层
     └── vtable-theme.ts   # themes.DEFAULT.extends 主题
@@ -27,12 +28,13 @@ src/
 
 ## 分层约定
 
-| 层      | 职责                        | 禁止                                                              |
-| ------- | --------------------------- | ----------------------------------------------------------------- |
+| 层      | 职责                        | 禁止                                                                 |
+| ------- | --------------------------- | -------------------------------------------------------------------- |
 | `core/` | 模型、命令、公式、IO        | import `vue` / `@visactor/*`；零外向依赖（唯一外部运行时依赖 hucre） |
-| `grid/` | VTable 渲染、编辑回写、键盘 | 业务编排；只依赖 `core/` + `@visactor/*`                          |
+| `grid/` | VTable 渲染、编辑回写、键盘 | 业务编排；只依赖 `core/` + `@visactor/*`                             |
 
 - **禁止反向依赖**：`core/` 不得 import `grid/`；grid 对 core 单向依赖。
+- **公开入口拆分**：`@veltra/sheet-core` 只导出模型 / 命令 / 公式 / IO；`SheetGrid` / `CustomLayout` / `resolveCellRenderer` 走 `@veltra/sheet-core/grid`。不要把 grid 符号挂回主入口——否则无头 `import { Workbook }` 会把 `@visactor/vtable` 整棵类型树拉进 TS 语言服务。
 - **写操作一律走命令**：`setCellValue` / `setCells` / `setCellFormula` / `setCellStyle` / `mergeCells` / `insertRows` / `insertImage` / `removeImage` / `updateImage` 等经 `defaultCommandRegistry` → `sheet.history`；`Sheet.applyPatch` 是唯一变更通道。
 - **工作簿结构操作**（增删改名 sheet）走 `Workbook`，**不进 undo**。
 
@@ -86,7 +88,7 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 ## 导入导出（core/io）
 
 - 主入口白名单：`exportWorkbookXlsx` / `exportSheetCsv` / `importXlsx` / `importCsv` / `replaceWorkbook`（内部走快照整表替换）。worker 链路入口 `buildWorkbookFromHucre` / `replaceWorkbookWithSnapshots` 不在白名单，消费方深导入 `@veltra/sheet-core/core/io/import`。
-- **IO 保真度约定**：导入迭代 hucre 稠密 `rows` 时先跳过空槽；表格尺寸按有值格收敛，勿用稠密几何撑到 Excel 极限列数；补漏遍历先解析行号、带外直接跳过。
+- **IO 保真度约定**：xlsx 导入只读 `cells` Map（不扫稠密 `rows`）；表格尺寸按有值格收敛，勿用稠密几何或 `columns[]` 全长撑到 Excel 极限列数；纯样式格只保留有值范围外扩 100 的紧邻带。
 - **快照整表替换**：`RestoreSheetCommand`（`sheet.restore-sheet`）+ `SnapshotPatch`——导入替换与 undo/redo 回放走整表 `restoreContent`（cells/styles/merges/images/rowStyles/colStyles + 公式图 `rebuildSheet` 重建），不发逐格 cell-change（避免十万级视图同步），发 `content-reset` 事件（grid `setRecords` 一次、状态源 bump）+ `image-change`；冻结/行高/列宽/尺寸/选区不进 undo；跨表引用方经 recalcAfterCommand 联动（含被清空的旧格标脏）。
 - **批量**：`Workbook.beginBatch/endBatch` 合并结构事件补发（196 sheet 导入的 195 次 `sheets-change` 收敛为 1 次）；`Sheet.mergeCellsBatch` 批量合并 = 单 undo 单元（批量内相交边收集边应用与逐条语义一致）；样式导入按 hucre 共享子对象引用组合 key memo 跳过重复解析/intern。
 - **分片构建**：`buildWorkbookFromHucre` 按 10% 粒度经回调回报进度（供 worker 链路驱动进度 UI）。
@@ -115,7 +117,8 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 
 ## 已知问题
 
-- **`exports["./*"]` 通配深导入对 tsc 不友好**：tsc 不经 exports 通配做扩展名探测（`veltra-dev → ./src/*` 无扩展名解析失败），消费方深导入 `@veltra/sheet-core/core/*` 时需在其 tsconfig 配 `paths` 直指源码兜底（参考 `packages/sheet/tsconfig.json`），并加 `references` 避免 composite 项目的 TS6059/TS6307。仅走主入口无此问题。
+- **`exports["./*"]` 通配深导入对 tsc 不友好**：tsc 不经 exports 通配做扩展名探测（`veltra-dev → ./src/*` 无扩展名解析失败），消费方深导入 `@veltra/sheet-core/core/*` 时需在其 tsconfig 配 `paths` 直指源码兜底（参考 `packages/sheet/tsconfig.json`），并加 `references` 避免 composite 项目的 TS6059/TS6307。主入口与显式 `./grid` 子路径无此问题。
+- **语言服务**：`tsconfig.json` 只含 `core/`（无 VTable）；`tsconfig.grid.json` 含 `grid/`。编辑无头模型时不要把两个项目并进同一个 program。
 
 ## 测试与验证
 

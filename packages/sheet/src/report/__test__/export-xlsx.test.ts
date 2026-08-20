@@ -1,5 +1,5 @@
 import { Sheet } from '@veltra/sheet-core'
-import { buildWorkbookFromHucre } from '@veltra/sheet-core/core/io/import'
+import { buildWorkbookFromHucre, XLSX_READ_OPTIONS } from '@veltra/sheet-core/core/io/import'
 import { readXlsx } from 'hucre/xlsx'
 import { describe, expect, it } from 'vitest'
 
@@ -69,7 +69,7 @@ describe('exportFilledReportXlsx', () => {
     expect(buffer[0]).toBe(0x50)
     expect(buffer[1]).toBe(0x4b)
 
-    const hucreWb = await readXlsx(buffer, { readStyles: true })
+    const hucreWb = await readXlsx(buffer, XLSX_READ_OPTIONS)
     const workbook = buildWorkbookFromHucre(hucreWb)
     const sheet = workbook.getSheets()[0]!
 

@@ -5,7 +5,7 @@ import type {
   ResolveCellStyleHook,
   ResolveDisplayValue,
   SheetGrid
-} from '@veltra/sheet-core/grid/sheet-grid'
+} from '@veltra/sheet-core/grid'
 import type { DeconstructValue } from '@veltra/utils'
 import type { ComputedRef } from 'vue'
 

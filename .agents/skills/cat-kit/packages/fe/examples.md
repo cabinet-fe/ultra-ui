@@ -1,13 +1,7 @@
 # @cat-kit/fe — 组合示例
 
 ```ts
-import {
-  clipboard,
-  readChunks,
-  storage,
-  storageKey,
-  Virtualizer
-} from '@cat-kit/fe'
+import { clipboard, readChunks, storage, storageKey, Virtualizer } from '@cat-kit/fe'
 
 const FILE_KEY = storageKey<string>('last-file-name')
 

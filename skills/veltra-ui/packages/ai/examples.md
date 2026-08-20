@@ -180,11 +180,7 @@ const tools: ChatTool[] = [
     label: '查天气',
     icon: Sunny,
     description: '查询城市天气',
-    parameters: {
-      type: 'object',
-      properties: { city: { type: 'string' } },
-      required: ['city']
-    },
+    parameters: { type: 'object', properties: { city: { type: 'string' } }, required: ['city'] },
     render: WeatherCard,
     autoCollapse: false,
     execute: async ({ city }: { city: string }) => {
@@ -218,9 +214,7 @@ const tools: ChatTool[] = [
     },
     parameters: {
       type: 'object',
-      properties: {
-        page: { type: 'string', enum: ['user-form', 'sales-chart', 'order-list'] }
-      },
+      properties: { page: { type: 'string', enum: ['user-form', 'sales-chart', 'order-list'] } },
       required: ['page']
     },
     execute: async ({ page }: { page: string }) => ({ page, opened: true })
@@ -420,12 +414,7 @@ const emit = ((event: string, ...args: unknown[]) => {
 }) as AiChatEmits
 
 const chat = useChat({
-  props: {
-    transport,
-    tools,
-    models: transport.models,
-    systemPrompt: '你是助手'
-  },
+  props: { transport, tools, models: transport.models, systemPrompt: '你是助手' },
   emit
 })
 

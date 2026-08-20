@@ -8,7 +8,6 @@
 import {
   Workbook,
   Sheet,
-  SheetGrid,
   importXlsx,
   importCsv,
   exportWorkbookXlsx,
@@ -16,13 +15,14 @@ import {
   registerFormulaFunction,
   listFormulaFunctions
 } from '@veltra/sheet-core'
+import { SheetGrid, CustomLayout, type ResolveCellRenderer } from '@veltra/sheet-core/grid'
 ```
 
 ## 何时用哪个包
 
 - 需要完整编辑器 UI（工具栏 / 公式栏 / sheet tabs）→ `@veltra/sheet` 的 `USheet`（见 `packages/sheet.md`）。
 - 无头模型操作、xlsx/csv 解析、自组渲染 UI、只读预览 → 本包。
-- core 符号只从本包主入口（或深导入子路径）获取；`@veltra/sheet` 不做 re-export。
+- core 符号只从本包获取：模型 / IO 走主入口，`SheetGrid` / `CustomLayout` 走 `@veltra/sheet-core/grid`；`@veltra/sheet` 不做 re-export。
 
 ## 主入口导出分组
 
@@ -32,7 +32,7 @@ import {
 - **命令**：`defaultCommandRegistry`、`HistoryManager`、各命令类（`SetCellValueCommand` / `SetCellFormulaCommand` / `SetCellStyleCommand` / `InsertCellsCommand` / `MergeCellsCommand` / `InsertImageCommand` 等）与 `Patch` 系列类型。一切写操作走命令，天然可 `undo()` / `redo()`。
 - **公式**：`parseFormula` / `tokenizeFormula` / `evaluateAst` / `DependencyGraph`、`registerFormulaFunction` / `listFormulaFunctions` / `invokeFormulaFunction`。
 - **IO**：`importXlsx` / `importCsv` / `replaceWorkbook` / `exportWorkbookXlsx` / `exportSheetCsv`。
-- **渲染**：`SheetGrid`（类型 `SheetGridOptions` / `SheetGridContextMenuInfo`）；**`resolveCellRenderer`**（ADR-0004，按格 customLayout hook，类型 `ResolveCellRenderer`）；布局构建 **`CustomLayout`**（`Container` / `Text` / `Rect` 等，类型 `ICustomLayoutObj`）。
+- **渲染**：不在主入口。`SheetGrid`（类型 `SheetGridOptions` / `SheetGridContextMenuInfo`）、**`resolveCellRenderer`**、**`CustomLayout`** 从 `@veltra/sheet-core/grid` 导入。
 - **浮动图片**：类型 `SheetImage` / `ImageInput` / `SheetImageAnchor`，`createImageId` 等。
 - **查找 / 填充**：`findAll` / `findNext` / `findPrev`；`generateFill` / `computeFillTargetRange`。
 
@@ -53,14 +53,15 @@ replaceWorkbook(target, source) // 整簿内容替换（结构变更不走 undo�
 - **保留**：值（数字 / 字符串 / 布尔 / 错误；日期 ↔ 1900 系统序列 `t='d'`）、**公式表达式**（`f` 不带 `=`，缓存值由本地引擎重算，不支持的函数 → `#ERROR!`）、合并、样式（fill + 四边 border + font + alignment，经 `StylePool.intern` 内容去重；border 线型 12 种收敛到模型 5 种；theme 色经工作簿调色板解析）、冻结、行高（points ↔ px ×4/3 取整）、**浮动图片**（字节 / 类型 / 锚点 / 宽高；WPS `cellImages` 单元格内嵌图跳过；CSV 忽略图片）。
 - **不导入 / 忽略**：列宽（模型未持久化列宽）、数字格式 `numFmt`（模型预留、本期忽略）。
 - **纯样式格裁剪**：有值范围外扩 100 行/列的「紧邻带」内保留（表头/边框等紧邻格式），带外丢弃——防止「全选设边框」残留（整表十几万空白格式格）把渲染尺寸撑到 Excel 极限导致卡死；带外不可见，丢弃无感知损失；公式格不受裁剪影响。
-- 渲染尺寸按「有值格 ∪ 合并 ∪ 行高定义 ∪ 图片锚点」收敛，不随 hucre 稠密行数组几何扩张。
+- 渲染尺寸按「有值格 ∪ 合并 ∪ 行高定义 ∪ 图片锚点」收敛，xlsx 导入只读 `cells` Map，不用 `columns[]` 全长撑到 Excel 极限列数。
 - xlsx 导入无法恢复文件中的选中格（hucre 不解析 `<selection>`）→ 默认 A1；导出写入 `activeTab`。
 - 大文件 worker 链路（分片构建 + 进度回调）用 `buildWorkbookFromHucre` / `replaceWorkbookWithSnapshots`——不在主入口白名单，需深导入（见下）。
 
 ## SheetGrid（VTable 渲染层）
 
 ```ts
-import { Sheet, SheetGrid } from '@veltra/sheet-core'
+import { Sheet } from '@veltra/sheet-core'
+import { SheetGrid } from '@veltra/sheet-core/grid'
 
 const sheet = new Sheet('Sheet1')
 const grid = new SheetGrid({

@@ -272,7 +272,7 @@ importCsv(text, sheet) // 写入既有活动表（事务 = 单 undo 单元）
 性能契约：纯函数、同步、O(1) 查找、禁止大对象分配（见 `packages/sheet-core/AGENTS.md`）。
 
 ```ts
-import { CustomLayout, type ResolveCellRenderer } from '@veltra/sheet-core'
+import { CustomLayout, type ResolveCellRenderer } from '@veltra/sheet-core/grid'
 
 const resolveCellRenderer: ResolveCellRenderer = (addr, base) => {
   // 按 addr / base 决定是否自定义；未命中返回 undefined

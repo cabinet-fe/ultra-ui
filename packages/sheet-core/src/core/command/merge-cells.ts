@@ -114,9 +114,12 @@ export const MergeCellsBatchCommand: Command<MergeCellsBatchParams> = {
       // 前一个合并（与逐条 mergeCells 语义一致：相交 → 包围盒）；undo 逆序回放
       // 仍自洽（后应用的先撤销）
       const rangePatches: Patch[] = [
-        ...removed.map(
-          (range): MergePatch => ({ kind: 'merge', range, before: true, after: false })
-        ),
+        ...removed.map((range): MergePatch => ({
+          kind: 'merge',
+          range,
+          before: true,
+          after: false
+        })),
         { kind: 'merge', range: finalRange, before: false, after: true },
         // 过滤无实际变化的 cell 补丁（如被覆盖格本就为空）
         ...cellPatches.filter((patch) => !cellDataEqual(patch.before, patch.after))

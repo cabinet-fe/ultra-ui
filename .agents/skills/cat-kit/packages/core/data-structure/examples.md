@@ -3,10 +3,7 @@
 ```ts
 import { TreeManager, dfs } from '@cat-kit/core'
 
-const data = {
-  id: 'root',
-  children: [{ id: 'a' }, { id: 'b', children: [{ id: 'b1' }] }]
-}
+const data = { id: 'root', children: [{ id: 'a' }, { id: 'b', children: [{ id: 'b1' }] }] }
 
 dfs(data, (node) => {
   console.log(node.id)

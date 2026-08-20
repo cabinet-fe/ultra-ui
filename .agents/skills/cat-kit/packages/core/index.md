@@ -13,18 +13,18 @@
 
 ## 主题
 
-| 主题 | 说明 |
-| --- | --- |
-| [array-object](array-object/index.md) | 合并去重、尾元素、挑选、忽略、对象更新 |
-| [string-type](string-type/index.md) | 命名转换、URL 路径、类型守卫 |
-| [transform-validation](transform-validation/index.md) | 字节编码、查询串、转换链、schema 校验 |
-| [number](number/index.md) | 小数运算、表达式、格式化、范围 |
-| [date](date/index.md) | 解析、格式化、加减、对齐、比较、区间 |
-| [env](env/index.md) | 运行时、系统、浏览器、设备 |
-| [data-structure](data-structure/index.md) | 树/森林遍历与节点关系 |
-| [optimize](optimize/index.md) | 防抖、节流、延时、限并发、safeRun |
-| [pattern](pattern/index.md) | 浅层状态订阅 |
-| [组合示例](examples.md) | 仅跨主题组合时再读 |
+| 主题                                                  | 说明                                   |
+| ----------------------------------------------------- | -------------------------------------- |
+| [array-object](array-object/index.md)                 | 合并去重、尾元素、挑选、忽略、对象更新 |
+| [string-type](string-type/index.md)                   | 命名转换、URL 路径、类型守卫           |
+| [transform-validation](transform-validation/index.md) | 字节编码、查询串、转换链、schema 校验  |
+| [number](number/index.md)                             | 小数运算、表达式、格式化、范围         |
+| [date](date/index.md)                                 | 解析、格式化、加减、对齐、比较、区间   |
+| [env](env/index.md)                                   | 运行时、系统、浏览器、设备             |
+| [data-structure](data-structure/index.md)             | 树/森林遍历与节点关系                  |
+| [optimize](optimize/index.md)                         | 防抖、节流、延时、限并发、safeRun      |
+| [pattern](pattern/index.md)                           | 浅层状态订阅                           |
+| [组合示例](examples.md)                               | 仅跨主题组合时再读                     |
 
 ## 边界
 

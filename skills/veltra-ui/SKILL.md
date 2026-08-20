@@ -28,18 +28,18 @@ veltra-ui 是一套 Vue 3 UI 体系。
 
 ## 分包地图
 
-| 入口                       | 包                     | 用途                                                                  |
-| -------------------------- | ---------------------- | --------------------------------------------------------------------- |
-| `packages/desktop/`        | `@veltra/desktop`      | 桌面端组件（主入口）                                                  |
-| `packages/ai.md`           | `@veltra/ai`           | AI 对话：UAiChat、useChat、ChatTool、createOpenAITransport、UAiOrb     |
+| 入口                       | 包                     | 用途                                                                                                       |
+| -------------------------- | ---------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `packages/desktop/`        | `@veltra/desktop`      | 桌面端组件（主入口）                                                                                       |
+| `packages/ai.md`           | `@veltra/ai`           | AI 对话：UAiChat、useChat、ChatTool、createOpenAITransport、UAiOrb                                         |
 | `packages/sheet.md`        | `@veltra/sheet`        | 电子表格（USheet、报表 UReportDesigner/UReportViewer、DataConnector、公式、undo/redo、浮动图片、工具扩展） |
-| `packages/sheet-core.md`   | `@veltra/sheet-core`   | 表格核心：数据模型/公式/IO + SheetGrid 渲染层（含 readonly 预览模式） |
-| `packages/styles/`         | `@veltra/styles`       | SCSS、主题、Design Tokens、过渡                                       |
-| `packages/compositions.md` | `@veltra/compositions` | Vue 组合式函数                                                        |
-| `packages/directives.md`   | `@veltra/directives`   | 自定义指令                                                            |
-| `packages/icons.md`        | `@veltra/icons`        | SVG 图标组件                                                          |
-| `packages/utils.md`        | `@veltra/utils`        | 工具函数与共享类型                                                    |
-| `packages/vite.md`         | `@veltra/vite`         | Vite 按需解析器                                                       |
+| `packages/sheet-core.md`   | `@veltra/sheet-core`   | 表格核心：数据模型/公式/IO + SheetGrid 渲染层（含 readonly 预览模式）                                      |
+| `packages/styles/`         | `@veltra/styles`       | SCSS、主题、Design Tokens、过渡                                                                            |
+| `packages/compositions.md` | `@veltra/compositions` | Vue 组合式函数                                                                                             |
+| `packages/directives.md`   | `@veltra/directives`   | 自定义指令                                                                                                 |
+| `packages/icons.md`        | `@veltra/icons`        | SVG 图标组件                                                                                               |
+| `packages/utils.md`        | `@veltra/utils`        | 工具函数与共享类型                                                                                         |
+| `packages/vite.md`         | `@veltra/vite`         | Vite 按需解析器                                                                                            |
 
 ## 路由决策
 
@@ -48,15 +48,15 @@ veltra-ui 是一套 Vue 3 UI 体系。
 | **写表单 / UForm / 表单项 / 带 label 的输入控件**                     | **必读** `packages/desktop/components/form/examples.md`（再读具体控件 `examples.md` 的「在 UForm 中使用」） |
 | 显式 `UFormItem`（多控件组合、自定义 label 插槽）                     | `packages/desktop/components/form-item/examples.md`                                                         |
 | 找/用某个 UI 组件                                                     | `packages/desktop/index.md` → `components/<kebab>/api.md` + `examples.md` + `types.d.ts`                    |
-| 接入 AI 对话 / OpenAI 兼容端点 / 多 Provider / 推理等级               | `packages/ai.md` → `ai/examples.md`（基础对话）+ `ai/api.md`（createOpenAITransport）                        |
+| 接入 AI 对话 / OpenAI 兼容端点 / 多 Provider / 推理等级               | `packages/ai.md` → `ai/examples.md`（基础对话）+ `ai/api.md`（createOpenAITransport）                       |
 | 定义工具 / 确认 / 侧边面板 / 终结工具 / askQuestion                   | `packages/ai.md` → `ai/examples.md`（工具章节）+ `ai/api.md`（ChatTool）                                    |
-| 无头对话 / 自定义聊天 UI / useChat                                    | `packages/ai.md` → `ai/api.md`（useChat）+ `ai/examples.md`（无头）                                          |
-| 自定义 LLM 协议 / 自有后端 / ChatTransport                            | `packages/ai.md` → `ai/api.md`（ChatTransport）+ `ai/examples.md`                                            |
-| 会话持久化 / 待发送队列 / 受控消息                                    | `packages/ai.md` → `ai/examples.md` + `ai/api.md`（消息模型、队列）                                          |
-| AI 活体球头像 UAiOrb                                                  | `packages/ai.md` → `ai/api.md`（UAiOrb）+ `ai/examples.md`                                                   |
+| 无头对话 / 自定义聊天 UI / useChat                                    | `packages/ai.md` → `ai/api.md`（useChat）+ `ai/examples.md`（无头）                                         |
+| 自定义 LLM 协议 / 自有后端 / ChatTransport                            | `packages/ai.md` → `ai/api.md`（ChatTransport）+ `ai/examples.md`                                           |
+| 会话持久化 / 待发送队列 / 受控消息                                    | `packages/ai.md` → `ai/examples.md` + `ai/api.md`（消息模型、队列）                                         |
+| AI 活体球头像 UAiOrb                                                  | `packages/ai.md` → `ai/api.md`（UAiOrb）+ `ai/examples.md`                                                  |
 | 电子表格 / 单元格编辑 / 公式 / 浮动图片 / 表格工具栏扩展              | `packages/sheet.md`                                                                                         |
-| 报表设计 / 报表预览 / 数据连接器 / Filter Bar / 模板取数展开        | `packages/sheet.md`（`UReportDesigner` / `UReportViewer` / `DataConnector` / `createHttpConnector`）          |
-| 按格自定义单元格渲染（customLayout 徽章等）                         | `packages/sheet.md` + `packages/sheet-core.md`（`resolveCellRenderer` / `CustomLayout`）                   |
+| 报表设计 / 报表预览 / 数据连接器 / Filter Bar / 模板取数展开          | `packages/sheet.md`（`UReportDesigner` / `UReportViewer` / `DataConnector` / `createHttpConnector`）        |
+| 按格自定义单元格渲染（customLayout 徽章等）                           | `packages/sheet.md` + `packages/sheet-core.md`（`resolveCellRenderer` / `CustomLayout`）                    |
 | 无头表格模型 / xlsx·csv 导入导出 / 只读表格预览（SheetGrid readonly） | `packages/sheet-core.md`                                                                                    |
 | 安装 / 全局注册 / 按需样式                                            | `packages/desktop/installation.md`、`packages/vite.md`                                                      |
 | 主题色、暗色、CSS 变量                                                | `packages/styles/theme.md`、`packages/styles/tokens.md`                                                     |

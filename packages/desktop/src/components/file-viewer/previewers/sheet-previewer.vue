@@ -35,7 +35,8 @@ import { getExtension, toArrayBuffer } from '../helper'
 defineOptions({ name: 'UFileViewerSheetPreviewer' })
 
 /** 仅类型查询；运行时通过动态 import 加载，未安装时不炸主入口 */
-type SheetCoreModule = typeof import('@veltra/sheet-core')
+type SheetCoreModule = typeof import('@veltra/sheet-core') &
+  typeof import('@veltra/sheet-core/grid')
 type Sheet = InstanceType<SheetCoreModule['Sheet']>
 type SheetGrid = InstanceType<SheetCoreModule['SheetGrid']>
 
@@ -69,7 +70,11 @@ function releaseGrid() {
 async function resolveSheetCore(): Promise<SheetCoreModule | undefined> {
   if (sheetCore) return sheetCore
   try {
-    sheetCore = await import('@veltra/sheet-core')
+    const [core, grid] = await Promise.all([
+      import('@veltra/sheet-core'),
+      import('@veltra/sheet-core/grid')
+    ])
+    sheetCore = { ...core, ...grid }
     return sheetCore
   } catch {
     return undefined

@@ -1,4 +1,5 @@
-import type { CellAddress, SheetGrid } from '@veltra/sheet-core'
+import type { CellAddress } from '@veltra/sheet-core'
+import type { SheetGrid } from '@veltra/sheet-core/grid'
 import { onBeforeUnmount, watch, type Ref } from 'vue'
 
 import {

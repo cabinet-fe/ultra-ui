@@ -146,8 +146,9 @@
 
 <script lang="ts" setup>
 import { UButton, UDrawer } from '@veltra/desktop'
-import type { CellAddress, SheetGrid } from '@veltra/sheet-core'
+import type { CellAddress } from '@veltra/sheet-core'
 import { Workbook } from '@veltra/sheet-core'
+import type { SheetGrid } from '@veltra/sheet-core/grid'
 import { bem } from '@veltra/utils'
 import { computed, nextTick, onScopeDispose, ref, shallowRef, useTemplateRef, watch } from 'vue'
 

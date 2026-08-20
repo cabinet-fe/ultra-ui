@@ -39,7 +39,7 @@ const config = {
         '@veltra/directives',
         '@veltra/styles',
         '@veltra/icons',
-        '@veltra/sheet-core',
+        /^@veltra\/sheet-core/,
         '@cat-kit/core',
         '@embedpdf/core',
         '@embedpdf/engines',

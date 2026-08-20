@@ -1,0 +1,6 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["src/grid/**/*.ts", "src/env.d.ts"],
+  "exclude": ["node_modules", "src/**/__test__/**"],
+  "references": [{ "path": "./tsconfig.json" }]
+}

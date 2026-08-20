@@ -22,6 +22,11 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./grid": {
+      "veltra-dev": "./src/grid/index.ts",
+      "types": "./dist/grid/index.d.ts",
+      "import": "./dist/grid/index.js"
+    },
     "./*": {
       "veltra-dev": "./src/*",
       "types": "./dist/*",

@@ -87,7 +87,7 @@ table、nav、grid、tree、dialog 等复杂组件用 `di.ts` 定义 `InjectionK
 
 - **dependencies**：Lexical、EmbedPDF 等运行时库
 - **peer**：`@cat-kit/core`、`@cat-kit/fe`（`>=1.1.8`）、`@veltra/utils`、`@veltra/styles`、`@veltra/compositions`、`@veltra/directives`、`@veltra/icons`、`vue`
-- **`@veltra/sheet-core` 为 optional peer**：仅 `file-viewer` 的 Excel/CSV 预览需要；未安装时该预览优雅降级，不强制下游安装 sheet-core / VTable / hucre。预览器对 sheet-core 使用动态 `import()`，避免加载 desktop 主入口时解析失败。
+- **`@veltra/sheet-core` 为 optional peer**：仅 `file-viewer` 的 Excel/CSV 预览需要；未安装时该预览优雅降级，不强制下游安装 sheet-core / VTable / hucre。预览器对模型走动态 `import('@veltra/sheet-core')`、对 `SheetGrid` 走 `import('@veltra/sheet-core/grid')`，避免加载 desktop 主入口时解析失败。
 - **`@codemirror/*` 打包进产物**（声明在 `devDependencies` + `pack.deps.alwaysBundle`），下游无需安装 codemirror，从根本上避免多实例版本冲突。仍需保持精确版本号（不带 `^`/`~`），升级时手动指定具体版本号。
 - **UCodeEditor 语言包按需加载**：`components/code-editor/lang-loaders.ts` 注册各语言的 `import()` loader，切换 `lang`（`v-model:lang` / `langs`）时动态加载；`alwaysBundle` 确保 chunk 仍内联进 dist。
   - 官方语言包：① `devDependencies` + 根 `overrides` 添加 `@codemirror/lang-xxx`（精确版本）② `types/code-editor.ts` 扩展 `CodeEditorLang` ③ `lang-loaders.ts` 添加一条 loader。

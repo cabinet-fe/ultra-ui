@@ -3,7 +3,7 @@ import {
   CustomLayout,
   type ResolveCellRenderer,
   type ResolveCellStyleHook
-} from '@veltra/sheet-core'
+} from '@veltra/sheet-core/grid'
 
 import { formatBindingPlaceholderParts, inferReportPreset } from '../../report/binding'
 import type { ReportBinding, ReportPreset } from '../../report/types'

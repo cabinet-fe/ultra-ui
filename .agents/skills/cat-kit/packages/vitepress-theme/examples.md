@@ -18,10 +18,7 @@ import { fileURLToPath } from 'node:url'
 
 const examplesDir = fileURLToPath(new URL('../../examples', import.meta.url))
 
-export default {
-  title: 'Docs',
-  ...defineThemeConfig({ examplesDir })
-}
+export default { title: 'Docs', ...defineThemeConfig({ examplesDir }) }
 ```
 
 Markdown 中：

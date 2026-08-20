@@ -150,7 +150,8 @@
 
 <script lang="ts" setup>
 import { UButton, URadioGroup, USelect, USwitch } from '@veltra/desktop'
-import type { CellAddress, SheetGrid } from '@veltra/sheet-core'
+import type { CellAddress } from '@veltra/sheet-core'
+import type { SheetGrid } from '@veltra/sheet-core/grid'
 import { bem } from '@veltra/utils'
 import { computed, nextTick, ref, toRef, watch } from 'vue'
 

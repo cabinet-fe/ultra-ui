@@ -12,10 +12,7 @@ import { UButton } from '../button'
 import { UTip } from '../tip'
 import { ActionDIKey } from './di'
 
-defineOptions({
-  name: 'UActionGroup',
-  inheritAttrs: false
-})
+defineOptions({ name: 'UActionGroup', inheritAttrs: false })
 
 const props = withDefaults(defineProps<ActionGroupProps>(), {
   max: 3,
@@ -28,9 +25,7 @@ const props = withDefaults(defineProps<ActionGroupProps>(), {
 
 const cls = bem('action-group')
 
-const slots = defineSlots<{
-  default?: () => VNode[]
-}>()
+const slots = defineSlots<{ default?: () => VNode[] }>()
 
 function isInDropdownNode(node: VNode): boolean {
   const p = node.props as Record<string, unknown> | null
@@ -49,14 +44,7 @@ function withSeparators(nodes: VNode[]) {
   return nodes.flatMap((node, index) => {
     if (index === 0) return [node]
 
-    return [
-      <i
-        key={`separator-${index}`}
-        class={cls.e('separator')}
-        aria-hidden="true"
-      />,
-      node
-    ]
+    return [<i key={`separator-${index}`} class={cls.e('separator')} aria-hidden='true' />, node]
   })
 }
 
@@ -90,9 +78,9 @@ function getSlotsNodes() {
 
   const dropdown = hiddenNodes.length ? (
     <UTip
-      direction="bottom"
-      alignment="end"
-      trigger="click"
+      direction='bottom'
+      alignment='end'
+      trigger='click'
       class={cls.e('dropdown')}
       visible={tipVisible.value}
       onUpdate:visible={(val: boolean) => {
@@ -118,12 +106,7 @@ function getSlotsNodes() {
   return withSeparators(dropdown ? [...visible, dropdown] : visible)
 }
 
-provide(ActionDIKey, {
-  groupProps: props,
-  closeTip
-})
+provide(ActionDIKey, { groupProps: props, closeTip })
 
-defineExpose<_ActionGroupExposed>({
-  closeTip
-})
+defineExpose<_ActionGroupExposed>({ closeTip })
 </script>

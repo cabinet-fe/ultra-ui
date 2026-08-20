@@ -17,9 +17,7 @@ import { defineThemeConfig } from '@cat-kit/vitepress-theme/config'
 import { fileURLToPath } from 'node:url'
 
 export default {
-  ...defineThemeConfig({
-    examplesDir: fileURLToPath(new URL('../examples', import.meta.url))
-  })
+  ...defineThemeConfig({ examplesDir: fileURLToPath(new URL('../examples', import.meta.url)) })
 }
 ```
 
