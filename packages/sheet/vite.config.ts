@@ -56,8 +56,7 @@ const config = {
         '@veltra/icons',
         '@veltra/sheet-core',
         '@veltra/styles',
-        '@veltra/utils',
-        'hucre'
+        '@veltra/utils'
       ]
     },
     dts: true,

@@ -54,7 +54,7 @@ export interface StructurePatch {
 }
 
 /**
- * 整表快照替换补丁（导入 replaceWorkbook / undo/redo 回放）。
+ * 整表快照替换补丁（导入 replaceWorkbookWithSnapshots / undo/redo 回放）。
  * 与 cell/merge 差量补丁不同：整表内容一次替换，静默（不发逐格 cell-change），
  * 由调用方按 content-reset 事件全量刷新视图——避免十万级逐格视图同步。
  * 只替换 cells/styles/merges/images/rowStyles/colStyles（含公式图重建）；

@@ -37,7 +37,7 @@ src/
 - **条件样式**：`ConditionalRule.field` 缺省取绑定格自身字段，指定时对同一条记录的另一字段求值；`scope: 'row'` 染满整个物理输出行（交叉表下会染满同行所有列，明细行报表更合适）。
 - **Report Template（template.ts）**：自包含模板 = `SheetSnapshot` + **`version: number`（当前 `1`，必填）** + 内嵌 `datasets: ReportDatasetDef[]`；`colWidths` 继承自 `SheetSnapshot.colWidths`（设计态列宽，模型列索引 → 像素）。`version` 缺失或高于当前 → 抛可读错误要求重建（无迁移函数）。`Sheet.snapshot()` 不产生 `version` / `datasets`，由设计器 `getTemplate()` 吐出时附加（`colWidths` 已在模型快照内）。配套：`getTemplateDatasets` / `getBoundDatasetIds` / `resolveTemplateParams` / `resolveParamDefaults` / `fetchTemplateRecords`。
 - **Filter Bar 值规范化（filter-bar.ts）**：`parseDateRangeValue` / `resolveNumberParamValue` / `patchParamValues`。
-- **Filled Report XLSX 导出（export-xlsx.ts）**：`exportFilledReportXlsx(sheet)`；列宽读 sheet 模型（`getColWidths`）。
+- **Filled Report XLSX 导出（export-xlsx.ts）**：`exportFilledReportXlsx(sheet)`；委托 sheet-core `exportSheetXlsx`（`fallbackName: '报表'`，浮动图随导出保留）；列宽读 sheet 模型（`getColWidths`）。
 - **数据连接器**：`DataConnector` 接口 + `createHttpConnector`；report 模块严禁引入数据库驱动。
 - 测试见 `src/report/__test__/` 与 `src/report/render/__test__/`：坐标纯计算、渲染回归、连接器契约；不依赖 playground mock。
 
@@ -58,7 +58,7 @@ src/
 - **预览模式**：内嵌查看器路径（05）——切预览时 `getTemplate()` 吐出快照交给 UReportViewer（自持 `previewWorkbook`，导出需拿填充后 sheet），Filter Bar / 取数 / 展开 / loading / 错误提示全走查看器；设计态工作簿不受预览影响，切回绑定不丢。列宽经 Sheet 模型 `colWidths` 持久化（resize 写回 `setColWidth`；`getTemplate()` 经 snapshot 吐出）；载入模板时恢复至设计网格，查看器取数后按 `resolveFilledColWidths` 映射物理列宽并写回模型。
 - 数据中枢 drawer（`designer-hub.vue` + `hub-connection-form.vue` + `hub-dataset-editor.vue`，内部不导出）：连接 CRUD 走 `v-model:connections`（删连接级联删其数据集）；测试连接 / describe 字段解析 / 记录预览全经 `DataConnector`（无 mock）；`${param}` 参数提取用内核 `buildParamDefs`（纯函数），describe 成功的字段写入数据集 `fields` 缓存（字段面板 catalog 数据源，`fieldOverrides` 在 catalog 层应用）。
 - 字段面板（`field-panel.vue`）：HTML5 拖拽（`FIELD_DRAG_MIME` 负载 `datasetId:fieldName`，编解码在 `field-panel-helpers.ts`）；网格宿主 drop 经 VTable hit-test 解析落点，落空回退当前选区。
-- 绑定格富渲染徽章（`binding-badge.ts`）：`resolveCellRenderer` 按格返回预设色彩徽章（`REPORT_PRESET_BADGE_COLORS`）；遵守 cell hook 性能契约（纯函数、同步、O(1) 查找；label 经 `fieldLabelMap` 查找表）。
+- 绑定格富渲染徽章（`binding-badge.ts`）：`resolveCellRenderer` 按格返回预设色彩徽章（`REPORT_PRESET_BADGE_COLORS`）；徽章容器 flex 布局跟随单元格水平 / 垂直对齐（`resolveAlign` 读 `getEffectiveStyle`，映射见 `badgeLayoutProps`）；遵守 cell hook 性能契约（纯函数、同步、O(1) 查找；label 经 `fieldLabelMap` 查找表）。
 - 设计态覆层与对话框（`designer/`，内部不导出）：Action Pill（`float-panel.vue`，默认条含预设与一项互补控件——分组头/明细行显示展开方向，小计/总计/交叉显示聚合函数，自定义两者都显示——以及条件样式 / **删除绑定**；展开后才出现排序、`mergeSpan`、行/列父格点选与候选下拉）、拓扑连线（`topology-overlay.vue` + `topology.ts`，SVG 弧线反映真实存储的 `rowParent` / `colParent`）、条件规则对话框（`rules-dialog.vue` + `rule-row.vue` + `rule-preview.vue` + `conditional-rules/helpers.ts`；句式编辑 `field` / 运算符 / 比较值 / 样式 / `scope`）、网格覆层基础设施（`cell-coords.ts` / `use-grid-overlay.ts` / `col-widths.ts` / `drop-highlight-overlay.vue`）、预设选项与切换默认值（`role.ts` → `presetBindingDefaults` / `REPORT_PRESET_OPTIONS`）。
 - 组件级测试（缝隙 3）：`components/report/__test__/report-designer.test.ts` + `use-report-designer.test.ts`（落格推断 / 父格编辑 / 预设切换 / 跨数据集）+ `topology.test.ts` / `conditional-rules-helpers.test.ts` / `float-panel-position.test.ts`。
 
@@ -102,9 +102,9 @@ src/
 
 - UI：工具栏 `import` 点击直接系统文件选择（`components/sheet/import-file.ts`）；`export` 仍为弹层选
   xlsx / csv。解析进度遮罩由 sheet.vue 持有的 `parsing` / `parseProgress` 驱动
-- 大 xlsx 在 Web Worker 解析（`components/sheet/popups/import.worker.ts`：深导入
-  `@veltra/sheet-core/core/io/import` 的 `buildWorkbookFromHucre`，xlsx 解析动态
-  `import('hucre/xlsx')`）：worker 返回快照数组，主线程**不再 restore 重建临时工作簿**——
+- 大 xlsx 在 Web Worker 解析（`components/sheet/popups/import.worker.ts`：动态 import 深导入
+  `@veltra/sheet-core/core/io/import` 的 `importXlsx(buffer, onProgress)` 完成解析 + 分片构建）：
+  worker 返回快照数组，主线程**不再 restore 重建临时工作簿**——
   确认后快照直接替换进目标；导出对称地在 Worker 序列化（`tools/export.worker.ts`，
   `tools/download.ts` 采集快照发起，失败回退主线程）；worker 均须列入 pack entry。
   行高随 `SheetSnapshot.rowHeights?` 跨 worker / 持久化传输
@@ -115,14 +115,14 @@ src/
 
 ## 依赖
 
-- **dependencies**：`hucre`（`components/sheet/popups/import.worker.ts` 动态 `import('hucre/xlsx')`）
+- **dependencies**：无（xlsx/csv IO 由 `@veltra/sheet-core` 承担，hucre 仅是它的 dependency）
 - **peer**：`@cat-kit/core`（查找防抖 `debounce`）、`@cat-kit/fe`（`saveBlob` 下载）、`vue`、`@veltra/compositions`（条件规则对话框 `useDnD` 拖拽排序）、`@veltra/desktop`、`@veltra/icons`、`@veltra/sheet-core`、`@veltra/utils`、`@veltra/styles`
 - **被依赖**：playground
 
 ## 构建与测试配置
 
 - **pack entry**：`src/index.ts`、`src/components/sheet/style.ts`、`src/components/report/style.ts`、`src/components/sheet/popups/import.worker.ts`、`src/tools/export.worker.ts`（worker 经 `new Worker(new URL())` 引用，非 import 可达——unbundle 模式下必须显式列为 entry 才会编译进 dist）
-- **neverBundle**：全部 peer + `hucre`（含 `@veltra/sheet-core`）；treeshake `moduleSideEffects` 保留 `components/*/style.ts` 与 `tools/builtin.ts`
+- **neverBundle**：全部 peer（含 `@veltra/sheet-core`）；treeshake `moduleSideEffects` 保留 `components/*/style.ts` 与 `tools/builtin.ts`
 - **测试**：happy-dom；canvas mock 等测试环境初始化已随 grid 迁至 sheet-core，`setupFiles` 跨包引用 `../sheet-core/src/grid/__test__/setup.ts`
 
 ## 已知限制

@@ -1,10 +1,9 @@
 import { Sheet } from '@veltra/sheet-core'
-import { buildWorkbookFromHucre, XLSX_READ_OPTIONS } from '@veltra/sheet-core/core/io/import'
-import { readXlsx } from 'hucre/xlsx'
+import { importXlsx } from '@veltra/sheet-core/core/io/import'
 import { describe, expect, it } from 'vitest'
 
 import { REPORT_META_NAMESPACE, createReportBinding } from '../binding'
-import { buildColumnDefs, exportFilledReportXlsx, pxToExcelColWidth } from '../export-xlsx'
+import { exportFilledReportXlsx } from '../export-xlsx'
 import { renderReport } from '../render'
 import type { DatasetCatalogItem } from '../types'
 
@@ -69,8 +68,7 @@ describe('exportFilledReportXlsx', () => {
     expect(buffer[0]).toBe(0x50)
     expect(buffer[1]).toBe(0x4b)
 
-    const hucreWb = await readXlsx(buffer, XLSX_READ_OPTIONS)
-    const workbook = buildWorkbookFromHucre(hucreWb)
+    const workbook = await importXlsx(buffer)
     const sheet = workbook.getSheets()[0]!
 
     // 展开值保真（分组头 + 明细值）
@@ -94,25 +92,5 @@ describe('exportFilledReportXlsx', () => {
     const headerStyle = header?.s != null ? sheet.stylePool.get(header.s) : undefined
     expect(headerStyle?.font?.bold).toBe(true)
     expect(headerStyle?.fill?.color).toBe('#E8EEF7')
-  })
-})
-
-describe('buildColumnDefs / pxToExcelColWidth', () => {
-  it('像素列宽换算为 Excel 字符宽度并写入对应列', () => {
-    expect(pxToExcelColWidth(120)).toBe(16)
-    expect(pxToExcelColWidth(0)).toBe(1)
-
-    const columns = buildColumnDefs([
-      [0, 120],
-      [2, 145]
-    ])
-    expect(columns).toHaveLength(3)
-    expect(columns[0]).toEqual({ width: 16 })
-    expect(columns[1]).toEqual({})
-    expect(columns[2]).toEqual({ width: 20 })
-  })
-
-  it('空列宽不产生 columns 定义', () => {
-    expect(buildColumnDefs([])).toEqual([])
   })
 })

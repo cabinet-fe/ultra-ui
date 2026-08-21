@@ -45,9 +45,17 @@ export function pxToExcelColWidth(px: number): number {
   return Math.max(1, Math.round((px - 5) / 7))
 }
 
-/** Excel 字符宽度 → 模型像素列宽 */
-export function excelColWidthToPx(chars: number): number {
-  return Math.round(chars * 7 + 5)
+/** 从列宽条目（模型列索引 → 像素宽）构建 hucre ColumnDef（按条目最大列铺数组，px → 字符宽） */
+export function buildColumnDefs(
+  colWidths: ReadonlyArray<readonly [number, number]>
+): HucreColumnDef[] {
+  if (colWidths.length === 0) return []
+  const maxCol = Math.max(...colWidths.map(([col]) => col))
+  const columns: HucreColumnDef[] = Array.from({ length: maxCol + 1 }, () => ({}))
+  for (const [col, width] of colWidths) {
+    columns[col] = { width: pxToExcelColWidth(width) }
+  }
+  return columns
 }
 
 /** 模型样式 → hucre 单元格样式（fill / border / font / alignment；无边宽字段） */
@@ -147,75 +155,88 @@ function cellToHucreCell(
 }
 
 /**
+ * 单 Sheet → hucre WriteSheet（exportWorkbookXlsx / exportSheetXlsx 共用）。
+ * 行范围 = 数据行 ∪ rowDefs 行 ∪ 列宽列；稠密数组（hucre 写侧只遍历 rows 范围内的行，
+ * rowDefs 覆盖的无数据行必须出现在 rows 中，否则行高丢失）。
+ */
+function sheetToHucreWriteSheet(sheet: Sheet, name: string): HucreWriteSheet {
+  let maxRow = -1
+  let maxCol = -1
+  for (const [addr] of sheet.store.entries()) {
+    if (addr.row > maxRow) maxRow = addr.row
+    if (addr.col > maxCol) maxCol = addr.col
+  }
+  for (const [row] of sheet.getRowHeights()) {
+    if (row > maxRow) maxRow = row
+  }
+  for (const [col] of sheet.getColWidths()) {
+    if (col > maxCol) maxCol = col
+  }
+  const rows: HucreCellValue[][] = maxRow < 0 ? [] : Array.from({ length: maxRow + 1 }, () => [])
+  const cells = new Map<string, Partial<HucreCell>>()
+  for (const [addr, data] of sheet.store.entries()) {
+    const row = rows[addr.row]!
+    const key = `${addr.row},${addr.col}`
+    const detail = cellToHucreCell(sheet, addr, data)
+    if (data.f != null && data.f !== '') {
+      // 公式格：计算值进 rows，公式/样式进 cells
+      row[addr.col] = (data.v as HucreCellValue) ?? null
+      if (detail) cells.set(key, detail)
+      continue
+    }
+    if (data.t === 'd' || data.t === 'e') {
+      // 日期 / 错误格：值由 cells 覆盖（rows 置 null，避免双写歧义）
+      row[addr.col] = null
+      if (detail) cells.set(key, detail)
+      continue
+    }
+    row[addr.col] = (data.v as HucreCellValue) ?? null
+    if (detail) cells.set(key, detail)
+  }
+
+  const sheetOut: HucreWriteSheet = Object.assign(
+    { name, rows },
+    cells.size > 0 ? { cells } : {},
+    sheet.merges.size > 0
+      ? { merges: sheet.merges.getMerges().map((range) => rangeToHucre(range)) }
+      : {}
+  )
+  const frozen = sheet.frozen
+  if (frozen.rows > 0 || frozen.cols > 0) {
+    sheetOut.freezePane = { rows: frozen.rows, columns: frozen.cols }
+  }
+  const rowDefs = new Map<number, HucreRowDef>()
+  for (const [row, height] of sheet.getRowHeights()) {
+    rowDefs.set(row, { height: pxToPt(height) })
+  }
+  if (rowDefs.size > 0) sheetOut.rowDefs = rowDefs
+  if (sheet.getColWidths().size > 0) {
+    sheetOut.columns = buildColumnDefs([...sheet.getColWidths()])
+  }
+  const images = sheet.getImages()
+  if (images.length > 0) sheetOut.images = images.map(imageToHucre)
+  return sheetOut
+}
+
+/**
  * 导出整个工作簿为 XLSX（多 sheet：值 / 公式 / 合并 / 样式（fill+border）/ 冻结 / 行高 / 列宽 / 浮动图）。
  * 纯 TS，可无头测试；返回 ZIP 字节。
  */
 export async function exportWorkbookXlsx(workbook: Workbook): Promise<Uint8Array> {
-  const sheets: HucreWriteSheet[] = workbook.getSheets().map((sheet) => {
-    // 行范围 = 数据行 ∪ rowDefs 行；稠密数组（hucre 写侧只遍历 rows 范围内的行，
-    // rowDefs 覆盖的无数据行必须出现在 rows 中，否则行高丢失）
-    let maxRow = -1
-    let maxCol = -1
-    for (const [addr] of sheet.store.entries()) {
-      if (addr.row > maxRow) maxRow = addr.row
-      if (addr.col > maxCol) maxCol = addr.col
-    }
-    for (const [row] of sheet.getRowHeights()) {
-      if (row > maxRow) maxRow = row
-    }
-    for (const [col] of sheet.getColWidths()) {
-      if (col > maxCol) maxCol = col
-    }
-    const rows: HucreCellValue[][] = maxRow < 0 ? [] : Array.from({ length: maxRow + 1 }, () => [])
-    const cells = new Map<string, Partial<HucreCell>>()
-    for (const [addr, data] of sheet.store.entries()) {
-      const row = rows[addr.row]!
-      const key = `${addr.row},${addr.col}`
-      const detail = cellToHucreCell(sheet, addr, data)
-      if (data.f != null && data.f !== '') {
-        // 公式格：计算值进 rows，公式/样式进 cells
-        row[addr.col] = (data.v as HucreCellValue) ?? null
-        if (detail) cells.set(key, detail)
-        continue
-      }
-      if (data.t === 'd' || data.t === 'e') {
-        // 日期 / 错误格：值由 cells 覆盖（rows 置 null，避免双写歧义）
-        row[addr.col] = null
-        if (detail) cells.set(key, detail)
-        continue
-      }
-      row[addr.col] = (data.v as HucreCellValue) ?? null
-      if (detail) cells.set(key, detail)
-    }
-
-    const sheetOut: HucreWriteSheet = Object.assign(
-      { name: sheet.name, rows },
-      cells.size > 0 ? { cells } : {},
-      sheet.merges.size > 0
-        ? { merges: sheet.merges.getMerges().map((range) => rangeToHucre(range)) }
-        : {}
-    )
-    const frozen = sheet.frozen
-    if (frozen.rows > 0 || frozen.cols > 0) {
-      sheetOut.freezePane = { rows: frozen.rows, columns: frozen.cols }
-    }
-    const rowDefs = new Map<number, HucreRowDef>()
-    for (const [row, height] of sheet.getRowHeights()) {
-      rowDefs.set(row, { height: pxToPt(height) })
-    }
-    if (rowDefs.size > 0) sheetOut.rowDefs = rowDefs
-    if (sheet.getColWidths().size > 0 && maxCol >= 0) {
-      const columns: HucreColumnDef[] = Array.from({ length: maxCol + 1 }, () => ({}))
-      for (const [col, width] of sheet.getColWidths()) {
-        columns[col] = { width: pxToExcelColWidth(width) }
-      }
-      sheetOut.columns = columns
-    }
-    const images = sheet.getImages()
-    if (images.length > 0) sheetOut.images = images.map(imageToHucre)
-    return sheetOut
-  })
+  const sheets = workbook.getSheets().map((sheet) => sheetToHucreWriteSheet(sheet, sheet.name))
   return writeXlsx({ sheets, activeSheet: workbook.activeSheetIndex })
+}
+
+/**
+ * 导出单个 Sheet 为 XLSX（与 exportWorkbookXlsx 同一套单表组装，浮动图随导出保留）。
+ * 表名取 `sheet.name || options?.fallbackName || 'Sheet'`（独立 Sheet 可能无名字）。
+ */
+export async function exportSheetXlsx(
+  sheet: Sheet,
+  options?: { fallbackName?: string }
+): Promise<Uint8Array> {
+  const writeSheet = sheetToHucreWriteSheet(sheet, sheet.name || options?.fallbackName || 'Sheet')
+  return writeXlsx({ sheets: [writeSheet], activeSheet: 0 })
 }
 
 /**

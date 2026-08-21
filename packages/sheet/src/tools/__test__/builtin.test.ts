@@ -122,7 +122,7 @@ describe('内置工具（dogfood 扩展机制）', () => {
     }
   })
 
-  it('导出 xlsx：sheet 名含 Excel 非法字符时 reject（hucre 1.0 写入校验，错误传播给调用方）', async () => {
+  it('导出 xlsx：sheet 名含 Excel 非法字符时 reject（sheet-core 写入校验，错误传播给调用方）', async () => {
     const workbook = new Workbook()
     workbook.renameSheet('Sheet1', 'a:b')
     const ctx = createSheetContext(workbook.activeSheet, workbook)

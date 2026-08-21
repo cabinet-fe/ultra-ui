@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 /**
- * XLSX 导出 Worker：exportWorkbookXlsx（模型 → hucre 序列化 + ZIP 压缩，
+ * XLSX 导出 Worker：sheet-core exportWorkbookXlsx（模型序列化 + ZIP 压缩，
  * 大工作簿为秒级同步重活）移到独立线程，主线程保持空闲。
  *
  * 协议：主线程 postMessage({ sheets: [{ name, snapshot }], activeIndex }）
@@ -36,7 +36,7 @@ self.onmessage = (e: MessageEvent<ExportWorkerPayload>): void => {
       for (let i = 0; i < sheets.length; i++) {
         const { name, snapshot } = sheets[i]!
         // 首个 sheet 复用 Workbook 自带的默认表：先改名对齐（空名/重名保持原名，
-        // 导出侧 hucre 1.0 会校验表名合法性）
+        // 导出侧 sheet-core 的 writeXlsx 会校验表名合法性）
         const sheet = i === 0 ? wb.activeSheet : wb.addSheet(name)
         if (i === 0 && sheet.name !== name) wb.renameSheet(sheet.name, name)
         sheet.restore(snapshot)

@@ -8,7 +8,7 @@ import { defineConfig } from 'vite-plus'
 
 const repoRoot = resolve(import.meta.dirname, '../..')
 
-export default defineConfig({
+const config = {
   // 仅供 Vitest 编译 SFC/TSX（测试会经 veltra-dev 拉入 desktop 源码）；`vp pack` 使用下方 pack.plugins。
   plugins: [vue(), vueJsx()],
   css: { preprocessorOptions: { scss: { importers: [new NodePackageImporter(repoRoot)] } } },
@@ -46,4 +46,6 @@ export default defineConfig({
     },
     plugins: [unpluginVue({ isProduction: true })]
   }
-})
+}
+
+export default defineConfig(config as Parameters<typeof defineConfig>[0])

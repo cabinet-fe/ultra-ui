@@ -123,7 +123,7 @@ export type SheetEvents = {
   /** 结构变化（行列插入/删除；grid 层据此调整渲染行列数） */
   'structure-change': StructureChange
   /**
-   * 整表内容替换（SnapshotPatch 应用：导入 replaceWorkbook / undo/redo 回放）。
+   * 整表内容替换（SnapshotPatch 应用：导入 replaceWorkbookWithSnapshots / undo/redo 回放）。
    * 不发逐格 cell-change（避免十万级视图同步）；grid 层全量刷新（setRecords）、
    * 状态源 bump 都以此为信号。
    */
@@ -1164,8 +1164,7 @@ export class Sheet {
         }
         if (patch.kind === 'snapshot') {
           // 整表替换：快照全部格都是变更格（值/公式被替换，跨表引用方需联动重算）。
-          // 被清空的旧格（旧快照有、新快照无）同样标脏——否则引用它们的跨表公式
-          // 缓存 stale（旧实现 copySheetContent 先逐格 clear 会标脏全部旧格）
+          // 被清空的旧格（旧快照有、新快照无）同样标脏——否则引用它们的跨表公式缓存 stale
           for (const item of patch.snapshot.cells) {
             changed.push({ sheet: this, addr: { row: item.row, col: item.col } })
           }

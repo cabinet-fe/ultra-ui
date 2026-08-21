@@ -1,3 +1,6 @@
+import type { CellData, CellValue } from './cell-store'
+import { inferCellType, isEmptyCellData } from './cell-store'
+import type { SetCellValueItem } from './command/set-cell-value'
 import type { CellPatch } from './command/types'
 import { TypedEventEmitter } from './events'
 import { DependencyGraph } from './formula/dependency-graph'
@@ -15,6 +18,23 @@ export type WorkbookEvents = {
   'sheets-change': { sheets: Sheet[] }
   /** sheet 重命名（跨表公式引用已跟随新名） */
   'sheet-rename': { sheet: Sheet; oldName: string; newName: string }
+}
+
+/**
+ * addSheet 初始数据的单元格输入：原始值（string/number/boolean/null）或数据对象
+ * （f 为公式原文，不带 '='；不支持 s 样式引用；日期用 `{ v: 序列数, t: 'd' }`，
+ * 不支持 Date 对象）。
+ */
+export type AddSheetCellInput = CellValue | undefined | Omit<CellData, 's'>
+
+/** Workbook.addSheet 的初始数据配置 */
+export interface AddSheetOptions {
+  /** 初始单元格数据：二维数组，从 A1 起按行列写入。null/undefined/'' 跳过（空单元格不占存储） */
+  data?: readonly (readonly AddSheetCellInput[])[]
+  /** 初始渲染行数（与数据行数取大；仅传入时校验，非正整数抛错） */
+  rows?: number
+  /** 初始渲染列数（与数据列数取大；仅传入时校验，非正整数抛错） */
+  cols?: number
 }
 
 export class Workbook {
@@ -94,9 +114,70 @@ export class Workbook {
     return this.sheets.find((sheet) => sheet.name === name)
   }
 
-  /** 新增 sheet，名称缺省为 Sheet{n}（保证唯一） */
-  addSheet(name?: string): Sheet {
+  /**
+   * 新增 sheet，名称缺省为 Sheet{n}（保证唯一）。
+   *
+   * options.data：二维数组初始数据，从 A1 起按行列写入——原始值（string/number/boolean）
+   * 按 inferCellType 推断类型；null/undefined/'' 跳过（空单元格不占存储）；对象形式
+   * 透传 { v, t, f }（f 为公式原文，不带 '='；公式格可不传 v，写入后立即重算填充缓存，
+   * 用户传的 v 会被重算覆盖）。初始数据经一次 setCells 写入（单命令，公式注册进共享
+   * 依赖图并立即有计算缓存），随后清空历史——初始数据是基线状态，不进 undo
+   * （Excel 模板语义）。
+   *
+   * options.rows/cols：初始渲染尺寸（高水位），与数据行/列数取大；仅传入时校验，
+   * 非正整数（含 NaN、小数、Infinity）抛错。
+   *
+   * 数据在 sheets-change 事件发出前就位（grid 在事件后构建，直接读模型）。
+   */
+  addSheet(name?: string, options?: AddSheetOptions): Sheet {
+    const optRows = options?.rows
+    const optCols = options?.cols
+    if (optRows !== undefined && (!Number.isInteger(optRows) || optRows <= 0)) {
+      throw new Error(`Workbook.addSheet：options.rows 必须是正整数，收到 ${optRows}`)
+    }
+    if (optCols !== undefined && (!Number.isInteger(optCols) || optCols <= 0)) {
+      throw new Error(`Workbook.addSheet：options.cols 必须是正整数，收到 ${optCols}`)
+    }
     const sheet = new Sheet(name ?? this.nextDefaultName(), this.formulaGraph)
+    // 初始数据展开为批量写入项（先写数据后发 sheets-change：grid 在事件后直接读模型）
+    const data = options?.data
+    let dataRows = 0
+    let dataCols = 0
+    if (data) {
+      dataRows = data.length
+      const items: SetCellValueItem[] = []
+      for (let r = 0; r < data.length; r++) {
+        const row = data[r]
+        if (!row) continue
+        // 空行/宽行也算进列数（对齐 importCsv 的渲染高水位语义）
+        dataCols = Math.max(dataCols, row.length)
+        for (let c = 0; c < row.length; c++) {
+          const input = row[c]
+          if (input == null || input === '') continue
+          let cellData: Omit<CellData, 's'>
+          if (typeof input === 'object') {
+            // 数据对象：透传 { v, t, f }；空格（无公式且 v 为空）不占存储
+            if (isEmptyCellData(input)) continue
+            cellData = { v: input.v, t: input.t, f: input.f }
+          } else {
+            // 原始值：类型自动推断（对齐 importCsv 的写法）
+            const t = inferCellType(input)
+            cellData = { v: input, ...(t ? { t } : {}) }
+          }
+          items.push({ addr: { row: r, col: c }, data: cellData })
+        }
+      }
+      if (items.length > 0) {
+        // 一次 setCells = 单命令：公式注册进依赖图 + 立即重算填充缓存
+        sheet.setCells(items)
+        // 初始数据是基线状态，不进 undo（新表历史本为空，clear 保持为空）
+        sheet.history.clear()
+      }
+    }
+    // 渲染尺寸：显式值与数据高水位取大（不进 undo）
+    const finalRows = Math.max(optRows ?? 0, dataRows)
+    const finalCols = Math.max(optCols ?? 0, dataCols)
+    if (finalRows > 0 || finalCols > 0) sheet.ensureTableSize(finalRows, finalCols)
     this.sheets.push(sheet)
     if (this.inBatch) {
       this.batchSheetsChanged = true

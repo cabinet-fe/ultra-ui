@@ -30,7 +30,7 @@ const cls = bem('sheet')
 function exportXlsx(): void {
   emit('close')
   // 大工作簿序列化在 worker 中进行（数秒）：给常驻反馈，失败（如 sheet 名含
-  // Excel 非法字符，hucre 1.0 写入校验抛 InvalidArgumentError）明确报错，
+  // Excel 非法字符，sheet-core 写入校验抛 InvalidArgumentError）明确报错，
   // 绝不静默失败
   const loading = message({ message: '正在导出…', duration: 0 })
   exportWorkbookFile(props.context)

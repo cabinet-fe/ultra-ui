@@ -35,9 +35,6 @@
       "import": "./dist/*"
     }
   },
-  "dependencies": {
-    "hucre": "^1.1.0"
-  },
   "peerDependencies": {
     "@cat-kit/core": ">=1.1.8",
     "@cat-kit/fe": ">=1.1.8",

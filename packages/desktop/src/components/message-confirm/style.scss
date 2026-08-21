@@ -10,7 +10,7 @@ $root-name: message-confirm;
   // 根元素必须「平时」就有 transition：Vue transition-group 的 hasTransition 在
   // 添加 leave-active 类之前检查元素当前 computed 样式，只在类上声明 transition
   // 读不到 → 判定无过渡 → after-leave 同步触发（onClosed 在点击事件内同步执行，
-  // replaceWorkbook 长任务阻塞弹窗关闭）。与 message 组件对称（mask/box 同此）。
+  // replaceWorkbookWithSnapshots 长任务阻塞弹窗关闭）。与 message 组件对称（mask/box 同此）。
   transition: opacity fn.use-var(transition, normal) fn.use-var(transition, ease);
 
   @include m.e(mask) {

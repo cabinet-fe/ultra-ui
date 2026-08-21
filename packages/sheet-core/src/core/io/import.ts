@@ -29,7 +29,7 @@ import {
 import { Workbook } from '../workbook'
 
 /** 导入固定走 cells Map，不按 Excel 包围盒铺稠密 rows。 */
-export const XLSX_READ_OPTIONS = { readStyles: true, sparse: true } as const
+const XLSX_READ_OPTIONS = { readStyles: true, sparse: true } as const
 
 /**
  * 导入（Phase 5）：hucre（XLSX / CSV）→ 模型。
@@ -390,7 +390,7 @@ function applyHucreSheet(
   }
   // 冻结与行高/列宽：模型状态，不进 undo（定义的行/列计入尺寸）
   target.setFrozen(source.freezePane?.rows ?? 0, source.freezePane?.columns ?? 0)
-  // 行高/列宽只应用到实际渲染范围。hucre 1.1 会把 Excel 默认列宽物化成
+  // 行高/列宽只应用到实际渲染范围。hucre 会把 Excel 默认列宽物化成
   // 16384 长的 columns[]；KEEP_MARGIN 外扩再写入默认宽，随后逐列
   // setColWidth 会把切 sheet 卡在数秒（见 SheetGrid column.width）。
   if (source.rowDefs) {
@@ -425,10 +425,15 @@ function uniqueName(name: string, used: Set<string>): string {
 /**
  * 从 XLSX 字节导入为新工作簿（多 sheet：值 / 公式 / 合并 / 样式（样式池去重）/ 冻结 / 行高 / 列宽 / 浮动图）。
  * 每个 sheet 的数据写入 = 单 undo 单元（在其自身历史栈上）。
+ * onProgress：分片构建进度（透传 buildWorkbookFromHucre，每完成一个 sheet 回调一次；
+ * worker 导入链路经其驱动进度 UI；无头调用不传）。
  */
-export async function importXlsx(buffer: ArrayBuffer | Uint8Array): Promise<Workbook> {
+export async function importXlsx(
+  buffer: ArrayBuffer | Uint8Array,
+  onProgress?: (done: number, total: number) => void
+): Promise<Workbook> {
   const hucreWb: HucreWorkbook = await readXlsx(buffer, XLSX_READ_OPTIONS)
-  return buildWorkbookFromHucre(hucreWb)
+  return buildWorkbookFromHucre(hucreWb, onProgress)
 }
 
 /**
@@ -511,32 +516,6 @@ export function importCsv(text: string, sheet: Sheet): void {
     if (row) maxCols = Math.max(maxCols, row.length)
   }
   sheet.ensureTableSize(rows.length, maxCols)
-}
-
-/**
- * 把源工作簿内容整体替换到目标工作簿（导入 UI 的「替换当前工作簿」策略）。
- * 结构变更（sheet 增删）不走 undo（Phase 3 门面边界结论）；每个 sheet 的
- * 内容替换 = 单 undo 单元（RestoreSheetCommand 整表快照替换，undo 恢复该
- * sheet 导入前数据）。
- *
- * 快照整表替换（P0 优化）：不逐格 setCells——导入执行期间不发逐格
- * cell-change（避免主线程十万级视图同步白干）；数据只搬一次（源快照直接
- * restore 进目标，不再经「restore 重建 → copySheetContent 逐格拷贝」三拷贝）。
- * 行高/列宽已在 SheetSnapshot 字段内；亦可经 SheetReplaceItem 显式传入覆盖。
- */
-export function replaceWorkbook(target: Workbook, source: Workbook): void {
-  replaceWorkbookWithSnapshots(
-    target,
-    source
-      .getSheets()
-      .map((s) => ({
-        name: s.name,
-        snapshot: s.snapshot(),
-        rowHeights: s.getRowHeights(),
-        colWidths: s.getColWidths()
-      })),
-    source.activeSheetIndex
-  )
 }
 
 /** 快照替换条目（行高/列宽不进 restoreContent，单独随条目传输） */
@@ -651,63 +630,5 @@ function replaceSheetFromSnapshot(sheet: Sheet, item: SheetReplaceItem): void {
       activeCell: { row: 0, col: 0 },
       ranges: [{ start: { row: 0, col: 0 }, end: { row: 0, col: 0 } }]
     })
-  }
-}
-
-/**
- * 把源 sheet 内容拷贝进目标 sheet（样式按内容重新 intern 到目标样式池）。
- * 事务包裹 = 单 undo 单元（undo 恢复目标 sheet 拷贝前状态）。
- */
-export function copySheetContent(target: Sheet, source: Sheet): void {
-  target.beginTransaction()
-  try {
-    // 清空目标：先解除既有合并，再批量清除数据
-    for (const range of target.merges.getMerges()) target.unmergeCells(range)
-    const clearItems: SetCellValueItem[] = []
-    for (const [addr] of target.store.entries()) clearItems.push({ addr, data: undefined })
-    if (clearItems.length > 0) target.setCells(clearItems)
-
-    // 拷贝源数据（跨 sheet 样式 id 无效：重新 intern）
-    const items: SetCellValueItem[] = []
-    for (const [addr, data] of source.store.entries()) {
-      const copy: CellData = { ...data }
-      if (copy.s != null) {
-        const style = source.stylePool.get(copy.s)
-        copy.s = style ? target.stylePool.intern(style) : undefined
-      }
-      if (copy.s === undefined) delete copy.s
-      items.push({ addr: { row: addr.row, col: addr.col }, data: copy })
-    }
-    if (items.length > 0) target.setCells(items)
-
-    for (const range of source.merges.getMerges()) target.mergeCells({ ...range })
-    target.commit()
-  } catch (error) {
-    target.rollback()
-    throw error
-  }
-  target.setFrozen(source.frozen.rows, source.frozen.cols)
-  for (const [row, height] of source.getRowHeights()) target.setRowHeight(row, height)
-  for (const [col, width] of source.getColWidths()) target.setColWidth(col, width)
-  for (const [row, id] of source.getRowStyleIds()) {
-    const style = source.stylePool.get(id)
-    if (style) target.setRowStyle(row, style)
-  }
-  for (const [col, id] of source.getColStyleIds()) {
-    const style = source.stylePool.get(id)
-    if (style) target.setColStyle(col, style)
-  }
-  // 按源表声明尺寸与数据高水位扩张（不进 undo）
-  target.ensureTableSize(
-    Math.max(source.rows, source.rowCount),
-    Math.max(source.cols, source.colCount)
-  )
-  // 选区对齐源表（hucre 不解析 OOXML selection → importXlsx 源表恒为 A1；
-  // 不复制则 replaceWorkbook 会残留目标表导入前选区，与「导入默认 A1」不符）
-  const srcSel = source.getSelection()
-  if (srcSel.activeCell && srcSel.ranges[0]) {
-    target.selectRange(srcSel.ranges[0], srcSel.activeCell)
-  } else {
-    target.selectCell({ row: 0, col: 0 })
   }
 }

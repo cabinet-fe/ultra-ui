@@ -1,4 +1,4 @@
-import type { CellAddress } from '@veltra/sheet-core'
+import type { CellAddress, CellAlign } from '@veltra/sheet-core'
 import {
   CustomLayout,
   type ResolveCellRenderer,
@@ -51,14 +51,38 @@ export function createBindingBadgeStyleResolver(
   }
 }
 
+/** 徽章容器 flex 布局属性（`flexDirection: 'row'` 下主轴 = 水平） */
+interface BadgeLayoutProps {
+  justifyContent: 'flex-start' | 'center' | 'flex-end'
+  alignItems: 'flex-start' | 'center' | 'flex-end'
+}
+
+/**
+ * 单元格对齐 → 徽章容器 flex 布局映射（纯函数，便于单测）：
+ * `horizontal` left / 缺省 → 主轴起点；`vertical` middle / 缺省 → 交叉轴居中。
+ */
+export function badgeLayoutProps(align: CellAlign | undefined): BadgeLayoutProps {
+  const justifyContent =
+    align?.horizontal === 'center'
+      ? 'center'
+      : align?.horizontal === 'right'
+        ? 'flex-end'
+        : 'flex-start'
+  const alignItems =
+    align?.vertical === 'top' ? 'flex-start' : align?.vertical === 'bottom' ? 'flex-end' : 'center'
+  return { justifyContent, alignItems }
+}
+
 /**
  * 绑定格富渲染徽章（ADR-0004 `resolveCellRenderer` 首个消费者）：
- * 绑定单元格渲染为左对齐徽章（强调色聚合标签 + 中性色字段标签），
+ * 绑定单元格渲染为徽章布局（强调色聚合标签 + 中性色字段标签），
+ * 布局跟随单元格水平 / 垂直对齐（经 `resolveAlign` 读有效样式）；
  * 未绑定格返回 `undefined` 回落默认渲染。
  */
 export function createBindingBadgeRenderer(
   getBindingAt: (addr: CellAddress) => ReportBinding | undefined,
-  resolveLabel?: (datasetId: string, fieldName: string) => string
+  resolveLabel?: (datasetId: string, fieldName: string) => string,
+  resolveAlign?: (addr: CellAddress) => CellAlign | undefined
 ): ResolveCellRenderer {
   return (addr) => {
     const binding = getBindingAt(addr)
@@ -66,12 +90,13 @@ export function createBindingBadgeRenderer(
 
     const { fg } = resolveBadgeColor(binding)
     const { tag, label } = formatBindingPlaceholderParts(binding, resolveLabel)
+    const { justifyContent, alignItems } = badgeLayoutProps(resolveAlign?.(addr))
 
     const rootContainer = new CustomLayout.Container({
       display: 'flex',
       flexDirection: 'row',
-      justifyContent: 'flex-start',
-      alignItems: 'center'
+      justifyContent,
+      alignItems
     })
     // VTable 布局层 Tag 组件（vrender-components）与其 INode 声明存在结构性类型偏差，
     // 运行时完全兼容（VTable 官方 customLayout 徽章用法即如此），此处仅收敛类型

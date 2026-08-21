@@ -1,15 +1,16 @@
 /// <reference lib="webworker" />
 /**
- * XLSX 解析 Worker：hucre 解析 + 模型构建（大文件 3~4s 同步重活）
+ * XLSX 解析 Worker：xlsx 解析 + 模型构建（大文件 3~4s 同步重活）
  * 移到独立线程，主线程保持空闲（loading 动画正常、交互不冻结）。
  *
  * 协议：主线程 postMessage({ buffer: ArrayBuffer }) → worker 返回
- * - { type: 'progress', done, total }（模型分片构建进度，readXlsx 同步解析段无进度）
+ * - { type: 'progress', done, total }（模型分片构建进度，xlsx 解析段无进度）
  * - { type: 'done', ok: true, sheets: [{ name, snapshot }], activeIndex }（快照为
  *   纯数据，可结构化克隆）；失败 { type: 'done', ok: false, error }。
  *
- * 名字唯一化与活动表对齐由 buildWorkbookFromHucre 完成（worker 内），主线程
- * 直接把快照替换进目标（无 undo 历史——替换语义由确认后的 replaceWorkbook 负责）。
+ * 解析与构建经 sheet-core importXlsx 完成（hucre 仅由 sheet-core 依赖）；
+ * 名字唯一化与活动表对齐在 worker 内完成，主线程直接把快照替换进目标
+ * （无 undo 历史——替换语义由确认后的 replaceWorkbookWithSnapshots 负责）。
  *
  * 注意：必须用**运行时动态 import**——worker 顶层静态 import 在 vite dev 的
  * worker 上下文中会因模块图加载顺序导致 `Workbook is not defined`（实测）。
@@ -30,15 +31,11 @@ self.onmessage = (e: MessageEvent<{ buffer: ArrayBuffer }>): void => {
   const { buffer } = e.data
   void (async () => {
     try {
-      const [{ readXlsx }, { buildWorkbookFromHucre, XLSX_READ_OPTIONS }] = await Promise.all([
-        import('hucre/xlsx'),
-        import('@veltra/sheet-core/core/io/import')
-      ])
-      const hucreWb = await readXlsx(new Uint8Array(buffer), XLSX_READ_OPTIONS)
+      const { importXlsx } = await import('@veltra/sheet-core/core/io/import')
       // 分片构建：按 10% 粒度回报进度（避免 196 条/秒的消息风暴与文字跳变过快；
       // 模型构建段约 1s，10 次更新肉眼可见数字推进）
       let lastPercent = -1
-      const wb = buildWorkbookFromHucre(hucreWb, (done, total) => {
+      const wb = await importXlsx(new Uint8Array(buffer), (done, total) => {
         const percent = total > 0 ? Math.floor((done / total) * 10) : 10
         if (percent !== lastPercent || done === total) {
           lastPercent = percent

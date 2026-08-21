@@ -1,16 +1,13 @@
 import type { Workbook as HucreWorkbook } from 'hucre'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { parseRange } from '../../address'
 import { Sheet } from '../../sheet'
 import { Workbook } from '../../workbook'
 import {
-  copySheetContent,
   dateToSerial1900,
   hucreStyleToModel,
   importCsv,
   importXlsx,
-  replaceWorkbook,
   replaceWorkbookWithSnapshots
 } from '../import'
 
@@ -400,68 +397,8 @@ describe('importCsv（写入既有活动表）', () => {
   })
 })
 
-describe('copySheetContent / replaceWorkbook', () => {
-  it('copySheetContent：样式重新 intern、合并 / 冻结 / 行高拷贝；undo 恢复目标原状态', () => {
-    const target = new Sheet('Target')
-    target.setCellValue({ row: 0, col: 0 }, 'old')
-
-    const source = new Sheet('Source')
-    source.setCellValue({ row: 0, col: 0 }, 'new')
-    source.setCellStyle(parseRange('A1')!, { fill: { color: '#FF0000' } })
-    source.mergeCells(parseRange('B2:C3')!)
-    source.setFrozen(1, 0)
-    source.setRowHeight(2, 40)
-
-    copySheetContent(target, source)
-
-    expect(target.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'new' })
-    expect(target.getCellStyle({ row: 0, col: 0 })).toEqual({ fill: { color: '#FF0000' } })
-    expect(target.merges.size).toBe(1)
-    expect(target.frozen).toEqual({ rows: 1, cols: 0 })
-    expect(target.getRowHeight(2)).toBe(40)
-    expect(target.history.undoSize).toBe(2) // setCellValue('old') 1 条 + copySheetContent 事务 1 条
-    // 拷贝后目标渲染尺寸覆盖源表高水位（合并触及 C3 → colCount ≥ 3）
-    expect(target.rows).toBeGreaterThanOrEqual(Math.max(source.rows, source.rowCount))
-    expect(target.cols).toBeGreaterThanOrEqual(Math.max(source.cols, source.colCount))
-
-    target.undo()
-    expect(target.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'old' })
-    expect(target.merges.size).toBe(0)
-  })
-
-  it('replaceWorkbook：结构（多 sheet）+ 数据整体替换，活动表对齐', () => {
-    const target = new Workbook()
-    target.activeSheet.setCellValue({ row: 0, col: 0 }, 'old1')
-    target.addSheet('Old2')
-
-    const source = new Workbook()
-    source.activeSheet.setCellValue({ row: 0, col: 0 }, 'a1')
-    source.activeSheet.setRowHeight(3, 77)
-    source.addSheet('B').setCellValue({ row: 0, col: 0 }, 'b1')
-    source.addSheet('C').setCellValue({ row: 0, col: 0 }, 'c1')
-    source.activateSheet('C')
-
-    replaceWorkbook(target, source)
-
-    expect(target.sheetCount).toBe(3)
-    expect(target.getSheets().map((s) => s.name)).toEqual(['Sheet1', 'B', 'C'])
-    expect(target.getSheet('Sheet1')!.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'a1' })
-    expect(target.getSheet('B')!.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'b1' })
-    expect(target.getSheet('C')!.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'c1' })
-    expect(target.activeSheet.name).toBe('C')
-    // 旧数据不在目标中
-    expect(target.getSheet('Old2')).toBeUndefined()
-    // 行高随替换条目传输（SheetSnapshot 无行高字段，Workbook 版单独携带）
-    expect(target.getSheet('Sheet1')!.getRowHeight(3)).toBe(77)
-
-    // 第一个 sheet 的数据写入可 undo（恢复导入前数据）
-    expect(target.getSheet('Sheet1')!.undo()).toBe(true)
-    expect(target.getSheet('Sheet1')!.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'old1' })
-    // 行高不进 undo（同 rowHeights 先例）
-    expect(target.getSheet('Sheet1')!.getRowHeight(3)).toBe(77)
-  })
-
-  it('replaceWorkbook / copySheetContent：选区对齐源表（导入默认 A1，不残留目标旧选区）', () => {
+describe('replaceWorkbookWithSnapshots', () => {
+  it('replaceWorkbookWithSnapshots：选区对齐快照（导入默认 A1，不残留目标旧选区）', () => {
     const A1 = { row: 0, col: 0 }
     const C3 = { row: 2, col: 2 }
 
@@ -473,8 +410,9 @@ describe('copySheetContent / replaceWorkbook', () => {
     source.activeSheet.setCellValue(A1, 'imported')
     // importXlsx 路径下源表构造默认即为 A1；此处显式保证
     expect(source.activeSheet.getSelection().activeCell).toEqual(A1)
+    const snapshots = source.getSheets().map((s) => ({ name: s.name, snapshot: s.snapshot() }))
 
-    replaceWorkbook(target, source)
+    replaceWorkbookWithSnapshots(target, snapshots, source.activeSheetIndex)
     expect(target.activeSheet.getSelection()).toEqual({
       activeCell: A1,
       ranges: [{ start: A1, end: A1 }]

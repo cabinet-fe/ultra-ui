@@ -108,7 +108,7 @@ ultra-ui/
                ↓
         @veltra/desktop ←── (peer) @veltra/icons
                ↑  ↑   ↑
-               │  │   └── (peer) @veltra/sheet-core ←── (peer) @veltra/sheet（Vue 编辑器；peer: sheet-core/desktop/icons/styles/utils/compositions、@cat-kit/*、vue；deps: hucre）
+               │  │   └── (peer) @veltra/sheet-core ←── (peer) @veltra/sheet（Vue 编辑器；peer: sheet-core/desktop/icons/styles/utils/compositions、@cat-kit/*、vue）
                │  │            （deps: @visactor/vtable(-editors)、hucre；file-viewer 的 Excel 预览也走它）
                │  └── @veltra/ai（peer: desktop/icons/compositions/utils/styles）
                ↓

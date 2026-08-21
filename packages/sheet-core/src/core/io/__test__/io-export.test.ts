@@ -5,9 +5,11 @@ import { parseRange } from '../../address'
 import { Sheet } from '../../sheet'
 import { Workbook } from '../../workbook'
 import {
+  buildColumnDefs,
   exportSheetCsv,
   exportWorkbookXlsx,
   imageToHucre,
+  pxToExcelColWidth,
   rangeToHucre,
   styleToHucre
 } from '../export'
@@ -221,6 +223,26 @@ describe('exportWorkbookXlsx 映射（hucre 输入结构）', () => {
       pattern: 'solid',
       fgColor: { rgb: '00FF00' }
     })
+  })
+})
+
+describe('buildColumnDefs / pxToExcelColWidth', () => {
+  it('像素列宽换算为 Excel 字符宽度并写入对应列', () => {
+    expect(pxToExcelColWidth(120)).toBe(16)
+    expect(pxToExcelColWidth(0)).toBe(1)
+
+    const columns = buildColumnDefs([
+      [0, 120],
+      [2, 145]
+    ])
+    expect(columns).toHaveLength(3)
+    expect(columns[0]).toEqual({ width: 16 })
+    expect(columns[1]).toEqual({})
+    expect(columns[2]).toEqual({ width: 20 })
+  })
+
+  it('空列宽不产生 columns 定义', () => {
+    expect(buildColumnDefs([])).toEqual([])
   })
 })
 

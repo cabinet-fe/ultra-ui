@@ -113,7 +113,12 @@ export {
   type BorderPresetItem
 } from './core/style/border-presets'
 
-export { Workbook, type WorkbookEvents } from './core/workbook'
+export {
+  Workbook,
+  type WorkbookEvents,
+  type AddSheetOptions,
+  type AddSheetCellInput
+} from './core/workbook'
 
 export {
   HistoryManager,
@@ -196,5 +201,5 @@ export {
   DependencyGraph
 } from './core/formula'
 
-export { exportWorkbookXlsx, exportSheetCsv } from './core/io/export'
-export { importXlsx, importCsv, replaceWorkbook } from './core/io/import'
+export { exportWorkbookXlsx, exportSheetXlsx, exportSheetCsv } from './core/io/export'
+export { importXlsx, importCsv } from './core/io/import'

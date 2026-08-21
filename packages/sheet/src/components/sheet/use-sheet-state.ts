@@ -123,8 +123,8 @@ export function useSheetState(props: SheetProps, emit: Emit, hooks: SheetStateHo
   }
 
   /**
-   * 工作簿内容被结构性替换后同步（如导入 xlsx 的 replaceWorkbook）：
-   * replaceWorkbook 未必触发 active-sheet-change（同 index），需显式同步 tabs、
+   * 工作簿内容被结构性替换后同步（如导入 xlsx 的 replaceWorkbookWithSnapshots）：
+   * 整簿替换未必触发 active-sheet-change（同 index），需显式同步 tabs、
    * 重绑 sheet 事件并重建网格。
    */
   function syncFromWorkbook(): void {

@@ -325,6 +325,32 @@ describe('renderReport', () => {
     expect(firstAmount?.s).toBe(styleId)
   })
 
+  it('模板格对齐样式直通 Filled Report 快照（静态格与绑定扩展格）', () => {
+    const sheet = new Sheet()
+    seedGroupDetailTemplate(sheet)
+    // 静态表头格（resolveStatic 路径）
+    sheet.setCellStyle(
+      { start: { row: 0, col: 0 }, end: { row: 0, col: 0 } },
+      { align: { horizontal: 'right' } }
+    )
+    // 绑定明细格（resolveCell 路径，样式随扩展实例复制）
+    sheet.setCellStyle(
+      { start: { row: 1, col: 3 }, end: { row: 1, col: 3 } },
+      { align: { horizontal: 'center' } }
+    )
+
+    const filled = renderReport(sheet.snapshot(), MOCK_DATA_RECORDS)
+    const header = filled.cells.find((c) => c.row === 0 && c.col === 0)
+    expect(filled.styles[(header!.s ?? 1) - 1]?.align?.horizontal).toBe('right')
+
+    const firstAmount = filled.cells.find((c) => c.row === 1 && c.col === 3)
+    expect(firstAmount?.s).toBeDefined()
+    expect(filled.styles[(firstAmount!.s ?? 1) - 1]?.align?.horizontal).toBe('center')
+    // 展开带后续实例同样携带对齐
+    const secondAmount = filled.cells.find((c) => c.row === 2 && c.col === 3)
+    expect(filled.styles[(secondAmount!.s ?? 1) - 1]?.align?.horizontal).toBe('center')
+  })
+
   it('subtotal 支持 avg / count 聚合', () => {
     const sheet = new Sheet()
     seedGroupDetailTemplate(sheet)

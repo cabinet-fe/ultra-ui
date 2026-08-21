@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
+import type { CellValue } from '../cell-store'
 import { Sheet } from '../sheet'
 import { Workbook } from '../workbook'
 
@@ -335,5 +336,127 @@ describe('Workbook.beginBatch / endBatch（批量结构变更事件抑制）', (
     }
     expect(events).toEqual(['sheets-change'])
     expect(wb.getSheets().map((s) => s.name)).toEqual(['Sheet1', 'B'])
+  })
+})
+
+describe('Workbook.addSheet（初始数据）', () => {
+  it('向后兼容：addSheet() / addSheet(name) 行为不变', () => {
+    const wb = new Workbook()
+    const s1 = wb.addSheet()
+    expect(s1.name).toBe('Sheet2')
+    expect(s1.store.size).toBe(0)
+    expect(s1.rows).toBe(0)
+    expect(s1.cols).toBe(0)
+    expect(s1.canUndo).toBe(false)
+    const s2 = wb.addSheet('x')
+    expect(s2.name).toBe('x')
+    expect(wb.sheetCount).toBe(3)
+  })
+
+  it('原始值从 A1 起按行列写入，类型自动推断；null/undefined/空串 不占存储', () => {
+    const wb = new Workbook()
+    const sheet = wb.addSheet('Data', {
+      data: [
+        [1, 'text', true],
+        [null, undefined, '']
+      ]
+    })
+    expect(sheet.getCellData(A1)).toEqual({ v: 1, t: 'n' })
+    expect(sheet.getCellData(B1)).toEqual({ v: 'text', t: 's' })
+    expect(sheet.getCellData({ row: 0, col: 2 })).toEqual({ v: true, t: 'b' })
+    // 空值跳过：存储中不存在
+    expect(sheet.getCellData({ row: 1, col: 0 })).toBeUndefined()
+    expect(sheet.getCellData({ row: 1, col: 1 })).toBeUndefined()
+    expect(sheet.getCellData({ row: 1, col: 2 })).toBeUndefined()
+    expect(sheet.store.size).toBe(3)
+    // 空行/宽行算进渲染高水位（对齐 importCsv 语义）
+    expect(sheet.rows).toBe(2)
+    expect(sheet.cols).toBe(3)
+  })
+
+  it('对象形式：公式格立即有计算缓存，另一张表跨表引用联动', () => {
+    const wb = new Workbook()
+    const s1 = wb.activeSheet
+    const s2 = wb.addSheet('Calc', { data: [[1, 2, { f: 'SUM(A1:B1)' }]] })
+    // 公式注册进共享依赖图 + 立即重算：缓存值就位
+    expect(s2.getCellData({ row: 0, col: 2 })).toMatchObject({ v: 3, t: 'n', f: 'SUM(A1:B1)' })
+    expect(s2.getDisplayValue({ row: 0, col: 2 })).toBe(3)
+    // 跨表引用该公式格
+    s1.setCellFormula(A1, '=Calc!C1*2')
+    expect(s1.getCellData(A1)).toMatchObject({ v: 6 })
+    // 改源格 → 公式格与跨表引用方联动重算
+    s2.setCellValue(A1, 10)
+    expect(s2.getCellData({ row: 0, col: 2 })).toMatchObject({ v: 12 })
+    expect(s1.getCellData(A1)).toMatchObject({ v: 24 })
+  })
+
+  it('对象形式：公式格用户传的 v 被重算覆盖；{ v, t } 数据对象透传', () => {
+    const wb = new Workbook()
+    const sheet = wb.addSheet('F', {
+      data: [
+        [
+          { f: '1+1', v: 999 },
+          { v: 45000, t: 'd' }
+        ]
+      ]
+    })
+    expect(sheet.getCellData(A1)).toMatchObject({ v: 2, t: 'n', f: '1+1' })
+    expect(sheet.getCellData(B1)).toEqual({ v: 45000, t: 'd' })
+  })
+
+  it('初始数据不进 undo（history 已清空），数据保持', () => {
+    const wb = new Workbook()
+    const sheet = wb.addSheet('NoUndo', { data: [[1, { f: 'A1*2' }]] })
+    expect(sheet.canUndo).toBe(false)
+    expect(sheet.undo()).toBe(false)
+    expect(sheet.getCellData(A1)).toEqual({ v: 1, t: 'n' })
+    expect(sheet.getCellData(B1)).toMatchObject({ v: 2 })
+  })
+
+  it('rows/cols 与数据高水位取大', () => {
+    const wb = new Workbook()
+    const s1 = wb.addSheet('X', { rows: 100, cols: 20 })
+    expect(s1.rows).toBe(100)
+    expect(s1.cols).toBe(20)
+    const s2 = wb.addSheet('Y', { rows: 2, cols: 2, data: [[1, 2, 3, 4, 5]] })
+    expect(s2.rows).toBe(2)
+    expect(s2.cols).toBe(5)
+  })
+
+  it('rows/cols 非法值抛错（0/-1/1.5/NaN/Infinity），且不创建 sheet', () => {
+    const wb = new Workbook()
+    const before = wb.sheetCount
+    expect(() => wb.addSheet('A', { rows: 0 })).toThrow(/rows/)
+    expect(() => wb.addSheet('A', { rows: -1 })).toThrow(/rows/)
+    expect(() => wb.addSheet('A', { rows: 1.5 })).toThrow(/rows/)
+    expect(() => wb.addSheet('A', { rows: NaN })).toThrow(/rows/)
+    expect(() => wb.addSheet('A', { cols: 0 })).toThrow(/cols/)
+    expect(() => wb.addSheet('A', { cols: Infinity })).toThrow(/cols/)
+    expect(wb.sheetCount).toBe(before)
+    expect(wb.getSheet('A')).toBeUndefined()
+  })
+
+  it('空 data 数组 / 空行数组不报错', () => {
+    const wb = new Workbook()
+    const s1 = wb.addSheet('Empty', { data: [] })
+    expect(s1.store.size).toBe(0)
+    expect(s1.rows).toBe(0)
+    expect(s1.canUndo).toBe(false)
+    const s2 = wb.addSheet('Empty2', { data: [[], []] })
+    expect(s2.store.size).toBe(0)
+    // 空行也算行数（对齐 importCsv 语义）
+    expect(s2.rows).toBe(2)
+    expect(s2.cols).toBe(0)
+  })
+
+  it('数据在 sheets-change 事件发出前就绪', () => {
+    const wb = new Workbook()
+    let seen: CellValue | undefined
+    wb.on('sheets-change', ({ sheets }) => {
+      const last = sheets[sheets.length - 1]
+      if (last?.name === 'Evt') seen = last.getDisplayValue(A1)
+    })
+    wb.addSheet('Evt', { data: [[42]] })
+    expect(seen).toBe(42)
   })
 })

@@ -6,7 +6,7 @@ import type { SheetContext } from './context'
 import type { ExportWorkerPayload, ExportWorkerResponse } from './export.worker'
 
 /**
- * 大工作簿的 XLSX 导出（hucre 序列化 + ZIP 压缩为秒级同步重活）移入 Web Worker：
+ * 大工作簿的 XLSX 导出（sheet-core 序列化 + ZIP 压缩为秒级同步重活）移入 Web Worker：
  * 主线程只采集快照（结构化克隆友好的纯数据，行高随 SheetSnapshot.rowHeights
  * 携带），序列化与压缩在 worker 线程进行。worker 不可用（极端环境 / 打包产物
  * 缺文件）回退主线程导出——与导入侧 parseXlsxAsync 同一模式。
@@ -55,7 +55,7 @@ async function exportWorkbookXlsxAsync(workbook: Workbook): Promise<Uint8Array> 
 /**
  * 导出当前工作簿为 .xlsx（无 workbook 时空操作）。
  * 下载动作复用 @cat-kit/fe 的 saveBlob（#28：不再自研 Object URL + a.click）。
- * hucre 1.0 起 writeXlsx 会校验 sheet 名（Excel 非法字符 / 超长 / 保留名）并抛
+ * 导出侧 sheet-core 的 writeXlsx 会校验 sheet 名（Excel 非法字符 / 超长 / 保留名）并抛
  * InvalidArgumentError——失败经返回的 Promise 传播，调用方（导出面板）负责提示。
  */
 export async function exportWorkbookFile(ctx: SheetContext): Promise<void> {

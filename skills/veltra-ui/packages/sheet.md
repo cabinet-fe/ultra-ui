@@ -79,7 +79,9 @@ import '@veltra/sheet/components/report/style'
 
 ## 多 Sheet 管理（Workbook）
 
-- `workbook.addSheet(name?)` / `removeSheet(name)` / `renameSheet(oldName, newName): boolean` /
+- `workbook.addSheet(name?, options?)`（`options.data` 二维数组从 A1 起生成单元格：原始值 /
+  `{ f }` 公式立即计算、初始数据不进 undo；`options.rows/cols` 初始渲染尺寸，非法值抛错）/
+  `removeSheet(name)` / `renameSheet(oldName, newName): boolean` /
   `activateSheet(name)` / `getSheet(name)` / `getSheets()`；`sheet.name` **只读**（改名唯一入口
   `renameSheet`，直接赋值被类型系统拒绝）。
 - `renameSheet` 校验：trim 后空名拒绝；与现有表重名拒绝（不区分大小写，含自身大小写变体）。

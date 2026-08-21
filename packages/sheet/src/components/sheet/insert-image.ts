@@ -24,7 +24,7 @@ const EXT_TO_TYPE: Record<string, SheetImageType> = {
   webp: 'webp'
 }
 
-/** MIME → hucre 图片类型；MIME 为空时回落扩展名 */
+/** MIME → sheet-core 图片类型（core/image 的 SheetImageType）；MIME 为空时回落扩展名 */
 export function resolveImageType(file: File): SheetImageType | undefined {
   const mime = file.type.trim().toLowerCase()
   if (mime && MIME_TO_TYPE[mime]) return MIME_TO_TYPE[mime]

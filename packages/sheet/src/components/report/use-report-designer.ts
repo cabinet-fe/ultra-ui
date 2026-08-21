@@ -483,7 +483,13 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
   // ---- 渲染与模板 ----
 
   const resolveCellStyle = createBindingBadgeStyleResolver(getBindingAt)
-  const resolveCellRenderer = createBindingBadgeRenderer(getBindingAt, resolveFieldLabel)
+  // 对齐访问器：hook 为长生命周期闭包而 activeSheet 可变（template 载入 / 宿主换 workbook），
+  // 每次调用动态取当前 sheet 的有效样式（getEffectiveStyle 为 O(1) 列→行→格叠加）
+  const resolveCellRenderer = createBindingBadgeRenderer(
+    getBindingAt,
+    resolveFieldLabel,
+    (addr) => workbook.value.activeSheet.getEffectiveStyle(addr)?.align
+  )
 
   function getTemplate(): ReportTemplate {
     const resolved: ReportDatasetDef[] = datasets.value.flatMap((dataset) => {
