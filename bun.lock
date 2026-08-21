@@ -25,7 +25,7 @@
     },
     "packages/ai": {
       "name": "@veltra/ai",
-      "version": "2.1.5",
+      "version": "2.1.6",
       "dependencies": {
         "markstream-vue": "^2.0.0",
       },

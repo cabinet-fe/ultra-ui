@@ -1,5 +1,11 @@
 # @veltra/ai
 
+## 2.1.6
+
+### Patch Changes
+
+- 33022a9: fix(ai): 优化 UAiChat 输入框高度自适应与 placeholder 文本截断样式
+
 ## 2.1.5
 
 ### Patch Changes
