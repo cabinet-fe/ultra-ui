@@ -1,5 +1,11 @@
 # @veltra/ai
 
+## 2.1.5
+
+### Patch Changes
+
+- 23057b4: fix(ai): 优化 UAiChat 输入框内边距样式
+
 ## 2.1.4
 
 ### Patch Changes
