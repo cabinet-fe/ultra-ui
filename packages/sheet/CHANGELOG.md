@@ -1,5 +1,11 @@
 # @veltra/sheet
 
+## 2.3.4
+
+### Patch Changes
+
+- d6144bb: feat(sheet-core): Workbook.addSheet 支持初始数据与初始尺寸配置，新增 exportSheetXlsx 单表导出；refactor(sheet): 导入导出能力统一收敛至 sheet-core
+
 ## 2.3.3
 
 ### Patch Changes
