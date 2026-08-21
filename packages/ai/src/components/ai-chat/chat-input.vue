@@ -92,7 +92,7 @@
 import { UButton, UFilePicker, UIcon, UPopConfirm } from '@veltra/desktop'
 import { Attach, Clear, Close, Up } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
-import { computed, inject, nextTick, ref, shallowRef } from 'vue'
+import { computed, inject, nextTick, ref, shallowRef, watch } from 'vue'
 
 import type { ChatAttachment, ChatTokenUsage } from '../../chat/types'
 import type { ChatModelOption } from '../../providers'
@@ -181,13 +181,21 @@ const placeholderText = computed(() => {
   return props.placeholder ?? '输入消息，Enter 发送，Shift + Enter 换行'
 })
 
+const MAX_INPUT_HEIGHT = 160
+
 /** 多行自适应高度，上限 160px */
 const autoResize = () => {
   const el = textareaRef.value
   if (!el) return
   el.style.height = 'auto'
-  el.style.height = `${Math.min(el.scrollHeight, 160)}px`
+  const nextHeight = Math.min(el.scrollHeight, MAX_INPUT_HEIGHT)
+  el.style.height = `${nextHeight}px`
+  el.style.overflowY = el.scrollHeight > MAX_INPUT_HEIGHT ? 'auto' : 'hidden'
 }
+
+watch(placeholderText, () => {
+  void nextTick(autoResize)
+})
 
 const handleSend = () => {
   if (!hasContent.value) return
