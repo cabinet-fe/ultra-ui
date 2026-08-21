@@ -69,11 +69,5 @@
     "commit-msg": "bun cat-cli verify-commit",
     "pre-commit": "vp staged"
   },
-  "devEngines": {
-    "packageManager": {
-      "name": "bun",
-      "version": "1.4.0",
-      "onFail": "download"
-    }
-  }
+  "packageManager": "bun@1.4.0"
 }
