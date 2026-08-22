@@ -10,6 +10,7 @@ src/
 ├── core/                 # 框架无关纯 TS（不 import vue / vtable），可无头单测
 │   ├── address.ts        # A1 地址（0-based）
 │   ├── cell-store.ts     # 稀疏矩阵
+│   ├── cell-readonly.ts  # 单元格只读标记的 Cell Meta namespace（CELL_READONLY_META_NAMESPACE）
 │   ├── sheet.ts          # Sheet = store + merge + selection + history + images
 │   ├── image.ts          # SheetImage / ImageInput（浮动图片模型）
 │   ├── workbook.ts       # 多 Sheet + 共享公式依赖图；addSheet(name, { data, rows, cols }) 可带初始数据
@@ -71,6 +72,15 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 - **保留**：渲染、选区、滚动、键盘导航、右键回调（`onContextMenu` 照常触发，菜单内容由宿主决定）。
 - **模型层不设防，仅守 grid 入口**——绕过 SheetGrid 直接调命令仍可写模型，宿主只读场景不要暴露命令入口。
 - **行列头**：`showRowHeader` / `showColHeader`（默认 true）；false 时不渲染行号列 / 列字母表头，冻结映射不再 +1。
+
+## 单元格级只读（填报场景）
+
+`Sheet.setCellReadonly(addr, readonly?)` / `setRangeReadonly(range, readonly?)` / `isCellReadonly(addr)`；标记经 Cell Meta 存储（namespace `CELL_READONLY_META_NAMESPACE = 'cell-readonly'`，payload 恒为 `true`），天然获得：可 undo（setRangeReadonly 事务合并为单 undo 单元）、随 `SheetSnapshot.meta` 序列化、行列插入删除平移、合并格解析锚点。
+
+- **拦截在 grid 层**（模型层不设防，同整表 readonly 约定）：列级 `editor` 函数对只读格返回 falsy（VTable `getEditor` 不开启编辑，双击 / Enter 均不进入）；`CHANGE_CELL_VALUE` 回写守卫（绕行场景回滚视图显示）；填充柄跳过只读目标格（从只读格向外复制仍允许）。meta 变更时清空 VTable 的 `cacheLastSelectedCellEditor` 按格编辑器缓存（内部字段，无公开 API），运行期标记/解除立即生效。
+- 整表 `readonly: true` 时列级 editor 函数也不挂（列级 editor 会覆盖表级空值导致只读失效）。
+- USheet 的**工具栏 / 公式栏不经 grid 守卫**：填报宿主应隐藏这些写入口（`showToolbar` / `showFormulaBar` 等全 false，参考 playground `sheet-data-entry` 演示页）。
+- 视觉区分由宿主经 `resolveCellStyle` hook 叠加（遵守 cell hook 性能契约）；xlsx 导出不含只读标记（同其它 Cell Meta）。
 
 ## 浮动图片渲染（grid/image-layer.ts）
 

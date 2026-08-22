@@ -142,7 +142,7 @@ function validateChatCompletionsBody(
   return { ok: true, upstreamBody, model }
 }
 
-/** AI 会话代理 Hono 子应用：由 Node 入口 ai-dev.ts 独立监听，也可挂载到其它 app */
+/** AI 会话代理 Hono 子应用：由 server/dev.ts 挂到 `/ai` */
 export const deepseekApp = new Hono()
 
 /** GET /ai —— 会话代理活体文档；只描述端点与环境变量，不返回 API Key */

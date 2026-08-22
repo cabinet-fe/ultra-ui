@@ -1,6 +1,6 @@
 # @veltra/sheet-core
 
-框架无关的表格核心：数据模型（`Sheet` / `Workbook` / `CellStore`）、命令系统（undo/redo）、公式引擎、xlsx/csv 导入导出（hucre）、VTable 渲染适配层 `SheetGrid`（含浮动图片叠层、**readonly 只读预览模式**）。供 `@veltra/sheet`（USheet 编辑器）与 `@veltra/desktop` file-viewer（只读预览）共用。**数据模型完全自持有，VTable 只做渲染与输入**。
+框架无关的表格核心：数据模型（`Sheet` / `Workbook` / `CellStore`）、命令系统（undo/redo）、公式引擎、xlsx/csv 导入导出（hucre）、VTable 渲染适配层 `SheetGrid`（含浮动图片叠层、**readonly 只读预览模式**、**单元格级只读标记**）。供 `@veltra/sheet`（USheet 编辑器）与 `@veltra/desktop` file-viewer（只读预览）共用。**数据模型完全自持有，VTable 只做渲染与输入**。
 
 不依赖 vue；运行时依赖只有 `@visactor/vtable` / `@visactor/vtable-editors` / `hucre`（都是 dependencies，随包装）。
 
@@ -94,6 +94,19 @@ const grid = new SheetGrid({ container, sheet, readonly: true })
 - **保留**：渲染、选区、滚动、键盘导航、`onContextMenu` 右键回调（菜单内容宿主自定）。
 - 注意：模型层不设防，仅守 grid 入口——只读场景宿主不要另行暴露命令/写 API。
 - 典型用例：`@veltra/desktop` UFileViewer 的 Excel/CSV 预览（`importXlsx` / `importCsv` 建模型 + readonly SheetGrid 渲染）。
+
+### 单元格级只读（填报场景）
+
+```ts
+sheet.setRangeReadonly(range) // 区域整体锁定（事务合并为单 undo 单元）
+sheet.setCellReadonly(addr, false) // 解除单格（填报模板：先整表锁定，再放开输入格）
+sheet.isCellReadonly(addr) // 查询（合并格解析锚点）
+```
+
+- 标记经 Cell Meta 存储（namespace `CELL_READONLY_META_NAMESPACE`，主入口导出）：可 undo、随 `sheet.snapshot()` 序列化、行列插入删除时自动平移。
+- **拦截在 SheetGrid**：只读格不开启编辑器（双击 / Enter 均无效）、`CHANGE_CELL_VALUE` 回写守卫（回滚视图）、填充柄跳过只读目标格（从只读格向外复制仍允许）；运行期标记/解除立即生效。模型层不设防（同整表 readonly 约定）。
+- USheet 场景：工具栏 / 公式栏不经 grid 守卫，填报宿主需隐藏（`showToolbar` / `showFormulaBar` 等全 false）；输入区视觉高亮走 `resolveCellStyle` hook（返回 `{ ...base, fill }`，遵守纯函数 / 同步 / O(1) 契约）。
+- xlsx 导出不携带只读标记（同其它 Cell Meta）。
 
 ## 深导入注意事项
 

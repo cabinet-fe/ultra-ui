@@ -1,5 +1,5 @@
 /**
- * 本地开发：并行拉起 report 契约服务（沿用 Bun）、DeepSeek AI 代理（Node）与 playground 前端。
+ * 本地开发：并行拉起 playground 参考服务（report + DeepSeek，同一端口）与前端。
  * 用法：`cd playground && bun run dev`（或根目录 `vp run -F playground dev`）
  */
 import { spawn, type ChildProcess } from 'node:child_process'
@@ -41,7 +41,6 @@ function shutdown(exitCode = 0): void {
 process.on('SIGINT', () => shutdown(0))
 process.on('SIGTERM', () => shutdown(0))
 
-console.log('[playground] 启动 report 契约服务 + DeepSeek AI 代理 + 前端（Ctrl+C 一并退出）')
-spawnProc('bun', ['server/dev.ts'], 'report-server')
-spawnProc('node', ['server/ai-dev.ts'], 'ai-server')
+console.log('[playground] 启动参考服务 + 前端（Ctrl+C 一并退出）')
+spawnProc('bun', ['server/dev.ts'], 'playground-server')
 spawnProc('vp', ['dev'], 'playground')

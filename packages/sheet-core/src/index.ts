@@ -85,6 +85,8 @@ export {
 
 export { CellMetaStore } from './core/cell-meta-store'
 
+export { CELL_READONLY_META_NAMESPACE } from './core/cell-readonly'
+
 export {
   BORDER_SIDES,
   BORDER_STYLE_WIDTH,

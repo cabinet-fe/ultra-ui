@@ -1,6 +1,6 @@
 # playground dev services（report connector + DeepSeek AI proxy）
 
-`@veltra/sheet` DataConnector HTTP 契约（[ADR-0003 决策 3](../../docs/adr/0003-sheet-report-productization.md)）的 dev-only 参考实现：hono + TS，`mysql2` / `pg` 真实驱动；另有 DeepSeek AI 会话代理（Node 运行，见下文）。
+`@veltra/sheet` DataConnector HTTP 契约（[ADR-0003 决策 3](../../docs/adr/0003-sheet-report-productization.md)）的 dev-only 参考实现：hono + TS，`mysql2` / `pg` 真实驱动；DeepSeek AI 会话代理挂在同一进程的 `/ai`。
 
 - 只存在于 playground（devDependencies），**不进任何发布产物**。
 - **通用契约**（供 BYO 对齐）：`POST /test|describe|query` 仍接受完整 `connection` + `sql`。
@@ -9,15 +9,14 @@
 
 ## 启动
 
-- **推荐（完整演示）**：`cd playground && bun run dev` — 并行拉起 report 契约服务（Bun，默认 8787）、DeepSeek AI 代理（Node，默认 8788）与前端（7788）。
-- **仅 report 契约服务**：`bun run server`（`server/dev.ts`，Bun 运行，含 SQLite 工作区）。
-- **仅 DeepSeek AI 代理**：`bun run ai-server`（或 `node server/ai-dev.ts`；Node 运行，先加载 playground/.env）。
-- **仅前端**：`bun run dev:web`；report / AI 演示需另开对应服务，或改用 `bun run dev`。
-- 端口：`REPORT_SERVER_PORT` 覆盖 report 服务（默认 8787）；`AI_SERVER_PORT` 覆盖 AI 代理（默认 8788）。
+- **推荐（完整演示）**：`cd playground && bun run dev` — 并行拉起参考服务（Bun，默认 8787，含 report 与 `/ai`）与前端（7788）。
+- **仅参考服务**：`bun run server`（`server/dev.ts`，Bun 运行，含 SQLite 工作区与 DeepSeek 代理；启动时加载 playground/.env）。
+- **仅前端**：`bun run dev:web`；report / AI 演示需另开 `bun run server`，或改用 `bun run dev`。
+- 端口：`REPORT_SERVER_PORT` 覆盖参考服务（默认 8787）。
 
-## DeepSeek AI 代理（Node）
+## DeepSeek AI 代理
 
-`server/deepseek.ts` 是纯 Hono + Web API 实现，`server/ai-dev.ts` 提供 Node 入口；API Key 只由服务端读取，不会下发浏览器。
+`server/deepseek.ts` 是纯 Hono + Web API 实现，由 `server/dev.ts` 挂到 `/ai`；API Key 只由服务端读取，不会下发浏览器。
 
 | 环境变量                  | 默认值                     | 说明                                                 |
 | ------------------------- | -------------------------- | ---------------------------------------------------- |
@@ -26,9 +25,8 @@
 | `DEEPSEEK_DEFAULT_MODEL`  | `deepseek-v4-flash`        | 请求未传 model 时的默认模型                          |
 | `DEEPSEEK_V4_FLASH_MODEL` | `deepseek-v4-flash`        | 前端 id `deepseek-v4-flash` 映射到的上游模型         |
 | `DEEPSEEK_V4_PRO_MODEL`   | `deepseek-v4-pro`          | 前端 id `deepseek-v4-pro` 映射到的上游模型           |
-| `AI_SERVER_PORT`          | `8788`                     | Node 代理监听端口                                    |
 
-- 浏览器端 transport 使用相对路径 `/ai/chat/completions`，vite proxy 原样转发到 AI 服务。
+- 浏览器端 transport 使用相对路径 `/ai/chat/completions`，vite proxy 原样转发到参考服务。
 - 代理按 OpenAI 兼容协议转发 `content` / `reasoning_content` / `tool_calls`，因此 `createOpenAITransport()` 无需改协议。
 - 端点不接收、也不返回 API Key；密钥只在服务端拼 `Authorization: Bearer` 时从环境变量读取。
 
@@ -40,12 +38,12 @@
 
 ```bash
 # 直接冒烟（请先在 playground/.env 配置 DEEPSEEK_API_KEY）
-curl -N -X POST http://localhost:8788/ai/chat/completions \
+curl -N -X POST http://localhost:8787/ai/chat/completions \
   -H "Content-Type: application/json" \
   -d '{"model":"deepseek-v4-flash","messages":[{"role":"user","content":"你好"}]}'
 
 # 模型列表
-curl http://localhost:8788/ai/models
+curl http://localhost:8787/ai/models
 ```
 
 ## 端点
@@ -62,6 +60,17 @@ curl http://localhost:8788/ai/models
 | `GET                          | POST                        | PUT                                   | DELETE /templates`       | —   | —   | 模板入库时剥离 connection/sql，读取时由工作区回填 |
 
 `WorkspaceDataset`：`{ id, connectionId, label, sql, paramOverrides?, fieldOverrides? }`。
+
+### 在线填报（playground 填报演示）
+
+| 端点                                | 请求体                                              | 成功                                  | 说明                                       |
+| ----------------------------------- | --------------------------------------------------- | ------------------------------------- | ------------------------------------------ |
+| `GET /data-entry/forms/:formId/cells` | —                                                   | `{ ok: true, cells }`                 | 读取表单全部已存单元格（sheet/row/col 升序） |
+| `PUT /data-entry/forms/:formId/cells` | `{ cells: [{ sheet, row, col, value }] }`           | `{ ok: true, saved }`                 | 批量 upsert；`value` 为 null/'' 删除该格     |
+
+- `sheet` 为 workbook 内 sheet 名（1~128 字符）；`value` 仅接受 JSON 标量（string / number / boolean / null）；row/col 为非负整数；单批上限 10_000 条。
+- 存储：SQLite 表 `data_entry_cells`，主键 `(form_id, sheet_key, row_index, col_index)`，与多 sheet 模型同为稀疏按格存储。
+- 前端演示页：`src/sheet-data-entry/index.vue`（多 sheet 预算填报：单元格级只读 + 跨表公式 + 提交前校验 + cell-change 防抖自动保存）。
 
 ### 通用契约（ADR-0003，BYO 对齐）
 

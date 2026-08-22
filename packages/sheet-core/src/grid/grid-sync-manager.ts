@@ -234,6 +234,12 @@ export class GridSyncManager {
       table.on(ListTable.EVENT_TYPE.CHANGE_CELL_VALUE, (args) => {
         const addr = coords.toSheetAddr(table, args.col, args.row)
         if (addr == null) return
+        // 单元格级只读兜底：正常路径编辑器已被列级 editor 函数拦截不会到达这里；
+        // 程序化 changeCellValue 等绕行场景回滚视图显示并跳过写模型
+        if (sheet.isCellReadonly(addr)) {
+          this.pushCellToTable(table, addr, getTableCellValue, coords)
+          return
+        }
         const next = args.changedValue ?? null
         const before = sheet.getCellData(sheet.merges.resolveAnchor(addr))
         const isEmptyCommit = next == null || next === ''
@@ -389,6 +395,17 @@ export class GridSyncManager {
     disposers.push(
       sheet.on('meta-change', ({ addr }) => {
         if (this.released) return
+        // 只读标记随 meta 变更：丢弃 VTable 按格缓存的已解析编辑器
+        // （cacheLastSelectedCellEditor 为内部字段、无公开 API；不清则
+        // 缓存过的格在标记只读后 getEditor 仍直接放行旧编辑器）
+        const editorManager = (
+          table as unknown as {
+            editorManager?: { cacheLastSelectedCellEditor?: Record<string, unknown> }
+          }
+        ).editorManager
+        if (editorManager?.cacheLastSelectedCellEditor) {
+          editorManager.cacheLastSelectedCellEditor = {}
+        }
         if (!addr) {
           if (!this.visible) {
             this.mergeDirty = true

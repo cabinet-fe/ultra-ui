@@ -41,12 +41,14 @@ import { bem } from '@veltra/utils'
 import { computed, nextTick, useTemplateRef, watch } from 'vue'
 
 import { exportFilledReportXlsx } from '../../report/export-xlsx'
+import { buildFilledReportPrintHtml, type ReportPrintOptions } from '../../report/print'
 import type { ReportViewerProps, _ReportViewerExposed } from '../../types'
 import type { SheetExposed } from '../../types'
 import { USheet } from '../sheet'
 import { applyGridColWidths, applySheetColWidths } from './designer/col-widths'
 import UReportFilterBar from './filter-bar.vue'
 import { previewGridSize, type PreviewGridSizeMode } from './preview-grid-size'
+import { printHtmlDocument } from './print'
 import { useReportViewer } from './use-report-viewer'
 
 defineOptions({ name: 'UReportViewer' })
@@ -58,6 +60,10 @@ const cls = bem('report-viewer')
 /** 取数未完成时拒绝导出的可读错误 */
 const EXPORT_NOT_READY_MESSAGE = '报表数据尚未就绪，请等待取数完成后再导出'
 const EXPORT_LOADING_MESSAGE = '报表数据加载中，请稍后再导出'
+
+/** 取数未完成时拒绝打印的可读错误 */
+const PRINT_NOT_READY_MESSAGE = '报表数据尚未就绪，请等待取数完成后再打印'
+const PRINT_LOADING_MESSAGE = '报表数据加载中，请稍后再打印'
 
 /** 查看器工作簿：宿主可注入（同 USheet `workbook?` 先例），缺省内部自建；模板 / 填充结果都 restore 进活动 sheet 只读展示 */
 const internalWorkbook = new Workbook()
@@ -132,5 +138,19 @@ async function exportXlsx(): Promise<void> {
   )
 }
 
-defineExpose<_ReportViewerExposed>({ refresh, exportXlsx })
+/**
+ * 打印填充报表（纯前端）：填充 sheet 模型 → 打印专用 HTML（buildFilledReportPrintHtml）
+ * → 隐藏 iframe 调起浏览器打印。守卫语义与 exportXlsx 一致（取数完成前拒绝）。
+ */
+function print(options?: ReportPrintOptions): void {
+  if (loading.value) {
+    throw new Error(PRINT_LOADING_MESSAGE)
+  }
+  if (!filledSnapshot.value) {
+    throw new Error(PRINT_NOT_READY_MESSAGE)
+  }
+  printHtmlDocument(buildFilledReportPrintHtml(workbook.value.activeSheet, options))
+}
+
+defineExpose<_ReportViewerExposed>({ refresh, exportXlsx, print })
 </script>

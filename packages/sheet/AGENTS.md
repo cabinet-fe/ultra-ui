@@ -38,12 +38,13 @@ src/
 - **Report Template（template.ts）**：自包含模板 = `SheetSnapshot` + **`version: number`（当前 `1`，必填）** + 内嵌 `datasets: ReportDatasetDef[]`；`colWidths` 继承自 `SheetSnapshot.colWidths`（设计态列宽，模型列索引 → 像素）。`version` 缺失或高于当前 → 抛可读错误要求重建（无迁移函数）。`Sheet.snapshot()` 不产生 `version` / `datasets`，由设计器 `getTemplate()` 吐出时附加（`colWidths` 已在模型快照内）。配套：`getTemplateDatasets` / `getBoundDatasetIds` / `resolveTemplateParams` / `resolveParamDefaults` / `fetchTemplateRecords`。
 - **Filter Bar 值规范化（filter-bar.ts）**：`parseDateRangeValue` / `resolveNumberParamValue` / `patchParamValues`。
 - **Filled Report XLSX 导出（export-xlsx.ts）**：`exportFilledReportXlsx(sheet)`；委托 sheet-core `exportSheetXlsx`（`fallbackName: '报表'`，浮动图随导出保留）；列宽读 sheet 模型（`getColWidths`）。
+- **Filled Report 打印（print.ts）**：`buildFilledReportPrintHtml(sheet, options?)` —— 填充 sheet 模型 → 打印专用 HTML 文档（值 / 合并 rowspan/colspan / 有效样式 / 行高列宽 / 浮动图 data URL；`@page` A4 + 方向选项；不打印屏幕网格线，同 Excel 默认）。纯 TS headless；iframe 调起在组件层 `components/report/print.ts`（`printHtmlDocument`，隐藏 iframe + 图片解码后 print + afterprint/超时回收）。
 - **数据连接器**：`DataConnector` 接口 + `createHttpConnector`；report 模块严禁引入数据库驱动。
 - 测试见 `src/report/__test__/` 与 `src/report/render/__test__/`：坐标纯计算、渲染回归、连接器契约；不依赖 playground mock。
 
 ## UReportViewer（components/report/，ADR-0003 决策 2）
 
-- Props：`connector`（必填）、`template`（必填，`ReportTemplate`，可含 `colWidths`）、`workbook?`（USheet 先例，缺省内部自建）、`colWidths?`（可选显式覆盖；通常不必传，模板/展开映射已够）。Exposed：`refresh()`（重新取数并展开渲染）、`exportXlsx()`（导出填充报表 XLSX；取数完成前拒绝；不内置导出按钮，工具栏由下游决定）。
+- Props：`connector`（必填）、`template`（必填，`ReportTemplate`，可含 `colWidths`）、`workbook?`（USheet 先例，缺省内部自建）、`colWidths?`（可选显式覆盖；通常不必传，模板/展开映射已够）。Exposed：`refresh()`（重新取数并展开渲染）、`exportXlsx()`（导出填充报表 XLSX；取数完成前拒绝；不内置导出按钮，工具栏由下游决定）、`print(options?)`（纯前端打印：模型 → 打印 HTML → 隐藏 iframe；守卫同 exportXlsx，工具栏同样由下游决定）。
 - 运行态闭环：`useReportViewer`（headless：参数提取 → Filter Bar → `fetchTemplateRecords` 取数 → `renderReport` 展开，并发守卫只应用最后一次取数）+ 薄 UI 壳（`report-viewer.vue`）。内部 `UReportFilterBar` 按参数类型映射 `UInput/UNumberInput/USelect/UDatePicker/UDateRangePicker`（text/number/select/date/date-range），改值即重新取数；取数有 loading 遮罩、业务错误（`ok:false`）有可读 banner。
 - 展示：内嵌只读 USheet（无工具栏/公式栏/tabs，且 `showRowHeader`/`showColHeader` 为 false）；先铺模板静态结构（按 cells/merges/meta 包围盒），取数成功后 `restore` + `restoreContent` 替换为 Filled Report（网格渲染行列数 = 内容尺寸：行取展开布局 `snapshot.rows`，列按包围盒收敛，无 50×10 下限）。
 - 样式入口 `@veltra/sheet/components/report/style`（自含 USheet 与 Filter Bar 桌面组件样式）。
@@ -90,6 +91,7 @@ src/
 - 工具栏组序：`history | cell | text | edit | insert | file`；行列插入/删除、冻结在**右键菜单**（非工具栏）
 - **右键菜单分区**：body 仅合并/取消合并、插入图片；**插入/删除行列仅在行号/列头**（行号：上下插入行/删除行 + 冻结；列头：左右插入列/删除列 + 冻结）
 - SheetGrid 按 sheet **LRU 缓存**（容量 3）：命中只翻可见性；`structure-change` / 尺寸变化 / 导入替换则重建
+- **单元格级只读**（填报场景）：经 sheet 模型 API `setCellReadonly` / `setRangeReadonly` / `isCellReadonly` 标记（见 `packages/sheet-core/AGENTS.md`「单元格级只读」），SheetGrid 自动拦截只读格编辑；工具栏 / 公式栏不经 grid 守卫，填报宿主应全部隐藏（playground `sheet-data-entry` 演示页为参考实现）
 - 弹层打开用 `setTimeout(0)`，不要用 `queueMicrotask`（否则同一次 click 冒泡会立刻关掉面板）。
 
 ## 浮动图片门面与 UI 入口

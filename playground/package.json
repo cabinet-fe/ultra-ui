@@ -9,7 +9,6 @@
     "preview": "vp preview",
     "test": "vp test",
     "server": "bun server/dev.ts",
-    "ai-server": "node server/ai-dev.ts",
     "seed-demo": "bun server/demo-data/seed.ts"
   },
   "dependencies": {

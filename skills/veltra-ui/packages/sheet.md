@@ -41,6 +41,10 @@ import '@veltra/sheet/components/report/style'
   一律 `from '@veltra/sheet-core'` 直导（本包不 re-export）。细节（导出分组、IO 保真度、
   readonly 语义、深导入注意）见 `packages/sheet-core.md`。
 - 组件高度由宿主控制（grid 区 `flex:1`），需给 `.u-sheet` 一个高度。
+- **表格化填报（部分单元格可编辑）**：用模型 API `sheet.setRangeReadonly` / `setCellReadonly` /
+  `isCellReadonly` 标记只读格，SheetGrid 自动拦截编辑（双击 / Enter / 回写 / 填充柄）；
+  USheet 需隐藏工具栏 / 公式栏等不经 grid 守卫的写入口，输入区高亮走 `resolveCellStyle` prop。
+  详见 `packages/sheet-core.md`「单元格级只读」。
 - 交互：填充柄（复制 / 数字日期等差 / 公式 `$` 感知位移）、行高拖拽（稀疏存模型、不进 undo）、
   冻结行列（模型持有、不进 undo）、查找/替换（Ctrl/Cmd+F 或工具栏「查找」）、
   右键菜单（body 合并/插入图片；行号/列头插入删除与冻结）、编辑中方向键只移光标。
@@ -300,7 +304,7 @@ const connector = createHttpConnector({ endpoint: '/api/report' })
 
 `ReportTemplate` = `SheetSnapshot` + **`version: number`（当前 `1`，必填）** + 内嵌 `datasets: ReportDatasetDef[]`（connection 为完整连接对象，可 JSON 序列化）。`version` 缺失或高于当前 → 抛可读错误，存量模板须在设计器中重建。
 
-主入口还导出 `renderReport`（模板 + records → Filled Report 快照）、绑定（`createReportBinding` / `presetBindingPatch` / `applyReportPreset` 等）、条件规则、查询参数（`${param}` → `extractParamIds` / `buildParamDefs`）、`fetchTemplateRecords`、`exportFilledReportXlsx`、Filter Bar 值规范化等纯 TS 函数（`src/report/`，框架无关、无 DOM）。
+主入口还导出 `renderReport`（模板 + records → Filled Report 快照）、绑定（`createReportBinding` / `presetBindingPatch` / `applyReportPreset` 等）、条件规则、查询参数（`${param}` → `extractParamIds` / `buildParamDefs`）、`fetchTemplateRecords`、`exportFilledReportXlsx`、`buildFilledReportPrintHtml`（Filled Report → 打印专用 HTML，纯 TS headless）、Filter Bar 值规范化等纯 TS 函数（`src/report/`，框架无关、无 DOM）。
 
 **`ReportBinding`（breaking，ADR-0005）**：
 
@@ -336,7 +340,7 @@ interface ConditionalRule {
 ### UReportViewer（运行态）
 
 - **Props**：`connector`（必填）、`template`（必填，`ReportTemplate`）、`workbook?`、`colWidths?`
-- **Exposed**：`refresh()` — 重新取数并展开渲染；`exportXlsx()` — 导出填充报表 XLSX（取数完成前拒绝）
+- **Exposed**：`refresh()` — 重新取数并展开渲染；`exportXlsx()` — 导出填充报表 XLSX（取数完成前拒绝）；`print(options?: ReportPrintOptions)` — 纯前端打印（填充模型 → 打印 HTML → 隐藏 iframe 调起浏览器打印；守卫同 exportXlsx；`options` 支持 `title` / `orientation`）
 - 内部闭环：从模板实际绑定数据集提取查询参数并集 → Filter Bar → `fetchTemplateRecords` → `renderReport` → 只读 USheet 展示（无行列头；网格铺到内容尺寸，无 50×10 下限）；loading 遮罩与业务错误 banner
 
 ### UReportDesigner（设计态）

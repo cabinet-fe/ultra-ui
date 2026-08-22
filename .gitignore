@@ -130,3 +130,6 @@ dist/*
 playground/server/data/
 
 docs/superpowers
+
+# agent cooking scratch
+.agents/cooking/

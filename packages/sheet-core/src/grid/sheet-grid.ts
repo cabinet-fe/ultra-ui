@@ -319,6 +319,16 @@ export class SheetGrid {
       // 会反复重建 scenegraph（438 行 × 130 次实测 ~3s）。
       width: this.sheet.getColWidth(col) ?? SHEET_DEFAULT_COL_WIDTH,
       style: (styleArg: any) => this.styleResolver.resolveCellStyle(styleArg, this.coords),
+      // 单元格级只读：只读格返回 ''（VTable getEditor 对 falsy 结果不开启编辑）。
+      // 整表 readonly 时连此函数也不挂（列级 editor 会覆盖表级空值，导致只读失效）。
+      ...(this.isReadonly
+        ? {}
+        : {
+            editor: (args: { col: number; row: number; table: unknown }) => {
+              const addr = this.coords.toSheetAddr(args.table as ListTable, args.col, args.row)
+              return addr && this.sheet.isCellReadonly(addr) ? '' : EDITOR_NAME
+            }
+          }),
       // 仅宿主提供 hook 时安装分发器：customLayout 存在会使 VTable 对该列
       // 关闭 fast-update 快路径，默认场景必须保持零差异（ADR-0004）。
       // 分发器返回 undefined 回落默认渲染（VTable 运行时支持 falsy 返回值，

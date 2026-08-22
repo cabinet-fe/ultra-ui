@@ -30,8 +30,8 @@ import WeatherCard from './weather-card.vue'
 
 /**
  * 真实 DeepSeek 接入。
- * 前端只持有相对路径与模型元数据；API Key 由 playground 的 Node 代理服务从环境变量读取，
- * 经 vite proxy 转发到 ai-server 的 /ai/chat/completions。
+ * 前端只持有相对路径与模型元数据；API Key 由 playground 参考服务从环境变量读取，
+ * 经 vite proxy 转发到同源 /ai/chat/completions。
  *
  * V4 Flash / V4 Pro 都支持 reasoning_effort，选择器据此展示推理等级；
  * 默认 transport 会把选中的等级写入 `reasoning_effort`。

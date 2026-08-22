@@ -24,6 +24,7 @@
       </template>
       <template v-else>
         <u-button size="small" plain @click="standaloneViewer = false">返回设计器</u-button>
+        <u-button size="small" type="primary" plain @click="printViewer">打印</u-button>
       </template>
       <span v-if="statusText" class="sheet-report-demo__toolbar-hint">{{ statusText }}</span>
     </div>
@@ -49,6 +50,7 @@
 
     <u-report-viewer
       v-if="standaloneViewer && viewerTemplate"
+      ref="viewerRef"
       class="sheet-report-demo__viewer"
       :connector="connector"
       :template="viewerTemplate"
@@ -63,6 +65,7 @@ import {
   type ReportDesignerExposed,
   type ReportDatasetDef,
   type ReportTemplate,
+  type ReportViewerExposed,
   createReportTemplate
 } from '@veltra/sheet'
 import { Sheet } from '@veltra/sheet-core'
@@ -98,6 +101,7 @@ const templateName = ref('未命名模板')
 const designerRef = useTemplateRef<ReportDesignerExposed>('designerRef')
 const standaloneViewer = ref(false)
 const viewerTemplate = ref<ReportTemplate>()
+const viewerRef = useTemplateRef<ReportViewerExposed>('viewerRef')
 const libraryVisible = ref(false)
 const workspaceReady = ref(false)
 const savingTemplate = ref(false)
@@ -369,6 +373,15 @@ async function openStandaloneViewer(): Promise<void> {
   }
   viewerTemplate.value = template
   standaloneViewer.value = true
+}
+
+/** 打印当前填充报表；取数未完成时 print() 抛可读错误，直接上状态栏 */
+function printViewer(): void {
+  try {
+    viewerRef.value?.print({ title: templateName.value.trim() || undefined })
+  } catch (error) {
+    statusText.value = error instanceof Error ? error.message : String(error)
+  }
 }
 
 watch(

@@ -15,16 +15,16 @@ veltra-ui 是一套 Vue 3 UI 体系。
 
 | 包                     | 版本  |
 | ---------------------- | ----- |
-| `@veltra/desktop`      | 1.6.0 |
-| `@veltra/utils`        | 1.6.0 |
-| `@veltra/styles`       | 1.6.0 |
-| `@veltra/compositions` | 1.6.0 |
-| `@veltra/directives`   | 1.6.0 |
+| `@veltra/desktop`      | 1.6.4 |
+| `@veltra/utils`        | 1.6.4 |
+| `@veltra/styles`       | 1.6.4 |
+| `@veltra/compositions` | 1.6.4 |
+| `@veltra/directives`   | 1.6.4 |
 | `@veltra/icons`        | 1.5.0 |
 | `@veltra/vite`         | 4.0.0 |
-| `@veltra/sheet`        | 2.3.0 |
-| `@veltra/sheet-core`   | 2.3.0 |
-| `@veltra/ai`           | 2.1.0 |
+| `@veltra/sheet`        | 2.3.4 |
+| `@veltra/sheet-core`   | 2.3.4 |
+| `@veltra/ai`           | 2.1.6 |
 
 ## 分包地图
 
@@ -33,7 +33,7 @@ veltra-ui 是一套 Vue 3 UI 体系。
 | `packages/desktop/`        | `@veltra/desktop`      | 桌面端组件（主入口）                                                                                       |
 | `packages/ai.md`           | `@veltra/ai`           | AI 对话：UAiChat、useChat、ChatTool、createOpenAITransport、UAiOrb                                         |
 | `packages/sheet.md`        | `@veltra/sheet`        | 电子表格（USheet、报表 UReportDesigner/UReportViewer、DataConnector、公式、undo/redo、浮动图片、工具扩展） |
-| `packages/sheet-core.md`   | `@veltra/sheet-core`   | 表格核心：数据模型/公式/IO + SheetGrid 渲染层（含 readonly 预览模式）                                      |
+| `packages/sheet-core.md`   | `@veltra/sheet-core`   | 表格核心：数据模型/公式/IO + SheetGrid 渲染层（含 readonly 预览、单元格级只读标记）          |
 | `packages/styles/`         | `@veltra/styles`       | SCSS、主题、Design Tokens、过渡                                                                            |
 | `packages/compositions.md` | `@veltra/compositions` | Vue 组合式函数                                                                                             |
 | `packages/directives.md`   | `@veltra/directives`   | 自定义指令                                                                                                 |
@@ -58,6 +58,7 @@ veltra-ui 是一套 Vue 3 UI 体系。
 | 报表设计 / 报表预览 / 数据连接器 / Filter Bar / 模板取数展开          | `packages/sheet.md`（`UReportDesigner` / `UReportViewer` / `DataConnector` / `createHttpConnector`）        |
 | 按格自定义单元格渲染（customLayout 徽章等）                           | `packages/sheet.md` + `packages/sheet-core.md`（`resolveCellRenderer` / `CustomLayout`）                    |
 | 无头表格模型 / xlsx·csv 导入导出 / 只读表格预览（SheetGrid readonly） | `packages/sheet-core.md`                                                                                    |
+| 表格化填报 / 部分单元格锁定只读 / 输入区高亮                          | `packages/sheet-core.md`（单元格级只读）+ `packages/sheet.md`（USheet 填报注意）                            |
 | 安装 / 全局注册 / 按需样式                                            | `packages/desktop/installation.md`、`packages/vite.md`                                                      |
 | 主题色、暗色、CSS 变量                                                | `packages/styles/theme.md`、`packages/styles/tokens.md`                                                     |
 | SCSS BEM / mixins                                                     | `packages/styles/scss.md`                                                                                   |

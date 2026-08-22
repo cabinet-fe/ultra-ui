@@ -2,6 +2,7 @@ import type { CellAddress, CellRange } from './address'
 import { createRange, iterateRange } from './address'
 import type { CellMetaSnapshotItem } from './cell-meta'
 import { CellMetaStore } from './cell-meta-store'
+import { CELL_READONLY_META_NAMESPACE } from './cell-readonly'
 import {
   inferCellType,
   normalizeInputValue,
@@ -551,6 +552,36 @@ export class Sheet {
   /** 迭代所有 Cell Meta 条目（视图层占位覆盖等场景） */
   *entriesCellMeta(): Generator<[CellAddress, string, unknown]> {
     yield* this.cellMeta.entries()
+  }
+
+  // ─── 单元格只读 ──────────────────────────────────────────
+
+  /**
+   * 标记/解除单元格只读（填报模板场景；经 Cell Meta 存储，可撤销、随快照序列化、
+   * 行列插入删除时平移；合并格解析锚点）。
+   * 编辑拦截在 grid 层：SheetGrid 不为只读格开启编辑器，编辑回写与填充柄均跳过只读格。
+   * 模型层不设防（同整表 readonly 约定）——绕过 SheetGrid 的命令仍可写入。
+   */
+  setCellReadonly(addr: CellAddress, readonly = true): void {
+    if (readonly) this.setCellMeta(addr, CELL_READONLY_META_NAMESPACE, true)
+    else this.clearCellMeta(addr, CELL_READONLY_META_NAMESPACE)
+  }
+
+  /** 批量标记/解除区域只读（事务合并为单 undo 单元） */
+  setRangeReadonly(range: CellRange, readonly = true): void {
+    this.beginTransaction()
+    try {
+      for (const addr of iterateRange(range)) this.setCellReadonly(addr, readonly)
+      this.commit()
+    } catch (error) {
+      this.rollback()
+      throw error
+    }
+  }
+
+  /** 是否只读格（合并格解析锚点） */
+  isCellReadonly(addr: CellAddress): boolean {
+    return this.getCellMeta<boolean>(addr, CELL_READONLY_META_NAMESPACE) === true
   }
 
   // ─── 命令与历史 ──────────────────────────────────────────

@@ -3,6 +3,7 @@ import type { DeconstructValue } from '@veltra/utils'
 
 import type { DataConnector, ReportTemplate } from '../report'
 import type { ReportColWidthEntry } from '../report/export-xlsx'
+import type { ReportPrintOptions } from '../report/print'
 
 /** 报表查看器组件属性（ADR-0003 决策 2） */
 export interface ReportViewerProps {
@@ -31,6 +32,11 @@ export interface _ReportViewerExposed {
    * 不内置导出按钮，工具栏由下游决定。
    */
   exportXlsx: () => Promise<void>
+  /**
+   * 打印填充报表（纯前端：模型 → 打印 HTML → 隐藏 iframe 调起浏览器打印；
+   * 取数完成前拒绝）。不内置打印按钮，工具栏由下游决定。
+   */
+  print: (options?: ReportPrintOptions) => void
 }
 
 /** 报表查看器组件暴露的方法 */

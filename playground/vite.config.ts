@@ -9,9 +9,7 @@ import { defineConfig } from 'vite-plus'
 
 // vp run 加载配置时用 Node 解析模块，不走 veltra-dev；@veltra/vite 的 import 指向 dist，dist 缺失时 vp run 会在构建前失败
 import { VeltraUIResolver } from '../packages/vite/src/resolver'
-// DeepSeek AI 代理服务（Node + Hono）：前端经 /ai 代理访问；由 scripts/dev.ts 或 bun run ai-server 独立启动
-import { AI_SERVER_PORT } from './server/ai-port'
-// 契约参考服务（hono + mysql2/pg）：前端经 /report-api 代理访问；由 scripts/dev.ts 或 bun run server 独立启动
+// 参考服务（report + DeepSeek，同一端口）：前端经 /report-api、/ai 代理访问
 import { REPORT_SERVER_PORT } from './server/port'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -47,9 +45,9 @@ const config = {
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/report-api/, '')
       },
-      // AI 会话代理：只匹配 /ai 与 /ai/*，避免把 /ai-chat SPA 路由也代理到 8788。
+      // AI 会话代理：只匹配 /ai 与 /ai/*，避免把 /ai-chat SPA 路由也代理走。
       // Vite 字符串上下文是前缀匹配，必须用正则锁定边界。
-      '^/ai(?:/|$)': { target: `http://localhost:${AI_SERVER_PORT}`, changeOrigin: true }
+      '^/ai(?:/|$)': { target: `http://localhost:${REPORT_SERVER_PORT}`, changeOrigin: true }
     }
   }
 }

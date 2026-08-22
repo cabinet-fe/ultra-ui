@@ -354,4 +354,47 @@ describe('UReportViewer', () => {
     exportSpy.mockRestore()
     saveBlobSpy.mockRestore()
   })
+
+  it('取数前 print() 拒绝；取数失败或未就绪时同样拒绝', async () => {
+    let gate = deferred<QueryOutcome>()
+    const outcome: QueryOutcome = {
+      error: { code: 'CONNECTION_FAILED', message: '数据库连接失败' }
+    }
+    const { connector } = createStubConnector(() => gate.promise)
+    const { exposedRef } = mountViewer({
+      connector,
+      template: createViewerTemplate(),
+      workbook: new Workbook()
+    })
+    await nextTick()
+
+    expect(() => exposedRef.value!.print()).toThrow('报表数据加载中')
+
+    gate.resolve(outcome)
+    await flushViewer()
+    expect(() => exposedRef.value!.print()).toThrow('报表数据尚未就绪')
+  })
+
+  it('取数后 print() 生成打印 HTML 并送隐藏 iframe 打印', async () => {
+    const { connector } = createStubConnector({ rows: ORDER_ROWS })
+    const workbook = new Workbook()
+    const { exposedRef } = mountViewer({ connector, template: createViewerTemplate(), workbook })
+    await flushViewer()
+
+    const printModule = await import('../../../report/print')
+    const domPrintModule = await import('../print')
+    const buildSpy = vi.spyOn(printModule, 'buildFilledReportPrintHtml')
+    const printSpy = vi.spyOn(domPrintModule, 'printHtmlDocument').mockImplementation(() => {})
+
+    exposedRef.value!.print({ orientation: 'landscape' })
+
+    expect(buildSpy).toHaveBeenCalledWith(workbook.activeSheet, { orientation: 'landscape' })
+    const html = buildSpy.mock.results[0]!.value as string
+    expect(html).toContain('甲公司')
+    expect(html).toContain('@page { size: A4 landscape;')
+    expect(printSpy).toHaveBeenCalledWith(html)
+
+    buildSpy.mockRestore()
+    printSpy.mockRestore()
+  })
 })

@@ -95,8 +95,10 @@ export class GridSelectionController {
           direction,
           getCellData: (a) => this.sheet.getCellData(a)
         })
-        if (items.length === 0) return
-        this.sheet.setCells(items)
+        // 只读格不被填充覆盖（从只读格向外复制仍允许，只拦截写入目标）
+        const writable = items.filter((item) => !this.sheet.isCellReadonly(item.addr))
+        if (writable.length === 0) return
+        this.sheet.setCells(writable)
         this.sheet.selectRange(createRange(source.start, expanded.end))
       })
     }

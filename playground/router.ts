@@ -21,6 +21,10 @@ const sheetBigDataModules = import.meta.glob<{ default: RouteComponent }>(
 const sheetReportModules = import.meta.glob<{ default: RouteComponent }>(
   './src/sheet-report/index.vue'
 )
+// 顶层独立演示页（同上，`./src/sheet/**` 不匹配 `sheet-data-entry`）
+const sheetDataEntryModules = import.meta.glob<{ default: RouteComponent }>(
+  './src/sheet-data-entry/index.vue'
+)
 
 const modules = {
   ...desktopModules,
@@ -29,7 +33,8 @@ const modules = {
   ...aiOrbModules,
   ...sheetModules,
   ...sheetBigDataModules,
-  ...sheetReportModules
+  ...sheetReportModules,
+  ...sheetDataEntryModules
 }
 const paths = Object.keys(modules)
 
