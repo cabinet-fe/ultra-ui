@@ -77,7 +77,13 @@ import { useReportViewer } from './use-report-viewer'
 
 defineOptions({ name: 'UReportViewer' })
 
-const props = defineProps<ReportViewerProps>()
+/** 与 `ReportViewerProps` 交叉显式列出下钻 props，避免 SFC 对跨文件 interface 漏抽 runtime 声明 */
+type ViewerRuntimeProps = ReportViewerProps & {
+  resolveTemplate?: ReportViewerProps['resolveTemplate']
+  initialValues?: ReportViewerProps['initialValues']
+}
+
+const props = defineProps<ViewerRuntimeProps>()
 
 const cls = bem('report-viewer')
 

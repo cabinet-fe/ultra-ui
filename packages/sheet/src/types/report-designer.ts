@@ -32,7 +32,8 @@ export interface ReportDesignerProps {
   drillTemplates?: ReportTemplateListItem[]
   /**
    * 宿主模板解析契约（按下钻 target 引用取回目标模板，失败抛错）：
-   * 下钻配置对话框据此解析目标模板的查询参数（字段→参数映射）；预览下钻转发待查看器侧接线
+   * 下钻配置对话框据此解析目标模板的查询参数（字段→参数映射）；
+   * 预览模式原样转发给内嵌 UReportViewer，使预览内可下钻（含 switch / dialog）与逐级回退
    */
   resolveTemplate?: ResolveReportTemplate
 }

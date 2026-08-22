@@ -1,10 +1,9 @@
 <template>
   <div class="sheet-report-demo">
     <div class="sheet-report-demo__hint">
-      <strong>UReportDesigner</strong> 报表演示：连接与 SQL 数据集持久化在本地 SQLite（
-      <code>GET|PUT /report-api/workspace</code>），取数经
-      <code>POST /datasets/:id/query</code> 只传参数值；模板入库时剥离凭据与
-      SQL，打开时由工作区回填。 请用 <code>bun run dev</code> 同时启动契约服务。
+      <strong>UReportDesigner</strong>
+      报表演示：有连接时自动准备「【演示】地区汇总」（地区=页内切换，总额=弹框）。请用
+      <code>bun run dev</code> 同时启动契约服务。
     </div>
 
     <div class="sheet-report-demo__toolbar">
@@ -37,6 +36,8 @@
       class="sheet-report-demo__designer"
       :connector="connector"
       :template="loadedTemplate"
+      :drill-templates="drillTemplates"
+      :resolve-template="resolveReportTemplate"
       v-model:connections="connections"
       @datasets-change="onDesignerDatasetsChange"
     />
@@ -54,6 +55,7 @@
       class="sheet-report-demo__viewer"
       :connector="connector"
       :template="viewerTemplate"
+      :resolve-template="resolveReportTemplate"
     />
   </div>
 </template>
@@ -65,21 +67,39 @@ import {
   type ReportDesignerExposed,
   type ReportDatasetDef,
   type ReportTemplate,
+  type ReportTemplateListItem,
   type ReportViewerExposed,
   createReportTemplate
 } from '@veltra/sheet'
 import { Sheet } from '@veltra/sheet-core'
 import { bem } from '@veltra/utils'
 import '@veltra/sheet/components/report/style'
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef, watch } from 'vue'
+import {
+  computed,
+  nextTick,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  shallowRef,
+  useTemplateRef,
+  watch
+} from 'vue'
 
+import {
+  prepareDrillHost,
+  syncDemoWorkspace,
+  toDrillTemplates,
+  withDemoDatasets
+} from './drill-demo'
 import {
   createHubConnector,
   createReportTemplateRecord,
   extractWorkspaceDatasets,
   fetchReportTemplate,
   fetchWorkspace,
+  listReportTemplates,
   mergeConnectionsFromTemplate,
+  resolveReportTemplate,
   saveWorkspace,
   serializeTemplateDocument,
   updateReportTemplateRecord,
@@ -107,6 +127,7 @@ const workspaceReady = ref(false)
 const savingTemplate = ref(false)
 const isDirty = ref(false)
 const statusText = ref('')
+const drillTemplates = shallowRef<ReportTemplateListItem[]>([])
 
 const connector = createHubConnector({
   isConnectionSaved: (connectionId) => savedConnectionIds.value.has(connectionId),
@@ -154,27 +175,38 @@ function buildWorkspaceSeedTemplate(workspace: WorkspaceData): ReportTemplate | 
 }
 
 function buildWorkspaceSnapshot(): WorkspaceData {
-  return {
+  return withDemoDatasets({
     connections: connections.value,
     datasets: extractWorkspaceDatasets(designerRef.value?.getTemplate())
-  }
+  })
 }
 
 function refreshStatus(): void {
-  const parts: string[] = []
-  if (activeTemplateId.value) {
-    parts.push('已打开模板')
-  } else {
-    parts.push('新建模板')
-  }
-  parts.push(isDirty.value ? '有未保存更改' : '已保存')
-  if (connections.value.length > 0) {
-    parts.push(`${connections.value.length} 个连接`)
-  }
+  const parts = [
+    activeTemplateId.value ? '已打开模板' : '新建模板',
+    isDirty.value ? '有未保存更改' : '已保存'
+  ]
+  if (connections.value.length > 0) parts.push(`${connections.value.length} 个连接`)
   if (workspaceDatasets.value.length > 0) {
     parts.push(`${workspaceDatasets.value.length} 个数据集`)
   }
   statusText.value = parts.join(' · ')
+}
+
+async function persistDemoDatasets(): Promise<void> {
+  const next = await syncDemoWorkspace({
+    connections: connections.value,
+    datasets: workspaceDatasets.value
+  })
+  workspaceDatasets.value = next.datasets
+}
+
+async function refreshDrillTemplates(): Promise<void> {
+  try {
+    drillTemplates.value = toDrillTemplates(await listReportTemplates())
+  } catch {
+    // 列表失败时保留上次结果；空列表时设计器不出现下钻配置入口
+  }
 }
 
 function markDocumentSaved(): void {
@@ -197,6 +229,19 @@ async function loadWorkspace(): Promise<void> {
     savedConnectionIds.value = new Set(workspace.connections.map((item) => item.id))
     workspacePayload = JSON.stringify(workspace)
 
+    let currentWorkspace = workspace
+    try {
+      const host = await prepareDrillHost(workspace)
+      currentWorkspace = host.workspace
+      drillTemplates.value = host.drillTemplates
+      connections.value = currentWorkspace.connections
+      workspaceDatasets.value = currentWorkspace.datasets
+      savedConnectionIds.value = new Set(currentWorkspace.connections.map((item) => item.id))
+      workspacePayload = JSON.stringify(currentWorkspace)
+    } catch {
+      await refreshDrillTemplates()
+    }
+
     const lastTemplateId = readLastTemplateId(localStorage)
     let namedTemplate: { id: string; name: string; template: ReportTemplate } | null = null
     if (lastTemplateId) {
@@ -211,11 +256,12 @@ async function loadWorkspace(): Promise<void> {
     const startup = resolveStartupTemplate({
       lastTemplateId,
       namedTemplate,
-      seedTemplate: buildWorkspaceSeedTemplate(workspace)
+      seedTemplate: buildWorkspaceSeedTemplate(currentWorkspace)
     })
-    applyStartupTemplate(startup, workspace)
+    applyStartupTemplate(startup, currentWorkspace)
+    await persistDemoDatasets()
     designerSessionKey.value += 1
-    statusText.value = describeStartupStatus(startup, workspace)
+    statusText.value = describeStartupStatus(startup, currentWorkspace)
   } catch (error) {
     statusText.value = `工作区加载失败：${error instanceof Error ? error.message : String(error)}`
   } finally {
@@ -299,6 +345,7 @@ async function saveTemplate(): Promise<void> {
     templateName.value = record.name
     markDocumentSaved()
     writeLastTemplateId(localStorage, record.id)
+    await refreshDrillTemplates()
     statusText.value = `模板「${record.name}」已保存`
   } catch (error) {
     statusText.value = `模板保存失败：${error instanceof Error ? error.message : String(error)}`
@@ -342,9 +389,13 @@ async function openTemplate(id: string): Promise<void> {
   if (!(await confirmDiscardIfDirty())) return
   statusText.value = '正在打开模板…'
   try {
+    await persistDemoDatasets()
     const record = await fetchReportTemplate(id)
     connections.value = mergeConnectionsFromTemplate(record.template, connections.value)
-    workspaceDatasets.value = extractWorkspaceDatasets(record.template)
+    workspaceDatasets.value = withDemoDatasets({
+      connections: connections.value,
+      datasets: extractWorkspaceDatasets(record.template)
+    }).datasets
     await saveWorkspaceState()
     activeTemplateId.value = record.id
     templateName.value = record.name
@@ -359,6 +410,7 @@ async function openTemplate(id: string): Promise<void> {
 }
 
 function onTemplateDeleted(id: string): void {
+  void refreshDrillTemplates()
   if (activeTemplateId.value !== id) return
   resetToNewTemplate()
   statusText.value = '当前模板已删除，已切换为新建模板'

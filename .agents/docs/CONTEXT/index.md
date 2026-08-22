@@ -7,6 +7,7 @@
 ## 模块
 
 - [sheet](sheet/index.md) — USheet、报表设计器/查看器、报表内核
+- [playground](playground/index.md) — 预览 SPA 与报表/AI 参考实现
 
 暂无归档条目的模块占位：
 
@@ -20,6 +21,5 @@
 - icons
 - vite
 - mobile
-- playground
 - scripts
 - veltra-ui-skill

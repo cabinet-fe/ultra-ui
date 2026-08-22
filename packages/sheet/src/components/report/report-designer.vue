@@ -128,6 +128,7 @@
         :connector="props.connector"
         :template="previewTemplate"
         :workbook="previewWorkbook"
+        :resolve-template="props.resolveTemplate"
       />
     </div>
 
@@ -190,7 +191,13 @@ import { useReportDesigner } from './use-report-designer'
 
 defineOptions({ name: 'UReportDesigner' })
 
-const props = withDefaults(defineProps<ReportDesignerProps>(), { connections: () => [] })
+/** 与 `ReportDesignerProps` 交叉显式列出下钻 props，避免 SFC 对跨文件 interface 漏抽 runtime 声明 */
+type DesignerRuntimeProps = ReportDesignerProps & {
+  drillTemplates?: ReportDesignerProps['drillTemplates']
+  resolveTemplate?: ReportDesignerProps['resolveTemplate']
+}
+
+const props = withDefaults(defineProps<DesignerRuntimeProps>(), { connections: () => [] })
 const emit = defineEmits<ReportDesignerEmits>()
 
 const cls = bem('report-designer')

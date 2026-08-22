@@ -1,4 +1,5 @@
 import { Workbook } from '@veltra/sheet-core'
+import { SheetGrid } from '@veltra/sheet-core/grid'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createApp, h, nextTick, ref, type App } from 'vue'
 
@@ -66,7 +67,11 @@ const containers: HTMLElement[] = []
 
 function mountDesigner(
   workbook: Workbook,
-  options?: { template?: ReportTemplate; drillTemplates?: ReportTemplateListItem[] }
+  options?: {
+    template?: ReportTemplate
+    drillTemplates?: ReportTemplateListItem[]
+    resolveTemplate?: (ref: string) => Promise<ReportTemplate>
+  }
 ) {
   const { connector, calls, state } = createStubConnector()
   const el = document.createElement('div')
@@ -84,6 +89,7 @@ function mountDesigner(
         connections: connections.value,
         template: options?.template,
         drillTemplates: options?.drillTemplates,
+        resolveTemplate: options?.resolveTemplate,
         'onUpdate:connections': (value: DataConnection[]) => {
           connections.value = value
         },
@@ -350,6 +356,37 @@ describe('UReportDesigner 全量：template 载入与预览模式（内嵌查看
 
     exportSpy.mockRestore()
     saveBlobSpy.mockRestore()
+  })
+
+  it('预览模式向内嵌查看器转发 resolveTemplate，预览内可下钻', async () => {
+    const workbook = new Workbook()
+    const template = buildTemplate()
+    ;(template.meta![0]!.payload as ReportBinding).drill = {
+      target: 'tpl-preview-detail',
+      mapping: { customer: 'keyword' },
+      openMode: 'switch'
+    }
+    const resolveTemplate = vi.fn(() => Promise.resolve(template))
+    const { el } = mountDesigner(workbook, { template, resolveTemplate })
+    await flush()
+
+    await click(findButton('预览模式')!)
+    expect(el.querySelector('.u-report-viewer')).toBeTruthy()
+
+    const hitSpy = vi
+      .spyOn(SheetGrid.prototype, 'hitTestSheetAddr')
+      .mockReturnValue({ row: 1, col: 0 })
+    const gridEl = el.querySelector('.u-sheet__grid-instance')!
+    gridEl.dispatchEvent(
+      new PointerEvent('pointerdown', { bubbles: true, clientX: 10, clientY: 10 })
+    )
+    gridEl.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 10, clientY: 10 }))
+    await flush()
+    await flush()
+
+    expect(resolveTemplate).toHaveBeenCalledWith('tpl-preview-detail')
+    expect(el.querySelector('.u-report-viewer__drill-bar')).toBeTruthy()
+    hitSpy.mockRestore()
   })
 
   it('字段拖拽 dragover 时落点高亮随 hit-test 更新；落空时提示回退当前选区', async () => {

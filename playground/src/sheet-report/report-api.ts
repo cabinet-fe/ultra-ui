@@ -41,12 +41,18 @@ interface ApiError {
 }
 
 async function readJson<T>(response: Response): Promise<T> {
+  let payload: unknown
+  try {
+    payload = await response.json()
+  } catch {
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    throw new Error('响应不是合法 JSON')
+  }
+  if (typeof payload === 'object' && payload !== null && 'ok' in payload && payload.ok === false) {
+    throw new Error((payload as ApiError).error.message)
+  }
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}`)
-  }
-  const payload = (await response.json()) as T | ApiError
-  if (typeof payload === 'object' && payload !== null && 'ok' in payload && payload.ok === false) {
-    throw new Error(payload.error.message)
   }
   return payload as T
 }
@@ -78,6 +84,20 @@ export async function fetchReportTemplate(id: string): Promise<ReportTemplateRec
     await fetch(`${API_BASE}/templates/${encodeURIComponent(id)}`)
   )
   return payload.item
+}
+
+/**
+ * 宿主 `resolveTemplate(ref)`：按模板 id 从模板库取回 `ReportTemplate`。
+ * 失败抛可读错误（供查看器 / 设计器预览停留当前报并提示）。
+ */
+export async function resolveReportTemplate(ref: string): Promise<ReportTemplate> {
+  try {
+    const record = await fetchReportTemplate(ref)
+    return record.template
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    throw new Error(`无法解析报表模板「${ref}」：${message}`)
+  }
 }
 
 export async function createReportTemplateRecord(
