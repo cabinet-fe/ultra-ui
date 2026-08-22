@@ -1,7 +1,13 @@
 import type { Workbook } from '@veltra/sheet-core/core/workbook'
 import type { DeconstructValue } from '@veltra/utils'
 
-import type { DataConnection, DataConnector, ReportTemplate } from '../report'
+import type {
+  DataConnection,
+  DataConnector,
+  ReportTemplate,
+  ReportTemplateListItem,
+  ResolveReportTemplate
+} from '../report'
 
 /** 报表设计器组件属性（ADR-0003 决策 2） */
 export interface ReportDesignerProps {
@@ -19,6 +25,16 @@ export interface ReportDesignerProps {
   template?: ReportTemplate
   /** 承载设计态的工作簿（USheet 先例：缺省内部自建单 sheet 工作簿） */
   workbook?: Workbook
+  /**
+   * 宿主提供的可下钻目标模板列表（ref + 可读名）：
+   * 传入后绑定格 Action Pill 出现下钻配置入口（目标仅从列表选择，不支持手填引用）；不传则无入口
+   */
+  drillTemplates?: ReportTemplateListItem[]
+  /**
+   * 宿主模板解析契约（按下钻 target 引用取回目标模板，失败抛错）：
+   * 下钻配置对话框据此解析目标模板的查询参数（字段→参数映射）；预览下钻转发待查看器侧接线
+   */
+  resolveTemplate?: ResolveReportTemplate
 }
 
 /** 报表设计器组件定义的事件 */

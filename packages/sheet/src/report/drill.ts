@@ -1,5 +1,17 @@
+import type { SheetSnapshot } from '@veltra/sheet-core'
+import { cellKey } from '@veltra/sheet-core'
+
+import { AggregateIndex, resolvePlacementContext } from './render/aggregate'
+import { computeExpansionLayout } from './render/coordinate'
+import { buildTemplateIndex } from './render/template-index'
 import type { ReportTemplate } from './template'
-import type { ParamValues, ReportDrillConfig } from './types'
+import type { DatasetRecords, ParamValues, ReportDrillConfig } from './types'
+
+/**
+ * 宿主模板解析契约：按下钻 target 引用取回目标模板（允许同步/异步）。
+ * 失败抛错——查看器提示可读错误并停留当前报；设计器配置对话框据此解析目标模板查询参数。
+ */
+export type ResolveReportTemplate = (ref: string) => ReportTemplate | Promise<ReportTemplate>
 
 /**
  * 按下钻映射从该格对应记录取值，生成详情报 Filter Bar 参数值。
@@ -61,4 +73,40 @@ export function popDrillLayer(stack: DrillStack): DrillStack {
 /** 当前层（栈顶） */
 export function currentDrillLayer(stack: DrillStack): DrillStackLayer {
   return stack[stack.length - 1]!
+}
+
+/** 下钻命中：物理格对应的下钻配置与该格记录 */
+export interface DrillHit {
+  config: ReportDrillConfig
+  record: Record<string, unknown>
+}
+
+/**
+ * 构建填充报表的物理格 → 下钻命中索引（每次成功取数后重建）。
+ * 仅含配了下钻的绑定格落点（含分组/汇总格与展开后的实例格，合并跨度内每格都命中）；
+ * 记录由 `resolvePlacementContext` 解析：list 明细取源数据行，分组/汇总取分组上下文。
+ */
+export function buildDrillHitMap(
+  template: SheetSnapshot,
+  data: DatasetRecords
+): Map<number, DrillHit> {
+  const hits = new Map<number, DrillHit>()
+  const index = buildTemplateIndex(template)
+  const layout = computeExpansionLayout(index, data)
+  const aggregateIndex = new AggregateIndex(data)
+
+  for (const placement of layout.placements) {
+    const config = placement.binding?.drill
+    if (!config) continue
+    const record = resolvePlacementContext(placement, index, data, aggregateIndex)
+    if (!record) continue
+
+    const hit: DrillHit = { config, record }
+    for (let row = placement.physical.start.row; row <= placement.physical.end.row; row++) {
+      for (let col = placement.physical.start.col; col <= placement.physical.end.col; col++) {
+        hits.set(cellKey({ row, col }), hit)
+      }
+    }
+  }
+  return hits
 }

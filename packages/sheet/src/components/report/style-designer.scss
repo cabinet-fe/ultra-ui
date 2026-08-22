@@ -291,6 +291,72 @@
   }
 }
 
+/* 下钻配置对话框内容 */
+@include m.b(report-drill-dialog) {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  @include m.e(section) {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  @include m.e(label) {
+    font-size: 12px;
+    font-weight: 600;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(hint) {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(error) {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: fn.use-var(color, danger);
+  }
+
+  @include m.e(list) {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 320px;
+    overflow: auto;
+  }
+
+  @include m.e(mapping) {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  @include m.e(field) {
+    width: 160px;
+    flex: none;
+  }
+
+  @include m.e(param) {
+    width: 200px;
+    flex: none;
+  }
+
+  @include m.e(arrow) {
+    flex: none;
+    font-size: 12px;
+    color: fn.use-var(text-color, second);
+  }
+}
+
 @include m.b(report-rule-row) {
   display: flex;
   align-items: flex-start;

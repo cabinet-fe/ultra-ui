@@ -5,7 +5,12 @@ import { effectScope, ref, type EffectScope, type Ref } from 'vue'
 import { REPORT_META_NAMESPACE } from '../../../report/binding'
 import type { DataConnection, DataConnector } from '../../../report/connector'
 import { IncompatibleTemplateVersionError, type ReportTemplate } from '../../../report/template'
-import type { DatasetField, ParamValues, ReportBinding } from '../../../report/types'
+import type {
+  DatasetField,
+  ParamValues,
+  ReportBinding,
+  ReportDrillConfig
+} from '../../../report/types'
 import { roleBindingDefaults } from '../designer/role'
 import { useReportDesigner, type UseReportDesignerReturn } from '../use-report-designer'
 
@@ -556,6 +561,108 @@ describe('useReportDesigner：Action Pill 就地编辑（角色 / 聚合 / 条�
     ).toBeUndefined()
     expect(designer.activeBinding.value).toBeUndefined()
     expect(designer.boundKeys.value.has(`${dataset.id}:amount`)).toBe(false)
+  })
+})
+
+describe('useReportDesigner：下钻配置读写与序列化', () => {
+  const DRILL: ReportDrillConfig = {
+    target: 'tpl-order-detail',
+    mapping: { customer: 'p_customer', amount: 'p_minAmount' },
+    openMode: 'dialog'
+  }
+
+  async function seedAndBind(
+    designer: UseReportDesignerReturn,
+    workbook: Workbook,
+    addr: { row: number; col: number }
+  ) {
+    const dataset = designer.addDataset('c1')
+    designer.updateDataset(dataset.id, { sql: 'SELECT customer, amount FROM orders' })
+    await designer.describeDataset(dataset.id)
+    designer.bindField(dataset.id, 'customer', addr)
+    workbook.activeSheet.selectCell(addr)
+    return dataset
+  }
+
+  it('drill 经 patchActiveBinding 写入，随 getTemplate() 序列化 round-trip', async () => {
+    const { designer, workbook } = createDesigner()
+    await seedAndBind(designer, workbook, { row: 0, col: 0 })
+
+    designer.patchActiveBinding({ drill: DRILL })
+    expect(designer.activeBinding.value?.drill).toEqual(DRILL)
+
+    const template = designer.getTemplate()
+    expect(template.version).toBe(1)
+    const meta = template.meta ?? []
+    expect(meta).toHaveLength(1)
+    expect((meta[0]!.payload as ReportBinding).drill).toEqual(DRILL)
+
+    // JSON 序列化往返后下钻配置完整（模板可序列化流转）
+    const restored = JSON.parse(JSON.stringify(template)) as ReportTemplate
+    expect((restored.meta![0]!.payload as ReportBinding).drill).toEqual(DRILL)
+  })
+
+  it('patchActiveBinding({ drill: undefined }) 移除下钻配置（meta 不留 drill 键）', async () => {
+    const { designer, workbook } = createDesigner()
+    await seedAndBind(designer, workbook, { row: 0, col: 0 })
+
+    designer.patchActiveBinding({ drill: DRILL })
+    designer.patchActiveBinding({ drill: undefined })
+
+    const binding = workbook.activeSheet.getCellMeta<ReportBinding>(
+      { row: 0, col: 0 },
+      REPORT_META_NAMESPACE
+    )
+    expect(binding).toBeTruthy()
+    expect('drill' in binding!).toBe(false)
+    expect(designer.getTemplate().meta![0]!.payload).not.toHaveProperty('drill')
+  })
+
+  it('载入含下钻配置的模板后还原，getTemplate 往返保留', async () => {
+    const binding: ReportBinding = {
+      dataset: 'ds-template',
+      field: 'customer',
+      preset: 'groupHeader',
+      aggregate: 'group',
+      expand: 'down',
+      drill: DRILL
+    }
+    const template: ReportTemplate = {
+      version: 1,
+      cells: [],
+      styles: [],
+      merges: [],
+      frozen: { rows: 0, cols: 0 },
+      rows: 24,
+      cols: 10,
+      meta: [{ row: 1, col: 0, namespace: REPORT_META_NAMESPACE, payload: binding }],
+      datasets: [
+        {
+          id: 'ds-template',
+          label: '模板数据集',
+          connection: { ...PG, id: 'conn-template' },
+          sql: 'SELECT customer, amount FROM orders'
+        }
+      ]
+    }
+
+    const { designer, workbook } = createDesigner([MYSQL], { template })
+
+    // 下钻配置随绑定 meta 还原
+    const loaded = workbook.activeSheet.getCellMeta<ReportBinding>(
+      { row: 1, col: 0 },
+      REPORT_META_NAMESPACE
+    )
+    expect(loaded?.drill).toEqual(DRILL)
+
+    // 选中该格：activeBinding 暴露 drill（Action Pill 下钻入口回填数据源）
+    workbook.activeSheet.selectCell({ row: 1, col: 0 })
+    expect(designer.activeBinding.value?.drill).toEqual(DRILL)
+
+    // 往返吐出保留
+    const roundTrip = designer.getTemplate()
+    expect(roundTrip.version).toBe(1)
+    expect((roundTrip.meta![0]!.payload as ReportBinding).drill).toEqual(DRILL)
   })
 })
 

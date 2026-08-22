@@ -106,6 +106,7 @@
           :parent-pick-mode="parentPick?.mode ?? null"
           :row-parent-candidates="rowParentCandidates"
           :col-parent-candidates="colParentCandidates"
+          :show-drill="hasDrillTemplates"
           :resolve-field-label="resolveFieldLabel"
           :get-binding-at="getBindingAt"
           :host-el="gridHostEl"
@@ -113,6 +114,7 @@
           @patch="patchActiveBinding"
           @remove="removeActiveBinding"
           @open-rules="rulesDialogVisible = true"
+          @open-drill="drillDialogVisible = true"
           @start-parent-pick="startParentPick"
           @cancel-parent-pick="cancelParentPick"
           @clear-parent="clearParent"
@@ -141,6 +143,17 @@
       :field-type="activeFieldType"
       @save="saveConditionalRules"
     />
+
+    <u-report-drill-dialog
+      v-if="hasDrillTemplates"
+      v-model="drillDialogVisible"
+      :templates="props.drillTemplates ?? []"
+      :fields="activeDatasetFields"
+      :drill="activeBinding?.drill"
+      :resolve-template="props.resolveTemplate"
+      @save="saveDrill"
+      @remove="removeDrill"
+    />
   </div>
 </template>
 
@@ -153,7 +166,7 @@ import { bem } from '@veltra/utils'
 import { computed, nextTick, onScopeDispose, ref, shallowRef, useTemplateRef, watch } from 'vue'
 
 import type { ReportTemplate } from '../../report/template'
-import type { ConditionalRule } from '../../report/types'
+import type { ConditionalRule, ReportDrillConfig } from '../../report/types'
 import type {
   ReportDesignerEmits,
   ReportDesignerProps,
@@ -165,6 +178,7 @@ import { USheet } from '../sheet'
 import UReportDatasetHub from './designer-hub.vue'
 import { resolveGridDropAddress } from './designer/cell-coords'
 import { applyGridColWidths, applySheetColWidths, readGridColWidths } from './designer/col-widths'
+import UReportDrillDialog from './designer/drill-dialog.vue'
 import UReportDropHighlightOverlay from './designer/drop-highlight-overlay.vue'
 import UReportFloatPanel from './designer/float-panel.vue'
 import UReportRulesDialog from './designer/rules-dialog.vue'
@@ -237,6 +251,10 @@ const gridCols = computed(() => {
 
 const hubVisible = ref(false)
 const rulesDialogVisible = ref(false)
+const drillDialogVisible = ref(false)
+
+/** 宿主传入可下钻模板列表时才出现下钻配置入口（不传则无入口，spec 兼容性要求） */
+const hasDrillTemplates = computed(() => (props.drillTemplates?.length ?? 0) > 0)
 
 const pickCandidateCells = computed((): CellAddress[] => {
   if (!parentPick.value) return []
@@ -362,6 +380,14 @@ async function exportPreviewXlsx(): Promise<void> {
 
 function saveConditionalRules(rules: ConditionalRule[]): void {
   patchActiveBinding({ conditionalRules: rules })
+}
+
+function saveDrill(drill: ReportDrillConfig): void {
+  patchActiveBinding({ drill })
+}
+
+function removeDrill(): void {
+  patchActiveBinding({ drill: undefined })
 }
 
 function clearDropState(): void {

@@ -37,6 +37,15 @@
           @update:model-value="onExpand"
         />
         <u-button size="small" plain @click="emit('open-rules')">条件样式</u-button>
+        <u-button
+          v-if="showDrill"
+          size="small"
+          plain
+          :type="binding.drill ? 'primary' : undefined"
+          @click="emit('open-drill')"
+        >
+          下钻
+        </u-button>
         <u-button size="small" text type="danger" @click="emit('remove')">删除绑定</u-button>
         <u-button
           size="small"
@@ -190,6 +199,8 @@ const props = defineProps<{
   parentPickMode: ParentPickMode | null
   rowParentCandidates: CellAddress[]
   colParentCandidates: CellAddress[]
+  /** 宿主传入了可下钻模板列表（下钻配置入口可见性由父级按 props 计算） */
+  showDrill?: boolean
   resolveFieldLabel?: (datasetId: string, fieldName: string) => string
   getBindingAt?: (addr: CellAddress) => ReportBinding | undefined
   hostEl: HTMLElement | null
@@ -200,6 +211,7 @@ const emit = defineEmits<{
   patch: [patch: Partial<ReportBinding>]
   remove: []
   'open-rules': []
+  'open-drill': []
   'start-parent-pick': [mode: ParentPickMode]
   'cancel-parent-pick': []
   'clear-parent': [mode: ParentPickMode]

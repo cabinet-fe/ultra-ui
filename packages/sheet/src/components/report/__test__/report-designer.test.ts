@@ -6,7 +6,7 @@ import { UReportDesigner } from '../../../index'
 import { REPORT_META_NAMESPACE } from '../../../report/binding'
 import type { DataConnection, DataConnector } from '../../../report/connector'
 import type { ReportTemplate } from '../../../report/template'
-import type { ParamValues, ReportBinding } from '../../../report/types'
+import type { ParamValues, ReportBinding, ReportTemplateListItem } from '../../../report/types'
 import type { ReportDesignerExposed } from '../../../types'
 import * as cellCoords from '../designer/cell-coords'
 import * as gridOverlay from '../designer/use-grid-overlay'
@@ -64,7 +64,10 @@ function createStubConnector() {
 const apps: App[] = []
 const containers: HTMLElement[] = []
 
-function mountDesigner(workbook: Workbook, options?: { template?: ReportTemplate }) {
+function mountDesigner(
+  workbook: Workbook,
+  options?: { template?: ReportTemplate; drillTemplates?: ReportTemplateListItem[] }
+) {
   const { connector, calls, state } = createStubConnector()
   const el = document.createElement('div')
   el.style.width = '960px'
@@ -80,6 +83,7 @@ function mountDesigner(workbook: Workbook, options?: { template?: ReportTemplate
         workbook,
         connections: connections.value,
         template: options?.template,
+        drillTemplates: options?.drillTemplates,
         'onUpdate:connections': (value: DataConnection[]) => {
           connections.value = value
         },
@@ -142,8 +146,9 @@ function dispatchFieldDragOver(target: HTMLElement, clientX = 100, clientY = 100
 afterEach(() => {
   while (apps.length) apps.pop()!.unmount()
   while (containers.length) containers.pop()!.remove()
-  // drawer Teleport 到 body，卸载后清理残留
+  // drawer / dialog Teleport 到 body，卸载后清理残留
   document.querySelectorAll('.u-drawer-overlay').forEach((node) => node.remove())
+  document.querySelectorAll('.u-dialog-overlay').forEach((node) => node.remove())
 })
 
 describe('UReportDesigner 最小闭环（数据中枢 + 拖拽绑定 + getTemplate）', () => {
@@ -459,6 +464,59 @@ describe('UReportDesigner Action Pill', () => {
     expect(panel).toBeTruthy()
     expect(panel!.querySelector('.u-report-float-panel__select--expand')).toBeTruthy()
     expect(panel!.querySelector('.u-report-float-panel__select--aggregate')).toBeNull()
+    restore()
+  })
+
+  function seedBindingCell(workbook: Workbook): void {
+    workbook.activeSheet.setCellMeta({ row: 0, col: 0 }, REPORT_META_NAMESPACE, {
+      dataset: 'ds',
+      field: 'customer',
+      aggregate: 'group',
+      expand: 'down',
+      preset: 'groupHeader'
+    } satisfies ReportBinding)
+    workbook.activeSheet.selectCell({ row: 0, col: 0 })
+  }
+
+  function findPanelButton(panel: Element, text: string): HTMLButtonElement | undefined {
+    return [...panel.querySelectorAll<HTMLButtonElement>('button')].find((button) =>
+      button.textContent?.includes(text)
+    )
+  }
+
+  it('宿主传入模板列表时绑定格 Action Pill 出现下钻入口，点击打开下钻配置对话框', async () => {
+    const workbook = new Workbook()
+    seedBindingCell(workbook)
+
+    const restore = spyOverlay()
+    const { el } = mountDesigner(workbook, {
+      drillTemplates: [{ ref: 'tpl-detail', label: '订单详情' }]
+    })
+    await flush()
+
+    const panel = el.querySelector('.u-report-float-panel')!
+    expect(panel).toBeTruthy()
+    const drillButton = findPanelButton(panel, '下钻')
+    expect(drillButton).toBeTruthy()
+
+    await click(drillButton!)
+    const dialog = document.querySelector('.u-report-drill-dialog')
+    expect(dialog).toBeTruthy()
+    expect(dialog!.textContent).toContain('目标模板')
+    restore()
+  })
+
+  it('宿主不传模板列表时下钻配置入口不出现', async () => {
+    const workbook = new Workbook()
+    seedBindingCell(workbook)
+
+    const restore = spyOverlay()
+    const { el } = mountDesigner(workbook)
+    await flush()
+
+    const panel = el.querySelector('.u-report-float-panel')!
+    expect(panel).toBeTruthy()
+    expect(findPanelButton(panel, '下钻')).toBeUndefined()
     restore()
   })
 })

@@ -316,6 +316,7 @@ export function useReportDesigner(options: UseReportDesignerOptions): UseReportD
     const next: ReportBinding = { ...binding, ...patch }
     if ('rowParent' in patch && patch.rowParent === undefined) delete next.rowParent
     if ('colParent' in patch && patch.colParent === undefined) delete next.colParent
+    if ('drill' in patch && patch.drill === undefined) delete next.drill
     if (
       ('aggregate' in patch || 'expand' in patch) &&
       !('preset' in patch) &&
