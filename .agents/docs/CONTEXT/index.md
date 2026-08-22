@@ -6,7 +6,9 @@
 
 ## 模块
 
-暂无归档条目。模块占位：
+- [sheet](sheet/index.md) — USheet、报表设计器/查看器、报表内核
+
+暂无归档条目的模块占位：
 
 - utils
 - styles
@@ -14,7 +16,6 @@
 - directives
 - desktop
 - sheet-core
-- sheet
 - ai
 - icons
 - vite

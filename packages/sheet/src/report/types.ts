@@ -30,6 +30,24 @@ export interface ConditionalRule {
   scope?: 'cell' | 'row'
 }
 
+/** 绑定格下钻配置（存于 Cell Meta namespace `report`，随绑定序列化；旧查看器忽略该字段） */
+export interface ReportDrillConfig {
+  /** 目标模板引用（宿主模板列表项的 ref，不支持手填） */
+  target: string
+  /** 字段 → 详情报参数映射：源记录字段名 → 目标报表 Filter Bar 参数 id */
+  mapping: Record<string, string>
+  /** 打开方式：查看器内切换 | UDialog 弹框 */
+  openMode: 'switch' | 'dialog'
+}
+
+/** 宿主提供的可下钻模板列表项（设计器下拉与查看器 resolveTemplate 契约共用） */
+export interface ReportTemplateListItem {
+  /** 模板引用，作为下钻 target 并传给宿主 resolveTemplate */
+  ref: string
+  /** 可读名，用于设计器下拉展示 */
+  label: string
+}
+
 /** 设计格上的报表绑定（存于 Cell Meta namespace `report`） */
 export interface ReportBinding {
   dataset: string
@@ -48,6 +66,8 @@ export interface ReportBinding {
   conditionalRules?: ConditionalRule[]
   /** 设计器预设；引擎不读 */
   preset?: ReportPreset
+  /** 下钻配置；缺省不可下钻 */
+  drill?: ReportDrillConfig
 }
 
 /**
