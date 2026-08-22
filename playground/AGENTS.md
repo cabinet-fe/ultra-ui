@@ -79,7 +79,7 @@ src/ai-chat/index.vue         # @veltra/ai 对话组件预览（真实 Open-Mete
 src/ai-orb/index.vue          # UAiOrb 活体球预览（生命状态 / 瞬时表情 / 尺寸）
 src/sheet/index.vue           # @veltra/sheet 电子表格预览（数据结构观察区 JSON 区块懒渲染 + 超 1 万行截断：避免 65 万 span 的整页布局/绘制秒级卡顿；完整数据走复制/放大，不受截断影响）
 src/sheet-big-data/index.vue  # @veltra/sheet 大数据量演示（Phase 6：10 万行写入/渲染/查找/导出 + 样式池去重）
-src/sheet-data-entry/index.vue # 在线填报演示（年度预算：多 sheet 分页 + 跨表公式联动汇总 + 提交前校验标红定位 + 提交后整表锁定；单元格级只读 setRangeReadonly/setCellReadonly；按「sheet+格」防抖保存到 /report-api/data-entry）
+src/sheet-data-entry/index.vue # 在线填报演示（年度预算：多 sheet 走内置标签栏；明细表为「编制项目 × 部门金额」矩阵 + 行列合计公式，汇总页跨表公式联动；提交前校验标红定位 + 提交后整表锁定；单元格级只读 setRangeReadonly/setCellReadonly；按「sheet+格」防抖保存到 /report-api/data-entry）
 ```
 
 ## 浏览器调试

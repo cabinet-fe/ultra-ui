@@ -1,20 +1,8 @@
 <template>
   <div class="budget-entry">
-    <!-- 顶栏：分页切换（隐藏 USheet 自带 tabs，模板结构由宿主锁定）+ 保存状态 + 提交 -->
+    <!-- 顶栏：标题 + 保存状态 + 提交；sheet 切换直接用 USheet 内置标签栏 -->
     <div class="budget-entry__bar">
-      <div class="budget-entry__tabs" role="tablist">
-        <button
-          v-for="name in SHEET_NAMES"
-          :key="name"
-          type="button"
-          role="tab"
-          class="budget-entry__tab"
-          :class="{ 'is-active': activeSheetName === name }"
-          @click="switchSheet(name)"
-        >
-          {{ name }}
-        </button>
-      </div>
+      <span class="budget-entry__title">2026 年度预算填报</span>
       <span class="budget-entry__status" :data-state="statusState">
         <span class="budget-entry__status-dot" />
         {{ statusText }}
@@ -51,9 +39,6 @@
       :workbook="workbook"
       :show-toolbar="false"
       :show-formula-bar="false"
-      :show-tabs="false"
-      :show-row-header="false"
-      :show-col-header="false"
       :resolve-cell-style="resolveCellStyle"
       class="budget-entry__sheet"
       @active-sheet-change="onActiveSheetChange"
@@ -74,28 +59,45 @@ import type { ResolveCellStyleHook } from '@veltra/sheet-core/grid'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 
 /**
- * 在线预算填报演示：多 sheet + 跨表公式联动 + 提交前校验。
- * - 三个 sheet：预算汇总（跨表公式 =费用预算!H9 自动汇总）/ 费用预算 / 人力预算（明细行小计公式）；
- * - 单元格级只读：模板先 setRangeReadonly 整表锁定，再对输入格 setCellReadonly(false) 放开；
- *   提交成功后重新整表锁定，全表只读；
- * - 提交前校验：必填 / 数字范围 / 总额不超年度额度上限；出错格红色高亮 + 面板点击定位；
+ * 在线预算填报演示：多 sheet（内置标签栏切换）+ 跨表公式联动 + 提交前校验。
+ * - 预算汇总 + 费用/人力/采购三张明细表：明细表第一列为编制项目，其后各列为
+ *   部门预算金额（填写区），项目合计 / 部门合计由公式自动计算；汇总页经跨表
+ *   公式（=费用预算!F11 …）自动汇总，无需填写；
+ * - 单元格级只读：整表 setRangeReadonly 锁定，仅项目名列与金额格放开；
+ *   提交成功后整表重锁；
+ * - 提交前校验：编制项目必填 / 金额须为 ≥0 数字 / 每行至少填一个部门金额 /
+ *   总计不超年度额度上限；出错格红色高亮 + 面板点击定位；
  * - 持久化按「sheet + 单元格」粒度：cell-change → 脏格队列 → 防抖 PUT 到
  *   playground 契约服务（SQLite 表 data_entry_cells，见 server/data-entry.ts）。
+ *
+ * 注：公式栏不校验格级只读（可绕过锁定写合计格），故本演示关闭公式栏。
  */
 
 const SUMMARY = '预算汇总'
-const EXPENSE = '费用预算'
-const HR = '人力预算'
-const SHEET_NAMES = [SUMMARY, EXPENSE, HR] as const
 
-const FORM_ID = 'budget-2026'
+/** 预算明细表结构：第一列编制项目，其后各部门金额列，最后一列项目合计 */
+const DEPARTMENTS = ['研发部', '市场部', '销售部', '行政部']
+const DETAIL_DEFS = [
+  {
+    name: '费用预算',
+    items: ['办公费', '差旅费', '业务招待费', '广告宣传费', '培训费', '其他费用']
+  },
+  { name: '人力预算', items: ['工资薪酬', '社保公积金', '绩效奖金', '招聘费', '员工福利'] },
+  { name: '采购预算', items: ['设备采购', '软件订阅', '办公用品', '外包服务'] }
+]
+const SHEET_NAMES = [SUMMARY, ...DETAIL_DEFS.map((def) => def.name)]
+
+const FORM_ID = 'budget-2026-v2'
 const API_BASE = `/report-api/data-entry/forms/${FORM_ID}/cells`
 /** 年度额度上限（预算总计不可超过） */
 const BUDGET_CAP = 500_000
-/** 明细行范围（费用 / 人力同为 r4~r7） */
-const DETAIL_ROWS = [4, 5, 6, 7]
+/** 表头行（0-based）；项目行紧随其后 */
+const HEADER_ROW = 3
+const FIRST_ITEM_ROW = HEADER_ROW + 1
+/** 项目合计列（0-based）：A=编制项目，B..E=部门金额，F=项目合计 */
+const TOTAL_COL = 1 + DEPARTMENTS.length
 /** 提交状态格（预算汇总页；只读但随填报数据持久化） */
-const STATUS_ADDR: CellAddress = { row: 3, col: 4 }
+const STATUS_ADDR: CellAddress = { row: 2, col: 1 }
 
 const GRID_EDGE = { style: 'thin' as const, width: 1, color: '#c9cdd4' }
 const TITLE_STYLE = {
@@ -121,174 +123,155 @@ const TOTAL_STYLE = { font: { bold: true }, fill: { color: '#f2f4f7' }, ...BODY_
 
 const workbook = new Workbook()
 workbook.renameSheet('Sheet1', SUMMARY)
-const summary = workbook.activeSheet
-const expense = workbook.addSheet(EXPENSE)
-const hr = workbook.addSheet(HR)
-const sheets: Record<string, Sheet> = { [SUMMARY]: summary, [EXPENSE]: expense, [HR]: hr }
+const sheets: Record<string, Sheet> = { [SUMMARY]: workbook.activeSheet }
+for (const def of DETAIL_DEFS) sheets[def.name] = workbook.addSheet(def.name)
+const summary = sheets[SUMMARY]!
 
-// ─── 模板：预算汇总（填报信息 + 跨表公式汇总） ───────────────
+/** 各明细表布局：项目行（0-based）与合计行 */
+const DETAIL_LAYOUT = DETAIL_DEFS.map((def) => ({
+  name: def.name,
+  itemRows: def.items.map((_, i) => FIRST_ITEM_ROW + i),
+  totalRow: FIRST_ITEM_ROW + def.items.length
+}))
 
-summary.ensureTableSize(12, 6)
-summary.mergeCellsBatch([
-  { start: { row: 0, col: 0 }, end: { row: 0, col: 5 } },
-  { start: { row: 1, col: 0 }, end: { row: 1, col: 5 } },
-  { start: { row: 2, col: 1 }, end: { row: 2, col: 2 } },
-  { start: { row: 5, col: 0 }, end: { row: 5, col: 2 } },
-  { start: { row: 5, col: 3 }, end: { row: 5, col: 5 } },
-  ...[6, 7, 8, 9, 10].flatMap((row) => [
-    { start: { row, col: 0 }, end: { row, col: 2 } },
-    { start: { row, col: 3 }, end: { row, col: 5 } }
+// ─── 模板：预算明细表（编制项目 × 部门金额，行/列合计公式） ────
+
+/** 各明细表合计格引用（如 费用预算!F11），供汇总页跨表公式使用 */
+const detailTotalRefs = new Map<string, string>()
+
+for (const def of DETAIL_DEFS) {
+  const sheet = sheets[def.name]!
+  const totalRow = FIRST_ITEM_ROW + def.items.length
+  sheet.ensureTableSize(totalRow + 1, TOTAL_COL + 1)
+  sheet.mergeCellsBatch([
+    { start: { row: 0, col: 0 }, end: { row: 0, col: TOTAL_COL } },
+    { start: { row: 1, col: 0 }, end: { row: 1, col: TOTAL_COL } }
   ])
-])
-summary.setCellValue({ row: 0, col: 0 }, '2026 年度预算填报单')
-summary.setCellStyle({ start: { row: 0, col: 0 }, end: { row: 0, col: 5 } }, TITLE_STYLE)
-summary.setRowHeight(0, 40)
-summary.setCellValue(
-  { row: 1, col: 0 },
-  '浅黄色为填写区；明细请在「费用预算 / 人力预算」分页填写，本页公式自动汇总'
-)
-summary.setCellStyle({ start: { row: 1, col: 0 }, end: { row: 1, col: 5 } }, HINT_STYLE)
-for (const [addr, label] of [
-  [{ row: 2, col: 0 }, '填报部门'],
-  [{ row: 2, col: 3 }, '负责人'],
-  [{ row: 3, col: 0 }, '预算年度'],
-  [{ row: 3, col: 3 }, '提交状态']
-] as [CellAddress, string][]) {
-  summary.setCellValue(addr, label)
-  summary.setCellStyle({ start: addr, end: addr }, LABEL_STYLE)
+  sheet.setCellValue({ row: 0, col: 0 }, `${def.name}明细`)
+  sheet.setCellStyle({ start: { row: 0, col: 0 }, end: { row: 0, col: TOTAL_COL } }, TITLE_STYLE)
+  sheet.setRowHeight(0, 40)
+  sheet.setCellValue({ row: 1, col: 0 }, '浅黄色为填写区：逐行填写各部门预算金额，合计自动计算')
+  sheet.setCellStyle({ start: { row: 1, col: 0 }, end: { row: 1, col: TOTAL_COL } }, HINT_STYLE)
+
+  sheet.setCellValue({ row: HEADER_ROW, col: 0 }, '编制项目')
+  DEPARTMENTS.forEach((dept, i) => {
+    sheet.setCellValue({ row: HEADER_ROW, col: 1 + i }, `${dept}（元）`)
+  })
+  sheet.setCellValue({ row: HEADER_ROW, col: TOTAL_COL }, '项目合计（元）')
+  sheet.setCellStyle(
+    { start: { row: HEADER_ROW, col: 0 }, end: { row: HEADER_ROW, col: TOTAL_COL } },
+    HEADER_STYLE
+  )
+
+  def.items.forEach((item, i) => {
+    const row = FIRST_ITEM_ROW + i
+    sheet.setCellValue({ row, col: 0 }, item)
+    // 项目合计 = 各部门金额之和（1-based 行号 = 0-based + 1）
+    sheet.setCellFormula({ row, col: TOTAL_COL }, `=SUM(B${row + 1}:E${row + 1})`)
+  })
+  sheet.setCellValue({ row: totalRow, col: 0 }, `${def.name}合计`)
+  for (let col = 1; col <= TOTAL_COL; col++) {
+    const letter = String.fromCharCode(65 + col) // B..F
+    sheet.setCellFormula(
+      { row: totalRow, col },
+      `=SUM(${letter}${FIRST_ITEM_ROW + 1}:${letter}${totalRow})`
+    )
+  }
+
+  sheet.setCellStyle(
+    { start: { row: FIRST_ITEM_ROW, col: 0 }, end: { row: totalRow, col: TOTAL_COL } },
+    BODY_BORDER
+  )
+  sheet.setCellStyle(
+    { start: { row: FIRST_ITEM_ROW, col: 1 }, end: { row: totalRow, col: TOTAL_COL } },
+    { align: { horizontal: 'right' } }
+  )
+  sheet.setCellStyle(
+    { start: { row: totalRow, col: 0 }, end: { row: totalRow, col: TOTAL_COL } },
+    TOTAL_STYLE
+  )
+  sheet.setCellStyle(
+    { start: { row: totalRow, col: 1 }, end: { row: totalRow, col: TOTAL_COL } },
+    { align: { horizontal: 'right' } }
+  )
+  sheet.setColWidth(0, 140)
+  for (let col = 1; col <= TOTAL_COL; col++) sheet.setColWidth(col, 110)
+  detailTotalRefs.set(def.name, `F${totalRow + 1}`)
 }
+
+// ─── 模板：预算汇总（跨表公式联动，无需填写） ─────────────────
+
+const SUMMARY_FIRST_ROW = 5 // 首个「类别合计」行（0-based）
+const SUMMARY_TOTAL_ROW = SUMMARY_FIRST_ROW + DETAIL_DEFS.length
+const SUMMARY_CAP_ROW = SUMMARY_TOTAL_ROW + 1
+const SUMMARY_BALANCE_ROW = SUMMARY_TOTAL_ROW + 2
+
+summary.ensureTableSize(SUMMARY_BALANCE_ROW + 1, 2)
+summary.mergeCellsBatch([
+  { start: { row: 0, col: 0 }, end: { row: 0, col: 1 } },
+  { start: { row: 1, col: 0 }, end: { row: 1, col: 1 } }
+])
+summary.setCellValue({ row: 0, col: 0 }, '2026 年度预算汇总')
+summary.setCellStyle({ start: { row: 0, col: 0 }, end: { row: 0, col: 1 } }, TITLE_STYLE)
+summary.setRowHeight(0, 40)
+summary.setCellValue({ row: 1, col: 0 }, '各明细表经跨表公式自动汇总；请在明细标签页填写部门金额')
+summary.setCellStyle({ start: { row: 1, col: 0 }, end: { row: 1, col: 1 } }, HINT_STYLE)
+summary.setCellValue({ row: 2, col: 0 }, '提交状态')
+summary.setCellStyle({ start: { row: 2, col: 0 }, end: { row: 2, col: 0 } }, LABEL_STYLE)
 summary.setCellValue(STATUS_ADDR, '草稿')
 summary.setCellStyle(
   { start: STATUS_ADDR, end: STATUS_ADDR },
   { font: { bold: true, color: '#667085' } }
 )
-// 信息输入格下划线
-for (const range of [
-  { start: { row: 2, col: 1 }, end: { row: 2, col: 2 } },
-  { start: { row: 2, col: 4 }, end: { row: 2, col: 4 } },
-  { start: { row: 3, col: 1 }, end: { row: 3, col: 1 } }
-]) {
-  summary.setCellStyle(range, { border: { bottom: { style: 'thin', width: 1, color: '#667085' } } })
-}
-// 汇总表（跨表公式联动：费用预算!H9 / 人力预算!E9 为各自合计格）
-summary.setCellValue({ row: 5, col: 0 }, '预算项目')
-summary.setCellValue({ row: 5, col: 3 }, '金额（元）')
-summary.setCellStyle({ start: { row: 5, col: 0 }, end: { row: 5, col: 5 } }, HEADER_STYLE)
-const SUMMARY_ROWS: [number, string, string | number][] = [
-  [6, '费用预算合计', '=费用预算!H9'],
-  [7, '人力预算合计', '=人力预算!E9'],
-  [8, '预算总计', '=D7+D8'],
-  [9, '年度额度上限', BUDGET_CAP],
-  [10, '额度结余', '=D10-D9']
-]
-for (const [row, label, value] of SUMMARY_ROWS) {
-  summary.setCellValue({ row, col: 0 }, label)
-  if (typeof value === 'string') summary.setCellFormula({ row, col: 3 }, value)
-  else summary.setCellValue({ row, col: 3 }, value)
-  summary.setCellStyle({ start: { row, col: 0 }, end: { row, col: 2 } }, BODY_BORDER)
+
+summary.setCellValue({ row: 4, col: 0 }, '预算类别')
+summary.setCellValue({ row: 4, col: 1 }, '金额（元）')
+summary.setCellStyle({ start: { row: 4, col: 0 }, end: { row: 4, col: 1 } }, HEADER_STYLE)
+DETAIL_DEFS.forEach((def, i) => {
+  const row = SUMMARY_FIRST_ROW + i
+  summary.setCellValue({ row, col: 0 }, `${def.name}合计`)
+  // 跨表公式：直接引用明细表合计格
+  summary.setCellFormula({ row, col: 1 }, `=${def.name}!${detailTotalRefs.get(def.name)}`)
+})
+summary.setCellValue({ row: SUMMARY_TOTAL_ROW, col: 0 }, '预算总计')
+summary.setCellFormula(
+  { row: SUMMARY_TOTAL_ROW, col: 1 },
+  `=SUM(B${SUMMARY_FIRST_ROW + 1}:B${SUMMARY_TOTAL_ROW})`
+)
+summary.setCellValue({ row: SUMMARY_CAP_ROW, col: 0 }, '年度额度上限')
+summary.setCellValue({ row: SUMMARY_CAP_ROW, col: 1 }, BUDGET_CAP)
+summary.setCellValue({ row: SUMMARY_BALANCE_ROW, col: 0 }, '额度结余')
+// 结余 = 上限 - 总计（1-based 行号）
+summary.setCellFormula(
+  { row: SUMMARY_BALANCE_ROW, col: 1 },
+  `=B${SUMMARY_CAP_ROW + 1}-B${SUMMARY_TOTAL_ROW + 1}`
+)
+summary.setCellStyle(
+  { start: { row: SUMMARY_FIRST_ROW, col: 0 }, end: { row: SUMMARY_BALANCE_ROW, col: 1 } },
+  BODY_BORDER
+)
+summary.setCellStyle(
+  { start: { row: SUMMARY_FIRST_ROW, col: 1 }, end: { row: SUMMARY_BALANCE_ROW, col: 1 } },
+  { align: { horizontal: 'right' } }
+)
+for (const row of [SUMMARY_TOTAL_ROW, SUMMARY_BALANCE_ROW]) {
+  summary.setCellStyle({ start: { row, col: 0 }, end: { row, col: 1 } }, TOTAL_STYLE)
   summary.setCellStyle(
-    { start: { row, col: 3 }, end: { row, col: 5 } },
-    { align: { horizontal: 'right' }, ...BODY_BORDER }
+    { start: { row, col: 1 }, end: { row, col: 1 } },
+    { align: { horizontal: 'right' } }
   )
 }
-// 总计 / 结余强调
-summary.setCellStyle({ start: { row: 8, col: 0 }, end: { row: 8, col: 5 } }, TOTAL_STYLE)
-summary.setCellStyle({ start: { row: 10, col: 0 }, end: { row: 10, col: 5 } }, TOTAL_STYLE)
-summary.setCellStyle(
-  { start: { row: 8, col: 3 }, end: { row: 8, col: 5 } },
-  { align: { horizontal: 'right' } }
-)
-summary.setCellStyle(
-  { start: { row: 10, col: 3 }, end: { row: 10, col: 5 } },
-  { align: { horizontal: 'right' } }
-)
-;[130, 120, 120, 120, 110, 110].forEach((width, col) => summary.setColWidth(col, width))
+summary.setColWidth(0, 160)
+summary.setColWidth(1, 140)
 
-// ─── 模板：费用预算（季度明细 + 行小计 / 列合计公式） ─────────
+// ─── 单元格级只读：各表整锁后放开填写区 ─────────────────────
 
-expense.ensureTableSize(10, 8)
-expense.mergeCellsBatch([
-  { start: { row: 0, col: 0 }, end: { row: 0, col: 7 } },
-  { start: { row: 1, col: 0 }, end: { row: 1, col: 7 } },
-  { start: { row: 3, col: 1 }, end: { row: 3, col: 2 } },
-  ...DETAIL_ROWS.map((row) => ({ start: { row, col: 1 }, end: { row, col: 2 } })),
-  { start: { row: 8, col: 0 }, end: { row: 8, col: 2 } }
-])
-expense.setCellValue({ row: 0, col: 0 }, '费用预算明细')
-expense.setCellStyle({ start: { row: 0, col: 0 }, end: { row: 0, col: 7 } }, TITLE_STYLE)
-expense.setRowHeight(0, 40)
-expense.setCellValue({ row: 1, col: 0 }, '逐行填写费用类别与季度预算；全年小计、合计自动计算')
-expense.setCellStyle({ start: { row: 1, col: 0 }, end: { row: 1, col: 7 } }, HINT_STYLE)
-const EXPENSE_HEADER = ['费用类别', '事项摘要', '', 'Q1', 'Q2', 'Q3', 'Q4', '全年小计']
-EXPENSE_HEADER.forEach((title, col) => {
-  if (title) expense.setCellValue({ row: 3, col }, title)
-})
-expense.setCellStyle({ start: { row: 3, col: 0 }, end: { row: 3, col: 7 } }, HEADER_STYLE)
-for (const row of DETAIL_ROWS) {
-  // 行小计：=SUM(D5:G5)（1-based 行号 = 0-based + 1）
-  expense.setCellFormula({ row, col: 7 }, `=SUM(D${row + 1}:G${row + 1})`)
-}
-expense.setCellValue({ row: 8, col: 0 }, '费用预算合计')
-for (let col = 3; col <= 7; col++) {
-  const letter = String.fromCharCode(68 + col - 3) // D..H
-  expense.setCellFormula({ row: 8, col }, `=SUM(${letter}5:${letter}8)`)
-}
-expense.setCellStyle({ start: { row: 4, col: 0 }, end: { row: 8, col: 7 } }, BODY_BORDER)
-expense.setCellStyle(
-  { start: { row: 4, col: 3 }, end: { row: 8, col: 7 } },
-  { align: { horizontal: 'right' } }
-)
-expense.setCellStyle({ start: { row: 8, col: 0 }, end: { row: 8, col: 7 } }, TOTAL_STYLE)
-expense.setCellStyle(
-  { start: { row: 8, col: 3 }, end: { row: 8, col: 7 } },
-  { align: { horizontal: 'right' } }
-)
-;[120, 110, 110, 85, 85, 85, 85, 100].forEach((width, col) => expense.setColWidth(col, width))
-
-// ─── 模板：人力预算（岗位 × 人数 × 成本 × 月数） ─────────────
-
-hr.ensureTableSize(10, 5)
-hr.mergeCellsBatch([
-  { start: { row: 0, col: 0 }, end: { row: 0, col: 4 } },
-  { start: { row: 1, col: 0 }, end: { row: 1, col: 4 } }
-])
-hr.setCellValue({ row: 0, col: 0 }, '人力预算明细')
-hr.setCellStyle({ start: { row: 0, col: 0 }, end: { row: 0, col: 4 } }, TITLE_STYLE)
-hr.setRowHeight(0, 40)
-hr.setCellValue({ row: 1, col: 0 }, '逐行填写岗位编制与成本；年度小计自动计算')
-hr.setCellStyle({ start: { row: 1, col: 0 }, end: { row: 1, col: 4 } }, HINT_STYLE)
-const HR_HEADER = ['岗位名称', '编制人数', '月均成本（元）', '预算月数', '年度小计']
-HR_HEADER.forEach((title, col) => hr.setCellValue({ row: 3, col }, title))
-hr.setCellStyle({ start: { row: 3, col: 0 }, end: { row: 3, col: 4 } }, HEADER_STYLE)
-for (const row of DETAIL_ROWS) {
-  // 年度小计 = 人数 × 月均成本 × 月数
-  hr.setCellFormula({ row, col: 4 }, `=B${row + 1}*C${row + 1}*D${row + 1}`)
-}
-hr.setCellValue({ row: 8, col: 0 }, '人力预算合计')
-hr.setCellFormula({ row: 8, col: 4 }, '=SUM(E5:E8)')
-hr.setCellStyle({ start: { row: 4, col: 0 }, end: { row: 8, col: 4 } }, BODY_BORDER)
-hr.setCellStyle(
-  { start: { row: 4, col: 1 }, end: { row: 8, col: 4 } },
-  { align: { horizontal: 'right' } }
-)
-hr.setCellStyle({ start: { row: 8, col: 0 }, end: { row: 8, col: 4 } }, TOTAL_STYLE)
-hr.setCellStyle(
-  { start: { row: 8, col: 4 }, end: { row: 8, col: 4 } },
-  { align: { horizontal: 'right' } }
-)
-;[150, 100, 130, 100, 120].forEach((width, col) => hr.setColWidth(col, width))
-
-// ─── 单元格级只读：各表整锁后放开输入格 ─────────────────────
-
-/** 各 sheet 的可编辑格（合并区取锚点地址） */
-const EDITABLE_ADDRS: Record<string, CellAddress[]> = {
-  [SUMMARY]: [
-    { row: 2, col: 1 }, // 填报部门
-    { row: 2, col: 4 }, // 负责人
-    { row: 3, col: 1 } // 预算年度
-  ],
-  [EXPENSE]: DETAIL_ROWS.flatMap((row) => [0, 1, 3, 4, 5, 6].map((col) => ({ row, col }))),
-  [HR]: DETAIL_ROWS.flatMap((row) => [0, 1, 2, 3].map((col) => ({ row, col })))
+/** 各 sheet 的可编辑格：明细表的项目名列 + 部门金额列（合计行/列与汇总页只读） */
+const EDITABLE_ADDRS: Record<string, CellAddress[]> = { [SUMMARY]: [] }
+for (const { name, itemRows } of DETAIL_LAYOUT) {
+  EDITABLE_ADDRS[name] = itemRows.flatMap((row) =>
+    Array.from({ length: TOTAL_COL }, (_, col) => ({ row, col }))
+  )
 }
 const editableKeys = new Map(
   Object.entries(EDITABLE_ADDRS).map(([name, addrs]) => [
@@ -305,17 +288,14 @@ const persistableKeys = new Map(
 )
 persistableKeys.get(SUMMARY)!.add(`${STATUS_ADDR.row},${STATUS_ADDR.col}`)
 
-const SHEET_FULL_RANGES: Record<string, { start: CellAddress; end: CellAddress }> = {
-  [SUMMARY]: { start: { row: 0, col: 0 }, end: { row: 11, col: 5 } },
-  [EXPENSE]: { start: { row: 0, col: 0 }, end: { row: 9, col: 7 } },
-  [HR]: { start: { row: 0, col: 0 }, end: { row: 9, col: 4 } }
-}
+/** 整表锁定范围 = USheet 默认渲染区（100 行 × 26 列），模板区域外也不可写 */
+const FULL_RANGE = { start: { row: 0, col: 0 }, end: { row: 99, col: 25 } }
 
 /** 整表锁定（提交后 / 已提交状态加载后） */
 function lockAll(): void {
-  for (const name of SHEET_NAMES) sheets[name]!.setRangeReadonly(SHEET_FULL_RANGES[name]!)
+  for (const name of SHEET_NAMES) sheets[name]!.setRangeReadonly(FULL_RANGE)
 }
-/** 放开输入格（撤回提交 / 初始模板） */
+/** 放开填写区（撤回提交 / 初始模板） */
 function unlockEditable(): void {
   for (const name of SHEET_NAMES) {
     for (const addr of EDITABLE_ADDRS[name]!) sheets[name]!.setCellReadonly(addr, false)
@@ -327,7 +307,7 @@ unlockEditable()
 // 模板为基线状态，不进 undo 历史
 for (const name of SHEET_NAMES) sheets[name]!.history.clear()
 
-// ─── 动态样式：输入区高亮 / 校验出错格标红 ──────────────────
+// ─── 动态样式：填写区高亮 / 校验出错格标红 ──────────────────
 
 const submitted = ref(false)
 /** 校验出错格（按 sheet 分组的 'row,col' 集合；随编辑逐个摘除） */
@@ -452,75 +432,40 @@ function isBlank(value: CellValue | undefined): boolean {
   return value == null || value === ''
 }
 
-/** 全量校验：必填 / 数字范围 / 总额不超上限（规则按「行有任意填写即需完整」判定明细行） */
+/** 全量校验：编制项目必填 / 金额须为 ≥0 数字 / 每行至少一个部门金额 / 总计不超上限 */
 function validateBudget(): BudgetError[] {
   const result: BudgetError[] = []
   const push = (sheetName: string, addr: CellAddress, message: string) =>
     result.push({ sheetName, addr, message })
 
-  // 汇总页必填项
-  for (const [addr, label] of [
-    [{ row: 2, col: 1 }, '填报部门'],
-    [{ row: 2, col: 4 }, '负责人'],
-    [{ row: 3, col: 1 }, '预算年度']
-  ] as [CellAddress, string][]) {
-    if (isBlank(summary.getDisplayValue(addr))) push(SUMMARY, addr, `${label}必填`)
-  }
-  const year = summary.getDisplayValue({ row: 3, col: 1 })
-  if (!isBlank(year) && (typeof year !== 'number' || !Number.isInteger(year))) {
-    push(SUMMARY, { row: 3, col: 1 }, '预算年度须为整数年份')
-  }
-
-  // 费用明细行
-  for (const row of DETAIL_ROWS) {
-    const quarterCols = [3, 4, 5, 6]
-    const used =
-      !isBlank(expense.getDisplayValue({ row, col: 0 })) ||
-      !isBlank(expense.getDisplayValue({ row, col: 1 })) ||
-      quarterCols.some((col) => !isBlank(expense.getDisplayValue({ row, col })))
-    if (!used) continue
-    if (isBlank(expense.getDisplayValue({ row, col: 0 }))) {
-      push(EXPENSE, { row, col: 0 }, '费用类别必填')
-    }
-    if (isBlank(expense.getDisplayValue({ row, col: 1 }))) {
-      push(EXPENSE, { row, col: 1 }, '事项摘要必填')
-    }
-    let hasAmount = false
-    for (const col of quarterCols) {
-      const value = expense.getDisplayValue({ row, col })
-      if (isBlank(value)) continue
-      if (typeof value !== 'number' || value < 0) {
-        push(EXPENSE, { row, col }, '季度预算须为 ≥0 的数字')
-      } else if (value > 0) {
-        hasAmount = true
+  for (const { name, itemRows } of DETAIL_LAYOUT) {
+    const sheet = sheets[name]!
+    for (const row of itemRows) {
+      if (isBlank(sheet.getDisplayValue({ row, col: 0 }))) {
+        push(name, { row, col: 0 }, '编制项目必填')
       }
-    }
-    if (!hasAmount) push(EXPENSE, { row, col: 3 }, '至少填写一个季度预算金额')
-  }
-
-  // 人力明细行
-  for (const row of DETAIL_ROWS) {
-    const used = [0, 1, 2, 3].some((col) => !isBlank(hr.getDisplayValue({ row, col })))
-    if (!used) continue
-    if (isBlank(hr.getDisplayValue({ row, col: 0 }))) push(HR, { row, col: 0 }, '岗位名称必填')
-    const headcount = hr.getDisplayValue({ row, col: 1 })
-    if (typeof headcount !== 'number' || !Number.isInteger(headcount) || headcount <= 0) {
-      push(HR, { row, col: 1 }, '编制人数须为正整数')
-    }
-    const cost = hr.getDisplayValue({ row, col: 2 })
-    if (typeof cost !== 'number' || cost < 0) {
-      push(HR, { row, col: 2 }, '月均成本须为 ≥0 的数字')
-    }
-    const months = hr.getDisplayValue({ row, col: 3 })
-    if (typeof months !== 'number' || months < 1 || months > 12) {
-      push(HR, { row, col: 3 }, '预算月数须为 1~12')
+      let hasAmount = false
+      for (let col = 1; col < TOTAL_COL; col++) {
+        const value = sheet.getDisplayValue({ row, col })
+        if (isBlank(value)) continue
+        if (typeof value !== 'number' || value < 0) {
+          push(name, { row, col }, '预算金额须为 ≥0 的数字')
+        } else {
+          hasAmount = true
+        }
+      }
+      if (!hasAmount) push(name, { row, col: 1 }, '至少填写一个部门的预算金额（无预算填 0）')
     }
   }
 
   // 总额不超年度额度上限
-  const total = summary.getDisplayValue({ row: 8, col: 3 })
+  const total = summary.getDisplayValue({ row: SUMMARY_TOTAL_ROW, col: 1 })
   if (typeof total === 'number' && total > BUDGET_CAP) {
-    push(SUMMARY, { row: 8, col: 3 }, `预算总计 ${total} 元超出年度额度上限 ${BUDGET_CAP} 元`)
+    push(
+      SUMMARY,
+      { row: SUMMARY_TOTAL_ROW, col: 1 },
+      `预算总计 ${total} 元超出年度额度上限 ${BUDGET_CAP} 元`
+    )
   }
   return result
 }
@@ -571,11 +516,7 @@ function jumpToError(err: BudgetError): void {
   sheets[err.sheetName]!.selectCell(err.addr)
 }
 
-// ─── sheet 切换（宿主自控分页，模板结构不可被用户增删） ─────
-
-function switchSheet(name: string): void {
-  workbook.activateSheet(name)
-}
+// ─── sheet 切换（内置标签栏点击或宿主 activateSheet 均经此同步状态） ────
 
 function onActiveSheetChange(payload: { sheet: Sheet }): void {
   activeSheetName.value = payload.sheet.name
@@ -641,37 +582,12 @@ onBeforeUnmount(() => {
   margin-bottom: 12px;
 }
 
-.budget-entry__tabs {
+.budget-entry__title {
   flex: 1;
   min-width: 0;
-  display: flex;
-  gap: 4px;
-}
-
-.budget-entry__tab {
-  padding: 5px 16px;
-  border: 1px solid var(--u-border-muted-color);
-  border-radius: 6px;
-  background: var(--u-bg-color-top);
-  color: var(--u-text-color-second);
-  font-size: 13px;
-  cursor: pointer;
-  transition:
-    background-color 0.15s ease,
-    color 0.15s ease,
-    border-color 0.15s ease;
-}
-
-.budget-entry__tab:hover {
-  color: var(--u-color-primary);
-  border-color: var(--u-color-primary);
-}
-
-.budget-entry__tab.is-active {
-  background: color-mix(in srgb, var(--u-color-primary) 10%, var(--u-bg-color-top));
-  border-color: var(--u-color-primary);
-  color: var(--u-color-primary);
+  font-size: 14px;
   font-weight: 600;
+  color: var(--u-text-color-main);
 }
 
 .budget-entry__status {
@@ -777,7 +693,7 @@ onBeforeUnmount(() => {
 }
 
 .budget-entry__sheet {
-  height: 480px;
+  height: 560px;
   border: 1px solid var(--u-border-muted-color);
   border-radius: 8px;
   overflow: hidden;
