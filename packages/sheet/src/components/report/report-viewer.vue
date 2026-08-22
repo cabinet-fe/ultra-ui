@@ -7,6 +7,10 @@
       @update:values="setValues"
     />
 
+    <div v-if="canDrillBack" :class="cls.e('drill-bar')">
+      <u-button size="small" plain @click="drillBack">返回上一层</u-button>
+    </div>
+
     <div :class="cls.e('body')">
       <div v-if="loading" :class="cls.e('loading')" aria-live="polite">
         <div :class="cls.e('loading-spinner')" />
@@ -18,7 +22,7 @@
 
       <u-sheet
         ref="sheetRef"
-        :class="cls.e('sheet')"
+        :class="[cls.e('sheet'), drillHover ? cls.em('sheet', 'drill-hover') : '']"
         :workbook="workbook"
         :rows="renderSize.rows"
         :cols="renderSize.cols"
@@ -28,6 +32,10 @@
         :show-row-header="false"
         :show-col-header="false"
         readonly
+        @pointerdown="handleGridPointerDown"
+        @pointermove="handleGridPointerMove"
+        @pointerleave="handleGridPointerLeave"
+        @click="handleGridClick"
       />
     </div>
   </div>
@@ -35,10 +43,11 @@
 
 <script lang="ts" setup>
 import { saveBlob } from '@cat-kit/fe'
-import type { SheetSnapshot } from '@veltra/sheet-core'
+import { UButton } from '@veltra/desktop'
+import type { CellAddress, SheetSnapshot } from '@veltra/sheet-core'
 import { Workbook } from '@veltra/sheet-core'
 import { bem } from '@veltra/utils'
-import { computed, nextTick, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 
 import { exportFilledReportXlsx } from '../../report/export-xlsx'
 import { buildFilledReportPrintHtml, type ReportPrintOptions } from '../../report/print'
@@ -65,26 +74,45 @@ const EXPORT_LOADING_MESSAGE = '报表数据加载中，请稍后再导出'
 const PRINT_NOT_READY_MESSAGE = '报表数据尚未就绪，请等待取数完成后再打印'
 const PRINT_LOADING_MESSAGE = '报表数据加载中，请稍后再打印'
 
+/**
+ * 单击 / 拖拽框选判定位移阈值（px）：pointerdown 与 click 位移超过它视为拖选，不触发下钻。
+ * （VTable 拖选后 DOM click 仍会冒泡，按位移自行抑制。）
+ */
+const DRAG_CLICK_THRESHOLD_PX = 4
+
 /** 查看器工作簿：宿主可注入（同 USheet `workbook?` 先例），缺省内部自建；模板 / 填充结果都 restore 进活动 sheet 只读展示 */
 const internalWorkbook = new Workbook()
 const workbook = computed(() => props.workbook ?? internalWorkbook)
 
 const sheetRef = useTemplateRef<SheetExposed>('sheetRef')
 
-const { params, values, loading, error, filledSnapshot, filledColWidths, refresh, setValues } =
-  useReportViewer(props)
+const {
+  params,
+  values,
+  loading,
+  error,
+  filledSnapshot,
+  filledColWidths,
+  currentTemplate,
+  canDrillBack,
+  resolveDrillHit,
+  drillInto,
+  drillBack,
+  refresh,
+  setValues
+} = useReportViewer(props)
 
 const renderSize = computed(() => {
   const filled = filledSnapshot.value
   if (filled) return previewGridSize(filled, 'filled')
-  return previewGridSize(props.template, 'template')
+  return previewGridSize(currentTemplate.value, 'template')
 })
 
-/** 宿主显式传入优先；否则取数完成后用展开映射列宽；再回落模板设计态列宽 */
+/** 宿主显式传入优先；否则取数完成后用展开映射列宽；再回落当前层模板设计态列宽 */
 const effectiveColWidths = computed(() => {
   if (props.colWidths?.length) return props.colWidths
   if (filledColWidths.value?.length) return filledColWidths.value
-  return props.template.colWidths
+  return currentTemplate.value.colWidths
 })
 
 /** 将运行时列宽写入模型与 VTable（模型为单一事实源；grid 构造/content-reset 也会回放） */
@@ -109,16 +137,59 @@ function applySnapshot(snapshot: SheetSnapshot, mode: PreviewGridSizeMode): void
   void nextTick(applyRuntimeColWidths)
 }
 
-// 先铺模板静态结构（取数期间 / 取数失败时可见），取数成功后替换为 Filled Report
-watch(
-  () => props.template,
-  (template) => applySnapshot(template, 'template'),
-  { immediate: true }
-)
+// 先铺当前层模板静态结构（取数期间 / 取数失败时可见），取数成功后替换为 Filled Report
+watch(currentTemplate, (template) => applySnapshot(template, 'template'), { immediate: true })
 watch(filledSnapshot, (filled) => {
   if (filled) applySnapshot(filled, 'filled')
 })
 watch(effectiveColWidths, applyRuntimeColWidths)
+
+// ─── 下钻点击与可点视觉提示 ─────────────────────────────────
+
+/** 悬停命中下钻格（switch 打开方式）时给网格加 cursor 提示 */
+const drillHover = ref(false)
+let pointerStart: { x: number; y: number } | null = null
+
+/** 事件坐标 → 模型地址（经当前 SheetGrid 命中测试；网格随内容尺寸重建，实例按事件时刻取） */
+function resolveEventAddr(event: MouseEvent): CellAddress | null {
+  const host = event.currentTarget as HTMLElement
+  const gridEl = host.querySelector('.u-sheet__grid-instance') as HTMLElement | null
+  const grid = sheetRef.value?.getGrid()
+  if (!gridEl || !grid) return null
+  const rect = gridEl.getBoundingClientRect()
+  return grid.hitTestSheetAddr(event.clientX - rect.left, event.clientY - rect.top)
+}
+
+function handleGridPointerDown(event: PointerEvent): void {
+  pointerStart = { x: event.clientX, y: event.clientY }
+}
+
+function handleGridClick(event: MouseEvent): void {
+  if (!props.resolveTemplate) return
+  const start = pointerStart
+  pointerStart = null
+  if (start) {
+    const dx = event.clientX - start.x
+    const dy = event.clientY - start.y
+    if (dx * dx + dy * dy > DRAG_CLICK_THRESHOLD_PX * DRAG_CLICK_THRESHOLD_PX) return
+  }
+  const addr = resolveEventAddr(event)
+  if (!addr) return
+  const hit = resolveDrillHit(addr)
+  if (!hit || hit.config.openMode !== 'switch') return
+  void drillInto(hit.config, hit.record)
+}
+
+function handleGridPointerMove(event: PointerEvent): void {
+  const addr = props.resolveTemplate ? resolveEventAddr(event) : null
+  const hit = addr ? resolveDrillHit(addr) : null
+  const next = hit?.config.openMode === 'switch'
+  if (next !== drillHover.value) drillHover.value = next
+}
+
+function handleGridPointerLeave(): void {
+  drillHover.value = false
+}
 
 async function exportXlsx(): Promise<void> {
   if (loading.value) {

@@ -22,6 +22,19 @@
     flex: 1;
     min-height: 0;
     min-width: 0;
+
+    /* 下钻格可点提示：VTable pointermove 会把容器内联 cursor 重置为 default，需 !important 覆盖 */
+    @include m.m(drill-hover) {
+      .u-sheet__grid-instance {
+        cursor: pointer !important;
+      }
+    }
+  }
+
+  @include m.e(drill-bar) {
+    display: flex;
+    align-items: center;
+    gap: fn.use-var(gap, small);
   }
 
   @include m.e(loading) {

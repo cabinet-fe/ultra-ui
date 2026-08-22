@@ -259,3 +259,26 @@ export function resolvePlacementRecord(
   const rows = aggregateIndex.rowsFor(binding.dataset, filter)
   return rows[placement.listIndex]
 }
+
+/**
+ * 解析落点的上下文记录（下钻字段映射用）：
+ * `list` 明细取源数据行；分组/汇总格取祖先分组过滤值合成的上下文
+ * （分组格含自身分组值，如地区分组格 → `{ region: '华东' }`）。
+ */
+export function resolvePlacementContext(
+  placement: PhysicalPlacement,
+  index: TemplateIndex,
+  data: DatasetRecords,
+  aggregateIndex: AggregateIndex
+): Record<string, unknown> | undefined {
+  const binding = placement.binding
+  if (!binding) return undefined
+  if (binding.aggregate === 'list') {
+    return resolvePlacementRecord(placement, index, data, aggregateIndex)
+  }
+
+  const filter = resolveAncestorFilters(binding, placement, index, data)
+  if (binding.aggregate !== 'group') return filter
+  const value = filter[binding.field] ?? resolveOwnGroupValue(binding, placement, index, data)
+  return value === undefined ? filter : { ...filter, [binding.field]: value }
+}

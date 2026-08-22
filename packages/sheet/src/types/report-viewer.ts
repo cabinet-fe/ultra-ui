@@ -1,7 +1,7 @@
 import type { Workbook } from '@veltra/sheet-core/core/workbook'
 import type { DeconstructValue } from '@veltra/utils'
 
-import type { DataConnector, ReportTemplate } from '../report'
+import type { DataConnector, ReportTemplate, ResolveReportTemplate } from '../report'
 import type { ReportColWidthEntry } from '../report/export-xlsx'
 import type { ReportPrintOptions } from '../report/print'
 
@@ -21,6 +21,12 @@ export interface ReportViewerProps {
    * 列宽已进 `SheetSnapshot.colWidths`，通常无需再传。
    */
   colWidths?: ReadonlyArray<ReportColWidthEntry>
+  /**
+   * 下钻目标模板解析契约（可选，内核共享类型）：单击配了下钻的绑定格时按 `target` 引用取目标模板。
+   * 解析失败（抛错 / reject，或宿主实现返回空值）时查看器给出可读提示并停留当前报。
+   * 缺省时下钻不生效（无点击行为与可点视觉提示）。
+   */
+  resolveTemplate?: ResolveReportTemplate
 }
 
 /** 在组件内部引用 */
