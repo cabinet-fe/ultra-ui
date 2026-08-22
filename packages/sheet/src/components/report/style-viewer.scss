@@ -37,6 +37,23 @@
     gap: fn.use-var(gap, small);
   }
 
+  /* 下钻弹框挂在 UDialog 根（Teleport 到 body），给内嵌查看器明确高度 */
+  @include m.e(drill-dialog) {
+    width: min(960px, 92vw);
+    height: min(80vh, 720px);
+
+    .u-scroll__container,
+    .u-scroll__content {
+      height: 100%;
+      min-height: 0;
+    }
+
+    .u-report-viewer {
+      height: 100%;
+      min-height: 0;
+    }
+  }
+
   @include m.e(loading) {
     position: absolute;
     inset: 0;

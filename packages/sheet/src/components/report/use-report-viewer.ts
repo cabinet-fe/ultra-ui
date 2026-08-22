@@ -46,7 +46,15 @@ export interface UseReportViewerReturn {
   /** 物理格下钻命中查询（无命中返回 null）；供组件壳点击 / 悬停判定 */
   resolveDrillHit: (addr: CellAddress) => DrillHit | null
   /**
-   * 下钻进入：解析目标模板 → 映射参数带入 Filter Bar → 压栈切换并取数。
+   * 解析下钻目标：宿主契约取模板 + 默认值叠加映射参数。
+   * 失败设可读错误、返回 null（栈不变）。成功时清除先前的下钻解析错误。
+   */
+  resolveDrillTarget: (
+    config: ReportDrillConfig,
+    record: Record<string, unknown>
+  ) => Promise<{ template: ReportTemplate; params: ParamValues } | null>
+  /**
+   * 下钻进入（openMode 'switch'）：解析目标模板 → 映射参数带入 Filter Bar → 压栈切换并取数。
    * 解析失败设可读错误提示、停留当前报、栈不变。
    */
   drillInto: (config: ReportDrillConfig, record: Record<string, unknown>) => Promise<void>
@@ -61,7 +69,8 @@ export interface UseReportViewerReturn {
 /**
  * UReportViewer 的 headless 编排：参数提取 → 取数 → renderReport 展开。
  * 不持有 DOM / 网格引用；填充快照经 `filledSnapshot` 交给组件壳应用。
- * 下钻（openMode 'switch'）：栈式切换当前层模板，导出 / 打印始终作用于当前可见层。
+ * 下钻：openMode 'switch' 栈式切换当前层；'dialog' 由组件壳解析目标后嵌套独立查看器。
+ * 导出 / 打印始终作用于当前可见层。
  */
 export function useReportViewer(props: ReportViewerProps): UseReportViewerReturn {
   const loading = ref(false)
@@ -116,12 +125,12 @@ export function useReportViewer(props: ReportViewerProps): UseReportViewerReturn
     return refresh()
   }
 
-  async function drillInto(
+  async function resolveDrillTarget(
     config: ReportDrillConfig,
     record: Record<string, unknown>
-  ): Promise<void> {
+  ): Promise<{ template: ReportTemplate; params: ParamValues } | null> {
     const resolve = props.resolveTemplate
-    if (!resolve) return
+    if (!resolve) return null
 
     let target: ReportTemplate | null | undefined
     try {
@@ -131,25 +140,40 @@ export function useReportViewer(props: ReportViewerProps): UseReportViewerReturn
         code: 'DRILL_RESOLVE_FAILED',
         message: err instanceof Error ? err.message : String(err)
       }
-      return
+      return null
     }
     if (!target) {
       error.value = {
         code: 'DRILL_RESOLVE_FAILED',
         message: `下钻目标模板解析失败：${config.target}`
       }
-      return
+      return null
     }
 
-    // 映射参数叠加目标模板默认值：未映射参数回退默认值
-    const nextValues: ParamValues = {
-      ...resolveParamDefaults(resolveTemplateParams(target)),
-      ...resolveDrillParams(config, record)
+    error.value = null
+    return {
+      template: target,
+      params: {
+        ...resolveParamDefaults(resolveTemplateParams(target)),
+        ...resolveDrillParams(config, record)
+      }
     }
+  }
+
+  async function drillInto(
+    config: ReportDrillConfig,
+    record: Record<string, unknown>
+  ): Promise<void> {
+    const next = await resolveDrillTarget(config, record)
+    if (!next) return
     const base =
       drillStack.value ?? createDrillStack({ template: props.template, params: values.value })
-    drillStack.value = pushDrillLayer(base, { template: target, params: nextValues }, values.value)
-    await transitionTo(nextValues)
+    drillStack.value = pushDrillLayer(
+      base,
+      { template: next.template, params: next.params },
+      values.value
+    )
+    await transitionTo(next.params)
   }
 
   async function drillBack(): Promise<void> {
@@ -169,7 +193,7 @@ export function useReportViewer(props: ReportViewerProps): UseReportViewerReturn
     void refresh()
   }
 
-  // 宿主更换根模板：下钻栈作废，清空上一模板填充结果，参数值重置为新模板默认值并重新取数
+  // 宿主更换根模板：下钻栈作废；Filter Bar 播种为默认值叠加 initialValues
   watch(
     () => props.template,
     () => {
@@ -177,7 +201,7 @@ export function useReportViewer(props: ReportViewerProps): UseReportViewerReturn
       drillHits.value = new Map()
       filledSnapshot.value = null
       filledColWidths.value = undefined
-      values.value = resolveParamDefaults(params.value)
+      values.value = { ...resolveParamDefaults(params.value), ...props.initialValues }
       void refresh()
     },
     { immediate: true }
@@ -194,6 +218,7 @@ export function useReportViewer(props: ReportViewerProps): UseReportViewerReturn
     drillDepth,
     canDrillBack,
     resolveDrillHit,
+    resolveDrillTarget,
     drillInto,
     drillBack,
     refresh,

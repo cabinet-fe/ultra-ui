@@ -1,7 +1,7 @@
 import type { Workbook } from '@veltra/sheet-core/core/workbook'
 import type { DeconstructValue } from '@veltra/utils'
 
-import type { DataConnector, ReportTemplate, ResolveReportTemplate } from '../report'
+import type { DataConnector, ParamValues, ReportTemplate, ResolveReportTemplate } from '../report'
 import type { ReportColWidthEntry } from '../report/export-xlsx'
 import type { ReportPrintOptions } from '../report/print'
 
@@ -27,6 +27,11 @@ export interface ReportViewerProps {
    * 缺省时下钻不生效（无点击行为与可点视觉提示）。
    */
   resolveTemplate?: ResolveReportTemplate
+  /**
+   * Filter Bar 初值（可选）：与当前模板参数默认值合并，显式键覆盖默认值。
+   * 仅在根模板载入时播种（下钻弹框传入映射参数）；缺省则只用参数默认值。
+   */
+  initialValues?: ParamValues
 }
 
 /** 在组件内部引用 */

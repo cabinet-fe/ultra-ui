@@ -38,21 +38,36 @@
         @click="handleGridClick"
       />
     </div>
+
+    <u-dialog
+      v-if="drillDialog"
+      v-model="drillDialogVisible"
+      title="详情报表"
+      :class="cls.e('drill-dialog')"
+    >
+      <u-report-viewer
+        :connector="connector"
+        :template="drillDialog.template"
+        :initial-values="drillDialog.params"
+        :resolve-template="resolveTemplate"
+      />
+    </u-dialog>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { saveBlob } from '@cat-kit/fe'
-import { UButton } from '@veltra/desktop'
+import { UButton, UDialog } from '@veltra/desktop'
 import type { CellAddress, SheetSnapshot } from '@veltra/sheet-core'
 import { Workbook } from '@veltra/sheet-core'
 import { bem } from '@veltra/utils'
-import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
+import { computed, nextTick, ref, shallowRef, useTemplateRef, watch } from 'vue'
 
 import { exportFilledReportXlsx } from '../../report/export-xlsx'
 import { buildFilledReportPrintHtml, type ReportPrintOptions } from '../../report/print'
-import type { ReportViewerProps, _ReportViewerExposed } from '../../types'
-import type { SheetExposed } from '../../types'
+import type { ReportTemplate } from '../../report/template'
+import type { ParamValues, ReportDrillConfig } from '../../report/types'
+import type { ReportViewerProps, SheetExposed, _ReportViewerExposed } from '../../types'
 import { USheet } from '../sheet'
 import { applyGridColWidths, applySheetColWidths } from './designer/col-widths'
 import UReportFilterBar from './filter-bar.vue'
@@ -96,11 +111,16 @@ const {
   currentTemplate,
   canDrillBack,
   resolveDrillHit,
+  resolveDrillTarget,
   drillInto,
   drillBack,
   refresh,
   setValues
 } = useReportViewer(props)
+
+/** 弹框下钻：先挂 UDialog 再打开，避免 modelValue 初始为 true 时 overlay 不进入 */
+const drillDialogVisible = ref(false)
+const drillDialog = shallowRef<{ template: ReportTemplate; params: ParamValues } | null>(null)
 
 const renderSize = computed(() => {
   const filled = filledSnapshot.value
@@ -146,9 +166,24 @@ watch(effectiveColWidths, applyRuntimeColWidths)
 
 // ─── 下钻点击与可点视觉提示 ─────────────────────────────────
 
-/** 悬停命中下钻格（switch 打开方式）时给网格加 cursor 提示 */
+/** 悬停命中下钻格时给网格加 cursor 提示 */
 const drillHover = ref(false)
 let pointerStart: { x: number; y: number } | null = null
+
+watch(drillDialogVisible, (visible) => {
+  if (!visible) drillDialog.value = null
+})
+
+async function openDrillDialog(
+  config: ReportDrillConfig,
+  record: Record<string, unknown>
+): Promise<void> {
+  const next = await resolveDrillTarget(config, record)
+  if (!next) return
+  drillDialog.value = next
+  await nextTick()
+  drillDialogVisible.value = true
+}
 
 /** 事件坐标 → 模型地址（经当前 SheetGrid 命中测试；网格随内容尺寸重建，实例按事件时刻取） */
 function resolveEventAddr(event: MouseEvent): CellAddress | null {
@@ -176,14 +211,18 @@ function handleGridClick(event: MouseEvent): void {
   const addr = resolveEventAddr(event)
   if (!addr) return
   const hit = resolveDrillHit(addr)
-  if (!hit || hit.config.openMode !== 'switch') return
+  if (!hit) return
+  if (hit.config.openMode === 'dialog') {
+    void openDrillDialog(hit.config, hit.record)
+    return
+  }
   void drillInto(hit.config, hit.record)
 }
 
 function handleGridPointerMove(event: PointerEvent): void {
   const addr = props.resolveTemplate ? resolveEventAddr(event) : null
   const hit = addr ? resolveDrillHit(addr) : null
-  const next = hit?.config.openMode === 'switch'
+  const next = !!hit
   if (next !== drillHover.value) drillHover.value = next
 }
 

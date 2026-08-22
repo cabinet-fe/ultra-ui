@@ -66,7 +66,7 @@ const ORDER_ROWS: Record<string, unknown>[] = [
 const ITEM_ROWS: Record<string, unknown>[] = [{ item: 'X 项目', qty: 1 }]
 
 /** 主表：地区分组格配下钻（→ tpl-detail，region → p_region）；总额汇总格不配下钻 */
-function createSummaryTemplate(): ReportTemplate {
+function createSummaryTemplate(openMode: 'switch' | 'dialog' = 'switch'): ReportTemplate {
   const sheet = new Sheet()
   sheet.setCells([
     { addr: { row: 0, col: 0 }, data: { v: '地区' } },
@@ -77,7 +77,7 @@ function createSummaryTemplate(): ReportTemplate {
     field: 'region',
     aggregate: 'group',
     expand: 'down',
-    drill: { target: 'tpl-detail', mapping: { region: 'p_region' }, openMode: 'switch' }
+    drill: { target: 'tpl-detail', mapping: { region: 'p_region' }, openMode }
   }
   sheet.setCellMeta({ row: 1, col: 0 }, REPORT_META_NAMESPACE, group)
   const total: ReportBinding = {
@@ -200,12 +200,27 @@ function mountViewer(props: {
   return { app, el, exposedRef }
 }
 
-/** 内嵌 USheet 的 SheetGrid */
-function nestedSheetGrid(el: HTMLElement) {
+/** 内嵌 USheet 的活动 sheet（弹框内查看器未注入 workbook 时用） */
+function nestedActiveSheet(el: HTMLElement) {
   const sheetEl = el.querySelector('.u-sheet') as
     | (HTMLElement & { __vueParentComponent?: { exposed?: SheetExposed } })
     | null
-  return sheetEl?.__vueParentComponent?.exposed?.getGrid()
+  return sheetEl?.__vueParentComponent?.exposed?.getActiveSheet()
+}
+
+/** 下钻弹框（UDialog Teleport 到 body；class 打在对话框根上） */
+function drillDialogEl(): HTMLElement | null {
+  return document.querySelector('.u-report-viewer__drill-dialog')
+}
+
+async function openDrillDialog(el: HTMLElement): Promise<HTMLElement> {
+  mockHitAddr({ row: 1, col: 0 })
+  dispatchGridClick(el)
+  await flushViewer()
+  await flushViewer()
+  const dialog = drillDialogEl()
+  expect(dialog).toBeTruthy()
+  return dialog!
 }
 
 /** 等待取数 / 下钻解析（宏/微任务）+ 填充快照应用（watch + nextTick）落定 */
@@ -248,6 +263,7 @@ afterEach(() => {
   hitSpy = null
   while (apps.length) apps.pop()!.unmount()
   while (containers.length) containers.pop()!.remove()
+  document.querySelectorAll('.u-dialog__overlay').forEach((node) => node.remove())
 })
 
 const SHEET_CLS = 'u-report-viewer__sheet'
@@ -511,5 +527,141 @@ describe('UReportViewer 下钻（查看器内切换）', () => {
     dispatchGridPointerMove(el)
     await nextTick()
     expect(sheetEl.classList.contains(DRILL_HOVER_CLS)).toBe(false)
+  })
+})
+
+describe('UReportViewer 下钻（UDialog 弹框）', () => {
+  it('dialog 方式打开完整查看器：映射参数带入、Filter Bar 可改值，外层不受影响', async () => {
+    const { connector, calls } = createStubConnector({
+      [SUMMARY_SQL]: SUMMARY_ROWS,
+      [ORDERS_SQL]: ORDER_ROWS
+    })
+    const resolveTemplate = createTemplateResolver({ 'tpl-detail': createDetailTemplate() })
+    const workbook = new Workbook()
+    const { el } = mountViewer({
+      connector,
+      template: createSummaryTemplate('dialog'),
+      workbook,
+      resolveTemplate
+    })
+    await flushViewer()
+    expect(calls).toHaveLength(1)
+
+    const dialog = await openDrillDialog(el)
+    expect(resolveTemplate).toHaveBeenCalledWith('tpl-detail')
+    expect(calls).toHaveLength(2)
+    expect(calls[1]).toMatchObject({ sql: ORDERS_SQL, values: { p_region: '华东' } })
+
+    const innerInput = dialog.querySelector<HTMLInputElement>(
+      '.u-report-filter-bar .u-input input'
+    )!
+    expect(innerInput.value).toBe('华东')
+    expect(nestedActiveSheet(dialog)?.getDisplayValue({ row: 1, col: 0 })).toBe('甲公司')
+
+    // 外层仍是主表：无回退条、填充不变
+    expect(el.querySelector(DRILL_BAR_CLS)).toBeNull()
+    expect(workbook.activeSheet.getDisplayValue({ row: 1, col: 0 })).toBe('华东')
+
+    innerInput.value = '华南'
+    innerInput.dispatchEvent(
+      new InputEvent('input', { bubbles: true, data: '华南', inputType: 'insertText' })
+    )
+    await flushViewer()
+    expect(calls[2]).toMatchObject({ sql: ORDERS_SQL, values: { p_region: '华南' } })
+    expect(workbook.activeSheet.getDisplayValue({ row: 1, col: 0 })).toBe('华东')
+  })
+
+  it('弹框内可继续下钻与逐级回退，外层栈不变', async () => {
+    const { connector, calls } = createStubConnector({
+      [SUMMARY_SQL]: SUMMARY_ROWS,
+      [ORDERS_SQL]: ORDER_ROWS,
+      [ITEMS_SQL]: ITEM_ROWS
+    })
+    const resolveTemplate = createTemplateResolver({
+      'tpl-detail': createDetailTemplate(),
+      'tpl-third': createThirdTemplate()
+    })
+    const workbook = new Workbook()
+    const { el } = mountViewer({
+      connector,
+      template: createSummaryTemplate('dialog'),
+      workbook,
+      resolveTemplate
+    })
+    await flushViewer()
+
+    const dialog = await openDrillDialog(el)
+    mockHitAddr({ row: 1, col: 0 })
+    dispatchGridClick(dialog)
+    await flushViewer()
+
+    expect(calls[2]).toMatchObject({ sql: ITEMS_SQL, values: { p_customer: '甲公司' } })
+    expect(nestedActiveSheet(dialog)?.getDisplayValue({ row: 1, col: 0 })).toBe('X 项目')
+    expect(dialog.querySelector(DRILL_BAR_CLS)).toBeTruthy()
+    expect(el.querySelector(DRILL_BAR_CLS)).toBeNull()
+    expect(workbook.activeSheet.getDisplayValue({ row: 1, col: 0 })).toBe('华东')
+
+    await clickButton(dialog.querySelector<HTMLElement>(`${DRILL_BAR_CLS} button`)!)
+    expect(calls[3]).toMatchObject({ sql: ORDERS_SQL, values: { p_region: '华东' } })
+    expect(nestedActiveSheet(dialog)?.getDisplayValue({ row: 1, col: 0 })).toBe('甲公司')
+    expect(dialog.querySelector(DRILL_BAR_CLS)).toBeNull()
+    expect(el.querySelector(DRILL_BAR_CLS)).toBeNull()
+  })
+
+  it('关闭弹框（按钮 / 遮罩 / Esc）丢弃框内栈，回到打开前', async () => {
+    const { connector, calls } = createStubConnector({
+      [SUMMARY_SQL]: SUMMARY_ROWS,
+      [ORDERS_SQL]: ORDER_ROWS,
+      [ITEMS_SQL]: ITEM_ROWS
+    })
+    const resolveTemplate = createTemplateResolver({
+      'tpl-detail': createDetailTemplate(),
+      'tpl-third': createThirdTemplate()
+    })
+    const workbook = new Workbook()
+    const { el } = mountViewer({
+      connector,
+      template: createSummaryTemplate('dialog'),
+      workbook,
+      resolveTemplate
+    })
+    await flushViewer()
+
+    async function drillInside(dialog: HTMLElement): Promise<void> {
+      mockHitAddr({ row: 1, col: 0 })
+      dispatchGridClick(dialog)
+      await flushViewer()
+      expect(nestedActiveSheet(dialog)?.getDisplayValue({ row: 1, col: 0 })).toBe('X 项目')
+    }
+
+    function assertOuterUnchanged(): void {
+      expect(drillDialogEl()).toBeNull()
+      expect(el.querySelector(DRILL_BAR_CLS)).toBeNull()
+      expect(workbook.activeSheet.getDisplayValue({ row: 1, col: 0 })).toBe('华东')
+    }
+
+    const byButton = await openDrillDialog(el)
+    await drillInside(byButton)
+    byButton.querySelector<HTMLElement>('.u-dialog__btn-close')!.click()
+    await flushViewer()
+    assertOuterUnchanged()
+
+    // 再打开应是新的框内栈（明细层），而不是关闭前的第三层
+    const again = await openDrillDialog(el)
+    expect(nestedActiveSheet(again)?.getDisplayValue({ row: 1, col: 0 })).toBe('甲公司')
+    expect(again.querySelector(DRILL_BAR_CLS)).toBeNull()
+    await drillInside(again)
+    again.parentElement!.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
+    await flushViewer()
+    assertOuterUnchanged()
+
+    const byEsc = await openDrillDialog(el)
+    await drillInside(byEsc)
+    byEsc.parentElement!.dispatchEvent(new KeyboardEvent('keyup', { key: 'Escape', bubbles: true }))
+    await flushViewer()
+    assertOuterUnchanged()
+
+    // 关闭不触发外层重新取数（calls[0] 为主表，其余为弹框内）
+    expect(calls.filter((call) => call.sql === SUMMARY_SQL)).toHaveLength(1)
   })
 })
