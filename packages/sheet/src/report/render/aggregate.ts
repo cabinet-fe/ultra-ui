@@ -263,7 +263,8 @@ export function resolvePlacementRecord(
 /**
  * 解析落点的上下文记录（下钻字段映射用）：
  * `list` 明细取源数据行；分组/汇总格取祖先分组过滤值合成的上下文
- * （分组格含自身分组值，如地区分组格 → `{ region: '华东' }`）。
+ * （分组格含自身分组值，如地区分组格 → `{ region: '华东' }`；
+ * 汇总聚合格如 sum/avg/count/max/min 也将本格聚合计算值并入上下文，如 `{ region: '华东', total: 300 }`）。
  */
 export function resolvePlacementContext(
   placement: PhysicalPlacement,
@@ -278,7 +279,11 @@ export function resolvePlacementContext(
   }
 
   const filter = resolveAncestorFilters(binding, placement, index, data)
-  if (binding.aggregate !== 'group') return filter
-  const value = filter[binding.field] ?? resolveOwnGroupValue(binding, placement, index, data)
+  if (binding.aggregate === 'group') {
+    const value = filter[binding.field] ?? resolveOwnGroupValue(binding, placement, index, data)
+    return value === undefined ? filter : { ...filter, [binding.field]: value }
+  }
+
+  const value = resolvePlacementValue(placement, index, data, aggregateIndex)
   return value === undefined ? filter : { ...filter, [binding.field]: value }
 }

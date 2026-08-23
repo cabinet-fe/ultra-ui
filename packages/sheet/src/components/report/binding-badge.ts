@@ -112,6 +112,11 @@ export function createBindingBadgeRenderer(
     rootContainer.add(
       new CustomLayout.Text({ text: label, fontSize: 11, fontWeight: 500, fill: BADGE_LABEL_COLOR })
     )
+    if (binding.drill) {
+      rootContainer.add(
+        new CustomLayout.Text({ text: ' ↗', fontSize: 11, fontWeight: 700, fill: fg })
+      )
+    }
     return { rootContainer, renderDefault: false }
   }
 }

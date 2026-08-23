@@ -36,6 +36,7 @@
 - 修改：`packages/sheet/src/types/report-viewer.ts`
 - 修改：`packages/sheet/src/components/report/use-report-designer.ts`
 - 修改：`packages/sheet/src/components/report/use-report-viewer.ts`
+- 修改：`packages/sheet/src/components/report/binding-badge.ts`
 - 修改：`packages/sheet/src/components/report/designer/float-panel.vue`
 - 修改：`packages/sheet/src/components/report/report-designer.vue`
 - 修改：`packages/sheet/src/components/report/report-viewer.vue`
@@ -49,4 +50,5 @@
 
 ## 更新记录
 
+- 2026-08-23：完善聚合格下钻上下文计算值并入、查看态链接样式与光标穿透修复、设计态画板下钻角标；涉及：`packages/sheet/src/report/render/aggregate.ts`、`packages/sheet/src/components/report/binding-badge.ts`、`packages/sheet/src/components/report/report-viewer.vue`、`packages/sheet/src/components/report/style-viewer.scss`、`packages/sheet/src/report/__test__/drill.test.ts`、`packages/sheet/src/components/report/__test__/report-drill.test.ts`
 - 2026-08-22：归档自 cooking/report-drill-down

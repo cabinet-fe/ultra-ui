@@ -31,6 +31,7 @@
         :show-tabs="false"
         :show-row-header="false"
         :show-col-header="false"
+        :resolve-cell-style="resolveViewerCellStyle"
         readonly
         @pointerdown="handleGridPointerDown"
         @pointermove="handleGridPointerMove"
@@ -60,6 +61,7 @@ import { saveBlob } from '@cat-kit/fe'
 import { UButton, UDialog } from '@veltra/desktop'
 import type { CellAddress, SheetSnapshot } from '@veltra/sheet-core'
 import { Workbook } from '@veltra/sheet-core'
+import type { ResolveCellStyleHook } from '@veltra/sheet-core/grid'
 import { bem } from '@veltra/utils'
 import { computed, nextTick, ref, shallowRef, useTemplateRef, watch } from 'vue'
 
@@ -123,6 +125,21 @@ const {
   refresh,
   setValues
 } = useReportViewer(props)
+
+/** 配了下钻的单元格在查看态展示可点击链接样式（蓝字 + 下划线），便于用户直观感知 */
+const resolveViewerCellStyle: ResolveCellStyleHook = (addr, base) => {
+  if (!props.resolveTemplate) return base
+  const hit = resolveDrillHit(addr)
+  if (!hit) return base
+  return {
+    ...base,
+    font: {
+      ...base?.font,
+      color: base?.font?.color ?? '#2f54eb',
+      underline: base?.font?.underline ?? true
+    }
+  }
+}
 
 /** 弹框下钻：先挂 UDialog 再打开，避免 modelValue 初始为 true 时 overlay 不进入 */
 const drillDialogVisible = ref(false)

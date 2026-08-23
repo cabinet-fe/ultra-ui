@@ -1,13 +1,16 @@
+import { Sheet, cellKey } from '@veltra/sheet-core'
 import { describe, expect, it } from 'vitest'
 
+import { REPORT_META_NAMESPACE } from '../binding'
 import {
+  buildDrillHitMap,
   createDrillStack,
   currentDrillLayer,
   popDrillLayer,
   pushDrillLayer,
   resolveDrillParams
 } from '../drill'
-import type { ReportTemplate } from '../template'
+import { createReportTemplate, type ReportTemplate } from '../template'
 import type { ReportBinding, ReportDrillConfig } from '../types'
 
 // ---- 内联 fixtures ----
@@ -118,6 +121,61 @@ describe('下钻栈', () => {
     expect(currentDrillLayer(stack)).toEqual({ template: TPL_B, params: { p: 'b1' } })
     stack = popDrillLayer(stack)
     expect(currentDrillLayer(stack)).toEqual({ template: TPL_A, params: { p: 'root' } })
+  })
+})
+
+describe('buildDrillHitMap 与上下文解析', () => {
+  it('分组格与汇总聚合格均生成正确命中上下文（含汇总格自身聚合值）', () => {
+    const sheet = new Sheet()
+    sheet.setCellMeta({ row: 0, col: 0 }, REPORT_META_NAMESPACE, {
+      dataset: 'ds',
+      field: 'region',
+      aggregate: 'group',
+      expand: 'down',
+      drill: { target: 't2', mapping: { region: 'p_region' }, openMode: 'switch' }
+    })
+    sheet.setCellMeta({ row: 0, col: 1 }, REPORT_META_NAMESPACE, {
+      dataset: 'ds',
+      field: 'amount',
+      aggregate: 'sum',
+      expand: 'none',
+      rowParent: { row: 0, col: 0 },
+      drill: {
+        target: 't2',
+        mapping: { region: 'p_region', amount: 'p_amount' },
+        openMode: 'dialog'
+      }
+    })
+
+    const template = sheet.snapshot()
+    const data = {
+      ds: [
+        { region: '华东', amount: 100 },
+        { region: '华东', amount: 200 },
+        { region: '华南', amount: 50 }
+      ]
+    }
+
+    const hitMap = buildDrillHitMap(template, data)
+    // 华东分组格 (0,0)
+    const hitGroup0 = hitMap.get(cellKey({ row: 0, col: 0 }))
+    expect(hitGroup0?.record).toEqual({ region: '华东' })
+
+    // 华东汇总格 (0,1) 拥有祖先分组 region 与自身的求和计算值 300
+    const hitSum0 = hitMap.get(cellKey({ row: 0, col: 1 }))
+    expect(hitSum0?.record).toEqual({ region: '华东', amount: 300 })
+    expect(resolveDrillParams(hitSum0!.config, hitSum0!.record)).toEqual({
+      p_region: '华东',
+      p_amount: 300
+    })
+
+    // 华南汇总格 (1,1)
+    const hitSum1 = hitMap.get(cellKey({ row: 1, col: 1 }))
+    expect(hitSum1?.record).toEqual({ region: '华南', amount: 50 })
+    expect(resolveDrillParams(hitSum1!.config, hitSum1!.record)).toEqual({
+      p_region: '华南',
+      p_amount: 50
+    })
   })
 })
 

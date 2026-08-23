@@ -528,6 +528,31 @@ describe('UReportViewer 下钻（查看器内切换）', () => {
     await nextTick()
     expect(sheetEl.classList.contains(DRILL_HOVER_CLS)).toBe(false)
   })
+
+  it('查看态自动为配了下钻的单元格应用超链接样式（蓝色字体与下划线）', async () => {
+    const { connector } = createStubConnector({ [SUMMARY_SQL]: SUMMARY_ROWS })
+    const resolveTemplate = createTemplateResolver({ 'tpl-detail': createDetailTemplate() })
+    const { el } = mountViewer({
+      connector,
+      template: createSummaryTemplate(),
+      workbook: new Workbook(),
+      resolveTemplate
+    })
+    await flushViewer()
+
+    const sheetComp = (el.querySelector('.u-sheet') as any)?.__vueParentComponent
+    const sheetProps = sheetComp?.props
+    expect(typeof sheetProps?.resolveCellStyle).toBe('function')
+
+    // (1,0) 华东分组格配了下钻 -> 带有超链接样式
+    const drillStyle = sheetProps.resolveCellStyle({ row: 1, col: 0 }, undefined)
+    expect(drillStyle?.font?.color).toBe('#2f54eb')
+    expect(drillStyle?.font?.underline).toBe(true)
+
+    // (0,0) 静态表头未配下钻 -> 不附加超链接样式
+    const staticStyle = sheetProps.resolveCellStyle({ row: 0, col: 0 }, undefined)
+    expect(staticStyle).toBeUndefined()
+  })
 })
 
 describe('UReportViewer 下钻（UDialog 弹框）', () => {
