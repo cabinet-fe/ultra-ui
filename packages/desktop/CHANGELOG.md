@@ -1,5 +1,11 @@
 # @veltra/desktop
 
+## 1.6.5
+
+### Patch Changes
+
+- 258f034: fix(desktop): 修复 messageConfirm 遮罩、容器与白底 z-index 层级不一致，确保高于先前弹层
+
 ## 1.6.4
 
 ### Patch Changes
