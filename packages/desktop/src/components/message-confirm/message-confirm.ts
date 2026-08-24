@@ -1,4 +1,4 @@
-import { bem, zIndex } from '@veltra/utils'
+import { bem, setStyles, zIndex } from '@veltra/utils'
 import { h, render, shallowReactive } from 'vue'
 
 import type {
@@ -72,8 +72,9 @@ const ensureContainer = () => {
 }
 
 /** 执行 Vue 渲染逻辑 */
-const updateView = () => {
+const updateView = (layer: number) => {
   const el = ensureContainer()
+  setStyles(el, { zIndex: layer })
 
   const vnode = h(UMessageConfirmBox, { confirms, onClosed: handleClosed, onClose: handleClose })
 
@@ -96,8 +97,9 @@ const createConfirm = (options: MessageConfirmOptions): MessageConfirmInstance =
     resolveClosed(action)
   })
 
-  confirms.push({ zIndex: zIndex(), ...confirmOptions, key: id })
-  updateView()
+  const layer = confirmOptions.zIndex ?? zIndex()
+  confirms.push({ ...confirmOptions, zIndex: layer, key: id })
+  updateView(layer)
 
   return { id, close: (action = 'cancel') => handleClose(id, action), onClosed }
 }

@@ -1,7 +1,7 @@
 <template>
-  <div :class="[cls.b, cls.m(size)]">
-    <div :class="cls.e('mask')" :style="{ zIndex }">
-      <div :class="cls.e('box')">
+  <div :class="[cls.b, cls.m(size)]" :style="overlayStyle">
+    <div :class="cls.e('mask')" :style="overlayStyle">
+      <div :class="cls.e('box')" :style="overlayStyle">
         <div :class="cls.e('header')" v-if="title">{{ title }}</div>
         <div :class="cls.e('content')">{{ message }}</div>
         <div :class="cls.e('footer')">
@@ -26,7 +26,7 @@
 
 <script lang="ts" setup>
 import { useFallbackProps } from '@veltra/compositions'
-import { bem } from '@veltra/utils'
+import { bem, zIndex } from '@veltra/utils'
 
 import type {
   MessageConfirmProps,
@@ -51,4 +51,5 @@ const emit = defineEmits<MessageConfirmEmits>()
 const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
 const cls = bem('message-confirm')
+const overlayStyle = { zIndex: props.zIndex ?? zIndex() }
 </script>

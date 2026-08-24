@@ -1,5 +1,5 @@
 <template>
-  <transition-group name="message-confirm" appear @after-leave="handleAfterLeave">
+  <transition-group name="message-confirm" tag="div" appear @after-leave="handleAfterLeave">
     <UMessageConfirm
       v-for="{ onClose, onClosed, ...confirm } of confirms"
       v-bind="confirm"
