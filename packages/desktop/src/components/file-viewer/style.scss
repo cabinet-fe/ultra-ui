@@ -695,23 +695,23 @@
   @include m.e(docx-body) {
     min-height: 100%;
     padding: clamp(22px, 3vw, 44px);
+  }
 
-    :deep(.u-file-viewer__docx-doc) {
-      margin: 0 auto;
-      color: #222;
-      background: #fff;
-      box-shadow: var(--u-file-viewer-page-shadow);
-    }
+  @include m.e(docx-doc) {
+    margin: 0 auto;
+    color: #222;
+    background: #fff;
+    box-shadow: var(--u-file-viewer-page-shadow);
   }
 
   &.is-modal &__docx-body {
     padding: clamp(24px, 4vw, 64px);
+  }
 
-    :deep(.u-file-viewer__docx-doc) {
-      box-shadow:
-        0 38px 110px rgba(0, 0, 0, 0.5),
-        0 0 0 1px rgba(255, 255, 255, 0.04);
-    }
+  &.is-modal &__docx-doc {
+    box-shadow:
+      0 38px 110px rgba(0, 0, 0, 0.5),
+      0 0 0 1px rgba(255, 255, 255, 0.04);
   }
 
   @include m.e(sheet) {
