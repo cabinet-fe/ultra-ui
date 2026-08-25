@@ -1,5 +1,11 @@
 # @veltra/desktop
 
+## 1.6.6
+
+### Patch Changes
+
+- 312f590: expression-editor chip 阻止 mousedown 冒泡，避免弹框层级更新盖住重选面板
+
 ## 1.6.5
 
 ### Patch Changes
