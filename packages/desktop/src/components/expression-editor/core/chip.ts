@@ -67,6 +67,8 @@ export function createChip(
 
   chip.addEventListener('mousedown', (e) => {
     e.preventDefault()
+    // 阻止冒泡：避免宿主弹框（如 dialog）的 mousedown 层级提升逻辑把 chip 打开的重选面板盖住
+    e.stopPropagation()
     if (isCloseTarget(e.target)) {
       opts.onRemove(chip)
     } else {
