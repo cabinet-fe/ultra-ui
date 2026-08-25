@@ -157,6 +157,39 @@ const formData = reactive({ name: '' })
 </template>
 ```
 
+## 何时使用 u-form-item（单独处理组件逻辑）
+
+单字段控件直接放 `u-form` 下写 `field` 即可自动获得标签 / 校验 / 提示。**只有需要单独处理组件的逻辑时**（多控件组合成一个字段、自定义 label 插槽等）才用 `u-form-item` 包裹，以获取标签、校验、提示等能力：
+
+- `field` / `label` / `rules` / `tips` 写在 `u-form-item` 上（Item 也必须有 `field`，否则不挂表单）
+- 内部控件自行 `v-model` 绑 `model` 路径，控件上**不要**再写 `field`（否则会被 form 再包一层）
+
+```vue
+<script setup lang="ts">
+import { reactive } from 'vue'
+
+const formData = reactive({
+  name: '',
+  priceRange: { min: undefined as number | undefined, max: undefined as number | undefined }
+})
+</script>
+
+<template>
+  <u-form :model="formData" label-width="100px" :cols="1">
+    <u-input label="商品名" field="name" :rules="{ required: '商品名不能为空' }" />
+
+    <!-- 两个输入组合成一个字段，校验/提示写在 u-form-item 上 -->
+    <u-form-item label="价格区间" field="priceRange" :rules="{ required: '请填写价格区间' }" tips="最低价不能高于最高价">
+      <u-number-input v-model="formData.priceRange.min" placeholder="最低" />
+      <span style="margin: 0 8px">—</span>
+      <u-number-input v-model="formData.priceRange.max" placeholder="最高" />
+    </u-form-item>
+  </u-form>
+</template>
+```
+
+更多场景（自定义 label、覆盖标签宽度、响应式栅格）见 `form-item/examples.md`。
+
 ## 顶部标签布局
 
 `label-position="top"` 时 label 在上方；Item 可单独覆盖，且 Item 也必须写 `field`。
