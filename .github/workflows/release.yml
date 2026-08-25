@@ -67,10 +67,10 @@ jobs:
 
       - name: 发布到 npm 并收集发布数据
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@v2.1.1
         with:
-          publish: bun run changeset publish
-          createGithubReleases: false
+          publish-script: bun run changeset publish
+          create-github-releases: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -83,4 +83,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           GITHUB_SHA: ${{ github.sha }}
-          CHANGESETS_PUBLISHED_PACKAGES: ${{ steps.changesets.outputs.publishedPackages }}
+          CHANGESETS_PUBLISHED_PACKAGES: ${{ steps.changesets.outputs['published-packages'] }}
