@@ -1,5 +1,11 @@
 # @veltra/vite
 
+## 4.0.1
+
+### Patch Changes
+
+- 98008b5: Remove UReportDesigner / UReportViewer and the report kernel from @veltra/sheet. Report UI now lives in downstream apps; this package keeps USheet only.
+
 ## 4.0.0
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@veltra/vite",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Vite helpers for Veltra UI (e.g. unplugin-vue-components resolver for @veltra/desktop, @veltra/ai and @veltra/sheet)",
   "homepage": "https://github.com/cabinet-fe/ultra-ui#readme",
   "bugs": {

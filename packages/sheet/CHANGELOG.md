@@ -1,5 +1,11 @@
 # @veltra/sheet
 
+## 2.5.0
+
+### Minor Changes
+
+- 98008b5: Remove UReportDesigner / UReportViewer and the report kernel from @veltra/sheet. Report UI now lives in downstream apps; this package keeps USheet only.
+
 ## 2.4.0
 
 ## 2.3.4
