@@ -44,7 +44,6 @@
 - 对宿主的契约是各包 `exports`（含 `veltra-dev` → src、`import` → dist）。不要把未导出的类成员方法当公开 API（sheet-core 已标明内部写入口）。
 - 内部 `@veltra/*` peer 用 `workspace:^`，**不要改回 `workspace:*`**（changesets 会把范围内升级连锁成 major）。
 - `@veltra/sheet-core` 对 desktop 是 optional peer（仅 file-viewer 的 Excel/CSV 预览）。sheet 主入口不 re-export sheet-core。
-- playground report：`POST /test|describe|query`，业务错误 `200 + { ok: false, error }`；契约说明在 `playground/server/README.md`，不进 npm。
 
 ## 版本与发布
 

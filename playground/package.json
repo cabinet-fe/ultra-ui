@@ -8,8 +8,7 @@
     "build": "vp build",
     "preview": "vp preview",
     "test": "vp test",
-    "server": "bun server/dev.ts",
-    "seed-demo": "bun server/demo-data/seed.ts"
+    "server": "bun server/dev.ts"
   },
   "dependencies": {
     "@cat-kit/core": "^1.1.8",
@@ -28,10 +27,7 @@
   },
   "devDependencies": {
     "@hono/node-server": "^2.1.1",
-    "@types/pg": "^8.23.1",
     "@veltra/vite": "workspace:*",
-    "hono": "^4.13.3",
-    "mysql2": "^3.23.3",
-    "pg": "^8.23.0"
+    "hono": "^4.13.3"
   }
 }

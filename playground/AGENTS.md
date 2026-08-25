@@ -6,14 +6,14 @@
 
 ```bash
 cd playground
-bun run dev        # 参考服务（Bun, 8787：report + /ai）+ 前端（7788）
+bun run dev        # 参考服务（Bun, 8787：data-entry + /ai）+ 前端（7788）
 bun run dev:web    # 仅前端；演示服务需另开 bun run server
-bun run server     # 仅参考服务（report + DeepSeek 代理，同一端口）
+bun run server     # 仅参考服务（填报 + DeepSeek 代理，同一端口）
 ```
 
 ## 导航
 
-- 侧栏使用 `UDualNav`：左轨 Icons / Desktop / AI Chat / Sheet；Icons 右栏为「图标库 / 图标组合」；Desktop 右栏为「分类 → 组件」两级导航；AI Chat 右栏为「AI 对话 / AI Orb 活体球」；Sheet 右栏为「基础演示 / 大数据量演示 / 报表配置 / 在线填报」
+- 侧栏使用 `UDualNav`：左轨 Icons / Desktop / AI Chat / Sheet；Icons 右栏为「图标库 / 图标组合」；Desktop 右栏为「分类 → 组件」两级导航；AI Chat 右栏为「AI 对话 / AI Orb 活体球」；Sheet 右栏为「基础演示 / 大数据量演示 / 在线填报」
 - 导航数据集中在 `nav-config.ts`（`demoMeta`、`buildPlaygroundMenus()`）
 - 新增 Desktop 演示页：在 `src/desktop/<component-name>/index.vue` 创建文件，并在 `nav-config.ts` 补充 `demoMeta`
 - AI Chat（`@veltra/ai`）与 Sheet（`@veltra/sheet`）为独立顶层入口，不挂在 Desktop 分类下
@@ -39,23 +39,20 @@ bun run server     # 仅参考服务（report + DeepSeek 代理，同一端口�
 - SCSS：`NodePackageImporter`（仓库根）解析 `pkg:@veltra/styles/...`
 - `VeltraUIResolver`（`@veltra/vite`）：desktop / ai / sheet 的 `U*` 组件 + 对应 `style.ts`
 - `@veltra/vite` 为本 playground 的 devDependency
-- `server/`：参考服务（report 契约 + DeepSeek `/ai` 代理，默认 8787）由 `bun run dev` 并行拉起；`vp build` 不依赖该服务
+- `server/`：参考服务（填报存取 + DeepSeek `/ai` 代理，默认 8787）由 `bun run dev` 并行拉起；`vp build` 不依赖该服务
 
-## 契约参考服务（report connector）
+## 参考服务
 
-`server/` 为 `@veltra/sheet` DataConnector HTTP 契约（ADR-0003 决策 3）的 dev-only 参考实现：
+`server/` 为 playground 本地参考服务（dev-only，不进发布产物）：
 
-- hono + TS，`mysql2` / `pg` 真实驱动；只存在于 playground（devDependencies），不进任何发布产物
-- **通用契约**：`POST /test|describe|query`（无版本段），业务错误一律 `200 + { ok: false, error: { code, message } }`
-- **playground Hub**：连接与数据集（含 SQL）经 `GET|PUT /workspace` 持久化到本地 SQLite；取数经 `POST /datasets/:id/query` 只传 `values`；命名报表模板经 `GET|POST|PUT|DELETE /templates` 入库（入库时剥离凭据/SQL，读取时由工作区回填）。报表演示页用 `localStorage` 记下 `lastTemplateId`，刷新时优先恢复上次打开的命名模板；数据中枢关闭 / 数据集变更立即写工作区；打开、新建、切独立查看器前若有未保存模板更改则确认。
-- `bun run dev` 并行启动本服务（默认 8787，含 `/ai`）与前端；亦可 `bun run server` 单独启动（`REPORT_SERVER_PORT` 覆盖）
-- 前端经 vite proxy `/report-api` 访问（`createHubConnector({ endpoint: '/report-api' })`）
 - **在线填报端点**（`src/sheet-data-entry` 演示页使用）：`GET /data-entry/forms/:formId/cells` 读取、`PUT /data-entry/forms/:formId/cells` 批量 upsert（空值删除），SQLite 表 `data_entry_cells` 按 `(form_id, sheet_key, row_index, col_index)` 主键稀疏存储多 sheet 填报数据（`server/data-entry.ts`）
+- `bun run dev` 并行启动本服务（默认 8787，含 `/ai`）与前端；亦可 `bun run server` 单独启动（`REPORT_SERVER_PORT` 覆盖）
+- 前端经 vite proxy `/report-api` 访问填报端点
 - 详见 `server/README.md`
 
 ## DeepSeek AI 代理
 
-`server/deepseek.ts` 挂在参考服务的 `/ai`，与 report 契约同端口：
+`server/deepseek.ts` 挂在参考服务的 `/ai`，与填报端点同端口：
 
 - API Key 从 `playground/.env` 的 `DEEPSEEK_API_KEY` 读取（兼容回退 `VITE_DEEPSEEK_KEY`），不下发浏览器
 - `POST /ai/chat/completions`：OpenAI 兼容请求转发到 `https://api.deepseek.com/chat/completions`，SSE 中 `content` / `reasoning_content` / `tool_calls` 原样透传
@@ -89,7 +86,7 @@ src/sheet-data-entry/index.vue # 在线填报演示（年度预算：多 sheet �
 ## 依赖
 
 - **dependencies**：`@cat-kit/core`、`@cat-kit/fe`、`@veltra/ai`、`@veltra/compositions`、`@veltra/desktop`、`@veltra/directives`、`@veltra/icons`、`@veltra/sheet`、`@veltra/sheet-core`、`@veltra/styles`、`@veltra/utils`、`vue`、`vue-router`
-- **devDependencies**：`@veltra/vite`；契约参考服务：`hono`、`@hono/node-server`、`mysql2`、`pg`、`@types/pg`
+- **devDependencies**：`@veltra/vite`；参考服务：`hono`、`@hono/node-server`
 
 ## 验证
 

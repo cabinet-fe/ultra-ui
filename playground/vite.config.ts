@@ -9,7 +9,7 @@ import { defineConfig } from 'vite-plus'
 
 // vp run 加载配置时用 Node 解析模块，不走 veltra-dev；@veltra/vite 的 import 指向 dist，dist 缺失时 vp run 会在构建前失败
 import { VeltraUIResolver } from '../packages/vite/src/resolver'
-// 参考服务（report + DeepSeek，同一端口）：前端经 /report-api、/ai 代理访问
+// 参考服务（data-entry + DeepSeek，同一端口）：前端经 /report-api、/ai 代理访问
 import { REPORT_SERVER_PORT } from './server/port'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -18,7 +18,12 @@ const hucreRoot = resolve(repoRoot, 'packages/sheet-core/node_modules/hucre')
 const nodePkgImporter = new NodePackageImporter(repoRoot)
 
 const config = {
-  test: { include: ['src/**/*.test.ts'], globals: true, environment: 'node' },
+  test: {
+    include: ['src/**/*.test.ts'],
+    globals: true,
+    environment: 'node',
+    passWithNoTests: true
+  },
 
   base: '/',
 
@@ -39,7 +44,7 @@ const config = {
     port: 7788,
     host: true,
     proxy: {
-      // 前端 createHttpConnector({ endpoint: '/report-api' }) → 契约参考服务（去前缀转发）
+      // 前端填报演示经 /report-api → 参考服务（去前缀转发）
       '/report-api': {
         target: `http://localhost:${REPORT_SERVER_PORT}`,
         changeOrigin: true,

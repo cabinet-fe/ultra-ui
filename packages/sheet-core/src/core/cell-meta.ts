@@ -78,7 +78,7 @@ function isCellAddressLike(value: unknown): value is CellAddress {
   return Number.isInteger(row) && Number.isInteger(col)
 }
 
-/** 结构变更时平移载荷内嵌的单元格地址（如报表绑定的 rowParent / colParent） */
+/** 结构变更时平移载荷内嵌的单元格地址（如 meta 中的父格引用） */
 export function shiftMetaPayloadForStructure(payload: unknown, change: StructureChange): unknown {
   if (payload === null || payload === undefined) return payload
   if (Array.isArray(payload)) {

@@ -19,24 +19,6 @@ export {
   type SheetToolGroup
 } from './tools/registry'
 
-export {
-  type SheetProps,
-  type SheetEmits,
-  type _SheetExposed,
-  type SheetExposed,
-  type ReportViewerProps,
-  type _ReportViewerExposed,
-  type ReportViewerExposed,
-  type ReportDesignerProps,
-  type ReportDesignerEmits,
-  type _ReportDesignerExposed,
-  type ReportDesignerExposed
-} from './types'
+export { type SheetProps, type SheetEmits, type _SheetExposed, type SheetExposed } from './types'
 
 export { USheet } from './components/sheet'
-
-export { UReportViewer, UReportDesigner } from './components/report'
-
-// 报表纯 TS 内核：renderReport / binding / rules / params / DataConnector / Report Template /
-// Filter Bar 值规范化（结构见 packages/sheet/AGENTS.md）
-export * from './report'

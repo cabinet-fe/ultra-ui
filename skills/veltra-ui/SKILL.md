@@ -32,7 +32,7 @@ veltra-ui 是一套 Vue 3 UI 体系。
 | -------------------------- | ---------------------- | ---------------------------------------------------------------------------------------------------------- |
 | `packages/desktop/`        | `@veltra/desktop`      | 桌面端组件（主入口）                                                                                       |
 | `packages/ai.md`           | `@veltra/ai`           | AI 对话：UAiChat、useChat、ChatTool、createOpenAITransport、UAiOrb                                         |
-| `packages/sheet.md`        | `@veltra/sheet`        | 电子表格（USheet、报表 UReportDesigner/UReportViewer、DataConnector、公式、undo/redo、浮动图片、工具扩展） |
+| `packages/sheet.md`        | `@veltra/sheet`        | 电子表格（USheet、公式、undo/redo、浮动图片、工具扩展） |
 | `packages/sheet-core.md`   | `@veltra/sheet-core`   | 表格核心：数据模型/公式/IO + SheetGrid 渲染层（含 readonly 预览、单元格级只读标记）          |
 | `packages/styles/`         | `@veltra/styles`       | SCSS、主题、Design Tokens、过渡                                                                            |
 | `packages/compositions.md` | `@veltra/compositions` | Vue 组合式函数                                                                                             |
@@ -55,7 +55,6 @@ veltra-ui 是一套 Vue 3 UI 体系。
 | 会话持久化 / 待发送队列 / 受控消息                                    | `packages/ai.md` → `ai/examples.md` + `ai/api.md`（消息模型、队列）                                         |
 | AI 活体球头像 UAiOrb                                                  | `packages/ai.md` → `ai/api.md`（UAiOrb）+ `ai/examples.md`                                                  |
 | 电子表格 / 单元格编辑 / 公式 / 浮动图片 / 表格工具栏扩展              | `packages/sheet.md`                                                                                         |
-| 报表设计 / 报表预览 / 数据连接器 / Filter Bar / 模板取数展开          | `packages/sheet.md`（`UReportDesigner` / `UReportViewer` / `DataConnector` / `createHttpConnector`）        |
 | 按格自定义单元格渲染（customLayout 徽章等）                           | `packages/sheet.md` + `packages/sheet-core.md`（`resolveCellRenderer` / `CustomLayout`）                    |
 | 无头表格模型 / xlsx·csv 导入导出 / 只读表格预览（SheetGrid readonly） | `packages/sheet-core.md`                                                                                    |
 | 表格化填报 / 部分单元格锁定只读 / 输入区高亮                          | `packages/sheet-core.md`（单元格级只读）+ `packages/sheet.md`（USheet 填报注意）                            |

@@ -1,5 +1,5 @@
 /**
- * 本地开发：并行拉起 playground 参考服务（report + DeepSeek，同一端口）与前端。
+ * 本地开发：并行拉起 playground 参考服务（data-entry + DeepSeek，同一端口）与前端。
  * 用法：`cd playground && bun run dev`（或根目录 `vp run -F playground dev`）
  */
 import { spawn, type ChildProcess } from 'node:child_process'

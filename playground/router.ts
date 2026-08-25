@@ -14,12 +14,9 @@ const aiChatModules = import.meta.glob<{ default: RouteComponent }>('./src/ai-ch
 // 顶层独立演示页（glob 首段是字面段，`./src/ai-chat/**` 不匹配 `ai-orb`）
 const aiOrbModules = import.meta.glob<{ default: RouteComponent }>('./src/ai-orb/index.vue')
 const sheetModules = import.meta.glob<{ default: RouteComponent }>('./src/sheet/**/index.vue')
-// 顶层独立演示页（glob 首段是字面段，`./src/sheet/**` 不匹配 `sheet-big-data` / `sheet-report`）
+// 顶层独立演示页（glob 首段是字面段，`./src/sheet/**` 不匹配 `sheet-big-data`）
 const sheetBigDataModules = import.meta.glob<{ default: RouteComponent }>(
   './src/sheet-big-data/index.vue'
-)
-const sheetReportModules = import.meta.glob<{ default: RouteComponent }>(
-  './src/sheet-report/index.vue'
 )
 // 顶层独立演示页（同上，`./src/sheet/**` 不匹配 `sheet-data-entry`）
 const sheetDataEntryModules = import.meta.glob<{ default: RouteComponent }>(
@@ -33,7 +30,6 @@ const modules = {
   ...aiOrbModules,
   ...sheetModules,
   ...sheetBigDataModules,
-  ...sheetReportModules,
   ...sheetDataEntryModules
 }
 const paths = Object.keys(modules)

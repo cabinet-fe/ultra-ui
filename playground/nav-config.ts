@@ -41,7 +41,6 @@ export const demoMeta: Record<string, DemoMeta> = {
   'ai-orb': { zh: '活体球', en: 'AiOrb', category: 'data' },
   sheet: { zh: '电子表格', en: 'Sheet', category: 'data' },
   'sheet-big-data': { zh: '大数据量演示', en: 'BigData', category: 'data' },
-  'sheet-report': { zh: '报表配置', en: 'SheetReport', category: 'data' },
   'sheet-data-entry': { zh: '在线填报', en: 'DataEntry', category: 'data' },
   'auto-complete': { zh: '自动补全', en: 'AutoComplete', category: 'form' },
   badge: { zh: '徽标', en: 'Badge', category: 'basic' },
@@ -122,7 +121,6 @@ const TOP_LEVEL_DEMO_KEYS = new Set([
   'ai-orb',
   'sheet',
   'sheet-big-data',
-  'sheet-report',
   'sheet-data-entry'
 ])
 
@@ -179,7 +177,6 @@ export function buildPlaygroundMenus(): NavItem[] {
       children: [
         { title: '基础演示', path: '/sheet/index' },
         { title: '大数据量演示', path: '/sheet-big-data/index' },
-        { title: '报表配置', path: '/sheet-report/index' },
         { title: '在线填报', path: '/sheet-data-entry/index' }
       ]
     }

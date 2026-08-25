@@ -107,12 +107,5 @@ export const VELTRA_COMPONENT_PACKAGES: VeltraComponentPackage[] = [
     from: '@veltra/ai',
     components: { UAiChat: 'components/ai-chat/style', UAiOrb: 'components/ai-orb/style' }
   },
-  {
-    from: '@veltra/sheet',
-    components: {
-      UReportDesigner: 'components/report/style',
-      UReportViewer: 'components/report/style',
-      USheet: 'components/sheet/style'
-    }
-  }
+  { from: '@veltra/sheet', components: { USheet: 'components/sheet/style' } }
 ]

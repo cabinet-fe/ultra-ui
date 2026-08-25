@@ -7,12 +7,12 @@ Ultra UI 是 Vue 3 组件与能力库。主用户是 cabinet-fe 内部业务前�
 核心域：
 
 - 桌面 UI：`@veltra/desktop` 及底层 utils / styles / compositions / directives / icons
-- 电子表格与报表：`@veltra/sheet-core`（模型/公式/IO/网格）+ `@veltra/sheet`（USheet、UReportDesigner、UReportViewer）
+- 电子表格：`@veltra/sheet-core`（模型/公式/IO/网格）+ `@veltra/sheet`（USheet）
 - AI 对话：`@veltra/ai`（UAiChat、useChat、可插拔 transport、UAiOrb）
 
-对外交付：npm 包 + `skills/veltra-ui`（给 Agent 用的伴生技能）。文档站 `ultra-ui-doc` 在本仓库外。`@veltra/mobile` 长期占位，不纳入交付与发版。`playground` 不发布，但是官方参考实现：组件预览，以及 report DataConnector HTTP 契约、DeepSeek AI 代理，宿主可对照接入。
+对外交付：npm 包 + `skills/veltra-ui`（给 Agent 用的伴生技能）。文档站 `ultra-ui-doc` 在本仓库外。`@veltra/mobile` 长期占位，不纳入交付与发版。`playground` 不发布，但是官方参考实现：组件预览，以及填报单元格存取、DeepSeek AI 代理，宿主可对照接入。
 
-库本身无账号、无服务端状态；业务数据由宿主管。报表取数经宿主实现的 `DataConnector`（playground 提供 HTTP 参考实现）。
+库本身无账号、无服务端状态；业务数据由宿主管。
 
 ## 技术架构
 
@@ -23,7 +23,7 @@ Ultra UI 是 Vue 3 组件与能力库。主用户是 cabinet-fe 内部业务前�
 | 进程 | 端口 | 职责 |
 | --- | --- | --- |
 | playground 前端（Vite） | 7788 | 组件/图标/AI/Sheet 演示 |
-| playground 参考服务（Bun + Hono） | 8787 | DataConnector HTTP 参考实现（工作区 SQLite 仅本地）+ DeepSeek `/ai` 代理（Key 不下发浏览器） |
+| playground 参考服务（Bun + Hono） | 8787 | 填报单元格存取（SQLite 仅本地）+ DeepSeek `/ai` 代理（Key 不下发浏览器） |
 
 分层（库内）：
 
