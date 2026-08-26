@@ -8,10 +8,30 @@
 
   @include m.bem(radio) {
     margin: 0;
+
+    & + & {
+      margin-left: 0;
+    }
   }
 
   @include m.size using ($size) {
     gap: 0 calc(fn.use-var(gap, $size) * 2);
+
+    &.u-radio-group--button,
+    &#{fn.bem(radio-group, null, button)} {
+      border-radius: fn.use-var(radius, $size);
+
+      #{fn.bem(radio)} {
+        height: calc(fn.use-var(form-component-height, $size) - 6px);
+        padding: 0 calc(fn.use-var(gap, $size) * 1.5);
+        border-radius: calc(fn.use-var(radius, $size) - 2px);
+        font-size: fn.use-var(font-size-main, $size);
+
+        & + #{fn.bem(radio)} {
+          margin-left: 0;
+        }
+      }
+    }
   }
 
   @include m.is(block) {
@@ -20,18 +40,62 @@
     @include m.bem(radio) {
       display: flex;
     }
+
+    &.u-radio-group--button,
+    &#{fn.bem(radio-group, null, button)} {
+      display: flex;
+      width: 100%;
+
+      #{fn.bem(radio)} {
+        flex: 1 1 0%;
+        width: 0;
+        min-width: 0;
+        display: inline-flex;
+        justify-content: center;
+      }
+    }
   }
 
   @include m.m(button) {
-    gap: 0;
-    overflow: hidden;
-    border: fn.use-var(border, width) fn.use-var(border, style) fn.use-var(border-muted);
-    border-radius: fn.use-var(radius, default);
+    gap: 2px;
+    padding: 2px;
+    background-color: fn.use-var(bg-color, middle);
+    border: fn.use-var(border, width) fn.use-var(border, style) fn.use-var(border, color);
+    box-sizing: border-box;
 
     #{fn.bem(radio)} {
       margin: 0;
       justify-content: center;
       background-color: transparent;
+      box-shadow: none;
+      font-weight: 500;
+      color: fn.use-var(text-color, second);
+      transition:
+        color fn.use-var(transition, fast) fn.use-var(transition, ease),
+        background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+        box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+      & + #{fn.bem(radio)} {
+        margin-left: 0;
+      }
+
+      &:hover:not(.is-checked):not(.is-disabled) {
+        color: fn.use-var(text-color, title);
+        background-color: fn.use-var(bg-color, hover);
+      }
+
+      &.is-checked {
+        color: fn.use-var(color, primary);
+        background-color: fn.use-var(bg-color, top);
+        box-shadow: fn.use-var(shadow, sm);
+        font-weight: 600;
+      }
+
+      &.is-disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        color: fn.use-var(text-color, disabled);
+      }
     }
 
     // 隐藏 radio 圆点，仅保留文字
@@ -41,15 +105,12 @@
 
     #{fn.bem(radio, label)} {
       padding-left: 0;
-    }
-
-    #{fn.bem(radio)}.is-checked {
-      color: fn.use-var(color, primary);
-      background-color: fn.color-a(color, 8, primary);
-    }
-
-    #{fn.bem(radio)}.is-disabled {
-      opacity: 0.5;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
     // label 不可聚焦，ring 由视觉隐藏的原生 input 驱动

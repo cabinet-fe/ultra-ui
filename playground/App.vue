@@ -77,12 +77,12 @@
 
         <section class="drawer-section">
           <h3 class="drawer-section-title">组件尺寸</h3>
-          <u-radio-group v-model="size" :items="sizeOptions" variant="button" />
+          <u-radio-group v-model="size" :items="sizeOptions" variant="button" block />
         </section>
 
         <section class="drawer-section">
           <h3 class="drawer-section-title">圆角</h3>
-          <u-radio-group v-model="radiusMode" :items="radiusOptions" variant="button" />
+          <u-radio-group v-model="radiusMode" :items="radiusOptions" variant="button" block />
         </section>
 
         <footer class="drawer-footer">
@@ -579,9 +579,7 @@ html[data-theme='dark'] .container1[data-theme-preset='glass'] .content-backdrop
   display: flex;
   justify-content: flex-end;
 }
-</style>
 
-<style lang="scss">
 .theme-transitioning {
   * {
     // 只覆盖过渡时长与曲线，避免把组件自身的 transition-property
