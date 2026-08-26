@@ -46,10 +46,10 @@ curl http://localhost:8787/ai/models
 
 ## 在线填报
 
-| 端点                                  | 请求体                                    | 成功                  | 说明                                     |
-| ------------------------------------- | ----------------------------------------- | --------------------- | ---------------------------------------- |
+| 端点                                  | 请求体                                    | 成功                  | 说明                                         |
+| ------------------------------------- | ----------------------------------------- | --------------------- | -------------------------------------------- |
 | `GET /data-entry/forms/:formId/cells` | —                                         | `{ ok: true, cells }` | 读取表单全部已存单元格（sheet/row/col 升序） |
-| `PUT /data-entry/forms/:formId/cells` | `{ cells: [{ sheet, row, col, value }] }` | `{ ok: true, saved }` | 批量 upsert；`value` 为 null/'' 删除该格 |
+| `PUT /data-entry/forms/:formId/cells` | `{ cells: [{ sheet, row, col, value }] }` | `{ ok: true, saved }` | 批量 upsert；`value` 为 null/'' 删除该格     |
 
 - `sheet` 为 workbook 内 sheet 名（1~128 字符）；`value` 仅接受 JSON 标量（string / number / boolean / null）；row/col 为非负整数；单批上限 10_000 条。
 - 存储：SQLite 表 `data_entry_cells`，主键 `(form_id, sheet_key, row_index, col_index)`，与多 sheet 模型同为稀疏按格存储。

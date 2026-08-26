@@ -77,12 +77,12 @@
 
         <section class="drawer-section">
           <h3 class="drawer-section-title">组件尺寸</h3>
-          <u-radio-group v-model="size" :items="sizeOptions" variant="button" block />
+          <u-segment v-model="size" :items="sizeOptions" block />
         </section>
 
         <section class="drawer-section">
           <h3 class="drawer-section-title">圆角</h3>
-          <u-radio-group v-model="radiusMode" :items="radiusOptions" variant="button" block />
+          <u-segment v-model="radiusMode" :items="radiusOptions" block />
         </section>
 
         <footer class="drawer-footer">
@@ -211,22 +211,10 @@ const effectiveTheme = computed(() => {
 watch([themePreset, radiusMode], () => {
   localStorage.setItem('themePreset', themePreset.value)
   localStorage.setItem('themeRadius', radiusMode.value)
-  applyThemeWithTransition()
+  loadTheme(effectiveTheme.value)
 })
 
-applyThemeWithTransition()
-
-function applyThemeWithTransition() {
-  document.documentElement.classList.add('theme-transitioning')
-
-  requestAnimationFrame(() => {
-    loadTheme(effectiveTheme.value)
-
-    setTimeout(() => {
-      document.documentElement.classList.remove('theme-transitioning')
-    }, 300)
-  })
-}
+loadTheme(effectiveTheme.value)
 
 const showDrawer = ref(false)
 
@@ -578,15 +566,6 @@ html[data-theme='dark'] .container1[data-theme-preset='glass'] .content-backdrop
   border-top: 1px solid use-var(border, color);
   display: flex;
   justify-content: flex-end;
-}
-
-.theme-transitioning {
-  * {
-    // 只覆盖过渡时长与曲线，避免把组件自身的 transition-property
-    //（例如 switch thumb 的 transform）在主题切换时整体抹掉。
-    transition-duration: 0.3s !important;
-    transition-timing-function: ease !important;
-  }
 }
 
 // 优化页面过渡动画

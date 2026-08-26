@@ -4,13 +4,13 @@
 
 ## 命名
 
-| 对象 | 规则 | 示例 |
-| --- | --- | --- |
-| 组件 | `U` + PascalCase | `UButton`、`USelect` |
-| CSS 类 | `u-` + BEM | `u-button`、`u-button__icon` |
-| 指令 | `v` + camelCase | `vRipple`、`vClickOutside` |
-| 目录 | kebab-case | `date-picker`、`number-input` |
-| 类型 | `<Name>Props` / `<Name>Emits` | `ButtonProps`；内部 Exposed 加 `_` 前缀，导出去掉 |
+| 对象   | 规则                          | 示例                                              |
+| ------ | ----------------------------- | ------------------------------------------------- |
+| 组件   | `U` + PascalCase              | `UButton`、`USelect`                              |
+| CSS 类 | `u-` + BEM                    | `u-button`、`u-button__icon`                      |
+| 指令   | `v` + camelCase               | `vRipple`、`vClickOutside`                        |
+| 目录   | kebab-case                    | `date-picker`、`number-input`                     |
+| 类型   | `<Name>Props` / `<Name>Emits` | `ButtonProps`；内部 Exposed 加 `_` 前缀，导出去掉 |
 
 `defineOptions({ name })` 用无 `U` 的组件名（如 `Button`）。
 

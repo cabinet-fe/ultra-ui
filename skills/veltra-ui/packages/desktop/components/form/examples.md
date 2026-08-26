@@ -179,7 +179,12 @@ const formData = reactive({
     <u-input label="商品名" field="name" :rules="{ required: '商品名不能为空' }" />
 
     <!-- 两个输入组合成一个字段，校验/提示写在 u-form-item 上 -->
-    <u-form-item label="价格区间" field="priceRange" :rules="{ required: '请填写价格区间' }" tips="最低价不能高于最高价">
+    <u-form-item
+      label="价格区间"
+      field="priceRange"
+      :rules="{ required: '请填写价格区间' }"
+      tips="最低价不能高于最高价"
+    >
       <u-number-input v-model="formData.priceRange.min" placeholder="最低" />
       <span style="margin: 0 8px">—</span>
       <u-number-input v-model="formData.priceRange.max" placeholder="最高" />

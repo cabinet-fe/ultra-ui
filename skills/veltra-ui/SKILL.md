@@ -28,18 +28,18 @@ veltra-ui 是一套 Vue 3 UI 体系。
 
 ## 分包地图
 
-| 入口                       | 包                     | 用途                                                                                                       |
-| -------------------------- | ---------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `packages/desktop/`        | `@veltra/desktop`      | 桌面端组件（主入口）                                                                                       |
-| `packages/ai.md`           | `@veltra/ai`           | AI 对话：UAiChat、useChat、ChatTool、createOpenAITransport、UAiOrb                                         |
-| `packages/sheet.md`        | `@veltra/sheet`        | 电子表格（USheet、公式、undo/redo、浮动图片、工具扩展） |
-| `packages/sheet-core.md`   | `@veltra/sheet-core`   | 表格核心：数据模型/公式/IO + SheetGrid 渲染层（含 readonly 预览、单元格级只读标记）          |
-| `packages/styles/`         | `@veltra/styles`       | SCSS、主题、Design Tokens、过渡                                                                            |
-| `packages/compositions.md` | `@veltra/compositions` | Vue 组合式函数                                                                                             |
-| `packages/directives.md`   | `@veltra/directives`   | 自定义指令                                                                                                 |
-| `packages/icons.md`        | `@veltra/icons`        | SVG 图标组件                                                                                               |
-| `packages/utils.md`        | `@veltra/utils`        | 工具函数与共享类型                                                                                         |
-| `packages/vite.md`         | `@veltra/vite`         | Vite 按需解析器                                                                                            |
+| 入口                       | 包                     | 用途                                                                                |
+| -------------------------- | ---------------------- | ----------------------------------------------------------------------------------- |
+| `packages/desktop/`        | `@veltra/desktop`      | 桌面端组件（主入口）                                                                |
+| `packages/ai.md`           | `@veltra/ai`           | AI 对话：UAiChat、useChat、ChatTool、createOpenAITransport、UAiOrb                  |
+| `packages/sheet.md`        | `@veltra/sheet`        | 电子表格（USheet、公式、undo/redo、浮动图片、工具扩展）                             |
+| `packages/sheet-core.md`   | `@veltra/sheet-core`   | 表格核心：数据模型/公式/IO + SheetGrid 渲染层（含 readonly 预览、单元格级只读标记） |
+| `packages/styles/`         | `@veltra/styles`       | SCSS、主题、Design Tokens、过渡                                                     |
+| `packages/compositions.md` | `@veltra/compositions` | Vue 组合式函数                                                                      |
+| `packages/directives.md`   | `@veltra/directives`   | 自定义指令                                                                          |
+| `packages/icons.md`        | `@veltra/icons`        | SVG 图标组件                                                                        |
+| `packages/utils.md`        | `@veltra/utils`        | 工具函数与共享类型                                                                  |
+| `packages/vite.md`         | `@veltra/vite`         | Vite 按需解析器                                                                     |
 
 ## 路由决策
 

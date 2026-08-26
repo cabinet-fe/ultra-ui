@@ -20,9 +20,9 @@ Ultra UI 是 Vue 3 组件与能力库。主用户是 cabinet-fe 内部业务前�
 
 进程边界仅存在于本地预览，不是生产服务：
 
-| 进程 | 端口 | 职责 |
-| --- | --- | --- |
-| playground 前端（Vite） | 7788 | 组件/图标/AI/Sheet 演示 |
+| 进程                              | 端口 | 职责                                                                     |
+| --------------------------------- | ---- | ------------------------------------------------------------------------ |
+| playground 前端（Vite）           | 7788 | 组件/图标/AI/Sheet 演示                                                  |
 | playground 参考服务（Bun + Hono） | 8787 | 填报单元格存取（SQLite 仅本地）+ DeepSeek `/ai` 代理（Key 不下发浏览器） |
 
 分层（库内）：
@@ -39,18 +39,18 @@ CI：`.github/workflows/release.yml`。`bun run release` 在 `dev` 分支落版�
 
 来源：根 `package.json`、`vite.config.ts`、各包 `package.json` / AGENTS.md。
 
-| 层 | 选型 | 备注 |
-| --- | --- | --- |
-| 语言 / runtime | TypeScript ^6、Bun（packageManager bun@1.4） | 库代码 ESM |
-| 框架 | Vue 3.5+（Composition API + `<script setup>`） | peer；playground 另用 vue-router |
-| 样式 | SCSS（sass-embedded）+ BEM + CSS 变量 | `@use 'pkg:@veltra/styles/...'`，构建需 `NodePackageImporter` |
-| 表格渲染 / IO | `@visactor/vtable`、`@visactor/vtable-editors`、hucre | 在 sheet-core；sheet 不直接依赖 |
-| 富文本 / PDF / Markdown | Lexical、EmbedPDF（desktop）；markstream-vue（ai） | 见各包 dependencies |
-| 构建 / 包管理 | Vite+（`vp`）、workspaces `packages/*` + `playground` | 根 `vite.config.ts` 只管 test/lint/fmt/run/staged；库 pack 在包内 |
-| 测试 | Vitest（`vp test`）、happy-dom | 根 test.projects 列出参与包 |
-| 校验 / 格式化 | Oxlint + tsgolint + Oxfmt | `vp lint` 含 typeCheck；`vp fmt` |
-| 发布 | @changesets/cli、access public | 见「版本」；ignore `@veltra/mobile`、`playground` |
-| 关键 peer | `@cat-kit/core`、`@cat-kit/fe`、`@veltra/icons`、vue | 宿主安装；内部 `@veltra/*` peer 用 `workspace:^` |
+| 层                      | 选型                                                  | 备注                                                              |
+| ----------------------- | ----------------------------------------------------- | ----------------------------------------------------------------- |
+| 语言 / runtime          | TypeScript ^6、Bun（packageManager bun@1.4）          | 库代码 ESM                                                        |
+| 框架                    | Vue 3.5+（Composition API + `<script setup>`）        | peer；playground 另用 vue-router                                  |
+| 样式                    | SCSS（sass-embedded）+ BEM + CSS 变量                 | `@use 'pkg:@veltra/styles/...'`，构建需 `NodePackageImporter`     |
+| 表格渲染 / IO           | `@visactor/vtable`、`@visactor/vtable-editors`、hucre | 在 sheet-core；sheet 不直接依赖                                   |
+| 富文本 / PDF / Markdown | Lexical、EmbedPDF（desktop）；markstream-vue（ai）    | 见各包 dependencies                                               |
+| 构建 / 包管理           | Vite+（`vp`）、workspaces `packages/*` + `playground` | 根 `vite.config.ts` 只管 test/lint/fmt/run/staged；库 pack 在包内 |
+| 测试                    | Vitest（`vp test`）、happy-dom                        | 根 test.projects 列出参与包                                       |
+| 校验 / 格式化           | Oxlint + tsgolint + Oxfmt                             | `vp lint` 含 typeCheck；`vp fmt`                                  |
+| 发布                    | @changesets/cli、access public                        | 见「版本」；ignore `@veltra/mobile`、`playground`                 |
+| 关键 peer               | `@cat-kit/core`、`@cat-kit/fe`、`@veltra/icons`、vue  | 宿主安装；内部 `@veltra/*` peer 用 `workspace:^`                  |
 
 ## 未决
 

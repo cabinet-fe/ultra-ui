@@ -6,11 +6,11 @@
 
 ## 模块
 
+- [desktop](desktop/index.md) — 桌面端 UI 组件（USegment 分段单选等）
 - [styles](styles/index.md) — 主题系列（浅色系 / 深色系）
 
 暂无归档条目的模块占位：
 
-- desktop
 - utils
 - compositions
 - directives

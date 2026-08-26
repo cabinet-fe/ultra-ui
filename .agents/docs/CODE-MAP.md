@@ -34,22 +34,22 @@ ultra-ui/
 
 ## 模块
 
-| 模块 | 路径 | 职责 | 主要入口 |
-| --- | --- | --- | --- |
-| utils | `packages/utils` | 工具函数、BEM helper、共享类型；无 Vue 组件 | `src/index.ts` |
-| styles | `packages/styles` | SCSS mixins/vars/functions、normalize/transitions/animations、主题 TS | `src/_mixins.scss`、`src/theme/index.ts` |
-| compositions | `packages/compositions` | Vue 组合式函数（useModel / usePop / useConfig 等） | `src/index.ts`（各 `use-*`） |
-| directives | `packages/directives` | `vFocus` / `vClickOutside` / `vRipple` | `src/index.ts` |
-| desktop | `packages/desktop` | 桌面端 UI 主包；`install` 全局注册 | `src/index.ts`、`src/install.ts` |
-| sheet-core | `packages/sheet-core` | 表格模型/命令/公式/IO + SheetGrid | `src/index.ts`、`src/grid/index.ts` |
-| sheet | `packages/sheet` | USheet、工具系统 | `src/index.ts` |
-| ai | `packages/ai` | UAiChat / useChat / transport / UAiOrb | `src/index.ts` |
-| icons | `packages/icons` | SVG → Vue 图标 | `src/index.ts`、`src/normal.ts`、`src/colorful.ts` |
-| vite | `packages/vite` | VeltraUIResolver 与生成组件表 | `src/resolver.ts`、`src/components.gen.ts` |
-| mobile | `packages/mobile` | 占位，private、changeset ignore | `src/index.ts` |
-| playground | `playground` | 预览 SPA + 填报/AI 参考实现 | `main.ts`、`playground/server/dev.ts` |
-| scripts | `scripts` | resolver/skill 生成、release、setup-git | `gen-vite-resolver.ts`、`release.ts`、`gen-veltra-skill.ts` |
-| veltra-ui-skill | `skills/veltra-ui` | 对外 Agent Skill（`bun run skill:gen` 更新） | `SKILL.md` |
+| 模块            | 路径                    | 职责                                                                  | 主要入口                                                    |
+| --------------- | ----------------------- | --------------------------------------------------------------------- | ----------------------------------------------------------- |
+| utils           | `packages/utils`        | 工具函数、BEM helper、共享类型；无 Vue 组件                           | `src/index.ts`                                              |
+| styles          | `packages/styles`       | SCSS mixins/vars/functions、normalize/transitions/animations、主题 TS | `src/_mixins.scss`、`src/theme/index.ts`                    |
+| compositions    | `packages/compositions` | Vue 组合式函数（useModel / usePop / useConfig 等）                    | `src/index.ts`（各 `use-*`）                                |
+| directives      | `packages/directives`   | `vFocus` / `vClickOutside` / `vRipple`                                | `src/index.ts`                                              |
+| desktop         | `packages/desktop`      | 桌面端 UI 主包；`install` 全局注册                                    | `src/index.ts`、`src/install.ts`                            |
+| sheet-core      | `packages/sheet-core`   | 表格模型/命令/公式/IO + SheetGrid                                     | `src/index.ts`、`src/grid/index.ts`                         |
+| sheet           | `packages/sheet`        | USheet、工具系统                                                      | `src/index.ts`                                              |
+| ai              | `packages/ai`           | UAiChat / useChat / transport / UAiOrb                                | `src/index.ts`                                              |
+| icons           | `packages/icons`        | SVG → Vue 图标                                                        | `src/index.ts`、`src/normal.ts`、`src/colorful.ts`          |
+| vite            | `packages/vite`         | VeltraUIResolver 与生成组件表                                         | `src/resolver.ts`、`src/components.gen.ts`                  |
+| mobile          | `packages/mobile`       | 占位，private、changeset ignore                                       | `src/index.ts`                                              |
+| playground      | `playground`            | 预览 SPA + 填报/AI 参考实现                                           | `main.ts`、`playground/server/dev.ts`                       |
+| scripts         | `scripts`               | resolver/skill 生成、release、setup-git                               | `gen-vite-resolver.ts`、`release.ts`、`gen-veltra-skill.ts` |
+| veltra-ui-skill | `skills/veltra-ui`      | 对外 Agent Skill（`bun run skill:gen` 更新）                          | `SKILL.md`                                                  |
 
 ## 依赖
 
