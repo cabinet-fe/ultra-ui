@@ -6,10 +6,11 @@
 
 ## 模块
 
+- [styles](styles/index.md) — 主题系列（浅色系 / 深色系）
+
 暂无归档条目的模块占位：
 
 - utils
-- styles
 - compositions
 - directives
 - desktop
