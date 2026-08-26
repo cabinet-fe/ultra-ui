@@ -8,6 +8,8 @@
 
 - [styles](styles/index.md) — 主题系列（浅色系 / 深色系）
 
+- [desktop](desktop/index.md) — 桌面端组件能力
+
 暂无归档条目的模块占位：
 
 - utils

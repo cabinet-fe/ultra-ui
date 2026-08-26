@@ -22,18 +22,39 @@
     }
   }
 
-  @include m.e(button-item) {
-    margin: 0px !important;
-    border-right: 0 !important;
-    border-radius: 0 !important;
+  @include m.m(button) {
+    gap: 0;
+    overflow: hidden;
+    border: fn.use-var(border, width) fn.use-var(border, style) fn.use-var(border-muted);
+    border-radius: fn.use-var(radius, default);
 
-    &:first-child {
-      border-radius: fn.use-var(radius, default) 0 0 fn.use-var(radius, default) !important;
+    #{fn.bem(radio)} {
+      margin: 0;
+      justify-content: center;
+      background-color: transparent;
     }
 
-    &:last-child {
-      border-right: fn.use-var(border-muted) !important;
-      border-radius: 0 fn.use-var(radius, default) fn.use-var(radius, default) 0 !important;
+    // 隐藏 radio 圆点，仅保留文字
+    #{fn.bem(radio, button)} {
+      display: none;
+    }
+
+    #{fn.bem(radio, label)} {
+      padding-left: 0;
+    }
+
+    #{fn.bem(radio)}.is-checked {
+      color: fn.use-var(color, primary);
+      background-color: fn.color-a(color, 8, primary);
+    }
+
+    #{fn.bem(radio)}.is-disabled {
+      opacity: 0.5;
+    }
+
+    // label 不可聚焦，ring 由视觉隐藏的原生 input 驱动
+    #{fn.bem(radio, native)}:focus-visible ~ #{fn.bem(radio, label)} {
+      box-shadow: fn.use-var(focus-ring);
     }
   }
 }
