@@ -16,7 +16,7 @@ src/
     ├── index.ts
     ├── load-theme.ts
     ├── ui-theme.ts
-    └── presets/          # light、dark、shadcn、hero、glass
+    └── presets/          # light、dark、hero、glass（深色）、ancient、sakura、ocean、midnight（深色）、neon（深色）
 ```
 
 ## 导出子路径

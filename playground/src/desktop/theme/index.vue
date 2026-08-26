@@ -9,8 +9,6 @@
         placeholder="搜索中文标签 / 字段路径 / CSS 变量名"
       />
 
-      <u-radio-group v-model="mode" :items="modeItems" size="small" />
-
       <span class="theme-editor__stat" :class="{ 'is-active': changedKeys.size > 0 }">
         {{ changedKeys.size }} 处改动
       </span>
@@ -24,7 +22,7 @@
 
     <p class="theme-editor__hint">
       修改会实时写入 <code>&lt;html&gt;</code> 上的 <code>--u-*</code> CSS 变量并作用于整个
-      playground；切换「浅色 / 深色」标签会同时切换全局明暗模式，便于对照编辑两套主题。
+      playground；「重载预设」回到当前主题包的初始值。
     </p>
 
     <section v-for="section in visibleSections" :key="section.key" class="theme-editor__section">
@@ -108,108 +106,49 @@
 
 <script lang="ts" setup>
 import { ArrowDown } from '@veltra/icons/normal'
-import {
-  UITheme,
-  ancientLightTheme,
-  darkTheme,
-  glassDarkTheme,
-  glassLightTheme,
-  heroDarkTheme,
-  heroLightTheme,
-  lightTheme,
-  shadcnDarkTheme,
-  shadcnLightTheme,
-  type Theme
-} from '@veltra/styles/theme'
-import { computed, reactive, shallowRef, watch } from 'vue'
+import { UITheme, currentTheme, lightTheme, type Theme } from '@veltra/styles/theme'
+import { computed, reactive, shallowRef } from 'vue'
 
 import { THEME_SECTIONS, cssVarName, type ThemeField } from './schema'
 
-type ThemeMode = 'light' | 'dark'
-
 type PlainTheme = Record<string, any>
-
-/** 与 App.vue 设置抽屉一致的主题包映射 */
-function getThemesByPreset(preset: string): { light: UITheme; dark: UITheme } {
-  if (preset === 'ancient') return { light: ancientLightTheme, dark: darkTheme }
-  if (preset === 'shadcn') return { light: shadcnLightTheme, dark: shadcnDarkTheme }
-  if (preset === 'hero') return { light: heroLightTheme, dark: heroDarkTheme }
-  if (preset === 'glass') return { light: glassLightTheme, dark: glassDarkTheme }
-  return { light: lightTheme, dark: darkTheme }
-}
-
-function readInitialMode(): ThemeMode {
-  const stored = localStorage.getItem('themeMode')
-  const attr = document.documentElement.dataset.theme
-  const mode = attr === 'light' || attr === 'dark' ? attr : stored
-  if (mode === 'light' || mode === 'dark') return mode
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-}
 
 function cloneTheme(theme: UITheme): PlainTheme {
   return JSON.parse(JSON.stringify(theme.theme)) as PlainTheme
 }
 
-const mode = shallowRef<ThemeMode>(readInitialMode())
 const keyword = shallowRef('')
 const collapsedKeys = reactive(new Set<string>())
 
-const modeItems = [
-  { label: '浅色', value: 'light' },
-  { label: '深色', value: 'dark' }
-]
-
-function initialPreset() {
-  const preset = localStorage.getItem('themePreset') || 'default'
-  return getThemesByPreset(preset)
-}
-
-const preset0 = initialPreset()
+/** 当前全局应用的主题，深拷贝避免改到共享的 preset 单例 */
+const source = currentTheme.value ?? lightTheme
 
 /**
- * 可编辑的浅 / 深主题副本。
+ * 可编辑的主题草稿。
  * 注意必须深拷贝预设：UITheme 构造时对传入对象做 reactive()，
  * 直接包预设会改到全局共享的 preset 单例。
  */
-const drafts = reactive<{ light: PlainTheme; dark: PlainTheme }>({
-  light: cloneTheme(preset0.light),
-  dark: cloneTheme(preset0.dark)
-})
-/** 初始快照，用于「改动」标记 */
-const baselines = { light: cloneTheme(preset0.light), dark: cloneTheme(preset0.dark) }
+const draft = reactive<PlainTheme>(cloneTheme(source))
+/** 初始快照，用于「改动」标记与重置 */
+let baseline = cloneTheme(source)
 
-// UITheme 的 reactive(theme) 包的是同一对象，drafts 的修改对其可见
-const lightUI = new UITheme(drafts.light as Theme, { reactive: false })
-const darkUI = new UITheme(drafts.dark as Theme, { reactive: false })
+// UITheme 构造时 reactive(theme) 包的是同一对象，draft 的修改对其可见
+const ui = new UITheme(draft as Theme, { reactive: false, series: source.series })
 
-/** 用快照整体替换 draft 内容（保持对象身份，lightUI/darkUI 不失联） */
-function replaceDraft(mode: ThemeMode, snapshot: PlainTheme) {
-  const draft = drafts[mode]
+/** 把当前草稿注入 :root */
+function apply() {
+  ui.render()
+}
+
+apply()
+
+/** 用快照整体替换 draft 内容（保持对象身份，ui 不失联） */
+function replaceDraft(snapshot: PlainTheme) {
   Object.keys(draft).forEach((k) => {
     if (!(k in snapshot)) delete draft[k]
   })
   Object.assign(draft, snapshot)
 }
-
-function loadFromPreset() {
-  const { light, dark } = initialPreset()
-  replaceDraft('light', cloneTheme(light))
-  replaceDraft('dark', cloneTheme(dark))
-  baselines.light = cloneTheme(light)
-  baselines.dark = cloneTheme(dark)
-}
-
-/** 把当前草稿注入 :root（light / dark 两个声明块，保留全局明暗切换能力） */
-function apply() {
-  UITheme.injectBuiltInThemes(lightUI, darkUI)
-}
-
-apply()
-UITheme.setTheme(mode.value)
-
-watch(mode, (m) => {
-  UITheme.setTheme(m)
-})
 
 function getByPath(source: PlainTheme, path: string[]) {
   return path.reduce<any>((current, key) => current?.[key], source)
@@ -225,7 +164,7 @@ function setByPath(source: PlainTheme, path: string[], value: unknown) {
 }
 
 function getValue(field: ThemeField): string {
-  const v = getByPath(drafts[mode.value], field.path)
+  const v = getByPath(draft, field.path)
   return v === undefined || v === null ? '' : String(v)
 }
 
@@ -236,7 +175,7 @@ function setValue(field: ThemeField, value: unknown) {
         ? value
         : Number(value) || 0
       : String(value ?? '')
-  setByPath(drafts[mode.value], field.path, normalized)
+  setByPath(draft, field.path, normalized)
   apply()
 }
 
@@ -258,30 +197,26 @@ function normalizeForCompare(value: unknown): unknown {
 
 const changedKeys = computed(() => {
   const keys = new Set<string>()
-  for (const m of ['light', 'dark'] as const) {
-    THEME_SECTIONS.forEach((section) => {
-      section.fields.forEach((field) => {
-        const current = getByPath(drafts[m], field.path)
-        const baseline = getByPath(baselines[m], field.path)
-        const a = normalizeForCompare(current)
-        const b = normalizeForCompare(baseline)
-        if (a !== b) {
-          keys.add(`${m}:${field.key}`)
-        }
-      })
+  THEME_SECTIONS.forEach((section) => {
+    section.fields.forEach((field) => {
+      const a = normalizeForCompare(getByPath(draft, field.path))
+      const b = normalizeForCompare(getByPath(baseline, field.path))
+      if (a !== b) {
+        keys.add(field.key)
+      }
     })
-  }
+  })
   return keys
 })
 
 function isChanged(field: ThemeField): boolean {
-  return changedKeys.value.has(`${mode.value}:${field.key}`)
+  return changedKeys.value.has(field.key)
 }
 
 function sectionChangedCount(sectionKey: string): number {
   const section = THEME_SECTIONS.find((s) => s.key === sectionKey)
   if (!section) return 0
-  return section.fields.filter((f) => changedKeys.value.has(`${mode.value}:${f.key}`)).length
+  return section.fields.filter((f) => changedKeys.value.has(f.key)).length
 }
 
 const visibleSections = computed(() => {
@@ -308,21 +243,20 @@ function toggleSection(key: string) {
 }
 
 function handleReset() {
-  replaceDraft('light', JSON.parse(JSON.stringify(baselines.light)) as PlainTheme)
-  replaceDraft('dark', JSON.parse(JSON.stringify(baselines.dark)) as PlainTheme)
+  replaceDraft(JSON.parse(JSON.stringify(baseline)) as PlainTheme)
   apply()
 }
 
 function handleReloadPreset() {
-  loadFromPreset()
+  const preset = currentTheme.value ?? lightTheme
+  replaceDraft(cloneTheme(preset))
+  baseline = cloneTheme(preset)
+  ui.series = preset.series
   apply()
 }
 
 function handleExport() {
-  const data = {
-    light: JSON.parse(JSON.stringify(drafts.light)),
-    dark: JSON.parse(JSON.stringify(drafts.dark))
-  }
+  const data = JSON.parse(JSON.stringify(draft))
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
@@ -356,7 +290,7 @@ function handleExport() {
     flex-wrap: wrap;
     padding: 10px 12px;
     border: 1px solid use-var(border, color);
-    border-radius: use-var(radius);
+    border-radius: use-var(radius, default);
     background: use-var(bg-color, top);
     position: sticky;
     top: 0;
@@ -402,7 +336,7 @@ function handleExport() {
 
   &__section {
     border: 1px solid use-var(border, color);
-    border-radius: use-var(radius);
+    border-radius: use-var(radius, default);
     background: use-var(bg-color, top);
     overflow: hidden;
   }
@@ -515,7 +449,7 @@ function handleExport() {
     font-size: 13px;
     color: use-var(text-color, second);
     border: 1px dashed use-var(border, color);
-    border-radius: use-var(radius);
+    border-radius: use-var(radius, default);
   }
 }
 </style>

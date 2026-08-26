@@ -15,7 +15,6 @@
           <div class="config-badges">
             <span class="config-badge">{{ themePresetLabel }}</span>
             <span class="config-badge">{{ sizeLabel }}</span>
-            <span class="config-badge">{{ themeModeLabel }}</span>
           </div>
         </div>
 
@@ -42,27 +41,75 @@
 
     <u-drawer v-model="showDrawer" title="设置" direction="right" width="400px" :show-close="true">
       <div class="drawer-content">
-        <div class="drawer-section">
-          <div class="drawer-section-title">外观</div>
-          <u-radio-group v-model="themeMode" :items="themeModeOptions" block />
-        </div>
+        <section class="drawer-section">
+          <h3 class="drawer-section-title">主题</h3>
 
-        <div class="drawer-section">
-          <div class="drawer-section-title">主题包</div>
-          <u-radio-group v-model="themePreset" :items="themePresetOptions" block />
-        </div>
+          <div v-for="group in themeGroups" :key="group.label" class="theme-group">
+            <div class="theme-group-label">{{ group.label }}</div>
+            <div class="theme-grid">
+              <button
+                v-for="item in group.items"
+                :key="item.value"
+                type="button"
+                class="theme-card"
+                :class="{ 'is-active': themePreset === item.value }"
+                :style="previewVars(item)"
+                @click="themePreset = item.value"
+              >
+                <span class="theme-preview" aria-hidden="true">
+                  <span class="theme-preview__side"></span>
+                  <span class="theme-preview__body">
+                    <span class="theme-preview__line theme-preview__line--title"></span>
+                    <span class="theme-preview__pill"></span>
+                    <span class="theme-preview__line"></span>
+                  </span>
+                </span>
+                <span class="theme-card__meta">
+                  <span class="theme-card__name">{{ item.label }}</span>
+                  <u-icon v-if="themePreset === item.value" class="theme-card__check">
+                    <Check />
+                  </u-icon>
+                </span>
+              </button>
+            </div>
+          </div>
+        </section>
 
-        <div class="drawer-section">
-          <div class="drawer-section-title">组件尺寸</div>
-          <u-radio-group v-model="size" :items="sizeOptions" block />
-        </div>
+        <section class="drawer-section">
+          <h3 class="drawer-section-title">组件尺寸</h3>
+          <div class="segmented">
+            <button
+              v-for="opt in sizeOptions"
+              :key="opt.value"
+              type="button"
+              class="segmented__item"
+              :class="{ 'is-active': size === opt.value }"
+              @click="size = opt.value"
+            >
+              {{ opt.label }}
+            </button>
+          </div>
+        </section>
 
-        <!-- <div class="drawer-divider"></div>
+        <section class="drawer-section">
+          <h3 class="drawer-section-title">圆角</h3>
+          <div class="segmented">
+            <button
+              v-for="mode in RADIUS_MODES"
+              :key="mode.value"
+              type="button"
+              class="segmented__item"
+              :class="{ 'is-active': radiusMode === mode.value }"
+              @click="radiusMode = mode.value"
+            >
+              {{ mode.label }}
+            </button>
+          </div>
+        </section>
 
-        <div class="drawer-section">
-          <div class="drawer-section-title">主题变量</div>
-          <u-theme />
-        </div> -->
+        <footer class="drawer-footer">
+          <u-button plain size="small" @click="resetSettings">恢复默认</u-button>
+        </footer>
       </div>
     </u-drawer>
   </div>
@@ -71,21 +118,21 @@
 <script lang="tsx" setup>
 import { useConfig } from '@veltra/compositions'
 import type { ComponentSize, NavItem } from '@veltra/desktop'
-import { Setting } from '@veltra/icons/normal'
+import { Check, Setting } from '@veltra/icons/normal'
 import {
-  lightTheme,
+  ancientTheme,
   darkTheme,
-  shadcnLightTheme,
-  shadcnDarkTheme,
-  heroLightTheme,
-  heroDarkTheme,
-  UITheme,
-  currentTheme,
-  glassDarkTheme,
-  glassLightTheme,
-  ancientLightTheme
+  glassTheme,
+  heroTheme,
+  lightTheme,
+  loadTheme,
+  midnightTheme,
+  neonTheme,
+  oceanTheme,
+  sakuraTheme,
+  type UITheme
 } from '@veltra/styles/theme'
-import { computed, onMounted, onUnmounted, ref, shallowRef, watch, watchEffect } from 'vue'
+import { computed, ref, shallowRef, watch, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { buildPlaygroundMenus, isNavGroupPath } from './nav-config'
@@ -107,87 +154,92 @@ watchEffect(() => {
   setConfig({ size: size.value })
 })
 
-type SampleThemeMode = 'light' | 'dark' | 'auto'
-
-function readInitialThemeMode(): SampleThemeMode {
-  const stored = localStorage.getItem('themeMode')
-  if (stored === 'light' || stored === 'dark' || stored === 'auto') {
-    return stored
-  }
-  const legacy = localStorage.getItem('isDark')
-  if (legacy !== null) {
-    try {
-      return JSON.parse(legacy) ? 'dark' : 'light'
-    } catch {
-      /* ignore */
-    }
-  }
-  return 'light'
+interface ThemeItem {
+  label: string
+  value: string
+  theme: UITheme
 }
 
-const themeMode = ref<SampleThemeMode>(readInitialThemeMode())
-
-const prefersDark = ref(
-  typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
-)
-let removePrefListener: (() => void) | undefined
-
-onMounted(() => {
-  const mq = window.matchMedia('(prefers-color-scheme: dark)')
-  prefersDark.value = mq.matches
-  const onChange = (e: MediaQueryListEvent) => {
-    prefersDark.value = e.matches
+const themeGroups: { label: string; items: ThemeItem[] }[] = [
+  {
+    label: '浅色系',
+    items: [
+      { label: '默认', value: 'light', theme: lightTheme },
+      { label: 'Hero', value: 'hero', theme: heroTheme },
+      { label: '古风', value: 'ancient', theme: ancientTheme },
+      { label: '樱花', value: 'sakura', theme: sakuraTheme },
+      { label: '海盐', value: 'ocean', theme: oceanTheme }
+    ]
+  },
+  {
+    label: '深色系',
+    items: [
+      { label: '默认深色', value: 'dark', theme: darkTheme },
+      { label: '玻璃', value: 'glass', theme: glassTheme },
+      { label: '午夜', value: 'midnight', theme: midnightTheme },
+      { label: '霓虹', value: 'neon', theme: neonTheme }
+    ]
   }
-  mq.addEventListener('change', onChange)
-  removePrefListener = () => mq.removeEventListener('change', onChange)
-})
+]
 
-onUnmounted(() => removePrefListener?.())
+const allThemes = themeGroups.flatMap((g) => g.items)
 
-const themePreset = ref(localStorage.getItem('themePreset') || 'default')
-watch(themePreset, (v) => localStorage.setItem('themePreset', v))
-
-const getThemesByPreset = (preset: string) => {
-  if (preset === 'ancient') return { light: ancientLightTheme, dark: darkTheme }
-  if (preset === 'shadcn') return { light: shadcnLightTheme, dark: shadcnDarkTheme }
-  if (preset === 'hero') return { light: heroLightTheme, dark: heroDarkTheme }
-  if (preset === 'glass') return { light: glassLightTheme, dark: glassDarkTheme }
-
-  return { light: lightTheme, dark: darkTheme }
+function readInitialPreset(): string {
+  const stored = localStorage.getItem('themePreset')
+  // 旧版主题包 id（default / shadcn 等）已不存在，回退浅色默认
+  if (stored === 'default') return 'light'
+  return allThemes.some((t) => t.value === stored) ? stored! : 'light'
 }
 
-const effectiveDark = computed(() => {
-  if (themeMode.value === 'dark') return true
-  if (themeMode.value === 'light') return false
-  return prefersDark.value
+// 明暗模式开关已移除（选主题即定明暗），清理遗留 key
+localStorage.removeItem('themeMode')
+
+const themePreset = ref(readInitialPreset())
+
+const themeItem = computed(() => {
+  return allThemes.find((t) => t.value === themePreset.value) ?? allThemes[0]!
 })
 
-watch([themeMode, themePreset], ([m, p]) => {
-  localStorage.setItem('themeMode', m)
-  applyThemeWithTransition(m, p)
+const RADIUS_MODES = [
+  { label: '直角', value: 'sharp' },
+  { label: '默认', value: 'default' },
+  { label: '圆润', value: 'soft' }
+] as const
+
+type RadiusMode = (typeof RADIUS_MODES)[number]['value']
+
+function readInitialRadius(): RadiusMode {
+  const stored = localStorage.getItem('themeRadius')
+  return RADIUS_MODES.some((m) => m.value === stored) ? (stored as RadiusMode) : 'default'
+}
+
+const radiusMode = ref<RadiusMode>(readInitialRadius())
+
+const effectiveTheme = computed(() => {
+  const base = themeItem.value.theme
+  if (radiusMode.value === 'sharp') {
+    return base.new({ radius: { small: 0, default: 0, large: 0 } })
+  }
+  if (radiusMode.value === 'soft') {
+    const r = base.theme.radius
+    return base.new({ radius: { small: r.small + 2, default: r.default + 6, large: r.large + 8 } })
+  }
+  return base
 })
 
-const initial = getThemesByPreset(themePreset.value)
-UITheme.injectBuiltInThemes(initial.light, initial.dark)
-UITheme.setTheme(themeMode.value)
-
-watchEffect(() => {
-  const { light, dark } = getThemesByPreset(themePreset.value)
-  currentTheme.value = effectiveDark.value ? dark : light
+watch([themePreset, radiusMode], () => {
+  localStorage.setItem('themePreset', themePreset.value)
+  localStorage.setItem('themeRadius', radiusMode.value)
+  applyThemeWithTransition()
 })
 
-const themeModeLabel = computed(() => {
-  if (themeMode.value === 'auto') return '跟随系统'
-  return themeMode.value === 'dark' ? '深色基线' : '浅色基线'
-})
+applyThemeWithTransition()
 
-function applyThemeWithTransition(mode: SampleThemeMode, preset: string = themePreset.value) {
+function applyThemeWithTransition() {
   document.documentElement.classList.add('theme-transitioning')
 
   requestAnimationFrame(() => {
-    const { light, dark } = getThemesByPreset(preset)
-    UITheme.injectBuiltInThemes(light, dark)
-    UITheme.setTheme(mode)
+    loadTheme(effectiveTheme.value)
 
     setTimeout(() => {
       document.documentElement.classList.remove('theme-transitioning')
@@ -197,33 +249,36 @@ function applyThemeWithTransition(mode: SampleThemeMode, preset: string = themeP
 
 const showDrawer = ref(false)
 
-const themePresetOptions = [
-  { label: '默认', value: 'default' },
-  { label: 'Shadcn', value: 'shadcn' },
-  { label: 'Hero', value: 'hero' },
-  { label: '玻璃', value: 'glass' },
-  { label: '古风', value: 'ancient' }
-]
-
 const sizeOptions = [
   { label: '小', value: 'small' },
   { label: '中', value: 'default' },
   { label: '大', value: 'large' }
 ]
 
-const themeModeOptions = [
-  { label: '浅色', value: 'light' },
-  { label: '深色', value: 'dark' },
-  { label: '跟随系统', value: 'auto' }
-]
-
-const themePresetLabel = computed(() => {
-  return themePresetOptions.find((o) => o.value === themePreset.value)?.label ?? '默认'
-})
+const themePresetLabel = computed(() => themeItem.value.label)
 
 const sizeLabel = computed(() => {
   return sizeOptions.find((o) => o.value === size.value)?.label ?? '中'
 })
+
+function previewVars(item: ThemeItem) {
+  const t = item.theme.theme
+  return {
+    '--tp-bg': t.bg.color.bottom,
+    '--tp-surface': t.bg.color.top,
+    '--tp-primary': t.color.primary,
+    '--tp-border': t.border.mutedColor,
+    '--tp-text': t['text-color'].second,
+    '--tp-title': t['text-color'].title,
+    '--tp-radius': `${Math.min(t.radius.large, 12)}px`
+  }
+}
+
+function resetSettings() {
+  themePreset.value = 'light'
+  size.value = 'default'
+  radiusMode.value = 'default'
+}
 </script>
 
 <style lang="scss">
@@ -404,14 +459,14 @@ html[data-theme='dark'] .container1[data-theme-preset='glass'] .content-backdrop
 .drawer-content {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
   padding: 20px;
 }
 
 .drawer-section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .drawer-section-title {
@@ -421,9 +476,162 @@ html[data-theme='dark'] .container1[data-theme-preset='glass'] .content-backdrop
   margin: 0;
 }
 
-.drawer-divider {
-  height: 1px;
-  background: use-var(border, color);
+.theme-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.theme-group-label {
+  font-size: 11px;
+  color: use-var(text-color, second);
+  letter-spacing: 0.05em;
+}
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.theme-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 7px;
+  background: use-var(bg-color, middle);
+  border: 1px solid use-var(border, color);
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color var(--u-transition-fast) ease,
+    box-shadow var(--u-transition-fast) ease,
+    transform var(--u-transition-fast) ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--u-shadow-sm);
+    border-color: use-var(border, mutedColor);
+  }
+
+  &.is-active {
+    border-color: use-var(color, primary);
+    box-shadow: 0 0 0 1px use-var(color, primary);
+
+    .theme-card__name {
+      color: use-var(color, primary);
+      font-weight: 600;
+    }
+  }
+}
+
+.theme-preview {
+  display: flex;
+  gap: 6px;
+  height: 64px;
+  padding: 7px;
+  background: var(--tp-bg);
+  border: 1px solid var(--tp-border);
+  border-radius: var(--tp-radius);
+  overflow: hidden;
+}
+
+.theme-preview__side {
+  width: 26%;
+  background: var(--tp-surface);
+  border-right: 1px solid var(--tp-border);
+}
+
+.theme-preview__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+}
+
+.theme-preview__line {
+  height: 5px;
+  width: 86%;
+  border-radius: 3px;
+  background: var(--tp-text);
+  opacity: 0.35;
+
+  &--title {
+    width: 58%;
+    background: var(--tp-title);
+    opacity: 0.8;
+  }
+}
+
+.theme-preview__pill {
+  width: 52%;
+  height: 13px;
+  border-radius: 999px;
+  background: var(--tp-primary);
+}
+
+.theme-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2px 2px;
+}
+
+.theme-card__name {
+  font-size: 12px;
+  font-weight: 500;
+  color: use-var(text-color, main);
+}
+
+.theme-card__check {
+  font-size: 14px;
+  color: use-var(color, primary);
+}
+
+.segmented {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  background: use-var(bg-color, bottom);
+  border: 1px solid use-var(border, color);
+  border-radius: 9px;
+}
+
+.segmented__item {
+  flex: 1;
+  padding: 6px 0;
+  font-size: 12px;
+  border: none;
+  background: transparent;
+  color: use-var(text-color, second);
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    background-color var(--u-transition-fast) ease,
+    color var(--u-transition-fast) ease,
+    box-shadow var(--u-transition-fast) ease;
+
+  &:hover {
+    color: use-var(text-color, title);
+  }
+
+  &.is-active {
+    background: use-var(bg-color, top);
+    color: use-var(text-color, title);
+    font-weight: 600;
+    box-shadow: var(--u-shadow-sm);
+  }
+}
+
+.drawer-footer {
+  padding-top: 16px;
+  border-top: 1px solid use-var(border, color);
+  display: flex;
+  justify-content: flex-end;
 }
 </style>
 

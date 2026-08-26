@@ -234,7 +234,9 @@ watch(
   (theme) => {
     if (!props.theme && theme === editorTheme.value) return
 
-    const nextTheme = props.theme ? theme : new UITheme(createThemeSnapshot(theme.theme))
+    const nextTheme = props.theme
+      ? theme
+      : new UITheme(createThemeSnapshot(theme.theme), { series: theme.series })
 
     editorTheme.value = nextTheme
     baselineTheme.value = createThemeSnapshot(nextTheme.theme)
@@ -415,6 +417,9 @@ function applySnapshot(snapshot: Theme, label?: string) {
 }
 
 function applyPreset(type: 'light' | 'dark') {
+  if (editorTheme.value) {
+    editorTheme.value.series = type
+  }
   applySnapshot(
     type === 'dark' ? darkPreset : lightPreset,
     type === 'dark' ? '深色预设' : '浅色预设'

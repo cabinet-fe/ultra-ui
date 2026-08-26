@@ -1,5 +1,7 @@
 import { lightTheme } from './light'
-export const ancientLightTheme = lightTheme.new({
+
+/** 古风（松烟绿 + 宣纸底），天生适合浅色 */
+export const ancientTheme = lightTheme.new({
   color: {
     primary: '#3d6b58' // 松烟绿
   },

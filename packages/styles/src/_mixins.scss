@@ -146,16 +146,10 @@ $namespace: 'u' !default;
   @return var(--#{$namespace}-breakpoint-#{$point});
 }
 
-/** 暗色：data-theme 与系统偏好，与 UITheme.injectBuiltInThemes 选择器策略一致 */
+/** 暗色：`UITheme.render()` 按主题系列写入 html[data-theme] */
 @mixin dark {
   html[data-theme='dark'] & {
     @content;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    html:not([data-theme='light']) & {
-      @content;
-    }
   }
 }
 

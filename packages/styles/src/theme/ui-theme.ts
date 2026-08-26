@@ -10,6 +10,16 @@ type RecursivePartial<T> = {
   [P in keyof T]?: T[P] extends object ? RecursivePartial<T[P]> : T[P]
 }
 
+/** 主题系列：浅色或深色。决定组件级 token 与 html[data-theme] */
+export type ThemeSeries = 'light' | 'dark'
+
+export interface UIThemeOptions {
+  /** 主题变更时是否自动重渲染，默认 true */
+  reactive?: boolean
+  /** 主题所属系列，默认 'light' */
+  series?: ThemeSeries
+}
+
 export class UITheme {
   static themeID = 'ultra-ui-theme'
 
@@ -17,23 +27,17 @@ export class UITheme {
 
   readonly theme: Theme
 
+  /** 主题所属系列：浅色 / 深色 */
+  series: ThemeSeries
+
   private readonly reactiveEnabled: boolean
 
-  constructor(theme: Theme, options?: { reactive?: boolean }) {
+  constructor(theme: Theme, options?: UIThemeOptions) {
     this.reactiveEnabled = options?.reactive !== false
+    this.series = options?.series ?? 'light'
     this.theme = reactive(theme) as Theme
     if (this.reactiveEnabled) {
       watch(this.theme, () => this.render(), { deep: true })
-    }
-  }
-
-  static setTheme(mode: 'light' | 'dark' | 'auto'): void {
-    if (typeof document === 'undefined') return
-    const el = document.documentElement
-    if (mode === 'auto') {
-      delete el.dataset.theme
-    } else {
-      el.dataset.theme = mode
     }
   }
 
@@ -267,42 +271,20 @@ export class UITheme {
     }
   }
 
-  /** 内置 light/dark：支持 data-theme 与 prefers-color-scheme */
-  static injectBuiltInThemes(light: UITheme, dark: UITheme): void {
-    const lightDecls = [
-      ...light.themeToDeclarationList(toRaw(light.theme)),
-      ...componentCssVarsLightDecls
-    ]
-    const darkDecls = [
-      ...dark.themeToDeclarationList(toRaw(dark.theme)),
-      ...componentCssVarsDarkDecls
-    ]
-    const lightBlock = UITheme.declarationBlock(lightDecls)
-    const darkBlock = UITheme.declarationBlock(darkDecls)
-
-    const css = [
-      `html { ${lightBlock} }`,
-      `@media (prefers-color-scheme: dark) {`,
-      `  html:not([data-theme="light"]) { ${darkBlock} }`,
-      `}`,
-      `html[data-theme="light"] { ${lightBlock} }`,
-      `html[data-theme="dark"] { ${darkBlock} }`
-    ].join('\n')
-
-    UITheme.applyGlobalCSS(css)
-  }
-
+  /** 注入主题：全局 token + 与主题系列匹配的组件级 token，并写入 html[data-theme] */
   render(): void {
-    const isDark =
-      typeof document !== 'undefined' && document.documentElement.dataset.theme === 'dark'
-    const componentDecls = isDark ? componentCssVarsDarkDecls : componentCssVarsLightDecls
+    const componentDecls =
+      this.series === 'dark' ? componentCssVarsDarkDecls : componentCssVarsLightDecls
     const decls = [...this.themeToDeclarationList(toRaw(this.theme)), ...componentDecls]
     const block = UITheme.declarationBlock(decls)
     const css = `html { ${block} }`
     UITheme.applyGlobalCSS(css)
+    if (typeof document !== 'undefined') {
+      document.documentElement.dataset.theme = this.series
+    }
   }
 
-  new(customTheme: RecursivePartial<Theme> = {}): UITheme {
+  new(customTheme: RecursivePartial<Theme> = {}, options?: { series?: ThemeSeries }): UITheme {
     function delEmpty(obj: Record<string, unknown>) {
       Object.keys(obj).forEach((key) => {
         const value = obj[key]
@@ -335,6 +317,9 @@ export class UITheme {
     }
 
     deepMerge(base, customTheme)
-    return new UITheme(base as Theme, { reactive: this.reactiveEnabled })
+    return new UITheme(base as Theme, {
+      reactive: this.reactiveEnabled,
+      series: options?.series ?? this.series
+    })
   }
 }

@@ -38,3 +38,25 @@ import '@veltra/styles/transitions/fade.css'
 本包提供了一些常用的 `scss` 工具，包括常用的 `mixins` 与 常用的 `functions`, 你还可以通过覆盖变量 $namespace 来使用当前库的同一套工具体系，只不过是命名空间不一样。
 
 ## 主题加载以及切换
+
+从 `@veltra/styles/theme` 导入预设主题，在入口（SSR 则在 `onMounted`）调用 `loadTheme`：
+
+```ts
+import { loadTheme, lightTheme, heroTheme, glassTheme } from '@veltra/styles/theme'
+
+loadTheme() // 默认 lightTheme
+loadTheme(heroTheme) // 应用指定预设
+```
+
+预设主题按系列组织，应用主题即确定明暗（`html[data-theme]` 同步写入）：
+
+- 浅色系：`lightTheme`、`heroTheme`、`ancientTheme`
+- 深色系：`darkTheme`、`glassTheme`
+
+基于预设派生自定义主题：
+
+```ts
+loadTheme(lightTheme.new({ color: { primary: '#ff6600' } }))
+```
+
+深色派生需声明系列：`lightTheme.new({...}, { series: 'dark' })`。

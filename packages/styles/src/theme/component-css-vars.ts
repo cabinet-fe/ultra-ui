@@ -1,5 +1,5 @@
 /**
- * 桌面组件级 `--u-*` token，与内置主题一起在 `UITheme.injectBuiltInThemes` 中注入 `html`。
+ * 桌面组件级 `--u-*` token，随 `UITheme.render()` 按主题系列（light/dark）注入 `html`。
  * 修改此处即可在 TS 侧统一调整组件外观，无需在各组件 `style.scss` 重复声明。
  */
 

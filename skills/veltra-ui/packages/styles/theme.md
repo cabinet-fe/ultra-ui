@@ -2,42 +2,45 @@
 
 从 `@veltra/styles/theme` 导入。优先使用内置预设主题；需要品牌差异时再派生或自定义主题。
 
+## 主题模型
+
+每个主题都属于一个**系列**（`series`）：`'light'`（浅色系）或 `'dark'`（深色系）。主题不成对——有的主题天生适合浅色，有的天生适合深色。应用主题即确定明暗：`loadTheme` 会注入全局 token 与同系列的组件级 token，并把 `html[data-theme]` 置为对应系列。
+
 ## 使用内置主题
 
 ```ts
-import { loadTheme, setTheme } from '@veltra/styles/theme'
+import { loadTheme } from '@veltra/styles/theme'
 
-loadTheme()
-
-setTheme('dark')
-setTheme('light')
-setTheme('auto')
+loadTheme() // 等价于 loadTheme(lightTheme)
 ```
 
-`loadTheme()` 注入内置 light/dark 主题，支持 `setTheme()` 和系统暗色偏好。SSR 中在 `onMounted` 内调用。
+SSR 中在 `onMounted` 内调用。
 
 ## 使用预设主题
 
 ```ts
-import { loadTheme, glassLightTheme, heroLightTheme } from '@veltra/styles/theme'
+import { loadTheme, heroTheme, glassTheme } from '@veltra/styles/theme'
 
-loadTheme(heroLightTheme)
+loadTheme(heroTheme)
 // 或
-loadTheme(glassLightTheme)
+loadTheme(glassTheme)
 ```
 
 可导入的预设：
 
 ```ts
 import {
-  lightTheme,
-  darkTheme,
-  shadcnLightTheme,
-  shadcnDarkTheme,
-  heroLightTheme,
-  heroDarkTheme,
-  glassLightTheme,
-  glassDarkTheme
+  // 浅色系
+  lightTheme, // 默认浅色
+  heroTheme, // HeroUI 风格（紫、大圆角、浮雕阴影）
+  ancientTheme, // 古风（松烟绿 + 宣纸底）
+  sakuraTheme, // 樱花（柔粉 + 花瓣底，大圆角）
+  oceanTheme, // 海盐（松石青 + 冷白底）
+  // 深色系
+  darkTheme, // 默认深色
+  glassTheme, // 玻璃拟态（半透明 + backdrop blur）
+  midnightTheme, // 午夜（靛蓝 + 深空底）
+  neonTheme // 霓虹（品红 + 夜紫底 + 辉光阴影，小圆角）
 } from '@veltra/styles/theme'
 ```
 
@@ -47,6 +50,12 @@ import {
 import { loadTheme, lightTheme } from '@veltra/styles/theme'
 
 loadTheme(lightTheme.new({ color: { primary: '#ff6600' } }))
+```
+
+`new()` 派生会继承基主题的系列；派生深色主题需显式声明：
+
+```ts
+const myDark = lightTheme.new({ ... }, { series: 'dark' })
 ```
 
 ## 自定义主题
@@ -59,19 +68,18 @@ const theme: Theme = {
   color: { ...lightTheme.theme.color, primary: '#ff6600' }
 }
 
-loadTheme(new UITheme(theme))
+loadTheme(new UITheme(theme)) // 默认浅色系；深色主题传 { series: 'dark' }
 ```
 
-## 用法差异
+## API 一览
 
-| 用法                           | 效果                                 |
-| ------------------------------ | ------------------------------------ |
-| `loadTheme()`                  | 注入内置 light/dark，支持 `setTheme` |
-| `loadTheme(lightTheme)`        | 注入内置 light/dark，并切到 light    |
-| `loadTheme(darkTheme)`         | 注入内置 light/dark，并切到 dark     |
-| `loadTheme(glassLightTheme)`   | 单主题注入，不支持 `setTheme` 切换   |
-| `lightTheme.new(partialTheme)` | 基于现有主题派生                     |
-| `new UITheme(completeTheme)`   | 从完整 `Theme` 对象创建主题          |
+| 用法                                  | 效果                                        |
+| ------------------------------------- | ------------------------------------------- |
+| `loadTheme()`                         | 注入默认浅色主题                            |
+| `loadTheme(theme)`                    | 注入指定主题，写入 `data-theme` 为其系列    |
+| `theme.new(partialTheme, options?)`   | 基于现有主题派生，`options.series` 可换系列 |
+| `new UITheme(completeTheme, options)` | 从完整 `Theme` 对象创建主题                 |
+| `theme.series`                        | 主题所属系列（`'light' \| 'dark'`）         |
 
 ## 主题工具函数
 
@@ -88,7 +96,8 @@ import {
   cssVar,
   currentTheme,
   type RGBColor,
-  type Theme
+  type Theme,
+  type ThemeSeries
 } from '@veltra/styles/theme'
 ```
 
