@@ -117,6 +117,42 @@ describe('USelect', () => {
     }
   })
 
+  it('keeps the filtered list while the panel is closing after a select', async () => {
+    const { host, model, unmount } = mountSelect({
+      filterable: true,
+      options: [
+        { label: '北京', value: 'beijing' },
+        { label: '上海', value: 'shanghai' },
+        { label: '广州', value: 'guangzhou' }
+      ]
+    })
+
+    try {
+      await openDropdown(host)
+      await typeQuery(host, '上海')
+      expect(queryOptions().map((el) => el.textContent)).toEqual(['上海'])
+
+      // 选择后关闭动画期间：面板仍在 DOM 中，列表必须保持过滤态，
+      // 不能瞬间恢复全量导致面板突然变长闪烁
+      queryOptions()[0]!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+      await nextTick()
+      expect(model.value).toBe('shanghai')
+      const closingOptions = queryOptions()
+      expect(closingOptions.length).toBeGreaterThan(0)
+      expect(closingOptions.map((el) => el.textContent)).toEqual(['上海'])
+
+      // 动画兜底结束后面板卸载
+      await sleep(150)
+      expect(queryOptions()).toHaveLength(0)
+
+      // 重新展开：列表已恢复为完整选项
+      await openDropdown(host)
+      expect(queryOptions()).toHaveLength(3)
+    } finally {
+      unmount()
+    }
+  })
+
   it('emits update:text with option label when modelValue echoes against options', async () => {
     const { host, texts, unmount } = mountSelect({
       modelValue: 'beijing',

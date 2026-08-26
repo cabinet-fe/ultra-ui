@@ -12,7 +12,6 @@
     :min-width="minWidth"
     :width="width"
     @keydown="handleKeydown"
-    @update:visible="handleDropdownVisible"
     @mouseenter="hovered = true"
     @mouseleave="hovered = false"
   >
@@ -200,6 +199,9 @@ const { queryString, options, allOptions, temOptionsToCreatedOptions, clearCreat
 
 const dropdownVisible = shallowRef(false)
 
+/** 选中临时选项后待转正标记:面板关闭后再落定,避免关闭动画期间列表恢复全量导致面板变长 */
+let pendingTempPromote = false
+
 /**
  * 是否处于查询态：决定触发输入框显示查询串还是选中标签。
  * 与面板可见状态解耦 —— 选择后立即退出查询态，
@@ -341,8 +343,17 @@ watch([scrollRef, virtualEnabled], ([scroll, virtualEnabled]) => {
   }
 })
 
+/** 落定待转正的临时选项（面板 DOM 已卸载，列表恢复全量用户不可见） */
+function promotePendingTemp() {
+  if (!pendingTempPromote) return
+  pendingTempPromote = false
+  temOptionsToCreatedOptions()
+}
+
 watch(dropdownVisible, (visible) => {
   if (visible) {
+    // 关闭动画期间被重新打开时补一次转正，保证已选临时项落到完整列表
+    promotePendingTemp()
     // 面板展开后进入查询态并聚焦输入框，可以立即输入查询
     if (filterable.value) {
       queryString.value = ''
@@ -350,16 +361,12 @@ watch(dropdownVisible, (visible) => {
       nextTick(() => inputRef.value?.el?.focus())
     }
   } else {
+    // 面板完全关闭（动画结束、DOM 卸载）后才清空查询串并转正，关闭动画期间列表保持过滤态
     querying.value = false
     queryString.value = ''
+    promotePendingTemp()
   }
 })
-
-const handleDropdownVisible = (visible: boolean) => {
-  if (!visible) {
-    queryString.value = ''
-  }
-}
 
 /** 单选：用户动作内 O(1) 写入值与文案，跳过 modelValue 回显的 O(n) 查找 */
 const handleSelect = userAction((option: Record<string, any>, _index: number) => {
@@ -370,13 +377,12 @@ const handleSelect = userAction((option: Record<string, any>, _index: number) =>
   setLabel(option?.[labelKey.value])
   emit('change', option)
   if (option.__isTemp) {
-    // 转正后列表同步重建为完整源（临时项置顶索引失效），必须按 value 重定位
-    temOptionsToCreatedOptions()
+    // 转正延迟到面板关闭后：动画期间保持过滤列表，避免列表瞬间恢复全量导致面板变长闪烁
+    pendingTempPromote = true
   }
-  // 立即退出查询态，输入框同步恢复显示选中标签
+  // 立即退出查询态，输入框同步恢复显示选中标签；查询串保留至面板关闭，避免关闭动画期间列表恢复全量
   querying.value = false
-  queryString.value = ''
-  // 按当前列表定位高亮，避免创建项转正后仍停留在点击时的临时索引（通常为 0）
+  // 按当前列表定位高亮（临时项尚未转正，仍在过滤列表中，通常为 0）
   currentIndex.value = options.value.findIndex((item) => o(item).get(valueKey.value) === value)
   if (currentIndex.value >= 0) {
     selected.value = options.value[currentIndex.value]
