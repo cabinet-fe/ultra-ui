@@ -22,11 +22,6 @@ export interface RadioGroupProps extends FormComponentProps {
   disabledItem?: (item: Record<string, any>) => boolean
   /** 块级布局 */
   block?: boolean
-  /**
-   * 样式变体
-   * @default 'default'
-   */
-  variant?: 'default' | 'button'
 }
 
 /** 单选框默认父组件组件定义的事件 */

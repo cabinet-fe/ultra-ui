@@ -149,3 +149,5 @@ export * from './palette'
 export * from './grid'
 
 export * from './badge'
+
+export * from './segment'

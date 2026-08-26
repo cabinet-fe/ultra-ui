@@ -2,7 +2,7 @@
 // setup 完成判定。检查项以本脚本为唯一定义：
 // 各类：根 AGENTS.md 与当前类别模板一致；PROJECT.md；CONTEXT/index.md；spec-files.mjs；
 //       .agents/cooking/；.gitignore 忽略 cooking 且不忽略 docs/scripts
-// 仅代码类：ARCHITECTURE.md、DEV-STANDARDS.md、CODE-MAP.md
+// 仅代码类：ARCHITECTURE.md、DEV-STANDARDS.md、CODE-MAP.md、SMELLS.md
 // 用法（以目标仓库根目录为工作目录）：
 //   node .agents/scripts/precheck.mjs
 // 全部通过：输出 PASS 与项目类别，退出码 0；任一不满足：输出 FAIL、逐项缺失项与 setup 提示，退出码 1。
@@ -20,6 +20,7 @@ const ROOT_AGENTS_LINES = {
     '| `.agents/docs/PROJECT.md` | 需要知道项目类别与仓库结构 | 仅 setup：类别、组织结构、全栈形态变了 |',
     '| `.agents/docs/ARCHITECTURE.md` | 业务/技术架构、技术栈 | 仅 setup：换栈、改分层、加/删应用边界。implement 禁止改 |',
     '| `.agents/docs/DEV-STANDARDS.md` | 写代码、做 review | 仅 setup：规范或偏好变了 |',
+    '| `.agents/docs/SMELLS.md` | 写代码时按坏味道边写边收；review 对照 | 仅 setup：技能包模板变了 |',
     '| `.agents/docs/CODE-MAP.md` | 定位模块；按模块/路径检索，禁止全文加载 | implement / sync-context：模块表增删行，或某模块路径、入口、职责、依赖边变了。只改相关行。架构级变化先 setup 改 ARCHITECTURE，再由 setup 同步本文件。模块内部加文件不算。 |',
     '| `.agents/docs/CONTEXT/index.md` | 先读模块索引，再打开当前条目。禁止加载整个 CONTEXT。按变更路径定位：运行 `node .agents/scripts/spec-files.mjs query <路径...>` | archive：新模块入库；sync-context：改动推翻已有条目或新增未入库能力 |',
   ],
@@ -38,6 +39,7 @@ const CODE_ONLY_DOCS = [
   '.agents/docs/ARCHITECTURE.md',
   '.agents/docs/DEV-STANDARDS.md',
   '.agents/docs/CODE-MAP.md',
+  '.agents/docs/SMELLS.md',
 ];
 
 process.stdout.on('error', (err) => {

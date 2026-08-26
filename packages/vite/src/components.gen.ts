@@ -84,6 +84,7 @@ export const VELTRA_COMPONENT_PACKAGES: VeltraComponentPackage[] = [
       URadioGroup: 'components/radio-group/style',
       URichTextEditor: 'components/rich-text-editor/style',
       UScroll: 'components/scroll/style',
+      USegment: 'components/segment/style',
       USelect: 'components/select/style',
       USlider: 'components/slider/style',
       USteps: 'components/steps/style',

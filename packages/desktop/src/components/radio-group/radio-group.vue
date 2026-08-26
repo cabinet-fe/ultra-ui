@@ -1,14 +1,5 @@
 <template>
-  <div
-    v-if="!readonly"
-    v-bind="$attrs"
-    :class="[
-      cls.b,
-      bem.is('block', block),
-      cls.m(size),
-      variant === 'button' ? cls.m('button') : ''
-    ]"
-  >
+  <div v-if="!readonly" v-bind="$attrs" :class="[cls.b, bem.is('block', block), cls.m(size)]">
     <u-radio
       v-for="item of items"
       :key="item[valueKey]"
