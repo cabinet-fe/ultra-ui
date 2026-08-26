@@ -77,34 +77,12 @@
 
         <section class="drawer-section">
           <h3 class="drawer-section-title">组件尺寸</h3>
-          <div class="segmented">
-            <button
-              v-for="opt in sizeOptions"
-              :key="opt.value"
-              type="button"
-              class="segmented__item"
-              :class="{ 'is-active': size === opt.value }"
-              @click="size = opt.value"
-            >
-              {{ opt.label }}
-            </button>
-          </div>
+          <u-radio-group v-model="size" :items="sizeOptions" variant="button" />
         </section>
 
         <section class="drawer-section">
           <h3 class="drawer-section-title">圆角</h3>
-          <div class="segmented">
-            <button
-              v-for="mode in RADIUS_MODES"
-              :key="mode.value"
-              type="button"
-              class="segmented__item"
-              :class="{ 'is-active': radiusMode === mode.value }"
-              @click="radiusMode = mode.value"
-            >
-              {{ mode.label }}
-            </button>
-          </div>
+          <u-radio-group v-model="radiusMode" :items="radiusOptions" variant="button" />
         </section>
 
         <footer class="drawer-footer">
@@ -207,6 +185,9 @@ const RADIUS_MODES = [
 ] as const
 
 type RadiusMode = (typeof RADIUS_MODES)[number]['value']
+
+// items 需要可变数组，as const 元组展开一层
+const radiusOptions = [...RADIUS_MODES]
 
 function readInitialRadius(): RadiusMode {
   const stored = localStorage.getItem('themeRadius')
@@ -590,41 +571,6 @@ html[data-theme='dark'] .container1[data-theme-preset='glass'] .content-backdrop
 .theme-card__check {
   font-size: 14px;
   color: use-var(color, primary);
-}
-
-.segmented {
-  display: flex;
-  gap: 2px;
-  padding: 3px;
-  background: use-var(bg-color, bottom);
-  border: 1px solid use-var(border, color);
-  border-radius: 9px;
-}
-
-.segmented__item {
-  flex: 1;
-  padding: 6px 0;
-  font-size: 12px;
-  border: none;
-  background: transparent;
-  color: use-var(text-color, second);
-  border-radius: 6px;
-  cursor: pointer;
-  transition:
-    background-color var(--u-transition-fast) ease,
-    color var(--u-transition-fast) ease,
-    box-shadow var(--u-transition-fast) ease;
-
-  &:hover {
-    color: use-var(text-color, title);
-  }
-
-  &.is-active {
-    background: use-var(bg-color, top);
-    color: use-var(text-color, title);
-    font-weight: 600;
-    box-shadow: var(--u-shadow-sm);
-  }
 }
 
 .drawer-footer {

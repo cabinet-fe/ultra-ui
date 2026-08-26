@@ -15,7 +15,6 @@
 - utils
 - compositions
 - directives
-- desktop
 - sheet-core
 - sheet
 - ai

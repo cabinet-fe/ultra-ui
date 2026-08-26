@@ -1,6 +1,6 @@
 import { lightTheme } from './light'
 
-/** 樱花（柔粉 + 花瓣底），天生适合浅色 */
+/** 樱花（柔粉 + 花瓣底，大圆角、弹性缓动），天生适合浅色 */
 export const sakuraTheme = lightTheme.new({
   color: {
     primary: '#e64980', // 樱粉
@@ -15,12 +15,23 @@ export const sakuraTheme = lightTheme.new({
   'text-color': {
     title: '#43272f', // 樱墨
     main: '#5f3d46',
-    second: '#9a6b76',
+    second: '#92616d',
     assist: '#dcc0c7',
-    placeholder: '#c9a3ac',
-    disabled: '#c9a3ac'
+    placeholder: '#b58694',
+    disabled: '#c4a0aa'
   },
-  border: { width: 1, color: '#f5d3e0', mutedColor: '#efbdd0' },
+  border: { width: 1, color: '#f0c3d4', mutedColor: '#e09db6' },
   radius: { small: 8, default: 12, large: 16 },
-  shadow: { color: 'rgba(173, 58, 105, 0.12)', x: 0, y: 4, blur: 14, spread: -2 }
+  // 更宽松的表单控件，配合大圆角的柔和感
+  'form-component-height': { small: 26, default: 34, large: 42 },
+  shadow: {
+    color: 'rgba(173, 58, 105, 0.12)',
+    x: 0,
+    y: 4,
+    blur: 14,
+    spread: -2,
+    sm: '0 1px 2px 0 rgba(173, 58, 105, 0.08)',
+    lg: '0 8px 24px 0 rgba(173, 58, 105, 0.14), 0 2px 6px 0 rgba(173, 58, 105, 0.08)'
+  },
+  transition: { easeOut: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }
 })
