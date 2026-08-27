@@ -56,7 +56,7 @@
 </template>
 
 <script lang="ts" setup>
-import { UIcon } from '@veltra/desktop'
+import { UIcon, UTip } from '@veltra/desktop'
 import { ArrowLeft, ArrowRight } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { toRef, useTemplateRef } from 'vue'
