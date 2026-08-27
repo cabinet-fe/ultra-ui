@@ -159,10 +159,7 @@ const formData = reactive({ name: '' })
 
 ## 何时使用 u-form-item（单独处理组件逻辑）
 
-单字段控件直接放 `u-form` 下写 `field` 即可自动获得标签 / 校验 / 提示。**只有需要单独处理组件的逻辑时**（多控件组合成一个字段、自定义 label 插槽等）才用 `u-form-item` 包裹，以获取标签、校验、提示等能力：
-
-- `field` / `label` / `rules` / `tips` 写在 `u-form-item` 上（Item 也必须有 `field`，否则不挂表单）
-- 内部控件自行 `v-model` 绑 `model` 路径，控件上**不要**再写 `field`（否则会被 form 再包一层）
+单字段控件直接放 `u-form` 写 `field` 即可；仅当需单独处理组件逻辑（多控件组合字段、自定义 label 插槽等）才用 `u-form-item`：`field`/`label`/`rules`/`tips` 写在 Item 上，内部控件自行 `v-model` 且**不再写 `field`**。更多场景（自定义 label、覆盖标签宽度、响应式栅格）见 `form-item/examples.md`。
 
 ```vue
 <script setup lang="ts">
@@ -192,8 +189,6 @@ const formData = reactive({
   </u-form>
 </template>
 ```
-
-更多场景（自定义 label、覆盖标签宽度、响应式栅格）见 `form-item/examples.md`。
 
 ## 顶部标签布局
 
