@@ -254,4 +254,27 @@ describe('Sheet 快照列宽与行列样式', () => {
     expect(sheet.undo()).toBe(true)
     expect(sheet.getColStyle(2)).toBeUndefined()
   })
+
+  it('mergeCells：合成选区边界格上的有效外边框到新锚点格', () => {
+    const sheet = new Sheet({ rows: 10, cols: 10 })
+    // A1 (0,0) 设置 top 边框
+    sheet.setCellStyle(
+      { start: { row: 0, col: 0 }, end: { row: 0, col: 0 } },
+      { border: { top: { style: 'thin', width: 1, color: '#000000' } } }
+    )
+    // A3 (2,0) 设置 bottom 边框
+    sheet.setCellStyle(
+      { start: { row: 2, col: 0 }, end: { row: 2, col: 0 } },
+      { border: { bottom: { style: 'thick', width: 3, color: '#FF0000' } } }
+    )
+
+    // 合并 A1:A3
+    sheet.mergeCells({ start: { row: 0, col: 0 }, end: { row: 2, col: 0 } })
+
+    const anchorStyle = sheet.getCellStyle({ row: 0, col: 0 })
+    expect(anchorStyle?.border).toEqual({
+      top: { style: 'thin', width: 1, color: '#000000' },
+      bottom: { style: 'thick', width: 3, color: '#FF0000' }
+    })
+  })
 })

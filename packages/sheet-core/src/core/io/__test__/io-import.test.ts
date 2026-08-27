@@ -539,4 +539,80 @@ describe('replaceWorkbookWithSnapshots', () => {
     expect(target.sheetCount).toBe(1)
     expect(target.getSheet('Sheet1')!.getCellData({ row: 0, col: 0 })).toBeUndefined()
   })
+
+  it('合并单元格：聚合分散在边缘格上的边框（如底边记录在 endRow，右边记录在 endCol）', async () => {
+    // 构造一个 3x3 合并区域 (A1:C3，即 0,0..2,2)
+    // A1 (0,0): top/left 边框
+    // C1 (0,2): right 边框
+    // A3 (2,0): bottom 边框
+    // B2 (1,1): 内部值与 fill
+    const mockWb: HucreWorkbook = {
+      sheets: [
+        {
+          name: 'MergeBorderTest',
+          rows: [],
+          cells: new Map([
+            [
+              '0,0',
+              {
+                value: null,
+                style: {
+                  border: {
+                    top: { style: 'thin', color: { rgb: '000000' } },
+                    left: { style: 'thin', color: { rgb: '000000' } }
+                  }
+                }
+              }
+            ],
+            [
+              '0,2',
+              {
+                value: null,
+                style: { border: { right: { style: 'thin', color: { rgb: '000000' } } } }
+              }
+            ],
+            [
+              '2,0',
+              {
+                value: null,
+                style: { border: { bottom: { style: 'thick', color: { rgb: 'FF0000' } } } }
+              }
+            ],
+            [
+              '1,1',
+              {
+                value: 'MergedContent',
+                type: 'string',
+                style: { fill: { type: 'pattern', pattern: 'solid', fgColor: { rgb: '00FF00' } } }
+              }
+            ]
+          ]),
+          merges: [{ startRow: 0, startCol: 0, endRow: 2, endCol: 2 }]
+        }
+      ],
+      activeSheet: 0
+    }
+    xlsxMock.readXlsx.mockResolvedValue(mockWb)
+
+    const wb = await importXlsx(new Uint8Array())
+    const sheet = wb.activeSheet
+
+    // 锚点格应该聚合了所有四边的边框、fill 与内部格的值
+    const anchorData = sheet.getCellData({ row: 0, col: 0 })
+    expect(anchorData?.v).toBe('MergedContent')
+
+    const anchorStyle = sheet.getCellStyle({ row: 0, col: 0 })
+    expect(anchorStyle?.fill).toEqual({ color: '#00FF00' })
+    expect(anchorStyle?.border).toEqual({
+      top: { style: 'thin', width: 1, color: '#000000' },
+      left: { style: 'thin', width: 1, color: '#000000' },
+      right: { style: 'thin', width: 1, color: '#000000' },
+      bottom: { style: 'thick', width: 3, color: '#FF0000' }
+    })
+
+    // 覆盖格不应占用 store 存储
+    expect(sheet.getCellData({ row: 2, col: 0 })).toBeUndefined()
+    expect(sheet.getCellData({ row: 0, col: 2 })).toBeUndefined()
+    expect(sheet.getCellData({ row: 1, col: 1 })).toBeUndefined()
+  })
 })

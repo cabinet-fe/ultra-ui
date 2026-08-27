@@ -318,6 +318,156 @@ function hucreImageToInput(image: HucreSheetImage): ImageInput {
 }
 
 /**
+ * 从 hucre 合并区域合成锚点格的完整 CellData（含聚合边框与格式）。
+ * Excel/WPS 边框常常分散在合并区域的边缘格（如底边记录在 endRow，右边记录在 endCol），
+ * 这里将边缘格的 top/bottom/left/right 边框汇总到锚点格，并取行主序首个有效值。
+ */
+function synthesizeMergeAnchorData(
+  m: { startRow: number; startCol: number; endRow: number; endCol: number },
+  cells: ReadonlyMap<string, HucreCell>,
+  target: Sheet,
+  themeColors: readonly string[] | undefined
+): CellData | undefined {
+  const anchorKey = `${m.startRow},${m.startCol}`
+  const anchorCell = cells.get(anchorKey)
+
+  // 1. 查找合并区域内行主序首个有值/公式的格（锚点优先）
+  let retainedCell: HucreCell | undefined
+  if (
+    anchorCell &&
+    (Boolean(anchorCell.formula) || (anchorCell.value != null && anchorCell.value !== ''))
+  ) {
+    retainedCell = anchorCell
+  } else {
+    for (let r = m.startRow; r <= m.endRow; r++) {
+      for (let c = m.startCol; c <= m.endCol; c++) {
+        const cell = cells.get(`${r},${c}`)
+        if (cell && (Boolean(cell.formula) || (cell.value != null && cell.value !== ''))) {
+          retainedCell = cell
+          break
+        }
+      }
+      if (retainedCell) break
+    }
+  }
+
+  // 2. 收集与合成边框
+  const anchorModel = anchorCell?.style
+    ? hucreStyleToModel(anchorCell.style, themeColors)
+    : undefined
+  const mergedBorder = { ...anchorModel?.border }
+
+  // top 边：扫描 startRow 边缘
+  if (!mergedBorder.top) {
+    for (let c = m.startCol; c <= m.endCol; c++) {
+      const cell = cells.get(`${m.startRow},${c}`)
+      if (cell?.style) {
+        const s = hucreStyleToModel(cell.style, themeColors)
+        if (s?.border?.top) {
+          mergedBorder.top = s.border.top
+          break
+        }
+      }
+    }
+  }
+  // bottom 边：扫描 endRow 边缘
+  if (!mergedBorder.bottom) {
+    for (let c = m.startCol; c <= m.endCol; c++) {
+      const cell = cells.get(`${m.endRow},${c}`)
+      if (cell?.style) {
+        const s = hucreStyleToModel(cell.style, themeColors)
+        if (s?.border?.bottom) {
+          mergedBorder.bottom = s.border.bottom
+          break
+        }
+      }
+    }
+  }
+  // left 边：扫描 startCol 边缘
+  if (!mergedBorder.left) {
+    for (let r = m.startRow; r <= m.endRow; r++) {
+      const cell = cells.get(`${r},${m.startCol}`)
+      if (cell?.style) {
+        const s = hucreStyleToModel(cell.style, themeColors)
+        if (s?.border?.left) {
+          mergedBorder.left = s.border.left
+          break
+        }
+      }
+    }
+  }
+  // right 边：扫描 endCol 边缘
+  if (!mergedBorder.right) {
+    for (let r = m.startRow; r <= m.endRow; r++) {
+      const cell = cells.get(`${r},${m.endCol}`)
+      if (cell?.style) {
+        const s = hucreStyleToModel(cell.style, themeColors)
+        if (s?.border?.right) {
+          mergedBorder.right = s.border.right
+          break
+        }
+      }
+    }
+  }
+
+  // 3. 收集 fill / font / align（锚点优先；若锚点没有，扫描区域内首个设置了相应属性的格）
+  let fill = anchorModel?.fill
+  let font = anchorModel?.font
+  let align = anchorModel?.align
+
+  if (!fill || !font || !align) {
+    for (let r = m.startRow; r <= m.endRow; r++) {
+      for (let c = m.startCol; c <= m.endCol; c++) {
+        if (r === m.startRow && c === m.startCol) continue
+        const cell = cells.get(`${r},${c}`)
+        if (cell?.style) {
+          const s = hucreStyleToModel(cell.style, themeColors)
+          if (!fill && s?.fill) fill = s.fill
+          if (!font && s?.font) font = s.font
+          if (!align && s?.align) align = s.align
+        }
+      }
+    }
+  }
+
+  // 4. 合成最终样式
+  const finalStyle: CellStyle = {
+    ...(fill ? { fill } : {}),
+    ...(Object.keys(mergedBorder).length > 0 ? { border: mergedBorder } : {}),
+    ...(font ? { font } : {}),
+    ...(align ? { align } : {})
+  }
+
+  let styleId: number | undefined
+  if (Object.keys(finalStyle).length > 0) {
+    styleId = target.stylePool.intern(finalStyle)
+  }
+
+  // 5. 组装 CellData
+  if (retainedCell?.formula) {
+    return styleId != null ? { f: retainedCell.formula, s: styleId } : { f: retainedCell.formula }
+  }
+  const value = retainedCell?.value
+  if (value instanceof Date) {
+    const data: CellData = { v: dateToSerial1900(value), t: 'd' }
+    if (styleId != null) data.s = styleId
+    return data
+  }
+  if (retainedCell?.type === 'error') {
+    const data: CellData = { v: typeof value === 'string' ? value : String(value ?? ''), t: 'e' }
+    if (styleId != null) data.s = styleId
+    return data
+  }
+  if (value == null || value === '') {
+    return styleId != null ? { s: styleId } : undefined
+  }
+  const t = inferCellType(value)
+  const data: CellData = { v: value, ...(t ? { t } : {}) }
+  if (styleId != null) data.s = styleId
+  return data
+}
+
+/**
  * 把一个 hucre Sheet 写入模型 Sheet：
  * 清空既有内容 + 批量写入（值/公式/样式）→ 合并 → 图片 → 冻结 → 行高。
  * 清空与写入同在一个事务 = 单 undo 单元（undo 恢复导入前状态）。
@@ -345,11 +495,13 @@ function applyHucreSheet(
     // 清空既有浮动图（与单元格同事务，undo 一并恢复）
     for (const image of target.getImages()) target.removeImage(image.id)
 
-    // 合并区域内的非锚点格：模型不支持覆盖格数据（锚点语义），跳过不写。
+    // 合并区域与非锚点格：模型只存锚点格（被覆盖格无存储）。
     // 整数 key（行 × 2^20 + 列）替代字符串拼接（主循环每格一次，75 万格量级）
     const COVERED_STRIDE = 1048576
+    const mergeAnchors = new Set<number>()
     const covered = new Set<number>()
     for (const m of source.merges ?? []) {
+      mergeAnchors.add(m.startRow * COVERED_STRIDE + m.startCol)
       for (let r = m.startRow; r <= m.endRow; r++) {
         for (let c = m.startCol; c <= m.endCol; c++) {
           if (r !== m.startRow || c !== m.startCol) covered.add(r * COVERED_STRIDE + c)
@@ -364,13 +516,25 @@ function applyHucreSheet(
     const items: SetCellValueItem[] = []
     const cells = source.cells
     if (cells) {
+      // 1. 先写入所有合并区域锚点格（聚合边缘边框、格式与值）
+      for (const m of source.merges ?? []) {
+        const data = synthesizeMergeAnchorData(m, cells, target, themeColors)
+        if (data !== undefined) {
+          items.push({ addr: { row: m.startRow, col: m.startCol }, data })
+        }
+        if (m.endRow > maxUsedRow) maxUsedRow = m.endRow
+        if (m.endCol > maxUsedCol) maxUsedCol = m.endCol
+      }
+
+      // 2. 写入非合并的有值格
       for (const [key, cell] of cells) {
         const isContent = Boolean(cell.formula) || (cell.value != null && cell.value !== '')
         if (!isContent) continue
         const comma = key.indexOf(',')
         const row = Number(key.slice(0, comma))
         const col = Number(key.slice(comma + 1))
-        if (covered.has(row * COVERED_STRIDE + col)) continue
+        const keyNum = row * COVERED_STRIDE + col
+        if (covered.has(keyNum) || mergeAnchors.has(keyNum)) continue
         const data = hucreCellToData(cell, target, themeColors, styleMemo)
         if (data === undefined) continue
         items.push({ addr: { row, col }, data })
@@ -379,6 +543,7 @@ function applyHucreSheet(
       }
       const styleLimitRow = maxUsedRow + KEEP_MARGIN
       const styleLimitCol = maxUsedCol + KEEP_MARGIN
+      // 3. 写入紧邻带内的纯样式非合并格
       for (const [key, cell] of cells) {
         const isContent = Boolean(cell.formula) || (cell.value != null && cell.value !== '')
         if (isContent) continue
@@ -386,7 +551,8 @@ function applyHucreSheet(
         const row = Number(key.slice(0, comma))
         const col = Number(key.slice(comma + 1))
         if (row > styleLimitRow || col > styleLimitCol) continue
-        if (covered.has(row * COVERED_STRIDE + col)) continue
+        const keyNum = row * COVERED_STRIDE + col
+        if (covered.has(keyNum) || mergeAnchors.has(keyNum)) continue
         const data = hucreCellToData(cell, target, themeColors, styleMemo)
         if (data === undefined) continue
         items.push({ addr: { row, col }, data })

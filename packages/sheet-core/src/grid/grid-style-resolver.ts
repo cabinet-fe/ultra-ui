@@ -181,17 +181,56 @@ export class GridStyleResolver {
     const rightCol = (merge?.end.col ?? addr.col) + 1
     const bottomRow = (merge?.end.row ?? addr.row) + 1
     const facing: Partial<Record<BorderSide, BorderEdge | undefined>> = {}
-    if (addr.col > 0) {
-      facing.left = this.getFacingEdge({ row: addr.row, col: addr.col - 1 }, 'right', addr)
-    }
-    if (rightCol < this.cols) {
-      facing.right = this.getFacingEdge({ row: addr.row, col: rightCol }, 'left', addr)
-    }
-    if (addr.row > 0) {
-      facing.top = this.getFacingEdge({ row: addr.row - 1, col: addr.col }, 'bottom', addr)
-    }
-    if (bottomRow < this.rows) {
-      facing.bottom = this.getFacingEdge({ row: bottomRow, col: addr.col }, 'top', addr)
+    if (merge) {
+      if (addr.col > 0) {
+        for (let r = merge.start.row; r <= merge.end.row; r++) {
+          const edge = this.getFacingEdge({ row: r, col: addr.col - 1 }, 'right', addr)
+          if (edge) {
+            facing.left = edge
+            break
+          }
+        }
+      }
+      if (rightCol < this.cols) {
+        for (let r = merge.start.row; r <= merge.end.row; r++) {
+          const edge = this.getFacingEdge({ row: r, col: rightCol }, 'left', addr)
+          if (edge) {
+            facing.right = edge
+            break
+          }
+        }
+      }
+      if (addr.row > 0) {
+        for (let c = merge.start.col; c <= merge.end.col; c++) {
+          const edge = this.getFacingEdge({ row: addr.row - 1, col: c }, 'bottom', addr)
+          if (edge) {
+            facing.top = edge
+            break
+          }
+        }
+      }
+      if (bottomRow < this.rows) {
+        for (let c = merge.start.col; c <= merge.end.col; c++) {
+          const edge = this.getFacingEdge({ row: bottomRow, col: c }, 'top', addr)
+          if (edge) {
+            facing.bottom = edge
+            break
+          }
+        }
+      }
+    } else {
+      if (addr.col > 0) {
+        facing.left = this.getFacingEdge({ row: addr.row, col: addr.col - 1 }, 'right', addr)
+      }
+      if (rightCol < this.cols) {
+        facing.right = this.getFacingEdge({ row: addr.row, col: rightCol }, 'left', addr)
+      }
+      if (addr.row > 0) {
+        facing.top = this.getFacingEdge({ row: addr.row - 1, col: addr.col }, 'bottom', addr)
+      }
+      if (bottomRow < this.rows) {
+        facing.bottom = this.getFacingEdge({ row: bottomRow, col: addr.col }, 'top', addr)
+      }
     }
     return cellStyleToVTableStyle(effectiveStyle, facing)
   }

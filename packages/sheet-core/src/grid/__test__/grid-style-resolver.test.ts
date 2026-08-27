@@ -103,4 +103,36 @@ describe('GridStyleResolver.resolveCellStyle Hook', () => {
       fontSizePt: undefined
     })
   })
+
+  it('多行多列合并格 facing 边：扫描跨度上任一相邻格的对侧边', () => {
+    const sheet = new Sheet({ rows: 10, cols: 10 })
+    // 合并 B2:C3 (row 1..2, col 1..2)
+    sheet.mergeCells({ start: { row: 1, col: 1 }, end: { row: 2, col: 2 } })
+    // 下方 D4 (row 3, col 2) 设置 top 边框（位于合并区下方跨度的第 2 列）
+    sheet.setCellStyle(
+      { start: { row: 3, col: 2 }, end: { row: 3, col: 2 } },
+      { border: { top: { style: 'thin', width: 1, color: '#FF0000' } } }
+    )
+
+    const resolver = new GridStyleResolver(sheet, 10, 10)
+    // 模拟 table / coords 解析 B2:C3 锚点 (row 1, col 1)
+    const mockTable = {
+      columnHeaderLevelCount: 0,
+      colCount: 10,
+      rowCount: 10,
+      isSeriesNumber: () => false,
+      isHeader: () => false,
+      isCornerHeader: () => false,
+      isRowHeader: () => false,
+      isColumnHeader: () => false
+    }
+    const coords = { toSheetAddr: (_t: any, c: number, r: number) => ({ row: r, col: c }) } as any
+
+    const vtableStyle = resolver.resolveCellStyle(
+      { table: mockTable, col: 1, row: 1 } as any,
+      coords
+    )
+    // bottom 边应该成功溯源到 row 3, col 2 的 top 边框 (红线)
+    expect(vtableStyle.borderColor?.[2]).toBe('#FF0000')
+  })
 })

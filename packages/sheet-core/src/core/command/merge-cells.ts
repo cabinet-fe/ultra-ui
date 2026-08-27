@@ -1,9 +1,64 @@
 import { iterateRange, rangesIntersect, type CellRange } from '../address'
 import { cellDataEqual, isEmptyCellData, type CellData } from '../cell-store'
+import type { Sheet } from '../sheet'
+import type { CellStyle } from '../style/types'
 import type { CellPatch, Command, CommandResult, MergePatch, Patch } from './types'
 
 export interface MergeCellsParams {
   range: CellRange
+}
+
+/** 收集合并区域边界上的有效边框并合成到基础样式上 */
+function synthesizeMergeBorder(
+  sheet: Sheet,
+  finalRange: CellRange,
+  baseStyle?: CellStyle
+): CellStyle | undefined {
+  const mergedBorder = { ...baseStyle?.border }
+
+  // top
+  if (!mergedBorder.top) {
+    for (let c = finalRange.start.col; c <= finalRange.end.col; c++) {
+      const edge = sheet.getCellStyle({ row: finalRange.start.row, col: c })?.border?.top
+      if (edge) {
+        mergedBorder.top = edge
+        break
+      }
+    }
+  }
+  // bottom
+  if (!mergedBorder.bottom) {
+    for (let c = finalRange.start.col; c <= finalRange.end.col; c++) {
+      const edge = sheet.getCellStyle({ row: finalRange.end.row, col: c })?.border?.bottom
+      if (edge) {
+        mergedBorder.bottom = edge
+        break
+      }
+    }
+  }
+  // left
+  if (!mergedBorder.left) {
+    for (let r = finalRange.start.row; r <= finalRange.end.row; r++) {
+      const edge = sheet.getCellStyle({ row: r, col: finalRange.start.col })?.border?.left
+      if (edge) {
+        mergedBorder.left = edge
+        break
+      }
+    }
+  }
+  // right
+  if (!mergedBorder.right) {
+    for (let r = finalRange.start.row; r <= finalRange.end.row; r++) {
+      const edge = sheet.getCellStyle({ row: r, col: finalRange.end.col })?.border?.right
+      if (edge) {
+        mergedBorder.right = edge
+        break
+      }
+    }
+  }
+
+  if (Object.keys(mergedBorder).length === 0) return baseStyle
+  return { ...baseStyle, border: mergedBorder }
 }
 
 /**
@@ -11,6 +66,7 @@ export interface MergeCellsParams {
  * - 被解除的既有合并记录（undo 时逐一恢复）
  * - 包围盒内每一格的原数据（undo 时连被清空的值一起还原）
  * 值保留规则同 Excel/univer：行主序第一个有值格的值写入新锚点，其余清空。
+ * 边框规则：合成区域边界上的外边框并写入新锚点。
  */
 export const MergeCellsCommand: Command<MergeCellsParams, CellRange> = {
   id: 'sheet.command.merge-cells',
@@ -32,8 +88,16 @@ export const MergeCellsCommand: Command<MergeCellsParams, CellRange> = {
       }
       cellPatches.push(patch)
     }
-    if (retained && anchorPatch) {
-      anchorPatch.after = { ...retained }
+
+    const baseStyle = retained?.s != null ? sheet.stylePool.get(retained.s) : undefined
+    const finalStyle = synthesizeMergeBorder(sheet, finalRange, baseStyle)
+    let styleId = retained?.s
+    if (finalStyle && finalStyle !== baseStyle) {
+      styleId = sheet.stylePool.intern(finalStyle)
+    }
+
+    if (anchorPatch && (retained || styleId != null)) {
+      anchorPatch.after = { ...retained, ...(styleId != null ? { s: styleId } : {}) }
     }
 
     const mergePatches: MergePatch[] = [
@@ -106,8 +170,15 @@ export const MergeCellsBatchCommand: Command<MergeCellsBatchParams> = {
         }
         cellPatches.push(patch)
       }
-      if (retained && anchorPatch) {
-        anchorPatch.after = { ...retained }
+      const baseStyle = retained?.s != null ? sheet.stylePool.get(retained.s) : undefined
+      const finalStyle = synthesizeMergeBorder(sheet, finalRange, baseStyle)
+      let styleId = retained?.s
+      if (finalStyle && finalStyle !== baseStyle) {
+        styleId = sheet.stylePool.intern(finalStyle)
+      }
+
+      if (anchorPatch && (retained || styleId != null)) {
+        anchorPatch.after = { ...retained, ...(styleId != null ? { s: styleId } : {}) }
       }
 
       // 立即应用本区域的补丁后再处理下一个：批量内相交时 computeMerge 能看到
