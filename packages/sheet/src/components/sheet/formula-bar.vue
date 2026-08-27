@@ -11,7 +11,11 @@
       @keydown="handleNameKeydown"
     />
     <span :class="cls.e('fx-label')">fx</span>
-    <div :class="cls.e('fx-editor')">
+    <div
+      :class="cls.e('fx-editor')"
+      @mouseenter="handleFxMouseEnter"
+      @mouseleave="handleFxMouseLeave"
+    >
       <!-- 文档流只占单行；面板绝对定位向下浮起，不撑开公式栏 -->
       <div :class="[cls.e('fx-input-panel'), bem.is('expanded', fxExpanded)]">
         <textarea
@@ -122,6 +126,10 @@ let editAddr: CellAddress | null = null
 const mirroring = ref(false)
 let mirrorAddr: CellAddress | null = null
 const fxDraft = ref('')
+/** 鼠标是否悬停在公式栏输入区 */
+const fxHovered = ref(false)
+/** 输入框是否处于 focus 状态 */
+const fxFocused = ref(false)
 /** 输入面板是否因内容增高而浮出（文档流仍保持单行） */
 const fxExpanded = ref(false)
 /** textarea 光标（selectionStart）；输入/点击/方向键后同步 */
@@ -204,7 +212,20 @@ function refreshFx(): void {
   fxDraft.value = active ? cellText(active) : ''
   fxCursor.value = fxDraft.value.length
   closeSuggest()
-  scheduleAutosize()
+  if (fxHovered.value || fxFocused.value || editing.value) {
+    scheduleAutosize()
+  } else {
+    collapseFx()
+  }
+}
+
+/** 恢复单行高度并重置展开状态 */
+function collapseFx(): void {
+  const el = fxRef.value
+  if (!el) return
+  el.style.height = ''
+  el.scrollTop = 0
+  fxExpanded.value = false
 }
 
 /** 每帧合并一次的 autosizeFx（批量 cell-change 同帧 N 次 nextTick → 1 次强制布局） */
@@ -219,20 +240,39 @@ function scheduleAutosize(): void {
 }
 
 /**
- * 按内容增高浮出面板，不超过 CSS max-height。
+ * 仅在鼠标悬停、获得焦点或编辑时按内容增高浮出面板，不超过 CSS max-height。
  * 增高走绝对定位，公式栏文档流高度始终单行。
  */
 function autosizeFx(): void {
   const el = fxRef.value
   if (!el) return
+  if (!fxHovered.value && !fxFocused.value && !editing.value) {
+    collapseFx()
+    return
+  }
   el.style.height = '0px'
   const styles = getComputedStyle(el)
   const max = Number.parseFloat(styles.maxHeight)
   const min = Number.parseFloat(styles.minHeight)
+  const hasMultipleLines = fxDraft.value.includes('\n')
   const content = el.scrollHeight
   const next = Number.isFinite(max) && max > 0 ? Math.min(content, max) : content
   el.style.height = `${next}px`
-  fxExpanded.value = Number.isFinite(min) ? next > min + 1 : next > 1
+  fxExpanded.value = (Number.isFinite(min) ? next > min + 1 : next > 1) || hasMultipleLines
+}
+
+function handleFxMouseEnter(): void {
+  fxHovered.value = true
+  if (fxDraft.value) {
+    autosizeFx()
+  }
+}
+
+function handleFxMouseLeave(): void {
+  fxHovered.value = false
+  if (!fxFocused.value && !editing.value) {
+    collapseFx()
+  }
 }
 
 function syncFxCursor(): void {
@@ -325,11 +365,13 @@ function commitName(): void {
 
 function handleFxFocus(): void {
   if (fxDisabled.value) return
+  fxFocused.value = true
   mirroring.value = false
   mirrorAddr = null
   editing.value = true
   editAddr = selection.value.activeCell
   syncFxCursor()
+  scheduleAutosize()
 }
 
 /**
@@ -337,12 +379,17 @@ function handleFxFocus(): void {
  * ✓/✗ / 候选列表用 mousedown.prevent 拦截失焦。
  */
 function handleFxBlur(): void {
-  if (!editing.value) return
+  fxFocused.value = false
+  if (!editing.value) {
+    if (!fxHovered.value) collapseFx()
+    return
+  }
   if (suppressBlurCommit) {
     suppressBlurCommit = false
     return
   }
   commitEdit()
+  if (!fxHovered.value) collapseFx()
 }
 
 function handleFxKeydown(event: KeyboardEvent): void {

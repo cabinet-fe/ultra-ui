@@ -471,4 +471,33 @@ describe('USheet 公式栏：函数补全与引用选择', () => {
     await nextTick()
     expect(fxInput(el).value).toBe('=A1+B1')
   })
+
+  it('多行文本：默认保持单行高度，鼠标进入展开，移出后收起', async () => {
+    const workbook = new Workbook()
+    const sheet = workbook.activeSheet
+    sheet.setCellValue({ row: 0, col: 0 }, 'Line1\nLine2\nLine3\nLine4\nLine5')
+    const { el } = mount(() => ({ workbook, rows: 20, cols: 8 }))
+    await nextTick()
+    sheet.selectCell({ row: 0, col: 0 })
+    await nextTick()
+
+    const input = fxInput(el)
+    const panel = el.querySelector('.u-sheet__fx-input-panel')!
+    const editor = el.querySelector('.u-sheet__fx-editor')!
+
+    // 默认单行未展开，无 is-expanded 类，height 为空（由 CSS min-height 承载）
+    expect(panel.classList.contains('is-expanded')).toBe(false)
+    expect(input.style.height).toBe('')
+
+    // 鼠标移入公式栏编辑区：触发展开
+    editor.dispatchEvent(new MouseEvent('mouseenter'))
+    await nextTick()
+    expect(panel.classList.contains('is-expanded')).toBe(true)
+
+    // 鼠标移出公式栏编辑区：收起为单行
+    editor.dispatchEvent(new MouseEvent('mouseleave'))
+    await nextTick()
+    expect(panel.classList.contains('is-expanded')).toBe(false)
+    expect(input.style.height).toBe('')
+  })
 })
