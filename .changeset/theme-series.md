@@ -1,6 +1,6 @@
 ---
-'@veltra/styles': major
-'@veltra/desktop': major
+'@veltra/styles': minor
+'@veltra/desktop': minor
 ---
 
 主题体系重构为主题系列（breaking）：
