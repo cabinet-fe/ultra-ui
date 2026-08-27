@@ -137,6 +137,47 @@ describe('hucreStyleToModel / dateToSerial1900', () => {
     })
   })
 
+  it('12 槽位标准主题色映射与 tint 亮度调整', () => {
+    const palette = [
+      '000000', // slot 0: dk1
+      'FFFFFF', // slot 1: lt1
+      '44546A', // slot 2: dk2
+      'E7E6E6', // slot 3: lt2
+      '4874CB', // slot 4: accent1
+      'EE822F', // slot 5: accent2
+      'F2BA02', // slot 6: accent3
+      '75BD42', // slot 7: accent4
+      '30C0B4', // slot 8: accent5
+      'E54C5E', // slot 9: accent6
+      '0026E5', // slot 10: hlink
+      '7E1FAD' // slot 11: folHlink
+    ]
+    // theme 0 (lt1) → slot 1 (FFFFFF)
+    expect(hucreStyleToModel({ font: { color: { theme: 0 } } }, palette)).toEqual({
+      font: { color: '#FFFFFF' }
+    })
+    // theme 1 (dk1) → slot 0 (000000)
+    expect(hucreStyleToModel({ font: { color: { theme: 1 } } }, palette)).toEqual({
+      font: { color: '#000000' }
+    })
+    // theme 2 (lt2) → slot 3 (E7E6E6)
+    expect(hucreStyleToModel({ font: { color: { theme: 2 } } }, palette)).toEqual({
+      font: { color: '#E7E6E6' }
+    })
+    // theme 3 (dk2) → slot 2 (44546A)
+    expect(hucreStyleToModel({ font: { color: { theme: 3 } } }, palette)).toEqual({
+      font: { color: '#44546A' }
+    })
+    // theme 9 (accent6) → slot 9 (E54C5E)
+    expect(hucreStyleToModel({ font: { color: { theme: 9 } } }, palette)).toEqual({
+      font: { color: '#E54C5E' }
+    })
+    // tint 调整：正数变亮，负数变暗
+    expect(hucreStyleToModel({ font: { color: { theme: 1, tint: 0.5 } } }, palette)).toEqual({
+      font: { color: '#808080' }
+    })
+  })
+
   it('font / alignment 映射（underline 非 false、vertical center↔middle、wrapText）', () => {
     expect(
       hucreStyleToModel({
@@ -315,6 +356,33 @@ describe('importXlsx 映射（hucre 读取结果 → 模型）', () => {
     expect(sheet.rows).toBeGreaterThanOrEqual(3)
     expect(sheet.cols).toBeGreaterThanOrEqual(15)
     expect(sheet.getCellData({ row: 2, col: 14 })).toMatchObject({ v: '尾' })
+  })
+
+  it('多 sheet 导入样式隔离：Sheet2 的样式不会受到 Sheet1 的 StyleId 污染', async () => {
+    const style1 = { fill: { type: 'pattern', pattern: 'solid', fgColor: { rgb: 'FFFF00' } } }
+    const style2 = { fill: { type: 'pattern', pattern: 'solid', fgColor: { rgb: 'FF0000' } } }
+    xlsxMock.readXlsx.mockResolvedValue({
+      sheets: [
+        {
+          name: 'S1',
+          rows: [],
+          cells: new Map([['0,0', { value: 'yellow', type: 'string', style: style1 }]])
+        },
+        {
+          name: 'S2',
+          rows: [],
+          cells: new Map([['0,0', { value: 'red', type: 'string', style: style2 }]])
+        }
+      ]
+    })
+    const workbook = await importXlsx(new Uint8Array())
+    const s1 = workbook.getSheet('S1')!
+    const s2 = workbook.getSheet('S2')!
+
+    const s1Cell = s1.getCellData({ row: 0, col: 0 })!
+    const s2Cell = s2.getCellData({ row: 0, col: 0 })!
+    expect(s1.stylePool.get(s1Cell.s!)).toEqual({ fill: { color: '#FFFF00' } })
+    expect(s2.stylePool.get(s2Cell.s!)).toEqual({ fill: { color: '#FF0000' } })
   })
 
   it('远格写入且尺寸按有值范围收敛', async () => {

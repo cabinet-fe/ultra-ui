@@ -64,13 +64,17 @@ export class GridRowHeightEngine {
     }
   }
 
-  /** 构造前单行 wrap 行高估算（不依赖 table：列宽以常量传入）；行内无 wrap 格返回 undefined */
+  /** 构造前单行 wrap 行高估算（不依赖 table：优先取模型列宽，缺失时用 defaultColWidth）；行内无 wrap 格返回 undefined */
   estimateWrapRowHeightForRow(
     row: number,
     colWidth: number,
     styleResolver: GridStyleResolver
   ): number | undefined {
-    const scanned = this.scanWrapRowHeight(row, () => colWidth, styleResolver)
+    const scanned = this.scanWrapRowHeight(
+      row,
+      (col) => this.sheet.getColWidth(col) ?? colWidth,
+      styleResolver
+    )
     return scanned?.hasWrap ? Math.max(SHEET_DEFAULT_ROW_HEIGHT, scanned.maxHeight) : undefined
   }
 
@@ -91,9 +95,10 @@ export class GridRowHeightEngine {
       if (col >= this.cols) continue
       const addr = { row, col }
       const metrics = styleResolver.getWrapMetrics(addr)
-      if (!metrics.wrap) continue
-      hasWrap = true
       const text = String(this.sheet.getDisplayValue(addr) ?? '')
+      const hasNewline = text.includes('\n')
+      if (!metrics.wrap && !hasNewline) continue
+      hasWrap = true
       const height = estimateWrapRowHeight({
         text,
         colWidth: getColWidth(col),

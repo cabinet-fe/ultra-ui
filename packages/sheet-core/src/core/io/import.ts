@@ -68,9 +68,37 @@ const HUCRE_BORDER_STYLE_MAP: Record<string, BorderLineStyle> = {
   slantDashDot: 'dashed'
 }
 
-/** hucre 颜色 → CSS 颜色（'#' + rgb；theme 经主题调色板解析）；无法解析返回 undefined */
+/**
+ * Excel SpreadsheetML theme 索引 → hucre themeColors 槽位映射：
+ * DrawingML <clrScheme> 顺序（hucre 提取顺序）：[dk1, lt1, dk2, lt2, accent1..accent6, hlink, folHlink]
+ * SpreadsheetML <color theme="N"/> 索引定义：
+ * 0: lt1 (槽位 1)
+ * 1: dk1 (槽位 0)
+ * 2: lt2 (槽位 3)
+ * 3: dk2 (槽位 2)
+ * 4..11: accent1..folHlink (槽位 4..11)
+ */
+const THEME_INDEX_TO_HUCRE_SLOT = [1, 0, 3, 2, 4, 5, 6, 7, 8, 9, 10, 11] as const
+
+/** 应用 Excel tint 色调调整（-1.0 ~ 1.0） */
+function applyTint(hex: string, tint?: number): string {
+  if (tint == null || tint === 0) return hex.startsWith('#') ? hex : `#${hex}`
+  const raw = hex.startsWith('#') ? hex.slice(1) : hex
+  const r = parseInt(raw.slice(0, 2), 16)
+  const g = parseInt(raw.slice(2, 4), 16)
+  const b = parseInt(raw.slice(4, 6), 16)
+  const transform = (channel: number) => {
+    const result = tint < 0 ? channel * (1 + tint) : channel + (255 - channel) * tint
+    return Math.round(Math.min(255, Math.max(0, result)))
+      .toString(16)
+      .padStart(2, '0')
+  }
+  return `#${transform(r)}${transform(g)}${transform(b)}`.toUpperCase()
+}
+
+/** hucre 颜色 → CSS 颜色（'#' + rgb；theme 经主题调色板及索引映射解析）；无法解析返回 undefined */
 function resolveColor(
-  color: { rgb?: string; theme?: number } | undefined,
+  color: { rgb?: string; theme?: number; tint?: number } | undefined,
   themeColors?: readonly string[]
 ): string | undefined {
   if (color?.rgb) {
@@ -79,8 +107,12 @@ function resolveColor(
     return rgb.startsWith('#') ? rgb : `#${rgb}`
   }
   if (color?.theme != null && themeColors) {
-    const theme = themeColors[color.theme]
-    if (theme) return theme.startsWith('#') ? theme : `#${theme}`
+    const slot =
+      themeColors.length >= 4 && color.theme >= 0 && color.theme < THEME_INDEX_TO_HUCRE_SLOT.length
+        ? THEME_INDEX_TO_HUCRE_SLOT[color.theme]!
+        : color.theme
+    const theme = themeColors[slot]
+    if (theme) return applyTint(theme, color.tint)
   }
   return undefined
 }
@@ -294,9 +326,10 @@ function hucreImageToInput(image: HucreSheetImage): ImageInput {
 function applyHucreSheet(
   target: Sheet,
   source: HucreSheet,
-  themeColors: readonly string[] | undefined,
-  styleMemo: StyleMemo
+  themeColors: readonly string[] | undefined
 ): void {
+  // 样式 memo 绑定当前 sheet（StyleId 由 target.stylePool 独立分配，禁止跨 sheet 共享）
+  const styleMemo = createStyleMemo()
   // 实际使用范围（有值格 ∪ 合并 ∪ 图片锚点）：渲染尺寸据此收敛，避免稠密
   // 行数组几何（Excel 最大 16384 列 → VTable 构造 16384 列实测 ~15s 卡死）
   let maxUsedRow = 0
@@ -448,8 +481,6 @@ export function buildWorkbookFromHucre(
   const workbook = new Workbook()
   const themeColors = hucreWb.themeColors
   const used = new Set<string>()
-  // 样式 memo 跨 sheet 共享（Excel 工作簿样式表全局共享，同 styleIndex 子对象引用一致）
-  const styleMemo = createStyleMemo()
 
   const sheets = hucreWb.sheets
   const total = sheets.length
@@ -461,14 +492,14 @@ export function buildWorkbookFromHucre(
     } else {
       used.add('sheet1')
     }
-    applyHucreSheet(first, sheets[0]!, themeColors, styleMemo)
+    applyHucreSheet(first, sheets[0]!, themeColors)
     onProgress?.(1, total)
   }
   for (let i = 1; i < sheets.length; i++) {
     const name = uniqueName(sheets[i]!.name, used)
     used.add(name.toLowerCase())
     workbook.addSheet(name)
-    applyHucreSheet(workbook.getSheet(name)!, sheets[i]!, themeColors, styleMemo)
+    applyHucreSheet(workbook.getSheet(name)!, sheets[i]!, themeColors)
     onProgress?.(i + 1, total)
   }
   const active = hucreWb.activeSheet ?? 0
