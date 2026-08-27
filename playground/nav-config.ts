@@ -95,6 +95,7 @@ export const demoMeta: Record<string, DemoMeta> = {
   'progress-nodes': { zh: '进度节点', en: 'ProgressNodes', category: 'data' },
   radio: { zh: '单选框', en: 'Radio', category: 'form' },
   scroll: { zh: '滚动容器', en: 'Scroll', category: 'basic' },
+  segment: { zh: '分段选择', en: 'Segment', category: 'form' },
   select: { zh: '单选选择器', en: 'Select', category: 'form' },
   showcase: { zh: '综合展示', en: 'Showcase', category: 'other' },
   slider: { zh: '滑块', en: 'Slider', category: 'form' },

@@ -1305,4 +1305,215 @@ describe('移动端触控滑动滚动支持', () => {
     expect(removeListenerSpy).toHaveBeenCalledWith('pointerup', expect.any(Function))
     expect(removeListenerSpy).toHaveBeenCalledWith('pointercancel', expect.any(Function))
   })
+
+  it('只读模式下在浮动图片区域触摸滑动正常触发表格滚动', () => {
+    const container = createContainer()
+    const sheet = new Sheet()
+    const grid = new SheetGrid({ container, sheet, rows: 50, cols: 20, readonly: true })
+    const table = grid.getTable()
+    const layer = grid.getImageLayer()
+    try {
+      sheet.insertImage({
+        data: new Uint8Array([1, 2, 3]),
+        type: 'png',
+        anchor: { from: { row: 0, col: 0 } },
+        width: 100,
+        height: 80
+      })
+      layer.flush()
+
+      const imgNode = container.querySelector<HTMLElement>('[data-sheet-image-id]')!
+      const initialScrollLeft = table.scrollLeft
+      const initialScrollTop = table.scrollTop
+
+      imgNode.dispatchEvent(
+        new TouchEvent('touchstart', {
+          touches: [{ clientX: 100, clientY: 200 } as any],
+          bubbles: true
+        })
+      )
+      imgNode.dispatchEvent(
+        new TouchEvent('touchmove', {
+          touches: [{ clientX: 60, clientY: 140 } as any],
+          bubbles: true
+        })
+      )
+      imgNode.dispatchEvent(new TouchEvent('touchend', { touches: [], bubbles: true }))
+
+      expect(table.scrollLeft).toBe(initialScrollLeft + 40)
+      expect(table.scrollTop).toBe(initialScrollTop + 60)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('非只读模式下未选中图片区域触摸滑动优先触发表格滚动而非图片平移', () => {
+    const container = createContainer()
+    const sheet = new Sheet()
+    const grid = new SheetGrid({ container, sheet, rows: 50, cols: 20, readonly: false })
+    const table = grid.getTable()
+    const layer = grid.getImageLayer()
+    try {
+      sheet.insertImage({
+        id: 'img-unselected-touch',
+        data: new Uint8Array([1, 2, 3]),
+        type: 'png',
+        anchor: { from: { row: 0, col: 0 } },
+        width: 100,
+        height: 80
+      })
+      layer.flush()
+
+      const imgNode = container.querySelector<HTMLElement>('[data-sheet-image-id]')!
+      const initialScrollLeft = table.scrollLeft
+      const initialScrollTop = table.scrollTop
+
+      imgNode.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          pointerId: 10,
+          pointerType: 'touch',
+          clientX: 200,
+          clientY: 300,
+          bubbles: true
+        })
+      )
+
+      imgNode.dispatchEvent(
+        new PointerEvent('pointermove', {
+          pointerId: 10,
+          pointerType: 'touch',
+          clientX: 150,
+          clientY: 220,
+          bubbles: true
+        })
+      )
+
+      expect(table.scrollLeft).toBe(initialScrollLeft + 50)
+      expect(table.scrollTop).toBe(initialScrollTop + 80)
+      expect(layer.getSelectedId()).toBeNull()
+
+      imgNode.dispatchEvent(
+        new PointerEvent('pointerup', {
+          pointerId: 10,
+          pointerType: 'touch',
+          clientX: 150,
+          clientY: 220,
+          bubbles: true
+        })
+      )
+
+      expect(sheet.getImage('img-unselected-touch')!.anchor.from).toEqual({ row: 0, col: 0 })
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('非只读模式下选中图片后触控拖拽触发图片锚点平移且不触发表格滚动', () => {
+    const container = createContainer()
+    const sheet = new Sheet()
+    const grid = new SheetGrid({ container, sheet, rows: 50, cols: 20, readonly: false })
+    const table = grid.getTable()
+    const layer = grid.getImageLayer()
+    try {
+      sheet.insertImage({
+        id: 'img-selected-drag',
+        data: new Uint8Array([1, 2, 3]),
+        type: 'png',
+        anchor: { from: { row: 1, col: 1 } },
+        width: 100,
+        height: 80
+      })
+
+      vi.spyOn(table, 'getCellRelativeRect').mockImplementation(
+        (col, row) =>
+          ({
+            left: col * 80,
+            top: row * 28,
+            width: 80,
+            height: 28,
+            right: col * 80 + 80,
+            bottom: row * 28 + 28
+          }) as ReturnType<ListTable['getCellRelativeRect']>
+      )
+      vi.spyOn(table, 'getCellAtRelativePosition').mockImplementation(
+        (x, y) =>
+          ({ col: Math.floor(x / 80), row: Math.floor(y / 28) }) as ReturnType<
+            ListTable['getCellAtRelativePosition']
+          >
+      )
+
+      layer.flush()
+
+      const imgNode = container.querySelector<HTMLElement>('[data-sheet-image-id]')!
+
+      // 1. 先通过轻触选中图片
+      imgNode.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          pointerId: 11,
+          pointerType: 'touch',
+          clientX: 100,
+          clientY: 100,
+          bubbles: true
+        })
+      )
+      window.dispatchEvent(
+        new PointerEvent('pointerup', {
+          pointerId: 11,
+          pointerType: 'touch',
+          clientX: 100,
+          clientY: 100,
+          bubbles: true
+        })
+      )
+      expect(layer.getSelectedId()).toBe('img-selected-drag')
+
+      const initialScrollLeft = table.scrollLeft
+      const initialScrollTop = table.scrollTop
+
+      // 2. 在已选中的图片上触控拖拽
+      imgNode.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          pointerId: 12,
+          pointerType: 'touch',
+          clientX: 100,
+          clientY: 100,
+          bubbles: true
+        })
+      )
+
+      window.dispatchEvent(
+        new PointerEvent('pointermove', {
+          pointerId: 12,
+          pointerType: 'touch',
+          clientX: 120,
+          clientY: 130,
+          bubbles: true
+        })
+      )
+
+      window.dispatchEvent(
+        new PointerEvent('pointerup', {
+          pointerId: 12,
+          pointerType: 'touch',
+          clientX: 120,
+          clientY: 130,
+          bubbles: true
+        })
+      )
+
+      // 表格滚动距离不变
+      expect(table.scrollLeft).toBe(initialScrollLeft)
+      expect(table.scrollTop).toBe(initialScrollTop)
+
+      // 图片锚点平移成功
+      expect(sheet.getImage('img-selected-drag')!.anchor.from).toEqual({
+        row: 2,
+        col: 1,
+        offsetX: 20,
+        offsetY: 2
+      })
+    } finally {
+      grid.release()
+    }
+  })
 })

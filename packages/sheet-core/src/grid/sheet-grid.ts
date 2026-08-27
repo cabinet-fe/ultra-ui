@@ -174,7 +174,6 @@ export class SheetGrid {
     )
     this.disposers.push(...sheetDisposers)
     this.bindKeyboard()
-    this.bindTouchScroll()
 
     this.imageLayer = new ImageLayer({
       container: this.container,
@@ -185,6 +184,7 @@ export class SheetGrid {
       readonly: this.isReadonly
     })
     this.disposers.push(() => this.imageLayer.dispose())
+    this.bindTouchScroll()
     this.applyFrozen()
     this.selectionController.pushSelectionToTable(this.sheet.getSelection(), this.rows, this.cols)
   }
@@ -502,7 +502,24 @@ export class SheetGrid {
     let isPointerTouching = false
     let activePointerId: number | null = null
 
+    const isSelectedImageTarget = (target: EventTarget | null): boolean => {
+      if (this.isReadonly) return false
+      if (!(target instanceof Element)) return false
+      const selectedId = this.imageLayer?.getSelectedId?.()
+      if (!selectedId) return false
+      const wrap = target.closest<HTMLElement>('[data-sheet-image-id]')
+      return wrap?.dataset.sheetImageId === selectedId
+    }
+
     const onTouchStart = (event: TouchEvent): void => {
+      if (this.imageLayer?.isDragging?.()) {
+        isTouching = false
+        return
+      }
+      if (isSelectedImageTarget(event.target)) {
+        isTouching = false
+        return
+      }
       if (event.touches.length === 1) {
         const touch = event.touches[0]!
         touchStartX = touch.clientX
@@ -514,6 +531,7 @@ export class SheetGrid {
     }
 
     const onTouchMove = (event: TouchEvent): void => {
+      if (this.imageLayer?.isDragging?.()) return
       if (!isTouching || event.touches.length !== 1) return
       const touch = event.touches[0]!
       const deltaX = touch.clientX - touchStartX
@@ -522,10 +540,26 @@ export class SheetGrid {
       touchStartY = touch.clientY
 
       if (deltaX !== 0) {
-        this.table.setScrollLeft(this.table.scrollLeft - deltaX)
+        const currentLeft =
+          typeof this.table.getScrollLeft === 'function'
+            ? this.table.getScrollLeft()
+            : (this.table.scrollLeft ?? 0)
+        if (typeof this.table.setScrollLeft === 'function') {
+          this.table.setScrollLeft(currentLeft - deltaX)
+        } else {
+          this.table.scrollLeft = currentLeft - deltaX
+        }
       }
       if (deltaY !== 0) {
-        this.table.setScrollTop(this.table.scrollTop - deltaY)
+        const currentTop =
+          typeof this.table.getScrollTop === 'function'
+            ? this.table.getScrollTop()
+            : (this.table.scrollTop ?? 0)
+        if (typeof this.table.setScrollTop === 'function') {
+          this.table.setScrollTop(currentTop - deltaY)
+        } else {
+          this.table.scrollTop = currentTop - deltaY
+        }
       }
     }
 
@@ -539,6 +573,8 @@ export class SheetGrid {
 
     const onPointerDown = (event: PointerEvent): void => {
       if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return
+      if (this.imageLayer?.isDragging?.()) return
+      if (isSelectedImageTarget(event.target)) return
       if (isTouching) return
       activePointerId = event.pointerId
       pointerTouchStartX = event.clientX
@@ -547,6 +583,7 @@ export class SheetGrid {
     }
 
     const onPointerMove = (event: PointerEvent): void => {
+      if (this.imageLayer?.isDragging?.()) return
       if (!isPointerTouching || event.pointerId !== activePointerId || isTouching) return
       const deltaX = event.clientX - pointerTouchStartX
       const deltaY = event.clientY - pointerTouchStartY
@@ -554,10 +591,26 @@ export class SheetGrid {
       pointerTouchStartY = event.clientY
 
       if (deltaX !== 0) {
-        this.table.setScrollLeft(this.table.scrollLeft - deltaX)
+        const currentLeft =
+          typeof this.table.getScrollLeft === 'function'
+            ? this.table.getScrollLeft()
+            : (this.table.scrollLeft ?? 0)
+        if (typeof this.table.setScrollLeft === 'function') {
+          this.table.setScrollLeft(currentLeft - deltaX)
+        } else {
+          this.table.scrollLeft = currentLeft - deltaX
+        }
       }
       if (deltaY !== 0) {
-        this.table.setScrollTop(this.table.scrollTop - deltaY)
+        const currentTop =
+          typeof this.table.getScrollTop === 'function'
+            ? this.table.getScrollTop()
+            : (this.table.scrollTop ?? 0)
+        if (typeof this.table.setScrollTop === 'function') {
+          this.table.setScrollTop(currentTop - deltaY)
+        } else {
+          this.table.scrollTop = currentTop - deltaY
+        }
       }
     }
 

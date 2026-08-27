@@ -7,15 +7,14 @@
   @include m.flex($display: inline-flex, $align: center);
   gap: 2px;
   padding: 2px;
-  background-color: fn.use-var(bg-color, middle);
-  border: fn.use-var(border, width) fn.use-var(border, style) fn.use-var(border, color);
+  background-color: fn.use-var(bg-color, bottom);
   box-sizing: border-box;
 
   @include m.size using ($size) {
     border-radius: fn.use-var(radius, $size);
 
-    @include m.e(item) {
-      height: calc(fn.use-var(form-component-height, $size) - 6px);
+    @include m.bem(segment, item) {
+      height: calc(fn.use-var(form-component-height, $size) - 4px);
       padding: 0 calc(fn.use-var(gap, $size) * 1.5);
       border-radius: calc(fn.use-var(radius, $size) - 2px);
       font-size: fn.use-var(font-size-main, $size);
@@ -41,7 +40,7 @@
 
     &:hover:not(.is-active):not(.is-disabled) {
       color: fn.use-var(text-color, title);
-      background-color: fn.use-var(bg-color, hover);
+      background-color: fn.color-a(color, 5, primary);
     }
 
     @include m.is(active) {
@@ -73,7 +72,7 @@
     display: flex;
     width: 100%;
 
-    @include m.e(item) {
+    @include m.bem(segment, item) {
       flex: 1 1 0%;
       width: 0;
       min-width: 0;
@@ -86,7 +85,7 @@
     opacity: 0.7;
     cursor: not-allowed;
 
-    @include m.e(item) {
+    @include m.bem(segment, item) {
       cursor: not-allowed;
     }
   }

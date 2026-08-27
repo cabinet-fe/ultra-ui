@@ -691,4 +691,257 @@ describe('ImageLayer（canvas-mock）', () => {
       // already released
     }
   })
+
+  it('只读模式下触控事件（pointerType: touch）不拦截事件且不触发图片平移', () => {
+    const sheet = new Sheet()
+    const container = track(createContainer())
+    const grid = new SheetGrid({ container, sheet, rows: 100, cols: 20, readonly: true })
+    const layer = grid.getImageLayer()
+    try {
+      sheet.insertImage(makeInput({ id: 'img-ro-touch', anchor: { from: { row: 1, col: 1 } } }))
+      layer.flush()
+
+      const node = imageNodes(container)[0]!
+      const initialLeft = node.style.left
+      const initialTop = node.style.top
+
+      const pointerDownEvent = new PointerEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+        pointerId: 1,
+        pointerType: 'touch',
+        clientX: 100,
+        clientY: 100
+      })
+      node.dispatchEvent(pointerDownEvent)
+
+      expect(pointerDownEvent.defaultPrevented).toBe(false)
+      expect(layer.getSelectedId()).toBeNull()
+
+      window.dispatchEvent(
+        new PointerEvent('pointermove', {
+          bubbles: true,
+          cancelable: true,
+          pointerId: 1,
+          pointerType: 'touch',
+          clientX: 150,
+          clientY: 180
+        })
+      )
+      window.dispatchEvent(
+        new PointerEvent('pointerup', {
+          bubbles: true,
+          cancelable: true,
+          pointerId: 1,
+          pointerType: 'touch',
+          clientX: 150,
+          clientY: 180
+        })
+      )
+
+      expect(node.style.left).toBe(initialLeft)
+      expect(node.style.top).toBe(initialTop)
+      expect(sheet.getImage('img-ro-touch')!.anchor.from).toEqual({ row: 1, col: 1 })
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('非只读模式下未选中图片时的触控轻触（tap）在 pointerup 时选中图片', () => {
+    const { sheet, grid, container, layer } = createGrid()
+    track(container)
+    try {
+      sheet.insertImage(makeInput({ id: 'img-tap', anchor: { from: { row: 0, col: 0 } } }))
+      layer.flush()
+
+      const node = imageNodes(container)[0]!
+      expect(layer.getSelectedId()).toBeNull()
+
+      node.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          cancelable: true,
+          pointerId: 2,
+          pointerType: 'touch',
+          clientX: 100,
+          clientY: 100
+        })
+      )
+      // pointerdown 阶段未选中（等待判断是否滑动）
+      expect(layer.getSelectedId()).toBeNull()
+
+      window.dispatchEvent(
+        new PointerEvent('pointerup', {
+          bubbles: true,
+          cancelable: true,
+          pointerId: 2,
+          pointerType: 'touch',
+          clientX: 101,
+          clientY: 101
+        })
+      )
+
+      // pointerup 未移动超过阈值 → 视为 tap 选中
+      expect(layer.getSelectedId()).toBe('img-tap')
+      expect(node.style.outline).toContain('solid')
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('非只读模式下未选中图片时的触控滑动不触发图片平移且不选中图片', () => {
+    const { sheet, grid, container, layer } = createGrid()
+    track(container)
+    try {
+      sheet.insertImage(makeInput({ id: 'img-touch-swipe', anchor: { from: { row: 0, col: 0 } } }))
+      layer.flush()
+
+      const node = imageNodes(container)[0]!
+      const initialLeft = node.style.left
+      const initialTop = node.style.top
+
+      node.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          cancelable: true,
+          pointerId: 3,
+          pointerType: 'touch',
+          clientX: 100,
+          clientY: 100
+        })
+      )
+
+      // 滑动超过阈值
+      window.dispatchEvent(
+        new PointerEvent('pointermove', {
+          bubbles: true,
+          cancelable: true,
+          pointerId: 3,
+          pointerType: 'touch',
+          clientX: 140,
+          clientY: 160
+        })
+      )
+      window.dispatchEvent(
+        new PointerEvent('pointerup', {
+          bubbles: true,
+          cancelable: true,
+          pointerId: 3,
+          pointerType: 'touch',
+          clientX: 140,
+          clientY: 160
+        })
+      )
+
+      expect(node.style.left).toBe(initialLeft)
+      expect(node.style.top).toBe(initialTop)
+      expect(layer.getSelectedId()).toBeNull()
+      expect(sheet.getImage('img-touch-swipe')!.anchor.from).toEqual({ row: 0, col: 0 })
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('非只读模式下已选中图片时的触控拖拽触发锚点平移并阻止事件冒泡', () => {
+    const { sheet, grid, table, container, layer } = createGrid()
+    track(container)
+    try {
+      sheet.insertImage(
+        makeInput({
+          id: 'img-touch-drag',
+          anchor: { from: { row: 1, col: 1 } },
+          width: 50,
+          height: 40
+        })
+      )
+
+      vi.spyOn(table, 'getCellRelativeRect').mockImplementation((col, row) => {
+        const left = col * 80
+        const top = row * 28
+        return {
+          left,
+          top,
+          width: 80,
+          height: 28,
+          right: left + 80,
+          bottom: top + 28
+        } as ReturnType<ListTable['getCellRelativeRect']>
+      })
+      vi.spyOn(table, 'getCellAtRelativePosition').mockImplementation(
+        (x, y) =>
+          ({ col: Math.floor(x / 80), row: Math.floor(y / 28) }) as ReturnType<
+            ListTable['getCellAtRelativePosition']
+          >
+      )
+      layer.flush()
+
+      const node = imageNodes(container)[0]!
+
+      // 先通过轻触选中图片
+      node.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          cancelable: true,
+          pointerId: 4,
+          pointerType: 'touch',
+          clientX: 100,
+          clientY: 100
+        })
+      )
+      window.dispatchEvent(
+        new PointerEvent('pointerup', {
+          bubbles: true,
+          cancelable: true,
+          pointerId: 4,
+          pointerType: 'touch',
+          clientX: 100,
+          clientY: 100
+        })
+      )
+      expect(layer.getSelectedId()).toBe('img-touch-drag')
+
+      // 在已选中图片上进行触控拖拽
+      const dragDownEvent = new PointerEvent('pointerdown', {
+        bubbles: true,
+        cancelable: true,
+        pointerId: 5,
+        pointerType: 'touch',
+        clientX: 100,
+        clientY: 100
+      })
+      node.dispatchEvent(dragDownEvent)
+      expect(dragDownEvent.defaultPrevented).toBe(true)
+
+      const dragMoveEvent = new PointerEvent('pointermove', {
+        bubbles: true,
+        cancelable: true,
+        pointerId: 5,
+        pointerType: 'touch',
+        clientX: 120,
+        clientY: 130
+      })
+      window.dispatchEvent(dragMoveEvent)
+      expect(dragMoveEvent.defaultPrevented).toBe(true)
+
+      window.dispatchEvent(
+        new PointerEvent('pointerup', {
+          bubbles: true,
+          cancelable: true,
+          pointerId: 5,
+          pointerType: 'touch',
+          clientX: 120,
+          clientY: 130
+        })
+      )
+
+      expect(sheet.getImage('img-touch-drag')!.anchor.from).toEqual({
+        row: 2,
+        col: 1,
+        offsetX: 20,
+        offsetY: 2
+      })
+    } finally {
+      grid.release()
+    }
+  })
 })

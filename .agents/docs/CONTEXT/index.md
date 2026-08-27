@@ -7,6 +7,7 @@
 ## 模块
 
 - [desktop](desktop/index.md) — 桌面端 UI 组件（USegment 分段单选等）
+- [sheet-core](sheet-core/index.md) — 表格模型/命令/公式/IO + SheetGrid
 - [styles](styles/index.md) — 主题系列（浅色系 / 深色系）
 
 暂无归档条目的模块占位：
@@ -14,7 +15,6 @@
 - utils
 - compositions
 - directives
-- sheet-core
 - sheet
 - ai
 - icons

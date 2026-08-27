@@ -64,6 +64,14 @@ interface DragSession {
   moved: boolean
 }
 
+interface PendingTouchTap {
+  id: string
+  pointerId: number
+  startX: number
+  startY: number
+  moved: boolean
+}
+
 /**
  * 浮动图片 DOM 叠层：绝对定位于 grid 容器内，按锚点单元格实时布置。
  *
@@ -94,6 +102,7 @@ export class ImageLayer {
   private rearrangeScheduled = false
   private selectedId: string | null = null
   private drag: DragSession | null = null
+  private pendingTouchTap: PendingTouchTap | null = null
   private resizeObserver: ResizeObserver | undefined
 
   constructor(options: ImageLayerOptions) {
@@ -121,6 +130,11 @@ export class ImageLayer {
     this.bindInteraction()
     this.bindResize()
     this.syncFromModel()
+  }
+
+  /** 是否处于图片拖拽中 */
+  isDragging(): boolean {
+    return this.drag !== null
   }
 
   /** 当前选中图片 id（无选中为 null） */
@@ -153,6 +167,8 @@ export class ImageLayer {
   dispose(): void {
     if (this.released) return
     this.released = true
+    this.endPendingTapListeners()
+    this.pendingTouchTap = null
     this.endDragListeners()
     this.drag = null
     for (const dispose of this.disposers) dispose()
@@ -205,14 +221,41 @@ export class ImageLayer {
       if (!(target instanceof Element)) return
       const wrap = target.closest<HTMLElement>('[data-sheet-image-id]')
       if (wrap && this.root.contains(wrap)) {
-        // 拦截：不进 VTable 选区
-        event.preventDefault()
-        event.stopPropagation()
         const id = wrap.dataset.sheetImageId
         if (!id) return
+
+        const isTouch = event.pointerType === 'touch' || event.pointerType === 'pen'
+
+        // 1. 只读模式：触控不拦截，放行给底层表格触控滚动；鼠标点击拦截并选中
+        if (this.isReadonly) {
+          if (isTouch) return
+          event.preventDefault()
+          event.stopPropagation()
+          this.select(id)
+          return
+        }
+
+        // 2. 非只读模式下的触控交互：
+        if (isTouch) {
+          // 若图片已处于选中状态，则启动拖拽并阻止底层表格触控滚动
+          if (this.selectedId === id) {
+            event.preventDefault()
+            event.stopPropagation()
+            this.beginDrag(event, id, wrap)
+            return
+          }
+
+          // 未选中状态：不拦截事件，放行给底层表格触控滑动滚动；
+          // 同时记录轻触待定（若用户只是单次 tap 点选，则在 pointerup 且未移动时完成选中）
+          this.beginPendingTap(event, id)
+          return
+        }
+
+        // 3. 鼠标交互（非触控）：
+        event.preventDefault()
+        event.stopPropagation()
         this.select(id)
-        // 只读：选中保留（可查看），不开拖动会话（commitDrag 会写模型锚点）
-        if (!this.isReadonly) this.beginDrag(event, id, wrap)
+        this.beginDrag(event, id, wrap)
         return
       }
       // 点击网格其他位置 → 取消选中
@@ -288,6 +331,53 @@ export class ImageLayer {
     this.disposers.push(() => this.container.removeEventListener('keydown', onKeyDown))
   }
 
+  // ─── 触控轻触待定 ──────────────────────────────────────────
+
+  private readonly onPendingPointerMove = (event: PointerEvent): void => {
+    const tap = this.pendingTouchTap
+    if (!tap || event.pointerId !== tap.pointerId) return
+    const dx = event.clientX - tap.startX
+    const dy = event.clientY - tap.startY
+    if (Math.hypot(dx, dy) >= DRAG_THRESHOLD_PX) {
+      tap.moved = true
+    }
+  }
+
+  private readonly onPendingPointerUp = (event: PointerEvent): void => {
+    const tap = this.pendingTouchTap
+    if (!tap || event.pointerId !== tap.pointerId) return
+    this.endPendingTapListeners()
+    this.pendingTouchTap = null
+
+    // 触控轻触未滑动：用户意图为选中图片
+    if (!tap.moved && !this.released && this.visible) {
+      this.select(tap.id)
+    }
+  }
+
+  private beginPendingTap(event: PointerEvent, id: string): void {
+    if (this.pendingTouchTap) {
+      this.endPendingTapListeners()
+      this.pendingTouchTap = null
+    }
+    this.pendingTouchTap = {
+      id,
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      moved: false
+    }
+    window.addEventListener('pointermove', this.onPendingPointerMove, true)
+    window.addEventListener('pointerup', this.onPendingPointerUp, true)
+    window.addEventListener('pointercancel', this.onPendingPointerUp, true)
+  }
+
+  private endPendingTapListeners(): void {
+    window.removeEventListener('pointermove', this.onPendingPointerMove, true)
+    window.removeEventListener('pointerup', this.onPendingPointerUp, true)
+    window.removeEventListener('pointercancel', this.onPendingPointerUp, true)
+  }
+
   // ─── 拖动 ────────────────────────────────────────────────
 
   private readonly onDragPointerMove = (event: PointerEvent): void => {
@@ -300,6 +390,11 @@ export class ImageLayer {
     const dy = event.clientY - session.startClientY
     if (!session.moved && Math.hypot(dx, dy) < DRAG_THRESHOLD_PX) return
     session.moved = true
+
+    if (event.cancelable) {
+      event.preventDefault()
+    }
+    event.stopPropagation()
 
     wrap.style.left = `${session.originLeft + dx}px`
     wrap.style.top = `${session.originTop + dy}px`
@@ -344,7 +439,11 @@ export class ImageLayer {
       originTop,
       moved: false
     }
-    wrap.setPointerCapture?.(event.pointerId)
+    try {
+      wrap.setPointerCapture?.(event.pointerId)
+    } catch {
+      // 忽略捕获失败
+    }
     window.addEventListener('pointermove', this.onDragPointerMove, true)
     window.addEventListener('pointerup', this.onDragPointerUp, true)
     window.addEventListener('pointercancel', this.onDragPointerUp, true)

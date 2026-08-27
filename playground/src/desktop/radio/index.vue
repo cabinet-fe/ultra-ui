@@ -34,61 +34,6 @@
         <u-radio-group :items="items" v-model="radio1" block />
       </div>
     </CustomCard>
-
-    <CustomCard title='分段单选框组 (variant="button")'>
-      <div class="demo-section">
-        <div class="demo-desc">基础分段</div>
-        <u-radio-group :items="segmentItems" v-model="segmentValue" variant="button" />
-      </div>
-
-      <div class="demo-section">
-        <div class="demo-desc">不同尺寸 (small / default / large)</div>
-        <div class="demo-col">
-          <u-radio-group
-            :items="segmentItems"
-            v-model="segmentValue"
-            variant="button"
-            size="small"
-          />
-          <u-radio-group
-            :items="segmentItems"
-            v-model="segmentValue"
-            variant="button"
-            size="default"
-          />
-          <u-radio-group
-            :items="segmentItems"
-            v-model="segmentValue"
-            variant="button"
-            size="large"
-          />
-        </div>
-      </div>
-
-      <div class="demo-section">
-        <div class="demo-desc">撑满容器 (block)</div>
-        <u-radio-group
-          :items="segmentItems"
-          v-model="segmentValue"
-          variant="button"
-          block
-          style="max-width: 480px"
-        />
-      </div>
-
-      <div class="demo-section">
-        <div class="demo-desc">禁用状态（某项禁用 / 整组禁用）</div>
-        <div class="demo-col">
-          <u-radio-group
-            :items="segmentItems"
-            v-model="segmentValue"
-            variant="button"
-            :disabled-item="(item) => item.value === 'weekly'"
-          />
-          <u-radio-group :items="segmentItems" v-model="segmentValue" variant="button" disabled />
-        </div>
-      </div>
-    </CustomCard>
   </div>
 </template>
 
@@ -103,15 +48,6 @@ const items = [
   { label: '选项一', value: '1' },
   { label: '选项二', value: '2' },
   { label: '选项三', value: '3' }
-]
-
-const segmentValue = shallowRef('daily')
-
-const segmentItems = [
-  { label: '按日', value: 'daily' },
-  { label: '按周', value: 'weekly' },
-  { label: '按月', value: 'monthly' },
-  { label: '按年', value: 'yearly' }
 ]
 </script>
 
@@ -134,12 +70,5 @@ const segmentItems = [
   display: flex;
   align-items: center;
   gap: 16px;
-}
-
-.demo-col {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
 }
 </style>
