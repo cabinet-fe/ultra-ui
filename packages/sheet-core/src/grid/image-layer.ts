@@ -224,6 +224,53 @@ export class ImageLayer {
       this.container.removeEventListener('pointerdown', onPointerDown, true)
     )
 
+    const onWheel = (event: WheelEvent): void => {
+      if (this.released || !this.visible) return
+      const target = event.target
+      if (!(target instanceof Element)) return
+      const wrap = target.closest<HTMLElement>('[data-sheet-image-id]')
+      if (!wrap || !this.root.contains(wrap)) return
+
+      let deltaX = Number.isFinite(event.deltaX) ? event.deltaX : 0
+      let deltaY = Number.isFinite(event.deltaY) ? event.deltaY : 0
+      if (event.shiftKey && deltaY && !deltaX) {
+        deltaX = deltaY
+        deltaY = 0
+      }
+
+      if (!deltaX && !deltaY) return
+
+      if (deltaX) {
+        const currentLeft =
+          typeof this.table.getScrollLeft === 'function'
+            ? this.table.getScrollLeft()
+            : (this.table.scrollLeft ?? 0)
+        if (typeof this.table.setScrollLeft === 'function') {
+          this.table.setScrollLeft(currentLeft + deltaX)
+        } else {
+          this.table.scrollLeft = currentLeft + deltaX
+        }
+      }
+
+      if (deltaY) {
+        const currentTop =
+          typeof this.table.getScrollTop === 'function'
+            ? this.table.getScrollTop()
+            : (this.table.scrollTop ?? 0)
+        if (typeof this.table.setScrollTop === 'function') {
+          this.table.setScrollTop(currentTop + deltaY)
+        } else {
+          this.table.scrollTop = currentTop + deltaY
+        }
+      }
+
+      if (event.cancelable) {
+        event.preventDefault()
+      }
+    }
+    this.root.addEventListener('wheel', onWheel, { passive: false })
+    this.disposers.push(() => this.root.removeEventListener('wheel', onWheel))
+
     const onKeyDown = (event: KeyboardEvent): void => {
       // 只读：Delete/Backspace 删除走 removeImage 写模型，整个不响应
       if (!this.selectedId || this.released || !this.visible || this.isReadonly) return

@@ -1,5 +1,5 @@
 import { ListTable } from '@visactor/vtable'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { Sheet } from '../../core/sheet'
 import {
@@ -1095,5 +1095,214 @@ describe('多实例编辑路由（编辑器 hook 按发起编辑的 table 反查
     } finally {
       grid.release()
     }
+  })
+})
+
+describe('移动端触控滑动滚动支持', () => {
+  it('touch 事件滑动触发水平与垂直平滑滚动', () => {
+    const container = createContainer()
+    const sheet = new Sheet()
+    const grid = new SheetGrid({ container, sheet, rows: 50, cols: 20 })
+    try {
+      const table = grid.getTable()
+      const initialScrollLeft = table.scrollLeft
+      const initialScrollTop = table.scrollTop
+
+      // touchstart: 按下单指 (100, 200)
+      container.dispatchEvent(
+        new TouchEvent('touchstart', {
+          touches: [{ clientX: 100, clientY: 200 } as any],
+          bubbles: true
+        })
+      )
+
+      // touchmove: 滑动到 (70, 150)（向左滑 30px，向上滑 50px）
+      container.dispatchEvent(
+        new TouchEvent('touchmove', {
+          touches: [{ clientX: 70, clientY: 150 } as any],
+          bubbles: true
+        })
+      )
+
+      expect(table.scrollLeft).toBe(initialScrollLeft + 30)
+      expect(table.scrollTop).toBe(initialScrollTop + 50)
+
+      // 再次滑动到 (50, 100)（向左再滑 20px，向上再滑 50px）
+      container.dispatchEvent(
+        new TouchEvent('touchmove', {
+          touches: [{ clientX: 50, clientY: 100 } as any],
+          bubbles: true
+        })
+      )
+
+      expect(table.scrollLeft).toBe(initialScrollLeft + 50)
+      expect(table.scrollTop).toBe(initialScrollTop + 100)
+
+      // 反向滑动到 (80, 120)（向右滑 30px，向下滑 20px）
+      container.dispatchEvent(
+        new TouchEvent('touchmove', {
+          touches: [{ clientX: 80, clientY: 120 } as any],
+          bubbles: true
+        })
+      )
+
+      expect(table.scrollLeft).toBe(initialScrollLeft + 20)
+      expect(table.scrollTop).toBe(initialScrollTop + 80)
+
+      // touchend 结束触控
+      container.dispatchEvent(new TouchEvent('touchend', { touches: [], bubbles: true }))
+
+      // 触控结束后未 touchstart 的 touchmove 不应触发表格滚动
+      container.dispatchEvent(
+        new TouchEvent('touchmove', {
+          touches: [{ clientX: 10, clientY: 10 } as any],
+          bubbles: true
+        })
+      )
+
+      expect(table.scrollLeft).toBe(initialScrollLeft + 20)
+      expect(table.scrollTop).toBe(initialScrollTop + 80)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('多点触控（touches.length > 1）时不触发滑动滚动', () => {
+    const container = createContainer()
+    const sheet = new Sheet()
+    const grid = new SheetGrid({ container, sheet, rows: 50, cols: 20 })
+    try {
+      const table = grid.getTable()
+      const initialScrollLeft = table.scrollLeft
+      const initialScrollTop = table.scrollTop
+
+      // 双指触摸
+      container.dispatchEvent(
+        new TouchEvent('touchstart', {
+          touches: [{ clientX: 100, clientY: 200 } as any, { clientX: 150, clientY: 250 } as any],
+          bubbles: true
+        })
+      )
+
+      container.dispatchEvent(
+        new TouchEvent('touchmove', {
+          touches: [{ clientX: 70, clientY: 150 } as any, { clientX: 120, clientY: 200 } as any],
+          bubbles: true
+        })
+      )
+
+      expect(table.scrollLeft).toBe(initialScrollLeft)
+      expect(table.scrollTop).toBe(initialScrollTop)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('触控 pointer 事件（pointerType: touch / pen）触发平滑滚动', () => {
+    const container = createContainer()
+    const sheet = new Sheet()
+    const grid = new SheetGrid({ container, sheet, rows: 50, cols: 20 })
+    try {
+      const table = grid.getTable()
+      const initialScrollLeft = table.scrollLeft
+      const initialScrollTop = table.scrollTop
+
+      container.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          pointerId: 1,
+          pointerType: 'touch',
+          clientX: 200,
+          clientY: 300,
+          bubbles: true
+        })
+      )
+
+      container.dispatchEvent(
+        new PointerEvent('pointermove', {
+          pointerId: 1,
+          pointerType: 'touch',
+          clientX: 160,
+          clientY: 240,
+          bubbles: true
+        })
+      )
+
+      expect(table.scrollLeft).toBe(initialScrollLeft + 40)
+      expect(table.scrollTop).toBe(initialScrollTop + 60)
+
+      container.dispatchEvent(
+        new PointerEvent('pointerup', { pointerId: 1, pointerType: 'touch', bubbles: true })
+      )
+
+      // pointerup 之后不再响应 pointermove
+      container.dispatchEvent(
+        new PointerEvent('pointermove', {
+          pointerId: 1,
+          pointerType: 'touch',
+          clientX: 100,
+          clientY: 100,
+          bubbles: true
+        })
+      )
+
+      expect(table.scrollLeft).toBe(initialScrollLeft + 40)
+      expect(table.scrollTop).toBe(initialScrollTop + 60)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('鼠标 pointer 事件（pointerType: mouse）不触发表格触控拖拽滚动', () => {
+    const container = createContainer()
+    const sheet = new Sheet()
+    const grid = new SheetGrid({ container, sheet, rows: 50, cols: 20 })
+    try {
+      const table = grid.getTable()
+      const initialScrollLeft = table.scrollLeft
+      const initialScrollTop = table.scrollTop
+
+      container.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          pointerId: 1,
+          pointerType: 'mouse',
+          clientX: 200,
+          clientY: 300,
+          bubbles: true
+        })
+      )
+
+      container.dispatchEvent(
+        new PointerEvent('pointermove', {
+          pointerId: 1,
+          pointerType: 'mouse',
+          clientX: 100,
+          clientY: 100,
+          bubbles: true
+        })
+      )
+
+      expect(table.scrollLeft).toBe(initialScrollLeft)
+      expect(table.scrollTop).toBe(initialScrollTop)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('destroy / release 时清理触控事件监听器，避免内存泄漏', () => {
+    const container = createContainer()
+    const removeListenerSpy = vi.spyOn(container, 'removeEventListener')
+    const sheet = new Sheet()
+    const grid = new SheetGrid({ container, sheet, rows: 50, cols: 20 })
+
+    grid.destroy()
+
+    expect(removeListenerSpy).toHaveBeenCalledWith('touchstart', expect.any(Function))
+    expect(removeListenerSpy).toHaveBeenCalledWith('touchmove', expect.any(Function))
+    expect(removeListenerSpy).toHaveBeenCalledWith('touchend', expect.any(Function))
+    expect(removeListenerSpy).toHaveBeenCalledWith('touchcancel', expect.any(Function))
+    expect(removeListenerSpy).toHaveBeenCalledWith('pointerdown', expect.any(Function))
+    expect(removeListenerSpy).toHaveBeenCalledWith('pointermove', expect.any(Function))
+    expect(removeListenerSpy).toHaveBeenCalledWith('pointerup', expect.any(Function))
+    expect(removeListenerSpy).toHaveBeenCalledWith('pointercancel', expect.any(Function))
   })
 })

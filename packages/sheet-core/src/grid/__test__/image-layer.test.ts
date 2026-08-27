@@ -582,4 +582,113 @@ describe('ImageLayer（canvas-mock）', () => {
       grid.release()
     }
   })
+
+  it('鼠标悬停在浮动图片上转动滚轮时转发垂直与水平滚动（含 shift 键横滚）', () => {
+    const { sheet, grid, table, container, layer } = createGrid(100, 20)
+    track(container)
+    try {
+      sheet.insertImage(makeInput({ id: 'img-wheel', anchor: { from: { row: 0, col: 0 } } }))
+      layer.flush()
+
+      const node = imageNodes(container)[0]!
+      const setScrollTopSpy = vi.spyOn(table, 'setScrollTop')
+      const setScrollLeftSpy = vi.spyOn(table, 'setScrollLeft')
+
+      // 初始位置为 0 时的垂直滚动 deltaY: 50
+      vi.spyOn(table, 'getScrollTop').mockReturnValue(0)
+      vi.spyOn(table, 'getScrollLeft').mockReturnValue(0)
+
+      const verticalEvent = new WheelEvent('wheel', {
+        bubbles: true,
+        cancelable: true,
+        deltaX: 0,
+        deltaY: 50
+      })
+      node.dispatchEvent(verticalEvent)
+      expect(setScrollTopSpy).toHaveBeenCalledWith(50)
+      expect(verticalEvent.defaultPrevented).toBe(true)
+
+      // 水平滚动 deltaX: 40
+      const horizontalEvent = new WheelEvent('wheel', {
+        bubbles: true,
+        cancelable: true,
+        deltaX: 40,
+        deltaY: 0
+      })
+      node.dispatchEvent(horizontalEvent)
+      expect(setScrollLeftSpy).toHaveBeenCalledWith(40)
+      expect(horizontalEvent.defaultPrevented).toBe(true)
+
+      // Shift + 垂直滚轮（当前 scrollLeft=40，deltaY=30）转为水平滚动到 70
+      vi.spyOn(table, 'getScrollLeft').mockReturnValue(40)
+      const shiftWheelEvent = new WheelEvent('wheel', {
+        bubbles: true,
+        cancelable: true,
+        deltaX: 0,
+        deltaY: 30
+      })
+      Object.defineProperty(shiftWheelEvent, 'shiftKey', { value: true, configurable: true })
+      node.dispatchEvent(shiftWheelEvent)
+      expect(setScrollLeftSpy).toHaveBeenCalledWith(70)
+      expect(shiftWheelEvent.defaultPrevented).toBe(true)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('只读模式下悬停在浮动图片上转动滚轮依然转发滚动', () => {
+    const sheet = new Sheet()
+    const container = track(createContainer())
+    const grid = new SheetGrid({ container, sheet, rows: 100, cols: 20, readonly: true })
+    const table = grid.getTable()
+    const layer = grid.getImageLayer()
+    try {
+      sheet.insertImage(makeInput({ id: 'img-ro-wheel', anchor: { from: { row: 0, col: 0 } } }))
+      layer.flush()
+
+      const node = imageNodes(container)[0]!
+      const setScrollTopSpy = vi.spyOn(table, 'setScrollTop')
+
+      const event = new WheelEvent('wheel', {
+        bubbles: true,
+        cancelable: true,
+        deltaX: 0,
+        deltaY: 60
+      })
+      node.dispatchEvent(event)
+      expect(setScrollTopSpy).toHaveBeenCalledWith(60)
+      expect(event.defaultPrevented).toBe(true)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('销毁 ImageLayer 时清理 wheel 监听器，销毁后派发滚轮不报错且不触发滚动', () => {
+    const sheet = new Sheet()
+    const container = track(createContainer())
+    const grid = new SheetGrid({ container, sheet, rows: 100, cols: 20 })
+    const table = grid.getTable()
+    const layer = grid.getImageLayer()
+    try {
+      sheet.insertImage(
+        makeInput({ id: 'img-dispose-wheel', anchor: { from: { row: 0, col: 0 } } })
+      )
+      layer.flush()
+
+      const node = imageNodes(container)[0]!
+      grid.release()
+
+      const setScrollTopSpy = vi.spyOn(table, 'setScrollTop')
+      const event = new WheelEvent('wheel', {
+        bubbles: true,
+        cancelable: true,
+        deltaX: 0,
+        deltaY: 60
+      })
+      node.dispatchEvent(event)
+      expect(setScrollTopSpy).not.toHaveBeenCalled()
+    } finally {
+      // already released
+    }
+  })
 })

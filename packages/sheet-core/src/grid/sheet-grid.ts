@@ -174,6 +174,7 @@ export class SheetGrid {
     )
     this.disposers.push(...sheetDisposers)
     this.bindKeyboard()
+    this.bindTouchScroll()
 
     this.imageLayer = new ImageLayer({
       container: this.container,
@@ -282,6 +283,10 @@ export class SheetGrid {
     this.disposers.length = 0
     unregisterGridEditor(this.table)
     this.table.release()
+  }
+
+  destroy(): void {
+    this.release()
   }
 
   private static frozenToVTableCounts(
@@ -485,5 +490,109 @@ export class SheetGrid {
     }
     this.container.addEventListener('keydown', onKeyDown)
     this.disposers.push(() => this.container.removeEventListener('keydown', onKeyDown))
+  }
+
+  private bindTouchScroll(): void {
+    let touchStartX = 0
+    let touchStartY = 0
+    let isTouching = false
+
+    let pointerTouchStartX = 0
+    let pointerTouchStartY = 0
+    let isPointerTouching = false
+    let activePointerId: number | null = null
+
+    const onTouchStart = (event: TouchEvent): void => {
+      if (event.touches.length === 1) {
+        const touch = event.touches[0]!
+        touchStartX = touch.clientX
+        touchStartY = touch.clientY
+        isTouching = true
+      } else {
+        isTouching = false
+      }
+    }
+
+    const onTouchMove = (event: TouchEvent): void => {
+      if (!isTouching || event.touches.length !== 1) return
+      const touch = event.touches[0]!
+      const deltaX = touch.clientX - touchStartX
+      const deltaY = touch.clientY - touchStartY
+      touchStartX = touch.clientX
+      touchStartY = touch.clientY
+
+      if (deltaX !== 0) {
+        this.table.setScrollLeft(this.table.scrollLeft - deltaX)
+      }
+      if (deltaY !== 0) {
+        this.table.setScrollTop(this.table.scrollTop - deltaY)
+      }
+    }
+
+    const onTouchEnd = (): void => {
+      isTouching = false
+    }
+
+    const onTouchCancel = (): void => {
+      isTouching = false
+    }
+
+    const onPointerDown = (event: PointerEvent): void => {
+      if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return
+      if (isTouching) return
+      activePointerId = event.pointerId
+      pointerTouchStartX = event.clientX
+      pointerTouchStartY = event.clientY
+      isPointerTouching = true
+    }
+
+    const onPointerMove = (event: PointerEvent): void => {
+      if (!isPointerTouching || event.pointerId !== activePointerId || isTouching) return
+      const deltaX = event.clientX - pointerTouchStartX
+      const deltaY = event.clientY - pointerTouchStartY
+      pointerTouchStartX = event.clientX
+      pointerTouchStartY = event.clientY
+
+      if (deltaX !== 0) {
+        this.table.setScrollLeft(this.table.scrollLeft - deltaX)
+      }
+      if (deltaY !== 0) {
+        this.table.setScrollTop(this.table.scrollTop - deltaY)
+      }
+    }
+
+    const onPointerUp = (event: PointerEvent): void => {
+      if (event.pointerId === activePointerId) {
+        isPointerTouching = false
+        activePointerId = null
+      }
+    }
+
+    const onPointerCancel = (event: PointerEvent): void => {
+      if (event.pointerId === activePointerId) {
+        isPointerTouching = false
+        activePointerId = null
+      }
+    }
+
+    this.container.addEventListener('touchstart', onTouchStart, { passive: true })
+    this.container.addEventListener('touchmove', onTouchMove, { passive: true })
+    this.container.addEventListener('touchend', onTouchEnd, { passive: true })
+    this.container.addEventListener('touchcancel', onTouchCancel, { passive: true })
+    this.container.addEventListener('pointerdown', onPointerDown)
+    this.container.addEventListener('pointermove', onPointerMove)
+    this.container.addEventListener('pointerup', onPointerUp)
+    this.container.addEventListener('pointercancel', onPointerCancel)
+
+    this.disposers.push(() => {
+      this.container.removeEventListener('touchstart', onTouchStart)
+      this.container.removeEventListener('touchmove', onTouchMove)
+      this.container.removeEventListener('touchend', onTouchEnd)
+      this.container.removeEventListener('touchcancel', onTouchCancel)
+      this.container.removeEventListener('pointerdown', onPointerDown)
+      this.container.removeEventListener('pointermove', onPointerMove)
+      this.container.removeEventListener('pointerup', onPointerUp)
+      this.container.removeEventListener('pointercancel', onPointerCancel)
+    })
   }
 }
