@@ -172,10 +172,15 @@ export class GridSelectionController {
     }
   }
   pushSelectionToTable(state: SelectionState, rows: number, cols: number): void {
-    const range =
+    let range =
       state.ranges[0] ??
       (state.activeCell ? { start: state.activeCell, end: state.activeCell } : null)
     if (!range) return
+    // 单格选区若处于合并单元格内部，自动扩展到该合并单元格的完整包围盒
+    if (range.start.row === range.end.row && range.start.col === range.end.col) {
+      const merge = this.sheet.merges.getMergeAt(range.start)
+      if (merge) range = merge
+    }
     const { colOffset, rowOffset } = this.coords.getOffsets(this.table)
     const start = this.coords.toTableCoord(this.table, range.start)
     const end = this.coords.toTableCoord(this.table, range.end)

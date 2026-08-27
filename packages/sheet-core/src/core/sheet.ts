@@ -191,7 +191,12 @@ export class Sheet {
 
   constructor(name = 'Sheet1', formulaGraph?: DependencyGraph) {
     this._name = name
-    this.selection = new SelectionModel((addr) => this.merges.resolveAnchor(addr))
+    this.selection = new SelectionModel(
+      (addr) => this.merges.resolveAnchor(addr),
+      (addr) =>
+        this.merges.getMergeAt(addr) ??
+        createRange(this.merges.resolveAnchor(addr), this.merges.resolveAnchor(addr))
+    )
     this.selection.on((state) => this.emitter.emit('selection-change', state))
     this.history = new HistoryManager(this.boundApplyPatch)
     this.history.onChange((state) => this.emitter.emit('history-change', state))

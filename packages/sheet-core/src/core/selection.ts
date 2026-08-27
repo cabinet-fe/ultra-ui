@@ -19,7 +19,10 @@ export class SelectionModel {
   private state: SelectionState = { activeCell: null, ranges: [] }
   private emitter = new TypedEventEmitter<SelectionEvents>()
 
-  constructor(private readonly resolveAnchor: (addr: CellAddress) => CellAddress) {}
+  constructor(
+    private readonly resolveAnchor: (addr: CellAddress) => CellAddress,
+    private readonly resolveRange?: (addr: CellAddress) => CellRange
+  ) {}
 
   get activeCell(): CellAddress | null {
     return this.state.activeCell
@@ -29,10 +32,11 @@ export class SelectionModel {
     return this.state.ranges
   }
 
-  /** 选中单格；被覆盖格自动解析到锚点 */
+  /** 选中单格；被覆盖格自动解析到锚点并扩展至合并区域完整范围 */
   selectCell(addr: CellAddress): void {
     const anchor = this.resolveAnchor(addr)
-    this.setState({ activeCell: anchor, ranges: [createRange(anchor, anchor)] })
+    const range = this.resolveRange ? this.resolveRange(addr) : createRange(anchor, anchor)
+    this.setState({ activeCell: anchor, ranges: [range] })
   }
 
   /**

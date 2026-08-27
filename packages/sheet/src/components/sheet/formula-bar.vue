@@ -170,7 +170,21 @@ function handleRefSelect(range: CellRange): void {
 
 function nameText(state: SelectionState): string {
   const range = state.ranges[0]
-  if (range) return formatRange(range)
+  if (range) {
+    if (state.activeCell) {
+      const merge = props.sheet.merges.getMergeAt(state.activeCell)
+      if (
+        merge &&
+        range.start.row === merge.start.row &&
+        range.start.col === merge.start.col &&
+        range.end.row === merge.end.row &&
+        range.end.col === merge.end.col
+      ) {
+        return formatAddress(state.activeCell)
+      }
+    }
+    return formatRange(range)
+  }
   return state.activeCell ? formatAddress(state.activeCell) : ''
 }
 

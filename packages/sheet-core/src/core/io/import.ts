@@ -421,6 +421,8 @@ function applyHucreSheet(
     target.rollback()
     throw error
   }
+  // 导入合并后重选活动格，使合并格（如 A1:E1）选区范围完整包裹合并包围盒
+  target.selectCell(target.selection.activeCell ?? { row: 0, col: 0 })
   // 冻结与行高/列宽：模型状态，不进 undo（定义的行/列计入尺寸）
   target.setFrozen(source.freezePane?.rows ?? 0, source.freezePane?.columns ?? 0)
   // 行高/列宽只应用到实际渲染范围。hucre 会把 Excel 默认列宽物化成

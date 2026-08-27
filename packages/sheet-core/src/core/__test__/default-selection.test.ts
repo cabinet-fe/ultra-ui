@@ -104,4 +104,21 @@ describe('默认选区 A1', () => {
     expect(sheet.getSelection().activeCell).toEqual(B2)
     expect(sheet.getCellData(A1)).toBeUndefined()
   })
+
+  it('单格选中合并单元格：选区范围自动扩展为合并单元格完整包围盒', () => {
+    const sheet = new Sheet()
+    sheet.mergeCells({ start: A1, end: { row: 0, col: 4 } })
+    sheet.selectCell(A1)
+    expect(sheet.getSelection()).toEqual({
+      activeCell: A1,
+      ranges: [{ start: A1, end: { row: 0, col: 4 } }]
+    })
+
+    // 点击被合并覆盖的非锚点格（如 C1），同样定位到锚点并扩展为 A1:E1
+    sheet.selectCell({ row: 0, col: 2 })
+    expect(sheet.getSelection()).toEqual({
+      activeCell: A1,
+      ranges: [{ start: A1, end: { row: 0, col: 4 } }]
+    })
+  })
 })
