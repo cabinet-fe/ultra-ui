@@ -1,5 +1,11 @@
 # @veltra/sheet
 
+## 2.5.2
+
+### Patch Changes
+
+- 4f2903a: - 修复工具栏组件缺失 UTip 导入导致工具提示无法正常渲染的问题。
+
 ## 2.5.1
 
 ### Patch Changes
