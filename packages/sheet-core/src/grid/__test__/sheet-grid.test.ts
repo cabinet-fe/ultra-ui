@@ -770,6 +770,45 @@ describe('SheetGrid（happy-dom smoke）', () => {
     }
   })
 
+  it('合并单元格（跨列）换行行高按合并总宽度估算，而非单列宽度', () => {
+    const container = createContainer()
+    const sheet = new Sheet()
+    sheet.ensureTableSize(10, 10)
+    sheet.mergeCells({ start: { row: 0, col: 0 }, end: { row: 0, col: 4 } })
+    sheet.setCellValue(
+      { row: 0, col: 0 },
+      '各部门报账员登录系统，只看到本部门的预算项目，每个预算项目都有对应的预算项目明细'
+    )
+    sheet.setCellStyle(
+      { start: { row: 0, col: 0 }, end: { row: 0, col: 0 } },
+      { align: { wrap: true } }
+    )
+    const grid = new SheetGrid({ container, sheet, rows: 10, cols: 10 })
+    try {
+      // 合并跨 5 列（总宽 ≥ 360px），两行文字行高 ~46px，不会按单列 72px 膨胀到 150px+
+      const height = sheet.getRowHeight(0)
+      expect(height).toBeLessThan(70)
+      expect(height).toBeGreaterThanOrEqual(42)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('包含显式换行符 \n 的文本格能自动估算撑开多行行高', () => {
+    const container = createContainer()
+    const sheet = new Sheet()
+    sheet.ensureTableSize(10, 10)
+    sheet.setColWidth(0, 300)
+    sheet.setCellValue({ row: 1, col: 0 }, '第1行\n第2行\n第3行\n第4行\n第5行')
+    const grid = new SheetGrid({ container, sheet, rows: 10, cols: 10 })
+    try {
+      const height = sheet.getRowHeight(1)
+      expect(height).toBeGreaterThanOrEqual(90)
+    } finally {
+      grid.release()
+    }
+  })
+
   it('纯样式格进入编辑后无改动退出：保留 fill/border（不删 s）', () => {
     const { sheet, grid, table } = createGrid()
     try {

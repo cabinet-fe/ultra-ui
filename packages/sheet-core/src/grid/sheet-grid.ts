@@ -382,6 +382,8 @@ export class SheetGrid {
       columns: this.buildColumns(),
       widthMode: 'standard',
       defaultRowHeight: SHEET_DEFAULT_ROW_HEIGHT,
+      enableLineBreak: true,
+      maxCharactersNumber: 50000,
       // 稀疏行高：回调读模型 Map（导入/拖拽/wrap 估算）。不要用 rowHeightConfig
       // 全量数组——VTable 一旦有该字段就打开 isAutoRowHeight，并按数组 find
       // 取每一行，大表切 sheet 时主线程会卡在首屏量高。

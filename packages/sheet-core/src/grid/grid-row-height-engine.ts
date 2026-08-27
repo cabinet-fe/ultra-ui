@@ -24,12 +24,16 @@ export function estimateWrapRowHeight(params: {
   const padX = SHEET_CELL_PADDING[1] + SHEET_CELL_PADDING[3]
   const padY = SHEET_CELL_PADDING[0] + SHEET_CELL_PADDING[2]
   const available = Math.max(fontPx, params.colWidth - padX)
-  const charWidth = fontPx * CHAR_WIDTH_RATIO
   const lineHeight = fontPx * LINE_HEIGHT_RATIO
   let lines = 0
   for (const paragraph of params.text.split('\n')) {
-    const chars = paragraph.length || 1
-    lines += Math.max(1, Math.ceil((chars * charWidth) / available))
+    let units = 0
+    for (let i = 0; i < paragraph.length; i++) {
+      const code = paragraph.charCodeAt(i)
+      units += code > 0x7f ? 1.0 : CHAR_WIDTH_RATIO
+    }
+    if (units === 0) units = 1
+    lines += Math.max(1, Math.ceil((units * fontPx) / available))
   }
   if (lines === 0) lines = 1
   return Math.max(SHEET_DEFAULT_ROW_HEIGHT, Math.ceil(lines * lineHeight + padY))
@@ -50,10 +54,8 @@ export class GridRowHeightEngine {
    * 构造前把 wrap 估算写入模型（不进 undo）。
    * 只扫稀疏有数据的行/格，禁止按渲染行列做稠密双重循环——大表切 sheet
    * 重建时 O(rows×cols) 的 getEffectiveStyle 是主线程卡顿主因。
-   * 样式池无 wrap 且无动态 hook 时整表跳过。
    */
   applyWrapEstimates(styleResolver: GridStyleResolver, defaultColWidth: number): void {
-    if (!styleResolver.hasDynamicStyle() && !this.sheet.stylePool.hasAlignWrap()) return
     for (const row of this.sheet.store.rowKeys()) {
       if (row >= this.rows) continue
       const estimated = this.estimateWrapRowHeightForRow(row, defaultColWidth, styleResolver)
@@ -94,14 +96,29 @@ export class GridRowHeightEngine {
     for (const [col] of this.sheet.store.peekRow(row)) {
       if (col >= this.cols) continue
       const addr = { row, col }
+      const merge = this.sheet.merges.getMergeAt(addr)
+      // 如果属于合并格且不是锚点（左上角），跳过
+      if (merge && (merge.start.row !== row || merge.start.col !== col)) continue
+      // 如果合并格跨多行，单行不独占全量高度，跳过
+      if (merge && merge.start.row !== merge.end.row) continue
+
       const metrics = styleResolver.getWrapMetrics(addr)
       const text = String(this.sheet.getDisplayValue(addr) ?? '')
       const hasNewline = text.includes('\n')
       if (!metrics.wrap && !hasNewline) continue
       hasWrap = true
+
+      let cellWidth = getColWidth(col)
+      if (merge && merge.start.col !== merge.end.col) {
+        cellWidth = 0
+        for (let c = merge.start.col; c <= merge.end.col; c++) {
+          cellWidth += getColWidth(c)
+        }
+      }
+
       const height = estimateWrapRowHeight({
         text,
-        colWidth: getColWidth(col),
+        colWidth: cellWidth,
         fontSizePt: metrics.fontSizePt
       })
       if (height > maxHeight) maxHeight = height
