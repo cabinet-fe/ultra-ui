@@ -1,3 +1,5 @@
 export * from './types'
 export * from './use-chat'
 export * from './transports'
+export * from './session'
+export * from './fold'

@@ -35,6 +35,8 @@ export interface ChatToolCall {
   result?: string
   /** 执行失败信息 */
   error?: string
+  /** 服务端下发的展示视图原文（session 模式可选） */
+  view?: unknown
 }
 
 /** 聊天消息 */
@@ -127,6 +129,44 @@ export interface ChatTool<A = any> {
   terminal?: boolean
   /** 工具实现，返回值（或 Promise 返回值）会被 JSON 序列化后回灌给模型 */
   execute: (args: A, ctx: ChatToolContext) => unknown
+}
+
+/**
+ * 服务端驱动模式下 tools 的合法形态：纯渲染元信息（执行在服务端）。
+ * 没有 execute / description / parameters / needsConfirm / terminal。
+ */
+export interface ChatToolMeta {
+  /** 与服务端 tool/call.name 匹配 */
+  name: string
+  /** 覆盖通用图标 */
+  icon?: Component
+  /** 工具显示名，缺省取 name */
+  label?: string
+  /** 自定义卡片/面板渲染，props 为 ChatToolRenderProps */
+  render?: Component
+  /** 渲染位置，语义同 ChatTool.renderTo */
+  renderTo?: 'inline' | 'panel'
+  /** 侧边面板默认宽度，语义同 ChatTool.panelWidth */
+  panelWidth?: number
+  /** 侧边面板标题，语义同 ChatTool.panelTitle */
+  panelTitle?: string | ((toolCall: ChatToolCall) => string)
+  /** 执行完成后是否自动折叠 */
+  autoCollapse?: boolean
+}
+
+/** 作业条项状态：至少区分进行中与终态 */
+export type ChatJobStatus = 'running' | 'done' | 'error'
+
+/** 服务端下发的作业条项 */
+export interface ChatJob {
+  /** 稳定 id */
+  id: string
+  /** 作业类型（用于图标映射） */
+  kind: string
+  /** 展示文案 */
+  label: string
+  /** 进行中或终态 */
+  status: ChatJobStatus
 }
 
 /** 工具自定义渲染组件 / 渲染函数的 props */
