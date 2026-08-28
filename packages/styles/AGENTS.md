@@ -49,6 +49,8 @@ src/
 
 `@veltra/styles/theme` 运行时依赖 `@veltra/compositions` 的 `useConfig`。**compositions 不得 re-export theme**，避免与 styles 循环依赖。
 
+侧栏导航（nav / dual-nav / group-nav）外观：主题 `nav.variant`（`dark` 深底浅字 / `light` 浅底深字，默认 `dark`）选择 `component-css-vars.ts` 中「变体 × 系列」内置 token 组，主题 `nav` 的其余键作为 `--u-nav-*` 覆盖追加在最后（优先级最高）；preset 可用该机制定义侧栏个性色（如 sakura 深酒红）。
+
 ## 依赖
 
 - **peer**：`@cat-kit/core`、`@veltra/compositions`、`@veltra/utils`、`vue`

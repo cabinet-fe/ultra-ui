@@ -1,6 +1,8 @@
 /**
  * 桌面组件级 `--u-*` token，随 `UITheme.render()` 按主题系列（light/dark）注入 `html`。
  * 修改此处即可在 TS 侧统一调整组件外观，无需在各组件 `style.scss` 重复声明。
+ * nav 系列：外观（底色/前景）不在此列表，由 `navSidebarCssVars` 按主题 `nav.variant`
+ * （dark 深底浅字 / light 浅底深字，默认 dark）与 `nav` 覆盖项注入，见 `ui-theme.ts`。
  */
 
 /** 与 SCSS `fn.use-var($basename, $nodes...)` 输出一致 */
@@ -25,15 +27,10 @@ export const componentCssVarsLight: Record<string, string> = {
   '--u-table-current-color': 'inherit',
   '--u-table-checked-bg': T('color', 'primary', 'light-9'),
   '--u-table-checked-color': 'inherit',
-  '--u-nav-color': T('text-color', 'title'),
-  '--u-nav-hover-bg': T('text-color', 'title', 'a', '8'),
-  '--u-nav-hover-color': T('text-color', 'title'),
-  '--u-nav-active-bg': T('color', 'primary', 'a', '10'),
-  '--u-nav-active-color': T('color', 'primary', 'dark', '1'),
+  // ─── Nav 系列（nav / dual-nav / group-nav）尺寸与资源类；外观见文件底部 navSidebarCssVars ───
   '--u-nav-height-small': '32px',
   '--u-nav-height-default': '36px',
   '--u-nav-height-large': '40px',
-  '--u-nav-bg-color': T('bg-color', 'top'),
   '--u-nav-bg-image': 'none',
   '--u-nav-rail-width': '56px',
   '--u-nav-rail-labeled-width': '72px',
@@ -128,12 +125,6 @@ export const componentCssVarsDark: Record<string, string> = {
   '--u-table-current-color': 'inherit',
   '--u-table-checked-bg': T('color', 'primary', 'dark', '1'),
   '--u-table-checked-color': 'inherit',
-  '--u-nav-color': T('text-color', 'main'),
-  '--u-nav-hover-bg': T('text-color', 'title', 'a', '8'),
-  '--u-nav-hover-color': T('text-color', 'title'),
-  '--u-nav-active-bg': T('color', 'primary', 'a', '16'),
-  '--u-nav-active-color': T('text-color', 'white'),
-  '--u-nav-bg-color': T('bg-color', 'middle'),
   '--u-radio-border': '#595959',
   '--u-checkbox-border': '#595959',
 
@@ -201,3 +192,89 @@ function recordToDeclList(record: Record<string, string>): string[] {
 export const componentCssVarsLightDecls: string[] = recordToDeclList(componentCssVarsLight)
 
 export const componentCssVarsDarkDecls: string[] = recordToDeclList(componentCssVarsDark)
+
+// ─── Nav 侧栏外观：深/浅变体 × 明/暗主题系列 ───
+// 由 UITheme 按主题 `nav.variant`（默认 dark）选择注入，主题 `nav` 的其余键可逐项覆盖。
+
+/** 侧栏外观变体：dark 深底浅字 / light 浅底深字 */
+export type NavSidebarVariant = 'dark' | 'light'
+
+/** 深侧栏 · 浅色主题下：深底（text-color.title）+ 浅前景，与浅色内容区拉开区分度 */
+const navSidebarDarkInLight: Record<string, string> = {
+  '--u-nav-bg-color': T('text-color', 'title'),
+  '--u-nav-color': 'rgba(255, 255, 255, 0.72)',
+  '--u-nav-hover-bg': 'rgba(255, 255, 255, 0.08)',
+  '--u-nav-hover-color': T('text-color', 'white'),
+  '--u-nav-active-bg': T('color', 'primary', 'a', '22'),
+  '--u-nav-active-color': T('text-color', 'white'),
+  '--u-nav-strong-color': T('text-color', 'white'),
+  '--u-nav-second-color': 'rgba(255, 255, 255, 0.45)',
+  '--u-nav-sub-border-color': 'rgba(255, 255, 255, 0.15)',
+  '--u-nav-rail-bg': 'rgba(0, 0, 0, 0.2)'
+}
+
+/** 浅侧栏 · 浅色主题下：比内容区 top 低一档的浅底 + 深前景 */
+const navSidebarLightInLight: Record<string, string> = {
+  '--u-nav-bg-color': T('bg-color', 'middle'),
+  '--u-nav-color': T('text-color', 'title'),
+  '--u-nav-hover-bg': T('text-color', 'title', 'a', '8'),
+  '--u-nav-hover-color': T('text-color', 'title'),
+  '--u-nav-active-bg': T('color', 'primary', 'a', '10'),
+  '--u-nav-active-color': T('color', 'primary', 'dark', '1'),
+  '--u-nav-strong-color': T('text-color', 'title'),
+  '--u-nav-second-color': T('text-color', 'second'),
+  '--u-nav-sub-border-color': T('border', 'color', 'a', '52'),
+  '--u-nav-rail-bg': T('bg-color', 'bottom')
+}
+
+/** 深侧栏 · 深色主题下：比内容区 top 深一档 */
+const navSidebarDarkInDark: Record<string, string> = {
+  '--u-nav-bg-color': T('bg-color', 'middle'),
+  '--u-nav-color': T('text-color', 'main'),
+  '--u-nav-hover-bg': T('text-color', 'title', 'a', '8'),
+  '--u-nav-hover-color': T('text-color', 'title'),
+  '--u-nav-active-bg': T('color', 'primary', 'a', '16'),
+  '--u-nav-active-color': T('text-color', 'white'),
+  '--u-nav-strong-color': T('text-color', 'title'),
+  '--u-nav-second-color': T('text-color', 'second'),
+  '--u-nav-sub-border-color': T('border', 'color', 'a', '52'),
+  '--u-nav-rail-bg': T('bg-color', 'bottom')
+}
+
+/** 浅侧栏 · 深色主题下：提亮侧栏（与深色内容区反向对比） */
+const navSidebarLightInDark: Record<string, string> = {
+  '--u-nav-bg-color': T('bg-color', 'top'),
+  '--u-nav-color': T('text-color', 'title'),
+  '--u-nav-hover-bg': T('text-color', 'title', 'a', '8'),
+  '--u-nav-hover-color': T('text-color', 'title'),
+  '--u-nav-active-bg': T('color', 'primary', 'a', '22'),
+  '--u-nav-active-color': T('color', 'primary'),
+  '--u-nav-strong-color': T('text-color', 'title'),
+  '--u-nav-second-color': T('text-color', 'second'),
+  '--u-nav-sub-border-color': T('border', 'color', 'a', '52'),
+  '--u-nav-rail-bg': T('bg-color', 'middle')
+}
+
+const navSidebarCssVars: Record<
+  'light' | 'dark',
+  Record<NavSidebarVariant, Record<string, string>>
+> = {
+  light: { dark: navSidebarDarkInLight, light: navSidebarLightInLight },
+  dark: { dark: navSidebarDarkInDark, light: navSidebarLightInDark }
+}
+
+/** 某主题系列 + 侧栏变体下的 nav 外观 token（键为 `--u-nav-*`） */
+export function navSidebarTokens(
+  series: 'light' | 'dark',
+  variant: NavSidebarVariant
+): Record<string, string> {
+  return { ...navSidebarCssVars[series][variant] }
+}
+
+/** 解析某主题系列 + 侧栏变体下的 nav 外观 token 声明列表 */
+export function resolveNavSidebarDecls(
+  series: 'light' | 'dark',
+  variant: NavSidebarVariant
+): string[] {
+  return recordToDeclList(navSidebarCssVars[series][variant])
+}

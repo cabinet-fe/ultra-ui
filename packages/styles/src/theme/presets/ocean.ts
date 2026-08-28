@@ -1,3 +1,4 @@
+import { mixColor } from '../helper'
 import { lightTheme } from './light'
 
 /** 海盐（松石青 + 冷白底，利落的快缓动），天生适合浅色 */
@@ -31,5 +32,9 @@ export const oceanTheme = lightTheme.new({
     sm: '0 1px 2px 0 rgba(21, 94, 89, 0.08)',
     lg: '0 8px 24px 0 rgba(21, 94, 89, 0.12), 0 2px 6px 0 rgba(21, 94, 89, 0.06)'
   },
-  transition: { fast: '0.12s', ease: 'cubic-bezier(0.22, 1, 0.36, 1)' }
+  transition: { fast: '0.12s', ease: 'cubic-bezier(0.22, 1, 0.36, 1)' },
+  nav: {
+    // 深海礁侧栏：深礁 + 松石青调和
+    'bg-color': mixColor('#16302e', '#0d9488', 0.25)
+  }
 })

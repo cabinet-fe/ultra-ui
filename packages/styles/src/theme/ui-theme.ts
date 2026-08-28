@@ -2,7 +2,12 @@ import { isObj, str } from '@cat-kit/core'
 import { withUnit } from '@veltra/utils'
 import { reactive, toRaw, watch } from 'vue'
 
-import { componentCssVarsDarkDecls, componentCssVarsLightDecls } from './component-css-vars'
+import {
+  componentCssVarsDarkDecls,
+  componentCssVarsLightDecls,
+  resolveNavSidebarDecls,
+  type NavSidebarVariant
+} from './component-css-vars'
 import { hexRgbOnly, hexWithAlpha, isHexColor, mixColor } from './helper'
 import type { Theme } from './type'
 
@@ -47,6 +52,8 @@ export class UITheme {
     parentKey = '--u'
   ): string[] {
     Object.keys(theme).forEach((key) => {
+      // nav 由 navSidebarDecls 按 variant + 覆盖项单独注入（须晚于组件级 token 才生效）
+      if (parentKey === '--u' && key === 'nav') return
       const value = theme[key]
       const varKey = `${parentKey.startsWith('-') ? parentKey : str(parentKey).kebabCase()}-${str(key).kebabCase()}`
       if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
@@ -236,6 +243,20 @@ export class UITheme {
     return decls.join(';')
   }
 
+  /**
+   * nav 侧栏外观声明：按主题 `nav.variant`（默认 dark）取内置深/浅侧栏 token，
+   * 主题 `nav` 的其余键作为 `--u-nav-*` 覆盖追加在最后（同规则后者生效）。
+   */
+  navSidebarDecls(theme: Theme): string[] {
+    const nav = theme.nav ?? {}
+    const variant: NavSidebarVariant = nav.variant === 'light' ? 'light' : 'dark'
+    const decls = resolveNavSidebarDecls(this.series, variant)
+    const overrides = Object.keys(nav)
+      .filter((key) => key !== 'variant' && typeof nav[key] === 'string' && nav[key])
+      .map((key) => `--u-nav-${str(key).kebabCase()}: ${nav[key]}`)
+    return [...decls, ...overrides]
+  }
+
   private static removeExistingStyleTag(doc: Document): void {
     const el = doc.getElementById(UITheme.themeID)
     if (el?.parentNode) {
@@ -271,11 +292,16 @@ export class UITheme {
     }
   }
 
-  /** 注入主题：全局 token + 与主题系列匹配的组件级 token，并写入 html[data-theme] */
+  /** 注入主题：全局 token + 与主题系列匹配的组件级 token + nav 侧栏外观，并写入 html[data-theme] */
   render(): void {
     const componentDecls =
       this.series === 'dark' ? componentCssVarsDarkDecls : componentCssVarsLightDecls
-    const decls = [...this.themeToDeclarationList(toRaw(this.theme)), ...componentDecls]
+    const raw = toRaw(this.theme)
+    const decls = [
+      ...this.themeToDeclarationList(raw),
+      ...componentDecls,
+      ...this.navSidebarDecls(raw)
+    ]
     const block = UITheme.declarationBlock(decls)
     const css = `html { ${block} }`
     UITheme.applyGlobalCSS(css)

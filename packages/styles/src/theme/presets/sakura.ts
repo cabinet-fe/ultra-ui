@@ -1,3 +1,4 @@
+import { mixColor } from '../helper'
 import { lightTheme } from './light'
 
 /** 樱花（柔粉 + 花瓣底，大圆角、弹性缓动），天生适合浅色 */
@@ -33,5 +34,9 @@ export const sakuraTheme = lightTheme.new({
     sm: '0 1px 2px 0 rgba(173, 58, 105, 0.08)',
     lg: '0 8px 24px 0 rgba(173, 58, 105, 0.14), 0 2px 6px 0 rgba(173, 58, 105, 0.08)'
   },
-  transition: { easeOut: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }
+  transition: { easeOut: 'cubic-bezier(0.34, 1.56, 0.64, 1)' },
+  nav: {
+    // 深酒红侧栏：樱墨 + 樱粉调和
+    'bg-color': mixColor('#43272f', '#e64980', 0.22)
+  }
 })

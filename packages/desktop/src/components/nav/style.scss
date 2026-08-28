@@ -33,7 +33,7 @@ $collapsed-nav: collapsed-nav;
     }
 
     @include m.is(expanded, branch-active) {
-      color: fn.use-var(text-color, title);
+      color: var(--u-nav-strong-color);
     }
 
     @include m.is(active) {
@@ -121,7 +121,7 @@ $collapsed-nav: collapsed-nav;
   }
 
   @include m.e(sub-expand, icon) {
-    color: fn.use-var(text-color, second);
+    color: var(--u-nav-second-color);
     display: inline-flex;
     justify-content: center;
     align-items: center;
@@ -146,7 +146,7 @@ $collapsed-nav: collapsed-nav;
     overflow: hidden;
     margin: 2px 0 0 12px;
     padding: 2px 0 2px 8px;
-    border-left: 1px solid fn.color-a(border, 52, color);
+    border-left: 1px solid var(--u-nav-sub-border-color);
 
     @include m.is(has-active) {
       border-left-color: fn.use-var(color, primary);
@@ -193,7 +193,7 @@ $collapsed-nav: collapsed-nav;
   }
 
   @include m.e(icon) {
-    color: fn.use-var(text-color, second);
+    color: var(--u-nav-second-color);
     object-fit: contain;
   }
 

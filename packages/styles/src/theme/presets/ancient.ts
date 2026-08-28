@@ -1,3 +1,4 @@
+import { mixColor } from '../helper'
 import { lightTheme } from './light'
 
 /** 古风（松烟绿 + 宣纸底），天生适合浅色 */
@@ -22,5 +23,9 @@ export const ancientTheme = lightTheme.new({
   },
   border: { width: 1, color: '#e4dcc8', mutedColor: '#d2c8ac' },
   radius: { small: 4, default: 8, large: 12 },
-  shadow: { color: 'rgba(64, 54, 32, 0.14)', x: 0, y: 4, blur: 16, spread: -2 }
+  shadow: { color: 'rgba(64, 54, 32, 0.14)', x: 0, y: 4, blur: 16, spread: -2 },
+  nav: {
+    // 松烟墨侧栏：黛墨 + 松烟绿调和
+    'bg-color': mixColor('#2b2a26', '#3d6b58', 0.28)
+  }
 })

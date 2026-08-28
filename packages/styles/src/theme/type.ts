@@ -180,6 +180,16 @@ export type Theme = {
     'default-bg'?: string
     [key: string]: any
   }
+  /**
+   * 侧栏导航（nav / dual-nav / group-nav）组件级变量。
+   * variant 选择深/浅侧栏外观，其余键覆盖同名 `--u-nav-*` token
+   * （如 `'bg-color'` → `--u-nav-bg-color`），覆盖优先级高于 variant 内置值。
+   */
+  nav?: {
+    /** 侧栏外观：dark 深底浅字 / light 浅底深字，默认 dark */
+    variant?: 'dark' | 'light'
+    [key: string]: any
+  }
   /** 折叠面板组件级变量 */
   collapse?: {
     /** 折叠项标题文字颜色 */

@@ -30,5 +30,7 @@ export const heroTheme = lightTheme.new({
     spread: 0,
     emboss: '0 2px 4px 0 #0000000a,0 1px 2px 0 #0000000f,0 0 3px 0px #0000000f'
   },
-  button: { 'default-bg': '#ebebec' }
+  button: { 'default-bg': '#ebebec' },
+  // HeroUI 风浅灰侧栏（演示浅色变体）
+  nav: { variant: 'light' }
 })

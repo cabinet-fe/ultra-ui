@@ -82,6 +82,48 @@ describe('UITheme', () => {
     expect(componentCssVarsDark['--u-focus-ring']).toContain('--u-color-primary-a-')
   })
 
+  it('nav sidebar defaults to dark variant, resolved per series', () => {
+    // light 系列：深底（text-color.title）+ 浅前景，与浅色内容区拉开区分度
+    const lightDecls = lightTheme.navSidebarDecls(lightTheme.theme)
+    expect(lightDecls).toContain('--u-nav-bg-color: var(--u-text-color-title)')
+    expect(lightDecls).toContain('--u-nav-color: rgba(255, 255, 255, 0.72)')
+    // dark 系列：侧栏比内容区 top 深一档
+    const darkDecls = darkTheme.navSidebarDecls(darkTheme.theme)
+    expect(darkDecls).toContain('--u-nav-bg-color: var(--u-bg-color-middle)')
+    expect(darkDecls).toContain('--u-nav-color: var(--u-text-color-main)')
+  })
+
+  it('nav variant light switches to light sidebar tokens', () => {
+    const t = lightTheme.new({ nav: { variant: 'light' } })
+    const decls = t.navSidebarDecls(t.theme)
+    expect(decls).toContain('--u-nav-bg-color: var(--u-bg-color-middle)')
+    expect(decls).toContain('--u-nav-color: var(--u-text-color-title)')
+  })
+
+  it('hero preset defaults to light sidebar variant', () => {
+    const decls = heroTheme.navSidebarDecls(heroTheme.theme)
+    expect(decls).toContain('--u-nav-bg-color: var(--u-bg-color-middle)')
+  })
+
+  it('theme.nav overrides are appended after variant defaults and win', () => {
+    const t = lightTheme.new({ nav: { 'bg-color': '#123456' } })
+    const decls = t.navSidebarDecls(t.theme)
+    const bgDecls = decls.filter((d) => d.startsWith('--u-nav-bg-color:'))
+    expect(bgDecls.length).toBe(2)
+    expect(bgDecls[1]).toBe('--u-nav-bg-color: #123456')
+  })
+
+  it('renderBase skips the nav subtree (handled by navSidebarDecls)', () => {
+    const decls = sakuraTheme.themeToDeclarationList(sakuraTheme.theme)
+    expect(decls.some((d) => d.startsWith('--u-nav-'))).toBe(false)
+  })
+
+  it('sakura / ocean / ancient have themed dark sidebar colors', () => {
+    expect(sakuraTheme.navSidebarDecls(sakuraTheme.theme)).toContain('--u-nav-bg-color: #662e40')
+    expect(oceanTheme.navSidebarDecls(oceanTheme.theme)).toContain('--u-nav-bg-color: #134944')
+    expect(ancientTheme.navSidebarDecls(ancientTheme.theme)).toContain('--u-nav-bg-color: #303c34')
+  })
+
   it('no preset emits invalid NaN declarations', () => {
     const themes = [
       lightTheme,

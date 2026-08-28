@@ -40,7 +40,7 @@
     font-weight: 500;
     line-height: 1.4;
     letter-spacing: 0.02em;
-    color: fn.use-var(text-color, second);
+    color: var(--u-nav-second-color);
   }
 
   @include m.e(group-list) {

@@ -85,6 +85,11 @@
           <u-segment v-model="radiusMode" :items="radiusOptions" block />
         </section>
 
+        <section class="drawer-section">
+          <h3 class="drawer-section-title">侧栏</h3>
+          <u-segment v-model="navVariant" :items="navVariantOptions" block />
+        </section>
+
         <footer class="drawer-footer">
           <u-button plain size="small" @click="resetSettings">恢复默认</u-button>
         </footer>
@@ -105,6 +110,7 @@ import {
   lightTheme,
   loadTheme,
   midnightTheme,
+  navSidebarTokens,
   neonTheme,
   oceanTheme,
   sakuraTheme,
@@ -196,21 +202,47 @@ function readInitialRadius(): RadiusMode {
 
 const radiusMode = ref<RadiusMode>(readInitialRadius())
 
+const NAV_VARIANTS = [
+  { label: '跟随主题', value: 'follow' },
+  { label: '深色', value: 'dark' },
+  { label: '浅色', value: 'light' }
+] as const
+
+type NavVariant = (typeof NAV_VARIANTS)[number]['value']
+
+const navVariantOptions = [...NAV_VARIANTS]
+
+function readInitialNavVariant(): NavVariant {
+  const stored = localStorage.getItem('navVariant')
+  return NAV_VARIANTS.some((v) => v.value === stored) ? (stored as NavVariant) : 'follow'
+}
+
+const navVariant = ref<NavVariant>(readInitialNavVariant())
+
 const effectiveTheme = computed(() => {
-  const base = themeItem.value.theme
+  let base = themeItem.value.theme
   if (radiusMode.value === 'sharp') {
-    return base.new({ radius: { small: 0, default: 0, large: 0 } })
+    base = base.new({ radius: { small: 0, default: 0, large: 0 } })
   }
   if (radiusMode.value === 'soft') {
     const r = base.theme.radius
-    return base.new({ radius: { small: r.small + 2, default: r.default + 6, large: r.large + 8 } })
+    base = base.new({ radius: { small: r.small + 2, default: r.default + 6, large: r.large + 8 } })
+  }
+  if (navVariant.value !== 'follow') {
+    // 强制变体：展开整套变体 token 覆盖预设侧栏个性（如樱花深酒红底），保证前景/底色配套
+    const nav: Record<string, string> = { variant: navVariant.value }
+    for (const [name, value] of Object.entries(navSidebarTokens(base.series, navVariant.value))) {
+      nav[name.replace(/^--u-nav-/, '')] = value
+    }
+    base = base.new({ nav })
   }
   return base
 })
 
-watch([themePreset, radiusMode], () => {
+watch([themePreset, radiusMode, navVariant], () => {
   localStorage.setItem('themePreset', themePreset.value)
   localStorage.setItem('themeRadius', radiusMode.value)
+  localStorage.setItem('navVariant', navVariant.value)
   loadTheme(effectiveTheme.value)
 })
 
@@ -247,6 +279,7 @@ function resetSettings() {
   themePreset.value = 'light'
   size.value = 'default'
   radiusMode.value = 'default'
+  navVariant.value = 'follow'
 }
 </script>
 
@@ -277,7 +310,7 @@ $width: 320px;
   border-right: 1px solid use-var(border, color);
   flex-shrink: 0;
   backdrop-filter: var(--u-bg-filter);
-  background-color: use-var(bg-color, top);
+  background-color: var(--u-nav-bg-color);
 }
 
 .main {

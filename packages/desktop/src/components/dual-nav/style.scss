@@ -20,7 +20,7 @@ $root-name: dual-nav;
     align-items: center;
     gap: 4px;
     padding: 8px 6px;
-    background-color: fn.use-var(bg-color, middle);
+    background-color: var(--u-nav-rail-bg);
   }
 
   @include m.m(labeled) {
@@ -76,14 +76,14 @@ $root-name: dual-nav;
     font-size: fn.use-var(font-size, default);
     font-weight: 600;
     line-height: 1.4;
-    color: fn.use-var(text-color, title);
+    color: var(--u-nav-strong-color);
   }
 
   @include m.e(description) {
     margin: 0;
     font-size: fn.use-var(font-size-assist, default);
     line-height: 1.5;
-    color: fn.use-var(text-color, second);
+    color: var(--u-nav-second-color);
   }
 
   @include m.e(toggle-expand) {
@@ -97,7 +97,7 @@ $root-name: dual-nav;
     border: none;
     border-radius: fn.use-var(radius, default);
     background: transparent;
-    color: fn.use-var(text-color, second);
+    color: var(--u-nav-second-color);
     cursor: pointer;
     transition:
       background-color 0.15s ease,
@@ -133,7 +133,7 @@ $root-name: dual-nav;
     border: none;
     border-radius: calc(fn.use-var(radius, default) + 2px);
     background: transparent;
-    color: fn.use-var(text-color, second);
+    color: var(--u-nav-second-color);
     cursor: pointer;
     transition:
       background-color 0.15s ease,
