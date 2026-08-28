@@ -17,7 +17,10 @@
       @click="handleClick"
       @contextmenu="treeEmit('node-contextmenu', $event, node)"
       v-ripple="
-        (treeProps.checkable || treeProps.selectable) && !node.disabled ? cls.e('ripple') : false
+        (treeProps.selectable || (treeProps.checkable && treeProps.checkOnClickNode)) &&
+        !node.disabled
+          ? cls.e('ripple')
+          : false
       "
     >
       <u-checkbox
@@ -78,6 +81,7 @@ function handleClick(e: MouseEvent) {
   treeProps.selectable && handleSelect(node)
   treeProps.expandOnClickNode && toggleExpand()
   treeProps.checkable &&
+    treeProps.checkOnClickNode &&
     !node.disabled &&
     !treeProps.expandOnClickNode &&
     toggleCheck(node, !node.checked, e.ctrlKey)

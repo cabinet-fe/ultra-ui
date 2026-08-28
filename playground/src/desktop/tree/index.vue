@@ -13,6 +13,7 @@
         </div>
         <div>展开所有 <u-switch v-model="config.expandAll" /></div>
         <div>点击节点展开 <u-switch v-model="config.expandOnClickNode" /></div>
+        <div>点击节点勾选 <u-switch v-model="config.checkOnClickNode" /></div>
         <div>
           严格选择
           <u-switch
@@ -98,6 +99,7 @@ const config = shallowReactive({
   selectable: false,
   expandAll: false,
   expandOnClickNode: false,
+  checkOnClickNode: true,
   checkStrictly: true
 })
 

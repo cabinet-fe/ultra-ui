@@ -54,6 +54,7 @@ const props = withDefaults(defineProps<TreeProps>(), {
   valueKey: 'value',
   childrenKey: 'children',
   expandOnClickNode: false,
+  checkOnClickNode: true,
   checkStrictly: false,
   data: () => []
 })
