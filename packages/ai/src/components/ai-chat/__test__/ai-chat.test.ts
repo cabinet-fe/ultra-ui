@@ -10,7 +10,11 @@ import {
   type PropType
 } from 'vue'
 
-import { createServerTransport, type ChatSessionEvent } from '../../../chat/session'
+import {
+  createServerTransport,
+  type ChatSessionAdapter,
+  type ChatSessionEvent
+} from '../../../chat/session'
 import type {
   ChatMessage,
   ChatTool,
@@ -42,6 +46,7 @@ function mountAiChat(options: {
   tokenUsageDetail?: boolean
   messages?: ChatMessage[]
   toolIcons?: Record<string, Component>
+  readonly?: boolean
   slots?: Record<string, (scope: any) => any>
 }) {
   const host = document.createElement('div')
@@ -63,7 +68,8 @@ function mountAiChat(options: {
           reasoningLevel: options.reasoningLevel,
           tokenUsageDetail: options.tokenUsageDetail,
           messages: options.messages,
-          toolIcons: options.toolIcons
+          toolIcons: options.toolIcons,
+          readonly: options.readonly
         },
         options.slots
       )
@@ -1436,6 +1442,211 @@ describe('UAiChat', () => {
     })
     expect(host.querySelector('.meta-render')?.textContent).toBe('meta-body')
     expect(host.textContent).not.toContain('参数')
+    unmount()
+  })
+})
+
+function createFakeAdapter(options?: {
+  history?: ChatSessionEvent[]
+}): ChatSessionAdapter & { emit: (event: ChatSessionEvent) => void } {
+  let listener: { onEvent(event: ChatSessionEvent): void } | undefined
+  const adapter: ChatSessionAdapter = {
+    subscribe(handlers) {
+      listener = handlers
+      return () => {
+        listener = undefined
+      }
+    },
+    send: vi.fn(async () => {}),
+    cancel: vi.fn(async () => {}),
+    respond: vi.fn(async () => {}),
+    fetchHistory: vi.fn(async () => ({ events: options?.history ?? [], hasMore: false })),
+    selectModel: vi.fn(async () => {})
+  }
+  return Object.assign(adapter, {
+    emit(event: ChatSessionEvent) {
+      listener?.onEvent(event)
+    }
+  })
+}
+
+async function mountSession(options?: {
+  history?: ChatSessionEvent[]
+  readonly?: boolean
+  welcome?: string | string[]
+}) {
+  const adapter = createFakeAdapter({ history: options?.history })
+  const mounted = mountAiChat({
+    transport: createServerTransport(adapter),
+    readonly: options?.readonly,
+    welcome: options?.welcome
+  })
+  await vi.waitFor(() => {
+    expect(adapter.fetchHistory).toHaveBeenCalled()
+  })
+  return { ...mounted, adapter }
+}
+
+const click = (el: HTMLElement) => el.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+
+describe('UAiChat P4 作业条 / 审批 / 只读 / 提问', () => {
+  it('无 jobs 不渲染作业条；有 jobs 显示图标、文案、状态点，进行中扫光', async () => {
+    const { host, adapter, unmount } = await mountSession()
+    expect(host.querySelector('.u-ai-chat__job-bar')).toBeFalsy()
+
+    adapter.emit({
+      type: 'jobs/snapshot',
+      jobs: [{ id: 'j1', kind: 'bash', label: '跑测试', status: 'running' }]
+    })
+    await nextTick()
+
+    expect(host.querySelector('.u-ai-chat__job-bar')).toBeTruthy()
+    expect(host.querySelector('.u-ai-chat__job-bar-label')?.textContent).toContain('跑测试')
+    expect(host.querySelector('.u-ai-chat__job-bar-label')?.classList.contains('u-shine')).toBe(
+      true
+    )
+    expect(host.querySelector('.u-ai-chat__job-bar-dot.is-running')).toBeTruthy()
+
+    host.querySelector<HTMLElement>('.u-ai-chat__job-bar-head')!.click()
+    await nextTick()
+    expect(host.querySelector('.u-ai-chat__job-bar-item')).toBeFalsy()
+    unmount()
+  })
+
+  it('审批横幅仅无 callId 出现；有 callId 走工具卡确认', async () => {
+    const { host, adapter, unmount } = await mountSession()
+
+    adapter.emit({ type: 'tool/call', callId: 'c1', name: 'bash', arguments: '{}', seq: 1 })
+    adapter.emit({
+      type: 'approval/requested',
+      approvalId: 'a1',
+      toolName: 'bash',
+      callId: 'c1',
+      rpcId: 'rpc-card'
+    })
+    await nextTick()
+
+    expect(host.querySelector('.u-ai-chat__approval-banner-card')).toBeFalsy()
+    expect(host.querySelector('.u-ai-chat__tool-call-confirm')).toBeTruthy()
+
+    adapter.emit({
+      type: 'approval/requested',
+      approvalId: 'a2',
+      toolName: 'deploy',
+      reason: '发布到生产',
+      rpcId: 'rpc-banner'
+    })
+    await nextTick()
+
+    expect(host.querySelector('.u-ai-chat__approval-banner-card')).toBeTruthy()
+    expect(host.textContent).toContain('发布到生产')
+
+    const allow = [
+      ...host.querySelectorAll<HTMLElement>('.u-ai-chat__approval-banner-card button')
+    ].find((btn) => btn.textContent?.includes('允许'))!
+    click(allow)
+    await vi.waitFor(() => {
+      expect(adapter.respond).toHaveBeenCalledWith('rpc-banner', true, undefined)
+    })
+    unmount()
+  })
+
+  it('readonly 不展示输入区，欢迎语点击不发送，队列无插队编辑移除', async () => {
+    const { host, adapter, unmount } = await mountSession({ readonly: true, welcome: '点我发送' })
+    expect(host.querySelector('.u-ai-chat__input-area')).toBeFalsy()
+
+    host.querySelector<HTMLElement>('.u-ai-chat__welcome-item')!.click()
+    await nextTick()
+    expect(host.querySelector('.u-ai-chat__message--user')).toBeFalsy()
+
+    adapter.emit({ type: 'queue/snapshot', items: [{ id: 'q1', content: '排队中' }] })
+    await nextTick()
+    expect(host.querySelector('.u-ai-chat__queue-text')?.textContent).toContain('排队中')
+    expect(host.querySelector('.u-ai-chat__queue-actions')).toBeFalsy()
+    unmount()
+  })
+
+  it('非只读客户端输入区与欢迎点击发送与现状一致', async () => {
+    const transport: ChatTransport = (_req, handlers) => {
+      handlers.onTextDelta('收到')
+    }
+    const { host, unmount } = mountAiChat({ transport, welcome: '快捷提问' })
+    expect(host.querySelector('.u-ai-chat__input-area')).toBeTruthy()
+    host.querySelector<HTMLElement>('.u-ai-chat__welcome-item')!.click()
+    await nextTick()
+    expect(
+      host.querySelector('.u-ai-chat__message--user .u-ai-chat__message-bubble')?.textContent
+    ).toContain('快捷提问')
+    unmount()
+  })
+
+  it('ask-question 客户端提交走 resolveAskQuestion', async () => {
+    const rounds: ChatMessage[][] = []
+    let round = 0
+    const transport: ChatTransport = (req, handlers) => {
+      round++
+      rounds.push(req.messages)
+      if (round === 1) {
+        handlers.onToolCall?.({
+          id: 'q1',
+          name: 'askQuestion',
+          arguments: JSON.stringify({ questions: [{ question: 'Q？', options: ['A'] }] })
+        })
+      } else {
+        handlers.onTextDelta('明白了')
+      }
+    }
+    const { host, chat, unmount } = mountAiChat({ transport })
+    chat.value?.send('提问')
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__ask-question-q')?.textContent).toContain('Q？')
+    })
+    click(
+      [...host.querySelectorAll<HTMLElement>('.u-ai-chat__ask-question-opt')].find((el) =>
+        el.textContent?.includes('A')
+      )!
+    )
+    await nextTick()
+    click(
+      [...host.querySelectorAll<HTMLElement>('.u-ai-chat__ask-question-actions button')].find(
+        (btn) => btn.textContent?.includes('提交')
+      )!
+    )
+    await vi.waitFor(() => {
+      expect(rounds.length).toBe(2)
+    })
+    const toolMessage = rounds[1]![rounds[1]!.length - 1]!
+    expect(toolMessage.role).toBe('tool')
+    expect(JSON.parse(toolMessage.content)).toEqual({ answers: [{ question: 'Q？', answer: 'A' }] })
+    unmount()
+  })
+
+  it('ask-question session 提交走 session.respond', async () => {
+    const { host, adapter, unmount } = await mountSession()
+    adapter.emit({
+      type: 'question/requested',
+      rpcId: 'rpc-q',
+      questions: [{ question: '选一个', options: ['A', 'B'] }]
+    })
+    await nextTick()
+    expect(host.querySelector('.u-ai-chat__ask-question-q')?.textContent).toContain('选一个')
+
+    click(
+      [...host.querySelectorAll<HTMLElement>('.u-ai-chat__ask-question-opt')].find((el) =>
+        el.textContent?.includes('A')
+      )!
+    )
+    await nextTick()
+    click(
+      [...host.querySelectorAll<HTMLElement>('.u-ai-chat__ask-question-actions button')].find(
+        (btn) => btn.textContent?.includes('提交')
+      )!
+    )
+    await vi.waitFor(() => {
+      expect(adapter.respond).toHaveBeenCalledWith('rpc-q', true, [
+        { question: '选一个', answer: 'A' }
+      ])
+    })
     unmount()
   })
 })

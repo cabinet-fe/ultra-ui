@@ -60,6 +60,8 @@ export interface AiChatProps {
    * 缺省不传则走内置表；未命中的名称仍用兜底图标，不得 throw。
    */
   toolIcons?: Record<string, Component>
+  /** 只读：不展示输入区、欢迎语不可发送、队列无插队/编辑/移除。默认 false */
+  readonly?: boolean
 }
 
 export interface AiChatEmits {

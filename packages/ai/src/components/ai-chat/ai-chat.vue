@@ -14,6 +14,7 @@
         :messages="messages"
         :welcome="welcome"
         :running="running"
+        :readonly="readonly"
         :renderer-props="rendererProps"
         @respond="respondToolCall"
         @regenerate="regenerate"
@@ -24,14 +25,24 @@
         </template>
       </MessageList>
 
+      <div v-if="pendingQuestion" :class="cls.e('session-question')">
+        <AskQuestion :questions="pendingQuestion.questions" @submit="handleQuestionSubmit" />
+      </div>
+
+      <ApprovalBanner :approvals="pendingApprovals" @respond="respondSession" />
+
       <QueueList
         :queue="queue"
+        :readonly="readonly"
         @start-now="startQueued"
         @edit="handleQueueEdit"
         @remove="removeQueued"
       />
 
+      <JobBar :jobs="jobs" />
+
       <ChatInput
+        v-if="!readonly"
         ref="chatInputRef"
         v-model:model="model"
         v-model:reasoning-level="reasoningLevel"
@@ -69,9 +80,13 @@ import { isServerTransport } from '../../chat/session'
 import type { ChatAttachment, ChatTool, ChatToolCall, ChatToolMeta } from '../../chat/types'
 import { useChat } from '../../chat/use-chat'
 import { createBuiltinTools } from '../../tools'
+import type { AskQuestionAnswer, AskQuestionResult } from '../../tools/ask-question/ask-question'
 import type { _AiChatExposed, AiChatEmits, AiChatProps } from '../../types'
+import ApprovalBanner from './approval-banner.vue'
+import AskQuestion from './ask-question.vue'
 import ChatInput from './chat-input.vue'
 import { AiChatDIKey } from './di'
+import JobBar from './job-bar.vue'
 import MessageList from './message-list.vue'
 import QueueList from './queue-list.vue'
 import SidePanel from './side-panel.vue'
@@ -115,13 +130,17 @@ const {
   reasoningLevel,
   running,
   queue,
+  jobs,
   tokenUsage,
   lastTurnUsage,
+  pendingApprovals,
+  pendingQuestion,
   send,
   abort,
   regenerate,
   clear,
   respondToolCall,
+  respondSession,
   enqueue,
   startQueued,
   removeQueued
@@ -275,6 +294,7 @@ const restoreEditing = () => {
 }
 
 const handleSend = (content: string, attachments: ChatAttachment[]) => {
+  if (props.readonly) return
   // 编辑态提交：插回原锚点位置（会话进行中则留在队列，空闲时由 enqueue 自动消耗队首）
   if (editingSuccessor.value !== undefined) {
     enqueue(content, attachments, editingSuccessor.value ?? undefined)
@@ -282,6 +302,12 @@ const handleSend = (content: string, attachments: ChatAttachment[]) => {
     return
   }
   send(content, attachments)
+}
+
+const handleQuestionSubmit = (value: AskQuestionAnswer[] | AskQuestionResult) => {
+  const pending = pendingQuestion.value
+  if (!pending) return
+  respondSession(pending.rpcId, true, Array.isArray(value) ? value : value.answers)
 }
 
 defineExpose<_AiChatExposed>({

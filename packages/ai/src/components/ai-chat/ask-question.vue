@@ -81,7 +81,7 @@
     </template>
 
     <!-- 提交后：问答摘要 -->
-    <template v-else-if="toolCall.status === 'success'">
+    <template v-else-if="answers != null">
       <div v-for="(item, i) in doneAnswers" :key="i" :class="cls.e('ask-question-result')">
         <div :class="cls.e('ask-question-result-q')">
           <span
@@ -101,7 +101,7 @@
     </template>
 
     <!-- 异常 / 取消 -->
-    <div v-else :class="cls.e('ask-question-status')">{{ statusText }}</div>
+    <div v-else :class="cls.e('ask-question-status')">{{ error }}</div>
   </div>
 </template>
 
@@ -110,39 +110,34 @@ import { UButton, UInput } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
 import { computed, inject, ref, watch } from 'vue'
 
-import type { ChatToolCall } from '../../chat/types'
 import type {
-  AskQuestionArgs,
+  AskQuestionAnswer,
   AskQuestionItem,
   AskQuestionResult
 } from '../../tools/ask-question/ask-question'
-import { resolveAskQuestion } from '../../tools/ask-question/deferred'
 import { AiChatDIKey } from './di'
 
 defineOptions({ name: 'UAiChatAskQuestion' })
 
-const props = defineProps<{ toolCall: ChatToolCall }>()
+const props = defineProps<{
+  /** 问题列表；组件不再从 toolCall 解析参数 */
+  questions: AskQuestionItem[]
+  /** 已提交摘要；有值则展示结果而非表单 */
+  answers?: AskQuestionAnswer[]
+  /** 失败 / 取消文案 */
+  error?: string
+}>()
+
+const emit = defineEmits<{
+  /** 提交问答；值为答案数组（与 AskQuestionResult 兼容） */
+  (e: 'submit', value: AskQuestionAnswer[] | AskQuestionResult): void
+}>()
 
 const di = inject(AiChatDIKey)
 const cls = di?.cls ?? bem('ai-chat')
 
-/** 模型输出的提问参数 */
-const questions = computed<AskQuestionItem[]>(() => {
-  try {
-    const args = JSON.parse(props.toolCall.arguments || '{}') as Partial<AskQuestionArgs>
-    return Array.isArray(args.questions) ? args.questions : []
-  } catch {
-    return []
-  }
-})
-
-/** 作答中：execute 挂起等待用户提交 */
-const answering = computed(() => {
-  return (
-    props.toolCall.result == null &&
-    (props.toolCall.status === 'running' || props.toolCall.status === 'pending')
-  )
-})
+/** 作答中：尚未提交、也没有失败文案 */
+const answering = computed(() => props.answers == null && !props.error)
 
 /** 当前题索引 */
 const current = ref(0)
@@ -152,16 +147,16 @@ const selections = ref<(string | null)[]>([])
 const customs = ref<string[]>([])
 
 watch(
-  questions,
+  () => props.questions,
   (list) => {
-    if (props.toolCall.result != null) return
+    if (props.answers != null) return
     selections.value = list.map(() => null)
     customs.value = list.map(() => '')
   },
   { immediate: true }
 )
 
-const currentQuestion = computed(() => questions.value[current.value])
+const currentQuestion = computed(() => props.questions[current.value])
 
 /** 某题是否已作答：自定义输入非空优先，否则看选中项 */
 const isAnswered = (index: number) => {
@@ -169,11 +164,11 @@ const isAnswered = (index: number) => {
 }
 
 const allAnswered = computed(() => {
-  return questions.value.length > 0 && questions.value.every((_, i) => isAnswered(i))
+  return props.questions.length > 0 && props.questions.every((_, i) => isAnswered(i))
 })
 
 const goTo = (index: number) => {
-  if (index < 0 || index >= questions.value.length) return
+  if (index < 0 || index >= props.questions.length) return
   current.value = index
 }
 
@@ -192,41 +187,30 @@ const onCustomInput = (value: string) => {
 }
 
 const handleSubmit = () => {
-  const firstUnanswered = questions.value.findIndex((_, i) => !isAnswered(i))
+  const firstUnanswered = props.questions.findIndex((_, i) => !isAnswered(i))
   if (firstUnanswered >= 0) {
     current.value = firstUnanswered
     return
   }
-  const answers = questions.value.map((item, i) => ({
-    question: item.question,
-    answer: customs.value[i]?.trim() || selections.value[i] || ''
-  }))
-  resolveAskQuestion(props.toolCall.id, { answers })
+  emit(
+    'submit',
+    props.questions.map((item, i) => ({
+      question: item.question,
+      answer: customs.value[i]?.trim() || selections.value[i] || ''
+    }))
+  )
 }
 
-/** 提交后的问答摘要（含历史恢复：从序列化结果解析） */
+/** 提交后的问答摘要：命中预设选项的回答渲染为 chip */
 const doneAnswers = computed(() => {
-  if (props.toolCall.status !== 'success' || !props.toolCall.result) return []
-  let result: AskQuestionResult
-  try {
-    result = JSON.parse(props.toolCall.result)
-  } catch {
-    return []
-  }
-  if (!Array.isArray(result?.answers)) return []
-  return result.answers.map((item) => ({
-    ...item,
-    /** 命中预设选项的回答渲染为 chip */
-    isOption: questions.value.some(
+  const list = props.answers
+  if (!list?.length) return []
+  return list.map((item) => ({
+    question: item.question,
+    answer: item.answer,
+    isOption: props.questions.some(
       (q) => q.question === item.question && q.options?.includes(item.answer)
     )
   }))
-})
-
-const statusText = computed(() => {
-  if (props.toolCall.status !== 'error') return ''
-  const err = props.toolCall.error ?? ''
-  if (err.includes('Abort') || err.includes('取消')) return '已取消'
-  return err || '提问失败'
 })
 </script>

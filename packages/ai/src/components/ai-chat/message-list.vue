@@ -70,7 +70,8 @@
                 :key="welcomeIndex"
                 type="button"
                 :class="cls.e('welcome-item')"
-                @click="emit('welcome-click', currentWelcomeItem)"
+                :disabled="readonly"
+                @click="!readonly && emit('welcome-click', currentWelcomeItem)"
               >
                 {{ currentWelcomeItem }}
               </button>
@@ -128,6 +129,8 @@ const props = defineProps<{
   welcome?: string | string[]
   /** 是否生成中（控制底部工作状态指示） */
   running?: boolean
+  /** 只读时欢迎语不可点击发送 */
+  readonly?: boolean
   /** 透传给 MarkdownRender 的属性 */
   rendererProps?: Record<string, unknown>
 }>()

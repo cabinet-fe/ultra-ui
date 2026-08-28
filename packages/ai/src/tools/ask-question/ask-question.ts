@@ -1,9 +1,9 @@
 import { QuestionFilled } from '@veltra/icons/normal'
-import type { Component } from 'vue'
+import { computed, defineComponent, h, type Component, type PropType } from 'vue'
 
-import type { ChatTool } from '../../chat/types'
+import type { ChatTool, ChatToolCall } from '../../chat/types'
 import AskQuestion from '../../components/ai-chat/ask-question.vue'
-import { deferAskQuestion, takeAskQuestionDeferred } from './deferred'
+import { deferAskQuestion, resolveAskQuestion, takeAskQuestionDeferred } from './deferred'
 
 /** 单个提问项 */
 export interface AskQuestionItem {
@@ -75,6 +75,55 @@ const QUESTIONS_SCHEMA: Record<string, unknown> = {
   required: ['questions']
 }
 
+function parseQuestions(toolCall: ChatToolCall): AskQuestionItem[] {
+  try {
+    const args = JSON.parse(toolCall.arguments || '{}') as Partial<AskQuestionArgs>
+    return Array.isArray(args.questions) ? args.questions : []
+  } catch {
+    return []
+  }
+}
+
+function parseAnswers(toolCall: ChatToolCall): AskQuestionAnswer[] | undefined {
+  if (toolCall.status !== 'success' || !toolCall.result) return undefined
+  try {
+    const result = JSON.parse(toolCall.result) as Partial<AskQuestionResult>
+    return Array.isArray(result.answers) ? result.answers : undefined
+  } catch {
+    return undefined
+  }
+}
+
+function statusError(toolCall: ChatToolCall): string | undefined {
+  if (toolCall.status !== 'error') return undefined
+  const err = toolCall.error ?? ''
+  if (err.includes('Abort') || err.includes('取消')) return '已取消'
+  return err || '提问失败'
+}
+
+/** 把 toolCall 转成提问表单的 questions / onSubmit；提交仍走 resolveAskQuestion */
+const AskQuestionRender = defineComponent({
+  name: 'AskQuestionRender',
+  props: { toolCall: { type: Object as PropType<ChatToolCall>, required: true } },
+  setup(props) {
+    const questions = computed(() => parseQuestions(props.toolCall))
+    const answers = computed(() => parseAnswers(props.toolCall))
+    const error = computed(() => statusError(props.toolCall))
+    const onSubmit = (value: AskQuestionAnswer[] | AskQuestionResult) => {
+      resolveAskQuestion(props.toolCall.id, {
+        answers: Array.isArray(value) ? value : value.answers
+      })
+    }
+    return () =>
+      h(AskQuestion, {
+        questions: questions.value,
+        answers: answers.value,
+        error: error.value,
+        onSubmit
+      })
+  }
+})
+
 /**
  * 创建内置提问工具：execute 挂起等待用户在 UI 中作答，提交后结果回灌模型。
  * 工具卡片由内联提问表单渲染（多题分页导航，提交后展示问答摘要，不自动折叠）。
@@ -95,7 +144,7 @@ export function createAskQuestionTool(
     parameters: QUESTIONS_SCHEMA,
     icon,
     label,
-    render: AskQuestion,
+    render: AskQuestionRender,
     execute: (_args, { toolCall, signal }) =>
       new Promise<AskQuestionResult>((resolve, reject) => {
         deferAskQuestion(toolCall.id, { resolve, reject })

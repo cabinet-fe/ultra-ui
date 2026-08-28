@@ -265,6 +265,16 @@ $root-name: ai-chat;
       color: fn.use-var(color, primary);
       background-color: fn.use-var(color, primary, 'light-9');
     }
+
+    &:disabled {
+      cursor: default;
+      color: fn.use-var(text-color, second);
+
+      &:hover {
+        color: fn.use-var(text-color, second);
+        background-color: fn.use-var(bg-color, top);
+      }
+    }
   }
 
   // 欢迎语逐条轮换的切换过渡
@@ -876,6 +886,136 @@ $root-name: ai-chat;
     @include m.m(primary) {
       color: fn.use-var(color, primary);
     }
+  }
+
+  // 作业条：有 jobs 时出现在输入区上方
+  @include m.e(job-bar) {
+    flex-shrink: 0;
+    width: 100%;
+    max-width: 800px;
+    box-sizing: border-box;
+    margin-bottom: 4px;
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, middle);
+    padding: 4px;
+    font-size: fn.use-var(font-size-main, small);
+  }
+
+  @include m.e(job-bar-head) {
+    @include m.flex(flex, space-between, center);
+    width: 100%;
+    border: none;
+    background: none;
+    padding: 2px 6px;
+    color: fn.use-var(text-color, assist);
+    font-size: inherit;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  @include m.e(job-bar-chevron) {
+    font-size: 12px;
+    transition: transform 0.2s;
+
+    @include m.is(expanded) {
+      transform: rotate(90deg);
+    }
+  }
+
+  @include m.e(job-bar-list) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  @include m.e(job-bar-item) {
+    @include m.flex(flex, flex-start, center);
+    gap: 6px;
+    padding: 3px 6px;
+    border-radius: fn.use-var(radius, small);
+  }
+
+  @include m.e(job-bar-icon) {
+    flex-shrink: 0;
+    font-size: 13px;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(job-bar-label) {
+    flex: 1;
+    min-width: 0;
+    @include m.ellipsis;
+    color: fn.use-var(text-color, main);
+  }
+
+  @include m.e(job-bar-dot) {
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: fn.use-var(text-color, placeholder);
+
+    @include m.is(running) {
+      background-color: fn.use-var(color, primary);
+    }
+
+    @include m.is(done) {
+      background-color: fn.use-var(color, success);
+    }
+
+    @include m.is(error) {
+      background-color: fn.use-var(color, danger);
+    }
+  }
+
+  // session 提问：与输入区同宽卡片
+  @include m.e(session-question) {
+    flex-shrink: 0;
+    width: 100%;
+    max-width: 800px;
+    box-sizing: border-box;
+    margin-bottom: 4px;
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, top);
+    box-shadow: fn.use-var(shadow, sm);
+    padding: fn.use-var(gap, small);
+  }
+
+  // 无 callId 的审批横幅（浮动确认卡）
+  @include m.e(approval-banner) {
+    flex-shrink: 0;
+    width: 100%;
+    max-width: 800px;
+    box-sizing: border-box;
+    margin-bottom: 4px;
+  }
+
+  @include m.e(approval-banner-card) {
+    padding: fn.use-var(gap, small);
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, top);
+    box-shadow: fn.use-var(shadow, sm);
+
+    & + & {
+      margin-top: 4px;
+    }
+  }
+
+  @include m.e(approval-banner-title) {
+    color: fn.use-var(text-color, title);
+    font-weight: 500;
+    font-size: fn.use-var(font-size-main, small);
+  }
+
+  @include m.e(approval-banner-reason) {
+    margin-top: 4px;
+    color: fn.use-var(text-color, assist);
+    font-size: fn.use-var(font-size-main, small);
+  }
+
+  @include m.e(approval-banner-actions) {
+    @include m.flex(flex, flex-end, center);
+    gap: fn.use-var(gap, small);
+    margin-top: fn.use-var(gap, small);
   }
 
   // 输入区：无边框卡片，靠浅阴影区分层级；聚焦不换蓝描边，避免变成另一种框

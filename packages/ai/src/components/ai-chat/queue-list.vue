@@ -3,7 +3,7 @@
     <div :class="cls.e('queue-head')">待发送队列 · {{ queue.length }}</div>
     <div v-for="item in queue" :key="item.id" :class="cls.e('queue-item')">
       <span :class="cls.e('queue-text')" :title="item.content">{{ item.content }}</span>
-      <span :class="cls.e('queue-actions')">
+      <span v-if="!readonly" :class="cls.e('queue-actions')">
         <button
           type="button"
           :class="[cls.e('queue-action'), cls.em('queue-action', 'primary')]"
@@ -47,6 +47,8 @@ defineOptions({ name: 'UAiChatQueueList' })
 defineProps<{
   /** 待发送队列（按执行顺序排列） */
   queue: ChatQueuedMessage[]
+  /** 只读时不展示插队 / 编辑 / 移除 */
+  readonly?: boolean
 }>()
 
 const emit = defineEmits<{
