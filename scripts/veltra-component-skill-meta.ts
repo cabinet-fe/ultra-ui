@@ -68,6 +68,17 @@ export const HELPERS_BY_KEBAB: Record<string, ComponentSkillHelper[]> = {
   ]
 }
 
+/** nav 系列组件共享的外观备注 */
+const THEME_NAV_NOTE =
+  "外观（底色、文字、悬停/激活色）不在组件 props 上，由主题 `nav` 配置控制：`nav.variant` 选择深/浅侧栏（默认 `dark` 深底浅字），`nav` 其余键覆盖同名 `--u-nav-*` token。把侧栏自定义为浅色底时必须同时设 `variant: 'light'`，否则会浅底配白字看不清。详见 `../../../styles/theme.md`「侧栏导航外观」。"
+
+/** 组件技能文档：附加备注（渲染为 api.md 的「备注」一节，内容手工维护） */
+export const NOTES_BY_KEBAB: Record<string, string> = {
+  nav: THEME_NAV_NOTE,
+  'group-nav': THEME_NAV_NOTE,
+  'dual-nav': THEME_NAV_NOTE
+}
+
 export function parseApiTitleLine(line: string): { names: string; chinese: string } | null {
   const trimmed = line.replace(/^#{1,2}\s+/, '').trim()
 
@@ -93,9 +104,9 @@ export function renderComponentApiMd(
   names: string,
   chinese: string,
   helpers: ComponentSkillHelper[],
-  options: { hasTypes?: boolean } = {}
+  options: { hasTypes?: boolean; note?: string } = {}
 ): string {
-  const { hasTypes = true } = options
+  const { hasTypes = true, note } = options
   const lines = [`# ${names} - ${chinese}`, '']
 
   if (hasTypes) {
@@ -105,6 +116,10 @@ export function renderComponentApiMd(
   }
 
   lines.push('## 示例', '', '见 `./examples.md`', '')
+
+  if (note) {
+    lines.push('## 备注', '', note, '')
+  }
 
   if (helpers.length > 0) {
     lines.push('## 辅助工具', '', '本组件通常配合以下工具来使用。', '')

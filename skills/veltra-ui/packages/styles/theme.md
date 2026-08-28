@@ -71,6 +71,37 @@ const theme: Theme = {
 loadTheme(new UITheme(theme)) // 默认浅色系；深色主题传 { series: 'dark' }
 ```
 
+## 侧栏导航外观
+
+侧栏导航组件（nav / dual-nav / group-nav）的底色与文字色由主题 `nav` 配置控制，随 `loadTheme` 一并注入：
+
+- `nav.variant`：`'dark'` 深底浅字 / `'light'` 浅底深字，**默认 `'dark'`**（浅色主题的默认侧栏也是深底）。按「主题系列 × 变体」选用内置 token 组。
+- `nav` 的其余键覆盖同名 `--u-nav-*` token（如 `'bg-color'` → `--u-nav-bg-color`），追加在变体内置值之后，优先级最高。内置预设的侧栏个性色（古风深墨、樱花深酒红）即通过该机制定义。
+
+> **注意**：`bg-color` 等覆盖不会联动前景色。把侧栏改成浅色底时必须同时把 `variant` 设为 `'light'`，否则会出现浅底配白字、菜单文字看不清的问题。
+
+古风主题改宣纸色侧栏：
+
+```ts
+loadTheme(ancientTheme.new({
+  nav: { variant: 'light', 'bg-color': '#f1ede0' }
+}))
+```
+
+派生主题时若要强制某个变体、抹掉预设的侧栏个性色，用 `navSidebarTokens` 展开整套 token 再逐个覆盖，保证前景/底色配套：
+
+```ts
+import { navSidebarTokens } from '@veltra/styles/theme'
+
+const nav: Record<string, string> = { variant: 'light' }
+for (const [name, value] of Object.entries(navSidebarTokens(theme.series, 'light'))) {
+  nav[name.replace(/^--u-nav-/, '')] = value
+}
+loadTheme(theme.new({ nav }))
+```
+
+可用的 `--u-nav-*` token 清单见 `./tokens.md`。
+
 ## API 一览
 
 | 用法                                  | 效果                                        |
@@ -94,8 +125,10 @@ import {
   hexRgbOnly,
   defineBySize,
   cssVar,
+  navSidebarTokens,
   currentTheme,
   type RGBColor,
+  type NavSidebarVariant,
   type Theme,
   type ThemeSeries
 } from '@veltra/styles/theme'
@@ -158,6 +191,10 @@ cssVar('bg-color-hover') // 'var(--u-bg-color-hover)'
 ```
 
 在 TS/内联样式中引用主题 token；SCSS 中优先用 `fn.use-var()`（见 `./scss.md`）。
+
+### `navSidebarTokens(series, variant)`
+
+返回指定「主题系列 × 侧栏变体」下的整套 nav 外观 token（键为 `--u-nav-*` 的 `Record`），用于派生主题时整组覆盖侧栏外观。用法见「侧栏导航外观」。
 
 ### `currentTheme`
 

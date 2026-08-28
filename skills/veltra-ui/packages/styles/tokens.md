@@ -74,6 +74,7 @@ fn.use-var(focus-ring) // --u-focus-ring（键盘 :focus-visible 指示，box-sh
 | 间距     | `gap.small` / `gap.default` / `gap.large`                       |
 | 断点     | `breakpoint.xs/sm/md/lg`                                        |
 | 组件级   | `component.property`，例如 `button.default-bg`                  |
+| 侧栏导航 | 主题 `nav.*` 配置 → `--u-nav-*`，见「侧栏导航 token」           |
 
 常用真实 token：
 
@@ -142,3 +143,28 @@ fn.use-var(focus-ring) // --u-focus-ring（键盘 :focus-visible 指示，box-sh
 --u-breakpoint-lg
 --u-button-default-bg
 ```
+
+## 侧栏导航 token（`--u-nav-*`）
+
+nav / dual-nav / group-nav 专用 token。外观组按主题 `nav.variant`（深/浅侧栏）取内置值；主题 `nav` 的其余键（`--u-nav-` 前缀后的部分）可覆盖同名 token，机制见 `./theme.md`「侧栏导航外观」。
+
+外观（随 variant 变化）：
+
+| token | 语义 |
+| ----- | ---- |
+| `--u-nav-bg-color` | 侧栏底色 |
+| `--u-nav-color` | 导航项文字色 |
+| `--u-nav-hover-bg` / `--u-nav-hover-color` | 悬停底色 / 文字色 |
+| `--u-nav-active-bg` / `--u-nav-active-color` | 激活项底色 / 文字色 |
+| `--u-nav-strong-color` | 强调文字（nav 展开/分支激活项、dual-nav 面板标题） |
+| `--u-nav-second-color` | 次级文字（分组标题、描述等） |
+| `--u-nav-sub-border-color` | nav 子级缩进参考线 |
+| `--u-nav-rail-bg` | dual-nav 轨道（首栏）底色 |
+
+尺寸与资源（同一套值，不随 variant 变化）：
+
+| token | 语义 |
+| ----- | ---- |
+| `--u-nav-height-small` / `--u-nav-height-default` / `--u-nav-height-large` | 导航项高度（32/36/40px） |
+| `--u-nav-rail-width` / `--u-nav-rail-labeled-width` | dual-nav 轨道宽度（56/72px） |
+| `--u-nav-bg-image` | 侧栏背景图（默认 `none`） |

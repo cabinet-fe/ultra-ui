@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url'
 
 import {
   HELPERS_BY_KEBAB,
+  NOTES_BY_KEBAB,
   parseApiTitleLine,
   renderComponentApiMd
 } from './veltra-component-skill-meta'
@@ -165,7 +166,10 @@ async function regenerateComponentApiDocs(componentKebabs: string[]): Promise<nu
 
         await writeFile(
           apiPath,
-          renderComponentApiMd(parsed.names, parsed.chinese, helpers, { hasTypes }),
+          renderComponentApiMd(parsed.names, parsed.chinese, helpers, {
+            hasTypes,
+            note: NOTES_BY_KEBAB[kebab]
+          }),
           'utf8'
         )
         count += 1

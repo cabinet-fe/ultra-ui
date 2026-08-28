@@ -15,15 +15,15 @@ veltra-ui 是一套 Vue 3 UI 体系。
 
 | 包                     | 版本  |
 | ---------------------- | ----- |
-| `@veltra/desktop`      | 1.6.4 |
-| `@veltra/utils`        | 1.6.4 |
-| `@veltra/styles`       | 1.6.4 |
-| `@veltra/compositions` | 1.6.4 |
-| `@veltra/directives`   | 1.6.4 |
+| `@veltra/desktop`      | 1.7.2 |
+| `@veltra/utils`        | 1.7.2 |
+| `@veltra/styles`       | 1.7.2 |
+| `@veltra/compositions` | 1.7.2 |
+| `@veltra/directives`   | 1.7.2 |
 | `@veltra/icons`        | 1.5.0 |
-| `@veltra/vite`         | 4.0.0 |
-| `@veltra/sheet`        | 2.3.4 |
-| `@veltra/sheet-core`   | 2.3.4 |
+| `@veltra/vite`         | 4.0.1 |
+| `@veltra/sheet`        | 2.5.2 |
+| `@veltra/sheet-core`   | 2.5.2 |
 | `@veltra/ai`           | 2.1.6 |
 
 ## 分包地图
@@ -60,6 +60,7 @@ veltra-ui 是一套 Vue 3 UI 体系。
 | 表格化填报 / 部分单元格锁定只读 / 输入区高亮                          | `packages/sheet-core.md`（单元格级只读）+ `packages/sheet.md`（USheet 填报注意）                            |
 | 安装 / 全局注册 / 按需样式                                            | `packages/desktop/installation.md`、`packages/vite.md`                                                      |
 | 主题色、暗色、CSS 变量                                                | `packages/styles/theme.md`、`packages/styles/tokens.md`                                                     |
+| 侧栏/菜单颜色、深·浅侧栏变体、菜单文字看不清                          | `packages/styles/theme.md`（侧栏导航外观）、`packages/styles/tokens.md`（侧栏导航 token）                   |
 | SCSS BEM / mixins                                                     | `packages/styles/scss.md`                                                                                   |
 | 全局尺寸、表单回退、浮层、虚拟列表                                    | `packages/compositions.md`                                                                                  |
 | 波纹、点击外部、焦点指令                                              | `packages/directives.md`                                                                                    |
@@ -91,6 +92,7 @@ veltra-ui 是一套 Vue 3 UI 体系。
 - 先按需求检索上方入口，再下钻具体文件。
 - 组件相关先看 `desktop/` 文档目录，再按组件名检索 API、示例和类型。
 - 库代码变更后应运行 `bun run skill:gen` 同步各组件 `types.d.ts` / `api.md`；`examples.md` 与包级 `.md` 需手工维护。
+- `api.md` 由生成器重渲染，勿手改；组件级「备注」一节在 `scripts/veltra-component-skill-meta.ts` 的 `NOTES_BY_KEBAB` 中维护。
 
 ## 检查清单
 
