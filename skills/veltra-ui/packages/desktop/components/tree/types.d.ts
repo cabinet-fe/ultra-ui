@@ -45,6 +45,12 @@ export interface TreeProps {
   disabledNode?: (item: Record<string, any>, node: TreeNode) => boolean
   /** 可多选 */
   checkable?: boolean
+  /**
+   * 点击节点时是否触发勾选。仅当 `checkable` 时生效；
+   * 设为 `false` 后只有点击 checkbox 才会勾选。
+   * @default true
+   */
+  checkOnClickNode?: boolean
   /** 可单选 */
   selectable?: boolean
   /**

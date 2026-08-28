@@ -1,5 +1,11 @@
 # @veltra/desktop
 
+## 1.7.2
+
+### Patch Changes
+
+- faaefb5: tree: 新增 `checkOnClickNode` 属性，设为 `false` 后点击节点不再触发勾选，仅点击 checkbox 时勾选
+
 ## 1.7.1
 
 ### Patch Changes
