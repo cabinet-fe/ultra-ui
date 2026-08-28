@@ -8,6 +8,7 @@
 
 - [ai](ai/index.md) — @veltra/ai 对话域（UAiChat / useChat / transport，含服务端 session）
 - [desktop](desktop/index.md) — 桌面端 UI 组件（USegment 分段单选等）
+- [playground](playground/index.md) — 预览 SPA；AI Chat 同页切换客户端/服务端 transport
 - [sheet-core](sheet-core/index.md) — 表格模型/命令/公式/IO + SheetGrid
 - [styles](styles/index.md) — 主题系列（浅色系 / 深色系）
 
@@ -20,6 +21,5 @@
 - icons
 - vite
 - mobile
-- playground
 - scripts
 - veltra-ui-skill

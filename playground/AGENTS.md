@@ -57,7 +57,7 @@ bun run server     # 仅参考服务（填报 + DeepSeek 代理，同一端口�
 - API Key 从 `playground/.env` 的 `DEEPSEEK_API_KEY` 读取（兼容回退 `VITE_DEEPSEEK_KEY`），不下发浏览器
 - `POST /ai/chat/completions`：OpenAI 兼容请求转发到 `https://api.deepseek.com/chat/completions`，SSE 中 `content` / `reasoning_content` / `tool_calls` 原样透传
 - `GET /ai/models`：返回前端选择器模型 `deepseek-v4-flash` / `deepseek-v4-pro`（含低 / 中 / 高推理等级与默认等级）
-- 前端 `src/ai-chat/index.vue` 已用 `createOpenAITransport({ endpoint: '/ai/chat/completions' })` 接入，两个模型均配置 `reasoningLevels`；默认 transport 将选中等级写入 `reasoning_effort`
+- 前端 `src/ai-chat/index.vue` 同一页可切换两种 transport：客户端驱动用 `createOpenAITransport({ providers })` 接入 `/ai/chat/completions`（两个模型均配置 `reasoningLevels`，默认 transport 将选中等级写入 `reasoning_effort`）；服务端驱动用 `createServerTransport` + `src/ai-chat/fake-session.ts` 页内 fake adapter，**不请求 DSH 或任意真实 session HTTP/WS**。切回客户端后仍走本代理，天气/面板等客户端工具演示保留。
 - vite proxy 使用正则 `^/ai(?:/|$)` → 参考服务，只代理 `/ai` 与 `/ai/*`，避免前缀匹配把 `/ai-chat` 页面路由也代理走
 - 上游地址 / 模型映射可经 `DEEPSEEK_BASE_URL` / `DEEPSEEK_V4_FLASH_MODEL` / `DEEPSEEK_V4_PRO_MODEL` 覆盖
 
@@ -72,7 +72,8 @@ vite.config.ts
 src/desktop/<name>/index.vue
 src/icons/index.vue           # 图标库预览
 src/icons/combo/index.vue     # 图标组合预览
-src/ai-chat/index.vue         # @veltra/ai 对话组件预览（真实 Open-Meteo 天气终结工具卡片 weather-card.vue + 右侧面板后台页 admin-panel.vue（表单/图表/列表，renderTo: 'panel'）+ 待发送队列演示）
+src/ai-chat/index.vue         # @veltra/ai 对话组件预览：同一页切换客户端驱动（OpenAI + Open-Meteo 天气终结工具 weather-card.vue + 右侧面板 admin-panel.vue + 待发送队列）与服务端驱动（createServerTransport + fake-session.ts 页内 fake adapter，演示未知工具卡 / 提问 / 审批横幅 / 作业条，不接真实 DSH）
+src/ai-chat/fake-session.ts   # 页内 ChatSessionAdapter，不发真实 session HTTP/WS
 src/ai-orb/index.vue          # UAiOrb 活体球预览（生命状态 / 瞬时表情 / 尺寸）
 src/sheet/index.vue           # @veltra/sheet 电子表格预览（数据结构观察区 JSON 区块懒渲染 + 超 1 万行截断：避免 65 万 span 的整页布局/绘制秒级卡顿；完整数据走复制/放大，不受截断影响）
 src/sheet-big-data/index.vue  # @veltra/sheet 大数据量演示（Phase 6：10 万行写入/渲染/查找/导出 + 样式池去重）

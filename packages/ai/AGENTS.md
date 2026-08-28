@@ -10,8 +10,10 @@ src/
 ├── style.ts                    # 全量样式入口
 ├── providers/                  # 模型提供商域（ChatProvider / ChatModel / ChatModelOption）
 ├── chat/                       # 对话核心域（UI 无关，不得 import 组件）
-│   ├── types.ts                # ChatMessage / ChatQueuedMessage / ChatTokenUsage / ChatTool / ChatTransport 等核心类型
-│   ├── use-chat.ts             # useChat 状态机：消息管理 + 工具循环编排 + 待发送队列 + token 用量累计；透传 model / reasoningLevel
+│   ├── types.ts                # ChatMessage / ChatQueuedMessage / ChatTokenUsage / ChatTool / ChatToolMeta / ChatJob / ChatTransport 等核心类型
+│   ├── session.ts              # ChatSessionEvent / ChatSessionTransport / ChatSessionAdapter；isServerTransport；createServerTransport（包内 seq 校验 / 断线补拉 / in-flight 去重）
+│   ├── fold.ts                 # 历史回放与实时 onEvent 共用的纯函数 fold
+│   ├── use-chat.ts             # useChat 状态机：按 isServerTransport 分流；函数 transport 走工具循环，session 走 fold + session API
 │   ├── transports/
 │   │   └── openai.ts           # createOpenAITransport（多 Provider，按 model 路由；OpenAI 兼容 SSE；解析 usage / 缓存字段）
 │   └── __test__/
@@ -29,7 +31,9 @@ src/
     │   ├── tool-call.vue       # 工具卡片（复用 UCollapseItem，#header 只自定义标题区，展开图标走组件内置旋转；needsConfirm 确认；消费工具 icon/label/render/renderTo/autoCollapse/terminal；终态折叠后 destroyOnCollapse 卸载内容 DOM——进行中/待确认保留内容状态、面板工具保留「查看面板」入口；面板工具 body 仅留「查看面板」入口）
     │   ├── side-panel.vue      # 右侧侧边面板（renderTo: 'panel' 工具的渲染区：悬浮卡片——面板本体透明留白、内层圆角卡片仅靠背景对比+阴影区分，无分割线；头部 icon 底托/标题/关闭，标题取 panelTitle ?? label ?? name + UScroll 渲染体）
     │   ├── queue-list.vue      # 待发送队列（生成中提交的消息排队；立即开始插队 / 取回编辑 / 移除）
-    │   ├── ask-question.vue    # 提问工具的内联分页表单（由内置 askQuestion 工具挂到 render）
+    │   ├── job-bar.vue         # 作业条（jobs/snapshot；kind 图标 + label + 状态点，进行中扫光，可折叠）
+    │   ├── approval-banner.vue # 无 callId 的审批横幅（允许/拒绝 → session.respond）
+    │   ├── ask-question.vue    # 提问表单（主契约 questions + onSubmit；客户端经薄包装走 resolveAskQuestion，session 挂 question/requested）
     │   ├── chat-input.vue      # 输入区（多行自适应、图片附件、清除会话确认、token 用量、模型/推理选择、生成中空输入显示停止 / 有内容则发送入队；暴露 setContent/getContent）
     │   ├── model-picker.vue    # 模型/推理选择器（UDropdown 面板：模型列表 + 思考强度内联展开）
     │   ├── di.ts               # AiChatDIKey（cls + slots + tools 注入，支撑 tool-<name> 动态插槽与工具元信息）
@@ -42,13 +46,15 @@ src/
 
 ## 约定
 
-- **域划分**：`chat/` 负责类型、编排、transport；`useChat` 内部导入 `createBuiltinTools` 并始终注入内置工具（同名内置优先覆盖 `props.tools`），因此可依赖 `tools/`（进而依赖带 UI 的内置工具组件）。`components/` 只放 UI，通过 `chat/` 复用核心逻辑；`tools/` 是内置工具注册域；`providers/` 放模型/服务商配置类型（与 UI/编排解耦）。工厂函数不对外导出，包入口对 tools 用显式 `export type { AskQuestionItem, AskQuestionAnswer, AskQuestionArgs, AskQuestionResult }`（勿用 `export type *`，否则会泄漏 `createBuiltinTools` 的类型）。新能力开新顶层域目录，不要塞进组件目录。
+- **域划分**：`chat/` 负责类型、编排、transport；函数型 transport 下 `useChat` 注入内置工具（同名内置优先覆盖 `props.tools`），因此可依赖 `tools/`。session 下不注入内置工具、不执行 `execute`。`components/` 只放 UI，通过 `chat/` 复用核心逻辑；`tools/` 是内置工具注册域；`providers/` 放模型/服务商配置类型（与 UI/编排解耦）。工厂函数不对外导出，包入口对 tools 用显式 `export type { AskQuestionItem, AskQuestionAnswer, AskQuestionArgs, AskQuestionResult }`（勿用 `export type *`，否则会泄漏 `createBuiltinTools` 的类型）。新能力开新顶层域目录，不要塞进组件目录。
+- **双 transport**：`useChat` 用 `isServerTransport(transport)` 运行时分流。函数型 `ChatTransport`（`createOpenAITransport`）仍发全量历史、执行 `tool.execute`、本地队列与 `needsConfirm`。`ChatSessionTransport`（`kind: 'session'`，由 `createServerTransport(adapter)` 得到）只把动作打到远端：不发全量历史、不跑客户端工具循环、不把 `maxToolRounds` 当停止条件。`ChatSessionAdapter` 只做协议翻译（订阅事件、发动作、拉历史）；seq 乱序丢弃 + `console.warn`、`open` disposer、断开后 `fetchHistory` 补拉再 fold、动作 in-flight 去重均在 `createServerTransport` 包内完成。本包**不实现、不导出** `createBedrockTransport`；DSH / bedrock HTTP/WS 由其它仓库写 adapter。
+- **session 下 tools**：`AiChatProps.tools` 为 `(ChatTool | ChatToolMeta)[]`。session 路径只按 `name` 查 icon/label/render 等元信息，忽略 `execute` / `needsConfirm` / `terminal`。无 meta 或无 `render` 时走**通用工具视图**（默认路径）：任意未知工具名都渲染卡片（名称、状态点、进行中扫光、参数/结果/错误 JSON、`view`），不得空白、不得 throw、不得出现「未找到工具」类文案。
 - **多 Provider transport**：`createOpenAITransport({ providers })` 按 `request.model` 查找 Provider 并 `fetch(endpoint)`；`endpoint` 可为完整 URL 或相对路径；模型 id 须跨 Provider 全局唯一；返回值挂载只读 `.models` / `.defaultModel` 供 UI 使用。旧的单字段 `{ endpoint, apiKey, model }` 已移除。
 - **模型/推理选择**：`AiChatProps.models` 有值时输入栏展示自定义模型选择器（`model-picker.vue`，基于 `UDropdown`）；模型行右侧的思考强度胶囊点击后在行内手风琴展开等级列表（grid 0fr→1fr 过渡，同时只展开一个），选中等级即同时切到该模型并关闭面板。`ChatModel.description` 为面板副标题。选中值经 `ChatTransportRequest.model` / `reasoningLevel` 逐轮下发；切换模型时自动校正推理等级。
 - 组件遵循 `packages/desktop/AGENTS.md` 的模式（BEM + token 样式、types 目录、style.ts 副作用入口）。
 - **新增/删除 `components/<name>/`（含 `index.ts` + `style.ts`）后，在仓库根运行 `bun run resolver:gen`** 刷新 `@veltra/vite` 组件表，否则宿主无法按需解析 `<u-ai-chat>` 这类标签。
 - 跨包导入 desktop 组件用包名：`import { UButton } from '@veltra/desktop'`；样式副作用用子路径 `'@veltra/desktop/components/<dir>/style'`。
-- transport 不引入 ai-sdk 等第三方依赖，SSE 手写解析；新增协议在 `chat/transports/` 以独立 `createXxxTransport` 工厂导出。
+- transport 不引入 ai-sdk 等第三方依赖；OpenAI 兼容 SSE 手写解析，工厂放 `chat/transports/`。服务端会话走 `chat/session.ts` 的 `createServerTransport`，不要在本包加 `createBedrockTransport`。
 - 工具串行执行（保持结果消息与调用顺序一致）；循环/泵取一律用递归或 Promise 链，禁止 await-in-loop（lint 硬性约束，不允许 disable 注释）。
 - **工具循环收敛**：`maxToolRounds`（props，默认 10）限制单次发送的最大生成轮次，超限即 finish 停止；`ChatTool.terminal` 工具执行成功后对话终结（结果仍入消息历史，失败/拒绝照常回灌），配合 `render` 实现"工具 UI 即答复"。两类结束都会发出 `finish`。
 - **侧边面板工具**：`ChatTool.renderTo: 'panel'` 把 render 组件渲染到对话区右侧的侧边面板（side-panel.vue），契约同卡片 render（`ChatToolRenderProps`，随 toolCall 状态实时更新）；新的面板调用自动打开并聚焦，工具卡片 body 仅留「查看面板」入口（经 DI `openPanel` 切换聚焦，可切回历史调用）；布局基于 `ULayout`（`cols = 1fr + 面板宽度`，`colMinSizes` 约束会话区 ≥360px、面板 ≥320px，`useResizeObserver` 跟踪拖拽后的实际宽度）；`ChatTool.panelWidth` 可指定该工具面板的默认宽度（聚焦其调用时应用；缺省取「容器宽 - 860」，即面板默认尽可能大、会话区保留 860px）；`ChatTool.panelTitle`（字符串或按 toolCall 动态生成的函数）给出业务化面板标题（「业务对象 + 动作」），缺省取 label ?? name。组件根背景为 bg-color-bottom，消息/队列/输入区限宽 800px 居中（面板开合时排版不形变），卡片类元素（输入区、面板卡、欢迎气泡）用 bg-color-top + 阴影而非边框区分层级。空会话（无可见消息）时主列挂 `is-empty`：列表区与末尾弹性占位均分剩余空间使输入区垂直居中；空闲欢迎区钉在 UScroll 外、贴于输入框上方（有消息后布局回落到底部，欢迎区仍在输入框上方）；工作开始时活体球立即跳到列表末尾，结束后跳回。

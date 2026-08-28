@@ -21,6 +21,7 @@
 3. **类型增量**：`ChatToolCall.view` 为 session 模式可选展示视图；新增 `ChatToolMeta` 与 `ChatJob`。符号经 `chat/index.ts` 导出。`AiChatProps.transport` 为 `ChatTransport | ChatSessionTransport`；`tools` 在 session 下可为 `ChatToolMeta[]`（`ChatTool[]` 仍可赋值）。`toolIcons` 覆盖包内 toolName → icon 映射。
 4. **useChat 分流**：`isServerTransport` 为真时走 `createSessionRuntime`：watch transport 时 `open` + `fetchHistory` 播种，历史与实时事件同一套 fold 同步到 messages / queue / jobs / tokenUsage / projections / title / running / pendingApprovals / pendingQuestion；更换或卸载调 disposer。`send` / `abort` 只调 `session.send` / `cancel`，不造本地占位、不执行 `execute`、不注入内置工具。队列只认 `queue/snapshot`；`enqueue` / `startQueued` / `removeQueued` / `regenerate` 为 no-op。`clear` 只重置本地 fold，不调 `cancel`。审批与提问走 `respond(rpcId)`；已 open 后模型切换走 `selectModel`。`running` 由事件与 `onDisconnect` 驱动。函数型 transport 行为不变。工具解析与 usage 累加抽到 `use-chat-helpers.ts`。
 5. **UAiChat 渲染**：session 下 `toolMap` 只收 `props.tools`，不注入 `createBuiltinTools`；未注册工具名走通用卡片（参数 / 结果 / `view`，无「未找到」），`meta.render` / `tool-<name>` 插槽仍优先。图标：`meta.icon` > `toolIcons` 精确名 > 内置名称规则 > 兜底。长 JSON 超过 480 字截断、可展开看全文。函数型 transport 仍注入内置工具。有 `jobs` 时输入区上方渲染 `JobBar`（`kind` 走 `resolveToolIcon`，`running` 扫光，默认可折叠）。无 `callId` 的 `pendingApprovals` 走 `ApprovalBanner`（允许/拒绝调 `respondSession`）；有 `callId` 仍走工具卡确认。`pendingQuestion` 用展示态 `AskQuestion`（只收 `questions` / `answers` / `error`，提交 emit）挂在输入区上方，session 提交走 `respondSession(rpcId, true, answers)`。客户端内置 askQuestion 由 `AskQuestionRender` 从 `toolCall` 解析后挂同一表单，提交走 `resolveAskQuestion`。`readonly` 为真时不渲染输入区、欢迎语不可发送、队列无操作；`handleSend` 直接 return。
+6. **宿主接入**：`packages/ai/README.md` 按客户端驱动 / 服务端驱动两条路径写用法，并写明本包不实现、不导出 `createBedrockTransport`（DSH / bedrock HTTP/WS 由其它仓库提供 `ChatSessionAdapter`）。playground `src/ai-chat` 同一页用 `USegment` 切换：客户端仍走 `createOpenAITransport` + `/ai/chat/completions`（天气/面板等工具保留）；服务端走 `createServerTransport(createFakeSessionAdapter())`。`fake-session.ts` 是页内 adapter，按欢迎语关键词演示未知工具卡 / 提问 / 无 callId 审批横幅 / 作业条，不发真实 session HTTP/WS、不接 DSH。
 
 ## 影响文件
 
@@ -50,10 +51,12 @@
 - 修改：`packages/ai/src/components/ai-chat/style.scss`
 - 修改：`packages/ai/src/components/ai-chat/__test__/ai-chat.test.ts`
 - 修改：`packages/ai/src/tools/ask-question/ask-question.ts`
+- 新增：`packages/ai/README.md`
+- 新增：`playground/src/ai-chat/fake-session.ts`
+- 修改：`packages/ai/AGENTS.md`
+- 修改：`playground/src/ai-chat/index.vue`
+- 修改：`playground/AGENTS.md`
 
 ## 更新记录
 
-- 2026-08-28：新增服务端会话 transport、协议无关事件与纯函数 fold；涉及：packages/ai/src/chat/session.ts、packages/ai/src/chat/fold.ts、packages/ai/src/chat/types.ts、packages/ai/src/chat/index.ts
-- 2026-08-28：useChat 接入 session transport（open/fold 播种、动作转发、队列与 regenerate 为 no-op）；涉及：packages/ai/src/types/ai-chat.ts、packages/ai/src/chat/use-chat.ts、packages/ai/src/chat/use-chat-session.ts、packages/ai/src/chat/use-chat-helpers.ts
-- 2026-08-28：UAiChat session 下不注入内置工具，未知工具走通用卡片并支持 toolIcons / view；涉及：packages/ai/src/types/ai-chat.ts、packages/ai/src/components/ai-chat/ai-chat.vue、packages/ai/src/components/ai-chat/tool-call.vue、packages/ai/src/components/ai-chat/tool-icons.ts
-- 2026-08-28：UAiChat 接入作业条、无 callId 审批横幅、session 提问表单与 readonly；AskQuestion 改为 props 驱动的展示表单；涉及：packages/ai/src/components/ai-chat/job-bar.vue、packages/ai/src/components/ai-chat/approval-banner.vue、packages/ai/src/components/ai-chat/ask-question.vue、packages/ai/src/components/ai-chat/ai-chat.vue、packages/ai/src/components/ai-chat/queue-list.vue、packages/ai/src/components/ai-chat/message-list.vue、packages/ai/src/components/ai-chat/style.scss、packages/ai/src/components/ai-chat/__test__/ai-chat.test.ts、packages/ai/src/tools/ask-question/ask-question.ts、packages/ai/src/types/ai-chat.ts
+- 2026-08-28：归档自 cooking/ai-session-transport

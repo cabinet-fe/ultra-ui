@@ -1,32 +1,58 @@
 <template>
-  <u-ai-chat
-    v-model:model="model"
-    v-model:reasoning-level="reasoningLevel"
-    :transport="transport"
-    :tools="tools"
-    :models="models"
-    token-usage-detail
-    style="height: calc(100vh - 90px)"
-    :welcome="[
-      '算一下 128*46',
-      '北京天气怎么样（真实 Open-Meteo 数据，天气卡片即答复）',
-      '删除 /tmp/app.log（需确认）',
-      '打开后台的用户编辑表单（右侧面板，可拖拽调宽）',
-      '打开后台的销售图表',
-      '打开后台的订单列表',
-      '生成中继续提问会进入待发送队列，可插队立即开始或取回编辑'
-    ]"
-  />
+  <div class="ai-chat-page">
+    <div class="ai-chat-page__toolbar">
+      <u-segment v-model="mode" :items="modeItems" size="small" />
+      <span class="ai-chat-page__hint">{{ modeHint }}</span>
+    </div>
+    <div class="ai-chat-page__chat">
+      <u-ai-chat
+        :key="mode"
+        v-model:model="model"
+        v-model:reasoning-level="reasoningLevel"
+        :transport="activeTransport"
+        :tools="activeTools"
+        :models="models"
+        token-usage-detail
+        :welcome="activeWelcome"
+      />
+    </div>
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { UAiChat, createOpenAITransport, type ChatTool } from '@veltra/ai'
+import { UAiChat, createOpenAITransport, createServerTransport, type ChatTool } from '@veltra/ai'
 import '@veltra/ai/style'
 import { Delete, Monitor, Sun } from '@veltra/icons/normal'
 import { computed, ref } from 'vue'
 
 import AdminPanel from './admin-panel.vue'
+import { createFakeSessionAdapter, SESSION_WELCOME } from './fake-session'
 import WeatherCard from './weather-card.vue'
+
+type ChatMode = 'client' | 'session'
+
+const mode = ref<ChatMode>('client')
+const modeItems = [
+  { label: '客户端驱动', value: 'client' },
+  { label: '服务端驱动', value: 'session' }
+]
+const modeHint = computed(() =>
+  mode.value === 'client'
+    ? 'createOpenAITransport + /ai/chat/completions（DeepSeek 代理）'
+    : 'createServerTransport + 页内 fake adapter（不请求 DSH / session HTTP）'
+)
+
+const clientWelcome = [
+  '算一下 128*46',
+  '北京天气怎么样（真实 Open-Meteo 数据，天气卡片即答复）',
+  '删除 /tmp/app.log（需确认）',
+  '打开后台的用户编辑表单（右侧面板，可拖拽调宽）',
+  '打开后台的销售图表',
+  '打开后台的订单列表',
+  '生成中继续提问会进入待发送队列，可插队立即开始或取回编辑'
+]
+
+const sessionTransport = createServerTransport(createFakeSessionAdapter())
 
 /**
  * 真实 DeepSeek 接入。
@@ -42,7 +68,7 @@ const deepseekReasoningLevels = [
   { value: 'high', label: '高' }
 ]
 
-const transport = createOpenAITransport({
+const openaiTransport = createOpenAITransport({
   providers: [
     {
       id: 'deepseek',
@@ -68,8 +94,8 @@ const transport = createOpenAITransport({
   ]
 })
 
-const models = transport.models
-const model = ref(transport.defaultModel)
+const models = openaiTransport.models
+const model = ref(openaiTransport.defaultModel)
 const reasoningLevel = ref<string>()
 
 const selectedModel = computed(() => models.find((m) => m.id === model.value))
@@ -130,7 +156,7 @@ function wmoWeatherText(code: number): string {
   return '未知天气'
 }
 
-const tools: ChatTool[] = [
+const clientTools: ChatTool[] = [
   {
     name: 'calculate',
     description: '计算数学表达式',
@@ -249,18 +275,38 @@ const tools: ChatTool[] = [
   }
   // 提问工具 askQuestion 由 UAiChat 内置自动注入，无需手动创建
 ]
+
+const activeTransport = computed(() =>
+  mode.value === 'session' ? sessionTransport : openaiTransport
+)
+const activeTools = computed(() => (mode.value === 'session' ? [] : clientTools))
+const activeWelcome = computed(() => (mode.value === 'session' ? SESSION_WELCOME : clientWelcome))
 </script>
 
 <style scoped>
-.ai-chat-wrap {
-  height: 560px;
-  border-radius: var(--u-radius-large);
-  overflow: hidden;
+.ai-chat-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 90px);
+  min-height: 0;
 }
 
-.selection-hint {
-  margin-top: 10px;
+.ai-chat-page__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  margin-bottom: 12px;
+}
+
+.ai-chat-page__hint {
   font-size: 12px;
   color: var(--u-text-color-second);
+}
+
+.ai-chat-page__chat {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
 }
 </style>
