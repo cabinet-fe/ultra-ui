@@ -1,7 +1,14 @@
 import { describe, expect, it, vi } from 'vitest'
-import { nextTick, reactive } from 'vue'
+import { effectScope, nextTick, reactive } from 'vue'
 
+import * as toolsModule from '../../tools'
 import type { AiChatEmits, AiChatProps } from '../../types'
+import {
+  createServerTransport,
+  isServerTransport,
+  type ChatSessionAdapter,
+  type ChatSessionEvent
+} from '../session'
 import type {
   ChatMessage,
   ChatTool,
@@ -633,5 +640,265 @@ describe('useChat', () => {
     await waitFinish(emit)
     expect(chat.tokenUsage.value).toBeNull()
     expect(chat.lastTurnUsage.value).toBeNull()
+  })
+})
+
+function createFakeAdapter(options?: {
+  history?: ChatSessionEvent[]
+}): ChatSessionAdapter & {
+  emit: (event: ChatSessionEvent) => void
+  disconnect: () => void
+  unsubscribed: () => boolean
+} {
+  let listener: { onEvent(event: ChatSessionEvent): void; onDisconnect?(): void } | undefined
+  let unsubscribed = false
+
+  const adapter: ChatSessionAdapter = {
+    subscribe(handlers) {
+      listener = handlers
+      return () => {
+        unsubscribed = true
+        listener = undefined
+      }
+    },
+    send: vi.fn(async () => {}),
+    cancel: vi.fn(async () => {}),
+    respond: vi.fn(async () => {}),
+    fetchHistory: vi.fn(async () => ({ events: options?.history ?? [], hasMore: false })),
+    selectModel: vi.fn(async () => {})
+  }
+
+  return Object.assign(adapter, {
+    emit(event: ChatSessionEvent) {
+      listener?.onEvent(event)
+    },
+    disconnect() {
+      listener?.onDisconnect?.()
+    },
+    unsubscribed: () => unsubscribed
+  })
+}
+
+async function setupSession(options?: {
+  history?: ChatSessionEvent[]
+  tools?: AiChatProps['tools']
+  models?: AiChatProps['models']
+  model?: string
+}) {
+  const adapter = createFakeAdapter({ history: options?.history })
+  const props = reactive<AiChatProps>({
+    transport: createServerTransport(adapter),
+    tools: options?.tools,
+    models: options?.models,
+    model: options?.model
+  })
+  const emit = createEmit()
+  const chat = useChat({ props, emit })
+  await vi.waitFor(() => {
+    expect(adapter.fetchHistory).toHaveBeenCalled()
+  })
+  return { adapter, props, emit, chat }
+}
+
+describe('useChat session', () => {
+  it('函数 transport 时 isServerTransport 为 false', () => {
+    const emit = createEmit()
+    const transport = textTransport('x')
+    useChat({ props: { transport }, emit })
+    expect(isServerTransport(transport)).toBe(false)
+  })
+
+  it('open + fetchHistory 播种 messages；函数 transport 不调用 open/fetchHistory', async () => {
+    const { chat, adapter } = await setupSession({
+      history: [{ type: 'user/message', messageId: 'u1', seq: 1, content: '历史' }]
+    })
+    expect(isServerTransport(createServerTransport(adapter))).toBe(true)
+    expect(chat.messages.value).toEqual([{ id: 'u1', role: 'user', content: '历史' }])
+
+    const fnTransport = textTransport('ok')
+    const fetchHistory = vi.fn()
+    const open = vi.fn()
+    useChat({
+      props: { transport: Object.assign(fnTransport, { open, fetchHistory }) },
+      emit: createEmit()
+    })
+    await Promise.resolve()
+    expect(open).not.toHaveBeenCalled()
+    expect(fetchHistory).not.toHaveBeenCalled()
+  })
+
+  it('transport 更换或卸载时调用 disposer', async () => {
+    const adapter1 = createFakeAdapter()
+    const adapter2 = createFakeAdapter()
+    const props = reactive<AiChatProps>({ transport: createServerTransport(adapter1) })
+    const scope = effectScope()
+    scope.run(() => {
+      useChat({ props, emit: createEmit() })
+    })
+    await vi.waitFor(() => expect(adapter1.fetchHistory).toHaveBeenCalled())
+    expect(adapter1.unsubscribed()).toBe(false)
+
+    props.transport = createServerTransport(adapter2)
+    await vi.waitFor(() => expect(adapter2.fetchHistory).toHaveBeenCalled())
+    expect(adapter1.unsubscribed()).toBe(true)
+
+    scope.stop()
+    expect(adapter2.unsubscribed()).toBe(true)
+  })
+
+  it('send 只调 session.send，不带全量历史、不执行 execute、不注入内置工具', async () => {
+    const spy = vi.spyOn(toolsModule, 'createBuiltinTools')
+    const execute = vi.fn()
+    const { chat, adapter } = await setupSession({
+      tools: [{ name: 'add', description: '加法', parameters: {}, execute }]
+    })
+    spy.mockClear()
+
+    chat.send('hello')
+    expect(adapter.send).toHaveBeenCalledWith('hello', undefined)
+    expect(chat.messages.value).toHaveLength(0)
+
+    adapter.emit({ type: 'user/message', messageId: 'u1', seq: 1, content: 'hello' })
+    adapter.emit({ type: 'tool/call', callId: 'c1', name: 'add', arguments: '{"a":1}', seq: 2 })
+    expect(execute).not.toHaveBeenCalled()
+    expect(spy).not.toHaveBeenCalled()
+    spy.mockRestore()
+  })
+
+  it('abort 调 session.cancel；running 由事件与 onDisconnect 驱动', async () => {
+    const { chat, adapter } = await setupSession()
+    expect(chat.running.value).toBe(false)
+
+    adapter.emit({ type: 'running', running: true })
+    expect(chat.running.value).toBe(true)
+
+    chat.abort()
+    expect(adapter.cancel).toHaveBeenCalledTimes(1)
+
+    adapter.emit({ type: 'finish' })
+    expect(chat.running.value).toBe(false)
+
+    adapter.emit({ type: 'running', running: true })
+    adapter.emit({ type: 'error', code: 'x', message: '失败' })
+    expect(chat.running.value).toBe(false)
+
+    adapter.emit({ type: 'running', running: true })
+    adapter.disconnect()
+    await vi.waitFor(() => {
+      expect(chat.running.value).toBe(false)
+    })
+  })
+
+  it('队列只认 snapshot；enqueue / startQueued / removeQueued / regenerate 为 no-op', async () => {
+    const { chat, adapter } = await setupSession()
+    adapter.emit({ type: 'queue/snapshot', items: [{ id: 'q1', content: '排队' }] })
+    expect(chat.queue.value).toEqual([{ id: 'q1', content: '排队' }])
+
+    chat.enqueue('本地')
+    chat.startQueued('q1')
+    expect(chat.removeQueued('q1')).toBeUndefined()
+    expect(chat.queue.value).toEqual([{ id: 'q1', content: '排队' }])
+    expect(adapter.send).not.toHaveBeenCalled()
+
+    adapter.emit({ type: 'user/message', messageId: 'u1', seq: 1, content: '问' })
+    adapter.emit({ type: 'assistant/message', messageId: 'a1', seq: 2, content: '答' })
+    chat.regenerate()
+    expect(chat.messages.value).toHaveLength(2)
+    expect(adapter.send).not.toHaveBeenCalled()
+  })
+
+  it('clear 只清本地渲染面，不调 cancel', async () => {
+    const { chat, adapter } = await setupSession()
+    adapter.emit({ type: 'user/message', messageId: 'u1', seq: 1, content: 'hi' })
+    adapter.emit({
+      type: 'jobs/snapshot',
+      jobs: [{ id: 'j1', kind: 'bash', label: '跑', status: 'running' }]
+    })
+    adapter.emit({
+      type: 'projection',
+      key: 'tokenUsage',
+      seq: 2,
+      value: { promptTokens: 1, completionTokens: 2, totalTokens: 3 }
+    })
+    adapter.emit({ type: 'projection', key: 'title', seq: 3, value: '标题' })
+    adapter.emit({ type: 'projection', key: 'other', seq: 4, value: 1 })
+
+    expect(chat.jobs.value).toHaveLength(1)
+    expect(chat.title.value).toBe('标题')
+    expect(chat.projections.value.other).toBe(1)
+    expect(chat.tokenUsage.value?.totalTokens).toBe(3)
+
+    chat.clear()
+    expect(adapter.cancel).not.toHaveBeenCalled()
+    expect(chat.messages.value).toHaveLength(0)
+    expect(chat.queue.value).toHaveLength(0)
+    expect(chat.jobs.value).toHaveLength(0)
+    expect(chat.tokenUsage.value).toBeNull()
+    expect(chat.projections.value).toEqual({})
+    expect(chat.title.value).toBeNull()
+  })
+
+  it('approval 与 question 走 session.respond，不执行客户端工具', async () => {
+    const execute = vi.fn()
+    const { chat, adapter } = await setupSession({
+      tools: [{ name: 'del', description: '删', parameters: {}, execute }]
+    })
+
+    adapter.emit({ type: 'tool/call', callId: 'c1', name: 'del', arguments: '{}', seq: 1 })
+    adapter.emit({
+      type: 'approval/requested',
+      approvalId: 'ap1',
+      toolName: 'del',
+      callId: 'c1',
+      rpcId: 'rpc-call'
+    })
+    expect(chat.messages.value[0]?.toolCalls?.[0]?.status).toBe('awaiting-confirm')
+    chat.respondToolCall('c1', true)
+    await vi.waitFor(() => {
+      expect(adapter.respond).toHaveBeenCalledWith('rpc-call', true, undefined)
+    })
+    expect(execute).not.toHaveBeenCalled()
+
+    adapter.emit({
+      type: 'approval/requested',
+      approvalId: 'ap2',
+      toolName: 'del',
+      rpcId: 'rpc-banner'
+    })
+    expect(chat.pendingApprovals.value.some((a) => a.rpcId === 'rpc-banner' && !a.callId)).toBe(
+      true
+    )
+    chat.respondSession('rpc-banner', false)
+    await vi.waitFor(() => {
+      expect(adapter.respond).toHaveBeenCalledWith('rpc-banner', false, undefined)
+    })
+
+    adapter.emit({
+      type: 'question/requested',
+      rpcId: 'rpc-q',
+      questions: [{ question: '选一个', options: ['A', 'B'] }]
+    })
+    expect(chat.pendingQuestion.value?.rpcId).toBe('rpc-q')
+    chat.respondSession('rpc-q', true, [{ question: '选一个', answer: 'A' }])
+    await vi.waitFor(() => {
+      expect(adapter.respond).toHaveBeenCalledWith('rpc-q', true, [
+        { question: '选一个', answer: 'A' }
+      ])
+    })
+  })
+
+  it('已 open 时模型切换走 selectModel(providerId, modelId)', async () => {
+    const { chat, adapter } = await setupSession({
+      models: [
+        { id: 'm1', providerId: 'p1' },
+        { id: 'm2', providerId: 'p1' }
+      ],
+      model: 'm1'
+    })
+    expect(adapter.selectModel).not.toHaveBeenCalled()
+
+    chat.model.value = 'm2'
+    await nextTick()
+    expect(adapter.selectModel).toHaveBeenCalledWith('p1', 'm2')
   })
 })

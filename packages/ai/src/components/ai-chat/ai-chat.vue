@@ -65,7 +65,8 @@ import { ULayout } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
 import { computed, provide, ref, useSlots, useTemplateRef, watch } from 'vue'
 
-import type { ChatAttachment, ChatToolCall } from '../../chat/types'
+import { isServerTransport } from '../../chat/session'
+import type { ChatAttachment, ChatTool, ChatToolCall, ChatToolMeta } from '../../chat/types'
 import { useChat } from '../../chat/use-chat'
 import { createBuiltinTools } from '../../tools'
 import type { _AiChatExposed, AiChatEmits, AiChatProps } from '../../types'
@@ -92,13 +93,21 @@ const cls = bem('ai-chat')
 
 const slots = useSlots()
 
-/** 内置 + 用户工具（同名内置优先），供工具卡片解析 icon/label/render/renderTo/autoCollapse */
-const toolMap = computed(() => {
+/**
+ * 按 name 查表：session 下 tools 仅为渲染元信息（不注入内置工具，忽略 execute 等）。
+ * 函数 transport 仍注入 createBuiltinTools（同名内置优先）。
+ */
+const toolMap = computed((): Record<string, ChatTool | ChatToolMeta | undefined> => {
+  if (isServerTransport(props.transport)) {
+    return Object.fromEntries((props.tools ?? []).map((t) => [t.name, t]))
+  }
   const builtins = createBuiltinTools()
   const names = new Set(builtins.map((t) => t.name))
   const tools = [...builtins, ...(props.tools ?? []).filter((t) => !names.has(t.name))]
   return Object.fromEntries(tools.map((t) => [t.name, t]))
 })
+
+const toolIcons = computed(() => props.toolIcons)
 
 const {
   messages,
@@ -175,7 +184,7 @@ const closePanel = () => {
   activePanelCallId.value = null
 }
 
-provide(AiChatDIKey, { cls, slots, tools: toolMap, openPanel })
+provide(AiChatDIKey, { cls, slots, tools: toolMap, toolIcons, openPanel })
 
 /**
  * 面板宽度：经 ULayout 列轨施加（cols = 1fr + 面板宽度），

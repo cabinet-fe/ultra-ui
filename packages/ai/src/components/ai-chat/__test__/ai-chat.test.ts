@@ -1,9 +1,25 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createApp, defineComponent, h, nextTick, ref, type PropType } from 'vue'
+import {
+  createApp,
+  defineComponent,
+  h,
+  nextTick,
+  reactive,
+  ref,
+  type Component,
+  type PropType
+} from 'vue'
 
-import type { ChatMessage, ChatTool, ChatToolCall, ChatTransport } from '../../../chat/types'
+import { createServerTransport, type ChatSessionEvent } from '../../../chat/session'
+import type {
+  ChatMessage,
+  ChatTool,
+  ChatToolCall,
+  ChatToolMeta,
+  ChatTransport
+} from '../../../chat/types'
 import type { ChatModelOption } from '../../../providers'
-import type { AiChatExposed } from '../../../types'
+import type { AiChatExposed, AiChatProps } from '../../../types'
 import UAiChat from '../ai-chat.vue'
 
 // happy-dom 环境下用桩组件替换 MarkdownRender，仅验证组件自身逻辑
@@ -17,13 +33,15 @@ vi.mock('markstream-vue', () => ({
 }))
 
 function mountAiChat(options: {
-  transport: ChatTransport
-  tools?: ChatTool[]
+  transport: AiChatProps['transport']
+  tools?: AiChatProps['tools']
   welcome?: string | string[]
   models?: ChatModelOption[]
   model?: string
   reasoningLevel?: string
   tokenUsageDetail?: boolean
+  messages?: ChatMessage[]
+  toolIcons?: Record<string, Component>
   slots?: Record<string, (scope: any) => any>
 }) {
   const host = document.createElement('div')
@@ -43,7 +61,9 @@ function mountAiChat(options: {
           models: options.models,
           model: options.model,
           reasoningLevel: options.reasoningLevel,
-          tokenUsageDetail: options.tokenUsageDetail
+          tokenUsageDetail: options.tokenUsageDetail,
+          messages: options.messages,
+          toolIcons: options.toolIcons
         },
         options.slots
       )
@@ -1250,5 +1270,172 @@ describe('UAiChat', () => {
     })
     expect(noCache.host.querySelector('.u-ai-chat__input-usage')?.textContent).not.toContain('缓存')
     noCache.unmount()
+  })
+
+  const UNKNOWN_TOOL = 'totally-unknown-tool-xyz'
+
+  function seedUnknownCall(init: Partial<ChatToolCall> = {}) {
+    const call = reactive<ChatToolCall>({
+      id: 'c1',
+      name: UNKNOWN_TOOL,
+      arguments: '{"q":"hi"}',
+      status: 'pending',
+      ...init
+    })
+    const messages: ChatMessage[] = [
+      { id: 'u1', role: 'user', content: 'go' },
+      { id: 'a1', role: 'assistant', content: '', status: 'done', toolCalls: [call] }
+    ]
+    return { call, messages }
+  }
+
+  async function expandToolCard(host: HTMLElement) {
+    const header = host.querySelector<HTMLElement>('.u-ai-chat__tool-call .u-collapse__header')
+    header?.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await nextTick()
+    await nextTick()
+  }
+
+  function assertGenericCard(host: HTMLElement, status: 'pending' | 'success' | 'error') {
+    const card = host.querySelector(`.u-ai-chat__tool-call.is-${status}`)
+    expect(card).toBeTruthy()
+    expect(host.querySelector('.u-ai-chat__tool-call-name')?.textContent).toBe(UNKNOWN_TOOL)
+    expect(host.querySelector('.u-ai-chat__tool-call-status')).toBeTruthy()
+    expect(host.textContent).not.toContain('未找到')
+  }
+
+  it('未注册工具名 pending → success 走出通用卡片，无空白、无未找到工具文案', async () => {
+    const { call, messages } = seedUnknownCall()
+    const { host, unmount } = mountAiChat({ transport: () => {}, messages })
+    await nextTick()
+
+    assertGenericCard(host, 'pending')
+    expect(host.querySelector('.u-ai-chat__tool-call-name')?.classList.contains('u-shine')).toBe(
+      true
+    )
+    expect(host.textContent).toContain('"q": "hi"')
+
+    call.status = 'success'
+    call.result = '{"ok":true}'
+    await nextTick()
+    assertGenericCard(host, 'success')
+
+    await expandToolCard(host)
+    expect(host.textContent).toContain('"ok": true')
+    unmount()
+  })
+
+  it('未注册工具名 pending → error 走出通用卡片，无空白、无未找到工具文案', async () => {
+    const { call, messages } = seedUnknownCall()
+    const { host, unmount } = mountAiChat({ transport: () => {}, messages })
+    await nextTick()
+    assertGenericCard(host, 'pending')
+
+    call.status = 'error'
+    call.error = 'boom'
+    await nextTick()
+    assertGenericCard(host, 'error')
+
+    await expandToolCard(host)
+    expect(host.textContent).toContain('boom')
+    expect(host.textContent).toContain('错误')
+    unmount()
+  })
+
+  it('通用卡片展示 view，长 JSON 可截断并展开看全文', async () => {
+    const long = 'x'.repeat(500)
+    const { call, messages } = seedUnknownCall({
+      status: 'success',
+      result: JSON.stringify({ data: long }),
+      view: { kind: 'diff', body: 'patch-xyz' }
+    })
+    const { host, unmount } = mountAiChat({ transport: () => {}, messages })
+    await nextTick()
+    await expandToolCard(host)
+
+    expect(host.textContent).toContain('视图')
+    expect(host.textContent).toContain('patch-xyz')
+    expect(host.textContent).not.toContain(long)
+    const toggle = [
+      ...host.querySelectorAll<HTMLElement>('.u-ai-chat__tool-call-json-toggle')
+    ].find((el) => el.textContent?.includes('展开'))
+    expect(toggle).toBeTruthy()
+    toggle!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await nextTick()
+    expect(host.textContent).toContain(long)
+    unmount()
+  })
+
+  it('toolIcons 可覆盖未知名工具图标', async () => {
+    const OverrideIcon = defineComponent({
+      setup: () => () => h('svg', { class: 'override-tool-icon' })
+    })
+    const { messages } = seedUnknownCall()
+    const { host, unmount } = mountAiChat({
+      transport: () => {},
+      messages,
+      toolIcons: { [UNKNOWN_TOOL]: OverrideIcon }
+    })
+    await nextTick()
+    expect(host.querySelector('.override-tool-icon')).toBeTruthy()
+    unmount()
+  })
+
+  it('session 下不注入内置 askQuestion，无 meta 时走通用视图', async () => {
+    const history: ChatSessionEvent[] = [
+      {
+        type: 'tool/call',
+        callId: 'c1',
+        name: 'askQuestion',
+        arguments: '{"questions":[{"question":"Q?"}]}',
+        seq: 1
+      }
+    ]
+    const { host, unmount } = mountAiChat({
+      transport: createServerTransport({
+        subscribe: () => () => {},
+        send: async () => {},
+        cancel: async () => {},
+        respond: async () => {},
+        fetchHistory: async () => ({ events: history, hasMore: false }),
+        selectModel: async () => {}
+      })
+    })
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__tool-call-name')?.textContent).toBe('askQuestion')
+    })
+    expect(host.querySelector('.u-ai-chat__ask-question')).toBeFalsy()
+    unmount()
+  })
+
+  it('session 下 meta.render 优先于通用视图', async () => {
+    const meta: ChatToolMeta = {
+      name: 'server-tool',
+      label: '服务端工具',
+      render: defineComponent({
+        props: { toolCall: { type: Object as PropType<ChatToolCall>, required: true } },
+        setup: () => () => h('div', { class: 'meta-render' }, 'meta-body')
+      })
+    }
+    const history: ChatSessionEvent[] = [
+      { type: 'tool/call', callId: 'c1', name: 'server-tool', arguments: '{}', seq: 1 }
+    ]
+    const { host, unmount } = mountAiChat({
+      transport: createServerTransport({
+        subscribe: () => () => {},
+        send: async () => {},
+        cancel: async () => {},
+        respond: async () => {},
+        fetchHistory: async () => ({ events: history, hasMore: false }),
+        selectModel: async () => {}
+      }),
+      tools: [meta]
+    })
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__tool-call-name')?.textContent).toBe('服务端工具')
+    })
+    expect(host.querySelector('.meta-render')?.textContent).toBe('meta-body')
+    expect(host.textContent).not.toContain('参数')
+    unmount()
   })
 })

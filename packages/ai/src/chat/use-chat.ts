@@ -1,16 +1,21 @@
 import { useModel } from '@veltra/compositions'
 import { reactive, ref, watch, type Ref } from 'vue'
 
-import { createBuiltinTools } from '../tools'
+import type { AskQuestionItem } from '../tools'
 import type { AiChatEmits, AiChatProps } from '../types'
+import type { ChatPendingApproval } from './fold'
+import { isServerTransport, type ChatSessionTransport } from './session'
 import type {
   ChatAttachment,
+  ChatJob,
   ChatMessage,
   ChatQueuedMessage,
   ChatTokenUsage,
   ChatTool,
   ChatToolCall
 } from './types'
+import { addTokenUsage, resolveTools, serializeResult } from './use-chat-helpers'
+import { createSessionRuntime } from './use-chat-session'
 
 export interface UseChatOptions {
   props: AiChatProps
@@ -23,47 +28,10 @@ const uid = () => {
     : `${Date.now()}-${Math.random().toString(36).slice(2)}`
 }
 
-function serializeResult(result: unknown): string {
-  if (typeof result === 'string') return result
-  try {
-    return JSON.stringify(result) ?? 'null'
-  } catch {
-    return String(result)
-  }
-}
-
-/** 内置工具 + 用户工具，同名时内置优先 */
-function resolveTools(userTools?: ChatTool[]): ChatTool[] {
-  const builtins = createBuiltinTools()
-  const names = new Set(builtins.map((t) => t.name))
-  return [...builtins, ...(userTools ?? []).filter((t) => !names.has(t.name))]
-}
-
-function mergeOptionalCount(a?: number, b?: number): number | undefined {
-  if (a == null && b == null) return undefined
-  return (a ?? 0) + (b ?? 0)
-}
-
-/** 累加两次 usage；缓存字段只在至少一侧有值时保留 */
-function addTokenUsage(a: ChatTokenUsage, b: ChatTokenUsage): ChatTokenUsage {
-  const usage: ChatTokenUsage = {
-    promptTokens: a.promptTokens + b.promptTokens,
-    completionTokens: a.completionTokens + b.completionTokens,
-    totalTokens: a.totalTokens + b.totalTokens
-  }
-  const cacheHitTokens = mergeOptionalCount(a.cacheHitTokens, b.cacheHitTokens)
-  if (cacheHitTokens != null) usage.cacheHitTokens = cacheHitTokens
-  const cacheMissTokens = mergeOptionalCount(a.cacheMissTokens, b.cacheMissTokens)
-  if (cacheMissTokens != null) usage.cacheMissTokens = cacheMissTokens
-  const cacheCreationTokens = mergeOptionalCount(a.cacheCreationTokens, b.cacheCreationTokens)
-  if (cacheCreationTokens != null) usage.cacheCreationTokens = cacheCreationTokens
-  return usage
-}
-
 /**
  * AI 对话核心状态机：消息管理、流式追加、工具调用循环编排。
  * 与 UI 解耦，ai-chat.vue 只负责渲染与交互转发。
- * 始终注入内置工具（如 askQuestion），无需经 props 传入。
+ * 函数型 transport 注入内置工具；session transport 不注入、不执行客户端工具。
  */
 export function useChat(options: UseChatOptions) {
   const { props, emit } = options
@@ -92,6 +60,28 @@ export function useChat(options: UseChatOptions) {
   const tokenUsage = ref<ChatTokenUsage | null>(null)
   /** 最近一轮用户对话（含工具多轮请求）的 token；该轮无 usage 时为 null */
   const lastTurnUsage = ref<ChatTokenUsage | null>(null)
+
+  /** session 下由 jobs/snapshot 整体替换；函数 transport 保持空数组 */
+  const jobs = ref<ChatJob[]>([])
+  const projections = ref<Record<string, unknown>>({})
+  const title = ref<string | null>(null)
+  const pendingApprovals = ref<ChatPendingApproval[]>([])
+  const pendingQuestion = ref<{ questions: AskQuestionItem[]; rpcId: string } | null>(null)
+
+  const sessionRuntime = createSessionRuntime({
+    messages,
+    queue,
+    jobs,
+    tokenUsage,
+    projections,
+    title,
+    running,
+    pendingApprovals,
+    pendingQuestion
+  })
+
+  const session = (): ChatSessionTransport | null =>
+    isServerTransport(props.transport) ? props.transport : null
 
   let abortController: AbortController | null = null
   /** needsConfirm 工具的挂起确认器，key 为 toolCallId */
@@ -129,6 +119,25 @@ export function useChat(options: UseChatOptions) {
     { immediate: true }
   )
 
+  // session：open + fetchHistory 播种；更换或卸载时 disposer
+  watch(
+    () => props.transport,
+    (transport, _prev, onCleanup) => {
+      if (!isServerTransport(transport)) return
+      sessionRuntime.attach(transport, onCleanup)
+    },
+    { immediate: true }
+  )
+
+  // session 且已 open 时，模型切换走 selectModel
+  watch(model, (modelId) => {
+    const current = session()
+    if (!sessionRuntime.opened || !current || !modelId) return
+    const option = props.models?.find((m) => m.id === modelId)
+    if (!option) return
+    void current.selectModel(option.providerId, modelId)
+  })
+
   /**
    * 向父组件同步消息快照（流式 delta 过于频繁，不同步，只在关键节点同步）。
    * 必须经 setter 赋值触发 emit，而非直接 emit 切片：setter 让本地数组与下发的
@@ -146,6 +155,11 @@ export function useChat(options: UseChatOptions) {
    */
   const send = (content: string, attachments?: ChatAttachment[]) => {
     if (!content.trim() && !attachments?.length) return
+    const current = session()
+    if (current) {
+      void current.send(content, attachments)
+      return
+    }
     enqueue(content, attachments)
   }
 
@@ -159,6 +173,7 @@ export function useChat(options: UseChatOptions) {
     beforeId?: string
   ): ChatQueuedMessage => {
     const item: ChatQueuedMessage = { id: uid(), content, attachments }
+    if (session()) return item
     const anchorIndex = beforeId ? queue.value.findIndex((q) => q.id === beforeId) : -1
     if (anchorIndex === -1) {
       queue.value.push(item)
@@ -177,6 +192,7 @@ export function useChat(options: UseChatOptions) {
 
   /** 立即执行队列中的某条：中断当前会话，该条插队为下一条（其余保持原顺序） */
   const startQueued = (id: string) => {
+    if (session()) return
     const item = removeQueued(id)
     if (!item) return
 
@@ -193,6 +209,7 @@ export function useChat(options: UseChatOptions) {
 
   /** 从队列移除某条（返回被移除项；编辑场景由 UI 取回内容） */
   const removeQueued = (id: string): ChatQueuedMessage | undefined => {
+    if (session()) return undefined
     const index = queue.value.findIndex((item) => item.id === id)
     if (index === -1) return undefined
     const [item] = queue.value.splice(index, 1)
@@ -287,9 +304,10 @@ export function useChat(options: UseChatOptions) {
 
   /** 单轮生成；存在工具调用时执行后递归进入下一轮（递归避免 await-in-loop） */
   const runRound = async (controller: AbortController, depth: number): Promise<void> => {
-    if (!props.transport) return
+    const transport = props.transport
+    if (typeof transport !== 'function') return
     const { signal } = controller
-    const tools = resolveTools(props.tools)
+    const tools = resolveTools(props.tools as ChatTool[] | undefined)
 
     const assistant = reactive<ChatMessage>({
       id: uid(),
@@ -303,7 +321,7 @@ export function useChat(options: UseChatOptions) {
     let requestError: Error | null = null
 
     try {
-      await props.transport(
+      await transport(
         {
           // 排除刚追加的 assistant 占位消息
           messages: messages.value.slice(0, -1),
@@ -395,17 +413,34 @@ export function useChat(options: UseChatOptions) {
 
   /** 中断当前生成，挂起的工具确认按拒绝处理 */
   const abort = () => {
+    const current = session()
+    if (current) {
+      void current.cancel()
+      return
+    }
     abortController?.abort()
   }
 
-  /** 响应 needsConfirm 工具的用户确认 */
+  /** 响应 needsConfirm 工具的用户确认；session 下按 callId 找到 rpcId 后 respond */
   const respondToolCall = (toolCallId: string, approved: boolean) => {
+    const current = session()
+    if (current) {
+      const pending = pendingApprovals.value.find((a) => a.callId === toolCallId)
+      if (pending) void current.respond(pending.rpcId, approved)
+      return
+    }
     confirmResolvers.get(toolCallId)?.(approved)
+  }
+
+  /** session 审批横幅 / 提问提交：直接 respond(rpcId) */
+  const respondSession = (rpcId: string, ok: boolean, value?: unknown) => {
+    const current = session()
+    if (current) void current.respond(rpcId, ok, value)
   }
 
   /** 重新生成：移除最后一条用户消息之后的所有消息，重新跑对话循环 */
   const regenerate = () => {
-    if (running.value) return
+    if (session() || running.value) return
 
     const list = messages.value
     let lastUserIndex = -1
@@ -424,6 +459,11 @@ export function useChat(options: UseChatOptions) {
 
   /** 清空消息、待发送队列与 token 统计，生成中则先中断 */
   const clear = () => {
+    if (session()) {
+      sessionRuntime.resetLocal()
+      lastTurnUsage.value = null
+      return
+    }
     abort()
     queue.value = []
     messages.value = []
@@ -438,13 +478,19 @@ export function useChat(options: UseChatOptions) {
     reasoningLevel,
     running,
     queue,
+    jobs,
     tokenUsage,
     lastTurnUsage,
+    projections,
+    title,
+    pendingApprovals,
+    pendingQuestion,
     send,
     abort,
     regenerate,
     clear,
     respondToolCall,
+    respondSession,
     enqueue,
     startQueued,
     removeQueued

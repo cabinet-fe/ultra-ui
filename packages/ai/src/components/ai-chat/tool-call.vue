@@ -33,33 +33,26 @@
         查看面板
       </UButton>
     </div>
-    <!-- 自定义渲染：工具定义的 render 优先于 tool-<name> 插槽，均替换整个 body -->
+    <!-- 自定义渲染：meta.render / tool-<name> 插槽优先于通用工具视图 -->
     <component :is="tool.render" v-else-if="tool?.render" :tool-call="toolCall" />
     <component :is="slotBody" v-else-if="slotBody && hasResult" />
     <template v-else>
-      <template v-if="prettyArguments">
-        <div :class="cls.e('tool-call-section')">参数</div>
-        <pre :class="cls.e('tool-call-code')">{{ prettyArguments }}</pre>
-      </template>
-
-      <template v-if="hasResult">
-        <div :class="cls.e('tool-call-section')">
-          {{ toolCall.status === 'error' ? '错误' : '结果' }}
-        </div>
-        <pre :class="cls.e('tool-call-code')">{{ displayResult }}</pre>
-      </template>
+      <ToolJson v-if="prettyArguments" title="参数" :text="prettyArguments" />
+      <ToolJson v-if="hasResult" :title="resultTitle" :text="displayResult" />
+      <ToolJson v-if="prettyView" title="视图" :text="prettyView" />
     </template>
   </UCollapseItem>
 </template>
 
 <script lang="ts" setup>
 import { UButton, UCollapseItem, UIcon } from '@veltra/desktop'
-import { CircleCheckFilled, CircleClose, Close, Loading, WarningFilled } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
-import { computed, inject, ref, watch, type Component } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
 
 import type { ChatToolCall } from '../../chat/types'
 import { AiChatDIKey } from './di'
+import { resolveToolIcon } from './tool-icons'
+import ToolJson from './tool-json.vue'
 
 defineOptions({ name: 'UAiChatToolCall' })
 
@@ -70,7 +63,24 @@ const emit = defineEmits<{ (e: 'respond', approved: boolean): void }>()
 const di = inject(AiChatDIKey)
 const cls = di?.cls ?? bem('ai-chat')
 
-/** 当前调用对应的工具定义（解析 icon/label/render/autoCollapse/terminal） */
+/** 把未知值格式成可读 JSON，循环引用等异常时退回 String，不得 throw */
+function formatUnknown(value: unknown): string {
+  if (value == null) return ''
+  if (typeof value === 'string') {
+    try {
+      return JSON.stringify(JSON.parse(value), null, 2)
+    } catch {
+      return value
+    }
+  }
+  try {
+    return JSON.stringify(value, null, 2) ?? String(value)
+  } catch {
+    return String(value)
+  }
+}
+
+/** 当前调用对应的工具定义或渲染元信息（session 下忽略 execute / needsConfirm / terminal） */
 const tool = computed(() => di?.tools.value[props.toolCall.name])
 
 const isExpanded = ref(false)
@@ -94,7 +104,7 @@ watch(
   () => props.toolCall.status,
   (status) => {
     if (userToggled) return
-    if (status === 'running' || status === 'awaiting-confirm') {
+    if (status === 'pending' || status === 'running' || status === 'awaiting-confirm') {
       isExpanded.value = true
     } else {
       isExpanded.value = !autoCollapse.value
@@ -103,17 +113,16 @@ watch(
   { immediate: true }
 )
 
-const STATUS_META: Record<string, { icon: Component; class: string }> = {
-  pending: { icon: Loading, class: 'is-active' },
-  running: { icon: Loading, class: 'is-active' },
-  'awaiting-confirm': { icon: WarningFilled, class: 'is-warning' },
-  success: { icon: CircleCheckFilled, class: 'is-success' },
-  error: { icon: CircleClose, class: 'is-danger' },
-  rejected: { icon: Close, class: 'is-danger' }
+const STATUS_CLASS: Record<string, string> = {
+  pending: 'is-active',
+  running: 'is-active',
+  'awaiting-confirm': 'is-warning',
+  success: 'is-success',
+  error: 'is-danger',
+  rejected: 'is-danger'
 }
 
-const statusIcon = computed(() => STATUS_META[props.toolCall.status]?.icon ?? Loading)
-const statusClass = computed(() => STATUS_META[props.toolCall.status]?.class ?? '')
+const statusClass = computed(() => STATUS_CLASS[props.toolCall.status] ?? '')
 
 /** 进行中（pending/running）：工具名带扫光效果 */
 const isActive = computed(() => {
@@ -131,8 +140,10 @@ const isSettled = computed(() => {
  */
 const destroyOnCollapse = computed(() => isSettled.value && !isPanelTool.value)
 
-/** 头部图标：工具自定义图标优先，缺省用状态图标 */
-const headerIcon = computed(() => tool.value?.icon ?? statusIcon.value)
+/** 头部图标：meta.icon > 宿主覆盖 > 内置名称规则 > 兜底；状态点走 status class */
+const headerIcon = computed(
+  () => tool.value?.icon ?? resolveToolIcon(props.toolCall.name, di?.toolIcons?.value)
+)
 
 const parsedArguments = computed<Record<string, unknown> | null>(() => {
   if (!props.toolCall.arguments) return null
@@ -165,13 +176,14 @@ const hasResult = computed(() => {
   return props.toolCall.result != null || props.toolCall.error != null
 })
 
-const displayResult = computed(() => {
-  const raw = props.toolCall.error ?? props.toolCall.result ?? ''
-  try {
-    return JSON.stringify(JSON.parse(raw), null, 2)
-  } catch {
-    return raw
-  }
+const resultTitle = computed(() => (props.toolCall.status === 'error' ? '错误' : '结果'))
+
+const displayResult = computed(() => formatUnknown(props.toolCall.error ?? props.toolCall.result))
+
+/** 服务端下发的 view，格式化为 JSON；不得丢弃、不得 throw */
+const prettyView = computed(() => {
+  if (props.toolCall.view == null) return ''
+  return formatUnknown(props.toolCall.view)
 })
 
 /** 使用方通过 tool-<name> 插槽自定义该工具的展示（有结果时替换整个 body） */

@@ -1,6 +1,7 @@
 import type { DeconstructValue } from '@veltra/utils'
-import type { Ref } from 'vue'
+import type { Component, Ref } from 'vue'
 
+import type { ChatSessionTransport } from '../chat/session'
 import type {
   ChatAttachment,
   ChatMessage,
@@ -8,15 +9,19 @@ import type {
   ChatTokenUsage,
   ChatTool,
   ChatToolCall,
+  ChatToolMeta,
   ChatTransport
 } from '../chat/types'
 import type { ChatModelOption } from '../providers'
 
 export interface AiChatProps {
-  /** 传输层（必填），可使用导出的 createOpenAITransport() 创建 */
-  transport: ChatTransport
-  /** 工具定义列表，不同场景传入不同工具赋予助手不同能力 */
-  tools?: ChatTool[]
+  /** 传输层（必填）；函数型 ChatTransport 或 session 对象，可使用 createOpenAITransport / createServerTransport */
+  transport: ChatTransport | ChatSessionTransport
+  /**
+   * 工具列表。函数 transport 传入 ChatTool[]（必有 execute）；
+   * session 下可为 ChatToolMeta[]（仅渲染元信息）。ChatTool[] 仍可赋值。
+   */
+  tools?: (ChatTool | ChatToolMeta)[]
   /** 系统提示词 */
   systemPrompt?: string
   /**
@@ -50,6 +55,11 @@ export interface AiChatProps {
    * 默认 false：仅在拿到 usage 时显示会话累计「总 token」。接口未返回 usage 时不展示。
    */
   tokenUsageDetail?: boolean
+  /**
+   * 覆盖包内 toolName → icon 映射（精确名优先于内置名称规则）。
+   * 缺省不传则走内置表；未命中的名称仍用兜底图标，不得 throw。
+   */
+  toolIcons?: Record<string, Component>
 }
 
 export interface AiChatEmits {

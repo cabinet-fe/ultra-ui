@@ -22,12 +22,13 @@
 
 <script lang="ts" setup>
 import { UIcon, UScroll } from '@veltra/desktop'
-import { CircleCheckFilled, CircleClose, Close, Loading, WarningFilled } from '@veltra/icons/normal'
+import { Close } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
-import { computed, inject, type Component } from 'vue'
+import { computed, inject } from 'vue'
 
 import type { ChatToolCall } from '../../chat/types'
 import { AiChatDIKey } from './di'
+import { resolveToolIcon } from './tool-icons'
 
 defineOptions({ name: 'UAiChatSidePanel' })
 
@@ -41,20 +42,21 @@ const cls = di?.cls ?? bem('ai-chat')
 /** 当前调用对应的工具定义（解析 icon/label/render） */
 const tool = computed(() => di?.tools.value[props.toolCall.name])
 
-const STATUS_META: Record<string, { icon: Component; class: string }> = {
-  pending: { icon: Loading, class: 'is-active' },
-  running: { icon: Loading, class: 'is-active' },
-  'awaiting-confirm': { icon: WarningFilled, class: 'is-warning' },
-  success: { icon: CircleCheckFilled, class: 'is-success' },
-  error: { icon: CircleClose, class: 'is-danger' },
-  rejected: { icon: Close, class: 'is-danger' }
+const STATUS_CLASS: Record<string, string> = {
+  pending: 'is-active',
+  running: 'is-active',
+  'awaiting-confirm': 'is-warning',
+  success: 'is-success',
+  error: 'is-danger',
+  rejected: 'is-danger'
 }
 
-const statusIcon = computed(() => STATUS_META[props.toolCall.status]?.icon ?? Loading)
-const statusClass = computed(() => STATUS_META[props.toolCall.status]?.class ?? '')
+const statusClass = computed(() => STATUS_CLASS[props.toolCall.status] ?? '')
 
-/** 头部图标：工具自定义图标优先，缺省用状态图标（与工具卡片一致） */
-const headerIcon = computed(() => tool.value?.icon ?? statusIcon.value)
+/** 头部图标：meta.icon > 宿主覆盖 > 内置名称规则 > 兜底；状态点走 status class */
+const headerIcon = computed(
+  () => tool.value?.icon ?? resolveToolIcon(props.toolCall.name, di?.toolIcons?.value)
+)
 
 /** 面板标题：优先工具定义的 panelTitle（业务对象 + 动作），缺省回落到 label ?? name */
 const panelTitle = computed(() => {

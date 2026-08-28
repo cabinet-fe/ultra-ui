@@ -621,11 +621,23 @@ $root-name: ai-chat;
 
   @include m.e(tool-call-section) {
     color: fn.use-var(text-color, assist);
-    margin-bottom: 4px;
+  }
 
+  @include m.e(tool-call-json) {
     &:not(:first-child) {
       margin-top: fn.use-var(gap, small);
     }
+  }
+
+  @include m.e(tool-call-json-head) {
+    @include m.flex(flex, flex-start, center);
+    gap: fn.use-var(gap, small);
+    margin-bottom: 4px;
+  }
+
+  @include m.e(tool-call-json-toggle) {
+    flex-shrink: 0;
+    margin-left: auto;
   }
 
   @include m.e(tool-call-code) {
