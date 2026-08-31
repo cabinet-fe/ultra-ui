@@ -23,6 +23,16 @@ const items = ref([
 ## 不同尺寸
 
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const items = ref([
+  { id: 1, name: '张三' },
+  { id: 2, name: '李四' },
+  { id: 3, name: '王五' }
+])
+</script>
+
 <template>
   <u-list size="small" :data="items" v-slot="{ item }">
     <div>{{ item.name }}</div>

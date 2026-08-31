@@ -3,7 +3,7 @@
 ## 基础点击选择
 
 ```vue
-<script setup>
+<script setup lang="ts">
 const handlePick = (files: File[]) => {
   console.log('选中文件:', files.map(f => f.name))
 }
@@ -19,7 +19,7 @@ const handlePick = (files: File[]) => {
 ## 限制类型 & 多选
 
 ```vue
-<script setup>
+<script setup lang="ts">
 const handlePick = (files: File[]) => {
   // 仅 .pdf 或 image 文件会进入 files
   console.log(files)
@@ -36,7 +36,7 @@ const handlePick = (files: File[]) => {
 ## 拖拽上传 + 拖拽高亮
 
 ```vue
-<script setup>
+<script setup lang="ts">
 const handlePick = (files: File[]) => {
   console.log('拖入文件:', files.map(f => f.name))
 }
@@ -67,6 +67,12 @@ const handlePick = (files: File[]) => {
 ## 自定义渲染标签
 
 ```vue
+<script setup lang="ts">
+const onPick = (files: File[]) => {
+  console.log('选中图片:', files.map(f => f.name))
+}
+</script>
+
 <template>
   <u-file-picker tag="span" accept="image/*" @pick="onPick">
     <a href="javascript:void(0)">点击上传图片</a>

@@ -22,6 +22,13 @@ const active = ref<CollapseModelValue>(['1'])
 ## 手风琴模式
 
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import type { CollapseModelValue } from '@veltra/desktop'
+
+const active = ref<CollapseModelValue>('a')
+</script>
+
 <template>
   <!-- accordion 模式下 modelValue 为单值。每项为独立边框卡片 -->
   <u-collapse v-model="active" accordion>
@@ -36,7 +43,11 @@ const active = ref<CollapseModelValue>(['1'])
 
 ```vue
 <script setup lang="ts">
+import { ref } from 'vue'
 import { Star } from '@veltra/icons/normal'
+import type { CollapseModelValue } from '@veltra/desktop'
+
+const active = ref<CollapseModelValue>(['1'])
 </script>
 
 <template>

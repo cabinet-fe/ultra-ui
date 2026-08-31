@@ -5,7 +5,7 @@
 ```vue
 <script setup lang="ts">
 import { shallowRef } from 'vue'
-import { HouseFilled, SettingFilled, UserGroup } from '@veltra/icons/normal'
+import { HouseFilled, Setting, UserGroup } from '@veltra/icons/normal'
 import type { NavItem } from '@veltra/desktop'
 
 const currentPath = shallowRef('/apps/home')
@@ -22,7 +22,7 @@ const menus = shallowRef<NavItem[]>([
   },
   {
     title: '系统设置',
-    icon: SettingFilled,
+    icon: Setting,
     path: '/apps/settings',
     children: [{ title: '基础设置', path: '/apps/settings/basic' }]
   }
@@ -39,7 +39,7 @@ const menus = shallowRef<NavItem[]>([
 ```vue
 <script setup lang="ts">
 import { shallowRef } from 'vue'
-import { HouseFilled, SettingFilled, UserGroup } from '@veltra/icons/normal'
+import { HouseFilled, Setting, UserGroup } from '@veltra/icons/normal'
 import type { DualNavRootItem } from '@veltra/desktop'
 
 const currentPath = shallowRef('/apps/home')
@@ -53,7 +53,7 @@ const menus = shallowRef<DualNavRootItem[]>([
   },
   {
     title: '系统设置',
-    icon: SettingFilled,
+    icon: Setting,
     path: '/apps/settings',
     children: [{ title: '基础设置', path: '/apps/settings/basic' }]
   }
@@ -80,9 +80,13 @@ const menus: NavItem[] = [
   { title: '文档中心', path: '/docs', children: [{ title: '快速开始', path: '/docs/start' }] },
   { title: '帮助', path: '/help' }
 ]
+
+function onItemClick(item: NavItem) {
+  console.log(item.path)
+}
 </script>
 
 <template>
-  <u-dual-nav :menus="menus" current-path="/docs/start" @item-click="console.log($event.path)" />
+  <u-dual-nav :menus="menus" current-path="/docs/start" @item-click="onItemClick" />
 </template>
 ```

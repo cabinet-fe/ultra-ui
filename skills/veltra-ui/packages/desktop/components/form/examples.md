@@ -40,7 +40,7 @@ async function handleSubmit() {
     <u-input
       label="自定义"
       field="customField"
-      :rules="{ validator: async (val) => (val === 'admin' ? '该值已被占用' : undefined) }"
+      :rules="{ validator: async (val) => (val === 'admin' ? '该值已被占用' : '') }"
     />
   </u-form>
   <u-button type="primary" @click="handleSubmit">提交</u-button>

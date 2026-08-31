@@ -19,15 +19,31 @@ const selected = ref('a')
 ## 禁用
 
 ```vue
-<u-radio v-model="selected" value="a" label="禁用选项" disabled />
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const selected = ref('a')
+</script>
+
+<template>
+  <u-radio v-model="selected" value="a" label="禁用选项" disabled />
+</template>
 ```
 
 ## 不同尺寸
 
 ```vue
-<u-radio v-model="selected" value="a" label="小号" size="small" />
-<u-radio v-model="selected" value="b" label="默认" />
-<u-radio v-model="selected" value="c" label="大号" size="large" />
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const selected = ref('a')
+</script>
+
+<template>
+  <u-radio v-model="selected" value="a" label="小号" size="small" />
+  <u-radio v-model="selected" value="b" label="默认" />
+  <u-radio v-model="selected" value="c" label="大号" size="large" />
+</template>
 ```
 
 ## 配合 URadioGroup 使用

@@ -28,6 +28,11 @@ const pagedData = computed(() => {
   const start = (pageNumber.value - 1) * pageSize.value
   return allData.value.slice(start, start + pageSize.value)
 })
+
+const columns = [
+  { key: 'id', name: 'ID' },
+  { key: 'name', name: '名称' }
+]
 </script>
 
 <template>
@@ -44,7 +49,7 @@ const pagedData = computed(() => {
 ## 监听变化事件
 
 ```vue
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 
 const pageNumber = ref(1)

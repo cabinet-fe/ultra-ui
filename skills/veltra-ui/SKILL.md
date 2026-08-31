@@ -46,6 +46,7 @@ veltra-ui 是一套 Vue 3 UI 体系。
 | 用户意图                                                              | 先读                                                                                                        |
 | --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | **写表单 / UForm / 表单项 / 带 label 的输入控件**                     | **必读** `packages/desktop/components/form/examples.md`（再读具体控件 `examples.md` 的「在 UForm 中使用」） |
+| **常见页面/弹窗模式（选择器弹窗、搜索表格页、后台布局…）**            | **必读** `packages/desktop/recipes.md`                                                                      |
 | 显式 `UFormItem`（多控件组合、自定义 label 插槽）                     | `packages/desktop/components/form-item/examples.md`                                                         |
 | 找/用某个 UI 组件                                                     | `packages/desktop/index.md` → `components/<kebab>/api.md` + `examples.md` + `types.d.ts`                    |
 | 接入 AI 对话 / OpenAI 兼容端点 / 多 Provider / 推理等级               | `packages/ai.md` → `ai/examples.md`（基础对话）+ `ai/api.md`（createOpenAITransport）                       |
@@ -94,11 +95,24 @@ veltra-ui 是一套 Vue 3 UI 体系。
 - 库代码变更后应运行 `bun run skill:gen` 同步各组件 `types.d.ts` / `api.md`；`examples.md` 与包级 `.md` 需手工维护。
 - `api.md` 由生成器重渲染，勿手改；组件级「备注」一节在 `scripts/veltra-component-skill-meta.ts` 的 `NOTES_BY_KEBAB` 中维护。
 
+## 硬性前置（少一步界面就是裸 HTML）
+
+1. 入口必须 `import '@veltra/styles/normalize'` 且调用 `loadTheme()`（`@veltra/styles/theme`）。组件颜色全部走 `--u-*` token，**token 只能由 `loadTheme()` 注入且无兜底值**，不调组件就是透明/无色的裸 HTML。详见 `packages/desktop/installation.md`。
+2. 组件注册三选一：`app.use(UltraUI)`（`@veltra/desktop/install`）、`VeltraUIResolver` 自动导入、手动 import + `*/style` 子路径。模板里 `<u-xxx>` 渲染成未知标签 = 没注册，不要用 div 仿造。
+
+## 反模式（下游最常见翻车点）
+
+- **不要手搓弹窗/抽屉/按钮/空态/滚动容器**：`UDialog` 自带标题栏与关闭按钮、`UEmpty` 自带空态插画、`UScroll` 自带滚动条。界面里出现"仿 macOS 窗口圆点""纯文本标题栏""手绘空态插画"即走偏——回到 `desktop/index.md` 找组件。
+- **不要用内联样式/手写 CSS 堆颜色、阴影、圆角**：一律用主题 token（`cssVar()` / SCSS `fn.use-var()`，见 `styles/tokens.md`、`styles/scss.md`）；觉得"组件没颜色"先去补 `loadTheme()`，而不是写补丁样式。
+- **不要引入其他组件库或自建同类组件**：先查 `packages/desktop/index.md` 组件清单与路由表，确认没有再自建。
+- 表单规则见上方「UForm 硬规则」：有 `field` 不写 `v-model`。
+
 ## 检查清单
 
 - [ ] 宿主已安装对应 `@veltra/*` peer，版本与上表一致或兼容
-- [ ] 需要主题时已调用 `@veltra/styles/theme` 的 `loadTheme`
+- [ ] **入口已 `import '@veltra/styles/normalize'` 并调用 `loadTheme()`**（任何组件使用前都必须，不是可选项）
 - [ ] 按需样式走 `VeltraUIResolver` 或显式 `style` 导入（见 `vite.md`）
 - [ ] 优先检索本技能文档，确认无合适能力后再自建或引入外部库
+- [ ] 弹窗/抽屉/空态/按钮等均使用库组件，未手搓窗口外壳与基础控件
 - [ ] 写表单时已读 `form/examples.md`：控件有 `field`、无多余 `v-model`，且需要标签时 `field` 与 `label` 成对出现
 - [ ] 写 AI 对话时已读 `packages/ai.md`：`transport` 必填、父级有高度、生产环境不把 API Key 下发浏览器

@@ -41,6 +41,14 @@ import { useTemplateRef } from 'vue'
 
 const btnRef = useTemplateRef('btn')
 // btnRef.value?.el → HTMLButtonElement
+
+function handleClick() {
+  console.log('button clicked')
+}
+
+function handleOuter() {
+  console.log('outer clicked')
+}
 </script>
 
 <template>
@@ -65,7 +73,7 @@ const btnRef = useTemplateRef('btn')
 ## UButtonGroup — 统一 props 透传（续）
 
 ```vue
-<script setup>
+<script setup lang="ts">
 import { shallowRef } from 'vue'
 import { bem } from '@veltra/utils'
 
@@ -74,7 +82,6 @@ const buttons = [
   { type: 'primary' as const, text: '选项二' }
 ]
 const active = shallowRef(0)
-const cls = bem('button')
 </script>
 
 <template>
@@ -83,7 +90,7 @@ const cls = bem('button')
       v-for="(btn, i) in buttons"
       :key="i"
       v-bind="props"
-      :class="cls.is('active', i === active)"
+      :class="bem.is('active', i === active)"
       @click="active = i"
     >
       {{ btn.text }}

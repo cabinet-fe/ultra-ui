@@ -6,8 +6,8 @@
 
 ## 可用组件列表
 
-- `Message - 消息提示`。用于命令式显示全局短消息反馈。
-- `MessageConfirm - 消息确认`。用于命令式弹出需要用户确认的消息框。
+- `message - 消息提示`（命令式函数，小写，`import { message } from '@veltra/desktop'`）。用于命令式显示全局短消息反馈。
+- `messageConfirm - 消息确认`（命令式函数，小写）。用于命令式弹出需要用户确认的消息框。
 - `UAction / UActionGroup - 操作按钮`。用于在列表、表格或详情区展示单个或成组操作按钮。
 - `UAutoComplete - 自动补全`。用于输入时按关键字提供候选项并回填选中值。
 - `UBadge - 徽标`。用于在元素旁显示数量、状态点或简短标记。
@@ -37,7 +37,7 @@
 - `UFloatButton - 浮动按钮`。用于在页面固定位置提供高频快捷操作。
 - `UForm - 表单容器`。传入 `model`（reactive）；子控件用 `field`（勿再 `v-model`）自动绑定路径，`label`/`rules`/`tips` 随 `field` 生成表单项。无 `field` 则标签与绑定均不生效。校验见 `formRef.validate()` / `validate(['field'])`；`reset()` 恢复快照。**写表单必读 `components/form/examples.md`。**
 - `UFormItem - 表单项`。显式包一项时：`field`/`label`/`rules` 写在 Item 上，内部控件自行 `v-model`（见 `form-item/examples.md`）。
-- `UGanttChart - 甘特图`。用于以时间轴形式展示任务跨度和进度。
+- `UGanttChart - 甘特图`。**占位组件**（当前仅渲染空容器，任务/时间轴能力未实现），不要在生产中使用。
 - `UGrid - 栅格布局`。用于按列数和间距组织响应式栅格布局。
 - `UGridInput - 网格输入框`。用于输入固定长度的分格验证码或短码。
 - `UGroupInput - 分组输入`。用于把多段输入组合成一个逻辑字段。
@@ -67,6 +67,7 @@
 - `URadioGroup - 单选框组`。用于在一组选项中选择单个值。
 - `URichTextEditor - 富文本编辑器`。用于编辑富文本内容并输出结构化文本。
 - `UScroll - 滚动容器`。用于提供自定义滚动容器和滚动行为控制。
+- `USegment - 分段选择器`。用于在少量并列选项间单选切换（`items` + `v-model`），可在 `UForm` 中使用。
 - `USelect - 单选选择器`。用于从下拉选项中选择单个值。
 - `USlider - 滑块`。用于通过滑动条选择连续或离散数值。
 - `USteps - 步骤条`。用于展示分步骤流程及当前步骤状态。

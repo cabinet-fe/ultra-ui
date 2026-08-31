@@ -32,12 +32,12 @@ watch(date, (val) => {
 </template>
 ```
 
-## 自定义选中日期样式
+## 自定义本月日期悬停样式
 
 ```scss
 .u-calendar__day--current {
   &:hover {
-    background-color: var(--color-primary-light);
+    background-color: var(--u-color-primary-light);
   }
 }
 ```

@@ -32,8 +32,8 @@ const password = ref('')
 
 ```vue
 <template>
-  <u-password-input v-model="password" label="密码" disabled />
-  <u-password-input v-model="password" label="密码" readonly />
+  <u-password-input v-model="password" placeholder="请输入密码" disabled />
+  <u-password-input v-model="password" placeholder="请输入密码" readonly />
 </template>
 
 <script setup lang="ts">

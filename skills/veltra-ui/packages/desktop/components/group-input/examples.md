@@ -42,7 +42,7 @@ const tags = ref<Tag[]>([])
   <u-group-input v-model="tags" :max="5" :item-default="{ name: '', color: '#1677ff' }">
     <template #default="{ item }">
       <u-input v-model="item.name" placeholder="标签名" />
-      <u-color-picker v-model="item.color" />
+      <u-palette v-model="item.color" />
     </template>
   </u-group-input>
 </template>
@@ -91,17 +91,16 @@ interface OrderItem {
 }
 
 const form = reactive({ items: [] as OrderItem[] })
-
-const rules = { items: [{ required: true, message: '请至少添加一个条目' }] }
 </script>
 
 <template>
-  <u-form :model="form" :rules="rules" label-width="80px">
+  <u-form :model="form" label-width="80px">
     <u-group-input
       field="items"
       label="订单明细"
       :max="10"
       :item-default="{ name: '', quantity: 1 }"
+      :rules="{ required: '请至少添加一个条目' }"
     >
       <template #default="{ item }">
         <u-input v-model="item.name" placeholder="商品名称" />

@@ -5,16 +5,16 @@
 ```vue
 <script setup lang="ts">
 import { shallowRef } from 'vue'
-import { HouseFilled, SettingFilled, LockFilled } from '@veltra/icons/normal'
+import { HouseFilled, Setting, Lock } from '@veltra/icons/normal'
 import type { NavItem } from '@veltra/desktop'
 
 const currentPath = shallowRef('/')
 const menus = shallowRef<NavItem[]>([
   { title: '首页', icon: HouseFilled, path: '/' },
-  { title: '功能管理', icon: SettingFilled, path: '/modules' },
+  { title: '功能管理', icon: Setting, path: '/modules' },
   {
     title: '系统设置',
-    icon: LockFilled,
+    icon: Lock,
     path: '/settings',
     children: [
       { title: '角色管理', path: '/settings/role' },
@@ -34,13 +34,25 @@ const menus = shallowRef<NavItem[]>([
 ```vue
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
-import { computed, reactive } from 'vue'
+import { computed, reactive, shallowRef } from 'vue'
 import type { NavItem } from '@veltra/desktop'
 
 const route = useRoute()
 const router = useRouter()
 const config = reactive({ collapsed: false })
 const currentPath = computed(() => (route.query.navPath as string) || '/')
+
+const menus = shallowRef<NavItem[]>([
+  { title: '首页', path: '/' },
+  {
+    title: '系统设置',
+    path: '/settings',
+    children: [
+      { title: '角色管理', path: '/settings/role' },
+      { title: '用户管理', path: '/settings/user' }
+    ]
+  }
+])
 
 function onItemClick(item: NavItem) {
   router.replace({ path: route.path, query: { navPath: item.path } })

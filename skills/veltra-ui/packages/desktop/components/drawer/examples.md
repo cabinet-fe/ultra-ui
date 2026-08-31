@@ -45,15 +45,14 @@ const menuVisible = ref(false)
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { DrawerEmits } from '@veltra/desktop'
 
 const pickerVisible = ref(false)
 
-const onClose: DrawerEmits['close'] = () => {
+function onClose() {
   console.log('抽屉开始关闭')
 }
 
-const onClosed: DrawerEmits['closed'] = () => {
+function onClosed() {
   console.log('抽屉已完全关闭')
 }
 </script>
@@ -86,7 +85,7 @@ const noticeVisible = ref(false)
 </script>
 
 <template>
-  <u-button type="text" @click="noticeVisible = true">🔔 查看通知</u-button>
+  <u-button text @click="noticeVisible = true">🔔 查看通知</u-button>
   <u-drawer v-model="noticeVisible" direction="top">
     <div class="notice">
       <h3>系统通知</h3>

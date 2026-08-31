@@ -35,6 +35,30 @@ const variables: VariableItem[] = [
 ## 允许选择分支变量
 
 ```vue
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+import type { VariableItem } from '@veltra/desktop'
+
+const expression = shallowRef('{form.user}')
+
+const variables: VariableItem[] = [
+  {
+    label: '表单数据',
+    value: 'form',
+    children: [
+      {
+        label: '用户信息',
+        value: 'form.user',
+        children: [
+          { label: '姓名', value: 'form.user.name', type: 'string' },
+          { label: '年龄', value: 'form.user.age', type: 'number' }
+        ]
+      }
+    ]
+  }
+]
+</script>
+
 <template>
   <u-expression-editor v-model="expression" :variables="variables" selectable-levels="any" />
 </template>
@@ -43,6 +67,24 @@ const variables: VariableItem[] = [
 ## 禁用与只读
 
 ```vue
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+import type { VariableItem } from '@veltra/desktop'
+
+const expression = shallowRef('你好{form.user.name}')
+
+const variables: VariableItem[] = [
+  {
+    label: '表单数据',
+    value: 'form',
+    children: [
+      { label: '姓名', value: 'form.user.name', type: 'string' },
+      { label: '年龄', value: 'form.user.age', type: 'number' }
+    ]
+  }
+]
+</script>
+
 <template>
   <u-expression-editor v-model="expression" :variables="variables" disabled />
   <u-expression-editor v-model="expression" :variables="variables" readonly />

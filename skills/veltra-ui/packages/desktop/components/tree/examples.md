@@ -26,19 +26,32 @@ const data = [
 
 ```vue
 <script setup lang="ts">
-import { shallowRef, useTemplateRef } from 'vue'
+import { shallowRef, useTemplateRef, watch } from 'vue'
 
 const treeRef = useTemplateRef('tree')
 const checked = shallowRef<string[]>([])
 const query = shallowRef('')
 
-function onSearch() {
-  treeRef.value?.filter(query.value)
-}
+const data = [
+  {
+    id: 1,
+    label: '一级 1',
+    children: [
+      { id: 2, label: '二级 1-1' },
+      { id: 3, label: '二级 1-2' }
+    ]
+  },
+  { id: 4, label: '一级 2' }
+]
+
+// UInput 没有 input 事件，监听 v-model 变化后调用树实例的 filter
+watch(query, (val) => {
+  treeRef.value?.filter(val)
+})
 </script>
 
 <template>
-  <u-input v-model="query" placeholder="搜索节点" @input="onSearch" />
+  <u-input v-model="query" placeholder="搜索节点" />
   <u-tree ref="tree" :data="data" checkable v-model:checked="checked" style="height: 300px" />
 </template>
 ```
@@ -50,6 +63,23 @@ function onSearch() {
 import { shallowRef } from 'vue'
 
 const selected = shallowRef()
+
+const data = [
+  {
+    id: 1,
+    label: '一级 1',
+    count: 3,
+    children: [
+      { id: 2, label: '二级 1-1', count: 2 },
+      { id: 3, label: '二级 1-2' }
+    ]
+  },
+  { id: 4, label: '一级 2', count: 0 }
+]
+
+function onSelect(val: any, data?: Record<string, any>) {
+  console.log('选中:', data)
+}
 </script>
 
 <template>
@@ -57,7 +87,7 @@ const selected = shallowRef()
     :data="data"
     selectable
     v-model:selected="selected"
-    @update:selected="(val, data, node) => console.log('选中:', data)"
+    @update:selected="onSelect"
   >
     <template #default="{ data }">
       <span class="custom-node">
@@ -74,8 +104,21 @@ const selected = shallowRef()
 ```vue
 <script setup lang="ts">
 import { shallowRef } from 'vue'
+import type { TreeNode } from '@veltra/desktop'
 
 const checked = shallowRef<string[]>([])
+
+const data = [
+  {
+    id: 1,
+    label: '一级 1',
+    children: [
+      { id: 2, label: '二级 1-1', disabled: true },
+      { id: 3, label: '二级 1-2' }
+    ]
+  },
+  { id: 4, label: '一级 2' }
+]
 
 function onContextMenu(e: MouseEvent, node: TreeNode) {
   e.preventDefault()

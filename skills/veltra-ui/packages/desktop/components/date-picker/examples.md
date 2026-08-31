@@ -20,8 +20,8 @@ const year = shallowRef('')
 ## 禁用日期
 
 ```vue
-<script setup>
-import { date, type Dater } from '@cat-kit/core'
+<script setup lang="ts">
+import type { Dater } from '@cat-kit/core'
 import { shallowRef } from 'vue'
 
 const d = shallowRef('')
@@ -56,6 +56,13 @@ const timestampRef = ref(Date.now())
 ## 自定义格式
 
 ```vue
+<script setup>
+import { shallowRef } from 'vue'
+
+const date = shallowRef('')
+const month = shallowRef('')
+</script>
+
 <template>
   <u-date-picker v-model="date" format="yyyy年MM月dd日" />
   <u-date-picker v-model="month" type="month" format="yyyy/MM" />

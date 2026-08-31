@@ -26,17 +26,22 @@ const onAction = (key: string) => {
 
 ```vue
 <script setup lang="ts">
-import { AddIcon, EditIcon, DeleteIcon } from '@veltra/icons'
+import { Plus, Edit, Delete } from '@veltra/icons'
+import type { FloatButtonItem } from '@veltra/desktop'
 
-const items = [
-  { key: 'add', icon: AddIcon, name: '新增' },
-  { key: 'edit', icon: EditIcon, name: '编辑', type: 'info' },
-  { key: 'delete', icon: DeleteIcon, name: '删除', type: 'danger' }
+const items: FloatButtonItem[] = [
+  { key: 'add', icon: Plus, name: '新增' },
+  { key: 'edit', icon: Edit, name: '编辑', type: 'info' },
+  { key: 'delete', icon: Delete, name: '删除', type: 'danger' }
 ]
+
+const onAction = (key: string) => {
+  console.log(key)
+}
 </script>
 
 <template>
-  <u-float-button :items="items" @click="(key) => console.log(key)" />
+  <u-float-button :items="items" @click="onAction" />
 </template>
 ```
 
@@ -44,11 +49,11 @@ const items = [
 
 ```vue
 <script setup lang="ts">
-import { SettingIcon, NotificationIcon } from '@veltra/icons'
+import { Setting, Bell } from '@veltra/icons'
 
 const items = [
-  { key: 'settings', icon: SettingIcon },
-  { key: 'notifications', icon: NotificationIcon }
+  { key: 'settings', icon: Setting },
+  { key: 'notifications', icon: Bell }
 ]
 </script>
 
@@ -62,13 +67,13 @@ const items = [
 ```vue
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { CreateIcon, SearchIcon } from '@veltra/icons'
+import { Plus, Search } from '@veltra/icons'
 
 const router = useRouter()
 
 const items = [
-  { key: '/create', icon: CreateIcon, name: '新建' },
-  { key: '/search', icon: SearchIcon, name: '搜索' }
+  { key: '/create', icon: Plus, name: '新建' },
+  { key: '/search', icon: Search, name: '搜索' }
 ]
 
 const handleClick = (key: string) => {

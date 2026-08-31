@@ -68,6 +68,30 @@ const options = [
 ## 搜索过滤
 
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const value = ref<string>()
+const options = [
+  {
+    value: '1',
+    label: '北京',
+    children: [
+      { value: '11', label: '朝阳区' },
+      { value: '12', label: '海淀区' }
+    ]
+  },
+  {
+    value: '2',
+    label: '上海',
+    children: [
+      { value: '21', label: '浦东新区' },
+      { value: '22', label: '徐汇区' }
+    ]
+  }
+]
+</script>
+
 <template>
   <u-cascade v-model="value" :data="options" filterable placeholder="搜索地区" />
 </template>
@@ -76,6 +100,30 @@ const options = [
 ## 严格模式 + 自定义字段
 
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const value = ref<string>()
+const data = [
+  {
+    id: '1',
+    name: '技术部',
+    subs: [
+      { id: '11', name: '前端组' },
+      { id: '12', name: '后端组' }
+    ]
+  },
+  {
+    id: '2',
+    name: '产品部',
+    subs: [
+      { id: '21', name: '移动端' },
+      { id: '22', name: 'PC 端' }
+    ]
+  }
+]
+</script>
+
 <template>
   <u-cascade
     v-model="value"

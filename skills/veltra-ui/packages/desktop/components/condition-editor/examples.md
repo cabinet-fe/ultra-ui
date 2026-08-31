@@ -51,6 +51,8 @@ const fields: ConditionField[] = [
 ## 嵌套分组 + 混合逻辑
 
 ```ts
+import type { ConditionExpression } from '@veltra/desktop'
+
 // 表达式语义：status == open AND (priority > 3 OR tag contains '紧急')
 const expression: ConditionExpression = {
   type: 'group',
@@ -127,6 +129,31 @@ const ok = computed(() => evaluateConditionExpression(expression.value, { fields
 ## 禁用 / 只读
 
 ```vue
-<u-condition-editor v-model="expression" :fields="fields" disabled />
-<u-condition-editor v-model="expression" :fields="fields" readonly />
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+import type { ConditionExpression, ConditionField } from '@veltra/desktop'
+
+const expression = shallowRef<ConditionExpression>({
+  type: 'group',
+  connectors: [],
+  children: [
+    {
+      type: 'condition',
+      field: 'status',
+      operator: 'eq',
+      value: { kind: 'constant', value: '进行中' }
+    }
+  ]
+})
+
+const fields: ConditionField[] = [
+  { label: '状态', value: 'status', type: 'string' },
+  { label: '优先级', value: 'priority', type: 'number' }
+]
+</script>
+
+<template>
+  <u-condition-editor v-model="expression" :fields="fields" disabled />
+  <u-condition-editor v-model="expression" :fields="fields" readonly />
+</template>
 ```

@@ -41,6 +41,11 @@ function handleCheckAll(checked: boolean) {
 ## 禁用与只读
 
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+const checked = ref(false)
+</script>
+
 <template>
   <u-checkbox v-model="checked" disabled>禁用状态</u-checkbox>
   <u-checkbox v-model="checked" readonly>只读状态</u-checkbox>

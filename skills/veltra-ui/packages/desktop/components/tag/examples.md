@@ -26,7 +26,7 @@
 ## 可移除标签
 
 ```vue
-<script setup>
+<script setup lang="ts">
 import { shallowRef } from 'vue'
 
 const tags = shallowRef([
@@ -56,6 +56,12 @@ const removeTag = (index: number) => {
 ## 组合使用
 
 ```vue
+<script setup>
+const handleClose = () => {
+  console.log('标签已关闭')
+}
+</script>
+
 <u-tag round closable dark type="danger" @close="handleClose">可移除深色圆角</u-tag>
 <u-tag round closable type="primary" size="large" @close="handleClose">大号可移除圆角</u-tag>
 ```

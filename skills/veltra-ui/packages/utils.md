@@ -17,7 +17,7 @@ import {
   provideFormContext,
   injectFormContext
 } from '@veltra/utils'
-import { NAME_SPACE, CLS_PREFIX, FORM_EMPTY_CONTENT } from '@veltra/utils/shared'
+import { NAME_SPACE, CLS_PREFIX, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import type {
   ComponentProps,
   ComponentSize,
@@ -74,7 +74,7 @@ export type ButtonExposed = DeconstructValue<_ButtonExposed>  // { el: HTMLButto
 ## 共享常量
 
 ```ts
-import { NAME_SPACE, CLS_PREFIX, FORM_EMPTY_CONTENT } from '@veltra/utils/shared'
+import { NAME_SPACE, CLS_PREFIX, FORM_EMPTY_CONTENT } from '@veltra/utils'
 
 NAME_SPACE // 'U'   — 组件名前缀
 CLS_PREFIX // 'u-'  — CSS 类名前缀

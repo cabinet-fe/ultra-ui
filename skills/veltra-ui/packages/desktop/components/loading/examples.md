@@ -11,25 +11,26 @@
 </template>
 ```
 
-## 通过 UConfig 统一控制尺寸
+## 通过全局配置统一控制尺寸
 
 ```vue
-<script setup>
-// UConfig、ULoading 由 Vite 自动导入，无需手动 import
+<script setup lang="ts">
+import { useConfig } from '@veltra/compositions'
+
+const { setConfig } = useConfig()
+
+// ULoading 没有 size prop，尺寸跟随全局配置（small / default / large）
+const changeSize = (size: 'small' | 'default' | 'large') => {
+  setConfig({ size })
+}
 </script>
 
 <template>
-  <u-config size="small">
-    <u-loading />
-  </u-config>
+  <u-button @click="changeSize('small')">小</u-button>
+  <u-button @click="changeSize('default')">默认</u-button>
+  <u-button @click="changeSize('large')">大</u-button>
 
-  <u-config size="default">
-    <u-loading />
-  </u-config>
-
-  <u-config size="large">
-    <u-loading />
-  </u-config>
+  <u-loading />
 </template>
 ```
 

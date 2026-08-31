@@ -54,7 +54,7 @@ const data = [
 
 ## 列插槽
 
-列插槽统一命名为 `#column:{key}`，可以拿到当前行数据进行自定义渲染。和自定义列渲染函数相比，跟推荐使用列插槽，因为更匹配 Vue 单文件的开发习惯，同时还能应用组件自动导入插件，减少引入其它组件的麻烦。
+列插槽统一命名为 `#column:{key}`，可以拿到当前行数据进行自定义渲染。和自定义列渲染函数相比，更推荐使用列插槽，因为更匹配 Vue 单文件的开发习惯，同时还能应用组件自动导入插件，减少引入其它组件的麻烦。
 
 ```vue
 <script setup lang="ts">
@@ -64,6 +64,19 @@ const columns = defineTableColumns([
   { key: 'name', name: '名称', minWidth: 150 },
   { key: 'action', name: '操作', width: 200, align: 'center' }
 ])
+
+const data = [
+  { id: 1, name: '示例数据 A' },
+  { id: 2, name: '示例数据 B' }
+]
+
+function handleEdit(row: Record<string, any>) {
+  console.log('编辑:', row)
+}
+
+function handleDelete(row: Record<string, any>) {
+  console.log('删除:', row)
+}
 </script>
 
 <template>
@@ -83,6 +96,7 @@ const columns = defineTableColumns([
 ```vue
 <script setup lang="ts">
 import { h } from 'vue'
+import { UTag } from '@veltra/desktop'
 import type { TableColumn } from '@veltra/desktop'
 
 const columns: TableColumn[] = [
@@ -96,6 +110,11 @@ const columns: TableColumn[] = [
       h(UTag, { type: val === 1 ? 'success' : 'danger' }, () => (val === 1 ? '启用' : '禁用'))
   },
   { key: 'createTime', name: '创建时间', width: 180 }
+]
+
+const data = [
+  { id: 1, name: '示例数据 A', status: 1, createTime: '2026-08-01 10:00:00' },
+  { id: 2, name: '示例数据 B', status: 0, createTime: '2026-08-02 11:00:00' }
 ]
 </script>
 
@@ -154,6 +173,11 @@ const columns = defineTableColumns([
     }
   }
 ])
+
+const data = [
+  { id: 1, name: '商品 A', price: 12.5, quantity: 3 },
+  { id: 2, name: '商品 B', price: 9.9, quantity: 5 }
+]
 </script>
 
 <template>
@@ -175,6 +199,7 @@ import type { TableColumn, TableColumnRenderContext } from '@veltra/desktop'
 
 // 多级表头：用 children 嵌套
 const columns: TableColumn[] = [
+  { key: 'category', name: '类别', width: 100 },
   {
     key: 'name',
     name: '基本信息',
@@ -193,6 +218,13 @@ const columns: TableColumn[] = [
       { key: 'phone', name: '电话', width: 140 }
     ]
   }
+]
+
+const data = [
+  { id: 1, category: '研发', firstName: '三', lastName: '张', email: 'zhangsan@example.com', phone: '13800000001' },
+  { id: 2, category: '研发', firstName: '四', lastName: '李', email: 'lisi@example.com', phone: '13800000002' },
+  { id: 3, category: '设计', firstName: '五', lastName: '王', email: 'wangwu@example.com', phone: '13800000003' },
+  { id: 4, category: '设计', firstName: '六', lastName: '赵', email: 'zhaoliu@example.com', phone: '13800000004' }
 ]
 
 // 合并单元格
@@ -241,6 +273,9 @@ const columns = defineTableColumns([{ key: 'name', name: '名称', minWidth: 150
 
 ```vue
 <script setup lang="ts">
+import { defineTableColumns } from '@veltra/desktop'
+
+const columns = defineTableColumns([{ key: 'name', name: '名称', minWidth: 150 }])
 const data = Array.from({ length: 10000 }, (_, i) => ({ id: i + 1, name: `行 ${i + 1}` }))
 </script>
 

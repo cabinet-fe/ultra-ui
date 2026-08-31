@@ -31,7 +31,10 @@ import { ArrowLeft } from '@veltra/icons/normal'
 
 ```vue
 <script setup>
+import { ref } from 'vue'
 import { Search } from '@veltra/icons/normal'
+
+const keyword = ref('')
 </script>
 
 <template>

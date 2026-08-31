@@ -7,6 +7,7 @@
 import { ref } from 'vue'
 import type { FileViewerItem } from '@veltra/desktop'
 
+const activeId = ref<string>()
 const files = ref<FileViewerItem[]>([
   { name: 'report.pdf', src: '/files/report.pdf', size: 204800 },
   { name: 'screenshot.png', src: '/files/screenshot.png' },

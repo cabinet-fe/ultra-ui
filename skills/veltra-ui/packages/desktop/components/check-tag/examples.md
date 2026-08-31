@@ -28,7 +28,7 @@ function handleChange(value: boolean) {
 </script>
 
 <template>
-  <u-check-tag :checked="checked" @update:model-value="handleChange"> 受控标签 </u-check-tag>
+  <u-check-tag v-model="checked" @update:model-value="handleChange">受控标签</u-check-tag>
 </template>
 ```
 

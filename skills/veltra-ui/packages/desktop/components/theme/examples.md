@@ -27,8 +27,9 @@ const customTheme = new UITheme(lightTheme.theme)
 ```vue
 <script setup lang="ts">
 import { useTemplateRef } from 'vue'
+import type { ThemeExposed } from '@veltra/desktop'
 
-const themeRef = useTemplateRef('theme')
+const themeRef = useTemplateRef<ThemeExposed>('theme')
 
 function handleExport() {
   themeRef.value?.exportTheme()

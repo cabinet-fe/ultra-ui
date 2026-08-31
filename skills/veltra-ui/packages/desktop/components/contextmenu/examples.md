@@ -6,12 +6,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Edit, Copy, Delete } from '@veltra/icons/normal'
-import type { ContextMenuItem } from '@veltra/desktop'
+import type { ContextmenuItem } from '@veltra/desktop'
 
 const visible = ref(false)
 const pos = ref({ x: 0, y: 0 })
 
-const menus: ContextMenuItem[] = [
+const menus: ContextmenuItem[] = [
   { label: '编辑', icon: Edit, callback: () => console.log('编辑') },
   { label: '复制', icon: Copy, callback: () => console.log('复制') },
   {
@@ -42,7 +42,12 @@ function onContextMenu(e: MouseEvent) {
 ## 动态菜单（函数形式 + 禁用判定）
 
 ```ts
-function getMenus(): ContextMenuItem[] {
+import type { ContextmenuItem } from '@veltra/desktop'
+
+// 占位：替换为实际的权限判断逻辑
+const hasPermission = () => true
+
+function getMenus(): ContextmenuItem[] {
   return [
     { label: '新增', callback: () => console.log('新增') },
     { label: '编辑', disabled: () => !hasPermission(), callback: () => {} },
@@ -54,14 +59,29 @@ function getMenus(): ContextMenuItem[] {
 ## 自定义宽度 + 尺寸
 
 ```vue
-<u-contextmenu
-  v-if="visible"
-  :mouse-position="pos"
-  :menus="menus"
-  :width="240"
-  size="large"
-  @destroy="visible = false"
-/>
+<script setup lang="ts">
+import { ref } from 'vue'
+import type { ContextmenuItem } from '@veltra/desktop'
+
+const visible = ref(false)
+const pos = ref({ x: 0, y: 0 })
+
+const menus: ContextmenuItem[] = [
+  { label: '菜单项一', callback: () => console.log('菜单项一') },
+  { label: '菜单项二', callback: () => console.log('菜单项二') }
+]
+</script>
+
+<template>
+  <u-contextmenu
+    v-if="visible"
+    :mouse-position="pos"
+    :menus="menus"
+    :width="240"
+    size="large"
+    @destroy="visible = false"
+  />
+</template>
 ```
 
 ## 分割线 + 自定义渲染 + keepOpen

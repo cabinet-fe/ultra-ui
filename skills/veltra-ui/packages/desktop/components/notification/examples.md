@@ -27,6 +27,8 @@ notification({
 ## 快捷方法
 
 ```ts
+import { notification } from '@veltra/desktop'
+
 notification.success('保存成功', { title: 'Success', position: 'bottom-right', duration: 4500 })
 
 notification.primary('主要通知')
@@ -38,6 +40,8 @@ notification.danger('操作失败')
 ## 手动关闭与 onClosed
 
 ```ts
+import { notification } from '@veltra/desktop'
+
 const instance = notification.success('正在处理…', { duration: 0 })
 
 // 手动关闭
@@ -50,6 +54,8 @@ await instance.onClosed
 ## 关闭所有通知
 
 ```ts
+import { notification } from '@veltra/desktop'
+
 // 关闭全部方位
 notification.closeAll()
 
@@ -60,6 +66,16 @@ notification.closeAll('top-right')
 ## 声明式组件
 
 ```vue
+<script setup lang="ts">
+function onClose() {
+  console.log('通知已关闭')
+}
+
+function onAction(e: MouseEvent) {
+  console.log('点击了操作按钮', e)
+}
+</script>
+
 <template>
   <u-notification
     title="提示"

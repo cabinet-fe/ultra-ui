@@ -20,13 +20,13 @@ const date = ref<Dater>()
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { date } from '@cat-kit/core'
+import { date as createDate } from '@cat-kit/core'
 import type { Dater } from '@cat-kit/core'
 
 const date = ref<Dater>()
 
 function disabledDate(d: Dater): boolean {
-  return d.timestamp < date().timestamp
+  return d.timestamp < createDate().timestamp
 }
 </script>
 

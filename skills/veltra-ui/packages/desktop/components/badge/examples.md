@@ -41,6 +41,12 @@
 ## 文本值 + 隐藏
 
 ```vue
+<script setup>
+import { ref } from 'vue'
+
+const count = ref(0)
+</script>
+
 <u-badge value="NEW" type="success">
   <u-button>活动</u-button>
 </u-badge>

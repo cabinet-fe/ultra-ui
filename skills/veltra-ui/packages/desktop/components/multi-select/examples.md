@@ -88,10 +88,7 @@ async function remoteSearch(qs: string) {
 <script setup lang="ts">
 import { ref } from 'vue'
 
-const selected = ref([
-  { label: '选项一', value: 1 },
-  { label: '选项二', value: 2 }
-])
+const selected = ref([1, 2])
 const items = [
   { label: '选项一', value: 1 },
   { label: '选项二', value: 2 },

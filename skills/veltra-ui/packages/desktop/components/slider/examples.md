@@ -31,6 +31,12 @@ const range = ref<[number, number]>([20, 80])
 ## 设置步长
 
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const value = ref(50)
+</script>
+
 <template>
   <u-slider v-model="value" :step="10" />
 </template>
@@ -39,6 +45,12 @@ const range = ref<[number, number]>([20, 80])
 ## 垂直模式
 
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const value = ref(50)
+</script>
+
 <template>
   <u-slider v-model="value" vertical />
 </template>
@@ -47,6 +59,12 @@ const range = ref<[number, number]>([20, 80])
 ## 禁用 / 只读
 
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const value = ref(50)
+</script>
+
 <template>
   <u-slider v-model="value" disabled />
   <u-slider v-model="value" readonly />
@@ -74,6 +92,13 @@ const formData = reactive({ volume: 30 })
 ## 点击滑轨调整
 
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+
+const value = ref(50)
+const range = ref<[number, number]>([20, 80])
+</script>
+
 <template>
   <!-- 点击滑轨可直接跳转 -->
   <u-slider v-model="value" />

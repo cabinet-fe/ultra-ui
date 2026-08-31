@@ -28,7 +28,7 @@ import { Search, Excel } from '@veltra/icons'
 
 ## 可用图标
 
-清单以 `packages/icons` 生成结果为准（`bun run icons:gen` / 包入口）。下列为常用分类摘要。
+清单以 `packages/icons/src/normal.ts` / `colorful.ts` 的导出为准（新增图标后在 `packages/icons` 目录运行 `bun run icons:gen` 重新生成）。下列为常用分类摘要。图标名**无 `Icon` 后缀**（写 `Plus`，不是 `PlusIcon`）。
 
 ### 表单控件图标
 
@@ -70,4 +70,4 @@ import { Search, Excel } from '@veltra/icons'
 
 多色 SVG 保留源文件配色，不受 `u-icon` 的 `color` 或外部 CSS `color` 影响。从 `@veltra/icons/colorful` 导入。包括：
 
-`Archive`、`Excel`、`Fold`、`FontColor`、`Image`、`Logo`、`MiddleGround`、`Pdf`、`PowerPoint`、`Title`、`Txt`、`UnknownFile`、`Video`、`Word`
+`Archive`、`Excel`、`Fold`、`FontColor`、`Image`、`MiddleGround`、`Pdf`、`PowerPoint`、`Title`、`Txt`、`UnknownFile`、`Video`、`Word`

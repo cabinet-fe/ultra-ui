@@ -4,14 +4,14 @@
 
 ```vue
 <template>
-  <UDropdown>
+  <u-dropdown>
     <template #trigger>
-      <UButton>悬浮打开</UButton>
+      <u-button>悬浮打开</u-button>
     </template>
     <template #content>
       <div style="padding: 8px 12px">菜单内容</div>
     </template>
-  </UDropdown>
+  </u-dropdown>
 </template>
 ```
 
@@ -19,14 +19,14 @@
 
 ```vue
 <template>
-  <UDropdown trigger="click">
+  <u-dropdown trigger="click">
     <template #trigger>
-      <UButton>点击打开</UButton>
+      <u-button>点击打开</u-button>
     </template>
     <template #content>
       <div style="padding: 8px 12px">点击触发的菜单</div>
     </template>
-  </UDropdown>
+  </u-dropdown>
 </template>
 ```
 
@@ -34,19 +34,19 @@
 
 ```vue
 <template>
-  <UDropdown
+  <u-dropdown
     trigger="click"
     :visible="visible"
     @update:visible="visible = $event"
     @keydown="handleKeydown"
   >
     <template #trigger>
-      <UButton>受控下拉</UButton>
+      <u-button>受控下拉</u-button>
     </template>
     <template #content>
       <div style="padding: 8px 12px">按 Esc 关闭</div>
     </template>
-  </UDropdown>
+  </u-dropdown>
 </template>
 
 <script setup lang="ts">
@@ -66,13 +66,13 @@ function handleKeydown(e: KeyboardEvent) {
 
 ```vue
 <template>
-  <UDropdown disabled>
+  <u-dropdown disabled>
     <template #trigger>
-      <UButton disabled>禁用状态</UButton>
+      <u-button disabled>禁用状态</u-button>
     </template>
     <template #content>
       <div style="padding: 8px 12px">不会弹出</div>
     </template>
-  </UDropdown>
+  </u-dropdown>
 </template>
 ```

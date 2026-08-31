@@ -25,9 +25,9 @@
 ```vue
 <script setup lang="ts">
 import { useTemplateRef } from 'vue'
-import type { ScrollPosition } from '@veltra/desktop'
+import type { ScrollExposed, ScrollPosition } from '@veltra/desktop'
 
-const scrollRef = useTemplateRef('scroll')
+const scrollRef = useTemplateRef<ScrollExposed>('scroll')
 
 function scrollToBottom() {
   scrollRef.value?.scrollTo({ y: 9999 })

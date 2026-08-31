@@ -19,7 +19,7 @@ const code = shallowRef('console.log("Hello, World!")')
 ```vue
 <script setup lang="ts">
 import { shallowRef } from 'vue'
-import type { CodeEditorLang } from '@veltra/desktop/types'
+import type { CodeEditorLang } from '@veltra/desktop'
 
 const code = shallowRef('SELECT 1')
 const lang = shallowRef<CodeEditorLang>('sql')

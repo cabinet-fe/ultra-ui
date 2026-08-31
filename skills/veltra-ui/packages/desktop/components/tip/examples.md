@@ -4,9 +4,9 @@
 
 ```vue
 <template>
-  <UTip content="这是一段提示文本">
-    <UButton>悬停查看</UButton>
-  </UTip>
+  <u-tip content="这是一段提示文本">
+    <u-button>悬停查看</u-button>
+  </u-tip>
 </template>
 ```
 
@@ -14,9 +14,9 @@
 
 ```vue
 <template>
-  <UTip content="点击后显示的提示" trigger="click">
-    <UButton>点击查看</UButton>
-  </UTip>
+  <u-tip content="点击后显示的提示" trigger="click">
+    <u-button>点击查看</u-button>
+  </u-tip>
 </template>
 ```
 
@@ -30,9 +30,9 @@ const customEl = useTemplateRef('customEl')
 </script>
 
 <template>
-  <UTip content="提示文本" :trigger-dom="customEl">
+  <u-tip content="提示文本" :trigger-dom="customEl">
     <span>这段文本不会作为定位基准</span>
-  </UTip>
+  </u-tip>
   <div ref="customEl">实际定位基准元素</div>
 </template>
 ```
@@ -41,9 +41,9 @@ const customEl = useTemplateRef('customEl')
 
 ```vue
 <template>
-  <UTip content="提示内容" direction="bottom" alignment="start">
-    <UButton>底部对齐</UButton>
-  </UTip>
+  <u-tip content="提示内容" direction="bottom" alignment="start">
+    <u-button>底部对齐</u-button>
+  </u-tip>
 </template>
 ```
 
@@ -51,9 +51,9 @@ const customEl = useTemplateRef('customEl')
 
 ```vue
 <template>
-  <UTip content="无箭头的提示" :hide-arrow="true">
-    <UButton>无箭头</UButton>
-  </UTip>
+  <u-tip content="无箭头的提示" :hide-arrow="true">
+    <u-button>无箭头</u-button>
+  </u-tip>
 </template>
 ```
 
@@ -61,9 +61,9 @@ const customEl = useTemplateRef('customEl')
 
 ```vue
 <template>
-  <UTip content="受控提示" :visible="visible" @update:visible="visible = $event">
-    <UButton>受控显示</UButton>
-  </UTip>
+  <u-tip content="受控提示" :visible="visible" @update:visible="visible = $event">
+    <u-button>受控显示</u-button>
+  </u-tip>
 </template>
 
 <script setup lang="ts">
@@ -76,9 +76,9 @@ const visible = ref(false)
 
 ```vue
 <template>
-  <UTip content="这段提示不会显示" disabled>
-    <UButton>禁用提示</UButton>
-  </UTip>
+  <u-tip content="这段提示不会显示" disabled>
+    <u-button>禁用提示</u-button>
+  </u-tip>
 </template>
 ```
 
@@ -86,8 +86,8 @@ const visible = ref(false)
 
 ```vue
 <template>
-  <UTip content="悬停 500ms 后弹出" :show-delay="500">
-    <UButton>延迟弹出</UButton>
-  </UTip>
+  <u-tip content="悬停 500ms 后弹出" :show-delay="500">
+    <u-button>延迟弹出</u-button>
+  </u-tip>
 </template>
 ```

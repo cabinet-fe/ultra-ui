@@ -15,12 +15,16 @@ messageConfirm({ message: '操作成功' })
 ## 带取消按钮
 
 ```ts
+import { messageConfirm } from '@veltra/desktop'
+
 messageConfirm({ message: '确定要删除该项吗？', cancelButtonText: '取消' })
 ```
 
 ## 带回调与 onClosed
 
 ```ts
+import { messageConfirm } from '@veltra/desktop'
+
 const instance = messageConfirm({
   title: '删除确认',
   message: '删除后数据无法恢复，确定要继续吗？',
@@ -29,7 +33,7 @@ const instance = messageConfirm({
   confirmButtonType: 'danger',
   onClose: (action) => {
     if (action === 'confirm') {
-      api.deleteItem(id)
+      // 调用业务删除接口，例如 api.deleteItem(id)
     }
   }
 })
@@ -43,6 +47,8 @@ instance.onClosed.then((action) => {
 ## 快捷方法
 
 ```ts
+import { messageConfirm } from '@veltra/desktop'
+
 // 第二参数为配置对象（非回调），会固定 confirmButtonType
 messageConfirm.danger('此操作不可逆，确认继续？', {
   cancelButtonText: '取消',
@@ -62,6 +68,8 @@ messageConfirm.warning('配置尚未保存，确认离开？', { cancelButtonTex
 ## 使用 onClosed 等待结果
 
 ```ts
+import { messageConfirm } from '@veltra/desktop'
+
 const action = await messageConfirm({ message: '确定要提交吗？', cancelButtonText: '取消' })
   .onClosed
 
@@ -73,6 +81,8 @@ if (action === 'confirm') {
 ## 手动关闭与 closeAll
 
 ```ts
+import { messageConfirm } from '@veltra/desktop'
+
 const instance = messageConfirm({ message: '处理中…', cancelButtonText: '取消' })
 
 // 手动关闭；未传 action 时视为 'cancel'
@@ -100,8 +110,8 @@ function handleClose(action: MessageConfirmAction) {
 </script>
 
 <template>
-  <UButton @click="visible = true">打开确认框</UButton>
-  <UMessageConfirm
+  <u-button @click="visible = true">打开确认框</u-button>
+  <u-message-confirm
     v-if="visible"
     title="提示"
     message="确认要继续操作吗？"
