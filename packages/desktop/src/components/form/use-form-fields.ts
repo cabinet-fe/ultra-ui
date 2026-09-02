@@ -1,4 +1,4 @@
-import { o } from '@cat-kit/core'
+import { copy, o } from '@cat-kit/core'
 import type { FormFieldItem } from '@veltra/utils'
 import { nextTick, watch } from 'vue'
 
@@ -6,26 +6,6 @@ import type { FormProps } from '../../types/form'
 
 interface Options {
   props: FormProps
-}
-
-/** 深拷贝 model，保留 undefined 等 o().copy() 会丢弃的值 */
-function snapshotModel(model: Record<string, any>): Record<string, any> {
-  const result: Record<string, any> = {}
-
-  for (const key of Object.keys(model)) {
-    const value = model[key]
-    if (Array.isArray(value)) {
-      result[key] = value.map((item) =>
-        item !== null && typeof item === 'object' ? snapshotModel(item) : item
-      )
-    } else if (value !== null && typeof value === 'object') {
-      result[key] = snapshotModel(value)
-    } else {
-      result[key] = value
-    }
-  }
-
-  return result
 }
 
 /** 按快照逐字段写回 model，支持 undefined 与嵌套对象 */
@@ -47,12 +27,7 @@ function applySnapshot(target: Record<string, any>, source: Record<string, any>)
     }
 
     if (Array.isArray(sourceValue)) {
-      o(target).set(
-        key,
-        sourceValue.map((item) =>
-          item !== null && typeof item === 'object' ? snapshotModel(item) : item
-        )
-      )
+      o(target).set(key, copy(sourceValue))
       continue
     }
 
@@ -84,7 +59,7 @@ export function useFormFields(options: Options) {
   watch(
     () => props.model,
     (model) => {
-      initialSnapshot = model ? snapshotModel(model) : undefined
+      initialSnapshot = model ? copy(model) : undefined
     },
     { immediate: true, deep: false }
   )

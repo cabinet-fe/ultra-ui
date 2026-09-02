@@ -38,7 +38,7 @@ export function useFeatures(options: Options) {
     const { features } = props
     if (!Array.isArray(features) && typeof features === 'object') {
       const ret = Object.entries(features)
-        .filter(([_, value]) => {
+        .filter(([, value]) => {
           return typeof value === 'function'
         })
         .reduce(

@@ -110,7 +110,7 @@ export function useCheck(options: Options): UseCheckReturned {
 
   watch(
     [() => props.checked, () => props.rowKey, () => props.checkable, rows],
-    ([checked, rowKey, checkable, rows], [_, __, ___, oRows]) => {
+    ([checked, rowKey, checkable, rows], [, , , oRows]) => {
       if (changedByEvent || !checkable || !rowKey) return
 
       changedByModel = true
@@ -140,7 +140,7 @@ export function useCheck(options: Options): UseCheckReturned {
 
   watch(
     [() => props.selected, () => props.rowKey, () => props.selectable, rows],
-    ([selected, rowKey, selectable, rows], [_, __, ___, oRows]) => {
+    ([selected, rowKey, selectable, rows], [, , , oRows]) => {
       if (changedByEvent || !selectable || !rowKey) return
 
       changedByModel = true

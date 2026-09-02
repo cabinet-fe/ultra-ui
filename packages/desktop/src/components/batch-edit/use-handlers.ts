@@ -1,4 +1,4 @@
-import { last, o } from '@cat-kit/core'
+import { copy, last, o } from '@cat-kit/core'
 import { computed, nextTick, type ShallowRef } from 'vue'
 
 import type {
@@ -57,7 +57,7 @@ export function useHandlers(options: Options): EditReturned {
   })
 
   function getInsertData(): Record<string, any> {
-    return o(props.model ?? {}).copy()
+    return copy(props.model ?? {})
   }
 
   /**

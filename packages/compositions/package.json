@@ -27,12 +27,12 @@
     "@formkit/drag-and-drop": "^0.6.1"
   },
   "devDependencies": {
-    "@cat-kit/fe": "^1.1.8"
+    "@cat-kit/fe": "^1.2.1"
   },
   "peerDependencies": {
-    "@cat-kit/core": ">=1.1.8",
-    "@cat-kit/fe": ">=1.1.8",
+    "@cat-kit/core": ">=1.2.1",
+    "@cat-kit/fe": ">=1.2.1",
     "@veltra/utils": "workspace:^",
-    "vue": ">=3.5.41"
+    "vue": ">=3.5.42"
   }
 }
