@@ -2,25 +2,25 @@
 
 ## Package selection
 
-| Host app       | Package              |
-| -------------- | -------------------- |
-| Vue 3 / Nuxt 3 | `markstream-vue`     |
-| Vue 2.6 / 2.7  | `markstream-vue2`    |
-| React 18+      | `markstream-react`   |
-| Angular 20+    | `markstream-angular` |
-| Svelte 5       | `markstream-svelte`  |
+| Host app | Package |
+|----------|---------|
+| Vue 3 / Nuxt 3 | `markstream-vue` |
+| Vue 2.6 / 2.7 | `markstream-vue2` |
+| React 18+ | `markstream-react` |
+| Angular 20+ | `markstream-angular` |
+| Svelte 5 | `markstream-svelte` |
 
 ## Peer selection
 
 Peer sets are package-specific. Confirm the selected package's current `peerDependencies` before installing anything.
 
-| Feature                                 | Peers               | Package notes                                                          |
-| --------------------------------------- | ------------------- | ---------------------------------------------------------------------- |
-| Enhanced File/Diff and diff code blocks | `stream-diffs`      | All packages                                                           |
-| Mermaid                                 | `mermaid`           | All renderer packages                                                  |
-| D2                                      | `@terrastruct/d2`   | All renderer packages                                                  |
-| KaTeX math                              | `katex`             | All renderer packages                                                  |
-| Infographic blocks                      | `@antv/infographic` | All renderer packages; Vue 3 also requires `setInfographicLoader(...)` |
+| Feature | Peers | Package notes |
+|---------|-------|---------------|
+| Enhanced File/Diff and diff code blocks | `stream-diffs` | All packages |
+| Mermaid | `mermaid` | All renderer packages |
+| D2 | `@terrastruct/d2` | All renderer packages |
+| KaTeX math | `katex` | All renderer packages |
+| Infographic blocks | `@antv/infographic` | All renderer packages; Vue 3 also requires `setInfographicLoader(...)` |
 
 ## CSS checklist
 

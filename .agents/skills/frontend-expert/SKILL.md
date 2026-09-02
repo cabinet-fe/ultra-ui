@@ -42,6 +42,9 @@ description: >
 7. **能少写就少写**
    同一语义禁止多份平行实现。真实重复 ≥3 处或用户明确要求再抽公共；禁止预支抽象与过度防御。
 
+8. **接口错误禁止挤布局**
+   禁止把接口返回的 error message 直接塞进卡片、弹框、表单等现有区域展示——会挤开其它元素，造成 layout shift。用项目已有 toast / Message；必须就地提示时预留槽位或固定高度，详见 [references/error-layout.md](references/error-layout.md)。
+
 ## 强制工作流
 
 - [ ] 搜现有：utils / 组件 / 依赖 / Skill（新增能力时）
@@ -59,3 +62,4 @@ description: >
 | 兼容性堆砌       | [references/compatibility.md](references/compatibility.md)       |
 | 造轮子与乱加依赖 | [references/reinvent-wheel.md](references/reinvent-wheel.md)     |
 | HTML/样式膨胀    | [references/markup-styles.md](references/markup-styles.md)       |
+| 错误展示挤布局   | [references/error-layout.md](references/error-layout.md)         |

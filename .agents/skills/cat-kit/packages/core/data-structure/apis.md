@@ -14,14 +14,26 @@ declare function bfs<T extends Record<string, unknown>>(
 ): boolean | void
 
 declare class TreeManager<T extends Record<string, unknown>, Node = T> {
-  constructor(data: T, options?: { childrenKey?: string; createNode?: NodeCreator<T> })
+  constructor(
+    data: T,
+    options?: {
+      childrenKey?: string
+      createNode?: NodeCreator<T>
+    }
+  )
   flatten(filter?: (node: Node) => boolean): Node[]
   flattenVisible(isExpanded: (node: Node) => boolean): Node[]
   // find、dfs、bfs、getRoot 等见 generated
 }
 
 declare class Forest<T extends Record<string, unknown>, Node = T> {
-  constructor(roots: T[], options?: { childrenKey?: string; createNode?: ForestNodeCreator<T> })
+  constructor(
+    roots: T[],
+    options?: {
+      childrenKey?: string
+      createNode?: ForestNodeCreator<T>
+    }
+  )
   flatten(filter?: (node: Node) => boolean): Node[]
   flattenVisible(isExpanded: (node: Node) => boolean): Node[]
 }

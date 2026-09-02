@@ -11,7 +11,7 @@ description: Vue 3 开发实践。按项目 Vue minor（优先 3.4 / 3.5）选�
 
 ## 定版本
 
-1. 读已安装的 `vue` 版本（`node_modules/vue/package.json` 的 `version`，或 lockfile）。不要只看 `package.json` 的 `^` 范围。
+1. 读已安装的 `vue` 版本。
 2. 取 **minor**（`3.4.x` → `3.4`），打开下表文件，按该文件写代码。
 
 | minor | 文件                                   |
@@ -46,7 +46,7 @@ description: Vue 3 开发实践。按项目 Vue minor（优先 3.4 / 3.5）选�
 结构固定、只嵌一段响应式（如配置里的 `props`）→ 对象字面量传引用，不要包 `computed`。否则依赖订在外层，一改外层整页重渲染。
 
 ```ts
-const field = { component: Input, label: '姓名', props: form }
+const field = { component: Input, label: "姓名", props: form };
 ```
 
 不要 `{ ...form }`。只有过滤/排序后的新列表、或昂贵且多处复用的派生，才用 computed。
@@ -59,9 +59,9 @@ const field = { component: Input, label: '姓名', props: form }
 - 子组件 `v-model` 用 `defineModel`，不要手写 `modelValue` + `update:modelValue`：
 
 ```ts
-const model = defineModel<string>({ required: true })
-const title = defineModel<string>('title')
-const [value, modifiers] = defineModel({ set: (v) => (modifiers.trim ? v.trim() : v) })
+const model = defineModel<string>({ required: true });
+const title = defineModel<string>("title");
+const [value, modifiers] = defineModel({ set: (v) => (modifiers.trim ? v.trim() : v) });
 ```
 
 - 同名绑定用简写：`<img :id :src :alt>`。

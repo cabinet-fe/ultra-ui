@@ -16,6 +16,7 @@ import {
   bfs,
   dfs
 } from './data-structure/tree.js'
+import { copy } from './data/any.js'
 import { arr, eachRight, last, omitArr, union, unionBy } from './data/array.js'
 import { $n, NumberFormatOptions, n } from './data/number.js'
 import { CurrencyConfig } from './data/number/format.js'
@@ -136,6 +137,7 @@ export {
   arr,
   base642u8a,
   bfs,
+  copy,
   createValidator,
   date,
   debounce,

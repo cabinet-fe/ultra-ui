@@ -12,19 +12,19 @@
       "ref": "main",
       "sourceType": "github",
       "skillPath": "skills/cat-kit/SKILL.md",
-      "computedHash": "23ef4e1e5ac2dd8072ffe34c81188191456715c32c7430fc6c98d1bb30a67d3e"
+      "computedHash": "1dfdb3a3d47261f8a74893d6dfd2a42cf8e32783e78aeec0f3617781b8e51e02"
     },
     "frontend-expert": {
       "source": "cabinet-fe/prompt-engineering",
       "sourceType": "github",
       "skillPath": "skills/roles/frontend-expert/SKILL.md",
-      "computedHash": "6bda388be2b39d912d3277464b0fb91f3303d67a3fcd385366d50c7e236349ff"
+      "computedHash": "9b211878834fc0e430a83cfad2941291d092df5572880e453f2744234906df24"
     },
     "git-commit": {
       "source": "cabinet-fe/prompt-engineering",
       "sourceType": "github",
       "skillPath": "skills/tools/git-commit/SKILL.md",
-      "computedHash": "bc06df26c4c3d756f67d0433f79e2ed1a35489224ad2578bb5d6f026068ff78c"
+      "computedHash": "15db67e52893916d0e7e49634b6f4fb5ee3cf0fddab15d0df76cedcda9b77089"
     },
     "markstream-custom-components": {
       "source": "Simon-He95/markstream-vue",
@@ -36,19 +36,19 @@
       "source": "Simon-He95/markstream-vue",
       "sourceType": "github",
       "skillPath": ".agents/skills/markstream-install/SKILL.md",
-      "computedHash": "8b73216cdb5daf105837f823130c7ab319d9c8b06abcf0a23dfcfbc88ecc1bd3"
+      "computedHash": "252c9ac0a83d3aef81f42975ea98804d4f095ffdb30497305f96bd094c454da9"
     },
     "markstream-vue": {
       "source": "Simon-He95/markstream-vue",
       "sourceType": "github",
       "skillPath": ".agents/skills/markstream-vue/SKILL.md",
-      "computedHash": "569ecd40a162d4bfb24e0ba64e39fc0ef9b65604b3351f13427e786b4a9312b2"
+      "computedHash": "1d719a17b5e8a033222f2e05551854009710365f705b271caebe89e21fb3cb33"
     },
     "vue": {
       "source": "cabinet-fe/prompt-engineering",
       "sourceType": "github",
       "skillPath": "skills/frameworks/vue/SKILL.md",
-      "computedHash": "a7013616f9ca66f61171e8ef2f6fea60f05eb9eafe58c2a27e783d406a40623c"
+      "computedHash": "17ce038d75e0bafdc281c8153211bb6f75c50671327d25be21fe12a4b2210f34"
     }
   }
 }

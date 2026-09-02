@@ -7,8 +7,14 @@
 ```ts
 declare function last<T extends any[]>(arr: [...T]): Last<T>
 declare function union<T>(...arrList: T[][]): T[]
-declare function unionBy<T extends Record<string, any>>(key: string, ...arrList: T[][]): T[]
-declare function eachRight<T>(arr: T[], cb: (v: T, i: number, arr: T[]) => void): void
+declare function unionBy<T extends Record<string, any>>(
+  key: string,
+  ...arrList: T[][]
+): T[]
+declare function eachRight<T>(
+  arr: T[],
+  cb: (v: T, i: number, arr: T[]) => void
+): void
 declare function omitArr<T>(arr: T[], indexes: number | number[]): T[]
 declare function arr<T>(arr: T[]): Arr<T>
 ```
@@ -21,6 +27,6 @@ declare function arr<T>(arr: T[]): Arr<T>
 declare function o<O extends Record<string, any>>(object: O): CatObject<O>
 ```
 
-`CatObject` 方法：`keys`、`each`、`pick`、`omit`、`extend`、`deepExtend`、`copy`、`merge`、`get`、`set`。
+`CatObject` 方法：`keys`、`each`、`pick`、`omit`、`extend`、`deepExtend`、`merge`、`get`、`set`。
 
 完整声明：[array.d.ts](../../../generated/core/data/array.d.ts)、[object.d.ts](../../../generated/core/data/object.d.ts)

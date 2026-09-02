@@ -37,12 +37,6 @@ declare class CatObject<O extends Record<string, any>, K extends keyof O = keyof
    * @returns 当前对象
    */
   deepExtend(source: Record<string, any>[] | Record<string, any>): O
-  /**
-   * 结构化拷贝
-   * @description 注意，如果对象中存在函数，则函数不会被拷贝
-   * @returns 新的对象
-   */
-  copy(): O
   private static merge
   /**
    * 将其他对象合并到当前对象

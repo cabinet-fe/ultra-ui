@@ -22,7 +22,9 @@ interface HTTPClientPlugin {
 }
 
 declare function TokenPlugin(options: TokenPluginOptions): HTTPClientPlugin
-declare function MethodOverridePlugin(options?: MethodOverridePluginOptions): HTTPClientPlugin
+declare function MethodOverridePlugin(
+  options?: MethodOverridePluginOptions
+): HTTPClientPlugin
 ```
 
 `TokenPluginOptions` 含 `getter`、`header?`、`shouldRefresh?`、`onRefresh?`、`maxRetries?` 等，见 generated。  
