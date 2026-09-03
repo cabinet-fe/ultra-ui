@@ -14,7 +14,7 @@ export type CodeEditorLang =
 export interface CodeEditorProps extends Omit<FormComponentProps, 'size'> {
   modelValue?: string
   /**
-   * 可选语言列表。长度大于 1 时在编辑器右上角显示内置语言选择器；
+   * 可选语言列表。长度大于 1 时在顶部工具栏显示内置语言选择器；
    * 仅一种语言时显示语言名称标签
    */
   langs?: CodeEditorLang[]
@@ -26,6 +26,8 @@ export interface CodeEditorProps extends Omit<FormComponentProps, 'size'> {
   suffix?: string
   /** 是否使用暗色主题 */
   dark?: boolean
+  /** 是否显示放大按钮，默认 true；false 时不渲染放大按钮 */
+  zoomable?: boolean
   /**
    * 默认显示的行数，用于撑起编辑器最小高度，超出后滚动
    * @default 8

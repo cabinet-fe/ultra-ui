@@ -1,18 +1,49 @@
 <template>
-  <u-scroll :class="className" :style="rootStyle" @keyup.enter.stop>
-    <div ref="container"></div>
+  <!-- 放大时原位置的等高占位，避免页面布局位移 -->
+  <div v-if="zoomed" :class="cls.e('placeholder')" :style="{ height: placeholderHeight }" />
 
-    <u-select
-      v-if="showLangSelect"
-      :class="cls.e('lang-select')"
-      v-model="lang"
-      size="small"
-      :options="langOptions"
-      :clearable="false"
-      :disabled="disabled"
-    />
-    <span v-else-if="langLabel" :class="cls.e('lang-label')">{{ langLabel }}</span>
-  </u-scroll>
+  <Teleport to="body" :disabled="!zoomed">
+    <div
+      ref="zoomWrap"
+      :class="[cls.e('zoom-wrap'), bem.is('zoomed', zoomed)]"
+      :style="zoomed ? { zIndex: zoomZIndex } : undefined"
+      tabindex="-1"
+      @keyup.esc="exitZoom"
+    >
+      <div ref="root" v-bind="$attrs" :class="className" :style="rootStyle" @keyup.enter.stop>
+        <div v-if="hasToolbar" :class="cls.e('toolbar')">
+          <u-select
+            v-if="showLangSelect"
+            :class="cls.e('lang-select')"
+            v-model="lang"
+            size="small"
+            :options="langOptions"
+            :clearable="false"
+            :disabled="disabled"
+          />
+          <span v-else-if="langLabel" :class="cls.e('lang-label')">{{ langLabel }}</span>
+
+          <div :class="cls.e('toolbar-actions')">
+            <u-icon v-if="zoomed" :class="cls.e('btn-close')" title="关闭" @click="exitZoom">
+              <Close />
+            </u-icon>
+            <u-icon
+              v-else-if="zoomable"
+              :class="[cls.e('btn-zoom'), bem.is('disabled', disabled)]"
+              title="放大"
+              @click="enterZoom"
+            >
+              <ZoomIn />
+            </u-icon>
+          </div>
+        </div>
+
+        <u-scroll :class="cls.e('scroll')">
+          <div ref="container"></div>
+        </u-scroll>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script lang="ts" setup>
@@ -20,9 +51,11 @@ import { Compartment, EditorState, type Extension, type Text } from '@codemirror
 import { oneDark } from '@codemirror/theme-one-dark'
 import { EditorView, tooltips } from '@codemirror/view'
 import { useFormFallbackProps } from '@veltra/compositions'
+import { ZoomIn, Close } from '@veltra/icons/normal'
 import { bem, injectFormContext, zIndex } from '@veltra/utils'
 import {
   computed,
+  nextTick,
   onBeforeUnmount,
   shallowRef,
   useTemplateRef,
@@ -31,6 +64,7 @@ import {
 } from 'vue'
 
 import type { CodeEditorEmits, CodeEditorLang, CodeEditorProps } from '../../types'
+import { UIcon } from '../icon'
 import { UScroll } from '../scroll'
 import { USelect } from '../select'
 import { basicSetup } from './basic-setup'
@@ -45,12 +79,13 @@ import {
   type ShellConfig
 } from './shell-extension'
 
-defineOptions({ name: 'UCodeEditor' })
+defineOptions({ name: 'UCodeEditor', inheritAttrs: false })
 
 const props = withDefaults(defineProps<CodeEditorProps>(), {
   disabled: undefined,
   readonly: undefined,
   dark: false,
+  zoomable: true,
   defaultLines: 8
 })
 
@@ -68,11 +103,24 @@ const { disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
   readonly: false
 })
 
+/** 放大状态：复用同一组件根 DOM / 同一 EditorView 实例，Teleport 移入 body 全屏遮罩 */
+const zoomed = shallowRef(false)
+
+/** 放大期间原位置占位的高度（取放大前组件根高度） */
+const placeholderHeight = shallowRef('')
+
+/** 放大遮罩的 z 轴层级，进入放大时取一次，避免渲染期反复自增 */
+const zoomZIndex = shallowRef<number>()
+
+const rootRef = useTemplateRef<HTMLElement>('root')
+const zoomWrapRef = useTemplateRef<HTMLElement>('zoomWrap')
+
 const className = computed<string[]>(() => [
   cls.b,
   bem.is('disabled', disabled.value),
   bem.is('readonly', readonly.value),
-  bem.is('dark', props.dark)
+  bem.is('dark', props.dark),
+  bem.is('zoomed', zoomed.value)
 ])
 
 const rootStyle = computed<CSSProperties>(() => ({
@@ -95,6 +143,45 @@ const langLabel = computed(() =>
   langs.value.length === 1 && activeLang.value ? activeLang.value.toUpperCase() : undefined
 )
 
+/** 语言标识或放大/关闭按钮任一存在时才渲染工具栏 */
+const hasToolbar = computed(
+  () => showLangSelect.value || !!langLabel.value || props.zoomable || zoomed.value
+)
+
+function enterZoom() {
+  if (disabled.value || zoomed.value) return
+  const root = rootRef.value
+  if (root) placeholderHeight.value = `${root.offsetHeight}px`
+  zoomZIndex.value = zIndex()
+  zoomed.value = true
+  // 遮罩层级高于创建编辑器时写入的 tooltip 层级，同步抬升避免补全提示被遮罩盖住
+  editor.value?.dispatch({
+    effects: tooltipThemeCompartment.reconfigure(
+      EditorView.theme({ '.cm-tooltip': { zIndex: zIndex() } })
+    )
+  })
+  // 对齐 dialog 先例：放大按钮（u-icon）不可聚焦，点击后焦点在 body 上，
+  // keyup 不会向下经过遮罩，需主动聚焦遮罩，Esc 才能冒泡到 keyup.esc
+  nextTick(() => zoomWrapRef.value?.focus())
+}
+
+function exitZoom() {
+  if (!zoomed.value) return
+  zoomed.value = false
+}
+
+/** 放大期间锁定 body 滚动，退出后恢复原值 */
+let prevBodyOverflow = ''
+
+watch(zoomed, (v) => {
+  if (v) {
+    prevBodyOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+  } else {
+    document.body.style.overflow = prevBodyOverflow
+  }
+})
+
 const shellConfig = computed<ShellConfig>(() => ({
   prefix: props.prefix ?? '',
   suffix: props.suffix ?? ''
@@ -108,6 +195,7 @@ const editableCompartment = new Compartment()
 const readOnlyCompartment = new Compartment()
 const langCompartment = new Compartment()
 const shellCompartment = new Compartment()
+const tooltipThemeCompartment = new Compartment()
 
 /** 聚焦时的正文快照，用于失焦时判断是否触发 change */
 let focusSnapshot = ''
@@ -133,7 +221,7 @@ function buildExtensions(): Extension[] {
   return [
     basicSetup,
     tooltips({ parent: document.body }),
-    EditorView.theme({ '.cm-tooltip': { zIndex: zIndex() } }),
+    tooltipThemeCompartment.of(EditorView.theme({ '.cm-tooltip': { zIndex: zIndex() } })),
     themeCompartment.of(props.dark ? oneDark : []),
     editableCompartment.of(EditorView.editable.of(!disabled.value)),
     readOnlyCompartment.of(EditorState.readOnly.of(readonly.value)),
@@ -316,5 +404,8 @@ watch(
   { immediate: true }
 )
 
-onBeforeUnmount(destroyEditor)
+onBeforeUnmount(() => {
+  destroyEditor()
+  if (zoomed.value) document.body.style.overflow = prevBodyOverflow
+})
 </script>

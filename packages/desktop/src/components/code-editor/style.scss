@@ -16,6 +16,8 @@ $root-name: code-editor;
   --u-code-editor-selection-bg: #{fn.color-a(color, 16, primary)};
 
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   max-height: 480px;
   border-radius: fn.use-var(radius, default);
@@ -32,29 +34,75 @@ $root-name: code-editor;
     border-color: fn.use-var(color, primary);
   }
 
+  @include m.e(toolbar) {
+    flex-shrink: 0;
+    padding: 4px fn.use-var(gap, small);
+    border-bottom: 1px solid var(--u-code-editor-border);
+    @include m.flex($justify: space-between);
+  }
+
+  @include m.e(toolbar-actions) {
+    margin-left: auto;
+    gap: fn.use-var(gap, small);
+    @include m.flex;
+  }
+
   @include m.e(lang-select) {
-    position: absolute;
-    top: 2px;
-    right: 2px;
-    z-index: 2;
     width: 88px;
     border: none;
-
-    input {
-      text-align: right;
-    }
   }
 
   @include m.e(lang-label) {
-    position: absolute;
-    top: 2px;
-    right: 8px;
-    z-index: 2;
     font-size: 12px;
-    line-height: 24px;
     color: var(--u-code-editor-gutter-fg);
-    pointer-events: none;
     user-select: none;
+  }
+
+  @include m.e(btn-zoom, btn-close) {
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--u-code-editor-gutter-fg);
+    transition: color fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    &:hover {
+      color: fn.use-var(color, primary);
+    }
+
+    @include m.is(disabled) {
+      cursor: not-allowed;
+
+      &:hover {
+        color: var(--u-code-editor-gutter-fg);
+      }
+    }
+  }
+
+  // 编辑器滚动区：工具栏在其之外，任何滚动位置都不遮挡代码
+  @include m.e(scroll) {
+    flex: 1;
+    min-height: 0;
+  }
+
+  // 放大时原位置的等高占位，撑起布局避免位移
+  @include m.e(placeholder) {
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  // 放大遮罩：平时 display: contents 不参与布局，放大时成为 body 下的全屏遮罩
+  @include m.e(zoom-wrap) {
+    display: contents;
+
+    @include m.is(zoomed) {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(0, 0, 0, 0.32);
+      // 遮罩主动聚焦承接 Esc（对齐 dialog 遮罩），不显示焦点框
+      outline: none;
+    }
   }
 
   .cm-editor {
@@ -125,6 +173,15 @@ $root-name: code-editor;
     --u-code-editor-gutter-fg: #5c6370;
     --u-code-editor-active-bg: rgba(255, 255, 255, 0.04);
     --u-code-editor-selection-bg: rgba(99, 162, 255, 0.25);
+  }
+
+  // 放大态：遮罩内视觉居中，脱离 480px 最大高度限制
+  @include m.is(zoomed) {
+    width: 80vw;
+    height: 80vh;
+    max-height: none;
+    border-radius: fn.use-var(radius, large);
+    box-shadow: fn.use-var(shadow, lg);
   }
 
   @include m.is(disabled) {
