@@ -7,7 +7,7 @@ export interface DatePanelProps {
   date?: Dater
   rangeDate?: [Dater, Dater]
   range?: boolean
-  disabledDate?: (date: Dater) => boolean
+  disabledDate?: (date: Dater, raw: Date) => boolean
   type?: 'date' | 'month' | 'year'
   size?: FormComponentProps['size']
 }

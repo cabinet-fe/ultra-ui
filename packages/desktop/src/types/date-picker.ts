@@ -21,7 +21,7 @@ export interface DatePickerProps extends FormComponentProps {
    */
   dataType?: DatePickerDataType
   /** 最小可选日期 */
-  disabledDate?: (date: Dater) => boolean
+  disabledDate?: (date: Dater, raw: Date) => boolean
   /** 是否显示清除按钮 */
   clearable?: boolean
 }

@@ -12,7 +12,7 @@ export const weekDays: string[] = ['日', '一', '二', '三', '四', '五', '�
  */
 export function getMonthDays(
   d: Date | string | number | Dater,
-  disabledDate?: (d: Dater) => boolean
+  disabledDate?: (d: Dater, raw: Date) => boolean
 ): CalendarDay[] {
   const todayStr = date().format()
   if (d instanceof Date || typeof d === 'string' || typeof d === 'number') {
@@ -24,7 +24,7 @@ export function getMonthDays(
   const currentMonthDays: CalendarDay[] = Array.from({ length: d.getDays() }).map((_, i) => {
     const day: CalendarDay = { date: d.calc(i, 'days'), type: 'current' }
     day.isToday = day.date.format() === todayStr
-    day.disabled = disabledDate?.(day.date)
+    day.disabled = disabledDate?.(day.date, day.date.raw)
     return day
   })
 
@@ -41,7 +41,7 @@ export function getMonthDays(
     let i = 0
     while (i < firstDayWeek) {
       const day: CalendarDay = { date: d.calc(-i, 'days'), type: 'pre' }
-      day.disabled = disabledDate?.(day.date)
+      day.disabled = disabledDate?.(day.date, day.date.raw)
       preMonthDays.unshift(day)
       i++
     }
@@ -55,7 +55,7 @@ export function getMonthDays(
 
   while (j < nextMonthDaysAmount) {
     const day: CalendarDay = { date: d.calc(j++, 'days'), type: 'next' }
-    day.disabled = disabledDate?.(day.date)
+    day.disabled = disabledDate?.(day.date, day.date.raw)
     nextMonthDays.push(day)
   }
 
@@ -70,7 +70,7 @@ export function getMonthDays(
  */
 export function getYearMonths(
   d: Date | string | number | Dater,
-  disabledDate?: (d: Dater) => boolean
+  disabledDate?: (d: Dater, raw: Date) => boolean
 ): CalendarMonth[] {
   if (d instanceof Date || typeof d === 'string' || typeof d === 'number') {
     d = date(d)
@@ -88,7 +88,7 @@ export function getYearMonths(
     monthDate.setMinutes(59)
     monthDate.setSeconds(59)
 
-    return { key: ym, month, date: monthDate, disabled: disabledDate?.(monthDate) }
+    return { key: ym, month, date: monthDate, disabled: disabledDate?.(monthDate, monthDate.raw) }
   })
 }
 
@@ -100,7 +100,7 @@ export function getYearMonths(
  */
 export function getTenYears(
   d: Date | string | number | Dater,
-  disabledDate?: (d: Dater) => boolean
+  disabledDate?: (d: Dater, raw: Date) => boolean
 ): CalendarYear[] {
   if (d instanceof Date || typeof d === 'string' || typeof d === 'number') {
     d = date(d)
@@ -113,6 +113,6 @@ export function getTenYears(
 
     const yearDate = date(`${year}-12-31 23:59:59`)
 
-    return { year, date: yearDate, disabled: disabledDate?.(yearDate) }
+    return { year, date: yearDate, disabled: disabledDate?.(yearDate, yearDate.raw) }
   })
 }

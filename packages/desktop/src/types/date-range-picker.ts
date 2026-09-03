@@ -13,7 +13,7 @@ export interface DateRangePickerProps extends FormComponentProps {
   /** 日期值格式化, 当没有指定时默认使用format属性，仅当值和显示的内容不一致时才需要使用到该属性 */
   valueFormat?: string
   /** 最小可选日期 */
-  disabledDate?: (date: Dater) => boolean
+  disabledDate?: (date: Dater, raw: Date) => boolean
   /** 是否显示清除按钮 */
   clearable?: boolean
 }
