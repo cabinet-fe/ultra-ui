@@ -87,3 +87,23 @@ const formData = reactive({ birthday: '', joinDate: '' })
   </u-form>
 </template>
 ```
+
+## 指定 dataType 与 change 事件
+
+```vue
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+
+const dateVal = shallowRef<Date>()
+const timestampVal = shallowRef<number>()
+
+function handleChange(d?: Date) {
+  console.log('选中的 Date 对象:', d)
+}
+</script>
+
+<template>
+  <u-date-picker v-model="dateVal" data-type="date" @change="handleChange" />
+  <u-date-picker v-model="timestampVal" data-type="timestamp" @change="handleChange" />
+</template>
+```
