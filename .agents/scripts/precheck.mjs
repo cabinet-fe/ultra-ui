@@ -1,39 +1,26 @@
 #!/usr/bin/env node
 // setup 完成判定。检查项以本脚本为唯一定义：
-// 各类：根 AGENTS.md 与当前类别模板一致；PROJECT.md；CONTEXT/index.md；spec-files.mjs；
+// 各类：根 AGENTS.md 与当前类别模板一致；PROJECT.md；.agents/scripts/ 下的脚本与模板齐全；
 //       .agents/cooking/；.gitignore 忽略 cooking 且不忽略 docs/scripts
 // 仅代码类：ARCHITECTURE.md、DEV-STANDARDS.md、CODE-MAP.md、SMELLS.md
 // 用法（以目标仓库根目录为工作目录）：
 //   node .agents/scripts/precheck.mjs
 // 全部通过：输出 PASS 与项目类别，退出码 0；任一不满足：输出 FAIL、逐项缺失项与 setup 提示，退出码 1。
-// 自包含：根 AGENTS.md 类别模板内嵌于此；references/root-agents-*.md 变更时需同步更新。
+// 根 AGENTS.md 的类别模板 = 与本脚本同目录的 root-agents-code.md / root-agents-non-code.md，
+// 由 setup 整目录复制而来，是唯一定义，不在脚本里另存一份。
 
 import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const ROOT_AGENTS_LINES = {
-  代码: [
-    '# AGENTS',
-    'Agent 入口索引。详细内容在 `.agents/docs/`，**按需读取，禁止一次加载全部**。',
-    '## 文档',
-    '| 文件 | 何时读 | 何时更新 |',
-    '| --- | --- | --- |',
-    '| `.agents/docs/PROJECT.md` | 需要知道项目类别与仓库结构 | 仅 setup：类别、组织结构、全栈形态变了 |',
-    '| `.agents/docs/ARCHITECTURE.md` | 业务/技术架构、技术栈 | 仅 setup：换栈、改分层、加/删应用边界。implement 禁止改 |',
-    '| `.agents/docs/DEV-STANDARDS.md` | 写代码、做 review | 仅 setup：规范或偏好变了 |',
-    '| `.agents/docs/SMELLS.md` | 写代码时按坏味道边写边收；review 对照 | 仅 setup：技能包模板变了 |',
-    '| `.agents/docs/CODE-MAP.md` | 定位模块；按模块/路径检索，禁止全文加载 | implement / sync-context：模块表增删行，或某模块路径、入口、职责、依赖边变了。只改相关行。架构级变化先 setup 改 ARCHITECTURE，再由 setup 同步本文件。模块内部加文件不算。 |',
-    '| `.agents/docs/CONTEXT/index.md` | 先读模块索引，再打开当前条目。禁止加载整个 CONTEXT。按变更路径定位：运行 `node .agents/scripts/spec-files.mjs query <路径...>` | archive：新模块入库；sync-context：改动推翻已有条目或新增未入库能力 |',
-  ],
-  非代码: [
-    '# AGENTS',
-    'Agent 入口索引。详细内容在 `.agents/docs/`，**按需读取，禁止一次加载全部**。',
-    '## 文档',
-    '| 文件 | 何时读 | 何时更新 |',
-    '| --- | --- | --- |',
-    '| `.agents/docs/PROJECT.md` | 需要知道项目类别与仓库结构 | 仅 setup：类别、组织结构变了 |',
-    '| `.agents/docs/CONTEXT/index.md` | 先读模块索引，再打开当前条目。禁止加载整个 CONTEXT。按变更路径定位：运行 `node .agents/scripts/spec-files.mjs query <路径...>` | archive：新模块入库；sync-context：改动推翻已有条目或新增未入库能力 |',
-  ],
+const SCRIPTS_DIR = path.dirname(fileURLToPath(import.meta.url));
+
+const ROOT_AGENTS_TEMPLATE = {
+  代码: 'root-agents-code.md',
+  非代码: 'root-agents-non-code.md',
 };
+
+const REQUIRED_SCRIPTS = ['spec-files.mjs', 'cooking.mjs'];
 
 const CODE_ONLY_DOCS = [
   '.agents/docs/ARCHITECTURE.md',
@@ -55,15 +42,21 @@ function readCategory() {
   return null;
 }
 
-// 模板每行（trim 后）都出现在目标 AGENTS.md 中即视为一致；目标多出的短注不影响判定
-function agentsTemplateMissing(templateLines) {
-  const actual = new Set(
-    fs.readFileSync('AGENTS.md', 'utf8')
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter(Boolean),
-  );
-  return templateLines.filter((line) => !actual.has(line));
+// 比较前归一化：去掉全部空白，3 个以上连字符折叠为 3 个。
+// markdown formatter 会给表格补空格对齐列宽、把分隔行填成整列连字符，这些不算改动。
+function normalizeLine(line) {
+  return line.replace(/\s+/g, '').replace(/-{3,}/g, '---');
+}
+
+function normalizedLines(content) {
+  return content.split(/\r?\n/).map(normalizeLine).filter(Boolean);
+}
+
+// 模板每行（归一化后）都出现在目标 AGENTS.md 中即视为一致；目标多出的行不影响判定
+function agentsTemplateMissing(templateFile) {
+  const template = normalizedLines(fs.readFileSync(templateFile, 'utf8'));
+  const actual = new Set(normalizedLines(fs.readFileSync('AGENTS.md', 'utf8')));
+  return template.filter((line) => !actual.has(line));
 }
 
 function gitignoreToRegex(pattern) {
@@ -137,14 +130,22 @@ function main() {
     }
   }
 
+  let templateFile = category ? path.join(SCRIPTS_DIR, ROOT_AGENTS_TEMPLATE[category]) : null;
+  if (templateFile && !fs.existsSync(templateFile)) {
+    failures.push(`${ROOT_AGENTS_TEMPLATE[category]} 不在脚本目录（setup 更新模式重新复制 .agents/scripts/）`);
+    templateFile = null;
+  }
+
   if (!fs.existsSync('AGENTS.md')) {
     failures.push('根 AGENTS.md 不存在');
-  } else if (category && agentsTemplateMissing(ROOT_AGENTS_LINES[category]).length > 0) {
+  } else if (templateFile && agentsTemplateMissing(templateFile).length > 0) {
     failures.push(`根 AGENTS.md 与「${category}」类别模板不一致`);
   }
 
-  for (const file of ['.agents/docs/CONTEXT/index.md', '.agents/scripts/spec-files.mjs']) {
-    if (!fs.existsSync(file)) failures.push(`${file} 不存在`);
+  for (const script of REQUIRED_SCRIPTS) {
+    if (!fs.existsSync(`.agents/scripts/${script}`)) {
+      failures.push(`.agents/scripts/${script} 不存在（setup 更新模式重新复制 .agents/scripts/）`);
+    }
   }
 
   if (!fs.existsSync('.agents/cooking')) {
