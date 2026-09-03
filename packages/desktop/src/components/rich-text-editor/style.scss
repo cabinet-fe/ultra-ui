@@ -8,7 +8,7 @@ $root-name: rich-text-editor;
   width: 100%;
   border: 1px solid fn.use-var(border, muted-color);
   border-radius: fn.use-var(radius, default);
-  background-color: fn.use-var(color, bg);
+  background-color: fn.use-var(bg-color, top);
   transition: border-color 0.25s ease;
   display: flex;
   flex-direction: column;
@@ -38,7 +38,7 @@ $root-name: rich-text-editor;
     gap: 2px;
     padding: 6px 8px;
     border-bottom: 1px solid fn.use-var(border-color);
-    background-color: fn.use-var(color, bg, muted);
+    background-color: fn.use-var(bg-color, middle);
   }
 
   @include m.e(toolbar-btn) {
@@ -50,19 +50,19 @@ $root-name: rich-text-editor;
     border: none;
     border-radius: 4px;
     background: transparent;
-    color: fn.use-var(text-color);
+    color: fn.use-var(text-color, main);
     cursor: pointer;
     transition: all 0.15s ease;
     padding: 0;
 
     @include m.is-not(disabled) {
       &:hover {
-        background-color: fn.use-var(color, hover);
+        background-color: fn.use-var(bg-color, hover);
       }
     }
 
     &.is-active {
-      background-color: fn.use-var(color, primary, light);
+      background-color: fn.use-var(color, primary, light-9);
       color: fn.use-var(color, primary);
     }
 
@@ -104,7 +104,7 @@ $root-name: rich-text-editor;
     border: 1px solid fn.use-var(border, muted-color);
     border-radius: 4px;
     background-color: transparent;
-    color: fn.use-var(text-color);
+    color: fn.use-var(text-color, main);
     font-size: 13px;
     cursor: pointer;
     outline: none;
@@ -146,7 +146,7 @@ $root-name: rich-text-editor;
     outline: none;
     font-size: 14px;
     line-height: 1.6;
-    color: fn.use-var(text-color);
+    color: fn.use-var(text-color, main);
     word-break: break-word;
 
     &:focus {
@@ -259,7 +259,7 @@ $root-name: rich-text-editor;
   font-weight: 600;
   line-height: 1.4;
   margin: 10px 0 4px 0;
-  color: fn.use-var(text-color, secondary);
+  color: fn.use-var(text-color, second);
 
   &:first-child {
     margin-top: 0;
@@ -286,7 +286,7 @@ $root-name: rich-text-editor;
 .u-rte-code {
   font-family: 'Menlo', 'Consolas', 'Monaco', monospace;
   font-size: 0.9em;
-  background-color: fn.use-var(color, bg, muted);
+  background-color: fn.use-var(bg-color, middle);
   padding: 2px 6px;
   border-radius: 3px;
   border: 1px solid fn.use-var(border-color);
@@ -318,8 +318,8 @@ $root-name: rich-text-editor;
   margin: 8px 0;
   padding: 8px 16px;
   border-left: 3px solid fn.use-var(color, primary);
-  background-color: fn.use-var(color, bg, muted);
-  color: fn.use-var(text-color, secondary);
+  background-color: fn.use-var(bg-color, middle);
+  color: fn.use-var(text-color, second);
   font-style: italic;
 }
 
@@ -328,7 +328,7 @@ $root-name: rich-text-editor;
   font-family: 'Menlo', 'Consolas', 'Monaco', monospace;
   font-size: 13px;
   line-height: 1.6;
-  background-color: fn.use-var(color, bg, muted);
+  background-color: fn.use-var(bg-color, middle);
   border: 1px solid fn.use-var(border-color);
   border-radius: 6px;
   padding: 12px 16px;

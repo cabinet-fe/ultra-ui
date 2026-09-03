@@ -84,16 +84,16 @@ $connector-width: 56px;
       background-color: fn.use-var(color, primary, light-9);
 
       &:hover {
-        background-color: fn.use-var(color, primary, light-8);
+        background-color: fn.use-var(color, primary, light-7);
       }
     }
 
     @include m.m(or) {
-      color: fn.use-var(color, warning, dark-2);
+      color: fn.use-var(color, warning, dark-1);
       background-color: fn.use-var(color, warning, light-9);
 
       &:hover {
-        background-color: fn.use-var(color, warning, light-8);
+        background-color: fn.use-var(color, warning, light-7);
       }
     }
 
@@ -243,7 +243,7 @@ $connector-width: 56px;
       border-color 0.15s ease;
 
     &:hover {
-      background-color: fn.use-var(color, primary, light-8);
+      background-color: fn.use-var(color, primary, light-7);
       border-color: fn.use-var(color, primary, light-5);
     }
 

@@ -168,6 +168,6 @@ $indent-width: 20px;
   @include m.e(empty) {
     text-align: center;
     padding: fn.use-var(gap, default) 0;
-    color: fn.use-var(text-color, secondary);
+    color: fn.use-var(text-color, second);
   }
 }

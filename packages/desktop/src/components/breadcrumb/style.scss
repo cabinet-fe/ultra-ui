@@ -25,7 +25,7 @@ $root-name: breadcrumb;
   @include m.e(separator) {
     display: flex;
     align-items: center;
-    margin: 0 fn.use-var(gap, base);
+    margin: 0 fn.use-var(gap, default);
     color: fn.use-var(text-color, placeholder);
     user-select: none;
   }

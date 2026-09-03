@@ -586,7 +586,7 @@
 
   @include m.e(loading-text) {
     margin-top: fn.use-var(gap, small);
-    color: fn.use-var(text-color, secondary);
+    color: fn.use-var(text-color, second);
     font-size: 12px;
     line-height: 1.5;
     text-align: center;

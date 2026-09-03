@@ -69,6 +69,25 @@ export const componentCssVarsLight: Record<string, string> = {
   '--u-cascade-node-active-bg': T('color', 'primary', 'light', '9'),
   '--u-cascade-node-active-color': T('color', 'primary'),
 
+  // ─── Select option ───
+  '--u-select-option-hover-bg': T('bg-color', 'hover'),
+  '--u-select-option-hover-color': T('text-color', 'title'),
+  '--u-select-option-selected-bg': T('color', 'primary', 'light', '9'),
+  '--u-select-option-selected-color': T('color', 'primary'),
+
+  // ─── Auto Complete option ───
+  '--u-auto-complete-option-hover-bg': T('bg-color', 'hover'),
+  '--u-auto-complete-option-hover-color': T('text-color', 'title'),
+  '--u-auto-complete-option-selected-bg': T('color', 'primary', 'light', '9'),
+  '--u-auto-complete-option-selected-color': T('color', 'primary'),
+
+  // ─── Contextmenu item ───
+  '--u-contextmenu-item-hover-bg': T('bg-color', 'hover'),
+  '--u-contextmenu-item-hover-color': T('text-color', 'title'),
+  '--u-contextmenu-item-height-small': '24px',
+  '--u-contextmenu-item-height-default': '28px',
+  '--u-contextmenu-item-height-large': '32px',
+
   // ─── Expression Editor Chip ───
   '--u-expression-editor-chip-bg': T('color', 'primary', 'light', '9'),
   '--u-expression-editor-chip-color': T('color', 'primary'),
@@ -147,6 +166,25 @@ export const componentCssVarsDark: Record<string, string> = {
   // ─── Cascade option active ───
   '--u-cascade-node-active-bg': T('color', 'primary', 'dark', '9'),
   '--u-cascade-node-active-color': T('color', 'primary'),
+
+  // ─── Select option ───
+  '--u-select-option-hover-bg': T('bg-color', 'hover'),
+  '--u-select-option-hover-color': T('text-color', 'title'),
+  '--u-select-option-selected-bg': T('color', 'primary', 'dark', '9'),
+  '--u-select-option-selected-color': T('color', 'primary'),
+
+  // ─── Auto Complete option ───
+  '--u-auto-complete-option-hover-bg': T('bg-color', 'hover'),
+  '--u-auto-complete-option-hover-color': T('text-color', 'title'),
+  '--u-auto-complete-option-selected-bg': T('color', 'primary', 'dark', '9'),
+  '--u-auto-complete-option-selected-color': T('color', 'primary'),
+
+  // ─── Contextmenu item ───
+  '--u-contextmenu-item-hover-bg': T('bg-color', 'hover'),
+  '--u-contextmenu-item-hover-color': T('text-color', 'title'),
+  '--u-contextmenu-item-height-small': '24px',
+  '--u-contextmenu-item-height-default': '28px',
+  '--u-contextmenu-item-height-large': '32px',
 
   // ─── Expression Editor Chip ───
   '--u-expression-editor-chip-bg': T('color', 'primary', 'dark', '9'),

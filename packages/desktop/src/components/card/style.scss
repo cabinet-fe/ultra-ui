@@ -39,7 +39,7 @@ $root-name: card;
   }
 
   @include m.e(header) {
-    background-color: fn.use-var(header-bg, transparent);
+    background-color: fn.component-var(card, header-bg, transparent);
     color: fn.use-var(text-color, title);
   }
 
@@ -65,7 +65,7 @@ $root-name: card;
   }
 
   @include m.e(action) {
-    background-color: fn.use-var(action-bg, transparent);
+    background-color: fn.component-var(card, action-bg, transparent);
 
     #{fn.bem(button)} + #{fn.bem(button)} {
       margin-left: fn.use-var(gap, default);

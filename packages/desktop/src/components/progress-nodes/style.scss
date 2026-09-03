@@ -39,7 +39,7 @@ $root-name: progress-nodes;
     transition:
       background-color 0.2s,
       color 0.2s;
-    border-radius: fn.use-var(radius, base);
+    border-radius: fn.use-var(radius, default);
 
     &:hover {
       @include m.bem($root-name, dot) {
@@ -47,7 +47,7 @@ $root-name: progress-nodes;
       }
 
       @include m.bem($root-name, label) {
-        color: fn.use-var(text-color, primary);
+        color: fn.use-var(color, primary);
       }
     }
   }
@@ -64,7 +64,7 @@ $root-name: progress-nodes;
   @include m.e(link) {
     position: absolute;
     border-style: dashed;
-    border-color: fn.use-var(text, color, placeholder);
+    border-color: fn.use-var(text-color, placeholder);
   }
 
   // 节点圆点

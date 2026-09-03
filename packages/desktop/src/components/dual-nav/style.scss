@@ -73,7 +73,7 @@ $root-name: dual-nav;
 
   @include m.e(panel-title) {
     margin: 0;
-    font-size: fn.use-var(font-size, default);
+    font-size: fn.use-var(font-size-title, default);
     font-weight: 600;
     line-height: 1.4;
     color: var(--u-nav-strong-color);

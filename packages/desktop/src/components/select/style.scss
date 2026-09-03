@@ -63,14 +63,30 @@ $root-name: select;
     @include m.ellipsis;
 
     &:hover {
-      background-color: var(--u-nav-hover-bg);
-      color: var(--u-nav-hover-color);
+      background-color: fn.component-var(
+        select,
+        option-hover-bg,
+        fn.use-var(bg-color, hover)
+      );
+      color: fn.component-var(
+        select,
+        option-hover-color,
+        fn.use-var(text-color, title)
+      );
     }
 
     @include m.is(selected) {
       position: relative;
-      background-color: var(--u-nav-active-bg);
-      color: var(--u-nav-active-color);
+      background-color: fn.component-var(
+        select,
+        option-selected-bg,
+        fn.use-var(color, primary, light-9)
+      );
+      color: fn.component-var(
+        select,
+        option-selected-color,
+        fn.use-var(color, primary)
+      );
       font-weight: 600;
 
       &::before {

@@ -161,7 +161,7 @@ $root-name: ai-chat;
   @include m.e(panel-fallback) {
     margin: 0;
     padding: fn.use-var(gap, default);
-    font-family: fn.use-var(font-family, code);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: fn.use-var(font-size-main, small);
     line-height: 1.5;
     white-space: pre-wrap;
@@ -655,7 +655,7 @@ $root-name: ai-chat;
     padding: 4px fn.use-var(gap, small);
     border-radius: fn.use-var(radius, small);
     background-color: fn.use-var(bg-color, bottom);
-    font-family: fn.use-var(font-family, code);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: fn.use-var(font-size-main, small);
     line-height: 1.5;
     white-space: pre-wrap;
@@ -1086,7 +1086,7 @@ $root-name: ai-chat;
     transition: background-color 0.15s ease;
 
     &:hover {
-      background-color: var(--u-nav-hover-bg);
+      background-color: fn.use-var(bg-color, hover);
     }
   }
 
@@ -1203,7 +1203,7 @@ $root-name: ai-chat;
     transition: background-color 0.15s ease;
 
     &:hover {
-      background-color: var(--u-nav-hover-bg);
+      background-color: fn.use-var(bg-color, hover);
     }
   }
 
@@ -1300,7 +1300,7 @@ $root-name: ai-chat;
       color 0.15s ease;
 
     &:hover {
-      background-color: var(--u-nav-hover-bg);
+      background-color: fn.use-var(bg-color, hover);
     }
 
     @include m.is(active) {

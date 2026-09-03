@@ -9,7 +9,7 @@
 
   @include m.e(separator) {
     flex-shrink: 0;
-    color: fn.use-var(text-color, secondary);
+    color: fn.use-var(text-color, second);
     line-height: 1;
   }
 }

@@ -82,6 +82,24 @@ describe('UITheme', () => {
     expect(componentCssVarsDark['--u-focus-ring']).toContain('--u-color-primary-a-')
   })
 
+  it('emits select, auto-complete, and contextmenu component vars', () => {
+    expect(componentCssVarsLight['--u-select-option-hover-bg']).toBe('var(--u-bg-color-hover)')
+    expect(componentCssVarsLight['--u-select-option-selected-bg']).toBe(
+      'var(--u-color-primary-light-9)'
+    )
+    expect(componentCssVarsDark['--u-select-option-selected-bg']).toBe(
+      'var(--u-color-primary-dark-9)'
+    )
+    expect(componentCssVarsLight['--u-auto-complete-option-selected-bg']).toBe(
+      'var(--u-color-primary-light-9)'
+    )
+    expect(componentCssVarsDark['--u-auto-complete-option-selected-bg']).toBe(
+      'var(--u-color-primary-dark-9)'
+    )
+    expect(componentCssVarsLight['--u-contextmenu-item-hover-bg']).toBe('var(--u-bg-color-hover)')
+    expect(componentCssVarsLight['--u-contextmenu-item-height-default']).toBe('28px')
+  })
+
   it('nav sidebar defaults to dark variant, resolved per series', () => {
     // light 系列：深底（text-color.title）+ 浅前景，与浅色内容区拉开区分度
     const lightDecls = lightTheme.navSidebarDecls(lightTheme.theme)

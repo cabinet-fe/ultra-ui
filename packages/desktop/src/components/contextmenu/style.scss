@@ -92,15 +92,31 @@ $arrow-size: 12px;
 
     #{$b}__item:not(.is-disabled):not(.is-loading) > & {
       &:hover {
-        background-color: var(--u-nav-hover-bg);
-        color: var(--u-nav-hover-color);
+        background-color: fn.component-var(
+          contextmenu,
+          item-hover-bg,
+          fn.use-var(bg-color, hover)
+        );
+        color: fn.component-var(
+          contextmenu,
+          item-hover-color,
+          fn.use-var(text-color, title)
+        );
       }
     }
   }
 
   #{$b}__item.is-open:not(.is-disabled) > #{$b}__item-content {
-    background-color: var(--u-nav-hover-bg);
-    color: var(--u-nav-hover-color);
+    background-color: fn.component-var(
+      contextmenu,
+      item-hover-bg,
+      fn.use-var(bg-color, hover)
+    );
+    color: fn.component-var(
+      contextmenu,
+      item-hover-color,
+      fn.use-var(text-color, title)
+    );
   }
 
   @include m.e(icon-place) {
@@ -142,7 +158,11 @@ $arrow-size: 12px;
 
     @include m.e(item-content) {
       padding: 0 fn.use-var(gap, $size);
-      min-height: calc(var(--u-nav-height-#{$size}) - 8px);
+      min-height: fn.component-var(
+        contextmenu,
+        item-height-#{$size},
+        calc(fn.use-var(form-component-height, $size) - 4px)
+      );
       border-radius: calc(fn.use-var(radius, $size) + 1px);
     }
   }

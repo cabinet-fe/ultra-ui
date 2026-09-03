@@ -159,7 +159,7 @@ $active-shadow: fn.use-var(shadow, sm);
     padding: 0;
     border: none;
     background: transparent;
-    color: fn.use-var(text-color, secondary);
+    color: fn.use-var(text-color, second);
     cursor: pointer;
     border-radius: fn.use-var(radius, default);
     font-size: 12px;
