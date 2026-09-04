@@ -1,5 +1,11 @@
 # @veltra/desktop
 
+## 1.7.6
+
+### Patch Changes
+
+- code-editor 语言标识移至顶部工具栏，新增 zoomable 放大编辑（居中浮层、Esc 退出、复用同一 EditorView 实例）
+
 ## 1.7.5
 
 ### Patch Changes
