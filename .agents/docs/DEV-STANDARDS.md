@@ -56,8 +56,7 @@
 
 ## 明确禁止
 
-- 归档 CONTEXT 条目 / cooking `spec.md` 缺少可被 `spec-files.mjs parse` 通过的「影响文件」章节
-- 一次加载整个 `CONTEXT/`；按变更路径用 `spec-files.mjs query` 扫描归档条目定位相关上下文
+- cooking `spec.md` 缺少可被 `spec-files.mjs parse` 通过的「影响文件」章节
 - 手改生成物：`packages/vite/src/components.gen.ts`；`packages/icons` 的 `normal.ts` / `colorful.ts` / `vue/`
 - compositions re-export `@veltra/styles/theme`
 - 用 lint disable / `@ts-ignore` 绕过检查
