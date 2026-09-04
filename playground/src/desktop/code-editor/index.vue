@@ -51,6 +51,29 @@
     </section>
 
     <section class="section">
+      <h3>放大编辑</h3>
+      <p class="hint">
+        点击工具栏右侧放大按钮，编辑器放大到屏幕中央编写（Esc 或关闭按钮退出，内容实时同步）；下方为
+        zoomable: false 对照，不渲染放大按钮。
+      </p>
+
+      <u-code-editor
+        v-model="zoomCode"
+        lang="js"
+        :langs="['js', 'sql', 'json']"
+        :default-lines="6"
+      />
+
+      <u-code-editor
+        v-model="noZoomCode"
+        lang="json"
+        :langs="['json']"
+        :zoomable="false"
+        :default-lines="6"
+      />
+    </section>
+
+    <section class="section">
       <h3>完整示例</h3>
       <p class="hint">可切换语言、配置默认行数，以及禁用 / 只读 / 暗色 / 函数体外壳。</p>
 
@@ -201,6 +224,19 @@ if (Test-Path "./dist") {
 `)
 
 const formData = reactive({ code: '  return a + b' })
+
+const zoomCode = ref(`function fib(n) {
+  return n < 2 ? n : fib(n - 1) + fib(n - 2)
+}
+
+console.log(fib(10))
+`)
+
+const noZoomCode = ref(`{
+  "zoomable": false,
+  "toolbar": "仅语言标签，无放大按钮"
+}
+`)
 
 const disabled = ref(false)
 const readonly = ref(false)

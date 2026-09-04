@@ -74,6 +74,8 @@ const THEME_NAV_NOTE =
 
 /** 组件技能文档：附加备注（渲染为 api.md 的「备注」一节，内容手工维护） */
 export const NOTES_BY_KEBAB: Record<string, string> = {
+  'code-editor':
+    '语言标识与放大按钮在编辑区之外的顶部工具栏：`langs` 多于一种时显示语言选择器，仅一种时显示语言名称标签。`zoomable`（默认 `true`）为 `false` 时不渲染放大按钮。放大复用同一编辑器实例（Teleport 到屏幕中央遮罩），Esc 或关闭按钮退出，内容、撤销历史与禁用/只读状态保持连续。',
   nav: THEME_NAV_NOTE,
   'group-nav': THEME_NAV_NOTE,
   'dual-nav': THEME_NAV_NOTE

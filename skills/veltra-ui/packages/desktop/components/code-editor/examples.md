@@ -30,6 +30,26 @@ const lang = shallowRef<CodeEditorLang>('sql')
 </template>
 ```
 
+## 放大编辑与关闭放大入口
+
+顶部工具栏右侧的放大按钮把编辑器放大到屏幕中央（Esc 或关闭按钮退出），`zoomable: false` 时不渲染放大按钮：
+
+```vue
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+
+const code = shallowRef('console.log("Hello, World!")')
+</script>
+
+<template>
+  <!-- 默认 zoomable，渲染放大按钮 -->
+  <u-code-editor v-model="code" :langs="['js']" />
+
+  <!-- 不渲染放大按钮 -->
+  <u-code-editor v-model="code" :langs="['js']" :zoomable="false" />
+</template>
+```
+
 ## 函数体外壳（prefix / suffix）
 
 `v-model` 仅绑定可编辑正文，前后缀只展示不可编辑：
