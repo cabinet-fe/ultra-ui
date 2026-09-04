@@ -1,5 +1,11 @@
 # @veltra/desktop
 
+## 1.7.7
+
+### Patch Changes
+
+- 6dcd633: 日期范围选择器支持 change 事件与 dataType 属性
+
 ## 1.7.6
 
 ### Patch Changes
