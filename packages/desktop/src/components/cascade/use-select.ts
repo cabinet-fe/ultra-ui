@@ -115,10 +115,11 @@ export function useSelect(options: SelectOptions): UseSelectReturned {
       : leafLabel
 
     const leafNode = leafKey ? dataMap.value.get(leafKey) : undefined
+    const changeItem = leafNode?.data ? { ...leafNode.data, fullLabel: targetLabel } : undefined
 
     emit('update:modelValue', targetValue)
     emit('update:label', targetLabel)
-    emit('change', leafNode?.data as Record<string, any> | undefined)
+    emit('change', changeItem, targetLabel)
   }
 
   /**

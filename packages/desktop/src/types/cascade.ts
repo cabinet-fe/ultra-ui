@@ -62,8 +62,16 @@ export interface CascadeEmits {
   /** 触发更新 label 事件 */
   (e: 'update:label', label?: string | string[]): void
   (e: 'update:modelValue', value?: string | string[]): void
-  (e: 'change', items: Record<string, any>[]): void
-  (e: 'change', item?: Record<string, any>): void
+  (
+    e: 'change',
+    items: (Record<string, any> & { fullLabel?: string })[],
+    fullLabels?: string[]
+  ): void
+  (
+    e: 'change',
+    item: (Record<string, any> & { fullLabel?: string }) | undefined,
+    fullLabel?: string
+  ): void
   (e: 'clear'): void
 }
 
