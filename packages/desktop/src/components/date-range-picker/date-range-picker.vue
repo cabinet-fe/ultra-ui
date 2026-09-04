@@ -31,7 +31,7 @@
 
       <Transition name="zoom-in" mode="out-in">
         <UIcon
-          v-if="clearable && modelValue && hovered && !disabled"
+          v-if="clearable && (modelValue?.length || currentRangeDate) && hovered && !disabled"
           :class="[cls.e('icon'), cls.e('clear')]"
           title="清除"
           @click.stop="handleClear"
@@ -62,14 +62,19 @@
 </template>
 
 <script lang="ts" setup>
-import { date, type Dater } from '@cat-kit/core'
+import { date, Dater } from '@cat-kit/core'
 import { useFormFallbackProps, useUserAction } from '@veltra/compositions'
 import { Calendar, Close } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
 import { computed, shallowRef, watch } from 'vue'
 
-import type { DateRangePickerEmits, DateRangePickerProps, DropdownExposed } from '../../types'
+import type {
+  DateRangePickerEmits,
+  DateRangePickerProps,
+  DateRangeValue,
+  DropdownExposed
+} from '../../types'
 import { UDatePanel } from '../date-panel'
 import { UDropdown } from '../dropdown'
 import { UIcon } from '../icon'
@@ -79,6 +84,7 @@ defineOptions({ name: 'UDateRangePicker', inheritAttrs: false })
 const props = withDefaults(defineProps<DateRangePickerProps>(), {
   placeholder: () => ['起始日期', '结束日期'],
   type: 'date',
+  dataType: 'string',
   disabled: undefined,
   readonly: undefined,
   clearable: true
@@ -113,14 +119,6 @@ const { userAction, isUserActive } = useUserAction()
 
 const currentRangeDate = shallowRef<[Dater, Dater]>()
 
-const displayedOfStart = computed(() => {
-  return props.modelValue?.[0]
-})
-
-const displayedOfEnd = computed(() => {
-  return props.modelValue?.[1]
-})
-
 const formatStr = computed(() => {
   const { format, type } = props
   if (format) return format
@@ -130,25 +128,70 @@ const formatStr = computed(() => {
   return 'yyyy-MM-dd'
 })
 
+const displayedOfStart = computed(() => {
+  return currentRangeDate.value?.[0]?.format(formatStr.value) ?? ''
+})
+
+const displayedOfEnd = computed(() => {
+  return currentRangeDate.value?.[1]?.format(formatStr.value) ?? ''
+})
+
+function parseDateValue(val?: string | number | Date): Dater | undefined {
+  if (val == null || val === '') return undefined
+  if (val instanceof Date || typeof val === 'number') {
+    const d = date(val)
+    return isNaN(d.timestamp) ? undefined : d
+  }
+  if (typeof val === 'string') {
+    if (props.dataType === 'string' && props.valueFormat) {
+      const parsed = Dater.parse(val, props.valueFormat)
+      if (!isNaN(parsed.timestamp)) return parsed
+    }
+    const fallback = date(val)
+    return isNaN(fallback.timestamp) ? undefined : fallback
+  }
+  return undefined
+}
+
 watch(
   () => props.modelValue,
   (val) => {
     if (isUserActive()) return
-    if (val?.length === 2) {
-      currentRangeDate.value = [date(val[0]), date(val[1])]
-    } else {
-      currentRangeDate.value = undefined
+    if (val && val.length === 2) {
+      const d1 = parseDateValue(val[0])
+      const d2 = parseDateValue(val[1])
+      if (d1 && d2) {
+        currentRangeDate.value = [d1, d2]
+        return
+      }
     }
+    currentRangeDate.value = undefined
   },
   { immediate: true }
 )
 
-const commitSelectedRange = userAction((rangeDate: [Dater, Dater] | undefined) => {
+function formatDateValue(d: Dater) {
+  if (props.dataType === 'date') {
+    return d.raw
+  }
+  if (props.dataType === 'timestamp') {
+    return d.timestamp
+  }
+  return d.format(props.valueFormat ?? formatStr.value)
+}
+
+function formatModelValue(range: [Dater, Dater]): DateRangeValue {
+  return [formatDateValue(range[0]), formatDateValue(range[1])] as DateRangeValue
+}
+
+const commitSelectedRange = userAction((rangeDate: [Dater, Dater]) => {
   currentRangeDate.value = rangeDate
-  emit('update:modelValue', rangeDate?.map((d) => d.format(formatStr.value)) as [string, string])
+  emit('update:modelValue', formatModelValue(rangeDate))
+  emit('change', [rangeDate[0].raw, rangeDate[1].raw])
 })
 
 async function handleSelect(rangeDate: [Dater, Dater] | undefined) {
+  if (!rangeDate) return
   await commitSelectedRange(rangeDate)
   dropdownRef.value?.close()
 }
@@ -158,5 +201,6 @@ const hovered = shallowRef(false)
 function handleClear() {
   currentRangeDate.value = undefined
   emit('update:modelValue', undefined)
+  emit('change', undefined)
 }
 </script>

@@ -1,12 +1,52 @@
 <template>
   <div>
-    <u-date-range-picker v-model="value" style="width: 240px" />
-    {{ value }}
+    <CustomCard title="基本使用">
+      <u-radio-group v-model="type" :items="items">选择类型</u-radio-group>
+      <u-radio-group v-model="dataType" :items="dataTypeItems">数据类型 (dataType)</u-radio-group>
+      <u-date-range-picker
+        v-model="value"
+        :type="type"
+        :data-type="dataType"
+        style="width: 260px"
+        :disabled-date="disabledDate"
+        @change="handleChange"
+      />
+      <div>modelValue: {{ value }}</div>
+      <div>change event: {{ changeVal }}</div>
+    </CustomCard>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { date } from '@cat-kit/core'
-import { ref } from 'vue'
-const value = ref<[string, string]>(['2025-03-01', date().format()])
+import { shallowRef } from 'vue'
+
+import CustomCard from '../card/custom-card.vue'
+
+const value = shallowRef<any>(['2025-03-01', date().format()])
+const changeVal = shallowRef<string>('')
+
+function handleChange(val?: [Date, Date]) {
+  changeVal.value = val ? `[${val[0].toISOString()}, ${val[1].toISOString()}]` : 'undefined'
+}
+
+function disabledDate(d: any) {
+  return d.timestamp <= Date.now()
+}
+
+const type = shallowRef<'date' | 'month' | 'year'>('date')
+
+const items = shallowRef([
+  { label: '日期', value: 'date' },
+  { label: '月份', value: 'month' },
+  { label: '年份', value: 'year' }
+])
+
+const dataType = shallowRef<'string' | 'date' | 'timestamp'>('string')
+
+const dataTypeItems = shallowRef([
+  { label: '字符串 (string)', value: 'string' },
+  { label: '日期对象 (date)', value: 'date' },
+  { label: '时间戳 (timestamp)', value: 'timestamp' }
+])
 </script>
