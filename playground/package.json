@@ -23,7 +23,7 @@
     "@veltra/styles": "workspace:*",
     "@veltra/utils": "workspace:*",
     "vue": "^3.5.42",
-    "vue-router": "^5.3.0"
+    "vue-router": "^5.3.1"
   },
   "devDependencies": {
     "@hono/node-server": "^2.1.1",
