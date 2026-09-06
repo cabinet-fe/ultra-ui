@@ -27,7 +27,7 @@ ultra-ui/
 │   └── server/               # 填报存取 + DeepSeek 代理（同端口 8787）
 ├── scripts/                  # 发版、resolver/skill 生成、docs-mcp 推送、git 本地配置
 ├── skills/veltra-ui/         # 对外伴生 Agent Skill
-├── agent-docs/               # 面向 MCP 的检索文档，由配方手写 + skill:gen 生成组件 API
+├── agent-docs/               # 面向 docs-mcp 的自闭合单文件检索文档，配方手写 + agent-docs:gen 辅助生成
 ├── .agents/                  # Agent 文档与工程脚本
 ├── .changeset/               # 版本策略与 changeset 文件
 └── vite.config.ts            # monorepo 级 test / lint / fmt / run / staged
@@ -49,9 +49,9 @@ ultra-ui/
 | vite            | `packages/vite`         | VeltraUIResolver 与生成组件表                                         | `src/resolver.ts`、`src/components.gen.ts`                  |
 | mobile          | `packages/mobile`       | 占位，private、changeset ignore                                       | `src/index.ts`                                              |
 | playground      | `playground`            | 预览 SPA + 填报/AI 参考实现                                           | `main.ts`、`playground/server/dev.ts`                       |
-| scripts         | `scripts`               | resolver/skill 生成（含 agent-docs 组件 API）、docs-mcp 推送、release、setup-git | `gen-vite-resolver.ts`、`gen-veltra-skill.ts`、`push-docs.mjs`、`release.ts` |
+| scripts         | `scripts`               | resolver/skill 生成、agent-docs 生成与校验、docs-mcp 推送、release、setup-git | `gen-vite-resolver.ts`、`gen-veltra-skill.ts`、`gen-agent-docs.ts`、`push-docs.mjs`、`release.ts` |
 | veltra-ui-skill | `skills/veltra-ui`      | 对外 Agent Skill（`bun run skill:gen` 更新）                          | `SKILL.md`                                                  |
-| agent-docs      | `agent-docs`            | 面向 MCP 的检索文档，配方手写 + `skill:gen` 生成组件 API               | `recipes/`、`desktop|ai|sheet/**/api.md`                    |
+| agent-docs      | `agent-docs`            | 面向 docs-mcp 的检索文档，自闭合单文件形态，配方手写 + `agent-docs:gen` 辅助生成 | `recipes/`、`desktop|ai|sheet/*.md`                         |
 
 ## 依赖
 
@@ -120,4 +120,4 @@ graph TD
 1. **宿主按需组件**：Vite 配 `VeltraUIResolver` → 读 `packages/vite/src/components.gen.ts` → 解析 `U*` 到对应包 `components/<name>` 与 `style.ts`。增删组件后必须 `bun run resolver:gen`。
 2. **playground 启动**：`cd playground && bun run dev` 同时拉起前端 7788 与参考服务 8787（填报 + `/ai`）。
 3. **发版**：changeset → `bun run release`（`dev` 分支）→ GitHub Actions publish。
-4. **技能同步**：库 API 变更后 `bun run skill:gen` 更新 `skills/veltra-ui`，同时写入 `agent-docs/desktop|ai|sheet/**/api.md`。
+4. **技能与检索文档同步**：库 API 变更后 `bun run skill:gen` 更新 `skills/veltra-ui` 伴生技能；使用 `bun run agent-docs:gen` 辅助生成与校验 `agent-docs/desktop|ai|sheet/*.md` 自闭合检索文档。
