@@ -1,11 +1,10 @@
 #!/usr/bin/env bun
 
-import { mkdir, readdir, readFile, rm, unlink, writeFile } from 'node:fs/promises'
+import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import {
-  CHINESE_BY_KEBAB,
   HELPERS_BY_KEBAB,
   NOTES_BY_KEBAB,
   parseApiTitleLine,
@@ -19,36 +18,6 @@ const SKILL_ROOT = join(REPO_ROOT, 'skills/veltra-ui')
 const GENERATED_DIR = join(SKILL_ROOT, 'generated')
 const COMPONENTS_DOC_DIR = join(SKILL_ROOT, 'packages/desktop/components')
 const TYPES_SRC_DIR = join(REPO_ROOT, 'packages/desktop/src/types')
-const AGENT_DOCS_ROOT = join(REPO_ROOT, 'agent-docs')
-const AGENT_DOC_PACKAGES = ['desktop', 'ai', 'sheet'] as const
-
-type AgentDocPkg = (typeof AGENT_DOC_PACKAGES)[number]
-
-type ScannedComponent = { pkg: AgentDocPkg; kebab: string; names: string[] }
-
-const EXPORT_BLOCK_RE = /export\s+(type\s+)?\{([^}]*)\}/g
-
-/** 与 gen-vite-resolver.ts 相同：从 index.ts 取出 `U*` 值导出 */
-function extractComponentNames(source: string): string[] {
-  const names: string[] = []
-
-  for (const [, typeOnly, specifiers] of source.matchAll(EXPORT_BLOCK_RE)) {
-    if (typeOnly || !specifiers) continue
-
-    for (const specifier of specifiers.split(',')) {
-      const trimmed = specifier.trim()
-      if (!trimmed || trimmed.startsWith('type ')) continue
-
-      const exported = trimmed
-        .split(/\s+as\s+/)
-        .at(-1)!
-        .trim()
-      if (/^U[A-Z]/.test(exported)) names.push(exported)
-    }
-  }
-
-  return names
-}
 
 type ExampleEntry = {
   file: string
@@ -202,127 +171,11 @@ async function regenerateComponentApiDocs(componentKebabs: string[]): Promise<nu
   return count
 }
 
-async function readIfExists(path: string): Promise<string | undefined> {
-  try {
-    return await readFile(path, 'utf8')
-  } catch {
-    return undefined
-  }
-}
-
-/** 扫描 desktop / ai / sheet：直接子目录同时有 index.ts 与 style.ts */
-async function scanResolverComponents(): Promise<ScannedComponent[]> {
-  const scanned = await Promise.all(
-    AGENT_DOC_PACKAGES.map(async (pkg) => {
-      const scanRoot = join(REPO_ROOT, 'packages', pkg, 'src/components')
-      const entries = await readdir(scanRoot, { withFileTypes: true })
-
-      const dirs = await Promise.all(
-        entries
-          .filter((entry) => entry.isDirectory())
-          .map(async (entry) => {
-            const dir = join(scanRoot, entry.name)
-            const [index, style] = await Promise.all([
-              readIfExists(join(dir, 'index.ts')),
-              readIfExists(join(dir, 'style.ts'))
-            ])
-
-            if (index === undefined || style === undefined) return undefined
-
-            const names = extractComponentNames(index)
-            if (names.length === 0) return undefined
-
-            return { pkg, kebab: entry.name, names }
-          })
-      )
-
-      return dirs.filter((item): item is ScannedComponent => item !== undefined)
-    })
-  )
-
-  return scanned.flat().toSorted((a, b) => {
-    const pkgCmp = a.pkg.localeCompare(b.pkg)
-    return pkgCmp !== 0 ? pkgCmp : a.kebab.localeCompare(b.kebab)
-  })
-}
-
-async function resolveChineseName(pkg: AgentDocPkg, kebab: string): Promise<string> {
-  const mapped = CHINESE_BY_KEBAB[kebab]
-  if (mapped) return mapped
-
-  if (pkg !== 'desktop') return ''
-
-  const existing = await readIfExists(join(COMPONENTS_DOC_DIR, kebab, 'api.md'))
-  if (!existing) return ''
-
-  const titleLine =
-    existing.split('\n').find((line) => /^#{1,2}\s+\S.+\s+-\s+.+$/.test(line.trim())) ?? ''
-  return parseApiTitleLine(titleLine)?.chinese ?? ''
-}
-
-async function writeAgentDocsApi(components: ScannedComponent[]): Promise<number> {
-  const keep = new Set<string>()
-
-  await Promise.all(
-    components.map(async ({ kebab, names, pkg }) => {
-      const typesSrcPath = join(REPO_ROOT, 'packages', pkg, 'src/types', `${kebab}.ts`)
-      const rawTypes = await readIfExists(typesSrcPath)
-      const typesContent = rawTypes === undefined ? undefined : prepareTypeMirrorContent(rawTypes)
-      const chinese = await resolveChineseName(pkg, kebab)
-      const joinedNames = names.join(' / ')
-      const title = chinese ? `${joinedNames} - ${chinese}` : joinedNames
-      const dir = join(AGENT_DOCS_ROOT, pkg, kebab)
-
-      await mkdir(dir, { recursive: true })
-      await writeFile(
-        join(dir, 'api.md'),
-        renderComponentApiMd(joinedNames, chinese, HELPERS_BY_KEBAB[kebab] ?? [], {
-          hasTypes: typesContent !== undefined,
-          note: NOTES_BY_KEBAB[kebab],
-          typesContent,
-          frontmatter: { title, description: `${joinedNames} 组件 API` }
-        }),
-        'utf8'
-      )
-      keep.add(`${pkg}/${kebab}/api.md`)
-    })
-  )
-
-  await removeStaleAgentDocApis(keep)
-  return keep.size
-}
-
-async function removeStaleAgentDocApis(keep: Set<string>): Promise<void> {
-  await Promise.all(
-    AGENT_DOC_PACKAGES.map(async (pkg) => {
-      const pkgRoot = join(AGENT_DOCS_ROOT, pkg)
-      const entries = await readdir(pkgRoot, { withFileTypes: true }).catch(() => [])
-
-      await Promise.all(
-        entries
-          .filter((entry) => entry.isDirectory())
-          .map(async (entry) => {
-            const rel = `${pkg}/${entry.name}/api.md`
-            if (keep.has(rel)) return
-
-            try {
-              await unlink(join(pkgRoot, entry.name, 'api.md'))
-            } catch {
-              // 无陈旧 api.md，或目录仅有手写 examples.md
-            }
-          })
-      )
-    })
-  )
-}
-
 async function main(): Promise<void> {
   const { entries: exampleEntries, invalid: invalidExamples } = await collectExamplesIndex()
   const componentDocKebabs = await listComponentDocKebabs()
   const typeCount = await mirrorComponentTypeFiles(componentDocKebabs)
   const apiDocCount = await regenerateComponentApiDocs(componentDocKebabs)
-  const resolverComponents = await scanResolverComponents()
-  const agentApiCount = await writeAgentDocsApi(resolverComponents)
 
   if (invalidExamples.length > 0) {
     for (const entry of invalidExamples) {
@@ -340,7 +193,7 @@ async function main(): Promise<void> {
 
   console.log('[gen-veltra-skill] generated skill docs')
   console.log(
-    `  componentDocs=${componentDocKebabs.length} examples=${exampleEntries.length} types=${typeCount} apiDocs=${apiDocCount} agentDocs=${agentApiCount}`
+    `  componentDocs=${componentDocKebabs.length} examples=${exampleEntries.length} types=${typeCount} apiDocs=${apiDocCount}`
   )
 }
 
