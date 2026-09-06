@@ -14,6 +14,12 @@
       "skillPath": "skills/cat-kit/SKILL.md",
       "computedHash": "1dfdb3a3d47261f8a74893d6dfd2a42cf8e32783e78aeec0f3617781b8e51e02"
     },
+    "docs-mcp": {
+      "source": "HodgeWen/docs-mcp",
+      "sourceType": "github",
+      "skillPath": "skills/docs-mcp/SKILL.md",
+      "computedHash": "55a803b7ecf55a5bb5b97f5469fa195e85c8b8e2be28403ead759d924e0a9985"
+    },
     "frontend-expert": {
       "source": "cabinet-fe/prompt-engineering",
       "sourceType": "github",
