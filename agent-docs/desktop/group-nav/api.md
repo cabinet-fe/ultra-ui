@@ -1,8 +1,13 @@
-# UNav - 导航
+---
+title: "UGroupNav - 分组导航"
+description: "UGroupNav 组件 API"
+---
+
+# UGroupNav - 分组导航
 
 ## 类型文件
 
-见 `./types.d.ts`
+见 `packages/desktop/src/types/group-nav.ts`
 
 ## 示例
 

@@ -1,8 +1,13 @@
-# UNav - 导航
+---
+title: "UDualNav - 双栏导航"
+description: "UDualNav 组件 API"
+---
+
+# UDualNav - 双栏导航
 
 ## 类型文件
 
-见 `./types.d.ts`
+见 `packages/desktop/src/types/dual-nav.ts`
 
 ## 示例
 

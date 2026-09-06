@@ -1,8 +1,13 @@
-# UNav - 导航
+---
+title: "UNav / UNavSub / UNavItem - 导航"
+description: "UNav / UNavSub / UNavItem 组件 API"
+---
+
+# UNav / UNavSub / UNavItem - 导航
 
 ## 类型文件
 
-见 `./types.d.ts`
+见 `packages/desktop/src/types/nav.ts`
 
 ## 示例
 
