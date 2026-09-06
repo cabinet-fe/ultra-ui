@@ -1,6 +1,6 @@
 ---
-title: makeBEM
-description: 按自定义前缀创建 BEM 类名工厂
+title: makeBEM 自定义命名空间前缀的 BEM 类名工厂创建函数
+description: CSS 类名构造工具函数，根据自定义命名空间前缀（如 my-）创建独立的 BEM 类名生成器工厂，支持 block、element、modifier 及 is 状态类生成，用于第三方包或微前端样式隔离
 ---
 
 `makeBEM(prefix)` 返回 BEM 工厂。`prefix` 须为 `''` 或以 `-` 结尾的字符串（如 `'u-'`）。组件库预置实例是 `bem`（前缀 `CLS_PREFIX`）。

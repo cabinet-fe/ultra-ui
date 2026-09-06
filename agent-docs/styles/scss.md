@@ -1,6 +1,6 @@
 ---
-title: "@veltra/styles SCSS mixin 与基础样式子路径"
-description: "pkg:@veltra/styles 的 mixins、vars、functions 用法，以及 normalize / transitions / animations 入口"
+title: "@veltra/styles SCSS 混入 Mixins、工具变量与基础样式引入规范"
+description: "样式子路径引用指南：通过 pkg:@veltra/styles 引用 mixins、vars、functions，以及 import 方式按需引入 normalize.css、transitions 过渡动效与 animations 动画库"
 ---
 
 `@veltra/styles` 的 SCSS 与基础 CSS 走子路径，不按单个 mixin 或单个动画拆文档。组件样式用 `pkg:` 协议引用 mixins / vars / functions；normalize、过渡、动画用 JS `import`。

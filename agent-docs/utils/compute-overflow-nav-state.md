@@ -1,6 +1,6 @@
 ---
-title: computeOverflowNavState
-description: 由视口滚动几何推导水平溢出导航按钮状态
+title: computeOverflowNavState 容器内容水平溢出与导航箭头状态计算
+description: 视口几何计算工具函数，根据容器 scrollWidth、clientWidth 与 scrollLeft 几何属性推导水平内容溢出状态，用于标签页、导航栏左右翻页按钮的展示与禁用状态控制
 ---
 
 `computeOverflowNavState(vp)` 根据视口的 `scrollLeft` / `scrollWidth` / `clientWidth` 计算导航按钮是否可用。内容宽度超出视口超过 `1px` 视为溢出。

@@ -1,6 +1,6 @@
 ---
-title: 安装与接入
-description: 在 Vue 3 项目中安装 @veltra/*，注入主题 token，并三选一注册组件
+title: 组件库安装配置、工程接入与组件按需自动导入
+description: Ultra UI (@veltra/*) 在 Vue 3 项目中的完整安装、全局样式与主题初始化（loadTheme）及组件注册指南，详解基于 unplugin-vue-components 的 VeltraUIResolver 按需自动导入与样式副作用引入
 ---
 
 在宿主 Vue 3 应用中接入 Ultra UI：先装包并在入口注入样式与主题，再选择一种组件注册方式。漏掉 `loadTheme()` 时组件会渲染成无色的裸 HTML——颜色全部走 `--u-*` token，且只由 `loadTheme()` 在运行时注入，没有兜底值。

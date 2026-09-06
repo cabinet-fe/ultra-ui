@@ -1,6 +1,6 @@
 ---
-title: 常见页面拼装
-description: 用公开组件拼后台布局、弹窗表单和搜索表格页
+title: 常见页面拼装：中后台典型布局、弹窗表单与搜索列表页实践
+description: 基于 Ultra UI 官方组件拼装中后台管理系统典型业务页面：ULayout 与 UDualNav 经典左右/顶部侧栏布局、UDialog 配合 UForm 弹窗编辑表单、UTable 组合筛选查询与分页的列表搜索页标准模板与最佳实践
 ---
 
 组合 `@veltra/desktop` 公开组件做常见界面。前提：入口已 `loadTheme()`，组件已注册。弹窗外壳、空态、滚动条、按钮都用库组件，不要手搓窗口标题栏或空态插画。

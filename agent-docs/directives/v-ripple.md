@@ -1,6 +1,6 @@
 ---
-title: vRipple 水波纹
-description: 在按下左键时于元素内展示水波纹；同包还导出 Ripple 类
+title: vRipple 交互水波纹扩散动效指令与 Ripple 辅助类
+description: Vue 鼠标点击交互水波纹（Ripple）涟漪扩散动效指令与 Ripple 辅助类，常用于按钮、卡片、列表项、标签等可点击控件增强视觉反馈；支持修饰符/参数 :duration（如 v-ripple:300）指定动画毫秒数、传 false 动态禁用、传字符串绑定自定义波纹样式类
 ---
 
 `vRipple` 在目标元素上监听左键 `mousedown`，显示水波纹，并在 `mouseup` / `mouseleave` 时移除。绑定值为 `false` 时不启用。值为字符串时作为额外的 ripple class；指令参数作为动画时长（毫秒）。使用前需要引入样式。

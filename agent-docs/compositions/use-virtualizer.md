@@ -1,6 +1,6 @@
 ---
-title: useVirtualizer 虚拟滚动
-description: 把 @cat-kit/fe 的 Virtualizer 接到 Vue 响应式，尺寸写入走 DOM
+title: useVirtualizer 虚拟滚动列表与海量大数据长列表渲染
+description: 基于 @cat-kit/fe 的 Vue 虚拟滚动（Virtual List）组合式函数，支持万级长列表、动态项高与水平/垂直海量数据高性能渲染，尺寸直接操作 DOM 避免模板整体重渲染，适用于长表格、日志瀑布流、海量选项下拉框
 ---
 
 `useVirtualizer` 是 `@cat-kit/fe` `Virtualizer` 的 Vue 适配。`count` 与 `scrollEl` 变化时自动 `setCount` / `connect` / `disconnect`。`contentEl` / `beforeEl` / `afterEl` 一旦传入，hook 直接写 `style.height`（`horizontal: true` 时写 `width`），不经 Vue 响应式，滚动时不会因为总高度变化而重渲染整棵模板。

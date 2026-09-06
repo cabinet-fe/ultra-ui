@@ -1,6 +1,6 @@
 ---
-title: extractNormalVNodes
-description: 展开 Fragment 与 template，抽出常规 VNode 列表
+title: extractNormalVNodes 拍平插槽并提取常规真实 VNode 节点
+description: Vue 虚拟 DOM 处理工具函数，递归解包展开 Vue Fragment 与 template 包装节点，过滤注释并提取扁平的常规 VNode 数组，适用于插槽子组件遍历分析与组件属性透传
 ---
 
 `extractNormalVNodes(nodes, results?)` 遍历 `VNodeArrayChildren`：

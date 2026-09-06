@@ -1,6 +1,6 @@
 ---
-title: getHighlightChunks
-description: 按关键字拆分字符串，标出需要高亮的片段
+title: getHighlightChunks 搜索关键词文本分词与高亮片段提取
+description: 文本处理工具函数，根据搜索关键字将长字符串分割为普通文本与高亮文本片段数组，保留原文本大小写，用于下拉选择器、搜索框、自动补全与表格中匹配关键字的高亮渲染
 ---
 
 `getHighlightChunks(str, substrings)` 把 `str` 按 `substrings` 中的关键字（忽略大小写）切开，返回 `{ text: string; highlight: boolean }[]`。空串会被丢掉；关键字会 `trim` 并转义正则特殊字符。返回类型未单独导出。

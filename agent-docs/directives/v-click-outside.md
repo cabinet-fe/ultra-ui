@@ -1,6 +1,6 @@
 ---
-title: vClickOutside 点击外部
-description: 在 document 上协调 mousedown 与 click，点击元素外部时调用回调
+title: vClickOutside 点击外部关闭与浮层遮罩点击指令
+description: Vue 点击元素外部触发回调指令，常用于下拉菜单、弹出框、模态弹窗、抽屉及 Popover 浮层点击外部自动关闭与收起场景；支持绑定回调函数或动态解除监听（传 undefined / false），无修饰符，内部基于 document 捕获阶段 mousedown 与 click 双重校验精准判定
 ---
 
 `vClickOutside` 在捕获阶段监听 `document` 的 `mousedown` 与 `click`。两次事件的 `target` 必须相同才视为一次完整点击，然后对不包含该 target 的已注册元素调用回调。没有绑定值时不注册。

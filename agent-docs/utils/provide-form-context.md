@@ -1,6 +1,6 @@
 ---
-title: provideFormContext
-description: 向子树提供 UForm 字段注册与表单属性上下文
+title: provideFormContext 向组件子树提供 UForm 表单上下文
+description: Vue 依赖提供工具函数，向组件子树注入 UForm 的字段收集、表单校验、尺寸与只读状态上下文，支撑 UForm 表单容器对子表单控件的管控
 ---
 
 `provideFormContext(context)` 向后代 provide 表单上下文。桌面端 `UForm` 在自身 setup 里调用；自定义表单容器也应走这一导出，以便控件用 `injectFormContext` 对齐。

@@ -1,6 +1,6 @@
 ---
-title: useResizeObserver 尺寸观察
-description: 观察元素尺寸变化；同文件还导出按元素注册回调的 useObserverCallback
+title: useResizeObserver 与 useObserverCallback 容器尺寸变化观察
+description: Vue 组合式函数，用于监听 DOM 容器尺寸与布局变化，自动挂载与销毁 ResizeObserver 实例，useObserverCallback 支持单观察器监听多个节点并按元素分发回调，适用于复杂仪表盘、分栏拖拽与视口缩放适配
 ---
 
 `useResizeObserver` 对单个或一组元素 ref 创建 `ResizeObserver`，ref 变化时自动改观察目标，卸载或调用 `disconnect` 时停止。同文件的 `useObserverCallback` 按元素注册回调，适合一个观察器服务多个节点。

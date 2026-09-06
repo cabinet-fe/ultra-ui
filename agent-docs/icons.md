@@ -1,6 +1,6 @@
 ---
-title: "@veltra/icons 导入、命名与按名称检索"
-description: 从 @veltra/icons/normal 与 colorful 按需导入 Vue 图标，用 kebab / PascalCase 名称检索，配合 UIcon 使用
+title: "@veltra/icons 图标库导入、PascalCase/kebab 命名与按需检索"
+description: "Vue 3 矢量图标库使用指南：从 @veltra/icons/normal（线性与单色图标）及 colorful（多色多彩图标）子路径按需导入 Vue SFC 图标组件，配合 UIcon 组件渲染并支持 PascalCase 与 kebab-case 规范检索"
 ---
 
 `@veltra/icons` 把 SVG 编成可 tree-shake 的 Vue SFC。分两个集合子路径，按名称具名导出；不要一图标一篇文档，清单以 `packages/icons/src/normal.ts` 与 `colorful.ts` 的导出为准。

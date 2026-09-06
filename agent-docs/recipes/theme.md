@@ -1,6 +1,6 @@
 ---
-title: 主题与暗色
-description: 使用 loadTheme 与内置 preset 切换浅色/深色主题，以及派生品牌色与 token 引用
+title: 主题系统配置、暗色模式切换与 Design Token 变量定制
+description: Ultra UI 全局主题与深浅色模式（Dark/Light Mode）切换方案：通过 loadTheme 注入 CSS 变量与设计令牌（Design Tokens），内置浅色/暗色预设，支持基于主色一键派生自定义品牌主题与 SCSS token 变量引用规范
 ---
 
 组件颜色全部来自 `loadTheme()` 注入的 `--u-*` token。本页只讲 `@veltra/styles/theme` 的公开用法，不涉及主题内部如何生成 CSS。

@@ -1,6 +1,6 @@
 ---
-title: removeClass
-description: 从 HTMLElement 移除一个或多个 class
+title: removeClass 从 DOM 元素批量移除指定 CSS 类名
+description: DOM 操作工具函数，从指定 HTMLElement 元素上移除一个或多个指定的 CSS class 类名，自动重整 class 属性并保持其它样式类不受影响
 ---
 
 `removeClass(el, className)` 调用 `el.classList.remove`。`className` 可以是字符串或字符串数组。

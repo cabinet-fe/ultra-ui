@@ -1,6 +1,6 @@
 ---
-title: AI 对话接入
-description: 用 UAiChat、useChat、createOpenAITransport 接入对话与工具，transport 必填且勿把 API Key 下发浏览器
+title: AI 智能对话接入、流式传输与 Agent 工具调用编排
+description: 基于 @veltra/ai 的智能聊天对话组件 UAiChat、useChat 与 createOpenAITransport 接入方案：OpenAI 兼容 SSE 流式传输配置、跨 Provider 模型调度、Client Tools 工具函数定义与 Tool Calls 自动执行编排，安全代理避免浏览器泄露 API Key
 ---
 
 `@veltra/ai` 的核心是「工具定义 + 自动编排」：传入 `tools` 后，`UAiChat` / `useChat` 会跑 tool_calls → 执行 → 回灌 → 继续生成，直到模型不再调工具、命中终结工具，或达到 `maxToolRounds`。不要自己写工具循环。

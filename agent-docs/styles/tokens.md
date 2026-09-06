@@ -1,6 +1,6 @@
 ---
-title: "@veltra/styles design token 与 CSS 变量"
-description: loadTheme 注入的 --u-* token 命名、常用语义、alpha / 色阶与侧栏 --u-nav-* 用法
+title: "@veltra/styles Design Tokens 设计令牌与 CSS 变量系统"
+description: "组件库全量 CSS 变量指南：详解 loadTheme 注入的 --u-* 设计令牌命名规范、主色系、背景色、文字颜色层级、阴影、圆角、alpha 透明度色阶与侧边栏专用 --u-nav-* 变量引用规范"
 ---
 
 token 由 `loadTheme`（内部 `UITheme.render()`）写到 `html`。切换预设或派生主题时，颜色、圆角、字号、阴影、动效会一起变。业务样式引用 token，不要硬编码色值或阴影。

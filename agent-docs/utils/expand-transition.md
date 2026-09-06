@@ -1,6 +1,6 @@
 ---
-title: ExpandTransition
-description: 高度展开收起动画，可接 Vue Transition 钩子或命令式调用
+title: ExpandTransition 高度折叠展开动画过渡组件与钩子
+description: 动画过渡工具函数，通过精准测量元素 scrollHeight 实现 0 到 auto 高度平滑展开与折叠收起动效，支持配合 Vue Transition 组件使用或原生 DOM 命令式调用，适用于手风琴折叠面板与下拉菜单展开动画
 ---
 
 `ExpandTransition` 驱动元素高度（及可选 opacity）的展开/收起。可挂到 Vue `<transition>` 钩子，也可用 `expand` / `collapse` 命令式播放。相关类型：`ExpandTransitionOptions`。

@@ -1,6 +1,6 @@
 ---
-title: useFallbackProps 与 useFormFallbackProps 多级回退
-description: 按从右到左的 props 列表解析属性，再回退到 useConfig 与默认值
+title: useFallbackProps 与 useFormFallbackProps 属性优先级解析与多级回退
+description: Vue 组合式函数，用于解析多级属性覆盖优先级（组件传入 props -> 父级表单上下文 -> 全局 useConfig -> 默认值），useFormFallbackProps 预置表单控件常用的 size、disabled、readonly 回退解析，保证子组件状态与表单状态联动一致
 ---
 
 `useFallbackProps` 按「列表从右到左第一个非 `undefined` → `useConfig()` 同名顶层键 → 传入的默认值」解析一组属性，每个键返回 `ComputedRef`。`useFormFallbackProps` 是表单控件常用的封装，默认回退 `size: 'default'`、`disabled: false`、`readonly: false`。

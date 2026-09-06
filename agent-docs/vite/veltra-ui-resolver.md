@@ -1,6 +1,6 @@
 ---
-title: VeltraUIResolver 按需解析组件
-description: unplugin-vue-components 的 resolver，自动导入 desktop / ai / sheet 组件及其样式副作用
+title: VeltraUIResolver Vite 与 Webpack 组件按需自动引入解析器
+description: 用于 unplugin-vue-components 的 Ultra UI 组件按需自动导入解析器：自动解析 @veltra/desktop、@veltra/ai、@veltra/sheet 组件及其配套 CSS/SCSS 样式副作用，实现零配置按需加载与样式自动注入
 ---
 
 `VeltraUIResolver` 给 `unplugin-vue-components` 用，按组件名解析 `@veltra/desktop`、`@veltra/ai`、`@veltra/sheet` 的 `U*` 导出，并默认带上对应目录的 `style` 副作用。`VeltraUIResolverOptions` 只有 `importStyle`，默认 `true`。

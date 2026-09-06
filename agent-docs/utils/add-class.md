@@ -1,6 +1,6 @@
 ---
-title: addClass
-description: 向 HTMLElement 添加一个或多个 class
+title: addClass 向 DOM 元素添加 CSS 类名
+description: DOM 操作工具函数，向指定 HTMLElement 批量或单个添加 CSS class 类名，内部自动去重并保持现有样式类完整，适用于动态状态类追加与交互高亮
 ---
 
 `addClass(el, className)` 调用 `el.classList.add`。`className` 可以是字符串或字符串数组。
