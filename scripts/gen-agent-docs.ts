@@ -122,6 +122,7 @@ async function resolveChineseName(pkg: PackageName, kebab: string): Promise<stri
   if (mapped) return mapped
 
   const candidatePaths = [
+    join(AGENT_DOCS_ROOT, pkg, `${kebab}.md`),
     join(AGENT_DOCS_ROOT, pkg, kebab, 'api.md'),
     join(REPO_ROOT, 'skills/veltra-ui/packages/desktop/components', kebab, 'api.md')
   ]
