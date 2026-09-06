@@ -5,9 +5,29 @@ description: "UPasswordInput 组件 API"
 
 # UPasswordInput - 密码输入框
 
-## 类型文件
+## 类型
 
-见 `packages/desktop/src/types/password-input.ts`
+```ts
+import type { DeconstructValue } from '@veltra/utils'
+
+import type { InputProps } from './input'
+
+/** 密码输入组件属性 */
+export interface PasswordInputProps extends InputProps {
+  modelValue?: string
+}
+
+/** 密码输入组件定义的事件 */
+export interface PasswordInputEmits {
+  (e: 'update:modelValue', value: string): void
+}
+
+/** 密码输入组件暴露的属性和方法(组件内部使用) */
+export interface _PasswordInputExposed {}
+
+/** 密码输入组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
+export type PasswordInputExposed = DeconstructValue<_PasswordInputExposed>
+```
 
 ## 示例
 

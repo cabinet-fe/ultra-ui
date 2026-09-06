@@ -9,6 +9,7 @@ import {
   HELPERS_BY_KEBAB,
   NOTES_BY_KEBAB,
   parseApiTitleLine,
+  prepareTypeMirrorContent,
   renderComponentApiMd
 } from './veltra-component-skill-meta'
 
@@ -123,20 +124,6 @@ async function collectExamplesIndex(): Promise<{
   )
 
   return { entries: exampleEntries, invalid: exampleEntries.filter((entry) => !entry.valid) }
-}
-
-function prepareTypeMirrorContent(content: string): string {
-  return content
-    .replace(
-      /import type \{ NestedFieldMarker \} from '\.\.\/components\/form\/helper'\n\n/,
-      `export interface NestedFieldMarker<T extends Record<string, any> = Record<string, any>> {
-  __isNested: true
-  fields: T
-}
-
-`
-    )
-    .trimEnd()
 }
 
 async function listComponentDocKebabs(): Promise<string[]> {
@@ -278,8 +265,9 @@ async function writeAgentDocsApi(components: ScannedComponent[]): Promise<number
 
   await Promise.all(
     components.map(async ({ kebab, names, pkg }) => {
-      const typesHref = `packages/${pkg}/src/types/${kebab}.ts`
-      const hasTypes = (await readIfExists(join(REPO_ROOT, typesHref))) !== undefined
+      const typesSrcPath = join(REPO_ROOT, 'packages', pkg, 'src/types', `${kebab}.ts`)
+      const rawTypes = await readIfExists(typesSrcPath)
+      const typesContent = rawTypes === undefined ? undefined : prepareTypeMirrorContent(rawTypes)
       const chinese = await resolveChineseName(pkg, kebab)
       const joinedNames = names.join(' / ')
       const title = chinese ? `${joinedNames} - ${chinese}` : joinedNames
@@ -289,9 +277,9 @@ async function writeAgentDocsApi(components: ScannedComponent[]): Promise<number
       await writeFile(
         join(dir, 'api.md'),
         renderComponentApiMd(joinedNames, chinese, HELPERS_BY_KEBAB[kebab] ?? [], {
-          hasTypes,
+          hasTypes: typesContent !== undefined,
           note: NOTES_BY_KEBAB[kebab],
-          typesHref,
+          typesContent,
           frontmatter: { title, description: `${joinedNames} 组件 API` }
         }),
         'utf8'

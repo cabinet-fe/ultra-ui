@@ -5,9 +5,23 @@ description: "UList / UListItem 组件 API"
 
 # UList / UListItem - 列表
 
-## 类型文件
+## 类型
 
-见 `packages/desktop/src/types/list.ts`
+```ts
+import type { ComponentSize, DeconstructValue } from '@veltra/utils'
+
+export interface ListProps {
+  size?: ComponentSize
+  /** 列表数据 */
+  data: Record<string, any>[]
+}
+
+export interface ListEmits {}
+
+export interface _ListExposed {}
+
+export type ListExposed = DeconstructValue<_ListExposed>
+```
 
 ## 示例
 

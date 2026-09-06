@@ -143,6 +143,23 @@ export type ComponentApiMdOptions = {
   frontmatter?: ComponentApiMdFrontmatter
   /** 类型文件路径；缺省 `./types.d.ts`（skill 伴生镜像） */
   typesHref?: string
+  /** 内嵌类型源码（agent-docs 推送时仅有本目录，不可引用外部类型文件） */
+  typesContent?: string
+}
+
+/** 将组件类型源文件整理为可内嵌文档的内容（与 skill types.d.ts 镜像规则一致） */
+export function prepareTypeMirrorContent(content: string): string {
+  return content
+    .replace(
+      /import type \{ NestedFieldMarker \} from '\.\.\/components\/form\/helper'\n\n/,
+      `export interface NestedFieldMarker<T extends Record<string, any> = Record<string, any>> {
+  __isNested: true
+  fields: T
+}
+
+`
+    )
+    .trimEnd()
 }
 
 /** 顶层单行 `key: value`，值用 JSON 双引号，UTF-8 无 BOM */
@@ -164,11 +181,13 @@ export function renderComponentApiMd(
   helpers: ComponentSkillHelper[],
   options: ComponentApiMdOptions = {}
 ): string {
-  const { hasTypes = true, note, frontmatter, typesHref = './types.d.ts' } = options
+  const { hasTypes = true, note, frontmatter, typesHref = './types.d.ts', typesContent } = options
   const heading = chinese ? `${names} - ${chinese}` : names
   const lines = [`# ${heading}`, '']
 
-  if (hasTypes) {
+  if (typesContent) {
+    lines.push('## 类型', '', '```ts', typesContent, '```', '')
+  } else if (hasTypes) {
     lines.push('## 类型文件', '', `见 \`${typesHref}\``, '')
   } else {
     lines.push('无独立 Props / Emits；通过默认插槽使用。', '')
