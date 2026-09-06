@@ -1,17 +1,21 @@
 ---
 title: "UBreadcrumb - 面包屑"
 description: "用 items 渲染面包屑路径，无 href 的项走 click 事件做 SPA 跳转"
+keywords:
+  - UBreadcrumb
+  - @veltra/desktop
+  - breadcrumb
+  - Breadcrumb
+  - 面包屑
+aliases: ["breadcrumb", "UBreadcrumb", "Breadcrumb", "面包屑"]
 ---
-
-# UBreadcrumb - 面包屑
-
-## 引入
+## 快速上手
 
 ```ts
 import { UBreadcrumb } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UBreadcrumb` 只吃 `items`：每项必有 `title`。带 `href` 的项渲染为 `<a>`，由浏览器导航，不触发 `@click`；无 `href` 的链式项点击才发出 `@click`。末级默认是当前页（`aria-current="page"`），需要末级也可点时加 `last-linked`。
 
@@ -40,7 +44,7 @@ function onClick(item: BreadcrumbItem, index: number) {
 
 自定义分隔符用 `#separator` 插槽。禁用某一级设 `disabled: true`，该项既不跳转也不触发 `click`。
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -93,6 +97,6 @@ export interface _BreadcrumbExposed {}
 export type BreadcrumbExposed = DeconstructValue<_BreadcrumbExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

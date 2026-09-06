@@ -1,17 +1,21 @@
 ---
 title: "UEmpty - 空状态"
 description: "用 UEmpty 展示空列表占位图标与文案"
+keywords:
+  - UEmpty
+  - @veltra/desktop
+  - empty
+  - Empty
+  - 空状态
+aliases: ["empty", "UEmpty", "Empty", "空状态"]
 ---
-
-# UEmpty - 空状态
-
-## 引入
+## 快速上手
 
 ```ts
 import { UEmpty } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UEmpty` 默认图标尺寸 48、文案「暂无数据」。没有插槽，只改 `size` 和 `text`。
 
@@ -22,7 +26,7 @@ import { UEmpty } from '@veltra/desktop'
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -48,6 +52,6 @@ export interface _EmptyExposed {}
 export type EmptyExposed = DeconstructValue<_EmptyExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

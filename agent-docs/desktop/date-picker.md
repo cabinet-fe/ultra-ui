@@ -1,17 +1,21 @@
 ---
 title: "UDatePicker - 日期选择器"
 description: "用 UDatePicker 选择日/月/年，独立场景用 v-model，表单内用 field"
+keywords:
+  - UDatePicker
+  - @veltra/desktop
+  - date-picker
+  - DatePicker
+  - 日期选择器
+aliases: ["date-picker", "UDatePicker", "DatePicker", "日期选择器"]
 ---
-
-# UDatePicker - 日期选择器
-
-## 引入
+## 快速上手
 
 ```ts
 import { UDatePicker } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UDatePicker` 默认 `type="date"`、`data-type="string"`。`data-type` 还可为 `date`（原生 `Date`）或 `timestamp`（数字）；只有字符串模式才看 `value-format`。`format` 控制输入框展示。`disabled-date` 收到 `Dater` 与原始 `Date`。独立使用走 `v-model`；放进 `UForm` 必须写 `field`，不要再写 `v-model`。
 
@@ -50,7 +54,7 @@ const form = reactive({ birthday: '', hiredAt: undefined as number | undefined }
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -156,6 +160,6 @@ export interface _DatePickerExposed {}
 export type DatePickerExposed = DeconstructValue<_DatePickerExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

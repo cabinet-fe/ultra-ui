@@ -1,17 +1,21 @@
 ---
 title: "UDrawer - 抽屉"
 description: "用 v-model 打开抽屉，direction 控制滑出方向"
+keywords:
+  - UDrawer
+  - @veltra/desktop
+  - drawer
+  - Drawer
+  - 抽屉
+aliases: ["drawer", "UDrawer", "Drawer", "抽屉"]
 ---
-
-# UDrawer - 抽屉
-
-## 引入
+## 快速上手
 
 ```ts
 import { UDrawer } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UDrawer` 用 `v-model` 控制显隐。`direction` 为 `'left' | 'right' | 'top' | 'bottom'`，默认从右侧滑出。关闭按钮由 `showClose` 控制。
 
@@ -31,7 +35,7 @@ const visible = shallowRef(false)
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -73,6 +77,6 @@ export interface _DrawerExposed {}
 export type DrawerExposed = DeconstructValue<_DrawerExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

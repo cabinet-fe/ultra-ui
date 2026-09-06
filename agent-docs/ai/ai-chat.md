@@ -1,17 +1,21 @@
 ---
 title: "UAiChat - AI 对话"
 description: "用必填 transport 接入 UAiChat，生产环境走相对路径代理、不要把 API Key 写进浏览器"
+keywords:
+  - UAiChat
+  - @veltra/ai
+  - ai-chat
+  - AiChat
+  - 对话
+aliases: ["ai-chat", "UAiChat", "AiChat", "AI 对话"]
 ---
-
-# UAiChat - AI 对话
-
-## 引入
+## 快速上手
 
 ```ts
 import { UAiChat } from '@veltra/ai'
 ```
 
-## 示例
+## 典型示例
 
 `UAiChat` 必须传入 `transport`。OpenAI 兼容的 `chat/completions` SSE 用 `createOpenAITransport({ providers })`；其它协议实现 `ChatTransport`。根节点高度为 `100%`，外层容器要有明确高度。样式：`import '@veltra/ai/style'`，或用 `VeltraUIResolver` 解析 `<u-ai-chat>`。
 
@@ -86,7 +90,7 @@ const tools: ChatTool[] = [
 
 无头自绘 UI 用同包 `useChat`，props 形状与 `UAiChat` 相同，同样必须传 `transport`。服务端会话用 `createServerTransport(adapter)`。
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -374,6 +378,6 @@ OpenAI 兼容 SSE transport；按 `request.model` 选择 Provider。
 import { createOpenAITransport } from '@veltra/ai'
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - `transport` 必填。函数型 transport 用 `createOpenAITransport`；生产环境不要把 API Key 下发到浏览器。无头场景用 `useChat`。

@@ -1,17 +1,21 @@
 ---
 title: "UTree - 树形控件"
 description: "用 UTree 展示可展开、单选或多选的树数据"
+keywords:
+  - UTree
+  - @veltra/desktop
+  - tree
+  - Tree
+  - 树形控件
+aliases: ["tree", "UTree", "Tree", "树形控件"]
 ---
-
-# UTree - 树形控件
-
-## 引入
+## 快速上手
 
 ```ts
 import { UTree } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UTree` 的 `data` 默认字段是 `label` / `value` / `children`。单选用 `selectable` 与 `v-model:selected`，多选用 `checkable` 与 `v-model:checked`。`check-strictly` 为真时父子勾选互不影响。通过模板引用可调用 `filter`、`expandAll`、`getChecked` 等（类型 `TreeExposed`）。
 
@@ -82,7 +86,7 @@ const data = [
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -217,6 +221,6 @@ export interface _TreeExposed {
 export type TreeExposed = DeconstructValue<_TreeExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

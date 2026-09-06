@@ -1,17 +1,29 @@
 ---
 title: "UCheckbox / UCheckboxButton - 复选框"
 description: "复选框与复选按钮的独立绑定，以及在 UForm 内用 field 绑定"
+keywords:
+  - UCheckbox
+  - UCheckboxButton
+  - @veltra/desktop
+  - checkbox
+  - Checkbox
+  - CheckboxButton
+  - 复选框
+aliases:
+  - checkbox
+  - UCheckbox
+  - UCheckboxButton
+  - Checkbox
+  - CheckboxButton
+  - 复选框
 ---
-
-# UCheckbox / UCheckboxButton - 复选框
-
-## 引入
+## 快速上手
 
 ```ts
 import { UCheckbox, UCheckboxButton } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UCheckbox` 绑定布尔值。`UCheckboxButton` 是按钮形态，可用 `type`（`primary` / `info` / `success` / `warning` / `danger`）和 `round`。独立使用走 `v-model`；放进 `UForm` 时用 `field`，不要再写 `v-model`。
 
@@ -61,7 +73,7 @@ const form = reactive({ remember: false, deepThink: false })
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -151,6 +163,6 @@ export interface CheckboxButtonEmits {
 export interface CheckboxExposed {}
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

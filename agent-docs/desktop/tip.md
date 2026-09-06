@@ -1,17 +1,21 @@
 ---
 title: "UTip - 提示"
 description: "默认插槽为触发器，content 或 content 插槽提供提示内容"
+keywords:
+  - UTip
+  - @veltra/desktop
+  - tip
+  - Tip
+  - 提示
+aliases: ["tip", "UTip", "Tip", "提示"]
 ---
-
-# UTip - 提示
-
-## 引入
+## 快速上手
 
 ```ts
 import { UTip } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UTip` 默认插槽是触发元素，`content` 为提示文案；复杂内容用 `#content`。`trigger` 为 `'hover'`（默认）或 `'click'`。`direction` 为 `'top' | 'bottom' | 'left' | 'right'`，`alignment` 为 `'center' | 'start' | 'end'`。
 
@@ -42,7 +46,7 @@ const visible = shallowRef(false)
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -114,6 +118,6 @@ export interface _TipExposed {}
 export type TipExposed = DeconstructValue<_TipExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

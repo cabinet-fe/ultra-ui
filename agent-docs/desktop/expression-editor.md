@@ -1,17 +1,21 @@
 ---
 title: "UExpressionEditor - 表达式编辑器"
 description: "输入 @ 插入变量；selectableLevels 控制分支节点能否选中"
+keywords:
+  - UExpressionEditor
+  - @veltra/desktop
+  - expression-editor
+  - ExpressionEditor
+  - 表达式编辑器
+aliases: ["expression-editor", "UExpressionEditor", "ExpressionEditor", "表达式编辑器"]
 ---
-
-# UExpressionEditor - 表达式编辑器
-
-## 引入
+## 快速上手
 
 ```ts
 import { UExpressionEditor } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UExpressionEditor` 绑定表达式字符串。`variables` 为树形 `VariableItem[]`（`label` / `value` / `children?`）。键入 `@` 打开变量面板。`selectableLevels` 默认 `'leaf'`（只选叶子）；`'any'` 时分支节点 Enter 选中自身。独立使用 `v-model`；在 `UForm` 内用 `field`，不要并用 `v-model`。
 
@@ -43,7 +47,7 @@ const variables: VariableItem[] = [
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -142,6 +146,6 @@ export interface _ExpressionEditorExposed {}
 export type ExpressionEditorExposed = DeconstructValue<_ExpressionEditorExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

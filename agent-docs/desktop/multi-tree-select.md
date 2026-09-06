@@ -1,17 +1,21 @@
 ---
 title: "UMultiTreeSelect - 多选树形选择器"
 description: "用 UMultiTreeSelect 从树数据勾选多个节点"
+keywords:
+  - UMultiTreeSelect
+  - @veltra/desktop
+  - multi-tree-select
+  - MultiTreeSelect
+  - 多选树形选择器
+aliases: ["multi-tree-select", "UMultiTreeSelect", "MultiTreeSelect", "多选树形选择器"]
 ---
-
-# UMultiTreeSelect - 多选树形选择器
-
-## 引入
+## 快速上手
 
 ```ts
 import { UMultiTreeSelect } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UMultiTreeSelect` 的 `modelValue` 是节点值数组。树字段默认 `label` / `value` / `children`，可用 `label-key`、`value-key`、`children-key` 改。`disabled-node` 在整棵树构建完成后调用，第二个参数是树节点。公开类型不含 `checkable` / `selectable`：组件本身就是多选勾选。独立使用走 `v-model`；放进 `UForm` 必须写 `field`，不要再写 `v-model`。
 
@@ -80,7 +84,7 @@ const data = [
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -236,6 +240,6 @@ export interface _MultiTreeSelectExposed {}
 export type MultiTreeSelectExposed = DeconstructValue<_MultiTreeSelectExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

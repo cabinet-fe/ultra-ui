@@ -1,8 +1,15 @@
 ---
-title: UForm 表单核心硬规则、字段绑定与复杂场景校验方案
-description: UForm 表单核心开发指南与硬规则规范：在 UForm 内控件必须使用 field 属性绑定 model 字段路径并严禁使用 v-model，详解 rules 校验规则、UFormItem 自动生成与显式包裹、嵌套对象路径（a.b）、自定义验证器、表单联动与提交重置
+title: "UForm - 表单核心硬规则、字段绑定与复杂场景校验方案"
+description: "UForm 表单核心开发指南与硬规则规范：在 UForm 内控件必须使用 field 属性绑定 model 字段路径并严禁使用 v-model，详解 rules 校验规则、UFormItem 自动生成与显式包裹、嵌套对象路径（a.b）、自定义验证器、表单联动与提交重置"
+keywords:
+  - UForm
+  - @veltra/desktop
+  - form
+  - Form
+  - 表单核心硬规则
+  - 字段绑定与复杂场景校验方案
+aliases: ["form", "UForm", "Form"]
 ---
-
 `UForm` 拦截默认插槽里带 `field` 的子组件，自动生成 `UFormItem`，并按 `field` 路径读写 `model`。写表单时必须遵守下面两条硬规则。
 
 ## 硬规则

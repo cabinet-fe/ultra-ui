@@ -1,17 +1,21 @@
 ---
 title: "UCheckTag - 可选标签"
 description: "可切换选中态的标签，用 v-model 或 checked 控制"
+keywords:
+  - UCheckTag
+  - @veltra/desktop
+  - check-tag
+  - CheckTag
+  - 可选标签
+aliases: ["check-tag", "UCheckTag", "CheckTag", "可选标签"]
 ---
-
-# UCheckTag - 可选标签
-
-## 引入
+## 快速上手
 
 ```ts
 import { UCheckTag } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UCheckTag` 不是表单控件（没有 `field`）。选中态优先读 `modelValue`，否则读 `checked`。点击时 emit `update:modelValue`。
 
@@ -29,7 +33,7 @@ const react = ref(false)
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -55,6 +59,6 @@ export interface _CheckTagExposed {}
 export type CheckTagExposed = DeconstructValue<_CheckTagExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

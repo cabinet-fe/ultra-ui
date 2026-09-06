@@ -1,17 +1,21 @@
 ---
 title: "UTable - 表格"
 description: "用 defineTableColumns 定义列，data 提供行数据；列插槽名为 column:key"
+keywords:
+  - UTable
+  - @veltra/desktop
+  - table
+  - Table
+  - 表格
+aliases: ["table", "UTable", "Table", "表格"]
 ---
-
-# UTable - 表格
-
-## 引入
+## 快速上手
 
 ```ts
 import { UTable } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UTable` 用 `data` 与 `columns`。`defineTableColumns(columns, commonProps?)` 会按 DFS 把 `align` / `minWidth` 合并到尚未设置的列上。多选需要 `checkable` 与 `rowKey`，用 `v-model:checked`。树形把 `tree` 设为 `true` 或子节点字段名。自定义单元格用 `#column:{key}`。
 
@@ -76,7 +80,7 @@ const data = [
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -347,6 +351,6 @@ export type TableExposed = DeconstructValue<_TableExposed>
 import { defineTableColumns } from '@veltra/desktop'
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

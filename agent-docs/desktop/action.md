@@ -1,17 +1,29 @@
 ---
 title: "UAction / UActionGroup - 操作按钮"
 description: "用操作组收纳表格行内按钮，超出 max 的项进入下拉，危险操作走确认"
+keywords:
+  - UAction
+  - UActionGroup
+  - @veltra/desktop
+  - action
+  - Action
+  - ActionGroup
+  - 操作按钮
+aliases:
+  - action
+  - UAction
+  - UActionGroup
+  - Action
+  - ActionGroup
+  - 操作按钮
 ---
-
-# UAction / UActionGroup - 操作按钮
-
-## 引入
+## 快速上手
 
 ```ts
 import { UAction, UActionGroup } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UAction` 继承按钮外观，真正的点击走 `@run`（`need-confirm` 时在弹窗确认后才触发）。放进 `UActionGroup` 后，组上的 `size` / `text` / `type` / `circle` / `loading` 作为子项默认值，单个 `UAction` 可覆盖。超出 `max`（默认 3）的项收进下拉；`in-dropdown` 为 true 时该项始终进下拉。
 
@@ -49,7 +61,7 @@ function onArchive() {}
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ColorType = 'primary' | 'info' | 'success' | 'warning' | 'danger'
@@ -148,6 +160,6 @@ export type ActionExposed = DeconstructValue<_ActionExposed>
 export type ActionGroupExposed = DeconstructValue<_ActionGroupExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

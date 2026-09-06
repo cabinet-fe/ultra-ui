@@ -1,17 +1,21 @@
 ---
 title: "USlider - 滑块"
 description: "用 USlider 选择数值或数值范围，表单内用 field 绑定"
+keywords:
+  - USlider
+  - @veltra/desktop
+  - slider
+  - Slider
+  - 滑块
+aliases: ["slider", "USlider", "Slider", "滑块"]
 ---
-
-# USlider - 滑块
-
-## 引入
+## 快速上手
 
 ```ts
 import { USlider } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `USlider` 默认区间 0–100。`range` 为真时绑定值是 `[number, number]`。`step` 会显示刻度。`vertical` 为垂直滑块，通常需要给容器高度。独立使用走 `v-model`；放进 `UForm` 必须写 `field`，不要再写 `v-model`。
 
@@ -46,7 +50,7 @@ const form = reactive({ opacity: 80 })
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -144,6 +148,6 @@ export interface _SliderExposed {}
 export type SliderExposed = DeconstructValue<_SliderExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

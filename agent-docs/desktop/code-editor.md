@@ -1,17 +1,21 @@
 ---
 title: "UCodeEditor - 代码编辑器"
 description: "用 langs 与 v-model:lang 选择语言，独立使用走 v-model，表单内用 field"
+keywords:
+  - UCodeEditor
+  - @veltra/desktop
+  - code-editor
+  - CodeEditor
+  - 代码编辑器
+aliases: ["code-editor", "UCodeEditor", "CodeEditor", "代码编辑器"]
 ---
-
-# UCodeEditor - 代码编辑器
-
-## 引入
+## 快速上手
 
 ```ts
 import { UCodeEditor } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UCodeEditor` 绑定字符串。`langs` 多于一种时顶部出现语言选择器，仅一种时显示语言名。当前语言用 `lang` / `v-model:lang`。`lang` 取值：`'js' | 'sql' | 'java' | 'json' | 'markdown' | 'spel' | 'bash' | 'powershell'`。`zoomable` 默认 `true`。独立使用用 `v-model`；放进 `UForm` 时写 `field`，不要再写 `v-model`。
 
@@ -49,7 +53,7 @@ const form = reactive({ snippet: '' })
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -160,7 +164,7 @@ export interface _CodeEditorExposed {}
 export type CodeEditorExposed = DeconstructValue<_CodeEditorExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。
 - 语言标识与放大按钮在编辑区之外的顶部工具栏：`langs` 多于一种时显示语言选择器，仅一种时显示语言名称标签。`zoomable`（默认 `true`）为 `false` 时不渲染放大按钮。放大复用同一编辑器实例（Teleport 到屏幕中央遮罩），Esc 或关闭按钮退出，内容、撤销历史与禁用/只读状态保持连续。

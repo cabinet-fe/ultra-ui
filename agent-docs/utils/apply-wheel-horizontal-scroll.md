@@ -1,7 +1,10 @@
 ---
-title: applyWheelHorizontalScroll 鼠标滚轮转横向水平滚动
-description: DOM 滚动控制工具函数，将鼠标垂直纵向滚轮事件转换为视口横向水平滚动，自动过滤触控板原生横向滑动，适用于水平标签栏、宽表格与横向导航容器
+title: "applyWheelHorizontalScroll - 鼠标滚轮转横向水平滚动"
+description: "DOM 滚动控制工具函数，将鼠标垂直纵向滚轮事件转换为视口横向水平滚动，自动过滤触控板原生横向滑动，适用于水平标签栏、宽表格与横向导航容器"
+keywords: ["applyWheelHorizontalScroll", "@veltra/utils", "apply-wheel-horizontal-scroll", "鼠标滚轮转横向水平滚动"]
+aliases: ["apply-wheel-horizontal-scroll", "applyWheelHorizontalScroll", "鼠标滚轮转横向水平滚动"]
 ---
+## 快速上手
 
 `applyWheelHorizontalScroll(e, vp, navActive)` 在水平溢出导航激活时，把纵向 `wheel` 的 `deltaY` 加到 `vp.scrollLeft`。
 
@@ -21,3 +24,4 @@ viewportEl.addEventListener(
   { passive: false }
 )
 ```
+

@@ -1,8 +1,9 @@
 ---
 title: "@veltra/styles/theme 主题加载引擎、预设方案与运行时切换"
 description: "运行时主题加载与注入系统：通过 loadTheme 注入 lightTheme / darkTheme 预设或自定义派生主题，自动向 html 节点写入全局 --u-* design tokens 与 data-theme 属性，控制组件色彩与侧栏 nav.variant 风格"
+keywords: ["@veltra/styles/theme 主题加载引擎、预设方案与运行时切换", "@veltra/styles", "theme"]
+aliases: ["theme", "@veltra/styles/theme 主题加载引擎、预设方案与运行时切换"]
 ---
-
 从 `@veltra/styles/theme` 加载运行时主题。`loadTheme` 把全局 `--u-*` token 与同系列组件级 token 写到 `html`，并把 `html[data-theme]` 设为该主题的 `series`（`'light'` 或 `'dark'`）。组件样式走 token，不要在业务里写 `[data-theme]` 分支。
 
 ## loadTheme

@@ -1,17 +1,21 @@
 ---
 title: "UCascade - 级联选择器"
 description: "用 UCascade 单选或多选层级数据，表单内用 field 绑定"
+keywords:
+  - UCascade
+  - @veltra/desktop
+  - cascade
+  - Cascade
+  - 级联选择器
+aliases: ["cascade", "UCascade", "Cascade", "级联选择器"]
 ---
-
-# UCascade - 级联选择器
-
-## 引入
+## 快速上手
 
 ```ts
 import { UCascade } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UCascade` 的 `data` 默认用 `label` / `value` / `children` 字段（可用 `label-key`、`value-key`、`children-key` 改）。单选时 `modelValue` 是字符串，多选时是字符串数组。`show-full-path` 默认 `true`：展示、提交值和 `update:label` 都走完整路径；设为 `false` 时只体现叶子。独立使用走 `v-model`；放进 `UForm` 必须写 `field`，不要再写 `v-model`。
 
@@ -72,7 +76,7 @@ const data = [
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -216,6 +220,6 @@ export interface _CascadeExposed {}
 export type CascadeExposed = DeconstructValue<_CascadeExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

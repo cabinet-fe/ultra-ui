@@ -1,17 +1,21 @@
 ---
 title: "UMultiSelect - 多选选择器"
 description: "用 UMultiSelect 从选项列表多选，支持搜索、创建与数量上限"
+keywords:
+  - UMultiSelect
+  - @veltra/desktop
+  - multi-select
+  - MultiSelect
+  - 多选选择器
+aliases: ["multi-select", "UMultiSelect", "MultiSelect", "多选选择器"]
 ---
-
-# UMultiSelect - 多选选择器
-
-## 引入
+## 快速上手
 
 ```ts
 import { UMultiSelect } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UMultiSelect` 绑定值是数组。选项默认 `label` / `value`。`options` 可以是数组，也可以是 `(qs: string) => options` 的函数（同步或 Promise）。`filterable` 开启搜索，`creatable` 允许把当前输入建成新选项，`max` 限制可选数量，`visibility-limit` 限制已选项展示个数。独立使用走 `v-model`；放进 `UForm` 必须写 `field`，不要再写 `v-model`。
 
@@ -60,7 +64,7 @@ const options = [
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -173,6 +177,6 @@ export interface _MultiSelectExposed {}
 export type MultiSelectExposed = DeconstructValue<_MultiSelectExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

@@ -1,17 +1,30 @@
 ---
 title: "UNav / UNavSub / UNavItem - 导航"
 description: "侧栏导航用 menus 受控；带 children 的项渲染为 UNavSub，叶子渲染为 UNavItem"
+keywords:
+  - UNav
+  - UNavSub
+  - UNavItem
+  - @veltra/desktop
+  - nav
+  - Nav
+  - NavSub
+  - NavItem
+aliases:
+  - nav
+  - UNav
+  - UNavSub
+  - UNavItem
+  - Nav
+  - NavSub
 ---
-
-# UNav / UNavSub / UNavItem - 导航
-
-## 引入
+## 快速上手
 
 ```ts
 import { UNav, UNavSub, UNavItem } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 对外只用 `UNav`：传 `menus`（`title` / `path` 必填），选中用 `current-path`，点击用 `@item-click`，没有 `v-model:current-path`。`UNavSub` 与 `UNavItem` 由 `UNav` 根据数据自动渲染，依赖 `UNav` 的 provide，模板里不要手写这两个标签。折叠用 `collapsed`，折叠宽度常见为 64px。外观走主题 `nav`。
 
@@ -106,7 +119,7 @@ const menus: NavItem[] = [
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -163,6 +176,6 @@ export interface _NavExposed {
 export type NavExposed = DeconstructValue<_NavExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 外观（底色、文字、悬停/激活色）不在组件 props 上，由主题 `nav` 配置控制：`nav.variant` 选择深/浅侧栏（默认 `dark` 深底浅字），`nav` 其余键覆盖同名 `--u-nav-*` token。把侧栏自定义为浅色底时必须同时设 `variant: 'light'`，否则会浅底配白字看不清。详见主题文档「侧栏导航外观」。

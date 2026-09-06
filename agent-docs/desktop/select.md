@@ -1,17 +1,21 @@
 ---
 title: "USelect - 单选选择器"
 description: "单选下拉、可搜索与可创建，以及在 UForm 内用 field 绑定"
+keywords:
+  - USelect
+  - @veltra/desktop
+  - select
+  - Select
+  - 单选选择器
+aliases: ["select", "USelect", "Select", "单选选择器"]
 ---
-
-# USelect - 单选选择器
-
-## 引入
+## 快速上手
 
 ```ts
 import { USelect } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `options` 为对象数组，或 `(qs: string) =>` 异步函数（传入函数时会强制开启搜索）。默认 `value` / `label` 字段，可用 `value-key` / `label-key` 改。展示文案由 options 推导，用 `@update:text` 同步冗余字段，不要写 `v-model:text`。独立使用走 `v-model`；放进 `UForm` 时用 `field`，不要再写 `v-model`。
 
@@ -68,7 +72,7 @@ const gradeList = [
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -200,6 +204,6 @@ export interface _SelectExposed {
 export type SelectExposed = DeconstructValue<_SelectExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

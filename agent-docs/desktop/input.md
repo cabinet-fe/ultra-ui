@@ -1,17 +1,21 @@
 ---
 title: "UInput - 输入框"
 description: "文本输入、前后缀与 pattern，以及在 UForm 内用 field 绑定"
+keywords:
+  - UInput
+  - @veltra/desktop
+  - input
+  - Input
+  - 输入框
+aliases: ["input", "UInput", "Input", "输入框"]
 ---
-
-# UInput - 输入框
-
-## 引入
+## 快速上手
 
 ```ts
 import { UInput } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 独立使用走 `v-model`；放进 `UForm` 时用 `field`，不要再写 `v-model`。可用 `prefix` / `suffix` 字符串，或 `#prefix` / `#suffix` 插槽。`pattern` 限制可输入内容。
 
@@ -57,7 +61,7 @@ const form = reactive({ username: '' })
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -167,6 +171,6 @@ export interface _InputExposed {
 export type InputExposed = DeconstructValue<_InputExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

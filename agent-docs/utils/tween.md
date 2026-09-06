@@ -1,11 +1,17 @@
 ---
-title: Tween 基于 requestAnimationFrame 的数值平滑补间动画类
-description: 动画补间工具类，基于 requestAnimationFrame 驱动数值从起始值平滑过渡到目标值，支持 duration 时长、easing 缓动曲线与 update/done 回调，常用于数字滚动翻牌与动画过渡
+title: "Tween - 基于 requestAnimationFrame 的数值平滑补间动画类"
+description: "动画补间工具类，基于 requestAnimationFrame 驱动数值从起始值平滑过渡到目标值，支持 duration 时长、easing 缓动曲线与 update/done 回调，常用于数字滚动翻牌与动画过渡"
+keywords:
+  - Tween
+  - @veltra/utils
+  - tween
+  - 基于
+  - 的数值平滑补间动画类
+aliases: ["tween", "Tween"]
 ---
-
 `Tween` 对一份 `Record<string, number>` 状态做补间，原地改 `tween.state`。相关类型：`TweenConfig`（构造）、`AnimeConfig`（`to` / `back` 单次覆盖）。
 
-## 构造 TweenConfig
+## API 签名 / 类型定义
 
 | 字段             | 说明                                                       |
 | ---------------- | ---------------------------------------------------------- |
@@ -14,7 +20,7 @@ description: 动画补间工具类，基于 requestAnimationFrame 驱动数值�
 | `onUpdate`       | 每帧状态更新后                                             |
 | `onComplete`     | 动画结束（含被 `to` 打断后的新动画结束）                   |
 
-## 方法
+## 方法与事件
 
 | 方法                 | 说明                                                                                                               |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------ |

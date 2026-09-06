@@ -1,17 +1,21 @@
 ---
 title: "UNodeRender - 节点渲染"
 description: "把 VNode、VNode 数组或纯文本渲染出来；content 为 undefined 时回退默认插槽"
+keywords:
+  - UNodeRender
+  - @veltra/desktop
+  - node-render
+  - NodeRender
+  - 节点渲染
+aliases: ["node-render", "UNodeRender", "NodeRender", "节点渲染"]
 ---
-
-# UNodeRender - 节点渲染
-
-## 引入
+## 快速上手
 
 ```ts
 import { UNodeRender } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UNodeRender` 的 `content` 可以是单个 VNode、VNode 数组，或文本 / 数字 / 布尔。`content === undefined` 时渲染默认插槽。传入单个 VNode 时会把组件上的 attrs 合并进该节点。
 
@@ -33,7 +37,7 @@ const fallback = shallowRef<undefined>(undefined)
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 import type { VNode } from 'vue'
@@ -47,6 +51,6 @@ export interface NodeRenderProps {
 export interface NodeRenderExposed {}
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

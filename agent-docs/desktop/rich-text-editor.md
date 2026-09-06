@@ -1,17 +1,21 @@
 ---
 title: "URichTextEditor - 富文本编辑器"
 description: "用 v-model 绑定 HTML 或 JSON；表单内用 field"
+keywords:
+  - URichTextEditor
+  - @veltra/desktop
+  - rich-text-editor
+  - RichTextEditor
+  - 富文本编辑器
+aliases: ["rich-text-editor", "URichTextEditor", "RichTextEditor", "富文本编辑器"]
 ---
-
-# URichTextEditor - 富文本编辑器
-
-## 引入
+## 快速上手
 
 ```ts
 import { URichTextEditor } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `URichTextEditor` 的 `format` 为 `'html'`（默认语义）或 `'json'`。`toolbar` 为工具栏项数组，项可以是 `'bold' | 'italic' | 'underline' | 'strikethrough' | 'code' | 'heading' | 'bullet-list' | 'ordered-list' | 'blockquote' | 'code-block' | 'link' | 'undo' | 'redo' | '|'`。独立使用 `v-model`；在 `UForm` 内写 `field`，不要并用 `v-model`。
 
@@ -46,7 +50,7 @@ const form = reactive({ content: '' })
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -150,6 +154,6 @@ export interface _RichTextEditorExposed {}
 export type RichTextEditorExposed = DeconstructValue<_RichTextEditorExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

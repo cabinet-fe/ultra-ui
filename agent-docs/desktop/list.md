@@ -1,17 +1,29 @@
 ---
 title: "UList / UListItem - 列表"
 description: "列表用 data 驱动，默认插槽拿到 item / index，项内容放进 UListItem"
+keywords:
+  - UList
+  - UListItem
+  - @veltra/desktop
+  - list
+  - List
+  - ListItem
+  - 列表
+aliases:
+  - list
+  - UList
+  - UListItem
+  - List
+  - ListItem
+  - 列表
 ---
-
-# UList / UListItem - 列表
-
-## 引入
+## 快速上手
 
 ```ts
 import { UList, UListItem } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UList` 的 `data` 必填。默认插槽对每一行暴露 `{ item, index }`。行外观用 `UListItem` 包一层（它本身没有额外 props，内容走默认插槽）。列表内部是 `UScroll`，需要限高时在 `UList` 上设 `style="height: …"`。
 
@@ -54,7 +66,7 @@ function onPick(row: { id: string; title: string }) {
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -76,6 +88,6 @@ export interface _ListExposed {}
 export type ListExposed = DeconstructValue<_ListExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

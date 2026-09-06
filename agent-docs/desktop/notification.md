@@ -1,17 +1,21 @@
 ---
 title: "UNotification - 通知"
 description: "用 notification 弹出通知条，可指定方位与快捷类型"
+keywords:
+  - UNotification
+  - @veltra/desktop
+  - notification
+  - Notification
+  - 通知
+aliases: ["notification", "UNotification", "Notification", "通知"]
 ---
-
-# UNotification - 通知
-
-## 引入
+## 快速上手
 
 ```ts
 import { UNotification } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 从 `@veltra/desktop` 导入 `notification`。可传字符串或选项（`title` / `message` / `type` / `position` / `duration`）。`position` 为 `'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'`。快捷方法：`primary` / `success` / `info` / `warning` / `danger`。`closeAll(position?)` 可按方位清空。
 
@@ -38,7 +42,7 @@ notification.closeAll('bottom-right')
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -152,6 +156,6 @@ export type NotificationExposed = DeconstructValue<_NotificationExposed>
 import { notification } from '@veltra/desktop'
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

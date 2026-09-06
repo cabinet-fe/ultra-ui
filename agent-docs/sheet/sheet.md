@@ -1,17 +1,21 @@
 ---
 title: "USheet - 电子表格"
 description: "接入 USheet；填报用 setRangeReadonly / setCellReadonly 锁格，并关掉工具栏与公式栏"
+keywords:
+  - USheet
+  - @veltra/sheet
+  - sheet
+  - Sheet
+  - 电子表格
+aliases: ["sheet", "USheet", "Sheet", "电子表格"]
 ---
-
-# USheet - 电子表格
-
-## 引入
+## 快速上手
 
 ```ts
 import { USheet } from '@veltra/sheet'
 ```
 
-## 示例
+## 典型示例
 
 从 `@veltra/sheet` 引入 `USheet`。工作簿模型从 `@veltra/sheet-core` 引入，本包不 re-export。样式用 `import '@veltra/sheet/components/sheet/style'`，或走 `VeltraUIResolver`。`.u-sheet` 需要明确高度。格子坐标 0-based。
 
@@ -75,7 +79,7 @@ const resolveCellStyle: ResolveCellStyleHook = (addr, base) =>
 
 `resolveCellStyle` 只在视口叠加样式，必须同步且按地址 O(1) 查找。组件 prop `readonly` 是整表预览，填报用单元格级只读。自定义工具栏按钮用 `registerTool`。
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -270,6 +274,6 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 import { registerTool } from '@veltra/sheet'
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 宿主需给高度。填报用 `setCellReadonly` / `setRangeReadonly` 标记只读格，并隐藏工具栏与公式栏（`showToolbar` / `showFormulaBar` 设为 `false`）。模型与命令从 `@veltra/sheet-core` 导入，本包不 re-export。

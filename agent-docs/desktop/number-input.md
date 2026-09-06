@@ -1,17 +1,21 @@
 ---
 title: "UNumberInput - 数字输入框"
 description: "数字输入、货币与步进，以及在 UForm 内用 field 绑定"
+keywords:
+  - UNumberInput
+  - @veltra/desktop
+  - number-input
+  - NumberInput
+  - 数字输入框
+aliases: ["number-input", "UNumberInput", "NumberInput", "数字输入框"]
 ---
-
-# UNumberInput - 数字输入框
-
-## 引入
+## 快速上手
 
 ```ts
 import { UNumberInput } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 独立使用走 `v-model`（值为 `number`）；放进 `UForm` 时用 `field`，不要再写 `v-model`。`currency` 按 CNY 展示；`step` 为 `true` 或数字时显示累加按钮；`multiple` 把内部存储按倍数换算后展示。
 
@@ -49,7 +53,7 @@ const form = reactive({ age: 18, price: 0 })
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export interface InputProps extends FormComponentProps {
@@ -104,6 +108,6 @@ export interface NumberInputEmits {
 export interface NumberInputExposed {}
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

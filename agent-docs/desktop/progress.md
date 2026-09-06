@@ -1,17 +1,21 @@
 ---
 title: "UProgress - 进度条"
 description: "用 UProgress 展示条形或环形进度，type 可为固定色或按百分比函数"
+keywords:
+  - UProgress
+  - @veltra/desktop
+  - progress
+  - Progress
+  - 进度条
+aliases: ["progress", "UProgress", "Progress", "进度条"]
 ---
-
-# UProgress - 进度条
-
-## 引入
+## 快速上手
 
 ```ts
 import { UProgress } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UProgress` 的 `percentage` 会被限制在 0–100。`type` 默认 `primary`，也可传入函数按百分比返回 `ColorType`。`circle` 切到环形，`size` 控制环形宽高。默认插槽参数是 `{ percentage, type }`。
 
@@ -36,7 +40,7 @@ function statusType(percentage: number): ColorType {
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ColorType = 'primary' | 'info' | 'success' | 'warning' | 'danger'
@@ -67,6 +71,6 @@ export interface _ProgressExposed {}
 export type ProgressExposed = DeconstructValue<_ProgressExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

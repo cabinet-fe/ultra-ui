@@ -1,17 +1,21 @@
 ---
 title: "UMessage - 消息提示"
 description: "优先用 message 函数式 API；UMessage 也可声明式渲染单条消息"
+keywords:
+  - UMessage
+  - @veltra/desktop
+  - message
+  - Message
+  - 消息提示
+aliases: ["message", "UMessage", "Message", "消息提示"]
 ---
-
-# UMessage - 消息提示
-
-## 引入
+## 快速上手
 
 ```ts
 import { UMessage } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 日常用从 `@veltra/desktop` 导入的 `message`。可传字符串或选项对象；快捷方法有 `success` / `info` / `warn` / `error` / `default`。`duration` 为 `0` 时不自动关闭。返回实例带 `close()` 与 `onClosed` Promise。
 
@@ -36,7 +40,7 @@ message.closeAll()
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -129,6 +133,6 @@ export type MessageExposed = DeconstructValue<_MessageExposed>
 import { message } from '@veltra/desktop'
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

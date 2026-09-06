@@ -1,8 +1,9 @@
 ---
-title: sheet-core 电子表格文件导入与导出（XLSX/CSV）
-description: 基于 hucre 引擎的无头电子表格文件解析与序列化工具：支持 importXlsx、importCsv 异步导入工作簿，以及 exportWorkbookXlsx、exportSheetXlsx、exportSheetCsv 导出 Excel 与 CSV 文件
+title: "sheet - -core 电子表格文件导入与导出（XLSX/CSV）"
+description: "基于 hucre 引擎的无头电子表格文件解析与序列化工具：支持 importXlsx、importCsv 异步导入工作簿，以及 exportWorkbookXlsx、exportSheetXlsx、exportSheetCsv 导出 Excel 与 CSV 文件"
+keywords: ["sheet", "@veltra/sheet-core", "io", "电子表格文件导入与导出（XLSX"]
+aliases: ["io", "sheet"]
 ---
-
 主入口只白名单五个 IO 函数：`importXlsx` / `importCsv` / `exportWorkbookXlsx` / `exportSheetXlsx` / `exportSheetCsv`。引擎是 `hucre`，可无头使用。不要依赖未从主入口导出的转换函数或 `buildWorkbookFromHucre` / `replaceWorkbookWithSnapshots`（那些不是公开承诺）。
 
 ```ts

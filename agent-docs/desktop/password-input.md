@@ -1,17 +1,21 @@
 ---
 title: "UPasswordInput - 密码输入框"
 description: "密码输入与明文切换，以及在 UForm 内用 field 绑定"
+keywords:
+  - UPasswordInput
+  - @veltra/desktop
+  - password-input
+  - PasswordInput
+  - 密码输入框
+aliases: ["password-input", "UPasswordInput", "PasswordInput", "密码输入框"]
 ---
-
-# UPasswordInput - 密码输入框
-
-## 引入
+## 快速上手
 
 ```ts
 import { UPasswordInput } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 继承 `UInput` 的占位、清空等能力，并带明文/密文切换。独立使用走 `v-model`；放进 `UForm` 时用 `field`，不要再写 `v-model`。需要把密码放进自定义 `UFormItem` 时，Item 写 `field`，内部 `UPasswordInput` 自行 `v-model`。
 
@@ -50,7 +54,7 @@ const form = reactive({ password: '' })
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -94,6 +98,6 @@ export interface _PasswordInputExposed {}
 export type PasswordInputExposed = DeconstructValue<_PasswordInputExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

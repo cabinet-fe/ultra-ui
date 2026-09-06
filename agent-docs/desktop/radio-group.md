@@ -1,17 +1,21 @@
 ---
 title: "URadioGroup - 单选框组"
 description: "用 items 渲染一组单选，以及在 UForm 内用 field 绑定"
+keywords:
+  - URadioGroup
+  - @veltra/desktop
+  - radio-group
+  - RadioGroup
+  - 单选框组
+aliases: ["radio-group", "URadioGroup", "RadioGroup", "单选框组"]
 ---
-
-# URadioGroup - 单选框组
-
-## 引入
+## 快速上手
 
 ```ts
 import { URadioGroup } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `items` 必填；默认 `value-key` 为 `'value'`、`label-key` 为 `'label'`。`disabled-item` 按项禁用，`block` 为纵向排布。独立使用走 `v-model`；放进 `UForm` 时用 `field`，不要再写 `v-model`。
 
@@ -56,7 +60,7 @@ const genderList = [
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -156,6 +160,6 @@ export interface _RadioGroupExposed {}
 export type RadioGroupExposed = DeconstructValue<_RadioGroupExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

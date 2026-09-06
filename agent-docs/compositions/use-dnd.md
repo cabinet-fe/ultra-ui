@@ -1,7 +1,10 @@
 ---
-title: useDnD 列表拖拽排序与跨容器拖放
-description: 基于 FormKit Drag and Drop 封装的 Vue 列表拖拽排序组合式函数，支持列表项上下拖动排序、看板卡片跨容器拖拽转移与数据源自动双向同步写回，免除手动 splice 数组，组件卸载自动清理拖放实例
+title: "useDnD - 列表拖拽排序与跨容器拖放"
+description: "基于 FormKit Drag and Drop 封装的 Vue 列表拖拽排序组合式函数，支持列表项上下拖动排序、看板卡片跨容器拖拽转移与数据源自动双向同步写回，免除手动 splice 数组，组件卸载自动清理拖放实例"
+keywords: ["useDnD", "@veltra/compositions", "use-dnd", "列表拖拽排序与跨容器拖放"]
+aliases: ["use-dnd", "useDnD", "列表拖拽排序与跨容器拖放"]
 ---
+## 快速上手
 
 `useDnD` 把列表排序 / 跨容器转移的结果自动写回数据源，不必在 `onSort` 里手动 `splice`。组件卸载时自动销毁拖拽实例。从 `@formkit/drag-and-drop` 原样重导出的符号也从本包导入，不要再单独安装 `@formkit/drag-and-drop`。
 
@@ -60,3 +63,4 @@ useDnD({
 返回值：`parentRef`、`values`（`filter` 模式下是参与拖拽的视图）、`updateConfig`（整体替换配置，不含 `values` / `filter` / `parent` / `onReorder`）。多容器互拖时各实例设相同 `group`。
 
 类型 `UseDnDOptions`、`UseDnDResult`、`VueParentConfig` 从 `@veltra/compositions` 导入。FormKit 侧常用值同样从本包导入，例如 `animations`、`dragAndDrop`、`useDragAndDrop`、`dropOrSwap`、`insert`、`tearDown`、`performSort`、`performTransfer`。
+

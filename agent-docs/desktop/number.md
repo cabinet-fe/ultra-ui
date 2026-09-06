@@ -1,17 +1,21 @@
 ---
 title: "UNumber - 数字展示"
 description: "展示数字，支持货币 / 百分比 / 十进制格式与补间动画"
+keywords:
+  - UNumber
+  - @veltra/desktop
+  - number
+  - Number
+  - 数字展示
+aliases: ["number", "UNumber", "Number", "数字展示"]
 ---
-
-# UNumber - 数字展示
-
-## 引入
+## 快速上手
 
 ```ts
 import { UNumber } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UNumber` 是展示组件，用 `value` 传入数字，不是表单控件。`format` 为 `currency`（CNY）、`percent` 或 `decimal`（默认）。`tween` 开启补间，`duration` 默认 800。
 
@@ -30,7 +34,7 @@ const amount = ref(1000)
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 /** 数字组件属性 */
@@ -66,6 +70,6 @@ export interface NumberEmits {}
 export interface NumberExposed {}
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

@@ -1,17 +1,21 @@
 ---
 title: "UPopConfirm - 气泡确认框"
 description: "用 reference 插槽作为触发器，监听 confirm 与 cancel"
+keywords:
+  - UPopConfirm
+  - @veltra/desktop
+  - pop-confirm
+  - PopConfirm
+  - 气泡确认框
+aliases: ["pop-confirm", "UPopConfirm", "PopConfirm", "气泡确认框"]
 ---
-
-# UPopConfirm - 气泡确认框
-
-## 引入
+## 快速上手
 
 ```ts
 import { UPopConfirm } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UPopConfirm` 基于 `UTip`。触发器用 `#reference`，文案走 `title`。确认 / 取消分别触发 `confirm` / `cancel`。可改 `confirmText`、`cancelText`，以及 `direction` / `alignment` / `trigger`。
 
@@ -31,7 +35,7 @@ function onConfirm() {
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -122,6 +126,6 @@ export interface _PopConfirmExposed {}
 export type PopConfirmExposed = DeconstructValue<_PopConfirmExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

@@ -1,17 +1,21 @@
 ---
 title: "UProgressNodes - 进度节点"
 description: "用 UProgressNodes 展示可点击的水平进度节点"
+keywords:
+  - UProgressNodes
+  - @veltra/desktop
+  - progress-nodes
+  - ProgressNodes
+  - 进度节点
+aliases: ["progress-nodes", "UProgressNodes", "ProgressNodes", "进度节点"]
 ---
-
-# UProgressNodes - 进度节点
-
-## 引入
+## 快速上手
 
 ```ts
 import { UProgressNodes } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UProgressNodes` 的 `nodes` 必填。默认用 `label` / `value`。`check` 决定节点是否标记为已完成；不传则只靠 `v-model` 高亮当前项。`color-type` 默认 `primary`。节点过多时用 `max-width` 出现横向滚动。
 
@@ -43,7 +47,7 @@ function isChecked(node: Record<string, any>) {
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ColorType = 'primary' | 'info' | 'success' | 'warning' | 'danger'
@@ -85,6 +89,6 @@ export interface _ProgressNodesExposed {}
 export type ProgressNodesExposed = DeconstructValue<_ProgressNodesExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

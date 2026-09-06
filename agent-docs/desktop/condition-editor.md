@@ -1,17 +1,21 @@
 ---
 title: "UConditionEditor - 条件编辑器"
 description: "编辑条件表达式 JSON；evaluateConditionExpression 可脱离 UI 求值"
+keywords:
+  - UConditionEditor
+  - @veltra/desktop
+  - condition-editor
+  - ConditionEditor
+  - 条件编辑器
+aliases: ["condition-editor", "UConditionEditor", "ConditionEditor", "条件编辑器"]
 ---
-
-# UConditionEditor - 条件编辑器
-
-## 引入
+## 快速上手
 
 ```ts
 import { UConditionEditor } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UConditionEditor` 的 `v-model` 是根分组 `ConditionExpression`（`type: 'group'`，含 `children` 与 `connectors`）。`fields` 描述可选字段（`label` / `value` / `type`）。可用 `createEmptyGroup` / `createEmptyLeaf` 构造空节点。`evaluateConditionExpression(expr, { fields, data })` 是纯函数，空表达式返回 `true`。
 
@@ -59,7 +63,7 @@ empty.connectors = []
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -162,6 +166,6 @@ import { evaluateConditionExpression } from '@veltra/desktop'
 import { createEmptyGroup, createEmptyLeaf } from '@veltra/desktop'
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

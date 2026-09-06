@@ -1,17 +1,21 @@
 ---
 title: "UTextarea - 文本域"
 description: "多行输入、字数统计与自适应高度，以及在 UForm 内用 field 绑定"
+keywords:
+  - UTextarea
+  - @veltra/desktop
+  - textarea
+  - Textarea
+  - 文本域
+aliases: ["textarea", "UTextarea", "Textarea", "文本域"]
 ---
-
-# UTextarea - 文本域
-
-## 引入
+## 快速上手
 
 ```ts
 import { UTextarea } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 独立使用走 `v-model`；放进 `UForm` 时用 `field`，不要再写 `v-model`。`autosize` 随内容增高；`show-count` 配合 `maxlength` 显示字数；`resize` 控制能否拖拽。
 
@@ -46,7 +50,7 @@ const form = reactive({ description: '' })
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -183,6 +187,6 @@ export interface _TextareaExposed {}
 export type TextareaExposed = DeconstructValue<_TextareaExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

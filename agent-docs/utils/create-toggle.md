@@ -1,7 +1,10 @@
 ---
-title: createToggle 布尔状态开关与切换函数生成器
-description: 状态控制工具函数，创建布尔开关状态元组 [state, toggle]，支持无参取反或显式传入目标布尔值，常用于弹窗显示隐藏、折叠展开等二值状态快速切换
+title: "createToggle - 布尔状态开关与切换函数生成器"
+description: "状态控制工具函数，创建布尔开关状态元组 [state, toggle]，支持无参取反或显式传入目标布尔值，常用于弹窗显示隐藏、折叠展开等二值状态快速切换"
+keywords: ["createToggle", "@veltra/utils", "create-toggle", "布尔状态开关与切换函数生成器"]
+aliases: ["create-toggle", "createToggle", "布尔状态开关与切换函数生成器"]
 ---
+## 快速上手
 
 `createToggle(initial?, onChange?)` 返回 `[state, toggle]`。`state` 是普通对象 `{ value: boolean }`（不是 Vue ref），`initial` 默认 `false`。`onChange` 在值被 `toggle` 更新后调用。
 
@@ -24,3 +27,4 @@ toggle(true)
 toggle((active) => !active)
 console.log(state.value)
 ```
+

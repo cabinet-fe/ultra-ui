@@ -1,7 +1,15 @@
 ---
-title: extractNormalVNodes 拍平插槽并提取常规真实 VNode 节点
-description: Vue 虚拟 DOM 处理工具函数，递归解包展开 Vue Fragment 与 template 包装节点，过滤注释并提取扁平的常规 VNode 数组，适用于插槽子组件遍历分析与组件属性透传
+title: "extractNormalVNodes - 拍平插槽并提取常规真实 VNode 节点"
+description: "Vue 虚拟 DOM 处理工具函数，递归解包展开 Vue Fragment 与 template 包装节点，过滤注释并提取扁平的常规 VNode 数组，适用于插槽子组件遍历分析与组件属性透传"
+keywords:
+  - extractNormalVNodes
+  - @veltra/utils
+  - extract-normal-v-nodes
+  - 拍平插槽并提取常规真实
+  - 节点
+aliases: ["extract-normal-v-nodes", "extractNormalVNodes"]
 ---
+## 快速上手
 
 `extractNormalVNodes(nodes, results?)` 遍历 `VNodeArrayChildren`：
 
@@ -18,3 +26,4 @@ import { Fragment, h } from 'vue'
 
 const nodes = extractNormalVNodes([h(Fragment, [h('span', 'a'), h('span', 'b')]), 'plain', 1])
 ```
+

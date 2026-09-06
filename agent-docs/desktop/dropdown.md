@@ -1,17 +1,21 @@
 ---
 title: "UDropdown - 下拉菜单"
 description: "用 trigger 与 content 插槽组成下拉，可通过 ref 调用 open / close"
+keywords:
+  - UDropdown
+  - @veltra/desktop
+  - dropdown
+  - Dropdown
+  - 下拉菜单
+aliases: ["dropdown", "UDropdown", "Dropdown", "下拉菜单"]
 ---
-
-# UDropdown - 下拉菜单
-
-## 引入
+## 快速上手
 
 ```ts
 import { UDropdown } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UDropdown` 默认 `trigger` 为 `'hover'`，也可设 `'click'` 或 `'custom'`。触发器用 `#trigger`，弹出内容用 `#content`。宽度默认跟随触发器，可用 `width` / `minWidth` 覆盖。
 
@@ -54,7 +58,7 @@ const spanRef = shallowRef<HTMLSpanElement>()
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -121,6 +125,6 @@ export interface _DropdownExposed {
 export type DropdownExposed = DeconstructValue<_DropdownExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

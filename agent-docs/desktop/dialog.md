@@ -1,17 +1,21 @@
 ---
 title: "UDialog - 对话框"
 description: "用 v-model 或 trigger 插槽打开对话框，footer 插槽可拿到 close"
+keywords:
+  - UDialog
+  - @veltra/desktop
+  - dialog
+  - Dialog
+  - 对话框
+aliases: ["dialog", "UDialog", "Dialog", "对话框"]
 ---
-
-# UDialog - 对话框
-
-## 引入
+## 快速上手
 
 ```ts
 import { UDialog } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UDialog` 用 `v-model` 控制显隐，也可用 `#trigger` 插槽点击打开。遮罩默认开启（`modal`）。`#footer` 作用域提供 `close`；默认插槽可拿到 `maximized`。
 
@@ -48,7 +52,7 @@ const visible = shallowRef(false)
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -96,6 +100,6 @@ export interface _DialogExposed {
 export type DialogExposed = DeconstructValue<_DialogExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

@@ -1,17 +1,21 @@
 ---
 title: "URadio - 单选框"
 description: "单个单选框用 value 匹配 model；表单场景请用 URadioGroup 加 field"
+keywords:
+  - URadio
+  - @veltra/desktop
+  - radio
+  - Radio
+  - 单选框
+aliases: ["radio", "URadio", "Radio", "单选框"]
 ---
-
-# URadio - 单选框
-
-## 引入
+## 快速上手
 
 ```ts
 import { URadio } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 多个 `URadio` 绑定同一个 `v-model`，用 `value` 区分选项。文案可用 `label` 或默认插槽。独立使用不要写 `field`。表单里请用 `URadioGroup` + `field`，不要给多个 `URadio` 写同一个 `field`。
 
@@ -40,7 +44,7 @@ const items = [
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -127,6 +131,6 @@ export interface _RadioExposed {
 export type RadioExposed = DeconstructValue<_RadioExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

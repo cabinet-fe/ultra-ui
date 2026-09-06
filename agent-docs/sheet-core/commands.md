@@ -1,8 +1,16 @@
 ---
-title: sheet-core 命令系统、操作派发与 Undo/Redo 历史撤销重做
-description: 基于 defaultCommandRegistry 的电子表格命令模型与撤销重做系统，涵盖 setCellValue、setCells、setCellFormula、setCellReadonly、mergeCells 等标准 Command 执行机制与 HistoryManager 历史补丁管理
+title: "sheet - -core 命令系统、操作派发与 Undo/Redo 历史撤销重做"
+description: "基于 defaultCommandRegistry 的电子表格命令模型与撤销重做系统，涵盖 setCellValue、setCells、setCellFormula、setCellReadonly、mergeCells 等标准 Command 执行机制与 HistoryManager 历史补丁管理"
+keywords:
+  - sheet
+  - @veltra/sheet-core
+  - commands
+  - 命令系统
+  - Undo
+  - Redo
+  - 历史撤销重做
+aliases: ["commands", "sheet"]
 ---
-
 `@veltra/sheet-core` 的模型写操作一律走命令：经 `defaultCommandRegistry` 执行，补丁写入 `Sheet.history`（`HistoryManager`），从而可 `undo()` / `redo()`。宿主日常调用 `Sheet` 上的 `setCellValue`、`setCells`、`setCellFormula`、`setCellStyle`、`mergeCells`、`insertRows`、`insertImage` 等方法即可，不必手拼命令 id。
 
 ```ts

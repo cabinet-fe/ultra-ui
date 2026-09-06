@@ -1,17 +1,29 @@
 ---
 title: "UCollapse / UCollapseItem - 折叠面板"
 description: "折叠面板用 v-model 控制展开项，手风琴模式一次只开一项"
+keywords:
+  - UCollapse
+  - UCollapseItem
+  - @veltra/desktop
+  - collapse
+  - Collapse
+  - CollapseItem
+  - 折叠面板
+aliases:
+  - collapse
+  - UCollapse
+  - UCollapseItem
+  - Collapse
+  - CollapseItem
+  - 折叠面板
 ---
-
-# UCollapse / UCollapseItem - 折叠面板
-
-## 引入
+## 快速上手
 
 ```ts
 import { UCollapse, UCollapseItem } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 包在 `UCollapse` 里时，每项 `value` 必填，展开状态由父级 `v-model` 管理（数组可同时展开多项；`accordion` 时为单值）。不要给子项再写 `v-model`。独立使用 `UCollapseItem` 时才用布尔 `v-model`。
 
@@ -52,7 +64,7 @@ const open = ref(false)
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -142,6 +154,6 @@ export interface CollapseItemEmits {
 }
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

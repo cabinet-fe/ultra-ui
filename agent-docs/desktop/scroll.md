@@ -1,17 +1,21 @@
 ---
 title: "UScroll - 滚动容器"
 description: "自定义滚动条容器，用 ref.scrollTo 定位，always 可常显轨道"
+keywords:
+  - UScroll
+  - @veltra/desktop
+  - scroll
+  - Scroll
+  - 滚动容器
+aliases: ["scroll", "UScroll", "Scroll", "滚动容器"]
 ---
-
-# UScroll - 滚动容器
-
-## 引入
+## 快速上手
 
 ```ts
 import { UScroll } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 给需要滚动的区域包 `UScroll`，用 `height`（或外层高度 + `height` 默认 100%）限制视口。`always` 为 true 时滚动条常显。通过组件实例的 `scrollTo({ x, y })` 定位，`update()` 在内容尺寸变化后刷新轨道。
 
@@ -35,7 +39,7 @@ function toTop() {
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -130,6 +134,6 @@ export interface _ScrollExposed {
 export type ScrollExposed = DeconstructValue<_ScrollExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

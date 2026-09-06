@@ -1,17 +1,21 @@
 ---
 title: "USegment - 分段选择器"
 description: "用 USegment 在互斥选项间切换，表单内用 field 绑定"
+keywords:
+  - USegment
+  - @veltra/desktop
+  - segment
+  - Segment
+  - 分段选择器
+aliases: ["segment", "USegment", "Segment", "分段选择器"]
 ---
-
-# USegment - 分段选择器
-
-## 引入
+## 快速上手
 
 ```ts
 import { USegment } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `USegment` 的 `items` 必填，默认 `label` / `value`。`block` 撑满容器宽度。`disabled-item` 禁用单个选项，`disabled` 禁用整组。独立使用走 `v-model`；放进 `UForm` 必须写 `field`，不要再写 `v-model`。
 
@@ -55,7 +59,7 @@ const items = [
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -158,6 +162,6 @@ export interface _SegmentExposed {}
 export type SegmentExposed = DeconstructValue<_SegmentExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

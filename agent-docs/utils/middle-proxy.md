@@ -1,7 +1,15 @@
 ---
-title: middleProxy 介于 reactive 与 shallowReactive 的双层嵌套代理
-description: Vue 响应式优化工具函数，在第一层属性访问时自动包装 shallowReactive，避免深度递归 reactive 带来的性能损耗，兼顾嵌套对象读写响应性与性能平衡
+title: "middleProxy 介于 reactive / shallowReactive - 的双层嵌套代理"
+description: "Vue 响应式优化工具函数，在第一层属性访问时自动包装 shallowReactive，避免深度递归 reactive 带来的性能损耗，兼顾嵌套对象读写响应性与性能平衡"
+keywords:
+  - middleProxy 介于 reactive
+  - shallowReactive
+  - @veltra/utils
+  - middle-proxy
+  - 的双层嵌套代理
+aliases: ["middle-proxy", "middleProxy 介于 reactive", "shallowReactive", "的双层嵌套代理"]
 ---
+## 快速上手
 
 `middleProxy(o, handler?)` 对普通对象做 Proxy：嵌套普通对象会递归套同一套代理（`Date` / `RegExp` 不套）。同一子对象经 `WeakMap` 复用代理实例。
 
@@ -30,3 +38,4 @@ const model = middleProxy(
 
 model.user.name = 'ada'
 ```
+

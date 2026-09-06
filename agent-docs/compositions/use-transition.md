@@ -1,7 +1,10 @@
 ---
-title: useTransition 命令式过渡动效与显示隐藏动画驱动
-description: Vue 命令式过渡组合式函数，支持基于 CSS 类名（enter/leave-active/to）与基于内联 style 两种过渡驱动模式，精准调度动画生命周期并支持互相打断，适用于手风琴折叠展开、模态框弹出动画、气泡提示淡入淡出
+title: "useTransition - 命令式过渡动效与显示隐藏动画驱动"
+description: "Vue 命令式过渡组合式函数，支持基于 CSS 类名（enter/leave-active/to）与基于内联 style 两种过渡驱动模式，精准调度动画生命周期并支持互相打断，适用于手风琴折叠展开、模态框弹出动画、气泡提示淡入淡出"
+keywords: ["useTransition", "@veltra/compositions", "use-transition", "命令式过渡动效与显示隐藏动画驱动"]
+aliases: ["use-transition", "useTransition", "命令式过渡动效与显示隐藏动画驱动"]
 ---
+## 快速上手
 
 `useTransition` 有两种签名：`'css'` 按类名过渡，`'style'` 按内联样式过渡。都返回 `{ toggle, enter, leave }`，`enter` / `leave` 分别是 `toggle(true)` / `toggle(false)`。
 
@@ -42,3 +45,4 @@ style.toggle(true)
 ```
 
 `target` 可以是元素本身或 `ShallowRef<HTMLElement | undefined>`。可选回调还有 `enterCanceled`、`leaveCanceled`（CSS 实现里阶段被打断时由新阶段接管，不会触发取消回调）。
+

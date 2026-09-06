@@ -1,11 +1,12 @@
 ---
-title: "@veltra/icons 图标库导入、PascalCase/kebab 命名与按需检索"
+title: "@veltra/icons - 图标库导入、PascalCase/kebab 命名与按需检索"
 description: "Vue 3 矢量图标库使用指南：从 @veltra/icons/normal（线性与单色图标）及 colorful（多色多彩图标）子路径按需导入 Vue SFC 图标组件，配合 UIcon 组件渲染并支持 PascalCase 与 kebab-case 规范检索"
+keywords: ["@veltra/icons", "icons", "normal", "colorful", "UIcon", "图标"]
+aliases: ["icons", "veltra-icons", "图标库"]
 ---
+## 快速上手
 
-`@veltra/icons` 把 SVG 编成可 tree-shake 的 Vue SFC。分两个集合子路径，按名称具名导出；不要一图标一篇文档，清单以 `packages/icons/src/normal.ts` 与 `colorful.ts` 的导出为准。
-
-## 导入
+`@veltra/icons` 把 SVG 编成可 tree-shake 的 Vue SFC。分两个集合子路径，按名称具名导出；不要一图标一篇文档，清单以 `@veltra/icons/normal` 与 `@veltra/icons/colorful` 的具名导出为准。
 
 优先子路径，便于按集合拆包：
 
@@ -18,9 +19,9 @@ import { Excel, Pdf, FontColor } from '@veltra/icons/colorful'
 
 图标名**没有 `Icon` 后缀**：写 `Plus`，不要写 `PlusIcon`。
 
-## 命名
+## 参数说明
 
-源文件在 `src/svg/normal/` 与 `src/svg/colorful/`，basename 为 ASCII kebab-case（如 `circle-check.vue`）。导出名是 PascalCase：
+图标源文件按集合区分（normal / colorful），basename 为 ASCII kebab-case（如 `circle-check.vue`）。导出名是 PascalCase：
 
 | kebab 文件名 | 导出名 |
 | --- | --- |
@@ -36,7 +37,7 @@ import { Excel, Pdf, FontColor } from '@veltra/icons/colorful'
 
 少数导出名与 HTML/Vue 保留名冲突时，SFC 的 `defineOptions({ name })` 会加 `U` 前缀（如内部名 `USearch`），**具名导出仍是 `Search`**。
 
-## 按名称检索
+## 典型示例
 
 下游不要扫本地 SVG，按导出名或 kebab 搜：
 
@@ -76,7 +77,7 @@ findIcons(NormalIcons as Record<string, unknown>, 'search')
 findIcons(ColorfulIcons as Record<string, unknown>, 'pdf')
 ```
 
-检索关键词用英文语义（`search`、`arrow-left`、`excel`），不要用中文文件名。新增图标后以重新生成的 barrel 为准，不要手改 `normal.ts` / `colorful.ts`。
+检索关键词用英文语义（`search`、`arrow-left`、`excel`），不要用中文文件名。新增图标后以 `@veltra/icons` 包内重新生成的 barrel 导出为准，不要手改导出清单。
 
 检索示例：
 
@@ -88,7 +89,7 @@ findIcons(ColorfulIcons as Record<string, unknown>, 'pdf')
 | 表单控件示意 | `normal` | `FormInput` `FormSelect` `FormDatePicker` |
 | 文档类型 | `colorful` | `Excel` `Pdf` `Word` `UnknownFile` |
 
-## 配合 UIcon
+## 与 UIcon 配合
 
 单色图标一般套 `@veltra/desktop` 的 `UIcon`。`UIcon` 只有 `size`（`number` 或 `` `${number}px` ``），颜色走 `currentColor`（父元素 `color` 或 CSS `color`），没有 `color` prop。
 
@@ -116,7 +117,7 @@ import { Search } from '@veltra/icons/normal'
 
 加载转圈给 `UIcon` 加 class `is-loading`（选择器 `.u-icon.is-loading`）。
 
-## colorful 与 normal 的差别
+## 注意事项
 
 - **normal**：单色 SVG，`fill: currentColor`，跟随 `UIcon` / 父级颜色。
 - **colorful**：多色，保留源文件配色，**不受** `UIcon` 或外部 `color` 影响。当前导出：`Archive`、`Excel`、`Fold`、`FontColor`、`Image`、`MiddleGround`、`Pdf`、`PowerPoint`、`Title`、`Txt`、`UnknownFile`、`Video`、`Word`。

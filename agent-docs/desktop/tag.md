@@ -1,17 +1,21 @@
 ---
 title: "UTag - 标签"
 description: "用 UTag 展示分类标签，支持类型、尺寸、圆角与关闭"
+keywords:
+  - UTag
+  - @veltra/desktop
+  - tag
+  - Tag
+  - 标签
+aliases: ["tag", "UTag", "Tag", "标签"]
 ---
-
-# UTag - 标签
-
-## 引入
+## 快速上手
 
 ```ts
 import { UTag } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UTag` 文案放默认插槽。`type` 取 `primary` / `info` / `success` / `warning` / `danger`。`closable` 时点关闭会发 `close`，需自己从列表里删掉该项。`size` 为 `small` / `default` / `large`。`round` 圆角，`dark` 深色底。
 
@@ -36,7 +40,7 @@ function remove(index: number) {
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -62,6 +66,6 @@ export interface TagEmits {
 export interface TagExposed {}
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

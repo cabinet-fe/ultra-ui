@@ -1,17 +1,21 @@
 ---
 title: "UPaginator - 分页器"
 description: "分页器用 v-model:page-number 与 v-model:page-size，total 决定页数"
+keywords:
+  - UPaginator
+  - @veltra/desktop
+  - paginator
+  - Paginator
+  - 分页器
+aliases: ["paginator", "UPaginator", "Paginator", "分页器"]
 ---
-
-# UPaginator - 分页器
-
-## 引入
+## 快速上手
 
 ```ts
 import { UPaginator } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `page-number` / `page-size` 用对应的 `v-model`。`total` 为数据总条数。`simple` 为简洁模式（不展示页码按钮）。`page-size-options` 控制每页条数下拉；不传则用组件默认档位。
 
@@ -41,7 +45,7 @@ function loadPage() {
 
 `v-model` 写回页码和每页条数。翻页或改每页条数时听 `@change:page-number` / `@change:page-size` 去拉当前页。
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -83,6 +87,6 @@ export interface _PaginatorExposed {
 export type PaginatorExposed = DeconstructValue<_PaginatorExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

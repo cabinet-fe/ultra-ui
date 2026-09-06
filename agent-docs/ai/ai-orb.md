@@ -1,17 +1,21 @@
 ---
 title: "UAiOrb - 活体球"
 description: "独立使用 UAiOrb，切换生命状态并用 react 播放瞬时表情"
+keywords:
+  - UAiOrb
+  - @veltra/ai
+  - ai-orb
+  - AiOrb
+  - 活体球
+aliases: ["ai-orb", "UAiOrb", "AiOrb", "活体球"]
 ---
-
-# UAiOrb - 活体球
-
-## 引入
+## 快速上手
 
 ```ts
 import { UAiOrb } from '@veltra/ai'
 ```
 
-## 示例
+## 典型示例
 
 `UAiOrb` 可脱离 `UAiChat` 单独放在任意页面。对话组件的欢迎区和工作球已经内置，通常不必再嵌一套。`size` 默认 `48`；`status` 为 `idle`、`thinking`、`speaking`。通过模板引用调用 `react` 播放约 1–2 秒表情，结束后回到当前 `status`。
 
@@ -34,7 +38,7 @@ const orb = useTemplateRef<AiOrbExposed>('orb')
 
 `react` 可取 `happy`、`shock`、`frustrated`。点击球体同时会 Q 弹并触发 `click`。
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 /** 活体球生命状态：驱动常态动画（平静 / 思考 / 输出） */
@@ -66,6 +70,6 @@ export interface AiOrbExposed {
 }
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 独立 canvas 活体球，可脱离 `UAiChat` 使用。`UAiChat` 欢迎区与工作中状态已内置，一般不必再嵌一套。

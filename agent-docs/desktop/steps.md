@@ -1,17 +1,21 @@
 ---
 title: "USteps - 步骤条"
 description: "步骤条用 items 与 current，默认按索引，也可用 current-key 对字段"
+keywords:
+  - USteps
+  - @veltra/desktop
+  - steps
+  - Steps
+  - 步骤条
+aliases: ["steps", "USteps", "Steps", "步骤条"]
 ---
-
-# USteps - 步骤条
-
-## 引入
+## 快速上手
 
 ```ts
 import { USteps } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `items` 必填。默认用数组下标当步骤值，`label` 为展示文案（可用 `label-key` 改字段名）。`v-model:current` 控制当前步；指定 `current-key` 后，`current` 去匹配该项上的该字段，而不是下标。`direction` 为 `horizontal`（默认）或 `vertical`。
 
@@ -53,7 +57,7 @@ const items = [
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -131,6 +135,6 @@ export interface _StepsExposed {}
 export type StepsExposed = DeconstructValue<_StepsExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

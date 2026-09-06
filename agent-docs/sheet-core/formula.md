@@ -1,8 +1,14 @@
 ---
-title: sheet-core 公式计算引擎、AST 解析求值与自定义函数注册
-description: 无头电子表格公式计算引擎：支持 tokenizeFormula 词法解析、parseFormula AST 语法树构建、DependencyGraph 单元格依赖图与跨表格拓扑刷新，通过 registerFormulaFunction 扩展自定义公式函数
+title: "sheet - -core 公式计算引擎、AST 解析求值与自定义函数注册"
+description: "无头电子表格公式计算引擎：支持 tokenizeFormula 词法解析、parseFormula AST 语法树构建、DependencyGraph 单元格依赖图与跨表格拓扑刷新，通过 registerFormulaFunction 扩展自定义公式函数"
+keywords:
+  - sheet
+  - @veltra/sheet-core
+  - formula
+  - 公式计算引擎
+  - 解析求值与自定义函数注册
+aliases: ["formula", "sheet"]
 ---
-
 公式引擎在 `@veltra/sheet-core` 主入口：解析（`tokenizeFormula` / `parseFormula`）、求值（`evaluateAst`）、工作簿级 `DependencyGraph`，以及可扩展的函数表（`registerFormulaFunction` / `listFormulaFunctions` / `invokeFormulaFunction`）。日常写格请用 `Sheet.setCellFormula` 或 `setCellValue(addr, '=SUM(A1:A3)')`——引擎会登记依赖并增量重算，派生补丁并入同一 undo 单元。
 
 `CellData.f` 存公式原文（**不含** `=`），`v` / `t` 为计算缓存。跨表引用形如 `Sheet2!A1`；循环引用得到 `#CYCLE!`。跨表依赖图在 `Workbook` 级共享。

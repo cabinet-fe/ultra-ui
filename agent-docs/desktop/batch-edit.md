@@ -1,17 +1,21 @@
 ---
 title: "UBatchEdit - 批量编辑"
 description: "左侧表格加右侧表单；表单控件必须写 field，不要并用 v-model"
+keywords:
+  - UBatchEdit
+  - @veltra/desktop
+  - batch-edit
+  - BatchEdit
+  - 批量编辑
+aliases: ["batch-edit", "UBatchEdit", "BatchEdit", "批量编辑"]
 ---
-
-# UBatchEdit - 批量编辑
-
-## 引入
+## 快速上手
 
 ```ts
 import { UBatchEdit } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UBatchEdit` 用 `v-model:data` 绑定行数组，`columns` 描述左侧表。`model` 是与右侧表单同步的对象。`#form` 里的控件必须写 `field`，不要再写 `v-model`。可用 `defineBatchEditColumns` 标注列类型。`features` 限制 `create` / `update` / `delete` / `view` / `createChild`。`quick-edit` 时编辑行会实时写回 `row.data`，不调用 `saveMethod`。
 
@@ -44,7 +48,7 @@ const model = reactive({ name: '', age: undefined as number | undefined })
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -385,6 +389,6 @@ export type BatchEditExposed = DeconstructValue<_BatchEditExposed>
 import { defineTableColumns } from '@veltra/desktop'
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

@@ -1,17 +1,21 @@
 ---
 title: "UCalendar - 日历"
 description: "用 UCalendar 按 v-model 日期字符串展示当月日历格"
+keywords:
+  - UCalendar
+  - @veltra/desktop
+  - calendar
+  - Calendar
+  - 日历
+aliases: ["calendar", "UCalendar", "Calendar", "日历"]
 ---
-
-# UCalendar - 日历
-
-## 引入
+## 快速上手
 
 ```ts
 import { UCalendar } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UCalendar` 根据 `v-model` 的日期字符串（或未绑定时的当天）画出该月日历。它只负责展示，没有选日回调；需要选择日期请用 `UDatePicker` 或 `UDatePanel`。
 
@@ -27,7 +31,7 @@ const month = ref('2026-09-01')
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -87,6 +91,6 @@ export interface _CalendarExposed {}
 export type CalendarExposed = DeconstructValue<_CalendarExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

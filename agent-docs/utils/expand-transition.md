@@ -1,11 +1,12 @@
 ---
-title: ExpandTransition 高度折叠展开动画过渡组件与钩子
-description: 动画过渡工具函数，通过精准测量元素 scrollHeight 实现 0 到 auto 高度平滑展开与折叠收起动效，支持配合 Vue Transition 组件使用或原生 DOM 命令式调用，适用于手风琴折叠面板与下拉菜单展开动画
+title: "ExpandTransition - 高度折叠展开动画过渡组件与钩子"
+description: "动画过渡工具函数，通过精准测量元素 scrollHeight 实现 0 到 auto 高度平滑展开与折叠收起动效，支持配合 Vue Transition 组件使用或原生 DOM 命令式调用，适用于手风琴折叠面板与下拉菜单展开动画"
+keywords: ["ExpandTransition", "@veltra/utils", "expand-transition", "高度折叠展开动画过渡组件与钩子"]
+aliases: ["expand-transition", "ExpandTransition", "高度折叠展开动画过渡组件与钩子"]
 ---
-
 `ExpandTransition` 驱动元素高度（及可选 opacity）的展开/收起。可挂到 Vue `<transition>` 钩子，也可用 `expand` / `collapse` 命令式播放。相关类型：`ExpandTransitionOptions`。
 
-## 构造选项 ExpandTransitionOptions
+## API 签名 / 类型定义
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
@@ -14,7 +15,7 @@ description: 动画过渡工具函数，通过精准测量元素 scrollHeight �
 | `leaveTransition` | `string` | 离开过渡，优先于 `transition` |
 | `opacity` | `boolean` | 为 true 时同时动画 `opacity`（仅 Vue 钩子路径） |
 
-## Vue Transition 钩子
+## 方法与事件
 
 对应 `<transition>` 的 `@enter` / `@after-enter` / `@before-leave` / `@leave` / `@after-leave`。进入时从 `height: 0` 过渡到 `scrollHeight`；离开时从当前高度收到 `0`。结束后清掉临时 inline 样式。
 
@@ -42,7 +43,7 @@ const expandTransition = new ExpandTransition({
 </template>
 ```
 
-## 命令式 API
+## 典型示例
 
 | 方法 | 说明 |
 | --- | --- |

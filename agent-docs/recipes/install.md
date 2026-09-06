@@ -1,11 +1,13 @@
 ---
-title: 组件库安装配置、工程接入与组件按需自动导入
-description: Ultra UI (@veltra/*) 在 Vue 3 项目中的完整安装、全局样式与主题初始化（loadTheme）及组件注册指南，详解基于 unplugin-vue-components 的 VeltraUIResolver 按需自动导入与样式副作用引入
+title: "Ultra UI 安装 - 组件库安装配置、工程接入与组件按需自动导入"
+description: "Ultra UI (@veltra/*) 在 Vue 3 项目中的完整安装、全局样式与主题初始化（loadTheme）及组件注册指南，详解基于 unplugin-vue-components 的 VeltraUIResolver 按需自动导入与样式副作用引入"
+keywords: ["Ultra UI", "install", "@veltra/desktop", "loadTheme", "VeltraUIResolver", "按需导入"]
+aliases: ["install", "安装", "接入"]
 ---
 
-在宿主 Vue 3 应用中接入 Ultra UI：先装包并在入口注入样式与主题，再选择一种组件注册方式。漏掉 `loadTheme()` 时组件会渲染成无色的裸 HTML——颜色全部走 `--u-*` token，且只由 `loadTheme()` 在运行时注入，没有兜底值。
+## 快速上手
 
-## 安装
+在宿主 Vue 3 应用中接入 Ultra UI：先装包并在入口注入样式与主题，再选择一种组件注册方式。漏掉 `loadTheme()` 时组件会渲染成无色的裸 HTML——颜色全部走 `--u-*` token，且只由 `loadTheme()` 在运行时注入，没有兜底值。
 
 ```bash
 bun add @veltra/desktop
@@ -104,7 +106,7 @@ const value = ref('')
 
 每个用到的组件都要同时导入对应 `style` 子路径（例如 `@veltra/desktop/components/button/style`）。若希望手动 import 组件但使用全量样式，可在入口写 `import '@veltra/desktop/style'`。
 
-## 接入检查
+## 注意事项
 
 - 入口已 `import '@veltra/styles/normalize'` 并调用 `loadTheme()`。
 - 三种注册方式只选一种；模板里 `<u-xxx>` 变成未知标签，说明没注册。

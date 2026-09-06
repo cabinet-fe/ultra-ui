@@ -1,17 +1,21 @@
 ---
 title: "UContextmenu - 右键菜单"
 description: "组件用法传入 mousePosition 与 menus；函数式 API 用 contextmenu.pop"
+keywords:
+  - UContextmenu
+  - @veltra/desktop
+  - contextmenu
+  - Contextmenu
+  - 右键菜单
+aliases: ["contextmenu", "UContextmenu", "Contextmenu", "右键菜单"]
 ---
-
-# UContextmenu - 右键菜单
-
-## 引入
+## 快速上手
 
 ```ts
 import { UContextmenu } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UContextmenu` 需要 `mousePosition: { x, y }` 和 `menus`。菜单项可含 `label`、`icon`、`children`、`callback`、`disabled`、`divider`、`render`、`keepOpen`。关闭时触发 `destroy`。函数式入口是 `contextmenu.pop`。
 
@@ -55,7 +59,7 @@ function onPop(e: MouseEvent) {
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -134,6 +138,6 @@ export type ContextmenuExposed = DeconstructValue<_ContextmenuExposed>
 import { contextmenu } from '@veltra/desktop'
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

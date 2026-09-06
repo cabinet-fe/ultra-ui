@@ -1,17 +1,29 @@
 ---
 title: "UGrid / UGridItem - 栅格布局"
 description: "按列数与 span 排栅格，列数可按容器断点变化"
+keywords:
+  - UGrid
+  - UGridItem
+  - @veltra/desktop
+  - grid
+  - Grid
+  - GridItem
+  - 栅格布局
+aliases:
+  - grid
+  - UGrid
+  - UGridItem
+  - Grid
+  - GridItem
+  - 栅格布局
 ---
-
-# UGrid / UGridItem - 栅格布局
-
-## 引入
+## 快速上手
 
 ```ts
 import { UGrid, UGridItem } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UGrid` 默认 24 列。`cols` 可以是数字、断点对象或函数。`UGridItem` 的 `span` 为占用列数，`0` 隐藏，`"full"` 占满当前行。断点对象形式的 `span` 必须带 `default`。
 
@@ -45,7 +57,7 @@ const bp = ref<Breakpoint>()
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type BreakpointName = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
@@ -140,6 +152,6 @@ export interface _GridExposed {
 export type GridExposed = DeconstructValue<_GridExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

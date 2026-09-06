@@ -1,17 +1,21 @@
 ---
 title: "UFormItem - 表单项"
 description: "仅在多控件组合或自定义 label 时显式使用；field 写在 Item 上"
+keywords:
+  - UFormItem
+  - @veltra/desktop
+  - form-item
+  - FormItem
+  - 表单项
+aliases: ["form-item", "UFormItem", "FormItem", "表单项"]
 ---
-
-# UFormItem - 表单项
-
-## 引入
+## 快速上手
 
 ```ts
 import { UFormItem } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 单字段控件直接放在 `UForm` 上写 `field` 即可，一般不必手写 `UFormItem`。仅当需要多控件组合同一个字段、或自定义 label 插槽时才用：`field` / `label` / `rules` / `tips` 写在 Item 上；**内部控件自行 `v-model`，且不再写 `field`**。
 
@@ -64,7 +68,7 @@ const form = reactive({ agree: false })
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -136,6 +140,6 @@ export interface FormItemEmits {}
 export interface FormItemExposed {}
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

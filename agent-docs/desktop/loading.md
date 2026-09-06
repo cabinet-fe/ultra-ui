@@ -1,17 +1,21 @@
 ---
 title: "ULoading - 加载"
 description: "ULoading 渲染动画；vLoading 指令在目标元素上盖遮罩"
+keywords:
+  - ULoading
+  - @veltra/desktop
+  - loading
+  - Loading
+  - 加载
+aliases: ["loading", "ULoading", "Loading", "加载"]
 ---
-
-# ULoading - 加载
-
-## 引入
+## 快速上手
 
 ```ts
 import { ULoading } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `ULoading` 的 `type` 为 `'dual-ring' | 'dot' | 'ring' | 'bars'`。遮罩场景用指令 `vLoading`（模板里 `v-loading`），值为真时渲染；指令参数即动画类型。
 
@@ -37,7 +41,7 @@ const loading = shallowRef(true)
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -78,6 +82,6 @@ export type LoadingExposed = DeconstructValue<_LoadingExposed>
 import { vLoading } from '@veltra/desktop'
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

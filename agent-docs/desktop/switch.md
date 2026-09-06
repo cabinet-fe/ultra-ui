@@ -1,17 +1,21 @@
 ---
 title: "USwitch - 开关"
 description: "开关与开/关文案，以及在 UForm 内用 field 绑定"
+keywords:
+  - USwitch
+  - @veltra/desktop
+  - switch
+  - Switch
+  - 开关
+aliases: ["switch", "USwitch", "Switch", "开关"]
 ---
-
-# USwitch - 开关
-
-## 引入
+## 快速上手
 
 ```ts
 import { USwitch } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 值为布尔。`active-text` / `inactive-text` 分别显示在开、关侧。独立使用走 `v-model`；放进 `UForm` 时用 `field`，不要再写 `v-model`。
 
@@ -47,7 +51,7 @@ const form = reactive({ enabled: true, notification: false })
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -131,6 +135,6 @@ export interface _SwitchExposed {}
 export type SwitchExposed = DeconstructValue<_SwitchExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

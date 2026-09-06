@@ -1,17 +1,21 @@
 ---
 title: "UGanttChart - 甘特图"
 description: "当前公开 API 仅 v-model 字符串，组件壳仍在迭代"
+keywords:
+  - UGanttChart
+  - @veltra/desktop
+  - gantt-chart
+  - GanttChart
+  - 甘特图
+aliases: ["gantt-chart", "UGanttChart", "GanttChart", "甘特图"]
 ---
-
-# UGanttChart - 甘特图
-
-## 引入
+## 快速上手
 
 ```ts
 import { UGanttChart } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UGanttChart` 公开属性目前只有 `modelValue`（字符串）及 `update:modelValue`。按类型传入即可。
 
@@ -27,7 +31,7 @@ const taskId = shallowRef('task-001')
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 /** 甘特图组件属性 */
@@ -47,6 +51,6 @@ export interface _GanttChartExposed {}
 export interface GanttChartExposed {}
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

@@ -1,17 +1,21 @@
 ---
 title: "UGroupInput - 分组输入"
 description: "动态增删一组条目；表单内用 field 绑数组，条目内控件对 item 用 v-model"
+keywords:
+  - UGroupInput
+  - @veltra/desktop
+  - group-input
+  - GroupInput
+  - 分组输入
+aliases: ["group-input", "UGroupInput", "GroupInput", "分组输入"]
 ---
-
-# UGroupInput - 分组输入
-
-## 引入
+## 快速上手
 
 ```ts
 import { UGroupInput } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UGroupInput` 绑定对象数组。默认 `creatable` 为 `true`，可用 `max`、`item-default`、`item-style`。插槽参数是 `{ item, index }`，`item` 是当前条目对象。独立使用时外层走 `v-model`；放进 `UForm` 时外层用 `field`，条目内控件对 `item` 写 `v-model`（不是 form 的 field）。
 
@@ -55,7 +59,7 @@ const form = reactive({ contacts: [] as { name: string; phone: string }[] })
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -145,6 +149,6 @@ export interface _GroupInputExposed {}
 export type GroupInputExposed = DeconstructValue<_GroupInputExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

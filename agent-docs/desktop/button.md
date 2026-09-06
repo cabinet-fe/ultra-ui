@@ -1,17 +1,29 @@
 ---
 title: "UButton / UButtonGroup - 按钮"
 description: "按钮类型、图标与按钮组统一透传 props"
+keywords:
+  - UButton
+  - UButtonGroup
+  - @veltra/desktop
+  - button
+  - Button
+  - ButtonGroup
+  - 按钮
+aliases:
+  - button
+  - UButton
+  - UButtonGroup
+  - Button
+  - ButtonGroup
+  - 按钮
 ---
-
-# UButton / UButtonGroup - 按钮
-
-## 引入
+## 快速上手
 
 ```ts
 import { UButton, UButtonGroup } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UButton` 的 `type` 取主题色（`primary` / `success` / `warning` / `danger` / `info`）。`plain` 为描边，`text` 为文本按钮，`circle` 为圆形（通常配合 `icon`）。`icon` 传 `@veltra/icons/normal` 的组件。默认点击会冒泡，需要拦住时设 `:propagate="false"`。
 
@@ -45,7 +57,7 @@ import { Edit, Search } from '@veltra/icons/normal'
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -106,6 +118,6 @@ export interface _ButtonExposed {
 export type ButtonExposed = DeconstructValue<_ButtonExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

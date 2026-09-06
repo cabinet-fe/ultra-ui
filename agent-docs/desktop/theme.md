@@ -1,17 +1,21 @@
 ---
 title: "UTheme - 主题编辑器"
 description: "用 UTheme 可视化编辑当前主题变量，并通过 Exposed 导出或切换预设"
+keywords:
+  - UTheme
+  - @veltra/desktop
+  - theme
+  - Theme
+  - 主题编辑器
+aliases: ["theme", "UTheme", "Theme", "主题编辑器"]
 ---
-
-# UTheme - 主题编辑器
-
-## 引入
+## 快速上手
 
 ```ts
 import { UTheme } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UTheme` 默认编辑已经 `loadTheme` 过的当前主题。传入 `theme` 可指定要编辑的 `UITheme` 实例。组件暴露 `reset`、`exportTheme`、`applyLightPreset`、`applyDarkPreset`。应用主题本身用 `@veltra/styles/theme` 的 `loadTheme`，见配方 `recipes/theme.md`。
 
@@ -46,7 +50,7 @@ const custom = new UITheme(lightTheme.theme)
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -76,6 +80,6 @@ export interface _ThemeExposed {
 export type ThemeExposed = DeconstructValue<_ThemeExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

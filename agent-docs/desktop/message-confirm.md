@@ -1,17 +1,21 @@
 ---
 title: "UMessageConfirm - 消息确认"
 description: "用 messageConfirm 弹出确认框，onClosed 得到 confirm 或 cancel"
+keywords:
+  - UMessageConfirm
+  - @veltra/desktop
+  - message-confirm
+  - MessageConfirm
+  - 消息确认
+aliases: ["message-confirm", "UMessageConfirm", "MessageConfirm", "消息确认"]
 ---
-
-# UMessageConfirm - 消息确认
-
-## 引入
+## 快速上手
 
 ```ts
 import { UMessageConfirm } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 从 `@veltra/desktop` 导入 `messageConfirm`。`message` 必填（字符串简写即内容）。快捷方法 `primary` / `success` / `info` / `warning` / `danger` 会设置 `confirmButtonType`。实例的 `onClosed` 解析为 `'confirm' | 'cancel'`。
 
@@ -47,7 +51,7 @@ messageConfirm.danger('此操作不可撤销', { cancelButtonText: '取消' })
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -150,6 +154,6 @@ export type MessageConfirmExposed = DeconstructValue<_MessageConfirmExposed>
 import { messageConfirm } from '@veltra/desktop'
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

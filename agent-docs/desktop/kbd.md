@@ -1,17 +1,21 @@
 ---
 title: "UKbd - 键盘按键"
 description: "用 UKbd 在文中标记快捷键"
+keywords:
+  - UKbd
+  - @veltra/desktop
+  - kbd
+  - Kbd
+  - 键盘按键
+aliases: ["kbd", "UKbd", "Kbd", "键盘按键"]
 ---
-
-# UKbd - 键盘按键
-
-## 引入
+## 快速上手
 
 ```ts
 import { UKbd } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UKbd` 没有 props，把按键文案放进默认插槽。组合键拆成多个 `UKbd`，中间用 `+` 连接。
 
@@ -22,10 +26,10 @@ import { UKbd } from '@veltra/desktop'
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 无独立 Props / Emits；通过默认插槽使用。
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

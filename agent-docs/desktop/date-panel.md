@@ -1,17 +1,21 @@
 ---
 title: "UDatePanel - 日期面板"
 description: "用 UDatePanel 做内嵌日/月/年选择或范围选择，日期类型为 Dater"
+keywords:
+  - UDatePanel
+  - @veltra/desktop
+  - date-panel
+  - DatePanel
+  - 日期面板
+aliases: ["date-panel", "UDatePanel", "DatePanel", "日期面板"]
 ---
-
-# UDatePanel - 日期面板
-
-## 引入
+## 快速上手
 
 ```ts
 import { UDatePanel } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UDatePanel` 是无输入框的日历面板，供自定义布局或被 `UDatePicker` 复用。选中日通过 `date` + `@select:date` 同步，值为 `@cat-kit/core` 的 `Dater`，不是原生 `Date`。`type` 为 `date` / `month` / `year`。范围模式用 `range`、`range-date` 与 `@select:range-date`。
 
@@ -49,7 +53,7 @@ const range = ref<[Dater, Dater]>()
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -130,6 +134,6 @@ export interface DatePanelEmits {
 }
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

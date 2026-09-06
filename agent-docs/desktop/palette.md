@@ -1,17 +1,21 @@
 ---
 title: "UPalette - 调色板"
 description: "用 UPalette 选择颜色，绑定值为 HEX 字符串"
+keywords:
+  - UPalette
+  - @veltra/desktop
+  - palette
+  - Palette
+  - 调色板
+aliases: ["palette", "UPalette", "Palette", "调色板"]
 ---
-
-# UPalette - 调色板
-
-## 引入
+## 快速上手
 
 ```ts
 import { UPalette } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UPalette` 的 `modelValue` 是颜色字符串。独立使用走 `v-model`；放进 `UForm` 必须写 `field`，不要再写 `v-model`。
 
@@ -43,7 +47,7 @@ const form = reactive({ brand: '#1E88E5' })
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -140,6 +144,6 @@ export interface _PaletteExposed {}
 export type PaletteExposed = DeconstructValue<_PaletteExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

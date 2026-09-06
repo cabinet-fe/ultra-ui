@@ -1,17 +1,21 @@
 ---
 title: "UGroupNav - 分组导航"
 description: "分组导航按 groups 渲染一层叶子，用 current-path 与 item-click 受控"
+keywords:
+  - UGroupNav
+  - @veltra/desktop
+  - group-nav
+  - GroupNav
+  - 分组导航
+aliases: ["group-nav", "UGroupNav", "GroupNav", "分组导航"]
 ---
-
-# UGroupNav - 分组导航
-
-## 引入
+## 快速上手
 
 ```ts
 import { UGroupNav } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UGroupNav` 的 `groups` 每组有 `title` 和 `children`。只渲染一层叶子：`children` 再嵌套会被丢掉，该项仍当叶子展示。选中用 `current-path`，点击用 `@item-click`，没有 `v-model:current-path`。外观走主题 `nav`，不在 props 上。
 
@@ -44,7 +48,7 @@ function onItemClick(item: NavItem) {
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export interface NavItem {
@@ -87,6 +91,6 @@ export interface GroupNavEmits {
 }
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 外观（底色、文字、悬停/激活色）不在组件 props 上，由主题 `nav` 配置控制：`nav.variant` 选择深/浅侧栏（默认 `dark` 深底浅字），`nav` 其余键覆盖同名 `--u-nav-*` token。把侧栏自定义为浅色底时必须同时设 `variant: 'light'`，否则会浅底配白字看不清。详见主题文档「侧栏导航外观」。

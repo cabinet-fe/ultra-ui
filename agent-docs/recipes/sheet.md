@@ -1,8 +1,15 @@
 ---
-title: USheet 电子表格接入、单元格只读控制与在线填报系统开发
-description: USheet 电子表格组件完整接入方案与业务填报场景实践：基于 @veltra/sheet-core Workbook 数据模型，通过 setCellReadonly / setRangeReadonly 精确控制单元格只读与可编辑权限，自定义隐藏工具栏与公式栏打造纯净填报模板
+title: "USheet - 电子表格接入、单元格只读控制与在线填报系统开发"
+description: "USheet 电子表格组件完整接入方案与业务填报场景实践：基于 @veltra/sheet-core Workbook 数据模型，通过 setCellReadonly / setRangeReadonly 精确控制单元格只读与可编辑权限，自定义隐藏工具栏与公式栏打造纯净填报模板"
+keywords:
+  - USheet
+  - @veltra/desktop
+  - sheet
+  - Sheet
+  - 电子表格接入
+  - 单元格只读控制与在线填报系统开发
+aliases: ["sheet", "USheet", "Sheet"]
 ---
-
 `USheet` 提供工具栏、公式栏、网格和底部 sheet 标签。数据模型在 `@veltra/sheet-core`，本包不 re-export 那些符号——`Workbook` / `Sheet` 一律 `from '@veltra/sheet-core'`。
 
 ```bash

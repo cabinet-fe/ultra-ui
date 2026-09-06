@@ -1,17 +1,21 @@
 ---
 title: "UDualNav - 双栏导航"
 description: "双栏导航用 current-path 与 item-click 受控，没有 v-model:current-path"
+keywords:
+  - UDualNav
+  - @veltra/desktop
+  - dual-nav
+  - DualNav
+  - 双栏导航
+aliases: ["dual-nav", "UDualNav", "DualNav", "双栏导航"]
 ---
-
-# UDualNav - 双栏导航
-
-## 引入
+## 快速上手
 
 ```ts
 import { UDualNav } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UDualNav` 左轨是根级应用，右栏是当前根项的子导航。`menus` 项类型为 `DualNavRootItem`（`title` / `path` 必填，`icon` 建议用 `@veltra/icons/normal` 组件）。选中态用 `current-path`，点击用 `@item-click`；没有 `v-model:current-path`。左轨默认只显示图标，需要名称时设 `rail-variant="labeled"`（名称最多 4 个字）。外观由主题 `nav` 配置，不在 props 上。
 
@@ -51,7 +55,7 @@ function onItemClick(item: NavItem) {
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -113,6 +117,6 @@ export interface _DualNavExposed {}
 export type DualNavExposed = DeconstructValue<_DualNavExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 外观（底色、文字、悬停/激活色）不在组件 props 上，由主题 `nav` 配置控制：`nav.variant` 选择深/浅侧栏（默认 `dark` 深底浅字），`nav` 其余键覆盖同名 `--u-nav-*` token。把侧栏自定义为浅色底时必须同时设 `variant: 'light'`，否则会浅底配白字看不清。详见主题文档「侧栏导航外观」。

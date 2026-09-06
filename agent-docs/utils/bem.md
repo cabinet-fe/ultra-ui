@@ -1,13 +1,19 @@
 ---
-title: bem 预置 u- 前缀的 BEM 类名生成工厂与状态类辅助器
-description: CSS 类名生成工具函数，预置 u- 前缀的标准 BEM（Block-Element-Modifier）类名构造器，包含 bem.is 辅助生成 is-active、is-disabled 等状态类名，规范组件样式层级
+title: "bem - 预置 u- 前缀的 BEM 类名生成工厂与状态类辅助器"
+description: "CSS 类名生成工具函数，预置 u- 前缀的标准 BEM（Block-Element-Modifier）类名构造器，包含 bem.is 辅助生成 is-active、is-disabled 等状态类名，规范组件样式层级"
+keywords:
+  - bem
+  - @veltra/utils
+  - 预置
+  - 前缀的
+  - 类名生成工厂与状态类辅助器
+aliases: ["bem"]
 ---
-
 `bem` 是 `@veltra/utils` 用 `CLS_PREFIX`（`'u-'`）预置的 BEM 工厂。传入块名得到实例；`bem.is` 生成 `is-*` 辅助类。自定义前缀用 `makeBEM`。
 
 相关类型：`BEM<N, P, B>`（实例）、`BEMFactory<Prefix>`（工厂，含 `is`）。
 
-## 实例方法
+## 方法与事件
 
 | 成员 | 含义 | 示例（`bem('button')`） |
 | --- | --- | --- |

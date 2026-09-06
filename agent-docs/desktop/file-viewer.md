@@ -1,17 +1,21 @@
 ---
 title: "UFileViewer - 文件查看器"
 description: "传入 files 预览图片、视频、PDF、表格、Word 与文本；open 控制全屏模态"
+keywords:
+  - UFileViewer
+  - @veltra/desktop
+  - file-viewer
+  - FileViewer
+  - 文件查看器
+aliases: ["file-viewer", "UFileViewer", "FileViewer", "文件查看器"]
 ---
-
-# UFileViewer - 文件查看器
-
-## 引入
+## 快速上手
 
 ```ts
 import { UFileViewer } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UFileViewer` 的 `files` 必填，每项含 `name` 与 `src`（URL、`File` / `Blob` / `ArrayBuffer` / `Uint8Array`）。`kind` 缺省按文件名后缀推断：`'image' | 'video' | 'pdf' | 'sheet' | 'docx' | 'text'`。`v-model` 是当前文件 `id`。`v-model:open` 有值时进入全屏模态（Teleport 到 body）。Excel/CSV 预览需要可选 peer `@veltra/sheet-core`。
 
@@ -38,7 +42,7 @@ const files: FileViewerItem[] = [
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -115,6 +119,6 @@ export interface _FileViewerExposed {
 export type FileViewerExposed = DeconstructValue<_FileViewerExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

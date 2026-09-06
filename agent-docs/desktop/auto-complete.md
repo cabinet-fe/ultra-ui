@@ -1,17 +1,21 @@
 ---
 title: "UAutoComplete - 自动补全"
 description: "建议列表、异步建议，以及在 UForm 内用 field 绑定"
+keywords:
+  - UAutoComplete
+  - @veltra/desktop
+  - auto-complete
+  - AutoComplete
+  - 自动补全
+aliases: ["auto-complete", "UAutoComplete", "AutoComplete", "自动补全"]
 ---
-
-# UAutoComplete - 自动补全
-
-## 引入
+## 快速上手
 
 ```ts
 import { UAutoComplete } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UAutoComplete` 根据 `suggestions` 给出补全。独立使用走 `v-model`；放进 `UForm` 时用 `field`，不要再写 `v-model`。`suggestions` 可以是字符串数组，也可以是返回字符串数组的函数（实现会把当前输入作为可选参数传入）。
 
@@ -67,7 +71,7 @@ const cities = ['北京', '上海', '广州', '深圳']
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -157,6 +161,6 @@ export interface _AutoCompleteExposed {
 export type AutoCompleteExposed = DeconstructValue<_AutoCompleteExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

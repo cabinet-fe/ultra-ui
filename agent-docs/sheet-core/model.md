@@ -1,8 +1,9 @@
 ---
-title: sheet-core 电子表格底层数据模型与单元格存储操作
-description: 无头表格核心数据结构：Workbook 工作簿、Sheet 工作表、稀疏矩阵 CellStore 存储、0-based 坐标系统与 A1 单元格地址转换（parseAddress/formatAddress）、区域合并与选区、浮动图片管理与单元格只读权限
+title: "sheet - -core 电子表格底层数据模型与单元格存储操作"
+description: "无头表格核心数据结构：Workbook 工作簿、Sheet 工作表、稀疏矩阵 CellStore 存储、0-based 坐标系统与 A1 单元格地址转换（parseAddress/formatAddress）、区域合并与选区、浮动图片管理与单元格只读权限"
+keywords: ["sheet", "@veltra/sheet-core", "model", "电子表格底层数据模型与单元格存储操作"]
+aliases: ["model", "sheet"]
 ---
-
 `@veltra/sheet-core` 主入口导出无头数据模型：`Workbook` 管多表与共享公式依赖图，`Sheet` 是单表统一操作入口。单元格存在稀疏 `CellStore` 里；合并、选区、浮动图片、单元格只读都挂在 `Sheet` 上。坐标一律 0-based：`{ row: 0, col: 0 }` 即 A1。需要 A1 字符串时，主入口另有 `parseAddress` / `formatAddress` / `createRange` / `parseRange` 等工具（不必单独成篇）。
 
 模型与命令、公式、IO 从 `@veltra/sheet-core` 导入。`SheetGrid` 不在主入口，见 `sheet-grid.md`。

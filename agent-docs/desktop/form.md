@@ -1,17 +1,21 @@
 ---
 title: "UForm - 表单"
 description: "用 field 绑定 model、校验与重置；禁止与 v-model 并用"
+keywords:
+  - UForm
+  - @veltra/desktop
+  - form
+  - Form
+  - 表单
+aliases: ["form", "UForm", "Form", "表单"]
 ---
-
-# UForm - 表单
-
-## 引入
+## 快速上手
 
 ```ts
 import { UForm } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UForm` 拦截默认插槽里带 `field` 的子组件，自动生成 `UFormItem`，并按 `field` 路径读写 `model`。控件必须写 `field`；有 `field` 就不要再写 `v-model`。`validate()` 全量校验，`validate(['field'])` 按字段校验；`reset()` 恢复最近一次 `props.model` 引用变更时的快照并清除校验。
 
@@ -54,7 +58,7 @@ function handleReset() {
 
 嵌套路径用 `a.b`。需要多控件组合同一字段时才显式写 `UFormItem`：`field` 写在 Item 上，内部控件自行 `v-model`，且不要再写 `field`。
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -107,6 +111,6 @@ export interface _FormExposed {
 export type FormExposed = DeconstructValue<_FormExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

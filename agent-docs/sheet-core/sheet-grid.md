@@ -1,8 +1,15 @@
 ---
-title: SheetGrid 高性能表格渲染层与 VTable 虚拟化适配器
-description: 从 @veltra/sheet-core/grid 导入的 SheetGrid 虚拟滚动表格渲染引擎：连接 Sheet 数据模型与 VTable 视图层，提供只读配置、单元格自定义渲染器（ResolveCellRenderer）、样式钩子与快捷右键菜单定制
+title: "SheetGrid - 高性能表格渲染层与 VTable 虚拟化适配器"
+description: "从 @veltra/sheet-core/grid 导入的 SheetGrid 虚拟滚动表格渲染引擎：连接 Sheet 数据模型与 VTable 视图层，提供只读配置、单元格自定义渲染器（ResolveCellRenderer）、样式钩子与快捷右键菜单定制"
+keywords:
+  - SheetGrid
+  - @veltra/sheet-core
+  - sheet-grid
+  - SheetGrid
+  - VTable
+  - 虚拟化适配器
+aliases: ["sheet-grid", "SheetGrid"]
 ---
-
 `SheetGrid` 是 VTable 适配层：数据仍在 `Sheet` 模型上，表格只负责渲染与输入。它**不在** `@veltra/sheet-core` 主入口，必须从 `@veltra/sheet-core/grid` 导入，以免无头 `import { Workbook }` 把 `@visactor/vtable` 类型图拉进 TS 程序。
 
 该入口公开：`SheetGrid`、`CustomLayout`，以及类型 `SheetGridOptions` / `SheetGridContextMenuInfo` / `SheetGridContextMenuKind` / `ResolveCellRenderer` / `ResolveDisplayValue` / `ResolveCellStyleHook` / `ICustomLayoutObj`。不要把未从此入口导出的内部类（例如图片叠层实现）当公开 API。

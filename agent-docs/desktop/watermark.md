@@ -1,17 +1,21 @@
 ---
 title: "UWatermark - 水印"
 description: "用 UWatermark 在内容区或整页叠加文字水印"
+keywords:
+  - UWatermark
+  - @veltra/desktop
+  - watermark
+  - Watermark
+  - 水印
+aliases: ["watermark", "UWatermark", "Watermark", "水印"]
 ---
-
-# UWatermark - 水印
-
-## 引入
+## 快速上手
 
 ```ts
 import { UWatermark } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UWatermark` 用 `text` 绘制重复文字水印。默认旋转 `-30`、字号 60。不传 `append-to-body` 时水印包住默认插槽；`append-to-body` 为真时 Teleport 到 `body` 覆盖整页。
 
@@ -33,7 +37,7 @@ import { UWatermark } from '@veltra/desktop'
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -64,6 +68,6 @@ export interface _WatermarkExposed {}
 export type WatermarkExposed = DeconstructValue<_WatermarkExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

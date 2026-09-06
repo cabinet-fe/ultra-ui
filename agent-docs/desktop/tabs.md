@@ -1,17 +1,30 @@
 ---
 title: "UTabs / UTabsHorizontal / UTabsVertical - 标签页"
 description: "组合标签页用同名插槽渲染面板；独立水平/垂直栏只负责切换，不含内容区"
+keywords:
+  - UTabs
+  - UTabsHorizontal
+  - UTabsVertical
+  - @veltra/desktop
+  - tabs
+  - Tabs
+  - TabsHorizontal
+  - TabsVertical
+aliases:
+  - tabs
+  - UTabs
+  - UTabsHorizontal
+  - UTabsVertical
+  - Tabs
+  - TabsHorizontal
 ---
-
-# UTabs / UTabsHorizontal / UTabsVertical - 标签页
-
-## 引入
+## 快速上手
 
 ```ts
 import { UTabs, UTabsHorizontal, UTabsVertical } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `items` 每项必须有 `key`。`v-model` 绑定当前 `key`。`UTabs` 用与 `key` 同名的插槽渲染面板；`keep-alive` 切换时保留面板状态。`UTabsHorizontal` / `UTabsVertical` 只有标签栏，适合自己排内容区。`closable` 为组件级默认，单项可覆盖；禁用项不显示关闭按钮。关闭后要自己从 `items` 里删掉并改 `v-model`。
 
@@ -90,7 +103,7 @@ const items: TabItem[] = [
 
 `position` 只能是 `left` 或 `right`。
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -249,6 +262,6 @@ export interface _TabsVerticalExposed {}
 export interface TabsVerticalExposed {}
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

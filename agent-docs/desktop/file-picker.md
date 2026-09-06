@@ -1,17 +1,21 @@
 ---
 title: "UFilePicker - 文件选择器"
 description: "点击或拖拽拾取文件，通过 pick 事件拿到 File 列表"
+keywords:
+  - UFilePicker
+  - @veltra/desktop
+  - file-picker
+  - FilePicker
+  - 文件选择器
+aliases: ["file-picker", "UFilePicker", "FilePicker", "文件选择器"]
 ---
-
-# UFilePicker - 文件选择器
-
-## 引入
+## 快速上手
 
 ```ts
 import { UFilePicker } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UFilePicker` 点击或拖入文件后触发 `pick`，参数为通过 `accept` 过滤后的 `File[]`。`multiple` 允许多选。默认插槽可拿到 `{ isDragover }`。
 
@@ -33,7 +37,7 @@ const files = shallowRef<File[]>([])
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -117,6 +121,6 @@ export interface _UploaderExposed {}
 export type UploaderExposed = DeconstructValue<_UploaderExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

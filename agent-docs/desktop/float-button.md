@@ -1,17 +1,21 @@
 ---
 title: "UFloatButton - 浮动按钮"
 description: "页面右下角悬浮操作，items 的 key 必填，点击回传该 key"
+keywords:
+  - UFloatButton
+  - @veltra/desktop
+  - float-button
+  - FloatButton
+  - 浮动按钮
+aliases: ["float-button", "UFloatButton", "FloatButton", "浮动按钮"]
 ---
-
-# UFloatButton - 浮动按钮
-
-## 引入
+## 快速上手
 
 ```ts
 import { UFloatButton } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UFloatButton` 传送到 `body`，固定在视口右下。`items` 每项必须有唯一 `key`；无 `icon` 时用 `name` 或 `key` 的首字。`@click` 参数是被点项的 `key`。
 
@@ -37,7 +41,7 @@ function onClick(key: string) {
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -84,6 +88,6 @@ export interface _FloatButtonExposed {}
 export type FloatButtonExposed = DeconstructValue<_FloatButtonExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

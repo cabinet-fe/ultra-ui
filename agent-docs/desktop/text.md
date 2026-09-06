@@ -1,17 +1,21 @@
 ---
 title: "UText - 文本"
 description: "用 UText 按标题层级展示文本，并支持高亮、删除线与强调"
+keywords:
+  - UText
+  - @veltra/desktop
+  - text
+  - Text
+  - 文本
+aliases: ["text", "UText", "Text", "文本"]
 ---
-
-# UText - 文本
-
-## 引入
+## 快速上手
 
 ```ts
 import { UText } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UText` 只渲染默认插槽里的文本节点。`as` 默认 `content`，还可为 `main-title` / `title` / `sub-title` / `additional`。`font-size` 与 `bold` 会覆盖 `as` 对应样式。`highlight` 可以是字符串或字符串数组，命中部分包在 `mark` 里。
 
@@ -25,7 +29,7 @@ import { UText } from '@veltra/desktop'
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 /** 文本组件属性 */
@@ -58,6 +62,6 @@ export interface _TextExposed {}
 export interface TextExposed {}
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

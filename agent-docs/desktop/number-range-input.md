@@ -1,17 +1,21 @@
 ---
 title: "UNumberRangeInput - 数字范围输入框"
 description: "数字区间输入，可用元组或 start/end，以及在 UForm 内用 field 绑定"
+keywords:
+  - UNumberRangeInput
+  - @veltra/desktop
+  - number-range-input
+  - NumberRangeInput
+  - 数字范围输入框
+aliases: ["number-range-input", "UNumberRangeInput", "NumberRangeInput", "数字范围输入框"]
 ---
-
-# UNumberRangeInput - 数字范围输入框
-
-## 引入
+## 快速上手
 
 ```ts
 import { UNumberRangeInput } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `modelValue` 类型是 `[number | undefined, number | undefined]`，也可用 `v-model:start` / `v-model:end`。独立使用走 `v-model`；放进 `UForm` 时用 `field`，不要再写 `v-model`。
 
@@ -72,7 +76,7 @@ function validateScoreRange(val: [number, number] | undefined) {
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export interface NumberInputProps extends Omit<InputProps, 'modelValue'> {
@@ -128,6 +132,6 @@ export interface NumberRangeInputEmits {
 export interface NumberRangeInputExposed {}
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

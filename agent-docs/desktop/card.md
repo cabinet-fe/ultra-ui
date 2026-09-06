@@ -1,17 +1,30 @@
 ---
 title: "UCard / UCardHeader / UCardCover / UCardContent / UCardAction - 卡片"
 description: "用页头、封面、正文与操作区拼一张卡片，子组件只能放在 UCard 内"
+keywords:
+  - UCard
+  - UCardHeader
+  - UCardCover
+  - UCardContent
+  - UCardAction
+  - @veltra/desktop
+  - card
+  - Card
+aliases:
+  - card
+  - UCard
+  - UCardHeader
+  - UCardCover
+  - UCardContent
+  - UCardAction
 ---
-
-# UCard / UCardHeader / UCardCover / UCardContent / UCardAction - 卡片
-
-## 引入
+## 快速上手
 
 ```ts
 import { UCard, UCardHeader, UCardCover, UCardContent, UCardAction } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UCardHeader` / `UCardCover` / `UCardContent` / `UCardAction` 必须写在 `UCard` 里（脱离卡片会丢样式并告警）。`integrate` 去掉阴影，适合嵌进已有底的布局。`UCardCover` 的 `src` 必填。
 
@@ -43,7 +56,7 @@ import { UCard, UCardHeader, UCardCover, UCardContent, UCardAction } from '@velt
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -90,6 +103,6 @@ export interface _CardExposed {}
 export type CardExposed = DeconstructValue<_CardExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

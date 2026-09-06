@@ -1,17 +1,21 @@
 ---
 title: "ULayout - 栅格布局"
 description: "用 cols / rows 分栏，resizable 时至少一列是固定像素才能拖拽"
+keywords:
+  - ULayout
+  - @veltra/desktop
+  - layout
+  - Layout
+  - 栅格布局
+aliases: ["layout", "ULayout", "Layout", "栅格布局"]
 ---
-
-# ULayout - 栅格布局
-
-## 引入
+## 快速上手
 
 ```ts
 import { ULayout } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `ULayout` 是 CSS Grid 外壳。`cols` / `rows` 可以是空格分隔字符串或数组。`resizable` 为 true 时 `gap` 固定，且需要至少一列宽度是固定像素才能拖；可用 `col-min-sizes` 按列索引限制最小宽度（未写的列可被压到 0）。
 
@@ -38,7 +42,7 @@ import { ULayout } from '@veltra/desktop'
 
 行布局用 `rows`，例如页头 + 内容 + 页脚：`rows="auto 1fr auto"`。
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -110,6 +114,6 @@ export interface _LayoutExposed {}
 export type LayoutExposed = DeconstructValue<_LayoutExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 遵循 Vue 3 组合式 API 规范，支持按需引入与 TypeScript 类型推导。

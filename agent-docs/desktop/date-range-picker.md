@@ -1,17 +1,21 @@
 ---
 title: "UDateRangePicker - 日期范围选择器"
 description: "用 UDateRangePicker 选择起止日期，绑定值为二元组"
+keywords:
+  - UDateRangePicker
+  - @veltra/desktop
+  - date-range-picker
+  - DateRangePicker
+  - 日期范围选择器
+aliases: ["date-range-picker", "UDateRangePicker", "DateRangePicker", "日期范围选择器"]
 ---
-
-# UDateRangePicker - 日期范围选择器
-
-## 引入
+## 快速上手
 
 ```ts
 import { UDateRangePicker } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UDateRangePicker` 的 `modelValue` 是 `[start, end]`，元素类型随 `data-type`：默认字符串，也可为 `Date` 或时间戳。占位默认为 `['起始日期', '结束日期']`。`type` 同样支持 `date` / `month` / `year`。独立使用走 `v-model`；放进 `UForm` 必须写 `field`，不要再写 `v-model`。
 
@@ -43,7 +47,7 @@ const form = reactive({ period: undefined as [string, string] | undefined })
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -152,6 +156,6 @@ export interface _DateRangePickerExposed {}
 export type DateRangePickerExposed = DeconstructValue<_DateRangePickerExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

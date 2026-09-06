@@ -1,17 +1,21 @@
 ---
 title: "UTreeSelect - 树形选择器"
 description: "用 UTreeSelect 从树数据单选，展示文案用 update:text 同步不要 v-model:text"
+keywords:
+  - UTreeSelect
+  - @veltra/desktop
+  - tree-select
+  - TreeSelect
+  - 树形选择器
+aliases: ["tree-select", "UTreeSelect", "TreeSelect", "树形选择器"]
 ---
-
-# UTreeSelect - 树形选择器
-
-## 引入
+## 快速上手
 
 ```ts
 import { UTreeSelect } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UTreeSelect` 绑定单个节点值。树字段默认 `label` / `value` / `children`。展示文案始终由 `data` 推导；需要把文案同步到父级冗余字段时监听 `@update:text`，不要写 `v-model:text`。独立使用走 `v-model`；放进 `UForm` 必须写 `field`，不要再写 `v-model`。
 
@@ -73,7 +77,7 @@ const data = [
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -231,6 +235,6 @@ export interface _TreeSelectExposed {}
 export type TreeSelectExposed = DeconstructValue<_TreeSelectExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。

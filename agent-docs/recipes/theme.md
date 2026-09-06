@@ -1,8 +1,15 @@
 ---
-title: 主题系统配置、暗色模式切换与 Design Token 变量定制
-description: Ultra UI 全局主题与深浅色模式（Dark/Light Mode）切换方案：通过 loadTheme 注入 CSS 变量与设计令牌（Design Tokens），内置浅色/暗色预设，支持基于主色一键派生自定义品牌主题与 SCSS token 变量引用规范
+title: "theme - 主题系统配置、暗色模式切换与 Design Token 变量定制"
+description: "Ultra UI 全局主题与深浅色模式（Dark/Light Mode）切换方案：通过 loadTheme 注入 CSS 变量与设计令牌（Design Tokens），内置浅色/暗色预设，支持基于主色一键派生自定义品牌主题与 SCSS token 变量引用规范"
+keywords:
+  - theme
+  - @veltra/desktop
+  - 主题系统配置
+  - 主题
+  - Design Token
+  - 变量定制
+aliases: ["theme"]
 ---
-
 组件颜色全部来自 `loadTheme()` 注入的 `--u-*` token。本页只讲 `@veltra/styles/theme` 的公开用法，不涉及主题内部如何生成 CSS。
 
 ## 加载主题

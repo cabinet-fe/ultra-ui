@@ -1,17 +1,21 @@
 ---
 title: "UGridInput - 网格输入框"
 description: "分格数字输入，可配置长度、分隔符与是否允许 0"
+keywords:
+  - UGridInput
+  - @veltra/desktop
+  - grid-input
+  - GridInput
+  - 网格输入框
+aliases: ["grid-input", "UGridInput", "GridInput", "网格输入框"]
 ---
-
-# UGridInput - 网格输入框
-
-## 引入
+## 快速上手
 
 ```ts
 import { UGridInput } from '@veltra/desktop'
 ```
 
-## 示例
+## 典型示例
 
 `UGridInput` 不是表单控件（没有 `field`），用 `v-model` 绑定字符串。默认 6 格、分隔符 `-`、不可输入 0。`zero` 为 `true` 时允许 0–9（验证码）；组织编码等场景保持默认，每位只能是 1–9。暴露 `clear()`。
 
@@ -37,7 +41,7 @@ function handleClear() {
 </template>
 ```
 
-## API / 类型
+## API 签名 / 类型定义
 
 ```ts
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -74,6 +78,6 @@ export interface _GridInputExposed {
 export type GridInputExposed = DeconstructValue<_GridInputExposed>
 ```
 
-## 避坑与使用要点
+## 注意事项
 
 - 在 UForm 中必须使用 field，禁止 v-model。
