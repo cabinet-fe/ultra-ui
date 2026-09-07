@@ -28,8 +28,8 @@ interface UseSelectionOptions {
   imageWidth: () => number
   /** 图片原始高（图片像素） */
   imageHeight: () => number
-  /** 当前显示缩放（屏幕像素 / 图片像素） */
-  scale: () => number
+  /** 屏幕位移换算为图片像素位移（由 use-transform 提供，考虑缩放 / 旋转 / 翻转） */
+  toImageDelta: (dx: number, dy: number) => { x: number; y: number }
   /** 宽高比约束（宽 / 高），不传或 <= 0 为自由比例 */
   aspectRatio: () => number | undefined
 }
@@ -45,7 +45,7 @@ interface UseSelectionReturn {
 
 /** 裁剪选区交互：整体拖动 + 8 个手柄调整大小，支持宽高比约束与图片边界钳制 */
 export function useSelection(options: UseSelectionOptions): UseSelectionReturn {
-  const { target, imageWidth, imageHeight, scale, aspectRatio } = options
+  const { target, imageWidth, imageHeight, toImageDelta, aspectRatio } = options
 
   const selection = shallowRef<SelectionRect | null>(null)
 
@@ -155,12 +155,9 @@ export function useSelection(options: UseSelectionOptions): UseSelectionReturn {
 
   function handleMousemove(e: MouseEvent) {
     if (!session) return
-    const currentScale = scale()
-    if (!currentScale) return
 
-    // 屏幕位移换算为图片像素位移
-    const dx = (e.clientX - session.startX) / currentScale
-    const dy = (e.clientY - session.startY) / currentScale
+    // 屏幕位移换算为图片像素位移（含缩放 / 旋转 / 翻转）
+    const { x: dx, y: dy } = toImageDelta(e.clientX - session.startX, e.clientY - session.startY)
     selection.value =
       session.mode === 'move'
         ? moveSelection(session.origin, dx, dy)

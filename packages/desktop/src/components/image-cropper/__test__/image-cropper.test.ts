@@ -278,3 +278,127 @@ describe('UImageCropper 选区交互', () => {
     unmount()
   })
 })
+
+describe('UImageCropper 图片变换', () => {
+  /** 让画布拿到 400×300 的容器尺寸（happy-dom 的 ResizeObserver 不触发回调） */
+  class MockResizeObserver {
+    constructor(private cb: ResizeObserverCallback) {}
+
+    observe() {
+      this.cb(
+        [{ contentRect: { width: 400, height: 300 } } as ResizeObserverEntry],
+        this as unknown as ResizeObserver
+      )
+    }
+
+    unobserve() {}
+
+    disconnect() {}
+  }
+
+  beforeEach(() => {
+    MockImage.instances = []
+    MockImage.failNext = false
+    vi.stubGlobal('Image', MockImage)
+    vi.stubGlobal('ResizeObserver', MockResizeObserver)
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
+  })
+
+  function getCanvas(host: HTMLElement) {
+    const canvas = host.querySelector('.u-image-cropper__canvas') as HTMLElement
+    // happy-dom 的 DOMRect 字段为 undefined，补零保证锚点计算
+    canvas.getBoundingClientRect = () => ({ left: 0, top: 0 }) as DOMRect
+    return canvas
+  }
+
+  function stageTransform(host: HTMLElement) {
+    const stage = host.querySelector('.u-image-cropper__stage') as HTMLElement
+    const m = stage.style.transform.match(
+      /translate\((-?[\d.]+)px, (-?[\d.]+)px\) rotate\((-?[\d.]+)deg\) scale\((-?[\d.]+), (-?[\d.]+)\)/
+    )
+    if (!m) throw new Error(`无法解析 transform: ${stage.style.transform}`)
+    return { tx: +m[1]!, ty: +m[2]!, rotation: +m[3]!, sx: +m[4]!, sy: +m[5]! }
+  }
+
+  async function wheel(host: HTMLElement, deltaY: number) {
+    // happy-dom 的 WheelEvent 不携带 clientX / clientY，用 MouseEvent 模拟并补 deltaY
+    const e = new MouseEvent('wheel', { clientX: 0, clientY: 0 })
+    Object.defineProperty(e, 'deltaY', { value: deltaY })
+    getCanvas(host).dispatchEvent(e)
+    await nextTick()
+  }
+
+  /** 从 (100, 100) 按下目标元素并拖动 (dx, dy) 后抬起 */
+  async function drag(target: Element, dx: number, dy: number) {
+    target.dispatchEvent(
+      new MouseEvent('mousedown', { bubbles: true, button: 0, clientX: 100, clientY: 100 })
+    )
+    document.dispatchEvent(new MouseEvent('mousemove', { clientX: 100 + dx, clientY: 100 + dy }))
+    document.dispatchEvent(new MouseEvent('mouseup'))
+    await nextTick()
+  }
+
+  it('图片加载后按容器适应缩放并居中', async () => {
+    const { host, unmount } = mountCropper('https://example.com/a.png')
+    await flush()
+
+    // 容器 400×300、图片 800×600：fit 缩放 0.5，平移使图片中心对齐画布中心
+    expect(stageTransform(host)).toEqual({ tx: -200, ty: -150, rotation: 0, sx: 0.5, sy: 0.5 })
+    unmount()
+  })
+
+  it('滚轮以指针为锚缩放，缩小钳制在适应缩放', async () => {
+    const { host, unmount } = mountCropper('https://example.com/a.png')
+    await flush()
+
+    await wheel(host, -100)
+    let t = stageTransform(host)
+    expect(t.sx).toBeCloseTo(0.6, 10)
+    expect(t.tx).toBeCloseTo(-160, 8)
+    expect(t.ty).toBeCloseTo(-120, 8)
+
+    await wheel(host, 100)
+    await wheel(host, 100)
+    t = stageTransform(host)
+    expect(t.sx).toBe(0.5)
+    expect(t.tx).toBe(-200)
+    unmount()
+  })
+
+  it('图片未超出容器时选区外拖动不平移', async () => {
+    const { host, unmount } = mountCropper('https://example.com/a.png')
+    await flush()
+
+    // fit 状态显示尺寸 400×300 未超出容器
+    await drag(getCanvas(host), 30, 15)
+    expect(stageTransform(host)).toEqual({ tx: -200, ty: -150, rotation: 0, sx: 0.5, sy: 0.5 })
+    unmount()
+  })
+
+  it('放大后选区外拖动平移图片、选区内拖动移动选区，两者互不干扰', async () => {
+    const { host, unmount } = mountCropper('https://example.com/a.png')
+    await flush()
+
+    // 放大到 0.6：显示尺寸 480×360 超出容器
+    await wheel(host, -100)
+
+    // 选区外（画布空白处）拖动：平移图片
+    await drag(getCanvas(host), 30, 15)
+    const t = stageTransform(host)
+    expect(t.tx).toBeCloseTo(-130, 8)
+    expect(t.ty).toBeCloseTo(-105, 8)
+
+    // 选区内拖动：移动选区（屏幕 30px / 缩放 0.6 = 图片 50px），图片不平移
+    const sel = host.querySelector('.u-image-cropper__selection')!
+    await drag(sel, 30, 0)
+    expect(parseFloat((sel as HTMLElement).style.left)).toBeCloseTo(130, 10)
+    const after = stageTransform(host)
+    expect(after.tx).toBeCloseTo(t.tx, 10)
+    expect(after.ty).toBeCloseTo(t.ty, 10)
+    unmount()
+  })
+})

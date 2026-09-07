@@ -33,6 +33,7 @@ import { computed, reactive, shallowRef, watch } from 'vue'
 import type { ImageCropperProps, ImageCropperEmits } from '../../types'
 import { useImageLoader } from './use-image-loader'
 import { SELECTION_HANDLES, useSelection } from './use-selection'
+import { useTransform } from './use-transform'
 
 defineOptions({ name: 'ImageCropper' })
 
@@ -50,57 +51,24 @@ const selectionRef = shallowRef<HTMLElement>()
 
 const { imageUrl, loaded, naturalWidth, naturalHeight } = useImageLoader({ src: () => props.src })
 
-/** 图片变换状态（缩放 / 平移 / 旋转 / 翻转） */
-interface TransformState {
-  scale: number
-  translateX: number
-  translateY: number
-  /** 90° 步进角度，0 / 90 / 180 / 270 */
-  rotation: number
-  flipX: boolean
-  flipY: boolean
-}
+const canvasSize = reactive({ width: 0, height: 0 })
 
-const transform = reactive<TransformState>({
-  scale: 1,
-  translateX: 0,
-  translateY: 0,
-  rotation: 0,
-  flipX: false,
-  flipY: false
+// zoomIn / zoomOut / zoomTo / rotate / flip / resetTransform 由 P4 工具栏接线
+const { transform, fit, reset, toImageDelta } = useTransform({
+  target: canvasRef,
+  canvasSize: () => canvasSize,
+  imageWidth: () => naturalWidth.value,
+  imageHeight: () => naturalHeight.value,
+  onReset: () => initSelection()
 })
 
 const { selection, initSelection, clearSelection } = useSelection({
   target: selectionRef,
   imageWidth: () => naturalWidth.value,
   imageHeight: () => naturalHeight.value,
-  scale: () => transform.scale,
+  toImageDelta,
   aspectRatio: () => props.aspectRatio
 })
-
-const canvasSize = reactive({ width: 0, height: 0 })
-
-/** 图片加载后按比例适应容器并居中 */
-function fitImage() {
-  const { width, height } = canvasSize
-  if (!width || !height || !naturalWidth.value || !naturalHeight.value) return
-
-  const scale = Math.min(width / naturalWidth.value, height / naturalHeight.value)
-  transform.scale = scale
-  transform.translateX = (width - naturalWidth.value * scale) / 2
-  transform.translateY = (height - naturalHeight.value * scale) / 2
-}
-
-/** 重置选区与全部变换状态 */
-function resetState() {
-  transform.scale = 1
-  transform.translateX = 0
-  transform.translateY = 0
-  transform.rotation = 0
-  transform.flipX = false
-  transform.flipY = false
-  clearSelection()
-}
 
 useResizeObserver({
   targets: canvasRef,
@@ -108,20 +76,21 @@ useResizeObserver({
     if (!entry) return
     canvasSize.width = entry.contentRect.width
     canvasSize.height = entry.contentRect.height
-    if (loaded.value) fitImage()
+    if (loaded.value) fit()
   }
 })
 
 watch(
   () => props.src,
   () => {
-    resetState()
+    reset()
+    clearSelection()
   }
 )
 
 watch(loaded, (isLoaded) => {
   if (!isLoaded) return
-  fitImage()
+  fit()
   initSelection()
 })
 

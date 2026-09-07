@@ -21,7 +21,8 @@ $root-name: image-cropper;
     position: absolute;
     left: 0;
     top: 0;
-    transform-origin: 0 0;
+    // 变换原点为中心：旋转 / 翻转绕图片中心进行，不产生位置补偿
+    transform-origin: 50% 50%;
   }
 
   @include m.e(image) {
