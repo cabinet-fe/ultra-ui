@@ -1,14 +1,26 @@
 <template>
   <div :class="cls.b">
     <div :class="cls.e('canvas')" ref="canvasRef">
-      <img
-        v-if="loaded"
-        :class="cls.e('image')"
-        :src="imageUrl"
-        :style="imageStyle"
-        draggable="false"
-        alt=""
-      />
+      <div v-if="loaded" :class="cls.e('stage')" :style="stageStyle">
+        <img :class="cls.e('image')" :src="imageUrl" draggable="false" alt="" />
+
+        <template v-if="selection">
+          <!-- 选区外半透明遮罩 -->
+          <div v-for="(style, i) in maskStyles" :key="i" :class="cls.e('mask')" :style="style" />
+
+          <!-- 裁剪选区：整体拖动 + 8 个手柄调整大小 -->
+          <div :class="cls.e('selection')" ref="selectionRef" :style="selectionStyle">
+            <!-- 3×3 网格线，顺序对应 style.scss 中 nth-child 的定位 -->
+            <i v-for="i in 4" :key="i" :class="cls.e('grid-line')" />
+            <i
+              v-for="handle in SELECTION_HANDLES"
+              :key="handle"
+              :class="cls.e('handle')"
+              :data-handle="handle"
+            />
+          </div>
+        </template>
+      </div>
     </div>
   </div>
 </template>
@@ -20,6 +32,7 @@ import { computed, reactive, shallowRef, watch } from 'vue'
 
 import type { ImageCropperProps, ImageCropperEmits } from '../../types'
 import { useImageLoader } from './use-image-loader'
+import { SELECTION_HANDLES, useSelection } from './use-selection'
 
 defineOptions({ name: 'ImageCropper' })
 
@@ -33,6 +46,7 @@ defineEmits<ImageCropperEmits>()
 const cls = bem('image-cropper')
 
 const canvasRef = shallowRef<HTMLElement>()
+const selectionRef = shallowRef<HTMLElement>()
 
 const { imageUrl, loaded, naturalWidth, naturalHeight } = useImageLoader({ src: () => props.src })
 
@@ -47,14 +61,6 @@ interface TransformState {
   flipY: boolean
 }
 
-/** 裁剪选区 */
-interface SelectionState {
-  x: number
-  y: number
-  width: number
-  height: number
-}
-
 const transform = reactive<TransformState>({
   scale: 1,
   translateX: 0,
@@ -64,7 +70,13 @@ const transform = reactive<TransformState>({
   flipY: false
 })
 
-const selection = shallowRef<SelectionState | null>(null)
+const { selection, initSelection, clearSelection } = useSelection({
+  target: selectionRef,
+  imageWidth: () => naturalWidth.value,
+  imageHeight: () => naturalHeight.value,
+  scale: () => transform.scale,
+  aspectRatio: () => props.aspectRatio
+})
 
 const canvasSize = reactive({ width: 0, height: 0 })
 
@@ -87,7 +99,7 @@ function resetState() {
   transform.rotation = 0
   transform.flipX = false
   transform.flipY = false
-  selection.value = null
+  clearSelection()
 }
 
 useResizeObserver({
@@ -108,13 +120,47 @@ watch(
 )
 
 watch(loaded, (isLoaded) => {
-  if (isLoaded) fitImage()
+  if (!isLoaded) return
+  fitImage()
+  initSelection()
 })
 
-const imageStyle = computed(() => {
+/** 舞台样式：图片与选区层共用同一变换，选区以图片像素坐标定位 */
+const stageStyle = computed(() => {
   const { translateX, translateY, rotation, scale, flipX, flipY } = transform
   return {
-    transform: `translate(${translateX}px, ${translateY}px) rotate(${rotation}deg) scale(${(flipX ? -1 : 1) * scale}, ${(flipY ? -1 : 1) * scale})`
+    width: `${naturalWidth.value}px`,
+    height: `${naturalHeight.value}px`,
+    transform: `translate(${translateX}px, ${translateY}px) rotate(${rotation}deg) scale(${(flipX ? -1 : 1) * scale}, ${(flipY ? -1 : 1) * scale})`,
+    // 逆缩放系数：选区边框 / 网格线 / 手柄在缩放后保持屏幕恒定尺寸
+    '--u-image-cropper-inv-scale': String(1 / scale)
   }
+})
+
+const selectionStyle = computed(() => {
+  const sel = selection.value
+  if (!sel) return {}
+  return {
+    left: `${sel.x}px`,
+    top: `${sel.y}px`,
+    width: `${sel.width}px`,
+    height: `${sel.height}px`
+  }
+})
+
+/** 选区外上 / 下 / 左 / 右四向遮罩 */
+const maskStyles = computed(() => {
+  const sel = selection.value
+  if (!sel) return []
+  const W = naturalWidth.value
+  const H = naturalHeight.value
+  const right = sel.x + sel.width
+  const bottom = sel.y + sel.height
+  return [
+    { left: '0px', top: '0px', width: `${W}px`, height: `${sel.y}px` },
+    { left: '0px', top: `${bottom}px`, width: `${W}px`, height: `${H - bottom}px` },
+    { left: '0px', top: `${sel.y}px`, width: `${sel.x}px`, height: `${sel.height}px` },
+    { left: `${right}px`, top: `${sel.y}px`, width: `${W - right}px`, height: `${sel.height}px` }
+  ]
 })
 </script>

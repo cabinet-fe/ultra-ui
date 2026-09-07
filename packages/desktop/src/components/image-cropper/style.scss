@@ -16,11 +16,126 @@ $root-name: image-cropper;
     background-color: fn.use-var(bg-color, bottom);
   }
 
-  @include m.e(image) {
+  // 舞台：承载图片与选区层，尺寸为图片原始像素，随 transform 变换
+  @include m.e(stage) {
     position: absolute;
     left: 0;
     top: 0;
     transform-origin: 0 0;
+  }
+
+  @include m.e(image) {
+    display: block;
+    width: 100%;
+    height: 100%;
     user-select: none;
+  }
+
+  @include m.e(mask) {
+    position: absolute;
+    background-color: fn.color-a(bg-color, 70, black);
+  }
+
+  @include m.e(selection) {
+    position: absolute;
+    box-sizing: border-box;
+    border-style: solid;
+    border-color: fn.use-var(text-color, white);
+    // 选区在舞台内随图片缩放，边框用逆缩放保持屏幕恒定宽度
+    border-width: calc(1px * var(--u-image-cropper-inv-scale, 1));
+    cursor: move;
+  }
+
+  @include m.e(grid-line) {
+    position: absolute;
+    pointer-events: none;
+    background-color: fn.color-a(text-color, 50, white);
+
+    // 前两条为竖线，后两条为横线，与模板中的渲染顺序对应
+    &:nth-child(-n + 2) {
+      top: 0;
+      bottom: 0;
+      width: calc(1px * var(--u-image-cropper-inv-scale, 1));
+    }
+
+    &:nth-child(n + 3) {
+      left: 0;
+      right: 0;
+      height: calc(1px * var(--u-image-cropper-inv-scale, 1));
+    }
+
+    &:nth-child(1) {
+      left: 33.3333%;
+    }
+
+    &:nth-child(2) {
+      left: 66.6667%;
+    }
+
+    &:nth-child(3) {
+      top: 33.3333%;
+    }
+
+    &:nth-child(4) {
+      top: 66.6667%;
+    }
+  }
+
+  @include m.e(handle) {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: fn.use-var(text-color, white);
+    box-shadow: fn.use-var(shadow, sm);
+    // 手柄在舞台内随图片缩放，用逆缩放保持屏幕恒定尺寸
+    transform: translate(-50%, -50%) scale(var(--u-image-cropper-inv-scale, 1));
+
+    &[data-handle='nw'] {
+      left: 0;
+      top: 0;
+      cursor: nwse-resize;
+    }
+
+    &[data-handle='n'] {
+      left: 50%;
+      top: 0;
+      cursor: ns-resize;
+    }
+
+    &[data-handle='ne'] {
+      left: 100%;
+      top: 0;
+      cursor: nesw-resize;
+    }
+
+    &[data-handle='e'] {
+      left: 100%;
+      top: 50%;
+      cursor: ew-resize;
+    }
+
+    &[data-handle='se'] {
+      left: 100%;
+      top: 100%;
+      cursor: nwse-resize;
+    }
+
+    &[data-handle='s'] {
+      left: 50%;
+      top: 100%;
+      cursor: ns-resize;
+    }
+
+    &[data-handle='sw'] {
+      left: 0;
+      top: 100%;
+      cursor: nesw-resize;
+    }
+
+    &[data-handle='w'] {
+      left: 0;
+      top: 50%;
+      cursor: ew-resize;
+    }
   }
 }
