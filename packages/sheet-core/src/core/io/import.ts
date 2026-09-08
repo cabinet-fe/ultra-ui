@@ -7,6 +7,7 @@ import type {
   SheetImage as HucreSheetImage,
   Workbook as HucreWorkbook
 } from 'hucre'
+import { isDateFormat } from 'hucre'
 import { parseCsv } from 'hucre/csv'
 import { readXlsx } from 'hucre/xlsx'
 
@@ -24,6 +25,7 @@ import {
   type CellFont,
   type CellStyle,
   type HorizontalAlign,
+  type NumFmt,
   type VerticalAlign
 } from '../style/types'
 import { Workbook } from '../workbook'
@@ -39,10 +41,10 @@ const XLSX_READ_OPTIONS = { readStyles: true, sparse: true } as const
  * - 公式：cell.formula（不带 '='）→ CellData.f；计算缓存由本地引擎重算填充
  *   （一次 setCells 批量 = 单命令 = 单次重算编排 + 单 undo 单元）
  * - 日期：hucre 读回 Date 对象 → 转 1900 系统序列数存 t='d'（round-trip 保真）
- * - 样式：hucre CellStyle → 模型 { fill, border, font, align }，经 StylePool.intern 内容去重
+ * - 样式：hucre CellStyle → 模型 { fill, border, font, align, numFmt }，经 StylePool.intern 内容去重
  *   （同样式只 intern 一次；fill 只取 solid/条纹 fgColor 与渐变首色，border 线型收敛到
  *   模型 5 种，颜色缺省黑，theme 色经工作簿主题调色板解析；font/alignment 映射见
- *   hucreStyleToModel）
+ *   hucreStyleToModel；numFmt 映射见 xlsxNumFmtToModel——四类之外的格式忽略）
  * - 合并：MergeRange（0-based 闭区间）→ mergeCells（相交自动包围盒）
  * - 冻结：freezePane → setFrozen；行高：points → 像素（×4/3 取整）；
  *   列宽：字符宽 → 像素（×7+5，与 export pxToExcelColWidth 对称）
@@ -155,7 +157,34 @@ function hucreAlignToModel(alignment: HucreAlignment): CellAlign | undefined {
   return Object.keys(model).length > 0 ? model : undefined
 }
 
-/** hucre 单元格样式 → 模型样式（fill + border + font + align；numFmt 本期忽略） */
+/**
+ * xlsx 格式码 → 模型 numFmt（与 export numFmtToXlsx 对称）。识别本库四类：
+ * - `[DBNum2…]`（Excel 中文大写数字）→ cnUpper
+ * - 日期/时间格式（hucre isDateFormat，含内建日期 id 解析出的格式码）→ date
+ * - 纯 `#,##0[.00…]` 千分位分组（含会计式 `_ * #,##0.00_)…` 变体；带引号字面量/货币符号的不算）→ thousands
+ * - 纯 `0` / `0.00…` → fixed（小数位数 = 0 的个数）
+ * 其余（百分比、货币符号、科学计数等四类之外）返回 undefined，维持忽略现状。
+ */
+export function xlsxNumFmtToModel(numFmt: string | undefined): NumFmt | undefined {
+  if (!numFmt) return undefined
+  if (numFmt.toUpperCase().includes('[DBNUM2')) return { type: 'cnUpper' }
+  if (isDateFormat(numFmt)) return { type: 'date' }
+  // 归一化第一区段（正数段）：剥离引号字面量 / […] 段 / 转义字符 / `_x` 与 `*x` 填充
+  const section = numFmt.split(';')[0]!
+  const normalized = section
+    .replace(/"[^"]*"/g, '')
+    .replace(/\[[^\]]*\]/g, '')
+    .replace(/\\./g, '')
+    .replace(/[_*]./g, '')
+  // 纯数字模式才算 thousands / fixed——带引号字面量 / 货币符号的（如 "¥"#,##0.00）不在四类内，忽略
+  const plain = !/["$]/.test(section)
+  if (plain && /^#,##0(?:\.0+)?$/.test(normalized)) return { type: 'thousands' }
+  const fixed = plain ? /^0(?:\.(0+))?$/.exec(normalized) : null
+  if (fixed) return { type: 'fixed', digits: fixed[1]?.length ?? 0 }
+  return undefined
+}
+
+/** hucre 单元格样式 → 模型样式（fill + border + font + align + numFmt；四类之外的 numFmt 忽略） */
 export function hucreStyleToModel(
   style: HucreCellStyle,
   themeColors?: readonly string[]
@@ -195,6 +224,8 @@ export function hucreStyleToModel(
     const align = hucreAlignToModel(style.alignment)
     if (align) model.align = align
   }
+  const numFmt = xlsxNumFmtToModel(style.numFmt)
+  if (numFmt) model.numFmt = numFmt
   return Object.keys(model).length > 0 ? model : undefined
 }
 
@@ -241,11 +272,11 @@ function internStyleMemoized(
   themeColors: readonly string[] | undefined,
   memo: StyleMemo
 ): number | undefined {
-  // key 只由影响 hucreStyleToModel 输出的四个共享子对象决定（numFmt 被忽略）
+  // key 由影响 hucreStyleToModel 输出的输入决定：四个共享子对象引用 + numFmt 字符串
   const key = `${styleIdOf(memo, style.font)}|${styleIdOf(memo, style.fill)}|${styleIdOf(
     memo,
     style.border
-  )}|${styleIdOf(memo, style.alignment)}`
+  )}|${styleIdOf(memo, style.alignment)}|${style.numFmt ?? ''}`
   const hit = memo.ids.get(key)
   if (hit !== undefined) return hit
   const model = hucreStyleToModel(style, themeColors)
@@ -410,12 +441,13 @@ function synthesizeMergeAnchorData(
     }
   }
 
-  // 3. 收集 fill / font / align（锚点优先；若锚点没有，扫描区域内首个设置了相应属性的格）
+  // 3. 收集 fill / font / align / numFmt（锚点优先；若锚点没有，扫描区域内首个设置了相应属性的格）
   let fill = anchorModel?.fill
   let font = anchorModel?.font
   let align = anchorModel?.align
+  let numFmt = anchorModel?.numFmt
 
-  if (!fill || !font || !align) {
+  if (!fill || !font || !align || !numFmt) {
     for (let r = m.startRow; r <= m.endRow; r++) {
       for (let c = m.startCol; c <= m.endCol; c++) {
         if (r === m.startRow && c === m.startCol) continue
@@ -425,6 +457,7 @@ function synthesizeMergeAnchorData(
           if (!fill && s?.fill) fill = s.fill
           if (!font && s?.font) font = s.font
           if (!align && s?.align) align = s.align
+          if (!numFmt && s?.numFmt) numFmt = s.numFmt
         }
       }
     }
@@ -435,7 +468,8 @@ function synthesizeMergeAnchorData(
     ...(fill ? { fill } : {}),
     ...(Object.keys(mergedBorder).length > 0 ? { border: mergedBorder } : {}),
     ...(font ? { font } : {}),
-    ...(align ? { align } : {})
+    ...(align ? { align } : {}),
+    ...(numFmt ? { numFmt } : {})
   }
 
   let styleId: number | undefined

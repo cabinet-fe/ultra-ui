@@ -13,7 +13,7 @@ import { writeXlsx } from 'hucre/xlsx'
 
 import type { SheetImage } from '../image'
 import type { Sheet } from '../sheet'
-import { BORDER_SIDES, type CellStyle } from '../style/types'
+import { BORDER_SIDES, type CellStyle, type NumFmt } from '../style/types'
 import type { Workbook } from '../workbook'
 
 /**
@@ -25,9 +25,10 @@ import type { Workbook } from '../workbook'
  * - 日期 t='d'：模型存 1900 系统序列数，导出为数字 + 日期 numFmt（hucre 读回判为 Date，
  *   导入端再转回序列数——round-trip 保真）
  * - 合并：模型 CellRange（闭区间 start/end）→ hucre MergeRange（startRow/startCol/endRow/endCol）
- * - 样式：模型 { fill, border, font, align } → hucre CellStyle（fill=solid pattern +
+ * - 样式：模型 { fill, border, font, align, numFmt } → hucre CellStyle（fill=solid pattern +
  *   fgColor（去 '#'），四边 border { style, color }；hucre 无边宽字段，width 丢弃；
- *   font.size pt 直存；align.vertical middle ↔ hucre center；wrap ↔ wrapText）
+ *   font.size pt 直存；align.vertical middle ↔ hucre center；wrap ↔ wrapText；
+ *   numFmt → Excel 格式码，见 numFmtToXlsx）
  * - 冻结：Sheet.frozen → freezePane { rows, columns }
  * - 行高：模型像素 → hucre RowDef.height（points，×0.75）
  * - 图片：模型 SheetImage → hucre SheetImage（剥离 id；data/type/anchor/宽高/alt/title 直写）
@@ -58,7 +59,29 @@ export function buildColumnDefs(
   return columns
 }
 
-/** 模型样式 → hucre 单元格样式（fill / border / font / alignment；无边宽字段） */
+/**
+ * 模型 numFmt → xlsx 格式码（Excel 规范）：
+ * - date → `yyyy-mm-dd`
+ * - thousands → `#,##0.00`（千分位金额，两位小数）
+ * - cnUpper → `[DBNum2][$-804]G/通用格式`（Excel 中文大写数字内建机制）
+ * - fixed(digits) → `0.00…`（digits 个 0；0 位退化为 `0`）
+ */
+export function numFmtToXlsx(numFmt: NumFmt): string {
+  switch (numFmt.type) {
+    case 'date':
+      return 'yyyy-mm-dd'
+    case 'thousands':
+      return '#,##0.00'
+    case 'cnUpper':
+      return '[DBNum2][$-804]G/通用格式'
+    case 'fixed': {
+      const digits = Math.max(0, Math.trunc(numFmt.digits))
+      return digits > 0 ? `0.${'0'.repeat(digits)}` : '0'
+    }
+  }
+}
+
+/** 模型样式 → hucre 单元格样式（fill / border / font / alignment / numFmt；无边宽字段） */
 export function styleToHucre(style: CellStyle): HucreCellStyle {
   const hucre: HucreCellStyle = {}
   if (style.fill?.color) {
@@ -91,6 +114,7 @@ export function styleToHucre(style: CellStyle): HucreCellStyle {
     if (style.align.wrap) alignment.wrapText = true
     if (Object.keys(alignment).length > 0) hucre.alignment = alignment
   }
+  if (style.numFmt) hucre.numFmt = numFmtToXlsx(style.numFmt)
   return hucre
 }
 
@@ -148,7 +172,7 @@ function cellToHucreCell(
     // 模型日期序列（1900 系统）→ 数字 + 日期 numFmt（hucre 读回判为 Date，导入端转回）
     cell.value = data.v as number
     cell.type = 'number'
-    cell.style = { ...cell.style, numFmt: 'yyyy-mm-dd' }
+    cell.style = { ...cell.style, numFmt: numFmtToXlsx({ type: 'date' }) }
     return cell
   }
   return Object.keys(cell).length > 0 ? cell : undefined

@@ -105,7 +105,8 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 - `importXlsx(buffer, onProgress?)`：第二参数透传 `buildWorkbookFromHucre` 的分片进度回调（每完成一个 sheet 回调一次）；worker 导入链路（`@veltra/sheet` 的 import.worker）经动态 import 深导入本模块驱动进度 UI。
 - **IO 保真度约定**：xlsx 导入只读 `cells` Map（不扫稠密 `rows`）；表格尺寸按有值格 ∪ 合并 ∪ 图片锚点收敛，勿用稠密几何或 `columns[]` 全长撑到 Excel 极限列数；纯样式格只保留有值范围外扩 100 的紧邻带；行高/列宽只写入渲染范围内的定义（禁止把默认 `columns[]` 外扩 KEEP_MARGIN 后逐列 setColWidth）。
 - **快照整表替换**：`RestoreSheetCommand`（`sheet.restore-sheet`）+ `SnapshotPatch`——导入替换与 undo/redo 回放走整表 `restoreContent`（cells/styles/merges/images/rowStyles/colStyles + 公式图 `rebuildSheet` 重建），不发逐格 cell-change（避免十万级视图同步），发 `content-reset` 事件（grid `setRecords` 一次、状态源 bump）+ `image-change`；冻结/行高/列宽/尺寸/选区不进 undo；跨表引用方经 recalcAfterCommand 联动（含被清空的旧格标脏）。
-- **批量**：`Workbook.beginBatch/endBatch` 合并结构事件补发（196 sheet 导入的 195 次 `sheets-change` 收敛为 1 次）；`Sheet.mergeCellsBatch` 批量合并 = 单 undo 单元（批量内相交边收集边应用与逐条语义一致）；样式导入按 hucre 共享子对象引用组合 key memo 跳过重复解析/intern。
+- **批量**：`Workbook.beginBatch/endBatch` 合并结构事件补发（196 sheet 导入的 195 次 `sheets-change` 收敛为 1 次）；`Sheet.mergeCellsBatch` 批量合并 = 单 undo 单元（批量内相交边收集边应用与逐条语义一致）；样式导入按 hucre 共享子对象引用 + numFmt 字符串组合 key memo 跳过重复解析/intern。
+- **numFmt 双向 IO**：导出 `numFmtToXlsx`（date→`yyyy-mm-dd`、thousands→`#,##0.00`、cnUpper→`[DBNum2][$-804]G/通用格式`、fixed(digits)→`0.00…`）；导入 `xlsxNumFmtToModel` 识别外部常见日期（hucre `isDateFormat`）/ 千分位（含会计式变体）/ DBNum2 / 纯 `0.00…`，四类之外忽略（维持现状）。t='d' 格导出恒写日期 numFmt（hucre Date round-trip 保真）；CSV 导原始值不应用显示格式。
 - **分片构建**：`buildWorkbookFromHucre` 按 10% 粒度经回调回报进度（供 worker 链路驱动进度 UI）。
 - hucre `writeXlsx` 校验 sheet 名（Excel 非法字符 `[ ] : * ? / \`、>31 字符、保留名 History、大小写不敏感重名）抛 `InvalidArgumentError`；模型层不限制表名，导出失败由调用方 UI 提示。流式 API（`streamXlsxRows` / `writeXlsxStream`）不支持样式/合并/公式，与导入导出的保真需求不匹配，不采用。
 - xlsx 导入导出 round-trip 保留浮动图；CSV 忽略图片；WPS 单元格内嵌图（`cellImages`）本期跳过。
@@ -129,7 +130,7 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 - 替换 = 整格覆盖（非 Excel 子串）；公式格不参与替换。
 - 浮动图片：定位渲染、拖动平移锚点（含格内像素偏移 `offsetX/offsetY`，自由定位不吸附）、删除；无缩放/旋转；无剪贴板复制粘贴图；无单元格内嵌图（WPS `cellImages` / `DISPIMG`）导入转换；CSV 不携带图片；URL 来源（`src`）图不参与 xlsx 导出/导入（字节图 round-trip 保留）。
 - xlsx round-trip 丢失格内像素偏移（hucre 不支持 colOff/rowOff）：导入后图片对齐 from 格左上角（`offsetX/offsetY` 不随 xlsx 导入导出保留）。
-- 未做：字体族、图表、协同、双击填充柄；数字格式的 xlsx 导入导出（显示层已支持 numFmt）；xlsx 空格仅继承行列默认样式的 Excel 原生 round-trip（需 hucre 读 `<row s>` / `<col style>` 或导出 fan-out 物化）。
+- 未做：字体族、图表、协同、双击填充柄；四类之外 numFmt 的 xlsx 导入识别（忽略，维持现状）；xlsx 空格仅继承行列默认样式的 Excel 原生 round-trip（需 hucre 读 `<row s>` / `<col style>` 或导出 fan-out 物化）。
 
 ## 已知问题
 

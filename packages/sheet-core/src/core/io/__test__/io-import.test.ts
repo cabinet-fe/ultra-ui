@@ -1,8 +1,11 @@
 import type { Workbook as HucreWorkbook } from 'hucre'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { parseRange } from '../../address'
+import { formatByNumFmt } from '../../format'
 import { Sheet } from '../../sheet'
 import { Workbook } from '../../workbook'
+import { exportWorkbookXlsx } from '../export'
 import {
   dateToSerial1900,
   hucreStyleToModel,
@@ -18,7 +21,11 @@ import {
 
 const xlsxMock = vi.hoisted(() => ({ readXlsx: vi.fn() }))
 const csvMock = vi.hoisted(() => ({ parseCsv: vi.fn() }))
-vi.mock('hucre/xlsx', () => ({ readXlsx: xlsxMock.readXlsx }))
+// 保留真实 writeXlsx（round-trip 用例用本库真实导出产物驱动导入）
+vi.mock('hucre/xlsx', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('hucre/xlsx')>()
+  return { ...actual, readXlsx: xlsxMock.readXlsx }
+})
 vi.mock('hucre/csv', () => ({ parseCsv: csvMock.parseCsv }))
 
 beforeEach(() => {
@@ -222,6 +229,31 @@ describe('hucreStyleToModel / dateToSerial1900', () => {
     expect(dateToSerial1900(new Date('1900-03-01T00:00:00Z'))).toBe(61)
     expect(dateToSerial1900(new Date('2021-01-01T00:00:00Z'))).toBe(44197)
   })
+
+  it('numFmt 识别：常见日期 / 千分位 / 大写 / 小数位数 → 模型四类；四类之外忽略', () => {
+    // 日期（常见外部写法；日期时间同归 date 类）
+    expect(hucreStyleToModel({ numFmt: 'yyyy-mm-dd' })).toEqual({ numFmt: { type: 'date' } })
+    expect(hucreStyleToModel({ numFmt: 'yyyy/m/d;@' })).toEqual({ numFmt: { type: 'date' } })
+    expect(hucreStyleToModel({ numFmt: 'm/d/yy h:mm' })).toEqual({ numFmt: { type: 'date' } })
+    // 千分位（含会计式变体）
+    expect(hucreStyleToModel({ numFmt: '#,##0' })).toEqual({ numFmt: { type: 'thousands' } })
+    expect(hucreStyleToModel({ numFmt: '#,##0.00' })).toEqual({ numFmt: { type: 'thousands' } })
+    expect(
+      hucreStyleToModel({ numFmt: '_ * #,##0.00_ ;_ * -#,##0.00_ ;_ * "-"??_ ;_ @_ ' })
+    ).toEqual({ numFmt: { type: 'thousands' } })
+    // 大写金额（Excel DBNum2 内建机制）
+    expect(hucreStyleToModel({ numFmt: '[DBNum2][$-804]G/通用格式' })).toEqual({
+      numFmt: { type: 'cnUpper' }
+    })
+    // 小数位数（位数 = 0 的个数；0 位 = 整数）
+    expect(hucreStyleToModel({ numFmt: '0.00' })).toEqual({ numFmt: { type: 'fixed', digits: 2 } })
+    expect(hucreStyleToModel({ numFmt: '0' })).toEqual({ numFmt: { type: 'fixed', digits: 0 } })
+    // 四类之外忽略：百分比 / General / 货币符号
+    expect(hucreStyleToModel({ numFmt: '0.0%' })).toBeUndefined()
+    expect(hucreStyleToModel({ numFmt: 'General' })).toBeUndefined()
+    expect(hucreStyleToModel({ numFmt: '"¥"#,##0.00' })).toBeUndefined()
+    expect(hucreStyleToModel({ numFmt: '$#,##0.00' })).toBeUndefined()
+  })
 })
 
 describe('importXlsx 映射（hucre 读取结果 → 模型）', () => {
@@ -260,6 +292,77 @@ describe('importXlsx 映射（hucre 读取结果 → 模型）', () => {
 
     // Sheet2
     expect(workbook.getSheet('Sheet2')!.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'b' })
+  })
+
+  it('外部常见 numFmt 识别并应用：日期格转序列数 + date 类，千分位格保留原始值 + thousands 类', async () => {
+    xlsxMock.readXlsx.mockResolvedValue({
+      sheets: [
+        {
+          name: 'Fmt',
+          rows: [],
+          cells: new Map([
+            // 外部日期格：hucre 读回 Date + 日期 numFmt
+            [
+              '0,0',
+              {
+                value: new Date('2023-03-15T00:00:00Z'),
+                type: 'date',
+                style: { numFmt: 'yyyy-mm-dd' }
+              }
+            ],
+            ['0,1', { value: 1234567.89, type: 'number', style: { numFmt: '#,##0.00' } }],
+            // 四类之外：百分比忽略（numFmt 不落地）
+            ['0,2', { value: 0.5, type: 'number', style: { numFmt: '0.0%' } }]
+          ])
+        }
+      ],
+      activeSheet: 0
+    })
+    const sheet = (await importXlsx(new Uint8Array())).activeSheet
+    // 日期：Date → 1900 序列数 t='d'，样式 date 类，显示为 YYYY-MM-DD
+    expect(sheet.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 45000, t: 'd' })
+    expect(sheet.getCellStyle({ row: 0, col: 0 })?.numFmt).toEqual({ type: 'date' })
+    // 千分位：原始值不变，样式 thousands 类，显示千分位分组
+    expect(sheet.getCellData({ row: 0, col: 1 })).toMatchObject({ v: 1234567.89, t: 'n' })
+    expect(sheet.getCellStyle({ row: 0, col: 1 })?.numFmt).toEqual({ type: 'thousands' })
+    expect(formatByNumFmt(1234567.89, { type: 'thousands' })).toBe('1,234,567.89')
+    // 百分比不在四类内：忽略 numFmt（维持导入现状）
+    expect(sheet.getCellStyle({ row: 0, col: 2 })?.numFmt).toBeUndefined()
+  })
+
+  it('round-trip：本库导出（含四类格式）再导入，格式与显示保持', async () => {
+    // 用真实 readXlsx 读回本库真实导出字节（writeXlsx 未经 mock）
+    const actual = await vi.importActual<typeof import('hucre/xlsx')>('hucre/xlsx')
+    xlsxMock.readXlsx.mockImplementation((buffer, options) => actual.readXlsx(buffer, options))
+
+    const source = new Workbook()
+    const sheet = source.activeSheet
+    sheet.setCellValue({ row: 0, col: 0 }, 45000)
+    sheet.setCellStyle(parseRange('A1')!, { numFmt: { type: 'date' } })
+    sheet.setCellValue({ row: 0, col: 1 }, 1234567.89)
+    sheet.setCellStyle(parseRange('B1')!, { numFmt: { type: 'thousands' } })
+    sheet.setCellValue({ row: 0, col: 2 }, 1234.56)
+    sheet.setCellStyle(parseRange('C1')!, { numFmt: { type: 'cnUpper' } })
+    sheet.setCellValue({ row: 0, col: 3 }, 1.005)
+    sheet.setCellStyle(parseRange('D1')!, { numFmt: { type: 'fixed', digits: 2 } })
+
+    const bytes = await exportWorkbookXlsx(source)
+    const imported = (await importXlsx(bytes)).activeSheet
+
+    // 原始值保持（date 类经 hucre Date 读回转回序列数 t='d'）
+    expect(imported.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 45000, t: 'd' })
+    expect(imported.getCellData({ row: 0, col: 1 })).toMatchObject({ v: 1234567.89, t: 'n' })
+    expect(imported.getCellData({ row: 0, col: 2 })).toMatchObject({ v: 1234.56, t: 'n' })
+    expect(imported.getCellData({ row: 0, col: 3 })).toMatchObject({ v: 1.005, t: 'n' })
+    // 四类格式保持
+    expect(imported.getCellStyle({ row: 0, col: 0 })?.numFmt).toEqual({ type: 'date' })
+    expect(imported.getCellStyle({ row: 0, col: 1 })?.numFmt).toEqual({ type: 'thousands' })
+    expect(imported.getCellStyle({ row: 0, col: 2 })?.numFmt).toEqual({ type: 'cnUpper' })
+    expect(imported.getCellStyle({ row: 0, col: 3 })?.numFmt).toEqual({ type: 'fixed', digits: 2 })
+    // 显示保持
+    expect(formatByNumFmt(45000, { type: 'date' })).toBe('2023-03-15')
+    expect(formatByNumFmt(1234.56, { type: 'cnUpper' })).toBe('壹仟贰佰叁拾肆元伍角陆分')
+    expect(formatByNumFmt(1.005, { type: 'fixed', digits: 2 })).toBe('1.01')
   })
 
   it('浮动图 images → 模型；cellImages 跳过；纳入同事务 undo', async () => {

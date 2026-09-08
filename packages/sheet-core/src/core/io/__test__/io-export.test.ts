@@ -97,6 +97,16 @@ describe('styleToHucre / rangeToHucre / imageToHucre（样式与合并与图片�
     })
   })
 
+  it('numFmt 四类 → xlsx 格式码（fixed 0 位退化为 0）', () => {
+    expect(styleToHucre({ numFmt: { type: 'date' } })).toEqual({ numFmt: 'yyyy-mm-dd' })
+    expect(styleToHucre({ numFmt: { type: 'thousands' } })).toEqual({ numFmt: '#,##0.00' })
+    expect(styleToHucre({ numFmt: { type: 'cnUpper' } })).toEqual({
+      numFmt: '[DBNum2][$-804]G/通用格式'
+    })
+    expect(styleToHucre({ numFmt: { type: 'fixed', digits: 2 } })).toEqual({ numFmt: '0.00' })
+    expect(styleToHucre({ numFmt: { type: 'fixed', digits: 0 } })).toEqual({ numFmt: '0' })
+  })
+
   it('imageToHucre 剥离 id，保留 data/type/anchor/尺寸/alt/title', () => {
     expect(
       imageToHucre({
@@ -209,6 +219,33 @@ describe('exportWorkbookXlsx 映射（hucre 输入结构）', () => {
     expect(images![0]).not.toHaveProperty('id')
   })
 
+  it('numFmt 四类格式随单元格样式写入对应 xlsx 格式码，值仍为原始值', async () => {
+    const workbook = new Workbook()
+    const sheet = workbook.activeSheet
+    sheet.setCellValue({ row: 0, col: 0 }, 45000)
+    sheet.setCellStyle(parseRange('A1')!, { numFmt: { type: 'date' } })
+    sheet.setCellValue({ row: 0, col: 1 }, 1234567.89)
+    sheet.setCellStyle(parseRange('B1')!, { numFmt: { type: 'thousands' } })
+    sheet.setCellValue({ row: 0, col: 2 }, 1234.56)
+    sheet.setCellStyle(parseRange('C1')!, { numFmt: { type: 'cnUpper' } })
+    sheet.setCellValue({ row: 0, col: 3 }, 1.005)
+    sheet.setCellStyle(parseRange('D1')!, { numFmt: { type: 'fixed', digits: 2 } })
+    // 公式格同样携带 numFmt
+    sheet.setCellFormula({ row: 1, col: 0 }, '=B1')
+    sheet.setCellStyle(parseRange('A2')!, { numFmt: { type: 'thousands' } })
+
+    await exportWorkbookXlsx(workbook)
+    const sheetOut = lastOptions!.sheets[0]!
+    // 原始值直写 rows，不被显示格式改动
+    expect(sheetOut.rows![0]).toMatchObject([45000, 1234567.89, 1234.56, 1.005])
+    const cells = sheetOut.cells!
+    expect(cells.get('0,0')?.style?.numFmt).toBe('yyyy-mm-dd')
+    expect(cells.get('0,1')?.style?.numFmt).toBe('#,##0.00')
+    expect(cells.get('0,2')?.style?.numFmt).toBe('[DBNum2][$-804]G/通用格式')
+    expect(cells.get('0,3')?.style?.numFmt).toBe('0.00')
+    expect(cells.get('1,0')).toMatchObject({ formula: 'B1', style: { numFmt: '#,##0.00' } })
+  })
+
   it('纯样式格（无值）也导出（cells 覆盖仅含 style，值保留 rows 语义）', async () => {
     const workbook = new Workbook()
     const sheet = workbook.activeSheet
@@ -268,6 +305,14 @@ describe('exportSheetCsv', () => {
     expect(exportSheetCsv(new Sheet())).toBe('\uFEFF')
   })
 
+  it('设置 numFmt 的单元格仍导原始值，不应用显示格式', () => {
+    const sheet = new Sheet()
+    sheet.setCellValue({ row: 0, col: 0 }, 1234567.89)
+    sheet.setCellStyle(parseRange('A1')!, { numFmt: { type: 'thousands' } })
+    sheet.setCellValue({ row: 0, col: 1 }, 45000)
+    sheet.setCellStyle(parseRange('B1')!, { numFmt: { type: 'date' } })
+    expect(exportSheetCsv(sheet)).toBe('\uFEFF1234567.89,45000')
+  })
   it('含图片时 CSV 导出忽略图片不报错', () => {
     const sheet = new Sheet()
     sheet.setCellValue({ row: 0, col: 0 }, 1)
