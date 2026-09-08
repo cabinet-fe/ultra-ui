@@ -51,6 +51,7 @@ export interface SetCellStyleParams {
  *   删除该边（其余边保留）；未列出的边 → 保留（`border: {}` = 无边变化）
  * - font / align 存在即**逐字段浅合并**（缺失字段保留既有值）；
  *   `font: {}` / `align: {}` = 清除该类全部；字段值为 `null` = 删除该字段
+ * - numFmt 存在即整体替换；`null` = 删除该字段；缺省 = 保留既有
  * - 合并结果为空 → undefined（调用方删除 s 字段）
  */
 export function mergeCellStyle(
@@ -108,6 +109,12 @@ export function mergeCellStyle(
     // align: {} = 清除全部对齐字段
   } else if (before?.align) {
     merged.align = { ...before.align }
+  }
+  if (partial.numFmt !== undefined) {
+    if (partial.numFmt !== null) merged.numFmt = { ...partial.numFmt }
+    // numFmt: null = 删除该字段
+  } else if (before?.numFmt) {
+    merged.numFmt = { ...before.numFmt }
   }
   return normalizeStyle(merged)
 }

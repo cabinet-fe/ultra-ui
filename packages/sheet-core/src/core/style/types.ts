@@ -3,7 +3,7 @@
  *
  * 样式定义集中存储在 StylePool（随 Sheet 持有），单元格 CellData 只持
  * StyleId 引用——相同样式无论多少单元格共享一份定义，降低内存与序列化体积。
- * 预留扩展位（本期不实现）：numFmt（数字格式）、fontFamily（字体族）。
+ * 预留扩展位（本期不实现）：fontFamily（字体族）。
  */
 
 /** 边框线型：thin/medium/thick 为实线粗细分级，dashed/dotted 为虚线/点线 */
@@ -51,6 +51,19 @@ export interface CellAlign {
   wrap?: boolean
 }
 
+/**
+ * 数字格式（数据格式）：仅影响显示，单元格恒存原始值（Excel 式语义）。
+ * - `date`：按 1900 日期系统把序列数显示为 `YYYY-MM-DD`
+ * - `thousands`：千分位分组（整数部分三位分隔，小数部分原样保留）
+ * - `cnUpper`：中文大写金额（如 1234.56 → 壹仟贰佰叁拾肆元伍角陆分）
+ * - `fixed`：固定小数位数（四舍五入仅作用于显示），`digits` 为位数
+ */
+export type NumFmt =
+  | { type: 'date' }
+  | { type: 'thousands' }
+  | { type: 'cnUpper' }
+  | { type: 'fixed'; digits: number }
+
 /** 单元格样式（样式池条目） */
 export interface CellStyle {
   /** 背景填充；缺省 = 无填充 */
@@ -61,7 +74,8 @@ export interface CellStyle {
   font?: CellFont
   /** 对齐 / 换行；缺省 = 左对齐、垂直居中语义由主题决定 */
   align?: CellAlign
-  // 预留扩展位（本期不实现）：numFmt?: string
+  /** 数字格式；缺省 = 原始值直显 */
+  numFmt?: NumFmt
 }
 
 /** 样式 id（样式池索引；CellData.s 引用；1 起递增，池内唯一） */
@@ -77,6 +91,7 @@ export type StyleId = number
  *   - 未列出的边 → 保留（`border: {}` = 无边变化）
  * - `font` / `align` 字段存在即**逐字段浅合并**（缺失字段保留既有值）；
  *   `font: {}` / `align: {}` = 清除该类全部字段；字段值为 `null` = 删除该字段
+ * - `numFmt` 字段存在即整体替换；`null` = 删除该字段；缺省 = 保留既有
  * - 要表达「重定义整个边集合」（如无边框预设），需显式给出四边（含 `null`）
  */
 export interface CellStylePatch {
@@ -95,6 +110,7 @@ export interface CellStylePatch {
     vertical?: VerticalAlign | null
     wrap?: boolean | null
   }
+  numFmt?: NumFmt | null
 }
 
 /** 线型 → 默认线宽（px）；工具预设与缺失字段补全用 */

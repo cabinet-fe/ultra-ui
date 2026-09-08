@@ -6,6 +6,7 @@ import type { ICustomLayoutFuc, ICustomLayoutObj } from '@visactor/vtable/es/ts-
 import type { CellAddress, CellRange } from '../core/address'
 import { colIndexToName } from '../core/address'
 import type { CellValue } from '../core/cell-store'
+import { formatByNumFmt } from '../core/format'
 import type { FrozenState, Sheet } from '../core/sheet'
 import {
   GridCoords,
@@ -359,7 +360,10 @@ export class SheetGrid {
   }
 
   private getTableCellValue(addr: CellAddress): CellValue | undefined {
-    const base = this.sheet.getDisplayValue(addr)
+    const raw = this.sheet.getDisplayValue(addr)
+    // numFmt 仅作用于显示：数字值按有效样式格式化（含公式缓存结果），模型仍存原始值
+    const numFmt = typeof raw === 'number' ? this.sheet.getEffectiveStyle(addr)?.numFmt : undefined
+    const base = numFmt ? formatByNumFmt(raw as number, numFmt) : raw
     if (!this.resolveDisplayValue) return base
     const resolved = this.resolveDisplayValue(addr, base)
     return resolved !== undefined ? resolved : base

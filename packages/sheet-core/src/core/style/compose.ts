@@ -16,6 +16,7 @@ import {
  * - fill：overlay 含 fill 则整层替换（无 color → 清除填充）
  * - border：边级——overlay 给出的边替换，未给出的边保留 base；`border` 缺省 = 全保留
  * - font / align：字段级——overlay 定义的字段覆盖
+ * - numFmt：字段级——overlay 定义则覆盖，缺省保留 base
  */
 export function composeCellStyles(
   base: CellStyle | undefined,
@@ -47,6 +48,9 @@ export function composeCellStyles(
   const align = composeFields(base.align, overlay.align, ALIGN_STYLE_KEYS)
   if (align) merged.align = align
 
+  const numFmt = overlay.numFmt ?? base.numFmt
+  if (numFmt) merged.numFmt = { ...numFmt }
+
   return normalizeStyle(merged)
 }
 
@@ -64,6 +68,7 @@ function cloneLayer(style: CellStyle): CellStyle {
   }
   if (style.font) out.font = { ...style.font }
   if (style.align) out.align = { ...style.align }
+  if (style.numFmt) out.numFmt = { ...style.numFmt }
   return out
 }
 

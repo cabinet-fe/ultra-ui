@@ -14,7 +14,7 @@ import {
  *
  * - `intern(style)`：规范化（剔除空 fill/border/font/align/空边）→ 稳定序列化 key →
  *   相同内容返回同一 id；单元格只存 id，共享定义
- * - 序列化 key 按固定字段顺序输出（fill → border 四边 → font → align），与写入顺序无关
+ * - 序列化 key 按固定字段顺序输出（fill → border 四边 → font → align → numFmt），与写入顺序无关
  * - `snapshot/restore`：按 id 升序导出定义数组，还原后 id 映射一致
  *   （单元格 s 引用在 restore 后仍然有效）
  * - 池只增不减（undo 回放不回收定义）：被引用的 id 永远可解析
@@ -71,6 +71,7 @@ export function normalizeStyle(style: CellStyle): CellStyle | undefined {
   if (font) normalized.font = font
   const align = normalizeAlign(style.align)
   if (align) normalized.align = align
+  if (style.numFmt) normalized.numFmt = { ...style.numFmt }
   return Object.keys(normalized).length > 0 ? normalized : undefined
 }
 
@@ -85,12 +86,13 @@ function cloneStyle(style: CellStyle): CellStyle {
     ...(style.fill ? { fill: { ...style.fill } } : {}),
     ...(Object.keys(border).length > 0 ? { border } : {}),
     ...(style.font ? { font: { ...style.font } } : {}),
-    ...(style.align ? { align: { ...style.align } } : {})
+    ...(style.align ? { align: { ...style.align } } : {}),
+    ...(style.numFmt ? { numFmt: { ...style.numFmt } } : {})
   }
 }
 
 /**
- * 稳定序列化：fill → border 按固定边序 → font → align，字段固定顺序，输出与书写顺序无关。
+ * 稳定序列化：fill → border 按固定边序 → font → align → numFmt，字段固定顺序，输出与书写顺序无关。
  * 调用方需先 normalize（本函数对空字段做同样剔除，保证 key 最小化）。
  */
 function serializeStyleKey(style: CellStyle): string {
@@ -120,7 +122,12 @@ function serializeStyleKey(style: CellStyle): string {
     fill: style.fill ? { color: style.fill.color } : undefined,
     border: Object.keys(border).length > 0 ? border : undefined,
     font: Object.keys(font).length > 0 ? font : undefined,
-    align: Object.keys(align).length > 0 ? align : undefined
+    align: Object.keys(align).length > 0 ? align : undefined,
+    numFmt: style.numFmt
+      ? style.numFmt.type === 'fixed'
+        ? { type: 'fixed', digits: style.numFmt.digits }
+        : { type: style.numFmt.type }
+      : undefined
   })
 }
 

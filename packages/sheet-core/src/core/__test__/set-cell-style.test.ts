@@ -123,6 +123,24 @@ describe('mergeCellStyle 部分合并语义', () => {
     })
     expect(mergeCellStyle(base, { align: {} })).toEqual({ fill: base.fill, font: base.font })
   })
+
+  it('numFmt 整体替换；null 删除；缺省保留既有', () => {
+    const base = { fill: { color: '#FF0000' }, numFmt: { type: 'date' as const } }
+    // 只改 fill → numFmt 保留
+    expect(mergeCellStyle(base, { fill: { color: '#00FF00' } })).toEqual({
+      fill: { color: '#00FF00' },
+      numFmt: { type: 'date' }
+    })
+    // 整体替换
+    expect(mergeCellStyle(base, { numFmt: { type: 'fixed', digits: 2 } })).toEqual({
+      fill: base.fill,
+      numFmt: { type: 'fixed', digits: 2 }
+    })
+    // null 删除 numFmt，其余保留
+    expect(mergeCellStyle(base, { numFmt: null })).toEqual({ fill: base.fill })
+    // 仅有的 numFmt 被删除 → 空样式
+    expect(mergeCellStyle({ numFmt: { type: 'thousands' } }, { numFmt: null })).toBeUndefined()
+  })
 })
 
 describe('SetCellStyleCommand（经 Sheet）', () => {
@@ -376,5 +394,65 @@ describe('SetCellStyleCommand（经 Sheet）', () => {
 
     sheet.undo()
     expect(sheet.getCellStyle({ row: 0, col: 0 })).toBeUndefined()
+  })
+
+  it('numFmt 经 setCellStyle 写入：样式池去重，原始值不变', () => {
+    const sheet = new Sheet()
+    sheet.setCellValue(B2, 45000)
+    sheet.setCellValue(C3, 45000)
+    sheet.setCellStyle(B2C3, { numFmt: { type: 'date' } })
+    expect(sheet.getCellStyle(B2)?.numFmt).toEqual({ type: 'date' })
+    expect(sheet.getCellData(B2)!.s).toBe(sheet.getCellData(C3)!.s)
+    expect(sheet.stylePool.size).toBe(1)
+    // 仅显示语义：原始值不变
+    expect(sheet.getCellData(B2)).toMatchObject({ v: 45000, t: 'n' })
+    expect(sheet.getDisplayValue(B2)).toBe(45000)
+  })
+
+  it('numFmt 叠加：只改 fill 保留 numFmt；fixed 带 digits 参数参与池去重', () => {
+    const sheet = new Sheet()
+    sheet.setCellStyle(B2C3, { numFmt: { type: 'fixed', digits: 2 } })
+    sheet.setCellStyle(B2C3, { fill: { color: '#FF0000' } })
+    expect(sheet.getCellStyle(B2)).toEqual({
+      numFmt: { type: 'fixed', digits: 2 },
+      fill: { color: '#FF0000' }
+    })
+    // 不同 digits 是不同样式定义
+    const other = new Sheet()
+    other.setCellStyle(B2C3, { numFmt: { type: 'fixed', digits: 2 } })
+    other.setCellStyle(parseRange('A1')!, { numFmt: { type: 'fixed', digits: 4 } })
+    expect(other.stylePool.size).toBe(2)
+  })
+
+  it('numFmt 清除（null）与 undo/redo', () => {
+    const sheet = new Sheet()
+    sheet.setCellValue(B2, 1234.56)
+    sheet.setCellStyle(B2C3, { numFmt: { type: 'cnUpper' }, fill: { color: '#FF0000' } })
+    expect(sheet.getCellStyle(B2)?.numFmt).toEqual({ type: 'cnUpper' })
+
+    // 清除 numFmt，其余样式保留
+    sheet.setCellStyle(B2C3, { numFmt: null })
+    expect(sheet.getCellStyle(B2)).toEqual({ fill: { color: '#FF0000' } })
+    expect(sheet.getCellData(B2)).toMatchObject({ v: 1234.56 })
+
+    sheet.undo()
+    expect(sheet.getCellStyle(B2)?.numFmt).toEqual({ type: 'cnUpper' })
+    sheet.redo()
+    expect(sheet.getCellStyle(B2)?.numFmt).toBeUndefined()
+    sheet.undo()
+    sheet.undo()
+    expect(sheet.getCellStyle(B2)).toBeUndefined()
+    expect(sheet.getCellData(B2)).toMatchObject({ v: 1234.56 })
+  })
+
+  it('numFmt 参与有效样式叠加：列 → 行 → 格逐级覆盖', () => {
+    const sheet = new Sheet()
+    sheet.setCellValue(B2, 1234567.89)
+    sheet.setColStyle(1, { numFmt: { type: 'thousands' } })
+    expect(sheet.getEffectiveStyle(B2)?.numFmt).toEqual({ type: 'thousands' })
+    sheet.setRowStyle(1, { numFmt: { type: 'cnUpper' } })
+    expect(sheet.getEffectiveStyle(B2)?.numFmt).toEqual({ type: 'cnUpper' })
+    sheet.setCellStyle({ start: B2, end: B2 }, { numFmt: { type: 'date' } })
+    expect(sheet.getEffectiveStyle(B2)?.numFmt).toEqual({ type: 'date' })
   })
 })
