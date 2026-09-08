@@ -19,6 +19,7 @@ src/
 │   ├── formula/          # 公式引擎
 │   ├── io/               # xlsx/csv（hucre；浮动图 round-trip）
 │   ├── fill.ts / find.ts / merge-manager.ts / selection.ts
+│   ├── format.ts         # numFmt 值 → 显示文本纯函数（仅显示，存原始值）
 │   └── events.ts
 └── grid/                 # VTable 适配层（公开入口 `@veltra/sheet-core/grid`）
     ├── index.ts          # SheetGrid / CustomLayout / resolveCellRenderer 等
@@ -46,10 +47,11 @@ src/
 - **合并**：锚点 = 区域左上角，数据只存锚点；`MergeManager` 只管几何，值保留规则在 `Sheet.mergeCells`。
 - **两种读取**：`getCellData` = 原始存储（被覆盖格 → undefined）；`getDisplayValue` = 锚点解析。写入/选中内部先 `resolveAnchor`。
 - **不进 undo**：选区、冻结、行高、列宽。选区可随 `SheetSnapshot.selection?` 序列化；冻结随快照；行高随 `SheetSnapshot.rowHeights?`；列宽随 `SheetSnapshot.colWidths?`。
-- **样式**：`CellData.s: StyleId` → StylePool 按内容去重；行/列默认样式 `SheetSnapshot.rowStyles?` / `colStyles?`（同池 StyleId，进 undo，经 `setRowStyle` / `setColStyle`）；有效样式 = 列 → 行 → 格字段级叠加（`composeCellStyles` / `Sheet.getEffectiveStyle`）。部分合并见 `CellStylePatch`（fill 覆盖、border 边级、font/align 逐字段；`null` 删字段）。边框预设经 `buildBorderPresetItems`（`outer`/`inner`/`all`/`top`/`bottom`/`left`/`right`/`none` → 外边框/内边框/所有边框/上/下/左/右边框 + 无边框；含邻居对侧边同步）。
-- **公式**：`f` 原文（无 `=`），`v`/`t` 为缓存；重算派生补丁并入同一 undo 单元；undo/redo 纯补丁回放。跨表依赖图在 `Workbook` 级共享。
+- **样式**：`CellData.s: StyleId` → StylePool 按内容去重；行/列默认样式 `SheetSnapshot.rowStyles?` / `colStyles?`（同池 StyleId，进 undo，经 `setRowStyle` / `setColStyle`）；有效样式 = 列 → 行 → 格字段级叠加（`composeCellStyles` / `Sheet.getEffectiveStyle`）。部分合并见 `CellStylePatch`（fill 覆盖、border 边级、font/align 逐字段、numFmt 整体替换；`null` 删字段）。边框预设经 `buildBorderPresetItems`（`outer`/`inner`/`all`/`top`/`bottom`/`left`/`right`/`none` → 外边框/内边框/所有边框/上/下/左/右边框 + 无边框；含邻居对侧边同步）。
+- **数字格式（numFmt）**：`CellStyle.numFmt`（`date` / `thousands` / `cnUpper` / `fixed(digits)`，见 `core/style/types.ts`）**仅影响显示、单元格恒存原始值**（Excel 式语义）——值 → 显示文本纯函数在 `core/format.ts`（`formatByNumFmt`；日期按 1900 系统序列数、大写金额为中文大写、小数位数四舍五入仅作用于显示），应用在 grid 显示路径（`getTableCellValue`，含公式缓存结果）；`getCellData` / `getDisplayValue` / CSV 导出均为原始值。
+- **公式**：`f` 原文（无 `=`），`v`/`t` 为缓存；重算派生补丁并入同一 undo 单元；undo/redo 纯补丁回放。跨表依赖图在 `Workbook` 级共享。易失性语义：函数注册表带 `volatile` 标记（内置 `TODAY` / `NOW` / `RAND` / `RANDBETWEEN`），含易失性函数的公式格在任意单元格变更触发的重算中必重新求值（值未变不产生派生补丁），非易失性公式仍按依赖图增量重算；`TODAY`/`NOW` 返回 1900 系统序列数（本地时间，含伪闰日修正），显示侧由 numFmt 承接。
 - **addSheet 初始数据**：`addSheet(name?, { data?, rows?, cols? })`——data 二维数组从 A1 写入（原始值自动推断类型；null/undefined/'' 跳过；对象形式 `{ v, t, f }` 支持公式，写入即注册依赖图并立即重算）；rows/cols 与数据高水位取大（仅传入时校验，非正整数抛错）。初始数据经一次 setCells 写入后 `history.clear()`——基线状态不进 undo，且在 `sheets-change` 发出前就绪。
-- **浮动图片**：`SheetImage`（`id` + `Uint8Array` 字节 + `type` + `anchor.from`/`to?` + 可选宽高/alt/title；`from` 可带格内像素偏移 `offsetX/offsetY`，缺省 0）；写入经 `insertImage` / `removeImage` / `updateImage`（命令 `sheet.insert-image` / `sheet.remove-image` / `sheet.update-image`，`ImagePatch`）；快照字段 `SheetSnapshot.images?`；`restoreContent` 整表替换图片并发 `image-change`。行列插入/删除时锚点平移（offset 随 from 格保留）；锚点区间被完整删除时图片移除（同 undo 单元）。格式：`png` / `jpeg` / `gif` / `svg` / `webp`（与 hucre 对齐）。
+- **浮动图片**：`SheetImage`（`id` + `anchor.from`/`to?` + 可选宽高/alt/title；`from` 可带格内像素偏移 `offsetX/offsetY`，缺省 0）；来源二选一——`data` 字节（本地文件 / xlsx 导入）或 `src` URL（渲染层直接引用；URL 图 data 为空字节、type 仅作提示，不参与 xlsx 导出/导入）；`fit?` 缩放模式（`fill` 拉伸默认 / `contain` 等比缩放完整显示于锚定区域内，不裁剪、不溢出）；写入经 `insertImage` / `removeImage` / `updateImage`（命令 `sheet.insert-image` / `sheet.remove-image` / `sheet.update-image`，`ImagePatch`）；快照字段 `SheetSnapshot.images?`（含 src/fit）；`restoreContent` 整表替换图片并发 `image-change`。行列插入/删除时锚点平移（offset 随 from 格保留）；锚点区间被完整删除时图片移除（同 undo 单元）。格式：`png` / `jpeg` / `gif` / `svg` / `webp`（与 hucre 对齐）。
 - 注：`Sheet.setCell` / `setCellStyles` / `CellStore.setCellValue` 为内部便捷写入口（生产零调用、测试直用），非公开承诺 API——包入口不单独导出，宿主请用 `setCells` / `setCellStyle`。
 
 ## cell hook 性能契约（ADR-0004 决策 3）
@@ -84,7 +86,7 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 
 ## 浮动图片渲染（grid/image-layer.ts）
 
-- **叠层渲染**：grid 容器内绝对定位 `<img>`，按 `computeImageRect` 布置——`from` 左上 + 格内像素偏移（`from.offsetX/offsetY`，px，缺省 0）；宽高**优先取 `image.width/height`**（xlsx 导入的精确 px），宽高缺失且有 `to` 时按 from→to 跨度兜底（Excel `twoCellAnchor` 拉伸语义），都缺失时取自然尺寸。仅视口内（含预挂边距）创建 DOM / objectURL，滚出卸节点、保留 URL；`decoding=async`；销毁时 revoke。监听 SCROLL / resize / `image-change` / `content-reset` / 冻结与行高变化重排。
+- **叠层渲染**：grid 容器内绝对定位 `<img>`，按 `computeImageRect` 布置——`from` 左上 + 格内像素偏移（`from.offsetX/offsetY`，px，缺省 0）；宽高**优先取 `image.width/height`**（xlsx 导入的精确 px），宽高缺失且有 `to` 时按 from→to 跨度兜底（Excel `twoCellAnchor` 拉伸语义），都缺失时取自然尺寸。`src` URL 来源直用、字节来源转 objectURL；`fit: 'contain'` 时 `objectFit: contain`（等比、完整显示于锚定区域内），缺省 `fill` 拉伸。仅视口内（含预挂边距）创建 DOM / objectURL，滚出卸节点、保留 URL；`decoding=async`；销毁时 revoke。监听 SCROLL / resize / `image-change` / `content-reset` / 冻结与行高变化重排。
 - **交互**：点击图片选中（拦截进 VTable）；选中后可拖动，落点反查单元格经 `sheet.updateImage` 平移 `from`（有 `to` 则同 delta，保持跨度/宽高），**落点相对目标格左上的像素余量写回 `offsetX/offsetY`（负值 clamp 到 0），自由定位不吸附**；`Delete`/`Backspace` 经命令删除；点网格其他位置取消选中。readonly 时仅保留选中。本期不做缩放/旋转。
 - **LRU**：隐藏实例不渲染叠层；激活时一次性重排（脏标记）。
 
@@ -125,9 +127,9 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 
 - undo 按 sheet 分栈，跨表交错撤销可能短暂显示过期缓存（再触发重算自愈）。
 - 替换 = 整格覆盖（非 Excel 子串）；公式格不参与替换。
-- 浮动图片：定位渲染、拖动平移锚点（含格内像素偏移 `offsetX/offsetY`，自由定位不吸附）、删除；无缩放/旋转；无剪贴板复制粘贴图；无单元格内嵌图（WPS `cellImages` / `DISPIMG`）导入转换；CSV 不携带图片。
+- 浮动图片：定位渲染、拖动平移锚点（含格内像素偏移 `offsetX/offsetY`，自由定位不吸附）、删除；无缩放/旋转；无剪贴板复制粘贴图；无单元格内嵌图（WPS `cellImages` / `DISPIMG`）导入转换；CSV 不携带图片；URL 来源（`src`）图不参与 xlsx 导出/导入（字节图 round-trip 保留）。
 - xlsx round-trip 丢失格内像素偏移（hucre 不支持 colOff/rowOff）：导入后图片对齐 from 格左上角（`offsetX/offsetY` 不随 xlsx 导入导出保留）。
-- 未做：字体族、数字格式、图表、协同、双击填充柄；xlsx 空格仅继承行列默认样式的 Excel 原生 round-trip（需 hucre 读 `<row s>` / `<col style>` 或导出 fan-out 物化）。
+- 未做：字体族、图表、协同、双击填充柄；数字格式的 xlsx 导入导出（显示层已支持 numFmt）；xlsx 空格仅继承行列默认样式的 Excel 原生 round-trip（需 hucre 读 `<row s>` / `<col style>` 或导出 fan-out 物化）。
 
 ## 已知问题
 

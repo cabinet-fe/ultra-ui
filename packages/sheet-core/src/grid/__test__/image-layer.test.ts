@@ -944,4 +944,174 @@ describe('ImageLayer（canvas-mock）', () => {
       grid.release()
     }
   })
+
+  it('URL 图直接引用 src，不创建 objectURL', () => {
+    const { sheet, grid, container, layer } = createGrid()
+    track(container)
+    const createUrl = vi.spyOn(URL, 'createObjectURL')
+    try {
+      sheet.insertImage(
+        makeInput({
+          id: 'img-url',
+          data: new Uint8Array(0),
+          src: 'https://example.com/a.png',
+          anchor: { from: { row: 0, col: 0 } }
+        })
+      )
+      layer.flush()
+
+      const img = imageNodes(container)[0]!.querySelector('img')!
+      expect(img.src).toBe('https://example.com/a.png')
+      expect(createUrl).not.toHaveBeenCalled()
+
+      // 字节图仍走 objectURL
+      sheet.insertImage(makeInput({ id: 'img-bytes', anchor: { from: { row: 1, col: 0 } } }))
+      layer.flush()
+      expect(createUrl).toHaveBeenCalled()
+      const byteImg = imageNodes(container)[1]!.querySelector('img')!
+      expect(byteImg.src).toMatch(/^blob:/)
+    } finally {
+      createUrl.mockRestore()
+      grid.release()
+    }
+  })
+
+  it('fit=contain 时 objectFit 为 contain，节点尺寸不溢出锚定区域；未设置时维持 fill', () => {
+    const { sheet, grid, table, container, layer } = createGrid()
+    track(container)
+    try {
+      vi.spyOn(table, 'getCellRelativeRect').mockImplementation((col, row) => {
+        const left = col * 100
+        const top = row * 40
+        return {
+          left,
+          top,
+          width: 100,
+          height: 40,
+          right: left + 100,
+          bottom: top + 40
+        } as ReturnType<ListTable['getCellRelativeRect']>
+      })
+
+      // from (0,0) → table (1,1)；to (1,1) → table (2,2)：锚定区域 200×80
+      sheet.insertImage(
+        makeInput({
+          id: 'img-contain',
+          data: new Uint8Array(0),
+          src: 'https://example.com/wide.png',
+          fit: 'contain',
+          anchor: { from: { row: 0, col: 0 }, to: { row: 1, col: 1 } },
+          width: undefined,
+          height: undefined
+        })
+      )
+      // 未设置 fit 的对照图：维持 fill 拉伸
+      sheet.insertImage(
+        makeInput({
+          id: 'img-fill',
+          anchor: { from: { row: 3, col: 0 }, to: { row: 4, col: 1 } },
+          width: undefined,
+          height: undefined
+        })
+      )
+      layer.flush()
+
+      const containNode = container.querySelector<HTMLElement>(
+        '[data-sheet-image-id="img-contain"]'
+      )!
+      expect(containNode.style.left).toBe('100px')
+      expect(containNode.style.top).toBe('40px')
+      expect(containNode.style.width).toBe('200px')
+      expect(containNode.style.height).toBe('80px')
+      expect(containNode.querySelector('img')!.style.objectFit).toBe('contain')
+
+      const fillNode = container.querySelector<HTMLElement>('[data-sheet-image-id="img-fill"]')!
+      expect(fillNode.querySelector('img')!.style.objectFit).toBe('fill')
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('URL 图选中、拖动平移锚点、Delete 删除与字节图一致', () => {
+    const { sheet, grid, table, container, layer } = createGrid()
+    track(container)
+    try {
+      sheet.insertImage(
+        makeInput({
+          id: 'img-url-drag',
+          data: new Uint8Array(0),
+          src: 'https://example.com/b.png',
+          anchor: { from: { row: 1, col: 1 } },
+          width: 50,
+          height: 40
+        })
+      )
+
+      vi.spyOn(table, 'getCellRelativeRect').mockImplementation((col, row) => {
+        const left = col * 80
+        const top = row * 28
+        return {
+          left,
+          top,
+          width: 80,
+          height: 28,
+          right: left + 80,
+          bottom: top + 28
+        } as ReturnType<ListTable['getCellRelativeRect']>
+      })
+      vi.spyOn(table, 'getCellAtRelativePosition').mockImplementation(
+        (x, y) =>
+          ({ col: Math.floor(x / 80), row: Math.floor(y / 28) }) as ReturnType<
+            ListTable['getCellAtRelativePosition']
+          >
+      )
+      layer.flush()
+
+      const node = imageNodes(container)[0]!
+      node.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          cancelable: true,
+          clientX: 100,
+          clientY: 100,
+          pointerId: 1
+        })
+      )
+      expect(layer.getSelectedId()).toBe('img-url-drag')
+
+      // 拖动：dx=20, dy=30 → 落点 (180, 86) → 模型 (2,1)，余量 (20, 2)
+      window.dispatchEvent(
+        new PointerEvent('pointermove', {
+          bubbles: true,
+          cancelable: true,
+          clientX: 120,
+          clientY: 130,
+          pointerId: 1
+        })
+      )
+      window.dispatchEvent(
+        new PointerEvent('pointerup', {
+          bubbles: true,
+          cancelable: true,
+          clientX: 120,
+          clientY: 130,
+          pointerId: 1
+        })
+      )
+      expect(sheet.getImage('img-url-drag')!.anchor.from).toEqual({
+        row: 2,
+        col: 1,
+        offsetX: 20,
+        offsetY: 2
+      })
+
+      container.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'Delete', bubbles: true, cancelable: true })
+      )
+      expect(sheet.getImage('img-url-drag')).toBeUndefined()
+      expect(imageNodes(container)).toHaveLength(0)
+    } finally {
+      grid.release()
+    }
+  })
 })

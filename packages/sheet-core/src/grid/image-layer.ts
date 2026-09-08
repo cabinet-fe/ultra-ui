@@ -77,7 +77,10 @@ interface PendingTouchTap {
  *
  * - 定位：`computeImageRect`——from 左上 + 格内像素偏移（offsetX/offsetY）；
  *   宽高优先取 `image.width/height`，缺失且有 `to` 时按 from→to 跨度兜底
- * - 数据：仅视口内图片创建 DOM / objectURL；滚出视口卸节点（URL 保留以免重建 Blob）
+ * - 数据：src URL 来源直用，字节来源转 objectURL；仅视口内图片创建 DOM / objectURL；
+ *   滚出视口卸节点（URL 保留以免重建 Blob）
+ * - 缩放：`image.fit === 'contain'` 时 objectFit:contain（等比、完整显示于锚定区域内），
+ *   缺省 fill 拉伸
  * - LRU：隐藏只置脏，激活时一次性按视口重排
  * - 交互：点击选中；选中后拖动经 `sheet.updateImage` 平移锚点（含格内余量，可 undo）；
  *   Delete/Backspace 经 `sheet.removeImage` 删除；只读（readonly）时仅保留选中
@@ -573,12 +576,12 @@ export class ImageLayer {
         display: 'block',
         width: '100%',
         height: '100%',
-        objectFit: 'fill',
+        objectFit: image.fit === 'contain' ? 'contain' : 'fill',
         userSelect: 'none',
         pointerEvents: 'none'
       } satisfies Partial<CSSStyleDeclaration>)
 
-      const url = this.ensureObjectURL(image)
+      const url = this.ensureImageUrl(image)
       img.src = url
       // 缺省宽高且无 to → 自然尺寸（load 后回写）
       if (!image.anchor.to && (image.width == null || image.height == null)) {
@@ -601,8 +604,9 @@ export class ImageLayer {
       // 同 id 可能经 undo/redo 换数据：刷新 src / 元数据
       const img = wrap.querySelector('img')
       if (img) {
-        const url = this.ensureObjectURL(image)
+        const url = this.ensureImageUrl(image)
         if (img.src !== url) img.src = url
+        img.style.objectFit = image.fit === 'contain' ? 'contain' : 'fill'
         img.alt = image.altText ?? ''
         img.title = image.title ?? ''
       }
@@ -611,7 +615,9 @@ export class ImageLayer {
     if (this.selectedId === image.id) this.applySelectionStyle(wrap, true)
   }
 
-  private ensureObjectURL(image: SheetImage): string {
+  /** 图片渲染 URL：URL 来源（src）直用；字节来源转 objectURL（同引用复用，换字节重建） */
+  private ensureImageUrl(image: SheetImage): string {
+    if (image.src != null) return image.src
     const existing = this.urls.get(image.id)
     if (existing && this.dataRefs.get(image.id) === image.data) return existing
     if (existing) URL.revokeObjectURL(existing)

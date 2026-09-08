@@ -117,6 +117,9 @@ import '@veltra/sheet/components/sheet/style'
 ```ts
 type SheetImageType = 'png' | 'jpeg' | 'gif' | 'svg' | 'webp'
 
+// ImageFitMode 不在主入口白名单：定义于 core/image.ts，深导入 '@veltra/sheet-core/core/image'，或经 SheetImage['fit'] 引用
+type ImageFitMode = 'fill' | 'contain'
+
 interface SheetImageAnchor {
   from: CellAddress & { offsetX?: number; offsetY?: number } // 格内像素偏移（px，缺省 0）
   to?: CellAddress
@@ -127,6 +130,8 @@ interface SheetImage {
   data: Uint8Array
   type: SheetImageType
   anchor: SheetImageAnchor
+  src?: string // URL 来源，存在时优先于 data 字节；与字节来源二选一
+  fit?: ImageFitMode // 缩放模式；缺省 fill 拉伸，contain 等比完整显示于锚定区域
   width?: number
   height?: number
   altText?: string
@@ -138,6 +143,8 @@ interface ImageInput {
   data: Uint8Array
   type: SheetImageType
   anchor: SheetImageAnchor
+  src?: string // URL 来源，存在时优先于 data 字节；与字节来源二选一
+  fit?: ImageFitMode // 缩放模式；缺省 fill 拉伸，contain 等比完整显示于锚定区域
   width?: number
   height?: number
   altText?: string
@@ -163,7 +170,7 @@ ctx.onImageChange(handler: (payload: { id?: string }) => void): () => void
 - 结构联动：插入/删除行列时锚点平移；锚点区间被完整删除时图片移除。
 - **内置工具** `insert-image`：组 `insert`，`popup: 'insert-image'`（UFilePicker，
   accept `.png,.jpg,.jpeg,.gif,.svg,.webp`）；无活动格时禁用。
-- xlsx 导入导出保留浮动图；CSV 忽略；单元格内嵌图本期不支持。
+- xlsx 导入导出保留字节浮动图（URL 来源 `src` 图不参与导出/导入）；CSV 忽略；单元格内嵌图本期不支持。
 
 ## 单元格样式（填充 / 边框 / 字体 / 对齐）
 

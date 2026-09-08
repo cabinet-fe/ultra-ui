@@ -30,6 +30,8 @@ export const InsertImageCommand: Command<InsertImageParams, string> = {
       data: params.image.data,
       type: params.image.type,
       anchor: cloneImageAnchor(params.image.anchor),
+      ...(params.image.src != null ? { src: params.image.src } : {}),
+      ...(params.image.fit != null ? { fit: params.image.fit } : {}),
       ...(params.image.width != null ? { width: params.image.width } : {}),
       ...(params.image.height != null ? { height: params.image.height } : {}),
       ...(params.image.altText != null ? { altText: params.image.altText } : {}),

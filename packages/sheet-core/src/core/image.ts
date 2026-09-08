@@ -3,6 +3,9 @@ import type { CellAddress } from './address'
 /** 支持的图片格式（与 hucre SheetImage.type 对齐） */
 export type SheetImageType = 'png' | 'jpeg' | 'gif' | 'svg' | 'webp'
 
+/** 图片缩放模式：fill 拉伸（默认）；contain 等比缩放、完整显示于锚定区域内（不裁剪、不溢出） */
+export type ImageFitMode = 'fill' | 'contain'
+
 /** 图片锚点：from 必填；to 可选（跨单元格锚定） */
 export interface SheetImageAnchor {
   /** 起始格；offsetX/offsetY 为格内像素偏移（px，相对该格左上角，缺省视为 0） */
@@ -12,13 +15,18 @@ export interface SheetImageAnchor {
 
 /**
  * 浮动图片模型（hucre SheetImage + 模型侧 id）。
- * 数据存原始字节；渲染层自行转 objectURL。
+ * 来源二选一：data 字节（本地文件 / xlsx 导入，渲染层自行转 objectURL）或 src URL
+ * （渲染层直接引用；URL 图 data 为空字节、type 仅作提示，不参与 xlsx 导出/导入）。
  */
 export interface SheetImage {
   id: string
   data: Uint8Array
   type: SheetImageType
   anchor: SheetImageAnchor
+  /** URL 来源；存在时优先于 data 字节 */
+  src?: string
+  /** 缩放模式；缺省 fill 拉伸 */
+  fit?: ImageFitMode
   /** 渲染宽高（px，96 DPI）；缺省由渲染层取自然尺寸 */
   width?: number
   height?: number
@@ -36,6 +44,10 @@ export interface ImageInput {
   data: Uint8Array
   type: SheetImageType
   anchor: SheetImageAnchor
+  /** URL 来源；存在时优先于 data 字节 */
+  src?: string
+  /** 缩放模式；缺省 fill 拉伸 */
+  fit?: ImageFitMode
   width?: number
   height?: number
   altText?: string
@@ -70,6 +82,8 @@ export function cloneSheetImage(image: SheetImage): SheetImage {
     data: image.data,
     type: image.type,
     anchor: cloneImageAnchor(image.anchor),
+    ...(image.src != null ? { src: image.src } : {}),
+    ...(image.fit != null ? { fit: image.fit } : {}),
     ...(image.width != null ? { width: image.width } : {}),
     ...(image.height != null ? { height: image.height } : {}),
     ...(image.altText != null ? { altText: image.altText } : {}),

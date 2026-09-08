@@ -371,3 +371,82 @@ describe('Sheet 图片：行列插入/删除平移与移除', () => {
     expect(sheet.getImage(id)?.anchor).toEqual({ from: { row: 1, col: 0 }, to: { row: 2, col: 1 } })
   })
 })
+
+describe('Sheet 图片：URL 来源与缩放模式', () => {
+  function makeUrlInput(overrides: Partial<ImageInput> = {}): ImageInput {
+    return {
+      data: new Uint8Array(0),
+      type: 'png',
+      src: 'https://example.com/a.png',
+      fit: 'contain',
+      anchor: { from: { row: 1, col: 1 } },
+      ...overrides
+    }
+  }
+
+  it('insertImage 保留 URL 来源与缩放模式字段；undo/redo 不丢', () => {
+    const sheet = new Sheet()
+    const id = sheet.insertImage(makeUrlInput())
+
+    const image = sheet.getImage(id)!
+    expect(image.src).toBe('https://example.com/a.png')
+    expect(image.fit).toBe('contain')
+
+    expect(sheet.undo()).toBe(true)
+    expect(sheet.redo()).toBe(true)
+    expect(sheet.getImage(id)?.src).toBe('https://example.com/a.png')
+    expect(sheet.getImage(id)?.fit).toBe('contain')
+  })
+
+  it('snapshot / restore 经 JSON 序列化保留 src 与 fit', () => {
+    const sheet = new Sheet()
+    const id = sheet.insertImage(makeUrlInput())
+
+    const snap = JSON.parse(JSON.stringify(sheet.snapshot())) as SheetSnapshot
+
+    const restored = new Sheet('R')
+    restored.restore(snap)
+    expect(restored.getImage(id)?.src).toBe('https://example.com/a.png')
+    expect(restored.getImage(id)?.fit).toBe('contain')
+  })
+
+  it('restoreContent 整表替换保留 src 与 fit；undo/redo 不丢', () => {
+    const sheet = new Sheet()
+    sheet.insertImage(makeUrlInput({ id: 'url-img' }))
+    const snap = sheet.snapshot()
+
+    sheet.executeCommand(RestoreSheetCommand.id, {
+      snapshot: { ...snap, cells: [], styles: [], merges: [] }
+    })
+
+    expect(sheet.getImage('url-img')?.src).toBe('https://example.com/a.png')
+    expect(sheet.getImage('url-img')?.fit).toBe('contain')
+
+    sheet.undo()
+    sheet.redo()
+    expect(sheet.getImage('url-img')?.src).toBe('https://example.com/a.png')
+    expect(sheet.getImage('url-img')?.fit).toBe('contain')
+  })
+
+  it('URL 图锚点平移与删除行为与字节图一致', () => {
+    const sheet = new Sheet()
+    const keepId = sheet.insertImage(
+      makeUrlInput({ id: 'url-keep', anchor: { from: { row: 5, col: 0 } } })
+    )
+    const dropId = sheet.insertImage(
+      makeUrlInput({ id: 'url-drop', anchor: { from: { row: 2, col: 0 } } })
+    )
+
+    sheet.deleteRows(1, 3) // drop(from=2) 移除；keep(from=5) → 2
+
+    expect(sheet.getImage(dropId)).toBeUndefined()
+    const kept = sheet.getImage(keepId)!
+    expect(kept.anchor.from).toEqual({ row: 2, col: 0 })
+    expect(kept.src).toBe('https://example.com/a.png')
+    expect(kept.fit).toBe('contain')
+
+    expect(sheet.undo()).toBe(true)
+    expect(sheet.getImage(dropId)?.src).toBe('https://example.com/a.png')
+    expect(sheet.getImage(keepId)?.anchor.from).toEqual({ row: 5, col: 0 })
+  })
+})
