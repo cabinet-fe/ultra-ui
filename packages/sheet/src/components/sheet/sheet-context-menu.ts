@@ -1,5 +1,6 @@
 import type { ContextmenuItem } from '@veltra/desktop'
 import { createRange, type CellAddress, type CellRange } from '@veltra/sheet-core/core/address'
+import type { NumFmt } from '@veltra/sheet-core/core/style/types'
 import { defineComponent, h } from 'vue'
 
 import type { SheetContext } from '../../tools/context'
@@ -10,6 +11,10 @@ import { pickAndInsertImage } from './insert-image'
 /** 插入数量钳制范围（对齐 univer） */
 export const INSERT_COUNT_MIN = 1
 export const INSERT_COUNT_MAX = 1000
+
+/** 小数位数钳制范围 */
+export const DECIMAL_PLACES_MIN = 0
+export const DECIMAL_PLACES_MAX = 10
 
 /** 选区覆盖行/列数 → 插入默认 N（min 1 / max 1000） */
 export function defaultInsertCount(range: CellRange | null, axis: 'row' | 'col'): number {
@@ -55,26 +60,38 @@ export function resolveRenderSize(
   }
 }
 
-function insertCountRender(options: {
+/** 菜单内嵌数量输入项（插入行列数 / 小数位数共用） */
+function menuNumberRender(options: {
   prefix: string
   suffix: string
   defaultValue: number
+  min: number
+  max: number
   onConfirm: (n: number) => void
 }): ContextmenuItem['render'] {
   return defineComponent({
-    name: 'SheetInsertCountMenuRender',
+    name: 'SheetMenuNumberRender',
     setup() {
       return () =>
         h(InsertCountMenuItem, {
           prefix: options.prefix,
           suffix: options.suffix,
           defaultValue: options.defaultValue,
-          min: INSERT_COUNT_MIN,
-          max: INSERT_COUNT_MAX,
+          min: options.min,
+          max: options.max,
           onConfirm: options.onConfirm
         })
     }
   })
+}
+
+function insertCountRender(options: {
+  prefix: string
+  suffix: string
+  defaultValue: number
+  onConfirm: (n: number) => void
+}): ContextmenuItem['render'] {
+  return menuNumberRender({ ...options, min: INSERT_COUNT_MIN, max: INSERT_COUNT_MAX })
 }
 
 function primaryRange(ctx: SheetContext): CellRange | null {
@@ -171,7 +188,15 @@ export function buildColHeaderMenus(ctx: SheetContext): ContextmenuItem[] {
   ]
 }
 
-/** body 格右键菜单：合并/取消合并 + 插入图片（行列插入/删除仅行号/列头菜单） */
+/**
+ * 对当前选区应用 numFmt（经 applyStyle → 命令系统，天然可 undo/redo）。
+ * 仅影响显示，单元格恒存原始值（见 sheet-core `core/format.ts`）。
+ */
+export function applyNumFmtToSelection(ctx: SheetContext, numFmt: NumFmt): void {
+  for (const range of ctx.getSelection().ranges) ctx.applyStyle(range, { numFmt })
+}
+
+/** body 格右键菜单：合并/取消合并 + 设置数据格式 + 插入图片（行列插入/删除仅行号/列头菜单） */
 export function buildBodyMenus(ctx: SheetContext): ContextmenuItem[] {
   const mergeTool = defaultToolRegistry.get('merge')
   const unmergeTool = defaultToolRegistry.get('unmerge')
@@ -187,6 +212,28 @@ export function buildBodyMenus(ctx: SheetContext): ContextmenuItem[] {
       label: '取消合并单元格',
       disabled: unmergeTool?.disabled?.(ctx) ?? true,
       callback: () => unmergeTool?.onClick(ctx)
+    },
+    { divider: true },
+    {
+      label: '设置数据格式',
+      disabled: !active,
+      children: [
+        { label: '日期', callback: () => applyNumFmtToSelection(ctx, { type: 'date' }) },
+        { label: '千分位金额', callback: () => applyNumFmtToSelection(ctx, { type: 'thousands' }) },
+        { label: '大写金额', callback: () => applyNumFmtToSelection(ctx, { type: 'cnUpper' }) },
+        {
+          label: '小数位数',
+          keepOpen: true,
+          render: menuNumberRender({
+            prefix: '保留',
+            suffix: '位小数',
+            defaultValue: 2,
+            min: DECIMAL_PLACES_MIN,
+            max: DECIMAL_PLACES_MAX,
+            onConfirm: (n) => applyNumFmtToSelection(ctx, { type: 'fixed', digits: n })
+          })
+        }
+      ]
     },
     { label: '插入图片', disabled: !active, callback: () => pickAndInsertImage(ctx) }
   ]

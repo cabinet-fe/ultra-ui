@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 import { createSheetContext } from '../../../tools/context'
 import {
+  applyNumFmtToSelection,
   buildBodyMenus,
   buildColHeaderMenus,
   buildRowHeaderMenus,
@@ -147,13 +148,19 @@ describe('build*Menus', () => {
     ])
   })
 
-  it('body 菜单三项：合并/取消合并/插入图片，不含行列插入删除', () => {
+  it('body 菜单：合并/取消合并 + 设置数据格式子菜单 + 插入图片，不含行列插入删除', () => {
     const sheet = new Sheet()
     const ctx = createSheetContext(sheet)
     sheet.selectCell({ row: 0, col: 0 })
     const menus = buildBodyMenus(ctx)
-    expect(menus).toHaveLength(3)
-    expect(menus.map((m) => m.label)).toEqual(['合并单元格', '取消合并单元格', '插入图片'])
+    expect(menus).toHaveLength(5)
+    expect(menus.map((m) => m.label ?? (m.divider ? '---' : ''))).toEqual([
+      '合并单元格',
+      '取消合并单元格',
+      '---',
+      '设置数据格式',
+      '插入图片'
+    ])
     const insertImage = menus.find((m) => m.label === '插入图片')!
     expect(insertImage.disabled).toBeFalsy()
     expect(insertImage.callback).toBeTruthy()
@@ -164,12 +171,92 @@ describe('build*Menus', () => {
     expect(labels).not.toContain('删除列')
   })
 
-  it('body 插入图片：无活动格时禁用', () => {
+  it('body 设置数据格式子菜单：日期 / 千分位金额 / 大写金额 / 小数位数', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    sheet.selectCell({ row: 0, col: 0 })
+    const sub = buildBodyMenus(ctx).find((m) => m.label === '设置数据格式')!
+    expect(sub.disabled).toBeFalsy()
+    const children = sub.children!
+    expect(children.map((c) => c.label)).toEqual(['日期', '千分位金额', '大写金额', '小数位数'])
+    // 小数位数项内嵌位数输入（keepOpen + render），其余三项直点直用
+    expect(children[3]?.keepOpen).toBe(true)
+    expect(children[3]?.render).toBeTruthy()
+    expect(children.slice(0, 3).every((c) => typeof c.callback === 'function')).toBe(true)
+  })
+
+  it('设置数据格式：四项各应用 numFmt 到当前选区全部单元格，原始值不变', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    sheet.setCellValue({ row: 0, col: 0 }, 45000)
+    sheet.setCellValue({ row: 0, col: 1 }, 1234567.89)
+    const range = createRange({ row: 0, col: 0 }, { row: 0, col: 1 })
+
+    const cases = [
+      { label: '日期', numFmt: { type: 'date' } },
+      { label: '千分位金额', numFmt: { type: 'thousands' } },
+      { label: '大写金额', numFmt: { type: 'cnUpper' } }
+    ] as const
+    for (const c of cases) {
+      sheet.selectRange(range)
+      const sub = buildBodyMenus(ctx).find((m) => m.label === '设置数据格式')!
+      sub.children!.find((child) => child.label === c.label)!.callback!()
+      for (const addr of [
+        { row: 0, col: 0 },
+        { row: 0, col: 1 }
+      ]) {
+        expect(ctx.getCellStyle(addr)?.numFmt).toEqual(c.numFmt)
+      }
+      // 仅样式变化，原始值不变
+      expect(ctx.getCellData({ row: 0, col: 0 })?.v).toBe(45000)
+      expect(ctx.getCellData({ row: 0, col: 1 })?.v).toBe(1234567.89)
+      sheet.undo()
+    }
+
+    // 小数位数：经同一入口 applyNumFmtToSelection（render onConfirm 同路径）
+    sheet.selectRange(range)
+    applyNumFmtToSelection(ctx, { type: 'fixed', digits: 2 })
+    expect(ctx.getCellStyle({ row: 0, col: 0 })?.numFmt).toEqual({ type: 'fixed', digits: 2 })
+    expect(ctx.getCellStyle({ row: 0, col: 1 })?.numFmt).toEqual({ type: 'fixed', digits: 2 })
+    sheet.undo()
+  })
+
+  it('设置数据格式：undo/redo 恢复样式', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    sheet.setCellValue({ row: 1, col: 1 }, 1.005)
+    sheet.selectRange(createRange({ row: 1, col: 1 }, { row: 1, col: 1 }))
+    const sub = buildBodyMenus(ctx).find((m) => m.label === '设置数据格式')!
+    sub.children!.find((c) => c.label === '千分位金额')!.callback!()
+    expect(ctx.getCellStyle({ row: 1, col: 1 })?.numFmt).toEqual({ type: 'thousands' })
+
+    expect(ctx.undo()).toBe(true)
+    expect(ctx.getCellStyle({ row: 1, col: 1 })?.numFmt).toBeUndefined()
+    expect(ctx.redo()).toBe(true)
+    expect(ctx.getCellStyle({ row: 1, col: 1 })?.numFmt).toEqual({ type: 'thousands' })
+    expect(ctx.getCellData({ row: 1, col: 1 })?.v).toBe(1.005)
+  })
+
+  it('设置数据格式：清空选区时为无操作（不产生 undo 单元）', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    sheet.setCellValue({ row: 0, col: 0 }, 1)
+    sheet.selection.clear()
+    applyNumFmtToSelection(ctx, { type: 'date' })
+    expect(ctx.getCellStyle({ row: 0, col: 0 })).toBeUndefined()
+    // undo 直接回滚到 setCellValue 之前，证明未新增 undo 单元
+    expect(ctx.undo()).toBe(true)
+    expect(ctx.getCellData({ row: 0, col: 0 })).toBeUndefined()
+    expect(ctx.canUndo).toBe(false)
+  })
+
+  it('body 插入图片 / 设置数据格式：无活动格时禁用', () => {
     const sheet = new Sheet()
     const ctx = createSheetContext(sheet)
     sheet.selection.clear()
     const menus = buildBodyMenus(ctx)
     expect(menus.find((m) => m.label === '插入图片')?.disabled).toBe(true)
+    expect(menus.find((m) => m.label === '设置数据格式')?.disabled).toBe(true)
   })
 
   it('行号/列头菜单仍含插入删除行列', () => {

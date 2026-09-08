@@ -9,6 +9,7 @@ keywords:
   - 解析求值与自定义函数注册
 aliases: ["formula", "sheet"]
 ---
+
 公式引擎在 `@veltra/sheet-core` 主入口：解析（`tokenizeFormula` / `parseFormula`）、求值（`evaluateAst`）、工作簿级 `DependencyGraph`，以及可扩展的函数表（`registerFormulaFunction` / `listFormulaFunctions` / `invokeFormulaFunction`）。日常写格请用 `Sheet.setCellFormula` 或 `setCellValue(addr, '=SUM(A1:A3)')`——引擎会登记依赖并增量重算，派生补丁并入同一 undo 单元。
 
 `CellData.f` 存公式原文（**不含** `=`），`v` / `t` 为计算缓存。跨表引用形如 `Sheet2!A1`；循环引用得到 `#CYCLE!`。跨表依赖图在 `Workbook` 级共享。
@@ -44,7 +45,7 @@ console.log(listFormulaFunctions().map((fn) => fn.name))
 
 ## 依赖图
 
-`DependencyGraph` 是工作簿计算中枢：按表名解析跨表引用（表不存在 → `#REF!`），正向索引公式格 → 引用，反向索引用于标脏。变更后 BFS 标脏，再拓扑序增量重算。环上格子 `#CYCLE!`；打破循环后经标脏自动恢复。
+`DependencyGraph` 是工作簿计算中枢：按表名解析跨表引用（表不存在 → `#REF!`），正向索引公式格 → 引用，反向索引用于标脏。变更后 BFS 标脏，再拓扑序增量重算；AST 含易失性函数的公式格在任意单元格变更触发的重算中必重新求值（值未变不产生派生补丁）。环上格子 `#CYCLE!`；打破循环后经标脏自动恢复。
 
 图状态与单元格存储同步：公式原文变更由命令补丁维护节点。**命令执行后**才重算；undo/redo 回放派生补丁里的缓存值，不再重算。
 
@@ -52,7 +53,7 @@ console.log(listFormulaFunctions().map((fn) => fn.name))
 
 ## 注册函数
 
-内置（大小写不敏感）：`SUM`、`AVERAGE`、`MAX`、`MIN`、`COUNT`、`COUNTA`、`IF`、`AND`、`OR`、`NOT`、`ROUND`、`ABS`、`CONCATENATE`。`IF` 为 `kind: 'lazy'`，未选分支不求值。
+内置（大小写不敏感）：`SUM`、`AVERAGE`、`MAX`、`MIN`、`COUNT`、`COUNTA`、`IF`、`AND`、`OR`、`NOT`、`ROUND`、`ABS`、`CONCATENATE`、`TODAY`、`NOW`、`RAND`、`RANDBETWEEN`。`IF` 为 `kind: 'lazy'`，未选分支不求值。`TODAY` / `NOW` / `RAND` / `RANDBETWEEN` 带 `volatile`：任意单元格变更触发的重算中必重新求值；`TODAY`/`NOW` 返回 1900 系统序列数（本地时间）。
 
 同名 `registerFormulaFunction` 会覆盖，供扩展。错误请用 `formulaError` 返回，不要手造对象：
 

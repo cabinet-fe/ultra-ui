@@ -29,8 +29,8 @@ import '@veltra/sheet/components/sheet/style'
   详见 `packages/sheet-core.md`「单元格级只读」。
 - 交互：填充柄（复制 / 数字日期等差 / 公式 `$` 感知位移）、行高拖拽（稀疏存模型、不进 undo）、
   冻结行列（模型持有、不进 undo）、查找/替换（Ctrl/Cmd+F 或工具栏「查找」）、
-  右键菜单（body 合并/插入图片；行号/列头插入删除与冻结）、编辑中方向键只移光标。
-  浮动图片：工具栏「插入图片」或右键选文件，锚定活动格；叠层渲染（宽高优先 width/height，
+  右键菜单（body 合并/设置数据格式/插入图片；行号/列头插入删除与冻结）、编辑中方向键只移光标。
+  浮动图片：工具栏「插入图片」弹层可选本地文件或输入 URL，右键仍选文件；锚定活动格；叠层渲染（宽高优先 width/height，
   缺失且有 `to` 时按 from→to 跨度兜底）；选中后可拖动平移锚点（含格内像素偏移）；Delete 删除。
 - **公式栏**：名称框显示/输入选区地址（回车跳转、非法提示不写入）；fx 输入栏显示活动格内容
   （公式格显示原文 `=f`），聚焦编辑后 Enter/✓ 提交（`'='` 前缀自动公式路径）、Esc/✗ 取消；
@@ -106,7 +106,7 @@ import '@veltra/sheet/components/sheet/style'
   （工具门面，走同一命令系统，可 undo）。
 - **工具栏无 structure 组**；行列插入/删除仅经**行号/列头**右键菜单（body 不含）。
 - **右键菜单**：
-  - body：合并 / 取消合并 / **插入图片**（无插入/删除行列）。
+  - body：合并 / 取消合并 / 设置数据格式（子菜单：日期 / 千分位金额 / 大写金额 / 小数位数） / **插入图片**（无插入/删除行列）。
   - 行号：在上方/下方插入 [N] 行 / 删除行 / 冻结到当前行 / 取消冻结；落点不在选区时先选中整行。
   - 列头：左侧/右侧插入列 / 删除列 / 冻结到当前列 / 取消冻结（对称）。
 
@@ -168,8 +168,8 @@ ctx.onImageChange(handler: (payload: { id?: string }) => void): () => void
 - 拖动：选中后 pointer 拖动，落点反查单元格经 `updateImage` 平移 `from`（有 `to` 则同
   delta，保持跨度/宽高），格内像素余量写回 `offsetX/offsetY`（自由定位不吸附）；可 undo。
 - 结构联动：插入/删除行列时锚点平移；锚点区间被完整删除时图片移除。
-- **内置工具** `insert-image`：组 `insert`，`popup: 'insert-image'`（UFilePicker，
-  accept `.png,.jpg,.jpeg,.gif,.svg,.webp`）；无活动格时禁用。
+- **内置工具** `insert-image`：组 `insert`，`popup: 'insert-image'`（UFilePicker 本地文件 + URL 输入并存，
+  accept `.png,.jpg,.jpeg,.gif,.svg,.webp`）；无活动格时禁用。右键「插入图片」仍直接拉起系统文件框。
 - xlsx 导入导出保留字节浮动图（URL 来源 `src` 图不参与导出/导入）；CSV 忽略；单元格内嵌图本期不支持。
 
 ## 单元格样式（填充 / 边框 / 字体 / 对齐）
@@ -187,7 +187,7 @@ ctx.onImageChange(handler: (payload: { id?: string }) => void): () => void
   （外边框 / 内边框 / 所有边框 / 上 / 下 / 左 / 右边框 + 无边框）+ 邻居共享边同步。
 - **内置工具**（图标化）：cell 组边框/填充/合并；**text 组** B/I/U/S、对齐×6、换行、
   字体颜色/字号弹层。填充/边框/字体色/字号面板期间写入 = 单 undo 单元。
-- 编辑值 / 写公式 / 公式重算不丢失样式；预留 `fontFamily` / `numFmt`（本期未实现）。
+- 编辑值 / 写公式 / 公式重算不丢失样式；`numFmt` 经右键「设置数据格式」写入（日期 / 千分位金额 / 大写金额 / 小数位数，仅影响显示、单元格存原始值）；预留 `fontFamily`（本期未实现）。
 
 ## 工具扩展（toolbar）
 
@@ -217,7 +217,7 @@ registerTool({
 - 同 id 重复注册 = 替换（保留原位置）；`visible?(ctx)` / `disabled?(ctx)` / `active?(ctx)`
   （激活高亮，vue 层渲染 `is-active`）在状态变化时重新求值。
 - 弹层型工具（`popup` 字段）：`fill-color` / `border` / `font-color` / `font-size`
-  （面板写入事务包裹为单 undo 单元）、`find`（查找条）、`insert-image`（文件选择）、
+  （面板写入事务包裹为单 undo 单元）、`find`（查找条）、`insert-image`（文件选择 + URL 输入）、
   `export`（导出 xlsx/csv 选择面板，不参与事务）。`import` 无弹层：点击直接系统文件选择
   （`components/sheet/import-file.ts`）。
 - 注册表全局共享：所有 `USheet` 实例显示同一组工具，各自上下文绑定各自工作簿。
@@ -277,7 +277,7 @@ const resolveCellRenderer: ResolveCellRenderer = (addr, base) => {
 
 ## 已知限制
 
-跨表 undo 历史按 sheet 分栈；字体族 / 数字格式等扩展（模型层预留）；
+跨表 undo 历史按 sheet 分栈；字体族扩展（模型层预留）；
 wrap 行高为估算（非精确测字，合并格未按跨度加宽；只升不降，不压矮导入/拖拽行高）。
 公式栏补全/引用选择为基础版（仅 fx 栏；无网格内编辑器同等能力、无引用高亮联动、
 无拖动调整引用、无参数高亮、无跨 sheet 引用辅助）。
