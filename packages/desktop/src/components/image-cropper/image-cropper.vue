@@ -95,7 +95,7 @@
 
     <div :class="cls.e('canvas')" ref="canvasRef">
       <div v-if="loaded" :class="cls.e('stage')" :style="stageStyle">
-        <img :class="cls.e('image')" :src="imageUrl" ref="imageRef" draggable="false" alt="" />
+        <img :class="cls.e('image')" :src="imageUrl" draggable="false" alt="" />
 
         <template v-if="selection">
           <!-- 选区外半透明遮罩 -->
@@ -162,7 +162,6 @@ const cls = bem('image-cropper')
 
 const canvasRef = shallowRef<HTMLElement>()
 const selectionRef = shallowRef<HTMLElement>()
-const imageRef = shallowRef<HTMLImageElement>()
 const previewCanvasRef = shallowRef<HTMLCanvasElement>()
 
 const { imageUrl, loaded, naturalWidth, naturalHeight, imageEl } = useImageLoader({
@@ -203,7 +202,7 @@ const { selection, initSelection, clearSelection } = useSelection({
   aspectRatio: () => currentRatio.value
 })
 
-usePreview({ canvas: previewCanvasRef, image: imageRef, selection, transform })
+usePreview({ canvas: previewCanvasRef, image: imageEl, selection, transform })
 
 useResizeObserver({
   targets: canvasRef,
