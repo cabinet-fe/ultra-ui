@@ -1,5 +1,11 @@
 # @veltra/ai
 
+## 2.1.8
+
+### Patch Changes
+
+- 9f3c29a: - 升级 markstream-vue 依赖至 ^2.0.8
+
 ## 2.1.7
 
 ### Patch Changes

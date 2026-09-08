@@ -1,5 +1,11 @@
 # @veltra/vite
 
+## 4.0.2
+
+### Patch Changes
+
+- 9f3c29a: - 组件解析表新增 image-cropper
+
 ## 4.0.1
 
 ### Patch Changes
