@@ -5,7 +5,7 @@ import type { Sheet } from '../sheet'
 import { collectReferences, type AstNode } from './ast'
 import { formulaError, isFormulaError, isFormulaErrorCode, type FormulaError } from './errors'
 import { evaluateAst, type ScalarValue } from './evaluator'
-import { invokeFormulaFunction } from './functions'
+import { astUsesVolatileFunction, invokeFormulaFunction } from './functions'
 import { parseFormula } from './parser'
 import { FormulaParseError } from './tokenizer'
 
@@ -15,6 +15,8 @@ import { FormulaParseError } from './tokenizer'
  * - 正向索引：公式格 → 引用格集合（节点 deps）；反向索引：引用格 → 依赖者
  *   （单格引用走 cellKey 精确索引 O(1)，区域引用走线性扫描）
  * - 变更时标脏（向上 BFS 收集全部依赖者）+ 拓扑序增量重算（递归向下，memo 去重）
+ * - 易失性语义：任意单元格变更触发重算时，volatileNodes（AST 含易失性函数的公式格）
+ *   全部并入标脏源必重新求值；非易失性公式仍按依赖图增量重算
  * - 循环引用检测：求值在途栈遇回边 → 环上所有格 #CYCLE!；依赖环外格只传播错误，
  *   打破循环（编辑环上格）后经标脏重算自动恢复
  *
@@ -37,6 +39,8 @@ export interface FormulaNode {
   /** null = 解析失败（求值 #ERROR!，无依赖） */
   readonly ast: AstNode | null
   readonly deps: FormulaDependency[]
+  /** 易失性：AST 含易失性函数（TODAY/NOW/RAND 等）；任意单元格变更触发的重算必重新求值 */
+  readonly volatile: boolean
   /** 反向索引清理器（removeNode 时执行） */
   readonly cleanups: (() => void)[]
 }
@@ -59,6 +63,8 @@ export class DependencyGraph {
   private readonly exact = new Map<string, Map<number, Set<InternalNode>>>()
   /** 反向索引（区域引用）：sheetName → { 区域, 依赖者 } 集合（线性扫描） */
   private readonly ranged = new Map<string, Set<{ range: CellRange; node: InternalNode }>>()
+  /** 易失性公式节点集合：任意单元格变更触发的重算必全部刷新（随 registerNode/removeNode 维护） */
+  private readonly volatileNodes = new Set<InternalNode>()
 
   // ─── sheet 注册表 ─────────────────────────────────────────
 
@@ -232,6 +238,11 @@ export class DependencyGraph {
       list.push(addr)
     }
     for (const [sheetName, addrs] of bySheet) this.markDependents(sheetName, addrs, mark)
+    // 易失性语义：单元格变更触发的重算必刷新全部易失性公式格（无论是否依赖变更格）；
+    // 值未变的易失性格在派生补丁处跳过，不产生冗余 undo 记录
+    if (changed.length > 0) {
+      for (const node of this.volatileNodes) mark(node)
+    }
     return this.recalcFrom(sources)
   }
 
@@ -389,6 +400,7 @@ export class DependencyGraph {
       formula,
       ast,
       deps,
+      volatile: ast ? astUsesVolatileFunction(ast) : false,
       cleanups: []
     }
     this.registerNode(node)
@@ -402,6 +414,7 @@ export class DependencyGraph {
       this.nodes.set(node.sheetName, sheetNodes)
     }
     sheetNodes.set(cellKey(node.addr), node)
+    if (node.volatile) this.volatileNodes.add(node)
 
     for (const dep of node.deps) {
       const isSingleCell =
@@ -440,6 +453,7 @@ export class DependencyGraph {
     for (const cleanup of node.cleanups) cleanup()
     // 清空清理器：renameSheet 会原地复用节点并重新注册，避免旧清理器累积
     node.cleanups.length = 0
+    this.volatileNodes.delete(node)
     const sheetNodes = this.nodes.get(node.sheetName)
     if (!sheetNodes) return
     sheetNodes.delete(cellKey(node.addr))

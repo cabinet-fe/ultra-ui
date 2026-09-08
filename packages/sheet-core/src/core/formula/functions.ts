@@ -27,6 +27,8 @@ export interface FormulaFunctionMeta {
 type FormulaFunctionBase = {
   minArgs?: number
   maxArgs?: number
+  /** 易失性：任意单元格变更触发重算时所在公式格必重新求值（TODAY/NOW/RAND 等） */
+  volatile?: boolean
   /** 补全元数据；缺省时候选仅显示函数名 */
   meta?: FormulaFunctionMeta
 }
@@ -48,6 +50,22 @@ export function registerFormulaFunction(name: string, def: FormulaFunction): voi
 /** 查询函数（大小写不敏感） */
 export function getFormulaFunction(name: string): FormulaFunction | undefined {
   return registry.get(name.toUpperCase())
+}
+
+/** 公式 AST 是否调用了易失性函数（依赖图在节点注册时据此标记易失性公式格） */
+export function astUsesVolatileFunction(node: AstNode): boolean {
+  switch (node.kind) {
+    case 'call':
+      if (getFormulaFunction(node.name)?.volatile) return true
+      return node.args.some(astUsesVolatileFunction)
+    case 'unary':
+    case 'percent':
+      return astUsesVolatileFunction(node.operand)
+    case 'binary':
+      return astUsesVolatileFunction(node.left) || astUsesVolatileFunction(node.right)
+    default:
+      return false
+  }
 }
 
 /**
@@ -316,5 +334,64 @@ registerFormulaFunction('CONCATENATE', {
       }
     }
     return text
+  }
+})
+
+// ─── 易失性函数集（每次重算都刷新）──────────────────────────────
+
+/**
+ * 本地时间 → 1900 系统序列数（含 Lotus 伪闰日修正；整数日为当日 0 点，小数部分为日内时间）。
+ * 与 io/import.ts 的 dateToSerial1900 同序列规约，但输入为本地时间（io 侧为 hucre 读回的 UTC 午夜）。
+ */
+function localDateToSerial1900(date: Date): number {
+  const days =
+    (Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) - Date.UTC(1899, 11, 30)) /
+    86_400_000
+  // serial 60 = 伪 1900-02-29：1900-03-01（days=61）起的日期序列 = 天数差本身
+  const serial = days >= 61 ? days : days - 1
+  const midnight = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime()
+  return serial + (date.getTime() - midnight) / 86_400_000
+}
+
+registerFormulaFunction('TODAY', {
+  volatile: true,
+  minArgs: 0,
+  maxArgs: 0,
+  meta: { params: [], description: '返回当天日期的序列数' },
+  impl: () => Math.floor(localDateToSerial1900(new Date()))
+})
+
+registerFormulaFunction('NOW', {
+  volatile: true,
+  minArgs: 0,
+  maxArgs: 0,
+  meta: { params: [], description: '返回当前日期时间的序列数（含时间小数部分）' },
+  impl: () => localDateToSerial1900(new Date())
+})
+
+registerFormulaFunction('RAND', {
+  volatile: true,
+  minArgs: 0,
+  maxArgs: 0,
+  meta: { params: [], description: '返回 [0, 1) 区间的随机数' },
+  impl: () => Math.random()
+})
+
+registerFormulaFunction('RANDBETWEEN', {
+  volatile: true,
+  minArgs: 2,
+  maxArgs: 2,
+  meta: { params: ['bottom', 'top'], description: '返回 [bottom, top] 闭区间的随机整数' },
+  impl(args) {
+    const bottom = coerceToNumber(args[0]!)
+    if (isFormulaError(bottom)) return bottom
+    const top = coerceToNumber(args[1]!)
+    if (isFormulaError(top)) return top
+    if (!Number.isFinite(bottom) || !Number.isFinite(top)) return formulaError('#VALUE!')
+    // 非整数参数向零截断（Excel 语义）
+    const lo = Math.trunc(bottom)
+    const hi = Math.trunc(top)
+    if (lo > hi) return formulaError('#VALUE!')
+    return lo + Math.floor(Math.random() * (hi - lo + 1))
   }
 })

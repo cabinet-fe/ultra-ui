@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { CellAddress } from '../address'
+import { listFormulaFunctions, registerFormulaFunction } from '../formula/functions'
 import { Sheet } from '../sheet'
 
 const A1 = { row: 0, col: 0 }
@@ -9,6 +10,15 @@ const A1 = { row: 0, col: 0 }
 function calcValue(sheet: Sheet, formula: string, addr: CellAddress = { row: 20, col: 20 }) {
   sheet.setCellFormula(addr, formula)
   return sheet.getCellData(addr)
+}
+
+/** 当天日期的 1900 系统序列数（锚点：spec 给定 serial 45000 = 2023-03-15，与实现独立） */
+function todaySerial(): number {
+  const now = new Date()
+  const days =
+    (Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) - Date.UTC(2023, 2, 15)) /
+    86_400_000
+  return 45000 + days
 }
 
 describe('函数集：SUM / AVERAGE / MAX / MIN', () => {
@@ -184,5 +194,127 @@ describe('函数集：通用语义', () => {
     expect(calcValue(sheet, '=SUM(A1:A10000)')).toMatchObject({ v: 3 })
     expect(calcValue(sheet, '=COUNT(A1:A10000)')).toMatchObject({ v: 2 })
     expect(calcValue(sheet, '=AVERAGE(A1:A10000)')).toMatchObject({ v: 1.5 })
+  })
+})
+
+describe('易失性函数：TODAY / NOW / RAND / RANDBETWEEN', () => {
+  it('TODAY 返回当天日期的 1900 系统序列数（整数）', () => {
+    const sheet = new Sheet()
+    const expected = todaySerial()
+    const data = calcValue(sheet, '=TODAY()')
+    expect(data?.t).toBe('n')
+    expect(Number.isInteger(data?.v)).toBe(true)
+    // +1 容忍跨午夜执行
+    expect([expected, expected + 1]).toContain(data?.v)
+  })
+
+  it('NOW 返回当前日期时间序列数（含时间小数部分）', () => {
+    const sheet = new Sheet()
+    const before = new Date()
+    const data = calcValue(sheet, '=NOW()')
+    const after = new Date()
+    expect(data?.t).toBe('n')
+    const v = data?.v as number
+    const serial = todaySerial()
+    expect([serial, serial + 1]).toContain(Math.floor(v))
+    // 小数部分 = 日内时间（秒级容差，容忍求值耗时与跨午夜）
+    const dayFraction = (date: Date) =>
+      (date.getTime() - new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime()) /
+      86_400_000
+    const fraction = v - Math.floor(v)
+    expect(fraction).toBeGreaterThanOrEqual(dayFraction(before) - 1 / 86_400_000)
+    expect(fraction).toBeLessThanOrEqual(dayFraction(after) + 1 / 86_400_000)
+  })
+
+  it('RAND 返回 [0, 1) 区间随机数', () => {
+    const sheet = new Sheet()
+    for (let i = 0; i < 10; i++) {
+      const data = calcValue(sheet, '=RAND()', { row: 20, col: 20 + i })
+      const v = data?.v as number
+      expect(v).toBeGreaterThanOrEqual(0)
+      expect(v).toBeLessThan(1)
+    }
+  })
+
+  it('RANDBETWEEN 返回 [bottom, top] 闭区间整数；非整数参数向零截断', () => {
+    const sheet = new Sheet()
+    for (let i = 0; i < 20; i++) {
+      const v = calcValue(sheet, '=RANDBETWEEN(1,6)', { row: 20, col: 20 + i })?.v as number
+      expect(Number.isInteger(v)).toBe(true)
+      expect(v).toBeGreaterThanOrEqual(1)
+      expect(v).toBeLessThanOrEqual(6)
+    }
+    expect(calcValue(sheet, '=RANDBETWEEN(5,5)')).toMatchObject({ v: 5 })
+    // 1.9/2.1 截断为 [1,2]
+    const truncated = calcValue(sheet, '=RANDBETWEEN(1.9,2.1)')?.v as number
+    expect([1, 2]).toContain(truncated)
+  })
+
+  it('RANDBETWEEN 参数非法按既有错误语义报错', () => {
+    const sheet = new Sheet()
+    expect(calcValue(sheet, '=RANDBETWEEN("x",5)')).toMatchObject({ v: '#VALUE!', t: 'e' })
+    // bottom > top
+    expect(calcValue(sheet, '=RANDBETWEEN(6,1)')).toMatchObject({ v: '#VALUE!', t: 'e' })
+    // 参数个数非法
+    expect(calcValue(sheet, '=RANDBETWEEN(1)')).toMatchObject({ v: '#VALUE!', t: 'e' })
+    expect(calcValue(sheet, '=RANDBETWEEN(1,2,3)')).toMatchObject({ v: '#VALUE!', t: 'e' })
+    // 错误值传播
+    expect(calcValue(sheet, '=RANDBETWEEN(1/0,5)')).toMatchObject({ v: '#DIV/0!', t: 'e' })
+  })
+
+  it('易失性语义：变更无关单元格后易失性格必刷新，非易失性格不误刷新', () => {
+    let volatileCalls = 0
+    let plainCalls = 0
+    registerFormulaFunction('VOLATILE_COUNT', { volatile: true, impl: () => ++volatileCalls })
+    registerFormulaFunction('PLAIN_COUNT', { impl: () => ++plainCalls })
+    const sheet = new Sheet()
+    sheet.setCellFormula(A1, '=VOLATILE_COUNT()')
+    expect(volatileCalls).toBe(1)
+    // 再写一个非易失性公式：写入本身是单元格变更，易失性格随之刷新一次
+    sheet.setCellFormula({ row: 0, col: 1 }, '=PLAIN_COUNT()')
+    expect(volatileCalls).toBe(2)
+    expect(plainCalls).toBe(1)
+    // 变更无关单元格 → 易失性格重新求值，非易失性格不刷新
+    sheet.setCellValue({ row: 5, col: 5 }, 42)
+    expect(volatileCalls).toBe(3)
+    expect(plainCalls).toBe(1)
+    expect(sheet.getCellData(A1)).toMatchObject({ v: 3, t: 'n' })
+  })
+
+  it('易失性刷新沿依赖图传播给下游公式', () => {
+    let calls = 0
+    registerFormulaFunction('VOLATILE_PROP', { volatile: true, impl: () => ++calls })
+    const sheet = new Sheet()
+    sheet.setCellFormula(A1, '=VOLATILE_PROP()')
+    // 写入 B1 公式本身是单元格变更：A1 刷新为 2，B1 = 4
+    sheet.setCellFormula({ row: 0, col: 1 }, '=A1*2')
+    expect(sheet.getCellData({ row: 0, col: 1 })).toMatchObject({ v: 4 })
+    // 变更无关格：A1 刷新为 3，下游 B1 沿依赖图传播为 6
+    sheet.setCellValue({ row: 5, col: 5 }, 42)
+    expect(sheet.getCellData(A1)).toMatchObject({ v: 3 })
+    expect(sheet.getCellData({ row: 0, col: 1 })).toMatchObject({ v: 6 })
+  })
+
+  it('易失性重算的派生补丁并入同一 undo 单元：undo/redo 回放缓存值不重算', () => {
+    let calls = 0
+    registerFormulaFunction('VOLATILE_UNDO', { volatile: true, impl: () => ++calls })
+    const sheet = new Sheet()
+    sheet.setCellFormula(A1, '=VOLATILE_UNDO()')
+    sheet.setCellValue({ row: 1, col: 1 }, 5)
+    expect(sheet.getCellData(A1)).toMatchObject({ v: 2 })
+    // undo 撤销「写入 B2 + 易失性刷新」整个单元：A1 回放到 1，不重算
+    sheet.undo()
+    expect(sheet.getCellData(A1)).toMatchObject({ v: 1 })
+    expect(calls).toBe(2)
+    sheet.redo()
+    expect(sheet.getCellData(A1)).toMatchObject({ v: 2 })
+    expect(calls).toBe(2)
+  })
+
+  it('四个易失性函数经 listFormulaFunctions 可见（fx 公式栏补全自动生效）', () => {
+    const names = listFormulaFunctions().map((f) => f.name)
+    expect(names).toEqual(expect.arrayContaining(['TODAY', 'NOW', 'RAND', 'RANDBETWEEN']))
+    const rand = listFormulaFunctions().find((f) => f.name === 'RANDBETWEEN')
+    expect(rand?.params).toEqual(['bottom', 'top'])
   })
 })
