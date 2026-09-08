@@ -5,6 +5,7 @@ import { createSheetContext } from '../../../tools/context'
 import {
   INSERT_IMAGE_ACCEPT,
   insertImageFromFile,
+  insertImageFromUrl,
   pickAndInsertImage,
   resolveImageType
 } from '../insert-image'
@@ -79,6 +80,59 @@ describe('insertImageFromFile', () => {
     sheet.selection.clear()
     const id = await insertImageFromFile(ctx, makeFile('a.png', 'image/png'))
     expect(id).toBeUndefined()
+    expect(ctx.getImages()).toHaveLength(0)
+    expect(mocks.message.error).toHaveBeenCalledWith('请先选择单元格')
+  })
+})
+
+describe('insertImageFromUrl', () => {
+  it('合法 URL → 锚定活动格并经 ctx.insertImage 写入 src 来源图片', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    ctx.selectCell({ row: 2, col: 3 })
+    const id = insertImageFromUrl(ctx, 'https://example.com/assets/logo.webp')
+    expect(id).toBeTruthy()
+    const images = ctx.getImages()
+    expect(images).toHaveLength(1)
+    expect(images[0]?.src).toBe('https://example.com/assets/logo.webp')
+    expect(images[0]?.type).toBe('webp')
+    expect(images[0]?.data).toHaveLength(0)
+    expect(images[0]?.anchor.from).toEqual({ row: 2, col: 3 })
+    expect(mocks.message.error).not.toHaveBeenCalled()
+  })
+
+  it('URL 无已知扩展名 → type 按 png 提示，仍可插入', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    ctx.selectCell({ row: 1, col: 1 })
+    const id = insertImageFromUrl(ctx, 'https://example.com/image?id=1')
+    expect(id).toBeTruthy()
+    expect(ctx.getImages()[0]?.type).toBe('png')
+  })
+
+  it('空串 → message.error，不写入', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    ctx.selectCell({ row: 1, col: 1 })
+    expect(insertImageFromUrl(ctx, '   ')).toBeUndefined()
+    expect(ctx.getImages()).toHaveLength(0)
+    expect(mocks.message.error).toHaveBeenCalledWith('请输入图片 URL')
+  })
+
+  it('非法 URL → message.error，不写入', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    ctx.selectCell({ row: 1, col: 1 })
+    expect(insertImageFromUrl(ctx, 'not a url')).toBeUndefined()
+    expect(ctx.getImages()).toHaveLength(0)
+    expect(mocks.message.error).toHaveBeenCalledWith('请输入有效的图片 URL')
+  })
+
+  it('无活动格 → message.error，不写入', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    sheet.selection.clear()
+    expect(insertImageFromUrl(ctx, 'https://example.com/a.png')).toBeUndefined()
     expect(ctx.getImages()).toHaveLength(0)
     expect(mocks.message.error).toHaveBeenCalledWith('请先选择单元格')
   })

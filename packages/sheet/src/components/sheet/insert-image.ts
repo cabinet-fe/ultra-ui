@@ -1,5 +1,5 @@
 import { message } from '@veltra/desktop'
-import type { SheetImageType } from '@veltra/sheet-core/core/image'
+import type { SheetImageAnchor, SheetImageType } from '@veltra/sheet-core/core/image'
 
 import type { SheetContext } from '../../tools/context'
 
@@ -32,6 +32,16 @@ export function resolveImageType(file: File): SheetImageType | undefined {
   return EXT_TO_TYPE[ext.toLowerCase()]
 }
 
+/** 取当前活动格锚点；无选区时 message.error 提示并返回 undefined */
+function activeCellAnchor(ctx: SheetContext): SheetImageAnchor | undefined {
+  const active = ctx.getSelection().activeCell
+  if (!active) {
+    message.error('请先选择单元格')
+    return undefined
+  }
+  return { from: { row: active.row, col: active.col } }
+}
+
 /**
  * 从本地 File 插入浮动图片：读字节 → 映射类型 → 锚定活动格 → ctx.insertImage。
  * 不支持的格式 / 无活动格时 message.error 提示并返回 undefined。
@@ -45,17 +55,35 @@ export async function insertImageFromFile(
     message.error('不支持的图片格式，请选择 png / jpeg / gif / svg / webp')
     return undefined
   }
-  const active = ctx.getSelection().activeCell
-  if (!active) {
-    message.error('请先选择单元格')
+  const anchor = activeCellAnchor(ctx)
+  if (!anchor) return undefined
+  const buffer = await file.arrayBuffer()
+  return ctx.insertImage({ data: new Uint8Array(buffer), type, anchor })
+}
+
+/**
+ * 从 URL 插入浮动图片：URL 直存 src（渲染层直接引用），data 为空字节、
+ * type 仅作提示（取 URL 路径扩展名，未知按 png）。锚定活动格，经 ctx.insertImage 写入。
+ * 空串 / 非法 URL / 无活动格时 message.error 提示并返回 undefined。
+ */
+export function insertImageFromUrl(ctx: SheetContext, url: string): string | undefined {
+  const src = url.trim()
+  if (!src) {
+    message.error('请输入图片 URL')
     return undefined
   }
-  const buffer = await file.arrayBuffer()
-  return ctx.insertImage({
-    data: new Uint8Array(buffer),
-    type,
-    anchor: { from: { row: active.row, col: active.col } }
-  })
+  let pathname: string
+  try {
+    pathname = new URL(src).pathname
+  } catch {
+    message.error('请输入有效的图片 URL')
+    return undefined
+  }
+  const anchor = activeCellAnchor(ctx)
+  if (!anchor) return undefined
+  const ext = pathname.includes('.') ? pathname.slice(pathname.lastIndexOf('.') + 1) : ''
+  const type = EXT_TO_TYPE[ext.toLowerCase()] ?? 'png'
+  return ctx.insertImage({ data: new Uint8Array(), type, src, anchor })
 }
 
 /**

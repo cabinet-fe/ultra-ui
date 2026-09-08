@@ -49,7 +49,7 @@ src/
 ## 浮动图片门面与 UI 入口
 
 - **SheetContext 门面**：`insertImage(input)` / `removeImage(id)` / `updateImage(id, patch)` / `getImages()` / `onImageChange(handler)`（读写走命令/事件，不暴露 Sheet）。
-- **UI 入口**：工具栏 `insert-image`（组 `insert`，弹层 `UFilePicker`）；右键「插入图片」直接拉起系统文件框；共享逻辑 `components/sheet/insert-image.ts`（`insertImageFromFile`）。
+- **UI 入口**：工具栏 `insert-image`（组 `insert`，弹层 `UFilePicker` 本地文件 + URL 输入并存）；右键「插入图片」直接拉起系统文件框；共享逻辑 `components/sheet/insert-image.ts`（`insertImageFromFile` / `insertImageFromUrl`）。
 - 叠层渲染与拖动交互在 sheet-core `grid/image-layer.ts`，见其 AGENTS.md。
 
 ## 导入导出

@@ -39,6 +39,36 @@ vi.mock('@veltra/desktop', async () => {
             'pick'
           )
       }
+    }),
+    UInput: defineComponent({
+      name: 'UInputStub',
+      props: ['modelValue'],
+      emits: ['update:modelValue'],
+      setup(props, { emit }) {
+        return () =>
+          h('input', {
+            class: 'url-input-stub',
+            value: props.modelValue as string,
+            onInput: (e: Event) => emit('update:modelValue', (e.target as HTMLInputElement).value)
+          })
+      }
+    }),
+    UButton: defineComponent({
+      name: 'UButtonStub',
+      props: ['disabled'],
+      emits: ['click'],
+      setup(props, { emit, slots }) {
+        return () =>
+          h(
+            'button',
+            {
+              class: 'url-btn-stub',
+              disabled: props.disabled as boolean,
+              onClick: () => emit('click')
+            },
+            slots.default?.()
+          )
+      }
     })
   }
 })
@@ -85,5 +115,25 @@ describe('USheetInsertImagePopup', () => {
     expect(sheet.getImages()[0]?.anchor.from).toEqual({ row: 1, col: 1 })
     expect(sheet.getImages()[0]?.type).toBe('png')
     expect([...sheet.getImages()[0]!.data]).toEqual([9, 8, 7])
+  })
+
+  it('输入 URL 点插入 → 关闭弹层并插入 src 来源图片', async () => {
+    const closed = vi.fn()
+    const { el, sheet } = mountPopup(closed)
+    const input = el.querySelector<HTMLInputElement>('.url-input-stub')!
+    const btn = el.querySelector<HTMLButtonElement>('.url-btn-stub')!
+    expect(btn.disabled).toBe(true)
+
+    input.value = 'https://example.com/pic.gif'
+    input.dispatchEvent(new Event('input'))
+    await Promise.resolve()
+    expect(btn.disabled).toBe(false)
+
+    btn.click()
+    expect(closed).toHaveBeenCalledTimes(1)
+    expect(sheet.getImages()).toHaveLength(1)
+    expect(sheet.getImages()[0]?.src).toBe('https://example.com/pic.gif')
+    expect(sheet.getImages()[0]?.type).toBe('gif')
+    expect(sheet.getImages()[0]?.anchor.from).toEqual({ row: 1, col: 1 })
   })
 })
