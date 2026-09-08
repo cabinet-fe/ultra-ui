@@ -559,6 +559,24 @@ describe('UImageCropper 工具栏与预览', () => {
     expect(hidden.host.querySelector('.u-image-cropper__preview')).toBeNull()
     hidden.unmount()
   })
+
+  it('预览画布按选区等比缩放到画布区 30% 以内，旋转后宽高互换', async () => {
+    const { host, unmount } = mountWithProps({ src: 'https://example.com/a.png' })
+    await flush()
+
+    const canvas = host.querySelector<HTMLCanvasElement>('.u-image-cropper__preview-canvas')!
+    // 选区 640×480，画布区 400×300 的 30% 上限为 120×90 → 等比缩放 0.1875
+    expect(canvas.width).toBe(120)
+    expect(canvas.height).toBe(90)
+
+    // 旋转 90° 后基准尺寸互换为 480×640 → 67.5×90（宽度取整 68）
+    toolButton(host, '顺时针旋转 90°').click()
+    await flush()
+    expect(canvas.width).toBe(68)
+    expect(canvas.height).toBe(90)
+
+    unmount()
+  })
 })
 
 describe('UImageCropper getResult 与裁剪变化事件', () => {

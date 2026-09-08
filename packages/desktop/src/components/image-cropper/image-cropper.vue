@@ -202,7 +202,13 @@ const { selection, initSelection, clearSelection } = useSelection({
   aspectRatio: () => currentRatio.value
 })
 
-usePreview({ canvas: previewCanvasRef, image: imageEl, selection, transform })
+usePreview({
+  canvas: previewCanvasRef,
+  image: imageEl,
+  selection,
+  transform,
+  canvasSize: () => canvasSize
+})
 
 useResizeObserver({
   targets: canvasRef,
