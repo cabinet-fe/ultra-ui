@@ -16,6 +16,8 @@ interface UseImageLoaderReturn {
   naturalWidth: ShallowRef<number>
   /** 图片原始高度 */
   naturalHeight: ShallowRef<number>
+  /** 已加载完成的图片元素，供画布绘制（预览 / getResult 输出） */
+  imageEl: ShallowRef<HTMLImageElement | undefined>
 }
 
 /** 加载 File / Blob / URL 图片源，File / Blob 走 objectURL 并在替换与卸载时释放 */
@@ -27,6 +29,7 @@ export function useImageLoader(options: UseImageLoaderOptions): UseImageLoaderRe
   const error = shallowRef(false)
   const naturalWidth = shallowRef(0)
   const naturalHeight = shallowRef(0)
+  const imageEl = shallowRef<HTMLImageElement>()
 
   let objectUrl: string | undefined
 
@@ -43,6 +46,7 @@ export function useImageLoader(options: UseImageLoaderOptions): UseImageLoaderRe
     error.value = false
     naturalWidth.value = 0
     naturalHeight.value = 0
+    imageEl.value = undefined
 
     if (!source) return
 
@@ -54,6 +58,7 @@ export function useImageLoader(options: UseImageLoaderOptions): UseImageLoaderRe
     el.onload = () => {
       naturalWidth.value = el.naturalWidth
       naturalHeight.value = el.naturalHeight
+      imageEl.value = el
       loaded.value = true
     }
     el.onerror = () => {
@@ -70,5 +75,5 @@ export function useImageLoader(options: UseImageLoaderOptions): UseImageLoaderRe
     revokeObjectUrl()
   })
 
-  return { imageUrl, loaded, error, naturalWidth, naturalHeight }
+  return { imageUrl, loaded, error, naturalWidth, naturalHeight, imageEl }
 }

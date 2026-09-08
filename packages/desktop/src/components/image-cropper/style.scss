@@ -4,14 +4,79 @@
 $root-name: image-cropper;
 @include m.b($root-name) {
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100%;
   overflow: hidden;
 
+  @include m.e(toolbar) {
+    display: flex;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-bottom: 1px solid fn.use-var(border, color);
+    background-color: fn.use-var(bg-color, top);
+  }
+
+  @include m.e(tool-group) {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    padding: 2px;
+    border: 1px solid fn.use-var(border, color);
+    border-radius: fn.use-var(radius, small);
+    background-color: fn.use-var(bg-color, middle);
+  }
+
+  @include m.e(tool) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    padding: 0 10px;
+    border: 1px solid transparent;
+    border-radius: calc(#{fn.use-var(radius, small)} - 2px);
+    background: transparent;
+    color: fn.use-var(text-color, second);
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+      background fn.use-var(transition, fast) fn.use-var(transition, ease),
+      color fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    &:hover {
+      color: fn.use-var(color, primary);
+      background: fn.color-a(color, 10, primary);
+    }
+
+    &.is-active {
+      color: fn.use-var(color, primary);
+      background: fn.color-a(color, 16, primary);
+    }
+
+    &:focus-visible {
+      box-shadow: fn.use-var(focus-ring);
+    }
+  }
+
+  @include m.em(tool, icon) {
+    width: 28px;
+    padding: 0;
+  }
+
+  // 水平翻转图标：上下箭头旋转为左右指向
+  @include m.e(flip-icon) {
+    transform: rotate(90deg);
+  }
+
   @include m.e(canvas) {
     position: relative;
-    width: 100%;
-    height: 100%;
+    flex: 1;
+    min-height: 0;
     overflow: hidden;
     background-color: fn.use-var(bg-color, bottom);
   }
@@ -138,5 +203,30 @@ $root-name: image-cropper;
       top: 50%;
       cursor: ew-resize;
     }
+  }
+
+  // 实时预览区：悬浮在画布右下角，不拦截画布交互
+  @include m.e(preview) {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 30%;
+    max-height: 30%;
+    border: 1px solid fn.use-var(border, color);
+    border-radius: fn.use-var(radius, small);
+    background-color: fn.use-var(bg-color, top);
+    box-shadow: fn.use-var(shadow);
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  @include m.e(preview-canvas) {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
   }
 }

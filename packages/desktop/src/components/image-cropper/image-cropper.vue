@@ -1,8 +1,101 @@
 <template>
   <div :class="cls.b">
+    <div v-if="showToolbar" :class="cls.e('toolbar')">
+      <slot
+        name="toolbar"
+        :zoom-in="zoomIn"
+        :zoom-out="zoomOut"
+        :rotate="rotate"
+        :flip="flip"
+        :reset="resetTransform"
+        :set-aspect-ratio="setAspectRatio"
+        :aspect-ratio="currentRatio"
+      >
+        <!-- 宽高比预设 -->
+        <div :class="cls.e('tool-group')">
+          <button
+            v-for="preset in RATIO_PRESETS"
+            :key="preset.label"
+            type="button"
+            :class="[cls.e('tool'), bem.is('active', preset.value === currentRatio)]"
+            @click="setAspectRatio(preset.value)"
+          >
+            {{ preset.label }}
+          </button>
+        </div>
+
+        <!-- 缩放 / 旋转 / 翻转 / 重置 -->
+        <div :class="cls.e('tool-group')">
+          <button
+            type="button"
+            :class="[cls.e('tool'), cls.em('tool', 'icon')]"
+            aria-label="缩小"
+            title="缩小"
+            @click="zoomOut()"
+          >
+            <u-icon :size="15"><ZoomOut /></u-icon>
+          </button>
+          <button
+            type="button"
+            :class="[cls.e('tool'), cls.em('tool', 'icon')]"
+            aria-label="放大"
+            title="放大"
+            @click="zoomIn()"
+          >
+            <u-icon :size="15"><ZoomIn /></u-icon>
+          </button>
+          <button
+            type="button"
+            :class="[cls.e('tool'), cls.em('tool', 'icon')]"
+            aria-label="逆时针旋转 90°"
+            title="逆时针旋转 90°"
+            @click="rotate(-1)"
+          >
+            <u-icon :size="15"><RotateLeft /></u-icon>
+          </button>
+          <button
+            type="button"
+            :class="[cls.e('tool'), cls.em('tool', 'icon')]"
+            aria-label="顺时针旋转 90°"
+            title="顺时针旋转 90°"
+            @click="rotate(1)"
+          >
+            <u-icon :size="15"><RotateRight /></u-icon>
+          </button>
+          <button
+            type="button"
+            :class="[cls.e('tool'), cls.em('tool', 'icon')]"
+            aria-label="水平翻转"
+            title="水平翻转"
+            @click="flip('horizontal')"
+          >
+            <u-icon :size="15" :class="cls.e('flip-icon')"><ArrowUpdown /></u-icon>
+          </button>
+          <button
+            type="button"
+            :class="[cls.e('tool'), cls.em('tool', 'icon')]"
+            aria-label="垂直翻转"
+            title="垂直翻转"
+            @click="flip('vertical')"
+          >
+            <u-icon :size="15"><ArrowUpdown /></u-icon>
+          </button>
+          <button
+            type="button"
+            :class="[cls.e('tool'), cls.em('tool', 'icon')]"
+            aria-label="重置"
+            title="重置"
+            @click="resetTransform()"
+          >
+            <u-icon :size="15"><Refresh /></u-icon>
+          </button>
+        </div>
+      </slot>
+    </div>
+
     <div :class="cls.e('canvas')" ref="canvasRef">
       <div v-if="loaded" :class="cls.e('stage')" :style="stageStyle">
-        <img :class="cls.e('image')" :src="imageUrl" draggable="false" alt="" />
+        <img :class="cls.e('image')" :src="imageUrl" ref="imageRef" draggable="false" alt="" />
 
         <template v-if="selection">
           <!-- 选区外半透明遮罩 -->
@@ -22,16 +115,37 @@
         </template>
       </div>
     </div>
+
+    <div v-if="showPreview && loaded" :class="cls.e('preview')">
+      <canvas :class="cls.e('preview-canvas')" ref="previewCanvasRef" />
+    </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { useResizeObserver } from '@veltra/compositions'
+import {
+  ArrowUpdown,
+  Refresh,
+  RotateLeft,
+  RotateRight,
+  ZoomIn,
+  ZoomOut
+} from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { computed, reactive, shallowRef, watch } from 'vue'
 
-import type { ImageCropperProps, ImageCropperEmits } from '../../types'
+import type {
+  ImageCropperProps,
+  ImageCropperEmits,
+  ImageCropperResult,
+  ImageCropperResultOptions,
+  _ImageCropperExposed
+} from '../../types'
+import { UIcon } from '../icon'
+import { cropToResult } from './draw-crop'
 import { useImageLoader } from './use-image-loader'
+import { usePreview } from './use-preview'
 import { SELECTION_HANDLES, useSelection } from './use-selection'
 import { useTransform } from './use-transform'
 
@@ -42,33 +156,54 @@ const props = withDefaults(defineProps<ImageCropperProps>(), {
   showPreview: true
 })
 
-defineEmits<ImageCropperEmits>()
+const emit = defineEmits<ImageCropperEmits>()
 
 const cls = bem('image-cropper')
 
 const canvasRef = shallowRef<HTMLElement>()
 const selectionRef = shallowRef<HTMLElement>()
+const imageRef = shallowRef<HTMLImageElement>()
+const previewCanvasRef = shallowRef<HTMLCanvasElement>()
 
-const { imageUrl, loaded, naturalWidth, naturalHeight } = useImageLoader({ src: () => props.src })
+const { imageUrl, loaded, naturalWidth, naturalHeight, imageEl } = useImageLoader({
+  src: () => props.src
+})
 
 const canvasSize = reactive({ width: 0, height: 0 })
 
-// zoomIn / zoomOut / zoomTo / rotate / flip / resetTransform 由 P4 工具栏接线
-const { transform, fit, reset, toImageDelta } = useTransform({
-  target: canvasRef,
-  canvasSize: () => canvasSize,
-  imageWidth: () => naturalWidth.value,
-  imageHeight: () => naturalHeight.value,
-  onReset: () => initSelection()
-})
+/** 宽高比预设，value 为 undefined 表示自由比例 */
+const RATIO_PRESETS: { label: string; value?: number }[] = [
+  { label: '自由', value: undefined },
+  { label: '1:1', value: 1 },
+  { label: '4:3', value: 4 / 3 },
+  { label: '16:9', value: 16 / 9 }
+]
+
+/** 当前生效的宽高比：工具栏预设可覆盖 prop，prop 变化时同步回来 */
+const currentRatio = shallowRef(props.aspectRatio)
+
+function setAspectRatio(ratio: number | undefined) {
+  currentRatio.value = ratio
+}
+
+const { transform, fit, reset, resetTransform, zoomIn, zoomOut, rotate, flip, toImageDelta } =
+  useTransform({
+    target: canvasRef,
+    canvasSize: () => canvasSize,
+    imageWidth: () => naturalWidth.value,
+    imageHeight: () => naturalHeight.value,
+    onReset: () => initSelection()
+  })
 
 const { selection, initSelection, clearSelection } = useSelection({
   target: selectionRef,
   imageWidth: () => naturalWidth.value,
   imageHeight: () => naturalHeight.value,
   toImageDelta,
-  aspectRatio: () => props.aspectRatio
+  aspectRatio: () => currentRatio.value
 })
+
+usePreview({ canvas: previewCanvasRef, image: imageRef, selection, transform })
 
 useResizeObserver({
   targets: canvasRef,
@@ -88,11 +223,38 @@ watch(
   }
 )
 
+watch(
+  () => props.aspectRatio,
+  (ratio) => {
+    currentRatio.value = ratio
+  }
+)
+
 watch(loaded, (isLoaded) => {
   if (!isLoaded) return
   fit()
   initSelection()
 })
+
+// 选区或图片变换变化时发出裁剪变化事件，载荷为当前选区（图片像素坐标）与变换摘要
+watch([selection, () => ({ ...transform })], () => {
+  const sel = selection.value
+  if (!sel) return
+  emit('crop-change', {
+    selection: { ...sel },
+    transform: { rotation: transform.rotation, flipX: transform.flipX, flipY: transform.flipY }
+  })
+})
+
+/** 输出当前选区裁剪结果：默认原图选区像素，options 传入目标宽 / 高时按该尺寸缩放 */
+async function getResult(options?: ImageCropperResultOptions): Promise<ImageCropperResult> {
+  const img = imageEl.value
+  const sel = selection.value
+  if (!img || !sel) throw new Error('Export crop result failed: image not loaded or no selection')
+  return cropToResult(img, sel, transform, options)
+}
+
+defineExpose<_ImageCropperExposed>({ getResult })
 
 /** 舞台样式：图片与选区层共用同一变换，选区以图片像素坐标定位 */
 const stageStyle = computed(() => {

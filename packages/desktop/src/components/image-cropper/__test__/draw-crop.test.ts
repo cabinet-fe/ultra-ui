@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { drawCropToCanvas } from '../draw-crop'
+import { cropToResult, drawCropToCanvas } from '../draw-crop'
 
 /** 记录调用参数的 2d 上下文桩 */
 function createCtxStub() {
@@ -83,5 +83,49 @@ describe('drawCropToCanvas', () => {
 
     expect(canvas.width).toBe(100)
     expect(canvas.height).toBe(51)
+  })
+})
+
+describe('cropToResult', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('默认按原图选区像素导出 Blob + base64 dataURL', async () => {
+    const toBlobSpy = vi.spyOn(HTMLCanvasElement.prototype, 'toBlob')
+
+    const { blob, base64 } = await cropToResult(img, selection, identity)
+
+    // 离屏画布按选区 200×100 输出
+    const canvas = toBlobSpy.mock.instances[0] as unknown as HTMLCanvasElement
+    expect(canvas.width).toBe(200)
+    expect(canvas.height).toBe(100)
+    expect(blob).toBeInstanceOf(Blob)
+    expect(blob.type).toBe('image/png')
+    expect(base64.startsWith('data:image/png;base64,')).toBe(true)
+  })
+
+  it('传入输出尺寸时按该尺寸缩放导出', async () => {
+    const toBlobSpy = vi.spyOn(HTMLCanvasElement.prototype, 'toBlob')
+
+    await cropToResult(img, selection, identity, { width: 100 })
+
+    const canvas = toBlobSpy.mock.instances[0] as unknown as HTMLCanvasElement
+    expect(canvas.width).toBe(100)
+    expect(canvas.height).toBe(50)
+  })
+
+  it('canvas 被跨域图片污染（toBlob 抛错）时拒绝为可捕获错误', async () => {
+    vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation(() => {
+      throw new DOMException('The canvas has been tainted by cross-origin data.', 'SecurityError')
+    })
+
+    await expect(cropToResult(img, selection, identity)).rejects.toThrow(/tainted/)
+  })
+
+  it('toBlob 未产出数据时拒绝而不是静默返回', async () => {
+    vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation((cb) => cb(null))
+
+    await expect(cropToResult(img, selection, identity)).rejects.toThrow(/got null/)
   })
 })

@@ -1,3 +1,4 @@
+import type { ImageCropperResult } from '../../types'
 import type { SelectionRect } from './use-selection'
 
 /** 影响裁剪输出的变换（缩放 / 平移只影响画布展示，与输出无关） */
@@ -60,4 +61,52 @@ export function drawCropToCanvas(
     selection.width,
     selection.height
   )
+}
+
+/**
+ * canvas 导出为 Blob。
+ * 跨域图片污染画布时 toBlob 同步抛 SecurityError，包装为可捕获的 Promise 拒绝
+ */
+function canvasToBlob(canvas: HTMLCanvasElement): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    try {
+      canvas.toBlob((blob) => {
+        if (blob) resolve(blob)
+        else reject(new Error('Export crop result failed: canvas.toBlob got null'))
+      }, 'image/png')
+    } catch (err) {
+      reject(
+        new Error('Export crop result failed: canvas is tainted by cross-origin image', {
+          cause: err
+        })
+      )
+    }
+  })
+}
+
+/** Blob 读取为 dataURL 形式的 base64 */
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = () =>
+      reject(reader.error ?? new Error('Export crop result failed: read blob as base64 failed'))
+    reader.readAsDataURL(blob)
+  })
+}
+
+/**
+ * 输出选区裁剪结果：离屏 canvas 经 drawCropToCanvas 按原图像素绘制后导出 Blob + base64。
+ * outSize 缺省为原图选区像素尺寸，传入则按该尺寸缩放输出
+ */
+export async function cropToResult(
+  img: HTMLImageElement,
+  selection: SelectionRect,
+  transform: CropTransform,
+  outSize?: CropOutputSize
+): Promise<ImageCropperResult> {
+  const canvas = document.createElement('canvas')
+  drawCropToCanvas(img, selection, transform, canvas, outSize)
+  const blob = await canvasToBlob(canvas)
+  return { blob, base64: await blobToBase64(blob) }
 }

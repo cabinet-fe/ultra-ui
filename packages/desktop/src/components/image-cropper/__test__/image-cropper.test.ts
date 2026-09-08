@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { createApp, h, nextTick, ref } from 'vue'
+import { createApp, h, nextTick, ref, shallowRef } from 'vue'
 
+import type { ImageCropperChangePayload, ImageCropperExposed } from '../../../types'
 import UImageCropper from '../image-cropper.vue'
 
 /** 可控的 Image 桩，set src 后异步触发 onload / onerror */
@@ -35,6 +36,22 @@ class MockImage {
 async function flush() {
   await new Promise((resolve) => setTimeout(resolve, 0))
   await nextTick()
+}
+
+/** 让画布拿到 400×300 的容器尺寸（happy-dom 的 ResizeObserver 不触发回调） */
+class MockResizeObserver {
+  constructor(private cb: ResizeObserverCallback) {}
+
+  observe() {
+    this.cb(
+      [{ contentRect: { width: 400, height: 300 } } as ResizeObserverEntry],
+      this as unknown as ResizeObserver
+    )
+  }
+
+  unobserve() {}
+
+  disconnect() {}
 }
 
 function mountCropper(initialSrc?: File | Blob | string, options?: { aspectRatio?: number }) {
@@ -280,22 +297,6 @@ describe('UImageCropper 选区交互', () => {
 })
 
 describe('UImageCropper 图片变换', () => {
-  /** 让画布拿到 400×300 的容器尺寸（happy-dom 的 ResizeObserver 不触发回调） */
-  class MockResizeObserver {
-    constructor(private cb: ResizeObserverCallback) {}
-
-    observe() {
-      this.cb(
-        [{ contentRect: { width: 400, height: 300 } } as ResizeObserverEntry],
-        this as unknown as ResizeObserver
-      )
-    }
-
-    unobserve() {}
-
-    disconnect() {}
-  }
-
   beforeEach(() => {
     MockImage.instances = []
     MockImage.failNext = false
@@ -399,6 +400,327 @@ describe('UImageCropper 图片变换', () => {
     const after = stageTransform(host)
     expect(after.tx).toBeCloseTo(t.tx, 10)
     expect(after.ty).toBeCloseTo(t.ty, 10)
+    unmount()
+  })
+})
+
+describe('UImageCropper 工具栏与预览', () => {
+  beforeEach(() => {
+    MockImage.instances = []
+    MockImage.failNext = false
+    vi.stubGlobal('Image', MockImage)
+    vi.stubGlobal('ResizeObserver', MockResizeObserver)
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
+  })
+
+  function mountWithProps(
+    props: Record<string, unknown>,
+    slots?: Record<string, (...args: any[]) => any>
+  ) {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const app = createApp({
+      render() {
+        return h(UImageCropper, props, slots)
+      }
+    })
+    app.mount(host)
+    return {
+      host,
+      unmount() {
+        app.unmount()
+        host.remove()
+      }
+    }
+  }
+
+  function toolButton(host: HTMLElement, label: string) {
+    const buttons = [...host.querySelectorAll<HTMLElement>('.u-image-cropper__tool')]
+    const btn = buttons.find(
+      (el) => el.textContent?.trim() === label || el.getAttribute('aria-label') === label
+    )
+    if (!btn) throw new Error(`未找到工具栏按钮: ${label}`)
+    return btn
+  }
+
+  function stageTransform(host: HTMLElement) {
+    const stage = host.querySelector('.u-image-cropper__stage') as HTMLElement
+    const m = stage.style.transform.match(
+      /translate\((-?[\d.]+)px, (-?[\d.]+)px\) rotate\((-?[\d.]+)deg\) scale\((-?[\d.]+), (-?[\d.]+)\)/
+    )
+    if (!m) throw new Error(`无法解析 transform: ${stage.style.transform}`)
+    return { tx: +m[1]!, ty: +m[2]!, rotation: +m[3]!, sx: +m[4]!, sy: +m[5]! }
+  }
+
+  function selectionRect(host: HTMLElement) {
+    const el = host.querySelector('.u-image-cropper__selection') as HTMLElement
+    return {
+      x: parseFloat(el.style.left),
+      y: parseFloat(el.style.top),
+      width: parseFloat(el.style.width),
+      height: parseFloat(el.style.height)
+    }
+  }
+
+  it('宽高比预设切换后选区立即按比例重算，并高亮当前预设', async () => {
+    const { host, unmount } = mountWithProps({ src: 'https://example.com/a.png' })
+    await flush()
+
+    expect(selectionRect(host)).toEqual({ x: 80, y: 60, width: 640, height: 480 })
+
+    toolButton(host, '1:1').click()
+    await nextTick()
+    // 以选区中心 (400, 300) 为锚按 1:1 重算
+    expect(selectionRect(host)).toEqual({ x: 100, y: 0, width: 600, height: 600 })
+    expect(toolButton(host, '1:1').classList.contains('is-active')).toBe(true)
+
+    toolButton(host, '自由').click()
+    await nextTick()
+    // 恢复自由比例：选区保持现状，仅解除比例约束
+    expect(selectionRect(host)).toEqual({ x: 100, y: 0, width: 600, height: 600 })
+    expect(toolButton(host, '自由').classList.contains('is-active')).toBe(true)
+    unmount()
+  })
+
+  it('缩放 / 旋转 / 翻转 / 重置按钮即时驱动画布变换', async () => {
+    const { host, unmount } = mountWithProps({ src: 'https://example.com/a.png' })
+    await flush()
+
+    // 初始 fit：缩放 0.5 居中
+    expect(stageTransform(host)).toEqual({ tx: -200, ty: -150, rotation: 0, sx: 0.5, sy: 0.5 })
+
+    toolButton(host, '放大').click()
+    await nextTick()
+    expect(stageTransform(host).sx).toBeCloseTo(0.6, 10)
+
+    toolButton(host, '缩小').click()
+    await nextTick()
+    expect(stageTransform(host).sx).toBe(0.5)
+
+    toolButton(host, '顺时针旋转 90°').click()
+    await nextTick()
+    expect(stageTransform(host).rotation).toBe(90)
+
+    toolButton(host, '逆时针旋转 90°').click()
+    await nextTick()
+    expect(stageTransform(host).rotation).toBe(0)
+
+    toolButton(host, '水平翻转').click()
+    toolButton(host, '垂直翻转').click()
+    await nextTick()
+    expect(stageTransform(host).sx).toBe(-0.5)
+    expect(stageTransform(host).sy).toBe(-0.5)
+
+    toolButton(host, '重置').click()
+    await nextTick()
+    expect(stageTransform(host)).toEqual({ tx: -200, ty: -150, rotation: 0, sx: 0.5, sy: 0.5 })
+    expect(selectionRect(host)).toEqual({ x: 80, y: 60, width: 640, height: 480 })
+    unmount()
+  })
+
+  it('showToolbar 隐藏内置工具栏，toolbar 插槽完全自定义并暴露作用域方法', async () => {
+    const { host, unmount } = mountWithProps(
+      { src: 'https://example.com/a.png' },
+      {
+        toolbar: (scope: { rotate: (d: 1 | -1) => void }) =>
+          h('button', { class: 'my-rotate', onClick: () => scope.rotate(1) }, '自定义旋转')
+      }
+    )
+    await flush()
+
+    // 插槽替代内置工具：预设按钮不存在
+    expect(host.querySelector('.u-image-cropper__tool')).toBeNull()
+    const custom = host.querySelector('.my-rotate') as HTMLElement
+    expect(custom).toBeTruthy()
+
+    custom.click()
+    await nextTick()
+    expect(stageTransform(host).rotation).toBe(90)
+    unmount()
+
+    const hidden = mountWithProps({ src: 'https://example.com/a.png', showToolbar: false })
+    await flush()
+    expect(hidden.host.querySelector('.u-image-cropper__toolbar')).toBeNull()
+    hidden.unmount()
+  })
+
+  it('默认显示实时预览画布，showPreview 关闭预览区', async () => {
+    const { host, unmount } = mountWithProps({ src: 'https://example.com/a.png' })
+    await flush()
+    expect(host.querySelector('.u-image-cropper__preview-canvas')).toBeTruthy()
+    unmount()
+
+    const hidden = mountWithProps({ src: 'https://example.com/a.png', showPreview: false })
+    await flush()
+    expect(hidden.host.querySelector('.u-image-cropper__preview')).toBeNull()
+    hidden.unmount()
+  })
+})
+
+describe('UImageCropper getResult 与裁剪变化事件', () => {
+  beforeEach(() => {
+    MockImage.instances = []
+    MockImage.failNext = false
+    vi.stubGlobal('Image', MockImage)
+    vi.stubGlobal('ResizeObserver', MockResizeObserver)
+  })
+
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
+  })
+
+  /** 挂载并拿到组件暴露的 ref，同时收集 crop-change 事件载荷 */
+  function mountExposed(props: Record<string, unknown> = {}) {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
+    const cropperRef = shallowRef<ImageCropperExposed>()
+    const payloads: ImageCropperChangePayload[] = []
+    const app = createApp({
+      render() {
+        return h(UImageCropper, {
+          src: 'https://example.com/a.png',
+          ...props,
+          ref: cropperRef,
+          onCropChange: (payload: ImageCropperChangePayload) => payloads.push(payload)
+        })
+      }
+    })
+    app.mount(host)
+
+    return {
+      host,
+      cropperRef,
+      payloads,
+      unmount() {
+        app.unmount()
+        host.remove()
+      }
+    }
+  }
+
+  /** getResult 最近一次实际导出的离屏画布（toBlob 的调用方） */
+  function exportedCanvas(toBlobSpy: ReturnType<typeof vi.spyOn>) {
+    return toBlobSpy.mock.instances.at(-1) as unknown as HTMLCanvasElement
+  }
+
+  /** 从 (100, 100) 按下目标元素并拖动 (dx, dy) 后抬起 */
+  async function drag(target: Element, dx: number, dy: number) {
+    target.dispatchEvent(
+      new MouseEvent('mousedown', { bubbles: true, button: 0, clientX: 100, clientY: 100 })
+    )
+    document.dispatchEvent(new MouseEvent('mousemove', { clientX: 100 + dx, clientY: 100 + dy }))
+    document.dispatchEvent(new MouseEvent('mouseup'))
+    await nextTick()
+  }
+
+  it('getResult() 默认按原图选区像素输出 Blob + base64', async () => {
+    const { cropperRef, unmount } = mountExposed()
+    await flush()
+
+    const toBlobSpy = vi.spyOn(HTMLCanvasElement.prototype, 'toBlob')
+    const result = await cropperRef.value!.getResult()
+
+    // 初始选区 640×480（MockImage 800×600 的居中 80%）
+    expect(exportedCanvas(toBlobSpy).width).toBe(640)
+    expect(exportedCanvas(toBlobSpy).height).toBe(480)
+    expect(result.blob).toBeInstanceOf(Blob)
+    expect(result.blob.type).toBe('image/png')
+    expect(result.base64.startsWith('data:image/png;base64,')).toBe(true)
+    unmount()
+  })
+
+  it('getResult() 传入目标宽 / 高时按该尺寸缩放输出，缺省维度按比例推算', async () => {
+    const { cropperRef, unmount } = mountExposed()
+    await flush()
+
+    const toBlobSpy = vi.spyOn(HTMLCanvasElement.prototype, 'toBlob')
+    await cropperRef.value!.getResult({ width: 320 })
+    expect(exportedCanvas(toBlobSpy).width).toBe(320)
+    expect(exportedCanvas(toBlobSpy).height).toBe(240)
+
+    await cropperRef.value!.getResult({ width: 160, height: 160 })
+    expect(exportedCanvas(toBlobSpy).width).toBe(160)
+    expect(exportedCanvas(toBlobSpy).height).toBe(160)
+    unmount()
+  })
+
+  it('旋转 90° 后 getResult 输出与画布视觉一致（输出尺寸交换宽高）', async () => {
+    const { host, cropperRef, unmount } = mountExposed()
+    await flush()
+
+    const rotateBtn = host.querySelector<HTMLElement>('[aria-label="顺时针旋转 90°"]')!
+    rotateBtn.click()
+    await nextTick()
+
+    const toBlobSpy = vi.spyOn(HTMLCanvasElement.prototype, 'toBlob')
+    await cropperRef.value!.getResult()
+    expect(exportedCanvas(toBlobSpy).width).toBe(480)
+    expect(exportedCanvas(toBlobSpy).height).toBe(640)
+    unmount()
+  })
+
+  it('图片未加载时 getResult 抛出可捕获错误', async () => {
+    const { cropperRef, unmount } = mountExposed({ src: undefined })
+    await flush()
+
+    await expect(cropperRef.value!.getResult()).rejects.toThrow(/not loaded/)
+    unmount()
+  })
+
+  it('画布被跨域图片污染时 getResult 拒绝，不静默失败', async () => {
+    const { cropperRef, unmount } = mountExposed()
+    await flush()
+
+    vi.spyOn(HTMLCanvasElement.prototype, 'toBlob').mockImplementation(() => {
+      throw new DOMException('The canvas has been tainted by cross-origin data.', 'SecurityError')
+    })
+    await expect(cropperRef.value!.getResult()).rejects.toThrow(/tainted/)
+    unmount()
+  })
+
+  it('图片加载并初始化选区后发出 crop-change，载荷含选区与变换摘要', async () => {
+    const { payloads, unmount } = mountExposed()
+    await flush()
+
+    expect(payloads).toEqual([
+      {
+        selection: { x: 80, y: 60, width: 640, height: 480 },
+        transform: { rotation: 0, flipX: false, flipY: false }
+      }
+    ])
+    unmount()
+  })
+
+  it('选区拖动后发出 crop-change，载荷为最新选区（图片像素坐标）', async () => {
+    const { host, payloads, unmount } = mountExposed()
+    await flush()
+
+    const count = payloads.length
+    // fit 缩放 0.5：屏幕 30px = 图片 60px
+    await drag(host.querySelector('.u-image-cropper__selection')!, 30, 0)
+
+    expect(payloads.length).toBe(count + 1)
+    expect(payloads.at(-1)!.selection).toEqual({ x: 140, y: 60, width: 640, height: 480 })
+    unmount()
+  })
+
+  it('旋转 / 翻转等图片变换变化时发出 crop-change，变换摘要随之更新', async () => {
+    const { host, payloads, unmount } = mountExposed()
+    await flush()
+
+    host.querySelector<HTMLElement>('[aria-label="顺时针旋转 90°"]')!.click()
+    await nextTick()
+    expect(payloads.at(-1)!.transform).toEqual({ rotation: 90, flipX: false, flipY: false })
+
+    host.querySelector<HTMLElement>('[aria-label="水平翻转"]')!.click()
+    await nextTick()
+    expect(payloads.at(-1)!.transform).toEqual({ rotation: 90, flipX: true, flipY: false })
     unmount()
   })
 })
