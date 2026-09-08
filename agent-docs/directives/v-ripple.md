@@ -11,6 +11,7 @@ keywords:
   - 辅助类
 aliases: ["v-ripple", "vRipple"]
 ---
+
 ## 快速上手
 
 `vRipple` 在目标元素上监听左键 `mousedown`，显示水波纹，并在 `mouseup` / `mouseleave` 时移除。绑定值为 `false` 时不启用。值为字符串时作为额外的 ripple class；指令参数作为动画时长（毫秒）。使用前需要引入样式。
@@ -46,4 +47,3 @@ el.addEventListener('mouseup', () => ripple.remove())
 ```
 
 `Ripple` 公开方法：`show({ x, y })`、`showByEvent(event)`、`remove()`、`getContainer()`、`resetContainerRect()`。
-

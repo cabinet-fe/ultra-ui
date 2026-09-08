@@ -9,6 +9,7 @@ keywords:
   - 单选选择器
 aliases: ["select", "USelect", "Select", "单选选择器"]
 ---
+
 ## 快速上手
 
 ```ts
@@ -36,12 +37,7 @@ const dict = reactive<{ code?: string; text?: string }>({ code: 'beijing', text:
 
 <template>
   <u-select v-model="city" :options="cities" clearable filterable placeholder="请选择城市" />
-  <u-select
-    v-model="dict.code"
-    :options="cities"
-    clearable
-    @update:text="dict.text = $event"
-  />
+  <u-select v-model="dict.code" :options="cities" clearable @update:text="dict.text = $event" />
 </template>
 ```
 
@@ -74,7 +70,7 @@ const gradeList = [
 
 ## API 签名 / 类型定义
 
-```ts
+````ts
 export type ComponentSize = 'small' | 'default' | 'large'
 
 export type BreakpointName = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
@@ -112,11 +108,7 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    | number
-    | 'full'
-    | ({
-        [key in BreakpointName]?: 'full' | number
-      } & { default: number | 'full' })
+    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段 */
@@ -144,8 +136,7 @@ export interface SelectProps extends FormComponentProps {
    * @description 如果传入一个函数，那么filterable会被强制启用
    */
   options?:
-    | Record<string, any>[]
-    | ((qs: string) => Promise<Record<string, any>[]> | Record<string, any>[])
+    Record<string, any>[] | ((qs: string) => Promise<Record<string, any>[]> | Record<string, any>[])
   /** 值字段 */
   valueKey?: string
   /** 标签字段 */
@@ -202,7 +193,7 @@ export interface _SelectExposed {
 }
 
 export type SelectExposed = DeconstructValue<_SelectExposed>
-```
+````
 
 ## 注意事项
 

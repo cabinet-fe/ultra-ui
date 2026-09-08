@@ -9,6 +9,7 @@ keywords:
   - 栅格布局
 aliases: ["layout", "ULayout", "Layout", "栅格布局"]
 ---
+
 ## 快速上手
 
 ```ts
@@ -44,7 +45,7 @@ import { ULayout } from '@veltra/desktop'
 
 ## API 签名 / 类型定义
 
-```ts
+````ts
 export type DeconstructValue<E extends Record<string, any>> = {
   [K in keyof E]: E[K] extends { value: infer V } ? V : E[K]
 }
@@ -112,7 +113,7 @@ export interface _LayoutExposed {}
 
 /** 布局组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type LayoutExposed = DeconstructValue<_LayoutExposed>
-```
+````
 
 ## 注意事项
 

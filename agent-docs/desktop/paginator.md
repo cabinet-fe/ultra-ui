@@ -9,6 +9,7 @@ keywords:
   - 分页器
 aliases: ["paginator", "UPaginator", "Paginator", "分页器"]
 ---
+
 ## 快速上手
 
 ```ts

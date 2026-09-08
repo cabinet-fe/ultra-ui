@@ -221,10 +221,38 @@ const columns: TableColumn[] = [
 ]
 
 const data = [
-  { id: 1, category: '研发', firstName: '三', lastName: '张', email: 'zhangsan@example.com', phone: '13800000001' },
-  { id: 2, category: '研发', firstName: '四', lastName: '李', email: 'lisi@example.com', phone: '13800000002' },
-  { id: 3, category: '设计', firstName: '五', lastName: '王', email: 'wangwu@example.com', phone: '13800000003' },
-  { id: 4, category: '设计', firstName: '六', lastName: '赵', email: 'zhaoliu@example.com', phone: '13800000004' }
+  {
+    id: 1,
+    category: '研发',
+    firstName: '三',
+    lastName: '张',
+    email: 'zhangsan@example.com',
+    phone: '13800000001'
+  },
+  {
+    id: 2,
+    category: '研发',
+    firstName: '四',
+    lastName: '李',
+    email: 'lisi@example.com',
+    phone: '13800000002'
+  },
+  {
+    id: 3,
+    category: '设计',
+    firstName: '五',
+    lastName: '王',
+    email: 'wangwu@example.com',
+    phone: '13800000003'
+  },
+  {
+    id: 4,
+    category: '设计',
+    firstName: '六',
+    lastName: '赵',
+    email: 'zhaoliu@example.com',
+    phone: '13800000004'
+  }
 ]
 
 // 合并单元格

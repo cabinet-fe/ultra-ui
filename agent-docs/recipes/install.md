@@ -1,8 +1,8 @@
 ---
-title: "Ultra UI 安装 - 组件库安装配置、工程接入与组件按需自动导入"
-description: "Ultra UI (@veltra/*) 在 Vue 3 项目中的完整安装、全局样式与主题初始化（loadTheme）及组件注册指南，详解基于 unplugin-vue-components 的 VeltraUIResolver 按需自动导入与样式副作用引入"
-keywords: ["Ultra UI", "install", "@veltra/desktop", "loadTheme", "VeltraUIResolver", "按需导入"]
-aliases: ["install", "安装", "接入"]
+title: 'Ultra UI 安装 - 组件库安装配置、工程接入与组件按需自动导入'
+description: 'Ultra UI (@veltra/*) 在 Vue 3 项目中的完整安装、全局样式与主题初始化（loadTheme）及组件注册指南，详解基于 unplugin-vue-components 的 VeltraUIResolver 按需自动导入与样式副作用引入'
+keywords: ['Ultra UI', 'install', '@veltra/desktop', 'loadTheme', 'VeltraUIResolver', '按需导入']
+aliases: ['install', '安装', '接入']
 ---
 
 ## 快速上手

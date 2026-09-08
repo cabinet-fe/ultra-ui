@@ -9,6 +9,7 @@ keywords:
   - 文本域
 aliases: ["textarea", "UTextarea", "Textarea", "文本域"]
 ---
+
 ## 快速上手
 
 ```ts
@@ -90,11 +91,7 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    | number
-    | 'full'
-    | ({
-        [key in BreakpointName]?: 'full' | number
-      } & { default: number | 'full' })
+    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段 */

@@ -9,6 +9,7 @@ keywords:
   - 文件查看器
 aliases: ["file-viewer", "UFileViewer", "FileViewer", "文件查看器"]
 ---
+
 ## 快速上手
 
 ```ts

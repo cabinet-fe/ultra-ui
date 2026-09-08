@@ -1,9 +1,10 @@
 ---
-title: "useDnD - 列表拖拽排序与跨容器拖放"
-description: "基于 FormKit Drag and Drop 封装的 Vue 列表拖拽排序组合式函数，支持列表项上下拖动排序、看板卡片跨容器拖拽转移与数据源自动双向同步写回，免除手动 splice 数组，组件卸载自动清理拖放实例"
-keywords: ["useDnD", "@veltra/compositions", "use-dnd", "列表拖拽排序与跨容器拖放"]
-aliases: ["use-dnd", "useDnD", "列表拖拽排序与跨容器拖放"]
+title: 'useDnD - 列表拖拽排序与跨容器拖放'
+description: '基于 FormKit Drag and Drop 封装的 Vue 列表拖拽排序组合式函数，支持列表项上下拖动排序、看板卡片跨容器拖拽转移与数据源自动双向同步写回，免除手动 splice 数组，组件卸载自动清理拖放实例'
+keywords: ['useDnD', '@veltra/compositions', 'use-dnd', '列表拖拽排序与跨容器拖放']
+aliases: ['use-dnd', 'useDnD', '列表拖拽排序与跨容器拖放']
 ---
+
 ## 快速上手
 
 `useDnD` 把列表排序 / 跨容器转移的结果自动写回数据源，不必在 `onSort` 里手动 `splice`。组件卸载时自动销毁拖拽实例。从 `@formkit/drag-and-drop` 原样重导出的符号也从本包导入，不要再单独安装 `@formkit/drag-and-drop`。
@@ -18,10 +19,7 @@ const list = ref([
   { id: 2, label: 'B' }
 ])
 
-const { parentRef, values } = useDnD({
-  values: list,
-  plugins: [animations()]
-})
+const { parentRef, values } = useDnD({ values: list, plugins: [animations()] })
 </script>
 
 <template>
@@ -33,13 +31,13 @@ const { parentRef, values } = useDnD({
 
 `values` 写回规则：
 
-| 传入 | 写回 |
-| --- | --- |
-| `Ref` | 替换 `.value` |
-| 响应式数组 | 原地 `splice` |
-| 普通数组 | 内部副本驱动视图，并同步原数组 |
+| 传入                   | 写回                                |
+| ---------------------- | ----------------------------------- |
+| `Ref`                  | 替换 `.value`                       |
+| 响应式数组             | 原地 `splice`                       |
+| 普通数组               | 内部副本驱动视图，并同步原数组      |
 | getter / 只读 computed | 经 `onReorder` 给出合并后的完整数组 |
-| 不传 | 用返回的 `values` 读写 |
+| 不传                   | 用返回的 `values` 读写              |
 
 `filter` 只让命中项参与拖拽（须与 DOM 中可拖项一一对应）；未命中项保持相对顺序，结果自动合并回原数组。`parent` 可传 ref / getter，元素出现、替换、移除时重建实例；不传则把返回的 `parentRef` 绑到列表容器。
 
@@ -63,4 +61,3 @@ useDnD({
 返回值：`parentRef`、`values`（`filter` 模式下是参与拖拽的视图）、`updateConfig`（整体替换配置，不含 `values` / `filter` / `parent` / `onReorder`）。多容器互拖时各实例设相同 `group`。
 
 类型 `UseDnDOptions`、`UseDnDResult`、`VueParentConfig` 从 `@veltra/compositions` 导入。FormKit 侧常用值同样从本包导入，例如 `animations`、`dragAndDrop`、`useDragAndDrop`、`dropOrSwap`、`insert`、`tearDown`、`performSort`、`performTransfer`。
-

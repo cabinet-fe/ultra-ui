@@ -9,6 +9,7 @@ keywords:
   - 类名工厂创建函数
 aliases: ["make-bem", "makeBEM"]
 ---
+
 ## 快速上手
 
 `makeBEM(prefix)` 返回 BEM 工厂。`prefix` 须为 `''` 或以 `-` 结尾的字符串（如 `'u-'`）。组件库预置实例是 `bem`（前缀 `CLS_PREFIX`）。
@@ -37,4 +38,3 @@ cls.b // 'app-toolbar'
 cls.e('item') // 'app-toolbar__item'
 bem.is('active', true) // 'is-active'
 ```
-

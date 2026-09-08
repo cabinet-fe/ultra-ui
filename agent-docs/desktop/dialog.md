@@ -9,6 +9,7 @@ keywords:
   - 对话框
 aliases: ["dialog", "UDialog", "Dialog", "对话框"]
 ---
+
 ## 快速上手
 
 ```ts

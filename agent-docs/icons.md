@@ -1,9 +1,10 @@
 ---
-title: "@veltra/icons - 图标库导入、PascalCase/kebab 命名与按需检索"
-description: "Vue 3 矢量图标库使用指南：从 @veltra/icons/normal（线性与单色图标）及 colorful（多色多彩图标）子路径按需导入 Vue SFC 图标组件，配合 UIcon 组件渲染并支持 PascalCase 与 kebab-case 规范检索"
-keywords: ["@veltra/icons", "icons", "normal", "colorful", "UIcon", "图标"]
-aliases: ["icons", "veltra-icons", "图标库"]
+title: '@veltra/icons - 图标库导入、PascalCase/kebab 命名与按需检索'
+description: 'Vue 3 矢量图标库使用指南：从 @veltra/icons/normal（线性与单色图标）及 colorful（多色多彩图标）子路径按需导入 Vue SFC 图标组件，配合 UIcon 组件渲染并支持 PascalCase 与 kebab-case 规范检索'
+keywords: ['@veltra/icons', 'icons', 'normal', 'colorful', 'UIcon', '图标']
+aliases: ['icons', 'veltra-icons', '图标库']
 ---
+
 ## 快速上手
 
 `@veltra/icons` 把 SVG 编成可 tree-shake 的 Vue SFC。分两个集合子路径，按名称具名导出；不要一图标一篇文档，清单以 `@veltra/icons/normal` 与 `@veltra/icons/colorful` 的具名导出为准。
@@ -23,13 +24,13 @@ import { Excel, Pdf, FontColor } from '@veltra/icons/colorful'
 
 图标源文件按集合区分（normal / colorful），basename 为 ASCII kebab-case（如 `circle-check.vue`）。导出名是 PascalCase：
 
-| kebab 文件名 | 导出名 |
-| --- | --- |
-| `search` | `Search` |
-| `circle-check` | `CircleCheck` |
+| kebab 文件名          | 导出名              |
+| --------------------- | ------------------- |
+| `search`              | `Search`            |
+| `circle-check`        | `CircleCheck`       |
 | `circle-check-filled` | `CircleCheckFilled` |
-| `d-arrow-left` | `DArrowLeft` |
-| `form-input` | `FormInput` |
+| `d-arrow-left`        | `DArrowLeft`        |
+| `form-input`          | `FormInput`         |
 
 规则：按 `-` 分段后每段首字母大写。分类由目录表达，文件名不要再加 `normal-` / `colorful-` 前缀。语义顺序优先「对象-状态」，如 `circle-check-filled`。
 
@@ -81,13 +82,13 @@ findIcons(ColorfulIcons as Record<string, unknown>, 'pdf')
 
 检索示例：
 
-| 想找 | 集合 | 导入 |
-| --- | --- | --- |
-| 搜索、关闭、加减 | `normal` | `Search` `Close` `Plus` `Minus` |
-| 勾选 / 圆标状态 | `normal` | `Check` `CircleCheck` `CircleClose` |
-| 箭头 | `normal` | `ArrowLeft` `CaretTop` `DArrowRight` |
-| 表单控件示意 | `normal` | `FormInput` `FormSelect` `FormDatePicker` |
-| 文档类型 | `colorful` | `Excel` `Pdf` `Word` `UnknownFile` |
+| 想找             | 集合       | 导入                                      |
+| ---------------- | ---------- | ----------------------------------------- |
+| 搜索、关闭、加减 | `normal`   | `Search` `Close` `Plus` `Minus`           |
+| 勾选 / 圆标状态  | `normal`   | `Check` `CircleCheck` `CircleClose`       |
+| 箭头             | `normal`   | `ArrowLeft` `CaretTop` `DArrowRight`      |
+| 表单控件示意     | `normal`   | `FormInput` `FormSelect` `FormDatePicker` |
+| 文档类型         | `colorful` | `Excel` `Pdf` `Word` `UnknownFile`        |
 
 ## 与 UIcon 配合
 

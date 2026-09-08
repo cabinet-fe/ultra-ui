@@ -9,6 +9,7 @@ keywords:
   - 数字范围输入框
 aliases: ["number-range-input", "UNumberRangeInput", "NumberRangeInput", "数字范围输入框"]
 ---
+
 ## 快速上手
 
 ```ts

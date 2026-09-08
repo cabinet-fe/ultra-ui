@@ -9,6 +9,7 @@ keywords:
   - 气泡确认框
 aliases: ["pop-confirm", "UPopConfirm", "PopConfirm", "气泡确认框"]
 ---
+
 ## 快速上手
 
 ```ts
@@ -27,7 +28,12 @@ function onConfirm() {
 </script>
 
 <template>
-  <u-pop-confirm title="确认删除这条记录？" confirm-text="删除" cancel-text="取消" @confirm="onConfirm">
+  <u-pop-confirm
+    title="确认删除这条记录？"
+    confirm-text="删除"
+    cancel-text="取消"
+    @confirm="onConfirm"
+  >
     <template #reference>
       <u-button type="danger">删除</u-button>
     </template>

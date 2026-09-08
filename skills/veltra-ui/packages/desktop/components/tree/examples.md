@@ -83,12 +83,7 @@ function onSelect(val: any, data?: Record<string, any>) {
 </script>
 
 <template>
-  <u-tree
-    :data="data"
-    selectable
-    v-model:selected="selected"
-    @update:selected="onSelect"
-  >
+  <u-tree :data="data" selectable v-model:selected="selected" @update:selected="onSelect">
     <template #default="{ data }">
       <span class="custom-node">
         <b>{{ data.label }}</b>

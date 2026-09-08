@@ -9,6 +9,7 @@ keywords:
   - 渲染帧延迟回调
 aliases: ["next-frame", "nextFrame"]
 ---
+
 ## 快速上手
 
 `nextFrame(cb)` 连续调度两次 `requestAnimationFrame` 再调用 `cb`。用于等当前帧绘制完成后再读布局或改 DOM（例如展开后滚动到目标）。
@@ -20,4 +21,3 @@ nextFrame(() => {
   el.scrollIntoView()
 })
 ```
-

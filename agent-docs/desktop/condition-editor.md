@@ -9,6 +9,7 @@ keywords:
   - 条件编辑器
 aliases: ["condition-editor", "UConditionEditor", "ConditionEditor", "条件编辑器"]
 ---
+
 ## 快速上手
 
 ```ts
@@ -91,8 +92,7 @@ export interface ConditionField {
 
 /** 条件右侧值：常量或变量引用 */
 export type ConditionValue =
-  | { kind: 'constant'; value: string }
-  | { kind: 'variable'; name: string }
+  { kind: 'constant'; value: string } | { kind: 'variable'; name: string }
 
 /** 单行条件叶子节点 */
 export interface ConditionLeaf {

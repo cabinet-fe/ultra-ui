@@ -9,6 +9,7 @@ keywords:
   - 提示
 aliases: ["tip", "UTip", "Tip", "提示"]
 ---
+
 ## 快速上手
 
 ```ts

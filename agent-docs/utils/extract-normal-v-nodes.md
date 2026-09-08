@@ -9,6 +9,7 @@ keywords:
   - 节点
 aliases: ["extract-normal-v-nodes", "extractNormalVNodes"]
 ---
+
 ## 快速上手
 
 `extractNormalVNodes(nodes, results?)` 遍历 `VNodeArrayChildren`：
@@ -26,4 +27,3 @@ import { Fragment, h } from 'vue'
 
 const nodes = extractNormalVNodes([h(Fragment, [h('span', 'a'), h('span', 'b')]), 'plain', 1])
 ```
-

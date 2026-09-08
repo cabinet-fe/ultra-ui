@@ -9,6 +9,7 @@ keywords:
   - 代码编辑器
 aliases: ["code-editor", "UCodeEditor", "CodeEditor", "代码编辑器"]
 ---
+
 ## 快速上手
 
 ```ts
@@ -93,11 +94,7 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    | number
-    | 'full'
-    | ({
-        [key in BreakpointName]?: 'full' | number
-      } & { default: number | 'full' })
+    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段 */
@@ -115,14 +112,7 @@ export type DeconstructValue<E extends Record<string, any>> = {
 }
 
 export type CodeEditorLang =
-  | 'js'
-  | 'sql'
-  | 'java'
-  | 'json'
-  | 'markdown'
-  | 'spel'
-  | 'bash'
-  | 'powershell'
+  'js' | 'sql' | 'java' | 'json' | 'markdown' | 'spel' | 'bash' | 'powershell'
 
 /** 代码编辑器组件属性（不支持 `size`） */
 export interface CodeEditorProps extends Omit<FormComponentProps, 'size'> {

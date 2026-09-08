@@ -9,6 +9,7 @@ keywords:
   - 表单上下文与字段属性
 aliases: ["inject-form-context", "injectFormContext"]
 ---
+
 ## 快速上手
 
 `injectFormContext()` 读取 `provideFormContext` 提供的上下文。返回 `{ inForm, ...context }`：在 `UForm` 子树内可拿到 `formProps`、`registerField`、`unregisterField`、`validateFields`、`shouldValidate`、`handleFieldChange`；在表单外调用时这些字段为 `undefined`。判断是否在表单内应看这些字段是否存在。
@@ -25,4 +26,3 @@ const { formProps, registerField, unregisterField, shouldValidate, handleFieldCh
 
 const size = formProps?.size ?? 'default'
 ```
-

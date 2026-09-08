@@ -11,6 +11,7 @@ keywords:
   - 历史撤销重做
 aliases: ["commands", "sheet"]
 ---
+
 `@veltra/sheet-core` 的模型写操作一律走命令：经 `defaultCommandRegistry` 执行，补丁写入 `Sheet.history`（`HistoryManager`），从而可 `undo()` / `redo()`。宿主日常调用 `Sheet` 上的 `setCellValue`、`setCells`、`setCellFormula`、`setCellStyle`、`mergeCells`、`insertRows`、`insertImage` 等方法即可，不必手拼命令 id。
 
 ```ts
@@ -46,20 +47,20 @@ sheet.redo() // A1 再次为 20
 
 主入口导出的命令对象（及其 params 类型）如下。日常请优先用对应的 `Sheet` 方法。
 
-| Command | id | Sheet 入口 |
-| --- | --- | --- |
-| `SetCellValueCommand` | `sheet.command.set-cell-value` | `setCellValue` / `setCells` |
-| `SetCellFormulaCommand` | `sheet.command.set-cell-formula` | `setCellFormula` |
-| `SetCellStyleCommand` | `sheet.command.set-cell-style` | `setCellStyle` / `clearCellStyle` |
-| `SetAxisStyleCommand` | `sheet.command.set-axis-style` | `setRowStyle` / `setColStyle` |
-| `InsertCellsCommand` | `sheet.command.insert-cells` | `insertRows` / `insertCols` / `deleteRows` / `deleteCols` |
-| `MergeCellsCommand` | `sheet.command.merge-cells` | `mergeCells` |
-| `UnmergeCellsCommand` | `sheet.command.unmerge-cells` | `unmergeCells` |
-| `InsertImageCommand` | `sheet.insert-image` | `insertImage` |
-| `RemoveImageCommand` | `sheet.remove-image` | `removeImage` |
-| `UpdateImageCommand` | `sheet.update-image` | `updateImage` |
-| `SetCellMetaCommand` | `sheet.set-cell-meta` | `setCellMeta`（`setCellReadonly` 亦走此通道） |
-| `ClearCellMetaCommand` | `sheet.clear-cell-meta` | `clearCellMeta` |
+| Command                 | id                               | Sheet 入口                                                |
+| ----------------------- | -------------------------------- | --------------------------------------------------------- |
+| `SetCellValueCommand`   | `sheet.command.set-cell-value`   | `setCellValue` / `setCells`                               |
+| `SetCellFormulaCommand` | `sheet.command.set-cell-formula` | `setCellFormula`                                          |
+| `SetCellStyleCommand`   | `sheet.command.set-cell-style`   | `setCellStyle` / `clearCellStyle`                         |
+| `SetAxisStyleCommand`   | `sheet.command.set-axis-style`   | `setRowStyle` / `setColStyle`                             |
+| `InsertCellsCommand`    | `sheet.command.insert-cells`     | `insertRows` / `insertCols` / `deleteRows` / `deleteCols` |
+| `MergeCellsCommand`     | `sheet.command.merge-cells`      | `mergeCells`                                              |
+| `UnmergeCellsCommand`   | `sheet.command.unmerge-cells`    | `unmergeCells`                                            |
+| `InsertImageCommand`    | `sheet.insert-image`             | `insertImage`                                             |
+| `RemoveImageCommand`    | `sheet.remove-image`             | `removeImage`                                             |
+| `UpdateImageCommand`    | `sheet.update-image`             | `updateImage`                                             |
+| `SetCellMetaCommand`    | `sheet.set-cell-meta`            | `setCellMeta`（`setCellReadonly` 亦走此通道）             |
+| `ClearCellMetaCommand`  | `sheet.clear-cell-meta`          | `clearCellMeta`                                           |
 
 直接执行示例：
 

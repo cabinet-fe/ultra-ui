@@ -9,6 +9,7 @@ keywords:
   - 甘特图
 aliases: ["gantt-chart", "UGanttChart", "GanttChart", "甘特图"]
 ---
+
 ## 快速上手
 
 ```ts

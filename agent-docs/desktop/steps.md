@@ -9,6 +9,7 @@ keywords:
   - 步骤条
 aliases: ["steps", "USteps", "Steps", "步骤条"]
 ---
+
 ## 快速上手
 
 ```ts
@@ -25,11 +26,7 @@ import { ref } from 'vue'
 
 const current = ref(1)
 
-const items = [
-  { label: '填写资料' },
-  { label: '上传附件' },
-  { label: '提交审核' }
-]
+const items = [{ label: '填写资料' }, { label: '上传附件' }, { label: '提交审核' }]
 </script>
 
 <template>

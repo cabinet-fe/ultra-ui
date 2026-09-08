@@ -3,10 +3,7 @@
 ```ts
 declare function storageKey<T>(name: string): StorageKey<T>
 
-declare const storage: {
-  local: StorageApi
-  session: StorageApi
-}
+declare const storage: { local: StorageApi; session: StorageApi }
 
 // StorageApi: set/get/remove/on/off，set 第三参为过期秒数
 

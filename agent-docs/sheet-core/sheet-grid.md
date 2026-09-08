@@ -10,6 +10,7 @@ keywords:
   - 虚拟化适配器
 aliases: ["sheet-grid", "SheetGrid"]
 ---
+
 `SheetGrid` 是 VTable 适配层：数据仍在 `Sheet` 模型上，表格只负责渲染与输入。它**不在** `@veltra/sheet-core` 主入口，必须从 `@veltra/sheet-core/grid` 导入，以免无头 `import { Workbook }` 把 `@visactor/vtable` 类型图拉进 TS 程序。
 
 该入口公开：`SheetGrid`、`CustomLayout`，以及类型 `SheetGridOptions` / `SheetGridContextMenuInfo` / `SheetGridContextMenuKind` / `ResolveCellRenderer` / `ResolveDisplayValue` / `ResolveCellStyleHook` / `ICustomLayoutObj`。不要把未从此入口导出的内部类（例如图片叠层实现）当公开 API。
@@ -58,11 +59,11 @@ const grid = new SheetGrid({ container, sheet, readonly: true })
 
 三个可选 hook 都跑在渲染热路径上，必须是**纯函数、同步、O(1) 查找**，禁止异步、副作用和大对象分配。返回 `undefined` 即回落默认行为。hook **不写模型、不进快照**。
 
-| 选项 | 时机 | 用途 |
-| --- | --- | --- |
-| `resolveDisplayValue(addr, base)` | 构建 record（数据变更才触发） | 覆盖显示值 |
-| `resolveCellStyle(addr, baseStyle)` | 每次场景图重绘（最热） | 叠加样式，例如填报输入区高亮 `{ ...baseStyle, fill }` |
-| `resolveCellRenderer(addr, base)` | 视口格布局 | 返回 `ICustomLayoutObj` 自定义格形态 |
+| 选项                                | 时机                          | 用途                                                  |
+| ----------------------------------- | ----------------------------- | ----------------------------------------------------- |
+| `resolveDisplayValue(addr, base)`   | 构建 record（数据变更才触发） | 覆盖显示值                                            |
+| `resolveCellStyle(addr, baseStyle)` | 每次场景图重绘（最热）        | 叠加样式，例如填报输入区高亮 `{ ...baseStyle, fill }` |
+| `resolveCellRenderer(addr, base)`   | 视口格布局                    | 返回 `ICustomLayoutObj` 自定义格形态                  |
 
 `resolveCellRenderer` **仅在宿主传入时才安装**列级 `customLayout` 分发器（安装后 VTable 对该列关闭 fast-update）。布局对象用本入口 re-export 的 `CustomLayout` 构建。格内嵌入走 renderer；跨格浮动内容走内置图片叠层，不要用 renderer 模拟浮动层。
 

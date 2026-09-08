@@ -9,6 +9,7 @@ keywords:
   - 树形控件
 aliases: ["tree", "UTree", "Tree", "树形控件"]
 ---
+
 ## 快速上手
 
 ```ts
@@ -46,13 +47,7 @@ watch(keyword, (qs) => {
 
 <template>
   <u-input v-model="keyword" placeholder="过滤" />
-  <u-tree
-    ref="tree"
-    :data="data"
-    selectable
-    expand-all
-    v-model:selected="selected"
-  />
+  <u-tree ref="tree" :data="data" selectable expand-all v-model:selected="selected" />
 </template>
 ```
 
@@ -76,13 +71,7 @@ const data = [
 </script>
 
 <template>
-  <u-tree
-    :data="data"
-    label-key="name"
-    value-key="id"
-    checkable
-    v-model:checked="checked"
-  />
+  <u-tree :data="data" label-key="name" value-key="id" checkable v-model:checked="checked" />
 </template>
 ```
 

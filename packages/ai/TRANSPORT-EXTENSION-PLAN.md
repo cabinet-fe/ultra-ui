@@ -11,20 +11,20 @@
 ### 1.1 现有契约（`src/chat/types.ts`）
 
 ```ts
-export type ChatTransport = (request, handlers) => Promise<void>   // 客户端驱动：全量历史换流式增量
+export type ChatTransport = (request, handlers) => Promise<void> // 客户端驱动：全量历史换流式增量
 ```
 
 `useChat`：客户端持有消息、每轮发全量历史、客户端执行工具（`tool.execute`）、本地队列、本地 `needsConfirm`。
 
 ### 1.2 服务端驱动会话的差距（DSH 经 bedrock 桥）
 
-| 能力 | 客户端驱动（现状） | 服务端驱动（DSH 会话） |
-| --- | --- | --- |
-| 会话/历史所有权 | 客户端 | 服务端（`session.history` + 事件流） |
-| 发送 | 带全量历史 | 只发本轮内容（`session.prompt`） |
-| 工具 | 前端定义 + 执行 | **服务端执行，前端只展示**（tool/call、tool/result 事件） |
-| 审批/提问 | 本地 needsConfirm / 内置 askQuestion | 服务端 requested → 前端应答 respond |
-| 队列/作业/用量 | 本地队列 | 服务端全量快照（queue/jobs/projection） |
+| 能力            | 客户端驱动（现状）                   | 服务端驱动（DSH 会话）                                    |
+| --------------- | ------------------------------------ | --------------------------------------------------------- |
+| 会话/历史所有权 | 客户端                               | 服务端（`session.history` + 事件流）                      |
+| 发送            | 带全量历史                           | 只发本轮内容（`session.prompt`）                          |
+| 工具            | 前端定义 + 执行                      | **服务端执行，前端只展示**（tool/call、tool/result 事件） |
+| 审批/提问       | 本地 needsConfirm / 内置 askQuestion | 服务端 requested → 前端应答 respond                       |
+| 队列/作业/用量  | 本地队列                             | 服务端全量快照（queue/jobs/projection）                   |
 
 ### 1.3 v2 新增的定位约束
 
@@ -41,17 +41,58 @@ export type ChatTransport = (request, handlers) => Promise<void>   // 客户端�
 ```ts
 /** 归一化后的服务端会话事件（协议无关；bedrock 桥把 DSH 帧翻译成它） */
 export type ChatSessionEvent =
-  | { type: 'user/message';   messageId: string; seq: number; content: string; attachments?: ChatAttachment[] }
-  | { type: 'assistant/chunk'; messageId: string; seq: number; delta: string; reasoningDelta?: string }
-  | { type: 'assistant/message'; messageId: string; seq: number; content: string; reasoning?: string; toolCalls?: ChatToolCall[] }
-  | { type: 'tool/call';      callId: string; name: string; arguments: string; seq: number; view?: unknown }
-  | { type: 'tool/result';    callId: string; status: 'success' | 'error' | 'rejected'; result?: string; error?: string; seq: number; view?: unknown }
-  | { type: 'approval/requested'; approvalId: string; toolName: string; callId?: string; reason?: string; rpcId: string }
-  | { type: 'approval/resolved';  approvalId: string; outcome: string }
+  | {
+      type: 'user/message'
+      messageId: string
+      seq: number
+      content: string
+      attachments?: ChatAttachment[]
+    }
+  | {
+      type: 'assistant/chunk'
+      messageId: string
+      seq: number
+      delta: string
+      reasoningDelta?: string
+    }
+  | {
+      type: 'assistant/message'
+      messageId: string
+      seq: number
+      content: string
+      reasoning?: string
+      toolCalls?: ChatToolCall[]
+    }
+  | {
+      type: 'tool/call'
+      callId: string
+      name: string
+      arguments: string
+      seq: number
+      view?: unknown
+    }
+  | {
+      type: 'tool/result'
+      callId: string
+      status: 'success' | 'error' | 'rejected'
+      result?: string
+      error?: string
+      seq: number
+      view?: unknown
+    }
+  | {
+      type: 'approval/requested'
+      approvalId: string
+      toolName: string
+      callId?: string
+      reason?: string
+      rpcId: string
+    }
+  | { type: 'approval/resolved'; approvalId: string; outcome: string }
   | { type: 'question/requested'; questions: AskQuestionItem[]; rpcId: string }
-  | { type: 'question/resolved';  questionRpcId: string; outcome: 'answered' | 'cancelled' }
+  | { type: 'question/resolved'; questionRpcId: string; outcome: 'answered' | 'cancelled' }
   | { type: 'queue/snapshot'; items: ChatQueuedMessage[] }
-  | { type: 'jobs/snapshot';  jobs: ChatJob[] }
+  | { type: 'jobs/snapshot'; jobs: ChatJob[] }
   | { type: 'projection'; key: string; value: unknown; seq: number }
   | { type: 'running'; running: boolean }
   | { type: 'finish' }
@@ -62,7 +103,7 @@ export interface ChatSessionTransport {
   open(handlers: { onEvent(e: ChatSessionEvent): void; onDisconnect?(): void }): () => void
   send(content: string, attachments?: ChatAttachment[]): Promise<void>
   cancel(): Promise<void>
-  respond(rpcId: string, ok: boolean, value?: unknown): Promise<void>   // 审批/提问共用
+  respond(rpcId: string, ok: boolean, value?: unknown): Promise<void> // 审批/提问共用
   fetchHistory(beforeSeq?: number): Promise<{ events: ChatSessionEvent[]; hasMore: boolean }>
   selectModel(provider: string, model: string): Promise<void>
 }
@@ -78,7 +119,9 @@ export function createServerTransport(adapter: ChatSessionAdapter): ChatSessionT
 
 // bedrock 桥（放 bedrock web 仓库，消费 bedrock §6 契约；类型由本包导出）
 export function createBedrockTransport(options: {
-  baseURL: string; token: string; sessionId: number
+  baseURL: string
+  token: string
+  sessionId: number
 }): ChatSessionTransport
 ```
 
@@ -87,10 +130,10 @@ export function createBedrockTransport(options: {
 ```ts
 /** 服务端驱动模式下 tools 的合法形态：纯渲染元信息（执行在服务端） */
 export interface ChatToolMeta {
-  name: string                       // 与服务端 tool/call.name 匹配
-  icon?: Component                   // 覆盖通用图标
+  name: string // 与服务端 tool/call.name 匹配
+  icon?: Component // 覆盖通用图标
   label?: string
-  render?: Component                 // 自定义卡片/面板渲染（ChatToolRenderProps 不变）
+  render?: Component // 自定义卡片/面板渲染（ChatToolRenderProps 不变）
   renderTo?: 'inline' | 'panel'
   panelWidth?: number
   panelTitle?: string | ((toolCall: ChatToolCall) => string)
@@ -115,20 +158,20 @@ export interface ChatToolMeta {
 
 ### 3.2 事件 → 状态机映射（与 v1 相同，摘要）
 
-| 事件 | 动作 |
-| --- | --- |
-| user/message | push 用户消息（服务端回显为准，不做本地乐观占位） |
-| assistant/chunk | 按 messageId 累积 content/reasoning |
-| assistant/message | 定稿；轮末无 toolCalls → finish emit |
-| tool/call | 追加 `ChatToolCall{status:'pending'}`（含 `view` 原文备查）；emit tool-call |
-| tool/result | 按 callId 更新 status/result/error |
-| approval/requested | 命中 callId → 该 toolCall `awaiting-confirm`；未命中 → 独立审批横幅；登记 rpcId |
-| approval/resolved | 落定（allowed-once 后续由 tool/result 接管；rejected → rejected） |
-| question/requested | 通用提问组件（§4） |
-| queue/snapshot | 整体替换 queue |
-| jobs/snapshot | 整体替换 jobs（新 ref） |
-| projection | key='tokenUsage' → 合并 tokenUsage；'title' → emit；其余进 projections ref |
-| running / finish / error / onDisconnect | running ref / finish emit / error emit / 重连补拉（fetchHistory(lastSeq)） |
+| 事件                                    | 动作                                                                            |
+| --------------------------------------- | ------------------------------------------------------------------------------- |
+| user/message                            | push 用户消息（服务端回显为准，不做本地乐观占位）                               |
+| assistant/chunk                         | 按 messageId 累积 content/reasoning                                             |
+| assistant/message                       | 定稿；轮末无 toolCalls → finish emit                                            |
+| tool/call                               | 追加 `ChatToolCall{status:'pending'}`（含 `view` 原文备查）；emit tool-call     |
+| tool/result                             | 按 callId 更新 status/result/error                                              |
+| approval/requested                      | 命中 callId → 该 toolCall `awaiting-confirm`；未命中 → 独立审批横幅；登记 rpcId |
+| approval/resolved                       | 落定（allowed-once 后续由 tool/result 接管；rejected → rejected）               |
+| question/requested                      | 通用提问组件（§4）                                                              |
+| queue/snapshot                          | 整体替换 queue                                                                  |
+| jobs/snapshot                           | 整体替换 jobs（新 ref）                                                         |
+| projection                              | key='tokenUsage' → 合并 tokenUsage；'title' → emit；其余进 projections ref      |
+| running / finish / error / onDisconnect | running ref / finish emit / error emit / 重连补拉（fetchHistory(lastSeq)）      |
 
 ### 3.3 工具元信息解析（v2 核心）
 
@@ -154,14 +197,14 @@ export interface ChatToolMeta {
 
 ### 4.2 其余表面（沿用 v1 方案）
 
-| 表面 | 改动 |
-| --- | --- |
-| 消息列表 | 复用；流式由 chunk 驱动；终态只读模式（run 详情）：隐藏/禁用输入区与队列操作 |
-| 提问面板 | **解耦**：ask-question.vue 从「askQuestion 工具 render」泛化为「服务端提问渲染器」（props: questions + onSubmit），两路径共用 |
-| 队列/模型选择 | 复用渲染；数据源换快照/会话目录 |
-| 作业条（新） | 输入区上方细条：ChatJob[]（kind 图标 + label + 状态点 + 扫光），可折叠 |
-| 审批横幅（新） | 无 callId 的 approval/requested 兜底：浮动确认卡 |
-| 会话状态（可选） | 离线/标题小标记（v2：projection title 联动） |
+| 表面             | 改动                                                                                                                          |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| 消息列表         | 复用；流式由 chunk 驱动；终态只读模式（run 详情）：隐藏/禁用输入区与队列操作                                                  |
+| 提问面板         | **解耦**：ask-question.vue 从「askQuestion 工具 render」泛化为「服务端提问渲染器」（props: questions + onSubmit），两路径共用 |
+| 队列/模型选择    | 复用渲染；数据源换快照/会话目录                                                                                               |
+| 作业条（新）     | 输入区上方细条：ChatJob[]（kind 图标 + label + 状态点 + 扫光），可折叠                                                        |
+| 审批横幅（新）   | 无 callId 的 approval/requested 兜底：浮动确认卡                                                                              |
+| 会话状态（可选） | 离线/标题小标记（v2：projection title 联动）                                                                                  |
 
 > 新增组件目录后运行 `bun run resolver:gen` 刷新 `@veltra/vite` 组件表。
 
@@ -177,13 +220,13 @@ export interface ChatToolMeta {
 
 ## 6. 里程碑
 
-| 里程碑 | 内容 | 验收 |
-| --- | --- | --- |
-| A1 | 类型层：`ChatSessionEvent` / `ChatSessionTransport` / `isServerTransport` / `createServerTransport` + 事件折叠函数（`chat/fold.ts`，历史回放与实时事件共用）+ 单测 | 契约定型；纯逻辑可测 |
-| A2 | `useChat` session 模式分支（生命周期/send/abort/事件映射/队列快照/工具元信息查表）+ 单测（fake adapter） | 状态机双模式可测 |
-| A3 | UI：通用工具视图 + ask-question 解耦 + 作业条 + 审批横幅 + 只读模式 + resolver:gen | 未知工具可展示；两模式共存 |
-| A4 | bedrock web：`createBedrockTransport` + run 详情页接入 UAiChat（回放 + 实时 + 只读态） | 端到端可用 |
-| A5 | playground 演示页（双 transport 切换）+ AGENTS.md/README 文档更新 | 验收 |
+| 里程碑 | 内容                                                                                                                                                               | 验收                       |
+| ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------- |
+| A1     | 类型层：`ChatSessionEvent` / `ChatSessionTransport` / `isServerTransport` / `createServerTransport` + 事件折叠函数（`chat/fold.ts`，历史回放与实时事件共用）+ 单测 | 契约定型；纯逻辑可测       |
+| A2     | `useChat` session 模式分支（生命周期/send/abort/事件映射/队列快照/工具元信息查表）+ 单测（fake adapter）                                                           | 状态机双模式可测           |
+| A3     | UI：通用工具视图 + ask-question 解耦 + 作业条 + 审批横幅 + 只读模式 + resolver:gen                                                                                 | 未知工具可展示；两模式共存 |
+| A4     | bedrock web：`createBedrockTransport` + run 详情页接入 UAiChat（回放 + 实时 + 只读态）                                                                             | 端到端可用                 |
+| A5     | playground 演示页（双 transport 切换）+ AGENTS.md/README 文档更新                                                                                                  | 验收                       |
 
 ## 7. 兼容与风险
 

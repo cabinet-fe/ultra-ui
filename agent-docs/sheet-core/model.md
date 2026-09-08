@@ -1,9 +1,10 @@
 ---
-title: "sheet - -core 电子表格底层数据模型与单元格存储操作"
-description: "无头表格核心数据结构：Workbook 工作簿、Sheet 工作表、稀疏矩阵 CellStore 存储、0-based 坐标系统与 A1 单元格地址转换（parseAddress/formatAddress）、区域合并与选区、浮动图片管理与单元格只读权限"
-keywords: ["sheet", "@veltra/sheet-core", "model", "电子表格底层数据模型与单元格存储操作"]
-aliases: ["model", "sheet"]
+title: 'sheet - -core 电子表格底层数据模型与单元格存储操作'
+description: '无头表格核心数据结构：Workbook 工作簿、Sheet 工作表、稀疏矩阵 CellStore 存储、0-based 坐标系统与 A1 单元格地址转换（parseAddress/formatAddress）、区域合并与选区、浮动图片管理与单元格只读权限'
+keywords: ['sheet', '@veltra/sheet-core', 'model', '电子表格底层数据模型与单元格存储操作']
+aliases: ['model', 'sheet']
 ---
+
 `@veltra/sheet-core` 主入口导出无头数据模型：`Workbook` 管多表与共享公式依赖图，`Sheet` 是单表统一操作入口。单元格存在稀疏 `CellStore` 里；合并、选区、浮动图片、单元格只读都挂在 `Sheet` 上。坐标一律 0-based：`{ row: 0, col: 0 }` 即 A1。需要 A1 字符串时，主入口另有 `parseAddress` / `formatAddress` / `createRange` / `parseRange` 等工具（不必单独成篇）。
 
 模型与命令、公式、IO 从 `@veltra/sheet-core` 导入。`SheetGrid` 不在主入口，见 `sheet-grid.md`。
@@ -34,13 +35,13 @@ sheet.setCellValue(parseAddress('B1')!, '=A1+1')
 
 `Sheet` 组合 `CellStore`、`MergeManager`、`SelectionModel`、`HistoryManager`、`StylePool`。宿主读写请走 `Sheet` 方法：
 
-| 方法 | 作用 |
-| --- | --- |
-| `getCellData(addr)` | 原始存储；被合并覆盖的非锚点格为 `undefined` |
-| `getDisplayValue(addr)` | 解析到锚点后的显示值 |
-| `setCellValue(addr, value)` | 写原始值（空 = 清除）；字符串以 `=` 开头则当公式 |
-| `setCells(items)` | 批量写 `CellData`，一次调用 = 一个 undo 单元 |
-| `setCellFormula(addr, formula)` | 写公式（可带或不带 `=`）；原文存在 `CellData.f` |
+| 方法                            | 作用                                             |
+| ------------------------------- | ------------------------------------------------ |
+| `getCellData(addr)`             | 原始存储；被合并覆盖的非锚点格为 `undefined`     |
+| `getDisplayValue(addr)`         | 解析到锚点后的显示值                             |
+| `setCellValue(addr, value)`     | 写原始值（空 = 清除）；字符串以 `=` 开头则当公式 |
+| `setCells(items)`               | 批量写 `CellData`，一次调用 = 一个 undo 单元     |
+| `setCellFormula(addr, formula)` | 写公式（可带或不带 `=`）；原文存在 `CellData.f`  |
 
 空单元格不占存储：无公式且 `v` 为空即删除。`rowCount` / `colCount` 只是数据高水位；`rows` / `cols` 是渲染尺寸（可由视图层 `ensureTableSize` 声明）。
 

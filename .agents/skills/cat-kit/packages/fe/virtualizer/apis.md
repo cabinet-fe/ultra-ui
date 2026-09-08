@@ -26,10 +26,7 @@ declare class Virtualizer {
   measure(index: number, size: number): this
   measureMany(items: Array<{ index: number; size: number }>): this
   scrollToOffset(offset: number, options?: { behavior?: ScrollBehavior }): this
-  scrollToIndex(
-    index: number,
-    options?: { align?: VirtualAlign; behavior?: ScrollBehavior }
-  ): this
+  scrollToIndex(index: number, options?: { align?: VirtualAlign; behavior?: ScrollBehavior }): this
   reset(): this
   destroy(): void
   subscribe(listener: VirtualizerSubscriber): () => void

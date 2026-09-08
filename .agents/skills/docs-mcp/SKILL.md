@@ -19,10 +19,10 @@ docs-mcp 是企业内部库文档检索系统：库维护者把文档推送到�
 
 先判断本次任务服务于哪个角色，两者可在同一仓库共存；判断不准时用提问工具向用户确认。
 
-| 信号 | 角色 | 流程 |
-| --- | --- | --- |
+| 信号                                                | 角色     | 流程         |
+| --------------------------------------------------- | -------- | ------------ |
 | 用户要推送/同步本仓库文档，或本仓库是待发布文档的库 | 库维护者 | 库维护者流程 |
-| 用户想检索某些库的文档，或本仓库是消费库的业务项目 | 库使用者 | 库使用者流程 |
+| 用户想检索某些库的文档，或本仓库是消费库的业务项目  | 库使用者 | 库使用者流程 |
 
 ## 库维护者流程
 
@@ -41,11 +41,11 @@ docs-mcp 是企业内部库文档检索系统：库维护者把文档推送到�
 
 检查方法：读仓库根目录 `.env` 与当前 shell 环境，确认三个变量齐全：
 
-| 变量 | 说明 |
-| --- | --- |
+| 变量                  | 说明                                                                            |
+| --------------------- | ------------------------------------------------------------------------------- |
 | `DOCS_MCP_SERVER_URL` | docs-mcp 服务地址，如 `http://docs-mcp.internal:8080`（结尾斜杠脚本会自动去掉） |
-| `DOCS_MCP_TOKEN` | 推送令牌，与服务端 `DOCS_MCP_PUSH_TOKEN` 一致，向服务管理员索取 |
-| `DOCS_MCP_LIBRARY` | 库 slug：仅小写字母、数字与连字符（`^[a-z0-9-]+$`），通常取库名 |
+| `DOCS_MCP_TOKEN`      | 推送令牌，与服务端 `DOCS_MCP_PUSH_TOKEN` 一致，向服务管理员索取                 |
+| `DOCS_MCP_LIBRARY`    | 库 slug：仅小写字母、数字与连字符（`^[a-z0-9-]+$`），通常取库名                 |
 
 缺失时引导创建：
 
@@ -115,25 +115,13 @@ claude mcp add --transport http docs-mcp http://<服务地址>/mcp
 ```
 
 ```json
-{
-  "mcpServers": {
-    "docs-mcp": { "type": "http", "url": "http://<服务地址>/mcp" }
-  }
-}
+{ "mcpServers": { "docs-mcp": { "type": "http", "url": "http://<服务地址>/mcp" } } }
 ```
 
 **opencode**（`opencode.json`）：
 
 ```json
-{
-  "mcp": {
-    "docs-mcp": {
-      "type": "remote",
-      "url": "http://<服务地址>/mcp",
-      "enabled": true
-    }
-  }
-}
+{ "mcp": { "docs-mcp": { "type": "remote", "url": "http://<服务地址>/mcp", "enabled": true } } }
 ```
 
 **其他支持远程 HTTP MCP 的客户端**（Kimi Code 等）：用通用 `mcpServers` JSON 格式（同 Claude Code）。
@@ -150,11 +138,11 @@ curl 'http://<服务地址>/api/v1/libraries'
 
 写代码用到内部库时，先经 MCP 检索该库文档再动手，不要凭训练数据猜私有库 API：
 
-| Tool | 参数 | 用途 |
-| --- | --- | --- |
-| `search` | `query` 必填；`library` 可选限定单库 | 全文检索，bm25 排序 + 标题加权，返回高亮片段 |
-| `get_document` | `library`、`path` 必填 | 取文档全文与元数据 |
-| `list_libraries` | 无 | 列出全部库 slug |
+| Tool             | 参数                                 | 用途                                         |
+| ---------------- | ------------------------------------ | -------------------------------------------- |
+| `search`         | `query` 必填；`library` 可选限定单库 | 全文检索，bm25 排序 + 标题加权，返回高亮片段 |
+| `get_document`   | `library`、`path` 必填               | 取文档全文与元数据                           |
+| `list_libraries` | 无                                   | 列出全部库 slug                              |
 
 建议路径：`list_libraries` 确认目标库已收录 → `search` 命中目标 → `get_document` 读全文；搜索结果为空就换关键词重试。
 

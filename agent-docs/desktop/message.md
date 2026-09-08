@@ -9,6 +9,7 @@ keywords:
   - 消息提示
 aliases: ["message", "UMessage", "Message", "消息提示"]
 ---
+
 ## 快速上手
 
 ```ts

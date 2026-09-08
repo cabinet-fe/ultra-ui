@@ -9,6 +9,7 @@ keywords:
   - 类名
 aliases: ["add-class", "addClass"]
 ---
+
 ## 快速上手
 
 `addClass(el, className)` 调用 `el.classList.add`。`className` 可以是字符串或字符串数组。
@@ -19,4 +20,3 @@ import { addClass } from '@veltra/utils'
 addClass(el, 'u-button')
 addClass(el, ['is-active', 'is-focus'])
 ```
-

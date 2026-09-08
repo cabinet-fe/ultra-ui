@@ -10,6 +10,7 @@ keywords:
   - 字段绑定与复杂场景校验方案
 aliases: ["form", "UForm", "Form"]
 ---
+
 `UForm` 拦截默认插槽里带 `field` 的子组件，自动生成 `UFormItem`，并按 `field` 路径读写 `model`。写表单时必须遵守下面两条硬规则。
 
 ## 硬规则

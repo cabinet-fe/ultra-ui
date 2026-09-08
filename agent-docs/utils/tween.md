@@ -9,6 +9,7 @@ keywords:
   - 的数值平滑补间动画类
 aliases: ["tween", "Tween"]
 ---
+
 `Tween` 对一份 `Record<string, number>` 状态做补间，原地改 `tween.state`。相关类型：`TweenConfig`（构造）、`AnimeConfig`（`to` / `back` 单次覆盖）。
 
 ## API 签名 / 类型定义

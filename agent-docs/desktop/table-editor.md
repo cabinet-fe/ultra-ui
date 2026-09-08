@@ -9,6 +9,7 @@ keywords:
   - 表格编辑器
 aliases: ["table-editor", "UTableEditor", "TableEditor", "表格编辑器"]
 ---
+
 ## 快速上手
 
 ```ts

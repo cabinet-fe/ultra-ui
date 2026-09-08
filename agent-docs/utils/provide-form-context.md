@@ -9,6 +9,7 @@ keywords:
   - 表单上下文
 aliases: ["provide-form-context", "provideFormContext"]
 ---
+
 `provideFormContext(context)` 向后代 provide 表单上下文。桌面端 `UForm` 在自身 setup 里调用；自定义表单容器也应走这一导出，以便控件用 `injectFormContext` 对齐。
 
 相关类型：`FormContextProps`（表单外观/数据）、`FormFieldItem`（字段校验项）、`FormContextModel`（errors / fields 模型形状）。上下文对象本身无单独导出名。

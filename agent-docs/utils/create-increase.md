@@ -9,6 +9,7 @@ keywords:
   - 生成器函数
 aliases: ["create-increase", "createIncrease", "自增序号 ID 生成器函数"]
 ---
+
 ## 快速上手
 
 `createIncrease(initial?)` 返回无参函数；每次调用返回当前值后把内部计数加 1（后置递增）。`initial` 默认 `1000`。包内 `zIndex` 即用 `createIncrease(1000)` 生成。
@@ -20,4 +21,3 @@ const nextId = createIncrease(1)
 nextId() // 1
 nextId() // 2
 ```
-

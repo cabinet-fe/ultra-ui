@@ -84,7 +84,12 @@ const handleDelete = () => {
 </script>
 
 <template>
-  <u-pop-confirm title="在表格中删除该项？" trigger="hover" alignment="start" @confirm="handleDelete">
+  <u-pop-confirm
+    title="在表格中删除该项？"
+    trigger="hover"
+    alignment="start"
+    @confirm="handleDelete"
+  >
     <template #reference>
       <u-button text type="danger" :icon="Delete">删除</u-button>
     </template>

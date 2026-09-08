@@ -9,6 +9,7 @@ keywords:
   - 数字展示
 aliases: ["number", "UNumber", "Number", "数字展示"]
 ---
+
 ## 快速上手
 
 ```ts

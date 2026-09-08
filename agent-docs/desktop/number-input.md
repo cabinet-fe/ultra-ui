@@ -9,6 +9,7 @@ keywords:
   - 数字输入框
 aliases: ["number-input", "UNumberInput", "NumberInput", "数字输入框"]
 ---
+
 ## 快速上手
 
 ```ts
@@ -47,7 +48,14 @@ const form = reactive({ age: 18, price: 0 })
 
 <template>
   <u-form :model="form">
-    <u-number-input label="年龄" field="age" :min="0" :max="150" :step="1" :rules="{ min: 0, max: 150 }" />
+    <u-number-input
+      label="年龄"
+      field="age"
+      :min="0"
+      :max="150"
+      :step="1"
+      :rules="{ min: 0, max: 150 }"
+    />
     <u-number-input label="单价" field="price" currency :precision="2" />
   </u-form>
 </template>

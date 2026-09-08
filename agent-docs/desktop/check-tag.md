@@ -9,6 +9,7 @@ keywords:
   - 可选标签
 aliases: ["check-tag", "UCheckTag", "CheckTag", "可选标签"]
 ---
+
 ## 快速上手
 
 ```ts

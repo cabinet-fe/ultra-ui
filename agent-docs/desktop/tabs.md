@@ -18,6 +18,7 @@ aliases:
   - Tabs
   - TabsHorizontal
 ---
+
 ## 快速上手
 
 ```ts
@@ -68,7 +69,7 @@ const items = ref<TabItem[]>([
 ])
 
 function onClose(item: TabItem) {
-  const next = items.value.filter(tab => tab.key !== item.key)
+  const next = items.value.filter((tab) => tab.key !== item.key)
   items.value = next
   if (active.value === item.key) active.value = next[0]?.key ?? ''
 }

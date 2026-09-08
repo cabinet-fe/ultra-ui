@@ -10,6 +10,7 @@ keywords:
   - 变量定制
 aliases: ["theme"]
 ---
+
 组件颜色全部来自 `loadTheme()` 注入的 `--u-*` token。本页只讲 `@veltra/styles/theme` 的公开用法，不涉及主题内部如何生成 CSS。
 
 ## 加载主题

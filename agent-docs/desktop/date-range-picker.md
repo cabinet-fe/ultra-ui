@@ -9,6 +9,7 @@ keywords:
   - 日期范围选择器
 aliases: ["date-range-picker", "UDateRangePicker", "DateRangePicker", "日期范围选择器"]
 ---
+
 ## 快速上手
 
 ```ts
@@ -87,11 +88,7 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    | number
-    | 'full'
-    | ({
-        [key in BreakpointName]?: 'full' | number
-      } & { default: number | 'full' })
+    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段 */

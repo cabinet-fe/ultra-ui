@@ -17,6 +17,7 @@ aliases:
   - GridItem
   - 栅格布局
 ---
+
 ## 快速上手
 
 ```ts
@@ -59,7 +60,7 @@ const bp = ref<Breakpoint>()
 
 ## API 签名 / 类型定义
 
-```ts
+````ts
 export type BreakpointName = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -134,11 +135,7 @@ export interface GridEmits {
 export interface GridItemProps {
   /** 跨距，当指定为0时，则代表隐藏, 默认为1 */
   span?:
-    | number
-    | 'full'
-    | ({
-        [key in BreakpointName]?: 'full' | number
-      } & { default: number | 'full' })
+    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 容器标签 */
   tag?: string
 }
@@ -150,7 +147,7 @@ export interface _GridExposed {
 
 /** 网格组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type GridExposed = DeconstructValue<_GridExposed>
-```
+````
 
 ## 注意事项
 

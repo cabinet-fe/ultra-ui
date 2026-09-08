@@ -9,6 +9,7 @@ keywords:
   - 的双层嵌套代理
 aliases: ["middle-proxy", "middleProxy 介于 reactive", "shallowReactive", "的双层嵌套代理"]
 ---
+
 ## 快速上手
 
 `middleProxy(o, handler?)` 对普通对象做 Proxy：嵌套普通对象会递归套同一套代理（`Date` / `RegExp` 不套）。同一子对象经 `WeakMap` 复用代理实例。
@@ -38,4 +39,3 @@ const model = middleProxy(
 
 model.user.name = 'ada'
 ```
-

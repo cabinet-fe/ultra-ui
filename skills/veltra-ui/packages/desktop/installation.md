@@ -41,7 +41,7 @@ app.mount('#app')
 `app.use(UltraUI)` 会：
 
 1. 注册全部 `U*` 组件
- 2. 注册全部通用指令（`v-ripple`、`v-click-outside`、`v-focus`、`v-loading`）
+2. 注册全部通用指令（`v-ripple`、`v-click-outside`、`v-focus`、`v-loading`）
 3. 注入全部组件样式（不含主题 token，token 始终由 `loadTheme()` 注入）
 
 之后可在任意模板中直接使用 `<UButton>`、`<UInput>` 等。

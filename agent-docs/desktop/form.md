@@ -9,6 +9,7 @@ keywords:
   - 表单
 aliases: ["form", "UForm", "Form", "表单"]
 ---
+
 ## 快速上手
 
 ```ts
@@ -25,11 +26,7 @@ import type { FormExposed } from '@veltra/desktop'
 import { reactive, shallowRef } from 'vue'
 
 const formRef = shallowRef<FormExposed>()
-const form = reactive({
-  username: '',
-  email: '',
-  age: 18
-})
+const form = reactive({ username: '', email: '', age: 18 })
 
 async function handleSubmit() {
   const valid = await formRef.value?.validate()

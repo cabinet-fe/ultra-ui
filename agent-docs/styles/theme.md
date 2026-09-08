@@ -1,9 +1,10 @@
 ---
-title: "@veltra/styles/theme 主题加载引擎、预设方案与运行时切换"
-description: "运行时主题加载与注入系统：通过 loadTheme 注入 lightTheme / darkTheme 预设或自定义派生主题，自动向 html 节点写入全局 --u-* design tokens 与 data-theme 属性，控制组件色彩与侧栏 nav.variant 风格"
-keywords: ["@veltra/styles/theme 主题加载引擎、预设方案与运行时切换", "@veltra/styles", "theme"]
-aliases: ["theme", "@veltra/styles/theme 主题加载引擎、预设方案与运行时切换"]
+title: '@veltra/styles/theme 主题加载引擎、预设方案与运行时切换'
+description: '运行时主题加载与注入系统：通过 loadTheme 注入 lightTheme / darkTheme 预设或自定义派生主题，自动向 html 节点写入全局 --u-* design tokens 与 data-theme 属性，控制组件色彩与侧栏 nav.variant 风格'
+keywords: ['@veltra/styles/theme 主题加载引擎、预设方案与运行时切换', '@veltra/styles', 'theme']
+aliases: ['theme', '@veltra/styles/theme 主题加载引擎、预设方案与运行时切换']
 ---
+
 从 `@veltra/styles/theme` 加载运行时主题。`loadTheme` 把全局 `--u-*` token 与同系列组件级 token 写到 `html`，并把 `html[data-theme]` 设为该主题的 `series`（`'light'` 或 `'dark'`）。组件样式走 token，不要在业务里写 `[data-theme]` 分支。
 
 ## loadTheme
@@ -39,17 +40,17 @@ import {
 } from '@veltra/styles/theme'
 ```
 
-| 导出 | series | 观感 |
-| --- | --- | --- |
-| `lightTheme` | `light` | 默认浅色 |
-| `heroTheme` | `light` | 紫、大圆角、浮雕阴影；侧栏 `nav.variant` 为 `light` |
-| `ancientTheme` | `light` | 松烟绿 + 宣纸底 |
-| `sakuraTheme` | `light` | 柔粉 + 花瓣底，大圆角 |
-| `oceanTheme` | `light` | 松石青 + 冷白底 |
-| `darkTheme` | `dark` | 默认深色 |
-| `glassTheme` | `dark` | 玻璃拟态（半透明 + blur） |
-| `midnightTheme` | `dark` | 靛蓝 + 深空底 |
-| `neonTheme` | `dark` | 品红 + 夜紫底 + 辉光阴影，小圆角 |
+| 导出            | series  | 观感                                                |
+| --------------- | ------- | --------------------------------------------------- |
+| `lightTheme`    | `light` | 默认浅色                                            |
+| `heroTheme`     | `light` | 紫、大圆角、浮雕阴影；侧栏 `nav.variant` 为 `light` |
+| `ancientTheme`  | `light` | 松烟绿 + 宣纸底                                     |
+| `sakuraTheme`   | `light` | 柔粉 + 花瓣底，大圆角                               |
+| `oceanTheme`    | `light` | 松石青 + 冷白底                                     |
+| `darkTheme`     | `dark`  | 默认深色                                            |
+| `glassTheme`    | `dark`  | 玻璃拟态（半透明 + blur）                           |
+| `midnightTheme` | `dark`  | 靛蓝 + 深空底                                       |
+| `neonTheme`     | `dark`  | 品红 + 夜紫底 + 辉光阴影，小圆角                    |
 
 ## 派生与自定义
 
@@ -82,11 +83,7 @@ loadTheme(myDark)
 ```ts
 import { ancientTheme, loadTheme } from '@veltra/styles/theme'
 
-loadTheme(
-  ancientTheme.new({
-    nav: { variant: 'light', 'bg-color': '#f1ede0' }
-  })
-)
+loadTheme(ancientTheme.new({ nav: { variant: 'light', 'bg-color': '#f1ede0' } }))
 ```
 
 要整组换成某系列 × 变体的内置侧栏 token，用 `navSidebarTokens`：
@@ -128,14 +125,14 @@ import {
 } from '@veltra/styles/theme'
 ```
 
-| 符号 | 用途 |
-| --- | --- |
-| `HEXToRGB(color)` | `#RGB` / `#RRGGBB` → `[r, g, b]` |
-| `mixColor(c1, c2, ratio)` | 两色按 0–1 混合；`ratio > 1` 抛错 |
-| `hexWithAlpha(hex, percent)` | `#RRGGBB` + 0–100 → `rgba()` |
-| `mixColorWithAlpha(hex, ratio)` | 同上，`ratio` 为 0–1 |
-| `hexRgbOnly(hex)` | `#RRGGBBAA` 去掉 alpha |
-| `defineBySize({ small, default, large })` | 三档尺寸字段（圆角、字号、表单高度等） |
-| `cssVar('text-color-title')` | `'var(--u-text-color-title)'`，TS / 内联样式用 |
+| 符号                                      | 用途                                           |
+| ----------------------------------------- | ---------------------------------------------- |
+| `HEXToRGB(color)`                         | `#RGB` / `#RRGGBB` → `[r, g, b]`               |
+| `mixColor(c1, c2, ratio)`                 | 两色按 0–1 混合；`ratio > 1` 抛错              |
+| `hexWithAlpha(hex, percent)`              | `#RRGGBB` + 0–100 → `rgba()`                   |
+| `mixColorWithAlpha(hex, ratio)`           | 同上，`ratio` 为 0–1                           |
+| `hexRgbOnly(hex)`                         | `#RRGGBBAA` 去掉 alpha                         |
+| `defineBySize({ small, default, large })` | 三档尺寸字段（圆角、字号、表单高度等）         |
+| `cssVar('text-color-title')`              | `'var(--u-text-color-title)'`，TS / 内联样式用 |
 
 SCSS 里优先 `fn.use-var()`，不要手写 `--u-*` 字符串。

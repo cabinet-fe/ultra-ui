@@ -9,6 +9,7 @@ keywords:
   - 解析与默认回退
 aliases: ["field-key", "fieldKey"]
 ---
+
 ## 快速上手
 
 `fieldKey(key, fallback)`：`key` 为真值时返回 `key`，否则返回 `fallback`。空字符串会回退（按真值判断，不是只判断 `null` / `undefined`）。
@@ -20,4 +21,3 @@ fieldKey(props.valueKey, 'value')
 fieldKey(props.labelKey, 'label')
 fieldKey('', 'id') // 'id'
 ```
-

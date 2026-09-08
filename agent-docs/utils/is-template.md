@@ -9,6 +9,7 @@ keywords:
   - 标签
 aliases: ["is-template", "isTemplate"]
 ---
+
 ## 快速上手
 
 `isTemplate(node)` 在 `isVNode(node) && node.type === 'template'` 时为 true。`extractNormalVNodes` 会展开这类节点的 `children`。
@@ -19,4 +20,3 @@ import { h } from 'vue'
 
 isTemplate(h('template', [h('span', 'a')])) // true
 ```
-

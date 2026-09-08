@@ -83,9 +83,7 @@ loadTheme(new UITheme(theme)) // 默认浅色系；深色主题传 { series: 'da
 古风主题改宣纸色侧栏：
 
 ```ts
-loadTheme(ancientTheme.new({
-  nav: { variant: 'light', 'bg-color': '#f1ede0' }
-}))
+loadTheme(ancientTheme.new({ nav: { variant: 'light', 'bg-color': '#f1ede0' } }))
 ```
 
 派生主题时若要强制某个变体、抹掉预设的侧栏个性色，用 `navSidebarTokens` 展开整套 token 再逐个覆盖，保证前景/底色配套：

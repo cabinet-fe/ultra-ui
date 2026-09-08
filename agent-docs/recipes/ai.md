@@ -11,6 +11,7 @@ keywords:
   - 工具调用编排
 aliases: ["ai", "AI"]
 ---
+
 `@veltra/ai` 的核心是「工具定义 + 自动编排」：传入 `tools` 后，`UAiChat` / `useChat` 会跑 tool_calls → 执行 → 回灌 → 继续生成，直到模型不再调工具、命中终结工具，或达到 `maxToolRounds`。不要自己写工具循环。
 
 ```bash

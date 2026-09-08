@@ -9,6 +9,7 @@ keywords:
   - 多选选择器
 aliases: ["multi-select", "UMultiSelect", "MultiSelect", "多选选择器"]
 ---
+
 ## 快速上手
 
 ```ts
@@ -33,14 +34,7 @@ const options = [
 </script>
 
 <template>
-  <u-multi-select
-    v-model="selected"
-    :options="options"
-    :max="3"
-    filterable
-    creatable
-    clearable
-  />
+  <u-multi-select v-model="selected" :options="options" :max="3" filterable creatable clearable />
 </template>
 ```
 
@@ -104,11 +98,7 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    | number
-    | 'full'
-    | ({
-        [key in BreakpointName]?: 'full' | number
-      } & { default: number | 'full' })
+    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段 */
@@ -133,8 +123,7 @@ export interface MultiSelectProps extends FormComponentProps {
   modelValue?: Array<any>
   /** 列表选项 */
   options?:
-    | Record<string, any>[]
-    | ((qs: string) => Promise<Record<string, any>[]> | Record<string, any>[])
+    Record<string, any>[] | ((qs: string) => Promise<Record<string, any>[]> | Record<string, any>[])
   /** 值字段 */
   valueKey?: string
   /** 标签字段 */

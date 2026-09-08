@@ -10,6 +10,7 @@ keywords:
   - 注释节点
 aliases: ["is-comment", "isComment"]
 ---
+
 ## 快速上手
 
 `isComment(node)` 在 `node.type === Comment` 时为 true，并把 `children` 收窄为 `string`。
@@ -20,4 +21,3 @@ import { Comment, h } from 'vue'
 
 isComment(h(Comment, 'note')) // true
 ```
-

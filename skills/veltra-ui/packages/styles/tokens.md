@@ -150,21 +150,21 @@ nav / dual-nav / group-nav 专用 token。外观组按主题 `nav.variant`（深
 
 外观（随 variant 变化）：
 
-| token | 语义 |
-| ----- | ---- |
-| `--u-nav-bg-color` | 侧栏底色 |
-| `--u-nav-color` | 导航项文字色 |
-| `--u-nav-hover-bg` / `--u-nav-hover-color` | 悬停底色 / 文字色 |
-| `--u-nav-active-bg` / `--u-nav-active-color` | 激活项底色 / 文字色 |
-| `--u-nav-strong-color` | 强调文字（nav 展开/分支激活项、dual-nav 面板标题） |
-| `--u-nav-second-color` | 次级文字（分组标题、描述等） |
-| `--u-nav-sub-border-color` | nav 子级缩进参考线 |
-| `--u-nav-rail-bg` | dual-nav 轨道（首栏）底色 |
+| token                                        | 语义                                               |
+| -------------------------------------------- | -------------------------------------------------- |
+| `--u-nav-bg-color`                           | 侧栏底色                                           |
+| `--u-nav-color`                              | 导航项文字色                                       |
+| `--u-nav-hover-bg` / `--u-nav-hover-color`   | 悬停底色 / 文字色                                  |
+| `--u-nav-active-bg` / `--u-nav-active-color` | 激活项底色 / 文字色                                |
+| `--u-nav-strong-color`                       | 强调文字（nav 展开/分支激活项、dual-nav 面板标题） |
+| `--u-nav-second-color`                       | 次级文字（分组标题、描述等）                       |
+| `--u-nav-sub-border-color`                   | nav 子级缩进参考线                                 |
+| `--u-nav-rail-bg`                            | dual-nav 轨道（首栏）底色                          |
 
 尺寸与资源（同一套值，不随 variant 变化）：
 
-| token | 语义 |
-| ----- | ---- |
-| `--u-nav-height-small` / `--u-nav-height-default` / `--u-nav-height-large` | 导航项高度（32/36/40px） |
-| `--u-nav-rail-width` / `--u-nav-rail-labeled-width` | dual-nav 轨道宽度（56/72px） |
-| `--u-nav-bg-image` | 侧栏背景图（默认 `none`） |
+| token                                                                      | 语义                         |
+| -------------------------------------------------------------------------- | ---------------------------- |
+| `--u-nav-height-small` / `--u-nav-height-default` / `--u-nav-height-large` | 导航项高度（32/36/40px）     |
+| `--u-nav-rail-width` / `--u-nav-rail-labeled-width`                        | dual-nav 轨道宽度（56/72px） |
+| `--u-nav-bg-image`                                                         | 侧栏背景图（默认 `none`）    |

@@ -5,7 +5,10 @@
 ```vue
 <script setup lang="ts">
 const handlePick = (files: File[]) => {
-  console.log('选中文件:', files.map(f => f.name))
+  console.log(
+    '选中文件:',
+    files.map((f) => f.name)
+  )
 }
 </script>
 
@@ -38,7 +41,10 @@ const handlePick = (files: File[]) => {
 ```vue
 <script setup lang="ts">
 const handlePick = (files: File[]) => {
-  console.log('拖入文件:', files.map(f => f.name))
+  console.log(
+    '拖入文件:',
+    files.map((f) => f.name)
+  )
 }
 </script>
 
@@ -69,7 +75,10 @@ const handlePick = (files: File[]) => {
 ```vue
 <script setup lang="ts">
 const onPick = (files: File[]) => {
-  console.log('选中图片:', files.map(f => f.name))
+  console.log(
+    '选中图片:',
+    files.map((f) => f.name)
+  )
 }
 </script>
 

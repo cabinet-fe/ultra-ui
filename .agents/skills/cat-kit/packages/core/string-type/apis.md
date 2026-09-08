@@ -6,9 +6,7 @@ declare function str(value: string): {
   kebabCase(): string
 }
 
-declare const $str: {
-  joinUrlPath(firstPath: string, ...paths: string[]): string
-}
+declare const $str: { joinUrlPath(firstPath: string, ...paths: string[]): string }
 
 declare function getDataType(value: unknown): string
 declare function isObj(value: unknown): value is Record<string, any>

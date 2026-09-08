@@ -9,6 +9,7 @@ keywords:
   - 类名
 aliases: ["remove-class", "removeClass"]
 ---
+
 ## 快速上手
 
 `removeClass(el, className)` 调用 `el.classList.remove`。`className` 可以是字符串或字符串数组。
@@ -19,4 +20,3 @@ import { removeClass } from '@veltra/utils'
 removeClass(el, 'is-focus')
 removeClass(el, ['is-active', 'is-disabled'])
 ```
-

@@ -9,6 +9,7 @@ keywords:
   - 点击外部关闭与浮层遮罩点击指令
 aliases: ["v-click-outside", "vClickOutside", "点击外部关闭与浮层遮罩点击指令"]
 ---
+
 ## 快速上手
 
 `vClickOutside` 在捕获阶段监听 `document` 的 `mousedown` 与 `click`。两次事件的 `target` 必须相同才视为一次完整点击，然后对不包含该 target 的已注册元素调用回调。没有绑定值时不注册。
@@ -37,4 +38,3 @@ function handleClickOutside() {
   内容
 </div>
 ```
-

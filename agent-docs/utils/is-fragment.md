@@ -9,6 +9,7 @@ keywords:
   - 容器片段
 aliases: ["is-fragment", "isFragment"]
 ---
+
 ## 快速上手
 
 `isFragment(node)` 在节点存在且 `node.type === Fragment` 时为 true。`extractNormalVNodes` 会展开这类节点的 `children`。
@@ -19,4 +20,3 @@ import { Fragment, h } from 'vue'
 
 isFragment(h(Fragment, [h('span', 'a')])) // true
 ```
-

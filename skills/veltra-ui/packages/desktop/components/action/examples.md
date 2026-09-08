@@ -61,10 +61,10 @@ const columns = defineTableColumns([
 
 const data = [{ id: 1, name: '示例名称' }]
 
-const handleEdit = row => {}
-const handleDetail = row => {}
-const handleDelete = row => {}
-const handleCopy = row => {}
+const handleEdit = (row) => {}
+const handleDetail = (row) => {}
+const handleDelete = (row) => {}
+const handleCopy = (row) => {}
 </script>
 ```
 

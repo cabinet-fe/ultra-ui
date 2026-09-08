@@ -9,6 +9,7 @@ keywords:
   - 批量编辑
 aliases: ["batch-edit", "UBatchEdit", "BatchEdit", "批量编辑"]
 ---
+
 ## 快速上手
 
 ```ts
@@ -50,7 +51,7 @@ const model = reactive({ name: '', age: undefined as number | undefined })
 
 ## API 签名 / 类型定义
 
-```ts
+````ts
 export type DeconstructValue<E extends Record<string, any>> = {
   [K in keyof E]: E[K] extends { value: infer V } ? V : E[K]
 }
@@ -315,10 +316,7 @@ export interface BatchEditProps extends TableProps {
    * ```
    */
   features?:
-    | Array<BatchEditFeature>
-    | {
-        [key in BatchEditFeature]?: boolean | ((row: TableRow) => boolean)
-      }
+    Array<BatchEditFeature> | { [key in BatchEditFeature]?: boolean | ((row: TableRow) => boolean) }
 
   /**
    * 操作按钮的属性配置, 可以是action组件的任意属性
@@ -373,7 +371,7 @@ export interface _BatchEditExposed {}
 
 /** 批量编辑组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
 export type BatchEditExposed = DeconstructValue<_BatchEditExposed>
-```
+````
 
 ### 辅助工具
 

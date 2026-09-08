@@ -9,6 +9,7 @@ keywords:
   - 浮动按钮
 aliases: ["float-button", "UFloatButton", "FloatButton", "浮动按钮"]
 ---
+
 ## 快速上手
 
 ```ts

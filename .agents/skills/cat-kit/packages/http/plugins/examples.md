@@ -1,11 +1,7 @@
 # HTTP 插件 — 示例
 
 ```ts
-import {
-  HTTPClient,
-  MethodOverridePlugin,
-  TokenPlugin
-} from '@cat-kit/http'
+import { HTTPClient, MethodOverridePlugin, TokenPlugin } from '@cat-kit/http'
 
 const http = new HTTPClient('/api', {
   origin: 'https://example.com',

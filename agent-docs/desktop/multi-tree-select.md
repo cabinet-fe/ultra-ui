@@ -9,6 +9,7 @@ keywords:
   - 多选树形选择器
 aliases: ["multi-tree-select", "UMultiTreeSelect", "MultiTreeSelect", "多选树形选择器"]
 ---
+
 ## 快速上手
 
 ```ts
@@ -73,13 +74,7 @@ const data = [
 
 <template>
   <u-form :model="form">
-    <u-multi-tree-select
-      label="部门"
-      field="depts"
-      :data="data"
-      label-key="name"
-      value-key="id"
-    />
+    <u-multi-tree-select label="部门" field="depts" :data="data" label-key="name" value-key="id" />
   </u-form>
 </template>
 ```
@@ -124,11 +119,7 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    | number
-    | 'full'
-    | ({
-        [key in BreakpointName]?: 'full' | number
-      } & { default: number | 'full' })
+    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段 */

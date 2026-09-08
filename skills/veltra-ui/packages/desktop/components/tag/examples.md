@@ -32,7 +32,7 @@ import { shallowRef } from 'vue'
 const tags = shallowRef([
   { name: 'Vue', type: 'primary' },
   { name: 'React', type: 'info' },
-  { name: 'Angular', type: 'warning' },
+  { name: 'Angular', type: 'warning' }
 ])
 
 const removeTag = (index: number) => {

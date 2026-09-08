@@ -1,9 +1,10 @@
 ---
-title: "@veltra/styles SCSS 混入 Mixins、工具变量与基础样式引入规范"
-description: "样式子路径引用指南：通过 pkg:@veltra/styles 引用 mixins、vars、functions，以及 import 方式按需引入 normalize.css、transitions 过渡动效与 animations 动画库"
-keywords: ["@veltra/styles SCSS 混入 Mixins、工具变量与基础样式引入规范", "@veltra/styles", "scss"]
-aliases: ["scss", "@veltra/styles SCSS 混入 Mixins、工具变量与基础样式引入规范"]
+title: '@veltra/styles SCSS 混入 Mixins、工具变量与基础样式引入规范'
+description: '样式子路径引用指南：通过 pkg:@veltra/styles 引用 mixins、vars、functions，以及 import 方式按需引入 normalize.css、transitions 过渡动效与 animations 动画库'
+keywords: ['@veltra/styles SCSS 混入 Mixins、工具变量与基础样式引入规范', '@veltra/styles', 'scss']
+aliases: ['scss', '@veltra/styles SCSS 混入 Mixins、工具变量与基础样式引入规范']
 ---
+
 `@veltra/styles` 的 SCSS 与基础 CSS 走子路径，不按单个 mixin 或单个动画拆文档。组件样式用 `pkg:` 协议引用 mixins / vars / functions；normalize、过渡、动画用 JS `import`。
 
 ## Sass：mixins / vars / functions
@@ -20,11 +21,7 @@ aliases: ["scss", "@veltra/styles SCSS 混入 Mixins、工具变量与基础样�
 import { NodePackageImporter } from 'sass-embedded'
 
 export default {
-  css: {
-    preprocessorOptions: {
-      scss: { importers: [new NodePackageImporter()] }
-    }
-  }
+  css: { preprocessorOptions: { scss: { importers: [new NodePackageImporter()] } } }
 }
 ```
 
@@ -41,14 +38,14 @@ export default {
 }
 ```
 
-| mixin | 编译结果 |
-| --- | --- |
-| `m.b(button)` | `.u-button` |
-| `m.e(icon)` | `&__icon` |
-| `m.m(primary)` | `&--primary` |
-| `m.em(icon, left)` | `&__icon--left` |
-| `m.bem(button, icon, left)` | `.u-button__icon--left` |
-| `m.is(disabled)` | `&.is-disabled` |
+| mixin                          | 编译结果                                |
+| ------------------------------ | --------------------------------------- |
+| `m.b(button)`                  | `.u-button`                             |
+| `m.e(icon)`                    | `&__icon`                               |
+| `m.m(primary)`                 | `&--primary`                            |
+| `m.em(icon, left)`             | `&__icon--left`                         |
+| `m.bem(button, icon, left)`    | `.u-button__icon--left`                 |
+| `m.is(disabled)`               | `&.is-disabled`                         |
 | `m.is-not(disabled, readonly)` | `&:not(.is-disabled):not(.is-readonly)` |
 
 `m.b` / `m.e` / `m.m` / `m.is` 都接受多个参数，会拼成选择器列表。
@@ -127,15 +124,15 @@ import '@veltra/styles/transitions/fade.scss'
 </Transition>
 ```
 
-| name | 用途 |
-| --- | --- |
-| `fade` | 淡入淡出 |
-| `fade-scale` | 淡入 + 缩放（Dialog 默认） |
-| `slide-down` / `slide-up` | 垂直滑入 |
-| `spring` | 弹性缩放 |
-| `zoom-in` | 中心缩放 |
-| `zoom-in-left` / `zoom-in-right` | 水平方向缩放 |
-| `zoom-in-top` / `zoom-in-bottom` | 垂直方向缩放 |
+| name                             | 用途                       |
+| -------------------------------- | -------------------------- |
+| `fade`                           | 淡入淡出                   |
+| `fade-scale`                     | 淡入 + 缩放（Dialog 默认） |
+| `slide-down` / `slide-up`        | 垂直滑入                   |
+| `spring`                         | 弹性缩放                   |
+| `zoom-in`                        | 中心缩放                   |
+| `zoom-in-left` / `zoom-in-right` | 水平方向缩放               |
+| `zoom-in-top` / `zoom-in-bottom` | 垂直方向缩放               |
 
 对应源文件在 `@veltra/styles/transitions/*.scss`（`fade`、`fade-scale`、`slide`、`spring`、`zoom-in`）。
 
@@ -148,8 +145,8 @@ import '@veltra/styles/animations'
 import '@veltra/styles/animations/shine.scss'
 ```
 
-| 类名 | 用途 |
-| --- | --- |
+| 类名      | 用途                                                                                                                                    |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | `u-shine` | 文字扫光（`background-clip: text`）；`--u-shine-duration` 覆盖时长，默认 `2.4s`；`prefers-reduced-motion` 时停动画并恢复 `currentColor` |
 
 ```vue

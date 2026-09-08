@@ -9,6 +9,7 @@ keywords:
   - 活体球
 aliases: ["ai-orb", "UAiOrb", "AiOrb", "活体球"]
 ---
+
 ## 快速上手
 
 ```ts

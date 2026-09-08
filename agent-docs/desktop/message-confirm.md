@@ -9,6 +9,7 @@ keywords:
   - 消息确认
 aliases: ["message-confirm", "UMessageConfirm", "MessageConfirm", "消息确认"]
 ---
+
 ## 快速上手
 
 ```ts

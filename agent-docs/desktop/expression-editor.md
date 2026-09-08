@@ -9,6 +9,7 @@ keywords:
   - 表达式编辑器
 aliases: ["expression-editor", "UExpressionEditor", "ExpressionEditor", "表达式编辑器"]
 ---
+
 ## 快速上手
 
 ```ts
@@ -38,11 +39,7 @@ const variables: VariableItem[] = [
 </script>
 
 <template>
-  <u-expression-editor
-    v-model="expression"
-    :variables="variables"
-    placeholder="输入 @ 插入变量"
-  />
+  <u-expression-editor v-model="expression" :variables="variables" placeholder="输入 @ 插入变量" />
   <u-expression-editor v-model="expression" :variables="variables" selectable-levels="any" />
 </template>
 ```
@@ -87,11 +84,7 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    | number
-    | 'full'
-    | ({
-        [key in BreakpointName]?: 'full' | number
-      } & { default: number | 'full' })
+    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段 */

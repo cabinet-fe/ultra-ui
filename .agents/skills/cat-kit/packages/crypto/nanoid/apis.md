@@ -2,10 +2,7 @@
 
 ```ts
 declare function nanoid(size?: number): string
-declare function customAlphabet(
-  alphabet: string,
-  size?: number
-): (size?: number) => string
+declare function customAlphabet(alphabet: string, size?: number): (size?: number) => string
 declare function customRandom(
   alphabet: string,
   defaultSize: number,

@@ -9,6 +9,7 @@ keywords:
   - 树形选择器
 aliases: ["tree-select", "UTreeSelect", "TreeSelect", "树形选择器"]
 ---
+
 ## 快速上手
 
 ```ts
@@ -55,24 +56,12 @@ const data = [
 import { reactive } from 'vue'
 
 const form = reactive({ org: '' })
-const data = [
-  {
-    name: '总部',
-    id: 'hq',
-    children: [{ name: '财务', id: 'fin' }]
-  }
-]
+const data = [{ name: '总部', id: 'hq', children: [{ name: '财务', id: 'fin' }] }]
 </script>
 
 <template>
   <u-form :model="form">
-    <u-tree-select
-      label="组织"
-      field="org"
-      :data="data"
-      label-key="name"
-      value-key="id"
-    />
+    <u-tree-select label="组织" field="org" :data="data" label-key="name" value-key="id" />
   </u-form>
 </template>
 ```
@@ -117,11 +106,7 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    | number
-    | 'full'
-    | ({
-        [key in BreakpointName]?: 'full' | number
-      } & { default: number | 'full' })
+    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段 */

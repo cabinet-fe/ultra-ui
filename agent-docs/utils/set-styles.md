@@ -9,6 +9,7 @@ keywords:
   - 样式
 aliases: ["set-styles", "setStyles"]
 ---
+
 ## 快速上手
 
 `setStyles(el, styles)` 把 `styles`（Vue `CSSProperties`）的每个键赋到 `el.style`。键用 camelCase（如 `zIndex`、`paddingTop`）。
@@ -16,11 +17,5 @@ aliases: ["set-styles", "setStyles"]
 ```ts
 import { setStyles, zIndex } from '@veltra/utils'
 
-setStyles(container, {
-  position: 'fixed',
-  zIndex: zIndex(),
-  top: '20px',
-  right: '20px'
-})
+setStyles(container, { position: 'fixed', zIndex: zIndex(), top: '20px', right: '20px' })
 ```
-

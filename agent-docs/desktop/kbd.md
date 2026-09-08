@@ -9,6 +9,7 @@ keywords:
   - 键盘按键
 aliases: ["kbd", "UKbd", "Kbd", "键盘按键"]
 ---
+
 ## 快速上手
 
 ```ts

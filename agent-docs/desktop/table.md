@@ -9,6 +9,7 @@ keywords:
   - 表格
 aliases: ["table", "UTable", "Table", "表格"]
 ---
+
 ## 快速上手
 
 ```ts
@@ -40,14 +41,7 @@ const data = [
 </script>
 
 <template>
-  <u-table
-    row-key="id"
-    checkable
-    border
-    :columns="columns"
-    :data="data"
-    v-model:checked="checked"
-  >
+  <u-table row-key="id" checkable border :columns="columns" :data="data" v-model:checked="checked">
     <template #column:action="{ rowData }">
       <u-button text type="primary">编辑 {{ rowData.name }}</u-button>
     </template>
@@ -66,12 +60,7 @@ const columns = defineTableColumns([
   { key: 'role', name: '角色' }
 ])
 const data = [
-  {
-    id: 1,
-    name: '技术部',
-    role: '部门',
-    children: [{ id: 11, name: '张三', role: '工程师' }]
-  }
+  { id: 1, name: '技术部', role: '部门', children: [{ id: 11, name: '张三', role: '工程师' }] }
 ]
 </script>
 
@@ -90,12 +79,7 @@ export type DeconstructValue<E extends Record<string, any>> = {
 }
 
 export type RenderReturn =
-  | (undefined | VNode | string | null | number)[]
-  | undefined
-  | VNode
-  | string
-  | null
-  | number
+  (undefined | VNode | string | null | number)[] | undefined | VNode | string | null | number
 
 export type Forest<T = any> = T[]
 

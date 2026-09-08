@@ -9,6 +9,7 @@ keywords:
   - 徽标
 aliases: ["badge", "UBadge", "Badge", "徽标"]
 ---
+
 ## 快速上手
 
 ```ts

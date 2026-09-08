@@ -98,9 +98,7 @@ async function fetchDatasets(): Promise<Dataset[]> {
 
     <template #footer="{ close }">
       <u-button text @click="close()">取消</u-button>
-      <u-button type="primary" :disabled="!selected" @click="confirm(close)">
-        添加所选
-      </u-button>
+      <u-button type="primary" :disabled="!selected" @click="confirm(close)"> 添加所选 </u-button>
     </template>
   </u-dialog>
 </template>
@@ -138,7 +136,12 @@ async function query() {
   loading.value = true
   try {
     // 替换为真实请求；分页参数走 pageNumber/pageSize
-    const res = await fetchRows({ keyword: keyword.value, status: status.value, pageNumber: pageNumber.value, pageSize: pageSize.value })
+    const res = await fetchRows({
+      keyword: keyword.value,
+      status: status.value,
+      pageNumber: pageNumber.value,
+      pageSize: pageSize.value
+    })
     rows.value = res.list
     total.value = res.total
   } finally {
@@ -156,7 +159,14 @@ async function fetchRows(_params: Record<string, any>) {
   <div style="display: flex; gap: 8px; margin-bottom: 12px">
     <u-input v-model="keyword" placeholder="名称 / 编码" clearable style="width: 220px" />
     <u-select v-model="status" :options="statusOptions" style="width: 140px" />
-    <u-button type="primary" @click="pageNumber = 1; query()">查询</u-button>
+    <u-button
+      type="primary"
+      @click="
+        pageNumber = 1
+        query()
+      "
+      >查询</u-button
+    >
   </div>
 
   <u-table v-loading="loading" :data="rows" :columns="columns" border />

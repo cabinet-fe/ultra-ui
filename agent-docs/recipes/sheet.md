@@ -10,6 +10,7 @@ keywords:
   - 单元格只读控制与在线填报系统开发
 aliases: ["sheet", "USheet", "Sheet"]
 ---
+
 `USheet` 提供工具栏、公式栏、网格和底部 sheet 标签。数据模型在 `@veltra/sheet-core`，本包不 re-export 那些符号——`Workbook` / `Sheet` 一律 `from '@veltra/sheet-core'`。
 
 ```bash

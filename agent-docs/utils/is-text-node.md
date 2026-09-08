@@ -10,6 +10,7 @@ keywords:
   - 文本节点
 aliases: ["is-text-node", "isTextNode"]
 ---
+
 ## 快速上手
 
 `isTextNode(node)` 在 `node.type === Text` 时为 true，并把 `children` 收窄为 `string`。常用于只渲染文本的插槽过滤。
@@ -19,4 +20,3 @@ import { isTextNode } from '@veltra/utils'
 
 const textNodes = (slots.default?.() ?? []).filter((node) => isTextNode(node))
 ```
-

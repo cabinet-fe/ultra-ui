@@ -9,6 +9,7 @@ keywords:
   - 密码输入框
 aliases: ["password-input", "UPasswordInput", "PasswordInput", "密码输入框"]
 ---
+
 ## 快速上手
 
 ```ts

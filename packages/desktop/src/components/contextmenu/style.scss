@@ -92,31 +92,15 @@ $arrow-size: 12px;
 
     #{$b}__item:not(.is-disabled):not(.is-loading) > & {
       &:hover {
-        background-color: fn.component-var(
-          contextmenu,
-          item-hover-bg,
-          fn.use-var(bg-color, hover)
-        );
-        color: fn.component-var(
-          contextmenu,
-          item-hover-color,
-          fn.use-var(text-color, title)
-        );
+        background-color: fn.component-var(contextmenu, item-hover-bg, fn.use-var(bg-color, hover));
+        color: fn.component-var(contextmenu, item-hover-color, fn.use-var(text-color, title));
       }
     }
   }
 
   #{$b}__item.is-open:not(.is-disabled) > #{$b}__item-content {
-    background-color: fn.component-var(
-      contextmenu,
-      item-hover-bg,
-      fn.use-var(bg-color, hover)
-    );
-    color: fn.component-var(
-      contextmenu,
-      item-hover-color,
-      fn.use-var(text-color, title)
-    );
+    background-color: fn.component-var(contextmenu, item-hover-bg, fn.use-var(bg-color, hover));
+    color: fn.component-var(contextmenu, item-hover-color, fn.use-var(text-color, title));
   }
 
   @include m.e(icon-place) {
