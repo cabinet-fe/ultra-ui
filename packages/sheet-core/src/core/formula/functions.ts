@@ -1,3 +1,5 @@
+import { $n, n } from '@cat-kit/core'
+
 import type { AstNode } from './ast'
 import { formulaError, isFormulaError, type FormulaError } from './errors'
 import {
@@ -124,11 +126,18 @@ function collectNumbers(args: EvalValue[]): number[] | FormulaError {
       if (typeof value === 'number') numbers.push(value)
       continue
     }
-    const n = coerceToNumber(value)
-    if (isFormulaError(n)) return n
-    numbers.push(n)
+    const num = coerceToNumber(value)
+    if (isFormulaError(num)) return num
+    numbers.push(num)
   }
   return numbers
+}
+
+/** 高精度累加，返回 JS number（空数组为 0） */
+function plusAll(numbers: number[]): number {
+  let sum = 0
+  for (const num of numbers) sum = $n.plus(sum, num)
+  return Number(sum)
 }
 
 /** 收集布尔：区域内只取布尔格；直接参数强转（非法文本/错误 → 传播）；空值跳过 */
@@ -156,9 +165,7 @@ registerFormulaFunction('SUM', {
   impl(args) {
     const numbers = collectNumbers(args)
     if (isFormulaError(numbers)) return numbers
-    let sum = 0
-    for (const n of numbers) sum += n
-    return sum
+    return plusAll(numbers)
   }
 })
 
@@ -169,9 +176,7 @@ registerFormulaFunction('AVERAGE', {
     const numbers = collectNumbers(args)
     if (isFormulaError(numbers)) return numbers
     if (numbers.length === 0) return formulaError('#DIV/0!')
-    let sum = 0
-    for (const n of numbers) sum += n
-    return sum / numbers.length
+    return Number($n.div(plusAll(numbers), numbers.length))
   }
 })
 
@@ -294,18 +299,22 @@ registerFormulaFunction('ROUND', {
   maxArgs: 2,
   meta: { params: ['number', 'num_digits'], description: '按指定位数四舍五入' },
   impl(args) {
-    const n = coerceToNumber(args[0]!)
-    if (isFormulaError(n)) return n
-    const d = coerceToNumber(args[1]!)
-    if (isFormulaError(d)) return d
-    const factor = 10 ** Math.trunc(d)
+    const value = coerceToNumber(args[0]!)
+    if (isFormulaError(value)) return value
+    const digitsArg = coerceToNumber(args[1]!)
+    if (isFormulaError(digitsArg)) return digitsArg
+    const digits = Math.trunc(digitsArg)
+    const factor = 10 ** digits
     // 位数超出 double 精度时四舍五入是恒等/归零
-    if (!Number.isFinite(factor)) return n
+    if (!Number.isFinite(factor)) return value
     if (factor === 0) return 0
-    // 远离零方向取整；1e-12 补偿浮点表示误差（如 2.675 存为 2.67499…）
-    const shifted = n * factor
-    const rounded = Math.sign(shifted) * Math.round(Math.abs(shifted) + 1e-12)
-    return rounded / factor
+    // n().fixed 只接受非负位数；负位数先缩放到整数再四舍五入
+    if (digits < 0) {
+      const scale = 10 ** -digits
+      const rounded = Number(n($n.div(value, scale)).fixed(0))
+      return Number($n.mul(rounded, scale))
+    }
+    return Number(n(value).fixed(digits))
   }
 })
 
@@ -314,9 +323,9 @@ registerFormulaFunction('ABS', {
   maxArgs: 1,
   meta: { params: ['number'], description: '返回数字的绝对值' },
   impl(args) {
-    const n = coerceToNumber(args[0]!)
-    if (isFormulaError(n)) return n
-    return Math.abs(n)
+    const value = coerceToNumber(args[0]!)
+    if (isFormulaError(value)) return value
+    return value < 0 ? Number($n.minus(0, value)) : value
   }
 })
 

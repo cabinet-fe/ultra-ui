@@ -1,3 +1,4 @@
+import { $n, n } from '@cat-kit/core'
 import { describe, expect, it } from 'vitest'
 
 import type { CellAddress } from '../address'
@@ -57,6 +58,16 @@ describe('函数集：SUM / AVERAGE / MAX / MIN', () => {
     sheet.setCellValue({ row: 1, col: 0 }, 'text')
     // 区域内文本忽略，只按数字格求均值
     expect(calcValue(sheet, '=AVERAGE(A1:A2)')).toMatchObject({ v: 2 })
+  })
+
+  it('SUM / AVERAGE 精度对齐 $n 且为 number', () => {
+    const sheet = new Sheet()
+    const sum = calcValue(sheet, '=SUM(0.1,0.2)')
+    expect(sum?.v).toBe(0.3)
+    expect(typeof sum?.v).toBe('number')
+    const avg = calcValue(sheet, '=AVERAGE(0.1,0.2)')
+    expect(avg?.v).toBe($n.div($n.plus(0.1, 0.2), 2))
+    expect(typeof avg?.v).toBe('number')
   })
 
   it('MAX / MIN：极值；无数字 → 0', () => {
@@ -131,13 +142,17 @@ describe('函数集：ROUND / ABS / CONCATENATE', () => {
     expect(calcValue(sheet, '=ROUND(2.5,0)')).toMatchObject({ v: 3 })
     expect(calcValue(sheet, '=ROUND(-2.5,0)')).toMatchObject({ v: -3 })
     expect(calcValue(sheet, '=ROUND(1234.567,-2)')).toMatchObject({ v: 1200 })
-    // 浮点表示误差补偿（2.675 实际存储为 2.67499…）
     expect(calcValue(sheet, '=ROUND(2.675,2)')).toMatchObject({ v: 2.68 })
+    const rounded = calcValue(sheet, '=ROUND(1.005,2)')
+    expect(rounded?.v).toBe(Number(n(1.005).fixed(2)))
+    expect(typeof rounded?.v).toBe('number')
   })
 
   it('ABS：绝对值；非法参数 → #VALUE!', () => {
     const sheet = new Sheet()
-    expect(calcValue(sheet, '=ABS(-3)')).toMatchObject({ v: 3 })
+    const abs = calcValue(sheet, '=ABS(-3)')
+    expect(abs?.v).toBe(3)
+    expect(typeof abs?.v).toBe('number')
     expect(calcValue(sheet, '=ABS("x")')).toMatchObject({ v: '#VALUE!', t: 'e' })
   })
 
