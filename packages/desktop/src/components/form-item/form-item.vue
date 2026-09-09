@@ -17,7 +17,7 @@
 
     <section :class="cls.e('wrapper')">
       <div :class="cls.e('content')">
-        <slot></slot>
+        <ContentSlot />
       </div>
 
       <!-- 只有表单控件处于非只读状态时，才显示错误提示 -->
@@ -37,9 +37,18 @@ import { o } from '@cat-kit/core'
 import { useConfig, useFallbackProps } from '@veltra/compositions'
 import { bem, withUnit } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
-import { type CSSProperties, computed, onBeforeUnmount, shallowRef, watch } from 'vue'
+import {
+  type CSSProperties,
+  type VNode,
+  cloneVNode,
+  computed,
+  onBeforeUnmount,
+  shallowRef,
+  useSlots,
+  watch
+} from 'vue'
 
-import type { FormItemProps, ComponentSize } from '../../types'
+import type { FormItemEmits, FormItemProps, ComponentSize } from '../../types'
 import { UGridItem } from '../grid'
 import { UTip } from '../tip'
 import { formItemCls as cls, defineField } from './helper'
@@ -49,6 +58,10 @@ defineOptions({ name: 'UFormItem' })
 
 const props = withDefaults(defineProps<FormItemProps>(), { readonly: undefined })
 
+const emit = defineEmits<FormItemEmits>()
+
+const slots = useSlots()
+
 defineSlots<{
   /** 标签插槽 */
   label?: () => any
@@ -56,8 +69,30 @@ defineSlots<{
 }>()
 
 /** 表单组件上下文 */
-const { formProps, registerField, unregisterField, shouldValidate, handleFieldChange } =
-  injectFormContext()
+const {
+  formProps,
+  registerField,
+  unregisterField,
+  shouldValidate,
+  handleFieldUpdate,
+  handleFieldChange
+} = injectFormContext()
+
+function wrapControlChange(node: VNode) {
+  if (!node || typeof node.type === 'symbol') return node
+
+  return cloneVNode(node, {
+    onChange: (...args: any[]) => {
+      emit('change', ...args)
+      if (props.field) handleFieldChange?.(props.field, ...args)
+    }
+  })
+}
+
+function ContentSlot() {
+  const nodes = slots.default?.() ?? []
+  return nodes.map(wrapControlChange)
+}
 
 const { config } = useConfig()
 
@@ -137,7 +172,7 @@ watch(
     stopWatchFieldValue = watch(
       () => o(model).get(field),
       (value) => {
-        handleFieldChange?.(field, value)
+        handleFieldUpdate?.(field, value)
         fieldItem.validate()
       }
     )

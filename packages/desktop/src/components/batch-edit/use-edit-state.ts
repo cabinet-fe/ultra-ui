@@ -46,7 +46,7 @@ export function useEditState(options: Options) {
 
       // 先重置回 model 初始快照，再同步回显行数据。
       // 同一 tick 内的连续写入会被表单字段 watcher 合并，
-      // 重置产生的默认值不会触发 field:change 回写行数据
+      // 重置产生的默认值不会触发 field:update 回写行数据
       formRef.value?.reset()
 
       if (row) {

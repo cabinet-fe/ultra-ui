@@ -28,7 +28,8 @@
           :model="props.model"
           :readonly="props.readonly"
           :label-width="props.labelWidth"
-          @field:change="handleFieldChange"
+          @field:update="handleFieldUpdate"
+          @field:change="handleFormFieldChange"
         >
           <slot
             v-bind="{
@@ -91,8 +92,17 @@ defineOptions({ name: 'UBatchEditForm' })
 
 const batchEditCtx = inject(BatchEditDIKey)!
 
-const { cls, props, state, handleClose, handleSave, staticFeatures, dynamicFeatures, syncing } =
-  batchEditCtx
+const {
+  cls,
+  props,
+  state,
+  emit,
+  handleClose,
+  handleSave,
+  staticFeatures,
+  dynamicFeatures,
+  syncing
+} = batchEditCtx
 
 const focused = toRef(batchEditCtx, 'focused')
 
@@ -105,13 +115,17 @@ defineExpose<_FormExposed>({
   reset: () => formComponentRef.value?.reset()
 })
 
-function handleFieldChange(field: string, value: any) {
+function handleFieldUpdate(field: string, value: any) {
   // 编程方式重置/回显期间不写回行数据，避免默认值污染源数据
   if (syncing.value) return
 
   if (state.row && props.quickEdit) {
     o(state.row.data).set(field, value)
   }
+}
+
+function handleFormFieldChange(field: string, ...args: any[]) {
+  emit('field:change', field, ...args)
 }
 
 const creatable = computed(() => {

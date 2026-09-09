@@ -1,6 +1,6 @@
 import { copy, o } from '@cat-kit/core'
 import type { FormFieldItem } from '@veltra/utils'
-import { nextTick, watch } from 'vue'
+import { nextTick, shallowRef, watch } from 'vue'
 
 import type { FormProps } from '../../types/form'
 
@@ -42,7 +42,7 @@ export function useFormFields(options: Options) {
   let willValidate = true
 
   /** model 初始快照，供 reset 恢复 */
-  let initialSnapshot: Record<string, any> | undefined
+  const initialSnapshot = shallowRef<Record<string, any> | undefined>()
 
   function runWithoutChangeValidate(fn: () => void) {
     willValidate = false
@@ -59,7 +59,7 @@ export function useFormFields(options: Options) {
   watch(
     () => props.model,
     (model) => {
-      initialSnapshot = model ? copy(model) : undefined
+      initialSnapshot.value = model ? copy(model) : undefined
     },
     { immediate: true, deep: false }
   )
@@ -89,13 +89,27 @@ export function useFormFields(options: Options) {
   }
 
   function reset() {
-    if (!props.model || !initialSnapshot) return
+    if (!props.model || !initialSnapshot.value) return
 
     runWithoutChangeValidate(() => {
-      applySnapshot(props.model!, initialSnapshot!)
+      applySnapshot(props.model!, initialSnapshot.value!)
       Object.values(fields).forEach((item) => item.clearValidate?.())
     })
   }
 
-  return { fields, registerField, validate, unregisterField, clearValidate, reset, shouldValidate }
+  /** 变更前基准数据：优先 initialModel，否则为 model 引用变更时的快照 */
+  function getBaselineModel() {
+    return props.initialModel ?? initialSnapshot.value
+  }
+
+  return {
+    fields,
+    registerField,
+    validate,
+    unregisterField,
+    clearValidate,
+    reset,
+    shouldValidate,
+    getBaselineModel
+  }
 }

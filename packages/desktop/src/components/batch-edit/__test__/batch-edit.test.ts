@@ -30,6 +30,8 @@ function mountBatchEdit() {
     apiMethod: undefined as string | undefined
   })
 
+  const fieldChanges: { field: string; args: unknown[] }[] = []
+
   const app = createApp({
     render() {
       return h(
@@ -38,6 +40,9 @@ function mountBatchEdit() {
           data: data.value,
           'onUpdate:data': (value: any[]) => {
             data.value = value
+          },
+          'onField:change': (field: string, ...args: unknown[]) => {
+            fieldChanges.push({ field, args })
           },
           columns,
           model,
@@ -89,6 +94,7 @@ function mountBatchEdit() {
     host,
     data,
     model,
+    fieldChanges,
     unmount() {
       app.unmount()
       host.remove()
@@ -195,5 +201,137 @@ describe('UBatchEdit quick-edit 切换编辑行', () => {
     expect(data.value[0]!.label).toBe('改过的名称')
 
     unmount()
+  })
+
+  it('切换行回显不触发 field:change', async () => {
+    const { host, fieldChanges, unmount } = mountBatchEdit()
+
+    fieldChanges.length = 0
+    await clickRow(host, 0)
+    await clickRow(host, 1)
+
+    expect(fieldChanges).toHaveLength(0)
+
+    unmount()
+  })
+
+  it('用户变更 Select 触发 field:change', async () => {
+    const { host, fieldChanges, unmount } = mountBatchEdit()
+
+    await clickRow(host, 0)
+    fieldChanges.length = 0
+
+    const input = host.querySelector<HTMLInputElement>('.u-select input')
+    expect(input).toBeTruthy()
+    input!.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+    await nextTick()
+    await nextTick()
+
+    const option = [...document.body.querySelectorAll<HTMLElement>('.u-select__option')].find(
+      (el) => el.textContent === '接口'
+    )
+    expect(option).toBeTruthy()
+    option!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await nextTick()
+    await nextTick()
+
+    expect(fieldChanges).toHaveLength(1)
+    expect(fieldChanges[0]).toEqual({ field: 'behavior', args: [{ label: '接口', value: 'api' }] })
+
+    unmount()
+  })
+
+  it('field:change 联动改其他字段不循环触发', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
+    const columns = defineTableColumns([
+      { key: 'label', name: '名称' },
+      { key: 'behavior', name: '行为' }
+    ])
+
+    const data = ref([
+      { id: '1', label: '存草稿', behavior: 'common-resource', submitType: 'DRAFT' },
+      { id: '2', label: '调接口', behavior: 'api', submitType: 'SUBMIT', apiMethod: 'POST' }
+    ])
+
+    const model = reactive({
+      id: '',
+      label: '',
+      behavior: 'event',
+      submitType: undefined as string | undefined,
+      apiMethod: undefined as string | undefined
+    })
+
+    const fieldChanges: string[] = []
+
+    const app = createApp({
+      render() {
+        return h(
+          UBatchEdit,
+          {
+            data: data.value,
+            'onUpdate:data': (value: any[]) => {
+              data.value = value
+            },
+            'onField:change': (field: string) => {
+              fieldChanges.push(field)
+              if (field === 'behavior') {
+                model.submitType = undefined
+              }
+            },
+            columns,
+            model,
+            rowKey: 'id',
+            quickEdit: true
+          },
+          {
+            form: () => [
+              h(UInput, { field: 'label', label: '名称' }),
+              h(USelect, {
+                field: 'behavior',
+                label: '行为',
+                options: [
+                  { label: '事件', value: 'event' },
+                  { label: '通用资源', value: 'common-resource' },
+                  { label: '接口', value: 'api' }
+                ]
+              }),
+              h(USelect, {
+                field: 'submitType',
+                label: '提交类型',
+                options: [
+                  { label: 'DRAFT', value: 'DRAFT' },
+                  { label: 'SUBMIT', value: 'SUBMIT' }
+                ]
+              })
+            ]
+          }
+        )
+      }
+    })
+
+    app.mount(host)
+
+    await clickRow(host, 0)
+    fieldChanges.length = 0
+
+    const input = host.querySelector<HTMLInputElement>('.u-select input')
+    input!.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+    await nextTick()
+    await nextTick()
+
+    const option = [...document.body.querySelectorAll<HTMLElement>('.u-select__option')].find(
+      (el) => el.textContent === '接口'
+    )
+    option!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await nextTick()
+    await nextTick()
+
+    expect(fieldChanges).toEqual(['behavior'])
+    expect(model.submitType).toBeUndefined()
+
+    app.unmount()
+    host.remove()
   })
 })

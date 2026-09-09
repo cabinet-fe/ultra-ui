@@ -18,7 +18,7 @@ import { UBatchEdit } from '@veltra/desktop'
 
 ## 典型示例
 
-`UBatchEdit` 用 `v-model:data` 绑定行数组，`columns` 描述左侧表。`model` 是与右侧表单同步的对象。`#form` 里的控件必须写 `field`，不要再写 `v-model`。可用 `defineBatchEditColumns` 标注列类型。`features` 限制 `create` / `update` / `delete` / `view` / `createChild`。`quick-edit` 时编辑行会实时写回 `row.data`，不调用 `saveMethod`。
+`UBatchEdit` 用 `v-model:data` 绑定行数组，`columns` 描述左侧表。`model` 是与右侧表单同步的对象。`#form` 里的控件必须写 `field`，不要再写 `v-model`。可用 `defineBatchEditColumns` 标注列类型。`features` 限制 `create` / `update` / `delete` / `view` / `createChild`。`quick-edit` 时编辑行会实时写回 `row.data`（监听 `field:update`），不调用 `saveMethod`。`@field:change` 透传表单控件 change，适合字段联动；切行回显不会触发。
 
 ```vue
 <script setup lang="ts">
@@ -335,6 +335,8 @@ export interface BatchEditProps extends TableProps {
 
 /** 批量编辑组件定义的事件 */
 export interface BatchEditEmits extends TableEmits {
+  /** 表单控件 change，透传自 UForm */
+  (e: 'field:change', field: string, ...args: any[]): void
   /** 更新数据 */
   (e: 'update:data', value: Record<string, any>[]): void
   /** 点击底部「新增一行」 */

@@ -115,6 +115,8 @@ export interface BatchEditProps extends TableProps {
 
 /** 批量编辑组件定义的事件 */
 export interface BatchEditEmits extends TableEmits {
+  /** 表单控件 change，透传自 UForm */
+  (e: 'field:change', field: string, ...args: any[]): void
   /** 更新数据 */
   (e: 'update:data', value: Record<string, any>[]): void
   /** 点击底部「新增一行」 */

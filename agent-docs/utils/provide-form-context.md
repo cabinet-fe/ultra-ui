@@ -23,7 +23,8 @@ aliases: ["provide-form-context", "provideFormContext"]
 | `unregisterField(field)`          | 注销字段                                                                     |
 | `validateFields?(keys?)`          | 校验指定字段；省略 `keys` 时校验已注册全部                                   |
 | `shouldValidate?()`               | 是否需要进行校验                                                             |
-| `handleFieldChange(field, value)` | 字段值变化                                                                   |
+| `handleFieldUpdate(field, value)` | 字段 model 更新（watch 触发）                                                |
+| `handleFieldChange(field, ...args)` | 控件 change 事件                                                           |
 
 `FormContextProps`：`labelWidth`、`labelPosition`（`top` 或 `left`）、`size`、`disabled`、`readonly`、`noTips`、`model`。
 
@@ -36,6 +37,7 @@ provideFormContext({
   unregisterField,
   validateFields: validate,
   shouldValidate,
+  handleFieldUpdate,
   handleFieldChange
 })
 ```

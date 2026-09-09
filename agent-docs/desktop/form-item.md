@@ -48,6 +48,8 @@ const form = reactive({
 </template>
 ```
 
+内部控件 `change` 会冒泡为 FormItem 的 `change`，并经由 Form context 上抛为 `field:change`。
+
 自定义 label 插槽：
 
 ```vue
@@ -131,7 +133,10 @@ export interface FormItemProps extends FormComponentProps {
 }
 
 /** 组件项组件定义的事件 */
-export interface FormItemEmits {}
+export interface FormItemEmits {
+  /** 内部控件 change，参数与控件一致 */
+  (e: 'change', ...args: any[]): void
+}
 
 /** 组件项组件暴露的属性和方法 */
 export interface FormItemExposed {}

@@ -10,7 +10,12 @@ export interface FormProps extends ComponentProps {
   cols?: number
   /** 表单数据 */
   model?: Record<string, any>
-  // showModified?: boolean
+  /** 开启后，字段当前值与基准值不同时，在控件下方展示「变更前」 */
+  showModified?: boolean
+  /** 「变更前」标签文案，默认「变更前：」 */
+  modifiedLabel?: string
+  /** 变更前基准数据；未传时回退到 model 引用首次传入时的快照（与 reset 一致） */
+  initialModel?: Record<string, any>
   /** 表单项label宽度 */
   labelWidth?: string | number
   /** 表单项 label 位置 */
@@ -24,7 +29,10 @@ export interface FormProps extends ComponentProps {
 }
 
 export interface FormEmits {
-  (e: 'field:change', field: string, value: any): void
+  /** 控件 change 事件，仅用户操作触发 */
+  (e: 'field:change', field: string, ...args: any[]): void
+  /** model 字段值更新，含编程写入 */
+  (e: 'field:update', field: string, value: any): void
 }
 
 export interface _FormExposed {

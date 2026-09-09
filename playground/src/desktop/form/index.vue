@@ -8,7 +8,19 @@
         <u-radio-group v-model="labelPosition" :items="labelPositionOptions" />
       </div>
 
-      <u-form ref="formRef" :model="formData" :label-position="labelPosition" label-width="110px">
+      <div class="label-position-toolbar">
+        <span>展示变更前数据</span>
+        <u-switch v-model="showModified" active-text="开" inactive-text="关" />
+      </div>
+
+      <u-form
+        ref="formRef"
+        :model="formData"
+        :initial-model="initialFormData"
+        :show-modified="showModified"
+        :label-position="labelPosition"
+        label-width="110px"
+      >
         <div class="form-section">账号信息</div>
         <u-input
           label="用户名"
@@ -189,10 +201,12 @@
 </template>
 
 <script lang="ts" setup>
+import { copy } from '@cat-kit/core'
 import type { FormExposed } from '@veltra/desktop'
 import { reactive, shallowRef } from 'vue'
 
 const labelPosition = shallowRef<'left' | 'top'>('left')
+const showModified = shallowRef(false)
 
 const labelPositionOptions = [
   { label: '左侧 (left)', value: 'left' },
@@ -225,6 +239,9 @@ const formData = reactive({
   expression: '',
   contacts: [] as Record<string, any>[]
 })
+
+/** 变更前基准数据，与 formData 初始值保持一致 */
+const initialFormData = copy(formData)
 
 const gradeList = [
   { label: '一年级', value: '1' },
@@ -374,7 +391,7 @@ function handleClearValidate() {
 
 /** 填充示例数据，便于快速体验校验与展示 */
 function handleFillSample() {
-  Object.assign(formData, {
+  const sample = {
     account: { username: '张三', password: 'abc123' },
     description: '这是一段简介文字',
     grade: '3',
@@ -400,7 +417,9 @@ function handleFillSample() {
       { name: '联系人一', phone: '13800138000' },
       { name: '联系人二', phone: '13900139000' }
     ]
-  })
+  }
+  Object.assign(formData, sample)
+  Object.assign(initialFormData, copy(sample))
   formRef.value?.clearValidate()
 }
 </script>
