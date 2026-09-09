@@ -32,7 +32,7 @@ src/
 
 | 层      | 职责                        | 禁止                                                                 |
 | ------- | --------------------------- | -------------------------------------------------------------------- |
-| `core/` | 模型、命令、公式、IO        | import `vue` / `@visactor/*`；运行时依赖 hucre 与 peer `@cat-kit/core` |
+| `core/` | 模型、命令、公式、IO        | import `vue` / `@visactor/*`；dependency 仅 `hucre`，另有 peer `@cat-kit/core`（`>=1.2.1`） |
 | `grid/` | VTable 渲染、编辑回写、键盘 | 业务编排；只依赖 `core/` + `@visactor/*`                             |
 
 - **禁止反向依赖**：`core/` 不得 import `grid/`；grid 对 core 单向依赖。
@@ -49,7 +49,7 @@ src/
 - **不进 undo**：选区、冻结、行高、列宽。选区可随 `SheetSnapshot.selection?` 序列化；冻结随快照；行高随 `SheetSnapshot.rowHeights?`；列宽随 `SheetSnapshot.colWidths?`。
 - **样式**：`CellData.s: StyleId` → StylePool 按内容去重；行/列默认样式 `SheetSnapshot.rowStyles?` / `colStyles?`（同池 StyleId，进 undo，经 `setRowStyle` / `setColStyle`）；有效样式 = 列 → 行 → 格字段级叠加（`composeCellStyles` / `Sheet.getEffectiveStyle`）。部分合并见 `CellStylePatch`（fill 覆盖、border 边级、font/align 逐字段、numFmt 整体替换；`null` 删字段）。边框预设经 `buildBorderPresetItems`（`outer`/`inner`/`all`/`top`/`bottom`/`left`/`right`/`none` → 外边框/内边框/所有边框/上/下/左/右边框 + 无边框；含邻居对侧边同步）。
 - **数字格式（numFmt）**：`CellStyle.numFmt`（`date` / `thousands` / `cnUpper` / `fixed(digits)`，见 `core/style/types.ts`）**仅影响显示、单元格恒存原始值**（Excel 式语义）——值 → 显示文本纯函数在 `core/format.ts`（`formatByNumFmt`；日期按 1900 系统序列数、大写金额为中文大写、小数位数四舍五入仅作用于显示），应用在 grid 显示路径（`getTableCellValue`，含公式缓存结果）；`getCellData` / `getDisplayValue` / CSV 导出均为原始值。
-- **公式**：`f` 原文（无 `=`），`v`/`t` 为缓存；重算派生补丁并入同一 undo 单元；undo/redo 纯补丁回放。跨表依赖图在 `Workbook` 级共享。四则 `+` `-` `*` `/` 走 `@cat-kit/core` `$n`，结果仍写入 JS `number`（除数为 0 → `#DIV/0!`）；幂 `^`、百分比 `%`、一元 `+`/`-` 仍用 JS `number`。易失性语义：函数注册表带 `volatile` 标记（内置 `TODAY` / `NOW` / `RAND` / `RANDBETWEEN`），含易失性函数的公式格在任意单元格变更触发的重算中必重新求值（值未变不产生派生补丁），非易失性公式仍按依赖图增量重算；`TODAY`/`NOW` 返回 1900 系统序列数（本地时间，含伪闰日修正），显示侧由 numFmt 承接。
+- **公式**：`f` 原文（无 `=`），`v`/`t` 为缓存（数值 `v` 仍是 JS `number`，不是 Decimal / 字符串）；重算派生补丁并入同一 undo 单元；undo/redo 纯补丁回放。跨表依赖图在 `Workbook` 级共享。四则 `+` `-` `*` `/` 与 `SUM` / `AVERAGE` / `ROUND` / `ABS` 走 `@cat-kit/core` 的 `$n` / `n().fixed`，结果仍写入 JS `number`（`=1/0`、`=0/0` 仍 `#DIV/0!`）；幂 `^`、百分比 `%`、一元 `+`/`-` 仍用 JS `number`。`registerFormulaFunction` 仍模块级全局、大小写不敏感、同名覆盖；自定义 `impl` 入参仍是 `EvalValue[]`，引擎不预处理、不强制 `$n`。易失性语义：函数注册表带 `volatile` 标记（内置 `TODAY` / `NOW` / `RAND` / `RANDBETWEEN`），含易失性函数的公式格在任意单元格变更触发的重算中必重新求值（值未变不产生派生补丁），非易失性公式仍按依赖图增量重算；`TODAY`/`NOW` 返回 1900 系统序列数（本地时间，含伪闰日修正），显示侧由 numFmt 承接。
 - **addSheet 初始数据**：`addSheet(name?, { data?, rows?, cols? })`——data 二维数组从 A1 写入（原始值自动推断类型；null/undefined/'' 跳过；对象形式 `{ v, t, f }` 支持公式，写入即注册依赖图并立即重算）；rows/cols 与数据高水位取大（仅传入时校验，非正整数抛错）。初始数据经一次 setCells 写入后 `history.clear()`——基线状态不进 undo，且在 `sheets-change` 发出前就绪。
 - **浮动图片**：`SheetImage`（`id` + `anchor.from`/`to?` + 可选宽高/alt/title；`from` 可带格内像素偏移 `offsetX/offsetY`，缺省 0）；来源二选一——`data` 字节（本地文件 / xlsx 导入）或 `src` URL（渲染层直接引用；URL 图 data 为空字节、type 仅作提示，不参与 xlsx 导出/导入）；`fit?` 缩放模式（`fill` 拉伸默认 / `contain` 等比缩放完整显示于锚定区域内，不裁剪、不溢出）；写入经 `insertImage` / `removeImage` / `updateImage`（命令 `sheet.insert-image` / `sheet.remove-image` / `sheet.update-image`，`ImagePatch`）；快照字段 `SheetSnapshot.images?`（含 src/fit）；`restoreContent` 整表替换图片并发 `image-change`。行列插入/删除时锚点平移（offset 随 from 格保留）；锚点区间被完整删除时图片移除（同 undo 单元）。格式：`png` / `jpeg` / `gif` / `svg` / `webp`（与 hucre 对齐）。
 - 注：`Sheet.setCell` / `setCellStyles` / `CellStore.setCellValue` 为内部便捷写入口（生产零调用、测试直用），非公开承诺 API——包入口不单独导出，宿主请用 `setCells` / `setCellStyle`。
@@ -114,7 +114,7 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 ## 依赖
 
 - **dependencies**：`@visactor/vtable`、`@visactor/vtable-editors`、`hucre`
-- **peer**：`@cat-kit/core`（`>=1.2.1`，公式四则 `$n`）
+- **peer**：`@cat-kit/core`（`>=1.2.1`，公式四则与 `SUM` / `AVERAGE` / `ROUND` / `ABS` 的 `$n` / `n().fixed`）
 - **被依赖**：`@veltra/sheet`（编辑器）、`@veltra/desktop`（file-viewer 只读预览）
 
 ## 性能要点（百万格 / 数百 sheet 规模）
