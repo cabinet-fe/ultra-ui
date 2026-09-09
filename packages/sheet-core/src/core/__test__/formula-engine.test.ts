@@ -1,3 +1,4 @@
+import { $n } from '@cat-kit/core'
 import { describe, expect, it, vi } from 'vitest'
 
 import { parseRange, type CellAddress } from '../address'
@@ -237,6 +238,48 @@ describe('错误值体系', () => {
     sheet.setCellValue(A1, 1)
     sheet.setCellFormula(B1, '=A1:A3')
     expect(sheet.getCellData(B1)).toMatchObject({ v: '#VALUE!', t: 'e' })
+  })
+})
+
+describe('高精度四则', () => {
+  it('=0.1+0.2 与 $n.plus 对齐且为 number', () => {
+    const sheet = new Sheet()
+    sheet.setCellFormula(A1, '=0.1+0.2')
+    const v = sheet.getCellData(A1)!.v
+    expect(v).toBe($n.plus(0.1, 0.2))
+    expect(typeof v).toBe('number')
+  })
+
+  it('=1-0.9 与 $n.minus 对齐且为 number', () => {
+    const sheet = new Sheet()
+    sheet.setCellFormula(A1, '=1-0.9')
+    const v = sheet.getCellData(A1)!.v
+    expect(v).toBe($n.minus(1, 0.9))
+    expect(typeof v).toBe('number')
+  })
+
+  it('=19.9*100 与 $n.mul 对齐且为 number', () => {
+    const sheet = new Sheet()
+    sheet.setCellFormula(A1, '=19.9*100')
+    const v = sheet.getCellData(A1)!.v
+    expect(v).toBe($n.mul(19.9, 100))
+    expect(typeof v).toBe('number')
+  })
+
+  it('=0.3/0.1 与 $n.div 对齐且为 number', () => {
+    const sheet = new Sheet()
+    sheet.setCellFormula(A1, '=0.3/0.1')
+    const v = sheet.getCellData(A1)!.v
+    expect(v).toBe($n.div(0.3, 0.1))
+    expect(typeof v).toBe('number')
+  })
+
+  it('=1/0、=0/0 仍为 #DIV/0!', () => {
+    const sheet = new Sheet()
+    sheet.setCellFormula(A1, '=1/0')
+    expect(sheet.getCellData(A1)).toMatchObject({ v: '#DIV/0!', t: 'e' })
+    sheet.setCellFormula(B1, '=0/0')
+    expect(sheet.getCellData(B1)).toMatchObject({ v: '#DIV/0!', t: 'e' })
   })
 })
 

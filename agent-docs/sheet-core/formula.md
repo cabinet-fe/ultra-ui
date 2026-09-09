@@ -35,7 +35,7 @@ console.log(listFormulaFunctions().map((fn) => fn.name))
 
 ## 求值
 
-`evaluateAst(node, ctx)` 需要 `FormulaEvalContext`：`currentSheet`、`readCell`、`readRange`、`callFunction`。空格在数字上下文当 0、文本当 `''`、布尔当 `false`；错误值遇运算即传播。
+`evaluateAst(node, ctx)` 需要 `FormulaEvalContext`：`currentSheet`、`readCell`、`readRange`、`callFunction`。空格在数字上下文当 0、文本当 `''`、布尔当 `false`；错误值遇运算即传播。四则 `+` `-` `*` `/` 走 `@cat-kit/core` 的 `$n`（`plus` / `minus` / `mul` / `div`），结果转成 JS `number` 再写入缓存；除数为 0 仍为 `#DIV/0!`，不会变成 `$n.div` 的 `Infinity` / `NaN`。幂 `^`、百分比 `%`、一元 `+`/`-`、`&`、比较运算不走 `$n`。包 peer 含 `@cat-kit/core` `>=1.2.1`。
 
 强转：`coerceToNumber` / `coerceToText` / `coerceToBoolean`。区域引用作为函数参数时展开为**稀疏存在的格**组成的数组，不是稠密矩阵。
 

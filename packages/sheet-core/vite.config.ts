@@ -17,7 +17,9 @@ export default defineConfig({
     sourcemap: true,
     clean: true,
     treeshake: true,
-    deps: { neverBundle: ['@visactor/vtable', '@visactor/vtable-editors', 'hucre'] },
+    deps: {
+      neverBundle: ['@visactor/vtable', '@visactor/vtable-editors', 'hucre', '@cat-kit/core']
+    },
     dts: true
   }
 })

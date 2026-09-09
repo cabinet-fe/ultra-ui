@@ -1,3 +1,5 @@
+import { $n } from '@cat-kit/core'
+
 import type { CellAddress, CellRange } from '../address'
 import { NUMERIC_TEXT_RE } from '../cell-store'
 import type { AstNode, BinaryOperator } from './ast'
@@ -198,14 +200,14 @@ function evaluateBinary(
 
   switch (op) {
     case '+':
-      return l + r
+      return Number($n.plus(l, r))
     case '-':
-      return l - r
+      return Number($n.minus(l, r))
     case '*':
-      return l * r
+      return Number($n.mul(l, r))
     case '/':
       if (r === 0) return formulaError('#DIV/0!')
-      return l / r
+      return Number($n.div(l, r))
     case '^': {
       if (l === 0 && r < 0) return formulaError('#DIV/0!')
       const value = Math.pow(l, r)

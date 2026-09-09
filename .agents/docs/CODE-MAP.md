@@ -88,6 +88,7 @@ graph TD
   desktop -.-> sheetCore
   sheetCore --> vtable["@visactor/vtable"]
   sheetCore --> hucre["hucre"]
+  sheetCore --> catkit
   sheet --> sheetCore
   sheet --> desktop
   sheet --> icons
