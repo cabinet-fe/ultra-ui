@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <transition name="fade" mode="out-in" @enter="onEnter">
+    <transition name="fade" mode="out-in" @enter="onEnter" @after-leave="emit('closed')">
       <div v-if="overlayVisible" :class="overlayCls.b" :style="{ zIndex: zIndex() }" @click="close">
         <transition :name="transitionName" appear @after-leave="onAfterDrawerLeave">
           <div
@@ -10,6 +10,9 @@
             :style="drawerStyle"
             @click.stop
           >
+            <div v-if="title" :class="cls.e('header')">
+              <span :class="cls.e('title')">{{ title }}</span>
+            </div>
             <span :class="cls.e('close')" @click="close" v-if="showClose">
               <u-icon><Close /></u-icon>
             </span>
@@ -31,7 +34,7 @@ import { UIcon } from '../icon'
 
 defineOptions({ name: 'UDrawer', inheritAttrs: false })
 
-const props = withDefaults(defineProps<DrawerProps>(), { direction: 'right', closable: true })
+const props = withDefaults(defineProps<DrawerProps>(), { direction: 'right' })
 
 const emit = defineEmits<DrawerEmits>()
 

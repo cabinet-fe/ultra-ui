@@ -40,6 +40,21 @@ $direction-map: (
     justify-content: center;
   }
 
+  // 标题栏：传入 title 时渲染在内容区上方，其余行为与把标题写进默认插槽一致
+  @include m.e(header) {
+    height: $close-size;
+    flex-shrink: 0;
+    padding: 0 fn.use-var(gap, default);
+    font-size: fn.use-var(font-size-title, default);
+    border-bottom: fn.use-var(border);
+    @include m.flex();
+  }
+
+  @include m.e(title) {
+    font-weight: 600;
+    line-height: 1em;
+  }
+
   @include m.is(right, left) {
     top: $edge-offset;
     bottom: $edge-offset;

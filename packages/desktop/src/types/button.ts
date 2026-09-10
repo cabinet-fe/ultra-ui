@@ -4,7 +4,11 @@ import type { Component, ShallowRef } from 'vue'
 /** 按钮类型 */
 export type ButtonType = ColorType
 
-/** 按钮属性类型 */
+/**
+ * 按钮属性类型
+ * @description 组件不注入默认 `aria-label`：可访问名来自默认插槽文本，
+ * 或你自己传入的 `aria-label`（透传到根元素）；只有图标的按钮必须自行传 `aria-label`
+ */
 export interface ButtonProps extends ComponentProps {
   /** 按钮类型 */
   type?: ButtonType

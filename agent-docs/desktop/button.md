@@ -196,6 +196,7 @@ const active = shallowRef(0)
 
 > [!WARNING]
 > - 本库原生按钮的 `type` 固定为 `"button"`，没有 `native-type` 属性；需要表单提交按钮时禁止期待 `native-type="submit"`，自行监听 click 后调用提交逻辑。
+> - 组件不注入默认 `aria-label`：按钮的可访问名来自默认插槽文本，或你自己传的 `aria-label`（透传到根元素）。只有图标的按钮（`circle` + `icon`、无文字）必须自行传 `aria-label`，否则屏幕阅读器与 `getByRole('button', { name })` 都读不出名字。
 > - 本库图标是 prop（`icon` 传组件），不是 `<template #icon>` 插槽；默认插槽只承载文字内容。
 > - `type` 的五个枚举值是语义色，没有 `'default'`、`'text'` 这类取值；无色按钮是「不传 `type`」，文本按钮是「传 `text`」。
 > - `disabled` / `loading` 时组件不 emit `click`，父级 `@click` 也不会收到。
@@ -226,3 +227,21 @@ function onClick() {
 ### 点击按钮时外层容器的 click 也被触发了
 
 原因：`propagate` 默认 `true`。修复：给按钮设 `:propagate="false"`，或在外层用 `@click.stop` 自行拦截。
+
+### `getByRole('button', { name: '保存' })` / 屏幕阅读器读不出按钮名
+
+按钮的可访问名只来自两处：默认插槽文本、或你传入的 `aria-label`。纯图标按钮（没写文字、也没传 `aria-label`）读出来是空名字；修复方式是显式命名：
+
+```vue
+<script setup lang="ts">
+import { Edit } from '@veltra/icons/normal'
+</script>
+
+<template>
+  <!-- 有文字：可访问名即「保存」 -->
+  <u-button type="primary">保存</u-button>
+
+  <!-- 只有图标：必须自己传 aria-label -->
+  <u-button circle :icon="Edit" aria-label="编辑" />
+</template>
+```

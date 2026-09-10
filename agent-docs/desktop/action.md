@@ -17,6 +17,8 @@ keywords:
   - ActionGroupProps
   - ActionExposed
   - UPopConfirm
+  - messageConfirm
+  - 双重确认
   - 操作列
   - 行内操作
   - 二次确认
@@ -123,7 +125,7 @@ export type ActionGroupExposed = DeconstructValue<_ActionGroupExposed>
 
 | 参数 | 类型 | 默认 | 必填 | 约束 |
 | --- | --- | --- | :---: | --- |
-| `needConfirm` | `boolean` | `false` | 否 | `true` 时点击弹出确认气泡（标题固定「确认执行此操作吗？」，方向 `left`），点「确认」才触发 `run` |
+| `needConfirm` | `boolean` | `false` | 否 | `true` 时点击只弹确认气泡（标题固定「确认执行此操作吗？」，方向 `left`），点「确认」才触发 `run`；不要再在 `run` 里叠加 `messageConfirm`（会确认两次） |
 | `inDropdown` | `boolean` | `false` | 否 | `true` 时无视 `max` 始终进下拉；下拉内强制 `circle: false`，`run` 后自动关闭下拉 |
 | `type` | `ColorType` | `'primary'`（组内） | 否 | 未在 `UActionGroup` 内时默认 `'primary'`；在组内且未传时继承组的 `type` |
 | `text` | `boolean` | `true`（组内） | 否 | 同上，继承组的 `text` |
@@ -245,7 +247,7 @@ function onReset() {
 > - `UActionGroup` 只渲染 `UAction` 子项：在组内写普通按钮、文本等其他子节点会被丢弃。
 > - 溢出收纳规则是「`max - 1` 个内联 + 1 个更多按钮」：`max: 3` 且有 4 项时，内联只有 2 个，第 3 个位置是「更多」下拉按钮，不是把 3 个都内联。
 > - `inDropdown` 为 `true` 的子项无视 `max` 始终在下拉里，且强制非圆形（`circle: false`）以显示完整文字。
-> - `needConfirm` 用的是确认气泡（`UPopConfirm`，标题固定「确认执行此操作吗？」），不是弹窗 `messageConfirm`；需要弹窗确认时自己在 `run` 回调里调用。
+> - `needConfirm` 用的是确认气泡（`UPopConfirm`，标题固定「确认执行此操作吗？」），不是弹窗 `messageConfirm`。**两条确认链路不要叠加**：`needConfirm: true` 时 `run` 已经是「气泡确认之后」的回调，再在 `run` 里调 `messageConfirm` 就是连点两次确认。要弹窗级确认就去掉 `need-confirm`，只在 `run` 里用 `messageConfirm`；要气泡确认就只留 `needConfirm`，`run` 里直接干活。
 > - 内部按钮强制 `propagate: false`：点击不会冒泡到表格行，行级点击事件不会因点击操作按钮而触发。
 > - `UAction` 可脱离组单独使用（默认 `text` 为 `true`、`size` 为 `small`、`type` 为 `primary`）。
 
@@ -265,3 +267,45 @@ function onReset() {
 ### 组内的其他组件不渲染
 
 原因：`UActionGroup` 只接受 `UAction` 子项。修复：把内容包进 `UAction`，或把其他组件移出组。
+
+### 删除操作要连点两次确认
+
+原因：`needConfirm` 和 `messageConfirm` 叠加了。`need-confirm` 的点击只会弹气泡、不触发 `run`；点气泡里的「确认」后 `run` 才执行，此时业务回调里再调 `messageConfirm` 就冒出第二个弹窗。修复：两者只留一个。
+
+```vue
+<script setup lang="ts">
+import { messageConfirm } from '@veltra/desktop'
+
+type Row = { id: number; name: string }
+
+// 方案 A：气泡确认，run 里直接删（推荐表格操作列）
+function onRemove(row: Row) {
+  deleteRow(row.id)
+}
+
+// 方案 B：弹窗确认，去掉 need-confirm，只留 messageConfirm 这一次确认
+async function onRemoveWithDialog(row: Row) {
+  const action = await messageConfirm({
+    title: '删除确认',
+    message: `确认删除「${row.name}」吗？`,
+    confirmButtonType: 'danger',
+    cancelButtonText: '取消'
+  }).onClosed
+  if (action !== 'confirm') return
+  deleteRow(row.id)
+}
+
+function deleteRow(id: number) {
+  // 换成你的删除请求
+  console.log('删除', id) // => 删掉 row.id
+}
+</script>
+
+<template>
+  <!-- 方案 A：run 触发时气泡已经确认过了 -->
+  <u-action need-confirm type="danger" @run="onRemove(row)">删除</u-action>
+
+  <!-- 方案 B：不要写 need-confirm，确认交给 messageConfirm -->
+  <u-action type="danger" @run="onRemoveWithDialog(row)">删除</u-action>
+</template>
+```

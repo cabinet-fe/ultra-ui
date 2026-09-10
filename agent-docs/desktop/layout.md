@@ -68,7 +68,7 @@ export type LayoutExposed = Record<string, never>
 | --- | --- | --- | :---: | --- |
 | `tag` | `string` | `'div'` | 否 | 根元素标签 |
 | `gap` | `number \| string` | `—`（无间距） | 否 | `number` 追加 px；字符串原样写入 `column-gap`。`resizable: true` 时忽略本值，固定 `10px` |
-| `cols` | `string[] \| string` | `—` | 否 | 任意合法的 `grid-template-columns` 值；字符串按空格拆分，数组按项拼接。`resizable: true` 时必填，否则不渲染手柄 |
+| `cols` | `string[] \| string` | `—` | 否 | 任意合法的 `grid-template-columns` 值；字符串按空格拆分，数组按项拼接。`resizable: true` 时必填，否则不渲染手柄。默认插槽的每个**直接子元素**按顺序占一列 |
 | `rows` | `string[] \| string` | `—` | 否 | 任意合法的 `grid-template-rows` 值；不传则单行。行高不可拖拽调节 |
 | `resizable` | `boolean` | `false` | 否 | 开启后子元素直接子节点按 cols 顺序分列；拖拽只作用于列间隔 |
 | `colMinSizes` | `(number \| undefined)[]` | `—` | 否 | 数组长度不需等于列数，按索引取值；拖拽时相邻两列的钳制下限，未指定的列最小为 0 |
@@ -169,8 +169,33 @@ const cols = computed(() => Array.from({ length: count.value }, () => '1fr'))
 
 > [!WARNING]
 > - `ULayout` 是 Grid 容器，不是 24 栅格栅格系统；没有 `span` / `offset` 这类 El-Row/El-Col 概念，列宽全部写在 `cols` 里。
+> - 列是按**直接子元素**顺序自动填充的（CSS Grid 默认 auto-placement）：把一列包进自定义组件时该组件必须是**单根**元素，包的这一层就是那一列，列宽作用在它身上，不作用在它内部。
+> - 子元素渲染出 0 个根节点（`v-if` 为假、`v-show` 为 `display: none`）或多个根节点（多根组件、`<template v-for>`）时会挤动后面的列。这种场景不要靠顺序，直接给子元素写死列位（如 `style="grid-column: 2"`）。
 > - `resizable` 只支持列宽拖拽，不支持行高拖拽。
 > - `resizable: true` 时必须至少有一列是固定像素（`200px` 这类），全部用 `fr` 时没有可调的固定轨道，拖拽不生效。
 > - `resizable: true` 时 `gap` 失效，列间距固定 `10px`。
 > - 属性名是 `colMinSizes`（camelCase），模板里写 `:col-min-sizes`；值为 `(number | undefined)[]`，不是 `Record<string, number>`。
 > - 组件只提供轨道与拖拽，不渲染任何格子背景、边框；视觉样式由子元素自行处理。
+
+## 常见问题
+
+### 把一列包进自定义组件后，列的宽度不对 / 后面的列整体错位
+
+`ULayout` 按默认插槽的**直接子元素**分列（CSS Grid 默认 auto-placement）。包一层是可以的，但那一层必须只有一个根元素——它就是那一列；多根组件会被当成多个格子，后面的列整体错位；`v-if` 为假 / `v-show` 隐藏时那一格不存在，后面的列会向左顶一格。
+
+```vue
+<!-- ✅ NavPanel.vue：单根，ULayout 里的这一层就是 200px 那一列 -->
+<template>
+  <div class="nav-panel">
+    <UDualNav />
+  </div>
+</template>
+
+<!-- ❌ 多根：会被拆成两个格子，内容列被挤到下一行 -->
+<template>
+  <UDualNav />
+  <div class="nav-panel-extra" />
+</template>
+```
+
+需要「这一列在不在都不影响别人」时，不要依赖顺序，直接写死列位：`<div class="main" style="grid-column: 2">`。

@@ -18,6 +18,8 @@ export interface LayoutProps {
    * const cols = ['200px', '1fr']
    * ```
    * [fr是什么?](https://developer.mozilla.org/zh-CN/docs/Web/CSS/flex_value)
+   * @description 默认插槽的每个直接子元素按顺序占一列，用自定义组件包一层时该组件必须是单根元素；
+   * 子元素渲染出 0 个（`v-if` 为假）或多个根节点时会挤动后面的列，此时自行给子元素写 `grid-column`
    */
   cols?: string[] | string
 

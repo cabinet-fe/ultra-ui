@@ -4,7 +4,12 @@ import type { ButtonProps } from './button'
 
 /** 操作组件属性 */
 export interface ActionProps extends ButtonProps {
-  /** 是否需要确认 */
+  /**
+   * 是否需要确认：true 时点击只弹确认气泡（UPopConfirm），点气泡里的「确认」才触发 `run`
+   * @default false
+   * @description 不要在本项的 `run` 回调里再调 `messageConfirm`：`run` 触发时气泡已经确认过一次，
+   * 会变成两次确认。需要弹窗级确认时去掉 `needConfirm`，只在 `run` 里用 `messageConfirm`
+   */
   needConfirm?: boolean
 
   /**

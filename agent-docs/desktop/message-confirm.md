@@ -2,7 +2,7 @@
 title: messageConfirm / UMessageConfirm 确认框
 description: 从 @veltra/desktop 导入 messageConfirm 函数式确认框，带遮罩阻断页面操作，onClosed 以 Promise 返回 confirm / cancel 用户操作；支持 primary/success/info/warning/danger 快捷方法、closeAll 与自定义按钮文字；也可用 UMessageConfirm 声明式渲染。
 aliases: [UMessageConfirm, MessageConfirm, 确认弹窗, 确认对话框, MessageBox]
-keywords: [MessageConfirmAction, MessageConfirmOptions, MessageConfirmInstance, confirmButtonText, cancelButtonText, confirmButtonType, closeAll, onClosed, onClose, 删除确认, 危险操作确认, 二次确认, 手动关闭, 阻断, 遮罩]
+keywords: [MessageConfirmAction, MessageConfirmOptions, MessageConfirmInstance, confirmButtonText, cancelButtonText, confirmButtonType, closeAll, onClosed, onClose, components/message-confirm/style, 删除确认, 危险操作确认, 二次确认, 手动关闭, 阻断, 遮罩, 样式副作用, 样式未引入]
 ---
 
 # messageConfirm / UMessageConfirm 确认框
@@ -13,6 +13,8 @@ keywords: [MessageConfirmAction, MessageConfirmOptions, MessageConfirmInstance, 
 
 ```ts
 import { messageConfirm } from '@veltra/desktop'
+// 样式是独立入口，必须显式引入；宿主模板里出现过 UMessageConfirm 并由 VeltraUIResolver 自动引入时可省
+import '@veltra/desktop/components/message-confirm/style'
 
 // 字符串简写，等价于 messageConfirm({ message: '确认提交吗？' })
 const instance = messageConfirm({
@@ -217,8 +219,10 @@ function handleClose(action: MessageConfirmAction) {
 
 > [!WARNING]
 > - 需要轻量、非阻断的行内确认（附着在触发元素旁的气泡）时用 `UPopConfirm`；需要遮罩阻断页面操作的文字确认时用 `messageConfirm`。
+> - **不要和 `UAction` 的 `needConfirm` 叠加**：`need-confirm` 的 `run` 回调已经是气泡确认之后，再调 `messageConfirm` 会让用户连点两次确认。表格操作列二选一——要么 `need-confirm` + `run` 里直接执行，要么去掉 `need-confirm` + 只在 `run` 里 `messageConfirm`（详见 `UAction` 文档的「删除操作要连点两次确认」）。
 > - 需要自定义复杂内容、表单或插槽的对话框时用 `UDialog`；`messageConfirm` 仅支持 `title` + `message` 纯文字，`message` 不支持 HTML。
 > - 快捷方法是 `warning` / `danger`，与 `message` 的 `warn` / `error` 拼写不同。
 > - 点击遮罩不会关闭确认框，这是设计行为；只能点按钮或调用 `instance.close()` / `closeAll()`。
 > - `instance.onClosed` 是 Promise 属性，不是方法；写成 `instance.onClosed()` 会抛 `TypeError`。
-> - 需要主题 token：入口必须调用 `@veltra/styles/theme` 的 `loadTheme()`，否则确认框无颜色。
+> - `messageConfirm` 是函数式 API，不经过模板编译，`VeltraUIResolver` 不会为它引入样式。只安装了组件库、未在模板里用 `UMessageConfirm` 时，必须 `import '@veltra/desktop/components/message-confirm/style'`，或在入口 `import '@veltra/desktop/style'` 引全量样式。缺少样式时的症状是遮罩与内容框都渲染出来但无颜色、无定位样式（`div.u-message-confirm__container` 没有 `position: fixed`），不是「确认框没弹出来」。
+> - 需要主题 token：入口必须 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` 为空、确认框无颜色。

@@ -15,16 +15,19 @@ export interface DrawerProps {
 
   /** 是否显示关闭按钮 */
   showClose?: boolean
-  /** 抽屉标题 */
+  /**
+   * 抽屉标题；传入时在内容区上方渲染标题栏
+   * @description 不传则不渲染标题栏，内容仍全部来自默认插槽
+   */
   title?: string
 }
 
 /** 抽屉组件定义的事件 */
 export interface DrawerEmits {
   (e: 'update:modelValue', value: boolean): void
-  /** 关闭时触发 */
+  /** 开始关闭时触发（点遮罩、点关闭按钮） */
   (e: 'close'): void
-  /** 完全关闭后触发 */
+  /** 完全关闭后触发：抽屉与遮罩的退出动画结束、节点已移除时 */
   (e: 'closed'): void
 }
 

@@ -1,12 +1,5 @@
 <template>
-  <button
-    :class="classList"
-    type="button"
-    aria-label="button"
-    ref="buttonRef"
-    v-ripple="ripple"
-    @click="handleClick"
-  >
+  <button :class="classList" type="button" ref="buttonRef" v-ripple="ripple" @click="handleClick">
     <!-- 加载图标 -->
     <u-icon v-if="loading" :class="[bem.is('loading')]" :size="iconSize">
       <component :is="loadingIcon" />
