@@ -126,6 +126,8 @@ dist/*
 .tsc-vite-config/
 
 .playwright-cli/
+# 本机 playwright skill 配置（内含本机浏览器绝对路径）
+.playwright/
 
 # playground report hub SQLite（本地 dev 持久化）
 playground/server/data/
