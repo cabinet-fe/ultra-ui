@@ -1,8 +1,8 @@
 ---
 title: Ultra UI 主题定制场景
-description: 端到端完成 Ultra UI 主题定制：loadTheme 预设主题切换、深浅色切换（series 硬规则）、品牌色覆盖（UITheme#new 派生）、侧栏 nav 外观（variant dark/light）与编译期 SCSS token 定制。
+description: 端到端完成 Ultra UI 主题定制：loadTheme 预设主题切换、深浅色切换（series 硬规则）、品牌色覆盖（UITheme#new 派生）、侧栏 nav 外观（variant dark/light）与编译期 SCSS token 定制；模板组件交给 VeltraUIResolver 注入组件 import 与样式副作用，显式 import 的组件必须补 components/<目录>/style，漏写时渲染成裸样式。
 aliases: [主题定制, 换肤, 暗色模式, 深浅色切换, 品牌色, Theme]
-keywords: [loadTheme, lightTheme, darkTheme, UITheme, series, nav.variant, navSidebarTokens, cssVar, NodePackageImporter, sass-embedded, pkg:@veltra/styles, use-var, 主题切换, 深色模式, 暗色模式, 品牌色覆盖, 侧栏外观, 换肤, 设计令牌]
+keywords: [loadTheme, lightTheme, darkTheme, UITheme, series, nav.variant, navSidebarTokens, cssVar, NodePackageImporter, pkg:@veltra/styles, 主题切换, 深色模式, 暗色模式, 品牌色覆盖, 侧栏外观, 换肤, VeltraUIResolver, components/button/style, 裸样式, 样式副作用]
 ---
 
 # Ultra UI 主题定制场景
@@ -16,7 +16,20 @@ Ultra UI（`@veltra/*`）的颜色全部来自 `loadTheme()` 注入的 `--u-*` t
 
 ## 完整示例
 
-入口初始化 + 主题切换模块 + 消费 token 的业务组件：
+构建配置 + 入口初始化 + 主题切换模块 + 消费 token 的业务组件：
+
+```ts
+// vite.config.ts
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import Components from 'unplugin-vue-components/vite'
+import { VeltraUIResolver } from '@veltra/vite'
+
+// VeltraUIResolver 重写模板编译产物里的 _resolveComponent("<组件名>")，注入组件 import 与样式副作用
+export default defineConfig({
+  plugins: [vue(), Components({ resolvers: [VeltraUIResolver()] })]
+})
+```
 
 ```ts
 // src/main.ts —— 主题必须初始化，否则 --u-* 为空、组件无颜色
@@ -75,7 +88,7 @@ export function useDarkNav(): void {
 <!-- src/components/ThemeDemo.vue —— 业务代码消费 token，不硬编码颜色 -->
 <script setup lang="ts">
 import { cssVar } from '@veltra/styles/theme'
-import { UButton } from '@veltra/desktop'
+// 模板组件（u-button）交给 VeltraUIResolver，禁止再 import：显式 import 会让模板改用该绑定，组件 import 与样式副作用都不注入。
 
 const titleColor = cssVar('text-color-title') // => 'var(--u-text-color-title)'
 </script>
@@ -90,9 +103,9 @@ const titleColor = cssVar('text-color-title') // => 'var(--u-text-color-title)'
 <!-- src/App.vue —— 切换入口 -->
 <script setup lang="ts">
 import { useTemplateRef } from 'vue'
-import { UButton } from '@veltra/desktop'
+// 模板组件（u-button）交给 VeltraUIResolver，禁止再 import：显式 import 会让模板改用该绑定，组件 import 与样式副作用都不注入。
 import { switchSeries } from './theme'
-import ThemeDemo from './components/ThemeDemo.vue'
+import ThemeDemo from './components/ThemeDemo.vue' // 本地组件不在 resolver 范围内，必须显式 import
 
 const current = useTemplateRef<'light' | 'dark'>('current')
 </script>
@@ -112,6 +125,17 @@ const current = useTemplateRef<'light' | 'dark'>('current')
 - `nav.variant` 硬规则：`'dark'` 深底浅字 / `'light'` 浅底深字，默认 `'dark'`（浅色主题的默认侧栏也是深底）。只改 `'bg-color'` 不改 `variant` 不联动前景，浅底必须同时 `variant: 'light'`。`nav` 其余字符串键逐项覆盖同名 `--u-nav-*`（`'bg-color'` → `--u-nav-bg-color`）。整组换内置值用 `navSidebarTokens(series, variant)`。
 - 编译期 SCSS token：SCSS 里用 `@use 'pkg:@veltra/styles/functions' as fn` 与 `@use 'pkg:@veltra/styles/mixins' as m`；`fn.use-var(text-color, main)` 编译成 `var(--u-text-color-main)`。前提是 vite.config 注册 `new NodePackageImporter()`（`import { NodePackageImporter } from 'sass-embedded'`），不注册报 `Can't find stylesheet to import`。token 值仍由运行时 `loadTheme()` 注入，编译期不依赖主题。
 - 业务代码引用 token 用 `cssVar('text-color-title')`（返回 `var(--u-text-color-title)`）或直接写 `var(--u-*)`；禁止硬编码 `#hex`，否则暗色下颜色不跟随。
+- 组件样式与显式 import 成对出现：`u-button` 写在模板里时由 `VeltraUIResolver` 注入组件 import 与样式副作用（`components/button/style`），`<script setup>` 里禁止写 `import { UButton } from '@veltra/desktop'`。resolver 只重写模板里没有同名绑定的 `_resolveComponent("<组件名>")` 调用；显式 import 的组件不再产生该调用，必须自己补样式子路径：
+
+  ```ts
+  import { h } from 'vue'
+  import { UButton } from '@veltra/desktop'
+  import '@veltra/desktop/components/button/style' // 漏写：class 是 u-button 但 .u-button 规则不加载
+
+  const themeSwitch = () => h(UButton, { type: 'primary' }, () => '深浅切换')
+  ```
+
+  `h()` / `render` 函数里的组件不经过模板编译，resolver 永不解析，必须显式 import；漏写时运行时报 `ReferenceError: UButton is not defined`。样式 API（`loadTheme` / `cssVar` / `navSidebarTokens`）不在组件表内，从 `@veltra/styles/theme` 显式 import 后不需要补样式子路径。
 
 ## 注意事项
 
@@ -123,3 +147,4 @@ const current = useTemplateRef<'light' | 'dark'>('current')
 > - `pkg:` 前缀必须写：`@use '@veltra/styles/mixins'`（不带 `pkg:`）报 `Can't find stylesheet to import`。
 > - 非 hex 颜色（如 glassTheme 的 `rgba()` 背景）不生成对应 alpha / 混合派生 token。
 > - `mixColor(color1, color2, ratio)` 的 `ratio > 1` 时抛 `Error('ratio的值在0-1之间')`。
+> - 显式 import 的组件必须补 `import '@veltra/desktop/components/<目录>/style'`：resolver 只处理模板里没有同名绑定的组件，写了 `import { UButton } from '@veltra/desktop'` 就必须写 `import '@veltra/desktop/components/button/style'`，否则模板结构正确但渲染成裸样式。`h()` / `render` 里的组件永不被 resolver 解析，必须显式 import，漏写报 `ReferenceError: UTag is not defined`。

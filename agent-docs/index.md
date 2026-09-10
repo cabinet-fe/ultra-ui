@@ -1,13 +1,13 @@
 ---
 title: Ultra UI 总览
-description: Ultra UI（@veltra/*）是面向 Vue 3 的组件与能力库，包含 78 个桌面组件、AI 对话（UAiChat / useChat）、电子表格（USheet / Workbook）、组合式函数、utils 工具、指令、主题系统与按需导入解析器；本篇是全部 121 篇文档的路由表。
+description: Ultra UI（@veltra/*）是面向 Vue 3 的组件与能力库，包含 78 篇桌面组件文档、AI 对话（UAiChat / useChat）、电子表格（USheet / Workbook）、组合式函数、utils 工具、指令、主题系统与按需导入解析器；本篇是全部 124 篇文档的路由表。
 aliases: [ultra-ui, veltra, UltraUI, 组件库总览, 文档索引]
-keywords: ["@veltra/desktop", "@veltra/ai", "@veltra/sheet", "@veltra/sheet-core", "@veltra/compositions", "@veltra/utils", "@veltra/directives", "@veltra/icons", "@veltra/styles", "@veltra/vite", Vue 3, 组件库, 安装, 模块列表, loadTheme, VeltraUIResolver]
+keywords: ["@veltra/desktop", "@veltra/ai", "@veltra/sheet", "@veltra/sheet-core", "@veltra/compositions", "@veltra/utils", "@veltra/directives", "@veltra/icons", "@veltra/styles", "@veltra/vite", Vue 3, 组件库, 安装, 模块列表, loadTheme, VeltraUIResolver, "@vitejs/plugin-vue-jsx", 样式副作用, 图标清单]
 ---
 
 # Ultra UI 总览
 
-Ultra UI（npm 作用域 `@veltra/*`）是面向 Vue 3 的组件与能力库：组件从 `@veltra/desktop` 导入，AI 对话用 `@veltra/ai`，电子表格用 `@veltra/sheet`（模型层 `@veltra/sheet-core`），icons / compositions / utils / directives / styles 分包提供，`@veltra/vite` 提供按需导入解析器。硬规则：入口必须 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色。运行时要求 Vue `>=3.5.42`；当前组件包版本 `@veltra/desktop@1.7.9`。
+Ultra UI（npm 作用域 `@veltra/*`）是面向 Vue 3 的组件与能力库：组件从 `@veltra/desktop` 导入，AI 对话用 `@veltra/ai`，电子表格用 `@veltra/sheet`（模型层 `@veltra/sheet-core`），icons / compositions / utils / directives / styles 分包提供，`@veltra/vite` 提供按需导入解析器。硬规则：入口必须 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色；组件样式是独立入口，走 resolver 的模板组件自动带样式，显式 import 的组件（`h()` / render / TSX 里用的）必须自己补 `import '@veltra/desktop/components/<目录>/style'`。运行时要求 Vue `>=3.5.42`；当前组件包版本 `@veltra/desktop@1.7.10`。
 
 ## 安装
 
@@ -15,6 +15,7 @@ Ultra UI（npm 作用域 `@veltra/*`）是面向 Vue 3 的组件与能力库：�
 bun add @veltra/desktop @veltra/styles @veltra/utils @veltra/compositions @veltra/directives @veltra/icons @cat-kit/core @cat-kit/fe
 # 按需加：bun add @veltra/ai ｜ bun add @veltra/sheet @veltra/sheet-core
 # 按需自动导入：bun add -D @veltra/vite unplugin-vue-components
+# 写 <script lang="tsx"> 或 .tsx：bun add -D @vitejs/plugin-vue-jsx
 ```
 
 最小入口初始化（与 `guide/installation.md` 一致）：
@@ -31,7 +32,7 @@ loadTheme() // 必须调用，否则 --u-* token 为空、组件无颜色
 createApp(App).mount('#app')
 ```
 
-组件注册三选一：全量 `app.use(UltraUI)`（`import UltraUI from '@veltra/desktop/install'`）、SFC 内显式 import + 对应 `style` 子路径、或 `VeltraUIResolver` 按需自动导入（`vite/veltra-ui-resolver.md`）。完整步骤与验证见 `guide/installation.md`。
+组件注册三选一：全量 `app.use(UltraUI)`（`import UltraUI from '@veltra/desktop/install'`）、SFC 内显式 import + 对应 `style` 子路径、或 `VeltraUIResolver` 按需自动导入（`vite/veltra-ui-resolver.md`）。用 resolver 时模板组件禁止再显式 import：显式 import 会让 resolver 既不注入组件 import 也不注入样式副作用；`h()` / render / JSX 里的组件必须显式 import 并补样式。完整步骤与验证见 `guide/installation.md`。
 
 ## 模块速查
 
@@ -39,9 +40,9 @@ createApp(App).mount('#app')
 
 | 模块 | 用途 | 文档路径 |
 | --- | --- | --- |
-| 安装与初始化 | 安装 peer 依赖、入口 normalize + loadTheme、三种注册方式、SCSS 配置与验证 | `guide/installation.md` |
-| 图标库 | `@veltra/icons/normal` / `@veltra/icons/colorful` 导入、PascalCase / kebab 命名与按需检索 | `icons.md` |
-| VeltraUIResolver | unplugin-vue-components 按需自动导入解析器，自动带组件样式副作用 | `vite/veltra-ui-resolver.md` |
+| 安装与初始化 | 安装 peer 依赖、入口 normalize + loadTheme、三种注册方式、TSX 的 `@vitejs/plugin-vue-jsx`、模板与渲染函数混用规则、SCSS 配置与验证 | `guide/installation.md` |
+| 图标库 | `@veltra/icons/normal` / `@veltra/icons/colorful` 导入、两个集合 217 个导出名（根入口可导入 216 个）的完整清单与检索、PascalCase / kebab 命名、无 props 组件的尺寸与着色规则 | `icons.md` |
+| VeltraUIResolver | unplugin-vue-components 按需自动导入解析器，自动带组件样式副作用；显式 import 与 JSX / 渲染函数不在解析范围 | `vite/veltra-ui-resolver.md` |
 
 ### desktop 组件（@veltra/desktop）
 
@@ -194,7 +195,7 @@ createApp(App).mount('#app')
 | --- | --- | --- |
 | loadTheme | 运行时主题：9 个预设、派生、深浅色热替换与 nav 外观 | `styles/theme.md` |
 | --u-* tokens | 设计令牌 CSS 变量参考 | `styles/tokens.md` |
-| SCSS | pkg:@veltra/styles 的 vars / functions / mixins 与 NodePackageImporter 配置 | `guide/scss.md` |
+| SCSS | pkg:@veltra/styles 的 vars / functions / mixins 与 NodePackageImporter 的解析基准目录规则 | `guide/scss.md` |
 | animations | 动画与过渡 CSS 类参考 | `styles/animations.md` |
 
 ### recipes 场景方案
@@ -211,4 +212,4 @@ createApp(App).mount('#app')
 
 | 模块 | 用途 | 文档路径 |
 | --- | --- | --- |
-| 常见报错 | 运行时与构建期高频报错的原文与修复代码 | `troubleshooting/common-errors.md` |
+| 常见报错 | 运行时与构建期高频报错的原文与修复代码：主题未初始化、`Can't find stylesheet to import`、`react/jsx-dev-runtime`、显式 import 导致的裸样式、`UTag is not defined`、UForm 的 field 与 v-model 冲突、VeltraUIResolver 未生效等 | `troubleshooting/common-errors.md` |

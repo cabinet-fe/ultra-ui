@@ -168,9 +168,28 @@ const panelVisible = ref(false)
 监听 `closed`，它在抽屉和遮罩的退出动画都结束、节点已移除后触发一次：
 
 ```vue
+<script setup lang="ts">
+import { reactive, ref, useTemplateRef } from 'vue'
+import { UButton, UDrawer, UForm, UInput } from '@veltra/desktop'
+import type { FormExposed } from '@veltra/desktop'
+
+const visible = ref(false)
+const formRef = useTemplateRef<FormExposed>('formRef')
+const form = reactive({ name: '初始值' })
+
+function onClosed() {
+  // 抽屉与遮罩的退出动画都结束、节点已移除后才执行收尾
+  formRef.value?.reset() // model 恢复为最近一次 props.model 变更时的快照，并清除校验
+}
+</script>
+
 <template>
-  <UDrawer v-model="visible" @closed="onClosed">
-    <UForm ref="formRef">...</UForm>
+  <UButton @click="visible = true">编辑</UButton>
+
+  <UDrawer v-model="visible" title="编辑" @closed="onClosed">
+    <UForm ref="formRef" :model="form">
+      <UInput label="姓名" field="name" />
+    </UForm>
   </UDrawer>
 </template>
 ```

@@ -1,8 +1,8 @@
 ---
 title: "@veltra/styles SCSS 用法指南"
-description: "用 pkg:@veltra/styles 前缀在组件样式里引用 vars、functions、mixins：BEM mixin、主题 token 函数、暗色与断点 mixin 的完整清单，以及 sass-embedded NodePackageImporter 构建配置。"
+description: "用 pkg:@veltra/styles 前缀在组件样式里引用 vars、functions、mixins：BEM mixin、主题 token 函数、暗色与断点 mixin 的完整清单，以及 sass-embedded NodePackageImporter 的注册与 entryPointDirectory 解析规则（磁盘 .scss 文件自动向上解析；additionalData 等非磁盘来源才需要传目录）。"
 aliases: [scss, sass, mixins, BEM, 样式工具]
-keywords: ["pkg:", NodePackageImporter, sass-embedded, use-var, color-a, component-var, use-vars, css-var, bem, $namespace, ellipsis, is-not, 命名空间, 样式函数, 暗色样式, 响应式断点]
+keywords: ["pkg:", NodePackageImporter, entryPointDirectory, additionalData, sass-embedded, "Can't find stylesheet to import", use-var, color-a, component-var, use-vars, css-var, bem, $namespace, ellipsis, is-not, 命名空间, 样式函数, 暗色样式, 响应式断点]
 ---
 
 # @veltra/styles SCSS 用法指南
@@ -12,12 +12,14 @@ keywords: ["pkg:", NodePackageImporter, sass-embedded, use-var, color-a, compone
 ## 前置条件
 
 - 依赖 `@veltra/styles`；构建链使用 `sass-embedded`（本仓库锁 `1.104.0`）。`NodePackageImporter` 从 `sass-embedded` 导入。
-- Vite（或其他打包器）的 Sass 预处理选项里注册 `NodePackageImporter`，见步骤 1。不注册时 `pkg:` 导入报 `Can't find stylesheet to import`。
+- Vite（或其他打包器）的 Sass 预处理选项里注册 `NodePackageImporter`；不注册时 `pkg:` 导入报 `Can't find stylesheet to import`。磁盘 `.scss` 文件里的 `pkg:`（本库组件样式属此类）由 sass 从该文件所在目录逐级向上找 `node_modules`，`new NodePackageImporter()` 省略参数即可；只有 `additionalData` 等非磁盘来源才需要传 `entryPointDirectory`，且该目录的 `node_modules`（或其祖先）必须能解析到 `@veltra/styles`。
 - 运行时主题：`fn.use-var()` 等函数编译期只生成 `var(--u-*)`，变量值由 `loadTheme()` 注入（见 `styles/theme.md`）。编译不依赖主题，运行时没主题则组件无颜色。
 
 ## 步骤
 
 ### 1. 配置 NodePackageImporter
+
+`pkg:` 前缀只有 `NodePackageImporter` 认识；常规下游项目省略参数：
 
 ```ts
 // vite.config.ts
@@ -29,17 +31,22 @@ export default defineConfig({
 })
 ```
 
-入口目录就是包安装位置，下游项目直接 `new NodePackageImporter()`。monorepo 内引用 workspace 包时必须传仓库根，否则解析不到 `@veltra/*`：
+参数 `entryPointDirectory` 只对**非磁盘来源**的 `pkg:` URL 生效（`css.preprocessorOptions.scss.additionalData` 注入的字符串、把样式内容以字符串交给 sass 的插件）；省略参数时该目录取 Node 入口（dev 下的 vite 可执行文件）所在目录。磁盘上的 `.scss` 文件里写 `pkg:` 时，sass 从该文件所在目录逐级向上找 `node_modules`，与 `entryPointDirectory` 无关——本库组件样式（如 `packages/desktop/src/components/button/style.scss`）属于这一类，编译它时 `new NodePackageImporter()`、传仓库根、传其他目录都解析成功。
+
+非磁盘来源要显式传目录时，必须传「其 `node_modules`（或其祖先）里能解析到 `@veltra/styles` 的目录」；传一个不含该链接的目录仍报 `Can't find stylesheet to import`。本仓库根目录没有 `node_modules/@veltra`（bun 把链接放在 `packages/<包>/node_modules/@veltra/` 与 `test/node_modules/@veltra/`），`test/vite.config.ts`、`playground/vite.config.ts` 传 `new NodePackageImporter(resolve(import.meta.dirname, '..'))` 是仓库自身写法，不代表任意目录都行：
 
 ```ts
-// 本仓库 playground/vite.config.ts 的写法
+// monorepo 的 additionalData 等非磁盘来源需要传目录时
 import { resolve } from 'node:path'
-import { NodePackageImporter } from 'sass-embedded'
 
-const repoRoot = resolve(__dirname, '..')
-export default {
+import { NodePackageImporter } from 'sass-embedded'
+import { defineConfig } from 'vite'
+
+const repoRoot = resolve(import.meta.dirname, '..')
+
+export default defineConfig({
   css: { preprocessorOptions: { scss: { importers: [new NodePackageImporter(repoRoot)] } } }
-}
+})
 ```
 
 ### 2. 选择 @use 路径
@@ -262,7 +269,7 @@ npx vite build
 
 > [!WARNING]
 > - `pkg:` 前缀必须写：`NodePackageImporter` 只解析 `pkg:` 开头的导入，写 `@use '@veltra/styles/mixins'` 会报 `Can't find stylesheet to import`。
-> - SCSS 构建必须注册 `NodePackageImporter`；monorepo 内引用 workspace 包时构造函数必须传仓库根路径。
+> - SCSS 构建必须注册 `NodePackageImporter`；磁盘 `.scss` 文件里的 `pkg:` 由 sass 从该文件目录逐级向上解析，`new NodePackageImporter()` 省略参数即可。只有 `additionalData` 等非磁盘来源才需要传 `entryPointDirectory`，且必须传「其 `node_modules`（或其祖先）里能解析到 `@veltra/styles` 的目录」——本仓库根目录没有 `node_modules/@veltra`，`test/vite.config.ts`、`playground/vite.config.ts` 传仓库根是仓库自身写法，不代表任意目录都行。
 > - `vars` 里的语义别名硬编码 `--u-`，不随 `$namespace` 配置变；改命名空间时组件库自身的类名体系不会跟着改，只有你自己的 `m.b()` 输出变。
 > - `functions` 与 `mixins` 的 `$namespace` 相互独立，要一起改必须分别 `@forward ... with`。
 > - `fn.dark` / `m.dark` 基于 `html[data-theme='dark']`，前提是已 `loadTheme` 过深色系列主题；覆盖不了的暗色差异优先改 token 而不是加分支。

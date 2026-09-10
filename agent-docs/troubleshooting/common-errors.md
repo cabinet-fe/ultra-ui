@@ -1,8 +1,8 @@
 ---
 title: "Ultra UI 常见报错排障"
-description: "Ultra UI 全库高频构建期与运行时报错的修复手册：主题未初始化、SCSS NodePackageImporter、UForm 的 field 与 v-model 冲突、VeltraUIResolver 未生效、sheet-core 子路径导入、v-focus 警告、USelect 回显失败、图标包体积与 Workbook/AI 传输层真实报错。"
+description: "Ultra UI 全库高频构建期与运行时报错的修复手册：主题未初始化与显式 import 导致的裸样式、SCSS pkg: 与 NodePackageImporter entryPointDirectory 解析规则、缺 @vitejs/plugin-vue-jsx 时 react/jsx-runtime 解析失败、渲染函数里的 ReferenceError: UTag is not defined、函数式 API 缺样式、UForm 的 field 与 v-model 冲突、VeltraUIResolver 未生效、sheet-core 子路径导入、v-focus 警告、USelect 回显失败、图标包体积与 Workbook/AI 传输层真实报错。"
 aliases: [FAQ, 排错, troubleshooting, 常见问题, 报错, 常见错误]
-keywords: [loadTheme, NodePackageImporter, sass-embedded, "pkg:", "Can't find stylesheet to import", field, v-model, VeltraUIResolver, importStyle, SheetGrid, "v-focus 指令需要一个 input 元素", valueKey, modelValue, beginBatch, endBatch, providers 不能为空, 未配置 models, 主题未初始化, 回显失败, 样式丢失]
+keywords: [loadTheme, 主题未初始化, NodePackageImporter, entryPointDirectory, sass-embedded, "pkg:", "Can't find stylesheet to import", VeltraUIResolver, "react/jsx-dev-runtime", "react/jsx-runtime", "@vitejs/plugin-vue-jsx", "UTag is not defined", ReferenceError, 裸样式, components/tag/style, field, v-model, SheetGrid, 回显失败, messageConfirm]
 ---
 
 # Ultra UI 常见报错排障
@@ -22,6 +22,26 @@ loadTheme() // 不传参时应用 lightTheme
 ```
 
 验证：打开 DevTools 查看 `html` 元素，存在 `--u-*` 自定义属性即生效；`loadTheme` 是同步函数，重复调用以最后一次为准（热替换主题）。详见 `agent-docs/styles/theme.md`。
+
+## 症状：显式 import 的组件结构正确但呈裸样式（无颜色、无布局）
+
+原因：`VeltraUIResolver` 只重写 SFC 编译产物里的 `_resolveComponent("<组件名>")` 调用。模板标签在 `<script setup>` 里有同名 import 绑定时，编译产物直接引用该绑定（`_unref(ULayout)`），不再产生 `_resolveComponent`，`unplugin-vue-components` 既不注入组件 import 也不注入样式副作用。组件样式是独立入口（`packages/desktop/src/components/<目录>/style.ts` → `style.scss`），组件 SFC 内没有 `<style>` 块，`index.ts` 也不引样式。修复：显式 import 后按目录名补样式子路径，目录名查 `packages/vite/src/components.gen.ts`：
+
+```vue
+<!-- src/views/TagList.vue -->
+<script setup lang="ts">
+import { UTag } from '@veltra/desktop'
+import '@veltra/desktop/components/tag/style' // 显式 import 的组件必须自己补样式副作用
+</script>
+
+<template>
+  <u-tag type="primary">已完成</u-tag>
+</template>
+```
+
+常用对应关系：`UTag` → `components/tag/style`，`UAction` / `UActionGroup` → `components/action/style`，`UMessage` → `components/message/style`。需要全部组件样式时在入口显式引一次 `import '@veltra/desktop/style'`，不再逐个补。
+
+DevTools 判定：选中组件根元素，class 在（如 `u-tag`）但 Styles 面板搜不到 `.u-tag` 规则 → 样式入口未加载（本节）；class 与 `.u-tag` 规则都在、`--u-*` 值为空 → 主题未初始化。详见 `agent-docs/vite/veltra-ui-resolver.md`。
 
 ## 构建报错 `Can't find stylesheet to import`
 
@@ -43,7 +63,12 @@ export default defineConfig({
 @use 'pkg:@veltra/styles/functions' as fn;
 ```
 
-monorepo 内引用 workspace 包时构造函数必须传仓库根：`new NodePackageImporter(repoRoot)`，否则解析不到 `@veltra/*`。构建链用 `sass-embedded`（仓库锁 `1.104.0`），`NodePackageImporter` 从 `sass-embedded` 导入。详见 `guide/scss.md`。
+`NodePackageImporter(entryPointDirectory)` 的解析规则按 `pkg:` 的来源分两种：
+
+- `pkg:` 写在磁盘上的 `.scss` 文件里（本库组件样式，如 `packages/desktop/src/components/button/style.scss`）：sass 从该文件所在目录逐级向上找 `node_modules`，与 `entryPointDirectory` 无关。编译该文件时 `new NodePackageImporter()`、传仓库根、传其他目录都解析成功——这类场景省略参数即可。
+- `pkg:` 出现在非磁盘来源（`css.preprocessorOptions.scss.additionalData` 注入的字符串、把样式内容以字符串交给 sass 的插件）：`entryPointDirectory` 生效；省略参数时该目录取 Node 入口（dev 下的 vite 可执行文件）所在目录。要显式传时必须传「其 `node_modules`（或其祖先）里能解析到 `@veltra/styles` 的目录」，传一个不含该链接的目录仍报 `Can't find stylesheet to import`。
+
+本仓库根目录没有 `node_modules/@veltra`（bun 把链接放在 `packages/<包>/node_modules/@veltra/` 与 `test/node_modules/@veltra/`），所以传仓库根只对磁盘文件成立；`test/vite.config.ts`、`playground/vite.config.ts` 传 `new NodePackageImporter(resolve(import.meta.dirname, '..'))` 是仓库自身写法。构建链用 `sass-embedded`（仓库锁 `1.104.0`），`NodePackageImporter` 从 `sass-embedded` 导入。详见 `guide/scss.md`。
 
 ## 症状：UForm 内控件写了 `v-model` 与 `field` 并存，值不回显或写进两份状态
 
@@ -95,6 +120,122 @@ export default defineConfig({
 3. 改过 `vite.config.ts` 未重启 dev server：重启后生效。
 4. 组件名不在表内：resolver 按 `UButton` 等名字精确匹配 `components.gen.ts` 静态表（95 个组件）；仓库内新组件未入表时在仓库根重跑 `bun run resolver:gen`，下游包缺组件时升级 `@veltra/desktop`。
 5. resolver 只管 import 与样式；`loadTheme()` 等主题初始化仍需入口显式执行。详见 `agent-docs/vite/veltra-ui-resolver.md`。
+
+## 构建报错 `Failed to resolve import "react/jsx-runtime"` / `react/jsx-dev-runtime`（缺 @vitejs/plugin-vue-jsx）
+
+dev 启动日志（报错来自 `<script lang="tsx">` 的 SFC）：
+
+```text
+Failed to run dependency scan. Skipping dependency pre-bundling. Error: The following dependencies are imported but could not be resolved:
+
+  react/jsx-dev-runtime (imported by /<项目绝对路径>/src/App.vue?id=0)
+
+Are they installed?
+```
+
+`vite build`：
+
+```text
+[vite]: Rolldown failed to resolve import "react/jsx-runtime" from "/<项目绝对路径>/src/App.vue?vue&type=script&lang.tsx".
+```
+
+原因：`plugins` 里没有注册 `vueJsx()`，Vite 用 esbuild 默认 JSX 运行时（`react`），TSX 编译成 `react/jsx-dev-runtime`（dev）/ `react/jsx-runtime`（build）导入，而这两个包不在依赖里。修复：安装 `@vitejs/plugin-vue-jsx`（本仓库锁 `^5.1.6`）并在 `plugins` 里注册：
+
+```bash
+bun add -D @vitejs/plugin-vue-jsx
+```
+
+```ts
+// vite.config.ts
+import vue from '@vitejs/plugin-vue'
+import vueJsx from '@vitejs/plugin-vue-jsx'
+import Components from 'unplugin-vue-components/vite'
+import { defineConfig } from 'vite'
+import { VeltraUIResolver } from '@veltra/vite'
+
+export default defineConfig({
+  plugins: [
+    vue(),
+    vueJsx(), // <script lang="tsx"> 与 .tsx 必须注册，否则 JSX 落到 react 运行时
+    Components({ resolvers: [VeltraUIResolver()] }),
+  ],
+})
+```
+
+类型检查需 tsconfig.json 开 `"jsx": "preserve"`（本仓库 `test/tsconfig.json` 即此配置）：
+
+```json
+// tsconfig.json
+{
+  "compilerOptions": {
+    "jsx": "preserve"
+  }
+}
+```
+
+TSX 里用到的组件必须显式 import 并补样式子路径——JSX 不经过模板编译，resolver 既不注入组件 import 也不注入样式副作用：
+
+```tsx
+// src/TagList.tsx
+import { defineComponent } from 'vue'
+import { UTag } from '@veltra/desktop'
+import '@veltra/desktop/components/tag/style'
+
+export default defineComponent({
+  name: 'TagList',
+  setup() {
+    return () => <UTag type="primary">已完成</UTag>
+  },
+})
+```
+
+验证：重启 dev server 后启动日志不再出现 `Failed to run dependency scan`；`vite build` 不再报 `react/jsx-runtime`。详见 `agent-docs/vite/veltra-ui-resolver.md`。
+
+## 报错 `ReferenceError: UTag is not defined`（渲染函数 / JSX 里的组件未 import）
+
+原因：`h()` / `render` / JSX 里的组件完全不经过模板编译，`VeltraUIResolver` 永不解析——它只重写模板编译产物里的 `_resolveComponent(...)`。`@veltra/desktop` 主入口只导出组件对象，不注册全局名，所以浏览器控制台抛 `Uncaught ReferenceError: UTag is not defined`，不是 `Failed to resolve component: UTag` 警告。修复：显式 import 组件并补样式子路径：
+
+```ts
+// src/columns.ts
+import { h } from 'vue'
+import { UAction, UActionGroup, UTag } from '@veltra/desktop'
+import '@veltra/desktop/components/action/style' // 渲染函数里的组件同样不自动注入样式
+import '@veltra/desktop/components/tag/style'
+
+export const statusColumn = {
+  key: 'status',
+  name: '状态',
+  render: ({ rowData }: { rowData: Record<string, unknown> }) =>
+    h(UTag, { type: 'success' }, () => String(rowData['status'])),
+}
+
+export const actionColumn = {
+  key: 'actions',
+  name: '操作',
+  render: () => h(UActionGroup, {}, () => [h(UAction, { onRun: () => {} }, () => '详情')]),
+}
+```
+
+`app.use(UltraUI)`（`@veltra/desktop/install`）只注册运行时全局组件名并注入全量样式，不定义 `UTag` 这个 JS 标识符——`h(UTag)` 仍必须先 import。排查时把 `h(...)` / JSX 里的每个 `U*` 与文件顶部 import 列表逐个对照。详见 `agent-docs/vite/veltra-ui-resolver.md`。
+
+## 症状：message / messageConfirm / notification 弹出但无样式
+
+原因：`message`、`messageConfirm`、`notification` 是函数式 API（内部 `h()` + `render()` 挂到 `document.body`），不经过模板编译，resolver 不解析；三者样式在各自的独立入口，`import { message } from '@veltra/desktop'` 不带样式副作用。修复：按用到的 API 补样式子路径，或全量引 `import '@veltra/desktop/style'`：
+
+```ts
+// src/main.ts
+import '@veltra/desktop/components/message/style' // message(...)
+import '@veltra/desktop/components/message-confirm/style' // messageConfirm(...)
+import '@veltra/desktop/components/notification/style' // notification(...)
+
+import { message, messageConfirm, notification } from '@veltra/desktop'
+
+message.success('保存成功')
+messageConfirm.warning('删除后不可恢复，确认删除？')
+notification.success('同步完成')
+```
+
+目录名以 `packages/vite/src/components.gen.ts` 为准：`UMessage` → `components/message/style`，`UMessageConfirm` → `components/message-confirm/style`，`UNotification` → `components/notification/style`。DevTools 判定：弹层 DOM 已插入、class 前缀在（`u-message` / `u-message-confirm` / `u-notification`），但 Styles 面板没有对应规则。详见 `agent-docs/vite/veltra-ui-resolver.md`。
 
 ## 报错 `Does not provide an export named 'SheetGrid'`（从 `@veltra/sheet-core` 主入口导入渲染层符号）
 
@@ -156,11 +297,11 @@ const grade = ref<number>(1)
 
 ## 症状：从根 `@veltra/icons` 全量导入导致包体积大，或 `FontColor` 导入得到 `undefined`
 
-原因：根入口 `@veltra/icons` 再导出全部 218 个图标（normal 205 + colorful 13，其中 `FontColor` 重名冲突被丢弃）；全量导入时 218 个 SFC 全部进入产物。修复：按集合子路径按名称导入：
+原因：`@veltra/icons` 两个集合合计 217 个不同图标名（`normal` 205 + `colorful` 13，重名 `FontColor` 只算一个）。根入口 `export *` 对同名冲突是两边都不导出，因此根入口实际可导入其余 216 个图标名与 `packageName` 常量；全量导入时集合内全部图标 SFC 进入产物。修复：按集合子路径按名称导入：
 
 ```ts
 // 错误：import { Search, Excel } from '@veltra/icons'
-import { Search } from '@veltra/icons/normal' // 单色线性图标
+import { Search } from '@veltra/icons/normal' // 单色图标
 import { Excel } from '@veltra/icons/colorful' // 多色图标
 ```
 

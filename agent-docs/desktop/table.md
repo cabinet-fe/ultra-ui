@@ -2,7 +2,7 @@
 title: UTable 表格
 description: "@veltra/desktop 的数据表格组件：columns 定义列、data 提供行数据，内置多选/单选、树形表格、展开行、表尾合计、单元格合并、表头拖拽调宽，行数超过阈值自动虚拟滚动；分页与排序无内置，分页配合 UPaginator、排序自行处理 data。"
 aliases: [DataTable, Table, 数据表格, 数据列表]
-keywords: [defineTableColumns, columns, data, rowKey, checkable, checked, selectable, selected, virtualThreshold, row-click, cell-click, mergeCell, summary, UPaginator, 分页, 排序, 多选, 单选, 虚拟滚动, 树形表格]
+keywords: [defineTableColumns, columns, data, rowKey, checkable, checked, selectable, selected, virtualThreshold, row-click, cell-click, mergeCell, summary, UPaginator, components/table/style, UTag is not defined, render, 分页, 排序, 多选, 单选, 虚拟滚动, 树形表格, 裸样式]
 ---
 
 # UTable 表格
@@ -458,6 +458,7 @@ const pagedData = computed(() => {
 > - `tree` 与 `expandable` 互斥：`expandable` 仅在非树形模式有效；`defaultExpandAll` 仅树形模式的初始展开生效。
 > - 数据替换时行数变化比例达到 50%（`|Δlen| / max(新旧行数) ≥ 0.5`）会自动滚回顶部；行内增删几条不会滚动复位。
 > - 纵向滚动与虚拟滚动要求容器有显式高度（如 `style="height: 500px"`），否则表格随内容撑开、不出现滚动。
+> - `render` 函数返回 VNode 时用到的组件（如 `h(UTag)`）不会被 `VeltraUIResolver` 解析：必须在 `<script setup>` 里显式 import 组件并补 `import '@veltra/desktop/components/tag/style'`，否则运行时报 `ReferenceError: UTag is not defined` 且单元格无样式。模板里的 `<u-table>` 则交给 resolver，不要再 import（显式 import 会连带失去样式副作用）。
 
 ## 常见问题
 
@@ -471,7 +472,24 @@ const pagedData = computed(() => {
 
 ### 表格渲染无颜色、样式异常
 
-原因：主题未初始化，`--u-*` token 为空。修复：应用入口执行一次：
+先按症状分两种：
+
+**DevTools 里有 `<table class="u-table">`，但 Styles 面板搜不到 `.u-table` 规则**（结构与 class 对、呈现裸样式）：组件被显式 import 而没有引入样式副作用——`VeltraUIResolver` 只处理模板里未绑定的组件。修复：模板里的 UTable 不要 import（交给 resolver），或保留 import 并补样式子路径：
+
+```vue
+<script setup lang="ts">
+import { UTable, defineTableColumns } from '@veltra/desktop'
+import '@veltra/desktop/components/table/style'
+
+const columns = defineTableColumns([{ key: 'name', name: '姓名' }])
+</script>
+
+<template>
+  <u-table :columns="columns" :data="[]" row-key="id" />
+</template>
+```
+
+**class 与规则都在、只是整体发灰**：主题未初始化，`--u-*` token 为空。修复：应用入口执行一次：
 
 ```ts
 import '@veltra/styles/normalize'

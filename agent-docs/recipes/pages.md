@@ -1,13 +1,13 @@
 ---
 title: Ultra UI 列表页与详情页场景
-description: 端到端拼装中后台列表页与详情页：ULayout + UDualNav 后台布局、UTable（defineTableColumns）+ UPaginator 服务端分页、messageConfirm 增删二次确认、UDrawer 详情与 UDialog 弹窗表单。
+description: 端到端拼装中后台列表页与详情页：ULayout + UDualNav 后台布局、UTable（defineTableColumns）+ UPaginator 服务端分页、messageConfirm 增删二次确认、UDrawer 详情与 UDialog 弹窗表单；模板组件交给 VeltraUIResolver 按需引入并注入样式，渲染函数与函数式 API 显式 import 并补样式子路径。
 aliases: [列表页, 详情页, 中后台页面, CRUD 页面, 管理后台]
-keywords: [defineTableColumns, UTable, UPaginator, ULayout, UDualNav, UDialog, UDrawer, messageConfirm, onClosed, rowKey, currentPath, item-click, vLoading, UEmpty, 列表分页, 删除确认, 二次确认, 详情抽屉, 搜索列表, 新建编辑]
+keywords: [VeltraUIResolver, defineTableColumns, UTable, UPaginator, ULayout, UDualNav, UDialog, UDrawer, messageConfirm, onClosed, rowKey, vLoading, components/action/style, 渲染函数, 裸样式, 列表分页, 删除确认, 二次确认, 详情抽屉, 搜索列表]
 ---
 
 # Ultra UI 列表页与详情页场景
 
-Ultra UI（`@veltra/*`）的中后台典型页面方案：`ULayout` + `UDualNav` 做后台布局，`UTable`（`defineTableColumns`）+ `UPaginator` 做服务端分页列表，`messageConfirm` 做增删二次确认，`UDrawer` 做详情，`UDialog` 做弹窗表单。所有组件从 `@veltra/desktop` 导入。
+Ultra UI（`@veltra/*`）的中后台典型页面方案：`ULayout` + `UDualNav` 做后台布局，`UTable`（`defineTableColumns`）+ `UPaginator` 做服务端分页列表，`messageConfirm` 做增删二次确认，`UDrawer` 做详情，`UDialog` 做弹窗表单。模板里的 `u-*` 组件由 `VeltraUIResolver` 自动引入并注入样式，禁止在 `<script setup>` 里再 import 同名组件；`h()` 渲染函数里的 `UAction` / `UActionGroup` 与函数式 API `message` / `messageConfirm` / `vLoading` 必须显式 import，并补 `@veltra/desktop/components/<目录>/style` 样式子路径。
 
 ## 场景
 
@@ -16,7 +16,19 @@ Ultra UI（`@veltra/*`）的中后台典型页面方案：`ULayout` + `UDualNav`
 
 ## 完整示例
 
-入口与布局壳：
+构建配置、入口与页面：
+
+```ts
+// vite.config.ts —— 模板里的 u-* 组件由 VeltraUIResolver 自动引入并注入样式副作用
+import vue from '@vitejs/plugin-vue'
+import Components from 'unplugin-vue-components/vite'
+import { defineConfig } from 'vite'
+import { VeltraUIResolver } from '@veltra/vite'
+
+export default defineConfig({
+  plugins: [vue(), Components({ resolvers: [VeltraUIResolver()] })]
+})
+```
 
 ```ts
 // src/main.ts —— 主题必须初始化，否则组件无颜色
@@ -33,28 +45,26 @@ createApp(App).mount('#app')
 ```vue
 <!-- src/views/UserPage.vue —— 布局 + 搜索 + 表格 + 分页 + 确认 + 抽屉详情 + 弹窗表单 -->
 <script setup lang="ts">
-import type { DualNavRootItem, FormExposed, NavItem } from '@veltra/desktop'
+// 模板组件（u-layout / u-dual-nav / u-scroll / u-input / u-button / u-table / u-empty /
+// u-paginator / u-drawer / u-dialog / u-form）交给 VeltraUIResolver 自动引入并注入样式，
+// 禁止在这里 import 同名组件：显式 import 会让模板改用该绑定，resolver 不再注入样式副作用。
+import { h, reactive, ref, shallowRef } from 'vue'
+// h() / render 里的组件与函数式 API 不经过模板编译，resolver 不会解析，必须显式 import
 import {
   UAction,
   UActionGroup,
-  UButton,
-  UDialog,
-  UDrawer,
-  UDualNav,
-  UEmpty,
-  UForm,
-  UInput,
-  ULayout,
-  UPaginator,
-  UScroll,
-  UTable,
   defineTableColumns,
   message,
   messageConfirm,
   vLoading
 } from '@veltra/desktop'
+// 显式 import 的组件与函数式 API 必须自己补样式子路径；同目录多组件共用一条
+import '@veltra/desktop/components/action/style'
+import '@veltra/desktop/components/loading/style'
+import '@veltra/desktop/components/message/style'
+import '@veltra/desktop/components/message-confirm/style'
+import type { DualNavRootItem, FormExposed, NavItem } from '@veltra/desktop'
 import { HouseFilled, Setting, User } from '@veltra/icons/normal'
-import { h, reactive, ref, shallowRef } from 'vue'
 
 // ---- 侧栏导航 ----
 const currentPath = ref('/users')
@@ -245,12 +255,23 @@ query()
 - `UDrawer`：`v-model` 控制显隐，默认从右侧滑出，宽 `320px`；没有 `size` / `width` prop，自定义尺寸须覆盖 `.u-drawer` 样式类。
 - `UDialog`：标题栏与关闭按钮由组件提供；操作按钮放 `#footer`，插槽参数含 `close()`，保存成功后调 `close()` 关闭。
 - `UDualNav`：`current-path` + `@item-click` 受控，没有 `v-model:current-path`；不内置 vue-router，跳转在 `item-click` 回调里自己做。
-- `vLoading` 指令：未走 `app.use(UltraUI)` 全量注册时必须从 `@veltra/desktop` 显式导入（`VeltraUIResolver` 不处理指令）。
-- 空态用 `UEmpty`；请求失败用 `message.error`，两者都从 `@veltra/desktop` 导入。
+- `vLoading` 指令：未走 `app.use(UltraUI)` 全量注册时必须从 `@veltra/desktop` 显式导入（`VeltraUIResolver` 不处理指令），并补 `import '@veltra/desktop/components/loading/style'`。
+- 空态用 `UEmpty`（模板组件，走 resolver，不写 import）；请求失败用 `message.error`（显式 import，配 `import '@veltra/desktop/components/message/style'`）。
+- 样式副作用与显式 import 成对出现：`VeltraUIResolver` 只重写模板里没有 `<script setup>` 绑定的 `_resolveComponent(...)` 调用，显式 import 的组件不再产生该调用，resolver 既不注入组件 import 也不注入样式。本页显式 import 的组件与函数式 API 必须各补一条样式子路径：
+
+  ```ts
+  import '@veltra/desktop/components/action/style' // UAction、UActionGroup 共用
+  import '@veltra/desktop/components/loading/style' // vLoading 指令
+  import '@veltra/desktop/components/message/style' // message
+  import '@veltra/desktop/components/message-confirm/style' // messageConfirm
+  ```
+
+  同目录多组件共用一条路径（`UAction`、`UActionGroup` 都是 `components/action/style`），样式路径的最后一段就是组件所在目录名；拿不准时改用入口全量样式 `import '@veltra/desktop/style'`。漏写时页面结构与 class 都正确，但 DevTools 的 Styles 面板里搜不到 `.u-action` / `.u-message` 规则，呈现裸样式。`h()` / `render` / JSX 里的组件不经过模板编译，resolver 永不解析：本页 `h(UActionGroup, ...)` / `h(UAction, ...)` 必须显式 import，漏写时运行时报 `ReferenceError: UAction is not defined`。
 
 ## 注意事项
 
 > [!WARNING]
+> - 显式 import 的组件必须补 `import '@veltra/desktop/components/<目录>/style'`：resolver 只处理模板里没有同名绑定的组件，写了 `import { UAction } from '@veltra/desktop'` 就必须写 `import '@veltra/desktop/components/action/style'`，否则结构正确但裸样式。`h()` / `render` 里的组件永不被 resolver 解析，必须显式 import，漏写报 `ReferenceError: UTag is not defined`。
 > - 本库事件名是 `change:pageNumber` / `change:pageSize`，不是 Element Plus 的 `current-change` / `size-change`；`UPaginator` 是两个独立 `v-model`，不是 `current-page` 单向 prop。
 > - `UDualNav` 用 `currentPath` 受控，没有 `v-model:current-path`；菜单项 `title` / `path` 必填。
 > - `messageConfirm` 是函数式 API，直接在 `document.body` 渲染，不需要挂到组件树；`instance.close()` 缺省 action 按 `'cancel'` 处理。
