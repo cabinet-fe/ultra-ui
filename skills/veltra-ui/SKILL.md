@@ -13,18 +13,18 @@ veltra-ui 是一套 Vue 3 UI 体系。
 
 当前文档对应包版本（monorepo 对齐）：
 
-| 包                     | 版本  |
-| ---------------------- | ----- |
-| `@veltra/desktop`      | 1.7.2 |
-| `@veltra/utils`        | 1.7.2 |
-| `@veltra/styles`       | 1.7.2 |
-| `@veltra/compositions` | 1.7.2 |
-| `@veltra/directives`   | 1.7.2 |
-| `@veltra/icons`        | 1.5.0 |
-| `@veltra/vite`         | 4.0.1 |
-| `@veltra/sheet`        | 2.5.2 |
-| `@veltra/sheet-core`   | 2.5.2 |
-| `@veltra/ai`           | 2.1.6 |
+| 包                     | 版本   |
+| ---------------------- | ------ |
+| `@veltra/desktop`      | 1.7.10 |
+| `@veltra/utils`        | 1.7.10 |
+| `@veltra/styles`       | 1.7.10 |
+| `@veltra/compositions` | 1.7.10 |
+| `@veltra/directives`   | 1.7.10 |
+| `@veltra/icons`        | 1.5.0  |
+| `@veltra/vite`         | 4.0.2  |
+| `@veltra/sheet`        | 2.5.6  |
+| `@veltra/sheet-core`   | 2.5.6  |
+| `@veltra/ai`           | 2.1.8  |
 
 ## 分包地图
 
@@ -99,6 +99,7 @@ veltra-ui 是一套 Vue 3 UI 体系。
 
 1. 入口必须 `import '@veltra/styles/normalize'` 且调用 `loadTheme()`（`@veltra/styles/theme`）。组件颜色全部走 `--u-*` token，**token 只能由 `loadTheme()` 注入且无兜底值**，不调组件就是透明/无色的裸 HTML。详见 `packages/desktop/installation.md`。
 2. 组件注册三选一：`app.use(UltraUI)`（`@veltra/desktop/install`）、`VeltraUIResolver` 自动导入、手动 import + `*/style` 子路径。模板里 `<u-xxx>` 渲染成未知标签 = 没注册，不要用 div 仿造。
+3. 走 `VeltraUIResolver` 时，**模板组件不要再写 `import`**：显式 `import { UButton } from '@veltra/desktop'` 会让模板改用该绑定，resolver 既不注入组件也不注入样式副作用，页面结构对但没样式。凡显式 import 的组件（`h()` / `render` 函数 / JSX / TSX 里用的）必须自己补 `import '@veltra/desktop/components/<目录>/style'`；写 `<script lang="tsx">` 还要装并注册 `@vitejs/plugin-vue-jsx`，否则报 `react/jsx-dev-runtime` / `react/jsx-runtime` 解析失败。
 
 ## 反模式（下游最常见翻车点）
 

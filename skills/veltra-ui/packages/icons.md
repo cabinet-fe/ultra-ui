@@ -6,7 +6,7 @@ Vue 图标，每一个都是一个 SFC 组件。
 
 ### 导入
 
-推荐按集合子路径按需导入；根入口会同时 re-export normal + colorful（体积更大）。
+推荐按集合子路径按需导入；根入口会同时 re-export normal + colorful（体积更大），但两个集合重名的 `FontColor` 被 `export *` 丢弃，必须从子路径导入。
 
 ```ts
 import { Search, Close, Plus, Edit } from '@veltra/icons/normal'
@@ -17,18 +17,33 @@ import { Search, Excel } from '@veltra/icons'
 
 ### 使用
 
-一般配合 `u-icon` 组件使用
+配合 `u-icon` 组件使用：图标组件**无 props**，尺寸写在 `u-icon` 上，颜色由父级 `color` 经 `currentColor` 继承。
 
 ```vue
-<u-icon :size="16" color="primary"><Search /></u-icon>
+<script setup lang="ts">
+import { Search } from '@veltra/icons/normal'
+import { UIcon } from '@veltra/desktop'
 
-<!-- 动态渲染 -->
-<u-icon><component :is="icon" /></u-icon>
+// 动态渲染：图标组件本身可当变量传给 :is
+const icon = Search
+</script>
+
+<template>
+  <!-- 正确：:size 给 u-icon；u-icon 没有 color 属性，颜色靠父级 color 继承 -->
+  <div style="color: var(--u-color-primary)">
+    <u-icon :size="18"><Search /></u-icon>
+  </div>
+
+  <!-- 动态渲染 -->
+  <u-icon :size="18"><component :is="icon" /></u-icon>
+</template>
 ```
+
+图标组件没有 props：`:size` 必须给 `u-icon`（`<u-icon :size="18"><User /></u-icon>`）。直接写 `<User :size="18" />` 无效且不报错——属性透传到根 `<svg>` 后被浏览器忽略；不用 `u-icon` 时必须自带尺寸样式：`<User style="width: 18px; height: 18px" />`。
 
 ## 可用图标
 
-清单以 `packages/icons/src/normal.ts` / `colorful.ts` 的导出为准（新增图标后在 `packages/icons` 目录运行 `bun run icons:gen` 重新生成）。下列为常用分类摘要。图标名**无 `Icon` 后缀**（写 `Plus`，不是 `PlusIcon`）。
+清单以 `packages/icons/src/normal.ts` / `colorful.ts` 的导出为准（新增图标后在 `packages/icons` 目录运行 `bun run icons:gen` 重新生成）。下列为常用分类摘要；名字必须按 barrel 导出逐字核对，`SwitchButton`、`Forward`、`Switch` 等常见误写名不存在（开关控件图标是 `FormSwitch`），完整清单见 `agent-docs/icons.md` 的「完整导出清单」。图标名**无 `Icon` 后缀**（写 `Plus`，不是 `PlusIcon`）。
 
 ### 表单控件图标
 
@@ -68,6 +83,6 @@ import { Search, Excel } from '@veltra/icons'
 
 ### 彩色图标
 
-多色 SVG 保留源文件配色，不受 `u-icon` 的 `color` 或外部 CSS `color` 影响。从 `@veltra/icons/colorful` 导入。包括：
+多色 SVG 保留源文件配色，不受父级 CSS `color` 影响。从 `@veltra/icons/colorful` 导入。包括：
 
 `Archive`、`Excel`、`Fold`、`FontColor`、`Image`、`MiddleGround`、`Pdf`、`PowerPoint`、`Title`、`Txt`、`UnknownFile`、`Video`、`Word`

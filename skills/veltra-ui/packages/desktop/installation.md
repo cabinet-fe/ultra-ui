@@ -98,20 +98,29 @@ import { VeltraUIResolver } from '@veltra/vite'
 export default defineConfig({ plugins: [vue(), Components({ resolvers: [VeltraUIResolver()] })] })
 ```
 
-配置后可直接在模板中使用，无需任何 import 语句，构建时自动按需加载组件和样式（主题 token 仍需在入口 `loadTheme()`）：
+配置后模板里可直接使用，无需写组件 import，构建时自动按需加载组件与样式（主题 token 仍需在入口 `loadTheme()`）；下面的例子同时给出「模板组件走 resolver + 渲染函数组件显式 import 并补样式」的混用写法：
 
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue'
+import { h, ref } from 'vue'
+// 渲染函数 / JSX 里用的组件不会被 resolver 解析：显式 import 并补样式子路径
+import { UTag } from '@veltra/desktop'
+import '@veltra/desktop/components/tag/style'
 
 const visible = ref(false)
 const text = ref('')
+const label = (v: string) => h(UTag, { type: 'success' }, () => v)
 </script>
 
 <template>
   <u-button type="primary" @click="visible = true">按钮</u-button>
   <u-dialog v-model="visible" title="提示">
     <u-input v-model="text" />
+    {{ label(text) }}
   </u-dialog>
 </template>
 ```
+
+混用规则：resolver 只处理**模板里没有对应 `<script setup>` 绑定的组件**。同一个组件显式 import 后，模板标签改由该导入变量渲染，不再产生 `_resolveComponent(...)` 调用，resolver 既不会注入组件 import，也不会注入样式副作用——页面结构正确但呈现裸样式。因此显式 import 的组件必须自己补 `import '@veltra/desktop/components/<目录>/style'`（该目录可查 `@veltra/vite` 的组件表，或看 `@veltra/desktop` 的 `components/<目录>/style` 是否存在）。函数式 API `message` / `messageConfirm` / `notification` 同理：样式不随函数 import 注入。
+
+写 `<script lang="tsx">` 或 `.tsx` 时还必须安装并注册 `@vitejs/plugin-vue-jsx`，否则 Vite 用 esbuild 默认的 `react` JSX 运行时，dev 报 `Failed to resolve import "react/jsx-dev-runtime"`、build 报 `Failed to resolve import "react/jsx-runtime"`。
