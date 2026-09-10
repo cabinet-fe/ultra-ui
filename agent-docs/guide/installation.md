@@ -7,7 +7,7 @@ keywords: [bun add, loadTheme, "@veltra/styles/normalize", UltraUI, "@veltra/des
 
 # Ultra UI 安装与初始化
 
-Ultra UI 是 npm 作用域 `@veltra/*` 下的 Vue 3 组件与能力库。本指南完成：安装 `@veltra/desktop` 与 peer 依赖、入口初始化（normalize + `loadTheme()`）、选择一种组件注册方式、按需配置 SCSS token 编译，最后用 `UButton` 验证。适用 Vue `>=3.5.42`、Vite 构建、`@veltra/desktop@1.7.10`。
+Ultra UI 是 npm 作用域 `@veltra/*` 下的 Vue 3 组件与能力库。本指南完成：安装 `@veltra/desktop` 与 peer 依赖、入口初始化（normalize + `loadTheme()`）、选择一种组件注册方式、按需配置 SCSS token 编译，最后用 `UButton` 验证。适用 Vue `>=3.5.42`、Vite 构建、`@veltra/desktop@1.7.11`。
 
 ## 前置条件
 

@@ -15,11 +15,11 @@ veltra-ui 是一套 Vue 3 UI 体系。
 
 | 包                     | 版本   |
 | ---------------------- | ------ |
-| `@veltra/desktop`      | 1.7.10 |
-| `@veltra/utils`        | 1.7.10 |
-| `@veltra/styles`       | 1.7.10 |
-| `@veltra/compositions` | 1.7.10 |
-| `@veltra/directives`   | 1.7.10 |
+| `@veltra/desktop`      | 1.7.11 |
+| `@veltra/utils`        | 1.7.11 |
+| `@veltra/styles`       | 1.7.11 |
+| `@veltra/compositions` | 1.7.11 |
+| `@veltra/directives`   | 1.7.11 |
 | `@veltra/icons`        | 1.5.0  |
 | `@veltra/vite`         | 4.0.2  |
 | `@veltra/sheet`        | 2.5.6  |
