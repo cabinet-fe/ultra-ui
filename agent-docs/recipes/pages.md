@@ -1,130 +1,89 @@
 ---
-title: 'pages - 常见页面拼装：中后台典型布局、弹窗表单与搜索列表页实践'
-description: '基于 Ultra UI 官方组件拼装中后台管理系统典型业务页面：ULayout 与 UDualNav 经典左右/顶部侧栏布局、UDialog 配合 UForm 弹窗编辑表单、UTable 组合筛选查询与分页的列表搜索页标准模板与最佳实践'
-keywords: ['pages', '@veltra/desktop', '常见页面拼装：中后台典型布局', '弹窗表单与搜索列表页实践']
-aliases: ['pages']
+title: Ultra UI 列表页与详情页场景
+description: 端到端拼装中后台列表页与详情页：ULayout + UDualNav 后台布局、UTable（defineTableColumns）+ UPaginator 服务端分页、messageConfirm 增删二次确认、UDrawer 详情与 UDialog 弹窗表单。
+aliases: [列表页, 详情页, 中后台页面, CRUD 页面, 管理后台]
+keywords: [defineTableColumns, UTable, UPaginator, ULayout, UDualNav, UDialog, UDrawer, messageConfirm, onClosed, rowKey, currentPath, item-click, vLoading, UEmpty, 列表分页, 删除确认, 二次确认, 详情抽屉, 搜索列表, 新建编辑]
 ---
 
-组合 `@veltra/desktop` 公开组件做常见界面。前提：入口已 `loadTheme()`，组件已注册。弹窗外壳、空态、滚动条、按钮都用库组件，不要手搓窗口标题栏或空态插画。
+# Ultra UI 列表页与详情页场景
 
-## 后台布局
+Ultra UI（`@veltra/*`）的中后台典型页面方案：`ULayout` + `UDualNav` 做后台布局，`UTable`（`defineTableColumns`）+ `UPaginator` 做服务端分页列表，`messageConfirm` 做增删二次确认，`UDrawer` 做详情，`UDialog` 做弹窗表单。所有组件从 `@veltra/desktop` 导入。
 
-`ULayout` 分栏，`UDualNav` 做侧栏。导航项 `title` / `path` 必填，`icon` 用 `@veltra/icons/normal` 的组件。
+## 场景
+
+- 何时用本方案：从零拼一个「侧栏布局 + 搜索 + 表格 + 分页 + 弹窗编辑 + 抽屉详情」的用户管理类页面。
+- 何时不用：单表单页（改用 `recipes/form.md`）；数据全在前端内存、无需服务端分页时直接对数组分片，不引入 `UPaginator`。
+
+## 完整示例
+
+入口与布局壳：
+
+```ts
+// src/main.ts —— 主题必须初始化，否则组件无颜色
+import { createApp } from 'vue'
+import App from './App.vue'
+import '@veltra/styles/normalize'
+import { loadTheme } from '@veltra/styles/theme'
+
+loadTheme()
+
+createApp(App).mount('#app')
+```
 
 ```vue
+<!-- src/views/UserPage.vue —— 布局 + 搜索 + 表格 + 分页 + 确认 + 抽屉详情 + 弹窗表单 -->
 <script setup lang="ts">
-import { ref } from 'vue'
-import type { DualNavRootItem, NavItem } from '@veltra/desktop'
+import type { DualNavRootItem, FormExposed, NavItem } from '@veltra/desktop'
+import {
+  UAction,
+  UActionGroup,
+  UButton,
+  UDialog,
+  UDrawer,
+  UDualNav,
+  UEmpty,
+  UForm,
+  UInput,
+  ULayout,
+  UPaginator,
+  UScroll,
+  UTable,
+  defineTableColumns,
+  message,
+  messageConfirm,
+  vLoading
+} from '@veltra/desktop'
 import { HouseFilled, Setting, User } from '@veltra/icons/normal'
+import { h, reactive, ref, shallowRef } from 'vue'
 
-const currentPath = ref('/home')
-
+// ---- 侧栏导航 ----
+const currentPath = ref('/users')
 const menus: DualNavRootItem[] = [
   { title: '工作台', icon: HouseFilled, path: '/home' },
   {
     title: '系统',
     icon: Setting,
     path: '/system',
-    children: [
-      { title: '用户', icon: User, path: '/system/users' },
-      { title: '设置', icon: Setting, path: '/system/settings' }
-    ]
+    children: [{ title: '用户', icon: User, path: '/users' }]
   }
 ]
-
-function onItemClick(item: NavItem) {
+function onNavClick(item: NavItem) {
   currentPath.value = item.path
 }
-</script>
 
-<template>
-  <u-layout cols="auto 1fr" style="height: 100vh">
-    <u-dual-nav :menus="menus" :current-path="currentPath" @item-click="onItemClick" />
-    <u-scroll>
-      <!-- 当前页面 -->
-    </u-scroll>
-  </u-layout>
-</template>
-```
-
-`UDualNav` 用 `current-path` + `item-click` 受控，没有 `v-model:current-path`。左轨可用 `rail-variant="labeled"` 显示名称。需要可拖拽分栏时给 `ULayout` 加 `resizable` 与 `col-min-sizes`。
-
-## 弹窗表单
-
-标题栏和关闭按钮由 `UDialog` 提供；操作按钮放 `#footer`（插槽参数含 `close`）。表单控件走 `field`，不要写 `v-model`。
-
-```vue
-<script setup lang="ts">
-import { reactive, ref, useTemplateRef } from 'vue'
-
-const visible = ref(false)
-const formRef = useTemplateRef('form')
-const form = reactive({ name: '', role: '' })
-
-const roleOptions = [
-  { label: '管理员', value: 'admin' },
-  { label: '成员', value: 'member' }
-]
-
-async function confirm(close: () => void) {
-  const valid = await formRef.value?.validate()
-  if (!valid) return
-  close()
-}
-</script>
-
-<template>
-  <u-button type="primary" @click="visible = true">新建用户</u-button>
-
-  <u-dialog v-model="visible" title="新建用户">
-    <u-form ref="form" :model="form" label-width="80px" :cols="1">
-      <u-input label="姓名" field="name" :rules="{ required: true }" />
-      <u-select label="角色" field="role" :options="roleOptions" :rules="{ required: true }" />
-    </u-form>
-
-    <template #footer="{ close }">
-      <u-button text @click="close()">取消</u-button>
-      <u-button type="primary" @click="confirm(close)">确定</u-button>
-    </template>
-  </u-dialog>
-</template>
-```
-
-## 搜索表格页
-
-筛选区在 `u-form` **之外**，控件自行 `v-model`。列表用 `UTable`，分页用 `UPaginator`，加载用 `vLoading`，无数据用 `UEmpty`，失败用 `message.error`。
-
-```vue
-<script setup lang="ts">
-import { ref, shallowRef } from 'vue'
-import { message, vLoading } from '@veltra/desktop'
-
+// ---- 搜索与分页 ----
 const keyword = ref('')
-const status = ref('')
 const pageNumber = ref(1)
 const pageSize = ref(20)
 const total = ref(0)
 const rows = shallowRef<Record<string, unknown>[]>([])
 const loading = ref(false)
 
-const statusOptions = [
-  { label: '全部', value: '' },
-  { label: '启用', value: 'enabled' },
-  { label: '停用', value: 'disabled' }
-]
-
-const columns = [
-  { key: 'name', name: '名称' },
-  { key: 'code', name: '编码' },
-  { key: 'status', name: '状态' }
-]
-
 async function query() {
   loading.value = true
   try {
     const res = await fetchRows({
       keyword: keyword.value,
-      status: status.value,
       pageNumber: pageNumber.value,
       pageSize: pageSize.value
     })
@@ -137,41 +96,164 @@ async function query() {
   }
 }
 
-async function fetchRows(_params: Record<string, unknown>) {
-  return { list: [] as Record<string, unknown>[], total: 0 }
+async function fetchRows(params: Record<string, unknown>) {
+  // 替换为真实接口：<你的列表接口>
+  const res = await fetch('/api/users?' + new URLSearchParams(params as Record<string, string>))
+  if (!res.ok) throw new Error(String(res.status))
+  return (await res.json()) as { list: Record<string, unknown>[]; total: number }
 }
+
+// ---- 表格列 ----
+const columns = defineTableColumns([
+  { key: 'name', name: '姓名' },
+  { key: 'status', name: '状态', align: 'center' },
+  {
+    key: 'actions',
+    name: '操作',
+    // render 用 h() 返回 VNode；UAction 的事件是 run（不是 click）
+    render: ({ rowData }) =>
+      h(UActionGroup, { max: 4 }, () => [
+        h(UAction, { onRun: () => openDetail(rowData) }, () => '详情'),
+        h(UAction, { onRun: () => openEdit(rowData) }, () => '编辑'),
+        h(UAction, { needConfirm: true, type: 'danger' as const, onRun: () => removeRow(rowData) }, () => '删除')
+      ])
+  }
+])
+
+// ---- 删除：messageConfirm 二次确认 ----
+async function removeRow(rowData: Record<string, unknown>) {
+  const action = await messageConfirm({
+    title: '删除确认',
+    message: `确认删除「${rowData['name']}」吗？删除后不可恢复。`,
+    confirmButtonType: 'danger',
+    cancelButtonText: '取消'
+  }).onClosed // => 'confirm' 或 'cancel'
+  if (action !== 'confirm') return
+  await fetch(`/api/users/${rowData['id']}`, { method: 'DELETE' })
+  message.success('已删除')
+  query()
+}
+
+// ---- 详情抽屉 ----
+const detailVisible = ref(false)
+const detail = shallowRef<Record<string, unknown>>({})
+function openDetail(rowData: Record<string, unknown>) {
+  detail.value = rowData
+  detailVisible.value = true
+}
+
+// ---- 弹窗表单（新建 / 编辑共用）----
+const dialogVisible = ref(false)
+const dialogTitle = ref('新建用户')
+const formRef = shallowRef<FormExposed>()
+const form = reactive({ id: undefined as number | undefined, name: '', status: '' })
+
+function openEdit(rowData: Record<string, unknown>) {
+  dialogTitle.value = '编辑用户'
+  Object.assign(form, { id: rowData['id'], name: rowData['name'], status: rowData['status'] })
+  dialogVisible.value = true
+}
+
+async function submitDialog(close: () => void) {
+  const valid = await formRef.value?.validate()
+  if (!valid) return
+  await fetch('/api/users', { method: 'POST', body: JSON.stringify(form) })
+  message.success('已保存')
+  close()
+  query()
+}
+
+query()
 </script>
 
 <template>
-  <div style="display: flex; gap: 8px; margin-bottom: 12px">
-    <u-input v-model="keyword" placeholder="名称 / 编码" clearable style="width: 220px" />
-    <u-select v-model="status" :options="statusOptions" style="width: 140px" />
-    <u-button
-      type="primary"
-      @click="
-        pageNumber = 1
-        query()
-      "
-    >
-      查询
-    </u-button>
-  </div>
+  <u-layout cols="auto 1fr" style="height: 100vh">
+    <u-dual-nav :menus="menus" :current-path="currentPath" @item-click="onNavClick" />
 
-  <u-scroll v-loading="loading" height="360px">
-    <u-table v-if="rows.length" :data="rows" :columns="columns" border />
-    <u-empty v-else text="暂无数据" />
-  </u-scroll>
+    <u-scroll>
+      <!-- 搜索条：不在 u-form 内，控件用 v-model -->
+      <div style="display: flex; gap: 8px; margin: 12px">
+        <u-input v-model="keyword" placeholder="姓名" clearable style="width: 220px" />
+        <u-button
+          type="primary"
+          @click="
+            pageNumber = 1;
+            query()
+          "
+        >
+          查询
+        </u-button>
+        <u-button
+          @click="
+            Object.assign(form, { id: undefined, name: '', status: '' });
+            dialogTitle = '新建用户';
+            dialogVisible = true
+          "
+        >
+          新建
+        </u-button>
+      </div>
 
-  <div style="display: flex; justify-content: flex-end; margin-top: 12px">
-    <u-paginator
-      v-model:page-number="pageNumber"
-      v-model:page-size="pageSize"
-      :total="total"
-      @change:page-number="query"
-      @change:page-size="query"
-    />
-  </div>
+      <!-- 表格 + 分页 -->
+      <div v-loading="loading" style="margin: 0 12px">
+        <u-table v-if="rows.length" :data="rows" :columns="columns" row-key="id" border>
+        </u-table>
+        <u-empty v-else text="暂无数据" />
+      </div>
+      <div style="display: flex; justify-content: flex-end; margin: 12px">
+        <u-paginator
+          v-model:page-number="pageNumber"
+          v-model:page-size="pageSize"
+          :total="total"
+          @change:page-number="query"
+          @change:page-size="query"
+        />
+      </div>
+
+      <!-- 详情抽屉 -->
+      <u-drawer v-model="detailVisible" show-close>
+        <div style="padding: 16px">
+          <p>姓名：{{ detail['name'] }}</p>
+          <p>状态：{{ detail['status'] }}</p>
+        </div>
+      </u-drawer>
+
+      <!-- 弹窗表单 -->
+      <u-dialog v-model="dialogVisible" :title="dialogTitle">
+        <u-form ref="formRef" :model="form" label-width="80px" :cols="1">
+          <u-input label="姓名" field="name" :rules="{ required: '姓名不能为空' }" />
+          <u-input label="状态" field="status" />
+        </u-form>
+        <template #footer="{ close }">
+          <u-button text @click="close()">取消</u-button>
+          <u-button type="primary" @click="submitDialog(close)">确定</u-button>
+        </template>
+      </u-dialog>
+    </u-scroll>
+  </u-layout>
 </template>
 ```
 
-未走 `app.use(UltraUI)` 时，`vLoading` 必须从 `@veltra/desktop` 手动导入（resolver 不处理指令）。
+期望结果：左侧双栏导航，右侧搜索条、表格、右下角分页；点「详情」右侧滑出抽屉；点「删除」弹出红色确认框，确认后行数据从接口删除并刷新列表；点「新建 / 编辑」弹出表单弹窗，校验不通过不关闭。
+
+## 要点说明
+
+- `defineTableColumns`：列定义辅助函数，提供类型推导；列用 `{ key, name }` 描述，`key` 对应 `rowData[key]` 取值，`render` 自定义单元格（优先级高于 `#column:{key}` 插槽）。
+- `UTable` 的 `row-key`：未设置时内部用自增 uid 标识行；用受控选中或多选时必须设置。`UTable` 不内置分页与排序：分页配合 `UPaginator`，排序自行对 `data` 排序后传入。
+- `UPaginator`：`v-model:page-number` / `v-model:page-size` 双向绑定，`total` 计算总页数；重新拉数据监听 `@change:page-number` 与 `@change:page-size` 两个事件——改每页条数会把页码重置为 1 且只触发 `change:pageSize`。
+- `messageConfirm(...).onClosed`：Promise 兑现 `'confirm' | 'cancel'`，含关闭动画结束后兑现、从不 reject；删除类确认用 `confirmButtonType: 'danger'`，取消按钮必须传 `cancelButtonText`（默认 `''` 时不渲染）。
+- `UDrawer`：`v-model` 控制显隐，默认从右侧滑出，宽 `320px`；没有 `size` / `width` prop，自定义尺寸须覆盖 `.u-drawer` 样式类。
+- `UDialog`：标题栏与关闭按钮由组件提供；操作按钮放 `#footer`，插槽参数含 `close()`，保存成功后调 `close()` 关闭。
+- `UDualNav`：`current-path` + `@item-click` 受控，没有 `v-model:current-path`；不内置 vue-router，跳转在 `item-click` 回调里自己做。
+- `vLoading` 指令：未走 `app.use(UltraUI)` 全量注册时必须从 `@veltra/desktop` 显式导入（`VeltraUIResolver` 不处理指令）。
+- 空态用 `UEmpty`；请求失败用 `message.error`，两者都从 `@veltra/desktop` 导入。
+
+## 注意事项
+
+> [!WARNING]
+> - 本库事件名是 `change:pageNumber` / `change:pageSize`，不是 Element Plus 的 `current-change` / `size-change`；`UPaginator` 是两个独立 `v-model`，不是 `current-page` 单向 prop。
+> - `UDualNav` 用 `currentPath` 受控，没有 `v-model:current-path`；菜单项 `title` / `path` 必填。
+> - `messageConfirm` 是函数式 API，直接在 `document.body` 渲染，不需要挂到组件树；`instance.close()` 缺省 action 按 `'cancel'` 处理。
+> - `UTable` 没有内置分页、排序、远端数据加载；`data` 就是当前页数据，不要传全量数据指望它分页。
+> - 抽屉尺寸固定：左右方向宽 `320px`、上下方向高 `320px`；本库没有 `size` / `width` prop。
+> - 弹窗表单内的控件必须写 `field` 且禁止再写 `v-model`（详见 `recipes/form.md`）；搜索条等表单外的控件才用 `v-model`。

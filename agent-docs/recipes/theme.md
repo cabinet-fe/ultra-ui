@@ -1,117 +1,125 @@
 ---
-title: "theme - 主题系统配置、暗色模式切换与 Design Token 变量定制"
-description: "Ultra UI 全局主题与深浅色模式（Dark/Light Mode）切换方案：通过 loadTheme 注入 CSS 变量与设计令牌（Design Tokens），内置浅色/暗色预设，支持基于主色一键派生自定义品牌主题与 SCSS token 变量引用规范"
-keywords:
-  - theme
-  - @veltra/desktop
-  - 主题系统配置
-  - 主题
-  - Design Token
-  - 变量定制
-aliases: ["theme"]
+title: Ultra UI 主题定制场景
+description: 端到端完成 Ultra UI 主题定制：loadTheme 预设主题切换、深浅色切换（series 硬规则）、品牌色覆盖（UITheme#new 派生）、侧栏 nav 外观（variant dark/light）与编译期 SCSS token 定制。
+aliases: [主题定制, 换肤, 暗色模式, 深浅色切换, 品牌色, Theme]
+keywords: [loadTheme, lightTheme, darkTheme, UITheme, series, nav.variant, navSidebarTokens, cssVar, NodePackageImporter, sass-embedded, pkg:@veltra/styles, use-var, 主题切换, 深色模式, 暗色模式, 品牌色覆盖, 侧栏外观, 换肤, 设计令牌]
 ---
 
-组件颜色全部来自 `loadTheme()` 注入的 `--u-*` token。本页只讲 `@veltra/styles/theme` 的公开用法，不涉及主题内部如何生成 CSS。
+# Ultra UI 主题定制场景
 
-## 加载主题
+Ultra UI（`@veltra/*`）的颜色全部来自 `loadTheme()` 注入的 `--u-*` token。本方案覆盖五个子场景：预设主题切换、深浅色切换、品牌色覆盖、侧栏 nav 外观、编译期 SCSS token 定制。所有主题 API 从 `@veltra/styles/theme` 导入。
+
+## 场景
+
+- 何时用本方案：要更换整套视觉（预设或派生）、运行时切深浅色、改品牌主色、调侧栏外观，或在业务 SCSS 里引用主题 token。
+- 何时不用：只装库跑通安装——改用 `guide/installation.md`；只查某个 `--u-*` token 的名字与默认值——改用 `styles/tokens.md`；SCSS mixin / 函数的完整清单——改用 `guide/scss.md`。
+
+## 完整示例
+
+入口初始化 + 主题切换模块 + 消费 token 的业务组件：
 
 ```ts
+// src/main.ts —— 主题必须初始化，否则 --u-* 为空、组件无颜色
+import { createApp } from 'vue'
+import App from './App.vue'
+import '@veltra/styles/normalize'
 import { loadTheme } from '@veltra/styles/theme'
+import { brandTheme } from './theme'
 
-loadTheme() // 等价于 loadTheme(lightTheme)
+loadTheme(brandTheme) // 不传参时应用 lightTheme
+
+createApp(App).mount('#app')
 ```
 
-每个主题属于一个系列（`theme.series`）：`'light'` 或 `'dark'`。`loadTheme` 会写入全局 token 与同系列组件级 token，并把 `html[data-theme]` 设为该系列。SSR 在 `onMounted` 中调用。
-
-当前已加载实例可读 `currentTheme`（`ShallowRef<UITheme | undefined>`）。
-
-## 内置 preset
-
 ```ts
+// src/theme.ts —— 品牌色派生 + 深浅色切换 + 侧栏外观
 import {
-  loadTheme,
-  lightTheme,
-  heroTheme,
-  ancientTheme,
-  sakuraTheme,
-  oceanTheme,
+  currentTheme,
   darkTheme,
-  glassTheme,
-  midnightTheme,
-  neonTheme
+  lightTheme,
+  loadTheme,
+  navSidebarTokens,
+  type ThemeSeries
 } from '@veltra/styles/theme'
 
-loadTheme(heroTheme)
-```
+// 从浅色基座派生品牌主题；深合并，只写要覆盖的字段
+export const brandTheme = lightTheme.new({
+  color: { primary: '#ff6600' },
+  // 侧栏要浅底：variant 必须同时设为 'light'，否则浅底配白字
+  nav: { variant: 'light', 'bg-color': '#f1ede0' }
+})
 
-| 预设            | 系列  | 说明            |
-| --------------- | ----- | --------------- |
-| `lightTheme`    | light | 默认浅色        |
-| `heroTheme`     | light | 紫、大圆角      |
-| `ancientTheme`  | light | 松烟绿 + 宣纸底 |
-| `sakuraTheme`   | light | 柔粉、大圆角    |
-| `oceanTheme`    | light | 松石青 + 冷白底 |
-| `darkTheme`     | dark  | 默认深色        |
-| `glassTheme`    | dark  | 玻璃拟态        |
-| `midnightTheme` | dark  | 靛蓝 + 深空底   |
-| `neonTheme`     | dark  | 品红 + 夜紫底   |
-
-切暗色就是换一个深色系 preset，例如 `loadTheme(darkTheme)`，不要在组件里写 `[data-theme]` 分支。
-
-## 派生与自定义
-
-改品牌主色时从现有主题 `new()` 派生，系列默认继承基主题：
-
-```ts
-import { loadTheme, lightTheme } from '@veltra/styles/theme'
-
-loadTheme(lightTheme.new({ color: { primary: '#ff6600' } }))
-```
-
-要把浅色基主题派生成深色，显式传系列：
-
-```ts
-const myDark = lightTheme.new({ color: { primary: '#ff6600' } }, { series: 'dark' })
-loadTheme(myDark)
-```
-
-从完整 `Theme` 对象新建：
-
-```ts
-import { loadTheme, UITheme, lightTheme, type Theme } from '@veltra/styles/theme'
-
-const theme: Theme = {
-  ...lightTheme.theme,
-  color: { ...lightTheme.theme.color, primary: '#ff6600' }
+export function switchSeries(series: ThemeSeries): void {
+  if (series === currentTheme.value?.series) return
+  // 品牌色保持：从品牌主题再派生，显式指定目标系列
+  const next =
+    series === 'dark'
+      ? brandTheme.new({ color: { primary: '#ff6600' } }, { series: 'dark' })
+      : brandTheme
+  loadTheme(next) // 运行时热替换，不刷新页面
 }
 
-loadTheme(new UITheme(theme)) // 默认浅色系；深色传 { series: 'dark' }
+// 整组侧栏 token 换成「当前系列 × dark 变体」的内置值
+export function useDarkNav(): void {
+  const base = currentTheme.value
+  if (!base) return
+  const nav: Record<string, string> = { variant: 'dark' }
+  for (const [name, value] of Object.entries(navSidebarTokens(base.series, 'dark'))) {
+    nav[name.replace(/^--u-nav-/, '')] = value // 去掉 --u-nav- 前缀即覆盖键
+  }
+  loadTheme(base.new({ nav }))
+}
 ```
 
-## 侧栏导航外观
-
-`UNav` / `UDualNav` / `UGroupNav` 的底色与文字色由主题 `nav` 随 `loadTheme` 注入：
-
-- `nav.variant`：`'dark'` 深底浅字 / `'light'` 浅底深字，**默认 `'dark'`**（浅色主题的默认侧栏也是深底）。
-- `nav` 的其余键覆盖同名 `--u-nav-*` token（如 `'bg-color'` → `--u-nav-bg-color`）。
-
-改浅色侧栏底时必须同时把 `variant` 设为 `'light'`，否则浅底配白字、菜单看不清：
-
-```ts
-import { loadTheme, ancientTheme } from '@veltra/styles/theme'
-
-loadTheme(ancientTheme.new({ nav: { variant: 'light', 'bg-color': '#f1ede0' } }))
-```
-
-需要整组覆盖侧栏 token 时用 `navSidebarTokens(series, variant)`，返回键为 `--u-nav-*` 的 `Record`。
-
-## 在代码里引用 token
-
-```ts
+```vue
+<!-- src/components/ThemeDemo.vue —— 业务代码消费 token，不硬编码颜色 -->
+<script setup lang="ts">
 import { cssVar } from '@veltra/styles/theme'
+import { UButton } from '@veltra/desktop'
 
-cssVar('text-color-title') // 'var(--u-text-color-title)'
-cssVar('bg-color-hover') // 'var(--u-bg-color-hover)'
+const titleColor = cssVar('text-color-title') // => 'var(--u-text-color-title)'
+</script>
+
+<template>
+  <div :style="{ color: titleColor }">品牌主题标题</div>
+  <u-button type="primary">主色按钮（#ff6600 系）</u-button>
+</template>
 ```
 
-模板或内联样式用 `cssVar()` / `var(--u-*)`；不要硬编码颜色、阴影、圆角。SCSS 侧的 mixin 用法见 styles 文档，本配方不展开。
+```vue
+<!-- src/App.vue —— 切换入口 -->
+<script setup lang="ts">
+import { useTemplateRef } from 'vue'
+import { UButton } from '@veltra/desktop'
+import { switchSeries } from './theme'
+import ThemeDemo from './components/ThemeDemo.vue'
+
+const current = useTemplateRef<'light' | 'dark'>('current')
+</script>
+
+<template>
+  <u-button @click="switchSeries(current === 'dark' ? 'light' : 'dark')">深浅切换</u-button>
+  <theme-demo />
+</template>
+```
+
+## 要点说明
+
+- `loadTheme(theme?)`：同步、无返回值、不抛错；默认 `lightTheme`。重复调用以最后一次为准——这就是热替换：注入的声明块整体替换，颜色立即生效。SSR 必须在 `onMounted` 中调用。
+- 预设主题 9 个，每个自带 `series`，不成对切换：light 系 `lightTheme` / `heroTheme` / `ancientTheme` / `sakuraTheme` / `oceanTheme`；dark 系 `darkTheme` / `glassTheme` / `midnightTheme` / `neonTheme`。切深色就是 `loadTheme(darkTheme)` 这类换主题动作。
+- 深浅色硬规则：`series` 决定注入哪套组件级 token 并写 `html[data-theme]`（`'light'` 或 `'dark'`）。从浅色基主题派生深色必须显式 `new(customTheme, { series: 'dark' })`；不写时全局色变了，表格斑马纹、按钮 plain 等组件级 token 仍是浅色套。
+- 品牌色覆盖：`lightTheme.new({ color: { primary: '#ff6600' } })` 派生新 `UITheme`，主色及全部色阶、alpha token 同步派生；空值（`''` / `null` / `undefined`）字段被剔除，`0` 保留；数字 token 自动补 `px`。派生继承基主题 `series`（`options.series` 可覆盖），不修改基主题。
+- `nav.variant` 硬规则：`'dark'` 深底浅字 / `'light'` 浅底深字，默认 `'dark'`（浅色主题的默认侧栏也是深底）。只改 `'bg-color'` 不改 `variant` 不联动前景，浅底必须同时 `variant: 'light'`。`nav` 其余字符串键逐项覆盖同名 `--u-nav-*`（`'bg-color'` → `--u-nav-bg-color`）。整组换内置值用 `navSidebarTokens(series, variant)`。
+- 编译期 SCSS token：SCSS 里用 `@use 'pkg:@veltra/styles/functions' as fn` 与 `@use 'pkg:@veltra/styles/mixins' as m`；`fn.use-var(text-color, main)` 编译成 `var(--u-text-color-main)`。前提是 vite.config 注册 `new NodePackageImporter()`（`import { NodePackageImporter } from 'sass-embedded'`），不注册报 `Can't find stylesheet to import`。token 值仍由运行时 `loadTheme()` 注入，编译期不依赖主题。
+- 业务代码引用 token 用 `cssVar('text-color-title')`（返回 `var(--u-text-color-title)`）或直接写 `var(--u-*)`；禁止硬编码 `#hex`，否则暗色下颜色不跟随。
+
+## 注意事项
+
+> [!WARNING]
+> - 本库的深浅色切换是「换一个带目标 `series` 的主题」，不是给 `html` 加 `dark` class；禁止在组件里写 `[data-theme]` 分支来配色。
+> - 入口必须调用 `loadTheme()`：不调用时 `--u-*` 变量为空，组件没有颜色，且没有兜底值。
+> - 主题 API 一律从 `@veltra/styles/theme` 导入；`@veltra/compositions` 不 re-export 主题。
+> - 预设及其派生主题 `reactive` 为 `false`：运行中直接改 `theme.xxx` 不会自动重渲染，改完字段必须再调一次 `loadTheme(theme)`；需要响应式主题时用 `new UITheme(theme)`（默认 `reactive: true`）。
+> - `pkg:` 前缀必须写：`@use '@veltra/styles/mixins'`（不带 `pkg:`）报 `Can't find stylesheet to import`。
+> - 非 hex 颜色（如 glassTheme 的 `rgba()` 背景）不生成对应 alpha / 混合派生 token。
+> - `mixColor(color1, color2, ratio)` 的 `ratio > 1` 时抛 `Error('ratio的值在0-1之间')`。
