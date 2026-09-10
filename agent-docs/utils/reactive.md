@@ -100,8 +100,6 @@ interface DIContext {
   shouldValidate?: () => boolean
   /** 字段 model 更新（watch 触发） */
   handleFieldUpdate: (field: string, value: any) => void
-  /** 控件 change 事件 */
-  handleFieldChange: (field: string, ...args: any[]) => void
 }
 
 /** 向后代提供表单上下文；必须在 setup 中调用（内部使用 provide） */
@@ -134,7 +132,6 @@ export function injectFormContext(): {
 | `validateFields` | `(keys?) => Promise<boolean>` | 否 | 全部通过 resolve `true`，任一失败 reject 或 resolve `false` |
 | `shouldValidate` | `() => boolean` | 否 | 控件据此决定是否触发校验 |
 | `handleFieldUpdate` | `(field, value) => void` | 是 | 字段 model 更新（watch 触发） |
-| `handleFieldChange` | `(field, ...args) => void` | 是 | 控件 change 事件透传 |
 
 ## 典型示例
 
@@ -159,8 +156,7 @@ export default defineComponent({
         )
         return results.every(Boolean)
       },
-      handleFieldUpdate: () => {},
-      handleFieldChange: () => {}
+      handleFieldUpdate: () => {}
     })
   }
 })

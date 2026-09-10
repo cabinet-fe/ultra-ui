@@ -28,7 +28,6 @@
       :delete-method="asynchronous ? deleteMethod : undefined"
       :save-method="asynchronous ? saveMethod : undefined"
       @create-child="onCreateChild"
-      @field:change="onFieldChange"
     >
       <template #column:name="{ row }">
         <span :style="`padding-left: ${row.depth * 20}px;`">
@@ -350,11 +349,6 @@ function onCreateChild(row: TableRow) {
   // 点击「添加子级」时拿到父级行，可据此初始化表单
   model.parentId = row.data.id
   message.info(`create-child：父级 ${row.data.name}`)
-}
-
-function onFieldChange(field: string) {
-  if (field !== 'department') return
-  model.position = undefined
 }
 
 // 选项数据

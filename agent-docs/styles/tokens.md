@@ -1,8 +1,8 @@
 ---
 title: "--u-* 设计令牌 CSS 变量参考"
 description: '@veltra/styles 注入到 html 的全量 --u-* CSS 变量：语义色、色阶、alpha 透明度、背景分层、文字色、边框、阴影、圆角、字号、动效、断点，以及 table、button、tag、nav 等组件级 token 的分组清单与命名规则。'
-aliases: [设计令牌, tokens, CSS 变量, css 变量, var(--u-]
-keywords: [--u-color-primary, --u-nav-bg-color, --u-focus-ring, --u-border, --u-shadow, use-var, color-a, component-var, cssVar, alpha, 色阶, 圆角, 阴影, 暗色模式, 侧栏导航, 主题定制]
+aliases: [设计令牌, tokens, CSS 变量, css 变量, var(--u-, 主题变量, 样式变量]
+keywords: [--u-color-primary, --u-nav-bg-color, --u-focus-ring, --u-border, --u-shadow, --u-text-color-title, --u-radius-default, use-var, color-a, component-var, cssVar, alpha, 色阶, 圆角, 阴影, 暗色模式, 侧栏导航, 主题定制, 自定义样式, 面板样式, 边框, 背景色, 文字色]
 ---
 
 # --u-* 设计令牌 CSS 变量参考
@@ -21,14 +21,17 @@ import { loadTheme } from '@veltra/styles/theme'
 loadTheme()
 ```
 
+本文的 token 用于在已有组件内扩展样式或写自定义业务样式，禁止用来手搓已有组件的等价外观：白底 + 描边 + 圆角 + 内边距的页面区块、面板、统计卡片容器用 `@veltra/desktop` 的 `UCard`（`UCardHeader` / `UCardContent` / `UCardAction`），文本排版用 `UText`，加载遮罩用 `vLoading`。手拼这些样式会漏掉 `loadTheme()` 的深浅色跟随，并在各页面重复。
+
 ```scss
 // 组件 / 指令样式优先用 SCSS 函数（见 guide/scss.md）
 @use 'pkg:@veltra/styles/functions' as fn;
 
-.panel {
-  color: fn.use-var(text-color, main); // var(--u-text-color-main)
+// 自定义业务区块的样式；底色 / 描边 / 圆角直接用组件 token 而非这里手拼
+.brand-block {
+  color: fn.use-var(text-color, title); // var(--u-text-color-title)
   background: fn.use-var(bg-color, top); // var(--u-bg-color-top)
-  border: fn.use-var(border); // var(--u-border-color) var(--u-border-width) var(--u-border-style)
+  border-bottom: fn.use-var(border); // var(--u-border-color) var(--u-border-width) var(--u-border-style)
 }
 ```
 
@@ -212,6 +215,8 @@ loadTheme(darkTheme.new({ nav: { 'bg-color': '#101418' } }))
 
 > [!WARNING]
 > - 本库 token 前缀是 `--u-`，不是 Element Plus 的 `--el-`、Ant Design 的 `--ant-`；从其他组件库迁移时禁止直接套用其变量名。
+> - 变量名按主题对象路径生成，**没有** `primary` / `secondary` / `border-radius` 这类后缀写法：文字色是 `--u-text-color-title` / `-main` / `-placeholder` / `-second` / `-assist` / `-disabled` / `-white`，圆角是 `--u-radius-small` / `-default` / `-large`。写 `var(--u-text-color-primary)`、`var(--u-text-color-secondary)`、`var(--u-border-radius)` 全部取不到值——无 fallback 时 `color` 退化为继承、`border-radius` 退化为 0（直角），且不随主题切换。
+> - 页面区块、面板、统计卡片这类容器用 `@veltra/desktop` 的 `UCard`，不要用本页 token 手拼等价卡面；`UCard` 的边框、圆角、阴影已由 `--u-border-muted` / `--u-card-radius` / `--u-shadow-sm` 与 `--u-card-padding-*` 提供。
 > - 不调用 `loadTheme` 时 `--u-*` 为空、组件无颜色；任何引用 token 的样式都以入口加载主题为前提。
 > - 暗色不靠 `[data-theme]` 手写分支：换 `series: 'dark'` 的主题即可，组件 token 两套随系列自动切换。业务 SCSS 里 `[data-theme='dark']` 分支仅在 token 覆盖不了时使用（`@include m.dark`）。
 > - `color-a` 与 `-a-{n}` 的档位固定为 `4 5 8 10 11 16 22 28 35 40 50 52 60 70 86`，`light-{n}` / `dark-{n}` 固定为 `1 3 5 7 9`；传其他数字引用不到变量。

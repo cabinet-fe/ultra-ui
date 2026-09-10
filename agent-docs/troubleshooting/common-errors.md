@@ -162,7 +162,7 @@ export default defineConfig({
 })
 ```
 
-类型检查需 tsconfig.json 开 `"jsx": "preserve"`（本仓库 `test/tsconfig.json` 即此配置）：
+类型检查需 tsconfig.json 开 `"jsx": "preserve"`：
 
 ```json
 // tsconfig.json

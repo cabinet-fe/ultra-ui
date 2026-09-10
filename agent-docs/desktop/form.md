@@ -1,10 +1,9 @@
 ---
 title: UForm 表单
-description: "表单容器组件：拦截插槽中带 field 的控件，自动生成表单项并按 field 路径读写 model，无需手写表单项、也不在控件上用 v-model（区别于 Element Plus / Ant Design）；字段值需转换或多控件组合时用 UFormItem 绑定 field。另提供全量/按字段校验、reset、showModified 与 field:change / field:update 字段事件。"
-aliases: ["UForm", "Form", "el-form", "表单容器"]
+description: "表单容器组件：拦截插槽中带 field 的控件，自动生成表单项并按 field 路径读写 model，无需手写表单项、也不在控件上用 v-model（区别于 Element Plus / Ant Design）；字段值需转换或多控件组合时用 UFormItem 绑定 field。另提供全量/按字段校验、reset、showModified 与 field:update 字段事件。"
+aliases: ["UForm", "Form", "el-form", "表单容器", "field:change"]
 keywords:
   - field
-  - field:change
   - field:update
   - UFormItem
   - v-model
@@ -15,7 +14,6 @@ keywords:
   - validate
   - clearValidate
   - labelWidth
-  - 字段联动
   - 变更前
   - 表单校验
   - 重置表单
@@ -23,11 +21,13 @@ keywords:
   - 组合字段
   - 开关字段
   - 字段值转换
+  - 重复 field
+  - 相邻复用
 ---
 
 # UForm 表单
 
-`@veltra/desktop` 导出表单容器组件 `UForm`。它拦截默认插槽中带 `field` 属性的表单控件，自动生成 `UFormItem` 并按 `field` 路径双向读写 `model`；提供 `validate()` 全量/按字段校验、`reset()` 重置、`showModified` 变更前展示，以及 `field:change`（用户操作）与 `field:update`（model 写入）两类字段事件。
+`@veltra/desktop` 导出表单容器组件 `UForm`。它拦截默认插槽中带 `field` 属性的表单控件，自动生成 `UFormItem` 并按 `field` 路径双向读写 `model`；提供 `validate()` 全量/按字段校验、`reset()` 重置、`showModified` 变更前展示，以及 `field:update`（model 写入）字段事件。
 
 本库表单与 Element Plus / Ant Design 等开源库的用法不同：**不需要为每个字段手写 `el-form-item` / `Form.Item`，也不在控件上写 `v-model`**——把表单系列控件直接放进 `UForm`、写 `field` 即完成绑定与校验。只有两种场景才显式使用 `UFormItem`：控件值需转换后才能落库（如开关的 `undefined`/`true` 归一为布尔值），或多个控件组合成一个字段。详见「典型示例 · 自定义控件绑定字段（值转换）」与「典型示例 · 多控件组合一个字段」。
 
@@ -99,8 +99,6 @@ export interface FormProps {
 
 /** 表单组件事件 */
 export interface FormEmits {
-  /** 控件 change 事件，仅用户操作控件时触发；args 与控件 change 参数一致 */
-  (e: 'field:change', field: string, ...args: any[]): void
   /** model 字段值更新时触发，含编程写入、回显、reset */
   (e: 'field:update', field: string, value: any): void
 }
@@ -143,15 +141,12 @@ export interface FormExposed {
 
 - `validate(keys?: string[]): Promise<boolean>` — **异步**。不传 `keys` 校验全部已注册字段；传 `keys` 仅校验指定字段，列表外与不存在的字段视为通过。返回 `Promise<boolean>`，全部通过为 `true`。失败时等 `nextTick` 后把首个错误文本（`.u-form-item__error-text`）滚动到视口中央。仅声明了 `field` 且带 `rules` 的字段参与校验。字段值每次变化会自动重校验，`reset()` 期间抑制。
 - `clearValidate(): void` — **同步**。清空全部字段的错误文本。
-- `reset(): void` — **同步**。把 `model` 按字段恢复为最近一次 `props.model` **引用**变更时的快照（浅监听，替换整个 model 对象才会刷新快照；递归恢复普通对象、数组深拷贝），随后清除校验并抑制本次触发的重校验。`model` 或快照缺失时为空操作。恢复写入会触发 `field:update`，不触发 `field:change`。
+- `reset(): void` — **同步**。把 `model` 按字段恢复为最近一次 `props.model` **引用**变更时的快照（浅监听，替换整个 model 对象才会刷新快照；递归恢复普通对象、数组深拷贝），随后清除校验并抑制本次触发的重校验。`model` 或快照缺失时为空操作。恢复写入会触发 `field:update`。
 - `el: ShallowRef<HTMLElement | null | undefined>` — 表单根 `<form>` 元素。
 
 事件：
 
-- `field:change(field, ...args)` — 仅用户操作控件触发（控件 `change` 经 FormItem 冒泡）；`args` 与该控件 `change` 事件的参数一致（如 UCheckbox 为勾选值）。编程写入 `model`、回显、`reset` **不触发**。字段联动监听它，可避免切行回显误触发。
-- `field:update(field, value)` — `model[field]` 的任何值变化触发：用户编辑、编程写入（`Object.assign`、逐字段赋值）、回显、`reset()`。参数固定为 `(field, value)`。
-
-两个事件均只对生成了 `UFormItem` 的字段（控件带 `field`）生效。
+- `field:update(field, value)` — `model[field]` 的任何值变化触发：用户编辑、编程写入（`Object.assign`、逐字段赋值）、回显、`reset()`。参数固定为 `(field, value)`。只对生成了 `UFormItem` 的字段（控件带 `field`）生效。
 
 ## 典型示例
 
@@ -205,9 +200,9 @@ function handleClearValidate() {
 </template>
 ```
 
-### field:change 与 field:update 字段联动
+### field:update 监听写入
 
-`field:change` 仅用户操作触发，适合联动；`field:update` 覆盖一切 model 写入（编程写入、回显、`reset`），适合同步副作用。切行回显场景监听 `field:change` 不会误触发。
+`field:update` 覆盖一切 model 写入（用户编辑、编程写入、回显、`reset`），适合同步副作用。
 
 ```vue
 <script setup lang="ts">
@@ -218,17 +213,8 @@ import { reactive, shallowRef } from 'vue'
 const formRef = shallowRef<FormExposed>()
 const formData = reactive({ department: '', position: '', remark: '' })
 
-// 用户改动部门时联动清空职位；回显/重置不会走进来
-function onFieldChange(field: string, ...args: any[]) {
-  if (field === 'department') {
-    formData.position = ''
-    formData.remark = `部门已切到 ${args[0]}`
-  }
-}
-
-// 任何写入（含上面这行编程赋值、reset 恢复）都会触发
 function onFieldUpdate(field: string, value: any) {
-  console.log(field, value) // => 'position' ''
+  console.log(field, value) // => 'department' 'tech'
 }
 
 const departments = [
@@ -238,7 +224,7 @@ const departments = [
 </script>
 
 <template>
-  <u-form ref="formRef" :model="formData" label-width="100px" :cols="1" @field:change="onFieldChange" @field:update="onFieldUpdate">
+  <u-form ref="formRef" :model="formData" label-width="100px" :cols="1" @field:update="onFieldUpdate">
     <u-select label="部门" field="department" :options="departments" />
     <u-input label="职位" field="position" />
     <u-input label="备注" field="remark" />
@@ -378,9 +364,11 @@ const formData = reactive({
 > - 控件值需要转换（如开关把 `undefined`/`true` 归一为布尔值）或多控件组合成一个字段时，用 `UFormItem` 绑 `field`、内部控件自行 `v-model` 或 `:model-value`/`@update:model-value`，**内部控件不要再写 `field`**。
 > - `label` / `rules` / `tips` / `span` 是 FormComponentProps，仅当控件位于 `UForm` 内（或包在 `UFormItem` 中）才生效；脱离表单写 `label` 无效。
 > - 本库表单控件没有 `activeValue` / `inactiveValue` 一类的自定义开/关值（`USwitch` 只接受布尔值）；需要值转换时按「自定义控件绑定字段」示例自行映射。
-> - `field:change` 语义与 1.7.9 及之前不同：旧版在 `model` 字段编程写入时也会触发且参数固定为 `(field, value)`；现在仅控件 `change`（用户操作）触发，参数与控件一致。监听 model 写入（含编程写入、回显、`reset`、`quick-edit` 回写）必须改用 `field:update`。
+> - `field:change` 已移除。监听 `model` 写入（含用户编辑、编程写入、回显、`reset`、`quick-edit` 回写）用 `field:update`。需要「仅用户操作」语义时监听具体控件的 `change`，不要再写 `@field:change`。
 > - `reset()` 恢复的是最近一次 `model` **引用**变更时的快照，不是清空；`showModified` 的基准优先取 `initialModel`。两者传入不同对象时，`reset()` 后字段值与「变更前」展示值可以不同。
 > - `showModified` 的变更判定：`null`、`undefined`、`''` 三者视为相同；对象与数组经 `JSON.stringify` 序列化后比较；其余值不相等即判定已变更。
+> - `showModified` 的「变更前」是一份独立的只读 vnode 副本，不会和当前编辑控件共用组件实例。
+> - 插槽列表身份优先用控件上的 `:key`；未写 `:key` 时用「组件名 + field + 同名出现次序」。不要给控件写 `:key="field"` 来规避复用——同一 `field` 出现两次会撞 key。`v-if` 抽掉中间字段时，相邻控件的实例（校验错误、下拉打开、内部状态）不会串过去。同一 `field` 可以出现多次（两处绑定同一 `model` 路径）；`validate()` / `registerField` 仍按 field 名只保留最后挂载的那一项。
 > - `model` 未传时，控件的修改不会写回任何对象，`field:update` 也不触发。
 
 表单根元素是 `<form>` 且已阻止原生提交（`@submit.prevent`），回车不会刷新页面。
@@ -401,6 +389,14 @@ const formData = reactive({
 ### 调用 `validate()` 直接返回 `true`，规则没生效
 
 原因：字段未写 `rules`，或控件未写 `field`（未生成 `UFormItem`，不参与校验）。修复：控件补 `field`，规则写在控件的 `rules` 上。
+
+### `@field:change` 不触发
+
+原因：`UForm` / `UBatchEdit` 已移除 `field:change`。修复：改听 `field:update`（任意 model 写入），或听具体控件的 `change`。
+
+### 联动 `v-if` 显隐字段后，旁边字段的值、校验或内部状态错了
+
+原因：`UForm` 把默认插槽拍平后用 `v-for` 再渲染。Vue 3 按 `type + key` 决定是否复用组件实例；插槽控件通常没有 key，抽掉中间节点时会把相邻 `UFormItem` 按位置补上。不要给控件加 `:key="field"`（重复 `field` 会撞 key）。库已按「调用方 `:key` → 组件名+field+出现次序」分配身份，升级即可；需要自己区分两处同名 field 时在控件上写不同的 `:key`。
 
 ### `reset()` 之后「变更前」展示的值与字段值不一致
 

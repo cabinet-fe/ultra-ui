@@ -37,18 +37,12 @@ describe('UFormItem change', () => {
 
     const model = reactive({ behavior: 'event' })
     const itemChanges: unknown[][] = []
-    const formChanges: { field: string; args: unknown[] }[] = []
 
     const app = createApp({
       render() {
         return h(
           UForm,
-          {
-            model,
-            'onField:change': (field: string, ...args: unknown[]) => {
-              formChanges.push({ field, args })
-            }
-          },
+          { model },
           {
             default: () =>
               h(
@@ -81,9 +75,6 @@ describe('UFormItem change', () => {
 
     expect(itemChanges).toHaveLength(1)
     expect(itemChanges[0]![0]).toEqual({ label: '接口', value: 'api' })
-
-    expect(formChanges).toHaveLength(1)
-    expect(formChanges[0]).toEqual({ field: 'behavior', args: [{ label: '接口', value: 'api' }] })
 
     app.unmount()
     host.remove()

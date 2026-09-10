@@ -1,8 +1,8 @@
 ---
 title: Ultra UI 列表页与详情页场景
-description: 端到端拼装中后台列表页与详情页：ULayout + UDualNav 后台布局、UTable（defineTableColumns）+ UPaginator 服务端分页、messageConfirm 增删二次确认、UDrawer 详情与 UDialog 弹窗表单；模板组件交给 VeltraUIResolver 按需引入并注入样式，渲染函数与函数式 API 显式 import 并补样式子路径。
+description: 端到端拼装中后台列表页与详情页：ULayout + UDualNav 后台布局、UCard 划分页面区块、UTable（defineTableColumns）+ UPaginator 服务端分页、messageConfirm 增删二次确认、UDrawer 详情与 UDialog 弹窗表单；模板组件交给 VeltraUIResolver 按需引入并注入样式，渲染函数与函数式 API 显式 import 并补样式子路径。
 aliases: [列表页, 详情页, 中后台页面, CRUD 页面, 管理后台]
-keywords: [VeltraUIResolver, defineTableColumns, UTable, UPaginator, ULayout, UDualNav, UDialog, UDrawer, messageConfirm, onClosed, rowKey, vLoading, components/action/style, 渲染函数, 裸样式, 列表分页, 删除确认, 二次确认, 详情抽屉, 搜索列表]
+keywords: [VeltraUIResolver, defineTableColumns, UTable, UPaginator, ULayout, UCard, UCardHeader, UCardContent, UDualNav, UDialog, UDrawer, messageConfirm, onClosed, rowKey, vLoading, components/action/style, 渲染函数, 裸样式, 列表分页, 删除确认, 二次确认, 详情抽屉, 搜索列表, 页面区块, 面板, 卡片, 空态]
 ---
 
 # Ultra UI 列表页与详情页场景
@@ -45,8 +45,8 @@ createApp(App).mount('#app')
 ```vue
 <!-- src/views/UserPage.vue —— 布局 + 搜索 + 表格 + 分页 + 确认 + 抽屉详情 + 弹窗表单 -->
 <script setup lang="ts">
-// 模板组件（u-layout / u-dual-nav / u-scroll / u-input / u-button / u-table / u-empty /
-// u-paginator / u-drawer / u-dialog / u-form）交给 VeltraUIResolver 自动引入并注入样式，
+// 模板组件（u-layout / u-dual-nav / u-scroll / u-card / u-input / u-button / u-table /
+// u-empty / u-paginator / u-drawer / u-dialog / u-form）交给 VeltraUIResolver 自动引入并注入样式，
 // 禁止在这里 import 同名组件：显式 import 会让模板改用该绑定，resolver 不再注入样式副作用。
 import { h, reactive, ref, shallowRef } from 'vue'
 // h() / render 里的组件与函数式 API 不经过模板编译，resolver 不会解析，必须显式 import
@@ -181,36 +181,49 @@ query()
     <u-dual-nav :menus="menus" :current-path="currentPath" @item-click="onNavClick" />
 
     <u-scroll>
-      <!-- 搜索条：不在 u-form 内，控件用 v-model -->
-      <div style="display: flex; gap: 8px; margin: 12px">
-        <u-input v-model="keyword" placeholder="姓名" clearable style="width: 220px" />
-        <u-button
-          type="primary"
-          @click="
-            pageNumber = 1;
-            query()
-          "
-        >
-          查询
-        </u-button>
-        <u-button
-          @click="
-            Object.assign(form, { id: undefined, name: '', status: '' });
-            dialogTitle = '新建用户';
-            dialogVisible = true
-          "
-        >
-          新建
-        </u-button>
-      </div>
+      <!-- 搜索条与表格：外层用 u-card 划分页面区块，不要自己写 div + --u-* 手搓面板 -->
+      <u-card style="margin: 12px">
+        <u-card-content>
+          <!-- 搜索条：不在 u-form 内，控件用 v-model -->
+          <div style="display: flex; gap: 8px">
+            <u-input v-model="keyword" placeholder="姓名" clearable style="width: 220px" />
+            <u-button
+              type="primary"
+              @click="
+                pageNumber = 1;
+                query()
+              "
+            >
+              查询
+            </u-button>
+            <u-button
+              @click="
+                Object.assign(form, { id: undefined, name: '', status: '' });
+                dialogTitle = '新建用户';
+                dialogVisible = true
+              "
+            >
+              新建
+            </u-button>
+          </div>
+        </u-card-content>
+      </u-card>
 
       <!-- 表格 + 分页 -->
-      <div v-loading="loading" style="margin: 0 12px">
-        <u-table v-if="rows.length" :data="rows" :columns="columns" row-key="id" border>
-        </u-table>
-        <u-empty v-else text="暂无数据" />
-      </div>
+      <u-card style="margin: 0 12px">
+        <u-card-content>
+          <div v-loading="loading">
+            <u-table :data="rows" :columns="columns" row-key="id" border>
+              <!-- 空态由 UTable 内置，文案用 #empty 覆盖；不要用 v-if 整表切换 -->
+              <template #empty>
+                <u-empty text="暂无数据" />
+              </template>
+            </u-table>
+          </div>
+        </u-card-content>
+      </u-card>
       <div style="display: flex; justify-content: flex-end; margin: 12px">
+        <!-- UPaginator 自带「共 N 条」文案与每页条数选择器，不要另写条数统计 -->
         <u-paginator
           v-model:page-number="pageNumber"
           v-model:page-size="pageSize"
@@ -222,10 +235,13 @@ query()
 
       <!-- 详情抽屉 -->
       <u-drawer v-model="detailVisible" show-close>
-        <div style="padding: 16px">
-          <p>姓名：{{ detail['name'] }}</p>
-          <p>状态：{{ detail['status'] }}</p>
-        </div>
+        <u-card integrate>
+          <u-card-header>用户详情</u-card-header>
+          <u-card-content>
+            <div class="detail-row"><span>姓名</span><span>{{ detail['name'] }}</span></div>
+            <div class="detail-row"><span>状态</span><span>{{ detail['status'] }}</span></div>
+          </u-card-content>
+        </u-card>
       </u-drawer>
 
       <!-- 弹窗表单 -->
@@ -242,14 +258,25 @@ query()
     </u-scroll>
   </u-layout>
 </template>
+
+<style scoped>
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+}
+</style>
 ```
 
-期望结果：左侧双栏导航，右侧搜索条、表格、右下角分页；点「详情」右侧滑出抽屉；点「删除」弹出红色确认框，确认后行数据从接口删除并刷新列表；点「新建 / 编辑」弹出表单弹窗，校验不通过不关闭。
+期望结果：左侧双栏导航，右侧「搜索 + 表格」与分页各占一张 `UCard` 区块；点「详情」右侧滑出抽屉；点「删除」弹出红色确认框，确认后行数据从接口删除并刷新列表；点「新建 / 编辑」弹出表单弹窗，校验不通过不关闭。
 
 ## 要点说明
 
 - `defineTableColumns`：列定义辅助函数，提供类型推导；列用 `{ key, name }` 描述，`key` 对应 `rowData[key]` 取值，`render` 自定义单元格（优先级高于 `#column:{key}` 插槽）。
 - `UTable` 的 `row-key`：未设置时内部用自增 uid 标识行；用受控选中或多选时必须设置。`UTable` 不内置分页与排序：分页配合 `UPaginator`，排序自行对 `data` 排序后传入。
+- `UTable` 空态：`data` 为空数组或 `undefined` 时组件在 tbody 内渲染默认空态，文案用 `#empty` 插槽覆盖——禁止用 `v-if="rows.length"` 把整张表换成 `UEmpty`，那样会连表头一起消失。
+- `UCard` 划分页面区块：搜索条、表格、详情内容各放一张 `UCard`，标题走 `UCardHeader`、正文走 `UCardContent`。禁止用裸 `div` 加 `background: var(--u-bg-color-top)`、`border`、`border-radius`、`padding: 16px` 手搓等价面板——那种写法不跟随 `loadTheme()` 的深浅色主题，且每个页面重复一遍。抽屉内没有页面底色，用 `integrate` 去掉卡片阴影与边框。
 - `UPaginator`：`v-model:page-number` / `v-model:page-size` 双向绑定，`total` 计算总页数；重新拉数据监听 `@change:page-number` 与 `@change:page-size` 两个事件——改每页条数会把页码重置为 1 且只触发 `change:pageSize`。
 - `messageConfirm(...).onClosed`：Promise 兑现 `'confirm' | 'cancel'`，含关闭动画结束后兑现、从不 reject；删除类确认用 `confirmButtonType: 'danger'`，取消按钮必须传 `cancelButtonText`（默认 `''` 时不渲染）。
 - `UDrawer`：`v-model` 控制显隐，默认从右侧滑出，宽 `320px`；没有 `size` / `width` prop，自定义尺寸须覆盖 `.u-drawer` 样式类。
@@ -271,6 +298,8 @@ query()
 ## 注意事项
 
 > [!WARNING]
+> - 页面区块、面板、详情抽屉内容一律用 `UCard`（`UCardHeader` / `UCardContent` / `UCardAction`），禁止自己写 `div` + `--u-*` 手搓「白底 + 边框 + 圆角 + 内边距」的面板；抽屉内用 `integrate` 去掉阴影与边框。
+> - `UTable` 的空态由组件内置，文案走 `#empty` 插槽；用 `v-if` 切换整张表会让表头一起消失。
 > - 显式 import 的组件必须补 `import '@veltra/desktop/components/<目录>/style'`：resolver 只处理模板里没有同名绑定的组件，写了 `import { UAction } from '@veltra/desktop'` 就必须写 `import '@veltra/desktop/components/action/style'`，否则结构正确但裸样式。`h()` / `render` 里的组件永不被 resolver 解析，必须显式 import，漏写报 `ReferenceError: UTag is not defined`。
 > - 本库事件名是 `change:pageNumber` / `change:pageSize`，不是 Element Plus 的 `current-change` / `size-change`；`UPaginator` 是两个独立 `v-model`，不是 `current-page` 单向 prop。
 > - `UDualNav` 用 `currentPath` 受控，没有 `v-model:current-path`；菜单项 `title` / `path` 必填。

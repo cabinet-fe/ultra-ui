@@ -160,7 +160,7 @@ export interface SelectExposed {
 ## 方法与事件
 
 - `update:modelValue` — payload 为选中项 `valueKey` 字段的值（`any`）；清除时 payload 为 `undefined`。`v-model` 即绑定此事件。
-- `change` — payload `(option?: Record<string, any>)`：用户选择时为**整个选项对象**，清除时为 `undefined`。仅用户操作触发；UForm 内经 `field:change` 冒泡，`args` 为该 payload。
+- `change` — payload `(option?: Record<string, any>)`：用户选择时为**整个选项对象**，清除时为 `undefined`。仅用户操作触发；在 `UFormItem` 内会冒泡为 Item 的 `change`。
 - `update:text` — payload `(text?: string)`：选中项展示文案。触发时机：用户选择、清除、`modelValue` 回显匹配成功、异步 `options` 到达后完成回显。单向通知，禁止写 `v-model:text`。
 - 键盘：`ArrowDown` / `ArrowUp` 移动高亮，`Enter` 选中当前高亮项。
 - 插槽：`prefix`（输入框前缀）；`default` 作用域插槽 `{ option, index }` 自定义选项渲染。

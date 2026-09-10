@@ -3,7 +3,6 @@ title: UBatchEdit 批量编辑
 description: "左侧 UTable 加右侧 UForm 的批量行编辑组件：点行打开表单编辑/查看，支持新增、上方/下方插入、树形新增子级、删除、快速编辑实时写回行数据，以及 features 功能白名单与保存/删除钩子。"
 aliases: ["UBatchEdit", "BatchEdit", "EditableTable", "行编辑", "批量行编辑", "批量表格"]
 keywords:
-  - field:change
   - field:update
   - quickEdit
   - quick-edit
@@ -114,8 +113,6 @@ export interface BatchEditProps extends TableProps {
 
 /** 批量编辑事件（继承 TableEmits，见 agent-docs/desktop/table.md） */
 export interface BatchEditEmits extends TableEmits {
-  /** 表单控件 change，透传内部 UForm；仅用户操作触发 */
-  (e: 'field:change', field: string, ...args: any[]): void
   /** 行数组整体更新（插入/删除后触发） */
   (e: 'update:data', value: Record<string, any>[]): void
   /** 点击底部「新增一行」 */
@@ -194,7 +191,6 @@ defineTableColumns([{ name: '姓名', key: 'name' }], { align: 'center', minWidt
 
 事件：
 
-- `field:change(field, ...args)` — 透传内部 `UForm`，仅用户操作控件 `change` 时触发，`args` 与控件参数一致；切行回显（重置 + 写入 `model`）不触发。适合字段联动，如联动清空下游字段。
 - `field:update` 由内部 `UForm` 消费用于 `quickEdit` 回写，**不对外 emit**；监听 model 写入只能通过 `model` 自身的 watch。
 - `update:data(rows)` — 插入或删除后触发，参数为新行数组；用 `v-model:data` 接收。
 - `create` / `create-prev(row)` / `create-next(row)` / `create-child(row)` — 点击对应操作后、表单打开时触发；`create-child` 参数为父级行，可据此初始化表单（如写入父级编码）。
@@ -252,9 +248,9 @@ async function deleteMethod(rows: Record<string, any>[]) {
 </template>
 ```
 
-### 快速编辑与字段联动
+### 快速编辑
 
-`quick-edit` 下编辑行实时写回 `row.data`，不调用 `saveMethod`；`@field:change` 仅用户操作触发，切行回显不会误触发联动。
+`quick-edit` 下编辑行实时写回 `row.data`，不调用 `saveMethod`。
 
 ```vue
 <script setup lang="ts">
@@ -273,12 +269,6 @@ const model = reactive({
   department: '',
   position: undefined as string | undefined
 })
-
-// 用户切换部门时联动清空职位；回显/重置不会触发
-function onFieldChange(field: string) {
-  if (field !== 'department') return
-  model.position = undefined
-}
 </script>
 
 <template>
@@ -288,7 +278,6 @@ function onFieldChange(field: string) {
     :model="model"
     quick-edit
     style="height: 500px"
-    @field:change="onFieldChange"
   >
     <template #form="{ row }">
       <u-input field="name" label="姓名" />

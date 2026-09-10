@@ -122,28 +122,32 @@ const count = ref(1000)
 
 ### 金额统计卡片
 
+统计卡片的外层容器用 `UCard`（禁止自己写 `div` 加 `--u-*` 手搓卡面样式），`UNumber` 只负责数字本身的格式化与补间：
+
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { UNumber, UText } from '@veltra/desktop'
+import { UCard, UCardContent, UNumber, UText } from '@veltra/desktop'
 
 const gmv = ref(9876543.21)
 const rate = ref(0.1234)
 </script>
 
 <template>
-  <div class="stat-card">
-    <u-text as="additional">本月 GMV</u-text>
-    <!-- UNumber 无包裹元素：字号、颜色写在父容器上 -->
-    <p style="font-size: 24px; color: #f56c6c">
-      <u-number :value="gmv" format="currency" :min-precision="2" tween />
-    </p>
-    <!-- 禁止把 u-number 嵌进 u-text：UText 只渲染文本节点 -->
-    <p>
-      <u-text as="content">环比 </u-text>
-      <u-number :value="rate" format="percent" :precision="1" />
-    </p>
-  </div>
+  <u-card size="large">
+    <u-card-content>
+      <u-text as="additional">本月 GMV</u-text>
+      <!-- UNumber 无包裹元素：字号、颜色写在父容器上 -->
+      <p style="margin: 4px 0 0; font-size: 24px; color: var(--u-color-danger)">
+        <u-number :value="gmv" format="currency" :min-precision="2" tween />
+      </p>
+      <!-- 禁止把 u-number 嵌进 u-text：UText 只渲染文本节点 -->
+      <p style="margin: 4px 0 0">
+        <u-text as="content">环比 </u-text>
+        <u-number :value="rate" format="percent" :precision="1" />
+      </p>
+    </u-card-content>
+  </u-card>
 </template>
 ```
 
@@ -156,6 +160,7 @@ const rate = ref(0.1234)
 > - `format="percent"` 遵循 Intl 约定：展示值是 `value × 100`。传 `12.34` 显示 `1,234%`，比例值必须先除以 100。
 > - `precision` 与 `maxPrecision` / `minPrecision` 同时传时，后两者优先（`maxPrecision ?? precision`、`minPrecision ?? precision`）。
 > - `align` prop 当前版本无效果（见参数说明），禁止依赖它对齐；表格内对齐写在单元格上。
+> - 统计卡片、数据卡片的外层容器用 `@veltra/desktop` 的 `UCard`（`UCardContent` 放文本与数字），不要自己写 `div` 加 `background: var(--u-bg-color-top)`、`border`、`border-radius` 拼等价卡面。
 
 ## 常见问题
 

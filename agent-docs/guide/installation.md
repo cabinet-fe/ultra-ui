@@ -138,7 +138,7 @@ Ultra UI 是 npm 作用域 `@veltra/*` 下的 Vue 3 组件与能力库。本指�
    })
    ```
 
-   `tsconfig.json` 需 `"jsx": "preserve"`（本仓库 `test/tsconfig.json` 即此配置）。TSX 里用到的组件必须显式 import 并按方式三的规则补样式子路径，resolver 不解析 JSX。
+   `tsconfig.json` 需 `"jsx": "preserve"`。TSX 里用到的组件必须显式 import 并按方式三的规则补样式子路径，resolver 不解析 JSX。
 
 5. 仅当项目写 `<style lang="scss">` 且要用 `pkg:@veltra/styles/...` token 函数 / mixin 时配置。`NodePackageImporter` 从 `sass-embedded` 导入，不注册时 `pkg:` 导入报 `Can't find stylesheet to import`：
 

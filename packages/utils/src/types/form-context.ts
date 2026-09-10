@@ -44,8 +44,6 @@ type DIContext = {
   shouldValidate?: () => boolean
   /** 处理字段 model 更新（watch 触发） */
   handleFieldUpdate: (field: string, value: any) => void
-  /** 处理控件 change 事件 */
-  handleFieldChange: (field: string, ...args: any[]) => void
 }
 
 const FormComponentDIKey: InjectionKey<DIContext> = Symbol('FormComponentDIKey')

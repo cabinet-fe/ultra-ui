@@ -29,8 +29,6 @@ export interface FormProps extends ComponentProps {
 }
 
 export interface FormEmits {
-  /** 控件 change 事件，仅用户操作触发 */
-  (e: 'field:change', field: string, ...args: any[]): void
   /** model 字段值更新，含编程写入 */
   (e: 'field:update', field: string, value: any): void
 }

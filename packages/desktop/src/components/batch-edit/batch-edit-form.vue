@@ -29,7 +29,6 @@
           :readonly="props.readonly"
           :label-width="props.labelWidth"
           @field:update="handleFieldUpdate"
-          @field:change="handleFormFieldChange"
         >
           <slot
             v-bind="{
@@ -92,17 +91,8 @@ defineOptions({ name: 'UBatchEditForm' })
 
 const batchEditCtx = inject(BatchEditDIKey)!
 
-const {
-  cls,
-  props,
-  state,
-  emit,
-  handleClose,
-  handleSave,
-  staticFeatures,
-  dynamicFeatures,
-  syncing
-} = batchEditCtx
+const { cls, props, state, handleClose, handleSave, staticFeatures, dynamicFeatures, syncing } =
+  batchEditCtx
 
 const focused = toRef(batchEditCtx, 'focused')
 
@@ -122,10 +112,6 @@ function handleFieldUpdate(field: string, value: any) {
   if (state.row && props.quickEdit) {
     o(state.row.data).set(field, value)
   }
-}
-
-function handleFormFieldChange(field: string, ...args: any[]) {
-  emit('field:change', field, ...args)
 }
 
 const creatable = computed(() => {

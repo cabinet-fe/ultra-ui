@@ -8,8 +8,8 @@
     :class="[cls.b, bem.is('readonly', readonly)]"
   >
     <template
-      v-for="{ node, isFormItem, formItemProps, field, modelValue } of getSlotsNodes()"
-      :key="node.key"
+      v-for="{ node, isFormItem, formItemProps, field, modelValue, renderKey } of getSlotsNodes()"
+      :key="renderKey"
     >
       <u-form-item v-if="!isFormItem && field" v-bind="formItemProps">
         <component
@@ -19,7 +19,7 @@
         />
         <div v-if="shouldShowModified(field)" :class="cls.e('data-before')">
           <span :class="cls.e('changed-tag')">{{ modifiedLabel }}</span>
-          <component :is="node" readonly :model-value="getBaselineFieldValue(field)" />
+          <component :is="createModifiedPreview(node, field)" />
         </div>
       </u-form-item>
 
@@ -32,14 +32,14 @@
 import { o } from '@cat-kit/core'
 import { bem } from '@veltra/utils'
 import { provideFormContext } from '@veltra/utils'
-import { nextTick, toRef, useTemplateRef } from 'vue'
+import { nextTick, toRef, useTemplateRef, type VNode } from 'vue'
 
 import type { BreakCols, FormProps, _FormExposed, FormEmits } from '../../types'
 import { UFormItem } from '../form-item'
 import { UGrid } from '../grid'
 import { isFieldModified } from './is-field-modified'
 import { useFormFields } from './use-form-fields'
-import { useNodeInterceptor } from './use-node-interceptor'
+import { forkUnmountedVNode, useNodeInterceptor } from './use-node-interceptor'
 
 defineOptions({ name: 'UForm' })
 
@@ -81,18 +81,13 @@ function handleFieldUpdate(field: string, value: any) {
   emit('field:update', field, value)
 }
 
-function handleFieldChange(field: string, ...args: any[]) {
-  emit('field:change', field, ...args)
-}
-
 provideFormContext({
   formProps: props,
   registerField,
   unregisterField,
   validateFields: validate,
   shouldValidate,
-  handleFieldUpdate,
-  handleFieldChange
+  handleFieldUpdate
 })
 
 const { getSlotsNodes } = useNodeInterceptor()
@@ -104,6 +99,10 @@ function handleUpdateValue(field: string, value: any) {
 
 function getBaselineFieldValue(field: string) {
   return o(getBaselineModel() ?? {}).get(field)
+}
+
+function createModifiedPreview(node: VNode, field: string) {
+  return forkUnmountedVNode(node, { readonly: true, modelValue: getBaselineFieldValue(field) })
 }
 
 function shouldShowModified(field: string) {

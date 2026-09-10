@@ -1,17 +1,17 @@
 ---
 title: Ultra UI 表单场景
-description: 端到端实现 Ultra UI 表单：UForm + field 绑定 model、非 field 场景（开关值转换 / 多控件组合字段）用 UFormItem、ValidateRule 校验（required/minLen/preset/validator）、field:change 字段联动、showModified 变更前展示与 reset 重置；模板组件交给 VeltraUIResolver 注入组件 import 与样式副作用，显式 import 的组件必须补 components/<目录>/style，漏写时渲染成裸样式。
-aliases: [表单, 表单校验, 表单联动, UForm, Form]
-keywords: [UForm, UFormItem, field, ValidateRule, field:change, field:update, showModified, initialModel, reset, validate, clearValidate, 字段联动, 变更前, 表单校验, 值转换, 开关字段, VeltraUIResolver, components/button/style, 裸样式, 样式副作用]
+description: 端到端实现 Ultra UI 表单：UForm + field 绑定 model、非 field 场景（开关值转换 / 多控件组合字段）用 UFormItem、ValidateRule 校验（required/minLen/preset/validator）、field:update 监听写入、showModified 变更前展示与 reset 重置；模板组件交给 VeltraUIResolver 注入组件 import 与样式副作用，显式 import 的组件必须补 components/<目录>/style，漏写时渲染成裸样式。
+aliases: [表单, 表单校验, UForm, Form]
+keywords: [UForm, UFormItem, field, ValidateRule, field:update, showModified, initialModel, reset, validate, clearValidate, 变更前, 表单校验, 值转换, 开关字段, VeltraUIResolver, components/button/style, 裸样式, 样式副作用]
 ---
 
 # Ultra UI 表单场景
 
-Ultra UI（`@veltra/*`）的表单方案：`UForm` 拦截默认插槽里带 `field` 的控件，自动生成 `UFormItem` 并按 `field` 路径读写 `model`。本方案覆盖字段绑定、`ValidateRule` 校验、`field:change` 字段联动、`showModified` 变更展示与 `reset`，端到端一个完整 SFC。
+Ultra UI（`@veltra/*`）的表单方案：`UForm` 拦截默认插槽里带 `field` 的控件，自动生成 `UFormItem` 并按 `field` 路径读写 `model`。本方案覆盖字段绑定、`ValidateRule` 校验、`field:update` 写入监听、`showModified` 变更展示与 `reset`，端到端一个完整 SFC。
 
 ## 场景
 
-- 何时用本方案：需要标签、校验、字段联动或把值写进 `model` 的表单页（新建 / 编辑 / 筛选提交）。
+- 何时用本方案：需要标签、校验或把值写进 `model` 的表单页（新建 / 编辑 / 筛选提交）。
 - 何时不用：工具栏、筛选条上的独立输入框——不包 `u-form`，控件直接 `v-model`，`label` / `rules` 此时无效。
 - 何时显式包 `u-form-item`：只有两种情况——控件值需转换后才能落库（如开关把 `undefined`/`true` 归一为布尔值），或多个控件组合成一个字段。此时 `field` 写在 `u-form-item` 上，内部控件自行 `v-model`（或 `:model-value` / `@update:model-value`）且不再写 `field`。
 - 本库不照搬 Element Plus / Ant Design：不需要为每个字段手写外层表单项再给控件 `v-model`；单字段控件写 `field` 即可，`UForm` 会自动生成表单项。
@@ -64,16 +64,9 @@ const departments = [
   { label: '市场部', value: 'marketing' }
 ]
 
-// field:change 仅用户操作控件时触发；编程写入、回显、reset 不触发
-function onFieldChange(field: string, ...args: unknown[]) {
-  if (field === 'department') {
-    formData.position = '' // 改部门时联动清空职位
-  }
-}
-
-// field:update 覆盖一切 model 写入（含上面这行编程赋值、reset 恢复）
+// field:update 覆盖一切 model 写入（用户编辑、编程赋值、reset 恢复）
 function onFieldUpdate(field: string, value: unknown) {
-  console.log(field, value) // => 'position' ''
+  console.log(field, value) // => 'username' 'ada'
 }
 
 async function handleSubmit() {
@@ -96,7 +89,6 @@ function handleReset() {
     show-modified
     label-width="100px"
     :cols="1"
-    @field:change="onFieldChange"
     @field:update="onFieldUpdate"
   >
     <u-input
@@ -142,10 +134,10 @@ function handleReset() {
   - `match`：`RegExp | string | [RegExp, string]` 正则匹配。
   - `preset`：`'email' | 'phone' | 'num' | 'url' | 'idCard'` 预设规则，如 `preset: 'email'`。
   - `validator`：`(value, data) => Promise<string> | string`，返回错误文案表示不通过、空串或 resolve 空表示通过；最后执行。
-- `field:change` 与 `field:update` 分工：`field:change(field, ...args)` 仅用户操作控件触发，`args` 与控件 `change` 参数一致，字段联动监听它可避免切行回显误触发；`field:update(field, value)` 在 model 字段任何写入时触发（用户编辑、编程写入、回显、`reset`）。
+- `field:update(field, value)` 在 model 字段任何写入时触发（用户编辑、编程写入、回显、`reset`）。`v-if` 显隐其它字段时，相邻控件不会被 Vue 按位置复用。
 - `showModified`：开启后字段当前值与基准不同时，在控件下方展示「变更前」（文案由 `modifiedLabel` 定，默认 `'变更前：'`）。基准优先取 `initialModel`，未传时取最近一次 `model` 引用变更的快照（与 `reset` 同源）。变更判定：`null`、`undefined`、`''` 视为相同；对象与数组经 `JSON.stringify` 比较。
 - `validate()` 异步返回 `Promise<boolean>`，失败滚动到首个错误项；`validate(['username'])` 只校验指定字段，列表外与不存在的字段视为通过。字段值每次变化自动重校验。
-- `reset()` 同步：把 `model` 恢复为最近一次 `props.model` **引用**变更时的快照（替换整个 model 对象才刷新快照），清除校验并抑制本次重校验；恢复写入触发 `field:update`，不触发 `field:change`。`clearValidate()` 只清错误文本。
+- `reset()` 同步：把 `model` 恢复为最近一次 `props.model` **引用**变更时的快照（替换整个 model 对象才刷新快照），清除校验并抑制本次重校验；恢复写入触发 `field:update`。`clearValidate()` 只清错误文本。
 - 组件样式与显式 import 成对出现：`u-form` / `u-input` / `u-number-input` / `u-select` / `u-button` 写在模板里时由 `VeltraUIResolver` 注入组件 import 与样式副作用（`components/form/style`、`components/input/style`、`components/number-input/style`、`components/select/style`、`components/button/style`），`<script setup>` 里禁止写这些组件的 import。resolver 只重写模板里没有同名绑定的 `_resolveComponent("<组件名>")` 调用；显式 import 的组件不再产生该调用，必须自己补样式子路径：
 
   ```ts
@@ -164,7 +156,7 @@ function handleReset() {
 > - 本库控件在 `UForm` 内用 `field` 绑定 model，不是 `v-model`；`field` 与 `v-model` 并用是错误写法。
 > - 不要照搬 Element Plus / Ant Design：不需要为每个字段手写 `el-form-item` / `Form.Item` 再给控件 `v-model`。单字段控件写 `field` 即可；只有值转换与多控件组合两种场景才手写 `u-form-item`。
 > - `label` / `rules` / `tips` / `span` 只有在 `UForm` 内（或包了 `UFormItem`）才生效；脱离表单写 `label` 无效。
-> - 本库事件名是 `field:change` / `field:update`，不是 `change` 直接冒泡到 `u-form`；监听 model 写入必须用 `field:update`。
+> - 本库事件名是 `field:update`，不是 `change` 直接冒泡到 `u-form`；`field:change` 已移除。
 > - `reset()` 恢复的是 model 引用变更时的快照，不是清空；需要「清空」语义时自己 `Object.assign(formData, 空值对象)` 后调 `clearValidate()`。
 > - `initialModel` 与 `reset()` 快照是两个来源：传不同对象时，`reset()` 后字段值与「变更前」展示值可以不同；把 `initialModel` 与 `model` 初始值保持一致即可对齐两者。
 > - 独立使用控件（不在 `u-form` 内）时才用 `v-model`；不要把控件文档的「基础用法」原样搬进表单。

@@ -158,7 +158,7 @@ export type MultiSelectExposed = Record<string, never>
 ## 方法与事件
 
 - `update:modelValue` — payload 为选中值数组（`Array<any>`），按勾选顺序追加。`v-model` 即绑定此事件。
-- `change` — payload `(options: Record<string, any>[])`：勾选、取消、全选、清除时触发，为**当前全部选中项的选项对象数组**。仅用户操作触发；UForm 内经 `field:change` 冒泡。
+- `change` — payload `(options: Record<string, any>[])`：勾选、取消、全选、清除时触发，为**当前全部选中项的选项对象数组**。仅用户操作触发；在 `UFormItem` 内会冒泡为 Item 的 `change`。
 - 面板顶部常驻多选栏：全选复选框（支持半选态）与 `已选 X/Y` 计数，`Y` 为 `max ?? options.length`；设置 `max` 后全选框禁用。
 - `creatable` 创建方式：在触发器输入框输入后按 `Enter`；重复 `Enter` 不会产生重复项。
 - 插槽：`default` 作用域插槽 `{ option, index }` 自定义选项渲染。

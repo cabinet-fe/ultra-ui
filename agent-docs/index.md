@@ -1,13 +1,15 @@
 ---
 title: Ultra UI 总览
 description: Ultra UI（@veltra/*）是面向 Vue 3 的组件与能力库，包含 78 篇桌面组件文档、AI 对话（UAiChat / useChat）、电子表格（USheet / Workbook）、组合式函数、utils 工具、指令、主题系统与按需导入解析器；本篇是全部 124 篇文档的路由表。
-aliases: [ultra-ui, veltra, UltraUI, 组件库总览, 文档索引]
-keywords: ["@veltra/desktop", "@veltra/ai", "@veltra/sheet", "@veltra/sheet-core", "@veltra/compositions", "@veltra/utils", "@veltra/directives", "@veltra/icons", "@veltra/styles", "@veltra/vite", Vue 3, 组件库, 安装, 模块列表, loadTheme, VeltraUIResolver, "@vitejs/plugin-vue-jsx", 样式副作用, 图标清单]
+aliases: [ultra-ui, veltra, UltraUI, 组件库总览, 文档索引, 组件总览, 组件列表, 组件清单, 全部组件, 所有组件, 组件大全, 组件一览, 有哪些组件, 组件分类, 选组件, 文档目录]
+keywords: ["@veltra/desktop", "@veltra/ai", "@veltra/sheet", "@veltra/sheet-core", "@veltra/compositions", "@veltra/utils", "@veltra/directives", "@veltra/icons", "@veltra/styles", "@veltra/vite", Vue 3, 组件库, 安装, 模块列表, 组件列表, 全部组件, 组件总览, 组件分类, 组件速查, 选组件, loadTheme, VeltraUIResolver, "@vitejs/plugin-vue-jsx", 样式副作用, 图标清单]
 ---
 
 # Ultra UI 总览
 
 Ultra UI（npm 作用域 `@veltra/*`）是面向 Vue 3 的组件与能力库：组件从 `@veltra/desktop` 导入，AI 对话用 `@veltra/ai`，电子表格用 `@veltra/sheet`（模型层 `@veltra/sheet-core`），icons / compositions / utils / directives / styles 分包提供，`@veltra/vite` 提供按需导入解析器。硬规则：入口必须 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色；组件样式是独立入口，走 resolver 的模板组件自动带样式，显式 import 的组件（`h()` / render / TSX 里用的）必须自己补 `import '@veltra/desktop/components/<目录>/style'`。运行时要求 Vue `>=3.5.42`；当前组件包版本 `@veltra/desktop@1.7.11`。
+
+写界面结构前先用下方「模块速查」确认有没有对应组件：常见容器与排版一律用现成组件——页面区块、面板、统计卡片用 `UCard`（`desktop/card.md`），栅格与分栏用 `UGrid` / `ULayout`，文本排版用 `UText`，空态用 `UEmpty`，加载遮罩用 `vLoading`，消息与确认用 `message` / `messageConfirm`。禁止用裸 `div` 加 `--u-*` 手写这些组件的等价外观（底色 + 边框 + 圆角 + 内边距的卡面、字号字重的标题体系），手写版本不跟随主题切换且在各页面重复。
 
 ## 安装
 
@@ -76,7 +78,7 @@ createApp(App).mount('#app')
 | UFilePicker | 文件选择器：本地文件选择上传 | `desktop/file-picker.md` |
 | UFileViewer | 文件查看器：docx / pdf 等文件在线预览 | `desktop/file-viewer.md` |
 | UFloatButton | 浮动按钮：悬浮固定位置的操作按钮 | `desktop/float-button.md` |
-| UForm | 表单容器：拦截 field 控件自动生成表单项，校验 / 联动 / showModified / reset | `desktop/form.md` |
+| UForm | 表单容器：拦截 field 控件自动生成表单项，校验 / showModified / reset | `desktop/form.md` |
 | UFormItem | 表单项：单字段 label / rules / tips / span 容器与 ValidateRule 校验规则 | `desktop/form-item.md` |
 | UGanttChart | 甘特图：任务时间轴条状图 | `desktop/gantt-chart.md` |
 | UGrid / UGridItem | 栅格布局：24 栅格响应式分栏 | `desktop/grid.md` |
@@ -126,6 +128,20 @@ createApp(App).mount('#app')
 | UTree | 树形控件：层级节点展开勾选 | `desktop/tree.md` |
 | UTreeSelect | 树选择器：树形下拉选择 | `desktop/tree-select.md` |
 | UWatermark | 水印：页面 / 容器水印 | `desktop/watermark.md` |
+
+上表按导出名字母序，便于已知组件名时定位。不知道组件名、只按界面意图选组件时用下面这张按分类组织的索引（组件名与用途同表，文档路径见上表）：
+
+| 分类 | 组件 |
+| --- | --- |
+| 布局与容器 | `ULayout` 分栏外壳、`UGrid` / `UGridItem` 栅格、`UScroll` 细滚动条容器、`UCard` 系列 页面区块 / 面板 / 统计卡片容器、`UList` / `UListItem` 列表、`UCollapse` / `UCollapseItem` 折叠、`UTabs` 系列 标签页 |
+| 导航 | `UDualNav` 双栏导航、`UNav` 多级侧边导航、`UGroupNav` 分组导航、`UBreadcrumb` 面包屑、`USteps` 步骤条、`UProgressNodes` 进度节点、`UFloatButton` 浮动按钮 |
+| 文本与图标 | `UText` 文本排版（五档字号字重）、`UIcon` 图标、`UKbd` 按键、`UBadge` 徽标、`UTag` 标签、`UNodeRender` 节点渲染、`UWatermark` 水印 |
+| 按钮与操作 | `UButton` / `UButtonGroup` 按钮、`UAction` / `UActionGroup` 表格行内操作、`USegment` 分段控制器、`UCheckTag` 可选中标签、`UDropdown` 下拉菜单、`UContextmenu` 右键菜单 |
+| 表单与输入 | `UForm` 表单容器、`UFormItem` 表单项、`UInput`、`UTextarea`、`UPasswordInput`、`UNumberInput`、`UNumberRangeInput`、`UAutoComplete`、`UGroupInput`、`UGridInput`、`USwitch`、`UCheckbox` / `UCheckboxButton`、`UCheckboxGroup`、`URadio`、`URadioGroup`、`USlider` |
+| 选择器与日期 | `USelect`、`UMultiSelect`、`UTreeSelect`、`UMultiTreeSelect`、`UCascade`、`UTree`、`UDatePicker`、`UDateRangePicker`、`UDatePanel`、`UCalendar`、`UPalette` |
+| 数据展示 | `UTable` 数据表格、`UTableEditor` 可编辑表格、`UPaginator` 分页器（含「共 N 条」文案）、`UNumber` 数字格式化与补间、`UEmpty` 空状态、`UGanttChart` 甘特图 |
+| 反馈与浮层 | `message` / `UMessage` 轻提示、`notification` / `UNotification` 通知、`messageConfirm` / `UMessageConfirm` 确认框、`UPopConfirm` 气泡确认、`UTip` 文字提示、`UDialog` 对话框、`UDrawer` 抽屉、`ULoading` / `vLoading` 加载、`UProgress` 进度条 |
+| 进阶编辑器 | `UBatchEdit` 批量编辑、`UConditionEditor` 条件编辑器、`UExpressionEditor` 表达式编辑器、`UCodeEditor` 代码编辑器、`URichTextEditor` 富文本编辑器、`UFilePicker` 文件选择、`UFileViewer` 文件预览、`UImageCropper` 图片裁剪、`UTheme` 主题编辑器 |
 
 ### compositions 组合式函数（@veltra/compositions）
 
@@ -203,7 +219,7 @@ createApp(App).mount('#app')
 | 模块 | 用途 | 文档路径 |
 | --- | --- | --- |
 | 主题定制 | 预设切换、深浅色、品牌色、侧栏外观与 SCSS token 端到端 | `recipes/theme.md` |
-| 表单 | UForm + field 绑定 + 校验 + 联动 + showModified + reset 端到端 | `recipes/form.md` |
+| 表单 | UForm + field 绑定 + 校验 + showModified + reset 端到端 | `recipes/form.md` |
 | 列表页与详情页 | 布局 + 表格分页 + 确认框 + 抽屉详情端到端 | `recipes/pages.md` |
 | 电子表格接入 | USheet 基础接入 + 填报只读 + 自定义工具端到端 | `recipes/sheet.md` |
 | AI 对话集成 | 服务端代理 + UAiChat + 无头 useChat 端到端 | `recipes/ai.md` |

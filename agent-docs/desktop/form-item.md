@@ -12,7 +12,6 @@ keywords:
   - modelValue
   - update:modelValue
   - change
-  - field:change
   - required
   - validator
   - preset
@@ -137,7 +136,7 @@ export interface FormItemExposed {}
 
 | 参数 | 类型 | 默认 | 必填 | 约束 |
 | --- | --- | --- | :---: | --- |
-| `field` | `string` | — | 是（需 label/校验时） | 支持 `a.b` 嵌套路径；缺失时 label、必填星标、校验、`field:change` 上抛全部不生效 |
+| `field` | `string` | — | 是（需 label/校验时） | 支持 `a.b` 嵌套路径；缺失时 label、必填星标、校验全部不生效 |
 | `label` | `string` | — | 否 | 与 `#label` 插槽二选一；`labelPosition='left'` 时自动追加冒号 |
 | `rules` | `ValidateRule` | — | 否 | 执行顺序：`required` 先行，其余规则按对象键序，`validator` 最后；需所在 `UForm` 的 `model` |
 | `tips` | `string` | — | 否 | 悬浮提示文案；包裹 label，hover 500ms 后显示 |
@@ -152,7 +151,7 @@ export interface FormItemExposed {}
 
 ## 方法与事件
 
-- `change(...args)` — 默认插槽内任意控件触发 `change` 时冒泡，`args` 与该控件的 `change` 参数完全一致；同步经 Form context 上抛为 `UForm` 的 `field:change`（仅当 Item 带 `field`）。编程写入 `model` 不触发 `change`，只触发 `UForm` 的 `field:update`。
+- `change(...args)` — 默认插槽内任意控件触发 `change` 时冒泡，`args` 与该控件的 `change` 参数完全一致。编程写入 `model` 不触发 `change`，只触发 `UForm` 的 `field:update`。
 - 校验行为 — Item 带 `field` 时注册进表单：`model[field]` 每次变化自动重新校验（`reset()` 期间抑制）；异步 `validator` 采用递增序号，仅采纳最新一次结果。错误文本渲染在内容区下方，`readonly` 或表单 `noTips` 时不显示。
 - 暴露 — 无公开方法；`FormItemExposed` 为空类型，模板 ref 上无可调用成员。
 
@@ -247,7 +246,7 @@ const formData = reactive({ status: undefined as boolean | undefined })
 > - 单字段控件只需在控件上写 `field`：`UForm` 自动生成 `UFormItem`，并把控件的 `label` / `rules` / `tips` / `span` / `readonly` 透传给该表单项（即控件上的这些属性最终挂在自动生成的 `UFormItem` 上）。仅在控件值需转换、多控件组合一个字段、自定义 label、单项覆盖布局这几种场景才手写 `UFormItem`。
 > - `UFormItem` 必须位于 `UForm` 内：校验依赖表单注入的 `model` 与 `validateFields`，脱离表单时 `rules` 静默不校验。
 > - 与 Element Plus / Ant Design 不同，本库不需要为每个字段手写表单项容器；给单个控件套 `UFormItem` 且内部控件再写 `field` 是错误的双包写法。
-> - 内部控件 `change` 冒泡为 Item 的 `change` 并上抛为表单 `field:change`；编程写入 `model` 只触发 `field:update`，监听不到 `change`。
+> - 内部控件 `change` 冒泡为 Item 的 `change`；编程写入 `model` 只触发 `UForm` 的 `field:update`，监听不到 `change`。
 > - `span: 0` 会让整个表单项不渲染，仅用于动态隐藏字段。
 
 ## 常见问题

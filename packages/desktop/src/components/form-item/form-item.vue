@@ -69,14 +69,8 @@ defineSlots<{
 }>()
 
 /** 表单组件上下文 */
-const {
-  formProps,
-  registerField,
-  unregisterField,
-  shouldValidate,
-  handleFieldUpdate,
-  handleFieldChange
-} = injectFormContext()
+const { formProps, registerField, unregisterField, shouldValidate, handleFieldUpdate } =
+  injectFormContext()
 
 function wrapControlChange(node: VNode) {
   if (!node || typeof node.type === 'symbol') return node
@@ -84,7 +78,6 @@ function wrapControlChange(node: VNode) {
   return cloneVNode(node, {
     onChange: (...args: any[]) => {
       emit('change', ...args)
-      if (props.field) handleFieldChange?.(props.field, ...args)
     }
   })
 }

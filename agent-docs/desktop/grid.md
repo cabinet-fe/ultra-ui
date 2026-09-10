@@ -1,8 +1,8 @@
 ---
 title: UGrid / UGridItem 栅格布局
 description: "@veltra/desktop 的栅格布局组件：UGrid 按 CSS Grid 排列子项，cols 支持 24 栅格数字、容器断点对象、函数三种写法，UGridItem 用 span 控制跨距（支持响应式与整行）；断点按容器宽度检测，不依赖视口。"
-aliases: [Grid, GridItem, 栅格, 栅格系统, 网格布局]
-keywords: [cols, gap, span, breakpoint-change, resize, BreakCols, Breakpoint, full, tag, 栅格, 断点, 响应式, 跨距, 列数, 间距, 整行]
+aliases: [Grid, GridItem, 栅格, 栅格系统, 网格布局, 栅格布局, 分栏]
+keywords: [cols, gap, span, breakpoint-change, resize, BreakCols, Breakpoint, full, tag, 栅格, 断点, 响应式, 跨距, 列数, 间距, 整行, 统计卡片, 卡片布局, 多列布局, 自适应列数]
 ---
 
 # UGrid / UGridItem 栅格布局
@@ -218,6 +218,7 @@ import { UGrid, UGridItem } from '@veltra/desktop'
 > - `resize` / `breakpoint-change` 仅响应式模式触发；`cols` 传纯数字且没有对象形式 `span` 时不会挂 `ResizeObserver`。
 > - `gap` 字符串顺序是 `'行间距 列间距'`，与 CSS `gap` 简写一致；不带单位的值自动补 px。
 > - `UGridItem` 只能在 `UGrid` 内使用，单独渲染会在控制台报错 `GridItem组件仅能在Grid组件中使用`。
+> - 栅格只排布轨道，不提供任何格子外观；放进格子的统计卡片、页面区块用 `@veltra/desktop` 的 `UCard`（`UCardHeader` / `UCardContent`），且禁止给它传 `width`——传了就固定成该像素值、不再随单元格伸缩。
 > - 本组件是布局栅格 `UGrid`，不是数据表格；找表格见 `agent-docs/desktop/table.md`。
 
 ## 常见问题
