@@ -136,3 +136,6 @@ docs/superpowers
 
 # agent cooking scratch
 .agents/cooking/
+
+# 库文档验证用试点应用（不参与 workspace，本地起服务验证文档可用性）
+/test/
