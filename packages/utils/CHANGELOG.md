@@ -1,5 +1,9 @@
 # @veltra/utils
 
+## 1.7.11
+
+No changes in this release.
+
 ## 1.7.10
 
 ### Patch Changes

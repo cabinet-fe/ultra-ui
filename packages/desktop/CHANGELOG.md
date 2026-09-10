@@ -1,5 +1,13 @@
 # @veltra/desktop
 
+## 1.7.11
+
+### Patch Changes
+
+- 63fe4e2: - 按钮（Button）：不再注入默认 `aria-label="button"`，可访问名恢复为默认插槽文本，或调用方透传的 `aria-label`（纯图标按钮需自行传 `aria-label`）
+  - 抽屉（Drawer）：补上 `title` 的标题栏渲染；`closed` 改为在抽屉与遮罩退出动画结束、节点已移除后触发（`close` 仍为点击时触发）；移除 `DrawerProps` 上并未生效的 `closable` 默认值
+- 6b4a265: - 表单项（FormItem）：修复默认插槽经内部组件转发后没有更新路径的问题。父级重渲染时插槽控件不再冻结在首帧，动态绑定（`disabled`、透传属性等）与控件 `change` 拦截（`field:change`）均可正常更新
+
 ## 1.7.10
 
 ### Patch Changes
