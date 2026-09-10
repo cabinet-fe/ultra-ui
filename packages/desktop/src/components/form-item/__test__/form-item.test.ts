@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { createApp, h, nextTick, reactive } from 'vue'
+import { createApp, h, nextTick, reactive, ref } from 'vue'
 
 import { UForm } from '../../form'
+import { UInput } from '../../input'
 import { USelect } from '../../select'
 import { UFormItem } from '../index'
 
@@ -83,6 +84,44 @@ describe('UFormItem change', () => {
 
     expect(formChanges).toHaveLength(1)
     expect(formChanges[0]).toEqual({ field: 'behavior', args: [{ label: '接口', value: 'api' }] })
+
+    app.unmount()
+    host.remove()
+  })
+
+  it('显式 UFormItem 内控件的动态 props 随父级更新', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
+    const model = reactive({ name: '' })
+    const disabled = ref(false)
+
+    const app = createApp({
+      render() {
+        return h(
+          UForm,
+          { model },
+          {
+            default: () =>
+              h(
+                UFormItem,
+                { field: 'name', label: '姓名' },
+                { default: () => h(UInput, { modelValue: model.name, disabled: disabled.value }) }
+              )
+          }
+        )
+      }
+    })
+
+    app.mount(host)
+
+    const input = () => host.querySelector('input')!
+    expect(input().disabled).toBe(false)
+
+    disabled.value = true
+    await nextTick()
+
+    expect(input().disabled).toBe(true)
 
     app.unmount()
     host.remove()

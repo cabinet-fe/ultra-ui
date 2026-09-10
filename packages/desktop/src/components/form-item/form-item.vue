@@ -17,7 +17,9 @@
 
     <section :class="cls.e('wrapper')">
       <div :class="cls.e('content')">
-        <ContentSlot />
+        <ContentSlot>
+          <slot></slot>
+        </ContentSlot>
       </div>
 
       <!-- 只有表单控件处于非只读状态时，才显示错误提示 -->
@@ -35,16 +37,16 @@
 <script lang="tsx" setup>
 import { o } from '@cat-kit/core'
 import { useConfig, useFallbackProps } from '@veltra/compositions'
-import { bem, withUnit } from '@veltra/utils'
+import { bem, extractNormalVNodes, withUnit } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
 import {
   type CSSProperties,
+  type SetupContext,
   type VNode,
   cloneVNode,
   computed,
   onBeforeUnmount,
   shallowRef,
-  useSlots,
   watch
 } from 'vue'
 
@@ -59,8 +61,6 @@ defineOptions({ name: 'UFormItem' })
 const props = withDefaults(defineProps<FormItemProps>(), { readonly: undefined })
 
 const emit = defineEmits<FormItemEmits>()
-
-const slots = useSlots()
 
 defineSlots<{
   /** 标签插槽 */
@@ -89,9 +89,13 @@ function wrapControlChange(node: VNode) {
   })
 }
 
-function ContentSlot() {
-  const nodes = slots.default?.() ?? []
-  return nodes.map(wrapControlChange)
+/**
+ * 承载默认插槽并拦截控件 change。
+ * 必须经填充插槽接收内容（而非直接读 UFormItem 的 $slots）：
+ * 读父级 $slots 时组件自身没有更新路径，父级重渲染后动态 props（disabled、data 等）会冻结在首帧。
+ */
+function ContentSlot(_: unknown, { slots }: SetupContext) {
+  return extractNormalVNodes(slots.default?.() ?? []).map(wrapControlChange)
 }
 
 const { config } = useConfig()
