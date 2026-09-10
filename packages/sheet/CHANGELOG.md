@@ -1,5 +1,9 @@
 # @veltra/sheet
 
+## 2.5.6
+
+No changes in this release.
+
 ## 2.5.5
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @veltra/utils
 
+## 1.7.10
+
+### Patch Changes
+
+- c4a10f4: - 表单上下文（`provideFormContext` / `injectFormContext`）：`handleFieldChange` 参数放宽为 `(field: string, ...args: any[])`，并新增 `handleFieldUpdate` 用于 `model` 字段更新回调
+
 ## 1.7.9
 
 No changes in this release.
