@@ -35,8 +35,7 @@
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "bun run scripts/release.ts",
-    "resolver:gen": "bun run scripts/gen-vite-resolver.ts",
-    "skill:gen": "bun run scripts/gen-veltra-skill.ts"
+    "resolver:gen": "bun run scripts/gen-vite-resolver.ts"
   },
   "devDependencies": {
     "@cat-kit/cli": "^1.0.6",

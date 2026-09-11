@@ -38,8 +38,7 @@ export default defineConfig({
       '**/dist/**',
       '**/node_modules/**',
       '**/*.test.ts',
-      '**/__test__/**',
-      'skills/veltra-ui/packages/**/types.d.ts'
+      '**/__test__/**'
     ],
     rules: {
       'no-unused-expressions': 'off',
