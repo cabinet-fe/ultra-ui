@@ -21,24 +21,12 @@
 ```
 
 ```scss
-.page {
-  padding: 16px;
-}
-.page-inner {
-  padding: 8px;
-}
-.page-body {
-  margin: 8px;
-}
-.card-wrap {
-  background: #fff;
-}
-.card {
-  border-radius: 4px;
-}
-.card-body {
-  padding: 16px;
-}
+.page { padding: 16px; }
+.page-inner { padding: 8px; }
+.page-body { margin: 8px; }
+.card-wrap { background: #fff; }
+.card { border-radius: 4px; }
+.card-body { padding: 16px; }
 ```
 
 ## 正例：布局组件 + 表单
@@ -56,15 +44,9 @@
 ## 反例：重复、无用 CSS
 
 ```scss
-.btn-primary {
-  color: #fff;
-  background: #409eff;
-}
+.btn-primary { color: #fff; background: #409eff; }
 // 与 UI 库 Primary Button 重复
-.toolbar .btn-primary {
-  color: #fff;
-  background: #409eff;
-}
+.toolbar .btn-primary { color: #fff; background: #409eff; }
 ```
 
 模板已改用 `<el-button type="primary">`，自定义 `.btn-primary` 仍留着。

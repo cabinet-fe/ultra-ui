@@ -9,7 +9,7 @@
 type StatusStrategy = { label: () => string }
 const strategies: Record<string, StatusStrategy> = {
   on: { label: () => t('on') },
-  off: { label: () => t('off') }
+  off: { label: () => t('off') },
 }
 export function createStatusLabel(status: string) {
   return (strategies[status] ?? strategies.off).label()

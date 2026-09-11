@@ -2,9 +2,7 @@
 name: docs-search
 description: >
   检索企业内部库文档。写代码或回答问题时需要查阅内部库 API、用法、约束，
-  或用户要求搜索/阅读内部库文档时使用。运行本技能内嵌查询脚本：先检测 `DOCS_SERVER_URL`
-  （缺失时引导用户配置），再列出已收录库、搜索（可限定单库）、取全文或章节。
-  不要为每个库单独建技能。
+  或用户要求搜索/阅读内部库文档时使用。
 ---
 
 # docs-search 文档检索
@@ -13,7 +11,7 @@ description: >
 
 需要内部库事实时，**直接运行本技能内嵌脚本**，不要凭训练数据猜测私有 API。
 
-脚本：`scripts/query.mjs`（Node ≥ 24，零依赖）。从本技能根目录运行，或对该文件使用绝对路径。服务地址只读环境变量 `DOCS_SERVER_URL`（结尾斜杠由脚本去掉）；落盘只允许仓库根目录 gitignore 过的 `.env`，禁止写进本技能、代码或会提交入库的配置。
+脚本：`scripts/query.mjs`（Node ≥ 24，零依赖）。**命令一律在用户仓库根目录执行**（`.env` 所在处）：脚本路径写成指向本技能的绝对路径，`--env-file=.env` 相对当前目录解析、才能命中仓库根的 `.env`；不要 cd 进技能目录再跑。服务地址只读环境变量 `DOCS_SERVER_URL`（结尾斜杠由脚本去掉）；落盘只允许仓库根目录 gitignore 过的 `.env`，禁止写进本技能、代码或会提交入库的配置。
 
 ## 流程
 
@@ -21,23 +19,58 @@ description: >
 
 运行任何查询前，先检查进程环境变量 `DOCS_SERVER_URL`（按宿主 shell 语法：POSIX 用 `printenv`，PowerShell 用 `$env:DOCS_SERVER_URL`），并读当前仓库根目录 `.env`，两处任一有值即算已配置。
 
-- 已配置：直接进入第 2 步。值来自 `.env` 时，命令写成 `node --env-file=.env <脚本路径> …`；`--env-file` 是 Node 内置参数，Windows/macOS/Linux 通用，禁止用 `set -a && source` 等 POSIX 专属前缀。
+- 已配置：直接进入第 2 步。值来自 `.env` 时，命令写成 `node --env-file=.env <脚本绝对路径> …`；`--env-file` 是 Node 内置参数，Windows/macOS/Linux 通用，禁止用 `set -a && source` 等 POSIX 专属前缀。
 - 缺失：引导用户补齐：
-  1. 用提问工具向用户询问服务地址（向文档服务管理员索取）；禁止编造或猜测地址。
+  1. 用提问工具向用户询问服务地址（向文档服务管理员索取，形如 `http://docs.internal:8080`）；禁止编造或猜测地址。
   2. 写入当前仓库根目录 `.env`（已存在则只补缺失行，不覆盖已有值）。格式：`DOCS_SERVER_URL=<地址>`，`=` 两侧不留空格。
   3. 确认 `.gitignore` 已含 `.env`；没有则追加。
 
 ### 2. 查询
 
-按顺序：`libraries` 发现库 → `search` 命中目标（可选 `--library` 限定单库）→ `get` 取全文或章节。搜索为空则换关键词重试。以下示例假定值已在进程环境；值来自 `.env` 时按第 1 步给每条命令加 `--env-file=.env`。
-
 ```bash
-node scripts/query.mjs libraries
-node scripts/query.mjs search --q <关键词> [--library <slug>]
-node scripts/query.mjs get --library <slug> --path <path> [--section <章节>]
+node --env-file=.env <脚本路径> libraries
+node --env-file=.env <脚本路径> search --q "<关键词> [关键词2]" [--library <slug>] [--limit 1~50]
+node --env-file=.env <脚本路径> get --library <slug> --path <path> [--section <章节>]
+node --env-file=.env <脚本路径> toc --library <slug> --path <path>
 ```
 
-stdout 为服务端 JSON。HTTP 非 2xx 时脚本非零退出，把 stderr 原文转述给用户；脚本报「缺少必填环境变量」说明第 1 步没做或 `.env` 未加载，回到第 1 步补齐后重跑。
+- `libraries`：已收录库的 slug 与文档数。多数场景可跳过直接跨库 search（结果自带 `library` 字段）；只有需要把结果限定到单库、又不确定 slug 拼写时先跑它核对。
+- `search`：跨库全文检索，最多 20 条（`--limit` 可调 1~50），按相关度降序。结果含 `library`/`path`/`title`/`description`/`snippet`/`sections`。
+- `get`：取全文，或 `--section` 取单个 `## ` 章节切片。章节名必须与标题全文一致（忽略大小写），优先从 search 结果或 `toc` 的 `sections` 里选。
+- `toc`：只取元数据与章节列表、不含正文。文档很大、只想确认结构时先用它，再按章节 `get`。
+
+含空格的参数（`--q`、`--section`）必须加引号。
+
+### 3. 查询写法（搜不到时按序调整）
+
+服务端是多词 AND 语义（全词命中同一篇才算命中，空结果自动降级为任一词命中），中文按**连续子串**匹配，英文标识符按整词匹配。构造查询：
+
+1. **标识符按源码原样**：`rowKey`、`skipErrorHandler` 可整词命中；`row_key` 会被拆成 `row`、`key` 两个词。
+2. **按文件名检索**：文档路径整串入索引（`compositions/use-dnd.md` → `use-dnd`），已知文件名或目录时可直接搜（`use-dnd`、`index 总览`），文件名命中权重高于正文偶发提及。
+3. **中文用 2~6 字实体词**：「虚拟滚动」「分页」，不要写整句；「如何使用分页」里的「如何」「使用」会被当停用词剥掉，剩「分页」。
+4. **组件名 + 场景词组合**：`"Table 分页"` 之类两三个词最有效；词太多 AND 条件太苛刻。
+5. **空结果依次尝试**：减到 1~2 个核心词重搜 → 换同义词（`虚拟列表` ↔ `虚拟滚动`）→ 换英文标识符 → `libraries` 确认目标库存在 → `toc` 浏览该库 `index.md` 的结构找线索。
+6. 命中后看 `snippet` 判断相关度（只命中文件名时片段是带高亮的路径，如 `guide/<mark>installation</mark>.md`），相关就 `get`；`sections` 字段已列出该文档全部章节名，按章节精确取可省 token。
+
+### 4. 结果处理
+
+- stdout 为服务端 JSON，直接读取，不要向用户展示原始 JSON。
+- HTTP 非 2xx 时脚本非零退出，按下方故障表处理；脚本报「缺少必填环境变量」说明第 1 步没做或 `.env` 未加载，回到第 1 步补齐后重跑。
+
+## 故障处理
+
+| 报错（脚本 stderr） | 原因 | 处理 |
+| --- | --- | --- |
+| `缺少必填环境变量：DOCS_SERVER_URL` | 第 1 步没做或 `.env` 未加载 | 回到第 1 步 |
+| `DOCS_SERVER_URL 须以 http:// 或 https:// 开头` | 地址格式不对 | 向用户核对地址 |
+| `请求失败：fetch failed（ECONNREFUSED/ENOTFOUND…）` | 服务不通或域名解析失败 | 核对地址与网络，报给用户/管理员，勿盲目重试 |
+| `请求超时（10 秒）` | 服务端无响应 | 停止重试，报给用户/管理员 |
+| `HTTP 400 missing_query` | `--q` 为空 | 补上关键词 |
+| `HTTP 400 invalid_limit` | `--limit` 不在 1~50 | 改成 1~50 的整数 |
+| `HTTP 404 library_not_found` | `--library` 拼写错误或库已下架 | 跑 `libraries` 核对 slug；列表里没有则告诉用户该库未收录 |
+| `HTTP 404 not_found`（get/toc） | `--path` 拼写错误或文档已删 | 用 search 结果里的 `path` 原文重试；仍找不到就用关键词重新 search |
+| `HTTP 404 section_not_found` | 章节名与标题不一致 | **message 里列出了该文档全部可用章节名**，从中选对的名字重试一次，不要放弃 |
+| `HTTP 500 internal` | 服务端故障 | 报错原文转述给用户/管理员 |
 
 ## 反模式
 
@@ -45,4 +78,6 @@ stdout 为服务端 JSON。HTTP 非 2xx 时脚本非零退出，把 stderr 原�
 - 把 `DOCS_SERVER_URL` 写进技能副本、代码或会提交入库的配置文件（gitignore 过的仓库 `.env` 是唯一落盘位置）
 - 缺 `DOCS_SERVER_URL` 时不问用户，编造或猜测服务地址继续跑
 - 用 POSIX 专属写法（`set -a && source`、`VAR=value cmd` 前缀）当通用命令——Windows 的 cmd/PowerShell 不支持，跨平台加载 `.env` 一律用 `node --env-file`
+- cd 进技能目录运行脚本（`--env-file=.env` 会找错位置），或整句自然语言当 `--q`
+- 搜不到时无限换词空转：按第 3 节顺序调整，仍无结果就向用户说明并停
 - 未检索就按训练数据实现内部库调用

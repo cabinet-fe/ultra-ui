@@ -13,7 +13,7 @@ function loadList(params) {
 }
 
 function mapLegacyParams(params) {
-  return { ...params, page_no: params.pageNo /* 大量字段映射 */ }
+  return { ...params, page_no: params.pageNo, /* 大量字段映射 */ }
 }
 ```
 
@@ -32,12 +32,8 @@ function loadList(params) {
 ## 反例：为「少破坏」包一层适配永远不删
 
 ```ts
-/** @deprecated */ export function formatDateOld(v) {
-  return formatDate(v)
-}
-export function formatDate(v) {
-  /* 新实现 */
-}
+/** @deprecated */ export function formatDateOld(v) { return formatDate(v) }
+export function formatDate(v) { /* 新实现 */ }
 ```
 
 无人要求保留旧名时，直接改名/改导入即可。
@@ -50,9 +46,7 @@ export function formatDate(v) {
 
 ```ts
 const ENABLE_NEW_FILTER = true
-if (ENABLE_NEW_FILTER) {
-  /* 唯一路径 */
-}
+if (ENABLE_NEW_FILTER) { /* 唯一路径 */ }
 ```
 
 ## 正例

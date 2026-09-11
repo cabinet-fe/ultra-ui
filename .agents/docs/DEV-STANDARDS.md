@@ -53,6 +53,7 @@
 - 发版：在 `dev` 上 `bun run release`（见 `scripts/release.ts`），CI 测完构建并 publish。
 - commit：`simple-git-hooks` → `cat-cli verify-commit`，格式 `<type>[(<scope>)][!]: <subject>`。pre-commit：`vp staged`。提交前本地应过 `bun run lint`。
 - 编码后宣称完成前：`bun run lint`、`bun run test`、`bun run build`。
+- 若改动触及公共导出/API，宣称完成前须使用 `docs-gen` 技能增量同步 `agent-docs/` 文档。
 
 ## 明确禁止
 

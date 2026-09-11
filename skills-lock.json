@@ -1,24 +1,17 @@
 {
   "version": 1,
   "skills": {
-    "build-lib-skill": {
+    "docs-gen": {
       "source": "cabinet-fe/prompt-engineering",
       "sourceType": "github",
-      "skillPath": "skills/tools/build-lib-skill/SKILL.md",
-      "computedHash": "6cb10a5bbab395b2f1d9ee114f9cee029369e7d5ce6e17219422e15a322ab3ed"
+      "skillPath": "skills/tools/docs-gen/SKILL.md",
+      "computedHash": "5180a152b7244edc3f50b8d97ee334188c1c893a839a432ac3aab463262c2c32"
     },
-    "cat-kit": {
-      "source": "cabinet-fe/cat-kit",
-      "ref": "main",
+    "docs-search": {
+      "source": "cabinet-fe/prompt-engineering",
       "sourceType": "github",
-      "skillPath": "skills/cat-kit/SKILL.md",
-      "computedHash": "1dfdb3a3d47261f8a74893d6dfd2a42cf8e32783e78aeec0f3617781b8e51e02"
-    },
-    "docs-mcp": {
-      "source": "HodgeWen/docs-mcp",
-      "sourceType": "github",
-      "skillPath": "skills/docs-mcp/SKILL.md",
-      "computedHash": "e6edb3e7fa98dcb1ccf51cd2d3a8c40204cdddebf9ce2029ef148b8b591e6cab"
+      "skillPath": "skills/tools/docs-search/SKILL.md",
+      "computedHash": "a4a639ff3b0acb2f3808e026908118739a198e942e376fced7e1fbc0d4c65aca"
     },
     "frontend-expert": {
       "source": "cabinet-fe/prompt-engineering",
@@ -42,13 +35,13 @@
       "source": "Simon-He95/markstream-vue",
       "sourceType": "github",
       "skillPath": ".agents/skills/markstream-install/SKILL.md",
-      "computedHash": "252c9ac0a83d3aef81f42975ea98804d4f095ffdb30497305f96bd094c454da9"
+      "computedHash": "e13cefa6b0ac4efd13513e9c25bbec175a3a64d2b05fefe126f84d21b177a54a"
     },
     "markstream-vue": {
       "source": "Simon-He95/markstream-vue",
       "sourceType": "github",
       "skillPath": ".agents/skills/markstream-vue/SKILL.md",
-      "computedHash": "1d719a17b5e8a033222f2e05551854009710365f705b271caebe89e21fb3cb33"
+      "computedHash": "89edeaa7cde779c6c3b299dc1dcf7a991d0eb52a371ff3478f44076df85f5e9e"
     },
     "vue": {
       "source": "cabinet-fe/prompt-engineering",

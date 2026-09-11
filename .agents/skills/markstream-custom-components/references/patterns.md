@@ -2,16 +2,16 @@
 
 ## Common override keys
 
-| Key                                 | Typical use                                            |
-| ----------------------------------- | ------------------------------------------------------ |
-| `image`                             | lightboxes, captions, lazy-loading wrappers            |
-| `link`                              | analytics, router integration, custom tooltip behavior |
-| `code_block`                        | replace regular fenced code blocks                     |
-| `mermaid`                           | customize Mermaid only                                 |
-| `d2`                                | customize D2 only                                      |
-| `infographic`                       | customize infographic blocks only                      |
-| `inline_code`                       | typography or special inline behavior                  |
-| `heading`, `paragraph`, `list_item` | container overrides that must render children          |
+| Key | Typical use |
+|-----|-------------|
+| `image` | lightboxes, captions, lazy-loading wrappers |
+| `link` | analytics, router integration, custom tooltip behavior |
+| `code_block` | replace regular fenced code blocks |
+| `mermaid` | customize Mermaid only |
+| `d2` | customize D2 only |
+| `infographic` | customize infographic blocks only |
+| `inline_code` | typography or special inline behavior |
+| `heading`, `paragraph`, `list_item` | container overrides that must render children |
 
 ## Trusted custom-tag pattern
 

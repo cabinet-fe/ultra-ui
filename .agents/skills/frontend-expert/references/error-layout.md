@@ -42,7 +42,5 @@ ElMessage.error('保存失败')
 ```
 
 ```scss
-.error-slot {
-  min-height: 22px;
-}
+.error-slot { min-height: 22px; }
 ```
