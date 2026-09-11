@@ -1,23 +1,25 @@
 #!/usr/bin/env node
 // 零依赖查询脚本：经 REST 发现库、搜索、取文档目录与内容。
-// 仅使用 Node 内置能力（全局 fetch），Node >= 24 直接运行。
+// 仅使用 Node 内置能力（fs / path / 全局 fetch），Node >= 24 直接运行。
 //
-// 用法（服务地址读环境变量 DOCS_SERVER_URL，可写入 .env 后用 --env-file 加载；该参数为 Node 内置，全平台通用）：
-//   node --env-file=.env query.mjs libraries
-//   node --env-file=.env query.mjs search --q <关键词> [--library <slug>] [--limit 1~50]
-//   node --env-file=.env query.mjs get --library <slug> --path <path> [--section <章节>]
-//   node --env-file=.env query.mjs toc --library <slug> --path <path>
+// 用法（服务地址读仓库根目录 .pe.jsonc 中的 docs_server_url）：
+//   node <脚本绝对路径> libraries
+//   node <脚本绝对路径> search --q <关键词> [--library <slug>] [--limit 1~50]
+//   node <脚本绝对路径> get --library <slug> --path <path> [--section <章节>]
+//   node <脚本绝对路径> toc --library <slug> --path <path>
 //
-// 注意：--env-file 按当前工作目录解析相对路径，命令须在仓库根目录（.env 所在处）执行，
-// 本脚本路径写成绝对路径或相对当前目录的路径，不要 cd 到技能目录再跑。
+// 注意：命令须在仓库根目录（.pe.jsonc 所在处）执行，
+// 本脚本路径写成绝对路径，不要 cd 到技能目录再跑。
 
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const USAGE = `用法：
-  query.mjs libraries
-  query.mjs search --q <关键词> [--library <slug>] [--limit 1~50]
-  query.mjs get --library <slug> --path <path> [--section <章节>]
-  query.mjs toc --library <slug> --path <path>`;
+  node <脚本绝对路径> libraries
+  node <脚本绝对路径> search --q <关键词> [--library <slug>] [--limit 1~50]
+  node <脚本绝对路径> get --library <slug> --path <path> [--section <章节>]
+  node <脚本绝对路径> toc --library <slug> --path <path>`;
 
 // 请求超时：服务端挂起时快速失败，避免 agent 工具调用被拖住。
 const REQUEST_TIMEOUT_MS = 10_000;
@@ -28,15 +30,134 @@ function fail(message) {
   process.exit(1);
 }
 
-// 服务地址只读 DOCS_SERVER_URL，去掉结尾斜杠，校验协议前缀
-export function readServerUrl(env = process.env) {
-  const raw = env.DOCS_SERVER_URL;
-  if (!raw) {
-    fail('缺少必填环境变量：DOCS_SERVER_URL');
+// parseJsonc 解析带注释（// 与 /* */）和尾随逗号的 JSON 文本
+export function parseJsonc(text) {
+  if (text.charCodeAt(0) === 0xfeff) {
+    text = text.slice(1);
   }
-  const url = raw.replace(/\/+$/, '');
+  let result = '';
+  let inString = false;
+  let isEscaped = false;
+  let inSingleComment = false;
+  let inMultiComment = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    const nextChar = text[i + 1];
+
+    if (inSingleComment) {
+      if (char === '\n' || char === '\r') {
+        inSingleComment = false;
+        result += char;
+      }
+      continue;
+    }
+
+    if (inMultiComment) {
+      if (char === '*' && nextChar === '/') {
+        inMultiComment = false;
+        i++;
+      }
+      continue;
+    }
+
+    if (inString) {
+      result += char;
+      if (isEscaped) {
+        isEscaped = false;
+      } else if (char === '\\') {
+        isEscaped = true;
+      } else if (char === '"') {
+        inString = false;
+      }
+      continue;
+    }
+
+    if (char === '"') {
+      inString = true;
+      result += char;
+      continue;
+    }
+
+    if (char === '/' && nextChar === '/') {
+      inSingleComment = true;
+      i++;
+      continue;
+    }
+
+    if (char === '/' && nextChar === '*') {
+      inMultiComment = true;
+      i++;
+      continue;
+    }
+
+    result += char;
+  }
+
+  // 清除紧随在 } 或 ] 前的尾随逗号（trailing comma）
+  let cleaned = '';
+  inString = false;
+  isEscaped = false;
+  for (let i = 0; i < result.length; i++) {
+    const char = result[i];
+    if (inString) {
+      cleaned += char;
+      if (isEscaped) {
+        isEscaped = false;
+      } else if (char === '\\') {
+        isEscaped = true;
+      } else if (char === '"') {
+        inString = false;
+      }
+      continue;
+    }
+    if (char === '"') {
+      inString = true;
+      cleaned += char;
+      continue;
+    }
+    if (char === ',') {
+      let j = i + 1;
+      while (j < result.length && /\s/.test(result[j])) {
+        j++;
+      }
+      if (j < result.length && (result[j] === '}' || result[j] === ']')) {
+        continue;
+      }
+    }
+    cleaned += char;
+  }
+
+  return JSON.parse(cleaned);
+}
+
+// 服务地址读仓库根目录 .pe.jsonc 中的 docs_server_url，去掉结尾斜杠，校验协议前缀
+export async function readServerUrl(configPath = path.resolve(process.cwd(), '.pe.jsonc')) {
+  let raw;
+  try {
+    raw = await readFile(configPath, 'utf8');
+  } catch {
+    fail(`找不到配置文件：${configPath}（请在仓库根目录创建 .pe.jsonc 并配置 docs_server_url）`);
+  }
+
+  let config;
+  try {
+    config = parseJsonc(raw);
+  } catch (err) {
+    fail(`无法解析配置文件 ${configPath}：${err.message}`);
+  }
+
+  if (!config || typeof config !== 'object' || Array.isArray(config)) {
+    fail(`配置文件 ${configPath} 格式错误：根节点须为 JSON 对象`);
+  }
+
+  const rawUrl = config.docs_server_url;
+  if (!rawUrl || typeof rawUrl !== 'string') {
+    fail(`配置文件 ${configPath} 缺少必填字段：docs_server_url`);
+  }
+  const url = rawUrl.trim().replace(/\/+$/, '');
   if (!/^https?:\/\//.test(url)) {
-    fail(`DOCS_SERVER_URL 须以 http:// 或 https:// 开头，实际值：${raw}`);
+    fail(`配置文件 ${configPath} 中的 docs_server_url 须以 http:// 或 https:// 开头，实际值：${rawUrl}`);
   }
   return url;
 }
@@ -44,6 +165,7 @@ export function readServerUrl(env = process.env) {
 export function parseCli(argv) {
   const flags = {};
   const positionals = [];
+  let configPath;
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (!arg.startsWith('--')) {
@@ -67,9 +189,13 @@ export function parseCli(argv) {
     if (!name) {
       fail(`无法识别的选项：${arg}\n${USAGE}`);
     }
-    flags[name] = value;
+    if (name === 'config') {
+      configPath = value;
+    } else {
+      flags[name] = value;
+    }
   }
-  return { flags, positionals };
+  return { flags, positionals, configPath };
 }
 
 function requireFlag(flags, name) {
@@ -145,7 +271,7 @@ export async function requestJson(url) {
     if (err?.name === 'TimeoutError') {
       fail(`请求超时（${REQUEST_TIMEOUT_MS / 1000} 秒）：${url}。服务端无响应，勿盲目重试，先向用户或管理员反馈`);
     }
-    fail(`请求失败：${describeError(err)}。核对 DOCS_SERVER_URL 与网络连通性`);
+    fail(`请求失败：${describeError(err)}。核对 docs_server_url 与网络连通性`);
   }
   const body = await response.text();
   if (response.status < 200 || response.status >= 300) {
@@ -155,11 +281,13 @@ export async function requestJson(url) {
 }
 
 async function main() {
-  const { flags, positionals } = parseCli(process.argv.slice(2));
+  const { flags, positionals, configPath: cliConfigPath } = parseCli(process.argv.slice(2));
   if (positionals.length !== 1) {
     fail(USAGE);
   }
-  await requestJson(buildUrl(readServerUrl(), positionals[0], flags));
+  const configPath = cliConfigPath ? path.resolve(process.cwd(), cliConfigPath) : path.resolve(process.cwd(), '.pe.jsonc');
+  const serverUrl = await readServerUrl(configPath);
+  await requestJson(buildUrl(serverUrl, positionals[0], flags));
 }
 
 const invokedDirectly =

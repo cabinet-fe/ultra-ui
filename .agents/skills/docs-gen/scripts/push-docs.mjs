@@ -2,10 +2,12 @@
 // 零依赖推送脚本：扫描库内 Markdown，本地严格校验 frontmatter，整库全量推送到 docs-server 服务端。
 // 仅使用 Node 内置能力（fs / path / 全局 fetch），Node >= 24 直接运行。
 //
-// 用法（环境变量写入 .env 后用 --env-file 加载，该参数为 Node 内置，全平台通用）：
-//   node --env-file=.env scripts/push-docs.mjs [--verify] [文档根目录，默认 agent-docs/]
-//   node --env-file=.env scripts/push-docs.mjs --clear   # 下架整库
-// 必填环境变量：DOCS_SERVER_URL / DOCS_TOKEN / DOCS_LIBRARY
+// 用法（敏感配置 DOCS_TOKEN 写入 .env，非敏感配置 docs_server_url / docs_push_lib_name 写入 .pe.jsonc）：
+//   node --env-file=.env <脚本绝对路径> [--verify] [文档根目录，默认 agent-docs/]
+//   node --env-file=.env <脚本绝对路径> --clear   # 下架整库
+// 配置来源：
+//   - .pe.jsonc：docs_server_url（服务地址）、docs_push_lib_name（库 slug）
+//   - 环境变量 / .env：DOCS_TOKEN（推送鉴权令牌）
 //
 // 本地校验对齐服务端严格 YAML 的已知拒绝项（BOM、分隔线行尾空格、重复键、未引号的
 //「: 」与「 #」、引号未闭合、title 缺失或为空），全部文件校验完一次性报全部错误，不发请求。
@@ -15,8 +17,8 @@ import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const USAGE = `用法：
-  node --env-file=.env scripts/push-docs.mjs [--verify] [文档根目录，默认 agent-docs/]
-  node --env-file=.env scripts/push-docs.mjs --clear`;
+  node --env-file=.env <脚本绝对路径> [--verify] [文档根目录，默认 agent-docs/]
+  node --env-file=.env <脚本绝对路径> --clear`;
 
 const PUSH_TIMEOUT_MS = 60_000;
 const VERIFY_TIMEOUT_MS = 10_000;
@@ -33,28 +35,176 @@ function describeError(err) {
   return cause ? `${err.message}（${cause}）` : err.message;
 }
 
-// 校验必填环境变量
-export function readEnv(env = process.env) {
-  const required = ['DOCS_SERVER_URL', 'DOCS_TOKEN', 'DOCS_LIBRARY'];
-  const missing = required.filter((name) => !env[name]);
-  if (missing.length > 0) {
-    fail(`缺少必填环境变量：${missing.join('、')}`);
+// parseJsonc 解析带注释（// 与 /* */）和尾随逗号的 JSON 文本
+export function parseJsonc(text) {
+  if (text.charCodeAt(0) === 0xfeff) {
+    text = text.slice(1);
   }
+  let result = '';
+  let inString = false;
+  let isEscaped = false;
+  let inSingleComment = false;
+  let inMultiComment = false;
+
+  for (let i = 0; i < text.length; i++) {
+    const char = text[i];
+    const nextChar = text[i + 1];
+
+    if (inSingleComment) {
+      if (char === '\n' || char === '\r') {
+        inSingleComment = false;
+        result += char;
+      }
+      continue;
+    }
+
+    if (inMultiComment) {
+      if (char === '*' && nextChar === '/') {
+        inMultiComment = false;
+        i++;
+      }
+      continue;
+    }
+
+    if (inString) {
+      result += char;
+      if (isEscaped) {
+        isEscaped = false;
+      } else if (char === '\\') {
+        isEscaped = true;
+      } else if (char === '"') {
+        inString = false;
+      }
+      continue;
+    }
+
+    if (char === '"') {
+      inString = true;
+      result += char;
+      continue;
+    }
+
+    if (char === '/' && nextChar === '/') {
+      inSingleComment = true;
+      i++;
+      continue;
+    }
+
+    if (char === '/' && nextChar === '*') {
+      inMultiComment = true;
+      i++;
+      continue;
+    }
+
+    result += char;
+  }
+
+  // 清除紧随在 } 或 ] 前的尾随逗号（trailing comma）
+  let cleaned = '';
+  inString = false;
+  isEscaped = false;
+  for (let i = 0; i < result.length; i++) {
+    const char = result[i];
+    if (inString) {
+      cleaned += char;
+      if (isEscaped) {
+        isEscaped = false;
+      } else if (char === '\\') {
+        isEscaped = true;
+      } else if (char === '"') {
+        inString = false;
+      }
+      continue;
+    }
+    if (char === '"') {
+      inString = true;
+      cleaned += char;
+      continue;
+    }
+    if (char === ',') {
+      let j = i + 1;
+      while (j < result.length && /\s/.test(result[j])) {
+        j++;
+      }
+      if (j < result.length && (result[j] === '}' || result[j] === ']')) {
+        continue;
+      }
+    }
+    cleaned += char;
+  }
+
+  return JSON.parse(cleaned);
+}
+
+// 读取并校验配置：非敏感配置来自 .pe.jsonc，敏感 Token 仅来自环境变量 DOCS_TOKEN
+export async function readConfig(configPath = path.resolve(process.cwd(), '.pe.jsonc'), env = process.env) {
+  let raw;
+  try {
+    raw = await readFile(configPath, 'utf8');
+  } catch {
+    fail(`找不到配置文件：${configPath}（请在仓库根目录创建 .pe.jsonc 并配置 docs_server_url 与 docs_push_lib_name）`);
+  }
+
+  let config;
+  try {
+    config = parseJsonc(raw);
+  } catch (err) {
+    fail(`无法解析配置文件 ${configPath}：${err.message}`);
+  }
+
+  if (!config || typeof config !== 'object' || Array.isArray(config)) {
+    fail(`配置文件 ${configPath} 格式错误：根节点须为 JSON 对象`);
+  }
+
+  const missingFields = [];
+  if (!config.docs_server_url || typeof config.docs_server_url !== 'string') {
+    missingFields.push('docs_server_url');
+  }
+  if (!config.docs_push_lib_name || typeof config.docs_push_lib_name !== 'string') {
+    missingFields.push('docs_push_lib_name');
+  }
+  if (missingFields.length > 0) {
+    fail(`配置文件 ${configPath} 缺少必填字段：${missingFields.join('、')}`);
+  }
+
+  const serverUrl = config.docs_server_url.trim().replace(/\/+$/, '');
+  if (!/^https?:\/\//.test(serverUrl)) {
+    fail(`配置文件 ${configPath} 中的 docs_server_url 须以 http:// 或 https:// 开头，实际值：${config.docs_server_url}`);
+  }
+
+  const library = config.docs_push_lib_name.trim();
+  if (!/^[a-z0-9-]+$/.test(library)) {
+    fail(`配置文件 ${configPath} 中的 docs_push_lib_name 须仅包含小写字母、数字与连字符（^[a-z0-9-]+$），实际值：${config.docs_push_lib_name}`);
+  }
+
+  const token = env.DOCS_TOKEN;
+  if (!token) {
+    fail('缺少必填环境变量：DOCS_TOKEN（须在 .env 中配置，并使用 node --env-file=.env 执行）');
+  }
+
   return {
-    serverUrl: env.DOCS_SERVER_URL.replace(/\/+$/, ''),
-    token: env.DOCS_TOKEN,
-    library: env.DOCS_LIBRARY,
+    serverUrl,
+    library,
+    token,
   };
 }
 
 export function parseArgs(argv) {
   const flags = { clear: false, verify: false };
   const positionals = [];
-  for (const arg of argv) {
+  for (let i = 0; i < argv.length; i++) {
+    const arg = argv[i];
     if (arg === '--clear') {
       flags.clear = true;
     } else if (arg === '--verify') {
       flags.verify = true;
+    } else if (arg === '--config' || arg.startsWith('--config=')) {
+      if (arg.startsWith('--config=')) {
+        flags.config = arg.slice('--config='.length);
+      } else {
+        i++;
+        flags.config = argv[i];
+      }
     } else if (arg.startsWith('--')) {
       fail(`无法识别的选项：${arg}\n${USAGE}`);
     } else {
@@ -218,8 +368,9 @@ async function verifyDocuments({ serverUrl, library }, docs) {
 }
 
 async function main() {
-  const env = readEnv();
   const { flags, root } = parseArgs(process.argv.slice(2));
+  const configPath = flags.config ? path.resolve(process.cwd(), flags.config) : path.resolve(process.cwd(), '.pe.jsonc');
+  const env = await readConfig(configPath);
 
   if (flags.clear) {
     const { ok, status, body } = await fetchText(

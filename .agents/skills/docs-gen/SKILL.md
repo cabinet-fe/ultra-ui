@@ -34,31 +34,32 @@ description: >
 
 ## 库维护者流程
 
-### 1. 检测环境变量（始终第一步）
+### 1. 检测配置与环境变量（始终第一步）
 
-进入本技能先做这一步，之后无论走构建、变更同步还是推送都不再重复判断。检测方法：读仓库根目录 `.env` 与当前 shell 环境，确认三个变量齐全：
-
-| 变量 | 说明 |
-| --- | --- |
-| `DOCS_SERVER_URL` | 文档服务地址，如 `http://docs.internal:8080`（结尾斜杠脚本会自动去掉） |
-| `DOCS_TOKEN` | 推送令牌，与服务端 `DOCS_PUSH_TOKEN` 一致，向服务管理员索取 |
-| `DOCS_LIBRARY` | 库 slug：仅小写字母、数字与连字符（`^[a-z0-9-]+$`），取包名的 slug 形式 |
+进入本技能先做这一步，之后无论走构建、变更同步还是推送都不再重复判断。检测方法：
+1. 读仓库根目录 `.pe.jsonc`，确认非敏感配置齐全：
+   - `docs_server_url`：文档服务地址，如 `"http://docs.internal:8080"`（结尾斜杠脚本会自动去掉）
+   - `docs_push_lib_name`：库 slug：仅小写字母、数字与连字符（`^[a-z0-9-]+$`），取包名的 slug 形式
+2. 读仓库根目录 `.env` 与当前 shell 环境，确认敏感配置齐全：
+   - `DOCS_TOKEN`：推送令牌，与服务端 `DOCS_PUSH_TOKEN` 一致，向服务管理员索取
 
 - 齐全：直接进入步骤 2。
 - 有缺失：引导用户补齐：
-  1. 用提问工具向用户逐项询问缺失的值；禁止编造 token 或服务地址。
-  2. 写入 `.env`（已存在则只补缺失行，不覆盖已有值）。格式：`KEY=value`，`=` 两侧不留空格。
-  3. 确认 `.gitignore` 已含 `.env`；没有则追加。token 属敏感信息，严禁提交入库。
+  1. 用提问工具向用户逐项询问缺失的值；禁止编造 token、服务地址或库 slug。
+  2. 非敏感配置写入仓库根目录 `.pe.jsonc`（已存在则补充或更新相应字段，该文件需提交入 git）。
+     示例：
+     ```jsonc
+     {
+       "docs_server_url": "http://docs.internal:8080",
+       "docs_push_lib_name": "your-lib"
+     }
+     ```
+  3. 敏感配置写入仓库根目录 `.env`（已存在则只补缺失行，不覆盖已有值）。格式：`DOCS_TOKEN=value`，`=` 两侧不留空格。
+  4. 确认 `.gitignore` 已含 `.env`；没有则追加。token 属敏感信息，严禁提交入库。
 
-### 2. 安装推送脚本
+**严禁复制脚本**：本技能内置推送脚本，命令执行必须始终指向本技能内置脚本绝对路径，严禁在目标仓库根目录或子目录下创建 `scripts/push-docs.mjs` 等任何脚本副本！
 
-- 检查仓库内 `scripts/push-docs.mjs` 是否存在。
-- 不存在：从本技能目录把 `scripts/push-docs.mjs` 复制到仓库 `scripts/` 下。
-- 已存在：与技能内 `scripts/push-docs.mjs` 比对内容（`diff` 或读文件对比）；不一致时向用户说明差异风险并建议用技能内版本覆盖——旧版脚本可能缺新校验或新能力（如 `--clear`、`--verify`），协议不匹配会推送失败。
-
-脚本零依赖免构建，Node ≥ 24 直接运行。
-
-### 3. 构建文档
+### 2. 构建文档
 
 文档放 `agent-docs/`（脚本参数可指定其他目录）。按顺序执行：
 
@@ -69,7 +70,7 @@ description: >
 
 已有文档不合标准（缺 frontmatter 字段、章节名不在词表、示例是片段）时，按标准重写该篇，不做局部修补。
 
-### 4. 执行推送
+### 3. 执行推送
 
 执行时机：
 
@@ -78,15 +79,15 @@ description: >
 - 推送失败修复后：修复完成即重推
 - 重要发布或首次建文档：用 `--verify` 推送，把「可检索验证」结果一并报告
 
-命令（脚本只认进程环境变量，用 Node 内置 `--env-file` 参数加载 `.env`，Windows/macOS/Linux 通用；禁止 `set -a && source` 等 POSIX 专属前缀）：
+命令（**命令一律在用户仓库根目录执行**，即 `.pe.jsonc` 与 `.env` 所在处；脚本路径写成指向本技能内置脚本的绝对路径；用 Node 内置 `--env-file` 参数加载 `.env`，全平台通用；禁止 `set -a && source` 等 POSIX 专属前缀）：
 
 ```bash
-node --env-file=.env scripts/push-docs.mjs            # 推送（目录默认 agent-docs/）
-node --env-file=.env scripts/push-docs.mjs --verify   # 推送后逐篇按 title 搜索验证可检索
-node --env-file=.env scripts/push-docs.mjs --clear    # 下架整库（服务端删除该库全部文档与索引）
+node --env-file=.env <本技能绝对路径>/scripts/push-docs.mjs            # 推送（目录默认 agent-docs/）
+node --env-file=.env <本技能绝对路径>/scripts/push-docs.mjs --verify   # 推送后逐篇按 title 搜索验证可检索
+node --env-file=.env <本技能绝对路径>/scripts/push-docs.mjs --clear    # 下架整库（服务端删除该库全部文档与索引）
 ```
 
-Node ≥ 24 已内置 `--env-file`；`.env` 须已存在（步骤 1 保证）。
+Node ≥ 24 已内置 `--env-file`；`.env` 与 `.pe.jsonc` 须已存在（步骤 1 保证）。
 
 行为须知：
 
@@ -100,28 +101,27 @@ Node ≥ 24 已内置 `--env-file`；`.env` 须已存在（步骤 1 保证）。
 
 | 报错（脚本 stderr） | 原因 | 处理 |
 | --- | --- | --- |
-| `缺少必填环境变量：…` | `.env` 未加载或缺项 | 回到步骤 1 补齐 |
+| `找不到配置文件：.pe.jsonc` / `配置文件 … 缺少必填字段：…` | `.pe.jsonc` 缺失或缺项 | 回到步骤 1 补齐 `.pe.jsonc` |
+| `缺少必填环境变量：DOCS_TOKEN` | `.env` 未加载或缺少 `DOCS_TOKEN` | 回到步骤 1 补齐 `.env`，确认命令带 `--env-file=.env` |
 | `无法读取文档目录：…` / `文档目录 … 下没有任何 .md 文件` | 目录参数错或目录为空 | 核对目录参数；确认要下架整库才用 `--clear` |
 | `本地校验失败（未发出请求），共 N 处` | 一篇或多篇 frontmatter 不合服务端严格校验（BOM、分隔线行尾空格、重复键、值内未引号的 `: ` 或 ` #`、引号未闭合、title 缺失/为空/非字符串） | 按列出的每一条修对应文件，全部修完再推 |
-| `请求推送接口失败：fetch failed（…）` | 服务地址不通（括号内是具体原因） | 核对 `DOCS_SERVER_URL` 与网络，向管理员确认 |
+| `请求推送接口失败：fetch failed（…）` | 服务地址不通（括号内是具体原因） | 核对 `.pe.jsonc` 中的 `docs_server_url` 与网络，向管理员确认 |
 | `请求超时` | 服务端无响应 | 停止重试，报给管理员 |
 | `HTTP 401` `unauthorized` | token 与服务端 `DOCS_PUSH_TOKEN` 不一致 | 向管理员核对 token，禁止猜 |
-| `HTTP 400` `invalid_slug` | `DOCS_LIBRARY` 不匹配 `^[a-z0-9-]+$` | 改 slug |
+| `HTTP 400` `invalid_slug` | `docs_push_lib_name` 不匹配 `^[a-z0-9-]+$` | 改 `.pe.jsonc` 中的 slug |
 | `HTTP 400` `invalid_frontmatter` | 本地校验漏网的服务端严格 YAML 错误；message 含出错文档路径 | 只修 message 指出的那篇，对照 server-behavior.md「推送校验」 |
 | `验证失败，以下 N 篇推送后搜不到` | `--verify` 模式下服务端分词或索引异常 | 报错原文转述给管理员，勿重推 |
 | `HTTP 404`（`--clear` 时） `library_not_found` | 库本就不存在 | 无需处理，向用户确认即可 |
 | `HTTP 500` `internal` | 服务端写库失败 | 报错原文转述给管理员 |
 
-monorepo 多包：`DOCS_LIBRARY` 与 `.env` 是单值，一仓库多包时按包各建一份 env 文件（如 `.env.ui`、`.env.utils`，`DOCS_LIBRARY` 与文档目录一一对应），逐包执行 `node --env-file=.env.ui scripts/push-docs.mjs <该包文档目录>`；各包文档目录互不嵌套，推送互不影响。
+monorepo 多包：一仓库多包时可配置不同配置文件（如 `--config=.pe.ui.jsonc`）与不同文档目录，逐包执行 `node --env-file=.env <本技能绝对路径>/scripts/push-docs.mjs --config=.pe.ui.jsonc <该包文档目录>`；各包文档目录互不嵌套，推送互不影响。
 
 可选：接入 CI（GitHub Actions）让文档随主干自动同步：
 
 ```yaml
-- run: node scripts/push-docs.mjs
+- run: node <本技能绝对路径>/scripts/push-docs.mjs
   env:
-    DOCS_SERVER_URL: ${{ vars.DOCS_SERVER_URL }}
     DOCS_TOKEN: ${{ secrets.DOCS_TOKEN }}
-    DOCS_LIBRARY: my-lib
 ```
 
 ## 变更同步（库代码改动后）
@@ -138,13 +138,14 @@ monorepo 多包：`DOCS_LIBRARY` 与 `.env` 是单值，一仓库多包时按包
 2. **判影响**：读每条 diff 正文对照判定表；只有公共导出可达的改动才影响文档，内部实现、测试、CI、依赖升级一律不影响
 3. **定位**：`agent-docs/index.md` `## 模块速查` 查导出名对应篇目；`rg` 标识符或旧报错原文找出所有引用它的篇目
 4. **更新**：只改受影响章节，改完的篇目过 doc-standards.md 自检清单；增删篇目同步 `index.md` 速查表
-5. **报告**：输出变更同步报告；无一条影响也要报告并写理由，判定不了的标「待确认」向用户提问。有实质变更则进入「4. 执行推送」
+5. **报告**：输出变更同步报告；无一条影响也要报告并写理由，判定不了的标「待确认」向用户提问。有实质变更则进入「3. 执行推送」
 
-`agent-docs/` 不存在时不走本节，走「3. 构建文档」。
+`agent-docs/` 不存在时不走本节，走「2. 构建文档」。
 
 ## 检查清单
 
-- [ ] 已执行步骤 1 环境变量检测：三个变量齐全或已问询补齐写入 `.env`，`.env` 已加入 `.gitignore`
+- [ ] 已执行步骤 1 配置与环境变量检测：`.pe.jsonc`（`docs_server_url`、`docs_push_lib_name`）与 `.env`（`DOCS_TOKEN`）齐全，`.env` 已加入 `.gitignore`
+- [ ] 始终直接调用技能内置脚本，未在目标仓库创建 `push-docs.mjs` 副本
 - [ ] 事实全部来自源码 / 类型声明 / 测试 / CHANGELOG，无猜测
 - [ ] 每篇过完 doc-standards.md 自检清单：frontmatter 四字段、章节词表、参数五要素、示例自包含、差异标注
 - [ ] 指南与场景方案有 `## 完整示例`；API 参考 `## 典型示例` 2~3 个
@@ -153,17 +154,18 @@ monorepo 多包：`DOCS_LIBRARY` 与 `.env` 是单值，一仓库多包时按包
 
 ## 反模式
 
+- 在目标仓库根目录下创建 `scripts/push-docs.mjs` 等脚本副本（必须始终直接执行技能内置脚本）
+- 把敏感配置 `DOCS_TOKEN` 写入 `.pe.jsonc`、代码、示例或提交入库（敏感信息仅限放在 `.env`）
+- 把非敏感配置 `docs_server_url` 或 `docs_push_lib_name` 写入 `.env`（非敏感配置须放在 `.pe.jsonc` 提交入库）
 - 用训练数据或开源同类库的用法补齐本库 API
 - 示例写片段：`// ...`、`// 同上`、省略 import、使用未定义变量
 - 章节间互相引用（「见快速上手」）——AI 单取一章时看不到
 - 自创章节名（`## Props`、`## 用法`）而不用词表
 - 模糊词：通常、建议、可能、等等
 - 编造或猜测 `DOCS_TOKEN`、服务地址、库 slug
-- 把 token 写进代码、示例或提交到 git
 - 推送失败后不看报错盲目重试
 - 未经用户确认擅自提交 `.env`
 - 文档塞满内部实现细节与敏感信息
 - 全库 API 塞一篇大文档，或为微函数单独建文件
 - 库公共 API 已变却不查 `agent-docs/`；只看文件名不读 diff 就判定「不影响」；判定不了的改动不提问直接跳过
 - 在本技能内展开检索安装或查询步骤（检索交给 `docs-search`）
-- 库仓库已有一份 push-docs.mjs 就直接用：不与技能内版本比对内容，旧版脚本缺新校验与新能力

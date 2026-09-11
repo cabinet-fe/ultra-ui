@@ -11,27 +11,31 @@ description: >
 
 需要内部库事实时，**直接运行本技能内嵌脚本**，不要凭训练数据猜测私有 API。
 
-脚本：`scripts/query.mjs`（Node ≥ 24，零依赖）。**命令一律在用户仓库根目录执行**（`.env` 所在处）：脚本路径写成指向本技能的绝对路径，`--env-file=.env` 相对当前目录解析、才能命中仓库根的 `.env`；不要 cd 进技能目录再跑。服务地址只读环境变量 `DOCS_SERVER_URL`（结尾斜杠由脚本去掉）；落盘只允许仓库根目录 gitignore 过的 `.env`，禁止写进本技能、代码或会提交入库的配置。
+脚本：`scripts/query.mjs`（Node ≥ 24，零依赖）。**命令一律在用户仓库根目录执行**（`.pe.jsonc` 所在处）：脚本路径写成指向本技能的绝对路径，不要 cd 进技能目录再跑。服务地址只读仓库根目录 `.pe.jsonc` 中的 `docs_server_url`（结尾斜杠由脚本去掉，非敏感配置须提交入 git）。
 
 ## 流程
 
-### 1. 检测环境变量（始终第一步）
+### 1. 检测配置（始终第一步）
 
-运行任何查询前，先检查进程环境变量 `DOCS_SERVER_URL`（按宿主 shell 语法：POSIX 用 `printenv`，PowerShell 用 `$env:DOCS_SERVER_URL`），并读当前仓库根目录 `.env`，两处任一有值即算已配置。
+运行任何查询前，读当前仓库根目录 `.pe.jsonc`，确认包含 `docs_server_url`。
 
-- 已配置：直接进入第 2 步。值来自 `.env` 时，命令写成 `node --env-file=.env <脚本绝对路径> …`；`--env-file` 是 Node 内置参数，Windows/macOS/Linux 通用，禁止用 `set -a && source` 等 POSIX 专属前缀。
+- 已配置：直接进入第 2 步。命令写成 `node <脚本绝对路径> …`。
 - 缺失：引导用户补齐：
   1. 用提问工具向用户询问服务地址（向文档服务管理员索取，形如 `http://docs.internal:8080`）；禁止编造或猜测地址。
-  2. 写入当前仓库根目录 `.env`（已存在则只补缺失行，不覆盖已有值）。格式：`DOCS_SERVER_URL=<地址>`，`=` 两侧不留空格。
-  3. 确认 `.gitignore` 已含 `.env`；没有则追加。
+  2. 写入当前仓库根目录 `.pe.jsonc`（已存在则补充或更新字段，非敏感配置需提交入 git）。格式：
+     ```jsonc
+     {
+       "docs_server_url": "http://docs.internal:8080"
+     }
+     ```
 
 ### 2. 查询
 
 ```bash
-node --env-file=.env <脚本路径> libraries
-node --env-file=.env <脚本路径> search --q "<关键词> [关键词2]" [--library <slug>] [--limit 1~50]
-node --env-file=.env <脚本路径> get --library <slug> --path <path> [--section <章节>]
-node --env-file=.env <脚本路径> toc --library <slug> --path <path>
+node <脚本绝对路径> libraries
+node <脚本绝对路径> search --q "<关键词> [关键词2]" [--library <slug>] [--limit 1~50]
+node <脚本绝对路径> get --library <slug> --path <path> [--section <章节>]
+node <脚本绝对路径> toc --library <slug> --path <path>
 ```
 
 - `libraries`：已收录库的 slug 与文档数。多数场景可跳过直接跨库 search（结果自带 `library` 字段）；只有需要把结果限定到单库、又不确定 slug 拼写时先跑它核对。
@@ -55,14 +59,14 @@ node --env-file=.env <脚本路径> toc --library <slug> --path <path>
 ### 4. 结果处理
 
 - stdout 为服务端 JSON，直接读取，不要向用户展示原始 JSON。
-- HTTP 非 2xx 时脚本非零退出，按下方故障表处理；脚本报「缺少必填环境变量」说明第 1 步没做或 `.env` 未加载，回到第 1 步补齐后重跑。
+- HTTP 非 2xx 时脚本非零退出，按下方故障表处理；脚本报「找不到配置文件：.pe.jsonc」或「缺少必填字段：docs_server_url」说明第 1 步没做或配置缺失，回到第 1 步补齐后重跑。
 
 ## 故障处理
 
 | 报错（脚本 stderr） | 原因 | 处理 |
 | --- | --- | --- |
-| `缺少必填环境变量：DOCS_SERVER_URL` | 第 1 步没做或 `.env` 未加载 | 回到第 1 步 |
-| `DOCS_SERVER_URL 须以 http:// 或 https:// 开头` | 地址格式不对 | 向用户核对地址 |
+| `找不到配置文件：.pe.jsonc` / `配置文件 … 缺少必填字段：docs_server_url` | 第 1 步没做或 `.pe.jsonc` 未配置 | 回到第 1 步在 `.pe.jsonc` 中配置 |
+| `docs_server_url 须以 http:// 或 https:// 开头` | 地址格式不对 | 向用户核对地址 |
 | `请求失败：fetch failed（ECONNREFUSED/ENOTFOUND…）` | 服务不通或域名解析失败 | 核对地址与网络，报给用户/管理员，勿盲目重试 |
 | `请求超时（10 秒）` | 服务端无响应 | 停止重试，报给用户/管理员 |
 | `HTTP 400 missing_query` | `--q` 为空 | 补上关键词 |
@@ -75,9 +79,8 @@ node --env-file=.env <脚本路径> toc --library <slug> --path <path>
 ## 反模式
 
 - 为单个库复制/新建检索技能
-- 把 `DOCS_SERVER_URL` 写进技能副本、代码或会提交入库的配置文件（gitignore 过的仓库 `.env` 是唯一落盘位置）
-- 缺 `DOCS_SERVER_URL` 时不问用户，编造或猜测服务地址继续跑
-- 用 POSIX 专属写法（`set -a && source`、`VAR=value cmd` 前缀）当通用命令——Windows 的 cmd/PowerShell 不支持，跨平台加载 `.env` 一律用 `node --env-file`
-- cd 进技能目录运行脚本（`--env-file=.env` 会找错位置），或整句自然语言当 `--q`
+- 把 `docs_server_url` 写进 `.env` 或硬编码到代码中（非敏感配置须写入 `.pe.jsonc` 并提交入库）
+- 缺 `docs_server_url` 时不问用户，编造或猜测服务地址继续跑
+- cd 进技能目录运行脚本，或整句自然语言当 `--q`
 - 搜不到时无限换词空转：按第 3 节顺序调整，仍无结果就向用户说明并停
 - 未检索就按训练数据实现内部库调用
