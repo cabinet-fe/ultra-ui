@@ -18,6 +18,7 @@ import {
   Underline,
   UnmergeCells,
   Upload,
+  Variable,
   VerticalAlignCenter,
   VerticalAlignLeft,
   VerticalAlignRight,
@@ -365,7 +366,7 @@ registerTool({
   }
 })
 
-// ─── edit（查找）───────────────────────────────────────────
+// ─── edit（查找 / 函数）──────────────────────────────────────
 
 registerTool({
   id: 'find',
@@ -375,6 +376,17 @@ registerTool({
   group: 'edit',
   order: 0,
   popup: 'find',
+  onClick: () => {}
+})
+
+registerTool({
+  id: 'functions',
+  title: '函数',
+  icon: Variable,
+  tooltip: '查看全部函数',
+  group: 'edit',
+  order: 1,
+  popup: 'functions',
   onClick: () => {}
 })
 

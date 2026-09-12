@@ -120,6 +120,7 @@ describe('USheet 组件', () => {
       'valign-bottom',
       'wrap-text',
       'find',
+      'functions',
       'insert-image',
       'import',
       'export'

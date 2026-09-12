@@ -7,7 +7,7 @@ keywords: [SheetProps, SheetExposed, showToolbar, showFormulaBar, showTabs, regi
 
 # USheet 电子表格组件
 
-`@veltra/sheet` 导出电子表格组件 `USheet` 与类型 `SheetProps` / `SheetEmits` / `SheetExposed`。`USheet` 负责 UI 与工具栏：工具栏（23 个内置工具）、公式栏（名称框 + fx 输入栏）、虚拟滚动网格、底部 sheet 标签栏与右键菜单。数据模型来自 peer 包 `@veltra/sheet-core` 的 `Workbook` / `Sheet`——本包不 re-export，`Workbook`、`setCellReadonly` 等模型与命令 API 一律 `from '@veltra/sheet-core'` 导入。
+`@veltra/sheet` 导出电子表格组件 `USheet` 与类型 `SheetProps` / `SheetEmits` / `SheetExposed`。`USheet` 负责 UI 与工具栏：工具栏（24 个内置工具）、公式栏（名称框 + fx 输入栏）、虚拟滚动网格、底部 sheet 标签栏与右键菜单。数据模型来自 peer 包 `@veltra/sheet-core` 的 `Workbook` / `Sheet`——本包不 re-export，`Workbook`、`setCellReadonly` 等模型与命令 API 一律 `from '@veltra/sheet-core'` 导入。
 
 ## 快速上手
 

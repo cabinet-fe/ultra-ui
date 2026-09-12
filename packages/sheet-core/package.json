@@ -34,8 +34,8 @@
     }
   },
   "dependencies": {
-    "@visactor/vtable": "^1.26.6",
-    "@visactor/vtable-editors": "^1.26.6",
+    "@visactor/vtable": "^1.26.8",
+    "@visactor/vtable-editors": "^1.26.8",
     "hucre": "^1.1.0"
   },
   "peerDependencies": {

@@ -52,7 +52,7 @@ describe('内置工具（dogfood 扩展机制）', () => {
       'valign-bottom',
       'wrap-text'
     ])
-    expect(groups[3]!.tools.map((tool) => tool.id)).toEqual(['find'])
+    expect(groups[3]!.tools.map((tool) => tool.id)).toEqual(['find', 'functions'])
     expect(groups[4]!.tools.map((tool) => tool.id)).toEqual(['insert-image'])
     expect(groups[5]!.tools.map((tool) => tool.id)).toEqual(['import', 'export'])
 
@@ -212,6 +212,14 @@ describe('内置工具（dogfood 扩展机制）', () => {
     expect(find.popup).toBe('find')
     expect(find.group).toBe('edit')
     expect(find.disabled).toBeUndefined()
+  })
+
+  it('函数工具：弹层型声明（popup: functions），组 edit；纯查看不依赖选区', () => {
+    const tool = mustGet('functions')
+    expect(tool.popup).toBe('functions')
+    expect(tool.group).toBe('edit')
+    expect(tool.icon).toBeTruthy()
+    expect(tool.disabled).toBeUndefined()
   })
 
   it('插入图片工具：弹层型声明（popup: insert-image），组 insert；无选区禁用', () => {

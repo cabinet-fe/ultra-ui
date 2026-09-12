@@ -531,6 +531,53 @@
     }
   }
 
+  /* ─── 函数面板（纯查看 + 搜索）────────────────────────── */
+
+  @include m.e(functions-search) {
+    width: 320px;
+  }
+
+  @include m.e(functions-scroll) {
+    width: 320px;
+  }
+
+  @include m.e(functions-list) {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  @include m.e(functions-item) {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px 8px;
+    border-radius: fn.use-var(radius, small);
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+    }
+  }
+
+  @include m.e(functions-signature) {
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-main, small);
+    font-weight: 600;
+    font-family: 'JetBrains Mono', Consolas, 'Courier New', monospace;
+  }
+
+  @include m.e(functions-description) {
+    color: fn.use-var(text-color, second);
+    font-size: fn.use-var(font-size-assist, small);
+  }
+
+  @include m.e(functions-empty) {
+    padding: 16px 0;
+    color: fn.use-var(text-color, second);
+    font-size: fn.use-var(font-size-main, small);
+    text-align: center;
+  }
+
   @include m.e(insert-image-hint) {
     padding: 8px 10px;
     border: 1px dashed fn.use-var(border, muted-color);

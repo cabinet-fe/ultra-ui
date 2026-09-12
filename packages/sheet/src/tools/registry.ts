@@ -20,6 +20,7 @@ export type SheetToolPopupType =
   | 'font-color'
   | 'font-size'
   | 'find'
+  | 'functions'
   | 'insert-image'
   | 'export'
 

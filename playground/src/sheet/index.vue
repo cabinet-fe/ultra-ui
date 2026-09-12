@@ -285,9 +285,32 @@
 </template>
 
 <script lang="ts" setup>
+import { $n } from '@cat-kit/core'
 import { type SheetExposed } from '@veltra/sheet'
-import { Workbook, formatAddress, formatRange } from '@veltra/sheet-core'
+import {
+  Workbook,
+  coerceToNumber,
+  formatAddress,
+  formatRange,
+  isFormulaError,
+  registerFormulaFunction
+} from '@veltra/sheet-core'
 import { computed, onBeforeUnmount, ref, shallowRef, useTemplateRef } from 'vue'
+
+/**
+ * 自定义函数示例：注册全局函数 DOUBLE（名称大小写不敏感、同名覆盖，重复挂载安全）。
+ * 带 meta 后可在 fx 输入栏补全与工具栏「函数」面板中展示签名与描述。
+ */
+registerFormulaFunction('DOUBLE', {
+  minArgs: 1,
+  maxArgs: 1,
+  meta: { params: ['number'], description: '返回数字的两倍（自定义函数示例）' },
+  impl(args) {
+    const value = coerceToNumber(args[0]!)
+    if (isFormulaError(value)) return value
+    return Number($n.mul(value, 2))
+  }
+})
 
 // 工作簿：两个 sheet 共享公式依赖图（跨表引用与联动重算的中枢）
 const workbook = new Workbook()
@@ -311,6 +334,9 @@ sheet1.setCellValue({ row: 1, col: 0 }, 'Sheet2 首项×2')
 sheet1.setCellFormula({ row: 1, col: 1 }, '=Sheet2!B2*2')
 sheet1.setCellValue({ row: 2, col: 0 }, '本表 B1÷2')
 sheet1.setCellFormula({ row: 2, col: 1 }, '=B1/2')
+// 自定义函数示例（上方 registerFormulaFunction 注册的 DOUBLE）
+sheet1.setCellValue({ row: 3, col: 0 }, '自定义函数 DOUBLE')
+sheet1.setCellFormula({ row: 3, col: 1 }, '=DOUBLE(Sheet2!B2)')
 sheet1.mergeCells({ start: { row: 4, col: 1 }, end: { row: 5, col: 2 } })
 sheet1.setCellValue({ row: 4, col: 1 }, '合并区(B5:C6)')
 // 填充柄演示：数字序列 / 文本 tile

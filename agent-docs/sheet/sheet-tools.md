@@ -1,6 +1,6 @@
 ---
 title: SheetTool 工具栏扩展与 SheetContext
-description: USheet 工具栏扩展机制：registerTool / unregisterTool 向全局注册表注册与注销自定义工具，SheetTool 定义按钮与七种弹层，SheetContext 是工具操作表格的唯一门面，写操作全走命令系统可撤销。
+description: USheet 工具栏扩展机制：registerTool / unregisterTool 向全局注册表注册与注销自定义工具，SheetTool 定义按钮与八种弹层，SheetContext 是工具操作表格的唯一门面，写操作全走命令系统可撤销。
 aliases: [registerTool, unregisterTool, SheetContext, createSheetContext, 工具栏扩展, 自定义工具]
 keywords: [registerTool, unregisterTool, defaultToolRegistry, SheetTool, SheetToolGroup, SheetToolPopupType, SheetContext, createSheetContext, executeCommand, applyStyle, getSelection, setFrozen, 自定义工具, 工具栏按钮, 弹层工具, 撤销]
 ---
@@ -41,6 +41,7 @@ export type SheetToolPopupType =
   | 'font-color' // 字体颜色面板
   | 'font-size' // 字号面板
   | 'find' // 查找替换条
+  | 'functions' // 函数列表面板（纯查看 + 搜索，不写模型）
   | 'insert-image' // 插入浮动图片面板（本地文件 + URL）
   | 'export' // 导出 xlsx / csv 选择面板
 
@@ -229,7 +230,7 @@ export interface SheetContext {
 | `visible` | `(ctx) => boolean` | 恒可见 | 否 | 工具栏状态刷新时重新求值 |
 | `disabled` | `(ctx) => boolean` | 恒可用 | 否 | 工具栏状态刷新时重新求值 |
 | `active` | `(ctx) => boolean` | `false` | 否 | 高亮 `is-active`；工具栏状态刷新时重新求值 |
-| `popup` | `SheetToolPopupType` | — | 否 | 仅 7 个取值；设置后面板由 USheet 渲染，`onClick` 不执行 |
+| `popup` | `SheetToolPopupType` | — | 否 | 仅 8 个取值；设置后面板由 USheet 渲染，`onClick` 不执行 |
 
 注册函数：
 
@@ -251,6 +252,7 @@ export interface SheetContext {
 
 - `popup: 'fill-color' | 'border' | 'font-color' | 'font-size'`：面板打开时自动 `beginTransaction`，关闭时 `commit`（失败 `rollback`）——面板期间全部写入合并为单 undo 单元。
 - `popup: 'find'`：查找替换条；每次替换是独立 undo 单元，全部替换为单 undo 单元。`Ctrl/Cmd+F` 开合，仅当焦点在 USheet 实例内响应，不劫持容器外浏览器原生查找。
+- `popup: 'functions'`：函数列表面板（纯查看，不参与事务）：列出 `listFormulaFunctions()` 全部已注册函数（内置 + 宿主经 `registerFormulaFunction` 注册的自定义函数）的签名与描述，顶部搜索框按名称 / 描述大小写不敏感过滤；点击不写模型。
 - `popup: 'insert-image'`：本地文件 + URL 输入；`popup: 'export'`：xlsx / csv 选择面板（下载侧效应，无模型写入，不参与事务）。
 - 内置 `import` 工具无弹层：点击直接拉起系统文件选择（USheet 内部覆盖其行为）。
 
@@ -297,7 +299,7 @@ registerTool(clearSheetTool)
 
 ### 覆盖内置工具
 
-内置工具组序为 `history ｜ cell ｜ text ｜ edit ｜ insert ｜ file`，全部可被同 id 覆盖或注销。常用 id：`undo`、`redo`、`border`、`fill-color`、`merge`、`unmerge`、`bold`、`italic`、`underline`、`strikethrough`、`font-color`、`font-size`、`align-left`、`align-center`、`align-right`、`valign-top`、`valign-middle`、`valign-bottom`、`wrap-text`、`find`、`insert-image`、`import`、`export`。
+内置工具组序为 `history ｜ cell ｜ text ｜ edit ｜ insert ｜ file`，全部可被同 id 覆盖或注销。常用 id：`undo`、`redo`、`border`、`fill-color`、`merge`、`unmerge`、`bold`、`italic`、`underline`、`strikethrough`、`font-color`、`font-size`、`align-left`、`align-center`、`align-right`、`valign-top`、`valign-middle`、`valign-bottom`、`wrap-text`、`find`、`functions`、`insert-image`、`import`、`export`。
 
 ```ts
 import { registerTool, unregisterTool, defaultToolRegistry } from '@veltra/sheet'
@@ -305,7 +307,7 @@ import type { SheetContext } from '@veltra/sheet'
 import { exportWorkbookXlsx } from '@veltra/sheet-core'
 
 // 覆盖内置 export：点击直接导出 xlsx，不再弹选择面板
-// （同 id 替换保留原位置；新定义若用 popup 必须是 7 个内置类型之一）
+// （同 id 替换保留原位置；新定义若用 popup 必须是 8 个内置类型之一）
 registerTool({
   id: 'export',
   title: '导出',
@@ -366,7 +368,7 @@ console.log(sheet.getDisplayValue({ row: 0, col: 0 })) // => undefined（值已�
 > [!WARNING]
 > - `SheetContext` 不暴露 `Sheet` 实例——写方法全部经命令系统（可 undo，`setFrozen` 除外）；绕过门面直接操作 `Sheet` 的代码不属于工具扩展。
 > - sheet 增删改名不经过 `SheetContext`，宿主直接操作 `Workbook`（`addSheet` / `removeSheet` / `renameSheet`）；`ctx.workbook` 只是只读引用。
-> - `popup` 仅接受 7 个内置类型值，自定义字符串无法让 USheet 渲染面板；需要自定义面板时用普通按钮 + 宿主自己的弹层。
+> - `popup` 仅接受 8 个内置类型值，自定义字符串无法让 USheet 渲染面板；需要自定义面板时用普通按钮 + 宿主自己的弹层。
 > - `activeCell` 的类型是 `CellAddress | null`（未选中为 `null`），不是 `undefined`；判断用 `!== null`。
 > - 注册表是模块级单例：`registerTool` 在模块顶层执行即完成注册（内置工具由包入口 `import './tools/builtin'` 引入），禁止在多实例组件的 setup 里重复注册。
 > - 本包不 re-export `@veltra/sheet-core` 的任何符号；`Workbook` / `exportWorkbookXlsx` / `exportSheetCsv` 等一律从 `@veltra/sheet-core` 导入。

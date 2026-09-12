@@ -3,7 +3,7 @@
     <div :class="cls.e('toolbar-wrap')">
       <u-sheet-toolbar v-if="showToolbar" :groups="toolGroups" @tool-click="handleToolClick" />
 
-      <!-- 弹层型工具面板（填充/边框/字体色/字号/查找/插入图片/导出）：UDropdown（Teleport 到
+      <!-- 弹层型工具面板（填充/边框/字体色/字号/查找/函数/插入图片/导出）：UDropdown（Teleport 到
            #pop-container + floating-ui 定位：锚点跟随触发按钮、自动翻转/边界位移；
            触发元素滚动/窗口缩放时自动关闭）。面板交互走 SheetContext 命令入口。
            导入无弹层：点击直接系统文件选择（见 handleToolClick → pickAndImportFile） -->
@@ -32,6 +32,7 @@
               :context="context"
               @close="closePopup"
             />
+            <u-sheet-functions-popup v-else-if="popupTool.popup === 'functions'" />
             <u-sheet-insert-image-popup
               v-else-if="popupTool.popup === 'insert-image'"
               :context="context"
@@ -87,6 +88,7 @@ import USheetFillColorPopup from './popups/fill-color-popup.vue'
 import USheetFindPopup from './popups/find-popup.vue'
 import USheetFontColorPopup from './popups/font-color-popup.vue'
 import USheetFontSizePopup from './popups/font-size-popup.vue'
+import USheetFunctionsPopup from './popups/functions-popup.vue'
 import USheetInsertImagePopup from './popups/insert-image-popup.vue'
 import USheetTabs from './sheet-tabs.vue'
 import USheetToolbar from './sheet-toolbar.vue'
