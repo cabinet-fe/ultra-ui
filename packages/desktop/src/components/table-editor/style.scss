@@ -19,4 +19,11 @@ $root-name: table-editor;
       }
     }
   }
+
+  // 操作列按钮容器
+  @include m.bem($root-name, operations) {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+  }
 }

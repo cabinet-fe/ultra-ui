@@ -2,15 +2,20 @@ import type { DeconstructValue } from '@veltra/utils'
 
 import type { TableProps } from './table'
 
-/** 表格型编辑器组件属性 */
+/**
+ * 表格型编辑器组件属性
+ *
+ * 单元格双态渲染：`#column:key` 声明编辑态插槽（行悬停或行内含聚焦输入时挂载），
+ * `#text:key` 覆盖文本态渲染；未声明编辑插槽的列始终文本渲染。
+ */
 export interface TableEditorProps extends Omit<TableProps, 'data'> {
   /** 表格数据 */
-  modelValue?: any[]
+  modelValue?: Record<string, any>[]
 }
 
 /** 表格型编辑器组件定义的事件 */
 export interface TableEditorEmits {
-  (e: 'update:modelValue', value: any[]): void
+  (e: 'update:modelValue', value: Record<string, any>[]): void
 }
 
 /** 表格型编辑器组件暴露的属性和方法(组件内部使用) */
