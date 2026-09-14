@@ -1,7 +1,26 @@
 import { TreeNode } from '@cat-kit/core'
+import { withUnit } from '@veltra/utils'
 import { isReactive, reactive, shallowReactive } from 'vue'
 
-import type { TableColumn, TableColumnAlign } from '../../../types'
+import type { TableColumn, TableColumnAlign, TableColumnStyle } from '../../../types'
+
+function normalizeColumnStyle(style?: TableColumnStyle): Record<string, string> | undefined {
+  if (!style) return undefined
+
+  const result: Record<string, string> = {}
+
+  if (style.color !== undefined) {
+    result.color = style.color
+  }
+  if (style.fontSize !== undefined) {
+    const fontSize = withUnit(style.fontSize, 'px')
+    if (fontSize !== undefined) {
+      result.fontSize = fontSize
+    }
+  }
+
+  return Object.keys(result).length ? result : undefined
+}
 
 export class ColumnNode extends TreeNode<TableColumn, ColumnNode> {
   declare children?: ColumnNode[] | undefined
@@ -42,6 +61,16 @@ export class ColumnNode extends TreeNode<TableColumn, ColumnNode> {
   }
   set headerAlign(val) {
     this.data.headerAlign = val
+  }
+
+  /** 表体/表尾单元格样式 */
+  get cellStyle(): Record<string, string> | undefined {
+    return normalizeColumnStyle(this.data.style)
+  }
+
+  /** 表头单元格样式 */
+  get headerCellStyle(): Record<string, string> | undefined {
+    return normalizeColumnStyle(this.data.headerStyle ?? this.data.style)
   }
 
   /** 宽度 */

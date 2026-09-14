@@ -99,6 +99,7 @@ export const UTableRow: DefineComponent<{ row: ITableRow; index: number }> = def
               cellClass={getCellClass(_expandColumn)}
               left={_expandColumn.style.left}
               right={_expandColumn.style.right}
+              cellStyle={_expandColumn.cellStyle}
               key={row.uid + _expandColumn.key}
               {...tableProps.mergeCell?.(expandCtx)}
             >
@@ -156,6 +157,7 @@ export const UTableRow: DefineComponent<{ row: ITableRow; index: number }> = def
                 cellClass={getCellClass(column)}
                 left={column.style.left}
                 right={column.style.right}
+                cellStyle={column.cellStyle}
                 key={row.uid + column.key}
                 // @ts-ignore
                 onClick={(e) => handleCellClick(row, column, e)}

@@ -4,6 +4,11 @@ import type { ShallowRef, Slots, VNode } from 'vue'
 
 export type TableColumnAlign = 'left' | 'center' | 'right'
 
+export interface TableColumnStyle {
+  color?: string
+  fontSize?: number | string
+}
+
 /**
  * 合计上下文
  */
@@ -46,6 +51,10 @@ export interface TableColumn {
    * @default 'left'
    */
   align?: TableColumnAlign
+  /** 表体/表尾单元格样式 */
+  style?: TableColumnStyle
+  /** 表头单元格样式，未指定时取 style */
+  headerStyle?: TableColumnStyle
   /** 列渲染 */
   render?: (scope: TableColumnRenderContext) => RenderReturn
   /** 子列 */
@@ -164,6 +173,9 @@ export interface TableColumnNode extends TreeNode<TableColumn> {
   key: string
   name: string
   align: TableColumnAlign
+  headerAlign: TableColumnAlign
+  cellStyle?: Record<string, string>
+  headerCellStyle?: Record<string, string>
   width: number | undefined
   minWidth: number | undefined
   fixed: 'left' | 'right' | undefined

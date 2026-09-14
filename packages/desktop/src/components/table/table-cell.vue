@@ -24,13 +24,18 @@ defineOptions({ name: 'UTableCell' })
  * 父组件 `TableRow` 已经持有注入上下文，直接把 `cellClass` 传下来即可；
  * 这里变成「完全受控」的纯渲染单元。
  */
-const { left, right } = defineProps<{
+const { left, right, cellStyle } = defineProps<{
   cellClass: string
   left?: number
   right?: number
+  cellStyle?: Record<string, string>
   rowspan?: number
   colspan?: number
 }>()
 
-const style = computed(() => ({ left: withUnit(left, 'px'), right: withUnit(right, 'px') }))
+const style = computed(() => ({
+  ...cellStyle,
+  left: withUnit(left, 'px'),
+  right: withUnit(right, 'px')
+}))
 </script>

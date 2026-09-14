@@ -40,6 +40,11 @@ export type ComponentSize = 'small' | 'default' | 'large'
 
 export type TableColumnAlign = 'left' | 'center' | 'right'
 
+export interface TableColumnStyle {
+  color?: string
+  fontSize?: number | string
+}
+
 export type RenderReturn =
   | (undefined | VNode | string | null | number)[]
   | undefined
@@ -103,6 +108,10 @@ export interface TableColumn {
   headerAlign?: TableColumnAlign
   /** 列对齐方式，默认 'left' */
   align?: TableColumnAlign
+  /** 表体/表尾单元格样式 */
+  style?: TableColumnStyle
+  /** 表头单元格样式，未指定时取 style */
+  headerStyle?: TableColumnStyle
   /** 单元格渲染函数，优先级高于 #column:{key} 插槽 */
   render?: (scope: TableColumnRenderContext) => RenderReturn
   /** 子列，用于多级表头 */
@@ -265,6 +274,8 @@ export function defineTableColumns(
 | `fixed` | `'left' \| 'right'` | — | 否 | 仅顶层列生效，嵌套表头（有 `children`）的列设置无效；固定列未设 `width` 时只按 `minWidth` 占位、不参与均分 |
 | `align` | `'left' \| 'center' \| 'right'` | `'left'` | 否 | — |
 | `headerAlign` | `'left' \| 'center' \| 'right'` | 取 `align` | 否 | — |
+| `style` | `TableColumnStyle` | — | 否 | 表体/表尾单元格 inline 样式；仅支持 `color`、`fontSize`（数字 `fontSize` 自动加 `px`） |
+| `headerStyle` | `TableColumnStyle` | 取 `style` | 否 | 表头单元格 inline 样式；回退规则同 `headerAlign` |
 | `render` | `(ctx: TableColumnRenderContext) => RenderReturn` | — | 否 | 优先级：`render` > `#column:{key}` 插槽 > 直接显示 `val` |
 | `nameRender` | `(ctx: { column }) => RenderReturn` | — | 否 | 优先级：`nameRender` > `#header:{key}` 插槽 > `name` |
 | `children` | `TableColumn[]` | — | 否 | 非空时渲染多级表头 |

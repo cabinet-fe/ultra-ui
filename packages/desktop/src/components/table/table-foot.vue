@@ -5,6 +5,7 @@
         v-if="leafColumns[0]"
         :class="getCellClass(leafColumns[0])"
         :style="{
+          ...leafColumns[0].cellStyle,
           right: withUnit(leafColumns[0].style.right, 'px'),
           left: withUnit(leafColumns[0].style.left, 'px')
         }"
@@ -16,6 +17,7 @@
         :class="getCellClass(column)"
         :key="column.key"
         :style="{
+          ...column.cellStyle,
           right: withUnit(column.style.right, 'px'),
           left: withUnit(column.style.left, 'px')
         }"

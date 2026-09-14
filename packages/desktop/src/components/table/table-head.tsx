@@ -26,6 +26,7 @@ const TableHead: DefineComponent = defineComponent({
                 colspan={column.leafs}
                 rowspan={column.children?.length ? undefined : headers.value.length - headerIndex}
                 style={{
+                  ...column.headerCellStyle,
                   left: withUnit(column.style.left, 'px'),
                   right: withUnit(column.style.right, 'px')
                 }}

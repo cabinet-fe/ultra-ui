@@ -55,8 +55,15 @@ const checked = shallowRef([])
 
 const columns = defineTableColumns([
   { key: 'name', name: '姓名', width: 60, fixed: 'left' },
-  { key: 'age', name: '年龄', align: 'center' },
-  { key: 'grade', name: '年级', align: 'center' },
+  { key: 'age', name: '年龄', align: 'center', style: { color: '#409eff', fontSize: 14 } },
+  {
+    key: 'grade',
+    name: '年级',
+    align: 'center',
+    headerAlign: 'right',
+    style: { fontSize: 12 },
+    headerStyle: { color: '#e6a23c', fontSize: 16 }
+  },
   { key: 'class', name: '班级', align: 'center' },
   { key: 'score', name: '分数', align: 'center' },
   { key: 'action', name: '操作', align: 'center' }
