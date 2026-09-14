@@ -26,4 +26,24 @@ $root-name: table-editor;
     justify-content: center;
     gap: 8px;
   }
+
+  // 校验失败单元格：outline 描边不占布局，错误出现/消失不改变行高；
+  // hover 时经 u-tip 气泡展示错误文案
+  @include m.e(cell-error) {
+    display: block;
+    outline: 1px solid fn.use-var(color, danger);
+    outline-offset: -1px;
+    border-radius: fn.use-var(radius, small);
+
+    // 编辑态内容被错误标识包裹后不再是单元格直接子元素，这里保持同样的阴影抹平
+    & > [class^='u-'] {
+      box-shadow: none;
+    }
+  }
+
+  // required 列表头红星标识
+  @include m.e(required-mark) {
+    padding-left: 2px;
+    color: fn.use-var(color, danger);
+  }
 }
