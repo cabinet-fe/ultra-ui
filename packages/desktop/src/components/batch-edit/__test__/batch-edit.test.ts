@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { createApp, h, nextTick, reactive, ref } from 'vue'
 
 import { UInput } from '../../input'
@@ -6,7 +6,13 @@ import { USelect } from '../../select'
 import { defineTableColumns } from '../../table'
 import { UBatchEdit } from '../index'
 
-function mountBatchEdit() {
+interface MountOptions {
+  props?: Record<string, any>
+  /** 给「名称」输入框附加校验规则 */
+  labelRules?: Record<string, any>
+}
+
+function mountBatchEdit(options: MountOptions = {}) {
   const host = document.createElement('div')
   document.body.appendChild(host)
 
@@ -42,11 +48,12 @@ function mountBatchEdit() {
           columns,
           model,
           rowKey: 'id',
-          quickEdit: true
+          quickEdit: true,
+          ...options.props
         },
         {
           form: () => [
-            h(UInput, { field: 'label', label: '名称' }),
+            h(UInput, { field: 'label', label: '名称', rules: options.labelRules }),
             h(USelect, {
               field: 'behavior',
               label: '行为',
@@ -193,6 +200,170 @@ describe('UBatchEdit quick-edit 切换编辑行', () => {
     await nextTick()
 
     expect(data.value[0]!.label).toBe('改过的名称')
+
+    unmount()
+  })
+})
+
+function queryDialog() {
+  return document.body.querySelector<HTMLElement>('.u-batch-edit__form-dialog')
+}
+
+/** 等弹框（teleport 到 body）的进入 / 离开过渡走完 */
+async function flushDialog() {
+  await nextTick()
+  await nextTick()
+  await new Promise((resolve) => setTimeout(resolve, 20))
+  await nextTick()
+}
+
+function clickEl(el: HTMLElement) {
+  el.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
+}
+
+function setInputValue(input: HTMLInputElement, value: string) {
+  input.value = value
+  input.dispatchEvent(
+    new InputEvent('input', { bubbles: true, data: value, inputType: 'insertText' })
+  )
+}
+
+function querySaveButton(dialog: HTMLElement) {
+  return dialog.querySelector<HTMLElement>('.u-batch-edit__form-actions button[title="保存"]')
+}
+
+function queryCancelButton(dialog: HTMLElement) {
+  return [...dialog.querySelectorAll<HTMLElement>('.u-batch-edit__form-actions button')].find(
+    (btn) => btn.textContent?.includes('取消')
+  )
+}
+
+describe('UBatchEdit formMode', () => {
+  it('默认（不传 formMode）仍渲染右侧面板，不出现弹框', async () => {
+    const { host, unmount } = mountBatchEdit()
+
+    await clickRow(host, 0)
+    const aside = host.querySelector<HTMLElement>('.u-batch-edit__form')
+    expect(aside).toBeTruthy()
+    expect(aside!.style.display).not.toBe('none')
+    expect(queryDialog()).toBeNull()
+
+    unmount()
+  })
+
+  it('formMode="dialog" 时不渲染右列，触发编辑后以弹框打开表单', async () => {
+    const { host, model, unmount } = mountBatchEdit({
+      props: { formMode: 'dialog', quickEdit: false }
+    })
+
+    expect(host.querySelector('.u-batch-edit__form')).toBeNull()
+    expect(queryDialog()).toBeNull()
+
+    await clickRow(host, 0)
+    await flushDialog()
+
+    const dialog = queryDialog()
+    expect(dialog).toBeTruthy()
+    // 表格占满整行，右列不再渲染
+    expect(host.querySelector('.u-batch-edit__form')).toBeNull()
+    // 弹框内复用原表单头部 / 表单体 / 底部操作区
+    expect(dialog!.querySelector('.u-batch-edit__form-header')).toBeTruthy()
+    expect(dialog!.querySelector('.u-batch-edit__form-body')).toBeTruthy()
+    expect(dialog!.querySelector('.u-batch-edit__form-actions')).toBeTruthy()
+    // 编辑行已回显
+    expect(model.label).toBe('存草稿')
+
+    unmount()
+  })
+
+  it('弹框内保存走校验与 saveMethod，成功后关闭弹框', async () => {
+    const saveMethod = vi.fn()
+    const { host, data, unmount } = mountBatchEdit({
+      props: { formMode: 'dialog', quickEdit: false, saveMethod },
+      labelRules: { required: true }
+    })
+
+    // 打开新增弹框
+    clickEl(host.querySelector<HTMLElement>('.u-batch-edit__add-btn')!)
+    await flushDialog()
+    expect(queryDialog()).toBeTruthy()
+
+    // 必填校验失败：不调用 saveMethod，弹框保持打开
+    clickEl(querySaveButton(queryDialog()!)!)
+    await flushDialog()
+    expect(saveMethod).not.toHaveBeenCalled()
+    expect(queryDialog()).toBeTruthy()
+
+    // 填写后保存：走 saveMethod 并插入数据，成功后关闭弹框
+    setInputValue(queryDialog()!.querySelector<HTMLInputElement>('.u-input input')!, '新名称')
+    await nextTick()
+    await nextTick()
+    clickEl(querySaveButton(queryDialog()!)!)
+    await flushDialog()
+
+    expect(saveMethod).toHaveBeenCalledTimes(1)
+    expect(saveMethod.mock.calls[0]![0]).toMatchObject({ label: '新名称' })
+    expect(saveMethod.mock.calls[0]![1]).toBe('create')
+    expect(data.value).toHaveLength(3)
+    expect(data.value[2]).toMatchObject({ label: '新名称' })
+    expect(queryDialog()).toBeNull()
+
+    unmount()
+  })
+
+  it('弹框内取消 / 关闭按钮 / 遮罩点击均不保存，且 model 恢复初始值', async () => {
+    const saveMethod = vi.fn()
+    const { host, data, model, unmount } = mountBatchEdit({
+      props: { formMode: 'dialog', quickEdit: false, saveMethod }
+    })
+
+    // 编辑第 1 行后取消
+    await clickRow(host, 0)
+    await flushDialog()
+    setInputValue(queryDialog()!.querySelector<HTMLInputElement>('.u-input input')!, '改过的名称')
+    await nextTick()
+    await nextTick()
+    clickEl(queryCancelButton(queryDialog()!)!)
+    await flushDialog()
+
+    expect(saveMethod).not.toHaveBeenCalled()
+    expect(data.value[0]).toMatchObject({ label: '存草稿' })
+    // model 恢复初始快照，而不是残留上一行数据
+    expect(model.label).toBe('')
+    expect(model.submitType).toBeUndefined()
+    expect(queryDialog()).toBeNull()
+
+    // 取消后再新增：表单应为初始值（快照不被上一行污染）
+    clickEl(host.querySelector<HTMLElement>('.u-batch-edit__add-btn')!)
+    await flushDialog()
+    expect(queryDialog()!.querySelector<HTMLInputElement>('.u-input input')!.value).toBe('')
+
+    // 表单头部的关闭按钮同样不保存
+    setInputValue(queryDialog()!.querySelector<HTMLInputElement>('.u-input input')!, '随便写')
+    await nextTick()
+    await nextTick()
+    clickEl(queryDialog()!.querySelector<HTMLElement>('.u-batch-edit__form-close')!)
+    await flushDialog()
+    expect(saveMethod).not.toHaveBeenCalled()
+    expect(model.label).toBe('')
+    expect(data.value).toHaveLength(2)
+    expect(queryDialog()).toBeNull()
+
+    // 弹框自身关闭交互（点击遮罩）也不保存
+    await clickRow(host, 1)
+    await flushDialog()
+    setInputValue(queryDialog()!.querySelector<HTMLInputElement>('.u-input input')!, '改过的名称')
+    await nextTick()
+    await nextTick()
+    document
+      .querySelector<HTMLElement>('.u-dialog__overlay')!
+      .dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }))
+    await flushDialog()
+
+    expect(saveMethod).not.toHaveBeenCalled()
+    expect(data.value[1]).toMatchObject({ label: '调接口' })
+    expect(model.label).toBe('')
+    expect(queryDialog()).toBeNull()
 
     unmount()
   })

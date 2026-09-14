@@ -14,10 +14,23 @@
     <BatchEditList :slots="slots" />
 
     <!-- 编辑表单 -->
-    <BatchEditForm ref="form" v-slot="scoped">
+    <BatchEditForm v-if="props.formMode === 'panel'" ref="form" v-slot="scoped">
       <slot name="form" v-bind="scoped" />
     </BatchEditForm>
   </u-layout>
+
+  <!-- 弹框模式：表单经 UDialog 呈现（teleport 到 body），快捷键监听落在弹框上，Esc 与弹框自带的 keyup.esc 去重 -->
+  <u-dialog
+    v-if="props.formMode === 'dialog'"
+    v-model="state.formVisible"
+    :class="cls.e('form-dialog')"
+    @keydown.capture="handleKeydown"
+    @keyup.esc.stop
+  >
+    <BatchEditForm ref="form" v-slot="scoped">
+      <slot name="form" v-bind="scoped" />
+    </BatchEditForm>
+  </u-dialog>
 </template>
 
 <script lang="ts" setup>
@@ -25,6 +38,7 @@ import { bem } from '@veltra/utils'
 import { computed, provide, useTemplateRef } from 'vue'
 
 import type { BatchEditEmits, BatchEditProps, BatchEditSlots, FormExposed } from '../../types'
+import { UDialog } from '../dialog'
 import { ULayout } from '../layout'
 import BatchEditForm from './batch-edit-form.vue'
 import BatchEditList from './batch-edit-list.vue'
@@ -36,7 +50,10 @@ import { useShortcutKey } from './use-shortcut-key'
 
 defineOptions({ name: 'UBatchEdit' })
 
-const props = withDefaults(defineProps<BatchEditProps>(), { cols: () => ['1fr', '420px'] })
+const props = withDefaults(defineProps<BatchEditProps>(), {
+  cols: () => ['1fr', '420px'],
+  formMode: 'panel'
+})
 
 const emit = defineEmits<BatchEditEmits>()
 
@@ -61,7 +78,7 @@ const { handleFocusIn, handleFocusOut, handleKeydown, focused } = useShortcutKey
 })
 
 const cols = computed(() => {
-  return state.formVisible ? props.cols : undefined
+  return props.formMode === 'panel' && state.formVisible ? props.cols : undefined
 })
 
 provide(BatchEditDIKey, {

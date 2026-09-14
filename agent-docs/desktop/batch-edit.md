@@ -1,11 +1,14 @@
 ---
 title: UBatchEdit 批量编辑
-description: "左侧 UTable 加右侧 UForm 的批量行编辑组件：点行打开表单编辑/查看，支持新增、上方/下方插入、树形新增子级、删除、快速编辑实时写回行数据，以及 features 功能白名单与保存/删除钩子。"
+description: "左侧 UTable 加右侧 UForm 的批量行编辑组件：点行打开表单编辑/查看，表单可用右侧面板或弹框（formMode）呈现，支持新增、上方/下方插入、树形新增子级、删除、快速编辑实时写回行数据，以及 features 功能白名单与保存/删除钩子。"
 aliases: ["UBatchEdit", "BatchEdit", "EditableTable", "行编辑", "批量行编辑", "批量表格"]
 keywords:
   - field:update
   - quickEdit
   - quick-edit
+  - formMode
+  - 弹框表单
+  - dialog
   - saveMethod
   - deleteMethod
   - beforeCreate
@@ -83,6 +86,12 @@ export interface BatchEditProps extends TableProps {
   cols?: string | [string, string]
   /** 只读模式：隐藏操作列与「新增一行」，点行进入 view 模式，保存按钮与 Ctrl+S 不可用（Esc 仍可关闭） */
   readonly?: boolean
+  /**
+   * 表单交互模式。'panel'（默认）：右侧面板；'dialog'：编辑/新增/查看/添加子级时表单以 UDialog 弹框打开，
+   * 表格占满整行宽度；校验、saveMethod、quickEdit、快捷键（Ctrl/Cmd + S 保存、Esc 关闭）与面板模式一致，
+   * 保存成功后关闭弹框（新增不在弹框内连续追加）
+   */
+  formMode?: 'panel' | 'dialog'
   /** 开启快速编辑：编辑行时表单实时写回 row.data（经 model 中转），不调用 saveMethod，隐藏保存按钮与 Ctrl+S；新增仍走保存流程 */
   quickEdit?: boolean
   /** 新增前的钩子；仅 create / createChild 类操作在保存时调用，可直接修改传入的 draft 对象 */
@@ -176,6 +185,7 @@ defineTableColumns([{ name: '姓名', key: 'name' }], { align: 'center', minWidt
 | `columns` | `BatchEditColumn[]` | — | 是 | 结构同 UTable 的 `TableColumn`；非只读且开启任一编辑功能时自动追加固定右侧「操作」列（宽 180） |
 | `cols` | `string \| [string, string]` | `['1fr', '420px']` | 否 | 左右两栏宽度；表单关闭时右栏收起 |
 | `readonly` | `boolean` | `false` | 否 | 只读时点行进入 `view`，仅 `Esc` 快捷键可用 |
+| `formMode` | `'panel' \| 'dialog'` | `'panel'` | 否 | 表单呈现方式；`'dialog'` 时表单在弹框中打开、不再渲染右栏，`cols` 不生效；保存成功后关闭弹框，取消/关闭按钮/遮罩点击均不保存 |
 | `quickEdit` | `boolean` | `false` | 否 | 编辑行实时写回 `row.data`；回显/重置期间（syncing）不写回，避免默认值污染行数据 |
 | `labelWidth` | `string \| number` | — | 否 | 透传内部 `UForm` 的 `labelWidth` |
 | `beforeCreate` | `(data, parentData?) => void \| Promise<void>` | — | 否 | 仅 `create` / `createChild` 保存时调用；可直接修改 `data` |
@@ -197,11 +207,50 @@ defineTableColumns([{ name: '姓名', key: 'name' }], { align: 'center', minWidt
 - `update:checked(items)` / `update:selected(row)` — 左侧表格多选/单选变化时转发。
 - 继承自 `TableEmits` 的 `update:current`、`row-click`、`cell-click`、`update:rows`、`update:forest` 在 `UBatchEdit` 内部未转发：`update:current` 被组件消费用于打开编辑表单，其余监听不触发。
 
-内置键盘快捷键（组件获焦时生效）：`Esc` 关闭表单；`Ctrl/Cmd + S` 保存。`readonly` 时仅 `Esc` 生效；`quickEdit` 编辑行时不响应保存。
+内置键盘快捷键：`Esc` 关闭表单；`Ctrl/Cmd + S` 保存。面板模式（`formMode: 'panel'`）下组件获焦时生效；弹框模式（`formMode: 'dialog'`）下弹框打开期间生效。`readonly` 时仅 `Esc` 生效；`quickEdit` 编辑行时不响应保存。
 
-保存流程（`create` / `createChild`）：`validate()` 通过 → `beforeCreate(draft, parentData)` → `saveMethod(data, actionType, parentData)`（返回非空值则以返回值插入）→ 插入到目标索引 → 索引推进一行便于连续新增 → 表单重置。更新流程：`validate()` 通过 → `saveMethod(...)` → 把结果（或表单值）逐字段写回 `row.data`。
+保存流程（`create` / `createChild`）：`validate()` 通过 → `beforeCreate(draft, parentData)` → `saveMethod(data, actionType, parentData)`（返回非空值则以返回值插入）→ 插入到目标索引 → 面板模式索引推进一行便于连续新增并重置表单，弹框模式直接关闭弹框。更新流程：`validate()` 通过 → `saveMethod(...)` → 把结果（或表单值）逐字段写回 `row.data`，弹框模式随后关闭弹框。
 
 ## 典型示例
+
+### 弹框模式表单
+
+`form-mode="dialog"` 时编辑 / 新增 / 查看 / 添加子级均在弹框中打开表单，表格占满整行宽度，适合空间受限或需要聚焦编辑的场景。
+
+```vue
+<script setup lang="ts">
+import { UBatchEdit, UInput, defineTableColumns } from '@veltra/desktop'
+import { reactive, shallowRef } from 'vue'
+
+const columns = defineTableColumns([
+  { name: '姓名', key: 'name', width: 120 },
+  { name: '年龄', key: 'age', width: 80 }
+])
+
+const data = shallowRef([{ name: '张三', age: 28 }])
+const model = reactive({ name: '', age: undefined as number | undefined })
+
+function saveMethod(row: Record<string, any>) {
+  return row // 返回非空值作为插入/写回内容；保存成功后弹框自动关闭
+}
+</script>
+
+<template>
+  <u-batch-edit
+    v-model:data="data"
+    :columns="columns"
+    :model="model"
+    form-mode="dialog"
+    :save-method="saveMethod"
+    style="height: 500px"
+  >
+    <template #form>
+      <u-input field="name" label="姓名" :rules="{ required: true }" />
+      <u-input field="age" label="年龄" />
+    </template>
+  </u-batch-edit>
+</template>
+```
 
 ### 功能限制与删除确认
 
@@ -357,6 +406,7 @@ function saveMethod(data: Record<string, any>, actionType: string) {
 > - `model` 必传（`reactive` 对象）；不传时右侧表单整个不渲染。
 > - 本库的动态判定功能写法是 `features` 对象形式（`false` / 函数关闭，`true` 开启），`view` **不在**默认开放集合，需要查看功能必须显式开启。
 > - `quickEdit` 编辑行不调用 `saveMethod`，也不显示保存按钮与 `Ctrl + S` 提示；新增/插入仍走完整保存流程。
+> - `formMode: 'dialog'` 时表单随弹框挂载/卸载：新增保存成功即关闭弹框（没有面板模式的连续新增），取消、表单关闭按钮、弹框遮罩点击都会关闭弹框且不保存，并把 `model` 恢复到初始值。
 > - 继承自 `TableEmits` 的 `row-click` / `cell-click` / `update:rows` / `update:forest` 在本组件内未转发，监听不触发；`update:current` 由组件内部消费用于打开编辑表单。
 > - 「添加子级」（`createChild`）按钮仅在 `tree` 开启时出现；树形子节点的 key 默认 `'children'`，可用 `tree="childrenKey"` 改名。
 > - 列定义辅助函数本库提供 `defineBatchEditColumns` 与 `defineTableColumns` 两个，前者仅类型标注差异，可与 UTable 文档中的 `defineTableColumns` 通用。

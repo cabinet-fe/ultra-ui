@@ -170,6 +170,12 @@ export function useHandlers(options: Options): EditReturned {
       }
       insert(item)
 
+      // 弹框模式保存成功即关闭，不走面板的连续新增
+      if (props.formMode === 'dialog') {
+        resetState()
+        return
+      }
+
       // 推进插入点，便于连续新增；并重置表单到初始默认值
       const next = last(state.indexPath) + 1
       state.indexPath = [...state.indexPath.slice(0, -1), next]
@@ -190,6 +196,10 @@ export function useHandlers(options: Options): EditReturned {
       Object.keys(item).forEach((key) => {
         o(row.data).set(key, o(item).get(key))
       })
+
+    if (props.formMode === 'dialog') {
+      resetState()
+    }
   })
 
   const handleDelete = runWithLoading(async (row: TableRow) => {

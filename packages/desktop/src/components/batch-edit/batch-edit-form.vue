@@ -1,6 +1,11 @@
 <template>
-  <!-- 表单常驻挂载（快照只在挂载时对传入的 model 拍一次），仅用 v-show 控制显隐 -->
-  <aside :class="cls.e('form')" v-if="!!props.model" v-show="state.formVisible">
+  <!-- 面板模式：表单常驻挂载（快照只在挂载时对传入的 model 拍一次），仅用 v-show 控制显隐；
+       弹框模式：表单随弹框挂载 / 卸载，model 初始快照由 use-edit-state 维护 -->
+  <aside
+    :class="[cls.e('form'), bem.is('dialog', props.formMode === 'dialog')]"
+    v-if="!!props.model"
+    v-show="state.formVisible"
+  >
     <header :class="cls.e('form-header')">
       <span :class="[cls.e('form-icon'), bem.is(state.formActionType)]">
         <u-icon>
@@ -48,7 +53,7 @@
       <span :class="cls.e('form-hint')">
         <template v-if="props.readonly"> 只读模式 </template>
 
-        <span :class="{ [bem.is('concealed')]: !focused }">
+        <span :class="{ [bem.is('concealed')]: !shortcutActive }">
           <template v-if="!(state.formActionType === 'update' && props.quickEdit)">
             <u-kbd>Ctrl + S</u-kbd> 保存 ·
           </template>
@@ -86,6 +91,7 @@ import { UKbd } from '../kbd'
 import { UScroll } from '../scroll'
 import { BatchEditDIKey } from './di'
 import { FORM_ACTION_HEADER_MAP } from './form-action-header'
+import { useDialogEffect } from './use-dialog-effect'
 
 defineOptions({ name: 'UBatchEditForm' })
 
@@ -95,6 +101,14 @@ const { cls, props, state, handleClose, handleSave, staticFeatures, dynamicFeatu
   batchEditCtx
 
 const focused = toRef(batchEditCtx, 'focused')
+
+// 弹框模式下，弹框自身关闭（遮罩点击 / 右上角关闭）时同步走 handleClose，不保存
+useDialogEffect({ closeForm: handleClose })
+
+/** 快捷键提示是否可见：面板模式随聚焦显隐；弹框模式弹框打开期间快捷键始终可用 */
+const shortcutActive = computed(() => {
+  return props.formMode === 'dialog' ? state.formVisible : focused.value
+})
 
 const formComponentRef = shallowRef<FormExposed>()
 

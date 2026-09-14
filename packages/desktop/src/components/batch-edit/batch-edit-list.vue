@@ -98,7 +98,8 @@ const tableProps = computed(() => {
     'saveMethod',
     'features',
     'mode',
-    'beforeCreate'
+    'beforeCreate',
+    'formMode'
   ])
 })
 

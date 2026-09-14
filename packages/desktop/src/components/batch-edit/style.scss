@@ -52,6 +52,14 @@ $root-name: batch-edit;
     overflow: hidden;
     isolation: isolate;
     min-height: 0;
+
+    // 弹框模式：背景 / 圆角 / 阴影由弹框外壳提供，表单只保留内部布局并限高滚动
+    @include m.is(dialog) {
+      max-height: min(600px, 80vh);
+      background-color: transparent;
+      border-radius: 0;
+      box-shadow: none;
+    }
   }
 
   @include m.e(form-header) {
@@ -169,5 +177,17 @@ $root-name: batch-edit;
     display: flex;
     gap: 8px;
     flex-shrink: 0;
+  }
+}
+
+// ---------- 弹框模式 ----------
+// 弹框 teleport 到 body，不在 .u-batch-edit 内，样式置于顶层
+#{fn.bem(batch-edit, form-dialog)} {
+  width: 560px;
+  max-width: calc(100vw - 32px);
+
+  // 表单自带头部（图标 / 标题 / 关闭按钮），弹框头部不再展示
+  #{fn.bem(dialog, header)} {
+    display: none;
   }
 }

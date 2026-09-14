@@ -44,6 +44,12 @@ export interface BatchEditProps extends TableProps {
   /** 只读模式 */
   readonly?: boolean
   /**
+   * 表单交互模式
+   * @description `'panel'`：右侧面板（默认）；`'dialog'`：编辑 / 新增 / 查看 / 添加子级时以弹框呈现表单
+   * @default 'panel'
+   */
+  formMode?: 'panel' | 'dialog'
+  /**
    * 开启快速编辑
    * @description 开启后，编辑行时表单实时写回 `row.data`（经 `model` 中转），且不调用 `saveMethod`
    */

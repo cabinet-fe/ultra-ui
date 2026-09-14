@@ -1,4 +1,4 @@
-import { o } from '@cat-kit/core'
+import { copy, o } from '@cat-kit/core'
 import { nextTick, shallowReactive, shallowRef, watch, type ShallowRef } from 'vue'
 
 import type { BatchEditProps, BatchEditStates, FormExposed } from '../../types'
@@ -24,9 +24,37 @@ export function useEditState(options: Options) {
   /** 是否正在以编程方式重置/回显表单，此期间禁止 quick-edit 回写行数据 */
   const syncing = shallowRef(false)
 
+  /**
+   * model 初始快照。
+   * 面板模式由常驻挂载的 UForm 自行维护快照；dialog 模式表单随弹框卸载，
+   * UForm 快照会在每次打开时按已回显的 model 重拍，故这里单独保留一份供恢复
+   */
+  const initialModel = shallowRef<Record<string, any>>()
+
+  watch(
+    () => props.model,
+    (model) => {
+      initialModel.value = props.formMode === 'dialog' && model ? copy(model) : undefined
+    },
+    { immediate: true }
+  )
+
+  /** 重置表单数据到 model 初始快照 */
+  function resetModel() {
+    if (props.formMode !== 'dialog') {
+      formRef.value?.reset()
+      return
+    }
+
+    formRef.value?.clearValidate()
+    if (!props.model || !initialModel.value) return
+    for (const key of Object.keys(initialModel.value)) {
+      o(props.model).set(key, copy(initialModel.value[key]))
+    }
+  }
+
   function resetState() {
-    // 表单常驻挂载，重置即恢复到 model 初始快照
-    formRef.value?.reset()
+    resetModel()
 
     if (state.row) {
       state.row.isCurrent = false
@@ -47,7 +75,7 @@ export function useEditState(options: Options) {
       // 先重置回 model 初始快照，再同步回显行数据。
       // 同一 tick 内的连续写入会被表单字段 watcher 合并，
       // 重置产生的默认值不会触发 field:update 回写行数据
-      formRef.value?.reset()
+      resetModel()
 
       if (row) {
         if (props.model) {
