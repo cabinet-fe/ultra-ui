@@ -13,6 +13,8 @@ export type OfdParseErrorReason =
   | 'invalid-xml'
   /** OFD 结构不合法（缺 DocBody / 缺 DocRoot 等） */
   | 'invalid-structure'
+  /** 请求的文档或页序号超出容器范围 */
+  | 'out-of-range'
 
 /** OFD 解析失败抛出的类型化错误：靠 `reason` 分类，不靠解析 message */
 export class OfdParseError extends Error {

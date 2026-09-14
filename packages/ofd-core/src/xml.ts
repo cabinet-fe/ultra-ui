@@ -10,8 +10,9 @@ import type {
 } from './types'
 
 // GB/T 33190 未强制命名空间前缀，统一按 localName 匹配，兼容 ofd: 等任意前缀。
+// 下方 XML 遍历辅助同时供 page-objects.ts 等包内解析模块复用。
 
-function childElements(element: Element): Element[] {
+export function childElements(element: Element): Element[] {
   const out: Element[] = []
   for (let i = 0; i < element.childNodes.length; i++) {
     const node = element.childNodes[i]
@@ -20,17 +21,17 @@ function childElements(element: Element): Element[] {
   return out
 }
 
-function localNameOf(element: Element): string {
+export function localNameOf(element: Element): string {
   if (element.localName) return element.localName
   const tag = element.nodeName
   return tag.includes(':') ? tag.slice(tag.indexOf(':') + 1) : tag
 }
 
-function childrenNamed(element: Element, name: string): Element[] {
+export function childrenNamed(element: Element, name: string): Element[] {
   return childElements(element).filter((child) => localNameOf(child) === name)
 }
 
-function firstChildNamed(element: Element, name: string): Element | null {
+export function firstChildNamed(element: Element, name: string): Element | null {
   return childrenNamed(element, name)[0] ?? null
 }
 
@@ -43,7 +44,7 @@ function normalizedText(value: string | null): string | null {
   return text ? text : null
 }
 
-function parseXml(xml: string, source: string): Document {
+export function parseXml(xml: string, source: string): Document {
   let doc: Document
   try {
     doc = new DOMParser().parseFromString(xml, 'application/xml')
@@ -56,7 +57,7 @@ function parseXml(xml: string, source: string): Document {
   return doc
 }
 
-function rootElementOf(doc: Document, name: string, source: string): Element {
+export function rootElementOf(doc: Document, name: string, source: string): Element {
   const root = doc.documentElement
   if (!root || localNameOf(root) !== name) {
     throw new OfdParseError('invalid-structure', `${source} 根节点不是 ${name}`)
@@ -173,7 +174,7 @@ function parseNumber(value: string | null): number | null {
   return Number.isFinite(parsed) ? parsed : null
 }
 
-function parseLayerType(value: string | null): OfdLayerType | null {
+export function parseLayerType(value: string | null): OfdLayerType | null {
   return value === 'background' ||
     value === 'body' ||
     value === 'foreground' ||

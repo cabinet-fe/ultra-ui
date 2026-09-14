@@ -1,4 +1,5 @@
 export { parseOfd, parseOfdContainer } from './parse'
+export { pageToSvg } from './render'
 export { openOfdZip, type OfdZip, type OfdZipEntry } from './zip'
 export { OfdParseError, type OfdParseErrorReason } from './error'
 export type {

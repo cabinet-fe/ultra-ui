@@ -57,8 +57,8 @@ async function loadPage(
   return { index, location: pageLocation, size: pageModel.size, layers: pageModel.layers }
 }
 
-/** 拼接并规范化容器内路径：去空段与 './'，统一 '/' 分隔 */
-function joinZipPath(...segments: string[]): string {
+/** 拼接并规范化容器内路径：去空段与 './'，统一 '/' 分隔（图片资源定位等处复用） */
+export function joinZipPath(...segments: string[]): string {
   const parts: string[] = []
   for (const segment of segments) {
     for (const piece of segment.split('/')) {

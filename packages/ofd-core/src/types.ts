@@ -7,7 +7,7 @@ export interface OfdDocInfo {
   title: string | null
 }
 
-/** 页面尺寸，单位 0.1mm（GB/T 33190 坐标系） */
+/** 页面尺寸，单位毫米（GB/T 33190 坐标系） */
 export interface OfdPageSize {
   width: number
   height: number
