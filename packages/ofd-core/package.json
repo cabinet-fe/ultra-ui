@@ -1,0 +1,32 @@
+{
+  "name": "@veltra/ofd-core",
+  "version": "1.0.0",
+  "homepage": "https://github.com/cabinet-fe/ultra-ui#readme",
+  "bugs": {
+    "url": "https://github.com/cabinet-fe/ultra-ui/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cabinet-fe/ultra-ui",
+    "directory": "packages/ofd-core"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "veltra-dev": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./*": {
+      "veltra-dev": "./src/*",
+      "types": "./dist/*",
+      "import": "./dist/*"
+    }
+  },
+  "dependencies": {}
+}
