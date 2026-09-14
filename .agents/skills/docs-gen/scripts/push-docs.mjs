@@ -12,9 +12,10 @@
 // 本地校验对齐服务端严格 YAML 的已知拒绝项（BOM、分隔线行尾空格、重复键、未引号的
 //「: 」与「 #」、引号未闭合、title 缺失或为空），全部文件校验完一次性报全部错误，不发请求。
 
+import { realpathSync } from 'node:fs';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 const USAGE = `用法：
   node --env-file=.env <脚本绝对路径> [--verify] [文档根目录，默认 agent-docs/]
@@ -439,7 +440,8 @@ async function main() {
 }
 
 const invokedDirectly =
-  process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href;
+  process.argv[1] !== undefined &&
+  realpathSync(fileURLToPath(import.meta.url)) === realpathSync(process.argv[1]);
 if (invokedDirectly) {
   await main();
 }
