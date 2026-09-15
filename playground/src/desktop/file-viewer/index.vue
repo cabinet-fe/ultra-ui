@@ -136,6 +136,12 @@ const ofdSamples: FileViewerItem[] = [
     kind: 'ofd'
   },
   {
+    id: 'sample-ofd-invoice-2026',
+    name: '数电发票-2026新版式.ofd',
+    src: new URL('./samples/invoice-2026.ofd', import.meta.url).href,
+    kind: 'ofd'
+  },
+  {
     id: 'sample-ofd-wps',
     name: 'WPS导出-图文混排.ofd',
     src: new URL('./samples/wps-export.ofd', import.meta.url).href,
