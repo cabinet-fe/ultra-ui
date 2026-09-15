@@ -14,10 +14,26 @@
     @keydown="handleKeydown"
   >
     <template #column:__operation="{ row }">
-      <div :class="cls.e('operations')" :data-editor-row="row.uid">
-        <u-button type="danger" @click="handleDelete(row.index)" :icon="Minus" title="移除" />
-        <u-button :icon="Plus" @click="handleCreate(row.index)" title="新增到下一行" />
-        <u-button :icon="Copy" @click="handleCopy(row)" title="复制到下一行" />
+      <div
+        :class="[cls.e('operations'), bem.is('active', isRowEditing(row.uid))]"
+        :data-editor-row="row.uid"
+      >
+        <u-button
+          text
+          size="small"
+          type="danger"
+          :icon="Minus"
+          title="移除"
+          @click="handleDelete(row.index)"
+        />
+        <u-button
+          text
+          size="small"
+          :icon="Plus"
+          title="新增到下一行"
+          @click="handleCreate(row.index)"
+        />
+        <u-button text size="small" :icon="Copy" title="复制到下一行" @click="handleCopy(row)" />
       </div>
     </template>
 
@@ -88,7 +104,7 @@ const slots = useSlots()
 const actionColumn: TableColumn = {
   key: '__operation',
   name: '操作', // 使用name而不是title
-  width: 120,
+  width: 104,
   align: 'center',
   fixed: 'right',
   resizable: false
