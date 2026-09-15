@@ -210,7 +210,9 @@ const { rebuildGrid, activateGrid, pruneCache, getGrid } = useSheetGrid({
   gridRef,
   getActiveSheet: () => activeSheet.value,
   context,
-  formulaBarRef
+  formulaBarRef,
+  // 工具栏「函数」弹框打开期间与 fx 入口一致：画布点击不清除目标格高亮
+  isFunctionPopupOpen: () => popupTool.value?.popup === 'functions'
 })
 
 const exposed: _SheetExposed = {

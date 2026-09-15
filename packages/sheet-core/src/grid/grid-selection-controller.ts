@@ -48,6 +48,7 @@ export class GridSelectionController {
       if (range) {
         if (this.tryInterceptSelection(range)) {
           this.selectionIntercepted = true
+          this.restoreInterceptedSelection(getRows(), getCols())
           return
         }
         this.sheet.selectRange(range, this.resolveSelectionActive(range, getRows(), getCols()))
@@ -58,6 +59,7 @@ export class GridSelectionController {
         const single = createRange(addr, addr)
         if (this.tryInterceptSelection(single)) {
           this.selectionIntercepted = true
+          this.restoreInterceptedSelection(getRows(), getCols())
           return
         }
         this.sheet.selectCell(addr)
@@ -71,7 +73,10 @@ export class GridSelectionController {
         this.selectionIntercepted = false
         return
       }
-      if (this.tryInterceptSelection(range)) return
+      if (this.tryInterceptSelection(range)) {
+        this.restoreInterceptedSelection(getRows(), getCols())
+        return
+      }
       this.sheet.selectRange(range, this.resolveSelectionActive(range, getRows(), getCols()))
     })
 
@@ -171,7 +176,20 @@ export class GridSelectionController {
       )
     }
   }
-  pushSelectionToTable(state: SelectionState, rows: number, cols: number): void {
+  /**
+   * 引用选择拦截命中后：画布选区回推为模型选区（公式目标格高亮），不再跟随
+   * 参数格；模型选区保持不变。不滚动视口——点选远处参数格时不应把视口拉回目标格。
+   */
+  private restoreInterceptedSelection(rows: number, cols: number): void {
+    this.pushSelectionToTable(this.sheet.getSelection(), rows, cols, { scroll: false })
+  }
+
+  pushSelectionToTable(
+    state: SelectionState,
+    rows: number,
+    cols: number,
+    options: { scroll?: boolean } = {}
+  ): void {
     let range =
       state.ranges[0] ??
       (state.activeCell ? { start: state.activeCell, end: state.activeCell } : null)
@@ -221,7 +239,7 @@ export class GridSelectionController {
     try {
       this.clearSelectionOverlays()
       this.table.selectCells([{ start: startClamped, end: endClamped }])
-      if (!this.isCellVisible(scrollClamped.col, scrollClamped.row)) {
+      if (options.scroll !== false && !this.isCellVisible(scrollClamped.col, scrollClamped.row)) {
         this.table.scrollToCell({ col: scrollClamped.col, row: scrollClamped.row })
       }
     } finally {

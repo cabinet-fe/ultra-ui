@@ -23,6 +23,8 @@ export interface FormulaBarMirror {
   exitMirror: (addr: CellAddress) => void
   /** fx 编辑中且处于可插入引用位置 */
   isRefSelecting: () => boolean
+  /** 函数弹框打开中（fx 入口）——画布点击不清除目标格高亮 */
+  isFunctionPopupOpen: () => boolean
   /** 网格 pointerdown → 挂起 blur 提交 */
   beginBlurSuppress: () => void
   /** 画布选区 → 插入引用文本 */
@@ -35,6 +37,8 @@ interface UseSheetGridOptions {
   getActiveSheet: () => Sheet
   context: SheetContext
   formulaBarRef: ElRef<FormulaBarMirror>
+  /** 函数弹框打开中（宿主侧入口，如工具栏「函数」按钮） */
+  isFunctionPopupOpen?: () => boolean
 }
 
 /** 缓存实例（LRU 淘汰）：每个 sheet 一个独立容器 div，非激活容器 visibility:hidden 堆叠 */
@@ -125,8 +129,12 @@ export function useSheetGrid(options: UseSheetGridOptions) {
       onContextMenu: handleContextMenu,
       onEditStart: (addr) => formulaBarRef.value?.mirrorGridEdit(addr),
       onEditEnd: (addr) => formulaBarRef.value?.exitMirror(addr),
-      // 引用选择：不回写模型选区，序列化为 A1 / A1:B2 交给公式栏
-      interceptSelection: () => formulaBarRef.value?.isRefSelecting() ?? false,
+      // 引用选择：不回写模型选区，序列化为 A1 / A1:B2 交给公式栏；
+      // 函数弹框打开期间（fx / 工具栏两入口）同样拦截，画布点击不离开目标格
+      interceptSelection: () =>
+        (formulaBarRef.value?.isRefSelecting() ?? false) ||
+        (formulaBarRef.value?.isFunctionPopupOpen() ?? false) ||
+        (options.isFunctionPopupOpen?.() ?? false),
       onSelectionIntercept: (range) => formulaBarRef.value?.handleRefSelect(range)
     })
     // 结构变更订阅（vue 层只绑定激活 sheet；隐藏实例必须自持标记，切回时判定过期）

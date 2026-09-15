@@ -176,4 +176,49 @@ describe('选区交互时序', () => {
       grid.release()
     }
   })
+
+  it('interceptSelection：拦截命中后模型选区仍指向目标格，画布选区回推为目标格高亮', () => {
+    const sheet = new Sheet()
+    // 公式目标格 F6（模型坐标，表格坐标 (6,6) 含表头偏移）
+    sheet.selectCell({ row: 5, col: 5 })
+    const container = createContainer()
+    const grid = new SheetGrid({
+      container,
+      sheet,
+      rows: 20,
+      cols: 6,
+      interceptSelection: () => true,
+      onSelectionIntercept: () => {}
+    })
+    const table = grid.getTable()
+    try {
+      // 点选参数格（表格坐标 (1,1) = 模型 A1）
+      table.selectCells([{ start: { col: 1, row: 1 }, end: { col: 1, row: 1 } }])
+      table.fireListeners(ListTable.EVENT_TYPE.SELECTED_CELL, { col: 1, row: 1 })
+
+      expect(sheet.getSelection().activeCell).toEqual({ row: 5, col: 5 })
+      expect(sheet.getSelection().ranges[0]).toEqual({
+        start: { row: 5, col: 5 },
+        end: { row: 5, col: 5 }
+      })
+      // 画布选区不跟随参数格，回推为目标格（VTable 范围对象含额外内部字段，按坐标匹配）
+      expect(table.getSelectedCellRanges().at(-1)).toMatchObject({
+        start: { col: 6, row: 6 },
+        end: { col: 6, row: 6 }
+      })
+
+      // 拖选参数区域（SELECTED_CELL → DRAG_SELECT_END 完整时序）同样回推
+      table.selectCells([{ start: { col: 1, row: 2 }, end: { col: 2, row: 3 } }])
+      table.fireListeners(ListTable.EVENT_TYPE.SELECTED_CELL, { col: 2, row: 3 })
+      table.fireListeners(ListTable.EVENT_TYPE.DRAG_SELECT_END, {})
+
+      expect(sheet.getSelection().activeCell).toEqual({ row: 5, col: 5 })
+      expect(table.getSelectedCellRanges().at(-1)).toMatchObject({
+        start: { col: 6, row: 6 },
+        end: { col: 6, row: 6 }
+      })
+    } finally {
+      grid.release()
+    }
+  })
 })

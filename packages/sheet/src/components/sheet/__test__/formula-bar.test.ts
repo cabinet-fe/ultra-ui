@@ -1,5 +1,6 @@
 import { parseRange } from '@veltra/sheet-core/core/address'
 import { Workbook } from '@veltra/sheet-core/core/workbook'
+import type { SheetGrid } from '@veltra/sheet-core/grid'
 import { afterEach, describe, expect, it } from 'vitest'
 import { createApp, h, nextTick, type App } from 'vue'
 
@@ -638,5 +639,177 @@ describe('USheet 公式栏：函数补全与引用选择', () => {
     await nextTick()
     expect(panel.classList.contains('is-expanded')).toBe(false)
     expect(input.style.height).toBe('')
+  })
+})
+
+// ─── 目标格选区高亮保持（弹框打开与参数点选期间）──────────────
+
+/** VTable 事件名（ListTable.EVENT_TYPE 常量值；@veltra/sheet 不直接依赖 @visactor/vtable，不做运行时引入） */
+const EVT_SELECTED_CELL = 'selected_cell'
+const EVT_DRAG_SELECT_END = 'drag_select_end'
+
+type GridTable = ReturnType<SheetGrid['getTable']>
+
+/** 模拟画布点选格（VTable 时序：selectCells → SELECTED_CELL） */
+function canvasClickCell(table: GridTable, col: number, row: number): void {
+  table.selectCells([{ start: { col, row }, end: { col, row } }])
+  table.fireListeners(EVT_SELECTED_CELL, { col, row })
+}
+
+/** 画布当前选区末尾项（表格坐标；VTable 范围对象含额外内部字段，按坐标匹配） */
+function lastCanvasRange(table: GridTable) {
+  return table.getSelectedCellRanges().at(-1)
+}
+
+describe('USheet 公式栏：目标格选区高亮保持', () => {
+  it('fx 弹框打开期间点选画布：目标格高亮与名称框保持、模型选区不变，不插入引用文本', async () => {
+    const workbook = new Workbook()
+    const sheet = workbook.activeSheet
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    const { el } = mount(() => ({ workbook, rows: 20, cols: 8 }), exposed)
+    await nextTick()
+    sheet.selectCell({ row: 2, col: 0 })
+    await nextTick()
+
+    fxButton(el).click()
+    await flushPopup()
+    expect(functionsPanel()).not.toBeNull()
+
+    // 弹框打开期间点选画布 B2（表格坐标 (2,2)）
+    const table = exposed.value!.getGrid()!.getTable()
+    canvasClickCell(table, 2, 2)
+
+    expect(sheet.getSelection().activeCell).toEqual({ row: 2, col: 0 })
+    expect(sheet.getSelection().ranges[0]).toEqual({
+      start: { row: 2, col: 0 },
+      end: { row: 2, col: 0 }
+    })
+    // 画布选区回推为目标格 A3（表格坐标 (1,3)），名称框仍显示 A3
+    expect(lastCanvasRange(table)).toMatchObject({
+      start: { col: 1, row: 3 },
+      end: { col: 1, row: 3 }
+    })
+    expect(nameBox(el).value).toBe('A3')
+    // 未处于引用选择上下文：不插入引用文本
+    expect(fxInput(el).value).toBe('')
+  })
+
+  it('选中函数后点选画布参数格：只插入引用文本、目标格选区不变；提交后选区与名称框仍指向目标格', async () => {
+    const workbook = new Workbook()
+    const sheet = workbook.activeSheet
+    sheet.setCellValue({ row: 0, col: 0 }, 1)
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    const { el } = mount(() => ({ workbook, rows: 20, cols: 8 }), exposed)
+    await nextTick()
+    sheet.selectCell({ row: 2, col: 0 })
+    await nextTick()
+
+    // fx 弹框选中 SUM → 编辑态 =SUM()（目标 = 活动格 A3）
+    fxButton(el).click()
+    await flushPopup()
+    document.querySelector<HTMLElement>('#pop-container .u-sheet__functions-item')!.click()
+    await nextTick()
+    await nextTick()
+    const input = fxInput(el)
+    expect(input.value).toBe('=SUM()')
+
+    // 点选参数格 A1（表格坐标 (1,1)）→ 只插入引用文本（括号随 =SUM() 模板闭合），目标格选区不变
+    const table = exposed.value!.getGrid()!.getTable()
+    canvasClickCell(table, 1, 1)
+    await nextTick()
+    expect(input.value).toBe('=SUM(A1)')
+    expect(sheet.getSelection().activeCell).toEqual({ row: 2, col: 0 })
+    expect(lastCanvasRange(table)).toMatchObject({
+      start: { col: 1, row: 3 },
+      end: { col: 1, row: 3 }
+    })
+    expect(nameBox(el).value).toBe('A3')
+
+    // 提交 → 写入目标格 A3，选区与名称框仍指向 A3
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    await nextTick()
+    expect(sheet.getCellData({ row: 2, col: 0 })).toMatchObject({ f: 'SUM(A1)', v: 1 })
+    expect(sheet.getSelection().activeCell).toEqual({ row: 2, col: 0 })
+    expect(nameBox(el).value).toBe('A3')
+    expect(lastCanvasRange(table)).toMatchObject({
+      start: { col: 1, row: 3 },
+      end: { col: 1, row: 3 }
+    })
+  })
+
+  it('工具栏「函数」入口与 fx 一致：弹框期间点选画布保持目标格；拖选参数后提交仍指向目标格', async () => {
+    const workbook = new Workbook()
+    const sheet = workbook.activeSheet
+    sheet.setCellValue({ row: 0, col: 0 }, 1)
+    sheet.setCellValue({ row: 1, col: 0 }, 2)
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    const { el } = mount(() => ({ workbook, rows: 20, cols: 8 }), exposed)
+    await nextTick()
+    sheet.selectCell({ row: 2, col: 0 })
+    await nextTick()
+
+    el.querySelector<HTMLButtonElement>('[data-tool-id="functions"]')!.click()
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    await flushPopup()
+    expect(functionsPanel()).not.toBeNull()
+
+    // 弹框打开期间点选画布 B2：目标格 A3 高亮保持、模型选区不变、不插入文本
+    const table = exposed.value!.getGrid()!.getTable()
+    canvasClickCell(table, 2, 2)
+    expect(sheet.getSelection().activeCell).toEqual({ row: 2, col: 0 })
+    expect(lastCanvasRange(table)).toMatchObject({
+      start: { col: 1, row: 3 },
+      end: { col: 1, row: 3 }
+    })
+    expect(fxInput(el).value).toBe('')
+
+    // 选中 SUM → 拖选参数区域 A1:A2（SELECTED_CELL → DRAG_SELECT_END 完整时序）
+    document.querySelector<HTMLElement>('#pop-container .u-sheet__functions-item')!.click()
+    await nextTick()
+    await nextTick()
+    const input = fxInput(el)
+    expect(input.value).toBe('=SUM()')
+    table.selectCells([{ start: { col: 1, row: 1 }, end: { col: 1, row: 2 } }])
+    table.fireListeners(EVT_SELECTED_CELL, { col: 1, row: 2 })
+    table.fireListeners(EVT_DRAG_SELECT_END, {})
+    await nextTick()
+    expect(input.value).toBe('=SUM(A1:A2)')
+    expect(sheet.getSelection().activeCell).toEqual({ row: 2, col: 0 })
+    expect(nameBox(el).value).toBe('A3')
+
+    // 提交 → 选区与名称框仍指向目标格 A3
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    await nextTick()
+    expect(sheet.getCellData({ row: 2, col: 0 })).toMatchObject({ f: 'SUM(A1:A2)', v: 3 })
+    expect(sheet.getSelection().activeCell).toEqual({ row: 2, col: 0 })
+    expect(nameBox(el).value).toBe('A3')
+  })
+
+  it('公式提交后选区与名称框仍指向目标格（编辑期间名称框跳转离开时回推）', async () => {
+    const workbook = new Workbook()
+    const sheet = workbook.activeSheet
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    const { el } = mount(() => ({ workbook, rows: 20, cols: 8 }), exposed)
+    await nextTick()
+    sheet.selectCell({ row: 2, col: 0 })
+    await nextTick()
+
+    // 编辑目标 A3；期间经名称框跳转到 B5（模型选区离开目标格）
+    const input = setFxText(el, '=1+1')
+    typeName(el, 'B5')
+    await nextTick()
+    expect(sheet.getSelection().activeCell).toEqual({ row: 4, col: 1 })
+    expect(nameBox(el).value).toBe('B5')
+
+    // 提交 → 写入 A3，模型选区 / 名称框 / 画布高亮回推目标格
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    await nextTick()
+    expect(sheet.getCellData({ row: 2, col: 0 })).toMatchObject({ f: '1+1', v: 2 })
+    expect(sheet.getSelection().activeCell).toEqual({ row: 2, col: 0 })
+    expect(nameBox(el).value).toBe('A3')
+    expect(lastCanvasRange(exposed.value!.getGrid()!.getTable())).toMatchObject({
+      start: { col: 1, row: 3 },
+      end: { col: 1, row: 3 }
+    })
   })
 })

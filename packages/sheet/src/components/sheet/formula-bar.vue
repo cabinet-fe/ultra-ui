@@ -183,9 +183,9 @@ function beginBlurSuppress(): void {
   suppressBlurCommit = true
 }
 
-/** 选区拦截回调：插入 A1 / A1:B2 到光标处 */
+/** 选区拦截回调：插入 A1 / A1:B2 到光标处（仅引用选择模式；弹框打开但非引用上下文时不插入） */
 function handleRefSelect(range: CellRange): void {
-  if (!editing.value || mirroring.value) return
+  if (!isRefSelecting()) return
   const rangeText = formatRange(range)
   const el = fxRef.value
   const selEnd = el?.selectionEnd ?? fxCursor.value
@@ -460,7 +460,14 @@ function commitEdit(): void {
   editAddr = null
   suppressBlurCommit = false
   closeSuggest()
-  if (addr) props.context.setCellValue(addr, fxDraft.value)
+  if (addr) {
+    props.context.setCellValue(addr, fxDraft.value)
+    // 选区离开目标格（如编辑期间名称框跳转）：回推模型选区，grid 层随之恢复目标格高亮
+    const active = selection.value.activeCell
+    if (!active || active.row !== addr.row || active.col !== addr.col) {
+      props.context.selectCell(addr)
+    }
+  }
   refreshFx()
 }
 
@@ -601,6 +608,7 @@ defineExpose({
   mirrorGridEdit,
   exitMirror,
   isRefSelecting,
+  isFunctionPopupOpen: () => functionsOpen.value,
   beginBlurSuppress,
   handleRefSelect,
   insertFunction
