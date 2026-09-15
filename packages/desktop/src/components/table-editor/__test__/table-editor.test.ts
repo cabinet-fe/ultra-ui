@@ -28,9 +28,10 @@ const focusout = (el: Element) => el.dispatchEvent(new FocusEvent('focusout', { 
 const keydown = (el: Element, key: string, shiftKey = false) =>
   el.dispatchEvent(new KeyboardEvent('keydown', { key, shiftKey, bubbles: true }))
 
-/** 编辑态插槽工厂：原生 input 绑定编辑态 model */
+/** 编辑态插槽工厂：原生 input 展开编辑态 model（含 change 校验钩子）并绑定值 */
 const renderInput = (testId: string) => (scope: any) =>
   h('input', {
+    ...scope.model,
     'data-test': testId,
     value: scope.model.modelValue ?? '',
     onInput: (e: Event) => scope.model['onUpdate:modelValue']((e.target as HTMLInputElement).value)
@@ -180,7 +181,11 @@ describe('UTableEditor 单元格双态渲染', () => {
   })
 
   it('编辑态输入经 update:modelValue 写回，且不因数据回流丢焦点', async () => {
-    const { getDataRows, emitted, unmount } = mountTableEditor({ 'column:name': renderNameInput })
+    // 用独立副本，编辑写回的是行对象本身，避免污染模块级共享数据
+    const { getDataRows, emitted, unmount } = mountTableEditor(
+      { 'column:name': renderNameInput },
+      rows.map((row) => ({ ...row }))
+    )
 
     try {
       await nextTick()
@@ -250,10 +255,11 @@ describe('UTableEditor 行操作', () => {
 })
 
 describe('UTableEditor 按列校验', () => {
-  it('值变更实时校验，失败单元格显示错误标识，hover 以 tip 展示错误文案', async () => {
+  it('编辑列 change 时触发校验，输入（update）过程不校验，单元格无 tip 气泡', async () => {
+    // 用独立副本，编辑写回的是行对象本身，避免污染模块级共享数据
     const { getDataRows, unmount } = mountTableEditor(
       { 'column:name': renderNameInput },
-      rows,
+      rows.map((row) => ({ ...row })),
       ruleColumns
     )
 
@@ -264,32 +270,57 @@ describe('UTableEditor 按列校验', () => {
       mouseover(row0)
       await nextTick()
 
-      // 清空触发 required 校验失败
+      // 输入过程（input 事件）不触发校验：清空后无错误标识
       const input = row0.querySelector('input')!
       input.value = ''
       input.dispatchEvent(new Event('input', { bubbles: true }))
       await nextTick()
       await nextTick()
+      expect(row0.querySelector('.u-table-editor__cell-error')).toBeFalsy()
 
-      // 错误标识包裹单元格内容，hover 触发 tip 气泡
+      // change 事件（如失焦提交）触发校验，错误标识出现
+      input.dispatchEvent(new Event('change', { bubbles: true }))
+      await nextTick()
+      await nextTick()
       const errorCell = row0.querySelector('.u-table-editor__cell-error')!
       expect(errorCell).toBeTruthy()
+
+      // 单元格错误不做 tip 提示：hover 错误单元格不出现气泡
       errorCell.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
       await nextTick()
-      expect(document.querySelector('.u-tip__content')?.textContent).toContain('该项不能为空')
+      expect(document.querySelector('.u-tip__content')).toBeFalsy()
 
-      // 等 tip 关闭（250ms 延时）及定位异步更新完成，避免组件卸载后回调访问空元素；
-      // mouseleave 不冒泡，只关闭 tip，不影响行编辑态
-      errorCell.dispatchEvent(new MouseEvent('mouseleave'))
-      await new Promise((resolve) => setTimeout(resolve, 300))
-
-      // 填回合法值后错误消失
-      const inputAgain = row0.querySelector('input')!
-      inputAgain.value = 'Alice'
-      inputAgain.dispatchEvent(new Event('input', { bubbles: true }))
+      // 填回合法值并 change，错误消失
+      input.value = 'Alice'
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+      input.dispatchEvent(new Event('change', { bubbles: true }))
       await nextTick()
       await nextTick()
       expect(row0.querySelector('.u-table-editor__cell-error')).toBeFalsy()
+    } finally {
+      unmount()
+    }
+  })
+
+  it('validate 懒校验：某行存在错误即停止校验其后的行', async () => {
+    const { getEditor, getDataRows, unmount } = mountTableEditor(
+      {},
+      [
+        { name: 'Alice', age: 18, city: '杭州' },
+        { name: '', age: 20, city: '上海' },
+        { name: '', age: 22, city: '北京' }
+      ],
+      ruleColumns
+    )
+
+    try {
+      await nextTick()
+      await expect(getEditor().validate()).resolves.toBe(false)
+      await nextTick()
+
+      // 第 2 行校验失败并标记，第 3 行未校验、无错误标识
+      expect(getDataRows()[1].querySelector('.u-table-editor__cell-error')).toBeTruthy()
+      expect(getDataRows()[2].querySelector('.u-table-editor__cell-error')).toBeFalsy()
     } finally {
       unmount()
     }

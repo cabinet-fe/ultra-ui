@@ -37,8 +37,6 @@
       </div>
     </template>
 
-    <!-- <template #header:__operation> </template> -->
-
     <template #empty>
       <div style="text-align: center; padding: 4px 0">
         <u-button
@@ -104,14 +102,14 @@ const slots = useSlots()
 
 const actionColumn: TableColumn = {
   key: '__operation',
-  name: '操作', // 使用name而不是title
+  name: '操作',
   width: 104,
   align: 'center',
   fixed: 'right',
   resizable: false
 }
 
-// 内部列定义，添加编辑和删除操作列
+// 内部列定义：用户列之后追加内置操作列
 const internalColumns = computed(() => {
   return [...columns, actionColumn]
 })
@@ -342,17 +340,19 @@ async function validateCell(
   setCellError(row, key, message)
 }
 
-/** 整表校验：全部通过 resolve true，任一失败 resolve false */
+/**
+ * 整表校验：自上而下逐行校验，某行存在未通过项即停止校验其后的行（懒校验）。
+ * 全部通过 resolve true，否则 resolve false。
+ */
 async function validate() {
   const ruleColumns = columns.filter((column) => column.rules)
 
-  await Promise.all(
-    modelValue.flatMap((row) =>
-      ruleColumns.map((column) => validateCell(row, column.key, column.rules))
-    )
-  )
+  for (const row of modelValue) {
+    await Promise.all(ruleColumns.map((column) => validateCell(row, column.key, column.rules)))
+    if (cellErrors.value.get(errorRowKey(row))?.size) return false
+  }
 
-  return !modelValue.some((row) => cellErrors.value.get(errorRowKey(row))?.size)
+  return true
 }
 
 // 行删除（或整体替换）后，同步清理已不存在的行数据上的错误
@@ -458,7 +458,7 @@ function renderHeader(key: string, column: TableEditorColumn, ctx: { column: Tab
   return nodes
 }
 
-/** 编辑态走 `#column:key` 插槽，其余时刻走文本态；校验失败的单元格包上错误标识与 tip */
+/** 编辑态走 `#column:key` 插槽，其余时刻走文本态；校验失败的单元格包上错误标识 */
 function renderCell(key: string, ctx: TableColumnSlotsScope): RenderReturn {
   const editSlot = slots[`column:${key}`]
   let content: RenderReturn
@@ -468,33 +468,28 @@ function renderCell(key: string, ctx: TableColumnSlotsScope): RenderReturn {
     content = slots[`text:${key}`]?.(ctx) ?? ctx.val
   }
 
-  const error = getCellError(ctx.rowData, key)
-  if (!error) return content
+  if (!getCellError(ctx.rowData, key)) return content
 
-  // UTip 以默认插槽首个普通节点为触发元素，错误标识类名放在触发元素上；
-  // 错误样式用 outline 描边不占布局，出现/消失不改变行高
-  return h(
-    UTip,
-    { content: error },
-    { default: () => h('span', { class: cls.e('cell-error') }, [content]) }
-  )
+  // 错误样式用 outline 描边不占布局，出现/消失不改变行高；错误明细见表头图标气泡
+  return h('span', { class: cls.e('cell-error') }, [content])
 }
 
 /**
  * 编辑态 model：值先原地写回行数据（行节点与 DOM 得以复用，输入不丢焦点），
  * 再以浅拷贝数组经 update:modelValue 通知宿主，维持 v-model 契约。
- * 列配置了 rules 时，值变更实时触发单元格级校验。
+ * 列配置了 rules 时，控件的 change 事件（如失焦提交）触发单元格级校验，输入过程不校验。
  */
 function createCellModel(ctx: TableColumnSlotsScope) {
   const { rowData, column, val } = ctx
+  const key = column.key
   const rules = (column.data as TableEditorColumn).rules
   return {
     modelValue: val,
     'onUpdate:modelValue': (value: any) => {
-      rowData[column.key] = value
+      rowData[key] = value
       emit('update:modelValue', [...modelValue])
-      if (rules) void validateCell(rowData, column.key, rules)
-    }
+    },
+    ...(rules ? { onChange: () => void validateCell(rowData, key, rules) } : {})
   }
 }
 

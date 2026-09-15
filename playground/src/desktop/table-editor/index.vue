@@ -62,10 +62,12 @@ const columns: TableEditorColumn[] = [
   { key: 'email', name: '邮箱', width: 280, rules: { preset: 'email' } }
 ]
 
-// 第二行邮箱预置非法格式，点击「校验全表」可看到红框与 tip 错误提示
+// 第二、三行邮箱预置非法格式：点击「校验全表」后第二行标红，
+// 懒校验遇到错误行即停，第三行不校验、不标红
 const data = shallowRef([
   { name: '张三', age: 18, email: 'zhangsan@example.com' },
-  { name: '李四', age: 25, email: 'invalid-email' }
+  { name: '李四', age: 25, email: 'invalid-email' },
+  { name: '王五', age: 30, email: 'bad-email' }
 ])
 
 const editor = useTemplateRef<TableEditorExposed>('editor')

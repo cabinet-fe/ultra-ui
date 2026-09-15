@@ -47,7 +47,7 @@ $root-name: table-editor;
   }
 
   // 校验失败单元格：outline 描边不占布局，错误出现/消失不改变行高；
-  // hover 时经 u-tip 气泡展示错误文案
+  // 错误明细经表头感叹号图标的气泡查看
   @include m.e(cell-error) {
     display: block;
     outline: 1px solid fn.use-var(color, danger);
