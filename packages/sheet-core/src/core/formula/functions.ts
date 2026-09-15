@@ -1,5 +1,6 @@
 import { $n, n } from '@cat-kit/core'
 
+import type { CellRange } from '../address'
 import type { AstNode } from './ast'
 import { formulaError, isFormulaError, type FormulaError } from './errors'
 import {
@@ -184,6 +185,76 @@ function collectBooleans(args: EvalValue[]): boolean[] | FormulaError {
     booleans.push(b)
   }
   return booleans
+}
+
+/** 依次强转数字参数（缺省位用 fallback；空格按 0；错误传播） */
+function coerceNumberArgs(args: EvalValue[], fallbacks: number[]): number[] | FormulaError {
+  const out: number[] = []
+  for (let i = 0; i < fallbacks.length; i++) {
+    const arg = args[i]
+    const num = coerceToNumber(arg === undefined ? fallbacks[i]! : arg)
+    if (isFormulaError(num)) return num
+    out.push(num)
+  }
+  return out
+}
+
+/** criteria 运算符前缀（双字符在前，避免 `>=` 被截成 `>` + `=`） */
+const CRITERIA_OPS = ['>=', '<=', '<>', '>', '<', '='] as const
+
+type CriteriaOp = (typeof CRITERIA_OPS)[number]
+
+function matchesOp(
+  left: number | string | boolean,
+  right: number | string | boolean,
+  op: CriteriaOp
+): boolean {
+  switch (op) {
+    case '=':
+      return left === right
+    case '<>':
+      return left !== right
+    case '>':
+      return left > right
+    case '>=':
+      return left >= right
+    case '<':
+      return left < right
+    default:
+      return left <= right
+  }
+}
+
+/**
+ * criteria 解析（COUNTIF 条件统计语义锚点）：
+ * 识别 `>` / `>=` / `<` / `<=` / `<>` / `=` 前缀与裸值；
+ * 数值按数值比较、文本相等不区分大小写，类型不匹配（数值 criteria 对文本格等）不计。
+ */
+function parseCriteria(raw: ScalarValue): (value: ScalarValue) => boolean {
+  const text = typeof raw === 'string' ? raw : raw === null ? '' : String(raw)
+  let op: CriteriaOp = '='
+  let rest = text
+  for (const candidate of CRITERIA_OPS) {
+    if (text.startsWith(candidate)) {
+      op = candidate
+      rest = text.slice(candidate.length)
+      break
+    }
+  }
+  const upper = rest.toUpperCase()
+  if (upper === 'TRUE' || upper === 'FALSE') {
+    const target = upper === 'TRUE'
+    return (value) => typeof value === 'boolean' && matchesOp(value, target, op)
+  }
+  const numeric = coerceToNumber(rest)
+  if (!isFormulaError(numeric)) {
+    return (value) => typeof value === 'number' && matchesOp(value, numeric, op)
+  }
+  if (rest === '') {
+    // `""` 匹配空白格、`<>""` 匹配非空白格（空白主要来自直接引用参数）
+    return (value) => (op === '=' ? value === null : op === '<>' ? value !== null : false)
+  }
+  return (value) => typeof value === 'string' && matchesOp(value.toUpperCase(), upper, op)
 }
 
 // ─── 基础函数集 ─────────────────────────────────────────────
@@ -404,6 +475,344 @@ registerFormulaFunction('CONCATENATE', {
   }
 })
 
+// ─── 财务函数集（等额年金，Excel 符号约定：收入 pv 为正、付出 pmt 为负）───
+
+/** 每期等额付款额；期数为 0 需除法 → #DIV/0!，结果溢出 → #VALUE! */
+function pmtOf(
+  rate: number,
+  nper: number,
+  pv: number,
+  fv: number,
+  type: boolean
+): number | FormulaError {
+  let pmt: number
+  if (rate === 0) {
+    if (nper === 0) return formulaError('#DIV/0!')
+    pmt = $n.div($n.minus(0, $n.plus(pv, fv)), nper)
+  } else {
+    const factor = Math.pow(1 + rate, nper)
+    if (factor === 1) return formulaError('#DIV/0!')
+    const owed = $n.plus($n.mul(pv, factor), fv)
+    pmt = $n.div($n.mul($n.minus(0, owed), rate), $n.minus(factor, 1))
+  }
+  const out = type ? $n.div(pmt, 1 + rate) : pmt
+  return Number.isFinite(out) ? out : formulaError('#VALUE!')
+}
+
+/** 年金终值 FV = -(PV·(1+r)^n + PMT·(1+r·type)·((1+r)^n - 1)/r)；r=0 退化为 -(PV + PMT·n) */
+function fvOf(
+  rate: number,
+  nper: number,
+  pmt: number,
+  pv: number,
+  type: boolean
+): number | FormulaError {
+  const factor = Math.pow(1 + rate, nper)
+  const accrual = rate === 0 ? nper : (factor - 1) / rate
+  const paid = $n.mul($n.mul(pmt, accrual), type ? 1 + rate : 1)
+  const out = $n.minus(0, $n.plus($n.mul(pv, factor), paid))
+  return Number.isFinite(out) ? out : formulaError('#VALUE!')
+}
+
+/** 年金现值 PV = -(FV + PMT·(1+r·type)·((1+r)^n - 1)/r) / (1+r)^n；r=0 退化为 -(FV + PMT·n) */
+function pvOf(
+  rate: number,
+  nper: number,
+  pmt: number,
+  fv: number,
+  type: boolean
+): number | FormulaError {
+  const factor = Math.pow(1 + rate, nper)
+  if (factor === 0) return formulaError('#DIV/0!')
+  const accrual = rate === 0 ? nper : (factor - 1) / rate
+  const paid = $n.mul($n.mul(pmt, accrual), type ? 1 + rate : 1)
+  const out = $n.div($n.minus(0, $n.plus(fv, paid)), factor)
+  return Number.isFinite(out) ? out : formulaError('#VALUE!')
+}
+
+/** IPMT / PPMT 共用：参数强转 + per 截断校验（1..nper）+ PMT / 当期利息（错误先行传播） */
+function periodParts(args: EvalValue[]): { pmt: number; ipmt: number } | FormulaError {
+  const nums = coerceNumberArgs(args, [0, 0, 0, 0, 0, 0])
+  if (isFormulaError(nums)) return nums
+  const [rate, perRaw, nper, pv, fv, type] = nums as [
+    number,
+    number,
+    number,
+    number,
+    number,
+    number
+  ]
+  const per = Math.trunc(perRaw)
+  if (per < 1 || per > nper) return formulaError('#VALUE!')
+  const due = type !== 0
+  const pmt = pmtOf(rate, nper, pv, fv, due)
+  if (isFormulaError(pmt)) return pmt
+  let ipmt: number
+  if (per === 1) {
+    // 期初付款第 1 期不产生利息
+    ipmt = due ? 0 : $n.mul(-pv, rate)
+  } else {
+    // 利息 = 期初余额 × rate；余额 = -FV(前 per-1 期，期初付款多抵一期)
+    const balance = fvOf(rate, per - 1 - (due ? 1 : 0), pmt, pv, due)
+    if (isFormulaError(balance)) return balance
+    ipmt = $n.mul(balance, rate)
+  }
+  return { pmt, ipmt }
+}
+
+registerFormulaFunction('PMT', {
+  minArgs: 3,
+  maxArgs: 5,
+  meta: {
+    params: ['rate', 'nper', 'pv', 'fv', 'type'],
+    description: '基于固定利率的等额分期付款额',
+    category: '财务'
+  },
+  impl(args) {
+    const nums = coerceNumberArgs(args, [0, 0, 0, 0, 0])
+    if (isFormulaError(nums)) return nums
+    const [rate, nper, pv, fv, type] = nums as [number, number, number, number, number]
+    return pmtOf(rate, nper, pv, fv, type !== 0)
+  }
+})
+
+registerFormulaFunction('FV', {
+  minArgs: 3,
+  maxArgs: 5,
+  meta: {
+    params: ['rate', 'nper', 'pmt', 'pv', 'type'],
+    description: '基于固定利率与等额分期付款的年金终值',
+    category: '财务'
+  },
+  impl(args) {
+    const nums = coerceNumberArgs(args, [0, 0, 0, 0, 0])
+    if (isFormulaError(nums)) return nums
+    const [rate, nper, pmt, pv, type] = nums as [number, number, number, number, number]
+    return fvOf(rate, nper, pmt, pv, type !== 0)
+  }
+})
+
+registerFormulaFunction('PV', {
+  minArgs: 3,
+  maxArgs: 5,
+  meta: {
+    params: ['rate', 'nper', 'pmt', 'fv', 'type'],
+    description: '基于固定利率与等额分期付款的年金现值',
+    category: '财务'
+  },
+  impl(args) {
+    const nums = coerceNumberArgs(args, [0, 0, 0, 0, 0])
+    if (isFormulaError(nums)) return nums
+    const [rate, nper, pmt, fv, type] = nums as [number, number, number, number, number]
+    return pvOf(rate, nper, pmt, fv, type !== 0)
+  }
+})
+
+registerFormulaFunction('IPMT', {
+  minArgs: 4,
+  maxArgs: 6,
+  meta: {
+    params: ['rate', 'per', 'nper', 'pv', 'fv', 'type'],
+    description: '返回某期付款额中的利息部分',
+    category: '财务'
+  },
+  impl(args) {
+    const parts = periodParts(args)
+    return isFormulaError(parts) ? parts : parts.ipmt
+  }
+})
+
+registerFormulaFunction('PPMT', {
+  minArgs: 4,
+  maxArgs: 6,
+  meta: {
+    params: ['rate', 'per', 'nper', 'pv', 'fv', 'type'],
+    description: '返回某期付款额中的本金部分',
+    category: '财务'
+  },
+  impl(args) {
+    const parts = periodParts(args)
+    return isFormulaError(parts) ? parts : $n.minus(parts.pmt, parts.ipmt)
+  }
+})
+
+// ─── 统计扩充函数集（条件统计 / 次序统计）─────────────────────
+
+registerFormulaFunction('COUNTIF', {
+  minArgs: 2,
+  maxArgs: 2,
+  meta: {
+    params: ['range', 'criteria'],
+    description: '统计区域内满足条件的单元格个数',
+    category: '统计'
+  },
+  impl(args) {
+    const criteria = args[1]!
+    if (Array.isArray(criteria)) return formulaError('#VALUE!')
+    if (isFormulaError(criteria)) return criteria
+    const matches = parseCriteria(criteria)
+    let count = 0
+    for (const { value, fromRange } of flattenArgs([args[0]!])) {
+      // 直接错误参数传播；区域内的错误格不参与计数
+      if (isFormulaError(value)) {
+        if (!fromRange) return value
+        continue
+      }
+      if (matches(value)) count++
+    }
+    return count
+  }
+})
+
+registerFormulaFunction('COUNTBLANK', {
+  kind: 'lazy',
+  minArgs: 1,
+  maxArgs: 1,
+  meta: { params: ['range'], description: '统计区域内空白单元格的个数', category: '统计' },
+  impl(nodes, evalNode) {
+    const node = nodes[0]!
+    // 区域引用求值只含稀疏存在的格，空白数须按引用节点的几何边界推算
+    let total: number
+    if (node.kind === 'range') {
+      const { start, end } = node.range
+      total = (end.row - start.row + 1) * (end.col - start.col + 1)
+    } else if (node.kind === 'cell') {
+      total = 1
+    } else {
+      return formulaError('#VALUE!')
+    }
+    const value = evalNode(node)
+    if (isFormulaError(value)) return value
+    let nonBlank = 0
+    for (const cell of Array.isArray(value) ? value : [value]) {
+      // 错误格与空串结果均非空白
+      if (isFormulaError(cell) || (cell !== null && cell !== '')) nonBlank++
+    }
+    return total - nonBlank
+  }
+})
+
+registerFormulaFunction('MEDIAN', {
+  minArgs: 1,
+  meta: {
+    params: ['number1', 'number2', '...'],
+    description: '返回参数的中位数',
+    category: '统计'
+  },
+  impl(args) {
+    const numbers = collectNumbers(args)
+    if (isFormulaError(numbers)) return numbers
+    if (numbers.length === 0) return formulaError('#VALUE!')
+    const sorted = [...numbers].sort((a, b) => a - b)
+    const mid = Math.floor(sorted.length / 2)
+    // 偶数个取中间两数均值（$n 避免浮点误差）
+    return sorted.length % 2 ? sorted[mid]! : $n.div($n.plus(sorted[mid - 1]!, sorted[mid]!), 2)
+  }
+})
+
+/** LARGE / SMALL 共用：第 k 个极值；k 越界（含空集）→ #VALUE! */
+function kthExtreme(args: EvalValue[], smallest: boolean): EvalValue {
+  const k = coerceToNumber(args[1]!)
+  if (isFormulaError(k)) return k
+  const numbers = collectNumbers([args[0]!])
+  if (isFormulaError(numbers)) return numbers
+  const rank = Math.trunc(k)
+  if (rank < 1 || rank > numbers.length) return formulaError('#VALUE!')
+  const sorted = [...numbers].sort((a, b) => (smallest ? a - b : b - a))
+  return sorted[rank - 1]!
+}
+
+registerFormulaFunction('LARGE', {
+  minArgs: 2,
+  maxArgs: 2,
+  meta: { params: ['array', 'k'], description: '返回数据集中第 k 个最大值', category: '统计' },
+  impl(args) {
+    return kthExtreme(args, false)
+  }
+})
+
+registerFormulaFunction('SMALL', {
+  minArgs: 2,
+  maxArgs: 2,
+  meta: { params: ['array', 'k'], description: '返回数据集中第 k 个最小值', category: '统计' },
+  impl(args) {
+    return kthExtreme(args, true)
+  }
+})
+
+registerFormulaFunction('RANK', {
+  minArgs: 2,
+  maxArgs: 3,
+  meta: {
+    params: ['number', 'ref', 'order'],
+    description: '返回数字在数据集中的名次',
+    category: '统计'
+  },
+  impl(args) {
+    const target = coerceToNumber(args[0]!)
+    if (isFormulaError(target)) return target
+    const numbers = collectNumbers([args[1]!])
+    if (isFormulaError(numbers)) return numbers
+    let descending = true
+    if (args[2] !== undefined) {
+      const order = coerceToNumber(args[2])
+      if (isFormulaError(order)) return order
+      descending = order === 0
+    }
+    if (!numbers.includes(target)) return formulaError('#N/A')
+    // 同值同名次（竞赛排名）：名次 = 1 + 更大（降序）/ 更小（升序）值的个数
+    let rank = 1
+    for (const num of numbers) {
+      if (descending ? num > target : num < target) rank++
+    }
+    return rank
+  }
+})
+
+// ─── 逻辑扩充函数集 ───────────────────────────────────────────
+
+registerFormulaFunction('IFERROR', {
+  minArgs: 2,
+  maxArgs: 2,
+  meta: {
+    params: ['value', 'value_if_error'],
+    description: '首参为任意错误（含 #N/A）时返回替代值',
+    category: '逻辑'
+  },
+  impl(args) {
+    return isFormulaError(args[0]) ? args[1]! : args[0]!
+  }
+})
+
+registerFormulaFunction('TRUE', {
+  minArgs: 0,
+  maxArgs: 0,
+  meta: { params: [], description: '返回逻辑值 TRUE', category: '逻辑' },
+  impl: () => true
+})
+
+registerFormulaFunction('FALSE', {
+  minArgs: 0,
+  maxArgs: 0,
+  meta: { params: [], description: '返回逻辑值 FALSE', category: '逻辑' },
+  impl: () => false
+})
+
+registerFormulaFunction('XOR', {
+  minArgs: 1,
+  meta: {
+    params: ['logical1', 'logical2', '...'],
+    description: '真值个数为奇数时返回 TRUE',
+    category: '逻辑'
+  },
+  impl(args) {
+    const booleans = collectBooleans(args)
+    if (isFormulaError(booleans)) return booleans
+    if (booleans.length === 0) return formulaError('#VALUE!')
+    return booleans.filter(Boolean).length % 2 === 1
+  }
+})
+
 // ─── 易失性函数集（每次重算都刷新）──────────────────────────────
 
 /**
@@ -468,5 +877,499 @@ registerFormulaFunction('RANDBETWEEN', {
     const hi = Math.trunc(top)
     if (lo > hi) return formulaError('#VALUE!')
     return lo + Math.floor(Math.random() * (hi - lo + 1))
+  }
+})
+
+// ─── 查找与引用函数集 ────────────────────────────────────────
+
+/**
+ * 查找类函数不走「区域 → 稀疏数组」的参数形态（稀疏数组丢失位置信息），
+ * 而是按 lazy 参数的 AST 引用节点取区域几何，经 ctx.readCell 逐格读取
+ * （空格为 null，公式格读到实时重算值，错误传播）。
+ */
+
+/** 引用参数（cell / range 节点）→ 目标区域（sheet 缺省补公式所在表）；非引用节点 → null */
+function referenceArg(
+  node: AstNode,
+  ctx: FormulaEvalContext
+): { sheet: string; range: CellRange } | null {
+  if (node.kind === 'cell') {
+    return { sheet: node.sheet ?? ctx.currentSheet, range: { start: node.addr, end: node.addr } }
+  }
+  if (node.kind === 'range') return { sheet: node.sheet ?? ctx.currentSheet, range: node.range }
+  return null
+}
+
+/** 读取区域首列（column）/ 首行（row）的一维向量，保留位置语义（空格为 null）；错误传播 */
+function readVector(
+  ctx: FormulaEvalContext,
+  sheet: string,
+  range: CellRange,
+  along: 'column' | 'row'
+): ScalarValue[] | FormulaError {
+  const values: ScalarValue[] = []
+  if (along === 'column') {
+    for (let row = range.start.row; row <= range.end.row; row++) {
+      const value = ctx.readCell(sheet, { row, col: range.start.col })
+      if (isFormulaError(value)) return value
+      values.push(value)
+    }
+  } else {
+    for (let col = range.start.col; col <= range.end.col; col++) {
+      const value = ctx.readCell(sheet, { row: range.start.row, col })
+      if (isFormulaError(value)) return value
+      values.push(value)
+    }
+  }
+  return values
+}
+
+/** Excel 匹配比较：同类型按类型规则（文本大小写不敏感）；类型不同或含空格 → null（不参与匹配） */
+function compareForMatch(left: ScalarValue, right: ScalarValue): number | null {
+  if (left === null || right === null || typeof left !== typeof right) return null
+  if (typeof left === 'number' && typeof right === 'number') {
+    return left < right ? -1 : left > right ? 1 : 0
+  }
+  if (typeof left === 'string' && typeof right === 'string') {
+    const a = left.toUpperCase()
+    const b = right.toUpperCase()
+    return a < b ? -1 : a > b ? 1 : 0
+  }
+  if (typeof left === 'boolean' && typeof right === 'boolean') {
+    return left === right ? 0 : left ? 1 : -1
+  }
+  return null
+}
+
+/** 精确匹配：首个相等项的 0 基下标，未命中 -1 */
+function exactMatchIndex(vector: readonly ScalarValue[], lookup: ScalarValue): number {
+  for (let i = 0; i < vector.length; i++) {
+    if (compareForMatch(vector[i]!, lookup) === 0) return i
+  }
+  return -1
+}
+
+/** 升序近似：≤ lookup 的最大项的 0 基下标（升序约定下遇首个大于项即停），未命中 -1 */
+function ascendingMatchIndex(vector: readonly ScalarValue[], lookup: ScalarValue): number {
+  let best = -1
+  for (let i = 0; i < vector.length; i++) {
+    const cmp = compareForMatch(vector[i]!, lookup)
+    if (cmp === null) continue
+    if (cmp > 0) break
+    best = i
+  }
+  return best
+}
+
+/** 降序近似：≥ lookup 的最小项的 0 基下标（降序约定下遇首个小于项即停），未命中 -1 */
+function descendingMatchIndex(vector: readonly ScalarValue[], lookup: ScalarValue): number {
+  let best = -1
+  for (let i = 0; i < vector.length; i++) {
+    const cmp = compareForMatch(vector[i]!, lookup)
+    if (cmp === null) continue
+    if (cmp < 0) break
+    best = i
+  }
+  return best
+}
+
+/** VLOOKUP / HLOOKUP 共用：沿 along 方向扫描首列 / 首行做匹配，取第 index 列 / 行（1 基）的值 */
+function vectorLookup(
+  nodes: AstNode[],
+  evalNode: (node: AstNode) => EvalValue,
+  ctx: FormulaEvalContext | undefined,
+  along: 'column' | 'row'
+): EvalValue {
+  if (!ctx) return formulaError('#VALUE!')
+  const lookup = evalNode(nodes[0]!)
+  if (isFormulaError(lookup)) return lookup
+  if (Array.isArray(lookup)) return formulaError('#VALUE!')
+  const table = referenceArg(nodes[1]!, ctx)
+  if (!table) return formulaError('#VALUE!')
+  const indexArg = coerceToNumber(evalNode(nodes[2]!))
+  if (isFormulaError(indexArg)) return indexArg
+  let exact = false
+  if (nodes[3]) {
+    const flag = coerceToBoolean(evalNode(nodes[3]))
+    if (isFormulaError(flag)) return flag
+    exact = !flag
+  }
+  const { start, end } = table.range
+  const span = along === 'column' ? end.col - start.col + 1 : end.row - start.row + 1
+  const index = Math.trunc(indexArg)
+  if (index < 1) return formulaError('#VALUE!')
+  if (index > span) return formulaError('#REF!')
+  const vector = readVector(ctx, table.sheet, table.range, along)
+  if (isFormulaError(vector)) return vector
+  // 空查找值按 0 参与数值匹配（与引擎空格 → 0 的约定一致）
+  const key = lookup === null ? 0 : lookup
+  const matched = exact ? exactMatchIndex(vector, key) : ascendingMatchIndex(vector, key)
+  if (matched < 0) return formulaError('#N/A')
+  return along === 'column'
+    ? ctx.readCell(table.sheet, { row: start.row + matched, col: start.col + index - 1 })
+    : ctx.readCell(table.sheet, { row: start.row + index - 1, col: start.col + matched })
+}
+
+registerFormulaFunction('VLOOKUP', {
+  kind: 'lazy',
+  minArgs: 3,
+  maxArgs: 4,
+  meta: {
+    params: ['lookup_value', 'table_array', 'col_index_num', 'range_lookup'],
+    description: '按首列匹配查找值，返回区域内对应行的指定列的值',
+    category: '查找与引用'
+  },
+  impl: (nodes, evalNode, ctx) => vectorLookup(nodes, evalNode, ctx, 'column')
+})
+
+registerFormulaFunction('HLOOKUP', {
+  kind: 'lazy',
+  minArgs: 3,
+  maxArgs: 4,
+  meta: {
+    params: ['lookup_value', 'table_array', 'row_index_num', 'range_lookup'],
+    description: '按首行匹配查找值，返回区域内对应列的指定行的值',
+    category: '查找与引用'
+  },
+  impl: (nodes, evalNode, ctx) => vectorLookup(nodes, evalNode, ctx, 'row')
+})
+
+registerFormulaFunction('MATCH', {
+  kind: 'lazy',
+  minArgs: 2,
+  maxArgs: 3,
+  meta: {
+    params: ['lookup_value', 'lookup_array', 'match_type'],
+    description: '在一维区域中查找值，返回 1 基相对位置',
+    category: '查找与引用'
+  },
+  impl(nodes, evalNode, ctx) {
+    if (!ctx) return formulaError('#VALUE!')
+    const lookup = evalNode(nodes[0]!)
+    if (isFormulaError(lookup)) return lookup
+    if (Array.isArray(lookup)) return formulaError('#VALUE!')
+    const arrayRef = referenceArg(nodes[1]!, ctx)
+    if (!arrayRef) return formulaError('#VALUE!')
+    let matchType = 1
+    if (nodes[2]) {
+      const typeArg = coerceToNumber(evalNode(nodes[2]))
+      if (isFormulaError(typeArg)) return typeArg
+      matchType = Math.trunc(typeArg)
+    }
+    const rows = arrayRef.range.end.row - arrayRef.range.start.row + 1
+    const cols = arrayRef.range.end.col - arrayRef.range.start.col + 1
+    // 查找区域必须是一维（单行或单列）
+    if (rows > 1 && cols > 1) return formulaError('#N/A')
+    const vector = readVector(ctx, arrayRef.sheet, arrayRef.range, rows > 1 ? 'column' : 'row')
+    if (isFormulaError(vector)) return vector
+    const key = lookup === null ? 0 : lookup
+    const index =
+      matchType === 0
+        ? exactMatchIndex(vector, key)
+        : matchType > 0
+          ? ascendingMatchIndex(vector, key)
+          : descendingMatchIndex(vector, key)
+    if (index < 0) return formulaError('#N/A')
+    return index + 1
+  }
+})
+
+registerFormulaFunction('INDEX', {
+  kind: 'lazy',
+  minArgs: 2,
+  maxArgs: 3,
+  meta: {
+    params: ['array', 'row_num', 'column_num'],
+    description: '按 1 基行 / 列序号取区域中的值',
+    category: '查找与引用'
+  },
+  impl(nodes, evalNode, ctx) {
+    if (!ctx) return formulaError('#VALUE!')
+    const ref = referenceArg(nodes[0]!, ctx)
+    if (!ref) return formulaError('#VALUE!')
+    const rowArg = coerceToNumber(evalNode(nodes[1]!))
+    if (isFormulaError(rowArg)) return rowArg
+    const rowNum = Math.trunc(rowArg)
+    let colNum = 1
+    let colGiven = false
+    if (nodes[2]) {
+      const colArg = coerceToNumber(evalNode(nodes[2]))
+      if (isFormulaError(colArg)) return colArg
+      colNum = Math.trunc(colArg)
+      colGiven = true
+    }
+    const rows = ref.range.end.row - ref.range.start.row + 1
+    const cols = ref.range.end.col - ref.range.start.col + 1
+    let row = rowNum
+    if (!colGiven) {
+      // 单行区域省略列序号时 row_num 实为列序号（Excel 语义）；其余省略取首列
+      if (rows === 1 && cols > 1) {
+        row = 1
+        colNum = rowNum
+      } else {
+        colNum = 1
+      }
+    }
+    if (row < 1 || colNum < 1) return formulaError('#VALUE!')
+    if (row > rows || colNum > cols) return formulaError('#REF!')
+    return ctx.readCell(ref.sheet, {
+      row: ref.range.start.row + row - 1,
+      col: ref.range.start.col + colNum - 1
+    })
+  }
+})
+
+registerFormulaFunction('CHOOSE', {
+  kind: 'lazy',
+  minArgs: 2,
+  meta: {
+    params: ['index_num', 'value1', 'value2', '...'],
+    description: '按 1 基序号返回第 n 个参数的值',
+    category: '查找与引用'
+  },
+  impl(nodes, evalNode) {
+    const indexArg = coerceToNumber(evalNode(nodes[0]!))
+    if (isFormulaError(indexArg)) return indexArg
+    const index = Math.trunc(indexArg)
+    if (index < 1 || index > nodes.length - 1) return formulaError('#VALUE!')
+    // 只求值被选中的参数（未选参数的副作用 / 错误不产生，Excel 短路语义）
+    return evalNode(nodes[index]!)
+  }
+})
+
+registerFormulaFunction('ROW', {
+  kind: 'lazy',
+  minArgs: 0,
+  maxArgs: 1,
+  meta: {
+    params: ['reference'],
+    description: '返回引用起始格的行号（省略时取公式所在行，1 基）',
+    category: '查找与引用'
+  },
+  impl(nodes, _evalNode, ctx) {
+    if (!ctx) return formulaError('#VALUE!')
+    if (nodes.length === 0) return ctx.currentCell.row + 1
+    const ref = referenceArg(nodes[0]!, ctx)
+    if (!ref) return formulaError('#VALUE!')
+    return ref.range.start.row + 1
+  }
+})
+
+registerFormulaFunction('COLUMN', {
+  kind: 'lazy',
+  minArgs: 0,
+  maxArgs: 1,
+  meta: {
+    params: ['reference'],
+    description: '返回引用起始格的列号（省略时取公式所在列，1 基）',
+    category: '查找与引用'
+  },
+  impl(nodes, _evalNode, ctx) {
+    if (!ctx) return formulaError('#VALUE!')
+    if (nodes.length === 0) return ctx.currentCell.col + 1
+    const ref = referenceArg(nodes[0]!, ctx)
+    if (!ref) return formulaError('#VALUE!')
+    return ref.range.start.col + 1
+  }
+})
+
+// ─── 文本函数集 ─────────────────────────────────────────────
+
+registerFormulaFunction('LEN', {
+  minArgs: 1,
+  maxArgs: 1,
+  meta: { params: ['text'], description: '返回文本的字符个数', category: '文本' },
+  impl(args) {
+    const text = coerceToText(args[0]!)
+    if (isFormulaError(text)) return text
+    return text.length
+  }
+})
+
+/** LEFT / RIGHT 共用：count < 0 → #VALUE!；take 从左 / 右取 count 个字符 */
+function takeText(text: string, count: number, fromRight: boolean): string {
+  if (fromRight) return text.slice(Math.max(0, text.length - count))
+  return text.slice(0, count)
+}
+
+registerFormulaFunction('LEFT', {
+  minArgs: 1,
+  maxArgs: 2,
+  meta: {
+    params: ['text', 'num_chars'],
+    description: '返回文本左侧指定个数的字符',
+    category: '文本'
+  },
+  impl(args) {
+    const text = coerceToText(args[0]!)
+    if (isFormulaError(text)) return text
+    let count = 1
+    if (args.length > 1) {
+      const countArg = coerceToNumber(args[1]!)
+      if (isFormulaError(countArg)) return countArg
+      count = Math.trunc(countArg)
+    }
+    if (count < 0) return formulaError('#VALUE!')
+    return takeText(text, count, false)
+  }
+})
+
+registerFormulaFunction('RIGHT', {
+  minArgs: 1,
+  maxArgs: 2,
+  meta: {
+    params: ['text', 'num_chars'],
+    description: '返回文本右侧指定个数的字符',
+    category: '文本'
+  },
+  impl(args) {
+    const text = coerceToText(args[0]!)
+    if (isFormulaError(text)) return text
+    let count = 1
+    if (args.length > 1) {
+      const countArg = coerceToNumber(args[1]!)
+      if (isFormulaError(countArg)) return countArg
+      count = Math.trunc(countArg)
+    }
+    if (count < 0) return formulaError('#VALUE!')
+    return takeText(text, count, true)
+  }
+})
+
+registerFormulaFunction('MID', {
+  minArgs: 3,
+  maxArgs: 3,
+  meta: {
+    params: ['text', 'start_num', 'num_chars'],
+    description: '从指定位置起返回指定个数的字符',
+    category: '文本'
+  },
+  impl(args) {
+    const text = coerceToText(args[0]!)
+    if (isFormulaError(text)) return text
+    const startArg = coerceToNumber(args[1]!)
+    if (isFormulaError(startArg)) return startArg
+    const countArg = coerceToNumber(args[2]!)
+    if (isFormulaError(countArg)) return countArg
+    const start = Math.trunc(startArg)
+    const count = Math.trunc(countArg)
+    if (start < 1 || count < 0) return formulaError('#VALUE!')
+    return text.slice(start - 1, start - 1 + count)
+  }
+})
+
+registerFormulaFunction('UPPER', {
+  minArgs: 1,
+  maxArgs: 1,
+  meta: { params: ['text'], description: '将文本转换为大写', category: '文本' },
+  impl(args) {
+    const text = coerceToText(args[0]!)
+    if (isFormulaError(text)) return text
+    return text.toUpperCase()
+  }
+})
+
+registerFormulaFunction('LOWER', {
+  minArgs: 1,
+  maxArgs: 1,
+  meta: { params: ['text'], description: '将文本转换为小写', category: '文本' },
+  impl(args) {
+    const text = coerceToText(args[0]!)
+    if (isFormulaError(text)) return text
+    return text.toLowerCase()
+  }
+})
+
+registerFormulaFunction('TRIM', {
+  minArgs: 1,
+  maxArgs: 1,
+  meta: {
+    params: ['text'],
+    description: '去除首尾空格并把内部连续空格压缩为一个',
+    category: '文本'
+  },
+  impl(args) {
+    const text = coerceToText(args[0]!)
+    if (isFormulaError(text)) return text
+    return text.replace(/ +/g, ' ').replace(/^ | $/g, '')
+  }
+})
+
+registerFormulaFunction('EXACT', {
+  minArgs: 2,
+  maxArgs: 2,
+  meta: {
+    params: ['text1', 'text2'],
+    description: '比较两个文本是否完全相同（区分大小写）',
+    category: '文本'
+  },
+  impl(args) {
+    const left = coerceToText(args[0]!)
+    if (isFormulaError(left)) return left
+    const right = coerceToText(args[1]!)
+    if (isFormulaError(right)) return right
+    return left === right
+  }
+})
+
+registerFormulaFunction('SUBSTITUTE', {
+  minArgs: 3,
+  maxArgs: 4,
+  meta: {
+    params: ['text', 'old_text', 'new_text', 'instance_num'],
+    description: '替换文本中的子串（可指定第几次出现，省略替换全部）',
+    category: '文本'
+  },
+  impl(args) {
+    const text = coerceToText(args[0]!)
+    if (isFormulaError(text)) return text
+    const oldText = coerceToText(args[1]!)
+    if (isFormulaError(oldText)) return oldText
+    const newText = coerceToText(args[2]!)
+    if (isFormulaError(newText)) return newText
+    if (oldText === '') return text
+    let instance: number | undefined
+    if (args.length > 3) {
+      const instanceArg = coerceToNumber(args[3]!)
+      if (isFormulaError(instanceArg)) return instanceArg
+      instance = Math.trunc(instanceArg)
+      if (instance < 1) return formulaError('#VALUE!')
+    }
+    if (instance === undefined) return text.split(oldText).join(newText)
+    // 只替换第 instance 次出现（不重叠计数）；出现次数不足则原样返回
+    let from = 0
+    for (let n = 1; n <= instance; n++) {
+      const found = text.indexOf(oldText, from)
+      if (found < 0) return text
+      if (n === instance) {
+        return text.slice(0, found) + newText + text.slice(found + oldText.length)
+      }
+      from = found + oldText.length
+    }
+    return text
+  }
+})
+
+registerFormulaFunction('REPLACE', {
+  minArgs: 4,
+  maxArgs: 4,
+  meta: {
+    params: ['old_text', 'start_num', 'num_chars', 'new_text'],
+    description: '按字符位置与个数替换文本中的一段',
+    category: '文本'
+  },
+  impl(args) {
+    const text = coerceToText(args[0]!)
+    if (isFormulaError(text)) return text
+    const startArg = coerceToNumber(args[1]!)
+    if (isFormulaError(startArg)) return startArg
+    const countArg = coerceToNumber(args[2]!)
+    if (isFormulaError(countArg)) return countArg
+    const newText = coerceToText(args[3]!)
+    if (isFormulaError(newText)) return newText
+    const start = Math.trunc(startArg)
+    const count = Math.trunc(countArg)
+    if (start < 1 || count < 0) return formulaError('#VALUE!')
+    return text.slice(0, start - 1) + newText + text.slice(start - 1 + count)
   }
 })

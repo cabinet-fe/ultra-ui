@@ -46,15 +46,16 @@ describe('getSuggestContext', () => {
 })
 
 describe('filterFormulaSuggestions / applySuggest / moveSuggestIndex', () => {
-  it('空前缀优先常用函数（含 SUM），至多 10 条；SU 过滤到 SUM', () => {
+  it('空前缀优先常用函数（含 SUM），至多 10 条；SU 过滤到 SUBSTITUTE / SUM（名称升序）', () => {
     const all = filterFormulaSuggestions('')
     expect(all.length).toBeGreaterThan(0)
     expect(all.length).toBeLessThanOrEqual(FORMULA_SUGGEST_LIMIT)
     expect(all[0]!.name).toBe('SUM')
     expect(all.map((s) => s.name)).toContain('SUM')
     const su = filterFormulaSuggestions('SU')
-    expect(su.map((s) => s.name)).toEqual(['SUM'])
-    expect(su[0]!.signature).toBe(formatFunctionSignature('SUM', su[0]!.params))
+    expect(su.map((s) => s.name)).toEqual(['SUBSTITUTE', 'SUM'])
+    const sum = su.find((s) => s.name === 'SUM')!
+    expect(sum.signature).toBe(formatFunctionSignature('SUM', sum.params))
   })
 
   it('无 meta 函数签名仅为名称', () => {

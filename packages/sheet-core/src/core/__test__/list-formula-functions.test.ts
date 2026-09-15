@@ -11,19 +11,36 @@ const BUILTIN_NAMES = [
   'ABS',
   'AND',
   'AVERAGE',
+  'CHOOSE',
+  'COLUMN',
   'CONCATENATE',
   'COUNT',
   'COUNTA',
+  'EXACT',
+  'HLOOKUP',
   'IF',
+  'INDEX',
+  'LEFT',
+  'LEN',
+  'LOWER',
+  'MATCH',
   'MAX',
+  'MID',
   'MIN',
   'NOT',
   'OR',
+  'REPLACE',
+  'RIGHT',
   'ROUND',
-  'SUM'
+  'ROW',
+  'SUBSTITUTE',
+  'SUM',
+  'TRIM',
+  'UPPER',
+  'VLOOKUP'
 ] as const
 
-/** 17 个内置函数的期望分类（spec 锁定清单） */
+/** 内置函数的期望分类（spec 锁定清单） */
 const BUILTIN_CATEGORIES: Record<string, FormulaFunctionCategory> = {
   SUM: '数学',
   ROUND: '数学',
@@ -41,8 +58,64 @@ const BUILTIN_CATEGORIES: Record<string, FormulaFunctionCategory> = {
   NOT: '逻辑',
   CONCATENATE: '文本',
   TODAY: '日期与时间',
-  NOW: '日期与时间'
+  NOW: '日期与时间',
+  // P3：查找与引用 7 个
+  VLOOKUP: '查找与引用',
+  HLOOKUP: '查找与引用',
+  MATCH: '查找与引用',
+  INDEX: '查找与引用',
+  CHOOSE: '查找与引用',
+  ROW: '查找与引用',
+  COLUMN: '查找与引用',
+  // P3：文本 10 个
+  LEN: '文本',
+  LEFT: '文本',
+  RIGHT: '文本',
+  MID: '文本',
+  UPPER: '文本',
+  LOWER: '文本',
+  TRIM: '文本',
+  EXACT: '文本',
+  SUBSTITUTE: '文本',
+  REPLACE: '文本',
+  // P2：财务 5 个
+  PMT: '财务',
+  FV: '财务',
+  PV: '财务',
+  IPMT: '财务',
+  PPMT: '财务',
+  // P2：统计 6 个
+  COUNTIF: '统计',
+  COUNTBLANK: '统计',
+  MEDIAN: '统计',
+  LARGE: '统计',
+  SMALL: '统计',
+  RANK: '统计',
+  // P2：逻辑 4 个
+  IFERROR: '逻辑',
+  TRUE: '逻辑',
+  FALSE: '逻辑',
+  XOR: '逻辑'
 }
+
+/** P2 将注册的 15 个函数（PMT 可查 = P2 已落地，全量锁定用例随之激活） */
+const P2_NAMES = [
+  'PMT',
+  'FV',
+  'PV',
+  'IPMT',
+  'PPMT',
+  'COUNTIF',
+  'COUNTBLANK',
+  'MEDIAN',
+  'LARGE',
+  'SMALL',
+  'RANK',
+  'IFERROR',
+  'TRUE',
+  'FALSE',
+  'XOR'
+] as const
 
 describe('listFormulaFunctions / FormulaFunctionMeta', () => {
   const extras: string[] = []
@@ -54,7 +127,7 @@ describe('listFormulaFunctions / FormulaFunctionMeta', () => {
     }
   })
 
-  it('枚举含 13 个内置函数，名称升序，均带 params + 中文 description', () => {
+  it(`枚举含 ${BUILTIN_NAMES.length} 个内置函数，名称升序，均带 params + 中文 description`, () => {
     const list = listFormulaFunctions()
     const byName = new Map(list.map((f) => [f.name, f]))
     for (const name of BUILTIN_NAMES) {
@@ -82,13 +155,23 @@ describe('listFormulaFunctions / FormulaFunctionMeta', () => {
     })
   })
 
-  it('17 个内置函数分类与 spec 清单一致', () => {
+  it(`${Object.keys(BUILTIN_CATEGORIES).length} 个内置函数分类与 spec 清单一致`, () => {
     const list = listFormulaFunctions()
     const byName = new Map(list.map((f) => [f.name, f]))
     for (const [name, category] of Object.entries(BUILTIN_CATEGORIES)) {
       expect(byName.get(name), name).toBeDefined()
       expect(byName.get(name)!.category, name).toBe(category)
     }
+  })
+
+  // P2（财务 / 统计 / 逻辑 15 个）落地后自动激活：全量锁定 49 个内置函数。
+  // 过滤 '__' 前缀：本文件 afterEach 用无 meta 占位覆盖临时函数后注册表仍留键。
+  it.skipIf(!getFormulaFunction('PMT'))('全部 49 个内置函数名称全量锁定', () => {
+    const names = listFormulaFunctions()
+      .map((f) => f.name)
+      .filter((name) => !name.startsWith('__'))
+    expect(names).toHaveLength(49)
+    expect(new Set(names)).toEqual(new Set([...Object.keys(BUILTIN_CATEGORIES), ...P2_NAMES]))
   })
 
   it('无 meta 的第三方函数仅返回空 params / description，category 为 undefined', () => {

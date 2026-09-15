@@ -15,6 +15,10 @@ keywords:
     'SUM',
     'ROUND',
     'ABS',
+    'VLOOKUP',
+    'HLOOKUP',
+    'MATCH',
+    'INDEX',
     '#DIV/0!',
     '#N/A',
     '#CYCLE!',
@@ -180,13 +184,7 @@ export function coerceToBoolean(value: EvalValue): boolean | FormulaError
 // ─── 函数注册表 ───────────────────────────────────────────
 /** 函数分类；未声明 category 的注册函数不进任何分类 */
 export type FormulaFunctionCategory =
-  | '财务'
-  | '统计'
-  | '查找与引用'
-  | '文本'
-  | '逻辑'
-  | '数学'
-  | '日期与时间'
+  '财务' | '统计' | '查找与引用' | '文本' | '逻辑' | '数学' | '日期与时间'
 
 /** 补全 / 帮助元数据；不传时 listFormulaFunctions 对该函数返回空 params 与空 description */
 export interface FormulaFunctionMeta {
@@ -310,57 +308,89 @@ export declare class DependencyGraph {
 
 ### 主要函数参数
 
-| 函数                      | 参数                                                                                     | 返回                                                        | 抛错 / 错误路径                                                                |
-| ------------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `tokenizeFormula`         | `text: string`（公式原文，不含 `=`）                                                     | `FormulaToken[]`                                            | 非法输入抛 `FormulaParseError`                                                 |
-| `parseFormula`            | `text: string`（公式原文，不含 `=`）                                                     | `AstNode`                                                   | 同 `tokenizeFormula`：非法输入抛 `FormulaParseError`                           |
-| `collectReferences`       | `node: AstNode`；`out?: AstReference[]`（追加目标）                                      | `AstReference[]`                                            | 不抛错                                                                         |
-| `evaluateAst`             | `node: AstNode`；`ctx: FormulaEvalContext`                                               | `EvalValue`                                                 | 不抛错；错误以 `FormulaError` 返回；自定义函数抛异常时由依赖图捕获记 `#ERROR!` |
-| `registerFormulaFunction` | `name: string`；`def: FormulaFunction`                                                   | `void`                                                      | 不抛错；同名覆盖                                                               |
-| `listFormulaFunctions`    | 无                                                                                       | `Array<{ name, params, description, category }>`，名称升序 | 不抛错；未声明分类的函数 `category` 为 `undefined`                             |
-| `invokeFormulaFunction`   | `name: string`；`nodes: AstNode[]`；`evalNode`；`ctx?: FormulaEvalContext`（透传给 impl） | `EvalValue`                                                 | 未知名返回 `#NAME?`；参数个数越界返回 `#VALUE!`                                |
+| 函数                      | 参数                                                                                      | 返回                                                       | 抛错 / 错误路径                                                                |
+| ------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `tokenizeFormula`         | `text: string`（公式原文，不含 `=`）                                                      | `FormulaToken[]`                                           | 非法输入抛 `FormulaParseError`                                                 |
+| `parseFormula`            | `text: string`（公式原文，不含 `=`）                                                      | `AstNode`                                                  | 同 `tokenizeFormula`：非法输入抛 `FormulaParseError`                           |
+| `collectReferences`       | `node: AstNode`；`out?: AstReference[]`（追加目标）                                       | `AstReference[]`                                           | 不抛错                                                                         |
+| `evaluateAst`             | `node: AstNode`；`ctx: FormulaEvalContext`                                                | `EvalValue`                                                | 不抛错；错误以 `FormulaError` 返回；自定义函数抛异常时由依赖图捕获记 `#ERROR!` |
+| `registerFormulaFunction` | `name: string`；`def: FormulaFunction`                                                    | `void`                                                     | 不抛错；同名覆盖                                                               |
+| `listFormulaFunctions`    | 无                                                                                        | `Array<{ name, params, description, category }>`，名称升序 | 不抛错；未声明分类的函数 `category` 为 `undefined`                             |
+| `invokeFormulaFunction`   | `name: string`；`nodes: AstNode[]`；`evalNode`；`ctx?: FormulaEvalContext`（透传给 impl） | `EvalValue`                                                | 未知名返回 `#NAME?`；参数个数越界返回 `#VALUE!`                                |
 
 `FormulaEvalContext` 的错误约定：表不存在时 `readCell` / `readRange` 返回 `formulaError('#REF!')`；`callFunction` 直接传 `invokeFormulaFunction` 即可复用内置注册表（第四参 `ctx` 由 `evaluateAst` 自动传入，实现 `callFunction` 时透传即可）。`currentCell` / `currentSheet` 由依赖图按公式节点注入：宿主自建 ctx 无头求值时填目标格地址即可，自定义函数在 normal `impl(args, ctx)` 第二参 / lazy `impl(nodes, evalNode, ctx)` 第三参读取。
 
 ### 错误码（FORMULA_ERROR_CODES 全集）
 
-| 错误码    | 触发条件                                                                                                                                                                |
-| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `#DIV/0!` | 除数为 0（`1/0`、`0/0`）；`AVERAGE` 无数字可平均；`0` 的负次幂                                                                                                          |
-| `#VALUE!` | 强转失败（非数字文本参与算术等）；数组参与比较；区域直接作为公式结果（如 `=A1:B2`）；`AND` / `OR` 无有效参数；`^` 结果非有限；`RANDBETWEEN` 参数非有限或 `bottom > top` |
-| `#NAME?`  | 未知名称节点；调用未注册函数                                                                                                                                            |
-| `#REF!`   | `readCell` / `readRange` 的表不存在（表被删除）                                                                                                                         |
-| `#N/A`    | 值不存在类错误（Excel 同名语义）；自定义函数经 `formulaError('#N/A')` 返回；`t='e'` 单元格存取经 `isFormulaErrorCode` 还原                                                 |
-| `#ERROR!` | 公式解析失败（`FormulaNode.ast` 为 null，`f` 保留原文）；求值期异常（如自定义函数抛错）                                                                                 |
-| `#CYCLE!` | 循环引用：环上所有格均得 `#CYCLE!`；打破循环后经标脏重算自动恢复                                                                                                        |
+| 错误码    | 触发条件                                                                                                                                                                                                                                                                           |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `#DIV/0!` | 除数为 0（`1/0`、`0/0`）；`AVERAGE` 无数字可平均；`0` 的负次幂                                                                                                                                                                                                                     |
+| `#VALUE!` | 强转失败（非数字文本参与算术等）；数组参与比较；区域直接作为公式结果（如 `=A1:B2`）；`AND` / `OR` 无有效参数；`^` 结果非有限；`RANDBETWEEN` 参数非有限或 `bottom > top`；`VLOOKUP` / `HLOOKUP` / `INDEX` / `CHOOSE` 序号 < 1 或越界（`CHOOSE`）；`LEFT` / `RIGHT` / `MID` 份数为负 |
+| `#NAME?`  | 未知名称节点；调用未注册函数                                                                                                                                                                                                                                                       |
+| `#REF!`   | `readCell` / `readRange` 的表不存在（表被删除）；`VLOOKUP` / `HLOOKUP` 列 / 行序号越界；`INDEX` 行 / 列序号越界                                                                                                                                                                    |
+| `#N/A`    | 值不存在类错误（Excel 同名语义）；`VLOOKUP` / `HLOOKUP` 未命中、`MATCH` 未命中或二维区域、`RANK` 目标不在数据集；自定义函数经 `formulaError('#N/A')` 返回；`t='e'` 单元格存取经 `isFormulaErrorCode` 还原                                                                          |
+| `#ERROR!` | 公式解析失败（`FormulaNode.ast` 为 null，`f` 保留原文）；求值期异常（如自定义函数抛错）                                                                                                                                                                                            |
+| `#CYCLE!` | 循环引用：环上所有格均得 `#CYCLE!`；打破循环后经标脏重算自动恢复                                                                                                                                                                                                                   |
 
 求值期的 `FormulaError` 随运算传播（左操作数优先）；写入单元格时序列化为 `v = 错误码字符串, t = 'e'`。读取时 `isFormulaErrorCode(data.v)` 校验合法码。
 
-### 内置函数（以 listFormulaFunctions 实际注册为准，共 17 个）
+### 内置函数（以 listFormulaFunctions 实际注册为准，共 49 个）
 
-聚合函数的参数形态约定：区域引用展开为**稀疏存在的格**数组——区域内的文本 / 布尔被忽略，只有数字参与；直接参数则强转（非法 → `#VALUE!`）。
+聚合函数的参数形态约定：区域引用展开为**稀疏存在的格**数组——区域内的文本 / 布尔被忽略，只有数字参与；直接参数则强转（非法 → `#VALUE!`）。查找与引用函数（`VLOOKUP` / `HLOOKUP` / `MATCH` / `INDEX` / `ROW` / `COLUMN`）与 `COUNTBLANK` 为 lazy 实现：按参数的 AST 引用节点取区域几何，经 `ctx.readCell` 逐格读取（保留位置语义，空格为 `null`），不展开稀疏数组；区域参数不是引用节点 → `#VALUE!`。
 
-| 函数          | 分类         | 签名                                                       | 语义                                                                                                                                     |
-| ------------- | ------------ | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| `SUM`         | 数学         | `SUM(number1, number2, ...)`，至少 1 参                    | 求和；`$n.plus` 高精度累加；全空区域 → `0`                                                                                               |
-| `AVERAGE`     | 统计         | `AVERAGE(number1, ...)`，至少 1 参                         | 平均值 = `$n.div(和, 个数)`；无数字 → `#DIV/0!`                                                                                          |
-| `MAX`         | 统计         | `MAX(number1, ...)`，至少 1 参                             | 最大值；无数字 → `0`                                                                                                                     |
-| `MIN`         | 统计         | `MIN(number1, ...)`，至少 1 参                             | 最小值；无数字 → `0`                                                                                                                     |
-| `COUNT`       | 统计         | `COUNT(value1, ...)`，至少 1 参                            | 数字个数：区域内只数数字格；直接参数可强转即计（含 `TRUE`、数字文本）                                                                    |
-| `COUNTA`      | 统计         | `COUNTA(value1, ...)`，至少 1 参                           | 非空个数：区域内错误格照常计数；直接错误参数传播                                                                                         |
-| `IF`          | 逻辑         | `IF(logical_test, value_if_true, value_if_false?)`，2~3 参 | lazy 求值：未选分支不求值（副作用 / 错误不产生）；缺省第三参返回 `false`                                                                 |
-| `AND`         | 逻辑         | `AND(logical1, ...)`，至少 1 参                            | 全真 → `TRUE`；区域内只取布尔格；空集 → `#VALUE!`                                                                                        |
-| `OR`          | 逻辑         | `OR(logical1, ...)`，至少 1 参                             | 任一真 → `TRUE`；区域内只取布尔格；空集 → `#VALUE!`                                                                                      |
-| `NOT`         | 逻辑         | `NOT(logical)`，恰 1 参                                    | 逻辑取反                                                                                                                                 |
-| `ROUND`       | 数学         | `ROUND(number, num_digits)`，恰 2 参                       | 四舍五入：`n().fixed` 高精度；位数向零截断；负位数先缩放到整数再舍入（`ROUND(1234.567,-2)` = `1200`）；位数超出 double 精度时恒等 / 归零 |
-| `ABS`         | 数学         | `ABS(number)`，恰 1 参                                     | 绝对值；负值经 `$n.minus(0, value)`                                                                                                      |
-| `CONCATENATE` | 文本         | `CONCATENATE(text1, text2, ...)`，至少 1 参                | 连接文本（区域展开，逐值 `coerceToText`；区域内空格按空串）                                                                              |
-| `TODAY`       | 日期与时间   | `TODAY()`，0 参                                            | volatile；当天 0 点的 1900 系统序列数（本地时间，含伪闰日修正）                                                                          |
-| `NOW`         | 日期与时间   | `NOW()`，0 参                                              | volatile；当前时刻序列数（含时间小数部分）                                                                                               |
-| `RAND`        | 数学         | `RAND()`，0 参                                             | volatile；`[0, 1)` 随机数                                                                                                                |
-| `RANDBETWEEN` | 数学         | `RANDBETWEEN(bottom, top)`，恰 2 参                        | volatile；`[bottom, top]` 闭区间随机整数；参数向零截断，非法或 `bottom > top` → `#VALUE!`                                                |
+| 函数          | 分类       | 签名                                                                               | 语义                                                                                                                                                                               |
+| ------------- | ---------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SUM`         | 数学       | `SUM(number1, number2, ...)`，至少 1 参                                            | 求和；`$n.plus` 高精度累加；全空区域 → `0`                                                                                                                                         |
+| `AVERAGE`     | 统计       | `AVERAGE(number1, ...)`，至少 1 参                                                 | 平均值 = `$n.div(和, 个数)`；无数字 → `#DIV/0!`                                                                                                                                    |
+| `MAX`         | 统计       | `MAX(number1, ...)`，至少 1 参                                                     | 最大值；无数字 → `0`                                                                                                                                                               |
+| `MIN`         | 统计       | `MIN(number1, ...)`，至少 1 参                                                     | 最小值；无数字 → `0`                                                                                                                                                               |
+| `COUNT`       | 统计       | `COUNT(value1, ...)`，至少 1 参                                                    | 数字个数：区域内只数数字格；直接参数可强转即计（含 `TRUE`、数字文本）                                                                                                              |
+| `COUNTA`      | 统计       | `COUNTA(value1, ...)`，至少 1 参                                                   | 非空个数：区域内错误格照常计数；直接错误参数传播                                                                                                                                   |
+| `IF`          | 逻辑       | `IF(logical_test, value_if_true, value_if_false?)`，2~3 参                         | lazy 求值：未选分支不求值（副作用 / 错误不产生）；缺省第三参返回 `false`                                                                                                           |
+| `AND`         | 逻辑       | `AND(logical1, ...)`，至少 1 参                                                    | 全真 → `TRUE`；区域内只取布尔格；空集 → `#VALUE!`                                                                                                                                  |
+| `OR`          | 逻辑       | `OR(logical1, ...)`，至少 1 参                                                     | 任一真 → `TRUE`；区域内只取布尔格；空集 → `#VALUE!`                                                                                                                                |
+| `NOT`         | 逻辑       | `NOT(logical)`，恰 1 参                                                            | 逻辑取反                                                                                                                                                                           |
+| `ROUND`       | 数学       | `ROUND(number, num_digits)`，恰 2 参                                               | 四舍五入：`n().fixed` 高精度；位数向零截断；负位数先缩放到整数再舍入（`ROUND(1234.567,-2)` = `1200`）；位数超出 double 精度时恒等 / 归零                                           |
+| `ABS`         | 数学       | `ABS(number)`，恰 1 参                                                             | 绝对值；负值经 `$n.minus(0, value)`                                                                                                                                                |
+| `CONCATENATE` | 文本       | `CONCATENATE(text1, text2, ...)`，至少 1 参                                        | 连接文本（区域展开，逐值 `coerceToText`；区域内空格按空串）                                                                                                                        |
+| `TODAY`       | 日期与时间 | `TODAY()`，0 参                                                                    | volatile；当天 0 点的 1900 系统序列数（本地时间，含伪闰日修正）                                                                                                                    |
+| `NOW`         | 日期与时间 | `NOW()`，0 参                                                                      | volatile；当前时刻序列数（含时间小数部分）                                                                                                                                         |
+| `RAND`        | 数学       | `RAND()`，0 参                                                                     | volatile；`[0, 1)` 随机数                                                                                                                                                          |
+| `RANDBETWEEN` | 数学       | `RANDBETWEEN(bottom, top)`，恰 2 参                                                | volatile；`[bottom, top]` 闭区间随机整数；参数向零截断，非法或 `bottom > top` → `#VALUE!`                                                                                          |
+| `PMT`         | 财务       | `PMT(rate, nper, pv, fv?, type?)`，3~5 参                                          | 等额分期付款额（Excel 符号约定：收入 pv 为正、付出 pmt 为负）；期数为 0 需除法 → `#DIV/0!`，溢出 → `#VALUE!`                                                                       |
+| `FV`          | 财务       | `FV(rate, nper, pmt, pv?, type?)`，3~5 参                                          | 年金终值；`r=0` 退化为 `-(PV + PMT·n)`；溢出 → `#VALUE!`                                                                                                                           |
+| `PV`          | 财务       | `PV(rate, nper, pmt, fv?, type?)`，3~5 参                                          | 年金现值；`(1+r)^n = 0` → `#DIV/0!`；溢出 → `#VALUE!`                                                                                                                              |
+| `IPMT`        | 财务       | `IPMT(rate, per, nper, pv, fv?, type?)`，4~6 参                                    | 某期付款中的利息部分；`per` 截断后不在 1..nper → `#VALUE!`                                                                                                                         |
+| `PPMT`        | 财务       | `PPMT(rate, per, nper, pv, fv?, type?)`，4~6 参                                    | 某期付款中的本金部分（`PMT − IPMT`）；同 `IPMT` 校验                                                                                                                               |
+| `COUNTIF`     | 统计       | `COUNTIF(range, criteria)`，恰 2 参                                                | 条件计数；criteria 支持 `>` `>=` `<` `<=` `<>` `=` 前缀与裸值，数值按数值比较、文本相等不区分大小写                                                                                |
+| `COUNTBLANK`  | 统计       | `COUNTBLANK(range)`，恰 1 参（lazy）                                               | 区域空白格数（按引用几何总数 − 非空白；错误格与空串结果均非空白）                                                                                                                  |
+| `MEDIAN`      | 统计       | `MEDIAN(number1, ...)`，至少 1 参                                                  | 中位数；偶数个取中间两数均值（`$n` 路径）；空集 → `#VALUE!`                                                                                                                        |
+| `LARGE`       | 统计       | `LARGE(array, k)`，恰 2 参                                                         | 第 k 个最大值；k 越界（含空集）→ `#VALUE!`                                                                                                                                         |
+| `SMALL`       | 统计       | `SMALL(array, k)`，恰 2 参                                                         | 第 k 个最小值；同 `LARGE`                                                                                                                                                          |
+| `RANK`        | 统计       | `RANK(number, ref, order?)`，2~3 参                                                | 名次（`order` 省略 / 0 为降序，非 0 升序；同值同名次）；目标不在集合 → `#N/A`                                                                                                      |
+| `IFERROR`     | 逻辑       | `IFERROR(value, value_if_error)`，恰 2 参                                          | 首参为任意错误标记（含 `#N/A`）→ 返回第二参，否则返回首参                                                                                                                          |
+| `TRUE`        | 逻辑       | `TRUE()`，0 参                                                                     | 逻辑值 `TRUE`                                                                                                                                                                      |
+| `FALSE`       | 逻辑       | `FALSE()`，0 参                                                                    | 逻辑值 `FALSE`                                                                                                                                                                     |
+| `XOR`         | 逻辑       | `XOR(logical1, ...)`，至少 1 参                                                    | 真值个数为奇数 → `TRUE`；空集 → `#VALUE!`                                                                                                                                          |
+| `VLOOKUP`     | 查找与引用 | `VLOOKUP(lookup_value, table_array, col_index_num, range_lookup?)`，3~4 参（lazy） | 按首列匹配取对应行第 col 列的值；第 4 参省略 / `TRUE` 近似（升序区域取 ≤ lookup 的最大值）、`FALSE` 精确（文本不区分大小写）；未命中 → `#N/A`；col 越界 → `#REF!`、< 1 → `#VALUE!` |
+| `HLOOKUP`     | 查找与引用 | `HLOOKUP(lookup_value, table_array, row_index_num, range_lookup?)`，3~4 参（lazy） | 同 `VLOOKUP`，沿首行匹配取对应列第 row 行的值                                                                                                                                      |
+| `MATCH`       | 查找与引用 | `MATCH(lookup_value, lookup_array, match_type?)`，2~3 参（lazy）                   | 一维区域内的 1 基相对位置；`match_type` 1（省略）升序取 ≤ lookup 的最大项、0 精确（文本不区分大小写）、-1 降序取 ≥ lookup 的最小项；未命中或二维区域 → `#N/A`                      |
+| `INDEX`       | 查找与引用 | `INDEX(array, row_num, column_num?)`，2~3 参（lazy）                               | 1 基行 / 列序号取值；越界 → `#REF!`、序号 < 1 → `#VALUE!`；单行区域省略列序号时 `row_num` 实为列序号                                                                               |
+| `CHOOSE`      | 查找与引用 | `CHOOSE(index_num, value1, ...)`，至少 2 参（lazy）                                | 1 基序号返回第 n 参的值，未选参数不求值；越界 → `#VALUE!`                                                                                                                          |
+| `ROW`         | 查找与引用 | `ROW(reference?)`，0~1 参（lazy）                                                  | 引用起始格行号（1 基）；省略 → 公式所在行；非引用参数 → `#VALUE!`                                                                                                                  |
+| `COLUMN`      | 查找与引用 | `COLUMN(reference?)`，0~1 参（lazy）                                               | 引用起始格列号（1 基）；省略 → 公式所在列；非引用参数 → `#VALUE!`                                                                                                                  |
+| `LEN`         | 文本       | `LEN(text)`，恰 1 参                                                               | 字符个数（数字按 `coerceToText` 强转后计）                                                                                                                                         |
+| `LEFT`        | 文本       | `LEFT(text, num_chars?)`，1~2 参                                                   | 左侧 `num_chars` 个字符（省略取 1）；份数为负 → `#VALUE!`                                                                                                                          |
+| `RIGHT`       | 文本       | `RIGHT(text, num_chars?)`，1~2 参                                                  | 右侧 `num_chars` 个字符（省略取 1）；份数为负 → `#VALUE!`                                                                                                                          |
+| `MID`         | 文本       | `MID(text, start_num, num_chars)`，恰 3 参                                         | 从 `start_num` 起 `num_chars` 个字符；`start_num < 1` 或份数为负 → `#VALUE!`                                                                                                       |
+| `UPPER`       | 文本       | `UPPER(text)`，恰 1 参                                                             | 转大写                                                                                                                                                                             |
+| `LOWER`       | 文本       | `LOWER(text)`，恰 1 参                                                             | 转小写                                                                                                                                                                             |
+| `TRIM`        | 文本       | `TRIM(text)`，恰 1 参                                                              | 去首尾空格并把内部连续空格压缩为一个（仅 ASCII 空格）                                                                                                                              |
+| `EXACT`       | 文本       | `EXACT(text1, text2)`，恰 2 参                                                     | 区分大小写的文本比较                                                                                                                                                               |
+| `SUBSTITUTE`  | 文本       | `SUBSTITUTE(text, old_text, new_text, instance_num?)`，3~4 参                      | 替换子串（区分大小写）；省略第 4 参替换全部，指定则只替换第 n 次出现（不足则原样返回）；`instance_num < 1` → `#VALUE!`                                                             |
+| `REPLACE`     | 文本       | `REPLACE(old_text, start_num, num_chars, new_text)`，恰 4 参                       | 按字符位置与个数替换一段；`start_num < 1` 或 `num_chars` 为负 → `#VALUE!`                                                                                                          |
 
-`FormulaFunctionCategory` 全集为 `财务 / 统计 / 查找与引用 / 文本 / 逻辑 / 数学 / 日期与时间`；17 个内置函数全部归类（见上表），宿主经 `registerFormulaFunction` 注册且未声明 `meta.category` 的函数 `listFormulaFunctions()` 返回 `category: undefined`。
+`FormulaFunctionCategory` 全集为 `财务 / 统计 / 查找与引用 / 文本 / 逻辑 / 数学 / 日期与时间`；49 个内置函数全部归类（见上表），宿主经 `registerFormulaFunction` 注册且未声明 `meta.category` 的函数 `listFormulaFunctions()` 返回 `category: undefined`。
 
 `SUM` / `AVERAGE` / `ROUND` / `ABS` 与四则 `+` `-` `*` `/` 经 peer 依赖 `@cat-kit/core`（`>=1.2.1`）的 `$n` / `n().fixed` 高精度路径计算，**结果仍写入 JS `number`**（`typeof data.v === 'number'`，不是 Decimal / 字符串）。幂 `^`、百分比 `%`、一元 `+/-`、`&`、比较不走 `$n`。`MAX` / `MIN` / `COUNT` / `COUNTA` / 逻辑 / 文本 / 易失性函数不走 `$n`。
 
@@ -538,7 +568,7 @@ try {
 
 ### 公式求值得到 `#NAME?`
 
-原因：调用的函数未注册（内置 17 个之外且未 `registerFormulaFunction`），或标识符不匹配单元格引用形态（如裸写表名 `Sheet2` 不带 `!`）。修复：注册函数，或补全跨表前缀 `Sheet2!A1`；写公式前完成注册可保证首次求值即命中。
+原因：调用的函数未注册（内置 49 个之外且未 `registerFormulaFunction`），或标识符不匹配单元格引用形态（如裸写表名 `Sheet2` 不带 `!`）。修复：注册函数，或补全跨表前缀 `Sheet2!A1`；写公式前完成注册可保证首次求值即命中。
 
 ### 导入 xlsx 后公式列全为 `#NAME?` 或 `#ERROR!`
 
