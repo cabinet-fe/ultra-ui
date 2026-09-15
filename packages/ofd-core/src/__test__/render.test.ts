@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { parseOfdContainer } from '../parse'
 import { pageToSvg } from '../render'
 import { openOfdZip } from '../zip'
-import { buildZip, expectParseError, utf8 } from './fixtures'
+import { buildTtf, buildZip, expectParseError, TRIANGLE_CONTOUR, utf8 } from './fixtures'
 
 const OFD_NS = 'http://www.ofdservice.org/ofd'
 
@@ -178,5 +178,102 @@ describe('pageToSvg', () => {
     expect(pageError.reason).toBe('out-of-range')
     const docError = await expectParseError(() => pageToSvg(zip, container, 1, 0))
     expect(docError.reason).toBe('out-of-range')
+  })
+})
+
+// ---- 内嵌字体文本（P3）：声明 FontFile 时按 glyph 轮廓输出 path ----
+
+const SQUARE_CONTOUR = [
+  { x: 0, y: 0, on: true },
+  { x: 400, y: 0, on: true },
+  { x: 400, y: 400, on: true },
+  { x: 0, y: 400, on: true }
+]
+
+/** A→三角形（宽 500）、B→正方形（宽 400），unitsPerEm 1000 */
+const EMBEDDED_FONT = buildTtf({
+  cmap: { 65: 1, 66: 2 },
+  glyphs: [{}, { contours: [TRIANGLE_CONTOUR] }, { contours: [SQUARE_CONTOUR] }],
+  advances: [600, 500, 400]
+})
+
+function embeddedDocumentXml(): string {
+  return (
+    `<?xml version="1.0" encoding="UTF-8"?><ofd:Document xmlns:ofd="${OFD_NS}">` +
+    '<ofd:CommonData><ofd:PageWidth>210</ofd:PageWidth><ofd:PageHeight>297</ofd:PageHeight></ofd:CommonData>' +
+    '<ofd:DocumentRes ResLoc="DocumentRes.xml"/>' +
+    '<ofd:Pages><ofd:Page BaseLoc="Pages/Page_0"/></ofd:Pages>' +
+    '</ofd:Document>'
+  )
+}
+
+function embeddedDocumentResXml(): string {
+  return (
+    `<?xml version="1.0" encoding="UTF-8"?><ofd:Res xmlns:ofd="${OFD_NS}">` +
+    '<ofd:Fonts>' +
+    '<ofd:Font ID="9" FontName="内嵌" FontFile="Res/font.ttf"/>' +
+    // 字体文件损坏 / 未放入容器：渲染时回退系统字体
+    '<ofd:Font ID="8" FontName="损坏" FontFile="Res/broken.ttf"/>' +
+    '<ofd:Font ID="7" FontName="缺失" FontFile="Res/missing.ttf"/>' +
+    '</ofd:Fonts></ofd:Res>'
+  )
+}
+
+function embeddedPageXml(): string {
+  return (
+    `<?xml version="1.0" encoding="UTF-8"?><ofd:Page xmlns:ofd="${OFD_NS}"><ofd:Content>` +
+    '<ofd:Layer ID="1" Type="body">' +
+    '<ofd:TextObject ID="et1" Boundary="0 0 100 30" FontID="9" FontSize="10" FillColor="0 255 0">' +
+    '<ofd:TextCode X="0" Y="10" DeltaX="2">AB</ofd:TextCode>' +
+    '</ofd:TextObject>' +
+    '<ofd:TextObject ID="et2" Boundary="0 30 100 30" FontID="9" FontSize="10">' +
+    '<ofd:TextCode X="0" Y="10">A</ofd:TextCode>' +
+    '</ofd:TextObject>' +
+    '<ofd:TextObject ID="bt" Boundary="0 60 100 30" FontID="8" FontSize="10" FillColor="0 0 255">' +
+    '<ofd:TextCode X="0" Y="10">坏&lt;字&gt;</ofd:TextCode>' +
+    '</ofd:TextObject>' +
+    '<ofd:TextObject ID="mt" Boundary="0 90 100 30" FontID="7" FontSize="10">' +
+    '<ofd:TextCode X="0" Y="10">缺资源</ofd:TextCode>' +
+    '</ofd:TextObject>' +
+    '</ofd:Layer></ofd:Content></ofd:Page>'
+  )
+}
+
+async function buildEmbeddedFixture() {
+  const data = await buildZip([
+    { name: 'OFD.xml', data: utf8(ofdXml()) },
+    { name: 'Doc_0/Document.xml', data: utf8(embeddedDocumentXml()) },
+    { name: 'Doc_0/DocumentRes.xml', data: utf8(embeddedDocumentResXml()) },
+    { name: 'Doc_0/Pages/Page_0/Page.xml', data: utf8(embeddedPageXml()) },
+    { name: 'Doc_0/Res/font.ttf', data: EMBEDDED_FONT },
+    { name: 'Doc_0/Res/broken.ttf', data: utf8('not a ttf') }
+  ])
+  const zip = openOfdZip(data)
+  return { zip, container: await parseOfdContainer(zip) }
+}
+
+describe('内嵌字体文本', () => {
+  it('声明 FontFile 的文本按 glyph 轮廓输出 path，同一字体复用解析缓存', async () => {
+    const { zip, container } = await buildEmbeddedFixture()
+    const svg = await pageToSvg(zip, container, 0, 0)
+
+    // A=三角形，DeltaX=2 后 B=正方形，字号 10 / unitsPerEm 1000 → 缩放 0.01，基线 Y=10
+    expect(svg).toContain(
+      '<path d="M 0 10 L 5 10 L 2.5 5 Z M 2 10 L 6 10 L 6 6 L 2 6 Z" fill="rgb(0 255 0)"/>'
+    )
+    // 第二个文本对象同字体复用解析缓存，TextCode Y 相对自身 Boundary
+    expect(svg).toContain('<path d="M 0 10 L 5 10 L 2.5 5 Z" fill="#000"/>')
+    // 只有损坏/缺失字体的两个对象回退为 text
+    expect(svg.match(/<text /g)).toHaveLength(2)
+  })
+
+  it('内嵌字体损坏或资源缺失时回退系统字体，文字内容完整不缺字', async () => {
+    const { zip, container } = await buildEmbeddedFixture()
+    const svg = await pageToSvg(zip, container, 0, 0)
+
+    expect(svg).toContain('font-family="损坏"')
+    expect(svg).toContain('>坏&lt;字&gt;</text>')
+    expect(svg).toContain('font-family="缺失"')
+    expect(svg).toContain('>缺资源</text>')
   })
 })

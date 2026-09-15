@@ -123,7 +123,13 @@ export function parseDocumentRes(xml: string, source: string): OfdDocResources {
   for (const group of childrenNamed(root, 'Fonts')) {
     for (const font of childrenNamed(group, 'Font')) {
       const id = font.getAttribute('ID')
-      if (id !== null) fonts.push({ id, fontName: normalizedText(font.getAttribute('FontName')) })
+      if (id !== null) {
+        fonts.push({
+          id,
+          fontName: normalizedText(font.getAttribute('FontName')),
+          fontFile: normalizedText(font.getAttribute('FontFile'))
+        })
+      }
     }
   }
   for (const group of childrenNamed(root, 'MultiMedias')) {

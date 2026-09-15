@@ -8,6 +8,8 @@
 
 import { IDENTITY_MATRIX, multiplyMatrix, type OfdBoundary, type OfdMatrix } from './ctm'
 import { OfdParseError } from './error'
+import { glyphPathD, parseEmbeddedFont, type OfdEmbeddedFont } from './font'
+import { formatNumber, roundTo } from './number'
 import {
   parsePageContent,
   type OfdCompositeObject,
@@ -15,6 +17,7 @@ import {
   type OfdPageObject,
   type OfdPathCommand,
   type OfdPathObject,
+  type OfdTextCode,
   type OfdTextObject
 } from './page-objects'
 import { joinZipPath } from './parse'
@@ -32,6 +35,8 @@ interface RenderContext {
   zip: OfdZip
   doc: OfdDoc
   objectsById: ReadonlyMap<string, OfdPageObject>
+  /** 内嵌字体解析缓存：null 表示未内嵌或解析失败（回退系统字体） */
+  fonts: Map<string, OfdEmbeddedFont | null>
 }
 
 /** 输出指定文档指定页的完整 SVG 字符串 */
@@ -59,7 +64,7 @@ export async function pageToSvg(
   const content = parsePageContent(await zip.text(page.location), page.location)
   // 页级 CommonData 覆盖文档默认尺寸；两者都未声明时按 A4 兜底
   const size = page.size ?? doc.pageSize ?? { width: 210, height: 297 }
-  const context: RenderContext = { zip, doc, objectsById: content.objectsById }
+  const context: RenderContext = { zip, doc, objectsById: content.objectsById, fonts: new Map() }
 
   // 签章/注释层对象与正文层同一通道渲染，按图层声明顺序叠加；只呈现图片，不验签
   const layers = await Promise.all(
@@ -134,7 +139,68 @@ async function renderComposite(
   return renderObject(referenced, parentCtm, object.boundary, context, nextVisiting)
 }
 
-function renderText(object: OfdTextObject, context: RenderContext): string {
+/** 文本渲染：声明内嵌字体（Font@FontFile）时按 glyph 轮廓输出 path，否则回退系统字体 text */
+async function renderText(object: OfdTextObject, context: RenderContext): Promise<string> {
+  const font = await loadEmbeddedFont(object.fontId, context)
+  if (!font || object.fontSize === null) return renderSystemFontText(object, context)
+  const fontSize = object.fontSize
+  const d = object.codes
+    .map((code) => textCodePathD(font, code, fontSize))
+    .filter((part) => part !== '')
+    .join(' ')
+  if (d === '') return ''
+  return `<path d="${d}" fill="${object.fillColor ?? DEFAULT_TEXT_FILL}"/>`
+}
+
+/** 加载 TextObject@FontID 声明的内嵌 TTF；缺失或损坏返回 null（不阻断整页渲染） */
+async function loadEmbeddedFont(
+  fontId: string | null,
+  context: RenderContext
+): Promise<OfdEmbeddedFont | null> {
+  if (fontId === null) return null
+  const cached = context.fonts.get(fontId)
+  if (cached !== undefined) return cached
+  const decl = context.doc.resources.fonts.find((font) => font.id === fontId)
+  let font: OfdEmbeddedFont | null = null
+  if (decl?.fontFile) {
+    try {
+      font = parseEmbeddedFont(
+        await context.zip.read(joinZipPath(context.doc.dir, decl.fontFile)),
+        decl.fontFile
+      )
+    } catch {
+      font = null // 内嵌字体不可用：回退系统字体
+    }
+  }
+  context.fonts.set(fontId, font)
+  return font
+}
+
+/**
+ * 单个 TextCode 的 glyph 路径：从 X/Y 基线原点起笔逐字排布。
+ * DeltaX/DeltaY 按标准是「相对前一个字符的位移」，声明时替代字形步进宽度。
+ */
+function textCodePathD(font: OfdEmbeddedFont, code: OfdTextCode, fontSize: number): string {
+  const scale = fontSize / font.unitsPerEm
+  const parts: string[] = []
+  let penX = code.x ?? 0
+  let penY = code.y ?? 0
+  let dxIndex = 0
+  let dyIndex = 0
+  for (const char of code.text) {
+    const gid = font.glyphIndexOf(char.codePointAt(0)!) ?? 0
+    const d = glyphPathD(font, gid, fontSize, penX, penY)
+    if (d !== '') parts.push(d)
+    const deltaX = dxIndex < code.deltaX.length ? code.deltaX[dxIndex++] : null
+    penX += deltaX ?? font.advanceWidth(gid) * scale
+    const deltaY = dyIndex < code.deltaY.length ? code.deltaY[dyIndex++] : null
+    penY += deltaY ?? 0
+  }
+  return parts.join(' ')
+}
+
+/** 无内嵌字体可用时的系统字体回退：保留 P2 的 text 输出与文字内容 */
+function renderSystemFontText(object: OfdTextObject, context: RenderContext): string {
   const fontFamily = resolveFontFamily(object.fontId, context)
   return object.codes
     .map((code) => {
@@ -273,15 +339,6 @@ function attr(name: string, value: number | string | null): string | null {
 
 function listAttr(name: string, values: number[]): string | null {
   return values.length === 0 ? null : `${name}="${values.map(formatNumber).join(' ')}"`
-}
-
-/** 数值转 SVG 属性文本：截掉浮点噪声（如 0.30000000000000004 → 0.3） */
-function formatNumber(value: number): string {
-  return String(roundTo(value, 4))
-}
-
-function roundTo(value: number, digits: number): number {
-  return Math.round(value * 10 ** digits) / 10 ** digits
 }
 
 function escapeXml(text: string): string {

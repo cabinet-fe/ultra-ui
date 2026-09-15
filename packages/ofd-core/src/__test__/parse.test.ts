@@ -97,7 +97,7 @@ describe('parseOfd', () => {
     ])
     // 页级 CommonData 覆盖文档默认尺寸
     expect(first.pages[1].size).toEqual({ width: 14800, height: 21000 })
-    expect(first.resources.fonts).toEqual([{ id: '0', fontName: '宋体' }])
+    expect(first.resources.fonts).toEqual([{ id: '0', fontName: '宋体', fontFile: null }])
     expect(first.resources.medias).toEqual([{ id: '1', type: 'g', location: 'Res/image_0.png' }])
 
     const second = ofd.docs[1]

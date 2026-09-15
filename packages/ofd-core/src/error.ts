@@ -15,6 +15,8 @@ export type OfdParseErrorReason =
   | 'invalid-structure'
   /** 请求的文档或页序号超出容器范围 */
   | 'out-of-range'
+  /** 内嵌 TTF 字体二进制数据不合法 */
+  | 'invalid-font'
 
 /** OFD 解析失败抛出的类型化错误：靠 `reason` 分类，不靠解析 message */
 export class OfdParseError extends Error {

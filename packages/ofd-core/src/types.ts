@@ -17,6 +17,8 @@ export interface OfdPageSize {
 export interface OfdFontDecl {
   id: string
   fontName: string | null
+  /** Font@FontFile：内嵌字体文件路径（相对文档根目录）；未内嵌为 null */
+  fontFile: string | null
 }
 
 /** DocumentRes.xml 中的多媒体资源声明（本层只登记声明，不加载内容） */
