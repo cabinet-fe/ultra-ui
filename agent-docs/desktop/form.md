@@ -1,7 +1,7 @@
 ---
 title: UForm 表单
-description: "表单容器组件：拦截插槽中带 field 的控件，自动生成表单项并按 field 路径读写 model，无需手写表单项、也不在控件上用 v-model（区别于 Element Plus / Ant Design）；字段值需转换或多控件组合时用 UFormItem 绑定 field。另提供全量/按字段校验、reset、showModified 与 field:update 字段事件。"
-aliases: ["UForm", "Form", "el-form", "表单容器", "field:change"]
+description: '表单容器组件：拦截插槽中带 field 的控件，自动生成表单项并按 field 路径读写 model，无需手写表单项、也不在控件上用 v-model（区别于 Element Plus / Ant Design）；字段值需转换或多控件组合时用 UFormItem 绑定 field。另提供全量/按字段校验、reset、showModified 与 field:update 字段事件。'
+aliases: ['UForm', 'Form', 'el-form', '表单容器', 'field:change']
 keywords:
   - field
   - field:update
@@ -121,19 +121,19 @@ export interface FormExposed {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `model` | `Record<string, any>` | — | 是（field 绑定时） | 必须传 `reactive` 对象；不传时 `field` 绑定与 `field:update` 均不工作 |
-| `cols` | `number` | 断点自动 | 否 | 正整数；传入后所有断点固定该列数，不传按 xs 1 / md 2 / lg 3 / xl 4 自动排列 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 否 | 下发到控件；控件自身 `size` 优先 |
-| `showModified` | `boolean` | `false` | 否 | 开启后逐字段对比当前值与基准值，不同则在控件下方以只读控件展示基准值 |
-| `modifiedLabel` | `string` | `'变更前：'` | 否 | 仅 `showModified` 开启时渲染 |
-| `initialModel` | `Record<string, any>` | model 引用快照 | 否 | 变更判定基准，优先于 reset 快照；结构须与 `model` 字段对应 |
-| `labelWidth` | `string \| number` | `100`（全局配置） | 否 | number 单位 px；string 原样（如 `'110px'`、`'10em'`） |
-| `labelPosition` | `'top' \| 'left'` | `'left'` | 否 | `'left'` 时 label 追加冒号；`'top'` 不追加且忽略宽度 |
-| `noTips` | `boolean` | `false` | 否 | `true` 时隐藏全部校验错误文本 |
-| `readonly` | `boolean` | `false` | 否 | 下发控件并显示只读态；错误提示区隐藏 |
-| `disabled` | `boolean` | `false` | 否 | 下发控件；控件自身 `disabled` 优先 |
+| 参数            | 类型                              | 默认              |        必填        | 约束                                                                        |
+| --------------- | --------------------------------- | ----------------- | :----------------: | --------------------------------------------------------------------------- |
+| `model`         | `Record<string, any>`             | —                 | 是（field 绑定时） | 必须传 `reactive` 对象；不传时 `field` 绑定与 `field:update` 均不工作       |
+| `cols`          | `number`                          | 断点自动          |         否         | 正整数；传入后所有断点固定该列数，不传按 xs 1 / md 2 / lg 3 / xl 4 自动排列 |
+| `size`          | `'small' \| 'default' \| 'large'` | `'default'`       |         否         | 下发到控件；控件自身 `size` 优先                                            |
+| `showModified`  | `boolean`                         | `false`           |         否         | 开启后逐字段对比当前值与基准值，不同则在控件下方以只读控件展示基准值        |
+| `modifiedLabel` | `string`                          | `'变更前：'`      |         否         | 仅 `showModified` 开启时渲染                                                |
+| `initialModel`  | `Record<string, any>`             | model 引用快照    |         否         | 变更判定基准，优先于 reset 快照；结构须与 `model` 字段对应                  |
+| `labelWidth`    | `string \| number`                | `100`（全局配置） |         否         | number 单位 px；string 原样（如 `'110px'`、`'10em'`）                       |
+| `labelPosition` | `'top' \| 'left'`                 | `'left'`          |         否         | `'left'` 时 label 追加冒号；`'top'` 不追加且忽略宽度                        |
+| `noTips`        | `boolean`                         | `false`           |         否         | `true` 时隐藏全部校验错误文本                                               |
+| `readonly`      | `boolean`                         | `false`           |         否         | 下发控件并显示只读态；错误提示区隐藏                                        |
+| `disabled`      | `boolean`                         | `false`           |         否         | 下发控件；控件自身 `disabled` 优先                                          |
 
 ## 方法与事件
 
@@ -224,7 +224,13 @@ const departments = [
 </script>
 
 <template>
-  <u-form ref="formRef" :model="formData" label-width="100px" :cols="1" @field:update="onFieldUpdate">
+  <u-form
+    ref="formRef"
+    :model="formData"
+    label-width="100px"
+    :cols="1"
+    @field:update="onFieldUpdate"
+  >
     <u-select label="部门" field="department" :options="departments" />
     <u-input label="职位" field="position" />
     <u-input label="备注" field="remark" />
@@ -346,7 +352,10 @@ const formData = reactive({
     <u-form-item
       label="尺寸区间"
       field="sizeRange"
-      :rules="{ validator: (v) => (v && v.min != null && v.max != null && v.min > v.max ? '最小尺寸不能大于最大尺寸' : '') }"
+      :rules="{
+        validator: (v) =>
+          v && v.min != null && v.max != null && v.min > v.max ? '最小尺寸不能大于最大尺寸' : ''
+      }"
     >
       <u-number-input v-model="formData.sizeRange.min" placeholder="最小" />
       <span>—</span>
@@ -359,6 +368,7 @@ const formData = reactive({
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库表单的绑定方式是「单字段控件写 `field`」，**不是** Element Plus / Ant Design 那样为每个字段外层手写 `el-form-item` / `Form.Item` 再给控件 `v-model`。单字段场景不要手写外层表单项（`UForm` 会自动生成）；只有值转换与多控件组合才手写 `UFormItem`。
 > - `field` 与 `v-model`（`modelValue`）互斥：**有 `field` 就禁止再写 `v-model`**。并用时显示值来自 `v-model`，修改还会同时写入 `model`，出现两份状态。
 > - 控件值需要转换（如开关把 `undefined`/`true` 归一为布尔值）或多控件组合成一个字段时，用 `UFormItem` 绑 `field`、内部控件自行 `v-model` 或 `:model-value`/`@update:model-value`，**内部控件不要再写 `field`**。

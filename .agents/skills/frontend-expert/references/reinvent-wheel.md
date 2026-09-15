@@ -50,10 +50,10 @@ import { formatAmount } from '@/utils/number'
 
 ## 正例流程
 
-1. 搜 `utils` / `helpers` / 同名函数  
-2. 查 `package.json` 是否已有 dayjs、lodash-es、等  
-3. 查已安装 Skill 是否覆盖该库  
-4. 仍不够 → 用现有依赖的 API；若要新 npm，先问用户  
+1. 搜 `utils` / `helpers` / 同名函数
+2. 查 `package.json` 是否已有 dayjs、lodash-es、等
+3. 查已安装 Skill 是否覆盖该库
+4. 仍不够 → 用现有依赖的 API；若要新 npm，先问用户
 
 ## 允许新建 util 的条件
 

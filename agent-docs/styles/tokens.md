@@ -1,8 +1,33 @@
 ---
-title: "--u-* 设计令牌 CSS 变量参考"
+title: '--u-* 设计令牌 CSS 变量参考'
 description: '@veltra/styles 注入到 html 的全量 --u-* CSS 变量：语义色、色阶、alpha 透明度、背景分层、文字色、边框、阴影、圆角、字号、动效、断点，以及 table、button、tag、nav 等组件级 token 的分组清单与命名规则。'
 aliases: [设计令牌, tokens, CSS 变量, css 变量, var(--u-, 主题变量, 样式变量]
-keywords: [--u-color-primary, --u-nav-bg-color, --u-focus-ring, --u-border, --u-shadow, --u-text-color-title, --u-radius-default, use-var, color-a, component-var, cssVar, alpha, 色阶, 圆角, 阴影, 暗色模式, 侧栏导航, 主题定制, 自定义样式, 面板样式, 边框, 背景色, 文字色]
+keywords:
+  [
+    --u-color-primary,
+    --u-nav-bg-color,
+    --u-focus-ring,
+    --u-border,
+    --u-shadow,
+    --u-text-color-title,
+    --u-radius-default,
+    use-var,
+    color-a,
+    component-var,
+    cssVar,
+    alpha,
+    色阶,
+    圆角,
+    阴影,
+    暗色模式,
+    侧栏导航,
+    主题定制,
+    自定义样式,
+    面板样式,
+    边框,
+    背景色,
+    文字色
+  ]
 ---
 
 # --u-* 设计令牌 CSS 变量参考
@@ -31,7 +56,9 @@ loadTheme()
 .brand-block {
   color: fn.use-var(text-color, title); // var(--u-text-color-title)
   background: fn.use-var(bg-color, top); // var(--u-bg-color-top)
-  border-bottom: fn.use-var(border); // var(--u-border-color) var(--u-border-width) var(--u-border-style)
+  border-bottom: fn.use-var(
+    border
+  ); // var(--u-border-color) var(--u-border-width) var(--u-border-style)
 }
 ```
 
@@ -59,22 +86,22 @@ loadTheme()
 
 ### 语义色与派生色阶
 
-| 变量 | 说明 |
-| --- | --- |
-| `--u-color-{type}` | 7 个语义色：`primary` `success` `warning` `danger` `info` `disabled` `default` |
-| `--u-color-{type}-light-{n}` / `-dark-{n}` | 与白/黑混合的色阶，`n` 取 `1 3 5 7 9`；如 `--u-color-primary-light-9` |
-| `--u-color-{type}-a-{n}` | 语义色 alpha 透明度，`n` 取 `4 5 8 10 11 16 22 28 35 40 50 52 60 70 86` |
+| 变量                                       | 说明                                                                           |
+| ------------------------------------------ | ------------------------------------------------------------------------------ |
+| `--u-color-{type}`                         | 7 个语义色：`primary` `success` `warning` `danger` `info` `disabled` `default` |
+| `--u-color-{type}-light-{n}` / `-dark-{n}` | 与白/黑混合的色阶，`n` 取 `1 3 5 7 9`；如 `--u-color-primary-light-9`          |
+| `--u-color-{type}-a-{n}`                   | 语义色 alpha 透明度，`n` 取 `4 5 8 10 11 16 22 28 35 40 50 52 60 70 86`        |
 
 同规则生成 `--u-text-color-{type}-a-{n}`、`--u-border-color-a-{n}`、`--u-shadow-color-a-{n}`。
 
 ### 背景组
 
-| 变量 | 说明 |
-| --- | --- |
-| `--u-bg-color-bottom` / `-middle` / `-top` / `-hover` / `-black` | 五层背景：页底、卡面、浮面、悬停、纯黑 |
-| `--u-bg-color-{type}-alpha` | 背景 hex 值叠 `aa` 透明度（固定档） |
-| `--u-bg-color-{type}-a-70` | 背景 alpha token，仅 `70` 一档 |
-| `--u-bg-filter` | `bg.filter.blur + ' ' + saturate` 合成；`blur` 为 `'none'` 时整体 `'none'` |
+| 变量                                                             | 说明                                                                       |
+| ---------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `--u-bg-color-bottom` / `-middle` / `-top` / `-hover` / `-black` | 五层背景：页底、卡面、浮面、悬停、纯黑                                     |
+| `--u-bg-color-{type}-alpha`                                      | 背景 hex 值叠 `aa` 透明度（固定档）                                        |
+| `--u-bg-color-{type}-a-70`                                       | 背景 alpha token，仅 `70` 一档                                             |
+| `--u-bg-filter`                                                  | `bg.filter.blur + ' ' + saturate` 合成；`blur` 为 `'none'` 时整体 `'none'` |
 
 ### 文字色组
 
@@ -82,35 +109,35 @@ loadTheme()
 
 ### 边框组
 
-| 变量 | 说明 |
-| --- | --- |
-| `--u-border-color` / `--u-border-muted-color` | 结构性边框色 / 弱化边框色（表单控件描边） |
-| `--u-border-width` / `--u-border-style` | 宽度（数字补 px）、样式 |
-| `--u-border` | 简写：`var(--u-border-color) var(--u-border-width) var(--u-border-style)` |
-| `--u-border-muted` | 简写：`var(--u-border-muted-color) var(--u-border-width) var(--u-border-style)` |
+| 变量                                          | 说明                                                                            |
+| --------------------------------------------- | ------------------------------------------------------------------------------- |
+| `--u-border-color` / `--u-border-muted-color` | 结构性边框色 / 弱化边框色（表单控件描边）                                       |
+| `--u-border-width` / `--u-border-style`       | 宽度（数字补 px）、样式                                                         |
+| `--u-border`                                  | 简写：`var(--u-border-color) var(--u-border-width) var(--u-border-style)`       |
+| `--u-border-muted`                            | 简写：`var(--u-border-muted-color) var(--u-border-width) var(--u-border-style)` |
 
 ### 阴影组
 
-| 变量 | 说明 |
-| --- | --- |
-| `--u-shadow-color` / `-x` / `-y` / `-blur` / `-spread` | 阴影五要素 |
-| `--u-shadow` | 简写：五要素按序拼接 |
-| `--u-shadow-sm` | 低层级阴影（卡片等贴面元素），完整 box-shadow |
-| `--u-shadow-lg` | 高层级阴影（弹窗、下拉等浮层），完整 box-shadow |
-| `--u-shadow-emboss` | 浮雕阴影；非浮雕主题为 `none` |
+| 变量                                                   | 说明                                            |
+| ------------------------------------------------------ | ----------------------------------------------- |
+| `--u-shadow-color` / `-x` / `-y` / `-blur` / `-spread` | 阴影五要素                                      |
+| `--u-shadow`                                           | 简写：五要素按序拼接                            |
+| `--u-shadow-sm`                                        | 低层级阴影（卡片等贴面元素），完整 box-shadow   |
+| `--u-shadow-lg`                                        | 高层级阴影（弹窗、下拉等浮层），完整 box-shadow |
+| `--u-shadow-emboss`                                    | 浮雕阴影；非浮雕主题为 `none`                   |
 
 ### 尺寸组（数字写入时补 px）
 
-| 变量 | 默认（lightTheme） |
-| --- | --- |
-| `--u-radius-small` / `-default` / `-large` | 6 / 8 / 12px |
-| `--u-form-component-height-small` / `-default` / `-large` | 24 / 32 / 40px |
-| `--u-gap-small` / `-default` / `-large` | 6 / 8 / 12px |
-| `--u-font-family` | system-ui 字体栈 |
-| `--u-font-size-title-{size}` | 14 / 16 / 18px |
-| `--u-font-size-main-{size}` | 12 / 14 / 16px |
-| `--u-font-size-assist-{size}` | 12 / 12 / 14px |
-| `--u-breakpoint-xs` / `-sm` / `-md` / `-lg` | 600 / 960 / 1280 / 1920px |
+| 变量                                                      | 默认（lightTheme）        |
+| --------------------------------------------------------- | ------------------------- |
+| `--u-radius-small` / `-default` / `-large`                | 6 / 8 / 12px              |
+| `--u-form-component-height-small` / `-default` / `-large` | 24 / 32 / 40px            |
+| `--u-gap-small` / `-default` / `-large`                   | 6 / 8 / 12px              |
+| `--u-font-family`                                         | system-ui 字体栈          |
+| `--u-font-size-title-{size}`                              | 14 / 16 / 18px            |
+| `--u-font-size-main-{size}`                               | 12 / 14 / 16px            |
+| `--u-font-size-assist-{size}`                             | 12 / 12 / 14px            |
+| `--u-breakpoint-xs` / `-sm` / `-md` / `-lg`               | 600 / 960 / 1280 / 1920px |
 
 ### 动效组
 
@@ -120,35 +147,35 @@ loadTheme()
 
 来源 `theme/component-css-vars.ts`，分 light / dark 两套，`loadTheme` 按主题 `series` 选择注入。按组件分组（组内只列代表，其余同模式）：
 
-| 组 | 变量模式 |
-| --- | --- |
-| 焦点 | `--u-focus-ring`（light：`0 0 0 3px var(--u-color-primary-a-28)`；dark：`a-35`） |
-| table | `--u-table-border-color`、`--u-table-header-bg` / `-color`、`--u-table-stripe-bg` / `-color`、`--u-table-hover-bg` / `-color`、`--u-table-current-bg` / `-color`、`--u-table-checked-bg` / `-color` |
-| button | `--u-button-default-bg` / `-border` / `-color` / `-hover-bg` / `-hover-border`；`--u-button-{type}-plain-bg` / `-plain-shadow`（`{type}`：primary success warning danger info） |
-| tag | `--u-tag-primary-bg` / `-color` / `-border` × 5 语义色；尺寸 `--u-tag-small` / `-default` / `-large`（20 / 24 / 28px） |
-| select | `--u-select-option-hover-bg` / `-hover-color` / `-selected-bg` / `-selected-color` |
-| auto-complete | `--u-auto-complete-option-hover-bg` / `-hover-color` / `-selected-bg` / `-selected-color` |
-| contextmenu | `--u-contextmenu-item-hover-bg` / `-hover-color`；`--u-contextmenu-item-height-small` / `-default` / `-large`（24 / 28 / 32px） |
-| tree | `--u-tree-node-selected-bg` / `-selected-color` |
-| cascade | `--u-cascade-node-active-bg` / `-active-color` |
-| tabs | `--u-tabs-bar-bg`、`--u-tabs-active-bg`（dark 下 `bar-bg` 用 `bg-color-bottom`） |
-| paginator | `--u-paginator-btn-hover-bg` / `-hover-color` / `-active-bg` / `-active-color` |
-| expression-editor | `--u-expression-editor-chip-bg` / `-color` |
-| file-picker | `--u-file-picker-hover-bg` |
-| card | `--u-card-header-bg`、`--u-card-action-bg`、`--u-card-padding-small` / `-default` / `-large`（8 / 12 / 16px）、`--u-card-radius` |
-| switch | `--u-switch-height-small` / `-default` / `-large`（18 / 20 / 24px） |
-| breadcrumb | `--u-breadcrumb-small` / `-default` / `-large`（20 / 22 / 24px） |
-| 混合 token | `--u-batch-edit-form-header-bg`、`--u-kbd-inset-shadow` / `-border-shadow` / `-drop-shadow`（依赖色非 hex 时跳过，组件侧 fallback 接管） |
+| 组                | 变量模式                                                                                                                                                                                            |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 焦点              | `--u-focus-ring`（light：`0 0 0 3px var(--u-color-primary-a-28)`；dark：`a-35`）                                                                                                                    |
+| table             | `--u-table-border-color`、`--u-table-header-bg` / `-color`、`--u-table-stripe-bg` / `-color`、`--u-table-hover-bg` / `-color`、`--u-table-current-bg` / `-color`、`--u-table-checked-bg` / `-color` |
+| button            | `--u-button-default-bg` / `-border` / `-color` / `-hover-bg` / `-hover-border`；`--u-button-{type}-plain-bg` / `-plain-shadow`（`{type}`：primary success warning danger info）                     |
+| tag               | `--u-tag-primary-bg` / `-color` / `-border` × 5 语义色；尺寸 `--u-tag-small` / `-default` / `-large`（20 / 24 / 28px）                                                                              |
+| select            | `--u-select-option-hover-bg` / `-hover-color` / `-selected-bg` / `-selected-color`                                                                                                                  |
+| auto-complete     | `--u-auto-complete-option-hover-bg` / `-hover-color` / `-selected-bg` / `-selected-color`                                                                                                           |
+| contextmenu       | `--u-contextmenu-item-hover-bg` / `-hover-color`；`--u-contextmenu-item-height-small` / `-default` / `-large`（24 / 28 / 32px）                                                                     |
+| tree              | `--u-tree-node-selected-bg` / `-selected-color`                                                                                                                                                     |
+| cascade           | `--u-cascade-node-active-bg` / `-active-color`                                                                                                                                                      |
+| tabs              | `--u-tabs-bar-bg`、`--u-tabs-active-bg`（dark 下 `bar-bg` 用 `bg-color-bottom`）                                                                                                                    |
+| paginator         | `--u-paginator-btn-hover-bg` / `-hover-color` / `-active-bg` / `-active-color`                                                                                                                      |
+| expression-editor | `--u-expression-editor-chip-bg` / `-color`                                                                                                                                                          |
+| file-picker       | `--u-file-picker-hover-bg`                                                                                                                                                                          |
+| card              | `--u-card-header-bg`、`--u-card-action-bg`、`--u-card-padding-small` / `-default` / `-large`（8 / 12 / 16px）、`--u-card-radius`                                                                    |
+| switch            | `--u-switch-height-small` / `-default` / `-large`（18 / 20 / 24px）                                                                                                                                 |
+| breadcrumb        | `--u-breadcrumb-small` / `-default` / `-large`（20 / 22 / 24px）                                                                                                                                    |
+| 混合 token        | `--u-batch-edit-form-header-bg`、`--u-kbd-inset-shadow` / `-border-shadow` / `-drop-shadow`（依赖色非 hex 时跳过，组件侧 fallback 接管）                                                            |
 
 ### nav 组（nav / dual-nav / group-nav 专用）
 
 分两类。尺寸与资源类固定值，不随 variant 变：
 
-| 变量 | 默认 |
-| --- | --- |
-| `--u-nav-height-small` / `-default` / `-large` | 32 / 36 / 40px |
-| `--u-nav-rail-width` / `--u-nav-rail-labeled-width` | 56 / 72px |
-| `--u-nav-bg-image` | `none` |
+| 变量                                                | 默认           |
+| --------------------------------------------------- | -------------- |
+| `--u-nav-height-small` / `-default` / `-large`      | 32 / 36 / 40px |
+| `--u-nav-rail-width` / `--u-nav-rail-labeled-width` | 56 / 72px      |
+| `--u-nav-bg-image`                                  | `none`         |
 
 外观类随「主题系列 × `nav.variant`」注入（`variant` 默认 `'dark'`），共 10 个：`--u-nav-bg-color`、`--u-nav-color`、`--u-nav-hover-bg`、`--u-nav-hover-color`、`--u-nav-active-bg`、`--u-nav-active-color`、`--u-nav-strong-color`、`--u-nav-second-color`、`--u-nav-sub-border-color`、`--u-nav-rail-bg`。主题 `nav` 的其余键写在同名列之后，覆盖内置值（`styles/theme.md`）。
 
@@ -214,6 +241,7 @@ loadTheme(darkTheme.new({ nav: { 'bg-color': '#101418' } }))
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库 token 前缀是 `--u-`，不是 Element Plus 的 `--el-`、Ant Design 的 `--ant-`；从其他组件库迁移时禁止直接套用其变量名。
 > - 变量名按主题对象路径生成，**没有** `primary` / `secondary` / `border-radius` 这类后缀写法：文字色是 `--u-text-color-title` / `-main` / `-placeholder` / `-second` / `-assist` / `-disabled` / `-white`，圆角是 `--u-radius-small` / `-default` / `-large`。写 `var(--u-text-color-primary)`、`var(--u-text-color-secondary)`、`var(--u-border-radius)` 全部取不到值——无 fallback 时 `color` 退化为继承、`border-radius` 退化为 0（直角），且不随主题切换。
 > - 页面区块、面板、统计卡片这类容器用 `@veltra/desktop` 的 `UCard`，不要用本页 token 手拼等价卡面；`UCard` 的边框、圆角、阴影已由 `--u-border-muted` / `--u-card-radius` / `--u-shadow-sm` 与 `--u-card-padding-*` 提供。

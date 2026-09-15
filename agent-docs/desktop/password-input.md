@@ -1,8 +1,24 @@
 ---
 title: UPasswordInput 密码输入框
-description: "从 `@veltra/desktop` 导出的密码输入框：内部基于 UInput，用掩码字符遮盖输入并自带明文/密文切换；可选悬停清空（clearable），放进 UForm 时用 `field` 绑定 model 并按 `rules` 校验。"
+description: '从 `@veltra/desktop` 导出的密码输入框：内部基于 UInput，用掩码字符遮盖输入并自带明文/密文切换；可选悬停清空（clearable），放进 UForm 时用 `field` 绑定 model 并按 `rules` 校验。'
 aliases: [password-input, u-password-input, PasswordInput, 密码框, 密码输入]
-keywords: [modelValue, "update:modelValue", clearable, field, rules, placeholder, 密码框, 明文切换, 密文, 掩码, 显隐, 密码输入, 清空, 表单校验]
+keywords:
+  [
+    modelValue,
+    'update:modelValue',
+    clearable,
+    field,
+    rules,
+    placeholder,
+    密码框,
+    明文切换,
+    密文,
+    掩码,
+    显隐,
+    密码输入,
+    清空,
+    表单校验
+  ]
 ---
 
 # UPasswordInput 密码输入框
@@ -70,9 +86,7 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    | number
-    | 'full'
-    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段；有 field 时禁止再写 v-model */
@@ -104,22 +118,22 @@ export type PasswordInputExposed = Record<string, never>
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `v-model` / `modelValue` | `string` | `undefined` | 否 | 始终是真实密码；明文/密文切换只改显示，不改值 |
-| `placeholder` | `string` | `'请输入'` | 否 | 转发给内部 `UInput` |
-| `clearable` | `boolean` | `false` | 否 | 与 `UInput` 不同，这里默认 `false`；开启后悬停 + 有值 + 非禁用时显示清除图标 |
-| `size` | `ComponentSize` | `'default'` | 否 | 取值 `'small' \| 'default' \| 'large'`；优先级：组件 props > 表单 > 全局配置 > 默认 |
-| `disabled` | `boolean` | `false` | 否 | 禁用时不可输入且清除图标隐藏；明文切换图标仍可点击；优先级同 `size` |
-| `readonly` | `boolean` | `false` | 否 | `true` 时整体渲染为掩码文本（`●`） |
-| `field` | `string` | — | 否 | 表单内生效。绑定 `<u-form :model>` 的字段；有 `field` 禁止再写 `v-model` |
-| `label` | `string` | — | 否 | 表单内生效。表单标签文字 |
-| `rules` | `ValidateRule` | — | 否 | 表单内生效。结构见下方「rules 规则对象」 |
-| `tips` | `string` | — | 否 | 表单内生效。表单项提示文案 |
-| `span` | `number \| 'full' \| 按 BreakpointName 的对象` | — | 否 | 表单内生效。`'full'` 占满一行；对象形态必须含 `default` 键 |
-| `pattern` | `RegExp` | — | 否 | 类型上存在但不会转发给内部 `UInput`，传入不生效 |
-| `prefix` / `suffix` | `string` | — | 否 | 字符串属性不会转发给内部 `UInput`，传入不生效；前缀用 `#prefix` 插槽 |
-| `nativeReadonly` | `boolean` | `false` | 否 | 不会转发给内部 `UInput`，传入不生效 |
+| 参数                     | 类型                                           | 默认        | 必填 | 约束                                                                                |
+| ------------------------ | ---------------------------------------------- | ----------- | :--: | ----------------------------------------------------------------------------------- |
+| `v-model` / `modelValue` | `string`                                       | `undefined` |  否  | 始终是真实密码；明文/密文切换只改显示，不改值                                       |
+| `placeholder`            | `string`                                       | `'请输入'`  |  否  | 转发给内部 `UInput`                                                                 |
+| `clearable`              | `boolean`                                      | `false`     |  否  | 与 `UInput` 不同，这里默认 `false`；开启后悬停 + 有值 + 非禁用时显示清除图标        |
+| `size`                   | `ComponentSize`                                | `'default'` |  否  | 取值 `'small' \| 'default' \| 'large'`；优先级：组件 props > 表单 > 全局配置 > 默认 |
+| `disabled`               | `boolean`                                      | `false`     |  否  | 禁用时不可输入且清除图标隐藏；明文切换图标仍可点击；优先级同 `size`                 |
+| `readonly`               | `boolean`                                      | `false`     |  否  | `true` 时整体渲染为掩码文本（`●`）                                                  |
+| `field`                  | `string`                                       | —           |  否  | 表单内生效。绑定 `<u-form :model>` 的字段；有 `field` 禁止再写 `v-model`            |
+| `label`                  | `string`                                       | —           |  否  | 表单内生效。表单标签文字                                                            |
+| `rules`                  | `ValidateRule`                                 | —           |  否  | 表单内生效。结构见下方「rules 规则对象」                                            |
+| `tips`                   | `string`                                       | —           |  否  | 表单内生效。表单项提示文案                                                          |
+| `span`                   | `number \| 'full' \| 按 BreakpointName 的对象` | —           |  否  | 表单内生效。`'full'` 占满一行；对象形态必须含 `default` 键                          |
+| `pattern`                | `RegExp`                                       | —           |  否  | 类型上存在但不会转发给内部 `UInput`，传入不生效                                     |
+| `prefix` / `suffix`      | `string`                                       | —           |  否  | 字符串属性不会转发给内部 `UInput`，传入不生效；前缀用 `#prefix` 插槽                |
+| `nativeReadonly`         | `boolean`                                      | `false`     |  否  | 不会转发给内部 `UInput`，传入不生效                                                 |
 
 插槽：
 
@@ -130,8 +144,8 @@ export type PasswordInputExposed = Record<string, never>
 
 ## 方法与事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
+| 事件                | payload         | 触发时机                                                                                  |
+| ------------------- | --------------- | ----------------------------------------------------------------------------------------- |
 | `update:modelValue` | `value: string` | 每次键入后触发；组件把掩码显示值换算回真实密码后更新 `modelValue`；清空时值置 `''` 并触发 |
 
 仅声明 `update:modelValue` 一个事件：`focus` / `blur` / `change` / `clear` 均无事件出口，需要响应这些时机时监听 `modelValue`（`watch`）。
@@ -217,6 +231,7 @@ const secret = shallowRef('secret-123')
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库的密码遮盖是掩码字符 `●` 替换，不是原生 `type="password"` 的输入框；内部 `<input>` 始终是 `type="text"`。
 > - `modelValue` 始终是真实密码，与显示的 `●` 无关；禁止从 DOM 读取该输入框的值。
 > - `clearable` 默认 `false`（`UInput` 默认 `true`）；需要清空按钮时显式传 `clearable`，点击只清值，不触发 `clear` 事件。

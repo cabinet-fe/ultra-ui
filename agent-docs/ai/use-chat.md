@@ -1,8 +1,30 @@
 ---
 title: useChat 对话状态机与传输层
-description: "@veltra/ai 的无头对话状态机 useChat 与传输层：createOpenAITransport（OpenAI 兼容 SSE）、自定义 ChatTransport 实现契约、createServerTransport 服务端会话；覆盖发送、中断、重新生成、清空、待发送队列与 token 统计。"
+description: '@veltra/ai 的无头对话状态机 useChat 与传输层：createOpenAITransport（OpenAI 兼容 SSE）、自定义 ChatTransport 实现契约、createServerTransport 服务端会话；覆盖发送、中断、重新生成、清空、待发送队列与 token 统计。'
 aliases: [use-chat, 对话状态机, Chat Hook, AI 对话 Hook]
-keywords: [UAiChat, createOpenAITransport, createServerTransport, ChatTransport, ChatSessionEvent, SSE, 流式, 对话状态机, 打字机, 中断, 重新生成, 清空会话, 待发送队列, onTextDelta, onToolCall, onUsage, reasoning_effort, apiKey, 服务端代理, respondToolCall]
+keywords:
+  [
+    UAiChat,
+    createOpenAITransport,
+    createServerTransport,
+    ChatTransport,
+    ChatSessionEvent,
+    SSE,
+    流式,
+    对话状态机,
+    打字机,
+    中断,
+    重新生成,
+    清空会话,
+    待发送队列,
+    onTextDelta,
+    onToolCall,
+    onUsage,
+    reasoning_effort,
+    apiKey,
+    服务端代理,
+    respondToolCall
+  ]
 ---
 
 # useChat 对话状态机与传输层
@@ -20,12 +42,20 @@ import { useChat, createOpenAITransport, type AiChatEmits } from '@veltra/ai'
 
 // 指向服务端代理；API Key 只存在服务端
 const transport = createOpenAITransport({
-  providers: [{ id: 'proxy', endpoint: 'https://<你的代理地址>/chat/completions', models: [{ id: '<模型id>' }] }]
+  providers: [
+    {
+      id: 'proxy',
+      endpoint: 'https://<你的代理地址>/chat/completions',
+      models: [{ id: '<模型id>' }]
+    }
+  ]
 })
 
 // 无头时自行实现 emit：按事件名分发给自己的逻辑
 // 无头时自行实现 emit：按事件名分发给自己的逻辑（三处示例同此实现）
-const emit = ((event: string, ...args: unknown[]) => { if (event === 'error') console.error(args[0]) }) as AiChatEmits
+const emit = ((event: string, ...args: unknown[]) => {
+  if (event === 'error') console.error(args[0])
+}) as AiChatEmits
 
 const chat = useChat({ props: { transport, systemPrompt: '你是业务助手' }, emit })
 
@@ -38,7 +68,10 @@ const send = () => {
 
 <template>
   <div>
-    <div v-for="msg in chat.messages.value" :key="msg.id"><b>{{ msg.role }}</b>：{{ msg.content }}</div>
+    <div v-for="msg in chat.messages.value" :key="msg.id">
+      <b>{{ msg.role }}</b
+      >：{{ msg.content }}
+    </div>
     <input v-model="input" @keydown.enter="send" />
     <button v-if="chat.running.value" type="button" @click="chat.abort()">停止</button>
   </div>
@@ -50,11 +83,24 @@ const send = () => {
 ```ts
 import type { Ref } from 'vue'
 import type { AskQuestionItem } from '@veltra/ai'
-import type { ChatAttachment, ChatJob, ChatMessage, ChatQueuedMessage, ChatTokenUsage,
-  ChatTool, ChatToolCall, ChatTransport, ChatSessionTransport, ChatModelOption } from '@veltra/ai'
+import type {
+  ChatAttachment,
+  ChatJob,
+  ChatMessage,
+  ChatQueuedMessage,
+  ChatTokenUsage,
+  ChatTool,
+  ChatToolCall,
+  ChatTransport,
+  ChatSessionTransport,
+  ChatModelOption
+} from '@veltra/ai'
 
 /** useChat 入参：与 UAiChat 的 props / emit 同形 */
-export interface UseChatOptions { props: import('@veltra/ai').AiChatProps; emit: import('@veltra/ai').AiChatEmits }
+export interface UseChatOptions {
+  props: import('@veltra/ai').AiChatProps
+  emit: import('@veltra/ai').AiChatEmits
+}
 
 export function useChat(options: UseChatOptions): {
   /** 消息列表（受控：props.messages 有值时受 v-model:messages 双向绑定） */
@@ -122,7 +168,10 @@ export interface ChatTransportHandlers {
 }
 
 /** 对话传输层抽象：函数形态，与 session 对象形态互斥；内置实现为 createOpenAITransport */
-export type ChatTransport = (request: ChatTransportRequest, handlers: ChatTransportHandlers) => Promise<void> | void
+export type ChatTransport = (
+  request: ChatTransportRequest,
+  handlers: ChatTransportHandlers
+) => Promise<void> | void
 
 export interface OpenAITransportOptions {
   /** 至少一个 Provider；模型 id 须跨 Provider 全局唯一 */
@@ -191,12 +240,53 @@ export function isServerTransport(t: unknown): t is ChatSessionTransport
 
 /** 协议无关的归一化会话事件 */
 export type ChatSessionEvent =
-  | { type: 'user/message'; messageId: string; seq: number; content: string; attachments?: ChatAttachment[] }
-  | { type: 'assistant/chunk'; messageId: string; seq: number; delta: string; reasoningDelta?: string }
-  | { type: 'assistant/message'; messageId: string; seq: number; content: string; reasoning?: string; toolCalls?: ChatToolCall[] }
-  | { type: 'tool/call'; callId: string; name: string; arguments: string; seq: number; view?: unknown }
-  | { type: 'tool/result'; callId: string; status: 'success' | 'error' | 'rejected'; result?: string; error?: string; seq: number; view?: unknown }
-  | { type: 'approval/requested'; approvalId: string; toolName: string; callId?: string; reason?: string; rpcId: string }
+  | {
+      type: 'user/message'
+      messageId: string
+      seq: number
+      content: string
+      attachments?: ChatAttachment[]
+    }
+  | {
+      type: 'assistant/chunk'
+      messageId: string
+      seq: number
+      delta: string
+      reasoningDelta?: string
+    }
+  | {
+      type: 'assistant/message'
+      messageId: string
+      seq: number
+      content: string
+      reasoning?: string
+      toolCalls?: ChatToolCall[]
+    }
+  | {
+      type: 'tool/call'
+      callId: string
+      name: string
+      arguments: string
+      seq: number
+      view?: unknown
+    }
+  | {
+      type: 'tool/result'
+      callId: string
+      status: 'success' | 'error' | 'rejected'
+      result?: string
+      error?: string
+      seq: number
+      view?: unknown
+    }
+  | {
+      type: 'approval/requested'
+      approvalId: string
+      toolName: string
+      callId?: string
+      reason?: string
+      rpcId: string
+    }
   | { type: 'approval/resolved'; approvalId: string; outcome: string }
   | { type: 'question/requested'; questions: AskQuestionItem[]; rpcId: string }
   | { type: 'question/resolved'; questionRpcId: string; outcome: 'answered' | 'cancelled' }
@@ -208,7 +298,13 @@ export type ChatSessionEvent =
   | { type: 'error'; code: string; message: string }
 
 /** session 审批项（approval/requested 事件写入 pendingApprovals） */
-export interface ChatPendingApproval { approvalId: string; toolName: string; callId?: string; reason?: string; rpcId: string }
+export interface ChatPendingApproval {
+  approvalId: string
+  toolName: string
+  callId?: string
+  reason?: string
+  rpcId: string
+}
 
 /** 历史回放与实时事件共用的折叠状态与纯函数折叠器（后到的更小/重复 seq 不覆盖已应用事件） */
 export interface ChatFoldState {
@@ -233,16 +329,16 @@ export function foldSessionEvent(state: ChatFoldState, event: ChatSessionEvent):
 
 ### createOpenAITransport 配置
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `providers` | `ChatProvider[]` | — | 是 | 至少 1 个，空数组抛 `Error('[createOpenAITransport] providers 不能为空')` |
-| `providers[].endpoint` | `string` | — | 是 | 完整 http(s) URL 或相对路径；请求固定 `POST <endpoint>` |
-| `providers[].apiKey` | `string` | — | 否 | 有则带 `Authorization: Bearer <apiKey>`；相对路径代理场景可省略 |
-| `providers[].headers` | `Record<string, string>` | — | 否 | 与全局 `headers` 合并，Provider 优先 |
-| `providers[].applyReasoning` | `(level, body) => void` | 写 `body.reasoning_effort = level` | 否 | 仅在请求带 `reasoningLevel` 时调用 |
-| `providers[].models` | `ChatModel[]` | — | 是 | 至少 1 个，否则抛 `Error('[createOpenAITransport] Provider "<id>" 未配置 models')`；`models[].id` 跨 Provider 全局唯一，重复抛 `Error('[createOpenAITransport] 模型 id "<id>" 重复（跨 Provider 须全局唯一）')` |
-| `headers` | `Record<string, string>` | — | 否 | 全局请求头，叠加在 `Content-Type` 与 `Authorization` 之后（可覆盖） |
-| `body` | `Record<string, unknown>` | — | 否 | 全局额外请求体字段；`body.stream_options` 会被合并且强制 `include_usage: true` |
+| 参数                         | 类型                      | 默认                               | 必填 | 约束                                                                                                                                                                                                            |
+| ---------------------------- | ------------------------- | ---------------------------------- | :--: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `providers`                  | `ChatProvider[]`          | —                                  |  是  | 至少 1 个，空数组抛 `Error('[createOpenAITransport] providers 不能为空')`                                                                                                                                       |
+| `providers[].endpoint`       | `string`                  | —                                  |  是  | 完整 http(s) URL 或相对路径；请求固定 `POST <endpoint>`                                                                                                                                                         |
+| `providers[].apiKey`         | `string`                  | —                                  |  否  | 有则带 `Authorization: Bearer <apiKey>`；相对路径代理场景可省略                                                                                                                                                 |
+| `providers[].headers`        | `Record<string, string>`  | —                                  |  否  | 与全局 `headers` 合并，Provider 优先                                                                                                                                                                            |
+| `providers[].applyReasoning` | `(level, body) => void`   | 写 `body.reasoning_effort = level` |  否  | 仅在请求带 `reasoningLevel` 时调用                                                                                                                                                                              |
+| `providers[].models`         | `ChatModel[]`             | —                                  |  是  | 至少 1 个，否则抛 `Error('[createOpenAITransport] Provider "<id>" 未配置 models')`；`models[].id` 跨 Provider 全局唯一，重复抛 `Error('[createOpenAITransport] 模型 id "<id>" 重复（跨 Provider 须全局唯一）')` |
+| `headers`                    | `Record<string, string>`  | —                                  |  否  | 全局请求头，叠加在 `Content-Type` 与 `Authorization` 之后（可覆盖）                                                                                                                                             |
+| `body`                       | `Record<string, unknown>` | —                                  |  否  | 全局额外请求体字段；`body.stream_options` 会被合并且强制 `include_usage: true`                                                                                                                                  |
 
 ### 请求形态（内置 OpenAI transport）
 
@@ -253,19 +349,19 @@ export function foldSessionEvent(state: ChatFoldState, event: ChatSessionEvent):
 
 ### useChat 返回值
 
-| 字段 | 类型 | 默认 | 说明 |
-| --- | --- | --- | --- |
-| `messages` | `Ref<ChatMessage[]>` | `[]` | 消息列表；流式增量直接写入末尾 assistant 消息 |
-| `model` | `Ref<string \| undefined>` | `models[0]?.id` | `models` 有值时自动校正为合法 id |
-| `reasoningLevel` | `Ref<string \| undefined>` | — | 切模型时校正（无 levels 清空；非法落到默认/首项） |
-| `running` | `Ref<boolean>` | `false` | 从发送到 finish/error/中断期间为 true |
-| `queue` | `Ref<ChatQueuedMessage[]>` | `[]` | 待发送队列 |
-| `jobs` | `Ref<ChatJob[]>` | `[]` | 仅 session 有值 |
-| `tokenUsage` | `Ref<ChatTokenUsage \| null>` | `null` | 收到 usage 才有值，多次累加 |
-| `lastTurnUsage` | `Ref<ChatTokenUsage \| null>` | `null` | 每轮开始时清零 |
-| `projections` / `title` | `Ref<Record<string, unknown>>` / `Ref<string \| null>` | `{}` / `null` | 仅 session 有值 |
-| `pendingApprovals` | `Ref<ChatPendingApproval[]>` | `[]` | 仅 session 有值 |
-| `pendingQuestion` | `Ref<{ questions; rpcId } \| null>` | `null` | 仅 session 有值 |
+| 字段                    | 类型                                                   | 默认            | 说明                                              |
+| ----------------------- | ------------------------------------------------------ | --------------- | ------------------------------------------------- |
+| `messages`              | `Ref<ChatMessage[]>`                                   | `[]`            | 消息列表；流式增量直接写入末尾 assistant 消息     |
+| `model`                 | `Ref<string \| undefined>`                             | `models[0]?.id` | `models` 有值时自动校正为合法 id                  |
+| `reasoningLevel`        | `Ref<string \| undefined>`                             | —               | 切模型时校正（无 levels 清空；非法落到默认/首项） |
+| `running`               | `Ref<boolean>`                                         | `false`         | 从发送到 finish/error/中断期间为 true             |
+| `queue`                 | `Ref<ChatQueuedMessage[]>`                             | `[]`            | 待发送队列                                        |
+| `jobs`                  | `Ref<ChatJob[]>`                                       | `[]`            | 仅 session 有值                                   |
+| `tokenUsage`            | `Ref<ChatTokenUsage \| null>`                          | `null`          | 收到 usage 才有值，多次累加                       |
+| `lastTurnUsage`         | `Ref<ChatTokenUsage \| null>`                          | `null`          | 每轮开始时清零                                    |
+| `projections` / `title` | `Ref<Record<string, unknown>>` / `Ref<string \| null>` | `{}` / `null`   | 仅 session 有值                                   |
+| `pendingApprovals`      | `Ref<ChatPendingApproval[]>`                           | `[]`            | 仅 session 有值                                   |
+| `pendingQuestion`       | `Ref<{ questions; rpcId } \| null>`                    | `null`          | 仅 session 有值                                   |
 
 ## 方法与事件
 
@@ -273,29 +369,29 @@ export function foldSessionEvent(state: ChatFoldState, event: ChatSessionEvent):
 
 均为同步函数、返回 `void`（`enqueue` / `removeQueued` 除外），不抛错，非法调用按空操作处理：
 
-| 方法 | 签名 | 语义与空操作条件 |
-| --- | --- | --- |
-| `send` | `(content, attachments?) => void` | 空内容且无附件为空操作；session 下转发 `transport.send`；空闲时立即开新一轮，生成中入队 |
-| `abort` | `() => void` | 函数 transport 下中止 AbortController，挂起的工具确认按拒绝处理；session 下调 `transport.cancel()`；队列保留 |
-| `regenerate` | `() => void` | 移除最后一条 user 消息之后的所有消息并重跑对话循环。session 下、生成中、无 user 消息或最后一条就是 user 时为空操作 |
-| `clear` | `() => void` | 生成中先中止；清空 messages、queue、tokenUsage、lastTurnUsage。session 下走本地重置（fold 状态归零） |
-| `enqueue` | `(content, attachments?, beforeId?) => ChatQueuedMessage` | 返回队列项；`beforeId` 指定插到某条之前（缺省追加尾部）；空闲时自动消耗队首。session 下仅返回对象、不入队 |
-| `startQueued` | `(id) => void` | 立即执行队列中某条：空闲时直接开始；生成中把它插回队首并中断当前会话，收尾后自动接续。session 下为空操作 |
-| `removeQueued` | `(id) => ChatQueuedMessage \| undefined` | 从队列移除并返回被移除项；未找到返回 undefined。session 下恒返回 undefined |
-| `respondToolCall` | `(toolCallId, approved) => void` | 函数 transport 下兑现 `needsConfirm` 的挂起确认；session 下按 `pendingApprovals` 中 `callId` 匹配的 `rpcId` 调 `respond` |
-| `respondSession` | `(rpcId, ok, value?) => void` | session 专用：直接 `respond(rpcId, ok, value)`；函数 transport 下为空操作 |
+| 方法              | 签名                                                      | 语义与空操作条件                                                                                                         |
+| ----------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `send`            | `(content, attachments?) => void`                         | 空内容且无附件为空操作；session 下转发 `transport.send`；空闲时立即开新一轮，生成中入队                                  |
+| `abort`           | `() => void`                                              | 函数 transport 下中止 AbortController，挂起的工具确认按拒绝处理；session 下调 `transport.cancel()`；队列保留             |
+| `regenerate`      | `() => void`                                              | 移除最后一条 user 消息之后的所有消息并重跑对话循环。session 下、生成中、无 user 消息或最后一条就是 user 时为空操作       |
+| `clear`           | `() => void`                                              | 生成中先中止；清空 messages、queue、tokenUsage、lastTurnUsage。session 下走本地重置（fold 状态归零）                     |
+| `enqueue`         | `(content, attachments?, beforeId?) => ChatQueuedMessage` | 返回队列项；`beforeId` 指定插到某条之前（缺省追加尾部）；空闲时自动消耗队首。session 下仅返回对象、不入队                |
+| `startQueued`     | `(id) => void`                                            | 立即执行队列中某条：空闲时直接开始；生成中把它插回队首并中断当前会话，收尾后自动接续。session 下为空操作                 |
+| `removeQueued`    | `(id) => ChatQueuedMessage \| undefined`                  | 从队列移除并返回被移除项；未找到返回 undefined。session 下恒返回 undefined                                               |
+| `respondToolCall` | `(toolCallId, approved) => void`                          | 函数 transport 下兑现 `needsConfirm` 的挂起确认；session 下按 `pendingApprovals` 中 `callId` 匹配的 `rpcId` 调 `respond` |
+| `respondSession`  | `(rpcId, ok, value?) => void`                             | session 专用：直接 `respond(rpcId, ok, value)`；函数 transport 下为空操作                                                |
 
 ### 加载状态与队列接续规则
 
 `running` 在发送后置 `true`，直到本轮结束（`finish` / `error` / 中断）。会话自然结束或插队时，队列按 FIFO 自动接续：
 
-| 结束方式 | 队列行为 |
-| --- | --- |
-| `finish`（无工具调用、terminal 工具成功、达到 `maxToolRounds`） | FIFO 自动发送下一条 |
-| `startQueued(id)` 插队 | 中断当前会话，该条作为下一条，其余保持原顺序 |
-| 手动 `abort` / 用户停止 | 队列保留，不自动接续 |
-| `error` | 队列保留，不自动接续 |
-| `clear()` | 消息、队列与 token 统计一起清空（生成中先 abort） |
+| 结束方式                                                        | 队列行为                                          |
+| --------------------------------------------------------------- | ------------------------------------------------- |
+| `finish`（无工具调用、terminal 工具成功、达到 `maxToolRounds`） | FIFO 自动发送下一条                               |
+| `startQueued(id)` 插队                                          | 中断当前会话，该条作为下一条，其余保持原顺序      |
+| 手动 `abort` / 用户停止                                         | 队列保留，不自动接续                              |
+| `error`                                                         | 队列保留，不自动接续                              |
+| `clear()`                                                       | 消息、队列与 token 统计一起清空（生成中先 abort） |
 
 ### 对话循环与消息状态流转
 
@@ -313,9 +409,15 @@ const transport: ChatTransport = async (req, handlers) => {
     signal: req.signal,
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      messages: req.messages, systemPrompt: req.systemPrompt,
-      model: req.model, reasoningLevel: req.reasoningLevel,
-      tools: req.tools?.map((t) => ({ name: t.name, description: t.description, parameters: t.parameters }))
+      messages: req.messages,
+      systemPrompt: req.systemPrompt,
+      model: req.model,
+      reasoningLevel: req.reasoningLevel,
+      tools: req.tools?.map((t) => ({
+        name: t.name,
+        description: t.description,
+        parameters: t.parameters
+      }))
     })
   })
   if (!res.ok) return void handlers.onError?.(new Error(`HTTP ${res.status}`))
@@ -346,19 +448,27 @@ const transport = createOpenAITransport({
       label: '业务代理',
       // 指向服务端代理；API Key 留在服务端，不下发浏览器
       endpoint: 'https://<你的代理地址>/chat/completions',
-      models: [{
-        id: 'deepseek-chat',
-        label: 'DeepSeek Chat',
-        description: '通用对话',
-        reasoningLevels: [{ value: 'low', label: '低' }, { value: 'medium', label: '中' }, { value: 'high', label: '高' }],
-        defaultReasoningLevel: 'low'
-      }]
+      models: [
+        {
+          id: 'deepseek-chat',
+          label: 'DeepSeek Chat',
+          description: '通用对话',
+          reasoningLevels: [
+            { value: 'low', label: '低' },
+            { value: 'medium', label: '中' },
+            { value: 'high', label: '高' }
+          ],
+          defaultReasoningLevel: 'low'
+        }
+      ]
     },
     {
       id: 'custom',
       endpoint: 'https://<你的代理地址>/custom/chat',
       // 请求体字段名不是 reasoning_effort 时用 applyReasoning 自定义写入
-      applyReasoning: (level, body) => { body.thinking = { budget: level } },
+      applyReasoning: (level, body) => {
+        body.thinking = { budget: level }
+      },
       models: [{ id: 'custom-model', reasoningLevels: [{ value: '8k', label: '8K' }] }]
     }
   ]
@@ -373,22 +483,38 @@ console.log(transport.defaultModel) // => 'deepseek-chat'（首个 Provider 的�
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useChat, createOpenAITransport, type AiChatEmits, type ChatTool, type ChatToolCall } from '@veltra/ai'
+import {
+  useChat,
+  createOpenAITransport,
+  type AiChatEmits,
+  type ChatTool,
+  type ChatToolCall
+} from '@veltra/ai'
 
 const transport = createOpenAITransport({
-  providers: [{ id: 'proxy', endpoint: 'https://<你的代理地址>/chat/completions', models: [{ id: '<模型id>' }] }]
+  providers: [
+    {
+      id: 'proxy',
+      endpoint: 'https://<你的代理地址>/chat/completions',
+      models: [{ id: '<模型id>' }]
+    }
+  ]
 })
 
-const tools: ChatTool[] = [{
-  name: 'deleteFile',
-  description: '删除指定路径的文件',
-  needsConfirm: true,
-  parameters: { type: 'object', properties: { path: { type: 'string' } }, required: ['path'] },
-  execute: async ({ path }: { path: string }) => ({ deleted: path })
-}]
+const tools: ChatTool[] = [
+  {
+    name: 'deleteFile',
+    description: '删除指定路径的文件',
+    needsConfirm: true,
+    parameters: { type: 'object', properties: { path: { type: 'string' } }, required: ['path'] },
+    execute: async ({ path }: { path: string }) => ({ deleted: path })
+  }
+]
 
 // 无头时自行实现 emit：按事件名分发给自己的逻辑（三处示例同此实现）
-const emit = ((event: string, ...args: unknown[]) => { if (event === 'error') console.error(args[0]) }) as AiChatEmits
+const emit = ((event: string, ...args: unknown[]) => {
+  if (event === 'error') console.error(args[0])
+}) as AiChatEmits
 
 const chat = useChat({ props: { transport, tools }, emit })
 
@@ -410,7 +536,13 @@ const input = ref('')
         <button type="button" @click="confirm(call, false)">拒绝</button>
       </span>
     </div>
-    <input v-model="input" @keydown.enter="chat.send(input); input = ''" />
+    <input
+      v-model="input"
+      @keydown.enter="
+        chat.send(input)
+        input = ''
+      "
+    />
     <button v-if="chat.running.value" type="button" @click="chat.abort()">停止</button>
     <button v-else type="button" @click="chat.regenerate()">重新生成</button>
   </div>
@@ -421,7 +553,13 @@ const input = ref('')
 
 ```vue
 <script setup lang="ts">
-import { useChat, createServerTransport, isServerTransport, type AiChatEmits, type ChatSessionAdapter } from '@veltra/ai'
+import {
+  useChat,
+  createServerTransport,
+  isServerTransport,
+  type AiChatEmits,
+  type ChatSessionAdapter
+} from '@veltra/ai'
 
 // 宿主按自有协议实现 adapter；这里用页内定时器模拟事件流
 const adapter: ChatSessionAdapter = {
@@ -429,24 +567,47 @@ const adapter: ChatSessionAdapter = {
     let seq = 0
     const timers = [
       setTimeout(() => handlers.onEvent({ type: 'running', running: true, seq: ++seq }), 0),
-      setTimeout(() => handlers.onEvent({ type: 'assistant/chunk', messageId: 'a1', delta: '你好', seq: ++seq }), 100),
-      setTimeout(() => handlers.onEvent({ type: 'assistant/message', messageId: 'a1', content: '你好！', seq: ++seq }), 200),
+      setTimeout(
+        () =>
+          handlers.onEvent({ type: 'assistant/chunk', messageId: 'a1', delta: '你好', seq: ++seq }),
+        100
+      ),
+      setTimeout(
+        () =>
+          handlers.onEvent({
+            type: 'assistant/message',
+            messageId: 'a1',
+            content: '你好！',
+            seq: ++seq
+          }),
+        200
+      ),
       setTimeout(() => handlers.onEvent({ type: 'finish', seq: ++seq }), 300)
     ]
     return () => timers.forEach(clearTimeout)
   },
-  async send(content) { console.log('发给服务端：', content) },
+  async send(content) {
+    console.log('发给服务端：', content)
+  },
   async cancel() {},
-  async respond(rpcId, ok, value) { console.log('respond：', rpcId, ok, value) },
-  async fetchHistory(beforeSeq) { return { events: [], hasMore: false } }, // 实际实现按 beforeSeq 向前翻页
-  async selectModel(provider, model) { console.log('切换模型：', provider, model) }
+  async respond(rpcId, ok, value) {
+    console.log('respond：', rpcId, ok, value)
+  },
+  async fetchHistory(beforeSeq) {
+    return { events: [], hasMore: false }
+  }, // 实际实现按 beforeSeq 向前翻页
+  async selectModel(provider, model) {
+    console.log('切换模型：', provider, model)
+  }
 }
 
 const transport = createServerTransport(adapter)
 console.log(isServerTransport(transport)) // => true（kind === 'session'）
 
 // 无头时自行实现 emit：按事件名分发给自己的逻辑（三处示例同此实现）
-const emit = ((event: string, ...args: unknown[]) => { if (event === 'error') console.error(args[0]) }) as AiChatEmits
+const emit = ((event: string, ...args: unknown[]) => {
+  if (event === 'error') console.error(args[0])
+}) as AiChatEmits
 
 const chat = useChat({ props: { transport }, emit })
 chat.send('在吗') // 走 adapter.send，回包经 subscribe 折叠进 chat.messages
@@ -463,6 +624,7 @@ chat.send('在吗') // 走 adapter.send，回包经 subscribe 折叠进 chat.mes
 ## 注意事项
 
 > [!WARNING]
+>
 > - 生产环境禁止把 API Key 下发到浏览器：`endpoint` 用相对路径 + 服务端代理，Key 只存在服务端环境变量；`apiKey` 字段仅限本机调试。参考 playground 服务端：从环境变量 `DEEPSEEK_API_KEY` 读 Key，把 `/ai/chat/completions` 的 SSE 原样转发给上游。
 > - 两种 transport 形态互斥：`kind: 'session'` 的对象按服务端会话处理（不注入内置工具、不执行客户端 `execute`，`tools` 只作渲染元信息）；函数按单轮客户端驱动处理。用 `isServerTransport()` 判别。
 > - `onToolCall` 必须给完整 JSON 参数串，禁止分片回调；分片累积由 transport 自己完成。
@@ -487,7 +649,9 @@ chat.send('在吗') // 走 adapter.send，回包经 subscribe 折叠进 chat.mes
 import { createOpenAITransport } from '@veltra/ai'
 
 createOpenAITransport({
-  providers: [{ id: 'p', endpoint: 'https://<你的代理地址>/chat/completions', models: [{ id: '<模型id>' }] }]
+  providers: [
+    { id: 'p', endpoint: 'https://<你的代理地址>/chat/completions', models: [{ id: '<模型id>' }] }
+  ]
 })
 ```
 

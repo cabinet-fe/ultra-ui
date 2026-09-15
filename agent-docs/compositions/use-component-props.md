@@ -2,7 +2,23 @@
 title: useComponentProps 插槽公共属性注入
 description: 从 @veltra/compositions 导出的组合式函数，返回一个把公共属性（size、disabled、type 等）批量注入默认插槽子节点的 Wrapper 组件：子节点显式属性优先、非 Fragment/Template 的文本与元素/组件 VNode 一并处理，可选 tag 包一层 HTML 元素。
 aliases: [use-component-props, ComponentCommonProps, 公共属性包装组件, props 批量注入]
-keywords: [useComponentProps, ComponentCommonProps, MaybeRef, inheritAttrs, cloneVNode, extractNormalVNodes, tag, attrs, 公共属性注入, 批量设置属性, 插槽透传, 按钮组统一尺寸, 属性合并, 子节点优先]
+keywords:
+  [
+    useComponentProps,
+    ComponentCommonProps,
+    MaybeRef,
+    inheritAttrs,
+    cloneVNode,
+    extractNormalVNodes,
+    tag,
+    attrs,
+    公共属性注入,
+    批量设置属性,
+    插槽透传,
+    按钮组统一尺寸,
+    属性合并,
+    子节点优先
+  ]
 ---
 
 # useComponentProps 插槽公共属性注入
@@ -19,11 +35,7 @@ import { useComponentProps } from '@veltra/compositions'
 import { UButton } from '@veltra/desktop'
 
 // 公共属性对象：出现在这里的 key 才会被注入子节点
-const ActionButtons = useComponentProps({
-  size: 'small',
-  text: true,
-  type: 'primary'
-})
+const ActionButtons = useComponentProps({ size: 'small', text: true, type: 'primary' })
 </script>
 
 <template>
@@ -62,10 +74,10 @@ interface ComponentCommonPropsProps {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `props` | `MaybeRef<T & Record<string, any>>` | — | 是 | 普通对象时 key 集合在 setup 时固定并缓存；`Ref` 对象时每次渲染重新取 `Object.keys(props.value)`。只有对象里存在的 key 会被注入 |
-| `tag`（返回组件的 prop） | `string` | — | 否 | 标签名如 `'div'`、`'span'`；未传时返回组件渲染的是子 VNode 数组（片段），传了才生成真实包裹元素 |
+| 参数                     | 类型                                | 默认 | 必填 | 约束                                                                                                                           |
+| ------------------------ | ----------------------------------- | ---- | :--: | ------------------------------------------------------------------------------------------------------------------------------ |
+| `props`                  | `MaybeRef<T & Record<string, any>>` | —    |  是  | 普通对象时 key 集合在 setup 时固定并缓存；`Ref` 对象时每次渲染重新取 `Object.keys(props.value)`。只有对象里存在的 key 会被注入 |
+| `tag`（返回组件的 prop） | `string`                            | —    |  否  | 标签名如 `'div'`、`'span'`；未传时返回组件渲染的是子 VNode 数组（片段），传了才生成真实包裹元素                                |
 
 ### 合并规则
 
@@ -171,10 +183,7 @@ const name = ref('')
 const phone = ref('')
 
 const FieldCommonProps = useComponentProps(
-  computed(() => ({
-    disabled: submitting.value,
-    size: 'small' as const
-  }))
+  computed(() => ({ disabled: submitting.value, size: 'small' as const }))
 )
 </script>
 
@@ -191,6 +200,7 @@ const FieldCommonProps = useComponentProps(
 ## 注意事项
 
 > [!WARNING]
+>
 > - 注入目标是**默认插槽**；写在 `<template #header>` 等具名插槽里的节点不会被注入。
 > - 属性 key 集合由公共属性对象决定：写在包裹组件标签上、但不在公共对象里的属性（`tag` 场景下）落到 `tag` 元素，不会传给子节点。
 > - 本库是「返回组件、把合并逻辑放在渲染期」，不是 VueUse `useTemplateRefsList` 那类 DOM 操作，也不是 `provide/inject`；子组件收到的就是普通 props，可在子组件内正常声明默认值。

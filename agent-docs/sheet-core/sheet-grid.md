@@ -1,8 +1,25 @@
 ---
-title: "SheetGrid 渲染网格（VTable 适配层）"
-description: "从 @veltra/sheet-core/grid 子路径导出的 VTable 渲染适配层：SheetGrid 把 Sheet 数据模型接到 ListTable 视图（编辑回写、选区、冻结、右键、浮动图片），支持 readonly 只读预览与 resolveCellRenderer / resolveCellStyle / resolveDisplayValue 三个渲染 hook。"
-aliases: ["SheetGrid", "sheet-grid", "VTable 适配层", "表格渲染层", "渲染网格"]
-keywords: ["SheetGrid", "VTable", "ListTable", "SheetGridOptions", "CustomLayout", "resolveCellRenderer", "resolveCellStyle", "resolveDisplayValue", "onContextMenu", "readonly", "自定义渲染", "只读预览", "右键菜单", "虚拟滚动", "子路径导入"]
+title: 'SheetGrid 渲染网格（VTable 适配层）'
+description: '从 @veltra/sheet-core/grid 子路径导出的 VTable 渲染适配层：SheetGrid 把 Sheet 数据模型接到 ListTable 视图（编辑回写、选区、冻结、右键、浮动图片），支持 readonly 只读预览与 resolveCellRenderer / resolveCellStyle / resolveDisplayValue 三个渲染 hook。'
+aliases: ['SheetGrid', 'sheet-grid', 'VTable 适配层', '表格渲染层', '渲染网格']
+keywords:
+  [
+    'SheetGrid',
+    'VTable',
+    'ListTable',
+    'SheetGridOptions',
+    'CustomLayout',
+    'resolveCellRenderer',
+    'resolveCellStyle',
+    'resolveDisplayValue',
+    'onContextMenu',
+    'readonly',
+    '自定义渲染',
+    '只读预览',
+    '右键菜单',
+    '虚拟滚动',
+    '子路径导入'
+  ]
 ---
 
 # SheetGrid 渲染网格（VTable 适配层）
@@ -241,6 +258,7 @@ sheet.getCellData({ row: 0, col: 0 })?.v // => 5（模型原始值不变）
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库从 `@veltra/sheet-core/grid` 子路径导入 `SheetGrid` / `CustomLayout` / `resolveCellRenderer` 相关符号，**不是主入口**；主入口刻意不 re-export，避免无头 `import { Workbook }` 把 `@visactor/vtable` 类型图拉进 TS 程序。
 > - `CustomLayout` 是 `@visactor/vtable` 的布局构建器，本入口仅 re-export；布局对象形态遵循 VTable `customLayout` 约定（`rootContainer` + `renderDefault`），不是本库自研 DSL。
 > - 三个渲染 hook 必须是纯函数、同步返回、O(1) 查找（稀疏 Map / 地址直查），禁止异步操作与长数组 / 大字符串分配；hook 不写模型、不进快照。

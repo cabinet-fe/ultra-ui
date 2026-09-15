@@ -1,6 +1,6 @@
 ---
-title: "UGroupNav 分组导航"
-description: "分组侧栏导航：groups 传入「标题 + 一层叶子菜单」数组，currentPath 控制选中高亮，item-click 发出点击项；无展开/折叠交互。需要多级树形菜单用 UNav，需要应用切换双栏用 UDualNav。"
+title: 'UGroupNav 分组导航'
+description: '分组侧栏导航：groups 传入「标题 + 一层叶子菜单」数组，currentPath 控制选中高亮，item-click 发出点击项；无展开/折叠交互。需要多级树形菜单用 UNav，需要应用切换双栏用 UDualNav。'
 aliases: [GroupNav, 分组菜单, 分组侧栏, group menu]
 keywords:
   - currentPath
@@ -108,15 +108,15 @@ export interface GroupNavEmits {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `groups` | `GroupNavGroup[]` | — | 否 | 每组 `title`、`children` 必填；组间间距 16px；`children` 里再嵌套的 `children` 被舍弃，该节点仍作为叶子展示 |
-| `currentPath` | `string` | — | 否 | 与叶子项 `path` 全等才高亮（左侧 3px 主色条 + 激活底色）；没有自动展开、自动滚动逻辑（组件无折叠） |
+| 参数          | 类型              | 默认 | 必填 | 约束                                                                                                        |
+| ------------- | ----------------- | ---- | :--: | ----------------------------------------------------------------------------------------------------------- |
+| `groups`      | `GroupNavGroup[]` | —    |  否  | 每组 `title`、`children` 必填；组间间距 16px；`children` 里再嵌套的 `children` 被舍弃，该节点仍作为叶子展示 |
+| `currentPath` | `string`          | —    |  否  | 与叶子项 `path` 全等才高亮（左侧 3px 主色条 + 激活底色）；没有自动展开、自动滚动逻辑（组件无折叠）          |
 
 事件：
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
+| 事件         | payload           | 触发时机                   |
+| ------------ | ----------------- | -------------------------- |
 | `item-click` | `(item: NavItem)` | 点击非 `disabled` 的叶子项 |
 
 ## 方法与事件
@@ -223,6 +223,7 @@ function onItemClick(item: NavItem) {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 外观（底色、文字、悬停/激活色）不在组件 props 上，由主题 `nav` 配置控制：`nav.variant` 选择深/浅侧栏（默认 `dark` 深底浅字），`nav` 其余键覆盖同名 `--u-nav-*` token。把侧栏自定义为浅色底时必须同时设 `variant: 'light'`，否则会浅底配白字看不清。
 > - 本库是受控组件（`currentPath` + `@item-click`），不是 `v-model`，也不内置 vue-router。
 > - `groups` 每组只渲染一层叶子：需要多级展开时改用 `UNav`，本组件不会渲染嵌套层级。

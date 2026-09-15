@@ -2,7 +2,27 @@
 title: messageConfirm / UMessageConfirm 确认框
 description: 从 @veltra/desktop 导入 messageConfirm 函数式确认框，带遮罩阻断页面操作，onClosed 以 Promise 返回 confirm / cancel 用户操作；支持 primary/success/info/warning/danger 快捷方法、closeAll 与自定义按钮文字；也可用 UMessageConfirm 声明式渲染。
 aliases: [UMessageConfirm, MessageConfirm, 确认弹窗, 确认对话框, MessageBox]
-keywords: [MessageConfirmAction, MessageConfirmOptions, MessageConfirmInstance, confirmButtonText, cancelButtonText, confirmButtonType, closeAll, onClosed, onClose, components/message-confirm/style, 删除确认, 危险操作确认, 二次确认, 手动关闭, 阻断, 遮罩, 样式副作用, 样式未引入]
+keywords:
+  [
+    MessageConfirmAction,
+    MessageConfirmOptions,
+    MessageConfirmInstance,
+    confirmButtonText,
+    cancelButtonText,
+    confirmButtonType,
+    closeAll,
+    onClosed,
+    onClose,
+    components/message-confirm/style,
+    删除确认,
+    危险操作确认,
+    二次确认,
+    手动关闭,
+    阻断,
+    遮罩,
+    样式副作用,
+    样式未引入
+  ]
 ---
 
 # messageConfirm / UMessageConfirm 确认框
@@ -20,7 +40,7 @@ import '@veltra/desktop/components/message-confirm/style'
 const instance = messageConfirm({
   title: '提交确认',
   message: '确认提交本次修改吗？',
-  cancelButtonText: '取消', // 不传则不显示取消按钮
+  cancelButtonText: '取消' // 不传则不显示取消按钮
 })
 
 // 等用户点按钮，含关闭动画在内彻底关闭后兑现
@@ -104,17 +124,17 @@ export const messageConfirm: MessageConfirm
 
 `messageConfirm(options)` 选项（快捷方法第二参数 `config` 相同，但不含 `message` / `confirmButtonType`）：
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `message` | `string` | `''` | 是 | 纯文本渲染，不支持 HTML |
-| `title` | `string` | `''` | 否 | 为空时不渲染标题栏 |
-| `confirmButtonText` | `string` | `'确定'` | 否 | 确认按钮固定显示 |
-| `cancelButtonText` | `string` | `''` | 否 | 为空时取消按钮不渲染 |
-| `confirmButtonType` | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'` | `'primary'` | 否 | 快捷方法固定该值，`config` 中不可再传 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 否 | — |
-| `zIndex` | `number` | 全局自增（1000 起） | 否 | 容器、遮罩、内容框三层同值 |
-| `onClose` | `(action: MessageConfirmAction) => void` | — | 否 | 点击按钮触发关闭时回调 |
-| `onClosed` | `(action: MessageConfirmAction) => void` | — | 否 | 关闭动画结束后回调；`closeAll()` 关闭时 action 为 `'cancel'` |
+| 参数                | 类型                                                        | 默认                | 必填 | 约束                                                         |
+| ------------------- | ----------------------------------------------------------- | ------------------- | :--: | ------------------------------------------------------------ |
+| `message`           | `string`                                                    | `''`                |  是  | 纯文本渲染，不支持 HTML                                      |
+| `title`             | `string`                                                    | `''`                |  否  | 为空时不渲染标题栏                                           |
+| `confirmButtonText` | `string`                                                    | `'确定'`            |  否  | 确认按钮固定显示                                             |
+| `cancelButtonText`  | `string`                                                    | `''`                |  否  | 为空时取消按钮不渲染                                         |
+| `confirmButtonType` | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'` | `'primary'`         |  否  | 快捷方法固定该值，`config` 中不可再传                        |
+| `size`              | `'small' \| 'default' \| 'large'`                           | `'default'`         |  否  | —                                                            |
+| `zIndex`            | `number`                                                    | 全局自增（1000 起） |  否  | 容器、遮罩、内容框三层同值                                   |
+| `onClose`           | `(action: MessageConfirmAction) => void`                    | —                   |  否  | 点击按钮触发关闭时回调                                       |
+| `onClosed`          | `(action: MessageConfirmAction) => void`                    | —                   |  否  | 关闭动画结束后回调；`closeAll()` 关闭时 action 为 `'cancel'` |
 
 `UMessageConfirm` 组件（声明式）接收 `MessageConfirmProps`，事件见「方法与事件」。
 
@@ -131,8 +151,8 @@ export const messageConfirm: MessageConfirm
 
 `UMessageConfirm` 组件事件：
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
+| 事件    | payload                        | 触发时机           |
+| ------- | ------------------------------ | ------------------ |
 | `close` | `action: MessageConfirmAction` | 点击确认或取消按钮 |
 
 ## 典型示例
@@ -148,7 +168,7 @@ async function removeItem(id: string) {
     message: '删除后数据无法恢复，确定继续吗？',
     confirmButtonText: '确认删除',
     cancelButtonText: '取消',
-    confirmButtonType: 'danger',
+    confirmButtonType: 'danger'
   }).onClosed
 
   if (action === 'confirm') {
@@ -170,7 +190,7 @@ messageConfirm.danger('此操作不可逆，确认继续？', {
   onClose: (action) => {
     // 点击按钮、动画开始前触发
     if (action === 'confirm') console.log('用户确认')
-  },
+  }
 })
 ```
 
@@ -218,6 +238,7 @@ function handleClose(action: MessageConfirmAction) {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 需要轻量、非阻断的行内确认（附着在触发元素旁的气泡）时用 `UPopConfirm`；需要遮罩阻断页面操作的文字确认时用 `messageConfirm`。
 > - **不要和 `UAction` 的 `needConfirm` 叠加**：`need-confirm` 的 `run` 回调已经是气泡确认之后，再调 `messageConfirm` 会让用户连点两次确认。表格操作列二选一——要么 `need-confirm` + `run` 里直接执行，要么去掉 `need-confirm` + 只在 `run` 里 `messageConfirm`（详见 `UAction` 文档的「删除操作要连点两次确认」）。
 > - 需要自定义复杂内容、表单或插槽的对话框时用 `UDialog`；`messageConfirm` 仅支持 `title` + `message` 纯文字，`message` 不支持 HTML。

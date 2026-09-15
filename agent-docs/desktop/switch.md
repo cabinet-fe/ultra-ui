@@ -1,6 +1,6 @@
 ---
-title: "USwitch 开关"
-description: "开关控件，绑定布尔值表示开/关状态；支持开/关两侧文案、三种尺寸，可在 UForm 内用 field 绑定表单字段。字段允许 undefined 且视为开时，用 UFormItem 包裹并自行转换 modelValue。"
+title: 'USwitch 开关'
+description: '开关控件，绑定布尔值表示开/关状态；支持开/关两侧文案、三种尺寸，可在 UForm 内用 field 绑定表单字段。字段允许 undefined 且视为开时，用 UFormItem 包裹并自行转换 modelValue。'
 aliases: [switch, Switch, 开关, 切换开关, 切换]
 keywords:
   - modelValue
@@ -70,27 +70,27 @@ export type SwitchExposed = DeconstructValue<_SwitchExposed>
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `modelValue` | `boolean` | — | 否 | 仅 `true` / `false`；本库没有 `activeValue` / `inactiveValue`，不支持非布尔值 |
-| `activeText` | `string` | — | 否 | 打开状态的文案，渲染在开关右侧；不设置则不渲染文案 |
-| `inactiveText` | `string` | — | 否 | 关闭状态的文案，渲染在开关左侧；不设置则不渲染文案 |
-| **继承自 `FormComponentProps`** | | | | |
-| `size` | `ComponentSize` | `'default'` | 否 | `'small'` \| `'default'` \| `'large'`；未设置时继承 `<u-form>` 的 `size` |
-| `label` | `string` | — | 否 | 表单标签文字；仅在 `UForm` / `UFormItem` 内生效 |
-| `field` | `string` | — | 否 | `UForm` 字段名；在 `UForm` 内必须用 `field` 绑定，禁止再写 `v-model` |
-| `tips` | `string` | — | 否 | 表单内提示文字；仅在 `UForm` / `UFormItem` 内生效 |
-| `span` | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }` | — | 否 | 表单中所占列数；`'full'` 占满一行，响应式对象的 `default` 必填 |
-| `disabled` | `boolean` | `false` | 否 | 禁用：点击无效；未设置时继承 `<u-form>` 的 `disabled` |
-| `readonly` | `boolean` | `false` | 否 | 只读：点击无效，渲染形态不变；未设置时继承 `<u-form>` 的 `readonly` |
-| `rules` | `ValidateRule` | — | 否 | 校验规则；仅在 `UForm` 内生效 |
+| 参数                            | 类型                                                       | 默认        | 必填 | 约束                                                                          |
+| ------------------------------- | ---------------------------------------------------------- | ----------- | :--: | ----------------------------------------------------------------------------- |
+| `modelValue`                    | `boolean`                                                  | —           |  否  | 仅 `true` / `false`；本库没有 `activeValue` / `inactiveValue`，不支持非布尔值 |
+| `activeText`                    | `string`                                                   | —           |  否  | 打开状态的文案，渲染在开关右侧；不设置则不渲染文案                            |
+| `inactiveText`                  | `string`                                                   | —           |  否  | 关闭状态的文案，渲染在开关左侧；不设置则不渲染文案                            |
+| **继承自 `FormComponentProps`** |                                                            |             |      |                                                                               |
+| `size`                          | `ComponentSize`                                            | `'default'` |  否  | `'small'` \| `'default'` \| `'large'`；未设置时继承 `<u-form>` 的 `size`      |
+| `label`                         | `string`                                                   | —           |  否  | 表单标签文字；仅在 `UForm` / `UFormItem` 内生效                               |
+| `field`                         | `string`                                                   | —           |  否  | `UForm` 字段名；在 `UForm` 内必须用 `field` 绑定，禁止再写 `v-model`          |
+| `tips`                          | `string`                                                   | —           |  否  | 表单内提示文字；仅在 `UForm` / `UFormItem` 内生效                             |
+| `span`                          | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }` | —           |  否  | 表单中所占列数；`'full'` 占满一行，响应式对象的 `default` 必填                |
+| `disabled`                      | `boolean`                                                  | `false`     |  否  | 禁用：点击无效；未设置时继承 `<u-form>` 的 `disabled`                         |
+| `readonly`                      | `boolean`                                                  | `false`     |  否  | 只读：点击无效，渲染形态不变；未设置时继承 `<u-form>` 的 `readonly`           |
+| `rules`                         | `ValidateRule`                                             | —           |  否  | 校验规则；仅在 `UForm` 内生效                                                 |
 
 ## 方法与事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
-| `update:modelValue` | `value: boolean` | 开关状态切换后 |
-| `change` | `value: boolean` | 开关状态切换后；`disabled` 或 `readonly` 时点击无效、不触发 |
+| 事件                | payload          | 触发时机                                                    |
+| ------------------- | ---------------- | ----------------------------------------------------------- |
+| `update:modelValue` | `value: boolean` | 开关状态切换后                                              |
+| `change`            | `value: boolean` | 开关状态切换后；`disabled` 或 `readonly` 时点击无效、不触发 |
 
 组件未 `defineExpose` 任何方法，模板 `ref` 上无可调用属性。
 
@@ -188,6 +188,7 @@ const formData = reactive({ status: undefined as boolean | undefined })
 ## 注意事项
 
 > [!WARNING]
+>
 > - `modelValue` 是布尔值。本库没有 `activeValue` / `inactiveValue`（不是 Element Plus 的自定义开/关值）；非布尔的两态切换用 `URadioGroup`。
 > - 本库没有 `show-text` 属性：文案是否显示由 `activeText` / `inactiveText` 是否设置决定，两个属性互不依赖。
 > - `activeText` 渲染在开关右侧，`inactiveText` 渲染在开关左侧；文案不随状态切换隐藏，两侧都设置时同时可见。

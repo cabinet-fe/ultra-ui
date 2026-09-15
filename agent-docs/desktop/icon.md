@@ -1,8 +1,24 @@
 ---
 title: UIcon 图标
-description: "@veltra/desktop 导出的图标容器组件。把 @veltra/icons 的 SVG 图标组件放进默认插槽渲染，size 控制尺寸（数字自动补 px），颜色经 currentColor 继承父级，加 is-loading 类可显示旋转加载动画。"
+description: '@veltra/desktop 导出的图标容器组件。把 @veltra/icons 的 SVG 图标组件放进默认插槽渲染，size 控制尺寸（数字自动补 px），颜色经 currentColor 继承父级，加 is-loading 类可显示旋转加载动画。'
 aliases: [UIcon, Icon, 图标, 图标容器, SvgIcon]
-keywords: [IconProps, size, is-loading, currentColor, "@veltra/icons", "@veltra/icons/normal", "@veltra/icons/colorful", SVG, 图标尺寸, 颜色继承, 加载动画, 旋转, 内联图标, 按钮图标]
+keywords:
+  [
+    IconProps,
+    size,
+    is-loading,
+    currentColor,
+    '@veltra/icons',
+    '@veltra/icons/normal',
+    '@veltra/icons/colorful',
+    SVG,
+    图标尺寸,
+    颜色继承,
+    加载动画,
+    旋转,
+    内联图标,
+    按钮图标
+  ]
 ---
 
 # UIcon 图标
@@ -51,9 +67,9 @@ export interface IconExposed {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `size` | `` `${number}px` `` \| `number` | — | 否 | 由 `withUnit(size, 'px')` 处理：`number` 与纯数字字符串追加 `px`（`:size="16"` 等价 `size="16px"`）；非纯数字字符串原样写入 `font-size`。未传时 `font-size: inherit`，跟随父级字号 |
+| 参数   | 类型                            | 默认 | 必填 | 约束                                                                                                                                                                               |
+| ------ | ------------------------------- | ---- | :--: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `size` | `` `${number}px` `` \| `number` | —    |  否  | 由 `withUnit(size, 'px')` 处理：`number` 与纯数字字符串追加 `px`（`:size="16"` 等价 `size="16px"`）；非纯数字字符串原样写入 `font-size`。未传时 `font-size: inherit`，跟随父级字号 |
 
 插槽：默认插槽放 `@veltra/icons` 导出的图标组件。事件：无。暴露：`IconExposed` 为空对象。
 
@@ -121,6 +137,7 @@ const keyword = ref('')
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库是 `UIcon` 包裹图标组件的嵌套写法（`<u-icon><Search /></u-icon>`），不是 Element Plus 的 `<el-icon>` + `size` 属性传组件，也不是 `<u-icon name="search">` 的名称式用法。
 > - 图标从 `@veltra/icons/normal` / `@veltra/icons/colorful` 子路径导入；根入口 `@veltra/icons` 会导出全部图标，体积更大，按需场景禁止使用。
 > - `size` 只控制大小，不控制颜色；着色必须给容器或父元素设 `color`。

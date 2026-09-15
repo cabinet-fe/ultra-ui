@@ -6,15 +6,23 @@
 
 ```ts
 // 已改用 fetchUserList，旧方法仍留着
-async function getUsers() { /* ... */ }
+async function getUsers() {
+  /* ... */
+}
 
-async function fetchUserList() { /* ... */ }
+async function fetchUserList() {
+  /* ... */
+}
 ```
 
 ```scss
 // 模板已不用 .old-panel
-.old-panel { padding: 16px; }
-.user-panel { padding: 16px; }
+.old-panel {
+  padding: 16px;
+}
+.user-panel {
+  padding: 16px;
+}
 ```
 
 ## 正例

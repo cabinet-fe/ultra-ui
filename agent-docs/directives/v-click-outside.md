@@ -2,7 +2,22 @@
 title: vClickOutside 点击外部指令
 description: 从 @veltra/directives 导入的点击外部检测指令，在 document 捕获阶段监听 mousedown 与 click，完整点击落在绑定元素外部时同步调用回调。用于下拉菜单、弹出层、右键菜单、抽屉点击外部自动关闭，支持动态换回调或传假值解除监听。
 aliases: [v-click-outside, clickOutside, clickoutside, 点击外部关闭, 点击空白关闭, outside click]
-keywords: [vClickOutside, v-click-outside, "@veltra/directives", MouseEvent, document, mousedown, capture, 点击外部关闭, 点击空白, 浮层关闭, 下拉关闭, 弹窗外部点击, 解除监听]
+keywords:
+  [
+    vClickOutside,
+    v-click-outside,
+    '@veltra/directives',
+    MouseEvent,
+    document,
+    mousedown,
+    capture,
+    点击外部关闭,
+    点击空白,
+    浮层关闭,
+    下拉关闭,
+    弹窗外部点击,
+    解除监听
+  ]
 ---
 
 # vClickOutside 点击外部指令
@@ -60,14 +75,14 @@ app.mount('#app')
 ## API 签名
 
 ```ts
-import type { ObjectDirective } from 'vue';
+import type { ObjectDirective } from 'vue'
 
 /**
  * 点击绑定元素外部时调用绑定值回调。
  * 绑定值类型：(event: MouseEvent) => void
  * 无修饰符、无指令参数。
  */
-export declare const vClickOutside: ObjectDirective<HTMLElement>;
+export declare const vClickOutside: ObjectDirective<HTMLElement>
 ```
 
 指令内部行为：
@@ -80,13 +95,13 @@ export declare const vClickOutside: ObjectDirective<HTMLElement>;
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| 绑定值 | `(event: MouseEvent) => void` | — | 要触发回调时必填 | `mounted` 时为假值（`undefined` / `false` / `null` / `0` / `''`）则不注册；`updated` 时换新函数立即生效，换成假值即解除监听 |
-| 修饰符 | 无 | — | — | 不支持任何修饰符 |
-| 指令参数 | 无 | — | — | 不支持 `v-click-outside:x` 写法 |
-| 回调触发时机 | — | — | — | `document` 捕获阶段，先于目标元素自身的 `click` 冒泡处理 |
-| 清理行为 | — | — | — | `unmounted` 时删除该元素注册；最后一个绑定元素卸载后移除 `document` 监听 |
+| 参数         | 类型                          | 默认 |       必填       | 约束                                                                                                                        |
+| ------------ | ----------------------------- | ---- | :--------------: | --------------------------------------------------------------------------------------------------------------------------- |
+| 绑定值       | `(event: MouseEvent) => void` | —    | 要触发回调时必填 | `mounted` 时为假值（`undefined` / `false` / `null` / `0` / `''`）则不注册；`updated` 时换新函数立即生效，换成假值即解除监听 |
+| 修饰符       | 无                            | —    |        —         | 不支持任何修饰符                                                                                                            |
+| 指令参数     | 无                            | —    |        —         | 不支持 `v-click-outside:x` 写法                                                                                             |
+| 回调触发时机 | —                             | —    |        —         | `document` 捕获阶段，先于目标元素自身的 `click` 冒泡处理                                                                    |
+| 清理行为     | —                             | —    |        —         | `unmounted` 时删除该元素注册；最后一个绑定元素卸载后移除 `document` 监听                                                    |
 
 ## 方法与事件
 
@@ -158,9 +173,7 @@ function handleClickOutside() {
   </select>
 
   <!-- trigger 为 manual 时传入 undefined，监听被解除 -->
-  <div v-click-outside="trigger === 'click' ? handleClickOutside : undefined">
-    面板内容
-  </div>
+  <div v-click-outside="trigger === 'click' ? handleClickOutside : undefined">面板内容</div>
 </template>
 ```
 
@@ -215,6 +228,7 @@ defineEmits<{ (e: 'close'): void }>()
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库指令从 `@veltra/directives` 导入（`import { vClickOutside } from '@veltra/directives'`），不是 Vue 内置指令；Vue 没有内置 `v-click-outside`，Element Plus 的 `v-clickoutside` 也不是本指令。禁止写成 `import { vClickOutside } from 'vue'`。
 > - 判定单位是「完整点击」：按住拖动到别处松开（`mousedown` 与 `click` 的 `target` 不同）不触发回调；在元素上右键、只按下不抬起也不触发。
 > - 点击绑定元素内部的任何子元素都不触发（按 `el.contains(target)` 判定）；要把可点击区域纳入，必须让它位于绑定元素内部。

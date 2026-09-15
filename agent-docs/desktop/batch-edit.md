@@ -1,7 +1,7 @@
 ---
 title: UBatchEdit 批量编辑
-description: "左侧 UTable 加右侧 UForm 的批量行编辑组件：点行打开表单编辑/查看，表单可用右侧面板或弹框（formMode）呈现，支持新增、上方/下方插入、树形新增子级、删除、快速编辑实时写回行数据，以及 features 功能白名单与保存/删除钩子。"
-aliases: ["UBatchEdit", "BatchEdit", "EditableTable", "行编辑", "批量行编辑", "批量表格"]
+description: '左侧 UTable 加右侧 UForm 的批量行编辑组件：点行打开表单编辑/查看，表单可用右侧面板或弹框（formMode）呈现，支持新增、上方/下方插入、树形新增子级、删除、快速编辑实时写回行数据，以及 features 功能白名单与保存/删除钩子。'
+aliases: ['UBatchEdit', 'BatchEdit', 'EditableTable', '行编辑', '批量行编辑', '批量表格']
 keywords:
   - field:update
   - quickEdit
@@ -95,7 +95,10 @@ export interface BatchEditProps extends TableProps {
   /** 开启快速编辑：编辑行时表单实时写回 row.data（经 model 中转），不调用 saveMethod，隐藏保存按钮与 Ctrl+S；新增仍走保存流程 */
   quickEdit?: boolean
   /** 新增前的钩子；仅 create / createChild 类操作在保存时调用，可直接修改传入的 draft 对象 */
-  beforeCreate?: (data: Record<string, any>, parentData?: Record<string, any>) => void | Promise<void>
+  beforeCreate?: (
+    data: Record<string, any>,
+    parentData?: Record<string, any>
+  ) => void | Promise<void>
   /** 右侧表单 label 宽度，透传内部 UForm */
   labelWidth?: string | number
   /** 删除方法；返回 false（严格等于）则不删除。未传时直接移除行 */
@@ -114,8 +117,7 @@ export interface BatchEditProps extends TableProps {
    * true 视为开启。不传时默认开放 create / update / delete / createChild（view 默认关闭）
    */
   features?:
-    | Array<BatchEditFeature>
-    | { [key in BatchEditFeature]?: boolean | ((row: TableRow) => boolean) }
+    Array<BatchEditFeature> | { [key in BatchEditFeature]?: boolean | ((row: TableRow) => boolean) }
   /** 行内操作按钮属性（ActionProps：needConfirm、inDropdown 及 Button 属性）；当前仅 delete 操作消费 */
   actionsProps?: Partial<Record<BatchEditFeature, ActionProps>>
 }
@@ -164,10 +166,7 @@ export type BatchEditExposed = {}
 辅助工具——列定义与 `UTable` 共用，两写法等价：
 
 ```ts
-import {
-  defineBatchEditColumns,
-  defineTableColumns
-} from '@veltra/desktop'
+import { defineBatchEditColumns, defineTableColumns } from '@veltra/desktop'
 
 // 原样返回列数组，仅为类型标注；BatchEditColumn 兼容 TableColumn
 defineBatchEditColumns([{ name: '姓名', key: 'name', width: 120 }])
@@ -178,22 +177,22 @@ defineTableColumns([{ name: '姓名', key: 'name' }], { align: 'center', minWidt
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `model` | `Record<string, any>` | — | 是 | 必须为 `reactive` 对象；`#form` 控件按 `field` 读写它，不传则右栏不渲染 |
-| `v-model:data` | `Record<string, any>[]` | — | 是 | 行数组；插入/删除后组件 emit `update:data` 整体替换 |
-| `columns` | `BatchEditColumn[]` | — | 是 | 结构同 UTable 的 `TableColumn`；非只读且开启任一编辑功能时自动追加固定右侧「操作」列（宽 180） |
-| `cols` | `string \| [string, string]` | `['1fr', '420px']` | 否 | 左右两栏宽度；表单关闭时右栏收起 |
-| `readonly` | `boolean` | `false` | 否 | 只读时点行进入 `view`，仅 `Esc` 快捷键可用 |
-| `formMode` | `'panel' \| 'dialog'` | `'panel'` | 否 | 表单呈现方式；`'dialog'` 时表单在弹框中打开、不再渲染右栏，`cols` 不生效；保存成功后关闭弹框，取消/关闭按钮/遮罩点击均不保存 |
-| `quickEdit` | `boolean` | `false` | 否 | 编辑行实时写回 `row.data`；回显/重置期间（syncing）不写回，避免默认值污染行数据 |
-| `labelWidth` | `string \| number` | — | 否 | 透传内部 `UForm` 的 `labelWidth` |
-| `beforeCreate` | `(data, parentData?) => void \| Promise<void>` | — | 否 | 仅 `create` / `createChild` 保存时调用；可直接修改 `data` |
-| `deleteMethod` | `(data: Record<string, any>[]) => any` | — | 否 | 返回 `false` 阻止删除；抛错被捕获并 `console.error`，不中断加载态复位 |
-| `saveMethod` | `(data, actionType, parentData?) => any` | — | 否 | 校验通过才调用；返回非空值作为插入/写回内容 |
-| `features` | `BatchEditFeature[] \| Record<BatchEditFeature, boolean \| (row: TableRow) => boolean>` | 默认开放 `create`/`update`/`delete`/`createChild` | 否 | `view` 不在默认集合，需要时显式传入或写 `view: true`；`create` 同时控制「新增一行」与「在上方/下方插入」入口，`update` 控制点行编辑，`delete` 控制删除按钮，`createChild` 配合 `tree` 控制添加子级；判定函数按行调用，`create` 类操作调用时不传 `row` |
-| `actionsProps` | `Partial<Record<BatchEditFeature, ActionProps>>` | — | 否 | 仅 `delete` 被消费；`ActionProps` 含 `needConfirm`（删除确认）、`inDropdown` 及 Button 属性 |
-| 其余 | `TableProps` 继承属性 | — | 否 | `data` / `checkable` / `tree` / `rowKey` / `stripe` / `border` / `virtualThreshold` 等透传左侧 `UTable`，取值见 `agent-docs/desktop/table.md` |
+| 参数           | 类型                                                                                    | 默认                                              | 必填 | 约束                                                                                                                                                                                                                                                  |
+| -------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------- | :--: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `model`        | `Record<string, any>`                                                                   | —                                                 |  是  | 必须为 `reactive` 对象；`#form` 控件按 `field` 读写它，不传则右栏不渲染                                                                                                                                                                               |
+| `v-model:data` | `Record<string, any>[]`                                                                 | —                                                 |  是  | 行数组；插入/删除后组件 emit `update:data` 整体替换                                                                                                                                                                                                   |
+| `columns`      | `BatchEditColumn[]`                                                                     | —                                                 |  是  | 结构同 UTable 的 `TableColumn`；非只读且开启任一编辑功能时自动追加固定右侧「操作」列（宽 180）                                                                                                                                                        |
+| `cols`         | `string \| [string, string]`                                                            | `['1fr', '420px']`                                |  否  | 左右两栏宽度；表单关闭时右栏收起                                                                                                                                                                                                                      |
+| `readonly`     | `boolean`                                                                               | `false`                                           |  否  | 只读时点行进入 `view`，仅 `Esc` 快捷键可用                                                                                                                                                                                                            |
+| `formMode`     | `'panel' \| 'dialog'`                                                                   | `'panel'`                                         |  否  | 表单呈现方式；`'dialog'` 时表单在弹框中打开、不再渲染右栏，`cols` 不生效；保存成功后关闭弹框，取消/关闭按钮/遮罩点击均不保存                                                                                                                          |
+| `quickEdit`    | `boolean`                                                                               | `false`                                           |  否  | 编辑行实时写回 `row.data`；回显/重置期间（syncing）不写回，避免默认值污染行数据                                                                                                                                                                       |
+| `labelWidth`   | `string \| number`                                                                      | —                                                 |  否  | 透传内部 `UForm` 的 `labelWidth`                                                                                                                                                                                                                      |
+| `beforeCreate` | `(data, parentData?) => void \| Promise<void>`                                          | —                                                 |  否  | 仅 `create` / `createChild` 保存时调用；可直接修改 `data`                                                                                                                                                                                             |
+| `deleteMethod` | `(data: Record<string, any>[]) => any`                                                  | —                                                 |  否  | 返回 `false` 阻止删除；抛错被捕获并 `console.error`，不中断加载态复位                                                                                                                                                                                 |
+| `saveMethod`   | `(data, actionType, parentData?) => any`                                                | —                                                 |  否  | 校验通过才调用；返回非空值作为插入/写回内容                                                                                                                                                                                                           |
+| `features`     | `BatchEditFeature[] \| Record<BatchEditFeature, boolean \| (row: TableRow) => boolean>` | 默认开放 `create`/`update`/`delete`/`createChild` |  否  | `view` 不在默认集合，需要时显式传入或写 `view: true`；`create` 同时控制「新增一行」与「在上方/下方插入」入口，`update` 控制点行编辑，`delete` 控制删除按钮，`createChild` 配合 `tree` 控制添加子级；判定函数按行调用，`create` 类操作调用时不传 `row` |
+| `actionsProps` | `Partial<Record<BatchEditFeature, ActionProps>>`                                        | —                                                 |  否  | 仅 `delete` 被消费；`ActionProps` 含 `needConfirm`（删除确认）、`inDropdown` 及 Button 属性                                                                                                                                                           |
+| 其余           | `TableProps` 继承属性                                                                   | —                                                 |  否  | `data` / `checkable` / `tree` / `rowKey` / `stripe` / `border` / `virtualThreshold` 等透传左侧 `UTable`，取值见 `agent-docs/desktop/table.md`                                                                                                         |
 
 ## 方法与事件
 
@@ -313,11 +312,7 @@ const columns = defineTableColumns([
 ])
 
 const data = shallowRef([{ name: '张三', department: 'tech', position: 'engineer' }])
-const model = reactive({
-  name: '',
-  department: '',
-  position: undefined as string | undefined
-})
+const model = reactive({ name: '', department: '', position: undefined as string | undefined })
 </script>
 
 <template>
@@ -402,6 +397,7 @@ function saveMethod(data: Record<string, any>, actionType: string) {
 ## 注意事项
 
 > [!WARNING]
+>
 > - `#form` 内控件用 `field` 绑定 `model`，**不是** `v-model`；并用 `v-model` 会让保存与快速编辑拿到脱离的旧值。
 > - `model` 必传（`reactive` 对象）；不传时右侧表单整个不渲染。
 > - 本库的动态判定功能写法是 `features` 对象形式（`false` / 函数关闭，`true` 开启），`view` **不在**默认开放集合，需要查看功能必须显式开启。

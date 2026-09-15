@@ -1,8 +1,22 @@
 ---
 title: UGanttChart 甘特图
-description: "@veltra/desktop 导出的甘特图组件。当前版本是渲染壳：公开 API 仅 v-model（string），组件模板渲染空容器 div，任务行、时间轴等能力尚未开放，业务需等待后续版本。"
+description: '@veltra/desktop 导出的甘特图组件。当前版本是渲染壳：公开 API 仅 v-model（string），组件模板渲染空容器 div，任务行、时间轴等能力尚未开放，业务需等待后续版本。'
 aliases: [UGanttChart, GanttChart, gantt-chart, 甘特图, 进度计划图]
-keywords: [UGanttChart, GanttChartProps, modelValue, update:modelValue, GanttChartExposed, gantt-chart, 甘特图, 任务选中, 选中任务, 时间轴, 进度计划, 任务排期]
+keywords:
+  [
+    UGanttChart,
+    GanttChartProps,
+    modelValue,
+    update:modelValue,
+    GanttChartExposed,
+    gantt-chart,
+    甘特图,
+    任务选中,
+    选中任务,
+    时间轴,
+    进度计划,
+    任务排期
+  ]
 ---
 
 # UGanttChart 甘特图
@@ -51,16 +65,16 @@ export interface GanttChartExposed {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `modelValue` | `string` | — | 否 | 选中任务 id；当前版本组件内部不读写该值，仅作为受控值由业务持有 |
+| 参数         | 类型     | 默认 | 必填 | 约束                                                            |
+| ------------ | -------- | ---- | :--: | --------------------------------------------------------------- |
+| `modelValue` | `string` | —    |  否  | 选中任务 id；当前版本组件内部不读写该值，仅作为受控值由业务持有 |
 
 未声明的属性（如 `data`、`tasks`）不会被子组件消费，会作为 attrs 透传到根 `div.u-gantt-chart` 上；传了也不会产生甘特图渲染结果。
 
 ## 方法与事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
+| 事件                | payload         | 触发时机                                                                               |
+| ------------------- | --------------- | -------------------------------------------------------------------------------------- |
 | `update:modelValue` | `value: string` | 类型已声明，但当前版本源码未声明 emits、也没有任何交互会触发它；监听它当前不会收到回调 |
 
 无暴露方法：`GanttChartExposed` 为空接口，模板 ref 上取不到任何方法或属性。
@@ -123,6 +137,7 @@ const summary = computed(() => (taskId.value ? `当前任务：${taskId.value}` 
 ## 注意事项
 
 > [!WARNING]
+>
 > - 当前版本是占位壳：模板仅渲染空 `<div class="u-gantt-chart">`，不渲染任务行、时间轴、条形图；页面出现空白属于预期行为，不是接入错误。
 > - 本库 `v-model` 的类型是 `string`，不是对象或数字 id；传 `number` 时类型检查不通过。
 > - 组件当前没有 `tasks`、`startDate`、`endDate`、`columns` 等属性；禁止参考其它甘特图库（如 dhtmlxGantt、gantt-task-react）的 props 往本组件上写，这些属性只会落到根 div 的 attrs 上。

@@ -1,8 +1,23 @@
 ---
-title: "IO 文件导入导出（XLSX / CSV）"
-description: "从 @veltra/sheet-core 主入口导入的五个 IO 函数：importXlsx / importCsv 导入，exportWorkbookXlsx / exportSheetXlsx / exportSheetCsv 导出；保留值、公式、合并、样式、冻结、行高列宽与浮动图，可无头使用。"
-aliases: ["io", "导入导出", "xlsx 导入", "csv 导出", "Excel 导入导出"]
-keywords: ["importXlsx", "importCsv", "exportWorkbookXlsx", "exportSheetXlsx", "exportSheetCsv", "onProgress", "fallbackName", "导入导出", "进度回调", "公式缓存", "浮动图", "样式保真", "InvalidArgumentError"]
+title: 'IO 文件导入导出（XLSX / CSV）'
+description: '从 @veltra/sheet-core 主入口导入的五个 IO 函数：importXlsx / importCsv 导入，exportWorkbookXlsx / exportSheetXlsx / exportSheetCsv 导出；保留值、公式、合并、样式、冻结、行高列宽与浮动图，可无头使用。'
+aliases: ['io', '导入导出', 'xlsx 导入', 'csv 导出', 'Excel 导入导出']
+keywords:
+  [
+    'importXlsx',
+    'importCsv',
+    'exportWorkbookXlsx',
+    'exportSheetXlsx',
+    'exportSheetCsv',
+    'onProgress',
+    'fallbackName',
+    '导入导出',
+    '进度回调',
+    '公式缓存',
+    '浮动图',
+    '样式保真',
+    'InvalidArgumentError'
+  ]
 ---
 
 # IO 文件导入导出（XLSX / CSV）
@@ -51,16 +66,16 @@ export function exportSheetCsv(sheet: Sheet): string
 
 ## 参数说明
 
-| 函数 | 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | --- | :---: | --- |
-| `importXlsx` | `buffer` | `ArrayBuffer \| Uint8Array` | — | 是 | xlsx 文件字节 |
-| `importXlsx` | `onProgress` | `(done, total) => void` | 无 | 否 | 同步回调，每完成一张表一次；导入完成时 `done === total` |
-| `importCsv` | `text` | `string` | — | 是 | CSV 文本；类型推断开启（数字 / 布尔 / ISO 日期），前导零保留为字符串 |
-| `importCsv` | `sheet` | `Sheet` | — | 是 | 目标表；从 A1 覆盖写入**既有**表 |
-| `exportWorkbookXlsx` | `workbook` | `Workbook` | — | 是 | 至少含一张表（`new Workbook()` 自带 Sheet1） |
-| `exportSheetXlsx` | `sheet` | `Sheet` | — | 是 | 可为独立 `Sheet`（不在任何 Workbook 里） |
-| `exportSheetXlsx` | `options.fallbackName` | `string` | — | 否 | 仅 `sheet.name` 为空串时生效 |
-| `exportSheetCsv` | `sheet` | `Sheet` | — | 是 | 范围 = A1 到最后一个有值格（裁剪高水位空行空列） |
+| 函数                 | 参数                   | 类型                        | 默认 | 必填 | 约束                                                                 |
+| -------------------- | ---------------------- | --------------------------- | ---- | :--: | -------------------------------------------------------------------- |
+| `importXlsx`         | `buffer`               | `ArrayBuffer \| Uint8Array` | —    |  是  | xlsx 文件字节                                                        |
+| `importXlsx`         | `onProgress`           | `(done, total) => void`     | 无   |  否  | 同步回调，每完成一张表一次；导入完成时 `done === total`              |
+| `importCsv`          | `text`                 | `string`                    | —    |  是  | CSV 文本；类型推断开启（数字 / 布尔 / ISO 日期），前导零保留为字符串 |
+| `importCsv`          | `sheet`                | `Sheet`                     | —    |  是  | 目标表；从 A1 覆盖写入**既有**表                                     |
+| `exportWorkbookXlsx` | `workbook`             | `Workbook`                  | —    |  是  | 至少含一张表（`new Workbook()` 自带 Sheet1）                         |
+| `exportSheetXlsx`    | `sheet`                | `Sheet`                     | —    |  是  | 可为独立 `Sheet`（不在任何 Workbook 里）                             |
+| `exportSheetXlsx`    | `options.fallbackName` | `string`                    | —    |  否  | 仅 `sheet.name` 为空串时生效                                         |
+| `exportSheetCsv`     | `sheet`                | `Sheet`                     | —    |  是  | 范围 = A1 到最后一个有值格（裁剪高水位空行空列）                     |
 
 返回值与错误：
 
@@ -129,6 +144,7 @@ csv.includes('名称,数量') // => true；返回值带 UTF-8 BOM，写文件用
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本篇只覆盖主入口白名单的五个函数。`buildWorkbookFromHucre` / `replaceWorkbookWithSnapshots` / `streamXlsxRows` / `writeXlsxStream` 未导出：流式 API 不支持样式 / 合并 / 公式，本库明确不采用。
 > - `importCsv` 写入**既有** `Sheet` 而不是新建工作簿；要"CSV → 新 Workbook"需先 `new Workbook()` 再传 `workbook.activeSheet`。
 > - 公式格：xlsx 同时写公式原文（`f` 不含 `=`）与计算缓存值；CSV 只写计算缓存值。导入的公式由本地引擎重算填充缓存——本地未注册的函数求值 `#NAME?`，解析失败 `#ERROR!`。
@@ -158,7 +174,12 @@ const bytes = await exportSheetXlsx(workbook.activeSheet, { fallbackName: 'Q3' }
 原因：文件里的公式用了本引擎未注册的函数（内置 17 个之外），导入写入即触发重算。修复：`importXlsx` 之前先注册同名函数：
 
 ```ts
-import { coerceToNumber, importXlsx, isFormulaError, registerFormulaFunction } from '@veltra/sheet-core'
+import {
+  coerceToNumber,
+  importXlsx,
+  isFormulaError,
+  registerFormulaFunction
+} from '@veltra/sheet-core'
 
 registerFormulaFunction('DISCOUNT', {
   minArgs: 1,

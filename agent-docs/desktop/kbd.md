@@ -1,6 +1,6 @@
 ---
 title: UKbd 键盘按键
-description: "@veltra/desktop 导出的键盘按键标签组件。渲染 <kbd> 元素并在文档流中呈现立体键帽样式（0.75em、自动随上下文字号缩放），用于在段落、表格、快捷键说明中标记单个按键或组合键。"
+description: '@veltra/desktop 导出的键盘按键标签组件。渲染 <kbd> 元素并在文档流中呈现立体键帽样式（0.75em、自动随上下文字号缩放），用于在段落、表格、快捷键说明中标记单个按键或组合键。'
 aliases: [UKbd, Kbd, kbd, 键盘按键, 快捷键标签, KeyboardKey]
 keywords: [UKbd, kbd, 键帽, 快捷键, 组合键, 快捷键说明, 按键标签, Ctrl, Esc, 修饰键]
 ---
@@ -37,14 +37,14 @@ import { UKbd } from '@veltra/desktop'
 
 无 props。外观随环境自动适配，无尺寸 / 颜色档位：
 
-| 外观项 | 值 | 来源 |
-| --- | --- | --- |
-| 字号 | `0.75em`（相对父级） | 组件样式，写死 |
-| 最小宽度 | `1.75em` | 组件样式，写死 |
-| 高度 | `fit-content`，行高 `1.7em` | 组件样式，写死 |
-| 键帽底色 / 文字色 | `--u-bg-color-top` / `--u-text-color-main` | 主题 token，随主题变化 |
-| 立体效果 | 三层 box-shadow（`--u-component-kbd-*` token） | 主题 token，随主题变化 |
-| 换行 | `white-space: nowrap`，不换行 | 组件样式，写死 |
+| 外观项            | 值                                             | 来源                   |
+| ----------------- | ---------------------------------------------- | ---------------------- |
+| 字号              | `0.75em`（相对父级）                           | 组件样式，写死         |
+| 最小宽度          | `1.75em`                                       | 组件样式，写死         |
+| 高度              | `fit-content`，行高 `1.7em`                    | 组件样式，写死         |
+| 键帽底色 / 文字色 | `--u-bg-color-top` / `--u-text-color-main`     | 主题 token，随主题变化 |
+| 立体效果          | 三层 box-shadow（`--u-component-kbd-*` token） | 主题 token，随主题变化 |
+| 换行              | `white-space: nowrap`，不换行                  | 组件样式，写死         |
 
 ## 典型示例
 
@@ -79,7 +79,9 @@ const shortcuts = [
   <table>
     <tr v-for="item in shortcuts" :key="item.action">
       <td>{{ item.action }}</td>
-      <td><u-kbd>{{ item.keys }}</u-kbd></td>
+      <td>
+        <u-kbd>{{ item.keys }}</u-kbd>
+      </td>
     </tr>
   </table>
 </template>
@@ -88,6 +90,7 @@ const shortcuts = [
 ## 注意事项
 
 > [!WARNING]
+>
 > - `UKbd` 是纯展示标签，不监听键盘事件；要捕获按键行为用原生 `addEventListener('keydown', ...)` 或 Vue 的 `@keydown`，禁止把交互逻辑寄望于本组件。
 > - 组合键的 `+` 由业务写在插槽里（如 `<u-kbd>Ctrl + S</u-kbd>` 整串放一个键帽），或拆成多个 `UKbd` 用文本 `+` 连接；组件不会自动拆分组合键。
 > - 无 props：没有 `size` / `type` / `variant`；传的 `class` / `style` 会透传到 `<kbd>` 元素上，配合覆盖 `.u-kbd` 的 CSS 变量改外观。

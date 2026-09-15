@@ -1,6 +1,6 @@
 ---
-title: "UCheckboxGroup 复选框组"
-description: "复选框组，用 items 渲染一组选项并把选中的 value 收集为数组；支持自定义 label/value 字段名、整组禁用、块级排列，可在 UForm 内用 field 绑定表单字段。"
+title: 'UCheckboxGroup 复选框组'
+description: '复选框组，用 items 渲染一组选项并把选中的 value 收集为数组；支持自定义 label/value 字段名、整组禁用、块级排列，可在 UForm 内用 field 绑定表单字段。'
 aliases: [checkbox-group, CheckboxGroup, 复选框组, 多选组, 勾选组]
 keywords:
   - modelValue
@@ -74,27 +74,27 @@ export interface CheckboxGroupExposed {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `modelValue` | `Array<any>` | — | 否 | 选中项 `value` 的数组；勾选/取消都产生新数组 |
-| `items` | `Array<Record<string, any>>` | — | 是 | 选项列表；每项必须有 `valueKey` 指向的字段，且其值必须为 truthy |
-| `labelKey` | `string` | `'label'` | 否 | 选项文本字段名；空串按 `'label'` 处理 |
-| `valueKey` | `string` | `'value'` | 否 | 选项值字段名；空串按 `'value'` 处理 |
-| `block` | `boolean` | `false` | 否 | `true` 时选项纵向排列，`false` 时横向排列 |
-| **继承自 `FormComponentProps`** | | | | |
-| `size` | `ComponentSize` | `'default'` | 否 | `'small'` \| `'default'` \| `'large'`；未设置时继承 `<u-form>` 的 `size` |
-| `label` | `string` | — | 否 | 表单标签文字；仅在 `UForm` / `UFormItem` 内生效 |
-| `field` | `string` | — | 否 | `UForm` 字段名；在 `UForm` 内必须用 `field` 绑定，禁止再写 `v-model` |
-| `tips` | `string` | — | 否 | 表单内提示文字；仅在 `UForm` / `UFormItem` 内生效 |
-| `span` | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }` | — | 否 | 表单中所占列数；`'full'` 占满一行，响应式对象的 `default` 必填 |
-| `disabled` | `boolean` | `false` | 否 | 整组禁用；未设置时继承 `<u-form>` 的 `disabled` |
-| `readonly` | `boolean` | `false` | 否 | 只读：渲染选中项文本为标签列表，无选中时显示 `-` |
-| `rules` | `ValidateRule` | — | 否 | 校验规则（如 `{ required: true }`）；仅在 `UForm` 内生效 |
+| 参数                            | 类型                                                       | 默认        | 必填 | 约束                                                                     |
+| ------------------------------- | ---------------------------------------------------------- | ----------- | :--: | ------------------------------------------------------------------------ |
+| `modelValue`                    | `Array<any>`                                               | —           |  否  | 选中项 `value` 的数组；勾选/取消都产生新数组                             |
+| `items`                         | `Array<Record<string, any>>`                               | —           |  是  | 选项列表；每项必须有 `valueKey` 指向的字段，且其值必须为 truthy          |
+| `labelKey`                      | `string`                                                   | `'label'`   |  否  | 选项文本字段名；空串按 `'label'` 处理                                    |
+| `valueKey`                      | `string`                                                   | `'value'`   |  否  | 选项值字段名；空串按 `'value'` 处理                                      |
+| `block`                         | `boolean`                                                  | `false`     |  否  | `true` 时选项纵向排列，`false` 时横向排列                                |
+| **继承自 `FormComponentProps`** |                                                            |             |      |                                                                          |
+| `size`                          | `ComponentSize`                                            | `'default'` |  否  | `'small'` \| `'default'` \| `'large'`；未设置时继承 `<u-form>` 的 `size` |
+| `label`                         | `string`                                                   | —           |  否  | 表单标签文字；仅在 `UForm` / `UFormItem` 内生效                          |
+| `field`                         | `string`                                                   | —           |  否  | `UForm` 字段名；在 `UForm` 内必须用 `field` 绑定，禁止再写 `v-model`     |
+| `tips`                          | `string`                                                   | —           |  否  | 表单内提示文字；仅在 `UForm` / `UFormItem` 内生效                        |
+| `span`                          | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }` | —           |  否  | 表单中所占列数；`'full'` 占满一行，响应式对象的 `default` 必填           |
+| `disabled`                      | `boolean`                                                  | `false`     |  否  | 整组禁用；未设置时继承 `<u-form>` 的 `disabled`                          |
+| `readonly`                      | `boolean`                                                  | `false`     |  否  | 只读：渲染选中项文本为标签列表，无选中时显示 `-`                         |
+| `rules`                         | `ValidateRule`                                             | —           |  否  | 校验规则（如 `{ required: true }`）；仅在 `UForm` 内生效                 |
 
 ## 方法与事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
+| 事件                | payload             | 触发时机                                       |
+| ------------------- | ------------------- | ---------------------------------------------- |
 | `update:modelValue` | `value: Array<any>` | 任一选项勾选状态变化后，发出勾选后完整的值数组 |
 
 组件只有 `update:modelValue`，没有 `change` 事件；要监听变化用 `v-model` 配合 `watch`，或直接监听 `@update:model-value`。组件未 `defineExpose` 任何方法。
@@ -180,6 +180,7 @@ const hobbyList = [
 ## 注意事项
 
 > [!WARNING]
+>
 > - 选项的值字段（`valueKey` 指向的字段）取值必须为 truthy：`0`、`''`、`null` 无法勾选也无法回显选中状态。
 > - `modelValue` 是数组，不是单个布尔值；禁止把布尔值绑给 `UCheckboxGroup`。
 > - 本库没有 `change` 事件，监听变化用 `@update:model-value` 或 `watch` 值数组。

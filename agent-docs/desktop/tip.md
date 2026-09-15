@@ -1,8 +1,29 @@
 ---
 title: UTip 文字提示
-description: "@veltra/desktop 导出的气泡文字提示组件。默认插槽元素为触发器，悬停或点击后在其上方/下方/左右弹出只读提示，支持 12 种 placement（direction + alignment）、受控显隐、弹出延时、自定义内容标签，用于字段说明、图标释义等轻量提示。"
+description: '@veltra/desktop 导出的气泡文字提示组件。默认插槽元素为触发器，悬停或点击后在其上方/下方/左右弹出只读提示，支持 12 种 placement（direction + alignment）、受控显隐、弹出延时、自定义内容标签，用于字段说明、图标释义等轻量提示。'
 aliases: [UTip, Tip, Tooltip, tooltip 提示, 气泡提示, 文字提示]
-keywords: [UTip, TipProps, TipDirection, TipAlign, content, trigger, triggerDom, direction, alignment, showDelay, hideArrow, contentTag, visible, update:visible, hover 触发, 点击触发, 受控显隐, 气泡定位, 提示气泡]
+keywords:
+  [
+    UTip,
+    TipProps,
+    TipDirection,
+    TipAlign,
+    content,
+    trigger,
+    triggerDom,
+    direction,
+    alignment,
+    showDelay,
+    hideArrow,
+    contentTag,
+    visible,
+    update:visible,
+    hover 触发,
+    点击触发,
+    受控显隐,
+    气泡定位,
+    提示气泡
+  ]
 ---
 
 # UTip 文字提示
@@ -75,25 +96,25 @@ export type TipExposed = {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `visible` | `boolean` | — | 否 | 传任意布尔值（含 `false`）即受控：显隐只由该值驱动，交互时 emit `update:visible`；不传为非受控 |
-| `content` | `string` | `''` | 否 | 纯文本内容；复杂内容用 `#content` 插槽 |
-| `trigger` | `'hover' \| 'click'` | `'hover'` | 否 | hover 绑定 mouseenter/mouseleave；click 绑定 click + 点击外部关闭 |
-| `direction` | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'` | 否 | 四个主方向；空间不足时自动 flip 翻转 |
-| `alignment` | `'center' \| 'start' \| 'end'` | `'center'` | 否 | 与 `direction` 组合成 placement；`'center'` 时不拼接后缀 |
-| `triggerDom` | `HTMLElement` | — | 否 | 更换定位与关闭判定的基准 DOM |
-| `hideArrow` | `boolean` | `false` | 否 | `true` 时不渲染箭头元素 |
-| `contentTag` | `string` | `'div'` | 否 | 弹出层根标签名，任意合法 HTML 标签字符串 |
-| `disabled` | `boolean` | `false` | 否 | `true` 时 hover/click 事件全部不绑定 |
-| `showDelay` | `number` | `0` | 否 | 毫秒；仅 `trigger="hover"` 生效，click 触发无延时 |
-| `style` | `CSSProperties \| string` | — | 否 | 落在弹出层上，不影响触发器 |
-| `class` | `string \| string[] \| Record<string, boolean>` | — | 否 | 落在弹出层上（class 是本组件声明 prop，不做 attr 透传） |
+| 参数         | 类型                                            | 默认       | 必填 | 约束                                                                                           |
+| ------------ | ----------------------------------------------- | ---------- | :--: | ---------------------------------------------------------------------------------------------- |
+| `visible`    | `boolean`                                       | —          |  否  | 传任意布尔值（含 `false`）即受控：显隐只由该值驱动，交互时 emit `update:visible`；不传为非受控 |
+| `content`    | `string`                                        | `''`       |  否  | 纯文本内容；复杂内容用 `#content` 插槽                                                         |
+| `trigger`    | `'hover' \| 'click'`                            | `'hover'`  |  否  | hover 绑定 mouseenter/mouseleave；click 绑定 click + 点击外部关闭                              |
+| `direction`  | `'top' \| 'bottom' \| 'left' \| 'right'`        | `'top'`    |  否  | 四个主方向；空间不足时自动 flip 翻转                                                           |
+| `alignment`  | `'center' \| 'start' \| 'end'`                  | `'center'` |  否  | 与 `direction` 组合成 placement；`'center'` 时不拼接后缀                                       |
+| `triggerDom` | `HTMLElement`                                   | —          |  否  | 更换定位与关闭判定的基准 DOM                                                                   |
+| `hideArrow`  | `boolean`                                       | `false`    |  否  | `true` 时不渲染箭头元素                                                                        |
+| `contentTag` | `string`                                        | `'div'`    |  否  | 弹出层根标签名，任意合法 HTML 标签字符串                                                       |
+| `disabled`   | `boolean`                                       | `false`    |  否  | `true` 时 hover/click 事件全部不绑定                                                           |
+| `showDelay`  | `number`                                        | `0`        |  否  | 毫秒；仅 `trigger="hover"` 生效，click 触发无延时                                              |
+| `style`      | `CSSProperties \| string`                       | —          |  否  | 落在弹出层上，不影响触发器                                                                     |
+| `class`      | `string \| string[] \| Record<string, boolean>` | —          |  否  | 落在弹出层上（class 是本组件声明 prop，不做 attr 透传）                                        |
 
 ## 方法与事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
+| 事件             | payload          | 触发时机                                                                               |
+| ---------------- | ---------------- | -------------------------------------------------------------------------------------- |
 | `update:visible` | `value: boolean` | 仅受控模式（传了 `visible`）下，hover 进入/离开或 click 切换时 emit；非受控模式不 emit |
 
 行为细节（源码事实）：
@@ -168,6 +189,7 @@ const customEl = useTemplateRef<HTMLElement>('customEl')
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库弹出方向参数是 `direction`（`'top' | 'bottom' | 'left' | 'right'`），不是 Element Plus 的 12 个 placement 字符串（如 `'top-start'`）；对齐用 `alignment` 单独传。
 > - 默认插槽只取第一个元素节点作为触发器；放多个兄弟节点时只有第一个生效，触发器必须单根。
 > - 触发器不是 DOM 包裹：UTip 通过 `UNodeRender` 直接给插槽元素绑事件，不给触发器加额外 wrapper。

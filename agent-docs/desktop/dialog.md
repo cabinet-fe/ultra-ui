@@ -1,8 +1,30 @@
 ---
 title: UDialog 对话框
-description: "从 @veltra/desktop 导入的模态对话框组件：v-model 或 trigger 插槽控制显隐，带遮罩、标题栏拖拽与最大化/还原。默认插槽内容已在自带滚动容器内，超过高度自动滚动；最大化时通过作用域参数把内容高度设为 100% 铺满，无需自写高度与滚动样式。"
+description: '从 @veltra/desktop 导入的模态对话框组件：v-model 或 trigger 插槽控制显隐，带遮罩、标题栏拖拽与最大化/还原。默认插槽内容已在自带滚动容器内，超过高度自动滚动；最大化时通过作用域参数把内容高度设为 100% 铺满，无需自写高度与滚动样式。'
 aliases: [Dialog, Modal, 弹窗, 模态框, modal]
-keywords: [modelValue, update:modelValue, closed, maximized, fade-scale, DialogExposed, header, footer, trigger, modal, ComponentSize, Esc 关闭, 点击遮罩关闭, 拖拽移动, 最大化还原, 自带滚动, 内容滚动, 表单弹窗, 多层弹窗叠加, z-index]
+keywords:
+  [
+    modelValue,
+    update:modelValue,
+    closed,
+    maximized,
+    fade-scale,
+    DialogExposed,
+    header,
+    footer,
+    trigger,
+    modal,
+    ComponentSize,
+    Esc 关闭,
+    点击遮罩关闭,
+    拖拽移动,
+    最大化还原,
+    自带滚动,
+    内容滚动,
+    表单弹窗,
+    多层弹窗叠加,
+    z-index
+  ]
 ---
 
 # UDialog 对话框
@@ -82,23 +104,23 @@ export interface DialogExposed {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `modelValue` | `boolean` | `false` | 否 | 用 `v-model` 绑定；`false` 时整棵弹框 DOM 不渲染 |
-| `title` | `string` | — | 否 | 标题文字；`header` 存在时被忽略 |
-| `header` | `string` | — | 否 | 标题文字，优先于 `title`；要自定义结构时改用 `#header` 插槽 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 否 | 仅影响标题栏 `padding` 与标题字号，不改变弹框宽高 |
-| `modal` | `boolean` | `true` | 否 | `true` 时显示遮罩且点遮罩关闭；`false` 时遮罩 `pointer-events: none`，点击外部不关闭 |
-| `fullscreen` | `boolean` | — | 否 | 已声明但当前版本未实现任何行为 |
-| `transition` | `'fade-scale'` | `'fade-scale'` | 否 | 当前仅接受 `'fade-scale'` |
+| 参数         | 类型                              | 默认           | 必填 | 约束                                                                                 |
+| ------------ | --------------------------------- | -------------- | :--: | ------------------------------------------------------------------------------------ |
+| `modelValue` | `boolean`                         | `false`        |  否  | 用 `v-model` 绑定；`false` 时整棵弹框 DOM 不渲染                                     |
+| `title`      | `string`                          | —              |  否  | 标题文字；`header` 存在时被忽略                                                      |
+| `header`     | `string`                          | —              |  否  | 标题文字，优先于 `title`；要自定义结构时改用 `#header` 插槽                          |
+| `size`       | `'small' \| 'default' \| 'large'` | `'default'`    |  否  | 仅影响标题栏 `padding` 与标题字号，不改变弹框宽高                                    |
+| `modal`      | `boolean`                         | `true`         |  否  | `true` 时显示遮罩且点遮罩关闭；`false` 时遮罩 `pointer-events: none`，点击外部不关闭 |
+| `fullscreen` | `boolean`                         | —              |  否  | 已声明但当前版本未实现任何行为                                                       |
+| `transition` | `'fade-scale'`                    | `'fade-scale'` |  否  | 当前仅接受 `'fade-scale'`                                                            |
 
 ## 方法与事件
 
-| 名称 | 类型 | 触发时机 |
-| --- | --- | --- |
+| 名称                | 类型                         | 触发时机                                                                       |
+| ------------------- | ---------------------------- | ------------------------------------------------------------------------------ |
 | `update:modelValue` | `(visible: boolean) => void` | 点遮罩、按 Esc、点关闭按钮或调用 `close()` 时发出，配合 `v-model` 同步外部状态 |
-| `closed` | `()` | 遮罩淡出过渡 `after-leave` 后触发一次，此时 DOM 已卸载，适合清理表单状态 |
-| `close`（ref 方法） | `() => void`，同步，无返回值 | 主动关闭，内部把 `modelValue` 置 `false` |
+| `closed`            | `()`                         | 遮罩淡出过渡 `after-leave` 后触发一次，此时 DOM 已卸载，适合清理表单状态       |
+| `close`（ref 方法） | `() => void`，同步，无返回值 | 主动关闭，内部把 `modelValue` 置 `false`                                       |
 
 插槽作用域：
 
@@ -229,6 +251,7 @@ const visible = ref(false)
 ## 注意事项
 
 > [!WARNING]
+>
 > - 组件**自带滚动容器**：`#default` 内容渲染在内部 `UScroll` 里，高度上限 `90vh`（最大化 `100vh`），超出自动滚动。**禁止**在内容上再写 `height` / `max-height` / `overflow: auto`，也禁止自建滚动容器或全屏定位——这些会造成滚动嵌套与样式冗余。
 > - 组件不会自带宽度：必须通过 `style` 或 `class` 设置宽度（如 `style="width: 480px"`）；高度不要手写，交给 `max-height` 限制与内部滚动。
 > - 最大化时用 `#default` 的作用域参数 `maximized` 把内容高度设为 `100%` 铺满；不要用 `position: fixed` 或 `100vw/100vh` 自写全屏样式。

@@ -2,7 +2,29 @@
 title: message / UMessage 全局消息
 description: 从 @veltra/desktop 导入 message 函数式 API，在页面顶部居中弹出自动消失的全局消息，支持 success/warn/info/error/default 五种类型、手动关闭、closeAll 一键清空与 html 内容渲染；也可用 UMessage 组件声明式渲染单条消息。
 aliases: [UMessage, Message, 消息提示, Toast, 全局提示]
-keywords: [MessageType, MessageOptions, MessageInstance, closeAll, onClosed, onClose, closable, duration, html, icon, components/message/style, 函数式调用, 手动关闭, 不自动关闭, 常驻, 悬停暂停, 自定义图标, 消息提示, 样式副作用, 样式未引入]
+keywords:
+  [
+    MessageType,
+    MessageOptions,
+    MessageInstance,
+    closeAll,
+    onClosed,
+    onClose,
+    closable,
+    duration,
+    html,
+    icon,
+    components/message/style,
+    函数式调用,
+    手动关闭,
+    不自动关闭,
+    常驻,
+    悬停暂停,
+    自定义图标,
+    消息提示,
+    样式副作用,
+    样式未引入
+  ]
 ---
 
 # message / UMessage 全局消息
@@ -94,16 +116,16 @@ export const message: Message
 
 函数式选项（`message(options)` 的字段，快捷方法第二参数 `config` 相同但不含 `type` / `message`）：
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `message` | `string` | `''` | 否 | `html: true` 时按 HTML 字符串渲染，内容必须来自可信来源 |
-| `type` | `'success' \| 'warn' \| 'info' \| 'error' \| 'default'` | `'default'` | 否 | 快捷方法固定对应 type，`config` 中不可再传 |
-| `closable` | `boolean` | `false` | 否 | `duration: 0` 时无论取值如何都显示关闭按钮 |
-| `duration` | `number` | `3000` | 否 | 单位 ms；`0` 表示常驻不自动关闭 |
-| `html` | `boolean` | `false` | 否 | 用 `v-html` 渲染 `message` |
-| `icon` | `DefineComponent` | 按 `type` 取内置图标 | 否 | 内置映射见「方法与事件」 |
-| `onClose` | `() => void` | — | 否 | 计时结束或点击关闭按钮时触发 |
-| `onClosed` | `() => void` | — | 否 | 离场动画结束后触发；`closeAll()` 关闭的消息也触发 |
+| 参数       | 类型                                                    | 默认                 | 必填 | 约束                                                    |
+| ---------- | ------------------------------------------------------- | -------------------- | :--: | ------------------------------------------------------- |
+| `message`  | `string`                                                | `''`                 |  否  | `html: true` 时按 HTML 字符串渲染，内容必须来自可信来源 |
+| `type`     | `'success' \| 'warn' \| 'info' \| 'error' \| 'default'` | `'default'`          |  否  | 快捷方法固定对应 type，`config` 中不可再传              |
+| `closable` | `boolean`                                               | `false`              |  否  | `duration: 0` 时无论取值如何都显示关闭按钮              |
+| `duration` | `number`                                                | `3000`               |  否  | 单位 ms；`0` 表示常驻不自动关闭                         |
+| `html`     | `boolean`                                               | `false`              |  否  | 用 `v-html` 渲染 `message`                              |
+| `icon`     | `DefineComponent`                                       | 按 `type` 取内置图标 |  否  | 内置映射见「方法与事件」                                |
+| `onClose`  | `() => void`                                            | —                    |  否  | 计时结束或点击关闭按钮时触发                            |
+| `onClosed` | `() => void`                                            | —                    |  否  | 离场动画结束后触发；`closeAll()` 关闭的消息也触发       |
 
 `UMessage` 组件（声明式）只接收 `MessageProps`，事件见「方法与事件」。
 
@@ -111,13 +133,13 @@ export const message: Message
 
 按 `type` 的内置图标与颜色映射（`warn` 用 warning 色，`error` 用 danger 色）：
 
-| `type` | 图标 | 颜色 |
-| --- | --- | --- |
-| `default` | `InfoFilled` | default |
-| `info` | `QuestionFilled` | info |
+| `type`    | 图标                | 颜色    |
+| --------- | ------------------- | ------- |
+| `default` | `InfoFilled`        | default |
+| `info`    | `QuestionFilled`    | info    |
 | `success` | `CircleCheckFilled` | success |
-| `warn` | `WarningFilled` | warning |
-| `error` | `CircleClose` | danger |
+| `warn`    | `WarningFilled`     | warning |
+| `error`   | `CircleClose`       | danger  |
 
 实例行为（均来自 `message` 返回值）：
 
@@ -128,9 +150,9 @@ export const message: Message
 
 `UMessage` 组件事件：
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
-| `close` | 无 | 计时结束或点击关闭按钮；组件不会自行移除，必须监听后由业务移除节点 |
+| 事件    | payload | 触发时机                                                           |
+| ------- | ------- | ------------------------------------------------------------------ |
+| `close` | 无      | 计时结束或点击关闭按钮；组件不会自行移除，必须监听后由业务移除节点 |
 
 ## 典型示例
 
@@ -147,7 +169,7 @@ async function submit() {
     instance.close() // 手动关闭常驻消息
     message.success('提交成功', {
       duration: 5000,
-      onClosed: () => console.log('消息已彻底关闭'), // 含离场动画
+      onClosed: () => console.log('消息已彻底关闭') // 含离场动画
     })
   } catch {
     instance.close()
@@ -199,6 +221,7 @@ function onRouteChange() {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库快捷方法是 `warn` / `error`，不是 Element Plus / Ant Design 风格的 `warning`；`messageConfirm` 与 `notification` 的快捷方法才是 `warning` / `danger`。
 > - 消息固定出现在页面顶部居中（挂载在 `document.body` 的 `ul.u-message__container`），本库不提供 `position` / `offset` 配置，不是从右上角弹出。
 > - `message` 是函数式 API，不经过模板编译，`VeltraUIResolver` 不会为它引入样式。只安装了组件库、未在模板里用 `UMessage` 时，必须 `import '@veltra/desktop/components/message/style'`，或在入口 `import '@veltra/desktop/style'` 引全量样式。缺少样式时的症状是容器与条目都渲染出来但无颜色、无定位样式（`ul.u-message__container` 没有 `position: fixed`），不是「消息没弹出来」。

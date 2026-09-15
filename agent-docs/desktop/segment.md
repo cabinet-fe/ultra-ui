@@ -1,6 +1,6 @@
 ---
-title: "USegment 分段控制器"
-description: "分段控制器：横排单选项切换一个绑定值，v-model 双向绑定；支持 valueKey / labelKey 自定义选项字段、单项与整组禁用、撑满容器宽度，可放进 UForm 用 field 绑定表单字段。"
+title: 'USegment 分段控制器'
+description: '分段控制器：横排单选项切换一个绑定值，v-model 双向绑定；支持 valueKey / labelKey 自定义选项字段、单项与整组禁用、撑满容器宽度，可放进 UForm 用 field 绑定表单字段。'
 aliases: [Segment, Segmented, SegmentedControl, 分段选择器, 分段控件, 分段单选]
 keywords:
   - modelValue
@@ -81,30 +81,30 @@ export interface SegmentEmits {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `v-model`（`modelValue`） | `any` | — | 否 | 值为选中项的 `item[valueKey]`；初始不匹配任何项时不高亮任何选项 |
-| `items` | `SegmentItem[]` | `[]` | 是 | 选项按数组顺序横排渲染 |
-| `valueKey` | `string` | `'value'` | 否 | 取 `item[valueKey]` 作为选项值，也是列表渲染的 key |
-| `labelKey` | `string` | `'label'` | 否 | 取 `item[labelKey]` 作为选项文案 |
-| `disabledItem` | `(item: SegmentItem) => boolean` | — | 否 | 返回 `true` 的选项禁用；禁用项点击与回车/空格均无效 |
-| `block` | `boolean` | `false` | 否 | `true` 时组件撑满父容器宽度 |
-| **继承自 `FormComponentProps`** | | | | |
-| `size` | `ComponentSize` | `'default'` | 否 | `'small'` \| `'default'` \| `'large'`；未设置时继承 `<u-form>` 的 `size` |
-| `label` | `string` | — | 否 | 表单标签文字；仅在 `UForm` / `UFormItem` 内生效 |
-| `field` | `string` | — | 否 | `UForm` 字段名；在 `UForm` 内必须用 `field` 绑定，禁止再写 `v-model` |
-| `tips` | `string` | — | 否 | 表单内提示文字；仅在 `UForm` / `UFormItem` 内生效 |
-| `span` | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }` | — | 否 | 表单中所占列数；`'full'` 占满一行，响应式对象的 `default` 必填 |
-| `disabled` | `boolean` | `false` | 否 | 禁用整组；未设置时继承 `<u-form>` 的 `disabled` |
-| `readonly` | `boolean` | `false` | 否 | 只读时不可交互，且渲染为选中项文案的文字（无选中时显示 `-`）；未设置时继承 `<u-form>` 的 `readonly` |
-| `rules` | `ValidateRule` | — | 否 | 校验规则；仅在 `UForm` 内生效 |
+| 参数                            | 类型                                                       | 默认        | 必填 | 约束                                                                                                |
+| ------------------------------- | ---------------------------------------------------------- | ----------- | :--: | --------------------------------------------------------------------------------------------------- |
+| `v-model`（`modelValue`）       | `any`                                                      | —           |  否  | 值为选中项的 `item[valueKey]`；初始不匹配任何项时不高亮任何选项                                     |
+| `items`                         | `SegmentItem[]`                                            | `[]`        |  是  | 选项按数组顺序横排渲染                                                                              |
+| `valueKey`                      | `string`                                                   | `'value'`   |  否  | 取 `item[valueKey]` 作为选项值，也是列表渲染的 key                                                  |
+| `labelKey`                      | `string`                                                   | `'label'`   |  否  | 取 `item[labelKey]` 作为选项文案                                                                    |
+| `disabledItem`                  | `(item: SegmentItem) => boolean`                           | —           |  否  | 返回 `true` 的选项禁用；禁用项点击与回车/空格均无效                                                 |
+| `block`                         | `boolean`                                                  | `false`     |  否  | `true` 时组件撑满父容器宽度                                                                         |
+| **继承自 `FormComponentProps`** |                                                            |             |      |                                                                                                     |
+| `size`                          | `ComponentSize`                                            | `'default'` |  否  | `'small'` \| `'default'` \| `'large'`；未设置时继承 `<u-form>` 的 `size`                            |
+| `label`                         | `string`                                                   | —           |  否  | 表单标签文字；仅在 `UForm` / `UFormItem` 内生效                                                     |
+| `field`                         | `string`                                                   | —           |  否  | `UForm` 字段名；在 `UForm` 内必须用 `field` 绑定，禁止再写 `v-model`                                |
+| `tips`                          | `string`                                                   | —           |  否  | 表单内提示文字；仅在 `UForm` / `UFormItem` 内生效                                                   |
+| `span`                          | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }` | —           |  否  | 表单中所占列数；`'full'` 占满一行，响应式对象的 `default` 必填                                      |
+| `disabled`                      | `boolean`                                                  | `false`     |  否  | 禁用整组；未设置时继承 `<u-form>` 的 `disabled`                                                     |
+| `readonly`                      | `boolean`                                                  | `false`     |  否  | 只读时不可交互，且渲染为选中项文案的文字（无选中时显示 `-`）；未设置时继承 `<u-form>` 的 `readonly` |
+| `rules`                         | `ValidateRule`                                             | —           |  否  | 校验规则；仅在 `UForm` 内生效                                                                       |
 
 ## 方法与事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
-| `update:modelValue` | `modelValue: any` | 选中项变化后写回 `item[valueKey]` |
-| `change` | `item: SegmentItem` | 选中项变化后触发，payload 为完整选项对象；点击当前已选中项时不触发（值不变） |
+| 事件                | payload             | 触发时机                                                                     |
+| ------------------- | ------------------- | ---------------------------------------------------------------------------- |
+| `update:modelValue` | `modelValue: any`   | 选中项变化后写回 `item[valueKey]`                                            |
+| `change`            | `item: SegmentItem` | 选中项变化后触发，payload 为完整选项对象；点击当前已选中项时不触发（值不变） |
 
 - 键盘操作：选项可聚焦，`Enter` / `Space` 等同点击选中。
 - 整组 `disabled` 或选项被 `disabledItem` 命中时，点击与键盘选择均无效、不触发任何事件。
@@ -191,6 +191,7 @@ const periodItems = [
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库选项数据是 `items` prop 数组（`SegmentItem`），不是 Element Plus `ElSegmented` 的 `options` prop 名，也不是 `<el-segmented-option>` 子组件模式。
 > - `change` 的 payload 是完整选项对象 `SegmentItem`，不是裸值；裸值从 `v-model` 拿。
 > - 点击已选中项不触发 `change`，值也不会变；没有「取消选中」交互。

@@ -1,6 +1,6 @@
 ---
-title: "UNav 侧边导航"
-description: "侧边树形导航组件：menus 传入任意层级菜单树，currentPath 控制选中并自动展开祖先、自动滚动定位，collapsed 一键折叠为窄栏浮层。需要两层「应用 + 子菜单」结构用 UDualNav，扁平分组用 UGroupNav。"
+title: 'UNav 侧边导航'
+description: '侧边树形导航组件：menus 传入任意层级菜单树，currentPath 控制选中并自动展开祖先、自动滚动定位，collapsed 一键折叠为窄栏浮层。需要两层「应用 + 子菜单」结构用 UDualNav，扁平分组用 UGroupNav。'
 aliases: [Nav, UNavSub, UNavItem, 侧边栏, 侧边导航栏, 导航菜单, sidebar, Menu]
 keywords:
   - currentPath
@@ -116,23 +116,23 @@ export interface NavExposed {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `menus` | `NavItem[]` | — | 否 | `title`、`path` 必填；有 `children` 的项渲染为父级（点击只展开/收起），无 `children` 的渲染为叶子；层级不限 |
-| `currentPath` | `string` | — | 否 | 与叶子项 `path` 全等才高亮；变化时自动展开命中项的祖先并把该项滚动到可视区；`path` 不唯一的树展开状态会互相污染 |
-| `collapsed` | `boolean` | `false` | 否 | 折叠态组件不设宽度，宿主必须自定宽度（配合 64px） |
+| 参数          | 类型        | 默认    | 必填 | 约束                                                                                                            |
+| ------------- | ----------- | ------- | :--: | --------------------------------------------------------------------------------------------------------------- |
+| `menus`       | `NavItem[]` | —       |  否  | `title`、`path` 必填；有 `children` 的项渲染为父级（点击只展开/收起），无 `children` 的渲染为叶子；层级不限     |
+| `currentPath` | `string`    | —       |  否  | 与叶子项 `path` 全等才高亮；变化时自动展开命中项的祖先并把该项滚动到可视区；`path` 不唯一的树展开状态会互相污染 |
+| `collapsed`   | `boolean`   | `false` |  否  | 折叠态组件不设宽度，宿主必须自定宽度（配合 64px）                                                               |
 
 事件：
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
+| 事件         | payload           | 触发时机                                                                      |
+| ------------ | ----------------- | ----------------------------------------------------------------------------- |
 | `item-click` | `(item: NavItem)` | 点击非 `disabled` 的叶子项；点击父级（有 `children`）只切换展开，不触发本事件 |
 
 暴露方法（模板 ref 上直接调用，见下表）：
 
-| 方法 | 签名 | 返回 | 说明 |
-| --- | --- | --- | --- |
-| `expandAll` | `() => void` | `void`，同步 | 展开所有含子级的节点 |
+| 方法          | 签名         | 返回         | 说明                   |
+| ------------- | ------------ | ------------ | ---------------------- |
+| `expandAll`   | `() => void` | `void`，同步 | 展开所有含子级的节点   |
 | `collapseAll` | `() => void` | `void`，同步 | 清空展开集合，全部收起 |
 
 ## 方法与事件
@@ -272,6 +272,7 @@ const menus = shallowRef<NavItem[]>([
 ## 注意事项
 
 > [!WARNING]
+>
 > - 外观（底色、文字、悬停/激活色）不在组件 props 上，由主题 `nav` 配置控制：`nav.variant` 选择深/浅侧栏（默认 `dark` 深底浅字），`nav` 其余键覆盖同名 `--u-nav-*` token。把侧栏自定义为浅色底时必须同时设 `variant: 'light'`，否则会浅底配白字看不清。
 > - 本库选中是 `currentPath` + `@item-click` 受控，不是 `v-model`，也不是 Element Plus 的 `default-active` + `router` 模式；不内置 vue-router，跳转必须宿主自己写。
 > - 有 `children` 的项是父级：点击只展开/收起，不触发 `item-click`；高亮只发生在叶子上。

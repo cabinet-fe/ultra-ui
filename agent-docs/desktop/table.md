@@ -1,8 +1,34 @@
 ---
 title: UTable 表格
-description: "@veltra/desktop 的数据表格组件：columns 定义列、data 提供行数据，内置多选/单选、树形表格、展开行、表尾合计、单元格合并、表头拖拽调宽，行数超过阈值自动虚拟滚动；分页与排序无内置，分页配合 UPaginator、排序自行处理 data。"
+description: '@veltra/desktop 的数据表格组件：columns 定义列、data 提供行数据，内置多选/单选、树形表格、展开行、表尾合计、单元格合并、表头拖拽调宽，行数超过阈值自动虚拟滚动；分页与排序无内置，分页配合 UPaginator、排序自行处理 data。'
 aliases: [DataTable, Table, 数据表格, 数据列表]
-keywords: [defineTableColumns, columns, data, rowKey, checkable, checked, selectable, selected, virtualThreshold, row-click, cell-click, mergeCell, summary, UPaginator, components/table/style, UTag is not defined, render, 分页, 排序, 多选, 单选, 虚拟滚动, 树形表格, 裸样式]
+keywords:
+  [
+    defineTableColumns,
+    columns,
+    data,
+    rowKey,
+    checkable,
+    checked,
+    selectable,
+    selected,
+    virtualThreshold,
+    row-click,
+    cell-click,
+    mergeCell,
+    summary,
+    UPaginator,
+    components/table/style,
+    UTag is not defined,
+    render,
+    分页,
+    排序,
+    多选,
+    单选,
+    虚拟滚动,
+    树形表格,
+    裸样式
+  ]
 ---
 
 # UTable 表格
@@ -46,12 +72,7 @@ export interface TableColumnStyle {
 }
 
 export type RenderReturn =
-  | (undefined | VNode | string | null | number)[]
-  | undefined
-  | VNode
-  | string
-  | null
-  | number
+  (undefined | VNode | string | null | number)[] | undefined | VNode | string | null | number
 
 /** 单元格渲染上下文（render 函数与 #column:{key} 插槽共用的基础字段） */
 export interface TableColumnRenderContext {
@@ -240,73 +261,73 @@ export function defineTableColumns(
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `data` | `Record<string, any>[]` | — | 否 | 空数组或 `undefined` 时渲染默认空态（UEmpty），可用 `#empty` 插槽覆盖 |
-| `columns` | `TableColumn[]` | — | 是 | 渲染顺序按数组顺序；`fixed` 列排在两侧 |
-| `rowKey` | `string` | — | 否 | 未设置时内部用自增 uid 标识行；使用 `checked` / `selected` 受控绑定时必须设置，否则选中状态无法与外部同步 |
-| `checkable` | `boolean` | `false` | 否 | 多选列固定左侧，宽 60（`size` 为 `'large'` 时 80）；勾选带子行的节点时联动勾选全部子行 |
-| `selectable` | `boolean` | `false` | 否 | 单选列固定左侧；与 `checkable` 同时设置时仅 `selectable` 生效 |
-| `checked` | `Record<string, any>[]` | — | 否 | `v-model:checked`；数组元素是原始行数据，必须能通过 `rowKey` 匹配到行 |
-| `selected` | `Record<string, any>` | — | 否 | `v-model:selected`；约束同 `checked` |
-| `showIndex` | `boolean` | `false` | 否 | 序号列显示 `row.index + 1` |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 否 | — |
-| `tree` | `boolean \| string` | `false` | 否 | 传字符串时该字符串为子节点字段名；默认子节点字段 `'children'` |
-| `expandable` | `boolean` | `false` | 否 | 仅非树形模式有效；展开内容写在 `#row:expand` 插槽 |
-| `defaultExpandAll` | `boolean` | `false` | 否 | 仅树形模式的初始展开状态生效 |
-| `stripe` | `boolean` | `true` | 否 | — |
-| `border` | `boolean` | `false` | 否 | — |
-| `virtualThreshold` | `number` | `80` | 否 | 行高按 41px 估算并实测校正；设为 `0` 表示始终虚拟滚动 |
-| `highlightCurrent` | `boolean` | `false` | 否 | 未绑定 `v-model:current` 时也可高亮点击行 |
-| `current` | `TableRow` | — | 否 | `v-model:current`；值来自 `row-click` / `update:current` 的行节点 |
-| `mergeCell` | `(ctx) => { rowspan, colspan } \| undefined` | — | 否 | 返回 `{ rowspan, colspan }` 按跨度渲染；`rowspan` 或 `colspan` 为 `0` 时隐藏该单元格；返回 `undefined` 正常渲染 |
-| `slots` | `Readonly<Slots>` | — | 否 | 仅函数式组件包裹 `UTable` 时使用，传 `$slots` |
-| `textEllipsis` | `boolean` | `false` | 否 | — |
+| 参数               | 类型                                         | 默认        | 必填 | 约束                                                                                                            |
+| ------------------ | -------------------------------------------- | ----------- | :--: | --------------------------------------------------------------------------------------------------------------- |
+| `data`             | `Record<string, any>[]`                      | —           |  否  | 空数组或 `undefined` 时渲染默认空态（UEmpty），可用 `#empty` 插槽覆盖                                           |
+| `columns`          | `TableColumn[]`                              | —           |  是  | 渲染顺序按数组顺序；`fixed` 列排在两侧                                                                          |
+| `rowKey`           | `string`                                     | —           |  否  | 未设置时内部用自增 uid 标识行；使用 `checked` / `selected` 受控绑定时必须设置，否则选中状态无法与外部同步       |
+| `checkable`        | `boolean`                                    | `false`     |  否  | 多选列固定左侧，宽 60（`size` 为 `'large'` 时 80）；勾选带子行的节点时联动勾选全部子行                          |
+| `selectable`       | `boolean`                                    | `false`     |  否  | 单选列固定左侧；与 `checkable` 同时设置时仅 `selectable` 生效                                                   |
+| `checked`          | `Record<string, any>[]`                      | —           |  否  | `v-model:checked`；数组元素是原始行数据，必须能通过 `rowKey` 匹配到行                                           |
+| `selected`         | `Record<string, any>`                        | —           |  否  | `v-model:selected`；约束同 `checked`                                                                            |
+| `showIndex`        | `boolean`                                    | `false`     |  否  | 序号列显示 `row.index + 1`                                                                                      |
+| `size`             | `'small' \| 'default' \| 'large'`            | `'default'` |  否  | —                                                                                                               |
+| `tree`             | `boolean \| string`                          | `false`     |  否  | 传字符串时该字符串为子节点字段名；默认子节点字段 `'children'`                                                   |
+| `expandable`       | `boolean`                                    | `false`     |  否  | 仅非树形模式有效；展开内容写在 `#row:expand` 插槽                                                               |
+| `defaultExpandAll` | `boolean`                                    | `false`     |  否  | 仅树形模式的初始展开状态生效                                                                                    |
+| `stripe`           | `boolean`                                    | `true`      |  否  | —                                                                                                               |
+| `border`           | `boolean`                                    | `false`     |  否  | —                                                                                                               |
+| `virtualThreshold` | `number`                                     | `80`        |  否  | 行高按 41px 估算并实测校正；设为 `0` 表示始终虚拟滚动                                                           |
+| `highlightCurrent` | `boolean`                                    | `false`     |  否  | 未绑定 `v-model:current` 时也可高亮点击行                                                                       |
+| `current`          | `TableRow`                                   | —           |  否  | `v-model:current`；值来自 `row-click` / `update:current` 的行节点                                               |
+| `mergeCell`        | `(ctx) => { rowspan, colspan } \| undefined` | —           |  否  | 返回 `{ rowspan, colspan }` 按跨度渲染；`rowspan` 或 `colspan` 为 `0` 时隐藏该单元格；返回 `undefined` 正常渲染 |
+| `slots`            | `Readonly<Slots>`                            | —           |  否  | 仅函数式组件包裹 `UTable` 时使用，传 `$slots`                                                                   |
+| `textEllipsis`     | `boolean`                                    | `false`     |  否  | —                                                                                                               |
 
 ### TableColumn 列定义
 
-| 属性 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `key` | `string` | — | 是 | 唯一；单元格按 `rowData[key]` 取值 |
-| `name` | `string` | — | 是 | 表头文字 |
-| `width` | `number` | — | 否 | 显式设置后不参与剩余宽度均分；拖拽调宽后锁定为显式宽度 |
-| `minWidth` | `number` | `100`（叶子列） | 否 | `width` 小于 `minWidth` 时按 `minWidth` 渲染 |
-| `fixed` | `'left' \| 'right'` | — | 否 | 仅顶层列生效，嵌套表头（有 `children`）的列设置无效；固定列未设 `width` 时只按 `minWidth` 占位、不参与均分 |
-| `align` | `'left' \| 'center' \| 'right'` | `'left'` | 否 | — |
-| `headerAlign` | `'left' \| 'center' \| 'right'` | 取 `align` | 否 | — |
-| `style` | `TableColumnStyle` | — | 否 | 表体/表尾单元格 inline 样式；仅支持 `color`、`fontSize`（数字 `fontSize` 自动加 `px`） |
-| `headerStyle` | `TableColumnStyle` | 取 `style` | 否 | 表头单元格 inline 样式；回退规则同 `headerAlign` |
-| `render` | `(ctx: TableColumnRenderContext) => RenderReturn` | — | 否 | 优先级：`render` > `#column:{key}` 插槽 > 直接显示 `val` |
-| `nameRender` | `(ctx: { column }) => RenderReturn` | — | 否 | 优先级：`nameRender` > `#header:{key}` 插槽 > `name` |
-| `children` | `TableColumn[]` | — | 否 | 非空时渲染多级表头 |
-| `summary` | `boolean \| (ctx) => RenderReturn` | — | 否 | `true` 时对当前可见行求和；任一叶子列设置后渲染表尾合计行，首列显示「合计:」 |
-| `resizable` | `boolean` | `true` | 否 | 表头出现拖拽手柄，拖拽后 `width` 被锁定 |
+| 属性          | 类型                                              | 默认            | 必填 | 约束                                                                                                       |
+| ------------- | ------------------------------------------------- | --------------- | :--: | ---------------------------------------------------------------------------------------------------------- |
+| `key`         | `string`                                          | —               |  是  | 唯一；单元格按 `rowData[key]` 取值                                                                         |
+| `name`        | `string`                                          | —               |  是  | 表头文字                                                                                                   |
+| `width`       | `number`                                          | —               |  否  | 显式设置后不参与剩余宽度均分；拖拽调宽后锁定为显式宽度                                                     |
+| `minWidth`    | `number`                                          | `100`（叶子列） |  否  | `width` 小于 `minWidth` 时按 `minWidth` 渲染                                                               |
+| `fixed`       | `'left' \| 'right'`                               | —               |  否  | 仅顶层列生效，嵌套表头（有 `children`）的列设置无效；固定列未设 `width` 时只按 `minWidth` 占位、不参与均分 |
+| `align`       | `'left' \| 'center' \| 'right'`                   | `'left'`        |  否  | —                                                                                                          |
+| `headerAlign` | `'left' \| 'center' \| 'right'`                   | 取 `align`      |  否  | —                                                                                                          |
+| `style`       | `TableColumnStyle`                                | —               |  否  | 表体/表尾单元格 inline 样式；仅支持 `color`、`fontSize`（数字 `fontSize` 自动加 `px`）                     |
+| `headerStyle` | `TableColumnStyle`                                | 取 `style`      |  否  | 表头单元格 inline 样式；回退规则同 `headerAlign`                                                           |
+| `render`      | `(ctx: TableColumnRenderContext) => RenderReturn` | —               |  否  | 优先级：`render` > `#column:{key}` 插槽 > 直接显示 `val`                                                   |
+| `nameRender`  | `(ctx: { column }) => RenderReturn`               | —               |  否  | 优先级：`nameRender` > `#header:{key}` 插槽 > `name`                                                       |
+| `children`    | `TableColumn[]`                                   | —               |  否  | 非空时渲染多级表头                                                                                         |
+| `summary`     | `boolean \| (ctx) => RenderReturn`                | —               |  否  | `true` 时对当前可见行求和；任一叶子列设置后渲染表尾合计行，首列显示「合计:」                               |
+| `resizable`   | `boolean`                                         | `true`          |  否  | 表头出现拖拽手柄，拖拽后 `width` 被锁定                                                                    |
 
 ### 插槽
 
-| 插槽 | 作用域 | 说明 |
-| --- | --- | --- |
+| 插槽            | 作用域                  | 说明                                                              |
+| --------------- | ----------------------- | ----------------------------------------------------------------- |
 | `#column:{key}` | `TableColumnSlotsScope` | 自定义 `{key}` 列的单元格；`model.modelValue` 写回 `rowData[key]` |
-| `#header:{key}` | `{ column }` | 自定义 `{key}` 列的表头 |
-| `#row:expand` | `TableRowSlotsScope` | `expandable` 模式的展开行内容，占满整行 |
-| `#foot` | `{ columns, rows }` | 渲染在 `tfoot`，与合计行共存 |
-| `#body` | `{ columns, rows }` | 接管整个 `tbody` 渲染 |
-| `#empty` | 无 | 无数据时的空态，默认渲染 `UEmpty` |
-| `#append` | 无 | 渲染在 `table` 元素之后 |
+| `#header:{key}` | `{ column }`            | 自定义 `{key}` 列的表头                                           |
+| `#row:expand`   | `TableRowSlotsScope`    | `expandable` 模式的展开行内容，占满整行                           |
+| `#foot`         | `{ columns, rows }`     | 渲染在 `tfoot`，与合计行共存                                      |
+| `#body`         | `{ columns, rows }`     | 接管整个 `tbody` 渲染                                             |
+| `#empty`        | 无                      | 无数据时的空态，默认渲染 `UEmpty`                                 |
+| `#append`       | 无                      | 渲染在 `table` 元素之后                                           |
 
 ## 方法与事件
 
 事件（`TableEmits`，模板上用 `@row-click` / `v-model:checked` 等绑定）：
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
-| `update:checked` | `DataItem[]`（原始行数据数组） | 勾选/取消任意复选框、表头全选时 |
-| `update:selected` | `DataItem \| undefined` | 勾选/取消单选框时；取消为 `undefined` |
-| `update:rows` | `TableRow[]` | 可见行列表变化（data 变化、树形展开/折叠） |
-| `update:forest` | `Forest \| undefined` | 树形模式下森林结构变化 |
-| `row-click` | `(row: TableRow, ev: MouseEvent)` | 点击行；同时切换当前行（滚动中的点击不切换） |
-| `cell-click` | `(row: TableRow, column: TableColumn, ev: MouseEvent)` | 点击单元格 |
-| `update:current` | `(row?: TableRow)` | 当前行变化；再次点击同一行为 `undefined` |
+| 事件              | payload                                                | 触发时机                                     |
+| ----------------- | ------------------------------------------------------ | -------------------------------------------- |
+| `update:checked`  | `DataItem[]`（原始行数据数组）                         | 勾选/取消任意复选框、表头全选时              |
+| `update:selected` | `DataItem \| undefined`                                | 勾选/取消单选框时；取消为 `undefined`        |
+| `update:rows`     | `TableRow[]`                                           | 可见行列表变化（data 变化、树形展开/折叠）   |
+| `update:forest`   | `Forest \| undefined`                                  | 树形模式下森林结构变化                       |
+| `row-click`       | `(row: TableRow, ev: MouseEvent)`                      | 点击行；同时切换当前行（滚动中的点击不切换） |
+| `cell-click`      | `(row: TableRow, column: TableColumn, ev: MouseEvent)` | 点击单元格                                   |
+| `update:current`  | `(row?: TableRow)`                                     | 当前行变化；再次点击同一行为 `undefined`     |
 
 通过模板 ref 调用的方法（`TableExposed`，同步、无抛错）：
 
@@ -405,7 +426,12 @@ const data = [
     name: 'src',
     count: 2,
     children: [
-      { id: 11, name: 'components', count: 1, children: [{ id: 111, name: 'Button.vue', count: 1 }] },
+      {
+        id: 11,
+        name: 'components',
+        count: 1,
+        children: [{ id: 111, name: 'Button.vue', count: 1 }]
+      },
       { id: 12, name: 'utils.ts', count: 1 }
     ]
   },
@@ -461,6 +487,7 @@ const pagedData = computed(() => {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库不内置排序与分页，不是 Element Plus 的 `el-table`：没有 `sorter` / `pagination` 属性。排序自行对 `data` 排序后传入；分页配合 `UPaginator`。
 > - 行数据属性是 `data`，不是 `dataSource`；列配置是 `columns`（`TableColumn[]`），`key` / `name` 必填。
 > - 列插槽名是 `#column:{key}`，不是 `#default="{ row }"`；表头插槽是 `#header:{key}`。

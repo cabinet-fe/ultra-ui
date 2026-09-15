@@ -1,8 +1,26 @@
 ---
 title: UPopConfirm 气泡确认
-description: "从 @veltra/desktop 导入的气泡确认框：点击或悬浮触发元素弹出带图标的确认文案与确认/取消按钮，回调后自动关闭，用于删除等危险操作的二次确认。"
+description: '从 @veltra/desktop 导入的气泡确认框：点击或悬浮触发元素弹出带图标的确认文案与确认/取消按钮，回调后自动关闭，用于删除等危险操作的二次确认。'
 aliases: [PopConfirm, 气泡确认框, 确认框, Popconfirm, 二次确认]
-keywords: [confirm, cancel, confirmText, cancelText, iconColor, direction, alignment, trigger, reference, PopConfirmEmits, 二次确认, 删除确认, 危险操作, 危险操作确认, 气泡弹窗, 悬浮确认]
+keywords:
+  [
+    confirm,
+    cancel,
+    confirmText,
+    cancelText,
+    iconColor,
+    direction,
+    alignment,
+    trigger,
+    reference,
+    PopConfirmEmits,
+    二次确认,
+    删除确认,
+    危险操作,
+    危险操作确认,
+    气泡弹窗,
+    悬浮确认
+  ]
 ---
 
 # UPopConfirm 气泡确认
@@ -70,24 +88,24 @@ export interface PopConfirmExposed {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `title` | `string` | — | 否 | 确认文案，纯文本渲染；要换行/富文本时本组件不支持，改用 UTip 自定义内容 |
-| `icon` | `Component` | `QuestionFilled` | 否 | 文案左侧图标，尺寸固定 16px |
-| `iconColor` | `string` | `'#ffc107'` | 否 | 图标颜色，写入内联 `color` |
-| `confirmText` | `string` | `'确认'` | 否 | 确认按钮文字（primary 实心小按钮） |
-| `cancelText` | `string` | `'取消'` | 否 | 取消按钮文字（text 小按钮） |
-| `trigger` | `'hover' \| 'click'` | `'click'` | 否 | `click` 时点击外部也关闭；`hover` 时移出触发元素/气泡关闭 |
-| `direction` | `'top' \| 'bottom' \| 'left' \| 'right'` | `'bottom'` | 否 | 气泡相对触发元素的弹出方向 |
-| `alignment` | `'center' \| 'start' \| 'end'` | `'center'` | 否 | 气泡沿弹出方向的对齐方式 |
-| `contentTag` | `string` | `'div'` | 否 | 气泡内容容器标签名 |
+| 参数          | 类型                                     | 默认             | 必填 | 约束                                                                    |
+| ------------- | ---------------------------------------- | ---------------- | :--: | ----------------------------------------------------------------------- |
+| `title`       | `string`                                 | —                |  否  | 确认文案，纯文本渲染；要换行/富文本时本组件不支持，改用 UTip 自定义内容 |
+| `icon`        | `Component`                              | `QuestionFilled` |  否  | 文案左侧图标，尺寸固定 16px                                             |
+| `iconColor`   | `string`                                 | `'#ffc107'`      |  否  | 图标颜色，写入内联 `color`                                              |
+| `confirmText` | `string`                                 | `'确认'`         |  否  | 确认按钮文字（primary 实心小按钮）                                      |
+| `cancelText`  | `string`                                 | `'取消'`         |  否  | 取消按钮文字（text 小按钮）                                             |
+| `trigger`     | `'hover' \| 'click'`                     | `'click'`        |  否  | `click` 时点击外部也关闭；`hover` 时移出触发元素/气泡关闭               |
+| `direction`   | `'top' \| 'bottom' \| 'left' \| 'right'` | `'bottom'`       |  否  | 气泡相对触发元素的弹出方向                                              |
+| `alignment`   | `'center' \| 'start' \| 'end'`           | `'center'`       |  否  | 气泡沿弹出方向的对齐方式                                                |
+| `contentTag`  | `string`                                 | `'div'`          |  否  | 气泡内容容器标签名                                                      |
 
 ## 方法与事件
 
-| 名称 | 类型 | 触发时机 |
-| --- | --- | --- |
+| 名称      | 类型 | 触发时机                                   |
+| --------- | ---- | ------------------------------------------ |
 | `confirm` | `()` | 点击确认按钮后触发；事件发出后气泡立即关闭 |
-| `cancel` | `()` | 点击取消按钮后触发；事件发出后气泡立即关闭 |
+| `cancel`  | `()` | 点击取消按钮后触发；事件发出后气泡立即关闭 |
 
 气泡显隐由组件内部管理（内部 `visible` 初始 `false`）：没有 `visible` prop，也没有 `v-model`，外部无法编程式打开或关闭；打开只能通过触发元素的点击/悬浮，关闭只能通过确认、取消按钮或点击外部（`trigger='click'` 时）。
 
@@ -111,11 +129,7 @@ function handleCancel() {
 </script>
 
 <template>
-  <UPopConfirm
-    title="删除后不可恢复，确认删除？"
-    @confirm="handleConfirm"
-    @cancel="handleCancel"
-  >
+  <UPopConfirm title="删除后不可恢复，确认删除？" @confirm="handleConfirm" @cancel="handleCancel">
     <template #reference>
       <UButton type="danger">删除</UButton>
     </template>
@@ -165,12 +179,7 @@ function handleDelete() {
 </script>
 
 <template>
-  <UPopConfirm
-    title="确定移除该项？"
-    trigger="hover"
-    alignment="start"
-    @confirm="handleDelete"
-  >
+  <UPopConfirm title="确定移除该项？" trigger="hover" alignment="start" @confirm="handleDelete">
     <template #reference>
       <UButton text type="danger" :icon="Delete">移除</UButton>
     </template>
@@ -181,6 +190,7 @@ function handleDelete() {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 气泡显隐不可控：没有 `visible` prop、没有 `v-model`，显隐完全由触发交互与内部状态管理；需要编程式确认弹窗时用 `messageConfirm`（函数式确认框），需要自定义内容的浮层用 `UTip`。
 > - 触发元素必须写在 `#reference` 插槽，不是默认插槽。
 > - `trigger='click'` 时点击气泡外部关闭；`trigger='hover'` 时移出触发元素或气泡关闭，没有点击外部关闭。

@@ -1,6 +1,6 @@
 ---
 title: UNumberInput 数字输入框
-description: "数字输入框：货币/精度格式化、min-max 边界钳制、step 加减按钮与方向键、multiple 倍数换算（分↔元），以及在 UForm 内用 field 绑定与 rules 校验。"
+description: '数字输入框：货币/精度格式化、min-max 边界钳制、step 加减按钮与方向键、multiple 倍数换算（分↔元），以及在 UForm 内用 field 绑定与 rules 校验。'
 aliases: [NumberInput, number-input, InputNumber, 数字输入框, 金额输入框]
 keywords:
   - modelValue
@@ -86,9 +86,7 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小；对象形态必须含 default 键 */
   span?:
-    | number
-    | 'full'
-    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** UForm 内绑定 model 字段的路径 */
@@ -153,31 +151,31 @@ export interface NumberInputExposed {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `modelValue` | `number \| undefined` | — | 否 | 输入值；点击清除后变为 `undefined` |
-| `currency` | `boolean` | `false` | 否 | CNY 货币格式（`¥` + 千分位）；仅失焦后格式化显示，聚焦编辑时显示纯数字 |
-| `precision` | `number` | — | 否 | 固定小数位；优先于 `minPrecision` / `maxPrecision`；聚焦时把值修正到该精度 |
-| `minPrecision` | `number` | — | 否 | 最小小数位，不足补 0 |
-| `maxPrecision` | `number` | 值与步长的最大小数位 | 否 | 最大小数位 |
-| `step` | `boolean \| number` | — | 否 | 数字 = 开启加减按钮且为步长；`true` = 按钮 + 步长 1；`false` / 不传 = 无按钮、无方向键。步长为 1 时直接更新，大于 1 时播放数字滚动动画 |
-| `min` | `number` | — | 否 | 下限；输入与步进越界立即钳制到 `min` |
-| `max` | `number` | — | 否 | 上限；输入与步进越界立即钳制到 `max` |
-| `multiple` | `number` | — | 否 | `modelValue` = 显示值 × `multiple`；`min` / `max` / `step` 均作用于除以 `multiple` 后的显示值 |
-| `placeholder` | `string` | `'请输入'` | 否 | |
-| `prefix` | `string` | — | 否 | 输入框前缀文案 |
-| `suffix` | `string` | — | 否 | 后缀文案，与 `#suffix` 插槽同时渲染 |
-| `clearable` | `boolean` | `true` | 否 | 非禁用且有值时，悬停显示清除图标；点击置 `undefined` 并触发 `clear` |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 否 | 未传时继承 `UForm` 的 `size` |
-| `disabled` | `boolean` | `false` | 否 | 未传时继承 `UForm` 的 `disabled`；禁用步进按钮与清除 |
-| `readonly` | `boolean` | `false` | 否 | 未传时继承 `UForm` 的 `readonly`；只读渲染为文本（空值显示 `-`） |
-| `field` | `string` | — | 否 | 仅 `UForm` 内生效；声明后由 `UForm` 按 `field` 路径读写 model |
-| `label` | `string` | — | 否 | 仅 `UForm` / `UFormItem` 内生效 |
-| `rules` | `ValidateRule` | — | 否 | 仅 `UForm` / `UFormItem` 内生效，完整结构见「API 签名」 |
-| `tips` | `string` | — | 否 | 仅 `UForm` / `UFormItem` 内生效 |
-| `span` | `number \| 'full' \| { xs?…xl?, default }` | — | 否 | 栅格列宽，仅 `UForm` / `UFormItem` 内生效 |
-| `nativeReadonly` | `boolean` | — | 否 | 未透传到内部输入框，无效果 |
-| `pattern` | `RegExp` | — | 否 | 未透传到内部输入框，无效果 |
+| 参数             | 类型                                       | 默认                 | 必填 | 约束                                                                                                                                   |
+| ---------------- | ------------------------------------------ | -------------------- | :--: | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `modelValue`     | `number \| undefined`                      | —                    |  否  | 输入值；点击清除后变为 `undefined`                                                                                                     |
+| `currency`       | `boolean`                                  | `false`              |  否  | CNY 货币格式（`¥` + 千分位）；仅失焦后格式化显示，聚焦编辑时显示纯数字                                                                 |
+| `precision`      | `number`                                   | —                    |  否  | 固定小数位；优先于 `minPrecision` / `maxPrecision`；聚焦时把值修正到该精度                                                             |
+| `minPrecision`   | `number`                                   | —                    |  否  | 最小小数位，不足补 0                                                                                                                   |
+| `maxPrecision`   | `number`                                   | 值与步长的最大小数位 |  否  | 最大小数位                                                                                                                             |
+| `step`           | `boolean \| number`                        | —                    |  否  | 数字 = 开启加减按钮且为步长；`true` = 按钮 + 步长 1；`false` / 不传 = 无按钮、无方向键。步长为 1 时直接更新，大于 1 时播放数字滚动动画 |
+| `min`            | `number`                                   | —                    |  否  | 下限；输入与步进越界立即钳制到 `min`                                                                                                   |
+| `max`            | `number`                                   | —                    |  否  | 上限；输入与步进越界立即钳制到 `max`                                                                                                   |
+| `multiple`       | `number`                                   | —                    |  否  | `modelValue` = 显示值 × `multiple`；`min` / `max` / `step` 均作用于除以 `multiple` 后的显示值                                          |
+| `placeholder`    | `string`                                   | `'请输入'`           |  否  |                                                                                                                                        |
+| `prefix`         | `string`                                   | —                    |  否  | 输入框前缀文案                                                                                                                         |
+| `suffix`         | `string`                                   | —                    |  否  | 后缀文案，与 `#suffix` 插槽同时渲染                                                                                                    |
+| `clearable`      | `boolean`                                  | `true`               |  否  | 非禁用且有值时，悬停显示清除图标；点击置 `undefined` 并触发 `clear`                                                                    |
+| `size`           | `'small' \| 'default' \| 'large'`          | `'default'`          |  否  | 未传时继承 `UForm` 的 `size`                                                                                                           |
+| `disabled`       | `boolean`                                  | `false`              |  否  | 未传时继承 `UForm` 的 `disabled`；禁用步进按钮与清除                                                                                   |
+| `readonly`       | `boolean`                                  | `false`              |  否  | 未传时继承 `UForm` 的 `readonly`；只读渲染为文本（空值显示 `-`）                                                                       |
+| `field`          | `string`                                   | —                    |  否  | 仅 `UForm` 内生效；声明后由 `UForm` 按 `field` 路径读写 model                                                                          |
+| `label`          | `string`                                   | —                    |  否  | 仅 `UForm` / `UFormItem` 内生效                                                                                                        |
+| `rules`          | `ValidateRule`                             | —                    |  否  | 仅 `UForm` / `UFormItem` 内生效，完整结构见「API 签名」                                                                                |
+| `tips`           | `string`                                   | —                    |  否  | 仅 `UForm` / `UFormItem` 内生效                                                                                                        |
+| `span`           | `number \| 'full' \| { xs?…xl?, default }` | —                    |  否  | 栅格列宽，仅 `UForm` / `UFormItem` 内生效                                                                                              |
+| `nativeReadonly` | `boolean`                                  | —                    |  否  | 未透传到内部输入框，无效果                                                                                                             |
+| `pattern`        | `RegExp`                                   | —                    |  否  | 未透传到内部输入框，无效果                                                                                                             |
 
 ## 方法与事件
 
@@ -275,6 +273,7 @@ async function handleSubmit() {
 ## 注意事项
 
 > [!WARNING]
+>
 > - `UForm` 内用 `field` 绑定 model，**禁止**再写 `v-model`，两者并用以 `v-model` 为准并产生两份状态；独立于 `UForm` 使用时才走 `v-model`。
 > - 开关加减按钮的属性是 `step`，不是 Element `el-input-number` 的 `controls`；本库没有 `controls` 属性，写了会被当作透传属性丢弃。
 > - `min` / `max` 是**即时钳制**（输入越界立即改值），不产生校验提示；要「允许输入但校验报错」用 `rules` 的 `min` / `max`。

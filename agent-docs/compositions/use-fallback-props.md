@@ -2,7 +2,24 @@
 title: useFallbackProps / useFormFallbackProps 属性多级回退
 description: 从 @veltra/compositions 导出的属性优先级解析组合式函数：按「右侧 props 优先 → 全局 useConfig 配置 → 默认值」逐级回退，每个 key 返回 ComputedRef；useFormFallbackProps 预置表单控件的 size、disabled、readonly 三项回退。
 aliases: [use-fallback-props, useFormFallbackProps, 属性回退, props 优先级, 表单尺寸联动]
-keywords: [useFallbackProps, useFormFallbackProps, useConfig, setConfig, formProps, injectFormContext, ComputedRef, ComponentSize, propsList, fallbackProps, 属性优先级, 多级回退, 全局配置, 表单联动, size 回退]
+keywords:
+  [
+    useFallbackProps,
+    useFormFallbackProps,
+    useConfig,
+    setConfig,
+    formProps,
+    injectFormContext,
+    ComputedRef,
+    ComponentSize,
+    propsList,
+    fallbackProps,
+    属性优先级,
+    多级回退,
+    全局配置,
+    表单联动,
+    size 回退
+  ]
 ---
 
 # useFallbackProps / useFormFallbackProps 属性多级回退
@@ -64,10 +81,10 @@ export function useFormFallbackProps<F extends Partial<FormFallbackProps>>(
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `propsList` | `Record<string, any>[]` | — | 是 | 解析顺序固定为从数组末尾向开头扫描，遇到 `props[key] !== undefined` 即返回；数组元素可为空对象（常见写法 `formProps ?? {}`） |
-| `fallbackProps` | `Record<string, any>`（`useFormFallbackProps` 限 `Partial<FormFallbackProps>`） | `useFormFallbackProps` 不传时为 `{ size: 'default', disabled: false, readonly: false }`；`useFallbackProps` 必传 | 是 / 否 | 返回对象只包含此对象自己的 key；key 必须是可直接作为全局配置顶层 key 或组件 prop 的字符串 |
+| 参数            | 类型                                                                            | 默认                                                                                                             |  必填   | 约束                                                                                                                         |
+| --------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | :-----: | ---------------------------------------------------------------------------------------------------------------------------- |
+| `propsList`     | `Record<string, any>[]`                                                         | —                                                                                                                |   是    | 解析顺序固定为从数组末尾向开头扫描，遇到 `props[key] !== undefined` 即返回；数组元素可为空对象（常见写法 `formProps ?? {}`） |
+| `fallbackProps` | `Record<string, any>`（`useFormFallbackProps` 限 `Partial<FormFallbackProps>`） | `useFormFallbackProps` 不传时为 `{ size: 'default', disabled: false, readonly: false }`；`useFallbackProps` 必传 | 是 / 否 | 返回对象只包含此对象自己的 key；key 必须是可直接作为全局配置顶层 key 或组件 prop 的字符串                                    |
 
 ### 解析优先级与返回值
 
@@ -158,10 +175,7 @@ import { useFormFallbackProps } from '@veltra/compositions'
 
 const props: Record<string, any> = { disabled: true }
 
-const { size, disabled } = useFormFallbackProps([props], {
-  size: 'small',
-  disabled: false
-})
+const { size, disabled } = useFormFallbackProps([props], { size: 'small', disabled: false })
 
 console.log(size.value) // => 'default'（全局配置）
 console.log(disabled.value) // => true（props 命中）
@@ -173,6 +187,7 @@ console.log(disabled.value) // => true（props 命中）
 ## 注意事项
 
 > [!WARNING]
+>
 > - 返回值是 `ComputedRef`，脚本中必须 `.value`；写成 `size`（对象解构后的 ref 本身）传给需要布尔 / 字符串的 API 会类型不符。
 > - 解析顺序是「props → 全局配置 → 默认值」：对 `size` 而言全局配置恒有值，`fallbackProps` 里的 `size` 默认值实际不可达；要让某组件不受全局配置影响，只能在 `propsList` 里显式给值。
 > - `propsList` 中 `null` 不等于 `undefined`：`props[key]` 为 `null` 时会被当作有效值命中，`?? {}` 兜底要写在 `formProps` 为空的位置而不是依赖 `null` 跳过。

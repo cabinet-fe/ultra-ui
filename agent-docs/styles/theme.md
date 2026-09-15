@@ -2,7 +2,26 @@
 title: loadTheme 运行时主题
 description: "从 '@veltra/styles/theme' 导入 loadTheme 与 9 个预设主题：向 html 注入全局与组件级 --u-* CSS 变量并写入 data-theme，支持预设派生自定义主题、深浅色切换与运行时热替换。"
 aliases: [theme, UITheme, 主题切换, 暗色模式, 主题定制, 皮肤]
-keywords: [UITheme, currentTheme, lightTheme, darkTheme, glassTheme, series, nav.variant, navSidebarTokens, data-theme, --u-, 深色模式, 暗色模式, 主题定制, 热替换, 设计令牌, 侧栏外观, 换肤]
+keywords:
+  [
+    UITheme,
+    currentTheme,
+    lightTheme,
+    darkTheme,
+    glassTheme,
+    series,
+    nav.variant,
+    navSidebarTokens,
+    data-theme,
+    --u-,
+    深色模式,
+    暗色模式,
+    主题定制,
+    热替换,
+    设计令牌,
+    侧栏外观,
+    换肤
+  ]
 ---
 
 # loadTheme 运行时主题
@@ -34,9 +53,7 @@ import type { ShallowRef } from 'vue'
 export type ThemeSeries = 'light' | 'dark'
 
 /** Theme 的深层 Partial，用于派生主题 */
-type RecursivePartial<T> = {
-  [P in keyof T]?: T[P] extends object ? RecursivePartial<T[P]> : T[P]
-}
+type RecursivePartial<T> = { [P in keyof T]?: T[P] extends object ? RecursivePartial<T[P]> : T[P] }
 
 export interface UIThemeOptions {
   /** 主题变更时是否自动重渲染（deep watch theme）。默认 true */
@@ -160,17 +177,17 @@ import {
 } from '@veltra/styles/theme'
 ```
 
-| 导出 | series | 特征（源码注释） |
-| --- | --- | --- |
-| `lightTheme` | `light` | 默认浅色基座，`reactive: false` |
-| `heroTheme` | `light` | HeroUI 风格：紫 `#7828c8`、2px 边框、浮雕阴影、`nav.variant: 'light'` |
-| `ancientTheme` | `light` | 松烟绿 + 宣纸底，侧栏松烟墨 |
-| `sakuraTheme` | `light` | 柔粉 + 花瓣底、大圆角、弹性缓动，侧栏深酒红 |
-| `oceanTheme` | `light` | 松石青 + 冷白底，侧栏深海礁 |
-| `darkTheme` | `dark` | 默认深色基座 |
-| `glassTheme` | `dark` | 玻璃拟态：rgba 背景 + `blur(20px)`，显式声明 kbd / batch-edit 扩展键 |
-| `midnightTheme` | `dark` | 靛蓝 + 深空底，宽松间距、舒缓过渡 |
-| `neonTheme` | `dark` | 品红 + 夜紫底 + 辉光阴影，小圆角 |
+| 导出            | series  | 特征（源码注释）                                                      |
+| --------------- | ------- | --------------------------------------------------------------------- |
+| `lightTheme`    | `light` | 默认浅色基座，`reactive: false`                                       |
+| `heroTheme`     | `light` | HeroUI 风格：紫 `#7828c8`、2px 边框、浮雕阴影、`nav.variant: 'light'` |
+| `ancientTheme`  | `light` | 松烟绿 + 宣纸底，侧栏松烟墨                                           |
+| `sakuraTheme`   | `light` | 柔粉 + 花瓣底、大圆角、弹性缓动，侧栏深酒红                           |
+| `oceanTheme`    | `light` | 松石青 + 冷白底，侧栏深海礁                                           |
+| `darkTheme`     | `dark`  | 默认深色基座                                                          |
+| `glassTheme`    | `dark`  | 玻璃拟态：rgba 背景 + `blur(20px)`，显式声明 kbd / batch-edit 扩展键  |
+| `midnightTheme` | `dark`  | 靛蓝 + 深空底，宽松间距、舒缓过渡                                     |
+| `neonTheme`     | `dark`  | 品红 + 夜紫底 + 辉光阴影，小圆角                                      |
 
 ### 主题工具函数（同入口导出）
 
@@ -196,9 +213,9 @@ import {
 
 ### loadTheme
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `theme` | `UITheme` | `lightTheme` | 否 | 预设实例或 `UITheme` / `UITheme#new` 的返回值 |
+| 参数    | 类型      | 默认         | 必填 | 约束                                          |
+| ------- | --------- | ------------ | :--: | --------------------------------------------- |
+| `theme` | `UITheme` | `lightTheme` |  否  | 预设实例或 `UITheme` / `UITheme#new` 的返回值 |
 
 调用行为（按序）：
 
@@ -209,31 +226,31 @@ import {
 
 ### UITheme 构造参数
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `theme` | `Theme` | — | 是 | 完整主题对象；`render` 内部用 `toRaw` 读取 |
-| `options.reactive` | `boolean` | `true` | 否 | `true` 时 deep watch `theme`，字段变更自动 `render()` |
-| `options.series` | `'light' \| 'dark'` | `'light'` | 否 | 决定组件级 token 套别与 `html[data-theme]` |
+| 参数               | 类型                | 默认      | 必填 | 约束                                                  |
+| ------------------ | ------------------- | --------- | :--: | ----------------------------------------------------- |
+| `theme`            | `Theme`             | —         |  是  | 完整主题对象；`render` 内部用 `toRaw` 读取            |
+| `options.reactive` | `boolean`           | `true`    |  否  | `true` 时 deep watch `theme`，字段变更自动 `render()` |
+| `options.series`   | `'light' \| 'dark'` | `'light'` |  否  | 决定组件级 token 套别与 `html[data-theme]`            |
 
 ### Theme 配置组与默认值（lightTheme 基线）
 
-| 配置组 | 类型 | 默认值 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `color.primary` | `string` | `'#2563eb'` | 是 | 其余：success `'#16a34a'`、warning `'#d97706'`、danger `'#dc2626'`、info `'#0891b2'`、disabled/default `'#f4f4f5'` |
-| `bg.color.*` | `string` | bottom `'#f4f4f5'`、middle `'#fafafa'`、top `'#ffffff'`、hover `'#f4f4f5'`、black `'#000000'` | 是 | 非十六进制值（rgba 等）不生成 alpha 派生 token |
-| `bg.filter` | `{ blur: string; saturate: string }` | `'none'` / `'none'` | 是 | 合成 `--u-bg-filter`；blur 为 `'none'` 时整体 `'none'` |
-| `border` | `{ color; mutedColor; width; style }` | `'#e4e4e7'`、`'#d4d4d8'`、`1`、`'solid'` | 是 | width 数字补 px |
-| `text-color.*` | `string` | title `'#18181b'`、main `'#3f3f46'`、placeholder `'#a1a1aa'`、second `'#71717a'`、assist `'#d4d4d8'`、disabled `'#a1a1aa'`、white `'#fff'` | 是 | — |
-| `radius` | `{ small; default; large }` | `6` / `8` / `12` | 是 | 数字补 px |
-| `form-component-height` | `{ small; default; large }` | `24` / `32` / `40` | 是 | 数字补 px |
-| `font-family` | `string` | system-ui 栈 | 是 | — |
-| `font-size-title` / `font-size-main` / `font-size-assist` | `{ small; default; large }` | 14/16/18、12/14/16、12/12/14 | 是 | 数字补 px |
-| `shadow` | `{ color; x; y; blur; spread; emboss; sm; lg }` | `'#00000014'`、`0/1/3/0`、`'none'`、sm/lg 完整 box-shadow | 是 | — |
-| `transition` | `{ fast; normal; slow; ease; easeOut }` | `'0.15s'`、`'0.25s'`、`'0.35s'`、两条 cubic-bezier | 是 | `easeOut` 写入为 `--u-transition-ease-out` |
-| `gap` | `{ small; default; large }` | `6` / `8` / `12` | 是 | 数字补 px |
-| `breakpoint` | `{ xs; sm; md; lg }` | `600` / `960` / `1280` / `1920` | 是 | 数字补 px |
-| `nav.variant` | `'dark' \| 'light'` | `'dark'` | 否 | 其余字符串键逐项覆盖 `--u-nav-*` |
-| `button` / `collapse` / 其他扩展键 | `object` | — | 否 | 路径转 kebab 后即组件级 `--u-*` token |
+| 配置组                                                    | 类型                                            | 默认值                                                                                                                                     | 必填 | 约束                                                                                                               |
+| --------------------------------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | :--: | ------------------------------------------------------------------------------------------------------------------ |
+| `color.primary`                                           | `string`                                        | `'#2563eb'`                                                                                                                                |  是  | 其余：success `'#16a34a'`、warning `'#d97706'`、danger `'#dc2626'`、info `'#0891b2'`、disabled/default `'#f4f4f5'` |
+| `bg.color.*`                                              | `string`                                        | bottom `'#f4f4f5'`、middle `'#fafafa'`、top `'#ffffff'`、hover `'#f4f4f5'`、black `'#000000'`                                              |  是  | 非十六进制值（rgba 等）不生成 alpha 派生 token                                                                     |
+| `bg.filter`                                               | `{ blur: string; saturate: string }`            | `'none'` / `'none'`                                                                                                                        |  是  | 合成 `--u-bg-filter`；blur 为 `'none'` 时整体 `'none'`                                                             |
+| `border`                                                  | `{ color; mutedColor; width; style }`           | `'#e4e4e7'`、`'#d4d4d8'`、`1`、`'solid'`                                                                                                   |  是  | width 数字补 px                                                                                                    |
+| `text-color.*`                                            | `string`                                        | title `'#18181b'`、main `'#3f3f46'`、placeholder `'#a1a1aa'`、second `'#71717a'`、assist `'#d4d4d8'`、disabled `'#a1a1aa'`、white `'#fff'` |  是  | —                                                                                                                  |
+| `radius`                                                  | `{ small; default; large }`                     | `6` / `8` / `12`                                                                                                                           |  是  | 数字补 px                                                                                                          |
+| `form-component-height`                                   | `{ small; default; large }`                     | `24` / `32` / `40`                                                                                                                         |  是  | 数字补 px                                                                                                          |
+| `font-family`                                             | `string`                                        | system-ui 栈                                                                                                                               |  是  | —                                                                                                                  |
+| `font-size-title` / `font-size-main` / `font-size-assist` | `{ small; default; large }`                     | 14/16/18、12/14/16、12/12/14                                                                                                               |  是  | 数字补 px                                                                                                          |
+| `shadow`                                                  | `{ color; x; y; blur; spread; emboss; sm; lg }` | `'#00000014'`、`0/1/3/0`、`'none'`、sm/lg 完整 box-shadow                                                                                  |  是  | —                                                                                                                  |
+| `transition`                                              | `{ fast; normal; slow; ease; easeOut }`         | `'0.15s'`、`'0.25s'`、`'0.35s'`、两条 cubic-bezier                                                                                         |  是  | `easeOut` 写入为 `--u-transition-ease-out`                                                                         |
+| `gap`                                                     | `{ small; default; large }`                     | `6` / `8` / `12`                                                                                                                           |  是  | 数字补 px                                                                                                          |
+| `breakpoint`                                              | `{ xs; sm; md; lg }`                            | `600` / `960` / `1280` / `1920`                                                                                                            |  是  | 数字补 px                                                                                                          |
+| `nav.variant`                                             | `'dark' \| 'light'`                             | `'dark'`                                                                                                                                   |  否  | 其余字符串键逐项覆盖 `--u-nav-*`                                                                                   |
+| `button` / `collapse` / 其他扩展键                        | `object`                                        | —                                                                                                                                          |  否  | 路径转 kebab 后即组件级 `--u-*` token                                                                              |
 
 ## 方法与事件
 
@@ -304,6 +321,7 @@ loadTheme(ancientTheme.new({ nav }))
 ## 注意事项
 
 > [!WARNING]
+>
 > - 入口必须调用 `loadTheme()`：不调用时 `--u-*` 变量为空，组件没有颜色。这是本库唯一的主题初始化入口。
 > - `theme` 运行时依赖 `@veltra/compositions` 的 `useConfig`（`loadTheme` 读取 `config.size` 同步 `html` 尺寸 class）；`@veltra/compositions` 禁止 re-export `theme`，否则两个包循环依赖。主题 API 一律从 `@veltra/styles/theme` 导入，不从 compositions 导入。
 > - 本库的深浅色切换是「换一个带目标 `series` 的主题」，不是给 `html` 加 `dark` 类；组件 SCSS 暗色分支用 `@include m.dark`（匹配 `html[data-theme='dark']`），但优先换 token 而不是写分支。

@@ -2,7 +2,22 @@
 title: useReactiveSize 元素响应式宽高
 description: 从 @veltra/compositions 导出的基于 ResizeObserver 的响应式尺寸组合式函数：观察单个或一组元素 ref，返回 reactive 的 { width, height } 对象（border box），模板直接绑定，随元素尺寸变化自动更新。
 aliases: [use-reactive-size, 元素尺寸监听, 响应式宽高, 容器尺寸]
-keywords: [useReactiveSize, RefElement, ElementSize, borderBoxSize, inlineSize, blockSize, reactive, 宽高监听, 容器查询, 自适应布局, 响应式尺寸, 图表 resize, 元素宽高]
+keywords:
+  [
+    useReactiveSize,
+    RefElement,
+    ElementSize,
+    borderBoxSize,
+    inlineSize,
+    blockSize,
+    reactive,
+    宽高监听,
+    容器查询,
+    自适应布局,
+    响应式尺寸,
+    图表 resize,
+    元素宽高
+  ]
 ---
 
 # useReactiveSize 元素响应式宽高
@@ -38,8 +53,7 @@ import type { Ref, ShallowRef } from 'vue'
 
 /** 可观察的元素引用：值可为 HTMLElement | null | undefined */
 export type RefElement =
-  | ShallowRef<HTMLElement | undefined | null>
-  | Ref<HTMLElement | undefined | null>
+  ShallowRef<HTMLElement | undefined | null> | Ref<HTMLElement | undefined | null>
 
 interface ElementSize {
   /** border box 宽度（px），来自 borderBoxSize[0].inlineSize */
@@ -55,18 +69,16 @@ export function useReactiveSize(target: RefElement): ElementSize
 export function useReactiveSize(targets: RefElement[]): ElementSize[]
 
 /** 实现：非数组参数按单个处理，数组参数按数组处理 */
-export function useReactiveSize(
-  targets: RefElement | RefElement[]
-): ElementSize | ElementSize[]
+export function useReactiveSize(targets: RefElement | RefElement[]): ElementSize | ElementSize[]
 ```
 
 `ElementSize` 接口未从包导出，返回值按结构 `{ width: number; height: number }` 使用。注意没有泛型、没有选项参数：观察的是 border box，不可切换为 content box。
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `target` / `targets` | `RefElement` 或 `RefElement[]` | — | 是 | 数组形式时返回数组与传入顺序一一对应；数组元素 ref 当前值为 `null` / `undefined` 时不参与观察，挂载后自动纳入；两种重载在运行时以 `Array.isArray` 区分，禁止传入「只有一个元素的 ref」以外的混合结构 |
+| 参数                 | 类型                           | 默认 | 必填 | 约束                                                                                                                                                                                                 |
+| -------------------- | ------------------------------ | ---- | :--: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `target` / `targets` | `RefElement` 或 `RefElement[]` | —    |  是  | 数组形式时返回数组与传入顺序一一对应；数组元素 ref 当前值为 `null` / `undefined` 时不参与观察，挂载后自动纳入；两种重载在运行时以 `Array.isArray` 区分，禁止传入「只有一个元素的 ref」以外的混合结构 |
 
 ## 方法与事件
 
@@ -171,6 +183,7 @@ const overflow = computed(() => size.height > 200)
 ## 注意事项
 
 > [!WARNING]
+>
 > - 返回值是 `reactive` 对象，不是 `Ref`：禁止写 `size.value.width`，正确写法是 `size.width`。
 > - 数值是 **border box**（含 `padding` 与 `border`，不含 `margin`），与 `clientWidth`（不含 border）和 `offsetWidth`（含 border，四舍五入）口径不同；`borderBoxSize` 给出的是浮点精确值。
 > - 必须传元素 ref（`Ref` / `ShallowRef`），不能传 DOM 元素本身或 CSS 选择器。

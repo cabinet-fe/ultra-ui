@@ -1,8 +1,24 @@
 ---
 title: UAutoComplete 自动补全
-description: "从 @veltra/desktop 导入的自动补全输入框：输入时给出候选，候选支持静态数组本地过滤或同步/异步函数远程获取，支持键盘上下选择、自定义候选模板与自由输入。"
+description: '从 @veltra/desktop 导入的自动补全输入框：输入时给出候选，候选支持静态数组本地过滤或同步/异步函数远程获取，支持键盘上下选择、自定义候选模板与自由输入。'
 aliases: [AutoComplete, auto-complete, 自动完成, 输入联想, 输入框补全]
-keywords: [modelValue, suggestions, allowCustom, select, clearable, open, close, field, 候选列表, 远程搜索, 异步候选, 输入联想, 自由输入, 键盘导航]
+keywords:
+  [
+    modelValue,
+    suggestions,
+    allowCustom,
+    select,
+    clearable,
+    open,
+    close,
+    field,
+    候选列表,
+    远程搜索,
+    异步候选,
+    输入联想,
+    自由输入,
+    键盘导航
+  ]
 ---
 
 # UAutoComplete 自动补全
@@ -59,9 +75,7 @@ export interface FormComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    | number
-    | 'full'
-    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段：UForm 内用它绑定 model 字段 */
@@ -106,37 +120,37 @@ export interface AutoCompleteExposed {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `v-model` | `string` | — | 否 | 自由输入的候选外文本也会写入 `modelValue` |
-| `suggestions` | `string[] \| (() => Promise<string[]> \| string[])` | — | 否 | 数组：按当前输入做子串包含过滤（区分大小写），空输入给全量；函数：输入变化 200ms 防抖后以当前输入为实参调用，返回值整体作为候选、不做本地过滤；不传时面板仅显示已采纳历史 |
-| `placeholder` | `string` | `'请输入'` | 否 | 占位文字 |
-| `clearable` | `boolean` | `true` | 否 | 悬停且有值时显示清除按钮 |
-| `allowCustom` | `boolean` | `true` | 否 | `true` 且当前输入不在候选中时，面板顶部出现「当前输入」候选项；`false` 不出现。两个取值都不阻止自由输入 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 否 | 组件未设置时继承 `UForm` 的 `size` |
-| `label` | `string` | — | 否 | 标签文字，仅 `UForm` / `UFormItem` 内生效 |
-| `field` | `string` | — | 否 | `UForm` 内必须用它绑定字段；写了 `field` 禁止再写 `v-model` |
-| `rules` | `ValidateRule` | — | 否 | 校验规则，仅 `UForm` 内生效 |
-| `tips` | `string` | — | 否 | 表单内提示文字，仅 `UForm` 内生效 |
-| `span` | `number \| 'full' \| 响应式对象` | — | 否 | 所占列宽，仅 `UForm` 内生效 |
-| `disabled` | `boolean` | `false` | 否 | 未设置时继承 `UForm` 的 `disabled` |
-| `readonly` | `boolean` | `false` | 否 | 未设置时继承 `UForm`；只读时渲染为纯文本 |
+| 参数          | 类型                                                | 默认        | 必填 | 约束                                                                                                                                                                      |
+| ------------- | --------------------------------------------------- | ----------- | :--: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `v-model`     | `string`                                            | —           |  否  | 自由输入的候选外文本也会写入 `modelValue`                                                                                                                                 |
+| `suggestions` | `string[] \| (() => Promise<string[]> \| string[])` | —           |  否  | 数组：按当前输入做子串包含过滤（区分大小写），空输入给全量；函数：输入变化 200ms 防抖后以当前输入为实参调用，返回值整体作为候选、不做本地过滤；不传时面板仅显示已采纳历史 |
+| `placeholder` | `string`                                            | `'请输入'`  |  否  | 占位文字                                                                                                                                                                  |
+| `clearable`   | `boolean`                                           | `true`      |  否  | 悬停且有值时显示清除按钮                                                                                                                                                  |
+| `allowCustom` | `boolean`                                           | `true`      |  否  | `true` 且当前输入不在候选中时，面板顶部出现「当前输入」候选项；`false` 不出现。两个取值都不阻止自由输入                                                                   |
+| `size`        | `'small' \| 'default' \| 'large'`                   | `'default'` |  否  | 组件未设置时继承 `UForm` 的 `size`                                                                                                                                        |
+| `label`       | `string`                                            | —           |  否  | 标签文字，仅 `UForm` / `UFormItem` 内生效                                                                                                                                 |
+| `field`       | `string`                                            | —           |  否  | `UForm` 内必须用它绑定字段；写了 `field` 禁止再写 `v-model`                                                                                                               |
+| `rules`       | `ValidateRule`                                      | —           |  否  | 校验规则，仅 `UForm` 内生效                                                                                                                                               |
+| `tips`        | `string`                                            | —           |  否  | 表单内提示文字，仅 `UForm` 内生效                                                                                                                                         |
+| `span`        | `number \| 'full' \| 响应式对象`                    | —           |  否  | 所占列宽，仅 `UForm` 内生效                                                                                                                                               |
+| `disabled`    | `boolean`                                           | `false`     |  否  | 未设置时继承 `UForm` 的 `disabled`                                                                                                                                        |
+| `readonly`    | `boolean`                                           | `false`     |  否  | 未设置时继承 `UForm`；只读时渲染为纯文本                                                                                                                                  |
 
 ## 方法与事件
 
 **ref 方法**（`AutoCompleteExposed` 经 `DeconstructValue` 解包，模板 ref 上直接调用）：
 
-| 方法 | 签名 | 返回 | 说明 |
-| --- | --- | --- | --- |
-| `open` | `open(): void` | 同步 | 打开候选面板 |
+| 方法    | 签名            | 返回 | 说明         |
+| ------- | --------------- | ---- | ------------ |
+| `open`  | `open(): void`  | 同步 | 打开候选面板 |
 | `close` | `close(): void` | 同步 | 关闭候选面板 |
 
 **事件**：
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
-| `update:modelValue` | `value: string` | 输入、点选候选、清除 |
-| `select` | `value: string` | 点选候选或键盘选中候选；自由输入、采纳「当前输入」候选项不触发 |
+| 事件                | payload         | 触发时机                                                       |
+| ------------------- | --------------- | -------------------------------------------------------------- |
+| `update:modelValue` | `value: string` | 输入、点选候选、清除                                           |
+| `select`            | `value: string` | 点选候选或键盘选中候选；自由输入、采纳「当前输入」候选项不触发 |
 
 **键盘导航**：`ArrowDown` / `ArrowUp` 循环移动高亮项（面板关闭时按下会展开面板）；`Enter` 选中高亮项；`Escape` 关闭面板；输入时面板自动展开。
 
@@ -214,10 +228,7 @@ const form = reactive({ city: '' })
 const cities = ['北京', '上海', '广州', '深圳']
 
 // 自由输入不在候选里时给出校验提示
-const rules = {
-  validator: (value: string) =>
-    cities.includes(value) ? '' : '请从候选列表中选择'
-}
+const rules = { validator: (value: string) => (cities.includes(value) ? '' : '请从候选列表中选择') }
 </script>
 
 <template>
@@ -231,6 +242,7 @@ const rules = {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 在 `<u-form>` 内必须用 `field` 绑定字段，禁止再写 `v-model`。
 > - `suggestions` 是 `string[]`，候选内容就是字符串本身，本库没有 `{ value, label }` 对象候选。
 > - 函数式候选直接 `return` 数组或 `Promise<string[]>`，不是 Element `el-autocomplete` 的 `(query, callback)` 回调式；签名只有一个入参（当前输入）。

@@ -2,7 +2,29 @@
 title: Ultra UI 主题定制场景
 description: 端到端完成 Ultra UI 主题定制：loadTheme 预设主题切换、深浅色切换（series 硬规则）、品牌色覆盖（UITheme#new 派生）、侧栏 nav 外观（variant dark/light）与编译期 SCSS token 定制；模板组件交给 VeltraUIResolver 注入组件 import 与样式副作用，显式 import 的组件必须补 components/<目录>/style，漏写时渲染成裸样式。
 aliases: [主题定制, 换肤, 暗色模式, 深浅色切换, 品牌色, Theme]
-keywords: [loadTheme, lightTheme, darkTheme, UITheme, series, nav.variant, navSidebarTokens, cssVar, NodePackageImporter, pkg:@veltra/styles, 主题切换, 深色模式, 暗色模式, 品牌色覆盖, 侧栏外观, 换肤, VeltraUIResolver, components/button/style, 裸样式, 样式副作用]
+keywords:
+  [
+    loadTheme,
+    lightTheme,
+    darkTheme,
+    UITheme,
+    series,
+    nav.variant,
+    navSidebarTokens,
+    cssVar,
+    NodePackageImporter,
+    pkg:@veltra/styles,
+    主题切换,
+    深色模式,
+    暗色模式,
+    品牌色覆盖,
+    侧栏外观,
+    换肤,
+    VeltraUIResolver,
+    components/button/style,
+    裸样式,
+    样式副作用
+  ]
 ---
 
 # Ultra UI 主题定制场景
@@ -26,9 +48,7 @@ import Components from 'unplugin-vue-components/vite'
 import { VeltraUIResolver } from '@veltra/vite'
 
 // VeltraUIResolver 重写模板编译产物里的 _resolveComponent("<组件名>")，注入组件 import 与样式副作用
-export default defineConfig({
-  plugins: [vue(), Components({ resolvers: [VeltraUIResolver()] })]
-})
+export default defineConfig({ plugins: [vue(), Components({ resolvers: [VeltraUIResolver()] })] })
 ```
 
 ```ts
@@ -140,6 +160,7 @@ const current = useTemplateRef<'light' | 'dark'>('current')
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库的深浅色切换是「换一个带目标 `series` 的主题」，不是给 `html` 加 `dark` class；禁止在组件里写 `[data-theme]` 分支来配色。
 > - 入口必须调用 `loadTheme()`：不调用时 `--u-*` 变量为空，组件没有颜色，且没有兜底值。
 > - 主题 API 一律从 `@veltra/styles/theme` 导入；`@veltra/compositions` 不 re-export 主题。

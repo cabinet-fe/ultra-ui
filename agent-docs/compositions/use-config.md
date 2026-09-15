@@ -2,7 +2,23 @@
 title: useConfig 全局配置
 description: 读写 Ultra UI 全局配置的组合式函数：返回只读 config 与深合并写入的 setConfig，可配置全局动画开关、组件尺寸、表单标签宽度与分页器默认值；首次调用后 config.size 变化自动同步尺寸 class 到 html 根节点，适用于管理后台全局紧凑度与字号切换。
 aliases: [use-config, setConfig, setDocumentSize, 组件库全局配置, 全局设置]
-keywords: [config, setConfig, setDocumentSize, animation, size, labelWidth, pageSize, pageSizeOptions, ComponentSize, 全局尺寸, 深合并, 紧凑模式, 全局默认值, html class]
+keywords:
+  [
+    config,
+    setConfig,
+    setDocumentSize,
+    animation,
+    size,
+    labelWidth,
+    pageSize,
+    pageSizeOptions,
+    ComponentSize,
+    全局尺寸,
+    深合并,
+    紧凑模式,
+    全局默认值,
+    html class
+  ]
 ---
 
 # useConfig 全局配置
@@ -45,10 +61,7 @@ interface State {
     labelWidth?: number | string
   }
   /** 分页器全局配置 */
-  paginator: {
-    pageSize: number
-    pageSizeOptions: number[]
-  }
+  paginator: { pageSize: number; pageSizeOptions: number[] }
 }
 
 export function useConfig(): {
@@ -66,15 +79,15 @@ export function setDocumentSize(size: ComponentSize, oldSize?: ComponentSize): v
 
 `useConfig()` 无参数。`setConfig` 的 `conf` 为 `Partial<State>`，各字段默认值与约束：
 
-| 字段 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `animation` | `boolean` | `true` | 否 | 组件是否播放动画 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 否 | 仅这三个值；变化自动同步到 `<html>` class |
-| `form.labelWidth` | `number \| string` | `100` | 否 | `UFormItem` 未显式传 `labelWidth` 时使用 |
-| `paginator.pageSize` | `number` | `40` | 否 | `UPaginator` 未传 `pageSize` 时使用 |
-| `paginator.pageSizeOptions` | `number[]` | `[40, 100, 200, 500, 1000]` | 否 | `UPaginator` 未传 `pageSizeOptions` 时使用 |
+| 字段                        | 类型                              | 默认                        | 必填 | 约束                                       |
+| --------------------------- | --------------------------------- | --------------------------- | :--: | ------------------------------------------ |
+| `animation`                 | `boolean`                         | `true`                      |  否  | 组件是否播放动画                           |
+| `size`                      | `'small' \| 'default' \| 'large'` | `'default'`                 |  否  | 仅这三个值；变化自动同步到 `<html>` class  |
+| `form.labelWidth`           | `number \| string`                | `100`                       |  否  | `UFormItem` 未显式传 `labelWidth` 时使用   |
+| `paginator.pageSize`        | `number`                          | `40`                        |  否  | `UPaginator` 未传 `pageSize` 时使用        |
+| `paginator.pageSizeOptions` | `number[]`                        | `[40, 100, 200, 500, 1000]` |  否  | `UPaginator` 未传 `pageSizeOptions` 时使用 |
 
-`setConfig` 深合并规则：`state` 中为对象的字段（`form`、`paginator`）递归合并，未提到的键保持原值；若给对象字段传了非对象值，控制台告警 `` extend['<key>']应该是一个对象 `` 并忽略该键。
+`setConfig` 深合并规则：`state` 中为对象的字段（`form`、`paginator`）递归合并，未提到的键保持原值；若给对象字段传了非对象值，控制台告警 `extend['<key>']应该是一个对象` 并忽略该键。
 
 ## 方法与事件
 
@@ -122,12 +135,7 @@ function applySize(size: (typeof sizes)[number]) {
 
 <template>
   <div>
-    <button
-      v-for="s in sizes"
-      :key="s"
-      :disabled="config.size === s"
-      @click="applySize(s)"
-    >
+    <button v-for="s in sizes" :key="s" :disabled="config.size === s" @click="applySize(s)">
       {{ s }}
     </button>
   </div>
@@ -150,6 +158,7 @@ setDocumentSize('large')
 ## 注意事项
 
 > [!WARNING]
+>
 > - `config` 是只读代理，禁止直接 `config.size = 'small'` 赋值，写入必须走 `setConfig`。
 > - `setConfig` 是深合并不是整体替换；想重置 `paginator.pageSizeOptions` 必须显式传完整数组。
 > - `form` 只有 `labelWidth`，没有 `labelPosition` 等字段；标签位置由 `UForm` 组件自身属性控制，写进 `setConfig` 不会生效。

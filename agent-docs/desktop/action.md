@@ -123,28 +123,28 @@ export type ActionGroupExposed = DeconstructValue<_ActionGroupExposed>
 
 ### UAction
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `needConfirm` | `boolean` | `false` | 否 | `true` 时点击只弹确认气泡（标题固定「确认执行此操作吗？」，方向 `left`），点「确认」才触发 `run`；不要再在 `run` 里叠加 `messageConfirm`（会确认两次） |
-| `inDropdown` | `boolean` | `false` | 否 | `true` 时无视 `max` 始终进下拉；下拉内强制 `circle: false`，`run` 后自动关闭下拉 |
-| `type` | `ColorType` | `'primary'`（组内） | 否 | 未在 `UActionGroup` 内时默认 `'primary'`；在组内且未传时继承组的 `type` |
-| `text` | `boolean` | `true`（组内） | 否 | 同上，继承组的 `text` |
-| `size` | `ComponentSize` | `'small'`（组内） | 否 | 同上，继承组的 `size` |
-| `loading` | `boolean` | 继承组 | 否 | 单项可覆盖组级 `loading` |
-| `circle` | `boolean` | 继承组 | 否 | 单项可覆盖；`inDropdown` 为 `true` 时强制 `false` |
-| `disabled` / `plain` / `icon` / `iconSize` / `iconPosition` / `loadingIcon` | 同 UButton | — | 否 | 直接透传给内部 `UButton` |
-| `propagate` | `boolean` | — | 否 | 内部强制 `false`：点击不冒泡到表格行等外层，传入无效 |
+| 参数                                                                        | 类型            | 默认                | 必填 | 约束                                                                                                                                                   |
+| --------------------------------------------------------------------------- | --------------- | ------------------- | :--: | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `needConfirm`                                                               | `boolean`       | `false`             |  否  | `true` 时点击只弹确认气泡（标题固定「确认执行此操作吗？」，方向 `left`），点「确认」才触发 `run`；不要再在 `run` 里叠加 `messageConfirm`（会确认两次） |
+| `inDropdown`                                                                | `boolean`       | `false`             |  否  | `true` 时无视 `max` 始终进下拉；下拉内强制 `circle: false`，`run` 后自动关闭下拉                                                                       |
+| `type`                                                                      | `ColorType`     | `'primary'`（组内） |  否  | 未在 `UActionGroup` 内时默认 `'primary'`；在组内且未传时继承组的 `type`                                                                                |
+| `text`                                                                      | `boolean`       | `true`（组内）      |  否  | 同上，继承组的 `text`                                                                                                                                  |
+| `size`                                                                      | `ComponentSize` | `'small'`（组内）   |  否  | 同上，继承组的 `size`                                                                                                                                  |
+| `loading`                                                                   | `boolean`       | 继承组              |  否  | 单项可覆盖组级 `loading`                                                                                                                               |
+| `circle`                                                                    | `boolean`       | 继承组              |  否  | 单项可覆盖；`inDropdown` 为 `true` 时强制 `false`                                                                                                      |
+| `disabled` / `plain` / `icon` / `iconSize` / `iconPosition` / `loadingIcon` | 同 UButton      | —                   |  否  | 直接透传给内部 `UButton`                                                                                                                               |
+| `propagate`                                                                 | `boolean`       | —                   |  否  | 内部强制 `false`：点击不冒泡到表格行等外层，传入无效                                                                                                   |
 
 ### UActionGroup
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `max` | `number` | `3` | 否 | 子项超过 `max` 时，内联保留前 `max - 1` 个，第 `max` 个位置渲染「更多」圆形下拉按钮 |
-| `loading` | `boolean` | `false` | 否 | 作为所有子项的默认 `loading` |
-| `circle` | `boolean` | `false` | 否 | 作为所有子项的默认 `circle` |
-| `size` | `'small' \| 'default' \| 'large'` | `'small'` | 否 | 作为所有子项的默认 `size` |
-| `text` | `boolean` | `true` | 否 | 作为所有子项的默认 `text`；实心按钮需写 `:text="false"` |
-| `type` | `ColorType` | `'primary'` | 否 | 作为所有子项默认 `type`，同时决定「更多」按钮颜色 |
+| 参数      | 类型                              | 默认        | 必填 | 约束                                                                                |
+| --------- | --------------------------------- | ----------- | :--: | ----------------------------------------------------------------------------------- |
+| `max`     | `number`                          | `3`         |  否  | 子项超过 `max` 时，内联保留前 `max - 1` 个，第 `max` 个位置渲染「更多」圆形下拉按钮 |
+| `loading` | `boolean`                         | `false`     |  否  | 作为所有子项的默认 `loading`                                                        |
+| `circle`  | `boolean`                         | `false`     |  否  | 作为所有子项的默认 `circle`                                                         |
+| `size`    | `'small' \| 'default' \| 'large'` | `'small'`   |  否  | 作为所有子项的默认 `size`                                                           |
+| `text`    | `boolean`                         | `true`      |  否  | 作为所有子项的默认 `text`；实心按钮需写 `:text="false"`                             |
+| `type`    | `ColorType`                       | `'primary'` |  否  | 作为所有子项默认 `type`，同时决定「更多」按钮颜色                                   |
 
 插槽：`UAction` 默认插槽放按钮文字；`UActionGroup` 默认插槽只接受 `UAction` 子项，其他内容不渲染。
 
@@ -243,6 +243,7 @@ function onReset() {
 ## 注意事项
 
 > [!WARNING]
+>
 > - `UAction` 的点击事件是 `run`，不是 `click`；写 `@click` 收不到任何事件。
 > - `UActionGroup` 只渲染 `UAction` 子项：在组内写普通按钮、文本等其他子节点会被丢弃。
 > - 溢出收纳规则是「`max - 1` 个内联 + 1 个更多按钮」：`max: 3` 且有 4 项时，内联只有 2 个，第 3 个位置是「更多」下拉按钮，不是把 3 个都内联。

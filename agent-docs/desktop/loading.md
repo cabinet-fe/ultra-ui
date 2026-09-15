@@ -2,7 +2,23 @@
 title: ULoading / vLoading 加载
 description: 从 @veltra/desktop 导入 ULoading 组件与 vLoading 指令：组件渲染四种加载动画（dual-ring/dot/ring/bars），指令在任意元素上覆盖半透明加载遮罩，支持局部加载与全屏加载，值切换时自动显示与移除。
 aliases: [ULoading, vLoading, Loading, 加载中, 加载动画, loading 遮罩]
-keywords: [LoadingType, dual-ring, dot, ring, bars, v-loading, ObjectDirective, 加载中, 加载遮罩, 局部加载, 全屏加载, 数据加载, 指令遮罩, 加载动画]
+keywords:
+  [
+    LoadingType,
+    dual-ring,
+    dot,
+    ring,
+    bars,
+    v-loading,
+    ObjectDirective,
+    加载中,
+    加载遮罩,
+    局部加载,
+    全屏加载,
+    数据加载,
+    指令遮罩,
+    加载动画
+  ]
 ---
 
 # ULoading / vLoading 加载
@@ -62,17 +78,17 @@ export const vLoading: ObjectDirective<HTMLElement>
 
 ### ULoading 组件 props
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `type` | `'dual-ring' \| 'dot' \| 'ring' \| 'bars'` | `'dual-ring'` | 否 | 四种动画：双环反向旋转、三点呼吸、单环旋转、三竖条跳动 |
+| 参数   | 类型                                       | 默认          | 必填 | 约束                                                   |
+| ------ | ------------------------------------------ | ------------- | :--: | ------------------------------------------------------ |
+| `type` | `'dual-ring' \| 'dot' \| 'ring' \| 'bars'` | `'dual-ring'` |  否  | 四种动画：双环反向旋转、三点呼吸、单环旋转、三竖条跳动 |
 
 ### v-loading 指令绑定
 
-| 部分 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| 值 `binding.value` | `boolean`（truthy/falsy） | — | 是 | `true` 渲染遮罩，`false` 移除遮罩 |
-| 参数 `binding.arg` | `'dual-ring' \| 'dot' \| 'ring' \| 'bars'` | `'dual-ring'` | 否 | 写法 `v-loading:dual-ring`；支持动态参数 `v-loading:[typeExpr]` |
-| 修饰符 | — | — | — | 不支持任何修饰符 |
+| 部分               | 类型                                       | 默认          | 必填 | 约束                                                            |
+| ------------------ | ------------------------------------------ | ------------- | :--: | --------------------------------------------------------------- |
+| 值 `binding.value` | `boolean`（truthy/falsy）                  | —             |  是  | `true` 渲染遮罩，`false` 移除遮罩                               |
+| 参数 `binding.arg` | `'dual-ring' \| 'dot' \| 'ring' \| 'bars'` | `'dual-ring'` |  否  | 写法 `v-loading:dual-ring`；支持动态参数 `v-loading:[typeExpr]` |
+| 修饰符             | —                                          | —             |  —   | 不支持任何修饰符                                                |
 
 指令生命周期：宿主挂载且值为真时渲染遮罩；值变化时按真假渲染 / 移除；宿主卸载时移除遮罩。渲染时给宿主元素追加 `u-loading__container` 类（`position: relative`），移除时撤销，因此宿主无需自己写 `position: relative`。
 
@@ -96,10 +112,7 @@ async function reload() {
 </script>
 
 <template>
-  <div
-    v-loading:[type]="loading"
-    style="height: 240px; border: 1px solid #eee"
-  >
+  <div v-loading:[type]="loading" style="height: 240px; border: 1px solid #eee">
     <p>列表内容，加载时显示半透明遮罩</p>
   </div>
   <button @click="type = 'ring'">换 ring 动画</button>
@@ -126,10 +139,7 @@ async function loadAll() {
 <template>
   <button @click="loadAll">全屏加载</button>
   <!-- 铺满视口的宿主元素，遮罩即全屏 -->
-  <div
-    v-loading:dual-ring="fullscreenLoading"
-    style="position: fixed; inset: 0; z-index: 2000"
-  />
+  <div v-loading:dual-ring="fullscreenLoading" style="position: fixed; inset: 0; z-index: 2000" />
 </template>
 ```
 
@@ -154,6 +164,7 @@ import { ULoading } from '@veltra/desktop'
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库加载指令是 `vLoading`（模板写 `v-loading`），不是 `v-loading.config` 这类带修饰符的配置式用法；没有文案（`text`）、spinner 自定义等配置项。
 > - `app.use(UltraUI)` 已全局注册 `v-loading`（`install` 内 `app.directive('loading', vLoading)`），此时模板可直接用而无需导入；未安装插件时必须在 `<script setup>` 中 `import { vLoading } from '@veltra/desktop'`，否则指令不生效且模板报解析错误。
 > - 单独使用 `ULoading` 组件时禁止直接放在无 `position: relative` 的容器外，否则遮罩会相对最近的定位祖先铺满。

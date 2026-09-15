@@ -2,7 +2,8 @@
 title: UEmpty 空状态
 description: 从 @veltra/desktop 导入 UEmpty 空状态组件，用内置图标与文案（默认「暂无数据」）为空列表、空搜索结果提供占位提示，仅 size 与 text 两个属性，无插槽与事件。
 aliases: [UEmpty, Empty, 空状态, 暂无数据, Empty 占位]
-keywords: [EmptyProps, 暂无数据, 空列表占位, 无数据提示, 列表为空, 搜索无结果, 占位图标, 图标尺寸, 条件渲染]
+keywords:
+  [EmptyProps, 暂无数据, 空列表占位, 无数据提示, 列表为空, 搜索无结果, 占位图标, 图标尺寸, 条件渲染]
 ---
 
 # UEmpty 空状态
@@ -42,10 +43,10 @@ export interface EmptyProps {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `size` | `number` | `48` | 否 | 单位 px，只作用于图标；文字大小不随 `size` 变化 |
-| `text` | `string` | `'暂无数据'` | 否 | 纯文本，不支持 HTML 与插槽 |
+| 参数   | 类型     | 默认         | 必填 | 约束                                            |
+| ------ | -------- | ------------ | :--: | ----------------------------------------------- |
+| `size` | `number` | `48`         |  否  | 单位 px，只作用于图标；文字大小不随 `size` 变化 |
+| `text` | `string` | `'暂无数据'` |  否  | 纯文本，不支持 HTML 与插槽                      |
 
 无事件、无暴露方法（`EmptyEmits` / `EmptyExposed` 均为空类型）。
 
@@ -104,6 +105,7 @@ import { UEmpty } from '@veltra/desktop'
 ## 注意事项
 
 > [!WARNING]
+>
 > - `UEmpty` 是 `inline-block` 元素，禁止直接期待它水平居中；必须在外层容器写 `text-align: center` 或 flex 布局。
 > - 图标是内置的 `Empty`，不可通过 props / 插槽替换；需要自定义图标时自行组合 `UIcon` 与文案，不要复用本组件。
 > - `text` 只支持纯文本；需要富文本提示时在 `UEmpty` 外自行追加元素。

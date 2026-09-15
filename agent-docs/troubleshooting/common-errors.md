@@ -1,8 +1,30 @@
 ---
-title: "Ultra UI 常见报错排障"
-description: "Ultra UI 全库高频构建期与运行时报错的修复手册：主题未初始化与显式 import 导致的裸样式、SCSS pkg: 与 NodePackageImporter entryPointDirectory 解析规则、缺 @vitejs/plugin-vue-jsx 时 react/jsx-runtime 解析失败、渲染函数里的 ReferenceError: UTag is not defined、函数式 API 缺样式、UForm 的 field 与 v-model 冲突、VeltraUIResolver 未生效、sheet-core 子路径导入、v-focus 警告、USelect 回显失败、图标包体积与 Workbook/AI 传输层真实报错。"
+title: 'Ultra UI 常见报错排障'
+description: 'Ultra UI 全库高频构建期与运行时报错的修复手册：主题未初始化与显式 import 导致的裸样式、SCSS pkg: 与 NodePackageImporter entryPointDirectory 解析规则、缺 @vitejs/plugin-vue-jsx 时 react/jsx-runtime 解析失败、渲染函数里的 ReferenceError: UTag is not defined、函数式 API 缺样式、UForm 的 field 与 v-model 冲突、VeltraUIResolver 未生效、sheet-core 子路径导入、v-focus 警告、USelect 回显失败、图标包体积与 Workbook/AI 传输层真实报错。'
 aliases: [FAQ, 排错, troubleshooting, 常见问题, 报错, 常见错误]
-keywords: [loadTheme, 主题未初始化, NodePackageImporter, entryPointDirectory, sass-embedded, "pkg:", "Can't find stylesheet to import", VeltraUIResolver, "react/jsx-dev-runtime", "react/jsx-runtime", "@vitejs/plugin-vue-jsx", "UTag is not defined", ReferenceError, 裸样式, components/tag/style, field, v-model, SheetGrid, 回显失败, messageConfirm]
+keywords:
+  [
+    loadTheme,
+    主题未初始化,
+    NodePackageImporter,
+    entryPointDirectory,
+    sass-embedded,
+    'pkg:',
+    "Can't find stylesheet to import",
+    VeltraUIResolver,
+    'react/jsx-dev-runtime',
+    'react/jsx-runtime',
+    '@vitejs/plugin-vue-jsx',
+    'UTag is not defined',
+    ReferenceError,
+    裸样式,
+    components/tag/style,
+    field,
+    v-model,
+    SheetGrid,
+    回显失败,
+    messageConfirm
+  ]
 ---
 
 # Ultra UI 常见报错排障
@@ -53,7 +75,7 @@ import { defineConfig } from 'vite'
 import { NodePackageImporter } from 'sass-embedded'
 
 export default defineConfig({
-  css: { preprocessorOptions: { scss: { importers: [new NodePackageImporter()] } } },
+  css: { preprocessorOptions: { scss: { importers: [new NodePackageImporter()] } } }
 })
 ```
 
@@ -111,9 +133,7 @@ import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
 import { VeltraUIResolver } from '@veltra/vite'
 
-export default defineConfig({
-  plugins: [vue(), Components({ resolvers: [VeltraUIResolver()] })],
-})
+export default defineConfig({ plugins: [vue(), Components({ resolvers: [VeltraUIResolver()] })] })
 ```
 
 2. `unplugin-vue-components` 版本低于 32：`@veltra/vite` 的 peer 约束是 `>= 32.0.0`，升级后重试。
@@ -157,8 +177,8 @@ export default defineConfig({
   plugins: [
     vue(),
     vueJsx(), // <script lang="tsx"> 与 .tsx 必须注册，否则 JSX 落到 react 运行时
-    Components({ resolvers: [VeltraUIResolver()] }),
-  ],
+    Components({ resolvers: [VeltraUIResolver()] })
+  ]
 })
 ```
 
@@ -166,11 +186,7 @@ export default defineConfig({
 
 ```json
 // tsconfig.json
-{
-  "compilerOptions": {
-    "jsx": "preserve"
-  }
-}
+{ "compilerOptions": { "jsx": "preserve" } }
 ```
 
 TSX 里用到的组件必须显式 import 并补样式子路径——JSX 不经过模板编译，resolver 既不注入组件 import 也不注入样式副作用：
@@ -184,8 +200,8 @@ import '@veltra/desktop/components/tag/style'
 export default defineComponent({
   name: 'TagList',
   setup() {
-    return () => <UTag type="primary">已完成</UTag>
-  },
+    return () => <UTag type='primary'>已完成</UTag>
+  }
 })
 ```
 
@@ -206,13 +222,13 @@ export const statusColumn = {
   key: 'status',
   name: '状态',
   render: ({ rowData }: { rowData: Record<string, unknown> }) =>
-    h(UTag, { type: 'success' }, () => String(rowData['status'])),
+    h(UTag, { type: 'success' }, () => String(rowData['status']))
 }
 
 export const actionColumn = {
   key: 'actions',
   name: '操作',
-  render: () => h(UActionGroup, {}, () => [h(UAction, { onRun: () => {} }, () => '详情')]),
+  render: () => h(UActionGroup, {}, () => [h(UAction, { onRun: () => {} }, () => '详情')])
 }
 ```
 
@@ -280,7 +296,7 @@ import { USelect } from '@veltra/desktop'
 
 const options = [
   { label: '一年级', value: 1 },
-  { label: '二年级', value: 2 },
+  { label: '二年级', value: 2 }
 ]
 
 // 选项 value 是 number，初值必须也是 number
@@ -341,9 +357,9 @@ const transport = createOpenAITransport({
     {
       id: 'proxy',
       endpoint: 'https://<你的代理地址>/chat/completions',
-      models: [{ id: '<模型id>' }], // 必填非空；模型 id 须跨 Provider 全局唯一
-    },
-  ],
+      models: [{ id: '<模型id>' }] // 必填非空；模型 id 须跨 Provider 全局唯一
+    }
+  ]
 })
 
 const chat = useChat({ props: { transport } })
@@ -397,7 +413,7 @@ import { UGrid, UGridItem } from '@veltra/desktop'
 
 同类约束还有 Card 系列：`CardHeader` / `CardContent` / `CardCover` / `CardAction` 必须在 `<UCard>` 内使用（警告文案分别为 `CardHeader组件仅能在Card组件中使用` 等）。
 
-## 控制台警告 `` extend['<key>']应该是一个对象 ``
+## 控制台警告 `extend['<key>']应该是一个对象`
 
 原因：`useConfig().setConfig()` 给本应是对象的字段（`form`、`paginator`）传了非对象值，深合并跳过该键并告警。修复：对象字段必须传对象：
 
@@ -410,7 +426,7 @@ const { setConfig } = useConfig()
 setConfig({
   size: 'small',
   form: { labelWidth: 120 }, // form、paginator 是对象字段，必须传对象
-  paginator: { pageSize: 100, pageSizeOptions: [100, 200] },
+  paginator: { pageSize: 100, pageSizeOptions: [100, 200] }
 })
 ```
 

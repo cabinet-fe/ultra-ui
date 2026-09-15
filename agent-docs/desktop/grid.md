@@ -1,8 +1,30 @@
 ---
 title: UGrid / UGridItem 栅格布局
-description: "@veltra/desktop 的栅格布局组件：UGrid 按 CSS Grid 排列子项，cols 支持 24 栅格数字、容器断点对象、函数三种写法，UGridItem 用 span 控制跨距（支持响应式与整行）；断点按容器宽度检测，不依赖视口。"
+description: '@veltra/desktop 的栅格布局组件：UGrid 按 CSS Grid 排列子项，cols 支持 24 栅格数字、容器断点对象、函数三种写法，UGridItem 用 span 控制跨距（支持响应式与整行）；断点按容器宽度检测，不依赖视口。'
 aliases: [Grid, GridItem, 栅格, 栅格系统, 网格布局, 栅格布局, 分栏]
-keywords: [cols, gap, span, breakpoint-change, resize, BreakCols, Breakpoint, full, tag, 栅格, 断点, 响应式, 跨距, 列数, 间距, 整行, 统计卡片, 卡片布局, 多列布局, 自适应列数]
+keywords:
+  [
+    cols,
+    gap,
+    span,
+    breakpoint-change,
+    resize,
+    BreakCols,
+    Breakpoint,
+    full,
+    tag,
+    栅格,
+    断点,
+    响应式,
+    跨距,
+    列数,
+    间距,
+    整行,
+    统计卡片,
+    卡片布局,
+    多列布局,
+    自适应列数
+  ]
 ---
 
 # UGrid / UGridItem 栅格布局
@@ -86,11 +108,7 @@ export interface GridItemProps {
    * 'full' 表示整行；对象按容器断点取值，必须带 default 键
    */
   span?:
-    | number
-    | 'full'
-    | ({
-        [key in BreakpointName]?: 'full' | number
-      } & { default: number | 'full' })
+    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 容器渲染标签，默认 'div' */
   tag?: string
 }
@@ -105,28 +123,28 @@ export interface GridExposed {
 
 ### UGrid
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `cols` | `number \| BreakCols \| ((breakpoint: Breakpoint) => number)` | `24` | 否 | 列数经 `repeat(n, minmax(0px, 1fr))` 生成；对象按断点表取值，当前断点未指定时向更高断点查找，均未指定时取 `default`，`default` 也未指定时取 24 |
-| `gap` | `number \| string` | — | 否 | 数字单位 px；字符串按 `'行间距 列间距'` 顺序拆分，纯数字字符串补 px，带单位字符串原样使用 |
-| `tag` | `string` | `'div'` | 否 | 容器渲染的 HTML 标签 |
+| 参数   | 类型                                                          | 默认    | 必填 | 约束                                                                                                                                           |
+| ------ | ------------------------------------------------------------- | ------- | :--: | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cols` | `number \| BreakCols \| ((breakpoint: Breakpoint) => number)` | `24`    |  否  | 列数经 `repeat(n, minmax(0px, 1fr))` 生成；对象按断点表取值，当前断点未指定时向更高断点查找，均未指定时取 `default`，`default` 也未指定时取 24 |
+| `gap`  | `number \| string`                                            | —       |  否  | 数字单位 px；字符串按 `'行间距 列间距'` 顺序拆分，纯数字字符串补 px，带单位字符串原样使用                                                      |
+| `tag`  | `string`                                                      | `'div'` |  否  | 容器渲染的 HTML 标签                                                                                                                           |
 
 断点按容器宽度（不是视口宽度）判定：
 
-| 容器宽度 | 断点 | `level` |
-| --- | --- | :---: |
-| `< 578` | `xs` | 1 |
-| `< 960` | `sm` | 2 |
-| `< 1366` | `md` | 3 |
-| `< 1920` | `lg` | 4 |
-| `>= 1920` | `xl` | 5 |
+| 容器宽度  | 断点 | `level` |
+| --------- | ---- | :-----: |
+| `< 578`   | `xs` |    1    |
+| `< 960`   | `sm` |    2    |
+| `< 1366`  | `md` |    3    |
+| `< 1920`  | `lg` |    4    |
+| `>= 1920` | `xl` |    5    |
 
 ### UGridItem
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `span` | `number \| 'full' \| { xs?/sm?/md?/lg?/xl?, default }` | `1` | 否 | `0` 隐藏该子项；`'full'` 渲染为 `grid-column: 1 / -1`；对象按 `span[当前断点名] ?? span.default` 取值，`default` 键必填 |
-| `tag` | `string` | `'div'` | 否 | — |
+| 参数   | 类型                                                   | 默认    | 必填 | 约束                                                                                                                    |
+| ------ | ------------------------------------------------------ | ------- | :--: | ----------------------------------------------------------------------------------------------------------------------- |
+| `span` | `number \| 'full' \| { xs?/sm?/md?/lg?/xl?, default }` | `1`     |  否  | `0` 隐藏该子项；`'full'` 渲染为 `grid-column: 1 / -1`；对象按 `span[当前断点名] ?? span.default` 取值，`default` 键必填 |
+| `tag`  | `string`                                               | `'div'` |  否  | —                                                                                                                       |
 
 `UGridItem` 必须是 `UGrid` 的子级；`UGrid` 的默认插槽里未包 `UGridItem` 的普通元素也会流入网格，每个占 1 格。
 
@@ -213,6 +231,7 @@ import { UGrid, UGridItem } from '@veltra/desktop'
 ## 注意事项
 
 > [!WARNING]
+>
 > - 断点按容器宽度判定，不是视口媒体查询：组件嵌在窄侧栏里时即使窗口很宽也是小断点。
 > - `span` 的对象形式必须带 `default` 键（类型上必填）；运行时取不到当前断点值时回落到 `default`。
 > - `resize` / `breakpoint-change` 仅响应式模式触发；`cols` 传纯数字且没有对象形式 `span` 时不会挂 `ResizeObserver`。

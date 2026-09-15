@@ -2,7 +2,20 @@
 title: UNodeRender 节点渲染
 description: 把 VNode、VNode 数组或原始值渲染为真实 DOM 的透传组件：content 是 VNode 时渲染并合并 attrs，是数组时逐项渲染，为 undefined 时回退默认插槽，用于配置驱动的动态内容渲染。
 aliases: [NodeRender, node-render, VNode 渲染, 动态渲染, 节点渲染器]
-keywords: [content, VNode, VNodeArrayChildren, h, isVNode, mergeProps, 动态渲染, 渲染 VNode, 插槽回退, attrs 合并, 配置驱动渲染]
+keywords:
+  [
+    content,
+    VNode,
+    VNodeArrayChildren,
+    h,
+    isVNode,
+    mergeProps,
+    动态渲染,
+    渲染 VNode,
+    插槽回退,
+    attrs 合并,
+    配置驱动渲染
+  ]
 ---
 
 # UNodeRender 节点渲染
@@ -48,9 +61,9 @@ export interface NodeRenderExposed {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `content` | `null \| undefined \| Array<VNode> \| VNode` | `—` | 是 | 运行时也接受 `string` / `number` / `boolean` 并按文本输出；数组不做扁平化处理，直接交给 Vue 渲染 |
+| 参数      | 类型                                         | 默认 | 必填 | 约束                                                                                             |
+| --------- | -------------------------------------------- | ---- | :--: | ------------------------------------------------------------------------------------------------ |
+| `content` | `null \| undefined \| Array<VNode> \| VNode` | `—`  |  是  | 运行时也接受 `string` / `number` / `boolean` 并按文本输出；数组不做扁平化处理，直接交给 Vue 渲染 |
 
 ## 方法与事件
 
@@ -120,6 +133,7 @@ function cellNode(col: Column) {
 ## 注意事项
 
 > [!WARNING]
+>
 > - `content` 为 `undefined` 才回退默认插槽；`null` 与空数组都渲染空白，插槽不生效。
 > - attrs 合并仅对单个 VNode 生效；`content` 是数组时组件上的 `class` / `style` 等不会传播给数组内节点。
 > - 文本内容请直接传 `string`，组件原样输出；不要为纯文本构造 VNode。

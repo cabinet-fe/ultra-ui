@@ -2,7 +2,27 @@
 title: VNode 判断与提取工具
 description: Vue 虚拟节点判断与插槽拍平工具集：isTextNode / isFragment / isComment / isTemplate 四个类型守卫，extractNormalVNodes 递归展开 Fragment 与 template 包装、把字符串数字转文本节点，提取扁平 VNode 数组。
 aliases: [isTextNode, isFragment, isComment, isTemplate, extractNormalVNodes, 类型守卫]
-keywords: [isTextNode, isFragment, isComment, isTemplate, extractNormalVNodes, VNode, VNodeArrayChildren, slots.default, Fragment, Comment, Text, 插槽拍平, 插槽遍历, 文本节点, 注释节点, 默认插槽, 类型守卫, 节点提取]
+keywords:
+  [
+    isTextNode,
+    isFragment,
+    isComment,
+    isTemplate,
+    extractNormalVNodes,
+    VNode,
+    VNodeArrayChildren,
+    slots.default,
+    Fragment,
+    Comment,
+    Text,
+    插槽拍平,
+    插槽遍历,
+    文本节点,
+    注释节点,
+    默认插槽,
+    类型守卫,
+    节点提取
+  ]
 ---
 
 # VNode 判断与提取工具
@@ -49,10 +69,7 @@ export function isTemplate(node: unknown): node is VNode
  * @param results 累加目标数组，默认新建空数组
  * @returns 收集结果（传入 results 时即该数组）
  */
-export function extractNormalVNodes(
-  nodes: VNodeArrayChildren,
-  results: VNode[] = []
-): VNode[]
+export function extractNormalVNodes(nodes: VNodeArrayChildren, results: VNode[] = []): VNode[]
 ```
 
 `TextVNode` / `CommentVNode` 是库内类型（`VNode` 加 `children: string` 收窄），未单独导出；守卫为真后可直接访问 `node.children` 作为字符串。
@@ -61,21 +78,21 @@ export function extractNormalVNodes(
 
 ### isTextNode / isFragment / isComment / isTemplate
 
-| 函数 | 入参类型 | 判定条件 | 收窄结果 |
-| --- | --- | --- | --- |
-| `isTextNode` | `VNode` | `node.type === Text` | `children` 收窄为 `string` |
-| `isFragment` | `any` | `node` 真值且 `node.type === Fragment` | 收窄为 `VNode`；传 `undefined` / `null` 返回 `false` 不报错 |
-| `isComment` | `VNode` | `node.type === Comment` | `children` 收窄为 `string` |
+| 函数         | 入参类型  | 判定条件                                    | 收窄结果                                                             |
+| ------------ | --------- | ------------------------------------------- | -------------------------------------------------------------------- |
+| `isTextNode` | `VNode`   | `node.type === Text`                        | `children` 收窄为 `string`                                           |
+| `isFragment` | `any`     | `node` 真值且 `node.type === Fragment`      | 收窄为 `VNode`；传 `undefined` / `null` 返回 `false` 不报错          |
+| `isComment`  | `VNode`   | `node.type === Comment`                     | `children` 收窄为 `string`                                           |
 | `isTemplate` | `unknown` | `isVNode(node) && node.type === 'template'` | 收窄为 `VNode`；`type` 是字符串 `'template'`，不是 Vue 导出的 Symbol |
 
 四个函数同步返回 `boolean`，无副作用。
 
 ### extractNormalVNodes
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `nodes` | `VNodeArrayChildren` | — | 是 | 插槽 children 数组；混有 VNode、字符串、数字 |
-| `results` | `VNode[]` | `[]` | 否 | 传入时结果累加进该数组并返回同一引用 |
+| 参数      | 类型                 | 默认 | 必填 | 约束                                         |
+| --------- | -------------------- | ---- | :--: | -------------------------------------------- |
+| `nodes`   | `VNodeArrayChildren` | —    |  是  | 插槽 children 数组；混有 VNode、字符串、数字 |
+| `results` | `VNode[]`            | `[]` |  否  | 传入时结果累加进该数组并返回同一引用         |
 
 遍历规则（对每个子项）：
 
@@ -111,9 +128,7 @@ import { isTextNode } from '@veltra/utils'
 import { h, type Slot } from 'vue'
 
 function slotTexts(slots: Record<string, Slot | undefined>): string[] {
-  return (slots.default?.() ?? [])
-    .filter((node) => isTextNode(node))
-    .map((node) => node.children)
+  return (slots.default?.() ?? []).filter((node) => isTextNode(node)).map((node) => node.children)
 }
 
 slotTexts({ default: () => [h('i', 'x'), 'hello'] }) // => ['hello']
@@ -137,6 +152,7 @@ isFragment(undefined) // => false，入参为 any，不抛错
 ## 注意事项
 
 > [!WARNING]
+>
 > - `isTemplate` 匹配的 `type` 是字符串 `'template'`，不是 Vue 导出的 `Template` Symbol（Vue 不导出该内置类型）。
 > - `isFragment` 入参是 `any`，传 `undefined` / `null` 返回 `false`；其余三个守卫要求传入 VNode，传非 VNode 前先自行确认。
 > - `extractNormalVNodes` 不过滤注释节点，注释 VNode 会出现在结果中；要过滤需自行叠加 `isComment`。

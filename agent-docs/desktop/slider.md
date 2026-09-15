@@ -1,6 +1,6 @@
 ---
-title: "USlider 滑块"
-description: "滑块控件，通过拖动或点击滑轨选取数值，range 时选取数值区间 [number, number]；支持步长刻度、垂直模式，可在 UForm 内用 field 绑定表单字段。"
+title: 'USlider 滑块'
+description: '滑块控件，通过拖动或点击滑轨选取数值，range 时选取数值区间 [number, number]；支持步长刻度、垂直模式，可在 UForm 内用 field 绑定表单字段。'
 aliases: [slider, Slider, 滑块, 拖动条, 范围滑块, 滑动条]
 keywords:
   - modelValue
@@ -77,28 +77,28 @@ export type SliderExposed = DeconstructValue<_SliderExposed>
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `modelValue` | `number \| [number, number]` | — | 否 | `range` 为 `true` 时必须是二元组，且产出值升序排列；未设置时滑块停在 `min` 端 |
-| `min` | `number` | `0` | 否 | 区间下界 |
-| `max` | `number` | `100` | 否 | 区间上界 |
-| `step` | `number` | — | 否 | 设置后取值按步长吸附并显示刻度；不设置则连续（产出值仍为整数） |
-| `range` | `boolean` | `false` | 否 | `true` 时双滑块；此模式下点击滑轨无效，仅能拖动滑块 |
-| `vertical` | `boolean` | `false` | 否 | `true` 时垂直渲染，必须给组件设置高度（如 `style="height: 300px"`），否则无法取值 |
-| **继承自 `FormComponentProps`** | | | | |
-| `size` | `ComponentSize` | `'default'` | 否 | `'small'` \| `'default'` \| `'large'`；未设置时继承 `<u-form>` 的 `size` |
-| `label` | `string` | — | 否 | 表单标签文字；仅在 `UForm` / `UFormItem` 内生效 |
-| `field` | `string` | — | 否 | `UForm` 字段名；在 `UForm` 内必须用 `field` 绑定，禁止再写 `v-model` |
-| `tips` | `string` | — | 否 | 表单内提示文字；仅在 `UForm` / `UFormItem` 内生效 |
-| `span` | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }` | — | 否 | 表单中所占列数；`'full'` 占满一行，响应式对象的 `default` 必填 |
-| `disabled` | `boolean` | `false` | 否 | 禁用：滑块不可拖动、滑轨不可点击；未设置时继承 `<u-form>` 的 `disabled` |
-| `readonly` | `boolean` | `false` | 否 | 只读：整个滑块渲染为 `modelValue` 的文本 |
-| `rules` | `ValidateRule` | — | 否 | 校验规则；仅在 `UForm` 内生效 |
+| 参数                            | 类型                                                       | 默认        | 必填 | 约束                                                                              |
+| ------------------------------- | ---------------------------------------------------------- | ----------- | :--: | --------------------------------------------------------------------------------- |
+| `modelValue`                    | `number \| [number, number]`                               | —           |  否  | `range` 为 `true` 时必须是二元组，且产出值升序排列；未设置时滑块停在 `min` 端     |
+| `min`                           | `number`                                                   | `0`         |  否  | 区间下界                                                                          |
+| `max`                           | `number`                                                   | `100`       |  否  | 区间上界                                                                          |
+| `step`                          | `number`                                                   | —           |  否  | 设置后取值按步长吸附并显示刻度；不设置则连续（产出值仍为整数）                    |
+| `range`                         | `boolean`                                                  | `false`     |  否  | `true` 时双滑块；此模式下点击滑轨无效，仅能拖动滑块                               |
+| `vertical`                      | `boolean`                                                  | `false`     |  否  | `true` 时垂直渲染，必须给组件设置高度（如 `style="height: 300px"`），否则无法取值 |
+| **继承自 `FormComponentProps`** |                                                            |             |      |                                                                                   |
+| `size`                          | `ComponentSize`                                            | `'default'` |  否  | `'small'` \| `'default'` \| `'large'`；未设置时继承 `<u-form>` 的 `size`          |
+| `label`                         | `string`                                                   | —           |  否  | 表单标签文字；仅在 `UForm` / `UFormItem` 内生效                                   |
+| `field`                         | `string`                                                   | —           |  否  | `UForm` 字段名；在 `UForm` 内必须用 `field` 绑定，禁止再写 `v-model`              |
+| `tips`                          | `string`                                                   | —           |  否  | 表单内提示文字；仅在 `UForm` / `UFormItem` 内生效                                 |
+| `span`                          | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }` | —           |  否  | 表单中所占列数；`'full'` 占满一行，响应式对象的 `default` 必填                    |
+| `disabled`                      | `boolean`                                                  | `false`     |  否  | 禁用：滑块不可拖动、滑轨不可点击；未设置时继承 `<u-form>` 的 `disabled`           |
+| `readonly`                      | `boolean`                                                  | `false`     |  否  | 只读：整个滑块渲染为 `modelValue` 的文本                                          |
+| `rules`                         | `ValidateRule`                                             | —           |  否  | 校验规则；仅在 `UForm` 内生效                                                     |
 
 ## 方法与事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
+| 事件                | payload    | 触发时机                                                                                                                                      |
+| ------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | `update:modelValue` | `value: T` | 拖动滑块或点击滑轨导致取值变化后（拖动过程中持续触发）；单值模式 payload 为 `number`，范围模式为升序 `[number, number]`，值与当前相同时不触发 |
 
 组件只有 `update:modelValue`，没有 `change` 事件。组件未 `defineExpose` 任何方法。
@@ -167,6 +167,7 @@ const formData = reactive({ opacity: 80 })
 ## 注意事项
 
 > [!WARNING]
+>
 > - `range` 为 `true` 时 `modelValue` 必须是 `[number, number]` 二元组；把单个 `number` 绑给范围滑块取值不正确。反向同理：单值模式禁止绑定数组。
 > - 范围模式的产出值始终按升序排列；两个滑块拖到交叉点时组件会自动排序。
 > - 范围模式下点击滑轨无效，仅能拖动滑块；单值模式点击滑轨直接跳到点击位置（按 `step` 吸附）。
@@ -197,7 +198,7 @@ const value = ref(50)
 
 ### 拖动后 `modelValue` 变成整数，丢失小数
 
-原因：取值内部按 `Math.round` 取整。修复：放大量纲（如用 0~100 表示 0~1），在业务侧换算：
+原因：取值内部按 `Math.round` 取整。修复：放大量纲（如用 0~~100 表示 0~~1），在业务侧换算：
 
 ```vue
 <script setup lang="ts">

@@ -1,8 +1,30 @@
 ---
 title: UCodeEditor 代码编辑器
-description: "基于 CodeMirror 6 封装的代码编辑器：内置 js、sql、java、json、markdown、spel、bash、powershell 语法高亮与语言选择器，支持函数体前后缀外壳、一键放大与暗色主题，v-model 绑定纯文本代码。"
+description: '基于 CodeMirror 6 封装的代码编辑器：内置 js、sql、java、json、markdown、spel、bash、powershell 语法高亮与语言选择器，支持函数体前后缀外壳、一键放大与暗色主题，v-model 绑定纯文本代码。'
 aliases: [CodeEditor, code-editor, CodeMirror 封装, 代码输入框, 脚本编辑器]
-keywords: ["update:lang", "update:modelValue", CodeEditorLang, modelValue, langs, lang, defaultLines, zoomable, prefix, suffix, dark, readonly, 语法高亮, 语言切换, 放大编辑, 暗色主题, 只读展示, 脚本编辑, 函数体外壳, 自动补全]
+keywords:
+  [
+    'update:lang',
+    'update:modelValue',
+    CodeEditorLang,
+    modelValue,
+    langs,
+    lang,
+    defaultLines,
+    zoomable,
+    prefix,
+    suffix,
+    dark,
+    readonly,
+    语法高亮,
+    语言切换,
+    放大编辑,
+    暗色主题,
+    只读展示,
+    脚本编辑,
+    函数体外壳,
+    自动补全
+  ]
 ---
 
 # UCodeEditor 代码编辑器
@@ -33,14 +55,7 @@ const code = shallowRef('console.log("Hello, World!")')
 ```ts
 /** 语言标识枚举，仅以下 8 个值 */
 export type CodeEditorLang =
-  | 'js'
-  | 'sql'
-  | 'java'
-  | 'json'
-  | 'markdown'
-  | 'spel'
-  | 'bash'
-  | 'powershell'
+  'js' | 'sql' | 'java' | 'json' | 'markdown' | 'spel' | 'bash' | 'powershell'
 
 export interface CodeEditorProps {
   /** 绑定代码正文（不含 prefix/suffix 外壳）。undefined 视同 '' */
@@ -117,23 +132,23 @@ export interface ValidateRule {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `modelValue` | `string` | `''`（undefined 视同 `''`） | 否 | 仅正文，不含 `prefix` / `suffix` |
-| `langs` | `CodeEditorLang[]` | `[]` | 否 | 元素仅限 8 个枚举值；长度大于 1 出选择器，等于 1 出标签，等于 0 无高亮 |
-| `lang` | `CodeEditorLang` | 未设置时回落 `langs[0]` | 否 | 必须是 `langs` 中的值；`langs` 变化后若不在列表中会被自动纠正为 `langs[0]` |
-| `prefix` | `string` | — | 否 | 渲染为编辑器内只读区域，不计入 `v-model` |
-| `suffix` | `string` | — | 否 | 同 `prefix` |
-| `dark` | `boolean` | `false` | 否 | 切换时热更新编辑器主题 |
-| `zoomable` | `boolean` | `true` | 否 | `false` 时不渲染放大按钮 |
-| `defaultLines` | `number` | `8` | 否 | 最小按 1 处理；仅撑最小高度，超出滚动 |
-| `label` | `string` | — | 否 | 仅 UForm 内生效 |
-| `field` | `string` | — | 否 | 仅 UForm 内生效；设置后禁止再写 `v-model` |
-| `span` | `number` / `'full'` / 对象 | — | 否 | 仅 UForm 内生效；对象键为 `xs`/`sm`/`md`/`lg`/`xl` 加必填 `default` |
-| `tips` | `string` | — | 否 | 仅 UForm 内生效 |
-| `disabled` | `boolean` | `false` | 否 | 优先级：组件 props > UForm > 全局配置 > `false` |
-| `readonly` | `boolean` | `false` | 否 | 优先级同 `disabled` |
-| `rules` | `ValidateRule` | — | 否 | 仅 UForm 内生效 |
+| 参数           | 类型                       | 默认                        | 必填 | 约束                                                                       |
+| -------------- | -------------------------- | --------------------------- | :--: | -------------------------------------------------------------------------- |
+| `modelValue`   | `string`                   | `''`（undefined 视同 `''`） |  否  | 仅正文，不含 `prefix` / `suffix`                                           |
+| `langs`        | `CodeEditorLang[]`         | `[]`                        |  否  | 元素仅限 8 个枚举值；长度大于 1 出选择器，等于 1 出标签，等于 0 无高亮     |
+| `lang`         | `CodeEditorLang`           | 未设置时回落 `langs[0]`     |  否  | 必须是 `langs` 中的值；`langs` 变化后若不在列表中会被自动纠正为 `langs[0]` |
+| `prefix`       | `string`                   | —                           |  否  | 渲染为编辑器内只读区域，不计入 `v-model`                                   |
+| `suffix`       | `string`                   | —                           |  否  | 同 `prefix`                                                                |
+| `dark`         | `boolean`                  | `false`                     |  否  | 切换时热更新编辑器主题                                                     |
+| `zoomable`     | `boolean`                  | `true`                      |  否  | `false` 时不渲染放大按钮                                                   |
+| `defaultLines` | `number`                   | `8`                         |  否  | 最小按 1 处理；仅撑最小高度，超出滚动                                      |
+| `label`        | `string`                   | —                           |  否  | 仅 UForm 内生效                                                            |
+| `field`        | `string`                   | —                           |  否  | 仅 UForm 内生效；设置后禁止再写 `v-model`                                  |
+| `span`         | `number` / `'full'` / 对象 | —                           |  否  | 仅 UForm 内生效；对象键为 `xs`/`sm`/`md`/`lg`/`xl` 加必填 `default`        |
+| `tips`         | `string`                   | —                           |  否  | 仅 UForm 内生效                                                            |
+| `disabled`     | `boolean`                  | `false`                     |  否  | 优先级：组件 props > UForm > 全局配置 > `false`                            |
+| `readonly`     | `boolean`                  | `false`                     |  否  | 优先级同 `disabled`                                                        |
+| `rules`        | `ValidateRule`             | —                           |  否  | 仅 UForm 内生效                                                            |
 
 ## 方法与事件
 
@@ -220,6 +235,7 @@ function submit() {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库组件是 `UCodeEditor`，从 `@veltra/desktop` 导入；CodeMirror 6 相关包在构建时已打包进产物，使用者禁止再安装 `@codemirror/*`，安装 `@veltra/desktop` 即可用。
 > - 在 UForm 中必须使用 `field` 绑定 model；已有 `field` 时禁止再写 `v-model`。
 > - `v-model` 是正文；`prefix` / `suffix` 是不可编辑外壳，不会出现在 `v-model` 里，提交完整文本必须自行拼接。

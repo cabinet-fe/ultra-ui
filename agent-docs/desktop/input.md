@@ -1,8 +1,29 @@
 ---
 title: UInput 输入框
-description: "从 `@veltra/desktop` 导出的单行文本输入框，支持前后缀文字与插槽、悬停清空（clearable）、`pattern` 输入过滤；放进 UForm 时用 `field` 绑定 model 并按 `rules` 校验。"
+description: '从 `@veltra/desktop` 导出的单行文本输入框，支持前后缀文字与插槽、悬停清空（clearable）、`pattern` 输入过滤；放进 UForm 时用 `field` 绑定 model 并按 `rules` 校验。'
 aliases: [input, u-input, TextField, ElInput, 单行文本框, 文本输入]
-keywords: [modelValue, "update:modelValue", pattern, clearable, nativeReadonly, field, rules, "prefix:click", "suffix:click", "native:input", 输入框, 清空, 前缀, 后缀, 占位符, 防抖, 失焦校验, 拼音输入, IME]
+keywords:
+  [
+    modelValue,
+    'update:modelValue',
+    pattern,
+    clearable,
+    nativeReadonly,
+    field,
+    rules,
+    'prefix:click',
+    'suffix:click',
+    'native:input',
+    输入框,
+    清空,
+    前缀,
+    后缀,
+    占位符,
+    防抖,
+    失焦校验,
+    拼音输入,
+    IME
+  ]
 ---
 
 # UInput 输入框
@@ -70,9 +91,7 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    | number
-    | 'full'
-    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段；有 field 时禁止再写 v-model */
@@ -131,36 +150,36 @@ export interface InputExposed {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `v-model` / `modelValue` | `string` | `undefined` | 否 | 双向绑定的值 |
-| `placeholder` | `string` | `'请输入'` | 否 | — |
-| `prefix` | `string` | — | 否 | 前缀文字；也可用 `#prefix` 插槽，两者可同时用 |
-| `suffix` | `string` | — | 否 | 后缀文字；也可用 `#suffix` 插槽；清除图标显示时后缀内容被替换 |
-| `clearable` | `boolean` | `true` | 否 | 清除图标显示条件：悬停 + 有值 + 非禁用 |
-| `nativeReadonly` | `boolean` | `false` | 否 | 仅锁定原生 `<input>`；与 `readonly`（整体渲染为文本）不同 |
-| `pattern` | `RegExp` | — | 否 | 整体匹配：不匹配的键入不提交，失焦时还原显示值；指定后默认值必须匹配 |
-| `field` | `string` | — | 否 | 表单内生效。绑定 `<u-form :model>` 的字段；有 `field` 禁止再写 `v-model` |
-| `label` | `string` | — | 否 | 表单内生效。表单标签文字 |
-| `rules` | `ValidateRule` | — | 否 | 表单内生效。结构见 `## API 签名` 的 `ValidateRule` |
-| `tips` | `string` | — | 否 | 表单内生效。表单项提示文案 |
-| `span` | `number \| 'full' \| 按 BreakpointName 的对象` | — | 否 | 表单内生效。`'full'` 占满一行；对象形态必须含 `default` 键 |
-| `size` | `ComponentSize` | `'default'` | 否 | 取值 `'small' \| 'default' \| 'large'`；优先级：组件 props > 表单 > 全局配置 > 默认 |
-| `disabled` | `boolean` | `false` | 否 | 禁用时输入与清除图标均不可用；优先级同 `size` |
-| `readonly` | `boolean` | `false` | 否 | `true` 时整个组件渲染为纯文本 `prefix + 值 + suffix`（不含插槽内容），空值显示 `-` |
+| 参数                     | 类型                                           | 默认        | 必填 | 约束                                                                                |
+| ------------------------ | ---------------------------------------------- | ----------- | :--: | ----------------------------------------------------------------------------------- |
+| `v-model` / `modelValue` | `string`                                       | `undefined` |  否  | 双向绑定的值                                                                        |
+| `placeholder`            | `string`                                       | `'请输入'`  |  否  | —                                                                                   |
+| `prefix`                 | `string`                                       | —           |  否  | 前缀文字；也可用 `#prefix` 插槽，两者可同时用                                       |
+| `suffix`                 | `string`                                       | —           |  否  | 后缀文字；也可用 `#suffix` 插槽；清除图标显示时后缀内容被替换                       |
+| `clearable`              | `boolean`                                      | `true`      |  否  | 清除图标显示条件：悬停 + 有值 + 非禁用                                              |
+| `nativeReadonly`         | `boolean`                                      | `false`     |  否  | 仅锁定原生 `<input>`；与 `readonly`（整体渲染为文本）不同                           |
+| `pattern`                | `RegExp`                                       | —           |  否  | 整体匹配：不匹配的键入不提交，失焦时还原显示值；指定后默认值必须匹配                |
+| `field`                  | `string`                                       | —           |  否  | 表单内生效。绑定 `<u-form :model>` 的字段；有 `field` 禁止再写 `v-model`            |
+| `label`                  | `string`                                       | —           |  否  | 表单内生效。表单标签文字                                                            |
+| `rules`                  | `ValidateRule`                                 | —           |  否  | 表单内生效。结构见 `## API 签名` 的 `ValidateRule`                                  |
+| `tips`                   | `string`                                       | —           |  否  | 表单内生效。表单项提示文案                                                          |
+| `span`                   | `number \| 'full' \| 按 BreakpointName 的对象` | —           |  否  | 表单内生效。`'full'` 占满一行；对象形态必须含 `default` 键                          |
+| `size`                   | `ComponentSize`                                | `'default'` |  否  | 取值 `'small' \| 'default' \| 'large'`；优先级：组件 props > 表单 > 全局配置 > 默认 |
+| `disabled`               | `boolean`                                      | `false`     |  否  | 禁用时输入与清除图标均不可用；优先级同 `size`                                       |
+| `readonly`               | `boolean`                                      | `false`     |  否  | `true` 时整个组件渲染为纯文本 `prefix + 值 + suffix`（不含插槽内容），空值显示 `-`  |
 
 ## 方法与事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
-| `update:modelValue` | `value: string` | 每次键入且值通过 `pattern` 校验时持续触发；无内置防抖；IME 拼音组合输入期间不触发，组合结束后触发一次 |
-| `change` | `value: string` | 失焦提交值变化时（原生 `change`）；值未通过 `pattern` 时不触发，且显示值被还原为 `modelValue` |
-| `focus` | 无（类型声明可选 `value?: string`，触发时不传参） | 获得焦点 |
-| `blur` | 无（类型声明可选 `value?: string`，触发时不传参） | 失去焦点 |
-| `clear` | 无 | 点击清除图标；先置 `modelValue` 为 `''`（触发一次 `update:modelValue`），再触发 `clear` |
-| `prefix:click` | `value?: string`（当前值） | 点击前缀区域 |
-| `suffix:click` | `value?: string`（当前值） | 点击后缀内容区域；清除图标显示时点击的是清除，不触发本事件 |
-| `native:input` | `ev: Event` | 每次非组合输入的原生 `input` 事件，包括被 `pattern` 拒绝的键入 |
+| 事件                | payload                                           | 触发时机                                                                                              |
+| ------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `update:modelValue` | `value: string`                                   | 每次键入且值通过 `pattern` 校验时持续触发；无内置防抖；IME 拼音组合输入期间不触发，组合结束后触发一次 |
+| `change`            | `value: string`                                   | 失焦提交值变化时（原生 `change`）；值未通过 `pattern` 时不触发，且显示值被还原为 `modelValue`         |
+| `focus`             | 无（类型声明可选 `value?: string`，触发时不传参） | 获得焦点                                                                                              |
+| `blur`              | 无（类型声明可选 `value?: string`，触发时不传参） | 失去焦点                                                                                              |
+| `clear`             | 无                                                | 点击清除图标；先置 `modelValue` 为 `''`（触发一次 `update:modelValue`），再触发 `clear`               |
+| `prefix:click`      | `value?: string`（当前值）                        | 点击前缀区域                                                                                          |
+| `suffix:click`      | `value?: string`（当前值）                        | 点击后缀内容区域；清除图标显示时点击的是清除，不触发本事件                                            |
+| `native:input`      | `ev: Event`                                       | 每次非组合输入的原生 `input` 事件，包括被 `pattern` 拒绝的键入                                        |
 
 暴露成员（经 `ref` 访问，`DeconstructValue` 已解包）：
 
@@ -240,6 +259,7 @@ const form = reactive({ username: '' })
 ## 注意事项
 
 > [!WARNING]
+>
 > - 在 `UForm` 内必须用 `field` 绑定值，禁止同时写 `v-model`；独立使用时才用 `v-model`。
 > - `label` / `field` / `rules` / `tips` / `span` 仅在 `UForm`（或 `UFormItem` 包裹）内生效，独立使用时传入无效。
 > - 本库的只读分两级：`readonly` 把整个组件渲染为纯文本，`nativeReadonly` 只给原生 `<input>` 加 `readonly` 属性，两者不是一回事。

@@ -69,12 +69,12 @@ export type ProgressExposed = DeconstructValue<_ProgressExposed>
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `type` | `ColorType \| ((percentage: number) => ColorType)` | `'primary'` | 否 | 枚举 `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'`；函数入参是夹紧到 0~100 后的百分比 |
-| `percentage` | `number` | `0` | 否 | 自动夹紧到 0~100：小于 0 按 0 渲染，大于 100 按 100 渲染 |
-| `circle` | `boolean` | `false` | 否 | `false` 渲染条形，`true` 渲染环形 |
-| `size` | `number \| string` | `100`（CSS 固定值） | 否 | 仅 `circle: true` 时生效；`number` 追加 `px`，字符串原样使用 |
+| 参数         | 类型                                               | 默认                | 必填 | 约束                                                                                                |
+| ------------ | -------------------------------------------------- | ------------------- | :--: | --------------------------------------------------------------------------------------------------- |
+| `type`       | `ColorType \| ((percentage: number) => ColorType)` | `'primary'`         |  否  | 枚举 `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'`；函数入参是夹紧到 0~100 后的百分比 |
+| `percentage` | `number`                                           | `0`                 |  否  | 自动夹紧到 0~100：小于 0 按 0 渲染，大于 100 按 100 渲染                                            |
+| `circle`     | `boolean`                                          | `false`             |  否  | `false` 渲染条形，`true` 渲染环形                                                                   |
+| `size`       | `number \| string`                                 | `100`（CSS 固定值） |  否  | 仅 `circle: true` 时生效；`number` 追加 `px`，字符串原样使用                                        |
 
 插槽：默认插槽，作用域 `{ percentage: number; type: ColorType }`。条形模式下插槽内容渲染在填充条内部（文字颜色为白色），环形模式下渲染在圆心；不传插槽时显示 `{{ percentage }}%`。
 
@@ -148,6 +148,7 @@ onBeforeUnmount(() => clearInterval(timer))
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库的百分比参数是 `percentage`，不是 Ant Design Progress 的 `percent`，也不是 Element Plus 的 `textInside` 布局参数——文字始终渲染在填充条/圆心内，无外部文案模式。
 > - `percentage` 会被夹紧到 0~100：传入 `150` 按 `100` 渲染，传入 `-10` 按 `0` 渲染；`type` 函数收到的同样是夹紧后的值。
 > - 环形的轨道颜色是固定值 `#f5f8fa`，不随主题 token 变化；深色背景下必须用默认插槽自定义内容或在业务样式里覆盖。

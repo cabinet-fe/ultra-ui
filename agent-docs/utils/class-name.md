@@ -2,7 +2,25 @@
 title: DOM 类名与 BEM 工具
 description: 操作 HTMLElement 类名与生成 BEM 类名的工具集：addClass / removeClass 批量增删 class，bem / makeBEM 生成 block__element--modifier 与 is-* 状态类，NAME_SPACE / CLS_PREFIX 提供全局命名前缀。
 aliases: [addClass, removeClass, bem, makeBEM, BEM, CLS_PREFIX, NAME_SPACE, BEMFactory]
-keywords: [addClass, removeClass, bem, makeBEM, NAME_SPACE, CLS_PREFIX, BEMFactory, classList, is-active, is-disabled, 状态类, 修饰符, 命名空间, 样式隔离, 前缀, 动态class]
+keywords:
+  [
+    addClass,
+    removeClass,
+    bem,
+    makeBEM,
+    NAME_SPACE,
+    CLS_PREFIX,
+    BEMFactory,
+    classList,
+    is-active,
+    is-disabled,
+    状态类,
+    修饰符,
+    命名空间,
+    样式隔离,
+    前缀,
+    动态class
+  ]
 ---
 
 # DOM 类名与 BEM 工具
@@ -92,30 +110,30 @@ export interface BEMFactory<Prefix extends string> {
 
 ### addClass / removeClass
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `el` | `HTMLElement` | — | 是 | 目标元素 |
-| `className` | `string \| string[]` | — | 是 | 单个类名或类名数组；数组时逐项调用 `classList.add` / `classList.remove` |
+| 参数        | 类型                 | 默认 | 必填 | 约束                                                                    |
+| ----------- | -------------------- | ---- | :--: | ----------------------------------------------------------------------- |
+| `el`        | `HTMLElement`        | —    |  是  | 目标元素                                                                |
+| `className` | `string \| string[]` | —    |  是  | 单个类名或类名数组；数组时逐项调用 `classList.add` / `classList.remove` |
 
 无返回值（`void`），同步执行；对不存在的类调用 `remove` 不报错（`classList` 语义）。
 
 ### makeBEM
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `prefix` | `'' \| \`${string}-\`` | — | 是 | 必须为空串或以 `-` 结尾（如 `'u-'`、`'app-'`）；不以 `-` 结尾时 TypeScript 编译报错 |
+| 参数     | 类型                   | 默认 | 必填 | 约束                                                                                |
+| -------- | ---------------------- | ---- | :--: | ----------------------------------------------------------------------------------- |
+| `prefix` | `'' \| \`${string}-\`` | —    |  是  | 必须为空串或以 `-` 结尾（如 `'u-'`、`'app-'`）；不以 `-` 结尾时 TypeScript 编译报错 |
 
 ### bem 实例成员
 
-| 成员 | 返回 | 示例（`bem('button')`） |
-| --- | --- | --- |
-| `b` | 块 | `'u-button'` |
-| `e(name)` | `${b}__${name}` | `e('icon')` → `'u-button__icon'` |
-| `m(name)` | `${b}--${name}` | `m('large')` → `'u-button--large'` |
-| `em(e, m)` | `${b}__${e}--${m}` | `em('icon', 'left')` → `'u-button__icon--left'` |
-| `create(block)` | 块名为 `${name}-${block}` 的子 BEM 实例 | `create('panel')` 的 `b` 为 `'u-button-panel'` |
-| `bem.is(name)` | 恒返回 `'is-${name}'` | `bem.is('active')` → `'is-active'` |
-| `bem.is(name, cond)` | `cond === true` 返回 `'is-${name}'`，否则 `''` | `bem.is('disabled', false)` → `''` |
+| 成员                 | 返回                                           | 示例（`bem('button')`）                         |
+| -------------------- | ---------------------------------------------- | ----------------------------------------------- |
+| `b`                  | 块                                             | `'u-button'`                                    |
+| `e(name)`            | `${b}__${name}`                                | `e('icon')` → `'u-button__icon'`                |
+| `m(name)`            | `${b}--${name}`                                | `m('large')` → `'u-button--large'`              |
+| `em(e, m)`           | `${b}__${e}--${m}`                             | `em('icon', 'left')` → `'u-button__icon--left'` |
+| `create(block)`      | 块名为 `${name}-${block}` 的子 BEM 实例        | `create('panel')` 的 `b` 为 `'u-button-panel'`  |
+| `bem.is(name)`       | 恒返回 `'is-${name}'`                          | `bem.is('active')` → `'is-active'`              |
+| `bem.is(name, cond)` | `cond === true` 返回 `'is-${name}'`，否则 `''` | `bem.is('disabled', false)` → `''`              |
 
 `makeBEM(prefix)` 返回的工厂成员与上表一致，前缀换成 `prefix`。
 
@@ -181,6 +199,7 @@ removeClass(el, ['is-active', 'is-dragging'])
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库类名前缀是 `u-`（如 `u-button`），不是 Element 的 `el-`、Ant Design 的 `ant-`；覆盖样式时选择器写 `.u-button`。
 > - 本库状态类是 `is-*`（如 `is-active`、`is-disabled`），不是 `--active` 后缀式修饰符；`bem.m()` 才生成 `--` 修饰符。
 > - `bem.is(name)` 不传第二参时恒返回 `'is-${name}'`；要按条件拼接必须传第二参 `bem.is(name, condition)`。

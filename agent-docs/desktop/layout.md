@@ -2,7 +2,25 @@
 title: ULayout 布局
 description: 基于 CSS Grid 的分栏布局容器：cols / rows 定义列与行轨道，resizable 开启列宽拖拽调节，colMinSizes 限制每列最小宽度，用于后台页面的侧栏/内容/面板分区。
 aliases: [Layout, layout, 栅格布局, 分栏布局, 栅格]
-keywords: [cols, rows, gap, resizable, colMinSizes, tag, resize-start, resize-end, 栅格布局, 分栏, 列宽拖拽, 行布局, 两栏布局, 三栏布局, 最小列宽, CSS Grid]
+keywords:
+  [
+    cols,
+    rows,
+    gap,
+    resizable,
+    colMinSizes,
+    tag,
+    resize-start,
+    resize-end,
+    栅格布局,
+    分栏,
+    列宽拖拽,
+    行布局,
+    两栏布局,
+    三栏布局,
+    最小列宽,
+    CSS Grid
+  ]
 ---
 
 # ULayout 布局
@@ -64,14 +82,14 @@ export type LayoutExposed = Record<string, never>
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `tag` | `string` | `'div'` | 否 | 根元素标签 |
-| `gap` | `number \| string` | `—`（无间距） | 否 | `number` 追加 px；字符串原样写入 `column-gap`。`resizable: true` 时忽略本值，固定 `10px` |
-| `cols` | `string[] \| string` | `—` | 否 | 任意合法的 `grid-template-columns` 值；字符串按空格拆分，数组按项拼接。`resizable: true` 时必填，否则不渲染手柄。默认插槽的每个**直接子元素**按顺序占一列 |
-| `rows` | `string[] \| string` | `—` | 否 | 任意合法的 `grid-template-rows` 值；不传则单行。行高不可拖拽调节 |
-| `resizable` | `boolean` | `false` | 否 | 开启后子元素直接子节点按 cols 顺序分列；拖拽只作用于列间隔 |
-| `colMinSizes` | `(number \| undefined)[]` | `—` | 否 | 数组长度不需等于列数，按索引取值；拖拽时相邻两列的钳制下限，未指定的列最小为 0 |
+| 参数          | 类型                      | 默认          | 必填 | 约束                                                                                                                                                      |
+| ------------- | ------------------------- | ------------- | :--: | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tag`         | `string`                  | `'div'`       |  否  | 根元素标签                                                                                                                                                |
+| `gap`         | `number \| string`        | `—`（无间距） |  否  | `number` 追加 px；字符串原样写入 `column-gap`。`resizable: true` 时忽略本值，固定 `10px`                                                                  |
+| `cols`        | `string[] \| string`      | `—`           |  否  | 任意合法的 `grid-template-columns` 值；字符串按空格拆分，数组按项拼接。`resizable: true` 时必填，否则不渲染手柄。默认插槽的每个**直接子元素**按顺序占一列 |
+| `rows`        | `string[] \| string`      | `—`           |  否  | 任意合法的 `grid-template-rows` 值；不传则单行。行高不可拖拽调节                                                                                          |
+| `resizable`   | `boolean`                 | `false`       |  否  | 开启后子元素直接子节点按 cols 顺序分列；拖拽只作用于列间隔                                                                                                |
+| `colMinSizes` | `(number \| undefined)[]` | `—`           |  否  | 数组长度不需等于列数，按索引取值；拖拽时相邻两列的钳制下限，未指定的列最小为 0                                                                            |
 
 ### 拖拽行为细节
 
@@ -81,10 +99,10 @@ export type LayoutExposed = Record<string, never>
 
 ## 方法与事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
+| 事件           | payload         | 触发时机                                           |
+| -------------- | --------------- | -------------------------------------------------- |
 | `resize-start` | `index: number` | 用户按下某条列间隔手柄；`index` 为间隔左侧列的索引 |
-| `resize-end` | `index: number` | 用户松开手柄；`index` 为间隔左侧列的索引 |
+| `resize-end`   | `index: number` | 用户松开手柄；`index` 为间隔左侧列的索引           |
 
 无暴露方法、无具名插槽，内容全部放默认插槽，按 `cols` × `rows` 的轨道顺序排布。
 
@@ -168,6 +186,7 @@ const cols = computed(() => Array.from({ length: count.value }, () => '1fr'))
 ## 注意事项
 
 > [!WARNING]
+>
 > - `ULayout` 是 Grid 容器，不是 24 栅格栅格系统；没有 `span` / `offset` 这类 El-Row/El-Col 概念，列宽全部写在 `cols` 里。
 > - 列是按**直接子元素**顺序自动填充的（CSS Grid 默认 auto-placement）：把一列包进自定义组件时该组件必须是**单根**元素，包的这一层就是那一列，列宽作用在它身上，不作用在它内部。
 > - 子元素渲染出 0 个根节点（`v-if` 为假、`v-show` 为 `display: none`）或多个根节点（多根组件、`<template v-for>`）时会挤动后面的列。这种场景不要靠顺序，直接给子元素写死列位（如 `style="grid-column: 2"`）。

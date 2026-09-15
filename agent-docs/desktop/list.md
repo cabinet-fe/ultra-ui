@@ -1,8 +1,23 @@
 ---
-title: "UList / UListItem 列表"
-description: "@veltra/desktop 导出的列表组件。UList 用 data 数组驱动渲染，默认插槽按行暴露 item 与 index，内部由 UScroll 提供滚动；UListItem 渲染 li 行容器。适合消息流、明细行等结构化展示。"
+title: 'UList / UListItem 列表'
+description: '@veltra/desktop 导出的列表组件。UList 用 data 数组驱动渲染，默认插槽按行暴露 item 与 index，内部由 UScroll 提供滚动；UListItem 渲染 li 行容器。适合消息流、明细行等结构化展示。'
 aliases: [UList, UListItem, List, ListItem, 列表]
-keywords: [ListProps, data, v-slot, item, index, UScroll, ComponentSize, 数据驱动, 作用域插槽, 限高滚动, 斑马纹, 行点击, size]
+keywords:
+  [
+    ListProps,
+    data,
+    v-slot,
+    item,
+    index,
+    UScroll,
+    ComponentSize,
+    数据驱动,
+    作用域插槽,
+    限高滚动,
+    斑马纹,
+    行点击,
+    size
+  ]
 ---
 
 # UList / UListItem 列表
@@ -51,10 +66,10 @@ export type ListExposed = {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `data` | `Record<string, any>[]` | — | 是 | 数据驱动的唯一来源；每项触发一次默认插槽渲染 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 否 | 回退链：自身 `size` > 全局配置 > `'default'` |
+| 参数   | 类型                              | 默认        | 必填 | 约束                                         |
+| ------ | --------------------------------- | ----------- | :--: | -------------------------------------------- |
+| `data` | `Record<string, any>[]`           | —           |  是  | 数据驱动的唯一来源；每项触发一次默认插槽渲染 |
+| `size` | `'small' \| 'default' \| 'large'` | `'default'` |  否  | 回退链：自身 `size` > 全局配置 > `'default'` |
 
 插槽：默认插槽，作用域 `{ item: Record<string, any>, index: number }`；插槽内容就是一行的内容。`UListItem` 无属性、无事件，仅渲染 `<li>`。
 
@@ -113,7 +128,10 @@ function onPick(row: { id: string; title: string }) {
 <script setup lang="ts">
 import { UList, UListItem } from '@veltra/desktop'
 
-const data = [{ id: 1, name: '张三' }, { id: 2, name: '李四' }]
+const data = [
+  { id: 1, name: '张三' },
+  { id: 2, name: '李四' }
+]
 </script>
 
 <template>
@@ -132,6 +150,7 @@ const data = [{ id: 1, name: '张三' }, { id: 2, name: '李四' }]
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库是数据驱动 + 作用域插槽（`v-slot="{ item, index }"`），不是在 `UList` 默认插槽里手写 `<u-list-item v-for>`；不传 `data` 就一行都不渲染。
 > - `data` 是必填属性；空数组渲染为空白，本库不渲染空态提示——需要空态时在列表外自行用 `UEmpty` 处理。
 > - 行内容必须用 `UListItem`（`<li>`）包裹，否则内容直接挂在 `<ul>` 下，结构与样式都不符合预期。

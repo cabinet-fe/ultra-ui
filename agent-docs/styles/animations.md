@@ -2,7 +2,25 @@
 title: 动画与过渡 CSS 类参考
 description: "'@veltra/styles/animations' 的 u-shine 文字扫光工具类与 '@veltra/styles/transitions' 的 10 个 Vue Transition 过渡预设（fade、fade-scale、slide、spring、zoom-in 系列）：类名清单、时长参数与按需引入方式。"
 aliases: [u-shine, 扫光, 过渡动画, transition, Vue Transition, animations]
-keywords: [u-shine, --u-shine-duration, fade, fade-scale, slide-down, slide-up, spring, zoom-in, zoom-in-top, prefers-reduced-motion, 文字扫光, 弹性缩放, 淡入淡出, 弹窗动画, 按需引入, keyframes]
+keywords:
+  [
+    u-shine,
+    --u-shine-duration,
+    fade,
+    fade-scale,
+    slide-down,
+    slide-up,
+    spring,
+    zoom-in,
+    zoom-in-top,
+    prefers-reduced-motion,
+    文字扫光,
+    弹性缩放,
+    淡入淡出,
+    弹窗动画,
+    按需引入,
+    keyframes
+  ]
 ---
 
 # 动画与过渡 CSS 类参考
@@ -40,8 +58,8 @@ const visible = ref(true)
 
 ### 动画工具类（@veltra/styles/animations）
 
-| 类名 | 效果 | 源文件 |
-| --- | --- | --- |
+| 类名      | 效果                                                                                                       | 源文件                  |
+| --------- | ---------------------------------------------------------------------------------------------------------- | ----------------------- |
 | `u-shine` | 文字扫光：`linear-gradient(100deg, …)` 渐变以 `background-clip: text` 扫过文字，`linear infinite` 无限循环 | `animations/shine.scss` |
 
 `u-shine` 依赖主题 token `--u-text-color-assist`（两端）与 `--u-text-color-title`（高光带）；keyframes 名为 `u-shine`，背景位置从 `200% 0` 扫到 `-200% 0`。声明 `prefers-reduced-motion: reduce` 时动画停止、背景清除、文字恢复 `currentColor`。
@@ -50,27 +68,27 @@ const visible = ref(true)
 
 过渡名即 `<Transition name>` 的值，与源文件对应：
 
-| 过渡名 | 效果 | 时长与曲线 | 源文件 |
-| --- | --- | --- | --- |
-| `fade` | 淡入淡出（仅 opacity） | 0.25s linear | `fade.scss` |
-| `fade-scale` | 淡入 + 缩放：enter 从 `scale 0.8`、leave 到 `scale 0.9` | enter 0.3s `cubic-bezier(0.34, 1.56, 0.64, 1)` + opacity 0.35s ease；leave 0.2s ease-in | `fade-scale.scss` |
-| `slide-down` | 自上而下滑入（enter-from `translateY(-10px)`） | 0.2s `cubic-bezier(0, 0, 0.2, 1)` | `slide.scss` |
-| `slide-up` | 自下而上升入（enter-from `translateY(10px)`） | 0.2s `cubic-bezier(0, 0, 0.2, 1)` | `slide.scss` |
-| `spring` | 弹性缩放：enter 跑 `spring-in` keyframes（0 → 1.1 → 1 → 1.02 → 1） | enter 0.5s ease-in-out；leave 0.4s `cubic-bezier(0.64, -0.32, 0.66, 1.06)` | `spring.scss` |
-| `zoom-in` | 中心缩放（`scale 0.8`） | 0.15s，enter ease-in / leave ease-out | `zoom-in.scss` |
-| `zoom-in-left` | 从左侧锚点横向缩放（`scaleX 0.8`，origin left center） | 0.15s，enter ease-in / leave ease-out | `zoom-in.scss` |
-| `zoom-in-right` | 从右侧锚点横向缩放（origin right center） | 0.15s，enter ease-in / leave ease-out | `zoom-in.scss` |
-| `zoom-in-top` | 从顶部锚点纵向缩放（`scaleY 0.8`，origin center top） | 0.15s，enter ease-in / leave ease-out | `zoom-in.scss` |
-| `zoom-in-bottom` | 从底部锚点纵向缩放（origin center bottom） | 0.15s，enter ease-in / leave ease-out | `zoom-in.scss` |
+| 过渡名           | 效果                                                               | 时长与曲线                                                                              | 源文件            |
+| ---------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------- | ----------------- |
+| `fade`           | 淡入淡出（仅 opacity）                                             | 0.25s linear                                                                            | `fade.scss`       |
+| `fade-scale`     | 淡入 + 缩放：enter 从 `scale 0.8`、leave 到 `scale 0.9`            | enter 0.3s `cubic-bezier(0.34, 1.56, 0.64, 1)` + opacity 0.35s ease；leave 0.2s ease-in | `fade-scale.scss` |
+| `slide-down`     | 自上而下滑入（enter-from `translateY(-10px)`）                     | 0.2s `cubic-bezier(0, 0, 0.2, 1)`                                                       | `slide.scss`      |
+| `slide-up`       | 自下而上升入（enter-from `translateY(10px)`）                      | 0.2s `cubic-bezier(0, 0, 0.2, 1)`                                                       | `slide.scss`      |
+| `spring`         | 弹性缩放：enter 跑 `spring-in` keyframes（0 → 1.1 → 1 → 1.02 → 1） | enter 0.5s ease-in-out；leave 0.4s `cubic-bezier(0.64, -0.32, 0.66, 1.06)`              | `spring.scss`     |
+| `zoom-in`        | 中心缩放（`scale 0.8`）                                            | 0.15s，enter ease-in / leave ease-out                                                   | `zoom-in.scss`    |
+| `zoom-in-left`   | 从左侧锚点横向缩放（`scaleX 0.8`，origin left center）             | 0.15s，enter ease-in / leave ease-out                                                   | `zoom-in.scss`    |
+| `zoom-in-right`  | 从右侧锚点横向缩放（origin right center）                          | 0.15s，enter ease-in / leave ease-out                                                   | `zoom-in.scss`    |
+| `zoom-in-top`    | 从顶部锚点纵向缩放（`scaleY 0.8`，origin center top）              | 0.15s，enter ease-in / leave ease-out                                                   | `zoom-in.scss`    |
+| `zoom-in-bottom` | 从底部锚点纵向缩放（origin center bottom）                         | 0.15s，enter ease-in / leave ease-out                                                   | `zoom-in.scss`    |
 
 `UDialog` 的默认过渡就是 `fade-scale`（组件自带引入该文件，业务里再对其他元素使用时需自行引入）。
 
 ## 参数说明
 
-| 名称 | 类型 | 默认 | 必填 | 说明 |
-| --- | --- | --- | :---: | --- |
-| `--u-shine-duration` | CSS 自定义属性（时长值） | `2.4s` | 否 | `u-shine` 的单轮扫光时长；在元素或祖先上覆盖 |
-| `<Transition name>` | `string` | — | 是 | 只接受上表列出的 10 个过渡名；其他名字无对应 CSS，不产生动画 |
+| 名称                 | 类型                     | 默认   | 必填 | 说明                                                         |
+| -------------------- | ------------------------ | ------ | :--: | ------------------------------------------------------------ |
+| `--u-shine-duration` | CSS 自定义属性（时长值） | `2.4s` |  否  | `u-shine` 的单轮扫光时长；在元素或祖先上覆盖                 |
+| `<Transition name>`  | `string`                 | —      |  是  | 只接受上表列出的 10 个过渡名；其他名字无对应 CSS，不产生动画 |
 
 `u-shine` 与 `spring` 等预设消费的主题 token（`--u-text-color-*`、`--u-transition-*`）来自 `loadTheme()` 注入，前置要求见 `styles/theme.md`。
 
@@ -150,6 +168,7 @@ const open = ref(false)
 ## 注意事项
 
 > [!WARNING]
+>
 > - `@veltra/styles/animations` 与 `@veltra/styles/transitions` 没有 JS 导出（入口 `index.ts` 仅引入 CSS）；禁止 `import { … } from '@veltra/styles/animations'` 这样的具名导入。
 > - 引入单个过渡 / 动画文件时，README 文档写法是 `.css`（`import '@veltra/styles/transitions/fade.css'`），AGENTS.md 文档写法是 `.scss`（`import '@veltra/styles/animations/shine.scss'`）；两种后缀均有对应产物。
 > - `u-shine` 的颜色来自主题 token：未调用 `loadTheme` 时 `--u-text-color-*` 为空，扫光退化为不可见渐变。

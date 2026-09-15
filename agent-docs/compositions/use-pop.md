@@ -2,7 +2,29 @@
 title: usePop 浮层定位组合式函数
 description: 基于 @floating-ui/dom 的浮层定位组合式函数：计算触发元素与浮层内容的坐标并写入 left/top，内置 offset、flip 翻转、shift 防溢出与箭头定位，自动在 body 挂载 pop-container 单例容器供 Teleport 使用，适用于 Tooltip、Dropdown、Popover 与级联弹层。
 aliases: [use-pop, Popper, floating-ui, 弹出层定位, 弹层定位, Tooltip 定位]
-keywords: [triggerRef, contentRef, arrowRef, popperContainerId, pop-container, arrowSize, onTriggerPositionChange, onBeforeUpdate, onAfterUpdate, onPop, flip, shift, placement, 弹层, 气泡提示, 下拉定位, 箭头定位, 防溢出, 翻转, Teleport]
+keywords:
+  [
+    triggerRef,
+    contentRef,
+    arrowRef,
+    popperContainerId,
+    pop-container,
+    arrowSize,
+    onTriggerPositionChange,
+    onBeforeUpdate,
+    onAfterUpdate,
+    onPop,
+    flip,
+    shift,
+    placement,
+    弹层,
+    气泡提示,
+    下拉定位,
+    箭头定位,
+    防溢出,
+    翻转,
+    Teleport
+  ]
 ---
 
 # usePop 浮层定位组合式函数
@@ -89,18 +111,18 @@ export function usePop(options: Options): PopResult
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `triggerRef` | `ShallowRef<HTMLElement \| undefined>` | — | 是 | 仅读取 `.value`，传 `computed`、模板 ref 均可；变化不会自动触发 `update` |
-| `contentRef` | `ShallowRef<HTMLElement \| undefined>` | — | 是 | 元素出现时自动定位并挂滚动监听；元素移除时自动卸监听 |
-| `arrowRef` | `ShallowRef<HTMLElement \| undefined>` | — | 否 | 必须在 `update` 执行时已挂载，否则本次不启用箭头 |
-| `direction` | `'top' \| 'bottom' \| 'left' \| 'right'` 或其 ref | `'top'` | 否 | 与 `alignment` 组合成 12 种 placement |
-| `alignment` | `'center' \| 'start' \| 'end'` 或其 ref | `'center'` | 否 | `center` 时 placement 不带后缀，如 `'top'`；其余为 `'top-start'` 形式 |
-| `arrowSize` | `number` | `10` | 否 | 单位 px；有箭头时 `offset` 距离取 `arrowSize`，无箭头时固定 `6` |
-| `onTriggerPositionChange` | `() => void` | — | 否 | 只有传入该回调才会监听触发器祖先 `scroll` 与 `window.resize` |
-| `onBeforeUpdate` | `(triggerEl, contentEl) => void` | — | 否 | 每次有效 `update` 前调用，可在此改内容元素宽度等样式 |
-| `onAfterUpdate` | `(position: ComputePositionReturn) => void` | — | 否 | 每次有效 `update` 后调用 |
-| `onPop` | `(position: ComputePositionReturn) => void` | — | 否 | 仅内容出现、`direction` / `alignment` 变化触发的自动 `update` 时调用 |
+| 参数                      | 类型                                              | 默认       | 必填 | 约束                                                                     |
+| ------------------------- | ------------------------------------------------- | ---------- | :--: | ------------------------------------------------------------------------ |
+| `triggerRef`              | `ShallowRef<HTMLElement \| undefined>`            | —          |  是  | 仅读取 `.value`，传 `computed`、模板 ref 均可；变化不会自动触发 `update` |
+| `contentRef`              | `ShallowRef<HTMLElement \| undefined>`            | —          |  是  | 元素出现时自动定位并挂滚动监听；元素移除时自动卸监听                     |
+| `arrowRef`                | `ShallowRef<HTMLElement \| undefined>`            | —          |  否  | 必须在 `update` 执行时已挂载，否则本次不启用箭头                         |
+| `direction`               | `'top' \| 'bottom' \| 'left' \| 'right'` 或其 ref | `'top'`    |  否  | 与 `alignment` 组合成 12 种 placement                                    |
+| `alignment`               | `'center' \| 'start' \| 'end'` 或其 ref           | `'center'` |  否  | `center` 时 placement 不带后缀，如 `'top'`；其余为 `'top-start'` 形式    |
+| `arrowSize`               | `number`                                          | `10`       |  否  | 单位 px；有箭头时 `offset` 距离取 `arrowSize`，无箭头时固定 `6`          |
+| `onTriggerPositionChange` | `() => void`                                      | —          |  否  | 只有传入该回调才会监听触发器祖先 `scroll` 与 `window.resize`             |
+| `onBeforeUpdate`          | `(triggerEl, contentEl) => void`                  | —          |  否  | 每次有效 `update` 前调用，可在此改内容元素宽度等样式                     |
+| `onAfterUpdate`           | `(position: ComputePositionReturn) => void`       | —          |  否  | 每次有效 `update` 后调用                                                 |
+| `onPop`                   | `(position: ComputePositionReturn) => void`       | —          |  否  | 仅内容出现、`direction` / `alignment` 变化触发的自动 `update` 时调用     |
 
 ## 方法与事件
 
@@ -215,6 +237,7 @@ async function onTriggerReplaced() {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 内容元素必须自带 `position: absolute`（组件库的 `u-tip__content`、`u-dropdown__content` 均如此）；`usePop` 只写 `left` / `top`，不设置 `position`，缺省时坐标写在内联样式上但元素仍按文档流定位。
 > - 本库用 `direction`（4 值）+ `alignment`（3 值）两个参数表达方位，不是 Floating UI 的 `placement` 字符串参数；最终 placement 由两者拼接。
 > - 调用 `usePop` 时会立即访问 `document` 创建容器，必须在浏览器环境调用；不支持 SSR。

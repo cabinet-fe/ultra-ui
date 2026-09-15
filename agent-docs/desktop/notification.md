@@ -2,7 +2,29 @@
 title: notification / UNotification 通知
 description: 从 @veltra/desktop 导入 notification 函数式通知条，按屏幕四角方位堆叠弹出，支持 primary/success/info/warning/danger 类型、操作按钮与回调、悬停暂停计时与展开堆叠、closeAll 按方位清空；也可用 UNotification 组件声明式渲染。
 aliases: [UNotification, Notification, 通知条, 消息通知, Notification 通知]
-keywords: [NotificationPosition, NotificationOptions, NotificationInstance, buttonText, onClick, onClose, onClosed, offset, position, zIndex, top-right, bottom-right, components/notification/style, 右下角弹出, 撤销操作, 消息提醒, 悬停展开, 自动关闭, 样式副作用, 样式未引入]
+keywords:
+  [
+    NotificationPosition,
+    NotificationOptions,
+    NotificationInstance,
+    buttonText,
+    onClick,
+    onClose,
+    onClosed,
+    offset,
+    position,
+    zIndex,
+    top-right,
+    bottom-right,
+    components/notification/style,
+    右下角弹出,
+    撤销操作,
+    消息提醒,
+    悬停展开,
+    自动关闭,
+    样式副作用,
+    样式未引入
+  ]
 ---
 
 # notification / UNotification 通知
@@ -24,7 +46,7 @@ const instance = notification({
   title: '操作成功',
   message: '日程已写入日历',
   type: 'success',
-  position: 'top-right',
+  position: 'top-right'
 })
 
 await instance.onClosed // => Promise<void>，含离场动画在内的彻底关闭后兑现
@@ -116,22 +138,22 @@ export const notification: Notification
 
 `notification(options)` 选项（快捷方法第二参数 `config` 相同，但不含 `type` / `message`）：
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `message` | `string` | — | 否 | 与 `title` 至少传一个，否则通知无内容 |
-| `title` | `string` | — | 否 | 显示在内容上方 |
-| `type` | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'` | `'primary'` | 否 | 快捷方法固定该值 |
-| `position` | `'top-left' \| 'top-right' \| 'bottom-left' \| 'bottom-right'` | `'bottom-right'` | 否 | 每个方位一个独立堆叠容器 |
-| `duration` | `number` | `4500` | 否 | 单位 ms；`0` 表示常驻，此时关闭按钮始终显示 |
-| `closable` | `boolean` | `false` | 否 | — |
-| `offset` | `number` | `20` | 否 | 单位 px，作用于该方位整个容器的上下与左右边距 |
-| `zIndex` | `number` | 全局自增（1000 起） | 否 | 作用于该方位整个容器 |
-| `buttonText` | `string` | `''` | 否 | 为空时不渲染操作按钮 |
-| `icon` | `DefineComponent` | 按 `type` 取内置图标 | 否 | 内置映射见「方法与事件」 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 否 | — |
-| `onClick` | `(e: MouseEvent) => void` | — | 否 | 点击 `buttonText` 操作按钮时触发，触发后该通知自动关闭 |
-| `onClose` | `() => void` | — | 否 | 计时结束 / 点关闭按钮 / 点操作按钮时触发 |
-| `onClosed` | `() => void` | — | 否 | 离场动画结束后触发 |
+| 参数         | 类型                                                           | 默认                 | 必填 | 约束                                                   |
+| ------------ | -------------------------------------------------------------- | -------------------- | :--: | ------------------------------------------------------ |
+| `message`    | `string`                                                       | —                    |  否  | 与 `title` 至少传一个，否则通知无内容                  |
+| `title`      | `string`                                                       | —                    |  否  | 显示在内容上方                                         |
+| `type`       | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'`    | `'primary'`          |  否  | 快捷方法固定该值                                       |
+| `position`   | `'top-left' \| 'top-right' \| 'bottom-left' \| 'bottom-right'` | `'bottom-right'`     |  否  | 每个方位一个独立堆叠容器                               |
+| `duration`   | `number`                                                       | `4500`               |  否  | 单位 ms；`0` 表示常驻，此时关闭按钮始终显示            |
+| `closable`   | `boolean`                                                      | `false`              |  否  | —                                                      |
+| `offset`     | `number`                                                       | `20`                 |  否  | 单位 px，作用于该方位整个容器的上下与左右边距          |
+| `zIndex`     | `number`                                                       | 全局自增（1000 起）  |  否  | 作用于该方位整个容器                                   |
+| `buttonText` | `string`                                                       | `''`                 |  否  | 为空时不渲染操作按钮                                   |
+| `icon`       | `DefineComponent`                                              | 按 `type` 取内置图标 |  否  | 内置映射见「方法与事件」                               |
+| `size`       | `'small' \| 'default' \| 'large'`                              | `'default'`          |  否  | —                                                      |
+| `onClick`    | `(e: MouseEvent) => void`                                      | —                    |  否  | 点击 `buttonText` 操作按钮时触发，触发后该通知自动关闭 |
+| `onClose`    | `() => void`                                                   | —                    |  否  | 计时结束 / 点关闭按钮 / 点操作按钮时触发               |
+| `onClosed`   | `() => void`                                                   | —                    |  否  | 离场动画结束后触发                                     |
 
 `UNotification` 组件（声明式）只接收 `NotificationProps`，事件见「方法与事件」。
 
@@ -152,10 +174,10 @@ export const notification: Notification
 
 `UNotification` 组件事件：
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
-| `close` | 无 | 计时结束或点击关闭按钮 |
-| `action` | `evt: MouseEvent` | 点击操作按钮 |
+| 事件     | payload           | 触发时机               |
+| -------- | ----------------- | ---------------------- |
+| `close`  | 无                | 计时结束或点击关闭按钮 |
+| `action` | `evt: MouseEvent` | 点击操作按钮           |
 
 ## 典型示例
 
@@ -173,7 +195,7 @@ function notifyDelete() {
     buttonText: '撤销',
     onClick: () => console.log('用户点击了撤销'), // 点击后该通知自动关闭
     onClose: () => console.log('开始关闭'),
-    onClosed: () => console.log('彻底关闭'),
+    onClosed: () => console.log('彻底关闭')
   })
 }
 ```
@@ -232,6 +254,7 @@ function onAction(e: MouseEvent) {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 快捷方法是 `warning` / `danger`，本库通知没有 `error` 快捷方法；`message` 的快捷方法才是 `warn` / `error`。
 > - `offset` 与 `zIndex` 作用于整个方位容器：同一方位后弹出的通知会以最新一次调用的 `offset` / `zIndex` 更新容器。
 > - 折叠态下只有最前一条通知可交互，第 4 条起不可见但仍计入堆叠；需要查看全部要悬停展开。

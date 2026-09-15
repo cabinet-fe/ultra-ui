@@ -2,7 +2,24 @@
 title: UFilePicker 文件选择器
 description: 点击或拖拽拾取本地文件的拾取器，按 accept 过滤后通过 pick 事件返回 File 数组；支持多选、自定义渲染标签与拖拽高亮，用于文件上传入口。
 aliases: [Uploader, FilePicker, file-picker, 文件上传, 上传组件]
-keywords: [pick, accept, multiple, isDragover, tag, matchAccept, UploaderProps, "File[]", 文件上传, 拖拽上传, 点击上传, 图片上传, 多选文件, 限制文件类型, 上传入口]
+keywords:
+  [
+    pick,
+    accept,
+    multiple,
+    isDragover,
+    tag,
+    matchAccept,
+    UploaderProps,
+    'File[]',
+    文件上传,
+    拖拽上传,
+    点击上传,
+    图片上传,
+    多选文件,
+    限制文件类型,
+    上传入口
+  ]
 ---
 
 # UFilePicker 文件选择器
@@ -46,7 +63,8 @@ export interface FormComponentProps {
   /** 在表单控件内时的提示 */
   tips?: string
   /** 所占列的大小 */
-  span?: number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+  span?:
+    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段 */
@@ -81,13 +99,13 @@ export type UploaderExposed = Record<string, never>
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `tag` | `string` | `'div'` | 否 | 组件根元素渲染的 HTML 标签，仅接受合法的标签名 |
-| `accept` | `string` | `—`（不过滤） | 否 | 原生 `input[accept]` 语法：`*`、`*/*` 接受全部；`image/*` MIME 组；`application/pdf` 精确 MIME；`.pdf`、`.docx` 扩展名（不区分大小写）；逗号分隔多个值 |
-| `multiple` | `boolean` | `false` | 否 | `false` 时系统文件框只能选 1 个；拖拽不受此限制，一次可拖入多个文件 |
-| `disabled` | `boolean` | `false` | 否 | 继承自 `FormComponentProps`；`true` 时点击与拖拽拾取全部被禁用 |
-| `size` / `label` / `field` / `span` / `tips` / `rules` | 见类型块 | `—` | 否 | 继承自 `FormComponentProps`；本组件内部未消费这些值，仅在 `UForm` 表单体系内按通用规则处理 |
+| 参数                                                   | 类型      | 默认          | 必填 | 约束                                                                                                                                                   |
+| ------------------------------------------------------ | --------- | ------------- | :--: | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tag`                                                  | `string`  | `'div'`       |  否  | 组件根元素渲染的 HTML 标签，仅接受合法的标签名                                                                                                         |
+| `accept`                                               | `string`  | `—`（不过滤） |  否  | 原生 `input[accept]` 语法：`*`、`*/*` 接受全部；`image/*` MIME 组；`application/pdf` 精确 MIME；`.pdf`、`.docx` 扩展名（不区分大小写）；逗号分隔多个值 |
+| `multiple`                                             | `boolean` | `false`       |  否  | `false` 时系统文件框只能选 1 个；拖拽不受此限制，一次可拖入多个文件                                                                                    |
+| `disabled`                                             | `boolean` | `false`       |  否  | 继承自 `FormComponentProps`；`true` 时点击与拖拽拾取全部被禁用                                                                                         |
+| `size` / `label` / `field` / `span` / `tips` / `rules` | 见类型块  | `—`           |  否  | 继承自 `FormComponentProps`；本组件内部未消费这些值，仅在 `UForm` 表单体系内按通用规则处理                                                             |
 
 ## 方法与事件
 
@@ -100,8 +118,8 @@ export type UploaderExposed = Record<string, never>
 
 ### 插槽
 
-| 插槽 | 参数 | 说明 |
-| --- | --- | --- |
+| 插槽                  | 参数                      | 说明                                                                |
+| --------------------- | ------------------------- | ------------------------------------------------------------------- |
 | `default`（唯一插槽） | `{ isDragover: boolean }` | 触发区内容；`isDragover` 为 `true` 表示文件正悬停在组件上，用于高亮 |
 
 ## 典型示例
@@ -177,6 +195,7 @@ async function uploadAll() {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 事件名是 `pick`，不是 `change`，也没有 `v-model`；拾取结果只通过 `@pick` 的 `File[]` 参数交付。
 > - `multiple: false` 只限制系统文件框单选；拖拽一次仍可放入多个文件，需要单文件时在 `pick` 回调里取 `files[0]`。
 > - `accept` 同时作用于原生文件框与拖拽过滤；拖入不匹配的文件被静默丢弃，`pick` 收到空数组时不等于用户没有操作。

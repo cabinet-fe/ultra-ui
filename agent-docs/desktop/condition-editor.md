@@ -1,8 +1,29 @@
 ---
 title: UConditionEditor 条件编辑器
-description: "可视化编辑条件表达式 JSON 的组件：分组与叶子节点树形编排、行间 AND/OR 连接符切换、按字段类型给出运算符与值控件、值输入支持 @ 引用变量；配套 evaluateConditionExpression、createEmptyGroup、createEmptyLeaf 纯函数在运行期求值。"
+description: '可视化编辑条件表达式 JSON 的组件：分组与叶子节点树形编排、行间 AND/OR 连接符切换、按字段类型给出运算符与值控件、值输入支持 @ 引用变量；配套 evaluateConditionExpression、createEmptyGroup、createEmptyLeaf 纯函数在运行期求值。'
 aliases: [ConditionEditor, condition-editor, 条件构造器, 条件规则编辑器, 规则编辑器, QueryBuilder]
-keywords: ["update:modelValue", modelValue, fields, ConditionField, ConditionGroup, ConditionLeaf, ConditionValue, ConditionExpression, connectors, operator, evaluateConditionExpression, createEmptyGroup, createEmptyLeaf, 条件规则, 求值, 表达式求值, 条件分组, 变量引用, 嵌套条件]
+keywords:
+  [
+    'update:modelValue',
+    modelValue,
+    fields,
+    ConditionField,
+    ConditionGroup,
+    ConditionLeaf,
+    ConditionValue,
+    ConditionExpression,
+    connectors,
+    operator,
+    evaluateConditionExpression,
+    createEmptyGroup,
+    createEmptyLeaf,
+    条件规则,
+    求值,
+    表达式求值,
+    条件分组,
+    变量引用,
+    嵌套条件
+  ]
 ---
 
 # UConditionEditor 条件编辑器
@@ -26,7 +47,12 @@ const expr = shallowRef<ConditionExpression>({
   type: 'group',
   connectors: [],
   children: [
-    { type: 'condition', field: 'status', operator: 'eq', value: { kind: 'constant', value: 'open' } }
+    {
+      type: 'condition',
+      field: 'status',
+      operator: 'eq',
+      value: { kind: 'constant', value: 'open' }
+    }
   ]
 })
 </script>
@@ -54,8 +80,7 @@ export interface ConditionField {
 
 /** 条件右侧值：常量或变量引用 */
 export type ConditionValue =
-  | { kind: 'constant'; value: string }
-  | { kind: 'variable'; name: string }
+  { kind: 'constant'; value: string } | { kind: 'variable'; name: string }
 
 /** 单行条件叶子节点 */
 export interface ConditionLeaf {
@@ -150,14 +175,14 @@ export function createEmptyLeaf(): ConditionLeaf
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `modelValue` | `ConditionExpression` | 内部重置为空分组 | 否 | 必须是根分组 JSON 对象；禁止传字符串 |
-| `fields` | `ConditionField[]` | `[]` | 否 | `type` 仅限 5 个枚举值；`type: 'enum'` 时配 `enumOptions` |
-| `variables` | `VariableItem[]` | `[]` | 否 | 供值输入 `@` 引用，选中后写成 `{ kind: 'variable', name: value }` |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 否 | 优先级：组件 props > UForm > 全局配置 > `'default'` |
-| `disabled` | `boolean` | `false` | 否 | 全部控件不可操作 |
-| `readonly` | `boolean` | `false` | 否 | 隐藏「添加条件 / 添加条件组 / 删除组 / 删除行」入口 |
+| 参数         | 类型                              | 默认             | 必填 | 约束                                                              |
+| ------------ | --------------------------------- | ---------------- | :--: | ----------------------------------------------------------------- |
+| `modelValue` | `ConditionExpression`             | 内部重置为空分组 |  否  | 必须是根分组 JSON 对象；禁止传字符串                              |
+| `fields`     | `ConditionField[]`                | `[]`             |  否  | `type` 仅限 5 个枚举值；`type: 'enum'` 时配 `enumOptions`         |
+| `variables`  | `VariableItem[]`                  | `[]`             |  否  | 供值输入 `@` 引用，选中后写成 `{ kind: 'variable', name: value }` |
+| `size`       | `'small' \| 'default' \| 'large'` | `'default'`      |  否  | 优先级：组件 props > UForm > 全局配置 > `'default'`               |
+| `disabled`   | `boolean`                         | `false`          |  否  | 全部控件不可操作                                                  |
+| `readonly`   | `boolean`                         | `false`          |  否  | 隐藏「添加条件 / 添加条件组 / 删除组 / 删除行」入口               |
 
 ## 方法与事件
 
@@ -175,16 +200,16 @@ export function createEmptyLeaf(): ConditionLeaf
 - 同组内 AND / OR 按**从左到右、等优先级**折叠（`acc && x` / `acc || x`）；需要更高优先级必须用子分组。
 - 运算符语义（左侧值为 `data` 中字段值，右侧为解析后的比较值）：
 
-| operator | 中文 | 需要值 | 语义 |
-| --- | --- | :---: | --- |
-| `eq` / `ne` | 等于 / 不等于 | 是 | 按 `fields` 中字段类型比较：`number` 转 Number、`boolean` 转布尔（`'true'`/`'1'` 为 true）、`date` 转 `new Date(v).getTime()`、其余（`string` / `enum` / 未登记字段）转字符串比较；`ne` 为 `eq` 取反 |
-| `contains` / `not_contains` | 包含 / 不包含 | 是 | 双方转字符串后 `includes`；对象转 `JSON.stringify` |
-| `gt` / `lt` / `gte` / `lte` | 大于 / 小于 / 大于等于 / 小于等于 | 是 | 双方 `toNumber`（字符串 `Number()`，失败为 NaN，NaN 比较结果为 false）后比较 |
-| `before` / `after` | 早于 / 晚于 | 是 | 双方转时间戳（`Date` 对象取 `getTime()`，字符串 `new Date(v)`）后比较 |
-| `in` | 包含于（enum） | 是 | 右侧为数组则逐项转字符串；为字符串则按逗号分隔、去空白；左侧转字符串后判断是否在内 |
-| `empty` / `not_empty` | 为空 / 不为空 | 否 | 值为 `null`、`undefined`、去空白后空字符串、空数组视为空 |
-| `is_true` / `is_false` | 是 / 否 | 否 | 布尔原样；数字非 0 为 true；字符串 `'true'`/`'1'` 为 true、`'false'`/`'0'`/`''` 为 false；其余 `Boolean(v)` |
-| 其他任意值 | — | — | 一律返回 `false` |
+| operator                    | 中文                              | 需要值 | 语义                                                                                                                                                                                                 |
+| --------------------------- | --------------------------------- | :----: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `eq` / `ne`                 | 等于 / 不等于                     |   是   | 按 `fields` 中字段类型比较：`number` 转 Number、`boolean` 转布尔（`'true'`/`'1'` 为 true）、`date` 转 `new Date(v).getTime()`、其余（`string` / `enum` / 未登记字段）转字符串比较；`ne` 为 `eq` 取反 |
+| `contains` / `not_contains` | 包含 / 不包含                     |   是   | 双方转字符串后 `includes`；对象转 `JSON.stringify`                                                                                                                                                   |
+| `gt` / `lt` / `gte` / `lte` | 大于 / 小于 / 大于等于 / 小于等于 |   是   | 双方 `toNumber`（字符串 `Number()`，失败为 NaN，NaN 比较结果为 false）后比较                                                                                                                         |
+| `before` / `after`          | 早于 / 晚于                       |   是   | 双方转时间戳（`Date` 对象取 `getTime()`，字符串 `new Date(v)`）后比较                                                                                                                                |
+| `in`                        | 包含于（enum）                    |   是   | 右侧为数组则逐项转字符串；为字符串则按逗号分隔、去空白；左侧转字符串后判断是否在内                                                                                                                   |
+| `empty` / `not_empty`       | 为空 / 不为空                     |   否   | 值为 `null`、`undefined`、去空白后空字符串、空数组视为空                                                                                                                                             |
+| `is_true` / `is_false`      | 是 / 否                           |   否   | 布尔原样；数字非 0 为 true；字符串 `'true'`/`'1'` 为 true、`'false'`/`'0'`/`''` 为 false；其余 `Boolean(v)`                                                                                          |
+| 其他任意值                  | —                                 |   —    | 一律返回 `false`                                                                                                                                                                                     |
 
 - 运算符与字段类型的对应关系（编辑器内下拉按此过滤；类型缺失时回落 string 组）：`string`: `eq` `ne` `contains` `not_contains` `empty` `not_empty`；`number`: `eq` `ne` `gt` `lt` `gte` `lte`；`boolean`: `is_true` `is_false`；`date`: `eq` `ne` `before` `after`；`enum`: `eq` `ne` `in`。
 
@@ -223,7 +248,12 @@ const expr = shallowRef<ConditionExpression>({
   type: 'group',
   connectors: [],
   children: [
-    { type: 'condition', field: 'status', operator: 'eq', value: { kind: 'constant', value: 'open' } }
+    {
+      type: 'condition',
+      field: 'status',
+      operator: 'eq',
+      value: { kind: 'constant', value: 'open' }
+    }
   ]
 })
 </script>
@@ -249,13 +279,28 @@ const expr = shallowRef<ConditionExpression>({
   type: 'group',
   connectors: ['and'],
   children: [
-    { type: 'condition', field: 'status', operator: 'eq', value: { kind: 'constant', value: 'open' } },
+    {
+      type: 'condition',
+      field: 'status',
+      operator: 'eq',
+      value: { kind: 'constant', value: 'open' }
+    },
     {
       type: 'group',
       connectors: ['or'],
       children: [
-        { type: 'condition', field: 'priority', operator: 'gt', value: { kind: 'constant', value: '3' } },
-        { type: 'condition', field: 'tag', operator: 'contains', value: { kind: 'constant', value: '紧急' } }
+        {
+          type: 'condition',
+          field: 'priority',
+          operator: 'gt',
+          value: { kind: 'constant', value: '3' }
+        },
+        {
+          type: 'condition',
+          field: 'tag',
+          operator: 'contains',
+          value: { kind: 'constant', value: '紧急' }
+        }
       ]
     },
     {
@@ -274,7 +319,11 @@ const fields: ConditionField[] = [
 ]
 
 const variables: VariableItem[] = [
-  { label: '当前用户', value: 'currentUser', children: [{ label: '状态', value: 'currentUser.status' }] }
+  {
+    label: '当前用户',
+    value: 'currentUser',
+    children: [{ label: '状态', value: 'currentUser.status' }]
+  }
 ]
 
 const data = { status: 'open', priority: 5, tag: '紧急修复', currentUser: { status: 'open' } }
@@ -324,6 +373,7 @@ function reset() {
 ## 注意事项
 
 > [!WARNING]
+>
 > - `v-model` 是 JSON 对象（根分组），不是字符串；存库用 `JSON.stringify`，回显用 `JSON.parse` 后的对象。
 > - `evaluateConditionExpression` / `createEmptyGroup` / `createEmptyLeaf` 都从 `@veltra/desktop` 导入（内部 `evaluate` 以别名导出）；它们是纯函数，与编辑器 UI 解耦，不传组件实例。
 > - 本组件的 props 不含 `label` / `field` / `span` / `rules` 等表单属性，状态绑定只能用 `v-model`；`size` / `disabled` / `readonly` 未设置时继承所属 `UForm` 的同名属性。

@@ -1,8 +1,28 @@
 ---
 title: UButton / UButtonGroup 按钮
-description: "@veltra/desktop 导出的按钮组件。UButton 提供五种语义色（primary/info/success/warning/danger）、三档尺寸、plain/text/circle 形态、loading 与 disabled 状态、图标按钮；UButtonGroup 通过插槽作用域把按钮 props 统一透传给一组按钮。"
+description: '@veltra/desktop 导出的按钮组件。UButton 提供五种语义色（primary/info/success/warning/danger）、三档尺寸、plain/text/circle 形态、loading 与 disabled 状态、图标按钮；UButtonGroup 通过插槽作用域把按钮 props 统一透传给一组按钮。'
 aliases: [UButton, UButtonGroup, Button, ButtonGroup, 按钮, 按钮组]
-keywords: [UButton, UButtonGroup, ButtonProps, ButtonType, ButtonExposed, propagate, iconPosition, loadingIcon, circle, plain, 点击事件, 阻止冒泡, 图标按钮, 加载状态, 禁用按钮, 按钮组, 统一透传, 语义色按钮]
+keywords:
+  [
+    UButton,
+    UButtonGroup,
+    ButtonProps,
+    ButtonType,
+    ButtonExposed,
+    propagate,
+    iconPosition,
+    loadingIcon,
+    circle,
+    plain,
+    点击事件,
+    阻止冒泡,
+    图标按钮,
+    加载状态,
+    禁用按钮,
+    按钮组,
+    统一透传,
+    语义色按钮
+  ]
 ---
 
 # UButton / UButtonGroup 按钮
@@ -84,27 +104,27 @@ export interface ButtonExposed {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `type` | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'` | — | 否 | 枚举仅这五个值；不传时渲染无语义色的默认灰底按钮 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 否 | 三档尺寸，控制高度、字号、圆角 |
-| `text` | `boolean` | `false` | 否 | 文本按钮；为 true 时无水波纹 |
-| `plain` | `boolean` | `false` | 否 | 朴素描边模式；与 `type` 同用时点击水波纹使用对应语义色 |
-| `circle` | `boolean` | `false` | 否 | 圆形；宽度等于高度，只放图标时使用 |
-| `loading` | `boolean` | `false` | 否 | 显示加载图标（替换左侧图标）并屏蔽 click |
-| `loadingIcon` | `Component` | `Loading` | 否 | 加载图标组件，从 `@veltra/icons` 导入 |
-| `disabled` | `boolean` | `false` | 否 | 禁用；屏蔽 click 且无水波纹 |
-| `icon` | `Component` | — | 否 | 图标组件；`loading` 为 true 时左侧图标被加载图标替换 |
-| `iconSize` | `number` | — | 否 | 图标边长，单位 px |
-| `iconPosition` | `'left' \| 'right'` | `'left'` | 否 | `right` 时图标在文字之后 |
-| `propagate` | `boolean` | `true` | 否 | `false` 时点击调用 `stopPropagation()`，事件不再冒泡到父元素 |
+| 参数           | 类型                                                        | 默认        | 必填 | 约束                                                         |
+| -------------- | ----------------------------------------------------------- | ----------- | :--: | ------------------------------------------------------------ |
+| `type`         | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'` | —           |  否  | 枚举仅这五个值；不传时渲染无语义色的默认灰底按钮             |
+| `size`         | `'small' \| 'default' \| 'large'`                           | `'default'` |  否  | 三档尺寸，控制高度、字号、圆角                               |
+| `text`         | `boolean`                                                   | `false`     |  否  | 文本按钮；为 true 时无水波纹                                 |
+| `plain`        | `boolean`                                                   | `false`     |  否  | 朴素描边模式；与 `type` 同用时点击水波纹使用对应语义色       |
+| `circle`       | `boolean`                                                   | `false`     |  否  | 圆形；宽度等于高度，只放图标时使用                           |
+| `loading`      | `boolean`                                                   | `false`     |  否  | 显示加载图标（替换左侧图标）并屏蔽 click                     |
+| `loadingIcon`  | `Component`                                                 | `Loading`   |  否  | 加载图标组件，从 `@veltra/icons` 导入                        |
+| `disabled`     | `boolean`                                                   | `false`     |  否  | 禁用；屏蔽 click 且无水波纹                                  |
+| `icon`         | `Component`                                                 | —           |  否  | 图标组件；`loading` 为 true 时左侧图标被加载图标替换         |
+| `iconSize`     | `number`                                                    | —           |  否  | 图标边长，单位 px                                            |
+| `iconPosition` | `'left' \| 'right'`                                         | `'left'`    |  否  | `right` 时图标在文字之后                                     |
+| `propagate`    | `boolean`                                                   | `true`      |  否  | `false` 时点击调用 `stopPropagation()`，事件不再冒泡到父元素 |
 
 ## 方法与事件
 
-| 事件 / 暴露 | 签名 | 说明 |
-| --- | --- | --- |
-| `click` | `(e: MouseEvent) => void` | 同步触发；`disabled` 或 `loading` 为 true 时不 emit 且阻止冒泡；`propagate: false` 时先 `stopPropagation()` 再 emit |
-| `el`（exposed） | `HTMLButtonElement \| undefined` | 经模板 ref 访问，如 `btnRef.value?.el`；组件挂载前为 `undefined` |
+| 事件 / 暴露     | 签名                             | 说明                                                                                                                |
+| --------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `click`         | `(e: MouseEvent) => void`        | 同步触发；`disabled` 或 `loading` 为 true 时不 emit 且阻止冒泡；`propagate: false` 时先 `stopPropagation()` 再 emit |
+| `el`（exposed） | `HTMLButtonElement \| undefined` | 经模板 ref 访问，如 `btnRef.value?.el`；组件挂载前为 `undefined`                                                    |
 
 ## 典型示例
 
@@ -169,11 +189,7 @@ import { shallowRef } from 'vue'
 import { UButton, UButtonGroup } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
 
-const buttons = [
-  { text: '剪切' },
-  { text: '复制' },
-  { text: '粘贴' }
-]
+const buttons = [{ text: '剪切' }, { text: '复制' }, { text: '粘贴' }]
 const active = shallowRef(0)
 </script>
 
@@ -195,6 +211,7 @@ const active = shallowRef(0)
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库原生按钮的 `type` 固定为 `"button"`，没有 `native-type` 属性；需要表单提交按钮时禁止期待 `native-type="submit"`，自行监听 click 后调用提交逻辑。
 > - 组件不注入默认 `aria-label`：按钮的可访问名来自默认插槽文本，或你自己传的 `aria-label`（透传到根元素）。只有图标的按钮（`circle` + `icon`、无文字）必须自行传 `aria-label`，否则屏幕阅读器与 `getByRole('button', { name })` 都读不出名字。
 > - 本库图标是 prop（`icon` 传组件），不是 `<template #icon>` 插槽；默认插槽只承载文字内容。

@@ -1,7 +1,7 @@
 ---
 title: UFormItem 表单项
-description: "表单项容器：为字段提供 label、必填标记、提示（tips）、栅格占位（span）与校验错误展示。单字段控件写 field 即可由 UForm 自动生成，无需手写；仅当控件值需转换（如开关）、多控件组合成一个字段、或自定义 label 与单项布局时才显式使用。"
-aliases: ["UFormItem", "FormItem", "el-form-item", "表单项", "字段容器"]
+description: '表单项容器：为字段提供 label、必填标记、提示（tips）、栅格占位（span）与校验错误展示。单字段控件写 field 即可由 UForm 自动生成，无需手写；仅当控件值需转换（如开关）、多控件组合成一个字段、或自定义 label 与单项布局时才显式使用。'
+aliases: ['UFormItem', 'FormItem', 'el-form-item', '表单项', '字段容器']
 keywords:
   - field
   - rules
@@ -111,7 +111,8 @@ export interface FormItemProps {
   /** 悬浮提示文案，hover 500ms 后显示 */
   tips?: string
   /** 栅格占位；未传为 1 列 */
-  span?: number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+  span?:
+    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 是否禁用；未传时回退 UForm 的 disabled */
   disabled?: boolean
   /** 是否只读；未传时回退 UForm 的 readonly */
@@ -134,18 +135,18 @@ export interface FormItemExposed {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `field` | `string` | — | 是（需 label/校验时） | 支持 `a.b` 嵌套路径；缺失时 label、必填星标、校验全部不生效 |
-| `label` | `string` | — | 否 | 与 `#label` 插槽二选一；`labelPosition='left'` 时自动追加冒号 |
-| `rules` | `ValidateRule` | — | 否 | 执行顺序：`required` 先行，其余规则按对象键序，`validator` 最后；需所在 `UForm` 的 `model` |
-| `tips` | `string` | — | 否 | 悬浮提示文案；包裹 label，hover 500ms 后显示 |
-| `span` | `number \| 'full' \| BreakpointMap` | `1` | 否 | `number` 占 N 列；`'full'` 占满整行；对象按断点取值回落 `default`；`0` 时不渲染 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 否 | 回退链：自身 → UForm `size` → `'default'` |
-| `disabled` | `boolean` | UForm `disabled` | 否 | 回退链：自身 → UForm |
-| `readonly` | `boolean` | UForm `readonly` | 否 | 只读时错误提示区隐藏 |
-| `labelWidth` | `string \| number` | `100`（全局配置） | 否 | number 单位 px；回退链：自身 → UForm `labelWidth` → 全局配置 |
-| `labelPosition` | `'top' \| 'left'` | `'left'` | 否 | 回退链：自身 → UForm `labelPosition`；`'top'` 时忽略 `labelWidth` 且不追加冒号 |
+| 参数            | 类型                                | 默认              |         必填          | 约束                                                                                       |
+| --------------- | ----------------------------------- | ----------------- | :-------------------: | ------------------------------------------------------------------------------------------ |
+| `field`         | `string`                            | —                 | 是（需 label/校验时） | 支持 `a.b` 嵌套路径；缺失时 label、必填星标、校验全部不生效                                |
+| `label`         | `string`                            | —                 |          否           | 与 `#label` 插槽二选一；`labelPosition='left'` 时自动追加冒号                              |
+| `rules`         | `ValidateRule`                      | —                 |          否           | 执行顺序：`required` 先行，其余规则按对象键序，`validator` 最后；需所在 `UForm` 的 `model` |
+| `tips`          | `string`                            | —                 |          否           | 悬浮提示文案；包裹 label，hover 500ms 后显示                                               |
+| `span`          | `number \| 'full' \| BreakpointMap` | `1`               |          否           | `number` 占 N 列；`'full'` 占满整行；对象按断点取值回落 `default`；`0` 时不渲染            |
+| `size`          | `'small' \| 'default' \| 'large'`   | `'default'`       |          否           | 回退链：自身 → UForm `size` → `'default'`                                                  |
+| `disabled`      | `boolean`                           | UForm `disabled`  |          否           | 回退链：自身 → UForm                                                                       |
+| `readonly`      | `boolean`                           | UForm `readonly`  |          否           | 只读时错误提示区隐藏                                                                       |
+| `labelWidth`    | `string \| number`                  | `100`（全局配置） |          否           | number 单位 px；回退链：自身 → UForm `labelWidth` → 全局配置                               |
+| `labelPosition` | `'top' \| 'left'`                   | `'left'`          |          否           | 回退链：自身 → UForm `labelPosition`；`'top'` 时忽略 `labelWidth` 且不追加冒号             |
 
 `required: true` 的默认文案为「该项不能为空」；`preset` 各档默认文案：`email`「邮箱格式不正确」、`phone`「手机号格式不正确」、`num`「数字格式不正确」、`url`「链接格式不正确」、`idCard`「身份证格式不正确」。空值（`null`、`undefined`、`''`、空数组）跳过 `min` / `max` / `minLen` / `maxLen` / `match` / `preset` 校验。
 
@@ -242,6 +243,7 @@ const formData = reactive({ status: undefined as boolean | undefined })
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库的组合字段写法是 `field` 写在 `UFormItem`、内部控件用 `v-model`（值需转换时用 `:model-value` / `@update:model-value`），**不是**控件上再写一遍 `field`；控件带 `field` 会被 `UForm` 拦截成独立表单项，导致双重绑定。
 > - 单字段控件只需在控件上写 `field`：`UForm` 自动生成 `UFormItem`，并把控件的 `label` / `rules` / `tips` / `span` / `readonly` 透传给该表单项（即控件上的这些属性最终挂在自动生成的 `UFormItem` 上）。仅在控件值需转换、多控件组合一个字段、自定义 label、单项覆盖布局这几种场景才手写 `UFormItem`。
 > - `UFormItem` 必须位于 `UForm` 内：校验依赖表单注入的 `model` 与 `validateFields`，脱离表单时 `rules` 静默不校验。

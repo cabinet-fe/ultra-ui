@@ -2,7 +2,29 @@
 title: Ultra UI AI 对话集成场景
 description: 端到端接入 @veltra/ai AI 对话：Node 端（Hono）自建服务端代理持有 API Key（不下发浏览器），浏览器端 UAiChat + createOpenAITransport 完整 SFC，以及无头 useChat 自定义 UI 分支。
 aliases: [AI 对话, 聊天接入, 大模型接入, AI 助手, UAiChat]
-keywords: [UAiChat, useChat, createOpenAITransport, ChatTool, AiChatProps, AiChatEmits, transport, providers, endpoint, models, needsConfirm, terminal, maxToolRounds, SSE, 流式, 服务端代理, API Key, Hono, chat/completions, 打字机]
+keywords:
+  [
+    UAiChat,
+    useChat,
+    createOpenAITransport,
+    ChatTool,
+    AiChatProps,
+    AiChatEmits,
+    transport,
+    providers,
+    endpoint,
+    models,
+    needsConfirm,
+    terminal,
+    maxToolRounds,
+    SSE,
+    流式,
+    服务端代理,
+    API Key,
+    Hono,
+    chat/completions,
+    打字机
+  ]
 ---
 
 # Ultra UI AI 对话集成场景
@@ -140,6 +162,7 @@ const tools: ChatTool[] = [
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库 `ChatTransport` 是 `(request, handlers) => void` 的回调形态，不是 fetch 包装，也不是 React AI SDK 的 `useChat`；流式 UI 增量只经 `handlers` 回调（`onTextDelta` / `onToolCall` / `onUsage` 等）。
 > - 旧的单字段 `{ endpoint, apiKey, model }` transport 配置已删除；必须用 `createOpenAITransport({ providers })` 或自定义 `ChatTransport`。
 > - 生产环境禁止把 API Key 下发浏览器：不要写 `apiKey` 到前端代码，也不要用 `VITE_*` 变量携带 Key（会被编译进前端产物）。

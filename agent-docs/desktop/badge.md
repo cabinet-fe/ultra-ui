@@ -1,8 +1,25 @@
 ---
 title: UBadge 徽标
-description: "@veltra/desktop 导出的徽标组件。包裹任意内容后在右上角叠加数字、文本或小圆点，支持超过最大值显示 99+、五种语义色、自定义背景色、hidden 控制显隐，用于消息数、未读数等角标场景。"
+description: '@veltra/desktop 导出的徽标组件。包裹任意内容后在右上角叠加数字、文本或小圆点，支持超过最大值显示 99+、五种语义色、自定义背景色、hidden 控制显隐，用于消息数、未读数等角标场景。'
 aliases: [UBadge, Badge, 徽标, 角标, badge count]
-keywords: [UBadge, BadgeProps, value, max, dot, hidden, ColorType, 徽标, 角标, 未读数, 消息数, 超出显示, 小圆点, 自定义背景色, 顶点叠加]
+keywords:
+  [
+    UBadge,
+    BadgeProps,
+    value,
+    max,
+    dot,
+    hidden,
+    ColorType,
+    徽标,
+    角标,
+    未读数,
+    消息数,
+    超出显示,
+    小圆点,
+    自定义背景色,
+    顶点叠加
+  ]
 ---
 
 # UBadge 徽标
@@ -66,15 +83,15 @@ export type BadgeExposed = {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `value` | `number \| string` | — | 否 | 数字时参与 `max` 截断；字符串原样显示 |
-| `type` | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'` | — | 否 | 枚举仅这五个值；设置后徽标变为浅底彩字（`--u-color-<type>` 的 `light-7` 底 + 类型色文字）；不传时为默认红底白字（`--u-color-danger`） |
-| `color` | `string` | — | 否 | 任意 CSS 颜色（如 `#ff6b6b`）；以内联 `backgroundColor` 覆盖背景，优先级高于 `type` 的背景 |
-| `hidden` | `boolean` | `false` | 否 | `true` 时 `v-if` 移除徽标元素，插槽内容正常显示 |
-| `max` | `number` | `99` | 否 | 仅 `value` 为 `number` 时生效；`value > max` 时显示 `` `${max}+` `` |
-| `dot` | `boolean` | `false` | 否 | 8×8 圆点；为 true 时徽标内容为空，`value` 不显示 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 否 | 控制字号与内边距；`default` 档高 22px，`large` 档高 26px |
+| 参数     | 类型                                                        | 默认        | 必填 | 约束                                                                                                                                  |
+| -------- | ----------------------------------------------------------- | ----------- | :--: | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `value`  | `number \| string`                                          | —           |  否  | 数字时参与 `max` 截断；字符串原样显示                                                                                                 |
+| `type`   | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'` | —           |  否  | 枚举仅这五个值；设置后徽标变为浅底彩字（`--u-color-<type>` 的 `light-7` 底 + 类型色文字）；不传时为默认红底白字（`--u-color-danger`） |
+| `color`  | `string`                                                    | —           |  否  | 任意 CSS 颜色（如 `#ff6b6b`）；以内联 `backgroundColor` 覆盖背景，优先级高于 `type` 的背景                                            |
+| `hidden` | `boolean`                                                   | `false`     |  否  | `true` 时 `v-if` 移除徽标元素，插槽内容正常显示                                                                                       |
+| `max`    | `number`                                                    | `99`        |  否  | 仅 `value` 为 `number` 时生效；`value > max` 时显示 `` `${max}+` ``                                                                   |
+| `dot`    | `boolean`                                                   | `false`     |  否  | 8×8 圆点；为 true 时徽标内容为空，`value` 不显示                                                                                      |
+| `size`   | `'small' \| 'default' \| 'large'`                           | `'default'` |  否  | 控制字号与内边距；`default` 档高 22px，`large` 档高 26px                                                                              |
 
 ## 方法与事件
 
@@ -147,6 +164,7 @@ const count = ref(0)
 ## 注意事项
 
 > [!WARNING]
+>
 > - 不传 `type` 时徽标是红底白字（默认即 danger 色），不是灰色；要灰色调请用 `color` 自定义。
 > - `type` 与 `color` 的取别：`type` 改变整套配色（浅底彩字），`color` 只改背景色。需要语义色时用 `type`，需要精确品牌色时用 `color`。
 > - `color` 在组件挂载时一次性写入内联样式：挂载后再修改 `color` 值不会生效；颜色需要动态切换时用 `:key` 强制重建徽标。

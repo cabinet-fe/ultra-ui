@@ -2,7 +2,26 @@
 title: useResizeObserver / useObserverCallback 尺寸变化观察
 description: 从 @veltra/compositions 导出的 ResizeObserver 封装：useResizeObserver 对单个或一组元素 ref 建观察器，ref 换目标自动切换观察并随组件卸载清理；useObserverCallback 用单个观察器按元素注册/注销回调，首个初始回调自动跳过。适用于滚动条同步、表格列宽自适应、分栏拖拽重测。
 aliases: [use-resize-observer, useObserverCallback, ResizeObserver 封装, 尺寸监听, 容器观察]
-keywords: [useResizeObserver, useObserverCallback, RefElement, ResizeObserverReturn, ResizeObserverCallback, onResize, targets, observeEl, unobserveEl, disconnect, borderBoxSize, contentRect, 尺寸变化, 容器观察, 列宽自适应, 滚动条同步, 自动清理]
+keywords:
+  [
+    useResizeObserver,
+    useObserverCallback,
+    RefElement,
+    ResizeObserverReturn,
+    ResizeObserverCallback,
+    onResize,
+    targets,
+    observeEl,
+    unobserveEl,
+    disconnect,
+    borderBoxSize,
+    contentRect,
+    尺寸变化,
+    容器观察,
+    列宽自适应,
+    滚动条同步,
+    自动清理
+  ]
 ---
 
 # useResizeObserver / useObserverCallback 尺寸变化观察
@@ -40,8 +59,7 @@ import type { Ref, ShallowRef } from 'vue'
 
 /** 可观察的元素引用：值可为 HTMLElement | null | undefined */
 export type RefElement =
-  | ShallowRef<HTMLElement | undefined | null>
-  | Ref<HTMLElement | undefined | null>
+  ShallowRef<HTMLElement | undefined | null> | Ref<HTMLElement | undefined | null>
 
 interface ResizeObserverOptions {
   /** 目标节点，单个 ref 或 ref 数组 */
@@ -77,18 +95,18 @@ export function useObserverCallback(): {
 
 ### useResizeObserver 的 options
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `targets` | `RefElement \| RefElement[]` | — | 是 | 单 ref：元素挂载即观察，ref 指向新元素时先 `unobserve` 旧元素再观察新元素；数组：任一成员 ref 变化即重算观察集合，值为 `null` / `undefined` 的成员跳过 |
-| `onResize` | `ResizeObserverCallback` | — | 是 | `(entries, observer) => void`；`entries` 为原生 `ResizeObserverEntry[]`；首次观察每个元素时都会触发一次 |
-| `when` | `() => boolean` | — | 否 | 类型上声明，当前实现未使用：传入无任何效果，观察条件实际由 targets 的 ref 值决定 |
+| 参数       | 类型                         | 默认 | 必填 | 约束                                                                                                                                                   |
+| ---------- | ---------------------------- | ---- | :--: | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `targets`  | `RefElement \| RefElement[]` | —    |  是  | 单 ref：元素挂载即观察，ref 指向新元素时先 `unobserve` 旧元素再观察新元素；数组：任一成员 ref 变化即重算观察集合，值为 `null` / `undefined` 的成员跳过 |
+| `onResize` | `ResizeObserverCallback`     | —    |  是  | `(entries, observer) => void`；`entries` 为原生 `ResizeObserverEntry[]`；首次观察每个元素时都会触发一次                                                |
+| `when`     | `() => boolean`              | —    |  否  | 类型上声明，当前实现未使用：传入无任何效果，观察条件实际由 targets 的 ref 值决定                                                                       |
 
 ### useObserverCallback 的回调
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `el` | `El extends HTMLElement` | — | 是 | 真实 DOM 元素，不是 ref；重复 `observeEl` 同一元素时观察幂等、回调被替换 |
-| `cb` | `(entry) => void`，`entry.target` 收窄为 `El` | — | 是 | 每个元素的**首次回调被跳过**（内部用 `dataset.ob` 标记吞掉初始观察事件），从第二次尺寸变化开始触发 |
+| 参数 | 类型                                          | 默认 | 必填 | 约束                                                                                               |
+| ---- | --------------------------------------------- | ---- | :--: | -------------------------------------------------------------------------------------------------- |
+| `el` | `El extends HTMLElement`                      | —    |  是  | 真实 DOM 元素，不是 ref；重复 `observeEl` 同一元素时观察幂等、回调被替换                           |
+| `cb` | `(entry) => void`，`entry.target` 收窄为 `El` | —    |  是  | 每个元素的**首次回调被跳过**（内部用 `dataset.ob` 标记吞掉初始观察事件），从第二次尺寸变化开始触发 |
 
 ## 方法与事件
 
@@ -187,10 +205,7 @@ import { onBeforeUnmount, ref } from 'vue'
 
 const { observeEl, unobserveEl } = useObserverCallback()
 
-const items = ref<{ id: number; el?: HTMLElement }[]>([
-  { id: 1 },
-  { id: 2 }
-])
+const items = ref<{ id: number; el?: HTMLElement }[]>([{ id: 1 }, { id: 2 }])
 
 function setEl(item: { id: number; el?: HTMLElement }, el: unknown) {
   if (!(el instanceof HTMLElement)) return
@@ -207,9 +222,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div v-for="item in items" :key="item.id" :ref="(el) => setEl(item, el)">
-    节点 {{ item.id }}
-  </div>
+  <div v-for="item in items" :key="item.id" :ref="(el) => setEl(item, el)">节点 {{ item.id }}</div>
 </template>
 ```
 
@@ -218,6 +231,7 @@ onBeforeUnmount(() => {
 ## 注意事项
 
 > [!WARNING]
+>
 > - `when` 选项声明了但实现未使用：依赖它控制启停不会生效，启停用 `disconnect()` 与 targets 的 ref 值控制。
 > - `targets` 必须是 ref（`RefElement`），不能直接传 DOM 元素；`observeEl` 相反，必须传元素本身。
 > - 本库是 `useResizeObserver(options)`（对象参数），不是 VueUse `useResizeObserver(target, cb)`（位置参数）；回调名是 `onResize`，不是 VueUse 的原生回调第二参形式。

@@ -1,8 +1,30 @@
 ---
-title: "sheet-core 数据模型（Sheet / Workbook / CellStore）"
-description: "从 @veltra/sheet-core 导入的无头表格数据模型，纯 TS 无 Vue / DOM 依赖：Sheet 与 Workbook 单表多表、稀疏 CellStore、0-based A1 地址工具（cellKey / parseAddress / createRange）、SelectionModel 选区、MergeManager 合并、StylePool 样式池、CellMetaStore 单元格侧车数据与浮动图片 SheetImage。"
-aliases: ["数据模型", "Sheet", "Workbook", "CellStore", "表格内核", "无头表格", "工作表模型"]
-keywords: ["Sheet", "Workbook", "CellStore", "cellKey", "parseAddress", "createRange", "formatRange", "SelectionModel", "MergeManager", "StylePool", "composeCellStyles", "CellMetaStore", "SheetImage", "FrozenState", "SheetSnapshot", "冻结", "单元格合并", "选区", "稀疏存储", "快照"]
+title: 'sheet-core 数据模型（Sheet / Workbook / CellStore）'
+description: '从 @veltra/sheet-core 导入的无头表格数据模型，纯 TS 无 Vue / DOM 依赖：Sheet 与 Workbook 单表多表、稀疏 CellStore、0-based A1 地址工具（cellKey / parseAddress / createRange）、SelectionModel 选区、MergeManager 合并、StylePool 样式池、CellMetaStore 单元格侧车数据与浮动图片 SheetImage。'
+aliases: ['数据模型', 'Sheet', 'Workbook', 'CellStore', '表格内核', '无头表格', '工作表模型']
+keywords:
+  [
+    'Sheet',
+    'Workbook',
+    'CellStore',
+    'cellKey',
+    'parseAddress',
+    'createRange',
+    'formatRange',
+    'SelectionModel',
+    'MergeManager',
+    'StylePool',
+    'composeCellStyles',
+    'CellMetaStore',
+    'SheetImage',
+    'FrozenState',
+    'SheetSnapshot',
+    '冻结',
+    '单元格合并',
+    '选区',
+    '稀疏存储',
+    '快照'
+  ]
 ---
 
 # sheet-core 数据模型（Sheet / Workbook / CellStore）
@@ -12,15 +34,15 @@ keywords: ["Sheet", "Workbook", "CellStore", "cellKey", "parseAddress", "createR
 ## 快速上手
 
 ```ts
-import { Workbook, parseAddress, createRange, formatRange } from '@veltra/sheet-core';
+import { Workbook, parseAddress, createRange, formatRange } from '@veltra/sheet-core'
 
-const workbook = new Workbook(); // 构造时已含一张默认表 Sheet1
-const sheet = workbook.activeSheet;
+const workbook = new Workbook() // 构造时已含一张默认表 Sheet1
+const sheet = workbook.activeSheet
 
-sheet.setCellValue({ row: 0, col: 0 }, 42);         // 0-based：{ row: 0, col: 0 } 即 A1
-sheet.setCellValue(parseAddress('B1')!, '=A1+1');   // B1 = { row: 0, col: 1 }；'=' 前缀写公式
-console.log(sheet.getDisplayValue({ row: 0, col: 1 })); // => 43（公式缓存值）
-console.log(formatRange(createRange({ row: 0, col: 1 }, { row: 2, col: 2 }))); // => 'B1:C3'
+sheet.setCellValue({ row: 0, col: 0 }, 42) // 0-based：{ row: 0, col: 0 } 即 A1
+sheet.setCellValue(parseAddress('B1')!, '=A1+1') // B1 = { row: 0, col: 1 }；'=' 前缀写公式
+console.log(sheet.getDisplayValue({ row: 0, col: 1 })) // => 43（公式缓存值）
+console.log(formatRange(createRange({ row: 0, col: 1 }, { row: 2, col: 2 }))) // => 'B1:C3'
 ```
 
 ## API 签名
@@ -29,9 +51,15 @@ console.log(formatRange(createRange({ row: 0, col: 1 }, { row: 2, col: 2 }))); /
 
 ```ts
 /** 单元格地址（0-based：{ row: 0, col: 0 } 即 A1） */
-export interface CellAddress { row: number; col: number }
+export interface CellAddress {
+  row: number
+  col: number
+}
 /** 单元格区域（闭区间，start 恒为左上角，end 恒为右下角） */
-export interface CellRange { start: CellAddress; end: CellAddress }
+export interface CellRange {
+  start: CellAddress
+  end: CellAddress
+}
 export function cellKey(addr: CellAddress): number // 地址 → 数值 key（row * 2^20 + col；要求 col < 2^20）
 export function colIndexToName(col: number): string // 列号 → 列名：0 → 'A'，25 → 'Z'，26 → 'AA'；非负整数，否则抛 RangeError
 export function colNameToIndex(name: string): number // 列名 → 列号：'A' → 0，'AA' → 26；非法列名返回 -1
@@ -60,7 +88,10 @@ export interface CellData {
   s?: number // 样式池引用（StyleId）
 }
 /** 序列化条目 */
-export interface CellSnapshotItem extends CellData { row: number; col: number }
+export interface CellSnapshotItem extends CellData {
+  row: number
+  col: number
+}
 /** 数字文本正则（不含 TRUE/FALSE） */
 export const NUMERIC_TEXT_RE: RegExp
 /** 规范化用户输入（Excel 键入语义）：数字文本 → number、TRUE/FALSE（忽略大小写）→ boolean、前导 ' 强制文本 */
@@ -77,7 +108,10 @@ export function cellDataEqual(a: CellData | undefined, b: CellData | undefined):
 
 ```ts
 /** 冻结状态（Excel 语义：rows = 冻结顶部行数，cols = 冻结左侧列数） */
-export interface FrozenState { rows: number; cols: number }
+export interface FrozenState {
+  rows: number
+  cols: number
+}
 /** Sheet 全量快照（宿主序列化持久化用） */
 export interface SheetSnapshot {
   cells: CellSnapshotItem[]
@@ -95,8 +129,12 @@ export interface SheetSnapshot {
   meta?: CellMetaSnapshotItem[]
 }
 export class Sheet {
-  readonly store: CellStore; readonly merges: MergeManager; readonly selection: SelectionModel
-  readonly history: HistoryManager; readonly formulaGraph: DependencyGraph; readonly stylePool: StylePool
+  readonly store: CellStore
+  readonly merges: MergeManager
+  readonly selection: SelectionModel
+  readonly history: HistoryManager
+  readonly formulaGraph: DependencyGraph
+  readonly stylePool: StylePool
   constructor(name?: string, formulaGraph?: DependencyGraph) // name 默认 'Sheet1'
   get name(): string // 只读；改名必须经 Workbook.renameSheet
   get rowCount(): number // 数据行高水位（colCount 同理）
@@ -155,7 +193,10 @@ export interface CellInfo {
   mergeRange?: CellRange // 所在合并区域；普通格无
 }
 /** 与既有合并相交时，最终生效区域大于入参：取包围盒 */
-export interface MergeResult { range: CellRange; removed: CellRange[] }
+export interface MergeResult {
+  range: CellRange
+  removed: CellRange[]
+}
 export class MergeManager {
   get size(): number
 }
@@ -168,7 +209,11 @@ export type StyleId = number // 1 起递增，池内唯一
 /** 边框线型：thin/medium/thick 实线分级，dashed/dotted 虚线/点线 */
 export type BorderLineStyle = 'thin' | 'medium' | 'thick' | 'dashed' | 'dotted'
 export type BorderSide = 'top' | 'right' | 'bottom' | 'left'
-export interface BorderEdge { style: BorderLineStyle; width: number; color: string } // width px；color CSS 颜色
+export interface BorderEdge {
+  style: BorderLineStyle
+  width: number
+  color: string
+} // width px；color CSS 颜色
 export type HorizontalAlign = 'left' | 'center' | 'right'
 export type VerticalAlign = 'top' | 'middle' | 'bottom' // 模型用 middle；hucre/Excel 导出为 center
 export interface CellFont {
@@ -179,7 +224,11 @@ export interface CellFont {
   strikethrough?: boolean
   size?: number // 字号（pt）；渲染时 ×4/3 转 px
 }
-export interface CellAlign { horizontal?: HorizontalAlign; vertical?: VerticalAlign; wrap?: boolean } // wrap = 自动换行
+export interface CellAlign {
+  horizontal?: HorizontalAlign
+  vertical?: VerticalAlign
+  wrap?: boolean
+} // wrap = 自动换行
 export interface CellStyle {
   fill?: { color: string } // 背景填充；缺省 = 无填充
   border?: Partial<Record<BorderSide, BorderEdge>> // 四边边框；缺省边 = 无边框
@@ -198,7 +247,9 @@ export const BORDER_STYLE_WIDTH: Record<BorderLineStyle, number>
 /** 单边缺失字段默认值：{ style: 'thin', width: 1, color: '#000000' } */
 export const BORDER_EDGE_DEFAULTS: BorderEdge
 /** 字体 / 对齐字段固定序列化顺序（样式池 key 稳定） */
-export const FONT_STYLE_KEYS: readonly ('color' | 'bold' | 'italic' | 'underline' | 'strikethrough' | 'size')[]
+export const FONT_STYLE_KEYS: readonly (
+  'color' | 'bold' | 'italic' | 'underline' | 'strikethrough' | 'size'
+)[]
 export const ALIGN_STYLE_KEYS: readonly ('horizontal' | 'vertical' | 'wrap')[]
 export class StylePool {
   get size(): number // 池内样式定义数量
@@ -216,7 +267,12 @@ export function composeCellStyles(
 ### 元数据（CellMetaStore）
 
 ```ts
-export interface CellMetaSnapshotItem { row: number; col: number; namespace: string; payload: unknown }
+export interface CellMetaSnapshotItem {
+  row: number
+  col: number
+  namespace: string
+  payload: unknown
+}
 export function cellMetaKey(row: number, col: number, namespace: string): string // 生成存储键（row,col,namespace 三元组）
 export function cellMetaKeyFrom(addr: CellAddress, namespace: string): string // 从地址与 namespace 生成存储键
 export function cloneCellMetaPayload(payload: unknown): unknown // 深拷贝载荷（structuredClone 优先，不可克隆回退 JSON）
@@ -247,7 +303,9 @@ export interface SheetImage {
   title?: string
 }
 /** 插入入参：与 SheetImage 字段一致，仅 id 可选（缺省由命令生成） */
-export interface ImageInput extends Omit<SheetImage, 'id'> { id?: string }
+export interface ImageInput extends Omit<SheetImage, 'id'> {
+  id?: string
+}
 /** 生成图片 id（crypto.randomUUID 优先，无 crypto 回落时间戳） */
 export function createImageId(): string
 /** 深拷贝锚点 */
@@ -260,18 +318,18 @@ export function cloneSheetImage(image: SheetImage): SheetImage
 
 Sheet 核心方法参数（`Workbook.addSheet` 选项五要素——`name`：`string`，默认 `Sheet{n}`，非必填，模型层不限制表名但 xlsx 导出时非法表名（`[ ] : * ? / \`、>31 字符、保留名 `History`）由导出层抛错；`options.data`：`AddSheetCellInput[][]`，非必填，从 A1 写入、`f` 为公式原文（不含 `'='`）、基线状态不进 undo；`options.rows` / `options.cols`：`number`，非必填，正整数且与数据高水位取大）：
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `addr` | `CellAddress` | — | 是 | 0-based；写入与显示值读取自动解析合并锚点 |
-| `value`（`setCellValue`） | `CellValue` | — | 是 | `null` / `''` 清除该格；`'='` 前缀转公式；数字文本转 `number`、`TRUE`/`FALSE` 转 `boolean`、前导 `'` 强制文本 |
-| `items`（`setCells`） | `{ addr, data? }[]` | — | 是 | `data` 空数据 = 清除；一次调用 = 一个 undo 单元 |
-| `range`（`setCellStyle` / `mergeCells` / `unmergeCells`） | `CellRange` | — | 是 | 闭区间；`mergeCells` 相交时自动取包围盒 |
-| `partial`（`setCellStyle`） | `CellStylePatch` | — | 是 | 部分合并：`fill` 存在即覆盖、`border` 边级、`font`/`align` 逐字段、`numFmt` 整体替换；字段值 `null` 删除 |
-| `rows, cols`（`setFrozen`） | `number` | `0` | 否 | 负数 / 非有限值归一为 0，小数向下取整 |
-| `at, count`（`insertRows` 等） | `number` | `count = 1` | `at` 是 | `at >= 0`；`count <= 0` 无操作不入历史 |
-| `input`（`insertImage`） | `ImageInput` | — | 是 | `data` / `type` / `anchor` 必填；`id` 缺省生成；`src` URL 来源时 `data` 传空 `Uint8Array` |
-| `namespace`（`setCellMeta`） | `string` | — | 是 | 空白 namespace 无操作；必须用限定前缀（如 `'cell-readonly'`）避免冲突 |
-| `formula`（`setCellFormula`） | `string` | — | 是 | 可带 `'='` 前缀（自动剥离）；空白公式清除该格 |
+| 参数                                                      | 类型                | 默认        |  必填   | 约束                                                                                                          |
+| --------------------------------------------------------- | ------------------- | ----------- | :-----: | ------------------------------------------------------------------------------------------------------------- |
+| `addr`                                                    | `CellAddress`       | —           |   是    | 0-based；写入与显示值读取自动解析合并锚点                                                                     |
+| `value`（`setCellValue`）                                 | `CellValue`         | —           |   是    | `null` / `''` 清除该格；`'='` 前缀转公式；数字文本转 `number`、`TRUE`/`FALSE` 转 `boolean`、前导 `'` 强制文本 |
+| `items`（`setCells`）                                     | `{ addr, data? }[]` | —           |   是    | `data` 空数据 = 清除；一次调用 = 一个 undo 单元                                                               |
+| `range`（`setCellStyle` / `mergeCells` / `unmergeCells`） | `CellRange`         | —           |   是    | 闭区间；`mergeCells` 相交时自动取包围盒                                                                       |
+| `partial`（`setCellStyle`）                               | `CellStylePatch`    | —           |   是    | 部分合并：`fill` 存在即覆盖、`border` 边级、`font`/`align` 逐字段、`numFmt` 整体替换；字段值 `null` 删除      |
+| `rows, cols`（`setFrozen`）                               | `number`            | `0`         |   否    | 负数 / 非有限值归一为 0，小数向下取整                                                                         |
+| `at, count`（`insertRows` 等）                            | `number`            | `count = 1` | `at` 是 | `at >= 0`；`count <= 0` 无操作不入历史                                                                        |
+| `input`（`insertImage`）                                  | `ImageInput`        | —           |   是    | `data` / `type` / `anchor` 必填；`id` 缺省生成；`src` URL 来源时 `data` 传空 `Uint8Array`                     |
+| `namespace`（`setCellMeta`）                              | `string`            | —           |   是    | 空白 namespace 无操作；必须用限定前缀（如 `'cell-readonly'`）避免冲突                                         |
+| `formula`（`setCellFormula`）                             | `string`            | —           |   是    | 可带 `'='` 前缀（自动剥离）；空白公式清除该格                                                                 |
 
 ## 方法与事件
 
@@ -325,18 +383,18 @@ Sheet 核心方法参数（`Workbook.addSheet` 选项五要素——`name`：`st
 
 事件：`on(type, handler)` 返回取消订阅函数。payload 与触发时机：
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
-| `cell-change` | `{ addr }` | 单元格数据变化（含删除），逐补丁发出 |
-| `merge-change` | `{ range }` | 合并 / 取消合并 |
-| `selection-change` | `SelectionState` | 选区变化（相同选区去重不触发） |
-| `history-change` | `{ canUndo, canRedo }` | 历史栈变化（工具栏按钮置灰） |
-| `frozen-change` | `FrozenState` | 冻结状态变化（不进 undo） |
-| `structure-change` | `StructureChange` | 行列插入 / 删除 |
-| `content-reset` | `undefined` | 整表内容替换（导入 / undo 回放整表补丁） |
-| `image-change` | `{ id? }` | 图片集合变化；整表替换时 `id` 缺省 |
-| `meta-change` | `{ addr?, namespace? }` | Cell Meta 变化；整表替换时二者缺省 |
-| `axis-style-change` | `{ axis, index }` | 行 / 列默认样式变化 |
+| 事件                | payload                 | 触发时机                                 |
+| ------------------- | ----------------------- | ---------------------------------------- |
+| `cell-change`       | `{ addr }`              | 单元格数据变化（含删除），逐补丁发出     |
+| `merge-change`      | `{ range }`             | 合并 / 取消合并                          |
+| `selection-change`  | `SelectionState`        | 选区变化（相同选区去重不触发）           |
+| `history-change`    | `{ canUndo, canRedo }`  | 历史栈变化（工具栏按钮置灰）             |
+| `frozen-change`     | `FrozenState`           | 冻结状态变化（不进 undo）                |
+| `structure-change`  | `StructureChange`       | 行列插入 / 删除                          |
+| `content-reset`     | `undefined`             | 整表内容替换（导入 / undo 回放整表补丁） |
+| `image-change`      | `{ id? }`               | 图片集合变化；整表替换时 `id` 缺省       |
+| `meta-change`       | `{ addr?, namespace? }` | Cell Meta 变化；整表替换时二者缺省       |
+| `axis-style-change` | `{ axis, index }`       | 行 / 列默认样式变化                      |
 
 ### Workbook
 
@@ -397,9 +455,9 @@ Sheet 核心方法参数（`Workbook.addSheet` 选项五要素——`name`：`st
 ### 地址工具与稀疏读取
 
 ```ts
-import { Workbook, parseAddress, parseRange, formatRange, iterateRange } from '@veltra/sheet-core';
+import { Workbook, parseAddress, parseRange, formatRange, iterateRange } from '@veltra/sheet-core'
 
-const sheet = new Workbook().activeSheet;
+const sheet = new Workbook().activeSheet
 
 // 批量写入：一次调用 = 一个 undo 单元
 sheet.setCells([
@@ -407,52 +465,52 @@ sheet.setCells([
   { addr: parseAddress('B1')!, data: { v: '销售额', t: 's' } },
   { addr: { row: 1, col: 0 }, data: { v: '华东', t: 's' } },
   { addr: { row: 1, col: 1 }, data: { v: 1200, t: 'n' } }
-]);
+])
 
 // 只遍历真实存在的格（空格不占存储，不产出条目）
-const range = parseRange('A1:B2')!;
+const range = parseRange('A1:B2')!
 for (const addr of iterateRange(range)) {
-  const data = sheet.getCellData(addr);
-  if (data) console.log(formatRange({ start: addr, end: addr }), data.v);
+  const data = sheet.getCellData(addr)
+  if (data) console.log(formatRange({ start: addr, end: addr }), data.v)
 }
 // => A1 品类
 // => B1 销售额
 // => A2 华东
 // => B2 1200
-console.log(sheet.store.rowCount, sheet.store.colCount); // => 2 2（数据高水位）
+console.log(sheet.store.rowCount, sheet.store.colCount) // => 2 2（数据高水位）
 ```
 
 ### 样式叠加与单元格合并
 
 ```ts
-import { Workbook, createRange, parseAddress } from '@veltra/sheet-core';
+import { Workbook, createRange, parseAddress } from '@veltra/sheet-core'
 
-const sheet = new Workbook().activeSheet;
-const range = createRange(parseAddress('A1')!, parseAddress('B2')!);
+const sheet = new Workbook().activeSheet
+const range = createRange(parseAddress('A1')!, parseAddress('B2')!)
 
 // 部分合并样式：只给 fill 与 font，不影响 border/align
-sheet.setCellStyle(range, { fill: { color: '#FFF7E6' }, font: { bold: true } });
-sheet.setCellValue({ row: 0, col: 0 }, '合计');
+sheet.setCellStyle(range, { fill: { color: '#FFF7E6' }, font: { bold: true } })
+sheet.setCellValue({ row: 0, col: 0 }, '合计')
 
 // 合并 A1:B2：行主序第一个有值格（A1）的值写入新锚点，其余清空
-const finalRange = sheet.mergeCells(range);
-console.log(finalRange.start, finalRange.end); // => { row: 0, col: 0 } { row: 1, col: 1 }
+const finalRange = sheet.mergeCells(range)
+console.log(finalRange.start, finalRange.end) // => { row: 0, col: 0 } { row: 1, col: 1 }
 
 // 被覆盖格解析锚点：值与样式都来自 A1
-console.log(sheet.getDisplayValue({ row: 1, col: 1 })); // => '合计'
-console.log(sheet.getCellInfo({ row: 1, col: 1 }).kind); // => 'merged-covered'
-console.log(sheet.getEffectiveStyle({ row: 1, col: 1 })?.fill); // => { color: '#FFF7E6' }
+console.log(sheet.getDisplayValue({ row: 1, col: 1 })) // => '合计'
+console.log(sheet.getCellInfo({ row: 1, col: 1 }).kind) // => 'merged-covered'
+console.log(sheet.getEffectiveStyle({ row: 1, col: 1 })?.fill) // => { color: '#FFF7E6' }
 ```
 
 ### 冻结、快照往返与浮动图片
 
 ```ts
-import { Workbook, type SheetSnapshot } from '@veltra/sheet-core';
+import { Workbook, type SheetSnapshot } from '@veltra/sheet-core'
 
-const sheet = new Workbook().activeSheet;
-sheet.setCellValue({ row: 0, col: 0 }, '表头');
-sheet.setFrozen(1, 0); // 冻结顶部 1 行（不进 undo，随快照序列化）
-console.log(sheet.frozen); // => { rows: 1, cols: 0 }
+const sheet = new Workbook().activeSheet
+sheet.setCellValue({ row: 0, col: 0 }, '表头')
+sheet.setFrozen(1, 0) // 冻结顶部 1 行（不进 undo，随快照序列化）
+console.log(sheet.frozen) // => { rows: 1, cols: 0 }
 
 // 浮动图片：data 必填（URL 来源传空字节）；返回生成的 id
 const imageId = sheet.insertImage({
@@ -462,20 +520,21 @@ const imageId = sheet.insertImage({
   width: 120,
   height: 80,
   fit: 'contain'
-});
-sheet.updateImage(imageId, { anchor: { from: { row: 2, col: 2 } } });
+})
+sheet.updateImage(imageId, { anchor: { from: { row: 2, col: 2 } } })
 
-const snap: SheetSnapshot = sheet.snapshot();
-const restored = new Workbook().activeSheet;
-restored.restore(snap); // 冻结变化时发 frozen-change；其余静默还原
-console.log(restored.frozen); // => { rows: 1, cols: 0 }
-console.log(restored.getDisplayValue({ row: 0, col: 0 })); // => '表头'
-console.log(restored.getImage(imageId)?.anchor.from); // => { row: 2, col: 2, offsetX: 8, offsetY: 8 }
+const snap: SheetSnapshot = sheet.snapshot()
+const restored = new Workbook().activeSheet
+restored.restore(snap) // 冻结变化时发 frozen-change；其余静默还原
+console.log(restored.frozen) // => { rows: 1, cols: 0 }
+console.log(restored.getDisplayValue({ row: 0, col: 0 })) // => '表头'
+console.log(restored.getImage(imageId)?.anchor.from) // => { row: 2, col: 2, offsetX: 8, offsetY: 8 }
 ```
 
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库坐标是 0-based（`{ row: 0, col: 0 }` = A1），不是 Excel 界面的 1-based 行列号；`CellRange` 是闭区间且 `start` 恒为左上角，手工构造倒序角点时必须先过 `createRange` 规范化。
 > - 读取有两种语义：`getCellData` 是原始存储（被合并覆盖格 → `undefined`），`getDisplayValue` 是锚点解析；按展示取值用后者。
 > - 本库内部便捷写入口是 `Sheet.setCell` / `Sheet.setCellStyles` / `CellStore.setCellValue`，非公开承诺 API；生产代码用 `setCells` / `setCellStyle`，禁止绕过命令直接改 `CellStore`（不产生补丁、不进 undo、依赖图不同步）。

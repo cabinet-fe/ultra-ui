@@ -1,6 +1,6 @@
 ---
-title: "UCheckbox / UCheckboxButton 复选框"
-description: "复选框与按钮形态复选框，为单个布尔勾选提供独立绑定；支持半选状态、五种主题色、圆角，可在 UForm 内用 field 绑定表单字段。"
+title: 'UCheckbox / UCheckboxButton 复选框'
+description: '复选框与按钮形态复选框，为单个布尔勾选提供独立绑定；支持半选状态、五种主题色、圆角，可在 UForm 内用 field 绑定表单字段。'
 aliases: [checkbox, Checkbox, CheckboxButton, 复选框, 勾选框, 多选框, 多选]
 keywords:
   - modelValue
@@ -83,29 +83,29 @@ export interface CheckboxExposed {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `modelValue` | `boolean` | — | 否 | 仅 `true` / `false`；本库没有 `trueValue` / `falseValue` 配置 |
-| `indeterminate` | `boolean` | `false` | 否 | 仅 `UCheckbox`；`true` 时显示半选样式，不改写 `modelValue` |
-| `type` | `ColorType` | `'primary'` | 否 | 仅 `UCheckboxButton`；`'primary'` \| `'info'` \| `'success'` \| `'warning'` \| `'danger'` |
-| `round` | `boolean` | `false` | 否 | 仅 `UCheckboxButton`；圆角样式 |
-| **继承自 `FormComponentProps`** | | | | |
-| `size` | `ComponentSize` | `'default'` | 否 | `'small'` \| `'default'` \| `'large'`；未设置时继承 `<u-form>` 的 `size` |
-| `label` | `string` | — | 否 | 表单标签文字；仅在 `UForm` / `UFormItem` 内生效。勾选文本不是它，是默认插槽 |
-| `field` | `string` | — | 否 | `UForm` 字段名；在 `UForm` 内必须用 `field` 绑定，禁止再写 `v-model` |
-| `tips` | `string` | — | 否 | 表单内提示文字；仅在 `UForm` / `UFormItem` 内生效 |
-| `span` | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }` | — | 否 | 表单中所占列数；`'full'` 占满一行，响应式对象的 `default` 必填 |
-| `disabled` | `boolean` | `false` | 否 | 禁用；未设置时继承 `<u-form>` 的 `disabled` |
-| `readonly` | `boolean` | `false` | 否 | 只读；未设置时继承 `<u-form>` 的 `readonly`。`UCheckbox` 只读时点击不更新值也不触发 `change` |
-| `rules` | `ValidateRule` | — | 否 | 校验规则（如 `{ required: true }`）；仅在 `UForm` 内生效 |
+| 参数                            | 类型                                                       | 默认        | 必填 | 约束                                                                                         |
+| ------------------------------- | ---------------------------------------------------------- | ----------- | :--: | -------------------------------------------------------------------------------------------- |
+| `modelValue`                    | `boolean`                                                  | —           |  否  | 仅 `true` / `false`；本库没有 `trueValue` / `falseValue` 配置                                |
+| `indeterminate`                 | `boolean`                                                  | `false`     |  否  | 仅 `UCheckbox`；`true` 时显示半选样式，不改写 `modelValue`                                   |
+| `type`                          | `ColorType`                                                | `'primary'` |  否  | 仅 `UCheckboxButton`；`'primary'` \| `'info'` \| `'success'` \| `'warning'` \| `'danger'`    |
+| `round`                         | `boolean`                                                  | `false`     |  否  | 仅 `UCheckboxButton`；圆角样式                                                               |
+| **继承自 `FormComponentProps`** |                                                            |             |      |                                                                                              |
+| `size`                          | `ComponentSize`                                            | `'default'` |  否  | `'small'` \| `'default'` \| `'large'`；未设置时继承 `<u-form>` 的 `size`                     |
+| `label`                         | `string`                                                   | —           |  否  | 表单标签文字；仅在 `UForm` / `UFormItem` 内生效。勾选文本不是它，是默认插槽                  |
+| `field`                         | `string`                                                   | —           |  否  | `UForm` 字段名；在 `UForm` 内必须用 `field` 绑定，禁止再写 `v-model`                         |
+| `tips`                          | `string`                                                   | —           |  否  | 表单内提示文字；仅在 `UForm` / `UFormItem` 内生效                                            |
+| `span`                          | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }` | —           |  否  | 表单中所占列数；`'full'` 占满一行，响应式对象的 `default` 必填                               |
+| `disabled`                      | `boolean`                                                  | `false`     |  否  | 禁用；未设置时继承 `<u-form>` 的 `disabled`                                                  |
+| `readonly`                      | `boolean`                                                  | `false`     |  否  | 只读；未设置时继承 `<u-form>` 的 `readonly`。`UCheckbox` 只读时点击不更新值也不触发 `change` |
+| `rules`                         | `ValidateRule`                                             | —           |  否  | 校验规则（如 `{ required: true }`）；仅在 `UForm` 内生效                                     |
 
 ## 方法与事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
-| `update:modelValue` | `checked: boolean` | 勾选状态变化时 |
-| `change`（`UCheckbox`） | `(checked: boolean, e: MouseEvent)` | 点击复选框时；`readonly` 时值不变且不触发 |
-| `change`（`UCheckboxButton`） | `checked: boolean` | 点击复选按钮时；`readonly` 时不渲染为可点按钮，无此事件 |
+| 事件                          | payload                             | 触发时机                                                |
+| ----------------------------- | ----------------------------------- | ------------------------------------------------------- |
+| `update:modelValue`           | `checked: boolean`                  | 勾选状态变化时                                          |
+| `change`（`UCheckbox`）       | `(checked: boolean, e: MouseEvent)` | 点击复选框时；`readonly` 时值不变且不触发               |
+| `change`（`UCheckboxButton`） | `checked: boolean`                  | 点击复选按钮时；`readonly` 时不渲染为可点按钮，无此事件 |
 
 组件未 `defineExpose` 任何方法，模板 `ref` 上无可调用属性。
 
@@ -177,6 +177,7 @@ const formData = reactive({ remember: false, deepThink: false })
 ## 注意事项
 
 > [!WARNING]
+>
 > - `modelValue` 是布尔值。本库没有 `trueValue` / `falseValue` 配置（不是 Element Plus 的 `true-label` / `false-label`）；勾选后要收集业务值时用 `UCheckboxGroup`。
 > - `indeterminate` 只是样式，不会改写 `modelValue`，全选逻辑必须自行计算。
 > - 复选框的可见文本来自默认插槽；`label` 是表单标签，仅在 `UForm` / `UFormItem` 内生效。

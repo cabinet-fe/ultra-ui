@@ -1,6 +1,6 @@
 ---
 title: UGridInput 网格输入框
-description: "分格数字输入框：按格子逐位输入数字并自动前进光标，modelValue 为按分隔符拼接的字符串；支持格子数量、分隔符、是否允许 0（验证码 / 组织编码），暴露 clear() 清空。"
+description: '分格数字输入框：按格子逐位输入数字并自动前进光标，modelValue 为按分隔符拼接的字符串；支持格子数量、分隔符、是否允许 0（验证码 / 组织编码），暴露 clear() 清空。'
 aliases: [GridInput, grid-input, 验证码输入框, 分格输入框, OTPInput, 逐格输入]
 keywords:
   - modelValue
@@ -78,12 +78,12 @@ export interface GridInputExposed {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `modelValue` | `string` | — | 否 | 各格字符按 `separator` 拼接；`separator` 为空字符串时为纯数字串（如 `'102030'`） |
-| `length` | `number` | `6` | 否 | 格子数量，正整数；超出 `length` 的输入不再写入 |
-| `zero` | `boolean` | `false` | 否 | `false`：每位仅 1-9，键入 0 被忽略（无提示）；`true`：0-9 均可 |
-| `separator` | `string` | `'-'` | 否 | 格子分隔符；`''` 无分隔符；常用取值 `'-'`、`' '`（空格）、`''` |
+| 参数         | 类型      | 默认    | 必填 | 约束                                                                             |
+| ------------ | --------- | ------- | :--: | -------------------------------------------------------------------------------- |
+| `modelValue` | `string`  | —       |  否  | 各格字符按 `separator` 拼接；`separator` 为空字符串时为纯数字串（如 `'102030'`） |
+| `length`     | `number`  | `6`     |  否  | 格子数量，正整数；超出 `length` 的输入不再写入                                   |
+| `zero`       | `boolean` | `false` |  否  | `false`：每位仅 1-9，键入 0 被忽略（无提示）；`true`：0-9 均可                   |
+| `separator`  | `string`  | `'-'`   |  否  | 格子分隔符；`''` 无分隔符；常用取值 `'-'`、`' '`（空格）、`''`                   |
 
 ## 方法与事件
 
@@ -176,6 +176,7 @@ function handleClear() {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库 `modelValue` 是**字符串**（格子内容按 `separator` 拼接），不是数组；解析与拼装都依赖 `separator`。
 > - `zero: false` 时键入 0 是**静默忽略**（字符不进入格子），不是校验报错。
 > - `clear()` 不触发 `update:modelValue`；调用后必须自行把 `v-model` 变量置空，否则绑定值与界面不一致。
@@ -194,8 +195,10 @@ function handleClear() {
 <!-- 错误：separator 为 '-'，值没有分隔符，只会拆出 1 格 '123456' -->
 <u-grid-input v-model="code" separator="-" />
 <!-- 正确 -->
-<u-grid-input v-model="code" separator="-" />  <!-- code = '1-2-3-4-5-6' -->
-<u-grid-input v-model="code" separator="" />   <!-- code = '123456' -->
+<u-grid-input v-model="code" separator="-" />
+<!-- code = '1-2-3-4-5-6' -->
+<u-grid-input v-model="code" separator="" />
+<!-- code = '123456' -->
 ```
 
 ### 调用 clear() 后绑定变量还有旧值

@@ -1,6 +1,6 @@
 ---
-title: "UTabs / UTabsHorizontal / UTabsVertical 标签页"
-description: "标签页组件：UTabs 渲染标签栏加内容面板，面板用与 TabItem.key 同名的具名插槽提供；UTabsHorizontal / UTabsVertical 是只有标签栏的轻量版。支持动态增删页签、溢出滚动箭头、KeepAlive 面板保活与胶囊风格。"
+title: 'UTabs / UTabsHorizontal / UTabsVertical 标签页'
+description: '标签页组件：UTabs 渲染标签栏加内容面板，面板用与 TabItem.key 同名的具名插槽提供；UTabsHorizontal / UTabsVertical 是只有标签栏的轻量版。支持动态增删页签、溢出滚动箭头、KeepAlive 面板保活与胶囊风格。'
 aliases: [Tabs, TabPane, ElTabs, 页签, 选项卡, 标签栏]
 keywords:
   - modelValue
@@ -128,27 +128,27 @@ export interface TabsVerticalProps {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `v-model`（`modelValue`） | `string` | — | 否 | 值必须是 `items` 中某项的 `key`；点击页签时写回该 `key` |
-| `items` | `TabItem[]` | — | 是 | 每项必须有 `key`；`name` 缺省时标题显示 `key` |
-| `closable` | `boolean` | `false` | 否 | 组件级默认；`TabItem.closable` 优先级更高 |
-| `block` | `boolean` | `false` | 否 | 仅 `position` 为 `top`/`bottom` 生效；标签栏背景铺满父容器宽度，页签自身宽度不变 |
-| `rounded` | `boolean` | `false` | 否 | 圆角胶囊风格 |
-| `position` | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'` | 否 | `UTabs` 四个值均可；`UTabsHorizontal` 仅 `top`/`bottom`；`UTabsVertical` 仅 `left`/`right` |
-| `keepAlive` | `boolean` | `false` | 否 | `true` 时面板包在 `KeepAlive` 中，切走再切回保留内部状态 |
-| **继承自 `ComponentProps`** | | | | |
-| `size` | `ComponentSize` | `'default'` | 否 | `'small'` \| `'default'` \| `'large'` |
+| 参数                        | 类型                                     | 默认        | 必填 | 约束                                                                                       |
+| --------------------------- | ---------------------------------------- | ----------- | :--: | ------------------------------------------------------------------------------------------ |
+| `v-model`（`modelValue`）   | `string`                                 | —           |  否  | 值必须是 `items` 中某项的 `key`；点击页签时写回该 `key`                                    |
+| `items`                     | `TabItem[]`                              | —           |  是  | 每项必须有 `key`；`name` 缺省时标题显示 `key`                                              |
+| `closable`                  | `boolean`                                | `false`     |  否  | 组件级默认；`TabItem.closable` 优先级更高                                                  |
+| `block`                     | `boolean`                                | `false`     |  否  | 仅 `position` 为 `top`/`bottom` 生效；标签栏背景铺满父容器宽度，页签自身宽度不变           |
+| `rounded`                   | `boolean`                                | `false`     |  否  | 圆角胶囊风格                                                                               |
+| `position`                  | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'`     |  否  | `UTabs` 四个值均可；`UTabsHorizontal` 仅 `top`/`bottom`；`UTabsVertical` 仅 `left`/`right` |
+| `keepAlive`                 | `boolean`                                | `false`     |  否  | `true` 时面板包在 `KeepAlive` 中，切走再切回保留内部状态                                   |
+| **继承自 `ComponentProps`** |                                          |             |      |                                                                                            |
+| `size`                      | `ComponentSize`                          | `'default'` |  否  | `'small'` \| `'default'` \| `'large'`                                                      |
 
 ## 方法与事件
 
 三个组件事件一致（`TabsEmits`）：
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
-| `update:modelValue` | `value: string` | 点击非禁用页签后，先于 `click` |
-| `click` | `item: TabItem, index: number` | 点击非禁用页签；禁用项点击无任何事件 |
-| `close` | `item: TabItem, index: number` | 点击页签上的关闭按钮；仅非禁用且可关闭的页签显示关闭按钮 |
+| 事件                | payload                        | 触发时机                                                 |
+| ------------------- | ------------------------------ | -------------------------------------------------------- |
+| `update:modelValue` | `value: string`                | 点击非禁用页签后，先于 `click`                           |
+| `click`             | `item: TabItem, index: number` | 点击非禁用页签；禁用项点击无任何事件                     |
+| `close`             | `item: TabItem, index: number` | 点击页签上的关闭按钮；仅非禁用且可关闭的页签显示关闭按钮 |
 
 - `close` 只通知、不改数据：组件不会从 `items` 删除该页签，也不会更新 `modelValue`，删除与切换激活页签必须在自己的 `close` 处理函数里完成。
 - 组件未 `defineExpose` 任何方法，模板 `ref` 上无可调用属性。
@@ -252,13 +252,7 @@ function onClose(item: TabItem) {
 </script>
 
 <template>
-  <u-tabs-horizontal
-    v-model="active"
-    :items="items"
-    closable
-    block
-    @close="onClose"
-  >
+  <u-tabs-horizontal v-model="active" :items="items" closable block @close="onClose">
     <template #default="{ item, index }">
       <span>{{ index + 1 }}. {{ item.name }}</span>
     </template>
@@ -271,6 +265,7 @@ function onClose(item: TabItem) {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 页签内容面板是具名插槽（名称 = `TabItem.key`），不是 `items` 里的 `content` 字段；本库没有 `lazy` / `label` 属性，标题用 `TabItem.name`。
 > - `close` 事件不会删除页签：必须在自己的处理函数里从 `items` 移除并处理 `modelValue`，否则页签仍在。
 > - `UTabs` 的面板插槽渲染多个根节点时，内容会自动包进 `UScroll`（`tabs__content` 类）获得滚动；单个根节点不包。
@@ -293,7 +288,10 @@ import { UTabs } from '@veltra/desktop'
 import type { TabItem } from '@veltra/desktop'
 
 const active = ref('a')
-const items = ref<TabItem[]>([{ key: 'a', name: 'A' }, { key: 'b', name: 'B' }])
+const items = ref<TabItem[]>([
+  { key: 'a', name: 'A' },
+  { key: 'b', name: 'B' }
+])
 
 function onClose(item: TabItem, index: number) {
   items.value.splice(index, 1)

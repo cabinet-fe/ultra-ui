@@ -2,7 +2,24 @@
 title: 内联样式与层叠工具
 description: 命令式操作元素内联样式的工具集：setStyles / removeStyles 批量写入与清除 inline style，withUnit 给数值拼接 CSS 单位，zIndex 弹层层级自增单例（从 1000 起每次调用加一）。
 aliases: [setStyles, removeStyles, withUnit, zIndex, z-index, 内联样式, style]
-keywords: [setStyles, removeStyles, withUnit, zIndex, CSSProperties, attributeStyleMap, removeProperty, style, 弹层层级, 单位拼接, 批量设置样式, 移除样式, 弹窗置顶, camelCase, kebab-case]
+keywords:
+  [
+    setStyles,
+    removeStyles,
+    withUnit,
+    zIndex,
+    CSSProperties,
+    attributeStyleMap,
+    removeProperty,
+    style,
+    弹层层级,
+    单位拼接,
+    批量设置样式,
+    移除样式,
+    弹窗置顶,
+    camelCase,
+    kebab-case
+  ]
 ---
 
 # 内联样式与层叠工具
@@ -61,28 +78,28 @@ export const zIndex: () => number
 
 ### setStyles
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `el` | `HTMLElement` | — | 是 | 目标元素 |
-| `styles` | `CSSProperties`（Vue 类型） | — | 是 | 键必须为 camelCase（`zIndex`、`paddingTop`）；值为字符串或数字，逐键赋给 `el.style[key]` |
+| 参数     | 类型                        | 默认 | 必填 | 约束                                                                                     |
+| -------- | --------------------------- | ---- | :--: | ---------------------------------------------------------------------------------------- |
+| `el`     | `HTMLElement`               | —    |  是  | 目标元素                                                                                 |
+| `styles` | `CSSProperties`（Vue 类型） | —    |  是  | 键必须为 camelCase（`zIndex`、`paddingTop`）；值为字符串或数字，逐键赋给 `el.style[key]` |
 
 副作用：直接修改 `el` 的 inline style；键顺序为 `Object.keys` 顺序，逐键同步写入。
 
 ### removeStyles
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `el` | `HTMLElement` | — | 是 | 目标元素 |
-| `props` | `string[]` | — | 是 | 必须为 kebab-case（`'padding-top'`、`'height'`）；支持 CSS Typed OM 的环境经 `attributeStyleMap.delete`（键自动转 kebab-case），否则走 `el.style.removeProperty`（该分支要求 kebab-case） |
+| 参数    | 类型          | 默认 | 必填 | 约束                                                                                                                                                                                      |
+| ------- | ------------- | ---- | :--: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `el`    | `HTMLElement` | —    |  是  | 目标元素                                                                                                                                                                                  |
+| `props` | `string[]`    | —    |  是  | 必须为 kebab-case（`'padding-top'`、`'height'`）；支持 CSS Typed OM 的环境经 `attributeStyleMap.delete`（键自动转 kebab-case），否则走 `el.style.removeProperty`（该分支要求 kebab-case） |
 
 副作用：清除匹配的 inline style；camelCase 键在无 `attributeStyleMap` 的环境不生效。
 
 ### withUnit
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `value` | `number \| string \| undefined` | — | 是 | `number` 或能被 `Number()` 解析的字符串拼接 `unit`；其余字符串视为已带单位原样返回；`undefined` 返回 `undefined` |
-| `unit` | `string` | — | 是 | 任意 CSS 单位字符串（`'px'`、`'%'`、`'em'`）；原样拼接，不做合法性校验 |
+| 参数    | 类型                            | 默认 | 必填 | 约束                                                                                                             |
+| ------- | ------------------------------- | ---- | :--: | ---------------------------------------------------------------------------------------------------------------- |
+| `value` | `number \| string \| undefined` | —    |  是  | `number` 或能被 `Number()` 解析的字符串拼接 `unit`；其余字符串视为已带单位原样返回；`undefined` 返回 `undefined` |
+| `unit`  | `string`                        | —    |  是  | 任意 CSS 单位字符串（`'px'`、`'%'`、`'em'`）；原样拼接，不做合法性校验                                           |
 
 ### zIndex
 
@@ -142,6 +159,7 @@ removeStyles(panel, ['overflow', 'transition', 'will-change'])
 ## 注意事项
 
 > [!WARNING]
+>
 > - `setStyles` 的键必须 camelCase，`removeStyles` 的键必须 kebab-case，两者方向相反；混用会导致样式不生效。
 > - `withUnit` 是按传入 `unit` 拼接，不是只补 `px`；`withUnit('100%', 'px')` 返回 `'100%'` 原样。
 > - `withUnit('', 'px')` 返回 `'px'`（空串被 `Number()` 解析为 0）；空串需调用方先行过滤。

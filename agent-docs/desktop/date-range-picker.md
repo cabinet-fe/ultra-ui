@@ -1,8 +1,28 @@
 ---
 title: UDateRangePicker 日期范围选择器
-description: "从 `@veltra/desktop` 导出的日期范围选择器：两个只读输入框以「至」相连，面板内两次点击选出起止日期（自动按先后排序），绑定值为 [start, end] 二元组，支持字符串、毫秒时间戳与 Date；放进 UForm 时用 `field` 绑定 model。"
+description: '从 `@veltra/desktop` 导出的日期范围选择器：两个只读输入框以「至」相连，面板内两次点击选出起止日期（自动按先后排序），绑定值为 [start, end] 二元组，支持字符串、毫秒时间戳与 Date；放进 UForm 时用 `field` 绑定 model。'
 aliases: [date-range-picker, u-date-range-picker, DateRangePicker, 日期范围选择器, 区间选择器]
-keywords: [modelValue, DateRangeValue, "update:modelValue", change, type, format, valueFormat, dataType, disabledDate, clearable, placeholder, "select:range-date", 日期范围, 范围选择, 起止日期, 禁用日期, 时间戳, 清除]
+keywords:
+  [
+    modelValue,
+    DateRangeValue,
+    'update:modelValue',
+    change,
+    type,
+    format,
+    valueFormat,
+    dataType,
+    disabledDate,
+    clearable,
+    placeholder,
+    'select:range-date',
+    日期范围,
+    范围选择,
+    起止日期,
+    禁用日期,
+    时间戳,
+    清除
+  ]
 ---
 
 # UDateRangePicker 日期范围选择器
@@ -72,9 +92,7 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    | number
-    | 'full'
-    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段；有 field 时禁止再写 v-model */
@@ -134,31 +152,31 @@ export interface DateRangePickerExposed {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `v-model` / `modelValue` | `DateRangeValue` | `undefined` | 否 | 必须是长度为 2 的数组且两端都能解析；任一端解析失败或长度不为 2 时整体按未选择处理 |
-| `type` | `'date' \| 'month' \| 'year'` | `'date'` | 否 | 选择粒度：日 / 月 / 年；本库无周（week）粒度 |
-| `format` | `string` | 随 `type`：`'yyyy-MM-dd'` / `'yyyy-MM'` / `'yyyy'` | 否 | 两个输入框的显示格式 |
-| `valueFormat` | `string` | 复用 `format` | 否 | 仅 `dataType="string"` 时生效：决定提交的字符串格式，并用于解析传入字符串 |
-| `dataType` | `'string' \| 'date' \| 'timestamp'` | `'string'` | 否 | 绑定值元素类型；非 `'string'` 时 `valueFormat` 不生效 |
-| `disabledDate` | `(date: Dater, raw: Date) => boolean` | — | 否 | 返回 `true` 的日期不可选 |
-| `clearable` | `boolean` | `true` | 否 | 悬停 + 已有值 + 非禁用时显示清除图标 |
-| `placeholder` | `[string, string]` | `['起始日期', '结束日期']` | 否 | 二元组，依次对应起点、终点输入框 |
-| `field` | `string` | — | 否 | 表单内生效。绑定 `<u-form :model>` 的字段；有 `field` 禁止再写 `v-model` |
-| `label` | `string` | — | 否 | 表单内生效。表单标签文字 |
-| `rules` | `ValidateRule` | — | 否 | 表单内生效。结构见 `## API 签名` 的 `ValidateRule` |
-| `tips` | `string` | — | 否 | 表单内生效。表单项提示文案 |
-| `span` | `number \| 'full' \| 按 BreakpointName 的对象` | — | 否 | 表单内生效。`'full'` 占满一行；对象形态必须含 `default` 键 |
-| `size` | `ComponentSize` | `'default'` | 否 | `'small' \| 'default' \| 'large'`；优先级：组件 props > 表单 > 全局配置 > 默认 |
-| `disabled` | `boolean` | `false` | 否 | 禁用后不可弹出面板、不可清除；优先级同 `size` |
-| `readonly` | `boolean` | `false` | 否 | `true` 时渲染为纯文本「起 至 止」（空端显示 `-`），不渲染下拉 |
+| 参数                     | 类型                                           | 默认                                               | 必填 | 约束                                                                               |
+| ------------------------ | ---------------------------------------------- | -------------------------------------------------- | :--: | ---------------------------------------------------------------------------------- |
+| `v-model` / `modelValue` | `DateRangeValue`                               | `undefined`                                        |  否  | 必须是长度为 2 的数组且两端都能解析；任一端解析失败或长度不为 2 时整体按未选择处理 |
+| `type`                   | `'date' \| 'month' \| 'year'`                  | `'date'`                                           |  否  | 选择粒度：日 / 月 / 年；本库无周（week）粒度                                       |
+| `format`                 | `string`                                       | 随 `type`：`'yyyy-MM-dd'` / `'yyyy-MM'` / `'yyyy'` |  否  | 两个输入框的显示格式                                                               |
+| `valueFormat`            | `string`                                       | 复用 `format`                                      |  否  | 仅 `dataType="string"` 时生效：决定提交的字符串格式，并用于解析传入字符串          |
+| `dataType`               | `'string' \| 'date' \| 'timestamp'`            | `'string'`                                         |  否  | 绑定值元素类型；非 `'string'` 时 `valueFormat` 不生效                              |
+| `disabledDate`           | `(date: Dater, raw: Date) => boolean`          | —                                                  |  否  | 返回 `true` 的日期不可选                                                           |
+| `clearable`              | `boolean`                                      | `true`                                             |  否  | 悬停 + 已有值 + 非禁用时显示清除图标                                               |
+| `placeholder`            | `[string, string]`                             | `['起始日期', '结束日期']`                         |  否  | 二元组，依次对应起点、终点输入框                                                   |
+| `field`                  | `string`                                       | —                                                  |  否  | 表单内生效。绑定 `<u-form :model>` 的字段；有 `field` 禁止再写 `v-model`           |
+| `label`                  | `string`                                       | —                                                  |  否  | 表单内生效。表单标签文字                                                           |
+| `rules`                  | `ValidateRule`                                 | —                                                  |  否  | 表单内生效。结构见 `## API 签名` 的 `ValidateRule`                                 |
+| `tips`                   | `string`                                       | —                                                  |  否  | 表单内生效。表单项提示文案                                                         |
+| `span`                   | `number \| 'full' \| 按 BreakpointName 的对象` | —                                                  |  否  | 表单内生效。`'full'` 占满一行；对象形态必须含 `default` 键                         |
+| `size`                   | `ComponentSize`                                | `'default'`                                        |  否  | `'small' \| 'default' \| 'large'`；优先级：组件 props > 表单 > 全局配置 > 默认     |
+| `disabled`               | `boolean`                                      | `false`                                            |  否  | 禁用后不可弹出面板、不可清除；优先级同 `size`                                      |
+| `readonly`               | `boolean`                                      | `false`                                            |  否  | `true` 时渲染为纯文本「起 至 止」（空端显示 `-`），不渲染下拉                      |
 
 ## 方法与事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
+| 事件                | payload                       | 触发时机                                                                                                                                                                                |
+| ------------------- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `update:modelValue` | `DateRangeValue \| undefined` | 第二次点击完成选择时按 `dataType` 提交 `[start, end]`：`'string'` → 按 `valueFormat ?? format` 格式化的字符串；`'timestamp'` → 毫秒数；`'date'` → 原生 `Date`；点击清除时为 `undefined` |
-| `change` | `[Date, Date] \| undefined` | 与 `update:modelValue` 同步触发；payload 始终是两端的原生 `Date` 元组，清除时为 `undefined` |
+| `change`            | `[Date, Date] \| undefined`   | 与 `update:modelValue` 同步触发；payload 始终是两端的原生 `Date` 元组，清除时为 `undefined`                                                                                             |
 
 组件 `ref` 无暴露成员。两个输入框均原生只读，禁止键入；第一次点击记起点（悬停实时预览区间），第二次点击提交并关闭下拉，先后顺序由面板自动排序（先点结束日期也会得到 `[start, end]`）。
 
@@ -206,11 +224,7 @@ function disabledDate(d: Dater) {
 </script>
 
 <template>
-  <u-date-range-picker
-    v-model="range"
-    data-type="timestamp"
-    :disabled-date="disabledDate"
-  />
+  <u-date-range-picker v-model="range" data-type="timestamp" :disabled-date="disabledDate" />
 </template>
 ```
 
@@ -221,9 +235,7 @@ function disabledDate(d: Dater) {
 import { UDateRangePicker, UForm } from '@veltra/desktop'
 import { reactive } from 'vue'
 
-const form = reactive({
-  period: undefined as [string, string] | undefined
-})
+const form = reactive({ period: undefined as [string, string] | undefined })
 </script>
 
 <template>
@@ -242,6 +254,7 @@ const form = reactive({
 ## 注意事项
 
 > [!WARNING]
+>
 > - 在 `UForm` 内必须用 `field` 绑定值，禁止同时写 `v-model`；独立使用时才用 `v-model`。
 > - `label` / `field` / `rules` / `tips` / `span` 仅在 `UForm`（或 `UFormItem` 包裹）内生效，独立使用时传入无效。
 > - `modelValue` 必须是长度为 2 的数组且两端都能解析，否则整体按未选择处理（面板不回显、显示占位符），不抛错。

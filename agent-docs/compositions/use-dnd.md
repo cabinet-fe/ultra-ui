@@ -2,7 +2,29 @@
 title: useDnD 拖拽排序组合式函数
 description: 基于 @formkit/drag-and-drop 的列表拖拽排序组合式函数：列表项排序与跨容器拖放转移结果自动写回数据源（Ref/数组/getter 五种写回策略），filter 支持只对可见子集排序并自动合并回完整数组，动态容器自动初始化重建销毁，适用于列表排序、看板、字段配置。
 aliases: [use-dnd, drag-and-drop, 列表拖拽排序, 拖放排序, sortable]
-keywords: [values, filter, parentRef, updateConfig, onReorder, group, dragHandle, draggable, plugins, animations, dropOrSwap, insert, tearDown, VueParentConfig, 列表排序, 跨容器拖放, 拖拽转移, 看板, 拖拽手柄, 多容器互拖]
+keywords:
+  [
+    values,
+    filter,
+    parentRef,
+    updateConfig,
+    onReorder,
+    group,
+    dragHandle,
+    draggable,
+    plugins,
+    animations,
+    dropOrSwap,
+    insert,
+    tearDown,
+    VueParentConfig,
+    列表排序,
+    跨容器拖放,
+    拖拽转移,
+    看板,
+    拖拽手柄,
+    多容器互拖
+  ]
 ---
 
 # useDnD 拖拽排序组合式函数
@@ -29,10 +51,7 @@ const list = ref<Item[]>([
 
 // 不传 parent 时，用返回的 parentRef 绑定列表容器；
 // 拖拽结束后排序结果已自动写回 list
-const { parentRef, values } = useDnD<Item>({
-  values: list,
-  plugins: [animations()]
-})
+const { parentRef, values } = useDnD<Item>({ values: list, plugins: [animations()] })
 </script>
 
 <template>
@@ -85,36 +104,36 @@ export function useDnD<T>(options?: UseDnDOptions<T>): UseDnDResult<T>
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `values` | `MaybeRefOrGetter<T[]>` | 不传时内部自建数据源 | 否 | 写回策略见下表 |
-| `filter` | `(item: T) => boolean` | — | 否 | 命中项必须与 DOM 可拖拽节点一一对应，否则合并结果错位 |
-| `parent` | `MaybeRefOrGetter<HTMLElement \| undefined>` | — | 否 | 与 `parentRef` 二选一；传 `parent` 时 `parentRef` 不再需要绑定 |
-| `onReorder` | `(values: T[]) => void` | — | 否 | 仅 getter / 只读 computed 数据源需要；收到完整数组，需自行替换数据 |
-| `plugins` | `DNDPlugin[]` | — | 否 | 如 `[animations()]`；列表项 DOM 结构变化后不自动重挂插件时用 `updateConfig` |
+| 参数        | 类型                                         | 默认                 | 必填 | 约束                                                                        |
+| ----------- | -------------------------------------------- | -------------------- | :--: | --------------------------------------------------------------------------- |
+| `values`    | `MaybeRefOrGetter<T[]>`                      | 不传时内部自建数据源 |  否  | 写回策略见下表                                                              |
+| `filter`    | `(item: T) => boolean`                       | —                    |  否  | 命中项必须与 DOM 可拖拽节点一一对应，否则合并结果错位                       |
+| `parent`    | `MaybeRefOrGetter<HTMLElement \| undefined>` | —                    |  否  | 与 `parentRef` 二选一；传 `parent` 时 `parentRef` 不再需要绑定              |
+| `onReorder` | `(values: T[]) => void`                      | —                    |  否  | 仅 getter / 只读 computed 数据源需要；收到完整数组，需自行替换数据          |
+| `plugins`   | `DNDPlugin[]`                                | —                    |  否  | 如 `[animations()]`；列表项 DOM 结构变化后不自动重挂插件时用 `updateConfig` |
 
 `values` 写回策略（排序 / 转移结束时自动执行）：
 
-| 传入类型 | 写回方式 |
-| --- | --- |
-| 可写 `Ref` | 替换 `.value` |
-| 响应式数组（如 `props` 上的数组） | 原地 `splice` |
-| 非响应式纯数组 | 内部响应式副本驱动视图，写回时顺带同步原数组 |
-| getter / 只读 computed | 通过 `onReorder` 回调给出合并后的完整数组 |
-| 不传 | 内部创建数据源，通过返回的 `values` 读写 |
+| 传入类型                          | 写回方式                                     |
+| --------------------------------- | -------------------------------------------- |
+| 可写 `Ref`                        | 替换 `.value`                                |
+| 响应式数组（如 `props` 上的数组） | 原地 `splice`                                |
+| 非响应式纯数组                    | 内部响应式副本驱动视图，写回时顺带同步原数组 |
+| getter / 只读 computed            | 通过 `onReorder` 回调给出合并后的完整数组    |
+| 不传                              | 内部创建数据源，通过返回的 `values` 读写     |
 
 `VueParentConfig` 常用字段（均可选，全部为 `@formkit/drag-and-drop` 原生配置）：
 
-| 字段 | 类型 | 语义 |
-| --- | --- | --- |
-| `dragHandle` | `string` | 拖拽手柄选择器，在可拖拽元素内任意深度搜索 |
-| `draggable` | `(el: HTMLElement) => boolean` | 过滤可拖拽节点（如排除容器里的“新增”按钮） |
-| `group` | `string` | 相同 group 的容器之间可跨容器转移 |
-| `disabled` | `boolean` | 禁用整个容器的拖拽 |
-| `sortable` | `boolean` | 是否允许容器内部排序 |
-| `multiDrag` | `boolean` | 多选拖拽 |
-| `draggingClass` / `dropZoneClass` / `dragPlaceholderClass` | `string` | 拖拽中 / 拖放目标 / 占位的 class，占位 class 设为透明可去掉残影 |
-| `accepts` | `(targetParentData, initialParentData, currentParentData, state) => boolean` | 精细控制容器是否接受外来节点 |
+| 字段                                                       | 类型                                                                         | 语义                                                            |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `dragHandle`                                               | `string`                                                                     | 拖拽手柄选择器，在可拖拽元素内任意深度搜索                      |
+| `draggable`                                                | `(el: HTMLElement) => boolean`                                               | 过滤可拖拽节点（如排除容器里的“新增”按钮）                      |
+| `group`                                                    | `string`                                                                     | 相同 group 的容器之间可跨容器转移                               |
+| `disabled`                                                 | `boolean`                                                                    | 禁用整个容器的拖拽                                              |
+| `sortable`                                                 | `boolean`                                                                    | 是否允许容器内部排序                                            |
+| `multiDrag`                                                | `boolean`                                                                    | 多选拖拽                                                        |
+| `draggingClass` / `dropZoneClass` / `dragPlaceholderClass` | `string`                                                                     | 拖拽中 / 拖放目标 / 占位的 class，占位 class 设为透明可去掉残影 |
+| `accepts`                                                  | `(targetParentData, initialParentData, currentParentData, state) => boolean` | 精细控制容器是否接受外来节点                                    |
 
 ## 方法与事件
 
@@ -244,6 +263,7 @@ const { parentRef } = useDnD({
 ## 注意事项
 
 > [!WARNING]
+>
 > - `@formkit/drag-and-drop` 及其 Vue 适配层已由本包重导出，禁止在业务里单独安装 `@formkit/drag-and-drop`，否则两份实例并存会导致版本漂移；统一从 `@veltra/compositions` 导入。
 > - 本库是 `useDnD`（列表排序 / 跨容器转移、数据自动写回），不是 `useDrag`（单元素自由拖动）；需要拖动弹窗、滑块、缩放条这类位移交互时用 `useDrag`。
 > - `filter` 命中项必须与 DOM 中渲染的可拖拽项一一对应（配合 `draggable` 排除非列表节点），否则合并回原数组时会错位。

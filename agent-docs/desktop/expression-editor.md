@@ -1,8 +1,27 @@
 ---
 title: UExpressionEditor 表达式编辑器
-description: "带 @ 变量插入的表达式输入框：输入 @ 唤起变量面板，支持树形逐级导航与关键字过滤两种模式，变量以 chip 呈现并序列化为 {value} 花括号占位，可控制叶子/分支可选层级、禁用与只读。"
+description: '带 @ 变量插入的表达式输入框：输入 @ 唤起变量面板，支持树形逐级导航与关键字过滤两种模式，变量以 chip 呈现并序列化为 {value} 花括号占位，可控制叶子/分支可选层级、禁用与只读。'
 aliases: [ExpressionEditor, expression-editor, 表达式输入框, 变量编辑器, MentionInput]
-keywords: ["update:modelValue", modelValue, variables, VariableItem, selectableLevels, placeholder, chip, mention, 变量插入, 变量面板, 花括号占位, 树形变量, 逐级导航, 关键字过滤, 重选变量, 叶子节点, 分支选中]
+keywords:
+  [
+    'update:modelValue',
+    modelValue,
+    variables,
+    VariableItem,
+    selectableLevels,
+    placeholder,
+    chip,
+    mention,
+    变量插入,
+    变量面板,
+    花括号占位,
+    树形变量,
+    逐级导航,
+    关键字过滤,
+    重选变量,
+    叶子节点,
+    分支选中
+  ]
 ---
 
 # UExpressionEditor 表达式编辑器
@@ -119,20 +138,20 @@ export interface ValidateRule {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `modelValue` | `string` | `''`（undefined 视同 `''`） | 否 | 变量引用必须写成 `{value}`；花括号内禁止包含 `}` |
-| `placeholder` | `string` | `'请输入表达式，输入 @ 可插入变量'` | 否 | 内容为空且非禁用时显示 |
-| `variables` | `VariableItem[]` | `[]` | 否 | `value` 全树唯一；重复时后声明的覆盖先声明的（chip 显示名按最后一次声明） |
-| `selectableLevels` | `'leaf' \| 'any'` | `'leaf'` | 否 | 只影响面板中分支项 Enter 的行为与过滤列表是否包含分支 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 否 | 优先级：组件 props > UForm > 全局配置 > `'default'` |
-| `label` | `string` | — | 否 | 仅 UForm 内生效 |
-| `field` | `string` | — | 否 | 仅 UForm 内生效；设置后禁止再写 `v-model` |
-| `span` | `number` / `'full'` / 对象 | — | 否 | 仅 UForm 内生效；对象键为 `xs`/`sm`/`md`/`lg`/`xl` 加必填 `default` |
-| `tips` | `string` | — | 否 | 仅 UForm 内生效 |
-| `disabled` | `boolean` | `false` | 否 | 禁用时不可输入、chip 不可重选与删除 |
-| `readonly` | `boolean` | `false` | 否 | 同 `disabled` 的编辑限制 |
-| `rules` | `ValidateRule` | — | 否 | 仅 UForm 内生效 |
+| 参数               | 类型                              | 默认                                | 必填 | 约束                                                                      |
+| ------------------ | --------------------------------- | ----------------------------------- | :--: | ------------------------------------------------------------------------- |
+| `modelValue`       | `string`                          | `''`（undefined 视同 `''`）         |  否  | 变量引用必须写成 `{value}`；花括号内禁止包含 `}`                          |
+| `placeholder`      | `string`                          | `'请输入表达式，输入 @ 可插入变量'` |  否  | 内容为空且非禁用时显示                                                    |
+| `variables`        | `VariableItem[]`                  | `[]`                                |  否  | `value` 全树唯一；重复时后声明的覆盖先声明的（chip 显示名按最后一次声明） |
+| `selectableLevels` | `'leaf' \| 'any'`                 | `'leaf'`                            |  否  | 只影响面板中分支项 Enter 的行为与过滤列表是否包含分支                     |
+| `size`             | `'small' \| 'default' \| 'large'` | `'default'`                         |  否  | 优先级：组件 props > UForm > 全局配置 > `'default'`                       |
+| `label`            | `string`                          | —                                   |  否  | 仅 UForm 内生效                                                           |
+| `field`            | `string`                          | —                                   |  否  | 仅 UForm 内生效；设置后禁止再写 `v-model`                                 |
+| `span`             | `number` / `'full'` / 对象        | —                                   |  否  | 仅 UForm 内生效；对象键为 `xs`/`sm`/`md`/`lg`/`xl` 加必填 `default`       |
+| `tips`             | `string`                          | —                                   |  否  | 仅 UForm 内生效                                                           |
+| `disabled`         | `boolean`                         | `false`                             |  否  | 禁用时不可输入、chip 不可重选与删除                                       |
+| `readonly`         | `boolean`                         | `false`                             |  否  | 同 `disabled` 的编辑限制                                                  |
+| `rules`            | `ValidateRule`                    | —                                   |  否  | 仅 UForm 内生效                                                           |
 
 ## 方法与事件
 
@@ -251,6 +270,7 @@ function submit() {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 在 UForm 中必须使用 `field` 绑定 model；已有 `field` 时禁止再写 `v-model`。
 > - 本组件基于原生 `contenteditable` 实现，不依赖 CodeMirror 或 Lexical；与 `URichTextEditor` 的 Lexical JSON、`UCodeEditor` 的纯文本互不通用。
 > - 变量序列化为 `{value}`，解析正则为 `/\{([^}]+)\}/g`：变量 `value` 禁止包含 `}`，否则序列化结果无法完整解析回 chip；文本内容中的孤立花括号按普通字符处理。

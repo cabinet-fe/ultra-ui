@@ -1,8 +1,38 @@
 ---
 title: 文本高亮、溢出导航与通用类型工具
 description: 文本匹配高亮、水平溢出导航状态与表单字段回退工具：getHighlightChunks 按关键字切分高亮片段，computeOverflowNavState 推导翻页箭头可用状态，fieldKey 字段名回退，FORM_EMPTY_CONTENT 空值占位，另含库通用类型导出。
-aliases: [getHighlightChunks, computeOverflowNavState, fieldKey, FORM_EMPTY_CONTENT, 高亮, DeconstructValue]
-keywords: [getHighlightChunks, computeOverflowNavState, fieldKey, FORM_EMPTY_CONTENT, OverflowNavState, OverflowNavViewport, scrollLeft, scrollWidth, clientWidth, canPrev, canNext, overflowing, 关键字高亮, 搜索高亮, 溢出导航, 翻页箭头, 字段回退, 空值占位, labelKey, valueKey]
+aliases:
+  [
+    getHighlightChunks,
+    computeOverflowNavState,
+    fieldKey,
+    FORM_EMPTY_CONTENT,
+    高亮,
+    DeconstructValue
+  ]
+keywords:
+  [
+    getHighlightChunks,
+    computeOverflowNavState,
+    fieldKey,
+    FORM_EMPTY_CONTENT,
+    OverflowNavState,
+    OverflowNavViewport,
+    scrollLeft,
+    scrollWidth,
+    clientWidth,
+    canPrev,
+    canNext,
+    overflowing,
+    关键字高亮,
+    搜索高亮,
+    溢出导航,
+    翻页箭头,
+    字段回退,
+    空值占位,
+    labelKey,
+    valueKey
+  ]
 ---
 
 # 文本高亮、溢出导航与通用类型工具
@@ -103,12 +133,7 @@ export type DeconstructValue<E extends Record<string, any>> = {
 export type Index<Keys extends string, Val> = { [key in Keys]?: Val }
 /** 渲染函数返回内容 */
 export type RenderReturn =
-  | (undefined | VNode | string | null | number)[]
-  | undefined
-  | VNode
-  | string
-  | null
-  | number
+  (undefined | VNode | string | null | number)[] | undefined | VNode | string | null | number
 
 /** 组件尺寸 */
 export type ComponentSize = 'small' | 'default' | 'large'
@@ -137,7 +162,8 @@ export interface ValidateRule {
 /** 表单控件通用属性（仅在 UForm 内或包 UFormItem 时生效） */
 export interface FormComponentProps extends ComponentProps {
   tips?: string
-  span?: number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+  span?:
+    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   label?: string
   field?: string
   disabled?: boolean
@@ -155,39 +181,39 @@ export interface PropsWithServerQuery {
 
 ### getHighlightChunks
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `str` | `string` | — | 是 | 原始文本，原样切分不修改 |
-| `substrings` | `string[]` | — | 是 | 关键字列表；`trim` 后参与匹配，假值项丢弃；正则特殊字符（`| \ { } ( ) [ ] ^ $ + * ? . -`）自动转义 |
+| 参数         | 类型       | 默认 | 必填 | 约束                                                       |
+| ------------ | ---------- | ---- | :--: | ---------------------------------------------------------- |
+| `str`        | `string`   | —    |  是  | 原始文本，原样切分不修改                                   |
+| `substrings` | `string[]` | —    |  是  | 关键字列表；`trim` 后参与匹配，假值项丢弃；正则特殊字符（` | \ { } ( ) [ ] ^ $ + * ? . -`）自动转义 |
 
 同步返回 `HighlightChunk[]`，无副作用。匹配忽略大小写且保留原文大小写。
 
 ### computeOverflowNavState
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `vp` | `OverflowNavViewport` | — | 是 | 只需 `scrollLeft` / `scrollWidth` / `clientWidth` 三个数值字段，HTMLElement 与模板 ref 均满足 |
+| 参数 | 类型                  | 默认 | 必填 | 约束                                                                                          |
+| ---- | --------------------- | ---- | :--: | --------------------------------------------------------------------------------------------- |
+| `vp` | `OverflowNavViewport` | —    |  是  | 只需 `scrollLeft` / `scrollWidth` / `clientWidth` 三个数值字段，HTMLElement 与模板 ref 均满足 |
 
 返回 `OverflowNavState`，阈值：内容宽超出视口超过 `1px` 判为溢出；`canNext` 要求右侧余量大于 `1px`。纯计算函数，无副作用。
 
 ### fieldKey
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `key` | `string \| null \| undefined` | — | 是 | 按真值判断，空字符串 `''` 同样回退 |
-| `fallback` | `string` | — | 是 | `key` 非真值时的返回值 |
+| 参数       | 类型                          | 默认 | 必填 | 约束                               |
+| ---------- | ----------------------------- | ---- | :--: | ---------------------------------- |
+| `key`      | `string \| null \| undefined` | —    |  是  | 按真值判断，空字符串 `''` 同样回退 |
+| `fallback` | `string`                      | —    |  是  | `key` 非真值时的返回值             |
 
 ### ValidateRule 字段
 
-| 字段 | 类型 | 约束 |
-| --- | --- | --- |
-| `required` | `boolean \| string` | `true` 必填；传 `string` 时该文案作为报错提示 |
-| `length` | `number \| [number, string]` | 精确长度；元组第二位为报错文案 |
-| `min` / `max` | `number \| [number, string]` | 数值最小 / 最大值 |
-| `minLen` / `maxLen` | `number \| [number, string]` | 最小 / 最大长度 |
-| `match` | `RegExp \| [RegExp, string] \| string` | 正则或字符串匹配 |
-| `preset` | `'email' \| 'phone' \| 'num' \| 'url' \| 'idCard'` | 预设规则，五选一 |
-| `validator` | `(value, data) => Promise<string> \| string` | 返回报错文案表示失败，返回空串或 resolve 表示通过 |
+| 字段                | 类型                                               | 约束                                              |
+| ------------------- | -------------------------------------------------- | ------------------------------------------------- |
+| `required`          | `boolean \| string`                                | `true` 必填；传 `string` 时该文案作为报错提示     |
+| `length`            | `number \| [number, string]`                       | 精确长度；元组第二位为报错文案                    |
+| `min` / `max`       | `number \| [number, string]`                       | 数值最小 / 最大值                                 |
+| `minLen` / `maxLen` | `number \| [number, string]`                       | 最小 / 最大长度                                   |
+| `match`             | `RegExp \| [RegExp, string] \| string`             | 正则或字符串匹配                                  |
+| `preset`            | `'email' \| 'phone' \| 'num' \| 'url' \| 'idCard'` | 预设规则，五选一                                  |
+| `validator`         | `(value, data) => Promise<string> \| string`       | 返回报错文案表示失败，返回空串或 resolve 表示通过 |
 
 ## 典型示例
 
@@ -252,6 +278,7 @@ const display = computed(() => model.value[valueKey] || FORM_EMPTY_CONTENT)
 ## 注意事项
 
 > [!WARNING]
+>
 > - `getHighlightChunks` 的 `highlight` 判定依赖正则 `g` 标志的 `lastIndex`：相邻关键字（中间无任何间隔文本，如 `'vuevue'`）时，第二个匹配片段会被误判为 `highlight: false`。需要严格结果时自行对 `chunk.text` 做二次匹配校验。
 > - `computeOverflowNavState` 的溢出阈值是 `1px`：内容恰好超出 1px 以内不算溢出，与 `scrollWidth > clientWidth` 的朴素判断不同。
 > - `scrollViewportByStep` / `scrollElementIntoView` / `applyWheelHorizontalScroll`（配套的滚动执行函数）在 `agent-docs/utils/scroll.md`。

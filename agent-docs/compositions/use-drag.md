@@ -2,7 +2,29 @@
 title: useDrag 元素拖拽组合式函数
 description: 鼠标拖拽组合式函数：给目标 DOM 元素绑定 mousedown 起的 document 级拖动监听，回调给出本次位移 x/y 与经范围钳制的累计偏移 offsetX/offsetY，拖动期间自动禁止文本选中，支持边界范围与初始偏移，适用于弹窗拖动、滑块、分栏缩放、滚动条。
 aliases: [use-drag, 拖拽, 元素拖动, 鼠标拖动, drag hook]
-keywords: [target, onDragStart, onDrag, onDragEnd, rangeX, rangeY, offsetX, offsetY, DragParams, initial, mousedown, mousemove, mouseup, 拖动, 拖动位移, 弹窗拖动, 滑块拖动, 分栏拖拽缩放, 边界钳制, 禁止选中]
+keywords:
+  [
+    target,
+    onDragStart,
+    onDrag,
+    onDragEnd,
+    rangeX,
+    rangeY,
+    offsetX,
+    offsetY,
+    DragParams,
+    initial,
+    mousedown,
+    mousemove,
+    mouseup,
+    拖动,
+    拖动位移,
+    弹窗拖动,
+    滑块拖动,
+    分栏拖拽缩放,
+    边界钳制,
+    禁止选中
+  ]
 ---
 
 # useDrag 元素拖拽组合式函数
@@ -36,12 +58,7 @@ useDrag({
 </script>
 
 <template>
-  <div
-    ref="boxRef"
-    style="width: 100px; height: 100px; user-select: none; cursor: move"
-  >
-    拖我
-  </div>
+  <div ref="boxRef" style="width: 100px; height: 100px; user-select: none; cursor: move">拖我</div>
 </template>
 ```
 
@@ -86,14 +103,14 @@ export function useDrag(options: DragOptions): {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `target` | `Ref<HTMLElement \| undefined \| null>` | — | 是 | 变化时自动换绑 `mousedown`；传 `null` 可用于禁用态（如滑块 disabled） |
-| `onDragStart` | `(e: MouseEvent) => void` | — | 否 | 仅 `e.button === 0` 时触发；触发前已清空文本选区 |
-| `onDrag` | `(params: DragParams) => void` | — | 否 | 每次 mousemove 触发；`x` / `y` 不受范围钳制 |
-| `onDragEnd` | `(params: DragParams) => void` | — | 否 | mouseup 时触发；此后内部偏移记为本次 `offsetX` / `offsetY` |
-| `rangeX` / `rangeY` | `[number, number]` | — | 否 | 只钳制 `offsetX` / `offsetY`；`rangeX[0]` 必须不大于 `rangeX[1]` |
-| `initial.offsetX` / `initial.offsetY` | `number` | `0` | 否 | 起始累计偏移 |
+| 参数                                  | 类型                                    | 默认 | 必填 | 约束                                                                  |
+| ------------------------------------- | --------------------------------------- | ---- | :--: | --------------------------------------------------------------------- |
+| `target`                              | `Ref<HTMLElement \| undefined \| null>` | —    |  是  | 变化时自动换绑 `mousedown`；传 `null` 可用于禁用态（如滑块 disabled） |
+| `onDragStart`                         | `(e: MouseEvent) => void`               | —    |  否  | 仅 `e.button === 0` 时触发；触发前已清空文本选区                      |
+| `onDrag`                              | `(params: DragParams) => void`          | —    |  否  | 每次 mousemove 触发；`x` / `y` 不受范围钳制                           |
+| `onDragEnd`                           | `(params: DragParams) => void`          | —    |  否  | mouseup 时触发；此后内部偏移记为本次 `offsetX` / `offsetY`            |
+| `rangeX` / `rangeY`                   | `[number, number]`                      | —    |  否  | 只钳制 `offsetX` / `offsetY`；`rangeX[0]` 必须不大于 `rangeX[1]`      |
+| `initial.offsetX` / `initial.offsetY` | `number`                                | `0`  |  否  | 起始累计偏移                                                          |
 
 ## 方法与事件
 
@@ -182,10 +199,7 @@ defineExpose({ reset })
 
 <template>
   <div style="position: relative; width: 200px; height: 20px">
-    <div
-      ref="thumbRef"
-      style="position: absolute; width: 12px; height: 12px; cursor: grab"
-    />
+    <div ref="thumbRef" style="position: absolute; width: 12px; height: 12px; cursor: grab" />
   </div>
 </template>
 ```
@@ -219,10 +233,7 @@ useDrag({
 <template>
   <div style="display: flex; width: 400px">
     <div style="flex: 1">面板</div>
-    <div
-      ref="resizerRef"
-      style="width: 4px; cursor: col-resize; background: #ccc"
-    />
+    <div ref="resizerRef" style="width: 4px; cursor: col-resize; background: #ccc" />
   </div>
 </template>
 ```
@@ -230,6 +241,7 @@ useDrag({
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库是 `useDrag`（自由拖动单个元素、只给位移与偏移，不改数据顺序），不是列表排序；需要列表项排序、跨容器拖放时用 `useDnD`。
 > - 仅支持鼠标左键，不支持触屏 pointer 事件；触屏场景需要自行补 pointer 处理。
 > - `onDrag` 的监听是 `{ passive: true }`，回调内调用 `e.preventDefault()` 无效。

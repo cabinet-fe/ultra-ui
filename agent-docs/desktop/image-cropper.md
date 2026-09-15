@@ -2,7 +2,29 @@
 title: UImageCropper 图片裁剪
 description: 画布式图片裁剪组件：滚轮以指针为锚缩放、选区外拖拽平移、90° 步进旋转与水平/垂直翻转，8 向手柄选区支持固定宽高比，实时预览，getResult 输出 PNG Blob 与 base64。
 aliases: [ImageCropper, image-cropper, 图片裁剪器, 头像裁剪, 裁剪组件]
-keywords: [src, aspectRatio, showToolbar, showPreview, getResult, crop-change, ImageCropperResult, ImageCropperSelection, setAspectRatio, zoomIn, zoomOut, rotate, flip, 图片裁剪, 选区拖拽, 缩放, 旋转, 翻转, 宽高比, 头像裁剪]
+keywords:
+  [
+    src,
+    aspectRatio,
+    showToolbar,
+    showPreview,
+    getResult,
+    crop-change,
+    ImageCropperResult,
+    ImageCropperSelection,
+    setAspectRatio,
+    zoomIn,
+    zoomOut,
+    rotate,
+    flip,
+    图片裁剪,
+    选区拖拽,
+    缩放,
+    旋转,
+    翻转,
+    宽高比,
+    头像裁剪
+  ]
 ---
 
 # UImageCropper 图片裁剪
@@ -115,12 +137,12 @@ export interface ImageCropperExposed {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `src` | `File \| Blob \| string` | `—` | 否 | `File`/`Blob` 走 ObjectURL 并在替换与卸载时释放；URL 字符串以 `crossOrigin='anonymous'` 加载，服务器必须允许跨域，否则图片加载失败且画布区空白 |
-| `aspectRatio` | `number` | `—`（自由比例） | 否 | 宽 / 高比，如 `1`、`4 / 3`、`16 / 9`；`undefined` 或 `<= 0` 为自由比例；运行中变化时选区以中心为锚按比例重算 |
-| `showToolbar` | `boolean` | `true` | 否 | 工具栏含比例预设（自由 / 1:1 / 4:3 / 16:9）与缩放、旋转、翻转、重置按钮 |
-| `showPreview` | `boolean` | `true` | 否 | 右侧实时预览画布，显示尺寸上限为裁剪画布区宽高的 30% |
+| 参数          | 类型                     | 默认            | 必填 | 约束                                                                                                                                           |
+| ------------- | ------------------------ | --------------- | :--: | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src`         | `File \| Blob \| string` | `—`             |  否  | `File`/`Blob` 走 ObjectURL 并在替换与卸载时释放；URL 字符串以 `crossOrigin='anonymous'` 加载，服务器必须允许跨域，否则图片加载失败且画布区空白 |
+| `aspectRatio` | `number`                 | `—`（自由比例） |  否  | 宽 / 高比，如 `1`、`4 / 3`、`16 / 9`；`undefined` 或 `<= 0` 为自由比例；运行中变化时选区以中心为锚按比例重算                                   |
+| `showToolbar` | `boolean`                | `true`          |  否  | 工具栏含比例预设（自由 / 1:1 / 4:3 / 16:9）与缩放、旋转、翻转、重置按钮                                                                        |
+| `showPreview` | `boolean`                | `true`          |  否  | 右侧实时预览画布，显示尺寸上限为裁剪画布区宽高的 30%                                                                                           |
 
 ### 交互与输出约束
 
@@ -258,6 +280,7 @@ const src = ref<string>('/images/photo.png')
 ## 注意事项
 
 > [!WARNING]
+>
 > - 导出名为 `UImageCropper`；组件内部 `name` 是 `ImageCropper`（无 `U` 前缀），按 name 递归引用时注意区分。
 > - 宿主必须给组件高度（根元素默认 `height: 100%`），否则画布区高度为 0。
 > - URL 源以 `crossOrigin='anonymous'` 加载：图床必须返回 CORS 头，否则图片加载失败；服务器允许跨域时 `getResult()` 不会被画布污染拒绝。

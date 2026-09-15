@@ -2,7 +2,28 @@
 title: useTransition 命令式过渡动效
 description: 从 @veltra/compositions 导出的命令式过渡组合式函数，'css' 模式按类名（*-enter-from/active/to、*-leave-from/active/to）驱动过渡，'style' 模式按内联样式驱动；返回 toggle / enter / leave，进入与离开互相打断时阶段自动接管不卡死，用于弹层显隐、面板折叠、最大化切换等需要 JS 控制动画时序的场景。
 aliases: [use-transition, 命令式过渡, css 过渡, style 过渡, 显隐动画]
-keywords: [useTransition, useCssTransition, useStyleTransition, CssTransitionOptions, StyleTransitionOptions, keepEnterTo, afterEnter, afterLeave, toggle, enter, leave, enter-from, enter-active, leave-active, transitionend, 过渡动画, 进出打断, 弹层动画, 折叠展开]
+keywords:
+  [
+    useTransition,
+    useCssTransition,
+    useStyleTransition,
+    CssTransitionOptions,
+    StyleTransitionOptions,
+    keepEnterTo,
+    afterEnter,
+    afterLeave,
+    toggle,
+    enter,
+    leave,
+    enter-from,
+    enter-active,
+    leave-active,
+    transitionend,
+    过渡动画,
+    进出打断,
+    弹层动画,
+    折叠展开
+  ]
 ---
 
 # useTransition 命令式过渡动效
@@ -114,27 +135,27 @@ interface Returned {
 
 ### 公共选项（两种模式共用）
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `target` | `ShallowRef<HTMLElement \| undefined> \| HTMLElement` | — | 是 | ref 形式支持运行时替换元素；目标不存在时进入 / 离开调用为空操作 |
-| `afterEnter` | `() => void` | — | 否 | 进入阶段完整结束（类清理 / 样式恢复）后触发；该阶段被新阶段打断时不触发 |
-| `afterLeave` | `() => void` | — | 否 | 离开阶段完整结束后触发；典型用途是 `visible.value = false` 再卸载 DOM |
-| `enterCanceled` / `leaveCanceled` | `() => void` | — | 否 | 类型存在，但当前实现不会触发（见注意事项） |
+| 参数                              | 类型                                                  | 默认 | 必填 | 约束                                                                    |
+| --------------------------------- | ----------------------------------------------------- | ---- | :--: | ----------------------------------------------------------------------- |
+| `target`                          | `ShallowRef<HTMLElement \| undefined> \| HTMLElement` | —    |  是  | ref 形式支持运行时替换元素；目标不存在时进入 / 离开调用为空操作         |
+| `afterEnter`                      | `() => void`                                          | —    |  否  | 进入阶段完整结束（类清理 / 样式恢复）后触发；该阶段被新阶段打断时不触发 |
+| `afterLeave`                      | `() => void`                                          | —    |  否  | 离开阶段完整结束后触发；典型用途是 `visible.value = false` 再卸载 DOM   |
+| `enterCanceled` / `leaveCanceled` | `() => void`                                          | —    |  否  | 类型存在，但当前实现不会触发（见注意事项）                              |
 
 ### css 模式专属
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `name` | `string \| Ref<string> \| ShallowRef<string>` | — | 是 | 生成 `${name}-enter-from`、`${name}-enter-to`、`${name}-enter-active`、`${name}-leave-from`、`${name}-leave-to`、`${name}-leave-active` 六个类；ref 形式可在切换动画时响应式改名 |
-| `keepEnterTo` | `boolean` | `false` | 否 | `true` 时进入结束后仅移除 `*-enter-active`，保留 `*-enter-to`（元素停留在进入终态样式）；`false` 时两者都移除 |
+| 参数          | 类型                                          | 默认    | 必填 | 约束                                                                                                                                                                             |
+| ------------- | --------------------------------------------- | ------- | :--: | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`        | `string \| Ref<string> \| ShallowRef<string>` | —       |  是  | 生成 `${name}-enter-from`、`${name}-enter-to`、`${name}-enter-active`、`${name}-leave-from`、`${name}-leave-to`、`${name}-leave-active` 六个类；ref 形式可在切换动画时响应式改名 |
+| `keepEnterTo` | `boolean`                                     | `false` |  否  | `true` 时进入结束后仅移除 `*-enter-active`，保留 `*-enter-to`（元素停留在进入终态样式）；`false` 时两者都移除                                                                    |
 
 ### style 模式专属
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `enterTo` | `CSSProperties` | — | 是 | 进入的终态样式；进入前的原始值在 target 出现时自动采样，离开时按 key 恢复 |
-| `enterActive` | `CSSProperties` | — | 是 | 进入期间的过渡声明，如 `{ transition: 'opacity 0.3s' }` |
-| `leaveActive` | `CSSProperties` | — | 是 | 离开期间的过渡声明 |
+| 参数          | 类型            | 默认 | 必填 | 约束                                                                      |
+| ------------- | --------------- | ---- | :--: | ------------------------------------------------------------------------- |
+| `enterTo`     | `CSSProperties` | —    |  是  | 进入的终态样式；进入前的原始值在 target 出现时自动采样，离开时按 key 恢复 |
+| `enterActive` | `CSSProperties` | —    |  是  | 进入期间的过渡声明，如 `{ transition: 'opacity 0.3s' }`                   |
+| `leaveActive` | `CSSProperties` | —    |  是  | 离开期间的过渡声明                                                        |
 
 ## 方法与事件
 
@@ -189,7 +210,9 @@ watch(
 <style scoped>
 .slide-down-enter-active,
 .slide-down-leave-active {
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
 }
 .slide-down-enter-from,
 .slide-down-leave-to {
@@ -268,14 +291,18 @@ function toggleMaximize() {
 
 <style>
 .dialog-maximize-enter-active {
-  transition: width 0.25s ease, height 0.25s ease;
+  transition:
+    width 0.25s ease,
+    height 0.25s ease;
 }
 .dialog-maximize-enter-to {
   width: 100vw;
   height: 100vh;
 }
 .dialog-maximize-leave-active {
-  transition: width 0.25s ease, height 0.25s ease;
+  transition:
+    width 0.25s ease,
+    height 0.25s ease;
 }
 </style>
 ```
@@ -285,6 +312,7 @@ function toggleMaximize() {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库是命令式 `enter()` / `leave()`，不是 `<Transition>` 组件的 `v-if` / `v-show` 声明式用法；DOM 的挂载与卸载完全由调用方控制，`afterLeave` 是卸载 DOM 的安全时机。
 > - `type` 只认 `'css'`：传入其他任何值（包括 `'style'` 拼写错误以外的字符串）都按 style 模式处理，不会报错。
 > - `enterCanceled` / `leaveCanceled` 当前实现不会触发：css 模式阶段被打断时由新阶段直接接管（阶段序号作废旧回调）；style 模式只注册了 `transitionend`，未监听 `transitioncancel`。不要把必要逻辑放进取消回调。

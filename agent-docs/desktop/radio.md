@@ -1,6 +1,6 @@
 ---
-title: "URadio 单选框"
-description: "单选框，多个 URadio 共享同一个 modelValue 并用 value 区分选项，选中项即 modelValue 的值；表单里的一组单选请用 URadioGroup。"
+title: 'URadio 单选框'
+description: '单选框，多个 URadio 共享同一个 modelValue 并用 value 区分选项，选中项即 modelValue 的值；表单里的一组单选请用 URadioGroup。'
 aliases: [radio, Radio, 单选框, 单选按钮]
 keywords:
   - modelValue
@@ -70,24 +70,24 @@ export type RadioExposed = DeconstructValue<_RadioExposed>
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `value` | `any` | — | 否 | 该选项的值；同级选项间必须唯一 |
-| `label` | `string` | — | 否 | 选项文本；本组件的 `label` 是选项文字，不是表单标签 |
-| `modelValue` | `any` | — | 否 | 绑定值；与 `value` 全等（`===`）时选中 |
-| `disabled` | `boolean` | `false` | 否 | 禁用当前项；未设置时继承 `<u-form>` 的 `disabled` |
-| **继承自 `FormComponentProps`** | | | | |
-| `size` | `ComponentSize` | `'default'` | 否 | `'small'` \| `'default'` \| `'large'`；未设置时继承 `<u-form>` 的 `size` |
-| `field` | `string` | — | 否 | `UForm` 字段名；表单内单选组用 `URadioGroup` + `field`，禁止给多个 `URadio` 写同一个 `field` |
-| `tips` | `string` | — | 否 | 表单内提示文字；仅在 `UForm` / `UFormItem` 内生效 |
-| `span` | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }` | — | 否 | 表单中所占列数；`'full'` 占满一行，响应式对象的 `default` 必填 |
-| `readonly` | `boolean` | `false` | 否 | 未设置时继承 `<u-form>` 的 `readonly` |
-| `rules` | `ValidateRule` | — | 否 | 校验规则；仅在 `UForm` 内生效 |
+| 参数                            | 类型                                                       | 默认        | 必填 | 约束                                                                                         |
+| ------------------------------- | ---------------------------------------------------------- | ----------- | :--: | -------------------------------------------------------------------------------------------- |
+| `value`                         | `any`                                                      | —           |  否  | 该选项的值；同级选项间必须唯一                                                               |
+| `label`                         | `string`                                                   | —           |  否  | 选项文本；本组件的 `label` 是选项文字，不是表单标签                                          |
+| `modelValue`                    | `any`                                                      | —           |  否  | 绑定值；与 `value` 全等（`===`）时选中                                                       |
+| `disabled`                      | `boolean`                                                  | `false`     |  否  | 禁用当前项；未设置时继承 `<u-form>` 的 `disabled`                                            |
+| **继承自 `FormComponentProps`** |                                                            |             |      |                                                                                              |
+| `size`                          | `ComponentSize`                                            | `'default'` |  否  | `'small'` \| `'default'` \| `'large'`；未设置时继承 `<u-form>` 的 `size`                     |
+| `field`                         | `string`                                                   | —           |  否  | `UForm` 字段名；表单内单选组用 `URadioGroup` + `field`，禁止给多个 `URadio` 写同一个 `field` |
+| `tips`                          | `string`                                                   | —           |  否  | 表单内提示文字；仅在 `UForm` / `UFormItem` 内生效                                            |
+| `span`                          | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }` | —           |  否  | 表单中所占列数；`'full'` 占满一行，响应式对象的 `default` 必填                               |
+| `readonly`                      | `boolean`                                                  | `false`     |  否  | 未设置时继承 `<u-form>` 的 `readonly`                                                        |
+| `rules`                         | `ValidateRule`                                             | —           |  否  | 校验规则；仅在 `UForm` 内生效                                                                |
 
 ## 方法与事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
+| 事件                | payload      | 触发时机                                           |
+| ------------------- | ------------ | -------------------------------------------------- |
 | `update:modelValue` | `value: any` | 点选某项后，发出该项的 `value`；点选已选中项不触发 |
 
 组件未 `defineExpose` 任何方法；`RadioExposed`（解包后为 `change: (isChecked: boolean) => void`）标注为组件内部使用，模板 `ref` 上取不到该方法。
@@ -166,6 +166,7 @@ const genderList = [
 ## 注意事项
 
 > [!WARNING]
+>
 > - `URadio` 的 `label` 是**选项文本**，不是表单标签（同名属性在表单组件里是标签文字）；勾选/选项文本优先用默认插槽。
 > - `URadio` 没有 `change` 事件，只有 `update:modelValue`。
 > - 表单里的一组单选必须用 `URadioGroup` + `field`；禁止给多个 `URadio` 写同一个 `field`，也不要在 `URadio` 上同时写 `field` 和 `v-model`。

@@ -114,16 +114,16 @@ export type ScrollExposed = DeconstructValue<_ScrollExposed>
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `tag` | `string` | `'div'` | 否 | 内容元素标签，任意合法 HTML 标签（如 `'ul'`） |
-| `height` | `string \| number` | — | 否 | `number` 追加 `px`；未传时根元素不写内联高度，容器高度由父级布局决定 |
-| `always` | `boolean` | `false` | 否 | `false` 时悬停容器才显示滚动条，`true` 常显 |
-| `contentStyle` | `string \| CSSProperties` | — | 否 | 应用到内容元素 |
-| `containerStyle` | `string \| CSSProperties` | — | 否 | 应用到滚动容器元素 |
-| `contentClass` | `unknown` | — | 否 | 应用到内容元素，任意类名形式 |
-| `containerClass` | `string \| string[]` | — | 否 | 应用到滚动容器元素 |
-| `dragDebounce` | `number` | `0` | 否 | 拖拽滚动条时的防抖毫秒数，`0` 表示不防抖 |
+| 参数             | 类型                      | 默认    | 必填 | 约束                                                                 |
+| ---------------- | ------------------------- | ------- | :--: | -------------------------------------------------------------------- |
+| `tag`            | `string`                  | `'div'` |  否  | 内容元素标签，任意合法 HTML 标签（如 `'ul'`）                        |
+| `height`         | `string \| number`        | —       |  否  | `number` 追加 `px`；未传时根元素不写内联高度，容器高度由父级布局决定 |
+| `always`         | `boolean`                 | `false` |  否  | `false` 时悬停容器才显示滚动条，`true` 常显                          |
+| `contentStyle`   | `string \| CSSProperties` | —       |  否  | 应用到内容元素                                                       |
+| `containerStyle` | `string \| CSSProperties` | —       |  否  | 应用到滚动容器元素                                                   |
+| `contentClass`   | `unknown`                 | —       |  否  | 应用到内容元素，任意类名形式                                         |
+| `containerClass` | `string \| string[]`      | —       |  否  | 应用到滚动容器元素                                                   |
+| `dragDebounce`   | `number`                  | `0`     |  否  | 拖拽滚动条时的防抖毫秒数，`0` 表示不防抖                             |
 
 ## 方法与事件
 
@@ -210,6 +210,7 @@ import { UScroll } from '@veltra/desktop'
 ## 注意事项
 
 > [!WARNING]
+>
 > - `UScroll` 不是虚拟滚动组件：它只是隐藏原生滚动条、自绘滚动条的普通容器，长列表全部渲染。十万级长表用 `UTable`（`virtualThreshold` 起虚拟化）或 `@veltra/compositions` 的 `useVirtualizer`，二者与 `UScroll` 无关。
 > - 未传 `height` 时组件不写内联高度（类型 JSDoc 标注的默认 `100%` 指内容区相对根元素的高度），滚动区域高度必须由父级布局给出，否则内容撑开、不会滚动。
 > - `scrollTo` 只接受绝对像素坐标，缺省的轴不移动；定位是瞬时的，没有平滑滚动动画。

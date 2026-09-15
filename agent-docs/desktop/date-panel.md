@@ -1,8 +1,26 @@
 ---
 title: UDatePanel 日期面板
-description: "从 `@veltra/desktop` 导出的无输入框日期面板：直接铺在页面里选日 / 月 / 年或一段区间，值类型为 `@cat-kit/core` 的 `Dater`；UDatePicker 与 UDateRangePicker 的下拉面板内嵌的就是它。"
+description: '从 `@veltra/desktop` 导出的无输入框日期面板：直接铺在页面里选日 / 月 / 年或一段区间，值类型为 `@cat-kit/core` 的 `Dater`；UDatePicker 与 UDateRangePicker 的下拉面板内嵌的就是它。'
 aliases: [date-panel, u-date-panel, DatePanel, 日期面板, 日历面板]
-keywords: [modelValue, "select:date", "select:range-date", type, range, rangeDate, disabledDate, PanelType, Dater, 日期面板, 范围选择, 月份选择, 年份选择, 禁用日期, 内嵌面板, 钻取]
+keywords:
+  [
+    modelValue,
+    'select:date',
+    'select:range-date',
+    type,
+    range,
+    rangeDate,
+    disabledDate,
+    PanelType,
+    Dater,
+    日期面板,
+    范围选择,
+    月份选择,
+    年份选择,
+    禁用日期,
+    内嵌面板,
+    钻取
+  ]
 ---
 
 # UDatePanel 日期面板
@@ -72,21 +90,21 @@ export interface DatePanelEmits {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `date` | `Dater` | `undefined` | 否 | 单选模式的受控选中值；`type="month"` / `"year"` 时传月 / 年任意一天的 `Dater` 即可回显 |
-| `rangeDate` | `[Dater, Dater]` | `undefined` | 否 | 范围模式的受控选中范围；两端按时间先后 |
-| `range` | `boolean` | `false` | 否 | `true` 时切换为两次点击的范围选择，触发 `select:range-date` 而非 `select:date` |
-| `disabledDate` | `(date: Dater, raw: Date) => boolean` | — | 否 | 返回 `true` 的单元格不可点击、不参与悬停预览 |
-| `type` | `'date' \| 'month' \| 'year'` | `'date'` | 否 | 初始面板：日 / 月 / 年；更高层级单元格用于钻取 |
-| `size` | `ComponentSize` | `'default'` | 否 | `'small' \| 'default' \| 'large'`，只影响面板类名与尺寸样式 |
+| 参数           | 类型                                  | 默认        | 必填 | 约束                                                                                   |
+| -------------- | ------------------------------------- | ----------- | :--: | -------------------------------------------------------------------------------------- |
+| `date`         | `Dater`                               | `undefined` |  否  | 单选模式的受控选中值；`type="month"` / `"year"` 时传月 / 年任意一天的 `Dater` 即可回显 |
+| `rangeDate`    | `[Dater, Dater]`                      | `undefined` |  否  | 范围模式的受控选中范围；两端按时间先后                                                 |
+| `range`        | `boolean`                             | `false`     |  否  | `true` 时切换为两次点击的范围选择，触发 `select:range-date` 而非 `select:date`         |
+| `disabledDate` | `(date: Dater, raw: Date) => boolean` | —           |  否  | 返回 `true` 的单元格不可点击、不参与悬停预览                                           |
+| `type`         | `'date' \| 'month' \| 'year'`         | `'date'`    |  否  | 初始面板：日 / 月 / 年；更高层级单元格用于钻取                                         |
+| `size`         | `ComponentSize`                       | `'default'` |  否  | `'small' \| 'default' \| 'large'`，只影响面板类名与尺寸样式                            |
 
 ## 方法与事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
-| `select:date` | `date: Dater` | 单选模式下点击与 `type` 匹配层级的单元格：`type="date"` 点日期、`type="month"` 点月份、`type="year"` 点年份 |
-| `select:range-date` | `rangeDate?: [Dater, Dater]` | `range` 模式第二次点击完成选择时；两端按时间先后排序，早于起点的第二次点击会自动交换 |
+| 事件                | payload                      | 触发时机                                                                                                    |
+| ------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `select:date`       | `date: Dater`                | 单选模式下点击与 `type` 匹配层级的单元格：`type="date"` 点日期、`type="month"` 点月份、`type="year"` 点年份 |
+| `select:range-date` | `rangeDate?: [Dater, Dater]` | `range` 模式第二次点击完成选择时；两端按时间先后排序，早于起点的第二次点击会自动交换                        |
 
 交互规则：
 
@@ -174,6 +192,7 @@ const year = shallowRef<Dater>()
 ## 注意事项
 
 > [!WARNING]
+>
 > - 选中值是 `@cat-kit/core` 的 `Dater`，不是字符串或原生 `Date`；需要原生 `Date` 取 `date.raw`，毫秒数取 `date.timestamp`，格式化用 `date.format('yyyy-MM-dd')`。
 > - `type="month"` 时选中的 `Dater` 是该月最后一天 23:59:59，`type="year"` 时是该年 12 月 31 日 23:59:59；只要月 / 年标识时取其 `year` / `month` 字段（或 `date.format('yyyy-MM')`），不要直接当「当天 0 点」用。
 > - 本组件不是表单绑定控件：没有 `field` / `label` / `rules` / `v-model`，放进 `UForm` 不参与字段绑定与校验；需要表单绑定用 `UDatePicker` / `UDateRangePicker`。

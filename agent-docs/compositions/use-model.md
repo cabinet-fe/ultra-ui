@@ -2,7 +2,24 @@
 title: useModel 双向绑定组合式函数
 description: 构造组件 v-model 双向绑定状态的组合式函数：local 模式内部持有副本并自动 watch props 回写（非受控下视图也能更新），proxy 模式纯代理完全受控，支持命名 model（propName）、默认值回退、浅层响应与运行时切换受控行为，适用于封装表单类、弹窗类组件。
 aliases: [use-model, 双向绑定, v-model 封装, 受控组件, 非受控组件]
-keywords: [props, propName, emit, local, defaultValue, shallow, modelValue, update:modelValue, __v_isRef, 受控, 非受控, 本地模式, v-model, 命名模型, 浅层响应]
+keywords:
+  [
+    props,
+    propName,
+    emit,
+    local,
+    defaultValue,
+    shallow,
+    modelValue,
+    update:modelValue,
+    __v_isRef,
+    受控,
+    非受控,
+    本地模式,
+    v-model,
+    命名模型,
+    浅层响应
+  ]
 ---
 
 # useModel 双向绑定组合式函数
@@ -67,14 +84,14 @@ export function useModel<
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `props` | `Props extends Record<string, any>` | — | 是 | 必须包含 `propName` 对应的属性声明，否则读取永远走 `defaultValue` |
-| `propName` | `Name extends keyof Props` | `'modelValue'` | 否 | 事件名固定为 `update:${propName}` |
-| `emit` | `(...args: any[]) => void` | — | 是 | `defineEmits` 返回值直接传入 |
-| `local` | `boolean \| (() => boolean)` | `true` | 否 | 函数形式在每次写入时求值；返回 `false` 的那次写入只 emit 不同步本地 |
-| `defaultValue` | `Props[Name]` | — | 否 | `props[propName]` 为 `undefined` 时的读取回退 |
-| `shallow` | `boolean` | `false` | 否 | 仅 `local: true` 分支生效；大对象（如表格行）用 `true` 降低响应式开销 |
+| 参数           | 类型                                | 默认           | 必填 | 约束                                                                  |
+| -------------- | ----------------------------------- | -------------- | :--: | --------------------------------------------------------------------- |
+| `props`        | `Props extends Record<string, any>` | —              |  是  | 必须包含 `propName` 对应的属性声明，否则读取永远走 `defaultValue`     |
+| `propName`     | `Name extends keyof Props`          | `'modelValue'` |  否  | 事件名固定为 `update:${propName}`                                     |
+| `emit`         | `(...args: any[]) => void`          | —              |  是  | `defineEmits` 返回值直接传入                                          |
+| `local`        | `boolean \| (() => boolean)`        | `true`         |  否  | 函数形式在每次写入时求值；返回 `false` 的那次写入只 emit 不同步本地   |
+| `defaultValue` | `Props[Name]`                       | —              |  否  | `props[propName]` 为 `undefined` 时的读取回退                         |
+| `shallow`      | `boolean`                           | `false`        |  否  | 仅 `local: true` 分支生效；大对象（如表格行）用 `true` 降低响应式开销 |
 
 ## 方法与事件
 
@@ -107,12 +124,7 @@ const props = defineProps<{ visible?: boolean }>()
 const emit = defineEmits<{ 'update:visible': [value: boolean] }>()
 
 // 父组件未绑 v-model:visible 时，内部副本默认 false，弹窗仍可独立开关
-const visible = useModel({
-  props,
-  emit,
-  propName: 'visible',
-  defaultValue: false
-})
+const visible = useModel({ props, emit, propName: 'visible', defaultValue: false })
 
 function close() {
   visible.value = false // => emit('update:visible', false) + 副本同步
@@ -138,12 +150,7 @@ const props = defineProps<{ modelValue?: string }>()
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
 
 // 读取永远来自 props；写入只 emit，状态由父组件独占
-const value = useModel({
-  props,
-  emit,
-  local: false,
-  defaultValue: 'draft'
-})
+const value = useModel({ props, emit, local: false, defaultValue: 'draft' })
 
 console.log(value.value) // => props.modelValue ?? 'draft'
 </script>
@@ -161,10 +168,7 @@ console.log(value.value) // => props.modelValue ?? 'draft'
 ```ts
 import { useModel } from '@veltra/compositions'
 
-const props = defineProps<{
-  current?: Record<string, unknown>
-  highlightCurrent?: boolean
-}>()
+const props = defineProps<{ current?: Record<string, unknown>; highlightCurrent?: boolean }>()
 const emit = defineEmits<{ 'update:current': [value: Record<string, unknown>] }>()
 
 // local 为函数：每次写入求值，highlightCurrent 关闭时点击行只 emit 不改本地高亮
@@ -184,6 +188,7 @@ function onRowClick(row: Record<string, unknown>) {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库是 `@veltra/compositions` 的 `useModel`，不是 Vue 3.4 内置 `useModel`（`defineModel` 的别名）；两者签名与行为不同，禁止混用 import 来源。
 > - 本地模式下读取来自内部副本而不是 props 实时值；props 变更经 `watch` 同步副本，两次同步之间读取到的是旧值，强实时场景用 `local: false`。
 > - 写入只在 `v !== 当前值` 时 emit；对同一值重复赋值不触发事件。

@@ -24,9 +24,7 @@ description: >
   1. 用提问工具向用户询问服务地址（向文档服务管理员索取，形如 `http://docs.internal:8080`）；禁止编造或猜测地址。
   2. 写入当前仓库根目录 `.pe.jsonc`（已存在则补充或更新字段，非敏感配置需提交入 git）。格式：
      ```jsonc
-     {
-       "docs_server_url": "http://docs.internal:8080"
-     }
+     { "docs_server_url": "http://docs.internal:8080" }
      ```
 
   首次接入时可顺带按「宿主项目主动检索」一节，引导用户在入口指令文件（如 AGENTS.md）中加内部库指引。
@@ -82,18 +80,18 @@ node <脚本绝对路径> toc --library <slug> --path <path>
 
 ## 故障处理
 
-| 报错（脚本 stderr） | 原因 | 处理 |
-| --- | --- | --- |
-| `找不到配置文件：.pe.jsonc` / `配置文件 … 缺少必填字段：docs_server_url` | 第 1 步没做或 `.pe.jsonc` 未配置 | 回到第 1 步在 `.pe.jsonc` 中配置 |
-| `docs_server_url 须以 http:// 或 https:// 开头` | 地址格式不对 | 向用户核对地址 |
-| `请求失败：fetch failed（ECONNREFUSED/ENOTFOUND…）` | 服务不通或域名解析失败 | 核对地址与网络，报给用户/管理员，勿盲目重试 |
-| `请求超时（10 秒）` | 服务端无响应 | 停止重试，报给用户/管理员 |
-| `HTTP 400 missing_query` | `--q` 为空 | 补上关键词 |
-| `HTTP 400 invalid_limit` | `--limit` 不在 1~50 | 改成 1~50 的整数 |
-| `HTTP 404 library_not_found` | `--library` 拼写错误或库已下架 | 跑 `libraries` 核对 slug；列表里没有则告诉用户该库未收录 |
-| `HTTP 404 not_found`（get/toc） | `--path` 拼写错误或文档已删 | 用 search 结果里的 `path` 原文重试；仍找不到就用关键词重新 search |
-| `HTTP 404 section_not_found` | 章节名与标题不一致 | **message 里列出了该文档全部可用章节名**，从中选对的名字重试一次，不要放弃 |
-| `HTTP 500 internal` | 服务端故障 | 报错原文转述给用户/管理员 |
+| 报错（脚本 stderr）                                                      | 原因                             | 处理                                                                       |
+| ------------------------------------------------------------------------ | -------------------------------- | -------------------------------------------------------------------------- |
+| `找不到配置文件：.pe.jsonc` / `配置文件 … 缺少必填字段：docs_server_url` | 第 1 步没做或 `.pe.jsonc` 未配置 | 回到第 1 步在 `.pe.jsonc` 中配置                                           |
+| `docs_server_url 须以 http:// 或 https:// 开头`                          | 地址格式不对                     | 向用户核对地址                                                             |
+| `请求失败：fetch failed（ECONNREFUSED/ENOTFOUND…）`                      | 服务不通或域名解析失败           | 核对地址与网络，报给用户/管理员，勿盲目重试                                |
+| `请求超时（10 秒）`                                                      | 服务端无响应                     | 停止重试，报给用户/管理员                                                  |
+| `HTTP 400 missing_query`                                                 | `--q` 为空                       | 补上关键词                                                                 |
+| `HTTP 400 invalid_limit`                                                 | `--limit` 不在 1~50              | 改成 1~50 的整数                                                           |
+| `HTTP 404 library_not_found`                                             | `--library` 拼写错误或库已下架   | 跑 `libraries` 核对 slug；列表里没有则告诉用户该库未收录                   |
+| `HTTP 404 not_found`（get/toc）                                          | `--path` 拼写错误或文档已删      | 用 search 结果里的 `path` 原文重试；仍找不到就用关键词重新 search          |
+| `HTTP 404 section_not_found`                                             | 章节名与标题不一致               | **message 里列出了该文档全部可用章节名**，从中选对的名字重试一次，不要放弃 |
+| `HTTP 500 internal`                                                      | 服务端故障                       | 报错原文转述给用户/管理员                                                  |
 
 ## 反模式
 

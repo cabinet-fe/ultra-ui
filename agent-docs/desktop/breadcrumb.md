@@ -1,6 +1,6 @@
 ---
-title: "UBreadcrumb 面包屑"
-description: "面包屑路径导航：items 按从一级到末级渲染层级路径，带 href 的项走原生 <a> 跳转，无 href 的链式项发 click 事件供 SPA 路由使用；支持禁用项、lastLinked 末级链接、size 三档与 item/separator 插槽。"
+title: 'UBreadcrumb 面包屑'
+description: '面包屑路径导航：items 按从一级到末级渲染层级路径，带 href 的项走原生 <a> 跳转，无 href 的链式项发 click 事件供 SPA 路由使用；支持禁用项、lastLinked 末级链接、size 三档与 item/separator 插槽。'
 aliases: [Breadcrumb, Breadcrumbs, 面包屑导航, 页面路径, 路径导航]
 keywords:
   - items
@@ -93,24 +93,24 @@ export interface BreadcrumbExposed {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `items` | `BreadcrumbItem[]` | — | 是 | 顺序即渲染顺序，从一级到末级；`title` 必填；单项文本最大宽度 240px，超长截断显示省略号 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 否 | 影响字号、`--u-breadcrumb-<size>` 最小高度与分隔符间距 |
-| `lastLinked` | `boolean` | `false` | 否 | `true` 时末级按同级链接规则渲染（有 `href` 为 `<a>`，无 `href` 为可点 span）；`false` 时末级固定为当前页文本 |
+| 参数         | 类型                              | 默认        | 必填 | 约束                                                                                                         |
+| ------------ | --------------------------------- | ----------- | :--: | ------------------------------------------------------------------------------------------------------------ |
+| `items`      | `BreadcrumbItem[]`                | —           |  是  | 顺序即渲染顺序，从一级到末级；`title` 必填；单项文本最大宽度 240px，超长截断显示省略号                       |
+| `size`       | `'small' \| 'default' \| 'large'` | `'default'` |  否  | 影响字号、`--u-breadcrumb-<size>` 最小高度与分隔符间距                                                       |
+| `lastLinked` | `boolean`                         | `false`     |  否  | `true` 时末级按同级链接规则渲染（有 `href` 为 `<a>`，无 `href` 为可点 span）；`false` 时末级固定为当前页文本 |
 
 事件：
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
+| 事件    | payload                                            | 触发时机                                                                                                                                                  |
+| ------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `click` | `(item: BreadcrumbItem, index: number, ev: Event)` | 点击无 `href` 且非 `disabled` 的链式项（含末级且 `lastLinked: true` 且无 `href` 的项）；键盘 Enter / Space 同样触发。带 `href` 的项与 `disabled` 项不触发 |
 
 插槽：
 
-| 插槽 | 作用域 | 默认内容 |
-| --- | --- | --- |
-| `item` | `{ item: BreadcrumbItem; index: number; isLast: boolean }` | 按链接 / 当前页规则渲染的文本 |
-| `separator` | 无 | `/` |
+| 插槽        | 作用域                                                     | 默认内容                      |
+| ----------- | ---------------------------------------------------------- | ----------------------------- |
+| `item`      | `{ item: BreadcrumbItem; index: number; isLast: boolean }` | 按链接 / 当前页规则渲染的文本 |
+| `separator` | 无                                                         | `/`                           |
 
 ## 方法与事件
 
@@ -206,6 +206,7 @@ const items = shallowRef<BreadcrumbItem[]>([
 ## 注意事项
 
 > [!WARNING]
+>
 > - 带 `href` 的项不触发 `click` 事件：导航交给浏览器原生 `<a>` 行为。要在事件里统一接管跳转，`items` 就不要写 `href`。
 > - 末级默认不可点、不触发 `click`；需要末级可点必须设 `lastLinked: true`。
 > - `disabled: true` 的项既不跳转也不触发 `click`；有 `href` 时渲染为禁用 `<a>`（`aria-disabled="true"`），无 `href` 时渲染为纯文本。

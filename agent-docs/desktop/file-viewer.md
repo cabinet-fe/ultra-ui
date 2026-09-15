@@ -2,7 +2,29 @@
 title: UFileViewer 文件查看器
 description: 多格式文件预览面板：传入 files 即可预览图片、视频、PDF、Excel/CSV、Word 与文本，带文件侧栏、缩放/平移、下载按钮；open 传入布尔值切换为 Teleport 到 body 的全屏模态。
 aliases: [FileViewer, file-viewer, 文件预览, 预览器, 文件查看]
-keywords: [files, modelValue, open, sidebarWidth, sheetMaxRows, downloadable, closeOnEsc, closeOnClickBackdrop, activate, activeId, FileViewerItem, FileViewerKind, sheet-core, xlsx 预览, csv 预览, 图片预览, PDF 预览, 视频预览, 文本预览, 全屏模态]
+keywords:
+  [
+    files,
+    modelValue,
+    open,
+    sidebarWidth,
+    sheetMaxRows,
+    downloadable,
+    closeOnEsc,
+    closeOnClickBackdrop,
+    activate,
+    activeId,
+    FileViewerItem,
+    FileViewerKind,
+    sheet-core,
+    xlsx 预览,
+    csv 预览,
+    图片预览,
+    PDF 预览,
+    视频预览,
+    文本预览,
+    全屏模态
+  ]
 ---
 
 # UFileViewer 文件查看器
@@ -106,46 +128,46 @@ export interface FileViewerExposed {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `files` | `FileViewerItem[]` | `—` | 是 | 列表为空时显示「暂无文件」空态；`modelValue` 未设或失效时自动激活第一个文件 |
-| `modelValue` | `string` | `undefined` | 否 | 必须是 `files` 中某项的 `id`；`files` 变化后失效的 id 会被重置为第一个文件 |
-| `sidebarWidth` | `string \| number \| false` | `'280px'` | 否 | `number` 按 px 处理；`false` 或 `0` 隐藏侧栏 |
-| `sheetMaxRows` | `number` | `50000` | 否 | 仅对 `sheet` 类别生效；行数超出时显示提示条，数据不裁剪；`0` 关闭提示 |
-| `downloadable` | `boolean` | `true` | 否 | 控制工具栏下载按钮显隐 |
-| `open` | `boolean` | `undefined` | 否 | 只要显式传入（含 `v-model:open`）即进入模态模式；模态打开期间锁定 body 滚动 |
-| `closeOnClickBackdrop` | `boolean` | `true` | 否 | 仅模态模式生效 |
-| `closeOnEsc` | `boolean` | `true` | 否 | 仅模态模式生效 |
+| 参数                   | 类型                        | 默认        | 必填 | 约束                                                                        |
+| ---------------------- | --------------------------- | ----------- | :--: | --------------------------------------------------------------------------- |
+| `files`                | `FileViewerItem[]`          | `—`         |  是  | 列表为空时显示「暂无文件」空态；`modelValue` 未设或失效时自动激活第一个文件 |
+| `modelValue`           | `string`                    | `undefined` |  否  | 必须是 `files` 中某项的 `id`；`files` 变化后失效的 id 会被重置为第一个文件  |
+| `sidebarWidth`         | `string \| number \| false` | `'280px'`   |  否  | `number` 按 px 处理；`false` 或 `0` 隐藏侧栏                                |
+| `sheetMaxRows`         | `number`                    | `50000`     |  否  | 仅对 `sheet` 类别生效；行数超出时显示提示条，数据不裁剪；`0` 关闭提示       |
+| `downloadable`         | `boolean`                   | `true`      |  否  | 控制工具栏下载按钮显隐                                                      |
+| `open`                 | `boolean`                   | `undefined` |  否  | 只要显式传入（含 `v-model:open`）即进入模态模式；模态打开期间锁定 body 滚动 |
+| `closeOnClickBackdrop` | `boolean`                   | `true`      |  否  | 仅模态模式生效                                                              |
+| `closeOnEsc`           | `boolean`                   | `true`      |  否  | 仅模态模式生效                                                              |
 
 `kind` 后缀推断规则（`kind` 显式传入时以传入值为准）：
 
-| kind | 后缀 |
-| --- | --- |
-| `image` | `png` `jpg` `jpeg` `gif` `webp` `bmp` `svg` `avif` `ico` |
-| `video` | `mp4` `webm` `mov` `m4v` `ogv` `mkv` |
-| `pdf` | `pdf` |
-| `sheet` | `xlsx` `xlsm` `xlsb` `csv` |
-| `docx` | `docx` |
-| `text` | `txt` `log` `md` `markdown` `json` `yml` `yaml` `xml` `js` `ts` `tsx` `jsx` `css` `scss` `sass` `less` `html` `htm` `ini` `toml` `sh` `bash` `zsh` `env` `sql`；其余未知后缀也归入 `text` |
+| kind    | 后缀                                                                                                                                                                                      |
+| ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `image` | `png` `jpg` `jpeg` `gif` `webp` `bmp` `svg` `avif` `ico`                                                                                                                                  |
+| `video` | `mp4` `webm` `mov` `m4v` `ogv` `mkv`                                                                                                                                                      |
+| `pdf`   | `pdf`                                                                                                                                                                                     |
+| `sheet` | `xlsx` `xlsm` `xlsb` `csv`                                                                                                                                                                |
+| `docx`  | `docx`                                                                                                                                                                                    |
+| `text`  | `txt` `log` `md` `markdown` `json` `yml` `yaml` `xml` `js` `ts` `tsx` `jsx` `css` `scss` `sass` `less` `html` `htm` `ini` `toml` `sh` `bash` `zsh` `env` `sql`；其余未知后缀也归入 `text` |
 
 ## 方法与事件
 
 ### 事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
-| `update:modelValue` | `id: string` | 激活文件变化（点侧栏、调 `activate`/`next`/`prev`、内部自动激活） |
-| `update:open` | `value: boolean` | 模态模式下点背景、按 ESC、点关闭按钮时变为 `false` |
-| `change` | `file: FileViewerItem` | 激活文件切换且 id 与之前不同 |
-| `error` | `{ file: FileViewerItem; error: unknown }` | URL fetch 失败（`Fetch failed: <status> <statusText>`）、sheet-core 缺失、文本/表格解析失败、下载失败等 |
+| 事件                | payload                                    | 触发时机                                                                                                |
+| ------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `update:modelValue` | `id: string`                               | 激活文件变化（点侧栏、调 `activate`/`next`/`prev`、内部自动激活）                                       |
+| `update:open`       | `value: boolean`                           | 模态模式下点背景、按 ESC、点关闭按钮时变为 `false`                                                      |
+| `change`            | `file: FileViewerItem`                     | 激活文件切换且 id 与之前不同                                                                            |
+| `error`             | `{ file: FileViewerItem; error: unknown }` | URL fetch 失败（`Fetch failed: <status> <statusText>`）、sheet-core 缺失、文本/表格解析失败、下载失败等 |
 
 ### 暴露成员（模板 ref，已解构）
 
-| 成员 | 签名 | 说明 |
-| --- | --- | --- |
-| `activeId` | `ShallowRef<string \| undefined>` | 当前激活 id，响应式 |
-| `activate` | `(id: string) => void` | 同步；切到指定文件并触发 `change` |
-| `next` / `prev` | `() => void` | 同步；越界时无效果 |
+| 成员            | 签名                              | 说明                              |
+| --------------- | --------------------------------- | --------------------------------- |
+| `activeId`      | `ShallowRef<string \| undefined>` | 当前激活 id，响应式               |
+| `activate`      | `(id: string) => void`            | 同步；切到指定文件并触发 `change` |
+| `next` / `prev` | `() => void`                      | 同步；越界时无效果                |
 
 ### 工具栏缩放行为（内置，不可配置）
 
@@ -182,7 +204,13 @@ function onError(err: { file: FileViewerItem; error: unknown }) {
 
 <template>
   <UButton type="primary" @click="open = true">打开预览</UButton>
-  <UFileViewer v-model="active" v-model:open="open" :files="files" @change="onChange" @error="onError" />
+  <UFileViewer
+    v-model="active"
+    v-model:open="open"
+    :files="files"
+    @change="onChange"
+    @error="onError"
+  />
 </template>
 ```
 
@@ -244,6 +272,7 @@ const files: FileViewerItem[] = [
 ## 注意事项
 
 > [!WARNING]
+>
 > - Excel/CSV 预览依赖可选 peer `@veltra/sheet-core`：已安装时以只读 `SheetGrid` 渲染（xlsx 多 sheet 显示页签，csv 单表、表名取文件名）；未安装时该类文件显示「无法预览表格：未安装 @veltra/sheet-core」空态，并向 `error` 事件抛出 `Error('未安装 @veltra/sheet-core，无法预览 Excel/CSV')`，其余格式不受影响。安装：`pnpm add @veltra/sheet-core`。
 > - `sheetMaxRows` 只驱动「超出预览上限」提示条，不裁剪也不截断数据；超大表格仍会全量加载，控制加载成本应在源头限制文件。
 > - PDF 预览由内置依赖 `@embedpdf/*` 渲染，Word 由 `docx-preview` 渲染，均为必装依赖，无需额外安装。

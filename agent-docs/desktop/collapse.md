@@ -1,8 +1,30 @@
 ---
-title: "UCollapse / UCollapseItem 折叠面板"
-description: "@veltra/desktop 导出的折叠面板组件。UCollapse 用 v-model 管理展开项（数组多开、accordion 手风琴单开），UCollapseItem 支持禁用、自定义头部插槽、自定义展开图标与折叠后卸载内容，支持嵌套与独立使用。"
+title: 'UCollapse / UCollapseItem 折叠面板'
+description: '@veltra/desktop 导出的折叠面板组件。UCollapse 用 v-model 管理展开项（数组多开、accordion 手风琴单开），UCollapseItem 支持禁用、自定义头部插槽、自定义展开图标与折叠后卸载内容，支持嵌套与独立使用。'
 aliases: [UCollapse, UCollapseItem, Collapse, CollapseItem, 折叠面板, 手风琴, Accordion]
-keywords: [CollapseProps, CollapseItemProps, CollapseModelValue, CollapseValue, accordion, defaultCollapseAll, expandIcon, destroyOnCollapse, title, disabled, "#header", 手风琴, 互斥展开, 自定义头部, 展开图标, 嵌套, 禁用, 展开动画, 默认折叠, 独立使用]
+keywords:
+  [
+    CollapseProps,
+    CollapseItemProps,
+    CollapseModelValue,
+    CollapseValue,
+    accordion,
+    defaultCollapseAll,
+    expandIcon,
+    destroyOnCollapse,
+    title,
+    disabled,
+    '#header',
+    手风琴,
+    互斥展开,
+    自定义头部,
+    展开图标,
+    嵌套,
+    禁用,
+    展开动画,
+    默认折叠,
+    独立使用
+  ]
 ---
 
 # UCollapse / UCollapseItem 折叠面板
@@ -103,35 +125,35 @@ export interface CollapseItemEmits {
 
 ### UCollapse
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `modelValue` | `CollapseValue \| CollapseValue[]` | — | 否 | 手风琴模式传单值，普通模式传数组；普通模式传单值也兼容。未传或为 `undefined`/`null`/`[]` 时按 `defaultCollapseAll` 决定初始展开 |
-| `accordion` | `boolean` | `false` | 否 | 手风琴：点击新项展开并收起旧项；点击已展开项收起（modelValue 变 `[]`） |
-| `defaultCollapseAll` | `boolean` | `false` | 否 | `false` 且无有效初始 `modelValue` 时，子项注册后自动全部展开（手风琴只展开第一个注册项）；`true` 时初始全部折叠 |
-| `expandIcon` | `Component` | `ArrowDown` | 否 | 展开图标组件，活动态自动旋转 180°；统管所有子项 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 否 | 控制标题字号与间距 |
+| 参数                 | 类型                               | 默认        | 必填 | 约束                                                                                                                            |
+| -------------------- | ---------------------------------- | ----------- | :--: | ------------------------------------------------------------------------------------------------------------------------------- |
+| `modelValue`         | `CollapseValue \| CollapseValue[]` | —           |  否  | 手风琴模式传单值，普通模式传数组；普通模式传单值也兼容。未传或为 `undefined`/`null`/`[]` 时按 `defaultCollapseAll` 决定初始展开 |
+| `accordion`          | `boolean`                          | `false`     |  否  | 手风琴：点击新项展开并收起旧项；点击已展开项收起（modelValue 变 `[]`）                                                          |
+| `defaultCollapseAll` | `boolean`                          | `false`     |  否  | `false` 且无有效初始 `modelValue` 时，子项注册后自动全部展开（手风琴只展开第一个注册项）；`true` 时初始全部折叠                 |
+| `expandIcon`         | `Component`                        | `ArrowDown` |  否  | 展开图标组件，活动态自动旋转 180°；统管所有子项                                                                                 |
+| `size`               | `'small' \| 'default' \| 'large'`  | `'default'` |  否  | 控制标题字号与间距                                                                                                              |
 
 ### UCollapseItem
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `value` | `string \| number` | — | UCollapse 内必填 | 在 UCollapse 内 `value` 为 `undefined` 时点击无效；同容器内禁止重复 |
-| `modelValue` | `boolean` | `false` | 否 | 仅独立使用时生效 |
-| `title` | `string` | — | 否 | 标题文本；提供 `#header` 插槽时被覆盖 |
-| `disabled` | `boolean` | `false` | 否 | 禁用后点击与 Enter/Space 均不切换 |
-| `expandIcon` | `Component` | `ArrowDown` | 否 | 仅独立使用时生效 |
-| `destroyOnCollapse` | `boolean` | `false` | 否 | 折叠动画结束后卸载内容 DOM；重新展开会丢失内容区本地状态 |
+| 参数                | 类型               | 默认        |       必填       | 约束                                                                |
+| ------------------- | ------------------ | ----------- | :--------------: | ------------------------------------------------------------------- |
+| `value`             | `string \| number` | —           | UCollapse 内必填 | 在 UCollapse 内 `value` 为 `undefined` 时点击无效；同容器内禁止重复 |
+| `modelValue`        | `boolean`          | `false`     |        否        | 仅独立使用时生效                                                    |
+| `title`             | `string`           | —           |        否        | 标题文本；提供 `#header` 插槽时被覆盖                               |
+| `disabled`          | `boolean`          | `false`     |        否        | 禁用后点击与 Enter/Space 均不切换                                   |
+| `expandIcon`        | `Component`        | `ArrowDown` |        否        | 仅独立使用时生效                                                    |
+| `destroyOnCollapse` | `boolean`          | `false`     |        否        | 折叠动画结束后卸载内容 DOM；重新展开会丢失内容区本地状态            |
 
 插槽：`UCollapseItem` 有默认插槽（面板内容）与 `#header` 插槽（作用域 `{ isActive: boolean }`，只替换标题区，展开图标仍由组件渲染）。
 
 ## 方法与事件
 
-| 事件 | 归属 | payload | 触发时机 |
-| --- | --- | --- | --- |
-| `update:modelValue` | UCollapse | `CollapseModelValue` | 展开项变化；手风琴为单值或 `[]`，普通模式为数组 |
-| `change` | UCollapse | `CollapseModelValue` | 每次 `update:modelValue` 后同步发出 |
-| `update:modelValue` | UCollapseItem | `boolean` | 仅独立使用时，点击头部切换 |
-| `change` | UCollapseItem | `boolean` | 仅独立使用时 |
+| 事件                | 归属          | payload              | 触发时机                                        |
+| ------------------- | ------------- | -------------------- | ----------------------------------------------- |
+| `update:modelValue` | UCollapse     | `CollapseModelValue` | 展开项变化；手风琴为单值或 `[]`，普通模式为数组 |
+| `change`            | UCollapse     | `CollapseModelValue` | 每次 `update:modelValue` 后同步发出             |
+| `update:modelValue` | UCollapseItem | `boolean`            | 仅独立使用时，点击头部切换                      |
+| `change`            | UCollapseItem | `boolean`            | 仅独立使用时                                    |
 
 无暴露方法。展开动画为高度过渡 `height 0.24s cubic-bezier(0.4, 0, 0.2, 1)`；头部具备无障碍属性：`role="button"`、`aria-expanded`、`aria-disabled`，支持 Enter / Space 键切换。
 
@@ -230,6 +252,7 @@ const inner = ref<CollapseModelValue>(['pkg-components'])
 ## 注意事项
 
 > [!WARNING]
+>
 > - 默认行为是**初始全部展开**（`defaultCollapseAll` 默认 `false` 且无初始值时）；要初始全收起必须显式写 `default-collapse-all`。
 > - 包在 `UCollapse` 内时，`UCollapseItem` 的 `value` 必填，且禁止再给它写 `v-model`——展开状态完全由父级 `modelValue` 管理，子项上的 `modelValue` / `expandIcon` 属性此时无效。
 > - 手风琴模式 `v-model` 绑定单值（`string | number`），普通模式绑定数组；两种模式都兼容传入单值。

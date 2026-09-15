@@ -1,8 +1,30 @@
 ---
 title: UTree 树形控件
-description: "@veltra/desktop 导出的树形控件。data 全量驱动，labelKey/valueKey/childrenKey 自定义字段；支持单选（selectable）、父子联动的多选勾选（checkable）、严格勾选、节点过滤、展开折叠、右键菜单、作用域插槽自定义节点；扁平节点超过 80 自动启用虚拟滚动。不支持懒加载与拖拽。"
+description: '@veltra/desktop 导出的树形控件。data 全量驱动，labelKey/valueKey/childrenKey 自定义字段；支持单选（selectable）、父子联动的多选勾选（checkable）、严格勾选、节点过滤、展开折叠、右键菜单、作用域插槽自定义节点；扁平节点超过 80 自动启用虚拟滚动。不支持懒加载与拖拽。'
 aliases: [UTree, Tree, 树形控件, TreeSelect 数据源, 勾选树]
-keywords: [TreeProps, TreeExposed, TreeNode, checkable, selectable, checkStrictly, checkOnClickNode, expandOnClickNode, labelKey, valueKey, childrenKey, disabledNode, filter, getChecked, node-contextmenu, 勾选树, 节点过滤, 虚拟滚动, 父子联动, 展开折叠]
+keywords:
+  [
+    TreeProps,
+    TreeExposed,
+    TreeNode,
+    checkable,
+    selectable,
+    checkStrictly,
+    checkOnClickNode,
+    expandOnClickNode,
+    labelKey,
+    valueKey,
+    childrenKey,
+    disabledNode,
+    filter,
+    getChecked,
+    node-contextmenu,
+    勾选树,
+    节点过滤,
+    虚拟滚动,
+    父子联动,
+    展开折叠
+  ]
 ---
 
 # UTree 树形控件
@@ -166,24 +188,24 @@ export interface TreeExposed {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `data` | `Record<string, any>[]` | `[]` | 实际必填 | 必须一次性全量传入；运行期整体替换会重建整棵树，展开/勾选等运行时状态丢失后由 `checked`/`selected` 重新回显 |
-| `labelKey` | `string` | `'label'` | 否 | 节点显示文本取 `data[labelKey]` |
-| `valueKey` | `string` | `'value'` | 否 | 节点唯一键与选中值取 `data[valueKey]`；整棵树内必须唯一 |
-| `childrenKey` | `string` | `'children'` | 否 | 子节点数组字段名 |
-| `expandAll` | `boolean` | `false` | 否 | 仅控制初始展开；运行期改值会重建树 |
-| `expandOnClickNode` | `boolean` | `false` | 否 | 为 `true` 时点击节点展开/折叠；同时勾选点击将不触发（见 `checkOnClickNode`） |
-| `checkable` | `boolean` | `false` | 否 | 开启多选 checkbox；与 `selectable` 可同时开启 |
-| `checkOnClickNode` | `boolean` | `true` | 否 | 仅 `checkable` 时生效；`expandOnClickNode` 为 `true` 时点击节点只展开不勾选，此时只有点 checkbox 才勾选 |
-| `selectable` | `boolean` | `false` | 否 | 开启单选；点击已选中节点再次点击取消选中 |
-| `checkStrictly` | `boolean` | `false` | 否 | `false`（默认）父子联动：勾选节点级联勾选全部子孙、全部子节点勾选后父节点自动勾选；`true` 时互不联动 |
-| `selected` | `any` | — | 否 | 节点的 `valueKey` 值；外部赋值会自动展开其祖先链并发出 `selected-synced` |
-| `checked` | `any[]` | — | 否 | 节点 `valueKey` 值数组；外部赋值做差集回显并自动展开相关祖先链 |
-| `disabledNode` | `(item, node) => boolean` | — | 否 | 整棵树构建完成后 DFS 调用；禁用节点不可单选、不可被级联勾选，checkbox 呈禁用态。父组件每次重渲染生成新函数会触发整棵树重建，复杂函数应缓存 |
-| `slots` | `Record<string, any>` | — | 否 | 供包装组件透传插槽；业务直接使用时写模板插槽即可 |
-| `scrollToView` | `boolean` | `false` | 否 | 需 `selectable` 或 `checkable`；`selected`/`checked` 同步后自动把选中项滚动进视口 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 否 | 影响节点行高（虚拟滚动估算基准 32/36/44px）与字号；回退链：自身 > UForm 上下文 > 全局配置 > `'default'` |
+| 参数                | 类型                              | 默认         |   必填   | 约束                                                                                                                                       |
+| ------------------- | --------------------------------- | ------------ | :------: | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `data`              | `Record<string, any>[]`           | `[]`         | 实际必填 | 必须一次性全量传入；运行期整体替换会重建整棵树，展开/勾选等运行时状态丢失后由 `checked`/`selected` 重新回显                                |
+| `labelKey`          | `string`                          | `'label'`    |    否    | 节点显示文本取 `data[labelKey]`                                                                                                            |
+| `valueKey`          | `string`                          | `'value'`    |    否    | 节点唯一键与选中值取 `data[valueKey]`；整棵树内必须唯一                                                                                    |
+| `childrenKey`       | `string`                          | `'children'` |    否    | 子节点数组字段名                                                                                                                           |
+| `expandAll`         | `boolean`                         | `false`      |    否    | 仅控制初始展开；运行期改值会重建树                                                                                                         |
+| `expandOnClickNode` | `boolean`                         | `false`      |    否    | 为 `true` 时点击节点展开/折叠；同时勾选点击将不触发（见 `checkOnClickNode`）                                                               |
+| `checkable`         | `boolean`                         | `false`      |    否    | 开启多选 checkbox；与 `selectable` 可同时开启                                                                                              |
+| `checkOnClickNode`  | `boolean`                         | `true`       |    否    | 仅 `checkable` 时生效；`expandOnClickNode` 为 `true` 时点击节点只展开不勾选，此时只有点 checkbox 才勾选                                    |
+| `selectable`        | `boolean`                         | `false`      |    否    | 开启单选；点击已选中节点再次点击取消选中                                                                                                   |
+| `checkStrictly`     | `boolean`                         | `false`      |    否    | `false`（默认）父子联动：勾选节点级联勾选全部子孙、全部子节点勾选后父节点自动勾选；`true` 时互不联动                                       |
+| `selected`          | `any`                             | —            |    否    | 节点的 `valueKey` 值；外部赋值会自动展开其祖先链并发出 `selected-synced`                                                                   |
+| `checked`           | `any[]`                           | —            |    否    | 节点 `valueKey` 值数组；外部赋值做差集回显并自动展开相关祖先链                                                                             |
+| `disabledNode`      | `(item, node) => boolean`         | —            |    否    | 整棵树构建完成后 DFS 调用；禁用节点不可单选、不可被级联勾选，checkbox 呈禁用态。父组件每次重渲染生成新函数会触发整棵树重建，复杂函数应缓存 |
+| `slots`             | `Record<string, any>`             | —            |    否    | 供包装组件透传插槽；业务直接使用时写模板插槽即可                                                                                           |
+| `scrollToView`      | `boolean`                         | `false`      |    否    | 需 `selectable` 或 `checkable`；`selected`/`checked` 同步后自动把选中项滚动进视口                                                          |
+| `size`              | `'small' \| 'default' \| 'large'` | `'default'`  |    否    | 影响节点行高（虚拟滚动估算基准 32/36/44px）与字号；回退链：自身 > UForm 上下文 > 全局配置 > `'default'`                                    |
 
 插槽：默认插槽，作用域 `{ node: TreeNode, data: Record<string, any> }`；不提供时渲染 `node.label`。
 
@@ -191,14 +213,14 @@ export interface TreeExposed {
 
 事件：
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
-| `node-click` | `node: TreeNode` | 点击节点内容区；点击展开图标不触发。无论是否开启单选/多选都会发出 |
-| `expand` | `node: TreeNode` | 节点展开/折叠后（点击展开图标或 `expandOnClickNode`）；程序设置 `expanded` 不触发 |
-| `update:selected` | `(selected?, selectedData?, node?)` | 用户点击节点单选时；`selected` 为 value（取消时 `undefined`），`selectedData` 为原始数据对象 |
-| `update:checked` | `(checked: any[], checkedData: Record<string, any>[])` | 勾选变化（点击 checkbox、点击节点、调用 `checkNode`/`checkAll`） |
-| `node-contextmenu` | `(event: MouseEvent, node: TreeNode)` | 右键节点内容区；默认菜单不阻止，需自行 `event.preventDefault()` |
-| `selected-synced` | `(selected?: Record<string, any>)` | 外部 `selected` 值同步进组件完成后 |
+| 事件               | payload                                                | 触发时机                                                                                     |
+| ------------------ | ------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| `node-click`       | `node: TreeNode`                                       | 点击节点内容区；点击展开图标不触发。无论是否开启单选/多选都会发出                            |
+| `expand`           | `node: TreeNode`                                       | 节点展开/折叠后（点击展开图标或 `expandOnClickNode`）；程序设置 `expanded` 不触发            |
+| `update:selected`  | `(selected?, selectedData?, node?)`                    | 用户点击节点单选时；`selected` 为 value（取消时 `undefined`），`selectedData` 为原始数据对象 |
+| `update:checked`   | `(checked: any[], checkedData: Record<string, any>[])` | 勾选变化（点击 checkbox、点击节点、调用 `checkNode`/`checkAll`）                             |
+| `node-contextmenu` | `(event: MouseEvent, node: TreeNode)`                  | 右键节点内容区；默认菜单不阻止，需自行 `event.preventDefault()`                              |
+| `selected-synced`  | `(selected?: Record<string, any>)`                     | 外部 `selected` 值同步进组件完成后                                                           |
 
 暴露方法（模板 ref 上直接调用，签名见 `TreeExposed`）：`filter` 同步执行、无返回值；`getSelected`/`getChecked` 同步返回数据对象；`checkNode`/`selectNode`/`checkAll`/`expandAll`/`collapseAll` 同步执行并发出对应 `update:*` 事件；`scrollTo(index)` 同步滚动。
 
@@ -346,6 +368,7 @@ watch(keyword, (val) => {
 ## 注意事项
 
 > [!WARNING]
+>
 > - **不支持懒加载**：本库没有 `lazy` / `load` 属性，`TreeNode` 上的 `loading`/`loaded` 字段没有对应的按需加载钩子；节点数据必须通过 `data` 一次性全量传入。
 > - **不支持拖拽**：没有 `draggable` 与拖拽相关事件；需要拖拽调序时自行扩展或换用其他方案。
 > - `v-model:checked` / `v-model:selected` 绑定的是节点的 **value（`valueKey` 字段的值）**，不是节点对象也不是 label；拿原始数据用 `update:checked` 第二个参数或 `getChecked()`。

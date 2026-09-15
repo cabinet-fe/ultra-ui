@@ -2,7 +2,36 @@
 title: Ultra UI 列表页与详情页场景
 description: 端到端拼装中后台列表页与详情页：ULayout + UDualNav 后台布局、UCard 划分页面区块、UTable（defineTableColumns）+ UPaginator 服务端分页、messageConfirm 增删二次确认、UDrawer 详情与 UDialog 弹窗表单；模板组件交给 VeltraUIResolver 按需引入并注入样式，渲染函数与函数式 API 显式 import 并补样式子路径。
 aliases: [列表页, 详情页, 中后台页面, CRUD 页面, 管理后台]
-keywords: [VeltraUIResolver, defineTableColumns, UTable, UPaginator, ULayout, UCard, UCardHeader, UCardContent, UDualNav, UDialog, UDrawer, messageConfirm, onClosed, rowKey, vLoading, components/action/style, 渲染函数, 裸样式, 列表分页, 删除确认, 二次确认, 详情抽屉, 搜索列表, 页面区块, 面板, 卡片, 空态]
+keywords:
+  [
+    VeltraUIResolver,
+    defineTableColumns,
+    UTable,
+    UPaginator,
+    ULayout,
+    UCard,
+    UCardHeader,
+    UCardContent,
+    UDualNav,
+    UDialog,
+    UDrawer,
+    messageConfirm,
+    onClosed,
+    rowKey,
+    vLoading,
+    components/action/style,
+    渲染函数,
+    裸样式,
+    列表分页,
+    删除确认,
+    二次确认,
+    详情抽屉,
+    搜索列表,
+    页面区块,
+    面板,
+    卡片,
+    空态
+  ]
 ---
 
 # Ultra UI 列表页与详情页场景
@@ -25,9 +54,7 @@ import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
 import { VeltraUIResolver } from '@veltra/vite'
 
-export default defineConfig({
-  plugins: [vue(), Components({ resolvers: [VeltraUIResolver()] })]
-})
+export default defineConfig({ plugins: [vue(), Components({ resolvers: [VeltraUIResolver()] })] })
 ```
 
 ```ts
@@ -125,7 +152,11 @@ const columns = defineTableColumns([
       h(UActionGroup, { max: 4 }, () => [
         h(UAction, { onRun: () => openDetail(rowData) }, () => '详情'),
         h(UAction, { onRun: () => openEdit(rowData) }, () => '编辑'),
-        h(UAction, { needConfirm: true, type: 'danger' as const, onRun: () => removeRow(rowData) }, () => '删除')
+        h(
+          UAction,
+          { needConfirm: true, type: 'danger' as const, onRun: () => removeRow(rowData) },
+          () => '删除'
+        )
       ])
   }
 ])
@@ -190,7 +221,7 @@ query()
             <u-button
               type="primary"
               @click="
-                pageNumber = 1;
+                pageNumber = 1
                 query()
               "
             >
@@ -198,8 +229,8 @@ query()
             </u-button>
             <u-button
               @click="
-                Object.assign(form, { id: undefined, name: '', status: '' });
-                dialogTitle = '新建用户';
+                Object.assign(form, { id: undefined, name: '', status: '' })
+                dialogTitle = '新建用户'
                 dialogVisible = true
               "
             >
@@ -238,8 +269,12 @@ query()
         <u-card integrate>
           <u-card-header>用户详情</u-card-header>
           <u-card-content>
-            <div class="detail-row"><span>姓名</span><span>{{ detail['name'] }}</span></div>
-            <div class="detail-row"><span>状态</span><span>{{ detail['status'] }}</span></div>
+            <div class="detail-row">
+              <span>姓名</span><span>{{ detail['name'] }}</span>
+            </div>
+            <div class="detail-row">
+              <span>状态</span><span>{{ detail['status'] }}</span>
+            </div>
           </u-card-content>
         </u-card>
       </u-drawer>
@@ -298,6 +333,7 @@ query()
 ## 注意事项
 
 > [!WARNING]
+>
 > - 页面区块、面板、详情抽屉内容一律用 `UCard`（`UCardHeader` / `UCardContent` / `UCardAction`），禁止自己写 `div` + `--u-*` 手搓「白底 + 边框 + 圆角 + 内边距」的面板；抽屉内用 `integrate` 去掉阴影与边框。
 > - `UTable` 的空态由组件内置，文案走 `#empty` 插槽；用 `v-if` 切换整张表会让表头一起消失。
 > - 显式 import 的组件必须补 `import '@veltra/desktop/components/<目录>/style'`：resolver 只处理模板里没有同名绑定的组件，写了 `import { UAction } from '@veltra/desktop'` 就必须写 `import '@veltra/desktop/components/action/style'`，否则结构正确但裸样式。`h()` / `render` 里的组件永不被 resolver 解析，必须显式 import，漏写报 `ReferenceError: UTag is not defined`。

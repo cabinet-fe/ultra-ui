@@ -2,7 +2,28 @@
 title: 响应式与上下文辅助
 description: Vue 响应式与依赖注入辅助：middleProxy 为深层对象建可监听批量变更的中间代理，shallowComputed 基于 shallowRef 的浅层计算属性，provideFormContext / injectFormContext 提供 UForm 表单上下文（字段注册与校验）。
 aliases: [middleProxy, shallowComputed, provideFormContext, injectFormContext, 表单上下文]
-keywords: [middleProxy, shallowComputed, provideFormContext, injectFormContext, ShallowRef, InjectionKey, registerField, unregisterField, validateFields, formProps, FormContextProps, FormFieldItem, 响应式代理, 批量变更, 浅层计算, 依赖注入, 表单校验, 字段注册, 禁用继承]
+keywords:
+  [
+    middleProxy,
+    shallowComputed,
+    provideFormContext,
+    injectFormContext,
+    ShallowRef,
+    InjectionKey,
+    registerField,
+    unregisterField,
+    validateFields,
+    formProps,
+    FormContextProps,
+    FormFieldItem,
+    响应式代理,
+    批量变更,
+    浅层计算,
+    依赖注入,
+    表单校验,
+    字段注册,
+    禁用继承
+  ]
 ---
 
 # 响应式与上下文辅助
@@ -23,10 +44,7 @@ const { formProps, registerField } = injectFormContext()
 const size = computed(() => formProps?.size ?? 'default')
 
 // 有 field 的控件注册校验项；item.validate 返回 Promise<boolean>
-registerField?.('userName', {
-  validate: async () => true,
-  clearValidate: () => {}
-})
+registerField?.('userName', { validate: async () => true, clearValidate: () => {} })
 ```
 
 ## API 签名
@@ -116,22 +134,22 @@ export function injectFormContext(): {
 
 ### middleProxy 的 handler
 
-| 钩子 | 签名 | 触发时机 | field 取值 |
-| --- | --- | --- | --- |
-| `set` | `(field: string, val: any) => void` | 任意层级的属性赋值 | 点路径：顶层 `'a'`，嵌套 `'a.b'` |
-| `get` | `(field: string) => any` | 任意层级的属性读取 | 当前层字段名，不含父路径 |
-| `changed` | `(fields: string[]) => void` | 微任务（`Promise.resolve().then`），一次同步修改合并为一次回调 | 本次全部变更字段的点路径数组，回调后清空 |
+| 钩子      | 签名                                | 触发时机                                                       | field 取值                               |
+| --------- | ----------------------------------- | -------------------------------------------------------------- | ---------------------------------------- |
+| `set`     | `(field: string, val: any) => void` | 任意层级的属性赋值                                             | 点路径：顶层 `'a'`，嵌套 `'a.b'`         |
+| `get`     | `(field: string) => any`            | 任意层级的属性读取                                             | 当前层字段名，不含父路径                 |
+| `changed` | `(fields: string[]) => void`        | 微任务（`Promise.resolve().then`），一次同步修改合并为一次回调 | 本次全部变更字段的点路径数组，回调后清空 |
 
 ### provideFormContext 的 context（DIContext）
 
-| 字段 | 类型 | 必填 | 约束 |
-| --- | --- | :---: | --- |
-| `formProps` | `Partial<FormContextProps> & Record<string, any>` | 是 | 表单属性来源，控件据此回退 size / disabled / readonly |
-| `registerField` | `(field, item) => void` | 是 | `item.validate` 必填且返回 `Promise<boolean>`；`clearValidate` 可选 |
-| `unregisterField` | `(field: string) => void` | 是 | 注销字段 |
-| `validateFields` | `(keys?) => Promise<boolean>` | 否 | 全部通过 resolve `true`，任一失败 reject 或 resolve `false` |
-| `shouldValidate` | `() => boolean` | 否 | 控件据此决定是否触发校验 |
-| `handleFieldUpdate` | `(field, value) => void` | 是 | 字段 model 更新（watch 触发） |
+| 字段                | 类型                                              | 必填 | 约束                                                                |
+| ------------------- | ------------------------------------------------- | :--: | ------------------------------------------------------------------- |
+| `formProps`         | `Partial<FormContextProps> & Record<string, any>` |  是  | 表单属性来源，控件据此回退 size / disabled / readonly               |
+| `registerField`     | `(field, item) => void`                           |  是  | `item.validate` 必填且返回 `Promise<boolean>`；`clearValidate` 可选 |
+| `unregisterField`   | `(field: string) => void`                         |  是  | 注销字段                                                            |
+| `validateFields`    | `(keys?) => Promise<boolean>`                     |  否  | 全部通过 resolve `true`，任一失败 reject 或 resolve `false`         |
+| `shouldValidate`    | `() => boolean`                                   |  否  | 控件据此决定是否触发校验                                            |
+| `handleFieldUpdate` | `(field, value) => void`                          |  是  | 字段 model 更新（watch 触发）                                       |
 
 ## 典型示例
 
@@ -202,6 +220,7 @@ watchEffect(() => {
 ## 注意事项
 
 > [!WARNING]
+>
 > - `injectFormContext()` 返回的 `inForm` 恒为 `true`：源码以 `!!context` 计算，未提供上下文时 `context` 为 `{}`（真值）。判断是否在表单内必须检查 `formProps` 等字段是否存在，禁止依赖 `inForm`。
 > - 表单控件用 `field` 绑定 model 时禁止再写 `v-model`，两者互斥。
 > - `middleProxy` 的 `set` 收到点路径、`get` 只收到当前层字段名，两者口径不同。

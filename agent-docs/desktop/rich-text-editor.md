@@ -1,8 +1,28 @@
 ---
 title: URichTextEditor 富文本编辑器
-description: "基于 Lexical 0.50 封装的富文本编辑器：v-model 绑定 HTML 或 Lexical EditorState JSON 字符串，内置加粗、标题、列表、引用、链接等工具栏，支持占位文本、自定义工具栏、禁用只读与表单集成。"
+description: '基于 Lexical 0.50 封装的富文本编辑器：v-model 绑定 HTML 或 Lexical EditorState JSON 字符串，内置加粗、标题、列表、引用、链接等工具栏，支持占位文本、自定义工具栏、禁用只读与表单集成。'
 aliases: [RichTextEditor, rich-text-editor, 富文本, RTE, 所见即所得编辑器, Lexical 封装]
-keywords: ["update:modelValue", modelValue, format, toolbar, placeholder, ToolbarItem, RichTextFormat, html, json, 工具栏配置, 行内代码, 无序列表, 有序列表, 引用块, 插入链接, 占位文本, 撤销重做, 标题下拉]
+keywords:
+  [
+    'update:modelValue',
+    modelValue,
+    format,
+    toolbar,
+    placeholder,
+    ToolbarItem,
+    RichTextFormat,
+    html,
+    json,
+    工具栏配置,
+    行内代码,
+    无序列表,
+    有序列表,
+    引用块,
+    插入链接,
+    占位文本,
+    撤销重做,
+    标题下拉
+  ]
 ---
 
 # URichTextEditor 富文本编辑器
@@ -132,20 +152,20 @@ export interface ValidateRule {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `modelValue` | `string` | `''`（空内容） | 否 | 格式必须与 `format` 一致；不匹配时按空内容处理，不抛错 |
-| `format` | `'html' \| 'json'` | `'html'` | 否 | 切换 `format` 不会转换已有内容，必须初始就定好 |
-| `toolbar` | `ToolbarItem[]` | `DEFAULT_TOOLBAR` | 否 | 元素仅限 14 个枚举值；`'|'` 渲染分隔符；空数组不渲染工具栏 |
-| `placeholder` | `string` | `''` | 否 | 内容为空时显示 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 否 | 优先级：组件 props > UForm > 全局配置 > `'default'` |
-| `label` | `string` | — | 否 | 仅 UForm 内生效 |
-| `field` | `string` | — | 否 | 仅 UForm 内生效；设置后禁止再写 `v-model` |
-| `span` | `number` / `'full'` / 对象 | — | 否 | 仅 UForm 内生效；对象键为 `xs`/`sm`/`md`/`lg`/`xl` 加必填 `default` |
-| `tips` | `string` | — | 否 | 仅 UForm 内生效 |
-| `disabled` | `boolean` | `false` | 否 | 工具栏按钮变为禁用态 |
-| `readonly` | `boolean` | `false` | 否 | 工具栏整体不渲染 |
-| `rules` | `ValidateRule` | — | 否 | 仅 UForm 内生效 |
+| 参数          | 类型                              | 默认              | 必填 | 约束                                                                |
+| ------------- | --------------------------------- | ----------------- | :--: | ------------------------------------------------------------------- |
+| `modelValue`  | `string`                          | `''`（空内容）    |  否  | 格式必须与 `format` 一致；不匹配时按空内容处理，不抛错              |
+| `format`      | `'html' \| 'json'`                | `'html'`          |  否  | 切换 `format` 不会转换已有内容，必须初始就定好                      |
+| `toolbar`     | `ToolbarItem[]`                   | `DEFAULT_TOOLBAR` |  否  | 元素仅限 14 个枚举值；`'                                            | '` 渲染分隔符；空数组不渲染工具栏 |
+| `placeholder` | `string`                          | `''`              |  否  | 内容为空时显示                                                      |
+| `size`        | `'small' \| 'default' \| 'large'` | `'default'`       |  否  | 优先级：组件 props > UForm > 全局配置 > `'default'`                 |
+| `label`       | `string`                          | —                 |  否  | 仅 UForm 内生效                                                     |
+| `field`       | `string`                          | —                 |  否  | 仅 UForm 内生效；设置后禁止再写 `v-model`                           |
+| `span`        | `number` / `'full'` / 对象        | —                 |  否  | 仅 UForm 内生效；对象键为 `xs`/`sm`/`md`/`lg`/`xl` 加必填 `default` |
+| `tips`        | `string`                          | —                 |  否  | 仅 UForm 内生效                                                     |
+| `disabled`    | `boolean`                         | `false`           |  否  | 工具栏按钮变为禁用态                                                |
+| `readonly`    | `boolean`                         | `false`           |  否  | 工具栏整体不渲染                                                    |
+| `rules`       | `ValidateRule`                    | —                 |  否  | 仅 UForm 内生效                                                     |
 
 ## 方法与事件
 
@@ -230,6 +250,7 @@ function submit() {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库组件是 `URichTextEditor`，从 `@veltra/desktop` 导入；`lexical` 与 `@lexical/*`（`^0.50.0`）是 `@veltra/desktop` 的 `dependencies`，安装时自动带上，禁止手动安装其他版本的 Lexical；应用直接使用 Lexical API 时版本必须兼容 `^0.50.0`。
 > - 在 UForm 中必须使用 `field` 绑定 model；已有 `field` 时禁止再写 `v-model`。
 > - `format="json"` 的 `v-model` 是 Lexical EditorState 的 JSON 序列化，不是自定义 schema；HTML 字符串与 JSON 字符串禁止互灌，格式不匹配时解析失败按空内容处理（一个空段落），不抛错。

@@ -2,7 +2,22 @@
 title: vFocus 自动聚焦指令
 description: 从 @veltra/directives 导入的自动聚焦指令，元素挂载时把焦点放到 <input> 上：元素本身是 input 则直接聚焦，否则聚焦第一个 input 后代。用于搜索框挂载即聚焦、弹窗/抽屉打开后首个输入控件自动获焦、条件渲染表单进入编辑态。
 aliases: [v-focus, autofocus, 自动聚焦, 输入框聚焦, focus 指令]
-keywords: [vFocus, v-focus, "@veltra/directives", input, querySelector, mounted, 自动聚焦, 获取焦点, 输入框聚焦, 搜索框聚焦, 弹窗聚焦, autofocus, 指令需要一个 input 元素]
+keywords:
+  [
+    vFocus,
+    v-focus,
+    '@veltra/directives',
+    input,
+    querySelector,
+    mounted,
+    自动聚焦,
+    获取焦点,
+    输入框聚焦,
+    搜索框聚焦,
+    弹窗聚焦,
+    autofocus,
+    指令需要一个 input 元素
+  ]
 ---
 
 # vFocus 自动聚焦指令
@@ -48,13 +63,13 @@ app.mount('#app')
 ## API 签名
 
 ```ts
-import type { ObjectDirective } from 'vue';
+import type { ObjectDirective } from 'vue'
 
 /**
  * 挂载时自动聚焦元素或其第一个 input 后代。
  * 无绑定值（传入值被忽略）、无修饰符、无指令参数。
  */
-export declare const vFocus: ObjectDirective<HTMLElement>;
+export declare const vFocus: ObjectDirective<HTMLElement>
 ```
 
 指令内部只在 `mounted` 钩子执行，按以下顺序判定：
@@ -65,13 +80,13 @@ export declare const vFocus: ObjectDirective<HTMLElement>;
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| 绑定值 | 无 | — | 否 | `v-focus="expr"` 语法合法但表达式值被完全忽略，禁止依赖它传配置 |
-| 修饰符 | 无 | — | — | 不支持任何修饰符 |
-| 指令参数 | 无 | — | — | 不支持 `v-focus:x` 写法 |
-| 触发时机 | `mounted` | — | — | 仅元素挂载时执行一次；组件更新（`updated`）不重新聚焦 |
-| 清理行为 | 无 | — | — | 无事件监听、无定时器，卸载时无需清理；聚焦本身是同步一次性调用 |
+| 参数     | 类型      | 默认 | 必填 | 约束                                                            |
+| -------- | --------- | ---- | :--: | --------------------------------------------------------------- |
+| 绑定值   | 无        | —    |  否  | `v-focus="expr"` 语法合法但表达式值被完全忽略，禁止依赖它传配置 |
+| 修饰符   | 无        | —    |  —   | 不支持任何修饰符                                                |
+| 指令参数 | 无        | —    |  —   | 不支持 `v-focus:x` 写法                                         |
+| 触发时机 | `mounted` | —    |  —   | 仅元素挂载时执行一次；组件更新（`updated`）不重新聚焦           |
+| 清理行为 | 无        | —    |  —   | 无事件监听、无定时器，卸载时无需清理；聚焦本身是同步一次性调用  |
 
 ## 典型示例
 
@@ -155,6 +170,7 @@ const account = ref('')
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库指令从 `@veltra/directives` 导入（`import { vFocus } from '@veltra/directives'`），不是 Vue 内置指令；Vue 3 没有内置 `v-focus`。禁止写成 `import { vFocus } from 'vue'`。
 > - 只匹配 `<input>` 标签：`<textarea>` 不会被聚焦，且会触发警告 `v-focus 指令需要一个 input 元素`。
 > - 仅 `mounted` 时执行一次；数据更新导致组件重渲染（`updated`）不会重新聚焦。需要再次聚焦时用 `v-if` / `:key` 让元素重新挂载。

@@ -2,7 +2,27 @@
 title: 动画与帧工具
 description: 动画驱动工具集：ExpandTransition 高度展开/收起过渡（可接 Vue transition 钩子），Tween 基于 requestAnimationFrame 的数值补间，nextFrame 双 rAF 延迟，createIncrease 自增序列，createToggle 布尔开关。
 aliases: [ExpandTransition, Tween, nextFrame, createIncrease, createToggle, 补间动画]
-keywords: [ExpandTransition, Tween, nextFrame, createIncrease, createToggle, AnimeConfig, TweenConfig, easing, requestAnimationFrame, transitionend, 高度过渡, 展开收起, 折叠面板, 补间动画, 缓动函数, 帧回调, 自增, 布尔开关]
+keywords:
+  [
+    ExpandTransition,
+    Tween,
+    nextFrame,
+    createIncrease,
+    createToggle,
+    AnimeConfig,
+    TweenConfig,
+    easing,
+    requestAnimationFrame,
+    transitionend,
+    高度过渡,
+    展开收起,
+    折叠面板,
+    补间动画,
+    缓动函数,
+    帧回调,
+    自增,
+    布尔开关
+  ]
 ---
 
 # 动画与帧工具
@@ -120,7 +140,8 @@ export function nextFrame(cb: () => void): void
 /** 创建自增函数；initial 默认 1000；后置递增——首次调用返回 initial 本身 */
 export function createIncrease(initial = 1000): () => number
 
-export type Active = boolean | ((active: boolean) => boolean) | ((active: boolean) => Promise<boolean>)
+export type Active =
+  boolean | ((active: boolean) => boolean) | ((active: boolean) => Promise<boolean>)
 type ToggleReturn = [{ value: boolean }, (active: Active) => void]
 
 /**
@@ -136,31 +157,31 @@ export function createToggle(initial?: boolean, onChange?: (active: boolean) => 
 
 ### ExpandTransitionOptions
 
-| 字段 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `transition` | `string` | `'height 0.25s cubic-bezier(0.4, 0, 0.2, 1)'` | 否 | 完整 CSS `transition` 值（属性 + 时长 + 缓动） |
-| `enterTransition` | `string` | 回落 `transition` | 否 | 优先级高于 `transition` |
-| `leaveTransition` | `string` | 回落 `transition` | 否 | 优先级高于 `transition` |
-| `opacity` | `boolean` | `false` | 否 | 仅 `enter` / `beforeLeave` / `leave` 钩子路径生效；`expand` / `collapse` 恒只动画高度 |
+| 字段              | 类型      | 默认                                          | 必填 | 约束                                                                                  |
+| ----------------- | --------- | --------------------------------------------- | :--: | ------------------------------------------------------------------------------------- |
+| `transition`      | `string`  | `'height 0.25s cubic-bezier(0.4, 0, 0.2, 1)'` |  否  | 完整 CSS `transition` 值（属性 + 时长 + 缓动）                                        |
+| `enterTransition` | `string`  | 回落 `transition`                             |  否  | 优先级高于 `transition`                                                               |
+| `leaveTransition` | `string`  | 回落 `transition`                             |  否  | 优先级高于 `transition`                                                               |
+| `opacity`         | `boolean` | `false`                                       |  否  | 仅 `enter` / `beforeLeave` / `leave` 钩子路径生效；`expand` / `collapse` 恒只动画高度 |
 
 副作用：所有方法直接改写 `el` 的 inline style（`box-sizing`、`height`、`padding-top`、`padding-bottom`、`overflow`、`transition`、`will-change`，钩子路径含 `opacity`）；`expand` / `collapse` 监听 `transitionend` / `transitioncancel` 并在落定后清除临时样式。`expand` / `collapse` 在起始高度与目标高度相同时跳过动画、同步落位并立即调用 `onEnd`。
 
 ### Tween 构造配置
 
-| 字段 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `state` | `State extends Record<string, number>` | — | 是 | 补间对象，逐帧原地写入 |
-| `duration` | `number` | `300` | 否 | 毫秒；`to` 的 `config.duration` 可单次覆盖 |
-| `onUpdate` | `(state) => void` | — | 否 | 每帧调用，含最后一帧 |
-| `onComplete` | `(state) => void` | — | 否 | 动画结束时调用；被 `to` 打断的旧动画不触发，新动画结束时触发 |
-| `easingFunction` | `(progress) => number` | `Tween.easing.linear` | 否 | 入参 0~1 线性进度，返回缓动后进度 |
+| 字段             | 类型                                   | 默认                  | 必填 | 约束                                                         |
+| ---------------- | -------------------------------------- | --------------------- | :--: | ------------------------------------------------------------ |
+| `state`          | `State extends Record<string, number>` | —                     |  是  | 补间对象，逐帧原地写入                                       |
+| `duration`       | `number`                               | `300`                 |  否  | 毫秒；`to` 的 `config.duration` 可单次覆盖                   |
+| `onUpdate`       | `(state) => void`                      | —                     |  否  | 每帧调用，含最后一帧                                         |
+| `onComplete`     | `(state) => void`                      | —                     |  否  | 动画结束时调用；被 `to` 打断的旧动画不触发，新动画结束时触发 |
+| `easingFunction` | `(progress) => number`                 | `Tween.easing.linear` |  否  | 入参 0~1 线性进度，返回缓动后进度                            |
 
 ### createToggle 的 toggle 入参
 
-| 入参形态 | 行为 |
-| --- | --- |
-| `boolean` | 直接设为该值并触发 `onChange` |
-| `(active) => boolean` | 用当前值算下一值，递归走 boolean 分支 |
+| 入参形态                       | 行为                                                              |
+| ------------------------------ | ----------------------------------------------------------------- |
+| `boolean`                      | 直接设为该值并触发 `onChange`                                     |
+| `(active) => boolean`          | 用当前值算下一值，递归走 boolean 分支                             |
 | `(active) => Promise<boolean>` | Promise 兑现后以兑现值递归走 boolean 分支；兑现值必须是 `boolean` |
 
 ## 典型示例
@@ -233,6 +254,7 @@ console.log(state.value) // => false
 ## 注意事项
 
 > [!WARNING]
+>
 > - `ExpandTransition` 的高度动画要求元素 `box-sizing: border-box` 且 padding 可控，类内自动设置并在落定后还原；禁止在动画期间并发改写这些 inline 属性。
 > - `opacity: true` 只在 Vue `<transition>` 钩子路径（`enter` / `beforeLeave` / `leave`）生效；`expand` / `collapse` 恒只动画高度。
 > - `ExpandTransition` 实例内部按元素记录动画状态；同一元素禁止用两个实例同时驱动，多面板共用一个实例。

@@ -1,6 +1,6 @@
 ---
-title: "URadioGroup 单选框组"
-description: "单选框组，用 items 渲染一组单选并把选中项的 value 写入 modelValue；支持按项禁用、整组禁用、块级排列，可在 UForm 内用 field 绑定表单字段。"
+title: 'URadioGroup 单选框组'
+description: '单选框组，用 items 渲染一组单选并把选中项的 value 写入 modelValue；支持按项禁用、整组禁用、块级排列，可在 UForm 内用 field 绑定表单字段。'
 aliases: [radio-group, RadioGroup, 单选框组, 选项组, 单选按钮组]
 keywords:
   - modelValue
@@ -87,30 +87,30 @@ export type RadioGroupExposed = DeconstructValue<_RadioGroupExposed>
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `modelValue` | `any` | — | 否 | 必须与某项 `valueKey` 字段的值全等（`===`）才有选中项 |
-| `items` | `Record<string, any>[]` | — | 是 | 选项列表；每项必须有 `valueKey` / `labelKey` 指向的字段 |
-| `valueKey` | `string` | `'value'` | 否 | 选项值字段名；空串按 `'value'` 处理 |
-| `labelKey` | `string` | `'label'` | 否 | 选项文本字段名；空串按 `'label'` 处理 |
-| `disabled` | `boolean` | `false` | 否 | 整组禁用；未设置时继承 `<u-form>` 的 `disabled` |
-| `disabledItem` | `(item: Record<string, any>) => boolean` | — | 否 | 按项禁用；与 `disabled` 同时设置时两项任一为真即禁用 |
-| `block` | `boolean` | `false` | 否 | `true` 时选项纵向排列，`false` 时横向排列 |
-| **继承自 `FormComponentProps`** | | | | |
-| `size` | `ComponentSize` | `'default'` | 否 | `'small'` \| `'default'` \| `'large'`；未设置时继承 `<u-form>` 的 `size` |
-| `label` | `string` | — | 否 | 表单标签文字；仅在 `UForm` / `UFormItem` 内生效 |
-| `field` | `string` | — | 否 | `UForm` 字段名；在 `UForm` 内必须用 `field` 绑定，禁止再写 `v-model` |
-| `tips` | `string` | — | 否 | 表单内提示文字；仅在 `UForm` / `UFormItem` 内生效 |
-| `span` | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }` | — | 否 | 表单中所占列数；`'full'` 占满一行，响应式对象的 `default` 必填 |
-| `readonly` | `boolean` | `false` | 否 | 只读：渲染选中项的文本，未选中时显示 `-` |
-| `rules` | `ValidateRule` | — | 否 | 校验规则（如 `{ required: true }`）；仅在 `UForm` 内生效 |
+| 参数                            | 类型                                                       | 默认        | 必填 | 约束                                                                     |
+| ------------------------------- | ---------------------------------------------------------- | ----------- | :--: | ------------------------------------------------------------------------ |
+| `modelValue`                    | `any`                                                      | —           |  否  | 必须与某项 `valueKey` 字段的值全等（`===`）才有选中项                    |
+| `items`                         | `Record<string, any>[]`                                    | —           |  是  | 选项列表；每项必须有 `valueKey` / `labelKey` 指向的字段                  |
+| `valueKey`                      | `string`                                                   | `'value'`   |  否  | 选项值字段名；空串按 `'value'` 处理                                      |
+| `labelKey`                      | `string`                                                   | `'label'`   |  否  | 选项文本字段名；空串按 `'label'` 处理                                    |
+| `disabled`                      | `boolean`                                                  | `false`     |  否  | 整组禁用；未设置时继承 `<u-form>` 的 `disabled`                          |
+| `disabledItem`                  | `(item: Record<string, any>) => boolean`                   | —           |  否  | 按项禁用；与 `disabled` 同时设置时两项任一为真即禁用                     |
+| `block`                         | `boolean`                                                  | `false`     |  否  | `true` 时选项纵向排列，`false` 时横向排列                                |
+| **继承自 `FormComponentProps`** |                                                            |             |      |                                                                          |
+| `size`                          | `ComponentSize`                                            | `'default'` |  否  | `'small'` \| `'default'` \| `'large'`；未设置时继承 `<u-form>` 的 `size` |
+| `label`                         | `string`                                                   | —           |  否  | 表单标签文字；仅在 `UForm` / `UFormItem` 内生效                          |
+| `field`                         | `string`                                                   | —           |  否  | `UForm` 字段名；在 `UForm` 内必须用 `field` 绑定，禁止再写 `v-model`     |
+| `tips`                          | `string`                                                   | —           |  否  | 表单内提示文字；仅在 `UForm` / `UFormItem` 内生效                        |
+| `span`                          | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }` | —           |  否  | 表单中所占列数；`'full'` 占满一行，响应式对象的 `default` 必填           |
+| `readonly`                      | `boolean`                                                  | `false`     |  否  | 只读：渲染选中项的文本，未选中时显示 `-`                                 |
+| `rules`                         | `ValidateRule`                                             | —           |  否  | 校验规则（如 `{ required: true }`）；仅在 `UForm` 内生效                 |
 
 ## 方法与事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
-| `update:modelValue` | `modelValue: any` | 选中项变化后，发出选中项的 `value` |
-| `change` | `item: Record<string, any>` | 选中项变化后，发出选中的完整选项对象；点选已选中项不触发 |
+| 事件                | payload                     | 触发时机                                                 |
+| ------------------- | --------------------------- | -------------------------------------------------------- |
+| `update:modelValue` | `modelValue: any`           | 选中项变化后，发出选中项的 `value`                       |
+| `change`            | `item: Record<string, any>` | 选中项变化后，发出选中的完整选项对象；点选已选中项不触发 |
 
 组件未 `defineExpose` 任何方法，模板 `ref` 上无可调用属性。
 
@@ -175,6 +175,7 @@ const options = [
 ## 注意事项
 
 > [!WARNING]
+>
 > - `modelValue` 是单值（选中项的 `value`），不是数组；收集多个值用 `UCheckboxGroup`。
 > - 本库 `change` 事件的 payload 是**完整选项对象**，不是 value；取值用 `item[valueKey]`。
 > - 选中判定是全等：`modelValue` 与 `valueKey` 字段值类型不一致（如 `'1'` 与 `1`）时无法回显选中。

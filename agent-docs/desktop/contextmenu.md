@@ -1,8 +1,30 @@
 ---
 title: UContextmenu 右键菜单
-description: "从 @veltra/desktop 导入的右键菜单：组件 UContextmenu 传 mousePosition 与 menus 在鼠标位置渲染，函数式 contextmenu.pop() 一行调用；支持多级子菜单、图标列、分割线、禁用、异步回调 loading、自定义渲染与 keepOpen 内嵌交互。"
+description: '从 @veltra/desktop 导入的右键菜单：组件 UContextmenu 传 mousePosition 与 menus 在鼠标位置渲染，函数式 contextmenu.pop() 一行调用；支持多级子菜单、图标列、分割线、禁用、异步回调 loading、自定义渲染与 keepOpen 内嵌交互。'
 aliases: [ContextMenu, contextmenu, 上下文菜单, 鼠标右键菜单, ContextMenu组件]
-keywords: [mousePosition, menus, ContextmenuItem, contextmenu.pop, destroy, divider, keepOpen, callback, children, render, disabled, ContextmenuRootDIKey, 右键弹出, 子菜单, 分割线, 异步回调, 点击外部关闭, 自定义菜单项, 鼠标位置, 函数式调用]
+keywords:
+  [
+    mousePosition,
+    menus,
+    ContextmenuItem,
+    contextmenu.pop,
+    destroy,
+    divider,
+    keepOpen,
+    callback,
+    children,
+    render,
+    disabled,
+    ContextmenuRootDIKey,
+    右键弹出,
+    子菜单,
+    分割线,
+    异步回调,
+    点击外部关闭,
+    自定义菜单项,
+    鼠标位置,
+    函数式调用
+  ]
 ---
 
 # UContextmenu 右键菜单
@@ -105,42 +127,40 @@ export interface ContextmenuExposed {}
  * 同一时刻只保留最新一个实例（再次 pop 会先卸载上一个）。
  * 无返回值，也没有手动关闭句柄；关闭由内部完成：点击菜单外部或菜单项回调执行完毕
  */
-export declare const contextmenu: {
-  pop(options: ContextmenuProps): void
-}
+export declare const contextmenu: { pop(options: ContextmenuProps): void }
 ```
 
 ## 参数说明
 
 ### ContextmenuProps
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `mousePosition` | `{ x: number; y: number }` | — | 是 | viewport 坐标（`e.clientX` / `e.clientY`）；菜单在该点右下 1px 处显示，靠近屏幕右/下半时自动改用右/下边缘锚定 |
-| `menus` | `ContextmenuItem[] \| (() => ContextmenuItem[])` | — | 是 | 传函数可在每次打开时动态生成菜单项 |
-| `width` | `number \| string` | `150` | 否 | 数字按 px；`'max-content'` 由内容撑开，根样式带 `min-width: 120px` |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 否 | 影响菜单项内边距与字号 |
+| 参数            | 类型                                             | 默认        | 必填 | 约束                                                                                                          |
+| --------------- | ------------------------------------------------ | ----------- | :--: | ------------------------------------------------------------------------------------------------------------- |
+| `mousePosition` | `{ x: number; y: number }`                       | —           |  是  | viewport 坐标（`e.clientX` / `e.clientY`）；菜单在该点右下 1px 处显示，靠近屏幕右/下半时自动改用右/下边缘锚定 |
+| `menus`         | `ContextmenuItem[] \| (() => ContextmenuItem[])` | —           |  是  | 传函数可在每次打开时动态生成菜单项                                                                            |
+| `width`         | `number \| string`                               | `150`       |  否  | 数字按 px；`'max-content'` 由内容撑开，根样式带 `min-width: 120px`                                            |
+| `size`          | `'small' \| 'default' \| 'large'`                | `'default'` |  否  | 影响菜单项内边距与字号                                                                                        |
 
 ### ContextmenuItem
 
-| 字段 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `label` | `string` | — | 否 | `divider: true` 时可空 |
-| `description` | `string` | — | 否 | 菜单描述文字 |
-| `icon` | `Component` | — | 否 | 同层任一项有 `icon` 时整层预留图标列对齐；异步回调执行中显示 loading 图标 |
-| `children` | `ContextmenuItem[]` | — | 否 | 非空时渲染为子菜单，hover 打开、移开 250ms 后关闭，支持无限层级，贴屏幕右缘自动向左展开 |
-| `callback` | `() => any` | — | 否 | 点击时调用；返回 `Promise` 时菜单保持打开并显示 loading，Promise 结束（含 reject）后关闭 |
-| `disabled` | `boolean \| (() => boolean)` | `false` | 否 | 禁用项不响应点击、不触发关闭 |
-| `divider` | `boolean` | `false` | 否 | 为 `true` 时渲染 `<li role="separator">`，忽略其余字段 |
-| `render` | `Component` | — | 否 | 渲染该组件替代 `label` 文本；组件内点击事件不会冒泡触发菜单项点击 |
-| `keepOpen` | `boolean` | `false` | 否 | 点击本项不进入关闭流程；配合 `render` 内嵌交互组件，需要关闭时手动调用注入的 `onItemClickEnd()` |
+| 字段          | 类型                         | 默认    | 必填 | 约束                                                                                            |
+| ------------- | ---------------------------- | ------- | :--: | ----------------------------------------------------------------------------------------------- |
+| `label`       | `string`                     | —       |  否  | `divider: true` 时可空                                                                          |
+| `description` | `string`                     | —       |  否  | 菜单描述文字                                                                                    |
+| `icon`        | `Component`                  | —       |  否  | 同层任一项有 `icon` 时整层预留图标列对齐；异步回调执行中显示 loading 图标                       |
+| `children`    | `ContextmenuItem[]`          | —       |  否  | 非空时渲染为子菜单，hover 打开、移开 250ms 后关闭，支持无限层级，贴屏幕右缘自动向左展开         |
+| `callback`    | `() => any`                  | —       |  否  | 点击时调用；返回 `Promise` 时菜单保持打开并显示 loading，Promise 结束（含 reject）后关闭        |
+| `disabled`    | `boolean \| (() => boolean)` | `false` |  否  | 禁用项不响应点击、不触发关闭                                                                    |
+| `divider`     | `boolean`                    | `false` |  否  | 为 `true` 时渲染 `<li role="separator">`，忽略其余字段                                          |
+| `render`      | `Component`                  | —       |  否  | 渲染该组件替代 `label` 文本；组件内点击事件不会冒泡触发菜单项点击                               |
+| `keepOpen`    | `boolean`                    | `false` |  否  | 点击本项不进入关闭流程；配合 `render` 内嵌交互组件，需要关闭时手动调用注入的 `onItemClickEnd()` |
 
 ## 方法与事件
 
-| 名称 | 类型 | 说明 |
-| --- | --- | --- |
-| `destroy`（组件事件） | `()` | 菜单关闭、`zoom-in` 退场动画结束后触发。必须监听并复位外部的 `v-if`，否则菜单无法再次打开 |
-| `contextmenu.pop` | `(options: ContextmenuProps) => void`，同步，无返回值 | 函数式入口。挂载到 `document.body`；点菜单外部或菜单项回调完成后内部自动卸载，没有 `close()` 之类的手动关闭方法 |
+| 名称                  | 类型                                                  | 说明                                                                                                            |
+| --------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `destroy`（组件事件） | `()`                                                  | 菜单关闭、`zoom-in` 退场动画结束后触发。必须监听并复位外部的 `v-if`，否则菜单无法再次打开                       |
+| `contextmenu.pop`     | `(options: ContextmenuProps) => void`，同步，无返回值 | 函数式入口。挂载到 `document.body`；点菜单外部或菜单项回调完成后内部自动卸载，没有 `close()` 之类的手动关闭方法 |
 
 ## 典型示例
 
@@ -159,7 +179,12 @@ const canEdit = ref(false)
 
 function getMenus(): ContextmenuItem[] {
   return [
-    { label: '编辑', icon: Edit, disabled: () => !canEdit.value, callback: () => console.log('编辑') },
+    {
+      label: '编辑',
+      icon: Edit,
+      disabled: () => !canEdit.value,
+      callback: () => console.log('编辑')
+    },
     { label: '复制', icon: Copy, callback: () => console.log('复制') },
     {
       label: '删除',
@@ -186,12 +211,7 @@ function onContextMenu(e: MouseEvent) {
     右键打开动态菜单
   </div>
 
-  <UContextmenu
-    v-if="visible"
-    :mouse-position="pos"
-    :menus="getMenus"
-    @destroy="visible = false"
-  />
+  <UContextmenu v-if="visible" :mouse-position="pos" :menus="getMenus" @destroy="visible = false" />
 </template>
 ```
 
@@ -214,10 +234,7 @@ const menus: ContextmenuItem[] = [
     children: [
       { label: '文档', callback: () => console.log('新建文档') },
       { label: '表格', callback: () => console.log('新建表格') },
-      {
-        label: '更多',
-        children: [{ label: '幻灯片', callback: () => console.log('新建幻灯片') }]
-      }
+      { label: '更多', children: [{ label: '幻灯片', callback: () => console.log('新建幻灯片') }] }
     ]
   },
   { divider: true },
@@ -273,10 +290,7 @@ const menus: ContextmenuItem[] = [
 function onPopContextMenu(e: MouseEvent) {
   e.preventDefault()
   // 无返回值；点外部或菜单项回调完成后自动卸载
-  contextmenu.pop({
-    mousePosition: { x: e.clientX, y: e.clientY },
-    menus
-  })
+  contextmenu.pop({ mousePosition: { x: e.clientX, y: e.clientY }, menus })
 }
 </script>
 
@@ -285,16 +299,23 @@ function onPopContextMenu(e: MouseEvent) {
     右键调用 contextmenu.pop()
   </div>
 
-  <UButton style="margin-top: 12px" @click="contextmenu.pop({
-    mousePosition: { x: 200, y: 200 },
-    menus: [{ label: '固定位置菜单', callback: () => console.log('clicked') }]
-  })">在固定坐标弹出</UButton>
+  <UButton
+    style="margin-top: 12px"
+    @click="
+      contextmenu.pop({
+        mousePosition: { x: 200, y: 200 },
+        menus: [{ label: '固定位置菜单', callback: () => console.log('clicked') }]
+      })
+    "
+    >在固定坐标弹出</UButton
+  >
 </template>
 ```
 
 ## 注意事项
 
 > [!WARNING]
+>
 > - 两种用法 import 不同：组件用 `import { UContextmenu } from '@veltra/desktop'`，函数式用 `import { contextmenu } from '@veltra/desktop'`；`ContextmenuItem` 等类型同样从 `@veltra/desktop` 以 `import type` 导入。
 > - 组件用法必须监听 `destroy` 并复位 `v-if`：菜单挂载即显示、关闭即销毁，显隐完全由外部 `v-if` 控制，没有 `v-model`。
 > - 菜单通过 Teleport 渲染到 `body`，不会被父容器的 `overflow: hidden` 裁剪；定位坐标必须是 viewport 坐标（`e.clientX` / `e.clientY`），不是相对容器的偏移。

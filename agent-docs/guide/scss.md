@@ -1,8 +1,29 @@
 ---
-title: "@veltra/styles SCSS 用法指南"
-description: "用 pkg:@veltra/styles 前缀在组件样式里引用 vars、functions、mixins：BEM mixin、主题 token 函数、暗色与断点 mixin 的完整清单，以及 sass-embedded NodePackageImporter 的注册与 entryPointDirectory 解析规则（磁盘 .scss 文件自动向上解析；additionalData 等非磁盘来源才需要传目录）。"
+title: '@veltra/styles SCSS 用法指南'
+description: '用 pkg:@veltra/styles 前缀在组件样式里引用 vars、functions、mixins：BEM mixin、主题 token 函数、暗色与断点 mixin 的完整清单，以及 sass-embedded NodePackageImporter 的注册与 entryPointDirectory 解析规则（磁盘 .scss 文件自动向上解析；additionalData 等非磁盘来源才需要传目录）。'
 aliases: [scss, sass, mixins, BEM, 样式工具]
-keywords: ["pkg:", NodePackageImporter, entryPointDirectory, additionalData, sass-embedded, "Can't find stylesheet to import", use-var, color-a, component-var, use-vars, css-var, bem, $namespace, ellipsis, is-not, 命名空间, 样式函数, 暗色样式, 响应式断点]
+keywords:
+  [
+    'pkg:',
+    NodePackageImporter,
+    entryPointDirectory,
+    additionalData,
+    sass-embedded,
+    "Can't find stylesheet to import",
+    use-var,
+    color-a,
+    component-var,
+    use-vars,
+    css-var,
+    bem,
+    $namespace,
+    ellipsis,
+    is-not,
+    命名空间,
+    样式函数,
+    暗色样式,
+    响应式断点
+  ]
 ---
 
 # @veltra/styles SCSS 用法指南
@@ -53,11 +74,11 @@ export default defineConfig({
 
 exports 映射 `'./*'` 的 `sass` 条件指向 `./src/*`，partial 按下划线规则解析：
 
-| @use 路径 | 源文件 | 内容 |
-| --- | --- | --- |
-| `pkg:@veltra/styles/vars` | `src/_vars.scss` | 语义别名变量、`$sizes`、`$color-types` |
-| `pkg:@veltra/styles/functions` | `src/_functions.scss` | token 引用函数、BEM 函数 |
-| `pkg:@veltra/styles/mixins` | `src/_mixins.scss` | BEM、布局、暗色、断点 mixin |
+| @use 路径                      | 源文件                | 内容                                   |
+| ------------------------------ | --------------------- | -------------------------------------- |
+| `pkg:@veltra/styles/vars`      | `src/_vars.scss`      | 语义别名变量、`$sizes`、`$color-types` |
+| `pkg:@veltra/styles/functions` | `src/_functions.scss` | token 引用函数、BEM 函数               |
+| `pkg:@veltra/styles/mixins`    | `src/_mixins.scss`    | BEM、布局、暗色、断点 mixin            |
 
 `src` 下任意样式文件同样可达（如 `pkg:@veltra/styles/animations/shine`），但动画 / 过渡的按需加载走 JS `import`，见 `styles/animations.md`。
 
@@ -77,13 +98,13 @@ exports 映射 `'./*'` 的 `sass` 条件指向 `./src/*`，partial 按下划线�
 }
 ```
 
-| 函数 | 签名 | 返回 |
-| --- | --- | --- |
-| `use-var` | `($basename, $nodes...)` | `var(--u-{$basename}-{$nodes...})`，全局 token |
-| `use-vars` | `($vars, $separator: ' ')` | 多个 `use-var` 用分隔符拼接 |
-| `color-a` | `($basename, $alpha, $nodes...)` | `var(--u-{$basename}-{$nodes...}-a-{$alpha})`，alpha token |
-| `component-var` | `($component, $property, $fallback: null)` | `var(--u-{$component}-{$property}[, $fallback])` |
-| `bem` | `($b, $e: null, $m: null)` | 选择器字符串 `.u-b__e--m`（函数版，用于插值） |
+| 函数            | 签名                                       | 返回                                                       |
+| --------------- | ------------------------------------------ | ---------------------------------------------------------- |
+| `use-var`       | `($basename, $nodes...)`                   | `var(--u-{$basename}-{$nodes...})`，全局 token             |
+| `use-vars`      | `($vars, $separator: ' ')`                 | 多个 `use-var` 用分隔符拼接                                |
+| `color-a`       | `($basename, $alpha, $nodes...)`           | `var(--u-{$basename}-{$nodes...}-a-{$alpha})`，alpha token |
+| `component-var` | `($component, $property, $fallback: null)` | `var(--u-{$component}-{$property}[, $fallback])`           |
+| `bem`           | `($b, $e: null, $m: null)`                 | 选择器字符串 `.u-b__e--m`（函数版，用于插值）              |
 
 ### 4. 使用 BEM 与工具 mixin（_mixins.scss）
 
@@ -111,21 +132,21 @@ exports 映射 `'./*'` 的 `sass` 条件指向 `./src/*`，partial 按下划线�
 }
 ```
 
-| mixin | 签名 | 编译结果 |
-| --- | --- | --- |
-| `b` | `($blocks...)` | 每个 block 一条 `.u-{$block} { ... }` |
-| `e` | `($elements...)` | `&__el1, &__el2` 选择器列表 |
-| `m` | `($modifiers...)` | `&--mod1, &--mod2` 选择器列表 |
-| `em` | `($element, $modifier)` | `&__el--mod` |
-| `bem` | `($b, $e: null, $m: null)` | `.u-b__e--m` 完整选择器 |
-| `is` | `($types...)` | `&.is-type` |
-| `is-not` | `($types...)` | `&:not(.is-a):not(.is-b)` 链式否定 |
-| `flex` | `($display: flex, $justify: flex-start, $align: center, $wrap: nowrap)` | 四条 flex 属性 |
-| `ellipsis` | 无参数 | overflow / text-overflow / white-space 三件套 |
-| `size` | 无参数，配 `using ($size)` | 生成 `&--small` / `&--default` / `&--large` |
-| `css-var` | `($prefix, $list)` | map 或 list 展开为一组 `--{$prefix}-key: value` 声明 |
-| `dark` | 无参数 | 包一层 `html[data-theme='dark'] &` |
-| `xs` / `sm` / `md` / `lg` / `xl` | 无参数 | 媒体查询，宽度边界取 `--u-breakpoint-*` |
+| mixin                            | 签名                                                                    | 编译结果                                             |
+| -------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------- |
+| `b`                              | `($blocks...)`                                                          | 每个 block 一条 `.u-{$block} { ... }`                |
+| `e`                              | `($elements...)`                                                        | `&__el1, &__el2` 选择器列表                          |
+| `m`                              | `($modifiers...)`                                                       | `&--mod1, &--mod2` 选择器列表                        |
+| `em`                             | `($element, $modifier)`                                                 | `&__el--mod`                                         |
+| `bem`                            | `($b, $e: null, $m: null)`                                              | `.u-b__e--m` 完整选择器                              |
+| `is`                             | `($types...)`                                                           | `&.is-type`                                          |
+| `is-not`                         | `($types...)`                                                           | `&:not(.is-a):not(.is-b)` 链式否定                   |
+| `flex`                           | `($display: flex, $justify: flex-start, $align: center, $wrap: nowrap)` | 四条 flex 属性                                       |
+| `ellipsis`                       | 无参数                                                                  | overflow / text-overflow / white-space 三件套        |
+| `size`                           | 无参数，配 `using ($size)`                                              | 生成 `&--small` / `&--default` / `&--large`          |
+| `css-var`                        | `($prefix, $list)`                                                      | map 或 list 展开为一组 `--{$prefix}-key: value` 声明 |
+| `dark`                           | 无参数                                                                  | 包一层 `html[data-theme='dark'] &`                   |
+| `xs` / `sm` / `md` / `lg` / `xl` | 无参数                                                                  | 媒体查询，宽度边界取 `--u-breakpoint-*`              |
 
 `size` 与 `css-var` 用法：
 
@@ -134,7 +155,11 @@ exports 映射 `'./*'` 的 `sass` 条件指向 `./src/*`，partial 按下划线�
 @use 'pkg:@veltra/styles/mixins' as m;
 @use 'pkg:@veltra/styles/functions' as fn;
 
-$heights: (small: 24px, default: 32px, large: 40px);
+$heights: (
+  small: 24px,
+  default: 32px,
+  large: 40px
+);
 
 .u-input {
   @include m.size using ($size) {
@@ -147,22 +172,29 @@ $heights: (small: 24px, default: 32px, large: 40px);
 }
 
 .field {
-  @include m.css-var(height, (large: 40px, default: 32px, small: 24px));
+  @include m.css-var(
+    height,
+    (
+      large: 40px,
+      default: 32px,
+      small: 24px
+    )
+  );
   // => --height-large: 40px; --height-default: 32px; --height-small: 24px;
 }
 ```
 
 ### 5. 引用变量（_vars.scss）
 
-| 变量 | 值 |
-| --- | --- |
-| `$color-primary` | `var(--u-color-primary)` |
-| `$text-color-main` | `var(--u-text-color-main)` |
-| `$border-color` | `var(--u-border-color)` |
-| `$border-muted-color` | `var(--u-border-muted-color)` |
-| `$bg-color-top` | `var(--u-bg-color-top)` |
-| `$sizes` | `(small, default, large)` |
-| `$color-types` | `(primary, success, warning, danger, info, disabled, default)` |
+| 变量                  | 值                                                             |
+| --------------------- | -------------------------------------------------------------- |
+| `$color-primary`      | `var(--u-color-primary)`                                       |
+| `$text-color-main`    | `var(--u-text-color-main)`                                     |
+| `$border-color`       | `var(--u-border-color)`                                        |
+| `$border-muted-color` | `var(--u-border-muted-color)`                                  |
+| `$bg-color-top`       | `var(--u-bg-color-top)`                                        |
+| `$sizes`              | `(small, default, large)`                                      |
+| `$color-types`        | `(primary, success, warning, danger, info, disabled, default)` |
 
 ### 6. 自定义命名空间（可选）
 
@@ -170,8 +202,12 @@ $heights: (small: 24px, default: 32px, large: 40px);
 
 ```scss
 // 应用自己的 _mixins.scss
-@forward 'pkg:@veltra/styles/mixins' with ($namespace: 'my-app');
-@forward 'pkg:@veltra/styles/functions' with ($namespace: 'my-app');
+@forward 'pkg:@veltra/styles/mixins' with (
+  $namespace: 'my-app'
+);
+@forward 'pkg:@veltra/styles/functions' with (
+  $namespace: 'my-app'
+);
 ```
 
 之后业务样式 `@use` 这份转发文件；`m.b(button)` 编成 `.my-app-button`。
@@ -268,6 +304,7 @@ npx vite build
 ## 注意事项
 
 > [!WARNING]
+>
 > - `pkg:` 前缀必须写：`NodePackageImporter` 只解析 `pkg:` 开头的导入，写 `@use '@veltra/styles/mixins'` 会报 `Can't find stylesheet to import`。
 > - SCSS 构建必须注册 `NodePackageImporter`；磁盘 `.scss` 文件里的 `pkg:` 由 sass 从该文件目录逐级向上解析，`new NodePackageImporter()` 省略参数即可。只有 `additionalData` 等非磁盘来源才需要传 `entryPointDirectory`，且必须传「其 `node_modules`（或其祖先）里能解析到 `@veltra/styles` 的目录」——本仓库根目录没有 `node_modules/@veltra`，`test/vite.config.ts`、`playground/vite.config.ts` 传仓库根是仓库自身写法，不代表任意目录都行。
 > - `vars` 里的语义别名硬编码 `--u-`，不随 `$namespace` 配置变；改命名空间时组件库自身的类名体系不会跟着改，只有你自己的 `m.b()` 输出变。

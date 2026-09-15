@@ -2,7 +2,29 @@
 title: useVirtualizer 虚拟滚动组合式函数
 description: 基于 @cat-kit/fe Virtualizer 的虚拟滚动组合式函数：只渲染视口内的列表项，支持 10 万级长列表、动态项高测量、水平/垂直模式与 spacer 占位布局，尺寸直接写 DOM 不触发 Vue 重渲染，适用于长表格、日志流、海量选项下拉。
 aliases: [use-virtualizer, Virtualizer, 虚拟滚动, 虚拟列表, virtual list]
-keywords: [count, scrollEl, contentEl, beforeEl, afterEl, estimateSize, getItemKey, buffer, horizontal, totalSize, VirtualItem, VirtualSnapshot, virtualizer, scrollToIndex, measureElement, isScrolling, 虚拟列表, 长列表, 大数据量渲染, 动态行高]
+keywords:
+  [
+    count,
+    scrollEl,
+    contentEl,
+    beforeEl,
+    afterEl,
+    estimateSize,
+    getItemKey,
+    buffer,
+    horizontal,
+    totalSize,
+    VirtualItem,
+    VirtualSnapshot,
+    virtualizer,
+    scrollToIndex,
+    measureElement,
+    isScrolling,
+    虚拟列表,
+    长列表,
+    大数据量渲染,
+    动态行高
+  ]
 ---
 
 # useVirtualizer 虚拟滚动组合式函数
@@ -101,20 +123,20 @@ export function useVirtualizer(options: UseVirtualizerOptions): UseVirtualizerRe
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `count` | `Ref<number>` | — | 是 | `computed(() => rows.length)` 亦可；变化自动 `setCount`，负数会被底层 clamp 到 0 |
-| `scrollEl` | `MaybeRefOrGetter<MaybeEl>` | — | 是 | 必须是可滚动元素（`overflow: auto/scroll`）；getter 形式如 `() => el.value?.containerRef ?? null` |
-| `contentEl` | `MaybeRefOrGetter<MaybeEl>` | — | 否 | 传入后滚动期间 Vue 不会因尺寸变化重渲染；引用切到 `null` 时清空此前写入的内联尺寸 |
-| `beforeEl` / `afterEl` | `MaybeRefOrGetter<MaybeEl>` | — | 否 | spacer 占位元素，分别写 `beforeSize` / `afterSize` |
-| `buffer` | `number` | `4` | 否 | 视口外额外保留的预渲染项数 |
-| `horizontal` | `boolean` | `false` | 否 | `true` 时尺寸写入 `width` 而非 `height` |
-| `paddingStart` / `paddingEnd` | `number` | `0` | 否 | 列表首尾固定内边距 px，计入 `totalSize` |
-| `gap` | `number` | `0` | 否 | 相邻项间距 px |
-| `estimateSize` | `(index: number) => number` | `() => 36` | 否 | 返回预估像素尺寸，负数 clamp 到 0；有真实测量样本后被已测平均值接管 |
-| `getItemKey` | `(index: number) => number \| string` | — | 否 | 必须对同一数据项全程稳定；前插/乱序/中段删除时保留已测尺寸 |
-| `useMeasuredAverage` | `boolean` | `true` | 否 | 未测项用已测项平均值估值，缓解滚动条抖动 |
-| `initialOffset` / `initialViewport` | `number` | `0` | 否 | 仅构造时生效；运行时改 `setOptions` 会被忽略 |
+| 参数                                | 类型                                  | 默认       | 必填 | 约束                                                                                              |
+| ----------------------------------- | ------------------------------------- | ---------- | :--: | ------------------------------------------------------------------------------------------------- |
+| `count`                             | `Ref<number>`                         | —          |  是  | `computed(() => rows.length)` 亦可；变化自动 `setCount`，负数会被底层 clamp 到 0                  |
+| `scrollEl`                          | `MaybeRefOrGetter<MaybeEl>`           | —          |  是  | 必须是可滚动元素（`overflow: auto/scroll`）；getter 形式如 `() => el.value?.containerRef ?? null` |
+| `contentEl`                         | `MaybeRefOrGetter<MaybeEl>`           | —          |  否  | 传入后滚动期间 Vue 不会因尺寸变化重渲染；引用切到 `null` 时清空此前写入的内联尺寸                 |
+| `beforeEl` / `afterEl`              | `MaybeRefOrGetter<MaybeEl>`           | —          |  否  | spacer 占位元素，分别写 `beforeSize` / `afterSize`                                                |
+| `buffer`                            | `number`                              | `4`        |  否  | 视口外额外保留的预渲染项数                                                                        |
+| `horizontal`                        | `boolean`                             | `false`    |  否  | `true` 时尺寸写入 `width` 而非 `height`                                                           |
+| `paddingStart` / `paddingEnd`       | `number`                              | `0`        |  否  | 列表首尾固定内边距 px，计入 `totalSize`                                                           |
+| `gap`                               | `number`                              | `0`        |  否  | 相邻项间距 px                                                                                     |
+| `estimateSize`                      | `(index: number) => number`           | `() => 36` |  否  | 返回预估像素尺寸，负数 clamp 到 0；有真实测量样本后被已测平均值接管                               |
+| `getItemKey`                        | `(index: number) => number \| string` | —          |  否  | 必须对同一数据项全程稳定；前插/乱序/中段删除时保留已测尺寸                                        |
+| `useMeasuredAverage`                | `boolean`                             | `true`     |  否  | 未测项用已测项平均值估值，缓解滚动条抖动                                                          |
+| `initialOffset` / `initialViewport` | `number`                              | `0`        |  否  | 仅构造时生效；运行时改 `setOptions` 会被忽略                                                      |
 
 ## 方法与事件
 
@@ -148,9 +170,7 @@ interface Row {
   name: string
 }
 
-const rows = ref<Row[]>(
-  Array.from({ length: 50000 }, (_, i) => ({ id: i, name: `行 ${i}` }))
-)
+const rows = ref<Row[]>(Array.from({ length: 50000 }, (_, i) => ({ id: i, name: `行 ${i}` })))
 const scrollEl = shallowRef<HTMLElement>()
 const beforeSpacer = shallowRef<HTMLElement>()
 const afterSpacer = shallowRef<HTMLElement>()
@@ -233,11 +253,7 @@ const { items, isScrolling } = useVirtualizer({
 
 <template>
   <div ref="scrollEl" style="overflow: auto; height: 400px">
-    <div
-      v-for="item in items"
-      :key="item.index"
-      :style="{ height: `${item.size}px` }"
-    >
+    <div v-for="item in items" :key="item.index" :style="{ height: `${item.size}px` }">
       {{ rows[item.index] }}
       <!-- 滚动中跳过高开销渲染（如高亮、图标），停止后恢复 -->
       <mark v-if="!isScrolling">命中</mark>
@@ -249,6 +265,7 @@ const { items, isScrolling } = useVirtualizer({
 ## 注意事项
 
 > [!WARNING]
+>
 > - `count` 必须是 `Ref<number>`，不能直接传数字；数字在构造后无法响应式更新。
 > - 本库是 `count` + `scrollEl` 分离的配置，不是 `react-virtual` / `vue-virtual-scroller` 的单一 `items` 数组入参；数据源数组自持，hook 只关心项数。
 > - `contentEl` / `beforeEl` / `afterEl` 的尺寸写入绕过 Vue 响应式，禁止把这些尺寸再绑定到模板插值，读取请用 `snapshot`。

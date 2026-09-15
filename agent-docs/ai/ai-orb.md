@@ -1,8 +1,26 @@
 ---
 title: UAiOrb 活体球
-description: "@veltra/ai 的 canvas 活体球组件：idle/thinking/speaking 三种生命状态驱动常态动画，react 播放 happy/shock/frustrated 瞬时表情，支持指针视线跟随与点击 Q 弹反馈，可脱离 UAiChat 独立使用。"
+description: '@veltra/ai 的 canvas 活体球组件：idle/thinking/speaking 三种生命状态驱动常态动画，react 播放 happy/shock/frustrated 瞬时表情，支持指针视线跟随与点击 Q 弹反馈，可脱离 UAiChat 独立使用。'
 aliases: [AiOrb, ai-orb, 活体球, Orb, 生命球]
-keywords: [react, happy, shock, frustrated, thinking, speaking, idle, AiOrbStatus, AiOrbReaction, 瞬时表情, 生命状态, canvas 动画, 视线跟随, 点击反馈, 眨眼, 虚拟形象]
+keywords:
+  [
+    react,
+    happy,
+    shock,
+    frustrated,
+    thinking,
+    speaking,
+    idle,
+    AiOrbStatus,
+    AiOrbReaction,
+    瞬时表情,
+    生命状态,
+    canvas 动画,
+    视线跟随,
+    点击反馈,
+    眨眼,
+    虚拟形象
+  ]
 ---
 
 # UAiOrb 活体球
@@ -63,16 +81,16 @@ export interface AiOrbExposed {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `size` | `number` | `48` | 否 | 直径 px；改变时画布随之 resize |
-| `status` | `'idle' \| 'thinking' \| 'speaking'` | `'idle'` | 否 | `idle` 平静（随机眨眼，偶发双眨 + 视线游移转头）；`thinking` 思考（眯眼 + 视线缓慢扫视 + 右上角「?」轻晃）；`speaking` 输出（嘴随节奏开合 + 微动） |
+| 参数     | 类型                                 | 默认     | 必填 | 约束                                                                                                                                               |
+| -------- | ------------------------------------ | -------- | :--: | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `size`   | `number`                             | `48`     |  否  | 直径 px；改变时画布随之 resize                                                                                                                     |
+| `status` | `'idle' \| 'thinking' \| 'speaking'` | `'idle'` |  否  | `idle` 平静（随机眨眼，偶发双眨 + 视线游移转头）；`thinking` 思考（眯眼 + 视线缓慢扫视 + 右上角「?」轻晃）；`speaking` 输出（嘴随节奏开合 + 微动） |
 
 ## 方法与事件
 
-| 成员 | 形态 | 说明 |
-| --- | --- | --- |
-| `click` 事件 | emit，无 payload | 点击球体触发；`pointerdown` 即触发挤压动画（Q 弹反馈），`click` 随后发出 |
+| 成员              | 形态                                | 说明                                                                                     |
+| ----------------- | ----------------------------------- | ---------------------------------------------------------------------------------------- |
+| `click` 事件      | emit，无 payload                    | 点击球体触发；`pointerdown` 即触发挤压动画（Q 弹反馈），`click` 随后发出                 |
 | `react(reaction)` | 暴露方法，同步，返回 `void`，不抛错 | `reaction` 取 `'happy' \| 'shock' \| 'frustrated'`；播放约 1-2s 后自动回到 `status` 常态 |
 
 ### 内置行为
@@ -159,7 +177,15 @@ const clicks = ref(0)
 <template>
   <!-- 固定在右下角的助手入口：点击计数并播放惊讶表情 -->
   <div style="position: fixed; right: 24px; bottom: 24px; cursor: pointer">
-    <u-ai-orb ref="orb" :size="56" status="idle" @click="clicks++; orbRef?.react('shock')" />
+    <u-ai-orb
+      ref="orb"
+      :size="56"
+      status="idle"
+      @click="
+        clicks++
+        orbRef?.react('shock')
+      "
+    />
     <p>已点击 {{ clicks }} 次</p>
   </div>
 </template>
@@ -168,6 +194,7 @@ const clicks = ref(0)
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本组件是独立的 canvas 活体球，可脱离 `UAiChat` 使用；但 `UAiChat` 的欢迎区与生成中「工作中」状态已内置活体球，禁止再往 `UAiChat` 里嵌一套。
 > - 系统开启「减少动态」偏好时只渲染一帧静态画面，动画不循环；这是无障碍行为，不是 bug。
 > - 根元素 `aria-hidden="true"`，禁止把必须被读屏感知的信息只放在球体上。

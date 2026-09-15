@@ -1,8 +1,29 @@
 ---
 title: UDropdown 下拉菜单
-description: "从 @veltra/desktop 导入的下拉菜单组件：hover/点击/完全自定义三种触发方式，浮层自动定位与翻转，宽度默认跟随触发元素，支持 v-model:visible 受控与 ref 调用 open/close/updateDropdown。"
+description: '从 @veltra/desktop 导入的下拉菜单组件：hover/点击/完全自定义三种触发方式，浮层自动定位与翻转，宽度默认跟随触发元素，支持 v-model:visible 受控与 ref 调用 open/close/updateDropdown。'
 aliases: [Dropdown, 下拉框, 下拉, Popover, DropDown]
-keywords: [trigger, visible, update:visible, disabled, contentClass, contentStyle, contentTag, open, close, updateDropdown, DropdownExposed, minWidth, keydown, 自定义触发, 悬浮菜单, 点击弹出, 受控显隐, 虚拟锚点, 嵌套下拉]
+keywords:
+  [
+    trigger,
+    visible,
+    update:visible,
+    disabled,
+    contentClass,
+    contentStyle,
+    contentTag,
+    open,
+    close,
+    updateDropdown,
+    DropdownExposed,
+    minWidth,
+    keydown,
+    自定义触发,
+    悬浮菜单,
+    点击弹出,
+    受控显隐,
+    虚拟锚点,
+    嵌套下拉
+  ]
 ---
 
 # UDropdown 下拉菜单
@@ -82,26 +103,26 @@ export interface DropdownExposed {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `trigger` | `'hover' \| 'click' \| 'custom'` | `'hover'` | 否 | `hover` 悬浮开、移开 200ms 后关；`click` 点击切换、点外部关；`custom` 不绑定事件，必须用 ref 的 `open`/`close` |
-| `width` | `string` | 跟随触发元素宽度 | 否 | 写入浮层内联 `width`，如 `'200px'` |
-| `minWidth` | `string` | — | 否 | 写入浮层内联 `min-width` |
-| `contentTag` | `string` | `'div'` | 否 | 浮层内容容器的 HTML 标签名 |
-| `contentClass` | `unknown` | — | 否 | 追加在 `u-dropdown__content` 之后的类，支持数组 |
-| `contentStyle` | `CSSProperties \| string` | — | 否 | 写入浮层内联样式 |
-| `visible` | `boolean` | `false` | 否 | 受控显隐：传 `visible` + 监听 `@update:visible`，即 `v-model:visible`；不传则组件内部自管理 |
-| `disabled` | `boolean` | `false` | 否 | 为 `true` 时 hover/click 事件处理器为空，浮层无法通过交互打开 |
+| 参数           | 类型                             | 默认             | 必填 | 约束                                                                                                           |
+| -------------- | -------------------------------- | ---------------- | :--: | -------------------------------------------------------------------------------------------------------------- |
+| `trigger`      | `'hover' \| 'click' \| 'custom'` | `'hover'`        |  否  | `hover` 悬浮开、移开 200ms 后关；`click` 点击切换、点外部关；`custom` 不绑定事件，必须用 ref 的 `open`/`close` |
+| `width`        | `string`                         | 跟随触发元素宽度 |  否  | 写入浮层内联 `width`，如 `'200px'`                                                                             |
+| `minWidth`     | `string`                         | —                |  否  | 写入浮层内联 `min-width`                                                                                       |
+| `contentTag`   | `string`                         | `'div'`          |  否  | 浮层内容容器的 HTML 标签名                                                                                     |
+| `contentClass` | `unknown`                        | —                |  否  | 追加在 `u-dropdown__content` 之后的类，支持数组                                                                |
+| `contentStyle` | `CSSProperties \| string`        | —                |  否  | 写入浮层内联样式                                                                                               |
+| `visible`      | `boolean`                        | `false`          |  否  | 受控显隐：传 `visible` + 监听 `@update:visible`，即 `v-model:visible`；不传则组件内部自管理                    |
+| `disabled`     | `boolean`                        | `false`          |  否  | 为 `true` 时 hover/click 事件处理器为空，浮层无法通过交互打开                                                  |
 
 ## 方法与事件
 
-| 名称 | 类型 | 说明 |
-| --- | --- | --- |
-| `update:visible` | `(visible: boolean) => void` | 内部 `open`/`close` 改变显隐时发出；受控时必须回写，否则视图不变 |
-| `keydown` | `(event: KeyboardEvent) => void` | 浮层内容区上的原生 `keydown` 转发；焦点需落在内容区（如内容里有可聚焦元素） |
-| `open`（ref） | `(config?: { trigger?: HTMLElement }) => void`，同步 | 打开浮层；`config.trigger` 指定定位锚点元素（虚拟触发），不传则以 `#trigger` 插槽元素为锚点 |
-| `close`（ref） | `() => void`，同步 | 关闭浮层；`trigger='hover'` 时延迟 200ms（期间重新 `open` 会取消关闭） |
-| `updateDropdown`（ref） | `() => void`，同步 | 重新计算浮层位置；浮层内容尺寸动态变化后调用 |
+| 名称                    | 类型                                                 | 说明                                                                                        |
+| ----------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| `update:visible`        | `(visible: boolean) => void`                         | 内部 `open`/`close` 改变显隐时发出；受控时必须回写，否则视图不变                            |
+| `keydown`               | `(event: KeyboardEvent) => void`                     | 浮层内容区上的原生 `keydown` 转发；焦点需落在内容区（如内容里有可聚焦元素）                 |
+| `open`（ref）           | `(config?: { trigger?: HTMLElement }) => void`，同步 | 打开浮层；`config.trigger` 指定定位锚点元素（虚拟触发），不传则以 `#trigger` 插槽元素为锚点 |
+| `close`（ref）          | `() => void`，同步                                   | 关闭浮层；`trigger='hover'` 时延迟 200ms（期间重新 `open` 会取消关闭）                      |
+| `updateDropdown`（ref） | `() => void`，同步                                   | 重新计算浮层位置；浮层内容尺寸动态变化后调用                                                |
 
 ## 典型示例
 
@@ -122,12 +143,7 @@ function handleKeydown(e: KeyboardEvent) {
 </script>
 
 <template>
-  <UDropdown
-    trigger="click"
-    width="200px"
-    v-model:visible="visible"
-    @keydown="handleKeydown"
-  >
+  <UDropdown trigger="click" width="200px" v-model:visible="visible" @keydown="handleKeydown">
     <template #trigger>
       <UButton>受控下拉</UButton>
     </template>
@@ -199,6 +215,7 @@ const disabled = ref(false)
 ## 注意事项
 
 > [!WARNING]
+>
 > - 显隐绑定名是 `visible`（`v-model:visible`），不是 `modelValue`（`v-model` 不生效）。
 > - 浮层定位依赖 `@veltra/compositions` 的 `usePop`（默认在触发元素下方、start 对齐，空间不足自动翻转到上方）；本篇不展开 `usePop`，调整定位需通过锚点元素而非组件 prop。
 > - 浮层内容必须写在 `#content` 插槽，触发元素写在 `#trigger` 插槽；直接写默认插槽不会渲染。

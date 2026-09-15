@@ -1,8 +1,30 @@
 ---
-title: "sheet-core 命令体系与撤销重做（Command / HistoryManager）"
-description: "从 @veltra/sheet-core 导入的命令系统：写操作经 defaultCommandRegistry 执行产生 Patch 补丁，HistoryManager 双向回放实现 undo/redo；覆盖 SetCellValueCommand、SetCellFormulaCommand、SetCellStyleCommand、InsertCellsCommand、MergeCellsCommand、图片与 Cell Meta 全部 12 个内置命令的 Params 与撤销重做事务。"
-aliases: ["命令系统", "命令", "撤销重做", "undo redo", "补丁回放", "CommandRegistry", "操作历史"]
-keywords: ["CommandContext", "CommandResult", "defaultCommandRegistry", "Patch", "Mutation", "CellPatch", "MergePatch", "StructurePatch", "ImagePatch", "CellMetaPatch", "AxisStylePatch", "SetCellValueCommand", "SetCellFormulaCommand", "SetCellStyleCommand", "InsertCellsCommand", "MergeCellsCommand", "UnmergeCellsCommand", "UpdateImageCommand", "beginTransaction", "rollback"]
+title: 'sheet-core 命令体系与撤销重做（Command / HistoryManager）'
+description: '从 @veltra/sheet-core 导入的命令系统：写操作经 defaultCommandRegistry 执行产生 Patch 补丁，HistoryManager 双向回放实现 undo/redo；覆盖 SetCellValueCommand、SetCellFormulaCommand、SetCellStyleCommand、InsertCellsCommand、MergeCellsCommand、图片与 Cell Meta 全部 12 个内置命令的 Params 与撤销重做事务。'
+aliases: ['命令系统', '命令', '撤销重做', 'undo redo', '补丁回放', 'CommandRegistry', '操作历史']
+keywords:
+  [
+    'CommandContext',
+    'CommandResult',
+    'defaultCommandRegistry',
+    'Patch',
+    'Mutation',
+    'CellPatch',
+    'MergePatch',
+    'StructurePatch',
+    'ImagePatch',
+    'CellMetaPatch',
+    'AxisStylePatch',
+    'SetCellValueCommand',
+    'SetCellFormulaCommand',
+    'SetCellStyleCommand',
+    'InsertCellsCommand',
+    'MergeCellsCommand',
+    'UnmergeCellsCommand',
+    'UpdateImageCommand',
+    'beginTransaction',
+    'rollback'
+  ]
 ---
 
 # sheet-core 命令体系与撤销重做（Command / HistoryManager）
@@ -12,20 +34,20 @@ keywords: ["CommandContext", "CommandResult", "defaultCommandRegistry", "Patch",
 ## 快速上手
 
 ```ts
-import { Sheet } from '@veltra/sheet-core';
+import { Sheet } from '@veltra/sheet-core'
 
-const sheet = new Sheet('Sheet1');
+const sheet = new Sheet('Sheet1')
 
-sheet.setCellValue({ row: 0, col: 0 }, 10); // 内部经 SetCellValueCommand 执行
-sheet.setCellValue({ row: 0, col: 0 }, 20);
-console.log(sheet.canUndo, sheet.canRedo); // => true false
+sheet.setCellValue({ row: 0, col: 0 }, 10) // 内部经 SetCellValueCommand 执行
+sheet.setCellValue({ row: 0, col: 0 }, 20)
+console.log(sheet.canUndo, sheet.canRedo) // => true false
 
-sheet.undo(); // => true，A1 回到 10
-console.log(sheet.getDisplayValue({ row: 0, col: 0 })); // => 10
+sheet.undo() // => true，A1 回到 10
+console.log(sheet.getDisplayValue({ row: 0, col: 0 })) // => 10
 
-sheet.redo(); // => true，A1 再次为 20
-console.log(sheet.getDisplayValue({ row: 0, col: 0 })); // => 20
-console.log(sheet.canUndo, sheet.canRedo); // => true false
+sheet.redo() // => true，A1 再次为 20
+console.log(sheet.getDisplayValue({ row: 0, col: 0 })) // => 20
+console.log(sheet.canUndo, sheet.canRedo) // => true false
 ```
 
 ## API 签名
@@ -244,39 +266,39 @@ export interface ClearCellMetaParams {
 
 内置命令 id 与 Params（经 `sheet.executeCommand(id, params)` 或对应 `Sheet` 方法调用）：
 
-| Command | id | Params | Sheet 入口 |
-| --- | --- | --- | --- |
-| `SetCellValueCommand` | `sheet.command.set-cell-value` | `{ items }` | `setCellValue` / `setCells` |
-| `SetCellFormulaCommand` | `sheet.command.set-cell-formula` | `{ addr, formula }` | `setCellFormula` |
-| `SetCellStyleCommand` | `sheet.command.set-cell-style` | `{ items }` | `setCellStyle` / `setCellStyles` / `clearCellStyle` |
-| `SetAxisStyleCommand` | `sheet.command.set-axis-style` | `{ axis, items }` | `setRowStyle` / `setColStyle` 等 |
-| `InsertCellsCommand` | `sheet.command.insert-cells` | `{ change }` | `insertRows` / `insertCols` / `deleteRows` / `deleteCols` |
-| `MergeCellsCommand` | `sheet.command.merge-cells` | `{ range }` | `mergeCells` |
-| `UnmergeCellsCommand` | `sheet.command.unmerge-cells` | `{ range }` | `unmergeCells` |
-| `InsertImageCommand` | `sheet.insert-image` | `{ image }` | `insertImage` |
-| `RemoveImageCommand` | `sheet.remove-image` | `{ id }` | `removeImage` |
-| `UpdateImageCommand` | `sheet.update-image` | `{ id, patch }` | `updateImage` |
-| `SetCellMetaCommand` | `sheet.set-cell-meta` | `{ addr, namespace, payload }` | `setCellMeta` |
-| `ClearCellMetaCommand` | `sheet.clear-cell-meta` | `{ addr, namespace }` | `clearCellMeta` |
+| Command                 | id                               | Params                         | Sheet 入口                                                |
+| ----------------------- | -------------------------------- | ------------------------------ | --------------------------------------------------------- |
+| `SetCellValueCommand`   | `sheet.command.set-cell-value`   | `{ items }`                    | `setCellValue` / `setCells`                               |
+| `SetCellFormulaCommand` | `sheet.command.set-cell-formula` | `{ addr, formula }`            | `setCellFormula`                                          |
+| `SetCellStyleCommand`   | `sheet.command.set-cell-style`   | `{ items }`                    | `setCellStyle` / `setCellStyles` / `clearCellStyle`       |
+| `SetAxisStyleCommand`   | `sheet.command.set-axis-style`   | `{ axis, items }`              | `setRowStyle` / `setColStyle` 等                          |
+| `InsertCellsCommand`    | `sheet.command.insert-cells`     | `{ change }`                   | `insertRows` / `insertCols` / `deleteRows` / `deleteCols` |
+| `MergeCellsCommand`     | `sheet.command.merge-cells`      | `{ range }`                    | `mergeCells`                                              |
+| `UnmergeCellsCommand`   | `sheet.command.unmerge-cells`    | `{ range }`                    | `unmergeCells`                                            |
+| `InsertImageCommand`    | `sheet.insert-image`             | `{ image }`                    | `insertImage`                                             |
+| `RemoveImageCommand`    | `sheet.remove-image`             | `{ id }`                       | `removeImage`                                             |
+| `UpdateImageCommand`    | `sheet.update-image`             | `{ id, patch }`                | `updateImage`                                             |
+| `SetCellMetaCommand`    | `sheet.set-cell-meta`            | `{ addr, namespace, payload }` | `setCellMeta`                                             |
+| `ClearCellMetaCommand`  | `sheet.clear-cell-meta`          | `{ addr, namespace }`          | `clearCellMeta`                                           |
 
 Params 字段五要素：
 
-| 字段 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `items`（SetCellValue） | `SetCellValueItem[]` | — | 是 | 逐项解析合并锚点；与 before 相等的项跳过不产生补丁；写值保留既有样式（`data.s` 显式给出时优先） |
-| `items[].data` | `CellData` | — | 否 | 空数据 = 清除该格 |
-| `addr` | `CellAddress` | — | 是 | 0-based；被覆盖格自动解析到锚点 |
-| `formula`（SetCellFormula） | `string` | — | 是 | 不含 `'='`（`Sheet.setCellFormula` 负责剥离）；与既有公式相同 = 无变更不入历史 |
-| `items`（SetCellStyle） | `SetCellStyleItem[]` | — | 是 | 同一锚点的重复项合并为一个补丁；`partial` 与 `clear` 互斥，`clear` 优先；二者都缺省 = 无操作 |
-| `axis`（SetAxisStyle） | `'row' \| 'col'` | — | 是 | 决定 `items[].index` 是行号还是列号 |
-| `items[].index`（SetAxisStyle） | `number` | — | 是 | 非负整数；非整数或负数跳过；同 index 重复项只取第一个 |
-| `change`（InsertCells） | `StructureChange` | — | 是 | `kind` 四选一；`count <= 0` 返回 `undefined`（无操作不入历史） |
-| `range`（Merge / Unmerge） | `CellRange` | — | 是 | 合并与既有合并相交时取包围盒；解除只影响与 `range` 相交的合并 |
-| `image`（InsertImage） | `ImageInput` | — | 是 | `data` / `type` / `anchor` 必填；`id` 缺省经 `createImageId()` 生成；id 已存在 = 无操作（不覆盖既有图） |
-| `id`（Remove / UpdateImage） | `string` | — | 是 | 不存在 = 无操作不入历史 |
-| `patch`（UpdateImage） | `ImageUpdateFields` | — | 是 | 只更新出现的字段；`width` / `height` 传 `0` 不生效（`!= null` 判断）；锚点整段替换 |
-| `namespace`（Set / ClearCellMeta） | `string` | — | 是 | 空白字符串 = 无操作不入历史 |
-| `payload`（SetCellMeta） | `unknown` | — | 是 | 必须可序列化；与既有 payload 相等（JSON 比较）= 无操作；`undefined` 等价删除 |
+| 字段                               | 类型                 | 默认 | 必填 | 约束                                                                                                    |
+| ---------------------------------- | -------------------- | ---- | :--: | ------------------------------------------------------------------------------------------------------- |
+| `items`（SetCellValue）            | `SetCellValueItem[]` | —    |  是  | 逐项解析合并锚点；与 before 相等的项跳过不产生补丁；写值保留既有样式（`data.s` 显式给出时优先）         |
+| `items[].data`                     | `CellData`           | —    |  否  | 空数据 = 清除该格                                                                                       |
+| `addr`                             | `CellAddress`        | —    |  是  | 0-based；被覆盖格自动解析到锚点                                                                         |
+| `formula`（SetCellFormula）        | `string`             | —    |  是  | 不含 `'='`（`Sheet.setCellFormula` 负责剥离）；与既有公式相同 = 无变更不入历史                          |
+| `items`（SetCellStyle）            | `SetCellStyleItem[]` | —    |  是  | 同一锚点的重复项合并为一个补丁；`partial` 与 `clear` 互斥，`clear` 优先；二者都缺省 = 无操作            |
+| `axis`（SetAxisStyle）             | `'row' \| 'col'`     | —    |  是  | 决定 `items[].index` 是行号还是列号                                                                     |
+| `items[].index`（SetAxisStyle）    | `number`             | —    |  是  | 非负整数；非整数或负数跳过；同 index 重复项只取第一个                                                   |
+| `change`（InsertCells）            | `StructureChange`    | —    |  是  | `kind` 四选一；`count <= 0` 返回 `undefined`（无操作不入历史）                                          |
+| `range`（Merge / Unmerge）         | `CellRange`          | —    |  是  | 合并与既有合并相交时取包围盒；解除只影响与 `range` 相交的合并                                           |
+| `image`（InsertImage）             | `ImageInput`         | —    |  是  | `data` / `type` / `anchor` 必填；`id` 缺省经 `createImageId()` 生成；id 已存在 = 无操作（不覆盖既有图） |
+| `id`（Remove / UpdateImage）       | `string`             | —    |  是  | 不存在 = 无操作不入历史                                                                                 |
+| `patch`（UpdateImage）             | `ImageUpdateFields`  | —    |  是  | 只更新出现的字段；`width` / `height` 传 `0` 不生效（`!= null` 判断）；锚点整段替换                      |
+| `namespace`（Set / ClearCellMeta） | `string`             | —    |  是  | 空白字符串 = 无操作不入历史                                                                             |
+| `payload`（SetCellMeta）           | `unknown`            | —    |  是  | 必须可序列化；与既有 payload 相等（JSON 比较）= 无操作；`undefined` 等价删除                            |
 
 ## 方法与事件
 
@@ -313,9 +335,9 @@ Params 字段五要素：
 ### 经 executeCommand 直调命令并撤销重做
 
 ```ts
-import { Sheet, SetCellValueCommand, type SetCellValueParams } from '@veltra/sheet-core';
+import { Sheet, SetCellValueCommand, type SetCellValueParams } from '@veltra/sheet-core'
 
-const sheet = new Sheet('Data');
+const sheet = new Sheet('Data')
 
 // 直调命令：与 sheet.setCells 等价（经 defaultCommandRegistry）
 const params: SetCellValueParams = {
@@ -325,86 +347,87 @@ const params: SetCellValueParams = {
     { addr: { row: 1, col: 0 }, data: { v: 'Alice', t: 's' } },
     { addr: { row: 1, col: 1 }, data: { v: 92, t: 'n' } }
   ]
-};
-sheet.executeCommand(SetCellValueCommand.id, params);
+}
+sheet.executeCommand(SetCellValueCommand.id, params)
 
 // 一次批量 = 一个 undo 单元：undo 一步清掉 4 个格
-sheet.undo();
-console.log(sheet.getCellData({ row: 1, col: 1 })); // => undefined
+sheet.undo()
+console.log(sheet.getCellData({ row: 1, col: 1 })) // => undefined
 
 // 重做恢复整批
-sheet.redo();
-console.log(sheet.getDisplayValue({ row: 1, col: 1 })); // => 92
+sheet.redo()
+console.log(sheet.getDisplayValue({ row: 1, col: 1 })) // => 92
 ```
 
 ### 事务：多命令合并为单 undo 单元与回滚
 
 ```ts
-import { Sheet } from '@veltra/sheet-core';
+import { Sheet } from '@veltra/sheet-core'
 
-const sheet = new Sheet('Report');
+const sheet = new Sheet('Report')
 
 // 事务内多条命令在 commit 时合并为一个 undo 单元
-sheet.beginTransaction();
+sheet.beginTransaction()
 try {
-  sheet.setCellValue({ row: 0, col: 0 }, '合计');
+  sheet.setCellValue({ row: 0, col: 0 }, '合计')
   sheet.setCellStyle(
     { start: { row: 0, col: 0 }, end: { row: 0, col: 1 } },
     { font: { bold: true }, fill: { color: '#FFF7E6' } }
-  );
-  sheet.commit();
-  sheet.undo(); // 一步同时撤销值与样式
-  console.log(sheet.getCellData({ row: 0, col: 0 })); // => undefined
+  )
+  sheet.commit()
+  sheet.undo() // 一步同时撤销值与样式
+  console.log(sheet.getCellData({ row: 0, col: 0 })) // => undefined
 } catch (error) {
-  sheet.rollback(); // 还原事务内已应用的变更并放弃，不动历史栈
-  throw error;
+  sheet.rollback() // 还原事务内已应用的变更并放弃，不动历史栈
+  throw error
 }
 
 // 事务可嵌套：beginTransaction 深度计数，最外层 commit 才入栈
-sheet.beginTransaction();
-sheet.setCellValue({ row: 2, col: 0 }, 'A');
-sheet.beginTransaction();
-sheet.setCellValue({ row: 2, col: 1 }, 'B');
-sheet.commit();
-console.log(sheet.history.inTransaction); // => true（还差最外层）
-sheet.commit();
-sheet.undo();
-console.log(sheet.getCellData({ row: 2, col: 0 })); // => undefined（两步一并撤销）
+sheet.beginTransaction()
+sheet.setCellValue({ row: 2, col: 0 }, 'A')
+sheet.beginTransaction()
+sheet.setCellValue({ row: 2, col: 1 }, 'B')
+sheet.commit()
+console.log(sheet.history.inTransaction) // => true（还差最外层）
+sheet.commit()
+sheet.undo()
+console.log(sheet.getCellData({ row: 2, col: 0 })) // => undefined（两步一并撤销）
 ```
 
 ### 公式与合并的 undo / redo 联动
 
 ```ts
-import { Sheet, createRange } from '@veltra/sheet-core';
+import { Sheet, createRange } from '@veltra/sheet-core'
 
-const sheet = new Sheet('Calc');
+const sheet = new Sheet('Calc')
 
-sheet.setCellValue({ row: 0, col: 0 }, 1);
-sheet.setCellValue({ row: 1, col: 0 }, 2);
-sheet.setCellFormula({ row: 2, col: 0 }, '=SUM(A1:A2)'); // '=' 前缀可省
-console.log(sheet.getDisplayValue({ row: 2, col: 0 })); // => 3
+sheet.setCellValue({ row: 0, col: 0 }, 1)
+sheet.setCellValue({ row: 1, col: 0 }, 2)
+sheet.setCellFormula({ row: 2, col: 0 }, '=SUM(A1:A2)') // '=' 前缀可省
+console.log(sheet.getDisplayValue({ row: 2, col: 0 })) // => 3
 
 // 合并 A1:B2：值保留规则 = 行主序第一个有值格（A1 的 1）保留，A2 的 2 清空；
 // 清空触发公式增量重算，派生补丁（A3 重算为 1+0）并入同一 undo 单元
-const final = sheet.mergeCells(createRange({ row: 0, col: 0 }, { row: 1, col: 1 }));
-console.log(final.start); // => { row: 0, col: 0 }
-console.log(sheet.getDisplayValue({ row: 2, col: 0 })); // => 1（=SUM(A1:A2) 重算结果）
+const final = sheet.mergeCells(createRange({ row: 0, col: 0 }, { row: 1, col: 1 }))
+console.log(final.start) // => { row: 0, col: 0 }
+console.log(sheet.getDisplayValue({ row: 2, col: 0 })) // => 1（=SUM(A1:A2) 重算结果）
 
 // undo 一步撤销合并 + 被清空的值还原 + 公式缓存派生补丁回放（不重算）
-sheet.undo();
-console.log(sheet.getCellInfo({ row: 0, col: 1 }).kind); // => 'normal'
-console.log(sheet.getDisplayValue({ row: 1, col: 0 })); // => 2（A2 值还原）
-console.log(sheet.getDisplayValue({ row: 2, col: 0 })); // => 3（缓存补丁回放恢复）
+sheet.undo()
+console.log(sheet.getCellInfo({ row: 0, col: 1 }).kind) // => 'normal'
+console.log(sheet.getDisplayValue({ row: 1, col: 0 })) // => 2（A2 值还原）
+console.log(sheet.getDisplayValue({ row: 2, col: 0 })) // => 3（缓存补丁回放恢复）
 
 // redo 回放合并命令与其派生补丁
-sheet.redo();
-console.log(sheet.getCellInfo({ row: 0, col: 1 }).kind); // => 'merged-covered'
-console.log(sheet.getDisplayValue({ row: 2, col: 0 })); // => 1（A2 被合并清空后的重算缓存）
+sheet.redo()
+console.log(sheet.getCellInfo({ row: 0, col: 1 }).kind) // => 'merged-covered'
+console.log(sheet.getDisplayValue({ row: 2, col: 0 })) // => 1（A2 被合并清空后的重算缓存）
 ```
 
 ## 注意事项
 
 > [!WARNING]
+>
 > - undo 按 sheet 分栈：`sheet.undo()` 只回放本表历史；跨表公式重算的派生补丁随源命令所在 sheet 的历史回放（按 `CellPatch.sheet` 路由到目标表）。
 > - 不进 undo 的写操作：工作簿结构（`Workbook.addSheet` / `removeSheet` / `renameSheet`）、选区、冻结、行高、列宽；新 `Sheet` 的 `addSheet` 初始数据基线也已 `history.clear()`。
 > - 命令的 undo/redo 是纯补丁回放（不重算）：公式缓存由补丁恢复；undo/redo 后图状态由 `applyPatch` 内的依赖图同步维持。
@@ -421,18 +444,22 @@ console.log(sheet.getDisplayValue({ row: 2, col: 0 })); // => 1（A2 被合并�
 `executeCommand` 的 id 拼写错误或命令未登记。修复：
 
 ```ts
-import { defaultCommandRegistry, Command } from '@veltra/sheet-core';
+import { defaultCommandRegistry, Command } from '@veltra/sheet-core'
 
 // 自定义命令：先注册再执行
 const command: Command<{ text: string }> = {
   id: 'my.command.set-text',
   handler(ctx, params) {
-    const patch = { kind: 'cell' as const, addr: { row: 0, col: 0 }, after: { v: params.text, t: 's' as const } };
-    ctx.applyPatch(patch, 'redo');
-    return { mutations: [{ redo: [patch], undo: [patch] }] };
+    const patch = {
+      kind: 'cell' as const,
+      addr: { row: 0, col: 0 },
+      after: { v: params.text, t: 's' as const }
+    }
+    ctx.applyPatch(patch, 'redo')
+    return { mutations: [{ redo: [patch], undo: [patch] }] }
   }
-};
-defaultCommandRegistry.register(command); // 模块加载处登记一次
+}
+defaultCommandRegistry.register(command) // 模块加载处登记一次
 ```
 
 内置命令 id 见 `## 参数说明` 表。
@@ -446,12 +473,12 @@ defaultCommandRegistry.register(command); // 模块加载处登记一次
 `commit()` / `rollback()` 与 `beginTransaction()` 不配对。修复：每个 `beginTransaction()` 必须对应一次最外层 `commit()`；异常路径先 `rollback()` 再抛出。
 
 ```ts
-sheet.beginTransaction();
+sheet.beginTransaction()
 try {
-  sheet.setCellValue({ row: 0, col: 0 }, 'x');
-  sheet.commit();
+  sheet.setCellValue({ row: 0, col: 0 }, 'x')
+  sheet.commit()
 } catch (error) {
-  sheet.rollback(); // 还原事务内已应用变更并结束事务
-  throw error;
+  sheet.rollback() // 还原事务内已应用变更并结束事务
+  throw error
 }
 ```

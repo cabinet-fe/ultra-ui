@@ -1,6 +1,6 @@
 ---
-title: "USteps 步骤条"
-description: "步骤条组件：按 items 渲染线性流程，current 控制当前步（索引或 currentKey 指定的业务键），索引之前的步骤显示对勾并按 finishedStepType 着色；支持横向/纵向、居中、自定义图标/文案/悬浮提示插槽。"
+title: 'USteps 步骤条'
+description: '步骤条组件：按 items 渲染线性流程，current 控制当前步（索引或 currentKey 指定的业务键），索引之前的步骤显示对勾并按 finishedStepType 着色；支持横向/纵向、居中、自定义图标/文案/悬浮提示插槽。'
 aliases: [Steps, ElSteps, 分步条, 向导, 步骤导航]
 keywords:
   - current
@@ -93,24 +93,24 @@ export interface StepsEmits {
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `v-model:current`（`current`） | `string \| number` | — | 否 | 未指定 `currentKey` 时必须是数字索引，传字符串会被忽略（全部步骤渲染为已完成）；索引超出收敛到 `[0, items.length - 1]` |
-| `items` | `Record<string, any>[]` | — | 是 | 步骤数据，顺序即流程顺序 |
-| `labelKey` | `string` | `'label'` | 否 | 步骤文案取 `item[labelKey]` |
-| `currentKey` | `string` | — | 否 | 指定后 `current` 与 `item[currentKey]` 匹配；点击步骤时 `update:current` 的 payload 也改为 `item[currentKey]` |
-| `direction` | `'horizontal' \| 'vertical'` | `'horizontal'` | 否 | 纵向时步骤垂直排列 |
-| `alignCenter` | `boolean` | `false` | 否 | 居中对齐 |
-| `currentStepType` | `ColorType` | — | 否 | `'primary'` \| `'info'` \| `'success'` \| `'warning'` \| `'danger'` |
-| `finishedStepType` | `ColorType` | `'success'` | 否 | `'primary'` \| `'info'` \| `'success'` \| `'warning'` \| `'danger'`；已完成项的对勾与连线用该颜色 |
-| `size` | `ComponentSize` | `'default'` | 否 | `'small'` \| `'default'` \| `'large'` |
+| 参数                           | 类型                         | 默认           | 必填 | 约束                                                                                                                   |
+| ------------------------------ | ---------------------------- | -------------- | :--: | ---------------------------------------------------------------------------------------------------------------------- |
+| `v-model:current`（`current`） | `string \| number`           | —              |  否  | 未指定 `currentKey` 时必须是数字索引，传字符串会被忽略（全部步骤渲染为已完成）；索引超出收敛到 `[0, items.length - 1]` |
+| `items`                        | `Record<string, any>[]`      | —              |  是  | 步骤数据，顺序即流程顺序                                                                                               |
+| `labelKey`                     | `string`                     | `'label'`      |  否  | 步骤文案取 `item[labelKey]`                                                                                            |
+| `currentKey`                   | `string`                     | —              |  否  | 指定后 `current` 与 `item[currentKey]` 匹配；点击步骤时 `update:current` 的 payload 也改为 `item[currentKey]`          |
+| `direction`                    | `'horizontal' \| 'vertical'` | `'horizontal'` |  否  | 纵向时步骤垂直排列                                                                                                     |
+| `alignCenter`                  | `boolean`                    | `false`        |  否  | 居中对齐                                                                                                               |
+| `currentStepType`              | `ColorType`                  | —              |  否  | `'primary'` \| `'info'` \| `'success'` \| `'warning'` \| `'danger'`                                                    |
+| `finishedStepType`             | `ColorType`                  | `'success'`    |  否  | `'primary'` \| `'info'` \| `'success'` \| `'warning'` \| `'danger'`；已完成项的对勾与连线用该颜色                      |
+| `size`                         | `ComponentSize`              | `'default'`    |  否  | `'small'` \| `'default'` \| `'large'`                                                                                  |
 
 ## 方法与事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
-| `item-click` | `item: Record<string, any>, index: number` | 点击任意步骤项；没有禁用概念，每一步都可点击 |
-| `update:current` | `value?: string \| number` | 点击步骤项后触发（先触发 `item-click`）；设置了 `currentKey` 时 payload 为 `item[currentKey]`，否则为索引 |
+| 事件             | payload                                    | 触发时机                                                                                                  |
+| ---------------- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| `item-click`     | `item: Record<string, any>, index: number` | 点击任意步骤项；没有禁用概念，每一步都可点击                                                              |
+| `update:current` | `value?: string \| number`                 | 点击步骤项后触发（先触发 `item-click`）；设置了 `currentKey` 时 payload 为 `item[currentKey]`，否则为索引 |
 
 - `current` 是 prop + `update:current` 事件的受控模式：必须绑定 `v-model:current`（或自己监听事件更新 `current`），仅传 `:current` 不监听事件时点击步骤不会改变当前步。
 - `direction` 为 `horizontal` 时，`current` 变化后当前步骤自动平滑滚入视野（步骤超出容器宽度时）。
@@ -192,6 +192,7 @@ function onItemClick(item: (typeof items)[number], index: number) {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库步骤数据是 `items` prop 数组，不是 Element Plus 的 `<el-step>` 子组件模式。
 > - 没有每步独立的 `status`（`error` / `process` / `wait`）字段：已完成/当前步的配色只能整体通过 `finishedStepType` / `currentStepType` 控制，单个步骤不能单独标红。
 > - 未指定 `currentKey` 时 `current` 必须是数字索引；传业务字符串会被忽略，全部步骤渲染为已完成（这是「不传 `current` = 全部完成」的同一行为）。

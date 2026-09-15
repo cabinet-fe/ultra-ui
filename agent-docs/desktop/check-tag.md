@@ -1,8 +1,21 @@
 ---
 title: UCheckTag 可选中标签
-description: "@veltra/desktop 导出的可切换选中态的标签组件。点击整枚标签在选中/未选中间切换，用 v-model 双向绑定布尔值，适合筛选项、多选标签组等非表单场景。"
+description: '@veltra/desktop 导出的可切换选中态的标签组件。点击整枚标签在选中/未选中间切换，用 v-model 双向绑定布尔值，适合筛选项、多选标签组等非表单场景。'
 aliases: [UCheckTag, CheckTag, 可选标签, 可选中标签, CheckableTag]
-keywords: [CheckTagProps, modelValue, checked, "update:modelValue", is-checked, 切换选中, 点击切换, 筛选条件, 多选标签, 受控, 标签组]
+keywords:
+  [
+    CheckTagProps,
+    modelValue,
+    checked,
+    'update:modelValue',
+    is-checked,
+    切换选中,
+    点击切换,
+    筛选条件,
+    多选标签,
+    受控,
+    标签组
+  ]
 ---
 
 # UCheckTag 可选中标签
@@ -48,10 +61,10 @@ export type CheckTagExposed = {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `modelValue` | `boolean` | — | 否 | 选中态的绑定值；显示优先级高于 `checked` |
-| `checked` | `boolean` | — | 否 | 仅当 `modelValue` 为 `undefined` 或 `null` 时作为显示回退 |
+| 参数         | 类型      | 默认 | 必填 | 约束                                                      |
+| ------------ | --------- | ---- | :--: | --------------------------------------------------------- |
+| `modelValue` | `boolean` | —    |  否  | 选中态的绑定值；显示优先级高于 `checked`                  |
+| `checked`    | `boolean` | —    |  否  | 仅当 `modelValue` 为 `undefined` 或 `null` 时作为显示回退 |
 
 事件：仅 `update:modelValue(value: boolean)`，点击标签时发出，值为当前态取反（`!(modelValue ?? checked)`）。没有 `change` 事件。
 
@@ -61,8 +74,8 @@ export type CheckTagExposed = {}
 
 ## 方法与事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
+| 事件                | payload          | 触发时机                               |
+| ------------------- | ---------------- | -------------------------------------- |
 | `update:modelValue` | `value: boolean` | 点击标签主体时发出，值为当前显示态取反 |
 
 ## 典型示例
@@ -117,6 +130,7 @@ watch([onlyMine, onlyStar], ([a, b]) => {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 组件内部没有选中状态，完全受控：显示值始终读 `modelValue ?? checked`。禁止只传 `checked` 而不监听 `update:modelValue`——点击后 UI 不会变化。
 > - 必须用 `v-model`（或 `:model-value` + `@update:model-value`）驱动选中态；本库没有非受控的内部缓存。
 > - 本库是 `UCheckTag`（点击整枚标签切换），不是 Ant Design 的 `Tag.CheckableTag` 写法。

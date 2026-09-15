@@ -1,7 +1,8 @@
 ---
 title: UNumberRangeInput 数字范围输入框
-description: "数字区间输入框：modelValue 为 [起始, 结束] 元组，支持 v-model:start / v-model:end 分侧绑定、失焦时起止越界自动校正、货币/精度/步进/倍数（继承 UNumberInput），以及在 UForm 内用 field 绑定。"
-aliases: [NumberRangeInput, number-range-input, 数字区间输入框, 区间输入框, InputNumberRange, 价格区间输入]
+description: '数字区间输入框：modelValue 为 [起始, 结束] 元组，支持 v-model:start / v-model:end 分侧绑定、失焦时起止越界自动校正、货币/精度/步进/倍数（继承 UNumberInput），以及在 UForm 内用 field 绑定。'
+aliases:
+  [NumberRangeInput, number-range-input, 数字区间输入框, 区间输入框, InputNumberRange, 价格区间输入]
 keywords:
   - modelValue
   - NumberRangeTuple
@@ -57,8 +58,10 @@ import type { NumberInputProps } from '@veltra/desktop'
 export type NumberRangeTuple = [number | undefined, number | undefined]
 
 /** 数字范围输入组件属性；继承 UNumberInput 除 modelValue / placeholder 外的全部属性 */
-export interface NumberRangeInputProps
-  extends Omit<NumberInputProps, 'modelValue' | 'placeholder'> {
+export interface NumberRangeInputProps extends Omit<
+  NumberInputProps,
+  'modelValue' | 'placeholder'
+> {
   /** 范围值。默认 [undefined, undefined] */
   modelValue?: NumberRangeTuple
   /** 与 modelValue[0] 同步，可用 v-model:start */
@@ -89,18 +92,18 @@ export interface NumberRangeInputExposed {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `modelValue` | `[number \| undefined, number \| undefined]` | `[undefined, undefined]` | 否 | 二元元组，顺序为 [起始, 结束]；`v-model` 绑定 |
-| `start` | `number \| undefined` | — | 否 | 与 `modelValue[0]` 同步；`v-model:start` 绑定 |
-| `end` | `number \| undefined` | — | 否 | 与 `modelValue[1]` 同步；`v-model:end` 绑定 |
-| `startPlaceholder` | `string` | `'请输入'` | 否 | 左侧输入框占位 |
-| `endPlaceholder` | `string` | `'请输入'` | 否 | 右侧输入框占位 |
-| `separator` | `string` | `'~'` | 否 | 中间分隔文案；仅影响显示，不参与 model |
-| `min` / `max` / `step` / `currency` / `precision` / `minPrecision` / `maxPrecision` / `multiple` | 同 `UNumberInput` | 同 `UNumberInput` | 否 | 透传到左右两个数字输入框，**各自独立生效**（如 `max` 分别钳制两端） |
-| `disabled` / `readonly` / `size` | `boolean` / `boolean` / `ComponentSize` | `false` / `false` / `'default'` | 否 | 同时作用于两端；未传时继承 `UForm` 对应属性 |
-| `field` | `string` | — | 否 | 仅 `UForm` 内生效；字段值为元组 |
-| `label` / `rules` / `tips` / `span` | 同 FormComponentProps | — | 否 | 仅 `UForm` / `UFormItem` 内生效 |
+| 参数                                                                                             | 类型                                         | 默认                            | 必填 | 约束                                                                |
+| ------------------------------------------------------------------------------------------------ | -------------------------------------------- | ------------------------------- | :--: | ------------------------------------------------------------------- |
+| `modelValue`                                                                                     | `[number \| undefined, number \| undefined]` | `[undefined, undefined]`        |  否  | 二元元组，顺序为 [起始, 结束]；`v-model` 绑定                       |
+| `start`                                                                                          | `number \| undefined`                        | —                               |  否  | 与 `modelValue[0]` 同步；`v-model:start` 绑定                       |
+| `end`                                                                                            | `number \| undefined`                        | —                               |  否  | 与 `modelValue[1]` 同步；`v-model:end` 绑定                         |
+| `startPlaceholder`                                                                               | `string`                                     | `'请输入'`                      |  否  | 左侧输入框占位                                                      |
+| `endPlaceholder`                                                                                 | `string`                                     | `'请输入'`                      |  否  | 右侧输入框占位                                                      |
+| `separator`                                                                                      | `string`                                     | `'~'`                           |  否  | 中间分隔文案；仅影响显示，不参与 model                              |
+| `min` / `max` / `step` / `currency` / `precision` / `minPrecision` / `maxPrecision` / `multiple` | 同 `UNumberInput`                            | 同 `UNumberInput`               |  否  | 透传到左右两个数字输入框，**各自独立生效**（如 `max` 分别钳制两端） |
+| `disabled` / `readonly` / `size`                                                                 | `boolean` / `boolean` / `ComponentSize`      | `false` / `false` / `'default'` |  否  | 同时作用于两端；未传时继承 `UForm` 对应属性                         |
+| `field`                                                                                          | `string`                                     | —                               |  否  | 仅 `UForm` 内生效；字段值为元组                                     |
+| `label` / `rules` / `tips` / `span`                                                              | 同 FormComponentProps                        | —                               |  否  | 仅 `UForm` / `UFormItem` 内生效                                     |
 
 继承属性的完整约束（即时钳制、精度规则、倍数换算）见 `agent-docs/desktop/number-input.md`。注意本组件**没有** `placeholder` 属性，分别用 `startPlaceholder` / `endPlaceholder`。
 
@@ -217,6 +220,7 @@ async function handleSubmit() {
 ## 注意事项
 
 > [!WARNING]
+>
 > - `UForm` 内用 `field` 绑定 model，**禁止**再写 `v-model`；独立于 `UForm` 使用时才走 `v-model`（元组）或 `v-model:start` / `v-model:end`。
 > - 本库 `modelValue` 是**二元元组** `[起始, 结束]`，不是 `min` / `max` 两个独立字段组成的对象。
 > - 本库没有 `placeholder` 属性（从 `UNumberInput` 继承中被 Omit），占位符用 `startPlaceholder` / `endPlaceholder`。

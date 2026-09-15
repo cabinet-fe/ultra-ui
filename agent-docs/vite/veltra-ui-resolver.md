@@ -1,8 +1,32 @@
 ---
-title: "VeltraUIResolver 组件按需自动引入解析器"
-description: "@veltra/vite 导出的 unplugin-vue-components 解析器：按组件名解析 @veltra/desktop、@veltra/ai、@veltra/sheet 的 95 个 U* 组件，并自动引入对应目录的 style 副作用（开发走 veltra-dev 源码 SCSS，构建走 dist 预编译样式）；显式 import 的组件与 JSX / 渲染函数里的组件不会被解析。"
-aliases: [veltra-ui-resolver, VeltraUIResolver, resolver, unplugin-vue-components, 按需导入, 自动导入]
-keywords: ["VeltraUIResolver", "VeltraUIResolverOptions", "importStyle", "@veltra/vite", "unplugin-vue-components", "sideEffects", "veltra-dev", "ComponentResolver", "_resolveComponent", "is not defined", "@vitejs/plugin-vue-jsx", "react/jsx-dev-runtime", 按需导入, 样式副作用, 自动引入, 组件解析, 裸样式, 渲染函数, 显式导入, tree-shaking, dts]
+title: 'VeltraUIResolver 组件按需自动引入解析器'
+description: '@veltra/vite 导出的 unplugin-vue-components 解析器：按组件名解析 @veltra/desktop、@veltra/ai、@veltra/sheet 的 95 个 U* 组件，并自动引入对应目录的 style 副作用（开发走 veltra-dev 源码 SCSS，构建走 dist 预编译样式）；显式 import 的组件与 JSX / 渲染函数里的组件不会被解析。'
+aliases:
+  [veltra-ui-resolver, VeltraUIResolver, resolver, unplugin-vue-components, 按需导入, 自动导入]
+keywords:
+  [
+    'VeltraUIResolver',
+    'VeltraUIResolverOptions',
+    'importStyle',
+    '@veltra/vite',
+    'unplugin-vue-components',
+    'sideEffects',
+    'veltra-dev',
+    'ComponentResolver',
+    '_resolveComponent',
+    'is not defined',
+    '@vitejs/plugin-vue-jsx',
+    'react/jsx-dev-runtime',
+    按需导入,
+    样式副作用,
+    自动引入,
+    组件解析,
+    裸样式,
+    渲染函数,
+    显式导入,
+    tree-shaking,
+    dts
+  ]
 ---
 
 # VeltraUIResolver 组件按需自动引入解析器
@@ -26,12 +50,7 @@ import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
 import { VeltraUIResolver } from '@veltra/vite'
 
-export default defineConfig({
-  plugins: [
-    vue(),
-    Components({ resolvers: [VeltraUIResolver()] }),
-  ],
-})
+export default defineConfig({ plugins: [vue(), Components({ resolvers: [VeltraUIResolver()] })] })
 ```
 
 之后模板里直接写组件，编译期自动生成 import 与样式引入：
@@ -83,10 +102,10 @@ resolver 的运行时行为：`type: 'component'`，对每个模板中出现的�
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `options` | `VeltraUIResolverOptions` | `{}` | 否 | 整个 options 对象可省略 |
-| `options.importStyle` | `boolean` | `true` | 否 | `true`：每个组件额外引入 `'<包名>/components/<dir>/style'` 副作用；`false`：只生成组件 import，样式由宿主自行引入（例如全量 `import '@veltra/desktop/style'` 或自建 SCSS 管线） |
+| 参数                  | 类型                      | 默认   | 必填 | 约束                                                                                                                                                                            |
+| --------------------- | ------------------------- | ------ | :--: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `options`             | `VeltraUIResolverOptions` | `{}`   |  否  | 整个 options 对象可省略                                                                                                                                                         |
+| `options.importStyle` | `boolean`                 | `true` |  否  | `true`：每个组件额外引入 `'<包名>/components/<dir>/style'` 副作用；`false`：只生成组件 import，样式由宿主自行引入（例如全量 `import '@veltra/desktop/style'` 或自建 SCSS 管线） |
 
 组件表（`components.gen.ts`）由 `bun run resolver:gen` 扫描生成，共 95 个组件：`@veltra/desktop` 92 个（`UAction`、`UButton`、`UForm`、`USelect`、`UTable`、`UTree` 等）、`@veltra/ai` 2 个（`UAiChat`、`UAiOrb`）、`@veltra/sheet` 1 个（`USheet`）。判定规则：扫描各包 `src/components/` 下**同时含 `index.ts` 与 `style.ts`** 的直接子目录，取其 `index.ts` 中 `export {}` 的 `U*` 值导出（类型导出与非 `U*` 导出跳过）；一个目录可承载多个组件（如 `button/` 目录导出 `UButton` 与 `UButtonGroup`，样式路径相同）。
 
@@ -115,15 +134,15 @@ export default defineConfig({
   css: {
     // 开发态 resolver 引入的是 src/<dir>/style.ts（SCSS 源码），
     // 其中的 pkg:@veltra/styles 导入依赖 NodePackageImporter 解析
-    preprocessorOptions: { scss: { importers: [new NodePackageImporter()] } },
+    preprocessorOptions: { scss: { importers: [new NodePackageImporter()] } }
   },
   plugins: [
     vue(),
     Components({
       resolvers: [VeltraUIResolver()],
-      dts: true, // 生成 components.d.ts，恢复模板内组件的类型提示
-    }),
-  ],
+      dts: true // 生成 components.d.ts，恢复模板内组件的类型提示
+    })
+  ]
 })
 ```
 
@@ -141,12 +160,7 @@ import Components from 'unplugin-vue-components/vite'
 import { VeltraUIResolver } from '@veltra/vite'
 
 export default defineConfig({
-  plugins: [
-    vue(),
-    Components({
-      resolvers: [VeltraUIResolver({ importStyle: false })],
-    }),
-  ],
+  plugins: [vue(), Components({ resolvers: [VeltraUIResolver({ importStyle: false })] })]
 })
 ```
 
@@ -168,14 +182,13 @@ import vue from '@vitejs/plugin-vue'
 import Components from 'unplugin-vue-components/vite'
 import { VeltraUIResolver } from '@veltra/vite'
 
-export default defineConfig({
-  plugins: [vue(), Components({ resolvers: [VeltraUIResolver()] })],
-})
+export default defineConfig({ plugins: [vue(), Components({ resolvers: [VeltraUIResolver()] })] })
 ```
 
 ## 注意事项
 
 > [!WARNING]
+>
 > - resolver 只解析组件表内**按名精确匹配**的组件：`<u-button-group>` 命中 `UButtonGroup`，但动态组件 `<component :is="'UButton'">`、`resolveComponent()` 的运行时调用、以及表内不存在的名字（如 `USheetHeader`）不会生效。
 > - 模板组件禁止在同一个 SFC 的 `<script setup>` 里再 import 同名组件。显式 import 后模板改用该绑定、不再产生 `_resolveComponent("UButton")` 调用，resolver 不注入组件 import，也**不注入样式副作用**——症状是页面结构与 class 都正确，但 Styles 面板里没有 `.u-button` 规则。显式 import 的组件必须自己补 `import '@veltra/desktop/components/button/style'`。
 > - JSX / `h()` / `render` 函数里的组件永不被解析（不经过模板编译），必须显式 import，并且同样要自己补样式子路径；漏 import 时浏览器控制台报 `ReferenceError: UTag is not defined`。写 `<script lang="tsx">` 或 `.tsx` 还必须在 Vite 注册 `@vitejs/plugin-vue-jsx`，否则报 `Failed to resolve import "react/jsx-dev-runtime"`（build 为 `react/jsx-runtime`）。
@@ -200,9 +213,7 @@ import vue from '@vitejs/plugin-vue'
 import Components from 'unplugin-vue-components/vite'
 import { VeltraUIResolver } from '@veltra/vite'
 
-export default defineConfig({
-  plugins: [vue(), Components({ resolvers: [VeltraUIResolver()] })],
-})
+export default defineConfig({ plugins: [vue(), Components({ resolvers: [VeltraUIResolver()] })] })
 ```
 
 2. `unplugin-vue-components` 版本低于 32：本包 peer 约束是 `unplugin-vue-components >= 32.0.0`，升级后重试。
@@ -241,7 +252,7 @@ import { VeltraUIResolver } from '@veltra/vite'
 
 export default defineConfig({
   css: { preprocessorOptions: { scss: { importers: [new NodePackageImporter()] } } },
-  plugins: [vue(), Components({ resolvers: [VeltraUIResolver()] })],
+  plugins: [vue(), Components({ resolvers: [VeltraUIResolver()] })]
 })
 ```
 
@@ -273,4 +284,3 @@ export const actionColumn = {
 ```
 
 写 JSX（`<script lang="tsx">` 或 `.tsx`）时还需在 Vite 注册 `@vitejs/plugin-vue-jsx`：缺它时报 `Failed to resolve import "react/jsx-dev-runtime"`（build 为 `react/jsx-runtime`）。
-

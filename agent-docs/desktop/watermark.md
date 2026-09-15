@@ -68,13 +68,13 @@ export type WatermarkExposed = DeconstructValue<_WatermarkExposed>
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `text` | `string` | — | 否 | 水印内容来源；为空时组件不绘制、不报错 |
-| `image` | `string` | — | 否 | 当前实现未使用；仅传 `image` 不传 `text` 时没有水印 |
-| `appendToBody` | `boolean` | `false` | 否 | `true` 时水印 `div` Teleport 到 `body`，且默认插槽内容不渲染 |
-| `route` | `number` | `-30` | 否 | 角度制数值；`0` 为水平，负值逆时针 |
-| `fontSize` | `number` | `60` | 否 | 单位 px；同时影响平铺密度 |
+| 参数           | 类型      | 默认    | 必填 | 约束                                                         |
+| -------------- | --------- | ------- | :--: | ------------------------------------------------------------ |
+| `text`         | `string`  | —       |  否  | 水印内容来源；为空时组件不绘制、不报错                       |
+| `image`        | `string`  | —       |  否  | 当前实现未使用；仅传 `image` 不传 `text` 时没有水印          |
+| `appendToBody` | `boolean` | `false` |  否  | `true` 时水印 `div` Teleport 到 `body`，且默认插槽内容不渲染 |
+| `route`        | `number`  | `-30`   |  否  | 角度制数值；`0` 为水平，负值逆时针                           |
+| `fontSize`     | `number`  | `60`    |  否  | 单位 px；同时影响平铺密度                                    |
 
 插槽：默认插槽，仅 `appendToBody: false` 时渲染，被水印层包裹的内容。
 
@@ -134,6 +134,7 @@ const text = computed(() => `${account.name}（${account.id}）仅供内部传�
 ## 注意事项
 
 > [!WARNING]
+>
 > - 旋转参数名是 `route`，不是 `rotate`；它是角度制数值（默认 `-30`），不是弧度，绘制时才转换为弧度。
 > - `image` 属性在类型中存在，但当前实现只绘制 `text` 文字水印：仅传 `image` 不传 `text` 时不会渲染任何水印，禁止依赖图片水印能力。
 > - `appendToBody: true` 时组件不渲染默认插槽，水印 `div` 直接挂到 `body` 铺满整页；需要局部水印时不要开 `appendToBody`。

@@ -1,8 +1,29 @@
 ---
-title: "@veltra/icons 图标库"
-description: "Vue 3 SVG 图标库：@veltra/icons/normal 导出 205 个单色图标组件、@veltra/icons/colorful 导出 13 个多色图标组件，从子路径按名称导入后放进 UIcon（@veltra/desktop）默认插槽渲染；图标组件无 props，颜色经 currentColor 继承父级，viewBox 逐图标来自源文件。"
-aliases: ["icons", "veltra-icons", "@veltra/icons", "UIcon", "Icon", "图标库", "图标", "SVG 图标"]
-keywords: ["@veltra/icons", "@veltra/icons/normal", "@veltra/icons/colorful", "UIcon", "packageName", "currentColor", "viewBox", "PascalCase", "USearch", "FormSwitch", "SwitchButton", "Failed to resolve component", "无 props", "按需导入", "图标命名", "单色图标", "多色图标", "图标清单", "图标检索"]
+title: '@veltra/icons 图标库'
+description: 'Vue 3 SVG 图标库：@veltra/icons/normal 导出 205 个单色图标组件、@veltra/icons/colorful 导出 13 个多色图标组件，从子路径按名称导入后放进 UIcon（@veltra/desktop）默认插槽渲染；图标组件无 props，颜色经 currentColor 继承父级，viewBox 逐图标来自源文件。'
+aliases: ['icons', 'veltra-icons', '@veltra/icons', 'UIcon', 'Icon', '图标库', '图标', 'SVG 图标']
+keywords:
+  [
+    '@veltra/icons',
+    '@veltra/icons/normal',
+    '@veltra/icons/colorful',
+    'UIcon',
+    'packageName',
+    'currentColor',
+    'viewBox',
+    'PascalCase',
+    'USearch',
+    'FormSwitch',
+    'SwitchButton',
+    'Failed to resolve component',
+    '无 props',
+    '按需导入',
+    '图标命名',
+    '单色图标',
+    '多色图标',
+    '图标清单',
+    '图标检索'
+  ]
 ---
 
 # @veltra/icons 图标库
@@ -72,13 +93,13 @@ export * from './colorful'
 
 图标组件没有 props、事件与暴露方法，用法由导入名与容器决定：
 
-| 用法 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| 导入路径 | `'@veltra/icons/normal'` \| `'@veltra/icons/colorful'` \| `'@veltra/icons'` | — | 是 | 单色图标从 `normal` 导入，多色图标从 `colorful` 导入；根入口覆盖两者但不含 `FontColor`，按需场景优先用子路径 |
-| 导出名 | PascalCase 具名导出 | — | 是 | 由 kebab 文件名按 `-` 分段、每段首字母大写推导（`circle-check-filled` → `CircleCheckFilled`）；无 `Icon` 后缀；必须与「完整导出清单」逐字一致 |
-| 尺寸 | `UIcon` 的 `size`，或图标自身 `style` 的 `width`/`height` | `1em × 1em`（`UIcon` 内） | 否 | `<svg>` 无宽高；放进 `UIcon` 由 `size` 决定，脱离 `UIcon` 必须自带尺寸样式 |
-| 颜色 | CSS `currentColor` | 继承父级 `color` | 否 | `normal` 集合跟随父级 `color`；`colorful` 集合用源文件固定配色，忽略 `currentColor` |
-| 透传属性（如 `size`） | 任意 | — | 否 | 图标无 props，未知属性作为透传属性落到根 `<svg>` 上被浏览器忽略：不报错、不生效 |
+| 用法                  | 类型                                                                        | 默认                      | 必填 | 约束                                                                                                                                          |
+| --------------------- | --------------------------------------------------------------------------- | ------------------------- | :--: | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| 导入路径              | `'@veltra/icons/normal'` \| `'@veltra/icons/colorful'` \| `'@veltra/icons'` | —                         |  是  | 单色图标从 `normal` 导入，多色图标从 `colorful` 导入；根入口覆盖两者但不含 `FontColor`，按需场景优先用子路径                                  |
+| 导出名                | PascalCase 具名导出                                                         | —                         |  是  | 由 kebab 文件名按 `-` 分段、每段首字母大写推导（`circle-check-filled` → `CircleCheckFilled`）；无 `Icon` 后缀；必须与「完整导出清单」逐字一致 |
+| 尺寸                  | `UIcon` 的 `size`，或图标自身 `style` 的 `width`/`height`                   | `1em × 1em`（`UIcon` 内） |  否  | `<svg>` 无宽高；放进 `UIcon` 由 `size` 决定，脱离 `UIcon` 必须自带尺寸样式                                                                    |
+| 颜色                  | CSS `currentColor`                                                          | 继承父级 `color`          |  否  | `normal` 集合跟随父级 `color`；`colorful` 集合用源文件固定配色，忽略 `currentColor`                                                           |
+| 透传属性（如 `size`） | 任意                                                                        | —                         |  否  | 图标无 props，未知属性作为透传属性落到根 `<svg>` 上被浏览器忽略：不报错、不生效                                                               |
 
 ### 完整导出清单
 
@@ -174,7 +195,7 @@ const matched = computed(() =>
   (Object.entries(NormalIcons) as [string, Component][])
     .filter(([key, value]) => typeof value === 'object' && value !== null)
     .filter(([key]) => pascalToKebab(key).includes(query))
-    .map(([name, component]) => ({ name, component })),
+    .map(([name, component]) => ({ name, component }))
 )
 
 // query = 'arrow' 时 => [{ name: 'ArrowDown', component: ... }, { name: 'ArrowLeft', component: ... }, ...]
@@ -192,6 +213,7 @@ const matched = computed(() =>
 ## 注意事项
 
 > [!WARNING]
+>
 > - 禁止写 `<User :size="18" />`：图标组件没有 props，`:size` 只作为透传属性落到根 `<svg>` 上被浏览器忽略，不报错也不生效。正确写法是 `<u-icon :size="18"><User /></u-icon>`；不用 `UIcon` 时必须自带尺寸样式 `<User style="width: 18px; height: 18px" />`。
 > - 图标名必须以「完整导出清单」与 barrel（`packages/icons/src/normal.ts`、`colorful.ts`）为准，禁止凭 Element Plus / Ant Design 等开源库的记忆写名字：那些名字在本库大多不存在，本库没有 `SwitchButton`、`Forward`、`Switch`。
 > - 导出名没有 `Icon` 后缀：写 `Search`，不是 `SearchIcon`；也没有字符串名用法（本库没有 `<u-icon name="search">`，图标组件必须导入后放进 `UIcon` 默认插槽）。
@@ -264,12 +286,12 @@ import { FontColor as ColorfulFontColor } from '@veltra/icons/colorful' // 多�
 
 命名规则：kebab 文件名按 `-` 分段、每段首字母大写。常用推导示例：
 
-| kebab 文件名 | 导出名 | 集合 |
-| --- | --- | --- |
-| `circle-check-filled` | `CircleCheckFilled` | `normal` |
-| `d-arrow-left` | `DArrowLeft` | `normal` |
-| `form-switch` | `FormSwitch` | `normal` |
-| `unknown-file` | `UnknownFile` | `colorful` |
+| kebab 文件名          | 导出名              | 集合       |
+| --------------------- | ------------------- | ---------- |
+| `circle-check-filled` | `CircleCheckFilled` | `normal`   |
+| `d-arrow-left`        | `DArrowLeft`        | `normal`   |
+| `form-switch`         | `FormSwitch`        | `normal`   |
+| `unknown-file`        | `UnknownFile`       | `colorful` |
 
 完整清单见 `## 参数说明` 的「完整导出清单」；编辑器里在 `import { } from '@veltra/icons/normal'` 花括号内输入前缀可枚举候选；程序化检索用「图标清单检索与动态渲染」示例。
 

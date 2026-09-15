@@ -1,8 +1,26 @@
 ---
 title: UTreeSelect 树选择器
-description: "从 @veltra/desktop 导入的树形单选下拉选择器：下拉面板内嵌 UTree，绑定所选节点的值，支持关键字过滤、禁用节点、清空与 UForm 内 field 绑定校验。"
+description: '从 @veltra/desktop 导入的树形单选下拉选择器：下拉面板内嵌 UTree，绑定所选节点的值，支持关键字过滤、禁用节点、清空与 UForm 内 field 绑定校验。'
 aliases: [TreeSelect, tree-select, 树形选择器, 树形下拉]
-keywords: [modelValue, update:text, filterable, clearable, disabledNode, labelKey, valueKey, childrenKey, expandAll, field, 关键字过滤, 树形数据, 下拉树, 禁用节点, 冗余文案同步, 表单绑定]
+keywords:
+  [
+    modelValue,
+    update:text,
+    filterable,
+    clearable,
+    disabledNode,
+    labelKey,
+    valueKey,
+    childrenKey,
+    expandAll,
+    field,
+    关键字过滤,
+    树形数据,
+    下拉树,
+    禁用节点,
+    冗余文案同步,
+    表单绑定
+  ]
 ---
 
 # UTreeSelect 树选择器
@@ -70,9 +88,7 @@ export interface FormComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    | number
-    | 'full'
-    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段：UForm 内用它绑定 model 字段 */
@@ -136,40 +152,40 @@ export type TreeSelectExposed = {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `v-model` | `string \| number` | — | 否 | 必须等于 `data` 中某节点的 `valueKey` 字段值；清空后写入 `''` |
-| `data` | `Record<string, any>[]` | `[]` | 否 | 树形数组；无懒加载，必须一次性传入全部层级 |
-| `labelKey` | `string` | `'label'` | 否 | 回显文案读取该字段 |
-| `valueKey` | `string` | `'value'` | 否 | 值比对与提交读取该字段 |
-| `childrenKey` | `string` | `'children'` | 否 | 子级数组字段名 |
-| `expandAll` | `boolean` | `false` | 否 | 初始展开全部节点 |
-| `expandOnClickNode` | `boolean` | `false` | 否 | 点击节点文本是否展开/收缩 |
-| `disabledNode` | `(item, node) => boolean` | — | 否 | 返回 `true` 的节点置灰且不可选中 |
-| `placeholder` | `string` | `'请选择'` | 否 | 无选中值时的占位文字 |
-| `clearable` | `boolean` | `true` | 否 | 悬停且已有选中值时显示清除按钮 |
-| `filterable` | `boolean` | `false` | 否 | 开启后可输入关键字，按节点 `label` 做子串匹配（区分大小写），命中节点的祖先自动展开 |
-| `minWidth` | `string` | `'280px'` | 否 | 面板最小宽度 |
-| `width` | `string` | 跟随触发元素宽度 | 否 | 面板宽度 |
-| `contentStyle` | `CSSProperties \| string` | — | 否 | 面板容器内联样式 |
-| `contentClass` | `unknown` | — | 否 | 面板容器类名 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 否 | 组件未设置时继承 `UForm` 的 `size` |
-| `label` | `string` | — | 否 | 标签文字，仅 `UForm` / `UFormItem` 内生效 |
-| `field` | `string` | — | 否 | `UForm` 内必须用它绑定字段；写了 `field` 禁止再写 `v-model` |
-| `rules` | `ValidateRule` | — | 否 | 校验规则，仅 `UForm` 内生效 |
-| `tips` | `string` | — | 否 | 表单内提示文字，仅 `UForm` 内生效 |
-| `span` | `number \| 'full' \| 响应式对象` | — | 否 | 所占列宽，仅 `UForm` 内生效 |
-| `disabled` | `boolean` | `false` | 否 | 未设置时继承 `UForm` 的 `disabled` |
-| `readonly` | `boolean` | `false` | 否 | 未设置时继承 `UForm` 的 `readonly`；只读时渲染为纯文本 |
+| 参数                | 类型                              | 默认             | 必填 | 约束                                                                                |
+| ------------------- | --------------------------------- | ---------------- | :--: | ----------------------------------------------------------------------------------- |
+| `v-model`           | `string \| number`                | —                |  否  | 必须等于 `data` 中某节点的 `valueKey` 字段值；清空后写入 `''`                       |
+| `data`              | `Record<string, any>[]`           | `[]`             |  否  | 树形数组；无懒加载，必须一次性传入全部层级                                          |
+| `labelKey`          | `string`                          | `'label'`        |  否  | 回显文案读取该字段                                                                  |
+| `valueKey`          | `string`                          | `'value'`        |  否  | 值比对与提交读取该字段                                                              |
+| `childrenKey`       | `string`                          | `'children'`     |  否  | 子级数组字段名                                                                      |
+| `expandAll`         | `boolean`                         | `false`          |  否  | 初始展开全部节点                                                                    |
+| `expandOnClickNode` | `boolean`                         | `false`          |  否  | 点击节点文本是否展开/收缩                                                           |
+| `disabledNode`      | `(item, node) => boolean`         | —                |  否  | 返回 `true` 的节点置灰且不可选中                                                    |
+| `placeholder`       | `string`                          | `'请选择'`       |  否  | 无选中值时的占位文字                                                                |
+| `clearable`         | `boolean`                         | `true`           |  否  | 悬停且已有选中值时显示清除按钮                                                      |
+| `filterable`        | `boolean`                         | `false`          |  否  | 开启后可输入关键字，按节点 `label` 做子串匹配（区分大小写），命中节点的祖先自动展开 |
+| `minWidth`          | `string`                          | `'280px'`        |  否  | 面板最小宽度                                                                        |
+| `width`             | `string`                          | 跟随触发元素宽度 |  否  | 面板宽度                                                                            |
+| `contentStyle`      | `CSSProperties \| string`         | —                |  否  | 面板容器内联样式                                                                    |
+| `contentClass`      | `unknown`                         | —                |  否  | 面板容器类名                                                                        |
+| `size`              | `'small' \| 'default' \| 'large'` | `'default'`      |  否  | 组件未设置时继承 `UForm` 的 `size`                                                  |
+| `label`             | `string`                          | —                |  否  | 标签文字，仅 `UForm` / `UFormItem` 内生效                                           |
+| `field`             | `string`                          | —                |  否  | `UForm` 内必须用它绑定字段；写了 `field` 禁止再写 `v-model`                         |
+| `rules`             | `ValidateRule`                    | —                |  否  | 校验规则，仅 `UForm` 内生效                                                         |
+| `tips`              | `string`                          | —                |  否  | 表单内提示文字，仅 `UForm` 内生效                                                   |
+| `span`              | `number \| 'full' \| 响应式对象`  | —                |  否  | 所占列宽，仅 `UForm` 内生效                                                         |
+| `disabled`          | `boolean`                         | `false`          |  否  | 未设置时继承 `UForm` 的 `disabled`                                                  |
+| `readonly`          | `boolean`                         | `false`          |  否  | 未设置时继承 `UForm` 的 `readonly`；只读时渲染为纯文本                              |
 
 ## 方法与事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
-| `update:modelValue` | `value?: string \| number` | 点选节点或清空；清空时为 `''` |
-| `change` | `selectedData?: Record<string, any>` | 点选节点（payload 为节点完整数据对象）或清空（payload 为 `undefined`） |
-| `update:text` | `text?: string` | 选中项文案变化，值为节点 `labelKey` 字段值；清空时为 `undefined` |
-| `clear` | — | 点击清除按钮 |
+| 事件                | payload                              | 触发时机                                                               |
+| ------------------- | ------------------------------------ | ---------------------------------------------------------------------- |
+| `update:modelValue` | `value?: string \| number`           | 点选节点或清空；清空时为 `''`                                          |
+| `change`            | `selectedData?: Record<string, any>` | 点选节点（payload 为节点完整数据对象）或清空（payload 为 `undefined`） |
+| `update:text`       | `text?: string`                      | 选中项文案变化，值为节点 `labelKey` 字段值；清空时为 `undefined`       |
+| `clear`             | —                                    | 点击清除按钮                                                           |
 
 组件 ref 上没有可调用的暴露方法。
 
@@ -278,6 +294,7 @@ const data = [
 ## 注意事项
 
 > [!WARNING]
+>
 > - 在 `<u-form>` 内必须用 `field` 绑定字段，禁止再写 `v-model`。
 > - `v-model` 的值是节点 `valueKey` 字段值（`string | number`），不是节点对象，也不是路径字符串。
 > - `update:text` 是单向通知事件，本库没有 `v-model:text`；展示文案始终由 `data` 反查推导，禁止手工写文案回显。

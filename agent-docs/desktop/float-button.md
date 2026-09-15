@@ -90,19 +90,19 @@ export type FloatButtonExposed = DeconstructValue<_FloatButtonExposed>
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `items` | `FloatButtonItem[]` | `[]`（不渲染按钮） | 否 | 每项 `key` 必填且必须唯一；数组第一项为常显主按钮 |
-| `size` | `ComponentSize` | `'default'` | 否 | 枚举 `'small' \| 'default' \| 'large'`，透传给每个 `UButton` |
+| 参数    | 类型                | 默认               | 必填 | 约束                                                         |
+| ------- | ------------------- | ------------------ | :--: | ------------------------------------------------------------ |
+| `items` | `FloatButtonItem[]` | `[]`（不渲染按钮） |  否  | 每项 `key` 必填且必须唯一；数组第一项为常显主按钮            |
+| `size`  | `ComponentSize`     | `'default'`        |  否  | 枚举 `'small' \| 'default' \| 'large'`，透传给每个 `UButton` |
 
 `FloatButtonItem` 字段：
 
-| 字段 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `key` | `string` | — | 是 | 唯一标识；既作 `v-for` key 又作 `click` 回传值 |
-| `icon` | `Component` | — | 否 | 图标组件；已传时优先渲染图标，忽略 `name` 首字符 |
-| `name` | `string` | — | 否 | 无 `icon` 时显示 `name` 首字符；`title` 提示取 `name ?? key` |
-| `type` | `ButtonType` | `'primary'` | 否 | 枚举 `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'` |
+| 字段   | 类型         | 默认        | 必填 | 约束                                                             |
+| ------ | ------------ | ----------- | :--: | ---------------------------------------------------------------- |
+| `key`  | `string`     | —           |  是  | 唯一标识；既作 `v-for` key 又作 `click` 回传值                   |
+| `icon` | `Component`  | —           |  否  | 图标组件；已传时优先渲染图标，忽略 `name` 首字符                 |
+| `name` | `string`     | —           |  否  | 无 `icon` 时显示 `name` 首字符；`title` 提示取 `name ?? key`     |
+| `type` | `ButtonType` | `'primary'` |  否  | 枚举 `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'` |
 
 ## 方法与事件
 
@@ -183,6 +183,7 @@ function onClick(key: string) {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 位置固定在视口右下角（`right: 10px; bottom: 10px`），组件无任何定位 props；本库用 `items` 驱动按钮列表，不是 Ant Design FloatButton 的单按钮 + `tooltip` / `menu` 模式。
 > - 数组顺序与视觉顺序相反：容器是纵向反排（`column-reverse`），`items[0]` 显示在最下方、最靠近右下角，且是唯一常显项。
 > - 其余按钮仅在鼠标悬停整个组件时展开（缩放 + 淡入，逐项延迟 0.1s），鼠标移开后收起并隐藏；禁止依赖收起态下的非首项按钮可点击。

@@ -2,7 +2,25 @@
 title: useUserAction / useFocus 用户交互组合式函数
 description: 从 @veltra/compositions 导出的两个用户交互组合式函数：useUserAction 用计数窗口标记用户主动操作，在窗口内跳过 watch 回显以切断 emit → props 回流的循环更新；useFocus 维护聚焦状态 ref 并提供 handleFocus / handleBlur 处理器。两者在 UInput、UDatePicker 等受控表单控件中搭配使用。
 aliases: [use-user-action, useFocus, use-focus, 用户操作窗口, 回显屏蔽, 焦点状态管理]
-keywords: [useUserAction, UserAction, UserActionResult, isUserActive, userAction, useFocus, handleFocus, handleBlur, nextTick, 循环更新, 回显屏蔽, 双向绑定死循环, 聚焦状态, 失焦校验, watch 守卫, 用户主动操作]
+keywords:
+  [
+    useUserAction,
+    UserAction,
+    UserActionResult,
+    isUserActive,
+    userAction,
+    useFocus,
+    handleFocus,
+    handleBlur,
+    nextTick,
+    循环更新,
+    回显屏蔽,
+    双向绑定死循环,
+    聚焦状态,
+    失焦校验,
+    watch 守卫,
+    用户主动操作
+  ]
 ---
 
 # useUserAction / useFocus 用户交互组合式函数
@@ -82,17 +100,17 @@ export function useFocus(cb?: (focused: boolean) => void): {
 
 ### useUserAction
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| （无参数） | — | — | — | 内部为模块外闭包计数器 `actionCount`，每次调用返回独立实例 |
-| `fn`（`userAction` 的参数） | `(...args: any[]) => void \| Promise<void>` | — | 是 | 同步或异步函数；抛出的异常被捕获后 `console.error`，不再向外抛 |
-| 包装后函数的参数 | `Parameters<T>` | — | — | 原样转发给 `fn`；返回值恒为 `Promise<void>`，不是 `fn` 的返回值 |
+| 参数                        | 类型                                        | 默认 | 必填 | 约束                                                            |
+| --------------------------- | ------------------------------------------- | ---- | :--: | --------------------------------------------------------------- |
+| （无参数）                  | —                                           | —    |  —   | 内部为模块外闭包计数器 `actionCount`，每次调用返回独立实例      |
+| `fn`（`userAction` 的参数） | `(...args: any[]) => void \| Promise<void>` | —    |  是  | 同步或异步函数；抛出的异常被捕获后 `console.error`，不再向外抛  |
+| 包装后函数的参数            | `Parameters<T>`                             | —    |  —   | 原样转发给 `fn`；返回值恒为 `Promise<void>`，不是 `fn` 的返回值 |
 
 ### useFocus
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `cb` | `(focused: boolean) => void` | — | 否 | 在 `focus.value` 赋值之后同步调用；`handleFocus` 传 `true`，`handleBlur` 传 `false` |
+| 参数 | 类型                         | 默认 | 必填 | 约束                                                                                |
+| ---- | ---------------------------- | ---- | :--: | ----------------------------------------------------------------------------------- |
+| `cb` | `(focused: boolean) => void` | —    |  否  | 在 `focus.value` 赋值之后同步调用；`handleFocus` 传 `true`，`handleBlur` 传 `false` |
 
 ## 方法与事件
 
@@ -229,6 +247,7 @@ function focusInput() {
 ## 注意事项
 
 > [!WARNING]
+>
 > - `userAction` 包装后的函数返回 `Promise<void>` 且不会 reject：`fn` 的异常被 `console.error` 吞掉。需要向上传播错误时在 `fn` 内部自行 try/catch 处理，不能依赖外层 `catch`。
 > - 窗口结束点包含一次 `await nextTick()`：同步代码里调用包装函数后立刻读 `isUserActive()` 为 `true`，但 `await` 该 Promise 完成后即为 `false`；守卫必须放在窗口期内会执行的 `watch` / 回调里，而不是延迟检查。
 > - `useFocus` 是状态同步，不是焦点管理：它不调用 `element.focus()` / `blur()`，也不监听 `focusin`；给 `<input>` 绑 `@focus` / `@blur` 才会更新。

@@ -1,8 +1,28 @@
 ---
 title: UAiChat AI 对话组件
-description: "@veltra/ai 的 AI 对话组件：必填 transport 接入任意 OpenAI 兼容或自定义后端，内置流式打字机消息列表、工具调用卡片与侧边面板、待发送队列、模型/推理等级选择器、图片附件与 token 用量展示。"
+description: '@veltra/ai 的 AI 对话组件：必填 transport 接入任意 OpenAI 兼容或自定义后端，内置流式打字机消息列表、工具调用卡片与侧边面板、待发送队列、模型/推理等级选择器、图片附件与 token 用量展示。'
 aliases: [AiChat, ai-chat, AI 对话, 聊天组件, Chat]
-keywords: [useChat, createOpenAITransport, SSE, 流式, 对话, 打字机, 活体球, 工具调用, maxToolRounds, v-model:messages, 待发送队列, needsConfirm, welcome, 图片附件, 模型选择, reasoningLevel, token 用量, readonly]
+keywords:
+  [
+    useChat,
+    createOpenAITransport,
+    SSE,
+    流式,
+    对话,
+    打字机,
+    活体球,
+    工具调用,
+    maxToolRounds,
+    v-model:messages,
+    待发送队列,
+    needsConfirm,
+    welcome,
+    图片附件,
+    模型选择,
+    reasoningLevel,
+    token 用量,
+    readonly
+  ]
 ---
 
 # UAiChat AI 对话组件
@@ -20,10 +40,13 @@ import '@veltra/ai/style'
 
 // 指向服务端代理；API Key 只存在服务端，不下发浏览器
 const transport = createOpenAITransport({
-  providers: [{
-    id: 'proxy', endpoint: 'https://<你的代理地址>/chat/completions',
-    models: [{ id: '<模型id>', label: '<显示名>' }]
-  }]
+  providers: [
+    {
+      id: 'proxy',
+      endpoint: 'https://<你的代理地址>/chat/completions',
+      models: [{ id: '<模型id>', label: '<显示名>' }]
+    }
+  ]
 })
 </script>
 
@@ -137,10 +160,19 @@ export interface ChatMessage {
 }
 
 /** 聊天附件（首版仅支持图片）：dataUrl 为 base64 data URL */
-export interface ChatAttachment { name: string; mimeType: string; size: number; dataUrl: string }
+export interface ChatAttachment {
+  name: string
+  mimeType: string
+  size: number
+  dataUrl: string
+}
 
 /** 队列中的待发送消息 */
-export interface ChatQueuedMessage { id: string; content: string; attachments?: ChatAttachment[] }
+export interface ChatQueuedMessage {
+  id: string
+  content: string
+  attachments?: ChatAttachment[]
+}
 
 export interface ChatTokenUsage {
   promptTokens: number
@@ -155,7 +187,8 @@ export interface ChatTokenUsage {
 }
 
 /** 工具调用状态 */
-export type ToolCallStatus = 'pending' | 'awaiting-confirm' | 'running' | 'success' | 'error' | 'rejected'
+export type ToolCallStatus =
+  'pending' | 'awaiting-confirm' | 'running' | 'success' | 'error' | 'rejected'
 
 /** 一次工具调用 */
 export interface ChatToolCall {
@@ -202,13 +235,27 @@ export interface ChatTool<A = any> {
 }
 
 /** 服务端驱动模式 tools：纯渲染元信息（执行在服务端，忽略 execute 等字段），字段语义同 ChatTool 对应字段 */
-export interface ChatToolMeta { name: string; icon?: Component; label?: string; render?: Component; renderTo?: 'inline' | 'panel'; panelWidth?: number; panelTitle?: string | ((toolCall: ChatToolCall) => string); autoCollapse?: boolean }
+export interface ChatToolMeta {
+  name: string
+  icon?: Component
+  label?: string
+  render?: Component
+  renderTo?: 'inline' | 'panel'
+  panelWidth?: number
+  panelTitle?: string | ((toolCall: ChatToolCall) => string)
+  autoCollapse?: boolean
+}
 
 /** render 组件 / tool-<name> 插槽收到的 props：toolCall 含 status/arguments/result/error，实时更新 */
-export interface ChatToolRenderProps { toolCall: ChatToolCall }
+export interface ChatToolRenderProps {
+  toolCall: ChatToolCall
+}
 
 /** 推理等级选项（值不透明，由宿主/服务商约定） */
-export interface ChatReasoningLevel { value: string; label: string }
+export interface ChatReasoningLevel {
+  value: string
+  label: string
+}
 
 /** 单个模型配置：id 跨 Provider 全局唯一；label 缺省取 id；description 为选择器副标题；reasoningLevels 未设或空数组 → 不展示推理选择器；defaultReasoningLevel 须落在 reasoningLevels 内 */
 export interface ChatModel {
@@ -220,7 +267,10 @@ export interface ChatModel {
 }
 
 /** 模型选择器使用的扁平模型项 */
-export interface ChatModelOption extends ChatModel { providerId: string; providerLabel?: string }
+export interface ChatModelOption extends ChatModel {
+  providerId: string
+  providerLabel?: string
+}
 
 /** transport 请求参数（自定义 transport 时按此收到请求） */
 export interface ChatTransportRequest {
@@ -250,45 +300,48 @@ export interface ChatTransportHandlers {
  * 函数型 transport 签名：自行实现接入任意后端（实现契约详见 use-chat.md）。
  * 与 session 对象形态（ChatSessionTransport，kind: 'session'）互斥。
  */
-export type ChatTransport = (request: ChatTransportRequest, handlers: ChatTransportHandlers) => Promise<void> | void
+export type ChatTransport = (
+  request: ChatTransportRequest,
+  handlers: ChatTransportHandlers
+) => Promise<void> | void
 ```
 
 `autoCollapse` 缺省规则：`renderTo: 'panel'` 时为 `true`；设置了 `render` 时为 `false`；否则为 `true`。
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `transport` | `ChatTransport \| ChatSessionTransport` | — | 是 | 函数型（如 `createOpenAITransport()` 返回值）或 `kind: 'session'` 对象（`createServerTransport()` 返回值），二者互斥；缺失时用户消息仍入列显示，但不请求模型、无回复 |
-| `tools` | `(ChatTool \| ChatToolMeta)[]` | — | 否 | 函数 transport 下传 `ChatTool[]`；session 下传 `ChatToolMeta[]`；与内置 `askQuestion` 同名的项被忽略（内置优先） |
-| `systemPrompt` | `string` | — | 否 | 不参与 UI，仅发给模型 |
-| `maxToolRounds` | `number` | `10` | 否 | 一轮 = 一次模型生成加其后的工具执行；轮次耗尽即停止请求并发出 `finish` |
-| `messages` | `ChatMessage[]` | `[]` | 否 | `v-model:messages`；可做会话持久化 |
-| `models` | `ChatModelOption[]` | — | 否 | 不传则不显示模型选择器；模型 `id` 跨 Provider 全局唯一 |
-| `model` | `string` | `models[0].id` | 否 | `v-model:model`；`models` 有值时自动校正为合法项 |
-| `reasoningLevel` | `string` | — | 否 | `v-model:reasoning-level`；切换模型时校正：无 levels 清空，非法值落到 `defaultReasoningLevel` 或首项 |
-| `welcome` | `string \| string[]` | — | 否 | 字符串按单项处理；未传或为空时仅显示活体球，不带快捷提问 |
-| `placeholder` | `string` | `'输入消息，Enter 发送，Shift + Enter 换行'` | 否 | 生成中占位文案固定为「会话进行中，发送的消息将进入待发送队列」 |
-| `accept` | `string` | `'image/*'` | 否 | 透传文件选择的 accept，仅支持图片附件 |
-| `maxAttachmentSize` | `number` | `10485760` | 否 | 字节；超限忽略该文件并 `console.warn('[UAiChat] 附件 <name> 超过大小限制，已忽略')` |
-| `rendererProps` | `Record<string, unknown>` | — | 否 | 透传 markstream-vue 的 `MarkdownRender`（mermaid/katex 等需宿主自装 peer 并经此打开） |
-| `tokenUsageDetail` | `boolean` | `false` | 否 | 仅影响明细展示；无 usage 时一律不展示 |
-| `toolIcons` | `Record<string, Component>` | — | 否 | 键为工具名，精确名覆盖内置名称规则 |
-| `readonly` | `boolean` | `false` | 否 | 不渲染输入区，欢迎语点击不发送，队列无插队/编辑/移除 |
+| 参数                | 类型                                    | 默认                                         | 必填 | 约束                                                                                                                                                                 |
+| ------------------- | --------------------------------------- | -------------------------------------------- | :--: | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `transport`         | `ChatTransport \| ChatSessionTransport` | —                                            |  是  | 函数型（如 `createOpenAITransport()` 返回值）或 `kind: 'session'` 对象（`createServerTransport()` 返回值），二者互斥；缺失时用户消息仍入列显示，但不请求模型、无回复 |
+| `tools`             | `(ChatTool \| ChatToolMeta)[]`          | —                                            |  否  | 函数 transport 下传 `ChatTool[]`；session 下传 `ChatToolMeta[]`；与内置 `askQuestion` 同名的项被忽略（内置优先）                                                     |
+| `systemPrompt`      | `string`                                | —                                            |  否  | 不参与 UI，仅发给模型                                                                                                                                                |
+| `maxToolRounds`     | `number`                                | `10`                                         |  否  | 一轮 = 一次模型生成加其后的工具执行；轮次耗尽即停止请求并发出 `finish`                                                                                               |
+| `messages`          | `ChatMessage[]`                         | `[]`                                         |  否  | `v-model:messages`；可做会话持久化                                                                                                                                   |
+| `models`            | `ChatModelOption[]`                     | —                                            |  否  | 不传则不显示模型选择器；模型 `id` 跨 Provider 全局唯一                                                                                                               |
+| `model`             | `string`                                | `models[0].id`                               |  否  | `v-model:model`；`models` 有值时自动校正为合法项                                                                                                                     |
+| `reasoningLevel`    | `string`                                | —                                            |  否  | `v-model:reasoning-level`；切换模型时校正：无 levels 清空，非法值落到 `defaultReasoningLevel` 或首项                                                                 |
+| `welcome`           | `string \| string[]`                    | —                                            |  否  | 字符串按单项处理；未传或为空时仅显示活体球，不带快捷提问                                                                                                             |
+| `placeholder`       | `string`                                | `'输入消息，Enter 发送，Shift + Enter 换行'` |  否  | 生成中占位文案固定为「会话进行中，发送的消息将进入待发送队列」                                                                                                       |
+| `accept`            | `string`                                | `'image/*'`                                  |  否  | 透传文件选择的 accept，仅支持图片附件                                                                                                                                |
+| `maxAttachmentSize` | `number`                                | `10485760`                                   |  否  | 字节；超限忽略该文件并 `console.warn('[UAiChat] 附件 <name> 超过大小限制，已忽略')`                                                                                  |
+| `rendererProps`     | `Record<string, unknown>`               | —                                            |  否  | 透传 markstream-vue 的 `MarkdownRender`（mermaid/katex 等需宿主自装 peer 并经此打开）                                                                                |
+| `tokenUsageDetail`  | `boolean`                               | `false`                                      |  否  | 仅影响明细展示；无 usage 时一律不展示                                                                                                                                |
+| `toolIcons`         | `Record<string, Component>`             | —                                            |  否  | 键为工具名，精确名覆盖内置名称规则                                                                                                                                   |
+| `readonly`          | `boolean`                               | `false`                                      |  否  | 不渲染输入区，欢迎语点击不发送，队列无插队/编辑/移除                                                                                                                 |
 
 ## 方法与事件
 
 ### 事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
-| `update:messages` | `ChatMessage[]` | 消息列表在关键节点变化（发送、工具结果追加、流式收尾）；流式 delta 不逐字 emit |
-| `update:model` | `string \| undefined` | 模型选择器切换或自动校正 |
-| `update:reasoningLevel` | `string \| undefined` | 推理等级切换或校正 |
-| `send` | `ChatMessage` | 用户消息 push 进列表后（点击发送、欢迎语点击、`send()`） |
-| `finish` | `ChatMessage` | 最后一条 assistant 完成：无更多工具调用 / terminal 工具成功 / 达到 `maxToolRounds` |
-| `error` | `Error` | transport 调 `onError` 或抛错，且请求未被中断 |
-| `tool-call` | `ChatToolCall` | 模型每次发起工具调用（状态初始为 `pending`） |
+| 事件                    | payload               | 触发时机                                                                           |
+| ----------------------- | --------------------- | ---------------------------------------------------------------------------------- |
+| `update:messages`       | `ChatMessage[]`       | 消息列表在关键节点变化（发送、工具结果追加、流式收尾）；流式 delta 不逐字 emit     |
+| `update:model`          | `string \| undefined` | 模型选择器切换或自动校正                                                           |
+| `update:reasoningLevel` | `string \| undefined` | 推理等级切换或校正                                                                 |
+| `send`                  | `ChatMessage`         | 用户消息 push 进列表后（点击发送、欢迎语点击、`send()`）                           |
+| `finish`                | `ChatMessage`         | 最后一条 assistant 完成：无更多工具调用 / terminal 工具成功 / 达到 `maxToolRounds` |
+| `error`                 | `Error`               | transport 调 `onError` 或抛错，且请求未被中断                                      |
+| `tool-call`             | `ChatToolCall`        | 模型每次发起工具调用（状态初始为 `pending`）                                       |
 
 ### 暴露方法（模板引用）
 
@@ -320,10 +373,13 @@ import { UAiChat, createOpenAITransport, type ChatTool } from '@veltra/ai'
 import '@veltra/ai/style'
 
 const transport = createOpenAITransport({
-  providers: [{
-    id: 'proxy', endpoint: 'https://<你的代理地址>/chat/completions',
-    models: [{ id: '<模型id>', label: '<显示名>' }]
-  }]
+  providers: [
+    {
+      id: 'proxy',
+      endpoint: 'https://<你的代理地址>/chat/completions',
+      models: [{ id: '<模型id>', label: '<显示名>' }]
+    }
+  ]
 })
 
 const tools: ChatTool[] = [
@@ -331,7 +387,11 @@ const tools: ChatTool[] = [
     // 普通工具：结果 JSON 序列化后回灌模型继续生成
     name: 'lookupOrder',
     description: '按订单号查询订单状态',
-    parameters: { type: 'object', properties: { orderId: { type: 'string' } }, required: ['orderId'] },
+    parameters: {
+      type: 'object',
+      properties: { orderId: { type: 'string' } },
+      required: ['orderId']
+    },
     execute: async ({ orderId }: { orderId: string }) =>
       (await fetch(`/api/orders/${orderId}`)).json()
   },
@@ -351,9 +411,16 @@ const tools: ChatTool[] = [
     name: 'getWeather',
     description: '查询城市实时天气，结果以卡片直接展示，无需再用文字复述',
     terminal: true,
-    parameters: { type: 'object', properties: { city: { type: 'string', description: '城市名' } }, required: ['city'] },
+    parameters: {
+      type: 'object',
+      properties: { city: { type: 'string', description: '城市名' } },
+      required: ['city']
+    },
     execute: async ({ city }: { city: string }) =>
-      (await fetch(`/api/weather?city=${encodeURIComponent(city)}`)).json() as Promise<{ city: string; temperature: number }>
+      (await fetch(`/api/weather?city=${encodeURIComponent(city)}`)).json() as Promise<{
+        city: string
+        temperature: number
+      }>
   }
 ]
 
@@ -390,10 +457,13 @@ import { UAiChat, createOpenAITransport, type AiChatExposed, type ChatMessage } 
 import '@veltra/ai/style'
 
 const transport = createOpenAITransport({
-  providers: [{
-    id: 'proxy', endpoint: 'https://<你的代理地址>/chat/completions',
-    models: [{ id: '<模型id>' }]
-  }]
+  providers: [
+    {
+      id: 'proxy',
+      endpoint: 'https://<你的代理地址>/chat/completions',
+      models: [{ id: '<模型id>' }]
+    }
+  ]
 })
 
 // v-model:messages 受控：watch 即可做 localStorage 持久化
@@ -444,16 +514,24 @@ import { UAiChat, createOpenAITransport, type ChatMessage } from '@veltra/ai'
 import '@veltra/ai/style'
 
 const transport = createOpenAITransport({
-  providers: [{
-    id: 'proxy', endpoint: 'https://<你的代理地址>/chat/completions',
-    models: [{ id: '<模型id>' }]
-  }]
+  providers: [
+    {
+      id: 'proxy',
+      endpoint: 'https://<你的代理地址>/chat/completions',
+      models: [{ id: '<模型id>' }]
+    }
+  ]
 })
 
 // 从服务端拉取历史后回显：readonly 下不渲染输入区，消息不可再发送
 const history: ChatMessage[] = [
   { id: 'm1', role: 'user', content: '帮我看看这个报错' },
-  { id: 'm2', role: 'assistant', content: '这是 **TypeError**：读取了 `undefined` 的属性。', status: 'done' }
+  {
+    id: 'm2',
+    role: 'assistant',
+    content: '这是 **TypeError**：读取了 `undefined` 的属性。',
+    status: 'done'
+  }
 ]
 </script>
 
@@ -471,6 +549,7 @@ const history: ChatMessage[] = [
 ## 注意事项
 
 > [!WARNING]
+>
 > - `transport` 必填，无默认值；缺失时用户消息仍会入列显示，但不会请求模型、没有回复。OpenAI 兼容后端用 `createOpenAITransport`，其它协议自行实现 `ChatTransport`（契约见上方 API 签名与 `use-chat.md`）。
 > - 生产环境禁止把 API Key 下发到浏览器：`endpoint` 必须指向服务端代理（相对路径或同源 URL），Key 只存在服务端（参考 playground：服务端从环境变量 `DEEPSEEK_API_KEY` 读取 Key，把 `/ai/chat/completions` 的 SSE 转发给上游）。`apiKey` 字段仅限本机调试。
 > - 无头自绘 UI 用同包 `useChat`（本库的方案是 `{ props, emit }` 签名的 Vue 组合式函数，不是 React AI SDK 那个 `useChat`）。

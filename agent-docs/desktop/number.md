@@ -1,8 +1,28 @@
 ---
 title: UNumber 数字
-description: "@veltra/desktop 导出的数字展示组件。用 Intl.NumberFormat（zh-CN）格式化数字，支持货币（默认 CNY ¥）、百分比、十进制三种格式，精度控制与数值补间动画（默认 800ms easeInOutQuad），用于金额、占比、统计值的展示。"
+description: '@veltra/desktop 导出的数字展示组件。用 Intl.NumberFormat（zh-CN）格式化数字，支持货币（默认 CNY ¥）、百分比、十进制三种格式，精度控制与数值补间动画（默认 800ms easeInOutQuad），用于金额、占比、统计值的展示。'
 aliases: [UNumber, Number, 数字, 数字格式化, NumberText]
-keywords: [UNumber, NumberProps, value, format, currency, percent, decimal, tween, duration, precision, maxPrecision, minPrecision, 数字格式化, 货币格式, 百分比, 千分位, 补间动画, 数字动画]
+keywords:
+  [
+    UNumber,
+    NumberProps,
+    value,
+    format,
+    currency,
+    percent,
+    decimal,
+    tween,
+    duration,
+    precision,
+    maxPrecision,
+    minPrecision,
+    数字格式化,
+    货币格式,
+    百分比,
+    千分位,
+    补间动画,
+    数字动画
+  ]
 ---
 
 # UNumber 数字
@@ -58,16 +78,16 @@ export interface NumberExposed {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `value` | `number` | — | 是 | 初始渲染与后续变化都会重新格式化；组件挂载时立即按当前值输出 |
-| `format` | `'currency' \| 'percent' \| 'decimal'` | `'decimal'` | 否 | `currency` 输出 `¥` 前缀千分位（币种固定 CNY，组件未暴露币种 prop）；`percent` 把数值乘 100 再加 `%`（`0.856` → `85.6%`）；`decimal` 千分位 |
-| `align` | `'left' \| 'center' \| 'right'` | — | 否 | 当前版本模板只输出格式化文本，`align` 不产生任何效果；对齐由父容器布局控制 |
-| `tween` | `boolean` | `false` | 否 | `true` 时 `value` 变化用补间动画过渡到新值；缓动固定 easeInOutQuad |
-| `duration` | `number` | `800` | 否 | 补间时长，毫秒；仅 `tween: true` 时有意义 |
-| `precision` | `number` | — | 否 | 同时作为最大与最小小数位数（不足补 0、超出四舍五入）；被 `maxPrecision` / `minPrecision` 覆盖 |
-| `maxPrecision` | `number` | — | 否 | 对应 `maximumFractionDigits`；未传且未传 `precision` 时用 Intl 默认（decimal 最多 3 位、currency 2 位） |
-| `minPrecision` | `number` | — | 否 | 对应 `minimumFractionDigits`；未传且未传 `precision` 时用 Intl 默认（0 位） |
+| 参数           | 类型                                   | 默认        | 必填 | 约束                                                                                                                                        |
+| -------------- | -------------------------------------- | ----------- | :--: | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `value`        | `number`                               | —           |  是  | 初始渲染与后续变化都会重新格式化；组件挂载时立即按当前值输出                                                                                |
+| `format`       | `'currency' \| 'percent' \| 'decimal'` | `'decimal'` |  否  | `currency` 输出 `¥` 前缀千分位（币种固定 CNY，组件未暴露币种 prop）；`percent` 把数值乘 100 再加 `%`（`0.856` → `85.6%`）；`decimal` 千分位 |
+| `align`        | `'left' \| 'center' \| 'right'`        | —           |  否  | 当前版本模板只输出格式化文本，`align` 不产生任何效果；对齐由父容器布局控制                                                                  |
+| `tween`        | `boolean`                              | `false`     |  否  | `true` 时 `value` 变化用补间动画过渡到新值；缓动固定 easeInOutQuad                                                                          |
+| `duration`     | `number`                               | `800`       |  否  | 补间时长，毫秒；仅 `tween: true` 时有意义                                                                                                   |
+| `precision`    | `number`                               | —           |  否  | 同时作为最大与最小小数位数（不足补 0、超出四舍五入）；被 `maxPrecision` / `minPrecision` 覆盖                                               |
+| `maxPrecision` | `number`                               | —           |  否  | 对应 `maximumFractionDigits`；未传且未传 `precision` 时用 Intl 默认（decimal 最多 3 位、currency 2 位）                                     |
+| `minPrecision` | `number`                               | —           |  否  | 对应 `minimumFractionDigits`；未传且未传 `precision` 时用 Intl 默认（0 位）                                                                 |
 
 ## 方法与事件
 
@@ -154,6 +174,7 @@ const rate = ref(0.1234)
 ## 注意事项
 
 > [!WARNING]
+>
 > - `UNumber` 不是表单控件，没有 `v-model`；输入数字用 `UNumberInput`，展示格式化数字才用 `UNumber`。
 > - 组件输出纯文本、不渲染包裹元素：传给 `<u-number>` 的 `class` / `style` 不会生效（无处可落），字号颜色必须写在父容器上。
 > - 货币格式币种固定为 CNY（`¥` 前缀）；组件没有 `currency` prop，需要其它币种时自行用 `Intl.NumberFormat` 格式化。

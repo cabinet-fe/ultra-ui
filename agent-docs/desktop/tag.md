@@ -1,8 +1,24 @@
 ---
 title: UTag 标签
-description: "@veltra/desktop 导出的标签组件，用于展示分类、状态等短文本标记。支持五种语义色、三档尺寸、圆角与深色变体；closable 时渲染关闭图标并发出 close 事件，移除数据需自行处理。"
+description: '@veltra/desktop 导出的标签组件，用于展示分类、状态等短文本标记。支持五种语义色、三档尺寸、圆角与深色变体；closable 时渲染关闭图标并发出 close 事件，移除数据需自行处理。'
 aliases: [UTag, Tag, 标签, ElTag]
-keywords: [TagProps, TagEmits, closable, round, dark, ColorType, ComponentSize, 可移除, 圆角, 深色, 关闭事件, 动态编辑, 状态标记, 主题色]
+keywords:
+  [
+    TagProps,
+    TagEmits,
+    closable,
+    round,
+    dark,
+    ColorType,
+    ComponentSize,
+    可移除,
+    圆角,
+    深色,
+    关闭事件,
+    动态编辑,
+    状态标记,
+    主题色
+  ]
 ---
 
 # UTag 标签
@@ -26,13 +42,7 @@ function remove(index: number) {
 
 <template>
   <u-tag type="primary">主要</u-tag>
-  <u-tag
-    v-for="(name, index) in tags"
-    :key="name"
-    closable
-    type="info"
-    @close="remove(index)"
-  >
+  <u-tag v-for="(name, index) in tags" :key="name" closable type="info" @close="remove(index)">
     {{ name }}
   </u-tag>
 </template>
@@ -72,21 +82,21 @@ export interface TagExposed {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `type` | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'` | — | 否 | 不传或传 `undefined` 时渲染默认灰样式 |
-| `closable` | `boolean` | `false` | 否 | 为 `true` 时右侧渲染关闭图标；点击仅发出 `close` 事件，不移除自身 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 否 | 回退链：自身 `size` > 所在 UForm 的尺寸 > 全局配置 > `'default'` |
-| `round` | `boolean` | `false` | 否 | 圆角胶囊形 |
-| `dark` | `boolean` | `false` | 否 | 深色实底变体，文字反白 |
+| 参数       | 类型                                                        | 默认        | 必填 | 约束                                                              |
+| ---------- | ----------------------------------------------------------- | ----------- | :--: | ----------------------------------------------------------------- |
+| `type`     | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'` | —           |  否  | 不传或传 `undefined` 时渲染默认灰样式                             |
+| `closable` | `boolean`                                                   | `false`     |  否  | 为 `true` 时右侧渲染关闭图标；点击仅发出 `close` 事件，不移除自身 |
+| `size`     | `'small' \| 'default' \| 'large'`                           | `'default'` |  否  | 回退链：自身 `size` > 所在 UForm 的尺寸 > 全局配置 > `'default'`  |
+| `round`    | `boolean`                                                   | `false`     |  否  | 圆角胶囊形                                                        |
+| `dark`     | `boolean`                                                   | `false`     |  否  | 深色实底变体，文字反白                                            |
 
 插槽：默认插槽放标签文案。暴露：`TagExposed` 为空对象，无可用方法或属性。
 
 ## 方法与事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
-| `close` | 无 | `closable` 为 `true` 时点击右侧关闭图标；事件不冒泡到标签主体 |
+| 事件    | payload | 触发时机                                                      |
+| ------- | ------- | ------------------------------------------------------------- |
+| `close` | 无      | `closable` 为 `true` 时点击右侧关闭图标；事件不冒泡到标签主体 |
 
 `close` 触发后组件不会卸载自己，必须由调用方在事件回调里更新数据源（如从数组中删除该项）。
 
@@ -162,6 +172,7 @@ import { UTag } from '@veltra/desktop'
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库 `type` 取值是 `primary` / `info` / `success` / `warning` / `danger`，没有 Element Plus 的 `el-tag` 的 `effect` 属性；深色变体用 `dark` 布尔值表达。
 > - `close` 事件不会移除标签；禁止只写 `closable` 不监听 `close` 并更新数据，否则标签不会消失。
 > - 本库是 `UTag`（内容放默认插槽），不是 `<u-tag name="xx">` 之类的属性式文案传法。

@@ -1,8 +1,28 @@
 ---
 title: UDatePicker 日期选择器
-description: "从 `@veltra/desktop` 导出的日期选择器：只读输入框点击弹出日 / 月 / 年选择面板，绑定值支持字符串、毫秒时间戳与 Date，支持禁用日期与清除；放进 UForm 时用 `field` 绑定 model 并按 `rules` 校验。"
+description: '从 `@veltra/desktop` 导出的日期选择器：只读输入框点击弹出日 / 月 / 年选择面板，绑定值支持字符串、毫秒时间戳与 Date，支持禁用日期与清除；放进 UForm 时用 `field` 绑定 model 并按 `rules` 校验。'
 aliases: [date-picker, u-date-picker, DatePicker, 日期选择器, 日期输入框]
-keywords: [modelValue, "update:modelValue", change, type, format, valueFormat, dataType, DatePickerDataType, disabledDate, clearable, Dater, 日期选择, 月份选择, 年份选择, 禁用日期, 时间戳, 清除, 占位符]
+keywords:
+  [
+    modelValue,
+    'update:modelValue',
+    change,
+    type,
+    format,
+    valueFormat,
+    dataType,
+    DatePickerDataType,
+    disabledDate,
+    clearable,
+    Dater,
+    日期选择,
+    月份选择,
+    年份选择,
+    禁用日期,
+    时间戳,
+    清除,
+    占位符
+  ]
 ---
 
 # UDatePicker 日期选择器
@@ -72,9 +92,7 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    | number
-    | 'full'
-    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段；有 field 时禁止再写 v-model */
@@ -131,31 +149,31 @@ export interface DatePickerExposed {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `v-model` / `modelValue` | `string \| number \| Date` | `undefined` | 否 | 实际类型随 `dataType`；字符串须能按 `valueFormat` 或默认规则解析，解析失败按空处理 |
-| `type` | `'date' \| 'month' \| 'year'` | `'date'` | 否 | 选择粒度：日 / 月 / 年；本库无周（week）粒度 |
-| `format` | `string` | 随 `type`：`'yyyy-MM-dd'` / `'yyyy-MM'` / `'yyyy'` | 否 | 输入框显示格式 |
-| `valueFormat` | `string` | 复用 `format` | 否 | 仅 `dataType="string"` 时生效：决定提交的字符串格式，并用于解析传入字符串 |
-| `dataType` | `'string' \| 'date' \| 'timestamp'` | `'string'` | 否 | 绑定值类型；非 `'string'` 时 `valueFormat` 不生效 |
-| `disabledDate` | `(date: Dater, raw: Date) => boolean` | — | 否 | 返回 `true` 的日期不可选 |
-| `clearable` | `boolean` | `true` | 否 | 清除图标显示条件：悬停 + 有值 + 非禁用 |
-| `placeholder` | `string` | `'选择日期'` | 否 | — |
-| `field` | `string` | — | 否 | 表单内生效。绑定 `<u-form :model>` 的字段；有 `field` 禁止再写 `v-model` |
-| `label` | `string` | — | 否 | 表单内生效。表单标签文字 |
-| `rules` | `ValidateRule` | — | 否 | 表单内生效。结构见 `## API 签名` 的 `ValidateRule` |
-| `tips` | `string` | — | 否 | 表单内生效。表单项提示文案 |
-| `span` | `number \| 'full' \| 按 BreakpointName 的对象` | — | 否 | 表单内生效。`'full'` 占满一行；对象形态必须含 `default` 键 |
-| `size` | `ComponentSize` | `'default'` | 否 | `'small' \| 'default' \| 'large'`；优先级：组件 props > 表单 > 全局配置 > 默认 |
-| `disabled` | `boolean` | `false` | 否 | 禁用后不可弹出面板、不可清除；优先级同 `size` |
-| `readonly` | `boolean` | `false` | 否 | `true` 时整个组件渲染为纯文本（空值显示 `-`），不渲染下拉 |
+| 参数                     | 类型                                           | 默认                                               | 必填 | 约束                                                                               |
+| ------------------------ | ---------------------------------------------- | -------------------------------------------------- | :--: | ---------------------------------------------------------------------------------- |
+| `v-model` / `modelValue` | `string \| number \| Date`                     | `undefined`                                        |  否  | 实际类型随 `dataType`；字符串须能按 `valueFormat` 或默认规则解析，解析失败按空处理 |
+| `type`                   | `'date' \| 'month' \| 'year'`                  | `'date'`                                           |  否  | 选择粒度：日 / 月 / 年；本库无周（week）粒度                                       |
+| `format`                 | `string`                                       | 随 `type`：`'yyyy-MM-dd'` / `'yyyy-MM'` / `'yyyy'` |  否  | 输入框显示格式                                                                     |
+| `valueFormat`            | `string`                                       | 复用 `format`                                      |  否  | 仅 `dataType="string"` 时生效：决定提交的字符串格式，并用于解析传入字符串          |
+| `dataType`               | `'string' \| 'date' \| 'timestamp'`            | `'string'`                                         |  否  | 绑定值类型；非 `'string'` 时 `valueFormat` 不生效                                  |
+| `disabledDate`           | `(date: Dater, raw: Date) => boolean`          | —                                                  |  否  | 返回 `true` 的日期不可选                                                           |
+| `clearable`              | `boolean`                                      | `true`                                             |  否  | 清除图标显示条件：悬停 + 有值 + 非禁用                                             |
+| `placeholder`            | `string`                                       | `'选择日期'`                                       |  否  | —                                                                                  |
+| `field`                  | `string`                                       | —                                                  |  否  | 表单内生效。绑定 `<u-form :model>` 的字段；有 `field` 禁止再写 `v-model`           |
+| `label`                  | `string`                                       | —                                                  |  否  | 表单内生效。表单标签文字                                                           |
+| `rules`                  | `ValidateRule`                                 | —                                                  |  否  | 表单内生效。结构见 `## API 签名` 的 `ValidateRule`                                 |
+| `tips`                   | `string`                                       | —                                                  |  否  | 表单内生效。表单项提示文案                                                         |
+| `span`                   | `number \| 'full' \| 按 BreakpointName 的对象` | —                                                  |  否  | 表单内生效。`'full'` 占满一行；对象形态必须含 `default` 键                         |
+| `size`                   | `ComponentSize`                                | `'default'`                                        |  否  | `'small' \| 'default' \| 'large'`；优先级：组件 props > 表单 > 全局配置 > 默认     |
+| `disabled`               | `boolean`                                      | `false`                                            |  否  | 禁用后不可弹出面板、不可清除；优先级同 `size`                                      |
+| `readonly`               | `boolean`                                      | `false`                                            |  否  | `true` 时整个组件渲染为纯文本（空值显示 `-`），不渲染下拉                          |
 
 ## 方法与事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
+| 事件                | payload                                 | 触发时机                                                                                                                                                             |
+| ------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `update:modelValue` | `string \| number \| Date \| undefined` | 面板中选中日期时按 `dataType` 提交：`'string'` → 按 `valueFormat ?? format` 格式化的字符串；`'timestamp'` → 毫秒数；`'date'` → 原生 `Date`；点击清除时为 `undefined` |
-| `change` | `Date \| undefined` | 与 `update:modelValue` 同步触发；payload 始终是选中日期的原生 `Date`，清除时为 `undefined` |
+| `change`            | `Date \| undefined`                     | 与 `update:modelValue` 同步触发；payload 始终是选中日期的原生 `Date`，清除时为 `undefined`                                                                           |
 
 组件 `ref` 无暴露成员。输入框原生只读，禁止键入，只能通过面板选择；选中后下拉自动关闭。
 
@@ -223,10 +241,7 @@ function handleChange(d?: Date) {
 import { UDatePicker, UForm } from '@veltra/desktop'
 import { reactive } from 'vue'
 
-const form = reactive({
-  birthday: '',
-  hiredAt: undefined as number | undefined
-})
+const form = reactive({ birthday: '', hiredAt: undefined as number | undefined })
 </script>
 
 <template>
@@ -246,6 +261,7 @@ const form = reactive({
 ## 注意事项
 
 > [!WARNING]
+>
 > - 在 `UForm` 内必须用 `field` 绑定值，禁止同时写 `v-model`；独立使用时才用 `v-model`。
 > - `label` / `field` / `rules` / `tips` / `span` 仅在 `UForm`（或 `UFormItem` 包裹）内生效，独立使用时传入无效。
 > - `valueFormat` 仅在 `dataType="string"`（默认）时生效；`dataType` 为 `'date'` / `'timestamp'` 时该属性被忽略。

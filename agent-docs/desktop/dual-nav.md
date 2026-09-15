@@ -1,6 +1,6 @@
 ---
-title: "UDualNav 双栏导航"
-description: "左轨应用切换 + 右栏子菜单的双栏侧栏导航：menus 根级为应用，点击左轨切换右栏菜单并发出首个叶子项；railVariant 支持 icon 与 labeled 两种左轨。需要不限层级树形菜单用 UNav，扁平分组用 UGroupNav。"
+title: 'UDualNav 双栏导航'
+description: '左轨应用切换 + 右栏子菜单的双栏侧栏导航：menus 根级为应用，点击左轨切换右栏菜单并发出首个叶子项；railVariant 支持 icon 与 labeled 两种左轨。需要不限层级树形菜单用 UNav，扁平分组用 UGroupNav。'
 aliases: [DualNav, 双栏侧栏, 应用导航, 双层导航, rail 导航]
 keywords:
   - currentPath
@@ -38,12 +38,7 @@ import { HouseFilled, Setting } from '@veltra/icons/normal'
 const currentPath = shallowRef('/apps/home')
 
 const menus: DualNavRootItem[] = [
-  {
-    title: '工作台',
-    icon: HouseFilled,
-    path: '/apps/home',
-    description: '个人工作台与常用入口'
-  },
+  { title: '工作台', icon: HouseFilled, path: '/apps/home', description: '个人工作台与常用入口' },
   {
     title: '系统设置',
     icon: Setting,
@@ -125,16 +120,16 @@ export interface DualNavExposed {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `menus` | `DualNavRootItem[]` | — | 否 | 根级每项是一个应用；`title`、`path` 必填；无 `icon` 时左轨显示 `title` 首字 |
-| `currentPath` | `string` | — | 否 | 深度优先反查所属根应用：命中的应用在左轨呈激活态，右栏展示其子菜单并高亮命中叶子；未命中且尚未手动切换时右栏默认展示 `menus[0]` |
-| `railVariant` | `'icon' \| 'labeled'` | `'icon'` | 否 | `labeled` 时名称取 `title` 前 4 个字；`labeled` 且名称未截断且无 `description` 时左轨不弹 tooltip |
+| 参数          | 类型                  | 默认     | 必填 | 约束                                                                                                                            |
+| ------------- | --------------------- | -------- | :--: | ------------------------------------------------------------------------------------------------------------------------------- |
+| `menus`       | `DualNavRootItem[]`   | —        |  否  | 根级每项是一个应用；`title`、`path` 必填；无 `icon` 时左轨显示 `title` 首字                                                     |
+| `currentPath` | `string`              | —        |  否  | 深度优先反查所属根应用：命中的应用在左轨呈激活态，右栏展示其子菜单并高亮命中叶子；未命中且尚未手动切换时右栏默认展示 `menus[0]` |
+| `railVariant` | `'icon' \| 'labeled'` | `'icon'` |  否  | `labeled` 时名称取 `title` 前 4 个字；`labeled` 且名称未截断且无 `description` 时左轨不弹 tooltip                               |
 
 事件：
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
+| 事件         | payload           | 触发时机                                                                                                                                           |
+| ------------ | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `item-click` | `(item: NavItem)` | 点击左轨应用：发出该应用深度优先第一个叶子（`findFirstLeaf`，无 `children` 时为应用自身）；点击右栏菜单叶子：发出该叶子。`disabled` 应用点击无事件 |
 
 ## 方法与事件
@@ -245,11 +240,7 @@ import { Cart } from '@veltra/icons/normal'
 const currentPath = shallowRef('/docs/start')
 
 const menus = shallowRef<DualNavRootItem[]>([
-  {
-    title: '文档中心',
-    path: '/docs',
-    children: [{ title: '快速开始', path: '/docs/start' }]
-  },
+  { title: '文档中心', path: '/docs', children: [{ title: '快速开始', path: '/docs/start' }] },
   { title: '帮助', icon: Cart, path: '/help' } // 无 children：右栏渲染它自身为单项
 ])
 
@@ -273,6 +264,7 @@ function onItemClick(item: NavItem) {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 外观（底色、文字、悬停/激活色）不在组件 props 上，由主题 `nav` 配置控制：`nav.variant` 选择深/浅侧栏（默认 `dark` 深底浅字），`nav` 其余键覆盖同名 `--u-nav-*` token。把侧栏自定义为浅色底时必须同时设 `variant: 'light'`，否则会浅底配白字看不清。
 > - 点击左轨后 `currentPath` 不会自动变化：`item-click` 发出的是应用第一个叶子的 `NavItem`，宿主必须拿它跳路由（或更新 `currentPath`），否则左轨只呈现 selected 悬停态而非激活态。
 > - 本库是受控组件（`currentPath` + `@item-click`），不是 `v-model`，也不内置 vue-router。

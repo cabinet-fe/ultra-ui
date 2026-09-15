@@ -2,7 +2,25 @@
 title: vRipple 波纹指令
 description: 从 @veltra/directives 导入的水波纹动效指令与 Ripple 辅助类，鼠标左键按下时从按点扩散圆形波纹，松开或移出时淡出移除。用于按钮、分页页码、列表项、树节点等可点击元素的点击反馈，支持自定义波纹类名、指定动画时长、传 false 动态禁用。
 aliases: [v-ripple, ripple, 水波纹, 波纹效果, 涟漪动效, Ripple 类]
-keywords: [vRipple, v-ripple, Ripple, RippleConfig, showByEvent, u-ripple, "@veltra/directives", duration, rippleClass, 水波纹, 波纹效果, 涟漪, 点击反馈, 波纹动画时长, 自定义波纹, 禁用波纹]
+keywords:
+  [
+    vRipple,
+    v-ripple,
+    Ripple,
+    RippleConfig,
+    showByEvent,
+    u-ripple,
+    '@veltra/directives',
+    duration,
+    rippleClass,
+    水波纹,
+    波纹效果,
+    涟漪,
+    点击反馈,
+    波纹动画时长,
+    自定义波纹,
+    禁用波纹
+  ]
 ---
 
 # vRipple 波纹指令
@@ -54,47 +72,47 @@ app.mount('#app')
 ## API 签名
 
 ```ts
-import type { DirectiveBinding, ObjectDirective } from 'vue';
+import type { DirectiveBinding, ObjectDirective } from 'vue'
 
 /** 波纹指令：绑定值 string 时作为波纹元素附加类名；精确等于 false 时禁用 */
-export declare const vRipple: ObjectDirective<HTMLElement>;
+export declare const vRipple: ObjectDirective<HTMLElement>
 
 /** 波纹效果类，适合不经指令、由业务事件驱动的场景 */
 export declare class Ripple {
   /** 波纹样式类名生成器，Ripple.cls.b 为 'u-ripple' */
-  static cls: { b: 'u-ripple' };
-  constructor(container: HTMLElement, config?: RippleConfig);
+  static cls: { b: 'u-ripple' }
+  constructor(container: HTMLElement, config?: RippleConfig)
   /** 返回波纹容器元素 */
-  getContainer(): HTMLElement;
+  getContainer(): HTMLElement
   /** 从指定容器坐标（px）显示波纹，同步 */
-  show(centerPosition: { x: number; y: number }): void;
+  show(centerPosition: { x: number; y: number }): void
   /** 从鼠标或触摸事件提取按点坐标并显示波纹，同步；TouchEvent 取 touches[0] */
-  showByEvent(e: MouseEvent | TouchEvent): void;
+  showByEvent(e: MouseEvent | TouchEvent): void
   /** 标记当前波纹淡出，opacity 过渡结束后从 DOM 移除，同步 */
-  remove(): void;
+  remove(): void
   /** 清空容器尺寸缓存；容器尺寸变化后调用，否则波纹半径计算不准 */
-  resetContainerRect(): void;
+  resetContainerRect(): void
 }
 
 export interface RippleConfig {
   /** 波纹元素附加类名 */
-  rippleClass?: string;
+  rippleClass?: string
   /** 波纹过渡时长（毫秒）；不传用样式默认 300ms */
-  duration?: number;
+  duration?: number
   /** 为 true 时波纹过渡结束自动移除，无需调用 remove() */
-  autoRemove?: boolean;
+  autoRemove?: boolean
 }
 ```
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| 绑定值 | `string \| boolean \| undefined` | `undefined` | 否 | `string`：波纹元素附加该类名（本库组件传 BEM 元素类，如 `u-option__ripple`）；`false`：禁用（仅精确等于 `false` 生效，`0`、`''`、`null`、`undefined` 都不禁用）；省略：仅默认样式 |
-| 指令参数 | `v-ripple:<毫秒数>` | `300` | 否 | `v-ripple:600` 表示过渡时长 600ms；值为 `0` 或空时按默认 300ms；时长同时作用于扩散与淡出过渡 |
-| 修饰符 | 无 | — | — | 不支持任何修饰符 |
-| 触发时机 | `mousedown` | — | — | 仅鼠标左键（`e.button === 0`）；右键、中键、纯触摸不触发 |
-| 清理行为 | — | — | — | `mouseup` / `mouseleave` 时波纹淡出（加 `is-removing` 类，`opacity` 过渡结束或取消后从 DOM 移除）；`unmounted` 时注销事件并移除未结束的波纹 |
+| 参数     | 类型                             | 默认        | 必填 | 约束                                                                                                                                                                              |
+| -------- | -------------------------------- | ----------- | :--: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 绑定值   | `string \| boolean \| undefined` | `undefined` |  否  | `string`：波纹元素附加该类名（本库组件传 BEM 元素类，如 `u-option__ripple`）；`false`：禁用（仅精确等于 `false` 生效，`0`、`''`、`null`、`undefined` 都不禁用）；省略：仅默认样式 |
+| 指令参数 | `v-ripple:<毫秒数>`              | `300`       |  否  | `v-ripple:600` 表示过渡时长 600ms；值为 `0` 或空时按默认 300ms；时长同时作用于扩散与淡出过渡                                                                                      |
+| 修饰符   | 无                               | —           |  —   | 不支持任何修饰符                                                                                                                                                                  |
+| 触发时机 | `mousedown`                      | —           |  —   | 仅鼠标左键（`e.button === 0`）；右键、中键、纯触摸不触发                                                                                                                          |
+| 清理行为 | —                                | —           |  —   | `mouseup` / `mouseleave` 时波纹淡出（加 `is-removing` 类，`opacity` 过渡结束或取消后从 DOM 移除）；`unmounted` 时注销事件并移除未结束的波纹                                       |
 
 运行期间指令对容器样式的管理：容器 `position` 为 `static` 时临时改为 `relative`、`overflow` 为 `visible` 时临时改为 `hidden`（通过 dataset 引用计数，多实例协作），最后一个波纹移除后恢复为修改前的值。
 
@@ -224,7 +242,12 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="card" @mousedown="handleMousedown" @mouseup="handleMouseup" @mouseleave="handleMouseup">
+  <div
+    class="card"
+    @mousedown="handleMousedown"
+    @mouseup="handleMouseup"
+    @mouseleave="handleMouseup"
+  >
     卡片内容
   </div>
 </template>
@@ -244,6 +267,7 @@ onBeforeUnmount(() => {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库指令从 `@veltra/directives` 导入（`import { vRipple } from '@veltra/directives'`），不是 Vue 内置指令；Vue 没有内置 `v-ripple`，Vuetify 的 `v-ripple` 也不是本指令。禁止写成 `import { vRipple } from 'vue'`。
 > - 使用前必须 `import '@veltra/directives/ripple/style.js'`（带 `.js` 后缀），否则波纹元素没有样式、看不到效果。`@veltra/desktop` 的部分组件（`UButton`、`UPaginator`、`USelect` 等）样式已引入波纹样式；样式链未包含它的组件（如 `UTree`）单独使用时，需要应用自行引入。
 > - 仅响应鼠标左键 `mousedown`（`e.button === 0`）；触摸事件在指令路径未注册。需要触摸波纹时用 `Ripple` 类的 `showByEvent`，它支持 `TouchEvent`。

@@ -1,6 +1,6 @@
 ---
-title: "UPaginator 分页器"
-description: "分页器：v-model:pageNumber 与 v-model:pageSize 双向绑定，按 total 计算总页数，页码窗口最多 5 个；内置每页条数选择器与页码跳转输入框，pageSize 与档位默认值来自 useConfig 全局配置，simple 可切简洁模式。"
+title: 'UPaginator 分页器'
+description: '分页器：v-model:pageNumber 与 v-model:pageSize 双向绑定，按 total 计算总页数，页码窗口最多 5 个；内置每页条数选择器与页码跳转输入框，pageSize 与档位默认值来自 useConfig 全局配置，simple 可切简洁模式。'
 aliases: [Pagination, Pager, ElPagination, 分页组件, 页码]
 keywords:
   - pageNumber
@@ -37,11 +37,7 @@ const pageSize = ref(10)
 </script>
 
 <template>
-  <u-paginator
-    v-model:page-number="pageNumber"
-    v-model:page-size="pageSize"
-    :total="256"
-  />
+  <u-paginator v-model:page-number="pageNumber" v-model:page-size="pageSize" :total="256" />
   <!-- => 显示「共 256 条」、每页条数选择器与页码，共 26 页 -->
 </template>
 ```
@@ -96,23 +92,23 @@ setConfig({ paginator: { pageSize: 20, pageSizeOptions: [10, 20, 50, 100] } })
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `v-model:page-number`（`pageNumber`） | `number` | `1` | 否 | 取值 1~总页数；页码窗口最多显示 5 个连续页码，随当前页滑动 |
-| `v-model:page-size`（`pageSize`） | `number` | 见约束 | 否 | 内部选择器初值为 10；页数计算按 `props.pageSize`，未绑定时退到 `config.paginator.pageSize`（默认 40）。必须绑定本 model 保证选择器显示与页数计算一致 |
-| `total` | `number` | `0` | 否 | 数据总条数；总页数 = `Math.ceil(total / pageSize)`，`total` 为 0 时总页数为 0 |
-| `pageSizeOptions` | `number[]` | `[40, 100, 200, 500, 1000]` | 否 | 选项渲染为 `N条`；不传时取 `config.paginator.pageSizeOptions` |
-| `simple` | `boolean` | `false` | 否 | `true` 时隐藏整个页码按钮区（含首页/上一页/下一页/末页），仅显示条数选择器与「前往 x / y 页」跳转 |
-| `size` | `'large' \| 'default' \| 'small'` | `'default'` | 否 | 组件根尺寸；内部条数选择器与页码输入框固定 `small` |
+| 参数                                  | 类型                              | 默认                        | 必填 | 约束                                                                                                                                                 |
+| ------------------------------------- | --------------------------------- | --------------------------- | :--: | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `v-model:page-number`（`pageNumber`） | `number`                          | `1`                         |  否  | 取值 1~总页数；页码窗口最多显示 5 个连续页码，随当前页滑动                                                                                           |
+| `v-model:page-size`（`pageSize`）     | `number`                          | 见约束                      |  否  | 内部选择器初值为 10；页数计算按 `props.pageSize`，未绑定时退到 `config.paginator.pageSize`（默认 40）。必须绑定本 model 保证选择器显示与页数计算一致 |
+| `total`                               | `number`                          | `0`                         |  否  | 数据总条数；总页数 = `Math.ceil(total / pageSize)`，`total` 为 0 时总页数为 0                                                                        |
+| `pageSizeOptions`                     | `number[]`                        | `[40, 100, 200, 500, 1000]` |  否  | 选项渲染为 `N条`；不传时取 `config.paginator.pageSizeOptions`                                                                                        |
+| `simple`                              | `boolean`                         | `false`                     |  否  | `true` 时隐藏整个页码按钮区（含首页/上一页/下一页/末页），仅显示条数选择器与「前往 x / y 页」跳转                                                    |
+| `size`                                | `'large' \| 'default' \| 'small'` | `'default'`                 |  否  | 组件根尺寸；内部条数选择器与页码输入框固定 `small`                                                                                                   |
 
 ## 方法与事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
-| `update:pageNumber` | `value: number` | 页码变化后写回 model；页码点击、上一页/下一页/首页/末页、跳转输入框、改每页条数重置为 1 时都会触发 |
+| 事件                | payload         | 触发时机                                                                                                                       |
+| ------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `update:pageNumber` | `value: number` | 页码变化后写回 model；页码点击、上一页/下一页/首页/末页、跳转输入框、改每页条数重置为 1 时都会触发                             |
 | `change:pageNumber` | `value: number` | 用户主动翻页后（页码点击、翻页按钮、跳转输入框回车且值在 1~总页数内）；点击当前页码不触发；改每页条数导致的页码重置为 1 不触发 |
-| `update:pageSize` | `value: number` | 条数选择器变化后写回 model |
-| `change:pageSize` | `value: number` | 条数选择器变化后触发；同时页码被重置为 1 |
+| `update:pageSize`   | `value: number` | 条数选择器变化后写回 model                                                                                                     |
+| `change:pageSize`   | `value: number` | 条数选择器变化后触发；同时页码被重置为 1                                                                                       |
 
 - 跳转输入框回车只在输入值满足 `1 <= 值 <= 总页数` 时生效，越界值被忽略。
 - 暴露属性：模板 `ref` 上直接访问 `el`（`HTMLElement | undefined`），即组件根元素——`PaginatorExposed` 经 `DeconstructValue` 解包，无需再 `.value`。
@@ -137,9 +133,7 @@ const rows = ref<UserRow[]>([])
 const total = ref(0)
 
 async function loadPage() {
-  const res = await fetch(
-    `<接口地址>?page=${pageNumber.value}&pageSize=${pageSize.value}`
-  )
+  const res = await fetch(`<接口地址>?page=${pageNumber.value}&pageSize=${pageSize.value}`)
   const data = (await res.json()) as { list: UserRow[]; total: number }
   rows.value = data.list
   total.value = data.total
@@ -151,11 +145,7 @@ loadPage()
 </script>
 
 <template>
-  <u-paginator
-    v-model:page-number="pageNumber"
-    v-model:page-size="pageSize"
-    :total="total"
-  />
+  <u-paginator v-model:page-number="pageNumber" v-model:page-size="pageSize" :total="total" />
   <!-- => 改每页条数时页码自动回到第 1 页，翻页与改条数统一由 watch 拉数据 -->
 </template>
 ```
@@ -212,6 +202,7 @@ const pageNumber = ref(1)
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库是 `v-model:pageNumber` / `v-model:page-size` 两个独立 model，不是 Element Plus 的 `current-page` / `page-size` 单向 props + `current-change` / `size-change` 事件（事件名是 `change:pageNumber` / `change:pageSize`）。
 > - 必须绑定 `v-model:page-size`：否则页数计算用全局 `config.paginator.pageSize`（默认 40），而条数选择器显示内部默认值 10，两者不一致。
 > - 改每页条数会把页码重置为 1，且只触发 `change:pageSize`、不触发 `change:pageNumber`；需要重新拉第一页数据时在 `change:pageSize` 里处理。
@@ -236,11 +227,7 @@ const pageSize = ref(10)
 </script>
 
 <template>
-  <u-paginator
-    v-model:page-number="pageNumber"
-    v-model:page-size="pageSize"
-    :total="200"
-  />
+  <u-paginator v-model:page-number="pageNumber" v-model:page-size="pageSize" :total="200" />
   <!-- => 20 页，与选择器的 10 条一致 -->
 </template>
 ```

@@ -1,8 +1,22 @@
 ---
 title: UCalendar 日历
-description: "从 `@veltra/desktop` 导出的日历组件：按 `v-model` 的日期字符串渲染一个月视图网格（6 周 42 格，含上下月补位），纯展示、无选中交互与插槽；选日期请用 UDatePicker / UDatePanel。"
+description: '从 `@veltra/desktop` 导出的日历组件：按 `v-model` 的日期字符串渲染一个月视图网格（6 周 42 格，含上下月补位），纯展示、无选中交互与插槽；选日期请用 UDatePicker / UDatePanel。'
 aliases: [calendar, u-calendar, Calendar, 日历, 月视图]
-keywords: [modelValue, "update:modelValue", CalendarDay, isToday, Dater, 日历, 月视图, 月份网格, 日期展示, 排班, 日程, 补位日期]
+keywords:
+  [
+    modelValue,
+    'update:modelValue',
+    CalendarDay,
+    isToday,
+    Dater,
+    日历,
+    月视图,
+    月份网格,
+    日期展示,
+    排班,
+    日程,
+    补位日期
+  ]
 ---
 
 # UCalendar 日历
@@ -85,9 +99,9 @@ export interface CalendarExposed {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `v-model` / `modelValue` | `string` | `undefined` | 否 | 展示的月份锚点，取值须为可被日期解析的字符串（如 `'2026-09-10'`、`'2026-09'`）；未绑定时展示当月 |
+| 参数                     | 类型     | 默认        | 必填 | 约束                                                                                             |
+| ------------------------ | -------- | ----------- | :--: | ------------------------------------------------------------------------------------------------ |
+| `v-model` / `modelValue` | `string` | `undefined` |  否  | 展示的月份锚点，取值须为可被日期解析的字符串（如 `'2026-09-10'`、`'2026-09'`）；未绑定时展示当月 |
 
 无其他 props；不支持 `disabledDate`、`size` 等。
 
@@ -171,6 +185,7 @@ const month = shallowRef('2026-09-10')
 ## 注意事项
 
 > [!WARNING]
+>
 > - `UCalendar` 不是日期选择器：没有选中点击、没有 `disabledDate`、没有自定义单元格插槽；需要选择交互用 `UDatePicker`（单个值）或 `UDatePanel`（铺在页面）。
 > - `update:modelValue` 虽在 `CalendarEmits` 类型中声明，但组件内部从不触发；`v-model` 只用来指定展示的月份，不要依赖它接收用户操作。
 > - 网格固定 6 周 42 格，按周日开始，包含上月 / 下月补位格（类名 `--pre` / `--next`）；数据结构见 `## API 签名` 的 `CalendarDay`。

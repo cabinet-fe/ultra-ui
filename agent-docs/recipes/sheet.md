@@ -2,7 +2,28 @@
 title: Ultra UI 电子表格接入场景
 description: 端到端接入 USheet 电子表格：宿主给高度的基础接入、填报只读（setCellReadonly / setRangeReadonly + 隐藏工具栏公式栏）、registerTool 自定义工具，模型操作全部走 @veltra/sheet-core。
 aliases: [电子表格, 在线表格, 填报, USheet, Sheet, spreadsheet]
-keywords: [USheet, Workbook, setCellReadonly, setRangeReadonly, isCellReadonly, setCellValue, history.clear, showToolbar, showFormulaBar, registerTool, unregisterTool, resolveCellStyle, SheetContext, createRange, 填报, 只读单元格, 隐藏工具栏, 自定义工具, 在线填报]
+keywords:
+  [
+    USheet,
+    Workbook,
+    setCellReadonly,
+    setRangeReadonly,
+    isCellReadonly,
+    setCellValue,
+    history.clear,
+    showToolbar,
+    showFormulaBar,
+    registerTool,
+    unregisterTool,
+    resolveCellStyle,
+    SheetContext,
+    createRange,
+    填报,
+    只读单元格,
+    隐藏工具栏,
+    自定义工具,
+    在线填报
+  ]
 ---
 
 # Ultra UI 电子表格接入场景
@@ -122,6 +143,7 @@ function lockAll(): void {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 模型与命令从 `@veltra/sheet-core` 导入，`@veltra/sheet` 不 re-export：`Workbook` / `Sheet` / `setCellReadonly` / `setRangeReadonly` 一律 `from '@veltra/sheet-core'`；`ResolveCellStyleHook` 等 hook 类型从 `@veltra/sheet-core/grid` 深导入。
 > - 本库坐标是 0-based `{ row, col }`，不是 `'A1'` 字符串。
 > - `readonly` prop 是整表只读预览（关编辑回写与填充柄），不是填报锁格；按格控制用 `setCellReadonly` / `setRangeReadonly`，且模型层不设防——直接调 `sheet.setCellValue` 仍能写入只读格。

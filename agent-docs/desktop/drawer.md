@@ -1,8 +1,30 @@
 ---
 title: UDrawer 抽屉
-description: "从 @veltra/desktop 导入的抽屉组件：v-model 控制显隐，从上/下/左/右四个方向滑出，带半透明遮罩与可选关闭按钮，可选 title 标题栏，点遮罩或关闭按钮关闭，closed 在退出动画全部结束后回调。"
+description: '从 @veltra/desktop 导入的抽屉组件：v-model 控制显隐，从上/下/左/右四个方向滑出，带半透明遮罩与可选关闭按钮，可选 title 标题栏，点遮罩或关闭按钮关闭，closed 在退出动画全部结束后回调。'
 aliases: [Drawer, 抽屉面板, 侧滑面板, SlidePanel, 侧边抽屉]
-keywords: [modelValue, update:modelValue, close, closed, direction, showClose, title, DrawerDirection, DrawerMode, DrawerProps, DrawerExposed, 标题栏, 关闭动画结束, 侧滑, 滑出面板, 遮罩层, 侧边栏, 关闭按钮, 顶部通知条, 底部面板]
+keywords:
+  [
+    modelValue,
+    update:modelValue,
+    close,
+    closed,
+    direction,
+    showClose,
+    title,
+    DrawerDirection,
+    DrawerMode,
+    DrawerProps,
+    DrawerExposed,
+    标题栏,
+    关闭动画结束,
+    侧滑,
+    滑出面板,
+    遮罩层,
+    侧边栏,
+    关闭按钮,
+    顶部通知条,
+    底部面板
+  ]
 ---
 
 # UDrawer 抽屉
@@ -68,20 +90,20 @@ export interface DrawerExposed {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `modelValue` | `boolean` | `false` | 否 | 用 `v-model` 绑定显隐 |
-| `direction` | `'left' \| 'right' \| 'top' \| 'bottom'` | `'right'` | 否 | 决定滑出方向与对应过渡动画 `drawer-slide-*` |
-| `showClose` | `boolean` | `false` | 否 | 关闭按钮渲染在抽屉外沿一侧（距边缘外侧 52px 处），点击关闭 |
-| `title` | `string` | — | 否 | 传入时在内容区上方渲染标题栏（高 `48px`、底部一条分隔线）；不传则整块内容都来自默认插槽 |
+| 参数         | 类型                                     | 默认      | 必填 | 约束                                                                                    |
+| ------------ | ---------------------------------------- | --------- | :--: | --------------------------------------------------------------------------------------- |
+| `modelValue` | `boolean`                                | `false`   |  否  | 用 `v-model` 绑定显隐                                                                   |
+| `direction`  | `'left' \| 'right' \| 'top' \| 'bottom'` | `'right'` |  否  | 决定滑出方向与对应过渡动画 `drawer-slide-*`                                             |
+| `showClose`  | `boolean`                                | `false`   |  否  | 关闭按钮渲染在抽屉外沿一侧（距边缘外侧 52px 处），点击关闭                              |
+| `title`      | `string`                                 | —         |  否  | 传入时在内容区上方渲染标题栏（高 `48px`、底部一条分隔线）；不传则整块内容都来自默认插槽 |
 
 ## 方法与事件
 
-| 名称 | 类型 | 触发时机 |
-| --- | --- | --- |
-| `update:modelValue` | `(value: boolean) => void` | 抽屉滑出动画结束后发出 `false`，配合 `v-model` 同步；此后遮罩才开始淡出 |
-| `close` | `()` | 点遮罩或点关闭按钮时触发一次（开始关闭的时刻，非动画结束后） |
-| `closed` | `()` | 退出动画全部结束后触发一次：抽屉滑出 → `v-model` 变 `false` → 遮罩淡出，遮罩与抽屉节点都已移除时 |
+| 名称                | 类型                       | 触发时机                                                                                         |
+| ------------------- | -------------------------- | ------------------------------------------------------------------------------------------------ |
+| `update:modelValue` | `(value: boolean) => void` | 抽屉滑出动画结束后发出 `false`，配合 `v-model` 同步；此后遮罩才开始淡出                          |
+| `close`             | `()`                       | 点遮罩或点关闭按钮时触发一次（开始关闭的时刻，非动画结束后）                                     |
+| `closed`            | `()`                       | 退出动画全部结束后触发一次：抽屉滑出 → `v-model` 变 `false` → 遮罩淡出，遮罩与抽屉节点都已移除时 |
 
 `UDrawer` 没有暴露任何 ref 方法（`DrawerExposed` 为空对象）；关闭只能通过点遮罩、点关闭按钮或把 `v-model` 置 `false`。
 
@@ -154,6 +176,7 @@ const panelVisible = ref(false)
 ## 注意事项
 
 > [!WARNING]
+>
 > - 抽屉尺寸固定：左右方向宽 `320px`，上下方向高 `320px`，四周留 `4px` 边距；当前没有 `size` / `width` prop，自定义尺寸必须覆盖样式类 `.u-drawer`。
 > - 关闭按钮的绑定名是 `showClose`，不是 `closable`；没有 `mask-closable` prop，点遮罩始终会关闭。
 > - `title` 传入即在内容区上方渲染标题栏（高 `48px`、底部一条分隔线，文字 `font-weight: 600`）；不传时标题栏不渲染也不占位，内容全部来自默认插槽。标题栏样式不可配置，需要自定义标题区（图标、按钮）时不要传 `title`，直接在默认插槽里写。

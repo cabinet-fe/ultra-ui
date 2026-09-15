@@ -1,8 +1,27 @@
 ---
 title: UText 文本
-description: "@veltra/desktop 导出的文本排版组件。渲染 <p> 元素，提供五档文字预设（main-title/title/sub-title/content/additional）、自定义字号、粗体、斜体、删除线、下划线与关键词高亮（命中片段包 <mark>），用于页面标题层级与正文中关键词强调。"
+description: '@veltra/desktop 导出的文本排版组件。渲染 <p> 元素，提供五档文字预设（main-title/title/sub-title/content/additional）、自定义字号、粗体、斜体、删除线、下划线与关键词高亮（命中片段包 <mark>），用于页面标题层级与正文中关键词强调。'
 aliases: [UText, Text, 文本, 文字, 排版文本, Typography]
-keywords: [UText, TextProps, as, fontSize, highlight, deleted, underline, bold, italic, 文本预设, 标题层级, 关键词高亮, 高亮词, 删除线, 下划线, 粗体, 斜体]
+keywords:
+  [
+    UText,
+    TextProps,
+    as,
+    fontSize,
+    highlight,
+    deleted,
+    underline,
+    bold,
+    italic,
+    文本预设,
+    标题层级,
+    关键词高亮,
+    高亮词,
+    删除线,
+    下划线,
+    粗体,
+    斜体
+  ]
 ---
 
 # UText 文本
@@ -56,25 +75,25 @@ export interface TextExposed {}
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `as` | `'main-title' \| 'title' \| 'sub-title' \| 'content' \| 'additional'` | `'content'` | 否 | 枚举仅这五档，对应样式见下表 |
-| `fontSize` | `string \| number` | — | 否 | 数字按 px 处理（`24` → `24px`）；含单位的字符串原样生效（`'1.2em'`）；优先于 `as` 的字号 |
-| `deleted` | `boolean` | `false` | 否 | `text-decoration: line-through`；与 `underline` 同设时被下划线覆盖 |
-| `underline` | `boolean` | `false` | 否 | `text-decoration: underline`；与 `deleted` 同设时覆盖删除线 |
-| `bold` | `boolean` | `false` | 否 | 覆盖 `as` 预设字重为 `bold` |
-| `italic` | `boolean` | `false` | 否 | `font-style: italic` |
-| `highlight` | `string \| string[]` | — | 否 | 不区分大小写、全局匹配；关键词先去首尾空格，空字符串被过滤；正则元字符自动转义，按原文写即可 |
+| 参数        | 类型                                                                  | 默认        | 必填 | 约束                                                                                         |
+| ----------- | --------------------------------------------------------------------- | ----------- | :--: | -------------------------------------------------------------------------------------------- |
+| `as`        | `'main-title' \| 'title' \| 'sub-title' \| 'content' \| 'additional'` | `'content'` |  否  | 枚举仅这五档，对应样式见下表                                                                 |
+| `fontSize`  | `string \| number`                                                    | —           |  否  | 数字按 px 处理（`24` → `24px`）；含单位的字符串原样生效（`'1.2em'`）；优先于 `as` 的字号     |
+| `deleted`   | `boolean`                                                             | `false`     |  否  | `text-decoration: line-through`；与 `underline` 同设时被下划线覆盖                           |
+| `underline` | `boolean`                                                             | `false`     |  否  | `text-decoration: underline`；与 `deleted` 同设时覆盖删除线                                  |
+| `bold`      | `boolean`                                                             | `false`     |  否  | 覆盖 `as` 预设字重为 `bold`                                                                  |
+| `italic`    | `boolean`                                                             | `false`     |  否  | `font-style: italic`                                                                         |
+| `highlight` | `string \| string[]`                                                  | —           |  否  | 不区分大小写、全局匹配；关键词先去首尾空格，空字符串被过滤；正则元字符自动转义，按原文写即可 |
 
 `as` 五档预设（源码 `style.scss` 固定值）：
 
-| 预设 | 字号 | 字重 | 颜色 token |
-| --- | --- | --- | --- |
-| `main-title` | 18px | 600 | `--u-text-color-title` |
-| `title` | 16px | 600 | `--u-text-color-main` |
-| `sub-title` | 16px | 500 | `--u-text-color-placeholder` |
-| `content` | 14px | 300 | `--u-text-color-second` |
-| `additional` | 12px | 300 | `--u-text-color-assist` |
+| 预设         | 字号 | 字重 | 颜色 token                   |
+| ------------ | ---- | ---- | ---------------------------- |
+| `main-title` | 18px | 600  | `--u-text-color-title`       |
+| `title`      | 16px | 600  | `--u-text-color-main`        |
+| `sub-title`  | 16px | 500  | `--u-text-color-placeholder` |
+| `content`    | 14px | 300  | `--u-text-color-second`      |
+| `additional` | 12px | 300  | `--u-text-color-assist`      |
 
 ## 方法与事件
 
@@ -143,6 +162,7 @@ const results = [
 ## 注意事项
 
 > [!WARNING]
+>
 > - 默认插槽只渲染文本节点：插进去的 `<span>`、`<a>` 等元素会被过滤掉；需要富文本排版时不要用 UText 包元素。
 > - 本库文本元素固定是 `<p>`（块级），不是 `<span>`；行内文本直接写原生 span，或给 `<u-text>` 设 `display: inline`。
 > - 高亮匹配不区分大小写且会转义正则元字符：`highlight="C++"` 按字面匹配 `C++`，不是正则。

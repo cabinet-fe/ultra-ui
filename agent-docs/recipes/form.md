@@ -2,7 +2,27 @@
 title: Ultra UI 表单场景
 description: 端到端实现 Ultra UI 表单：UForm + field 绑定 model、非 field 场景（开关值转换 / 多控件组合字段）用 UFormItem、ValidateRule 校验（required/minLen/preset/validator）、field:update 监听写入、showModified 变更前展示与 reset 重置；模板组件交给 VeltraUIResolver 注入组件 import 与样式副作用，显式 import 的组件必须补 components/<目录>/style，漏写时渲染成裸样式。
 aliases: [表单, 表单校验, UForm, Form]
-keywords: [UForm, UFormItem, field, ValidateRule, field:update, showModified, initialModel, reset, validate, clearValidate, 变更前, 表单校验, 值转换, 开关字段, VeltraUIResolver, components/button/style, 裸样式, 样式副作用]
+keywords:
+  [
+    UForm,
+    UFormItem,
+    field,
+    ValidateRule,
+    field:update,
+    showModified,
+    initialModel,
+    reset,
+    validate,
+    clearValidate,
+    变更前,
+    表单校验,
+    值转换,
+    开关字段,
+    VeltraUIResolver,
+    components/button/style,
+    裸样式,
+    样式副作用
+  ]
 ---
 
 # Ultra UI 表单场景
@@ -28,9 +48,7 @@ import Components from 'unplugin-vue-components/vite'
 import { VeltraUIResolver } from '@veltra/vite'
 
 // VeltraUIResolver 重写模板编译产物里的 _resolveComponent("<组件名>")，注入组件 import 与样式副作用
-export default defineConfig({
-  plugins: [vue(), Components({ resolvers: [VeltraUIResolver()] })]
-})
+export default defineConfig({ plugins: [vue(), Components({ resolvers: [VeltraUIResolver()] })] })
 ```
 
 ```ts
@@ -153,6 +171,7 @@ function handleReset() {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库控件在 `UForm` 内用 `field` 绑定 model，不是 `v-model`；`field` 与 `v-model` 并用是错误写法。
 > - 不要照搬 Element Plus / Ant Design：不需要为每个字段手写 `el-form-item` / `Form.Item` 再给控件 `v-model`。单字段控件写 `field` 即可；只有值转换与多控件组合两种场景才手写 `u-form-item`。
 > - `label` / `rules` / `tips` / `span` 只有在 `UForm` 内（或包了 `UFormItem`）才生效；脱离表单写 `label` 无效。

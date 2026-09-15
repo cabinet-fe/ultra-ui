@@ -1,8 +1,36 @@
 ---
 title: 滚动工具
 description: 查找滚动父级与控制滚动的工具集：getScrollParents / getNearestScrollParent 查找可滚动祖先，scrollIntoContainerView 替代原生 scrollIntoView，scrollElementIntoView / scrollViewportByStep / applyWheelHorizontalScroll 支撑水平溢出导航。
-aliases: [getScrollParents, getNearestScrollParent, scrollIntoContainerView, scrollElementIntoView, scrollViewportByStep, applyWheelHorizontalScroll, 滚动父级]
-keywords: [getScrollParents, getNearestScrollParent, scrollIntoContainerView, scrollElementIntoView, scrollViewportByStep, applyWheelHorizontalScroll, scrollTop, scrollLeft, scrollWidth, clientWidth, scrollIntoView, 滚动定位, 滚动监听, 横向滚动, 溢出导航, 平滑滚动, 选中项可见]
+aliases:
+  [
+    getScrollParents,
+    getNearestScrollParent,
+    scrollIntoContainerView,
+    scrollElementIntoView,
+    scrollViewportByStep,
+    applyWheelHorizontalScroll,
+    滚动父级
+  ]
+keywords:
+  [
+    getScrollParents,
+    getNearestScrollParent,
+    scrollIntoContainerView,
+    scrollElementIntoView,
+    scrollViewportByStep,
+    applyWheelHorizontalScroll,
+    scrollTop,
+    scrollLeft,
+    scrollWidth,
+    clientWidth,
+    scrollIntoView,
+    滚动定位,
+    滚动监听,
+    横向滚动,
+    溢出导航,
+    平滑滚动,
+    选中项可见
+  ]
 ---
 
 # 滚动工具
@@ -73,10 +101,7 @@ export function scrollElementIntoView(vp: HTMLElement, el: HTMLElement, offset =
  * @param vp 视口，需具备 scrollLeft / scrollWidth / clientWidth 与 scrollTo({left, behavior})
  * @param dir 仅允许 1（向右）或 -1（向左）
  */
-export function scrollViewportByStep(
-  vp: HTMLElement,
-  dir: 1 | -1
-): void
+export function scrollViewportByStep(vp: HTMLElement, dir: 1 | -1): void
 
 /**
  * 鼠标纵向滚轮驱动水平滚动；触控板横滑不拦截
@@ -91,47 +116,47 @@ export function applyWheelHorizontalScroll(e: WheelEvent, vp: HTMLElement, navAc
 
 ### getScrollParents / getNearestScrollParent
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `el` | `HTMLElement` | — | 是 | 起点；从 `el.parentElement` 开始向上遍历，不含 `el` 自身 |
+| 参数 | 类型          | 默认 | 必填 | 约束                                                     |
+| ---- | ------------- | ---- | :--: | -------------------------------------------------------- |
+| `el` | `HTMLElement` | —    |  是  | 起点；从 `el.parentElement` 开始向上遍历，不含 `el` 自身 |
 
 判定规则：祖先满足 `scrollHeight > clientHeight || scrollWidth > clientWidth` 即计入——按内容是否溢出判定，不读 CSS `overflow` 属性；`overflow: hidden` 且内容溢出的祖先同样计入（弹层需监听它的 `scroll`）。`getNearestScrollParent` 返回第一个命中项或 `null`；`getScrollParents` 返回全部命中项的数组。
 
 ### scrollIntoContainerView
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `el` | `HTMLElement` | — | 是 | 目标元素 |
-| `container` | `HTMLElement \| null` | — | 是 | 传 `null` 时回退 `getNearestScrollParent(el)`；回退仍无容器则不滚动直接返回 |
-| `options.block` | `'center' \| 'start' \| 'end'` | `'center'` | 否 | 垂直对齐；`start` 对齐容器顶、`end` 对齐容器底 |
-| `options.inline` | `'center' \| 'start' \| 'end'` | `'center'` | 否 | 水平对齐，语义同 `block` |
+| 参数             | 类型                           | 默认       | 必填 | 约束                                                                        |
+| ---------------- | ------------------------------ | ---------- | :--: | --------------------------------------------------------------------------- |
+| `el`             | `HTMLElement`                  | —          |  是  | 目标元素                                                                    |
+| `container`      | `HTMLElement \| null`          | —          |  是  | 传 `null` 时回退 `getNearestScrollParent(el)`；回退仍无容器则不滚动直接返回 |
+| `options.block`  | `'center' \| 'start' \| 'end'` | `'center'` |  否  | 垂直对齐；`start` 对齐容器顶、`end` 对齐容器底                              |
+| `options.inline` | `'center' \| 'start' \| 'end'` | `'center'` |  否  | 水平对齐，语义同 `block`                                                    |
 
 边界：垂直与水平都已完全在视图内时不滚动；单轴已可见时只滚另一轴；只写 `container.scrollTop` / `scrollLeft`，不产生平滑动画；定位基于 `el.offsetTop` / `offsetLeft`，要求 `container` 是 `el` 的 `offsetParent`（或布局等价），否则滚动位置偏差。
 
 ### scrollElementIntoView
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `vp` | `HTMLElement` | — | 是 | 水平滚动视口 |
-| `el` | `HTMLElement` | — | 是 | 目标元素 |
-| `offset` | `number` | `8` | 否 | 越界对齐时预留的像素边距 |
+| 参数     | 类型          | 默认 | 必填 | 约束                     |
+| -------- | ------------- | ---- | :--: | ------------------------ |
+| `vp`     | `HTMLElement` | —    |  是  | 水平滚动视口             |
+| `el`     | `HTMLElement` | —    |  是  | 目标元素                 |
+| `offset` | `number`      | `8`  |  否  | 越界对齐时预留的像素边距 |
 
 边界：只处理水平方向；用 `getBoundingClientRect` 比较，目标已完全可见时不滚动；滚动为 `behavior: 'smooth'` 平滑滚动。
 
 ### scrollViewportByStep
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `vp` | `HTMLElement` | — | 是 | 需同时具备滚动几何与 `scrollTo({ left, behavior })`，原生元素满足 |
-| `dir` | `1 \| -1` | — | 是 | 仅这两个值；`1` 向右、`-1` 向左，步长固定为 `clientWidth * 0.8` |
+| 参数  | 类型          | 默认 | 必填 | 约束                                                              |
+| ----- | ------------- | ---- | :--: | ----------------------------------------------------------------- |
+| `vp`  | `HTMLElement` | —    |  是  | 需同时具备滚动几何与 `scrollTo({ left, behavior })`，原生元素满足 |
+| `dir` | `1 \| -1`     | —    |  是  | 仅这两个值；`1` 向右、`-1` 向左，步长固定为 `clientWidth * 0.8`   |
 
 ### applyWheelHorizontalScroll
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `e` | `WheelEvent` | — | 是 | `wheel` 事件监听的回调入参 |
-| `vp` | `HTMLElement` | — | 是 | 滚动写入目标（`vp.scrollLeft += e.deltaY`） |
-| `navActive` | `boolean` | — | 是 | 内容未溢出（导航按钮不可见）时传 `false`，函数直接返回不消费事件 |
+| 参数        | 类型          | 默认 | 必填 | 约束                                                             |
+| ----------- | ------------- | ---- | :--: | ---------------------------------------------------------------- |
+| `e`         | `WheelEvent`  | —    |  是  | `wheel` 事件监听的回调入参                                       |
+| `vp`        | `HTMLElement` | —    |  是  | 滚动写入目标（`vp.scrollLeft += e.deltaY`）                      |
+| `navActive` | `boolean`     | —    |  是  | 内容未溢出（导航按钮不可见）时传 `false`，函数直接返回不消费事件 |
 
 副作用与守卫顺序：`navActive` 为 `false` 直接返回 → `|deltaX| > |deltaY|` 判定为触控板横滑，不拦截 → `deltaY === 0` 返回 → 其余情况 `e.preventDefault()` 后横滚。因调用 `preventDefault()`，事件监听必须传 `{ passive: false }`。
 
@@ -168,7 +193,11 @@ scrollIntoContainerView(active, list, { block: 'center', inline: 'center' })
 ### 水平标签栏：箭头翻页、活动标签滚入与滚轮横滚
 
 ```ts
-import { applyWheelHorizontalScroll, scrollElementIntoView, scrollViewportByStep } from '@veltra/utils'
+import {
+  applyWheelHorizontalScroll,
+  scrollElementIntoView,
+  scrollViewportByStep
+} from '@veltra/utils'
 
 const viewport = document.querySelector<HTMLElement>('.tabs-viewport')!
 const activeTab = viewport.querySelector<HTMLElement>('.is-active')!
@@ -198,6 +227,7 @@ viewport.addEventListener(
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库替代方案是 `scrollIntoContainerView`，不是原生 `el.scrollIntoView`；后者在某些嵌套滚动结构下会带动外部元素一起滚。
 > - 滚动父级判定基于内容溢出（`scrollHeight` / `scrollWidth` 比较），不是读取 CSS `overflow` 属性；与「overflow 为 auto / scroll 才算」的直觉写法不同。
 > - `scrollIntoContainerView` 是同步直接赋值 `scrollTop` / `scrollLeft`，无平滑动画；需要平滑动画用 `scrollElementIntoView` 或 `scrollViewportByStep`。

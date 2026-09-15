@@ -1,8 +1,28 @@
 ---
 title: UTextarea 文本域
-description: "从 `@veltra/desktop` 导出的多行文本输入框，支持字数限制与统计（maxlength / showCount）、高度自适应（autosize）、拖拽缩放开关（resize）与悬停清空；放进 UForm 时用 `field` 绑定 model 并按 `rules` 校验。"
+description: '从 `@veltra/desktop` 导出的多行文本输入框，支持字数限制与统计（maxlength / showCount）、高度自适应（autosize）、拖拽缩放开关（resize）与悬停清空；放进 UForm 时用 `field` 绑定 model 并按 `rules` 校验。'
 aliases: [textarea, u-textarea, TextArea, 多行文本框, 多行输入]
-keywords: [modelValue, "update:modelValue", maxlength, showCount, autosize, resize, rows, cols, clearable, field, rules, nativeReadonly, 文本域, 字数统计, 剩余字数, 自适应高度, 清空, 多行文本]
+keywords:
+  [
+    modelValue,
+    'update:modelValue',
+    maxlength,
+    showCount,
+    autosize,
+    resize,
+    rows,
+    cols,
+    clearable,
+    field,
+    rules,
+    nativeReadonly,
+    文本域,
+    字数统计,
+    剩余字数,
+    自适应高度,
+    清空,
+    多行文本
+  ]
 ---
 
 # UTextarea 文本域
@@ -70,9 +90,7 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    | number
-    | 'full'
-    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段；有 field 时禁止再写 v-model */
@@ -135,39 +153,39 @@ export type TextareaExposed = Record<string, never>
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `v-model` / `modelValue` | `string` | `undefined` | 否 | 双向绑定的值 |
-| `placeholder` | `string` | `'请输入'` | 否 | — |
-| `maxlength` | `number` | — | 否 | 最大字数；超出时触发 `update:modelValue` 前先截断到 `maxlength` |
-| `showCount` | `boolean` | `false` | 否 | 必须同时设置 `maxlength` 才渲染计数；显示格式为「剩余字数/上限」 |
-| `autosize` | `boolean` | `false` | 否 | `true` 时高度随内容自适应，无需再设 `height` |
-| `resize` | `boolean` | `true` | 否 | `true` 仅允许纵向拉伸；`false` 完全禁止拉伸 |
-| `rows` | `number` | 原生默认 | 否 | 原生 `rows` 属性 |
-| `cols` | `number` | 原生默认 | 否 | 原生 `cols` 属性 |
-| `clearable` | `boolean` | `true` | 否 | 清除图标显示条件：悬停 + 有值 + 非禁用 + 非只读 |
-| `height` | `string` | — | 否 | 类型中声明，当前实现未使用；控制高度用 `rows` 或 `autosize` |
-| `nativeReadonly` | `boolean` | `false` | 否 | 仅锁定原生 `<textarea>`；与 `readonly`（整体渲染为文本）不同 |
-| `field` | `string` | — | 否 | 表单内生效。绑定 `<u-form :model>` 的字段；有 `field` 禁止再写 `v-model` |
-| `label` | `string` | — | 否 | 表单内生效。表单标签文字 |
-| `rules` | `ValidateRule` | — | 否 | 表单内生效。结构见下方「rules 规则对象」 |
-| `tips` | `string` | — | 否 | 表单内生效。表单项提示文案 |
-| `span` | `number \| 'full' \| 按 BreakpointName 的对象` | — | 否 | 表单内生效。`'full'` 占满一行；对象形态必须含 `default` 键 |
-| `size` | `ComponentSize` | `'default'` | 否 | 取值 `'small' \| 'default' \| 'large'`；优先级：组件 props > 表单 > 全局配置 > 默认 |
-| `disabled` | `boolean` | `false` | 否 | 禁用时不可输入且清除图标隐藏（原生 `disabled` 属性）；优先级同 `size` |
-| `readonly` | `boolean` | `false` | 否 | `true` 时整个组件渲染为保留换行的纯文本，空值显示 `-` |
+| 参数                     | 类型                                           | 默认        | 必填 | 约束                                                                                |
+| ------------------------ | ---------------------------------------------- | ----------- | :--: | ----------------------------------------------------------------------------------- |
+| `v-model` / `modelValue` | `string`                                       | `undefined` |  否  | 双向绑定的值                                                                        |
+| `placeholder`            | `string`                                       | `'请输入'`  |  否  | —                                                                                   |
+| `maxlength`              | `number`                                       | —           |  否  | 最大字数；超出时触发 `update:modelValue` 前先截断到 `maxlength`                     |
+| `showCount`              | `boolean`                                      | `false`     |  否  | 必须同时设置 `maxlength` 才渲染计数；显示格式为「剩余字数/上限」                    |
+| `autosize`               | `boolean`                                      | `false`     |  否  | `true` 时高度随内容自适应，无需再设 `height`                                        |
+| `resize`                 | `boolean`                                      | `true`      |  否  | `true` 仅允许纵向拉伸；`false` 完全禁止拉伸                                         |
+| `rows`                   | `number`                                       | 原生默认    |  否  | 原生 `rows` 属性                                                                    |
+| `cols`                   | `number`                                       | 原生默认    |  否  | 原生 `cols` 属性                                                                    |
+| `clearable`              | `boolean`                                      | `true`      |  否  | 清除图标显示条件：悬停 + 有值 + 非禁用 + 非只读                                     |
+| `height`                 | `string`                                       | —           |  否  | 类型中声明，当前实现未使用；控制高度用 `rows` 或 `autosize`                         |
+| `nativeReadonly`         | `boolean`                                      | `false`     |  否  | 仅锁定原生 `<textarea>`；与 `readonly`（整体渲染为文本）不同                        |
+| `field`                  | `string`                                       | —           |  否  | 表单内生效。绑定 `<u-form :model>` 的字段；有 `field` 禁止再写 `v-model`            |
+| `label`                  | `string`                                       | —           |  否  | 表单内生效。表单标签文字                                                            |
+| `rules`                  | `ValidateRule`                                 | —           |  否  | 表单内生效。结构见下方「rules 规则对象」                                            |
+| `tips`                   | `string`                                       | —           |  否  | 表单内生效。表单项提示文案                                                          |
+| `span`                   | `number \| 'full' \| 按 BreakpointName 的对象` | —           |  否  | 表单内生效。`'full'` 占满一行；对象形态必须含 `default` 键                          |
+| `size`                   | `ComponentSize`                                | `'default'` |  否  | 取值 `'small' \| 'default' \| 'large'`；优先级：组件 props > 表单 > 全局配置 > 默认 |
+| `disabled`               | `boolean`                                      | `false`     |  否  | 禁用时不可输入且清除图标隐藏（原生 `disabled` 属性）；优先级同 `size`               |
+| `readonly`               | `boolean`                                      | `false`     |  否  | `true` 时整个组件渲染为保留换行的纯文本，空值显示 `-`                               |
 
 `rules` 规则对象（与 UInput 的 `ValidateRule` 同一结构）可用键：`required`（`boolean \| string`）、`length`（`number \| [number, string]`）、`min`、`max`、`minLen`、`maxLen`（均为 `number \| [number, string]`）、`match`（`RegExp \| [RegExp, string] \| string`）、`preset`（`'email' \| 'phone' \| 'num' \| 'url' \| 'idCard'`）、`validator`（`(value, data) => Promise<string> \| string`）。元组第二项为校验失败的提示文案；`validator` 返回非空字符串表示失败。
 
 ## 方法与事件
 
-| 事件 | payload | 触发时机 |
-| --- | --- | --- |
-| `update:modelValue` | `value: string` | 每次输入持续触发；值超过 `maxlength` 时先截断再触发 |
-| `change` | `value: string` | 失焦或按 Enter 提交值变化时（原生 `change`） |
-| `focus` | 无 | 获得焦点 |
-| `blur` | 无 | 失去焦点 |
-| `clear` | 无 | 点击清除图标；先置 `modelValue` 为 `''`（触发一次 `update:modelValue`），再触发 `clear` |
+| 事件                | payload         | 触发时机                                                                                |
+| ------------------- | --------------- | --------------------------------------------------------------------------------------- |
+| `update:modelValue` | `value: string` | 每次输入持续触发；值超过 `maxlength` 时先截断再触发                                     |
+| `change`            | `value: string` | 失焦或按 Enter 提交值变化时（原生 `change`）                                            |
+| `focus`             | 无              | 获得焦点                                                                                |
+| `blur`              | 无              | 失去焦点                                                                                |
+| `clear`             | 无              | 点击清除图标；先置 `modelValue` 为 `''`（触发一次 `update:modelValue`），再触发 `clear` |
 
 无暴露成员：`TextareaExposed` 解包后为空，组件 `ref` 上无可访问的属性或方法。
 
@@ -237,6 +255,7 @@ const form = reactive({ description: '' })
 ## 注意事项
 
 > [!WARNING]
+>
 > - 字数统计格式是「剩余字数/上限」，不是「已输入字数/上限」；输入 1 个字、上限 200 时显示 `199/200`。
 > - `showCount` 必须与 `maxlength` 同时设置，只写 `show-count` 不显示计数。
 > - 本库的固定行数参数是 `rows`，`height` 参数在类型中声明但当前实现未使用，传了不生效。

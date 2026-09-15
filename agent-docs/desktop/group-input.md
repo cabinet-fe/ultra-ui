@@ -1,6 +1,6 @@
 ---
 title: UGroupInput 分组输入
-description: "分组输入组件：绑定对象数组，每行通过默认作用域插槽渲染任意控件，行尾内置删除/追加按钮实现动态增删；modelValue 为 GroupItem[]，支持 itemStyle 条目样式、readonly 平铺展示，以及 UForm 内 field 绑定数组与 rules 校验。"
+description: '分组输入组件：绑定对象数组，每行通过默认作用域插槽渲染任意控件，行尾内置删除/追加按钮实现动态增删；modelValue 为 GroupItem[]，支持 itemStyle 条目样式、readonly 平铺展示，以及 UForm 内 field 绑定数组与 rules 校验。'
 aliases: [GroupInput, group-input, 组合输入, 动态增删行, 明细行输入, 动态表单项]
 keywords:
   - modelValue
@@ -90,9 +90,7 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小；对象形态必须含 default 键 */
   span?:
-    | number
-    | 'full'
-    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** UForm 内绑定 model 字段的路径 */
@@ -106,8 +104,9 @@ export interface FormComponentProps extends ComponentProps {
 }
 
 /** 分组输入组件属性 */
-export interface GroupInputProps<GroupItem extends Record<string, any> = Record<string, any>>
-  extends FormComponentProps {
+export interface GroupInputProps<
+  GroupItem extends Record<string, any> = Record<string, any>
+> extends FormComponentProps {
   /** 条目数组。默认 [] */
   modelValue?: GroupItem[]
   /** 最大数量；类型已声明，当前实现未读取，不限制条目数 */
@@ -131,18 +130,18 @@ export type GroupInputExposed = Record<string, never>
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `modelValue` | `GroupItem[]` | `[]` | 否 | 对象数组；`GroupItem` 必须是 `Record<string, any>` 的子类型 |
-| `max` | `number` | — | 否 | **当前实现未读取，条目数不受限制**；需要上限时监听 `update:modelValue` 自行截断 |
-| `creatable` | `boolean` | `true` | 否 | `false` 时仅隐藏空状态的通栏「新增」按钮；已有行的行内加号不受它控制，受 `disabled` 控制 |
-| `itemDefault` | `Record<string, any>` | — | 否 | **当前实现未读取**；新增条目是空对象 `{}`，字段由插槽内控件的 `v-model` 写入时创建 |
-| `itemStyle` | `StyleValue` | — | 否 | 作用到每行 `li` 容器；支持样式字符串、对象与响应式计算值 |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` | 否 | 未传时继承 `UForm` 的 `size` |
-| `disabled` | `boolean` | `false` | 否 | 禁用行内加/减按钮；未传时继承 `UForm` 的 `disabled` |
-| `readonly` | `boolean` | `false` | 否 | 只读渲染：每行把条目对象的所有值平铺为文本；空数组显示 `-`；未传时继承 `UForm` |
-| `field` | `string` | — | 否 | 仅 `UForm` 内生效；字段值为数组 |
-| `label` / `rules` / `tips` / `span` | 同 FormComponentProps | — | 否 | 仅 `UForm` / `UFormItem` 内生效 |
+| 参数                                | 类型                              | 默认        | 必填 | 约束                                                                                     |
+| ----------------------------------- | --------------------------------- | ----------- | :--: | ---------------------------------------------------------------------------------------- |
+| `modelValue`                        | `GroupItem[]`                     | `[]`        |  否  | 对象数组；`GroupItem` 必须是 `Record<string, any>` 的子类型                              |
+| `max`                               | `number`                          | —           |  否  | **当前实现未读取，条目数不受限制**；需要上限时监听 `update:modelValue` 自行截断          |
+| `creatable`                         | `boolean`                         | `true`      |  否  | `false` 时仅隐藏空状态的通栏「新增」按钮；已有行的行内加号不受它控制，受 `disabled` 控制 |
+| `itemDefault`                       | `Record<string, any>`             | —           |  否  | **当前实现未读取**；新增条目是空对象 `{}`，字段由插槽内控件的 `v-model` 写入时创建       |
+| `itemStyle`                         | `StyleValue`                      | —           |  否  | 作用到每行 `li` 容器；支持样式字符串、对象与响应式计算值                                 |
+| `size`                              | `'small' \| 'default' \| 'large'` | `'default'` |  否  | 未传时继承 `UForm` 的 `size`                                                             |
+| `disabled`                          | `boolean`                         | `false`     |  否  | 禁用行内加/减按钮；未传时继承 `UForm` 的 `disabled`                                      |
+| `readonly`                          | `boolean`                         | `false`     |  否  | 只读渲染：每行把条目对象的所有值平铺为文本；空数组显示 `-`；未传时继承 `UForm`           |
+| `field`                             | `string`                          | —           |  否  | 仅 `UForm` 内生效；字段值为数组                                                          |
+| `label` / `rules` / `tips` / `span` | 同 FormComponentProps             | —           |  否  | 仅 `UForm` / `UFormItem` 内生效                                                          |
 
 ## 方法与事件
 
@@ -235,6 +234,7 @@ const styleObj = computed(() => ({
 ## 注意事项
 
 > [!WARNING]
+>
 > - `UForm` 内外层用 `field` 绑定数组字段，**禁止**再写 `v-model`；插槽内控件对 `item` 的字段用 `v-model`，不要写 `field`。
 > - `max` 与 `itemDefault` 在类型中声明，但**当前实现未读取**：条目数不受 `max` 限制，新增条目不会合并 `itemDefault`（见「常见问题」的替代做法）。
 > - `creatable: false` 只隐藏空状态的「新增」按钮；已有行的行内加号仍可点击（受 `disabled` 控制），不传初始数据时组件无法产生第一行。
@@ -275,10 +275,7 @@ function handleUpdate(next: { name: string; quantity: number }[]) {
 修复：监听 `update:modelValue` 截断，或把超量时的加号交给 `disabled` 控制（组件行内加号无法从外部单独禁用）：
 
 ```vue
-<u-group-input
-  v-model="items"
-  @update:model-value="items = $event.slice(0, 5)"
->
+<u-group-input v-model="items" @update:model-value="items = $event.slice(0, 5)">
   <template #default="{ item }">
     <u-input v-model="item.name" />
   </template>

@@ -86,15 +86,15 @@ export type ProgressNodesExposed = DeconstructValue<_ProgressNodesExposed>
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `nodes` | `Record<string, any>[]` | — | 是 | 每项必须包含 `labelKey`（默认 `label`）与 `valueKey`（默认 `value`）字段；DOM key 取 `node.key`，缺失时回退索引 |
-| `modelValue` | `string \| number` | — | 否 | 与 `node[valueKey]` 全等（`===`）的节点显示灰底高亮；配合 `v-model` 使用 |
-| `check` | `(node, index) => boolean` | — | 否 | 不传时没有「已完成」节点，仅剩当前节点高亮 |
-| `colorType` | `ColorType` | `'primary'` | 否 | 枚举 `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'`，控制已完成节点的圆点与文字颜色 |
-| `maxWidth` | `number \| string` | — | 否 | 容器最大宽度；不传时占满父容器，仅在溢出时才可滚动 |
-| `labelKey` | `string` | `'label'` | 否 | 空串 / `null` / `undefined` 时回退 `'label'` |
-| `valueKey` | `string` | `'value'` | 否 | 空串 / `null` / `undefined` 时回退 `'value'` |
+| 参数         | 类型                       | 默认        | 必填 | 约束                                                                                                            |
+| ------------ | -------------------------- | ----------- | :--: | --------------------------------------------------------------------------------------------------------------- |
+| `nodes`      | `Record<string, any>[]`    | —           |  是  | 每项必须包含 `labelKey`（默认 `label`）与 `valueKey`（默认 `value`）字段；DOM key 取 `node.key`，缺失时回退索引 |
+| `modelValue` | `string \| number`         | —           |  否  | 与 `node[valueKey]` 全等（`===`）的节点显示灰底高亮；配合 `v-model` 使用                                        |
+| `check`      | `(node, index) => boolean` | —           |  否  | 不传时没有「已完成」节点，仅剩当前节点高亮                                                                      |
+| `colorType`  | `ColorType`                | `'primary'` |  否  | 枚举 `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'`，控制已完成节点的圆点与文字颜色                |
+| `maxWidth`   | `number \| string`         | —           |  否  | 容器最大宽度；不传时占满父容器，仅在溢出时才可滚动                                                              |
+| `labelKey`   | `string`                   | `'label'`   |  否  | 空串 / `null` / `undefined` 时回退 `'label'`                                                                    |
+| `valueKey`   | `string`                   | `'value'`   |  否  | 空串 / `null` / `undefined` 时回退 `'value'`                                                                    |
 
 插槽：
 
@@ -131,12 +131,7 @@ function isChecked(node: Record<string, any>) {
 </script>
 
 <template>
-  <u-progress-nodes
-    v-model="current"
-    :nodes="nodes"
-    :check="isChecked"
-    color-type="success"
-  />
+  <u-progress-nodes v-model="current" :nodes="nodes" :check="isChecked" color-type="success" />
   <!-- => 「起草」圆点绿色实心（已完成），「审核」灰底高亮（当前） -->
 </template>
 ```
@@ -186,9 +181,7 @@ function isChecked(node: Record<string, any>) {
     <template #icon="{ node }">
       <Check v-if="finished.has(node.value)" style="font-size: 10px" />
     </template>
-    <template #default="{ node, index }">
-      {{ index + 1 }}. {{ node.label }}
-    </template>
+    <template #default="{ node, index }"> {{ index + 1 }}. {{ node.label }} </template>
   </u-progress-nodes>
 </template>
 ```
@@ -196,6 +189,7 @@ function isChecked(node: Record<string, any>) {
 ## 注意事项
 
 > [!WARNING]
+>
 > - 本库组件名是 `UProgressNodes`（节点进度），不是步骤条 `USteps`；需要带方向箭头的步骤导航时用 `USteps`。
 > - 当前节点匹配是全等比较：`modelValue: 1` 匹配不上 `value: '1'`，类型必须一致。
 > - 点击节点一定触发 `update:modelValue`，与 `check` 无关；`check` 只控制「已完成」的视觉标记。

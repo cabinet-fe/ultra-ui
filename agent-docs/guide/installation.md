@@ -1,8 +1,32 @@
 ---
 title: Ultra UI 安装与初始化
 description: 在 Vue 3 宿主应用中安装 @veltra/desktop 并完成入口初始化：normalize + loadTheme 主题注入、三种组件注册方式（app.use 全量、SFC 显式导入、VeltraUIResolver 按需自动导入）与模板/渲染函数混用规则，以及 TSX 的 @vitejs/plugin-vue-jsx 与 SCSS NodePackageImporter 构建配置。
-aliases: [install, 安装, 接入, "@veltra/desktop 安装", 组件库安装]
-keywords: [bun add, loadTheme, "@veltra/styles/normalize", UltraUI, "@veltra/desktop/install", VeltraUIResolver, unplugin-vue-components, "@vitejs/plugin-vue-jsx", react/jsx-dev-runtime, react/jsx-runtime, tsx, JSX, 渲染函数, components/button/style, NodePackageImporter, sass-embedded, peerDependencies, 按需导入, 全局注册, 主题初始化, importStyle, --u-]
+aliases: [install, 安装, 接入, '@veltra/desktop 安装', 组件库安装]
+keywords:
+  [
+    bun add,
+    loadTheme,
+    '@veltra/styles/normalize',
+    UltraUI,
+    '@veltra/desktop/install',
+    VeltraUIResolver,
+    unplugin-vue-components,
+    '@vitejs/plugin-vue-jsx',
+    react/jsx-dev-runtime,
+    react/jsx-runtime,
+    tsx,
+    JSX,
+    渲染函数,
+    components/button/style,
+    NodePackageImporter,
+    sass-embedded,
+    peerDependencies,
+    按需导入,
+    全局注册,
+    主题初始化,
+    importStyle,
+    --u-
+  ]
 ---
 
 # Ultra UI 安装与初始化
@@ -133,9 +157,7 @@ Ultra UI 是 npm 作用域 `@veltra/*` 下的 Vue 3 组件与能力库。本指�
    import vueJsx from '@vitejs/plugin-vue-jsx'
    import { defineConfig } from 'vite'
 
-   export default defineConfig({
-     plugins: [vue(), vueJsx()]
-   })
+   export default defineConfig({ plugins: [vue(), vueJsx()] })
    ```
 
    `tsconfig.json` 需 `"jsx": "preserve"`。TSX 里用到的组件必须显式 import 并按方式三的规则补样式子路径，resolver 不解析 JSX。
@@ -211,6 +233,7 @@ bun run dev
 ## 注意事项
 
 > [!WARNING]
+>
 > - 主题初始化是硬规则：`import '@veltra/styles/normalize'` + `loadTheme()` 必须写在入口，且在首次渲染前执行。组件颜色全部走 `--u-*` token，没有兜底值；SSR 时在 `onMounted` 中调用 `loadTheme()`。
 > - 本库组件从 `@veltra/desktop` 导入（如 `import { UButton } from '@veltra/desktop'`），不是 `ultra-ui` 单包，也不是从 `@veltra/styles` 导入组件。
 > - `@veltra/desktop/install` 才有 `UltraUI` plugin；从 `@veltra/desktop` 根入口 `import UltraUI` 会得到 `undefined`。
