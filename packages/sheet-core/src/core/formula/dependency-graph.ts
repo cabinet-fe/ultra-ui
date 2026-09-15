@@ -306,6 +306,7 @@ export class DependencyGraph {
       try {
         value = evaluateAst(node.ast, {
           currentSheet: node.sheetName,
+          currentCell: node.addr,
           readCell,
           readRange,
           callFunction: invokeFormulaFunction

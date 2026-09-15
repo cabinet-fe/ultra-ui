@@ -11,6 +11,7 @@ export const FORMULA_ERROR_CODES = [
   '#VALUE!',
   '#NAME?',
   '#REF!',
+  '#N/A',
   '#ERROR!',
   '#CYCLE!'
 ] as const

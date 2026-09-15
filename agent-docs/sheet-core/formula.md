@@ -1,8 +1,30 @@
 ---
-title: "formula 公式引擎：解析求值与函数扩展"
-description: "从 @veltra/sheet-core 导入的无头公式引擎：parseFormula / tokenizeFormula 解析、evaluateAst 求值、collectReferences 依赖收集、registerFormulaFunction 注册自定义函数；四则与 SUM / AVERAGE / ROUND / ABS 经 @cat-kit/core $n 高精度计算，错误码含 #DIV/0!、#CYCLE! 等 6 种。"
-aliases: ["formula", "公式引擎", "公式计算", "FormulaEngine", "电子表格公式", "函数注册"]
-keywords: ["parseFormula", "evaluateAst", "tokenizeFormula", "FormulaParseError", "registerFormulaFunction", "listFormulaFunctions", "SUM", "AVERAGE", "ROUND", "ABS", "#DIV/0!", "#CYCLE!", "#NAME?", "自定义函数", "公式计算", "错误码", "跨表引用", "循环引用", "高精度"]
+title: 'formula 公式引擎：解析求值与函数扩展'
+description: '从 @veltra/sheet-core 导入的无头公式引擎：parseFormula / tokenizeFormula 解析、evaluateAst 求值、collectReferences 依赖收集、registerFormulaFunction 注册自定义函数（impl 可选接收求值上下文，含公式所在格地址）；四则与 SUM / AVERAGE / ROUND / ABS 经 @cat-kit/core $n 高精度计算，错误码含 #DIV/0!、#N/A、#CYCLE! 等 7 种。'
+aliases: ['formula', '公式引擎', '公式计算', 'FormulaEngine', '电子表格公式', '函数注册']
+keywords:
+  [
+    'parseFormula',
+    'evaluateAst',
+    'tokenizeFormula',
+    'FormulaParseError',
+    'registerFormulaFunction',
+    'listFormulaFunctions',
+    'FormulaFunctionCategory',
+    '函数分类',
+    'SUM',
+    'ROUND',
+    'ABS',
+    '#DIV/0!',
+    '#N/A',
+    '#CYCLE!',
+    '#NAME?',
+    '自定义函数',
+    '错误码',
+    '跨表引用',
+    '循环引用',
+    '高精度'
+  ]
 ---
 
 # formula 公式引擎：解析求值与函数扩展
@@ -38,9 +60,24 @@ export class FormulaParseError extends Error {
 }
 
 export type FormulaOperator =
-  | '+' | '-' | '*' | '/' | '^' | '&' | '%'
-  | '(' | ')' | ',' | '!' | ':'
-  | '=' | '<>' | '<' | '<=' | '>' | '>='
+  | '+'
+  | '-'
+  | '*'
+  | '/'
+  | '^'
+  | '&'
+  | '%'
+  | '('
+  | ')'
+  | ','
+  | '!'
+  | ':'
+  | '='
+  | '<>'
+  | '<'
+  | '<='
+  | '>'
+  | '>='
 
 export type FormulaToken =
   | { type: 'number'; value: number; raw: string }
@@ -59,8 +96,7 @@ export function parseFormula(text: string): AstNode
 
 // ─── AST 与引用收集 ───────────────────────────────────────
 export type BinaryOperator =
-  | '+' | '-' | '*' | '/' | '^' | '&'
-  | '=' | '<>' | '<' | '<=' | '>' | '>='
+  '+' | '-' | '*' | '/' | '^' | '&' | '=' | '<>' | '<' | '<=' | '>' | '>='
 
 export type AstNode =
   | { kind: 'number'; value: number }
@@ -88,7 +124,13 @@ export function collectReferences(node: AstNode, out?: AstReference[]): AstRefer
 // ─── 错误值 ──────────────────────────────────────────────
 /** Excel 子集 + 解析失败 #ERROR!、循环引用 #CYCLE! */
 export const FORMULA_ERROR_CODES = [
-  '#DIV/0!', '#VALUE!', '#NAME?', '#REF!', '#ERROR!', '#CYCLE!'
+  '#DIV/0!',
+  '#VALUE!',
+  '#NAME?',
+  '#REF!',
+  '#N/A',
+  '#ERROR!',
+  '#CYCLE!'
 ] as const
 export type FormulaErrorCode = (typeof FORMULA_ERROR_CODES)[number]
 
@@ -111,12 +153,19 @@ export type EvalValue = ScalarValue | FormulaError | (ScalarValue | FormulaError
 export interface FormulaEvalContext {
   /** 当前公式所在表（裸引用的缺省表） */
   readonly currentSheet: string
+  /** 公式所在格地址（依赖图按公式节点注入；自定义函数经第二参 ctx 读取） */
+  readonly currentCell: CellAddress
   /** 读单格（原始存储语义；表不存在 → #REF!） */
   readCell(sheet: string, addr: CellAddress): ScalarValue | FormulaError
   /** 读区域（只含稀疏存在的格；表不存在 → #REF!） */
   readRange(sheet: string, range: CellRange): (ScalarValue | FormulaError)[] | FormulaError
-  /** 调函数（名称未知 → #NAME?；参数个数非法 → #VALUE!）；可直接传 invokeFormulaFunction */
-  callFunction(name: string, nodes: AstNode[], evalNode: (node: AstNode) => EvalValue): EvalValue
+  /** 调函数（名称未知 → #NAME?；参数个数非法 → #VALUE!）；可直接传 invokeFormulaFunction（ctx 由求值器透传给函数实现） */
+  callFunction(
+    name: string,
+    nodes: AstNode[],
+    evalNode: (node: AstNode) => EvalValue,
+    ctx?: FormulaEvalContext
+  ): EvalValue
 }
 
 export function evaluateAst(node: AstNode, ctx: FormulaEvalContext): EvalValue
@@ -129,42 +178,69 @@ export function coerceToText(value: EvalValue): string | FormulaError
 export function coerceToBoolean(value: EvalValue): boolean | FormulaError
 
 // ─── 函数注册表 ───────────────────────────────────────────
+/** 函数分类；未声明 category 的注册函数不进任何分类 */
+export type FormulaFunctionCategory =
+  | '财务'
+  | '统计'
+  | '查找与引用'
+  | '文本'
+  | '逻辑'
+  | '数学'
+  | '日期与时间'
+
 /** 补全 / 帮助元数据；不传时 listFormulaFunctions 对该函数返回空 params 与空 description */
 export interface FormulaFunctionMeta {
   /** 参数名列表，如 ['number1', 'number2', '...'] */
   params: string[]
   /** 中文一句话说明 */
   description: string
+  /** 函数分类；缺省 → listFormulaFunctions 返回 undefined */
+  category?: FormulaFunctionCategory
 }
 
-export type FormulaFunction = {
-  minArgs?: number
-  maxArgs?: number
-  /** 易失性：任意单元格变更触发的重算必重新求值（内置 TODAY/NOW/RAND/RANDBETWEEN） */
-  volatile?: boolean
-  meta?: FormulaFunctionMeta
-  kind?: 'normal'
-  impl: (args: EvalValue[]) => EvalValue
-} | {
-  minArgs?: number
-  maxArgs?: number
-  volatile?: boolean
-  meta?: FormulaFunctionMeta
-  kind: 'lazy'
-  impl: (nodes: AstNode[], evalNode: (node: AstNode) => EvalValue) => EvalValue
-}
+export type FormulaFunction =
+  | {
+      minArgs?: number
+      maxArgs?: number
+      /** 易失性：任意单元格变更触发的重算必重新求值（内置 TODAY/NOW/RAND/RANDBETWEEN） */
+      volatile?: boolean
+      meta?: FormulaFunctionMeta
+      kind?: 'normal'
+      impl: (args: EvalValue[], ctx?: FormulaEvalContext) => EvalValue
+    }
+  | {
+      minArgs?: number
+      maxArgs?: number
+      volatile?: boolean
+      meta?: FormulaFunctionMeta
+      kind: 'lazy'
+      impl: (
+        nodes: AstNode[],
+        evalNode: (node: AstNode) => EvalValue,
+        ctx?: FormulaEvalContext
+      ) => EvalValue
+    }
 
 /** 注册函数：名称大小写不敏感（存大写）；同名覆盖；注册表模块级全局 */
 export function registerFormulaFunction(name: string, def: FormulaFunction): void
 
-/** 枚举全部已注册函数元数据，按名称升序；无 meta 的返回 { name, params: [], description: '' } */
-export function listFormulaFunctions(): Array<{ name: string } & FormulaFunctionMeta>
+/**
+ * 枚举全部已注册函数元数据，按名称升序；无 meta 的返回
+ * { name, params: [], description: '', category: undefined }
+ */
+export function listFormulaFunctions(): Array<
+  { name: string; category: FormulaFunctionCategory | undefined } & FormulaFunctionMeta
+>
 
-/** 按名称分发求值：未知名 → #NAME?；参数个数越 minArgs/maxArgs 界 → #VALUE! */
+/**
+ * 按名称分发求值：未知名 → #NAME?；参数个数越 minArgs/maxArgs 界 → #VALUE!；
+ * ctx 透传给函数实现（normal 第二参 / lazy 第三参），可省略
+ */
 export function invokeFormulaFunction(
   name: string,
   nodes: AstNode[],
-  evalNode: (node: AstNode) => EvalValue
+  evalNode: (node: AstNode) => EvalValue,
+  ctx?: FormulaEvalContext
 ): EvalValue
 
 // ─── 依赖图（Workbook 级共享）─────────────────────────────
@@ -222,40 +298,41 @@ export declare class DependencyGraph {
 
 ### 运算符与优先级（低 → 高）
 
-| 级别 | 运算符 | 说明 |
-| :---: | --- | --- |
-| 1 | `=` `<>` `<` `<=` `>` `>=` | 比较；文本比较大小写不敏感；混合类型 数字 < 文本 < 布尔 |
-| 2 | `&` | 文本拼接（操作数经 `coerceToText` 强转） |
-| 3 | `+` `-` | 加减，经 `$n.plus` / `$n.minus` 高精度 |
-| 4 | `*` `/` | 乘除，经 `$n.mul` / `$n.div`；除数为 0 → `#DIV/0!` |
-| 5 | 一元 `+` `-` | 紧于幂次（Excel 行为）：`-2^2` = `(-2)^2` = `4` |
-| 6 | `^` | 幂，右结合：`2^3^2` = `2^(3^2)`；JS `Math.pow`，`0^负数` → `#DIV/0!`，结果非有限 → `#VALUE!` |
-| 7 | 后缀 `%` | 除以 100 |
+| 级别 | 运算符                     | 说明                                                                                         |
+| :--: | -------------------------- | -------------------------------------------------------------------------------------------- |
+|  1   | `=` `<>` `<` `<=` `>` `>=` | 比较；文本比较大小写不敏感；混合类型 数字 < 文本 < 布尔                                      |
+|  2   | `&`                        | 文本拼接（操作数经 `coerceToText` 强转）                                                     |
+|  3   | `+` `-`                    | 加减，经 `$n.plus` / `$n.minus` 高精度                                                       |
+|  4   | `*` `/`                    | 乘除，经 `$n.mul` / `$n.div`；除数为 0 → `#DIV/0!`                                           |
+|  5   | 一元 `+` `-`               | 紧于幂次（Excel 行为）：`-2^2` = `(-2)^2` = `4`                                              |
+|  6   | `^`                        | 幂，右结合：`2^3^2` = `2^(3^2)`；JS `Math.pow`，`0^负数` → `#DIV/0!`，结果非有限 → `#VALUE!` |
+|  7   | 后缀 `%`                   | 除以 100                                                                                     |
 
 ### 主要函数参数
 
-| 函数 | 参数 | 返回 | 抛错 / 错误路径 |
-| --- | --- | --- | --- |
-| `tokenizeFormula` | `text: string`（公式原文，不含 `=`） | `FormulaToken[]` | 非法输入抛 `FormulaParseError` |
-| `parseFormula` | `text: string`（公式原文，不含 `=`） | `AstNode` | 同 `tokenizeFormula`：非法输入抛 `FormulaParseError` |
-| `collectReferences` | `node: AstNode`；`out?: AstReference[]`（追加目标） | `AstReference[]` | 不抛错 |
-| `evaluateAst` | `node: AstNode`；`ctx: FormulaEvalContext` | `EvalValue` | 不抛错；错误以 `FormulaError` 返回；自定义函数抛异常时由依赖图捕获记 `#ERROR!` |
-| `registerFormulaFunction` | `name: string`；`def: FormulaFunction` | `void` | 不抛错；同名覆盖 |
-| `listFormulaFunctions` | 无 | `Array<{ name, params, description }>`，按名称升序 | 不抛错 |
-| `invokeFormulaFunction` | `name: string`；`nodes: AstNode[]`；`evalNode` | `EvalValue` | 未知名返回 `#NAME?`；参数个数越界返回 `#VALUE!` |
+| 函数                      | 参数                                                                                     | 返回                                                        | 抛错 / 错误路径                                                                |
+| ------------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `tokenizeFormula`         | `text: string`（公式原文，不含 `=`）                                                     | `FormulaToken[]`                                            | 非法输入抛 `FormulaParseError`                                                 |
+| `parseFormula`            | `text: string`（公式原文，不含 `=`）                                                     | `AstNode`                                                   | 同 `tokenizeFormula`：非法输入抛 `FormulaParseError`                           |
+| `collectReferences`       | `node: AstNode`；`out?: AstReference[]`（追加目标）                                      | `AstReference[]`                                            | 不抛错                                                                         |
+| `evaluateAst`             | `node: AstNode`；`ctx: FormulaEvalContext`                                               | `EvalValue`                                                 | 不抛错；错误以 `FormulaError` 返回；自定义函数抛异常时由依赖图捕获记 `#ERROR!` |
+| `registerFormulaFunction` | `name: string`；`def: FormulaFunction`                                                   | `void`                                                      | 不抛错；同名覆盖                                                               |
+| `listFormulaFunctions`    | 无                                                                                       | `Array<{ name, params, description, category }>`，名称升序 | 不抛错；未声明分类的函数 `category` 为 `undefined`                             |
+| `invokeFormulaFunction`   | `name: string`；`nodes: AstNode[]`；`evalNode`；`ctx?: FormulaEvalContext`（透传给 impl） | `EvalValue`                                                 | 未知名返回 `#NAME?`；参数个数越界返回 `#VALUE!`                                |
 
-`FormulaEvalContext` 三个方法的错误约定：表不存在时 `readCell` / `readRange` 返回 `formulaError('#REF!')`；`callFunction` 直接传 `invokeFormulaFunction` 即可复用内置注册表。
+`FormulaEvalContext` 的错误约定：表不存在时 `readCell` / `readRange` 返回 `formulaError('#REF!')`；`callFunction` 直接传 `invokeFormulaFunction` 即可复用内置注册表（第四参 `ctx` 由 `evaluateAst` 自动传入，实现 `callFunction` 时透传即可）。`currentCell` / `currentSheet` 由依赖图按公式节点注入：宿主自建 ctx 无头求值时填目标格地址即可，自定义函数在 normal `impl(args, ctx)` 第二参 / lazy `impl(nodes, evalNode, ctx)` 第三参读取。
 
 ### 错误码（FORMULA_ERROR_CODES 全集）
 
-| 错误码 | 触发条件 |
-| --- | --- |
-| `#DIV/0!` | 除数为 0（`1/0`、`0/0`）；`AVERAGE` 无数字可平均；`0` 的负次幂 |
+| 错误码    | 触发条件                                                                                                                                                                |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `#DIV/0!` | 除数为 0（`1/0`、`0/0`）；`AVERAGE` 无数字可平均；`0` 的负次幂                                                                                                          |
 | `#VALUE!` | 强转失败（非数字文本参与算术等）；数组参与比较；区域直接作为公式结果（如 `=A1:B2`）；`AND` / `OR` 无有效参数；`^` 结果非有限；`RANDBETWEEN` 参数非有限或 `bottom > top` |
-| `#NAME?` | 未知名称节点；调用未注册函数 |
-| `#REF!` | `readCell` / `readRange` 的表不存在（表被删除） |
-| `#ERROR!` | 公式解析失败（`FormulaNode.ast` 为 null，`f` 保留原文）；求值期异常（如自定义函数抛错） |
-| `#CYCLE!` | 循环引用：环上所有格均得 `#CYCLE!`；打破循环后经标脏重算自动恢复 |
+| `#NAME?`  | 未知名称节点；调用未注册函数                                                                                                                                            |
+| `#REF!`   | `readCell` / `readRange` 的表不存在（表被删除）                                                                                                                         |
+| `#N/A`    | 值不存在类错误（Excel 同名语义）；自定义函数经 `formulaError('#N/A')` 返回；`t='e'` 单元格存取经 `isFormulaErrorCode` 还原                                                 |
+| `#ERROR!` | 公式解析失败（`FormulaNode.ast` 为 null，`f` 保留原文）；求值期异常（如自定义函数抛错）                                                                                 |
+| `#CYCLE!` | 循环引用：环上所有格均得 `#CYCLE!`；打破循环后经标脏重算自动恢复                                                                                                        |
 
 求值期的 `FormulaError` 随运算传播（左操作数优先）；写入单元格时序列化为 `v = 错误码字符串, t = 'e'`。读取时 `isFormulaErrorCode(data.v)` 校验合法码。
 
@@ -263,25 +340,27 @@ export declare class DependencyGraph {
 
 聚合函数的参数形态约定：区域引用展开为**稀疏存在的格**数组——区域内的文本 / 布尔被忽略，只有数字参与；直接参数则强转（非法 → `#VALUE!`）。
 
-| 函数 | 签名 | 语义 |
-| --- | --- | --- |
-| `SUM` | `SUM(number1, number2, ...)`，至少 1 参 | 求和；`$n.plus` 高精度累加；全空区域 → `0` |
-| `AVERAGE` | `AVERAGE(number1, ...)`，至少 1 参 | 平均值 = `$n.div(和, 个数)`；无数字 → `#DIV/0!` |
-| `MAX` | `MAX(number1, ...)`，至少 1 参 | 最大值；无数字 → `0` |
-| `MIN` | `MIN(number1, ...)`，至少 1 参 | 最小值；无数字 → `0` |
-| `COUNT` | `COUNT(value1, ...)`，至少 1 参 | 数字个数：区域内只数数字格；直接参数可强转即计（含 `TRUE`、数字文本） |
-| `COUNTA` | `COUNTA(value1, ...)`，至少 1 参 | 非空个数：区域内错误格照常计数；直接错误参数传播 |
-| `IF` | `IF(logical_test, value_if_true, value_if_false?)`，2~3 参 | lazy 求值：未选分支不求值（副作用 / 错误不产生）；缺省第三参返回 `false` |
-| `AND` | `AND(logical1, ...)`，至少 1 参 | 全真 → `TRUE`；区域内只取布尔格；空集 → `#VALUE!` |
-| `OR` | `OR(logical1, ...)`，至少 1 参 | 任一真 → `TRUE`；区域内只取布尔格；空集 → `#VALUE!` |
-| `NOT` | `NOT(logical)`，恰 1 参 | 逻辑取反 |
-| `ROUND` | `ROUND(number, num_digits)`，恰 2 参 | 四舍五入：`n().fixed` 高精度；位数向零截断；负位数先缩放到整数再舍入（`ROUND(1234.567,-2)` = `1200`）；位数超出 double 精度时恒等 / 归零 |
-| `ABS` | `ABS(number)`，恰 1 参 | 绝对值；负值经 `$n.minus(0, value)` |
-| `CONCATENATE` | `CONCATENATE(text1, text2, ...)`，至少 1 参 | 连接文本（区域展开，逐值 `coerceToText`；区域内空格按空串） |
-| `TODAY` | `TODAY()`，0 参 | volatile；当天 0 点的 1900 系统序列数（本地时间，含伪闰日修正） |
-| `NOW` | `NOW()`，0 参 | volatile；当前时刻序列数（含时间小数部分） |
-| `RAND` | `RAND()`，0 参 | volatile；`[0, 1)` 随机数 |
-| `RANDBETWEEN` | `RANDBETWEEN(bottom, top)`，恰 2 参 | volatile；`[bottom, top]` 闭区间随机整数；参数向零截断，非法或 `bottom > top` → `#VALUE!` |
+| 函数          | 分类         | 签名                                                       | 语义                                                                                                                                     |
+| ------------- | ------------ | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `SUM`         | 数学         | `SUM(number1, number2, ...)`，至少 1 参                    | 求和；`$n.plus` 高精度累加；全空区域 → `0`                                                                                               |
+| `AVERAGE`     | 统计         | `AVERAGE(number1, ...)`，至少 1 参                         | 平均值 = `$n.div(和, 个数)`；无数字 → `#DIV/0!`                                                                                          |
+| `MAX`         | 统计         | `MAX(number1, ...)`，至少 1 参                             | 最大值；无数字 → `0`                                                                                                                     |
+| `MIN`         | 统计         | `MIN(number1, ...)`，至少 1 参                             | 最小值；无数字 → `0`                                                                                                                     |
+| `COUNT`       | 统计         | `COUNT(value1, ...)`，至少 1 参                            | 数字个数：区域内只数数字格；直接参数可强转即计（含 `TRUE`、数字文本）                                                                    |
+| `COUNTA`      | 统计         | `COUNTA(value1, ...)`，至少 1 参                           | 非空个数：区域内错误格照常计数；直接错误参数传播                                                                                         |
+| `IF`          | 逻辑         | `IF(logical_test, value_if_true, value_if_false?)`，2~3 参 | lazy 求值：未选分支不求值（副作用 / 错误不产生）；缺省第三参返回 `false`                                                                 |
+| `AND`         | 逻辑         | `AND(logical1, ...)`，至少 1 参                            | 全真 → `TRUE`；区域内只取布尔格；空集 → `#VALUE!`                                                                                        |
+| `OR`          | 逻辑         | `OR(logical1, ...)`，至少 1 参                             | 任一真 → `TRUE`；区域内只取布尔格；空集 → `#VALUE!`                                                                                      |
+| `NOT`         | 逻辑         | `NOT(logical)`，恰 1 参                                    | 逻辑取反                                                                                                                                 |
+| `ROUND`       | 数学         | `ROUND(number, num_digits)`，恰 2 参                       | 四舍五入：`n().fixed` 高精度；位数向零截断；负位数先缩放到整数再舍入（`ROUND(1234.567,-2)` = `1200`）；位数超出 double 精度时恒等 / 归零 |
+| `ABS`         | 数学         | `ABS(number)`，恰 1 参                                     | 绝对值；负值经 `$n.minus(0, value)`                                                                                                      |
+| `CONCATENATE` | 文本         | `CONCATENATE(text1, text2, ...)`，至少 1 参                | 连接文本（区域展开，逐值 `coerceToText`；区域内空格按空串）                                                                              |
+| `TODAY`       | 日期与时间   | `TODAY()`，0 参                                            | volatile；当天 0 点的 1900 系统序列数（本地时间，含伪闰日修正）                                                                          |
+| `NOW`         | 日期与时间   | `NOW()`，0 参                                              | volatile；当前时刻序列数（含时间小数部分）                                                                                               |
+| `RAND`        | 数学         | `RAND()`，0 参                                             | volatile；`[0, 1)` 随机数                                                                                                                |
+| `RANDBETWEEN` | 数学         | `RANDBETWEEN(bottom, top)`，恰 2 参                        | volatile；`[bottom, top]` 闭区间随机整数；参数向零截断，非法或 `bottom > top` → `#VALUE!`                                                |
+
+`FormulaFunctionCategory` 全集为 `财务 / 统计 / 查找与引用 / 文本 / 逻辑 / 数学 / 日期与时间`；17 个内置函数全部归类（见上表），宿主经 `registerFormulaFunction` 注册且未声明 `meta.category` 的函数 `listFormulaFunctions()` 返回 `category: undefined`。
 
 `SUM` / `AVERAGE` / `ROUND` / `ABS` 与四则 `+` `-` `*` `/` 经 peer 依赖 `@cat-kit/core`（`>=1.2.1`）的 `$n` / `n().fixed` 高精度路径计算，**结果仍写入 JS `number`**（`typeof data.v === 'number'`，不是 Decimal / 字符串）。幂 `^`、百分比 `%`、一元 `+/-`、`&`、比较不走 `$n`。`MAX` / `MIN` / `COUNT` / `COUNTA` / 逻辑 / 文本 / 易失性函数不走 `$n`。
 
@@ -319,6 +398,7 @@ const cells = new Map<string, ScalarValue>([
 
 const ctx: FormulaEvalContext = {
   currentSheet: 'Sheet1',
+  currentCell: { row: 0, col: 3 }, // 公式所在格（D1）：自建上下文时填目标格地址
   readCell: (_sheet, addr) => cells.get(`${addr.col},${addr.row}`) ?? null,
   readRange: (_sheet, range) => {
     const out: ScalarValue[] = []
@@ -363,7 +443,7 @@ import {
 registerFormulaFunction('TRIPLE', {
   minArgs: 1,
   maxArgs: 1,
-  meta: { params: ['number'], description: '将数字乘以 3' },
+  meta: { params: ['number'], description: '将数字乘以 3', category: '数学' },
   impl: (args) => {
     const value = coerceToNumber(args[0]!)
     if (isFormulaError(value)) return value // 强转失败返回 #VALUE! 等错误标记
@@ -378,11 +458,22 @@ sheet.setCellFormula({ row: 0, col: 1 }, '=triple(A1)') // 函数名大小写不
 sheet.getDisplayValue({ row: 0, col: 1 }) // => 21
 
 listFormulaFunctions().filter((fn) => fn.name === 'TRIPLE')
-// => [{ name: 'TRIPLE', params: ['number'], description: '将数字乘以 3' }]
+// => [{ name: 'TRIPLE', params: ['number'], description: '将数字乘以 3', category: '数学' }]
+
+// impl 第二参（lazy 为第三参）可选接收求值上下文：公式所在格地址 + 表名
+registerFormulaFunction('CELLROW', {
+  minArgs: 0,
+  maxArgs: 0,
+  // ctx 由依赖图求值时注入；仅宿主直调 invokeFormulaFunction 未传 ctx 时为 undefined
+  impl: (_args, ctx) => ctx?.currentCell.row ?? 0
+})
+sheet.setCellFormula({ row: 2, col: 0 }, '=CELLROW()')
+sheet.getCellData({ row: 2, col: 0 })?.v // => 2
 
 // 同名注册覆盖旧实现（模块级全局，影响当前运行时所有工作簿）
 registerFormulaFunction('triple', { impl: () => formulaError('#VALUE!') })
-// 覆盖后未带 meta：listFormulaFunctions() 中该项变为 { name: 'TRIPLE', params: [], description: '' }
+// 覆盖后未带 meta：listFormulaFunctions() 中该项变为
+// { name: 'TRIPLE', params: [], description: '', category: undefined }
 ```
 
 ### 经 Workbook 的跨表引用与错误码
@@ -418,10 +509,11 @@ sheet.getDisplayValue({ row: 2, col: 0 }) // => 1
 ## 注意事项
 
 > [!WARNING]
+>
 > - 公式原文 `CellData.f` 与 `parseFormula` / `tokenizeFormula` 的入参都**不含 `=`**；`Sheet.setCellFormula` / `setCellValue` 才接受 `=` 前缀并剥掉。直接给 `parseFormula` 传 `'=A1'` 抛 `FormulaParseError: 意外的 "="`。
 > - 公式缓存 `v` 是 JS `number` / `string` / `boolean` / 错误码字符串，不是 Decimal 对象；高精度只发生在计算过程中（`$n`），落库前转回 `number`。
 > - 一元负号紧于幂次是 Excel 行为：本库 `-2^2` 为 `4`，不是 `-(2^2)`。
-> - 错误码是 Excel 子集 + 本库扩展：`#ERROR!`（解析失败 / 求值异常）与 `#CYCLE!`（循环引用）不是 Excel 原生错误码；Excel 的 `#N/A`、`#NULL!`、`#NUM!` 不在本库错误码全集内。
+> - 错误码是 Excel 子集 + 本库扩展：`#ERROR!`（解析失败 / 求值异常）与 `#CYCLE!`（循环引用）不是 Excel 原生错误码；Excel 的 `#N/A` 已收录（自定义函数经 `formulaError('#N/A')` 返回，`t='e'` 存取还原）；`#NULL!`、`#NUM!` 不在本库错误码全集内。
 > - `getFormulaFunction` 未从包入口导出（仅测试深导入）；查询已注册函数一律用 `listFormulaFunctions()`。
 > - `registerFormulaFunction` 注册表是模块级全局：同名覆盖、大小写不敏感、影响当前运行时所有 `Workbook` / `Sheet`；禁止注册与内置函数同名的函数，除非刻意替换。
 > - 四则与 `SUM` / `AVERAGE` / `ROUND` / `ABS` 的高精度路径依赖 peer `@cat-kit/core >= 1.2.1`，未安装 peer 时本包导入即失败。

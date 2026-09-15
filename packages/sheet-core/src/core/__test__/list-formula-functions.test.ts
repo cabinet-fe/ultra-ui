@@ -3,7 +3,8 @@ import { afterEach, describe, expect, it } from 'vitest'
 import {
   getFormulaFunction,
   listFormulaFunctions,
-  registerFormulaFunction
+  registerFormulaFunction,
+  type FormulaFunctionCategory
 } from '../formula/functions'
 
 const BUILTIN_NAMES = [
@@ -21,6 +22,27 @@ const BUILTIN_NAMES = [
   'ROUND',
   'SUM'
 ] as const
+
+/** 17 个内置函数的期望分类（spec 锁定清单） */
+const BUILTIN_CATEGORIES: Record<string, FormulaFunctionCategory> = {
+  SUM: '数学',
+  ROUND: '数学',
+  ABS: '数学',
+  RAND: '数学',
+  RANDBETWEEN: '数学',
+  AVERAGE: '统计',
+  MAX: '统计',
+  MIN: '统计',
+  COUNT: '统计',
+  COUNTA: '统计',
+  IF: '逻辑',
+  AND: '逻辑',
+  OR: '逻辑',
+  NOT: '逻辑',
+  CONCATENATE: '文本',
+  TODAY: '日期与时间',
+  NOW: '日期与时间'
+}
 
 describe('listFormulaFunctions / FormulaFunctionMeta', () => {
   const extras: string[] = []
@@ -55,15 +77,25 @@ describe('listFormulaFunctions / FormulaFunctionMeta', () => {
     expect(sum.description).toBe('求参数之和')
     expect(getFormulaFunction('SUM')?.meta).toEqual({
       params: sum.params,
-      description: sum.description
+      description: sum.description,
+      category: '数学'
     })
   })
 
-  it('无 meta 的第三方函数仅返回空 params / description', () => {
+  it('17 个内置函数分类与 spec 清单一致', () => {
+    const list = listFormulaFunctions()
+    const byName = new Map(list.map((f) => [f.name, f]))
+    for (const [name, category] of Object.entries(BUILTIN_CATEGORIES)) {
+      expect(byName.get(name), name).toBeDefined()
+      expect(byName.get(name)!.category, name).toBe(category)
+    }
+  })
+
+  it('无 meta 的第三方函数仅返回空 params / description，category 为 undefined', () => {
     const name = '__META_TEST_FN__'
     extras.push(name)
     registerFormulaFunction(name, { minArgs: 0, impl: () => 1 })
     const item = listFormulaFunctions().find((f) => f.name === name)
-    expect(item).toEqual({ name, params: [], description: '' })
+    expect(item).toEqual({ name, params: [], description: '', category: undefined })
   })
 })

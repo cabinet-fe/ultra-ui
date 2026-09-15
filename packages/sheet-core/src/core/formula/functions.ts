@@ -7,6 +7,7 @@ import {
   coerceToNumber,
   coerceToText,
   type EvalValue,
+  type FormulaEvalContext,
   type ScalarValue
 } from './evaluator'
 
@@ -18,12 +19,24 @@ import {
  * lazy 函数自行求值参数（IF 的短路分支，未选分支的副作用/错误不产生）。
  */
 
+/** 函数分类（弹框分类导航固定集合的子集；未声明的函数不进分类） */
+export type FormulaFunctionCategory =
+  | '财务'
+  | '统计'
+  | '查找与引用'
+  | '文本'
+  | '逻辑'
+  | '数学'
+  | '日期与时间'
+
 /** 函数补全 / 帮助用元数据（可选；第三方函数可省略） */
 export interface FormulaFunctionMeta {
   /** 参数名列表，如 `['number1', 'number2', '...']` */
   params: string[]
   /** 中文一句话说明 */
   description: string
+  /** 函数分类；未声明 → 不出现在弹框任何分类下 */
+  category?: FormulaFunctionCategory
 }
 
 type FormulaFunctionBase = {
@@ -36,10 +49,17 @@ type FormulaFunctionBase = {
 }
 
 export type FormulaFunction =
-  | (FormulaFunctionBase & { kind?: 'normal'; impl: (args: EvalValue[]) => EvalValue })
+  | (FormulaFunctionBase & {
+      kind?: 'normal'
+      impl: (args: EvalValue[], ctx?: FormulaEvalContext) => EvalValue
+    })
   | (FormulaFunctionBase & {
       kind: 'lazy'
-      impl: (nodes: AstNode[], evalNode: (node: AstNode) => EvalValue) => EvalValue
+      impl: (
+        nodes: AstNode[],
+        evalNode: (node: AstNode) => EvalValue,
+        ctx?: FormulaEvalContext
+      ) => EvalValue
     })
 
 const registry = new Map<string, FormulaFunction>()
@@ -72,29 +92,38 @@ export function astUsesVolatileFunction(node: AstNode): boolean {
 
 /**
  * 枚举全部已注册函数的补全元数据（名称升序）。
- * 无 meta 的函数仍返回 `{ name, params: [], description: '' }`，供候选仅显示名称。
+ * 无 meta 的函数仍返回 `{ name, params: [], description: '' }`，供候选仅显示名称；
+ * 未声明分类的函数 `category` 为 undefined（仅出现在「全部」与搜索结果）。
  */
-export function listFormulaFunctions(): Array<{ name: string } & FormulaFunctionMeta> {
+export function listFormulaFunctions(): Array<
+  { name: string; category: FormulaFunctionCategory | undefined } & FormulaFunctionMeta
+> {
   return [...registry.keys()]
     .sort((a, b) => a.localeCompare(b))
     .map((name) => {
       const meta = registry.get(name)!.meta
-      return { name, params: meta?.params ?? [], description: meta?.description ?? '' }
+      return {
+        name,
+        params: meta?.params ?? [],
+        description: meta?.description ?? '',
+        category: meta?.category
+      }
     })
 }
 
-/** 求值器回调：名称解析 + 参数个数校验 + 按 kind 分发 */
+/** 求值器回调：名称解析 + 参数个数校验 + 按 kind 分发（ctx 为公式所在格的求值上下文） */
 export function invokeFormulaFunction(
   name: string,
   nodes: AstNode[],
-  evalNode: (node: AstNode) => EvalValue
+  evalNode: (node: AstNode) => EvalValue,
+  ctx?: FormulaEvalContext
 ): EvalValue {
   const def = getFormulaFunction(name)
   if (!def) return formulaError('#NAME?')
   if (def.minArgs !== undefined && nodes.length < def.minArgs) return formulaError('#VALUE!')
   if (def.maxArgs !== undefined && nodes.length > def.maxArgs) return formulaError('#VALUE!')
-  if (def.kind === 'lazy') return def.impl(nodes, evalNode)
-  return def.impl(nodes.map(evalNode))
+  if (def.kind === 'lazy') return def.impl(nodes, evalNode, ctx)
+  return def.impl(nodes.map(evalNode), ctx)
 }
 
 // ─── 内部工具 ────────────────────────────────────────────────
@@ -161,7 +190,7 @@ function collectBooleans(args: EvalValue[]): boolean[] | FormulaError {
 
 registerFormulaFunction('SUM', {
   minArgs: 1,
-  meta: { params: ['number1', 'number2', '...'], description: '求参数之和' },
+  meta: { params: ['number1', 'number2', '...'], description: '求参数之和', category: '数学' },
   impl(args) {
     const numbers = collectNumbers(args)
     if (isFormulaError(numbers)) return numbers
@@ -171,7 +200,7 @@ registerFormulaFunction('SUM', {
 
 registerFormulaFunction('AVERAGE', {
   minArgs: 1,
-  meta: { params: ['number1', 'number2', '...'], description: '求参数的平均值' },
+  meta: { params: ['number1', 'number2', '...'], description: '求参数的平均值', category: '统计' },
   impl(args) {
     const numbers = collectNumbers(args)
     if (isFormulaError(numbers)) return numbers
@@ -182,7 +211,11 @@ registerFormulaFunction('AVERAGE', {
 
 registerFormulaFunction('MAX', {
   minArgs: 1,
-  meta: { params: ['number1', 'number2', '...'], description: '返回参数中的最大值' },
+  meta: {
+    params: ['number1', 'number2', '...'],
+    description: '返回参数中的最大值',
+    category: '统计'
+  },
   impl(args) {
     const numbers = collectNumbers(args)
     if (isFormulaError(numbers)) return numbers
@@ -199,7 +232,11 @@ registerFormulaFunction('MAX', {
 
 registerFormulaFunction('MIN', {
   minArgs: 1,
-  meta: { params: ['number1', 'number2', '...'], description: '返回参数中的最小值' },
+  meta: {
+    params: ['number1', 'number2', '...'],
+    description: '返回参数中的最小值',
+    category: '统计'
+  },
   impl(args) {
     const numbers = collectNumbers(args)
     if (isFormulaError(numbers)) return numbers
@@ -214,7 +251,11 @@ registerFormulaFunction('MIN', {
 
 registerFormulaFunction('COUNT', {
   minArgs: 1,
-  meta: { params: ['value1', 'value2', '...'], description: '计算参数中数字的个数' },
+  meta: {
+    params: ['value1', 'value2', '...'],
+    description: '计算参数中数字的个数',
+    category: '统计'
+  },
   impl(args) {
     let count = 0
     for (const { value, fromRange } of flattenArgs(args)) {
@@ -232,7 +273,11 @@ registerFormulaFunction('COUNT', {
 
 registerFormulaFunction('COUNTA', {
   minArgs: 1,
-  meta: { params: ['value1', 'value2', '...'], description: '计算参数中非空值的个数' },
+  meta: {
+    params: ['value1', 'value2', '...'],
+    description: '计算参数中非空值的个数',
+    category: '统计'
+  },
   impl(args) {
     let count = 0
     for (const { value, fromRange } of flattenArgs(args)) {
@@ -251,7 +296,8 @@ registerFormulaFunction('IF', {
   maxArgs: 3,
   meta: {
     params: ['logical_test', 'value_if_true', 'value_if_false'],
-    description: '按条件返回不同结果'
+    description: '按条件返回不同结果',
+    category: '逻辑'
   },
   impl(nodes, evalNode) {
     const cond = coerceToBoolean(evalNode(nodes[0]!))
@@ -263,7 +309,11 @@ registerFormulaFunction('IF', {
 
 registerFormulaFunction('AND', {
   minArgs: 1,
-  meta: { params: ['logical1', 'logical2', '...'], description: '全部为真时返回 TRUE' },
+  meta: {
+    params: ['logical1', 'logical2', '...'],
+    description: '全部为真时返回 TRUE',
+    category: '逻辑'
+  },
   impl(args) {
     const booleans = collectBooleans(args)
     if (isFormulaError(booleans)) return booleans
@@ -274,7 +324,11 @@ registerFormulaFunction('AND', {
 
 registerFormulaFunction('OR', {
   minArgs: 1,
-  meta: { params: ['logical1', 'logical2', '...'], description: '任一为真时返回 TRUE' },
+  meta: {
+    params: ['logical1', 'logical2', '...'],
+    description: '任一为真时返回 TRUE',
+    category: '逻辑'
+  },
   impl(args) {
     const booleans = collectBooleans(args)
     if (isFormulaError(booleans)) return booleans
@@ -286,7 +340,7 @@ registerFormulaFunction('OR', {
 registerFormulaFunction('NOT', {
   minArgs: 1,
   maxArgs: 1,
-  meta: { params: ['logical'], description: '对逻辑值取反' },
+  meta: { params: ['logical'], description: '对逻辑值取反', category: '逻辑' },
   impl(args) {
     const b = coerceToBoolean(args[0]!)
     if (isFormulaError(b)) return b
@@ -297,7 +351,7 @@ registerFormulaFunction('NOT', {
 registerFormulaFunction('ROUND', {
   minArgs: 2,
   maxArgs: 2,
-  meta: { params: ['number', 'num_digits'], description: '按指定位数四舍五入' },
+  meta: { params: ['number', 'num_digits'], description: '按指定位数四舍五入', category: '数学' },
   impl(args) {
     const value = coerceToNumber(args[0]!)
     if (isFormulaError(value)) return value
@@ -321,7 +375,7 @@ registerFormulaFunction('ROUND', {
 registerFormulaFunction('ABS', {
   minArgs: 1,
   maxArgs: 1,
-  meta: { params: ['number'], description: '返回数字的绝对值' },
+  meta: { params: ['number'], description: '返回数字的绝对值', category: '数学' },
   impl(args) {
     const value = coerceToNumber(args[0]!)
     if (isFormulaError(value)) return value
@@ -331,7 +385,11 @@ registerFormulaFunction('ABS', {
 
 registerFormulaFunction('CONCATENATE', {
   minArgs: 1,
-  meta: { params: ['text1', 'text2', '...'], description: '将多个文本连接成一个字符串' },
+  meta: {
+    params: ['text1', 'text2', '...'],
+    description: '将多个文本连接成一个字符串',
+    category: '文本'
+  },
   impl(args) {
     let text = ''
     for (const arg of args) {
@@ -366,7 +424,7 @@ registerFormulaFunction('TODAY', {
   volatile: true,
   minArgs: 0,
   maxArgs: 0,
-  meta: { params: [], description: '返回当天日期的序列数' },
+  meta: { params: [], description: '返回当天日期的序列数', category: '日期与时间' },
   impl: () => Math.floor(localDateToSerial1900(new Date()))
 })
 
@@ -374,7 +432,11 @@ registerFormulaFunction('NOW', {
   volatile: true,
   minArgs: 0,
   maxArgs: 0,
-  meta: { params: [], description: '返回当前日期时间的序列数（含时间小数部分）' },
+  meta: {
+    params: [],
+    description: '返回当前日期时间的序列数（含时间小数部分）',
+    category: '日期与时间'
+  },
   impl: () => localDateToSerial1900(new Date())
 })
 
@@ -382,7 +444,7 @@ registerFormulaFunction('RAND', {
   volatile: true,
   minArgs: 0,
   maxArgs: 0,
-  meta: { params: [], description: '返回 [0, 1) 区间的随机数' },
+  meta: { params: [], description: '返回 [0, 1) 区间的随机数', category: '数学' },
   impl: () => Math.random()
 })
 
@@ -390,7 +452,11 @@ registerFormulaFunction('RANDBETWEEN', {
   volatile: true,
   minArgs: 2,
   maxArgs: 2,
-  meta: { params: ['bottom', 'top'], description: '返回 [bottom, top] 闭区间的随机整数' },
+  meta: {
+    params: ['bottom', 'top'],
+    description: '返回 [bottom, top] 闭区间的随机整数',
+    category: '数学'
+  },
   impl(args) {
     const bottom = coerceToNumber(args[0]!)
     if (isFormulaError(bottom)) return bottom

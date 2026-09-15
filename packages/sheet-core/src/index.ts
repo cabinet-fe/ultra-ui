@@ -197,6 +197,7 @@ export {
   listFormulaFunctions,
   invokeFormulaFunction,
   type FormulaFunctionMeta,
+  type FormulaFunctionCategory,
   type FormulaFunction,
   type FormulaDependency,
   type FormulaNode,

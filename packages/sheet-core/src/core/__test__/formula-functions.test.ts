@@ -2,7 +2,12 @@ import { $n, n } from '@cat-kit/core'
 import { describe, expect, it } from 'vitest'
 
 import type { CellAddress } from '../address'
-import { listFormulaFunctions, registerFormulaFunction } from '../formula/functions'
+import { formulaError, isFormulaErrorCode } from '../formula/errors'
+import {
+  listFormulaFunctions,
+  registerFormulaFunction,
+  type FormulaEvalContext
+} from '../formula/functions'
 import { Sheet } from '../sheet'
 
 const A1 = { row: 0, col: 0 }
@@ -331,5 +336,55 @@ describe('易失性函数：TODAY / NOW / RAND / RANDBETWEEN', () => {
     expect(names).toEqual(expect.arrayContaining(['TODAY', 'NOW', 'RAND', 'RANDBETWEEN']))
     const rand = listFormulaFunctions().find((f) => f.name === 'RANDBETWEEN')
     expect(rand?.params).toEqual(['bottom', 'top'])
+  })
+})
+
+describe('错误码 #N/A', () => {
+  it('可构造、可被 isFormulaErrorCode 识别', () => {
+    expect(isFormulaErrorCode('#N/A')).toBe(true)
+    const err = formulaError('#N/A')
+    expect(err.code).toBe('#N/A')
+  })
+
+  it('t="e" 单元格读回还原为 #N/A（引用该格传播 #N/A 而非 #ERROR!）', () => {
+    registerFormulaFunction('NA_PROBE', {
+      minArgs: 0,
+      maxArgs: 0,
+      impl: () => formulaError('#N/A')
+    })
+    const sheet = new Sheet()
+    sheet.setCellFormula(A1, '=NA_PROBE()')
+    expect(sheet.getCellData(A1)).toMatchObject({ v: '#N/A', t: 'e' })
+    // 读回路径：cellDataToScalar 需经 isFormulaErrorCode 还原为 #N/A，
+    // 未收录时会被兜成 #ERROR!
+    expect(calcValue(sheet, '=A1')).toMatchObject({ v: '#N/A', t: 'e' })
+  })
+})
+
+describe('求值上下文：公式所在格地址', () => {
+  it('normal / lazy 实现均能读到 ctx.currentCell 与 ctx.currentSheet', () => {
+    const seen: Array<Partial<Pick<FormulaEvalContext, 'currentSheet' | 'currentCell'>>> = []
+    registerFormulaFunction('CTX_PROBE', {
+      minArgs: 0,
+      maxArgs: 0,
+      impl: (_args, ctx) => {
+        seen.push({ currentSheet: ctx?.currentSheet, currentCell: ctx?.currentCell })
+        return 1
+      }
+    })
+    registerFormulaFunction('CTX_PROBE_LAZY', {
+      kind: 'lazy',
+      minArgs: 0,
+      maxArgs: 0,
+      impl: (_nodes, _evalNode, ctx) => {
+        seen.push({ currentSheet: ctx?.currentSheet, currentCell: ctx?.currentCell })
+        return 1
+      }
+    })
+    const sheet = new Sheet('CtxSheet')
+    sheet.setCellFormula({ row: 3, col: 5 }, '=CTX_PROBE()')
+    sheet.setCellFormula({ row: 4, col: 5 }, '=CTX_PROBE_LAZY()')
+    expect(seen[0]).toEqual({ currentSheet: 'CtxSheet', currentCell: { row: 3, col: 5 } })
+    expect(seen[1]).toEqual({ currentSheet: 'CtxSheet', currentCell: { row: 4, col: 5 } })
   })
 })

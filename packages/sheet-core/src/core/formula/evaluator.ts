@@ -25,12 +25,19 @@ export type EvalValue = ScalarValue | FormulaError | (ScalarValue | FormulaError
 export interface FormulaEvalContext {
   /** 当前公式所在 sheet（裸引用缺省表） */
   readonly currentSheet: string
+  /** 公式所在格地址（ROW/COLUMN 等省参函数经它取公式格行列） */
+  readonly currentCell: CellAddress
   /** 读取单格（原始存储语义；表不存在 → #REF!） */
   readCell(sheet: string, addr: CellAddress): ScalarValue | FormulaError
   /** 读取区域（只含稀疏存在的格；表不存在 → #REF!） */
   readRange(sheet: string, range: CellRange): (ScalarValue | FormulaError)[] | FormulaError
-  /** 调用函数（名称未知 → #NAME?；参数个数非法 → #VALUE!） */
-  callFunction(name: string, nodes: AstNode[], evalNode: (node: AstNode) => EvalValue): EvalValue
+  /** 调用函数（名称未知 → #NAME?；参数个数非法 → #VALUE!；ctx 透传给函数实现） */
+  callFunction(
+    name: string,
+    nodes: AstNode[],
+    evalNode: (node: AstNode) => EvalValue,
+    ctx?: FormulaEvalContext
+  ): EvalValue
 }
 
 /** 强转数字：null→0，布尔→1/0，数字文本→数字，其余文本→#VALUE!，错误传播 */
@@ -151,7 +158,7 @@ export function evaluateAst(node: AstNode, ctx: FormulaEvalContext): EvalValue {
     case 'binary':
       return evaluateBinary(node.op, node.left, node.right, ctx)
     case 'call':
-      return ctx.callFunction(node.name, node.args, (arg) => evaluateAst(arg, ctx))
+      return ctx.callFunction(node.name, node.args, (arg) => evaluateAst(arg, ctx), ctx)
   }
 }
 
