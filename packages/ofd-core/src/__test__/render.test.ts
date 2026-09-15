@@ -293,6 +293,123 @@ describe('内嵌字体文本', () => {
   })
 })
 
+// ---- 新版数电票形态：Body 图层 PageBlock 容器、子元素颜色声明、FontFile 子元素 + 无 cmap 子集字体 CGTransform 字形替换、CTM 平移缩放定位的单位盒图片 ----
+
+/** 无 cmap 的子集字体：字形顺序被打乱（A 的轮廓挂在 gid 5），靠 CGTransform 指定字形 */
+const SHUFFLED_FONT = buildTtf({
+  cmap: undefined,
+  glyphs: [{}, {}, {}, {}, {}, { contours: [TRIANGLE_CONTOUR] }, { contours: [SQUARE_CONTOUR] }],
+  advances: [0, 0, 0, 0, 0, 500, 400],
+  omitTables: ['cmap']
+})
+
+async function buildNewInvoiceFixture() {
+  const data = await buildZip([
+    { name: 'OFD.xml', data: utf8(ofdXml()) },
+    {
+      name: 'Doc_0/Document.xml',
+      data: utf8(
+        `<?xml version="1.0" encoding="UTF-8"?><ofd:Document xmlns:ofd="${OFD_NS}">` +
+          '<ofd:CommonData><ofd:PageArea><ofd:PhysicalBox>0 0 187.8228 124.9994</ofd:PhysicalBox></ofd:PageArea>' +
+          '<ofd:PublicRes>PublicRes.xml</ofd:PublicRes>' +
+          '<ofd:DocumentRes>DocumentRes.xml</ofd:DocumentRes></ofd:CommonData>' +
+          '<ofd:Pages><ofd:Page BaseLoc="Pages/Page_0/Content.xml"/></ofd:Pages></ofd:Document>'
+      )
+    },
+    {
+      // 颜色全部为子元素形式；DrawParam 值文本走 FillColor 0 0 0
+      name: 'Doc_0/DocumentRes.xml',
+      data: utf8(
+        `<?xml version="1.0" encoding="UTF-8"?><ofd:Res xmlns:ofd="${OFD_NS}" BaseLoc="Res">` +
+          '<ofd:DrawParams><ofd:DrawParam ID="105" LineWidth="1">' +
+          '<ofd:FillColor Value="0 0 0"/><ofd:StrokeColor Value="255 255 255"/></ofd:DrawParam></ofd:DrawParams>' +
+          '<ofd:MultiMedias><ofd:MultiMedia ID="103" Type="Image">' +
+          '<ofd:MediaFile>qrcode.png</ofd:MediaFile></ofd:MultiMedia></ofd:MultiMedias></ofd:Res>'
+      )
+    },
+    {
+      // FontFile 为子元素声明，路径相对 Res 根 BaseLoc
+      name: 'Doc_0/PublicRes.xml',
+      data: utf8(
+        `<?xml version="1.0" encoding="UTF-8"?><ofd:Res xmlns:ofd="${OFD_NS}" BaseLoc="Res">` +
+          '<ofd:Fonts><ofd:Font ID="6" FontName="KaiTi"><ofd:FontFile>font_6.ttf</ofd:FontFile></ofd:Font>' +
+          '<ofd:Font FontName="simsun" ID="106"/></ofd:Fonts></ofd:Res>'
+      )
+    },
+    {
+      name: 'Doc_0/Pages/Page_0/Content.xml',
+      data: utf8(
+        `<?xml version="1.0" encoding="UTF-8"?><ofd:Page xmlns:ofd="${OFD_NS}">` +
+          '<ofd:Area><ofd:PhysicalBox>0 0 187.8228 124.9994</ofd:PhysicalBox></ofd:Area>' +
+          '<ofd:Content>' +
+          '<ofd:Layer ID="2">' +
+          // 标题：内嵌子集字体 + CGTransform 字形替换 + 子元素 FillColor
+          '<ofd:TextObject ID="7" CTM="1 0 0 1 0 0" Boundary="62 7 64 6" Font="6" Size="10">' +
+          '<ofd:FillColor Value="128 0 0"/>' +
+          '<ofd:CGTransform CodePosition="0" CodeCount="2" GlyphCount="2"><ofd:Glyphs>5 6</ofd:Glyphs></ofd:CGTransform>' +
+          '<ofd:TextCode X="0" Y="9" DeltaX="10">AB</ofd:TextCode>' +
+          '</ofd:TextObject>' +
+          // 框线：Fill="true" 细矩形 + 子元素 FillColor
+          '<ofd:PathObject ID="8" CTM="1 0 0 1 0 0" Boundary="4 23 180 0.4" Stroke="false" Fill="true">' +
+          '<ofd:FillColor Value="128 0 0"/>' +
+          '<ofd:AbbreviatedData>M 0 0 L 180 0 L 180 0.4 L 0 0.4 C</ofd:AbbreviatedData>' +
+          '</ofd:PathObject>' +
+          // 二维码：整页 Boundary + 带平移缩放的 CTM，内容为单位盒
+          '<ofd:ImageObject ID="106" ResourceID="103" Boundary="0 0 210 297" CTM="18.2 0 0 18.2 5.3 3"/>' +
+          '</ofd:Layer>' +
+          '<ofd:Layer ID="103" Type="Body"><ofd:PageBlock ID="104">' +
+          // 值文本藏在 PageBlock 分组容器内，颜色沿对象 DrawParam 继承
+          '<ofd:TextObject Boundary="0 0 210 297" Font="106" Size="2.8" ID="111" Fill="true" DrawParam="105">' +
+          '<ofd:TextCode X="10" Y="30">26327902880800161820</ofd:TextCode>' +
+          '</ofd:TextObject>' +
+          '</ofd:PageBlock></ofd:Layer>' +
+          '</ofd:Content></ofd:Page>'
+      )
+    },
+    { name: 'Doc_0/Res/font_6.ttf', data: SHUFFLED_FONT },
+    { name: 'Doc_0/Res/qrcode.png', data: PNG_MAGIC }
+  ])
+  const zip = openOfdZip(data)
+  return { zip, container: await parseOfdContainer(zip) }
+}
+
+describe('新版数电票渲染', () => {
+  it('PageBlock 分组容器内的对象正常渲染，值文本沿对象 DrawParam 取色', async () => {
+    const { zip, container } = await buildNewInvoiceFixture()
+    const svg = await pageToSvg(zip, container, 0, 0)
+
+    expect(svg).toContain(
+      '<text xml:space="preserve" x="10" y="30" font-size="2.8" font-family="simsun" fill="rgb(0 0 0)">26327902880800161820</text>'
+    )
+  })
+
+  it('子元素颜色声明生效：细矩形框线按 FillColor 填充而非默认黑', async () => {
+    const { zip, container } = await buildNewInvoiceFixture()
+    const svg = await pageToSvg(zip, container, 0, 0)
+
+    expect(svg).toContain('<path d="M 0 0 L 180 0 L 180 0.4 L 0 0.4" fill="rgb(128 0 0)"/>')
+  })
+
+  it('FontFile 子元素声明相对 BaseLoc 解析，CGTransform 字形替换按序号取轮廓', async () => {
+    const { zip, container } = await buildNewInvoiceFixture()
+    const svg = await pageToSvg(zip, container, 0, 0)
+
+    // A→gid5 三角形、B→gid6 正方形（cmap 缺失，仅 CGTransform 映射），DeltaX=10 定位 B
+    expect(svg).toContain(
+      '<path d="M 0 9 L 5 9 L 2.5 4 Z M 10 9 L 14 9 L 14 5 L 10 5 Z" fill="rgb(128 0 0)"/>'
+    )
+  })
+
+  it('带平移缩放 CTM 的图片按单位盒渲染，不受整页 Boundary 影响', async () => {
+    const { zip, container } = await buildNewInvoiceFixture()
+    const svg = await pageToSvg(zip, container, 0, 0)
+
+    expect(svg).toContain(
+      '<g transform="translate(0 0) matrix(18.2 0 0 18.2 5.3 3)"><image width="1" height="1"'
+    )
+  })
+})
+
 // ---- 真实产出形态（WPS 导出）：PhysicalBox 页尺寸、MediaFile 媒体、Type=Image、缩放 CTM、Font/Size 简写 ----
 
 async function buildWpsStyleFixture() {

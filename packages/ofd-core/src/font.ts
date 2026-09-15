@@ -2,7 +2,8 @@
  * 内嵌 TTF 字体解析与 glyph 轮廓输出（OFD Font@FontFile 声明的内嵌字体）。
  *
  * 读取 TrueType 的 head/maxp/cmap/loca/glyf/hhea/hmtx 表：cmap 把字符码点映射到
- * glyph id，glyf 提取轮廓点（on/off curve，复合 glyph 递归展开并平移/缩放）。
+ * glyph id（可省，省略时字符映射由渲染层 CGTransform 字形序号提供），glyf 提取
+ * 轮廓点（on/off curve，复合 glyph 递归展开并平移/缩放）。
  * 二次贝塞尔轮廓按 unitsPerEm → 字号缩放、基线定位并翻转 y 轴后转成 SVG path
  * `d`。二进制结构非法时抛 OfdParseError('invalid-font')。
  */
@@ -57,7 +58,9 @@ export function parseEmbeddedFont(data: Uint8Array, source: string): OfdEmbedded
   }
 
   const numGlyphs = new FontReader(data, source, tables.get('maxp')!.offset + 4).u16()
-  const cmap = parseCmap(data, tables.get('cmap')!, source)
+  // cmap 可省：数电票内嵌子集字体不带 cmap，字符映射由页面 CGTransform 字形序号给出
+  const cmapTable = tables.get('cmap')
+  const cmap = cmapTable ? parseCmap(data, cmapTable, source) : new Map<number, number>()
 
   // loca：glyph 数据偏移表，须单调不减且落在 glyf 表内
   const glyfTable = tables.get('glyf')!
@@ -126,7 +129,7 @@ export function glyphPathD(
 // 二进制读取
 // ----------------------------------------------------------------------------------
 
-const REQUIRED_TABLES = ['cmap', 'glyf', 'head', 'hhea', 'hmtx', 'loca', 'maxp']
+const REQUIRED_TABLES = ['glyf', 'head', 'hhea', 'hmtx', 'loca', 'maxp']
 
 interface SfntTable {
   offset: number

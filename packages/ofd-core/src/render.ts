@@ -14,6 +14,7 @@ import {
   parsePageContent,
   type OfdCompositeObject,
   type OfdContentLayer,
+  type OfdGlyphSubstitution,
   type OfdImageObject,
   type OfdPageContent,
   type OfdPageObject,
@@ -271,11 +272,20 @@ async function renderText(
   const font = await loadEmbeddedFont(object.fontId, context)
   if (!font || object.fontSize === null) return renderSystemFontText(object, fill, context)
   const fontSize = object.fontSize
-  const d = object.codes
-    .map((code) => textCodePathD(font, code, fontSize))
-    .filter((part) => part !== '')
-    .join(' ')
-  if (d === '') return ''
+  const parts: string[] = []
+  let baseIndex = 0
+  for (const code of object.codes) {
+    const part = textCodePathD(font, code, fontSize, object.glyphSubstitutions, baseIndex)
+    if (part !== '') parts.push(part)
+    baseIndex += code.text.length
+  }
+  const d = parts.join(' ')
+  // 全部字符都取不到字形（如无 cmap 且无字形替换的子集字体）时回退系统字体
+  if (d === '') {
+    return object.codes.some((code) => code.text.length > 0)
+      ? renderSystemFontText(object, fill, context)
+      : ''
+  }
   return `<path d="${d}" fill="${fill}"/>`
 }
 
@@ -306,24 +316,55 @@ async function loadEmbeddedFont(
 /**
  * 单个 TextCode 的 glyph 路径：从 X/Y 基线原点起笔逐字排布。
  * DeltaX/DeltaY 按标准是「相对前一个字符的位移」，声明时替代字形步进宽度。
+ * 字形来源优先取 CGTransform 替换序号（子集字体无 cmap 时的唯一映射），
+ * 其次 cmap 码点映射；两者都未命中时跳过该字符的轮廓、仅按位移推进。
  */
-function textCodePathD(font: OfdEmbeddedFont, code: OfdTextCode, fontSize: number): string {
+function textCodePathD(
+  font: OfdEmbeddedFont,
+  code: OfdTextCode,
+  fontSize: number,
+  substitutions: readonly OfdGlyphSubstitution[],
+  baseIndex: number
+): string {
   const scale = fontSize / font.unitsPerEm
   const parts: string[] = []
   let penX = code.x ?? 0
   let penY = code.y ?? 0
   let dxIndex = 0
   let dyIndex = 0
+  let charIndex = 0
   for (const char of code.text) {
-    const gid = font.glyphIndexOf(char.codePointAt(0)!) ?? 0
-    const d = glyphPathD(font, gid, fontSize, penX, penY)
-    if (d !== '') parts.push(d)
+    const gid =
+      substitutedGlyphId(substitutions, baseIndex + charIndex) ??
+      font.glyphIndexOf(char.codePointAt(0)!)
+    if (gid !== null) {
+      const d = glyphPathD(font, gid, fontSize, penX, penY)
+      if (d !== '') parts.push(d)
+    }
     const deltaX = dxIndex < code.deltaX.length ? code.deltaX[dxIndex++] : null
-    penX += deltaX ?? font.advanceWidth(gid) * scale
+    penX += deltaX ?? (gid !== null ? font.advanceWidth(gid) * scale : 0)
     const deltaY = dyIndex < code.deltaY.length ? code.deltaY[dyIndex++] : null
     penY += deltaY ?? 0
+    charIndex++
   }
   return parts.join(' ')
+}
+
+/** 字形替换查找：字符落在声明区间时取 Glyphs 中对应序号，合字耗尽或未覆盖返回 null */
+function substitutedGlyphId(
+  substitutions: readonly OfdGlyphSubstitution[],
+  charIndex: number
+): number | null {
+  for (const substitution of substitutions) {
+    if (
+      charIndex >= substitution.codePosition &&
+      charIndex < substitution.codePosition + substitution.codeCount
+    ) {
+      const offset = charIndex - substitution.codePosition
+      return offset < substitution.glyphIds.length ? substitution.glyphIds[offset]! : null
+    }
+  }
+  return null
 }
 
 /** 无内嵌字体可用时的系统字体回退：保留 P2 的 text 输出与文字内容 */
@@ -406,21 +447,16 @@ async function renderImage(
 }
 
 /**
- * 图片内容盒尺寸：无缩放时 Boundary 即内容盒；带缩放 CTM 的产出（WPS 实证）
- * 把 Boundary 写成变换后的最终包围盒、图片内容为 [0,1] 单位盒，按 CTM 轴长
- * 反推内容盒尺寸（与 groupTransform 的外层平移判定一致）。
+ * 图片内容盒尺寸：无缩放 CTM 时 Boundary 即内容盒；带缩放 CTM 的产出
+ * （WPS / 新版数电发票实证）图片内容为 [0,1] 单位盒，尺寸与定位由 CTM 给出，
+ * Boundary 只提供平移原点（WPS 写最终包围盒、数电票二维码写整页盒，均不参与定尺寸）。
  */
 function imageContentSize(
   boundary: OfdBoundary,
   ctm: OfdMatrix
 ): { width: number; height: number } {
   if (!hasScaleComponent(ctm)) return { width: boundary.width, height: boundary.height }
-  const scaleX = Math.hypot(ctm[0], ctm[1])
-  const scaleY = Math.hypot(ctm[2], ctm[3])
-  return {
-    width: scaleX > 0 ? boundary.width / scaleX : boundary.width,
-    height: scaleY > 0 ? boundary.height / scaleY : boundary.height
-  }
+  return { width: 1, height: 1 }
 }
 
 /** 按魔数识别可渲染的图片媒体类型；多帧格式（GIF/APNG）由展示端取首帧 */

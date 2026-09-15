@@ -174,7 +174,7 @@ export function parseDocumentRes(xml: string, source: string): OfdDocResources {
         fonts.push({
           id,
           fontName: normalizedText(font.getAttribute('FontName')),
-          fontFile: normalizedText(font.getAttribute('FontFile'))
+          fontFile: fontFileLocation(baseLoc, font)
         })
       }
     }
@@ -212,6 +212,16 @@ export function parseDocumentRes(xml: string, source: string): OfdDocResources {
 /** DrawParam 子元素颜色：<FillColor Value="128 0 0"/> 按 Value 属性解析 */
 function declaredColor(param: Element, name: string): string | null {
   return parseOfdColor(firstChildNamed(param, name)?.getAttribute('Value') ?? null)
+}
+
+/**
+ * 字体文件位置：FontFile 兼容属性与子元素两种声明（新版数电发票实证为子元素），
+ * 路径相对资源声明根的 BaseLoc 解析，未声明 BaseLoc 时相对文档根。
+ */
+function fontFileLocation(baseLoc: string | null, font: Element): string | null {
+  const file =
+    normalizedText(font.getAttribute('FontFile')) ?? normalizedText(childText(font, 'FontFile'))
+  return file === null ? null : joinZipPath(baseLoc ?? '', file)
 }
 
 /** 媒体位置兜底：MediaFile 子元素声明文件名，相对资源声明根的 BaseLoc 解析 */
@@ -272,10 +282,12 @@ function parseNumber(value: string | null): number | null {
 }
 
 export function parseLayerType(value: string | null): OfdLayerType | null {
-  return value === 'background' ||
-    value === 'body' ||
-    value === 'foreground' ||
-    value === 'annotation'
-    ? value
+  // 新版数电票实证 Type 首字母大写（Body），统一按小写匹配
+  const lowered = value?.toLowerCase()
+  return lowered === 'background' ||
+    lowered === 'body' ||
+    lowered === 'foreground' ||
+    lowered === 'annotation'
+    ? lowered
     : null
 }

@@ -61,8 +61,22 @@ export interface OfdTextCode {
   /** 第 n 个字符相对前一个字符的位移，与 SVG dx/dy 语义一致 */
   deltaX: number[]
   deltaY: number[]
-  /** 含 CustomTag 内字符的完整文本（字形替换不在内核层处理，按原字符渲染） */
+  /** 含 CustomTag 内字符的完整文本 */
   text: string
+}
+
+/**
+ * CGTransform 字形替换：TextCode 文本流中 [CodePosition, CodePosition+CodeCount)
+ * 区间的字符按 Glyphs 给出的字形序号从内嵌字体取轮廓。数电票内嵌子集字体
+ * 的字形顺序被打乱且无 cmap（防直接按码点取字），只有该映射可用。
+ */
+export interface OfdGlyphSubstitution {
+  /** 替换区间起点（字符在 TextObject 全部 TextCode 拼接流中的序号） */
+  codePosition: number
+  /** 区间字符数 */
+  codeCount: number
+  /** 替换字形序号列表（合字时可少于字符数） */
+  glyphIds: number[]
 }
 
 export interface OfdTextObject extends OfdObjectBase {
@@ -71,6 +85,8 @@ export interface OfdTextObject extends OfdObjectBase {
   fontSize: number | null
   fillColor: string | null
   codes: OfdTextCode[]
+  /** 字形替换声明（CGTransform），按声明顺序 */
+  glyphSubstitutions: OfdGlyphSubstitution[]
 }
 
 export interface OfdImageObject extends OfdObjectBase {
@@ -111,12 +127,7 @@ export function parsePageContent(xml: string, source: string): OfdPageContent {
   const objectsById = new Map<string, OfdPageObject>()
   for (const layer of childrenNamed(layerParent, 'Layer')) {
     const objects: OfdPageObject[] = []
-    for (const element of childElements(layer)) {
-      const object = parsePageObject(element)
-      if (!object) continue
-      if (object.id) objectsById.set(object.id, object)
-      objects.push(object)
-    }
+    collectLayerObjects(layer, objects, objectsById)
     layers.push({
       type: parseLayerType(layer.getAttribute('Type')),
       drawParamId: layer.getAttribute('DrawParam'),
@@ -127,6 +138,27 @@ export function parsePageContent(xml: string, source: string): OfdPageContent {
     layers,
     objectsById,
     templateRefs: childrenNamed(root, 'Template').map(parseTemplateRef)
+  }
+}
+
+/**
+ * 图层内对象收集：PageBlock 是纯分组容器（新版数电票正文层实证，自身无
+ * Boundary/CTM），递归扁平化不改变成员对象坐标。
+ */
+function collectLayerObjects(
+  container: Element,
+  out: OfdPageObject[],
+  objectsById: Map<string, OfdPageObject>
+): void {
+  for (const element of childElements(container)) {
+    if (localNameOf(element) === 'PageBlock') {
+      collectLayerObjects(element, out, objectsById)
+      continue
+    }
+    const object = parsePageObject(element)
+    if (!object) continue
+    if (object.id) objectsById.set(object.id, object)
+    out.push(object)
   }
 }
 
@@ -155,8 +187,9 @@ function parsePageObject(element: Element): OfdPageObject | null {
         // 部分产出用 Font / Size 简写（数电发票实证），与 FontID / FontSize 同义
         fontId: element.getAttribute('FontID') ?? element.getAttribute('Font'),
         fontSize: parseNumber(element.getAttribute('FontSize') ?? element.getAttribute('Size')),
-        fillColor: parseOfdColor(element.getAttribute('FillColor')),
-        codes: childrenNamed(element, 'TextCode').map(parseTextCode)
+        fillColor: objectColor(element, 'FillColor'),
+        codes: childrenNamed(element, 'TextCode').map(parseTextCode),
+        glyphSubstitutions: childrenNamed(element, 'CGTransform').map(parseGlyphSubstitution)
       }
     case 'ImageObject':
       return { ...base, kind: 'image', resourceId: element.getAttribute('ResourceID') }
@@ -165,8 +198,8 @@ function parsePageObject(element: Element): OfdPageObject | null {
         ...base,
         kind: 'path',
         fill: element.getAttribute('Fill') === 'true',
-        fillColor: parseOfdColor(element.getAttribute('FillColor')),
-        strokeColor: parseOfdColor(element.getAttribute('StrokeColor')),
+        fillColor: objectColor(element, 'FillColor'),
+        strokeColor: objectColor(element, 'StrokeColor'),
         lineWidth: parseNumber(element.getAttribute('LineWidth')),
         dashPattern: parseNumberList(element.getAttribute('DashPattern')),
         commands: parsePathCommands(
@@ -177,6 +210,25 @@ function parsePageObject(element: Element): OfdPageObject | null {
       return { ...base, kind: 'composite', referenceId: element.getAttribute('ReferenceID') }
     default:
       return null
+  }
+}
+
+/**
+ * 对象颜色声明兼容两种形式：属性 `FillColor="128 0 0"` 与子元素
+ * `<FillColor Value="128 0 0"/>`（新版数电票实证为子元素形式）。
+ */
+function objectColor(element: Element, name: 'FillColor' | 'StrokeColor'): string | null {
+  return parseOfdColor(
+    element.getAttribute(name) ?? firstChildNamed(element, name)?.getAttribute('Value') ?? null
+  )
+}
+
+/** 解析 CGTransform：Glyphs 支持 ST_Array 的 `g n v` 压缩写法 */
+function parseGlyphSubstitution(element: Element): OfdGlyphSubstitution {
+  return {
+    codePosition: parseNumber(element.getAttribute('CodePosition')) ?? 0,
+    codeCount: parseNumber(element.getAttribute('CodeCount')) ?? 0,
+    glyphIds: parseDeltaList(firstChildNamed(element, 'Glyphs')?.textContent ?? null)
   }
 }
 

@@ -161,11 +161,17 @@ describe('字体二进制非法数据', () => {
     expect(error.reason).toBe('invalid-font')
   })
 
-  it('缺少必需表抛 invalid-font', async () => {
+  it('缺少必需表抛 invalid-font；cmap 可省（子集字体靠 CGTransform 映射）', async () => {
     const error = await expectParseError(() =>
-      parseEmbeddedFont(buildTtf({ glyphs: [{}], omitTables: ['cmap'] }), 'no-cmap.ttf')
+      parseEmbeddedFont(buildTtf({ glyphs: [{}], omitTables: ['glyf'] }), 'no-glyf.ttf')
     )
     expect(error.reason).toBe('invalid-font')
+
+    const noCmap = parseEmbeddedFont(
+      buildTtf({ glyphs: [{}], omitTables: ['cmap'] }),
+      'no-cmap.ttf'
+    )
+    expect(noCmap.glyphIndexOf(65)).toBeNull()
   })
 
   it('unitsPerEm 为 0 抛 invalid-font', async () => {
