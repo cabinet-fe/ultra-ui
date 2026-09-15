@@ -47,6 +47,7 @@ export function inferKind(name: string, explicit?: FileViewerKind): FileViewerKi
   if (ext === 'pdf') return 'pdf'
   if (SHEET_EXTS.has(ext)) return 'sheet'
   if (ext === 'docx') return 'docx'
+  if (ext === 'ofd') return 'ofd'
   if (TEXT_EXTS.has(ext)) return 'text'
   return 'text'
 }
@@ -57,6 +58,7 @@ export const FILE_VIEWER_KIND_LABEL: Record<FileViewerKind, string> = {
   pdf: 'PDF',
   sheet: 'XLS',
   docx: 'DOC',
+  ofd: 'OFD',
   text: 'TXT'
 }
 

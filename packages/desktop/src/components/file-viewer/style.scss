@@ -302,6 +302,12 @@
     --u-file-viewer-kind-bg: rgba(100, 116, 139, 0.1);
   }
 
+  @include m.em(badge, ofd) {
+    --u-file-viewer-kind: #7c3aed;
+    --u-file-viewer-kind-border: rgba(124, 58, 237, 0.28);
+    --u-file-viewer-kind-bg: rgba(124, 58, 237, 0.1);
+  }
+
   @include m.e(stage) {
     display: flex;
     flex: 1;
@@ -684,6 +690,33 @@
     box-shadow:
       0 38px 110px rgba(0, 0, 0, 0.5),
       0 0 0 1px rgba(255, 255, 255, 0.04);
+  }
+
+  @include m.e(ofd) {
+    position: absolute;
+    inset: 0;
+  }
+
+  @include m.e(ofd-scroll) {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+  }
+
+  @include m.e(ofd-page) {
+    margin: 24px auto;
+    background: #fff;
+    box-shadow: var(--u-file-viewer-page-shadow);
+
+    svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  &.is-modal &__ofd-page {
+    margin: clamp(24px, 3vw, 44px) auto;
   }
 
   @include m.e(docx) {

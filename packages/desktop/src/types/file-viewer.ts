@@ -2,7 +2,7 @@ import type { DeconstructValue } from '@veltra/utils'
 import type { ShallowRef } from 'vue'
 
 /** 预览器类别：xlsx 与 csv 归一为 sheet */
-export type FileViewerKind = 'image' | 'video' | 'pdf' | 'sheet' | 'docx' | 'text'
+export type FileViewerKind = 'image' | 'video' | 'pdf' | 'sheet' | 'docx' | 'ofd' | 'text'
 
 /** 单个预览文件定义 */
 export interface FileViewerItem {

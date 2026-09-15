@@ -87,12 +87,16 @@
     "@veltra/compositions": "workspace:^",
     "@veltra/directives": "workspace:^",
     "@veltra/icons": "workspace:^",
+    "@veltra/ofd-core": "workspace:^",
     "@veltra/sheet-core": "workspace:^",
     "@veltra/styles": "workspace:^",
     "@veltra/utils": "workspace:^",
     "vue": ">=3.5.42"
   },
   "peerDependenciesMeta": {
+    "@veltra/ofd-core": {
+      "optional": true
+    },
     "@veltra/sheet-core": {
       "optional": true
     }

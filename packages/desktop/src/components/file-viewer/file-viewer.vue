@@ -169,7 +169,7 @@
                     :class="isTransformable ? cls.e('previewer') : undefined"
                     :style="previewerStyle"
                     @error="handleChildError"
-                    @zoom-change="handlePdfZoomChange"
+                    @zoom-change="handlePreviewerZoomChange"
                   />
                 </div>
                 <div v-else :class="cls.e('empty')">
@@ -238,10 +238,12 @@ const MIN_SCALE = 0.5
 const MAX_SCALE = 3
 /** 每次缩放固定增减 10% */
 const SCALE_STEP = 0.1
-/** 使用 CSS transform 缩放的类型（PDF 由 EmbedPDF zoom 插件处理） */
+/** 使用 CSS transform 缩放的类型（PDF / OFD 由各自 previewer 内部缩放） */
 const TRANSFORMABLE_KINDS = new Set<FileViewerKind>(['image'])
 /** 工具栏显示缩放控件的类型 */
-const ZOOMABLE_KINDS = new Set<FileViewerKind>(['image', 'pdf'])
+const ZOOMABLE_KINDS = new Set<FileViewerKind>(['image', 'pdf', 'ofd'])
+/** 缩放由 previewer 内部实现、组件只透传命令并回显级别的类型 */
+const DELEGATED_ZOOM_KINDS = new Set<FileViewerKind>(['pdf', 'ofd'])
 
 const activeId = defineModel<string | undefined>('modelValue', { default: undefined })
 const openModel = defineModel<boolean | undefined>('open', { default: undefined })
@@ -253,7 +255,7 @@ const previewerRef = shallowRef<{
   resetZoom?: () => void
 }>()
 const scale = ref(1)
-const pdfZoomLevel = ref(1)
+const previewerZoomLevel = ref(1)
 const offsetX = ref(0)
 const offsetY = ref(0)
 const isDragging = ref(false)
@@ -268,6 +270,7 @@ const PreviewerMap: Record<FileViewerKind, ReturnType<typeof defineAsyncComponen
   pdf: defineAsyncComponent(() => import('./previewers/pdf-previewer.vue')),
   sheet: defineAsyncComponent(() => import('./previewers/sheet-previewer.vue')),
   docx: defineAsyncComponent(() => import('./previewers/docx-previewer.vue')),
+  ofd: defineAsyncComponent(() => import('./previewers/ofd-previewer.vue')),
   text: defineAsyncComponent(() => import('./previewers/text-previewer.vue'))
 }
 
@@ -312,11 +315,15 @@ const isTransformable = computed(
 
 const isZoomable = computed(() => !!activeFile.value && ZOOMABLE_KINDS.has(activeFile.value.kind))
 
-const isPdfActive = computed(() => activeFile.value?.kind === 'pdf')
+const isDelegatedZoom = computed(
+  () => !!activeFile.value && DELEGATED_ZOOM_KINDS.has(activeFile.value.kind)
+)
 
 const canPan = computed(() => isTransformable.value && scale.value > 1)
 
-const displayZoomLevel = computed(() => (isPdfActive.value ? pdfZoomLevel.value : scale.value))
+const displayZoomLevel = computed(() =>
+  isDelegatedZoom.value ? previewerZoomLevel.value : scale.value
+)
 
 const zoomPercent = computed(() => `${Math.round(displayZoomLevel.value * 100)}%`)
 
@@ -325,8 +332,8 @@ const zoomInDisabled = computed(() => !isZoomable.value || displayZoomLevel.valu
 const zoomOutDisabled = computed(() => !isZoomable.value || displayZoomLevel.value <= MIN_SCALE)
 
 const isTransformReset = computed(() => {
-  if (isPdfActive.value) {
-    return Math.abs(pdfZoomLevel.value - 1) < 0.02
+  if (isDelegatedZoom.value) {
+    return Math.abs(previewerZoomLevel.value - 1) < 0.02
   }
   return scale.value === 1 && offsetX.value === 0 && offsetY.value === 0
 })
@@ -378,7 +385,7 @@ function setScale(value: number) {
 
 function zoomIn() {
   if (!isZoomable.value) return
-  if (isPdfActive.value) {
+  if (isDelegatedZoom.value) {
     previewerRef.value?.zoomIn?.()
     return
   }
@@ -387,7 +394,7 @@ function zoomIn() {
 
 function zoomOut() {
   if (!isZoomable.value) return
-  if (isPdfActive.value) {
+  if (isDelegatedZoom.value) {
     previewerRef.value?.zoomOut?.()
     return
   }
@@ -395,9 +402,9 @@ function zoomOut() {
 }
 
 function resetTransform() {
-  if (isPdfActive.value) {
+  if (isDelegatedZoom.value) {
     previewerRef.value?.resetZoom?.()
-    pdfZoomLevel.value = 1
+    previewerZoomLevel.value = 1
     return
   }
   scale.value = 1
@@ -407,8 +414,8 @@ function resetTransform() {
   isDragging.value = false
 }
 
-function handlePdfZoomChange(level: number) {
-  pdfZoomLevel.value = level
+function handlePreviewerZoomChange(level: number) {
+  previewerZoomLevel.value = level
 }
 
 function isZoomWheel(e: WheelEvent): boolean {
@@ -462,7 +469,7 @@ function handleViewportPointerEnd(e: PointerEvent) {
 }
 
 function handleViewportDblclick() {
-  if (isPdfActive.value) return
+  if (isDelegatedZoom.value) return
   if (!isTransformable.value) return
   if (scale.value === 1) {
     setScale(2)
@@ -521,7 +528,7 @@ watch(
 watch(
   () => activeFile.value?.id,
   async () => {
-    pdfZoomLevel.value = 1
+    previewerZoomLevel.value = 1
     await nextTick()
     resetTransform()
   }
