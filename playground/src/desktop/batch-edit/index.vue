@@ -6,6 +6,7 @@
         <u-checkbox v-model="tree">树形</u-checkbox>
         <u-checkbox v-model="quickEdit">快速编辑</u-checkbox>
         <u-checkbox v-model="asynchronous">模拟异步</u-checkbox>
+        <u-radio-group v-model="formMode" :items="formModeItems" />
       </div>
 
       <u-checkbox-group :items="items" v-model="features"></u-checkbox-group>
@@ -24,6 +25,7 @@
       :actions-props="{ delete: { needConfirm: true } }"
       :features="dynamicFeatures"
       :tree="tree"
+      :form-mode="formMode"
       style="height: 500px"
       :delete-method="asynchronous ? deleteMethod : undefined"
       :save-method="asynchronous ? saveMethod : undefined"
@@ -217,6 +219,12 @@ const tree = shallowRef(false)
 const resizable = shallowRef(true)
 const quickEdit = shallowRef(false)
 const collapseValue = ref<CollapseModelValue>([])
+
+const formMode = shallowRef<'panel' | 'dialog'>('panel')
+const formModeItems = [
+  { label: '右侧面板', value: 'panel' },
+  { label: '弹框', value: 'dialog' }
+]
 
 const columns = defineTableColumns([
   { name: '姓名', key: 'name', rules: { required: true }, width: 120 },

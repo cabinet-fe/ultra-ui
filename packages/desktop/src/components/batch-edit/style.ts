@@ -1,5 +1,6 @@
 import '../action/style'
 import '../button/style'
+import '../dialog/style'
 import '../form/style'
 import '../icon/style'
 import '../layout/style'

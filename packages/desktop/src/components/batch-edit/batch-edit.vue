@@ -9,6 +9,7 @@
     @focusin="handleFocusIn"
     @focusout="handleFocusOut"
     @keydown.capture="handleKeydown"
+    v-bind="$attrs"
   >
     <!-- 编辑列表 -->
     <BatchEditList :slots="slots" />
@@ -48,7 +49,7 @@ import { useFeatures } from './use-features'
 import { useHandlers } from './use-handlers'
 import { useShortcutKey } from './use-shortcut-key'
 
-defineOptions({ name: 'UBatchEdit' })
+defineOptions({ name: 'UBatchEdit', inheritAttrs: false })
 
 const props = withDefaults(defineProps<BatchEditProps>(), {
   cols: () => ['1fr', '420px'],

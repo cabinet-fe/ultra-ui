@@ -368,3 +368,19 @@ describe('UBatchEdit formMode', () => {
     unmount()
   })
 })
+
+describe('UBatchEdit 属性透传', () => {
+  it('style / class 等非 props 属性透传到根布局元素（组件为片段根，需手动继承）', async () => {
+    const { host, unmount } = mountBatchEdit({
+      props: { style: 'height: 500px', class: 'custom-batch-edit' }
+    })
+    await nextTick()
+
+    const root = host.querySelector<HTMLElement>('.u-batch-edit')
+    expect(root).toBeTruthy()
+    expect(root!.classList.contains('custom-batch-edit')).toBe(true)
+    expect(root!.style.height).toBe('500px')
+
+    unmount()
+  })
+})
