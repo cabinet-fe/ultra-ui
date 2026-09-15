@@ -30,7 +30,11 @@ function documentResXml(): string {
     `<?xml version="1.0" encoding="UTF-8"?><ofd:Res xmlns:ofd="${OFD_NS}">` +
     '<ofd:Fonts><ofd:Font ID="0" FontName="宋体"/></ofd:Fonts>' +
     '<ofd:MultiMedias><ofd:MultiMedia ID="1" Type="g" ResLoc="Res/image_0.png"/></ofd:MultiMedias>' +
-    '</ofd:Res>'
+    // 数电发票形态：DrawParam 子元素颜色，Relative 沿链继承
+    '<ofd:DrawParams>' +
+    '<ofd:DrawParam ID="3" LineWidth="0.25"><ofd:StrokeColor Value="128 0 0" ColorSpace="2"/></ofd:DrawParam>' +
+    '<ofd:DrawParam ID="4" Relative="3"><ofd:FillColor Value="128 0 0" ColorSpace="2"/></ofd:DrawParam>' +
+    '</ofd:DrawParams></ofd:Res>'
   )
 }
 
@@ -99,9 +103,13 @@ describe('parseOfd', () => {
     expect(first.pages[1].size).toEqual({ width: 14800, height: 21000 })
     expect(first.resources.fonts).toEqual([{ id: '0', fontName: '宋体', fontFile: null }])
     expect(first.resources.medias).toEqual([{ id: '1', type: 'g', location: 'Res/image_0.png' }])
+    expect(first.resources.drawParams).toEqual([
+      { id: '3', lineWidth: 0.25, relative: null, fillColor: null, strokeColor: 'rgb(128 0 0)' },
+      { id: '4', lineWidth: null, relative: '3', fillColor: 'rgb(128 0 0)', strokeColor: null }
+    ])
 
     const second = ofd.docs[1]
-    expect(second.resources).toEqual({ fonts: [], medias: [] })
+    expect(second.resources).toEqual({ fonts: [], medias: [], drawParams: [] })
     expect(second.pages.map((page) => page.location)).toEqual([
       'Doc_1/Pages/Page_0/Page.xml',
       'Doc_1/Pages/Page_1/Page.xml',
@@ -114,6 +122,94 @@ describe('parseOfd', () => {
 
     const error = await expectParseError(() => parseOfd(data))
     expect(error.reason).toBe('missing-entry')
+  })
+
+  it('主流产出形态兼容：OFD 根名、CommonData 文本资源声明、Content.xml 页与 PhysicalBox 尺寸', async () => {
+    const data = await buildZip([
+      // 真实产出的根节点写作 OFD（与常见示例 Ofd 大小写不一致）
+      { name: 'OFD.xml', data: utf8(ofdXml([docBody(0)]).replaceAll('ofd:Ofd', 'ofd:OFD')) },
+      {
+        name: 'Doc_0/Document.xml',
+        data: utf8(
+          `<?xml version="1.0" encoding="UTF-8"?><ofd:Document xmlns:ofd="${OFD_NS}">` +
+            // 页尺寸由 PhysicalBox 声明，DocumentRes / PublicRes 在 CommonData 下以文本给路径
+            '<ofd:CommonData><ofd:PageArea><ofd:PhysicalBox>0 0 215.9 279.4</ofd:PhysicalBox></ofd:PageArea>' +
+            '<ofd:DocumentRes>DocumentRes.xml</ofd:DocumentRes>' +
+            '<ofd:PublicRes>PublicRes.xml</ofd:PublicRes></ofd:CommonData>' +
+            '<ofd:Pages><ofd:Page ID="1" BaseLoc="Pages/Page_0/Content.xml"/></ofd:Pages></ofd:Document>'
+        )
+      },
+      // 媒体路径由 Res@BaseLoc 与 MediaFile 子元素组合解析（WPS 形态，Type 用 Image 拼写）
+      {
+        name: 'Doc_0/DocumentRes.xml',
+        data: utf8(
+          `<?xml version="1.0"?><ofd:Res xmlns:ofd="${OFD_NS}" BaseLoc="Res">` +
+            '<ofd:MultiMedias><ofd:MultiMedia ID="4" Type="Image">' +
+            '<ofd:MediaFile>Image_4.JPEG</ofd:MediaFile></ofd:MultiMedia></ofd:MultiMedias></ofd:Res>'
+        )
+      },
+      {
+        name: 'Doc_0/PublicRes.xml',
+        data: utf8(
+          `<?xml version="1.0"?><ofd:Res xmlns:ofd="${OFD_NS}" BaseLoc="Res">` +
+            '<ofd:Fonts><ofd:Font ID="29" FontName="楷体"/></ofd:Fonts></ofd:Res>'
+        )
+      },
+      // 页内容文件直接作为 BaseLoc，页尺寸由页内 Area/PhysicalBox 覆盖
+      {
+        name: 'Doc_0/Pages/Page_0/Content.xml',
+        data: utf8(
+          `<?xml version="1.0"?><ofd:Page xmlns:ofd="${OFD_NS}">` +
+            '<ofd:Area><ofd:PhysicalBox>0 0 209.96 296.94</ofd:PhysicalBox></ofd:Area>' +
+            '<ofd:Content><ofd:Layer ID="2"/></ofd:Content></ofd:Page>'
+        )
+      }
+    ])
+
+    const doc = (await parseOfd(data)).docs[0]
+
+    expect(doc.pageSize).toEqual({ width: 215.9, height: 279.4 })
+    expect(doc.pages[0].location).toBe('Doc_0/Pages/Page_0/Content.xml')
+    expect(doc.pages[0].size).toEqual({ width: 209.96, height: 296.94 })
+    expect(doc.resources.fonts).toEqual([{ id: '29', fontName: '楷体', fontFile: null }])
+    expect(doc.resources.medias).toEqual([{ id: '4', type: 'Image', location: 'Res/Image_4.JPEG' }])
+  })
+
+  it('容器绝对路径 BaseLoc 按绝对路径解析，不叠加文档目录', async () => {
+    const data = await buildZip([
+      { name: 'OFD.xml', data: utf8(ofdXml([docBody(0)])) },
+      {
+        name: 'Doc_0/Document.xml',
+        data: utf8(documentXml(['/Doc_0/Pages/Page_0/Content.xml'], false))
+      },
+      { name: 'Doc_0/Pages/Page_0/Content.xml', data: utf8(pageXml([{ id: '1', type: 'body' }])) }
+    ])
+
+    const doc = (await parseOfd(data)).docs[0]
+    expect(doc.pages[0].location).toBe('Doc_0/Pages/Page_0/Content.xml')
+  })
+
+  it('CommonData 模板页声明按顺序解析为 ID 与内容路径', async () => {
+    const data = await buildZip([
+      { name: 'OFD.xml', data: utf8(ofdXml([docBody(0)])) },
+      {
+        name: 'Doc_0/Document.xml',
+        data: utf8(
+          `<?xml version="1.0" encoding="UTF-8"?><ofd:Document xmlns:ofd="${OFD_NS}">` +
+            '<ofd:CommonData><ofd:PageWidth>210</ofd:PageWidth><ofd:PageHeight>140</ofd:PageHeight>' +
+            '<ofd:TemplatePage ID="2" BaseLoc="Tpls/Tpl_1/Content.xml"/>' +
+            '<ofd:TemplatePage ID="1" BaseLoc="Tpls/Tpl_0/Content.xml"/></ofd:CommonData>' +
+            '<ofd:Pages><ofd:Page BaseLoc="Pages/Page_0"/></ofd:Pages></ofd:Document>'
+        )
+      },
+      { name: 'Doc_0/Pages/Page_0/Page.xml', data: utf8(pageXml([{ id: '1', type: 'body' }])) }
+    ])
+
+    const doc = (await parseOfd(data)).docs[0]
+    expect(doc.templates).toEqual([
+      { id: '2', location: 'Tpls/Tpl_1/Content.xml' },
+      { id: '1', location: 'Tpls/Tpl_0/Content.xml' }
+    ])
   })
 
   it('非 ZIP 输入抛 not-zip', async () => {

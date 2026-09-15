@@ -1,8 +1,9 @@
 import { OfdParseError } from './error'
 import type { OfdContainer, OfdDoc, OfdDocInfo, OfdDocResources, OfdPage } from './types'
-import { parseDocumentRes, parseDocumentXml, parseOfdRoot, parsePageXml } from './xml'
+import { joinZipPath, parseDocumentRes, parseDocumentXml, parseOfdRoot, parsePageXml } from './xml'
 import { openOfdZip, type OfdZip } from './zip'
 
+export { joinZipPath } from './xml'
 export { openOfdZip, type OfdZip } from './zip'
 
 /** 解析 OFD 文件字节：解包 ZIP 容器并解析全部文档的页面模型 */
@@ -28,22 +29,43 @@ async function parseDoc(zip: OfdZip, docRoot: string, info: OfdDocInfo): Promise
   const documentModel = parseDocumentXml(await zip.text(docLocation), docLocation)
 
   const [resources, pages] = await Promise.all([
-    loadResources(zip, dir, documentModel.resLocation),
+    loadResources(zip, dir, documentModel.resLocation, documentModel.publicResLocation),
     Promise.all(
       documentModel.pageLocations.map((baseLoc, index) => loadPage(zip, dir, baseLoc, index))
     )
   ])
 
-  return { dir, info, pageSize: documentModel.pageSize, resources, pages }
+  return {
+    dir,
+    info,
+    pageSize: documentModel.pageSize,
+    templates: documentModel.templates,
+    resources,
+    pages
+  }
 }
 
+/** 合并文档资源与公共资源声明；同 ID 时文档资源声明在前、查找优先 */
 async function loadResources(
   zip: OfdZip,
   dir: string,
-  resLocation: string | null
+  resLocation: string | null,
+  publicResLocation: string | null
 ): Promise<OfdDocResources> {
-  if (!resLocation) return { fonts: [], medias: [] }
-  return parseDocumentRes(await zip.text(joinZipPath(dir, resLocation)), resLocation)
+  const locations = [resLocation, publicResLocation].filter(
+    (location): location is string => location !== null
+  )
+  if (locations.length === 0) return { fonts: [], medias: [], drawParams: [] }
+  const parts = await Promise.all(
+    locations.map(async (location) =>
+      parseDocumentRes(await zip.text(joinZipPath(dir, location)), location)
+    )
+  )
+  return {
+    fonts: parts.flatMap((part) => part.fonts),
+    medias: parts.flatMap((part) => part.medias),
+    drawParams: parts.flatMap((part) => part.drawParams)
+  }
 }
 
 async function loadPage(
@@ -52,18 +74,15 @@ async function loadPage(
   baseLoc: string,
   index: number
 ): Promise<OfdPage> {
-  const pageLocation = joinZipPath(dir, baseLoc, 'Page.xml')
+  const pageLocation = resolveContentLocation(dir, baseLoc)
   const pageModel = parsePageXml(await zip.text(pageLocation), pageLocation)
   return { index, location: pageLocation, size: pageModel.size, layers: pageModel.layers }
 }
 
-/** 拼接并规范化容器内路径：去空段与 './'，统一 '/' 分隔（图片资源定位等处复用） */
-export function joinZipPath(...segments: string[]): string {
-  const parts: string[] = []
-  for (const segment of segments) {
-    for (const piece of segment.split('/')) {
-      if (piece !== '' && piece !== '.') parts.push(piece)
-    }
-  }
-  return parts.join('/')
+/**
+ * 页 / 模板页内容定位共用：BaseLoc 以 .xml 结尾时是内容文件（WPS / 数科 /
+ * 数电发票的页与模板页均写 Content.xml），否则按页目录处理（内含 Page.xml）。
+ */
+export function resolveContentLocation(dir: string, baseLoc: string): string {
+  return /\.xml$/i.test(baseLoc) ? joinZipPath(dir, baseLoc) : joinZipPath(dir, baseLoc, 'Page.xml')
 }

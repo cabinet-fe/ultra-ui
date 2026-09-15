@@ -39,14 +39,16 @@ export function openOfdZip(data: Uint8Array): OfdZip {
   const eocdOffset = findEocdOffset(data)
   const entryCount = view.getUint16(eocdOffset + 10, true)
   const records = parseCentralDirectory(data, view, eocdOffset, entryCount)
-  const byName = new Map(records.map((record) => [record.name, record]))
+  // 生成器存在同容器内路径大小写不一致的产出（WPS 导出实证 Doc_0 / DOC_0），
+  // 条目查找按大小写不敏感兜底，书写规范的文件不受影响
+  const byName = new Map(records.map((record) => [record.name.toLowerCase(), record]))
 
   return {
     entries: records,
-    has: (name) => byName.has(name),
-    read: (name) => readEntry(data, view, byName.get(name), name),
+    has: (name) => byName.has(name.toLowerCase()),
+    read: (name) => readEntry(data, view, byName.get(name.toLowerCase()), name),
     text: async (name) =>
-      new TextDecoder().decode(await readEntry(data, view, byName.get(name), name))
+      new TextDecoder().decode(await readEntry(data, view, byName.get(name.toLowerCase()), name))
   }
 }
 

@@ -52,6 +52,10 @@ function page0Xml(): string {
     '<ofd:PathObject ID="p1" Boundary="50 60 80 80" FillColor="0 0 255" StrokeColor="g 0" LineWidth="0.5" DashPattern="2 1">' +
     '<ofd:AbbreviatedData>M 0 0 L 40 0 C 40 20 60 20 80 80 Q 40 40 20 20 Z</ofd:AbbreviatedData>' +
     '</ofd:PathObject>' +
+    // 数电发票票面标记形态：B 二次贝塞尔 + Fill="true" 无颜色声明
+    '<ofd:PathObject ID="p2" Boundary="5 95 5 5" Fill="true" LineWidth="0.225">' +
+    '<ofd:AbbreviatedData>M 4.5 2.5 B 4.5 1.4 3.6 0.45 B 1.4 0.45 0.45 2.5 M 1 1 L 4 4</ofd:AbbreviatedData>' +
+    '</ofd:PathObject>' +
     '</ofd:Layer>' +
     '<ofd:Layer ID="11" Type="foreground">' +
     '<ofd:CompositeObject ID="c1" Boundary="0 0 80 80" CTM="1 0 0 1 50 0" ReferenceID="p1"/>' +
@@ -108,7 +112,8 @@ describe('pageToSvg', () => {
 
     expect(svg).toContain('<g data-ofd-layer="body">')
     expect(svg).toContain(
-      '<text x="0" y="3.7" dx="1 2" font-size="3.7" font-family="宋体" fill="rgb(255 0 0)">' +
+      // DeltaX 步长换算为逐字符绝对坐标：x = 0、1、3，其余字符自然排布
+      '<text xml:space="preserve" x="0 1 3" y="3.7" font-size="3.7" font-family="宋体" fill="rgb(255 0 0)">' +
         '合计&lt;金额&gt;100&amp;20</text>'
     )
   })
@@ -133,11 +138,21 @@ describe('pageToSvg', () => {
     )
   })
 
+  it('B 二次贝塞尔输出为 SVG Q，Fill="true" 无颜色声明按默认黑填充', async () => {
+    const { zip, container } = await buildFixture()
+    const svg = await pageToSvg(zip, container, 0, 0)
+
+    expect(svg).toContain(
+      '<path d="M 4.5 2.5 Q 4.5 1.4 3.6 0.45 Q 1.4 0.45 0.45 2.5 M 1 1 L 4 4" fill="#000" stroke-width="0.225"/>'
+    )
+  })
+
   it('复合对象递归渲染被引用路径，子对象继承 CTM 链', async () => {
     const { zip, container } = await buildFixture()
     const svg = await pageToSvg(zip, container, 0, 0)
 
-    expect(svg.match(/<path /g)).toHaveLength(2)
+    // p1 直渲染 + 复合引用再渲染，p2 票面标记一处
+    expect(svg.match(/<path /g)).toHaveLength(3)
     expect(svg).toContain('<g transform="matrix(1 0 0 1 50 0) translate(0 0)">')
   })
 
@@ -275,5 +290,276 @@ describe('内嵌字体文本', () => {
     expect(svg).toContain('>坏&lt;字&gt;</text>')
     expect(svg).toContain('font-family="缺失"')
     expect(svg).toContain('>缺资源</text>')
+  })
+})
+
+// ---- 真实产出形态（WPS 导出）：PhysicalBox 页尺寸、MediaFile 媒体、Type=Image、缩放 CTM、Font/Size 简写 ----
+
+async function buildWpsStyleFixture() {
+  const data = await buildZip([
+    { name: 'OFD.xml', data: utf8(ofdXml()) },
+    {
+      name: 'Doc_0/Document.xml',
+      data: utf8(
+        `<?xml version="1.0" encoding="utf-8"?><ofd:Document xmlns:ofd="${OFD_NS}">` +
+          '<ofd:CommonData><ofd:PageArea><ofd:PhysicalBox>0 0 215.9 279.4</ofd:PhysicalBox></ofd:PageArea>' +
+          '<ofd:DocumentRes>DocumentRes.xml</ofd:DocumentRes>' +
+          '<ofd:PublicRes>PublicRes.xml</ofd:PublicRes></ofd:CommonData>' +
+          '<ofd:Pages><ofd:Page BaseLoc="Pages/Page_0/Content.xml"/></ofd:Pages></ofd:Document>'
+      )
+    },
+    {
+      name: 'Doc_0/DocumentRes.xml',
+      data: utf8(
+        `<?xml version="1.0" encoding="utf-8"?><ofd:Res xmlns:ofd="${OFD_NS}" BaseLoc="Res">` +
+          '<ofd:MultiMedias><ofd:MultiMedia ID="4" Type="Image">' +
+          '<ofd:MediaFile>Image_4.JPEG</ofd:MediaFile></ofd:MultiMedia></ofd:MultiMedias></ofd:Res>'
+      )
+    },
+    {
+      name: 'Doc_0/PublicRes.xml',
+      data: utf8(
+        `<?xml version="1.0" encoding="utf-8"?><ofd:Res xmlns:ofd="${OFD_NS}" BaseLoc="Res">` +
+          '<ofd:Fonts><ofd:Font ID="29" FontName="楷体"/></ofd:Fonts></ofd:Res>'
+      )
+    },
+    {
+      name: 'Doc_0/Pages/Page_0/Content.xml',
+      data: utf8(
+        `<?xml version="1.0" encoding="utf-8"?><ofd:Page xmlns:ofd="${OFD_NS}">` +
+          '<ofd:Area><ofd:PhysicalBox>0 0 209.96 296.94</ofd:PhysicalBox></ofd:Area>' +
+          '<ofd:Content><ofd:Layer ID="2">' +
+          // WPS 形态：Boundary 为变换后最终包围盒，CTM 把 [0,1] 单位盒缩放到该盒
+          '<ofd:ImageObject ID="3" Boundary="31.743 25.6484 145.3829 109.0266" CTM="145.3829 0 0 109.0266 0 0" ResourceID="4"/>' +
+          '<ofd:TextObject ID="5" Boundary="20 150 100 10" Font="29" Size="3.175">' +
+          '<ofd:TextCode X="0" Y="8">WPS 导出</ofd:TextCode>' +
+          '</ofd:TextObject></ofd:Layer></ofd:Content></ofd:Page>'
+      )
+    },
+    // 条目目录与文档目录大小写不一致（WPS 实证）
+    { name: 'DOC_0/Res/Image_4.JPEG', data: PNG_MAGIC }
+  ])
+  const zip = openOfdZip(data)
+  return { zip, container: await parseOfdContainer(zip) }
+}
+
+describe('真实产出形态渲染（WPS 导出）', () => {
+  it('MediaFile 媒体按 BaseLoc 定位，缩放 CTM 下图片内容盒反推为单位盒', async () => {
+    const { zip, container } = await buildWpsStyleFixture()
+    const svg = await pageToSvg(zip, container, 0, 0)
+
+    // 页内 Area/PhysicalBox 覆盖文档默认尺寸
+    expect(svg).toContain('viewBox="0 0 209.96 296.94"')
+    expect(svg).toContain('transform="translate(31.743 25.6484) matrix(145.3829 0 0 109.0266 0 0)"')
+    expect(svg).toContain('<image width="1" height="1" href="data:image/png;base64,')
+  })
+
+  it('Font/Size 简写生效，字体回退取 PublicRes 声明', async () => {
+    const { zip, container } = await buildWpsStyleFixture()
+    const svg = await pageToSvg(zip, container, 0, 0)
+
+    expect(svg).toContain('font-size="3.175" font-family="楷体"')
+    expect(svg).toContain('>WPS 导出</text>')
+  })
+})
+
+// ---- 模板页渲染（数电发票形态）：Tpls/Tpl_n 与页面内容叠加合成 ----
+
+function templateDocumentXml(): string {
+  return (
+    `<?xml version="1.0" encoding="UTF-8"?><ofd:Document xmlns:ofd="${OFD_NS}">` +
+    '<ofd:CommonData><ofd:PageWidth>210</ofd:PageWidth><ofd:PageHeight>140</ofd:PageHeight>' +
+    '<ofd:PublicRes>PublicRes.xml</ofd:PublicRes>' +
+    '<ofd:DocumentRes>DocumentRes.xml</ofd:DocumentRes>' +
+    '<ofd:TemplatePage ID="1" BaseLoc="Tpls/Tpl_0/Content.xml"/></ofd:CommonData>' +
+    '<ofd:Pages><ofd:Page ID="61" BaseLoc="Pages/Page_0/Content.xml"/></ofd:Pages>' +
+    '</ofd:Document>'
+  )
+}
+
+/** 数电发票形态：DrawParam 在 PublicRes，Relative 沿链继承颜色与线宽 */
+function templatePublicResXml(): string {
+  return (
+    `<?xml version="1.0" encoding="UTF-8"?><ofd:Res xmlns:ofd="${OFD_NS}">` +
+    '<ofd:DrawParams>' +
+    '<ofd:DrawParam ID="3" LineWidth="0.25"><ofd:StrokeColor Value="128 0 0" ColorSpace="2"/></ofd:DrawParam>' +
+    '<ofd:DrawParam ID="4" Relative="3"><ofd:FillColor Value="128 0 0" ColorSpace="2"/></ofd:DrawParam>' +
+    '</ofd:DrawParams>' +
+    '<ofd:Fonts><ofd:Font ID="5" FontName="楷体"/></ofd:Fonts>' +
+    '</ofd:Res>'
+  )
+}
+
+/** 模板内容文件：refs 为 Template 引用元素（模板递归引用），位于 Content 之前 */
+function templateContentXml(inner: string, refs = ''): string {
+  return (
+    `<?xml version="1.0" encoding="UTF-8"?><ofd:Page xmlns:ofd="${OFD_NS}">` +
+    refs +
+    `<ofd:Content><ofd:Layer ID="6" DrawParam="4">${inner}</ofd:Layer></ofd:Content>` +
+    '</ofd:Page>'
+  )
+}
+
+const BOX_LINE =
+  '<ofd:PathObject ID="7" Boundary="4.5 29.8 201 0.4">' +
+  '<ofd:AbbreviatedData>M 0 0.2 L 201 0.2</ofd:AbbreviatedData></ofd:PathObject>'
+
+/** 票面框线（无颜色声明，沿图层 DrawParam 继承）+ 栏目标签文本 */
+const TEMPLATE_INNER =
+  BOX_LINE +
+  // 对象显式声明逐属性覆盖 DrawParam 继承值
+  '<ofd:PathObject ID="8" Boundary="4.5 51.8 201 0.4" StrokeColor="0 0 255">' +
+  '<ofd:AbbreviatedData>M 0 0.2 L 201 0.2</ofd:AbbreviatedData></ofd:PathObject>' +
+  '<ofd:TextObject ID="3" Boundary="56 8 90 7.0732" Font="5" Size="7.0732">' +
+  '<ofd:TextCode X="1.061" Y="6.0854">电子发票（增值税专用发票）</ofd:TextCode></ofd:TextObject>'
+
+function invoicePageXml(zOrder: string): string {
+  return (
+    `<?xml version="1.0" encoding="UTF-8"?><ofd:Page xmlns:ofd="${OFD_NS}">` +
+    '<ofd:Area><ofd:PhysicalBox>0 0 210 140</ofd:PhysicalBox></ofd:Area>' +
+    `<ofd:Template TemplateID="1" ZOrder="${zOrder}"/>` +
+    '<ofd:Content><ofd:Layer ID="6948">' +
+    '<ofd:TextObject ID="6922" Boundary="170 10.3 38 5" Font="5" Size="3.175">' +
+    '<ofd:TextCode X="0" Y="3.6414" DeltaX="g 3 1.5875">24112000000048542163</ofd:TextCode>' +
+    '</ofd:TextObject></ofd:Layer></ofd:Content></ofd:Page>'
+  )
+}
+
+async function buildTemplateFixture(pageZOrder = 'Background') {
+  const data = await buildZip([
+    { name: 'OFD.xml', data: utf8(ofdXml()) },
+    { name: 'Doc_0/Document.xml', data: utf8(templateDocumentXml()) },
+    { name: 'Doc_0/DocumentRes.xml', data: utf8(`<ofd:Res xmlns:ofd="${OFD_NS}"/>`) },
+    { name: 'Doc_0/PublicRes.xml', data: utf8(templatePublicResXml()) },
+    { name: 'Doc_0/Tpls/Tpl_0/Content.xml', data: utf8(templateContentXml(TEMPLATE_INNER)) },
+    { name: 'Doc_0/Pages/Page_0/Content.xml', data: utf8(invoicePageXml(pageZOrder)) }
+  ])
+  const zip = openOfdZip(data)
+  return { zip, container: await parseOfdContainer(zip) }
+}
+
+describe('模板页渲染（数电发票形态）', () => {
+  it('背景模板与页面内容叠加合成，框线沿 DrawParam 继承链取色取线宽', async () => {
+    const { zip, container } = await buildTemplateFixture()
+    const svg = await pageToSvg(zip, container, 0, 0)
+
+    // 线宽与描边沿 Relative 链取自 DrawParam 3，填充取自 4
+    expect(svg).toContain(
+      '<path d="M 0 0.2 L 201 0.2" fill="rgb(128 0 0)" stroke="rgb(128 0 0)" stroke-width="0.25"/>'
+    )
+    // 对象显式 StrokeColor 逐属性覆盖继承值，填充仍继承
+    expect(svg).toContain(
+      '<path d="M 0 0.2 L 201 0.2" fill="rgb(128 0 0)" stroke="rgb(0 0 255)" stroke-width="0.25"/>'
+    )
+    expect(svg).toContain('font-size="7.0732" font-family="楷体" fill="rgb(128 0 0)">电子发票')
+    // 压缩写法 DeltaX="g n v" 展开为 n 个步长 v，未覆盖字符自然排布
+    expect(svg).toContain('x="0 1.5875 3.175 4.7625" y="3.6414"')
+    // 模板内容不改变页面尺寸：viewBox 取页内 Area 声明
+    expect(svg).toContain('viewBox="0 0 210 140"')
+  })
+
+  it('ZOrder=Background 的模板内容位于页面内容之下', async () => {
+    const { zip, container } = await buildTemplateFixture()
+    const svg = await pageToSvg(zip, container, 0, 0)
+
+    expect(svg.indexOf('电子发票')).toBeLessThan(svg.indexOf('24112000000048542163'))
+  })
+
+  it('ZOrder=Foreground 的模板内容位于页面内容之上', async () => {
+    const { zip, container } = await buildTemplateFixture('Foreground')
+    const svg = await pageToSvg(zip, container, 0, 0)
+
+    expect(svg.indexOf('24112000000048542163')).toBeLessThan(svg.indexOf('电子发票'))
+  })
+
+  it('模板递归引用按链展开，环引用断开、悬空引用跳过', async () => {
+    const data = await buildZip([
+      { name: 'OFD.xml', data: utf8(ofdXml()) },
+      {
+        name: 'Doc_0/Document.xml',
+        data: utf8(
+          `<?xml version="1.0" encoding="UTF-8"?><ofd:Document xmlns:ofd="${OFD_NS}">` +
+            '<ofd:CommonData>' +
+            '<ofd:TemplatePage ID="1" BaseLoc="Tpls/Tpl_0/Content.xml"/>' +
+            '<ofd:TemplatePage ID="2" BaseLoc="Tpls/Tpl_1/Content.xml"/></ofd:CommonData>' +
+            '<ofd:Pages><ofd:Page BaseLoc="Pages/Page_0"/></ofd:Pages></ofd:Document>'
+        )
+      },
+      // Tpl_0 引用悬空的 9 与 Tpl_1；Tpl_1 回引 Tpl_0 成环
+      {
+        name: 'Doc_0/Tpls/Tpl_0/Content.xml',
+        data: utf8(
+          templateContentXml(
+            '<ofd:TextObject ID="1" Boundary="0 0 10 5"><ofd:TextCode>背景甲</ofd:TextCode></ofd:TextObject>',
+            '<ofd:Template TemplateID="9"/><ofd:Template TemplateID="2"/>'
+          )
+        )
+      },
+      {
+        name: 'Doc_0/Tpls/Tpl_1/Content.xml',
+        data: utf8(
+          templateContentXml(
+            '<ofd:TextObject ID="2" Boundary="0 0 10 5"><ofd:TextCode>背景乙</ofd:TextCode></ofd:TextObject>',
+            '<ofd:Template TemplateID="1"/>'
+          )
+        )
+      },
+      {
+        name: 'Doc_0/Pages/Page_0/Page.xml',
+        data: utf8(
+          `<?xml version="1.0" encoding="UTF-8"?><ofd:Page xmlns:ofd="${OFD_NS}">` +
+            '<ofd:Template TemplateID="1"/>' +
+            '<ofd:Content><ofd:Layer ID="1" Type="body">' +
+            '<ofd:TextObject ID="3" Boundary="0 0 10 5"><ofd:TextCode>页面字</ofd:TextCode></ofd:TextObject>' +
+            '</ofd:Layer></ofd:Content></ofd:Page>'
+        )
+      }
+    ])
+    const zip = openOfdZip(data)
+    const container = await parseOfdContainer(zip)
+    const svg = await pageToSvg(zip, container, 0, 0)
+
+    // 链上两层模板均渲染；环与悬空引用不产生重复内容
+    expect(svg.match(/背景甲/g)).toHaveLength(1)
+    expect(svg.match(/背景乙/g)).toHaveLength(1)
+    // 模板自身引用的内容先于其图层内容
+    expect(svg.indexOf('背景乙')).toBeLessThan(svg.indexOf('背景甲'))
+    expect(svg.indexOf('背景甲')).toBeLessThan(svg.indexOf('页面字'))
+  })
+
+  it('模板与页面同 ID 对象按内容域作用域解析，互不串扰', async () => {
+    const data = await buildZip([
+      { name: 'OFD.xml', data: utf8(ofdXml()) },
+      { name: 'Doc_0/Document.xml', data: utf8(templateDocumentXml()) },
+      { name: 'Doc_0/DocumentRes.xml', data: utf8(`<ofd:Res xmlns:ofd="${OFD_NS}"/>`) },
+      { name: 'Doc_0/PublicRes.xml', data: utf8(templatePublicResXml()) },
+      {
+        name: 'Doc_0/Tpls/Tpl_0/Content.xml',
+        data: utf8(
+          templateContentXml(
+            '<ofd:TextObject ID="s1" Boundary="0 0 10 5"><ofd:TextCode>模板字</ofd:TextCode></ofd:TextObject>' +
+              '<ofd:CompositeObject ID="sc" Boundary="20 0 10 5" ReferenceID="s1"/>'
+          )
+        )
+      },
+      {
+        name: 'Doc_0/Pages/Page_0/Content.xml',
+        data: utf8(
+          `<?xml version="1.0" encoding="UTF-8"?><ofd:Page xmlns:ofd="${OFD_NS}">` +
+            '<ofd:Template TemplateID="1" ZOrder="Background"/>' +
+            '<ofd:Content><ofd:Layer ID="1" Type="body">' +
+            '<ofd:TextObject ID="s1" Boundary="0 100 10 5"><ofd:TextCode>页面字</ofd:TextCode></ofd:TextObject>' +
+            '<ofd:CompositeObject ID="pc" Boundary="0 120 10 5" ReferenceID="s1"/>' +
+            '</ofd:Layer></ofd:Content></ofd:Page>'
+        )
+      }
+    ])
+    const zip = openOfdZip(data)
+    const container = await parseOfdContainer(zip)
+    const svg = await pageToSvg(zip, container, 0, 0)
+
+    // 模板复合对象命中模板自身的 s1，页面复合对象命中页面的 s1
+    expect(svg.match(/模板字/g)).toHaveLength(2)
+    expect(svg.match(/页面字/g)).toHaveLength(2)
   })
 })

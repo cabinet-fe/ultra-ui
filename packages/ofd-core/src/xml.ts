@@ -1,12 +1,16 @@
+import { parseOfdColor } from './color'
+import { parseNumberList } from './ctm'
 import { OfdParseError } from './error'
 import type {
   OfdDocInfo,
   OfdDocResources,
+  OfdDrawParamDecl,
   OfdFontDecl,
   OfdLayerDecl,
   OfdLayerType,
   OfdMediaDecl,
-  OfdPageSize
+  OfdPageSize,
+  OfdTemplateDecl
 } from './types'
 
 // GB/T 33190 未强制命名空间前缀，统一按 localName 匹配，兼容 ofd: 等任意前缀。
@@ -57,10 +61,17 @@ export function parseXml(xml: string, source: string): Document {
   return doc
 }
 
-export function rootElementOf(doc: Document, name: string, source: string): Element {
+export function rootElementOf(
+  doc: Document,
+  names: string | readonly string[],
+  source: string
+): Element {
+  const expected = typeof names === 'string' ? [names] : names
   const root = doc.documentElement
-  if (!root || localNameOf(root) !== name) {
-    throw new OfdParseError('invalid-structure', `${source} 根节点不是 ${name}`)
+  // OFD.xml 根节点实际产出为 'OFD'（大小写各异），按不区分大小写匹配
+  const lowered = expected.map((name) => name.toLowerCase())
+  if (!root || !lowered.includes(localNameOf(root).toLowerCase())) {
+    throw new OfdParseError('invalid-structure', `${source} 根节点不是 ${expected.join(' / ')}`)
   }
   return root
 }
@@ -92,21 +103,33 @@ export function parseOfdRoot(xml: string, source = 'OFD.xml'): OfdRootEntry[] {
 /** Document.xml 解析结果 */
 export interface OfdDocumentModel {
   pageSize: OfdPageSize | null
-  /** DocumentRes@ResLoc，相对文档根目录；未声明为 null */
+  /** DocumentRes 声明路径，相对文档根目录；未声明为 null */
   resLocation: string | null
+  /** PublicRes 声明路径，相对文档根目录；未声明为 null */
+  publicResLocation: string | null
+  /** CommonData 声明的模板页（TemplatePage），按声明顺序 */
+  templates: OfdTemplateDecl[]
   /** Page@BaseLoc 列表，相对文档根目录 */
   pageLocations: string[]
 }
 
-/** 解析 Document.xml：默认页尺寸、公共资源引用、页面树 */
+/** 解析 Document.xml：默认页尺寸、公共资源引用、模板页声明、页面树 */
 export function parseDocumentXml(xml: string, source: string): OfdDocumentModel {
   const root = rootElementOf(parseXml(xml, source), 'Document', source)
   const commonData = firstChildNamed(root, 'CommonData')
-  const resNode = firstChildNamed(root, 'DocumentRes')
   const pages = firstChildNamed(root, 'Pages')
   return {
-    pageSize: commonData ? parsePageSize(commonData) : null,
-    resLocation: resNode ? normalizedText(resNode.getAttribute('ResLoc')) : null,
+    pageSize: commonData
+      ? (parsePageSize(commonData) ?? physicalBoxSize(commonData, 'PageArea'))
+      : null,
+    resLocation: resDeclarationLocation(root, commonData, 'DocumentRes'),
+    publicResLocation: resDeclarationLocation(root, commonData, 'PublicRes'),
+    templates: commonData
+      ? childrenNamed(commonData, 'TemplatePage').map((template) => ({
+          id: template.getAttribute('ID'),
+          location: normalizedText(template.getAttribute('BaseLoc') ?? template.textContent)
+        }))
+      : [],
     pageLocations: pages
       ? childrenNamed(pages, 'Page')
           .map((page) => normalizedText(page.getAttribute('BaseLoc')))
@@ -115,11 +138,35 @@ export function parseDocumentXml(xml: string, source: string): OfdDocumentModel 
   }
 }
 
-/** 解析 DocumentRes.xml：字体与多媒体资源声明 */
+/**
+ * 资源声明路径兼容两种产出形态：声明元素挂在 Document 根或 CommonData 下，
+ * 路径写在 ResLoc 属性或元素文本中（WPS / 数科 / 数电发票产出均为文本形态）。
+ */
+function resDeclarationLocation(
+  root: Element,
+  commonData: Element | null,
+  name: string
+): string | null {
+  const node = firstChildNamed(root, name) ?? (commonData && firstChildNamed(commonData, name))
+  if (!node) return null
+  return normalizedText(node.getAttribute('ResLoc')) ?? normalizedText(node.textContent)
+}
+
+/** 物理盒尺寸兜底（"x y w h" 取宽高）；主流生成器以 PhysicalBox 代替 PageWidth/PageHeight */
+function physicalBoxSize(scope: Element, wrapper: string): OfdPageSize | null {
+  const container = firstChildNamed(scope, wrapper)
+  const box = container ? firstChildNamed(container, 'PhysicalBox') : null
+  const numbers = parseNumberList(box?.textContent ?? null)
+  return numbers.length === 4 ? { width: numbers[2]!, height: numbers[3]! } : null
+}
+
+/** 解析 DocumentRes.xml / PublicRes.xml：字体、多媒体资源与绘制参数声明 */
 export function parseDocumentRes(xml: string, source: string): OfdDocResources {
   const root = rootElementOf(parseXml(xml, source), 'Res', source)
+  const baseLoc = normalizedText(root.getAttribute('BaseLoc'))
   const fonts: OfdFontDecl[] = []
   const medias: OfdMediaDecl[] = []
+  const drawParams: OfdDrawParamDecl[] = []
   for (const group of childrenNamed(root, 'Fonts')) {
     for (const font of childrenNamed(group, 'Font')) {
       const id = font.getAttribute('ID')
@@ -139,12 +186,53 @@ export function parseDocumentRes(xml: string, source: string): OfdDocResources {
         medias.push({
           id,
           type: media.getAttribute('Type'),
-          location: normalizedText(media.getAttribute('ResLoc'))
+          location:
+            normalizedText(media.getAttribute('ResLoc')) ?? mediaFileLocation(baseLoc, media)
         })
       }
     }
   }
-  return { fonts, medias }
+  for (const group of childrenNamed(root, 'DrawParams')) {
+    for (const param of childrenNamed(group, 'DrawParam')) {
+      const id = param.getAttribute('ID')
+      if (id !== null) {
+        drawParams.push({
+          id,
+          lineWidth: parseNumber(param.getAttribute('LineWidth')),
+          relative: normalizedText(param.getAttribute('Relative')),
+          fillColor: declaredColor(param, 'FillColor'),
+          strokeColor: declaredColor(param, 'StrokeColor')
+        })
+      }
+    }
+  }
+  return { fonts, medias, drawParams }
+}
+
+/** DrawParam 子元素颜色：<FillColor Value="128 0 0"/> 按 Value 属性解析 */
+function declaredColor(param: Element, name: string): string | null {
+  return parseOfdColor(firstChildNamed(param, name)?.getAttribute('Value') ?? null)
+}
+
+/** 媒体位置兜底：MediaFile 子元素声明文件名，相对资源声明根的 BaseLoc 解析 */
+function mediaFileLocation(baseLoc: string | null, media: Element): string | null {
+  const file = normalizedText(firstChildNamed(media, 'MediaFile')?.textContent ?? null)
+  return file === null ? null : joinZipPath(baseLoc ?? '', file)
+}
+
+/**
+ * 拼接并规范化容器内路径：去空段与 './'，统一 '/' 分隔（页面定位、图片资源定位共用）。
+ * 段以 '/' 开头时按容器绝对路径处理（个别产出在相对文档根的位置写绝对路径）。
+ */
+export function joinZipPath(...segments: string[]): string {
+  const parts: string[] = []
+  for (const segment of segments) {
+    if (segment.startsWith('/')) parts.length = 0
+    for (const piece of segment.split('/')) {
+      if (piece !== '' && piece !== '.') parts.push(piece)
+    }
+  }
+  return parts.join('/')
 }
 
 /** Page.xml 解析结果 */
@@ -160,7 +248,10 @@ export function parsePageXml(xml: string, source: string): OfdPageModel {
   // 声明上 Layer 挂在 Content 下；个别产出直接挂在 Page 下，这里都兼容
   const layerParent = firstChildNamed(root, 'Content') ?? root
   return {
-    size: commonData ? parsePageSize(commonData) : null,
+    size:
+      (commonData
+        ? (parsePageSize(commonData) ?? physicalBoxSize(commonData, 'PageArea'))
+        : null) ?? physicalBoxSize(root, 'Area'),
     layers: childrenNamed(layerParent, 'Layer').map((layer) => ({
       id: layer.getAttribute('ID'),
       type: parseLayerType(layer.getAttribute('Type'))

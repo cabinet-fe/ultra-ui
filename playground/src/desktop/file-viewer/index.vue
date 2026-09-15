@@ -5,8 +5,10 @@
         <p class="fv-demo__eyebrow">UFileViewer</p>
         <h2 class="fv-demo__title">一个面板，预览所有常用格式</h2>
         <p class="fv-demo__lede">
-          图片 / 视频 / PDF / XLSX / CSV / DOCX / TXT
-          都在这里。点击「打开预览」以全屏模态方式查看，支持 ESC 或点击背景关闭。
+          图片 / 视频 / PDF / XLSX / CSV / DOCX / OFD / TXT
+          都在这里。点击「打开预览」以全屏模态方式查看，支持 ESC 或点击背景关闭。 OFD 由自研
+          @veltra/ofd-core 内核直接解析渲染，下方验收样本集覆盖 文本、图片、路径、CTM
+          变换、签章、多文档与内嵌字体等维度。
         </p>
       </div>
       <div class="fv-demo__actions">
@@ -59,6 +61,7 @@ const sampleTxt =
       '  - PDF  (EmbedPDF)',
       '  - 表格 (@veltra/sheet-core 只读预览)',
       '  - Word (docx-preview)',
+      '  - OFD  (@veltra/ofd-core 自研内核)',
       '  - 纯文本',
       '',
       '切换文件时，上一个预览器实例会被即时销毁，Blob ObjectURL 立即回收。',
@@ -82,6 +85,64 @@ const sampleCsv =
     ].join('\n')
   )
 
+/** OFD 验收样本集：自造 7 个维度 + 开源真实样本（数电发票 / WPS 导出） */
+const ofdSamples: FileViewerItem[] = [
+  {
+    id: 'sample-ofd-text',
+    name: 'OFD样本-纯文本页.ofd',
+    src: new URL('./samples/text-page.ofd', import.meta.url).href,
+    kind: 'ofd'
+  },
+  {
+    id: 'sample-ofd-text-image',
+    name: 'OFD样本-文本图片页.ofd',
+    src: new URL('./samples/text-image-page.ofd', import.meta.url).href,
+    kind: 'ofd'
+  },
+  {
+    id: 'sample-ofd-path-composite',
+    name: 'OFD样本-路径复合对象.ofd',
+    src: new URL('./samples/path-composite-page.ofd', import.meta.url).href,
+    kind: 'ofd'
+  },
+  {
+    id: 'sample-ofd-ctm',
+    name: 'OFD样本-CTM变换对象.ofd',
+    src: new URL('./samples/ctm-transform.ofd', import.meta.url).href,
+    kind: 'ofd'
+  },
+  {
+    id: 'sample-ofd-seal',
+    name: 'OFD样本-签章图.ofd',
+    src: new URL('./samples/seal-stamp.ofd', import.meta.url).href,
+    kind: 'ofd'
+  },
+  {
+    id: 'sample-ofd-multi-doc',
+    name: 'OFD样本-多文档容器.ofd',
+    src: new URL('./samples/multi-document.ofd', import.meta.url).href,
+    kind: 'ofd'
+  },
+  {
+    id: 'sample-ofd-embedded-font',
+    name: 'OFD样本-内嵌TTF字体.ofd',
+    src: new URL('./samples/embedded-ttf.ofd', import.meta.url).href,
+    kind: 'ofd'
+  },
+  {
+    id: 'sample-ofd-invoice',
+    name: '数电发票-2024.ofd',
+    src: new URL('./samples/invoice-2024.ofd', import.meta.url).href,
+    kind: 'ofd'
+  },
+  {
+    id: 'sample-ofd-wps',
+    name: 'WPS导出-图文混排.ofd',
+    src: new URL('./samples/wps-export.ofd', import.meta.url).href,
+    kind: 'ofd'
+  }
+]
+
 const sampleFiles: FileViewerItem[] = [
   {
     id: 'sample-image',
@@ -103,7 +164,8 @@ const sampleFiles: FileViewerItem[] = [
     kind: 'pdf'
   },
   { id: 'sample-csv', name: 'sales-summary.csv', src: sampleCsv, kind: 'sheet' },
-  { id: 'sample-txt', name: 'readme.txt', src: sampleTxt, kind: 'text' }
+  { id: 'sample-txt', name: 'readme.txt', src: sampleTxt, kind: 'text' },
+  ...ofdSamples
 ]
 
 const localFiles = shallowRef<FileViewerItem[]>([])
@@ -149,6 +211,7 @@ function resolveKind(f: FileViewerItem): FileViewerKind {
   if (ext === 'pdf') return 'pdf'
   if (['xlsx', 'xlsm', 'xlsb', 'csv'].includes(ext)) return 'sheet'
   if (ext === 'docx') return 'docx'
+  if (ext === 'ofd') return 'ofd'
   return 'text'
 }
 

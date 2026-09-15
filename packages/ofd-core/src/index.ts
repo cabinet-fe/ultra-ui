@@ -8,10 +8,12 @@ export type {
   OfdDoc,
   OfdDocInfo,
   OfdDocResources,
+  OfdDrawParamDecl,
   OfdFontDecl,
   OfdLayerDecl,
   OfdLayerType,
   OfdMediaDecl,
   OfdPage,
-  OfdPageSize
+  OfdPageSize,
+  OfdTemplateDecl
 } from './types'

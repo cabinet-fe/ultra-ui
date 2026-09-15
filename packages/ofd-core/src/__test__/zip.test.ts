@@ -47,6 +47,14 @@ describe('openOfdZip', () => {
     expect(error.reason).toBe('missing-entry')
   })
 
+  it('条目路径大小写不一致时按不敏感匹配（WPS 产出 Doc_0 / DOC_0 混用）', async () => {
+    const data = utf8('png bytes')
+    const zip = openOfdZip(await buildZip([{ name: 'DOC_0/Res/Image_4.JPEG', data }]))
+
+    expect(zip.has('Doc_0/Res/image_4.jpeg')).toBe(true)
+    expect(await zip.read('Doc_0/RES/Image_4.jpeg')).toEqual(data)
+  })
+
   it('非 ZIP 输入抛 not-zip', async () => {
     const error = await expectParseError(() => openOfdZip(utf8('plain text, not a zip at all')))
     expect(error.reason).toBe('not-zip')
