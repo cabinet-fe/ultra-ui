@@ -40,6 +40,21 @@ $root-name: tip;
     font-size: fn.use-var(font-size, main, $size);
     padding: fn.use-var(gap, $size);
   }
+
+  // 类型配色
+  @each $type, $_ in vars.$color-types {
+    @include m.m(color-#{$type}) {
+      color: fn.use-var(text-color, white);
+
+      &::after {
+        background-color: fn.use-var(color, $type);
+      }
+
+      @include m.bem($root-name, arrow) {
+        background-color: fn.use-var(color, $type);
+      }
+    }
+  }
 }
 
 .#{$root-name}-enter-active,

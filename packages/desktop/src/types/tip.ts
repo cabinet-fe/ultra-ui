@@ -1,14 +1,19 @@
-import type { DeconstructValue } from '@veltra/utils'
+import type { ColorType, DeconstructValue } from '@veltra/utils'
 import type { CSSProperties } from 'vue'
 
 export type TipDirection = 'top' | 'bottom' | 'left' | 'right'
 
 export type TipAlign = 'center' | 'start' | 'end'
 
+/** tip类型 */
+export type TipType = ColorType
+
 /** tip提示组件组件属性 */
 export interface TipProps {
   /** 控制显影 */
   visible?: boolean
+  /** tip类型 */
+  type?: TipType
   /**提示内容 */
   content?: string
   /** 自定义tip样式 */

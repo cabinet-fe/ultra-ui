@@ -26,6 +26,18 @@
       </div>
     </CustomCard>
 
+    <CustomCard title="类型">
+      <u-tip
+        v-for="t in types"
+        :key="t"
+        :type="t"
+        content="提示内容提示内容"
+        style="margin-right: 10px"
+      >
+        <u-button>{{ t }}</u-button>
+      </u-tip>
+    </CustomCard>
+
     <CustomCard title="弹出延时">
       <u-tip content="悬停 500ms 后弹出" :show-delay="500">
         <u-button type="primary" text>延迟 500ms</u-button>
@@ -44,7 +56,7 @@
 </template>
 
 <script setup lang="ts">
-import type { TipAlign, TipDirection } from '@veltra/desktop'
+import type { TipAlign, TipDirection, TipType } from '@veltra/desktop'
 import { shallowRef, useTemplateRef } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'
@@ -52,6 +64,7 @@ import CustomCard from '../card/custom-card.vue'
 const directions = ['top', 'bottom', 'left', 'right'].map((d) => ({ label: d, value: d }))
 const aligns = ['start', 'center', 'end'].map((d) => ({ label: d, value: d }))
 const triggers = ['hover', 'click'].map((d) => ({ label: d, value: d }))
+const types: TipType[] = ['primary', 'info', 'success', 'warning', 'danger']
 
 const content = shallowRef(
   '提示内容提示内容提示内容提示内容提示内容提示内容提示内容提示内容提示内容提示内容提示内容提示内容'

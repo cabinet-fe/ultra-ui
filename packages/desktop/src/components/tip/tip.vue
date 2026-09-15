@@ -55,7 +55,7 @@ const slots = useSlots()
 const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
 const contentClass = computed(() => {
-  const fixed = [cls.e('content'), cls.m(size.value)]
+  const fixed = [cls.e('content'), cls.m(size.value), props.type && cls.m('color-' + props.type)]
   const className = props.class
   if (!Array.isArray(className)) {
     return [...fixed, className]
