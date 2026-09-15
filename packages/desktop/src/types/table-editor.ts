@@ -19,6 +19,12 @@ export interface TableEditorProps extends Omit<TableProps, 'data' | 'columns'> {
   modelValue?: Record<string, any>[]
   /** 表格列 */
   columns?: TableEditorColumn[]
+  /**
+   * 只读模式
+   * @default false
+   * @description 只读下输入控件经插槽 model 收到 readonly: true（值不可修改），操作列与空态「添加」按钮不渲染
+   */
+  readonly?: boolean
 }
 
 /** 表格型编辑器组件定义的事件 */

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { createApp, h, nextTick, shallowRef, ref, type Ref } from 'vue'
 
 import type { TableColumn, TableEditorColumn } from '../../../../types'
+import { UInput } from '../../input'
 import UTableEditor from '../table-editor.vue'
 
 const columns: TableColumn[] = [
@@ -43,7 +44,8 @@ const renderAgeInput = renderInput('age-input')
 function mountTableEditor(
   slots: Record<string, any> = {},
   data: Record<string, any>[] = rows,
-  tableColumns: TableEditorColumn[] = columns
+  tableColumns: TableEditorColumn[] = columns,
+  extraProps: Record<string, any> = {}
 ) {
   const host = document.createElement('div')
   document.body.appendChild(host)
@@ -60,6 +62,7 @@ function mountTableEditor(
           ref: editorRef,
           columns: tableColumns,
           modelValue: model.value,
+          ...extraProps,
           'onUpdate:modelValue': (value: Record<string, any>[]) => {
             model.value = value
             emitted.push(value)
@@ -218,6 +221,96 @@ describe('UTableEditor 行操作', () => {
       click(addBtn!)
       await nextTick()
       expect(emitted.at(-1)).toEqual([{}])
+    } finally {
+      unmount()
+    }
+  })
+})
+
+describe('UTableEditor 只读模式', () => {
+  it('输入控件经插槽 model 收到 readonly', async () => {
+    const { getDataRows, unmount } = mountTableEditor(
+      { 'column:name': renderNameInput },
+      rows.map((row) => ({ ...row })),
+      columns,
+      { readonly: true }
+    )
+
+    try {
+      await nextTick()
+      const inputs = getDataRows().map((tr) => tr.querySelector('input')!)
+      expect(inputs).toHaveLength(2)
+      // readonly 经插槽 model 注入到输入控件
+      for (const input of inputs) expect(input.hasAttribute('readonly')).toBe(true)
+    } finally {
+      unmount()
+    }
+  })
+
+  it('库输入控件（u-input）只读下按展示态渲染值，不可修改', async () => {
+    const { getDataRows, emitted, unmount } = mountTableEditor(
+      { 'column:name': (scope: any) => h(UInput, scope.model) },
+      rows.map((row) => ({ ...row })),
+      columns,
+      { readonly: true }
+    )
+
+    try {
+      await nextTick()
+      const [row0] = getDataRows()
+      // u-input 收到 readonly 后按只读展示态渲染值，不再是可编辑控件
+      expect(row0.querySelector('input')).toBeFalsy()
+      expect(row0.textContent).toContain('Alice')
+      expect(emitted).toHaveLength(0)
+    } finally {
+      unmount()
+    }
+  })
+
+  it('不渲染操作列：无「操作」表头与单元格操作按钮', async () => {
+    const { host, unmount } = mountTableEditor({}, rows, columns, { readonly: true })
+
+    try {
+      await nextTick()
+      expect(findHeader(host, '操作')).toBeFalsy()
+      expect(host.querySelector('[title="移除"]')).toBeFalsy()
+      expect(host.querySelector('[title="新增到下一行"]')).toBeFalsy()
+      expect(host.querySelector('[title="复制到下一行"]')).toBeFalsy()
+    } finally {
+      unmount()
+    }
+  })
+
+  it('空表时不渲染「添加」按钮', async () => {
+    const { host, emitted, unmount } = mountTableEditor({}, [], columns, { readonly: true })
+
+    try {
+      await nextTick()
+      const addBtn = [...host.querySelectorAll('button')].find((b) =>
+        b.textContent?.includes('添加')
+      )
+      expect(addBtn).toBeFalsy()
+      expect(emitted).toHaveLength(0)
+    } finally {
+      unmount()
+    }
+  })
+
+  it('无操作列标记下键盘导航仍识别数据行', async () => {
+    const { getDataRows, unmount } = mountTableEditor(
+      { 'column:name': renderNameInput, 'column:age': renderAgeInput },
+      rows,
+      columns,
+      { readonly: true }
+    )
+
+    try {
+      await nextTick()
+      const [row0] = getDataRows()
+
+      keydown(row0.querySelector('[data-test="name-input"]')!, 'Tab')
+      await nextTick()
+      expect(document.activeElement).toBe(row0.querySelector('[data-test="age-input"]'))
     } finally {
       unmount()
     }

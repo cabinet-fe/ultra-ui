@@ -10,7 +10,7 @@
     @keydown="handleKeydown"
   >
     <template #column:__operation="{ row }">
-      <div :class="cls.e('operations')" :data-editor-row="row.uid">
+      <div :class="cls.e('operations')">
         <u-button
           text
           size="small"
@@ -36,7 +36,7 @@
           text
           size="small"
           type="primary"
-          v-if="!modelValue.length"
+          v-if="!readonly && !modelValue.length"
           :icon="Plus"
           @click="handleCreate()"
           >添加</u-button
@@ -83,7 +83,7 @@ defineOptions({ name: 'UTableEditor' })
 
 defineSlots<{ [key: `column:${string}`]: (props: TableColumnSlotsScope) => any }>()
 
-const { columns = [], modelValue = [] } = defineProps<TableEditorProps>()
+const { columns = [], modelValue = [], readonly = false } = defineProps<TableEditorProps>()
 const emit = defineEmits<TableEditorEmits>()
 
 const cls = bem('table-editor')
@@ -99,9 +99,9 @@ const actionColumn: TableColumn = {
   resizable: false
 }
 
-// 内部列定义：用户列之后追加内置操作列
+// 内部列定义：非只读时在用户列之后追加内置操作列，只读下不渲染操作列
 const internalColumns = computed(() => {
-  return [...columns, actionColumn]
+  return readonly ? columns : [...columns, actionColumn]
 })
 
 // --- 录入导航（新增聚焦 / Enter、Tab 跨格移动） ---
@@ -116,12 +116,16 @@ const editableIndexes = computed(() =>
   columns.flatMap((column, i) => (slots[`column:${column.key}`] ? [i] : []))
 )
 
-/** 表内全部数据行元素，按行序排列；以操作列的 data-editor-row 标记识别 */
+/**
+ * 表内全部数据行元素，按行序排列。
+ * 数据行 = 主体 tbody 的直系 tr 且单元格多于一个：序号列常驻使数据行至少两格，
+ * 展开行 / 空态行 / 虚拟滚动占位行都是单格 colspan 行；不依赖操作列标记，只读下同样成立。
+ */
 function findDataRows(): HTMLTableRowElement[] {
   const root = tableRef.value?.el
   if (!root) return []
-  return Array.from(root.querySelectorAll('tr')).filter((tr) =>
-    tr.querySelector('[data-editor-row]')
+  return Array.from(root.querySelectorAll<HTMLTableRowElement>('tbody.u-table__body > tr')).filter(
+    (tr) => tr.cells.length > 1
   )
 }
 
@@ -179,8 +183,8 @@ function handleKeydown(e: KeyboardEvent) {
   if (!(target instanceof Element) || !target.matches(EDITABLE_SELECTOR)) return
   const td = target.closest('td')
   const tr = td?.closest('tr')
-  // 与 findDataRows() 一致，以操作列 data-editor-row 标记识别数据行
-  if (!td || !tr || !tr.querySelector('[data-editor-row]')) return
+  // 与 findDataRows() 一致识别数据行，展开行内的控件不参与录入导航
+  if (!td || !tr || !findDataRows().includes(tr)) return
   e.preventDefault()
   const dir: 1 | -1 = e.key === 'Tab' && e.shiftKey ? -1 : 1
   const next = findNavTarget(td, dir)
@@ -366,6 +370,7 @@ function renderCell(key: string, ctx: TableColumnSlotsScope): RenderReturn {
 /**
  * 单元格编辑 model：值先原地写回行数据（行节点与 DOM 得以复用，输入不丢焦点），
  * 再以浅拷贝数组经 update:modelValue 通知宿主，维持 v-model 契约。
+ * 只读下注入 readonly: true 且不提供写回通道，值不可修改；
  * 列配置了 rules 时，控件的 change 事件（如失焦提交）触发单元格级校验，输入过程不校验。
  */
 function createCellModel(ctx: TableColumnSlotsScope) {
@@ -374,10 +379,14 @@ function createCellModel(ctx: TableColumnSlotsScope) {
   const rules = (column.data as TableEditorColumn).rules
   return {
     modelValue: val,
-    'onUpdate:modelValue': (value: any) => {
-      rowData[key] = value
-      emit('update:modelValue', [...modelValue])
-    },
+    ...(readonly
+      ? { readonly: true }
+      : {
+          'onUpdate:modelValue': (value: any) => {
+            rowData[key] = value
+            emit('update:modelValue', [...modelValue])
+          }
+        }),
     ...(rules ? { onChange: () => void validateCell(rowData, key, rules) } : {})
   }
 }
