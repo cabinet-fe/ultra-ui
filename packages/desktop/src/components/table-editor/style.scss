@@ -10,8 +10,22 @@ $root-name: table-editor;
     @include m.bem(table, cell) {
       padding: 2px;
 
+      // 行高锚定编辑态输入控件的高度，文本态撑到同高：
+      // td 的 height 即行的最小高度，行进入/退出编辑态时行高不变，避免悬停扫过时整表抖动
+      // 4px = 单元格上下 padding；1px = u-table 行分隔线（border-bottom，border-box 计入高度）
+      // 注意：主题 token 只有带尺寸后缀的变量（--u-form-component-height-default 等），
+      // 这里锚定 default 尺寸，与单元格内默认尺寸的输入控件对齐
+      height: calc(#{fn.use-var(form-component-height, default)} + 4px + 1px);
+
       [class^='u-input'] {
         box-shadow: none;
+      }
+
+      // 单元格内行内级控件（inline-flex 输入框、tip 触发器）参与基线对齐
+      // 会在行盒下方留出 descender 空隙，顶对齐抵消，保证编辑态行高恰好锚定值
+      & > [class^='u-'],
+      [class^='u-input'] {
+        vertical-align: top;
       }
 
       & > [class^='u-'] {
