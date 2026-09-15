@@ -45,7 +45,7 @@
 
 <script lang="ts" setup>
 import type { TableEditorColumn, TableEditorExposed } from '@veltra/desktop'
-import { shallowRef, useTemplateRef } from 'vue'
+import { ref, shallowRef, useTemplateRef } from 'vue'
 
 const columns: TableEditorColumn[] = [
   { key: 'name', name: '姓名', width: 220, rules: { required: '请输入姓名' } },
@@ -69,7 +69,7 @@ const data = shallowRef([
 const editor = useTemplateRef<TableEditorExposed>('editor')
 const validateResult = shallowRef<boolean | null>(null)
 // 只读开关：切换对比编辑与只读形态（控件只读、操作列与空态「添加」按钮隐藏）
-const readonly = shallowRef(false)
+const readonly = ref(false)
 
 async function handleValidate() {
   validateResult.value = (await editor.value?.validate()) ?? false
