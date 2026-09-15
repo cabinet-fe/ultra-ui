@@ -1,14 +1,19 @@
 <template>
   <u-table
     ref="table"
+    v-bind="tableProps"
     :columns="internalColumns"
     :data="modelValue || []"
     :class="cls.b"
     :stripe="false"
     show-index
-    :slots="cellSlots"
     @keydown="handleKeydown"
   >
+    <!-- 其余插槽（row:expand / foot / body / append 等）透传给 u-table；column:*、header:* 与 empty 由组件接管 -->
+    <template v-for="name in passSlotNames" :key="name" #[name]="scope">
+      <slot :name="name" v-bind="scope" />
+    </template>
+
     <template #column:__operation="{ row }">
       <div :class="cls.e('operations')">
         <u-button
@@ -47,6 +52,7 @@
 </template>
 
 <script lang="ts" setup>
+import { o } from '@cat-kit/core'
 import { Copy, Minus, Plus, Warning } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import {
@@ -68,6 +74,7 @@ import type {
   _TableEditorExposed,
   TableExposed,
   TableColumn,
+  TableColumnRenderContext,
   TableColumnSlotsScope,
   TableColumnNode,
   RenderReturn
@@ -81,10 +88,51 @@ import { UTip } from '../tip'
 
 defineOptions({ name: 'UTableEditor' })
 
-defineSlots<{ [key: `column:${string}`]: (props: TableColumnSlotsScope) => any }>()
+defineSlots<{
+  [key: `column:${string}`]: (props: TableColumnSlotsScope) => any
+  [key: `header:${string}`]: (props: { column: TableColumnNode }) => any
+}>()
 
-const { columns = [], modelValue = [], readonly = false } = defineProps<TableEditorProps>()
+const {
+  columns = [],
+  modelValue = [],
+  readonly = false,
+  size,
+  checked,
+  selected,
+  checkable,
+  selectable,
+  tree,
+  mergeCell,
+  current,
+  highlightCurrent,
+  rowKey,
+  border,
+  virtualThreshold,
+  expandable,
+  defaultExpandAll,
+  textEllipsis
+} = defineProps<TableEditorProps>()
 const emit = defineEmits<TableEditorEmits>()
+
+/** 转发给 u-table 的表格属性。columns / data / slots / stripe / showIndex 由编辑器接管，readonly 是编辑器自身属性；模板中写在 v-bind 之后的绑定覆盖这里的值 */
+const tableProps = computed(() => ({
+  size,
+  checked,
+  selected,
+  checkable,
+  selectable,
+  tree,
+  mergeCell,
+  current,
+  highlightCurrent,
+  rowKey,
+  border,
+  virtualThreshold,
+  expandable,
+  defaultExpandAll,
+  textEllipsis
+}))
 
 const cls = bem('table-editor')
 
@@ -99,10 +147,29 @@ const actionColumn: TableColumn = {
   resizable: false
 }
 
-// 内部列定义：非只读时在用户列之后追加内置操作列，只读下不渲染操作列
-const internalColumns = computed(() => {
-  return readonly ? columns : [...columns, actionColumn]
+/**
+ * 内部列定义：单元格与表头渲染挂在列的 render / nameRender 上（用户列自带的优先），
+ * 非只读时在用户列之后追加内置操作列，只读下不渲染操作列。
+ * 走 u-table 的列渲染通道而非 slots 代理：列数组随 readonly / columns 变化整体重建，
+ * 单元格内容跟着重算，不会出现插槽查找过期导致单元格滞留在纯文本的问题。
+ * 列 key 带上只读态后缀：u-table 行内单元格在 props 值相等时可能跳过子组件补丁，
+ * 只读切换改用挂载键直接重挂单元格，确保控件在编辑/只读形态间可靠切换。
+ */
+const internalColumns = computed<TableColumn[]>(() => {
+  const list = columns.map((column) => ({
+    ...column,
+    key: `${column.key}${readonly ? ':ro' : ''}`,
+    render: column.render ?? ((ctx: TableColumnRenderContext) => editCell(column, ctx)),
+    nameRender:
+      column.nameRender ?? ((ctx: { column: TableColumnNode }) => renderHeader(column, ctx))
+  }))
+  return readonly ? list : [...list, actionColumn]
 })
+
+/** 透传给 u-table 的插槽名：column:* / header:* / empty 由组件内部接管，其余（row:expand 等）透传 */
+const passSlotNames = Object.keys(slots).filter(
+  (name) => !name.startsWith('column:') && !name.startsWith('header:') && name !== 'empty'
+)
 
 // --- 录入导航（新增聚焦 / Enter、Tab 跨格移动） ---
 
@@ -296,51 +363,58 @@ const columnErrors = computed(() => {
 
 // --- 单元格渲染 ---
 
+/** 声明了 `#column:key` 插槽的列调用编辑插槽（注入 model），未声明的渲染字段原始值 */
+function editCell(column: TableEditorColumn, ctx: TableColumnRenderContext): RenderReturn {
+  const editSlot = slots[`column:${column.key}`]
+  // 内部列 key 带只读态后缀，u-table 按 key 取到的 val 失效，这里按原始列 key 重取
+  const val = o(ctx.rowData).get(column.key)
+  if (!editSlot) return val
+  const scope = { ...ctx, val }
+  return editSlot({ ...scope, model: createCellModel(column, scope) })
+}
+
 /**
- * 转交给 u-table 的插槽代理：
- * - 配置列的 `column:key` 经 renderCell 中转：声明了插槽的列常驻调用编辑插槽，
- *   未声明的列渲染字段原始值；
- * - 配置列的 `header:key` 经 renderHeader 中转：required 追加红星，
- *   该列存在未通过项时文字标红并追加感叹号图标（气泡展示各行错误明细）；
- * - 其余插槽（row:expand / empty 等）原样透传。
- * 代理直接包在实时 slots 上，插槽增减无需维护副本失效。
+ * 单元格编辑 model：值先原地写回行数据（行节点与 DOM 得以复用，输入不丢焦点），
+ * 再以浅拷贝数组经 update:modelValue 通知宿主，维持 v-model 契约。
+ * 只读下注入 readonly: true 且不提供写回通道，值不可修改；
+ * 列配置了 rules 时，控件的 change 事件（如失焦提交）触发单元格级校验，输入过程不校验。
  */
-const cellSlots = new Proxy(slots, {
-  get(target, prop) {
-    if (typeof prop === 'string' && prop.startsWith('column:') && prop !== 'column:__operation') {
-      const key = prop.slice('column:'.length)
-      if (columns.some((item) => item.key === key)) {
-        return (ctx: TableColumnSlotsScope) => renderCell(key, ctx)
-      }
-    }
-
-    if (typeof prop === 'string' && prop.startsWith('header:')) {
-      const key = prop.slice('header:'.length)
-      const column = columns.find((item) => item.key === key)
-      if (column) return (ctx: { column: TableColumnNode }) => renderHeader(key, column, ctx)
-    }
-
-    return Reflect.get(target, prop)
+function createCellModel(column: TableEditorColumn, ctx: TableColumnRenderContext) {
+  const { rowData, val } = ctx
+  const key = column.key
+  const rules = column.rules
+  return {
+    modelValue: val,
+    ...(readonly
+      ? { readonly: true }
+      : {
+          'onUpdate:modelValue': (value: any) => {
+            rowData[key] = value
+            emit('update:modelValue', [...modelValue])
+          }
+        }),
+    ...(rules ? { onChange: () => void validateCell(rowData, key, rules) } : {})
   }
-})
+}
 
 /**
  * 表头渲染：required 列表头追加红星；该列存在未通过项时文字标红并追加
- * 感叹号图标，悬停经 UTip 气泡展示各行错误明细。
+ * 感叹号图标，悬停经 UTip 气泡展示各行错误明细；用户声明了 `#header:key`
+ * 插槽时以插槽内容替代列名。
  * 渲染函数内读取 columnErrors 建立响应依赖，错误出现/消失即时更新表头。
  */
-function renderHeader(key: string, column: TableEditorColumn, ctx: { column: TableColumnNode }) {
-  const messages = columnErrors.value.get(key)
+function renderHeader(column: TableEditorColumn, ctx: { column: TableColumnNode }) {
+  const messages = columnErrors.value.get(column.key)
   const nodes = [
     h(
       'span',
       { class: [cls.e('header-text'), bem.is('error', !!messages?.length)] },
-      slots[`header:${key}`]?.(ctx) ?? column.name
+      slots[`header:${column.key}`]?.(ctx) ?? column.name
     )
   ]
 
   if (column.rules?.required) {
-    nodes.push(h('span', { class: cls.e('required-mark'), 'aria-hidden': 'true' }, '*'))
+    nodes.unshift(h('span', { class: cls.e('required-mark'), 'aria-hidden': 'true' }, '*'))
   }
 
   if (messages?.length) {
@@ -358,37 +432,6 @@ function renderHeader(key: string, column: TableEditorColumn, ctx: { column: Tab
   }
 
   return nodes
-}
-
-/** 声明了 `#column:key` 插槽的列常驻调用编辑插槽，未声明的列渲染字段原始值 */
-function renderCell(key: string, ctx: TableColumnSlotsScope): RenderReturn {
-  const editSlot = slots[`column:${key}`]
-  if (!editSlot) return ctx.val
-  return editSlot({ ...ctx, model: createCellModel(ctx) })
-}
-
-/**
- * 单元格编辑 model：值先原地写回行数据（行节点与 DOM 得以复用，输入不丢焦点），
- * 再以浅拷贝数组经 update:modelValue 通知宿主，维持 v-model 契约。
- * 只读下注入 readonly: true 且不提供写回通道，值不可修改；
- * 列配置了 rules 时，控件的 change 事件（如失焦提交）触发单元格级校验，输入过程不校验。
- */
-function createCellModel(ctx: TableColumnSlotsScope) {
-  const { rowData, column, val } = ctx
-  const key = column.key
-  const rules = (column.data as TableEditorColumn).rules
-  return {
-    modelValue: val,
-    ...(readonly
-      ? { readonly: true }
-      : {
-          'onUpdate:modelValue': (value: any) => {
-            rowData[key] = value
-            emit('update:modelValue', [...modelValue])
-          }
-        }),
-    ...(rules ? { onChange: () => void validateCell(rowData, key, rules) } : {})
-  }
 }
 
 async function handleCreate(index?: number) {

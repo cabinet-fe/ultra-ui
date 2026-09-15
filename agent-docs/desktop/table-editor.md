@@ -364,6 +364,7 @@ const columns = defineTableColumns([
 > - `UTableEditor` 内部就是 `UTable`：`data` 属性不存在，行数组用 `v-model`（`modelValue`）绑定；`stripe` / `showIndex` 被内部覆盖，传入不生效。
 > - 禁止在 `columns` 里定义 `key: '__operation'` 的列，操作列 key 固定为 `__operation`，重复会导致渲染冲突。
 > - `readonly: true` 时：插槽 `model` 携带 `readonly: true` 且不提供写回通道，输入控件值不可修改；操作列（表头与增删复制按钮）与空态「添加」按钮不渲染。校验与键盘导航规则不变，只是控件只读后无可编辑输入。
+> - `readonly` 可随时切换，切换时全部单元格重挂载（值不丢，焦点不保留）；只读态插槽作用域与 `cell-click` 回调里的 `column.key` 带 `:ro` 后缀（如 `name:ro`），按列 key 匹配的逻辑要同时兼容两种形态。
 > - 单元格编辑与增删复制行都触发 `update:modelValue`，payload 是浅拷贝新数组（行对象保持原引用）。监听单元格变化监听 `update:modelValue` 即可，不需要对 `list` 深度 `watch`。
 > - 列校验是懒校验：单元格级只在控件 `change` 事件（如失焦提交）触发，输入过程不校验；`validate()` 整表校验自上而下逐行，某行未通过即停止其后的行。错误只在表头呈现（标红 + 感叹号气泡行号明细），单元格内无错误样式，也没有程序化读取错误明细的 API。
 > - 「复制」用 `JSON` 深拷贝，行数据中的函数、`undefined` 字段、`Date` 对象会丢失；需要保真复制时不要用内置复制按钮，改用 `UTable` 自定义操作列。

@@ -3,14 +3,6 @@
     <u-card>
       <u-card-header>行内编辑与校验</u-card-header>
       <u-card-content>
-        <ul class="demo-desc">
-          <li>输入控件常驻渲染，无文本态 / 编辑态切换；操作列按钮常显</li>
-          <li>编辑单元格内按 Enter / Tab 跳到下一个可编辑单元格（Shift+Tab 反向，行末自动换行）</li>
-          <li>经「新增到下一行 / 复制到下一行」或空态「添加」后，自动聚焦新行第一个可编辑单元格</li>
-          <li>某列存在未通过项时，表头文字标红并出现感叹号，悬停图标可查看各行错误明细</li>
-          <li>开启只读后输入控件只读（值不可修改），操作列与空态「添加」按钮不渲染</li>
-        </ul>
-
         <u-table-editor ref="editor" :columns="columns" v-model="data" :readonly="readonly">
           <template #column:name="{ model }">
             <u-input v-bind="model" placeholder="请输入姓名" />
@@ -26,17 +18,6 @@
         <div class="demo-toolbar">
           <u-switch v-model="readonly" active-text="只读" inactive-text="编辑" />
           <u-button type="primary" @click="handleValidate">校验全表</u-button>
-          <span v-if="validateResult !== null" :class="validateResult ? 'demo-ok' : 'demo-fail'">
-            {{ validateResult ? '校验通过' : '存在未通过项，请见表头标红列（悬停感叹号查看明细）' }}
-          </span>
-
-          <u-tip style="margin-left: auto">
-            <u-button text>查看数据</u-button>
-
-            <template #content>
-              <pre class="demo-data">{{ JSON.stringify(data, null, 2) }}</pre>
-            </template>
-          </u-tip>
         </div>
       </u-card-content>
     </u-card>
