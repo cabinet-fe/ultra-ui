@@ -28,7 +28,7 @@ const focusout = (el: Element) => el.dispatchEvent(new FocusEvent('focusout', { 
 const keydown = (el: Element, key: string, shiftKey = false) =>
   el.dispatchEvent(new KeyboardEvent('keydown', { key, shiftKey, bubbles: true }))
 
-/** 编辑态插槽工厂：原生 input 展开编辑态 model（含 change 校验钩子）并绑定值 */
+/** 编辑列插槽工厂：原生 input 展开插槽 model（含 change 校验钩子）并绑定值 */
 const renderInput = (testId: string) => (scope: any) =>
   h('input', {
     ...scope.model,
@@ -39,10 +39,6 @@ const renderInput = (testId: string) => (scope: any) =>
 
 const renderNameInput = renderInput('name-input')
 const renderAgeInput = renderInput('age-input')
-
-/** 文本态插槽 */
-const renderNameText = (scope: any) => h('span', { 'data-test': 'name-text' }, `NAME:${scope.val}`)
-const renderCityText = (scope: any) => h('span', { 'data-test': 'city-text' }, `CITY:${scope.val}`)
 
 function mountTableEditor(
   slots: Record<string, any> = {},
@@ -92,95 +88,67 @@ function mountTableEditor(
   }
 }
 
-describe('UTableEditor 单元格双态渲染', () => {
-  it('初始渲染为纯文本，DOM 中不挂载编辑组件', async () => {
+describe('UTableEditor 单元格常驻渲染', () => {
+  it('初始渲染即挂载编辑控件，未声明插槽的列渲染字段原始值', async () => {
     const { host, getDataRows, unmount } = mountTableEditor({
       'column:name': renderNameInput,
-      'text:name': renderNameText,
-      'text:city': renderCityText
+      'column:age': renderAgeInput
     })
 
     try {
       await nextTick()
-      expect(host.querySelectorAll('[data-test="name-input"]')).toHaveLength(0)
+      // 每个数据行的编辑控件初始即挂载
+      expect(host.querySelectorAll('[data-test="name-input"]')).toHaveLength(2)
+      expect(host.querySelectorAll('[data-test="age-input"]')).toHaveLength(2)
 
       const [row0] = getDataRows()
-      // 未提供 #text:key 的列渲染字段原始值
-      expect(row0.textContent).toContain('18')
-      // #text:key 覆盖文本态渲染
-      expect(row0.querySelector('[data-test="name-text"]')?.textContent).toBe('NAME:Alice')
-      expect(row0.querySelector('[data-test="city-text"]')?.textContent).toBe('CITY:杭州')
+      // 未声明 #column:key 的列渲染字段原始值
+      expect(row0.textContent).toContain('杭州')
     } finally {
       unmount()
     }
   })
 
-  it('悬停行挂载编辑插槽，未声明插槽的列与其它行保持文本', async () => {
+  it('悬停移入/移出行不切换渲染，编辑控件保持挂载', async () => {
+    const { getRoot, getDataRows, unmount } = mountTableEditor({ 'column:name': renderNameInput })
+
+    try {
+      await nextTick()
+      const [row0] = getDataRows()
+
+      mouseover(row0)
+      await nextTick()
+      expect(row0.querySelector('[data-test="name-input"]')).toBeTruthy()
+
+      getRoot().dispatchEvent(new MouseEvent('mouseleave'))
+      await nextTick()
+      expect(row0.querySelector('[data-test="name-input"]')).toBeTruthy()
+    } finally {
+      unmount()
+    }
+  })
+
+  it('行内聚焦/失焦不切换渲染，编辑控件保持挂载', async () => {
     const { getDataRows, unmount } = mountTableEditor({ 'column:name': renderNameInput })
 
     try {
       await nextTick()
-      const [row0, row1] = getDataRows()
-
-      mouseover(row0)
-      await nextTick()
-
-      expect(row0.querySelector('[data-test="name-input"]')).toBeTruthy()
-      expect(row1.querySelector('[data-test="name-input"]')).toBeFalsy()
-      expect(row1.textContent).toContain('Bob')
-      // 未声明 #column:key 的列始终文本渲染
-      expect(row0.textContent).toContain('18')
-    } finally {
-      unmount()
-    }
-  })
-
-  it('鼠标移出后卸载编辑组件并恢复文本', async () => {
-    const { getRoot, getDataRows, unmount } = mountTableEditor({ 'column:name': renderNameInput })
-
-    try {
-      await nextTick()
       const [row0] = getDataRows()
 
-      mouseover(row0)
-      await nextTick()
-      expect(row0.querySelector('[data-test="name-input"]')).toBeTruthy()
-
-      getRoot().dispatchEvent(new MouseEvent('mouseleave'))
-      await nextTick()
-      expect(row0.querySelector('[data-test="name-input"]')).toBeFalsy()
-      expect(row0.textContent).toContain('Alice')
-    } finally {
-      unmount()
-    }
-  })
-
-  it('行内聚焦时移出不卸载，失焦后恢复文本', async () => {
-    const { getRoot, getDataRows, unmount } = mountTableEditor({ 'column:name': renderNameInput })
-
-    try {
-      await nextTick()
-      const [row0] = getDataRows()
-
-      mouseover(row0)
-      await nextTick()
       const input = row0.querySelector('input')!
       focusin(input)
-
-      getRoot().dispatchEvent(new MouseEvent('mouseleave'))
       await nextTick()
       expect(row0.querySelector('[data-test="name-input"]')).toBeTruthy()
 
       focusout(input)
       await nextTick()
-      expect(row0.querySelector('[data-test="name-input"]')).toBeFalsy()
-      expect(row0.textContent).toContain('Alice')
+      expect(row0.querySelector('[data-test="name-input"]')).toBeTruthy()
     } finally {
       unmount()
     }
   })
 
-  it('编辑态输入经 update:modelValue 写回，且不因数据回流丢焦点', async () => {
+  it('编辑输入经 update:modelValue 写回，且不因数据回流丢焦点', async () => {
     // 用独立副本，编辑写回的是行对象本身，避免污染模块级共享数据
     const { getDataRows, emitted, unmount } = mountTableEditor(
       { 'column:name': renderNameInput },
@@ -191,22 +159,24 @@ describe('UTableEditor 单元格双态渲染', () => {
       await nextTick()
       const [row0] = getDataRows()
 
-      mouseover(row0)
-      await nextTick()
-
       const input = row0.querySelector('input')!
+      input.focus()
       input.value = 'Alicia'
       input.dispatchEvent(new Event('input', { bubbles: true }))
       await nextTick()
       await nextTick()
 
       expect(emitted.at(-1)![0].name).toBe('Alicia')
-      expect(row0.querySelector('[data-test="name-input"]')).toBeTruthy()
+      expect(document.activeElement).toBe(input)
     } finally {
       unmount()
     }
   })
 })
+
+/** 按列名查找表头单元格 */
+const findHeader = (host: Element, name: string) =>
+  [...host.querySelectorAll('th')].find((th) => th.textContent?.includes(name))
 
 describe('UTableEditor 行操作', () => {
   it('复制/新增到下一行/删除经 update:modelValue 生效', async () => {
@@ -255,9 +225,9 @@ describe('UTableEditor 行操作', () => {
 })
 
 describe('UTableEditor 按列校验', () => {
-  it('编辑列 change 时触发校验，输入（update）过程不校验，单元格无 tip 气泡', async () => {
+  it('编辑列 change 时触发校验，输入（update）过程不校验；错误见表头列级指示', async () => {
     // 用独立副本，编辑写回的是行对象本身，避免污染模块级共享数据
-    const { getDataRows, unmount } = mountTableEditor(
+    const { host, getDataRows, unmount } = mountTableEditor(
       { 'column:name': renderNameInput },
       rows.map((row) => ({ ...row })),
       ruleColumns
@@ -266,29 +236,25 @@ describe('UTableEditor 按列校验', () => {
     try {
       await nextTick()
       const [row0] = getDataRows()
+      const headerText = () =>
+        findHeader(host, '姓名')?.querySelector('.u-table-editor__header-text')
 
-      mouseover(row0)
-      await nextTick()
-
-      // 输入过程（input 事件）不触发校验：清空后无错误标识
+      // 输入过程（input 事件）不触发校验：清空后表头无错误指示
       const input = row0.querySelector('input')!
       input.value = ''
       input.dispatchEvent(new Event('input', { bubbles: true }))
       await nextTick()
       await nextTick()
-      expect(row0.querySelector('.u-table-editor__cell-error')).toBeFalsy()
+      expect(headerText()?.className).not.toContain('is-error')
+      expect(findHeader(host, '姓名')?.querySelector('.u-table-editor__header-icon')).toBeFalsy()
 
-      // change 事件（如失焦提交）触发校验，错误标识出现
+      // change 事件（如失焦提交）触发校验：该列表头出现错误指示，单元格自身无错误样式
       input.dispatchEvent(new Event('change', { bubbles: true }))
       await nextTick()
       await nextTick()
-      const errorCell = row0.querySelector('.u-table-editor__cell-error')!
-      expect(errorCell).toBeTruthy()
-
-      // 单元格错误不做 tip 提示：hover 错误单元格不出现气泡
-      errorCell.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
-      await nextTick()
-      expect(document.querySelector('.u-tip__content')).toBeFalsy()
+      expect(headerText()?.className).toContain('is-error')
+      expect(findHeader(host, '姓名')?.querySelector('.u-table-editor__header-icon')).toBeTruthy()
+      expect(row0.querySelector('.u-table-editor__cell-error')).toBeFalsy()
 
       // 填回合法值并 change，错误消失
       input.value = 'Alice'
@@ -296,14 +262,14 @@ describe('UTableEditor 按列校验', () => {
       input.dispatchEvent(new Event('change', { bubbles: true }))
       await nextTick()
       await nextTick()
-      expect(row0.querySelector('.u-table-editor__cell-error')).toBeFalsy()
+      expect(headerText()?.className).not.toContain('is-error')
     } finally {
       unmount()
     }
   })
 
   it('validate 懒校验：某行存在错误即停止校验其后的行', async () => {
-    const { getEditor, getDataRows, unmount } = mountTableEditor(
+    const { host, getEditor, unmount } = mountTableEditor(
       {},
       [
         { name: 'Alice', age: 18, city: '杭州' },
@@ -318,9 +284,22 @@ describe('UTableEditor 按列校验', () => {
       await expect(getEditor().validate()).resolves.toBe(false)
       await nextTick()
 
-      // 第 2 行校验失败并标记，第 3 行未校验、无错误标识
-      expect(getDataRows()[1].querySelector('.u-table-editor__cell-error')).toBeTruthy()
-      expect(getDataRows()[2].querySelector('.u-table-editor__cell-error')).toBeFalsy()
+      // 第 2 行 name 校验失败：该列表头标红并出现感叹号图标
+      const nameHeader = findHeader(host, '姓名')!
+      expect(nameHeader.querySelector('.u-table-editor__header-text')?.className).toContain(
+        'is-error'
+      )
+      const icon = nameHeader.querySelector('.u-table-editor__header-icon')!
+      expect(icon).toBeTruthy()
+
+      // 悬停图标查看气泡：仅含第 2 行明细，第 3 行未校验不出现
+      icon.dispatchEvent(new MouseEvent('mouseenter'))
+      await nextTick()
+      const bubble = document.querySelector('.u-tip__content')
+      expect(bubble?.textContent).toContain('第 2 行')
+      expect(bubble?.textContent).not.toContain('第 3 行')
+      // 等弹层异步定位计算完成，避免与卸载竞争产生未处理拒绝
+      await new Promise((resolve) => setTimeout(resolve))
     } finally {
       unmount()
     }
@@ -334,9 +313,7 @@ describe('UTableEditor 按列校验', () => {
       // 仅 name 列 rules 含 required
       expect(host.querySelectorAll('.u-table-editor__required-mark')).toHaveLength(1)
 
-      const nameHeader = [...host.querySelectorAll('th')].find((th) =>
-        th.textContent?.includes('姓名')
-      )
+      const nameHeader = findHeader(host, '姓名')
       const mark = nameHeader?.querySelector('.u-table-editor__required-mark')
       expect(mark).toBeTruthy()
       // 断言可见星号字形，而非仅节点存在
@@ -358,9 +335,7 @@ describe('UTableEditor 按列校验', () => {
 
     try {
       await nextTick()
-      const nameHeader = [...host.querySelectorAll('th')].find((th) =>
-        th.textContent?.includes('姓名')
-      )
+      const nameHeader = findHeader(host, '姓名')!
       const headerText = () => nameHeader?.querySelector('.u-table-editor__header-text')
 
       // 初始无错误：表头无错误态、无图标
@@ -390,7 +365,7 @@ describe('UTableEditor 按列校验', () => {
 
   it('validate() 全表校验：全部通过 true，存在失败 false 并同步错误展示', async () => {
     // 用独立副本，避免与其它用例共享可变行数据
-    const { getEditor, setModel, getDataRows, unmount } = mountTableEditor(
+    const { host, getEditor, setModel, unmount } = mountTableEditor(
       {},
       rows.map((row) => ({ ...row })),
       ruleColumns
@@ -404,8 +379,10 @@ describe('UTableEditor 按列校验', () => {
       await nextTick()
       await expect(getEditor().validate()).resolves.toBe(false)
       await nextTick()
-      // validate 后失败单元格直接显示错误标识（无需悬停编辑）
-      expect(getDataRows()[0].querySelector('.u-table-editor__cell-error')).toBeTruthy()
+      // validate 后失败列的表头直接出现错误指示
+      const headerText = () =>
+        findHeader(host, '姓名')?.querySelector('.u-table-editor__header-text')
+      expect(headerText()?.className).toContain('is-error')
 
       setModel([{ name: 'Alice', age: 18, city: '杭州' }])
       await nextTick()
@@ -416,7 +393,7 @@ describe('UTableEditor 按列校验', () => {
   })
 
   it('删除行后同步清理对应行的错误信息', async () => {
-    const { getEditor, getDataRows, unmount } = mountTableEditor(
+    const { host, getEditor, getDataRows, unmount } = mountTableEditor(
       {},
       [
         { name: '', age: 18, city: '杭州' },
@@ -427,19 +404,22 @@ describe('UTableEditor 按列校验', () => {
 
     try {
       await nextTick()
+      const headerText = () =>
+        findHeader(host, '姓名')?.querySelector('.u-table-editor__header-text')
+
       await expect(getEditor().validate()).resolves.toBe(false)
       await nextTick()
-      expect(getDataRows()[0].querySelector('.u-table-editor__cell-error')).toBeTruthy()
+      expect(headerText()?.className).toContain('is-error')
 
       // 删除无错误的行，其余行的错误保留
       click(getDataRows()[1].querySelector('[title="移除"]')!)
       await nextTick()
-      expect(getDataRows()[0].querySelector('.u-table-editor__cell-error')).toBeTruthy()
+      expect(headerText()?.className).toContain('is-error')
 
       // 删除有错误的行，错误随之清理
       click(getDataRows()[0].querySelector('[title="移除"]')!)
       await nextTick()
-      expect(getDataRows()[0].querySelector('.u-table-editor__cell-error')).toBeFalsy()
+      expect(headerText()?.className).not.toContain('is-error')
     } finally {
       unmount()
     }
@@ -459,7 +439,7 @@ describe('UTableEditor 录入交互', () => {
       const dataRows = getDataRows()
       expect(dataRows).toHaveLength(3)
       const input = dataRows[1].querySelector('[data-test="name-input"]')!
-      // 新行不在悬停态，经预置编辑态挂载输入框并聚焦
+      // 新行单元格的编辑控件随行挂载并自动聚焦
       expect(input).toBeTruthy()
       expect(document.activeElement).toBe(input)
     } finally {
@@ -496,8 +476,6 @@ describe('UTableEditor 录入交互', () => {
     try {
       await nextTick()
       const [row0] = getDataRows()
-      mouseover(row0)
-      await nextTick()
 
       keydown(row0.querySelector('[data-test="name-input"]')!, 'Tab')
       await nextTick()
@@ -524,8 +502,6 @@ describe('UTableEditor 录入交互', () => {
     try {
       await nextTick()
       const [row0] = getDataRows()
-      mouseover(row0)
-      await nextTick()
 
       keydown(row0.querySelector('[data-test="name-input"]')!, 'Enter')
       await nextTick()
@@ -544,14 +520,11 @@ describe('UTableEditor 录入交互', () => {
     try {
       await nextTick()
       const dataRows = getDataRows()
-      mouseover(dataRows[1])
-      await nextTick()
 
       keydown(dataRows[1].querySelector('[data-test="name-input"]')!, 'Tab', true)
       await nextTick()
       await nextTick()
       const prevAge = dataRows[0].querySelector('[data-test="age-input"]')!
-      // 上一行不在悬停态，经预置编辑态挂载输入框并聚焦
       expect(prevAge).toBeTruthy()
       expect(document.activeElement).toBe(prevAge)
     } finally {

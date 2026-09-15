@@ -1,10 +1,10 @@
 <template>
   <div style="max-width: 1000px">
     <u-card>
-      <u-card-header>悬停编辑与校验</u-card-header>
+      <u-card-header>行内编辑与校验</u-card-header>
       <u-card-content>
         <ul class="demo-desc">
-          <li>鼠标移入行进入编辑态，移出恢复纯文本；操作按钮同样在移入行时出现</li>
+          <li>输入控件常驻渲染，无文本态 / 编辑态切换；操作列按钮常显</li>
           <li>编辑单元格内按 Enter / Tab 跳到下一个可编辑单元格（Shift+Tab 反向，行末自动换行）</li>
           <li>经「新增到下一行 / 复制到下一行」或空态「添加」后，自动聚焦新行第一个可编辑单元格</li>
           <li>某列存在未通过项时，表头文字标红并出现感叹号，悬停图标可查看各行错误明细</li>
@@ -20,18 +20,12 @@
           <template #column:email="{ model }">
             <u-input v-bind="model" placeholder="请输入邮箱" />
           </template>
-
-          <!-- 文本态自定义：邮箱为空时显示占位文案 -->
-          <template #text:email="{ val }">
-            <span v-if="val">{{ val }}</span>
-            <span v-else class="demo-empty">未填写</span>
-          </template>
         </u-table-editor>
 
         <div class="demo-toolbar">
           <u-button type="primary" @click="handleValidate">校验全表</u-button>
           <span v-if="validateResult !== null" :class="validateResult ? 'demo-ok' : 'demo-fail'">
-            {{ validateResult ? '校验通过' : '存在未通过项，请检查红框单元格' }}
+            {{ validateResult ? '校验通过' : '存在未通过项，请见表头标红列（悬停感叹号查看明细）' }}
           </span>
 
           <u-tip style="margin-left: auto">
@@ -62,8 +56,8 @@ const columns: TableEditorColumn[] = [
   { key: 'email', name: '邮箱', width: 280, rules: { preset: 'email' } }
 ]
 
-// 第二、三行邮箱预置非法格式：点击「校验全表」后第二行标红，
-// 懒校验遇到错误行即停，第三行不校验、不标红
+// 第二、三行邮箱预置非法格式：点击「校验全表」后第二行未通过，邮箱列表头标红，
+// 懒校验遇到错误行即停，第三行不校验、气泡不含其明细
 const data = shallowRef([
   { name: '张三', age: 18, email: 'zhangsan@example.com' },
   { name: '李四', age: 25, email: 'invalid-email' },
@@ -85,10 +79,6 @@ async function handleValidate() {
   color: var(--u-text-color-second, #888);
   font-size: 13px;
   line-height: 2;
-}
-
-.demo-empty {
-  opacity: 0.4;
 }
 
 .demo-toolbar {

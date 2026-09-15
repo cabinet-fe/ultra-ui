@@ -10,15 +10,14 @@ $root-name: table-editor;
     @include m.bem(table, cell) {
       padding: 2px;
 
-      // 行高锚定编辑态输入控件的高度，文本态撑到同高：
-      // td 的 height 即行的最小高度，行进入/退出编辑态时行高不变，避免悬停扫过时整表抖动
+      // 行高锚定常驻输入控件的高度：td 的 height 即行的最小高度
       // 4px = 单元格上下 padding；1px = u-table 行分隔线（border-bottom，border-box 计入高度）
       // 注意：主题 token 只有带尺寸后缀的变量（--u-form-component-height-default 等），
       // 这里锚定 default 尺寸，与单元格内默认尺寸的输入控件对齐
       height: calc(#{fn.use-var(form-component-height, default)} + 4px + 1px);
 
       // 单元格内行内级控件（inline-flex 输入框、tip 触发器）参与基线对齐
-      // 会在行盒下方留出 descender 空隙，顶对齐抵消，保证编辑态行高恰好锚定值
+      // 会在行盒下方留出 descender 空隙，顶对齐抵消，保证行高恰好为锚定值
       & > [class^='u-'],
       [class^='u-input'] {
         vertical-align: top;
@@ -26,33 +25,16 @@ $root-name: table-editor;
     }
   }
 
-  // 操作列按钮容器：按钮跟随「悬停编辑」概念，行静止时隐藏，
-  // 行进入编辑态（悬停或行内含聚焦输入）时浮现；显隐由组件状态驱动，
-  // 因为 fixed right 列由 u-table 独立分层渲染，CSS :hover 打不到同层
+  // 操作列按钮容器：fixed right 列由 u-table 独立分层渲染，此处只做按钮排布
   @include m.bem($root-name, operations) {
     display: flex;
     justify-content: center;
     gap: 4px;
-    opacity: 0;
-    transition: opacity fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     // 图标按钮收窄水平 padding，保证三枚按钮在操作列宽内不溢出
     .u-button {
       padding: 0 0.4em;
     }
-
-    @include m.is(active) {
-      opacity: 1;
-    }
-  }
-
-  // 校验失败单元格：outline 描边不占布局，错误出现/消失不改变行高；
-  // 错误明细经表头感叹号图标的气泡查看
-  @include m.e(cell-error) {
-    display: block;
-    outline: 1px solid fn.use-var(color, danger);
-    outline-offset: -1px;
-    border-radius: fn.use-var(radius, small);
   }
 
   // 表头文字：该列存在未通过项时标红

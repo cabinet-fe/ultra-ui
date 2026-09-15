@@ -7,17 +7,10 @@
     :stripe="false"
     show-index
     :slots="cellSlots"
-    @mouseover="trackHover"
-    @mouseleave="leaveHover"
-    @focusin="trackFocusIn"
-    @focusout="trackFocusOut"
     @keydown="handleKeydown"
   >
     <template #column:__operation="{ row }">
-      <div
-        :class="[cls.e('operations'), bem.is('active', isRowEditing(row.uid))]"
-        :data-editor-row="row.uid"
-      >
+      <div :class="cls.e('operations')" :data-editor-row="row.uid">
         <u-button
           text
           size="small"
@@ -88,10 +81,7 @@ import { UTip } from '../tip'
 
 defineOptions({ name: 'UTableEditor' })
 
-defineSlots<{
-  [key: `column:${string}`]: (props: TableColumnSlotsScope) => any
-  [key: `text:${string}`]: (props: TableColumnSlotsScope) => any
-}>()
+defineSlots<{ [key: `column:${string}`]: (props: TableColumnSlotsScope) => any }>()
 
 const { columns = [], modelValue = [] } = defineProps<TableEditorProps>()
 const emit = defineEmits<TableEditorEmits>()
@@ -114,76 +104,10 @@ const internalColumns = computed(() => {
   return [...columns, actionColumn]
 })
 
-// --- 行编辑态（编辑态 = 悬停 或 行内含聚焦输入） ---
-
-/** 行标识统一转字符串，与 DOM data 属性解析结果直接比较 */
-const toRowKey = (uid: number | string) => String(uid)
-
-/** 悬停行的标识；null 表示不在任何数据行上 */
-const hoverRowKey = shallowRef<string | null>(null)
-
-/** 行内含聚焦输入的行标识集合；以整体替换 Set 触发依赖更新 */
-const focusedRowKeys = shallowRef<ReadonlySet<string>>(new Set())
-
-const isRowEditing = (uid: number | string) =>
-  hoverRowKey.value === toRowKey(uid) || focusedRowKeys.value.has(toRowKey(uid))
-
-/** tr 元素 → 行标识缓存，避免高频 mouseover 反复查询 DOM */
-const rowKeyCache = new WeakMap<HTMLTableRowElement, string | null>()
-
-/**
- * 从事件目标解析所在数据行的标识。
- * 返回 null 表示确定不在数据行上，undefined 表示无法判定（如目标不在表格内）。
- */
-function resolveRowKey(target: EventTarget | null): string | null | undefined {
-  if (!(target instanceof Element)) return undefined
-  const tr = target.closest('tr')
-  if (!tr) return undefined
-  let key = rowKeyCache.get(tr)
-  if (key === undefined) {
-    key = tr.querySelector('[data-editor-row]')?.getAttribute('data-editor-row') ?? null
-    rowKeyCache.set(tr, key)
-  }
-  return key
-}
-
-function trackHover(e: MouseEvent) {
-  const key = resolveRowKey(e.target)
-  if (key === undefined || key === hoverRowKey.value) return
-  hoverRowKey.value = key
-}
-
-function leaveHover() {
-  hoverRowKey.value = null
-}
-
-/** 仅输入类元素视为「聚焦输入」，操作列按钮等不维持编辑态 */
-const EDITABLE_SELECTOR = 'input, textarea, select, [contenteditable], [contenteditable] *'
-
-function trackFocusIn(e: FocusEvent) {
-  const target = e.target
-  if (!(target instanceof Element) || !target.matches(EDITABLE_SELECTOR)) return
-  const key = resolveRowKey(target)
-  if (!key || focusedRowKeys.value.has(key)) return
-  const next = new Set(focusedRowKeys.value)
-  next.add(key)
-  focusedRowKeys.value = next
-}
-
-function trackFocusOut(e: FocusEvent) {
-  const target = e.target
-  if (!(target instanceof Element)) return
-  const key = resolveRowKey(target)
-  if (!key || !focusedRowKeys.value.has(key)) return
-  // 焦点仍在同一行内（如行内切换输入框）时不解除编辑态
-  const related = e.relatedTarget
-  if (related instanceof Element && resolveRowKey(related) === key) return
-  const next = new Set(focusedRowKeys.value)
-  next.delete(key)
-  focusedRowKeys.value = next
-}
-
 // --- 录入导航（新增聚焦 / Enter、Tab 跨格移动） ---
+
+/** 单元格内的可编辑控件；用于自动聚焦与 Enter/Tab 导航的目标识别 */
+const EDITABLE_SELECTOR = 'input, textarea, select, [contenteditable], [contenteditable] *'
 
 const tableRef = useTemplateRef<TableExposed>('table')
 
@@ -243,31 +167,9 @@ function findNavTarget(td: HTMLTableCellElement, dir: 1 | -1): HTMLTableCellElem
   return null
 }
 
-/**
- * 聚焦目标单元格内的可聚焦元素。
- * 目标行不在编辑态时先置入编辑态（复用「行内含焦点即编辑态」判定），
- * 待编辑内容挂载后再聚焦；编辑插槽内无可聚焦元素时回收预置的编辑态。
- */
-async function focusEditableCell(td: HTMLTableCellElement) {
-  const tr = td.closest('tr')
-  const rowKey = tr ? resolveRowKey(tr) : undefined
-  if (!rowKey || !td.isConnected) return
-  let forced = false
-  if (!isRowEditing(rowKey)) {
-    const next = new Set(focusedRowKeys.value)
-    next.add(rowKey)
-    focusedRowKeys.value = next
-    forced = true
-    await nextTick()
-  }
-  const editable = td.querySelector<HTMLElement>(EDITABLE_SELECTOR)
-  if (editable) {
-    editable.focus()
-  } else if (forced) {
-    const next = new Set(focusedRowKeys.value)
-    next.delete(rowKey)
-    focusedRowKeys.value = next
-  }
+/** 聚焦目标单元格内的可编辑控件；编辑控件常驻渲染，直接聚焦即可 */
+function focusEditableCell(td: HTMLTableCellElement) {
+  td.querySelector<HTMLElement>(EDITABLE_SELECTOR)?.focus()
 }
 
 /** 编辑单元格内 Enter / Tab 移到下一个可编辑单元格，Shift+Tab 反向 */
@@ -277,11 +179,12 @@ function handleKeydown(e: KeyboardEvent) {
   if (!(target instanceof Element) || !target.matches(EDITABLE_SELECTOR)) return
   const td = target.closest('td')
   const tr = td?.closest('tr')
-  if (!td || !tr || !resolveRowKey(tr)) return
+  // 与 findDataRows() 一致，以操作列 data-editor-row 标记识别数据行
+  if (!td || !tr || !tr.querySelector('[data-editor-row]')) return
   e.preventDefault()
   const dir: 1 | -1 = e.key === 'Tab' && e.shiftKey ? -1 : 1
   const next = findNavTarget(td, dir)
-  if (next) void focusEditableCell(next)
+  if (next) focusEditableCell(next)
 }
 
 // --- 按列校验 ---
@@ -291,10 +194,6 @@ const cellErrors = shallowRef(new Map<Record<string, any>, Map<string, string>>(
 
 /** 行节点 data 可能是响应式代理，统一取原始对象作为键 */
 const errorRowKey = (rowData: Record<string, any>) => toRaw(rowData) as Record<string, any>
-
-function getCellError(rowData: Record<string, any>, key: string) {
-  return cellErrors.value.get(errorRowKey(rowData))?.get(key)
-}
 
 function setCellError(rowData: Record<string, any>, key: string, message: string | undefined) {
   const row = errorRowKey(rowData)
@@ -391,13 +290,12 @@ const columnErrors = computed(() => {
   return map
 })
 
-// --- 单元格双态渲染 ---
+// --- 单元格渲染 ---
 
 /**
  * 转交给 u-table 的插槽代理：
- * - 使用者声明的 `#column:key` 仅作编辑态内容，行处于编辑态时才调用；
- * - `#text:key` 覆盖文本态渲染，未声明时文本态渲染字段原始值；
- * - 所有配置列的 `column:key` 都经 renderCell 中转，校验失败的单元格才能统一包上错误标识；
+ * - 配置列的 `column:key` 经 renderCell 中转：声明了插槽的列常驻调用编辑插槽，
+ *   未声明的列渲染字段原始值；
  * - 配置列的 `header:key` 经 renderHeader 中转：required 追加红星，
  *   该列存在未通过项时文字标红并追加感叹号图标（气泡展示各行错误明细）；
  * - 其余插槽（row:expand / empty 等）原样透传。
@@ -458,24 +356,15 @@ function renderHeader(key: string, column: TableEditorColumn, ctx: { column: Tab
   return nodes
 }
 
-/** 编辑态走 `#column:key` 插槽，其余时刻走文本态；校验失败的单元格包上错误标识 */
+/** 声明了 `#column:key` 插槽的列常驻调用编辑插槽，未声明的列渲染字段原始值 */
 function renderCell(key: string, ctx: TableColumnSlotsScope): RenderReturn {
   const editSlot = slots[`column:${key}`]
-  let content: RenderReturn
-  if (editSlot && isRowEditing(ctx.row.uid)) {
-    content = editSlot({ ...ctx, model: createCellModel(ctx) })
-  } else {
-    content = slots[`text:${key}`]?.(ctx) ?? ctx.val
-  }
-
-  if (!getCellError(ctx.rowData, key)) return content
-
-  // 错误样式用 outline 描边不占布局，出现/消失不改变行高；错误明细见表头图标气泡
-  return h('span', { class: cls.e('cell-error') }, [content])
+  if (!editSlot) return ctx.val
+  return editSlot({ ...ctx, model: createCellModel(ctx) })
 }
 
 /**
- * 编辑态 model：值先原地写回行数据（行节点与 DOM 得以复用，输入不丢焦点），
+ * 单元格编辑 model：值先原地写回行数据（行节点与 DOM 得以复用，输入不丢焦点），
  * 再以浅拷贝数组经 update:modelValue 通知宿主，维持 v-model 契约。
  * 列配置了 rules 时，控件的 change 事件（如失焦提交）触发单元格级校验，输入过程不校验。
  */
@@ -511,7 +400,7 @@ async function handleCreate(index?: number) {
   const first = editableIndexes.value[0]
   if (!tr || first === undefined) return
   const cell = cellAt(tr, first)
-  if (cell) void focusEditableCell(cell)
+  if (cell) focusEditableCell(cell)
 }
 
 function handleCopy(row: TableRowNode) {

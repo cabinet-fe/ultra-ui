@@ -11,8 +11,8 @@ export interface TableEditorColumn extends TableColumn {
 /**
  * 表格型编辑器组件属性
  *
- * 单元格双态渲染：`#column:key` 声明编辑态插槽（行悬停或行内含聚焦输入时挂载），
- * `#text:key` 覆盖文本态渲染；未声明编辑插槽的列始终文本渲染。
+ * 单元格常驻渲染：声明了 `#column:key` 插槽的列，输入控件常驻挂载；
+ * 未声明编辑插槽的列渲染字段原始值。
  */
 export interface TableEditorProps extends Omit<TableProps, 'data' | 'columns'> {
   /** 表格数据 */
