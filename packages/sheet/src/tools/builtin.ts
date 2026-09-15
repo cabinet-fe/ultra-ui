@@ -383,7 +383,7 @@ registerTool({
   id: 'functions',
   title: '函数',
   icon: Variable,
-  tooltip: '查看全部函数',
+  tooltip: '按分类浏览并插入函数',
   group: 'edit',
   order: 1,
   popup: 'functions',

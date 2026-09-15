@@ -23,6 +23,25 @@ export const COMMON_FORMULA_NAMES = [
   'OR'
 ] as const
 
+/**
+ * 函数弹框分类导航固定集合（顺序即展示顺序）。
+ * 「常用」「全部」是导航概念（非注册表分类）：常用 = COMMON_FORMULA_NAMES 固定清单，
+ * 全部 = 全部已注册函数；其余与 sheet-core `FormulaFunctionCategory` 对应。
+ */
+export const FUNCTION_POPUP_CATEGORIES = [
+  '常用',
+  '全部',
+  '财务',
+  '日期与时间',
+  '数学',
+  '统计',
+  '查找与引用',
+  '文本',
+  '逻辑'
+] as const
+
+export type FunctionPopupCategory = (typeof FUNCTION_POPUP_CATEGORIES)[number]
+
 /** 函数名 token 前合法的「触发」字符（= / 运算符 / ( / ,） */
 const SUGGEST_TRIGGER_CHARS = new Set(['=', '(', ',', '+', '-', '*', '/', '^', '&', '<', '>'])
 

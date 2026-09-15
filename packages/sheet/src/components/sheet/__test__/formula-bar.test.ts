@@ -342,6 +342,145 @@ function setFxText(el: HTMLElement, text: string): HTMLTextAreaElement {
   return input
 }
 
+function fxButton(el: HTMLElement): HTMLButtonElement {
+  return el.querySelector<HTMLButtonElement>('button.u-sheet__fx-label')!
+}
+
+/** 函数弹框 Teleport 到 body 级 #pop-container（fx 按钮与工具栏共用同一弹框组件） */
+function functionsPanel(): HTMLElement | null {
+  return document.querySelector<HTMLElement>('#pop-container .u-sheet__functions-panel')
+}
+
+/** 等待弹层渲染：watch flush + Teleport 挂载 */
+async function flushPopup(): Promise<void> {
+  await nextTick()
+  await nextTick()
+}
+
+describe('USheet 公式栏：fx 函数弹框', () => {
+  it('fx 渲染为可点击 button；无活动单元格时禁用且不打开弹框', async () => {
+    const sheet = new Workbook().activeSheet
+    const { el } = mountFormulaBar(sheet)
+    await nextTick()
+
+    // 清空选区（Sheet 构造默认选 A1）：与 fx 输入框同一禁用条件
+    sheet.selection.clear()
+    await nextTick()
+    const button = fxButton(el)
+    expect(button.tagName).toBe('BUTTON')
+    expect(button.disabled).toBe(true)
+    expect(fxInput(el).disabled).toBe(true)
+
+    button.click()
+    await flushPopup()
+    expect(functionsPanel()).toBeNull()
+
+    // 有活动格 → 可点击
+    sheet.selectCell({ row: 0, col: 0 })
+    await nextTick()
+    expect(button.disabled).toBe(false)
+  })
+
+  it('点击 fx 开弹框；再点 fx / 点击弹框外 / Esc 关闭；开关不改选区、单元格内容与草稿', async () => {
+    const sheet = new Workbook().activeSheet
+    sheet.setCellValue({ row: 0, col: 0 }, 'keep')
+    const { el } = mountFormulaBar(sheet)
+    await nextTick()
+    sheet.selectCell({ row: 2, col: 0 })
+    await nextTick()
+
+    // 挂起草稿编辑（focus + 输入，不提交）
+    const input = setFxText(el, 'draft')
+    const button = fxButton(el)
+    const selectionBefore = sheet.getSelection()
+
+    // 点击 fx → 弹框打开
+    button.click()
+    await flushPopup()
+    expect(functionsPanel()).not.toBeNull()
+    // 开弹框不改选区 / 不写单元格 / 草稿保留
+    expect(sheet.getSelection()).toEqual(selectionBefore)
+    expect(sheet.getCellData({ row: 2, col: 0 })).toBeUndefined()
+    expect(input.value).toBe('draft')
+
+    // 再次点击 fx → 关闭
+    button.click()
+    await flushPopup()
+    expect(functionsPanel()).toBeNull()
+    expect(input.value).toBe('draft')
+
+    // 点击弹框外 → 关闭
+    button.click()
+    await flushPopup()
+    window.dispatchEvent(new MouseEvent('click'))
+    await flushPopup()
+    expect(functionsPanel()).toBeNull()
+    expect(input.value).toBe('draft')
+
+    // Esc → 关闭；全程单元格未被写入
+    button.click()
+    await flushPopup()
+    functionsPanel()!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await flushPopup()
+    expect(functionsPanel()).toBeNull()
+    expect(input.value).toBe('draft')
+    expect(sheet.getCellData({ row: 2, col: 0 })).toBeUndefined()
+    expect(sheet.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'keep' })
+  })
+
+  it('选中函数：进入编辑态输出 =SUM()，光标在括号内、焦点在 fx 输入框；Enter 提交到活动格', async () => {
+    const sheet = new Workbook().activeSheet
+    const { el } = mountFormulaBar(sheet)
+    await nextTick()
+    sheet.selectCell({ row: 2, col: 0 })
+    await nextTick()
+
+    fxButton(el).click()
+    await flushPopup()
+    // 默认「常用」首项 SUM
+    document.querySelector<HTMLElement>('#pop-container .u-sheet__functions-item')!.click()
+    await nextTick()
+    await nextTick()
+
+    const input = fxInput(el)
+    expect(input.value).toBe('=SUM()')
+    expect(input.selectionStart).toBe('=SUM()'.length - 1)
+    expect(input.selectionEnd).toBe('=SUM()'.length - 1)
+    expect(document.activeElement).toBe(input)
+    expect(el.querySelector('.u-sheet__fx-suggest')).toBeNull()
+
+    // 提交 → 写入进入编辑时的目标格（当前活动格 A3）
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    await nextTick()
+    expect(sheet.getCellData({ row: 2, col: 0 })).toMatchObject({ f: 'SUM()' })
+    expect(sheet.getSelection().activeCell).toEqual({ row: 2, col: 0 })
+  })
+
+  it('工具栏「函数」按钮打开同一弹框，选中行为与 fx 按钮一致', async () => {
+    const workbook = new Workbook()
+    const { el } = mount(() => ({ workbook, rows: 20, cols: 8 }))
+    await nextTick()
+
+    const toolbarButton = el.querySelector<HTMLButtonElement>('[data-tool-id="functions"]')!
+    toolbarButton.click()
+    await nextTick()
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    await flushPopup()
+    expect(functionsPanel()).not.toBeNull()
+
+    document.querySelector<HTMLElement>('#pop-container .u-sheet__functions-item')!.click()
+    await nextTick()
+    await nextTick()
+    // 公式栏进入编辑态（默认选区 A1）
+    const input = fxInput(el)
+    expect(input.value).toBe('=SUM()')
+    expect(input.selectionStart).toBe('=SUM()'.length - 1)
+    expect(document.activeElement).toBe(input)
+    // 弹框随选中关闭
+    expect(functionsPanel()).toBeNull()
+  })
+})
+
 function suggestList(el: HTMLElement): HTMLElement | null {
   return el.querySelector('.u-sheet__fx-suggest')
 }

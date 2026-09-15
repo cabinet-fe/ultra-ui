@@ -2,7 +2,25 @@
 title: SheetTool 工具栏扩展与 SheetContext
 description: USheet 工具栏扩展机制：registerTool / unregisterTool 向全局注册表注册与注销自定义工具，SheetTool 定义按钮与八种弹层，SheetContext 是工具操作表格的唯一门面，写操作全走命令系统可撤销。
 aliases: [registerTool, unregisterTool, SheetContext, createSheetContext, 工具栏扩展, 自定义工具]
-keywords: [registerTool, unregisterTool, defaultToolRegistry, SheetTool, SheetToolGroup, SheetToolPopupType, SheetContext, createSheetContext, executeCommand, applyStyle, getSelection, setFrozen, 自定义工具, 工具栏按钮, 弹层工具, 撤销]
+keywords:
+  [
+    registerTool,
+    unregisterTool,
+    defaultToolRegistry,
+    SheetTool,
+    SheetToolGroup,
+    SheetToolPopupType,
+    SheetContext,
+    createSheetContext,
+    executeCommand,
+    applyStyle,
+    getSelection,
+    setFrozen,
+    自定义工具,
+    工具栏按钮,
+    弹层工具,
+    撤销
+  ]
 ---
 
 # SheetTool 工具栏扩展与 SheetContext
@@ -41,7 +59,7 @@ export type SheetToolPopupType =
   | 'font-color' // 字体颜色面板
   | 'font-size' // 字号面板
   | 'find' // 查找替换条
-  | 'functions' // 函数列表面板（纯查看 + 搜索，不写模型）
+  | 'functions' // 函数弹框（分类 + 搜索 + 选择插入，与 fx 按钮共用）
   | 'insert-image' // 插入浮动图片面板（本地文件 + URL）
   | 'export' // 导出 xlsx / csv 选择面板
 
@@ -218,26 +236,26 @@ export interface SheetContext {
 
 `SheetTool` 字段：
 
-| 字段 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `id` | `string` | — | 是 | 空字符串抛 `Error('工具注册失败：id 不能为空')`；同 id 重复注册 = 替换定义并保留原位置 |
-| `title` | `string` | — | 是 | 缺失抛 `Error('工具注册失败：<id> 缺少 title')` |
-| `onClick` | `(ctx: SheetContext) => void` | — | 是 | 缺失或非函数抛 `Error('工具注册失败：<id> 缺少 onClick')`；`popup` 工具的 onClick 不执行，写 `() => {}` 占位 |
-| `icon` | `unknown`（Vue 组件） | — | 否 | 从 `@veltra/icons/normal` / `@veltra/icons/colorful` 取 |
-| `tooltip` | `string` | `title` | 否 | 悬浮提示文本 |
-| `group` | `string` | `'default'` | 否 | 同组连续排列，组间分隔符；组序 = 各组最早注册位置 |
-| `order` | `number` | `0` | 否 | 组内升序；相同 order 按注册先后 |
-| `visible` | `(ctx) => boolean` | 恒可见 | 否 | 工具栏状态刷新时重新求值 |
-| `disabled` | `(ctx) => boolean` | 恒可用 | 否 | 工具栏状态刷新时重新求值 |
-| `active` | `(ctx) => boolean` | `false` | 否 | 高亮 `is-active`；工具栏状态刷新时重新求值 |
-| `popup` | `SheetToolPopupType` | — | 否 | 仅 8 个取值；设置后面板由 USheet 渲染，`onClick` 不执行 |
+| 字段       | 类型                          | 默认        | 必填 | 约束                                                                                                         |
+| ---------- | ----------------------------- | ----------- | :--: | ------------------------------------------------------------------------------------------------------------ |
+| `id`       | `string`                      | —           |  是  | 空字符串抛 `Error('工具注册失败：id 不能为空')`；同 id 重复注册 = 替换定义并保留原位置                       |
+| `title`    | `string`                      | —           |  是  | 缺失抛 `Error('工具注册失败：<id> 缺少 title')`                                                              |
+| `onClick`  | `(ctx: SheetContext) => void` | —           |  是  | 缺失或非函数抛 `Error('工具注册失败：<id> 缺少 onClick')`；`popup` 工具的 onClick 不执行，写 `() => {}` 占位 |
+| `icon`     | `unknown`（Vue 组件）         | —           |  否  | 从 `@veltra/icons/normal` / `@veltra/icons/colorful` 取                                                      |
+| `tooltip`  | `string`                      | `title`     |  否  | 悬浮提示文本                                                                                                 |
+| `group`    | `string`                      | `'default'` |  否  | 同组连续排列，组间分隔符；组序 = 各组最早注册位置                                                            |
+| `order`    | `number`                      | `0`         |  否  | 组内升序；相同 order 按注册先后                                                                              |
+| `visible`  | `(ctx) => boolean`            | 恒可见      |  否  | 工具栏状态刷新时重新求值                                                                                     |
+| `disabled` | `(ctx) => boolean`            | 恒可用      |  否  | 工具栏状态刷新时重新求值                                                                                     |
+| `active`   | `(ctx) => boolean`            | `false`     |  否  | 高亮 `is-active`；工具栏状态刷新时重新求值                                                                   |
+| `popup`    | `SheetToolPopupType`          | —           |  否  | 仅 8 个取值；设置后面板由 USheet 渲染，`onClick` 不执行                                                      |
 
 注册函数：
 
-| 函数 | 签名 | 行为 |
-| --- | --- | --- |
-| `registerTool` | `(tool: SheetTool) => void` | 校验失败同步抛 `Error`（报错原文见上表）；成功后触发 `change` |
-| `unregisterTool` | `(id: string) => boolean` | 返回是否删除；`false` 时表示 id 不存在且不触发 `change` |
+| 函数             | 签名                        | 行为                                                          |
+| ---------------- | --------------------------- | ------------------------------------------------------------- |
+| `registerTool`   | `(tool: SheetTool) => void` | 校验失败同步抛 `Error`（报错原文见上表）；成功后触发 `change` |
+| `unregisterTool` | `(id: string) => boolean`   | 返回是否删除；`false` 时表示 id 不存在且不触发 `change`       |
 
 ## 方法与事件
 
@@ -252,7 +270,7 @@ export interface SheetContext {
 
 - `popup: 'fill-color' | 'border' | 'font-color' | 'font-size'`：面板打开时自动 `beginTransaction`，关闭时 `commit`（失败 `rollback`）——面板期间全部写入合并为单 undo 单元。
 - `popup: 'find'`：查找替换条；每次替换是独立 undo 单元，全部替换为单 undo 单元。`Ctrl/Cmd+F` 开合，仅当焦点在 USheet 实例内响应，不劫持容器外浏览器原生查找。
-- `popup: 'functions'`：函数列表面板（纯查看，不参与事务）：列出 `listFormulaFunctions()` 全部已注册函数（内置 + 宿主经 `registerFormulaFunction` 注册的自定义函数）的签名与描述，顶部搜索框按名称 / 描述大小写不敏感过滤；点击不写模型。
+- `popup: 'functions'`：函数弹框（不参与事务，与公式栏 fx 按钮同一组件）：分类导航（常用 / 全部 / 财务 / 日期与时间 / 数学 / 统计 / 查找与引用 / 文本 / 逻辑，固定集合）+ 关键词搜索（名称 / 描述大小写不敏感，跨分类）；列出 `listFormulaFunctions()` 全部已注册函数（内置 + 宿主经 `registerFormulaFunction` 注册的自定义函数；未声明分类的仅出现在「全部」与搜索结果）。点击或键盘（↑↓ + Enter）选中 → 关闭弹框并经公式栏 `insertFunction(name)` 进入编辑态输出 `=NAME()`（目标 = 当前活动格，光标在括号内）；模型写入待 fx 提交。
 - `popup: 'insert-image'`：本地文件 + URL 输入；`popup: 'export'`：xlsx / csv 选择面板（下载侧效应，无模型写入，不参与事务）。
 - 内置 `import` 工具无弹层：点击直接拉起系统文件选择（USheet 内部覆盖其行为）。
 
@@ -366,6 +384,7 @@ console.log(sheet.getDisplayValue({ row: 0, col: 0 })) // => undefined（值已�
 ## 注意事项
 
 > [!WARNING]
+>
 > - `SheetContext` 不暴露 `Sheet` 实例——写方法全部经命令系统（可 undo，`setFrozen` 除外）；绕过门面直接操作 `Sheet` 的代码不属于工具扩展。
 > - sheet 增删改名不经过 `SheetContext`，宿主直接操作 `Workbook`（`addSheet` / `removeSheet` / `renameSheet`）；`ctx.workbook` 只是只读引用。
 > - `popup` 仅接受 8 个内置类型值，自定义字符串无法让 USheet 渲染面板；需要自定义面板时用普通按钮 + 宿主自己的弹层。

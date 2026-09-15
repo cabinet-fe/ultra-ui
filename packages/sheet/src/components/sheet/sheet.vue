@@ -32,7 +32,10 @@
               :context="context"
               @close="closePopup"
             />
-            <u-sheet-functions-popup v-else-if="popupTool.popup === 'functions'" />
+            <u-sheet-functions-popup
+              v-else-if="popupTool.popup === 'functions'"
+              @select="handleFunctionSelect"
+            />
             <u-sheet-insert-image-popup
               v-else-if="popupTool.popup === 'insert-image'"
               :context="context"
@@ -162,6 +165,12 @@ function handleToolClick(tool: SheetTool, event?: MouseEvent): void {
     return
   }
   openOrRunTool(tool, event)
+}
+
+/** 工具栏「函数」弹框选中 → 关弹层并走公式栏统一插入路径（与 fx 按钮一致） */
+function handleFunctionSelect(name: string): void {
+  closePopup()
+  formulaBarRef.value?.insertFunction(name)
 }
 
 // ─── UDropdown 面板：锚点跟随触发按钮（floating-ui 定位）──────────

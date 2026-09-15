@@ -9,7 +9,8 @@ type ElRef = { readonly value: HTMLElement | null | undefined }
 /**
  * 面板打开期间的写入是否合并为一个 undo 单元（关闭时提交）：
  * 填充颜色 / 边框 / 字体颜色 / 字号参与事务；查找（每次替换独立 undo）、
- * 函数（纯查看）、导出（下载侧效应，无模型写入）不参与。导入无弹层，不经此路径。
+ * 函数（选中仅进入公式栏编辑态，模型写入待 fx 提交）、导出（下载侧效应，
+ * 无模型写入）不参与。导入无弹层，不经此路径。
  */
 function joinsTransaction(tool: SheetTool): boolean {
   return (
@@ -27,7 +28,7 @@ function joinsTransaction(tool: SheetTool): boolean {
  * - 打开 / 关闭时的事务包裹（面板期间写入合并为一个 undo 单元，关闭时提交）
  * - 点击面板外关闭（面板内 @click.stop 不冒泡到 window）
  * - Ctrl/Cmd+F 开合查找条（与工具按钮同一 toggle 逻辑）
- * 函数面板为纯查看（无模型写入），与查找 / 导出一样不参与事务。
+ * 函数面板选中只进入公式栏编辑态（无直接模型写入），与查找 / 导出一样不参与事务。
  * 导入在 sheet.vue 特殊处理（直接系统文件选择），不经弹层。
  */
 export function useToolPopup(context: SheetContext, rootEl: ElRef) {

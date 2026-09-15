@@ -10,7 +10,33 @@
       @blur="handleNameBlur"
       @keydown="handleNameKeydown"
     />
-    <span :class="cls.e('fx-label')">fx</span>
+    <button
+      ref="fxLabelRef"
+      type="button"
+      :class="cls.e('fx-label')"
+      :disabled="fxDisabled"
+      title="插入函数"
+      @mousedown.prevent
+      @click.stop="toggleFunctions"
+    >
+      fx
+    </button>
+    <!-- 函数弹框：锚定 fx 按钮下方（UDropdown Teleport 到 #pop-container，
+         同工具栏弹层机制）；打开 / 关闭不触碰选区与草稿 -->
+    <u-dropdown
+      ref="functionsDropdownRef"
+      trigger="custom"
+      :visible="functionsOpen"
+      width="auto"
+      @keydown="handleFunctionsKeydown"
+      @update:visible="syncFunctionsOpen"
+    >
+      <template #content>
+        <div v-if="functionsOpen" :class="cls.e('functions-popover')" @click.stop>
+          <u-sheet-functions-popup @select="handleFunctionSelect" />
+        </div>
+      </template>
+    </u-dropdown>
     <div
       :class="cls.e('fx-editor')"
       @mouseenter="handleFxMouseEnter"
@@ -68,7 +94,7 @@
 </template>
 
 <script lang="ts" setup>
-import { message } from '@veltra/desktop'
+import { message, UDropdown } from '@veltra/desktop'
 import {
   formatAddress,
   formatRange,
@@ -92,6 +118,7 @@ import {
 
 import type { SheetContext } from '../../tools/context'
 import UFormulaSuggestList from './formula-suggest-list.vue'
+import USheetFunctionsPopup from './popups/functions-popup.vue'
 import { insertRefText, isRefSelectContext } from './use-formula-ref-select'
 import {
   applySuggest,
@@ -107,6 +134,7 @@ defineOptions({ name: 'UFormulaBar' })
  * 公式栏（名称框 + fx 输入栏），USheet 顶部结构之一。
  *
  * - 名称框：显示当前选区（单格 A1 / 区域 A1:B2）；合法地址回车跳转。
+ * - fx 按钮：打开函数弹框（分类导航 + 搜索），选中进入编辑态输出 `=NAME()`。
  * - fx 输入栏：活动格内容；Enter/✓ 提交、Esc/✗ 取消、失焦提交。
  * - 函数补全：`=` 开头且光标在函数名 token 上时弹出候选（↑↓ / Tab / Enter / 点击）。
  * - 引用选择：光标在运算符/`(`/`,` 后时，画布点选/拖选插入引用（blur 抑制防误提交）。
@@ -490,7 +518,93 @@ function exitMirror(addr: CellAddress): void {
   }
 }
 
-defineExpose({ mirrorGridEdit, exitMirror, isRefSelecting, beginBlurSuppress, handleRefSelect })
+// ─── 函数弹框（fx 按钮）────────────────────────────────────
+
+const fxLabelRef = useTemplateRef<HTMLButtonElement>('fxLabelRef')
+const functionsDropdownRef = useTemplateRef<InstanceType<typeof UDropdown>>('functionsDropdownRef')
+const functionsOpen = ref(false)
+
+function toggleFunctions(): void {
+  if (fxDisabled.value) return
+  if (functionsOpen.value) {
+    functionsOpen.value = false
+    return
+  }
+  // 焦点即将移向弹框搜索框：抑制 fx blur 提交，草稿与编辑态原样保留
+  if (editing.value && fxFocused.value) suppressBlurCommit = true
+  functionsOpen.value = true
+}
+
+// 弹框打开必须同步调 open() 传 fx 按钮作锚点（同 sheet.vue 工具弹层时序）
+watch(functionsOpen, () => {
+  const dropdown = functionsDropdownRef.value
+  if (!dropdown) return
+  if (functionsOpen.value) {
+    dropdown.open({ trigger: fxLabelRef.value ?? undefined })
+  } else {
+    dropdown.close()
+  }
+})
+
+/** UDropdown 内部关闭（触发元素位移等）→ 同步本地开合状态 */
+function syncFunctionsOpen(visible: boolean): void {
+  if (!visible) functionsOpen.value = false
+}
+
+/** 弹框内 Esc 关闭（关闭不还原草稿、不退出挂起的编辑态） */
+function handleFunctionsKeydown(event: KeyboardEvent): void {
+  if (event.key !== 'Escape') return
+  event.preventDefault()
+  functionsOpen.value = false
+}
+
+/** 点击弹框外关闭（弹框内容与 fx 按钮均 @click.stop，到达这里的必是外部点击） */
+function closeFunctionsOnOuterClick(): void {
+  if (!functionsOpen.value) return
+  functionsOpen.value = false
+}
+
+/** 选中函数：关弹框并进入编辑态输出 =NAME()（fx / 工具栏共用路径） */
+function handleFunctionSelect(name: string): void {
+  functionsOpen.value = false
+  insertFunction(name)
+}
+
+/** 插入函数：编辑目标 = 当前活动格，内容覆盖为 =NAME()，光标落在括号内 */
+function insertFunction(name: string): void {
+  const addr = selection.value.activeCell
+  if (!addr) return
+  const text = `=${name}()`
+  const cursor = text.length - 1
+  editing.value = true
+  editAddr = addr
+  mirroring.value = false
+  mirrorAddr = null
+  fxDraft.value = text
+  fxCursor.value = cursor
+  suppressBlurCommit = false
+  closeSuggest()
+  void nextTick(() => {
+    const el = fxRef.value
+    if (!el) return
+    el.focus()
+    // focus 事件里 syncFxCursor 会读到置尾光标，这里用局部值落位覆盖
+    el.setSelectionRange(cursor, cursor)
+    fxCursor.value = cursor
+    autosizeFx()
+    // `=NAME()` 光标在括号内：处于引用选择上下文，不再弹补全
+    refreshSuggest()
+  })
+}
+
+defineExpose({
+  mirrorGridEdit,
+  exitMirror,
+  isRefSelecting,
+  beginBlurSuppress,
+  handleRefSelect,
+  insertFunction
+})
 
 // ─── 生命周期 ──────────────────────────────────────────────
 
@@ -512,6 +626,7 @@ watch(
     mirroring.value = false
     mirrorAddr = null
     suppressBlurCommit = false
+    functionsOpen.value = false
     closeSuggest()
     bindSheet(sheet)
     selection.value = sheet.getSelection()
@@ -525,10 +640,12 @@ onMounted(() => {
   selection.value = props.sheet.getSelection()
   refreshName()
   refreshFx()
+  window.addEventListener('click', closeFunctionsOnOuterClick)
 })
 
 onBeforeUnmount(() => {
   for (const off of dispose) off()
   dispose = []
+  window.removeEventListener('click', closeFunctionsOnOuterClick)
 })
 </script>

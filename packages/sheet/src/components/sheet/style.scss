@@ -246,10 +246,25 @@
     flex-shrink: 0;
     align-items: center;
     height: fn.use-var(form-component-height, small);
+    padding: 0 4px;
+    border: none;
+    border-radius: fn.use-var(radius, small);
+    background: transparent;
     color: fn.use-var(text-color, second);
     font-size: fn.use-var(font-size-main, small);
     font-style: italic;
     user-select: none;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background-color: fn.use-var(bg-color, hover);
+      color: fn.use-var(text-color, main);
+    }
+
+    &:disabled {
+      color: fn.use-var(text-color, disabled);
+      cursor: not-allowed;
+    }
   }
 
   @include m.e(fx-input) {
@@ -531,7 +546,57 @@
     }
   }
 
-  /* ─── 函数面板（纯查看 + 搜索）────────────────────────── */
+  /* ─── 函数弹框（分类导航 + 搜索 + 可选择；fx 按钮与工具栏共用）── */
+
+  @include m.e(functions-popover) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  @include m.e(functions-panel) {
+    display: flex;
+    gap: fn.use-var(gap, small);
+  }
+
+  @include m.e(functions-nav) {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    gap: 2px;
+    padding: 4px;
+    border-right: 1px solid fn.use-var(border, muted-color);
+    min-width: 96px;
+  }
+
+  @include m.e(functions-nav-item) {
+    padding: 4px 8px;
+    border: none;
+    border-radius: fn.use-var(radius, small);
+    background: transparent;
+    color: fn.use-var(text-color, second);
+    font-size: fn.use-var(font-size-main, small);
+    text-align: left;
+    white-space: nowrap;
+    cursor: pointer;
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    @include m.is(active) {
+      background-color: fn.use-var(bg-color, hover);
+      color: fn.use-var(color, primary);
+      font-weight: 600;
+    }
+  }
+
+  @include m.e(functions-main) {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+  }
 
   @include m.e(functions-search) {
     width: 320px;
@@ -553,8 +618,13 @@
     gap: 2px;
     padding: 6px 8px;
     border-radius: fn.use-var(radius, small);
+    cursor: pointer;
 
     &:hover {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    @include m.is(active) {
       background-color: fn.use-var(bg-color, hover);
     }
   }

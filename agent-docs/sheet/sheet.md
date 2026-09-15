@@ -2,7 +2,28 @@
 title: USheet 电子表格组件
 description: USheet 电子表格组件：一个组件渲染工具栏、公式栏、网格与底部 sheet 标签栏，数据模型为 @veltra/sheet-core 工作簿；支持填报只读（setCellReadonly / setRangeReadonly）、动态单元格样式与自定义工具栏工具。
 aliases: [USheet, Sheet, 电子表格, spreadsheet, 表格编辑器]
-keywords: [SheetProps, SheetExposed, showToolbar, showFormulaBar, showTabs, registerTool, setCellReadonly, setRangeReadonly, resolveCellStyle, resolveCellRenderer, active-sheet-change, getContext, 填报, 只读单元格, 工具栏, 公式栏, 冻结行列, 跨表公式, 虚拟滚动]
+keywords:
+  [
+    SheetProps,
+    SheetExposed,
+    showToolbar,
+    showFormulaBar,
+    showTabs,
+    registerTool,
+    setCellReadonly,
+    setRangeReadonly,
+    resolveCellStyle,
+    resolveCellRenderer,
+    active-sheet-change,
+    getContext,
+    填报,
+    只读单元格,
+    工具栏,
+    公式栏,
+    冻结行列,
+    跨表公式,
+    虚拟滚动
+  ]
 ---
 
 # USheet 电子表格组件
@@ -110,20 +131,20 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 
 ## 参数说明
 
-| 参数 | 类型 | 默认 | 必填 | 约束 |
-| --- | --- | --- | :---: | --- |
-| `workbook` | `Workbook` | 内部自建单 sheet 工作簿 | 否 | 运行期更换引用触发整表重建（tabs、网格、事件重绑） |
-| `rows` | `number` | `100` | 否 | 渲染行数；只决定可视区尺寸，不限制模型写入范围 |
-| `cols` | `number` | `26` | 否 | 渲染列数（A..Z） |
-| `showToolbar` | `boolean` | `true` | 否 | `false` 时工具栏整体不渲染 |
-| `showFormulaBar` | `boolean` | `true` | 否 | 公式栏含名称框与 fx 输入栏；填报页必须设 `false` |
-| `showTabs` | `boolean` | `true` | 否 | 底部标签栏：点击切换、末尾「+」新增、右键重命名/删除 |
-| `showRowHeader` | `boolean` | `true` | 否 | 行号列；右键菜单含插入/删除行、冻结到当前行 |
-| `showColHeader` | `boolean` | `true` | 否 | 列字母表头；右键菜单含插入/删除列、冻结到当前列 |
-| `readonly` | `boolean` | `false` | 否 | 整表只读预览；按格控制改用模型 `setCellReadonly` |
-| `resolveDisplayValue` | `ResolveDisplayValue` | — | 否 | `(addr, base) => CellValue \| undefined`；必须同步 |
-| `resolveCellStyle` | `ResolveCellStyleHook` | — | 否 | `(addr, baseStyle?) => CellStyle \| undefined`；必须同步、O(1) 查找 |
-| `resolveCellRenderer` | `ResolveCellRenderer` | — | 否 | `(addr, base) => ICustomLayoutObj \| undefined`；布局构建用 `@veltra/sheet-core/grid` 的 `CustomLayout` |
+| 参数                  | 类型                   | 默认                    | 必填 | 约束                                                                                                    |
+| --------------------- | ---------------------- | ----------------------- | :--: | ------------------------------------------------------------------------------------------------------- |
+| `workbook`            | `Workbook`             | 内部自建单 sheet 工作簿 |  否  | 运行期更换引用触发整表重建（tabs、网格、事件重绑）                                                      |
+| `rows`                | `number`               | `100`                   |  否  | 渲染行数；只决定可视区尺寸，不限制模型写入范围                                                          |
+| `cols`                | `number`               | `26`                    |  否  | 渲染列数（A..Z）                                                                                        |
+| `showToolbar`         | `boolean`              | `true`                  |  否  | `false` 时工具栏整体不渲染                                                                              |
+| `showFormulaBar`      | `boolean`              | `true`                  |  否  | 公式栏含名称框与 fx 输入栏；填报页必须设 `false`                                                        |
+| `showTabs`            | `boolean`              | `true`                  |  否  | 底部标签栏：点击切换、末尾「+」新增、右键重命名/删除                                                    |
+| `showRowHeader`       | `boolean`              | `true`                  |  否  | 行号列；右键菜单含插入/删除行、冻结到当前行                                                             |
+| `showColHeader`       | `boolean`              | `true`                  |  否  | 列字母表头；右键菜单含插入/删除列、冻结到当前列                                                         |
+| `readonly`            | `boolean`              | `false`                 |  否  | 整表只读预览；按格控制改用模型 `setCellReadonly`                                                        |
+| `resolveDisplayValue` | `ResolveDisplayValue`  | —                       |  否  | `(addr, base) => CellValue \| undefined`；必须同步                                                      |
+| `resolveCellStyle`    | `ResolveCellStyleHook` | —                       |  否  | `(addr, baseStyle?) => CellStyle \| undefined`；必须同步、O(1) 查找                                     |
+| `resolveCellRenderer` | `ResolveCellRenderer`  | —                       |  否  | `(addr, base) => ICustomLayoutObj \| undefined`；布局构建用 `@veltra/sheet-core/grid` 的 `CustomLayout` |
 
 ## 方法与事件
 
@@ -135,12 +156,12 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 
 模板 ref 用 `useTemplateRef<SheetExposed>('sheetRef')` 取值。均为同步方法：
 
-| 成员 | 签名 | 说明 |
-| --- | --- | --- |
-| `workbook` | `Workbook` | 当前工作簿；`props.workbook` 缺省时为内部自建实例 |
-| `getActiveSheet` | `(): Sheet` | 当前活动 `Sheet` 实例；模型读写从这里进 |
-| `getContext` | `(): SheetContext` | 工具上下文，成员清单见下 |
-| `getGrid` | `(): SheetGrid \| undefined` | 底层网格实例，未挂载时 `undefined`；`getGrid()?.refresh()` 强制重绘 |
+| 成员             | 签名                         | 说明                                                                |
+| ---------------- | ---------------------------- | ------------------------------------------------------------------- |
+| `workbook`       | `Workbook`                   | 当前工作簿；`props.workbook` 缺省时为内部自建实例                   |
+| `getActiveSheet` | `(): Sheet`                  | 当前活动 `Sheet` 实例；模型读写从这里进                             |
+| `getContext`     | `(): SheetContext`           | 工具上下文，成员清单见下                                            |
+| `getGrid`        | `(): SheetGrid \| undefined` | 底层网格实例，未挂载时 `undefined`；`getGrid()?.refresh()` 强制重绘 |
 
 `getActiveSheet()` 返回的 `Sheet` 来自 `@veltra/sheet-core`。填报只读控制的三个模型方法签名（本包不 re-export）：
 
@@ -304,6 +325,7 @@ workbook.activeSheet.setCellValue({ row: 0, col: 0 }, '选中格子后点工具�
 ## 注意事项
 
 > [!WARNING]
+>
 > - 模型与命令从 `@veltra/sheet-core` 导入，本包不 re-export：`Workbook` / `Sheet` / `setCellReadonly` / `setRangeReadonly` / `exportWorkbookXlsx` 等一律 `from '@veltra/sheet-core'`；`ResolveCellStyleHook` 等 hook 类型从 `@veltra/sheet-core/grid` 深导入。
 > - 宿主必须给 `.u-sheet` 明确高度（如 `style="height: 480px"`）；本库不是自动撑满父容器。
 > - 填报锁格必须同时 `:show-toolbar="false"` 与 `:show-formula-bar="false"`：公式栏可绕过只读标记写任意格。
