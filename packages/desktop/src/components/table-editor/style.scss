@@ -17,19 +17,11 @@ $root-name: table-editor;
       // 这里锚定 default 尺寸，与单元格内默认尺寸的输入控件对齐
       height: calc(#{fn.use-var(form-component-height, default)} + 4px + 1px);
 
-      [class^='u-input'] {
-        box-shadow: none;
-      }
-
       // 单元格内行内级控件（inline-flex 输入框、tip 触发器）参与基线对齐
       // 会在行盒下方留出 descender 空隙，顶对齐抵消，保证编辑态行高恰好锚定值
       & > [class^='u-'],
       [class^='u-input'] {
         vertical-align: top;
-      }
-
-      & > [class^='u-'] {
-        box-shadow: none;
       }
     }
   }
@@ -61,11 +53,21 @@ $root-name: table-editor;
     outline: 1px solid fn.use-var(color, danger);
     outline-offset: -1px;
     border-radius: fn.use-var(radius, small);
+  }
 
-    // 编辑态内容被错误标识包裹后不再是单元格直接子元素，这里保持同样的阴影抹平
-    & > [class^='u-'] {
-      box-shadow: none;
+  // 表头文字：该列存在未通过项时标红
+  @include m.e(header-text) {
+    @include m.is(error) {
+      color: fn.use-var(color, danger);
     }
+  }
+
+  // 表头错误感叹号图标（tip 触发器）
+  @include m.e(header-icon) {
+    color: fn.use-var(color, danger);
+    margin-left: 2px;
+    vertical-align: -2px;
+    cursor: help;
   }
 
   // required 列表头红星标识

@@ -56,7 +56,7 @@
 </template>
 
 <script lang="ts" setup>
-import { Copy, Minus, Plus } from '@veltra/icons/normal'
+import { Copy, Minus, Plus, Warning } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import {
   h,
@@ -83,6 +83,7 @@ import type {
 } from '../../types'
 import { UButton } from '../button'
 import { validateField } from '../form-item/validate'
+import { UIcon } from '../icon'
 import { UTable } from '../table'
 import type { TableRowNode } from '../table/node/row'
 import { UTip } from '../tip'
@@ -334,6 +335,9 @@ async function validateCell(
 
   const message = await validateField(rowData, key, rules)
   if (seqs.get(key) !== seq) return
+  // 校验是异步的，期间行可能已被移出模型（整体替换/删除）；
+  // 把结果写回「死行」会绕过清理 watch 永久残留，直接丢弃
+  if (!modelValue.some((item) => errorRowKey(item) === row)) return
 
   setCellError(row, key, message)
 }
@@ -370,6 +374,23 @@ watch(
   }
 )
 
+/** 列 key → 该列全部未通过信息（带行序号），驱动表头错误标识 */
+const columnErrors = computed(() => {
+  const map = new Map<string, string[]>()
+  if (!cellErrors.value.size) return map
+
+  for (const [row, errors] of cellErrors.value) {
+    const index = modelValue.findIndex((item) => errorRowKey(item) === row)
+    const label = index >= 0 ? `第 ${index + 1} 行：` : ''
+    for (const [key, message] of errors) {
+      const list = map.get(key) ?? []
+      list.push(`${label}${message}`)
+      map.set(key, list)
+    }
+  }
+  return map
+})
+
 // --- 单元格双态渲染 ---
 
 /**
@@ -377,8 +398,9 @@ watch(
  * - 使用者声明的 `#column:key` 仅作编辑态内容，行处于编辑态时才调用；
  * - `#text:key` 覆盖文本态渲染，未声明时文本态渲染字段原始值；
  * - 所有配置列的 `column:key` 都经 renderCell 中转，校验失败的单元格才能统一包上错误标识；
- * - 列 `rules` 含 required 时，经 `header:key` 机制在表头追加红星标识；
- * - 其余插槽（header: / row:expand / empty 等）原样透传。
+ * - 配置列的 `header:key` 经 renderHeader 中转：required 追加红星，
+ *   该列存在未通过项时文字标红并追加感叹号图标（气泡展示各行错误明细）；
+ * - 其余插槽（row:expand / empty 等）原样透传。
  * 代理直接包在实时 slots 上，插槽增减无需维护副本失效。
  */
 const cellSlots = new Proxy(slots, {
@@ -393,18 +415,48 @@ const cellSlots = new Proxy(slots, {
     if (typeof prop === 'string' && prop.startsWith('header:')) {
       const key = prop.slice('header:'.length)
       const column = columns.find((item) => item.key === key)
-      if (column?.rules?.required) {
-        const userSlot = target[prop]
-        return (ctx: { column: TableColumnNode }) => [
-          userSlot?.(ctx) ?? column.name,
-          h('span', { class: cls.e('required-mark'), 'aria-hidden': 'true' }, '*')
-        ]
-      }
+      if (column) return (ctx: { column: TableColumnNode }) => renderHeader(key, column, ctx)
     }
 
     return Reflect.get(target, prop)
   }
 })
+
+/**
+ * 表头渲染：required 列表头追加红星；该列存在未通过项时文字标红并追加
+ * 感叹号图标，悬停经 UTip 气泡展示各行错误明细。
+ * 渲染函数内读取 columnErrors 建立响应依赖，错误出现/消失即时更新表头。
+ */
+function renderHeader(key: string, column: TableEditorColumn, ctx: { column: TableColumnNode }) {
+  const messages = columnErrors.value.get(key)
+  const nodes = [
+    h(
+      'span',
+      { class: [cls.e('header-text'), bem.is('error', !!messages?.length)] },
+      slots[`header:${key}`]?.(ctx) ?? column.name
+    )
+  ]
+
+  if (column.rules?.required) {
+    nodes.push(h('span', { class: cls.e('required-mark'), 'aria-hidden': 'true' }, '*'))
+  }
+
+  if (messages?.length) {
+    nodes.push(
+      h(
+        UTip,
+        { key: 'header-error-tip' },
+        {
+          default: () =>
+            h(UIcon, { size: 14, class: cls.e('header-icon') }, { default: () => h(Warning) }),
+          content: () => messages.map((message) => h('div', { key: message }, message))
+        }
+      )
+    )
+  }
+
+  return nodes
+}
 
 /** 编辑态走 `#column:key` 插槽，其余时刻走文本态；校验失败的单元格包上错误标识与 tip */
 function renderCell(key: string, ctx: TableColumnSlotsScope): RenderReturn {

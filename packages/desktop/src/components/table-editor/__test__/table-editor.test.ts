@@ -315,6 +315,48 @@ describe('UTableEditor 按列校验', () => {
     }
   })
 
+  it('列存在未通过项时表头文字标红并出现感叹号图标，修正后恢复', async () => {
+    const { host, getEditor, setModel, unmount } = mountTableEditor(
+      {},
+      [
+        { name: 'Alice', age: 18, city: '杭州' },
+        { name: '', age: 20, city: '上海' }
+      ],
+      ruleColumns
+    )
+
+    try {
+      await nextTick()
+      const nameHeader = [...host.querySelectorAll('th')].find((th) =>
+        th.textContent?.includes('姓名')
+      )
+      const headerText = () => nameHeader?.querySelector('.u-table-editor__header-text')
+
+      // 初始无错误：表头无错误态、无图标
+      expect(headerText()?.className).not.toContain('is-error')
+      expect(nameHeader?.querySelector('.u-table-editor__header-icon')).toBeFalsy()
+
+      await expect(getEditor().validate()).resolves.toBe(false)
+      await nextTick()
+
+      // 该列存在未通过项：文字标红 + 感叹号图标（tip 触发器）出现
+      expect(headerText()?.className).toContain('is-error')
+      expect(nameHeader?.querySelector('.u-table-editor__header-icon')).toBeTruthy()
+
+      // 修正后表头恢复
+      setModel([
+        { name: 'Alice', age: 18, city: '杭州' },
+        { name: 'Bob', age: 20, city: '上海' }
+      ])
+      await expect(getEditor().validate()).resolves.toBe(true)
+      await nextTick()
+      expect(headerText()?.className).not.toContain('is-error')
+      expect(nameHeader?.querySelector('.u-table-editor__header-icon')).toBeFalsy()
+    } finally {
+      unmount()
+    }
+  })
+
   it('validate() 全表校验：全部通过 true，存在失败 false 并同步错误展示', async () => {
     // 用独立副本，避免与其它用例共享可变行数据
     const { getEditor, setModel, getDataRows, unmount } = mountTableEditor(
