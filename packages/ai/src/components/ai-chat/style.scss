@@ -186,6 +186,9 @@ $root-name: ai-chat;
     max-width: 800px;
     display: flex;
     flex-direction: column;
+    // 纵向留出呼吸位：首条消息不贴容器顶，滚动时内容不顶边；横向由各消息自身 padding 控制
+    padding: fn.use-var(gap, default) 0;
+    box-sizing: border-box;
   }
 
   @include m.e(list) {
