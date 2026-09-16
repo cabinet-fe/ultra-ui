@@ -131,7 +131,9 @@ const props = withDefaults(defineProps<MultiTreeSelectProps>(), {
   readonly: undefined,
   filterable: false,
   visibilityLimit: 3,
-  minWidth: '280px'
+  minWidth: '280px',
+  checkStrictly: false,
+  checkOnClickNode: true
 })
 
 const labelKey = computed(() => fieldKey(props.labelKey, 'label'))

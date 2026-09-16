@@ -8,6 +8,7 @@
         label-key="name"
         value-key="id"
         children-key="children"
+        check-strictly
         checkable
         :disabledNode="disabledNode"
         filterable

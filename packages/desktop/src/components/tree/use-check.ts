@@ -1,3 +1,4 @@
+import type { Forest } from '@cat-kit/core'
 import { dfs, o } from '@cat-kit/core'
 import { fieldKey } from '@veltra/utils'
 import { nextTick, watch, type ComputedRef } from 'vue'
@@ -8,6 +9,7 @@ import type { TreeNode } from './tree-node'
 interface Options {
   emit: TreeEmit
   props: TreeProps
+  forest: ComputedRef<Forest<Record<string, unknown>, any>>
   nodeDict: ComputedRef<Map<any, TreeNode>>
   getFlattedNodes: () => void
 }
@@ -15,6 +17,7 @@ interface Options {
 interface UseCheckReturned {
   checkedData: Set<Record<string, any>>
   toggleCheck: (node: TreeNode, check: boolean, ctrlKey?: boolean) => void
+  checkAll: (check: boolean) => void
 }
 
 /**
@@ -33,7 +36,7 @@ function expandAncestors(node: TreeNode): boolean {
 }
 
 export function useCheck(options: Options): UseCheckReturned {
-  const { emit, props, nodeDict, getFlattedNodes } = options
+  const { emit, props, forest, nodeDict, getFlattedNodes } = options
 
   const checkedData = new Set<Record<string, any>>()
 
@@ -48,7 +51,7 @@ export function useCheck(options: Options): UseCheckReturned {
   function checkNode(node: TreeNode): void {
     if (node.checked) return
     node.checked = true
-    if (node.parent) {
+    if (!props.checkStrictly && node.parent) {
       node.parent.childrenCheckCount++
     }
     checkedData.add(node.data)
@@ -57,7 +60,7 @@ export function useCheck(options: Options): UseCheckReturned {
   function uncheckNode(node: TreeNode): void {
     if (!node.checked) return
     node.checked = false
-    if (node.parent) {
+    if (!props.checkStrictly && node.parent) {
       node.parent.childrenCheckCount--
     }
     checkedData.delete(node.data)
@@ -129,17 +132,18 @@ export function useCheck(options: Options): UseCheckReturned {
     const { checkStrictly } = props
 
     if (ctrlKey) {
-      checkNode(node)
-    } else {
-      dfs(
-        node as unknown as Record<string, unknown>,
-        (n) => {
-          const tn = n as unknown as TreeNode
-          !tn.disabled && checkNode(tn)
-        },
-        props.childrenKey ?? 'children'
-      )
+      !node.disabled && checkNode(node)
+      return
     }
+
+    dfs(
+      node as unknown as Record<string, unknown>,
+      (n) => {
+        const tn = n as unknown as TreeNode
+        !tn.disabled && checkNode(tn)
+      },
+      props.childrenKey ?? 'children'
+    )
 
     // 非严格选择时还需要更新祖先节点，
     // 一旦子节点全部选中，父节点也要设置为选中状态
@@ -158,28 +162,28 @@ export function useCheck(options: Options): UseCheckReturned {
 
   function handleUncheck(node: TreeNode, ctrlKey?: boolean) {
     const { checkStrictly } = props
-    if (ctrlKey) {
-      uncheckNode(node)
-    } else {
-      dfs(
-        node as unknown as Record<string, unknown>,
-        (n) => {
-          const tn = n as unknown as TreeNode
-          !tn.disabled && uncheckNode(tn)
-        },
-        props.childrenKey ?? 'children'
-      )
+
+    if (ctrlKey || checkStrictly) {
+      !node.disabled && uncheckNode(node)
+      return
     }
 
+    dfs(
+      node as unknown as Record<string, unknown>,
+      (n) => {
+        const tn = n as unknown as TreeNode
+        !tn.disabled && uncheckNode(tn)
+      },
+      props.childrenKey ?? 'children'
+    )
+
     // 非严格模式下，取消选中时，需要更新父节点
-    if (!checkStrictly) {
-      node.bubbleSet((node) => {
-        const { parent } = node
-        if (parent) {
-          uncheckNode(parent)
-        }
-      })
-    }
+    node.bubbleSet((node) => {
+      const { parent } = node
+      if (parent) {
+        uncheckNode(parent)
+      }
+    })
   }
 
   function toggleCheck(node: TreeNode, check: boolean, ctrlKey?: boolean) {
@@ -202,5 +206,31 @@ export function useCheck(options: Options): UseCheckReturned {
     })
   }
 
-  return { checkedData, toggleCheck }
+  function checkAll(check: boolean) {
+    checkedByEvent = true
+
+    forest.value.dfs((node) => {
+      const tn = node as unknown as TreeNode
+      if (!tn.disabled) {
+        check ? checkNode(tn) : uncheckNode(tn)
+      }
+    })
+
+    const checkedArr = Array.from(checkedData)
+
+    const valueKey = fieldKey(props.valueKey, 'value')
+    const nextValues = checkedArr.map((item) => o(item).get(valueKey) as unknown)
+
+    lastCheckedSet = new Set(nextValues)
+
+    emit('update:checked', nextValues as any[], checkedArr)
+
+    getFlattedNodes()
+
+    nextTick(() => {
+      checkedByEvent = false
+    })
+  }
+
+  return { checkedData, toggleCheck, checkAll }
 }

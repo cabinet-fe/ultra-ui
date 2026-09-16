@@ -102,7 +102,13 @@ const { filter } = useFilter({ forest, getFlattedNodes })
 
 const { handleSelect, selectedData } = useSelect({ props, emit, nodeDict, getFlattedNodes })
 
-const { checkedData, toggleCheck } = useCheck({ props, emit, nodeDict, getFlattedNodes })
+const { checkedData, toggleCheck, checkAll } = useCheck({
+  props,
+  emit,
+  forest,
+  nodeDict,
+  getFlattedNodes
+})
 
 const estimateSize = (): number => {
   // 基于 style.scss 中节点稳态高度推算的默认值；
@@ -196,11 +202,7 @@ defineExpose<_TreeExposed>({
   nodes,
   checkNode: toggleCheck,
   selectNode: handleSelect,
-  checkAll(check: boolean) {
-    forest.value.roots.forEach((node) => {
-      toggleCheck(node, check)
-    })
-  },
+  checkAll,
   getSelected() {
     return selectedData
   },

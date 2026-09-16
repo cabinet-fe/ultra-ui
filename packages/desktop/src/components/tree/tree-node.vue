@@ -27,7 +27,7 @@
         v-if="treeProps.checkable"
         :class="cls.e('checkbox')"
         :model-value="node.checked"
-        :indeterminate="node.indeterminate"
+        :indeterminate="!treeProps.checkStrictly && node.indeterminate"
         :disabled="node.disabled"
         @change="handleChange"
         @click.stop
