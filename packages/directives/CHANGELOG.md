@@ -1,5 +1,9 @@
 # @veltra/directives
 
+## 1.7.17
+
+No changes in this release.
+
 ## 1.7.16
 
 No changes in this release.
