@@ -17,7 +17,6 @@
   "type": "module",
   "exports": {
     ".": {
-      "veltra-dev": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     }
@@ -32,7 +31,7 @@
   "peerDependencies": {
     "@cat-kit/core": ">=1.2.1",
     "@cat-kit/fe": ">=1.2.1",
-    "@veltra/utils": "workspace:^",
+    "@veltra/utils": "^1.7.14",
     "vue": ">=3.5.42"
   }
 }

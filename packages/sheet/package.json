@@ -25,12 +25,10 @@
   ],
   "exports": {
     ".": {
-      "veltra-dev": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
     "./*": {
-      "veltra-dev": "./src/*",
       "types": "./dist/*",
       "import": "./dist/*"
     }
@@ -38,11 +36,11 @@
   "peerDependencies": {
     "@cat-kit/core": ">=1.2.1",
     "@cat-kit/fe": ">=1.2.1",
-    "@veltra/desktop": "workspace:^",
-    "@veltra/icons": "workspace:^",
-    "@veltra/sheet-core": "workspace:^",
-    "@veltra/styles": "workspace:^",
-    "@veltra/utils": "workspace:^",
+    "@veltra/desktop": "^1.7.14",
+    "@veltra/icons": "^1.5.0",
+    "@veltra/sheet-core": "^2.5.7",
+    "@veltra/styles": "^1.7.14",
+    "@veltra/utils": "^1.7.14",
     "vue": ">=3.5.42"
   }
 }

@@ -121,7 +121,7 @@ createApp(App).mount('#app')
 | UEmpty                           | 空状态：无数据占位插画与文案                                                 | `desktop/empty.md`              |
 | UExpressionEditor                | 表达式编辑器：字段与函数的表达式输入                                         | `desktop/expression-editor.md`  |
 | UFilePicker                      | 文件选择器：本地文件选择上传                                                 | `desktop/file-picker.md`        |
-| UFileViewer                      | 文件查看器：docx / pdf 等文件在线预览                                        | `desktop/file-viewer.md`        |
+| UFileViewer                      | 文件查看器：图片 / 视频 / PDF / 表格 / Word / OFD 在线预览                    | `desktop/file-viewer.md`        |
 | UFloatButton                     | 浮动按钮：悬浮固定位置的操作按钮                                             | `desktop/float-button.md`       |
 | UForm                            | 表单容器：拦截 field 控件自动生成表单项，校验 / showModified / reset         | `desktop/form.md`               |
 | UFormItem                        | 表单项：单字段 label / rules / tips / span 容器与 ValidateRule 校验规则      | `desktop/form-item.md`          |

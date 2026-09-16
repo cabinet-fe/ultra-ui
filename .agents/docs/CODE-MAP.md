@@ -19,7 +19,7 @@ ultra-ui/
 │   │   └── src/{components,tools,types}/
 │   ├── ai/                   # @veltra/ai
 │   │   └── src/{chat,components,providers,tools,types}/
-│   ├── ofd-core/             # @veltra/ofd-core 零依赖 OFD 解析渲染内核
+│   ├── ofd-core/             # @veltra/ofd-core 零依赖 OFD 解析渲染内核，不发版（打包进 desktop）
 │   ├── icons/                # @veltra/icons（vue/ 为生成物）
 │   ├── vite/                 # @veltra/vite resolver
 │   └── mobile/               # @veltra/mobile 占位，不发版
@@ -36,24 +36,24 @@ ultra-ui/
 
 ## 模块
 
-| 模块            | 路径                    | 职责                                                                  | 主要入口                                                                     |
-| --------------- | ----------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| utils           | `packages/utils`        | 工具函数、BEM helper、共享类型；无 Vue 组件                           | `src/index.ts`                                                               |
-| styles          | `packages/styles`       | SCSS mixins/vars/functions、normalize/transitions/animations、主题 TS | `src/_mixins.scss`、`src/theme/index.ts`                                     |
-| compositions    | `packages/compositions` | Vue 组合式函数（useModel / usePop / useConfig 等）                    | `src/index.ts`（各 `use-*`）                                                 |
-| directives      | `packages/directives`   | `vFocus` / `vClickOutside` / `vRipple`                                | `src/index.ts`                                                               |
-| desktop         | `packages/desktop`      | 桌面端 UI 主包；`install` 全局注册                                    | `src/index.ts`、`src/install.ts`                                             |
-| sheet-core      | `packages/sheet-core`   | 表格模型/命令/公式/IO + SheetGrid                                     | `src/index.ts`、`src/grid/index.ts`                                          |
-| sheet           | `packages/sheet`        | USheet、工具系统                                                      | `src/index.ts`                                                               |
-| ai              | `packages/ai`           | UAiChat / useChat / transport / UAiOrb                                | `src/index.ts`                                                               |
-| ofd-core        | `packages/ofd-core`     | 零依赖 OFD（GB/T 33190）解析渲染内核，SVG 页面输出                    | `src/index.ts`                                                               |
-| icons           | `packages/icons`        | SVG → Vue 图标                                                        | `src/index.ts`、`src/normal.ts`、`src/colorful.ts`                           |
-| vite            | `packages/vite`         | VeltraUIResolver 与生成组件表                                         | `src/resolver.ts`、`src/components.gen.ts`                                   |
-| mobile          | `packages/mobile`       | 占位，private、changeset ignore                                       | `src/index.ts`                                                               |
-| playground      | `playground`            | 预览 SPA + 填报/AI 参考实现                                           | `main.ts`、`playground/server/dev.ts`                                        |
-| scripts         | `scripts`               | resolver/skill 生成、docs 推送、release、setup-git                    | `gen-vite-resolver.ts`、`gen-veltra-skill.ts`、`push-docs.mjs`、`release.ts` |
-| veltra-ui-skill | `skills/veltra-ui`      | 对外 Agent Skill（`bun run skill:gen` 更新）                          | `SKILL.md`                                                                   |
-| agent-docs      | `agent-docs`            | 面向 docs-mcp 的检索文档，docs-gen 技能撰写、`push-docs.mjs` 推送     | `index.md`、各包目录 `*.md`                                                  |
+| 模块            | 路径                    | 职责                                                                               | 主要入口                                                                     |
+| --------------- | ----------------------- | ---------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| utils           | `packages/utils`        | 工具函数、BEM helper、共享类型；无 Vue 组件                                        | `src/index.ts`                                                               |
+| styles          | `packages/styles`       | SCSS mixins/vars/functions、normalize/transitions/animations、主题 TS              | `src/_mixins.scss`、`src/theme/index.ts`                                     |
+| compositions    | `packages/compositions` | Vue 组合式函数（useModel / usePop / useConfig 等）                                 | `src/index.ts`（各 `use-*`）                                                 |
+| directives      | `packages/directives`   | `vFocus` / `vClickOutside` / `vRipple`                                             | `src/index.ts`                                                               |
+| desktop         | `packages/desktop`      | 桌面端 UI 主包；`install` 全局注册                                                 | `src/index.ts`、`src/install.ts`                                             |
+| sheet-core      | `packages/sheet-core`   | 表格模型/命令/公式/IO + SheetGrid                                                  | `src/index.ts`、`src/grid/index.ts`                                          |
+| sheet           | `packages/sheet`        | USheet、工具系统                                                                   | `src/index.ts`                                                               |
+| ai              | `packages/ai`           | UAiChat / useChat / transport / UAiOrb                                             | `src/index.ts`                                                               |
+| ofd-core        | `packages/ofd-core`     | 零依赖 OFD（GB/T 33190）解析渲染内核，SVG 页面输出；private 不发版，打包进 desktop | `src/index.ts`                                                               |
+| icons           | `packages/icons`        | SVG → Vue 图标                                                                     | `src/index.ts`、`src/normal.ts`、`src/colorful.ts`                           |
+| vite            | `packages/vite`         | VeltraUIResolver 与生成组件表                                                      | `src/resolver.ts`、`src/components.gen.ts`                                   |
+| mobile          | `packages/mobile`       | 占位，private、changeset ignore                                                    | `src/index.ts`                                                               |
+| playground      | `playground`            | 预览 SPA + 填报/AI 参考实现                                                        | `main.ts`、`playground/server/dev.ts`                                        |
+| scripts         | `scripts`               | resolver/skill 生成、docs 推送、release、setup-git                                 | `gen-vite-resolver.ts`、`gen-veltra-skill.ts`、`push-docs.mjs`、`release.ts` |
+| veltra-ui-skill | `skills/veltra-ui`      | 对外 Agent Skill（`bun run skill:gen` 更新）                                       | `SKILL.md`                                                                   |
+| agent-docs      | `agent-docs`            | 面向 docs-mcp 的检索文档，docs-gen 技能撰写、`push-docs.mjs` 推送                  | `index.md`、各包目录 `*.md`                                                  |
 
 ## 依赖
 

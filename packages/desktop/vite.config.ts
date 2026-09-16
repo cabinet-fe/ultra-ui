@@ -30,7 +30,7 @@ const config = {
       moduleSideEffects: [{ test: /\/components\/[^/]+\/style\.ts$/, sideEffects: true }]
     },
     deps: {
-      alwaysBundle: [/^@codemirror\//, /^@lezer\//, 'style-mod'],
+      alwaysBundle: [/^@codemirror\//, /^@lezer\//, 'style-mod', '@veltra/ofd-core'],
       onlyBundle: false,
       neverBundle: [
         'vue',

@@ -21,19 +21,17 @@
   ],
   "exports": {
     ".": {
-      "veltra-dev": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
     "./*": {
-      "veltra-dev": "./src/*",
       "types": "./dist/*",
       "import": "./dist/*"
     }
   },
   "peerDependencies": {
-    "@veltra/styles": "workspace:^",
-    "@veltra/utils": "workspace:^",
+    "@veltra/styles": "^1.7.14",
+    "@veltra/utils": "^1.7.14",
     "vue": ">=3.5.42"
   }
 }

@@ -23,17 +23,14 @@
   ],
   "exports": {
     ".": {
-      "veltra-dev": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
     "./style": {
-      "veltra-dev": "./src/style.ts",
       "types": "./dist/style.d.ts",
       "import": "./dist/style.js"
     },
     "./*": {
-      "veltra-dev": "./src/*",
       "types": "./dist/*",
       "import": "./dist/*"
     }
@@ -42,11 +39,11 @@
     "markstream-vue": "^2.0.11"
   },
   "peerDependencies": {
-    "@veltra/compositions": "workspace:^",
-    "@veltra/desktop": "workspace:^",
-    "@veltra/icons": "workspace:^",
-    "@veltra/styles": "workspace:^",
-    "@veltra/utils": "workspace:^",
+    "@veltra/compositions": "^1.7.14",
+    "@veltra/desktop": "^1.7.14",
+    "@veltra/icons": "^1.5.0",
+    "@veltra/styles": "^1.7.14",
+    "@veltra/utils": "^1.7.14",
     "vue": ">=3.5.42"
   }
 }

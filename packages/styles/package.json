@@ -27,37 +27,32 @@
   ],
   "exports": {
     "./animations": {
-      "veltra-dev": "./src/animations/index.ts",
       "import": "./dist/animations/index.js",
       "default": "./dist/animations/index.js"
     },
     "./transitions": {
-      "veltra-dev": "./src/transitions/index.ts",
       "import": "./dist/transitions/index.js",
       "default": "./dist/transitions/index.js"
     },
     "./normalize": {
-      "veltra-dev": "./src/normalize/index.ts",
       "import": "./dist/normalize/index.js",
       "default": "./dist/normalize/index.js"
     },
     "./theme": {
-      "veltra-dev": "./src/theme/index.ts",
       "types": "./dist/theme/index.d.ts",
       "import": "./dist/theme/index.js",
       "default": "./dist/theme/index.js"
     },
     "./*": {
       "sass": "./src/*",
-      "veltra-dev": "./src/*",
       "import": "./dist/*",
       "default": "./dist/*"
     }
   },
   "peerDependencies": {
     "@cat-kit/core": ">=1.2.1",
-    "@veltra/compositions": "workspace:^",
-    "@veltra/utils": "workspace:^",
+    "@veltra/compositions": "^1.7.14",
+    "@veltra/utils": "^1.7.14",
     "vue": ">=3.5.42"
   }
 }

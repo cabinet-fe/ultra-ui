@@ -1,6 +1,7 @@
 {
   "name": "@veltra/ofd-core",
   "version": "1.0.1",
+  "private": true,
   "homepage": "https://github.com/cabinet-fe/ultra-ui#readme",
   "bugs": {
     "url": "https://github.com/cabinet-fe/ultra-ui/issues"
@@ -18,12 +19,10 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "veltra-dev": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
     "./*": {
-      "veltra-dev": "./src/*",
       "types": "./dist/*",
       "import": "./dist/*"
     }

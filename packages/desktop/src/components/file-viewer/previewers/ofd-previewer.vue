@@ -1,28 +1,23 @@
 <template>
   <div :class="cls.e('ofd')">
-    <div v-if="unavailable" :class="cls.e('empty')">
-      <u-empty text="无法预览 OFD：未安装 @veltra/ofd-core" :size="32" />
-    </div>
-    <template v-else>
-      <div ref="scroll" :class="cls.e('ofd-scroll')">
-        <div
-          v-for="(page, i) in pages"
-          :key="i"
-          :data-index="i"
-          :class="cls.e('ofd-page')"
-          :style="{
-            width: page.widthPx * zoomLevel + 'px',
-            height: page.heightPx * zoomLevel + 'px'
-          }"
-        >
-          <div v-if="page.svg" :class="cls.e('ofd-page-body')" v-html="page.svg" />
-        </div>
-        <div v-if="!pages.length && !loading" :class="cls.e('empty')">
-          <u-empty text="该文件没有可预览的页面" :size="32" />
-        </div>
+    <div ref="scroll" :class="cls.e('ofd-scroll')">
+      <div
+        v-for="(page, i) in pages"
+        :key="i"
+        :data-index="i"
+        :class="cls.e('ofd-page')"
+        :style="{
+          width: page.widthPx * zoomLevel + 'px',
+          height: page.heightPx * zoomLevel + 'px'
+        }"
+      >
+        <div v-if="page.svg" :class="cls.e('ofd-page-body')" v-html="page.svg" />
       </div>
-      <div v-if="loading" :class="cls.e('loading')">正在解析 OFD…</div>
-    </template>
+      <div v-if="!pages.length && !loading" :class="cls.e('empty')">
+        <u-empty text="该文件没有可预览的页面" :size="32" />
+      </div>
+    </div>
+    <div v-if="loading" :class="cls.e('loading')">正在解析 OFD…</div>
   </div>
 </template>
 
@@ -36,7 +31,7 @@ import { toArrayBuffer } from '../helper'
 
 defineOptions({ name: 'UFileViewerOfdPreviewer' })
 
-/** 仅类型查询；运行时通过动态 import 加载，未安装时不炸主入口 */
+/** 仅类型查询；运行时动态 import 按需加载，构建时随 alwaysBundle 内联进 dist */
 type OfdCoreModule = typeof import('@veltra/ofd-core')
 type OfdContainer = import('@veltra/ofd-core').OfdContainer
 type OfdZip = import('@veltra/ofd-core').OfdZip
@@ -71,7 +66,6 @@ const emit = defineEmits<{
 const cls = bem('file-viewer')
 const scrollEl = useTemplateRef<HTMLDivElement>('scroll')
 const loading = ref(true)
-const unavailable = ref(false)
 const pages = ref<OfdPageView[]>([])
 const zoomLevel = ref(1)
 
@@ -114,15 +108,11 @@ defineExpose({ zoomIn, zoomOut, resetZoom })
 
 // ---- 解析与懒渲染 ----
 
-/** 动态加载 ofd-core；未安装 optional peer 时返回 undefined */
-async function resolveOfdCore(): Promise<OfdCoreModule | undefined> {
-  if (ofdCore) return ofdCore
-  try {
-    ofdCore = await import('@veltra/ofd-core')
-    return ofdCore
-  } catch {
-    return undefined
-  }
+/** 动态加载 ofd-core chunk；首次加载后缓存模块复用 */
+async function resolveOfdCore(): Promise<OfdCoreModule> {
+  const mod = ofdCore ?? (await import('@veltra/ofd-core'))
+  ofdCore = mod
+  return mod
 }
 
 function teardownRender() {
@@ -177,17 +167,11 @@ async function load() {
   controller = new AbortController()
   teardownRender()
   loading.value = true
-  unavailable.value = false
   pages.value = []
 
   try {
     const core = await resolveOfdCore()
     if (token !== loadToken) return
-    if (!core) {
-      unavailable.value = true
-      emit('error', new Error('未安装 @veltra/ofd-core，无法预览 OFD'))
-      return
-    }
 
     const buf = await toArrayBuffer(props.file.src, controller.signal)
     if (token !== loadToken) return

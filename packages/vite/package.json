@@ -18,18 +18,17 @@
   "type": "module",
   "exports": {
     ".": {
-      "veltra-dev": "./src/index.ts",
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     }
   },
   "devDependencies": {
-    "@veltra/desktop": "workspace:*"
+    "@veltra/desktop": "1.7.14"
   },
   "peerDependencies": {
-    "@veltra/ai": "workspace:^",
-    "@veltra/desktop": "workspace:^",
-    "@veltra/sheet": "workspace:^",
+    "@veltra/ai": "^2.1.8",
+    "@veltra/desktop": "^1.7.14",
+    "@veltra/sheet": "^2.5.7",
     "unplugin-vue-components": ">=32.0.0"
   },
   "peerDependenciesMeta": {

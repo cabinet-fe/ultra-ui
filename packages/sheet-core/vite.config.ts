@@ -11,7 +11,9 @@ export default defineConfig({
   run: { tasks: { build: { command: 'vp pack', output: ['dist/**'] } } },
 
   pack: {
-    entry: ['src/index.ts', 'src/grid/index.ts'],
+    // core/io/import 是深导入通道（replaceWorkbookWithSnapshots 等不在主入口白名单，见 AGENTS.md），
+    // 必须列为入口，否则 treeshake 会把主入口图不可达的导出摇掉
+    entry: ['src/index.ts', 'src/grid/index.ts', 'src/core/io/import.ts'],
     platform: 'browser',
     unbundle: true,
     sourcemap: true,

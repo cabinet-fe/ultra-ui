@@ -100,7 +100,7 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 
 ## 导入导出（core/io）
 
-- 主入口白名单：`exportWorkbookXlsx` / `exportSheetXlsx` / `exportSheetCsv` / `importXlsx` / `importCsv`。整簿替换 `replaceWorkbookWithSnapshots` 与 worker 链路入口 `buildWorkbookFromHucre` 不在白名单，消费方深导入 `@veltra/sheet-core/core/io/import`。
+- 主入口白名单：`exportWorkbookXlsx` / `exportSheetXlsx` / `exportSheetCsv` / `importXlsx` / `importCsv`。整簿替换 `replaceWorkbookWithSnapshots` 与 worker 链路入口 `buildWorkbookFromHucre` 不在白名单，消费方深导入 `@veltra/sheet-core/core/io/import`；该文件因此列在 `vite.config.ts` 的 pack `entry` 里——不列入则 `treeshake` 会把主入口图不可达的导出摇掉，消费方打包时报 MISSING_EXPORT。
 - `exportSheetXlsx(sheet, { fallbackName? })`：单表导出（与 exportWorkbookXlsx 同一套单表组装 `sheetToHucreWriteSheet`，浮动图随导出保留）；表名取 `sheet.name || fallbackName || 'Sheet'`。
 - `importXlsx(buffer, onProgress?)`：第二参数透传 `buildWorkbookFromHucre` 的分片进度回调（每完成一个 sheet 回调一次）；worker 导入链路（`@veltra/sheet` 的 import.worker）经动态 import 深导入本模块驱动进度 UI。
 - **IO 保真度约定**：xlsx 导入只读 `cells` Map（不扫稠密 `rows`）；表格尺寸按有值格 ∪ 合并 ∪ 图片锚点收敛，勿用稠密几何或 `columns[]` 全长撑到 Excel 极限列数；纯样式格只保留有值范围外扩 100 的紧邻带；行高/列宽只写入渲染范围内的定义（禁止把默认 `columns[]` 外扩 KEEP_MARGIN 后逐列 setColWidth）。

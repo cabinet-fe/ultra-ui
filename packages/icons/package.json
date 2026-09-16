@@ -14,17 +14,14 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "veltra-dev": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
     "./normal": {
-      "veltra-dev": "./src/normal.ts",
       "types": "./dist/normal.d.ts",
       "import": "./dist/normal.js"
     },
     "./colorful": {
-      "veltra-dev": "./src/colorful.ts",
       "types": "./dist/colorful.d.ts",
       "import": "./dist/colorful.js"
     }

@@ -13,9 +13,6 @@
     [
       "@veltra/sheet",
       "@veltra/sheet-core"
-    ],
-    [
-      "@veltra/ofd-core"
     ]
   ],
   "linked": [],

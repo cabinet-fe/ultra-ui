@@ -1,7 +1,7 @@
 ---
 title: UFileViewer 文件查看器
-description: 多格式文件预览面板：传入 files 即可预览图片、视频、PDF、Excel/CSV、Word 与文本，带文件侧栏、缩放/平移、下载按钮；open 传入布尔值切换为 Teleport 到 body 的全屏模态。
-aliases: [FileViewer, file-viewer, 文件预览, 预览器, 文件查看]
+description: 多格式文件预览面板：传入 files 即可预览图片、视频、PDF、Excel/CSV、Word、OFD 版式文档与文本，带文件侧栏、缩放/平移、下载按钮；open 传入布尔值切换为 Teleport 到 body 的全屏模态。
+aliases: [FileViewer, file-viewer, 文件预览, 预览器, 文件查看, OFD 预览, 版式文档]
 keywords:
   [
     files,
@@ -17,6 +17,10 @@ keywords:
     FileViewerItem,
     FileViewerKind,
     sheet-core,
+    ofd,
+    OFD 预览,
+    版式文档,
+    发票预览,
     xlsx 预览,
     csv 预览,
     图片预览,
@@ -29,7 +33,7 @@ keywords:
 
 # UFileViewer 文件查看器
 
-`@veltra/desktop` 导出的文件预览组件 `UFileViewer`：传入 `FileViewerItem[]` 即可在一个面板内预览图片、视频、PDF、表格（xlsx/xlsm/xlsb/csv）、Word（docx）与文本文件；左侧文件列表切换、工具栏缩放/翻页/下载；`open` 传入布尔值时进入 Teleport 到 body 的全屏模态模式。
+`@veltra/desktop` 导出的文件预览组件 `UFileViewer`：传入 `FileViewerItem[]` 即可在一个面板内预览图片、视频、PDF、表格（xlsx/xlsm/xlsb/csv）、Word（docx）、OFD 版式文档（.ofd）与文本文件；左侧文件列表切换、工具栏缩放/翻页/下载；`open` 传入布尔值时进入 Teleport 到 body 的全屏模态模式。
 
 ## 快速上手
 
@@ -60,8 +64,8 @@ const active = ref<string>('pdf')
 ```ts
 import type { ShallowRef } from 'vue'
 
-/** 预览器类别：xlsx 与 csv 归一为 sheet */
-export type FileViewerKind = 'image' | 'video' | 'pdf' | 'sheet' | 'docx' | 'text'
+/** 预览器类别：xlsx 与 csv 归一为 sheet，ofd 为版式文档（GB/T 33190） */
+export type FileViewerKind = 'image' | 'video' | 'pdf' | 'sheet' | 'docx' | 'ofd' | 'text'
 
 /** 单个预览文件定义 */
 export interface FileViewerItem {
@@ -148,6 +152,7 @@ export interface FileViewerExposed {
 | `pdf`   | `pdf`                                                                                                                                                                                     |
 | `sheet` | `xlsx` `xlsm` `xlsb` `csv`                                                                                                                                                                |
 | `docx`  | `docx`                                                                                                                                                                                    |
+| `ofd`   | `ofd`                                                                                                                                                                                     |
 | `text`  | `txt` `log` `md` `markdown` `json` `yml` `yaml` `xml` `js` `ts` `tsx` `jsx` `css` `scss` `sass` `less` `html` `htm` `ini` `toml` `sh` `bash` `zsh` `env` `sql`；其余未知后缀也归入 `text` |
 
 ## 方法与事件
@@ -159,7 +164,7 @@ export interface FileViewerExposed {
 | `update:modelValue` | `id: string`                               | 激活文件变化（点侧栏、调 `activate`/`next`/`prev`、内部自动激活）                                       |
 | `update:open`       | `value: boolean`                           | 模态模式下点背景、按 ESC、点关闭按钮时变为 `false`                                                      |
 | `change`            | `file: FileViewerItem`                     | 激活文件切换且 id 与之前不同                                                                            |
-| `error`             | `{ file: FileViewerItem; error: unknown }` | URL fetch 失败（`Fetch failed: <status> <statusText>`）、sheet-core 缺失、文本/表格解析失败、下载失败等 |
+| `error`             | `{ file: FileViewerItem; error: unknown }` | URL fetch 失败（`Fetch failed: <status> <statusText>`）、sheet-core 缺失、文本/表格解析失败、OFD 解析或单页渲染失败、下载失败 |
 
 ### 暴露成员（模板 ref，已解构）
 
@@ -173,6 +178,7 @@ export interface FileViewerExposed {
 
 - `image`：工具栏缩放按钮 + Ctrl/⌘+滚轮缩放（步进 0.1，范围 0.5~3），缩放大于 1 后可拖拽平移，双击在 100% 与 200% 间切换
 - `pdf`：缩放由 @embedpdf 的 zoom 插件处理，工具栏同样显示百分比
+- `ofd`：缩放由预览器内部处理（步进 0.1，范围 0.5~3），工具栏显示百分比；无滚轮/双击缩放，页面尺寸随缩放自适应
 - 其余类别不显示缩放控件
 
 ## 典型示例
@@ -274,6 +280,7 @@ const files: FileViewerItem[] = [
 > [!WARNING]
 >
 > - Excel/CSV 预览依赖可选 peer `@veltra/sheet-core`：已安装时以只读 `SheetGrid` 渲染（xlsx 多 sheet 显示页签，csv 单表、表名取文件名）；未安装时该类文件显示「无法预览表格：未安装 @veltra/sheet-core」空态，并向 `error` 事件抛出 `Error('未安装 @veltra/sheet-core，无法预览 Excel/CSV')`，其余格式不受影响。安装：`pnpm add @veltra/sheet-core`。
+> - OFD 预览内核 `@veltra/ofd-core` 已随包内置打包，无需安装；页面按元数据毫米尺寸以 96dpi 换算渲染 SVG，未声明尺寸的页按 A4（210×297mm）兜底；滚动到可视区上下各一屏内才渲染该页；单页渲染失败时该页空白且不再重试，错误经 `error` 事件抛出。
 > - `sheetMaxRows` 只驱动「超出预览上限」提示条，不裁剪也不截断数据；超大表格仍会全量加载，控制加载成本应在源头限制文件。
 > - PDF 预览由内置依赖 `@embedpdf/*` 渲染，Word 由 `docx-preview` 渲染，均为必装依赖，无需额外安装。
 > - 文本预览最多读取前 2MB（超出显示「文件过大，仅展示前 …」提示），按 UTF-8 解码。
@@ -290,6 +297,10 @@ const files: FileViewerItem[] = [
 ```bash
 pnpm add @veltra/sheet-core
 ```
+
+### OFD 文件预览触发 `error` 事件
+
+原因：文件损坏、加密或不是有效 OFD（GB/T 33190）时整本解析失败，`error` 收到解析错误；个别页渲染失败时仅该页空白，`error` 收到该页的渲染错误。修复：确认文件为未损坏、未加密的有效 OFD；切走再切回该文件会重新解析，单页失败不影响其余页浏览。
 
 ### 预览 URL 文件时 `error` 事件收到 `Fetch failed: 404 Not Found`
 
