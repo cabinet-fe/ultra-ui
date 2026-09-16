@@ -1,5 +1,5 @@
-import type { Sheet } from '@veltra/sheet-core/core/sheet'
-import { Workbook } from '@veltra/sheet-core/core/workbook'
+import type { Sheet } from '@veltra/sheet-core/core/sheet.js'
+import { Workbook } from '@veltra/sheet-core/core/workbook.js'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { ref } from 'vue'
 
@@ -36,7 +36,7 @@ const EMPTY_SNAPSHOT = {
 
 vi.mock('@veltra/desktop', () => ({ message: mocks.message, messageConfirm: mocks.messageConfirm }))
 
-vi.mock('@veltra/sheet-core/core/io/import', () => ({
+vi.mock('@veltra/sheet-core/core/io/import.js', () => ({
   importCsv: mocks.importCsv,
   importXlsx: mocks.importXlsx,
   replaceWorkbookWithSnapshots: mocks.replaceWorkbookWithSnapshots

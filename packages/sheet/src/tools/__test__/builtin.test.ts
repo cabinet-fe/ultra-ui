@@ -1,8 +1,8 @@
-import { createRange } from '@veltra/sheet-core/core/address'
+import { createRange } from '@veltra/sheet-core/core/address.js'
 
 import '../builtin'
-import { Sheet } from '@veltra/sheet-core/core/sheet'
-import { Workbook } from '@veltra/sheet-core/core/workbook'
+import { Sheet } from '@veltra/sheet-core/core/sheet.js'
+import { Workbook } from '@veltra/sheet-core/core/workbook.js'
 import { describe, expect, it, vi } from 'vitest'
 
 import { createSheetContext } from '../context'

@@ -1,5 +1,5 @@
 import { message } from '@veltra/desktop'
-import type { SheetImageAnchor, SheetImageType } from '@veltra/sheet-core/core/image'
+import type { SheetImageAnchor, SheetImageType } from '@veltra/sheet-core/core/image.js'
 
 import type { SheetContext } from '../../tools/context'
 

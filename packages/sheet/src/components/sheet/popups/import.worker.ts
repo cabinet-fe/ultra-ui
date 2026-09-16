@@ -15,7 +15,7 @@
  * 注意：必须用**运行时动态 import**——worker 顶层静态 import 在 vite dev 的
  * worker 上下文中会因模块图加载顺序导致 `Workbook is not defined`（实测）。
  */
-import type { SheetSnapshot } from '@veltra/sheet-core/core/sheet'
+import type { SheetSnapshot } from '@veltra/sheet-core/core/sheet.js'
 
 export type ImportWorkerResponse =
   | { type: 'progress'; done: number; total: number }
@@ -31,7 +31,7 @@ self.onmessage = (e: MessageEvent<{ buffer: ArrayBuffer }>): void => {
   const { buffer } = e.data
   void (async () => {
     try {
-      const { importXlsx } = await import('@veltra/sheet-core/core/io/import')
+      const { importXlsx } = await import('@veltra/sheet-core/core/io/import.js')
       // 分片构建：按 10% 粒度回报进度（避免 196 条/秒的消息风暴与文字跳变过快；
       // 模型构建段约 1s，10 次更新肉眼可见数字推进）
       let lastPercent = -1

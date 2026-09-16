@@ -54,8 +54,8 @@
 <script lang="ts" setup>
 import { contextmenu, message, messageConfirm, UIcon } from '@veltra/desktop'
 import { ArrowLeft, ArrowRight } from '@veltra/icons/normal'
-import type { Sheet } from '@veltra/sheet-core/core/sheet'
-import type { Workbook } from '@veltra/sheet-core/core/workbook'
+import type { Sheet } from '@veltra/sheet-core/core/sheet.js'
+import type { Workbook } from '@veltra/sheet-core/core/workbook.js'
 import { bem } from '@veltra/utils'
 import { nextTick, ref, toRef, useTemplateRef } from 'vue'
 

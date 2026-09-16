@@ -101,9 +101,9 @@ import {
   parseRange,
   type CellAddress,
   type CellRange
-} from '@veltra/sheet-core/core/address'
-import type { SelectionState } from '@veltra/sheet-core/core/selection'
-import type { Sheet } from '@veltra/sheet-core/core/sheet'
+} from '@veltra/sheet-core/core/address.js'
+import type { SelectionState } from '@veltra/sheet-core/core/selection.js'
+import type { Sheet } from '@veltra/sheet-core/core/sheet.js'
 import { bem } from '@veltra/utils'
 import {
   computed,

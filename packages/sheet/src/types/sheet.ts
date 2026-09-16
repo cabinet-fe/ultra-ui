@@ -1,5 +1,5 @@
-import type { Sheet } from '@veltra/sheet-core/core/sheet'
-import type { Workbook } from '@veltra/sheet-core/core/workbook'
+import type { Sheet } from '@veltra/sheet-core/core/sheet.js'
+import type { Workbook } from '@veltra/sheet-core/core/workbook.js'
 import type {
   ResolveCellRenderer,
   ResolveCellStyleHook,

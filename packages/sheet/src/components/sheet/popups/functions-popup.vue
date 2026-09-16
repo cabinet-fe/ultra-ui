@@ -47,7 +47,7 @@ import { UInput, UScroll } from '@veltra/desktop'
 import {
   listFormulaFunctions,
   type FormulaFunctionMeta
-} from '@veltra/sheet-core/core/formula/functions'
+} from '@veltra/sheet-core/core/formula/functions.js'
 import { bem } from '@veltra/utils'
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
 

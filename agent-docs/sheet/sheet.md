@@ -64,8 +64,7 @@ sheet.setCellValue({ row: 1, col: 1 }, 200)
 从 `@veltra/sheet` 导出的组件与类型（工具注册 API `registerTool` 等见 `agent-docs/sheet/sheet-tools.md`）：
 
 ```ts
-import type { Sheet } from '@veltra/sheet-core/core/sheet'
-import type { Workbook } from '@veltra/sheet-core/core/workbook'
+import type { Sheet, Workbook } from '@veltra/sheet-core'
 import type {
   ResolveCellRenderer,
   ResolveCellStyleHook,

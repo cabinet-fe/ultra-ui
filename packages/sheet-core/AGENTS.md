@@ -100,7 +100,7 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 
 ## 导入导出（core/io）
 
-- 主入口白名单：`exportWorkbookXlsx` / `exportSheetXlsx` / `exportSheetCsv` / `importXlsx` / `importCsv`。整簿替换 `replaceWorkbookWithSnapshots` 与 worker 链路入口 `buildWorkbookFromHucre` 不在白名单，消费方深导入 `@veltra/sheet-core/core/io/import`；该文件因此列在 `vite.config.ts` 的 pack `entry` 里——不列入则 `treeshake` 会把主入口图不可达的导出摇掉，消费方打包时报 MISSING_EXPORT。
+- 主入口白名单：`exportWorkbookXlsx` / `exportSheetXlsx` / `exportSheetCsv` / `importXlsx` / `importCsv`。整簿替换 `replaceWorkbookWithSnapshots` 与 worker 链路入口 `buildWorkbookFromHucre` 不在白名单，消费方深导入 `@veltra/sheet-core/core/io/import.js`；该文件因此列在 `vite.config.ts` 的 pack `entry` 里——不列入则 `treeshake` 会把主入口图不可达的导出摇掉，消费方打包时报 MISSING_EXPORT。
 - `exportSheetXlsx(sheet, { fallbackName? })`：单表导出（与 exportWorkbookXlsx 同一套单表组装 `sheetToHucreWriteSheet`，浮动图随导出保留）；表名取 `sheet.name || fallbackName || 'Sheet'`。
 - `importXlsx(buffer, onProgress?)`：第二参数透传 `buildWorkbookFromHucre` 的分片进度回调（每完成一个 sheet 回调一次）；worker 导入链路（`@veltra/sheet` 的 import.worker）经动态 import 深导入本模块驱动进度 UI。
 - **IO 保真度约定**：xlsx 导入只读 `cells` Map（不扫稠密 `rows`）；表格尺寸按有值格 ∪ 合并 ∪ 图片锚点收敛，勿用稠密几何或 `columns[]` 全长撑到 Excel 极限列数；纯样式格只保留有值范围外扩 100 的紧邻带；行高/列宽只写入渲染范围内的定义（禁止把默认 `columns[]` 外扩 KEEP_MARGIN 后逐列 setColWidth）。
@@ -135,7 +135,7 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 
 ## 已知问题
 
-- **`exports["./*"]` 通配深导入对 tsc 不友好**：tsc 不经 exports 通配做扩展名探测（`veltra-dev → ./src/*` 无扩展名解析失败），消费方深导入 `@veltra/sheet-core/core/*` 时需在其 tsconfig 配 `paths` 直指源码兜底（参考 `packages/sheet/tsconfig.json`），并加 `references` 避免 composite 项目的 TS6059/TS6307。主入口与显式 `./grid` 子路径无此问题。
+- **`exports["./*"]` 深导入必须带 `.js` 后缀**：`./*` 把请求原样映射到 `./dist/*`，tsc 不做扩展名补全——写 `@veltra/sheet-core/core/address` 会去找无扩展名的 `dist/core/address`，tsc 报 TS2307。带后缀（`@veltra/sheet-core/core/address.js`）与显式 `./grid` 子路径都正常。新增 `core/*` 模块供外部深导入时，确认其已列入 `vite.config.ts` 的 pack `entry`，否则不产出 `.d.ts`（`core/events` 即为此列在 entry）。
 - **语言服务**：`tsconfig.json` 只含 `core/`（无 VTable）；`tsconfig.grid.json` 含 `grid/`。编辑无头模型时不要把两个项目并进同一个 program。
 
 ## 测试与验证

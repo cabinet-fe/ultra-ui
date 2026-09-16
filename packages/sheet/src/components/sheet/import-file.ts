@@ -3,9 +3,9 @@ import {
   importCsv,
   importXlsx,
   replaceWorkbookWithSnapshots
-} from '@veltra/sheet-core/core/io/import'
-import type { Sheet, SheetSnapshot } from '@veltra/sheet-core/core/sheet'
-import type { Workbook } from '@veltra/sheet-core/core/workbook'
+} from '@veltra/sheet-core/core/io/import.js'
+import type { Sheet, SheetSnapshot } from '@veltra/sheet-core/core/sheet.js'
+import type { Workbook } from '@veltra/sheet-core/core/workbook.js'
 import { nextFrame } from '@veltra/utils'
 import type { Ref } from 'vue'
 

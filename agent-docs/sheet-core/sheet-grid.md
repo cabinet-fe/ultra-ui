@@ -267,7 +267,7 @@ sheet.getCellData({ row: 0, col: 0 })?.v // => 5（模型原始值不变）
 > - 主题由本库内置（`themes.DEFAULT.extends`）；经 `getTable()` 拿到 ListTable 后禁止再赋裸 theme 对象，会丢默认色。
 > - 需要 ListTable 事件时用 `ListTable.EVENT_TYPE`，不是 `core.EVENT_TYPE`（后者运行时为 `undefined`）。
 > - 列宽在构造期写入 column def（一次布局）；运行期改列宽走模型 `sheet.setColWidth`，由适配层回放，禁止对大量列逐次调 ListTable 的 `setColWidth`（实测数百列会卡秒级）。
-> - 深导入 `@veltra/sheet-core/core/*` 通配子路径对 tsc 不友好，需 tsconfig `paths` 兜底；显式 `./grid` 子路径无此问题。
+> - 深导入 `@veltra/sheet-core/core/*` 必须带 `.js` 后缀（`@veltra/sheet-core/core/address.js`）。exports 的 `./*` 通配把无后缀请求映射到无扩展名目标，tsc 不做扩展名探测、解析失败；带 `.js` 与显式 `./grid` 子路径都正常。
 
 ## 常见问题
 

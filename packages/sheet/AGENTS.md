@@ -31,7 +31,7 @@ src/
 ## 引用 sheet-core
 
 - 模型 / 命令 / 公式 / IO 走主入口（`from '@veltra/sheet-core'`）。`SheetGrid` / `CustomLayout` / `resolveCellRenderer` 走 `@veltra/sheet-core/grid`。本包主入口**不 re-export** sheet-core 符号——sheet-core 独立发包，消费方（含 playground）直导；不要为图省事把 core 符号挂回 `@veltra/sheet`。
-- 白名单外符号（io 转换函数、内部类型等）深导入 `@veltra/sheet-core/core/*`：tsc 不经 exports `./*` 通配做扩展名探测，`tsconfig.json` 以 `paths: { "@veltra/sheet-core/*": ["../sheet-core/src/*"] }` 兜底，并配 `references` 指向 sheet-core 的 `tsconfig.json` 与 `tsconfig.grid.json`（paths 命中的源码归属被引用项目，避免 composite 的 TS6059/TS6307）。
+- 白名单外符号（io 转换函数、内部类型等）深导入 `@veltra/sheet-core/core/*` 必须带 `.js` 后缀（如 `@veltra/sheet-core/core/io/import.js`）：exports 的 `./*` 把请求原样映射到 `./dist/*`，不做扩展名补全，漏写后缀 tsc 报 TS2307。已在主入口导出的符号（`Sheet` / `Workbook` / `CellRange` 等）直接走主入口，不必深导入。
 - 类成员方法（`Sheet.setCell` / `setCellStyles` / `CellStore.setCellValue` 等）为内部便捷写入口，非公开承诺 API——见 `packages/sheet-core/AGENTS.md`「核心语义」注。
 
 ## USheet

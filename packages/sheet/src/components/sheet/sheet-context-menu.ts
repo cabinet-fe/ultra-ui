@@ -1,6 +1,6 @@
 import type { ContextmenuItem } from '@veltra/desktop'
-import { createRange, type CellAddress, type CellRange } from '@veltra/sheet-core/core/address'
-import type { NumFmt } from '@veltra/sheet-core/core/style/types'
+import { createRange, type CellAddress, type CellRange } from '@veltra/sheet-core/core/address.js'
+import type { NumFmt } from '@veltra/sheet-core/core/style/types.js'
 import { defineComponent, h } from 'vue'
 
 import type { SheetContext } from '../../tools/context'

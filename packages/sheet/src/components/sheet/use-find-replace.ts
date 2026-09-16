@@ -3,15 +3,15 @@ import {
   inferCellType,
   normalizeInputValue,
   type CellData
-} from '@veltra/sheet-core/core/cell-store'
+} from '@veltra/sheet-core/core/cell-store.js'
 import {
   findAll,
   findNextFrom,
   findPrevFrom,
   type FindMatch,
   type FindOptions
-} from '@veltra/sheet-core/core/find'
-import type { Sheet } from '@veltra/sheet-core/core/sheet'
+} from '@veltra/sheet-core/core/find.js'
+import type { Sheet } from '@veltra/sheet-core/core/sheet.js'
 import { computed, ref, shallowRef, watch } from 'vue'
 
 import type { SheetContext } from '../../tools/context'

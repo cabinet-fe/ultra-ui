@@ -1,4 +1,4 @@
-import { registerFormulaFunction } from '@veltra/sheet-core/core/formula/functions'
+import { registerFormulaFunction } from '@veltra/sheet-core/core/formula/functions.js'
 import { describe, expect, it } from 'vitest'
 
 import {

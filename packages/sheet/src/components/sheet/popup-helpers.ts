@@ -1,6 +1,6 @@
-import type { CellRange } from '@veltra/sheet-core/core/address'
-import type { BorderPreset } from '@veltra/sheet-core/core/style/border-presets'
-import { BORDER_STYLE_WIDTH, type BorderLineStyle } from '@veltra/sheet-core/core/style/types'
+import type { CellRange } from '@veltra/sheet-core/core/address.js'
+import type { BorderPreset } from '@veltra/sheet-core/core/style/border-presets.js'
+import { BORDER_STYLE_WIDTH, type BorderLineStyle } from '@veltra/sheet-core/core/style/types.js'
 
 import type { SheetContext } from '../../tools/context'
 

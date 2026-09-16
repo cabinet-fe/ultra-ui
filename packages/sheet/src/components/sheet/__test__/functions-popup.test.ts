@@ -1,7 +1,7 @@
 import {
   listFormulaFunctions,
   registerFormulaFunction
-} from '@veltra/sheet-core/core/formula/functions'
+} from '@veltra/sheet-core/core/formula/functions.js'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createApp, h, nextTick, type App } from 'vue'
 

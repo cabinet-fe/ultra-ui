@@ -1,5 +1,5 @@
-import type { Sheet } from '@veltra/sheet-core/core/sheet'
-import { Workbook } from '@veltra/sheet-core/core/workbook'
+import type { Sheet } from '@veltra/sheet-core/core/sheet.js'
+import { Workbook } from '@veltra/sheet-core/core/workbook.js'
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 
 import { createSheetContext } from '../../tools/context'

@@ -1,6 +1,6 @@
 ---
 title: 'Ultra UI 常见报错排障'
-description: 'Ultra UI 全库高频构建期与运行时报错的修复手册：主题未初始化与显式 import 导致的裸样式、SCSS pkg: 与 NodePackageImporter entryPointDirectory 解析规则、缺 @vitejs/plugin-vue-jsx 时 react/jsx-runtime 解析失败、渲染函数里的 ReferenceError: UTag is not defined、函数式 API 缺样式、UForm 的 field 与 v-model 冲突、VeltraUIResolver 未生效、sheet-core 子路径导入、v-focus 警告、USelect 回显失败、图标包体积与 Workbook/AI 传输层真实报错。'
+description: 'Ultra UI 全库高频构建期与运行时报错的修复手册：主题未初始化与显式 import 导致的裸样式、SCSS pkg: 与 NodePackageImporter entryPointDirectory 解析规则、缺 @vitejs/plugin-vue-jsx 时 react/jsx-runtime 解析失败、渲染函数里的 ReferenceError: UTag is not defined、函数式 API 缺样式、UForm 的 field 与 v-model 冲突、VeltraUIResolver 未生效、sheet-core 子路径与深导入后缀、v-focus 警告、USelect 回显失败、图标包体积与 Workbook/AI 传输层真实报错。'
 aliases: [FAQ, 排错, troubleshooting, 常见问题, 报错, 常见错误]
 keywords:
   [
@@ -22,6 +22,8 @@ keywords:
     field,
     v-model,
     SheetGrid,
+    core/address,
+    'Cannot find module',
     回显失败,
     messageConfirm
   ]
@@ -264,6 +266,19 @@ import { Workbook } from '@veltra/sheet-core' // 模型/命令/IO 走主入口
 ```
 
 子路径可用的符号：`SheetGrid`、`CustomLayout` 与类型 `SheetGridOptions` / `SheetGridContextMenuKind` / `SheetGridContextMenuInfo` / `ICustomLayoutObj` / `ResolveCellRenderer` / `ResolveDisplayValue` / `ResolveCellStyleHook`。详见 `agent-docs/sheet-core/sheet-grid.md`。
+
+## 报错 `TS2307: Cannot find module '@veltra/sheet-core/core/xxx'`（深导入 `core/*` 漏写 `.js` 后缀）
+
+原因：`@veltra/sheet-core` 的 `exports` 只有 `.`、`./grid` 与 `./*`；`./*` 把请求原样映射到 `./dist/*`，不带扩展名补全。写 `@veltra/sheet-core/core/address` 时 tsc 会去找无扩展名的 `dist/core/address`，解析失败。修复：深导入 `core/*` 一律补 `.js` 后缀；`Sheet` / `Workbook` 等已在主入口导出的符号直接走主入口：
+
+```ts
+// 错误：import type { CellRange } from '@veltra/sheet-core/core/address'
+import type { CellRange } from '@veltra/sheet-core/core/address.js'
+import type { Sheet, Workbook } from '@veltra/sheet-core' // 主入口已有，不必深导入
+```
+
+> [!WARNING]
+> 深导入 `core/*` 是白名单外通道（io 转换函数、内部类型等），不属公开承诺 API；能用主入口或 `@veltra/sheet-core/grid` 就不要深导入。
 
 ## 控制台警告 `v-focus 指令需要一个 input 元素`
 

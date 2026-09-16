@@ -69,7 +69,7 @@
 
 <script lang="ts" setup>
 import { UInput } from '@veltra/desktop'
-import type { Sheet } from '@veltra/sheet-core/core/sheet'
+import type { Sheet } from '@veltra/sheet-core/core/sheet.js'
 import { bem } from '@veltra/utils'
 
 import type { SheetContext } from '../../../tools/context'

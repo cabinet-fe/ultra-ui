@@ -1,4 +1,4 @@
-import { Sheet } from '@veltra/sheet-core/core/sheet'
+import { Sheet } from '@veltra/sheet-core/core/sheet.js'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { createSheetContext } from '../../../tools/context'

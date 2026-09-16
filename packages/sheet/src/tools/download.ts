@@ -1,6 +1,6 @@
 import { saveBlob } from '@cat-kit/fe'
-import { exportSheetCsv, exportWorkbookXlsx } from '@veltra/sheet-core/core/io/export'
-import type { Workbook } from '@veltra/sheet-core/core/workbook'
+import { exportSheetCsv, exportWorkbookXlsx } from '@veltra/sheet-core/core/io/export.js'
+import type { Workbook } from '@veltra/sheet-core/core/workbook.js'
 
 import type { SheetContext } from './context'
 import type { ExportWorkerPayload, ExportWorkerResponse } from './export.worker'

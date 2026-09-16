@@ -6,13 +6,7 @@
     "skipLibCheck": true,
     "noImplicitAny": false,
     "skipDefaultLibCheck": true,
-    "customConditions": ["veltra-dev"],
-    "paths": {
-      "@veltra/sheet-core/*": ["../packages/sheet-core/src/*"],
-      "hucre": ["../packages/sheet-core/node_modules/hucre/dist/index.d.mts"],
-      "hucre/xlsx": ["../packages/sheet-core/node_modules/hucre/dist/xlsx.d.mts"],
-      "hucre/csv": ["../packages/sheet-core/node_modules/hucre/dist/csv.d.mts"]
-    }
+    "customConditions": ["veltra-dev"]
   },
   "include": [
     "src/**/*.ts",
@@ -27,9 +21,5 @@
     "router.ts",
     "App.vue"
   ],
-  "exclude": ["node_modules", "vite.config.ts"],
-  "references": [
-    { "path": "../packages/sheet-core/tsconfig.json" },
-    { "path": "../packages/sheet-core/tsconfig.grid.json" }
-  ]
+  "exclude": ["node_modules", "vite.config.ts"]
 }

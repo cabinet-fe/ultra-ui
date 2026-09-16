@@ -48,9 +48,7 @@ registerTool({
 ## API 签名
 
 ```ts
-import type { CellAddress, CellRange } from '@veltra/sheet-core'
-import type { Sheet } from '@veltra/sheet-core/core/sheet'
-import type { Workbook } from '@veltra/sheet-core/core/workbook'
+import type { CellAddress, CellRange, Sheet, Workbook } from '@veltra/sheet-core'
 
 /** 弹层型工具类型：vue 层按类型渲染弹层面板，面板交互走 SheetContext 命令入口 */
 export type SheetToolPopupType =

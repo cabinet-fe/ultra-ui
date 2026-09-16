@@ -35,14 +35,14 @@
 
 <script lang="ts" setup>
 import { UPalette } from '@veltra/desktop'
-import type { SetCellStyleItem } from '@veltra/sheet-core/core/command/set-cell-style'
-import { buildBorderPresetItems } from '@veltra/sheet-core/core/style/border-presets'
+import type { SetCellStyleItem } from '@veltra/sheet-core/core/command/set-cell-style.js'
+import { buildBorderPresetItems } from '@veltra/sheet-core/core/style/border-presets.js'
 import {
   BORDER_STYLE_WIDTH,
   type BorderEdge,
   type BorderLineStyle,
   type CellStylePatch
-} from '@veltra/sheet-core/core/style/types'
+} from '@veltra/sheet-core/core/style/types.js'
 import { bem } from '@veltra/utils'
 import { ref } from 'vue'
 

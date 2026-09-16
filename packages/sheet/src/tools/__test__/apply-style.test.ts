@@ -1,5 +1,5 @@
-import { createRange } from '@veltra/sheet-core/core/address'
-import { Sheet } from '@veltra/sheet-core/core/sheet'
+import { createRange } from '@veltra/sheet-core/core/address.js'
+import { Sheet } from '@veltra/sheet-core/core/sheet.js'
 import { describe, expect, it } from 'vitest'
 
 import { classifySelectionStyleTarget, type SelectionStyleTarget } from '../apply-style'
