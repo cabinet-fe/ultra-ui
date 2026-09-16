@@ -29,7 +29,7 @@ keywords:
 
 # UTableEditor 表格编辑器
 
-`@veltra/desktop` 导出表格型编辑器组件 `UTableEditor`。它在内部渲染一个 `UTable`，用 `v-model`（`modelValue`）绑定行对象数组，自动附加序号列和带「删除 / 新增 / 复制」按钮的操作列；单元格编辑通过 `#column:{key}` 插槽把输入控件绑定到插槽作用域的 `model` 上。列配置 `rules` 后支持懒校验：控件 `change` 事件触发单元格校验，模板 ref 的 `validate()` 整表自上而下逐行校验；错误只在表头列级标红并以气泡列出行号明细，单元格内不显示任何错误样式。需要用户增删复制行、就地编辑单元格数据时用 `UTableEditor`；要复用同一套列与 `#column:{key}` 插槽做只读展示时设 `readonly`（输入控件只读、操作列与空态「添加」按钮不渲染）；不需要编辑形态时直接用 `UTable`（见 `agent-docs/desktop/table.md`）。
+`@veltra/desktop` 导出表格型编辑器组件 `UTableEditor`。它在内部渲染一个 `UTable`，用 `v-model`（`modelValue`）绑定行对象数组，自动附加序号列和带「删除 / 新增 / 复制」按钮的操作列；单元格编辑通过 `#column:{key}` 插槽把输入控件绑定到插槽作用域的 `model` 上，声明了编辑插槽的列输入控件常驻挂载，未声明的列渲染字段原始值。列配置 `rules` 后支持懒校验：控件 `change` 事件触发单元格校验，模板 ref 的 `validate()` 整表自上而下逐行校验；错误只在表头列级标红并以气泡列出行号明细，单元格内不显示任何错误样式。需要用户增删复制行、就地编辑单元格数据时用 `UTableEditor`；要复用同一套列与 `#column:{key}` 插槽做只读展示时设 `readonly`（输入控件只读、操作列与空态「添加」按钮不渲染）；不需要编辑形态时直接用 `UTable`（见 `agent-docs/desktop/table.md`）。
 
 ## 快速上手
 
@@ -93,7 +93,7 @@ export interface ValidateRule {
 
 /** 表格编辑器列：在 TableColumn 基础上扩展按列校验 */
 export interface TableEditorColumn extends TableColumn {
-  /** 列校验规则；配置后该列控件的 change 事件触发单元格校验，required 非空时表头显示红星 */
+  /** 列校验规则；配置后该列控件的 change 事件触发单元格校验，required 非空时表头列名前渲染红星 */
   rules?: ValidateRule
 }
 
@@ -131,9 +131,9 @@ export interface TableEditorExposed {
 
 - `stripe` 固定为 `false`（编辑表格不加斑马纹）。
 - `showIndex` 固定为 `true`（始终渲染序号列，key 为 `__index__`，宽 60，固定左侧）。
-- 非只读（`readonly` 缺省为 `false`）时列定义末尾始终追加操作列，key 固定为 `__operation`；`readonly: true` 时不追加，DOM 中无操作列表头与按钮。
+- 非只读（`readonly` 缺省为 `false`）时列定义末尾始终追加操作列，key 固定为 `__operation`，宽 104，固定右侧，不可调整列宽；`readonly: true` 时不追加，DOM 中无操作列表头与按钮。
 
-操作列行为（按钮为小号圆形文本按钮，仅非只读时渲染）：
+操作列行为（按钮为小号文本按钮，仅非只读时渲染）：
 
 | 按钮 | 图标                 | 行为                                                         |
 | ---- | -------------------- | ------------------------------------------------------------ |
@@ -145,7 +145,7 @@ export interface TableEditorExposed {
 
 - 单元格级：配置了 `rules` 的列，控件的 `change` 事件（如输入失焦提交）触发该单元格校验，输入过程不校验（懒校验）。
 - 整表级：模板 ref 调用 `validate()`，自上而下逐行校验全部配置了 `rules` 的列，某行存在未通过项即停止校验其后的行。
-- 错误只呈现在表头：`rules.required` 非空（`true` 或文案字符串）时表头文字后追加红星 `*`；某列存在未通过项时该列表头文字标红并追加感叹号图标，悬停气泡按行展示「第 N 行：<错误文案>」明细。单元格内没有任何错误样式。
+- 错误只呈现在表头：`rules.required` 非空（`true` 或文案字符串）时表头列名前渲染红星 `*`；某列存在未通过项时该列表头文字标红并追加感叹号图标，悬停气泡按行展示「第 N 行：<错误文案>」明细。单元格内没有任何错误样式。
 - 行删除或数组整体替换后，已不存在行上的错误自动清理；错误出现 / 消失即时更新表头。
 
 ## 参数说明
@@ -173,7 +173,7 @@ export interface TableEditorExposed {
 | `textEllipsis`                 | `boolean`                                    | `false`      |  否  | —                                                                                                          |
 | `highlightCurrent` / `current` | `boolean` / `TableRow`                       | `false` / —  |  否  | 语义同 `UTable`                                                                                            |
 
-插槽与 `UTable` 完全一致，最常用的是 `#column:{key}`：作用域为 `{ row, rowData, column, val, model }`。`model` 是控件 props 包，含 `modelValue` 与写回钩子，控件用 `v-bind="model"` 整体接收（不要用 `v-model="model.modelValue"`，那样绕过写回钩子，输入不会写回行数据）；配置了 `rules` 的列还会附带 `onChange` 触发单元格校验；`readonly: true` 时 `model` 携带 `readonly: true` 且不提供写回通道。`#header:{key}` 自定义表头内容时，红星、错误标红与感叹号气泡追加在自定义内容之后。另有 `#row:expand`、`#empty`（非只读且空表时默认渲染「添加」按钮，`readonly` 下不渲染）、`#foot`、`#body`、`#append`。
+插槽与 `UTable` 完全一致，最常用的是 `#column:{key}`：作用域为 `{ row, rowData, column, val, model }`。`model` 是控件 props 包，含 `modelValue` 与写回钩子，控件用 `v-bind="model"` 整体接收（不要用 `v-model="model.modelValue"`，那样绕过写回钩子，输入不会写回行数据）；配置了 `rules` 的列还会附带 `onChange` 触发单元格校验；`readonly: true` 时 `model` 携带 `readonly: true` 且不提供写回通道。未声明 `#column:{key}` 插槽的列渲染字段原始值；列自带 `render` 时 `render` 优先、插槽不生效。`#header:{key}` 自定义表头内容时，红星渲染在自定义内容之前，错误标红与感叹号气泡追加在其后。另有 `#row:expand`、`#foot`、`#body`、`#append`；`#empty` 被内置空态占据（非只读时含「添加」按钮，`readonly` 下不渲染），需要自定义空态改用 `UTable`。
 
 ## 方法与事件
 
@@ -328,49 +328,20 @@ const columns = defineTableColumns([
 </template>
 ```
 
-### 行展开 + 表尾合计
-
-```vue
-<script setup lang="ts">
-import { ref } from 'vue'
-import { UTableEditor, defineTableColumns } from '@veltra/desktop'
-
-const list = ref<any[]>([
-  { id: 1, name: '商品 A', price: 99, desc: '优质商品' },
-  { id: 2, name: '商品 B', price: 49, desc: '促销中' }
-])
-
-// summary: true 自动对可见行 price 求和，表尾显示合计行
-const columns = defineTableColumns([
-  { key: 'name', name: '商品', minWidth: 200 },
-  { key: 'price', name: '单价', width: 120, align: 'right', summary: true }
-])
-</script>
-
-<template>
-  <!-- expandable 只在非树形模式有效；tree 与 expandable 不要同时设置 -->
-  <u-table-editor v-model="list" :columns="columns" row-key="id" expandable border>
-    <template #row:expand="{ rowData }">
-      <div style="padding: 12px 24px">描述：{{ rowData.desc }}</div>
-    </template>
-  </u-table-editor>
-</template>
-```
-
 ## 注意事项
 
 > [!WARNING]
 >
 > - `UTableEditor` 内部就是 `UTable`：`data` 属性不存在，行数组用 `v-model`（`modelValue`）绑定；`stripe` / `showIndex` 被内部覆盖，传入不生效。
 > - 禁止在 `columns` 里定义 `key: '__operation'` 的列，操作列 key 固定为 `__operation`，重复会导致渲染冲突。
-> - `readonly: true` 时：插槽 `model` 携带 `readonly: true` 且不提供写回通道，输入控件值不可修改；操作列（表头与增删复制按钮）与空态「添加」按钮不渲染。校验与键盘导航规则不变，只是控件只读后无可编辑输入。
+> - `readonly: true` 时：插槽 `model` 携带 `readonly: true` 且不提供写回通道，输入控件值不可修改；操作列（表头与增删复制按钮）与空态「添加」按钮不渲染。
 > - `readonly` 可随时切换，切换时全部单元格重挂载（值不丢，焦点不保留）；只读态插槽作用域与 `cell-click` 回调里的 `column.key` 带 `:ro` 后缀（如 `name:ro`），按列 key 匹配的逻辑要同时兼容两种形态。
 > - 单元格编辑与增删复制行都触发 `update:modelValue`，payload 是浅拷贝新数组（行对象保持原引用）。监听单元格变化监听 `update:modelValue` 即可，不需要对 `list` 深度 `watch`。
 > - 列校验是懒校验：单元格级只在控件 `change` 事件（如失焦提交）触发，输入过程不校验；`validate()` 整表校验自上而下逐行，某行未通过即停止其后的行。错误只在表头呈现（标红 + 感叹号气泡行号明细），单元格内无错误样式，也没有程序化读取错误明细的 API。
 > - 「复制」用 `JSON` 深拷贝，行数据中的函数、`undefined` 字段、`Date` 对象会丢失；需要保真复制时不要用内置复制按钮，改用 `UTable` 自定义操作列。
 > - 新增行插入的是空对象 `{}`，不含 `rowKey` 字段；依赖 `rowKey` 的受控选中要求新增后自行回填唯一键。
 > - `tree` 与 `expandable` 互斥：树形模式下展开行（`#row:expand`）不渲染，需要行展开就不要设 `tree`。
-> - 空态「添加」按钮只在非只读且 `modelValue.length === 0` 时渲染；列表非空后只能用操作列的「新增」按钮增行。
+> - 空态「添加」按钮只在非只读且 `modelValue` 为空时渲染；列表非空后只能用操作列的「新增」按钮增行。
 
 ## 常见问题
 
@@ -395,4 +366,4 @@ const passAgain = await editor.value?.validate()
 
 ### 想要空白表格但不显示内置「添加」按钮
 
-只读场景直接设 `readonly`：空态不渲染「添加」按钮。需要可编辑但自定义空态时，`#empty` 插槽会被内置空态占据（含「添加」按钮），改用 `UTable`（其 `#empty` 插槽默认渲染 `UEmpty`，可完全覆盖），或接受内置按钮行为。
+只读场景直接设 `readonly`：空态不渲染「添加」按钮。需要可编辑但自定义空态时，`#empty` 插槽被内置空态占据（含「添加」按钮），改用 `UTable`（其 `#empty` 插槽默认渲染 `UEmpty`，可完全覆盖），或接受内置按钮行为。

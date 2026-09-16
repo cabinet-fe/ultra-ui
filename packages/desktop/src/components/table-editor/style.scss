@@ -16,7 +16,7 @@ $root-name: table-editor;
       // 这里锚定 default 尺寸，与单元格内默认尺寸的输入控件对齐
       height: calc(#{fn.use-var(form-component-height, default)} + 4px + 1px);
 
-      // 单元格内行内级控件（inline-flex 输入框、tip 触发器）参与基线对齐
+      // 单元格内行内级控件（inline-flex 输入框）参与基线对齐
       // 会在行盒下方留出 descender 空隙，顶对齐抵消，保证行高恰好为锚定值
       & > [class^='u-'],
       [class^='u-input'] {
@@ -37,6 +37,12 @@ $root-name: table-editor;
     }
   }
 
+  // required 列表头红星标识
+  @include m.e(required-mark) {
+    padding-right: 2px;
+    color: fn.use-var(color, danger);
+  }
+
   // 表头文字：该列存在未通过项时标红
   @include m.e(header-text) {
     @include m.is(error) {
@@ -50,11 +56,5 @@ $root-name: table-editor;
     margin-left: 2px;
     vertical-align: -2px;
     cursor: help;
-  }
-
-  // required 列表头红星标识
-  @include m.e(required-mark) {
-    padding-left: 2px;
-    color: fn.use-var(color, danger);
   }
 }

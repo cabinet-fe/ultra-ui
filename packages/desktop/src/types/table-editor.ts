@@ -4,7 +4,7 @@ import type { TableProps, TableColumn } from './table'
 
 /** 表格编辑器列：在 TableColumn 基础上扩展按列校验 */
 export interface TableEditorColumn extends TableColumn {
-  /** 列校验规则，配置后值变更实时校验，表头含 required 时显示红星 */
+  /** 列校验规则：配置后该列控件的 change 事件触发单元格校验，`required` 非空时表头列名前渲染红星 */
   rules?: ValidateRule
 }
 

@@ -18,6 +18,9 @@
         <div class="demo-toolbar">
           <u-switch v-model="readonly" active-text="只读" inactive-text="编辑" />
           <u-button type="primary" @click="handleValidate">校验全表</u-button>
+          <span v-if="validateResult !== null">
+            {{ validateResult ? '校验通过' : '校验未通过' }}
+          </span>
         </div>
       </u-card-content>
     </u-card>
@@ -58,36 +61,10 @@ async function handleValidate() {
 </script>
 
 <style scoped>
-.demo-desc {
-  margin: 0 0 12px;
-  padding-left: 18px;
-  color: var(--u-text-color-second, #888);
-  font-size: 13px;
-  line-height: 2;
-}
-
 .demo-toolbar {
   margin-top: 12px;
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.demo-ok {
-  color: var(--u-color-success, #52c41a);
-}
-
-.demo-fail {
-  color: var(--u-color-danger, #f5222d);
-}
-
-.demo-data {
-  margin: 0;
-  max-height: 320px;
-  overflow: auto;
-  font-size: 12px;
-  font-family: monospace;
-  white-space: pre-wrap;
-  word-break: break-all;
 }
 </style>

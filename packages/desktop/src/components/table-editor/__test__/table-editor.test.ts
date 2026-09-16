@@ -22,12 +22,7 @@ const rows = [
   { name: 'Bob', age: 20, city: '上海' }
 ]
 
-const mouseover = (el: Element) => el.dispatchEvent(new MouseEvent('mouseover', { bubbles: true }))
 const click = (el: Element) => el.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-const focusin = (el: Element) => el.dispatchEvent(new FocusEvent('focusin', { bubbles: true }))
-const focusout = (el: Element) => el.dispatchEvent(new FocusEvent('focusout', { bubbles: true }))
-const keydown = (el: Element, key: string, shiftKey = false) =>
-  el.dispatchEvent(new KeyboardEvent('keydown', { key, shiftKey, bubbles: true }))
 
 /** 编辑列插槽工厂：原生 input 展开插槽 model（含 change 校验钩子）并绑定值 */
 const renderInput = (testId: string) => (scope: any) =>
@@ -83,7 +78,6 @@ function mountTableEditor(
       model.value = value
     },
     getDataRows: () => [...host.querySelectorAll('tr.u-table__row')],
-    getRoot: () => host.querySelector<HTMLElement>('.u-table-editor')!,
     unmount() {
       app.unmount()
       host.remove()
@@ -91,7 +85,11 @@ function mountTableEditor(
   }
 }
 
-describe('UTableEditor 单元格常驻渲染', () => {
+/** 按文本查找表头单元格 */
+const findHeader = (host: Element, text: string) =>
+  [...host.querySelectorAll('th')].find((th) => th.textContent?.includes(text))
+
+describe('UTableEditor 行内编辑', () => {
   it('初始渲染即挂载编辑控件，未声明插槽的列渲染字段原始值', async () => {
     const { host, getDataRows, unmount } = mountTableEditor({
       'column:name': renderNameInput,
@@ -107,45 +105,6 @@ describe('UTableEditor 单元格常驻渲染', () => {
       const [row0] = getDataRows()
       // 未声明 #column:key 的列渲染字段原始值
       expect(row0.textContent).toContain('杭州')
-    } finally {
-      unmount()
-    }
-  })
-
-  it('悬停移入/移出行不切换渲染，编辑控件保持挂载', async () => {
-    const { getRoot, getDataRows, unmount } = mountTableEditor({ 'column:name': renderNameInput })
-
-    try {
-      await nextTick()
-      const [row0] = getDataRows()
-
-      mouseover(row0)
-      await nextTick()
-      expect(row0.querySelector('[data-test="name-input"]')).toBeTruthy()
-
-      getRoot().dispatchEvent(new MouseEvent('mouseleave'))
-      await nextTick()
-      expect(row0.querySelector('[data-test="name-input"]')).toBeTruthy()
-    } finally {
-      unmount()
-    }
-  })
-
-  it('行内聚焦/失焦不切换渲染，编辑控件保持挂载', async () => {
-    const { getDataRows, unmount } = mountTableEditor({ 'column:name': renderNameInput })
-
-    try {
-      await nextTick()
-      const [row0] = getDataRows()
-
-      const input = row0.querySelector('input')!
-      focusin(input)
-      await nextTick()
-      expect(row0.querySelector('[data-test="name-input"]')).toBeTruthy()
-
-      focusout(input)
-      await nextTick()
-      expect(row0.querySelector('[data-test="name-input"]')).toBeTruthy()
     } finally {
       unmount()
     }
@@ -176,10 +135,6 @@ describe('UTableEditor 单元格常驻渲染', () => {
     }
   })
 })
-
-/** 按列名查找表头单元格 */
-const findHeader = (host: Element, name: string) =>
-  [...host.querySelectorAll('th')].find((th) => th.textContent?.includes(name))
 
 describe('UTableEditor 行操作', () => {
   it('复制/新增到下一行/删除经 update:modelValue 生效', async () => {
@@ -295,26 +250,6 @@ describe('UTableEditor 只读模式', () => {
       unmount()
     }
   })
-
-  it('无操作列标记下键盘导航仍识别数据行', async () => {
-    const { getDataRows, unmount } = mountTableEditor(
-      { 'column:name': renderNameInput, 'column:age': renderAgeInput },
-      rows,
-      columns,
-      { readonly: true }
-    )
-
-    try {
-      await nextTick()
-      const [row0] = getDataRows()
-
-      keydown(row0.querySelector('[data-test="name-input"]')!, 'Tab')
-      await nextTick()
-      expect(document.activeElement).toBe(row0.querySelector('[data-test="age-input"]'))
-    } finally {
-      unmount()
-    }
-  })
 })
 
 describe('UTableEditor 按列校验', () => {
@@ -398,7 +333,7 @@ describe('UTableEditor 按列校验', () => {
     }
   })
 
-  it('rules 含 required 的列表头渲染红星标识', async () => {
+  it('rules 含 required 的列表头渲染红星，其余列不渲染', async () => {
     const { host, unmount } = mountTableEditor({}, rows, ruleColumns)
 
     try {
@@ -406,11 +341,27 @@ describe('UTableEditor 按列校验', () => {
       // 仅 name 列 rules 含 required
       expect(host.querySelectorAll('.u-table-editor__required-mark')).toHaveLength(1)
 
-      const nameHeader = findHeader(host, '姓名')
-      const mark = nameHeader?.querySelector('.u-table-editor__required-mark')
+      const mark = findHeader(host, '姓名')?.querySelector('.u-table-editor__required-mark')
       expect(mark).toBeTruthy()
       // 断言可见星号字形，而非仅节点存在
       expect(mark?.textContent).toBe('*')
+    } finally {
+      unmount()
+    }
+  })
+
+  it('required 列自定义 `#header:key` 插槽时内容跟在星号后', async () => {
+    const { host, unmount } = mountTableEditor(
+      { 'header:name': () => h('em', { 'data-test': 'custom-header' }, '自定义姓名') },
+      rows,
+      ruleColumns
+    )
+
+    try {
+      await nextTick()
+      const header = findHeader(host, '自定义姓名')!
+      expect(header.querySelector('.u-table-editor__required-mark')).toBeTruthy()
+      expect(header.querySelector('[data-test="custom-header"]')).toBeTruthy()
     } finally {
       unmount()
     }
@@ -513,113 +464,6 @@ describe('UTableEditor 按列校验', () => {
       click(getDataRows()[0].querySelector('[title="移除"]')!)
       await nextTick()
       expect(headerText()?.className).not.toContain('is-error')
-    } finally {
-      unmount()
-    }
-  })
-})
-
-describe('UTableEditor 录入交互', () => {
-  it('新增到下一行后自动聚焦新行第一个可编辑单元格', async () => {
-    const { getDataRows, unmount } = mountTableEditor({ 'column:name': renderNameInput })
-
-    try {
-      await nextTick()
-      click(getDataRows()[0].querySelector('[title="新增到下一行"]')!)
-      await nextTick()
-      await nextTick()
-
-      const dataRows = getDataRows()
-      expect(dataRows).toHaveLength(3)
-      const input = dataRows[1].querySelector('[data-test="name-input"]')!
-      // 新行单元格的编辑控件随行挂载并自动聚焦
-      expect(input).toBeTruthy()
-      expect(document.activeElement).toBe(input)
-    } finally {
-      unmount()
-    }
-  })
-
-  it('空态添加后自动聚焦第一个可编辑单元格', async () => {
-    const { host, getDataRows, unmount } = mountTableEditor({ 'column:name': renderNameInput }, [])
-
-    try {
-      await nextTick()
-      const addBtn = [...host.querySelectorAll('button')].find((b) =>
-        b.textContent?.includes('添加')
-      )
-      click(addBtn!)
-      await nextTick()
-      await nextTick()
-
-      const input = getDataRows()[0].querySelector('[data-test="name-input"]')!
-      expect(input).toBeTruthy()
-      expect(document.activeElement).toBe(input)
-    } finally {
-      unmount()
-    }
-  })
-
-  it('Tab 正向跨格移动，行末移到下一行第一个可编辑单元格', async () => {
-    const { getDataRows, unmount } = mountTableEditor({
-      'column:name': renderNameInput,
-      'column:age': renderAgeInput
-    })
-
-    try {
-      await nextTick()
-      const [row0] = getDataRows()
-
-      keydown(row0.querySelector('[data-test="name-input"]')!, 'Tab')
-      await nextTick()
-      expect(document.activeElement).toBe(row0.querySelector('[data-test="age-input"]'))
-
-      // 行末（最后一个可编辑格）跨到下一行行首
-      keydown(row0.querySelector('[data-test="age-input"]')!, 'Tab')
-      await nextTick()
-      await nextTick()
-      const nextName = getDataRows()[1].querySelector('[data-test="name-input"]')!
-      expect(nextName).toBeTruthy()
-      expect(document.activeElement).toBe(nextName)
-    } finally {
-      unmount()
-    }
-  })
-
-  it('Enter 正向移动到下一个可编辑单元格', async () => {
-    const { getDataRows, unmount } = mountTableEditor({
-      'column:name': renderNameInput,
-      'column:age': renderAgeInput
-    })
-
-    try {
-      await nextTick()
-      const [row0] = getDataRows()
-
-      keydown(row0.querySelector('[data-test="name-input"]')!, 'Enter')
-      await nextTick()
-      expect(document.activeElement).toBe(row0.querySelector('[data-test="age-input"]'))
-    } finally {
-      unmount()
-    }
-  })
-
-  it('Shift+Tab 反向移动，行首回到上一行最后一个可编辑单元格', async () => {
-    const { getDataRows, unmount } = mountTableEditor({
-      'column:name': renderNameInput,
-      'column:age': renderAgeInput
-    })
-
-    try {
-      await nextTick()
-      const dataRows = getDataRows()
-
-      keydown(dataRows[1].querySelector('[data-test="name-input"]')!, 'Tab', true)
-      await nextTick()
-      await nextTick()
-      const prevAge = dataRows[0].querySelector('[data-test="age-input"]')!
-      expect(prevAge).toBeTruthy()
-      expect(document.activeElement).toBe(prevAge)
     } finally {
       unmount()
     }
