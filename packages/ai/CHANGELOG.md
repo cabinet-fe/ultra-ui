@@ -1,5 +1,11 @@
 # @veltra/ai
 
+## 2.1.9
+
+### Patch Changes
+
+- d3ca2e1: fix(ai): UAiChat 消息列表容器补充纵向内边距，首条消息与滚动内容不再贴边
+
 ## 2.1.8
 
 ### Patch Changes
