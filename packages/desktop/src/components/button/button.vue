@@ -58,8 +58,9 @@ const classList = computed(() => {
 })
 
 const ripple = computed(() => {
-  if (props.disabled || props.loading || props.text) return false
-  if (props.plain && props.type) {
+  if (props.disabled || props.loading) return false
+  // plain / text 变体无底色，波纹用类型色才能看清
+  if ((props.plain || props.text) && props.type) {
     return bem.is(`ripple-${props.type}`)
   }
   return true

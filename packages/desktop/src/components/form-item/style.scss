@@ -52,7 +52,17 @@ $root-name: form-item;
     #{fn.bem(multi-tree-select)},
     #{fn.bem(auto-complete)},
     #{fn.bem(textarea--more)} {
-      border-color: fn.use-var(color, danger);
+      // hover 的 primary 描边与错误态同权重，按源序分胜负：错误态显式压住，避免悬浮时描边回蓝
+      &,
+      &:hover,
+      &.is-focus {
+        border-color: fn.use-var(color, danger);
+      }
+
+      // 聚焦光晕与描边同色，错误态转红
+      &.is-focus {
+        box-shadow: fn.use-var(focus-ring, danger);
+      }
     }
   }
 

@@ -56,6 +56,7 @@ const cls = bem('xxx')
 - 阴影分级：`fn.use-var(shadow, sm)` 贴面（卡片）、`fn.use-var(shadow)` 基础、`fn.use-var(shadow, lg)` 浮层（弹窗/下拉/通知）。
 - 过渡：`fn.use-var(transition, fast|normal|slow)`（时长）+ `fn.use-var(transition, ease|ease-out)`（缓动）。
 - 焦点指示：可交互元素统一 `:focus-visible { box-shadow: fn.use-var(focus-ring) }`；checkbox/radio/switch 用"原生 input 视觉隐藏但可聚焦 + 兄弟选择器 ring"模式（见 checkbox）。输入形态外壳用 JS 驱动的 `.is-focus`：`border-color: primary` + `box-shadow: fn.use-var(focus-ring)`（见 input/textarea）；不可聚焦的下拉壳（multi-select、multi-tree-select、cascade 多选、date-range-picker）改由下拉可见状态驱动 `.is-focus`（见 multi-select）。
+- 错误态：form-item / table-editor 的 `.is-error` 作用域内，外壳描边与光晕一并转 `color, danger`（光晕用 `--u-focus-ring-danger`），并显式声明 `:hover` 描边——控件自身的悬浮描边与错误态描边同权重，只靠源序分胜负（见 form-item / table-editor style.scss）。
 - 透明度色：`fn.color-a(color, N, primary)` 等，N 取白名单 `4 5 8 10 11 16 22 28 35 40 50 52 60 70 86`。
 
 ## 依赖注入

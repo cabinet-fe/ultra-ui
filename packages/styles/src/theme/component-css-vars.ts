@@ -16,6 +16,7 @@ const T = themeTokenVar
 /** 亮色（及与暗色相同的尺寸类）下组件 token */
 export const componentCssVarsLight: Record<string, string> = {
   '--u-focus-ring': `0 0 0 3px ${T('color', 'primary', 'a', '28')}`,
+  '--u-focus-ring-danger': `0 0 0 3px ${T('color', 'danger', 'a', '28')}`,
   '--u-table-border-color': T('border', 'color'),
   '--u-table-header-bg': T('bg-color', 'hover'),
   '--u-table-header-color': T('text-color', 'title'),
@@ -133,6 +134,7 @@ export const componentCssVarsLight: Record<string, string> = {
 export const componentCssVarsDark: Record<string, string> = {
   ...componentCssVarsLight,
   '--u-focus-ring': `0 0 0 3px ${T('color', 'primary', 'a', '35')}`,
+  '--u-focus-ring-danger': `0 0 0 3px ${T('color', 'danger', 'a', '35')}`,
   '--u-table-border-color': T('border', 'color'),
   '--u-table-header-bg': T('bg-color', 'hover'),
   '--u-table-header-color': T('text-color', 'main'),

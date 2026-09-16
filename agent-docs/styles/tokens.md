@@ -149,7 +149,7 @@ loadTheme()
 
 | 组                | 变量模式                                                                                                                                                                                            |
 | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 焦点              | `--u-focus-ring`（light：`0 0 0 3px var(--u-color-primary-a-28)`；dark：`a-35`）                                                                                                                    |
+| 焦点              | `--u-focus-ring`（light：`0 0 0 3px var(--u-color-primary-a-28)`；dark：`a-35`）、`--u-focus-ring-danger`（同几何，换 `--u-color-danger-a-28` / `-a-35`；表单与表格编辑器错误态控件的聚焦光晕）     |
 | table             | `--u-table-border-color`、`--u-table-header-bg` / `-color`、`--u-table-stripe-bg` / `-color`、`--u-table-hover-bg` / `-color`、`--u-table-current-bg` / `-color`、`--u-table-checked-bg` / `-color` |
 | button            | `--u-button-default-bg` / `-border` / `-color` / `-hover-bg` / `-hover-border`；`--u-button-{type}-plain-bg` / `-plain-shadow`（`{type}`：primary success warning danger info）                     |
 | tag               | `--u-tag-primary-bg` / `-color` / `-border` × 5 语义色；尺寸 `--u-tag-small` / `-default` / `-large`（20 / 24 / 28px）                                                                              |

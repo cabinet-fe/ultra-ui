@@ -82,6 +82,11 @@ describe('UITheme', () => {
     expect(componentCssVarsDark['--u-focus-ring']).toContain('--u-color-primary-a-')
   })
 
+  it('emits danger focus ring for error state', () => {
+    expect(componentCssVarsLight['--u-focus-ring-danger']).toContain('--u-color-danger-a-28')
+    expect(componentCssVarsDark['--u-focus-ring-danger']).toContain('--u-color-danger-a-35')
+  })
+
   it('emits select, auto-complete, and contextmenu component vars', () => {
     expect(componentCssVarsLight['--u-select-option-hover-bg']).toBe('var(--u-bg-color-hover)')
     expect(componentCssVarsLight['--u-select-option-selected-bg']).toBe(

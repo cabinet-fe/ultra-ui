@@ -182,6 +182,8 @@ function setCellError(rowData: Record<string, any>, key: string, message: string
 
   if (!message) {
     if (!rowErrors?.delete(key)) return
+    // 行错误清空后移除条目，保证「size > 0 即存在错误」可作整体判定
+    if (!rowErrors.size) cellErrors.value.delete(row)
   } else {
     if (rowErrors?.get(key) === message) return
     if (rowErrors) rowErrors.set(key, message)
@@ -221,18 +223,19 @@ async function validateCell(
 }
 
 /**
- * 整表校验：自上而下逐行校验，某行存在未通过项即停止校验其后的行（懒校验）。
+ * 整表校验：并行校验所有行的规则列（不懒校验），未通过的单元格全部标出。
  * 全部通过 resolve true，否则 resolve false。
  */
 async function validate() {
   const ruleColumns = columns.value.filter((column) => column.rules)
 
-  for (const row of modelValue.value) {
-    await Promise.all(ruleColumns.map((column) => validateCell(row, column.key, column.rules)))
-    if (cellErrors.value.get(errorRowKey(row))?.size) return false
-  }
+  await Promise.all(
+    modelValue.value.map((row) =>
+      Promise.all(ruleColumns.map((column) => validateCell(row, column.key, column.rules)))
+    )
+  )
 
-  return true
+  return cellErrors.value.size === 0
 }
 
 // 行删除（或整体替换）后，同步清理已不存在的行数据上的错误
@@ -270,14 +273,32 @@ const columnErrors = computed(() => {
 
 // --- 单元格渲染 ---
 
-/** 声明了 `#column:key` 插槽的列调用编辑插槽（注入 model），未声明的渲染字段原始值 */
+/**
+ * 声明了 `#column:key` 插槽的列调用编辑插槽（注入 model），未声明的渲染字段原始值。
+ * 配置了 rules 的列在渲染期间读取 cellErrors 建立依赖，错误出现/消失即时更新：
+ * 插槽内容常驻包一层容器、仅切换 is-error 类（与表单项错误态同类，不增删 DOM，
+ * 控件不因错误态变化重挂丢焦点）；纯文本列仅在出错时包一层标红原始值。
+ */
 function editCell(column: TableEditorColumn, ctx: TableColumnRenderContext): RenderReturn {
   const editSlot = slots[`column:${column.key}`]
   // 内部列 key 带只读态后缀，u-table 按 key 取到的 val 失效，这里按原始列 key 重取
   const val = o(ctx.rowData).get(column.key)
-  if (!editSlot) return val
+
+  if (!column.rules) {
+    if (!editSlot) return val
+    const scope = { ...ctx, val }
+    return editSlot({ ...scope, model: createCellModel(column, scope) })
+  }
+
+  const hasError = !!cellErrors.value.get(errorRowKey(ctx.rowData))?.has(column.key)
+  if (!editSlot) return hasError ? h('span', { class: bem.is('error') }, val) : val
+
   const scope = { ...ctx, val }
-  return editSlot({ ...scope, model: createCellModel(column, scope) })
+  return h(
+    'span',
+    { class: bem.is('error', hasError) },
+    editSlot({ ...scope, model: createCellModel(column, scope) })
+  )
 }
 
 /**

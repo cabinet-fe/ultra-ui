@@ -8,19 +8,33 @@ $root-name: table-editor;
 @include m.b($root-name) {
   @include m.bem(table, body) {
     @include m.bem(table, cell) {
-      padding: 2px;
+      padding: 4px;
 
-      // 行高锚定常驻输入控件的高度：td 的 height 即行的最小高度
-      // 4px = 单元格上下 padding；1px = u-table 行分隔线（border-bottom，border-box 计入高度）
-      // 注意：主题 token 只有带尺寸后缀的变量（--u-form-component-height-default 等），
-      // 这里锚定 default 尺寸，与单元格内默认尺寸的输入控件对齐
-      height: calc(#{fn.use-var(form-component-height, default)} + 4px + 1px);
-
-      // 单元格内行内级控件（inline-flex 输入框）参与基线对齐
-      // 会在行盒下方留出 descender 空隙，顶对齐抵消，保证行高恰好为锚定值
-      & > [class^='u-'],
-      [class^='u-input'] {
+      // 单元格内行内级控件（inline-flex 输入框）参与基线对齐，
+      // 会在行盒下方留出 descender 空隙，顶对齐抵消
+      [class^='u-'] {
         vertical-align: top;
+      }
+    }
+  }
+
+  // 校验未通过的单元格：与表单项错误态一致，内嵌控件描红边（含 hover）、聚焦光晕转红，纯文本标红
+  .is-error {
+    color: fn.use-var(color, danger);
+
+    #{fn.bem(input)},
+    #{fn.bem(multi-select)},
+    #{fn.bem(multi-tree-select)},
+    #{fn.bem(auto-complete)},
+    #{fn.bem(textarea--more)} {
+      &,
+      &:hover,
+      &.is-focus {
+        border-color: fn.use-var(color, danger);
+      }
+
+      &.is-focus {
+        box-shadow: fn.use-var(focus-ring, danger);
       }
     }
   }
