@@ -1234,7 +1234,7 @@ describe('UAiChat', () => {
     expect(
       host.querySelector('.u-ai-chat__input-clear-wrap')?.classList.contains('is-disabled')
     ).toBe(true)
-    expect(host.querySelector('.u-ai-chat__input-usage')).toBeFalsy()
+    expect(host.querySelector('.u-ai-chat__usage-trigger')).toBeFalsy()
 
     chat.value?.send('你好')
     await vi.waitFor(() => {
@@ -1272,7 +1272,21 @@ describe('UAiChat', () => {
     unmount()
   })
 
-  it('有 usage 时默认只显示总 token，tokenUsageDetail 追加缓存命中/未命中', async () => {
+  async function openUsagePanel(host: HTMLElement) {
+    const trigger = host.querySelector<HTMLElement>('.u-ai-chat__usage-trigger')
+    trigger?.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true }))
+    await nextTick()
+    await nextTick()
+    const panel = document.body.querySelector('.u-ai-chat__usage-panel')
+    const rows: Record<string, string> = {}
+    panel?.querySelectorAll('.u-ai-chat__usage-row').forEach((row) => {
+      const label = row.querySelector('.u-ai-chat__usage-label')?.textContent ?? ''
+      rows[label] = row.querySelector('.u-ai-chat__usage-value')?.textContent ?? ''
+    })
+    return rows
+  }
+
+  it('有 usage 时显示用量环，悬停弹出明细；tokenUsageDetail 追加缓存命中/未命中', async () => {
     const usageTransport: ChatTransport = (_req, handlers) => {
       handlers.onTextDelta('ok')
       handlers.onUsage?.({
@@ -1285,27 +1299,28 @@ describe('UAiChat', () => {
     }
 
     const compact = mountAiChat({ transport: usageTransport })
+    // 未收到 usage 时不渲染用量环
+    expect(compact.host.querySelector('.u-ai-chat__usage-trigger')).toBeFalsy()
     compact.chat.value?.send('hi')
     await vi.waitFor(() => {
-      expect(compact.host.querySelector('.u-ai-chat__input-usage')?.textContent).toBe('总 token 12')
+      expect(compact.host.querySelector('.u-ai-chat__usage-trigger')).toBeTruthy()
     })
-    expect(compact.host.querySelector('.u-ai-chat__input-usage')?.textContent).not.toContain(
-      '缓存命中'
-    )
+    const compactRows = await openUsagePanel(compact.host)
+    expect(compactRows['总 token']).toBe('12')
+    expect(compactRows['输入']).toBe('10')
+    expect(compactRows['输出']).toBe('2')
+    expect(compactRows['缓存命中']).toBeUndefined()
     compact.unmount()
 
     const detail = mountAiChat({ transport: usageTransport, tokenUsageDetail: true })
     detail.chat.value?.send('hi')
     await vi.waitFor(() => {
-      expect(detail.host.querySelector('.u-ai-chat__input-usage')?.textContent).toBe(
-        '总 token 12 · 缓存命中 4 · 缓存未命中 6'
-      )
+      expect(detail.host.querySelector('.u-ai-chat__usage-trigger')).toBeTruthy()
     })
-    const text = detail.host.querySelector('.u-ai-chat__input-usage')?.textContent ?? ''
-    expect(text).not.toContain('本次')
-    expect(text).not.toContain('累计')
-    expect(text).not.toContain('输入')
-    expect(text).not.toContain('输出')
+    const detailRows = await openUsagePanel(detail.host)
+    expect(detailRows['总 token']).toBe('12')
+    expect(detailRows['缓存命中']).toBe('4')
+    expect(detailRows['缓存未命中']).toBe('6')
     detail.unmount()
   })
 
@@ -1323,10 +1338,12 @@ describe('UAiChat', () => {
     const scaled = mountAiChat({ transport: scaledTransport, tokenUsageDetail: true })
     scaled.chat.value?.send('hi')
     await vi.waitFor(() => {
-      expect(scaled.host.querySelector('.u-ai-chat__input-usage')?.textContent).toBe(
-        '总 token 1.5K · 缓存命中 1K · 缓存未命中 1M'
-      )
+      expect(scaled.host.querySelector('.u-ai-chat__usage-trigger')).toBeTruthy()
     })
+    const scaledRows = await openUsagePanel(scaled.host)
+    expect(scaledRows['总 token']).toBe('1.5K')
+    expect(scaledRows['缓存命中']).toBe('1K')
+    expect(scaledRows['缓存未命中']).toBe('1M')
     scaled.unmount()
 
     const noCacheTransport: ChatTransport = (_req, handlers) => {
@@ -1336,10 +1353,31 @@ describe('UAiChat', () => {
     const noCache = mountAiChat({ transport: noCacheTransport, tokenUsageDetail: true })
     noCache.chat.value?.send('hi')
     await vi.waitFor(() => {
-      expect(noCache.host.querySelector('.u-ai-chat__input-usage')?.textContent).toBe('总 token 12')
+      expect(noCache.host.querySelector('.u-ai-chat__usage-trigger')).toBeTruthy()
     })
-    expect(noCache.host.querySelector('.u-ai-chat__input-usage')?.textContent).not.toContain('缓存')
+    const noCacheRows = await openUsagePanel(noCache.host)
+    expect(noCacheRows['总 token']).toBe('12')
+    expect(Object.keys(noCacheRows).some((label) => label.includes('缓存'))).toBe(false)
     noCache.unmount()
+  })
+
+  it('模型声明 contextWindow 时用量环按上下文占用填充，面板展示占比', async () => {
+    const usageTransport: ChatTransport = (_req, handlers) => {
+      handlers.onTextDelta('ok')
+      handlers.onUsage?.({ promptTokens: 600, completionTokens: 400, totalTokens: 1000 })
+    }
+    const models: ChatModelOption[] = [
+      { id: 'm1', label: 'M1', providerId: 'p1', contextWindow: 10000 }
+    ]
+    const { host, chat, unmount } = mountAiChat({ transport: usageTransport, models, model: 'm1' })
+    chat.value?.send('hi')
+    await vi.waitFor(() => {
+      const ring = host.querySelector('.u-ai-chat__usage-ring-value')
+      expect(ring?.getAttribute('stroke-dasharray')).toBe('10 100')
+    })
+    const rows = await openUsagePanel(host)
+    expect(rows['上下文占用']).toBe('1K / 10K · 10%')
+    unmount()
   })
 
   const UNKNOWN_TOOL = 'totally-unknown-tool-xyz'

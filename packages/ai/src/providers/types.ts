@@ -18,6 +18,8 @@ export interface ChatModel {
   reasoningLevels?: ChatReasoningLevel[]
   /** 默认推理等级（须落在 reasoningLevels 内） */
   defaultReasoningLevel?: string
+  /** 上下文窗口上限（token）。配置后输入栏用量环按「最近一次请求总 token / 上限」显示占比 */
+  contextWindow?: number
 }
 
 /** 模型服务商配置（内嵌 models） */

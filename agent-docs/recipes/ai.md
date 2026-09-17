@@ -95,7 +95,7 @@ const transport = createOpenAITransport({
       id: 'proxy',
       label: '业务代理',
       endpoint: '/api/ai/chat', // 指向服务端代理；apiKey 字段不传
-      models: [{ id: 'deepseek-v4-flash', label: 'DeepSeek V4 Flash' }]
+      models: [{ id: 'deepseek-flash', label: 'deepseek-flash' }]
     }
   ]
 })

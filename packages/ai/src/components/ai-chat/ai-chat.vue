@@ -53,6 +53,7 @@
         :max-attachment-size="maxAttachmentSize"
         :clearable="clearable"
         :token-usage="tokenUsage"
+        :last-request-usage="lastRequestUsage"
         :token-usage-detail="tokenUsageDetail"
         @send="handleSend"
         @abort="abort"
@@ -133,6 +134,7 @@ const {
   jobs,
   tokenUsage,
   lastTurnUsage,
+  lastRequestUsage,
   pendingApprovals,
   pendingQuestion,
   send,

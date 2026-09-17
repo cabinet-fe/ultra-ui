@@ -178,16 +178,28 @@ $root-name: ai-chat;
     color: fn.use-var(text-color, assist);
   }
 
+  // 负边距吃掉主列横向 padding、顶到主列边缘：滚动条出现在容器右侧而非贴着会话列表；
+  // 800px 限宽下沉到 UScroll 内容层（__list-content）
   @include m.e(list-wrap) {
     position: relative;
     flex: 1;
     min-height: 0;
-    width: 100%;
-    max-width: 800px;
+    width: calc(100% + #{fn.use-var(gap, default)} * 2);
+    margin: 0 calc(#{fn.use-var(gap, default)} * -1);
     display: flex;
     flex-direction: column;
     // 纵向留出呼吸位：首条消息不贴容器顶，滚动时内容不顶边；横向由各消息自身 padding 控制
     padding: fn.use-var(gap, default) 0;
+    box-sizing: border-box;
+  }
+
+  // UScroll 内容层：左右 gap 补偿 list-wrap 负边距，宽屏内层 800px、窄屏与主列内容盒同宽，
+  // 消息区视觉几何与限宽在 list-wrap 时一致
+  @include m.e(list-content) {
+    width: 100%;
+    max-width: calc(800px + #{fn.use-var(gap, default)} * 2);
+    margin: 0 auto;
+    padding: 0 fn.use-var(gap, default);
     box-sizing: border-box;
   }
 
@@ -200,6 +212,8 @@ $root-name: ai-chat;
   @include m.e(welcome) {
     flex-shrink: 0;
     width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
     height: 48px;
     @include m.flex(flex, flex-start, center);
     color: fn.use-var(text-color, assist);
@@ -303,11 +317,11 @@ $root-name: ai-chat;
     transform: translateY(-6px);
   }
 
-  // 生成中的统一工作状态指示（列表末尾）
+  // 生成中的统一工作状态指示（列表末尾）；横向定位由 __list-content 的 padding 提供
   @include m.e(working) {
     @include m.flex(flex, flex-start, center);
     gap: fn.use-var(gap, small);
-    padding: 0 fn.use-var(gap, default) fn.use-var(gap, small);
+    padding: 0 0 fn.use-var(gap, small);
     width: fit-content;
 
     // 工作开始：立即从 0 放大（无延时），与输入框上方缩小形成对向跳
@@ -332,6 +346,13 @@ $root-name: ai-chat;
 
   @include m.e(working-text) {
     font-size: fn.use-var(font-size-main, small);
+  }
+
+  // 工作计时 / 收尾停留期间的总用时
+  @include m.e(working-time) {
+    font-size: fn.use-var(font-size-main, small);
+    color: fn.use-var(text-color, assist);
+    font-variant-numeric: tabular-nums;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -478,6 +499,14 @@ $root-name: ai-chat;
     display: flex;
     flex-wrap: wrap;
     gap: fn.use-var(gap, small);
+  }
+
+  // 答案操作区前的本轮总用时
+  @include m.e(message-duration) {
+    align-self: center;
+    color: fn.use-var(text-color, assist);
+    font-size: fn.use-var(font-size-main, small);
+    font-variant-numeric: tabular-nums;
   }
 
   // 思考过程
@@ -1151,12 +1180,32 @@ $root-name: ai-chat;
     }
   }
 
-  @include m.e(input-usage) {
-    min-width: 0;
-    @include m.ellipsis;
-    font-size: fn.use-var(font-size-main, small);
-    color: fn.use-var(text-color, assist);
-    line-height: 1.4;
+  @include m.e(usage-trigger) {
+    @include m.flex(inline-flex, center, center);
+    flex-shrink: 0;
+    padding: 2px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+  }
+
+  @include m.e(usage-ring) {
+    display: block;
+    width: 14px;
+    height: 14px;
+  }
+
+  @include m.e(usage-ring-track) {
+    fill: none;
+    stroke: fn.use-var(border-color);
+    stroke-width: 5;
+  }
+
+  @include m.e(usage-ring-value) {
+    fill: none;
+    stroke: fn.use-var(color, primary);
+    stroke-width: 5;
+    transition: stroke-dasharray 0.3s ease;
   }
 
   @include m.e(input-stop) {
@@ -1198,6 +1247,29 @@ $root-name: ai-chat;
     color: fn.use-var(text-color, white);
     cursor: pointer;
     font-size: 12px;
+  }
+}
+
+// 用量明细面板经 teleport 挂载到 popper 容器，不处于 .u-ai-chat 内，需独立定义
+.u-#{$root-name}__usage-panel {
+  padding: 6px 4px;
+  user-select: none;
+
+  .u-#{$root-name}__usage-row {
+    @include m.flex(flex, space-between, center);
+    gap: 24px;
+    padding: 3px 8px;
+    font-size: fn.use-var(font-size-main, small);
+    line-height: 1.6;
+  }
+
+  .u-#{$root-name}__usage-label {
+    color: fn.use-var(text-color, assist);
+  }
+
+  .u-#{$root-name}__usage-value {
+    color: fn.use-var(text-color, main);
+    font-variant-numeric: tabular-nums;
   }
 }
 

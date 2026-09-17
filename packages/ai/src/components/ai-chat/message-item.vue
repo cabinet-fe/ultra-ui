@@ -73,6 +73,9 @@
       </div>
 
       <div v-if="showActions" :class="cls.e('message-actions')">
+        <span v-if="duration != null" :class="cls.e('message-duration')">
+          用时 {{ formatDuration(duration) }}
+        </span>
         <UButton
           size="small"
           plain
@@ -107,6 +110,7 @@ import { computed, inject, nextTick, onBeforeUnmount, ref, useTemplateRef, watch
 
 import type { ChatMessage } from '../../chat/types'
 import { AiChatDIKey } from './di'
+import { formatDuration } from './format-duration'
 import ToolCallCard from './tool-call.vue'
 
 defineOptions({ name: 'UAiChatMessageItem' })
@@ -115,6 +119,8 @@ const props = defineProps<{
   message: ChatMessage
   /** 是否为最后一条可见消息（决定是否显示重新生成） */
   isLast: boolean
+  /** 本轮总用时（ms；仅 live 轮次有，历史回放无计时数据） */
+  duration?: number
   /** 透传给 MarkdownRender 的属性 */
   rendererProps?: Record<string, unknown>
 }>()

@@ -2,6 +2,7 @@
   <div :class="cls.e('list-wrap')">
     <UScroll
       :class="cls.e('list')"
+      :content-class="cls.e('list-content')"
       ref="scrollRef"
       @scroll="handleScroll"
       @wheel.passive="handleWheel"
@@ -39,6 +40,7 @@
           v-if="turn.answerMsg"
           :message="turn.answerMsg"
           :is-last="turn.isLast"
+          :duration="turnDurations.get(turn.key)"
           :renderer-props="rendererProps"
           @respond="(id, approved) => emit('respond', id, approved)"
           @regenerate="emit('regenerate')"
@@ -48,7 +50,13 @@
       <!-- 工作中：活体球从输入框上方跳到最新会话下面；结束停留后再跳回 -->
       <div v-if="showWorking" :class="[cls.e('working'), bem.is('leaving', workingLeaving)]">
         <UAiOrb ref="workingOrb" :size="ORB_SIZE" :status="workingOrbStatus" />
-        <span v-if="running" :class="[cls.e('working-text'), 'u-shine']">工作中…</span>
+        <template v-if="running">
+          <span :class="[cls.e('working-text'), 'u-shine']">工作中…</span>
+          <span :class="cls.e('working-time')">{{ formatDuration(elapsedMs) }}</span>
+        </template>
+        <span v-else-if="lastTurnDuration != null" :class="cls.e('working-time')">
+          用时 {{ formatDuration(lastTurnDuration) }}
+        </span>
       </div>
     </UScroll>
 
@@ -115,6 +123,7 @@ import type { ChatMessage } from '../../chat/types'
 import type { AiOrbExposed, AiOrbReaction, AiOrbStatus } from '../../types/ai-orb'
 import UAiOrb from '../ai-orb/ai-orb.vue'
 import { AiChatDIKey } from './di'
+import { formatDuration } from './format-duration'
 import MessageItem from './message-item.vue'
 import TurnProcess from './turn-process.vue'
 
@@ -262,6 +271,26 @@ const clearJumpTimers = () => {
   clearTimeout(jumpTimer)
 }
 
+/** 工作计时的起算时间戳（running 升起时记录） */
+let workStartAt = 0
+/** 进行中的已逝时长（100ms 跳动刷新） */
+const elapsedMs = ref(0)
+let tickTimer: ReturnType<typeof setInterval> | undefined
+
+/** 各轮次总用时（key 同 turns；仅 live 轮次有，历史回放无计时数据） */
+const turnDurations = shallowRef(new Map<string, number>())
+
+const stopTick = () => {
+  clearInterval(tickTimer)
+  tickTimer = undefined
+}
+
+/** 收尾停留期间展示的末轮总用时 */
+const lastTurnDuration = computed(() => {
+  const last = turns.value[turns.value.length - 1]
+  return last ? turnDurations.value.get(last.key) : undefined
+})
+
 /** 列表末尾的工作球：生成中 / 收尾停留 / 跳回过渡 */
 const showWorking = computed(() => !!(props.running || finishing.value || workingLeaving.value))
 /** 输入框上方的空闲欢迎：含工作开始时的缩小离开帧 */
@@ -308,6 +337,13 @@ watch(
     if (running) {
       // 工作开始：立即从输入框上方跳到列表，无停留
       clearJumpTimers()
+      // 工作计时开始：100ms 跳动刷新已逝时长
+      workStartAt = Date.now()
+      elapsedMs.value = 0
+      stopTick()
+      tickTimer = setInterval(() => {
+        elapsedMs.value = Date.now() - workStartAt
+      }, 100)
       const idleWasVisible = !prev && !finishing.value && !workingLeaving.value
       finishing.value = false
       workingLeaving.value = false
@@ -323,6 +359,15 @@ watch(
       return
     }
     if (!prev) return
+
+    stopTick()
+    // 记录本轮总用时（key 同 turns：regenerate 同 key 覆盖，队列接续各自计时）
+    const lastTurn = turns.value[turns.value.length - 1]
+    if (lastTurn) {
+      const next = new Map(turnDurations.value)
+      next.set(lastTurn.key, Date.now() - workStartAt)
+      turnDurations.value = next
+    }
 
     // 清除会话后列表已空：跳过结束停留，立刻回到欢迎区
     if (visibleMessages.value.length === 0) {
@@ -363,6 +408,7 @@ watch(
   (len) => {
     if (len > 0) return
     clearJumpTimers()
+    turnDurations.value = new Map()
     finishing.value = false
     workingLeaving.value = false
     idleLeaving.value = false
@@ -383,6 +429,7 @@ watch(
 onBeforeUnmount(() => {
   stopWelcomeRotation()
   clearJumpTimers()
+  stopTick()
 })
 
 const scrollRef = shallowRef<{ scrollTo: (position: ScrollPosition) => void }>()

@@ -56,16 +56,10 @@ const sessionTransport = createServerTransport(createFakeSessionAdapter())
 
 /**
  * 真实 DeepSeek 接入。
- * 前端只持有相对路径与模型元数据；API Key 由 playground 参考服务从环境变量读取，
- * 经 vite proxy 转发到同源 /ai/chat/completions。
- *
- * V4 Flash / V4 Pro 都支持 reasoning_effort，选择器据此展示推理等级；
- * 默认 transport 会把选中的等级写入 `reasoning_effort`。
  */
 const deepseekReasoningLevels = [
-  { value: 'low', label: '低' },
-  { value: 'medium', label: '中' },
-  { value: 'high', label: '高' }
+  { value: 'high', label: '高' },
+  { value: 'max', label: '极致' }
 ]
 
 const openaiTransport = createOpenAITransport({
@@ -76,18 +70,12 @@ const openaiTransport = createOpenAITransport({
       endpoint: '/ai/chat/completions',
       models: [
         {
-          id: 'deepseek-v4-flash',
-          label: 'DeepSeek V4 Flash',
+          id: 'deepseek-flash',
+          label: 'deepseek-flash',
           description: '快速通用对话，低延迟高吞吐',
+          contextWindow: 1000000,
           reasoningLevels: deepseekReasoningLevels,
-          defaultReasoningLevel: 'low'
-        },
-        {
-          id: 'deepseek-v4-pro',
-          label: 'DeepSeek V4 Pro',
-          description: '旗舰推理与 Agent 任务',
-          reasoningLevels: deepseekReasoningLevels,
-          defaultReasoningLevel: 'medium'
+          defaultReasoningLevel: 'high'
         }
       ]
     }

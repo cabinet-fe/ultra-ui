@@ -21,6 +21,7 @@ keywords:
     模型选择,
     reasoningLevel,
     token 用量,
+    contextWindow,
     readonly
   ]
 ---
@@ -257,13 +258,14 @@ export interface ChatReasoningLevel {
   label: string
 }
 
-/** 单个模型配置：id 跨 Provider 全局唯一；label 缺省取 id；description 为选择器副标题；reasoningLevels 未设或空数组 → 不展示推理选择器；defaultReasoningLevel 须落在 reasoningLevels 内 */
+/** 单个模型配置：id 跨 Provider 全局唯一；label 缺省取 id；description 为选择器副标题；reasoningLevels 未设或空数组 → 不展示推理选择器；defaultReasoningLevel 须落在 reasoningLevels 内；contextWindow 为上下文窗口上限（token），配置后输入栏用量环按「最近一次请求总 token / 上限」显示占比 */
 export interface ChatModel {
   id: string
   label?: string
   description?: string
   reasoningLevels?: ChatReasoningLevel[]
   defaultReasoningLevel?: string
+  contextWindow?: number
 }
 
 /** 模型选择器使用的扁平模型项 */
@@ -325,7 +327,7 @@ export type ChatTransport = (
 | `accept`            | `string`                                | `'image/*'`                                  |  否  | 透传文件选择的 accept，仅支持图片附件                                                                                                                                |
 | `maxAttachmentSize` | `number`                                | `10485760`                                   |  否  | 字节；超限忽略该文件并 `console.warn('[UAiChat] 附件 <name> 超过大小限制，已忽略')`                                                                                  |
 | `rendererProps`     | `Record<string, unknown>`               | —                                            |  否  | 透传 markstream-vue 的 `MarkdownRender`（mermaid/katex 等需宿主自装 peer 并经此打开）                                                                                |
-| `tokenUsageDetail`  | `boolean`                               | `false`                                      |  否  | 仅影响明细展示；无 usage 时一律不展示                                                                                                                                |
+| `tokenUsageDetail`  | `boolean`                               | `false`                                      |  否  | 为 true 时用量环明细面板再列有数据的缓存命中/未命中；接口无 usage 时不显示用量环                                                                                     |
 | `toolIcons`         | `Record<string, Component>`             | —                                            |  否  | 键为工具名，精确名覆盖内置名称规则                                                                                                                                   |
 | `readonly`          | `boolean`                               | `false`                                      |  否  | 不渲染输入区，欢迎语点击不发送，队列无插队/编辑/移除                                                                                                                 |
 
@@ -359,10 +361,11 @@ export type ChatTransport = (
 - 重新生成：最后一条 assistant 进入 `done` / `error` / `aborted` 终态后，在其下方提供复制 / 重新生成操作。
 - 欢迎区：默认为活体球 + 快捷提问；多条每 4000ms 轮换，点文案即发送，点球立即换下一条并重置计时。
 - 生成中活体球跳到列表末尾，结束后停留 2500ms 跳回；工具调用失败自动播 `frustrated` 表情，收尾按终态播表情（`done` → `happy`，`error` → `frustrated`，中断只停留）。
+- 工作计时：生成中列表末尾「工作中…」旁逐秒跳动计时；结束后在该轮答案的复制 / 重新生成操作区左侧显示「用时 Xs」（整秒，≥60s 显示 `Xm Ys`）。仅实时生成的轮次有计时，历史回放不显示；重新生成后更新为本轮新用时。
 - 流式输出默认吸底滚动；用户上翻立即取消吸底，此时列表下方出现圆形向下箭头悬浮按钮，点击回到底部。
 - 思考过程默认折叠（含流式进行中）；思考中折叠头部右侧滚动展示最新一行思考，点击头部展开完整内容（限高 220px，区内可滚动）。
 - 工具卡片默认折叠（含进行中），点击头部展开查看参数/结果；例外自动展开：`awaiting-confirm` 待确认、有内联 `render` 或 `tool-<name>` 插槽的进行中调用（如内置提问表单）、`terminal` 终结工具（答复 UI 即卡片内容）。用户手动切换过折叠态后不再随状态自动变化。
-- 消息、队列、输入区限宽 800px 居中；空会话（只有 tool 消息视为空）时输入区垂直居中。token 展示：数字 <1000 原样，≥1000 用 K、≥100 万用 M（最多 1 位小数，整数不带 `.0`，如 1500 → 1.5K）。
+- 消息、队列、输入区限宽 800px 居中，纵向滚动条悬浮于会话主列右缘（不贴 800px 内容区）；空会话（只有 tool 消息视为空）时输入区垂直居中。token 展示：数字 <1000 原样，≥1000 用 K、≥100 万用 M（最多 1 位小数，整数不带 `.0`，如 1500 → 1.5K）。
 - 队列：生成中提交的消息进入「待发送队列」条，可「立即开始」（中断当前会话插队）、取回输入框编辑（按原锚点插回）、移出。
 
 ## 典型示例

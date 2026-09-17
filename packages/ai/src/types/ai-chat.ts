@@ -52,7 +52,8 @@ export interface AiChatProps {
   rendererProps?: Record<string, unknown>
   /**
    * 是否展示 token 用量明细（缓存命中 / 未命中；缺字段不显示）。
-   * 默认 false：仅在拿到 usage 时显示会话累计「总 token」。接口未返回 usage 时不展示。
+   * 默认 false：用量环明细面板只列 总 / 输入 / 输出；true 时追加有数据的缓存项。
+   * 接口未返回 usage 时不展示用量环。
    */
   tokenUsageDetail?: boolean
   /**

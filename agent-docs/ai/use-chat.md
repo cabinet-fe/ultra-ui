@@ -119,6 +119,8 @@ export function useChat(options: UseChatOptions): {
   tokenUsage: Ref<ChatTokenUsage | null>
   /** 最近一轮用户对话（含工具多轮请求）的 token；该轮无 usage 时为 null */
   lastTurnUsage: Ref<ChatTokenUsage | null>
+  /** 最近一次单次请求的 token（未跨轮累计）；其 totalTokens 近似当前上下文占用 */
+  lastRequestUsage: Ref<ChatTokenUsage | null>
   /** session 投影数据（projection 事件写入）；函数 transport 下恒为 {} */
   projections: Ref<Record<string, unknown>>
   /** session 下发的会话标题；函数 transport 下恒为 null */
@@ -359,6 +361,7 @@ export function foldSessionEvent(state: ChatFoldState, event: ChatSessionEvent):
 | `jobs`                  | `Ref<ChatJob[]>`                                       | `[]`            | 仅 session 有值                                   |
 | `tokenUsage`            | `Ref<ChatTokenUsage \| null>`                          | `null`          | 收到 usage 才有值，多次累加                       |
 | `lastTurnUsage`         | `Ref<ChatTokenUsage \| null>`                          | `null`          | 每轮开始时清零                                    |
+| `lastRequestUsage`      | `Ref<ChatTokenUsage \| null>`                          | `null`          | 最近一次单次请求的用量，不跨轮累计                |
 | `projections` / `title` | `Ref<Record<string, unknown>>` / `Ref<string \| null>` | `{}` / `null`   | 仅 session 有值                                   |
 | `pendingApprovals`      | `Ref<ChatPendingApproval[]>`                           | `[]`            | 仅 session 有值                                   |
 | `pendingQuestion`       | `Ref<{ questions; rpcId } \| null>`                    | `null`          | 仅 session 有值                                   |
@@ -374,7 +377,7 @@ export function foldSessionEvent(state: ChatFoldState, event: ChatSessionEvent):
 | `send`            | `(content, attachments?) => void`                         | 空内容且无附件为空操作；session 下转发 `transport.send`；空闲时立即开新一轮，生成中入队                                  |
 | `abort`           | `() => void`                                              | 函数 transport 下中止 AbortController，挂起的工具确认按拒绝处理；session 下调 `transport.cancel()`；队列保留             |
 | `regenerate`      | `() => void`                                              | 移除最后一条 user 消息之后的所有消息并重跑对话循环。session 下、生成中、无 user 消息或最后一条就是 user 时为空操作       |
-| `clear`           | `() => void`                                              | 生成中先中止；清空 messages、queue、tokenUsage、lastTurnUsage。session 下走本地重置（fold 状态归零）                     |
+| `clear`           | `() => void`                                              | 生成中先中止；清空 messages、queue、tokenUsage、lastTurnUsage、lastRequestUsage。session 下走本地重置（fold 状态归零）     |
 | `enqueue`         | `(content, attachments?, beforeId?) => ChatQueuedMessage` | 返回队列项；`beforeId` 指定插到某条之前（缺省追加尾部）；空闲时自动消耗队首。session 下仅返回对象、不入队                |
 | `startQueued`     | `(id) => void`                                            | 立即执行队列中某条：空闲时直接开始；生成中把它插回队首并中断当前会话，收尾后自动接续。session 下为空操作                 |
 | `removeQueued`    | `(id) => ChatQueuedMessage \| undefined`                  | 从队列移除并返回被移除项；未找到返回 undefined。session 下恒返回 undefined                                               |

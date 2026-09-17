@@ -60,6 +60,8 @@ export function useChat(options: UseChatOptions) {
   const tokenUsage = ref<ChatTokenUsage | null>(null)
   /** 最近一轮用户对话（含工具多轮请求）的 token；该轮无 usage 时为 null */
   const lastTurnUsage = ref<ChatTokenUsage | null>(null)
+  /** 最近一次单次请求的 token（未跨轮累计），其 totalTokens 近似当前上下文占用 */
+  const lastRequestUsage = ref<ChatTokenUsage | null>(null)
 
   /** session 下由 jobs/snapshot 整体替换；函数 transport 保持空数组 */
   const jobs = ref<ChatJob[]>([])
@@ -344,6 +346,7 @@ export function useChat(options: UseChatOptions) {
             emit('tool-call', toolCall)
           },
           onUsage: (usage) => {
+            lastRequestUsage.value = usage
             lastTurnUsage.value = lastTurnUsage.value
               ? addTokenUsage(lastTurnUsage.value, usage)
               : usage
@@ -462,6 +465,7 @@ export function useChat(options: UseChatOptions) {
     if (session()) {
       sessionRuntime.resetLocal()
       lastTurnUsage.value = null
+      lastRequestUsage.value = null
       return
     }
     abort()
@@ -469,6 +473,7 @@ export function useChat(options: UseChatOptions) {
     messages.value = []
     tokenUsage.value = null
     lastTurnUsage.value = null
+    lastRequestUsage.value = null
     snapshot()
   }
 
@@ -481,6 +486,7 @@ export function useChat(options: UseChatOptions) {
     jobs,
     tokenUsage,
     lastTurnUsage,
+    lastRequestUsage,
     projections,
     title,
     pendingApprovals,

@@ -46,14 +46,48 @@
             </template>
           </UPopConfirm>
         </span>
-
-        <span v-if="tokenUsage" :class="cls.e('input-usage')" :title="usageText">
-          {{ usageText }}
-        </span>
       </div>
 
-      <!-- 右簇：模型/推理选择 → 发送或停止（互斥） -->
+      <!-- 右簇：token 用量环 → 模型/推理选择 → 发送或停止（互斥） -->
       <div :class="cls.e('input-toolbar-right')">
+        <UDropdown
+          v-if="tokenUsage"
+          width="auto"
+          min-width="200px"
+          :content-class="cls.e('usage-panel')"
+        >
+          <template #trigger>
+            <button type="button" :class="cls.e('usage-trigger')" aria-label="Token 用量">
+              <svg :class="cls.e('usage-ring')" viewBox="0 0 36 36">
+                <circle :class="cls.e('usage-ring-track')" cx="18" cy="18" r="15.5" />
+                <circle
+                  :class="cls.e('usage-ring-value')"
+                  cx="18"
+                  cy="18"
+                  r="15.5"
+                  pathLength="100"
+                  transform="rotate(-90 18 18)"
+                  :stroke-dasharray="`${contextPercent ?? 0} 100`"
+                  :stroke-linecap="contextPercent ? 'round' : undefined"
+                />
+              </svg>
+            </button>
+          </template>
+
+          <template #content>
+            <div :class="cls.e('usage-list')">
+              <div v-if="contextText" :class="cls.e('usage-row')">
+                <span :class="cls.e('usage-label')">上下文占用</span>
+                <span :class="cls.e('usage-value')">{{ contextText }}</span>
+              </div>
+              <div v-for="row in usageRows" :key="row.label" :class="cls.e('usage-row')">
+                <span :class="cls.e('usage-label')">{{ row.label }}</span>
+                <span :class="cls.e('usage-value')">{{ row.value }}</span>
+              </div>
+            </div>
+          </template>
+        </UDropdown>
+
         <ModelPicker
           v-if="models?.length"
           v-model:model="model"
@@ -89,7 +123,7 @@
 </template>
 
 <script lang="ts" setup>
-import { UButton, UFilePicker, UIcon, UPopConfirm } from '@veltra/desktop'
+import { UButton, UDropdown, UFilePicker, UIcon, UPopConfirm } from '@veltra/desktop'
 import { Attach, Clear, Close, Up } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { computed, inject, nextTick, ref, shallowRef, watch } from 'vue'
@@ -116,6 +150,8 @@ const props = defineProps<{
   clearable?: boolean
   /** 会话累计 token；无 usage 时为 null，不展示 */
   tokenUsage?: ChatTokenUsage | null
+  /** 最近一次单次请求的 token（未累计）；配合模型 contextWindow 计算用量环占比 */
+  lastRequestUsage?: ChatTokenUsage | null
   /** 是否展示缓存命中 / 未命中（默认只显示总 token） */
   tokenUsageDetail?: boolean
 }>()
@@ -159,20 +195,52 @@ const formatTokenCount = (n: number) => {
   return scaled(n / 1_000_000, 'M')
 }
 
-/** 会话累计：总 token；明细再拼有数据的缓存项，缺字段不写 0 */
-const usageText = computed(() => {
+/** 百分比：最多 1 位小数，整数不写 `.0` */
+const formatPercent = (p: number) => {
+  const rounded = Math.round(p * 10) / 10
+  return `${Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1)}%`
+}
+
+/** 当前模型声明的上下文窗口；未声明则用量环不填充、面板不显示占用 */
+const contextWindow = computed(() => {
+  return props.models?.find((m) => m.id === model.value)?.contextWindow
+})
+
+/** 上下文占用百分比：最近一次请求总 token / 窗口上限；缺数据时为 null */
+const contextPercent = computed(() => {
+  const win = contextWindow.value
+  const total = props.lastRequestUsage?.totalTokens
+  if (!win || total == null) return null
+  return Math.min(100, (total / win) * 100)
+})
+
+/** 面板占用行文案：1.5K / 128K · 1.2% */
+const contextText = computed(() => {
+  const percent = contextPercent.value
+  const win = contextWindow.value
+  const total = props.lastRequestUsage?.totalTokens
+  if (percent == null || !win || total == null) return ''
+  return `${formatTokenCount(total)} / ${formatTokenCount(win)} · ${formatPercent(percent)}`
+})
+
+/** 明细面板行：总 / 输入 / 输出；明细开关下再拼有数据的缓存项，缺字段不写 0 */
+const usageRows = computed(() => {
   const usage = props.tokenUsage
-  if (!usage) return ''
-  const parts = [`总 token ${formatTokenCount(usage.totalTokens)}`]
+  if (!usage) return []
+  const rows = [
+    { label: '总 token', value: formatTokenCount(usage.totalTokens) },
+    { label: '输入', value: formatTokenCount(usage.promptTokens) },
+    { label: '输出', value: formatTokenCount(usage.completionTokens) }
+  ]
   if (props.tokenUsageDetail) {
     if (usage.cacheHitTokens != null) {
-      parts.push(`缓存命中 ${formatTokenCount(usage.cacheHitTokens)}`)
+      rows.push({ label: '缓存命中', value: formatTokenCount(usage.cacheHitTokens) })
     }
     if (usage.cacheMissTokens != null) {
-      parts.push(`缓存未命中 ${formatTokenCount(usage.cacheMissTokens)}`)
+      rows.push({ label: '缓存未命中', value: formatTokenCount(usage.cacheMissTokens) })
     }
   }
-  return parts.join(' · ')
+  return rows
 })
 
 /** 生成中提示用户消息将进入队列 */

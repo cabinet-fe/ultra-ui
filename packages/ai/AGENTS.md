@@ -25,8 +25,9 @@ src/
 └── components/
     ├── ai-chat/
     │   ├── ai-chat.vue         # UAiChat 主组件（useChat + provide DI；toolMap 含内置工具元信息；renderTo: 'panel' 调用的面板状态；ULayout 分列与面板宽度）
-    │   ├── message-list.vue    # UScroll 消息列表（滚动条不常驻）：按轮次分组渲染（user 消息为界；一轮中最终答案之前的 assistant 过程消息在答案开始输出 / 该轮结束时收进「已完成」折叠块）；流式吸底（滚轮上翻立即取消吸附 + 方向感知兜底 + 列表下方纯箭头回底悬浮按钮一键回底；吸底滚动前二次确认吸附状态，避免流式期间把上翻用户拉回底部）；空闲欢迎区（较小活体球 + 逐条轮换的快捷提问）钉在 UScroll 外、输入框上方，高度 48px；工作中活体球立即缩小离开输入框并在列表末尾放大出现（无延时），结束 / 失败停留约 2.5s（成功播 happy、出错播 frustrated；工具调用失败亦播 frustrated）后再对向跳回输入框上方；点文案发送，点球立即换一条并重置轮换计时；固定锚点布局——球钉死不动，气泡只向右延展
-    │   ├── message-item.vue    # 单条消息（reasoning 折叠块：默认折叠含流式进行中，折叠时 v-if 卸载内容 DOM；思考中头部右侧滚动展示最新一行思考；展开态 UScroll 限高 220px + 区内上翻取消内部吸底 + 思考中扫光 + ArrowRight 折叠箭头；MarkdownRender + 工具卡片）
+    │   ├── message-list.vue    # UScroll 消息列表（滚动条不常驻、贴主列右缘：list-wrap 负边距吃掉主列横向 padding 顶到容器边缘，800px 限宽下沉到 UScroll 内容层 __list-content）：按轮次分组渲染（user 消息为界；一轮中最终答案之前的 assistant 过程消息在答案开始输出 / 该轮结束时收进「已完成」折叠块）；流式吸底（滚轮上翻立即取消吸附 + 方向感知兜底 + 列表下方纯箭头回底悬浮按钮一键回底；吸底滚动前二次确认吸附状态，避免流式期间把上翻用户拉回底部）；空闲欢迎区（较小活体球 + 逐条轮换的快捷提问）钉在 UScroll 外、输入框上方，高度 48px；工作中活体球立即缩小离开输入框并在列表末尾放大出现（无延时），结束 / 失败停留约 2.5s（成功播 happy、出错播 frustrated；工具调用失败亦播 frustrated）后再对向跳回输入框上方；点文案发送，点球立即换一条并重置轮换计时；固定锚点布局——球钉死不动，气泡只向右延展；工作计时——生成中「工作中…」旁逐秒跳动计时，收尾停留显示末轮总用时，turnDurations 按轮次 key 记录并透传给答案 MessageItem（仅 live 轮次，历史回放无计时数据）
+    │   ├── message-item.vue    # 单条消息（reasoning 折叠块：默认折叠含流式进行中，折叠时 v-if 卸载内容 DOM；思考中头部右侧滚动展示最新一行思考；展开态 UScroll 限高 220px + 区内上翻取消内部吸底 + 思考中扫光 + ArrowRight 折叠箭头；MarkdownRender + 工具卡片；操作区前置本轮「用时 Xs」（duration prop））
+    │   ├── format-duration.ts  # 工作时长格式化（整秒：<60s Xs、≥60s Xm Ys；message-list 计时与 message-item 总用时共用）
     │   ├── turn-process.vue    # 轮次「已完成」折叠块（CircleCheck + 标题 + chevron；折叠时 v-if 卸载过程 DOM，展开后复用 MessageItem 渲染过程消息，思考块/工具卡片保持各自折叠头可逐层钻取）
     │   ├── tool-call.vue       # 工具卡片（复用 UCollapseItem，#header 只自定义标题区，展开图标走组件内置旋转；默认折叠含进行中，仅 awaiting-confirm 待确认 / 有内联 render·插槽的进行中调用（提问表单等）/ terminal「UI 即答复」工具自动展开；autoCollapse 缺省 true、终结工具缺省 false；needsConfirm 确认按钮在头部；消费工具 icon/label/render/renderTo/autoCollapse/terminal；终态折叠后 destroyOnCollapse 卸载内容 DOM——进行中/待确认保留内容状态、面板工具保留「查看面板」入口；面板工具 body 仅留「查看面板」入口）
     │   ├── side-panel.vue      # 右侧侧边面板（renderTo: 'panel' 工具的渲染区：悬浮卡片——面板本体透明留白、内层圆角卡片仅靠背景对比+阴影区分，无分割线；头部 icon 底托/标题/关闭，标题取 panelTitle ?? label ?? name + UScroll 渲染体）
@@ -34,7 +35,7 @@ src/
     │   ├── job-bar.vue         # 作业条（jobs/snapshot；kind 图标 + label + 状态点，进行中扫光，可折叠）
     │   ├── approval-banner.vue # 无 callId 的审批横幅（允许/拒绝 → session.respond）
     │   ├── ask-question.vue    # 提问表单（主契约 questions + onSubmit；客户端经薄包装走 resolveAskQuestion，session 挂 question/requested）
-    │   ├── chat-input.vue      # 输入区（多行自适应、图片附件、清除会话确认、token 用量、模型/推理选择、生成中空输入显示停止 / 有内容则发送入队；暴露 setContent/getContent）
+    │   ├── chat-input.vue      # 输入区（多行自适应、图片附件、清除会话确认、token 用量环 + 明细面板、模型/推理选择、生成中空输入显示停止 / 有内容则发送入队；暴露 setContent/getContent）
     │   ├── model-picker.vue    # 模型/推理选择器（UDropdown 面板：模型列表 + 思考强度内联展开）
     │   ├── di.ts               # AiChatDIKey（cls + slots + tools 注入，支撑 tool-<name> 动态插槽与工具元信息）
     │   └── __test__/
@@ -59,7 +60,7 @@ src/
 - **工具循环收敛**：`maxToolRounds`（props，默认 10）限制单次发送的最大生成轮次，超限即 finish 停止；`ChatTool.terminal` 工具执行成功后对话终结（结果仍入消息历史，失败/拒绝照常回灌），配合 `render` 实现"工具 UI 即答复"。两类结束都会发出 `finish`。
 - **侧边面板工具**：`ChatTool.renderTo: 'panel'` 把 render 组件渲染到对话区右侧的侧边面板（side-panel.vue），契约同卡片 render（`ChatToolRenderProps`，随 toolCall 状态实时更新）；新的面板调用自动打开并聚焦，工具卡片 body 仅留「查看面板」入口（经 DI `openPanel` 切换聚焦，可切回历史调用）；布局基于 `ULayout`（`cols = 1fr + 面板宽度`，`colMinSizes` 约束会话区 ≥360px、面板 ≥320px，`useResizeObserver` 跟踪拖拽后的实际宽度）；`ChatTool.panelWidth` 可指定该工具面板的默认宽度（聚焦其调用时应用；缺省取「容器宽 - 860」，即面板默认尽可能大、会话区保留 860px）；`ChatTool.panelTitle`（字符串或按 toolCall 动态生成的函数）给出业务化面板标题（「业务对象 + 动作」），缺省取 label ?? name。组件根背景为 bg-color-bottom，消息/队列/输入区限宽 800px 居中（面板开合时排版不形变），卡片类元素（输入区、面板卡、欢迎气泡）用 bg-color-top + 阴影而非边框区分层级。空会话（无可见消息）时主列挂 `is-empty`：列表区与末尾弹性占位均分剩余空间使输入区垂直居中；空闲欢迎区钉在 UScroll 外、贴于输入框上方（有消息后布局回落到底部，欢迎区仍在输入框上方）；工作开始时活体球立即跳到列表末尾，结束后跳回。
 - **待发送队列**：会话进行中 `send` 的消息进入 `queue`（不再丢弃），自然完成（finish）后按 FIFO 自动接续；`startQueued(id)` 中断当前会话并插队执行（其余保持顺序）；`enqueue(content, attachments?, beforeId?)` 支持锚点插入（编辑回插保持前后项顺序）；手动 `abort()` / 出错时队列保留不自动接续；`clear()` 一并清空队列、中止进行中的请求，并重置 token 统计。编辑流由 ai-chat.vue 以后继 id 锚点实现（取回输入框 → 重新提交插回原位置）。输入区清除按钮走 `UPopConfirm` 二次确认；生成中清除会跳过工作球停留、立刻回到欢迎区。
-- **Token 用量**：OpenAI 兼容 transport 请求 `stream_options.include_usage`，从 SSE 末包 `usage` 解析 `prompt/completion/total` 以及缓存命中/未命中（`prompt_tokens_details.cached_tokens`、`prompt_cache_hit_tokens` / `prompt_cache_miss_tokens`、`cache_read_input_tokens` 等）；未返回 usage 时不展示、不补 0。`useChat` 累计到 `tokenUsage`（会话）与 `lastTurnUsage`（当前用户轮，含工具多轮；供编程读取，输入栏不展示「本次」）。`tokenUsageDetail`（默认 false）为 false 时输入栏仅显示会话累计「总 token」；为 true 时再拼有数据的「缓存命中」「缓存未命中」。数字 ≥1000 用 K、≥100 万用 M（最多 1 位小数，整数不写 `.0`）。
+- **Token 用量**：OpenAI 兼容 transport 请求 `stream_options.include_usage`，从 SSE 末包 `usage` 解析 `prompt/completion/total` 以及缓存命中/未命中（`prompt_tokens_details.cached_tokens`、`prompt_cache_hit_tokens` / `prompt_cache_miss_tokens`、`cache_read_input_tokens` 等）；未返回 usage 时不展示、不补 0。`useChat` 累计到 `tokenUsage`（会话）与 `lastTurnUsage`（当前用户轮，含工具多轮；供编程读取），并另存 `lastRequestUsage`（最近一次单次请求、未跨轮累计）。输入栏以用量环承载展示：模型声明 `ChatModel.contextWindow` 时按 `lastRequestUsage.totalTokens / 窗口上限` 填充占比（未声明则空环），悬停经 UDropdown 弹出明细面板——总 / 输入 / 输出，`tokenUsageDetail`（默认 false）为 true 时再列有数据的「缓存命中」「缓存未命中」。数字 ≥1000 用 K、≥100 万用 M（最多 1 位小数，整数不写 `.0`）。
 - **扫光**：文字扫光使用 `@veltra/styles/animations` 提供的全局可复用类 `u-shine`（纯 CSS，background-clip: text，含 prefers-reduced-motion 降级），随 ai-chat 的 `style.ts` 按需加载；思考中与进行中的工具名自动应用。
 
 ## 依赖
