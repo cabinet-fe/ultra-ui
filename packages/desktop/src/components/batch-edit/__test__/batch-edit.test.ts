@@ -273,12 +273,31 @@ function queryDialog() {
   return document.body.querySelector<HTMLElement>('.u-batch-edit__form-dialog')
 }
 
-/** 等弹框（teleport 到 body）的进入 / 离开过渡走完 */
-async function flushDialog() {
+/** 等弹框（teleport 到 body）打开：进入过渡在 CI 高负载下可能超过固定时长，轮询等待 */
+async function waitDialogOpen() {
+  await vi.waitFor(() => {
+    expect(queryDialog()).toBeTruthy()
+  })
+}
+
+/** 等弹框关闭卸载：离开过渡在 CI 高负载下可能超过固定时长，轮询等待 */
+async function waitDialogClosed() {
+  await vi.waitFor(() => {
+    expect(queryDialog()).toBeNull()
+  })
+}
+
+/** 等一次校验 / 保存等异步处理落地（固定短等，避免两次点击的 handleSave 重叠） */
+async function waitDialogSettled() {
   await nextTick()
   await nextTick()
   await new Promise((resolve) => setTimeout(resolve, 20))
   await nextTick()
+}
+
+/** 当前用例弹框的遮罩（body 上可能残留前序用例未卸载的弹框，必须按当前弹框定位） */
+function currentOverlay() {
+  return queryDialog()!.closest<HTMLElement>('.u-dialog__overlay')!
 }
 
 function clickEl(el: HTMLElement) {
@@ -324,7 +343,7 @@ describe('UBatchEdit formMode', () => {
     expect(queryDialog()).toBeNull()
 
     await clickEditRow(host, 0)
-    await flushDialog()
+    await waitDialogOpen()
 
     const dialog = queryDialog()
     expect(dialog).toBeTruthy()
@@ -349,12 +368,11 @@ describe('UBatchEdit formMode', () => {
 
     // 打开新增弹框
     clickEl(host.querySelector<HTMLElement>('.u-batch-edit__add-btn')!)
-    await flushDialog()
-    expect(queryDialog()).toBeTruthy()
+    await waitDialogOpen()
 
     // 必填校验失败：不调用 saveMethod，弹框保持打开
     clickEl(querySaveButton(queryDialog()!)!)
-    await flushDialog()
+    await waitDialogSettled()
     expect(saveMethod).not.toHaveBeenCalled()
     expect(queryDialog()).toBeTruthy()
 
@@ -363,14 +381,13 @@ describe('UBatchEdit formMode', () => {
     await nextTick()
     await nextTick()
     clickEl(querySaveButton(queryDialog()!)!)
-    await flushDialog()
+    await waitDialogClosed()
 
     expect(saveMethod).toHaveBeenCalledTimes(1)
     expect(saveMethod.mock.calls[0]![0]).toMatchObject({ label: '新名称' })
     expect(saveMethod.mock.calls[0]![1]).toBe('create')
     expect(data.value).toHaveLength(3)
     expect(data.value[2]).toMatchObject({ label: '新名称' })
-    expect(queryDialog()).toBeNull()
 
     unmount()
   })
@@ -383,23 +400,22 @@ describe('UBatchEdit formMode', () => {
 
     // 编辑第 1 行后取消
     await clickEditRow(host, 0)
-    await flushDialog()
+    await waitDialogOpen()
     setInputValue(queryDialog()!.querySelector<HTMLInputElement>('.u-input input')!, '改过的名称')
     await nextTick()
     await nextTick()
     clickEl(queryCancelButton(queryDialog()!)!)
-    await flushDialog()
+    await waitDialogClosed()
 
     expect(saveMethod).not.toHaveBeenCalled()
     expect(data.value[0]).toMatchObject({ label: '存草稿' })
     // model 恢复初始快照，而不是残留上一行数据
     expect(model.label).toBe('')
     expect(model.submitType).toBeUndefined()
-    expect(queryDialog()).toBeNull()
 
     // 取消后再新增：表单应为初始值（快照不被上一行污染）
     clickEl(host.querySelector<HTMLElement>('.u-batch-edit__add-btn')!)
-    await flushDialog()
+    await waitDialogOpen()
     expect(queryDialog()!.querySelector<HTMLInputElement>('.u-input input')!.value).toBe('')
 
     // 表单头部的关闭按钮同样不保存
@@ -407,27 +423,23 @@ describe('UBatchEdit formMode', () => {
     await nextTick()
     await nextTick()
     clickEl(queryDialog()!.querySelector<HTMLElement>('.u-batch-edit__form-close')!)
-    await flushDialog()
+    await waitDialogClosed()
     expect(saveMethod).not.toHaveBeenCalled()
     expect(model.label).toBe('')
     expect(data.value).toHaveLength(2)
-    expect(queryDialog()).toBeNull()
 
     // 弹框自身关闭交互（点击遮罩）也不保存
     await clickEditRow(host, 1)
-    await flushDialog()
+    await waitDialogOpen()
     setInputValue(queryDialog()!.querySelector<HTMLInputElement>('.u-input input')!, '改过的名称')
     await nextTick()
     await nextTick()
-    document
-      .querySelector<HTMLElement>('.u-dialog__overlay')!
-      .dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }))
-    await flushDialog()
+    currentOverlay().dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }))
+    await waitDialogClosed()
 
     expect(saveMethod).not.toHaveBeenCalled()
     expect(data.value[1]).toMatchObject({ label: '调接口' })
     expect(model.label).toBe('')
-    expect(queryDialog()).toBeNull()
 
     unmount()
   })
