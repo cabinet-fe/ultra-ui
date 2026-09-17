@@ -81,7 +81,8 @@ $root-name: dialog;
     flex-grow: 1;
 
     // padding 加在滚动内容而非 body 本身：u-scroll 的 overflow 会裁切子元素 box-shadow
-    @include m.bem(scroll, content) {
+    // 用子代链限定 body 自己的滚动内容，避免命中弹框内嵌套的 u-scroll
+    > #{fn.bem(scroll, container)} > #{fn.bem(scroll, content)} {
       padding: 8px;
     }
   }

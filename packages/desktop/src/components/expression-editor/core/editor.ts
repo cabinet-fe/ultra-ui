@@ -28,8 +28,6 @@ export interface EditorOptions {
   onSelectionChange?: (info: { offset: number | null }) => void
   /** 用户点击某个 chip 的主体（重选） */
   onChipReselect?: (info: { chipEl: HTMLElement; segIndex: number; chipOffset: number }) => void
-  /** 用户点击某个 chip 的 ×（删除） */
-  onChipRemove?: (info: { chipEl: HTMLElement; segIndex: number }) => void
 }
 
 export interface EditorAPI {
@@ -50,8 +48,6 @@ export interface EditorAPI {
    * 调用方通常在 mention 选中时用：start = `@` 起点、end = 当前光标。
    */
   replaceRangeWithVar(start: number, end: number, variable: EditorVariableInfo): void
-  /** 移除指定段下标对应的 var chip（必须是 var 段）。 */
-  removeVarAt(segIndex: number): void
   /** 替换指定段下标对应的 var chip 为新变量（必须是 var 段）。 */
   replaceVarAt(segIndex: number, variable: EditorVariableInfo): void
   /** 卸载所有事件监听（不会销毁 container DOM） */
@@ -85,11 +81,6 @@ export function createEditor(opts: EditorOptions): EditorAPI {
         const { segIndex, chipOffset } = locateChip(chipEl)
         if (segIndex < 0) return
         opts.onChipReselect?.({ chipEl, segIndex, chipOffset })
-      },
-      onRemove: (chipEl) => {
-        const { segIndex } = locateChip(chipEl)
-        if (segIndex < 0) return
-        opts.onChipRemove?.({ chipEl, segIndex })
       }
     })
   }
@@ -412,17 +403,6 @@ export function createEditor(opts: EditorOptions): EditorAPI {
     render(a + variable.value.length + 2) // 光标定到 chip 之后
   }
 
-  function removeVarAt(segIndex: number) {
-    const target = doc[segIndex]
-    if (!target || target.kind !== 'var') return
-    const before = doc.slice(0, segIndex)
-    const after = doc.slice(segIndex + 1)
-    const caretOffset = sliceLength(before)
-    const next = normalize([...before, ...after])
-    emitChange(next)
-    render(caretOffset)
-  }
-
   function replaceVarAt(segIndex: number, variable: EditorVariableInfo) {
     const target = doc[segIndex]
     if (!target || target.kind !== 'var') return
@@ -499,7 +479,6 @@ export function createEditor(opts: EditorOptions): EditorAPI {
     getCaretOffset,
     setCaretOffset: setCaret,
     replaceRangeWithVar,
-    removeVarAt,
     replaceVarAt,
     rerender: () => render(),
     dispose: () => {

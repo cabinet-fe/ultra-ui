@@ -135,10 +135,6 @@ onMounted(() => {
       pickerFilter.value = ''
       pickerTriggerDom.value = chipEl
       reselectingSegIdx.value = segIndex
-    },
-    onChipRemove: ({ segIndex }) => {
-      if (disabled.value || readonly.value) return
-      editor.removeVarAt(segIndex)
     }
   })
   editorRef.value = editor

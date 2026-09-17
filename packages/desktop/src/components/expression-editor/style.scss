@@ -105,12 +105,6 @@ $root-name: expression-editor;
         fn.use-var(color, primary, light-7)
       );
       box-shadow: 0 1px 4px fn.use-var(shadow, color);
-
-      #{fn.bem($root-name, chip-close)} {
-        opacity: 1;
-        max-width: 14px;
-        margin-left: 2px;
-      }
     }
 
     &.is-focused {
@@ -120,29 +114,6 @@ $root-name: expression-editor;
 
   @include m.e(chip-label) {
     pointer-events: none;
-  }
-
-  @include m.e(chip-close) {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 14px;
-    max-width: 0;
-    margin-left: 0;
-    overflow: hidden;
-    font-size: 14px;
-    line-height: 1;
-    color: fn.use-var(color, primary);
-    opacity: 0;
-    transition:
-      opacity 0.12s ease,
-      max-width 0.12s ease,
-      margin-left 0.12s ease;
-    cursor: pointer;
-
-    &:hover {
-      transform: scale(1.1);
-    }
   }
 
   // ─── 变量选择面板 ──────────────────────────────────────────

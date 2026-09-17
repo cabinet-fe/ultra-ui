@@ -14,7 +14,6 @@ const cls = {
 } as any
 
 function makeChip(overrides: Partial<{ value: string; label: string; type?: string }> = {}) {
-  const onRemove = vi.fn<(el: HTMLElement) => void>()
   const onReselect = vi.fn<(el: HTMLElement) => void>()
   const segment = {
     kind: 'var' as const,
@@ -22,8 +21,8 @@ function makeChip(overrides: Partial<{ value: string; label: string; type?: stri
     label: overrides.label ?? '用户姓名',
     ...(overrides.type ? { type: overrides.type } : {})
   }
-  const el = createChip(segment, { cls, onRemove, onReselect })
-  return { el, onRemove, onReselect, segment }
+  const el = createChip(segment, { cls, onReselect })
+  return { el, onReselect, segment }
 }
 
 describe('createChip', () => {
@@ -54,21 +53,11 @@ describe('createChip', () => {
   })
 
   it('mousedown on chip body triggers onReselect', () => {
-    const { el, onReselect, onRemove } = makeChip()
+    const { el, onReselect } = makeChip()
     const label = el.querySelector(`.${cls.e('chip-label')}`) as HTMLElement
     label.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
     expect(onReselect).toHaveBeenCalledTimes(1)
     expect(onReselect).toHaveBeenCalledWith(el)
-    expect(onRemove).not.toHaveBeenCalled()
-  })
-
-  it('mousedown on close (×) triggers onRemove and not onReselect', () => {
-    const { el, onReselect, onRemove } = makeChip()
-    const close = el.querySelector(`[${ChipAttrs.close}]`) as HTMLElement
-    close.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }))
-    expect(onRemove).toHaveBeenCalledTimes(1)
-    expect(onRemove).toHaveBeenCalledWith(el)
-    expect(onReselect).not.toHaveBeenCalled()
   })
 
   it('readChipValue returns the bound value', () => {
