@@ -4,28 +4,21 @@
     :slots="slots"
     :class="[cls.e('table')]"
     :columns="columns"
-    highlight-current
     :current="state.row"
-    @update:current="handleUpdateCurrentRow"
     @update:checked="emit('update:checked', $event)"
     @update:selected="emit('update:selected', $event)"
   >
     <template #column:__action__="{ row }">
-      <u-action-group :class="cls.e('row-actions')" :max="5" @click.stop circle>
+      <u-action-group :max="5" circle>
         <u-action
-          v-if="allowed('create', row)"
-          :icon="InsertToPrev"
-          title="在上方插入"
-          @run="handleInsertToPrev(row)"
+          v-if="allowed('update', row)"
+          :icon="props.readonly ? View : EditPen"
+          :title="props.readonly ? '查看' : '编辑'"
+          @run="startEdit(row)"
+          v-bind="props.actionsProps?.update"
         />
         <u-action
-          v-if="allowed('create', row)"
-          :icon="InsertToNext"
-          title="在下方插入"
-          @run="handleInsertToNext(row)"
-        />
-        <u-action
-          v-if="!!props.tree && allowed('createChild', row)"
+          v-if="!props.readonly && !!props.tree && allowed('createChild', row)"
           :icon="AddChild"
           title="添加子级"
           @run="handleInsertChild(row)"
@@ -37,6 +30,18 @@
           title="删除"
           @run="handleDelete(row)"
           v-bind="props.actionsProps?.delete"
+        />
+        <u-action
+          v-if="!props.readonly && allowed('create', row)"
+          :icon="InsertToPrev"
+          title="在上方插入"
+          @run="handleInsertToPrev(row)"
+        />
+        <u-action
+          v-if="!props.readonly && allowed('create', row)"
+          :icon="InsertToNext"
+          title="在下方插入"
+          @run="handleInsertToNext(row)"
         />
       </u-action-group>
     </template>
@@ -61,7 +66,15 @@
 
 <script setup lang="ts">
 import { o } from '@cat-kit/core'
-import { AddChild, Delete, InsertToNext, InsertToPrev, Plus } from '@veltra/icons/normal'
+import {
+  AddChild,
+  Delete,
+  EditPen,
+  InsertToNext,
+  InsertToPrev,
+  Plus,
+  View
+} from '@veltra/icons/normal'
 import { computed, inject, type Slots } from 'vue'
 
 import type { BatchEditFeature, TableRow } from '../../types'
@@ -81,6 +94,7 @@ const {
   emit,
   staticFeatures,
   dynamicFeatures,
+  startEdit,
   handleCreate,
   handleDelete,
   handleInsertToNext,
@@ -97,9 +111,11 @@ const tableProps = computed(() => {
     'deleteMethod',
     'saveMethod',
     'features',
-    'mode',
     'beforeCreate',
-    'formMode'
+    'formMode',
+    'quickEdit',
+    'labelWidth',
+    'actionsProps'
   ])
 })
 
@@ -110,7 +126,11 @@ const allowed = (feature: BatchEditFeature, row?: TableRow) => {
 }
 
 const columns = computed(() => {
-  if (props.readonly || hasNot(['create', 'delete', 'createChild', 'update'])) return props.columns
+  // 只读模式的操作列只保留「查看」入口
+  const related: BatchEditFeature[] = props.readonly
+    ? ['update']
+    : ['create', 'delete', 'createChild', 'update']
+  if (hasNot(related)) return props.columns
 
   return (props.columns ?? []).concat({
     name: '操作',
@@ -121,12 +141,6 @@ const columns = computed(() => {
     resizable: false
   })
 })
-
-function handleUpdateCurrentRow(row?: TableRow) {
-  if (allowed('update', row)) {
-    state.row = row
-  }
-}
 
 function canDelete(row: TableRow) {
   return !props.readonly && allowed('delete', row)

@@ -64,7 +64,7 @@ const cls = bem('batch-edit')
 
 const formRef = useTemplateRef<FormExposed>('form')
 
-const { state, resetState, syncing } = useEditState({ props, formRef })
+const { state, resetState, startEdit, syncing } = useEditState({ props, formRef })
 
 const { staticFeatures, dynamicFeatures } = useFeatures({ props })
 
@@ -91,6 +91,7 @@ provide(BatchEditDIKey, {
   dynamicFeatures,
   focused,
   syncing,
+  startEdit,
   ...handlers
 })
 </script>

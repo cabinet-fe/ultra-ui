@@ -24,5 +24,7 @@ export const BatchEditDIKey: InjectionKey<
     focused: ShallowRef<boolean>
     /** 是否正在以编程方式重置/回显表单，此期间禁止 quick-edit 回写行数据 */
     syncing: ShallowRef<boolean>
+    /** 开始编辑/查看一行（操作列「编辑」按钮触发） */
+    startEdit: (row: TableRow) => void
   } & EditReturned
 > = Symbol('BatchEditDIKey')

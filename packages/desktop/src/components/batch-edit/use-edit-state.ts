@@ -1,7 +1,7 @@
 import { copy, o } from '@cat-kit/core'
 import { nextTick, shallowReactive, shallowRef, watch, type ShallowRef } from 'vue'
 
-import type { BatchEditProps, BatchEditStates, FormExposed } from '../../types'
+import type { BatchEditProps, BatchEditStates, FormExposed, TableRow } from '../../types'
 
 interface Options {
   props: BatchEditProps
@@ -56,10 +56,6 @@ export function useEditState(options: Options) {
   function resetState() {
     resetModel()
 
-    if (state.row) {
-      state.row.isCurrent = false
-    }
-
     Object.keys(state).forEach((key) => {
       delete state[key]
     })
@@ -67,33 +63,30 @@ export function useEditState(options: Options) {
     Object.assign(state, defaultState)
   }
 
-  watch(
-    () => state.row,
-    (row) => {
-      syncing.value = true
+  /**
+   * 开始编辑/查看一行：先重置回 model 初始快照，再回显行数据。
+   * 同一 tick 内的连续写入会被表单字段 watcher 合并，
+   * 重置产生的默认值不会触发 field:update 回写行数据
+   */
+  function startEdit(row: TableRow) {
+    syncing.value = true
 
-      // 先重置回 model 初始快照，再同步回显行数据。
-      // 同一 tick 内的连续写入会被表单字段 watcher 合并，
-      // 重置产生的默认值不会触发 field:update 回写行数据
-      resetModel()
+    resetModel()
 
-      if (row) {
-        if (props.model) {
-          o(props.model).deepExtend(row.data)
-        }
-        state.formActionType = props.readonly ? 'view' : 'update'
-        state.formVisible = true
-        state.depth = row.depth
-        state.indexPath = [...row.indexes]
-      } else {
-        resetState()
-      }
-
-      nextTick(() => {
-        syncing.value = false
-      })
+    if (props.model) {
+      o(props.model).deepExtend(row.data)
     }
-  )
 
-  return { state, resetState, syncing }
+    state.row = row
+    state.formActionType = props.readonly ? 'view' : 'update'
+    state.formVisible = true
+    state.depth = row.depth
+    state.indexPath = [...row.indexes]
+
+    nextTick(() => {
+      syncing.value = false
+    })
+  }
+
+  return { state, resetState, startEdit, syncing }
 }

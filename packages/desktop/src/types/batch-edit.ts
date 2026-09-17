@@ -8,8 +8,6 @@ export interface BatchEditColumn extends TableColumn {}
 
 export type BatchEditFeature = 'create' | 'update' | 'delete' | 'view' | 'createChild'
 
-export type BatchEditFormStatus = 'hidden'
-
 /** 批量编辑状态 */
 export interface BatchEditStates {
   /** 层级 */
@@ -35,8 +33,6 @@ export interface BatchEditProps extends TableProps {
    * @description 与右侧 UForm 绑定的 reactive 对象
    */
   model?: Record<string, any>
-  /** 表格标题 */
-  title?: string
   /**
    * 列的宽度定义
    */

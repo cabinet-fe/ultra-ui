@@ -7,7 +7,7 @@
     v-show="state.formVisible"
   >
     <header :class="cls.e('form-header')">
-      <span :class="[cls.e('form-icon'), bem.is(state.formActionType)]">
+      <span :class="[cls.e('form-icon'), iconToneCls]">
         <u-icon>
           <component :is="headerInfo.icon" />
         </u-icon>
@@ -152,4 +152,10 @@ const showSaveBtn = computed(() => {
 })
 
 const headerInfo = computed(() => FORM_ACTION_HEADER_MAP[state.formActionType])
+
+/** 头部图标色调修饰类：样式中 createChild 对应的修饰类为 is-child */
+const iconToneCls = computed(() => {
+  const type = state.formActionType
+  return bem.is(type === 'createChild' ? 'child' : type)
+})
 </script>
