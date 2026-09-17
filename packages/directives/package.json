@@ -22,10 +22,12 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "veltra-dev": "./src/index.ts",
       "import": "./dist/index.js"
     },
     "./*": {
       "types": "./dist/*",
+      "veltra-dev": "./src/*",
       "import": "./dist/*"
     }
   },

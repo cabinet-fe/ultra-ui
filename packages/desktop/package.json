@@ -28,19 +28,22 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "veltra-dev": "./src/index.ts"
+      "veltra-dev": "./src/index.ts",
+      "import": "./dist/index.js"
     },
     "./install": {
       "types": "./dist/install.d.ts",
+      "veltra-dev": "./src/install.ts",
       "import": "./dist/install.js"
     },
     "./style": {
       "types": "./dist/style.d.ts",
+      "veltra-dev": "./src/style.ts",
       "import": "./dist/style.js"
     },
     "./*": {
       "types": "./dist/*",
+      "veltra-dev": "./src/*",
       "import": "./dist/*"
     }
   },

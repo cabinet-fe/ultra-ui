@@ -24,14 +24,17 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "veltra-dev": "./src/index.ts",
       "import": "./dist/index.js"
     },
     "./style": {
       "types": "./dist/style.d.ts",
+      "veltra-dev": "./src/style.ts",
       "import": "./dist/style.js"
     },
     "./*": {
       "types": "./dist/*",
+      "veltra-dev": "./src/*",
       "import": "./dist/*"
     }
   },

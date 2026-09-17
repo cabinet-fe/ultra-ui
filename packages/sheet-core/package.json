@@ -19,14 +19,17 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "veltra-dev": "./src/index.ts",
       "import": "./dist/index.js"
     },
     "./grid": {
       "types": "./dist/grid/index.d.ts",
+      "veltra-dev": "./src/grid/index.ts",
       "import": "./dist/grid/index.js"
     },
     "./*": {
       "types": "./dist/*",
+      "veltra-dev": "./src/*",
       "import": "./dist/*"
     }
   },

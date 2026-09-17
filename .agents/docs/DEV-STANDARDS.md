@@ -19,7 +19,7 @@
 - 库代码在 `packages/<pkg>/src/`。desktop / ai / sheet 的可解析组件：`src/components/<name>/` 同时有 `index.ts`（导出 `U*`）与 `style.ts`。
 - desktop 类型在 `src/types/<name>.ts`，不放组件目录。
 - 增删 desktop / ai / sheet 组件后，仓库根跑 `bun run resolver:gen`，并视情况更新 playground 演示与 `skills/veltra-ui`。
-- 别名（dev）：`@veltra/<pkg>` → `packages/<pkg>/src`（各包 tsconfig / vite 的 `paths`）。
+- 别名（dev）：`@veltra/<pkg>` → `packages/<pkg>/src`（各包 exports 的 `veltra-dev` 条件置于 `import` 之前，由 vite `resolve.conditions` 命中；TS 走各包 tsconfig `paths`）。`@veltra/vite` 是构建工具，不配该条件。
 - playground 演示：`playground/src/desktop/<name>/index.vue` 等，导航登记在 `nav-config.ts`。
 
 ## 代码风格
