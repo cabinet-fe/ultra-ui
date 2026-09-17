@@ -4,12 +4,14 @@
     :slots="slots"
     :class="[cls.e('table')]"
     :columns="columns"
+    highlight-current
     :current="state.row"
+    @update:current="handleUpdateCurrentRow"
     @update:checked="emit('update:checked', $event)"
     @update:selected="emit('update:selected', $event)"
   >
     <template #column:__action__="{ row }">
-      <u-action-group :max="5" circle>
+      <u-action-group :max="5" circle @click.stop>
         <u-action
           v-if="allowed('update', row)"
           :icon="props.readonly ? View : EditPen"
@@ -95,6 +97,7 @@ const {
   staticFeatures,
   dynamicFeatures,
   startEdit,
+  handleClose,
   handleCreate,
   handleDelete,
   handleInsertToNext,
@@ -144,6 +147,20 @@ const columns = computed(() => {
 
 function canDelete(row: TableRow) {
   return !props.readonly && allowed('delete', row)
+}
+
+/**
+ * 点击行打开编辑/查看表单；再次点击当前行取消选中并关闭表单。
+ * update 特性关闭时点击行不响应
+ */
+function handleUpdateCurrentRow(row?: TableRow) {
+  if (!allowed('update', row)) return
+
+  if (row) {
+    startEdit(row)
+  } else {
+    handleClose()
+  }
 }
 
 const showCreateBtn = computed(() => {

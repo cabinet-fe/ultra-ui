@@ -154,18 +154,19 @@ describe('UBatchEdit quick-edit 切换编辑行', () => {
     unmount()
   })
 
-  it('点击行不触发编辑，仅编辑按钮打开表单', async () => {
+  it('点击行打开表单，再次点击当前行关闭表单', async () => {
     const { host, model, unmount } = mountBatchEdit()
 
-    await clickRow(host, 0)
-
     const aside = host.querySelector<HTMLElement>('.u-batch-edit__form')!
-    expect(aside.style.display).toBe('none')
-    expect(model.label).toBe('')
 
-    await clickEditRow(host, 0)
+    await clickRow(host, 0)
     expect(aside.style.display).not.toBe('none')
     expect(model.label).toBe('存草稿')
+
+    // 再次点击当前行：取消选中并关闭表单，model 恢复初始值
+    await clickRow(host, 0)
+    expect(aside.style.display).toBe('none')
+    expect(model.label).toBe('')
 
     unmount()
   })

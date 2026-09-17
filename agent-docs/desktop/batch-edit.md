@@ -1,6 +1,6 @@
 ---
 title: UBatchEdit 批量编辑
-description: '左侧 UTable 加右侧 UForm 的批量行编辑组件：操作列「编辑」按钮打开表单编辑/查看（点击行不触发），表单可用右侧面板或弹框（formMode）呈现，支持新增、上方/下方插入、树形新增子级、删除、快速编辑实时写回行数据，以及 features 功能白名单与保存/删除钩子。'
+description: '左侧 UTable 加右侧 UForm 的批量行编辑组件：点击行或操作列「编辑」按钮打开表单编辑/查看，表单可用右侧面板或弹框（formMode）呈现，支持新增、上方/下方插入、树形新增子级、删除、快速编辑实时写回行数据，以及 features 功能白名单与保存/删除钩子。'
 aliases: ['UBatchEdit', 'BatchEdit', 'EditableTable', '行编辑', '批量行编辑', '批量表格']
 keywords:
   - field:update
@@ -29,7 +29,7 @@ keywords:
 
 # UBatchEdit 批量编辑
 
-`@veltra/desktop` 导出批量行编辑组件 `UBatchEdit`。左侧是内置 `UTable`（继承 `TableProps`），右侧是内置 `UForm`（绑定 `model`）：操作列「编辑」按钮打开表单编辑并回写行数据（点击行不触发编辑），行内操作按「编辑 → 添加子级 → 删除 → 在上方插入 → 在下方插入」排列，底部「新增一行」追加新行；`quickEdit` 开启后编辑行实时写回 `row.data`，不调用 `saveMethod`。
+`@veltra/desktop` 导出批量行编辑组件 `UBatchEdit`。左侧是内置 `UTable`（继承 `TableProps`），右侧是内置 `UForm`（绑定 `model`）：点击行或操作列「编辑」按钮打开表单编辑并回写行数据（再次点击当前行关闭表单），行内操作按「编辑 → 添加子级 → 删除 → 在上方插入 → 在下方插入」排列，底部「新增一行」追加新行；`quickEdit` 开启后编辑行实时写回 `row.data`，不调用 `saveMethod`。
 
 ## 快速上手
 
@@ -62,7 +62,7 @@ const model = reactive({ name: '', age: undefined as number | undefined })
 </template>
 ```
 
-点击操作列「编辑」按钮打开编辑表单，保存（按钮或 `Ctrl/Cmd + S`）校验通过后写回该行；`Esc` 关闭表单。
+点击行或操作列「编辑」按钮打开编辑表单，保存（按钮或 `Ctrl/Cmd + S`）校验通过后写回该行；再次点击当前行或按 `Esc` 关闭表单。
 
 ## API 签名
 
@@ -82,7 +82,7 @@ export interface BatchEditProps extends TableProps {
   model?: Record<string, any>
   /** 左右两栏宽度定义（CSS grid-template-columns 值）。默认 ['1fr', '420px']；表单关闭时收起右栏 */
   cols?: string | [string, string]
-  /** 只读模式：操作列仅保留「查看」按钮、隐藏「新增一行」，点击「查看」进入 view 模式，保存按钮与 Ctrl+S 不可用（Esc 仍可关闭） */
+  /** 只读模式：操作列仅保留「查看」按钮、隐藏「新增一行」，点击「查看」或行进入 view 模式，保存按钮与 Ctrl+S 不可用（Esc 仍可关闭） */
   readonly?: boolean
   /**
    * 表单交互模式。'panel'（默认）：右侧面板；'dialog'：编辑/新增/查看/添加子级时表单以 UDialog 弹框打开，
@@ -181,7 +181,7 @@ defineTableColumns([{ name: '姓名', key: 'name' }], { align: 'center', minWidt
 | `v-model:data` | `Record<string, any>[]`                                                                 | —                                                 |  是  | 行数组；插入/删除后组件 emit `update:data` 整体替换                                                                                                                                                                                                   |
 | `columns`      | `BatchEditColumn[]`                                                                     | —                                                 |  是  | 结构同 UTable 的 `TableColumn`；开启任一编辑功能时自动追加固定右侧「操作」列（宽 180）；只读时仅当允许 `update` 才追加，且列内只有「查看」按钮                                                                                                        |
 | `cols`         | `string \| [string, string]`                                                            | `['1fr', '420px']`                                |  否  | 左右两栏宽度；表单关闭时右栏收起                                                                                                                                                                                                                      |
-| `readonly`     | `boolean`                                                                               | `false`                                           |  否  | 只读时操作列只显示「查看」按钮，点击进入 `view`；仅 `Esc` 快捷键可用                                                                                                                                                                                |
+| `readonly`     | `boolean`                                                                               | `false`                                           |  否  | 只读时操作列只显示「查看」按钮，点击「查看」或行进入 `view`；仅 `Esc` 快捷键可用                                                                                                                                                                    |
 | `formMode`     | `'panel' \| 'dialog'`                                                                   | `'panel'`                                         |  否  | 表单呈现方式；`'dialog'` 时表单在弹框中打开、不再渲染右栏，`cols` 不生效；保存成功后关闭弹框，取消/关闭按钮/遮罩点击均不保存                                                                                                                          |
 | `quickEdit`    | `boolean`                                                                               | `false`                                           |  否  | 编辑行实时写回 `row.data`；回显/重置期间（syncing）不写回，避免默认值污染行数据                                                                                                                                                                       |
 | `labelWidth`   | `string \| number`                                                                      | —                                                 |  否  | 透传内部 `UForm` 的 `labelWidth`                                                                                                                                                                                                                      |
