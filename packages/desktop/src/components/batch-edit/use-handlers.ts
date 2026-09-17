@@ -135,6 +135,8 @@ export function useHandlers(options: Options): EditReturned {
 
   function runWithLoading<Arg extends any[]>(fn: (...args: Arg) => Promise<void> | void) {
     return async (...args: Arg) => {
+      // 重入保护：进行中（快捷键/按钮并发触发）直接忽略
+      if (state.loading) return
       state.loading = true
       if (state.row) {
         state.row.operating = true

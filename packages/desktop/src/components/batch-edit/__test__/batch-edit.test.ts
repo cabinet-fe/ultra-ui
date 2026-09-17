@@ -445,6 +445,56 @@ describe('UBatchEdit formMode', () => {
   })
 })
 
+describe('UBatchEdit 重入保护', () => {
+  it('保存进行中重复触发（快捷键/连点）被忽略：saveMethod 只调一次、只插一行、弹框正常关闭', async () => {
+    const saveMethod = vi.fn()
+    const { host, data, unmount } = mountBatchEdit({
+      props: { formMode: 'dialog', quickEdit: false, saveMethod },
+      labelRules: { required: true }
+    })
+
+    clickEl(host.querySelector<HTMLElement>('.u-batch-edit__add-btn')!)
+    await waitDialogOpen()
+
+    setInputValue(queryDialog()!.querySelector<HTMLInputElement>('.u-input input')!, '新名称')
+    await nextTick()
+    await nextTick()
+
+    // 同一 tick 内连续两次触发保存（模拟保存进行中再按 Ctrl/Cmd+S），中间故意不等待
+    const saveBtn = querySaveButton(queryDialog()!)!
+    clickEl(saveBtn)
+    clickEl(saveBtn)
+
+    await waitDialogClosed()
+
+    expect(saveMethod).toHaveBeenCalledTimes(1)
+    expect(data.value).toHaveLength(3)
+    expect(data.value[2]).toMatchObject({ label: '新名称' })
+
+    unmount()
+  })
+
+  it('删除进行中重复触发被忽略：deleteMethod 只调一次、只删一行', async () => {
+    const deleteMethod = vi.fn()
+    const { host, data, unmount } = mountBatchEdit({ props: { deleteMethod } })
+    await nextTick()
+
+    // 同一 tick 内连续两次点击删除，中间故意不等待
+    const deleteBtn = queryRows(host)[0]!.querySelector<HTMLElement>('button[title="删除"]')!
+    clickEl(deleteBtn)
+    clickEl(deleteBtn)
+
+    await waitDialogSettled()
+
+    expect(deleteMethod).toHaveBeenCalledTimes(1)
+    expect(deleteMethod.mock.calls[0]![0]).toHaveLength(1)
+    expect(data.value).toHaveLength(1)
+    expect(data.value[0]).toMatchObject({ id: '2' })
+
+    unmount()
+  })
+})
+
 describe('UBatchEdit 属性透传', () => {
   it('style / class 等非 props 属性透传到根布局元素（组件为片段根，需手动继承）', async () => {
     const { host, unmount } = mountBatchEdit({
