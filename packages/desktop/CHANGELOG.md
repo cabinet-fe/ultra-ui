@@ -1,5 +1,12 @@
 # @veltra/desktop
 
+## 1.7.19
+
+### Patch Changes
+
+- a6b9b7f: UBatchEdit 恢复点击整行打开编辑/查看表单的能力：点击行或操作列「编辑/查看」按钮均可打开面板或弹框表单，再次点击当前行取消选中并关闭表单。
+- 0177ab0: UExpressionEditor 移除变量 chip 的「×」删除按钮，统一通过点击 chip 重选面板更换变量；修复弹框内嵌套 u-scroll 时滚动内容 padding 被误命中导致样式异常的问题。
+
 ## 1.7.18
 
 ### Patch Changes

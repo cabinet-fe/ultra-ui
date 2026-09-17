@@ -1,5 +1,9 @@
 # @veltra/compositions
 
+## 1.7.19
+
+No changes in this release.
+
 ## 1.7.18
 
 No changes in this release.
