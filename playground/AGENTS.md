@@ -13,7 +13,7 @@ bun run server     # 仅参考服务（填报 + DeepSeek 代理，同一端口�
 
 ## 导航
 
-- 侧栏使用 `UDualNav`：左轨 Icons / Desktop / AI Chat / Sheet；Icons 右栏为「图标库 / 图标组合」；Desktop 右栏为「分类 → 组件」两级导航；AI Chat 右栏为「AI 对话 / AI Orb 活体球」；Sheet 右栏为「基础演示 / 大数据量演示 / 在线填报」
+- 侧栏使用 `UDualNav`：左轨 Icons / Desktop / AI Chat / Sheet；Icons 右栏为「图标库 / 图标组合」；Desktop 右栏为「分类 → 组件」两级导航；AI Chat 右栏为「AI 对话」；Sheet 右栏为「基础演示 / 大数据量演示 / 在线填报」
 - 导航数据集中在 `nav-config.ts`（`demoMeta`、`buildPlaygroundMenus()`）
 - 新增 Desktop 演示页：在 `src/desktop/<component-name>/index.vue` 创建文件，并在 `nav-config.ts` 补充 `demoMeta`
 - AI Chat（`@veltra/ai`）与 Sheet（`@veltra/sheet`）为独立顶层入口，不挂在 Desktop 分类下
@@ -24,13 +24,12 @@ bun run server     # 仅参考服务（填报 + DeepSeek 代理，同一端口�
 - `src/icons/index.vue` → `/icons/index`
 - `src/icons/combo/index.vue` → `/icons/combo/index`
 - `src/ai-chat/index.vue` → `/ai-chat/index`
-- `src/ai-orb/index.vue` → `/ai-orb/index`（UAiOrb 状态 / 瞬时表情 / 尺寸演示）
 - `src/sheet/index.vue` → `/sheet/index`
 - `src/sheet-big-data/index.vue` → `/sheet-big-data/index`（大数据量演示 + 性能基线）
 - `src/sheet-data-entry/index.vue` → `/sheet-data-entry/index`（在线填报：单元格级只读 + 按单元格持久化演示）
 
 由 `import.meta.glob` 分别扫描 `desktop`、`icons`、`ai-chat` 与 `sheet` 目录自动生成；
-`src/ai-orb/index.vue`、`src/sheet-big-data/index.vue`、`src/sheet-data-entry/index.vue` 等因 glob 首段为字面段（`./src/sheet/**` 不匹配 `sheet-big-data`），
+`src/sheet-big-data/index.vue`、`src/sheet-data-entry/index.vue` 等因 glob 首段为字面段（`./src/sheet/**` 不匹配 `sheet-big-data`），
 需在 `router.ts` 显式 `import.meta.glob` 并入 modules
 （key 由顶层 `src/<name>/index.vue` 正则提取）。默认重定向 `/` → `/desktop/button/index`。
 
@@ -74,7 +73,6 @@ src/icons/index.vue           # 图标库预览
 src/icons/combo/index.vue     # 图标组合预览
 src/ai-chat/index.vue         # @veltra/ai 对话组件预览：同一页切换客户端驱动（OpenAI + Open-Meteo 天气终结工具 weather-card.vue + 右侧面板 admin-panel.vue + 待发送队列）与服务端驱动（createServerTransport + fake-session.ts 页内 fake adapter，演示未知工具卡 / 提问 / 审批横幅 / 作业条，不接真实 DSH）
 src/ai-chat/fake-session.ts   # 页内 ChatSessionAdapter，不发真实 session HTTP/WS
-src/ai-orb/index.vue          # UAiOrb 活体球预览（生命状态 / 瞬时表情 / 尺寸）
 src/sheet/index.vue           # @veltra/sheet 电子表格预览（数据结构观察区 JSON 区块懒渲染 + 超 1 万行截断：避免 65 万 span 的整页布局/绘制秒级卡顿；完整数据走复制/放大，不受截断影响）
 src/sheet-big-data/index.vue  # @veltra/sheet 大数据量演示（Phase 6：10 万行写入/渲染/查找/导出 + 样式池去重）
 src/sheet-data-entry/index.vue # 在线填报演示（年度预算：多 sheet 走内置标签栏；明细表为「编制项目 × 部门金额」矩阵 + 行列合计公式，汇总页跨表公式联动；提交前校验标红定位 + 提交后整表锁定；单元格级只读 setRangeReadonly/setCellReadonly；按「sheet+格」防抖保存到 /report-api/data-entry）

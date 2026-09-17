@@ -38,7 +38,6 @@ export const demoMeta: Record<string, DemoMeta> = {
   icons: { zh: '图标', en: 'Icons', category: 'other' },
   action: { zh: '操作按钮', en: 'Action', category: 'other' },
   'ai-chat': { zh: 'AI 对话', en: 'AiChat', category: 'data' },
-  'ai-orb': { zh: '活体球', en: 'AiOrb', category: 'data' },
   sheet: { zh: '电子表格', en: 'Sheet', category: 'data' },
   'sheet-big-data': { zh: '大数据量演示', en: 'BigData', category: 'data' },
   'sheet-data-entry': { zh: '在线填报', en: 'DataEntry', category: 'data' },
@@ -120,7 +119,6 @@ export const demoMeta: Record<string, DemoMeta> = {
 const TOP_LEVEL_DEMO_KEYS = new Set([
   'icons',
   'ai-chat',
-  'ai-orb',
   'sheet',
   'sheet-big-data',
   'sheet-data-entry'
@@ -166,10 +164,7 @@ export function buildPlaygroundMenus(): NavItem[] {
       description: '预览 @veltra/ai 对话组件，经 Node 代理接入 DeepSeek V4 Flash / V4 Pro',
       icon: AiChat as DefineComponent,
       path: '/ai-chat',
-      children: [
-        { title: 'AI 对话', path: '/ai-chat/index' },
-        { title: 'AI Orb 活体球', path: '/ai-orb/index' }
-      ]
+      children: [{ title: 'AI 对话', path: '/ai-chat/index' }]
     },
     {
       title: 'Sheet 电子表格',

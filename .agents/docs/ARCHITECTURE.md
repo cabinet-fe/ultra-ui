@@ -9,7 +9,7 @@ Ultra UI 是 Vue 3 组件与能力库。主用户是 cabinet-fe 内部业务前�
 - 桌面 UI：`@veltra/desktop` 及底层 utils / styles / compositions / directives / icons
 - 电子表格：`@veltra/sheet-core`（模型/公式/IO/网格）+ `@veltra/sheet`（USheet）
 - 版式文档：`@veltra/ofd-core`（零依赖 OFD 解析渲染内核，SVG 页面输出；desktop `u-file-viewer` 的 ofd 预览只做组件壳）
-- AI 对话：`@veltra/ai`（UAiChat、useChat、可插拔 transport、UAiOrb）
+- AI 对话：`@veltra/ai`（UAiChat、useChat、可插拔 transport）
 
 对外交付：npm 包 + `skills/veltra-ui`（给 Agent 用的伴生技能）。文档站 `ultra-ui-doc` 在本仓库外。`@veltra/mobile` 长期占位，不纳入交付与发版。`playground` 不发布，但是官方参考实现：组件预览，以及填报单元格存取、DeepSeek AI 代理，宿主可对照接入。
 

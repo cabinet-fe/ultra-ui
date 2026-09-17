@@ -231,7 +231,6 @@ createApp(App).mount('#app')
 | ------- | -------------------------------------------------------------- | ---------------- |
 | UAiChat | 对话组件：流式消息列表、工具调用卡片、模型选择、附件           | `ai/ai-chat.md`  |
 | useChat | 无头对话状态机与三种传输层（OpenAI SSE / 自定义 / 服务端会话） | `ai/use-chat.md` |
-| UAiOrb  | 活体球：对话运行状态的动效指示球                               | `ai/ai-orb.md`   |
 
 ### sheet 电子表格 UI（@veltra/sheet）
 

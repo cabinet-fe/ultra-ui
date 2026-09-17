@@ -3,7 +3,6 @@
     <UScroll
       :class="cls.e('list')"
       ref="scrollRef"
-      always
       @scroll="handleScroll"
       @wheel.passive="handleWheel"
     >
@@ -83,9 +82,14 @@
 
     <!-- 用户上翻浏览时悬浮入口：一键回到最新消息 -->
     <Transition :name="cls.em('to-latest', 'fade')">
-      <button v-if="showToLatest" type="button" :class="cls.e('to-latest')" @click="scrollToLatest">
+      <button
+        v-if="showToLatest"
+        type="button"
+        :class="cls.e('to-latest')"
+        title="回到最新"
+        @click="scrollToLatest"
+      >
         <UIcon><ArrowDown /></UIcon>
-        <span>最新消息</span>
       </button>
     </Transition>
   </div>
@@ -387,7 +391,7 @@ const stickToBottom = ref(true)
 /** 上一次滚动位置：用于区分用户上翻与自动吸底触发的 scroll 事件 */
 let lastScrollY = 0
 
-/** 上翻阅读时展示「最新消息」悬浮按钮 */
+/** 上翻阅读时展示回到底部的悬浮按钮 */
 const showToLatest = computed(() => !stickToBottom.value && visibleMessages.value.length > 0)
 
 const handleScroll = (position: Required<ScrollPosition>) => {

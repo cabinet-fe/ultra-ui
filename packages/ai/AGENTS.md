@@ -21,14 +21,14 @@ src/
 │   ├── index.ts                # createBuiltinTools 注册表（新增内置工具在此注册）
 │   └── ask-question/           # 提问工具实现（deferred 挂起等待用户作答）
 ├── types/ai-chat.ts            # 组件类型：AiChatProps / AiChatEmits / AiChatExposed
-├── types/ai-orb.ts             # AiOrbProps / AiOrbEmits / AiOrbStatus / AiOrbReaction / AiOrbExposed
+├── types/ai-orb.ts             # 活体球内部类型（不对外导出）：AiOrbProps / AiOrbEmits / AiOrbStatus / AiOrbReaction / AiOrbExposed
 └── components/
     ├── ai-chat/
     │   ├── ai-chat.vue         # UAiChat 主组件（useChat + provide DI；toolMap 含内置工具元信息；renderTo: 'panel' 调用的面板状态；ULayout 分列与面板宽度）
-    │   ├── message-list.vue    # UScroll 消息列表：按轮次分组渲染（user 消息为界；一轮中最终答案之前的 assistant 过程消息在答案开始输出 / 该轮结束时收进「已完成」折叠块）；流式吸底（滚轮上翻立即取消吸附 + 方向感知兜底 +「最新消息」悬浮按钮一键回底；吸底滚动前二次确认吸附状态，避免流式期间把上翻用户拉回底部）；空闲欢迎区（较小 UAiOrb + 逐条轮换的快捷提问）钉在 UScroll 外、输入框上方，高度 48px；工作中活体球立即缩小离开输入框并在列表末尾放大出现（无延时），结束 / 失败停留约 2.5s（成功播 happy、出错播 frustrated；工具调用失败亦播 frustrated）后再对向跳回输入框上方；点文案发送，点球立即换一条并重置轮换计时；固定锚点布局——球钉死不动，气泡只向右延展
-    │   ├── message-item.vue    # 单条消息（reasoning 折叠块：折叠时 v-if 卸载内容 DOM；status watch 带 immediate，终态消息重挂载默认折叠；展开态 UScroll 限高 220px + 区内上翻取消内部吸底 + 思考中扫光 + ArrowRight 折叠箭头；MarkdownRender + 工具卡片）
+    │   ├── message-list.vue    # UScroll 消息列表（滚动条不常驻）：按轮次分组渲染（user 消息为界；一轮中最终答案之前的 assistant 过程消息在答案开始输出 / 该轮结束时收进「已完成」折叠块）；流式吸底（滚轮上翻立即取消吸附 + 方向感知兜底 + 列表下方纯箭头回底悬浮按钮一键回底；吸底滚动前二次确认吸附状态，避免流式期间把上翻用户拉回底部）；空闲欢迎区（较小活体球 + 逐条轮换的快捷提问）钉在 UScroll 外、输入框上方，高度 48px；工作中活体球立即缩小离开输入框并在列表末尾放大出现（无延时），结束 / 失败停留约 2.5s（成功播 happy、出错播 frustrated；工具调用失败亦播 frustrated）后再对向跳回输入框上方；点文案发送，点球立即换一条并重置轮换计时；固定锚点布局——球钉死不动，气泡只向右延展
+    │   ├── message-item.vue    # 单条消息（reasoning 折叠块：默认折叠含流式进行中，折叠时 v-if 卸载内容 DOM；思考中头部右侧滚动展示最新一行思考；展开态 UScroll 限高 220px + 区内上翻取消内部吸底 + 思考中扫光 + ArrowRight 折叠箭头；MarkdownRender + 工具卡片）
     │   ├── turn-process.vue    # 轮次「已完成」折叠块（CircleCheck + 标题 + chevron；折叠时 v-if 卸载过程 DOM，展开后复用 MessageItem 渲染过程消息，思考块/工具卡片保持各自折叠头可逐层钻取）
-    │   ├── tool-call.vue       # 工具卡片（复用 UCollapseItem，#header 只自定义标题区，展开图标走组件内置旋转；needsConfirm 确认；消费工具 icon/label/render/renderTo/autoCollapse/terminal；终态折叠后 destroyOnCollapse 卸载内容 DOM——进行中/待确认保留内容状态、面板工具保留「查看面板」入口；面板工具 body 仅留「查看面板」入口）
+    │   ├── tool-call.vue       # 工具卡片（复用 UCollapseItem，#header 只自定义标题区，展开图标走组件内置旋转；默认折叠含进行中，仅 awaiting-confirm 待确认 / 有内联 render·插槽的进行中调用（提问表单等）/ terminal「UI 即答复」工具自动展开；autoCollapse 缺省 true、终结工具缺省 false；needsConfirm 确认按钮在头部；消费工具 icon/label/render/renderTo/autoCollapse/terminal；终态折叠后 destroyOnCollapse 卸载内容 DOM——进行中/待确认保留内容状态、面板工具保留「查看面板」入口；面板工具 body 仅留「查看面板」入口）
     │   ├── side-panel.vue      # 右侧侧边面板（renderTo: 'panel' 工具的渲染区：悬浮卡片——面板本体透明留白、内层圆角卡片仅靠背景对比+阴影区分，无分割线；头部 icon 底托/标题/关闭，标题取 panelTitle ?? label ?? name + UScroll 渲染体）
     │   ├── queue-list.vue      # 待发送队列（生成中提交的消息排队；立即开始插队 / 取回编辑 / 移除）
     │   ├── job-bar.vue         # 作业条（jobs/snapshot；kind 图标 + label + 状态点，进行中扫光，可折叠）
@@ -38,7 +38,7 @@ src/
     │   ├── model-picker.vue    # 模型/推理选择器（UDropdown 面板：模型列表 + 思考强度内联展开）
     │   ├── di.ts               # AiChatDIKey（cls + slots + tools 注入，支撑 tool-<name> 动态插槽与工具元信息）
     │   └── __test__/
-    └── ai-orb/                 # UAiOrb 活体球头像（独立于 ai-chat 可复用）
+    └── ai-orb/                 # 活体球头像（ai-chat 内部组件，不对外导出；无 index.ts/style.ts，样式经 ai-chat/style.ts 一并加载）
         ├── orb-renderer.ts     # 纯 canvas 2D 渲染器：扁平纯色扁椭圆（蔚蓝 + 白色大眼睛，闭眼为白色线条）+ 头顶猫耳（圆角尖三角，身体色 + 白色内耳，先于球体绘制使根部被遮住，随球体形变；平时错相轻摆，表情时竖起 happy/shock 或耷拉 frustrated）、原地呼吸无弹跳无打光；眼部状态机（眨眼 / 双眨、视线游移转头、thinking 眯眼扫视 + 右上角同色「?」轻晃）+ 瞬时表情 react（happy 弯眼点头 / shock 睁大眼 / frustrated 闭眼摇头）+ 指针交互（setPointer 视线跟随、poke Q 弹回弹）；单位球空间绘制、可见性启停 rAF、reduced-motion 静态帧
         ├── ai-orb.vue          # Vue 封装（size/status props + click emit；expose react(reaction) 播放瞬时表情；指针事件桥接渲染器）
         └── __test__/

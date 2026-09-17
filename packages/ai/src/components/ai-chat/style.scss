@@ -346,21 +346,22 @@ $root-name: ai-chat;
     }
   }
 
-  // 「最新消息」悬浮按钮：上翻浏览时出现，点击回到底部
+  // 回到底部悬浮按钮：上翻浏览时出现于列表下方，点击回到底部
   @include m.e(to-latest) {
     position: absolute;
-    top: fn.use-var(gap, small);
+    bottom: fn.use-var(gap, small);
     left: 50%;
     transform: translateX(-50%);
     z-index: 1;
+    width: 28px;
+    height: 28px;
+    padding: 0;
     @include m.flex(flex, center, center);
-    gap: 4px;
-    padding: 4px 12px;
     border: none;
-    border-radius: 999px;
+    border-radius: 50%;
     background-color: fn.use-var(bg-color, top);
     color: fn.use-var(text-color, second);
-    font-size: fn.use-var(font-size-main, small);
+    font-size: 14px;
     box-shadow: 0 2px 8px fn.color-a(shadow, 20, color);
     cursor: pointer;
     transition: color 0.15s ease;
@@ -384,12 +385,12 @@ $root-name: ai-chat;
 
   @include m.em(to-latest, 'fade-enter-from') {
     opacity: 0;
-    transform: translateX(-50%) translateY(-4px);
+    transform: translateX(-50%) translateY(4px);
   }
 
   @include m.em(to-latest, 'fade-leave-to') {
     opacity: 0;
-    transform: translateX(-50%) translateY(-4px);
+    transform: translateX(-50%) translateY(4px);
   }
 
   @include m.e(message) {
@@ -500,7 +501,17 @@ $root-name: ai-chat;
   }
 
   @include m.e(reasoning-title) {
+    flex-shrink: 0;
     line-height: 1.5;
+  }
+
+  // 折叠态头部右侧滚动展示的最新一行思考
+  @include m.e(reasoning-line) {
+    flex: 1;
+    min-width: 0;
+    @include m.ellipsis;
+    line-height: 1.5;
+    color: fn.use-var(text-color, assist);
   }
 
   @include m.e(reasoning-chevron) {

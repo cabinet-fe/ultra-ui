@@ -10,4 +10,6 @@ import '@veltra/desktop/components/scroll/style'
 import '@veltra/desktop/components/select/style'
 import '@veltra/styles/animations/shine.scss'
 import 'markstream-vue/index.css'
+// 活体球为 ai-chat 内部组件，样式随 ai-chat 一并加载
+import '../ai-orb/style.scss'
 import './style.scss'

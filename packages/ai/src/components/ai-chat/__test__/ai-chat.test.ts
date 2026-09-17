@@ -207,6 +207,8 @@ describe('UAiChat', () => {
     await vi.waitFor(() => {
       expect(host.querySelector('.u-ai-chat__tool-call-confirm')).toBeTruthy()
     })
+    // 待确认自动展开：确认前可查看参数
+    expect(host.querySelector('.u-ai-chat__tool-call.is-active')).toBeTruthy()
     expect(execute).not.toHaveBeenCalled()
 
     const allowBtn = [
@@ -286,21 +288,40 @@ describe('UAiChat', () => {
     ...extra
   })
 
-  it('render 自定义渲染替换卡片 body，完成后保持展开', async () => {
+  it('render 自定义渲染替换卡片 body，完成后默认折叠、展开后可见', async () => {
     const tools = [weatherTool({ render: createResultView('weather-view') })]
     const { host, chat, unmount } = mountAiChat({ transport: createWeatherTransport(), tools })
 
     chat.value?.send('北京天气')
 
-    // 最终答案输出后工具卡片收进「已完成」过程块，展开后 render 保持展开态
+    // 最终答案输出后工具卡片收进「已完成」过程块，展开后断言
     await expandProcess(host)
 
-    // 完成后保持展开，默认参数/结果区被替换
+    // render 工具完成后默认折叠（不再是保持展开）
+    expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
+    expect(host.querySelector('.u-ai-chat__tool-call.is-active')).toBeFalsy()
+
+    // 手动展开：render 替换默认参数/结果区
+    const header = host.querySelector<HTMLElement>('.u-ai-chat__tool-call .u-collapse__header')!
+    header.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await nextTick()
+    await nextTick()
+    expect(host.querySelector('.weather-view')?.textContent).toContain('{"temperature":26}')
+    expect(host.querySelector('.u-ai-chat__tool-call-code')).toBeFalsy()
+    unmount()
+  })
+
+  it('terminal + render 的「UI 即答复」工具完成后保持展开', async () => {
+    const tools = [weatherTool({ render: createResultView('weather-view'), terminal: true })]
+    const { host, chat, unmount } = mountAiChat({ transport: createWeatherTransport(), tools })
+
+    chat.value?.send('北京天气')
+
+    // 终结工具成功即结束对话（无第二轮文本），答复卡片保持展开
     await vi.waitFor(() => {
       expect(host.querySelector('.u-ai-chat__tool-call.is-success.is-active')).toBeTruthy()
     })
     expect(host.querySelector('.weather-view')?.textContent).toContain('{"temperature":26}')
-    expect(host.querySelector('.u-ai-chat__tool-call-code')).toBeFalsy()
     unmount()
   })
 
@@ -386,6 +407,43 @@ describe('UAiChat', () => {
     expect(host.querySelector('.u-ai-chat__tool-call .u-collapse__content')?.textContent).toContain(
       '"value": 2'
     )
+    unmount()
+  })
+
+  it('思考中默认折叠，头部右侧滚动展示最新一行思考', async () => {
+    // 由测试手动推进流式节奏，避免断言竞态
+    const steps: (() => void)[] = []
+    const transport: ChatTransport = async (_req, handlers) => {
+      handlers.onReasoningDelta?.('第一行思考')
+      await new Promise<void>((resolve) => steps.push(resolve))
+      handlers.onReasoningDelta?.('\n\n第二行思考')
+      await new Promise<void>((resolve) => steps.push(resolve))
+      handlers.onTextDelta('答案')
+    }
+    const { host, chat, unmount } = mountAiChat({ transport })
+
+    chat.value?.send('hi')
+
+    // 思考中：折叠态不挂载内容 DOM，头部标题为「思考中…」且右侧展示最新一行
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__reasoning-line')?.textContent).toBe('第一行思考')
+    })
+    expect(host.querySelector('.u-ai-chat__reasoning-title')?.textContent).toContain('思考中')
+    expect(host.querySelector('.u-ai-chat__reasoning-content')).toBeFalsy()
+
+    // 流式推进后滚动到最新一行（跳过空行）
+    steps.shift()?.()
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__reasoning-line')?.textContent).toBe('第二行思考')
+    })
+
+    // 正文开始输出后：标题回到「思考过程」，不再展示行
+    steps.shift()?.()
+    await vi.waitFor(() => {
+      expect(host.querySelector('.md-stub')?.textContent).toContain('答案')
+    })
+    expect(host.querySelector('.u-ai-chat__reasoning-title')?.textContent).toContain('思考过程')
+    expect(host.querySelector('.u-ai-chat__reasoning-line')).toBeFalsy()
     unmount()
   })
 
@@ -513,6 +571,12 @@ describe('UAiChat', () => {
     await expandProcess(host)
 
     expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
+
+    // 完成后默认折叠，展开后 render 优先于插槽
+    const header = host.querySelector<HTMLElement>('.u-ai-chat__tool-call .u-collapse__header')!
+    header.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    await nextTick()
+    await nextTick()
     expect(host.querySelector('.weather-view')).toBeTruthy()
     expect(host.querySelector('.slot-view')).toBeFalsy()
     unmount()
@@ -1319,6 +1383,11 @@ describe('UAiChat', () => {
     expect(host.querySelector('.u-ai-chat__tool-call-name')?.classList.contains('u-shine')).toBe(
       true
     )
+    // 进行中默认折叠
+    expect(host.querySelector('.u-ai-chat__tool-call.is-active')).toBeFalsy()
+
+    // 手动展开可查看参数
+    await expandToolCard(host)
     expect(host.textContent).toContain('"q": "hi"')
 
     call.status = 'success'
@@ -1326,7 +1395,7 @@ describe('UAiChat', () => {
     await nextTick()
     assertGenericCard(host, 'success')
 
-    await expandToolCard(host)
+    // 用户已手动展开过，进入终态后保持展开
     expect(host.textContent).toContain('"ok": true')
     unmount()
   })

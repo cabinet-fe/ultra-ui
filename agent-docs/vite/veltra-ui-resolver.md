@@ -107,7 +107,7 @@ resolver 的运行时行为：`type: 'component'`，对每个模板中出现的�
 | `options`             | `VeltraUIResolverOptions` | `{}`   |  否  | 整个 options 对象可省略                                                                                                                                                         |
 | `options.importStyle` | `boolean`                 | `true` |  否  | `true`：每个组件额外引入 `'<包名>/components/<dir>/style'` 副作用；`false`：只生成组件 import，样式由宿主自行引入（例如全量 `import '@veltra/desktop/style'` 或自建 SCSS 管线） |
 
-组件表（`components.gen.ts`）由 `bun run resolver:gen` 扫描生成，共 95 个组件：`@veltra/desktop` 92 个（`UAction`、`UButton`、`UForm`、`USelect`、`UTable`、`UTree` 等）、`@veltra/ai` 2 个（`UAiChat`、`UAiOrb`）、`@veltra/sheet` 1 个（`USheet`）。判定规则：扫描各包 `src/components/` 下**同时含 `index.ts` 与 `style.ts`** 的直接子目录，取其 `index.ts` 中 `export {}` 的 `U*` 值导出（类型导出与非 `U*` 导出跳过）；一个目录可承载多个组件（如 `button/` 目录导出 `UButton` 与 `UButtonGroup`，样式路径相同）。
+组件表（`components.gen.ts`）由 `bun run resolver:gen` 扫描生成，共 94 个组件：`@veltra/desktop` 92 个（`UAction`、`UButton`、`UForm`、`USelect`、`UTable`、`UTree` 等）、`@veltra/ai` 1 个（`UAiChat`）、`@veltra/sheet` 1 个（`USheet`）。判定规则：扫描各包 `src/components/` 下**同时含 `index.ts` 与 `style.ts`** 的直接子目录，取其 `index.ts` 中 `export {}` 的 `U*` 值导出（类型导出与非 `U*` 导出跳过）；一个目录可承载多个组件（如 `button/` 目录导出 `UButton` 与 `UButtonGroup`，样式路径相同）。
 
 ## 方法与事件
 

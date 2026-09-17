@@ -32,6 +32,10 @@
           <span :class="[cls.e('reasoning-title'), isThinking && 'u-shine']">
             {{ isThinking ? '思考中…' : '思考过程' }}
           </span>
+          <!-- 折叠态在头部右侧滚动展示最新一行思考 -->
+          <span v-if="latestReasoningLine" :class="cls.e('reasoning-line')">
+            {{ latestReasoningLine }}
+          </span>
           <UIcon :class="cls.e('reasoning-chevron')"><ArrowRight /></UIcon>
         </div>
         <!-- 折叠时完全卸载内容 DOM：思考文本可能很长，常驻挂载浪费内存与渲染成本 -->
@@ -127,12 +131,24 @@ const isStreaming = computed(() => props.message.status === 'streaming')
 /** 思考中：流式且正文还未开始输出 */
 const isThinking = computed(() => isStreaming.value && !props.message.content)
 
-const reasoningExpanded = ref(true)
+/** 思考默认折叠（含流式进行中），用户点击头部展开 */
+const reasoningExpanded = ref(false)
+
+/** 折叠时头部右侧滚动展示的最新一行思考：取最后一行非空文本，随流式输出持续刷新 */
+const latestReasoningLine = computed(() => {
+  if (!isThinking.value || reasoningExpanded.value) return ''
+  const lines = (props.message.reasoning ?? '').split('\n')
+  for (let i = lines.length - 1; i >= 0; i--) {
+    const line = lines[i]?.trim()
+    if (line) return line
+  }
+  return ''
+})
 
 /** 思考区吸附底部：用户在思考区内上滚时取消吸附，回到底部后恢复 */
 const reasoningStick = ref(true)
 
-/** 思考内容滚动区：流式输出时吸附底部，始终展示最新思考 */
+/** 思考内容滚动区：展开且流式输出时吸附底部，始终展示最新思考 */
 const reasoningScrollRef = useTemplateRef<InstanceType<typeof UScroll>>('reasoningScrollRef')
 
 const toggleReasoning = async () => {
@@ -151,20 +167,6 @@ const handleReasoningWheel = (e: WheelEvent) => {
 const handleReasoningScroll = (position: Required<ScrollPosition>) => {
   if (position.sh - position.ch - position.y < 8) reasoningStick.value = true
 }
-
-// 流式结束后自动折叠思考过程；immediate 保证终态消息重挂载（过程块展开/收起、载入历史会话）时呈折叠态
-watch(
-  () => props.message.status,
-  (status) => {
-    if (status === 'streaming') {
-      reasoningExpanded.value = true
-      reasoningStick.value = true
-    } else if (status) {
-      reasoningExpanded.value = false
-    }
-  },
-  { immediate: true }
-)
 
 watch(
   () => props.message.reasoning,

@@ -105,9 +105,6 @@ export const VELTRA_COMPONENT_PACKAGES: VeltraComponentPackage[] = [
       UWatermark: 'components/watermark/style'
     }
   },
-  {
-    from: '@veltra/ai',
-    components: { UAiChat: 'components/ai-chat/style', UAiOrb: 'components/ai-orb/style' }
-  },
+  { from: '@veltra/ai', components: { UAiChat: 'components/ai-chat/style' } },
   { from: '@veltra/sheet', components: { USheet: 'components/sheet/style' } }
 ]

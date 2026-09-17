@@ -95,19 +95,39 @@ const markUserToggled = () => {
 /** 面板工具：render 展示在右侧侧边面板，卡片 body 仅保留「查看面板」入口 */
 const isPanelTool = computed(() => tool.value?.renderTo === 'panel')
 
-/** 完成后是否自动折叠：缺省面板工具折叠；有 render 时不折叠，否则折叠 */
-const autoCollapse = computed(
-  () => tool.value?.autoCollapse ?? (isPanelTool.value || !tool.value?.render)
+/** 「UI 即答复」的终结工具（session 元信息无 terminal，恒为 false） */
+const isAnswerTool = computed(() => {
+  const t = tool.value
+  return !!(t && 'terminal' in t && t.terminal)
+})
+
+/** 内联自定义 body（render / tool-<name> 插槽）：进行中可能是提问表单等交互 UI，需展开可见 */
+const hasInlineBody = computed(
+  () => !isPanelTool.value && !!(tool.value?.render || di?.slots[`tool-${props.toolCall.name}`])
 )
 
+/** 完成后是否自动折叠：缺省一律折叠；「UI 即答复」的终结工具缺省保持展开 */
+const autoCollapse = computed(() => tool.value?.autoCollapse ?? !isAnswerTool.value)
+
+/** 需要用户交互/展示的进行中状态：待确认（看参数再决策）、有内联自定义 body（提问表单等） */
+const needsInteraction = computed(() => {
+  if (props.toolCall.status === 'awaiting-confirm') return true
+  const active = props.toolCall.status === 'pending' || props.toolCall.status === 'running'
+  return active && hasInlineBody.value
+})
+
+const isSettledStatus = (status: ChatToolCall['status']) =>
+  status === 'success' || status === 'error' || status === 'rejected'
+
+// 默认折叠（含进行中）；仅交互/答复类自动展开，用户手动切换过后不再自动变化
 watch(
   () => props.toolCall.status,
   (status) => {
     if (userToggled) return
-    if (status === 'pending' || status === 'running' || status === 'awaiting-confirm') {
-      isExpanded.value = true
-    } else {
+    if (isSettledStatus(status)) {
       isExpanded.value = !autoCollapse.value
+    } else {
+      isExpanded.value = needsInteraction.value
     }
   },
   { immediate: true }
@@ -130,9 +150,7 @@ const isActive = computed(() => {
 })
 
 /** 终态（成功/失败/拒绝） */
-const isSettled = computed(() => {
-  return ['success', 'error', 'rejected'].includes(props.toolCall.status)
-})
+const isSettled = computed(() => isSettledStatus(props.toolCall.status))
 
 /**
  * 折叠后卸载内容 DOM：仅终态且非面板工具时启用——

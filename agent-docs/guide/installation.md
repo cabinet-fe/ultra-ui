@@ -107,7 +107,7 @@ Ultra UI 是 npm 作用域 `@veltra/*` 下的 Vue 3 组件与能力库。本指�
    </template>
    ```
 
-   方式三，`VeltraUIResolver` 按需自动导入。模板里的 `<u-xxx>` 在构建时注入组件与样式副作用，覆盖 `@veltra/desktop`、`@veltra/ai`（`UAiChat` / `UAiOrb`）、`@veltra/sheet`（`USheet`）。指令与图标不在 resolver 范围内，需手动 import。完整文档见 `vite/veltra-ui-resolver.md`，最小可运行配置如下：
+   方式三，`VeltraUIResolver` 按需自动导入。模板里的 `<u-xxx>` 在构建时注入组件与样式副作用，覆盖 `@veltra/desktop`、`@veltra/ai`（`UAiChat`）、`@veltra/sheet`（`USheet`）。指令与图标不在 resolver 范围内，需手动 import。完整文档见 `vite/veltra-ui-resolver.md`，最小可运行配置如下：
 
    ```bash
    bun add -D @veltra/vite unplugin-vue-components
