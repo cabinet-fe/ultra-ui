@@ -126,7 +126,8 @@ const AskQuestionRender = defineComponent({
 
 /**
  * 创建内置提问工具：execute 挂起等待用户在 UI 中作答，提交后结果回灌模型。
- * 工具卡片由内联提问表单渲染（多题分页导航，提交后展示问答摘要，不自动折叠）。
+ * 工具卡片由内联提问表单渲染（多题分页导航，提交后展示问答摘要）；
+ * 进行中因有内联 render 自动展开，终态默认折叠，展开后可查看问答摘要。
  */
 export function createAskQuestionTool(
   options: CreateAskQuestionToolOptions = {}

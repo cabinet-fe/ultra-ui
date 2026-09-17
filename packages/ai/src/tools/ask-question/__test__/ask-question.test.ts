@@ -76,6 +76,15 @@ async function expandProcess(host: HTMLElement) {
   await nextTick()
 }
 
+/** 工具卡片终态默认折叠（destroyOnCollapse 卸载内容 DOM）：点头部展开后内容才挂载 */
+async function expandToolCard(host: HTMLElement) {
+  const header = host.querySelector<HTMLElement>('.u-ai-chat__tool-call .u-collapse__header')!
+  expect(header, '工具卡片头部应存在').toBeTruthy()
+  click(header)
+  await nextTick()
+  await nextTick()
+}
+
 /** 底部导航按钮（UButton disabled 体现为 is-disabled class） */
 const actionButton = (host: HTMLElement, text: string) => {
   return [...host.querySelectorAll<HTMLElement>('.u-ai-chat__ask-question-actions button')].find(
@@ -169,10 +178,13 @@ describe('内置提问工具', () => {
       ]
     })
 
-    // 第二轮文本输出后，提问工具卡片收进「已完成」过程块，先展开
+    // 第二轮文本输出后，提问工具卡片收进「已完成」过程块，先展开过程块
     await expandProcess(host)
 
-    // 问答摘要视图：命中选项的回答渲染为 chip，完成后保持展开
+    // 工具卡片终态默认折叠且卸载内容 DOM，手动展开后才挂载摘要视图
+    await expandToolCard(host)
+
+    // 问答摘要视图：命中选项的回答渲染为 chip
     expect(host.querySelectorAll('.u-ai-chat__ask-question-result').length).toBe(3)
     const summary = host.querySelector('.u-ai-chat__ask-question')!.textContent!
     expect(summary).toContain('目标用户是谁？')
@@ -199,6 +211,12 @@ describe('内置提问工具', () => {
     })
 
     chat.value?.abort()
+
+    // 中止后调用进入终态：卡片默认折叠并卸载内容 DOM，展开后显示状态
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__tool-call.is-error')).toBeTruthy()
+    })
+    await expandToolCard(host)
 
     await vi.waitFor(() => {
       expect(host.querySelector('.u-ai-chat__ask-question-status')?.textContent).toBe('已取消')
