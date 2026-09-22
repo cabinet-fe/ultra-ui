@@ -40,10 +40,11 @@ export function useShortcutKey(options: Options) {
   /**
    * 键盘快捷键：
    * - Esc          关闭表单
-   * - ⌘/Ctrl + S   保存（快速编辑模式下编辑行时除外）
+   * - ⌘/Ctrl + S   保存（仅面板模式；快速编辑模式下编辑行时除外）
    *
    * 面板模式仅组件获焦时生效；弹框模式表单被 teleport 到 body，
-   * 组件聚焦状态覆盖不到，改为弹框打开期间生效
+   * 组件聚焦状态覆盖不到，改为弹框打开期间生效。
+   * 弹框模式不支持 ⌘/Ctrl + S 保存，保存只能走底部按钮
    */
   function handleKeydown(e: KeyboardEvent) {
     const active = props.formMode === 'dialog' ? state.formVisible : focused.value
@@ -51,6 +52,8 @@ export function useShortcutKey(options: Options) {
     if (props.readonly && e.key !== 'Escape') return
 
     if (e.key === 'Escape') return runEscape(e)
+
+    if (props.formMode === 'dialog') return
 
     const meta = e.metaKey || e.ctrlKey
     if (!meta) return

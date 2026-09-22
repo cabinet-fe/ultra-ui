@@ -40,7 +40,8 @@ interface Options {
 }
 
 export interface EditReturned {
-  handleSave: () => Promise<void>
+  /** @param keepOpen 新增类操作保存后不关闭表单（弹框模式「保存并继续」） */
+  handleSave: (keepOpen?: boolean) => Promise<void>
   handleClose: () => void
   handleCreate: () => void
   handleDelete: (row: TableRow) => Promise<void>
@@ -153,8 +154,8 @@ export function useHandlers(options: Options): EditReturned {
     }
   }
 
-  /** 保存 */
-  const handleSave = runWithLoading(async () => {
+  /** 保存；keepOpen 为 true 时（「保存并继续」）新增保存后不关闭表单 */
+  const handleSave = runWithLoading(async (keepOpen = false) => {
     const { model, saveMethod } = props
     const valid = await formRef.value?.validate()
     if (!model || !valid) return
@@ -172,8 +173,8 @@ export function useHandlers(options: Options): EditReturned {
       }
       insert(item)
 
-      // 弹框模式保存成功即关闭，不走面板的连续新增
-      if (props.formMode === 'dialog') {
+      // 弹框模式保存成功即关闭，连续新增只能由「保存并继续」显式触发
+      if (props.formMode === 'dialog' && !keepOpen) {
         resetState()
         return
       }

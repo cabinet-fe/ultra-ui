@@ -393,6 +393,117 @@ describe('UBatchEdit formMode', () => {
     unmount()
   })
 
+  it('弹框新增「保存并继续」：插入后弹框保持打开、表单重置，可连续录入', async () => {
+    const saveMethod = vi.fn()
+    const { host, data, model, unmount } = mountBatchEdit({
+      props: { formMode: 'dialog', quickEdit: false, saveMethod }
+    })
+
+    clickEl(host.querySelector<HTMLElement>('.u-batch-edit__add-btn')!)
+    await waitDialogOpen()
+
+    const continueBtn = () =>
+      queryDialog()!.querySelector<HTMLElement>(
+        '.u-batch-edit__form-actions button[title="保存并继续"]'
+      )!
+
+    // 编辑已有行走 update，不显示「保存并继续」由面板用例覆盖；新增弹框内应存在
+    expect(continueBtn()).toBeTruthy()
+
+    setInputValue(queryDialog()!.querySelector<HTMLInputElement>('.u-input input')!, '第一条')
+    await nextTick()
+    await nextTick()
+    clickEl(continueBtn())
+    await waitDialogSettled()
+
+    // 插入一行但弹框保持打开，表单重置为初始值
+    expect(data.value).toHaveLength(3)
+    expect(data.value[2]).toMatchObject({ label: '第一条' })
+    expect(queryDialog()).toBeTruthy()
+    expect(queryDialog()!.querySelector<HTMLInputElement>('.u-input input')!.value).toBe('')
+    expect(model.label).toBe('')
+
+    // 继续录入第二条后普通保存：追加到末尾并关闭弹框
+    setInputValue(queryDialog()!.querySelector<HTMLInputElement>('.u-input input')!, '第二条')
+    await nextTick()
+    await nextTick()
+    clickEl(querySaveButton(queryDialog()!)!)
+    await waitDialogClosed()
+
+    expect(saveMethod).toHaveBeenCalledTimes(2)
+    expect(data.value).toHaveLength(4)
+    expect(data.value[3]).toMatchObject({ label: '第二条' })
+
+    unmount()
+  })
+
+  it('弹框模式不响应 Ctrl/Cmd + S：不保存、弹框保持打开，快捷键提示不再出现', async () => {
+    const saveMethod = vi.fn()
+    const { host, data, unmount } = mountBatchEdit({
+      props: { formMode: 'dialog', quickEdit: false, saveMethod }
+    })
+
+    clickEl(host.querySelector<HTMLElement>('.u-batch-edit__add-btn')!)
+    await waitDialogOpen()
+
+    setInputValue(queryDialog()!.querySelector<HTMLInputElement>('.u-input input')!, '新名称')
+    await nextTick()
+    await nextTick()
+
+    queryDialog()!.dispatchEvent(
+      new KeyboardEvent('keydown', {
+        key: 's',
+        code: 'KeyS',
+        ctrlKey: true,
+        bubbles: true,
+        cancelable: true
+      })
+    )
+    await waitDialogSettled()
+
+    expect(saveMethod).not.toHaveBeenCalled()
+    expect(data.value).toHaveLength(2)
+    expect(queryDialog()).toBeTruthy()
+    expect(queryDialog()!.querySelector('.u-batch-edit__form-hint')!.textContent).not.toContain(
+      'Ctrl + S'
+    )
+
+    // Esc 仍可关闭弹框
+    queryDialog()!.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
+    )
+    await waitDialogClosed()
+    expect(saveMethod).not.toHaveBeenCalled()
+
+    unmount()
+  })
+
+  it('面板模式 Ctrl/Cmd + S 保存仍可用（组件获焦时生效）', async () => {
+    const saveMethod = vi.fn()
+    const { host, unmount } = mountBatchEdit({ props: { quickEdit: false, saveMethod } })
+
+    await clickEditRow(host, 0)
+
+    const input = host.querySelector<HTMLInputElement>('.u-batch-edit__form .u-input input')!
+    // 面板模式快捷键要求组件获焦：focusin 冒泡到根布局后置位
+    input.dispatchEvent(new FocusEvent('focusin', { bubbles: true }))
+    input.dispatchEvent(
+      new KeyboardEvent('keydown', {
+        key: 's',
+        code: 'KeyS',
+        ctrlKey: true,
+        bubbles: true,
+        cancelable: true
+      })
+    )
+    await waitDialogSettled()
+
+    expect(saveMethod).toHaveBeenCalledTimes(1)
+    expect(saveMethod.mock.calls[0]![1]).toBe('update')
+
+    unmount()
+  })
+
   it('弹框内取消 / 关闭按钮 / 遮罩点击均不保存，且 model 恢复初始值', async () => {
     const saveMethod = vi.fn()
     const { host, data, model, unmount } = mountBatchEdit({
@@ -461,7 +572,7 @@ describe('UBatchEdit 重入保护', () => {
     await nextTick()
     await nextTick()
 
-    // 同一 tick 内连续两次触发保存（模拟保存进行中再按 Ctrl/Cmd+S），中间故意不等待
+    // 同一 tick 内连续两次点击保存（模拟保存进行中的重复触发），中间故意不等待
     const saveBtn = querySaveButton(queryDialog()!)!
     clickEl(saveBtn)
     clickEl(saveBtn)

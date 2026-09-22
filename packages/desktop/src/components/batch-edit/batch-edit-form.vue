@@ -54,7 +54,11 @@
         <template v-if="props.readonly"> 只读模式 </template>
 
         <span :class="{ [bem.is('concealed')]: !shortcutActive }">
-          <template v-if="!(state.formActionType === 'update' && props.quickEdit)">
+          <template
+            v-if="
+              props.formMode === 'panel' && !(state.formActionType === 'update' && props.quickEdit)
+            "
+          >
             <u-kbd>Ctrl + S</u-kbd> 保存 ·
           </template>
           <u-kbd>Esc</u-kbd> 关闭
@@ -64,13 +68,22 @@
       <div :class="cls.e('form-actions')">
         <u-button size="small" text :loading="state.loading" @click="handleClose"> 取消 </u-button>
         <u-button
+          v-if="showSaveContinueBtn"
+          size="small"
+          title="保存并继续"
+          :loading="state.loading"
+          @click="handleSave(true)"
+        >
+          保存并继续
+        </u-button>
+        <u-button
           v-if="showSaveBtn"
           type="primary"
           size="small"
           title="保存"
           :icon="Save"
           :loading="state.loading"
-          @click="handleSave"
+          @click="handleSave()"
         />
       </div>
     </footer>
@@ -149,6 +162,12 @@ const showSaveBtn = computed(() => {
   if (props.readonly) return false
   if (props.quickEdit && state.formActionType === 'update') return false
   return creatable.value || updatable.value || creatableChild.value
+})
+
+/** 弹框模式新增类操作显示「保存并继续」：保存后重置表单继续录入，不关闭弹框 */
+const showSaveContinueBtn = computed(() => {
+  if (props.formMode !== 'dialog') return false
+  return creatable.value || creatableChild.value
 })
 
 const headerInfo = computed(() => FORM_ACTION_HEADER_MAP[state.formActionType])
