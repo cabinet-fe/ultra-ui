@@ -88,11 +88,12 @@
           </template>
         </UDropdown>
 
-        <ModelPicker
+        <ModelPicker v-if="models?.length" v-model:model="model" :models="models" />
+
+        <ReasoningPicker
           v-if="models?.length"
-          v-model:model="model"
           v-model:reasoning-level="reasoningLevel"
-          :models="models"
+          :levels="reasoningLevels"
         />
 
         <UButton
@@ -132,6 +133,7 @@ import type { ChatAttachment, ChatTokenUsage } from '../../chat/types'
 import type { ChatModelOption } from '../../providers'
 import { AiChatDIKey } from './di'
 import ModelPicker from './model-picker.vue'
+import ReasoningPicker from './reasoning-picker.vue'
 
 defineOptions({ name: 'UAiChatInput' })
 
@@ -158,6 +160,11 @@ const props = defineProps<{
 
 const model = defineModel<string>('model')
 const reasoningLevel = defineModel<string>('reasoningLevel')
+
+/** 当前模型的推理等级列表，交给独立选择器；不足两档时选择器自身不渲染 */
+const reasoningLevels = computed(() => {
+  return props.models?.find((m) => m.id === model.value)?.reasoningLevels ?? []
+})
 
 const emit = defineEmits<{
   (e: 'send', content: string, attachments: ChatAttachment[]): void

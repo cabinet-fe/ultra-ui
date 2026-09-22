@@ -870,7 +870,7 @@ describe('UAiChat', () => {
     unmount()
   })
 
-  it('有 models 时渲染模型选择器；当前模型无 reasoningLevels 时不展示推理等级', async () => {
+  it('有 models 时渲染模型选择器；当前模型无 reasoningLevels 时不展示推理选择器', async () => {
     const { host, unmount } = mountAiChat({
       transport: () => {},
       models: [
@@ -897,12 +897,12 @@ describe('UAiChat', () => {
     expect(
       host.querySelector('.u-ai-chat__input-toolbar-left .u-ai-chat__model-trigger')
     ).toBeFalsy()
-    // 当前模型无 reasoningLevels，触发器不展示推理等级
-    expect(host.querySelector('.u-ai-chat__model-trigger-reasoning')).toBeFalsy()
+    // 当前模型无 reasoningLevels，独立推理选择器不渲染
+    expect(host.querySelector('.u-ai-chat__reasoning-trigger')).toBeFalsy()
     unmount()
   })
 
-  it('切换到带 reasoningLevels 的模型后触发器展示推理等级', async () => {
+  it('切换到带 reasoningLevels 的模型后展示独立推理选择器并可切换等级', async () => {
     const model = ref('gpt-4o')
     const reasoningLevel = ref<string | undefined>()
     const host = document.createElement('div')
@@ -940,17 +940,30 @@ describe('UAiChat', () => {
     app.mount(host)
     await nextTick()
 
-    expect(host.querySelector('.u-ai-chat__model-trigger-reasoning')).toBeFalsy()
+    expect(host.querySelector('.u-ai-chat__reasoning-trigger')).toBeFalsy()
 
     model.value = 'o3-mini'
     await nextTick()
 
-    const reasoning = host.querySelector(
-      '.u-ai-chat__input-toolbar-right .u-ai-chat__model-trigger-reasoning'
+    const trigger = host.querySelector<HTMLElement>(
+      '.u-ai-chat__input-toolbar-right .u-ai-chat__reasoning-trigger'
     )
-    expect(reasoning).toBeTruthy()
-    expect(reasoning?.textContent).toBe('低')
+    expect(trigger).toBeTruthy()
+    expect(trigger?.textContent).toContain('低')
     expect(reasoningLevel.value).toBe('low')
+
+    // 打开面板切换等级；面板 teleport 到 body 下的 popper 容器
+    trigger!.click()
+    await vi.waitFor(() => {
+      expect(document.querySelector('.u-ai-chat__reasoning-option')).toBeTruthy()
+    })
+    const highOption = [
+      ...document.querySelectorAll<HTMLElement>('.u-ai-chat__reasoning-option')
+    ].find((el) => el.textContent?.includes('高'))
+    highOption!.click()
+    await nextTick()
+    expect(reasoningLevel.value).toBe('high')
+    expect(trigger?.textContent).toContain('高')
 
     app.unmount()
     host.remove()

@@ -1137,12 +1137,40 @@ $root-name: ai-chat;
     @include m.ellipsis;
   }
 
-  @include m.e(model-trigger-reasoning) {
+  @include m.e(model-trigger-arrow) {
     flex-shrink: 0;
+    font-size: 12px;
     color: fn.use-var(text-color, assist);
   }
 
-  @include m.e(model-trigger-arrow) {
+  @include m.e(reasoning-trigger) {
+    @include m.flex(flex, flex-start, center);
+    gap: 4px;
+    flex-shrink: 0;
+    padding: 2px fn.use-var(gap, small);
+    border: none;
+    border-radius: fn.use-var(radius, default);
+    background: transparent;
+    color: fn.use-var(text-color, assist);
+    font-family: inherit;
+    font-size: inherit;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+      color: fn.use-var(text-color, main);
+    }
+  }
+
+  @include m.e(reasoning-trigger-label) {
+    @include m.ellipsis;
+    max-width: 72px;
+  }
+
+  @include m.e(reasoning-trigger-arrow) {
     flex-shrink: 0;
     font-size: 12px;
     color: fn.use-var(text-color, assist);
@@ -1278,8 +1306,10 @@ $root-name: ai-chat;
   padding: 4px;
   user-select: none;
 
+  // 面板从贴底的输入栏向上弹出，超出高度在列表内滚动
   .u-#{$root-name}__model-panel-list {
     min-width: 0;
+    max-height: 280px;
   }
 
   .u-#{$root-name}__model-option-main {
@@ -1294,60 +1324,28 @@ $root-name: ai-chat;
   }
 
   .u-#{$root-name}__model-option-head {
-    @include m.flex(flex, space-between, center);
-    gap: 12px;
+    @include m.flex(flex, flex-start, center);
+    gap: 8px;
+    min-width: 0;
     color: fn.use-var(text-color, main);
+  }
+
+  .u-#{$root-name}__model-option.is-active {
+    .u-#{$root-name}__model-option-name {
+      color: fn.use-var(color, primary);
+      font-weight: 600;
+    }
   }
 
   .u-#{$root-name}__model-option-name {
     @include m.ellipsis;
   }
 
-  .u-#{$root-name}__model-option-actions {
-    @include m.flex(flex, flex-start, center);
-    flex-shrink: 0;
-    gap: 6px;
-  }
-
   .u-#{$root-name}__model-option-check {
     flex-shrink: 0;
+    margin-left: auto;
     font-size: 14px;
     color: fn.use-var(color, primary);
-
-    @include m.is(hidden) {
-      visibility: hidden;
-    }
-  }
-
-  .u-#{$root-name}__model-option-reasoning {
-    @include m.flex(flex, flex-start, center);
-    gap: 2px;
-    flex-shrink: 0;
-    padding: 1px 6px;
-    border: none;
-    border-radius: fn.use-var(radius, small);
-    background: fn.use-var(color, primary, 'light-9');
-    color: fn.use-var(color, primary);
-    font-size: fn.use-var(font-size-main, small);
-    cursor: pointer;
-    transition:
-      background-color 0.15s ease,
-      color 0.15s ease;
-
-    &:hover {
-      background: fn.use-var(color, primary, 'light-7');
-    }
-  }
-
-  .u-#{$root-name}__model-option-reasoning-arrow {
-    font-size: 12px;
-    transition: transform 0.2s ease;
-  }
-
-  .u-#{$root-name}__model-option-reasoning.is-expanded {
-    .u-#{$root-name}__model-option-reasoning-arrow {
-      transform: rotate(180deg);
-    }
   }
 
   .u-#{$root-name}__model-option-desc {
@@ -1355,28 +1353,17 @@ $root-name: ai-chat;
     font-size: fn.use-var(font-size-main, small);
     color: fn.use-var(text-color, assist);
   }
+}
 
-  // 内联思考强度：grid 行高 0fr → 1fr 过渡，展开/收起平滑无跳变
-  .u-#{$root-name}__reasoning-levels {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-
-    @include m.is(expanded) {
-      grid-template-rows: 1fr;
-    }
-  }
-
-  .u-#{$root-name}__reasoning-levels-inner {
-    min-height: 0;
-    overflow: hidden;
-  }
+// 推理等级选择面板经 teleport 挂载到 popper 容器，同样需独立定义
+.u-#{$root-name}__reasoning-panel {
+  padding: 4px;
+  user-select: none;
 
   .u-#{$root-name}__reasoning-option {
     @include m.flex(flex, space-between, center);
     gap: 12px;
-    margin-left: 8px;
-    padding: 5px 8px;
+    padding: 6px 8px;
     border-radius: calc(fn.use-var(radius, default) + 1px);
     font-size: fn.use-var(font-size-main, small);
     color: fn.use-var(text-color, main);
@@ -1392,5 +1379,11 @@ $root-name: ai-chat;
     @include m.is(active) {
       color: fn.use-var(color, primary);
     }
+  }
+
+  .u-#{$root-name}__reasoning-check {
+    flex-shrink: 0;
+    font-size: 14px;
+    color: fn.use-var(color, primary);
   }
 }

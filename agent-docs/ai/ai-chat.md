@@ -19,6 +19,7 @@ keywords:
     welcome,
     图片附件,
     模型选择,
+    推理等级,
     reasoningLevel,
     token 用量,
     contextWindow,
@@ -258,7 +259,7 @@ export interface ChatReasoningLevel {
   label: string
 }
 
-/** 单个模型配置：id 跨 Provider 全局唯一；label 缺省取 id；description 为选择器副标题；reasoningLevels 未设或空数组 → 不展示推理选择器；defaultReasoningLevel 须落在 reasoningLevels 内；contextWindow 为上下文窗口上限（token），配置后输入栏用量环按「最近一次请求总 token / 上限」显示占比 */
+/** 单个模型配置：id 跨 Provider 全局唯一；label 缺省取 id；description 为选择器副标题；reasoningLevels 未设或空数组 → 当前模型无独立推理选择器；defaultReasoningLevel 须落在 reasoningLevels 内；contextWindow 为上下文窗口上限（token），配置后输入栏用量环按「最近一次请求总 token / 上限」显示占比 */
 export interface ChatModel {
   id: string
   label?: string
@@ -357,6 +358,7 @@ export type ChatTransport = (
 ### 内置交互行为
 
 - 输入：Enter 发送，Shift + Enter 换行，多行自适应高度上限 160px。生成中输入为空显示「停止生成」，有内容显示发送（点击入队）。
+- 模型与推理：输入栏右簇的模型选择器为扁平列表，面板向上弹出（适配输入框贴底布局），列表超高时内部滚动。当前模型可选推理等级 ≥2 档时，模型选择器旁显示独立的推理等级选择器；切换模型时等级自动校正（无等级清空、非法值落 `defaultReasoningLevel` 或首档）。
 - 清除：输入栏左侧清除按钮带 `UPopConfirm` 二次确认（文案「清空当前对话？进行中的生成将被中止。」）；仅在有消息、有队列或生成中可点。
 - 重新生成：最后一条 assistant 进入 `done` / `error` / `aborted` 终态后，在其下方提供复制 / 重新生成操作。
 - 欢迎区：默认为活体球 + 快捷提问；多条每 4000ms 轮换，点文案即发送，点球立即换下一条并重置计时。
