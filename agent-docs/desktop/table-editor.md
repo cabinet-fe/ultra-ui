@@ -1,6 +1,6 @@
 ---
 title: UTableEditor 表格编辑器
-description: "@veltra/desktop 的表格型编辑器组件：基于 UTable 封装，v-model 绑定行对象数组，内置序号列与「删除/新增/复制」操作列，配合 #column:{key} 插槽的 model 作用域实现单元格行内编辑；列级 rules 懒校验，错误仅在表头标红并以气泡列明细；readonly 只读模式下输入控件只读、操作列与空态「添加」按钮不渲染。"
+description: '@veltra/desktop 的表格型编辑器组件：基于 UTable 封装，v-model 绑定行对象数组，内置序号列与「删除/新增/复制」操作列，配合 #column:{key} 插槽的 model 作用域实现单元格行内编辑；列级 rules 懒校验，错误仅在表头标红并以气泡列明细；readonly 只读模式下输入控件只读、操作列与空态「添加」按钮不渲染。'
 aliases: [EditableTable, 可编辑表格, 行内编辑表格, 表格编辑]
 keywords:
   [
@@ -150,28 +150,28 @@ export interface TableEditorExposed {
 
 ## 参数说明
 
-| 参数                           | 类型                                         | 默认         | 必填 | 约束                                                                                                       |
-| ------------------------------ | -------------------------------------------- | ------------ | :--: | ---------------------------------------------------------------------------------------------------------- |
+| 参数                           | 类型                                         | 默认         | 必填 | 约束                                                                                                                                   |
+| ------------------------------ | -------------------------------------------- | ------------ | :--: | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `modelValue`                   | `Record<string, any>[]`                      | `[]`         |  否  | 行对象数组；`v-model` 绑定。增删复制行与单元格编辑值变化均以浅拷贝新数组触发 `update:modelValue`（行对象保持原引用，见「方法与事件」） |
-| `columns`                      | `TableEditorColumn[]`                        | —            |  是  | 列可配 `rules` 开启按列校验；禁止使用 `key: '__operation'`，该 key 被内置操作列占用                         |
-| `readonly`                     | `boolean`                                    | `false`      |  否  | 只读模式：输入控件经插槽 model 收到 readonly: true（值不可修改），操作列与空态「添加」按钮不渲染          |
-| `rowKey`                       | `string`                                     | —            |  否  | 使用 `checkable` / `v-model:checked` 等受控选中时必须设置                                                  |
-| `checkable`                    | `boolean`                                    | `false`      |  否  | 开启多选列，勾选状态由 `v-model:checked` 同步                                                              |
-| `selectable`                   | `boolean`                                    | `false`      |  否  | 单选；与 `checkable` 同时设置时仅本项生效                                                                  |
-| `checked`                      | `Record<string, any>[]`                      | —            |  否  | 多选受控值，需要 `rowKey`                                                                                  |
-| `selected`                     | `Record<string, any>`                        | —            |  否  | 单选受控值，需要 `rowKey`                                                                                  |
-| `tree`                         | `boolean \| string`                          | `false`      |  否  | 树形编辑；传字符串时该字符串为子节点字段名，默认 `'children'`                                              |
-| `expandable`                   | `boolean`                                    | `false`      |  否  | 展开行，仅非树形有效；内容写入 `#row:expand` 插槽                                                          |
-| `defaultExpandAll`             | `boolean`                                    | `false`      |  否  | 树形模式默认展开全部                                                                                       |
-| `border`                       | `boolean`                                    | `false`      |  否  | —                                                                                                          |
-| `size`                         | `'small' \| 'default' \| 'large'`            | `'default'`  |  否  | —                                                                                                          |
-| `stripe`                       | `boolean`                                    | 固定 `false` |  否  | 内部覆盖，传入不生效                                                                                       |
-| `showIndex`                    | `boolean`                                    | 固定 `true`  |  否  | 内部覆盖，传入不生效                                                                                       |
-| `virtualThreshold`             | `number`                                     | `80`         |  否  | 行数超过该值开启虚拟滚动；设 `0` 始终开启                                                                  |
-| `mergeCell`                    | `(ctx) => { rowspan, colspan } \| undefined` | —            |  否  | 语义同 `UTable`；操作列同样参与合并判定                                                                    |
-| `slots`                        | `Readonly<Slots>`                            | —            |  否  | 函数式组件包裹时传 `$slots`                                                                                |
-| `textEllipsis`                 | `boolean`                                    | `false`      |  否  | —                                                                                                          |
-| `highlightCurrent` / `current` | `boolean` / `TableRow`                       | `false` / —  |  否  | 语义同 `UTable`                                                                                            |
+| `columns`                      | `TableEditorColumn[]`                        | —            |  是  | 列可配 `rules` 开启按列校验；禁止使用 `key: '__operation'`，该 key 被内置操作列占用                                                    |
+| `readonly`                     | `boolean`                                    | `false`      |  否  | 只读模式：输入控件经插槽 model 收到 readonly: true（值不可修改），操作列与空态「添加」按钮不渲染                                       |
+| `rowKey`                       | `string`                                     | —            |  否  | 使用 `checkable` / `v-model:checked` 等受控选中时必须设置                                                                              |
+| `checkable`                    | `boolean`                                    | `false`      |  否  | 开启多选列，勾选状态由 `v-model:checked` 同步                                                                                          |
+| `selectable`                   | `boolean`                                    | `false`      |  否  | 单选；与 `checkable` 同时设置时仅本项生效                                                                                              |
+| `checked`                      | `Record<string, any>[]`                      | —            |  否  | 多选受控值，需要 `rowKey`                                                                                                              |
+| `selected`                     | `Record<string, any>`                        | —            |  否  | 单选受控值，需要 `rowKey`                                                                                                              |
+| `tree`                         | `boolean \| string`                          | `false`      |  否  | 树形编辑；传字符串时该字符串为子节点字段名，默认 `'children'`                                                                          |
+| `expandable`                   | `boolean`                                    | `false`      |  否  | 展开行，仅非树形有效；内容写入 `#row:expand` 插槽                                                                                      |
+| `defaultExpandAll`             | `boolean`                                    | `false`      |  否  | 树形模式默认展开全部                                                                                                                   |
+| `border`                       | `boolean`                                    | `false`      |  否  | —                                                                                                                                      |
+| `size`                         | `'small' \| 'default' \| 'large'`            | `'default'`  |  否  | —                                                                                                                                      |
+| `stripe`                       | `boolean`                                    | 固定 `false` |  否  | 内部覆盖，传入不生效                                                                                                                   |
+| `showIndex`                    | `boolean`                                    | 固定 `true`  |  否  | 内部覆盖，传入不生效                                                                                                                   |
+| `virtualThreshold`             | `number`                                     | `80`         |  否  | 行数超过该值开启虚拟滚动；设 `0` 始终开启                                                                                              |
+| `mergeCell`                    | `(ctx) => { rowspan, colspan } \| undefined` | —            |  否  | 语义同 `UTable`；操作列同样参与合并判定                                                                                                |
+| `slots`                        | `Readonly<Slots>`                            | —            |  否  | 函数式组件包裹时传 `$slots`                                                                                                            |
+| `textEllipsis`                 | `boolean`                                    | `false`      |  否  | —                                                                                                                                      |
+| `highlightCurrent` / `current` | `boolean` / `TableRow`                       | `false` / —  |  否  | 语义同 `UTable`                                                                                                                        |
 
 插槽与 `UTable` 完全一致，最常用的是 `#column:{key}`：作用域为 `{ row, rowData, column, val, model }`。`model` 是控件 props 包，含 `modelValue` 与写回钩子，控件用 `v-bind="model"` 整体接收（不要用 `v-model="model.modelValue"`，那样绕过写回钩子，输入不会写回行数据）；配置了 `rules` 的列还会附带 `onChange` 触发单元格校验；`readonly: true` 时 `model` 携带 `readonly: true` 且不提供写回通道。未声明 `#column:{key}` 插槽的列渲染字段原始值；列自带 `render` 时 `render` 优先、插槽不生效。`#header:{key}` 自定义表头内容时，红星渲染在自定义内容之前，错误标红与感叹号气泡追加在其后。另有 `#row:expand`、`#foot`、`#body`、`#append`；`#empty` 被内置空态占据（非只读时含「添加」按钮，`readonly` 下不渲染），需要自定义空态改用 `UTable`。
 

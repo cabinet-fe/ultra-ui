@@ -159,11 +159,11 @@ export interface FileViewerExposed {
 
 ### 事件
 
-| 事件                | payload                                    | 触发时机                                                                                                |
-| ------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
-| `update:modelValue` | `id: string`                               | 激活文件变化（点侧栏、调 `activate`/`next`/`prev`、内部自动激活）                                       |
-| `update:open`       | `value: boolean`                           | 模态模式下点背景、按 ESC、点关闭按钮时变为 `false`                                                      |
-| `change`            | `file: FileViewerItem`                     | 激活文件切换且 id 与之前不同                                                                            |
+| 事件                | payload                                    | 触发时机                                                                                                                      |
+| ------------------- | ------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `update:modelValue` | `id: string`                               | 激活文件变化（点侧栏、调 `activate`/`next`/`prev`、内部自动激活）                                                             |
+| `update:open`       | `value: boolean`                           | 模态模式下点背景、按 ESC、点关闭按钮时变为 `false`                                                                            |
+| `change`            | `file: FileViewerItem`                     | 激活文件切换且 id 与之前不同                                                                                                  |
 | `error`             | `{ file: FileViewerItem; error: unknown }` | URL fetch 失败（`Fetch failed: <status> <statusText>`）、sheet-core 缺失、文本/表格解析失败、OFD 解析或单页渲染失败、下载失败 |
 
 ### 暴露成员（模板 ref，已解构）
