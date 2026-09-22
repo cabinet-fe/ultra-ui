@@ -80,11 +80,14 @@
         虚拟化启用时内容容器 height 由 useVirtualizer 命令式写入；
         模板不再绑定 totalSize，避免尺寸变化引起重渲染。
       -->
+      <div v-if="loading" :class="cls.e('loading')">
+        <ULoading type="dual-ring" />
+      </div>
       <u-scroll
         tag="ul"
         :class="[cls.e('options')]"
         ref="scrollRef"
-        v-if="options.length"
+        v-else-if="options.length"
         :content-class="[cls.e('options-wrap'), bem.is('virtual', virtualEnabled)]"
       >
         <template v-if="virtualEnabled">
@@ -166,6 +169,7 @@ import { UCheckbox } from '../checkbox'
 import { UDropdown } from '../dropdown'
 import { UEmpty } from '../empty'
 import { UIcon } from '../icon'
+import { ULoading } from '../loading'
 import { UScroll } from '../scroll'
 import { useOptions } from '../select/use-options'
 import { UTag } from '../tag'
@@ -204,7 +208,12 @@ const scrollRef = shallowRef<ScrollExposed>()
 
 const hovered = shallowRef(false)
 
-const { options: rawOptions, queryString, allOptions: rawAllOptions } = useOptions({ props })
+const {
+  options: rawOptions,
+  queryString,
+  loading,
+  allOptions: rawAllOptions
+} = useOptions({ props })
 
 const createdOptions = shallowRef<Record<string, any>[]>([])
 

@@ -49,8 +49,13 @@
     <template #content>
       <!-- 菜单列表 -->
 
+      <div v-if="remoteLoading" :class="cls.e('loading')">
+        <ULoading type="dual-ring" />
+      </div>
       <u-tree
+        v-else
         v-bind="treeProps"
+        :data="treeData"
         :selected="model"
         @update:selected="handleSelect"
         ref="treeRef"
@@ -68,7 +73,7 @@
 </template>
 
 <script lang="ts" setup>
-import { dfs, o } from '@cat-kit/core'
+import { debounce, dfs, o } from '@cat-kit/core'
 import { useFormFallbackProps, useUserAction } from '@veltra/compositions'
 import { ArrowDown, Close } from '@veltra/icons/normal'
 import { bem, fieldKey, FORM_EMPTY_CONTENT } from '@veltra/utils'
@@ -79,6 +84,7 @@ import type { TreeSelectProps, TreeSelectEmits, TreeExposed, InputExposed } from
 import { UDropdown } from '../dropdown'
 import { UIcon } from '../icon'
 import { UInput } from '../input'
+import { ULoading } from '../loading'
 import { UTree } from '../tree'
 import type { TreeSlotsScope } from '../tree/di'
 
@@ -113,6 +119,7 @@ const treeProps = computed(() => {
     'disabled',
     'label',
     'readonly',
+    'data',
     'contentClass',
     'contentStyle',
     'minWidth',
@@ -125,11 +132,56 @@ const cls = bem('tree-select')
 const labelKey = computed(() => fieldKey(props.labelKey, 'label'))
 const valueKey = computed(() => fieldKey(props.valueKey, 'value'))
 
-/**过滤 */
+/** 是否可搜索：显式声明或数据源为远程函数 */
+const filterable = computed(() => props.filterable || typeof props.data === 'function')
+
+/** 过滤 */
 const qs = shallowRef('')
-watch(qs, (qs) => {
-  treeRef.value?.filter(qs)
-})
+
+const treeRef = shallowRef<TreeExposed>()
+
+/** 远程搜索返回的树数据 */
+const remoteData = shallowRef<Record<string, any>[]>()
+
+/** 面板渲染的树数据：data 为函数时来自远程搜索，否则为静态数据 */
+const treeData = computed(() => (typeof props.data === 'function' ? remoteData.value : props.data))
+
+const remoteLoading = shallowRef(false)
+/** 远程请求序号；响应返回时序号不一致说明已有更新的请求，结果作废 */
+let remoteSeq = 0
+
+const debouncedRemoteSearch = debounce(
+  async (
+    query: string,
+    dataFn: (qs: string) => Promise<Record<string, any>[]> | Record<string, any>[]
+  ) => {
+    const seq = ++remoteSeq
+    remoteLoading.value = true
+    try {
+      const data = await dataFn(query)
+      // 响应到达时查询词可能已变化或已有更新的请求，过期结果直接丢弃
+      if (seq !== remoteSeq || query !== qs.value) return
+      remoteData.value = data ?? []
+      // 搜索结果展示完整命中路径，与本地过滤自动展开祖先的行为对齐
+      if (query) nextTick(() => treeRef.value?.expandAll())
+    } finally {
+      if (seq === remoteSeq) remoteLoading.value = false
+    }
+  },
+  200
+)
+
+watch(
+  [qs, () => props.data],
+  ([query, data]) => {
+    if (typeof data === 'function') {
+      debouncedRemoteSearch(query, data)
+      return
+    }
+    treeRef.value?.filter(query)
+  },
+  { immediate: true }
+)
 
 const model = defineModel<string | number>()
 
@@ -156,21 +208,21 @@ function setLabel(next?: string) {
 
 /** 触发输入框的值：查询态下承载查询串，否则展示选中标签 */
 const inputValue = computed(() => {
-  if (props.filterable && querying.value) return qs.value
+  if (filterable.value && querying.value) return qs.value
   return model.value || model.value === 0 ? label.value : undefined
 })
 
 /** 查询态下已选标签降级为占位提示 */
 const inputPlaceholder = computed(() => {
   const display = model.value || model.value === 0 ? label.value : undefined
-  if (props.filterable && querying.value && display) {
+  if (filterable.value && querying.value && display) {
     return display
   }
   return props.placeholder
 })
 
 function handleQueryInput(value: string) {
-  if (!props.filterable) return
+  if (!filterable.value) return
   qs.value = value
 }
 
@@ -188,7 +240,7 @@ const showClear = computed(() => {
  * 非输入区域（箭头、留白）放行，维持原开合行为。
  */
 function handleTriggerClickCapture(e: MouseEvent) {
-  if (!props.filterable || disabled.value) return
+  if (!filterable.value || disabled.value) return
   if (!(e.target instanceof HTMLInputElement)) return
 
   e.stopPropagation()
@@ -196,7 +248,7 @@ function handleTriggerClickCapture(e: MouseEvent) {
 }
 
 watch(dropdownVisible, (visible) => {
-  if (visible && props.filterable) {
+  if (visible && filterable.value) {
     // 面板展开后进入查询态并聚焦输入框，可以立即输入查询
     querying.value = true
     nextTick(() => inputRef.value?.el?.focus())
@@ -208,8 +260,6 @@ watch(dropdownVisible, (visible) => {
 const { formProps } = injectFormContext()
 
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props])
-
-const treeRef = shallowRef<TreeExposed>()
 
 const dropdownRef = shallowRef<InstanceType<typeof UDropdown>>()
 
@@ -225,7 +275,7 @@ const handleClear = userAction(() => {
 
 /** 外部回显：按 data 查找 label（O(n)）；用户动作期内跳过 */
 watch(
-  [() => props.data, model],
+  [treeData, model],
   ([data, modelVal]) => {
     if (isUserActive()) return
     if (!data?.length || modelVal === undefined || modelVal === null || modelVal === '') {

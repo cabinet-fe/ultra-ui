@@ -14,7 +14,9 @@ keywords:
     childrenKey,
     expandAll,
     field,
+    data,
     关键字过滤,
+    远程搜索,
     树形数据,
     下拉树,
     禁用节点,
@@ -25,7 +27,7 @@ keywords:
 
 # UTreeSelect 树选择器
 
-`@veltra/desktop` 导出的 `UTreeSelect` 是树形单选下拉选择器：`modelValue` 为所选节点 `valueKey` 字段的值，展示文案由 `data` 推导；支持关键字过滤、禁用节点、清空，以及在 `UForm` 内由 `field` 接管绑定与校验。分工规则：从树形数据里单选一个节点值用 `UTreeSelect`；一次勾选多个节点用 `UMultiTreeSelect`；数据按层级逐级下钻且值要保留完整路径时用 `UCascade`。
+`@veltra/desktop` 导出的 `UTreeSelect` 是树形单选下拉选择器：`modelValue` 为所选节点 `valueKey` 字段的值，展示文案由 `data` 推导；支持关键字过滤、远程搜索（`data` 传函数）、禁用节点、清空，以及在 `UForm` 内由 `field` 接管绑定与校验。分工规则：从树形数据里单选一个节点值用 `UTreeSelect`；一次勾选多个节点用 `UMultiTreeSelect`；数据按层级逐级下钻且值要保留完整路径时用 `UCascade`。
 
 ## 快速上手
 
@@ -101,12 +103,16 @@ export interface FormComponentProps {
   rules?: ValidateRule
 }
 
-/** 树形选择器属性；TreeProps 中仅 selected / checked / selectable / checkable 被移除（内部固定单选） */
+/** 树形选择器属性；TreeProps 中仅 selected / checked / selectable / checkable / data 被移除（内部固定单选；data 重声明以支持远程搜索函数） */
 export interface TreeSelectProps extends FormComponentProps {
   /** 选中节点的值（valueKey 字段值），单选 */
   modelValue?: string | number
-  /** 数据源，树形数组 */
-  data?: Record<string, any>[]
+  /**
+   * 数据源。传入函数时启用远程搜索：函数按查询词返回匹配的树，
+   * 初始以空串调用一次，输入变化以 200ms 防抖调用，此时 filterable 被强制开启
+   */
+  data?:
+    Record<string, any>[] | ((qs: string) => Promise<Record<string, any>[]> | Record<string, any>[])
   /** 标签字段名，默认 'label' */
   labelKey?: string
   /** 值字段名，默认 'value' */
@@ -152,31 +158,31 @@ export type TreeSelectExposed = {}
 
 ## 参数说明
 
-| 参数                | 类型                              | 默认             | 必填 | 约束                                                                                |
-| ------------------- | --------------------------------- | ---------------- | :--: | ----------------------------------------------------------------------------------- |
-| `v-model`           | `string \| number`                | —                |  否  | 必须等于 `data` 中某节点的 `valueKey` 字段值；清空后写入 `''`                       |
-| `data`              | `Record<string, any>[]`           | `[]`             |  否  | 树形数组；无懒加载，必须一次性传入全部层级                                          |
-| `labelKey`          | `string`                          | `'label'`        |  否  | 回显文案读取该字段                                                                  |
-| `valueKey`          | `string`                          | `'value'`        |  否  | 值比对与提交读取该字段                                                              |
-| `childrenKey`       | `string`                          | `'children'`     |  否  | 子级数组字段名                                                                      |
-| `expandAll`         | `boolean`                         | `false`          |  否  | 初始展开全部节点                                                                    |
-| `expandOnClickNode` | `boolean`                         | `false`          |  否  | 点击节点文本是否展开/收缩                                                           |
-| `disabledNode`      | `(item, node) => boolean`         | —                |  否  | 返回 `true` 的节点置灰且不可选中                                                    |
-| `placeholder`       | `string`                          | `'请选择'`       |  否  | 无选中值时的占位文字                                                                |
-| `clearable`         | `boolean`                         | `true`           |  否  | 悬停且已有选中值时显示清除按钮                                                      |
-| `filterable`        | `boolean`                         | `false`          |  否  | 开启后可输入关键字，按节点 `label` 做子串匹配（区分大小写），命中节点的祖先自动展开 |
-| `minWidth`          | `string`                          | `'280px'`        |  否  | 面板最小宽度                                                                        |
-| `width`             | `string`                          | 跟随触发元素宽度 |  否  | 面板宽度                                                                            |
-| `contentStyle`      | `CSSProperties \| string`         | —                |  否  | 面板容器内联样式                                                                    |
-| `contentClass`      | `unknown`                         | —                |  否  | 面板容器类名                                                                        |
-| `size`              | `'small' \| 'default' \| 'large'` | `'default'`      |  否  | 组件未设置时继承 `UForm` 的 `size`                                                  |
-| `label`             | `string`                          | —                |  否  | 标签文字，仅 `UForm` / `UFormItem` 内生效                                           |
-| `field`             | `string`                          | —                |  否  | `UForm` 内必须用它绑定字段；写了 `field` 禁止再写 `v-model`                         |
-| `rules`             | `ValidateRule`                    | —                |  否  | 校验规则，仅 `UForm` 内生效                                                         |
-| `tips`              | `string`                          | —                |  否  | 表单内提示文字，仅 `UForm` 内生效                                                   |
-| `span`              | `number \| 'full' \| 响应式对象`  | —                |  否  | 所占列宽，仅 `UForm` 内生效                                                         |
-| `disabled`          | `boolean`                         | `false`          |  否  | 未设置时继承 `UForm` 的 `disabled`                                                  |
-| `readonly`          | `boolean`                         | `false`          |  否  | 未设置时继承 `UForm` 的 `readonly`；只读时渲染为纯文本                              |
+| 参数                | 类型                                                                                                 | 默认             | 必填 | 约束                                                                                                                             |
+| ------------------- | ---------------------------------------------------------------------------------------------------- | ---------------- | :--: | -------------------------------------------------------------------------------------------------------------------------------- |
+| `v-model`           | `string \| number`                                                                                   | —                |  否  | 必须等于 `data` 中某节点的 `valueKey` 字段值；清空后写入 `''`                                                                    |
+| `data`              | `Record<string, any>[] \| ((qs: string) => Promise<Record<string, any>[]> \| Record<string, any>[])` | `[]`             |  否  | 数组为本地数据，须一次性传入全部层级；传函数时启用远程搜索，`filterable` 强制开启，初始以空串调用一次，输入变化以 200ms 防抖调用 |
+| `labelKey`          | `string`                                                                                             | `'label'`        |  否  | 回显文案读取该字段                                                                                                               |
+| `valueKey`          | `string`                                                                                             | `'value'`        |  否  | 值比对与提交读取该字段                                                                                                           |
+| `childrenKey`       | `string`                                                                                             | `'children'`     |  否  | 子级数组字段名                                                                                                                   |
+| `expandAll`         | `boolean`                                                                                            | `false`          |  否  | 初始展开全部节点                                                                                                                 |
+| `expandOnClickNode` | `boolean`                                                                                            | `false`          |  否  | 点击节点文本是否展开/收缩                                                                                                        |
+| `disabledNode`      | `(item, node) => boolean`                                                                            | —                |  否  | 返回 `true` 的节点置灰且不可选中                                                                                                 |
+| `placeholder`       | `string`                                                                                             | `'请选择'`       |  否  | 无选中值时的占位文字                                                                                                             |
+| `clearable`         | `boolean`                                                                                            | `true`           |  否  | 悬停且已有选中值时显示清除按钮                                                                                                   |
+| `filterable`        | `boolean`                                                                                            | `false`          |  否  | 开启后可输入关键字，按节点 `label` 做子串匹配（区分大小写），命中节点的祖先自动展开；`data` 传函数时强制开启（无需设置）         |
+| `minWidth`          | `string`                                                                                             | `'280px'`        |  否  | 面板最小宽度                                                                                                                     |
+| `width`             | `string`                                                                                             | 跟随触发元素宽度 |  否  | 面板宽度                                                                                                                         |
+| `contentStyle`      | `CSSProperties \| string`                                                                            | —                |  否  | 面板容器内联样式                                                                                                                 |
+| `contentClass`      | `unknown`                                                                                            | —                |  否  | 面板容器类名                                                                                                                     |
+| `size`              | `'small' \| 'default' \| 'large'`                                                                    | `'default'`      |  否  | 组件未设置时继承 `UForm` 的 `size`                                                                                               |
+| `label`             | `string`                                                                                             | —                |  否  | 标签文字，仅 `UForm` / `UFormItem` 内生效                                                                                        |
+| `field`             | `string`                                                                                             | —                |  否  | `UForm` 内必须用它绑定字段；写了 `field` 禁止再写 `v-model`                                                                      |
+| `rules`             | `ValidateRule`                                                                                       | —                |  否  | 校验规则，仅 `UForm` 内生效                                                                                                      |
+| `tips`              | `string`                                                                                             | —                |  否  | 表单内提示文字，仅 `UForm` 内生效                                                                                                |
+| `span`              | `number \| 'full' \| 响应式对象`                                                                     | —                |  否  | 所占列宽，仅 `UForm` 内生效                                                                                                      |
+| `disabled`          | `boolean`                                                                                            | `false`          |  否  | 未设置时继承 `UForm` 的 `disabled`                                                                                               |
+| `readonly`          | `boolean`                                                                                            | `false`          |  否  | 未设置时继承 `UForm` 的 `readonly`；只读时渲染为纯文本                                                                           |
 
 ## 方法与事件
 
@@ -291,6 +297,36 @@ const data = [
 </template>
 ```
 
+### 远程搜索（data 传函数）
+
+```vue
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+
+import { UTreeSelect } from '@veltra/desktop'
+
+const regionId = shallowRef<string | number>()
+
+// data 传函数即远程搜索：filterable 自动开启，初始以空串调用一次，输入变化以 200ms 防抖调用
+// 函数必须能处理空串（返回默认树），请求失败自行 catch 返回 []
+async function searchRegion(qs: string) {
+  try {
+    const res = await fetch(`/api/regions?q=${encodeURIComponent(qs)}`)
+    return (await res.json()) as Record<string, any>[]
+  } catch {
+    return []
+  }
+}
+</script>
+
+<template>
+  <!-- 搜索请求期间面板内显示加载态；返回的树按 valueKey 匹配回显 -->
+  <UTreeSelect v-model="regionId" :data="searchRegion" placeholder="输入关键字搜索地区" />
+</template>
+```
+
+远程搜索返回的树应保留命中节点的祖先链（返回的是子树，组件按返回结果整棵替换展示，并把结果自动展开）。
+
 ## 注意事项
 
 > [!WARNING]
@@ -298,11 +334,12 @@ const data = [
 > - 在 `<u-form>` 内必须用 `field` 绑定字段，禁止再写 `v-model`。
 > - `v-model` 的值是节点 `valueKey` 字段值（`string | number`），不是节点对象，也不是路径字符串。
 > - `update:text` 是单向通知事件，本库没有 `v-model:text`；展示文案始终由 `data` 反查推导，禁止手工写文案回显。
-> - 没有懒加载：`data` 必须一次性传入全部层级，本库不存在 `load` / `lazy` 属性（不要套用 Element `el-tree-select` 的懒加载写法）。
+> - `data` 传数组时没有懒加载：必须一次性传入全部层级，本库不存在 `load` / `lazy` 属性（不要套用 Element `el-tree-select` 的懒加载写法）；需要按查询词从服务端取数时把 `data` 写成函数。
 > - 内部固定单选（`selectable`）；继承自 `TreeProps` 的 `checkStrictly` / `checkOnClickNode` 在本组件不生效，勾选行为属于 `UMultiTreeSelect`。
 > - `clearable` 默认 `true`，清空后 `modelValue` 为 `''`，不是 `undefined`。
 > - 字段名用顶层 `labelKey` / `valueKey` / `childrenKey` 属性配置，不是 Ant Design 的 `fieldNames` 对象，也不是 `el-tree` 的 `props="{ label, children }"` 对象。
-> - `filterable` 是对已传入 `data` 的本地过滤（`label` 子串匹配、区分大小写），没有 `remote-method` 远程搜索。
+> - `data` 传数组时 `filterable` 是对已传入数据的本地过滤（`label` 子串匹配、区分大小写）；本库没有 `remote-method` 属性，远程搜索用 `data` 传函数（自 1.8.0 起）。
+> - `data` 传函数时初始以空串 `''` 调用一次，函数必须能处理空串；搜索请求期间面板内显示加载态，组件内置竞态守卫，慢的旧响应不会覆盖新查询的结果（自 1.8.0 起）。
 
 ## 常见问题
 

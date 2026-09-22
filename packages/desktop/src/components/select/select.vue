@@ -58,8 +58,11 @@
         单选列表。虚拟化启用时，内容容器 height 由 useVirtualizer 命令式写入；
         此处 content-style 仅承担 grid 相关样式，避免 height 变化触发模板重渲染。
       -->
+      <div v-if="loading" :class="cls.e('loading')">
+        <ULoading type="dual-ring" />
+      </div>
       <u-scroll
-        v-if="options.length"
+        v-else-if="options.length"
         tag="ul"
         :class="cls.e('options')"
         ref="scrollRef"
@@ -137,6 +140,7 @@ import { UDropdown } from '../dropdown'
 import { UEmpty } from '../empty'
 import { UIcon } from '../icon'
 import { UInput } from '../input'
+import { ULoading } from '../loading'
 import { UScroll } from '../scroll'
 import { useKeyboard } from './use-keyboard'
 import { useOptions } from './use-options'
@@ -194,8 +198,14 @@ const filterable = computed(() => {
   return props.filterable || typeof props.options === 'function'
 })
 
-const { queryString, options, allOptions, temOptionsToCreatedOptions, clearCreatedOptions } =
-  useOptions({ props })
+const {
+  queryString,
+  loading,
+  options,
+  allOptions,
+  temOptionsToCreatedOptions,
+  clearCreatedOptions
+} = useOptions({ props })
 
 const dropdownVisible = shallowRef(false)
 

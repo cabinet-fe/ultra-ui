@@ -28,13 +28,15 @@
       </div>
     </CustomCard>
 
-    <!-- <CustomCard width="400px" title="函数选项">
-      <div>自动启用filter属性</div>
+    <CustomCard width="400px" title="函数选项（远程搜索）">
+      <div style="font-size: 12px; color: #666; margin-bottom: 4px">
+        options 传入函数时自动启用过滤：输入触发远程查询（200ms 防抖），初始以空串调用一次
+      </div>
 
-      <u-select v-model="selected" :options="optionsGetter" />
+      <u-select v-model="remoteSelected" :options="optionsGetter" />
     </CustomCard>
 
-    <CustomCard width="400px" title="网格布局">
+    <!-- <CustomCard width="400px" title="网格布局">
       <u-select v-model="selected" :options="options" filterable value-key="value" :grid="{ cols: 4, gap: 10 }"
         v-slot="{ option }">
         <div style="height: 80px; text-align: center">
@@ -91,8 +93,10 @@ const dictOptions = [
 ]
 
 const optionsGetter = async (qs: string) => {
-  if (!qs) return []
-  await sleep(200)
+  await sleep(300)
+  if (!qs) return options.value
   return options.value.filter((o) => o.label.includes(qs))
 }
+
+const remoteSelected = shallowRef()
 </script>

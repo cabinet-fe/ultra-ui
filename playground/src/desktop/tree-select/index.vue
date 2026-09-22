@@ -41,6 +41,14 @@
       </u-card-action>
     </CustomCard>
 
+    <CustomCard width="400px" title="远程搜索（data 传函数）">
+      <div style="font-size: 12px; color: #666; margin-bottom: 8px">
+        data 传入函数时自动启用过滤：输入触发远程查询（200ms 防抖），初始以空串调用一次
+      </div>
+      <u-tree-select v-model="remoteSelected" :data="remoteDataGetter" />
+      <div style="margin-top: 12px; font-size: 13px">选中：{{ remoteSelected ?? '—' }}</div>
+    </CustomCard>
+
     <CustomCard width="480px" title="同步冗余文案（@update:text）">
       <div style="font-size: 12px; color: #666; margin-bottom: 8px">
         v-model 绑定 code；展示文案由 data 推导，经 @update:text 写入冗余 text（勿再
@@ -63,6 +71,7 @@
 </template>
 
 <script setup lang="ts">
+import { sleep } from '@cat-kit/core'
 import { reactive, shallowRef } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'
@@ -131,6 +140,27 @@ setTimeout(() => {
 
 const handleChange = (val, selected) => {
   console.log(val, selected)
+}
+
+/** 远程搜索：模拟 300ms 网络延迟，按 label 过滤并保留命中节点的祖先链 */
+const remoteSelected = shallowRef()
+
+const remoteDataGetter = async (qs: string) => {
+  await sleep(300)
+  if (!qs) return dictTreeData
+
+  const filter = (nodes: any[]): any[] =>
+    nodes
+      .map((node) => {
+        const children = node.children ? filter(node.children) : undefined
+        if (node.label.includes(qs) || children?.length) {
+          return children ? { ...node, children } : node
+        }
+        return null
+      })
+      .filter(Boolean)
+
+  return filter(dictTreeData)
 }
 
 function handleChangeSelect() {

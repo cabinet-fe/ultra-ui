@@ -218,4 +218,82 @@ describe('USelect', () => {
       unmount()
     }
   })
+
+  it('loads options from a remote function with loading state', async () => {
+    let resolveRemote!: (options: Record<string, any>[]) => void
+    const calls: string[] = []
+    const { host, unmount } = mountSelect({
+      options: (qs: string) => {
+        calls.push(qs)
+        return new Promise((resolve) => {
+          resolveRemote = resolve
+        })
+      }
+    })
+
+    try {
+      // 挂载即以空串调用一次
+      expect(calls).toEqual([''])
+
+      await openDropdown(host)
+      expect(document.body.querySelector('.u-select__loading')).toBeTruthy()
+      expect(queryOptions()).toHaveLength(0)
+
+      resolveRemote([{ label: '远程A', value: 'a' }])
+      await sleep(50)
+      expect(document.body.querySelector('.u-select__loading')).toBeFalsy()
+      expect(queryOptions().map((el) => el.textContent)).toEqual(['远程A'])
+    } finally {
+      unmount()
+    }
+  })
+
+  it('queries the remote function on input', async () => {
+    const calls: string[] = []
+    const { host, unmount } = mountSelect({
+      options: (qs: string) => {
+        calls.push(qs)
+        return Promise.resolve(
+          qs ? [{ label: '上海', value: 'shanghai' }] : [{ label: '北京', value: 'beijing' }]
+        )
+      }
+    })
+
+    try {
+      await openDropdown(host)
+      await typeQuery(host, '上海')
+      expect(calls).toEqual(['', '上海'])
+      expect(queryOptions().map((el) => el.textContent)).toEqual(['上海'])
+    } finally {
+      unmount()
+    }
+  })
+
+  it('discards stale remote responses when a newer query resolves first', async () => {
+    const pending: ((options: Record<string, any>[]) => void)[] = []
+    const { host, unmount } = mountSelect({
+      options: (qs: string) =>
+        new Promise((resolve) => {
+          pending.push(resolve)
+        })
+    })
+
+    try {
+      await openDropdown(host)
+      await typeQuery(host, '北')
+      expect(pending).toHaveLength(2)
+
+      // 新查询先返回
+      pending[1]!([{ label: '北京', value: 'beijing' }])
+      await sleep(20)
+      expect(queryOptions().map((el) => el.textContent)).toEqual(['北京'])
+
+      // 慢的旧响应（初始空串查询）后返回，不能覆盖新结果
+      pending[0]!([{ label: '旧数据', value: 'old' }])
+      await sleep(20)
+      expect(queryOptions().map((el) => el.textContent)).toEqual(['北京'])
+    } finally {
+      unmount()
+    }
+  })
 })

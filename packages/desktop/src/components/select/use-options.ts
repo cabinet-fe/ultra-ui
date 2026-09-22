@@ -11,6 +11,8 @@ interface Options {
 interface UseOptionsReturned {
   /** 查询字符串 */
   queryString: ShallowRef<string>
+  /** 远程搜索加载中 */
+  loading: ShallowRef<boolean>
   /** 选项 */
   options: ComputedRef<Record<string, any>[]>
   /** 所有选项 */
@@ -31,6 +33,10 @@ export function useOptions(o: Options): UseOptionsReturned {
 
   /** 筛选 */
   const queryString = shallowRef('')
+
+  const loading = shallowRef(false)
+  /** 远程请求序号；响应返回时序号不一致说明已有更新的请求，结果作废 */
+  let remoteSeq = 0
 
   const remoteOptions = shallowRef<Record<string, any>[]>([])
   const filteredOptions = shallowRef<Record<string, any>[]>([])
@@ -139,9 +145,17 @@ export function useOptions(o: Options): UseOptionsReturned {
   )
 
   const debouncedRemoteFilter = debounce(async (qs: string, propsOptions: Function) => {
-    const options = await propsOptions(queryString.value)
-    remoteOptions.value = options
-    setTempOption(queryString.value, options)
+    const seq = ++remoteSeq
+    loading.value = true
+    try {
+      const options = await propsOptions(qs)
+      // 响应到达时查询词可能已变化或已有更新的请求，过期结果直接丢弃
+      if (seq !== remoteSeq || qs !== queryString.value) return
+      remoteOptions.value = options ?? []
+      setTempOption(qs, remoteOptions.value)
+    } finally {
+      if (seq === remoteSeq) loading.value = false
+    }
   }, 200)
 
   watch(
@@ -162,5 +176,12 @@ export function useOptions(o: Options): UseOptionsReturned {
     { immediate: true }
   )
 
-  return { queryString, options, allOptions, temOptionsToCreatedOptions, clearCreatedOptions }
+  return {
+    queryString,
+    loading,
+    options,
+    allOptions,
+    temOptionsToCreatedOptions,
+    clearCreatedOptions
+  }
 }

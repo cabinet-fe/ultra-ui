@@ -71,15 +71,19 @@
           {{ allExpanded ? '收起全部' : '展开全部' }}
         </u-button>
       </div>
+      <div v-if="remoteLoading" :class="cls.e('loading')">
+        <ULoading type="dual-ring" />
+      </div>
       <!-- 菜单列表 -->
       <u-tree
+        v-else
         v-bind="treeProps"
         v-model:checked="model"
         @update:checked="handleCheck"
         ref="treeRef"
         :class="cls.e('content-tree')"
         checkable
-        :data="data"
+        :data="treeData"
         :slots="slots"
         scroll-to-view
       ></u-tree>
@@ -100,7 +104,7 @@
 </template>
 
 <script lang="ts" setup>
-import { dfs, o } from '@cat-kit/core'
+import { debounce, dfs, o } from '@cat-kit/core'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { ArrowDown, Close } from '@veltra/icons/normal'
 import { bem, fieldKey, FORM_EMPTY_CONTENT } from '@veltra/utils'
@@ -113,6 +117,7 @@ import { UButton } from '../button'
 import { UCheckbox } from '../checkbox'
 import { UDropdown } from '../dropdown'
 import { UIcon } from '../icon'
+import { ULoading } from '../loading'
 import { UTag } from '../tag'
 import { UTree } from '../tree'
 import type { TreeSlotsScope } from '../tree/di'
@@ -148,6 +153,7 @@ const treeProps = computed(() => {
     'label',
     'readonly',
     'modelValue',
+    'data',
     'contentClass',
     'contentStyle',
     'minWidth',
@@ -159,11 +165,56 @@ const emit = defineEmits<MultiTreeSelectEmits>()
 
 const slots = defineSlots<{ default?: (props: TreeSlotsScope) => any }>()
 
-/**过滤 */
+/** 是否可搜索：显式声明或数据源为远程函数 */
+const filterable = computed(() => props.filterable || typeof props.data === 'function')
+
+/** 过滤 */
 const qs = shallowRef('')
-watch(qs, (qs) => {
-  treeRef.value?.filter(qs)
-})
+
+const treeRef = shallowRef<TreeExposed>()
+
+/** 远程搜索返回的树数据 */
+const remoteData = shallowRef<Record<string, any>[]>()
+
+/** 面板渲染的树数据：data 为函数时来自远程搜索，否则为静态数据 */
+const treeData = computed(() => (typeof props.data === 'function' ? remoteData.value : props.data))
+
+const remoteLoading = shallowRef(false)
+/** 远程请求序号；响应返回时序号不一致说明已有更新的请求，结果作废 */
+let remoteSeq = 0
+
+const debouncedRemoteSearch = debounce(
+  async (
+    query: string,
+    dataFn: (qs: string) => Promise<Record<string, any>[]> | Record<string, any>[]
+  ) => {
+    const seq = ++remoteSeq
+    remoteLoading.value = true
+    try {
+      const data = await dataFn(query)
+      // 响应到达时查询词可能已变化或已有更新的请求，过期结果直接丢弃
+      if (seq !== remoteSeq || query !== qs.value) return
+      remoteData.value = data ?? []
+      // 搜索结果展示完整命中路径，与本地过滤自动展开祖先的行为对齐
+      if (query) nextTick(() => treeRef.value?.expandAll())
+    } finally {
+      if (seq === remoteSeq) remoteLoading.value = false
+    }
+  },
+  200
+)
+
+watch(
+  [qs, () => props.data],
+  ([query, data]) => {
+    if (typeof data === 'function') {
+      debouncedRemoteSearch(query, data)
+      return
+    }
+    treeRef.value?.filter(query)
+  },
+  { immediate: true }
+)
 
 const model = defineModel<(string | number)[]>({ default: () => [] })
 
@@ -178,8 +229,6 @@ const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, prop
 const showClear = computed(() => {
   return props.clearable && model.value?.length && hovered.value && !disabled.value
 })
-
-const treeRef = shallowRef<TreeExposed>()
 
 const dropdownRef = shallowRef<DropdownExposed>()
 
@@ -237,7 +286,7 @@ const handleClear = () => {
 const keyDicts = shallowRef(new Map<string | number, Record<string, any>>())
 
 watch(
-  () => props.data,
+  treeData,
   (data) => {
     if (!data?.length) {
       keyDicts.value = new Map()

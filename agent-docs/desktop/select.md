@@ -297,6 +297,7 @@ async function submit() {
 > - `v-model` 绑定的是选中项 `valueKey` 字段的值（标量），不是整个选项对象；需要对象时监听 `@change`。
 > - 展示文案始终由 `options` 推导；同步冗余文案用 `@update:text`，本库没有 `v-model:text`。
 > - `options` 传函数时 `filterable` 被强制开启，且初始以空串 `''` 调用一次，函数必须能处理空串。
+> - 远程搜索请求期间面板内显示加载态；组件内置竞态守卫，慢的旧响应不会覆盖新查询的结果（自 1.8.0 起）。
 > - 本库 `options` 是平铺数组，没有选项分组能力（不是 Element Plus 的 `el-option-group` 模式）。
 > - 选项数超过 80 自动启用虚拟滚动；设置 `grid` 后虚拟滚动失效，禁止将 `grid` 用于大量数据。
 > - `SelectExposed.infoText` 仅在类型中声明，当前源码未调用 `defineExpose`，模板 ref 上取不到该值；需要文案时用 `@update:text`。

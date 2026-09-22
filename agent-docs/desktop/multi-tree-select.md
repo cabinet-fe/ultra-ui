@@ -14,10 +14,12 @@ keywords:
     expandAll,
     childrenKey,
     field,
+    data,
     全选,
     级联勾选,
     严格勾选,
     标签折叠,
+    远程搜索,
     树形数据,
     多选树
   ]
@@ -107,12 +109,16 @@ export interface FormComponentProps {
   rules?: ValidateRule
 }
 
-/** 树形多选属性；TreeProps 中仅 selected / checked / selectable / checkable 被移除（组件本身即勾选多选） */
+/** 树形多选属性；TreeProps 中仅 selected / checked / selectable / checkable / data 被移除（组件本身即勾选多选；data 重声明以支持远程搜索函数） */
 export interface MultiTreeSelectProps extends FormComponentProps {
   /** 勾选节点的值数组 */
   modelValue?: (string | number)[]
-  /** 数据源，树形数组 */
-  data?: Record<string, any>[]
+  /**
+   * 数据源。传入函数时启用远程搜索：函数按查询词返回匹配的树，
+   * 初始以空串调用一次，输入变化以 200ms 防抖调用，此时 filterable 被强制开启
+   */
+  data?:
+    Record<string, any>[] | ((qs: string) => Promise<Record<string, any>[]> | Record<string, any>[])
   /** 标签字段名，默认 'label' */
   labelKey?: string
   /** 值字段名，默认 'value' */
@@ -165,34 +171,34 @@ export type MultiTreeSelectExposed = {}
 
 ## 参数说明
 
-| 参数                | 类型                              | 默认             | 必填 | 约束                                                                                    |
-| ------------------- | --------------------------------- | ---------------- | :--: | --------------------------------------------------------------------------------------- |
-| `v-model`           | `(string \| number)[]`            | `[]`             |  否  | 每个元素必须等于 `data` 中某节点的 `valueKey` 字段值；匹配不到的值在回显时被忽略        |
-| `data`              | `Record<string, any>[]`           | `[]`             |  否  | 树形数组；无懒加载，必须一次性传入全部层级                                              |
-| `labelKey`          | `string`                          | `'label'`        |  否  | 标签文案读取该字段                                                                      |
-| `valueKey`          | `string`                          | `'value'`        |  否  | 值比对与提交读取该字段                                                                  |
-| `childrenKey`       | `string`                          | `'children'`     |  否  | 子级数组字段名                                                                          |
-| `expandAll`         | `boolean`                         | `false`          |  否  | 初始展开全部节点；面板内有「展开全部 / 收起全部」按钮                                   |
-| `expandOnClickNode` | `boolean`                         | `false`          |  否  | 点击节点文本是否展开/收缩                                                               |
-| `disabledNode`      | `(item, node) => boolean`         | —                |  否  | 返回 `true` 的节点不可勾选                                                              |
-| `checkStrictly`     | `boolean`                         | `false`          |  否  | 父子勾选策略，见「方法与事件」                                                          |
-| `checkOnClickNode`  | `boolean`                         | `true`           |  否  | 点击节点文本即切换勾选；`false` 时仅点击 checkbox                                       |
-| `placeholder`       | `string`                          | `'请选择'`       |  否  | 无选中值时的占位文字                                                                    |
-| `clearable`         | `boolean`                         | `true`           |  否  | 悬停且已有勾选时显示清除按钮；清空后值为 `[]`                                           |
-| `filterable`        | `boolean`                         | `false`          |  否  | 开启后标签区出现输入框，按节点 `label` 做子串匹配（区分大小写），命中节点的祖先自动展开 |
-| `visibilityLimit`   | `number`                          | `3`              |  否  | 可见标签上限，超出折叠为 `+N`；负数按 `0`；禁用/只读时显示全部                          |
-| `minWidth`          | `string`                          | `'280px'`        |  否  | 面板最小宽度                                                                            |
-| `width`             | `string`                          | 跟随触发元素宽度 |  否  | 面板宽度                                                                                |
-| `contentStyle`      | `CSSProperties \| string`         | —                |  否  | 面板容器内联样式                                                                        |
-| `contentClass`      | `unknown`                         | —                |  否  | 面板容器类名                                                                            |
-| `size`              | `'small' \| 'default' \| 'large'` | `'default'`      |  否  | 组件未设置时继承 `UForm` 的 `size`                                                      |
-| `label`             | `string`                          | —                |  否  | 标签文字，仅 `UForm` / `UFormItem` 内生效                                               |
-| `field`             | `string`                          | —                |  否  | `UForm` 内必须用它绑定字段；写了 `field` 禁止再写 `v-model`                             |
-| `rules`             | `ValidateRule`                    | —                |  否  | 校验规则，仅 `UForm` 内生效                                                             |
-| `tips`              | `string`                          | —                |  否  | 表单内提示文字，仅 `UForm` 内生效                                                       |
-| `span`              | `number \| 'full' \| 响应式对象`  | —                |  否  | 所占列宽，仅 `UForm` 内生效                                                             |
-| `disabled`          | `boolean`                         | `false`          |  否  | 未设置时继承 `UForm`；禁用时标签不可关闭                                                |
-| `readonly`          | `boolean`                         | `false`          |  否  | 未设置时继承 `UForm`；只读时仅展示已选标签，无下拉                                      |
+| 参数                | 类型                                                                                                 | 默认             | 必填 | 约束                                                                                                                             |
+| ------------------- | ---------------------------------------------------------------------------------------------------- | ---------------- | :--: | -------------------------------------------------------------------------------------------------------------------------------- |
+| `v-model`           | `(string \| number)[]`                                                                               | `[]`             |  否  | 每个元素必须等于 `data` 中某节点的 `valueKey` 字段值；匹配不到的值在回显时被忽略                                                 |
+| `data`              | `Record<string, any>[] \| ((qs: string) => Promise<Record<string, any>[]> \| Record<string, any>[])` | `[]`             |  否  | 数组为本地数据，须一次性传入全部层级；传函数时启用远程搜索，`filterable` 强制开启，初始以空串调用一次，输入变化以 200ms 防抖调用 |
+| `labelKey`          | `string`                                                                                             | `'label'`        |  否  | 标签文案读取该字段                                                                                                               |
+| `valueKey`          | `string`                                                                                             | `'value'`        |  否  | 值比对与提交读取该字段                                                                                                           |
+| `childrenKey`       | `string`                                                                                             | `'children'`     |  否  | 子级数组字段名                                                                                                                   |
+| `expandAll`         | `boolean`                                                                                            | `false`          |  否  | 初始展开全部节点；面板内有「展开全部 / 收起全部」按钮                                                                            |
+| `expandOnClickNode` | `boolean`                                                                                            | `false`          |  否  | 点击节点文本是否展开/收缩                                                                                                        |
+| `disabledNode`      | `(item, node) => boolean`                                                                            | —                |  否  | 返回 `true` 的节点不可勾选                                                                                                       |
+| `checkStrictly`     | `boolean`                                                                                            | `false`          |  否  | 父子勾选策略，见「方法与事件」                                                                                                   |
+| `checkOnClickNode`  | `boolean`                                                                                            | `true`           |  否  | 点击节点文本即切换勾选；`false` 时仅点击 checkbox                                                                                |
+| `placeholder`       | `string`                                                                                             | `'请选择'`       |  否  | 无选中值时的占位文字                                                                                                             |
+| `clearable`         | `boolean`                                                                                            | `true`           |  否  | 悬停且已有勾选时显示清除按钮；清空后值为 `[]`                                                                                    |
+| `filterable`        | `boolean`                                                                                            | `false`          |  否  | 开启后标签区出现输入框，按节点 `label` 做子串匹配（区分大小写），命中节点的祖先自动展开；`data` 传函数时强制开启（无需设置）     |
+| `visibilityLimit`   | `number`                                                                                             | `3`              |  否  | 可见标签上限，超出折叠为 `+N`；负数按 `0`；禁用/只读时显示全部                                                                   |
+| `minWidth`          | `string`                                                                                             | `'280px'`        |  否  | 面板最小宽度                                                                                                                     |
+| `width`             | `string`                                                                                             | 跟随触发元素宽度 |  否  | 面板宽度                                                                                                                         |
+| `contentStyle`      | `CSSProperties \| string`                                                                            | —                |  否  | 面板容器内联样式                                                                                                                 |
+| `contentClass`      | `unknown`                                                                                            | —                |  否  | 面板容器类名                                                                                                                     |
+| `size`              | `'small' \| 'default' \| 'large'`                                                                    | `'default'`      |  否  | 组件未设置时继承 `UForm` 的 `size`                                                                                               |
+| `label`             | `string`                                                                                             | —                |  否  | 标签文字，仅 `UForm` / `UFormItem` 内生效                                                                                        |
+| `field`             | `string`                                                                                             | —                |  否  | `UForm` 内必须用它绑定字段；写了 `field` 禁止再写 `v-model`                                                                      |
+| `rules`             | `ValidateRule`                                                                                       | —                |  否  | 校验规则，仅 `UForm` 内生效                                                                                                      |
+| `tips`              | `string`                                                                                             | —                |  否  | 表单内提示文字，仅 `UForm` 内生效                                                                                                |
+| `span`              | `number \| 'full' \| 响应式对象`                                                                     | —                |  否  | 所占列宽，仅 `UForm` 内生效                                                                                                      |
+| `disabled`          | `boolean`                                                                                            | `false`          |  否  | 未设置时继承 `UForm`；禁用时标签不可关闭                                                                                         |
+| `readonly`          | `boolean`                                                                                            | `false`          |  否  | 未设置时继承 `UForm`；只读时仅展示已选标签，无下拉                                                                               |
 
 ## 方法与事件
 
@@ -340,6 +346,36 @@ const data = [
 </template>
 ```
 
+### 远程搜索（data 传函数）
+
+```vue
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+
+import { UMultiTreeSelect } from '@veltra/desktop'
+
+const orgIds = shallowRef<(string | number)[]>([])
+
+// data 传函数即远程搜索：filterable 自动开启，初始以空串调用一次，输入变化以 200ms 防抖调用
+// 函数必须能处理空串（返回默认树），请求失败自行 catch 返回 []
+async function searchOrg(qs: string) {
+  try {
+    const res = await fetch(`/api/orgs?q=${encodeURIComponent(qs)}`)
+    return (await res.json()) as Record<string, any>[]
+  } catch {
+    return []
+  }
+}
+</script>
+
+<template>
+  <!-- 搜索请求期间面板内显示加载态；返回的树按 valueKey 匹配回显 -->
+  <UMultiTreeSelect v-model="orgIds" :data="searchOrg" placeholder="输入关键字搜索组织" />
+</template>
+```
+
+远程搜索返回的树应保留命中节点的祖先链（返回的是子树，组件按返回结果整棵替换展示，并把结果自动展开）。
+
 ## 注意事项
 
 > [!WARNING]
@@ -349,7 +385,8 @@ const data = [
 > - 默认父子联动：勾选父级会把全部子孙值一并写入 `modelValue`；只要父级本身、不要子孙时必须设 `check-strictly` 并自行处理提交值。
 > - 公开类型不含 `checkable` / `selectable`（已从继承中移除）：本组件本身即勾选多选，传这两个属性无效。
 > - 清空按钮只触发 `clear`，不触发 `change`；清空后 `modelValue` 为 `[]`。
-> - 没有懒加载：`data` 必须一次性传入全部层级，本库不存在 `load` / `lazy` 属性。
+> - `data` 传数组时没有懒加载：必须一次性传入全部层级，本库不存在 `load` / `lazy` 属性；需要按查询词从服务端取数时把 `data` 写成函数。
+> - `data` 传函数时初始以空串 `''` 调用一次，函数必须能处理空串；搜索请求期间面板内显示加载态，组件内置竞态守卫，慢的旧响应不会覆盖新查询的结果（自 1.8.0 起）。
 > - 标签折叠是本组件内置的 `+N`（由 `visibilityLimit` 控制），不是其他组件库的 `collapse-tags` 属性。
 
 ## 常见问题

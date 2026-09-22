@@ -5,8 +5,19 @@ import type { TreeProps } from './tree'
 
 /** 树形选择器组件属性 */
 export interface TreeSelectProps
-  extends FormComponentProps, Omit<TreeProps, 'selected' | 'checked' | 'selectable' | 'checkable'> {
+  extends
+    FormComponentProps,
+    Omit<TreeProps, 'selected' | 'checked' | 'selectable' | 'checkable' | 'data'> {
   modelValue?: string | number
+
+  /**
+   * 树数据
+   * @description 如果传入一个函数，那么filterable会被强制启用；
+   * 函数按查询词返回匹配的树，初始以空串调用一次（加载默认树）
+   */
+  data?:
+    | Record<string, any>[]
+    | ((qs: string) => Promise<Record<string, any>[]> | Record<string, any>[])
 
   /** 自定义占位文字 */
   placeholder?: string

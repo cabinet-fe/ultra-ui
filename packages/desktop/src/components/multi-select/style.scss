@@ -170,4 +170,10 @@ $root-name: multi-select;
     text-align: center;
     padding: fn.use-var(gap, default) 0;
   }
+
+  @include m.e(loading) {
+    // 与选项内容区同高，加载期间保持面板形态，避免塌缩成贴着输入框的小条
+    @include m.flex($justify: center, $align: center);
+    min-height: 240px;
+  }
 }
