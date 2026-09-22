@@ -5,53 +5,113 @@
 $root-name: expression-editor;
 
 @include m.b($root-name) {
+  // 根节点只做布局（提示行在视觉盒之外），视觉盒由 __shell 承担
   position: relative;
-  background-color: fn.use-var(bg-color, top);
-  border-width: fn.use-var(border, width);
-  border-style: fn.use-var(border, style);
-  border-color: fn.use-var(border, muted-color);
-  border-radius: fn.use-var(radius, default);
   width: 100%;
 
-  @include m.is-not(disabled, readonly) {
-    &:hover {
-      border-color: fn.use-var(color, primary);
-    }
-
-    &:focus-within {
-      border-color: fn.use-var(color, primary);
-      outline: none;
-    }
-  }
-
-  @include m.is('disabled') {
-    background-color: fn.use-var(color, disabled);
-    cursor: not-allowed;
+  @include m.e(shell) {
+    background-color: fn.use-var(bg-color, top);
+    border-width: fn.use-var(border, width);
+    border-style: fn.use-var(border, style);
     border-color: fn.use-var(border, muted-color);
+    border-radius: fn.use-var(radius, default);
+    transition:
+      border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
 
-    &:hover {
-      border-color: fn.use-var(border, muted-color);
+    @include m.is-not(disabled, readonly) {
+      &:hover {
+        border-color: fn.use-var(color, primary);
+      }
+
+      &:focus-within {
+        border-color: fn.use-var(color, primary);
+        box-shadow: fn.use-var(focus-ring);
+        outline: none;
+      }
     }
-  }
 
-  @include m.is('readonly') {
-    background-color: fn.use-var(bg-color, middle);
-    cursor: default;
-    border-color: fn.use-var(border, muted-color);
-    user-select: text;
-
-    &:hover {
+    @include m.is('disabled') {
+      background-color: fn.use-var(color, disabled);
+      cursor: not-allowed;
       border-color: fn.use-var(border, muted-color);
+
+      &:hover {
+        border-color: fn.use-var(border, muted-color);
+      }
+    }
+
+    @include m.is('readonly') {
+      background-color: fn.use-var(bg-color, middle);
+      cursor: default;
+      border-color: fn.use-var(border, muted-color);
+      user-select: text;
+
+      &:hover {
+        border-color: fn.use-var(border, muted-color);
+      }
+    }
+
+    @include m.size using ($size) {
+      min-height: fn.use-var(form-component-height, $size);
+      padding: fn.use-var(gap, $size);
+
+      @include m.bem($root-name, placeholder) {
+        font-size: fn.use-var(font-size-main, $size);
+      }
+
+      @include m.bem($root-name, container) {
+        font-size: fn.use-var(font-size-main, $size);
+      }
     }
   }
 
   @include m.e(placeholder) {
     position: absolute;
+    top: 0;
+    left: 0;
     color: fn.use-var(text-color, placeholder);
     pointer-events: none;
     user-select: none;
     transition: opacity 0.2s ease;
     font-weight: 400;
+  }
+
+  // 提示 + 输入区的定位层：placeholder 相对它对齐，hint 出现时不至于错位
+  @include m.e(body) {
+    position: relative;
+  }
+
+  // 编辑器上方的 `@` 使用提示（空内容时显示），位于边框盒之外
+  @include m.e(hint) {
+    font-size: fn.use-var(font-size-main, small);
+    color: fn.use-var(text-color, placeholder);
+    user-select: none;
+    margin-bottom: 4px;
+  }
+
+  // mention 面板定位锚点：跟随 `@` 字符，零尺寸不参与绘制
+  @include m.e(mention-anchor) {
+    position: absolute;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+  }
+
+  // 键位提示（编辑器 hint 与面板 footer 共用）
+  @include m.e(hint, picker-hint) {
+    kbd {
+      display: inline-block;
+      min-width: 18px;
+      padding: 1px 4px;
+      border: fn.use-var(border);
+      border-radius: fn.use-var(radius, small);
+      font-size: 11px;
+      line-height: 1.4;
+      text-align: center;
+      color: fn.use-var(text-color, second);
+      background-color: fn.use-var(bg-color, top);
+    }
   }
 
   @include m.e(container) {
@@ -117,70 +177,92 @@ $root-name: expression-editor;
   }
 
   // ─── 变量选择面板 ──────────────────────────────────────────
+  // 面板以 tip 为浮层载体，但按库内标准下拉面板形态渲染：
+  // 负 margin 抵消 tip 内容自带的 gap 内边距，由 picker 自绘边框卡片
   @include m.e(picker) {
-    min-width: 220px;
+    margin: calc(#{fn.use-var(gap, default)} * -1);
+    min-width: 240px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     background-color: fn.use-var(bg-color, top);
+    border: fn.use-var(border);
+    border-radius: fn.use-var(radius, default);
+    backdrop-filter: fn.use-var(bg-filter);
+    -webkit-backdrop-filter: fn.use-var(bg-filter);
   }
 
   @include m.e(picker-body) {
+    flex: 1 1 auto;
+    min-height: 0;
     display: flex;
     align-items: stretch;
-    min-height: 200px;
   }
 
   @include m.e(panel) {
     flex: 1 1 auto;
     min-width: 0;
     max-height: 320px;
+    display: flex;
+    flex-direction: column;
   }
 
   @include m.e(panel-list) {
-    height: 100%;
-    min-height: 200px;
+    flex: 1 1 auto;
+    min-height: 0;
   }
 
   @include m.e(panel-content) {
-    padding: 4px 0;
+    padding: 4px;
   }
 
   @include m.e(item) {
-    padding: 6px 12px;
-    cursor: pointer;
-    user-select: none;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 8px;
-    transition:
-      background-color 0.12s ease,
-      color 0.12s ease;
-    color: fn.use-var(text-color, main);
-    font-size: 13px;
-    line-height: 1.4;
+    gap: fn.use-var(gap, default);
+    height: fn.use-var(form-component-height, default);
+    padding: 0 fn.use-var(gap, default);
     border-radius: fn.use-var(radius, small);
-    margin: 1px 4px;
+    font-size: fn.use-var(font-size-main, default);
+    color: fn.use-var(text-color, main);
+    cursor: pointer;
+    user-select: none;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
 
     @include m.is(active) {
-      background-color: fn.use-var(color, primary);
-      color: fn.use-var(text-color, white);
-
-      @include m.bem($root-name, item-expand) {
-        color: fn.use-var(text-color, white);
-      }
+      background-color: fn.use-var(bg-color, hover);
+      color: fn.use-var(text-color, title);
     }
   }
 
   @include m.e(item-label) {
     flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    min-width: 0;
+    @include m.ellipsis;
   }
 
   @include m.e(item-expand) {
     flex-shrink: 0;
     color: fn.use-var(text-color, placeholder);
     font-size: 12px;
+    // 扩大点击热区：u-icon 是固定 1em 盒（全局 border-box），padding 会把 svg 挤成 0 宽，
+    // 这里改回 content-box 让字形保持原尺寸，再用负 margin 抵消布局占位
+    box-sizing: content-box;
+    padding: 6px;
+    margin: -6px;
+    border-radius: fn.use-var(radius, small);
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
+
+    &:hover {
+      color: fn.use-var(color, primary);
+      background-color: fn.use-var(bg-color, hover);
+    }
   }
 
   @include m.e(empty) {
@@ -189,30 +271,51 @@ $root-name: expression-editor;
     text-align: center;
   }
 
+  // 面板底部键盘操作提示
+  @include m.e(picker-hint) {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+    padding: 6px 10px;
+    border-top: fn.use-var(border);
+    font-size: fn.use-var(font-size-main, small);
+    color: fn.use-var(text-color, placeholder);
+    user-select: none;
+
+    span {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+    }
+  }
+
   // ─── 面包屑 ───────────────────────────────────────────────
   @include m.e(breadcrumbs) {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    padding: 6px 10px;
+    gap: 2px;
+    padding: 6px 8px;
+    background-color: fn.use-var(bg-color, middle);
     border-bottom: fn.use-var(border);
-    font-size: 12px;
+    font-size: fn.use-var(font-size-main, small);
     color: fn.use-var(text-color, second);
   }
 
   @include m.e(breadcrumb-item) {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 2px;
   }
 
   @include m.e(breadcrumb-link) {
+    padding: 3px 6px;
+    border-radius: fn.use-var(radius, small);
     cursor: pointer;
     transition:
-      color 0.12s ease,
-      background-color 0.12s ease;
-    padding: 2px 6px;
-    border-radius: fn.use-var(radius, small);
+      color 0.15s ease,
+      background-color 0.15s ease;
 
     &:hover {
       color: fn.use-var(color, primary);
@@ -226,7 +329,7 @@ $root-name: expression-editor;
   }
 
   @include m.e(breadcrumb-separator) {
-    font-size: 10px;
+    font-size: 12px;
     color: fn.use-var(text-color, placeholder);
   }
 
@@ -236,7 +339,7 @@ $root-name: expression-editor;
     border-left: fn.use-var(border);
     padding: 8px 12px;
     background-color: fn.use-var(bg-color, middle);
-    font-size: 12px;
+    font-size: fn.use-var(font-size-main, small);
   }
 
   @include m.e(path-preview-title) {
@@ -257,6 +360,8 @@ $root-name: expression-editor;
     gap: 4px;
     line-height: 1.6;
     color: fn.use-var(text-color, main);
+    // 层级缩进由模板传入的 --depth 驱动
+    padding-left: calc(var(--depth, 0) * 12px);
 
     @include m.is(active) {
       color: fn.use-var(color, primary);
@@ -264,28 +369,8 @@ $root-name: expression-editor;
     }
   }
 
-  @include m.e(path-tree-branch) {
-    color: fn.use-var(text-color, placeholder);
-  }
-
   @include m.e(path-tree-label) {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  @include m.size using ($size) {
-    min-height: fn.use-var(form-component-height, $size);
-    padding: fn.use-var(gap, $size);
-
-    @include m.bem($root-name, placeholder) {
-      top: fn.use-var(gap, $size);
-      left: fn.use-var(gap, $size);
-      font-size: fn.use-var(font-size-main, $size);
-    }
-
-    @include m.bem($root-name, container) {
-      font-size: fn.use-var(font-size-main, $size);
-    }
+    min-width: 0;
+    @include m.ellipsis;
   }
 }

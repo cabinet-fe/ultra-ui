@@ -1,17 +1,27 @@
 <template>
-  <div :class="className">
-    <div
-      ref="container"
-      :class="cls.e('container')"
-      :contenteditable="!readonly && !disabled"
-      :data-empty="isEmpty || undefined"
-      :data-placeholder="props.placeholder"
-      @keydown="onKeydown"
-      @blur="onBlur"
-    ></div>
+  <div ref="rootEl" :class="cls.b">
+    <!-- 提示行独立在边框盒（shell）之外 -->
+    <div v-if="showHint" :class="cls.e('hint')">输入 <kbd>@</kbd> 唤起变量面板</div>
 
-    <div v-if="showPlaceholder" :class="cls.e('placeholder')">
-      {{ props.placeholder }}
+    <div :class="shellClass">
+      <div :class="cls.e('body')">
+        <div
+          ref="container"
+          :class="cls.e('container')"
+          :contenteditable="!readonly && !disabled"
+          :data-empty="isEmpty || undefined"
+          :data-placeholder="props.placeholder"
+          @keydown="onKeydown"
+          @blur="onBlur"
+        ></div>
+
+        <div v-if="showPlaceholder" :class="cls.e('placeholder')">
+          {{ props.placeholder }}
+        </div>
+      </div>
+
+      <!-- mention 面板的定位锚点：跟随 `@` 字符位置（见 positionMentionAnchor） -->
+      <span ref="mentionAnchor" :class="cls.e('mention-anchor')" aria-hidden="true"></span>
     </div>
 
     <VariablePicker
@@ -63,11 +73,14 @@ const { formProps } = injectFormContext()
 const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props])
 
 const containerRef = useTemplateRef<HTMLDivElement>('container')
+const rootElRef = useTemplateRef<HTMLDivElement>('rootEl')
+const mentionAnchorRef = useTemplateRef<HTMLSpanElement>('mentionAnchor')
 const pickerRef = useTemplateRef<{ handleKeydown: (e: KeyboardEvent) => boolean }>('pickerRef')
 
-const className = computed(() => [
-  cls.b,
-  cls.m(size.value),
+/** 视觉盒（边框 / 背景 / 聚焦光晕 / 尺寸态）挂在 shell 上，根节点只做布局 */
+const shellClass = computed(() => [
+  cls.e('shell'),
+  cls.em('shell', size.value),
   bem.is('disabled', disabled.value),
   bem.is('readonly', readonly.value)
 ])
@@ -80,6 +93,7 @@ const mention: MentionAPI = createMention()
 const currentDoc = shallowRef<Doc>([])
 const isEmpty = computed(() => currentDoc.value.length === 0)
 const showPlaceholder = computed(() => isEmpty.value && !disabled.value)
+const showHint = computed(() => isEmpty.value && !disabled.value && !readonly.value)
 
 const pickerMode = shallowRef<'mention' | 'reselect' | null>(null)
 const pickerTriggerDom = shallowRef<HTMLElement | undefined>(undefined)
@@ -87,6 +101,18 @@ const reselectingSegIdx = shallowRef<number | null>(null)
 const pickerFilter = shallowRef('')
 
 const pickerVisible = computed(() => pickerMode.value !== null)
+
+/** 把 mention 锚点移到 `@` 字符下方，面板据此定位 */
+function positionMentionAnchor(anchorOffset: number) {
+  const rootEl = rootElRef.value
+  const anchor = mentionAnchorRef.value
+  const rect = editorRef.value?.getRectAtOffset(anchorOffset)
+  if (!rootEl || !anchor || !rect) return
+  // absolute 定位以 padding box 为基准，需扣除根节点边框宽度
+  const rootRect = rootEl.getBoundingClientRect()
+  anchor.style.left = `${rect.left - rootRect.left - rootEl.clientLeft}px`
+  anchor.style.top = `${rect.bottom - rootRect.top - rootEl.clientTop}px`
+}
 
 function syncMention() {
   const editor = editorRef.value
@@ -97,7 +123,8 @@ function syncMention() {
   if (state) {
     pickerMode.value = 'mention'
     pickerFilter.value = state.filter
-    pickerTriggerDom.value = containerRef.value ?? undefined
+    positionMentionAnchor(state.anchorOffset)
+    pickerTriggerDom.value = mentionAnchorRef.value ?? containerRef.value ?? undefined
   } else if (pickerMode.value === 'mention') {
     closePicker()
   }
@@ -135,6 +162,9 @@ onMounted(() => {
       pickerFilter.value = ''
       pickerTriggerDom.value = chipEl
       reselectingSegIdx.value = segIndex
+      // chip 的 mousedown 被 preventDefault，编辑器没有焦点时点击 chip 焦点不会转移，
+      // 键盘导航依赖 container 的 keydown，这里主动把焦点拉回编辑器
+      containerRef.value?.focus()
     }
   })
   editorRef.value = editor

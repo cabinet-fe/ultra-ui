@@ -44,6 +44,11 @@ export interface EditorAPI {
   /** 把光标设置到指定偏移（不会修改模型） */
   setCaretOffset(offset: number): void
   /**
+   * 取序列化偏移处字符的视口矩形（mention 锚点定位用）。
+   * 偏移落在 text 段上返回该字符矩形；落在 chip 上返回 chip 元素矩形；越界返回 null。
+   */
+  getRectAtOffset(offset: number): DOMRect | null
+  /**
    * 用一个 var chip 替换 [start, end) 区间。
    * 调用方通常在 mention 选中时用：start = `@` 起点、end = 当前光标。
    */
@@ -321,6 +326,28 @@ export function createEditor(opts: EditorOptions): EditorAPI {
     return null
   }
 
+  function getRectAtOffset(offset: number): DOMRect | null {
+    let pos = 0
+    for (const child of Array.from(opts.container.childNodes)) {
+      const len = childSerialLength(child)
+      if (offset >= pos && offset < pos + len) {
+        if (isChipElement(child)) return (child as HTMLElement).getBoundingClientRect()
+        const textNode = firstTextDescendant(child)
+        if (!textNode) return (child as HTMLElement).getBoundingClientRect()
+        const local = Math.min(offset - pos, textNode.data.length)
+        const range = document.createRange()
+        range.setStart(textNode, local)
+        range.setEnd(textNode, Math.min(local + 1, textNode.data.length))
+        const rects = range.getClientRects()
+        return rects.length > 0
+          ? (rects[0] as DOMRect)
+          : (child as HTMLElement).getBoundingClientRect()
+      }
+      pos += len
+    }
+    return null
+  }
+
   /** input 后：从 DOM 反推 doc，并触发 onChange（如有变化）。 */
   function syncFromDOM(): void {
     if (composing) return
@@ -478,6 +505,7 @@ export function createEditor(opts: EditorOptions): EditorAPI {
     },
     getCaretOffset,
     setCaretOffset: setCaret,
+    getRectAtOffset,
     replaceRangeWithVar,
     replaceVarAt,
     rerender: () => render(),

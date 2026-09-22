@@ -6,9 +6,8 @@
         v-for="(node, i) in path"
         :key="`${i}-${node.value || node.label}`"
         :class="[cls.e('path-tree-item'), bem.is('active', i === path.length - 1)]"
-        :style="{ paddingLeft: `${i * 14}px` }"
+        :style="{ '--depth': i }"
       >
-        <span v-if="i > 0" :class="cls.e('path-tree-branch')">└</span>
         <span :class="cls.e('path-tree-label')">{{ node.label }}</span>
       </li>
     </ul>

@@ -3,7 +3,10 @@
     <h3>表达式编辑器示例</h3>
     <p>新版交互（Lexical 已移除）：</p>
     <ul>
-      <li>键入 <code>@</code> 唤起变量选择面板。<code>@filter</code> 后键入字符即时过滤。</li>
+      <li>
+        键入 <code>@</code> 唤起变量选择面板。<code>@filter</code>
+        后键入字符即时过滤。
+      </li>
       <li>
         面板键盘：<strong>↑↓</strong> 移动焦点；<strong>←</strong> 返回上一级；<strong
           >→ / Enter</strong
@@ -11,13 +14,12 @@
         进入下一级或选中（行为依 <code>selectableLevels</code>）。
       </li>
       <li>
-        <strong>Esc / 空格 / ←→</strong> 退出 mention，<code>@filter</code> 文本保留为普通字符。
+        <strong>Esc / 空格 / ←→</strong> 退出 mention，<code>@filter</code>
+        文本保留为普通字符。
       </li>
       <li>
-        变量 chip：<strong>hover</strong> 出现 ×；<strong>点击 chip 主体</strong>原地重选；<strong
-          >点击 ×</strong
-        >
-        直接删除。
+        变量 chip：<strong>点击 chip 主体</strong>原地重选；<strong>Backspace</strong>
+        在 chip 边界一次删除整个 chip。
       </li>
       <li>原生方向键即可跨 chip 移动光标，Backspace 在 chip 边界一次删除整个 chip。</li>
     </ul>
@@ -39,6 +41,11 @@
         selectable-levels="any"
         placeholder="@ 触发，分支项 Enter 选中分支本身、→ 进入下级"
       />
+    </div>
+
+    <div style="margin-bottom: 20px">
+      <h4>长列表（验证面板内滚动与键盘导航）</h4>
+      <u-expression-editor v-model="longListExpr" :variables="manyVariables" />
     </div>
 
     <div style="margin-bottom: 20px">
@@ -71,6 +78,12 @@ const expression = shallowRef(
   '你好{form.user.name}, 欢迎来到{form.company.name}，入职{form.department.name}为{form.position}职位'
 )
 const anyLevelsExpr = shallowRef('选中整个分支：{form.user}')
+const longListExpr = shallowRef('')
+
+const manyVariables = Array.from({ length: 60 }, (_, i) => ({
+  label: `变量${String(i + 1).padStart(2, '0')}`,
+  value: `long.item${i + 1}`
+}))
 
 const variables = [
   {

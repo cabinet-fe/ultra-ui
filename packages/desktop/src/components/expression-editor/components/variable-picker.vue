@@ -9,7 +9,7 @@
     @update:visible="handleVisibleChange($event)"
   >
     <template #content>
-      <div :class="cls.e('picker')" @mousedown.prevent>
+      <div ref="root" :class="cls.e('picker')" @mousedown.prevent>
         <!-- 面包屑：仅逐级模式且非根级显示 -->
         <div v-if="!isFlat && navPath.length > 0" :class="cls.e('breadcrumbs')">
           <span :class="cls.e('breadcrumb-item')">
@@ -39,7 +39,12 @@
 
         <div :class="cls.e('picker-body')">
           <div :class="cls.e('panel')" v-if="currentList.length > 0">
-            <u-scroll tag="ul" :class="cls.e('panel-list')" :content-class="cls.e('panel-content')">
+            <u-scroll
+              ref="listScroll"
+              tag="ul"
+              :class="cls.e('panel-list')"
+              :content-class="cls.e('panel-content')"
+            >
               <li
                 v-for="(item, idx) in currentList"
                 :key="`${idx}-${item.value}`"
@@ -49,7 +54,12 @@
                 @mouseenter="activeIndex = idx"
               >
                 <span :class="cls.e('item-label')">{{ item.label }}</span>
-                <u-icon v-if="!isFlat && hasChildren(item)" :class="cls.e('item-expand')">
+                <u-icon
+                  v-if="!isFlat && hasChildren(item)"
+                  :class="cls.e('item-expand')"
+                  title="展开下一级"
+                  @click.stop="expandInto(item)"
+                >
                   <ArrowRight />
                 </u-icon>
               </li>
@@ -61,6 +71,21 @@
 
           <PathPreview v-if="isFlat && activePath.length > 0" :path="activePath" />
         </div>
+
+        <div v-if="currentList.length > 0" :class="cls.e('picker-hint')">
+          <template v-if="isFlat">
+            <span><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
+            <span><kbd>Enter</kbd> 确认</span>
+            <span><kbd>Esc</kbd> 关闭</span>
+          </template>
+          <template v-else>
+            <span><kbd>↑</kbd><kbd>↓</kbd> 选择</span>
+            <span><kbd>→</kbd> 展开</span>
+            <span><kbd>←</kbd> 返回</span>
+            <span><kbd>Enter</kbd> 确认</span>
+            <span><kbd>Esc</kbd> 关闭</span>
+          </template>
+        </div>
       </div>
     </template>
   </u-tip>
@@ -69,7 +94,7 @@
 <script lang="ts" setup>
 import { ArrowRight } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 
 import type { VariableItem } from '../../../types'
 import { UEmpty } from '../../empty'
@@ -107,6 +132,8 @@ const cls = bem('expression-editor')
 
 const navPath = ref<VariableItem[]>([])
 const activeIndex = ref(0)
+const root = useTemplateRef('root')
+const listScroll = useTemplateRef<InstanceType<typeof UScroll>>('listScroll')
 
 const isFlat = computed(() => props.filter !== '')
 
@@ -192,11 +219,17 @@ function selectActive() {
       return
     }
     // 默认 'leaf'：进入下一级
-    navPath.value = [...navPath.value, item]
-    activeIndex.value = 0
+    expandInto(item)
     return
   }
   emit('select', item)
+}
+
+/** 进入 item 的下一级（点击展开图标 / leaf 模式点击分支项共用） */
+function expandInto(item: VariableItem) {
+  if (!hasChildren(item)) return
+  navPath.value = [...navPath.value, item]
+  activeIndex.value = 0
 }
 
 function flattenSourceFor(it: VariableItem): VariableItem {
@@ -220,11 +253,20 @@ function moveActive(delta: -1 | 1) {
 
 function scrollActiveIntoView() {
   void nextTick(() => {
-    const list = document.querySelector(`.${cls.e('panel-list')}`)
-    if (!list) return
-    const item = list.querySelector(`[data-idx="${activeIndex.value}"]`)
-    if (item && 'scrollIntoView' in item) {
-      ;(item as HTMLElement).scrollIntoView({ block: 'nearest' })
+    // 在面板根节点内查找，避免同页多个编辑器时滚错列表
+    const item = root.value?.querySelector(`[data-idx="${activeIndex.value}"]`)
+    // expose 代理运行时会解包 ref，类型上按 unknown 收窄
+    const scroller = listScroll.value?.containerRef as unknown
+    if (!(item instanceof HTMLElement) || !(scroller instanceof HTMLElement)) return
+    // 只滚面板列表自身：原生 scrollIntoView 会沿所有滚动祖先链滚动，
+    // 面板贴近视口边缘时会连带滚动页面，导致面板与触发器错位抖动
+    const top =
+      item.getBoundingClientRect().top - scroller.getBoundingClientRect().top + scroller.scrollTop
+    const bottom = top + item.offsetHeight
+    if (top < scroller.scrollTop) {
+      scroller.scrollTop = top
+    } else if (bottom > scroller.scrollTop + scroller.clientHeight) {
+      scroller.scrollTop = bottom - scroller.clientHeight
     }
   })
 }
@@ -287,8 +329,7 @@ function handleKeydown(e: KeyboardEvent): boolean {
       if (isFlat.value) return false
       const item = currentList.value[activeIndex.value]
       if (item && hasChildren(item)) {
-        navPath.value = [...navPath.value, item]
-        activeIndex.value = 0
+        expandInto(item)
         return true
       }
       return false

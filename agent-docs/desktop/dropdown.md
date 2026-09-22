@@ -5,6 +5,8 @@ aliases: [Dropdown, 下拉框, 下拉, Popover, DropDown]
 keywords:
   [
     trigger,
+    direction,
+    alignment,
     visible,
     update:visible,
     disabled,
@@ -22,13 +24,14 @@ keywords:
     点击弹出,
     受控显隐,
     虚拟锚点,
+    向上弹出,
     嵌套下拉
   ]
 ---
 
 # UDropdown 下拉菜单
 
-`@veltra/desktop` 导出的 `UDropdown` 是下拉菜单（下拉浮层）组件：`#trigger` 插槽放触发元素，`#content` 插槽放浮层内容，浮层 Teleport 渲染并自动定位在触发元素下方，空间不足自动翻转到上方。
+`@veltra/desktop` 导出的 `UDropdown` 是下拉菜单（下拉浮层）组件：`#trigger` 插槽放触发元素，`#content` 插槽放浮层内容，浮层 Teleport 渲染并自动定位在触发元素下方（`direction` 可改为其他方向，底部停靠场景传 `'top'` 向上弹出），空间不足自动翻转到对侧。
 
 ## 快速上手
 
@@ -63,6 +66,10 @@ import type { CSSProperties } from 'vue'
 export interface DropdownProps {
   /** 触发方式。默认 'hover' */
   trigger?: 'hover' | 'click' | 'custom'
+  /** 弹出方向；空间不足时仍会自动翻转。默认 'bottom' */
+  direction?: 'top' | 'bottom' | 'left' | 'right'
+  /** 弹出对齐方式。默认 'start' */
+  alignment?: 'center' | 'start' | 'end'
   /** 浮层宽度，如 '200px'。默认跟随触发元素宽度 */
   width?: string
   /** 最小宽度，写入浮层内联样式 min-width */
@@ -103,16 +110,18 @@ export interface DropdownExposed {
 
 ## 参数说明
 
-| 参数           | 类型                             | 默认             | 必填 | 约束                                                                                                           |
-| -------------- | -------------------------------- | ---------------- | :--: | -------------------------------------------------------------------------------------------------------------- |
-| `trigger`      | `'hover' \| 'click' \| 'custom'` | `'hover'`        |  否  | `hover` 悬浮开、移开 200ms 后关；`click` 点击切换、点外部关；`custom` 不绑定事件，必须用 ref 的 `open`/`close` |
-| `width`        | `string`                         | 跟随触发元素宽度 |  否  | 写入浮层内联 `width`，如 `'200px'`                                                                             |
-| `minWidth`     | `string`                         | —                |  否  | 写入浮层内联 `min-width`                                                                                       |
-| `contentTag`   | `string`                         | `'div'`          |  否  | 浮层内容容器的 HTML 标签名                                                                                     |
-| `contentClass` | `unknown`                        | —                |  否  | 追加在 `u-dropdown__content` 之后的类，支持数组                                                                |
-| `contentStyle` | `CSSProperties \| string`        | —                |  否  | 写入浮层内联样式                                                                                               |
-| `visible`      | `boolean`                        | `false`          |  否  | 受控显隐：传 `visible` + 监听 `@update:visible`，即 `v-model:visible`；不传则组件内部自管理                    |
-| `disabled`     | `boolean`                        | `false`          |  否  | 为 `true` 时 hover/click 事件处理器为空，浮层无法通过交互打开                                                  |
+| 参数           | 类型                                     | 默认             | 必填 | 约束                                                                                                           |
+| -------------- | ---------------------------------------- | ---------------- | :--: | -------------------------------------------------------------------------------------------------------------- |
+| `trigger`      | `'hover' \| 'click' \| 'custom'`         | `'hover'`        |  否  | `hover` 悬浮开、移开 200ms 后关；`click` 点击切换、点外部关；`custom` 不绑定事件，必须用 ref 的 `open`/`close` |
+| `direction`    | `'top' \| 'bottom' \| 'left' \| 'right'` | `'bottom'`       |  否  | 弹出方向；空间不足时自动翻转到对侧。输入框贴屏幕底部的场景传 `'top'` 向上弹出                                  |
+| `alignment`    | `'center' \| 'start' \| 'end'`           | `'start'`        |  否  | 弹出对齐方式：`start` 浮层与触发元素起始边对齐，`end` 结束边对齐（右停靠场景防溢出），`center` 居中            |
+| `width`        | `string`                                 | 跟随触发元素宽度 |  否  | 写入浮层内联 `width`，如 `'200px'`                                                                             |
+| `minWidth`     | `string`                                 | —                |  否  | 写入浮层内联 `min-width`                                                                                       |
+| `contentTag`   | `string`                                 | `'div'`          |  否  | 浮层内容容器的 HTML 标签名                                                                                     |
+| `contentClass` | `unknown`                                | —                |  否  | 追加在 `u-dropdown__content` 之后的类，支持数组                                                                |
+| `contentStyle` | `CSSProperties \| string`                | —                |  否  | 写入浮层内联样式                                                                                               |
+| `visible`      | `boolean`                                | `false`          |  否  | 受控显隐：传 `visible` + 监听 `@update:visible`，即 `v-model:visible`；不传则组件内部自管理                    |
+| `disabled`     | `boolean`                                | `false`          |  否  | 为 `true` 时 hover/click 事件处理器为空，浮层无法通过交互打开                                                  |
 
 ## 方法与事件
 

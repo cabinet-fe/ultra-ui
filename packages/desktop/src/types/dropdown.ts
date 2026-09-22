@@ -9,6 +9,16 @@ export interface DropdownProps {
    */
   trigger?: 'hover' | 'click' | 'custom'
   /**
+   * 弹出方向；空间不足时仍会自动翻转
+   * @default 'bottom'
+   */
+  direction?: 'top' | 'bottom' | 'left' | 'right'
+  /**
+   * 弹出对齐方式
+   * @default 'start'
+   */
+  alignment?: 'center' | 'start' | 'end'
+  /**
    * 宽度
    * @default - 跟随触发宽度
    */

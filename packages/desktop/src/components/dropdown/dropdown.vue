@@ -22,7 +22,7 @@
 import { useModel, usePop, useTransition } from '@veltra/compositions'
 import { vClickOutside } from '@veltra/directives'
 import { bem, extractNormalVNodes, setStyles, zIndex } from '@veltra/utils'
-import { shallowRef, computed, createVNode, cloneVNode, useTemplateRef, useAttrs } from 'vue'
+import { shallowRef, computed, createVNode, cloneVNode, useTemplateRef, useAttrs, toRef } from 'vue'
 
 import type { DropdownProps, DropdownExposed, DropdownEmits } from '../../types'
 import { UNodeRender } from '../node-render'
@@ -30,7 +30,12 @@ import { useNest } from '../tip/use-nest'
 
 defineOptions({ name: 'UDropdown', inheritAttrs: false })
 
-const props = withDefaults(defineProps<DropdownProps>(), { trigger: 'hover', contentTag: 'div' })
+const props = withDefaults(defineProps<DropdownProps>(), {
+  trigger: 'hover',
+  direction: 'bottom',
+  alignment: 'start',
+  contentTag: 'div'
+})
 
 const emit = defineEmits<DropdownEmits>()
 
@@ -121,8 +126,8 @@ const transitionName = shallowRef('slide-down')
 const { update, popperContainerId } = usePop({
   triggerRef: triggerDom,
   contentRef,
-  direction: 'bottom',
-  alignment: 'start',
+  direction: toRef(() => props.direction),
+  alignment: toRef(() => props.alignment),
   onPop(position) {
     transitionName.value = position.placement.includes('top') ? 'slide-up' : 'slide-down'
 
