@@ -1,5 +1,9 @@
 # @veltra/styles
 
+## 1.8.0
+
+No changes in this release.
+
 ## 1.7.19
 
 No changes in this release.
