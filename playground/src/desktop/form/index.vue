@@ -13,11 +13,17 @@
         <u-switch v-model="showModified" active-text="开" inactive-text="关" />
       </div>
 
+      <div class="label-position-toolbar">
+        <span>只读模式</span>
+        <u-switch v-model="readonly" active-text="开" inactive-text="关" />
+      </div>
+
       <u-form
         ref="formRef"
         :model="formData"
         :initial-model="initialFormData"
         :show-modified="showModified"
+        :readonly="readonly"
         :label-position="labelPosition"
         label-width="110px"
       >
@@ -207,6 +213,7 @@ import { reactive, shallowRef } from 'vue'
 
 const labelPosition = shallowRef<'left' | 'top'>('left')
 const showModified = shallowRef(false)
+const readonly = shallowRef(false)
 
 const labelPositionOptions = [
   { label: '左侧 (left)', value: 'left' },

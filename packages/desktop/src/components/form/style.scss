@@ -3,15 +3,22 @@
 @use 'pkg:@veltra/styles/vars';
 
 @include m.b(form) {
+  // gap 走 CSS 而非 u-grid 内联样式，只读态才能覆盖行距
+  gap: 0 12px;
+
+  // 只读态：label 退为次级文本，值收进浅色圆角条；行距拉开让各项独立成块，避免粘连
   @include m.is(readonly) {
-    gap: 6px;
+    gap: 10px 12px;
 
     @include m.bem(form-item, label) {
-      background-color: fn.use-var(bg-color, top); // #fbfcfe;
+      color: fn.use-var(text-color, second);
     }
+
     @include m.bem(form-item, content) {
-      background-color: fn.use-var(bg-color, middle); // #f5f8fb;
-      padding: 0 8px;
+      padding: 4px 12px;
+      color: fn.use-var(text-color, main);
+      background-color: fn.use-var(bg-color, middle);
+      border-radius: fn.use-var(radius, default);
     }
   }
 

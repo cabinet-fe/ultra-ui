@@ -1,6 +1,6 @@
 ---
 title: 'UCard / UCardHeader / UCardCover / UCardContent / UCardAction 卡片'
-description: '@veltra/desktop 导出的卡片组件组，页面区块与统计卡片的默认容器。UCard 是带边框、圆角、阴影与内边距的容器，可设置宽度与融合样式；UCardHeader、UCardCover、UCardContent、UCardAction 分别渲染标题区、封面图、正文与操作区，子组件必须写在 UCard 内。'
+description: '@veltra/desktop 导出的卡片组件组，页面区块与统计卡片的默认容器。UCard 是带圆角、阴影与内边距的无边框容器，可设置宽度与融合样式；UCardHeader、UCardCover、UCardContent、UCardAction 分别渲染标题区、封面图、正文与操作区，子组件必须写在 UCard 内。'
 aliases:
   [
     UCard,
@@ -50,7 +50,7 @@ keywords:
 
 # UCard / UCardHeader / UCardCover / UCardContent / UCardAction 卡片
 
-`@veltra/desktop` 导出卡片组件组：`UCard` 是页面区块的默认容器——自带背景色、边框、圆角、阴影与内边距，`width` 控制宽度、`size` 控制内边距档位、`integrate` 切换无阴影的融合样式；`UCardHeader`（标题区）、`UCardCover`（封面图）、`UCardContent`（正文区）、`UCardAction`（操作区）四个子组件按序组合出完整卡片。
+`@veltra/desktop` 导出卡片组件组：`UCard` 是页面区块的默认容器——自带背景色、圆角、阴影与内边距（无边框），`width` 控制宽度、`size` 控制内边距档位、`integrate` 切换无阴影的融合样式；`UCardHeader`（标题区）、`UCardCover`（封面图）、`UCardContent`（正文区）、`UCardAction`（操作区）四个子组件按序组合出完整卡片。
 
 需要「白底 + 描边 + 圆角 + 内边距」的分区容器（页面区块、面板、统计卡片、登录框）时用 `UCard`，禁止用裸 `div` 加 `var(--u-*)` 手写等价样式；`UCard` 的底色、描边、圆角、阴影全部取自 `--u-card-*` 与主题 token，深浅色主题切换自动跟随。
 
@@ -122,11 +122,11 @@ export type CardExposed = {}
 
 ### UCard
 
-| 参数        | 类型                              | 默认        | 必填 | 约束                                                                                                                         |
-| ----------- | --------------------------------- | ----------- | :--: | ---------------------------------------------------------------------------------------------------------------------------- |
-| `width`     | `string \| number`                | —           |  否  | `320` / `'320'` 均渲染为 `320px`；`'50%'` 等非纯数字字符串原样生效。未传时宽度由父容器决定，放进栅格或弹性容器时禁止传       |
-| `integrate` | `boolean`                         | `false`     |  否  | 去掉阴影与边框，`--u-card-header-bg` / `--u-card-action-bg` 置为 `transparent`，且标题区下内边距归零；适合嵌入已有底色的容器 |
-| `size`      | `'small' \| 'default' \| 'large'` | `'default'` |  否  | 回退链：自身 `size` > 全局配置 > `'default'`。同时决定内边距与正文字号，见下表                                               |
+| 参数        | 类型                              | 默认        | 必填 | 约束                                                                                                                   |
+| ----------- | --------------------------------- | ----------- | :--: | ---------------------------------------------------------------------------------------------------------------------- |
+| `width`     | `string \| number`                | —           |  否  | `320` / `'320'` 均渲染为 `320px`；`'50%'` 等非纯数字字符串原样生效。未传时宽度由父容器决定，放进栅格或弹性容器时禁止传 |
+| `integrate` | `boolean`                         | `false`     |  否  | 去掉阴影，`--u-card-header-bg` / `--u-card-action-bg` 置为 `transparent`，且标题区下内边距归零；适合嵌入已有底色的容器 |
+| `size`      | `'small' \| 'default' \| 'large'` | `'default'` |  否  | 回退链：自身 `size` > 全局配置 > `'default'`。同时决定内边距与正文字号，见下表                                         |
 
 `size` 三档的实际取值：
 
@@ -138,7 +138,7 @@ export type CardExposed = {}
 
 内边距与标题字号绑定在同一档位，无法只改其中一个：需要 16px 内边距配 15px 标题时用 `size="large"` 并把标题写在 `UCardContent` 内自定义字号，或覆盖组件 token `--u-card-padding-large`。
 
-卡片外观默认值（亮色主题实测值，随 `loadTheme()` 的主题变化）：背景色 `var(--u-bg-color-top)`、边框 `var(--u-border-muted-color) var(--u-border-width) var(--u-border-style)`、圆角 `var(--u-card-radius)`（亮色主题 12px）、阴影 `var(--u-shadow-sm)`（`0 1px 2px 0 rgba(0, 0, 0, 0.05)`）、标题区与操作区背景 `var(--u-card-header-bg)` / `var(--u-card-action-bg)`（亮色主题 `rgba(0, 0, 0, 0.015)`）。
+卡片外观默认值（亮色主题实测值，随 `loadTheme()` 的主题变化）：背景色 `var(--u-bg-color-top)`、无边框、圆角 `var(--u-card-radius)`（亮色主题 12px）、阴影 `var(--u-shadow-sm)`（`0 1px 2px 0 rgba(0, 0, 0, 0.05)`）、标题区与操作区背景 `var(--u-card-header-bg)` / `var(--u-card-action-bg)`（亮色主题 `rgba(0, 0, 0, 0.015)`）。
 
 ### UCardCover
 
@@ -262,7 +262,7 @@ const stats = [
 > [!WARNING]
 >
 > - 子组件导出名是 `UCardHeader` / `UCardCover` / `UCardContent` / `UCardAction`；没有 `UCardBody`，正文区是 `UCardContent`。
-> - 页面区块、面板、统计卡片、登录框这类「白底 + 描边 + 圆角 + 内边距」的容器一律用 `UCard`，禁止自己写 `div` + `background: var(--u-bg-color-top)` + `border: 1px solid var(--u-border-color)` + `border-radius` 手搓等价样式：手写版本会漏掉 `loadTheme()` 的深浅色跟随，且各页面样式重复。
+> - 页面区块、面板、统计卡片、登录框这类「白底 + 圆角 + 阴影 + 内边距」的容器一律用 `UCard`，禁止自己写 `div` + `background: var(--u-bg-color-top)` + `border-radius` 手搓等价样式：手写版本会漏掉 `loadTheme()` 的深浅色跟随，且各页面样式重复。
 > - 卡片放进 `UGrid` / `ULayout` / CSS Grid 单元格时不传 `width`，否则固定成该像素值、失去自适应。
 > - 卡片有 `overflow: hidden`：超出圆角的内容会被裁切，下拉、气泡等浮层不要挂在卡片内部（会被裁掉），改挂到 `UCard` 外层或使用函数式浮层。
 > - 子组件必须写在 `UCard` 直接内容里；脱离后仅得到无样式 `div` 并触发控制台警告。

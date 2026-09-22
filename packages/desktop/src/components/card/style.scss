@@ -7,14 +7,12 @@ $root-name: card;
 @include m.b($root-name) {
   border-radius: fn.component-var(card, radius, fn.use-var(radius, large));
   background-color: fn.use-var(bg-color, top);
-  border: fn.use-var(border-muted);
   box-shadow: fn.use-var(shadow, sm);
   backdrop-filter: fn.use-var(bg-filter);
   -webkit-backdrop-filter: fn.use-var(bg-filter);
   overflow: hidden;
 
   @include m.is(integrate) {
-    border: none;
     box-shadow: none;
     --u-card-header-bg: transparent;
     --u-card-action-bg: transparent;

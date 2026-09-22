@@ -3,7 +3,6 @@
     tag="form"
     ref="grid"
     @submit.prevent
-    gap="0 12px"
     :cols="cols || breakpointCols"
     :class="[cls.b, bem.is('readonly', readonly)]"
   >
