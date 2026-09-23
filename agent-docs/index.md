@@ -1,6 +1,6 @@
 ---
 title: Ultra UI 总览
-description: Ultra UI（@veltra/*）是面向 Vue 3 的组件与能力库，包含 78 篇桌面组件文档、AI 对话（UAiChat / useChat）、电子表格（USheet / Workbook）、组合式函数、utils 工具、指令、主题系统与按需导入解析器；本篇是全部 124 篇文档的路由表。
+description: Ultra UI（@veltra/*）是面向 Vue 3 的组件与能力库，包含 79 篇桌面组件文档、AI 对话（UAiChat / useChat）、电子表格（USheet / Workbook）、组合式函数、utils 工具、指令、主题系统与按需导入解析器；本篇是全部 124 篇文档的路由表。
 aliases:
   [
     ultra-ui,
@@ -133,6 +133,7 @@ createApp(App).mount('#app')
 | UIcon                            | 图标：渲染 @veltra/icons 图标组件                                            | `desktop/icon.md`               |
 | UImageCropper                    | 图片裁剪：交互式裁剪区域选择                                                 | `desktop/image-cropper.md`      |
 | UInput                           | 输入框：文本输入，支持前后缀与清空                                           | `desktop/input.md`              |
+| UKanban                         | 看板：列内卡片拖拽排序与跨列转移，v-model:columns 写回                        | `desktop/kanban.md`              |
 | UKbd                             | 键盘按键：快捷键按键样式展示                                                 | `desktop/kbd.md`                |
 | ULayout                          | 布局：CSS Grid 分栏容器，cols / rows / resizable 拖拽调宽                    | `desktop/layout.md`             |
 | UList / UListItem                | 列表：条目列表容器                                                           | `desktop/list.md`               |
@@ -184,7 +185,7 @@ createApp(App).mount('#app')
 | 按钮与操作   | `UButton` / `UButtonGroup` 按钮、`UAction` / `UActionGroup` 表格行内操作、`USegment` 分段控制器、`UCheckTag` 可选中标签、`UDropdown` 下拉菜单、`UContextmenu` 右键菜单                                                                                             |
 | 表单与输入   | `UForm` 表单容器、`UFormItem` 表单项、`UInput`、`UTextarea`、`UPasswordInput`、`UNumberInput`、`UNumberRangeInput`、`UAutoComplete`、`UGroupInput`、`UGridInput`、`USwitch`、`UCheckbox` / `UCheckboxButton`、`UCheckboxGroup`、`URadio`、`URadioGroup`、`USlider` |
 | 选择器与日期 | `USelect`、`UMultiSelect`、`UTreeSelect`、`UMultiTreeSelect`、`UCascade`、`UTree`、`UDatePicker`、`UDateRangePicker`、`UDatePanel`、`UCalendar`、`UPalette`                                                                                                        |
-| 数据展示     | `UTable` 数据表格、`UTableEditor` 可编辑表格、`UPaginator` 分页器（含「共 N 条」文案）、`UNumber` 数字格式化与补间、`UEmpty` 空状态、`UGanttChart` 甘特图                                                                                                          |
+| 数据展示     | `UTable` 数据表格、`UTableEditor` 可编辑表格、`UKanban` 看板、`UPaginator` 分页器（含「共 N 条」文案）、`UNumber` 数字格式化与补间、`UEmpty` 空状态、`UGanttChart` 甘特图                                                                                          |
 | 反馈与浮层   | `message` / `UMessage` 轻提示、`notification` / `UNotification` 通知、`messageConfirm` / `UMessageConfirm` 确认框、`UPopConfirm` 气泡确认、`UTip` 文字提示、`UDialog` 对话框、`UDrawer` 抽屉、`ULoading` / `vLoading` 加载、`UProgress` 进度条                     |
 | 进阶编辑器   | `UBatchEdit` 批量编辑、`UConditionEditor` 条件编辑器、`UExpressionEditor` 表达式编辑器、`UCodeEditor` 代码编辑器、`URichTextEditor` 富文本编辑器、`UFilePicker` 文件选择、`UFileViewer` 文件预览、`UImageCropper` 图片裁剪、`UTheme` 主题编辑器                    |
 

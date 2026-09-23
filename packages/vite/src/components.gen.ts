@@ -58,6 +58,7 @@ export const VELTRA_COMPONENT_PACKAGES: VeltraComponentPackage[] = [
       UIcon: 'components/icon/style',
       UImageCropper: 'components/image-cropper/style',
       UInput: 'components/input/style',
+      UKanban: 'components/kanban/style',
       UKbd: 'components/kbd/style',
       ULayout: 'components/layout/style',
       UList: 'components/list/style',

@@ -74,6 +74,7 @@ export const demoMeta: Record<string, DemoMeta> = {
   icon: { zh: '图标容器', en: 'Icon', category: 'basic' },
   'image-cropper': { zh: '图片裁剪', en: 'ImageCropper', category: 'other' },
   input: { zh: '输入框', en: 'Input', category: 'form' },
+  kanban: { zh: '看板', en: 'Kanban', category: 'data' },
   kbd: { zh: '键盘', en: 'Kbd', category: 'basic' },
   layout: { zh: '布局', en: 'Layout', category: 'layout' },
   list: { zh: '列表', en: 'List', category: 'layout' },

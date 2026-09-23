@@ -1,0 +1,124 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use 'pkg:@veltra/styles/vars';
+
+@include m.b(kanban) {
+  @include m.flex($align: flex-start, $wrap: nowrap);
+  gap: fn.use-var(gap, default);
+  padding: fn.use-var(gap, default);
+  overflow-x: auto;
+  box-sizing: border-box;
+
+  @include m.e(column) {
+    flex: 0 0 auto;
+    width: 280px;
+    max-width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: fn.use-var(gap, small);
+    padding: fn.use-var(gap, small);
+    background-color: fn.use-var(bg-color, bottom);
+    border-radius: fn.use-var(radius, default);
+    box-sizing: border-box;
+  }
+
+  @include m.e(column-header) {
+    @include m.flex;
+    gap: fn.use-var(gap, small);
+    padding: 0 2px;
+  }
+
+  @include m.e(column-title) {
+    @include m.ellipsis;
+    flex: 1 1 0%;
+    min-width: 0;
+    font-size: fn.use-var(font-size-main, default);
+    font-weight: 600;
+    color: fn.use-var(text-color, title);
+  }
+
+  @include m.e(column-count) {
+    flex: none;
+    min-width: 18px;
+    padding: 0 6px;
+    border-radius: fn.use-var(radius, large);
+    background-color: fn.color-a(color, 11, primary);
+    color: fn.use-var(color, primary);
+    font-size: fn.use-var(font-size-main, small);
+    line-height: 18px;
+    text-align: center;
+  }
+
+  @include m.e(cards) {
+    display: flex;
+    flex-direction: column;
+    gap: fn.use-var(gap, small);
+    // 空列也保持可拖入的目标高度
+    min-height: 64px;
+    padding: 2px;
+
+    &.is-dropzone {
+      background-color: fn.color-a(color, 4, primary);
+      border-radius: fn.use-var(radius, default);
+    }
+  }
+
+  @include m.e(card) {
+    @include m.flex($align: flex-start);
+    gap: fn.use-var(gap, small);
+    padding: fn.use-var(gap, small);
+    background-color: fn.use-var(bg-color, top);
+    border-radius: fn.use-var(radius, default);
+    box-shadow: fn.use-var(shadow, sm);
+    font-size: fn.use-var(font-size-main, default);
+    color: fn.use-var(text-color, main);
+    transition:
+      box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease),
+      opacity fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    &:hover {
+      box-shadow: fn.use-var(shadow);
+    }
+
+    &.is-dragging {
+      opacity: 0.6;
+    }
+  }
+
+  @include m.e(card-handle) {
+    flex: none;
+    line-height: 1;
+    color: fn.use-var(text-color, assist);
+    cursor: grab;
+    user-select: none;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  @include m.e(card-body) {
+    flex: 1 1 0%;
+    min-width: 0;
+    word-break: break-word;
+  }
+
+  @include m.e(empty) {
+    border: 1px dashed fn.use-var(border-color);
+    border-radius: fn.use-var(radius, default);
+    padding: fn.use-var(gap, default) fn.use-var(gap, small);
+    font-size: fn.use-var(font-size-main, default);
+    color: fn.use-var(text-color, assist);
+    text-align: center;
+  }
+
+  @include m.is(disabled) {
+    @include m.bem(kanban, card-handle) {
+      cursor: not-allowed;
+
+      &:active {
+        cursor: not-allowed;
+      }
+    }
+  }
+}

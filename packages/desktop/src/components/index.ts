@@ -153,3 +153,5 @@ export * from './badge'
 export * from './segment'
 
 export * from './image-cropper'
+
+export * from './kanban'
