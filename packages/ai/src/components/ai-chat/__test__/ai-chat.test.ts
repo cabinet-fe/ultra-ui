@@ -515,6 +515,43 @@ describe('UAiChat', () => {
     unmount()
   })
 
+  it('工具循环最终答案流式中过程保持展开，停跑后才折叠', async () => {
+    let round = 0
+    let releaseAnswer: (() => void) | undefined
+    const transport: ChatTransport = async (_req, handlers) => {
+      round++
+      if (round === 1) {
+        handlers.onToolCall?.({ id: 'c1', name: 'calculate', arguments: '{"expression":"1+1"}' })
+      } else {
+        handlers.onTextDelta('答案是 2')
+        await new Promise<void>((resolve) => {
+          releaseAnswer = resolve
+        })
+      }
+    }
+    const tools: ChatTool[] = [
+      { name: 'calculate', description: '计算', parameters: {}, execute: () => ({ value: 2 }) }
+    ]
+    const { host, chat, unmount } = mountAiChat({ transport, tools })
+
+    chat.value?.send('1+1 等于几')
+
+    // 最终答案流式中（仍在运行）：过程不折叠，工具卡片留在展开列表
+    await vi.waitFor(() => {
+      expect(host.querySelector('.md-stub')?.textContent).toContain('答案是 2')
+    })
+    expect(host.querySelector('.u-ai-chat__process')).toBeFalsy()
+    expect(host.querySelector('.u-ai-chat__tool-call')).toBeTruthy()
+
+    // 停跑且末条消息落定后：过程收进「已完成」折叠块
+    releaseAnswer?.()
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__process-title')?.textContent).toBe('已完成')
+    })
+    expect(host.querySelector('.u-ai-chat__tool-call')).toBeFalsy()
+    unmount()
+  })
+
   it('单轮无工具对话不出现「已完成」过程块', async () => {
     const transport: ChatTransport = (_req, handlers) => {
       handlers.onReasoningDelta?.('想一下')

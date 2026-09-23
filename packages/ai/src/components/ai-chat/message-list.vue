@@ -17,7 +17,7 @@
           @regenerate="emit('regenerate')"
         />
 
-        <!-- 最终答案开始输出后，本轮之前的思考/工具调用过程收进「已完成」折叠块 -->
+        <!-- 本轮落定（结束 / 失败 / 中止）后，之前的思考/工具调用过程收进「已完成」折叠块 -->
         <TurnProcess
           v-if="turn.processCollapsed"
           :messages="turn.processMsgs"
@@ -200,11 +200,12 @@ const turns = computed<ChatTurn[]>(() => {
     const processMsgs = turn.assistants.slice(0, -1)
     const answerMsg = turn.assistants[turn.assistants.length - 1]
     const isLastTurn = index === grouped.length - 1
-    // 该轮结束（非最后一轮 / 答案进入终态）或最终答案开始输出时折叠过程。
-    // content 只增不减，折叠后不会回弹；regenerate 删除本轮 assistant 重跑，条件自然复位
+    // 该轮落定（非最后一轮 / 停跑且末条消息进入终态）才折叠过程，运行中始终展开。
+    // 不能以 answerMsg.content 判断：工具循环每步追加一条空 assistant 消息，answerMsg
+    // 指随后移使 content 空/非空交替，折叠态会来回翻转；断连时 running 短暂变 false
+    // 但消息仍是 streaming，不会误折叠；regenerate 删除本轮 assistant 重跑，条件自然复位
     const processCollapsed =
-      processMsgs.length > 0 &&
-      (!isLastTurn || !!answerMsg?.content || (!props.running && isFinalStatus(answerMsg)))
+      processMsgs.length > 0 && (!isLastTurn || (!props.running && isFinalStatus(answerMsg)))
     return {
       key: turn.key,
       userMsg: turn.userMsg,
