@@ -66,7 +66,9 @@ const DEFAULT_TOOLBAR: ToolbarItem[] = [
   '|',
   'blockquote',
   '|',
-  'link'
+  'link',
+  '|',
+  'image'
 ]
 </script>
 
@@ -80,10 +82,33 @@ import { HeadingNode, QuoteNode } from '@lexical/rich-text'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { bem } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
-import { createEditor, $getRoot, $createParagraphNode, type LexicalEditor } from 'lexical'
+import {
+  $createRangeSelection,
+  $getNodeByKey,
+  $getRoot,
+  $createParagraphNode,
+  $nodesOfType,
+  $setSelection,
+  COMMAND_PRIORITY_HIGH,
+  DROP_COMMAND,
+  PASTE_COMMAND,
+  createEditor,
+  type LexicalEditor
+} from 'lexical'
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef, watch } from 'vue'
 
-import type { RichTextEditorProps } from '../../types'
+import type {
+  RichTextEditorProps,
+  RichTextImageUploader,
+  _RichTextEditorExposed
+} from '../../types'
+import {
+  ImageNode,
+  $isImageNode,
+  gcImageObjectUrls,
+  insertImageFiles,
+  revokeImageObjectUrls
+} from './image-node'
 import Toolbar from './toolbar.vue'
 
 const props = withDefaults(defineProps<RichTextEditorProps>(), {
@@ -91,7 +116,8 @@ const props = withDefaults(defineProps<RichTextEditorProps>(), {
   readonly: undefined,
   format: 'html',
   toolbar: () => DEFAULT_TOOLBAR,
-  placeholder: ''
+  placeholder: '',
+  image: true
 })
 
 const model = defineModel<string>()
@@ -115,7 +141,8 @@ const className = computed<string[]>(() => {
 })
 
 const toolbarItems = computed<ToolbarItem[]>(() => {
-  return props.toolbar ?? DEFAULT_TOOLBAR
+  const items = props.toolbar ?? DEFAULT_TOOLBAR
+  return props.image ? items : items.filter((item) => item !== 'image')
 })
 
 const editorContainer = useTemplateRef('editorContainer')
@@ -130,7 +157,7 @@ function initEditor() {
   const editorInstance = createEditor({
     namespace: 'URichTextEditor',
     theme: LEXICAL_THEME,
-    nodes: [HeadingNode, QuoteNode, ListNode, ListItemNode, LinkNode, AutoLinkNode],
+    nodes: [HeadingNode, QuoteNode, ListNode, ListItemNode, LinkNode, AutoLinkNode, ImageNode],
     editable: !isDisabled.value && !isReadonly.value,
     onError: (error: Error) => {
       console.error('Lexical error:', error)
@@ -144,6 +171,47 @@ function initEditor() {
   cleanupFns.push(registerList(editorInstance))
   cleanupFns.push(registerHistory(editorInstance, createEmptyHistoryState(), 300))
 
+  // Image input: paste & drop
+  const acceptsImage = () => props.image && !isDisabled.value && !isReadonly.value
+
+  cleanupFns.push(
+    editorInstance.registerCommand(
+      PASTE_COMMAND,
+      (event) => {
+        if (!acceptsImage()) return false
+        if (insertImageFiles(editorInstance, event.clipboardData?.files ?? []) > 0) {
+          event.preventDefault()
+          return true
+        }
+        return false
+      },
+      COMMAND_PRIORITY_HIGH
+    ),
+    editorInstance.registerCommand(
+      DROP_COMMAND,
+      (event) => {
+        if (!acceptsImage()) return false
+        const files = event.dataTransfer?.files
+        if (!files?.length) return false
+        // 先把光标落到落点，再插入
+        const range = document.caretRangeFromPoint(event.clientX, event.clientY)
+        if (range) {
+          editorInstance.update(() => {
+            const selection = $createRangeSelection()
+            selection.applyDOMRange(range)
+            $setSelection(selection)
+          })
+        }
+        if (insertImageFiles(editorInstance, files) > 0) {
+          event.preventDefault()
+          return true
+        }
+        return false
+      },
+      COMMAND_PRIORITY_HIGH
+    )
+  )
+
   // Set initial value
   if (model.value) {
     setEditorContent(editorInstance, model.value)
@@ -155,17 +223,16 @@ function initEditor() {
       editorState.read(
         () => {
           const root = $getRoot()
-          const textContent = root.getTextContent()
-          showPlaceholder.value = textContent.trim().length === 0
+          const imageNodes = $nodesOfType(ImageNode)
+          showPlaceholder.value =
+            root.getTextContent().trim().length === 0 && imageNodes.length === 0
+
+          // 回收已从内容中移除的图片 objectURL
+          gcImageObjectUrls(editorInstance, new Set(imageNodes.map((node) => node.getSrc())))
 
           if (isComposing) return
 
-          let value: string
-          if (props.format === 'json') {
-            value = JSON.stringify(editorState.toJSON())
-          } else {
-            value = $generateHtmlFromNodes(editorInstance)
-          }
+          const value = serializeContent(editorInstance)
 
           // Avoid circular updates: only emit if content really changed
           if (value !== model.value) {
@@ -225,6 +292,47 @@ function setEditorContent(editorInstance: LexicalEditor, value: string) {
   })
 }
 
+function serializeContent(editorInstance: LexicalEditor): string {
+  return editorInstance.read(() =>
+    props.format === 'json'
+      ? JSON.stringify(editorInstance.getEditorState().toJSON())
+      : $generateHtmlFromNodes(editorInstance)
+  )
+}
+
+let isUploadingImages = false
+
+async function uploadImages(upload: RichTextImageUploader): Promise<string> {
+  const editorInstance = editor.value
+  if (!editorInstance) return model.value ?? ''
+  if (isUploadingImages) throw new Error('图片正在上传中')
+
+  const pending = editorInstance.getEditorState().read(() =>
+    $nodesOfType(ImageNode)
+      .filter((node) => node.getFile())
+      .map((node) => ({ key: node.getKey(), file: node.getFile() as File }))
+  )
+
+  if (pending.length) {
+    isUploadingImages = true
+    try {
+      const urls = await Promise.all(pending.map(({ file }) => upload(file)))
+      editorInstance.update(() => {
+        pending.forEach(({ key }, index) => {
+          const node = $getNodeByKey(key)
+          if ($isImageNode(node)) node.setSrc(urls[index])
+        })
+      })
+    } finally {
+      isUploadingImages = false
+    }
+  }
+
+  return serializeContent(editorInstance)
+}
+
+defineExpose<_RichTextEditorExposed>({ uploadImages })
+
 // Watch external model changes
 watch(model, (newVal) => {
   if (!editor.value || isComposing) return
@@ -232,22 +340,15 @@ watch(model, (newVal) => {
   const editorInstance = editor.value
 
   // Compare current content to avoid circular updates
-  editorInstance.read(() => {
-    let currentValue: string
-    if (props.format === 'json') {
-      currentValue = JSON.stringify(editorInstance.getEditorState().toJSON())
-    } else {
-      currentValue = $generateHtmlFromNodes(editorInstance)
-    }
+  const currentValue = serializeContent(editorInstance)
 
-    if (currentValue !== newVal) {
-      isComposing = true
-      setEditorContent(editorInstance, newVal ?? '')
-      queueMicrotask(() => {
-        isComposing = false
-      })
-    }
-  })
+  if (currentValue !== newVal) {
+    isComposing = true
+    setEditorContent(editorInstance, newVal ?? '')
+    queueMicrotask(() => {
+      isComposing = false
+    })
+  }
 })
 
 // Watch disabled/readonly changes
@@ -264,6 +365,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   cleanupFns.forEach((fn) => fn())
   cleanupFns = []
+  if (editor.value) revokeImageObjectUrls(editor.value)
   editor.value = null
 })
 </script>

@@ -381,3 +381,10 @@ $root-name: rich-text-editor;
     text-decoration: none;
   }
 }
+
+// Image
+.u-rte-image {
+  max-width: 100%;
+  height: auto;
+  vertical-align: bottom;
+}

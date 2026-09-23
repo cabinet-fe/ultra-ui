@@ -35,6 +35,8 @@
         <span :class="cls.e('toolbar-icon')" v-html="getIcon(item)"></span>
       </button>
     </template>
+
+    <input ref="imageInput" type="file" accept="image/*" multiple hidden @change="onImageChange" />
   </div>
 </template>
 
@@ -56,9 +58,10 @@ import {
   $createParagraphNode,
   type RangeSelection
 } from 'lexical'
-import { ref, onBeforeUnmount, watch } from 'vue'
+import { ref, onBeforeUnmount, useTemplateRef, watch } from 'vue'
 
 import type { ToolbarItem } from '../../types'
+import { insertImageFiles } from './image-node'
 
 const props = defineProps<{
   editor: LexicalEditor | null
@@ -67,6 +70,8 @@ const props = defineProps<{
 }>()
 
 const cls = bem('rich-text-editor')
+
+const imageInput = useTemplateRef('imageInput')
 
 // Active states
 const isBold = ref(false)
@@ -205,6 +210,9 @@ function onToolbarAction(item: ToolbarItem) {
     case 'link':
       toggleLink(editorInstance)
       break
+    case 'image':
+      imageInput.value?.click()
+      break
     case 'undo':
       editorInstance.dispatchCommand(UNDO_COMMAND, undefined)
       break
@@ -215,6 +223,15 @@ function onToolbarAction(item: ToolbarItem) {
 
   // Keep focus on editor
   editorInstance.focus()
+}
+
+function onImageChange(event: Event) {
+  const input = event.target as HTMLInputElement
+  if (input.files?.length && props.editor && !props.disabled) {
+    insertImageFiles(props.editor, input.files)
+  }
+  // 允许重复选择同一文件
+  input.value = ''
 }
 
 function onHeadingChange(event: Event) {
@@ -271,6 +288,7 @@ function getTitle(item: ToolbarItem): string {
     blockquote: '引用',
     'code-block': '代码块',
     link: '链接',
+    image: '图片',
     undo: '撤销',
     redo: '重做'
   }
@@ -296,6 +314,8 @@ function getIcon(item: ToolbarItem): string {
     'code-block':
       '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="m8 10-3 2 3 2"/><path d="m16 10 3 2-3 2"/><path d="m13 7-2 10"/></svg>',
     link: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
+    image:
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>',
     undo: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>',
     redo: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>'
   }
