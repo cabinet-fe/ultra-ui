@@ -47,12 +47,12 @@ $root-name: form-item;
   }
 
   @include m.is(error) {
+    // is-focus 类驱动聚焦态的控件：hover / is-focus 与错误态同权重，按源序分胜负，故显式列出
     #{fn.bem(input)},
     #{fn.bem(multi-select)},
     #{fn.bem(multi-tree-select)},
     #{fn.bem(auto-complete)},
     #{fn.bem(textarea--more)} {
-      // hover 的 primary 描边与错误态同权重，按源序分胜负：错误态显式压住，避免悬浮时描边回蓝
       &,
       &:hover,
       &.is-focus {
@@ -61,6 +61,21 @@ $root-name: form-item;
 
       // 聚焦光晕与描边同色，错误态转红
       &.is-focus {
+        box-shadow: fn.use-var(focus-ring, danger);
+      }
+    }
+
+    // :focus-within 驱动聚焦态的编辑器类控件；描红目标是各自的视觉盒（表达式编辑器在 __shell 上）
+    #{fn.bem(expression-editor, shell)},
+    #{fn.bem(code-editor)},
+    #{fn.bem(rich-text-editor)} {
+      &,
+      &:hover,
+      &:focus-within {
+        border-color: fn.use-var(color, danger);
+      }
+
+      &:focus-within {
         box-shadow: fn.use-var(focus-ring, danger);
       }
     }

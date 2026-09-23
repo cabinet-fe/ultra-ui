@@ -37,7 +37,12 @@ import { createEmptyGroup } from './core/evaluator'
 
 defineOptions({ name: 'UConditionEditor' })
 
-const props = withDefaults(defineProps<ConditionEditorProps>(), { fields: () => [] })
+const props = withDefaults(defineProps<ConditionEditorProps>(), {
+  fields: () => [],
+  // Boolean prop 缺省会被 Vue 归一成 false，挡住 UForm 下发的 disabled / readonly，须显式留 undefined
+  disabled: undefined,
+  readonly: undefined
+})
 
 const emit = defineEmits<{ (e: 'update:modelValue', value: ConditionExpression): void }>()
 

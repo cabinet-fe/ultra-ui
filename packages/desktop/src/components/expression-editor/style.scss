@@ -19,16 +19,15 @@ $root-name: expression-editor;
       border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
       box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
 
-    @include m.is-not(disabled, readonly) {
-      &:hover {
-        border-color: fn.use-var(color, primary);
-      }
+    // 状态描边压在 0,3,0 以内（与 u-input 同档），表单项错误态才能用普通后代选择器直接压住
+    &:hover {
+      border-color: fn.use-var(color, primary);
+    }
 
-      &:focus-within {
-        border-color: fn.use-var(color, primary);
-        box-shadow: fn.use-var(focus-ring);
-        outline: none;
-      }
+    &:focus-within {
+      border-color: fn.use-var(color, primary);
+      box-shadow: fn.use-var(focus-ring);
+      outline: none;
     }
 
     @include m.is('disabled') {

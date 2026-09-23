@@ -9,7 +9,7 @@
           ref="container"
           :class="cls.e('container')"
           :contenteditable="!readonly && !disabled"
-          :data-empty="isEmpty || undefined"
+          :data-empty="visualEmpty || undefined"
           :data-placeholder="props.placeholder"
           @keydown="onKeydown"
           @blur="onBlur"
@@ -63,7 +63,10 @@ defineOptions({ name: 'UExpressionEditor' })
 
 const props = withDefaults(defineProps<ExpressionEditorProps>(), {
   placeholder: '请输入表达式，输入 @ 可插入变量',
-  selectableLevels: 'leaf'
+  selectableLevels: 'leaf',
+  // Boolean prop 缺省会被 Vue 归一成 false，挡住 UForm 下发的 disabled / readonly，须显式留 undefined
+  disabled: undefined,
+  readonly: undefined
 })
 
 const emit = defineEmits<{ (e: 'update:modelValue', value: string): void }>()
@@ -91,9 +94,11 @@ const editorRef = shallowRef<EditorAPI | null>(null)
 const mention: MentionAPI = createMention()
 
 const currentDoc = shallowRef<Doc>([])
-const isEmpty = computed(() => currentDoc.value.length === 0)
-const showPlaceholder = computed(() => isEmpty.value && !disabled.value)
-const showHint = computed(() => isEmpty.value && !disabled.value && !readonly.value)
+/** 框内视觉空态：与 IME 合成状态无关，由 editor 在 DOM 变化时上报 */
+const visualEmpty = shallowRef(true)
+const showPlaceholder = computed(() => visualEmpty.value && !disabled.value)
+/** 上方 `@` 使用提示常驻：只跟可编辑状态走，不随内容增减隐藏 */
+const showHint = computed(() => !disabled.value && !readonly.value)
 
 const pickerMode = shallowRef<'mention' | 'reselect' | null>(null)
 const pickerTriggerDom = shallowRef<HTMLElement | undefined>(undefined)
@@ -151,6 +156,9 @@ onMounted(() => {
       const value = serializeFromDoc(doc)
       if (value !== (props.modelValue ?? '')) emit('update:modelValue', value)
       syncMention()
+    },
+    onVisualEmptyChange: (empty) => {
+      visualEmpty.value = empty
     },
     onSelectionChange: () => {
       syncMention()

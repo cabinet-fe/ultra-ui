@@ -175,6 +175,7 @@
           field="expression"
           span="full"
           :variables="exprVariables"
+          :rules="{ required: true }"
           placeholder="请输入表达式，@ 可插入变量"
         />
         <u-group-input label="联系人" field="contacts" :max="5" creatable span="full">

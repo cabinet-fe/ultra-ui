@@ -24,6 +24,11 @@ export interface EditorOptions {
   getVariableMap?: () => Map<string, VariableItem>
   /** 模型每次更新（包括用户键入文本）后回调 */
   onChange?: (doc: Doc) => void
+  /**
+   * 框内「视觉空态」变化回调：只描述眼下框里有没有可见内容，与模型是否已同步无关。
+   * IME 合成期间模型刻意不同步，占位文字 / 提示行这类纯视觉层须跟这个信号走。
+   */
+  onVisualEmptyChange?: (empty: boolean) => void
   /** 选中区域 / 光标偏移变化时回调，offset 为序列化字符串中的位置；无选中或不在编辑器内时为 null */
   onSelectionChange?: (info: { offset: number | null }) => void
   /** 用户点击某个 chip 的主体（重选） */
@@ -66,10 +71,27 @@ export interface EditorAPI {
 export function createEditor(opts: EditorOptions): EditorAPI {
   let doc: Doc = normalize(opts.initialDoc)
   let composing = false
+  /** null 表示还没算过，首次计算后必定回调一次 */
+  let visualEmpty: boolean | null = null
 
   function emitChange(next: Doc) {
     doc = next
     opts.onChange?.(doc)
+  }
+
+  /** 框内是否只剩空 text span：任何文本（含 IME 合成中尚未进模型的）或 chip 都算非空 */
+  function isVisuallyEmpty(): boolean {
+    for (const child of Array.from(opts.container.childNodes)) {
+      if (isChipElement(child) || (child.textContent ?? '').length > 0) return false
+    }
+    return true
+  }
+
+  function syncVisualEmpty(): void {
+    const empty = isVisuallyEmpty()
+    if (empty === visualEmpty) return
+    visualEmpty = empty
+    opts.onVisualEmptyChange?.(empty)
   }
 
   function makeTextSpan(value: string): HTMLSpanElement {
@@ -136,6 +158,7 @@ export function createEditor(opts: EditorOptions): EditorAPI {
       else container.appendChild(makeChipSpan(seg))
     }
 
+    syncVisualEmpty()
     if (typeof targetCaret === 'number') setCaret(targetCaret)
   }
 
@@ -370,13 +393,20 @@ export function createEditor(opts: EditorOptions): EditorAPI {
   }
 
   function onInput() {
+    // 合成中模型不动，但框里已经有字：占位层必须立刻让位
+    syncVisualEmpty()
     syncFromDOM()
   }
   function onCompositionStart() {
     composing = true
   }
+  function onCompositionUpdate() {
+    // 少数浏览器把合成文字落进 DOM 的时机晚于 input，这里再兜一次
+    syncVisualEmpty()
+  }
   function onCompositionEnd() {
     composing = false
+    syncVisualEmpty()
     syncFromDOM()
   }
   function onPaste(e: ClipboardEvent) {
@@ -413,6 +443,7 @@ export function createEditor(opts: EditorOptions): EditorAPI {
     range.collapse(true)
     sel.removeAllRanges()
     sel.addRange(range)
+    syncVisualEmpty()
     syncFromDOM()
   }
 
@@ -483,6 +514,7 @@ export function createEditor(opts: EditorOptions): EditorAPI {
   const container = opts.container
   container.addEventListener('input', onInput)
   container.addEventListener('compositionstart', onCompositionStart)
+  container.addEventListener('compositionupdate', onCompositionUpdate)
   container.addEventListener('compositionend', onCompositionEnd)
   container.addEventListener('paste', onPaste)
   document.addEventListener('selectionchange', onSelectionChange)
@@ -512,6 +544,7 @@ export function createEditor(opts: EditorOptions): EditorAPI {
     dispose: () => {
       container.removeEventListener('input', onInput)
       container.removeEventListener('compositionstart', onCompositionStart)
+      container.removeEventListener('compositionupdate', onCompositionUpdate)
       container.removeEventListener('compositionend', onCompositionEnd)
       container.removeEventListener('paste', onPaste)
       document.removeEventListener('selectionchange', onSelectionChange)

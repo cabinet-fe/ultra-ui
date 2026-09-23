@@ -154,6 +154,7 @@ export interface FormItemExposed {}
 
 - `change(...args)` — 默认插槽内任意控件触发 `change` 时冒泡，`args` 与该控件的 `change` 参数完全一致。编程写入 `model` 不触发 `change`，只触发 `UForm` 的 `field:update`。
 - 校验行为 — Item 带 `field` 时注册进表单：`model[field]` 每次变化自动重新校验（`reset()` 期间抑制）；异步 `validator` 采用递增序号，仅采纳最新一次结果。错误文本渲染在内容区下方，`readonly` 或表单 `noTips` 时不显示。
+- 错误态描红 — 校验失败的 Item 带 `is-error` 类，其下控件的边框转 `--u-color-danger`（含 hover 与聚焦，压住 primary 蓝色描边），聚焦光晕转 `--u-focus-ring-danger`。覆盖 `UInput`、`UMultiSelect`、`UMultiTreeSelect`、`UAutoComplete`、`UTextarea`（more 模式）、`UExpressionEditor`（描红目标是其视觉盒 `__shell`）、`UCodeEditor` 与 `URichTextEditor`。其余控件无内置描红，需自行按 `is-error` 定制。
 - 暴露 — 无公开方法；`FormItemExposed` 为空类型，模板 ref 上无可调用成员。
 
 ## 典型示例
