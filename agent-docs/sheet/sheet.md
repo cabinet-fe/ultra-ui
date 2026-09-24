@@ -130,19 +130,19 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 
 ## 参数说明
 
-| 参数                  | 类型                   | 默认                    | 必填 | 约束                                                                                                    |
-| --------------------- | ---------------------- | ----------------------- | :--: | ------------------------------------------------------------------------------------------------------- |
-| `workbook`            | `Workbook`             | 内部自建单 sheet 工作簿 |  否  | 运行期更换引用触发整表重建（tabs、网格、事件重绑）                                                      |
-| `rows`                | `number`               | `100`                   |  否  | 渲染行数；只决定可视区尺寸，不限制模型写入范围                                                          |
-| `cols`                | `number`               | `26`                    |  否  | 渲染列数（A..Z）                                                                                        |
-| `showToolbar`         | `boolean`              | `true`                  |  否  | `false` 时工具栏整体不渲染                                                                              |
-| `showFormulaBar`      | `boolean`              | `true`                  |  否  | 公式栏含名称框与 fx 输入栏；填报页必须设 `false`                                                        |
-| `showTabs`            | `boolean`              | `true`                  |  否  | 底部标签栏：点击切换、末尾「+」新增、右键重命名/删除                                                    |
-| `showRowHeader`       | `boolean`              | `true`                  |  否  | 行号列；右键菜单含插入/删除行、冻结到当前行                                                             |
-| `showColHeader`       | `boolean`              | `true`                  |  否  | 列字母表头；右键菜单含插入/删除列、冻结到当前列                                                         |
-| `readonly`            | `boolean`              | `false`                 |  否  | 整表只读预览；按格控制改用模型 `setCellReadonly`                                                        |
-| `resolveDisplayValue` | `ResolveDisplayValue`  | —                       |  否  | `(addr, base) => CellValue \| undefined`；必须同步                                                      |
-| `resolveCellStyle`    | `ResolveCellStyleHook` | —                       |  否  | `(addr, baseStyle?) => CellStyle \| undefined`；必须同步、O(1) 查找                                     |
+| 参数                  | 类型                   | 默认                    | 必填 | 约束                                                                                                         |
+| --------------------- | ---------------------- | ----------------------- | :--: | ------------------------------------------------------------------------------------------------------------ |
+| `workbook`            | `Workbook`             | 内部自建单 sheet 工作簿 |  否  | 运行期更换引用触发整表重建（tabs、网格、事件重绑）                                                           |
+| `rows`                | `number`               | `100`                   |  否  | 渲染行数；只决定可视区尺寸，不限制模型写入范围                                                               |
+| `cols`                | `number`               | `26`                    |  否  | 渲染列数（A..Z）                                                                                             |
+| `showToolbar`         | `boolean`              | `true`                  |  否  | `false` 时工具栏整体不渲染                                                                                   |
+| `showFormulaBar`      | `boolean`              | `true`                  |  否  | 公式栏含名称框与 fx 输入栏；填报页必须设 `false`                                                             |
+| `showTabs`            | `boolean`              | `true`                  |  否  | 底部标签栏：点击切换、末尾「+」新增、右键重命名/删除                                                         |
+| `showRowHeader`       | `boolean`              | `true`                  |  否  | 行号列；右键菜单含插入/删除行、冻结到当前行                                                                  |
+| `showColHeader`       | `boolean`              | `true`                  |  否  | 列字母表头；右键菜单含插入/删除列、冻结到当前列                                                              |
+| `readonly`            | `boolean`              | `false`                 |  否  | 整表只读预览；按格控制改用模型 `setCellReadonly`                                                             |
+| `resolveDisplayValue` | `ResolveDisplayValue`  | —                       |  否  | `(addr, base) => CellValue \| undefined`；必须同步                                                           |
+| `resolveCellStyle`    | `ResolveCellStyleHook` | —                       |  否  | `(addr, baseStyle?) => CellStyle \| undefined`；必须同步、O(1) 查找                                          |
 | `resolveCellRenderer` | `ResolveCellRenderer`  | —                       |  否  | `(addr, base) => CellRenderer \| undefined`；返回 undefined 回落默认渲染（类型见 `@veltra/sheet-core/grid`） |
 
 ## 方法与事件
@@ -155,11 +155,11 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 
 模板 ref 用 `useTemplateRef<SheetExposed>('sheetRef')` 取值。均为同步方法：
 
-| 成员             | 签名                         | 说明                                                                |
-| ---------------- | ---------------------------- | ------------------------------------------------------------------- |
-| `workbook`       | `Workbook`                   | 当前工作簿；`props.workbook` 缺省时为内部自建实例                   |
-| `getActiveSheet` | `(): Sheet`                  | 当前活动 `Sheet` 实例；模型读写从这里进                             |
-| `getContext`     | `(): SheetContext`           | 工具上下文，成员清单见下                                            |
+| 成员             | 签名                         | 说明                                                                                  |
+| ---------------- | ---------------------------- | ------------------------------------------------------------------------------------- |
+| `workbook`       | `Workbook`                   | 当前工作簿；`props.workbook` 缺省时为内部自建实例                                     |
+| `getActiveSheet` | `(): Sheet`                  | 当前活动 `Sheet` 实例；模型读写从这里进                                               |
+| `getContext`     | `(): SheetContext`           | 工具上下文，成员清单见下                                                              |
 | `getGrid`        | `(): SheetGrid \| undefined` | 底层网格实例（调试/测试用），未挂载时 `undefined`；模型变更自动同步视图，无需手动刷新 |
 
 `getActiveSheet()` 返回的 `Sheet` 来自 `@veltra/sheet-core`。填报只读控制的三个模型方法签名（本包不 re-export）：

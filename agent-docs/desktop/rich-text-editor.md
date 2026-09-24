@@ -220,7 +220,7 @@ const rte = useTemplateRef('rte')
 
 async function submit() {
   // upload 接收 File、返回服务器地址；返回值为替换完成后的最终内容（格式遵循 format）
-  const finalHtml = await rte.value!.uploadImages(file => uploadImageApi(file))
+  const finalHtml = await rte.value!.uploadImages((file) => uploadImageApi(file))
   await saveContentApi({ content: finalHtml })
 }
 </script>

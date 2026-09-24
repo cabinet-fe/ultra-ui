@@ -86,4 +86,19 @@ describe('wrap 行高引擎', () => {
       grid.release()
     }
   })
+
+  it('只扫有数据格：wrap 样式的空列不撑行高', () => {
+    const sheet = new Sheet()
+    sheet.setCellStyle(
+      { start: { row: 0, col: 0 }, end: { row: 9, col: 0 } },
+      { align: { wrap: true } }
+    )
+    const { grid } = createGrid({ sheet })
+    try {
+      // 无文本内容：估算不高于默认行高（宽表空列不参与扫描的性能口径）
+      expect(sheet.getRowHeight(0) ?? SHEET_DEFAULT_ROW_HEIGHT).toBe(SHEET_DEFAULT_ROW_HEIGHT)
+    } finally {
+      grid.release()
+    }
+  })
 })

@@ -40,14 +40,23 @@ export function createGrid(options: Partial<SheetGridOptions> = {}): CreatedGrid
 export function fire(
   container: HTMLElement,
   type: string,
-  init: { clientX?: number; clientY?: number; button?: number; bubbles?: boolean } = {}
+  init: {
+    clientX?: number
+    clientY?: number
+    button?: number
+    bubbles?: boolean
+    ctrlKey?: boolean
+    shiftKey?: boolean
+  } = {}
 ): void {
   const event = new MouseEvent(type, {
     bubbles: init.bubbles ?? true,
     cancelable: true,
     clientX: init.clientX ?? 0,
     clientY: init.clientY ?? 0,
-    button: init.button ?? 0
+    button: init.button ?? 0,
+    ctrlKey: init.ctrlKey ?? false,
+    shiftKey: init.shiftKey ?? false
   })
   container.dispatchEvent(event)
 }

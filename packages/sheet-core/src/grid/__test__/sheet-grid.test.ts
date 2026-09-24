@@ -86,6 +86,52 @@ describe('SheetGrid 数据面（模型直挂）', () => {
   })
 })
 
+describe('SheetGrid 行列尺寸拖拽持久化', () => {
+  it('列宽拖拽结束写 Sheet（onColResizeEnd → setColWidth），重建后还原', async () => {
+    const created = createGrid()
+    const { container, sheet } = created
+    try {
+      // 第 0 列右缘（46 + 80 = 126，±4 手柄区）列头带内按下，拖 +30
+      fire(container, 'pointerdown', { clientX: 126, clientY: 10 })
+      fire(container, 'pointermove', { clientX: 156, clientY: 10 })
+      fire(container, 'pointerup', { clientX: 156, clientY: 10 })
+      await flushMicrotasks()
+      expect(created.table.getColWidth(0)).toBe(110)
+      expect(sheet.getColWidth(0)).toBe(110)
+    } finally {
+      created.grid.release()
+    }
+    const rebuilt = createGrid({ sheet, container })
+    try {
+      expect(rebuilt.table.getColWidth(0)).toBe(110)
+    } finally {
+      rebuilt.grid.release()
+    }
+  })
+
+  it('行高拖拽结束写 Sheet（onRowResizeEnd → setRowHeight），重建后还原', async () => {
+    const created = createGrid()
+    const { container, sheet } = created
+    try {
+      // 第 0 行下缘（28 + 28 = 56，±4 手柄区）行号列带内拖 +30
+      fire(container, 'pointerdown', { clientX: 20, clientY: 54 })
+      fire(container, 'pointermove', { clientX: 20, clientY: 84 })
+      fire(container, 'pointerup', { clientX: 20, clientY: 84 })
+      await flushMicrotasks()
+      expect(created.table.getRowHeight(0)).toBe(58)
+      expect(sheet.getRowHeight(0)).toBe(58)
+    } finally {
+      created.grid.release()
+    }
+    const rebuilt = createGrid({ sheet, container })
+    try {
+      expect(rebuilt.table.getRowHeight(0)).toBe(58)
+    } finally {
+      rebuilt.grid.release()
+    }
+  })
+})
+
 describe('SheetGrid 合并与冻结', () => {
   it('合并映射：merge-change → 引擎合并生效，被覆盖格显示锚点文本；unmerge 恢复', async () => {
     const { grid, table, sheet } = createGrid()
@@ -96,6 +142,10 @@ describe('SheetGrid 合并与冻结', () => {
       expect(table.getCellText(0, 0)).toBe('M')
       // 被覆盖格路由主格（引擎 mergeCells 语义）
       expect(table.getCellText(1, 1)).toBe('M')
+
+      // 编辑提交走锚点路由：更新主格后被覆盖格文本立即刷新
+      table.updateCell(0, 0, 'M2')
+      expect(table.getCellText(1, 1)).toBe('M2')
 
       sheet.unmergeCells({ start: { row: 0, col: 0 }, end: { row: 1, col: 1 } })
       await flushMicrotasks()
@@ -213,6 +263,15 @@ describe('SheetGrid 键盘', () => {
       })
       container.dispatchEvent(redo)
       expect(sheet.getCellData({ row: 1, col: 1 })?.v).toBe('x')
+      // Ctrl+Y 等价重做
+      container.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true })
+      )
+      expect(sheet.getCellData({ row: 1, col: 1 })).toBeUndefined()
+      container.dispatchEvent(
+        new KeyboardEvent('keydown', { key: 'y', ctrlKey: true, bubbles: true })
+      )
+      expect(sheet.getCellData({ row: 1, col: 1 })?.v).toBe('x')
     } finally {
       grid.release()
     }
@@ -272,6 +331,53 @@ describe('SheetGrid 编辑生命周期与 hooks', () => {
     try {
       expect(resolveCellStyle).toHaveBeenCalled()
       expect(sheet.getCellData({ row: 0, col: 0 })?.s).toBeUndefined()
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('resolveCellStyle 返回 undefined 回落模型基础样式（不吞列/行/格静态样式）', () => {
+    const { grid, table, sheet } = createGrid({
+      resolveCellStyle: (addr) => (addr.col === 1 ? { fill: { color: '#00FF00' } } : undefined)
+    })
+    try {
+      sheet.setCellStyle(
+        { start: { row: 0, col: 0 }, end: { row: 0, col: 0 } },
+        { fill: { color: '#FF0000' } }
+      )
+      // hook 未命中：基础样式原样生效
+      expect(table.resolveStyle(0, 0).background).toBe('#FF0000')
+      // hook 命中：动态样式覆盖（无基础样式的格）
+      expect(table.resolveStyle(1, 0).background).toBe('#00FF00')
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('resolveCellRenderer 合并区按锚点回调，base 为显示值', () => {
+    const seen: Array<{ addr: { row: number; col: number }; base: unknown }> = []
+    const sheet = new Sheet()
+    sheet.setCellValue({ row: 0, col: 0 }, 'M')
+    sheet.mergeCells({ start: { row: 0, col: 0 }, end: { row: 1, col: 1 } })
+    const { grid } = createGrid({
+      sheet,
+      resolveCellRenderer: (addr, base) => {
+        seen.push({ addr, base })
+        return undefined
+      }
+    })
+    try {
+      const anchorCalls = seen.filter((s) => s.addr.row === 0 && s.addr.col === 0)
+      expect(anchorCalls.length).toBeGreaterThan(0)
+      expect(anchorCalls[0]?.base).toBe('M')
+      // 被覆盖格不独立回调（引擎路由主格）
+      for (const s of seen) {
+        const covered =
+          (s.addr.row === 0 && s.addr.col === 1) ||
+          (s.addr.row === 1 && s.addr.col === 0) ||
+          (s.addr.row === 1 && s.addr.col === 1)
+        expect(covered).toBe(false)
+      }
     } finally {
       grid.release()
     }

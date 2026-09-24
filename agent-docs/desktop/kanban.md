@@ -47,11 +47,7 @@ const columns = ref<KanbanColumnItem[]>([
       { id: 2, title: '任务 2' }
     ]
   },
-  {
-    key: 'done',
-    title: '已完成',
-    items: [{ id: 3, title: '任务 3' }]
-  }
+  { key: 'done', title: '已完成', items: [{ id: 3, title: '任务 3' }] }
 ])
 </script>
 
@@ -127,14 +123,14 @@ export type KanbanExposed = {}
 
 ## 参数说明
 
-| 参数           | 类型                | 默认       | 必填 | 约束                                                                                                              |
-| -------------- | ------------------- | ---------- | :--: | ----------------------------------------------------------------------------------------------------------------- |
-| `columns`      | `KanbanColumnItem[]` | —          |  否  | 每列必须含 `key: string` 与 `items`；绑定后拖拽结果经 `update:columns` 写回，不绑定时组件内部自治维护数据          |
-| `cardKey`      | `string`            | `'id'`     |  否  | 卡片唯一标识字段名，卡片数据必须含该字段（作为渲染 key）                                                          |
-| `titleKey`     | `string`            | `'title'`  |  否  | 列标题字段名，同时作为默认卡片内容的取值字段；默认卡片内容缺失时回退显示 `card[cardKey]`                           |
-| `disabled`     | `boolean`           | `false`    |  否  | `true` 时全部列禁用拖拽，根节点带 `is-disabled` 类名                                                             |
-| `countable`    | `boolean`           | `true`     |  否  | `false` 时列头不渲染计数徽标                                                                                     |
-| `placeholder`  | `string`            | `'暂无内容'` |  否  | 空列占位文案；空列的卡片容器始终渲染，可作为拖放目标                                                              |
+| 参数          | 类型                 | 默认         | 必填 | 约束                                                                                                      |
+| ------------- | -------------------- | ------------ | :--: | --------------------------------------------------------------------------------------------------------- |
+| `columns`     | `KanbanColumnItem[]` | —            |  否  | 每列必须含 `key: string` 与 `items`；绑定后拖拽结果经 `update:columns` 写回，不绑定时组件内部自治维护数据 |
+| `cardKey`     | `string`             | `'id'`       |  否  | 卡片唯一标识字段名，卡片数据必须含该字段（作为渲染 key）                                                  |
+| `titleKey`    | `string`             | `'title'`    |  否  | 列标题字段名，同时作为默认卡片内容的取值字段；默认卡片内容缺失时回退显示 `card[cardKey]`                  |
+| `disabled`    | `boolean`            | `false`      |  否  | `true` 时全部列禁用拖拽，根节点带 `is-disabled` 类名                                                      |
+| `countable`   | `boolean`            | `true`       |  否  | `false` 时列头不渲染计数徽标                                                                              |
+| `placeholder` | `string`             | `'暂无内容'` |  否  | 空列占位文案；空列的卡片容器始终渲染，可作为拖放目标                                                      |
 
 ## 方法与事件
 
@@ -164,11 +160,7 @@ import { UTag, UKanban } from '@veltra/desktop'
 import { ref } from 'vue'
 
 const columns = ref<KanbanColumnItem[]>([
-  {
-    key: 'todo',
-    title: '待办',
-    items: [{ id: 1, title: '联调接口', desc: '与后端核对字段' }]
-  },
+  { key: 'todo', title: '待办', items: [{ id: 1, title: '联调接口', desc: '与后端核对字段' }] },
   { key: 'archive', title: '归档', items: [] }
 ])
 
@@ -219,7 +211,13 @@ const columns = ref<KanbanColumnItem[]>([
 </script>
 
 <template>
-  <u-kanban v-model:columns="columns" card-key="no" title-key="name" placeholder="拖卡片到这里" style="height: 360px" />
+  <u-kanban
+    v-model:columns="columns"
+    card-key="no"
+    title-key="name"
+    placeholder="拖卡片到这里"
+    style="height: 360px"
+  />
 </template>
 ```
 

@@ -59,6 +59,17 @@ describe('浮动图片同步（模型 ↔ 引擎浮动层）', () => {
       })
       await flushMicrotasks()
       expect(table.floatObjects.get(id)?.src).toBe('https://example.com/x.png')
+      // 未声明 fit：fill 兜底；声明 contain 时透传引擎（等比缩放）
+      expect(table.floatObjects.get(id)?.fit).toBe('fill')
+      const contained = sheet.insertImage({
+        data: new Uint8Array(),
+        type: 'png',
+        src: 'https://example.com/y.png',
+        fit: 'contain',
+        anchor: { from: { row: 3, col: 3 } }
+      })
+      await flushMicrotasks()
+      expect(table.floatObjects.get(contained)?.fit).toBe('contain')
 
       sheet.updateImage(id, { anchor: { from: { row: 2, col: 2 } } })
       await flushMicrotasks()
@@ -147,9 +158,9 @@ describe('浮动图片同步（模型 ↔ 引擎浮动层）', () => {
     }
   })
 
-  it('只读模式：浮动层只读（可选中不可拖拽）', async () => {
+  it('只读模式：浮动层只读（可选中不可拖拽，Delete 不删除）', async () => {
     ensureObjectURLStubs()
-    const { grid, table, sheet } = createGrid({ readonly: true })
+    const { grid, container, table, sheet } = createGrid({ readonly: true })
     try {
       const id = sheet.insertImage({
         data: PNG_BYTES,
@@ -160,6 +171,12 @@ describe('浮动图片同步（模型 ↔ 引擎浮动层）', () => {
       expect(table.floatObjects.isReadonly).toBe(true)
       expect(table.floatObjects.beginDrag(id, cellX(0), cellY(0))).toBe(false)
       expect(table.floatObjects.getSelectedId()).toBeNull()
+
+      // 选中查看可用；Delete 键不删除（模型经命令写入口只在非只读）
+      table.floatObjects.select(id)
+      expect(table.floatObjects.getSelectedId()).toBe(id)
+      container.dispatchEvent(new KeyboardEvent('keydown', { key: 'Delete', bubbles: true }))
+      expect(sheet.getImage(id)).toBeDefined()
     } finally {
       grid.release()
     }

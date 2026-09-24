@@ -45,6 +45,63 @@ describe('选区双向同步', () => {
     }
   })
 
+  it('区域拖选结束：模型保留完整区域不收缩为单格', async () => {
+    const { grid, container, sheet } = createGrid()
+    try {
+      fire(container, 'pointerdown', { clientX: cellX(1), clientY: cellY(1) })
+      fire(container, 'pointermove', { clientX: cellX(3), clientY: cellY(3) })
+      fire(container, 'pointerup', { clientX: cellX(3), clientY: cellY(3) })
+      await flushMicrotasks()
+      expect(sheet.getSelection().ranges[0]).toEqual({
+        start: { row: 1, col: 1 },
+        end: { row: 3, col: 3 }
+      })
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('行号/列头指针点击 → 整行/整列选区落模型（活动格在交互行/列）', async () => {
+    const { grid, container, sheet } = createGrid({ rows: 10, cols: 5 })
+    try {
+      fire(container, 'pointerdown', { clientX: 10, clientY: cellY(2) })
+      fire(container, 'pointerup', { clientX: 10, clientY: cellY(2) })
+      await flushMicrotasks()
+      expect(sheet.getSelection().ranges[0]).toEqual({
+        start: { row: 2, col: 0 },
+        end: { row: 2, col: 4 }
+      })
+      expect(sheet.getSelection().activeCell?.row).toBe(2)
+
+      fire(container, 'pointerdown', { clientX: cellX(3), clientY: 10 })
+      fire(container, 'pointerup', { clientX: cellX(3), clientY: 10 })
+      await flushMicrotasks()
+      expect(sheet.getSelection().ranges[0]).toEqual({
+        start: { row: 0, col: 3 },
+        end: { row: 9, col: 3 }
+      })
+      expect(sheet.getSelection().activeCell?.col).toBe(3)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('Ctrl 加选禁用（ctrlMultiSelect: false）：追加点击仍单区域', async () => {
+    const { grid, container, table, sheet } = createGrid()
+    try {
+      fire(container, 'pointerdown', { clientX: cellX(1), clientY: cellY(1) })
+      fire(container, 'pointerup', { clientX: cellX(1), clientY: cellY(1) })
+      fire(container, 'pointerdown', { clientX: cellX(3), clientY: cellY(3), ctrlKey: true })
+      fire(container, 'pointerup', { clientX: cellX(3), clientY: cellY(3), ctrlKey: true })
+      await flushMicrotasks()
+      expect(table.getSelectedCellRanges()).toHaveLength(1)
+      expect(sheet.getSelection().ranges).toHaveLength(1)
+      expect(sheet.getSelection().activeCell).toEqual({ row: 3, col: 3 })
+    } finally {
+      grid.release()
+    }
+  })
+
   it('模型 → 表格：视口外目标滚动可见', () => {
     const { grid, table, sheet } = createGrid({ rows: 100, cols: 26 })
     try {

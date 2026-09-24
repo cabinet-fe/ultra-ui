@@ -111,18 +111,18 @@ export function usePop(options: Options): PopResult
 
 ## 参数说明
 
-| 参数                      | 类型                                              | 默认       | 必填 | 约束                                                                     |
-| ------------------------- | ------------------------------------------------- | ---------- | :--: | ------------------------------------------------------------------------ |
-| `triggerRef`              | `ShallowRef<HTMLElement \| undefined>`            | —          |  是  | 仅读取 `.value`，传 `computed`、模板 ref 均可；变化不会自动触发 `update` |
+| 参数                      | 类型                                              | 默认       | 必填 | 约束                                                                         |
+| ------------------------- | ------------------------------------------------- | ---------- | :--: | ---------------------------------------------------------------------------- |
+| `triggerRef`              | `ShallowRef<HTMLElement \| undefined>`            | —          |  是  | 仅读取 `.value`，传 `computed`、模板 ref 均可；变化不会自动触发 `update`     |
 | `contentRef`              | `ShallowRef<HTMLElement \| undefined>`            | —          |  是  | 元素出现时自动定位并挂滚动监听，尺寸变化时自动重新定位；元素移除时自动卸监听 |
-| `arrowRef`                | `ShallowRef<HTMLElement \| undefined>`            | —          |  否  | 必须在 `update` 执行时已挂载，否则本次不启用箭头                         |
-| `direction`               | `'top' \| 'bottom' \| 'left' \| 'right'` 或其 ref | `'top'`    |  否  | 与 `alignment` 组合成 12 种 placement                                    |
-| `alignment`               | `'center' \| 'start' \| 'end'` 或其 ref           | `'center'` |  否  | `center` 时 placement 不带后缀，如 `'top'`；其余为 `'top-start'` 形式    |
-| `arrowSize`               | `number`                                          | `10`       |  否  | 单位 px；有箭头时 `offset` 距离取 `arrowSize`，无箭头时固定 `6`          |
-| `onTriggerPositionChange` | `() => void`                                      | —          |  否  | 只有传入该回调才会监听触发器祖先 `scroll` 与 `window.resize`             |
-| `onBeforeUpdate`          | `(triggerEl, contentEl) => void`                  | —          |  否  | 每次有效 `update` 前调用，可在此改内容元素宽度等样式                     |
-| `onAfterUpdate`           | `(position: ComputePositionReturn) => void`       | —          |  否  | 每次有效 `update` 后调用                                                 |
-| `onPop`                   | `(position: ComputePositionReturn) => void`       | —          |  否  | 仅内容出现、`direction` / `alignment` 变化触发的自动 `update` 时调用     |
+| `arrowRef`                | `ShallowRef<HTMLElement \| undefined>`            | —          |  否  | 必须在 `update` 执行时已挂载，否则本次不启用箭头                             |
+| `direction`               | `'top' \| 'bottom' \| 'left' \| 'right'` 或其 ref | `'top'`    |  否  | 与 `alignment` 组合成 12 种 placement                                        |
+| `alignment`               | `'center' \| 'start' \| 'end'` 或其 ref           | `'center'` |  否  | `center` 时 placement 不带后缀，如 `'top'`；其余为 `'top-start'` 形式        |
+| `arrowSize`               | `number`                                          | `10`       |  否  | 单位 px；有箭头时 `offset` 距离取 `arrowSize`，无箭头时固定 `6`              |
+| `onTriggerPositionChange` | `() => void`                                      | —          |  否  | 只有传入该回调才会监听触发器祖先 `scroll` 与 `window.resize`                 |
+| `onBeforeUpdate`          | `(triggerEl, contentEl) => void`                  | —          |  否  | 每次有效 `update` 前调用，可在此改内容元素宽度等样式                         |
+| `onAfterUpdate`           | `(position: ComputePositionReturn) => void`       | —          |  否  | 每次有效 `update` 后调用                                                     |
+| `onPop`                   | `(position: ComputePositionReturn) => void`       | —          |  否  | 仅内容出现、`direction` / `alignment` 变化触发的自动 `update` 时调用         |
 
 ## 方法与事件
 
