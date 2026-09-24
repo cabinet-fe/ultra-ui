@@ -472,6 +472,26 @@ function validateBudget(): BudgetError[] {
 
 const sheetRef = useTemplateRef<SheetExposed>('sheetRef')
 
+/**
+ * 触发可视窗口样式重估（替代旧门面的 refresh()）：
+ * pull 式样式叠加（校验标红 / 填写区高亮）在重绘时经 resolveCellStyle 求值，
+ * 而错误集 / 提交态 / 活动表名变化不产生模型事件（模型变更才会自动同步视图），
+ * 需经引擎公开 refreshCell 对可视窗口逐格重估一次（与门面内部可视窗口刷新
+ * 同口径；窗口外格滚入时按当前状态新绘，无需补刷）。
+ */
+function refreshGridStyles(): void {
+  const table = sheetRef.value?.getGrid()?.getTable()
+  if (!table) return
+  const { rows, cols } = table.getBodyVisibleCellRange()
+  table.batchUpdate(() => {
+    for (let row = rows.start; row < rows.end; row++) {
+      for (let col = cols.start; col < cols.end; col++) {
+        table.refreshCell(col, row)
+      }
+    }
+  })
+}
+
 function rebuildErrorKeys(): void {
   errorKeys.clear()
   for (const err of errors.value) {
@@ -489,7 +509,7 @@ async function submit(): Promise<void> {
   rebuildErrorKeys()
   if (errors.value.length > 0) {
     // 标红立即生效（resolveCellStyle 在重绘时求值）
-    sheetRef.value?.getGrid()?.refresh()
+    refreshGridStyles()
     return
   }
   summary.setCellValue(STATUS_ADDR, '已提交') // 经 cell-change 自动持久化
@@ -497,7 +517,7 @@ async function submit(): Promise<void> {
   for (const name of SHEET_NAMES) sheets[name]!.history.clear() // 提交后为新基线
   submitted.value = true
   await flushPending()
-  sheetRef.value?.getGrid()?.refresh()
+  refreshGridStyles() // 摘除填写区高亮（提交态变化无模型事件，需重估样式）
 }
 
 async function withdraw(): Promise<void> {
@@ -507,7 +527,7 @@ async function withdraw(): Promise<void> {
   for (const name of SHEET_NAMES) sheets[name]!.history.clear()
   submitted.value = false
   await flushPending()
-  sheetRef.value?.getGrid()?.refresh()
+  refreshGridStyles() // 恢复填写区高亮（提交态变化无模型事件，需重估样式）
 }
 
 /** 错误面板点击定位：切到目标 sheet 并选中出错格（grid 随之滚动到可见） */
@@ -520,9 +540,10 @@ function jumpToError(err: BudgetError): void {
 
 function onActiveSheetChange(payload: { sheet: Sheet }): void {
   activeSheetName.value = payload.sheet.name
-  // USheet 内部先建/绘 grid 再透传本事件，首帧样式可能按旧 sheet 名求值；
-  // 名称落地后强制重绘一次（表单规模小，refresh 代价可忽略）
-  void nextTick(() => sheetRef.value?.getGrid()?.refresh())
+  // USheet 内部先建/绘 grid 再透传本事件，首帧样式可能按旧 sheet 名求值
+  // （缓存命中切回则保留上次离开时的画面）；名称落地后重估可视窗口样式一次
+  // （表单规模小，代价可忽略）
+  void nextTick(() => refreshGridStyles())
 }
 
 // ─── 加载已存数据 ───────────────────────────────────────────

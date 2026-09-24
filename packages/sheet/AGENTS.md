@@ -13,7 +13,7 @@ src/
 └── types/                # SheetProps / SheetEmits / SheetExposed
 ```
 
-模型、命令、公式、IO、SheetGrid、ImageLayer 等 core/grid 内容全部在 `packages/sheet-core/src/`（`core/`、`grid/`），其分层约定、核心语义、VTable 适配要点、性能要点与已知限制见 `packages/sheet-core/AGENTS.md`，本文件不再重复。
+模型、命令、公式、IO、SheetGrid 等 core/grid 内容全部在 `packages/sheet-core/src/`（`core/`、`grid/`），其分层约定、核心语义、引擎适配要点、性能要点与已知限制见 `packages/sheet-core/AGENTS.md`，本文件不再重复。
 
 ## 分层约定
 
@@ -30,7 +30,7 @@ src/
 
 ## 引用 sheet-core
 
-- 模型 / 命令 / 公式 / IO 走主入口（`from '@veltra/sheet-core'`）。`SheetGrid` / `CustomLayout` / `resolveCellRenderer` 走 `@veltra/sheet-core/grid`。本包主入口**不 re-export** sheet-core 符号——sheet-core 独立发包，消费方（含 playground）直导；不要为图省事把 core 符号挂回 `@veltra/sheet`。
+- 模型 / 命令 / 公式 / IO 走主入口（`from '@veltra/sheet-core'`）。`SheetGrid` / `resolveCellRenderer` 及 hooks 类型走 `@veltra/sheet-core/grid`。本包主入口**不 re-export** sheet-core 符号——sheet-core 独立发包，消费方（含 playground）直导；不要为图省事把 core 符号挂回 `@veltra/sheet`。
 - 白名单外符号（io 转换函数、内部类型等）深导入 `@veltra/sheet-core/core/*` 必须带 `.js` 后缀（如 `@veltra/sheet-core/core/io/import.js`）：exports 的 `./*` 把请求原样映射到 `./dist/*`，不做扩展名补全，漏写后缀 tsc 报 TS2307。已在主入口导出的符号（`Sheet` / `Workbook` / `CellRange` 等）直接走主入口，不必深导入。
 - 类成员方法（`Sheet.setCell` / `setCellStyles` / `CellStore.setCellValue` 等）为内部便捷写入口，非公开承诺 API——见 `packages/sheet-core/AGENTS.md`「核心语义」注。
 
@@ -50,7 +50,7 @@ src/
 
 - **SheetContext 门面**：`insertImage(input)` / `removeImage(id)` / `updateImage(id, patch)` / `getImages()` / `onImageChange(handler)`（读写走命令/事件，不暴露 Sheet）。
 - **UI 入口**：工具栏 `insert-image`（组 `insert`，弹层 `UFilePicker` 本地文件 + URL 输入并存）；右键「插入图片」直接拉起系统文件框；共享逻辑 `components/sheet/insert-image.ts`（`insertImageFromFile` / `insertImageFromUrl`）。
-- 叠层渲染与拖动交互在 sheet-core `grid/image-layer.ts`，见其 AGENTS.md。
+- 叠层渲染与拖动交互在 sheet-core `grid/grid-float-images.ts`，见其 AGENTS.md。
 
 ## 导入导出
 

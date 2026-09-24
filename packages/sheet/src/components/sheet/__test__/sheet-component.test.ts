@@ -152,7 +152,7 @@ describe('USheet 组件', () => {
     expect(tabs(el).map((tab) => tab.textContent?.trim())).toEqual(['Sheet1', 'Sheet2'])
     expect(tabs(el)[0]!.classList.contains('is-active')).toBe(true)
 
-    // VTable 已挂载到 grid 容器
+    // 引擎表格已挂载到 grid 容器
     expect(el.querySelector('.u-sheet__grid canvas')).not.toBeNull()
 
     // 单行滚动结构：工具按钮全部位于滚动视口内的 list 容器
@@ -212,8 +212,9 @@ describe('USheet 组件', () => {
     await nextTick()
 
     expect(tabs(el)[1]!.classList.contains('is-active')).toBe(true)
-    // grid 实例缓存：切换后旧实例保留（LRU，visibility:hidden），容器内有 2 个 canvas
-    expect(el.querySelectorAll('.u-sheet__grid canvas')).toHaveLength(2)
+    // grid 实例缓存：切换后旧实例保留（LRU，visibility:hidden），容器内有 2 个实例
+    // （引擎画布为 [data-layer-kind] 分层栈，实例数以实例容器为准）
+    expect(el.querySelectorAll('.u-sheet__grid-instance')).toHaveLength(2)
     // 激活实例可见、旧实例隐藏
     const instances = el.querySelectorAll<HTMLElement>('.u-sheet__grid-instance')
     expect(instances[0]!.style.visibility).toBe('hidden')
@@ -222,10 +223,10 @@ describe('USheet 组件', () => {
     // 工具上下文（与工具按钮同一门面）指向切换后的 sheet
     expect(exposed.value?.getContext().sheetName).toBe('Sheet2')
 
-    // grid 已重建到 Sheet2：写入 Sheet2 应在表格可见
+    // grid 已重建到 Sheet2：写入 Sheet2 应在表格可见（引擎数据坐标 (0,0) = 模型 A1）
     workbook.getSheet('Sheet2')!.setCellValue({ row: 0, col: 0 }, 's2')
     await nextTick()
-    expect(exposed.value?.getGrid()?.getTable().getCellValue(1, 1)).toBe('s2')
+    expect(exposed.value?.getGrid()?.getTable().getCellText(0, 0)).toBe('s2')
   })
 
   it('props 变更响应：showToolbar/showTabs 显隐，rows 变化重建 grid', async () => {
@@ -271,11 +272,13 @@ describe('USheet 组件', () => {
     workbook.activeSheet.setCellValue({ row: 0, col: 0 }, 'A1')
     await nextTick()
     const table = exposed.value!.getGrid()!.getTable()
-    expect(table.options.showHeader).toBe(false)
-    expect(table.options.rowSeriesNumber).toBeUndefined()
-    expect(table.columnHeaderLevelCount).toBe(0)
-    expect(table.rowCount).toBe(8)
-    expect(table.getCellValue(0, 0)).toBe('A1')
+    expect(table.options.showRowHeader).toBe(false)
+    expect(table.options.showColHeader).toBe(false)
+    // 行号列与列头折叠：内容原点回落 (0,0)
+    expect(table.getDrawRange().x).toBe(0)
+    expect(table.getDrawRange().y).toBe(0)
+    expect(table.getBodyVisibleCellRange().rows.end).toBe(8)
+    expect(table.getCellText(0, 0)).toBe('A1')
   })
 
   it('删除行后渲染行数跟随模型收缩（不被 props.rows 撑回）', async () => {
@@ -286,14 +289,15 @@ describe('USheet 组件', () => {
 
     const sheet = exposed.value!.getActiveSheet()
     expect(sheet.rows).toBe(10)
-    expect(exposed.value!.getGrid()!.getTable().rowCount).toBe(11) // 列头 + 10
+    // 渲染行数 = 引擎数据行数（无列头 +1；窗口终点被引擎夹取到模型行数）
+    expect(exposed.value!.getGrid()!.getTable().getBodyVisibleCellRange().rows.end).toBe(10)
 
     sheet.deleteRows(0, 2)
     await nextTick()
     await nextTick()
 
     expect(sheet.rows).toBe(8)
-    expect(exposed.value!.getGrid()!.getTable().rowCount).toBe(9) // 列头 + 8
+    expect(exposed.value!.getGrid()!.getTable().getBodyVisibleCellRange().rows.end).toBe(8)
   })
 
   it('resolveCellStyle prop 传入 SheetGrid 视口渲染', async () => {
@@ -325,11 +329,8 @@ describe('USheet 组件', () => {
 
     const table = exposed.value?.getGrid()?.getTable()
     expect(table).toBeDefined()
-    const column = table!.getBodyColumnDefine(2, 2) as {
-      style?: (arg: { row: number; col: number; table: unknown }) => Record<string, unknown>
-    }
-    const rendered = column.style!({ row: 2, col: 2, table })
-    expect(rendered.bgColor).toBe('#FFE0E0')
+    // 引擎公开样式投影：格 (1,1) 命中 resolveCellStyle 补丁（fill → background 覆盖）
+    expect(table!.resolveStyle(1, 1).background).toBe('#FFE0E0')
     expect(sheet.getCellStyle(addr)?.fill?.color).toBe('#CCCCCC')
   })
 
@@ -596,7 +597,7 @@ describe('USheet 组件', () => {
     expect(sheet.getCellStyle({ row: 0, col: 0 })).toBeUndefined()
   })
 
-  it('冻结：模型 setFrozen 驱动 VTable 冻结布局联动（工具栏入口已迁至右键菜单）', async () => {
+  it('冻结：模型 setFrozen 驱动引擎冻结布局联动（工具栏入口已迁至右键菜单）', async () => {
     const workbook = createWorkbook()
     const sheet = workbook.activeSheet
     const exposed: { value: SheetExposed | undefined } = { value: undefined }
@@ -606,17 +607,18 @@ describe('USheet 组件', () => {
     sheet.setFrozen(1, 0)
     await nextTick()
     expect(sheet.frozen).toEqual({ rows: 1, cols: 0 })
-    // 模型 1 行 → frozenRowCount = 2：列头行 + 首行；列保持 1：行号列
-    expect(exposed.value?.getGrid()?.getTable().frozenRowCount).toBe(2)
-    expect(exposed.value?.getGrid()?.getTable().frozenColCount).toBe(1)
+    // 模型冻结数即引擎数据冻结数（行列头不计数，无 ±1）
+    expect(exposed.value?.getGrid()?.getTable().getFrozenRowCount()).toBe(1)
+    expect(exposed.value?.getGrid()?.getTable().getFrozenColCount()).toBe(0)
 
     sheet.setFrozen(1, 1)
     await nextTick()
-    expect(exposed.value?.getGrid()?.getTable().frozenColCount).toBe(2)
+    expect(exposed.value?.getGrid()?.getTable().getFrozenColCount()).toBe(1)
 
     sheet.setFrozen(0, 0)
     await nextTick()
     expect(sheet.frozen).toEqual({ rows: 0, cols: 0 })
+    expect(exposed.value?.getGrid()?.getTable().getFrozenRowCount()).toBe(0)
   })
 
   it('导入：点击直接拉起系统文件选择，不打开弹层、不产生历史条目', async () => {

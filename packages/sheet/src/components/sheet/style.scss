@@ -147,7 +147,7 @@
     gap: fn.use-var(gap, small);
     padding: fn.use-var(gap, small);
     border-bottom: 1px solid fn.use-var(border, muted-color);
-    // 浮起的 fx 输入面板 / 候选列表需盖住下方 grid 与浮动图片叠层（image-layer z-index:1）
+    // 浮起的 fx 输入面板 / 候选列表需盖住下方 grid 与浮动图片叠层（引擎画布分层 z 序）
     position: relative;
     z-index: 30;
   }
@@ -717,7 +717,7 @@
   }
 
   /* LRU 缓存实例容器：absolute 堆叠于 grid 区，非激活实例 visibility:hidden
-     （保持尺寸不触发 VTable resize，切回仅翻转可见性 + 选区回驱） */
+     （保持尺寸不触发引擎表格 resize，切回仅翻转可见性 + 选区回驱） */
   @include m.e(grid-instance) {
     position: absolute;
     inset: 0;

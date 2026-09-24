@@ -55,9 +55,9 @@ interface CachedGrid {
 
 /**
  * 缓存容量：最近 N 个 sheet 的 SheetGrid 实例常驻（tab 来回切换零重建）。
- * 大文件多 sheet 场景下切换卡顿的主因是每次重建 VTable（实例创建 + scenegraph
+ * 大文件多 sheet 场景下切换卡顿的主因是每次重建引擎表格（实例创建 + 画布分层
  * 首屏构建 ~300ms）；缓存命中时仅切换容器可见性 + 选区回驱（≈0）。
- * 每实例持有一个 canvas + scenegraph，容量即内存上限（含隐藏实例的渲染开销）。
+ * 每实例持有一组 [data-layer-kind] 分层画布，容量即内存上限（含隐藏实例的渲染开销）。
  */
 const GRID_CACHE_CAPACITY = 3
 
@@ -198,8 +198,8 @@ export function useSheetGrid(options: UseSheetGridOptions) {
    * 命中时校验实例是否过期（隐藏期间程序化 structure-change——插入/删除/undo
    * 行列——vue 层只绑定激活 sheet 的 structure-change，隐藏实例靠自持订阅标记
    * dirty）；过期则释放重建。命中且未过期只翻可见性：隐藏实例的 cell/merge/
-   * content-reset 已在 GridSyncManager 置脏，setVisible(true) 时一次性 flush，
-   * 不必每次切 tab 都 syncFromModel（会重放全部列宽）。
+   * content-reset 已在 SheetGrid 内部置脏，setVisible(true) 时一次性全量同步，
+   * 无需宿主补推送。
    */
   function activateGrid(): void {
     const sheet = getActiveSheet()

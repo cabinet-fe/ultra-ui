@@ -226,8 +226,8 @@ describe('USheet 公式栏（名称框 + fx 输入栏）', () => {
     await nextTick()
     expect(sheet.getCellData({ row: 2, col: 0 })).toMatchObject({ f: 'SUM(A1:A2)', v: 3 })
 
-    // 提交后网格渲染计算值（模型 A3 → 表格坐标 (1,3)）
-    expect(exposed.value?.getGrid()?.getTable().getCellValue(1, 3)).toBe(3)
+    // 提交后网格渲染计算值（模型 A3 = 引擎数据坐标 (0,2)，无行列头偏移）
+    expect(exposed.value?.getGrid()?.getTable().getCellText(0, 2)).toBe('3')
   })
 
   it('网格侧编辑提交（change_cell_value）后公式栏同步显示', async () => {
@@ -239,8 +239,8 @@ describe('USheet 公式栏（名称框 + fx 输入栏）', () => {
     sheet.selectCell({ row: 0, col: 0 })
     await nextTick()
 
-    // 模拟网格双击编辑提交（与 grid 测试同一路径：change_cell_value → 模型回写）
-    exposed.value?.getGrid()?.getTable().changeCellValue(1, 1, 'grid-edited', false, true)
+    // 模拟网格编辑提交（引擎公开回写 API：updateCell → TableModel → 模型命令系统）
+    exposed.value?.getGrid()?.getTable().updateCell(0, 0, 'grid-edited')
     await nextTick()
     expect(fxInput(el).value).toBe('grid-edited')
   })
@@ -255,14 +255,14 @@ describe('USheet 公式栏（名称框 + fx 输入栏）', () => {
     sheet.selectCell({ row: 0, col: 0 })
     await nextTick()
 
-    // 程序化进入网格编辑（表格坐标 (1,1) = 模型 A1）
-    exposed.value?.getGrid()?.getTable().startEditCell(1, 1)
+    // 程序化进入网格编辑（引擎数据坐标 (0,0) = 模型 A1）
+    expect(exposed.value?.getGrid()?.getTable().startEdit(0, 0)).toBe(true)
     await nextTick()
     expect(fxInput(el).readOnly).toBe(true)
     expect(fxInput(el).value).toBe('=SUM(1,2)')
 
     // 提交 → 编辑器 onEnd → 公式栏退出镜像（显示模型内容）
-    exposed.value?.getGrid()?.getTable().completeEditCell()
+    exposed.value?.getGrid()?.getTable().commitEdit()
     await nextTick()
     expect(sheet.getCellData({ row: 0, col: 0 })).toMatchObject({ f: 'SUM(1,2)' })
     expect(fxInput(el).readOnly).toBe(false)
@@ -271,7 +271,6 @@ describe('USheet 公式栏（名称框 + fx 输入栏）', () => {
 
   it('tab 切换：重绑订阅并刷新（新 sheet 的选区 / 单元格内容回显）', async () => {
     const workbook = createWorkbook()
-    const sheet1 = workbook.activeSheet
     const sheet2 = workbook.getSheet('Sheet2')!
     const { el } = mount(() => ({ workbook, rows: 20, cols: 8 }))
     await nextTick()
@@ -551,15 +550,24 @@ describe('USheet 公式栏：函数补全与引用选择', () => {
     const input = setFxText(el, '=SUM(')
     await nextTick()
 
-    // pointerdown on grid → blur 不提交（引用选择）；监听绑定在实例容器（LRU 缓存）
+    // 画布数据格按下（引擎选区事件管线）→ 引用插入 + blur 挂起（引用选择）；
+    // pointerdown 监听绑定在实例容器（LRU 缓存）。画布几何口径与 sheet-core
+    // grid-theme 一致（行号列 46、列头 28、列宽 80、行高 28）→ (51, 117) 命中 A4
     const gridEl = el.querySelector('.u-sheet__grid-instance')!
-    gridEl.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))
+    gridEl.dispatchEvent(
+      new PointerEvent('pointerdown', { clientX: 51, clientY: 117, bubbles: true })
+    )
+    await nextTick()
+    expect(sheet.getCellData({ row: 2, col: 0 })).toBeUndefined()
+    expect(input.value).toBe('=SUM(A4')
+
+    // 插入后失焦仍被挂起（beginBlurSuppress 置位）：草稿不提交
     input.dispatchEvent(new FocusEvent('blur'))
     await nextTick()
     expect(sheet.getCellData({ row: 2, col: 0 })).toBeUndefined()
-    expect(input.value).toBe('=SUM(')
+    expect(input.value).toBe('=SUM(A4')
 
-    // 网格选区拦截 → handleRefSelect 路径（VTable 时序见 sheet-core selection-debug）
+    // 网格选区拦截 → handleRefSelect 路径（引擎选区事件管线，见 sheet-core grid-selection）
     const { el: barEl, exposed: barExposed } = mountFormulaBar(sheet)
     await nextTick()
     setFxText(barEl, '=SUM(')
@@ -588,13 +596,13 @@ describe('USheet 公式栏：函数补全与引用选择', () => {
     sheet.selectCell({ row: 0, col: 0 })
     await nextTick()
 
-    exposed.value?.getGrid()?.getTable().startEditCell(1, 1)
+    expect(exposed.value?.getGrid()?.getTable().startEdit(0, 0)).toBe(true)
     await nextTick()
     expect(fxInput(el).readOnly).toBe(true)
     expect(fxInput(el).value).toBe('=SUM(1,2)')
     expect(suggestList(el)).toBeNull()
 
-    exposed.value?.getGrid()?.getTable().completeEditCell()
+    exposed.value?.getGrid()?.getTable().commitEdit()
     await nextTick()
   })
 
@@ -644,19 +652,14 @@ describe('USheet 公式栏：函数补全与引用选择', () => {
 
 // ─── 目标格选区高亮保持（弹框打开与参数点选期间）──────────────
 
-/** VTable 事件名（ListTable.EVENT_TYPE 常量值；@veltra/sheet 不直接依赖 @visactor/vtable，不做运行时引入） */
-const EVT_SELECTED_CELL = 'selected_cell'
-const EVT_DRAG_SELECT_END = 'drag_select_end'
-
 type GridTable = ReturnType<SheetGrid['getTable']>
 
-/** 模拟画布点选格（VTable 时序：selectCells → SELECTED_CELL） */
+/** 模拟画布点选格（引擎选区事件管线：selectCells 即驱动拦截 / 回写路径） */
 function canvasClickCell(table: GridTable, col: number, row: number): void {
   table.selectCells([{ start: { col, row }, end: { col, row } }])
-  table.fireListeners(EVT_SELECTED_CELL, { col, row })
 }
 
-/** 画布当前选区末尾项（表格坐标；VTable 范围对象含额外内部字段，按坐标匹配） */
+/** 画布当前选区末尾项（引擎数据坐标，无行列头偏移） */
 function lastCanvasRange(table: GridTable) {
   return table.getSelectedCellRanges().at(-1)
 }
@@ -675,19 +678,19 @@ describe('USheet 公式栏：目标格选区高亮保持', () => {
     await flushPopup()
     expect(functionsPanel()).not.toBeNull()
 
-    // 弹框打开期间点选画布 B2（表格坐标 (2,2)）
+    // 弹框打开期间点选画布 B2（引擎数据坐标 (1,1)）
     const table = exposed.value!.getGrid()!.getTable()
-    canvasClickCell(table, 2, 2)
+    canvasClickCell(table, 1, 1)
 
     expect(sheet.getSelection().activeCell).toEqual({ row: 2, col: 0 })
     expect(sheet.getSelection().ranges[0]).toEqual({
       start: { row: 2, col: 0 },
       end: { row: 2, col: 0 }
     })
-    // 画布选区回推为目标格 A3（表格坐标 (1,3)），名称框仍显示 A3
+    // 画布选区回推为目标格 A3（引擎数据坐标 (0,2)），名称框仍显示 A3
     expect(lastCanvasRange(table)).toMatchObject({
-      start: { col: 1, row: 3 },
-      end: { col: 1, row: 3 }
+      start: { col: 0, row: 2 },
+      end: { col: 0, row: 2 }
     })
     expect(nameBox(el).value).toBe('A3')
     // 未处于引用选择上下文：不插入引用文本
@@ -713,15 +716,15 @@ describe('USheet 公式栏：目标格选区高亮保持', () => {
     const input = fxInput(el)
     expect(input.value).toBe('=SUM()')
 
-    // 点选参数格 A1（表格坐标 (1,1)）→ 只插入引用文本（括号随 =SUM() 模板闭合），目标格选区不变
+    // 点选参数格 A1（引擎数据坐标 (0,0)）→ 只插入引用文本（括号随 =SUM() 模板闭合），目标格选区不变
     const table = exposed.value!.getGrid()!.getTable()
-    canvasClickCell(table, 1, 1)
+    canvasClickCell(table, 0, 0)
     await nextTick()
     expect(input.value).toBe('=SUM(A1)')
     expect(sheet.getSelection().activeCell).toEqual({ row: 2, col: 0 })
     expect(lastCanvasRange(table)).toMatchObject({
-      start: { col: 1, row: 3 },
-      end: { col: 1, row: 3 }
+      start: { col: 0, row: 2 },
+      end: { col: 0, row: 2 }
     })
     expect(nameBox(el).value).toBe('A3')
 
@@ -732,8 +735,8 @@ describe('USheet 公式栏：目标格选区高亮保持', () => {
     expect(sheet.getSelection().activeCell).toEqual({ row: 2, col: 0 })
     expect(nameBox(el).value).toBe('A3')
     expect(lastCanvasRange(table)).toMatchObject({
-      start: { col: 1, row: 3 },
-      end: { col: 1, row: 3 }
+      start: { col: 0, row: 2 },
+      end: { col: 0, row: 2 }
     })
   })
 
@@ -755,23 +758,21 @@ describe('USheet 公式栏：目标格选区高亮保持', () => {
 
     // 弹框打开期间点选画布 B2：目标格 A3 高亮保持、模型选区不变、不插入文本
     const table = exposed.value!.getGrid()!.getTable()
-    canvasClickCell(table, 2, 2)
+    canvasClickCell(table, 1, 1)
     expect(sheet.getSelection().activeCell).toEqual({ row: 2, col: 0 })
     expect(lastCanvasRange(table)).toMatchObject({
-      start: { col: 1, row: 3 },
-      end: { col: 1, row: 3 }
+      start: { col: 0, row: 2 },
+      end: { col: 0, row: 2 }
     })
     expect(fxInput(el).value).toBe('')
 
-    // 选中 SUM → 拖选参数区域 A1:A2（SELECTED_CELL → DRAG_SELECT_END 完整时序）
+    // 选中 SUM → 拖选参数区域 A1:A2（引擎选区事件：selectCells 即完整时序）
     document.querySelector<HTMLElement>('#pop-container .u-sheet__functions-item')!.click()
     await nextTick()
     await nextTick()
     const input = fxInput(el)
     expect(input.value).toBe('=SUM()')
-    table.selectCells([{ start: { col: 1, row: 1 }, end: { col: 1, row: 2 } }])
-    table.fireListeners(EVT_SELECTED_CELL, { col: 1, row: 2 })
-    table.fireListeners(EVT_DRAG_SELECT_END, {})
+    table.selectCells([{ start: { col: 0, row: 0 }, end: { col: 0, row: 1 } }])
     await nextTick()
     expect(input.value).toBe('=SUM(A1:A2)')
     expect(sheet.getSelection().activeCell).toEqual({ row: 2, col: 0 })
@@ -808,8 +809,8 @@ describe('USheet 公式栏：目标格选区高亮保持', () => {
     expect(sheet.getSelection().activeCell).toEqual({ row: 2, col: 0 })
     expect(nameBox(el).value).toBe('A3')
     expect(lastCanvasRange(exposed.value!.getGrid()!.getTable())).toMatchObject({
-      start: { col: 1, row: 3 },
-      end: { col: 1, row: 3 }
+      start: { col: 0, row: 2 },
+      end: { col: 0, row: 2 }
     })
   })
 })

@@ -22,7 +22,7 @@ keywords:
 
 # IO 文件导入导出（XLSX / CSV）
 
-`@veltra/sheet-core` 主入口导出五个 IO 函数：`importXlsx` / `importCsv` 导入、`exportWorkbookXlsx` / `exportSheetXlsx` / `exportSheetCsv` 导出。底层引擎是 `hucre`，全部可无头使用（不依赖 DOM / Vue / VTable）。`buildWorkbookFromHucre` / `replaceWorkbookWithSnapshots` 及流式 API 不在导出白名单，不是公开承诺 API。
+`@veltra/sheet-core` 主入口导出五个 IO 函数：`importXlsx` / `importCsv` 导入、`exportWorkbookXlsx` / `exportSheetXlsx` / `exportSheetCsv` 导出。底层引擎是 `hucre`，全部可无头使用（不依赖 DOM / Vue / 表格引擎）。`buildWorkbookFromHucre` / `replaceWorkbookWithSnapshots` 及流式 API 不在导出白名单，不是公开承诺 API。
 
 ## 快速上手
 

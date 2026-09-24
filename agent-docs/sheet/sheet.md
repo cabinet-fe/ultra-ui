@@ -89,7 +89,7 @@ export interface SheetProps {
   resolveDisplayValue?: ResolveDisplayValue
   /** 动态单元格样式：视口渲染时叠加样式补丁，不写 CellData.s */
   resolveCellStyle?: ResolveCellStyleHook
-  /** 动态单元格渲染：按格返回 VTable customLayout；返回 undefined 回落默认渲染；不写模型、不进快照 */
+  /** 动态单元格渲染：按格返回引擎 CellRenderer；返回 undefined 回落默认渲染；不写模型、不进快照 */
   resolveCellRenderer?: ResolveCellRenderer
   /** 是否显示工具栏，默认 true */
   showToolbar?: boolean
@@ -143,7 +143,7 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 | `readonly`            | `boolean`              | `false`                 |  否  | 整表只读预览；按格控制改用模型 `setCellReadonly`                                                        |
 | `resolveDisplayValue` | `ResolveDisplayValue`  | —                       |  否  | `(addr, base) => CellValue \| undefined`；必须同步                                                      |
 | `resolveCellStyle`    | `ResolveCellStyleHook` | —                       |  否  | `(addr, baseStyle?) => CellStyle \| undefined`；必须同步、O(1) 查找                                     |
-| `resolveCellRenderer` | `ResolveCellRenderer`  | —                       |  否  | `(addr, base) => ICustomLayoutObj \| undefined`；布局构建用 `@veltra/sheet-core/grid` 的 `CustomLayout` |
+| `resolveCellRenderer` | `ResolveCellRenderer`  | —                       |  否  | `(addr, base) => CellRenderer \| undefined`；返回 undefined 回落默认渲染（类型见 `@veltra/sheet-core/grid`） |
 
 ## 方法与事件
 
@@ -160,7 +160,7 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 | `workbook`       | `Workbook`                   | 当前工作簿；`props.workbook` 缺省时为内部自建实例                   |
 | `getActiveSheet` | `(): Sheet`                  | 当前活动 `Sheet` 实例；模型读写从这里进                             |
 | `getContext`     | `(): SheetContext`           | 工具上下文，成员清单见下                                            |
-| `getGrid`        | `(): SheetGrid \| undefined` | 底层网格实例，未挂载时 `undefined`；`getGrid()?.refresh()` 强制重绘 |
+| `getGrid`        | `(): SheetGrid \| undefined` | 底层网格实例（调试/测试用），未挂载时 `undefined`；模型变更自动同步视图，无需手动刷新 |
 
 `getActiveSheet()` 返回的 `Sheet` 来自 `@veltra/sheet-core`。填报只读控制的三个模型方法签名（本包不 re-export）：
 

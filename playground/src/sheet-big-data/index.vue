@@ -2,7 +2,7 @@
   <div class="big-data-demo">
     <div class="big-data-demo__hint">
       Phase 6 大数据量演示：seeded 伪随机生成 1 万 / 5 万 / 10 万行 × 12 列数据，一次
-      <code>setCells</code> 批量写入（数据初始化不进 undo 历史），随后挂载 USheet 由 VTable
+      <code>setCells</code> 批量写入（数据初始化不进 undo 历史），随后挂载 USheet 由引擎
       虚拟滚动渲染。数据中每格混入 20 种循环填充色——样式经 StylePool 按内容去重， 池条目数 ≪
       单元格数。同一「规模 + 种子」生成结果完全一致，可复现压测。
     </div>
@@ -300,7 +300,7 @@ function parseSeed(): number {
  *    （避免 10 万行补丁长期驻留 undo 栈，也释放补丁内存峰值）
  * 3. 挂载 USheet（rows = 数据行数），双 rAF 后记录首次渲染耗时
  * 写入耗时 = 纯模型路径（无视图逐格同步，cell-change 无订阅者）；
- * 视图由 VTable 一次性构建 records 承担。
+ * 视图由引擎画布一次性建模承担。
  */
 async function generate(): Promise<void> {
   if (busy.value === 'generating') return

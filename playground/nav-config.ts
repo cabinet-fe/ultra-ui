@@ -169,7 +169,7 @@ export function buildPlaygroundMenus(): NavItem[] {
     },
     {
       title: 'Sheet 电子表格',
-      description: '预览 @veltra/sheet 电子表格（VTable 渲染，自持有数据模型）',
+      description: '预览 @veltra/sheet 电子表格（引擎渲染，自持有数据模型）',
       icon: FormTable as DefineComponent,
       path: '/sheet',
       children: [

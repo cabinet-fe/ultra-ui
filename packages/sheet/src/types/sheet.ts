@@ -20,7 +20,7 @@ export interface SheetProps {
   /** 渲染列数，默认 26（A..Z） */
   cols?: number
   /**
-   * 显示值覆盖（设计态 Binding Placeholder 等）：覆盖 VTable record，不写 CellData.v
+   * 显示值覆盖（设计态 Binding Placeholder 等）：覆盖引擎视口显示文本，不写 CellData.v
    */
   resolveDisplayValue?: ResolveDisplayValue
   /**
@@ -28,9 +28,9 @@ export interface SheetProps {
    */
   resolveCellStyle?: ResolveCellStyleHook
   /**
-   * 动态单元格渲染（ADR-0004）：视口布局时按格自定义渲染形态（VTable
-   * customLayout，布局构建用 sheet-core 导出的 CustomLayout），返回 undefined
-   * 回落默认渲染；不写模型、不进快照
+   * 动态单元格渲染（ADR-0004）：视口布局时按格自定义渲染形态（返回引擎
+   * `CellRenderer`，见 `@veltra/sheet-core/grid`），返回 undefined 回落默认渲染；
+   * 不写模型、不进快照
    */
   resolveCellRenderer?: ResolveCellRenderer
   /** 是否显示工具栏，默认 true */

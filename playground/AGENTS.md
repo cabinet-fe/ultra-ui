@@ -104,7 +104,7 @@ cd playground && vp build    # 生产构建
 `src/sheet-big-data/index.vue`（nav-config `sheet-big-data`，Sheet 顶层菜单「大数据量演示」）：
 
 - 规模 1 万 / 5 万 / 10 万行 × 12 列 + seed（默认 42）；mulberry32 seeded PRNG，同 seed 数据完全一致（可复现压测）。
-- 流程：生成 items → `sheet.setCells(items)` 一次批量写入（单 undo 单元，初始化 `history.clear()` 不进 undo）→ 挂载 USheet。**写入先于挂载**（cell-change 无订阅者 → 耗时 = 纯模型路径），渲染由 VTable 一次性构建 records——「批量写入」与「首次渲染」分开计时（`performance.now()` + 双 rAF）。
+- 流程：生成 items → `sheet.setCells(items)` 一次批量写入（单 undo 单元，初始化 `history.clear()` 不进 undo）→ 挂载 USheet。**写入先于挂载**（cell-change 无订阅者 → 耗时 = 纯模型路径），渲染由引擎一次性建模——「批量写入」与「首次渲染」分开计时（`performance.now()` + 双 rAF）。
 - 样式池压测：每格 20 色循环填充（先 `stylePool.intern` 取 StyleId），面板展示池条目 ≪ 单元格数与去重率。
 - 冒烟：冻结首行（`setFrozen(1,0)`）、查找计时（`findAll`，数据每 997 行埋 `NEEDLE-{row}`）、导出 xlsx（`exportWorkbookXlsx` + Blob 下载，计时 + 体积）。
 - 实测基线见 `packages/sheet/AGENTS.md`「大数据量（Phase 6）」小节。
