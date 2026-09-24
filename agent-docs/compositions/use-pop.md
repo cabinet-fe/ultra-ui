@@ -114,7 +114,7 @@ export function usePop(options: Options): PopResult
 | 参数                      | 类型                                              | 默认       | 必填 | 约束                                                                     |
 | ------------------------- | ------------------------------------------------- | ---------- | :--: | ------------------------------------------------------------------------ |
 | `triggerRef`              | `ShallowRef<HTMLElement \| undefined>`            | —          |  是  | 仅读取 `.value`，传 `computed`、模板 ref 均可；变化不会自动触发 `update` |
-| `contentRef`              | `ShallowRef<HTMLElement \| undefined>`            | —          |  是  | 元素出现时自动定位并挂滚动监听；元素移除时自动卸监听                     |
+| `contentRef`              | `ShallowRef<HTMLElement \| undefined>`            | —          |  是  | 元素出现时自动定位并挂滚动监听，尺寸变化时自动重新定位；元素移除时自动卸监听 |
 | `arrowRef`                | `ShallowRef<HTMLElement \| undefined>`            | —          |  否  | 必须在 `update` 执行时已挂载，否则本次不启用箭头                         |
 | `direction`               | `'top' \| 'bottom' \| 'left' \| 'right'` 或其 ref | `'top'`    |  否  | 与 `alignment` 组合成 12 种 placement                                    |
 | `alignment`               | `'center' \| 'start' \| 'end'` 或其 ref           | `'center'` |  否  | `center` 时 placement 不带后缀，如 `'top'`；其余为 `'top-start'` 形式    |
@@ -135,6 +135,7 @@ export function usePop(options: Options): PopResult
 自动行为：
 
 - `contentRef` 出现、`direction` 或 `alignment` 变化：自动 `update(true)`，并给触发器祖先滚动元素与 `window` 挂监听（前提是传了 `onTriggerPositionChange`）
+- `contentRef` 尺寸变化（ResizeObserver，v1.8.2 起）：自动 `update()`，不触发 `onPop`；面板高度随内容增减时保持贴住触发器，如向上弹出的下拉在搜索过滤后变矮
 - `contentRef` 变为 `undefined`：移除上述监听
 - 组件卸载（`onBeforeUnmount`）：自动移除滚动与 resize 监听，无需手动清理；`#pop-container` 容器为应用级单例，不随组件卸载移除
 
@@ -241,7 +242,7 @@ async function onTriggerReplaced() {
 > - 内容元素必须自带 `position: absolute`（组件库的 `u-tip__content`、`u-dropdown__content` 均如此）；`usePop` 只写 `left` / `top`，不设置 `position`，缺省时坐标写在内联样式上但元素仍按文档流定位。
 > - 本库用 `direction`（4 值）+ `alignment`（3 值）两个参数表达方位，不是 Floating UI 的 `placement` 字符串参数；最终 placement 由两者拼接。
 > - 调用 `usePop` 时会立即访问 `document` 创建容器，必须在浏览器环境调用；不支持 SSR。
-> - `onPop` 只在内容出现与 `direction` / `alignment` 变化时触发；手动调用 `update()` 只触发 `onBeforeUpdate` / `onAfterUpdate`。
+> - `onPop` 只在内容出现与 `direction` / `alignment` 变化时触发；内容尺寸变化触发的自动重定位与手动调用 `update()` 一样只触发 `onBeforeUpdate` / `onAfterUpdate`。
 > - `triggerRef` 变化不会自动重新定位，替换触发元素后必须手动 `update()`。
 > - 箭头元素的尺寸与对侧偏移（`-arrowSize/2`）由 `usePop` 写入内联样式，禁止在 CSS 里给箭头写死 `width` / `height`。
 

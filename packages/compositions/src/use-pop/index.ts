@@ -10,6 +10,8 @@ import {
 import { getScrollParents, setStyles } from '@veltra/utils'
 import { isRef, onBeforeUnmount, watch, type Ref, type ShallowRef } from 'vue'
 
+import { useResizeObserver } from '../use-resize-observer'
+
 type TipDirection = 'top' | 'bottom' | 'left' | 'right'
 type TipAlign = 'center' | 'start' | 'end'
 
@@ -147,6 +149,10 @@ export function usePop(options: Options): PopResult {
   }
 
   let scrollParents: HTMLElement[] = []
+
+  // 面板内容尺寸变化时（如向上弹出的 select 搜索后面板变矮）需重新定位，
+  // 否则 top 仍按初始高度计算，面板底部会离触发器越来越远
+  useResizeObserver({ targets: contentRef, onResize: () => update() })
 
   /** 为触发器元素的祖先元素添加滚动事件 */
   function addScrollEvents() {
