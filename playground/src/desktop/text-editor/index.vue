@@ -11,7 +11,9 @@
     <URichTextEditor v-model="modelValue" readonly />
 
     <h3>图片延迟上传</h3>
-    <p>粘贴 / 拖拽 / 工具栏插入图片，本地即时预览，提交时统一上传</p>
+    <p>
+      粘贴 / 拖拽 / 工具栏插入图片，本地即时预览，提交时统一上传；点击图片可选中，拖动右下角手柄缩放
+    </p>
 
     <URichTextEditor ref="rte" v-model="content" />
 
@@ -33,7 +35,10 @@ const submitted = shallowRef('')
 const rte = useTemplateRef('rte')
 
 function setValue() {
-  modelValue.value = '<p>你好</p><p>世界</p>'
+  const image = `data:image/svg+xml,${encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" width="360" height="200"><rect width="100%" height="100%" fill="#4a7dff"/><text x="50%" y="50%" fill="#fff" font-size="24" text-anchor="middle" dominant-baseline="middle">360 x 200</text></svg>'
+  )}`
+  modelValue.value = `<p>你好</p><p><img src="${image}" alt="示例图"></p>`
 }
 
 /** 模拟上传：800ms 后返回服务器地址 */

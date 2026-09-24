@@ -1,6 +1,6 @@
 ---
 title: URichTextEditor 富文本编辑器
-description: '基于 Lexical 0.50 封装的富文本编辑器：v-model 绑定 HTML 或 Lexical EditorState JSON 字符串，内置加粗、标题、列表、引用、链接、图片等工具栏，支持图片延迟上传（插入即时本地预览，提交时经 ref.uploadImages 统一上传换取服务器地址）、占位文本、自定义工具栏、禁用只读与表单集成。'
+description: '基于 Lexical 0.50 封装的富文本编辑器：v-model 绑定 HTML 或 Lexical EditorState JSON 字符串，内置加粗、标题、列表、引用、链接、图片等工具栏，支持图片延迟上传（插入即时本地预览，提交时经 ref.uploadImages 统一上传换取服务器地址）、图片选中与拖拽缩放（尺寸随 HTML width/height 属性持久化）、占位文本、自定义工具栏、禁用只读与表单集成。'
 aliases: [RichTextEditor, rich-text-editor, 富文本, RTE, 所见即所得编辑器, Lexical 封装]
 keywords:
   [
@@ -27,6 +27,10 @@ keywords:
     图片延迟上传,
     粘贴图片,
     拖拽图片,
+    图片缩放,
+    调整图片大小,
+    图片选中,
+    图片尺寸,
     blob URL,
     占位文本,
     撤销重做,
@@ -198,6 +202,7 @@ export interface ValidateRule {
 - `update:modelValue(value: string)`：输入、删除或工具栏操作导致内容变化时触发；`value` 按 `format` 序列化（`'html'` 用 Lexical 的 `$generateHtmlFromNodes`，`'json'` 用 `JSON.stringify(editorState.toJSON())`）。IME 组字进行中不触发，组字结束后同步。
 - `uploadImages(upload: (file: File) => Promise<string>): Promise<string>`（ref 方法，异步）：上传编辑器内所有待上传图片。对每张图片调用 `upload`（并发 `Promise.all`），成功后把对应 `<img>` 的 `src` 从本地 `blob:` URL 替换为返回的服务器地址，并返回替换后的最终内容字符串（格式遵循 `format`；`v-model` 同步更新为同一结果）。错误：任一 `upload` 拒绝时整体 reject（透传原错误），已成功的替换不落地、全部图片保持待上传状态，可整体重试；上传进行中重复调用 reject `Error('图片正在上传中')`；组件未挂载时返回当前 `model` 值。幂等：已替换为服务器地址的图片不再上传，重复提交安全。
 - 内置行为：撤销历史上限 300 步；`'heading'` 渲染为「正文 / Heading 1~6」下拉；`'link'` 点击后弹浏览器原生 `prompt` 输入 URL，取消或留空不插入，再点一次已有链接的文本则移除链接；`image` 开启时（默认）粘贴 / 拖拽图片文件与工具栏 `'image'` 按钮（弹出系统文件选择，`accept="image/*"` 多选）均插入图片，仅处理 `image/*` 类型文件，非图片文件走默认行为；`disabled` / `readonly` 状态下不处理图片输入。
+- 图片选中与缩放（v1.9.0 起，`image` 开启且非 `disabled` / `readonly` 时可用）：点击图片选中（描边 + 右下角缩放手柄），拖拽手柄等比调整尺寸（最小 24px，最大不超过编辑区内容宽度），松手后尺寸写入节点并保持选中；`Esc` 取消选中；选中状态按 `Backspace` / `Delete` 删除图片；尺寸随序列化输出——`format="html"` 时导出 `<img>` 的 `width` / `height` 属性（未调整过的图片不输出这两个属性），`format="json"` 时为节点 `width` / `height` 字段；含 `width` / `height` 属性的既有 HTML 灌入组件时尺寸保留。
 
 ## 典型示例
 
@@ -309,6 +314,7 @@ function submit() {
 > - 图片延迟上传：未调用 `uploadImages` 前，含待上传图片的 `v-model` 值里图片 `src` 是 `blob:` URL，仅当前页面会话内有效；持久化（存库）前必须先 `await uploadImages(...)` 并保存其返回值，直接存含 `blob:` 的值会导致回显裂图。
 > - 待上传的 `File` 只存在于当前编辑会话：把含 `blob:` 的值重新灌回组件（如刷新后回显）不会还原待上传状态，仅当普通图片地址显示（会话外 `blob:` 已失效）。
 > - `image` 属性默认 `true`：存量页面粘贴 / 拖拽截图会开始插入图片；不需要图片的表单必须显式 `:image="false"`。
+> - 缩放后的图片导出为带 `width` / `height` 属性的 `<img>`（v1.9.0 起）：宿主页面渲染保存的 HTML 时按属性尺寸显示；宿主若对 `img` 设置了全局 CSS（如 `img { width: 100% }`），CSS 优先级高于属性，会覆盖编辑时设定的尺寸。
 > - 工具栏项 `'code'` 是行内代码格式；`'code-block'` 当前只渲染按钮，点击不执行任何格式化（未实现），需要代码块的页面改用 `UCodeEditor`。
 > - `'link'` 通过浏览器原生 `prompt` 输入 URL，不是自定义弹窗；程序化设置链接需自行使用 Lexical 的 `TOGGLE_LINK_COMMAND`。
 > - `readonly` 时工具栏整体不渲染；`disabled` 时按钮禁用但工具栏仍在。

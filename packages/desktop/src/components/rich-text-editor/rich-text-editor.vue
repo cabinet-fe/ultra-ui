@@ -88,6 +88,8 @@ import {
   $getRoot,
   $createParagraphNode,
   $nodesOfType,
+  $getSelection,
+  $isNodeSelection,
   $setSelection,
   COMMAND_PRIORITY_HIGH,
   DROP_COMMAND,
@@ -110,6 +112,7 @@ import {
   revokeImageObjectUrls
 } from './image-node'
 import Toolbar from './toolbar.vue'
+import { useImageResize } from './use-image-resize'
 
 const props = withDefaults(defineProps<RichTextEditorProps>(), {
   disabled: undefined,
@@ -151,6 +154,11 @@ const showPlaceholder = ref(true)
 let isComposing = false
 let cleanupFns: (() => void)[] = []
 
+const acceptsImage = () => props.image && !isDisabled.value && !isReadonly.value
+
+// 图片选中 / 拖拽缩放交互
+useImageResize(editor, acceptsImage)
+
 function initEditor() {
   if (!editorContainer.value) return
 
@@ -172,8 +180,6 @@ function initEditor() {
   cleanupFns.push(registerHistory(editorInstance, createEmptyHistoryState(), 300))
 
   // Image input: paste & drop
-  const acceptsImage = () => props.image && !isDisabled.value && !isReadonly.value
-
   cleanupFns.push(
     editorInstance.registerCommand(
       PASTE_COMMAND,
@@ -353,8 +359,13 @@ watch(model, (newVal) => {
 
 // Watch disabled/readonly changes
 watch([isDisabled, isReadonly], () => {
-  if (editor.value) {
-    editor.value.setEditable(!isDisabled.value && !isReadonly.value)
+  if (!editor.value) return
+  editor.value.setEditable(!isDisabled.value && !isReadonly.value)
+  if (isDisabled.value || isReadonly.value) {
+    // 切出可编辑态时取消可能残留的图片选中
+    editor.value.update(() => {
+      if ($isNodeSelection($getSelection())) $setSelection(null)
+    })
   }
 })
 

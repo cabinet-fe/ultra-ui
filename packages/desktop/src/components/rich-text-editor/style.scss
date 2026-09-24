@@ -388,3 +388,38 @@ $root-name: rich-text-editor;
   height: auto;
   vertical-align: bottom;
 }
+
+// 编辑器内图片 wrapper：承载选中态描边与缩放手柄（宿主直接渲染导出 HTML 时无此结构）
+.u-rte-image-wrap {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  vertical-align: bottom;
+  line-height: 0;
+
+  .u-rte-image {
+    display: block;
+  }
+
+  &.is-selected .u-rte-image {
+    outline: 2px solid fn.use-var(color, primary);
+    border-radius: 2px;
+  }
+}
+
+.u-rte-image-resizer {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  display: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: fn.use-var(bg-color, top);
+  border: 2px solid fn.use-var(color, primary);
+  cursor: nwse-resize;
+
+  .u-rte-image-wrap.is-selected & {
+    display: block;
+  }
+}
