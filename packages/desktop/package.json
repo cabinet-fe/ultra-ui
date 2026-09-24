@@ -55,6 +55,8 @@
     "@embedpdf/plugin-scroll": "^2.15.0",
     "@embedpdf/plugin-viewport": "^2.15.0",
     "@embedpdf/plugin-zoom": "^2.15.0",
+    "@infinite-table/core": "file:/Users/whj/codes/infinite-table/packages/core",
+    "@infinite-table/plugins": "file:/Users/whj/codes/infinite-table/packages/plugins",
     "@lexical/history": "^0.50.0",
     "@lexical/html": "^0.50.0",
     "@lexical/link": "^0.50.0",

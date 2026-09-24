@@ -14,7 +14,7 @@ ultra-ui/
 │   ├── desktop/              # @veltra/desktop 桌面组件主包
 │   │   └── src/components/   # 一目录一组件（index.ts + style.ts）
 │   ├── sheet-core/           # @veltra/sheet-core
-│   │   └── src/{core,grid}/  # 纯 TS 模型 vs VTable 适配
+│   │   └── src/{core,grid}/  # 纯 TS 模型 vs 引擎适配（@infinite-table）
 │   ├── sheet/                # @veltra/sheet Vue 电子表格编辑器
 │   │   └── src/{components,tools,types}/
 │   ├── ai/                   # @veltra/ai
@@ -90,10 +90,12 @@ graph TD
   desktop --> catkit
   desktop -.-> sheetCore
   desktop --> ofdCore
-  sheetCore --> vtable["@visactor/vtable"]
+  desktop --> infTable["@infinite-table/core / plugins"]
   sheetCore --> hucre["hucre"]
+  sheetCore --> infTable
   sheetCore --> catkit
   sheet --> sheetCore
+  sheet --> infTable
   sheet --> desktop
   sheet --> icons
   sheet --> styles
@@ -111,6 +113,7 @@ graph TD
   playground --> ai
   playground --> sheet
   playground --> sheetCore
+  playground --> infTable
   playground --> vitePkg
   skill -.-> desktop
   agentDocs -.-> desktop

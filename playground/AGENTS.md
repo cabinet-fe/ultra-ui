@@ -84,7 +84,7 @@ src/sheet-data-entry/index.vue # 在线填报演示（年度预算：多 sheet �
 
 ## 依赖
 
-- **dependencies**：`@cat-kit/core`、`@cat-kit/fe`、`@veltra/ai`、`@veltra/compositions`、`@veltra/desktop`、`@veltra/directives`、`@veltra/icons`、`@veltra/sheet`、`@veltra/sheet-core`、`@veltra/styles`、`@veltra/utils`、`vue`、`vue-router`
+- **dependencies**：`@cat-kit/core`、`@cat-kit/fe`、`@infinite-table/core`、`@infinite-table/plugins`、`@veltra/ai`、`@veltra/compositions`、`@veltra/desktop`、`@veltra/directives`、`@veltra/icons`、`@veltra/sheet`、`@veltra/sheet-core`、`@veltra/styles`、`@veltra/utils`、`vue`、`vue-router`
 - **devDependencies**：`@veltra/vite`；参考服务：`hono`、`@hono/node-server`
 
 ## 验证

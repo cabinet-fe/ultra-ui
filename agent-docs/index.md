@@ -133,7 +133,7 @@ createApp(App).mount('#app')
 | UIcon                            | 图标：渲染 @veltra/icons 图标组件                                            | `desktop/icon.md`               |
 | UImageCropper                    | 图片裁剪：交互式裁剪区域选择                                                 | `desktop/image-cropper.md`      |
 | UInput                           | 输入框：文本输入，支持前后缀与清空                                           | `desktop/input.md`              |
-| UKanban                         | 看板：列内卡片拖拽排序与跨列转移，v-model:columns 写回                        | `desktop/kanban.md`              |
+| UKanban                          | 看板：列内卡片拖拽排序与跨列转移，v-model:columns 写回                       | `desktop/kanban.md`             |
 | UKbd                             | 键盘按键：快捷键按键样式展示                                                 | `desktop/kbd.md`                |
 | ULayout                          | 布局：CSS Grid 分栏容器，cols / rows / resizable 拖拽调宽                    | `desktop/layout.md`             |
 | UList / UListItem                | 列表：条目列表容器                                                           | `desktop/list.md`               |
@@ -248,7 +248,7 @@ createApp(App).mount('#app')
 | commands  | 命令系统：操作派发与 Undo / Redo 历史撤销重做   | `sheet-core/commands.md`   |
 | formula   | 公式引擎：解析求值与函数扩展                    | `sheet-core/formula.md`    |
 | io        | 文件导入导出：XLSX / CSV                        | `sheet-core/io.md`         |
-| SheetGrid | 渲染网格：VTable 适配层                         | `sheet-core/sheet-grid.md` |
+| SheetGrid | 渲染网格：引擎适配层（@infinite-table）         | `sheet-core/sheet-grid.md` |
 
 ### styles 样式与主题（@veltra/styles）
 

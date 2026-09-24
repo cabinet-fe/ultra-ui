@@ -1,73 +1,63 @@
-import { CustomLayout, ListTable } from '@visactor/vtable'
-import type { ListTableConstructorOptions } from '@visactor/vtable'
-import type { CustomRenderFunctionArg } from '@visactor/vtable/es/ts-types/customElement'
-import type { ICustomLayoutFuc, ICustomLayoutObj } from '@visactor/vtable/es/ts-types/customLayout'
+import {
+  EditorRegistry,
+  ListTable,
+  type CellRange as EngineCellRange,
+  type CellRenderer,
+  type ColumnDefine,
+  type ListTableOptions
+} from '@infinite-table/core'
+import { excelKeymapPreset } from '@infinite-table/plugins'
 
 import type { CellAddress, CellRange } from '../core/address'
 import { colIndexToName } from '../core/address'
 import type { CellValue } from '../core/cell-store'
-import { formatByNumFmt } from '../core/format'
-import type { FrozenState, Sheet } from '../core/sheet'
+import type { Sheet } from '../core/sheet'
 import {
-  GridCoords,
-  type SheetGridContextMenuInfo,
-  type SheetGridContextMenuKind
+  buildContextMenuInfo,
+  hitTestSheetAddr as hitTestSheetAddrAt,
+  type SheetGridContextMenuInfo
 } from './grid-coords'
-import { EDITOR_NAME, registerGridEditor, unregisterGridEditor } from './grid-editor-router'
-import { GridRowHeightEngine, estimateWrapRowHeight } from './grid-row-height-engine'
-import { GridSelectionController } from './grid-selection-controller'
+import { GridFloatImages } from './grid-float-images'
 import {
-  GridStyleResolver,
-  cellStyleToVTableStyle,
-  fontSizePtToPx,
-  type ResolveCellStyleHook
-} from './grid-style-resolver'
-import { GridSyncManager, applyColWidthsFromModel } from './grid-sync-manager'
-import { ImageLayer } from './image-layer'
+  createEngineCellStyle,
+  createEngineDisplayValue,
+  createSheetTableModel,
+  getSheetDisplayValue,
+  type ResolveCellStyleHook,
+  type ResolveDisplayValue
+} from './grid-model'
+import { GridRowHeightEngine } from './grid-row-height-engine'
+import { GridSelectionController } from './grid-selection-controller'
 import {
   SHEET_DEFAULT_COL_WIDTH,
   SHEET_DEFAULT_ROW_HEIGHT,
-  sheetRowSeriesNumberStyle,
-  sheetVTableTheme
-} from './vtable-theme'
+  SHEET_GRID_THEME,
+  SHEET_HEADER_HEIGHT,
+  SHEET_ROW_HEADER_WIDTH
+} from './grid-theme'
 
-export {
-  CustomLayout,
-  cellStyleToVTableStyle,
-  estimateWrapRowHeight,
-  fontSizePtToPx,
-  type ICustomLayoutObj,
-  type ResolveCellStyleHook,
-  type SheetGridContextMenuInfo,
-  type SheetGridContextMenuKind
-}
-
-export type ResolveDisplayValue = (
-  addr: CellAddress,
-  base: CellValue | undefined
-) => CellValue | undefined
-
-/**
- * 动态单元格渲染 Hook（ADR-0004）：视口单元格布局时按格触发。
- * 返回 VTable customLayout 布局对象以自定义该格渲染形态（`renderDefault`
- * 控制是否叠加默认文本）；返回 `undefined` 回落默认渲染。
- * `base` 为 record 显示值（即经 `resolveDisplayValue` 覆盖后的值，空串格为
- * undefined，与 VTable 收到的一致）；合并区域非锚点格 base 为该格自身的空值
- * （值只存锚点），宿主如需合并文本应自行读锚点。纯函数、同步返回、O(1) 查找，
- * 禁止异步操作与大对象分配（见 AGENTS.md「cell hook 性能契约」）。不写模型、
- * 不进快照。布局构建用 `CustomLayout`（Container/Text/Rect…，本模块已
- * re-export）。
- */
+/** 动态单元格渲染 hook（门面形态）：返回引擎 CellRenderer 接管该格内容绘制，undefined 回落默认渲染 */
 export type ResolveCellRenderer = (
   addr: CellAddress,
   base: CellValue | undefined
-) => ICustomLayoutObj | undefined
+) => CellRenderer | undefined
+
+/** 编辑器注册名（实例级 EditorRegistry；引擎无全局注册表，无泄露坑） */
+const EDITOR_NAME = 'sheet-text'
+
+/** 容器未布局时的视口兜底尺寸（happy-dom / 隐藏挂载场景） */
+const FALLBACK_VIEW_W = 960
+const FALLBACK_VIEW_H = 420
 
 export interface SheetGridOptions {
   container: HTMLElement
   sheet: Sheet
   rows?: number
   cols?: number
+  /** 表视口宽（CSS 像素）；缺省测量容器，未布局回落 960 */
+  width?: number
+  /** 表视口高（CSS 像素）；缺省测量容器，未布局回落 420 */
+  height?: number
   resolveDisplayValue?: ResolveDisplayValue
   resolveCellStyle?: ResolveCellStyleHook
   resolveCellRenderer?: ResolveCellRenderer
@@ -83,573 +73,437 @@ export interface SheetGridOptions {
   showColHeader?: boolean
 }
 
-/** VTable 适配层 Facade 入口类 */
+/**
+ * 引擎适配层 Facade 入口类：ultra-ui Sheet 模型 ↔ `@infinite-table/core` ListTable。
+ *
+ * 数据面模型直挂（TableModel 适配 Sheet 存储，编辑提交经引擎回写 Sheet 命令系统）；
+ * 样式/显示 pull 式按格取值（引擎渲染热路径回调，模型变更无需推送）；选区/冻结/
+ * 合并/浮动图经公开事件与运行时 API 双向同步。渲染、触控/惯性滚动、表头拖选、
+ * 填充柄交互、编辑浮层、共享边裁决均为引擎内置，无 vtable 绕坑代码。
+ */
 export class SheetGrid {
   private readonly sheet: Sheet
   private readonly table: ListTable
   private readonly container: HTMLElement
-  private rows: number
-  private cols: number
-  private readonly onContextMenu?: (info: SheetGridContextMenuInfo) => void
-  private readonly onEditStart?: (addr: CellAddress) => void
-  private readonly onEditEnd?: (addr: CellAddress) => void
-  private readonly resolveDisplayValue?: ResolveDisplayValue
-  private readonly resolveCellRenderer?: ResolveCellRenderer
+  private readonly hooks: {
+    resolveDisplayValue?: ResolveDisplayValue
+    resolveCellStyle?: ResolveCellStyleHook
+    resolveCellRenderer?: ResolveCellRenderer
+  }
   private readonly isReadonly: boolean
   private readonly showRowHeader: boolean
   private readonly showColHeader: boolean
-  private readonly disposers: (() => void)[] = []
-  private editingAddr: CellAddress | null = null
-
-  private readonly coords: GridCoords
-  private readonly styleResolver: GridStyleResolver
   private readonly rowHeightEngine: GridRowHeightEngine
   private readonly selectionController: GridSelectionController
-  private readonly syncManager: GridSyncManager
-  private readonly imageLayer: ImageLayer
+  private readonly floatImages: GridFloatImages
+  private readonly disposers: (() => void)[] = []
+  /** LRU 可见性：隐藏实例停用视图同步（只置脏），激活时一次性全量同步 */
+  private visible = true
+  private dirty = false
+  private resyncScheduled = false
+  /** 隐藏期间发生值变更的行（激活后补 wrap 行高估算） */
+  private pendingWrapRows = new Set<number>()
+  private released = false
+  private resizeObserver: ResizeObserver | undefined
+  /** 已应用到引擎的合并区签名（判重跳过） */
+  private lastMergeSignature = ''
 
   constructor(options: SheetGridOptions) {
     this.sheet = options.sheet
     this.container = options.container
-    // options 仅扩张：已声明更小的模型尺寸（删行后）不被 props 下限撑回
-    this.sheet.ensureTableSize(options.rows ?? 100, options.cols ?? 26)
-    this.sheet.ensureTableSize(this.sheet.rowCount, this.sheet.colCount)
-    this.rows = Math.max(this.sheet.rows, 1)
-    this.cols = Math.max(this.sheet.cols, 1)
-    this.onContextMenu = options.onContextMenu
-    this.onEditStart = options.onEditStart
-    this.onEditEnd = options.onEditEnd
-    this.resolveDisplayValue = options.resolveDisplayValue
-    this.resolveCellRenderer = options.resolveCellRenderer
+    this.hooks = {
+      resolveDisplayValue: options.resolveDisplayValue,
+      resolveCellStyle: options.resolveCellStyle,
+      resolveCellRenderer: options.resolveCellRenderer
+    }
     this.isReadonly = options.readonly ?? false
     this.showRowHeader = options.showRowHeader ?? true
     this.showColHeader = options.showColHeader ?? true
 
-    this.coords = new GridCoords()
-    this.styleResolver = new GridStyleResolver(this.sheet, this.cols, this.rows, {
-      resolveCellStyle: options.resolveCellStyle
-    })
-    this.rowHeightEngine = new GridRowHeightEngine(this.sheet, this.rows, this.cols)
-    this.syncManager = new GridSyncManager()
-    // wrap 估算写入模型后再建表：customComputeRowHeight 按模型 O(1) 取值，
-    // 避免 rowHeightConfig 全量数组（VTable 按数组 find，大表切 sheet 会卡死）
-    this.rowHeightEngine.applyWrapEstimates(this.styleResolver, SHEET_DEFAULT_COL_WIDTH)
+    // options 仅扩张：已声明更小的模型尺寸（删行后）不被 props 下限撑回
+    this.sheet.ensureTableSize(options.rows ?? 100, options.cols ?? 26)
+    this.sheet.ensureTableSize(this.sheet.rowCount, this.sheet.colCount)
+    const rows = Math.max(this.sheet.rows, 1)
+    const cols = Math.max(this.sheet.cols, 1)
 
-    this.table = new ListTable(options.container, this.buildOptions())
-    registerGridEditor(this.table, this)
-    this.selectionController = new GridSelectionController(this.sheet, this.table, this.coords, {
+    this.normalizeContainer()
+
+    // wrap 估算先写模型：行高覆盖在构造后统一落地
+    this.rowHeightEngine = new GridRowHeightEngine(this.sheet, rows, cols)
+    this.rowHeightEngine.applyWrapEstimates(SHEET_DEFAULT_COL_WIDTH)
+
+    const editorRegistry = new EditorRegistry()
+    if (!this.isReadonly) editorRegistry.registerEditor(EDITOR_NAME, {})
+
+    this.table = new ListTable({
+      width: options.width ?? this.measureContainerWidth(),
+      height: options.height ?? this.measureContainerHeight(),
+      columns: this.buildColumns(cols),
+      model: createSheetTableModel(this.sheet),
+      resolveDisplayValue: createEngineDisplayValue(this.sheet, this.hooks),
+      resolveCellStyle: createEngineCellStyle(this.sheet, this.hooks),
+      // 仅宿主提供 hook 时安装分发器：渲染热路径零差异（ADR-0004）
+      ...(this.hooks.resolveCellRenderer
+        ? {
+            resolveCellRenderer: (col: number, row: number): CellRenderer | null =>
+              this.resolveCellLayout(col, row)
+          }
+        : {}),
+      resolveEditable:
+        this.isReadonly === false
+          ? (col: number, row: number) => !this.sheet.isCellReadonly({ row, col })
+          : undefined,
+      editorRegistry,
+      editorMaxLength: 50000,
+      rowHeight: SHEET_DEFAULT_ROW_HEIGHT,
+      defaultColWidth: SHEET_DEFAULT_COL_WIDTH,
+      headerHeight: SHEET_HEADER_HEIGHT,
+      rowHeaderWidth: SHEET_ROW_HEADER_WIDTH,
+      showRowHeader: this.showRowHeader,
+      showColHeader: this.showColHeader,
+      theme: SHEET_GRID_THEME,
+      frozenColCount: this.sheet.frozen.cols,
+      frozenRowCount: this.sheet.frozen.rows,
+      mergeCells: this.readMergeCells(),
+      canResizeCol: this.isReadonly ? () => false : undefined,
+      canResizeRow: this.isReadonly ? () => false : undefined,
+      // Excel 键位组合预设（Enter 进编辑 / 关闭 Ctrl 加选）；只读覆盖为关闭
+      ...(this.isReadonly ? {} : excelKeymapPreset),
+      ctrlMultiSelect: false,
+      editCellOnEnter: !this.isReadonly,
+      hostOptions: { container: this.container }
+    } satisfies ListTableOptions)
+
+    // 构造期一次落地行列尺寸覆盖（列宽已随列定义写入，行为运行时 API）
+    for (const [row, height] of this.sheet.getRowHeights()) {
+      if (height !== SHEET_DEFAULT_ROW_HEIGHT) this.table.setRowHeight(row, height)
+    }
+    this.lastMergeSignature = JSON.stringify(this.readMergeCells())
+
+    this.selectionController = new GridSelectionController(this.sheet, this.table, {
+      isReadonly: this.isReadonly,
       interceptSelection: options.interceptSelection,
       onSelectionIntercept: options.onSelectionIntercept
     })
+    this.disposers.push(...this.selectionController.bind())
 
-    this.rowHeightEngine.restrictRowResizeToSeriesNumber(this.table)
-    this.selectionController.bindTableEvents(
-      () => this.rows,
-      () => this.cols,
-      this.isReadonly
-    )
-    this.syncManager.bindTableSyncEvents({
+    this.floatImages = new GridFloatImages({
       table: this.table,
       sheet: this.sheet,
-      coords: this.coords,
-      rowHeightEngine: this.rowHeightEngine,
-      styleResolver: this.styleResolver,
-      cols: this.cols,
-      getRows: () => this.rows,
-      isReadonly: this.isReadonly,
-      onContextMenu: this.onContextMenu,
-      getTableCellValue: (addr) => this.getTableCellValue(addr)
-    })
-    const sheetDisposers = this.syncManager.bindSheetEvents(
-      this.sheet,
-      this.table,
-      this.coords,
-      this.rowHeightEngine,
-      this.styleResolver,
-      this.selectionController,
-      () => this.rows,
-      () => this.cols,
-      () => this.refresh(),
-      (addr) => this.getTableCellValue(addr),
-      () => this.applyFrozen()
-    )
-    this.disposers.push(...sheetDisposers)
-    this.bindKeyboard()
-
-    this.imageLayer = new ImageLayer({
-      container: this.container,
-      table: this.table,
-      sheet: this.sheet,
-      toTableCoord: (addr) => this.coords.toTableCoord(this.table, addr),
-      toSheetAddr: (col, row) => this.coords.toSheetAddr(this.table, col, row),
       readonly: this.isReadonly
     })
-    this.disposers.push(() => this.imageLayer.dispose())
-    this.bindTouchScroll()
-    this.applyFrozen()
-    this.selectionController.pushSelectionToTable(this.sheet.getSelection(), this.rows, this.cols)
+    this.floatImages.sync()
+    this.disposers.push(() => this.floatImages.dispose())
+
+    this.bindSheetEvents()
+    this.bindKeyboard()
+    this.bindWheel()
+    this.bindContextMenu(options.onContextMenu)
+    this.bindEditLifecycle(options.onEditStart, options.onEditEnd)
+    this.bindResize()
   }
 
+  /** 底层引擎表实例（调试/测试用） */
   getTable(): ListTable {
     return this.table
   }
-  getImageLayer(): ImageLayer {
-    return this.imageLayer
-  }
-  refresh(): void {
-    this.table.setRecords(this.buildRecords())
-  }
+
+  /** 容器内相对坐标 → 模型地址（行号/列头返回 null）；宿主拖放命中用 */
   hitTestSheetAddr(x: number, y: number): CellAddress | null {
-    return this.coords.hitTestSheetAddr(this.table, x, y)
+    return hitTestSheetAddrAt(this.table, x, y)
   }
 
-  flushPending(): void {
-    this.syncManager.flushPending(
-      () => this.refresh(),
-      () => this.flushCellBatch(),
-      () => this.imageLayer.flush()
-    )
-  }
-
-  syncFromModel(): void {
-    this.syncManager.syncFromModel(
-      () => this.refresh(),
-      (r) => this.syncWrapRowHeight(r),
-      () => this.applyFrozen(),
-      () =>
-        this.selectionController.pushSelectionToTable(
-          this.sheet.getSelection(),
-          this.rows,
-          this.cols
-        ),
-      (v) => this.imageLayer.setVisible(v),
-      () => applyColWidthsFromModel(this.table, this.sheet, this.coords)
-    )
-  }
-
+  /**
+   * LRU 可见性：隐藏只置脏；激活时若脏则一次性全量同步（选区/冻结/合并/
+   * 行列尺寸/浮动图/可视窗口刷新），隐藏期间的值变更补 wrap 行高估算。
+   */
   setVisible(on: boolean): void {
-    this.syncManager.setVisible(
-      on,
-      () => this.refresh(),
-      (r) => this.syncWrapRowHeight(r),
-      (v) => this.imageLayer.setVisible(v),
-      () => applyColWidthsFromModel(this.table, this.sheet, this.coords)
-    )
-  }
-
-  resolveEditTextForEditor(col: number, row: number): string | undefined {
-    const addr = this.coords.toSheetAddr(this.table, col, row)
-    if (!addr) return undefined
-    const data = this.sheet.getCellData(this.sheet.merges.resolveAnchor(addr))
-    return data?.f ? `=${data.f}` : undefined
-  }
-
-  notifyEditorEditStart(col: number, row: number): void {
-    const addr = this.coords.toSheetAddr(this.table, col, row)
-    if (addr) {
-      this.editingAddr = addr
-      this.onEditStart?.(addr)
+    if (this.released) return
+    this.visible = on
+    if (on && this.dirty) {
+      this.dirty = false
+      this.fullResync()
     }
-  }
-
-  notifyEditorEditEnd(): void {
-    const addr = this.editingAddr
-    this.editingAddr = null
-    if (addr) {
-      this.syncManager.refreshCellStyle(this.table, this.sheet, addr, this.coords)
-      this.syncManager.refreshFacingConsumers(
-        this.table,
-        this.sheet,
-        addr,
-        this.coords,
-        this.cols,
-        this.rows,
-        (a) => this.syncManager.refreshCellStyle(this.table, this.sheet, a, this.coords)
-      )
-      this.onEditEnd?.(addr)
-    }
-  }
-
-  undo(): boolean {
-    return this.sheet.undo()
-  }
-  redo(): boolean {
-    return this.sheet.redo()
   }
 
   release(): void {
-    if (this.syncManager.isReleased()) return
-    this.syncManager.markReleased()
+    if (this.released) return
+    this.released = true
     for (const dispose of this.disposers) dispose()
     this.disposers.length = 0
-    unregisterGridEditor(this.table)
-    this.table.release()
+    this.resizeObserver?.disconnect()
+    this.resizeObserver = undefined
+    this.table.destroy()
   }
 
   destroy(): void {
     this.release()
   }
 
-  private static frozenToVTableCounts(
-    frozen: FrozenState,
-    rows: number,
-    cols: number,
-    showColHeader: boolean,
-    showRowHeader: boolean
-  ) {
-    const headerRows = showColHeader ? 1 : 0
-    const headerCols = showRowHeader ? 1 : 0
-    return {
-      frozenRowCount: Math.min(frozen.rows + headerRows, Math.max(rows, 1)),
-      frozenColCount: Math.min(frozen.cols + headerCols, Math.max(cols, 1))
-    }
-  }
+  // ─── 构造装配 ───────────────────────────────────────────
 
-  private applyFrozen(): void {
-    const { frozenRowCount, frozenColCount } = SheetGrid.frozenToVTableCounts(
-      this.sheet.frozen,
-      this.rows,
-      this.cols,
-      this.showColHeader,
-      this.showRowHeader
-    )
-    if (this.table.frozenRowCount !== frozenRowCount) this.table.frozenRowCount = frozenRowCount
-    if (this.table.frozenColCount !== frozenColCount) this.table.frozenColCount = frozenColCount
-  }
-
-  private buildColumns() {
-    return Array.from({ length: this.cols }, (_, col) => ({
+  private buildColumns(cols: number): ColumnDefine[] {
+    return Array.from({ length: cols }, (_, col) => ({
       field: String(col),
       title: colIndexToName(col),
-      // 列宽进 column def：构造期一次布局。构造后再逐列 setColWidth
-      // 会反复重建 scenegraph（438 行 × 130 次实测 ~3s）。
+      // 列宽进列定义：构造期一次布局，避免逐列 setColWidth 反复全量重建
       width: this.sheet.getColWidth(col) ?? SHEET_DEFAULT_COL_WIDTH,
-      style: (styleArg: any) => this.styleResolver.resolveCellStyle(styleArg, this.coords),
-      // 单元格级只读：只读格返回 ''（VTable getEditor 对 falsy 结果不开启编辑）。
-      // 整表 readonly 时连此函数也不挂（列级 editor 会覆盖表级空值，导致只读失效）。
-      ...(this.isReadonly
-        ? {}
-        : {
-            editor: (args: { col: number; row: number; table: unknown }) => {
-              const addr = this.coords.toSheetAddr(args.table as ListTable, args.col, args.row)
-              return addr && this.sheet.isCellReadonly(addr) ? '' : EDITOR_NAME
-            }
-          }),
-      // 仅宿主提供 hook 时安装分发器：customLayout 存在会使 VTable 对该列
-      // 关闭 fast-update 快路径，默认场景必须保持零差异（ADR-0004）。
-      // 分发器返回 undefined 回落默认渲染（VTable 运行时支持 falsy 返回值，
-      // 但其声明类型不含 undefined，故以 ICustomLayoutFuc 收敛）
-      ...(this.resolveCellRenderer
-        ? {
-            customLayout: ((args: CustomRenderFunctionArg) =>
-              this.resolveCellLayout(args)) as ICustomLayoutFuc
-          }
-        : {})
+      // 单元格级只读由 resolveEditable 拦截；整表只读不注册编辑器
+      ...(this.isReadonly ? {} : { editor: EDITOR_NAME })
     }))
   }
 
+  /** 读取模型合并区为引擎区间（过滤模型越界项；跨冻结边界合并区引擎合法） */
+  private readMergeCells(): EngineCellRange[] {
+    return this.sheet.merges
+      .getMerges()
+      .filter((merge) => merge.end.row < this.sheet.rows && merge.end.col < this.sheet.cols)
+      .map((merge) => ({
+        startCol: merge.start.col,
+        startRow: merge.start.row,
+        endCol: merge.end.col,
+        endRow: merge.end.row
+      }))
+  }
+
   /**
-   * customLayout 按格分发器（ADR-0004）：表格坐标 → 模型地址，仅 body 格
-   * 回调宿主 hook（合并格 VTable 传入锚点坐标，天然落锚）；行号列/列头或
-   * hook 返回 undefined 时回落默认渲染（VTable 对 falsy 返回值走默认绘制）。
+   * custom renderer 按格分发器（ADR-0004）：仅数据格回调宿主 hook（引擎命中
+   * 已合并区路由主格）；hook 返回 undefined 时回落默认渲染。
    */
-  private resolveCellLayout(args: CustomRenderFunctionArg): ICustomLayoutObj | undefined {
-    const addr = this.coords.toSheetAddr(args.table as ListTable, args.col, args.row)
-    if (!addr) return undefined
-    return this.resolveCellRenderer?.(addr, args.dataValue)
-  }
-
-  private getTableCellValue(addr: CellAddress): CellValue | undefined {
-    const raw = this.sheet.getDisplayValue(addr)
-    // numFmt 仅作用于显示：数字值按有效样式格式化（含公式缓存结果），模型仍存原始值
-    const numFmt = typeof raw === 'number' ? this.sheet.getEffectiveStyle(addr)?.numFmt : undefined
-    const base = numFmt ? formatByNumFmt(raw as number, numFmt) : raw
-    if (!this.resolveDisplayValue) return base
-    const resolved = this.resolveDisplayValue(addr, base)
-    return resolved !== undefined ? resolved : base
-  }
-
-  private buildRecords(): Record<string, CellValue>[] {
-    const records: Record<string, CellValue>[] = Array.from({ length: this.rows }, () => ({}))
-    const writeCell = (addr: CellAddress): void => {
-      if (addr.row >= this.rows || addr.col >= this.cols) return
-      const val = this.getTableCellValue(addr)
-      if (val != null && val !== '') records[addr.row]![String(addr.col)] = val
+  private resolveCellLayout(col: number, row: number): CellRenderer | null {
+    if (col >= 0 && row >= 0) {
+      const base = getSheetDisplayValue(this.sheet, col, row, this.hooks)
+      const renderer = this.hooks.resolveCellRenderer?.({ row, col }, base)
+      if (renderer) return renderer
     }
-    for (const [addr] of this.sheet.store.peekEntries()) writeCell(addr)
-    if (this.resolveDisplayValue) {
-      for (const [addr] of this.sheet.entriesCellMeta()) {
-        if (this.sheet.store.peekCell(addr)?.v == null) writeCell(addr)
+    return null
+  }
+
+  /** 容器定位归一：引擎层画布绝对定位，静态容器会导致多实例叠放错位 */
+  private normalizeContainer(): void {
+    try {
+      if (getComputedStyle(this.container).position === 'static') {
+        this.container.style.position = 'relative'
       }
+    } catch {
+      // 无 getComputedStyle 环境（极端测试）跳过
     }
-    return records
   }
 
-  private buildOptions(): ListTableConstructorOptions {
-    return {
-      records: this.buildRecords(),
-      columns: this.buildColumns(),
-      widthMode: 'standard',
-      defaultRowHeight: SHEET_DEFAULT_ROW_HEIGHT,
-      enableLineBreak: true,
-      maxCharactersNumber: 50000,
-      // 稀疏行高：回调读模型 Map（导入/拖拽/wrap 估算）。不要用 rowHeightConfig
-      // 全量数组——VTable 一旦有该字段就打开 isAutoRowHeight，并按数组 find
-      // 取每一行，大表切 sheet 时主线程会卡在首屏量高。
-      customComputeRowHeight: (args: { row: number }) => {
-        const headerRows = this.showColHeader ? 1 : 0
-        if (args.row < headerRows) return SHEET_DEFAULT_ROW_HEIGHT
-        return this.sheet.getRowHeight(args.row - headerRows) ?? SHEET_DEFAULT_ROW_HEIGHT
-      },
-      resize: this.isReadonly
-        ? { columnResizeMode: 'none', rowResizeMode: 'none' }
-        : { columnResizeMode: 'header', rowResizeMode: 'all' },
-      theme: sheetVTableTheme,
-      showHeader: this.showColHeader,
-      ...(this.showRowHeader
-        ? { rowSeriesNumber: { width: 46, style: sheetRowSeriesNumberStyle } }
-        : {}),
-      excelOptions: { fillHandle: !this.isReadonly },
-      eventOptions: { preventDefaultContextMenu: true },
-      hover: { disableHover: true },
-      ...(this.isReadonly ? {} : { editor: EDITOR_NAME, editCellTrigger: 'doubleclick' as const }),
-      ...SheetGrid.frozenToVTableCounts(
-        this.sheet.frozen,
-        this.rows,
-        this.cols,
-        this.showColHeader,
-        this.showRowHeader
-      ),
-      keyboardOptions: {
-        moveFocusCellOnTab: true,
-        editCellOnEnter: !this.isReadonly,
-        moveFocusCellOnEnter: true,
-        moveEditCellOnArrowKeys: false,
-        selectAllOnCtrlA: true,
-        ctrlMultiSelect: false
-      },
-      customMergeCell: (col, row, table) => {
-        const addr = this.coords.toSheetAddr(table as ListTable, col, row)
-        if (!addr) return undefined
-        const merge = this.sheet.merges.getMergeAt(addr)
-        if (!merge) return undefined
-        const anchorCoord = this.coords.toTableCoord(table as ListTable, merge.start)
-        const recordValue = (table as ListTable).getCellOriginValue(
-          anchorCoord.col,
-          anchorCoord.row
-        )
-        return {
-          range: {
-            start: anchorCoord,
-            end: this.coords.toTableCoord(table as ListTable, merge.end)
-          },
-          text: recordValue == null ? '' : String(recordValue)
+  private measureContainerWidth(): number {
+    return this.container.clientWidth || FALLBACK_VIEW_W
+  }
+
+  private measureContainerHeight(): number {
+    return this.container.clientHeight || FALLBACK_VIEW_H
+  }
+
+  // ─── 事件接线 ───────────────────────────────────────────
+
+  private bindSheetEvents(): void {
+    const syncWrapRow = (row: number): void => {
+      if (this.released) return
+      if (!this.visible) {
+        this.pendingWrapRows.add(row)
+        this.dirty = true
+        return
+      }
+      this.rowHeightEngine.syncWrapRowHeight(row, this.table)
+    }
+
+    const scheduleResync = (): void => {
+      if (this.released || this.resyncScheduled) return
+      this.resyncScheduled = true
+      queueMicrotask(() => {
+        this.resyncScheduled = false
+        if (this.released) return
+        if (!this.visible) {
+          this.dirty = true
+          return
         }
-      }
+        this.applyMerges()
+        this.refreshWindow()
+      })
     }
-  }
 
-  private syncWrapRowHeight(row: number): void {
-    this.rowHeightEngine.syncWrapRowHeight(row, this.table, this.coords, this.styleResolver)
-  }
+    const scheduleFloatSync = (): void => {
+      if (this.released) return
+      if (!this.visible) {
+        this.dirty = true
+        return
+      }
+      this.floatImages.sync()
+    }
 
-  private flushCellBatch(): void {
-    this.syncManager.flushCellBatch(
-      () => this.refresh(),
-      (a) =>
-        this.syncManager.pushCellToTable(
-          this.table,
-          a,
-          (addr) => this.getTableCellValue(addr),
-          this.coords
-        ),
-      (a) => this.syncManager.refreshCellStyle(this.table, this.sheet, a, this.coords),
-      (a) =>
-        this.syncManager.refreshFacingConsumers(
-          this.table,
-          this.sheet,
-          a,
-          this.coords,
-          this.cols,
-          this.rows,
-          (target) => this.syncManager.refreshCellStyle(this.table, this.sheet, target, this.coords)
-        ),
-      (r) => this.syncWrapRowHeight(r)
+    this.disposers.push(
+      this.sheet.on('cell-change', ({ addr }) => syncWrapRow(addr.row)),
+      // 拖拽落定持久化：行列尺寸写模型（切 sheet 重建后还原；不进 undo 同旧约定）
+      this.table.onRowResizeEnd((event) => {
+        this.sheet.setRowHeight(event.row, event.height)
+      }),
+      this.table.onColResizeEnd((event) => {
+        this.sheet.setColWidth(event.col, event.width)
+        // 列宽变化影响 wrap 折行：该列各行重估 wrap 行高
+        for (const row of this.sheet.store.rowsForColumn(event.col)) {
+          syncWrapRow(row)
+        }
+      }),
+      this.sheet.on('merge-change', () => scheduleResync()),
+      this.sheet.on('content-reset', () => {
+        scheduleResync()
+        scheduleFloatSync()
+      }),
+      this.sheet.on('axis-style-change', () => scheduleResync()),
+      this.sheet.on('meta-change', ({ addr }) => {
+        // 只读标记的编辑拦截在下次 startEdit 拉取生效；占位样式覆盖需刷新可视窗口
+        if (addr) return
+        scheduleResync()
+      }),
+      this.sheet.on('frozen-change', () => {
+        if (this.released) return
+        if (!this.visible) {
+          this.dirty = true
+          return
+        }
+        this.applyFrozen()
+      }),
+      this.sheet.on('image-change', () => scheduleFloatSync()),
+      this.sheet.on('structure-change', () => {
+        // 行列数运行时变化超出发擎适配面（引擎维度构造期固定），交宿主重建实例
+        if (this.released) return
+        if (!this.visible) this.dirty = true
+      })
     )
   }
 
+  /** 合并区运行时整体替换（签名判重跳过无变化；引擎校验失败抛错——越界项构造期已过滤） */
+  private applyMerges(): void {
+    const merges = this.readMergeCells()
+    const signature = JSON.stringify(merges)
+    if (this.lastMergeSignature === signature) return
+    this.lastMergeSignature = signature
+    this.table.setMergeCells(merges)
+  }
+
+  /** 冻结映射：模型冻结数即引擎数据冻结数（行列头不计数，无 ±1） */
+  private applyFrozen(): void {
+    const frozen = this.sheet.frozen
+    if (this.table.getFrozenRowCount() !== frozen.rows) this.table.setFrozenRowCount(frozen.rows)
+    if (this.table.getFrozenColCount() !== frozen.cols) this.table.setFrozenColCount(frozen.cols)
+  }
+
+  /** 可视窗口刷新（pull 式样式/显示的触发器）：窗口内逐格局部失效，批内合并提交 */
+  private refreshWindow(): void {
+    const { rows, cols } = this.table.getBodyVisibleCellRange()
+    this.table.batchUpdate(() => {
+      for (let row = rows.start; row < rows.end; row++) {
+        for (let col = cols.start; col < cols.end; col++) {
+          this.table.refreshCell(col, row)
+        }
+      }
+    })
+  }
+
+  /** 全量同步（激活/隐藏后切回）：选区/冻结/合并/行列尺寸/浮动图/可视窗口 */
+  private fullResync(): void {
+    const wrapRows = this.pendingWrapRows
+    this.pendingWrapRows = new Set()
+    for (const row of wrapRows) this.rowHeightEngine.syncWrapRowHeight(row, this.table)
+    this.applyFrozen()
+    this.applyMerges()
+    for (const [col, width] of this.sheet.getColWidths()) {
+      if (this.table.getColWidth(col) !== width) this.table.setColWidth(col, width)
+    }
+    for (const [row, height] of this.sheet.getRowHeights()) {
+      if (this.table.getRowHeight(row) !== height) this.table.setRowHeight(row, height)
+    }
+    this.floatImages.sync()
+    this.refreshWindow()
+    this.selectionController.pushSelectionToTable(this.sheet.getSelection())
+  }
+
+  private bindContextMenu(onContextMenu?: (info: SheetGridContextMenuInfo) => void): void {
+    if (!onContextMenu) return
+    this.disposers.push(
+      this.table.onContextMenu((event) => {
+        onContextMenu(buildContextMenuInfo(this.table, this.container, event))
+      })
+    )
+  }
+
+  private bindEditLifecycle(
+    onEditStart?: (addr: CellAddress) => void,
+    onEditEnd?: (addr: CellAddress) => void
+  ): void {
+    if (onEditStart) {
+      this.disposers.push(
+        this.table.onEditStart((event) => onEditStart({ row: event.row, col: event.col }))
+      )
+    }
+    if (onEditEnd) {
+      this.disposers.push(
+        this.table.onEditEnd((event) => onEditEnd({ row: event.row, col: event.col }))
+      )
+    }
+  }
+
+  /** 全局快捷键：Ctrl/Cmd+Z 撤销、Shift+Z / Ctrl+Y 重做（模型命令栈），Ctrl+A 全选，Delete 删选中图 */
   private bindKeyboard(): void {
-    if (this.isReadonly) return
     const onKeyDown = (event: KeyboardEvent): void => {
       if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement)
         return
+      // Delete/Backspace：删除选中浮动图片（无选中不接管；编辑器输入已被上方守卫拦截）
+      if (event.key === 'Delete' || event.key === 'Backspace') {
+        if (this.isReadonly) return
+        if (!this.floatImages.getSelectedId()) return
+        event.preventDefault()
+        event.stopPropagation()
+        this.floatImages.removeSelected()
+        return
+      }
       const mod = event.metaKey || event.ctrlKey
       if (!mod) return
       const key = event.key.toLowerCase()
+      if (key === 'a' && !event.shiftKey) {
+        this.table.selectAll()
+        event.preventDefault()
+        return
+      }
+      if (this.isReadonly) return
       if (key === 'z' && !event.shiftKey) {
-        if (this.undo()) event.preventDefault()
+        if (this.sheet.undo()) event.preventDefault()
       } else if ((key === 'z' && event.shiftKey) || (key === 'y' && event.ctrlKey)) {
-        if (this.redo()) event.preventDefault()
+        if (this.sheet.redo()) event.preventDefault()
       }
     }
     this.container.addEventListener('keydown', onKeyDown)
     this.disposers.push(() => this.container.removeEventListener('keydown', onKeyDown))
   }
 
-  private bindTouchScroll(): void {
-    let touchStartX = 0
-    let touchStartY = 0
-    let isTouching = false
-
-    let pointerTouchStartX = 0
-    let pointerTouchStartY = 0
-    let isPointerTouching = false
-    let activePointerId: number | null = null
-
-    const isSelectedImageTarget = (target: EventTarget | null): boolean => {
-      if (this.isReadonly) return false
-      if (!(target instanceof Element)) return false
-      const selectedId = this.imageLayer?.getSelectedId?.()
-      if (!selectedId) return false
-      const wrap = target.closest<HTMLElement>('[data-sheet-image-id]')
-      return wrap?.dataset.sheetImageId === selectedId
-    }
-
-    const onTouchStart = (event: TouchEvent): void => {
-      if (this.imageLayer?.isDragging?.()) {
-        isTouching = false
-        return
+  /** 宿主滚轮接线：引擎无内置滚轮；shift+deltaY→deltaX 换轴（Chrome 不自动换轴） */
+  private bindWheel(): void {
+    const onWheel = (event: WheelEvent): void => {
+      let deltaX = Number.isFinite(event.deltaX) ? event.deltaX : 0
+      let deltaY = Number.isFinite(event.deltaY) ? event.deltaY : 0
+      if (event.shiftKey && deltaY && !deltaX) {
+        deltaX = deltaY
+        deltaY = 0
       }
-      if (isSelectedImageTarget(event.target)) {
-        isTouching = false
-        return
-      }
-      if (event.touches.length === 1) {
-        const touch = event.touches[0]!
-        touchStartX = touch.clientX
-        touchStartY = touch.clientY
-        isTouching = true
-      } else {
-        isTouching = false
-      }
+      if (!deltaX && !deltaY) return
+      this.table.scrollBy(deltaX, deltaY)
+      if (event.cancelable) event.preventDefault()
     }
+    this.container.addEventListener('wheel', onWheel, { passive: false })
+    this.disposers.push(() => this.container.removeEventListener('wheel', onWheel))
+  }
 
-    const onTouchMove = (event: TouchEvent): void => {
-      if (this.imageLayer?.isDragging?.()) return
-      if (!isTouching || event.touches.length !== 1) return
-      const touch = event.touches[0]!
-      const deltaX = touch.clientX - touchStartX
-      const deltaY = touch.clientY - touchStartY
-      touchStartX = touch.clientX
-      touchStartY = touch.clientY
-
-      if (deltaX !== 0) {
-        const currentLeft =
-          typeof this.table.getScrollLeft === 'function'
-            ? this.table.getScrollLeft()
-            : (this.table.scrollLeft ?? 0)
-        if (typeof this.table.setScrollLeft === 'function') {
-          this.table.setScrollLeft(currentLeft - deltaX)
-        } else {
-          this.table.scrollLeft = currentLeft - deltaX
-        }
-      }
-      if (deltaY !== 0) {
-        const currentTop =
-          typeof this.table.getScrollTop === 'function'
-            ? this.table.getScrollTop()
-            : (this.table.scrollTop ?? 0)
-        if (typeof this.table.setScrollTop === 'function') {
-          this.table.setScrollTop(currentTop - deltaY)
-        } else {
-          this.table.scrollTop = currentTop - deltaY
-        }
-      }
-    }
-
-    const onTouchEnd = (): void => {
-      isTouching = false
-    }
-
-    const onTouchCancel = (): void => {
-      isTouching = false
-    }
-
-    const onPointerDown = (event: PointerEvent): void => {
-      if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return
-      if (this.imageLayer?.isDragging?.()) return
-      if (isSelectedImageTarget(event.target)) return
-      if (isTouching) return
-      activePointerId = event.pointerId
-      pointerTouchStartX = event.clientX
-      pointerTouchStartY = event.clientY
-      isPointerTouching = true
-    }
-
-    const onPointerMove = (event: PointerEvent): void => {
-      if (this.imageLayer?.isDragging?.()) return
-      if (!isPointerTouching || event.pointerId !== activePointerId || isTouching) return
-      const deltaX = event.clientX - pointerTouchStartX
-      const deltaY = event.clientY - pointerTouchStartY
-      pointerTouchStartX = event.clientX
-      pointerTouchStartY = event.clientY
-
-      if (deltaX !== 0) {
-        const currentLeft =
-          typeof this.table.getScrollLeft === 'function'
-            ? this.table.getScrollLeft()
-            : (this.table.scrollLeft ?? 0)
-        if (typeof this.table.setScrollLeft === 'function') {
-          this.table.setScrollLeft(currentLeft - deltaX)
-        } else {
-          this.table.scrollLeft = currentLeft - deltaX
-        }
-      }
-      if (deltaY !== 0) {
-        const currentTop =
-          typeof this.table.getScrollTop === 'function'
-            ? this.table.getScrollTop()
-            : (this.table.scrollTop ?? 0)
-        if (typeof this.table.setScrollTop === 'function') {
-          this.table.setScrollTop(currentTop - deltaY)
-        } else {
-          this.table.scrollTop = currentTop - deltaY
-        }
-      }
-    }
-
-    const onPointerUp = (event: PointerEvent): void => {
-      if (event.pointerId === activePointerId) {
-        isPointerTouching = false
-        activePointerId = null
-      }
-    }
-
-    const onPointerCancel = (event: PointerEvent): void => {
-      if (event.pointerId === activePointerId) {
-        isPointerTouching = false
-        activePointerId = null
-      }
-    }
-
-    this.container.addEventListener('touchstart', onTouchStart, { passive: true })
-    this.container.addEventListener('touchmove', onTouchMove, { passive: true })
-    this.container.addEventListener('touchend', onTouchEnd, { passive: true })
-    this.container.addEventListener('touchcancel', onTouchCancel, { passive: true })
-    this.container.addEventListener('pointerdown', onPointerDown)
-    this.container.addEventListener('pointermove', onPointerMove)
-    this.container.addEventListener('pointerup', onPointerUp)
-    this.container.addEventListener('pointercancel', onPointerCancel)
-
-    this.disposers.push(() => {
-      this.container.removeEventListener('touchstart', onTouchStart)
-      this.container.removeEventListener('touchmove', onTouchMove)
-      this.container.removeEventListener('touchend', onTouchEnd)
-      this.container.removeEventListener('touchcancel', onTouchCancel)
-      this.container.removeEventListener('pointerdown', onPointerDown)
-      this.container.removeEventListener('pointermove', onPointerMove)
-      this.container.removeEventListener('pointerup', onPointerUp)
-      this.container.removeEventListener('pointercancel', onPointerCancel)
+  /** 容器 resize 原地自适应（不重建实例，滚动位置与选区保留） */
+  private bindResize(): void {
+    if (typeof ResizeObserver === 'undefined') return
+    this.resizeObserver = new ResizeObserver(() => {
+      if (this.released) return
+      this.table.resize(this.measureContainerWidth(), this.measureContainerHeight())
     })
+    this.resizeObserver.observe(this.container)
   }
 }

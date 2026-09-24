@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 import vue from '@vitejs/plugin-vue'
@@ -8,11 +9,27 @@ import { defineConfig } from 'vite-plus'
 
 const repoRoot = resolve(import.meta.dirname, '../..')
 
+// file: 直连的 @infinite-table/* 引擎包 alias 到真实路径：bun 隔离快照内不嵌套
+// @infinite-table/render（file:+workspace:* 翻译限制），经真实路径解析其内部依赖
+const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as {
+  dependencies?: Record<string, string>
+}
+const engineAlias = Object.fromEntries(
+  Object.entries(pkg.dependencies ?? {})
+    .filter(
+      ([name, spec]) => name.startsWith('@infinite-table/') && String(spec).startsWith('file:')
+    )
+    .map(([name, spec]) => [name, `${String(spec).slice('file:'.length)}/src/index.ts`])
+)
+
 const config = {
   // 仅供 Vitest 编译 SFC/TSX（测试会经 veltra-dev 拉入 desktop 源码）；`vp pack` 使用下方 pack.plugins。
   plugins: [vue(), vueJsx()],
   css: { preprocessorOptions: { scss: { importers: [new NodePackageImporter(repoRoot)] } } },
-  resolve: { conditions: ['veltra-dev', 'module', 'import', 'browser', 'default'] },
+  resolve: {
+    alias: engineAlias,
+    conditions: ['veltra-dev', 'module', 'import', 'browser', 'default']
+  },
 
   run: { tasks: { build: { command: 'vp pack', output: ['dist/**'] } } },
 

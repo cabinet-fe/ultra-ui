@@ -1,7 +1,7 @@
 /**
  * happy-dom 不实现 canvas 2d 上下文（getContext 返回 null），
- * 这里用 Proxy 提供最小可用的 mock，让 @visactor/vrender 能在无头环境
- * 完成挂载与绘制调用。仅用于测试（vp test setupFiles）。
+ * 这里用 Proxy 提供最小可用的 mock，让引擎渲染宿主能在无头环境
+ * 完成挂载与文本测量调用。仅用于测试（vp test setupFiles）。
  */
 
 type Context2dMock = Record<string | symbol, unknown>

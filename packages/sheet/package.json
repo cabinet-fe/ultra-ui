@@ -35,6 +35,10 @@
       "import": "./dist/*"
     }
   },
+  "dependencies": {
+    "@infinite-table/core": "file:/Users/whj/codes/infinite-table/packages/core",
+    "@infinite-table/plugins": "file:/Users/whj/codes/infinite-table/packages/plugins"
+  },
   "peerDependencies": {
     "@cat-kit/core": ">=1.2.1",
     "@cat-kit/fe": ">=1.2.1",

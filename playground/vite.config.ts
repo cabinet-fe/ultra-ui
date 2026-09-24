@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -17,6 +18,19 @@ const repoRoot = resolve(__dirname, '..')
 const hucreRoot = resolve(repoRoot, 'packages/sheet-core/node_modules/hucre')
 const nodePkgImporter = new NodePackageImporter(repoRoot)
 
+// file: 直连的 @infinite-table/* 引擎包 alias 到真实路径：bun 隔离快照内不嵌套
+// @infinite-table/render（file:+workspace:* 翻译限制），经真实路径解析其内部依赖
+const playgroundPkg = JSON.parse(
+  readFileSync(new URL('./package.json', import.meta.url), 'utf8')
+) as { dependencies?: Record<string, string> }
+const engineAlias = Object.fromEntries(
+  Object.entries(playgroundPkg.dependencies ?? {})
+    .filter(
+      ([name, spec]) => name.startsWith('@infinite-table/') && String(spec).startsWith('file:')
+    )
+    .map(([name, spec]) => [name, `${String(spec).slice('file:'.length)}/src/index.ts`])
+)
+
 const config = {
   test: {
     include: ['src/**/*.test.ts'],
@@ -33,6 +47,7 @@ const config = {
     extensions: ['.ts', '.js', '.json', '.tsx'],
     conditions: ['veltra-dev'],
     alias: {
+      ...engineAlias,
       'hucre/xlsx': resolve(hucreRoot, 'dist/xlsx.mjs'),
       'hucre/csv': resolve(hucreRoot, 'dist/csv.mjs')
     }

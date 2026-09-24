@@ -34,8 +34,8 @@
     }
   },
   "dependencies": {
-    "@visactor/vtable": "^1.26.8",
-    "@visactor/vtable-editors": "^1.26.8",
+    "@infinite-table/core": "file:/Users/whj/codes/infinite-table/packages/core",
+    "@infinite-table/plugins": "file:/Users/whj/codes/infinite-table/packages/plugins",
     "hucre": "^1.1.0"
   },
   "peerDependencies": {

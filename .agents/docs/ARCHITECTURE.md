@@ -30,7 +30,7 @@ Ultra UI 是 Vue 3 组件与能力库。主用户是 cabinet-fe 内部业务前�
 
 - 无框架核心：`sheet-core/core`（纯 TS）、`utils`（无 Vue 组件）、`ofd-core`（零依赖 OFD 解析渲染）
 - Vue 能力：compositions、directives、desktop/ai/sheet 组件
-- 渲染适配：`sheet-core/grid`（VTable）；desktop 的 Excel 预览把 sheet-core 当 optional peer
+- 渲染适配：`sheet-core/grid`（`@infinite-table/core` ListTable 引擎适配）；desktop 的 Excel 预览把 sheet-core 当 optional peer
 - 构建辅助：`@veltra/vite` 的 `VeltraUIResolver`（扫描 desktop / ai / sheet 的组件目录生成表）
 - 主题：`@veltra/styles` 的 SCSS token + `@veltra/styles/theme`（运行时依赖 compositions 的 `useConfig`；compositions 不得 re-export theme）
 
@@ -45,7 +45,7 @@ CI：`.github/workflows/release.yml`。`bun run release` 在 `dev` 分支落版�
 | 语言 / runtime          | TypeScript ^6、Bun（packageManager bun@1.4）                       | 库代码 ESM                                                        |
 | 框架                    | Vue 3.5+（Composition API + `<script setup>`）                     | peer；playground 另用 vue-router                                  |
 | 样式                    | SCSS（sass-embedded）+ BEM + CSS 变量                              | `@use 'pkg:@veltra/styles/...'`，构建需 `NodePackageImporter`     |
-| 表格渲染 / IO           | `@visactor/vtable`、`@visactor/vtable-editors`、hucre              | 在 sheet-core；sheet 不直接依赖                                   |
+| 表格渲染 / IO           | `@infinite-table/core`、`@infinite-table/plugins`、hucre           | 引擎在 sheet-core（`file:` 接线）；sheet 亦直连                   |
 | 富文本 / PDF / Markdown | Lexical、EmbedPDF（desktop）；markstream-vue（ai）                 | 见各包 dependencies                                               |
 | 版式文档 OFD            | 自研 `@veltra/ofd-core`（DecompressionStream + DOMParser，零依赖） | desktop file-viewer 组件壳调用                                    |
 | 构建 / 包管理           | Vite+（`vp`）、workspaces `packages/*` + `playground`              | 根 `vite.config.ts` 只管 test/lint/fmt/run/staged；库 pack 在包内 |

@@ -69,7 +69,7 @@ src/
 
 ## 依赖
 
-- **dependencies**：无（xlsx/csv IO 由 `@veltra/sheet-core` 承担，hucre 仅是它的 dependency）
+- **dependencies**：`@infinite-table/core`、`@infinite-table/plugins`（`file:` 本地直连的 grid 引擎替换接线，暂未被源码消费；xlsx/csv IO 仍由 `@veltra/sheet-core` 承担，hucre 仅是它的 dependency）
 - **peer**：`@cat-kit/core`（查找防抖 `debounce`）、`@cat-kit/fe`（`saveBlob` 下载）、`vue`、`@veltra/desktop`、`@veltra/icons`、`@veltra/sheet-core`、`@veltra/utils`、`@veltra/styles`
 - **被依赖**：playground
 
