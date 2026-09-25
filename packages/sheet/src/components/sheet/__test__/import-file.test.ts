@@ -1,6 +1,6 @@
 import type { Sheet } from '@veltra/sheet-core/core/sheet.js'
 import { Workbook } from '@veltra/sheet-core/core/workbook.js'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 import { ref } from 'vue'
 
 import { IMPORT_FILE_ACCEPT, importFromFile, pickAndImportFile } from '../import-file'

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import { findAll, findNext, findPrev } from '../find'
 import { Sheet } from '../sheet'

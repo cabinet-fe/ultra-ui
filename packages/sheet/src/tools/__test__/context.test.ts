@@ -1,6 +1,6 @@
 import { createRange } from '@veltra/sheet-core/core/address.js'
 import { Sheet } from '@veltra/sheet-core/core/sheet.js'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 
 import { createSheetContext } from '../context'
 import type { SheetTool } from '../registry'

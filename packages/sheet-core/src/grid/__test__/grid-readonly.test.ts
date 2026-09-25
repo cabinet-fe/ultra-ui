@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 
 import { SHEET_DEFAULT_COL_WIDTH } from '../grid-theme'
 import { cellX, cellY, createGrid, fire, flushMicrotasks } from './grid-test-utils'

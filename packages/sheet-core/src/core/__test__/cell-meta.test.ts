@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import { cloneCellMetaPayload } from '../cell-meta'
 import type { SheetSnapshot } from '../sheet'

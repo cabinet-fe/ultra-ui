@@ -1,5 +1,5 @@
 import type { CellRenderer } from '@infinite-table/core'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 
 import { Sheet } from '../../core/sheet'
 import { cellX, cellY, createGrid, fire, flushMicrotasks } from './grid-test-utils'

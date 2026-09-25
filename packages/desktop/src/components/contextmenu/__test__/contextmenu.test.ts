@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 import { createApp, defineComponent, h, inject, nextTick } from 'vue'
 
 import type { ContextmenuItem } from '../../../types'

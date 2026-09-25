@@ -1,5 +1,5 @@
 import { registerFormulaFunction } from '@veltra/sheet-core/core/formula/functions.js'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import {
   applySuggest,

@@ -1,5 +1,5 @@
 import { compileString } from 'sass-embedded'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 const compileScss = (source: string) =>
   compileString(source, { syntax: 'scss', url: new URL('./__test__.scss', import.meta.url) }).css

@@ -43,7 +43,13 @@ export default defineConfig({
     sourcemap: true,
     clean: true,
     treeshake: true,
-    deps: { neverBundle: ['hucre', '@cat-kit/core'] },
+    deps: {
+      // tsdown <0.23 compatibility: resolve external dependency subpaths.
+      // Remove to preserve subpath imports as written (the new default).
+      // https://tsdown.dev/options/dependencies#deps-resolvedepsubpath
+      resolveDepSubpath: true,
+      neverBundle: ['hucre', '@cat-kit/core']
+    },
     dts: true
   }
 })

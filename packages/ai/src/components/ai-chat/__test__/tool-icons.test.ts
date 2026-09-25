@@ -1,5 +1,5 @@
 import { EditPen, Folder, Internet, QuestionFilled, Terminal, Tools } from '@veltra/icons/normal'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { defineComponent, h } from 'vue'
 
 import { FALLBACK_TOOL_ICON, resolveToolIcon } from '../tool-icons'

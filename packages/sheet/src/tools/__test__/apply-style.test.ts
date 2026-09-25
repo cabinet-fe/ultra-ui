@@ -1,6 +1,6 @@
 import { createRange } from '@veltra/sheet-core/core/address.js'
 import { Sheet } from '@veltra/sheet-core/core/sheet.js'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import { classifySelectionStyleTarget, type SelectionStyleTarget } from '../apply-style'
 import { createSheetContext } from '../context'

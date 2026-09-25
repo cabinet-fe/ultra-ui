@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import { fontSizePtToPx, sheetStyleToEngineStyle, estimateWrapRowHeight } from '../grid-style-map'
 import { SHEET_CELL_PADDING, SHEET_DEFAULT_ROW_HEIGHT } from '../grid-theme'

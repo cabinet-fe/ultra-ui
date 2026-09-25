@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import { parseOfd } from '../parse'
 import { buildZip, expectParseError, utf8 } from './fixtures'

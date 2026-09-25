@@ -1,5 +1,5 @@
 import { zIndex } from '@veltra/utils'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vite-plus/test'
 import { nextTick } from 'vue'
 
 import { messageConfirm } from '../message-confirm'

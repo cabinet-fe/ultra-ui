@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 
 import { iterateRange, parseRange } from '../address'
 import { mergeCellStyle } from '../command/set-cell-style'

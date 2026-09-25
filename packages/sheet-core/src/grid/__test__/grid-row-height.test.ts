@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import { Sheet } from '../../core/sheet'
 import { SHEET_DEFAULT_ROW_HEIGHT } from '../grid-theme'

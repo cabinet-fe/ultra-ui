@@ -52,7 +52,8 @@
     "unplugin-vue": "^7.2.0",
     "unplugin-vue-components": "^32.1.0",
     "unplugin-vue-jsx": "^0.10.0",
-    "vite-plus": "0.3.1",
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
     "vue": "^3.5.42"
   },
   "overrides": {
@@ -64,11 +65,16 @@
     "@codemirror/state": "6.7.1",
     "@codemirror/view": "6.43.9",
     "@infinite-table/core": "file:/Users/whj/codes/infinite-table/packages/core",
-    "@infinite-table/render": "file:/Users/whj/codes/infinite-table/packages/render"
+    "@infinite-table/render": "file:/Users/whj/codes/infinite-table/packages/render",
+    "vite": "catalog:"
   },
   "simple-git-hooks": {
     "commit-msg": "bun cat-cli verify-commit",
     "pre-commit": "vp staged"
   },
-  "packageManager": "bun@1.4.0"
+  "packageManager": "bun@1.4.0",
+  "catalog": {
+    "vite": "npm:@voidzero-dev/vite-plus-core@1.0.0-rc.0",
+    "vite-plus": "1.0.0-rc.0"
+  }
 }

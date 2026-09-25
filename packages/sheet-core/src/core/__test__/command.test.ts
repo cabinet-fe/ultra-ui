@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 
 import { parseRange, type CellAddress } from '../address'
 import type { CellRange } from '../address'

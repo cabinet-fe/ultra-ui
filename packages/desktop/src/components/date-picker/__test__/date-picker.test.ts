@@ -1,5 +1,5 @@
 import { date } from '@cat-kit/core'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createApp, h, nextTick, ref } from 'vue'
 
 import UDatePicker from '../date-picker.vue'

@@ -1,5 +1,5 @@
 import { createEditor, type LexicalEditor } from 'lexical'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test'
 
 import { $createImageNode, $isImageNode, ImageNode } from '../image-node'
 
