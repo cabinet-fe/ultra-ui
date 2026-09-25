@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite-plus'
 
 // 根 vite.config.ts 仅承担 monorepo 级 Vite+ 配置：
-// - test：Vitest 多包 projects 入口（`vp test`）
+// - test：Vitest 多包 projects 入口（`vp test`；按变更范围跑测试用 `bun run test:changed`，即 `vp test run --changed`，可加 `--project @veltra/<pkg>` 收窄；package.json / vite.config.ts 有未提交改动时会回退全量重跑）
 // - lint / fmt：Oxlint、Oxfmt（`vp lint`、`vp fmt`；类型检查由 lint.options.typeCheck 启用）
 // - run：workspace 任务编排与缓存（`vp run`）
 // - staged：pre-commit 检查（`vp staged`）
