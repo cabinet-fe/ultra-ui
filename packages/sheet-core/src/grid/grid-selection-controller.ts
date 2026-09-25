@@ -15,6 +15,8 @@ export interface GridSelectionControllerOptions {
   isReadonly?: boolean
   interceptSelection?: () => boolean
   onSelectionIntercept?: (range: CellRange) => void
+  /** 引擎容器：引用拾取手势接线（pointerdown 起手置位 / window 抬手收敛） */
+  container?: HTMLElement
 }
 
 /** 引擎选区段 → 模型区域（min/max 归一，闭区间） */
@@ -68,6 +70,11 @@ export class GridSelectionController {
   private readonly isReadonly: boolean
   private readonly interceptSelection?: () => boolean
   private readonly onSelectionIntercept?: (range: CellRange) => void
+  private readonly container?: HTMLElement
+  /** 引用拾取手势期（pointerdown 起手 → pointerup 收敛）：选区变更只记录不回交 */
+  private picking = false
+  /** 手势期最新拦截范围（引擎连续发射，抬手取末值） */
+  private gestureRange: CellRange | null = null
 
   constructor(sheet: Sheet, table: ListTable, options: GridSelectionControllerOptions = {}) {
     this.sheet = sheet
@@ -75,16 +82,39 @@ export class GridSelectionController {
     this.isReadonly = options.isReadonly ?? false
     this.interceptSelection = options.interceptSelection
     this.onSelectionIntercept = options.onSelectionIntercept
+    this.container = options.container
   }
 
   /** 接线引擎选区/填充事件与模型选区订阅；返回退订函数集合 */
   bind(): (() => void)[] {
     const disposers: (() => void)[] = []
 
+    // 引用拾取手势接线：容器 capture 阶段 pointerdown 起手置位（先于引擎 bodyRoot
+    // 的目标监听，保证首个选区发射前 picking 已就位），window 级抬起收敛
+    // （拖出容器也兜底）；无容器（单测直挂）退化为即时拦截
+    if (this.container) {
+      const onPointerDown = (): void => {
+        if (this.interceptSelection?.()) this.picking = true
+      }
+      this.container.addEventListener('pointerdown', onPointerDown, true)
+      disposers.push(() => this.container?.removeEventListener('pointerdown', onPointerDown, true))
+      const onPointerUp = (): void => this.finishPickGesture()
+      window.addEventListener('pointerup', onPointerUp)
+      disposers.push(() => window.removeEventListener('pointerup', onPointerUp))
+    }
+
     disposers.push(
       this.table.onSelectionChange((snapshot) => {
         const range = lastSnapshotRange(snapshot)
         if (!range) return
+        // 指针拾取手势期只记录最新范围：引擎选区连续发射（vtable 时代为抬手单事件），
+        // 若逐事件回交，首个引用插入后 fx 光标离开引用触发位、上下文断裂，
+        // 拖选余段会跌落普通选区路径污染模型；抬手后一次回交最终范围。
+        // 非手势选区变更（程序化 selectCells / 键盘）走下方即时拦截路径
+        if (this.picking && this.interceptSelection?.()) {
+          this.gestureRange = range
+          return
+        }
         if (this.tryInterceptSelection(range)) {
           this.restoreInterceptedSelection()
           return
@@ -108,6 +138,12 @@ export class GridSelectionController {
     )
 
     return disposers
+  }
+
+  /** 挂载后初始同步：模型既有选区（默认 A1 / 宿主预置选区）落引擎画布绘制，
+   * 不滚动视口——native 初挂即绘制活动格选区框，缺失会整页少画初始选区 */
+  syncInitialSelection(): void {
+    this.pushSelectionToTable(this.sheet.getSelection(), { scroll: false })
   }
 
   /** 模型选区 → 画布（applyExternalSelection 不广播防回环）；不可见活动格滚动可见 */
@@ -173,6 +209,16 @@ export class GridSelectionController {
     if (!this.interceptSelection?.()) return false
     this.onSelectionIntercept?.(range)
     return true
+  }
+
+  /** 引用拾取手势收敛（window pointerup）：抬手一次回交最新范围并恢复模型选区视觉（不滚动） */
+  private finishPickGesture(): void {
+    if (!this.picking) return
+    this.picking = false
+    const range = this.gestureRange
+    this.gestureRange = null
+    if (range) this.onSelectionIntercept?.(range)
+    this.restoreInterceptedSelection()
   }
 
   /** 填充生成落模型：方向按目标范围扩展侧推导，生成值过滤只读格后一次 setCells（单 undo 单元） */

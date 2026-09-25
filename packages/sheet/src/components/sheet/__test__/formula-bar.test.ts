@@ -550,12 +550,21 @@ describe('USheet 公式栏：函数补全与引用选择', () => {
     const input = setFxText(el, '=SUM(')
     await nextTick()
 
-    // 画布数据格按下（引擎选区事件管线）→ 引用插入 + blur 挂起（引用选择）；
-    // pointerdown 监听绑定在实例容器（LRU 缓存）。画布几何口径与 sheet-core
-    // grid-theme 一致（行号列 46、列头 28、列宽 80、行高 28）→ (51, 117) 命中 A4
+    // 画布数据格点选（引擎选区事件管线）→ 引用插入 + blur 挂起（引用选择）；
+    // 引用拾取为手势收敛语义（按下起手记录、抬手一次回交，见 sheet-core
+    // grid-selection），故插入断言在 pointerup 之后。pointerdown 监听绑定在
+    // 实例容器（LRU 缓存）。画布几何口径与 sheet-core grid-theme 一致
+    // （行号列 46、列头 28、列宽 80、行高 28）→ (51, 117) 命中 A4
     const gridEl = el.querySelector('.u-sheet__grid-instance')!
     gridEl.dispatchEvent(
       new PointerEvent('pointerdown', { clientX: 51, clientY: 117, bubbles: true })
+    )
+    await nextTick()
+    // 手势未结束（未抬手）：不插入、模型选区不变
+    expect(sheet.getCellData({ row: 2, col: 0 })).toBeUndefined()
+    expect(input.value).toBe('=SUM(')
+    gridEl.dispatchEvent(
+      new PointerEvent('pointerup', { clientX: 51, clientY: 117, bubbles: true })
     )
     await nextTick()
     expect(sheet.getCellData({ row: 2, col: 0 })).toBeUndefined()

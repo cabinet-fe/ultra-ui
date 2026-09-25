@@ -18,7 +18,7 @@ const require = createRequire(import.meta.url)
 
 const CANDIDATES = [
   process.env.PLAYWRIGHT_MODULE_PATH,
-  '/Users/whj/.local/share/mise/installs/node/26.1.0/lib/node_modules/@playwright/cli/node_modules/playwright',
+  '/Users/whj/.local/share/mise/installs/node/latest/lib/node_modules/@playwright/cli/node_modules/playwright',
   join(process.env.LOCALAPPDATA || '', 'Temp', 'sheet-check', 'node_modules', 'playwright')
 ].filter(Boolean)
 

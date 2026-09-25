@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url'
 const require = createRequire(import.meta.url)
 const {
   chromium
-} = require('/Users/whj/.local/share/mise/installs/node/26.1.0/lib/node_modules/@playwright/cli/node_modules/playwright')
+} = require('/Users/whj/.local/share/mise/installs/node/latest/lib/node_modules/@playwright/cli/node_modules/playwright')
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '../../..')
 const OUT = join(ROOT, '.playwright-cli')
@@ -43,6 +43,8 @@ const EXPECTED_IDS = [
   'valign-bottom',
   'wrap-text',
   'find',
+  'functions',
+  'insert-image',
   'import',
   'export'
 ]
@@ -94,7 +96,7 @@ async function main() {
     JSON.stringify(toolInfo.tools.map((t) => t.id)) === JSON.stringify(EXPECTED_IDS),
     toolInfo.tools.map((t) => t.id).join(',')
   )
-  check('组间分隔符 = 4', toolInfo.dividers === 4, `got=${toolInfo.dividers}`)
+  check('组间分隔符 = 5', toolInfo.dividers === 5, `got=${toolInfo.dividers}`)
   check(
     '已移除工具不出现',
     REMOVED.every((id) => !toolInfo.tools.some((t) => t.id === id))
@@ -118,6 +120,10 @@ async function main() {
   // undo/redo disabled 联动
   const undoDisabled0 = await page.isDisabled('[data-tool-id="undo"]')
   check('初始 undo disabled', undoDisabled0)
+  // 目标格可能本就有基线内容，undo 断言用「还原写入前值」而非「清空」
+  const cellBefore = await page.evaluate(() =>
+    window.__sheetDemo.sheet1.getCellData({ row: 0, col: 5 })
+  )
   await page.evaluate(() => {
     window.__sheetDemo.sheet1.setCellValue({ row: 0, col: 5 }, 'phase5')
   })
@@ -126,9 +132,10 @@ async function main() {
   check('写入后 undo 可用', undoEnabled)
   await page.click('[data-tool-id="undo"]')
   await page.waitForTimeout(50)
-  const undone = await page.evaluate(
-    () => window.__sheetDemo.sheet1.getCellData({ row: 0, col: 5 }) === undefined
-  )
+  const undone = await page.evaluate((before) => {
+    const now = window.__sheetDemo.sheet1.getCellData({ row: 0, col: 5 })
+    return JSON.stringify(now) === JSON.stringify(before)
+  }, cellBefore)
   check('undo 生效', undone)
 
   // bold active
@@ -227,9 +234,10 @@ async function main() {
   const frozenOk = await page.evaluate(() => {
     const sheet = window.__sheetDemo.sheet1
     const table = window.__sheetDemo.getSheet().getGrid().getTable()
-    return sheet.frozen.rows === 1 && table.frozenRowCount === 2
+    // 引擎表头为独立分带（不占模型行），冻结 1 数据行 → frozenRowCount = 1
+    return sheet.frozen.rows === 1 && table.frozenRowCount === 1
   })
-  check('冻结模型→VTable 联动（菜单入口依赖阶段2）', frozenOk)
+  check('冻结模型→引擎联动（菜单入口依赖阶段2）', frozenOk)
 
   await page.evaluate(() => {
     const sheet = window.__sheetDemo.sheet1

@@ -180,6 +180,30 @@ describe('引用选择拦截', () => {
       grid.release()
     }
   })
+
+  it('引用拾取拖选手势收敛：抬手一次回交最终区域（不逐事件回交、不落模型选区）', () => {
+    const onSelectionIntercept = vi.fn()
+    const { grid, container, sheet } = createGrid({
+      interceptSelection: () => true,
+      onSelectionIntercept
+    })
+    try {
+      fire(container, 'pointerdown', { clientX: cellX(1), clientY: cellY(1) })
+      fire(container, 'pointermove', { clientX: cellX(3), clientY: cellY(3) })
+      // 手势期只记录：中间选区变更不回交
+      expect(onSelectionIntercept).not.toHaveBeenCalled()
+      fire(container, 'pointerup', { clientX: cellX(3), clientY: cellY(3) })
+      expect(onSelectionIntercept).toHaveBeenCalledTimes(1)
+      expect(onSelectionIntercept).toHaveBeenCalledWith({
+        start: { row: 1, col: 1 },
+        end: { row: 3, col: 3 }
+      })
+      // 模型选区保持 A1（公式目标格高亮语义）
+      expect(sheet.getSelection().activeCell).toEqual({ row: 0, col: 0 })
+    } finally {
+      grid.release()
+    }
+  })
 })
 
 describe('填充柄生成', () => {

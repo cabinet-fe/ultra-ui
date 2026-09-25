@@ -15,7 +15,7 @@ const require = createRequire(import.meta.url)
 const CANDIDATES = [
   process.env.PLAYWRIGHT_MODULE_PATH,
   // macOS：mise 安装的 @playwright/cli 内嵌 playwright
-  '/Users/whj/.local/share/mise/installs/node/26.1.0/lib/node_modules/@playwright/cli/node_modules/playwright',
+  '/Users/whj/.local/share/mise/installs/node/latest/lib/node_modules/@playwright/cli/node_modules/playwright',
   // Windows：本地临时安装（见会话历史）
   join(process.env.LOCALAPPDATA || '', 'Temp', 'sheet-check', 'node_modules', 'playwright')
 ].filter(Boolean)

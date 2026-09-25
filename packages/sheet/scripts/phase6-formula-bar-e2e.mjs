@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url'
 const require = createRequire(import.meta.url)
 const {
   chromium
-} = require('/Users/whj/.local/share/mise/installs/node/26.1.0/lib/node_modules/@playwright/cli/node_modules/playwright')
+} = require('/Users/whj/.local/share/mise/installs/node/latest/lib/node_modules/@playwright/cli/node_modules/playwright')
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '../../..')
 const OUT = join(ROOT, '.playwright-cli')
@@ -72,8 +72,8 @@ async function main() {
   const afterSuggest = await fx.inputValue()
   const cursor = await fx.evaluate((el) => el.selectionStart)
   check(
-    '↓+Enter → =SUM( 光标在括号内',
-    afterSuggest === '=SUM(' && cursor === 5,
+    '↓+Enter → =SUM() 光标在括号内',
+    afterSuggest === '=SUM()' && cursor === 5,
     `${afterSuggest}@${cursor}`
   )
 
@@ -96,7 +96,7 @@ async function main() {
     cellAfterDown == null || cellAfterDown.f == null,
     JSON.stringify(cellAfterDown)
   )
-  check('失焦后 fx 仍为 =SUM(', (await fx.inputValue()) === '=SUM(')
+  check('失焦后 fx 仍为 =SUM()', (await fx.inputValue()) === '=SUM()')
 
   // 拖到 B10 区域（表格坐标约 col 偏移后）再松开 → SELECTED_CELL
   await page.mouse.move(clickX + 80, clickY + 40)
@@ -108,14 +108,13 @@ async function main() {
   if (!afterDrag.includes('A') && !afterDrag.includes(':')) {
     await page.evaluate(() => {
       const table = window.__sheetDemo.getSheet().getGrid().getTable()
-      // A10:B10 → 表格 (1,10)-(2,10)
-      table.selectCells([{ start: { col: 1, row: 10 }, end: { col: 2, row: 10 } }])
-      table.fireListeners('selected_cell', { col: 2, row: 10 })
+      // A10:B10 → 引擎数据坐标（0 基，无表头行偏移）(0,9)-(1,9)
+      table.selectCells([{ start: { col: 0, row: 9 }, end: { col: 1, row: 9 } }])
     })
     await page.waitForTimeout(60)
     afterDrag = await fx.inputValue()
   }
-  check('拖选/点选插入区域引用', /^=SUM\([A-Z]+\d+(:[A-Z]+\d+)?$/.test(afterDrag), afterDrag)
+  check('拖选/点选插入区域引用', /^=SUM\([A-Z]+\d+(:[A-Z]+\d+)?\)$/.test(afterDrag), afterDrag)
 
   // 若插入的不是 A10:B10，程序化改成正确引用再提交
   await fx.click()
@@ -136,8 +135,8 @@ async function main() {
   await typeFx('=')
   await page.evaluate(() => {
     const table = window.__sheetDemo.getSheet().getGrid().getTable()
-    table.selectCells([{ start: { col: 1, row: 10 }, end: { col: 1, row: 10 } }])
-    table.fireListeners('selected_cell', { col: 1, row: 10 })
+    // A10 → 引擎数据坐标 (0,9)；selectCells 走公开选区事件驱动引用插入
+    table.selectCells([{ start: { col: 0, row: 9 }, end: { col: 0, row: 9 } }])
   })
   await page.waitForTimeout(60)
   check('点选插入 A10', (await fx.inputValue()) === '=A10', await fx.inputValue())
@@ -145,8 +144,8 @@ async function main() {
   await typeFx('=A10+')
   await page.evaluate(() => {
     const table = window.__sheetDemo.getSheet().getGrid().getTable()
-    table.selectCells([{ start: { col: 2, row: 10 }, end: { col: 2, row: 10 } }])
-    table.fireListeners('selected_cell', { col: 2, row: 10 })
+    // B10 → 引擎数据坐标 (1,9)
+    table.selectCells([{ start: { col: 1, row: 9 }, end: { col: 1, row: 9 } }])
   })
   await page.waitForTimeout(60)
   check('连续引用 =A10+B10', (await fx.inputValue()) === '=A10+B10', await fx.inputValue())
@@ -210,8 +209,8 @@ async function main() {
   await typeFx('=SUM(')
   await page.evaluate(() => {
     const table = window.__sheetDemo.getSheet().getGrid().getTable()
-    table.selectCells([{ start: { col: 1, row: 10 }, end: { col: 2, row: 10 } }])
-    table.fireListeners('selected_cell', { col: 2, row: 10 })
+    // A10:B10 → 引擎数据坐标 (0,9)-(1,9)
+    table.selectCells([{ start: { col: 0, row: 9 }, end: { col: 1, row: 9 } }])
   })
   await page.waitForTimeout(50)
   await page.keyboard.press('Escape')

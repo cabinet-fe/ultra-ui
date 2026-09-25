@@ -182,10 +182,13 @@ export class SheetGrid {
 
     this.selectionController = new GridSelectionController(this.sheet, this.table, {
       isReadonly: this.isReadonly,
+      container: this.container,
       interceptSelection: options.interceptSelection,
       onSelectionIntercept: options.onSelectionIntercept
     })
     this.disposers.push(...this.selectionController.bind())
+    // 模型初始选区（默认 A1 / 宿主预置）落引擎画布：native 初挂即绘制活动格选区框
+    this.selectionController.syncInitialSelection()
 
     this.floatImages = new GridFloatImages({
       table: this.table,
