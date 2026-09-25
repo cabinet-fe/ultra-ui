@@ -120,6 +120,8 @@ export declare class ToolRegistry {
 export interface SheetContextOptions {
   /** 当前渲染网格尺寸；applyStyle / clearStyle 用其判定整行/整列，缺省时不走行列默认样式 */
   resolveGridSize?: () => { rows: number; cols: number }
+  /** 行列尺寸写模型后的即时同步钩子（USheet 经此落活动 SheetGrid 引擎画面）；缺省（无头场景）仅写模型 */
+  syncAxisSizes?: (axis: 'row' | 'col', indexes: number[]) => void
 }
 
 /**
@@ -200,6 +202,16 @@ export interface SheetContext {
   // ─── 冻结（模型状态，不进 undo；随快照序列化） ──────────────
   readonly frozen: FrozenState // { rows: 顶部冻结行数; cols: 左侧冻结列数 }
   setFrozen(rows: number, cols: number): void
+
+  // ─── 行列尺寸（模型状态，不进 undo；随快照序列化） ─────────
+  /** 读取自定义行高；未设置返回 undefined（视图层用默认行高） */
+  getRowHeight(row: number): number | undefined
+  /** 读取自定义列宽；未设置返回 undefined（视图层用默认列宽） */
+  getColWidth(col: number): number | undefined
+  /** 按选区覆盖行批量设置行高（下限钳到引擎最小值 20；不进 undo，同 rowHeights 先例；USheet 内确认后活动 grid 画面即时生效） */
+  setRowHeightBySelection(height: number): void
+  /** 按选区覆盖列批量设置列宽（下限钳到引擎最小值 20；不进 undo，同 colWidths 先例；USheet 内确认后活动 grid 画面即时生效） */
+  setColWidthBySelection(width: number): void
 
   // ─── 行列插入/删除（结构变更，可 undo） ──────────────────
   /** 插入 count 行到 at 行之前；count 缺省 1 */
@@ -383,7 +395,7 @@ console.log(sheet.getDisplayValue({ row: 0, col: 0 })) // => undefined（值已�
 
 > [!WARNING]
 >
-> - `SheetContext` 不暴露 `Sheet` 实例——写方法全部经命令系统（可 undo，`setFrozen` 除外）；绕过门面直接操作 `Sheet` 的代码不属于工具扩展。
+> - `SheetContext` 不暴露 `Sheet` 实例——写方法全部经命令系统（可 undo，`setFrozen` 与行列尺寸写入 `setRowHeightBySelection` / `setColWidthBySelection` 除外）；绕过门面直接操作 `Sheet` 的代码不属于工具扩展。
 > - sheet 增删改名不经过 `SheetContext`，宿主直接操作 `Workbook`（`addSheet` / `removeSheet` / `renameSheet`）；`ctx.workbook` 只是只读引用。
 > - `popup` 仅接受 8 个内置类型值，自定义字符串无法让 USheet 渲染面板；需要自定义面板时用普通按钮 + 宿主自己的弹层。
 > - `activeCell` 的类型是 `CellAddress | null`（未选中为 `null`），不是 `undefined`；判断用 `!== null`。

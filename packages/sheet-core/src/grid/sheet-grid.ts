@@ -120,9 +120,12 @@ export class SheetGrid {
     this.showRowHeader = options.showRowHeader ?? true
     this.showColHeader = options.showColHeader ?? true
 
-    // options 仅扩张：已声明更小的模型尺寸（删行后）不被 props 下限撑回
-    this.sheet.ensureTableSize(options.rows ?? 100, options.cols ?? 26)
-    this.sheet.ensureTableSize(this.sheet.rowCount, this.sheet.colCount)
+    // options 仅扩张：已声明更小的模型尺寸（删行后）不被 props 下限撑回；
+    // 与已存数据高水位一次 max 合并（原两次连续 ensureTableSize 合并为一次声明）
+    this.sheet.ensureTableSize(
+      Math.max(options.rows ?? 100, this.sheet.rowCount),
+      Math.max(options.cols ?? 26, this.sheet.colCount)
+    )
     const rows = Math.max(this.sheet.rows, 1)
     const cols = Math.max(this.sheet.cols, 1)
 
@@ -204,6 +207,7 @@ export class SheetGrid {
     this.bindContextMenu(options.onContextMenu)
     this.bindEditLifecycle(options.onEditStart, options.onEditEnd)
     this.bindResize()
+    this.bindFocus()
   }
 
   /** 底层引擎表实例（调试/测试用） */
@@ -214,6 +218,15 @@ export class SheetGrid {
   /** 容器内相对坐标 → 模型地址（行号/列头返回 null）；宿主拖放命中用 */
   hitTestSheetAddr(x: number, y: number): CellAddress | null {
     return hitTestSheetAddrAt(this.table, x, y)
+  }
+
+  /**
+   * 选区锚点（fx 引用拾取等编辑会话）：锚定格以选区样式持续绘制（合并格自动按
+   * 包围盒展开），实际选区照常流动；null 清除。纯视图态，不写模型。
+   */
+  setSelectionAnchor(addr: CellAddress | null): void {
+    if (this.released) return
+    this.table.setSelectionAnchor(addr)
   }
 
   /**
@@ -239,8 +252,36 @@ export class SheetGrid {
     this.table.destroy()
   }
 
-  destroy(): void {
-    this.release()
+  /**
+   * 模型尺寸覆盖 → 引擎 table 即时同步（右键菜单数值项写入路径；`Sheet.setRowHeight`
+   * /`setColWidth` 不发事件，拖拽路径经 resize 事件已即时生效，此路径补齐门面写入）。
+   * 对齐拖拽落定语义：列宽变化重估该列各内容行 wrap 行高（只升不降），几何重绘由
+   * 引擎 set API 自带；隐藏实例只置脏，激活时 fullResync 全量落地。
+   */
+  applyAxisSizes(axis: 'row' | 'col', indexes: number[]): void {
+    if (this.released) return
+    if (!this.visible) {
+      this.dirty = true
+      return
+    }
+    if (axis === 'row') {
+      for (const row of indexes) {
+        const height = this.sheet.getRowHeight(row)
+        if (height != null && this.table.getRowHeight(row) !== height) {
+          this.table.setRowHeight(row, height)
+        }
+      }
+      return
+    }
+    for (const col of indexes) {
+      const width = this.sheet.getColWidth(col)
+      if (width == null || this.table.getColWidth(col) === width) continue
+      this.table.setColWidth(col, width)
+      // 列宽变化影响 wrap 折行：该列各行重估 wrap 行高（同拖拽落定路径）
+      for (const row of this.sheet.store.rowsForColumn(col)) {
+        this.rowHeightEngine.syncWrapRowHeight(row, this.table)
+      }
+    }
   }
 
   // ─── 构造装配 ───────────────────────────────────────────
@@ -508,5 +549,32 @@ export class SheetGrid {
       this.table.resize(this.measureContainerWidth(), this.measureContainerHeight())
     })
     this.resizeObserver.observe(this.container)
+  }
+
+  /**
+   * 容器可聚焦（tabindex="-1"：不进 Tab 序，指针/挂载编程聚焦）——键盘事件
+   * 经冒泡进入容器监听（撤销/重做/引擎方向键导航）；对齐引擎 demo 宿主契约。
+   */
+  private bindFocus(): void {
+    this.container.tabIndex = -1
+    // 指针按下聚焦容器；编辑器输入等容器内已有焦点不夺（其 Cmd/Ctrl+Z 走原生文本撤销）
+    const onPointerDown = (): void => {
+      if (!this.container.contains(document.activeElement)) {
+        this.container.focus({ preventScroll: true })
+      }
+    }
+    this.container.addEventListener('pointerdown', onPointerDown)
+    this.disposers.push(() => this.container.removeEventListener('pointerdown', onPointerDown))
+    // 挂载即聚焦：指针点击前键盘快捷键即可用；preventScroll 避免首屏滚动跳位。
+    // 构造期宿主可能仍隐藏（focus 静默失败），下一帧兜底重试一次；
+    // 重试仅在期间无其它元素获焦（activeElement 仍为 body）时进行，不抢即时焦点
+    this.container.focus({ preventScroll: true })
+    if (document.activeElement !== this.container) {
+      requestAnimationFrame(() => {
+        if (this.released) return
+        if (document.activeElement !== document.body) return
+        this.container.focus({ preventScroll: true })
+      })
+    }
   }
 }

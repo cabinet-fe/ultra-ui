@@ -12,6 +12,9 @@ import type { Workbook } from '@veltra/sheet-core/core/workbook.js'
 
 import { axisStyleItemsForRange, classifySelectionStyleTarget } from './apply-style'
 
+/** 行列尺寸下限：对齐引擎 resize 最小值（`MIN_ROW_HEIGHT` / `MIN_COL_WIDTH` = 20） */
+export const MIN_ROW_COL_SIZE = 20
+
 /**
  * SheetContext：工具的唯一操作门面。
  *
@@ -100,6 +103,16 @@ export interface SheetContext {
   /** 设置冻结行列数（不进 undo，同 rowHeights 先例） */
   setFrozen(rows: number, cols: number): void
 
+  // ─── 行列尺寸（模型状态，不进 undo；随快照序列化） ─────────
+  /** 读取自定义行高；未设置返回 undefined（视图层用默认行高） */
+  getRowHeight(row: number): number | undefined
+  /** 读取自定义列宽；未设置返回 undefined（视图层用默认列宽） */
+  getColWidth(col: number): number | undefined
+  /** 按选区覆盖行批量设置行高（下限钳到 MIN_ROW_COL_SIZE；不进 undo，同 rowHeights 先例） */
+  setRowHeightBySelection(height: number): void
+  /** 按选区覆盖列批量设置列宽（下限钳到 MIN_ROW_COL_SIZE；不进 undo，同 colWidths 先例） */
+  setColWidthBySelection(width: number): void
+
   // ─── 行列插入/删除（结构变更，可 undo） ──────────────────
   /** 插入 count 行到 at 行之前 */
   insertRows(at: number, count?: number): void
@@ -135,6 +148,12 @@ export interface SheetContextOptions {
    * applyStyle / clearStyle 用其判定整行/整列；缺省时不走行列默认样式。
    */
   resolveGridSize?: () => { rows: number; cols: number }
+  /**
+   * 行列尺寸写模型后的即时同步钩子：`Sheet.setRowHeight`/`setColWidth` 不发事件，
+   * 宿主经此把尺寸落到活动 SheetGrid 引擎 table（菜单数值项画面即时生效）；
+   * 缺省（无头 / 测试直挂 Sheet）时仅写模型。
+   */
+  syncAxisSizes?: (axis: 'row' | 'col', indexes: number[]) => void
 }
 
 /**
@@ -146,6 +165,7 @@ export interface SheetContextOptions {
  *   上下文始终解析到**当前**工作簿（#2：旧实现取构造时值快照，宿主切换
  *   workbook prop 后导出工具仍导出旧工作簿）
  * @param options.resolveGridSize 渲染尺寸解析器（整行/整列样式路由）
+ * @param options.syncAxisSizes 行列尺寸写模型后的即时同步钩子（USheet 接活动 grid）
  */
 export function createSheetContext(
   resolveSheet: Sheet | (() => Sheet),
@@ -156,6 +176,7 @@ export function createSheetContext(
   const resolveWorkbook =
     typeof workbook === 'function' ? workbook : workbook != null ? () => workbook : undefined
   const resolveGridSize = options?.resolveGridSize
+  const syncAxisSizes = options?.syncAxisSizes
   const resolveTarget = (range: CellRange) => {
     const size = resolveGridSize?.()
     return size ? classifySelectionStyleTarget(range, size.rows, size.cols) : 'cell'
@@ -216,6 +237,32 @@ export function createSheetContext(
       return sheet().frozen
     },
     setFrozen: (rows, cols) => sheet().setFrozen(rows, cols),
+
+    getRowHeight: (row) => sheet().getRowHeight(row),
+    getColWidth: (col) => sheet().getColWidth(col),
+    setRowHeightBySelection: (height) => {
+      const size = Math.max(MIN_ROW_COL_SIZE, height)
+      const rows: number[] = []
+      for (const range of sheet().getSelection().ranges) {
+        for (let row = range.start.row; row <= range.end.row; row++) {
+          sheet().setRowHeight(row, size)
+          rows.push(row)
+        }
+      }
+      // 写模型后即时同步活动 grid（Sheet.setRowHeight 不发事件）
+      if (rows.length > 0) syncAxisSizes?.('row', rows)
+    },
+    setColWidthBySelection: (width) => {
+      const size = Math.max(MIN_ROW_COL_SIZE, width)
+      const cols: number[] = []
+      for (const range of sheet().getSelection().ranges) {
+        for (let col = range.start.col; col <= range.end.col; col++) {
+          sheet().setColWidth(col, size)
+          cols.push(col)
+        }
+      }
+      if (cols.length > 0) syncAxisSizes?.('col', cols)
+    },
     insertRows: (at, count) => sheet().insertRows(at, count),
     insertCols: (at, count) => sheet().insertCols(at, count),
     deleteRows: (at, count) => sheet().deleteRows(at, count),

@@ -1,10 +1,14 @@
+import { createRange } from '@veltra/sheet-core/core/address.js'
 import { Workbook } from '@veltra/sheet-core/core/workbook.js'
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
-import { createApp, h, nextTick, ref, type App } from 'vue'
+import { createApp, h, nextTick, ref, type App, type Component } from 'vue'
 
+// 引擎指针事件模拟与画布几何（cellX/cellY）：setup 已跨包引用同目录 setup.ts
+import { cellX, cellY, fire } from '../../../../../sheet-core/src/grid/__test__/grid-test-utils'
 import { USheet } from '../../../index'
 import { registerTool, unregisterTool } from '../../../tools/registry'
 import type { SheetExposed } from '../../../types'
+import { buildColHeaderMenus, buildRowHeaderMenus } from '../sheet-context-menu'
 
 const apps: App[] = []
 const containers: HTMLElement[] = []
@@ -1029,5 +1033,286 @@ describe('tabs 栏', () => {
     await nextTick()
     expect(workbook.activeSheet.name).toBe('Sheet16')
     expect(scrollLeft).toBeGreaterThan(0)
+  })
+})
+
+describe('USheet 行高/列宽右键菜单', () => {
+  /**
+   * 触发行号/列头右键：直接调引擎 contextMenuListeners（happy-dom 无法驱动
+   * 引擎画布的 DOM contextmenu 命中），走 SheetGrid → handleContextMenu →
+   * contextmenu.pop 的真实链路。坐标取行号带内 / 列头带内（行高 28 / 行号列宽 46）。
+   */
+  function popHeaderContextMenu(
+    exposed: { value: SheetExposed | undefined },
+    kind: 'row-header' | 'col-header'
+  ): void {
+    const table = exposed.value!.getGrid()!.getTable()
+    const event = {
+      cell: null,
+      region: kind,
+      x: kind === 'row-header' ? 20 : 100,
+      y: kind === 'row-header' ? 40 : 10,
+      originalEvent: new MouseEvent('contextmenu')
+    }
+    for (const listener of table.contextMenuListeners) {
+      listener(event as Parameters<typeof listener>[0])
+    }
+  }
+
+  /**
+   * 最新弹出菜单中含指定文案的菜单项。
+   * happy-dom 无 transition：close 的 leave 不结束，旧弹层不卸载而在 body 累积，
+   * 断言只认 body 中最后一份（每次 pop 追加新根节点）。
+   */
+  function menuItem(text: string): HTMLLIElement | undefined {
+    const roots = document.body.querySelectorAll<HTMLElement>('.u-contextmenu')
+    const latest = roots[roots.length - 1]
+    return latest
+      ? [...latest.querySelectorAll<HTMLLIElement>('.u-contextmenu__item')].find((item) =>
+          item.textContent?.includes(text)
+        )
+      : undefined
+  }
+
+  /** 数值输入项内输入并确认（UInput @input 同步 model，InsertCountMenuItem 点击本体提交） */
+  async function confirmMenuNumber(root: HTMLElement, value: number): Promise<void> {
+    const input = root.querySelector<HTMLInputElement>('input')!
+    input.value = String(value)
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    await nextTick()
+    root.querySelector<HTMLElement>('.u-sheet__insert-count-menu')!.click()
+    await nextTick()
+  }
+
+  /**
+   * 独立挂载菜单项 render 组件（menuNumberRender → InsertCountMenuItem，与弹出菜单
+   * 同一组合）。弹层 confirm 的 leave 在 happy-dom 不结束，迟到的 destroy 会卸载
+   * 之后 pop 的新菜单，写入路径统一走独立挂载保证确定性。
+   */
+  function mountMenuRender(render: Component): HTMLElement {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    containers.push(host)
+    const app = createApp({ render: () => h(render) })
+    apps.push(app)
+    app.mount(host)
+    return host
+  }
+
+  it('行号/列头菜单出现「行高」「列宽」数值项：输入确认写回选区覆盖行/列，重建 grid 后保留', async () => {
+    const workbook = createWorkbook()
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    const state = ref({ rows: 10, cols: 6 })
+    mount(() => ({ workbook, rows: state.value.rows, cols: state.value.cols }), exposed)
+    await nextTick()
+    const ctx = exposed.value!.getContext()
+
+    // 预选 R1C1:R2C2（右键落点在选区内 → 选区保留，不依赖 happy-dom 画布命中）
+    ctx.selectRange(createRange({ row: 0, col: 0 }, { row: 1, col: 1 }))
+
+    // 行号右键（真实链路）：菜单出现「行高」内嵌数值输入
+    popHeaderContextMenu(exposed, 'row-header')
+    await nextTick()
+    const rowItem = menuItem('行高')!
+    expect(rowItem.classList.contains('is-disabled')).toBe(false)
+    expect(rowItem.querySelector('.u-contextmenu__custom')).toBeTruthy()
+    expect(rowItem.querySelector('input')).toBeTruthy()
+
+    // 输入 40 确认（与弹层同一 render 组合）：应用到选区覆盖行 0..1
+    await confirmMenuNumber(
+      mountMenuRender(buildRowHeaderMenus(ctx).find((m) => m.label === '行高')!.render!),
+      40
+    )
+    expect(workbook.activeSheet.getRowHeight(0)).toBe(40)
+    expect(workbook.activeSheet.getRowHeight(1)).toBe(40)
+    expect(workbook.activeSheet.getRowHeight(2)).toBeUndefined()
+    // 确认后活动引擎即时生效（门面写模型 → 活动 grid 引擎 table 同步，无需重建）
+    const activeTable = exposed.value!.getGrid()!.getTable()
+    expect(activeTable.getRowHeight(0)).toBe(40)
+    expect(activeTable.getRowHeight(1)).toBe(40)
+    expect(activeTable.getRowHeight(2)).toBe(28)
+    // 尺寸写入不进 undo（同 rowHeights/冻结先例）
+    expect(ctx.canUndo).toBe(false)
+
+    // 列头右键（真实链路）：菜单出现「列宽」内嵌数值输入。
+    // 预选 cols 0..2 横跨画布命中可能落点——右键列头无论命中 0/1 或 undefined
+    // 都保持选区（happy-dom 画布命中几何不定，不能依赖落点改选）
+    ctx.selectRange(createRange({ row: 0, col: 0 }, { row: 1, col: 2 }))
+    popHeaderContextMenu(exposed, 'col-header')
+    await nextTick()
+    const colItem = menuItem('列宽')!
+    expect(colItem.querySelector('.u-contextmenu__custom')).toBeTruthy()
+    // 输入 120 确认：应用到选区覆盖列 0..2，活动引擎即时生效
+    await confirmMenuNumber(
+      mountMenuRender(buildColHeaderMenus(ctx).find((m) => m.label === '列宽')!.render!),
+      120
+    )
+    expect(workbook.activeSheet.getColWidth(0)).toBe(120)
+    expect(workbook.activeSheet.getColWidth(1)).toBe(120)
+    expect(workbook.activeSheet.getColWidth(2)).toBe(120)
+    expect(workbook.activeSheet.getColWidth(3)).toBeUndefined()
+    expect(activeTable.getColWidth(0)).toBe(120)
+    expect(activeTable.getColWidth(2)).toBe(120)
+    expect(activeTable.getColWidth(3)).toBe(80)
+
+    // 重建 grid（props 变化触发）后从模型还原行列尺寸
+    const gridBefore = exposed.value!.getGrid()
+    state.value = { rows: 12, cols: 6 }
+    await nextTick()
+    expect(exposed.value!.getGrid()).not.toBe(gridBefore)
+    const table = exposed.value!.getGrid()!.getTable()
+    expect(table.getRowHeight(0)).toBe(40)
+    expect(table.getColWidth(1)).toBe(120)
+  })
+
+  it('readonly：「行高」「列宽」菜单项禁用（降级为禁用文本项，无内嵌输入）', async () => {
+    const workbook = createWorkbook()
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    mount(() => ({ workbook, rows: 10, cols: 6, readonly: true }), exposed)
+    await nextTick()
+
+    popHeaderContextMenu(exposed, 'row-header')
+    await nextTick()
+    const rowItem = menuItem('行高')!
+    expect(rowItem.classList.contains('is-disabled')).toBe(true)
+    expect(rowItem.querySelector('.u-contextmenu__custom')).toBeNull()
+    expect(rowItem.querySelector('input')).toBeNull()
+
+    popHeaderContextMenu(exposed, 'col-header')
+    await nextTick()
+    const colItem = menuItem('列宽')!
+    expect(colItem.classList.contains('is-disabled')).toBe(true)
+    expect(colItem.querySelector('input')).toBeNull()
+  })
+})
+
+describe('fx 选区锚点', () => {
+  const A1_ANCHOR = { minCol: 0, minRow: 0, maxCol: 0, maxRow: 0 }
+
+  function mountSheet(exposed: { value: SheetExposed | undefined }): HTMLElement {
+    const workbook = createWorkbook()
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
+    return el
+  }
+
+  function fxInputOf(el: HTMLElement): HTMLTextAreaElement {
+    return el.querySelector<HTMLTextAreaElement>('.u-sheet__fx-input')!
+  }
+
+  it('fx 焦点/插入函数置锚点：画布引用拾取期选区流动，锚点保持', async () => {
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    const el = mountSheet(exposed)
+    await nextTick()
+
+    const table = exposed.value!.getGrid()!.getTable()
+    const fxInput = fxInputOf(el)
+    expect(table.selectionAnchor).toBeNull()
+
+    // fx 焦点进入编辑会话：被编辑格 A1 置锚点
+    fxInput.dispatchEvent(new Event('focus'))
+    await nextTick()
+    expect(table.selectionAnchor).toEqual(A1_ANCHOR)
+
+    // 输入 =SUM( 进入引用拾取上下文，画布拖选 B2:D4：拾取段选区流动、
+    // 抬手引用文本插入公式，锚点仍钉在被编辑格
+    fxInput.value = '=SUM('
+    fxInput.setSelectionRange(5, 5)
+    fxInput.dispatchEvent(new Event('input', { bubbles: true }))
+    const instance = el.querySelector<HTMLElement>('.u-sheet__grid-instance')!
+    fire(instance, 'pointerdown', { clientX: cellX(1), clientY: cellY(1) })
+    fire(instance, 'pointermove', { clientX: cellX(3), clientY: cellY(3) })
+    fire(instance, 'pointerup', { clientX: cellX(3), clientY: cellY(3) })
+    await nextTick()
+    expect(fxInput.value).toBe('=SUM(B2:D4')
+    // 拦截命中：拾取段选区流动被消费为引用（C3 已插入），不落模型选区，
+    // 画布回推模型选区；锚点仍钉在被编辑格 A1
+    expect(exposed.value!.getActiveSheet().getSelection().activeCell).toEqual({ row: 0, col: 0 })
+    expect(table.selectionAnchor).toEqual(A1_ANCHOR)
+
+    // fx 按钮选函数（insertFunction 重置会话内容）：锚点保持在目标格
+    el.querySelector<HTMLButtonElement>('.u-sheet__fx-label')!.click()
+    await flushPopup()
+    const item = document.querySelector<HTMLElement>('.u-sheet__functions-item')
+    expect(item).not.toBeNull()
+    item!.click()
+    await nextTick()
+    expect(fxInput.value).toMatch(/^=\w+\(\)$/)
+    expect(table.selectionAnchor).toEqual(A1_ANCHOR)
+  })
+
+  it('提交（Enter/✓/失焦）与取消（Esc/✗）清锚点', async () => {
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    const el = mountSheet(exposed)
+    await nextTick()
+
+    const table = exposed.value!.getGrid()!.getTable()
+    const fxInput = fxInputOf(el)
+    const commitButton = () => el.querySelectorAll<HTMLButtonElement>('.u-sheet__fx-btn')[0]!
+    const cancelButton = () => el.querySelectorAll<HTMLButtonElement>('.u-sheet__fx-btn')[1]!
+
+    // Enter 提交
+    fxInput.dispatchEvent(new Event('focus'))
+    await nextTick()
+    expect(table.selectionAnchor).toEqual(A1_ANCHOR)
+    fxInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    await nextTick()
+    expect(table.selectionAnchor).toBeNull()
+
+    // ✓ 按钮
+    fxInput.dispatchEvent(new Event('focus'))
+    await nextTick()
+    expect(table.selectionAnchor).toEqual(A1_ANCHOR)
+    commitButton().click()
+    await nextTick()
+    expect(table.selectionAnchor).toBeNull()
+
+    // 失焦提交
+    fxInput.dispatchEvent(new Event('focus'))
+    await nextTick()
+    expect(table.selectionAnchor).toEqual(A1_ANCHOR)
+    fxInput.dispatchEvent(new Event('blur'))
+    await nextTick()
+    expect(table.selectionAnchor).toBeNull()
+
+    // Esc 取消
+    fxInput.dispatchEvent(new Event('focus'))
+    await nextTick()
+    expect(table.selectionAnchor).toEqual(A1_ANCHOR)
+    fxInput.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
+    await nextTick()
+    expect(table.selectionAnchor).toBeNull()
+
+    // ✗ 按钮
+    fxInput.dispatchEvent(new Event('focus'))
+    await nextTick()
+    expect(table.selectionAnchor).toEqual(A1_ANCHOR)
+    cancelButton().click()
+    await nextTick()
+    expect(table.selectionAnchor).toBeNull()
+  })
+
+  it('切 sheet 清锚点：切回原表缓存实例无残留高亮', async () => {
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    const el = mountSheet(exposed)
+    await nextTick()
+
+    const fxInput = fxInputOf(el)
+    fxInput.dispatchEvent(new Event('focus'))
+    await nextTick()
+    const sheet1Table = exposed.value!.getGrid()!.getTable()
+    expect(sheet1Table.selectionAnchor).toEqual(A1_ANCHOR)
+
+    // 切到 Sheet2：新实例无锚点，旧实例锚点已清
+    tabs(el)[1]!.click()
+    await nextTick()
+    const sheet2Table = exposed.value!.getGrid()!.getTable()
+    expect(sheet2Table).not.toBe(sheet1Table)
+    expect(sheet2Table.selectionAnchor).toBeNull()
+
+    // 切回 Sheet1：缓存实例复用，无残留锚点
+    tabs(el)[0]!.click()
+    await nextTick()
+    expect(exposed.value!.getGrid()!.getTable()).toBe(sheet1Table)
+    expect(sheet1Table.selectionAnchor).toBeNull()
   })
 })

@@ -4,6 +4,7 @@ import type { NumFmt } from '@veltra/sheet-core/core/style/types.js'
 import { defineComponent, h } from 'vue'
 
 import type { SheetContext } from '../../tools/context'
+import { MIN_ROW_COL_SIZE } from '../../tools/context'
 import { defaultToolRegistry } from '../../tools/registry'
 import InsertCountMenuItem from './insert-count-menu-item.vue'
 import { pickAndInsertImage } from './insert-image'
@@ -15,6 +16,13 @@ export const INSERT_COUNT_MAX = 1000
 /** 小数位数钳制范围 */
 export const DECIMAL_PLACES_MIN = 0
 export const DECIMAL_PLACES_MAX = 10
+
+/** 行高/列宽数值项输入上限（下限复用门面 MIN_ROW_COL_SIZE，对齐引擎 resize 最小值） */
+export const AXIS_SIZE_MAX = 1000
+
+/** 数值项默认值回落：未设置自定义尺寸时展示引擎默认行高/列宽（对齐 sheet-core grid-theme） */
+export const FALLBACK_ROW_HEIGHT = 28
+export const FALLBACK_COL_WIDTH = 80
 
 /** 选区覆盖行/列数 → 插入默认 N（min 1 / max 1000） */
 export function defaultInsertCount(range: CellRange | null, axis: 'row' | 'col'): number {
@@ -94,12 +102,46 @@ function insertCountRender(options: {
   return menuNumberRender({ ...options, min: INSERT_COUNT_MIN, max: INSERT_COUNT_MAX })
 }
 
+/** 行号/列头菜单选项（readonly 时尺寸项禁用） */
+export interface HeaderMenuOptions {
+  /** 只读模式：行高/列宽项禁用（尺寸写入属编辑操作） */
+  readonly?: boolean
+}
+
+/**
+ * 行高/列宽菜单项：内嵌数值输入，确认经门面批量应用到选区覆盖行/列。
+ * readonly 时降级为禁用文本项——render 内嵌组件自带点击路径，disabled 拦不住。
+ */
+function axisSizeMenuItem(options: {
+  label: string
+  disabled: boolean
+  defaultValue: number
+  onConfirm: (n: number) => void
+}): ContextmenuItem {
+  if (options.disabled) return { label: options.label, disabled: true }
+  return {
+    label: options.label,
+    keepOpen: true,
+    render: menuNumberRender({
+      prefix: options.label,
+      suffix: '像素',
+      defaultValue: options.defaultValue,
+      min: MIN_ROW_COL_SIZE,
+      max: AXIS_SIZE_MAX,
+      onConfirm: options.onConfirm
+    })
+  }
+}
+
 function primaryRange(ctx: SheetContext): CellRange | null {
   return ctx.getSelection().ranges[0] ?? null
 }
 
-/** 行号右键菜单：插入×2 / 删除 / divider / 冻结 / 取消冻结 */
-export function buildRowHeaderMenus(ctx: SheetContext): ContextmenuItem[] {
+/** 行号右键菜单：插入×2 / 删除 / 行高 / divider / 冻结 / 取消冻结 */
+export function buildRowHeaderMenus(
+  ctx: SheetContext,
+  options?: HeaderMenuOptions
+): ContextmenuItem[] {
   const range = primaryRange(ctx)
   const startRow = range?.start.row ?? 0
   const endRow = range?.end.row ?? startRow
@@ -130,6 +172,12 @@ export function buildRowHeaderMenus(ctx: SheetContext): ContextmenuItem[] {
       })
     },
     { label: '删除行', callback: () => ctx.deleteRows(startRow, deleteCount) },
+    axisSizeMenuItem({
+      label: '行高',
+      disabled: options?.readonly === true,
+      defaultValue: ctx.getRowHeight(startRow) ?? FALLBACK_ROW_HEIGHT,
+      onConfirm: (n) => ctx.setRowHeightBySelection(n)
+    }),
     { divider: true },
     {
       label: freezeActive ? '✓ 冻结到当前行' : '冻结到当前行',
@@ -143,8 +191,11 @@ export function buildRowHeaderMenus(ctx: SheetContext): ContextmenuItem[] {
   ]
 }
 
-/** 列头右键菜单：插入×2 / 删除 / divider / 冻结 / 取消冻结 */
-export function buildColHeaderMenus(ctx: SheetContext): ContextmenuItem[] {
+/** 列头右键菜单：插入×2 / 删除 / 列宽 / divider / 冻结 / 取消冻结 */
+export function buildColHeaderMenus(
+  ctx: SheetContext,
+  options?: HeaderMenuOptions
+): ContextmenuItem[] {
   const range = primaryRange(ctx)
   const startCol = range?.start.col ?? 0
   const endCol = range?.end.col ?? startCol
@@ -175,6 +226,12 @@ export function buildColHeaderMenus(ctx: SheetContext): ContextmenuItem[] {
       })
     },
     { label: '删除列', callback: () => ctx.deleteCols(startCol, deleteCount) },
+    axisSizeMenuItem({
+      label: '列宽',
+      disabled: options?.readonly === true,
+      defaultValue: ctx.getColWidth(startCol) ?? FALLBACK_COL_WIDTH,
+      onConfirm: (n) => ctx.setColWidthBySelection(n)
+    }),
     { divider: true },
     {
       label: freezeActive ? '✓ 冻结到当前列' : '冻结到当前列',

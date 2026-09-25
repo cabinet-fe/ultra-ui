@@ -24,13 +24,14 @@ export const SHEET_CELL_PADDING = [2, 6, 2, 6] as const
  * 选区 #2170E7 2px + 12% 填充、hover 关闭（disableHover 显式开关）。
  */
 export const SHEET_GRID_THEME: ThemeOverride = {
+  // body 不写 textOverflow：缺省时引擎按 Excel 式溢出走廊渲染（右侧邻格为空则溢出展示），
+  // 列头/行头由引擎缺省 ellipsis（见 list-table-scene 的 chrome 缺省），无需在此显式声明
   body: {
     color: '#000000',
     fontSize: 14,
     padding: [...SHEET_CELL_PADDING],
     background: BODY_BG,
-    borderColor: GRID_BORDER,
-    textOverflow: 'ellipsis'
+    borderColor: GRID_BORDER
   },
   header: {
     color: '#000000',

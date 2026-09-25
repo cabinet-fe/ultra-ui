@@ -138,8 +138,8 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 | `showToolbar`         | `boolean`              | `true`                  |  否  | `false` 时工具栏整体不渲染                                                                                   |
 | `showFormulaBar`      | `boolean`              | `true`                  |  否  | 公式栏含名称框与 fx 输入栏；填报页必须设 `false`                                                             |
 | `showTabs`            | `boolean`              | `true`                  |  否  | 底部标签栏：点击切换、末尾「+」新增、右键重命名/删除                                                         |
-| `showRowHeader`       | `boolean`              | `true`                  |  否  | 行号列；右键菜单含插入/删除行、冻结到当前行                                                                  |
-| `showColHeader`       | `boolean`              | `true`                  |  否  | 列字母表头；右键菜单含插入/删除列、冻结到当前列                                                              |
+| `showRowHeader`       | `boolean`              | `true`                  |  否  | 行号列；右键菜单含插入/删除行、行高、冻结到当前行                                                             |
+| `showColHeader`       | `boolean`              | `true`                  |  否  | 列字母表头；右键菜单含插入/删除列、列宽、冻结到当前列                                                          |
 | `readonly`            | `boolean`              | `false`                 |  否  | 整表只读预览；按格控制改用模型 `setCellReadonly`                                                             |
 | `resolveDisplayValue` | `ResolveDisplayValue`  | —                       |  否  | `(addr, base) => CellValue \| undefined`；必须同步                                                           |
 | `resolveCellStyle`    | `ResolveCellStyleHook` | —                       |  否  | `(addr, baseStyle?) => CellStyle \| undefined`；必须同步、O(1) 查找                                          |
@@ -332,7 +332,7 @@ workbook.activeSheet.setCellValue({ row: 0, col: 0 }, '选中格子后点工具�
 > - 坐标一律 0-based `{ row, col }`，不是 `'A1'` 字符串；A1 互转用 sheet-core 的 `parseAddress` / `formatAddress`。
 > - `registerTool` 的注册表是全局共享的（`defaultToolRegistry`），不是组件实例级的。
 
-交互事实补充：网格编辑拦截面覆盖双击、Enter、回写与填充柄；行高拖拽、冻结、选区不进 undo 历史；`Ctrl/Cmd+F` 在焦点落入本实例时打开查找条（不劫持容器外浏览器原生查找）；右键菜单分三套（body：合并 / 数据格式 / 插入图片；行号 / 列头：插入删除、冻结）。10 万行 × 12 列经 `setCells` 批量写入 + 虚拟滚动渲染可用（官方 playground `sheet-big-data` 场景）。
+交互事实补充：网格编辑拦截面覆盖双击、Enter、回写与填充柄；行高拖拽、冻结、选区不进 undo 历史；`Ctrl/Cmd+F` 在焦点落入本实例时打开查找条（不劫持容器外浏览器原生查找）；右键菜单分三套（body：合并 / 数据格式 / 插入图片；行号 / 列头：插入删除、行高 / 列宽、冻结）。10 万行 × 12 列经 `setCells` 批量写入 + 虚拟滚动渲染可用（官方 playground `sheet-big-data` 场景）。
 
 ## 常见问题
 

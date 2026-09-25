@@ -2,7 +2,7 @@ import { createRange } from '@veltra/sheet-core/core/address.js'
 import { Sheet } from '@veltra/sheet-core/core/sheet.js'
 import { describe, expect, it, vi } from 'vite-plus/test'
 
-import { createSheetContext } from '../context'
+import { createSheetContext, MIN_ROW_COL_SIZE } from '../context'
 import type { SheetTool } from '../registry'
 
 describe('SheetContext', () => {
@@ -178,6 +178,70 @@ describe('SheetContext', () => {
 
     expect(ctx.undo()).toBe(true)
     expect(sheet.getCellData({ row: 0, col: 0 })).toEqual({ v: 'keep', t: 's' })
+  })
+
+  it('行列尺寸门面：读取 + 按选区覆盖行/列批量应用，不进 undo', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+
+    // 未设置自定义尺寸时读取为 undefined（视图层用默认行高/列宽）
+    expect(ctx.getRowHeight(1)).toBeUndefined()
+    expect(ctx.getColWidth(2)).toBeUndefined()
+
+    ctx.selectRange(createRange({ row: 1, col: 2 }, { row: 3, col: 4 }))
+    ctx.setRowHeightBySelection(40)
+    ctx.setColWidthBySelection(120)
+    // 选区覆盖行 1..3 全部生效，行 0 不受影响
+    expect(ctx.getRowHeight(1)).toBe(40)
+    expect(ctx.getRowHeight(2)).toBe(40)
+    expect(ctx.getRowHeight(3)).toBe(40)
+    expect(ctx.getRowHeight(0)).toBeUndefined()
+    // 选区覆盖列 2..4 全部生效，列 5 不受影响
+    expect(ctx.getColWidth(2)).toBe(120)
+    expect(ctx.getColWidth(3)).toBe(120)
+    expect(ctx.getColWidth(4)).toBe(120)
+    expect(ctx.getColWidth(5)).toBeUndefined()
+
+    // 同 rowHeights/冻结先例：尺寸写入不进 undo 历史
+    expect(ctx.canUndo).toBe(false)
+  })
+
+  it('行列尺寸门面：下限钳制到引擎最小值 20；空选区无操作', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+
+    ctx.selectRange(createRange({ row: 2, col: 3 }, { row: 2, col: 4 }))
+    ctx.setRowHeightBySelection(10)
+    ctx.setColWidthBySelection(5)
+    expect(ctx.getRowHeight(2)).toBe(MIN_ROW_COL_SIZE)
+    expect(ctx.getColWidth(3)).toBe(MIN_ROW_COL_SIZE)
+    expect(ctx.getColWidth(4)).toBe(MIN_ROW_COL_SIZE)
+
+    // 空选区：无写入目标，不产生任何尺寸
+    sheet.selection.clear()
+    ctx.setRowHeightBySelection(60)
+    ctx.setColWidthBySelection(200)
+    expect(ctx.getRowHeight(0)).toBeUndefined()
+    expect(ctx.getColWidth(0)).toBeUndefined()
+  })
+
+  it('行列尺寸门面：写入后经 syncAxisSizes 同步钩子（携带选区覆盖行/列；空选区不触发）', () => {
+    const sheet = new Sheet()
+    const syncAxisSizes = vi.fn()
+    const ctx = createSheetContext(sheet, undefined, { syncAxisSizes })
+
+    ctx.selectRange(createRange({ row: 1, col: 2 }, { row: 2, col: 3 }))
+    ctx.setRowHeightBySelection(40)
+    expect(syncAxisSizes).toHaveBeenCalledWith('row', [1, 2])
+    ctx.setColWidthBySelection(120)
+    expect(syncAxisSizes).toHaveBeenCalledWith('col', [2, 3])
+
+    // 空选区：模型无写入，同步钩子不触发
+    syncAxisSizes.mockClear()
+    sheet.selection.clear()
+    ctx.setRowHeightBySelection(60)
+    ctx.setColWidthBySelection(60)
+    expect(syncAxisSizes).not.toHaveBeenCalled()
   })
 
   it('图片门面：insertImage / removeImage / updateImage / getImages / onImageChange，经命令可 undo', () => {

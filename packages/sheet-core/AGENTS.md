@@ -126,8 +126,8 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 
 - **模型直挂免重放**：值写入经引擎 ModelBinding 局部刷新单格，无 records 全量重放路径；`merge-change` / `axis-style-change` / 全量 meta 排微任务合并为一次窗口刷新（签名判重跳过无变化合并替换）。LRU 隐藏实例只保留脏标记，激活时一次性同步。
 - **编辑器实例级**：引擎 EditorRegistry 随表实例生命周期（无全局注册表泄露坑），每 SheetGrid 一个注册表，release 随实例销毁。
-- **列宽**：列定义构造期一次写入 `width`；运行时列宽仅拖拽落定单列 `setColWidth`（引擎几何变更为增量失效）。
-- **渲染热路径**：`store.peekCell` / `stylePool.peek` 只读访问器，避免逐格防御性拷贝；`entriesInRange` 迭代稀疏键、`rowsForColumn` 按列找行，不做稠密列扫描；wrap 行高估算只扫稀疏有数据的行。
+- **列宽**：列定义构造期一次写入 `width`；运行时两条写路径——拖拽落定单列 `setColWidth`（引擎几何变更为增量失效），以及门面 / 右键菜单数值写入：模型 `setColWidth` 不发事件，经 `SheetGrid.applyAxisSizes` 批量同步到活动引擎（隐藏实例置脏、激活全量同步）。
+- **渲染热路径**：`store.peekCell` / `stylePool.peek` 只读访问器，避免逐格防御性拷贝；`entriesInRange` 迭代稀疏键、`rowsForColumn` 按列找行，不做稠密列扫描；wrap 行高估算构造期按候选行短路（样式池无 wrap 样式零全格遍历，否则只扫候选行），动态期只扫该行已存格。
 - **公式重算**：依赖图反向索引按表批量标脏（变更格按行区间合并判定），非逐格全表扫描。
 
 ## 已知限制

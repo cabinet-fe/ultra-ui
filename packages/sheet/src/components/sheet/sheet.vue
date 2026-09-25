@@ -56,6 +56,7 @@
       ref="formulaBarRef"
       :sheet="activeSheet"
       :context="context"
+      :set-selection-anchor="setSelectionAnchor"
     />
 
     <div ref="gridRef" :class="cls.e('grid')">
@@ -129,7 +130,9 @@ const { workbook, activeIndex, sheetList, activeSheet, context, stateTick, syncF
     onBeforeSheetChange: () => closePopup(),
     rebuildGrid: () => rebuildGrid(),
     activateGrid: () => activateGrid(),
-    pruneCache: (sheets) => pruneCache(sheets)
+    pruneCache: (sheets) => pruneCache(sheets),
+    // 行高/列宽菜单确认 → 活动 grid 引擎尺寸即时生效（getGrid 声明于下方，事件时才求值）
+    syncAxisSizes: (axis, indexes) => getGrid()?.applyAxisSizes(axis, indexes)
   })
 
 // ─── 弹层型工具编排（打开 / 关闭 / 面板事务）─────────────────────
@@ -205,7 +208,7 @@ const toolGroups = useToolGroups(context, stateTick)
 const gridRef = useTemplateRef<HTMLElement>('gridRef')
 const formulaBarRef = useTemplateRef<InstanceType<typeof UFormulaBar>>('formulaBarRef')
 
-const { rebuildGrid, activateGrid, pruneCache, getGrid } = useSheetGrid({
+const { rebuildGrid, activateGrid, pruneCache, getGrid, setSelectionAnchor } = useSheetGrid({
   props,
   gridRef,
   getActiveSheet: () => activeSheet.value,

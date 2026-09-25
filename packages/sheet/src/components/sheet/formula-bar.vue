@@ -140,7 +140,12 @@ defineOptions({ name: 'UFormulaBar' })
  * - 引用选择：光标在运算符/`(`/`,` 后时，画布点选/拖选插入引用（blur 抑制防误提交）。
  * - 网格编辑镜像：只读显示网格编辑器文本。
  */
-const props = defineProps<{ sheet: Sheet; context: SheetContext }>()
+const props = defineProps<{
+  sheet: Sheet
+  context: SheetContext
+  /** fx 编辑会话置/清引擎选区锚点（use-sheet-grid 经活动实例透传；缺省静默） */
+  setSelectionAnchor?: (addr: CellAddress | null) => void
+}>()
 
 const cls = bem('sheet')
 
@@ -398,6 +403,8 @@ function handleFxFocus(): void {
   mirrorAddr = null
   editing.value = true
   editAddr = selection.value.activeCell
+  // 编辑会话开始：被编辑格置选区锚点，画布引用拾取期选区流动不丢目标格高亮
+  if (editAddr) props.setSelectionAnchor?.(editAddr)
   syncFxCursor()
   scheduleAutosize()
 }
@@ -459,6 +466,8 @@ function commitEdit(): void {
   editing.value = false
   editAddr = null
   suppressBlurCommit = false
+  // 会话结束清锚点（Enter / ✓ / 失焦同路径）
+  props.setSelectionAnchor?.(null)
   closeSuggest()
   if (addr) {
     props.context.setCellValue(addr, fxDraft.value)
@@ -476,6 +485,8 @@ function cancelEdit(): void {
   editing.value = false
   editAddr = null
   suppressBlurCommit = false
+  // 会话结束清锚点（Esc / ✗）
+  props.setSelectionAnchor?.(null)
   closeSuggest()
   refreshFx()
 }
@@ -590,6 +601,8 @@ function insertFunction(name: string): void {
   fxDraft.value = text
   fxCursor.value = cursor
   suppressBlurCommit = false
+  // 插入函数即进入引用拾取会话：目标格置选区锚点
+  props.setSelectionAnchor?.(addr)
   closeSuggest()
   void nextTick(() => {
     const el = fxRef.value

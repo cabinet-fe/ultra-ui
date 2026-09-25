@@ -84,9 +84,9 @@ export function useSheetGrid(options: UseSheetGridOptions) {
 
     const menus =
       info.kind === 'row-header'
-        ? buildRowHeaderMenus(context)
+        ? buildRowHeaderMenus(context, { readonly: props.readonly })
         : info.kind === 'col-header'
-          ? buildColHeaderMenus(context)
+          ? buildColHeaderMenus(context, { readonly: props.readonly })
           : buildBodyMenus(context)
 
     // 最小宽度兜底；实际宽度由最长菜单项撑开（勿固定 240 导致空白过大）
@@ -205,6 +205,11 @@ export function useSheetGrid(options: UseSheetGridOptions) {
     const sheet = getActiveSheet()
     const host = gridRef.value
     if (!host) return
+    // 换实例前清旧实例的选区锚点：fx 编辑会话随切 sheet 结束（公式栏同步复位
+    // 编辑态），缓存实例复用时不得残留上次会话的高亮
+    if (active && active.sheet !== sheet) {
+      active.grid.setSelectionAnchor(null)
+    }
     const cached = cache.get(sheet)
     if (cached && !cached.dirty) {
       cached.lastUsed = ++seq
@@ -265,5 +270,10 @@ export function useSheetGrid(options: UseSheetGridOptions) {
     invalidateAll()
   })
 
-  return { rebuildGrid, activateGrid, pruneCache, getGrid: () => active?.grid }
+  /** fx 引用拾取会话置/清选区锚点（公式栏 → 活动实例透传；无活动实例时静默） */
+  function setSelectionAnchor(addr: CellAddress | null): void {
+    active?.grid.setSelectionAnchor(addr)
+  }
+
+  return { rebuildGrid, activateGrid, pruneCache, getGrid: () => active?.grid, setSelectionAnchor }
 }

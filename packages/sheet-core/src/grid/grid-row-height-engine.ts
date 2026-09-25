@@ -1,6 +1,7 @@
 import type { ListTable } from '@infinite-table/core'
 
 import type { Sheet } from '../core/sheet'
+import type { StyleId } from '../core/style/types'
 import { estimateWrapRowHeight, getWrapMetrics } from './grid-style-map'
 import { SHEET_DEFAULT_ROW_HEIGHT } from './grid-theme'
 
@@ -22,11 +23,14 @@ export class GridRowHeightEngine {
 
   /**
    * 构造前把 wrap 估算写入模型（不进 undo）。
-   * 只扫稀疏有数据的行/格，禁止按渲染行列做稠密双重循环——大表切 sheet
-   * 重建时 O(rows×cols) 的 getEffectiveStyle 是主线程卡顿主因。
+   * 短路：样式池不含 wrap 对齐时零全格遍历直接返回——十万级数据首帧挂载的
+   * 全格稠密扫描（合并判定 + getEffectiveStyle + 显示值取串）是主线程卡顿主因。
+   * 含 wrap 样式时只扫候选行：候选 = 格级 wrap 样式 / 行列默认 wrap 样式 /
+   * 原始值含 `\n` 的格所在行（廉价识别，非候选格不做合并判定与显示值取串）。
    */
   applyWrapEstimates(defaultColWidth: number): void {
-    for (const row of this.sheet.store.rowKeys()) {
+    if (!this.sheet.stylePool.hasAlignWrap()) return
+    for (const row of this.collectWrapCandidateRows()) {
       if (row >= this.rows) continue
       const estimated = this.estimateWrapRowHeightForRow(row, defaultColWidth)
       if (estimated == null) continue
@@ -34,6 +38,47 @@ export class GridRowHeightEngine {
       const height = Math.max(current ?? SHEET_DEFAULT_ROW_HEIGHT, estimated)
       if (height !== current) this.sheet.setRowHeight(row, height)
     }
+  }
+
+  /**
+   * 收集 wrap 候选行（构造期一次）：行列默认样式经稀疏 id 表直查；格级样式与
+   * 原始值换行经已存格廉价遍历（只读 s id 与原始 v，不取生效样式、不取显示值、
+   * 不判合并）。s → wrap 判定按 StyleId 记忆化，池定义数恒小于格数。
+   */
+  private collectWrapCandidateRows(): Set<number> {
+    const rows = new Set<number>()
+    const sheet = this.sheet
+    const wrapMemo = new Map<StyleId, boolean>()
+    const isWrapStyle = (id: StyleId): boolean => {
+      let wrap = wrapMemo.get(id)
+      if (wrap === undefined) {
+        wrap = sheet.stylePool.peek(id)?.align?.wrap === true
+        wrapMemo.set(id, wrap)
+      }
+      return wrap
+    }
+    // 行默认样式带 wrap：整行候选；列默认样式带 wrap：经稀疏 rowsForColumn 找行
+    for (const [row, id] of sheet.getRowStyleIds()) {
+      if (isWrapStyle(id)) rows.add(row)
+    }
+    for (const [col, id] of sheet.getColStyleIds()) {
+      if (!isWrapStyle(id)) continue
+      for (const row of sheet.store.rowsForColumn(col)) rows.add(row)
+    }
+    for (const row of sheet.store.rowKeys()) {
+      for (const [, data] of sheet.store.peekRow(row)) {
+        if (data.s != null && isWrapStyle(data.s)) {
+          rows.add(row)
+          break
+        }
+        const value = data.v
+        if (typeof value === 'string' && value.includes('\n')) {
+          rows.add(row)
+          break
+        }
+      }
+    }
+    return rows
   }
 
   /** 构造前单行 wrap 行高估算（不依赖 table：优先取模型列宽，缺失时用 defaultColWidth）；行内无 wrap 格返回 undefined */

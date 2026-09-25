@@ -2,6 +2,7 @@ import type { CellRenderer } from '@infinite-table/core'
 import { describe, expect, it, vi } from 'vite-plus/test'
 
 import { Sheet } from '../../core/sheet'
+import { SHEET_GRID_THEME } from '../grid-theme'
 import { cellX, cellY, createGrid, fire, flushMicrotasks } from './grid-test-utils'
 
 describe('SheetGrid 挂载与几何（happy-dom smoke）', () => {
@@ -128,6 +129,67 @@ describe('SheetGrid 行列尺寸拖拽持久化', () => {
       expect(rebuilt.table.getRowHeight(0)).toBe(58)
     } finally {
       rebuilt.grid.release()
+    }
+  })
+})
+
+describe('SheetGrid 行列尺寸即时同步（菜单写入路径）', () => {
+  it('applyAxisSizes：模型行高/列宽即时落引擎 table，无需重建', () => {
+    const { grid, table, sheet } = createGrid()
+    try {
+      sheet.setRowHeight(0, 40)
+      sheet.setRowHeight(1, 40)
+      sheet.setColWidth(2, 120)
+      // 未同步前引擎仍为默认值（Sheet 尺寸 API 不发事件）
+      expect(table.getRowHeight(0)).toBe(28)
+      expect(table.getColWidth(2)).toBe(80)
+
+      grid.applyAxisSizes('row', [0, 1])
+      grid.applyAxisSizes('col', [2])
+      expect(table.getRowHeight(0)).toBe(40)
+      expect(table.getRowHeight(1)).toBe(40)
+      expect(table.getRowHeight(2)).toBe(28)
+      expect(table.getColWidth(2)).toBe(120)
+      expect(table.getColWidth(3)).toBe(80)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('列宽同步重估该列内容行 wrap 行高（对齐拖拽落定路径，只升不降）', () => {
+    const { grid, table, sheet } = createGrid()
+    try {
+      // wrap 长文本：写模型时已按默认列宽 80 估算一次（cell-change 路径）
+      sheet.setCellStyle(
+        { start: { row: 0, col: 0 }, end: { row: 0, col: 0 } },
+        { align: { wrap: true } }
+      )
+      sheet.setCellValue({ row: 0, col: 0 }, 'x'.repeat(100))
+      const before = sheet.getRowHeight(0)!
+      expect(before).toBeGreaterThan(28)
+
+      // 模型列宽收窄 → 重估折行增多，行高只升不降
+      sheet.setColWidth(0, 24)
+      grid.applyAxisSizes('col', [0])
+      expect(sheet.getRowHeight(0)!).toBeGreaterThan(before)
+      expect(table.getRowHeight(0)).toBe(sheet.getRowHeight(0)!)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('隐藏实例只置脏不落引擎，激活时全量同步', () => {
+    const { grid, table, sheet } = createGrid()
+    try {
+      grid.setVisible(false)
+      sheet.setRowHeight(0, 44)
+      grid.applyAxisSizes('row', [0])
+      expect(table.getRowHeight(0)).toBe(28)
+
+      grid.setVisible(true)
+      expect(table.getRowHeight(0)).toBe(44)
+    } finally {
+      grid.release()
     }
   })
 })
@@ -293,6 +355,49 @@ describe('SheetGrid 键盘', () => {
       grid.release()
     }
   })
+
+  it('编辑器输入框内 Cmd/Ctrl+Z 不被组件抢占（target 为输入框直接放行）', () => {
+    const { grid, container, sheet } = createGrid()
+    try {
+      sheet.setCellValue({ row: 1, col: 1 }, 'x')
+      const input = document.createElement('input')
+      container.appendChild(input)
+      input.dispatchEvent(new KeyboardEvent('keydown', { key: 'z', ctrlKey: true, bubbles: true }))
+      expect(sheet.getCellData({ row: 1, col: 1 })?.v).toBe('x')
+    } finally {
+      grid.release()
+    }
+  })
+})
+
+describe('SheetGrid 容器焦点', () => {
+  it('容器 tabindex=-1（不进 Tab 序）且挂载即聚焦', () => {
+    const { grid, container } = createGrid()
+    try {
+      expect(container.getAttribute('tabindex')).toBe('-1')
+      expect(document.activeElement).toBe(container)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('指针按下聚焦容器；容器内输入框聚焦时不抢焦', () => {
+    const { grid, container } = createGrid()
+    try {
+      container.blur()
+      expect(document.activeElement).not.toBe(container)
+      fire(container, 'pointerdown', { clientX: cellX(1), clientY: cellY(1) })
+      expect(document.activeElement).toBe(container)
+
+      const input = document.createElement('input')
+      container.appendChild(input)
+      input.focus()
+      fire(container, 'pointerdown', { clientX: cellX(1), clientY: cellY(1) })
+      expect(document.activeElement).toBe(input)
+    } finally {
+      grid.release()
+    }
+  })
 })
 
 describe('SheetGrid 编辑生命周期与 hooks', () => {
@@ -428,12 +533,39 @@ describe('SheetGrid 命中与资源释放', () => {
     }
   })
 
-  it('release 幂等；destroy 等价 release', () => {
+  it('release 幂等', () => {
     const { grid } = createGrid()
     grid.release()
     expect(() => grid.release()).not.toThrow()
-    const { grid: grid2 } = createGrid()
-    grid2.destroy()
-    expect(() => grid2.destroy()).not.toThrow()
+  })
+})
+
+describe('SheetGrid 主题（溢出渲染）', () => {
+  it('body 主题不携带显式 textOverflow（引擎缺省溢出走廊生效），header 保留 ellipsis', () => {
+    expect('textOverflow' in SHEET_GRID_THEME.body).toBe(false)
+
+    const { grid, table } = createGrid()
+    try {
+      // 引擎生效主题：body 缺省继承 defaultTheme.body（无 textOverflow），header 覆盖仍为 ellipsis
+      expect(table.theme.body.textOverflow).toBeUndefined()
+      expect(table.theme.header.textOverflow).toBe('ellipsis')
+    } finally {
+      grid.release()
+    }
+  })
+})
+
+describe('SheetGrid 构造路径性能', () => {
+  it('样式池无 wrap 样式时构造不做全格行遍历（wrap 估算短路）', () => {
+    const sheet = new Sheet()
+    for (let row = 0; row < 200; row++) sheet.setCellValue({ row, col: 0 }, `v-${row}`)
+    const rowKeysSpy = vi.spyOn(sheet.store, 'rowKeys')
+    const { grid } = createGrid({ sheet })
+    try {
+      // wrap 行高估算短路：构造/挂载路径不做与可视窗口无关的全格扫描
+      expect(rowKeysSpy).not.toHaveBeenCalled()
+    } finally {
+      grid.release()
+    }
   })
 })

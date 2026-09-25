@@ -21,6 +21,8 @@ export interface SheetStateHooks {
   activateGrid: () => void
   /** sheet 列表变化（增删）后清理已删除 sheet 的缓存实例 */
   pruneCache?: (sheets: ReadonlyArray<Sheet>) => void
+  /** 行列尺寸经门面写模型后同步活动 grid 引擎 table（菜单数值项画面即时生效） */
+  syncAxisSizes: (axis: 'row' | 'col', indexes: number[]) => void
 }
 
 type Emit = (event: 'active-sheet-change', payload: { sheet: Sheet; index: number }) => void
@@ -51,7 +53,9 @@ export function useSheetState(props: SheetProps, emit: Emit, hooks: SheetStateHo
     () => workbook.value,
     {
       resolveGridSize: () =>
-        resolveRenderSize(props.rows, props.cols, activeSheet.value.rows, activeSheet.value.cols)
+        resolveRenderSize(props.rows, props.cols, activeSheet.value.rows, activeSheet.value.cols),
+      // 行高/列宽菜单写入模型后同步活动 grid 引擎尺寸（Sheet 尺寸 API 不发事件）
+      syncAxisSizes: (axis, indexes) => hooks.syncAxisSizes(axis, indexes)
     }
   )
 

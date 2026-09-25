@@ -11,6 +11,6 @@ export {
   type SheetToolGroup
 } from './tools/registry'
 
-export { type SheetProps, type SheetEmits, type _SheetExposed, type SheetExposed } from './types'
+export { type SheetProps, type SheetEmits, type SheetExposed } from './types'
 
 export { USheet } from './components/sheet'

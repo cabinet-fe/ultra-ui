@@ -102,7 +102,7 @@ describe('ensureContextMenuSelection', () => {
 })
 
 describe('build*Menus', () => {
-  it('行号菜单：插入×2 / 删除 / divider / 冻结项；无合并/插入列', () => {
+  it('行号菜单：插入×2 / 删除 / 行高 / divider / 冻结项；无合并/插入列', () => {
     const sheet = new Sheet()
     const ctx = createSheetContext(sheet)
     sheet.selectRange(createRange({ row: 1, col: 0 }, { row: 3, col: 5 }))
@@ -112,11 +112,12 @@ describe('build*Menus', () => {
       '在上方插入行',
       '在下方插入行',
       '删除行',
+      '行高',
       '---',
       '冻结到当前行',
       '取消冻结'
     ])
-    expect(menus.filter((m) => m.keepOpen)).toHaveLength(2)
+    expect(menus.filter((m) => m.keepOpen)).toHaveLength(3)
     expect(menus.some((m) => m.divider)).toBe(true)
     expect(menus.at(-1)?.disabled).toBe(true)
     expect(labels.join()).not.toContain('合并')
@@ -142,10 +143,38 @@ describe('build*Menus', () => {
       '在左侧插入列',
       '在右侧插入列',
       '删除列',
+      '列宽',
       '---',
       '冻结到当前列',
       '取消冻结'
     ])
+  })
+
+  it('行高/列宽项：默认内嵌数值输入，readonly 降级为禁用文本项', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    sheet.selectCell({ row: 0, col: 0 })
+
+    const rowItem = buildRowHeaderMenus(ctx).find((m) => m.label === '行高')!
+    expect(rowItem.keepOpen).toBe(true)
+    expect(rowItem.render).toBeTruthy()
+    expect(rowItem.disabled).toBeFalsy()
+
+    const colItem = buildColHeaderMenus(ctx).find((m) => m.label === '列宽')!
+    expect(colItem.keepOpen).toBe(true)
+    expect(colItem.render).toBeTruthy()
+
+    // readonly：render 内嵌组件自带点击路径，禁用态必须去掉 render 拦死输入
+    const readonlyRow = buildRowHeaderMenus(ctx, { readonly: true }).find(
+      (m) => m.label === '行高'
+    )!
+    expect(readonlyRow.disabled).toBe(true)
+    expect(readonlyRow.render).toBeUndefined()
+    const readonlyCol = buildColHeaderMenus(ctx, { readonly: true }).find(
+      (m) => m.label === '列宽'
+    )!
+    expect(readonlyCol.disabled).toBe(true)
+    expect(readonlyCol.render).toBeUndefined()
   })
 
   it('body 菜单：合并/取消合并 + 设置数据格式子菜单 + 插入图片，不含行列插入删除', () => {

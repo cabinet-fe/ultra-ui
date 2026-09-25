@@ -131,12 +131,14 @@ export class SheetGrid {
   getTable(): ListTable
   /** 容器内相对坐标 → 模型地址；行号列 / 列头 / 空白返回 null */
   hitTestSheetAddr(x: number, y: number): CellAddress | null
+  /** 选区锚点（fx 引用拾取等编辑会话）：锚定格以选区样式持续绘制（合并格自动按包围盒展开），实际选区照常流动；null 清除。纯视图态，不写模型、不进 undo */
+  setSelectionAnchor(addr: CellAddress | null): void
+  /** 模型尺寸覆盖 → 引擎即时同步（右键菜单「行高」「列宽」等门面写入路径）：`Sheet.setRowHeight` / `setColWidth` 不发事件，写模型后调此方法落活动引擎；语义对齐拖拽落定（列宽变化重估该列各内容行 wrap 行高，只升不降），隐藏实例只置脏、激活时全量同步 */
+  applyAxisSizes(axis: 'row' | 'col', indexes: number[]): void
   /** LRU 可见性：false 挂起模型→视图同步（只置脏）；true 恢复，脏则一次性全量同步 */
   setVisible(on: boolean): void
   /** 释放引擎表实例、事件监听与浮动图 objectURL */
   release(): void
-  /** 等价 release() */
-  destroy(): void
 }
 ```
 
@@ -188,6 +190,7 @@ export class SheetGrid {
 - `frozen-change`：冻结数同步；模型冻结数即引擎数据冻结数（行列头不计数，无 ±1）。
 - `image-change`：浮动图全量对齐模型（签名判重）。
 - `structure-change`（行列插入 / 删除）：**不自动应用**——引擎表格维度构造期固定，宿主重建 `SheetGrid` 实例（见「常见问题」）。
+- 例外——行列尺寸：`Sheet.setRowHeight` / `setColWidth` **不发事件**，写模型后须经 `applyAxisSizes(axis, indexes)` 落活动引擎（右键菜单「行高」「列宽」数值写入即走此路径；隐藏实例只置脏，`setVisible(true)` 激活时全量同步）；拖拽 resize 由引擎即时生效、落定时写回模型，不经此方法。
 
 ## 典型示例
 
@@ -282,7 +285,7 @@ sheet.getCellData({ row: 0, col: 0 })?.v // => 5（模型恒存原始值；显�
 > - 三个渲染 hook 必须是纯函数、同步返回、O(1) 查找，禁止异步操作与长数组 / 大字符串分配；hook 不写模型、不进快照。不需要自定义渲染就不要传 `resolveCellRenderer`。
 > - `readonly: true` 只守 grid 入口：绕过 SheetGrid 直接调命令仍可写模型，只读场景不要暴露命令入口；工具栏 / 公式栏这些 grid 之外的写入口由宿主自行隐藏。
 > - 主题内置且构造期固化（表头浅底 `#F5F5F5`、正文白底、网格线 `#E1E4E8`、选区 `#2170E7`、hover 关闭），无运行时换肤入口。
-> - 默认几何：行高 28px、列头带高 28px、行号列宽 46px、默认列宽 80px。列宽在构造期随列定义写入；运行时改列宽走拖拽（自动写回模型）或 `sheet.setColWidth`，不要绕过模型直接对 `getTable()` 批量改列宽——切实例重建后会丢。
+> - 默认几何：行高 28px、列头带高 28px、行号列宽 46px、默认列宽 80px。列宽在构造期随列定义写入；运行时改行高 / 列宽走拖拽（引擎即时生效并自动写回模型），或写模型 `sheet.setRowHeight` / `setColWidth` 后调 `grid.applyAxisSizes(axis, indexes)` 落活动引擎——模型尺寸写不发事件，不调则画面不更新（隐藏实例置脏、激活时全量同步）；不要绕过模型直接对 `getTable()` 批量改列宽——切实例重建后会丢。
 > - 行列插入 / 删除后必须重建 `SheetGrid` 实例；值 / 样式 / 合并 / 冻结 / 图片变更自动同步。
 > - 深导入 `@veltra/sheet-core/core/*` 必须带 `.js` 后缀（`@veltra/sheet-core/core/address.js`）；显式 `./grid` 子路径不受影响。
 

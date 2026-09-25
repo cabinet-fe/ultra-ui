@@ -107,15 +107,16 @@ export function useToolPopup(context: SheetContext, rootEl: ElRef) {
   /** Ctrl/Cmd+F 打开 / 关闭查找条（与工具按钮同一 toggle 逻辑） */
   function onGlobalKeydown(event: KeyboardEvent): void {
     if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'f') return
-    // 仅当焦点/事件源落在本实例容器内才响应（#6）：容器外不得 preventDefault，
+    // 仅当事件源落在本实例容器内才响应（#6）：容器外不得 preventDefault，
     // 否则劫持浏览器原生查找（页面任意位置按 Ctrl+F 都被屏蔽）；同页多实例
     // 也各只响应自己容器内的按键，不再每个实例都弹出查找条
     const root = rootEl.value
     if (root) {
+      // 只认事件源：真实键盘事件 target 恒为焦点元素；activeElement 兜底会把
+      // 「容器程序化聚焦后（SheetGrid 挂载即聚焦）的异源合成按键」误判为本实例
+      // 按键，重新劫持容器外的浏览器查找
       const target = event.target instanceof Node ? event.target : null
-      const active = document.activeElement instanceof Node ? document.activeElement : null
-      const inside =
-        (target !== null && root.contains(target)) || (active !== null && root.contains(active))
+      const inside = target !== null && root.contains(target)
       // 例外：弹层 Teleport 到 body 级 #pop-container（不在 root 内），本实例弹层
       // 打开期间焦点在弹层输入框里（如查找条内再按 Ctrl+F）——同样视为本实例的
       // 按键，否则查找条无法 toggle 关闭，且放行浏览器原生查找盖在上面。
