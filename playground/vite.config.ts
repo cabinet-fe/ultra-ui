@@ -45,7 +45,7 @@ const config = {
 
   resolve: {
     extensions: ['.ts', '.js', '.json', '.tsx'],
-    conditions: ['veltra-dev'],
+    conditions: ['dev', 'veltra-dev'],
     alias: {
       ...engineAlias,
       'hucre/xlsx': resolve(hucreRoot, 'dist/xlsx.mjs'),
