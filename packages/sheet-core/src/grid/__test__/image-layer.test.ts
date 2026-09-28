@@ -1,5 +1,5 @@
 import { ListTable } from '@visactor/vtable'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import type { ImageInput } from '../../core/image'
 import { Sheet } from '../../core/sheet'

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 
 import type { CellAddress } from '../address'
 import type { CellData } from '../cell-store'

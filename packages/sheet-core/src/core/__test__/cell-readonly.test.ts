@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import { CELL_READONLY_META_NAMESPACE } from '../cell-readonly'
 import { Sheet } from '../sheet'

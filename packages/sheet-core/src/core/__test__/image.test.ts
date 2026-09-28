@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import { RestoreSheetCommand } from '../command/restore-sheet'
 import type { ImageInput, SheetImage } from '../image'

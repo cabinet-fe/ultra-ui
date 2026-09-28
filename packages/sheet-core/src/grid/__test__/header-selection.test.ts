@@ -1,5 +1,5 @@
 import { ListTable } from '@visactor/vtable'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 
 import { parseRange } from '../../core/address'
 import { Sheet } from '../../core/sheet'

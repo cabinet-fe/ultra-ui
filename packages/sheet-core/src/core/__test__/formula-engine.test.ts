@@ -1,5 +1,5 @@
 import { $n } from '@cat-kit/core'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 
 import { parseRange, type CellAddress } from '../address'
 import { Sheet } from '../sheet'

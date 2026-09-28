@@ -1,7 +1,7 @@
 import { parseRange } from '@veltra/sheet-core/core/address.js'
 import { Workbook } from '@veltra/sheet-core/core/workbook.js'
 import type { SheetGrid } from '@veltra/sheet-core/grid'
-import { afterEach, describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vite-plus/test'
 import { createApp, h, nextTick, type App } from 'vue'
 
 import { USheet } from '../../../index'

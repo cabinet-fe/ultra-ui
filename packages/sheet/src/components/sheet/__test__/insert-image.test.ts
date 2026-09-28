@@ -1,5 +1,5 @@
 import { Sheet } from '@veltra/sheet-core/core/sheet.js'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import { createSheetContext } from '../../../tools/context'
 import {

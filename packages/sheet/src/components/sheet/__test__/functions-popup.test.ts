@@ -2,7 +2,7 @@ import {
   listFormulaFunctions,
   registerFormulaFunction
 } from '@veltra/sheet-core/core/formula/functions.js'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 import { createApp, h, nextTick, type App } from 'vue'
 
 import USheetFunctionsPopup from '../popups/functions-popup.vue'

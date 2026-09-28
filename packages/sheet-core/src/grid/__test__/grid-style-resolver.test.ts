@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 
 import { mergeCellStyle } from '../../core/command/set-cell-style'
 import { Sheet } from '../../core/sheet'

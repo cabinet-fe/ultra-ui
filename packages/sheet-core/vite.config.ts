@@ -8,7 +8,7 @@ export default defineConfig({
     environment: 'happy-dom'
   },
 
-  run: { tasks: { build: { command: 'vp pack', output: ['dist/**'] } } },
+  run: { tasks: { build: { command: 'vp pack', cache: { output: ['dist/**'] } } } },
 
   pack: {
     // core/io/import 与 core/events 是深导入通道（不在主入口白名单，见 AGENTS.md）：
@@ -21,6 +21,10 @@ export default defineConfig({
     clean: true,
     treeshake: true,
     deps: {
+      // tsdown <0.23 compatibility: resolve external dependency subpaths.
+      // Remove to preserve subpath imports as written (the new default).
+      // https://tsdown.dev/options/dependencies#deps-resolvedepsubpath
+      resolveDepSubpath: true,
       neverBundle: ['@visactor/vtable', '@visactor/vtable-editors', 'hucre', '@cat-kit/core']
     },
     dts: true

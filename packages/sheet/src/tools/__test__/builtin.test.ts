@@ -3,7 +3,7 @@ import { createRange } from '@veltra/sheet-core/core/address.js'
 import '../builtin'
 import { Sheet } from '@veltra/sheet-core/core/sheet.js'
 import { Workbook } from '@veltra/sheet-core/core/workbook.js'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 
 import { createSheetContext } from '../context'
 import { exportSheetCsvFile, exportWorkbookFile } from '../download'

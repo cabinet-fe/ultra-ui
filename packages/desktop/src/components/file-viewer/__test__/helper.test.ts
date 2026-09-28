@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import { FILE_VIEWER_KIND_LABEL, inferKind } from '../helper'
 

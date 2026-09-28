@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import { createFoldState, foldSessionEvent } from '../fold'
 import type { ChatSessionEvent } from '../session'

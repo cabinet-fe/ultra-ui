@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import { parseRange, type CellAddress } from '../address'
 import { parseFormula } from '../formula/parser'

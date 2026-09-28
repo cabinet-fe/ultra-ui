@@ -1,6 +1,6 @@
 import { ListTable } from '@visactor/vtable'
 import type { ListTableConstructorOptions } from '@visactor/vtable'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 
 import { Sheet } from '../../core/sheet'
 import { SheetGrid } from '../sheet-grid'

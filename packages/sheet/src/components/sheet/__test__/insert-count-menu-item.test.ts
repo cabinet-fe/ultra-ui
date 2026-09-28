@@ -1,5 +1,5 @@
 import { ContextmenuRootDIKey } from '@veltra/desktop'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 import { createApp, h, nextTick } from 'vue'
 
 import InsertCountMenuItem from '../insert-count-menu-item.vue'

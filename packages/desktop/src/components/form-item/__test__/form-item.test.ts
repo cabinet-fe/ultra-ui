@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 import { createApp, h, nextTick, reactive, ref } from 'vue'
 
 import { UForm } from '../../form'

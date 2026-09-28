@@ -1,5 +1,5 @@
 import { ListTable } from '@visactor/vtable'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import { Sheet } from '../../core/sheet'
 import { EDITOR_NAME } from '../grid-editor-router'

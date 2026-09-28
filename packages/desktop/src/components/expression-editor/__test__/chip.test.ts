@@ -1,5 +1,5 @@
 // @vitest-environment happy-dom
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 
 import { ChipAttrs, createChip, isChipElement, readChipValue, setChipFocused } from '../core/chip'
 

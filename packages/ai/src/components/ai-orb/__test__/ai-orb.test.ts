@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 import { createApp, h, nextTick } from 'vue'
 
 import UAiOrb from '../ai-orb.vue'

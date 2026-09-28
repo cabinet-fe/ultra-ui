@@ -1,5 +1,5 @@
 import type { WriteOptions } from 'hucre'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import { parseRange } from '../../address'
 import { Sheet } from '../../sheet'

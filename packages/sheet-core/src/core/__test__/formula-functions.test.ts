@@ -1,5 +1,5 @@
 import { $n, n } from '@cat-kit/core'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import type { CellAddress } from '../address'
 import { formulaError, isFormulaErrorCode } from '../formula/errors'

@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite-plus'
 
 export default defineConfig({
-  run: { tasks: { build: { command: 'vp pack', output: ['dist/**'] } } },
+  run: { tasks: { build: { command: 'vp pack', cache: { output: ['dist/**'] } } } },
 
   pack: {
     entry: ['src/index.ts'],
@@ -11,7 +11,13 @@ export default defineConfig({
     sourcemap: true,
     clean: true,
     treeshake: true,
-    deps: { neverBundle: ['@veltra/desktop', 'unplugin-vue-components'] },
+    deps: {
+      // tsdown <0.23 compatibility: resolve external dependency subpaths.
+      // Remove to preserve subpath imports as written (the new default).
+      // https://tsdown.dev/options/dependencies#deps-resolvedepsubpath
+      resolveDepSubpath: true,
+      neverBundle: ['@veltra/desktop', 'unplugin-vue-components']
+    },
     dts: true
   }
 })

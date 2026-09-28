@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vite-plus/test'
 import { computed, createApp, reactive, ref } from 'vue'
 
 import { useDnD, type UseDnDResult } from '../index'

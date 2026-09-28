@@ -1,5 +1,5 @@
 import type { Workbook as HucreWorkbook } from 'hucre'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import { parseRange } from '../../address'
 import { formatByNumFmt } from '../../format'

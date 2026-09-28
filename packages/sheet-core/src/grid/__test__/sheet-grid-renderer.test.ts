@@ -1,6 +1,6 @@
 import type { CustomRenderFunctionArg } from '@visactor/vtable/es/ts-types/customElement'
 import type { ICustomLayoutObj } from '@visactor/vtable/es/ts-types/customLayout'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it } from 'vite-plus/test'
 
 import { Sheet } from '../../core/sheet'
 import { CustomLayout, SheetGrid } from '../sheet-grid'
