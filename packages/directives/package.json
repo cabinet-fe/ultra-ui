@@ -34,6 +34,6 @@
   "peerDependencies": {
     "@veltra/styles": "^1.7.14",
     "@veltra/utils": "^1.7.14",
-    "vue": ">=3.5.42"
+    "vue": ">=3.5.43"
   }
 }
