@@ -68,7 +68,7 @@
   </u-dropdown>
 
   <template v-else>
-    {{ label || FORM_EMPTY_CONTENT }}
+    {{ displayText || FORM_EMPTY_CONTENT }}
   </template>
 </template>
 
@@ -118,6 +118,7 @@ const treeProps = computed(() => {
     'placeholder',
     'disabled',
     'label',
+    'text',
     'readonly',
     'data',
     'contentClass',
@@ -185,8 +186,14 @@ watch(
 
 const model = defineModel<string | number>()
 
-/** 内部展示文案，仅由 data 推导；通过 update:text 单向通知父级 */
+/** 内部展示文案，仅由 data 推导（未命中时展示 text 兜底）；经 update:text 通知父级 */
 const label = shallowRef<string>()
+
+/** 展示文案：data 推导优先，未命中时回退 text 兜底 */
+const displayText = computed(() => {
+  if (!(model.value || model.value === 0)) return undefined
+  return label.value ?? props.text
+})
 
 const dropdownVisible = shallowRef(false)
 
@@ -199,24 +206,23 @@ const querying = shallowRef(false)
 
 const inputRef = useTemplateRef<InputExposed>('inputRef')
 
-/** 更新内部文案；值变化时单向 emit update:text */
+/** 更新内部文案；值变化时 emit update:text（readonly 纯展示，不通知父级） */
 function setLabel(next?: string) {
   if (label.value === next) return
   label.value = next
-  emit('update:text', next)
+  if (!readonly.value) emit('update:text', next)
 }
 
 /** 触发输入框的值：查询态下承载查询串，否则展示选中标签 */
 const inputValue = computed(() => {
   if (filterable.value && querying.value) return qs.value
-  return model.value || model.value === 0 ? label.value : undefined
+  return displayText.value
 })
 
 /** 查询态下已选标签降级为占位提示 */
 const inputPlaceholder = computed(() => {
-  const display = model.value || model.value === 0 ? label.value : undefined
-  if (filterable.value && querying.value && display) {
-    return display
+  if (filterable.value && querying.value && displayText.value) {
+    return displayText.value
   }
   return props.placeholder
 })
@@ -231,7 +237,7 @@ const hovered = shallowRef(false)
 /** 悬停且存在选中值时展示清除按钮（替代下拉箭头） */
 const showClear = computed(() => {
   if (!props.clearable || disabled.value || !hovered.value) return false
-  return !!(model.value || model.value === 0 ? label.value : undefined)
+  return !!displayText.value
 })
 
 /**
@@ -278,10 +284,13 @@ watch(
   [treeData, model],
   ([data, modelVal]) => {
     if (isUserActive()) return
-    if (!data?.length || modelVal === undefined || modelVal === null || modelVal === '') {
+    if (modelVal === undefined || modelVal === null || modelVal === '') {
       setLabel(undefined)
       return
     }
+
+    // 数据未就绪（远程加载等）：保留现有文案与父级 text 兜底，避免中途被清空
+    if (!data?.length) return
 
     let nextLabel: string | undefined
     const childrenKey = props.childrenKey ?? 'children'
@@ -301,7 +310,15 @@ watch(
 
       return founded
     })
-    setLabel(nextLabel)
+    if (nextLabel !== undefined) {
+      setLabel(nextLabel)
+    } else if (props.text) {
+      // 未命中但有 text 兜底：文案以父级为准，不回发
+      label.value = undefined
+    } else {
+      // 未命中且无兜底：如实通知父级当前没有可展示文案
+      setLabel(undefined)
+    }
   },
   { immediate: true }
 )

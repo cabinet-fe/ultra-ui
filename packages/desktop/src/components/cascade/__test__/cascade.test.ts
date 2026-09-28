@@ -101,3 +101,28 @@ describe('UCascade change event fullLabel', () => {
     host.remove()
   })
 })
+
+describe('UCascade text fallback', () => {
+  it('falls back to text when modelValue matches no node', async () => {
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+
+    const app = createApp({
+      render() {
+        return h(UCascade, {
+          data: cascadeData,
+          modelValue: 'zhejiang/removed',
+          text: '已删除的路径'
+        })
+      }
+    })
+
+    app.mount(host)
+    await nextTick()
+
+    expect(host.querySelector('input')!.value).toBe('已删除的路径')
+
+    app.unmount()
+    host.remove()
+  })
+})

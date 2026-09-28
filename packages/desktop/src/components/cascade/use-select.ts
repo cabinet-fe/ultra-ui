@@ -68,12 +68,12 @@ export function useSelect(options: SelectOptions): UseSelectReturned {
     if (!modelValue || typeof modelValue !== 'string') return ''
 
     if (showFullPath) {
-      return modelValue
-        .split(separator!)
-        .map((v) => dataMap.value.get(v)?.label ?? v)
-        .join(separator)
+      const keys = modelValue.split(separator!)
+      // 末级未命中视为整条路径无效，回退 text 兜底，避免露出不可读的编码
+      if (!dataMap.value.has(keys[keys.length - 1]!)) return props.text ?? modelValue
+      return keys.map((v) => dataMap.value.get(v)?.label ?? v).join(separator)
     }
-    return dataMap.value.get(modelValue)?.label ?? modelValue
+    return dataMap.value.get(modelValue)?.label ?? props.text ?? modelValue
   })
 
   function getPanelItemList(data?: CascadeNode[]) {

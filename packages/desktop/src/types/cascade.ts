@@ -20,6 +20,11 @@ export interface CascadeProps extends FormComponentProps {
   modelValue?: string[] | string
   /** 级联数据项的标签字段 */
   labelKey?: string
+  /**
+   * 兜底展示文案
+   * @description 单选 modelValue 未命中数据时展示 text（如回显路径已不在选项中），命中时展示节点 label 路径
+   */
+  text?: string
   /** 级联数据项的值字段 */
   valueKey?: string
   /** 占位符 */

@@ -49,22 +49,42 @@
       <div style="margin-top: 12px; font-size: 13px">选中：{{ remoteSelected ?? '—' }}</div>
     </CustomCard>
 
-    <CustomCard width="480px" title="同步冗余文案（@update:text）">
+    <CustomCard width="480px" title="同步冗余文案（v-model:text）">
       <div style="font-size: 12px; color: #666; margin-bottom: 8px">
-        v-model 绑定 code；展示文案由 data 推导，经 @update:text 写入冗余 text（勿再
-        v-model:text）。预设 code 会在回显时把旧文案同步为最新 label。
+        v-model 绑定 code，v-model:text 绑定冗余文案：命中时组件把旧文案同步为最新
+        label；未命中时保留 text 作兜底（见下）。
       </div>
       <u-tree-select
         v-model="dictForm.code"
+        v-model:text="dictForm.text"
         style="width: 280px"
         :data="dictTreeData"
         expand-all
         clearable
-        @update:text="dictForm.text = $event"
       />
       <div style="margin-top: 12px; display: flex; gap: 24px; font-size: 13px">
         <div>code：{{ dictForm.code ?? '—' }}</div>
         <div>text：{{ dictForm.text ?? '—' }}</div>
+      </div>
+    </CustomCard>
+
+    <CustomCard width="480px" title="未命中选项时的兜底文案（text）">
+      <div style="font-size: 12px; color: #666; margin-bottom: 8px">
+        modelValue 不在 data 中时（如节点已被删除的回显数据）展示 text，避免露出编码。
+        update:text：未命中且传了 text 时不发出（父级文案即事实来源），未传 text 时发出
+        undefined；readonly 下不发出。
+      </div>
+      <u-tree-select
+        v-model="missingForm.code"
+        v-model:text="missingForm.text"
+        style="width: 280px"
+        :data="dictTreeData"
+        expand-all
+        clearable
+      />
+      <div style="margin-top: 12px; display: flex; gap: 24px; font-size: 13px">
+        <div>code：{{ missingForm.code ?? '—' }}</div>
+        <div>text：{{ missingForm.text ?? '—' }}</div>
       </div>
     </CustomCard>
   </div>
@@ -121,6 +141,12 @@ const data = shallowRef<any[]>([
 
 /** 字典回显：code 已匹配 data，text 初始为旧文案，组件会 @update:text 同步最新 label */
 const dictForm = reactive<{ code?: string; text?: string }>({ code: 'chaoyang', text: '旧文案' })
+
+/** 兜底回显：code 不在 data 中，展示 text 兜底文案 */
+const missingForm = reactive<{ code?: string; text?: string }>({
+  code: 'removed',
+  text: '已删除的节点'
+})
 
 const dictTreeData = [
   {

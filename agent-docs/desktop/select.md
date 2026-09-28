@@ -1,6 +1,6 @@
 ---
 title: USelect 单选选择器
-description: '从平铺选项列表中单选一个值的下拉选择器：支持本地/远程搜索过滤、输入创建新选项、可清空、键盘导航、网格布局与超长列表虚拟滚动。v-model 绑定选中项 valueKey 字段的值。'
+description: '从平铺选项列表中单选一个值的下拉选择器：支持本地/远程搜索过滤、输入创建新选项、可清空、键盘导航、网格布局与超长列表虚拟滚动。v-model 绑定选中项 valueKey 字段的值；未命中选项时以 text 兜底展示。'
 aliases: [Select, SingleSelect, 下拉框, el-select]
 keywords:
   [
@@ -8,6 +8,7 @@ keywords:
     options,
     valueKey,
     labelKey,
+    text,
     filterable,
     creatable,
     clearable,
@@ -22,7 +23,9 @@ keywords:
     下拉选择,
     虚拟滚动,
     表单选择,
-    键盘导航
+    键盘导航,
+    兜底文案,
+    冗余文案同步
   ]
 ---
 
@@ -97,6 +100,8 @@ export interface SelectProps {
   valueKey?: string
   /** 标签字段名。默认 'label' */
   labelKey?: string
+  /** 兜底展示文案：modelValue 未命中选项时展示，命中时展示选项 label */
+  text?: string
   /** 是否可清除。默认 true */
   clearable?: boolean
   /** 占位符。默认 '请选择' */
@@ -135,7 +140,11 @@ export interface SelectProps {
 }
 
 export interface SelectEmits {
-  /** 选中项文案变化（单向通知，用于同步父级冗余字段）。用 @update:text，不是 v-model:text */
+  /**
+   * 选中项文案变化（用于同步父级冗余字段）。
+   * 命中选项时发出 label，清空时发出 undefined；未命中选项时，
+   * 传了 text 兜底则不发出（父级文案已是事实来源），未传 text 时发出 undefined；readonly 下不发出
+   */
   (e: 'update:text', text?: string): void
   (e: 'update:modelValue', modelValue?: any): void
   (e: 'change', option?: Record<string, any>): void
@@ -157,6 +166,7 @@ export interface SelectExposed {
 | `options`      | `Record<string, any>[] \| ((qs: string) => Promise<Record<string, any>[]> \| Record<string, any>[])` | —                |  是  | 数组为本地数据；传函数时 `filterable` 强制开启，初始以空串 `''` 调用一次，输入变化以 200ms 防抖调用                          |
 | `valueKey`     | `string`                                                                                             | `'value'`        |  否  | 选项对象取值字段名                                                                                                           |
 | `labelKey`     | `string`                                                                                             | `'label'`        |  否  | 选项对象展示字段名；本地过滤仅按该字段 `includes` 匹配                                                                       |
+| `text`         | `string`                                                                                             | —                |  否  | 兜底展示文案：`modelValue` 未命中选项时展示（如回显数据对应选项已删除），命中时展示选项 label                                  |
 | `clearable`    | `boolean`                                                                                            | `true`           |  否  | 悬停触发器且存在选中值时显示清除图标（替代下拉箭头）                                                                         |
 | `placeholder`  | `string`                                                                                             | `'请选择'`       |  否  | 无选中值时显示                                                                                                               |
 | `filterable`   | `boolean`                                                                                            | `false`          |  否  | 面板展开后聚焦输入框即时过滤；本地过滤 200ms 防抖                                                                            |
@@ -179,7 +189,7 @@ export interface SelectExposed {
 
 - `update:modelValue` — payload 为选中项 `valueKey` 字段的值（`any`）；清除时 payload 为 `undefined`。`v-model` 即绑定此事件。
 - `change` — payload `(option?: Record<string, any>)`：用户选择时为**整个选项对象**，清除时为 `undefined`。仅用户操作触发；在 `UFormItem` 内会冒泡为 Item 的 `change`。
-- `update:text` — payload `(text?: string)`：选中项展示文案。触发时机：用户选择、清除、`modelValue` 回显匹配成功、异步 `options` 到达后完成回显。单向通知，禁止写 `v-model:text`。
+- `update:text` — payload `(text?: string)`：选中项展示文案。触发时机与取值：用户选择 / `modelValue` 回显命中 / 异步 `options` 到达后完成回显时发出 label；清空时发出 `undefined`；未命中选项时，传了 `text` 兜底则**不发出**（父级文案即事实来源，避免冗余回写），未传 `text` 时发出 `undefined`；`readonly` 下一律不发出。可直接 `v-model:text` 绑定冗余字段。
 - 键盘：`ArrowDown` / `ArrowUp` 移动高亮，`Enter` 选中当前高亮项。
 - 插槽：`prefix`（输入框前缀）；`default` 作用域插槽 `{ option, index }` 自定义选项渲染。
 
@@ -247,6 +257,29 @@ async function searchProducts(qs: string) {
 </template>
 ```
 
+### 回显未命中选项时兜底展示（text）
+
+```vue
+<script setup lang="ts">
+import { reactive } from 'vue'
+
+import { USelect } from '@veltra/desktop'
+
+// 编辑回显：后端存了 code 与冗余文案；当前 options 已不含 A121（如数据权限收窄）
+const form = reactive({ makerCode: 'A121', makerText: '张三（已离职）' })
+
+const makers = [
+  { label: '李四', value: 'B202' },
+  { label: '王五', value: 'C303' }
+]
+</script>
+
+<template>
+  <!-- 未命中时展示 text『张三（已离职）』而非编码 A121；重新选中后 update:text 把冗余文案同步为新 label -->
+  <u-select v-model="form.makerCode" v-model:text="form.makerText" :options="makers" clearable />
+</template>
+```
+
 ### UForm 内 field 绑定 + 校验 + 同步冗余文案
 
 ```vue
@@ -295,7 +328,7 @@ async function submit() {
 >
 > - 在 UForm 中必须用 `field` 绑定，禁止再写 `v-model`；`label` / `rules` / `span` / `tips` 仅在 UForm（或 UFormItem）内生效。
 > - `v-model` 绑定的是选中项 `valueKey` 字段的值（标量），不是整个选项对象；需要对象时监听 `@change`。
-> - 展示文案始终由 `options` 推导；同步冗余文案用 `@update:text`，本库没有 `v-model:text`。
+> - 展示文案由 `options` 推导，未命中选项时展示 `text` 兜底文案；同步冗余文案用 `v-model:text`（或 `@update:text`）。未命中且传了 `text` 时组件不发送该事件（父级文案即事实来源），未传 `text` 时发出 `undefined`；`readonly` 下一律不发送。
 > - `options` 传函数时 `filterable` 被强制开启，且初始以空串 `''` 调用一次，函数必须能处理空串。
 > - 远程搜索请求期间面板内显示加载态；组件内置竞态守卫，慢的旧响应不会覆盖新查询的结果（自 1.8.0 起）。
 > - 本库 `options` 是平铺数组，没有选项分组能力（不是 Element Plus 的 `el-option-group` 模式）。
@@ -309,12 +342,18 @@ async function submit() {
 
 ### 回显显示原始值而不是 label
 
-原因：`modelValue` 与选项 `valueKey` 字段的值类型不一致，回显按 `===` 严格匹配，`'1'` 匹配不到 `1`。修复：保证类型一致。
+两种原因：
+
+1. `modelValue` 与选项 `valueKey` 字段的值类型不一致，回显按 `===` 严格匹配，`'1'` 匹配不到 `1`。修复：保证类型一致。
+2. 选项已被删除（如数据权限收窄后回显旧单据），`modelValue` 不在 `options` 中。修复：传 `text` 兜底文案。
 
 ```ts
-// 选项为 { label: '一年级', value: 1 } 时，初值必须是 number
+// 原因 1：选项为 { label: '一年级', value: 1 } 时，初值必须是 number
 const grade = ref<number>(1) // 正确
 // const grade = ref<string>('1') // 错误：显示 '1' 而不是 '一年级'
+
+// 原因 2：选项已不存在，传入冗余文案兜底
+// <u-select v-model="form.code" :text="form.text" :options="options" />
 ```
 
 ### 远程搜索函数从未被调用
