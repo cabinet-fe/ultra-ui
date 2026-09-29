@@ -62,6 +62,7 @@
       "dependencies": {
         "@embedpdf/core": "^2.15.1",
         "@embedpdf/engines": "^2.15.1",
+        "@embedpdf/pdfium": "2.15.1",
         "@embedpdf/plugin-document-manager": "^2.15.1",
         "@embedpdf/plugin-render": "^2.15.1",
         "@embedpdf/plugin-scroll": "^2.15.1",

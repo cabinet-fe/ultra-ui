@@ -87,6 +87,7 @@ table、nav、grid、tree、dialog 等复杂组件用 `di.ts` 定义 `InjectionK
 ## 依赖
 
 - **dependencies**：Lexical、EmbedPDF 等运行时库
+- **`@embedpdf/pdfium` 精确版本号（不带 `^`/`~`）**：仅 `file-viewer` PDF 预览的 wasm 二进制，经 `@embedpdf/pdfium/pdfium.wasm?url` 导入（`pdf-previewer.vue`），由消费方构建工具随产物本地分发，替代 jsdelivr CDN 默认地址（企业离线环境不可达）。注意两点：① wasm ABI 与 `@embedpdf/engines` 必须同版本，升级 engines 时同步手动 bump；② `?url` 产物是相对路径，而 pdfium worker 由 blob: URL 创建、内部无法解析相对路径，须先 `new URL(raw, import.meta.url).href` 转绝对地址再传给 `usePdfiumEngine`。
 - **peer**：`@cat-kit/core`、`@cat-kit/fe`（`>=1.2.1`）、`@veltra/utils`、`@veltra/styles`、`@veltra/compositions`、`@veltra/directives`、`@veltra/icons`、`vue`
 - **`@veltra/sheet-core` 为 optional peer**：仅 `file-viewer` 的 Excel/CSV 预览需要；未安装时该预览优雅降级，不强制下游安装 sheet-core / VTable / hucre。预览器对模型走动态 `import('@veltra/sheet-core')`、对 `SheetGrid` 走 `import('@veltra/sheet-core/grid')`，避免加载 desktop 主入口时解析失败。
 - **`@veltra/ofd-core` 打包进产物**：仅 `file-viewer` 的 OFD 预览需要。该包不对外发版（`private`），声明在 `devDependencies`（`workspace:*`）+ `pack.deps.alwaysBundle`，下游无需安装；预览器仍走动态 `import('@veltra/ofd-core')` 按需加载 chunk。

@@ -37,6 +37,7 @@
 import { createPluginRegistration } from '@embedpdf/core'
 import { EmbedPDF } from '@embedpdf/core/vue'
 import { usePdfiumEngine } from '@embedpdf/engines/vue'
+import rawPdfiumWasmUrl from '@embedpdf/pdfium/pdfium.wasm?url'
 import {
   DocumentContent,
   DocumentManagerPluginPackage
@@ -70,7 +71,11 @@ const emit = defineEmits<{
 const cls = bem('file-viewer')
 const attrs = useAttrs()
 
-const { engine, isLoading, error } = usePdfiumEngine()
+// wasm 经 `?url` 导入由消费方构建工具随产物本地分发，替换默认 jsdelivr CDN 地址（离线环境不可达）；
+// pdfium worker 由 blob: URL 创建，其内部无法解析相对路径，须先转为绝对地址
+const pdfiumWasmUrl = new URL(rawPdfiumWasmUrl, import.meta.url).href
+
+const { engine, isLoading, error } = usePdfiumEngine({ wasmUrl: pdfiumWasmUrl })
 
 const pdfUrl = shallowRef<string>('')
 let revoke: (() => void) | undefined
