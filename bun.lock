@@ -81,8 +81,6 @@
         "@embedpdf/plugin-scroll": "^2.15.0",
         "@embedpdf/plugin-viewport": "^2.15.0",
         "@embedpdf/plugin-zoom": "^2.15.0",
-        "@infinite-table/core": "file:/Users/whj/codes/infinite-table/packages/core",
-        "@infinite-table/plugins": "file:/Users/whj/codes/infinite-table/packages/plugins",
         "@lexical/history": "^0.50.0",
         "@lexical/html": "^0.50.0",
         "@lexical/link": "^0.50.0",
@@ -91,6 +89,7 @@
         "@lexical/selection": "^0.50.0",
         "@lexical/utils": "^0.50.0",
         "docx-preview": "^0.4.0",
+        "infinitable": "^0.1.0",
         "lexical": "^0.50.0",
       },
       "devDependencies": {
@@ -145,8 +144,7 @@
       "name": "@veltra/sheet",
       "version": "2.5.8",
       "dependencies": {
-        "@infinite-table/core": "file:/Users/whj/codes/infinite-table/packages/core",
-        "@infinite-table/plugins": "file:/Users/whj/codes/infinite-table/packages/plugins",
+        "infinitable": "^0.1.0",
       },
       "peerDependencies": {
         "@cat-kit/core": ">=1.2.1",
@@ -163,9 +161,8 @@
       "name": "@veltra/sheet-core",
       "version": "2.5.8",
       "dependencies": {
-        "@infinite-table/core": "file:/Users/whj/codes/infinite-table/packages/core",
-        "@infinite-table/plugins": "file:/Users/whj/codes/infinite-table/packages/plugins",
         "hucre": "^1.1.0",
+        "infinitable": "^0.1.0",
       },
       "peerDependencies": {
         "@cat-kit/core": ">=1.2.1",
@@ -211,8 +208,6 @@
       "dependencies": {
         "@cat-kit/core": "^1.2.1",
         "@cat-kit/fe": "^1.2.1",
-        "@infinite-table/core": "file:/Users/whj/codes/infinite-table/packages/core",
-        "@infinite-table/plugins": "file:/Users/whj/codes/infinite-table/packages/plugins",
         "@veltra/ai": "workspace:*",
         "@veltra/compositions": "workspace:*",
         "@veltra/desktop": "workspace:*",
@@ -222,6 +217,7 @@
         "@veltra/sheet-core": "workspace:*",
         "@veltra/styles": "workspace:*",
         "@veltra/utils": "workspace:*",
+        "infinitable": "^0.1.0",
         "vue": "^3.5.42",
         "vue-router": "^5.3.1",
       },
@@ -240,8 +236,6 @@
     "@codemirror/search": "6.7.1",
     "@codemirror/state": "6.7.1",
     "@codemirror/view": "6.43.9",
-    "@infinite-table/core": "file:/Users/whj/codes/infinite-table/packages/core",
-    "@infinite-table/render": "file:/Users/whj/codes/infinite-table/packages/render",
     "vite": "catalog:",
   },
   "catalog": {
@@ -917,6 +911,8 @@
 
     "import-meta-resolve": ["import-meta-resolve@4.2.0", "https://mirrors.tencent.com/npm/import-meta-resolve/-/import-meta-resolve-4.2.0.tgz", {}, "sha512-Iqv2fzaTQN28s/FwZAoFq0ZSs/7hMAHJVX+w8PZl3cY19Pxk6jFFalxQoIfW2826i/fDLXv8IiEZRIT0lDuWcg=="],
 
+    "infinitable": ["infinitable@0.1.0", "https://mirrors.tencent.com/npm/infinitable/-/infinitable-0.1.0.tgz", { "dependencies": { "@cat-kit/core": "^1.2.1" } }, "sha512-SF54UrRRvngSM8ZaQCEzVftQN1qVmN1itRRgHXdjn9o9IXXykeDM3vcLqnMP1N6wJxk/Xm+eNdKiiMc5AbZelQ=="],
+
     "inherits": ["inherits@2.0.4", "https://mirrors.tencent.com/npm/inherits/-/inherits-2.0.4.tgz", {}, "sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ=="],
 
     "is-extglob": ["is-extglob@2.1.1", "https://mirrors.tencent.com/npm/is-extglob/-/is-extglob-2.1.1.tgz", {}, "sha512-SbKbANkN603Vi4jEZv49LeVJMn4yGwsbzZworEoyEiutsN3nJYdbO36zfhGJ6QEDpOZIFkDtnq5JRxmvl3jsoQ=="],
@@ -1235,18 +1231,6 @@
 
     "@testing-library/dom/aria-query": ["aria-query@5.3.0", "https://mirrors.tencent.com/npm/aria-query/-/aria-query-5.3.0.tgz", { "dependencies": { "dequal": "^2.0.3" } }, "sha512-b0P0sZPKtyu8HkeRAfCq0IfURZK+SuwMjY1UXGBU27wpAiTwQAIlq56IbIO+ytk/JjS1fMR14ee5WBBfKi5J6A=="],
 
-    "@veltra/desktop/@infinite-table/core": ["@infinite-table/core@file:../infinite-table/packages/core", { "dependencies": { "@infinite-table/render": "workspace:*" } }],
-
-    "@veltra/desktop/@infinite-table/plugins": ["@infinite-table/plugins@file:../infinite-table/packages/plugins", { "dependencies": { "@infinite-table/core": "workspace:*", "hucre": "^1.1.0" }, "devDependencies": { "@infinite-table/render": "workspace:*" } }],
-
-    "@veltra/sheet/@infinite-table/core": ["@infinite-table/core@file:../infinite-table/packages/core", { "dependencies": { "@infinite-table/render": "workspace:*" } }],
-
-    "@veltra/sheet/@infinite-table/plugins": ["@infinite-table/plugins@file:../infinite-table/packages/plugins", { "dependencies": { "@infinite-table/core": "workspace:*", "hucre": "^1.1.0" }, "devDependencies": { "@infinite-table/render": "workspace:*" } }],
-
-    "@veltra/sheet-core/@infinite-table/core": ["@infinite-table/core@file:../infinite-table/packages/core", { "dependencies": { "@infinite-table/render": "workspace:*" } }],
-
-    "@veltra/sheet-core/@infinite-table/plugins": ["@infinite-table/plugins@file:../infinite-table/packages/plugins", { "dependencies": { "@infinite-table/core": "workspace:*", "hucre": "^1.1.0" }, "devDependencies": { "@infinite-table/render": "workspace:*" } }],
-
     "@vitest/browser/magic-string": ["magic-string@1.4.2", "https://mirrors.tencent.com/npm/magic-string/-/magic-string-1.4.2.tgz", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.6.0" } }, "sha512-vG+rjFRj1PqdIBozIxAGMjPlOhaVe+GXpbttY/iSK7rGcJRMlwNJO7dcUwmUqkymsFLJiNGI06t4D7Fr7yRC9g=="],
 
     "@vitest/mocker/magic-string": ["magic-string@1.4.2", "https://mirrors.tencent.com/npm/magic-string/-/magic-string-1.4.2.tgz", { "dependencies": { "@jridgewell/sourcemap-codec": "^1.6.0" } }, "sha512-vG+rjFRj1PqdIBozIxAGMjPlOhaVe+GXpbttY/iSK7rGcJRMlwNJO7dcUwmUqkymsFLJiNGI06t4D7Fr7yRC9g=="],
@@ -1265,10 +1249,6 @@
 
     "mlly/pkg-types": ["pkg-types@1.3.1", "https://mirrors.tencent.com/npm/pkg-types/-/pkg-types-1.3.1.tgz", { "dependencies": { "confbox": "^0.1.8", "mlly": "^1.7.4", "pathe": "^2.0.1" } }, "sha512-/Jm5M4RvtBFVkKWRu2BLUTNP8/M2a+UwuAX+ae4770q1qVGtfjG+WTCupoZixokjmHiry8uI+dlY8KXYV5HVVQ=="],
 
-    "playground/@infinite-table/core": ["@infinite-table/core@file:../infinite-table/packages/core", { "dependencies": { "@infinite-table/render": "workspace:*" } }],
-
-    "playground/@infinite-table/plugins": ["@infinite-table/plugins@file:../infinite-table/packages/plugins", { "dependencies": { "@infinite-table/core": "workspace:*", "hucre": "^1.1.0" }, "devDependencies": { "@infinite-table/render": "workspace:*" } }],
-
     "svgo/commander": ["commander@11.1.0", "https://mirrors.tencent.com/npm/commander/-/commander-11.1.0.tgz", {}, "sha512-yPVavfyCcRhmorC7rWlkHn15b4wDVgVmBA7kV4QVBsF7kv/9TKJAbAXVTxvTnwP8HHKjRCJDClKbciiYS7p0DQ=="],
 
     "unplugin-vue-jsx/@babel/core": ["@babel/core@8.0.1", "https://mirrors.tencent.com/npm/@babel/core/-/core-8.0.1.tgz", { "dependencies": { "@babel/code-frame": "^8.0.0", "@babel/generator": "^8.0.0", "@babel/helper-compilation-targets": "^8.0.0", "@babel/helpers": "^8.0.0", "@babel/parser": "^8.0.0", "@babel/template": "^8.0.0", "@babel/traverse": "^8.0.0", "@babel/types": "^8.0.0", "@types/gensync": "^1.0.5", "convert-source-map": "^2.0.0", "empathic": "^2.0.1", "gensync": "^1.0.0-beta.2", "import-meta-resolve": "^4.2.0", "json5": "^2.2.3", "obug": "^2.1.1", "semver": "^7.7.3" } }, "sha512-5FgxM4dLQpMJHSiVATk8foW263dVHQHBVpXYiimNECVWG01f4nFyEbQixeT6Mwvg7TayREJ2gpKl3o2RoMdnqw=="],
@@ -1279,24 +1259,6 @@
 
     "vitest/picomatch": ["picomatch@4.0.7", "https://mirrors.tencent.com/npm/picomatch/-/picomatch-4.0.7.tgz", {}, "sha512-qcJu88Q2IWqJsDD529JKMdwGm/dvInW4HvQnRwiH9JtihJvzGOscDtHE3x1pBKeUOTysQ8kVmLnJ2kJu7yhcGA=="],
 
-    "@veltra/desktop/@infinite-table/core/@infinite-table/render": ["@infinite-table/render@file:/Users/whj/codes/infinite-table/packages/render", {}],
-
-    "@veltra/desktop/@infinite-table/plugins/@infinite-table/core": ["@infinite-table/core@file:/Users/whj/codes/infinite-table/packages/core", {}],
-
-    "@veltra/desktop/@infinite-table/plugins/@infinite-table/render": ["@infinite-table/render@file:/Users/whj/codes/infinite-table/packages/render", {}],
-
-    "@veltra/sheet-core/@infinite-table/core/@infinite-table/render": ["@infinite-table/render@file:/Users/whj/codes/infinite-table/packages/render", {}],
-
-    "@veltra/sheet-core/@infinite-table/plugins/@infinite-table/core": ["@infinite-table/core@file:/Users/whj/codes/infinite-table/packages/core", {}],
-
-    "@veltra/sheet-core/@infinite-table/plugins/@infinite-table/render": ["@infinite-table/render@file:/Users/whj/codes/infinite-table/packages/render", {}],
-
-    "@veltra/sheet/@infinite-table/core/@infinite-table/render": ["@infinite-table/render@file:/Users/whj/codes/infinite-table/packages/render", {}],
-
-    "@veltra/sheet/@infinite-table/plugins/@infinite-table/core": ["@infinite-table/core@file:/Users/whj/codes/infinite-table/packages/core", {}],
-
-    "@veltra/sheet/@infinite-table/plugins/@infinite-table/render": ["@infinite-table/render@file:/Users/whj/codes/infinite-table/packages/render", {}],
-
     "@vitest/browser/magic-string/@jridgewell/sourcemap-codec": ["@jridgewell/sourcemap-codec@1.6.0", "https://mirrors.tencent.com/npm/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.6.0.tgz", {}, "sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw=="],
 
     "@vitest/mocker/magic-string/@jridgewell/sourcemap-codec": ["@jridgewell/sourcemap-codec@1.6.0", "https://mirrors.tencent.com/npm/@jridgewell/sourcemap-codec/-/sourcemap-codec-1.6.0.tgz", {}, "sha512-T7jf+5zgsZHwNJ4lvQ7/aezbyk0nNX+zJVWpmHA7VYsEx7a7qr5Rg5IbtJFqkgze5Y2sruq1RUY8Q837Od7iFw=="],
@@ -1306,12 +1268,6 @@
     "csso/css-tree/mdn-data": ["mdn-data@2.0.28", "https://mirrors.tencent.com/npm/mdn-data/-/mdn-data-2.0.28.tgz", {}, "sha512-aylIc7Z9y4yzHYAJNuESG3hfhC+0Ibp/MAMiaOZgNv4pmEdFyfZhhhny4MNiAfWdBQ1RQ2mfDWmM1x8SvGyp8g=="],
 
     "mlly/pkg-types/confbox": ["confbox@0.1.8", "https://mirrors.tencent.com/npm/confbox/-/confbox-0.1.8.tgz", {}, "sha512-RMtmw0iFkeR4YV+fUOSucriAQNb9g8zFR52MWCtl+cCZOFRNL6zeB395vPzFhEjjn4fMxXudmELnl/KF/WrK6w=="],
-
-    "playground/@infinite-table/core/@infinite-table/render": ["@infinite-table/render@file:/Users/whj/codes/infinite-table/packages/render", {}],
-
-    "playground/@infinite-table/plugins/@infinite-table/core": ["@infinite-table/core@file:/Users/whj/codes/infinite-table/packages/core", {}],
-
-    "playground/@infinite-table/plugins/@infinite-table/render": ["@infinite-table/render@file:/Users/whj/codes/infinite-table/packages/render", {}],
 
     "unplugin-vue-jsx/@babel/core/@babel/code-frame": ["@babel/code-frame@8.0.0", "https://mirrors.tencent.com/npm/@babel/code-frame/-/code-frame-8.0.0.tgz", { "dependencies": { "@babel/helper-validator-identifier": "^8.0.0", "js-tokens": "^10.0.0" } }, "sha512-dYYg153EyN2Ekbqw2zAsbd6/JR+9N2SEoC7YV2GyyqMM7x9bLDTjBD6XBhSMLH0wtIVyJj03jWNriQhaN+eoCw=="],
 
