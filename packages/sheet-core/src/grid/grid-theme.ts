@@ -1,4 +1,4 @@
-import type { ThemeOverride } from '@infinite-table/core'
+import type { ThemeOverride } from 'infinitable'
 
 /** 行号 / 列头浅底（canvas 主题无法读 CSS 变量，固定色贴近 Excel） */
 const CHROME_BG = '#F5F5F5'
@@ -55,7 +55,7 @@ export const SHEET_GRID_THEME: ThemeOverride = {
     freezeDividerColor: '#B6BABF',
     freezeDividerWidth: 1
   },
-  hover: { disableHover: true },
+  // hover 高亮禁用项随 infinitable@0.1.0 移除（运行时已无 hover 绘制路径）
   frameStyle: { lineWidth: 1, color: GRID_BORDER, shadow: false }
 }
 

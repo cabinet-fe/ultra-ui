@@ -1,4 +1,4 @@
-import type { CellBorderStyle, CellStyle as EngineCellStyle } from '@infinite-table/core'
+import type { CellBorderStyle, CellStyle as EngineCellStyle } from 'infinitable'
 
 import type { CellAddress } from '../core/address'
 import type { BorderLineStyle, BorderSide, CellStyle as SheetCellStyle } from '../core/style/types'

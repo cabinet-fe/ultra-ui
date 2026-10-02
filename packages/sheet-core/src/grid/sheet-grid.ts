@@ -5,8 +5,8 @@ import {
   type CellRenderer,
   type ColumnDefine,
   type ListTableOptions
-} from '@infinite-table/core'
-import { excelKeymapPreset } from '@infinite-table/plugins'
+} from 'infinitable'
+import { excelKeymapPreset } from 'infinitable'
 
 import type { CellAddress, CellRange } from '../core/address'
 import { colIndexToName } from '../core/address'
@@ -74,7 +74,7 @@ export interface SheetGridOptions {
 }
 
 /**
- * 引擎适配层 Facade 入口类：ultra-ui Sheet 模型 ↔ `@infinite-table/core` ListTable。
+ * 引擎适配层 Facade 入口类：ultra-ui Sheet 模型 ↔ `infinitable` ListTable。
  *
  * 数据面模型直挂（TableModel 适配 Sheet 存储，编辑提交经引擎回写 Sheet 命令系统）；
  * 样式/显示 pull 式按格取值（引擎渲染热路径回调，模型变更无需推送）；选区/冻结/

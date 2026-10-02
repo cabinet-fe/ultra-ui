@@ -1,4 +1,4 @@
-import type { FloatObject, ListTable } from '@infinite-table/core'
+import type { FloatObject, ListTable } from 'infinitable'
 
 import { cloneImageAnchor, type SheetImage, type SheetImageType } from '../core/image'
 import type { Sheet } from '../core/sheet'

@@ -1,4 +1,4 @@
-import type { ListTable, SelectionSnapshot } from '@infinite-table/core'
+import type { ListTable, SelectionSnapshot } from 'infinitable'
 
 import { Sheet } from '../../core/sheet'
 import { SHEET_HEADER_HEIGHT, SHEET_ROW_HEADER_WIDTH } from '../grid-theme'

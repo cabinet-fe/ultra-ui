@@ -1,4 +1,4 @@
-import type { CellRenderer } from '@infinite-table/core'
+import type { CellRenderer } from 'infinitable'
 import { describe, expect, it, vi } from 'vite-plus/test'
 
 import { Sheet } from '../../core/sheet'

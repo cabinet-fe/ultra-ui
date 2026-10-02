@@ -3,7 +3,7 @@ import {
   type ListTable,
   type RangeBounds,
   type SelectionSnapshot
-} from '@infinite-table/core'
+} from 'infinitable'
 
 import { createRange, type CellAddress, type CellRange } from '../core/address'
 import { computeFillTargetRange, generateFill, type FillDirection } from '../core/fill'

@@ -1,4 +1,4 @@
-import type { CellStyle as EngineCellStyle, TableModel } from '@infinite-table/core'
+import type { CellStyle as EngineCellStyle, TableModel } from 'infinitable'
 
 import type { CellAddress } from '../core/address'
 import type { CellValue } from '../core/cell-store'

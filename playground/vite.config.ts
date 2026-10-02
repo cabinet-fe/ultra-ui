@@ -1,4 +1,3 @@
-import { readFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -6,6 +5,7 @@ import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import { NodePackageImporter } from 'sass-embedded'
 import Components from 'unplugin-vue-components/vite'
+import type { Plugin } from 'vite'
 import { defineConfig } from 'vite-plus'
 
 // vp run 加载配置时用 Node 解析模块，不走 veltra-dev；@veltra/vite 的 import 指向 dist，dist 缺失时 vp run 会在构建前失败
@@ -17,19 +17,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(__dirname, '..')
 const hucreRoot = resolve(repoRoot, 'packages/sheet-core/node_modules/hucre')
 const nodePkgImporter = new NodePackageImporter(repoRoot)
-
-// file: 直连的 @infinite-table/* 引擎包 alias 到真实路径：bun 隔离快照内不嵌套
-// @infinite-table/render（file:+workspace:* 翻译限制），经真实路径解析其内部依赖
-const playgroundPkg = JSON.parse(
-  readFileSync(new URL('./package.json', import.meta.url), 'utf8')
-) as { dependencies?: Record<string, string> }
-const engineAlias = Object.fromEntries(
-  Object.entries(playgroundPkg.dependencies ?? {})
-    .filter(
-      ([name, spec]) => name.startsWith('@infinite-table/') && String(spec).startsWith('file:')
-    )
-    .map(([name, spec]) => [name, `${String(spec).slice('file:'.length)}/src/index.ts`])
-)
 
 const config = {
   test: {
@@ -47,13 +34,13 @@ const config = {
     extensions: ['.ts', '.js', '.json', '.tsx'],
     conditions: ['dev', 'veltra-dev'],
     alias: {
-      ...engineAlias,
       'hucre/xlsx': resolve(hucreRoot, 'dist/xlsx.mjs'),
       'hucre/csv': resolve(hucreRoot, 'dist/csv.mjs')
     }
   },
 
-  plugins: [vue(), vueJsx(), Components({ resolvers: [VeltraUIResolver()], dts: true })],
+  // Components 返回 Plugin & { api: PublicPluginAPI }，与 vue()/vueJsx() 的 Plugin 在数组联合推断时递归超栈深，收窄断言规避
+  plugins: [vue(), vueJsx(), Components({ resolvers: [VeltraUIResolver()], dts: true }) as Plugin],
 
   server: {
     port: 7788,
