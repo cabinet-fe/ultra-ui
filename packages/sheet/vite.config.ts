@@ -21,7 +21,14 @@ const config = {
     // canvas mock 等测试环境初始化已随 grid 迁至 sheet-core，跨包引用其 setup
     setupFiles: ['../sheet-core/src/grid/__test__/setup.ts'],
     globals: true,
-    environment: 'happy-dom'
+    environment: 'happy-dom',
+    server: {
+      deps: {
+        // 经 veltra-dev 拉入 sheet-core 源码后同样需要 inline infinitable，
+        // 原因见 sheet-core/vite.config.ts 同名配置的注释
+        inline: ['infinitable']
+      }
+    }
   },
 
   pack: {
