@@ -1,6 +1,6 @@
 # AGENTS.md — @veltra/sheet-core
 
-框架无关的表格核心：数据模型 / 命令系统 / 公式引擎 / xlsx/csv IO（`core/`，纯 TS）+ 引擎适配层 SheetGrid（`grid/`，底座 `@infinite-table/core` ListTable）。供 `@veltra/sheet`（USheet 编辑器）与 `@veltra/desktop` file-viewer（只读预览）共用。**数据模型完全自持有，引擎只做渲染与输入**：单元格操作都作用在自己的模型上，引擎经 TableModel 适配直挂模型、被动刷新。
+框架无关的表格核心：数据模型 / 命令系统 / 公式引擎 / xlsx/csv IO（`core/`，纯 TS）+ 引擎适配层 SheetGrid（`grid/`，底座 npm 包 `infinitable` 的 ListTable）。供 `@veltra/sheet`（USheet 编辑器）与 `@veltra/desktop` file-viewer（只读预览）共用。**数据模型完全自持有，引擎只做渲染与输入**：单元格操作都作用在自己的模型上，引擎经 TableModel 适配直挂模型、被动刷新。
 
 ## 目录结构
 
@@ -37,8 +37,8 @@ src/
 
 | 层      | 职责                               | 禁止                                                                                              |
 | ------- | ---------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `core/` | 模型、命令、公式、IO               | import `vue` / `@infinite-table/*`；dependency 仅 `hucre`，另有 peer `@cat-kit/core`（`>=1.2.1`） |
-| `grid/` | 引擎渲染装配、选区/编辑/浮动图接线 | 业务编排；只依赖 `core/` + `@infinite-table/core` 与 `@infinite-table/plugins` 两个公共入口       |
+| `core/` | 模型、命令、公式、IO               | import `vue` / `infinitable`；dependency 仅 `hucre`，另有 peer `@cat-kit/core`（`>=1.2.1`）       |
+| `grid/` | 引擎渲染装配、选区/编辑/浮动图接线 | 业务编排；只依赖 `core/` + `infinitable` 单一公共入口                                             |
 
 - **禁止反向依赖**：`core/` 不得 import `grid/`；grid 对 core 单向依赖。
 - **公开入口拆分**：`@veltra/sheet-core` 只导出模型 / 命令 / 公式 / IO；`SheetGrid` / `resolveCellRenderer` / hooks 类型走 `@veltra/sheet-core/grid`。不要把 grid 符号挂回主入口——否则无头 `import { Workbook }` 会把引擎类型图拉进 TS 语言服务。
@@ -92,7 +92,7 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 - **交互**：点选/拖拽为引擎指针路由内置（选中环 2px、拖动阈值 3px）；拖拽结束经 `onDragEnd` 换算落点写回 `sheet.updateImage` 平移 `from`（有 `to` 则同 delta，保持跨度；模型无 `to` 的图不引入引擎合成 to），**落点相对目标格左上的像素余量写回 `offsetX/offsetY`（负值 clamp 到 0），自由定位不吸附**；`Delete`/`Backspace` 经命令删除；点网格其他位置取消选中。readonly 时仅保留选中。本期不做缩放/旋转。
 - **LRU**：隐藏实例停用模型→引擎同步（只置脏），激活时一次性全量同步。
 
-## 引擎适配要点（grid/ ↔ @infinite-table/core）
+## 引擎适配要点（grid/ ↔ infinitable）
 
 - **模型直挂**：`grid-model.ts` 产出 TableModel——`getCellValue` 公式格返回 `'='+f` 原文（编辑初值所见即所编）、其余返回存储值；`setCellValue` 委托 Sheet 命令系统；模型事件经引擎 ModelBinding 局部刷新，echo 由 ModelBinding 吞掉防回环。
 - **pull 式取值**：显示（numFmt/公式缓存/宿主 hook）与样式（列→行→格→宿主 hook → 引擎 CellStyle 映射，pt→px 在映射层）按格拉取；模型样式变更靠窗口刷新触发重渲染（`axis-style-change` / 全量 meta 变更 / `content-reset` → 可视窗口逐格 refreshCell，批内合并失效）。
@@ -118,7 +118,7 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 
 ## 依赖
 
-- **dependencies**：`@infinite-table/core`、`@infinite-table/plugins`（`file:` 本地直连的 grid 引擎底座，grid/ 唯一引擎依赖面）、`hucre`
+- **dependencies**：`infinitable`（npm 包，统一入口 re-export render/core/formulas/plugins 四层；grid/ 唯一引擎依赖面）、`hucre`
 - **peer**：`@cat-kit/core`（`>=1.2.1`，公式四则与 `SUM` / `AVERAGE` / `ROUND` / `ABS` 的 `$n` / `n().fixed`）
 - **被依赖**：`@veltra/sheet`（编辑器）、`@veltra/desktop`（file-viewer 只读预览）
 
@@ -142,7 +142,7 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 
 - **`exports["./*"]` 深导入必须带 `.js` 后缀**：`./*` 把请求原样映射到 `./dist/*`，tsc 不做扩展名补全——写 `@veltra/sheet-core/core/address` 会去找无扩展名的 `dist/core/address`，tsc 报 TS2307。带后缀（`@veltra/sheet-core/core/address.js`）与显式 `./grid` 子路径都正常。新增 `core/*` 模块供外部深导入时，确认其已列入 `vite.config.ts` 的 pack `entry`，否则不产出 `.d.ts`（`core/events` 即为此列在 entry）。
 - **语言服务**：`tsconfig.json` 只含 `core/`；`tsconfig.grid.json` 含 `grid/`。编辑无头模型时不要把两个项目并进同一个 program。
-- **引擎解析**：bun 隔离快照不嵌套 `@infinite-table/render`（引擎 core 的 `workspace:*` 依赖在 `file:` 安装下不翻译），各消费包 vite `resolve.alias` 把 `@infinite-table/core` / `@infinite-table/plugins` 指到真实路径（见各包 vite.config.ts 的 engineAlias）。
+- **引擎解析**：`infinitable` 经 npm 安装；vitest 里 `server.deps.inline: ['infinitable']`（见 `vite.config.ts`）——externalize 时 worker node 以 `--conditions development` 解析其传递依赖 `@cat-kit/core` 会命中 `development` 导出条件指向 TS 源码，node_modules 下不可执行。
 
 ## 测试与验证
 

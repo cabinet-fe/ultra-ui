@@ -14,7 +14,7 @@ ultra-ui/
 │   ├── desktop/              # @veltra/desktop 桌面组件主包
 │   │   └── src/components/   # 一目录一组件（index.ts + style.ts）
 │   ├── sheet-core/           # @veltra/sheet-core
-│   │   └── src/{core,grid}/  # 纯 TS 模型 vs 引擎适配（@infinite-table）
+│   │   └── src/{core,grid}/  # 纯 TS 模型 vs 引擎适配（infinitable）
 │   ├── sheet/                # @veltra/sheet Vue 电子表格编辑器
 │   │   └── src/{components,tools,types}/
 │   ├── ai/                   # @veltra/ai
@@ -90,7 +90,7 @@ graph TD
   desktop --> catkit
   desktop -.-> sheetCore
   desktop --> ofdCore
-  desktop --> infTable["@infinite-table/core / plugins"]
+  desktop --> infTable["infinitable"]
   sheetCore --> hucre["hucre"]
   sheetCore --> infTable
   sheetCore --> catkit
