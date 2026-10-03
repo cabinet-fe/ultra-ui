@@ -1,6 +1,6 @@
-# playground dev services（data-entry + DeepSeek AI proxy）
+# playground dev services（data-entry + DeepSeek AI proxy + smart-table）
 
-playground 本地参考服务：在线填报单元格存取（SQLite）+ DeepSeek AI 会话代理。报表 DataConnector 已迁至下游，本服务不再提供 `test` / `describe` / `query`。
+playground 本地参考服务：在线填报单元格存取（SQLite）+ DeepSeek AI 会话代理 + 智慧表格演示（表格持久化 + AI 代理）。报表 DataConnector 已迁至下游，本服务不再提供 `test` / `describe` / `query`。
 
 - 只存在于 playground（devDependencies），**不进任何发布产物**。
 - 前端经 vite proxy 访问：填报走 `/report-api`（vite dev 自动转发到本服务）。
@@ -54,3 +54,18 @@ curl http://localhost:8787/ai/models
 - `sheet` 为 workbook 内 sheet 名（1~128 字符）；`value` 仅接受 JSON 标量（string / number / boolean / null）；row/col 为非负整数；单批上限 10_000 条。
 - 存储：SQLite 表 `data_entry_cells`，主键 `(form_id, sheet_key, row_index, col_index)`，与多 sheet 模型同为稀疏按格存储。
 - 前端演示页：`src/sheet-data-entry/index.vue`（多 sheet 预算填报：单元格级只读 + 跨表公式 + 提交前校验 + cell-change 防抖自动保存）。
+
+## 智慧表格（smart-table）
+
+`server/smart-table.ts`（表格持久化）与 `server/smart-table-ai.ts`（AI 代理，按 bedrock `internal/ai/service/chat_proxy.go` 同款实现移植）组成，由 `server/dev.ts` 分别挂到 `/smart-table` 与 `/smart-table/ai`。
+
+| 端点                                    | 请求体                            | 成功               | 说明                                                                                                                                                                             |
+| --------------------------------------- | --------------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GET /smart-table/table`                | —                                 | `{ ok, doc }`      | 演示表全量文档；首次访问写入示例数据（7 种字段类型、6 行）                                                                                                                       |
+| `PUT /smart-table/table`                | `{ fields, rows }` 全量文档       | `{ ok, doc }`      | 校验形状后全量 upsert；非法回 400                                                                                                                                                |
+| `GET /smart-table/ai/models`            | —                                 | `{ object, data }` | 模型目录（含推理等级与默认参数说明），不含密钥                                                                                                                                   |
+| `POST /smart-table/ai/chat/completions` | OpenAI chat.completions 兼容 JSON | SSE 流             | model 匹配模型目录、强制 `stream: true`、合并模型默认参数与 `reasoning_effort`、SSE 逐行透传（`content` / `reasoning_content` / `[DONE]`）、上游非 200 错误透传、未配 Key 回 503 |
+
+- 存储：SQLite 表 `smart_table_docs`（`doc_key` 主键 + `doc_json` 全量文档 + `updated_at`），复用 `server/db.ts` 连接。
+- 服务商配置复用 `DEEPSEEK_*` 变量族（见上方「DeepSeek AI 代理」节）；API Key 仅服务端持有。
+- 前端经 vite proxy `/smart-table-api` 访问（rewrite 到 `/smart-table`，前缀与 SPA 路由区分）。

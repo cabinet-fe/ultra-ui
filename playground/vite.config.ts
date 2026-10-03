@@ -54,7 +54,14 @@ const config = {
       },
       // AI 会话代理：只匹配 /ai 与 /ai/*，避免把 /ai-chat SPA 路由也代理走。
       // Vite 字符串上下文是前缀匹配，必须用正则锁定边界。
-      '^/ai(?:/|$)': { target: `http://localhost:${REPORT_SERVER_PORT}`, changeOrigin: true }
+      '^/ai(?:/|$)': { target: `http://localhost:${REPORT_SERVER_PORT}`, changeOrigin: true },
+      // 智慧表格演示：/smart-table-api → 参考服务 /smart-table。
+      // 前缀含 -api 后与 SPA 路由 /smart-table 不同串，字符串前缀匹配不会误代理页面路由。
+      '/smart-table-api': {
+        target: `http://localhost:${REPORT_SERVER_PORT}`,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/smart-table-api/, '/smart-table')
+      }
     }
   }
 }

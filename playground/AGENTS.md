@@ -6,9 +6,9 @@
 
 ```bash
 cd playground
-bun run dev        # 参考服务（Bun, 8787：data-entry + /ai）+ 前端（7788）
+bun run dev        # 参考服务（Bun, 8787：data-entry + /ai + /smart-table）+ 前端（7788）
 bun run dev:web    # 仅前端；演示服务需另开 bun run server
-bun run server     # 仅参考服务（填报 + DeepSeek 代理，同一端口）
+bun run server     # 仅参考服务（填报 + DeepSeek 代理 + 智慧表格，同一端口）
 ```
 
 ## 导航
@@ -38,13 +38,14 @@ bun run server     # 仅参考服务（填报 + DeepSeek 代理，同一端口�
 - SCSS：`NodePackageImporter`（仓库根）解析 `pkg:@veltra/styles/...`
 - `VeltraUIResolver`（`@veltra/vite`）：desktop / ai / sheet 的 `U*` 组件 + 对应 `style.ts`
 - `@veltra/vite` 为本 playground 的 devDependency
-- `server/`：参考服务（填报存取 + DeepSeek `/ai` 代理，默认 8787）由 `bun run dev` 并行拉起；`vp build` 不依赖该服务
+- `server/`：参考服务（填报存取 + DeepSeek `/ai` 代理 + `/smart-table` 智慧表格，默认 8787）由 `bun run dev` 并行拉起；`vp build` 不依赖该服务
 
 ## 参考服务
 
 `server/` 为 playground 本地参考服务（dev-only，不进发布产物）：
 
 - **在线填报端点**（`src/sheet-data-entry` 演示页使用）：`GET /data-entry/forms/:formId/cells` 读取、`PUT /data-entry/forms/:formId/cells` 批量 upsert（空值删除），SQLite 表 `data_entry_cells` 按 `(form_id, sheet_key, row_index, col_index)` 主键稀疏存储多 sheet 填报数据（`server/data-entry.ts`）
+- **智慧表格端点**（`server/smart-table.ts` + `server/smart-table-ai.ts`）：`GET /smart-table/table` 读取演示表全量文档（首次访问写入示例数据）、`PUT /smart-table/table` 校验 fields/rows 形状后全量 upsert（非法 400），SQLite 表 `smart_table_docs` 按 doc_key 存整表 JSON；AI 代理挂 `/smart-table/ai`，按 bedrock `chat_proxy.go` 同款实现——`GET /smart-table/ai/models` 模型目录、`POST /smart-table/ai/chat/completions` 强制流式 SSE 逐行透传（model 匹配模型目录、合并模型默认参数与 `reasoning_effort`、上游错误透传、未配 Key 回 503；服务商配置复用 `DEEPSEEK_*` 变量族）；前端经 vite proxy `/smart-table-api` 访问（rewrite 到 `/smart-table`，前缀与 SPA 路由 `/smart-table` 区分）
 - `bun run dev` 并行启动本服务（默认 8787，含 `/ai`）与前端；亦可 `bun run server` 单独启动（`REPORT_SERVER_PORT` 覆盖）
 - 前端经 vite proxy `/report-api` 访问填报端点
 - 详见 `server/README.md`
