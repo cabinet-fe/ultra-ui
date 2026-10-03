@@ -17,7 +17,9 @@ import {
   hitTestSheetAddr as hitTestSheetAddrAt,
   type SheetGridContextMenuInfo
 } from './grid-coords'
+import { GridEditorRouting, SHEET_TEXT_EDITOR, type SheetGridEditorsOptions } from './grid-editors'
 import { GridFloatImages } from './grid-float-images'
+import { GridHeaderLayer, type SheetGridHeaderOptions } from './grid-header'
 import {
   createEngineCellStyle,
   createEngineDisplayValue,
@@ -42,9 +44,6 @@ export type ResolveCellRenderer = (
   base: CellValue | undefined
 ) => CellRenderer | undefined
 
-/** 编辑器注册名（实例级 EditorRegistry；引擎无全局注册表，无泄露坑） */
-const EDITOR_NAME = 'sheet-text'
-
 /** 容器未布局时的视口兜底尺寸（happy-dom / 隐藏挂载场景） */
 const FALLBACK_VIEW_W = 960
 const FALLBACK_VIEW_H = 420
@@ -61,6 +60,13 @@ export interface SheetGridOptions {
   resolveDisplayValue?: ResolveDisplayValue
   resolveCellStyle?: ResolveCellStyleHook
   resolveCellRenderer?: ResolveCellRenderer
+  /** 列头机制：按列列头标题与表头自定义 DOM 渲染（不传保持缺省字母表头） */
+  header?: SheetGridHeaderOptions
+  /**
+   * 类型化编辑器机制：多编辑器注册与按格路由（不传保持统一文本编辑器）；
+   * readonly 下忽略
+   */
+  editors?: SheetGridEditorsOptions
   onContextMenu?: (info: SheetGridContextMenuInfo) => void
   onEditStart?: (addr: CellAddress) => void
   onEditEnd?: (addr: CellAddress) => void
@@ -93,6 +99,8 @@ export class SheetGrid {
   private readonly isReadonly: boolean
   private readonly showRowHeader: boolean
   private readonly showColHeader: boolean
+  private readonly headerLayer: GridHeaderLayer | undefined
+  private readonly editorRouting: GridEditorRouting | undefined
   private readonly rowHeightEngine: GridRowHeightEngine
   private readonly selectionController: GridSelectionController
   private readonly floatImages: GridFloatImages
@@ -119,6 +127,17 @@ export class SheetGrid {
     this.isReadonly = options.readonly ?? false
     this.showRowHeader = options.showRowHeader ?? true
     this.showColHeader = options.showColHeader ?? true
+    // 列头机制先于列装配创建（colTitle 决定引擎列定义标题）
+    this.headerLayer = options.header ? new GridHeaderLayer(options.header) : undefined
+    // 编辑器机制：仅非只读时接管引擎会话（会话回调对齐 onEditStart / onEditEnd 口径）
+    this.editorRouting =
+      !this.isReadonly && options.editors
+        ? new GridEditorRouting({
+            options: options.editors,
+            onSessionStart: options.onEditStart,
+            onSessionEnd: options.onEditEnd
+          })
+        : undefined
 
     // options 仅扩张：已声明更小的模型尺寸（删行后）不被 props 下限撑回；
     // 与已存数据高水位一次 max 合并（原两次连续 ensureTableSize 合并为一次声明）
@@ -135,8 +154,10 @@ export class SheetGrid {
     this.rowHeightEngine = new GridRowHeightEngine(this.sheet, rows, cols)
     this.rowHeightEngine.applyWrapEstimates(SHEET_DEFAULT_COL_WIDTH)
 
-    const editorRegistry = new EditorRegistry()
-    if (!this.isReadonly) editorRegistry.registerEditor(EDITOR_NAME, {})
+    const editorRegistry = this.editorRouting?.createRegistry() ?? new EditorRegistry()
+    if (!this.isReadonly && !this.editorRouting) {
+      editorRegistry.registerEditor(SHEET_TEXT_EDITOR, {})
+    }
 
     this.table = new ListTable({
       width: options.width ?? this.measureContainerWidth(),
@@ -182,6 +203,19 @@ export class SheetGrid {
       if (height !== SHEET_DEFAULT_ROW_HEIGHT) this.table.setRowHeight(row, height)
     }
     this.lastMergeSignature = JSON.stringify(this.readMergeCells())
+
+    // 新机制接线：编辑器路由接管引擎会话；表头覆盖层挂载（列头带存在时）
+    this.editorRouting?.attach(this.sheet, this.table, this.container)
+    if (this.headerLayer && this.showColHeader) {
+      this.headerLayer.attach(this.table, this.container)
+    }
+    // 滚动帧跟随：自定义编辑器锚定矩形 / 表头覆盖层位置同步
+    this.disposers.push(
+      this.table.onScrollFrame(() => {
+        this.editorRouting?.handleScrollFrame()
+        this.headerLayer?.sync()
+      })
+    )
 
     this.selectionController = new GridSelectionController(this.sheet, this.table, {
       isReadonly: this.isReadonly,
@@ -245,6 +279,8 @@ export class SheetGrid {
   release(): void {
     if (this.released) return
     this.released = true
+    this.editorRouting?.dispose()
+    this.headerLayer?.dispose()
     for (const dispose of this.disposers) dispose()
     this.disposers.length = 0
     this.resizeObserver?.disconnect()
@@ -282,6 +318,8 @@ export class SheetGrid {
         this.rowHeightEngine.syncWrapRowHeight(row, this.table)
       }
     }
+    // 表头覆盖层随列几何重定位
+    this.headerLayer?.sync()
   }
 
   // ─── 构造装配 ───────────────────────────────────────────
@@ -289,11 +327,13 @@ export class SheetGrid {
   private buildColumns(cols: number): ColumnDefine[] {
     return Array.from({ length: cols }, (_, col) => ({
       field: String(col),
-      title: colIndexToName(col),
+      // 列头机制：自定义渲染列置空（覆盖层接管内容）、resolveTitle 覆盖、缺省字母表头
+      title: this.headerLayer?.colTitle(col) ?? colIndexToName(col),
       // 列宽进列定义：构造期一次布局，避免逐列 setColWidth 反复全量重建
       width: this.sheet.getColWidth(col) ?? SHEET_DEFAULT_COL_WIDTH,
-      // 单元格级只读由 resolveEditable 拦截；整表只读不注册编辑器
-      ...(this.isReadonly ? {} : { editor: EDITOR_NAME })
+      // 单元格级只读由 resolveEditable 拦截；整表只读不注册编辑器；
+      // 编辑器路由命中自定义名时优先于该列级声明（引擎 route hook 语义）
+      ...(this.isReadonly ? {} : { editor: SHEET_TEXT_EDITOR })
     }))
   }
 
@@ -391,6 +431,7 @@ export class SheetGrid {
         for (const row of this.sheet.store.rowsForColumn(event.col)) {
           syncWrapRow(row)
         }
+        this.headerLayer?.sync()
       }),
       this.sheet.on('merge-change', () => scheduleResync()),
       this.sheet.on('content-reset', () => {
@@ -463,6 +504,7 @@ export class SheetGrid {
     }
     this.floatImages.sync()
     this.refreshWindow()
+    this.headerLayer?.sync()
     this.selectionController.pushSelectionToTable(this.sheet.getSelection())
   }
 
@@ -479,16 +521,19 @@ export class SheetGrid {
     onEditStart?: (addr: CellAddress) => void,
     onEditEnd?: (addr: CellAddress) => void
   ): void {
-    if (onEditStart) {
-      this.disposers.push(
-        this.table.onEditStart((event) => onEditStart({ row: event.row, col: event.col }))
-      )
-    }
-    if (onEditEnd) {
-      this.disposers.push(
-        this.table.onEditEnd((event) => onEditEnd({ row: event.row, col: event.col }))
-      )
-    }
+    this.disposers.push(
+      // 引擎文本会话开启先过编辑器路由：命中自定义编辑器则由其接管（会话回调经路由走
+      // onSessionStart / onSessionEnd，同一 onEditStart / onEditEnd 口径）
+      this.table.onEditStart((event) => {
+        if (this.editorRouting?.handleEngineEditStart(event.col, event.row)) return
+        onEditStart?.({ row: event.row, col: event.col })
+      }),
+      this.table.onEditEnd((event) => {
+        // 接管路径取消文本会话产生的合成事件不外抛
+        if (this.editorRouting?.shouldSuppressEngineEvent()) return
+        onEditEnd?.({ row: event.row, col: event.col })
+      })
+    )
   }
 
   /** 全局快捷键：Ctrl/Cmd+Z 撤销、Shift+Z / Ctrl+Y 重做（模型命令栈），Ctrl+A 全选，Delete 删选中图 */

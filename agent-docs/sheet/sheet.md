@@ -1,6 +1,6 @@
 ---
 title: USheet 电子表格组件
-description: USheet 电子表格组件：一个组件渲染工具栏、公式栏、网格与底部 sheet 标签栏，数据模型为 @veltra/sheet-core 工作簿；支持填报只读（setCellReadonly / setRangeReadonly）、动态单元格样式与自定义工具栏工具。
+description: USheet 电子表格组件：一个组件渲染工具栏、公式栏、网格与底部 sheet 标签栏，数据模型为 @veltra/sheet-core 工作簿；支持填报只读（setCellReadonly / setRangeReadonly）、动态单元格样式、自定义工具栏工具、列头定制（header）与类型化编辑器（editors 按格路由）。
 aliases: [USheet, Sheet, 电子表格, spreadsheet, 表格编辑器]
 keywords:
   [
@@ -14,6 +14,8 @@ keywords:
     setRangeReadonly,
     resolveCellStyle,
     resolveCellRenderer,
+    header,
+    editors,
     active-sheet-change,
     getContext,
     填报,
@@ -69,7 +71,9 @@ import type {
   ResolveCellRenderer,
   ResolveCellStyleHook,
   ResolveDisplayValue,
-  SheetGrid
+  SheetGrid,
+  SheetGridEditorsOptions,
+  SheetGridHeaderOptions
 } from '@veltra/sheet-core/grid'
 import type { ComputedRef } from 'vue'
 
@@ -91,6 +95,16 @@ export interface SheetProps {
   resolveCellStyle?: ResolveCellStyleHook
   /** 动态单元格渲染：按格返回引擎 CellRenderer；返回 undefined 回落默认渲染；不写模型、不进快照 */
   resolveCellRenderer?: ResolveCellRenderer
+  /**
+   * 列头机制（透传 SheetGrid）：按列列头标题与表头自定义 DOM 渲染，不传保持缺省字母
+   * 表头；引用更替触发网格重建
+   */
+  header?: SheetGridHeaderOptions
+  /**
+   * 类型化编辑器机制（透传 SheetGrid）：多编辑器注册与按格路由，不传保持统一文本
+   * 编辑器；readonly 下忽略；引用更替触发网格重建
+   */
+  editors?: SheetGridEditorsOptions
   /** 是否显示工具栏，默认 true */
   showToolbar?: boolean
   /** 是否显示顶部公式栏（名称框 + fx 输入栏），默认 true */
@@ -144,6 +158,8 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 | `resolveDisplayValue` | `ResolveDisplayValue`  | —                       |  否  | `(addr, base) => CellValue \| undefined`；必须同步                                                           |
 | `resolveCellStyle`    | `ResolveCellStyleHook` | —                       |  否  | `(addr, baseStyle?) => CellStyle \| undefined`；必须同步、O(1) 查找                                          |
 | `resolveCellRenderer` | `ResolveCellRenderer`  | —                       |  否  | `(addr, base) => CellRenderer \| undefined`；返回 undefined 回落默认渲染（类型见 `@veltra/sheet-core/grid`） |
+| `header`              | `SheetGridHeaderOptions` | —                     |  否  | 列头机制透传 SheetGrid：`resolveTitle` 按列覆盖标题、`resolveHeader` 按列自定义表头 DOM；机制签名与行为见 `agent-docs/sheet-core/sheet-grid.md`；引用更替触发网格重建 |
+| `editors`             | `SheetGridEditorsOptions` | —                    |  否  | 类型化编辑器机制透传 SheetGrid：`editors` 注册自定义编辑器、`route` 按格路由，未命中回落统一文本编辑器；`readonly` 时忽略；引用更替触发网格重建 |
 
 ## 方法与事件
 
@@ -330,6 +346,7 @@ workbook.activeSheet.setCellValue({ row: 0, col: 0 }, '选中格子后点工具�
 > - 填报锁格必须同时 `:show-toolbar="false"` 与 `:show-formula-bar="false"`：公式栏可绕过只读标记写任意格。
 > - 组件 prop `readonly` 是整表只读预览，不是填报锁格；按格控制用 `setCellReadonly` / `setRangeReadonly`，且模型层不设防——直接调用 `sheet.setCellValue` 仍能写入只读格。
 > - 坐标一律 0-based `{ row, col }`，不是 `'A1'` 字符串；A1 互转用 sheet-core 的 `parseAddress` / `formatAddress`。
+> - `header` / `editors` 按引用更替判定变化（变化即重建网格）：用 `computed` 持稳定引用，勿在模板内联对象字面量——每次渲染产生新引用会逐渲染重建网格。
 > - `registerTool` 的注册表是全局共享的（`defaultToolRegistry`），不是组件实例级的。
 
 交互事实补充：网格编辑拦截面覆盖双击、Enter、回写与填充柄；行高拖拽、冻结、选区不进 undo 历史；`Ctrl/Cmd+F` 在焦点落入本实例时打开查找条（不劫持容器外浏览器原生查找）；右键菜单分三套（body：合并 / 数据格式 / 插入图片；行号 / 列头：插入删除、行高 / 列宽、冻结）。10 万行 × 12 列经 `setCells` 批量写入 + 虚拟滚动渲染可用（官方 playground `sheet-big-data` 场景）。

@@ -26,6 +26,16 @@ export interface SheetGridModelHooks {
 }
 
 /**
+ * 编辑初值口径（基础值）：公式格返回 `'=' + f` 原文（所见即所编），其余返回存储值 `v`。
+ * 引擎 TableModel 取值与类型化编辑器会话初值共用同一口径。
+ */
+export function getSheetEditValue(sheet: Sheet, col: number, row: number): CellValue | undefined {
+  const data = sheet.getCellData({ row, col })
+  if (data?.f) return `=${data.f}`
+  return data?.v ?? undefined
+}
+
+/**
  * Sheet → 引擎 TableModel 适配：
  * - `getCellValue` 返回模型基础值口径——公式格返回 `'=' + f` 原文（编辑初值所见即所编，
  *   等价旧 resolveEditText），其余格返回存储值 `v`（被覆盖格无存储 → undefined）；
@@ -36,11 +46,7 @@ export interface SheetGridModelHooks {
 export function createSheetTableModel(sheet: Sheet): TableModel {
   return {
     rowCount: sheet.rows,
-    getCellValue(col: number, row: number): unknown {
-      const data = sheet.getCellData({ row, col })
-      if (data?.f) return `=${data.f}`
-      return data?.v ?? undefined
-    },
+    getCellValue: (col: number, row: number): unknown => getSheetEditValue(sheet, col, row),
     setCellValue(col: number, row: number, value: unknown): void {
       sheet.setCellValue({ row, col }, value as CellValue)
     },

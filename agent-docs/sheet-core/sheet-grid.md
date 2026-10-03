@@ -1,6 +1,6 @@
 ---
 title: 'SheetGrid 渲染网格（引擎适配层）'
-description: '从 @veltra/sheet-core/grid 子路径导出的引擎适配层：SheetGrid 把 Sheet 数据模型直挂 npm 统一入口包 infinitable 的 ListTable（模型直挂、pull 式取值），覆盖渲染、编辑回写、选区、冻结、合并、填充柄、右键菜单、浮动图片与 wrap 行高，支持 readonly 只读预览与 resolveCellRenderer / resolveCellStyle / resolveDisplayValue 三个渲染 hook。'
+description: '从 @veltra/sheet-core/grid 子路径导出的引擎适配层：SheetGrid 把 Sheet 数据模型直挂 npm 统一入口包 infinitable 的 ListTable（模型直挂、pull 式取值），覆盖渲染、编辑回写、选区、冻结、合并、填充柄、右键菜单、浮动图片与 wrap 行高，支持 readonly 只读预览、resolveCellRenderer / resolveCellStyle / resolveDisplayValue 三个渲染 hook、列头机制（按列标题与表头自定义 DOM 渲染）与类型化编辑器机制（多编辑器注册与按格路由）。'
 aliases: ['SheetGrid', 'sheet-grid', '渲染网格', '表格渲染层', '引擎适配层', 'Grid']
 keywords:
   [
@@ -12,10 +12,17 @@ keywords:
     'resolveCellRenderer',
     'resolveCellStyle',
     'resolveDisplayValue',
+    'SheetGridHeaderOptions',
+    'resolveTitle',
+    'resolveHeader',
+    'SheetGridEditorsOptions',
+    'GridCellEditor',
+    'GridEditorSession',
     'onContextMenu',
     'onEditStart',
     'interceptSelection',
     'readonly',
+    '类型化编辑器',
     '浮动图片',
     '冻结',
     '合并单元格',
@@ -30,7 +37,7 @@ keywords:
 
 # SheetGrid 渲染网格（引擎适配层）
 
-`SheetGrid` 是 `@veltra/sheet-core/grid` 子路径导出的引擎适配层 Facade：数据完全在自己的 `Sheet` 模型上，npm 统一入口包 `infinitable` 的 `ListTable` 只做渲染与输入，模型变更经事件被动刷新（无手动刷新 API）。同入口还导出类型 `SheetGridOptions` / `ResolveCellRenderer` / `ResolveDisplayValue` / `ResolveCellStyleHook` / `SheetGridContextMenuInfo` / `SheetGridContextMenuKind`，并 re-export 引擎类型 `CellRenderer` / `CellRenderTarget`。
+`SheetGrid` 是 `@veltra/sheet-core/grid` 子路径导出的引擎适配层 Facade：数据完全在自己的 `Sheet` 模型上，npm 统一入口包 `infinitable` 的 `ListTable` 只做渲染与输入，模型变更经事件被动刷新（无手动刷新 API）。同入口还导出类型 `SheetGridOptions` / `ResolveCellRenderer` / `ResolveDisplayValue` / `ResolveCellStyleHook` / `SheetGridContextMenuInfo` / `SheetGridContextMenuKind` / `SheetGridHeaderOptions` / `SheetGridEditorsOptions` / `GridCellEditor` / `GridEditorSession` / `GridEditorRect`，并 re-export 引擎类型 `CellRenderer` / `CellRenderTarget`。
 
 ## 快速上手
 
@@ -74,6 +81,10 @@ export interface SheetGridOptions {
   resolveCellStyle?: ResolveCellStyleHook
   /** 单元格渲染 hook：返回引擎 CellRenderer 接管该格内容绘制；传入才安装分发器 */
   resolveCellRenderer?: ResolveCellRenderer
+  /** 列头机制：按列列头标题与表头自定义 DOM 渲染；不传保持缺省 A/B/C 字母表头 */
+  header?: SheetGridHeaderOptions
+  /** 类型化编辑器机制：多编辑器注册与按格路由；不传保持统一文本编辑器；readonly 下忽略 */
+  editors?: SheetGridEditorsOptions
   /** 右键回调；readonly 模式照常触发，菜单内容由宿主决定 */
   onContextMenu?: (info: SheetGridContextMenuInfo) => void
   /** 进入单元格编辑（双击 / Enter） */
@@ -127,6 +138,62 @@ export interface SheetGridContextMenuInfo {
   col?: number
 }
 
+/** 列头机制 options（SheetGridOptions.header） */
+export interface SheetGridHeaderOptions {
+  /** 按列列头标题；返回 undefined 该列回落缺省字母表头。构造期逐列调用一次 */
+  resolveTitle?: (col: number) => string | undefined
+  /**
+   * 按列自定义表头渲染：返回元素挂到该列列头位置（内容与交互宿主自定）；
+   * 返回 undefined 回落标题 / 字母表头。每个列号在实例生命周期内至多调用一次，
+   * 元素由宿主持有、可就地更新内容
+   */
+  resolveHeader?: (col: number) => HTMLElement | undefined
+}
+
+/** 类型化编辑器机制 options（SheetGridOptions.editors） */
+export interface SheetGridEditorsOptions {
+  /** 自定义编辑器集合；name 重复以后者为准 */
+  editors: GridCellEditor[]
+  /** 格级路由：返回编辑器名（须在 editors 内）；返回 undefined 或未注册名回落统一文本编辑器 */
+  route?: (addr: CellAddress) => string | undefined
+}
+
+/** 类型化单元格编辑器：宿主实现编辑 UI，挂载 / 回收与提交由机制驱动 */
+export interface GridCellEditor {
+  /** 编辑器名（注册 key；格级路由返回此名命中） */
+  readonly name: string
+  /** 会话打开：编辑 UI 挂到 session.container 并定位到 session.rect */
+  open(session: GridEditorSession): void
+  /** 会话关闭（提交 / 取消后机制回收）：摘除编辑 UI */
+  close(): void
+}
+
+/** 锚定格视口矩形（CSS 像素，容器坐标系；与引擎文本编辑浮层同口径） */
+export interface GridEditorRect {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+/** 编辑会话上下文（GridCellEditor.open 入参）：机制负责生命周期与提交通道，宿主只管编辑 UI */
+export interface GridEditorSession {
+  /** 锚定格（0-based） */
+  addr: CellAddress
+  /** 编辑 UI 挂载容器（表格容器；绝对定位坐标系，编辑浮层直接挂其内） */
+  container: HTMLElement
+  /** 锚定格视口矩形（CSS 像素，容器坐标系） */
+  rect: GridEditorRect
+  /** 编辑初值（基础值口径：公式格为 '=' + f 原文） */
+  value: CellValue | undefined
+  /** 提交：写模型（经命令系统，可 undo）并结束会话 */
+  commit(value: CellValue): void
+  /** 取消：结束会话，不写模型 */
+  cancel(): void
+  /** 滚动跟随：会话内锚定格矩形变化时回调（编辑 UI 据此重定位；重复订阅替换前一监听） */
+  onRectChange(listener: (rect: GridEditorRect) => void): void
+}
+
 export class SheetGrid {
   constructor(options: SheetGridOptions)
   /** 底层引擎 ListTable 实例（调试 / 测试用） */
@@ -159,6 +226,8 @@ export class SheetGrid {
 | `resolveDisplayValue`       | `ResolveDisplayValue`  | —        |  否  | 每次格显示值解析按格回调（渲染热路径）；`base` 已含公式缓存与 numFmt 格式化                                                                                                   |
 | `resolveCellStyle`          | `ResolveCellStyleHook` | —        |  否  | 每次格渲染按格拉取；叠加链：模型有效样式（列 → 行 → 格）→ 宿主 hook → 引擎样式映射                                                                                            |
 | `resolveCellRenderer`       | `ResolveCellRenderer`  | —        |  否  | 格节点重建时按格回调（合并区路由主格）；**仅宿主传入才安装分发器**，默认场景渲染管线零差异                                                                                    |
+| `header`                    | `SheetGridHeaderOptions` | —      |  否  | 列头机制：`resolveTitle` 按列覆盖标题（未命中回落字母表头）；`resolveHeader` 按列返回 DOM 元素由表头覆盖层挂载（该列引擎标题置空防双绘）。构造期装配，变化需重建实例 |
+| `editors`                   | `SheetGridEditorsOptions` | —     |  否  | 类型化编辑器机制：`editors` 注册自定义编辑器、`route` 按格路由；未命中回落统一文本编辑器；`readonly: true` 时整体忽略                                                    |
 | `onContextMenu`             | `(info) => void`       | —        |  否  | 右键时触发；`info.x` / `info.y` 为客户端坐标                                                                                                                                  |
 | `onEditStart` / `onEditEnd` | `(addr) => void`       | —        |  否  | 编辑进入 / 退出；`readonly: true` 不触发                                                                                                                                      |
 | `interceptSelection`        | `() => boolean`        | —        |  否  | 返回 `true` 拦截本次选区（不写模型选区）                                                                                                                                      |
@@ -181,9 +250,23 @@ export class SheetGrid {
 回调触发时机：
 
 - `onContextMenu(info)`：右键任意区域。`kind = 'body'` 时 `addr` 为模型地址；`'row-header'` / `'col-header'` 时 `addr` 为 `null`、`row` / `col` 为模型行列号；角点归 `'body'`（`addr` 为 `null`）。本库只回调，不渲染菜单。
-- `onEditStart(addr)` / `onEditEnd(addr)`：编辑器打开 / 关闭，`addr` 为模型地址。
+- `onEditStart(addr)` / `onEditEnd(addr)`：编辑器打开 / 关闭，`addr` 为模型地址。类型化编辑器会话（`editors` 命中）同样触发这两个回调，与文本编辑会话同一口径。
 - 选区：画布选区先问 `interceptSelection()`，返回 `true` 则不写模型并回调 `onSelectionIntercept(range)`；否则写入 `sheet` 选区。模型选区变化（`sheet.selectRange`）回驱画布，不可见活动格自动滚入视口；引擎外部回写不广播，无回环。
 - 填充柄：拖拽生成经自有 `generateFill`（公式相对引用位移 + 平铺），单 undo 单元写入；只读目标格不被覆盖（从只读格向外复制仍允许）。
+
+类型化编辑器机制（传入 `editors` 后生效，`readonly` 下忽略）：
+
+- 路由：双击 / `Enter` 进编辑时先过 `route(addr)`——返回的编辑器名在 `editors` 内则该编辑器接管；返回 `undefined`、未注册名或未配置 `route` 均回落统一文本编辑器（行为与不传 `editors` 完全一致）。
+- 接管流程：引擎先打开内置文本会话再被机制取消（不回写不触发宿主回调），随后 `editor.open(session)` 打开宿主编辑 UI——`session.container` 绝对定位挂载、`session.rect` 为锚定格矩形（与文本编辑浮层同坐标系）、`session.value` 为基础值初值。
+- 提交 / 取消：`session.commit(value)` 经模型命令系统回写（可 undo）并结束会话；`session.cancel()` 不写模型结束会话。两者都会调用 `editor.close()` 并把焦点交还网格容器。
+- 滚动跟随：会话中滚动经 `onRectChange` 回调最新矩形；锚定格滚出视口自动取消会话（不写模型）。
+- 会话互斥：新编辑会话开启（任意格）会先取消未结束的自定义会话。
+
+列头机制（传入 `header` 后生效）：
+
+- `resolveTitle(col)` 在构造期逐列调用：返回字符串作为该列引擎标题（画布绘制），`undefined` 回落缺省字母表头（A / B / C…）。
+- `resolveHeader(col)` 每列至多调用一次：返回元素由表头 DOM 覆盖层按可视窗口挂载定位（滚动、列宽变化随帧同步），该列引擎标题置空防止画布双绘；返回 `undefined` 该列回落标题 / 字母表头。覆盖层与列头元素 `pointer-events: none`——画布表头交互（拖选、列宽拖拽）保持，可点击内容在宿主元素的子节点上开 `pointer-events: auto`。
+- 两个 hook 均为构造期快照：标题变化、编辑器集合变化须重建 `SheetGrid` 实例（同 `structure-change` 语义）。
 
 模型 → 视图同步（自动，无手动刷新 API）：
 
@@ -277,6 +360,73 @@ sheet.getCellData({ row: 0, col: 0 })?.v // => 5（模型恒存原始值；显�
 // A2 显示为 '1,234.50'（内置 numFmt 管线，第二行不触发宿主覆盖）
 ```
 
+### 类型化编辑器与自定义列头（多维表格形态）
+
+```ts
+import { Sheet } from '@veltra/sheet-core'
+import { SheetGrid, type GridCellEditor, type SheetGridEditorsOptions } from '@veltra/sheet-core/grid'
+
+const sheet = new Sheet('Sheet1')
+sheet.setCellValue({ row: 0, col: 1 }, 'opt-a')
+
+// 自定义编辑器：open 挂 UI、close 摘 UI，提交走 session.commit
+const selectEditor: GridCellEditor = {
+  name: 'select',
+  open(session) {
+    const el = document.createElement('select')
+    for (const opt of ['opt-a', 'opt-b', 'opt-c']) {
+      const option = document.createElement('option')
+      option.value = opt
+      option.text = opt
+      el.appendChild(option)
+    }
+    el.value = String(session.value ?? '')
+    el.style.cssText = `position:absolute;left:${session.rect.x}px;top:${session.rect.y}px;width:${session.rect.width}px;height:${session.rect.height}px;`
+    el.addEventListener('change', () => session.commit(el.value))
+    session.container.appendChild(el)
+    session.onRectChange((rect) => {
+      el.style.left = `${rect.x}px`
+      el.style.top = `${rect.y}px`
+    })
+  },
+  close() {
+    // 摘除编辑 UI：宿主自持元素引用（示例从容器移除）
+    document.querySelector('select')?.remove()
+  }
+}
+
+const editors: SheetGridEditorsOptions = {
+  editors: [selectEditor],
+  route: (addr) => (addr.col === 1 ? 'select' : undefined) // 其余列回落文本编辑器
+}
+
+// 列头：第 1 列显示字段名 + 可点击配置入口，其余列保持字母表头
+const configEntry = document.createElement('button')
+configEntry.textContent = '配置'
+configEntry.style.pointerEvents = 'auto' // 覆盖层默认 none，可点击子节点显式开启
+
+const grid = new SheetGrid({
+  container: document.getElementById('<容器 id>')!,
+  sheet,
+  editors,
+  header: {
+    resolveTitle: (col) => (col === 0 ? '字段名' : undefined),
+    resolveHeader: (col) => {
+      if (col !== 1) return undefined
+      const el = document.createElement('div')
+      el.appendChild(document.createTextNode('选项'))
+      el.appendChild(configEntry)
+      return el
+    }
+  }
+})
+
+// 双击 B1 → selectEditor.open(...)；选择 opt-b → 提交可 undo
+// sheet.getCellData({ row: 0, col: 1 })?.v // => 'opt-b'
+sheet.undo() // => 撤回 'opt-a'
+grid.release()
+```
+
 ## 注意事项
 
 > [!WARNING]
@@ -285,6 +435,9 @@ sheet.getCellData({ row: 0, col: 0 })?.v // => 5（模型恒存原始值；显�
 > - 底座是 npm 统一入口包 `infinitable` 的 `ListTable`，不是 `@visactor/vtable`：自定义渲染返回引擎 `CellRenderer`（canvas 局部坐标绘制函数），不存在 `CustomLayout` / `ICustomLayoutObj` 布局对象，也不要按 VTable 的 `records` / `setRecords` 用法操作数据——数据源是挂在构造选项里的 `Sheet` 模型。
 > - 旧版门面的 `refresh` / `flushPending` / `syncFromModel` / `getImageLayer` / `undo` / `redo` 已删除：模型 → 视图同步全自动（见「方法与事件」），浮动图由引擎 `FloatObjectLayer` 承接，隐藏 / 恢复实例用 `setVisible(false | true)`。
 > - 三个渲染 hook 必须是纯函数、同步返回、O(1) 查找，禁止异步操作与长数组 / 大字符串分配；hook 不写模型、不进快照。不需要自定义渲染就不要传 `resolveCellRenderer`。
+> - 列头机制与编辑器机制均为构造期快照：`resolveTitle` / `resolveHeader` 结果与编辑器集合在实例生命周期内固化，字段改名 / 增删编辑器须重建 `SheetGrid` 实例；`resolveHeader` 每列至多调用一次，内容更新由宿主就地改元素。
+> - 表头覆盖层不接管指针事件：自定义列头整块可点区域必须在子节点上显式 `pointer-events: auto`，否则点击落在画布表头（拖选 / 列宽拖拽）。
+> - 类型化编辑器提交值类型为 `CellValue`（string / number / boolean / null）；提交走模型命令系统可 undo，取消不写模型；锚定格滚出视口自动取消（非提交）。
 > - `readonly: true` 只守 grid 入口：绕过 SheetGrid 直接调命令仍可写模型，只读场景不要暴露命令入口；工具栏 / 公式栏这些 grid 之外的写入口由宿主自行隐藏。
 > - 主题内置且构造期固化（表头浅底 `#F5F5F5`、正文白底、网格线 `#E1E4E8`、选区 `#2170E7`、hover 关闭——引擎无 hover 绘制路径），无运行时换肤入口。
 > - 默认几何：行高 28px、列头带高 28px、行号列宽 46px、默认列宽 80px。列宽在构造期随列定义写入；运行时改行高 / 列宽走拖拽（引擎即时生效并自动写回模型），或写模型 `sheet.setRowHeight` / `setColWidth` 后调 `grid.applyAxisSizes(axis, indexes)` 落活动引擎——模型尺寸写不发事件，不调则画面不更新（隐藏实例置脏、激活时全量同步）；不要绕过模型直接对 `getTable()` 批量改列宽——切实例重建后会丢。

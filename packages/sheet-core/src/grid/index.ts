@@ -8,3 +8,10 @@ export type { CellRenderer, CellRenderTarget } from 'infinitable'
 export { SheetGrid, type ResolveCellRenderer, type SheetGridOptions } from './sheet-grid'
 export type { ResolveCellStyleHook, ResolveDisplayValue } from './grid-model'
 export type { SheetGridContextMenuInfo, SheetGridContextMenuKind } from './grid-coords'
+export type { SheetGridHeaderOptions } from './grid-header'
+export type {
+  GridCellEditor,
+  GridEditorRect,
+  GridEditorSession,
+  SheetGridEditorsOptions
+} from './grid-editors'

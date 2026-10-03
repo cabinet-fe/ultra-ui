@@ -265,7 +265,7 @@ import { SheetGrid, type SheetGridOptions } from '@veltra/sheet-core/grid'
 import { Workbook } from '@veltra/sheet-core' // 模型/命令/IO 走主入口
 ```
 
-子路径可用的符号：`SheetGrid` 与类型 `SheetGridOptions` / `SheetGridContextMenuKind` / `SheetGridContextMenuInfo` / `CellRenderer` / `CellRenderTarget` / `ResolveCellRenderer` / `ResolveDisplayValue` / `ResolveCellStyleHook`。详见 `agent-docs/sheet-core/sheet-grid.md`。
+子路径可用的符号：`SheetGrid` 与类型 `SheetGridOptions` / `SheetGridContextMenuKind` / `SheetGridContextMenuInfo` / `CellRenderer` / `CellRenderTarget` / `ResolveCellRenderer` / `ResolveDisplayValue` / `ResolveCellStyleHook` / `SheetGridHeaderOptions` / `SheetGridEditorsOptions` / `GridCellEditor` / `GridEditorSession` / `GridEditorRect`。详见 `agent-docs/sheet-core/sheet-grid.md`。
 
 ## 报错 `TS2307: Cannot find module '@veltra/sheet-core/core/xxx'`（深导入 `core/*` 漏写 `.js` 后缀）
 

@@ -4,7 +4,9 @@ import type {
   ResolveCellRenderer,
   ResolveCellStyleHook,
   ResolveDisplayValue,
-  SheetGrid
+  SheetGrid,
+  SheetGridEditorsOptions,
+  SheetGridHeaderOptions
 } from '@veltra/sheet-core/grid'
 import type { DeconstructValue } from '@veltra/utils'
 import type { ComputedRef } from 'vue'
@@ -33,6 +35,16 @@ export interface SheetProps {
    * 不写模型、不进快照
    */
   resolveCellRenderer?: ResolveCellRenderer
+  /**
+   * 列头机制（透传 SheetGrid）：按列列头标题与表头自定义 DOM 渲染，不传保持
+   * 缺省字母表头；传值变化（引用更替）触发网格重建
+   */
+  header?: SheetGridHeaderOptions
+  /**
+   * 类型化编辑器机制（透传 SheetGrid）：多编辑器注册与按格路由，不传保持统一
+   * 文本编辑器；readonly 下忽略；传值变化（引用更替）触发网格重建
+   */
+  editors?: SheetGridEditorsOptions
   /** 是否显示工具栏，默认 true */
   showToolbar?: boolean
   /** 是否显示顶部公式栏（名称框 + fx 输入栏），默认 true */

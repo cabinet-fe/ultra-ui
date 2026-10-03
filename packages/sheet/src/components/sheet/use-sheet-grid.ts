@@ -126,6 +126,8 @@ export function useSheetGrid(options: UseSheetGridOptions) {
       resolveDisplayValue: props.resolveDisplayValue,
       resolveCellStyle: props.resolveCellStyle,
       resolveCellRenderer: props.resolveCellRenderer,
+      header: props.header,
+      editors: props.editors,
       onContextMenu: handleContextMenu,
       onEditStart: (addr) => formulaBarRef.value?.mirrorGridEdit(addr),
       onEditEnd: (addr) => formulaBarRef.value?.exitMirror(addr),
@@ -254,10 +256,20 @@ export function useSheetGrid(options: UseSheetGridOptions) {
 
   onMounted(activateGrid)
 
-  // props 尺寸显式增大时先扩张模型，再重建（删行缩小不走这条路径）
+  // props 尺寸显式增大时先扩张模型，再重建（删行缩小不走这条路径）；
+  // header / editors 按引用更替判定（机制对象构造期装配，变化即重建——宿主用
+  // computed 持稳定引用，勿在模板内联对象字面量）
   watch(
     () =>
-      [props.rows, props.cols, props.readonly, props.showRowHeader, props.showColHeader] as const,
+      [
+        props.rows,
+        props.cols,
+        props.readonly,
+        props.showRowHeader,
+        props.showColHeader,
+        props.header,
+        props.editors
+      ] as const,
     ([nextRows, nextCols]) => {
       const sheet = getActiveSheet()
       if (nextRows != null) sheet.ensureTableSize(nextRows, 0)

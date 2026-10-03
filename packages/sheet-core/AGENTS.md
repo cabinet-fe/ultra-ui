@@ -25,6 +25,8 @@ src/
     ├── index.ts          # SheetGrid / resolveCellRenderer / hooks 类型等
     ├── sheet-grid.ts     # SheetGrid 门面（Sheet ↔ ListTable；支持 readonly）
     ├── grid-model.ts     # Sheet → TableModel 适配 + 显示/样式 pull 式取值
+    ├── grid-header.ts    # 列头机制：按列标题覆盖 + 表头 DOM 覆盖层（SheetGridOptions.header）
+    ├── grid-editors.ts   # 类型化编辑器机制：多编辑器注册、按格路由与自定义会话（SheetGridOptions.editors）
     ├── grid-selection-controller.ts  # 选区双向同步 + 填充生成接线
     ├── grid-float-images.ts          # 浮动图片 ↔ 引擎 FloatObjectLayer
     ├── grid-row-height-engine.ts     # wrap 行高估算（写模型，只升不降）
