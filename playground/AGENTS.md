@@ -27,7 +27,7 @@ bun run server     # 仅参考服务（填报 + DeepSeek 代理 + 智慧表格�
 - `src/sheet/index.vue` → `/sheet/index`
 - `src/sheet-big-data/index.vue` → `/sheet-big-data/index`（大数据量演示 + 性能基线）
 - `src/sheet-data-entry/index.vue` → `/sheet-data-entry/index`（在线填报：单元格级只读 + 按单元格持久化演示）
-- `src/smart-table/index.vue` → `/smart-table/index`（智慧表格：7 种类型化字段行内编辑 + 行/字段管理 + 表格/看板视图切换 + AI 生成/整理面板 + 演示表防抖整表持久化）
+- `src/smart-table/index.vue` → `/smart-table/index`（智慧表格：9 种类型化字段行内编辑 + 行/字段管理 + 表格/看板视图切换 + AI 生成/整理面板 + 演示表防抖整表持久化）
 
 由 `import.meta.glob` 分别扫描 `desktop`、`icons`、`ai-chat` 与 `sheet` 目录自动生成；
 `src/sheet-big-data/index.vue`、`src/sheet-data-entry/index.vue`、`src/smart-table/index.vue` 等因 glob 首段为字面段（`./src/sheet/**` 不匹配 `sheet-big-data`），

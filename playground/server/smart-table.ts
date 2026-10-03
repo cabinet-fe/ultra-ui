@@ -11,7 +11,7 @@ import { ERROR_CODES, type ConnectorError } from './errors'
  * PUT 即全量覆盖（upsert），页面刷新后数据保留。
  */
 
-/** 字段类型全集：文本、数字、单选、多选、日期、复选框、进度 */
+/** 字段类型全集：文本、数字、单选、多选、日期、复选框、进度、成员、图片 */
 export const FIELD_TYPES = [
   'text',
   'number',
@@ -19,7 +19,9 @@ export const FIELD_TYPES = [
   'multi-select',
   'date',
   'checkbox',
-  'progress'
+  'progress',
+  'member',
+  'image'
 ] as const
 
 export type FieldType = (typeof FIELD_TYPES)[number]
@@ -63,7 +65,7 @@ function invalid(message: string): ConnectorError {
   return { code: ERROR_CODES.INVALID_REQUEST, message }
 }
 
-/** 内置示例数据：7 种字段类型全覆盖，6 行记录（含空单元格） */
+/** 内置示例数据：9 种字段类型全覆盖，6 行记录（含空单元格） */
 const SEED_DOC: TableDoc = {
   fields: [
     { id: 'name', name: '需求名称', type: 'text' },
@@ -73,7 +75,9 @@ const SEED_DOC: TableDoc = {
     { id: 'tags', name: '标签', type: 'multi-select', options: ['体验', '性能', '稳定性', '文档'] },
     { id: 'due', name: '截止日期', type: 'date' },
     { id: 'done', name: '已验收', type: 'checkbox' },
-    { id: 'progress', name: '进度', type: 'progress' }
+    { id: 'progress', name: '进度', type: 'progress' },
+    { id: 'team', name: '协作成员', type: 'member' },
+    { id: 'attachments', name: '设计稿', type: 'image' }
   ],
   rows: [
     {
@@ -86,7 +90,9 @@ const SEED_DOC: TableDoc = {
         tags: ['体验', '文档'],
         due: '2026-10-15',
         done: false,
-        progress: 35
+        progress: 35,
+        team: ['王小虎', '李静'],
+        attachments: ['https://picsum.photos/seed/smart-table-r1a/120/90']
       }
     },
     {
@@ -99,7 +105,12 @@ const SEED_DOC: TableDoc = {
         tags: ['体验'],
         due: '2026-10-20',
         done: false,
-        progress: 60
+        progress: 60,
+        team: ['李静'],
+        attachments: [
+          'https://picsum.photos/seed/smart-table-r2a/120/90',
+          'https://picsum.photos/seed/smart-table-r2b/120/90'
+        ]
       }
     },
     {
@@ -112,7 +123,8 @@ const SEED_DOC: TableDoc = {
         tags: ['体验', '性能'],
         due: '2026-10-25',
         done: false,
-        progress: 45
+        progress: 45,
+        team: ['陈远', '周舟']
       }
     },
     {
@@ -125,7 +137,9 @@ const SEED_DOC: TableDoc = {
         tags: ['稳定性'],
         due: '2026-09-30',
         done: true,
-        progress: 100
+        progress: 100,
+        team: [],
+        attachments: []
       }
     },
     {
@@ -136,7 +150,8 @@ const SEED_DOC: TableDoc = {
         status: '设计中',
         tags: ['文档'],
         done: false,
-        progress: 10
+        progress: 10,
+        team: ['周舟']
       }
     },
     {
@@ -274,6 +289,12 @@ function validateCellValue(value: unknown, field: TableField): string | null {
       return typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= 100
         ? null
         : 'progress 字段的值必须是 0~100 的数字'
+    case 'member':
+    case 'image':
+      return Array.isArray(value) &&
+        value.every((item) => typeof item === 'string' && item.trim() !== '')
+        ? null
+        : `${field.type} 字段的值必须是非空字符串数组`
   }
 }
 
