@@ -248,7 +248,7 @@ createApp(App).mount('#app')
 | commands  | 命令系统：操作派发与 Undo / Redo 历史撤销重做   | `sheet-core/commands.md`   |
 | formula   | 公式引擎：解析求值与函数扩展                    | `sheet-core/formula.md`    |
 | io        | 文件导入导出：XLSX / CSV                        | `sheet-core/io.md`         |
-| SheetGrid | 渲染网格：引擎适配层（@infinite-table）         | `sheet-core/sheet-grid.md` |
+| SheetGrid | 渲染网格：引擎适配层（infinitable）             | `sheet-core/sheet-grid.md` |
 
 ### styles 样式与主题（@veltra/styles）
 

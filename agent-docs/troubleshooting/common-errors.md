@@ -257,7 +257,7 @@ notification.success('同步完成')
 
 ## 报错 `Does not provide an export named 'SheetGrid'`（从 `@veltra/sheet-core` 主入口导入渲染层符号）
 
-原因：`SheetGrid` 及渲染 hook 类型刻意只从子路径 `@veltra/sheet-core/grid` 导出，主入口不 re-export——避免无头 API（`Workbook` / `Sheet`）把引擎（`@infinite-table/core`）类型图拉进 TS 程序。修复：渲染层符号固定从子路径导入：
+原因：`SheetGrid` 及渲染 hook 类型刻意只从子路径 `@veltra/sheet-core/grid` 导出，主入口不 re-export——避免无头 API（`Workbook` / `Sheet`）把引擎（`infinitable`）类型图拉进 TS 程序。修复：渲染层符号固定从子路径导入：
 
 ```ts
 // 错误：import { SheetGrid } from '@veltra/sheet-core'

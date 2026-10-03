@@ -1,12 +1,13 @@
 ---
 title: 'SheetGrid 渲染网格（引擎适配层）'
-description: '从 @veltra/sheet-core/grid 子路径导出的引擎适配层：SheetGrid 把 Sheet 数据模型直挂 @infinite-table/core 的 ListTable（模型直挂、pull 式取值），覆盖渲染、编辑回写、选区、冻结、合并、填充柄、右键菜单、浮动图片与 wrap 行高，支持 readonly 只读预览与 resolveCellRenderer / resolveCellStyle / resolveDisplayValue 三个渲染 hook。'
+description: '从 @veltra/sheet-core/grid 子路径导出的引擎适配层：SheetGrid 把 Sheet 数据模型直挂 npm 统一入口包 infinitable 的 ListTable（模型直挂、pull 式取值），覆盖渲染、编辑回写、选区、冻结、合并、填充柄、右键菜单、浮动图片与 wrap 行高，支持 readonly 只读预览与 resolveCellRenderer / resolveCellStyle / resolveDisplayValue 三个渲染 hook。'
 aliases: ['SheetGrid', 'sheet-grid', '渲染网格', '表格渲染层', '引擎适配层', 'Grid']
 keywords:
   [
     'SheetGrid',
     'SheetGridOptions',
     'ListTable',
+    'infinitable',
     'CellRenderer',
     'resolveCellRenderer',
     'resolveCellStyle',
@@ -29,7 +30,7 @@ keywords:
 
 # SheetGrid 渲染网格（引擎适配层）
 
-`SheetGrid` 是 `@veltra/sheet-core/grid` 子路径导出的引擎适配层 Facade：数据完全在自己的 `Sheet` 模型上，`@infinite-table/core` 的 `ListTable` 只做渲染与输入，模型变更经事件被动刷新（无手动刷新 API）。同入口还导出类型 `SheetGridOptions` / `ResolveCellRenderer` / `ResolveDisplayValue` / `ResolveCellStyleHook` / `SheetGridContextMenuInfo` / `SheetGridContextMenuKind`，并 re-export 引擎类型 `CellRenderer` / `CellRenderTarget`。
+`SheetGrid` 是 `@veltra/sheet-core/grid` 子路径导出的引擎适配层 Facade：数据完全在自己的 `Sheet` 模型上，npm 统一入口包 `infinitable` 的 `ListTable` 只做渲染与输入，模型变更经事件被动刷新（无手动刷新 API）。同入口还导出类型 `SheetGridOptions` / `ResolveCellRenderer` / `ResolveDisplayValue` / `ResolveCellStyleHook` / `SheetGridContextMenuInfo` / `SheetGridContextMenuKind`，并 re-export 引擎类型 `CellRenderer` / `CellRenderTarget`。
 
 ## 快速上手
 
@@ -51,7 +52,8 @@ grid.release() // 释放引擎表实例与全部事件监听
 
 ```ts
 import type { CellAddress, CellRange, CellStyle, CellValue, Sheet } from '@veltra/sheet-core'
-import type { CellRenderer, ListTable } from '@infinite-table/core'
+import type { CellRenderer } from '@veltra/sheet-core/grid' // 引擎类型经 grid 子路径 re-export
+import type { ListTable } from 'infinitable' // 引擎本体类型；infinitable 是 @veltra/sheet-core 的直接依赖
 
 export interface SheetGridOptions {
   /** 挂载容器；宿主需给容器宽高，grid 把 static 定位归一为 relative */
@@ -280,11 +282,11 @@ sheet.getCellData({ row: 0, col: 0 })?.v // => 5（模型恒存原始值；显�
 > [!WARNING]
 >
 > - 本库从 `@veltra/sheet-core/grid` 子路径导入 `SheetGrid` 与渲染 hook 类型，**不是主入口**；主入口刻意不 re-export，避免无头 `import { Workbook }` 把引擎类型图拉进 TS 程序。
-> - 底座是 `@infinite-table/core` 的 `ListTable`，不是 `@visactor/vtable`：自定义渲染返回引擎 `CellRenderer`（canvas 局部坐标绘制函数），不存在 `CustomLayout` / `ICustomLayoutObj` 布局对象，也不要按 VTable 的 `records` / `setRecords` 用法操作数据——数据源是挂在构造选项里的 `Sheet` 模型。
+> - 底座是 npm 统一入口包 `infinitable` 的 `ListTable`，不是 `@visactor/vtable`：自定义渲染返回引擎 `CellRenderer`（canvas 局部坐标绘制函数），不存在 `CustomLayout` / `ICustomLayoutObj` 布局对象，也不要按 VTable 的 `records` / `setRecords` 用法操作数据——数据源是挂在构造选项里的 `Sheet` 模型。
 > - 旧版门面的 `refresh` / `flushPending` / `syncFromModel` / `getImageLayer` / `undo` / `redo` 已删除：模型 → 视图同步全自动（见「方法与事件」），浮动图由引擎 `FloatObjectLayer` 承接，隐藏 / 恢复实例用 `setVisible(false | true)`。
 > - 三个渲染 hook 必须是纯函数、同步返回、O(1) 查找，禁止异步操作与长数组 / 大字符串分配；hook 不写模型、不进快照。不需要自定义渲染就不要传 `resolveCellRenderer`。
 > - `readonly: true` 只守 grid 入口：绕过 SheetGrid 直接调命令仍可写模型，只读场景不要暴露命令入口；工具栏 / 公式栏这些 grid 之外的写入口由宿主自行隐藏。
-> - 主题内置且构造期固化（表头浅底 `#F5F5F5`、正文白底、网格线 `#E1E4E8`、选区 `#2170E7`、hover 关闭），无运行时换肤入口。
+> - 主题内置且构造期固化（表头浅底 `#F5F5F5`、正文白底、网格线 `#E1E4E8`、选区 `#2170E7`、hover 关闭——引擎无 hover 绘制路径），无运行时换肤入口。
 > - 默认几何：行高 28px、列头带高 28px、行号列宽 46px、默认列宽 80px。列宽在构造期随列定义写入；运行时改行高 / 列宽走拖拽（引擎即时生效并自动写回模型），或写模型 `sheet.setRowHeight` / `setColWidth` 后调 `grid.applyAxisSizes(axis, indexes)` 落活动引擎——模型尺寸写不发事件，不调则画面不更新（隐藏实例置脏、激活时全量同步）；不要绕过模型直接对 `getTable()` 批量改列宽——切实例重建后会丢。
 > - 行列插入 / 删除后必须重建 `SheetGrid` 实例；值 / 样式 / 合并 / 冻结 / 图片变更自动同步。
 > - 深导入 `@veltra/sheet-core/core/*` 必须带 `.js` 后缀（`@veltra/sheet-core/core/address.js`）；显式 `./grid` 子路径不受影响。

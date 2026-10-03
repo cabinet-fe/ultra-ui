@@ -138,8 +138,8 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 | `showToolbar`         | `boolean`              | `true`                  |  否  | `false` 时工具栏整体不渲染                                                                                   |
 | `showFormulaBar`      | `boolean`              | `true`                  |  否  | 公式栏含名称框与 fx 输入栏；填报页必须设 `false`                                                             |
 | `showTabs`            | `boolean`              | `true`                  |  否  | 底部标签栏：点击切换、末尾「+」新增、右键重命名/删除                                                         |
-| `showRowHeader`       | `boolean`              | `true`                  |  否  | 行号列；右键菜单含插入/删除行、行高、冻结到当前行                                                             |
-| `showColHeader`       | `boolean`              | `true`                  |  否  | 列字母表头；右键菜单含插入/删除列、列宽、冻结到当前列                                                          |
+| `showRowHeader`       | `boolean`              | `true`                  |  否  | 行号列；右键菜单含插入/删除行、行高、冻结到当前行                                                            |
+| `showColHeader`       | `boolean`              | `true`                  |  否  | 列字母表头；右键菜单含插入/删除列、列宽、冻结到当前列                                                        |
 | `readonly`            | `boolean`              | `false`                 |  否  | 整表只读预览；按格控制改用模型 `setCellReadonly`                                                             |
 | `resolveDisplayValue` | `ResolveDisplayValue`  | —                       |  否  | `(addr, base) => CellValue \| undefined`；必须同步                                                           |
 | `resolveCellStyle`    | `ResolveCellStyleHook` | —                       |  否  | `(addr, baseStyle?) => CellStyle \| undefined`；必须同步、O(1) 查找                                          |
