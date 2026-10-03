@@ -1,8 +1,9 @@
 <template>
   <div class="smart-table">
-    <!-- 工具栏：标题 + 保存状态 + 行/字段管理入口 -->
+    <!-- 工具栏：标题 + 保存状态 + 视图切换 + 行/字段管理入口 -->
     <div class="smart-table__bar">
       <span class="smart-table__title">智慧表格</span>
+      <u-segment v-model="view" :items="viewItems" />
       <span class="smart-table__status" :data-state="saveState">
         <span class="smart-table__status-dot" />
         {{ statusText }}
@@ -13,7 +14,11 @@
       </u-button>
     </div>
 
-    <div class="smart-table__scroll">
+    <AiPanel :state="aiState" :target-options="aiTargetOptions" @run="runAi" />
+
+    <KanbanView v-if="view === 'kanban'" :fields="doc?.fields ?? []" :rows="doc?.rows ?? []" />
+
+    <div v-else class="smart-table__scroll">
       <table v-if="doc" class="smart-table__grid">
         <thead>
           <tr>
@@ -62,19 +67,33 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, shallowRef } from 'vue'
+import { computed, onMounted, ref, shallowRef } from 'vue'
 
+import AiPanel from './ai-panel.vue'
 import FieldDialog from './field-dialog.vue'
+import KanbanView from './kanban-view.vue'
 import TableCell from './table-cell.vue'
 import { FIELD_TYPE_LABELS } from './types'
+import { useSmartAi } from './use-smart-ai'
 import { useTableDoc } from './use-table-doc'
 
 /**
- * 智慧表格演示页（P2：表格视图）：7 种类型化字段的行内编辑、行/字段管理、
- * 演示表持久化（`useTableDoc` 内防抖整表 PUT，刷新后数据保留）。
- * 数据结构契约见 `types.ts` 与参考服务 `server/smart-table.ts`。
+ * 智慧表格演示页：7 种类型化字段的行内编辑、行/字段管理、表格 ↔ 看板视图切换、
+ * AI 生成 / 整理面板（`useSmartAi`），演示表持久化（`useTableDoc` 内防抖整表 PUT，
+ * 刷新后数据保留）。数据结构契约见 `types.ts` 与参考服务 `server/smart-table.ts`。
  */
 const { doc, saveState, load, addRow: appendRow, removeRow, addField, removeField } = useTableDoc()
+
+// 顶层解构使 targetOptions（ComputedRef）在模板里自动解包
+const { state: aiState, targetOptions: aiTargetOptions, run: runAi } = useSmartAi(doc, addField)
+
+/** 视图切换（本地记忆即可，不持久化） */
+type ViewMode = 'table' | 'kanban'
+const view = ref<ViewMode>('table')
+const viewItems = [
+  { label: '表格', value: 'table' },
+  { label: '看板', value: 'kanban' }
+]
 
 const statusText = computed(
   () =>

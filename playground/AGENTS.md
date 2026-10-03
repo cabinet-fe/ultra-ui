@@ -27,7 +27,7 @@ bun run server     # 仅参考服务（填报 + DeepSeek 代理 + 智慧表格�
 - `src/sheet/index.vue` → `/sheet/index`
 - `src/sheet-big-data/index.vue` → `/sheet-big-data/index`（大数据量演示 + 性能基线）
 - `src/sheet-data-entry/index.vue` → `/sheet-data-entry/index`（在线填报：单元格级只读 + 按单元格持久化演示）
-- `src/smart-table/index.vue` → `/smart-table/index`（智慧表格：7 种类型化字段行内编辑 + 行/字段管理 + 演示表防抖整表持久化）
+- `src/smart-table/index.vue` → `/smart-table/index`（智慧表格：7 种类型化字段行内编辑 + 行/字段管理 + 表格/看板视图切换 + AI 生成/整理面板 + 演示表防抖整表持久化）
 
 由 `import.meta.glob` 分别扫描 `desktop`、`icons`、`ai-chat` 与 `sheet` 目录自动生成；
 `src/sheet-big-data/index.vue`、`src/sheet-data-entry/index.vue`、`src/smart-table/index.vue` 等因 glob 首段为字面段（`./src/sheet/**` 不匹配 `sheet-big-data`），
@@ -78,7 +78,7 @@ src/ai-chat/fake-session.ts   # 页内 ChatSessionAdapter，不发真实 session
 src/sheet/index.vue           # @veltra/sheet 电子表格预览（数据结构观察区 JSON 区块懒渲染 + 超 1 万行截断：避免 65 万 span 的整页布局/绘制秒级卡顿；完整数据走复制/放大，不受截断影响）
 src/sheet-big-data/index.vue  # @veltra/sheet 大数据量演示（Phase 6：10 万行写入/渲染/查找/导出 + 样式池去重）
 src/sheet-data-entry/index.vue # 在线填报演示（年度预算：多 sheet 走内置标签栏；明细表为「编制项目 × 部门金额」矩阵 + 行列合计公式，汇总页跨表公式联动；提交前校验标红定位 + 提交后整表锁定；单元格级只读 setRangeReadonly/setCellReadonly；按「sheet+格」防抖保存到 /report-api/data-entry）
-src/smart-table/               # 智慧表格演示（多维表格示例：index.vue 表格视图，types.ts 契约类型，use-table-doc.ts 加载/防抖整表 PUT 持久化，table-cell.vue 按字段类型分发行内编辑，field-dialog.vue 新增字段对话框）
+src/smart-table/               # 智慧表格演示（多维表格示例：index.vue 页面编排与表格/看板视图切换，types.ts 契约类型，use-table-doc.ts 加载/防抖整表 PUT 持久化，table-cell.vue 按字段类型分发行内编辑，field-dialog.vue 新增字段对话框，kanban-view.vue 按单选字段分组的看板视图，ai-panel.vue AI 生成/整理面板，use-smart-ai.ts AI 提示词拼装/SSE 消费与回填）
 ```
 
 ## 浏览器调试
