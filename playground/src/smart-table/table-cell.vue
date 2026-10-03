@@ -10,7 +10,7 @@
         {{ item }}
       </u-tag>
     </template>
-    <u-progress v-else-if="field.type === 'progress'" :percentage="progressModel" />
+    <u-progress v-else-if="field.type === 'progress'" :percentage="progressModel" type="primary" />
     <span v-else-if="isEmpty" class="smart-table__cell-empty">—</span>
     <span v-else class="smart-table__cell-text">{{ model }}</span>
   </div>
@@ -72,7 +72,8 @@ import type { CellValue, TableField } from './types'
  */
 const props = defineProps<{ field: TableField; active: boolean }>()
 
-const model = defineModel<CellValue>({ required: true })
+/** 缺键（undefined）也是合法空值（服务端契约「缺键或 null 表示空单元格」），故不设 required */
+const model = defineModel<CellValue>()
 
 const emit = defineEmits<{ edit: []; exit: [] }>()
 
