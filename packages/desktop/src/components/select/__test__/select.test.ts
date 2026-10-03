@@ -171,6 +171,73 @@ describe('USelect', () => {
     }
   })
 
+  it('falls back to text when modelValue matches no option', async () => {
+    const { host, texts, unmount } = mountSelect({
+      modelValue: 'removed',
+      text: '已删除的选项',
+      options: [
+        { label: '北京', value: 'beijing' },
+        { label: '上海', value: 'shanghai' }
+      ]
+    })
+
+    try {
+      await nextTick()
+      await nextTick()
+      expect(host.querySelector('input')!.value).toBe('已删除的选项')
+
+      // 未命中且传了 text 兜底：不发送 update:text，父级 text 即事实来源
+      expect(texts).toHaveLength(0)
+    } finally {
+      unmount()
+    }
+  })
+
+  it('emits update:text undefined when unmatched echo has no text fallback', async () => {
+    const { host, model, texts, unmount } = mountSelect({
+      modelValue: 'beijing',
+      options: [
+        { label: '北京', value: 'beijing' },
+        { label: '上海', value: 'shanghai' }
+      ]
+    })
+
+    try {
+      await nextTick()
+      expect(texts.at(-1)).toBe('北京')
+
+      // 值改为不在选项中的值且无 text 兜底：如实发出 undefined
+      model.value = 'removed'
+      await nextTick()
+      await nextTick()
+      expect(texts.at(-1)).toBeUndefined()
+      expect(host.querySelector('input')!.value).toBe('removed')
+    } finally {
+      unmount()
+    }
+  })
+
+  it('does not emit update:text in readonly', async () => {
+    const { host, texts, unmount } = mountSelect({
+      modelValue: 'beijing',
+      readonly: true,
+      options: [
+        { label: '北京', value: 'beijing' },
+        { label: '上海', value: 'shanghai' }
+      ]
+    })
+
+    try {
+      await nextTick()
+      await nextTick()
+      // readonly 纯展示：不触发 update:text，避免下游回写
+      expect(texts).toHaveLength(0)
+      expect(host.textContent).toContain('北京')
+    } finally {
+      unmount()
+    }
+  })
+
   it('emits update:text on user select and clear', async () => {
     const { host, model, texts, unmount } = mountSelect({
       filterable: true,

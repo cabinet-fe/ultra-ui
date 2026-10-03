@@ -180,14 +180,16 @@ const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, prop
 })
 
 const currentIndex = shallowRef(-1)
-/** 内部展示文案，仅由选项推导；通过 update:text 单向通知父级 */
+/** 内部展示文案，仅由选项推导（未命中时展示 text 兜底）；经 update:text 通知父级 */
 const label = shallowRef<string>()
 const selected = shallowRef<Record<string, any>>()
 
 const displayedValue = computed(() => {
   if (label.value) return label.value
 
-  return selected.value ? o(selected.value).get(labelKey.value) : String(props.modelValue ?? '')
+  if (selected.value) return o(selected.value).get(labelKey.value)
+  // 未命中选项：优先展示 text 兜底文案，避免露出不可读的编码
+  return props.text ?? String(props.modelValue ?? '')
 })
 
 const dropdownRef = shallowRef<DropdownExposed>()
@@ -260,11 +262,11 @@ function handleTriggerClickCapture(e: MouseEvent) {
 
 const { userAction, isUserActive } = useUserAction()
 
-/** 更新内部文案；值变化时单向 emit update:text */
+/** 更新内部文案；值变化时 emit update:text（readonly 纯展示，不通知父级） */
 function setLabel(next?: string) {
   if (label.value === next) return
   label.value = next
-  emit('update:text', next)
+  if (!readonly.value) emit('update:text', next)
 }
 
 /** 按 modelValue 与完整选项列表同步高亮索引、选中项与显示标签（外部回显用，O(n)） */
@@ -282,7 +284,15 @@ function syncSelected(modelValue: any, sourceOptions: Record<string, any>[] | un
       (option) => o(option).get(valueKey.value) === modelValue
     )
     selected.value = currentIndex.value >= 0 ? sourceOptions[currentIndex.value] : undefined
-    setLabel(selected.value ? o(selected.value).get(labelKey.value) : undefined)
+    if (selected.value) {
+      setLabel(o(selected.value).get(labelKey.value))
+    } else if (props.text) {
+      // 未命中但有 text 兜底：文案以父级为准，不回发
+      label.value = undefined
+    } else {
+      // 未命中且无兜底：如实通知父级当前没有可展示文案
+      setLabel(undefined)
+    }
   } else {
     currentIndex.value = -1
     selected.value = undefined

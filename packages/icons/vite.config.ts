@@ -4,7 +4,10 @@ import { defineConfig } from 'vite-plus'
 const config = {
   run: {
     tasks: {
-      build: { command: 'bun run icons:gen && bun run icons:build-vue', output: ['dist/**'] }
+      build: {
+        command: 'bun run icons:gen && bun run icons:build-vue',
+        cache: { output: ['dist/**'] }
+      }
     }
   },
 

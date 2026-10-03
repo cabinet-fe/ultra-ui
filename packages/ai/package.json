@@ -39,7 +39,7 @@
     }
   },
   "dependencies": {
-    "markstream-vue": "^2.0.11"
+    "markstream-vue": "^2.0.13"
   },
   "peerDependencies": {
     "@veltra/compositions": "^1.7.14",
@@ -47,6 +47,6 @@
     "@veltra/icons": "^1.5.0",
     "@veltra/styles": "^1.7.14",
     "@veltra/utils": "^1.7.14",
-    "vue": ">=3.5.42"
+    "vue": ">=3.5.43"
   }
 }

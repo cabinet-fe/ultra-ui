@@ -29,6 +29,19 @@
 
       <u-button type="primary" @click="handleClick">获取默认值</u-button>
     </CustomCard>
+
+    <CustomCard width="480px" title="未命中选项时的兜底文案（text）">
+      <div style="font-size: 12px; color: #666; margin-bottom: 8px">
+        modelValue 路径不在 data 中时（如选项已被删除的回显数据）展示 text，避免露出编码
+      </div>
+      <u-cascade
+        v-model="missingValue"
+        :data="data"
+        label-key="name"
+        value-key="code"
+        text="已删除的地区"
+      />
+    </CustomCard>
   </div>
 </template>
 <script lang="ts" setup>
@@ -38,6 +51,9 @@ import CustomCard from '../card/custom-card.vue'
 import { area } from './area.js'
 
 const value = shallowRef()
+
+/** 兜底回显：路径不在 data 中，展示 text 兜底文案 */
+const missingValue = shallowRef('99/9999/999999')
 
 const propsModel = reactive({
   multiple: false,

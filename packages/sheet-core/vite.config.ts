@@ -20,7 +20,7 @@ export default defineConfig({
     }
   },
 
-  run: { tasks: { build: { command: 'vp pack', output: ['dist/**'] } } },
+  run: { tasks: { build: { command: 'vp pack', cache: { output: ['dist/**'] } } } },
 
   pack: {
     // core/io/import 与 core/events 是深导入通道（不在主入口白名单，见 AGENTS.md）：

@@ -16,6 +16,11 @@ export interface SelectProps extends FormComponentProps {
   valueKey?: string
   /** 标签字段 */
   labelKey?: string
+  /**
+   * 兜底展示文案
+   * @description modelValue 未命中选项时展示 text（如回显数据已不在选项中），命中时展示选项 label
+   */
+  text?: string
   /** 是否可清除 */
   clearable?: boolean
   /** 占位符 */
@@ -54,8 +59,9 @@ export interface SelectProps extends FormComponentProps {
 
 export interface SelectEmits {
   /**
-   * 选中项文案变化（单向通知，用于同步父级冗余字段）
-   * @description 展示始终由 options 推导，请用 `@update:text` 而非 `v-model:text`
+   * 选中项文案变化（用于同步父级冗余字段）
+   * @description 命中选项时发出 label，清空时发出 undefined；未命中选项时，
+   * 传了 text 兜底则不发出（父级文案已是事实来源），未传 text 时发出 undefined；readonly 下不发出
    */
   (e: 'update:text', text?: string): void
   (e: 'update:modelValue', modelValue?: any): void

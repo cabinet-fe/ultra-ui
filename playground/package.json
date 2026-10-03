@@ -23,12 +23,12 @@
     "@veltra/styles": "workspace:*",
     "@veltra/utils": "workspace:*",
     "infinitable": "^0.1.0",
-    "vue": "^3.5.42",
+    "vue": "^3.5.43",
     "vue-router": "^5.3.1"
   },
   "devDependencies": {
     "@hono/node-server": "^2.1.1",
     "@veltra/vite": "workspace:*",
-    "hono": "^4.13.7"
+    "hono": "^4.13.9"
   }
 }

@@ -11,6 +11,12 @@ export interface TreeSelectProps
   modelValue?: string | number
 
   /**
+   * 兜底展示文案
+   * @description modelValue 未命中树节点时展示 text（如回显数据已不在选项中），命中时展示节点 label
+   */
+  text?: string
+
+  /**
    * 树数据
    * @description 如果传入一个函数，那么filterable会被强制启用；
    * 函数按查询词返回匹配的树，初始以空串调用一次（加载默认树）
@@ -53,8 +59,9 @@ export interface TreeSelectEmits {
   (e: 'update:modelValue', value?: string | number): void
   (e: 'change', selectedData?: Record<string, any>): void
   /**
-   * 选中项文案变化（单向通知，用于同步父级冗余字段）
-   * @description 展示始终由 data 推导，请用 `@update:text` 而非 `v-model:text`
+   * 选中项文案变化（用于同步父级冗余字段）
+   * @description 命中节点时发出 label，清空时发出 undefined；未命中节点时，
+   * 传了 text 兜底则不发出（父级文案已是事实来源），未传 text 时发出 undefined；readonly 下不发出
    */
   (e: 'update:text', text?: string): void
 }

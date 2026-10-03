@@ -1,6 +1,6 @@
 ---
 title: UTreeSelect 树选择器
-description: '从 @veltra/desktop 导入的树形单选下拉选择器：下拉面板内嵌 UTree，绑定所选节点的值，支持关键字过滤、禁用节点、清空与 UForm 内 field 绑定校验。'
+description: '从 @veltra/desktop 导入的树形单选下拉选择器：下拉面板内嵌 UTree，绑定所选节点的值，支持关键字过滤、禁用节点、清空与 UForm 内 field 绑定校验。未命中节点时以 text 兜底展示。'
 aliases: [TreeSelect, tree-select, 树形选择器, 树形下拉]
 keywords:
   [
@@ -15,12 +15,14 @@ keywords:
     expandAll,
     field,
     data,
+    text,
     关键字过滤,
     远程搜索,
     树形数据,
     下拉树,
     禁用节点,
     冗余文案同步,
+    兜底文案,
     表单绑定
   ]
 ---
@@ -107,6 +109,8 @@ export interface FormComponentProps {
 export interface TreeSelectProps extends FormComponentProps {
   /** 选中节点的值（valueKey 字段值），单选 */
   modelValue?: string | number
+  /** 兜底展示文案：modelValue 未命中节点时展示，命中时展示节点 label */
+  text?: string
   /**
    * 数据源。传入函数时启用远程搜索：函数按查询词返回匹配的树，
    * 初始以空串调用一次，输入变化以 200ms 防抖调用，此时 filterable 被强制开启
@@ -146,7 +150,11 @@ export interface TreeSelectEmits {
   (e: 'update:modelValue', value?: string | number): void
   /** 选中节点的完整数据对象；清空时为 undefined */
   (e: 'change', selectedData?: Record<string, any>): void
-  /** 选中项文案变化（单向通知，用于同步父级冗余字段） */
+  /**
+   * 选中项文案变化（用于同步父级冗余字段）。
+   * 命中节点时发出 label，清空时发出 undefined；未命中节点时，
+   * 传了 text 兜底则不发出（父级文案已是事实来源），未传 text 时发出 undefined；readonly 下不发出
+   */
   (e: 'update:text', text?: string): void
 }
 
@@ -160,8 +168,9 @@ export type TreeSelectExposed = {}
 
 | 参数                | 类型                                                                                                 | 默认             | 必填 | 约束                                                                                                                             |
 | ------------------- | ---------------------------------------------------------------------------------------------------- | ---------------- | :--: | -------------------------------------------------------------------------------------------------------------------------------- |
-| `v-model`           | `string \| number`                                                                                   | —                |  否  | 必须等于 `data` 中某节点的 `valueKey` 字段值；清空后写入 `''`                                                                    |
+| `v-model`           | `string \| number`                                                                                   | —                |  否  | 必须等于 `data` 中某节点的 `valueKey` 字段值；清空后写入 `''`；不在 `data` 中时展示 `text` 兜底文案                              |
 | `data`              | `Record<string, any>[] \| ((qs: string) => Promise<Record<string, any>[]> \| Record<string, any>[])` | `[]`             |  否  | 数组为本地数据，须一次性传入全部层级；传函数时启用远程搜索，`filterable` 强制开启，初始以空串调用一次，输入变化以 200ms 防抖调用 |
+| `text`              | `string`                                                                                             | —                |  否  | 兜底展示文案：`modelValue` 未命中节点时展示（如回显数据对应节点已删除），命中时展示节点 label                                    |
 | `labelKey`          | `string`                                                                                             | `'label'`        |  否  | 回显文案读取该字段                                                                                                               |
 | `valueKey`          | `string`                                                                                             | `'value'`        |  否  | 值比对与提交读取该字段                                                                                                           |
 | `childrenKey`       | `string`                                                                                             | `'children'`     |  否  | 子级数组字段名                                                                                                                   |
@@ -190,7 +199,7 @@ export type TreeSelectExposed = {}
 | ------------------- | ------------------------------------ | ---------------------------------------------------------------------- |
 | `update:modelValue` | `value?: string \| number`           | 点选节点或清空；清空时为 `''`                                          |
 | `change`            | `selectedData?: Record<string, any>` | 点选节点（payload 为节点完整数据对象）或清空（payload 为 `undefined`） |
-| `update:text`       | `text?: string`                      | 选中项文案变化，值为节点 `labelKey` 字段值；清空时为 `undefined`       |
+| `update:text`       | `text?: string`                      | 命中节点时为节点 `labelKey` 字段值；清空时为 `undefined`；未命中且传了 `text` 时不发出（父级文案即事实来源），未传 `text` 时发出 `undefined`；`readonly` 下一律不发出 |
 | `clear`             | —                                    | 点击清除按钮                                                           |
 
 组件 ref 上没有可调用的暴露方法。
@@ -263,15 +272,15 @@ const data = [
 </template>
 ```
 
-### 同步冗余文案（@update:text）
+### 同步冗余文案与未命中兜底（v-model:text）
 
 ```vue
 <script setup lang="ts">
 import { reactive } from 'vue'
 import { UTreeSelect } from '@veltra/desktop'
 
-// text 是冗余文案：展示始终由 data 推导，父级只经事件存储，不回写
-const form = reactive({ code: 'chaoyang', text: '' })
+// text 是冗余文案：命中节点时组件把它同步为节点 label；未命中节点时（如节点已删除）展示 text 兜底
+const form = reactive({ code: 'chaoyang', text: '旧文案' })
 
 const data = [
   {
@@ -286,13 +295,7 @@ const data = [
 </script>
 
 <template>
-  <UTreeSelect
-    v-model="form.code"
-    :data="data"
-    expand-all
-    clearable
-    @update:text="form.text = $event ?? ''"
-  />
+  <UTreeSelect v-model="form.code" v-model:text="form.text" :data="data" expand-all clearable />
   <p>值：{{ form.code || '—' }}；文案：{{ form.text || '—' }}</p>
 </template>
 ```
@@ -333,7 +336,7 @@ async function searchRegion(qs: string) {
 >
 > - 在 `<u-form>` 内必须用 `field` 绑定字段，禁止再写 `v-model`。
 > - `v-model` 的值是节点 `valueKey` 字段值（`string | number`），不是节点对象，也不是路径字符串。
-> - `update:text` 是单向通知事件，本库没有 `v-model:text`；展示文案始终由 `data` 反查推导，禁止手工写文案回显。
+> - 展示文案由 `data` 反查推导，未命中节点时展示 `text` 兜底文案；同步冗余文案用 `v-model:text`（或 `@update:text`）。未命中且传了 `text` 时组件不发送该事件（父级文案即事实来源），未传 `text` 时发出 `undefined`；`readonly` 下一律不发送。
 > - `data` 传数组时没有懒加载：必须一次性传入全部层级，本库不存在 `load` / `lazy` 属性（不要套用 Element `el-tree-select` 的懒加载写法）；需要按查询词从服务端取数时把 `data` 写成函数。
 > - 内部固定单选（`selectable`）；继承自 `TreeProps` 的 `checkStrictly` / `checkOnClickNode` 在本组件不生效，勾选行为属于 `UMultiTreeSelect`。
 > - `clearable` 默认 `true`，清空后 `modelValue` 为 `''`，不是 `undefined`。

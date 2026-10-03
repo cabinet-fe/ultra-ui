@@ -9,7 +9,7 @@ export default defineConfig({
   resolve: { conditions: ['veltra-dev', 'module', 'import', 'browser', 'default'] },
   ssr: { resolve: { conditions: ['veltra-dev', 'module', 'import', 'browser', 'default'] } },
 
-  run: { tasks: { build: { command: 'vp pack', output: ['dist/**'] } } },
+  run: { tasks: { build: { command: 'vp pack', cache: { output: ['dist/**'] } } } },
 
   test: { include: ['src/**/*.test.ts'], globals: true },
 

@@ -1,5 +1,17 @@
 # @veltra/desktop
 
+## 1.8.5
+
+### Patch Changes
+
+- 7dfb997: file-viewer PDF 预览的 pdfium wasm 改为经 `@embedpdf/pdfium/pdfium.wasm?url` 随消费方构建产物本地分发，替换 jsdelivr CDN 默认地址，企业离线环境可正常渲染；同时修复 wasm 相对地址在 blob: worker 内无法解析导致的引擎静默初始化失败
+
+## 1.8.4
+
+### Patch Changes
+
+- efcdf82: 选择类组件支持 `text` 兜底文案：`u-select` / `u-tree-select` / `u-cascade` 的 `modelValue` 未命中选项时（如回显数据对应的选项已被删除），展示 `text` 属性文案，避免露出不可读的编码。`update:text`（`u-select` / `u-tree-select`）规则：命中时发出 label、清空时发出 `undefined`；未命中且传了 `text` 时不发出（父级文案即事实来源），未传 `text` 时发出 `undefined`（与旧行为一致）；`readonly` 下一律不发出。`u-select` / `u-tree-select` 可直接 `v-model:text` 绑定冗余字段。
+
 ## 1.8.3
 
 ### Patch Changes

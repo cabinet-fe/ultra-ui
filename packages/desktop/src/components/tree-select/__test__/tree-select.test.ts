@@ -122,6 +122,55 @@ describe('UTreeSelect', () => {
     }
   })
 
+  it('falls back to text when modelValue matches no node', async () => {
+    const { host, texts, unmount } = mountTreeSelect({
+      modelValue: 'removed',
+      text: '已删除的节点'
+    })
+
+    try {
+      await nextTick()
+      expect(host.querySelector('input')!.value).toBe('已删除的节点')
+
+      // 未命中且传了 text 兜底：不发送 update:text，父级 text 即事实来源
+      expect(texts).toHaveLength(0)
+    } finally {
+      unmount()
+    }
+  })
+
+  it('emits update:text undefined when unmatched echo has no text fallback', async () => {
+    const { host, model, texts, unmount } = mountTreeSelect({ modelValue: 'beijing' })
+
+    try {
+      await nextTick()
+      expect(texts.at(-1)).toBe('北京')
+
+      // 值改为不在数据中的值且无 text 兜底：如实发出 undefined
+      model.value = 'removed'
+      await nextTick()
+      await nextTick()
+      expect(texts.at(-1)).toBeUndefined()
+      expect(host.querySelector('input')!.value).toBe('')
+    } finally {
+      unmount()
+    }
+  })
+
+  it('does not emit update:text in readonly', async () => {
+    const { host, texts, unmount } = mountTreeSelect({ modelValue: 'chaoyang', readonly: true })
+
+    try {
+      await nextTick()
+      await nextTick()
+      // readonly 纯展示：不触发 update:text，避免下游回写
+      expect(texts).toHaveLength(0)
+      expect(host.textContent).toContain('朝阳区（最新）')
+    } finally {
+      unmount()
+    }
+  })
+
   it('emits update:text after data arrives for an existing modelValue', async () => {
     const { host, data, texts, unmount } = mountTreeSelect({ modelValue: 'shanghai', data: [] })
 

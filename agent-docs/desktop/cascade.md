@@ -1,6 +1,6 @@
 ---
 title: UCascade 级联选择器
-description: '从 @veltra/desktop 导入的级联选择器：逐级下钻选择层级数据，单选提交从根到叶的路径值（可切换为仅叶子值），支持多选勾选、面板内关键字过滤与自定义字段。'
+description: '从 @veltra/desktop 导入的级联选择器：逐级下钻选择层级数据，单选提交从根到叶的路径值（可切换为仅叶子值），支持多选勾选、面板内关键字过滤与自定义字段。未命中数据时以 text 兜底展示。'
 aliases: [Cascade, cascade, 级联选择, Cascader, 级联面板]
 keywords:
   [
@@ -15,12 +15,14 @@ keywords:
     valueKey,
     childrenKey,
     update:label,
+    text,
     级联选择,
     逐级选择,
     路径值,
     多选级联,
     层级数据,
-    省市区选择
+    省市区选择,
+    兜底文案
   ]
 ---
 
@@ -133,6 +135,8 @@ export interface CascadeProps extends FormComponentProps {
   data?: Record<string, any>[]
   /** 标签字段名，默认 'label' */
   labelKey?: string
+  /** 兜底展示文案（仅单选）：modelValue 未命中数据时展示，命中时展示节点 label 路径 */
+  text?: string
   /** 值字段名，默认 'value' */
   valueKey?: string
   /** 子级字段名，默认 'children' */
@@ -189,6 +193,7 @@ export type CascadeExposed = {}
 | `v-model`         | `string \| string[]`              | —            |  否  | 单选见「方法与事件」的取值模式；多选时为节点值数组                                       |
 | `data`            | `Record<string, any>[]`           | `[]`         |  否  | 树形数组；无 `childrenKey` 字段的节点即叶子；无懒加载，必须一次性传入全部层级            |
 | `labelKey`        | `string`                          | `'label'`    |  否  | 展示文案读取该字段                                                                       |
+| `text`            | `string`                          | —            |  否  | 兜底展示文案（仅单选）：`modelValue` 未命中数据时展示（如回显路径已不在选项中），命中时展示 label 路径 |
 | `valueKey`        | `string`                          | `'value'`    |  否  | 路径拼接与回显映射读取该字段；取值必须为字符串且全树唯一，数值或重复值会导致回显映射失败 |
 | `childrenKey`     | `string`                          | `'children'` |  否  | 子级数组字段名                                                                           |
 | `separator`       | `string`                          | `'/'`        |  否  | 路径分隔符，既是提交值分隔符也是回显拆分符                                               |
@@ -212,8 +217,8 @@ export type CascadeExposed = {}
 
 `modelValue` 的取值模式（按源码写死）：
 
-- 单选 + `showFullPath: true`（默认）：`modelValue` 为从根到叶各节点 `valueKey` 值用 `separator` 拼接的字符串，如 `'east/hz'`；回显文案为对应 `labelKey` 值拼接。
-- 单选 + `showFullPath: false`：`modelValue` 仅叶子节点的 `valueKey` 值，如 `'hz'`；回显仅显示叶子 label。
+- 单选 + `showFullPath: true`（默认）：`modelValue` 为从根到叶各节点 `valueKey` 值用 `separator` 拼接的字符串，如 `'east/hz'`；回显文案为对应 `labelKey` 值拼接，末级节点未命中时整个值视为无效，展示 `text` 兜底文案。
+- 单选 + `showFullPath: false`：`modelValue` 仅叶子节点的 `valueKey` 值，如 `'hz'`；回显仅显示叶子 label，未命中时展示 `text` 兜底文案。
 - `multiple: true`：`modelValue` 为字符串数组，每个元素是勾选节点自身的 `valueKey` 值（不含路径，与 `showFullPath` 无关）。
 
 选择行为：点击节点展开下一级面板；单选非 `strict` 时点击任意层级节点即提交当前路径（叶子节点提交后关闭面板）；`strict` 时仅叶子节点提交。多选通过节点前 checkbox 勾选，勾选任意节点会连带勾选其全部子孙（父子始终联动，无独立开关）。
@@ -265,6 +270,37 @@ function handleChange(item: Record<string, any> | undefined, fullLabel?: string)
 <template>
   <!-- 自定义分隔符：提交值形如 'zj > hz' -->
   <UCascade v-model="region" :data="data" separator=" > " @change="handleChange" />
+</template>
+```
+
+### 回显未命中数据时兜底展示（text）
+
+```vue
+<script setup lang="ts">
+import { reactive } from 'vue'
+import { UCascade } from '@veltra/desktop'
+
+// 编辑回显：后端存了路径值与冗余文案；当前 data 已不含该路径（如区划调整）
+const form = reactive<{ path?: string; text?: string }>({
+  path: 'old/removed-district',
+  text: '原某某区（已撤并）'
+})
+
+const data = [
+  {
+    value: 'zj',
+    label: '浙江',
+    children: [
+      { value: 'hz', label: '杭州' },
+      { value: 'nb', label: '宁波' }
+    ]
+  }
+]
+</script>
+
+<template>
+  <!-- 末级未命中时展示 text『原某某区（已撤并）』而非编码路径；重新选择后正常回显 label 路径 -->
+  <UCascade v-model="form.path" :data="data" :text="form.text" />
 </template>
 ```
 
@@ -351,15 +387,21 @@ const data = [
 > - `strict` 仅单选生效；`showFullPath` 仅单选生效。
 > - `valueKey` 字段值必须为字符串且全树唯一：回显靠「值 → 节点」映射，数值类型或重复值会映射失败。
 > - 没有懒加载：`data` 必须一次性传入全部层级，本库不存在 `load` / `lazy` 属性。
-> - `UCascade` 不提供插槽；选中项文案由 `data` 推导，需要同步到父级时监听 `update:label`（`CascadeProps` 上没有 `label` 属性）。
+> - `UCascade` 不提供插槽；选中项文案由 `data` 推导，未命中数据时（仅单选）展示 `text` 兜底文案；需要把选中 label 同步到父级时监听 `update:label`。`label` prop 是 UForm 标签文字，冗余兜底文案用 `text`，不要混用。
 
 ## 常见问题
 
 ### 设置了 `modelValue` 但输入框显示原始值或空白
 
-原因：路径拆分后与 `data` 中 `valueKey` 字段值对不上——常见于 `separator` 与提交时不一致，或值不是字符串。修复：保证回显值的分隔符与 `separator` 一致、每段等于节点 `value` 字段值。
+两种原因：
+
+1. 路径拆分后与 `data` 中 `valueKey` 字段值对不上——常见于 `separator` 与提交时不一致，或值不是字符串。修复：保证回显值的分隔符与 `separator` 一致、每段等于节点 `value` 字段值。
+2. 路径对应的末级节点已被删除（如区划调整后回显旧数据）。修复：传 `text` 兜底文案。
 
 ```ts
-// separator 默认 '/'，回显值也必须用 '/' 拼接
+// 原因 1：separator 默认 '/'，回显值也必须用 '/' 拼接
 const region = ref<string>('zj/hz') // 'zj｜hz'、'zj-hz' 都无法回显
+
+// 原因 2：路径已不在 data 中，传入冗余文案兜底
+// <UCascade v-model="form.path" :data="data" :text="form.text" />
 ```

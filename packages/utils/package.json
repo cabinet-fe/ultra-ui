@@ -1,6 +1,6 @@
 {
   "name": "@veltra/utils",
-  "version": "1.8.3",
+  "version": "1.8.5",
   "homepage": "https://github.com/cabinet-fe/ultra-ui#readme",
   "bugs": {
     "url": "https://github.com/cabinet-fe/ultra-ui/issues"
@@ -32,6 +32,6 @@
   },
   "peerDependencies": {
     "@cat-kit/core": ">=1.2.1",
-    "vue": ">=3.5.42"
+    "vue": ">=3.5.43"
   }
 }

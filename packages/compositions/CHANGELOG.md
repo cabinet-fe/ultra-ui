@@ -1,5 +1,13 @@
 # @veltra/compositions
 
+## 1.8.5
+
+No changes in this release.
+
+## 1.8.4
+
+No changes in this release.
+
 ## 1.8.3
 
 No changes in this release.
