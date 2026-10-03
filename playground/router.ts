@@ -20,6 +20,10 @@ const sheetBigDataModules = import.meta.glob<{ default: RouteComponent }>(
 const sheetDataEntryModules = import.meta.glob<{ default: RouteComponent }>(
   './src/sheet-data-entry/index.vue'
 )
+// 顶层独立演示页（智慧表格多维表格示例，独立于 sheet 演示）
+const smartTableModules = import.meta.glob<{ default: RouteComponent }>(
+  './src/smart-table/**/index.vue'
+)
 
 const modules = {
   ...desktopModules,
@@ -27,7 +31,8 @@ const modules = {
   ...aiChatModules,
   ...sheetModules,
   ...sheetBigDataModules,
-  ...sheetDataEntryModules
+  ...sheetDataEntryModules,
+  ...smartTableModules
 }
 const paths = Object.keys(modules)
 
