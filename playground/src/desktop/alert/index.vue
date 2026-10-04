@@ -11,6 +11,10 @@
       />
     </CustomCard>
 
+    <CustomCard title="仅标题 + show-icon">
+      <u-alert v-for="item of types" :key="item" :type="item" :title="titles[item]" show-icon />
+    </CustomCard>
+
     <CustomCard title="可关闭">
       <u-alert
         v-for="(item, index) of closableAlerts"

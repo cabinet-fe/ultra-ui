@@ -3,17 +3,21 @@
 
 $root-name: 'timeline';
 
-// 节点几何：12px 圆点，尾线 2px 居中对齐圆点圆心
+// 首行行高系数：与根 line-height 保持一致，圆点、尾线、时间戳的对齐基准由它派生
+$line-ratio: 1.6;
+// 内容首行行盒高度：圆点垂直中心的对齐目标
+$first-line: calc(#{fn.use-var(font-size-main, default)} * #{$line-ratio});
+// 圆点直径（几何常量）
 $node-size: 12px;
-$node-top: 3px;
-$tail-left: 5px;
+// 尾线宽度（几何常量）
+$tail-width: 2px;
 
 @include m.b($root-name) {
   margin: 0;
   padding: 0;
   list-style: none;
   font-size: fn.use-var(font-size-main, default);
-  line-height: 1.6;
+  line-height: $line-ratio;
   color: fn.use-var(text-color, main);
 
   @include m.e(item) {
@@ -21,49 +25,57 @@ $tail-left: 5px;
     padding-left: calc(#{$node-size} + fn.use-var(gap, default));
     padding-bottom: fn.use-var(gap, large);
 
-    &:last-child {
-      padding-bottom: 0;
+    // 尾线：伪元素绘制，起点在圆点下方一个小间距，水平中心与圆点同心
+    &::before {
+      content: '';
+      position: absolute;
+      left: calc((#{$node-size} - #{$tail-width}) / 2);
+      top: calc((#{$first-line} + #{$node-size}) / 2 + fn.use-var(gap, small));
+      bottom: 0;
+      border-left: #{$tail-width} solid fn.use-var(border-color);
+    }
 
-      #{fn.bem($root-name, tail)} {
-        display: none;
-      }
+    &:last-child::before {
+      display: none;
     }
   }
 
-  @include m.e(tail) {
-    position: absolute;
-    left: $tail-left;
-    top: calc(#{$node-top} + #{$node-size} + fn.use-var(gap, small));
-    bottom: 0;
-    border-left: 2px solid fn.use-var(border-color);
-  }
-
+  // 节点盒：高度等于首行行盒，盒内垂直居中即与首行文字中心对齐（纯 CSS，自定义 #dot 同样适用）
   @include m.e(node) {
     position: absolute;
     left: 0;
-    top: $node-top;
+    top: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-sizing: border-box;
     width: $node-size;
-    height: $node-size;
-    border-radius: 50%;
-    background-color: fn.use-var(border-color);
+    height: $first-line;
+
+    // 默认圆点
+    &::before {
+      content: '';
+      width: $node-size;
+      height: $node-size;
+      border-radius: 50%;
+      background-color: fn.use-var(border-color);
+    }
 
     // 语义色圆点
     @each $type in (primary, success, warning, danger) {
       @include m.m(#{$type}) {
-        background-color: fn.use-var(color, $type);
+        &::before {
+          background-color: fn.use-var(color, $type);
+        }
       }
     }
 
-    // 自定义节点（#dot 插槽）：取消圆形底色，尺寸交由插槽内容决定
+    // 自定义节点（#dot 插槽）：隐藏默认圆点，插槽内容在首行行盒内垂直居中
     @include m.is(custom) {
-      top: calc(#{$node-top} - fn.use-var(gap, small) / 2);
       width: auto;
-      height: auto;
-      background-color: transparent;
+
+      &::before {
+        display: none;
+      }
     }
   }
 
@@ -75,6 +87,8 @@ $tail-left: 5px;
     margin-top: fn.use-var(gap, small);
     color: fn.use-var(text-color, second);
     font-size: fn.use-var(font-size, main, small);
+    // 行盒与内容首行等高，timestamp-placement 为 top 时与圆点共用对齐基准
+    line-height: $first-line;
   }
 
   // 时间戳在内容上方时改为下间距

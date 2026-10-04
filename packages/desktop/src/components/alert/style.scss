@@ -11,12 +11,16 @@ $color-map: (
   error: danger
 );
 
+// 首行行高系数：与根 line-height 保持一致，图标盒的对齐基准由它派生
+$line-ratio: 1.6;
+
 @include m.b($root-name) {
   @include m.flex(flex, flex-start, flex-start);
   gap: fn.use-var(gap, default);
   padding: fn.use-var(gap, default);
   border-radius: fn.use-var(radius, default);
-  line-height: 1.6;
+  font-size: fn.use-var(font-size-main, default);
+  line-height: $line-ratio;
   word-break: break-word;
 
   @each $type, $token in $color-map {
@@ -27,10 +31,11 @@ $color-map: (
     }
   }
 
+  // 图标盒与标题首行行盒等高：根为 flex-start 时两者顶边对齐，垂直中心即与首行文字中心对齐（纯 CSS）
   @include m.e(icon) {
     flex-shrink: 0;
+    height: calc(#{fn.use-var(font-size-main, default)} * #{$line-ratio});
     font-size: fn.use-var(font-size, main, large);
-    align-self: center;
   }
 
   @include m.e(content) {

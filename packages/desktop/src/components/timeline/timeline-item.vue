@@ -1,6 +1,5 @@
 <template>
   <li :class="cls.e('item')">
-    <div :class="cls.e('tail')" />
     <div :class="nodeClass">
       <slot name="dot" />
     </div>
