@@ -1,0 +1,89 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: 'timeline';
+
+// 节点几何：12px 圆点，尾线 2px 居中对齐圆点圆心
+$node-size: 12px;
+$node-top: 3px;
+$tail-left: 5px;
+
+@include m.b($root-name) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: fn.use-var(font-size-main, default);
+  line-height: 1.6;
+  color: fn.use-var(text-color, main);
+
+  @include m.e(item) {
+    position: relative;
+    padding-left: calc(#{$node-size} + fn.use-var(gap, default));
+    padding-bottom: fn.use-var(gap, large);
+
+    &:last-child {
+      padding-bottom: 0;
+
+      #{fn.bem($root-name, tail)} {
+        display: none;
+      }
+    }
+  }
+
+  @include m.e(tail) {
+    position: absolute;
+    left: $tail-left;
+    top: calc(#{$node-top} + #{$node-size} + fn.use-var(gap, small));
+    bottom: 0;
+    border-left: 2px solid fn.use-var(border-color);
+  }
+
+  @include m.e(node) {
+    position: absolute;
+    left: 0;
+    top: $node-top;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: $node-size;
+    height: $node-size;
+    border-radius: 50%;
+    background-color: fn.use-var(border-color);
+
+    // 语义色圆点
+    @each $type in (primary, success, warning, danger) {
+      @include m.m(#{$type}) {
+        background-color: fn.use-var(color, $type);
+      }
+    }
+
+    // 自定义节点（#dot 插槽）：取消圆形底色，尺寸交由插槽内容决定
+    @include m.is(custom) {
+      top: calc(#{$node-top} - fn.use-var(gap, small) / 2);
+      width: auto;
+      height: auto;
+      background-color: transparent;
+    }
+  }
+
+  @include m.e(wrapper) {
+    min-width: 0;
+  }
+
+  @include m.e(timestamp) {
+    margin-top: fn.use-var(gap, small);
+    color: fn.use-var(text-color, second);
+    font-size: fn.use-var(font-size, main, small);
+  }
+
+  // 时间戳在内容上方时改为下间距
+  @include m.em(timestamp, top) {
+    margin-top: 0;
+    margin-bottom: fn.use-var(gap, small);
+  }
+
+  @include m.e(content) {
+    word-break: break-word;
+  }
+}

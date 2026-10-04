@@ -1,0 +1,73 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: 'descriptions';
+
+@include m.b($root-name) {
+  font-size: fn.use-var(font-size-main, default);
+  line-height: 1.6;
+  color: fn.use-var(text-color, main);
+
+  @include m.e(header) {
+    margin-bottom: fn.use-var(gap, default);
+    font-weight: 600;
+    color: fn.use-var(text-color, main);
+  }
+
+  @include m.e(table) {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: separate;
+  }
+
+  @include m.e(label) {
+    padding: fn.use-var(gap, small) fn.use-var(gap, default);
+    text-align: start;
+    font-weight: 500;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(content) {
+    padding: fn.use-var(gap, small) fn.use-var(gap, default);
+    word-break: break-word;
+    color: fn.use-var(text-color, main);
+  }
+
+  // 尺寸档位：字号随根尺寸类切换，单元格垂直内边距随档位收紧/放宽
+  @include m.size using ($size) {
+    font-size: fn.use-var(font-size, main, $size);
+
+    #{fn.bem($root-name, label)},
+    #{fn.bem($root-name, content)} {
+      padding: fn.use-var(gap, $size) fn.use-var(gap, default);
+    }
+  }
+
+  // 垂直布局：键名行与内容行上下紧贴
+  @include m.m(vertical) {
+    #{fn.bem($root-name, label)} {
+      padding-bottom: 0;
+    }
+
+    #{fn.bem($root-name, content)} {
+      padding-top: fn.use-var(gap, small);
+    }
+  }
+
+  // 边框模式：单元格描边 + 键名底色，外层表格描边合成完整网格
+  @include m.is(bordered) {
+    #{fn.bem($root-name, table)} {
+      border-collapse: collapse;
+      border: fn.use-var(border-muted);
+    }
+
+    #{fn.bem($root-name, label)} {
+      background-color: fn.use-var(bg-color, middle);
+      border: fn.use-var(border-muted);
+    }
+
+    #{fn.bem($root-name, content)} {
+      border: fn.use-var(border-muted);
+    }
+  }
+}
