@@ -1,0 +1,51 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: rate;
+
+@include m.b($root-name) {
+  @include m.flex(inline-flex, flex-start, center);
+  gap: fn.use-var(gap, small);
+  font-size: fn.use-var(font-size, main, large);
+  outline: none;
+  border-radius: fn.use-var(radius, small);
+
+  @include m.is(disabled) {
+    cursor: not-allowed;
+    opacity: 0.55;
+  }
+
+  @include m.is(readonly) {
+    cursor: default;
+  }
+
+  @include m.is-not(readonly, disabled) {
+    cursor: pointer;
+
+    &:focus-visible {
+      box-shadow: fn.use-var(focus-ring);
+    }
+  }
+
+  @include m.e(item) {
+    position: relative;
+    display: inline-flex;
+  }
+
+  @include m.e(base) {
+    display: inline-flex;
+    color: fn.use-var(text-color, placeholder);
+  }
+
+  // 彩色层按分值裁剪宽度，叠在灰色底星上
+  @include m.e(overlay) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    pointer-events: none;
+    color: fn.component-var(rate, active-color, fn.use-var(color, warning));
+  }
+}

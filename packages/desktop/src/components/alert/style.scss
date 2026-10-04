@@ -1,0 +1,62 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: alert;
+
+// 语义类型 → 主题颜色 token（error 复用 danger）
+$color-map: (
+  info: info,
+  success: success,
+  warning: warning,
+  error: danger
+);
+
+@include m.b($root-name) {
+  @include m.flex(flex, flex-start, flex-start);
+  gap: fn.use-var(gap, default);
+  padding: fn.use-var(gap, default);
+  border-radius: fn.use-var(radius, default);
+  line-height: 1.6;
+  word-break: break-word;
+
+  @each $type, $token in $color-map {
+    @include m.m(#{$type}) {
+      color: fn.use-var(color, $token);
+      background-color: fn.use-var(color, $token, light-9);
+      border: 1px solid fn.use-var(color, $token, light-7);
+    }
+  }
+
+  @include m.e(icon) {
+    flex-shrink: 0;
+    font-size: fn.use-var(font-size, main, large);
+    align-self: center;
+  }
+
+  @include m.e(content) {
+    flex: 1;
+    min-width: 0;
+  }
+
+  @include m.e(title) {
+    font-weight: 600;
+  }
+
+  @include m.e(description) {
+    margin-top: fn.use-var(gap, small);
+    color: fn.use-var(text-color, second);
+    font-size: fn.use-var(font-size, main, small);
+  }
+
+  @include m.e(close) {
+    flex-shrink: 0;
+    cursor: pointer;
+    align-self: center;
+    opacity: 0.6;
+    transition: opacity fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
