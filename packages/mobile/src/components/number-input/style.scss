@@ -16,7 +16,8 @@ $root-name: number-input;
 
   @include m.e(suffix) {
     display: inline-flex;
-    align-items: center;
+    // 拉伸让清除按钮撑满输入行高度（行高 ≥44px）
+    align-items: stretch;
     height: 100%;
   }
 
@@ -27,7 +28,7 @@ $root-name: number-input;
   }
 
   @include m.e(clear) {
-    // 清除按钮：宽度 44px、高度撑满输入行，满足 44×44 触控热区
+    // 清除按钮：宽度 44px、高度撑满输入行内容盒（行高 ≥44px）
     min-width: 44px;
     align-self: stretch;
     display: inline-flex;

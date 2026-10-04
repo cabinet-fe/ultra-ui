@@ -76,7 +76,7 @@ $root-name: input;
   }
 
   @include m.e(clear) {
-    // 清除按钮：宽度 44px、高度撑满输入行，满足 44×44 触控热区
+    // 清除按钮：宽度 44px、高度撑满输入行内容盒（行高 ≥44px）
     min-width: 44px;
     align-self: stretch;
     border: none;
@@ -106,6 +106,8 @@ $root-name: input;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    // 撑满前后缀区高度，slot 内的清除/切换按钮（number-input 等）才能拉伸满输入行
+    align-self: stretch;
   }
 
   @include m.is(disabled) {

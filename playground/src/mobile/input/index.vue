@@ -43,6 +43,7 @@
 <script lang="ts" setup>
 import { UInput } from '@veltra/mobile'
 import { shallowRef } from 'vue'
+import '@veltra/mobile/components/input/style'
 
 const text = shallowRef('')
 const clearableText = shallowRef('可清除的内容')

@@ -27,6 +27,7 @@
 <script lang="ts" setup>
 import { UPasswordInput } from '@veltra/mobile'
 import { shallowRef } from 'vue'
+import '@veltra/mobile/components/password-input/style'
 
 const pwd = shallowRef('')
 const clearablePwd = shallowRef('secret')

@@ -11,7 +11,7 @@ $root-name: password-input;
   }
 
   @include m.e(clear, visibility-toggle) {
-    // 清除与可见性切换按钮：宽度 44px、高度撑满输入行，满足 44×44 触控热区
+    // 清除与可见性切换按钮：宽度 44px、高度撑满输入行内容盒（行高 ≥44px）
     min-width: 44px;
     align-self: stretch;
     display: inline-flex;

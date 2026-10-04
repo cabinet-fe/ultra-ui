@@ -34,6 +34,7 @@
 <script lang="ts" setup>
 import { UNumberInput } from '@veltra/mobile'
 import { shallowRef } from 'vue'
+import '@veltra/mobile/components/number-input/style'
 
 const count = shallowRef<number | undefined>(1)
 const price = shallowRef<number | undefined>()

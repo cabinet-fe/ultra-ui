@@ -31,6 +31,7 @@
 <script lang="ts" setup>
 import { UTextarea } from '@veltra/mobile'
 import { shallowRef } from 'vue'
+import '@veltra/mobile/components/textarea/style'
 
 const text = shallowRef('')
 const autosizeText = shallowRef('')
