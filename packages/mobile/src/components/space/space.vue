@@ -10,7 +10,7 @@ import { computed } from 'vue'
 
 import type { SpaceProps } from '../../types/space'
 
-defineOptions({ name: 'Space' })
+defineOptions({ name: 'USpace' })
 
 const {
   size = 'default',

@@ -6,7 +6,7 @@
 <script lang="ts" setup>
 import type { DescriptionsItemProps } from '../../types/descriptions'
 
-defineOptions({ name: 'DescriptionsItem' })
+defineOptions({ name: 'UDescriptionsItem' })
 
 defineProps<DescriptionsItemProps>()
 </script>

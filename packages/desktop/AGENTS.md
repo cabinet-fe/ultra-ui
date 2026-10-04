@@ -29,7 +29,7 @@ src/
 import { bem } from '@veltra/utils'
 import type { XxxProps } from '@veltra/desktop/types'
 
-defineOptions({ name: 'Xxx' })
+defineOptions({ name: 'UXxx' })
 const props = defineProps<XxxProps>()
 const cls = bem('xxx')
 </script>

@@ -18,7 +18,7 @@ import { computed, useSlots } from 'vue'
 
 import type { TimelineItemProps } from '../../types/timeline'
 
-defineOptions({ name: 'TimelineItem' })
+defineOptions({ name: 'UTimelineItem' })
 
 const {
   color = 'default',

@@ -12,7 +12,7 @@ import { computed, useSlots } from 'vue'
 
 import type { DividerProps } from '../../types/divider'
 
-defineOptions({ name: 'Divider' })
+defineOptions({ name: 'UDivider' })
 
 const { direction = 'horizontal', dashed = false, align = 'center' } = defineProps<DividerProps>()
 

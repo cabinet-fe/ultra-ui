@@ -20,7 +20,7 @@ import { computed, useSlots, type VNode } from 'vue'
 import type { DescriptionsProps } from '../../types/descriptions'
 import UDescriptionsItem from './descriptions-item.vue'
 
-defineOptions({ name: 'Descriptions' })
+defineOptions({ name: 'UDescriptions' })
 
 const props = defineProps<DescriptionsProps>()
 

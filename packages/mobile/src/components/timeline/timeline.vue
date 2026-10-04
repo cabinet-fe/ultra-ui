@@ -9,7 +9,7 @@ import { bem } from '@veltra/utils'
 
 import type { TimelineProps } from '../../types/timeline'
 
-defineOptions({ name: 'Timeline' })
+defineOptions({ name: 'UTimeline' })
 
 defineProps<TimelineProps>()
 

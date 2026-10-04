@@ -12,7 +12,7 @@
 | 目录   | kebab-case                    | `date-picker`、`number-input`                     |
 | 类型   | `<Name>Props` / `<Name>Emits` | `ButtonProps`；内部 Exposed 加 `_` 前缀，导出去掉 |
 
-`defineOptions({ name })` 用无 `U` 的组件名（如 `Button`）。
+`defineOptions({ name })` 用带 `U` 前缀的组件名（如 `UButton`）。
 
 ## 目录与代码结构
 

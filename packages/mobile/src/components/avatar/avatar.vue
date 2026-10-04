@@ -13,7 +13,7 @@ import { computed, shallowRef, watch } from 'vue'
 
 import type { AvatarEmits, AvatarProps } from '../../types/avatar'
 
-defineOptions({ name: 'Avatar' })
+defineOptions({ name: 'UAvatar' })
 
 const { src, alt, shape, size } = defineProps<AvatarProps>()
 

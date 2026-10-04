@@ -13,7 +13,7 @@ bun run server     # 仅参考服务（填报 + DeepSeek 代理 + 智慧表格�
 
 ## 导航
 
-- 侧栏使用 `UDualNav`：左轨 Icons / Desktop / AI Chat / Sheet / Smart Table；Icons 右栏为「图标库 / 图标组合」；Desktop 右栏为「分类 → 组件」两级导航；AI Chat 右栏为「AI 对话」；Sheet 右栏为「基础演示 / 大数据量演示 / 在线填报」；Smart Table 右栏为「智慧表格」
+- 侧栏使用 `UDualNav`：左轨 Icons / Desktop / Mobile / AI Chat / Sheet / Smart Table；Icons 右栏为「图标库 / 图标组合」；Desktop 右栏为「分类 → 组件」两级导航；Mobile 右栏为组件演示一级列表；AI Chat 右栏为「AI 对话」；Sheet 右栏为「基础演示 / 大数据量演示 / 在线填报」；Smart Table 右栏为「智慧表格」
 - 导航数据集中在 `nav-config.ts`（`demoMeta`、`buildPlaygroundMenus()`）
 - 新增 Desktop 演示页：在 `src/desktop/<component-name>/index.vue` 创建文件，并在 `nav-config.ts` 补充 `demoMeta`
 - AI Chat（`@veltra/ai`）与 Sheet（`@veltra/sheet`）为独立顶层入口，不挂在 Desktop 分类下
@@ -21,6 +21,7 @@ bun run server     # 仅参考服务（填报 + DeepSeek 代理 + 智慧表格�
 ## 路由
 
 - `src/desktop/<component-name>/index.vue` → `/desktop/<component-name>/index`
+- `src/mobile/<name>/index.vue` → `/mobile/<name>/index`（40 个 mobile 示例页；路由 name 为 `mobile-<name>`，与 desktop 同名目录不冲突）
 - `src/icons/index.vue` → `/icons/index`
 - `src/icons/combo/index.vue` → `/icons/combo/index`
 - `src/ai-chat/index.vue` → `/ai-chat/index`
@@ -29,7 +30,7 @@ bun run server     # 仅参考服务（填报 + DeepSeek 代理 + 智慧表格�
 - `src/sheet-data-entry/index.vue` → `/sheet-data-entry/index`（在线填报：单元格级只读 + 按单元格持久化演示）
 - `src/smart-table/index.vue` → `/smart-table/index`（智慧表格：9 种类型化字段行内编辑 + 行/字段管理 + 列设置/行详情面板 + 列底统计行 + AI 字段整列流式回填 + 右侧 AI 对话面板（表格上下文答疑） + 表格/看板视图切换 + 演示表防抖整表持久化）
 
-由 `import.meta.glob` 分别扫描 `desktop`、`icons`、`ai-chat` 与 `sheet` 目录自动生成；
+由 `import.meta.glob` 分别扫描 `desktop`、`mobile`、`icons`、`ai-chat` 与 `sheet` 目录自动生成；
 `src/sheet-big-data/index.vue`、`src/sheet-data-entry/index.vue`、`src/smart-table/index.vue` 等因 glob 首段为字面段（`./src/sheet/**` 不匹配 `sheet-big-data`），
 需在 `router.ts` 显式 `import.meta.glob` 并入 modules
 （key 由顶层 `src/<name>/index.vue` 正则提取）。默认重定向 `/` → `/desktop/button/index`。
@@ -71,6 +72,7 @@ router.ts
 nav-config.ts     # 导航分类与中英文元数据
 vite.config.ts
 src/desktop/<name>/index.vue
+src/mobile/<name>/index.vue   # @veltra/mobile 组件演示（40 个示例页）
 src/icons/index.vue           # 图标库预览
 src/icons/combo/index.vue     # 图标组合预览
 src/ai-chat/index.vue         # @veltra/ai 对话组件预览：同一页切换客户端驱动（OpenAI + Open-Meteo 天气终结工具 weather-card.vue + 右侧面板 admin-panel.vue + 待发送队列）与服务端驱动（createServerTransport + fake-session.ts 页内 fake adapter，演示未知工具卡 / 提问 / 审批横幅 / 作业条，不接真实 DSH）
@@ -87,7 +89,7 @@ src/smart-table/               # 智慧表格演示（多维表格示例：index
 
 ## 依赖
 
-- **dependencies**：`@cat-kit/core`、`@cat-kit/fe`、`infinitable`、`@veltra/ai`、`@veltra/compositions`、`@veltra/desktop`、`@veltra/directives`、`@veltra/icons`、`@veltra/sheet`、`@veltra/sheet-core`、`@veltra/styles`、`@veltra/utils`、`vue`、`vue-router`
+- **dependencies**：`@cat-kit/core`、`@cat-kit/fe`、`infinitable`、`@veltra/ai`、`@veltra/compositions`、`@veltra/desktop`、`@veltra/directives`、`@veltra/icons`、`@veltra/mobile`、`@veltra/sheet`、`@veltra/sheet-core`、`@veltra/styles`、`@veltra/utils`、`vue`、`vue-router`
 - **devDependencies**：`@veltra/vite`；参考服务：`hono`、`@hono/node-server`
 
 ## 验证

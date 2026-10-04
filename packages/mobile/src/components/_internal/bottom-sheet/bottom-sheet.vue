@@ -38,7 +38,7 @@ import type { CSSProperties } from 'vue'
  * 遮罩 + 底部面板进出场，供 select / multi-select / 后续弹层类组件复用。
  * 面板自身不做内容滚动，内容区由 `body` 槽位自行组织。
  */
-defineOptions({ name: 'BottomSheet' })
+defineOptions({ name: 'UBottomSheet' })
 
 const props = defineProps<{
   /** 是否可见（v-model:visible） */
