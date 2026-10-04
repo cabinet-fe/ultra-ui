@@ -40,6 +40,7 @@ $root-name: time-picker;
 
   @include m.e(column) {
     position: relative;
+    // 固定列宽容纳两位数「00–59」+ item 两侧各 4px 内缩的选中底
     width: 56px;
     flex: none;
     overflow-y: auto;
@@ -57,7 +58,7 @@ $root-name: time-picker;
     cursor: pointer;
     user-select: none;
     color: fn.use-var(text-color, main);
-    transition: background-color 0.15s;
+    transition: background-color fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     &:hover {
       background-color: fn.use-var(bg-color, hover);

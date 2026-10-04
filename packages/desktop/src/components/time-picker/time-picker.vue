@@ -24,11 +24,7 @@
     </template>
 
     <template #content>
-      <div
-        :id="panelId"
-        :class="[cls.e('panel'), cls.em('panel', size)]"
-        @vue:mounted="scrollSelectedToCenter"
-      >
+      <div :ref="scrollSelectedToCenter" :class="[cls.e('panel'), cls.em('panel', size)]">
         <div v-for="col in columns" :key="col.name" :class="cls.e('column')">
           <div :class="cls.e('spacer')" aria-hidden="true"></div>
           <div
@@ -59,7 +55,7 @@ import { date, Dater } from '@cat-kit/core'
 import { useFormFallbackProps, useUserAction } from '@veltra/compositions'
 import { Time } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT, injectFormContext } from '@veltra/utils'
-import { computed, shallowRef, useId, watch } from 'vue'
+import { computed, shallowRef, watch } from 'vue'
 
 import type { TimePickerEmits, TimePickerProps } from '../../types'
 import { UDropdown } from '../dropdown'
@@ -124,8 +120,6 @@ interface TimeItem {
   disabled: boolean
 }
 
-const panelId = useId()
-
 const columns = computed(() => {
   const t = currentTime.value
   const disabledHours = new Set(props.disabledHours?.() ?? [])
@@ -173,10 +167,9 @@ function handleClear() {
   emit('change', undefined)
 }
 
-/** 面板挂载后把各列滚动到选中值居中（面板经 Teleport 挂到 body，模板 ref 不可达，用唯一 id 定位） */
-function scrollSelectedToCenter() {
-  const panel = document.getElementById(panelId)
-  if (!panel) return
+/** 函数 ref：面板每次经 Teleport 挂载时拿到 DOM，把各列滚动到选中值居中 */
+function scrollSelectedToCenter(panel: Element | null) {
+  if (!(panel instanceof HTMLElement)) return
   for (const column of panel.querySelectorAll<HTMLElement>(`.${cls.e('column')}`)) {
     const selected = column.querySelector('.is-selected')
     if (selected instanceof HTMLElement) {

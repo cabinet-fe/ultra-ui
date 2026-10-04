@@ -11,10 +11,10 @@ $root-name: carousel;
   background-color: fn.use-var(bg-color, middle);
 
   // 轨道：单层 flex 横排，经 translateX 整体滑动翻页；时长与缓动走 token
+  // （transform 过渡期间浏览器会自动提升合成层，不常驻 will-change 以免长期占用层内存）
   @include m.e(track) {
     display: flex;
     transition: transform fn.use-var(transition, slow) fn.use-var(transition, ease-out);
-    will-change: transform;
   }
 
   @include m.e(item) {
@@ -30,6 +30,7 @@ $root-name: carousel;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    // 圆钮直径 32px，保证可点击热区又不遮内容
     width: 32px;
     height: 32px;
     padding: 0;
@@ -79,6 +80,7 @@ $root-name: carousel;
   }
 
   @include m.e(dot) {
+    // 圆点直径 8px，激活时拉长为 20px 胶囊
     width: 8px;
     height: 8px;
     padding: 0;
@@ -99,6 +101,7 @@ $root-name: carousel;
     }
 
     @include m.is(active) {
+      // 激活胶囊宽度，与 8px 圆点同高保持轴心不跳
       width: 20px;
       background-color: fn.use-var(text-color, white);
     }

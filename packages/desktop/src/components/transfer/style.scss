@@ -6,7 +6,7 @@
 $root-name: transfer;
 $list-name: $root-name + '-list';
 
-// 两栏列表正文固定高度，空态与列表同高避免栏高跳动
+// 列表正文固定高度；空态与列表共用同一高度防栏高跳动（body / empty 两处引用同源）
 $body-height: 240px;
 
 @include m.b($root-name) {
