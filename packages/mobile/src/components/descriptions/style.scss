@@ -1,0 +1,96 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: descriptions;
+
+@include m.b($root-name) {
+  font-size: fn.use-var(font-size-main, default);
+  line-height: 1.6;
+  color: fn.use-var(text-color, main);
+
+  @include m.e(header) {
+    margin-bottom: fn.use-var(gap, default);
+    font-weight: 600;
+    color: fn.use-var(text-color, main);
+  }
+
+  // 单列键值列表：每项一行，无多列分组（窄屏适配，column 不参与布局）
+  @include m.e(list) {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @include m.e(row) {
+    display: flex;
+    align-items: baseline;
+    gap: fn.use-var(gap, default);
+  }
+
+  @include m.e(label) {
+    flex: none;
+    max-width: 40%;
+    text-align: start;
+    font-weight: 500;
+    color: fn.use-var(text-color, second);
+    word-break: break-word;
+  }
+
+  @include m.e(content) {
+    flex: 1;
+    min-width: 0;
+    text-align: end;
+    word-break: break-word;
+    color: fn.use-var(text-color, main);
+  }
+
+  @include m.size using ($size) {
+    font-size: fn.use-var(font-size, main, $size);
+
+    #{fn.bem($root-name, row)} {
+      padding: fn.use-var(gap, $size) fn.use-var(gap, default);
+    }
+  }
+
+  // 垂直布局：键名在上、内容在下
+  @include m.m(vertical) {
+    #{fn.bem($root-name, row)} {
+      flex-direction: column;
+      align-items: stretch;
+      gap: fn.use-var(gap, small);
+    }
+
+    #{fn.bem($root-name, content)} {
+      text-align: start;
+    }
+  }
+
+  // 边框模式：列表整体描边，行间分隔线，键名底色块（对应 desktop 单元格描边语义）
+  @include m.is(bordered) {
+    #{fn.bem($root-name, list)} {
+      border: fn.use-var(border-muted);
+      border-radius: fn.use-var(radius, default);
+      overflow: hidden;
+    }
+
+    #{fn.bem($root-name, row)} {
+      & + & {
+        border-top: fn.use-var(border-muted);
+      }
+    }
+
+    #{fn.bem($root-name, label)} {
+      background-color: fn.use-var(bg-color, middle);
+      max-width: none;
+      flex: 0 0 38%;
+      align-self: stretch;
+    }
+
+    // 垂直布局下键名独占一行，不做列宽限制
+    @include m.m(vertical) {
+      #{fn.bem($root-name, label)} {
+        flex-basis: auto;
+      }
+    }
+  }
+}

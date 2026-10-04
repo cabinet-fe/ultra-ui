@@ -1,0 +1,118 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: checkbox;
+
+// 移动端复选框指示器下限：过小难以辨认勾选状态
+$indicator-min: 20px;
+
+@include m.b($root-name) {
+  user-select: none;
+  vertical-align: middle;
+  -webkit-tap-highlight-color: transparent;
+  @include m.flex(inline-flex);
+
+  @include m.size using ($size) {
+    // 触控热区：整个 label 可点，不小于 44×44
+    $touch-size: max(fn.use-var(form-component-height, $size), 44px);
+
+    min-height: $touch-size;
+    min-width: $touch-size;
+    padding-right: fn.use-var(gap, $size);
+
+    @include m.bem($root-name, wrap) {
+      $indicator: max(calc(fn.use-var(form-component-height, $size) / 2), $indicator-min);
+
+      height: $indicator;
+      width: $indicator;
+    }
+
+    @include m.bem($root-name, label) {
+      font-size: max(fn.use-var(font-size-main, $size), 14px);
+      margin-left: fn.use-var(gap, $size);
+    }
+  }
+
+  @include m.is(checked) {
+    @include m.bem($root-name, wrap) {
+      background-color: fn.use-var(color, primary);
+      border-color: fn.use-var(color, primary);
+      color: fn.use-var(text-color, white);
+    }
+
+    @include m.is(disabled) {
+      @include m.bem($root-name, wrap) {
+        background-color: fn.use-var(text-color, disabled);
+        border-color: fn.use-var(border, muted-color);
+      }
+    }
+  }
+
+  @include m.is(disabled) {
+    cursor: not-allowed;
+
+    @include m.bem($root-name, wrap) {
+      background-color: fn.use-var(color, disabled);
+    }
+  }
+
+  @include m.is(readonly) {
+    cursor: default;
+  }
+
+  @include m.e(native) {
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    margin: 0;
+    pointer-events: none;
+  }
+
+  @include m.e(wrap) {
+    border: fn.use-var(border, width) fn.use-var(border, style)
+      #{fn.component-var(checkbox, border, fn.use-var(text-color, assist))};
+    border-radius: fn.use-var(radius, small);
+    color: fn.use-var(text-color, white);
+    box-sizing: border-box;
+    flex-shrink: 0;
+    transition:
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
+    @include m.flex(inline-flex, center);
+
+    svg {
+      width: 100%;
+      height: 100%;
+      padding: 15%;
+      box-sizing: border-box;
+    }
+  }
+
+  // label 不可聚焦，ring 由视觉隐藏的原生 input 驱动；移动端无 hover，按压反馈走 :active
+  @include m.is-not(disabled, readonly) {
+    &:active {
+      @include m.bem($root-name, wrap) {
+        border-color: fn.use-var(color, primary);
+      }
+    }
+
+    #{fn.bem($root-name, native)}:focus-visible + #{fn.bem($root-name, wrap)} {
+      box-shadow: fn.use-var(focus-ring);
+    }
+  }
+
+  @include m.e(label) {
+    line-height: 1.2em;
+    color: fn.use-var(text-color, main);
+  }
+
+  @include m.m(indeterminate) {
+    background-color: fn.use-var(text-color, white);
+    width: 10px;
+    height: 2px;
+    vertical-align: middle;
+    display: block;
+  }
+}

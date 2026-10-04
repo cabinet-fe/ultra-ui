@@ -1,0 +1,133 @@
+<template>
+  <u-input
+    :class="cls.b"
+    :model-value="passwordText"
+    v-bind="inputProps"
+    :size="size"
+    :readonly="readonly"
+    :disabled="disabled"
+    :clearable="false"
+    @native:input="handleUpdatePwd"
+    @update:model-value="!$event && handleClear()"
+  >
+    <template #suffix>
+      <span :class="cls.e('suffix')">
+        <button
+          v-if="showClear"
+          :class="cls.e('clear')"
+          type="button"
+          aria-label="清除"
+          @click.stop="handleClear"
+        >
+          <Close />
+        </button>
+        <button
+          :class="cls.e('visibility-toggle')"
+          type="button"
+          :aria-label="pwdVisible ? '隐藏密码' : '显示密码'"
+          @click.stop="toggleVisible"
+        >
+          <Hide v-if="pwdVisible" />
+          <View v-else />
+        </button>
+      </span>
+    </template>
+
+    <template #prefix v-if="slots.prefix">
+      <slot name="prefix" />
+    </template>
+  </u-input>
+</template>
+
+<script lang="ts" setup>
+import { o } from '@cat-kit/core'
+import { useFormFallbackProps } from '@veltra/compositions'
+import { Close, Hide, View } from '@veltra/icons/normal'
+import { bem, injectFormContext } from '@veltra/utils'
+import { computed, nextTick, shallowRef } from 'vue'
+
+import type { PasswordInputProps } from '../../types/password-input'
+import { UInput } from '../input'
+
+defineOptions({ name: 'UPasswordInput' })
+
+const props = withDefaults(defineProps<PasswordInputProps>(), {
+  clearable: false,
+  disabled: undefined,
+  readonly: undefined
+})
+
+const slots = defineSlots<{ prefix?: () => any }>()
+
+const { formProps } = injectFormContext()
+
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false,
+  readonly: false
+})
+
+const inputProps = computed(() => {
+  return o(props as Record<string, any>).pick(['disabled', 'placeholder', 'size'])
+})
+
+const cls = bem('password-input')
+
+const model = defineModel<string>()
+
+// 移动端无 hover，有值即展示清除按钮
+const showClear = computed(() => {
+  return props.clearable && !disabled.value && !!model.value
+})
+
+const passwordChar = '●'
+
+const handleUpdatePwd = (e: Event): void => {
+  const target = e.target as HTMLInputElement
+  const val = target.value
+  if (!val) {
+    model.value = val
+    return
+  }
+
+  // 字符从无到有
+  if (!model.value) {
+    model.value = val
+    return
+  }
+
+  const pointIndex = target.selectionStart!
+  let inputChar = pointIndex === 0 ? '' : val[pointIndex - 1]!
+  if (inputChar === passwordChar) inputChar = ''
+
+  // 光标右侧字符数量（当前字符长度减去光标位置）
+  const rightLen = val.length - pointIndex
+  // 光标左侧字符数量 （当光标前的字符是刚刚输入的，则为这个字符前的所有的字符，否则为光标前的所有字符）
+  const leftLen = inputChar === '' ? pointIndex : pointIndex - 1
+
+  const leftVal = model.value.slice(0, leftLen)
+  const rightVal = rightLen === 0 ? '' : model.value.slice(-rightLen)
+
+  model.value = leftVal + inputChar + rightVal
+
+  nextTick(() => {
+    target.selectionStart = pointIndex
+    target.selectionEnd = pointIndex
+  })
+}
+
+const handleClear = (): void => {
+  model.value = ''
+}
+
+const pwdVisible = shallowRef(false)
+
+const passwordText = computed<string | undefined>(() => {
+  if (pwdVisible.value) return model.value
+  return model.value ? passwordChar.repeat(model.value.length) : ''
+})
+
+const toggleVisible = () => {
+  pwdVisible.value = !pwdVisible.value
+}
+</script>

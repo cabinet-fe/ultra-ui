@@ -1,0 +1,35 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+
+@keyframes u-icon-rotating {
+  0% {
+    transform: rotateZ(0deg);
+  }
+  100% {
+    transform: rotateZ(360deg);
+  }
+}
+
+@include m.b(icon) {
+  height: 1em;
+  width: 1em;
+  line-height: 1em;
+  @include m.flex(inline-flex, center, center);
+  position: relative;
+  fill: currentColor;
+  font-size: inherit;
+  color: inherit;
+  vertical-align: middle;
+  user-select: none;
+  will-change: transform;
+
+  // 加载转圈
+  @include m.is(loading) {
+    transform-origin: center;
+    animation: u-icon-rotating 2s linear infinite;
+  }
+
+  svg {
+    height: 1em;
+    width: 1em;
+  }
+}

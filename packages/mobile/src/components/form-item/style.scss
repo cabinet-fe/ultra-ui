@@ -1,0 +1,93 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: form-item;
+
+@include m.b($root-name) {
+  // 移动端默认标签在控件上方，纵向堆叠
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  @include m.e(label) {
+    padding-bottom: fn.use-var(gap, small);
+    color: fn.use-var(text-color, second);
+    font-size: fn.use-var(font-size, assist, default);
+    line-height: 1.4;
+
+    @include m.flex($align: flex-start);
+
+    @include m.is(required) {
+      &::before {
+        content: '*';
+        padding-right: 2px;
+        color: fn.use-var(color, danger);
+      }
+    }
+  }
+
+  @include m.e(wrapper) {
+    flex-grow: 1;
+    min-width: 0;
+  }
+
+  @include m.e(content) {
+    flex-grow: 1;
+    word-break: break-all;
+    @include m.flex($wrap: wrap, $align: center);
+  }
+
+  // 错误提示按移动端密度呈现：出现时才占位，长文案允许换行
+  @include m.e(error-text) {
+    display: block;
+    margin-top: fn.use-var(gap, small);
+    color: fn.use-var(color, danger);
+    font-size: fn.use-var(font-size, assist, default);
+    line-height: 1.4;
+  }
+
+  // 错误态把控件描红：is-focus 与错误态同权重，按源序分胜负，故显式列出
+  @include m.is(error) {
+    #{fn.bem(input)},
+    #{fn.bem(textarea)},
+    #{fn.bem(number-input)},
+    #{fn.bem(password-input)},
+    #{fn.bem(select)},
+    #{fn.bem(multi-select)},
+    #{fn.bem(date-picker)},
+    #{fn.bem(time-picker)} {
+      &,
+      &.is-focus {
+        border-color: fn.use-var(color, danger);
+      }
+
+      &.is-focus {
+        box-shadow: fn.use-var(focus-ring, danger);
+      }
+    }
+  }
+
+  // 标签在左侧时退化为水平排列
+  @include m.is(label-left) {
+    flex-direction: row;
+    align-items: flex-start;
+
+    @include m.bem($root-name, label) {
+      padding-bottom: 0;
+      padding-right: fn.use-var(gap, default);
+      text-align: right;
+      color: fn.use-var(text-color, main);
+      justify-content: flex-end;
+    }
+  }
+}
+
+.#{$root-name}-tips-enter-from,
+.#{$root-name}-tips-leave-to {
+  opacity: 0;
+}
+
+.#{$root-name}-tips-enter-active,
+.#{$root-name}-tips-leave-active {
+  transition: opacity fn.use-var(transition, fast) fn.use-var(transition, ease);
+}

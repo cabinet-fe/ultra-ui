@@ -1,0 +1,96 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+@include m.b(segment) {
+  vertical-align: middle;
+  @include m.flex($display: inline-flex, $align: center);
+  gap: 2px;
+  padding: 2px;
+  background-color: fn.use-var(bg-color, bottom);
+  box-sizing: border-box;
+  max-width: 100%;
+  -webkit-tap-highlight-color: transparent;
+
+  @include m.size using ($size) {
+    border-radius: fn.use-var(radius, $size);
+
+    @include m.bem(segment, item) {
+      // 触控热区：任何尺寸的分段热区不小于 44×44（block 形态由更高特异性保持 min-width: 0 的弹性分配）
+      min-height: max(calc(#{fn.use-var(form-component-height, $size)} - 4px), 44px);
+      min-width: max(calc(#{fn.use-var(form-component-height, $size)} - 4px), 44px);
+      padding: 0 calc(#{fn.use-var(gap, $size)} * 1.5);
+      border-radius: calc(#{fn.use-var(radius, $size)} - 2px);
+      font-size: fn.use-var(font-size-main, $size);
+    }
+  }
+
+  @include m.e(item) {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    background-color: transparent;
+    box-shadow: none;
+    font-weight: 500;
+    color: fn.use-var(text-color, second);
+    cursor: pointer;
+    user-select: none;
+    outline: none;
+    transition:
+      color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    // 按压态（移动端无 hover，用 :active 提供触控反馈）
+    &:active:not(.is-active):not(.is-disabled) {
+      color: fn.use-var(text-color, title);
+      background-color: fn.color-a(color, 5, primary);
+    }
+
+    @include m.is(active) {
+      color: fn.use-var(color, primary);
+      background-color: fn.use-var(bg-color, top);
+      box-shadow: fn.use-var(shadow, sm);
+      font-weight: 600;
+    }
+
+    @include m.is(disabled) {
+      opacity: 0.5;
+      cursor: not-allowed;
+      color: fn.use-var(text-color, disabled);
+    }
+
+    &:focus-visible:not(.is-disabled) {
+      box-shadow: fn.use-var(focus-ring);
+    }
+  }
+
+  @include m.e(item-label) {
+    @include m.ellipsis;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @include m.is(block) {
+    display: flex;
+    width: 100%;
+
+    @include m.bem(segment, item) {
+      flex: 1 1 0%;
+      width: 0;
+      min-width: 0;
+      display: inline-flex;
+      justify-content: center;
+    }
+  }
+
+  @include m.is(disabled) {
+    opacity: 0.7;
+
+    @include m.bem(segment, item) {
+      opacity: 1;
+    }
+  }
+}

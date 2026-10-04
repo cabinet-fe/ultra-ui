@@ -1,0 +1,229 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: select;
+
+@include m.b($root-name) {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  gap: fn.use-var(gap, small);
+  padding: 0 fn.use-var(gap, default);
+  border: fn.use-var(border);
+  border-radius: fn.use-var(radius, default);
+  background-color: fn.use-var(bg-color, top);
+  color: fn.use-var(text-color, main);
+  font-size: fn.use-var(font-size-main, default);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+    box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+  // 触控热区：任何尺寸的可点击区域不小于 44×44
+  @include m.size using ($size) {
+    min-height: max(fn.use-var(form-component-height, $size), 44px);
+  }
+
+  &:active {
+    border-color: fn.use-var(color, primary);
+  }
+
+  &:focus-visible {
+    box-shadow: fn.use-var(focus-ring);
+  }
+
+  @include m.is(active) {
+    border-color: fn.use-var(color, primary);
+
+    @include m.bem($root-name, arrow) {
+      transform: rotate(180deg);
+    }
+  }
+
+  @include m.is(disabled) {
+    cursor: not-allowed;
+    color: fn.use-var(text-color, disabled);
+    background-color: fn.use-var(bg-color, middle);
+
+    @include m.bem($root-name, arrow) {
+      color: fn.use-var(text-color, disabled);
+    }
+  }
+
+  @include m.e(prefix) {
+    display: inline-flex;
+    align-items: center;
+    color: fn.use-var(text-color, second);
+    font-size: 1em;
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  @include m.e(value) {
+    flex: 1;
+    min-width: 0;
+    @include m.ellipsis;
+
+    @include m.is(placeholder) {
+      color: fn.use-var(text-color, placeholder);
+    }
+  }
+
+  @include m.e(icons) {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  @include m.e(clear) {
+    // 清除热区 ≥44×44（高度受行高约束，用外扩补足）
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    margin: -8px -8px -8px 0;
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: 16px;
+    color: fn.use-var(text-color, second);
+    cursor: pointer;
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+
+    &:active {
+      color: fn.use-var(text-color, title);
+    }
+  }
+
+  @include m.e(arrow) {
+    display: inline-flex;
+    align-items: center;
+    color: fn.use-var(text-color, second);
+    font-size: 14px;
+    transition: transform fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  // 面板内搜索行
+  @include m.e(search) {
+    padding: fn.use-var(gap, small) 0;
+  }
+
+  @include m.e(search-input) {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 44px;
+    padding: 0 fn.use-var(gap, default);
+    border: fn.use-var(border);
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, middle);
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-main, default);
+    outline: none;
+    -webkit-appearance: none;
+
+    &::placeholder {
+      color: fn.use-var(text-color, placeholder);
+    }
+
+    &:focus {
+      border-color: fn.use-var(color, primary);
+    }
+  }
+
+  // 选项列表
+  @include m.e(options) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+
+    @include m.is(grid) {
+      display: grid;
+    }
+  }
+
+  @include m.e(option) {
+    // 选项热区 ≥44×44
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    gap: fn.use-var(gap, small);
+    padding: 0 fn.use-var(gap, default);
+    border-radius: fn.use-var(radius, default);
+    color: fn.use-var(text-color, main);
+    user-select: none;
+    cursor: pointer;
+
+    &:active {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    @include m.is(grid) {
+      justify-content: center;
+      text-align: center;
+    }
+
+    // 选中态：网格布局用底色强调（无对钩），列表布局再由对钩指示
+    @include m.is(selected) {
+      color: fn.component-var(select, option-selected-color, fn.use-var(color, primary));
+      font-weight: 600;
+      background-color: fn.component-var(
+        select,
+        option-selected-bg,
+        fn.use-var(color, primary, light-9)
+      );
+
+      &:active {
+        background-color: fn.use-var(color, primary, light-7);
+      }
+    }
+  }
+
+  @include m.e(option-label) {
+    flex: 1;
+    min-width: 0;
+    @include m.ellipsis;
+  }
+
+  @include m.e(check) {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    color: fn.use-var(color, primary);
+    font-size: 16px;
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  @include m.e(empty) {
+    padding: fn.use-var(gap, large) 0;
+    text-align: center;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(loading) {
+    padding: fn.use-var(gap, large) 0;
+    text-align: center;
+    color: fn.use-var(text-color, second);
+  }
+}

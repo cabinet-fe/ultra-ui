@@ -1,0 +1,91 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use 'pkg:@veltra/styles/vars';
+
+$root-name: tag;
+
+// 进入缩放动画（与 desktop tag 一致）
+@keyframes u-tag-zoom-in {
+  0% {
+    opacity: 0;
+    transform: scale3d(0, 0, 1);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale3d(1, 1, 1);
+  }
+}
+
+@include m.b($root-name) {
+  cursor: default;
+  color: fn.use-var(text-color, main);
+  background-color: fn.use-var(color, default);
+  min-width: 0;
+  border: 1px solid fn.use-var(text-color, main);
+  @include m.flex(inline-flex, flex-start, center);
+
+  animation: u-tag-zoom-in fn.use-var(transition, normal) fn.use-var(transition, ease);
+
+  @include m.e(content) {
+    @include m.ellipsis;
+    flex-grow: 1;
+  }
+
+  // 关闭图标：视觉尺寸跟随字号，触控热区经 ::after 扩到 44×44（不撑破标签布局）
+  @include m.e(icon-close) {
+    position: relative;
+    cursor: pointer;
+    flex-shrink: 0;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 44px;
+      height: 44px;
+      transform: translate(-50%, -50%);
+    }
+  }
+
+  @include m.size using ($size) {
+    height: var(--u-tag-#{$size});
+    font-size: fn.use-var(font-size-main, $size);
+    padding: 0 fn.use-var(gap, $size);
+    border-radius: fn.use-var(radius, $size);
+
+    @include m.bem($root-name, icon-close) {
+      margin-left: calc(fn.use-var(gap, $size) / 2);
+    }
+
+    @include m.is(round) {
+      border-radius: calc(var(--u-tag-#{$size}) / 2);
+    }
+  }
+
+  @include m.is(dark) {
+    border-color: fn.use-var(color, default);
+  }
+
+  // 颜色样式
+  @each $type, $_ in vars.$color-types {
+    @include m.m(color-#{$type}) {
+      color: fn.component-var(tag, #{$type}-color, fn.use-var(color, $type));
+      border-color: fn.component-var(tag, #{$type}-border, fn.use-var(color, $type));
+      background-color: fn.component-var(tag, #{$type}-bg, fn.use-var(color, $type, light-9));
+
+      @include m.is(dark) {
+        color: fn.component-var(tag, #{$type}-dark-color, fn.use-var(text-color, white));
+        background-color: fn.component-var(tag, #{$type}-dark-bg, fn.use-var(color, $type));
+      }
+
+      // 移动端无 hover，按压时给关闭图标触控反馈
+      @include m.bem($root-name, icon-close) {
+        &:active {
+          color: fn.use-var(color, $type);
+        }
+      }
+    }
+  }
+}

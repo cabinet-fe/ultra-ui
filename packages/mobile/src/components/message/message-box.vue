@@ -1,0 +1,31 @@
+<template>
+  <transition-group name="message" appear @after-leave="handleAfterLeave">
+    <UMessage
+      v-for="({ onClose, ...message }, index) of messages"
+      :key="message.key"
+      v-bind="message"
+      :data-id="message.key"
+      @close="handleClose(index, onClose)"
+    />
+  </transition-group>
+</template>
+
+<script lang="ts" setup>
+import type { MessageOptions } from '../../types/message'
+import UMessage from './message.vue'
+
+defineOptions({ name: 'UMessageBox' })
+
+defineProps<{ messages: Array<Omit<MessageOptions & { key: string }, 'onClosed'>> }>()
+
+const emit = defineEmits<{ (e: 'closed', id: string): void; (e: 'close', index: number): void }>()
+
+function handleAfterLeave(el: Element) {
+  emit('closed', (el as HTMLElement).dataset.id as string)
+}
+
+function handleClose(i: number, onClose?: () => void) {
+  emit('close', i)
+  onClose?.()
+}
+</script>

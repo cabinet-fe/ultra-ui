@@ -1,0 +1,50 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+@include m.b(form) {
+  // 移动端单列堆叠，行距走统一 gap token
+  display: flex;
+  flex-direction: column;
+  gap: fn.use-var(gap, default);
+
+  // 只读态：label 退为次级文本，值收进浅色圆角条
+  @include m.is(readonly) {
+    gap: fn.use-var(gap, small);
+
+    @include m.bem(form-item, label) {
+      color: fn.use-var(text-color, second);
+    }
+
+    @include m.bem(form-item, content) {
+      padding: fn.use-var(gap, small) fn.use-var(gap, default);
+      color: fn.use-var(text-color, main);
+      background-color: fn.use-var(bg-color, middle);
+      border-radius: fn.use-var(radius, default);
+    }
+  }
+
+  // 变更前：以信息色文本行呈现（移动端密度）
+  @include m.e(data-before) {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    flex-wrap: wrap;
+    margin-top: fn.use-var(gap, small);
+    padding: 2px fn.use-var(gap, small);
+    border-left: 2px solid fn.use-var(color, info);
+    background-color: fn.color-a(color, 8, info);
+    border-radius: 2px;
+    width: fit-content;
+    max-width: 100%;
+    line-height: 1.4;
+    font-size: fn.use-var(font-size, assist, default);
+    color: fn.use-var(text-color, main);
+    word-break: break-all;
+  }
+
+  @include m.e(changed-tag) {
+    color: fn.use-var(color, info);
+    font-style: normal;
+    flex-shrink: 0;
+  }
+}

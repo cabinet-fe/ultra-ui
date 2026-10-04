@@ -1,0 +1,35 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+// 方便拼接
+$root-name: empty;
+
+@include m.b($root-name) {
+  color: fn.use-var(text-color, assist);
+  text-align: center;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: fn.use-var(gap, default);
+  user-select: none;
+
+  // 图标占位：以 1em 跟随 size 缩放（移动端包内暂无 UIcon，直接承载图标 svg）
+  @include m.e(icon) {
+    display: inline-flex;
+    width: 1em;
+    height: 1em;
+    line-height: 1em;
+    fill: currentColor;
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  // 空态文本：移动端密度用 assist 档字号
+  @include m.e(text) {
+    font-size: fn.use-var(font-size-assist, default);
+    line-height: 1.5;
+  }
+}

@@ -1,0 +1,128 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: switch;
+
+@include m.b($root-name) {
+  display: inline-flex;
+  align-items: center;
+  user-select: none;
+  vertical-align: middle;
+  -webkit-tap-highlight-color: transparent;
+  gap: fn.use-var(gap, default);
+
+  @include m.size using ($size) {
+    // 拨动热区：整个 label 可点，不小于 44×44；滑轨随尺寸放大
+    $touch-size: max(fn.use-var(form-component-height, $size), 44px);
+    $track: max(calc(var(--u-switch-height-#{$size}) * 1.5), 28px);
+
+    min-height: $touch-size;
+    min-width: $touch-size;
+
+    @include m.bem($root-name, button) {
+      height: $track;
+      width: calc($track * 2);
+    }
+
+    @include m.bem($root-name, thumb) {
+      width: calc($track - 4px);
+      height: calc($track - 4px);
+    }
+  }
+
+  // 状态样式
+  @include m.is(disabled) {
+    cursor: not-allowed;
+
+    @include m.bem($root-name, button) {
+      background-color: fn.use-var(bg-color, bottom);
+    }
+
+    @include m.bem($root-name, thumb) {
+      background-color: fn.use-var(bg-color, middle);
+    }
+
+    @include m.is(checked) {
+      @include m.bem($root-name, button) {
+        background-color: fn.use-var(color, primary, light-5);
+      }
+    }
+  }
+
+  @include m.is(readonly) {
+    cursor: default;
+  }
+
+  @include m.is-not(disabled, readonly) {
+    // label 不可聚焦，ring 由视觉隐藏的原生 input 驱动；移动端无 hover，按压反馈走 :active
+    &:active {
+      @include m.bem($root-name, button) {
+        background-color: fn.use-var(color, primary, light-7);
+        border-color: fn.use-var(color, primary, light-5);
+      }
+
+      @include m.is(checked) {
+        @include m.bem($root-name, button) {
+          background-color: fn.use-var(color, primary, dark-1);
+        }
+      }
+    }
+
+    #{fn.bem($root-name, native)}:focus-visible ~ #{fn.bem($root-name, button)} {
+      box-shadow: fn.use-var(focus-ring);
+    }
+  }
+
+  @include m.e(native) {
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    margin: 0;
+    pointer-events: none;
+  }
+
+  @include m.e(button) {
+    display: flex;
+    align-items: center;
+    border-radius: 100px;
+    background-color: fn.use-var(bg-color, bottom);
+    border: 1px solid fn.use-var(border, muted-color);
+    box-sizing: border-box;
+    transition:
+      background-color fn.use-var(transition, normal) fn.use-var(transition, ease),
+      border-color fn.use-var(transition, normal) fn.use-var(transition, ease),
+      box-shadow fn.use-var(transition, normal) fn.use-var(transition, ease);
+    padding: 2px;
+    flex-shrink: 0;
+  }
+
+  @include m.e(thumb) {
+    display: block;
+    background-color: fn.use-var(bg-color, top);
+    border-radius: 50%;
+    box-shadow: fn.use-var(shadow, sm);
+    transition: transform fn.use-var(transition, normal) fn.use-var(transition, ease);
+    pointer-events: none;
+  }
+
+  @include m.e(text) {
+    font-weight: 500;
+
+    @include m.is(selected) {
+      color: fn.use-var(color-primary);
+      font-weight: 800;
+    }
+  }
+
+  @include m.is(checked) {
+    @include m.bem($root-name, button) {
+      background-color: fn.use-var(color-primary);
+      border-color: fn.use-var(color-primary);
+    }
+
+    @include m.bem($root-name, thumb) {
+      transform: translateX(100%);
+    }
+  }
+}

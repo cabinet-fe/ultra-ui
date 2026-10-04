@@ -1,0 +1,51 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use 'pkg:@veltra/styles/vars';
+
+$root-name: badge;
+
+// 修饰符类（u-badge--color-* / u-badge--<size>）由组件挂在 sup 元素上，
+// 因此以下规则直接作用于 sup 本身，与 desktop badge 选择器结构一致
+@include m.b($root-name) {
+  width: max-content;
+  position: relative;
+
+  @include m.e(sup) {
+    position: absolute;
+    cursor: default;
+    height: 18px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    background-color: fn.use-var(color, danger);
+    border-radius: 18px;
+    color: fn.use-var(text-color, white);
+
+    @include m.is(dot) {
+      height: 8px;
+      width: 8px;
+      padding: 0;
+      border-radius: 50%;
+    }
+  }
+
+  @each $type, $_ in vars.$color-types {
+    @include m.m(color-#{$type}) {
+      background-color: fn.use-var(color, $type, light-7);
+      color: fn.use-var(color, $type);
+    }
+  }
+
+  @include m.size using ($size) {
+    font-size: fn.use-var(font-size-main, $size);
+    padding: 0 fn.use-var(gap, $size);
+
+    @if ($size ==default) {
+      height: 22px;
+    }
+
+    @if ($size ==large) {
+      height: 26px;
+    }
+  }
+}

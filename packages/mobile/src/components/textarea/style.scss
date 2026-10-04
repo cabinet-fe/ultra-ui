@@ -1,0 +1,116 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: textarea;
+
+@include m.b($root-name) {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  border: fn.use-var(border-muted);
+  box-shadow: fn.use-var(shadow, emboss);
+  background-color: fn.component-var(textarea, bg, fn.use-var(bg-color, middle));
+  transition:
+    border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+    box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
+  overflow: hidden;
+  vertical-align: middle;
+
+  @include m.size using ($size) {
+    border-radius: fn.use-var(radius, $size);
+
+    @include m.bem($root-name, native) {
+      padding: calc(fn.use-var(gap, $size) / 2) 44px calc(fn.use-var(gap, $size) / 2)
+        calc(fn.use-var(gap, $size) / 2);
+      // 触控热区：文本域高度不小于 44px；iOS 聚焦字号不小于 16px 防视口缩放
+      min-height: max(fn.use-var(form-component-height, $size), 44px);
+      font-size: max(fn.use-var(font-size-main, $size), 16px);
+    }
+  }
+
+  @include m.e(native) {
+    display: block;
+    box-sizing: border-box;
+    color: fn.use-var(text-color, main);
+    outline: none;
+    border: none;
+    background-color: transparent;
+    font-family: fn.use-var(font-family);
+    width: 100%;
+    padding: 0;
+    line-height: 1.5;
+    // 触屏没有拖拽手柄，一律不缩放（resize prop 仅保留 API 兼容）
+    resize: none;
+    overflow: auto;
+    -webkit-tap-highlight-color: transparent;
+
+    &::placeholder {
+      color: fn.use-var(text-color, placeholder);
+    }
+
+    &:disabled {
+      opacity: 1;
+      -webkit-text-fill-color: fn.use-var(text-color, disabled);
+    }
+  }
+
+  @include m.is(focus) {
+    border-color: fn.use-var(color, primary);
+    box-shadow: fn.use-var(focus-ring);
+  }
+
+  @include m.is(disabled) {
+    background-color: fn.use-var(color, disabled);
+    box-shadow: none;
+
+    @include m.bem($root-name, native) {
+      cursor: not-allowed;
+    }
+  }
+
+  @include m.m(count) {
+    position: absolute;
+    bottom: 4px;
+    right: 8px;
+    font-size: fn.use-var(font-size-assist, default);
+    color: fn.use-var(text-color, placeholder);
+    background: fn.use-var(bg-color, middle);
+    padding: 0 2px;
+    border-radius: fn.use-var(radius, small);
+  }
+
+  @include m.m(clear) {
+    // 清空按钮固定右上角，44×44 触控热区
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+    color: fn.use-var(text-color, second);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    svg {
+      width: 1em;
+      height: 1em;
+      fill: currentColor;
+    }
+
+    &:active {
+      color: fn.use-var(color, primary);
+    }
+  }
+
+  @include m.m(readonly) {
+    display: inline-block;
+    white-space: pre-wrap;
+    color: fn.use-var(text-color, main);
+  }
+}

@@ -1,0 +1,102 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+// 方便拼接
+$root-name: message-confirm;
+
+@include m.b($root-name) {
+  position: fixed;
+  inset: 0;
+  box-sizing: border-box;
+  // 两侧留白保证确认框在窄视口内不贴边
+  padding: fn.use-var(gap, large);
+  // 根元素平时即有 transition：transition-group 靠 computed transition
+  // 判定有无过渡，只在过渡类上声明会读不到 → after-leave 同步触发
+  transition: opacity fn.use-var(transition, normal) fn.use-var(transition, ease);
+  @include m.flex($justify: center);
+
+  @include m.e(container) {
+    position: fixed;
+    inset: 0;
+  }
+
+  @include m.e(mask) {
+    position: absolute;
+    inset: 0;
+    background-color: fn.color-a(color, 35, black);
+    transition: opacity fn.use-var(transition, normal) fn.use-var(transition, ease);
+  }
+
+  // 居中卡片复用 dialog 形态：表层背景、大圆角、投影
+  @include m.e(box) {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 320px;
+    padding: fn.use-var(gap, large);
+    gap: fn.use-var(gap, default);
+    border-radius: fn.use-var(radius, large);
+    background-color: fn.use-var(bg-color, top);
+    box-shadow: fn.use-var(shadow, lg);
+    transition:
+      opacity fn.use-var(transition, normal) fn.use-var(transition, ease),
+      transform fn.use-var(transition, normal) fn.use-var(transition, ease-out);
+  }
+
+  @include m.e(header) {
+    font-weight: 600;
+    text-align: center;
+    @include m.ellipsis;
+  }
+
+  @include m.e(content) {
+    line-height: 1.6;
+    text-align: center;
+    word-break: break-word;
+  }
+
+  @include m.e(footer) {
+    display: flex;
+    gap: fn.use-var(gap, default);
+
+    // 按钮等宽铺满，保证充分的触控热区
+    &--btn {
+      flex: 1;
+    }
+  }
+
+  @include m.size using ($size) {
+    @include m.bem($root-name, header) {
+      font-size: fn.use-var(font-size-title, $size);
+    }
+
+    @include m.bem($root-name, content) {
+      font-size: fn.use-var(font-size-main, $size);
+    }
+  }
+}
+
+/* 根元素必须声明 transition：与 message 对称，靠根元素的
+   computed transition 判定走动画，after-leave 才会等动画结束 */
+.#{$root-name}-enter-active,
+.#{$root-name}-leave-active {
+  transition-duration: fn.use-var(transition, normal);
+  transition-timing-function: fn.use-var(transition, ease);
+  transition-property: opacity;
+}
+
+.#{$root-name}-enter-from,
+.#{$root-name}-leave-to {
+  opacity: 0;
+
+  @include m.bem($root-name, mask) {
+    opacity: 0;
+  }
+
+  @include m.bem($root-name, box) {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+}

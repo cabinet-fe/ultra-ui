@@ -1,0 +1,39 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: password-input;
+
+@include m.b($root-name) {
+  @include m.e(suffix) {
+    display: inline-flex;
+    align-items: stretch;
+    height: 100%;
+  }
+
+  @include m.e(clear, visibility-toggle) {
+    // 清除与可见性切换按钮：宽度 44px、高度撑满输入行，满足 44×44 触控热区
+    min-width: 44px;
+    align-self: stretch;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+    color: fn.use-var(text-color, second);
+    font-size: inherit;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    svg {
+      width: 1em;
+      height: 1em;
+      fill: currentColor;
+    }
+
+    &:active {
+      color: fn.use-var(color, primary);
+    }
+  }
+}

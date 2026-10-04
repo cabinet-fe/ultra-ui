@@ -148,6 +148,8 @@
       "name": "@veltra/mobile",
       "version": "1.0.0",
       "peerDependencies": {
+        "@cat-kit/core": ">=1.2.1",
+        "@veltra/compositions": "workspace:^",
         "@veltra/icons": "workspace:^",
         "@veltra/styles": "workspace:^",
         "@veltra/utils": "workspace:^",

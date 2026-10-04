@@ -1,0 +1,91 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+// 方便拼接
+$root-name: divider;
+
+// 文字靠左/靠右时，对侧长线之外那一侧的短线宽度
+$short-line-width: 5%;
+
+@include m.b($root-name) {
+  // 水平分割线（默认形态）：单独使用时由上边框划线
+  border-top: 1px solid fn.use-var(border-color);
+  margin: fn.use-var(gap, large) 0;
+
+  // 虚线
+  @include m.is(dashed) {
+    border-top-style: dashed;
+  }
+
+  // 垂直分割线：行内元素，随文字高度伸缩
+  @include m.m(vertical) {
+    display: inline-block;
+    border-top: none;
+    border-left: 1px solid fn.use-var(border-color);
+    height: 1em;
+    margin: 0 fn.use-var(gap);
+    vertical-align: middle;
+
+    @include m.is(dashed) {
+      border-left-style: dashed;
+    }
+  }
+
+  // 嵌套文字：两侧伪元素划线，文字默认居中
+  @include m.is(with-text) {
+    display: flex;
+    align-items: center;
+    border-top: none;
+    margin: fn.use-var(gap, large) 0;
+
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      border-top: 1px solid fn.use-var(border-color);
+    }
+
+    &::before {
+      margin-right: fn.use-var(gap);
+    }
+
+    &::after {
+      margin-left: fn.use-var(gap);
+    }
+
+    // 虚线作用于两侧伪元素线
+    @include m.is(dashed) {
+      &::before,
+      &::after {
+        border-top-style: dashed;
+      }
+    }
+  }
+
+  // 文字靠左：左线收窄为短线
+  @include m.m(left) {
+    @include m.is(with-text) {
+      &::before {
+        flex: none;
+        width: $short-line-width;
+      }
+    }
+  }
+
+  // 文字靠右：右线收窄为短线
+  @include m.m(right) {
+    @include m.is(with-text) {
+      &::after {
+        flex: none;
+        width: $short-line-width;
+      }
+    }
+  }
+
+  @include m.e(text) {
+    color: fn.use-var(text-color, main);
+    // 档位型 token 须带尺寸后缀；desktop 引用的 --u-font-size-main 并不存在
+    font-size: fn.use-var(font-size-main, default);
+    white-space: nowrap;
+  }
+}

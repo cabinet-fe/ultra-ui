@@ -1,0 +1,165 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: loading;
+
+@include m.b($root-name) {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: fn.use-var(bg-color, top, alpha);
+  color: fn.use-var(color, primary);
+  @include m.flex($justify: center, $align: center);
+
+  @include m.e(container) {
+    position: relative;
+  }
+
+  // ============================================================
+  // dual-ring — 双环反向旋转（经典 loader）
+  // 外环顺时针，内嵌小环逆时针，border + linear 旋转无缝循环
+  // ============================================================
+  @include m.e(dual-ring) {
+    @include m.bem($root-name, loader) {
+      width: 36px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 3px solid fn.color-a(color, 22, primary);
+      border-top-color: currentColor;
+      position: relative;
+      animation: loading-spin 0.8s linear infinite;
+
+      &::after {
+        content: '';
+        position: absolute;
+        inset: 5px;
+        border-radius: 50%;
+        border: 2px solid fn.color-a(color, 22, primary);
+        border-bottom-color: currentColor;
+        animation: loading-spin 1.2s linear infinite reverse;
+      }
+    }
+  }
+
+  // ============================================================
+  // dot — 三点呼吸弹跳
+  // 元素自身 + 两个伪元素，交错起伏
+  // ============================================================
+  @include m.e(dot) {
+    @include m.bem($root-name, loader) {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: currentColor;
+      position: relative;
+      animation: loading-dot 1.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+
+      &::before,
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+
+      &::before {
+        left: -16px;
+        animation: loading-dot 1.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+        animation-delay: 0.18s;
+      }
+
+      &::after {
+        right: -16px;
+        animation: loading-dot 1.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+        animation-delay: 0.36s;
+      }
+    }
+  }
+
+  // ============================================================
+  // ring — 单环旋转
+  // ============================================================
+  @include m.e(ring) {
+    @include m.bem($root-name, loader) {
+      width: 36px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      border: 3px solid fn.color-a(color, 22, primary);
+      border-top-color: currentColor;
+      animation: loading-spin 0.9s linear infinite;
+    }
+  }
+
+  // ============================================================
+  // bars — 三条音频跳动
+  // 三根竖条以容器中心为基准上下对称伸缩
+  // ============================================================
+  @include m.e(bars) {
+    @include m.bem($root-name, loader) {
+      width: 6px;
+      height: 26px;
+      background: currentColor;
+      border-radius: 3px;
+      position: relative;
+      animation: loading-bars 1s ease-in-out infinite;
+      animation-delay: 0.15s;
+
+      &::before,
+      &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 6px;
+        height: 26px;
+        background: currentColor;
+        border-radius: 3px;
+        animation: loading-bars 1s ease-in-out infinite;
+      }
+
+      &::before {
+        left: -12px;
+      }
+
+      &::after {
+        right: -12px;
+        animation-delay: 0.3s;
+      }
+    }
+  }
+}
+
+// ================================================================
+// 关键帧
+// ================================================================
+
+@keyframes loading-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes loading-dot {
+  0%,
+  100% {
+    transform: scale(0.5);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes loading-bars {
+  0%,
+  100% {
+    height: 10px;
+  }
+  50% {
+    height: 26px;
+  }
+}

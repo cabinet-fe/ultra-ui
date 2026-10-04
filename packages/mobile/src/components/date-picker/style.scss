@@ -1,0 +1,233 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: date-picker;
+
+@include m.b($root-name) {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  gap: fn.use-var(gap, small);
+  padding: 0 fn.use-var(gap, default);
+  border: fn.use-var(border);
+  border-radius: fn.use-var(radius, default);
+  background-color: fn.use-var(bg-color, top);
+  color: fn.use-var(text-color, main);
+  font-size: fn.use-var(font-size-main, default);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+    box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+  // 触控热区：任何尺寸的可点击区域不小于 44×44
+  @include m.size using ($size) {
+    min-height: max(fn.use-var(form-component-height, $size), 44px);
+  }
+
+  &:active {
+    border-color: fn.use-var(color, primary);
+  }
+
+  &:focus-visible {
+    box-shadow: fn.use-var(focus-ring);
+  }
+
+  @include m.is(active) {
+    border-color: fn.use-var(color, primary);
+  }
+
+  @include m.is(disabled) {
+    cursor: not-allowed;
+    color: fn.use-var(text-color, disabled);
+    background-color: fn.use-var(bg-color, middle);
+  }
+
+  @include m.e(value) {
+    flex: 1;
+    min-width: 0;
+    @include m.ellipsis;
+
+    @include m.is(placeholder) {
+      color: fn.use-var(text-color, placeholder);
+    }
+  }
+
+  @include m.e(icons) {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  @include m.e(clear) {
+    // 清除热区 ≥44×44（高度受行高约束，用外扩补足）
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    margin: -8px -8px -8px 0;
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: 16px;
+    color: fn.use-var(text-color, second);
+    cursor: pointer;
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+
+    &:active {
+      color: fn.use-var(text-color, title);
+    }
+  }
+
+  @include m.e(icon) {
+    display: inline-flex;
+    align-items: center;
+    color: fn.use-var(text-color, second);
+    font-size: 16px;
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  // 底部日历面板
+  @include m.e(panel) {
+    display: flex;
+    flex-direction: column;
+    gap: fn.use-var(gap, small);
+  }
+
+  @include m.e(panel-header) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  @include m.e(nav) {
+    // 翻页热区 ≥44×44
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    border: none;
+    background: none;
+    font-size: 16px;
+    color: fn.use-var(text-color, main);
+    cursor: pointer;
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+
+    &:active {
+      color: fn.use-var(color, primary);
+    }
+  }
+
+  @include m.e(panel-title) {
+    font-size: fn.use-var(font-size-title, default);
+    font-weight: 600;
+    color: fn.use-var(text-color, title);
+  }
+
+  @include m.e(week) {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @include m.e(week-day) {
+    text-align: center;
+    font-size: fn.use-var(font-size-assist, default);
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(days) {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @include m.e(months) {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @include m.e(years) {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @include m.e(cell) {
+    // 日期格热区 ≥44×44
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    border-radius: fn.use-var(radius, large);
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-main, default);
+    user-select: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    &:active {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    // 补位日期弱化
+    @include m.is(pre) {
+      color: fn.use-var(text-color, disabled);
+    }
+
+    @include m.is(next) {
+      color: fn.use-var(text-color, disabled);
+    }
+
+    @include m.is(today) {
+      color: fn.component-var(date-picker, today-color, fn.use-var(color, primary));
+      font-weight: 600;
+    }
+
+    @include m.is(selected) {
+      background-color: fn.use-var(color, primary);
+      color: fn.use-var(text-color, white);
+      font-weight: 600;
+
+      &:active {
+        background-color: fn.use-var(color, primary);
+      }
+    }
+
+    @include m.is(disabled) {
+      cursor: not-allowed;
+      color: fn.use-var(text-color, disabled);
+
+      &:active {
+        background-color: transparent;
+      }
+    }
+  }
+}

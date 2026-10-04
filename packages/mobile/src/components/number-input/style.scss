@@ -1,0 +1,116 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: number-input;
+
+@include m.b($root-name) {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: fn.use-var(gap-small);
+
+  @include m.e(field) {
+    flex: 1;
+    min-width: 0;
+  }
+
+  @include m.e(suffix) {
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+  }
+
+  @include m.e(suffix-content) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @include m.e(clear) {
+    // 清除按钮：宽度 44px、高度撑满输入行，满足 44×44 触控热区
+    min-width: 44px;
+    align-self: stretch;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+    color: fn.use-var(text-color, second);
+    font-size: inherit;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    svg {
+      width: 1em;
+      height: 1em;
+      fill: currentColor;
+    }
+
+    &:active {
+      color: fn.use-var(color, primary);
+    }
+
+    @include m.is(hidden) {
+      visibility: hidden;
+      pointer-events: none;
+    }
+  }
+
+  // 步进按钮组：外置于输入框右侧，各 44×44 触控热区
+  @include m.e(step) {
+    display: flex;
+    flex-shrink: 0;
+
+    button {
+      width: 44px;
+      height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: fn.use-var(border-muted);
+      background-color: fn.component-var(number-input, step-bg, fn.use-var(bg-color, middle));
+      color: fn.use-var(text-color, main);
+      font-size: fn.use-var(font-size-main, default);
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition:
+        background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+        color fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+      svg {
+        width: 1em;
+        height: 1em;
+        fill: currentColor;
+      }
+
+      &:active {
+        background-color: fn.use-var(color, primary, light-9);
+        color: fn.use-var(color, primary);
+      }
+
+      @include m.is(disabled) {
+        cursor: not-allowed;
+        color: fn.use-var(text-color, disabled);
+
+        &:active {
+          background-color: fn.component-var(number-input, step-bg, fn.use-var(bg-color, middle));
+        }
+      }
+
+      &:first-child {
+        border-radius: fn.use-var(radius, default) 0 0 fn.use-var(radius, default);
+      }
+
+      &:last-child {
+        border-left: none;
+        border-radius: 0 fn.use-var(radius, default) fn.use-var(radius, default) 0;
+      }
+
+      &:only-child {
+        border-radius: fn.use-var(radius, default);
+      }
+    }
+  }
+}

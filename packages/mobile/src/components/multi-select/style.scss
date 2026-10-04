@@ -1,0 +1,349 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: multi-select;
+
+@include m.b($root-name) {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  gap: fn.use-var(gap, small);
+  min-height: 44px;
+  padding: fn.use-var(gap, small) fn.use-var(gap, default);
+  border: fn.use-var(border);
+  border-radius: fn.use-var(radius, default);
+  background-color: fn.use-var(bg-color, top);
+  color: fn.use-var(text-color, main);
+  font-size: fn.use-var(font-size-main, default);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+    box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+  &:active {
+    border-color: fn.use-var(color, primary);
+  }
+
+  &:focus-visible {
+    box-shadow: fn.use-var(focus-ring);
+  }
+
+  @include m.is(active) {
+    border-color: fn.use-var(color, primary);
+
+    @include m.bem($root-name, arrow) {
+      transform: rotate(180deg);
+    }
+  }
+
+  @include m.is(disabled) {
+    cursor: not-allowed;
+    color: fn.use-var(text-color, disabled);
+    background-color: fn.use-var(bg-color, middle);
+
+    @include m.bem($root-name, arrow) {
+      color: fn.use-var(text-color, disabled);
+    }
+  }
+
+  @include m.e(value) {
+    flex: 1;
+    min-width: 0;
+    @include m.ellipsis;
+
+    @include m.is(placeholder) {
+      color: fn.use-var(text-color, placeholder);
+    }
+  }
+
+  // 触发器标签
+  @include m.e(tags) {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: fn.use-var(gap, small);
+  }
+
+  @include m.e(tag) {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: fn.use-var(gap, small) fn.use-var(gap, default);
+    border-radius: fn.use-var(radius, small);
+    background-color: fn.use-var(bg-color, middle);
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-assist, default);
+
+    @include m.is(rest) {
+      color: fn.use-var(text-color, second);
+      background-color: fn.use-var(bg-color, middle);
+    }
+  }
+
+  @include m.e(tag-label) {
+    min-width: 0;
+    @include m.ellipsis;
+  }
+
+  @include m.e(tag-close) {
+    // 关闭热区外扩补足（≥44×44 过大会挤占标签，取折中值并扩大点击域）
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    margin-left: fn.use-var(gap, small);
+    margin-right: -4px;
+    border: none;
+    background: none;
+    padding: 0;
+    font-size: 12px;
+    color: fn.use-var(text-color, second);
+    cursor: pointer;
+
+    // 扩大点击域，不占据布局空间
+    &::before {
+      content: '';
+      position: absolute;
+      inset: -12px;
+    }
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+
+    &:active {
+      color: fn.use-var(text-color, title);
+    }
+  }
+
+  @include m.e(icons) {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  @include m.e(clear) {
+    // 清除热区 ≥44×44（高度受行高约束，用外扩补足）
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    margin: -8px -8px -8px 0;
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: 16px;
+    color: fn.use-var(text-color, second);
+    cursor: pointer;
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+
+    &:active {
+      color: fn.use-var(text-color, title);
+    }
+  }
+
+  @include m.e(arrow) {
+    display: inline-flex;
+    align-items: center;
+    color: fn.use-var(text-color, second);
+    font-size: 14px;
+    transition: transform fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  // 面板头部（取消 / 标题 / 确定）
+  @include m.e(cancel, confirm) {
+    flex-shrink: 0;
+    min-width: 44px;
+    min-height: 44px;
+    margin: -8px 0;
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: fn.use-var(font-size-main, default);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @include m.e(cancel) {
+    margin-left: -8px;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(confirm) {
+    margin-right: -8px;
+    font-weight: 600;
+    color: fn.use-var(color, primary);
+
+    &:disabled {
+      color: fn.use-var(text-color, disabled);
+    }
+  }
+
+  @include m.e(title) {
+    flex: 1;
+    min-width: 0;
+    font-size: fn.use-var(font-size-title, default);
+    font-weight: 600;
+    color: fn.use-var(text-color, title);
+    text-align: center;
+    @include m.ellipsis;
+  }
+
+  // 面板内搜索行
+  @include m.e(search) {
+    padding: fn.use-var(gap, small) 0;
+  }
+
+  @include m.e(search-input) {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 44px;
+    padding: 0 fn.use-var(gap, default);
+    border: fn.use-var(border);
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, middle);
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-main, default);
+    outline: none;
+    -webkit-appearance: none;
+
+    &::placeholder {
+      color: fn.use-var(text-color, placeholder);
+    }
+
+    &:focus {
+      border-color: fn.use-var(color, primary);
+    }
+  }
+
+  // 全选栏
+  @include m.e(content-header) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: fn.use-var(gap, small) 0;
+  }
+
+  @include m.e(check-all) {
+    display: inline-flex;
+    align-items: center;
+    gap: fn.use-var(gap, small);
+    min-height: 44px;
+    padding: 0;
+    border: none;
+    background: none;
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-main, default);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include m.is(disabled) {
+      cursor: not-allowed;
+      color: fn.use-var(text-color, disabled);
+    }
+  }
+
+  @include m.e(count) {
+    color: fn.use-var(text-color, second);
+    font-size: fn.use-var(font-size-assist, default);
+  }
+
+  // 选项列表
+  @include m.e(options) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  @include m.e(option) {
+    // 选项热区 ≥44×44
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    gap: fn.use-var(gap, default);
+    padding: 0 fn.use-var(gap, default);
+    border-radius: fn.use-var(radius, default);
+    color: fn.use-var(text-color, main);
+    user-select: none;
+    cursor: pointer;
+
+    &:active {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    @include m.is(disabled) {
+      cursor: not-allowed;
+      color: fn.use-var(text-color, disabled);
+
+      &:active {
+        background-color: transparent;
+      }
+    }
+  }
+
+  @include m.e(option-label) {
+    flex: 1;
+    min-width: 0;
+    @include m.ellipsis;
+  }
+
+  // 勾选框视觉（内部实现，非 checkbox 组件）
+  @include m.e(checkbox) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border: 1px solid fn.use-var(border-color);
+    border-radius: fn.use-var(radius, small);
+    color: fn.use-var(text-color, white);
+    transition:
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      border-color fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    @include m.is(checked) {
+      border-color: fn.use-var(color, primary);
+      background-color: fn.use-var(color, primary);
+    }
+  }
+
+  @include m.e(empty) {
+    padding: fn.use-var(gap, large) 0;
+    text-align: center;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(loading) {
+    padding: fn.use-var(gap, large) 0;
+    text-align: center;
+    color: fn.use-var(text-color, second);
+  }
+}

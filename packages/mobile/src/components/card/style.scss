@@ -1,0 +1,34 @@
+@use 'sass:map';
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: card;
+
+// 移动端密度：内容内边距比桌面档位抬一档（6→8 / 8→12 / 12→12），仍走主题 gap token
+$mobile-padding-tier: (
+  small: default,
+  default: large,
+  large: large
+);
+
+@include m.b($root-name) {
+  border-radius: fn.component-var(card, radius, fn.use-var(radius, large));
+  background-color: fn.use-var(bg-color, top);
+  box-shadow: fn.use-var(shadow, sm);
+  backdrop-filter: fn.use-var(bg-filter);
+  -webkit-backdrop-filter: fn.use-var(bg-filter);
+  overflow: hidden;
+
+  @include m.size using ($size) {
+    font-size: fn.use-var(font-size-main, $size);
+    padding: fn.component-var(
+      card,
+      padding-#{$size},
+      fn.use-var(gap, map.get($mobile-padding-tier, $size))
+    );
+  }
+
+  @include m.is(integrate) {
+    box-shadow: none;
+  }
+}

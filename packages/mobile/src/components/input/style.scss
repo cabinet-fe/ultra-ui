@@ -1,0 +1,119 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: input;
+
+@include m.b($root-name) {
+  box-sizing: border-box;
+  vertical-align: middle;
+  line-height: 1;
+  border: fn.use-var(border-muted);
+  box-shadow: fn.use-var(shadow, emboss);
+  background-color: fn.component-var(input, bg, fn.use-var(bg-color, middle));
+  transition:
+    border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+    box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
+  overflow: hidden;
+  width: 100%;
+
+  @include m.flex($display: inline-flex);
+
+  @include m.size using ($size) {
+    // 触控热区：输入高度不小于 44px
+    $touch-size: max(fn.use-var(form-component-height, $size), 44px);
+
+    height: $touch-size;
+    border-radius: fn.use-var(radius, $size);
+    padding: 0 fn.use-var(gap, $size);
+
+    @include m.bem($root-name, native) {
+      // iOS 聚焦字号小于 16px 会触发视口缩放，正文取值与 16px 取大
+      font-size: max(fn.use-var(font-size-main, $size), 16px);
+    }
+  }
+
+  @include m.is(focus) {
+    border-color: fn.use-var(color, primary);
+    box-shadow: fn.use-var(focus-ring);
+  }
+
+  @include m.e(native) {
+    // 清除默认样式
+    outline: none;
+    border: none;
+    background-color: transparent;
+    width: 100%;
+    flex-grow: 1;
+    height: 100%;
+    color: fn.use-var(text-color, main);
+    font-family: fn.use-var(font-family);
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+
+    &::placeholder {
+      color: fn.use-var(text-color, placeholder);
+    }
+
+    &:disabled {
+      opacity: 1;
+      -webkit-text-fill-color: fn.use-var(text-color, disabled);
+    }
+  }
+
+  @include m.e(prefix, suffix) {
+    font-size: inherit;
+    color: fn.use-var(text-color, main);
+    flex-shrink: 0;
+    height: 100%;
+    text-align: center;
+    @include m.flex(inline-flex, $justify: center, $align: center);
+
+    // 前后缀可点击时保证 44px 宽热区
+    @include m.is(clickable) {
+      min-width: 44px;
+      cursor: pointer;
+    }
+  }
+
+  @include m.e(clear) {
+    // 清除按钮：宽度 44px、高度撑满输入行，满足 44×44 触控热区
+    min-width: 44px;
+    align-self: stretch;
+    border: none;
+    margin: 0;
+    padding: 0;
+    background-color: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: fn.use-var(text-color, second);
+    font-size: inherit;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    svg {
+      width: 1em;
+      height: 1em;
+      fill: currentColor;
+    }
+
+    &:active {
+      color: fn.use-var(color, primary);
+    }
+  }
+
+  @include m.e(suffix-content) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @include m.is(disabled) {
+    background-color: fn.use-var(color, disabled);
+    box-shadow: none;
+
+    @include m.bem($root-name, native) {
+      cursor: not-allowed;
+    }
+  }
+}

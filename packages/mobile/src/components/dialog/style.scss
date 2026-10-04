@@ -1,0 +1,120 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use 'sass:map';
+
+$root-name: dialog;
+
+// 各尺寸卡片宽度上限；视口内不溢出由 overlay 留白 + width: 100% 保证
+$dialog-max-width: (
+  small: 320px,
+  default: 420px,
+  large: 560px
+);
+
+@include m.bem($root-name, overlay) {
+  position: fixed;
+  inset: 0;
+  height: 100vh;
+  height: 100dvh;
+  pointer-events: none;
+  outline: none;
+  box-sizing: border-box;
+  // 两侧留白保证卡片在窄视口内不贴边
+  padding: fn.use-var(gap, large);
+  @include m.flex($justify: center);
+
+  @include m.is(modal) {
+    background-color: fn.color-a(color, 35, black);
+    pointer-events: auto;
+  }
+}
+
+@include m.b($root-name) {
+  pointer-events: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  overflow: hidden;
+  width: 100%;
+  max-height: 86vh;
+  max-height: 86dvh;
+  border-radius: fn.use-var(radius, large);
+  background-color: fn.use-var(bg-color, top);
+  box-shadow: fn.use-var(shadow, lg);
+
+  @include m.size using ($size) {
+    max-width: map.get($dialog-max-width, $size);
+    font-size: fn.use-var(font-size-main, $size);
+
+    @include m.bem($root-name, header) {
+      padding: 0 fn.use-var(gap, $size);
+      font-size: fn.use-var(font-size-title, $size);
+    }
+  }
+
+  @include m.e(header) {
+    min-height: 48px;
+    flex-shrink: 0;
+    gap: fn.use-var(gap, default);
+    border-bottom: fn.use-var(border);
+    @include m.flex($justify: space-between);
+  }
+
+  @include m.e(title) {
+    // 单行省略，长标题不换行挤压关闭按钮
+    @include m.ellipsis;
+  }
+
+  @include m.e(close) {
+    // 关闭热区不小于 44x44
+    flex-shrink: 0;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    color: fn.use-var(text-color, second);
+    font-size: fn.use-var(font-size-main, large);
+    line-height: 1;
+    -webkit-appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    @include m.flex($display: inline-flex, $justify: center);
+
+    &:active {
+      color: fn.use-var(text-color, main);
+    }
+
+    & > svg {
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  @include m.e(body) {
+    flex-grow: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: fn.use-var(gap, large);
+  }
+
+  @include m.e(footer) {
+    flex-shrink: 0;
+    border-top: fn.use-var(border);
+    padding: fn.use-var(gap, default) fn.use-var(gap, large);
+    gap: fn.use-var(gap, default);
+    @include m.flex($justify: flex-end);
+  }
+
+  @include m.is(fullscreen) {
+    max-width: none;
+    max-height: none;
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+}
+
+@include m.bem($root-name, trigger) {
+  display: inline-flex;
+}

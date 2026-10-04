@@ -1,0 +1,235 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$ease: cubic-bezier(0.4, 0, 0.2, 1);
+
+/* ===== 复合标签页：bar + content 布局容器 ===== */
+@include m.b(tabs) {
+  display: flex;
+  gap: fn.use-var(gap, small);
+  max-width: 100%;
+
+  @include m.e(content) {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+    border-radius: fn.use-var(radius, default);
+  }
+
+  @include m.m(top) {
+    flex-direction: column;
+  }
+
+  @include m.m(bottom) {
+    flex-direction: column-reverse;
+  }
+
+  @include m.m(left) {
+    flex-direction: row;
+
+    @include m.bem(tabs, content) {
+      height: 100%;
+    }
+  }
+
+  @include m.m(right) {
+    flex-direction: row-reverse;
+
+    @include m.bem(tabs, content) {
+      height: 100%;
+    }
+  }
+}
+
+/* ===== 标签栏：水平 / 垂直，溢出经触屏滑动滚动 ===== */
+$list-bg: fn.component-var(tabs, bar-bg, fn.use-var(bg-color, hover));
+$bar-radius: fn.use-var(radius, default);
+$item-radius: calc(fn.use-var(radius, default) - 2px);
+$bar-padding: 4px;
+$active-bg: fn.component-var(tabs, active-bg, fn.use-var(bg-color, top));
+$active-shadow: fn.use-var(shadow, sm);
+
+@include m.b(tabs-bar) {
+  display: inline-flex;
+  align-self: flex-start;
+  max-width: 100%;
+  min-width: 0;
+  // 仅水平方向内边距；垂直空间迁移到 __viewport，避免 __viewport 的 overflow 裁切激活态 box-shadow
+  padding: 0 $bar-padding;
+  background-color: $list-bg;
+  border-radius: $bar-radius;
+  gap: 2px;
+
+  @include m.m(horizontal) {
+    align-items: center;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  @include m.m(vertical) {
+    flex-direction: column;
+    // 垂直方向没有 __viewport 承载左右 padding，这里直接为容器补上，
+    // 与水平 __viewport 的 padding: 0 $bar-padding 对称
+    padding: $bar-padding 0;
+  }
+
+  @include m.e(viewport) {
+    flex: 1 1 auto;
+    min-width: 0;
+    // 上下 padding 与 overflow-y: hidden 配合：裁切发生在 padding-box 外沿，
+    // 激活 __item 的 box-shadow 得以在 padding 区域内完整渲染
+    padding: $bar-padding 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  @include m.e(list) {
+    display: inline-flex;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+    width: max-content;
+    margin: 0;
+    padding: 0;
+    gap: 2px;
+  }
+
+  @include m.e(item) {
+    cursor: pointer;
+    font-weight: 500;
+    letter-spacing: 0.25px;
+    color: fn.use-var(text-color, main);
+    user-select: none;
+    position: relative;
+    border-radius: $item-radius;
+    background-color: transparent;
+    box-shadow: none;
+    border: none;
+    outline: none;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    -webkit-tap-highlight-color: transparent;
+    scroll-snap-align: center;
+    transition:
+      color 0.22s $ease,
+      background-color 0.22s $ease,
+      box-shadow 0.22s $ease;
+
+    @include m.is(disabled) {
+      color: fn.use-var(text-color, disabled);
+      cursor: not-allowed;
+    }
+
+    @include m.is(active) {
+      color: fn.use-var(color, primary);
+      background-color: $active-bg;
+      box-shadow: $active-shadow;
+    }
+
+    &:focus-visible {
+      box-shadow: fn.use-var(focus-ring);
+    }
+  }
+
+  @include m.e(item-label) {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  // 关闭按钮：移动端无 hover，可关闭时常显；44px 宽 + 拉伸高度保证触控热区
+  @include m.e(close) {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    width: 44px;
+    margin-left: fn.use-var(gap, small);
+    overflow: hidden;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: fn.use-var(text-color, second);
+    cursor: pointer;
+    border-radius: $item-radius;
+    font-size: 12px;
+    line-height: 1;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
+
+    svg {
+      width: 1em;
+      height: 1em;
+      fill: currentColor;
+    }
+
+    &:active {
+      color: fn.use-var(text-color, title);
+      background-color: fn.color-a(text-color, 11, title);
+    }
+  }
+
+  // 垂直：滚动轴翻转为纵向，item 两端对齐（label 左、close 右）
+  @include m.m(vertical) {
+    @include m.bem(tabs-bar, viewport) {
+      padding: 0 $bar-padding;
+      overflow-x: hidden;
+      overflow-y: auto;
+      scroll-snap-type: y proximity;
+    }
+
+    @include m.bem(tabs-bar, list) {
+      flex-direction: column;
+      width: auto;
+    }
+
+    @include m.bem(tabs-bar, item) {
+      justify-content: space-between;
+      scroll-snap-align: center;
+    }
+  }
+
+  // 填充宽度（仅水平布局生效）：容器铺满父级，items 自身宽度保持不变
+  @include m.is(block) {
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    align-self: stretch;
+  }
+
+  // 触控热区：任何尺寸的标签可点击区域不小于 44×44
+  @include m.size using ($size) {
+    @include m.bem(tabs-bar, item) {
+      min-height: max(fn.use-var(form-component-height, $size), 44px);
+      min-width: 44px;
+      padding: 0 fn.use-var(gap, $size);
+      font-size: fn.use-var(font-size-main, $size);
+    }
+  }
+
+  // 胶囊风格：item 始终 pill；容器形状按方向分治——
+  // 水平容器也变为胶囊；垂直容器保持常规圆角（避免高度较大时 9999px 的形变）。
+  @include m.is(rounded) {
+    @include m.bem(tabs-bar, item) {
+      border-radius: 9999px;
+    }
+  }
+
+  @include m.m(horizontal) {
+    @include m.is(rounded) {
+      border-radius: 9999px;
+    }
+  }
+}

@@ -1,0 +1,109 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: sheet;
+
+@include m.b($root-name) {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  // 遮罩点击热区由根元素自身承担，面板区域不透传
+  background-color: fn.color-a(shadow, 52, color);
+
+  @include m.e(panel) {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    max-height: 75vh;
+    flex-shrink: 0;
+    border-radius: fn.use-var(radius, large) fn.use-var(radius, large) 0 0;
+    background-color: fn.use-var(bg-color, top);
+    box-shadow: fn.use-var(shadow, lg);
+    // 底部安全区（全面屏手势条），内容不与系统区域重叠
+    padding-bottom: constant(safe-area-inset-bottom);
+    padding-bottom: env(safe-area-inset-bottom);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @include m.e(header) {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: fn.use-var(gap, default);
+    min-height: 48px;
+    padding: fn.use-var(gap, small) fn.use-var(gap, default) 0;
+  }
+
+  @include m.e(title) {
+    flex: 1;
+    min-width: 0;
+    font-size: fn.use-var(font-size-title, default);
+    font-weight: 600;
+    color: fn.use-var(text-color, title);
+    text-align: center;
+    @include m.ellipsis;
+  }
+
+  @include m.e(close) {
+    // 头部操作热区 ≥44×44（高度受头部行高约束，用外扩补足宽度）
+    flex-shrink: 0;
+    min-width: 44px;
+    min-height: 44px;
+    margin: -8px -8px -8px 0;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: none;
+    font-size: 18px;
+    color: fn.use-var(text-color, main);
+    cursor: pointer;
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+
+    &:active {
+      color: fn.use-var(text-color, title);
+    }
+  }
+
+  @include m.e(body) {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: fn.use-var(gap, small) fn.use-var(gap, default) fn.use-var(gap, large);
+  }
+}
+
+// 进出场：遮罩淡入淡出，面板自底部滑入滑出
+.u-sheet-enter-active,
+.u-sheet-leave-active {
+  transition: opacity fn.use-var(transition, normal) fn.use-var(transition, ease);
+
+  @include m.bem($root-name, panel) {
+    transition:
+      transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+      border-radius 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+}
+
+.u-sheet-enter-from,
+.u-sheet-leave-to {
+  opacity: 0;
+
+  @include m.bem($root-name, panel) {
+    transform: translateY(100%);
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+}

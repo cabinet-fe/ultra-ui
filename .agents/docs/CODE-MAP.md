@@ -107,6 +107,8 @@ graph TD
   mobile --> utils
   mobile --> styles
   mobile --> icons
+  mobile --> compositions
+  mobile --> catkit
   vitePkg --> desktop
   vitePkg -.-> ai
   vitePkg -.-> sheet

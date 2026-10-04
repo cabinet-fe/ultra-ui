@@ -1,0 +1,139 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: collapse;
+
+$ease: cubic-bezier(0.4, 0, 0.2, 1);
+$transition-fast: 0.18s $ease;
+$transition-normal: 0.24s $ease;
+
+@include m.b($root-name) {
+  width: 100%;
+  font-size: fn.use-var(font-size-main, default);
+  color: fn.use-var(text-color, main);
+  background-color: transparent;
+
+  // ===== Item =====
+  @include m.e(item) {
+    border: fn.use-var(border-muted);
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, middle);
+    overflow: hidden;
+
+    & + #{fn.bem($root-name, item)} {
+      margin-top: fn.use-var(gap, default);
+    }
+
+    @include m.is(disabled) {
+      opacity: 0.55;
+    }
+  }
+
+  // ===== Header：触控热区高度保底 44px =====
+  @include m.e(header) {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: fn.use-var(gap, small);
+    padding: fn.use-var(gap, small) fn.use-var(gap, default);
+    min-height: 44px;
+    box-sizing: border-box;
+    cursor: pointer;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: fn.use-var(text-color, main);
+    user-select: none;
+    outline: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color $transition-fast;
+    border-radius: 0;
+
+    &:focus-visible {
+      box-shadow: inset 0 0 0 2px fn.use-var(color, primary);
+    }
+
+    // 移动端无 hover：按压与展开态提供触控反馈
+    @include m.is-not(disabled) {
+      &:active {
+        background-color: fn.use-var(bg-color, hover);
+      }
+    }
+
+    @include m.is(disabled) {
+      cursor: not-allowed;
+      color: fn.use-var(text-color, placeholder);
+    }
+
+    @include m.is(active) {
+      background-color: fn.use-var(bg-color, hover);
+
+      #{fn.bem($root-name, icon)} {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  // ===== Title =====
+  @include m.e(title) {
+    display: flex;
+    align-items: center;
+    gap: fn.use-var(gap, small);
+    flex: 1 1 auto;
+    min-width: 0;
+    line-height: 1.5;
+  }
+
+  // ===== Icon：无 UIcon 依赖，svg 直接经 1em 伸缩 =====
+  @include m.e(icon) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    color: fn.use-var(text-color, assist);
+    transition: transform 0.2s $ease;
+    will-change: transform;
+
+    svg {
+      width: 1em;
+      height: 1em;
+      fill: currentColor;
+    }
+  }
+
+  // ===== Content wrapper =====
+  @include m.e(content-wrapper) {
+    overflow: hidden;
+    height: 0;
+    background-color: transparent;
+    transition: height $transition-normal;
+  }
+
+  @include m.e(content) {
+    color: fn.use-var(text-color, main);
+    line-height: 1.7;
+    padding: fn.use-var(gap, small) fn.use-var(gap, default);
+  }
+
+  // ===== Sizes =====
+  @include m.size using ($size) {
+    font-size: fn.use-var(font-size-main, $size);
+
+    @include m.bem($root-name, header) {
+      padding: fn.use-var(gap, $size) fn.use-var(gap, $size);
+      font-size: fn.use-var(font-size-main, $size);
+    }
+
+    @include m.bem($root-name, content) {
+      font-size: fn.use-var(font-size-main, $size);
+      padding: fn.use-var(gap, $size);
+    }
+
+    #{fn.bem($root-name, item)} {
+      border-radius: fn.use-var(radius, $size);
+
+      & + #{fn.bem($root-name, item)} {
+        margin-top: fn.use-var(gap, $size);
+      }
+    }
+  }
+}

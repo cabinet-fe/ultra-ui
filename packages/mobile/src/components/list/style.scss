@@ -1,0 +1,24 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: list;
+$item-name: $root-name + '-item';
+
+// 移动端列表：无滚动包装层，原生 ul/li 直接承载滚动；行高保底 44px 触控热区
+@include m.b($root-name) {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @include m.size using ($size) {
+    @include m.bem($item-name) {
+      display: flex;
+      align-items: center;
+      padding: 0 fn.use-var(gap, $size);
+      border-radius: fn.use-var(radius, $size);
+      min-height: max(fn.use-var(form-component-height, $size), 44px);
+      line-height: 1.4;
+      font-size: fn.use-var(font-size-main, $size);
+    }
+  }
+}

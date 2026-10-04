@@ -1,0 +1,40 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+@include m.b(check-tag) {
+  @include m.flex(inline-flex, center, center);
+  vertical-align: middle;
+  box-sizing: border-box;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+
+  // 触控热区不小于 44×44
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 14px;
+
+  color: fn.use-var(text-color, main);
+  border: 1px solid fn.use-var(color, primary);
+  border-radius: fn.use-var(radius, default);
+  background-color: fn.use-var(color, primary, light-9);
+  transition:
+    background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+    border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+    color fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+  // 移动端无 hover，用 :active 提供触控反馈
+  &:active {
+    background-color: fn.use-var(color, primary, light-7);
+  }
+
+  @include m.is(checked) {
+    color: fn.use-var(text-color, white);
+    border-color: fn.use-var(color, primary, dark-3);
+    background-color: fn.use-var(color, primary, dark-3);
+
+    &:active {
+      background-color: fn.use-var(color, primary, dark-5);
+    }
+  }
+}

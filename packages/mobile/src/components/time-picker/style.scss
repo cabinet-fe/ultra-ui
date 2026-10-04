@@ -1,0 +1,208 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: time-picker;
+
+@include m.b($root-name) {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  gap: fn.use-var(gap, small);
+  padding: 0 fn.use-var(gap, default);
+  border: fn.use-var(border);
+  border-radius: fn.use-var(radius, default);
+  background-color: fn.use-var(bg-color, top);
+  color: fn.use-var(text-color, main);
+  font-size: fn.use-var(font-size-main, default);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+    box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+  // 触控热区：任何尺寸的可点击区域不小于 44×44
+  @include m.size using ($size) {
+    min-height: max(fn.use-var(form-component-height, $size), 44px);
+  }
+
+  &:active {
+    border-color: fn.use-var(color, primary);
+  }
+
+  &:focus-visible {
+    box-shadow: fn.use-var(focus-ring);
+  }
+
+  @include m.is(active) {
+    border-color: fn.use-var(color, primary);
+  }
+
+  @include m.is(disabled) {
+    cursor: not-allowed;
+    color: fn.use-var(text-color, disabled);
+    background-color: fn.use-var(bg-color, middle);
+  }
+
+  @include m.e(value) {
+    flex: 1;
+    min-width: 0;
+    @include m.ellipsis;
+
+    @include m.is(placeholder) {
+      color: fn.use-var(text-color, placeholder);
+    }
+  }
+
+  @include m.e(icons) {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  @include m.e(clear) {
+    // 清除热区 ≥44×44（高度受行高约束，用外扩补足）
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    margin: -8px -8px -8px 0;
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: 16px;
+    color: fn.use-var(text-color, second);
+    cursor: pointer;
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+
+    &:active {
+      color: fn.use-var(text-color, title);
+    }
+  }
+
+  @include m.e(icon) {
+    display: inline-flex;
+    align-items: center;
+    color: fn.use-var(text-color, second);
+    font-size: 16px;
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  // 面板头部操作（BottomSheet header 槽位）
+  @include m.e(cancel) {
+    // 操作热区 ≥44×44
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 fn.use-var(gap, small);
+    border: none;
+    background: none;
+    font-size: fn.use-var(font-size-main, default);
+    color: fn.use-var(text-color, second);
+    cursor: pointer;
+
+    &:active {
+      color: fn.use-var(text-color, title);
+    }
+  }
+
+  @include m.e(title) {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    font-size: fn.use-var(font-size-title, default);
+    font-weight: 600;
+    color: fn.use-var(text-color, title);
+    @include m.ellipsis;
+  }
+
+  @include m.e(confirm) {
+    // 操作热区 ≥44×44
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 fn.use-var(gap, small);
+    border: none;
+    background: none;
+    font-size: fn.use-var(font-size-main, default);
+    font-weight: 600;
+    color: fn.use-var(color, primary);
+    cursor: pointer;
+
+    &:active {
+      opacity: 0.7;
+    }
+  }
+
+  // 底部滚轮面板
+  @include m.e(wheel) {
+    position: relative;
+    display: flex;
+    gap: fn.use-var(gap, small);
+  }
+
+  @include m.e(highlight) {
+    // 中心选中行高亮带：覆盖三列、不拦截触摸
+    position: absolute;
+    top: calc(50% - 22px);
+    left: 0;
+    right: 0;
+    height: 44px;
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(color, primary, light-9);
+    pointer-events: none;
+  }
+
+  @include m.e(column) {
+    flex: 1;
+    min-width: 0;
+    height: 220px;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  @include m.e(spacer) {
+    height: 88px;
+  }
+
+  @include m.e(item) {
+    // 滚轮行热区 ≥44×44
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    scroll-snap-align: center;
+    color: fn.use-var(text-color, main);
+    font-size: 18px;
+    font-variant-numeric: tabular-nums;
+    user-select: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include m.is(selected) {
+      color: fn.use-var(text-color, title);
+      font-weight: 600;
+    }
+
+    @include m.is(disabled) {
+      color: fn.use-var(text-color, disabled);
+      cursor: not-allowed;
+    }
+  }
+}

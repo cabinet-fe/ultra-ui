@@ -1,0 +1,114 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use 'pkg:@veltra/styles/vars' as vars;
+
+// 方便拼接
+$root-name: message;
+
+// 顶部轻提示容器：视口顶部居中列排，避让刘海安全区
+@include m.bem($root-name, container) {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  // 两侧留白保证提示在窄视口内不贴边溢出
+  padding: calc(fn.use-var(gap, default) + constant(safe-area-inset-top)) fn.use-var(gap, default) 0;
+  padding: calc(fn.use-var(gap, default) + env(safe-area-inset-top)) fn.use-var(gap, default) 0;
+  pointer-events: none;
+}
+
+@include m.b($root-name) {
+  pointer-events: auto;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  // 触控热区不小于 44（含可关闭提示的整条热区）
+  min-height: 44px;
+  max-width: 100%;
+  margin-bottom: fn.use-var(gap, small);
+  padding: fn.use-var(gap, small) fn.use-var(gap, default);
+  gap: fn.use-var(gap, small);
+  border-radius: fn.use-var(radius, large);
+  font-size: fn.use-var(font-size-main, default);
+  line-height: 1.5;
+  box-shadow: fn.use-var(shadow, lg);
+
+  @include m.e(icon) {
+    display: inline-flex;
+    flex-shrink: 0;
+
+    // 与 UIcon 的 1em 图标对齐
+    > svg {
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  @include m.e(content) {
+    min-width: 0;
+    word-break: break-all;
+  }
+
+  @include m.e(close) {
+    // 关闭热区不小于 44x44（外扩补足，不挤压内容）
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    margin: calc(-1 * fn.use-var(gap, small)) calc(-1 * fn.use-var(gap, default));
+    padding: 0;
+    border: none;
+    background: none;
+    color: inherit;
+    font-size: 1em;
+    -webkit-appearance: none;
+    -webkit-tap-highlight-color: transparent;
+
+    > svg {
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  @each $type, $_ in vars.$color-types {
+    @if ($type == 'default') {
+      @include m.m(color-#{$type}) {
+        background-color: fn.use-var(color, $type);
+        color: fn.use-var(text-color, main);
+      }
+    } @else {
+      @include m.m(color-#{$type}) {
+        background-color: fn.use-var(color, $type, 'light-9');
+        color: fn.use-var(color, $type);
+      }
+    }
+  }
+}
+
+/* 进出场：自顶部滑入滑出（transition-group name="message"） */
+.#{$root-name}-move,
+.#{$root-name}-enter-active,
+.#{$root-name}-leave-active {
+  transition:
+    opacity fn.use-var(transition, normal) fn.use-var(transition, ease),
+    transform fn.use-var(transition, normal) fn.use-var(transition, ease);
+}
+
+.#{$root-name}-enter-from,
+.#{$root-name}-leave-to {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+/* 确保将离开的元素从布局流中删除
+  以便能够正确地计算移动的动画。 */
+.#{$root-name}-leave-active {
+  position: absolute;
+  width: max-content;
+}

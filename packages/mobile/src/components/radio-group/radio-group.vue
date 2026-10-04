@@ -1,0 +1,59 @@
+<template>
+  <div v-if="!readonly" v-bind="$attrs" :class="[cls.b, bem.is('block', block), cls.m(size)]">
+    <URadio
+      v-for="item of items"
+      :key="item[valueKey]"
+      :value="item[valueKey]"
+      :model-value="model"
+      @update:model-value="handleUpdate($event, item)"
+      :disabled="disabledItem?.(item) || disabled"
+      :size="size"
+    >
+      {{ item[labelKey] }}
+    </URadio>
+  </div>
+
+  <template v-else>
+    {{ items.find((item) => item[valueKey] === model)?.[labelKey] || FORM_EMPTY_CONTENT }}
+  </template>
+</template>
+
+<script lang="ts" setup>
+import { useFormFallbackProps } from '@veltra/compositions'
+import { bem, fieldKey, FORM_EMPTY_CONTENT, injectFormContext } from '@veltra/utils'
+import { computed } from 'vue'
+
+import type { RadioGroupEmits, RadioGroupProps } from '../../types/radio-group'
+import URadio from '../radio/radio.vue'
+
+defineOptions({ name: 'URadioGroup', inheritAttrs: false })
+
+const props = withDefaults(defineProps<RadioGroupProps>(), {
+  labelKey: 'label',
+  valueKey: 'value',
+  disabled: undefined,
+  readonly: undefined
+})
+
+const model = defineModel<any>()
+
+const emit = defineEmits<RadioGroupEmits>()
+
+const { formProps } = injectFormContext()
+
+const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
+  size: 'default',
+  disabled: false,
+  readonly: false
+})
+
+const cls = bem('radio-group')
+
+const labelKey = computed(() => fieldKey(props.labelKey, 'label'))
+const valueKey = computed(() => fieldKey(props.valueKey, 'value'))
+
+const handleUpdate = (value: any, item: Record<string, any>) => {
+  model.value = value
+  emit('change', item)
+}
+</script>

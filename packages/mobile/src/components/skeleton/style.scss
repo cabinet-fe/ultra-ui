@@ -1,0 +1,94 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+// 方便拼接
+$root-name: skeleton;
+
+// 头像占位边长（正方形圆形头像，对齐移动端触控密度）
+$avatar-size: 44px;
+// 标题占位高度与宽度（宽度按内容区比例收窄）
+$title-height: 18px;
+$title-width: 33%;
+// 段落行占位高度与末行宽度（末行收窄模拟自然段落）
+$paragraph-height: 15px;
+$paragraph-last-width: 60%;
+// 按钮形态占位宽度（高度走 form-component-height token）
+$button-width: 88px;
+// 呼吸动画一轮时长（token 无该量级档位，组件级常量）
+$pulse-duration: 1.4s;
+
+@include m.b($root-name) {
+  display: flex;
+  align-items: flex-start;
+  gap: fn.use-var(gap, default);
+
+  // 头像占位
+  @include m.e(avatar) {
+    flex: none;
+    width: $avatar-size;
+    height: $avatar-size;
+    border-radius: 50%;
+    background-color: fn.use-var(bg-color, hover);
+  }
+
+  // 文本区占位
+  @include m.e(content) {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: fn.use-var(gap, default);
+    min-width: 0;
+  }
+
+  // 标题占位
+  @include m.e(title) {
+    height: $title-height;
+    width: $title-width;
+    border-radius: fn.use-var(radius, small);
+    background-color: fn.use-var(bg-color, hover);
+  }
+
+  // 段落占位：末行收窄模拟自然段落
+  @include m.e(paragraph) {
+    height: $paragraph-height;
+    border-radius: fn.use-var(radius, small);
+    background-color: fn.use-var(bg-color, hover);
+
+    &:last-child {
+      width: $paragraph-last-width;
+    }
+  }
+
+  // 按钮形态占位
+  @include m.e(button) {
+    width: $button-width;
+    height: fn.use-var(form-component-height, default);
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, hover);
+  }
+
+  // 胶囊圆角：作用于标题 / 段落 / 按钮
+  @include m.is(round) {
+    @include m.bem($root-name, title paragraph button) {
+      border-radius: fn.use-var(radius, large);
+    }
+  }
+
+  // 动画：占位块呼吸明暗
+  @include m.is(animated) {
+    @include m.bem($root-name, avatar title paragraph button) {
+      animation: skeleton-pulse $pulse-duration ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+}
