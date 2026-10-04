@@ -45,7 +45,7 @@ CI：`.github/workflows/release.yml`。`bun run release` 在 `dev` 分支落版�
 | 语言 / runtime          | TypeScript ^6、Bun（packageManager bun@1.4）                       | 库代码 ESM                                                        |
 | 框架                    | Vue 3.5+（Composition API + `<script setup>`）                     | peer；playground 另用 vue-router                                  |
 | 样式                    | SCSS（sass-embedded）+ BEM + CSS 变量                              | `@use 'pkg:@veltra/styles/...'`，构建需 `NodePackageImporter`     |
-| 表格渲染 / IO           | `infinitable`（npm 统一入口，re-export 引擎四层）、hucre            | 引擎在 sheet-core；sheet 亦直连                                    |
+| 表格渲染 / IO           | `infinitable`（npm 统一入口，re-export 引擎四层）、hucre           | 引擎在 sheet-core；sheet 亦直连                                   |
 | 富文本 / PDF / Markdown | Lexical、EmbedPDF（desktop）；markstream-vue（ai）                 | 见各包 dependencies                                               |
 | 版式文档 OFD            | 自研 `@veltra/ofd-core`（DecompressionStream + DOMParser，零依赖） | desktop file-viewer 组件壳调用                                    |
 | 构建 / 包管理           | Vite+（`vp`）、workspaces `packages/*` + `playground`              | 根 `vite.config.ts` 只管 test/lint/fmt/run/staged；库 pack 在包内 |

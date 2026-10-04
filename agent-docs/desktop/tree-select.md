@@ -195,12 +195,12 @@ export type TreeSelectExposed = {}
 
 ## 方法与事件
 
-| 事件                | payload                              | 触发时机                                                               |
-| ------------------- | ------------------------------------ | ---------------------------------------------------------------------- |
-| `update:modelValue` | `value?: string \| number`           | 点选节点或清空；清空时为 `''`                                          |
-| `change`            | `selectedData?: Record<string, any>` | 点选节点（payload 为节点完整数据对象）或清空（payload 为 `undefined`） |
+| 事件                | payload                              | 触发时机                                                                                                                                                              |
+| ------------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `update:modelValue` | `value?: string \| number`           | 点选节点或清空；清空时为 `''`                                                                                                                                         |
+| `change`            | `selectedData?: Record<string, any>` | 点选节点（payload 为节点完整数据对象）或清空（payload 为 `undefined`）                                                                                                |
 | `update:text`       | `text?: string`                      | 命中节点时为节点 `labelKey` 字段值；清空时为 `undefined`；未命中且传了 `text` 时不发出（父级文案即事实来源），未传 `text` 时发出 `undefined`；`readonly` 下一律不发出 |
-| `clear`             | —                                    | 点击清除按钮                                                           |
+| `clear`             | —                                    | 点击清除按钮                                                                                                                                                          |
 
 组件 ref 上没有可调用的暴露方法。
 

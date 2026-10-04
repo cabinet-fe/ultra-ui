@@ -86,6 +86,8 @@ export * from './action'
 
 export * from './tip'
 
+export * from './transfer'
+
 export * from './textarea'
 
 export * from './button'
@@ -155,3 +157,27 @@ export * from './segment'
 export * from './image-cropper'
 
 export * from './kanban'
+
+export * from './anchor'
+
+export * from './avatar'
+
+export * from './back-top'
+
+export * from './alert'
+
+export * from './rate'
+
+export * from './divider'
+
+export * from './space'
+
+export * from './skeleton'
+
+export * from './time-picker'
+
+export * from './descriptions'
+
+export * from './timeline'
+
+export * from './carousel'

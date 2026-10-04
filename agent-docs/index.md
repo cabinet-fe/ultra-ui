@@ -1,6 +1,6 @@
 ---
 title: Ultra UI 总览
-description: Ultra UI（@veltra/*）是面向 Vue 3 的组件与能力库，包含 79 篇桌面组件文档、AI 对话（UAiChat / useChat）、电子表格（USheet / Workbook）、组合式函数、utils 工具、指令、主题系统与按需导入解析器；本篇是全部 124 篇文档的路由表。
+description: Ultra UI（@veltra/*）是面向 Vue 3 的组件与能力库，包含 92 篇桌面组件文档、AI 对话（UAiChat / useChat）、电子表格（USheet / Workbook）、组合式函数、utils 工具、指令、主题系统与按需导入解析器；本篇是全部 137 篇文档的路由表。
 aliases:
   [
     ultra-ui,
@@ -96,13 +96,18 @@ createApp(App).mount('#app')
 | 模块                             | 用途                                                                         | 文档路径                        |
 | -------------------------------- | ---------------------------------------------------------------------------- | ------------------------------- |
 | UAction / UActionGroup           | 操作按钮组：紧凑的行内操作集合                                               | `desktop/action.md`             |
+| UAlert                           | 警告提示：行内提示条，四种语义类型、标题描述与可关闭                         | `desktop/alert.md`              |
+| UAnchor / UAnchorItem            | 锚点导航：点击滚动定位页内锚点、滚动高亮当前项                               | `desktop/anchor.md`             |
 | UAutoComplete                    | 自动补全输入框：输入时下拉匹配候选项                                         | `desktop/auto-complete.md`      |
+| UAvatar / UAvatarGroup           | 头像：图片与文字回退、形状尺寸；头像组重叠展示与 max 溢出 +N                 | `desktop/avatar.md`             |
+| UBackTop                         | 回到顶部：滚动超出阈值出现的回顶按钮，可指定滚动容器                         | `desktop/back-top.md`           |
 | UBadge                           | 徽标：元素角标计数与状态点                                                   | `desktop/badge.md`              |
 | UBatchEdit                       | 批量编辑：多字段批量赋值的编辑面板                                           | `desktop/batch-edit.md`         |
 | UBreadcrumb                      | 面包屑：层级路径导航                                                         | `desktop/breadcrumb.md`         |
 | UButton / UButtonGroup           | 按钮：type / size / plain / disabled 等形态与按钮组                          | `desktop/button.md`             |
 | UCalendar                        | 日历：月视图日期面板与日期选择                                               | `desktop/calendar.md`           |
 | UCard 系列                       | 卡片：UCard / UCardHeader / UCardCover / UCardContent / UCardAction 内容容器 | `desktop/card.md`               |
+| UCarousel / UCarouselItem        | 走马灯：多页横向轮播，自动播放 / 循环 / 箭头与指示器圆点切换                 | `desktop/carousel.md`           |
 | UCascade                         | 级联选择器：多级选项逐级下拉选择                                             | `desktop/cascade.md`            |
 | UCheckTag                        | 可选中标签：标签形态的勾选项                                                 | `desktop/check-tag.md`          |
 | UCheckbox / UCheckboxButton      | 复选框：单勾选与按钮形态                                                     | `desktop/checkbox.md`           |
@@ -115,6 +120,8 @@ createApp(App).mount('#app')
 | UDatePicker                      | 日期选择器：弹层日期选择输入框                                               | `desktop/date-picker.md`        |
 | UDateRangePicker                 | 日期范围选择器：起止日期选择                                                 | `desktop/date-range-picker.md`  |
 | UDialog                          | 对话框：模态弹窗，v-model 控制显隐，#footer 放操作按钮                       | `desktop/dialog.md`             |
+| UDescriptions / UDescriptionsItem | 描述列表：键值对详情，多列、边框模式、水平 / 垂直布局                        | `desktop/descriptions.md`       |
+| UDivider                         | 分割线：水平 / 垂直方向、虚线与嵌套文字对齐                                  | `desktop/divider.md`            |
 | UDrawer                          | 抽屉：四方向滑出面板，固定 320px 尺寸                                        | `desktop/drawer.md`             |
 | UDropdown                        | 下拉菜单：触发器弹出菜单项                                                   | `desktop/dropdown.md`           |
 | UDualNav                         | 双栏导航：左轨应用 + 右栏子菜单的两层导航，currentPath 受控                  | `desktop/dual-nav.md`           |
@@ -156,11 +163,14 @@ createApp(App).mount('#app')
 | UProgressNodes                   | 进度节点：步骤式节点进度                                                     | `desktop/progress-nodes.md`     |
 | URadio                           | 单选框：单个单选项                                                           | `desktop/radio.md`              |
 | URadioGroup                      | 单选框组：单选值绑定                                                         | `desktop/radio-group.md`        |
+| URate                            | 评分：星形打分，半星 / 只读禁用 / 字符与颜色定制                             | `desktop/rate.md`               |
 | URichTextEditor                  | 富文本编辑器：Lexical 封装的富文本编辑                                       | `desktop/rich-text-editor.md`   |
 | UScroll                          | 滚动容器：自绘 6px 细滚动条，scrollTo / update()                             | `desktop/scroll.md`             |
 | USegment                         | 分段控制器：互斥选项切换                                                     | `desktop/segment.md`            |
 | USelect                          | 单选选择器：单选下拉框                                                       | `desktop/select.md`             |
+| USkeleton                        | 骨架屏：标题 / 段落 / 头像 / 按钮占位组合，loading 切换实际内容              | `desktop/skeleton.md`           |
 | USlider                          | 滑块：拖拽选取数值                                                           | `desktop/slider.md`             |
+| USpace                           | 间距容器：档位 / 定值 / 二元组间距，垂直排列与换行                           | `desktop/space.md`              |
 | USteps                           | 步骤条：流程步骤指示                                                         | `desktop/steps.md`              |
 | USwitch                          | 开关：布尔开关切换                                                           | `desktop/switch.md`             |
 | UTable                           | 表格：columns + data 数据表格，多选 / 树形 / 合并 / 表尾合计 / 虚拟滚动      | `desktop/table.md`              |
@@ -170,24 +180,27 @@ createApp(App).mount('#app')
 | UText                            | 文本：省略 / 复制等文本排版                                                  | `desktop/text.md`               |
 | UTextarea                        | 文本域：多行文本输入                                                         | `desktop/textarea.md`           |
 | UTheme                           | 主题编辑器：运行时可视化调整主题 token                                       | `desktop/theme.md`              |
+| UTimePicker                      | 时间选择器：弹层时 / 分 / 秒三列选择                                         | `desktop/time-picker.md`        |
+| UTimeline / UTimelineItem        | 时间线：纵向节点圆点颜色 / #dot 自定义节点、时间戳与内容                     | `desktop/timeline.md`           |
 | UTip                             | 文字提示：悬浮提示气泡                                                       | `desktop/tip.md`                |
+| UTransfer                        | 穿梭框：双栏列表勾选互移、搜索过滤与禁用项                                   | `desktop/transfer.md`           |
 | UTree                            | 树形控件：层级节点展开勾选                                                   | `desktop/tree.md`               |
 | UTreeSelect                      | 树选择器：树形下拉选择                                                       | `desktop/tree-select.md`        |
 | UWatermark                       | 水印：页面 / 容器水印                                                        | `desktop/watermark.md`          |
 
 上表按导出名字母序，便于已知组件名时定位。不知道组件名、只按界面意图选组件时用下面这张按分类组织的索引（组件名与用途同表，文档路径见上表）：
 
-| 分类         | 组件                                                                                                                                                                                                                                                               |
-| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 布局与容器   | `ULayout` 分栏外壳、`UGrid` / `UGridItem` 栅格、`UScroll` 细滚动条容器、`UCard` 系列 页面区块 / 面板 / 统计卡片容器、`UList` / `UListItem` 列表、`UCollapse` / `UCollapseItem` 折叠、`UTabs` 系列 标签页                                                           |
-| 导航         | `UDualNav` 双栏导航、`UNav` 多级侧边导航、`UGroupNav` 分组导航、`UBreadcrumb` 面包屑、`USteps` 步骤条、`UProgressNodes` 进度节点、`UFloatButton` 浮动按钮                                                                                                          |
-| 文本与图标   | `UText` 文本排版（五档字号字重）、`UIcon` 图标、`UKbd` 按键、`UBadge` 徽标、`UTag` 标签、`UNodeRender` 节点渲染、`UWatermark` 水印                                                                                                                                 |
-| 按钮与操作   | `UButton` / `UButtonGroup` 按钮、`UAction` / `UActionGroup` 表格行内操作、`USegment` 分段控制器、`UCheckTag` 可选中标签、`UDropdown` 下拉菜单、`UContextmenu` 右键菜单                                                                                             |
-| 表单与输入   | `UForm` 表单容器、`UFormItem` 表单项、`UInput`、`UTextarea`、`UPasswordInput`、`UNumberInput`、`UNumberRangeInput`、`UAutoComplete`、`UGroupInput`、`UGridInput`、`USwitch`、`UCheckbox` / `UCheckboxButton`、`UCheckboxGroup`、`URadio`、`URadioGroup`、`USlider` |
-| 选择器与日期 | `USelect`、`UMultiSelect`、`UTreeSelect`、`UMultiTreeSelect`、`UCascade`、`UTree`、`UDatePicker`、`UDateRangePicker`、`UDatePanel`、`UCalendar`、`UPalette`                                                                                                        |
-| 数据展示     | `UTable` 数据表格、`UTableEditor` 可编辑表格、`UKanban` 看板、`UPaginator` 分页器（含「共 N 条」文案）、`UNumber` 数字格式化与补间、`UEmpty` 空状态、`UGanttChart` 甘特图                                                                                          |
-| 反馈与浮层   | `message` / `UMessage` 轻提示、`notification` / `UNotification` 通知、`messageConfirm` / `UMessageConfirm` 确认框、`UPopConfirm` 气泡确认、`UTip` 文字提示、`UDialog` 对话框、`UDrawer` 抽屉、`ULoading` / `vLoading` 加载、`UProgress` 进度条                     |
-| 进阶编辑器   | `UBatchEdit` 批量编辑、`UConditionEditor` 条件编辑器、`UExpressionEditor` 表达式编辑器、`UCodeEditor` 代码编辑器、`URichTextEditor` 富文本编辑器、`UFilePicker` 文件选择、`UFileViewer` 文件预览、`UImageCropper` 图片裁剪、`UTheme` 主题编辑器                    |
+| 分类         | 组件                                                                                                                                                                                                                                                                                    |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 布局与容器   | `ULayout` 分栏外壳、`UGrid` / `UGridItem` 栅格、`UScroll` 细滚动条容器、`UCard` 系列 页面区块 / 面板 / 统计卡片容器、`UList` / `UListItem` 列表、`UCollapse` / `UCollapseItem` 折叠、`UTabs` 系列 标签页、`USpace` 间距容器、`UDivider` 分割线                                          |
+| 导航         | `UDualNav` 双栏导航、`UNav` 多级侧边导航、`UGroupNav` 分组导航、`UBreadcrumb` 面包屑、`USteps` 步骤条、`UProgressNodes` 进度节点、`UFloatButton` 浮动按钮、`UBackTop` 回到顶部                                                                                                          |
+| 文本与图标   | `UText` 文本排版（五档字号字重）、`UIcon` 图标、`UKbd` 按键、`UBadge` 徽标、`UTag` 标签、`UAvatar` / `UAvatarGroup` 头像、`UNodeRender` 节点渲染、`UWatermark` 水印                                                                                                                     |
+| 按钮与操作   | `UButton` / `UButtonGroup` 按钮、`UAction` / `UActionGroup` 表格行内操作、`USegment` 分段控制器、`UCheckTag` 可选中标签、`UDropdown` 下拉菜单、`UContextmenu` 右键菜单                                                                                                                  |
+| 表单与输入   | `UForm` 表单容器、`UFormItem` 表单项、`UInput`、`UTextarea`、`UPasswordInput`、`UNumberInput`、`UNumberRangeInput`、`UAutoComplete`、`UGroupInput`、`UGridInput`、`USwitch`、`UCheckbox` / `UCheckboxButton`、`UCheckboxGroup`、`URadio`、`URadioGroup`、`USlider`、`URate` 评分        |
+| 选择器与日期 | `USelect`、`UMultiSelect`、`UTransfer` 穿梭框、`UTreeSelect`、`UMultiTreeSelect`、`UCascade`、`UTree`、`UDatePicker`、`UTimePicker` 时间选择器、`UDateRangePicker`、`UDatePanel`、`UCalendar`、`UPalette`                                                                               |
+| 数据展示     | `UTable` 数据表格、`UTableEditor` 可编辑表格、`UKanban` 看板、`UPaginator` 分页器（含「共 N 条」文案）、`UNumber` 数字格式化与补间、`UEmpty` 空状态、`UGanttChart` 甘特图、`UCarousel` / `UCarouselItem` 走马灯                                                                  |
+| 反馈与浮层   | `message` / `UMessage` 轻提示、`notification` / `UNotification` 通知、`messageConfirm` / `UMessageConfirm` 确认框、`UPopConfirm` 气泡确认、`UTip` 文字提示、`UDialog` 对话框、`UDrawer` 抽屉、`ULoading` / `vLoading` 加载、`USkeleton` 骨架屏、`UProgress` 进度条、`UAlert` 行内提示条 |
+| 进阶编辑器   | `UBatchEdit` 批量编辑、`UConditionEditor` 条件编辑器、`UExpressionEditor` 表达式编辑器、`UCodeEditor` 代码编辑器、`URichTextEditor` 富文本编辑器、`UFilePicker` 文件选择、`UFileViewer` 文件预览、`UImageCropper` 图片裁剪、`UTheme` 主题编辑器                                         |
 
 ### compositions 组合式函数（@veltra/compositions）
 

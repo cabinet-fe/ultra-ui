@@ -188,30 +188,30 @@ export type CascadeExposed = {}
 
 ## 参数说明
 
-| 参数              | 类型                              | 默认         | 必填 | 约束                                                                                     |
-| ----------------- | --------------------------------- | ------------ | :--: | ---------------------------------------------------------------------------------------- |
-| `v-model`         | `string \| string[]`              | —            |  否  | 单选见「方法与事件」的取值模式；多选时为节点值数组                                       |
-| `data`            | `Record<string, any>[]`           | `[]`         |  否  | 树形数组；无 `childrenKey` 字段的节点即叶子；无懒加载，必须一次性传入全部层级            |
-| `labelKey`        | `string`                          | `'label'`    |  否  | 展示文案读取该字段                                                                       |
+| 参数              | 类型                              | 默认         | 必填 | 约束                                                                                                   |
+| ----------------- | --------------------------------- | ------------ | :--: | ------------------------------------------------------------------------------------------------------ |
+| `v-model`         | `string \| string[]`              | —            |  否  | 单选见「方法与事件」的取值模式；多选时为节点值数组                                                     |
+| `data`            | `Record<string, any>[]`           | `[]`         |  否  | 树形数组；无 `childrenKey` 字段的节点即叶子；无懒加载，必须一次性传入全部层级                          |
+| `labelKey`        | `string`                          | `'label'`    |  否  | 展示文案读取该字段                                                                                     |
 | `text`            | `string`                          | —            |  否  | 兜底展示文案（仅单选）：`modelValue` 未命中数据时展示（如回显路径已不在选项中），命中时展示 label 路径 |
-| `valueKey`        | `string`                          | `'value'`    |  否  | 路径拼接与回显映射读取该字段；取值必须为字符串且全树唯一，数值或重复值会导致回显映射失败 |
-| `childrenKey`     | `string`                          | `'children'` |  否  | 子级数组字段名                                                                           |
-| `separator`       | `string`                          | `'/'`        |  否  | 路径分隔符，既是提交值分隔符也是回显拆分符                                               |
-| `placeholder`     | `string`                          | `'请选择'`   |  否  | 无选中值时的占位文字                                                                     |
-| `clearable`       | `boolean`                         | `true`       |  否  | 悬停且已有选中值时显示清除按钮                                                           |
-| `strict`          | `boolean`                         | `false`      |  否  | 仅单选：`true` 时仅叶子节点提交，非叶子点击只展开下级                                    |
-| `showFullPath`    | `boolean`                         | `true`       |  否  | 仅单选：`false` 时显示、`modelValue`、`update:label` 均只体现叶子                        |
-| `multiple`        | `boolean`                         | `false`      |  否  | 多选时触发框渲染可关闭标签                                                               |
-| `filterable`      | `boolean`                         | `false`      |  否  | 面板顶部出现过滤输入框，按节点 `label` 子串匹配（忽略大小写），命中节点与其祖先保留      |
-| `visibilityLimit` | `number`                          | `3`          |  否  | 多选可见标签上限，超出折叠为 `N+`；负数按 `0`                                            |
-| `size`            | `'small' \| 'default' \| 'large'` | `'default'`  |  否  | 组件未设置时继承 `UForm` 的 `size`                                                       |
-| `label`           | `string`                          | —            |  否  | 标签文字，仅 `UForm` / `UFormItem` 内生效                                                |
-| `field`           | `string`                          | —            |  否  | `UForm` 内必须用它绑定字段；写了 `field` 禁止再写 `v-model`                              |
-| `rules`           | `ValidateRule`                    | —            |  否  | 校验规则，仅 `UForm` 内生效                                                              |
-| `tips`            | `string`                          | —            |  否  | 表单内提示文字，仅 `UForm` 内生效                                                        |
-| `span`            | `number \| 'full' \| 响应式对象`  | —            |  否  | 所占列宽，仅 `UForm` 内生效                                                              |
-| `disabled`        | `boolean`                         | `false`      |  否  | 未设置时继承 `UForm` 的 `disabled`                                                       |
-| `readonly`        | `boolean`                         | `false`      |  否  | 未设置时继承 `UForm`；只读时渲染为纯文本或标签列表                                       |
+| `valueKey`        | `string`                          | `'value'`    |  否  | 路径拼接与回显映射读取该字段；取值必须为字符串且全树唯一，数值或重复值会导致回显映射失败               |
+| `childrenKey`     | `string`                          | `'children'` |  否  | 子级数组字段名                                                                                         |
+| `separator`       | `string`                          | `'/'`        |  否  | 路径分隔符，既是提交值分隔符也是回显拆分符                                                             |
+| `placeholder`     | `string`                          | `'请选择'`   |  否  | 无选中值时的占位文字                                                                                   |
+| `clearable`       | `boolean`                         | `true`       |  否  | 悬停且已有选中值时显示清除按钮                                                                         |
+| `strict`          | `boolean`                         | `false`      |  否  | 仅单选：`true` 时仅叶子节点提交，非叶子点击只展开下级                                                  |
+| `showFullPath`    | `boolean`                         | `true`       |  否  | 仅单选：`false` 时显示、`modelValue`、`update:label` 均只体现叶子                                      |
+| `multiple`        | `boolean`                         | `false`      |  否  | 多选时触发框渲染可关闭标签                                                                             |
+| `filterable`      | `boolean`                         | `false`      |  否  | 面板顶部出现过滤输入框，按节点 `label` 子串匹配（忽略大小写），命中节点与其祖先保留                    |
+| `visibilityLimit` | `number`                          | `3`          |  否  | 多选可见标签上限，超出折叠为 `N+`；负数按 `0`                                                          |
+| `size`            | `'small' \| 'default' \| 'large'` | `'default'`  |  否  | 组件未设置时继承 `UForm` 的 `size`                                                                     |
+| `label`           | `string`                          | —            |  否  | 标签文字，仅 `UForm` / `UFormItem` 内生效                                                              |
+| `field`           | `string`                          | —            |  否  | `UForm` 内必须用它绑定字段；写了 `field` 禁止再写 `v-model`                                            |
+| `rules`           | `ValidateRule`                    | —            |  否  | 校验规则，仅 `UForm` 内生效                                                                            |
+| `tips`            | `string`                          | —            |  否  | 表单内提示文字，仅 `UForm` 内生效                                                                      |
+| `span`            | `number \| 'full' \| 响应式对象`  | —            |  否  | 所占列宽，仅 `UForm` 内生效                                                                            |
+| `disabled`        | `boolean`                         | `false`      |  否  | 未设置时继承 `UForm` 的 `disabled`                                                                     |
+| `readonly`        | `boolean`                         | `false`      |  否  | 未设置时继承 `UForm`；只读时渲染为纯文本或标签列表                                                     |
 
 ## 方法与事件
 
