@@ -45,9 +45,8 @@ const selected = shallowRef<number | null>(null)
 </script>
 
 <style lang="scss" scoped>
-// 375px 手机视口宽度内呈现，验证移动端密度与触控行高
+// 手机设备外壳视口内呈现，验证移动端密度与触控行高
 .demo {
-  max-width: 375px;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -66,7 +65,7 @@ const selected = shallowRef<number | null>(null)
   -webkit-overflow-scrolling: touch;
 }
 
-:deep(.u-list-item) {
+:deep(.um-list-item) {
   &.is-selected {
     color: var(--u-color-primary);
     background-color: var(--u-color-primary-light-9);

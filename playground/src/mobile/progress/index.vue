@@ -61,9 +61,8 @@ const getType = (p: number): ColorType => {
 </script>
 
 <style lang="scss" scoped>
-// 375px 手机视口宽度内呈现
+// 手机设备外壳视口内呈现
 .demo {
-  max-width: 375px;
   display: flex;
   flex-direction: column;
   gap: 20px;

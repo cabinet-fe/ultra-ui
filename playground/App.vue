@@ -29,8 +29,11 @@
       <u-scroll class="content-container">
         <router-view v-slot="{ Component }">
           <transition name="page-fade" mode="out-in">
-            <div class="router-content">
-              <component :is="Component" />
+            <div class="router-content" :class="{ 'router-content--device': isMobileDemo }">
+              <device-frame v-if="isMobileDemo">
+                <component :is="Component" />
+              </device-frame>
+              <component v-else :is="Component" />
             </div>
           </transition>
         </router-view>
@@ -119,6 +122,7 @@ import {
 import { computed, ref, shallowRef, watch, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
+import DeviceFrame from './device-frame.vue'
 import { buildPlaygroundMenus, isNavGroupPath } from './nav-config'
 import NavSearch from './nav-search.vue'
 
@@ -126,6 +130,9 @@ const router = useRouter()
 const route = useRoute()
 
 const menus = buildPlaygroundMenus()
+
+// mobile 演示页套手机设备外壳，其余页面原样渲染
+const isMobileDemo = computed(() => route.path.startsWith('/mobile'))
 
 const handleClick = (item: NavItem) => {
   if (isNavGroupPath(item.path)) return
@@ -628,6 +635,11 @@ html[data-theme='dark'] .container1[data-theme-preset='glass'] .content-backdrop
   min-height: 400px;
   width: 100%;
 
+  &--device {
+    min-height: 0;
+    height: 100%;
+  }
+
   &::before {
     content: '';
     position: absolute;
@@ -650,5 +662,10 @@ html[data-theme='dark'] .container1[data-theme-preset='glass'] .content-backdrop
 .page-fade-enter-active .router-content::before,
 .page-fade-leave-active .router-content::before {
   opacity: 1;
+}
+
+// mobile 设备外壳页：滚动内容层钉在容器视口高度内，不再随内容增高
+.content-container .u-scroll__content:has(> .router-content--device) {
+  height: 100%;
 }
 </style>

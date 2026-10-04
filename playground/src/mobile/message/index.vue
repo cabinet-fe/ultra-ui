@@ -60,7 +60,7 @@ function show(text: string, duration = 3000, closable = false) {
 }
 
 function showLong() {
-  message.info('顶部长文本轻提示：内容在 375px 视口内自动换行且不溢出屏幕')
+  message.info('顶部长文本轻提示：内容在 移动端视口内自动换行且不溢出屏幕')
 }
 
 const closedCount = shallowRef(0)
@@ -80,9 +80,8 @@ function showWithCallbacks() {
 </script>
 
 <style lang="scss" scoped>
-// 375px 手机视口宽度内呈现，验证移动端密度与触控热区
+// 手机设备外壳视口内呈现，验证移动端密度与触控热区
 .demo {
-  max-width: 375px;
   display: flex;
   flex-direction: column;
   gap: 20px;

@@ -62,9 +62,8 @@ import '@veltra/mobile/components/timeline/style'
 </script>
 
 <style lang="scss" scoped>
-// 375px 手机视口宽度内呈现，验证移动端密度
+// 手机设备外壳视口内呈现，验证移动端密度
 .demo {
-  max-width: 375px;
   display: flex;
   flex-direction: column;
   gap: 20px;

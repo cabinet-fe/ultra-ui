@@ -75,7 +75,7 @@ function showTitled() {
 function showLong() {
   messageConfirm({
     title: '服务协议',
-    message: '长内容在 375px 视口内自动换行，卡片宽度受视口约束不会溢出屏幕边缘。'
+    message: '长内容在 移动端视口内自动换行，卡片宽度受视口约束不会溢出屏幕边缘。'
   })
 }
 
@@ -91,9 +91,8 @@ function showWithPromise() {
 </script>
 
 <style lang="scss" scoped>
-// 375px 手机视口宽度内呈现，验证移动端密度与触控热区
+// 手机设备外壳视口内呈现，验证移动端密度与触控热区
 .demo {
-  max-width: 375px;
   display: flex;
   flex-direction: column;
   gap: 20px;

@@ -96,9 +96,8 @@ const onClose = (item: TabItem) => {
 </script>
 
 <style lang="scss" scoped>
-// 375px 手机视口宽度内呈现，验证触控热区与横向滚动
+// 手机设备外壳视口内呈现，验证触控热区与横向滚动
 .demo {
-  max-width: 375px;
   display: flex;
   flex-direction: column;
   gap: 20px;
