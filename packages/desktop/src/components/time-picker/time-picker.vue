@@ -55,7 +55,7 @@ import { date, Dater } from '@cat-kit/core'
 import { useFormFallbackProps, useUserAction } from '@veltra/compositions'
 import { Time } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT, injectFormContext } from '@veltra/utils'
-import { computed, shallowRef, watch } from 'vue'
+import { computed, nextTick, shallowRef, watch } from 'vue'
 
 import type { TimePickerEmits, TimePickerProps } from '../../types'
 import { UDropdown } from '../dropdown'
@@ -167,14 +167,17 @@ function handleClear() {
   emit('change', undefined)
 }
 
-/** 函数 ref：面板每次经 Teleport 挂载时拿到 DOM，把各列滚动到选中值居中 */
+/** 函数 ref：面板经 Teleport 挂载时元素先创建、后插入文档（ref 回调时还未连接），推迟到 nextTick 再把各列滚动到选中值居中 */
 function scrollSelectedToCenter(panel: Element | null) {
   if (!(panel instanceof HTMLElement)) return
-  for (const column of panel.querySelectorAll<HTMLElement>(`.${cls.e('column')}`)) {
-    const selected = column.querySelector('.is-selected')
-    if (selected instanceof HTMLElement) {
-      column.scrollTop = selected.offsetTop - (column.clientHeight - selected.offsetHeight) / 2
+  nextTick(() => {
+    if (!panel.isConnected) return
+    for (const column of panel.querySelectorAll<HTMLElement>(`.${cls.e('column')}`)) {
+      const selected = column.querySelector('.is-selected')
+      if (selected instanceof HTMLElement) {
+        column.scrollTop = selected.offsetTop - (column.clientHeight - selected.offsetHeight) / 2
+      }
     }
-  }
+  })
 }
 </script>

@@ -35,8 +35,12 @@ $tail-width: 2px;
       border-left: #{$tail-width} solid fn.use-var(border-color);
     }
 
-    &:last-child::before {
-      display: none;
+    &:last-child {
+      padding-bottom: 0;
+
+      &::before {
+        display: none;
+      }
     }
   }
 
