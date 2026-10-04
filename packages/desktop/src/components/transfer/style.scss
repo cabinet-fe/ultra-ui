@@ -1,0 +1,135 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use 'pkg:@veltra/styles/vars';
+
+// 方便拼接
+$root-name: transfer;
+$list-name: $root-name + '-list';
+
+// 两栏列表正文固定高度，空态与列表同高避免栏高跳动
+$body-height: 240px;
+
+@include m.b($root-name) {
+  width: 100%;
+  @include m.flex($align: center);
+
+  @include m.e(buttons) {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: calc(fn.use-var(gap, default) / 2);
+  }
+}
+
+@include m.b($list-name) {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background-color: fn.use-var(bg-color, top);
+  border: fn.use-var(border);
+  border-radius: fn.use-var(radius, default);
+  box-shadow: fn.use-var(shadow, emboss);
+  overflow: hidden;
+
+  @include m.e(header) {
+    flex-shrink: 0;
+    @include m.flex;
+  }
+
+  @include m.e(title) {
+    @include m.ellipsis;
+  }
+
+  @include m.e(count) {
+    flex-shrink: 0;
+    margin-left: auto;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(filter) {
+    flex-shrink: 0;
+    border-bottom: fn.use-var(border);
+  }
+
+  @include m.e(filter-input) {
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    font: inherit;
+    color: fn.use-var(text-color, main);
+    cursor: text;
+
+    &::placeholder {
+      color: fn.use-var(text-color, placeholder);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+    }
+  }
+
+  @include m.e(body) {
+    flex: 1;
+    height: $body-height;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow-y: auto;
+  }
+
+  @include m.e(item) {
+    cursor: pointer;
+    user-select: none;
+    @include m.flex;
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    @include m.is(disabled) {
+      cursor: not-allowed;
+      color: fn.use-var(text-color, disabled);
+
+      &:hover {
+        background-color: transparent;
+      }
+    }
+  }
+
+  @include m.e(item-label) {
+    @include m.ellipsis;
+  }
+
+  @include m.e(empty) {
+    height: $body-height;
+    @include m.flex($justify: center);
+  }
+
+  @include m.size using ($size) {
+    @include m.bem($list-name, header) {
+      height: fn.use-var(form-component-height, $size);
+      padding: 0 fn.use-var(gap, $size);
+      border-bottom: fn.use-var(border);
+    }
+
+    @include m.bem($list-name, filter) {
+      height: fn.use-var(form-component-height, $size);
+      padding: 0 fn.use-var(gap, $size);
+    }
+
+    @include m.bem($list-name, count) {
+      font-size: fn.use-var(font-size-main, $size);
+    }
+
+    @include m.bem($list-name, item) {
+      height: fn.use-var(form-component-height, $size);
+      padding: 0 fn.use-var(gap, $size);
+      border-radius: fn.use-var(radius, $size);
+      font-size: fn.use-var(font-size-main, $size);
+    }
+  }
+}
