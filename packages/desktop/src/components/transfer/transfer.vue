@@ -52,7 +52,7 @@ import type { TransferDirection, TransferEmits, TransferProps } from '../../type
 import { UButton } from '../button'
 import UTransferList from './transfer-list.vue'
 
-defineOptions({ name: 'Transfer' })
+defineOptions({ name: 'UTransfer' })
 
 const props = defineProps<TransferProps>()
 

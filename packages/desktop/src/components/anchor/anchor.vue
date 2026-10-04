@@ -12,7 +12,7 @@ import type { AnchorEmits, AnchorProps } from '../../types'
 import { AnchorDIKey } from './di'
 import { useAnchor } from './use-anchor'
 
-defineOptions({ name: 'Anchor' })
+defineOptions({ name: 'UAnchor' })
 
 const { container, offset = 0 } = defineProps<AnchorProps>()
 

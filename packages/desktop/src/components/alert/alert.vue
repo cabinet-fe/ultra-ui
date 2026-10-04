@@ -34,7 +34,7 @@ import { computed, ref, type Component } from 'vue'
 import type { AlertEmits, AlertProps, AlertType } from '../../types'
 import { UIcon } from '../icon'
 
-defineOptions({ name: 'Alert' })
+defineOptions({ name: 'UAlert' })
 
 const { type = 'info', closable, showIcon } = defineProps<AlertProps>()
 

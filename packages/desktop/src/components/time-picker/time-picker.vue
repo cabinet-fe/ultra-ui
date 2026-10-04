@@ -62,7 +62,7 @@ import { UDropdown } from '../dropdown'
 import { UIcon } from '../icon'
 import { UInput } from '../input'
 
-defineOptions({ name: 'TimePicker', inheritAttrs: false })
+defineOptions({ name: 'UTimePicker', inheritAttrs: false })
 
 const props = defineProps<TimePickerProps>()
 

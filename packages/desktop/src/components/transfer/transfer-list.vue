@@ -55,7 +55,7 @@ import type { TransferOption } from '../../types'
 import { UCheckbox } from '../checkbox'
 import { UEmpty } from '../empty'
 
-defineOptions({ name: 'TransferList' })
+defineOptions({ name: 'UTransferList' })
 
 const {
   title = '',

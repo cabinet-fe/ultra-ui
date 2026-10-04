@@ -10,7 +10,7 @@ import { computed, getCurrentInstance, inject, onBeforeUnmount, onMounted } from
 
 import { CarouselDIKey } from './di'
 
-defineOptions({ name: 'CarouselItem' })
+defineOptions({ name: 'UCarouselItem' })
 
 const context = inject(CarouselDIKey, undefined)
 

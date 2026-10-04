@@ -149,7 +149,7 @@ import { usePreview } from './use-preview'
 import { SELECTION_HANDLES, useSelection } from './use-selection'
 import { useTransform } from './use-transform'
 
-defineOptions({ name: 'ImageCropper' })
+defineOptions({ name: 'UImageCropper' })
 
 const props = withDefaults(defineProps<ImageCropperProps>(), {
   showToolbar: true,

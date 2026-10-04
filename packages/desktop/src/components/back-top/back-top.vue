@@ -24,7 +24,7 @@ import type { BackTopEmits, BackTopProps } from '../../types'
 import { UButton } from '../button'
 import { UIcon } from '../icon'
 
-defineOptions({ name: 'BackTop' })
+defineOptions({ name: 'UBackTop' })
 
 const props = withDefaults(defineProps<BackTopProps>(), { visibilityHeight: 400 })
 

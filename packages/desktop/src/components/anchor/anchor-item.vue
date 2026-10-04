@@ -16,7 +16,7 @@ import { computed, inject, onBeforeUnmount, onMounted } from 'vue'
 import type { AnchorItemProps } from '../../types'
 import { AnchorDIKey } from './di'
 
-defineOptions({ name: 'AnchorItem' })
+defineOptions({ name: 'UAnchorItem' })
 
 const { href, title } = defineProps<AnchorItemProps>()
 

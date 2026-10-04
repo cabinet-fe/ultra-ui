@@ -18,7 +18,7 @@ import { computed } from 'vue'
 
 import type { SkeletonProps } from '../../types'
 
-defineOptions({ name: 'Skeleton' })
+defineOptions({ name: 'USkeleton' })
 
 const {
   loading = true,

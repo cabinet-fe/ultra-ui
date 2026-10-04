@@ -49,7 +49,7 @@ import { UIcon } from '../icon'
 import { CarouselDIKey } from './di'
 import { useCarousel } from './use-carousel'
 
-defineOptions({ name: 'Carousel' })
+defineOptions({ name: 'UCarousel' })
 
 const {
   autoplay = false,

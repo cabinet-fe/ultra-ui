@@ -39,7 +39,7 @@ import { computed, ref, type CSSProperties } from 'vue'
 import type { RateEmits, RateProps } from '../../types'
 import { UIcon } from '../icon'
 
-defineOptions({ name: 'Rate' })
+defineOptions({ name: 'URate' })
 
 const props = defineProps<RateProps>()
 

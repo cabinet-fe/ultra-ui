@@ -11,7 +11,7 @@ import { computed, useSlots } from 'vue'
 
 import type { AvatarGroupProps } from '../../types'
 
-defineOptions({ name: 'AvatarGroup' })
+defineOptions({ name: 'UAvatarGroup' })
 
 const props = defineProps<AvatarGroupProps>()
 
