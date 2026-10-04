@@ -34,9 +34,10 @@
 
 <script lang="ts" setup>
 import { useFormFallbackProps } from '@veltra/compositions'
-import { bem, fieldKey, FORM_EMPTY_CONTENT, injectFormContext } from '@veltra/utils'
+import { fieldKey, FORM_EMPTY_CONTENT, injectFormContext } from '@veltra/utils'
 import { computed } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { SegmentEmits, SegmentItem, SegmentProps } from '../../types/segment'
 
 defineOptions({ name: 'USegment', inheritAttrs: false })

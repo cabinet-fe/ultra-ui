@@ -5,9 +5,9 @@
 </template>
 
 <script lang="ts" setup>
-import { bem } from '@veltra/utils'
 import { computed } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { ListProps } from '../../types/list'
 
 defineOptions({ name: 'UList' })

@@ -1,5 +1,5 @@
 @use 'sass:map';
-@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
 
 $root-name: card;

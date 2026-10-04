@@ -1,6 +1,6 @@
-@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 
-@keyframes u-icon-rotating {
+@keyframes um-icon-rotating {
   0% {
     transform: rotateZ(0deg);
   }
@@ -25,7 +25,7 @@
   // 加载转圈
   @include m.is(loading) {
     transform-origin: center;
-    animation: u-icon-rotating 2s linear infinite;
+    animation: um-icon-rotating 2s linear infinite;
   }
 
   svg {

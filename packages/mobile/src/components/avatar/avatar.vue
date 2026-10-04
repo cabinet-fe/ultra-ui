@@ -8,9 +8,9 @@
 </template>
 
 <script lang="ts" setup>
-import { bem } from '@veltra/utils'
 import { computed, shallowRef, watch } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { AvatarEmits, AvatarProps } from '../../types/avatar'
 
 defineOptions({ name: 'UAvatar' })

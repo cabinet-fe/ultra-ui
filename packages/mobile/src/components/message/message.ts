@@ -1,7 +1,9 @@
-import { bem, setStyles, zIndex } from '@veltra/utils'
+import { setStyles, zIndex } from '@veltra/utils'
 import { h, render, shallowReactive } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { Message, MessageInstance, MessageOptions } from '../../types/message'
+import { getOverlayContainer } from '../_internal/overlay-container'
 import UMessageBox from './message-box.vue'
 
 const cls = bem('message')
@@ -26,7 +28,7 @@ let uid = 0
 const destroy = () => {
   if (container) {
     render(null, container)
-    document.body.removeChild(container)
+    container.remove()
     container = null
   }
 }
@@ -53,11 +55,13 @@ const handleClose = (id: string) => {
 
 /** 挂载并渲染容器 */
 const ensureContainer = () => {
-  if (container) return container
+  // 宿主容器可能随设备外壳卸载而失效，失联时重建
+  if (container?.isConnected) return container
+  container = null
 
   container = document.createElement('ul')
   container.className = cls.e('container')
-  document.body.appendChild(container)
+  getOverlayContainer().appendChild(container)
   return container
 }
 

@@ -13,9 +13,9 @@
 </template>
 
 <script lang="ts" setup>
-import { bem } from '@veltra/utils'
 import { computed, useSlots } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { TimelineItemProps } from '../../types/timeline'
 
 defineOptions({ name: 'UTimelineItem' })

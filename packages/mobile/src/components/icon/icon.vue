@@ -5,9 +5,10 @@
 </template>
 
 <script lang="ts" setup>
-import { bem, withUnit } from '@veltra/utils'
+import { withUnit } from '@veltra/utils'
 import { type CSSProperties, computed } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { IconProps } from '../../types/icon'
 
 defineOptions({ name: 'UIcon' })

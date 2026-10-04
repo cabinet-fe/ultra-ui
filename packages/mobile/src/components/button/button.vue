@@ -21,9 +21,10 @@
 
 <script lang="ts" setup>
 import { Loading } from '@veltra/icons'
-import { bem, withUnit } from '@veltra/utils'
+import { withUnit } from '@veltra/utils'
 import { computed, shallowRef } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { ButtonEmits, ButtonProps, _ButtonExposed } from '../../types/button'
 
 defineOptions({ name: 'UButton' })

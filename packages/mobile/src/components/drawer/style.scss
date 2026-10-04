@@ -1,18 +1,16 @@
-@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
 
 $root-name: drawer;
 $overlay-name: #{$root-name}-overlay;
 
-// 侧滑宽度 / 上下抽屉高度上限（375px 视口内不溢出）
-$side-width: min(86vw, 400px);
-$vertical-max-height: min(70vh, 560px);
+// 侧滑宽度 / 上下抽屉高度上限（相对弹层宿主，窄屏与模拟器内均不溢出）
+$side-width: min(86%, 400px);
+$vertical-max-height: min(70%, 560px);
 
 @include m.b($overlay-name) {
   position: fixed;
   inset: 0;
-  height: 100vh;
-  height: 100dvh;
   background-color: fn.color-a(color, 35, black);
   overflow: hidden;
 }

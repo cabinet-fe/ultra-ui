@@ -1,4 +1,4 @@
-@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
 
 $root-name: descriptions;
@@ -47,39 +47,39 @@ $root-name: descriptions;
   @include m.size using ($size) {
     font-size: fn.use-var(font-size, main, $size);
 
-    #{fn.bem($root-name, row)} {
+    .um-#{$root-name}__row {
       padding: fn.use-var(gap, $size) fn.use-var(gap, default);
     }
   }
 
   // 垂直布局：键名在上、内容在下
   @include m.m(vertical) {
-    #{fn.bem($root-name, row)} {
+    .um-#{$root-name}__row {
       flex-direction: column;
       align-items: stretch;
       gap: fn.use-var(gap, small);
     }
 
-    #{fn.bem($root-name, content)} {
+    .um-#{$root-name}__content {
       text-align: start;
     }
   }
 
   // 边框模式：列表整体描边，行间分隔线，键名底色块（对应 desktop 单元格描边语义）
   @include m.is(bordered) {
-    #{fn.bem($root-name, list)} {
+    .um-#{$root-name}__list {
       border: fn.use-var(border-muted);
       border-radius: fn.use-var(radius, default);
       overflow: hidden;
     }
 
-    #{fn.bem($root-name, row)} {
+    .um-#{$root-name}__row {
       & + & {
         border-top: fn.use-var(border-muted);
       }
     }
 
-    #{fn.bem($root-name, label)} {
+    .um-#{$root-name}__label {
       background-color: fn.use-var(bg-color, middle);
       max-width: none;
       flex: 0 0 38%;
@@ -88,7 +88,7 @@ $root-name: descriptions;
 
     // 垂直布局下键名独占一行，不做列宽限制
     @include m.m(vertical) {
-      #{fn.bem($root-name, label)} {
+      .um-#{$root-name}__label {
         flex-basis: auto;
       }
     }

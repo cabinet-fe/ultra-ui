@@ -74,9 +74,10 @@
 import { date, Dater } from '@cat-kit/core'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { Close, Time } from '@veltra/icons/normal'
-import { bem, FORM_EMPTY_CONTENT, injectFormContext } from '@veltra/utils'
+import { FORM_EMPTY_CONTENT, injectFormContext } from '@veltra/utils'
 import { computed, nextTick, onBeforeUnmount, shallowRef, watch } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { TimePickerEmits, TimePickerProps } from '../../types/time-picker'
 import { BottomSheet } from '../_internal/bottom-sheet'
 

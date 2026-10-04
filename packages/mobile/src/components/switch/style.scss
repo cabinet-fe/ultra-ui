@@ -1,4 +1,4 @@
-@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
 
 $root-name: switch;
@@ -68,7 +68,7 @@ $root-name: switch;
       }
     }
 
-    #{fn.bem($root-name, native)}:focus-visible ~ #{fn.bem($root-name, button)} {
+    .um-#{$root-name}__native:focus-visible ~ .um-#{$root-name}__button {
       box-shadow: fn.use-var(focus-ring);
     }
   }

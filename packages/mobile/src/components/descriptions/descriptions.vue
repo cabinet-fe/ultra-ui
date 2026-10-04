@@ -14,9 +14,9 @@
 </template>
 
 <script lang="ts" setup>
-import { bem } from '@veltra/utils'
 import { computed, useSlots, type VNode } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { DescriptionsProps } from '../../types/descriptions'
 import UDescriptionsItem from './descriptions-item.vue'
 

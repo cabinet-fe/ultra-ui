@@ -5,9 +5,10 @@
 </template>
 
 <script lang="ts" setup>
-import { bem, withUnit } from '@veltra/utils'
+import { withUnit } from '@veltra/utils'
 import { computed } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { CardProps } from '../../types/card'
 
 defineOptions({ name: 'UCard' })

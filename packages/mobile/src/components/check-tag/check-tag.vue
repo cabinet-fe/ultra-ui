@@ -5,9 +5,9 @@
 </template>
 
 <script lang="ts" setup>
-import { bem } from '@veltra/utils'
 import { computed } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { CheckTagEmits, CheckTagProps } from '../../types/check-tag'
 
 defineOptions({ name: 'UCheckTag' })

@@ -35,9 +35,10 @@
 
 <script lang="ts" setup>
 import { Check } from '@veltra/icons/normal'
-import { bem, fieldKey } from '@veltra/utils'
+import { fieldKey } from '@veltra/utils'
 import { computed, useTemplateRef, watch } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { StepsEmits, StepsProps, StepsSlotScope } from '../../types/steps'
 
 defineOptions({ name: 'USteps' })

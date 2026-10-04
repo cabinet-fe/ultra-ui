@@ -53,9 +53,10 @@
 import { o } from '@cat-kit/core'
 import { useFocus, useFormFallbackProps } from '@veltra/compositions'
 import { Close } from '@veltra/icons/normal'
-import { bem, FORM_EMPTY_CONTENT, injectFormContext } from '@veltra/utils'
+import { FORM_EMPTY_CONTENT, injectFormContext } from '@veltra/utils'
 import { computed, getCurrentInstance, nextTick, shallowRef, useAttrs } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { InputEmits, InputProps, _InputExposed } from '../../types/input'
 
 defineOptions({ name: 'UInput', inheritAttrs: false })

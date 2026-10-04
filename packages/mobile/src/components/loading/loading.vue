@@ -7,9 +7,10 @@
 </template>
 
 <script lang="ts" setup>
-import { bem, zIndex } from '@veltra/utils'
+import { zIndex } from '@veltra/utils'
 import { computed } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { LoadingProps } from '../../types/loading'
 
 defineOptions({ name: 'ULoading' })

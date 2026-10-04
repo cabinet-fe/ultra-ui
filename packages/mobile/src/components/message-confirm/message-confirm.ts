@@ -1,12 +1,14 @@
-import { bem, setStyles, zIndex } from '@veltra/utils'
+import { setStyles, zIndex } from '@veltra/utils'
 import { h, render, shallowReactive } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type {
   MessageConfirm,
   MessageConfirmAction,
   MessageConfirmInstance,
   MessageConfirmOptions
 } from '../../types/message-confirm'
+import { getOverlayContainer } from '../_internal/overlay-container'
 import UMessageConfirmBox from './message-confirm-box.vue'
 
 const cls = bem('message-confirm')
@@ -34,7 +36,7 @@ let uid = 0
 const destroy = () => {
   if (container) {
     render(null, container)
-    document.body.removeChild(container)
+    container.remove()
     container = null
   }
 }
@@ -63,11 +65,13 @@ const handleClose = (key: string, action: MessageConfirmAction) => {
 
 /** 挂载并渲染容器 */
 const ensureContainer = () => {
-  if (container) return container
+  // 宿主容器可能随设备外壳卸载而失效，失联时重建
+  if (container?.isConnected) return container
+  container = null
 
   container = document.createElement('div')
   container.className = cls.e('container')
-  document.body.appendChild(container)
+  getOverlayContainer().appendChild(container)
   return container
 }
 

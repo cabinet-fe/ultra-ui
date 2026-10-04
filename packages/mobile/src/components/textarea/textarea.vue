@@ -39,10 +39,11 @@
 <script lang="ts" setup>
 import { useFocus, useFormFallbackProps } from '@veltra/compositions'
 import { Close } from '@veltra/icons/normal'
-import { bem, FORM_EMPTY_CONTENT, injectFormContext } from '@veltra/utils'
+import { FORM_EMPTY_CONTENT, injectFormContext } from '@veltra/utils'
 import type { ComponentSize } from '@veltra/utils'
 import { computed, ref, watch } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { TextareaEmits, TextareaProps } from '../../types/textarea'
 import { calcTextareaHeight } from './utils'
 

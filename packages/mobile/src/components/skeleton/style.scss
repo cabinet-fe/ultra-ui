@@ -1,4 +1,4 @@
-@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
 
 // 方便拼接
@@ -77,12 +77,12 @@ $pulse-duration: 1.4s;
   // 动画：占位块呼吸明暗
   @include m.is(animated) {
     @include m.bem($root-name, avatar title paragraph button) {
-      animation: skeleton-pulse $pulse-duration ease-in-out infinite;
+      animation: um-skeleton-pulse $pulse-duration ease-in-out infinite;
     }
   }
 }
 
-@keyframes skeleton-pulse {
+@keyframes um-skeleton-pulse {
   0%,
   100% {
     opacity: 1;

@@ -24,9 +24,10 @@
 </template>
 
 <script lang="ts" setup>
-import { bem, zIndex } from '@veltra/utils'
+import { zIndex } from '@veltra/utils'
 import type { ColorType } from '@veltra/utils'
 
+import { bem } from '../../shared/bem'
 import type { MessageConfirmEmits, MessageConfirmProps } from '../../types/message-confirm'
 import { UButton } from '../button'
 

@@ -12,9 +12,10 @@
 
 <script lang="ts" setup>
 import { Close } from '@veltra/icons/normal'
-import { bem, injectFormContext } from '@veltra/utils'
+import { injectFormContext } from '@veltra/utils'
 import { computed } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { TagEmits, TagProps } from '../../types/tag'
 import { UIcon } from '../icon'
 

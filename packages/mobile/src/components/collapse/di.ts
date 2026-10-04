@@ -1,10 +1,11 @@
-import { type BEM, type ComponentSize, ExpandTransition } from '@veltra/utils'
+import { type ComponentSize, ExpandTransition } from '@veltra/utils'
 import type { Component, ComputedRef, InjectionKey } from 'vue'
 
+import { type MobileBEM } from '../../shared/bem'
 import type { CollapseValue } from '../../types/collapse'
 
 export interface CollapseContext {
-  cls: BEM<'collapse'>
+  cls: MobileBEM<'collapse'>
   size: ComputedRef<ComponentSize>
   expandIcon: ComputedRef<Component | undefined>
   activeValues: ComputedRef<CollapseValue[]>

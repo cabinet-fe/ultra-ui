@@ -43,10 +43,11 @@
 </template>
 
 <script lang="ts" setup>
-import { bem, withUnit } from '@veltra/utils'
+import { withUnit } from '@veltra/utils'
 import type { ColorType } from '@veltra/utils'
 import { computed } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { ProgressProps } from '../../types/progress'
 
 defineOptions({ name: 'UProgress' })

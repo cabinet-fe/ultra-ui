@@ -13,9 +13,9 @@
 </template>
 
 <script lang="ts" setup>
-import { bem } from '@veltra/utils'
 import { computed } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { SkeletonProps } from '../../types/skeleton'
 
 defineOptions({ name: 'USkeleton' })

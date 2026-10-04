@@ -8,9 +8,10 @@
 </template>
 
 <script lang="ts" setup>
-import { bem, getHighlightChunks, isTextNode, withUnit } from '@veltra/utils'
+import { getHighlightChunks, isTextNode, withUnit } from '@veltra/utils'
 import { type CSSProperties, computed, useSlots } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { TextProps } from '../../types/text'
 
 // Text 是 Vue 保留组件名（vue/no-reserved-component-names），与 desktop 一致带 U 前缀

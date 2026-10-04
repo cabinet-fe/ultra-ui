@@ -9,8 +9,9 @@
 
 <script lang="ts" setup>
 import { Empty } from '@veltra/icons/normal'
-import { bem, withUnit } from '@veltra/utils'
+import { withUnit } from '@veltra/utils'
 
+import { bem } from '../../shared/bem'
 import type { EmptyProps } from '../../types/empty'
 
 defineOptions({ name: 'UEmpty' })

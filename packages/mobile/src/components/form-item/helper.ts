@@ -1,6 +1,8 @@
-import { bem, type BEM, type FormFieldItem } from '@veltra/utils'
+import { type FormFieldItem } from '@veltra/utils'
 
-export const formItemCls: BEM<'form-item'> = bem('form-item')
+import { bem, type MobileBEM } from '../../shared/bem'
+
+export const formItemCls: MobileBEM<'form-item'> = bem('form-item')
 
 export function defineField(field: FormFieldItem) {
   return field

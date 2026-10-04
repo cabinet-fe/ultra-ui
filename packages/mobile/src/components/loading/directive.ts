@@ -1,6 +1,6 @@
-import { bem } from '@veltra/utils'
 import { createVNode, render, type DirectiveBinding, type ObjectDirective } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { LoadingType } from '../../types/loading'
 import LoadingComponent from './loading.vue'
 

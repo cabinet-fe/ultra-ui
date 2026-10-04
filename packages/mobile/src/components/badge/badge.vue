@@ -6,9 +6,10 @@
 </template>
 
 <script lang="ts" setup>
-import { bem, setStyles, zIndex } from '@veltra/utils'
+import { setStyles, zIndex } from '@veltra/utils'
 import { computed, nextTick, onMounted, shallowRef, watch } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { BadgeProps } from '../../types/badge'
 
 defineOptions({ name: 'UBadge' })

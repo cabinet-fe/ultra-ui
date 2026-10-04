@@ -1,10 +1,10 @@
-@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
 @use 'pkg:@veltra/styles/vars';
 
 $root-name: button;
 
-@keyframes u-button-icon-rotating {
+@keyframes um-button-icon-rotating {
   0% {
     transform: rotateZ(0deg);
   }
@@ -88,7 +88,7 @@ $root-name: button;
 
     @include m.is(loading) {
       transform-origin: center;
-      animation: u-button-icon-rotating 2s linear infinite;
+      animation: um-button-icon-rotating 2s linear infinite;
     }
   }
 

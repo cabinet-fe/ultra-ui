@@ -86,9 +86,10 @@
 
 <script lang="ts" setup>
 import { ArrowDown, Check, Close } from '@veltra/icons/normal'
-import { bem, FORM_EMPTY_CONTENT, injectFormContext } from '@veltra/utils'
+import { FORM_EMPTY_CONTENT, injectFormContext } from '@veltra/utils'
 import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { SelectEmits, SelectProps } from '../../types/select'
 import { BottomSheet } from '../_internal/bottom-sheet'
 import { getOptionField, useOptions } from './use-options'

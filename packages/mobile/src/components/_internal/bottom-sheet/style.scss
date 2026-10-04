@@ -1,4 +1,4 @@
-@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
 
 $root-name: sheet;
@@ -18,7 +18,7 @@ $root-name: sheet;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    max-height: 75vh;
+    max-height: 75%;
     flex-shrink: 0;
     border-radius: fn.use-var(radius, large) fn.use-var(radius, large) 0 0;
     background-color: fn.use-var(bg-color, top);
@@ -86,8 +86,8 @@ $root-name: sheet;
 }
 
 // 进出场：遮罩淡入淡出，面板自底部滑入滑出
-.u-sheet-enter-active,
-.u-sheet-leave-active {
+.um-sheet-enter-active,
+.um-sheet-leave-active {
   transition: opacity fn.use-var(transition, normal) fn.use-var(transition, ease);
 
   @include m.bem($root-name, panel) {
@@ -97,8 +97,8 @@ $root-name: sheet;
   }
 }
 
-.u-sheet-enter-from,
-.u-sheet-leave-to {
+.um-sheet-enter-from,
+.um-sheet-leave-to {
   opacity: 0;
 
   @include m.bem($root-name, panel) {

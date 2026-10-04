@@ -28,9 +28,10 @@
 
 <script lang="ts" setup>
 import { ArrowDown } from '@veltra/icons/normal'
-import { bem, ExpandTransition } from '@veltra/utils'
+import { ExpandTransition } from '@veltra/utils'
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { CollapseItemEmits, CollapseItemProps } from '../../types/collapse'
 import { CollapseDIKey } from './di'
 

@@ -1,5 +1,5 @@
 <template>
-  <Teleport to="body">
+  <Teleport :to="getOverlayContainer()">
     <transition name="fade" appear @enter="onOverlayEnter" @after-leave="emit('closed')">
       <div
         v-if="overlayVisible"
@@ -51,10 +51,12 @@
 
 <script lang="ts" setup>
 import { Close } from '@veltra/icons/normal'
-import { bem, zIndex } from '@veltra/utils'
+import { zIndex } from '@veltra/utils'
 import { computed, shallowRef, watch } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { DrawerEmits, DrawerProps } from '../../types/drawer'
+import { getOverlayContainer } from '../_internal/overlay-container'
 
 defineOptions({ name: 'UDrawer', inheritAttrs: false })
 

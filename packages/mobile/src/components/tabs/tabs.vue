@@ -45,9 +45,9 @@
 
 <script lang="ts" setup>
 import { Close } from '@veltra/icons/normal'
-import { bem } from '@veltra/utils'
 import { computed, createVNode, nextTick, onMounted, shallowRef, watch } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { TabItem, TabsEmits, TabsProps } from '../../types/tabs'
 
 defineOptions({ name: 'UTabs' })

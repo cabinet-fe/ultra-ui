@@ -106,9 +106,10 @@
 import { date, Dater } from '@cat-kit/core'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { Calendar, Close, Left, Right } from '@veltra/icons/normal'
-import { bem, FORM_EMPTY_CONTENT, injectFormContext } from '@veltra/utils'
+import { FORM_EMPTY_CONTENT, injectFormContext } from '@veltra/utils'
 import { computed, shallowRef, watch } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { DatePickerEmits, DatePickerProps } from '../../types/date-picker'
 import { BottomSheet } from '../_internal/bottom-sheet'
 

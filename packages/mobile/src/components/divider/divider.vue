@@ -7,9 +7,9 @@
 </template>
 
 <script lang="ts" setup>
-import { bem } from '@veltra/utils'
 import { computed, useSlots } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { DividerProps } from '../../types/divider'
 
 defineOptions({ name: 'UDivider' })

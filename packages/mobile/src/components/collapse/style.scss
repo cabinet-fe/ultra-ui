@@ -1,4 +1,4 @@
-@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
 
 $root-name: collapse;
@@ -20,7 +20,7 @@ $transition-normal: 0.24s $ease;
     background-color: fn.use-var(bg-color, middle);
     overflow: hidden;
 
-    & + #{fn.bem($root-name, item)} {
+    & + .um-#{$root-name}__item {
       margin-top: fn.use-var(gap, default);
     }
 
@@ -67,7 +67,7 @@ $transition-normal: 0.24s $ease;
     @include m.is(active) {
       background-color: fn.use-var(bg-color, hover);
 
-      #{fn.bem($root-name, icon)} {
+      .um-#{$root-name}__icon {
         transform: rotate(180deg);
       }
     }
@@ -128,10 +128,10 @@ $transition-normal: 0.24s $ease;
       padding: fn.use-var(gap, $size);
     }
 
-    #{fn.bem($root-name, item)} {
+    .um-#{$root-name}__item {
       border-radius: fn.use-var(radius, $size);
 
-      & + #{fn.bem($root-name, item)} {
+      & + .um-#{$root-name}__item {
         margin-top: fn.use-var(gap, $size);
       }
     }

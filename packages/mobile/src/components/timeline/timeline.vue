@@ -5,8 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import { bem } from '@veltra/utils'
-
+import { bem } from '../../shared/bem'
 import type { TimelineProps } from '../../types/timeline'
 
 defineOptions({ name: 'UTimeline' })

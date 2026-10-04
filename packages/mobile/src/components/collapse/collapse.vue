@@ -5,9 +5,10 @@
 </template>
 
 <script lang="ts" setup>
-import { bem, ExpandTransition } from '@veltra/utils'
+import { ExpandTransition } from '@veltra/utils'
 import { computed, provide, ref } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type {
   CollapseEmits,
   CollapseModelValue,

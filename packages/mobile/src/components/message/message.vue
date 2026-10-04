@@ -23,9 +23,9 @@
 
 <script lang="ts" setup>
 import { Close } from '@veltra/icons/normal'
-import { bem } from '@veltra/utils'
 import { onBeforeUnmount, onMounted } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { MessageProps } from '../../types/message'
 import { UIcon } from '../icon'
 import { getTypeColor, getTypeIcon } from './helper'

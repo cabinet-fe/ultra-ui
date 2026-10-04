@@ -71,9 +71,10 @@
 import { $n, n, o, isUndef } from '@cat-kit/core'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { Close, Minus, Plus } from '@veltra/icons/normal'
-import { bem, FORM_EMPTY_CONTENT, Tween, injectFormContext } from '@veltra/utils'
+import { FORM_EMPTY_CONTENT, Tween, injectFormContext } from '@veltra/utils'
 import { computed, shallowRef, useAttrs, watch } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { InputExposed } from '../../types/input'
 import type { NumberInputEmits, NumberInputProps } from '../../types/number-input'
 import { UInput } from '../input'

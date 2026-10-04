@@ -1,6 +1,6 @@
 <template>
-  <Teleport to="body">
-    <Transition name="u-sheet">
+  <Teleport :to="getOverlayContainer()">
+    <Transition name="um-sheet">
       <div v-if="visible" :class="overlayCls" :style="{ zIndex: zIndex() }" @click.self="close">
         <section
           :class="[panelCls, contentClass]"
@@ -28,9 +28,12 @@
 
 <script lang="ts" setup>
 import { Close } from '@veltra/icons/normal'
-import { bem, zIndex } from '@veltra/utils'
+import { zIndex } from '@veltra/utils'
 import { onBeforeUnmount, watch } from 'vue'
 import type { CSSProperties } from 'vue'
+
+import { bem } from '../../../shared/bem'
+import { getOverlayContainer } from '../overlay-container'
 
 /**
  * 移动端底部弹层基座（内部组件，不进公开导出）
@@ -62,22 +65,23 @@ function close() {
   emit('update:visible', false)
 }
 
-/** 面板展示期间锁定页面滚动，避免背景跟随滚动 */
+/** 面板展示期间锁定宿主容器（默认 body）滚动，避免背景跟随滚动 */
 let prevOverflow = ''
 
 watch(
   () => props.visible,
   (visible) => {
+    const host = getOverlayContainer()
     if (visible) {
-      prevOverflow = document.body.style.overflow
-      document.body.style.overflow = 'hidden'
+      prevOverflow = host.style.overflow
+      host.style.overflow = 'hidden'
     } else {
-      document.body.style.overflow = prevOverflow
+      host.style.overflow = prevOverflow
     }
   }
 )
 
 onBeforeUnmount(() => {
-  document.body.style.overflow = prevOverflow
+  getOverlayContainer().style.overflow = prevOverflow
 })
 </script>

@@ -23,9 +23,10 @@
 
 <script lang="ts" setup>
 import { o } from '@cat-kit/core'
-import { bem, FORM_EMPTY_CONTENT, provideFormContext } from '@veltra/utils'
+import { FORM_EMPTY_CONTENT, provideFormContext } from '@veltra/utils'
 import { nextTick, toRef, useTemplateRef } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { FormEmits, FormProps, _FormExposed } from '../../types/form'
 import { UFormItem } from '../form-item'
 import { isFieldModified } from './is-field-modified'

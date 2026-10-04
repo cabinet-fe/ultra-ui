@@ -1,11 +1,11 @@
-@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
 @use 'pkg:@veltra/styles/vars';
 
 $root-name: tag;
 
 // 进入缩放动画（与 desktop tag 一致）
-@keyframes u-tag-zoom-in {
+@keyframes um-tag-zoom-in {
   0% {
     opacity: 0;
     transform: scale3d(0, 0, 1);
@@ -25,7 +25,7 @@ $root-name: tag;
   border: 1px solid fn.use-var(text-color, main);
   @include m.flex(inline-flex, flex-start, center);
 
-  animation: u-tag-zoom-in fn.use-var(transition, normal) fn.use-var(transition, ease);
+  animation: um-tag-zoom-in fn.use-var(transition, normal) fn.use-var(transition, ease);
 
   @include m.e(content) {
     @include m.ellipsis;

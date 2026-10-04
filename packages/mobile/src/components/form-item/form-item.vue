@@ -28,7 +28,7 @@
 <script lang="ts" setup>
 import { o } from '@cat-kit/core'
 import { useConfig, useFallbackProps } from '@veltra/compositions'
-import { bem, extractNormalVNodes, injectFormContext, withUnit } from '@veltra/utils'
+import { extractNormalVNodes, injectFormContext, withUnit } from '@veltra/utils'
 import type { ComponentSize } from '@veltra/utils'
 import {
   type CSSProperties,
@@ -41,6 +41,7 @@ import {
   watch
 } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { FormItemEmits, FormItemProps } from '../../types/form-item'
 import { formItemCls as cls, defineField } from './helper'
 import { validateField } from './validate'

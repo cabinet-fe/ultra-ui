@@ -1,4 +1,4 @@
-@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
 @use 'sass:map';
 
@@ -14,8 +14,6 @@ $dialog-max-width: (
 @include m.bem($root-name, overlay) {
   position: fixed;
   inset: 0;
-  height: 100vh;
-  height: 100dvh;
   pointer-events: none;
   outline: none;
   box-sizing: border-box;
@@ -37,8 +35,7 @@ $dialog-max-width: (
   flex-wrap: nowrap;
   overflow: hidden;
   width: 100%;
-  max-height: 86vh;
-  max-height: 86dvh;
+  max-height: 86%;
   border-radius: fn.use-var(radius, large);
   background-color: fn.use-var(bg-color, top);
   box-shadow: fn.use-var(shadow, lg);

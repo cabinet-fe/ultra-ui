@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts" setup>
-import { bem } from '@veltra/utils'
+import { bem } from '../../shared/bem'
 
 defineOptions({ name: 'UListItem' })
 

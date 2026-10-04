@@ -43,9 +43,10 @@
 import { o } from '@cat-kit/core'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { Close, Hide, View } from '@veltra/icons/normal'
-import { bem, injectFormContext } from '@veltra/utils'
+import { injectFormContext } from '@veltra/utils'
 import { computed, nextTick, shallowRef } from 'vue'
 
+import { bem } from '../../shared/bem'
 import type { PasswordInputProps } from '../../types/password-input'
 import { UInput } from '../input'
 
