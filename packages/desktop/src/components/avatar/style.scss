@@ -1,0 +1,73 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: 'avatar';
+
+@include m.b($root-name) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  border-radius: 50%;
+  color: fn.use-var(text-color, white);
+  background-color: fn.use-var(color, primary);
+  user-select: none;
+
+  @include m.size using ($size) {
+    width: fn.use-var(form-component-height, $size);
+    height: fn.use-var(form-component-height, $size);
+    font-size: fn.use-var(font-size-main, $size);
+  }
+
+  @include m.is(round) {
+    border-radius: fn.use-var(radius, large);
+  }
+
+  @include m.e(image) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @include m.e(fallback) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    white-space: nowrap;
+  }
+}
+
+@include m.b(#{$root-name}-group) {
+  display: inline-flex;
+  align-items: center;
+
+  @include m.b($root-name) {
+    border: 2px solid fn.use-var(bg-color, top);
+
+    &:not(:first-child) {
+      margin-left: -8px;
+    }
+  }
+
+  @include m.e(rest) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    width: fn.use-var(form-component-height, default);
+    height: fn.use-var(form-component-height, default);
+    font-size: fn.use-var(font-size-main, default);
+    border-radius: 50%;
+    border: 2px solid fn.use-var(bg-color, top);
+    color: fn.use-var(text-color, main);
+    background-color: fn.use-var(color, default);
+
+    &:not(:first-child) {
+      margin-left: -8px;
+    }
+  }
+}

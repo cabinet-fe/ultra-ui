@@ -1,0 +1,28 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: 'back-top';
+
+@include m.b($root-name) {
+  position: fixed;
+  right: 10px;
+  bottom: 10px;
+  // 浮在页面内容之上（内容区层级普遍 <=1），低于 message/notification 等弹层（zIndex() 从 1000 起）
+  z-index: 100;
+  box-shadow: fn.use-var(shadow, lg);
+}
+
+@include m.b(#{$root-name}-fade) {
+  &-enter-active,
+  &-leave-active {
+    transition:
+      opacity fn.use-var(transition, normal) fn.use-var(transition, ease),
+      transform fn.use-var(transition, normal) fn.use-var(transition, ease);
+  }
+
+  &-enter-from,
+  &-leave-to {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+}
