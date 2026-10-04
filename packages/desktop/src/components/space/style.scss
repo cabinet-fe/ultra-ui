@@ -1,0 +1,41 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+// 方便拼接
+$root-name: space;
+
+@include m.b($root-name) {
+  display: inline-flex;
+  gap: fn.use-var(gap, default);
+  align-items: center;
+
+  @include m.m(vertical) {
+    flex-direction: column;
+  }
+
+  @include m.is(wrap) {
+    flex-wrap: wrap;
+  }
+
+  // 间距档：走主题 gap token
+  @include m.m(small) {
+    gap: fn.use-var(gap, small);
+  }
+
+  @include m.m(large) {
+    gap: fn.use-var(gap, large);
+  }
+
+  // 交叉轴对齐
+  @include m.m(align-start) {
+    align-items: flex-start;
+  }
+
+  @include m.m(align-end) {
+    align-items: flex-end;
+  }
+
+  @include m.m(align-baseline) {
+    align-items: baseline;
+  }
+}
