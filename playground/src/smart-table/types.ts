@@ -57,3 +57,11 @@ export const FIELD_TYPE_LABELS: Record<FieldType, string> = {
 export function isOptionsField(type: FieldType): boolean {
   return type === 'select' || type === 'multi-select'
 }
+
+/** 单元格值的展示文案（看板卡片与视图管线的搜索/筛选/排序/分组共用） */
+export function cellText(value: CellValue): string {
+  if (value === undefined || value === null || value === '') return ''
+  if (typeof value === 'boolean') return value ? '是' : '否'
+  if (Array.isArray(value)) return value.join('、')
+  return String(value)
+}

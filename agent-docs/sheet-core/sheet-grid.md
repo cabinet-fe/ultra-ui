@@ -213,25 +213,25 @@ export class SheetGrid {
 
 ## 参数说明
 
-| 参数                        | 类型                   | 默认     | 必填 | 约束                                                                                                                                                                          |
-| --------------------------- | ---------------------- | -------- | :--: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `container`                 | `HTMLElement`          | —        |  是  | 容器需有宽高；grid 在容器上挂键盘、滚轮监听与 `ResizeObserver`                                                                                                                |
-| `sheet`                     | `Sheet`                | —        |  是  | 一个 `Sheet` 可对应多个 `SheetGrid`；释放 grid 不影响模型                                                                                                                     |
-| `rows`                      | `number`               | `100`    |  否  | 渲染高水位，最小 1；仅扩张不收缩：模型现有行数更大时以模型为准（删行后不被更小的 props 撑回）                                                                                 |
-| `cols`                      | `number`               | `26`     |  否  | 渲染高水位，最小 1；仅扩张不收缩，同 `rows`                                                                                                                                   |
-| `width` / `height`          | `number`               | 测量容器 |  否  | 未布局（`clientWidth` / `clientHeight` 为 0）回落 `960` / `420`                                                                                                               |
-| `readonly`                  | `boolean`              | `false`  |  否  | `true` 时不注册编辑器、`Enter` 不进编辑、填充柄不写值、行列 resize 关闭、不绑 undo/redo 快捷键、浮动图禁拖动与 `Delete` 删除；保留渲染、选区、滚动、键盘导航、`onContextMenu` |
-| `showRowHeader`             | `boolean`              | `true`   |  否  | `false` 不渲染行号列                                                                                                                                                          |
-| `showColHeader`             | `boolean`              | `true`   |  否  | `false` 不渲染列头行                                                                                                                                                          |
-| `resolveDisplayValue`       | `ResolveDisplayValue`  | —        |  否  | 每次格显示值解析按格回调（渲染热路径）；`base` 已含公式缓存与 numFmt 格式化                                                                                                   |
-| `resolveCellStyle`          | `ResolveCellStyleHook` | —        |  否  | 每次格渲染按格拉取；叠加链：模型有效样式（列 → 行 → 格）→ 宿主 hook → 引擎样式映射                                                                                            |
-| `resolveCellRenderer`       | `ResolveCellRenderer`  | —        |  否  | 格节点重建时按格回调（合并区路由主格）；**仅宿主传入才安装分发器**，默认场景渲染管线零差异                                                                                    |
-| `header`                    | `SheetGridHeaderOptions` | —      |  否  | 列头机制：`resolveTitle` 按列覆盖标题（未命中回落字母表头）；`resolveHeader` 按列返回 DOM 元素由表头覆盖层挂载（该列引擎标题置空防双绘）。构造期装配，变化需重建实例 |
-| `editors`                   | `SheetGridEditorsOptions` | —     |  否  | 类型化编辑器机制：`editors` 注册自定义编辑器、`route` 按格路由；未命中回落统一文本编辑器；`readonly: true` 时整体忽略                                                    |
-| `onContextMenu`             | `(info) => void`       | —        |  否  | 右键时触发；`info.x` / `info.y` 为客户端坐标                                                                                                                                  |
-| `onEditStart` / `onEditEnd` | `(addr) => void`       | —        |  否  | 编辑进入 / 退出；`readonly: true` 不触发                                                                                                                                      |
-| `interceptSelection`        | `() => boolean`        | —        |  否  | 返回 `true` 拦截本次选区（不写模型选区）                                                                                                                                      |
-| `onSelectionIntercept`      | `(range) => void`      | —        |  否  | 拦截发生时回调被拦截的模型区域；须与 `interceptSelection` 配对使用                                                                                                            |
+| 参数                        | 类型                      | 默认     | 必填 | 约束                                                                                                                                                                          |
+| --------------------------- | ------------------------- | -------- | :--: | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `container`                 | `HTMLElement`             | —        |  是  | 容器需有宽高；grid 在容器上挂键盘、滚轮监听与 `ResizeObserver`                                                                                                                |
+| `sheet`                     | `Sheet`                   | —        |  是  | 一个 `Sheet` 可对应多个 `SheetGrid`；释放 grid 不影响模型                                                                                                                     |
+| `rows`                      | `number`                  | `100`    |  否  | 渲染高水位，最小 1；仅扩张不收缩：模型现有行数更大时以模型为准（删行后不被更小的 props 撑回）                                                                                 |
+| `cols`                      | `number`                  | `26`     |  否  | 渲染高水位，最小 1；仅扩张不收缩，同 `rows`                                                                                                                                   |
+| `width` / `height`          | `number`                  | 测量容器 |  否  | 未布局（`clientWidth` / `clientHeight` 为 0）回落 `960` / `420`                                                                                                               |
+| `readonly`                  | `boolean`                 | `false`  |  否  | `true` 时不注册编辑器、`Enter` 不进编辑、填充柄不写值、行列 resize 关闭、不绑 undo/redo 快捷键、浮动图禁拖动与 `Delete` 删除；保留渲染、选区、滚动、键盘导航、`onContextMenu` |
+| `showRowHeader`             | `boolean`                 | `true`   |  否  | `false` 不渲染行号列                                                                                                                                                          |
+| `showColHeader`             | `boolean`                 | `true`   |  否  | `false` 不渲染列头行                                                                                                                                                          |
+| `resolveDisplayValue`       | `ResolveDisplayValue`     | —        |  否  | 每次格显示值解析按格回调（渲染热路径）；`base` 已含公式缓存与 numFmt 格式化                                                                                                   |
+| `resolveCellStyle`          | `ResolveCellStyleHook`    | —        |  否  | 每次格渲染按格拉取；叠加链：模型有效样式（列 → 行 → 格）→ 宿主 hook → 引擎样式映射                                                                                            |
+| `resolveCellRenderer`       | `ResolveCellRenderer`     | —        |  否  | 格节点重建时按格回调（合并区路由主格）；**仅宿主传入才安装分发器**，默认场景渲染管线零差异                                                                                    |
+| `header`                    | `SheetGridHeaderOptions`  | —        |  否  | 列头机制：`resolveTitle` 按列覆盖标题（未命中回落字母表头）；`resolveHeader` 按列返回 DOM 元素由表头覆盖层挂载（该列引擎标题置空防双绘）。构造期装配，变化需重建实例          |
+| `editors`                   | `SheetGridEditorsOptions` | —        |  否  | 类型化编辑器机制：`editors` 注册自定义编辑器、`route` 按格路由；未命中回落统一文本编辑器；`readonly: true` 时整体忽略                                                         |
+| `onContextMenu`             | `(info) => void`          | —        |  否  | 右键时触发；`info.x` / `info.y` 为客户端坐标                                                                                                                                  |
+| `onEditStart` / `onEditEnd` | `(addr) => void`          | —        |  否  | 编辑进入 / 退出；`readonly: true` 不触发                                                                                                                                      |
+| `interceptSelection`        | `() => boolean`           | —        |  否  | 返回 `true` 拦截本次选区（不写模型选区）                                                                                                                                      |
+| `onSelectionIntercept`      | `(range) => void`         | —        |  否  | 拦截发生时回调被拦截的模型区域；须与 `interceptSelection` 配对使用                                                                                                            |
 
 ## 方法与事件
 
@@ -364,7 +364,11 @@ sheet.getCellData({ row: 0, col: 0 })?.v // => 5（模型恒存原始值；显�
 
 ```ts
 import { Sheet } from '@veltra/sheet-core'
-import { SheetGrid, type GridCellEditor, type SheetGridEditorsOptions } from '@veltra/sheet-core/grid'
+import {
+  SheetGrid,
+  type GridCellEditor,
+  type SheetGridEditorsOptions
+} from '@veltra/sheet-core/grid'
 
 const sheet = new Sheet('Sheet1')
 sheet.setCellValue({ row: 0, col: 1 }, 'opt-a')

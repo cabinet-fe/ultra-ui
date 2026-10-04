@@ -281,6 +281,30 @@ const drawImageThumbs: CellRenderer = (target) => {
 }
 
 /**
+ * 分组段头行渲染：顶部细分隔线 + 左侧主色竖条 + 粗体段名
+ * （段名与计数文案由视图管线拼好，存于首列值，按行路由到此渲染器）。
+ */
+export const drawGroupBand: CellRenderer = (target) => {
+  const ctx = canvasOf(target)
+  const { width, height, text } = target
+  if (text === '') return
+  ctx.strokeStyle = '#d8dde5'
+  ctx.lineWidth = 1
+  ctx.beginPath()
+  ctx.moveTo(0, 0.5)
+  ctx.lineTo(width, 0.5)
+  ctx.stroke()
+  ctx.fillStyle = COLOR_PRIMARY
+  ctx.fillRect(6, Math.round(height / 2) - 7, 3, 14)
+  const font = 'bold 12px sans-serif'
+  ctx.font = font
+  ctx.fillStyle = '#3a4150'
+  ctx.textBaseline = 'middle'
+  ctx.textAlign = 'left'
+  ctx.fillText(ellipsis(ctx, font, text, width - 22), 14, Math.round(height / 2) + 0.5)
+}
+
+/**
  * 字段级渲染器工厂：按字段类型返回接管绘制的 CellRenderer；
  * text / number / date 返回 undefined（默认文本管线即类型化展示）。
  */

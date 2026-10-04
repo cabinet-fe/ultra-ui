@@ -1,7 +1,13 @@
 import { message } from '@veltra/desktop'
 import { onScopeDispose, ref, watch } from 'vue'
 
-import { isOptionsField, type FieldType, type TableDoc, type TableField } from './types'
+import {
+  isOptionsField,
+  type CellValue,
+  type FieldType,
+  type TableDoc,
+  type TableField
+} from './types'
 
 /** 演示表存取端点（vite proxy `/smart-table-api` → 参考服务 `/smart-table`） */
 const TABLE_API = '/smart-table-api/table'
@@ -9,6 +15,59 @@ const TABLE_API = '/smart-table-api/table'
 const SAVE_DEBOUNCE_MS = 600
 
 export type SaveState = 'saved' | 'dirty' | 'saving' | 'error'
+
+/** 列设置写回补丁：只带要改的属性（options 仅单选/多选有意义） */
+export interface FieldPatch {
+  name?: string
+  type?: FieldType
+  options?: string[]
+}
+
+/**
+ * 既有单元格值按字段当前类型 / 选项收拢：兼容的直接转换（数字 ↔ 文本、
+ * 单选 ↔ 多选包装等），不兼容的清空为 null，保证 PUT 契约始终通过。
+ */
+function coerceCellValue(value: CellValue, field: TableField): CellValue {
+  if (value == null) return null
+  switch (field.type) {
+    case 'text':
+      return typeof value === 'string' ? value : typeof value === 'number' ? String(value) : null
+    case 'number':
+      return typeof value === 'number' && Number.isFinite(value) ? value : null
+    case 'progress': {
+      if (typeof value !== 'number' || !Number.isFinite(value)) return null
+      return Math.min(100, Math.max(0, value))
+    }
+    case 'date':
+      return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) ? value : null
+    case 'checkbox':
+      return typeof value === 'boolean' ? value : null
+    case 'select': {
+      const candidates = Array.isArray(value) ? value : [value]
+      const hit = candidates.find(
+        (item) => typeof item === 'string' && field.options?.includes(item)
+      )
+      return hit ?? null
+    }
+    case 'multi-select': {
+      const items = (
+        Array.isArray(value) ? value : typeof value === 'string' ? [value] : []
+      ).filter((item) => typeof item === 'string' && field.options?.includes(item))
+      return items.length > 0 ? Array.from(new Set(items)) : null
+    }
+    case 'member':
+    case 'image': {
+      const items = (
+        Array.isArray(value)
+          ? value
+          : typeof value === 'string' && value.trim() !== ''
+            ? [value]
+            : []
+      ).filter((item) => typeof item === 'string' && item.trim() !== '')
+      return items.length > 0 ? items : null
+    }
+  }
+}
 
 /** 参考服务 `/smart-table/table` 的响应形状 */
 interface TableApiResponse {
@@ -140,6 +199,23 @@ export function useTableDoc() {
     return field
   }
 
+  /** 列设置写回：改名 / 改类型 / 选项管理；类型或选项变化后既有值按新契约清洗 */
+  function updateField(fieldId: string, patch: FieldPatch): void {
+    const table = doc.value
+    const field = table?.fields.find((item) => item.id === fieldId)
+    if (!table || !field) return
+    if (patch.name !== undefined) field.name = patch.name
+    if (patch.type !== undefined) field.type = patch.type
+    if (isOptionsField(field.type)) {
+      if (patch.options !== undefined) field.options = patch.options
+    } else {
+      delete field.options
+    }
+    for (const row of table.rows) {
+      if (fieldId in row.values) row.values[fieldId] = coerceCellValue(row.values[fieldId]!, field)
+    }
+  }
+
   /** 删除整列并清掉各行该字段的值；至少保留一个字段（服务端要求 fields 非空） */
   function removeField(fieldId: string): void {
     if (!doc.value) return
@@ -151,5 +227,5 @@ export function useTableDoc() {
     for (const row of doc.value.rows) delete row.values[fieldId]
   }
 
-  return { doc, saveState, load, addRow, removeRow, addField, removeField }
+  return { doc, saveState, load, addRow, removeRow, addField, updateField, removeField }
 }

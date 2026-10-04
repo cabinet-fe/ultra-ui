@@ -144,22 +144,22 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 
 ## 参数说明
 
-| 参数                  | 类型                   | 默认                    | 必填 | 约束                                                                                                         |
-| --------------------- | ---------------------- | ----------------------- | :--: | ------------------------------------------------------------------------------------------------------------ |
-| `workbook`            | `Workbook`             | 内部自建单 sheet 工作簿 |  否  | 运行期更换引用触发整表重建（tabs、网格、事件重绑）                                                           |
-| `rows`                | `number`               | `100`                   |  否  | 渲染行数；只决定可视区尺寸，不限制模型写入范围                                                               |
-| `cols`                | `number`               | `26`                    |  否  | 渲染列数（A..Z）                                                                                             |
-| `showToolbar`         | `boolean`              | `true`                  |  否  | `false` 时工具栏整体不渲染                                                                                   |
-| `showFormulaBar`      | `boolean`              | `true`                  |  否  | 公式栏含名称框与 fx 输入栏；填报页必须设 `false`                                                             |
-| `showTabs`            | `boolean`              | `true`                  |  否  | 底部标签栏：点击切换、末尾「+」新增、右键重命名/删除                                                         |
-| `showRowHeader`       | `boolean`              | `true`                  |  否  | 行号列；右键菜单含插入/删除行、行高、冻结到当前行                                                            |
-| `showColHeader`       | `boolean`              | `true`                  |  否  | 列字母表头；右键菜单含插入/删除列、列宽、冻结到当前列                                                        |
-| `readonly`            | `boolean`              | `false`                 |  否  | 整表只读预览；按格控制改用模型 `setCellReadonly`                                                             |
-| `resolveDisplayValue` | `ResolveDisplayValue`  | —                       |  否  | `(addr, base) => CellValue \| undefined`；必须同步                                                           |
-| `resolveCellStyle`    | `ResolveCellStyleHook` | —                       |  否  | `(addr, baseStyle?) => CellStyle \| undefined`；必须同步、O(1) 查找                                          |
-| `resolveCellRenderer` | `ResolveCellRenderer`  | —                       |  否  | `(addr, base) => CellRenderer \| undefined`；返回 undefined 回落默认渲染（类型见 `@veltra/sheet-core/grid`） |
-| `header`              | `SheetGridHeaderOptions` | —                     |  否  | 列头机制透传 SheetGrid：`resolveTitle` 按列覆盖标题、`resolveHeader` 按列自定义表头 DOM；机制签名与行为见 `agent-docs/sheet-core/sheet-grid.md`；引用更替触发网格重建 |
-| `editors`             | `SheetGridEditorsOptions` | —                    |  否  | 类型化编辑器机制透传 SheetGrid：`editors` 注册自定义编辑器、`route` 按格路由，未命中回落统一文本编辑器；`readonly` 时忽略；引用更替触发网格重建 |
+| 参数                  | 类型                      | 默认                    | 必填 | 约束                                                                                                                                                                  |
+| --------------------- | ------------------------- | ----------------------- | :--: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `workbook`            | `Workbook`                | 内部自建单 sheet 工作簿 |  否  | 运行期更换引用触发整表重建（tabs、网格、事件重绑）                                                                                                                    |
+| `rows`                | `number`                  | `100`                   |  否  | 渲染行数；只决定可视区尺寸，不限制模型写入范围                                                                                                                        |
+| `cols`                | `number`                  | `26`                    |  否  | 渲染列数（A..Z）                                                                                                                                                      |
+| `showToolbar`         | `boolean`                 | `true`                  |  否  | `false` 时工具栏整体不渲染                                                                                                                                            |
+| `showFormulaBar`      | `boolean`                 | `true`                  |  否  | 公式栏含名称框与 fx 输入栏；填报页必须设 `false`                                                                                                                      |
+| `showTabs`            | `boolean`                 | `true`                  |  否  | 底部标签栏：点击切换、末尾「+」新增、右键重命名/删除                                                                                                                  |
+| `showRowHeader`       | `boolean`                 | `true`                  |  否  | 行号列；右键菜单含插入/删除行、行高、冻结到当前行                                                                                                                     |
+| `showColHeader`       | `boolean`                 | `true`                  |  否  | 列字母表头；右键菜单含插入/删除列、列宽、冻结到当前列                                                                                                                 |
+| `readonly`            | `boolean`                 | `false`                 |  否  | 整表只读预览；按格控制改用模型 `setCellReadonly`                                                                                                                      |
+| `resolveDisplayValue` | `ResolveDisplayValue`     | —                       |  否  | `(addr, base) => CellValue \| undefined`；必须同步                                                                                                                    |
+| `resolveCellStyle`    | `ResolveCellStyleHook`    | —                       |  否  | `(addr, baseStyle?) => CellStyle \| undefined`；必须同步、O(1) 查找                                                                                                   |
+| `resolveCellRenderer` | `ResolveCellRenderer`     | —                       |  否  | `(addr, base) => CellRenderer \| undefined`；返回 undefined 回落默认渲染（类型见 `@veltra/sheet-core/grid`）                                                          |
+| `header`              | `SheetGridHeaderOptions`  | —                       |  否  | 列头机制透传 SheetGrid：`resolveTitle` 按列覆盖标题、`resolveHeader` 按列自定义表头 DOM；机制签名与行为见 `agent-docs/sheet-core/sheet-grid.md`；引用更替触发网格重建 |
+| `editors`             | `SheetGridEditorsOptions` | —                       |  否  | 类型化编辑器机制透传 SheetGrid：`editors` 注册自定义编辑器、`route` 按格路由，未命中回落统一文本编辑器；`readonly` 时忽略；引用更替触发网格重建                       |
 
 ## 方法与事件
 
