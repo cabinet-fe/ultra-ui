@@ -1,7 +1,7 @@
 @use 'pkg:@veltra/styles/mixins' as m;
 @use 'pkg:@veltra/styles/functions' as fn;
 
-$root-name: 'descriptions';
+$root-name: descriptions;
 
 @include m.b($root-name) {
   font-size: fn.use-var(font-size-main, default);

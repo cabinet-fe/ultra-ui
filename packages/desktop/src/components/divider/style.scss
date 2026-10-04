@@ -4,10 +4,13 @@
 // 方便拼接
 $root-name: divider;
 
+// 文字靠左/靠右时，对侧长线之外那一侧的短线宽度
+$short-line-width: 5%;
+
 @include m.b($root-name) {
   // 水平分割线（默认形态）：单独使用时由上边框划线
   border-top: 1px solid fn.use-var(border-color);
-  margin: 12px 0;
+  margin: fn.use-var(gap, large) 0;
 
   // 虚线
   @include m.is(dashed) {
@@ -33,7 +36,7 @@ $root-name: divider;
     display: flex;
     align-items: center;
     border-top: none;
-    margin: 12px 0;
+    margin: fn.use-var(gap, large) 0;
 
     &::before,
     &::after {
@@ -64,7 +67,7 @@ $root-name: divider;
     @include m.is(with-text) {
       &::before {
         flex: none;
-        width: 5%;
+        width: $short-line-width;
       }
     }
   }
@@ -74,14 +77,14 @@ $root-name: divider;
     @include m.is(with-text) {
       &::after {
         flex: none;
-        width: 5%;
+        width: $short-line-width;
       }
     }
   }
 
   @include m.e(text) {
     color: fn.use-var(text-color, main);
-    font-size: fn.use-var('font-size', main);
+    font-size: fn.use-var(font-size, main);
     white-space: nowrap;
   }
 }
