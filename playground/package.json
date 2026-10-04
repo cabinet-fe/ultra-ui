@@ -18,6 +18,7 @@
     "@veltra/desktop": "workspace:*",
     "@veltra/directives": "workspace:*",
     "@veltra/icons": "workspace:*",
+    "@veltra/mobile": "workspace:*",
     "@veltra/sheet": "workspace:*",
     "@veltra/sheet-core": "workspace:*",
     "@veltra/styles": "workspace:*",

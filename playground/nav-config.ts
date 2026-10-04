@@ -1,5 +1,5 @@
 import type { NavItem } from '@veltra/desktop'
-import { AiChat, FormTable, Layers, Monitor, PictureRounded } from '@veltra/icons/normal'
+import { AiChat, FormTable, Layers, Mobile, Monitor, PictureRounded } from '@veltra/icons/normal'
 import type { DefineComponent } from 'vue'
 
 export type DemoCategory =
@@ -11,6 +11,7 @@ export type DemoCategory =
   | 'feedback'
   | 'editor'
   | 'other'
+  | 'mobile'
 
 export interface DemoMeta {
   zh: string
@@ -33,6 +34,10 @@ export const categories: { key: DemoCategory; zh: string }[] = [
 export const DEFAULT_ROUTE = '/desktop/button/index'
 
 const DESKTOP_ROOT = '/desktop'
+const MOBILE_ROOT = '/mobile'
+
+/** mobile demo key 前缀（router.ts 按目录名生成 `mobile-<name>`，路由 path 仍是 `/mobile/<name>/index`） */
+const MOBILE_KEY_PREFIX = 'mobile-'
 
 export const demoMeta: Record<string, DemoMeta> = {
   icons: { zh: '图标', en: 'Icons', category: 'other' },
@@ -89,6 +94,7 @@ export const demoMeta: Record<string, DemoMeta> = {
   loading: { zh: '加载', en: 'Loading', category: 'feedback' },
   message: { zh: '消息提示', en: 'Message', category: 'feedback' },
   'message-confirm': { zh: '消息确认', en: 'MessageConfirm', category: 'feedback' },
+  'mobile-button': { zh: '按钮', en: 'Button', category: 'mobile' },
   'multi-select': { zh: '多选选择器', en: 'MultiSelect', category: 'form' },
   'multi-tree-select': { zh: '多选树形选择器', en: 'MultiTreeSelect', category: 'form' },
   nav: { zh: '导航', en: 'Nav', category: 'nav' },
@@ -149,6 +155,14 @@ function demosInCategory(category: DemoCategory) {
     .sort((a, b) => a.zh.localeCompare(b.zh, 'zh-CN'))
 }
 
+/** Mobile 分区叶子项：key（`mobile-<name>`）转回路由 path `/mobile/<name>/index` */
+function mobileDemos() {
+  return demosInCategory('mobile').map((d) => ({
+    title: `${d.zh} ${d.en}`,
+    path: `${MOBILE_ROOT}/${d.key.slice(MOBILE_KEY_PREFIX.length)}/index`
+  }))
+}
+
 export function buildPlaygroundMenus(): NavItem[] {
   return [
     {
@@ -174,6 +188,13 @@ export function buildPlaygroundMenus(): NavItem[] {
           path: `${DESKTOP_ROOT}/${d.key}/index`
         }))
       }))
+    },
+    {
+      title: 'Mobile 组件',
+      description: '按移动端密度与触控热区浏览 @veltra/mobile 组件演示（375px 视口适配）',
+      icon: Mobile as DefineComponent,
+      path: MOBILE_ROOT,
+      children: mobileDemos()
     },
     {
       title: 'AI Chat',
@@ -209,6 +230,7 @@ export function isNavGroupPath(path: string): boolean {
   if (
     path === DESKTOP_ROOT ||
     path === ICONS_ROOT ||
+    path === MOBILE_ROOT ||
     path === '/sheet' ||
     path === '/ai-chat' ||
     path === '/smart-table'
@@ -216,6 +238,7 @@ export function isNavGroupPath(path: string): boolean {
     return true
   }
   if (path.startsWith(`${DESKTOP_ROOT}/`) && !path.endsWith('/index')) return true
+  if (path.startsWith(`${MOBILE_ROOT}/`) && !path.endsWith('/index')) return true
   return false
 }
 

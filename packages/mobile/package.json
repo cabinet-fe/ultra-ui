@@ -12,13 +12,27 @@
     "directory": "packages/mobile"
   },
   "type": "module",
+  "sideEffects": [
+    "src/**/style.ts",
+    "src/**/*.scss"
+  ],
   "exports": {
     ".": {
+      "types": "./src/index.ts",
+      "veltra-dev": "./src/index.ts",
       "import": "./src/index.ts"
+    },
+    "./*": {
+      "types": "./src/*",
+      "veltra-dev": "./src/*",
+      "import": "./src/*"
     }
   },
   "scripts": {},
   "peerDependencies": {
+    "@veltra/icons": "workspace:^",
+    "@veltra/styles": "workspace:^",
+    "@veltra/utils": "workspace:^",
     "vue": ">=3.5.43"
   }
 }

@@ -9,6 +9,7 @@ import {
 import { DEFAULT_ROUTE, demoMeta } from './nav-config'
 
 const desktopModules = import.meta.glob<{ default: RouteComponent }>('./src/desktop/**/index.vue')
+const mobileModules = import.meta.glob<{ default: RouteComponent }>('./src/mobile/**/index.vue')
 const iconsModules = import.meta.glob<{ default: RouteComponent }>('./src/icons/**/index.vue')
 const aiChatModules = import.meta.glob<{ default: RouteComponent }>('./src/ai-chat/**/index.vue')
 const sheetModules = import.meta.glob<{ default: RouteComponent }>('./src/sheet/**/index.vue')
@@ -27,6 +28,7 @@ const smartTableModules = import.meta.glob<{ default: RouteComponent }>(
 
 const modules = {
   ...desktopModules,
+  ...mobileModules,
   ...iconsModules,
   ...aiChatModules,
   ...sheetModules,
@@ -40,6 +42,10 @@ const paths = Object.keys(modules)
 function demoKeyFromModulePath(path: string): string {
   const desktop = path.match(/src\/desktop\/([^/]+)\/index\.vue$/)
   if (desktop) return desktop[1]!
+
+  // mobile 与 desktop 目录同名，key 加前缀避免路由 name 冲突
+  const mobile = path.match(/src\/mobile\/([^/]+)\/index\.vue$/)
+  if (mobile) return `mobile-${mobile[1]!}`
 
   const iconsNested = path.match(/src\/icons\/(.+)\/index\.vue$/)
   if (iconsNested) return `icons-${iconsNested[1]!.replace(/\//g, '-')}`
