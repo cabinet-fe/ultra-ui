@@ -335,16 +335,20 @@ export function useSmartSheet(options: UseSmartSheetOptions) {
     void nextTick(bindGrid)
   }
 
-  watch([viewFields, viewItems], () => {
-    const fieldsSig = fieldsSignature(viewFields.value)
-    const sig = itemsSignature(viewItems.value)
-    if (fieldsSig === lastFieldsSig && sig === lastItemsSig) return
-    lastItemsSig = sig
-    const docRows = doc.value?.rows.length ?? -1
-    const docRowsGrew = remapCount > 0 && docRows > lastDocRows
-    lastDocRows = docRows
-    remap(viewFields.value, viewItems.value, docRowsGrew)
-  })
+  // watch 源用签名 getter 而非 computed 本身：viewFields 的 filter 只依赖
+  // field.id，改名/改类型/选项增删不会让 computed 失效，列头与列渲染会滞留
+  // 旧值；getter 逐字段读 name/type/options，这些变更即触发重装配。
+  watch(
+    [() => fieldsSignature(viewFields.value), () => itemsSignature(viewItems.value)],
+    ([fieldsSig, sig]) => {
+      if (fieldsSig === lastFieldsSig && sig === lastItemsSig) return
+      lastItemsSig = sig
+      const docRows = doc.value?.rows.length ?? -1
+      const docRowsGrew = remapCount > 0 && docRows > lastDocRows
+      lastDocRows = docRows
+      remap(viewFields.value, viewItems.value, docRowsGrew)
+    }
+  )
 
   // ─── Sheet → doc 编辑回写 ─────────────────────────────────
 
