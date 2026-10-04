@@ -1,0 +1,81 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use 'pkg:@veltra/styles/vars';
+
+// 方便拼接
+$root-name: time-picker;
+
+@include m.b($root-name) {
+  width: 100%;
+
+  @include m.size using ($size) {
+    @include m.bem($root-name, icon) {
+      font-size: calc(fn.use-var(form-component-height, $size) / 2 + 2px);
+    }
+  }
+
+  @include m.e(panel) {
+    @include m.flex($justify: space-between);
+    gap: fn.use-var(gap, default);
+    padding: fn.use-var(gap, default);
+
+    // 一列可见 7 项；上下补 3 项高的占位，使首尾项也能滚动到可视区中央
+    @include m.size using ($size) {
+      font-size: fn.use-var(font-size-main, $size);
+
+      @include m.bem($root-name, column) {
+        height: calc(fn.use-var(form-component-height, $size) * 7);
+      }
+
+      @include m.bem($root-name, item) {
+        height: fn.use-var(form-component-height, $size);
+        line-height: fn.use-var(form-component-height, $size);
+      }
+
+      @include m.bem($root-name, spacer) {
+        height: calc(fn.use-var(form-component-height, $size) * 3);
+      }
+    }
+  }
+
+  @include m.e(column) {
+    position: relative;
+    width: 56px;
+    flex: none;
+    overflow-y: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  @include m.e(item) {
+    margin: 0 4px;
+    text-align: center;
+    border-radius: 99px;
+    cursor: pointer;
+    user-select: none;
+    color: fn.use-var(text-color, main);
+    transition: background-color 0.15s;
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    @include m.is(selected) {
+      background-color: fn.use-var(color, primary);
+      color: fn.use-var(text-color, white);
+      font-weight: 600;
+    }
+
+    @include m.is(disabled) {
+      cursor: not-allowed;
+      color: fn.use-var(text-color, disabled);
+
+      &:hover {
+        background-color: transparent;
+      }
+    }
+  }
+}
