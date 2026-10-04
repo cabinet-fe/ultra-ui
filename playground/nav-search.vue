@@ -1,14 +1,19 @@
 <template>
-  <div ref="rootRef" class="playground-nav-search">
-    <u-auto-complete
-      ref="autoCompleteRef"
+  <div
+    ref="trigger"
+    class="playground-nav-search"
+    @focusin="onFocusIn"
+    @focusout="onFocusOut"
+    @click="onTriggerClick"
+    @keydown="onKeydown"
+  >
+    <u-input
+      ref="input"
       v-model="query"
       class="playground-nav-search__input"
-      :suggestions="searchSuggestions"
       placeholder="搜索组件或页面…"
       clearable
-      :allow-custom="false"
-      @select="handleSelect"
+      @focus="open"
     >
       <template #prefix>
         <u-icon class="playground-nav-search__icon"><Search /></u-icon>
@@ -17,29 +22,39 @@
       <template #suffix>
         <kbd v-if="showShortcut" class="playground-nav-search__kbd">⌘K</kbd>
       </template>
-
-      <template #default="{ option: path }">
-        <div class="playground-nav-search__option">
-          <span class="playground-nav-search__option-title">{{ getItem(path)?.title }}</span>
-          <span class="playground-nav-search__option-meta">{{ formatMeta(getItem(path)) }}</span>
-        </div>
-      </template>
-    </u-auto-complete>
+    </u-input>
   </div>
+
+  <Teleport :to="`#${popperContainerId}`">
+    <div
+      v-if="panelOpen"
+      ref="contentRef"
+      class="playground-nav-search__panel"
+      :style="{ zIndex: zIndex() }"
+      v-click-outside="onClickOutside"
+      @mousedown.prevent
+    >
+      <nav-search-panel
+        :groups="groups"
+        :query="query"
+        :active-index="activeIndex"
+        @select="selectPath"
+      />
+    </div>
+  </Teleport>
 </template>
 
 <script lang="ts" setup>
-import type { AutoCompleteExposed, NavItem } from '@veltra/desktop'
+import { usePop } from '@veltra/compositions'
+import type { InputExposed, NavItem } from '@veltra/desktop'
+import { vClickOutside } from '@veltra/directives'
 import { Search } from '@veltra/icons/normal'
-import { computed, onMounted, onUnmounted, shallowRef, useTemplateRef } from 'vue'
+import { zIndex, setStyles } from '@veltra/utils'
+import { computed, onMounted, onUnmounted, shallowRef, useTemplateRef, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
-import {
-  filterNavSearchItems,
-  flattenPlaygroundNavItems,
-  isNavGroupPath,
-  type NavSearchItem
-} from './nav-config'
+import { flattenPlaygroundNavItems, isNavGroupPath, searchNavItems } from './nav-config'
+import NavSearchPanel from './nav-search-panel.vue'
 
 defineOptions({ name: 'UNavSearch' })
 
@@ -47,70 +62,114 @@ const props = defineProps<{ menus: NavItem[] }>()
 
 const router = useRouter()
 const query = shallowRef('')
+const panelOpen = shallowRef(false)
 const focused = shallowRef(false)
-const rootRef = useTemplateRef<HTMLElement>('rootRef')
-const autoCompleteRef = useTemplateRef<AutoCompleteExposed>('autoCompleteRef')
+/** 扁平 active 下标：跨分组连续编号，-1 无高亮 */
+const activeIndex = shallowRef(0)
+
+const inputRef = useTemplateRef<InputExposed>('input')
+const triggerRef = useTemplateRef<HTMLElement>('trigger')
+const contentRef = shallowRef<HTMLElement>()
 
 const navItems = computed(() => flattenPlaygroundNavItems(props.menus))
-
-const itemByPath = computed(() => {
-  const map = new Map<string, NavSearchItem>()
-  for (const item of navItems.value) {
-    map.set(item.path, item)
-  }
-  return map
-})
+const groups = computed(() => searchNavItems(navItems.value, query.value))
+const flatItems = computed(() => groups.value.flatMap((group) => group.items))
 
 const showShortcut = computed(() => !focused.value && !query.value)
 
-const searchSuggestions = (modelValue?: string) => {
-  return filterNavSearchItems(navItems.value, modelValue).map((item) => item.path)
-}
-
-const getItem = (path: string) => itemByPath.value.get(path)
-
-const formatMeta = (item?: NavSearchItem) => {
-  if (!item) return ''
-  const parts = [item.section]
-  if (item.category) parts.push(item.category)
-  return parts.join(' · ')
-}
-
-const handleSelect = (path: string) => {
-  if (path && !isNavGroupPath(path)) {
-    router.push(path)
+const { popperContainerId } = usePop({
+  triggerRef,
+  contentRef,
+  direction: 'bottom',
+  alignment: 'start',
+  onBeforeUpdate(triggerEl, contentEl) {
+    setStyles(contentEl, { width: `${triggerEl.offsetWidth}px` })
   }
+})
+
+function open() {
+  panelOpen.value = true
+  activeIndex.value = 0
+}
+
+/** 任何关闭路径都清空查询并复位高亮，⌘K 徽标随空查询恢复 */
+function close() {
+  panelOpen.value = false
   query.value = ''
+  activeIndex.value = 0
 }
 
-const focusInput = () => {
-  rootRef.value?.querySelector('input')?.focus()
-  autoCompleteRef.value?.open()
+function selectPath(path: string) {
+  if (!isNavGroupPath(path)) router.push(path)
+  close()
+  // 选中即完成搜索，把焦点还给页面；否则路由跳转后焦点残留输入框，再点击无法重新展开
+  inputRef.value?.el?.blur()
 }
 
-const onFocusIn = () => {
+/** 点击已聚焦的触发器（focus 事件不会再来）也要能重新展开 */
+function onTriggerClick() {
+  if (!panelOpen.value) open()
+}
+
+function onFocusIn() {
   focused.value = true
 }
 
-const onFocusOut = () => {
+/** 焦点移出触发器与面板整体时关闭（点击面板选项由 mousedown.prevent 保住焦点，走 click 选中） */
+function onFocusOut(event: FocusEvent) {
   focused.value = false
+  const next = event.relatedTarget as Node | null
+  if (next && (triggerRef.value?.contains(next) || contentRef.value?.contains(next))) return
+  close()
 }
 
-const onGlobalKeydown = (event: KeyboardEvent) => {
+function onClickOutside(event: MouseEvent) {
+  // 点击触发器自身是聚焦展开路径，不算外部
+  if (triggerRef.value?.contains(event.target as Node)) return
+  close()
+}
+
+function onKeydown(event: KeyboardEvent) {
+  if (!panelOpen.value) return
+
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    close()
+    return
+  }
+
+  if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+    event.preventDefault()
+    const count = flatItems.value.length
+    if (!count) return
+    const delta = event.key === 'ArrowDown' ? 1 : -1
+    activeIndex.value = (activeIndex.value + delta + count) % count
+    return
+  }
+
+  if (event.key === 'Enter') {
+    const item = flatItems.value[activeIndex.value]
+    if (item) selectPath(item.path)
+  }
+}
+
+/** 查询变化后结果列表重建，高亮回到第一项；关闭清空产生的 '' 不重开面板，随后的非空输入仍自动展开 */
+watch(query, (value) => {
+  activeIndex.value = 0
+  if (value && focused.value && !panelOpen.value) panelOpen.value = true
+})
+
+function onGlobalKeydown(event: KeyboardEvent) {
   if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'k') return
   event.preventDefault()
-  focusInput()
+  inputRef.value?.el?.focus()
 }
 
 onMounted(() => {
-  rootRef.value?.addEventListener('focusin', onFocusIn)
-  rootRef.value?.addEventListener('focusout', onFocusOut)
   window.addEventListener('keydown', onGlobalKeydown)
 })
 
 onUnmounted(() => {
-  rootRef.value?.removeEventListener('focusin', onFocusIn)
-  rootRef.value?.removeEventListener('focusout', onFocusOut)
   window.removeEventListener('keydown', onGlobalKeydown)
 })
 </script>
@@ -157,29 +216,11 @@ onUnmounted(() => {
     user-select: none;
   }
 
-  &__option {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    min-width: 0;
-    padding: 2px 0;
-  }
-
-  &__option-title {
-    font-size: 13px;
-    font-weight: 500;
-    color: use-var(text-color, title);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  &__option-meta {
-    font-size: 11px;
-    color: use-var(text-color, second);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  // usePop 定位壳：left/top 由 usePop 写入，宽度对齐触发器
+  &__panel {
+    position: absolute;
+    top: 0;
+    left: 0;
   }
 }
 
@@ -190,29 +231,6 @@ onUnmounted(() => {
 
     &__kbd {
       display: none;
-    }
-  }
-}
-</style>
-
-<!-- 下拉面板被 Teleport 到 body，scoped 样式无法到达，这里用全局样式并通过 :has 限定仅作用于本搜索框的选项 -->
-<style lang="scss">
-.u-auto-complete__options:has(.playground-nav-search__option) {
-  max-height: 320px;
-}
-
-.u-auto-complete__option:has(.playground-nav-search__option) {
-  height: auto;
-  line-height: 1.4;
-  border-radius: 6px;
-
-  // 交互态下让插槽文本继承选项颜色，避免覆盖 hover/active/selected 的前景色
-  &:hover,
-  &.is-active,
-  &.is-selected {
-    .playground-nav-search__option-title,
-    .playground-nav-search__option-meta {
-      color: inherit;
     }
   }
 }

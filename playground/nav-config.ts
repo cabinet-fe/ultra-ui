@@ -316,24 +316,6 @@ export function flattenPlaygroundNavItems(menus: NavItem[]): NavSearchItem[] {
   return items
 }
 
-/** 按关键字过滤导航项（支持中英文与路径片段） */
-export function filterNavSearchItems(items: NavSearchItem[], query?: string, limit = 30) {
-  const q = query?.trim().toLowerCase()
-  if (!q) return items.slice(0, limit)
-
-  const tokens = q.split(/\s+/).filter(Boolean)
-
-  return items
-    .filter((item) => {
-      const haystack = [item.title, item.section, item.category, item.path]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase()
-      return tokens.every((token) => haystack.includes(token))
-    })
-    .slice(0, limit)
-}
-
 /** 标题高亮区间：命中片段在标题中的字符偏移，左闭右开 */
 export interface NavTitleRange {
   start: number
