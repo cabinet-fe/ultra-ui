@@ -196,7 +196,7 @@ export function buildPlaygroundMenus(): NavItem[] {
     {
       title: 'Smart Table 智慧表格',
       description:
-        '多维表格示例：9 种类型化字段行内编辑、工具栏视图管线、AI 字段回填与演示表持久化',
+        '多维表格示例：9 种类型化字段行内编辑、工具栏视图管线、AI 字段回填、AI 对话答疑与演示表持久化',
       icon: Layers as DefineComponent,
       path: '/smart-table',
       children: [{ title: '智慧表格', path: '/smart-table/index' }]

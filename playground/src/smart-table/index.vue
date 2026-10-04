@@ -20,40 +20,49 @@
       <u-button class="smart-table__bar-btn" type="primary" @click="fieldDialogOpen = true">
         新增字段
       </u-button>
+      <u-button class="smart-table__bar-btn" @click="chatOpen = !chatOpen">AI 对话</u-button>
     </div>
 
-    <KanbanView
-      v-if="view === 'kanban'"
-      :fields="doc?.fields ?? []"
-      :rows="doc?.rows ?? []"
-      @update-cell="onKanbanUpdateCell"
-    />
+    <div class="smart-table__body">
+      <!-- 主内容（表格/看板视图）：面板打开时压缩为左列，网格仍可见 -->
+      <div class="smart-table__main">
+        <KanbanView
+          v-if="view === 'kanban'"
+          :fields="doc?.fields ?? []"
+          :rows="doc?.rows ?? []"
+          @update-cell="onKanbanUpdateCell"
+        />
 
-    <!-- 网格视图：u-sheet 表格主体（虚拟滚动、选区键盘、undo/redo、拖拽调宽），
-         工具栏 / 公式栏 / sheet 标签栏在多维表格形态下全部隐藏；列底统计行贴网格底部 -->
-    <template v-else>
-      <!-- 工具栏：搜索/筛选/排序/分组/字段隐藏，作用后的视图行集与列集驱动网格 -->
-      <Toolbar v-if="doc" :fields="doc.fields" :state="toolbarState" />
-      <div class="smart-table__grid-wrap">
-        <div ref="sheetHostRef" class="smart-table__grid">
-          <u-sheet
-            v-if="doc"
-            ref="sheetRef"
-            :workbook="workbook"
-            :rows="gridRows"
-            :cols="gridCols"
-            :header="header"
-            :editors="editors"
-            :resolve-cell-renderer="resolveCellRenderer"
-            :show-toolbar="false"
-            :show-formula-bar="false"
-            :show-tabs="false"
-            class="smart-table__sheet"
-          />
-        </div>
-        <StatsBar :fields="viewFields" :rows="viewRows" />
+        <!-- 网格视图：u-sheet 表格主体（虚拟滚动、选区键盘、undo/redo、拖拽调宽），
+             工具栏 / 公式栏 / sheet 标签栏在多维表格形态下全部隐藏；列底统计行贴网格底部 -->
+        <template v-else>
+          <!-- 工具栏：搜索/筛选/排序/分组/字段隐藏，作用后的视图行集与列集驱动网格 -->
+          <Toolbar v-if="doc" :fields="doc.fields" :state="toolbarState" />
+          <div class="smart-table__grid-wrap">
+            <div ref="sheetHostRef" class="smart-table__grid">
+              <u-sheet
+                v-if="doc"
+                ref="sheetRef"
+                :workbook="workbook"
+                :rows="gridRows"
+                :cols="gridCols"
+                :header="header"
+                :editors="editors"
+                :resolve-cell-renderer="resolveCellRenderer"
+                :show-toolbar="false"
+                :show-formula-bar="false"
+                :show-tabs="false"
+                class="smart-table__sheet"
+              />
+            </div>
+            <StatsBar :fields="viewFields" :rows="viewRows" />
+          </div>
+        </template>
       </div>
-    </template>
+
+      <!-- 右侧 AI 对话面板（非全屏遮盖，可关闭），当前 doc 注入表格上下文 -->
+      <AiChatPanel v-if="chatOpen" :doc="doc" @close="chatOpen = false" />
+    </div>
 
     <FieldDialog v-model="fieldDialogOpen" @confirm="onFieldConfirm" />
     <FieldPanel :field="configField" @close="configFieldId = null" @apply="onFieldApply" />
@@ -70,6 +79,7 @@
 import type { SheetExposed } from '@veltra/sheet'
 import { computed, nextTick, onMounted, reactive, ref, useTemplateRef, watch } from 'vue'
 
+import AiChatPanel from './ai-chat-panel.vue'
 import { useAiField, type AiFieldInput } from './ai-field'
 import FieldDialog from './field-dialog.vue'
 import FieldPanel from './field-panel.vue'
@@ -87,7 +97,8 @@ import { useTableDoc, type FieldPatch } from './use-table-doc'
  * 虚拟滚动、undo/redo），doc ↔ Sheet 双向数据流与编辑持久化见
  * `use-smart-sheet` / `use-table-doc`；工具栏五能力（搜索/筛选/排序/分组/
  * 字段隐藏）的视图管线产出 `viewFields`/`viewItems` 驱动网格；新增字段可选
- * AI 场景，整列流式逐格回填见 `ai-field`（顶栏展示进度与结果）；看板视图
+ * AI 场景，整列流式逐格回填见 `ai-field`（顶栏展示进度与结果）；右侧
+ * `ai-chat-panel` AI 对话面板（表格上下文注入，见 `ai-chat.ts`）；看板视图
  * 沿用 `kanban-view`（卡片跨列拖拽写回同一 doc）。
  * 数据契约见 `types.ts` 与参考服务 `server/smart-table.ts`。
  */
@@ -286,6 +297,9 @@ function onKanbanUpdateCell(payload: { rowId: string; fieldId: string; value: Ce
 /** 视图切换（本地记忆即可，不持久化） */
 type ViewMode = 'table' | 'kanban'
 const view = ref<ViewMode>('table')
+
+/** 右侧 AI 对话面板开关（默认收起，打开时网格压缩为左列仍可见） */
+const chatOpen = ref(false)
 const viewModeItems = [
   { label: '表格', value: 'table' },
   { label: '看板', value: 'kanban' }
@@ -418,6 +432,21 @@ onMounted(() => void load())
 
 .smart-table__bar-btn {
   flex: none;
+}
+
+/* 主内容 + AI 对话面板成行：面板固定宽，主内容压缩（网格自身可横向滚动） */
+.smart-table__body {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.smart-table__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 /* 主内容区不提供确定高度（页面随窗口滚动），网格给固定高度（同 sheet 演示页先例）；

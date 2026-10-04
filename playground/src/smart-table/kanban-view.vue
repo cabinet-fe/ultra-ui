@@ -144,6 +144,12 @@ function onBoardChange(next: KanbanColumnItem[]): void {
   display: flex;
   align-items: center;
   gap: 10px;
+
+  /* 同 toolbar：USelect 根元素无 data-v，须 :deep 命中 */
+  :deep(.smart-table__kanban-select) {
+    width: 180px;
+    flex: none;
+  }
 }
 
 .smart-table__kanban-label {
@@ -151,18 +157,18 @@ function onBoardChange(next: KanbanColumnItem[]): void {
   color: var(--u-text-color-second);
 }
 
-.smart-table__kanban-select {
-  width: 180px;
-}
-
 .smart-table__kanban-hint {
   font-size: 12px;
   color: var(--u-text-color-second);
 }
 
-.smart-table__kanban-board {
-  flex: 1;
-  min-height: 0;
+/* 主内容区无确定高度（页面随窗口滚动，同网格 560px 固定高先例）：列撑到同高，
+   看板主体不再塌陷、下方不再留大片空白 */
+.smart-table__kanban {
+  :deep(.smart-table__kanban-board .u-kanban__column) {
+    align-self: stretch;
+    min-height: 560px;
+  }
 }
 
 .smart-table__card {

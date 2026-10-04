@@ -276,6 +276,12 @@ function isLastVisible(field: TableField): boolean {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+
+  /* USelect inheritAttrs:false，宽度类落在组件根元素但无 data-v，须 :deep 命中 */
+  :deep(.smart-table__toolbar-picker) {
+    width: 130px;
+    flex: none;
+  }
 }
 
 .smart-table__toolbar-search {
@@ -285,10 +291,6 @@ function isLastVisible(field: TableField): boolean {
 .smart-table__toolbar-label {
   font-size: 12px;
   color: var(--u-text-color-second);
-}
-
-.smart-table__toolbar-picker {
-  width: 130px;
 }
 
 .smart-table__filter {
