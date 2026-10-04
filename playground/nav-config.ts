@@ -333,3 +333,88 @@ export function filterNavSearchItems(items: NavSearchItem[], query?: string, lim
     })
     .slice(0, limit)
 }
+
+/** 标题高亮区间：命中片段在标题中的字符偏移，左闭右开 */
+export interface NavTitleRange {
+  start: number
+  end: number
+}
+
+/** 搜索结果选项：导航项附带标题命中区间，供面板渲染强调片段 */
+export interface NavSearchResultItem extends NavSearchItem {
+  /** 所有 token 的命中偏移，重叠区间已合并、按 start 升序 */
+  titleRanges: NavTitleRange[]
+}
+
+/** 搜索结果分组：顶层分区 + 组内结果项 */
+export interface NavSearchGroup {
+  section: string
+  items: NavSearchResultItem[]
+}
+
+/** 查询分词：小写化并按空白切分 */
+function tokenizeQuery(query?: string): string[] {
+  return (query ?? '').trim().toLowerCase().split(/\s+/).filter(Boolean)
+}
+
+/** 计算 token 在标题（已小写）中的全部命中区间，重叠区间合并 */
+function titleHitRanges(lowerTitle: string, tokens: string[]): NavTitleRange[] {
+  const ranges: NavTitleRange[] = []
+  for (const token of tokens) {
+    let start = lowerTitle.indexOf(token)
+    while (start !== -1) {
+      ranges.push({ start, end: start + token.length })
+      start = lowerTitle.indexOf(token, start + token.length)
+    }
+  }
+
+  ranges.sort((a, b) => a.start - b.start)
+  const merged: NavTitleRange[] = []
+  for (const range of ranges) {
+    const last = merged[merged.length - 1]
+    if (last && range.start <= last.end) last.end = Math.max(last.end, range.end)
+    else merged.push(range)
+  }
+  return merged
+}
+
+/** 单项匹配：token 间 AND、字段（title/section/category/path）间 OR、不区分大小写；空 token 视为全量命中 */
+function matchNavItem(item: NavSearchItem, tokens: string[]): NavSearchResultItem | null {
+  if (!tokens.length) return { ...item, titleRanges: [] }
+
+  const lowerTitle = item.title.toLowerCase()
+  const fields = [item.title, item.section, item.category, item.path]
+    .filter((field): field is string => Boolean(field))
+    .map((field) => field.toLowerCase())
+  if (!tokens.every((token) => fields.some((field) => field.includes(token)))) return null
+
+  return { ...item, titleRanges: titleHitRanges(lowerTitle, tokens) }
+}
+
+/** 组内排序权重：标题直接命中为 0，仅分类/分区/路径命中为 1 */
+function titleWeight(item: NavSearchResultItem): number {
+  return item.titleRanges.length ? 0 : 1
+}
+
+/**
+ * 导航搜索主函数。空查询返回全量分组（保持扁平化产出的分区顺序）；
+ * 有查询时 token 间 AND 匹配，组内标题直接命中的项排在仅分类/分区/路径命中的项之前
+ * （sort 稳定，同级保持原序），并为每项计算标题高亮区间。
+ */
+export function searchNavItems(items: NavSearchItem[], query?: string): NavSearchGroup[] {
+  const tokens = tokenizeQuery(query)
+  const groups = new Map<string, NavSearchResultItem[]>()
+
+  for (const item of items) {
+    const result = matchNavItem(item, tokens)
+    if (!result) continue
+    const bucket = groups.get(result.section)
+    if (bucket) bucket.push(result)
+    else groups.set(result.section, [result])
+  }
+
+  return [...groups.entries()].map(([section, groupItems]) => ({
+    section,
+    items: groupItems.sort((a, b) => titleWeight(a) - titleWeight(b))
+  }))
+}
