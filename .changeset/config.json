@@ -20,7 +20,6 @@
   "baseBranch": "dev",
   "updateInternalDependencies": "patch",
   "ignore": [
-    "@veltra/mobile",
     "playground"
   ],
   "___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH": {

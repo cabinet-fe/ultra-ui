@@ -1,7 +1,6 @@
 {
   "name": "@veltra/mobile",
   "version": "1.0.0",
-  "private": true,
   "homepage": "https://github.com/cabinet-fe/ultra-ui#readme",
   "bugs": {
     "url": "https://github.com/cabinet-fe/ultra-ui/issues"
@@ -11,30 +10,35 @@
     "url": "https://github.com/cabinet-fe/ultra-ui",
     "directory": "packages/mobile"
   },
+  "files": [
+    "dist",
+    "src"
+  ],
   "type": "module",
   "sideEffects": [
     "src/**/style.ts",
-    "src/**/*.scss"
+    "src/**/*.scss",
+    "dist/**/style.js",
+    "dist/**/*.css"
   ],
   "exports": {
     ".": {
-      "types": "./src/index.ts",
+      "types": "./dist/index.d.ts",
       "veltra-dev": "./src/index.ts",
-      "import": "./src/index.ts"
+      "import": "./dist/index.js"
     },
     "./*": {
-      "types": "./src/*",
+      "types": "./dist/*",
       "veltra-dev": "./src/*",
-      "import": "./src/*"
+      "import": "./dist/*"
     }
   },
-  "scripts": {},
   "peerDependencies": {
     "@cat-kit/core": ">=1.2.1",
-    "@veltra/compositions": "workspace:^",
-    "@veltra/icons": "workspace:^",
-    "@veltra/styles": "workspace:^",
-    "@veltra/utils": "workspace:^",
+    "@veltra/compositions": "^1.8.5",
+    "@veltra/icons": "^1.5.0",
+    "@veltra/styles": "^1.8.5",
+    "@veltra/utils": "^1.8.5",
     "vue": ">=3.5.43"
   }
 }

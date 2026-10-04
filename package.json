@@ -25,8 +25,8 @@
   "type": "module",
   "scripts": {
     "build": "vp run -r build",
-    "build:packages": "vp run --filter '@veltra/*' --filter '!@veltra/mobile' build",
-    "ci:verify": "bun run resolver:gen -- --check && vp run --filter '@veltra/*' --filter '!@veltra/mobile' build && vp lint && vp test",
+    "build:packages": "vp run --filter '@veltra/*' build",
+    "ci:verify": "bun run resolver:gen -- --check && vp run --filter '@veltra/*' build && vp lint && vp test",
     "lint": "vp lint",
     "fmt": "vp fmt",
     "dev": "vp run -r dev",

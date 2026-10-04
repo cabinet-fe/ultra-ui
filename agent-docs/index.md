@@ -1,6 +1,6 @@
 ---
 title: Ultra UI 总览
-description: Ultra UI（@veltra/*）是面向 Vue 3 的组件与能力库，包含 92 篇桌面组件文档、AI 对话（UAiChat / useChat）、电子表格（USheet / Workbook）、组合式函数、utils 工具、指令、主题系统与按需导入解析器；本篇是全部 137 篇文档的路由表。
+description: Ultra UI（@veltra/*）是面向 Vue 3 的组件与能力库，包含 92 篇桌面组件文档、40 篇移动端组件文档（@veltra/mobile）、AI 对话（UAiChat / useChat）、电子表格（USheet / Workbook）、组合式函数、utils 工具、指令、主题系统与按需导入解析器；本篇是全部 177 篇文档的路由表。
 aliases:
   [
     ultra-ui,
@@ -23,6 +23,7 @@ aliases:
 keywords:
   [
     '@veltra/desktop',
+    '@veltra/mobile',
     '@veltra/ai',
     '@veltra/sheet',
     '@veltra/sheet-core',
@@ -52,7 +53,7 @@ keywords:
 
 # Ultra UI 总览
 
-Ultra UI（npm 作用域 `@veltra/*`）是面向 Vue 3 的组件与能力库：组件从 `@veltra/desktop` 导入，AI 对话用 `@veltra/ai`，电子表格用 `@veltra/sheet`（模型层 `@veltra/sheet-core`），icons / compositions / utils / directives / styles 分包提供，`@veltra/vite` 提供按需导入解析器。硬规则：入口必须 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色；组件样式是独立入口，走 resolver 的模板组件自动带样式，显式 import 的组件（`h()` / render / TSX 里用的）必须自己补 `import '@veltra/desktop/components/<目录>/style'`。运行时要求 Vue `>=3.5.42`；当前组件包版本 `@veltra/desktop@1.7.11`。
+Ultra UI（npm 作用域 `@veltra/*`）是面向 Vue 3 的组件与能力库：组件从 `@veltra/desktop` 导入，移动端组件从 `@veltra/mobile` 导入（与桌面端组件名、属性、事件完全对齐，类名前缀 `um-`，双端同用不冲突），AI 对话用 `@veltra/ai`，电子表格用 `@veltra/sheet`（模型层 `@veltra/sheet-core`），icons / compositions / utils / directives / styles 分包提供，`@veltra/vite` 提供按需导入解析器。硬规则：入口必须 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色；组件样式是独立入口，走 resolver 的模板组件自动带样式，显式 import 的组件（`h()` / render / TSX 里用的）必须自己补 `import '@veltra/desktop/components/<目录>/style'`。运行时要求 Vue `>=3.5.42`；当前组件包版本 `@veltra/desktop@1.7.11`。
 
 写界面结构前先用下方「模块速查」确认有没有对应组件：常见容器与排版一律用现成组件——页面区块、面板、统计卡片用 `UCard`（`desktop/card.md`），栅格与分栏用 `UGrid` / `ULayout`，文本排版用 `UText`，空态用 `UEmpty`，加载遮罩用 `vLoading`，消息与确认用 `message` / `messageConfirm`。禁止用裸 `div` 加 `--u-*` 手写这些组件的等价外观（底色 + 边框 + 圆角 + 内边距的卡面、字号字重的标题体系），手写版本不跟随主题切换且在各页面重复。
 
@@ -60,7 +61,7 @@ Ultra UI（npm 作用域 `@veltra/*`）是面向 Vue 3 的组件与能力库：�
 
 ```bash
 bun add @veltra/desktop @veltra/styles @veltra/utils @veltra/compositions @veltra/directives @veltra/icons @cat-kit/core @cat-kit/fe
-# 按需加：bun add @veltra/ai ｜ bun add @veltra/sheet @veltra/sheet-core
+# 按需加：bun add @veltra/ai ｜ bun add @veltra/sheet @veltra/sheet-core ｜ 移动端：bun add @veltra/mobile
 # 按需自动导入：bun add -D @veltra/vite unplugin-vue-components
 # 写 <script lang="tsx"> 或 .tsx：bun add -D @vitejs/plugin-vue-jsx
 ```
@@ -201,6 +202,53 @@ createApp(App).mount('#app')
 | 数据展示     | `UTable` 数据表格、`UTableEditor` 可编辑表格、`UKanban` 看板、`UPaginator` 分页器（含「共 N 条」文案）、`UNumber` 数字格式化与补间、`UEmpty` 空状态、`UGanttChart` 甘特图、`UCarousel` / `UCarouselItem` 走马灯                                                                  |
 | 反馈与浮层   | `message` / `UMessage` 轻提示、`notification` / `UNotification` 通知、`messageConfirm` / `UMessageConfirm` 确认框、`UPopConfirm` 气泡确认、`UTip` 文字提示、`UDialog` 对话框、`UDrawer` 抽屉、`ULoading` / `vLoading` 加载、`USkeleton` 骨架屏、`UProgress` 进度条、`UAlert` 行内提示条 |
 | 进阶编辑器   | `UBatchEdit` 批量编辑、`UConditionEditor` 条件编辑器、`UExpressionEditor` 表达式编辑器、`UCodeEditor` 代码编辑器、`URichTextEditor` 富文本编辑器、`UFilePicker` 文件选择、`UFileViewer` 文件预览、`UImageCropper` 图片裁剪、`UTheme` 主题编辑器                                         |
+
+### mobile 组件（@veltra/mobile）
+
+移动端组件库：全部组件与桌面端同名组件 API 完全对齐（props / 事件 / v-model 同名同类型，低代码 schema 双端零改动），交互形态移动端化（选择器弹底部面板、44px 触控热区、`:active` 按压替代 hover、清除按钮常显）；类名前缀 `um-`，与 `@veltra/desktop` 在同一应用同用不冲突；主题复用 `@veltra/styles` 同一套 tokens。
+
+| 模块                            | 用途                                                                    | 文档路径                            |
+| ------------------------------- | ----------------------------------------------------------------------- | ----------------------------------- |
+| UAvatar                         | 头像：图片加载失败回退文字、形状尺寸                                    | `mobile/avatar.md`                  |
+| UBadge                          | 徽标：角标计数与 99+ 封顶、dot、hidden                                 | `mobile/badge.md`                   |
+| UButton                         | 按钮：语义色 / 朴素 / 文本 / 图标 / 加载，44px 触控热区                | `mobile/button.md`                  |
+| UCard                           | 卡片：单容器内容区块，三档密度内边距                                   | `mobile/card.md`                    |
+| UCheckTag                       | 可选中标签：标签形态勾选项，44×44 热区                                 | `mobile/check-tag.md`               |
+| UCheckbox                       | 复选框：44px 行热区、`:active` 按压反馈                                | `mobile/checkbox.md`                |
+| UCheckboxGroup                  | 复选框组：多选绑定与 max 限制，readonly 呈现为 UTag                    | `mobile/checkbox-group.md`          |
+| UCollapse / UCollapseItem       | 折叠面板：手风琴、默认全收起、标题 44px 热区                           | `mobile/collapse.md`                |
+| UDatePicker                     | 日期选择：底部日历面板，日 / 月 / 年三视图                             | `mobile/date-picker.md`             |
+| UDescriptions / UDescriptionsItem | 描述列表：单列键值行、值右对齐                                       | `mobile/descriptions.md`            |
+| UDialog                         | 对话框：居中卡片、非模态、fullscreen 全屏形态                          | `mobile/dialog.md`                  |
+| UDivider                        | 分割线：水平 / 垂直、虚线、嵌文字对齐                                  | `mobile/divider.md`                 |
+| UDrawer                         | 抽屉：四向滑出、底部把手下拉关闭                                       | `mobile/drawer.md`                  |
+| UEmpty                          | 空状态：图标 + 描述文案                                                | `mobile/empty.md`                   |
+| UForm                           | 表单容器：校验、失败滚动首条错误、label 默认在上方                     | `mobile/form.md`                    |
+| UFormItem                       | 表单项：label / rules / change 拦截转发、错误提示                      | `mobile/form-item.md`               |
+| UIcon                           | 图标容器：1em 缩放、加载旋转                                           | `mobile/icon.md`                    |
+| UInput                          | 输入框：inputmode / enterkeyhint 透传、清除按钮常显                     | `mobile/input.md`                   |
+| UList / UListItem               | 列表：行高 44px 保底、无内建滚动                                       | `mobile/list.md`                    |
+| ULoading / vLoading             | 加载：指令与组件两种用法                                               | `mobile/loading.md`                 |
+| message / UMessage              | 轻提示：到时即关（无 hover 挂起）、44px 关闭热区                       | `mobile/message.md`                 |
+| messageConfirm / UMessageConfirm | 确认框：Promise 化函数 API、closeAll 兑现取消                         | `mobile/message-confirm.md`         |
+| UMultiSelect                    | 多选：底部面板暂存 + 确定 / 取消、全选与已选计数                       | `mobile/multi-select.md`            |
+| UNumberInput                    | 数字输入：外置 ±44px 步进、精度 / 补间 / 多值                          | `mobile/number-input.md`            |
+| UPasswordInput                  | 密码输入：掩码光标、44px 显隐切换                                      | `mobile/password-input.md`          |
+| UProgress                       | 进度条：线形 / 环形、轨道色走 tokens                                   | `mobile/progress.md`                |
+| URadio                          | 单选框：44px 行热区、`:active` 按压反馈                                | `mobile/radio.md`                   |
+| URadioGroup                     | 单选框组：readonly 呈现为 UTag                                         | `mobile/radio-group.md`             |
+| USegment                        | 分段控制器：短标签 44×44 热区保底                                      | `mobile/segment.md`                 |
+| USelect                         | 选择器：底部面板 + 面板内搜索 / 远程选项 / 可创建                      | `mobile/select.md`                  |
+| USkeleton                       | 骨架屏：头像 / 标题 / 段落 / 按钮                                      | `mobile/skeleton.md`                |
+| USpace                          | 间距容器：三形态 size、方向 / 对齐 / 换行                              | `mobile/space.md`                   |
+| USteps                          | 步骤条：横向溢出触屏滑动、圆点下限 40px                                | `mobile/steps.md`                   |
+| USwitch                         | 开关：滑轨 28px 起步、行热区 44px                                      | `mobile/switch.md`                  |
+| UTabs                           | 标签页：单组件四向布局、触屏滑动 + scroll-snap 溢出                    | `mobile/tabs.md`                    |
+| UTag                            | 标签：可关闭、关闭热区 44×44                                           | `mobile/tag.md`                     |
+| UText                           | 文本排版：五档预设字号字重、删除线 / 下划线 / 高亮                     | `mobile/text.md`                    |
+| UTextarea                       | 多行输入：autosize、右上角 44px 清空                                   | `mobile/textarea.md`                |
+| UTimePicker                     | 时间选择：三列滚轮 scroll-snap、确定 / 取消                            | `mobile/time-picker.md`             |
+| UTimeline / UTimelineItem       | 时间线：圆点 14px、自定义节点                                          | `mobile/timeline.md`                |
 
 ### compositions 组合式函数（@veltra/compositions）
 
