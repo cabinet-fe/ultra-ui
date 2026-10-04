@@ -1,12 +1,15 @@
 @use 'pkg:@veltra/styles/mixins' as m;
 @use 'pkg:@veltra/styles/functions' as fn;
 
-$root-name: 'back-top';
+$root-name: back-top;
+
+// 距视口右/下边缘的留白；全局 token 无 10px 档，属组件级几何常量
+$edge-offset: 10px;
 
 @include m.b($root-name) {
   position: fixed;
-  right: 10px;
-  bottom: 10px;
+  right: $edge-offset;
+  bottom: $edge-offset;
   // 浮在页面内容之上（内容区层级普遍 <=1），低于 message/notification 等弹层（zIndex() 从 1000 起）
   z-index: 100;
   box-shadow: fn.use-var(shadow, lg);

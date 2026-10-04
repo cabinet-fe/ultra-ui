@@ -1,7 +1,12 @@
 @use 'pkg:@veltra/styles/mixins' as m;
 @use 'pkg:@veltra/styles/functions' as fn;
 
-$root-name: 'avatar';
+$root-name: avatar;
+
+// 叠放环宽：遮住与前一头像的重叠边，保证每张头像露出统一宽度的描边
+$overlap-ring-width: 2px;
+// 头像重叠量（向左压住前一个），随主题 gap token 变化
+$overlap-shift: fn.use-var(gap, default);
 
 @include m.b($root-name) {
   display: inline-flex;
@@ -45,13 +50,14 @@ $root-name: 'avatar';
   align-items: center;
 
   @include m.b($root-name) {
-    border: 2px solid fn.use-var(bg-color, top);
+    border: $overlap-ring-width solid fn.use-var(bg-color, top);
 
     &:not(:first-child) {
-      margin-left: -8px;
+      margin-left: calc(#{$overlap-shift} * -1);
     }
   }
 
+  // +N 余量位：尺寸与字体取 avatar 的 default 档，与组内未显式指定 size 的头像一致
   @include m.e(rest) {
     display: inline-flex;
     align-items: center;
@@ -62,12 +68,12 @@ $root-name: 'avatar';
     height: fn.use-var(form-component-height, default);
     font-size: fn.use-var(font-size-main, default);
     border-radius: 50%;
-    border: 2px solid fn.use-var(bg-color, top);
+    border: $overlap-ring-width solid fn.use-var(bg-color, top);
     color: fn.use-var(text-color, main);
     background-color: fn.use-var(color, default);
 
     &:not(:first-child) {
-      margin-left: -8px;
+      margin-left: calc(#{$overlap-shift} * -1);
     }
   }
 }

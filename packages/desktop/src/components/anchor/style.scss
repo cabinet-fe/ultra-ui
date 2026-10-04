@@ -2,15 +2,21 @@
 @use 'pkg:@veltra/styles/functions' as fn;
 @use 'pkg:@veltra/styles/vars';
 
+// 激活指示线宽度；项左内边距以它为基准（gap large + 指示线宽）
+$indicator-width: 2px;
+// 单列锚点最长宽度，防止长标题撑破侧栏
+$item-max-width: 200px;
+
 @include m.b(anchor) {
   display: inline-flex;
   flex-direction: column;
-  max-width: 200px;
+  max-width: $item-max-width;
 
   @include m.e(item) {
     margin: 0;
-    padding: 6px 8px 6px 14px;
-    border-left: 2px solid fn.use-var(border-color);
+    padding: fn.use-var(gap, small) fn.use-var(gap, default) fn.use-var(gap, small)
+      calc(fn.use-var(gap, large) + #{$indicator-width});
+    border-left: $indicator-width solid fn.use-var(border-color);
     color: fn.use-var(text-color, second);
     font-size: fn.use-var(font-size-main);
     line-height: 1.5;
