@@ -1,0 +1,38 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use 'pkg:@veltra/styles/vars';
+
+@include m.b(anchor) {
+  display: inline-flex;
+  flex-direction: column;
+  max-width: 200px;
+
+  @include m.e(item) {
+    margin: 0;
+    padding: 6px 8px 6px 14px;
+    border-left: 2px solid fn.use-var(border-color);
+    color: fn.use-var(text-color, second);
+    font-size: fn.use-var(font-size-main);
+    line-height: 1.5;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      border-color fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    &:hover {
+      color: fn.use-var(text-color, main);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: fn.use-var(focus-ring);
+    }
+
+    &.is-active {
+      border-left-color: fn.use-var(color, primary);
+      color: fn.use-var(color, primary);
+    }
+  }
+}
