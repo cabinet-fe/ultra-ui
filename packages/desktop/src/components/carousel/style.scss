@@ -1,0 +1,106 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: carousel;
+
+@include m.b($root-name) {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: fn.use-var(radius, default);
+  background-color: fn.use-var(bg-color, middle);
+
+  // 轨道：单层 flex 横排，经 translateX 整体滑动翻页；时长与缓动走 token
+  @include m.e(track) {
+    display: flex;
+    transition: transform fn.use-var(transition, slow) fn.use-var(transition, ease-out);
+    will-change: transform;
+  }
+
+  @include m.e(item) {
+    flex: 0 0 100%;
+    width: 100%;
+  }
+
+  // 切换箭头：浮在内容上的半透明圆钮
+  @include m.e(arrow) {
+    position: absolute;
+    top: 50%;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: fn.use-var(text-color, white);
+    background-color: fn.color-a(bg-color, 70, black);
+    transition:
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease),
+      opacity fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    &:hover:not(:disabled) {
+      transform: translateY(-50%) scale(1.08);
+    }
+
+    &:focus-visible {
+      box-shadow: fn.use-var(focus-ring);
+    }
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    @include m.m(prev) {
+      left: fn.use-var(gap, default);
+    }
+
+    @include m.m(next) {
+      right: fn.use-var(gap, default);
+    }
+  }
+
+  // 指示器圆点：激活项拉长为胶囊
+  @include m.e(dots) {
+    position: absolute;
+    bottom: fn.use-var(gap, small);
+    left: 0;
+    right: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: fn.use-var(gap, small);
+  }
+
+  @include m.e(dot) {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border: none;
+    border-radius: fn.use-var(radius, default);
+    cursor: pointer;
+    background-color: fn.color-a(text-color, 40, white);
+    transition:
+      width fn.use-var(transition, fast) fn.use-var(transition, ease),
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    &:hover {
+      background-color: fn.color-a(text-color, 70, white);
+    }
+
+    &:focus-visible {
+      box-shadow: fn.use-var(focus-ring);
+    }
+
+    @include m.is(active) {
+      width: 20px;
+      background-color: fn.use-var(text-color, white);
+    }
+  }
+}
