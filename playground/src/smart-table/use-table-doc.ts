@@ -1,13 +1,7 @@
 import { message } from '@veltra/desktop'
 import { onScopeDispose, ref, watch } from 'vue'
 
-import {
-  isOptionsField,
-  type FieldType,
-  type TableDoc,
-  type TableField,
-  type TableRow
-} from './types'
+import { isOptionsField, type FieldType, type TableDoc, type TableField } from './types'
 
 /** 演示表存取端点（vite proxy `/smart-table-api` → 参考服务 `/smart-table`） */
 const TABLE_API = '/smart-table-api/table'
@@ -24,8 +18,10 @@ interface TableApiResponse {
 }
 
 /**
- * 演示表文档状态：onMounted 拉取 GET 全量文档，之后任何深层改动
- * （单元格编辑、行/字段增删）都经防抖整表 PUT 持久化，刷新页面数据保留。
+ * 演示表文档状态：onMounted 拉取 GET 全量文档，之后任何深层改动都经防抖整表
+ * PUT 持久化，刷新页面数据保留。与 `use-smart-sheet` 共用同一份 `doc`：网格
+ * 编辑经 cell-change 回写 doc，行/字段增删由 doc 驱动网格重装配，两条通路
+ * 汇入本处防抖保存（`pagehide` 冲刷兜底）。
  */
 export function useTableDoc() {
   const doc = ref<TableDoc | null>(null)
@@ -108,18 +104,16 @@ export function useTableDoc() {
     return `${prefix}${n}`
   }
 
-  /** 追加一个空行（单元格缺键即空值），返回新行供调用方定位可编辑态 */
-  function addRow(): TableRow | null {
-    if (!doc.value) return null
-    const row: TableRow = {
+  /** 追加一个空行（单元格缺键即空值；网格侧重装配时自动选中末行首格） */
+  function addRow(): void {
+    if (!doc.value) return
+    doc.value.rows.push({
       id: nextId(
         'r',
         doc.value.rows.map((r) => r.id)
       ),
       values: {}
-    }
-    doc.value.rows.push(row)
-    return row
+    })
   }
 
   function removeRow(rowId: string): void {
