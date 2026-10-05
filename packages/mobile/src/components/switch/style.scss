@@ -86,7 +86,8 @@ $root-name: switch;
   @include m.e(button) {
     display: flex;
     align-items: center;
-    border-radius: 100px;
+    // 胶囊圆角（远大于轨道高度，保证两端全圆）
+    border-radius: 999px;
     background-color: fn.use-var(bg-color, bottom);
     border: 1px solid fn.use-var(border, muted-color);
     box-sizing: border-box;

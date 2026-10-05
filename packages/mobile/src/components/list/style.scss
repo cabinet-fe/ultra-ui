@@ -43,7 +43,7 @@ $item-name: $root-name + '-item';
       }
 
       padding: 0 $padding;
-      border-radius: fn.use-var(radius, $size);
+      border-radius: t.control-radius($size);
       min-height: max(t.control-height($size), t.use-var(touch-target));
     }
   }

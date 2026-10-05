@@ -1,5 +1,6 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../../styles/tokens' as t;
 
 $root-name: sheet;
 
@@ -20,7 +21,7 @@ $root-name: sheet;
     flex-direction: column;
     max-height: 75%;
     flex-shrink: 0;
-    border-radius: fn.use-var(radius, large) fn.use-var(radius, large) 0 0;
+    border-radius: t.use-var('panel-radius') t.use-var('panel-radius') 0 0;
     background-color: fn.use-var(bg-color, top);
     box-shadow: fn.use-var(shadow, lg);
     // 底部安全区（全面屏手势条），内容不与系统区域重叠
@@ -35,14 +36,14 @@ $root-name: sheet;
     align-items: center;
     justify-content: space-between;
     gap: fn.use-var(gap, default);
-    min-height: 48px;
+    min-height: t.use-var('form-row-height');
     padding: fn.use-var(gap, small) fn.use-var(gap, default) 0;
   }
 
   @include m.e(title) {
     flex: 1;
     min-width: 0;
-    font-size: fn.use-var(font-size-title, default);
+    font-size: t.use-var('font-size-title');
     font-weight: 600;
     color: fn.use-var(text-color, title);
     text-align: center;
@@ -52,16 +53,18 @@ $root-name: sheet;
   @include m.e(close) {
     // 头部操作热区 ≥44×44（高度受头部行高约束，用外扩补足宽度）
     flex-shrink: 0;
-    min-width: 44px;
-    min-height: 44px;
-    margin: -8px -8px -8px 0;
+    min-width: t.use-var('touch-target');
+    min-height: t.use-var('touch-target');
+    // 热区外扩量（spacing-sm）：补偿关闭钮居中图标的两侧留白
+    margin: calc(-1 * #{t.use-var('spacing-sm')}) calc(-1 * #{t.use-var('spacing-sm')}) calc(-1 * #{t.use-var('spacing-sm')}) 0;
     padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     border: none;
     background: none;
-    font-size: 18px;
+    // 关闭图标走标题档字号，与面板标题同级
+    font-size: t.use-var('font-size-title');
     color: fn.use-var(text-color, main);
     cursor: pointer;
 

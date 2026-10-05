@@ -1,5 +1,6 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
 @include m.b(check-tag) {
   @include m.flex(inline-flex, center, center);
@@ -10,13 +11,13 @@
   -webkit-tap-highlight-color: transparent;
 
   // 触控热区不小于 44×44
-  min-height: 44px;
-  min-width: 44px;
-  padding: 0 14px;
+  min-height: t.use-var('touch-target');
+  min-width: t.use-var('touch-target');
+  padding: 0 t.use-var('spacing-md');
 
   color: fn.use-var(text-color, main);
   border: 1px solid fn.use-var(color, primary);
-  border-radius: fn.use-var(radius, default);
+  border-radius: t.control-radius(default);
   background-color: fn.use-var(color, primary, light-9);
   transition:
     background-color fn.use-var(transition, fast) fn.use-var(transition, ease),

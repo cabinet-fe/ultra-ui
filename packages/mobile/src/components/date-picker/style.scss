@@ -12,7 +12,7 @@ $root-name: date-picker;
   gap: t.use-var('spacing-sm');
   padding: 0 t.use-var('spacing-md');
   border: fn.use-var(border);
-  border-radius: fn.use-var(radius, default);
+  border-radius: t.control-radius(default);
   background-color: fn.use-var(bg-color, top);
   color: fn.use-var(text-color, main);
   font-size: t.use-var('font-size-main');
@@ -66,13 +66,14 @@ $root-name: date-picker;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 44px;
-    min-height: 44px;
-    margin: -8px -8px -8px 0;
+    min-width: t.use-var('touch-target');
+    min-height: t.use-var('touch-target');
+    // 热区外扩量（spacing-sm）：补偿清除钮居中图标的两侧留白，不挤压视觉边距
+    margin: calc(-1 * #{t.use-var('spacing-sm')}) calc(-1 * #{t.use-var('spacing-sm')}) calc(-1 * #{t.use-var('spacing-sm')}) 0;
     padding: 0;
     border: none;
     background: none;
-    font-size: 16px;
+    font-size: t.use-var('font-size-main');
     color: fn.use-var(text-color, second);
     cursor: pointer;
 
@@ -90,7 +91,7 @@ $root-name: date-picker;
     display: inline-flex;
     align-items: center;
     color: fn.use-var(text-color, second);
-    font-size: 16px;
+    font-size: t.use-var('font-size-main');
 
     svg {
       width: 1em;
@@ -116,11 +117,11 @@ $root-name: date-picker;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 44px;
-    min-height: 44px;
+    min-width: t.use-var('touch-target');
+    min-height: t.use-var('touch-target');
     border: none;
     background: none;
-    font-size: 16px;
+    font-size: t.use-var('font-size-main');
     color: fn.use-var(text-color, main);
     cursor: pointer;
 
@@ -135,7 +136,8 @@ $root-name: date-picker;
   }
 
   @include m.e(panel-title) {
-    font-size: fn.use-var(font-size-title, default);
+    // 日历面板内部标题走主字号（面板级主标题才用 font-size-title 档）
+    font-size: t.use-var('font-size-main');
     font-weight: 600;
     color: fn.use-var(text-color, title);
   }
@@ -187,7 +189,7 @@ $root-name: date-picker;
     align-items: center;
     justify-content: center;
     min-height: t.use-var('touch-target');
-    border-radius: fn.use-var(radius, large);
+    border-radius: t.control-radius(large);
     color: fn.use-var(text-color, main);
     font-size: t.use-var('font-size-main');
     user-select: none;

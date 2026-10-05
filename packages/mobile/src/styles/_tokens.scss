@@ -17,6 +17,8 @@ $values: (
   'font-size-main': 16px,
   'font-size-secondary': 14px,
   'font-size-auxiliary': 12px,
+  // 面板标题档：底部弹层头部主标题、滚轮等大号主内容
+  'font-size-title': 18px,
   // 列表行式表单的行高（约 48px）
   'form-row-height': 48px,
   // 表单 / 按钮等控件高度档（small / default / large）
@@ -27,6 +29,8 @@ $values: (
   'control-radius-small': 4px,
   'control-radius-default': 6px,
   'control-radius-large': 8px,
+  // 弹层与浮层容器圆角（dialog / drawer / bottom-sheet / message 等面板级圆角）
+  'panel-radius': 12px,
   // 输入类正文行高
   'text-line-height': 1.5,
   // 头像等组件尺寸档：整体上移的移动端密度，最小档 ≥32px

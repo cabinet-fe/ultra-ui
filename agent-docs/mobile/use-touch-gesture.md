@@ -117,7 +117,7 @@ export interface DragDismissOptions {
   axis: 'x' | 'y'
   /**
    * 关闭方向：1 沿正方向（右 / 下）拖动关闭，-1 沿负方向（左 / 上）。
-   * Drawer 对应：bottom 向下拉 1、top 向上推 -1、right 向左拖 -1、left 向右拖 1
+   * Drawer 对应：bottom 向下拉 1、top 向上推 -1、left 向左拖 -1、right 向右拖 1
    */
   sign: 1 | -1
   /** 判定为关闭的最小位移（px），默认 100 */
@@ -197,20 +197,22 @@ const emit = defineEmits<{ close: [] }>()
 const dismissMap = {
   bottom: { axis: 'y', sign: 1 }, // 向下拉关闭
   top: { axis: 'y', sign: -1 }, // 向上推关闭
-  right: { axis: 'x', sign: -1 }, // 向左拖关闭
-  left: { axis: 'x', sign: 1 } // 向右拖关闭
+  left: { axis: 'x', sign: -1 }, // 向左拖关闭
+  right: { axis: 'x', sign: 1 } // 向右拖关闭
 } as const
 
 const dragging = shallowRef(false)
 const offset = shallowRef(0)
 
-// 拖拽偏移并入 transform：负值不跟随（拖离关闭方向不回弹成反向位移）
+// 拖拽偏移并入 transform：负值不跟随（拖离关闭方向不回弹成反向位移），
+// 偏移沿关闭方向取正，位移符号由 sign 折叠
 const style = computed(() => {
   if (!dragging.value) return undefined
+  const { sign } = dismissMap[props.placement]
   const translate =
     props.placement === 'left' || props.placement === 'right'
-      ? `translateX(${offset.value}px)`
-      : `translateY(${offset.value}px)`
+      ? `translateX(${sign * offset.value}px)`
+      : `translateY(${sign * offset.value}px)`
   return { transform: translate }
 })
 

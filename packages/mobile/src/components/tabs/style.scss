@@ -15,7 +15,7 @@ $ease: cubic-bezier(0.4, 0, 0.2, 1);
     width: 100%;
     min-width: 0;
     min-height: 0;
-    border-radius: fn.use-var(radius, default);
+    border-radius: t.control-radius(default);
   }
 
   @include m.m(top) {
@@ -45,8 +45,8 @@ $ease: cubic-bezier(0.4, 0, 0.2, 1);
 
 /* ===== 标签栏：水平 / 垂直，溢出经触屏滑动滚动 ===== */
 $list-bg: fn.component-var(tabs, bar-bg, fn.use-var(bg-color, hover));
-$bar-radius: fn.use-var(radius, default);
-$item-radius: calc(fn.use-var(radius, default) - 2px);
+$bar-radius: t.control-radius(default);
+$item-radius: calc(#{t.control-radius(default)} - 2px);
 $bar-padding: 4px;
 $active-bg: fn.component-var(tabs, active-bg, fn.use-var(bg-color, top));
 $active-shadow: fn.use-var(shadow, sm);
@@ -184,7 +184,7 @@ $indicator-height: 3px;
     align-items: center;
     justify-content: center;
     align-self: stretch;
-    width: 44px;
+    width: t.use-var('touch-target');
     margin-left: fn.use-var(gap, small);
     overflow: hidden;
     padding: 0;
@@ -193,7 +193,7 @@ $indicator-height: 3px;
     color: fn.use-var(text-color, second);
     cursor: pointer;
     border-radius: $item-radius;
-    font-size: 12px;
+    font-size: t.use-var('font-size-auxiliary');
     line-height: 1;
     transition:
       color 0.15s ease,
@@ -260,10 +260,10 @@ $indicator-height: 3px;
   }
 
   // 胶囊风格：item 始终 pill；容器形状按方向分治——
-  // 水平容器也变为胶囊；垂直容器保持常规圆角（避免高度较大时 9999px 的形变）。
+  // 水平容器也变为胶囊；垂直容器保持常规圆角（避免高度较大时胶囊值的形变）。
   @include m.is(rounded) {
     @include m.bem(tabs-bar, item) {
-      border-radius: 9999px;
+      border-radius: 999px;
 
       // 胶囊形态激活项沿用卡片高亮，不用下划线
       @include m.is(active) {
@@ -279,7 +279,7 @@ $indicator-height: 3px;
 
   @include m.m(horizontal) {
     @include m.is(rounded) {
-      border-radius: 9999px;
+      border-radius: 999px;
     }
   }
 }

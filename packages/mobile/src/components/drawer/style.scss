@@ -40,7 +40,7 @@ $vertical-max-height: min(70%, 560px);
 
     &::after {
       content: '';
-      border-radius: fn.use-var(radius, small);
+      border-radius: t.control-radius(small);
       background-color: fn.use-var(text-color, assist);
     }
   }
@@ -121,11 +121,11 @@ $vertical-max-height: min(70%, 560px);
     right: 0;
     max-height: $vertical-max-height;
 
-    // 上下形态：整行 44px 触控热区，视觉为居中横把手
+    // 上下形态：整行 44px 触控热区，视觉为居中横把手（把手由 flex 居中，热区 padding 走间距刻度）
     @include m.bem($root-name, grabber) {
       width: 100%;
       height: t.use-var('touch-target');
-      padding: 10px 0;
+      padding: t.use-var('spacing-sm') 0;
 
       &::after {
         width: 36px;
@@ -138,39 +138,39 @@ $vertical-max-height: min(70%, 560px);
   // 松手关闭时从当前位置继续滑出（--u-drawer-drag 始终 ≥ 0，方向由此处折叠）
   @include m.is(right) {
     right: 0;
-    border-radius: fn.use-var(radius, large) 0 0 fn.use-var(radius, large);
-    transform: translateX(calc(-1 * var(--u-drawer-drag, 0px)));
+    border-radius: t.use-var('panel-radius') 0 0 t.use-var('panel-radius');
+    transform: translateX(var(--u-drawer-drag, 0px));
 
-    // 把手锚定在面板左内沿（关闭方向）
+    // 把手锚定在面板左内沿
     @include m.bem($root-name, grabber) {
       left: 0;
     }
 
     &.drawer-slide-right-enter-from,
     &.drawer-slide-right-leave-to {
-      transform: translateX(calc(-100% - var(--u-drawer-drag, 0px)));
+      transform: translateX(calc(100% + var(--u-drawer-drag, 0px)));
     }
   }
 
   @include m.is(left) {
     left: 0;
-    border-radius: 0 fn.use-var(radius, large) fn.use-var(radius, large) 0;
-    transform: translateX(var(--u-drawer-drag, 0px));
+    border-radius: 0 t.use-var('panel-radius') t.use-var('panel-radius') 0;
+    transform: translateX(calc(-1 * var(--u-drawer-drag, 0px)));
 
-    // 把手锚定在面板右内沿（关闭方向）
+    // 把手锚定在面板右内沿
     @include m.bem($root-name, grabber) {
       right: 0;
     }
 
     &.drawer-slide-left-enter-from,
     &.drawer-slide-left-leave-to {
-      transform: translateX(calc(100% + var(--u-drawer-drag, 0px)));
+      transform: translateX(calc(-100% - var(--u-drawer-drag, 0px)));
     }
   }
 
   @include m.is(top) {
     top: 0;
-    border-radius: 0 0 fn.use-var(radius, large) fn.use-var(radius, large);
+    border-radius: 0 0 t.use-var('panel-radius') t.use-var('panel-radius');
     // 顶部形态让出刘海安全区
     padding-top: env(safe-area-inset-top);
     transform: translateY(calc(-1 * var(--u-drawer-drag, 0px)));
@@ -188,7 +188,7 @@ $vertical-max-height: min(70%, 560px);
 
   @include m.is(bottom) {
     bottom: 0;
-    border-radius: fn.use-var(radius, large) fn.use-var(radius, large) 0 0;
+    border-radius: t.use-var('panel-radius') t.use-var('panel-radius') 0 0;
     // 底部形态让出手势条安全区
     padding-bottom: env(safe-area-inset-bottom);
     transform: translateY(var(--u-drawer-drag, 0px));

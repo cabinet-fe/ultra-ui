@@ -11,7 +11,7 @@ $indicator-min: 20px;
   user-select: none;
   vertical-align: middle;
   -webkit-tap-highlight-color: transparent;
-  border-radius: fn.use-var(radius, small);
+  border-radius: t.control-radius(small);
   @include m.flex(inline-flex);
   gap: t.spacing(default);
 

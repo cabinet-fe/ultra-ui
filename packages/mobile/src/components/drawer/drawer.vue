@@ -116,12 +116,12 @@ const close = () => {
 
 // ---- 四向边缘拖拽关闭（实现细节，不新增公开 API） ----
 
-/** 各方位沿关闭方向拖拽的轴与符号：bottom 下拉 / top 上推 / left 右拖 / right 左拖 */
+/** 各方位沿关闭方向拖拽的轴与符号：bottom 下拉 / top 上推 / left 左拖 / right 右拖 */
 const DRAG_DISMISS: Record<DrawerPlacement, { axis: 'x' | 'y'; sign: 1 | -1 }> = {
   bottom: { axis: 'y', sign: 1 },
   top: { axis: 'y', sign: -1 },
-  left: { axis: 'x', sign: 1 },
-  right: { axis: 'x', sign: -1 }
+  left: { axis: 'x', sign: -1 },
+  right: { axis: 'x', sign: 1 }
 }
 
 /** 沿关闭方向的实时偏移，经 CSS 变量并入滑动过渡，松手回弹或继续滑出 */

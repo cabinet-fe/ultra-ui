@@ -33,8 +33,8 @@ $dialog-max-width: 320px;
   width: 100%;
   max-width: $dialog-max-width;
   max-height: 86%;
-  // NutUI 惯例：大圆角居中卡片
-  border-radius: fn.use-var(radius, large);
+  // NutUI 惯例：大圆角居中卡片（弹层容器圆角）
+  border-radius: t.use-var('panel-radius');
   background-color: fn.use-var(bg-color, top);
   box-shadow: fn.use-var(shadow, lg);
 
@@ -42,7 +42,7 @@ $dialog-max-width: 320px;
   @include m.e(header) {
     position: relative;
     flex-shrink: 0;
-    min-height: 48px;
+    min-height: t.use-var('form-row-height');
     padding: t.use-var('spacing-lg') t.use-var('spacing-lg') 0;
     @include m.flex($justify: center);
   }
@@ -115,7 +115,7 @@ $dialog-max-width: 320px;
   @include m.e(footer) {
     flex-shrink: 0;
     gap: t.use-var('spacing-md');
-    min-height: 48px;
+    min-height: t.use-var('form-row-height');
     padding: t.use-var('spacing-sm') t.use-var('spacing-lg');
     @include m.flex;
 

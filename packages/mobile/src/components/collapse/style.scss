@@ -25,7 +25,7 @@ $transition-normal: 0.24s $ease;
   // ===== Item =====
   @include m.e(item) {
     border: fn.use-var(border-muted);
-    border-radius: fn.use-var(radius, default);
+    border-radius: t.control-radius(default);
     background-color: fn.use-var(bg-color, middle);
     overflow: hidden;
 
@@ -140,7 +140,7 @@ $transition-normal: 0.24s $ease;
     }
 
     .um-#{$root-name}__item {
-      border-radius: fn.use-var(radius, $size);
+      border-radius: t.control-radius($size);
 
       & + .um-#{$root-name}__item {
         margin-top: $padding;

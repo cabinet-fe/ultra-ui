@@ -34,7 +34,7 @@ $size-tier: (
   }
 
   @include m.is(round) {
-    border-radius: fn.use-var(radius, large);
+    border-radius: t.control-radius(large);
   }
 
   @include m.e(image) {

@@ -70,7 +70,7 @@ $size-padding: (
     height: calc(#{$font} * 2);
     font-size: $font;
     padding: 0 t.use-var(map.get($size-padding, $size));
-    border-radius: fn.use-var(radius, $size);
+    border-radius: t.control-radius($size);
 
     @include m.bem($root-name, icon-close) {
       margin-left: calc(#{t.use-var(spacing-xs)} / 2);

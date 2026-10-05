@@ -45,14 +45,14 @@ $pulse-duration: 1.4s;
   @include m.e(title) {
     height: $title-height;
     width: $title-width;
-    border-radius: fn.use-var(radius, small);
+    border-radius: t.control-radius(small);
     background-color: fn.use-var(bg-color, hover);
   }
 
   // 段落占位：末行收窄模拟自然段落
   @include m.e(paragraph) {
     height: $paragraph-height;
-    border-radius: fn.use-var(radius, small);
+    border-radius: t.control-radius(small);
     background-color: fn.use-var(bg-color, hover);
 
     &:last-child {
@@ -60,18 +60,18 @@ $pulse-duration: 1.4s;
     }
   }
 
-  // 按钮形态占位
+  // 按钮形态占位：圆角与 button 控件档一致
   @include m.e(button) {
     width: $button-width;
     height: t.control-height(default);
-    border-radius: fn.use-var(radius, default);
+    border-radius: t.control-radius(default);
     background-color: fn.use-var(bg-color, hover);
   }
 
-  // 胶囊圆角：作用于标题 / 段落 / 按钮
+  // 胶囊形态：作用于标题 / 段落 / 按钮
   @include m.is(round) {
     @include m.bem($root-name, title paragraph button) {
-      border-radius: fn.use-var(radius, large);
+      border-radius: 999px;
     }
   }
 

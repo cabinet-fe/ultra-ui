@@ -13,7 +13,7 @@
   -webkit-tap-highlight-color: transparent;
 
   @include m.size using ($size) {
-    border-radius: fn.use-var(radius, $size);
+    border-radius: t.control-radius($size);
 
     @include m.bem(segment, item) {
       // 密度走移动端 token：视觉高度 ≥32px、触控热区 ≥44×44
@@ -21,7 +21,7 @@
       min-height: max(calc(#{t.control-height($size)} - 4px), t.use-var('touch-target'));
       min-width: max(calc(#{t.control-height($size)} - 4px), t.use-var('touch-target'));
       padding: 0 calc(#{t.spacing($size)} * 1.5);
-      border-radius: calc(#{fn.use-var(radius, $size)} - 2px);
+      border-radius: calc(#{t.control-radius($size)} - 2px);
       font-size: t.use-var('font-size-main');
     }
   }

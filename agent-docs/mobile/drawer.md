@@ -113,7 +113,7 @@ export interface DrawerExposed {}
 | `close`             | `()`                       | 点遮罩、点关闭按钮或拖拽把手松手达标时触发一次（开始关闭的时刻，非动画结束后）                                    |
 | `closed`            | `()`                       | 退出动画全部结束后触发一次：抽屉滑出 → 遮罩淡出，遮罩与抽屉节点都已移除、背景滚动已恢复时                          |
 
-- **四向拖拽关闭**：每个方位的内沿都有 44x44 热区的拖拽把手——`bottom` 是面板顶部整行横把手（向下拉），`top` 是面板底部整行横把手（向上推），`left` 是面板右内沿中部的竖把手（向右拖），`right` 是面板左内沿中部的竖把手（向左拖）。拖动期间面板实时跟随（反方向拖动面板不动）；松手时沿关闭方向位移 ≥100px 或甩动速度 ≥0.3px/ms 即关闭，否则带过渡回弹到原位；来电、落到多指等手势被打断的情况一律回弹。
+- **四向拖拽关闭**：每个方位的内沿都有 44x44 热区的拖拽把手——`bottom` 是面板顶部整行横把手（向下拉），`top` 是面板底部整行横把手（向上推），`left` 是面板右内沿中部的竖把手（向左拖），`right` 是面板左内沿中部的竖把手（向右拖）。拖动期间面板实时跟随（反方向拖动面板不动）；松手时沿关闭方向位移 ≥100px 或甩动速度 ≥0.3px/ms 即关闭，否则带过渡回弹到原位；来电、落到多指等手势被打断的情况一律回弹。
 - **滚动锁定**：打开期间背景（未注册弹层宿主时为 body）滚动被锁定；`closed` 触发的同时恢复原滚动位置。抽屉内容区自身照常滚动。
 - 插槽：`#default`（抽屉主体内容，内容区超出高度自动滚动，`-webkit-overflow-scrolling: touch`）。
 - `UDrawer` 没有暴露任何 ref 方法（`DrawerExposed` 为空对象）；关闭只能通过点遮罩、点关闭按钮、拖拽把手或把 `v-model` 置 `false`。
@@ -171,7 +171,7 @@ const visible = reactive({ left: false, right: false, top: false, bottom: false,
   <UButton @click="visible.bottom = true">底部</UButton>
   <UButton @click="visible.plain = true">仅关闭按钮</UButton>
 
-  <!-- 左侧：按住右内沿中部竖把手向右拖关闭 -->
+  <!-- 左侧：按住右内沿中部竖把手向左拖关闭 -->
   <UDrawer v-model="visible.left" placement="left" title="导航">
     <p>从左侧滑入，宽 min(86%, 400px)</p>
   </UDrawer>

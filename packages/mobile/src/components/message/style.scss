@@ -33,7 +33,7 @@ $root-name: message;
   margin-bottom: t.use-var(spacing-sm);
   padding: t.use-var(spacing-sm) t.use-var(spacing-lg);
   gap: t.use-var(spacing-sm);
-  border-radius: fn.use-var(radius, large);
+  border-radius: t.use-var('panel-radius');
   font-size: t.use-var(font-size-main);
   line-height: 1.5;
   box-shadow: fn.use-var(shadow, lg);

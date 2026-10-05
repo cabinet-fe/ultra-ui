@@ -84,7 +84,7 @@ $size-row-padding: (
   @include m.is(bordered) {
     .um-#{$root-name}__list {
       border: fn.use-var(border-muted);
-      border-radius: fn.use-var(radius, default);
+      border-radius: t.control-radius(default);
       overflow: hidden;
     }
 

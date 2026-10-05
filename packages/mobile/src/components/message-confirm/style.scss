@@ -39,7 +39,7 @@ $root-name: message-confirm;
     max-width: 320px;
     padding: t.use-var(spacing-lg);
     gap: t.use-var(spacing-md);
-    border-radius: fn.use-var(radius, large);
+    border-radius: t.use-var('panel-radius');
     background-color: fn.use-var(bg-color, top);
     box-shadow: fn.use-var(shadow, lg);
     transition:

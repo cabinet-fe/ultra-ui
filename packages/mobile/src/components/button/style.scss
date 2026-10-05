@@ -68,7 +68,7 @@ $size-padding: (
     min-height: $touch-size;
     font-size: t.use-var(map.get($size-font, $size));
     padding: 0 t.use-var(map.get($size-padding, $size));
-    border-radius: fn.use-var(radius, $size);
+    border-radius: t.control-radius($size);
 
     @include m.is(circle) {
       min-width: $touch-size;

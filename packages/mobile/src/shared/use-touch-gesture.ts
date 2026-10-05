@@ -116,7 +116,7 @@ export interface DragDismissOptions {
   axis: 'x' | 'y'
   /**
    * 关闭方向：1 沿正方向（右 / 下）拖动关闭，-1 沿负方向（左 / 上）。
-   * Drawer 对应关系：bottom 向下拉 1、top 向上推 -1、right 向左拖 -1、left 向右拖 1
+   * Drawer 对应关系：bottom 向下拉 1、top 向上推 -1、left 向左拖 -1、right 向右拖 1
    */
   sign: 1 | -1
   /** 判定为关闭的最小位移（px），默认 100 */
