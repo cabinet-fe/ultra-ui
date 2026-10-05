@@ -1,30 +1,33 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
+// 角色字号走 --um-*：正文（content）主字号 16px，标题层级靠字重与颜色区分（移动端惯例），
+// 辅助说明降为 12px
 $role-size: (
   main-title: (
-    font-size: 18px,
-    font-weight: 600,
+    font-size: calc(#{t.use-var(font-size-main)} * 1.25),
+    font-weight: 700,
     color: fn.use-var(text-color, title)
   ),
   title: (
-    font-size: 16px,
+    font-size: t.use-var(font-size-main),
     font-weight: 600,
     color: fn.use-var(text-color, main)
   ),
   sub-title: (
-    font-size: 16px,
+    font-size: t.use-var(font-size-main),
     font-weight: 500,
     color: fn.use-var(text-color, placeholder)
   ),
   content: (
-    font-size: 14px,
-    font-weight: 300,
+    font-size: t.use-var(font-size-main),
+    font-weight: 400,
     color: fn.use-var(text-color, second)
   ),
   additional: (
-    font-size: 12px,
-    font-weight: 300,
+    font-size: t.use-var(font-size-auxiliary),
+    font-weight: 400,
     color: fn.use-var(text-color, assist)
   )
 );

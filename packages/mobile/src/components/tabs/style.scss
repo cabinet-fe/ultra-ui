@@ -1,5 +1,6 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
 $ease: cubic-bezier(0.4, 0, 0.2, 1);
 
@@ -49,6 +50,8 @@ $item-radius: calc(fn.use-var(radius, default) - 2px);
 $bar-padding: 4px;
 $active-bg: fn.component-var(tabs, active-bg, fn.use-var(bg-color, top));
 $active-shadow: fn.use-var(shadow, sm);
+// 默认横向形态的激活下划线高度
+$indicator-height: 3px;
 
 @include m.b(tabs-bar) {
   display: inline-flex;
@@ -57,8 +60,8 @@ $active-shadow: fn.use-var(shadow, sm);
   min-width: 0;
   // 仅水平方向内边距；垂直空间迁移到 __viewport，避免 __viewport 的 overflow 裁切激活态 box-shadow
   padding: 0 $bar-padding;
-  background-color: $list-bg;
-  border-radius: $bar-radius;
+  // 默认横向形态为下划线风格（透明底）；胶囊（rounded）与垂直形态保留卡片底色
+  background-color: transparent;
   gap: 2px;
 
   @include m.m(horizontal) {
@@ -69,9 +72,16 @@ $active-shadow: fn.use-var(shadow, sm);
 
   @include m.m(vertical) {
     flex-direction: column;
+    background-color: $list-bg;
+    border-radius: $bar-radius;
     // 垂直方向没有 __viewport 承载左右 padding，这里直接为容器补上，
     // 与水平 __viewport 的 padding: 0 $bar-padding 对称
     padding: $bar-padding 0;
+  }
+
+  @include m.is(rounded) {
+    background-color: $list-bg;
+    border-radius: $bar-radius;
   }
 
   @include m.e(viewport) {
@@ -123,17 +133,37 @@ $active-shadow: fn.use-var(shadow, sm);
     transition:
       color 0.22s $ease,
       background-color 0.22s $ease,
-      box-shadow 0.22s $ease;
+      box-shadow 0.22s $ease,
+      opacity 0.22s $ease;
 
+    // 按压反馈（移动端无 hover）；激活与禁用项无按压态
+    &:active:not(.is-active):not(.is-disabled) {
+      color: fn.use-var(text-color, title);
+      background-color: fn.color-a(color, 5, primary);
+    }
+
+    // 禁用态：压暗 + 禁用配色，视觉上与可点项明确区分
     @include m.is(disabled) {
       color: fn.use-var(text-color, disabled);
       cursor: not-allowed;
+      opacity: 0.5;
     }
 
+    // 默认横向形态的激活指示：主题色下划线（垂直 / 胶囊形态改为卡片高亮）
     @include m.is(active) {
       color: fn.use-var(color, primary);
-      background-color: $active-bg;
-      box-shadow: $active-shadow;
+      font-weight: 600;
+
+      &::after {
+        content: '';
+        position: absolute;
+        left: t.use-var('spacing-md');
+        right: t.use-var('spacing-md');
+        bottom: 0;
+        height: $indicator-height;
+        border-radius: $indicator-height;
+        background-color: fn.use-var(color, primary);
+      }
     }
 
     &:focus-visible {
@@ -198,6 +228,16 @@ $active-shadow: fn.use-var(shadow, sm);
     @include m.bem(tabs-bar, item) {
       justify-content: space-between;
       scroll-snap-align: center;
+
+      // 下划线是横向习语，垂直形态激活项沿用卡片高亮
+      @include m.is(active) {
+        background-color: $active-bg;
+        box-shadow: $active-shadow;
+
+        &::after {
+          content: none;
+        }
+      }
     }
   }
 
@@ -209,13 +249,13 @@ $active-shadow: fn.use-var(shadow, sm);
     align-self: stretch;
   }
 
-  // 触控热区：任何尺寸的标签可点击区域不小于 44×44
+  // 触控热区：任何尺寸的标签可点击区域不小于 44×44，字号 / 高度走移动端密度 token
   @include m.size using ($size) {
     @include m.bem(tabs-bar, item) {
-      min-height: max(fn.use-var(form-component-height, $size), 44px);
-      min-width: 44px;
-      padding: 0 fn.use-var(gap, $size);
-      font-size: fn.use-var(font-size-main, $size);
+      min-height: max(t.control-height($size), t.use-var('touch-target'));
+      min-width: t.use-var('touch-target');
+      padding: 0 t.spacing($size);
+      font-size: t.use-var('font-size-main');
     }
   }
 
@@ -224,6 +264,16 @@ $active-shadow: fn.use-var(shadow, sm);
   @include m.is(rounded) {
     @include m.bem(tabs-bar, item) {
       border-radius: 9999px;
+
+      // 胶囊形态激活项沿用卡片高亮，不用下划线
+      @include m.is(active) {
+        background-color: $active-bg;
+        box-shadow: $active-shadow;
+
+        &::after {
+          content: none;
+        }
+      }
     }
   }
 

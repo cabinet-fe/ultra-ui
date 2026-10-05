@@ -73,7 +73,7 @@ export interface DescriptionsItemProps {
 }
 ```
 
-`ComponentProps` 的 `size` 是 `'small' | 'default' | 'large'`（来自 `@veltra/utils`），影响字号与行内边距；移动端未传时固定 `'default'`。两个组件均无自定义事件与暴露成员。
+`ComponentProps` 的 `size` 是 `'small' | 'default' | 'large'`（来自 `@veltra/utils`），影响字号与行内边距（移动端密度：`small` 14px 字 / 4px 行距、`default` 与 `large` 16px 字 / 8px、12px 行距，走 `--um-*` token）；移动端未传时固定 `'default'`。两个组件均无自定义事件与暴露成员。
 
 ## 参数说明
 
@@ -85,7 +85,7 @@ export interface DescriptionsItemProps {
 | `column` | `number`             | `3`           |  否  | 移动端恒为单列堆叠，此属性不参与布局（语义保留，跨端代码可直接传）       |
 | `border` | `boolean`            | `false`       |  否  | `true` 时列表整体描边 + 圆角、行间分隔线、键名区底色块                  |
 | `layout` | `DescriptionsLayout` | `'horizontal'`|  否  | 枚举 `'horizontal' \| 'vertical'`；horizontal 键左值右同行，vertical 键上值下 |
-| `size`   | `'small' \| 'default' \| 'large'` | `'default'` | 否 | 影响字号与行内边距；不接受数字像素                                      |
+| `size`   | `'small' \| 'default' \| 'large'` | `'default'` | 否 | 影响字号与行内边距（走 `--um-*` 密度 token）；不接受数字像素            |
 
 `UDescriptionsItem`：
 

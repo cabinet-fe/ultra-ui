@@ -3,7 +3,7 @@
     <section>
       <h3>基本用法（热区不小于 44×44）</h3>
       <div class="row">
-        <UCheckTag v-model="checked">标签</UCheckTag>
+        <UCheckTag v-model="checked" @change="onChange">标签</UCheckTag>
         <span class="state">{{ checked ? '已选中' : '未选中' }}</span>
       </div>
     </section>
@@ -16,6 +16,15 @@
         </UCheckTag>
       </div>
       <p class="state">已选：{{ selectedText || '无' }}</p>
+    </section>
+
+    <section>
+      <h3>禁用状态</h3>
+      <div class="row">
+        <UCheckTag v-model="banChecked" disabled>禁用 · 选中态</UCheckTag>
+        <UCheckTag v-model="banUnchecked" disabled>禁用 · 未选中态</UCheckTag>
+      </div>
+      <p class="state">禁用态点击不切换选中、不触发 update:modelValue / change</p>
     </section>
 
     <section>
@@ -34,6 +43,13 @@ import { computed, reactive, shallowRef } from 'vue'
 import '@veltra/mobile/components/check-tag/style'
 
 const checked = shallowRef(true)
+
+const banChecked = shallowRef(true)
+const banUnchecked = shallowRef(false)
+
+function onChange(value: boolean) {
+  console.log('change', value)
+}
 
 const skills = reactive([
   { name: 'Vue', checked: true },

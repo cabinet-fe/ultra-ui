@@ -1,6 +1,6 @@
 ---
 title: 'UTimeline 时间线（@veltra/mobile 移动端）'
-description: '@veltra/mobile 导出的纵向时间线组件：UTimeline 为容器，UTimelineItem 提供节点圆点颜色、#dot 自定义节点、时间戳及其上下位置与内容插槽，用于操作记录、审批流转等按时间排列的展示；圆点直径 14px，适配移动端密度。'
+description: '@veltra/mobile 导出的纵向时间线组件：UTimeline 为容器，UTimelineItem 提供节点圆点颜色、#dot 自定义节点、时间戳及其上下位置与内容插槽，用于操作记录、审批流转等按时间排列的展示；正文 16px 主字号，圆点直径按主字号推导（14px），间距走 --um-* 密度刻度。'
 aliases:
   [UTimeline, UTimelineItem, Timeline, TimelineItem, 时间线, 时间轴, 垂直时间线, 移动端时间线]
 keywords:
@@ -162,7 +162,7 @@ import '@veltra/mobile/components/timeline/style'
 > - 自定义节点只有 `#dot` 插槽一种方式（AntD 的 `dot` 属性传组件、EP 的 `type` 属性均不存在）；提供 `#dot` 后 `color` 不再生效。
 > - `timestamp` 只接受 `string` 纯文本；时间格式由调用方自行格式化。
 > - 最后一个节点不渲染尾线（纵向连接线），这是组件行为，不需要外部处理。
-> - 移动端圆点直径 14px、尾线宽 2px（桌面端圆点 12px）；节点与首行文字中心对齐，节点间距由主题 `--u-gap-large` token 决定。
+> - 移动端正文走 `--um-font-size-main`（16px），圆点直径按主字号推导（7/8，即 14px）、尾线宽 2px（桌面端圆点 12px）；节点与首行文字中心对齐，节点行距与内边距走 `--um-spacing-*` 刻度（行距 16px、圆点到内容 12px），时间戳为 `--um-font-size-auxiliary`（12px）。
 > - 节点圆点颜色、尾线颜色均走主题 token；暗色主题自动切换，组件内无 `[data-theme]` 分支。
 > - 移动端按需样式路径是 `@veltra/mobile/components/timeline/style`，不是 `@veltra/desktop/components/timeline/style`。
 

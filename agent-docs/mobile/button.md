@@ -109,7 +109,7 @@ export interface ButtonExposed {
 | 参数           | 类型                                                        | 默认        | 必填 | 约束                                                         |
 | -------------- | ----------------------------------------------------------- | ----------- | :--: | ------------------------------------------------------------ |
 | `type`         | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'` | —           |  否  | 枚举仅这五个值；不传时渲染无语义色的默认灰底按钮             |
-| `size`         | `'small' \| 'default' \| 'large'`                           | `'default'` |  否  | 控制字号、圆角与档位高度；可点击热区始终不小于 44×44（见注意事项） |
+| `size`         | `'small' \| 'default' \| 'large'`                           | `'default'` |  否  | 控制字号（small 14px、其余 16px，走 `--um-*` 密度 token）、圆角与档位高度；可点击热区始终不小于 44×44（见注意事项） |
 | `text`         | `boolean`                                                   | `false`     |  否  | 文本按钮：无底色、无边框、无阴影                             |
 | `plain`        | `boolean`                                                   | `false`     |  否  | 朴素模式：类型色文字 + 类型色 `light-9` 浅底 + 透明描边      |
 | `circle`       | `boolean`                                                   | `false`     |  否  | 圆形；无内边距，热区不小于 44×44，只放图标时使用             |
@@ -215,7 +215,7 @@ function onAction() {
 
 > [!WARNING]
 >
-> - 移动端任何尺寸的可点击热区不小于 44×44：样式计算 `min-height: max(档位高度, 44px)`，`circle` 同时保证 `min-width` 不小于 44px；桌面端高度直接跟随档位 token（light 预设 24/32/40px），没有 44px 下限。
+> - 移动端任何尺寸的可点击热区不小于 44×44：样式计算 `min-height: max(--um-control-height-<size>, --um-touch-target)`（档位高度 32/40/48，热区下限 44），`circle` 同时保证 `min-width` 不小于 44px；桌面端高度直接跟随档位 token（light 预设 24/32/40px），没有 44px 下限。
 > - 移动端按压反馈是 `:active`（背景色加深一档），没有 `:hover` 悬停态；桌面端主反馈是 `:hover` 变深、`:active` 去阴影。移动端同时用 `-webkit-tap-highlight-color: transparent` 关掉了系统点按高亮。
 > - 移动端包不导出 `UButtonGroup`（桌面端导出）；按钮组场景直接用 `USpace` 排列，或循环渲染 `UButton`。
 > - 本库原生按钮的 `type` 固定为 `"button"`，没有 `native-type` 属性；需要表单提交时自行监听 click 调用提交逻辑。
@@ -253,4 +253,4 @@ function onClick() {
 
 ### 小尺寸按钮在手机上不好点
 
-原因：视觉上 `size="small"` 的字号与圆角变小，但热区被强制抬到 44px（`min-height: max(--u-form-component-height-small, 44px)`）。修复：不要通过缩小按钮换密度，改用 `text` 形态或减少页面按钮数量；热区下限无法通过 `size` 关闭。
+原因：视觉上 `size="small"` 的字号与圆角变小，但热区被强制抬到 44px（`min-height: max(--um-control-height-small, --um-touch-target)`）。修复：不要通过缩小按钮换密度，改用 `text` 形态或减少页面按钮数量；热区下限无法通过 `size` 关闭。

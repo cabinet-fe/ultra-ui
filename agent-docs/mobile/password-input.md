@@ -239,8 +239,8 @@ const secret = shallowRef('secret-123')
 > - 本库的密码遮盖是掩码字符 `●` 替换，不是原生 `type="password"` 的输入框；内部 `<input>` 始终是 `type="text"`。
 > - `modelValue` 始终是真实密码，与显示的 `●` 无关；禁止从 DOM 读取该输入框的值。
 > - `clearable` 默认 `false`（`UInput` 默认 `true`）；需要清空按钮时显式传 `clearable`，点击只清值，不触发 `clear` 事件。
-> - 移动端是清除按钮有值 + 非禁用即常显，桌面端是悬停显示；清除按钮与明文切换按钮均为 44px 级触控热区。
-> - 移动端输入行继承 `UInput` 的 44px 高度保底与 16px 字号保底（防 iOS 聚焦缩放）。
+> - 移动端是清除按钮有值 + 非禁用即常显，桌面端是悬停显示；清除按钮与明文切换按钮均为 44px 级触控热区（最小宽 44px 且撑满输入行高度）。
+> - 移动端密度取 `--um-*` token：输入行继承 `UInput` 的 `max(--um-control-height-*, --um-touch-target)` 高度、`--um-control-radius-*` 圆角与 `--um-font-size-main`（16px，防 iOS 聚焦缩放）；嵌入 `UFormItem` 控件区后自动呈行式形态（去边框、透明底、占满控件区）。
 > - 类型上仅声明 `update:modelValue` 一个事件；`focus` / `blur` / `change` / `clear` 监听不到，用 `watch` 监听 `modelValue` 代替。
 > - `pattern`、`prefix`、`suffix`（字符串）、`nativeReadonly` 不会转发给内部 `UInput`，传入不生效；前缀用 `#prefix` 插槽，`#suffix` 插槽被显隐按钮占用。
 > - 明文/密文状态是内部状态，初始密文，无 props 与事件控制。

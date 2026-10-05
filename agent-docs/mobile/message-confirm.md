@@ -1,6 +1,6 @@
 ---
 title: messageConfirm / UMessageConfirm 确认框（@veltra/mobile 移动端）
-description: '@veltra/mobile 导出的移动端函数式确认框：居中卡片带遮罩阻断页面操作，onClosed 以 Promise 返回 confirm / cancel 用户操作；支持 primary/success/info/warning/danger 快捷方法、自定义按钮文字与 closeAll；也可用 UMessageConfirm 声明式渲染。'
+description: '@veltra/mobile 导出的移动端函数式确认框：居中卡片带遮罩阻断页面操作并锁定背景滚动，底部为水平按钮组（取消次级灰、确认主题色，热区 ≥44px），onClosed 以 Promise 返回 confirm / cancel 用户操作；支持 primary/success/info/warning/danger 快捷方法、自定义按钮文字与 closeAll；也可用 UMessageConfirm 声明式渲染。'
 aliases: [UMessageConfirm, MessageConfirm, 确认弹窗, 确认对话框, MessageBox]
 keywords:
   [
@@ -50,6 +50,8 @@ console.log(action) // => 'confirm' 或 'cancel'
 ```
 
 调用时机：`messageConfirm` 直接在 `document.body` 上创建容器并渲染，不依赖 Vue 应用挂载，导入后即可在任意事件回调、路由守卫中调用；仅要求浏览器环境（SSR 下只能在客户端生命周期中调用）。函数式确认框需要主题 token：入口必须 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`。
+
+移动端形态：标题与正文走 `--um-font-size-main`（16px；`size="small"` 正文为辅助字号 14px），卡片内边距走 `--um-spacing-*` 刻度；底部是移动端惯例水平按钮组——顶部细分隔线横贯卡片、按钮等宽铺满且以细分隔线相隔，取消为次级灰文本、确认为 `confirmButtonType` 主题色文本，按钮热区不小于 44px。确认框存在期间背景滚动被锁定（body 不可滚），最后一个确认框关闭动画结束后恢复原滚动位置。
 
 ## API 签名
 
@@ -131,7 +133,7 @@ export const messageConfirm: MessageConfirm
 | `confirmButtonText` | `string`                                                    | `'确定'`            |  否  | 确认按钮固定显示                                             |
 | `cancelButtonText`  | `string`                                                    | `''`                |  否  | 为空时取消按钮不渲染                                         |
 | `confirmButtonType` | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'` | `'primary'`         |  否  | 快捷方法固定该值，`config` 中不可再传                        |
-| `size`              | `'small' \| 'default' \| 'large'`                           | `'default'`         |  否  | —                                                            |
+| `size`              | `'small' \| 'default' \| 'large'`                           | `'default'`         |  否  | 仅影响正文字号：small 为辅助字号 14px，default / large 为 16px |
 | `zIndex`            | `number`                                                    | 全局自增（1000 起） |  否  | 容器、遮罩、内容框同值                                       |
 | `onClose`           | `(action: MessageConfirmAction) => void`                    | —                   |  否  | 点击按钮触发关闭时回调                                       |
 | `onClosed`          | `(action: MessageConfirmAction) => void`                    | —                   |  否  | 关闭动画结束后回调；`closeAll()` 关闭时 action 为 `'cancel'` |
@@ -147,6 +149,7 @@ export const messageConfirm: MessageConfirm
 - `instance.onClosed: Promise<MessageConfirmAction>`：含关闭动画在内彻底关闭后兑现 `'confirm'` 或 `'cancel'`，从不 reject。
 - `messageConfirm.closeAll()`：同步清空所有确认框；未记录用户操作的实例（含 `closeAll` 关闭的）`onClosed` 一律兑现 `'cancel'`。
 - 遮罩不可点击关闭：只能点确认 / 取消按钮，或用 `instance.close()` / `closeAll()`。
+- 背景滚动锁定：确认框存在期间 body 滚动被锁定（与 Dialog / Drawer / BottomSheet 共用一套锁），全部关闭后回到原滚动位置；多个确认框叠加时只有最后一个关闭才解锁。
 - 层级：`zIndex()` 全局自增计数器从 1000 起，与库内其他弹层共用，保证后弹出的在上层；显式传入 `zIndex` 时优先。
 
 `UMessageConfirm` 组件事件：

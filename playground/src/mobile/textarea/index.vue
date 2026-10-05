@@ -18,6 +18,14 @@
         show-count
         placeholder="最多 50 字，超长自动截断"
       />
+      <p class="tip">计数为「当前字数/最大字数」，展示在文本域右下角</p>
+    </section>
+
+    <section>
+      <h3>嵌入表单行（label 上方）</h3>
+      <UFormItem label="留言" label-position="top">
+        <UTextarea v-model="rowText" :rows="2" placeholder="长控件建议 label-position 为 top" />
+      </UFormItem>
     </section>
 
     <section>
@@ -29,13 +37,15 @@
 </template>
 
 <script lang="ts" setup>
-import { UTextarea } from '@veltra/mobile'
+import { UFormItem, UTextarea } from '@veltra/mobile'
 import { shallowRef } from 'vue'
+import '@veltra/mobile/components/form-item/style'
 import '@veltra/mobile/components/textarea/style'
 
 const text = shallowRef('')
 const autosizeText = shallowRef('')
 const countText = shallowRef('')
+const rowText = shallowRef('')
 </script>
 
 <style lang="scss" scoped>

@@ -1,25 +1,33 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
 @include m.b(form) {
-  // 移动端单列堆叠，行距走统一 gap token
+  // 边框卡片式列表外观：行间分隔线由 form-item 的相邻选择器绘制
   display: flex;
   flex-direction: column;
-  gap: fn.use-var(gap, default);
+  box-sizing: border-box;
+  width: 100%;
+  background-color: fn.use-var(bg-color);
+  border-radius: t.use-var('control-radius-large');
+  overflow: hidden;
 
-  // 只读态：label 退为次级文本，值收进浅色圆角条
+  // 分组标题
+  @include m.e(title) {
+    padding: t.use-var('spacing-md') t.use-var('spacing-lg') t.use-var('spacing-sm');
+    color: fn.use-var(text-color, second);
+    font-size: t.use-var('font-size-secondary');
+    line-height: 1.4;
+  }
+
+  // 只读态：label 退为次级文本，值保持正文色（行式呈现）
   @include m.is(readonly) {
-    gap: fn.use-var(gap, small);
-
     @include m.bem(form-item, label) {
       color: fn.use-var(text-color, second);
     }
 
     @include m.bem(form-item, content) {
-      padding: fn.use-var(gap, small) fn.use-var(gap, default);
       color: fn.use-var(text-color, main);
-      background-color: fn.use-var(bg-color, middle);
-      border-radius: fn.use-var(radius, default);
     }
   }
 
@@ -27,17 +35,17 @@
   @include m.e(data-before) {
     display: flex;
     align-items: baseline;
-    gap: 4px;
+    gap: t.use-var('spacing-xs');
     flex-wrap: wrap;
-    margin-top: fn.use-var(gap, small);
-    padding: 2px fn.use-var(gap, small);
+    width: fit-content;
+    max-width: 100%;
+    margin-top: t.use-var('spacing-xs');
+    padding: 2px t.use-var('spacing-xs');
     border-left: 2px solid fn.use-var(color, info);
     background-color: fn.color-a(color, 8, info);
     border-radius: 2px;
-    width: fit-content;
-    max-width: 100%;
     line-height: 1.4;
-    font-size: fn.use-var(font-size, assist, default);
+    font-size: t.use-var('font-size-secondary');
     color: fn.use-var(text-color, main);
     word-break: break-all;
   }

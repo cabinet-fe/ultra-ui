@@ -77,7 +77,7 @@ export const vLoading: ObjectDirective<HTMLElement>
 - `@veltra/mobile` 没有插件形态的 `install`，不会全局注册指令；模板使用 `v-loading` 前必须在 `<script setup>` 中 `import { vLoading } from '@veltra/mobile'`。
 - 组件根元素是 `position: absolute; width: 100%; height: 100%` 的半透明遮罩层（背景色 `--u-bg-color-top` 透明度档），内部 loader 居中，遮罩 `z-index` 取全局自增计数（1000 起）。
 - 类型文件中的 `LoadingEmits`（`update:modelValue`）未被组件使用，组件不声明任何事件；`LoadingExposed` 无暴露成员。
-- 动画尺寸是固定值，无 `size` 属性也无全局尺寸配置：`dual-ring` / `ring` 外环 36px（边框 3px），`dot` 圆点 9px，`bars` 竖条宽 6px、高在 10px~26px 间伸缩。
+- 动画尺寸走 `--um-loading-indicator` 密度 token（基准边长默认 36px，宿主可用该变量整体调档），各形态按基准推导：`dual-ring` / `ring` 直径等于基准（描边为基准的 1/12），`dot` 圆点为基准的 1/4，`bars` 竖条宽为基准的 1/6、高在基准的 1/4 ~ 3/4 间伸缩；无 `size` 属性也无全局尺寸配置。
 
 ## 参数说明
 
@@ -174,7 +174,7 @@ import '@veltra/mobile/components/loading/style'
 > [!WARNING]
 >
 > - 移动端是具名导出 `vLoading`（模板写 `v-loading`），`@veltra/mobile` 没有插件 `install`，不会像桌面端那样经 `app.use` 全局注册指令；不导入 `vLoading` 时模板报指令解析错误。
-> - 移动端动画尺寸固定（环 36px、点 9px、条 6px×10~26px），没有 `size` prop，也没有桌面端「全局配置统一切尺寸」的联动；`<ULoading size="large" />` 无效。
+> - 移动端动画尺寸走 `--um-loading-indicator` token（默认基准 36px，各形态按比例推导），没有 `size` prop，也没有桌面端「全局配置统一切尺寸」的联动；`<ULoading size="large" />` 无效。要调大小在宿主样式覆盖 `--um-loading-indicator`。
 > - 本库加载指令没有 `text` 文案、spinner 自定义等配置项；`v-loading.config` 这类带修饰符的写法不支持。
 > - 单独使用 `ULoading` 组件时禁止放在无 `position: relative` 的定位祖先之外，否则遮罩会相对最近的定位祖先铺满。
 > - 遮罩与动画颜色依赖 `--u-*` 主题 token：入口必须调用 `@veltra/styles/theme` 的 `loadTheme()`，否则无颜色。

@@ -1,8 +1,8 @@
 <template>
   <div class="demo">
     <section>
-      <h3>基础表单（联动输入 / 选择组件）</h3>
-      <UForm ref="formRef" :model="model" @field:update="handleFieldUpdate">
+      <h3>基础表单（分组标题 + 行式列表）</h3>
+      <UForm ref="formRef" :model="model" title="基本信息" @field:update="handleFieldUpdate">
         <UInput
           field="name"
           label="姓名"
@@ -24,11 +24,12 @@
           :items="channels"
           :rules="{ required: true }"
         />
-        <URadioGroup field="gender" label="性别" :items="genders" block />
+        <URadioGroup field="gender" label="性别" :items="genders" />
         <USwitch field="notify" label="推送通知" />
         <UTextarea
           field="remark"
           label="备注"
+          label-position="top"
           placeholder="选填"
           :rules="{ maxLen: [30, '备注最多 30 字'] }"
         />
@@ -45,11 +46,14 @@
 
     <section>
       <h3>label 位置与宽度</h3>
-      <UForm :model="leftModel" label-position="left" :label-width="80">
+      <UForm :model="leftModel" :label-width="88">
         <UInput field="account" label="账号" :rules="{ required: true }" />
         <USelect field="role" label="角色" :options="roles" />
       </UForm>
-      <p class="tip">移动端默认标签在控件上方，label-position="left" 时恢复水平排列</p>
+      <p class="tip">
+        移动端默认行式（label 左、控件右、行高 48px、行间细分隔线）；传 label-width 后各行 label
+        固定宽对齐；长控件建议单项或表单整体 label-position="top"
+      </p>
     </section>
 
     <section>

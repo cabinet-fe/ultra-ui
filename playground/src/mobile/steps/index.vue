@@ -3,7 +3,9 @@
     <section>
       <h3>横向滚动形态</h3>
       <USteps v-model:current="current" :items="items" />
-      <p class="tip">步骤超出屏宽时横向滚动，当前步骤自动滚入视野；点击步骤项切换。</p>
+      <p class="tip">
+        步骤超出屏宽时横向滚动，当前步骤自动滚入视野；点击步骤项切换，按住有按压高亮反馈。
+      </p>
     </section>
 
     <section>

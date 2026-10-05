@@ -1,8 +1,17 @@
+@use 'sass:map';
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
 @use 'pkg:@veltra/styles/vars';
+@use '../../styles/tokens' as t;
 
 $root-name: badge;
+
+// 密度走 --um-*：小档辅助字号 / 默认档次字号 / 大档主字号
+$size-font: (
+  small: font-size-auxiliary,
+  default: font-size-secondary,
+  large: font-size-main
+);
 
 // 修饰符类（u-badge--color-* / u-badge--<size>）由组件挂在 sup 元素上，
 // 因此以下规则直接作用于 sup 本身，与 desktop badge 选择器结构一致
@@ -13,17 +22,17 @@ $root-name: badge;
   @include m.e(sup) {
     position: absolute;
     cursor: default;
-    height: 18px;
     display: inline-flex;
     justify-content: center;
     align-items: center;
     background-color: fn.use-var(color, danger);
-    border-radius: 18px;
+    // 胶囊圆角：远大于自身高度，保证两端全圆
+    border-radius: 999px;
     color: fn.use-var(text-color, white);
 
     @include m.is(dot) {
-      height: 8px;
-      width: 8px;
+      height: t.use-var(spacing-sm);
+      width: t.use-var(spacing-sm);
       padding: 0;
       border-radius: 50%;
     }
@@ -37,15 +46,11 @@ $root-name: badge;
   }
 
   @include m.size using ($size) {
-    font-size: fn.use-var(font-size-main, $size);
-    padding: 0 fn.use-var(gap, $size);
+    $font: t.use-var(map.get($size-font, $size));
 
-    @if ($size ==default) {
-      height: 22px;
-    }
-
-    @if ($size ==large) {
-      height: 26px;
-    }
+    font-size: $font;
+    // 高度随字号伸缩：字号 + 上下合计 8px 呼吸空间
+    height: calc(#{$font} + #{t.use-var(spacing-sm)});
+    padding: 0 t.use-var(spacing-xs);
   }
 }

@@ -126,7 +126,7 @@ export interface CollapseItemEmits {
 | `accordion`          | `boolean`                          | `false`     |  否  | 手风琴：点击新项展开并收起旧项；点击已展开项收起（modelValue 变 `[]`）                                      |
 | `defaultCollapseAll` | `boolean`                          | `false`     |  否  | `false` 且无有效初始 `modelValue` 时，子项注册后自动全部展开（手风琴只展开第一个注册项）；`true` 时初始全部折叠 |
 | `expandIcon`         | `Component`                        | `ArrowDown` |  否  | 展开图标组件（默认取 `@veltra/icons/normal` 的 `ArrowDown`），活动态自动旋转 180°；统管所有子项             |
-| `size`               | `'small' \| 'default' \| 'large'`  | `'default'` |  否  | 控制标题字号与间距；移动端未传时固定 `'default'`，不读取全局配置                                            |
+| `size`               | `'small' \| 'default' \| 'large'`  | `'default'` |  否  | 控制标题与内容的间距密度（8 / 12 / 16px，走 `--um-spacing-*`）；字号统一 16px（`--um-font-size-main`）。移动端未传时固定 `'default'`，不读取全局配置 |
 
 ### UCollapseItem
 
@@ -237,7 +237,7 @@ const standalone = ref(false)
 
 > [!WARNING]
 >
-> - 移动端标题触控热区保底 44px（`min-height: 44px`），桌面端无高度下限；移动端每项是带描边与圆角的卡片式条目。
+> - 移动端标题触控热区保底 44px（`min-height: var(--um-touch-target, 44px)`），桌面端无高度下限；移动端每项是带描边与圆角的卡片式条目。
 > - 移动端无 hover，交互反馈是按压 `:active` 背景与展开态背景（`--u-bg-color-hover`），并禁用点按高亮（`-webkit-tap-highlight-color: transparent`）；桌面端反馈是 hover 背景。
 > - 默认行为是**初始全部展开**（`defaultCollapseAll` 默认 `false` 且无初始值时）；要初始全收起必须显式写 `default-collapse-all`。
 > - 包在 `UCollapse` 内时，`UCollapseItem` 的 `value` 必填，且禁止再给它写 `v-model`——展开状态完全由父级 `modelValue` 管理，子项上的 `modelValue` / `expandIcon` 属性此时无效。

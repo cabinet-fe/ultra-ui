@@ -1,6 +1,7 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
 @use 'pkg:@veltra/styles/vars';
+@use '../../styles/tokens' as t;
 
 // 方便拼接
 $root-name: steps;
@@ -12,7 +13,7 @@ $icon-min: 40px;
   padding: 0;
   margin: 0;
   list-style: none;
-  font-size: fn.use-var(font-size-main, default);
+  font-size: t.use-var('font-size-main');
   color: fn.use-var(text-color, main);
   -webkit-tap-highlight-color: transparent;
 
@@ -37,7 +38,15 @@ $icon-min: 40px;
   @include m.e(item) {
     font-weight: 600;
     color: fn.use-var(text-color, placeholder);
-    min-height: 44px;
+    min-height: t.use-var('touch-target');
+    border-radius: fn.use-var(radius, default);
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    // 可点项按压反馈（移动端无 hover）
+    &:active {
+      background-color: fn.use-var(bg-color, hover);
+    }
   }
 
   @include m.e(node) {
@@ -114,7 +123,7 @@ $icon-min: 40px;
 
   /** 步骤项描述 */
   @include m.e(content) {
-    padding: fn.use-var(gap, small) 0;
+    padding: t.use-var('spacing-sm') 0;
     word-break: break-word;
   }
 
@@ -174,8 +183,8 @@ $icon-min: 40px;
   @include m.is(vertical) {
     @include m.bem($root-name, item) {
       @include m.flex($align: stretch, $wrap: nowrap);
-      gap: fn.use-var(gap, default);
-      padding-bottom: fn.use-var(gap, default);
+      gap: t.use-var('spacing-md');
+      padding-bottom: t.use-var('spacing-md');
 
       &:last-child {
         padding-bottom: 0;
@@ -213,9 +222,9 @@ $icon-min: 40px;
 
   @include m.size using ($size) {
     @include m.bem($root-name, icon) {
-      font-size: max(fn.use-var(font-size-title, $size), 16px);
-      width: max(fn.use-var(form-component-height, $size), $icon-min);
-      height: max(fn.use-var(form-component-height, $size), $icon-min);
+      font-size: t.use-var('font-size-main');
+      width: max(t.control-height($size), $icon-min);
+      height: max(t.control-height($size), $icon-min);
     }
   }
 }

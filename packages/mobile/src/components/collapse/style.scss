@@ -1,7 +1,16 @@
+@use 'sass:map';
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
 $root-name: collapse;
+
+// 标题/内容字号统一主字号 16（正文不小于 16px），档位只影响间距密度
+$size-padding: (
+  small: spacing-sm,
+  default: spacing-md,
+  large: spacing-lg
+);
 
 $ease: cubic-bezier(0.4, 0, 0.2, 1);
 $transition-fast: 0.18s $ease;
@@ -9,7 +18,7 @@ $transition-normal: 0.24s $ease;
 
 @include m.b($root-name) {
   width: 100%;
-  font-size: fn.use-var(font-size-main, default);
+  font-size: t.use-var(font-size-main);
   color: fn.use-var(text-color, main);
   background-color: transparent;
 
@@ -21,7 +30,7 @@ $transition-normal: 0.24s $ease;
     overflow: hidden;
 
     & + .um-#{$root-name}__item {
-      margin-top: fn.use-var(gap, default);
+      margin-top: t.use-var(spacing-md);
     }
 
     @include m.is(disabled) {
@@ -34,9 +43,9 @@ $transition-normal: 0.24s $ease;
     position: relative;
     display: flex;
     align-items: center;
-    gap: fn.use-var(gap, small);
-    padding: fn.use-var(gap, small) fn.use-var(gap, default);
-    min-height: 44px;
+    gap: t.use-var(spacing-xs);
+    padding: t.use-var(spacing-sm) t.use-var(spacing-md);
+    min-height: t.use-var(touch-target);
     box-sizing: border-box;
     cursor: pointer;
     font-weight: 500;
@@ -77,7 +86,7 @@ $transition-normal: 0.24s $ease;
   @include m.e(title) {
     display: flex;
     align-items: center;
-    gap: fn.use-var(gap, small);
+    gap: t.use-var(spacing-xs);
     flex: 1 1 auto;
     min-width: 0;
     line-height: 1.5;
@@ -111,28 +120,30 @@ $transition-normal: 0.24s $ease;
   @include m.e(content) {
     color: fn.use-var(text-color, main);
     line-height: 1.7;
-    padding: fn.use-var(gap, small) fn.use-var(gap, default);
+    padding: t.use-var(spacing-sm) t.use-var(spacing-md);
   }
 
   // ===== Sizes =====
   @include m.size using ($size) {
-    font-size: fn.use-var(font-size-main, $size);
+    $padding: t.use-var(map.get($size-padding, $size));
+
+    font-size: t.use-var(font-size-main);
 
     @include m.bem($root-name, header) {
-      padding: fn.use-var(gap, $size) fn.use-var(gap, $size);
-      font-size: fn.use-var(font-size-main, $size);
+      padding: $padding;
+      font-size: t.use-var(font-size-main);
     }
 
     @include m.bem($root-name, content) {
-      font-size: fn.use-var(font-size-main, $size);
-      padding: fn.use-var(gap, $size);
+      font-size: t.use-var(font-size-main);
+      padding: $padding;
     }
 
     .um-#{$root-name}__item {
       border-radius: fn.use-var(radius, $size);
 
       & + .um-#{$root-name}__item {
-        margin-top: fn.use-var(gap, $size);
+        margin-top: $padding;
       }
     }
   }

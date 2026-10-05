@@ -1,8 +1,30 @@
+@use 'sass:map';
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
 @use 'pkg:@veltra/styles/vars';
+@use '../../styles/tokens' as t;
 
 $root-name: button;
+
+// 密度移动档：小档 14 号字（辅助场景），默认 / 大档主字号 16
+$size-font: (
+  small: font-size-secondary,
+  default: font-size-main,
+  large: font-size-main
+);
+
+// 控件高度档 32 / 40 / 48，热区另有 44px 下限兜底
+$size-height: (
+  small: control-height-small,
+  default: control-height-default,
+  large: control-height-large
+);
+
+$size-padding: (
+  small: spacing-sm,
+  default: spacing-lg,
+  large: spacing-xl
+);
 
 @keyframes um-button-icon-rotating {
   0% {
@@ -22,7 +44,6 @@ $root-name: button;
   white-space: nowrap;
   vertical-align: middle;
   cursor: pointer;
-  padding: 0 1.25em;
   -webkit-appearance: none;
   -webkit-tap-highlight-color: transparent;
   border: 1px solid fn.component-var(button, default-border, transparent);
@@ -33,16 +54,20 @@ $root-name: button;
     border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
     color fn.use-var(transition, fast) fn.use-var(transition, ease),
     box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
-  gap: fn.use-var(gap-small);
+  gap: t.use-var(spacing-sm);
 
   @include m.flex($display: inline-flex, $justify: center);
 
   // 触控热区：任何尺寸的可点击区域不小于 44×44
   @include m.size using ($size) {
-    $touch-size: max(fn.use-var(form-component-height, $size), 44px);
+    $touch-size: max(
+      #{t.use-var(map.get($size-height, $size))},
+      #{t.use-var(touch-target)}
+    );
 
     min-height: $touch-size;
-    font-size: fn.use-var(font-size-main, $size);
+    font-size: t.use-var(map.get($size-font, $size));
+    padding: 0 t.use-var(map.get($size-padding, $size));
     border-radius: fn.use-var(radius, $size);
 
     @include m.is(circle) {

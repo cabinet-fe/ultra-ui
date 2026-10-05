@@ -1,7 +1,7 @@
 <template>
   <div class="demo">
     <section>
-      <h3>基本用法</h3>
+      <h3>基本用法（默认 16px，走 --um-font-size-main）</h3>
       <div class="row">
         <UIcon><Search /></UIcon>
         <UIcon><Bell /></UIcon>

@@ -144,7 +144,7 @@ export const message: Message
 - `message(...)` 同步返回 `MessageInstance`，不抛错。
 - `instance.close()`：同步，立即触发离场动画；`instance.onClosed` 在动画结束后兑现，从不 reject。
 - `message.closeAll()`：同步清空当前所有消息并触发离场动画；每条的 `onClosed` 照常兑现。
-- 计时规则：移动端**到时即关**，无悬停暂停；每条消息触控热区不小于 44px，多条消息在顶部居中纵向排列。
+- 计时规则：移动端**到时即关**，无悬停暂停；每条消息触控热区不小于 44px，多条消息在顶部居中纵向排列；字号 / 内边距 / 热区走 `--um-*` 密度 token（正文字号 16px）。
 
 `UMessage` 组件事件：
 

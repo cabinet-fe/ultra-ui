@@ -4,6 +4,7 @@
       <h3>基础用法</h3>
       <UDatePicker v-model="base" @change="onChange" />
       <p class="tip">当前值：{{ base ?? '未选择' }}</p>
+      <p class="tip">面板内横向滑动（左滑下一个 / 右滑上一个）或点击箭头切换上/下月</p>
     </section>
 
     <section>

@@ -56,7 +56,7 @@ export interface EmptyProps {
 export interface EmptyEmits {}
 ```
 
-组件内部把 `size` 换算成 `font-size`（`size + 'px'`）作用在 1em 图标容器上，图标 SVG 按 1em 缩放；文案用 assist 档字号，不随 `size` 变化。图标不可替换，文字只能整体替换、不支持插槽。
+组件内部把 `size` 换算成 `font-size`（`size + 'px'`）作用在 1em 图标容器上，图标 SVG 按 1em 缩放；文案用移动端次字号（`--um-font-size-secondary`，14px），不随 `size` 变化。图标不可替换，文字只能整体替换、不支持插槽。
 
 ## 参数说明
 

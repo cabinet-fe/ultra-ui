@@ -13,6 +13,14 @@
     </section>
 
     <section>
+      <h3>嵌入表单行</h3>
+      <UFormItem label="数量">
+        <UNumberInput v-model="count" :step="1" placeholder="行式形态：步进按钮去边框" />
+      </UFormItem>
+      <p class="tip">嵌入 UFormItem 后占满控件区，步进/清除按钮热区各 44px</p>
+    </section>
+
+    <section>
       <h3>范围限制</h3>
       <UNumberInput v-model="limited" :step="10" :min="0" :max="100" placeholder="0 ~ 100" />
     </section>
@@ -32,8 +40,9 @@
 </template>
 
 <script lang="ts" setup>
-import { UNumberInput } from '@veltra/mobile'
+import { UFormItem, UNumberInput } from '@veltra/mobile'
 import { shallowRef } from 'vue'
+import '@veltra/mobile/components/form-item/style'
 import '@veltra/mobile/components/number-input/style'
 
 const count = shallowRef<number | undefined>(1)

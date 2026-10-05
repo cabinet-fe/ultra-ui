@@ -1,5 +1,6 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
 $root-name: textarea;
 
@@ -17,14 +18,15 @@ $root-name: textarea;
   vertical-align: middle;
 
   @include m.size using ($size) {
-    border-radius: fn.use-var(radius, $size);
+    border-radius: t.control-radius($size);
 
     @include m.bem($root-name, native) {
-      padding: calc(fn.use-var(gap, $size) / 2) 44px calc(fn.use-var(gap, $size) / 2)
-        calc(fn.use-var(gap, $size) / 2);
-      // 触控热区：文本域高度不小于 44px；iOS 聚焦字号不小于 16px 防视口缩放
-      min-height: max(fn.use-var(form-component-height, $size), 44px);
-      font-size: max(fn.use-var(font-size-main, $size), 16px);
+      // 行高、内边距走移动端 token；右侧让位计数/清除 44px 热区
+      padding: t.spacing($size) t.use-var('touch-target') t.spacing($size) t.spacing($size);
+      // 触控热区：文本域高度不小于 44px；字号 16px（iOS 聚焦防视口缩放）
+      min-height: max(t.control-height($size), t.use-var('touch-target'));
+      font-size: t.use-var('font-size-main');
+      line-height: t.use-var('text-line-height');
     }
   }
 
@@ -38,7 +40,6 @@ $root-name: textarea;
     font-family: fn.use-var(font-family);
     width: 100%;
     padding: 0;
-    line-height: 1.5;
     // 触屏没有拖拽手柄，一律不缩放（resize prop 仅保留 API 兼容）
     resize: none;
     overflow: auto;
@@ -54,6 +55,7 @@ $root-name: textarea;
     }
   }
 
+  // 聚焦态：移动端高亮惯例（主色描边 + 焦点环）
   @include m.is(focus) {
     border-color: fn.use-var(color, primary);
     box-shadow: fn.use-var(focus-ring);
@@ -70,13 +72,18 @@ $root-name: textarea;
 
   @include m.m(count) {
     position: absolute;
-    bottom: 4px;
-    right: 8px;
-    font-size: fn.use-var(font-size-assist, default);
+    right: 0;
+    bottom: 0;
+    // 计数为展示元素：占位 44px 热区、不拦截触摸
+    min-width: t.use-var('touch-target');
+    min-height: t.use-var('touch-target');
+    display: inline-flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: 0 t.use-var('spacing-sm') t.use-var('spacing-xs') 0;
+    font-size: t.use-var('font-size-secondary');
     color: fn.use-var(text-color, placeholder);
-    background: fn.use-var(bg-color, middle);
-    padding: 0 2px;
-    border-radius: fn.use-var(radius, small);
+    pointer-events: none;
   }
 
   @include m.m(clear) {
@@ -84,8 +91,8 @@ $root-name: textarea;
     position: absolute;
     top: 0;
     right: 0;
-    width: 44px;
-    height: 44px;
+    width: t.use-var('touch-target');
+    height: t.use-var('touch-target');
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -94,6 +101,7 @@ $root-name: textarea;
     padding: 0;
     background-color: transparent;
     color: fn.use-var(text-color, second);
+    font-size: t.use-var('font-size-main');
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
 

@@ -1,5 +1,6 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
 @include m.b(segment) {
   vertical-align: middle;
@@ -15,12 +16,13 @@
     border-radius: fn.use-var(radius, $size);
 
     @include m.bem(segment, item) {
-      // 触控热区：任何尺寸的分段热区不小于 44×44（block 形态由更高特异性保持 min-width: 0 的弹性分配）
-      min-height: max(calc(#{fn.use-var(form-component-height, $size)} - 4px), 44px);
-      min-width: max(calc(#{fn.use-var(form-component-height, $size)} - 4px), 44px);
-      padding: 0 calc(#{fn.use-var(gap, $size)} * 1.5);
+      // 密度走移动端 token：视觉高度 ≥32px、触控热区 ≥44×44
+      // （block 形态由更高特异性保持 min-width: 0 的弹性分配）
+      min-height: max(calc(#{t.control-height($size)} - 4px), t.use-var('touch-target'));
+      min-width: max(calc(#{t.control-height($size)} - 4px), t.use-var('touch-target'));
+      padding: 0 calc(#{t.spacing($size)} * 1.5);
       border-radius: calc(#{fn.use-var(radius, $size)} - 2px);
-      font-size: fn.use-var(font-size-main, $size);
+      font-size: t.use-var('font-size-main');
     }
   }
 

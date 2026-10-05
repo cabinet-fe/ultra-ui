@@ -2,7 +2,7 @@ import type { DeconstructValue } from '@veltra/utils'
 
 import type { InputProps } from './input'
 
-/** 密码输入组件属性（与 @veltra/desktop UPasswordInput 对齐） */
+/** 密码输入组件属性（API 与 @veltra/desktop UPasswordInput 对齐；明文切换按钮 44px 触控热区为移动端形态） */
 export interface PasswordInputProps extends InputProps {
   modelValue?: string
 }

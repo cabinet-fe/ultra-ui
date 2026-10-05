@@ -1,6 +1,6 @@
 ---
 title: UFormItem 表单项（@veltra/mobile 移动端）
-description: '@veltra/mobile 导出的移动端表单项容器：为字段提供 label、必填标记、校验错误展示与 change 冒泡。单字段控件写 field 即可由 UForm 自动生成，无需手写；仅当控件值需转换（如开关）、多控件组合成一个字段、或自定义 label 时才显式使用。label 默认在控件上方（labelPosition 默认 top）。'
+description: '@veltra/mobile 导出的移动端表单项容器：为字段提供 label、必填标记、校验错误展示与 change 冒泡，默认列表行式（label 左、控件占右侧剩余宽度、行高约 48px、相邻行细分隔线、整行热区 ≥44px），校验反馈为行内下方文本。单字段控件写 field 即可由 UForm 自动生成，无需手写；仅当控件值需转换（如开关）、多控件组合成一个字段、或自定义 label 时才显式使用。'
 aliases: ['UFormItem', 'FormItem', 'el-form-item', '表单项', '字段容器']
 keywords:
   - field
@@ -13,6 +13,7 @@ keywords:
   - preset
   - ValidateRule
   - change
+  - 行式
   - 值转换
   - 多控件组合
   - 自定义标签
@@ -24,7 +25,7 @@ keywords:
 
 # UFormItem 表单项（@veltra/mobile 移动端）
 
-`@veltra/mobile` 导出表单项容器 `UFormItem`。它为字段渲染 label、必填星标与校验错误文本，并把内部控件的 `change` 冒泡到表单。移动端 `labelPosition` 默认 `'top'`（标签在控件上方、不追加冒号）。
+`@veltra/mobile` 导出表单项容器 `UFormItem`。它为字段渲染 label、必填星标与校验错误文本，并把内部控件的 `change` 冒泡到表单。移动端默认**列表行式**：label 在左、控件区占右侧剩余宽度、行高约 48px、相邻行细分隔线、整行热区 ≥44px；`labelPosition` 默认 `'left'`，`'top'` 时 label 纵向堆叠在控件上方（适合文本域等长控件）。
 
 单字段控件只要写 `field`，`UForm` 会自动为它生成一个 `UFormItem`，并把控件上的 `label` / `rules` / `span` / `tips` / `readonly` / `field` 透传给该表单项——所以**单字段场景不需要手写 `UFormItem`**。仅在以下两种场景显式使用：控件值需转换或多控件组合成一个字段。此时把 `field` 写在 `UFormItem` 上，内部控件自行处理 `v-model`（或 `:model-value` / `@update:model-value`），**内部控件不要再写 `field`**（否则会被 `UForm` 再包一层表单项，形成双重绑定）。
 
@@ -105,7 +106,7 @@ export interface FormItemProps {
   size?: ComponentSize
   /** 校验规则；必须同时有 field 与所在表单的 model 才生效 */
   rules?: ValidateRule
-  /** 表单项字段路径（支持 `a.b` 嵌套）；必填标记、校验、change 冒泡都依赖它 */
+  /** 表单项字段路径（支持 `a.b` 嵌套）；校验注册与 model 联动依赖它 */
   field?: string
   /** 表单标签文字；与 #label 插槽二选一，插槽优先 */
   label?: string
@@ -118,9 +119,13 @@ export interface FormItemProps {
   disabled?: boolean
   /** 是否只读；未传时回退 UForm 的 readonly */
   readonly?: boolean
-  /** 标签宽度；仅 labelPosition='left' 时生效，未传时回退 UForm 的 labelWidth，再回退全局配置（默认 100px） */
+  /**
+   * 标签宽度；number 单位 px
+   * - 回退链：自身 → UForm 的 labelWidth
+   * - 都未传时 label 按内容自适应宽度（移动端默认）
+   */
   labelWidth?: string | number
-  /** 标签位置；未传时回退 UForm 的 labelPosition。移动端默认 'top' */
+  /** 标签位置；未传时回退 UForm 的 labelPosition。移动端默认 'left' 行式 */
   labelPosition?: 'top' | 'left'
 }
 
@@ -138,16 +143,16 @@ export interface FormItemExposed {}
 
 | 参数            | 类型                                | 默认              |         必填          | 约束                                                                                       |
 | --------------- | ----------------------------------- | ----------------- | :-------------------: | ------------------------------------------------------------------------------------------ |
-| `field`         | `string`                            | —                 | 是（需 label/校验时） | 支持 `a.b` 嵌套路径；缺失时 label、必填星标、校验全部不生效                                |
-| `label`         | `string`                            | —                 |          否           | 与 `#label` 插槽二选一；`labelPosition='left'` 时自动追加冒号                              |
+| `field`         | `string`                            | —                 | 是（需校验时）        | 支持 `a.b` 嵌套路径；缺失时字段不注册进表单，校验与 model 联动不生效；label 与必填星标不受影响（分别取决于 `label`/`#label` 插槽与 `rules.required`） |
+| `label`         | `string`                            | —                 |          否           | 与 `#label` 插槽二选一；必填星标渲染在 label 文字左侧                                       |
 | `rules`         | `ValidateRule`                      | —                 |          否           | 执行顺序：`required` 先行，其余规则按对象键序，`validator` 最后；需所在 `UForm` 的 `model`  |
 | `tips`          | `string`                            | —                 |          否           | 声明保留；移动端不渲染悬浮提示                                                             |
 | `span`          | `number \| 'full' \| BreakpointMap` | —                 |          否           | 声明保留；移动端 UForm 单列呈现，不生效                                                    |
 | `size`          | `'small' \| 'default' \| 'large'`   | `'default'`       |          否           | 回退链：自身 → UForm `size` → `'default'`                                                  |
 | `disabled`      | `boolean`                           | UForm `disabled`  |          否           | 回退链：自身 → UForm                                                                       |
 | `readonly`      | `boolean`                           | UForm `readonly`  |          否           | 只读时错误提示区隐藏                                                                       |
-| `labelWidth`    | `string \| number`                  | `100`（全局配置） |          否           | number 单位 px；仅 `labelPosition='left'` 时生效；回退链：自身 → UForm `labelWidth` → 全局配置 |
-| `labelPosition` | `'top' \| 'left'`                   | `'top'`           |          否           | 移动端默认 `'top'`（不追加冒号、忽略 `labelWidth`）；回退链：自身 → UForm `labelPosition`   |
+| `labelWidth`    | `string \| number`                  | 内容自适应        |          否           | number 单位 px；传了固定宽对齐，未传时按内容自适应；回退链：自身 → UForm `labelWidth`；仅 `labelPosition='left'` 时生效 |
+| `labelPosition` | `'top' \| 'left'`                   | `'left'`          |          否           | 默认 `'left'` 行式（label 左、控件右）；`'top'` 时 label 在控件上方；回退链：自身 → UForm `labelPosition` |
 
 `required: true` 的默认文案为「该项不能为空」；`preset` 各档默认文案：`email`「邮箱格式不正确」、`phone`「手机号格式不正确」、`num`「数字格式不正确」、`url`「链接格式不正确」、`idCard`「身份证格式不正确」。空值（`null`、`undefined`、`''`、空数组）跳过 `min` / `max` / `minLen` / `maxLen` / `match` / `preset` 校验。
 
@@ -248,7 +253,8 @@ const formData = reactive({ agree: false })
 
 > [!WARNING]
 >
-> - 移动端 `labelPosition` **默认 `'top'`**（标签在控件上方、不追加冒号、忽略 `labelWidth`），桌面端默认 `'left'`；需要水平标签时显式传 `label-position="left"`。
+> - 移动端 `labelPosition` **默认 `'left'` 行式**：label 左、控件占右侧剩余宽度、行高约 48px、相邻行细分隔线、整行热区 ≥44px；`'top'` 时 label 纵向堆叠（适合文本域等长控件）。`labelWidth` 仅 `'left'` 时生效。
+> - 移动端校验反馈是**行内下方红色文本**（不弹桌面悬浮 tooltip）；嵌入控件区的 input / number-input / password-input 等自动呈行式形态（透明底、去边框、占满控件区）。
 > - 移动端不渲染 `tips` 悬浮提示（桌面端 hover 500ms 显示），`tips` 声明保留。
 > - 移动端 `span` 不生效（UForm 单列呈现），声明保留。
 > - 本库的组合字段写法是 `field` 写在 `UFormItem`、内部控件用 `v-model`（值需转换时用 `:model-value` / `@update:model-value`），**不是**控件上再写一遍 `field`；控件带 `field` 会被 `UForm` 拦截成独立表单项，导致双重绑定。
@@ -261,11 +267,11 @@ const formData = reactive({ agree: false })
 
 ### label 与校验都不出现
 
-原因：`UFormItem` 漏写 `field`。修复：补上与 `model` 对应的字段路径，如 `field="priceRange"`；不需要 label 时也必须写 `field` 才能挂上校验。
+label 不出现的原因是没传 `label` prop 也没有 `#label` 插槽——label 渲染只看这两者，与 `field` 无关；校验不生效才与漏写 `field` 有关（`field` 缺失时字段不注册进表单、校验与 model 联动不工作）。修复：要 label 就传 `label` prop 或 `#label` 插槽；要校验就补上与 `model` 对应的字段路径，如 `field="priceRange"`。
 
 ### `labelWidth` 没有效果
 
-原因：移动端 `labelPosition` 默认 `'top'`，该模式下忽略 `labelWidth`。修复：单项或表单整体传 `label-position="left"` 后 `labelWidth` 才生效。
+原因：该项（或所在 UForm）的 `labelPosition` 为 `'top'`，该模式下忽略 `labelWidth`、label 按内容自适应。修复：保持默认 `'left'`（或显式传 `label-position="left"`）后 `labelWidth` 才生效。
 
 ```vue
 <script setup lang="ts">
@@ -279,7 +285,7 @@ const formData = reactive({ enabled: false })
 </script>
 
 <template>
-  <UForm :model="formData" label-position="left" :label-width="80">
+  <UForm :model="formData" :label-width="80">
     <UFormItem label="启用" field="enabled">
       <USwitch v-model="formData.enabled" />
     </UFormItem>

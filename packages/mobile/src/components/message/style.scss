@@ -1,6 +1,7 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
 @use 'pkg:@veltra/styles/vars' as vars;
+@use '../../styles/tokens' as t;
 
 // 方便拼接
 $root-name: message;
@@ -15,9 +16,9 @@ $root-name: message;
   display: flex;
   flex-direction: column;
   align-items: center;
-  // 两侧留白保证提示在窄视口内不贴边溢出
-  padding: calc(fn.use-var(gap, default) + constant(safe-area-inset-top)) fn.use-var(gap, default) 0;
-  padding: calc(fn.use-var(gap, default) + env(safe-area-inset-top)) fn.use-var(gap, default) 0;
+  // 两侧留白保证提示在窄视口内不贴边溢出；顶部避让刘海安全区
+  padding: calc(#{t.use-var(spacing-md)} + constant(safe-area-inset-top)) #{t.use-var(spacing-md)} 0;
+  padding: calc(#{t.use-var(spacing-md)} + env(safe-area-inset-top)) #{t.use-var(spacing-md)} 0;
   pointer-events: none;
 }
 
@@ -27,13 +28,13 @@ $root-name: message;
   display: inline-flex;
   align-items: center;
   // 触控热区不小于 44（含可关闭提示的整条热区）
-  min-height: 44px;
+  min-height: t.use-var(touch-target);
   max-width: 100%;
-  margin-bottom: fn.use-var(gap, small);
-  padding: fn.use-var(gap, small) fn.use-var(gap, default);
-  gap: fn.use-var(gap, small);
+  margin-bottom: t.use-var(spacing-sm);
+  padding: t.use-var(spacing-sm) t.use-var(spacing-lg);
+  gap: t.use-var(spacing-sm);
   border-radius: fn.use-var(radius, large);
-  font-size: fn.use-var(font-size-main, default);
+  font-size: t.use-var(font-size-main);
   line-height: 1.5;
   box-shadow: fn.use-var(shadow, lg);
 
@@ -59,9 +60,9 @@ $root-name: message;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 44px;
-    min-height: 44px;
-    margin: calc(-1 * fn.use-var(gap, small)) calc(-1 * fn.use-var(gap, default));
+    min-width: t.use-var(touch-target);
+    min-height: t.use-var(touch-target);
+    margin: calc(-1 * #{t.use-var(spacing-sm)}) calc(-1 * #{t.use-var(spacing-lg)});
     padding: 0;
     border: none;
     background: none;

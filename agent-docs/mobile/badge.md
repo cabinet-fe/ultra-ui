@@ -94,8 +94,8 @@ export type BadgeExposed = {}
 | `color`  | `string`                                                    | —           |  否  | 任意 CSS 颜色（如 `#ff6b6b` 或 `var(--u-color-success)`）；以内联 `backgroundColor` 覆盖背景，优先级高于 `type` 的背景                |
 | `hidden` | `boolean`                                                   | `false`     |  否  | `true` 时 `v-if` 移除徽标元素，插槽内容正常显示                                                                                       |
 | `max`    | `number`                                                    | `99`        |  否  | 仅 `value` 为 `number` 时生效；`value > max` 时显示 `` `${max}+` ``                                                                   |
-| `dot`    | `boolean`                                                   | `false`     |  否  | 8×8 圆点；为 true 时徽标内容为空                                                                                                      |
-| `size`   | `'small' \| 'default' \| 'large'`                           | `'default'` |  否  | 控制字号与内边距；`small` 档高 18px、`default` 档高 22px、`large` 档高 26px                                                            |
+| `dot`    | `boolean`                                                   | `false`     |  否  | 8×8（`--um-spacing-sm`）圆点；为 true 时徽标内容为空                                                                                 |
+| `size`   | `'small' \| 'default' \| 'large'`                           | `'default'` |  否  | 控制字号与内边距，走 `--um-*` 密度 token：`small` 12px 字 / 20px 高、`default` 14px 字 / 22px 高、`large` 16px 字 / 24px 高             |
 
 插槽：默认插槽放被包裹的内容（按钮、图标、文本均可）。
 

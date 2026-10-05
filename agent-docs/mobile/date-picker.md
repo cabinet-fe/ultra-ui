@@ -1,6 +1,6 @@
 ---
 title: UDatePicker 日期选择器（@veltra/mobile 移动端）
-description: '@veltra/mobile 导出的移动端日期选择器：点击触发器弹出底部日历面板，按日 / 月 / 年三种视图选择，选中即落值并收起；绑定值支持字符串、毫秒时间戳与 Date，支持禁用日期与清除。属性与 @veltra/desktop 的 UDatePicker 同名同默认值，放进 UForm 时用 field 绑定。'
+description: '@veltra/mobile 导出的移动端日期选择器：点击触发器弹出底部日历面板，按日 / 月 / 年三种视图选择，选中即落值并收起；面板支持横向滑动翻页（左滑下一个 / 右滑上一个）并与点击翻页按钮并存；绑定值支持字符串、毫秒时间戳与 Date，支持禁用日期与清除，格子密度与字号走 --um-* 移动端 token。属性与 @veltra/desktop 的 UDatePicker 同名同默认值，放进 UForm 时用 field 绑定。'
 aliases: [date-picker, u-date-picker, DatePicker, 日期选择器, 移动端日历]
 keywords:
   [
@@ -170,7 +170,7 @@ export interface DatePickerExposed {}
 | `update:modelValue` | `string \| number \| Date \| undefined` | 面板中选中日期时按 `dataType` 提交：`'string'` → 按 `valueFormat ?? format` 格式化的字符串；`'timestamp'` → 毫秒数；`'date'` → 原生 `Date`；点击清除时为 `undefined` |
 | `change`            | `Date \| undefined`                     | 与 `update:modelValue` 同步触发；payload 始终是选中日期的原生 `Date`，清除时为 `undefined`                                                                           |
 
-组件 `ref` 无暴露成员。触发器不可键入，只能通过面板选择；选中后面板自动收起。面板打开时以当前选中值（无值则今天）定位浏览年月，翻页（上一个 / 下一个按钮）只移动浏览位置、不改动选中值。
+组件 `ref` 无暴露成员。触发器不可键入，只能通过面板选择；选中后面板自动收起。面板打开时以当前选中值（无值则今天）定位浏览年月，翻页（上一个 / 下一个按钮，或面板上横向滑动）只移动浏览位置、不改动选中值。
 
 ## 典型示例
 
@@ -260,8 +260,9 @@ const form = reactive({ birthday: '', hiredAt: undefined as number | undefined }
 > [!WARNING]
 >
 > - 移动端是**底部日历面板**（日 / 月 / 年三视图，带遮罩与上一个 / 下一个翻页按钮），桌面端是下拉面板内嵌 `UDatePanel`。
+> - 面板支持**横向滑动翻页**：在日历上左滑切到下一个、右滑切到上一个（日视图按月、月视图按年、年视图按十年），与点击翻页按钮并存；滑动翻页同样只移动浏览位置、不改动选中值。
 > - 移动端清除按钮在有值且 `clearable` 时**常显**（无 hover 概念），桌面端悬停触发器时才显示。
-> - 移动端日视图固定 6 行 42 格（含上月尾与下月头补位），无虚拟滚动；翻页步长随 `type`：日视图按月、月视图按年、年视图按十年。
+> - 移动端日视图固定 6 行 42 格（含上月尾与下月头补位），无虚拟滚动；翻页步长随 `type`：日视图按月、月视图按年、年视图按十年。月份 / 星期 / 日期格子密度与字号走 `--um-*` 移动端 token：日期格字号 `--um-font-size-main`（16px）、热区 `--um-touch-target`（≥44px）、星期头 `--um-font-size-auxiliary`（12px）。
 > - 在 `UForm` 内必须用 `field` 绑定值，禁止同时写 `v-model`；独立使用时才用 `v-model`。
 > - `label` / `field` / `rules` / `tips` / `span` 仅在 `UForm`（或 `UFormItem` 包裹）内生效；移动端 `span` 与 `tips` 不产生布局与提示效果。
 > - `valueFormat` 仅在 `dataType="string"`（默认）时生效；`dataType` 为 `'date'` / `'timestamp'` 时该属性被忽略。

@@ -32,7 +32,8 @@
 
   <!-- 底部日历面板（复用 P6 弹层基座，内部实现不进公开导出） -->
   <BottomSheet v-model:visible="sheetVisible" :title="placeholder">
-    <div :class="cls.e('panel')">
+    <!-- 横向滑动翻页（左滑下一个、右滑上一个，与点击翻页按钮并存）；prevent 阻断滚动链 -->
+    <div :class="cls.e('panel')" v-on="swipeHandlers" @touchmove.prevent>
       <header :class="cls.e('panel-header')">
         <button
           :class="cls.e('nav')"
@@ -110,6 +111,7 @@ import { FORM_EMPTY_CONTENT, injectFormContext } from '@veltra/utils'
 import { computed, shallowRef, watch } from 'vue'
 
 import { bem } from '../../shared/bem'
+import { horizontalSwipeDirection, useTouchGesture } from '../../shared/use-touch-gesture'
 import type { DatePickerEmits, DatePickerProps } from '../../types/date-picker'
 import { BottomSheet } from '../_internal/bottom-sheet'
 
@@ -227,6 +229,15 @@ function shiftPanel(step: number) {
     panelDate.value = panelDate.value.calc(step, 'years')
   }
 }
+
+/** 日历面板横滑翻页：左滑下一个、右滑上一个，与点击翻页按钮并存 */
+const swipeHandlers = useTouchGesture({
+  onEnd(state) {
+    const direction = horizontalSwipeDirection(state)
+    if (direction === 'left') shiftPanel(1)
+    else if (direction === 'right') shiftPanel(-1)
+  }
+})
 
 interface Cell {
   key: string

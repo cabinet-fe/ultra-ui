@@ -19,10 +19,17 @@ const props = defineProps<CheckTagProps>()
 const emits = defineEmits<CheckTagEmits>()
 
 const classList = computed(() => {
-  return [cls.b, bem.is('checked', props.modelValue ?? props.checked)]
+  return [
+    cls.b,
+    bem.is('checked', props.modelValue ?? props.checked),
+    bem.is('disabled', props.disabled)
+  ]
 })
 
 const handleChange = () => {
-  emits('update:modelValue', !(props.modelValue ?? props.checked))
+  if (props.disabled) return
+  const next = !(props.modelValue ?? props.checked)
+  emits('update:modelValue', next)
+  emits('change', next)
 }
 </script>

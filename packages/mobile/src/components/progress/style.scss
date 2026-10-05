@@ -1,13 +1,14 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
 @use 'pkg:@veltra/styles/vars';
+@use '../../styles/tokens' as t;
 
 // 方便拼接
 $root-name: progress;
 
-// 进度文本走 main 字号档，条形高度按字号推导以容纳内嵌百分比文本
+// 进度文本走辅助字号档，条形高度按字号推导以容纳内嵌百分比文本
 @include m.b($root-name) {
-  font-size: fn.use-var(font-size-main, small);
+  font-size: t.use-var(font-size-secondary);
 
   $bar-height: 1.4em;
 
@@ -28,10 +29,10 @@ $root-name: progress;
     @include m.flex($justify: center);
   }
 
-  // 环形进度条
+  // 环形进度条：直径兜底走 token（size 未传时），传 size 后由内联样式覆盖
   @include m.e(circle) {
-    width: 100px;
-    height: 100px;
+    width: t.use-var(progress-circle);
+    height: t.use-var(progress-circle);
     position: relative;
 
     & > svg {

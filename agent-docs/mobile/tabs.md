@@ -1,6 +1,6 @@
 ---
 title: 'UTabs 标签页（@veltra/mobile 移动端）'
-description: '@veltra/mobile 导出的标签页组件：单组件渲染标签栏 + 内容面板，position 支持 top/bottom/left/right 四向布局；溢出标签栏触屏滑动滚动（scroll-snap），活动标签自动滚入视野，标签项触控热区不小于 44px；面板用与 TabItem.key 同名的具名插槽提供，支持动态增删与 KeepAlive 保活。'
+description: '@veltra/mobile 导出的标签页组件：单组件渲染标签栏 + 内容面板，position 支持 top/bottom/left/right 四向布局；默认横向形态为下划线风格（激活项主题色 + 底部下划线），rounded 开启胶囊卡片风格；标签项按压有 :active 反馈、禁用项压暗，高度与字号走 --um-* 移动端 token（热区不小于 44px）；溢出标签栏触屏滑动滚动（scroll-snap），活动标签自动滚入视野，面板用与 TabItem.key 同名的具名插槽提供，支持动态增删与 KeepAlive 保活。'
 aliases: [UTabs, Tabs, TabPane, 页签, 选项卡, 标签栏, 移动端标签页]
 keywords:
   [
@@ -26,7 +26,7 @@ keywords:
 
 # UTabs 标签页（@veltra/mobile 移动端）
 
-`@veltra/mobile` 导出 `UTabs` 一个组件：渲染标签栏 + 内容面板，页签数据由 `items` 提供，面板内容由与 `TabItem.key` 同名的具名插槽提供；`position` 支持 `top` / `bottom` / `left` / `right` 四向布局。标签栏溢出时触屏滑动滚动，活动标签自动滚入视野。`@veltra/mobile` 只有这一个标签页组件，没有桌面端的独立水平 / 垂直标签栏子组件——只要标签栏、不含内容区的场景用本组件不传面板插槽即可。
+`@veltra/mobile` 导出 `UTabs` 一个组件：渲染标签栏 + 内容面板，页签数据由 `items` 提供，面板内容由与 `TabItem.key` 同名的具名插槽提供；`position` 支持 `top` / `bottom` / `left` / `right` 四向布局。默认横向形态是 NutUI 式**下划线风格**（透明标签栏、激活项主题色标题 + 底部下划线），`rounded` 开启胶囊卡片风格，垂直形态沿用卡片高亮。标签栏溢出时触屏滑动滚动，活动标签自动滚入视野；标签项按压有 `:active` 反馈、禁用项整体压暗。`@veltra/mobile` 只有这一个标签页组件，没有桌面端的独立水平 / 垂直标签栏子组件——只要标签栏、不含内容区的场景用本组件不传面板插槽即可。
 
 ## 快速上手
 
@@ -119,8 +119,8 @@ export interface TabsEmits {
 | `v-model`（`modelValue`） | `string`                                 | —           |  否  | 值必须是 `items` 中某项的 `key`；点击页签时写回该 `key`    |
 | `items`                   | `TabItem[]`                              | —           |  是  | 每项必须有 `key`；`name` 缺省时标题显示 `key`              |
 | `closable`                | `boolean`                                | `false`     |  否  | 组件级默认；`TabItem.closable` 优先级更高                  |
-| `block`                   | `boolean`                                | `false`     |  否  | 仅 `position` 为 `top`/`bottom` 生效；标签栏背景铺满父容器宽度，页签自身宽度不变 |
-| `rounded`                 | `boolean`                                | `false`     |  否  | 圆角胶囊风格；水平布局时容器也变胶囊，垂直布局容器保持常规圆角 |
+| `block`                   | `boolean`                                | `false`     |  否  | 仅 `position` 为 `top`/`bottom` 生效；标签栏占满父容器宽度（胶囊形态时背景同步铺满），页签自身宽度不变 |
+| `rounded`                 | `boolean`                                | `false`     |  否  | 胶囊卡片风格：标签栏带底色、激活项卡片高亮（覆盖默认下划线指示）；水平布局时容器也变胶囊，垂直布局容器保持常规圆角 |
 | `position`                | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'`     |  否  | 四向布局；`bottom` 时标签栏在内容下方                      |
 | `keepAlive`               | `boolean`                                | `false`     |  否  | `true` 时面板包在 `KeepAlive` 中，切走再切回保留内部状态   |
 | `size`                    | `'small' \| 'default' \| 'large'`        | `'default'` |  否  | 移动端未传时固定 `'default'`，不读取全局配置               |
@@ -136,11 +136,15 @@ export interface TabsEmits {
 - `close` 只通知、不改数据：组件不会从 `items` 删除该页签，也不会更新 `modelValue`，删除与切换激活页签必须在自己的 `close` 处理函数里完成。
 - 面板始终渲染在 `div.um-tabs__content` 容器内，切换时 `fade out-in` 过渡；组件未 `defineExpose` 任何方法。
 
-标签栏滚动行为（源码 `tabs.vue` + `style.scss`）：
+标签栏滚动与形态行为（源码 `tabs.vue` + `style.scss`）：
 
 - 页签总宽（高）超出标签栏时，标签栏出现溢出滚动：水平布局 `overflow-x: auto` + `scroll-snap-type: x proximity`，垂直布局 `overflow-y: auto` + `scroll-snap-type: y proximity`；滚动条隐藏，页签 `scroll-snap-align: center`。
 - 挂载时、`modelValue` 变化或 `items` 变化后，活动页签 `scrollIntoView` 平滑滚入视野：水平布局在滚动轴居中，垂直布局在纵向居中。
 - 没有桌面端的左右导航箭头按钮，也没有鼠标滚轮转横向滚动；滚动只经触屏滑动 / 触控板（移动端无指针悬停交互）。
+- 默认（水平且未开 `rounded`）为下划线风格：标签栏透明、激活项标题主题色加粗 + 底部 3px 下划线；按压非激活、非禁用页签有 `:active` 反馈（标题加深 + 浅色底）。
+- 垂直形态与 `rounded` 胶囊形态为卡片风格：标签栏带底色、激活项 `--u-bg-color-top` 底 + 阴影，无下划线。
+- 禁用页签整体压暗（`opacity: 0.5` + 禁用配色），按压无反馈。
+- 密度走 `--um-*` 移动端 token：页签字号 `--um-font-size-main`（16px）、高度 `max(--um-control-height-<size>, --um-touch-target)`（≥44px）、最小宽 `--um-touch-target`。
 
 ## 典型示例
 
@@ -248,8 +252,10 @@ const items: TabItem[] = [
 > [!WARNING]
 >
 > - 移动端是 `UTabs` 单组件四向 `position`；桌面端的独立水平 / 垂直标签栏子组件在 `@veltra/mobile` 不存在。需要纯标签栏时不传 `key` 具名插槽即可。
+> - 移动端默认横向形态是**下划线风格**（透明标签栏、激活项主题色 + 底部下划线）；需要卡片 / 胶囊观感时开 `rounded`，垂直形态始终是卡片高亮。
 > - 移动端溢出标签栏是触屏滑动滚动 + `scroll-snap` + 活动项自动滚入视野；桌面端是左右导航箭头按钮 + 鼠标滚轮横向滚动。移动端没有导航箭头。
-> - 移动端标签项触控热区不小于 44×44（`min-height: max(--u-form-component-height-<size>, 44px)`、`min-width: 44px`）；关闭按钮 `closable` 时常显（移动端无 hover），宽 44px、高度随页签拉伸。
+> - 移动端标签项按压有 `:active` 反馈（激活与禁用项除外）；标签项触控热区不小于 44×44（`min-height: max(--um-control-height-<size>, --um-touch-target)`、`min-width: --um-touch-target`），字号 `--um-font-size-main`（16px）；关闭按钮 `closable` 时常显（移动端无 hover），宽 44px、高度随页签拉伸。
+> - 禁用页签视觉明确：`opacity: 0.5` + 禁用配色 + `not-allowed` 光标，按压无任何反馈。
 > - 移动端面板内容始终包在 `div.um-tabs__content` 中；桌面端仅在插槽内容为多个根节点时才包进滚动容器，单根不包——移动端没有该滚动包装层。
 > - 移动端 `UTabs` 的默认插槽（作用域 `{ item, index }`）用于自定义标签项；桌面端 `UTabs` 的该默认插槽能力属于独立标签栏子组件，不随 `UTabs` 本体提供。
 > - 页签内容面板是具名插槽（名称 = `TabItem.key`），不是 `items` 里的 `content` 字段；本库没有 `lazy` / `label` 属性，标题用 `TabItem.name`。

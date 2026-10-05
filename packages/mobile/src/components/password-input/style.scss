@@ -1,5 +1,6 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
 $root-name: password-input;
 
@@ -11,8 +12,8 @@ $root-name: password-input;
   }
 
   @include m.e(clear, visibility-toggle) {
-    // 清除与可见性切换按钮：宽度 44px、高度撑满输入行内容盒（行高 ≥44px）
-    min-width: 44px;
+    // 清除与明文切换按钮：宽度 44px、高度撑满输入行内容盒（行高 ≥44px）
+    min-width: t.use-var('touch-target');
     align-self: stretch;
     display: inline-flex;
     align-items: center;
@@ -22,7 +23,7 @@ $root-name: password-input;
     padding: 0;
     background-color: transparent;
     color: fn.use-var(text-color, second);
-    font-size: inherit;
+    font-size: t.use-var('font-size-main');
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
 

@@ -1,7 +1,20 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
 $root-name: loading;
+
+// 指示器基准边长：走 --um-* 密度 token，各形态几何按其比例推导
+$indicator: t.use-var(loading-indicator);
+// 环形描边与内环参数（比例常量）
+$ring-border: calc(#{$indicator} / 12);
+$ring-inner-border: calc(#{$indicator} / 18);
+$ring-inner-inset: calc(#{$indicator} / 6);
+// 三点 / 竖条的单元尺寸（比例常量）
+$dot-size: calc(#{$indicator} / 4);
+$dot-gap: calc(#{$indicator} / 6);
+$bar-width: calc(#{$indicator} / 6);
+$bar-height: calc(#{$indicator} * 3 / 4);
 
 @include m.b($root-name) {
   position: absolute;
@@ -21,10 +34,10 @@ $root-name: loading;
   // ============================================================
   @include m.e(dual-ring) {
     @include m.bem($root-name, loader) {
-      width: 36px;
+      width: $indicator;
       aspect-ratio: 1;
       border-radius: 50%;
-      border: 3px solid fn.color-a(color, 22, primary);
+      border: #{$ring-border} solid fn.color-a(color, 22, primary);
       border-top-color: currentColor;
       position: relative;
       animation: um-loading-spin 0.8s linear infinite;
@@ -32,9 +45,9 @@ $root-name: loading;
       &::after {
         content: '';
         position: absolute;
-        inset: 5px;
+        inset: $ring-inner-inset;
         border-radius: 50%;
-        border: 2px solid fn.color-a(color, 22, primary);
+        border: #{$ring-inner-border} solid fn.color-a(color, 22, primary);
         border-bottom-color: currentColor;
         animation: um-loading-spin 1.2s linear infinite reverse;
       }
@@ -47,8 +60,8 @@ $root-name: loading;
   // ============================================================
   @include m.e(dot) {
     @include m.bem($root-name, loader) {
-      width: 9px;
-      height: 9px;
+      width: $dot-size;
+      height: $dot-size;
       border-radius: 50%;
       background: currentColor;
       position: relative;
@@ -59,20 +72,20 @@ $root-name: loading;
         content: '';
         position: absolute;
         top: 0;
-        width: 9px;
-        height: 9px;
+        width: $dot-size;
+        height: $dot-size;
         border-radius: 50%;
         background: currentColor;
       }
 
       &::before {
-        left: -16px;
+        left: calc(-1 * (#{$dot-size} + #{$dot-gap}));
         animation: um-loading-dot 1.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
         animation-delay: 0.18s;
       }
 
       &::after {
-        right: -16px;
+        right: calc(-1 * (#{$dot-size} + #{$dot-gap}));
         animation: um-loading-dot 1.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
         animation-delay: 0.36s;
       }
@@ -84,10 +97,10 @@ $root-name: loading;
   // ============================================================
   @include m.e(ring) {
     @include m.bem($root-name, loader) {
-      width: 36px;
+      width: $indicator;
       aspect-ratio: 1;
       border-radius: 50%;
-      border: 3px solid fn.color-a(color, 22, primary);
+      border: #{$ring-border} solid fn.color-a(color, 22, primary);
       border-top-color: currentColor;
       animation: um-loading-spin 0.9s linear infinite;
     }
@@ -99,10 +112,10 @@ $root-name: loading;
   // ============================================================
   @include m.e(bars) {
     @include m.bem($root-name, loader) {
-      width: 6px;
-      height: 26px;
+      width: $bar-width;
+      height: $bar-height;
       background: currentColor;
-      border-radius: 3px;
+      border-radius: calc(#{$bar-width} / 2);
       position: relative;
       animation: um-loading-bars 1s ease-in-out infinite;
       animation-delay: 0.15s;
@@ -113,19 +126,19 @@ $root-name: loading;
         position: absolute;
         top: 50%;
         transform: translateY(-50%);
-        width: 6px;
-        height: 26px;
+        width: $bar-width;
+        height: $bar-height;
         background: currentColor;
-        border-radius: 3px;
+        border-radius: calc(#{$bar-width} / 2);
         animation: um-loading-bars 1s ease-in-out infinite;
       }
 
       &::before {
-        left: -12px;
+        left: calc(-1 * (#{$bar-width} + #{$dot-gap}));
       }
 
       &::after {
-        right: -12px;
+        right: calc(-1 * (#{$bar-width} + #{$dot-gap}));
         animation-delay: 0.3s;
       }
     }
@@ -154,12 +167,13 @@ $root-name: loading;
   }
 }
 
+// 竖条伸缩的上下限按指示器基准推导（CSS 变量在关键帧内按动画元素解析）
 @keyframes um-loading-bars {
   0%,
   100% {
-    height: 10px;
+    height: calc(#{$indicator} / 4);
   }
   50% {
-    height: 26px;
+    height: $bar-height;
   }
 }

@@ -1,11 +1,16 @@
 <template>
   <div class="demo">
     <section>
-      <h3>基础用法</h3>
+      <h3>基础用法（行式）</h3>
       <UFormItem label="用户名">
         <UInput v-model="username" placeholder="请输入用户名" />
       </UFormItem>
-      <p class="tip">UFormItem 可脱离 UForm 单独使用，仅负责标签与布局</p>
+      <UFormItem label="手机号">
+        <UInput v-model="phone" inputmode="numeric" placeholder="请输入手机号" />
+      </UFormItem>
+      <p class="tip">
+        UFormItem 可脱离 UForm 单独使用：label 左、控件占右侧、行高约 48px、相邻行细分隔线
+      </p>
     </section>
 
     <section>
@@ -39,8 +44,11 @@
 
     <section>
       <h3>标签位置与插槽</h3>
-      <UFormItem label="备注" label-position="left" :label-width="72">
-        <UTextarea v-model="remark" placeholder="label 在左侧" />
+      <UFormItem label="备注" label-position="top">
+        <UTextarea v-model="remark" placeholder="长控件建议 label 在上方" :rows="2" />
+      </UFormItem>
+      <UFormItem label="地址" :label-width="88">
+        <UInput v-model="address" placeholder="labelWidth 固定宽对齐" />
       </UFormItem>
       <UFormItem>
         <template #label>自定义标签</template>
@@ -94,7 +102,9 @@ const cities = [
 
 const city = shallowRef<string>()
 const changeCount = shallowRef(0)
+const phone = shallowRef('')
 const remark = shallowRef('')
+const address = shallowRef('')
 const custom = shallowRef('')
 </script>
 

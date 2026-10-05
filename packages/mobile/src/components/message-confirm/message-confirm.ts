@@ -2,6 +2,7 @@ import { setStyles, zIndex } from '@veltra/utils'
 import { h, render, shallowReactive } from 'vue'
 
 import { bem } from '../../shared/bem'
+import { useScrollLock } from '../../shared/use-scroll-lock'
 import type {
   MessageConfirm,
   MessageConfirmAction,
@@ -19,6 +20,9 @@ type ConfirmItem = MessageConfirmOptions & { key: string }
 /** --- 状态管理 --- */
 let container: HTMLElement | null = null
 const confirms = shallowReactive<ConfirmItem[]>([])
+
+/** 弹层存在期间锁定 body 滚动（首个弹出锁定、最后一个关闭动画结束后解锁） */
+const { lock: lockScroll, unlock: unlockScroll } = useScrollLock()
 
 /** 关闭动画结束后的回调 */
 const closedCallbacks = new Map<string, (action: MessageConfirmAction) => void>()
@@ -44,6 +48,9 @@ const destroy = () => {
 /** 离开动画结束后的清理 */
 const handleClosed = (key: string) => {
   activeCount--
+
+  // 最后一个确认框关闭：解锁背景滚动（还原原滚动位置）
+  if (activeCount === 0) unlockScroll()
 
   const cb = closedCallbacks.get(key)
   if (cb) {
@@ -91,6 +98,9 @@ const createConfirm = (options: MessageConfirmOptions): MessageConfirmInstance =
   const { onClosed: userOnClosed, ...confirmOptions } = options
   const id = `confirm_${uid++}`
   activeCount++
+
+  // 首个确认框弹出：锁定背景滚动
+  if (activeCount === 1) lockScroll()
 
   // 生命周期 Promise
   let resolveClosed: (action: MessageConfirmAction) => void

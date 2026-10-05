@@ -87,15 +87,15 @@ export interface TextExposed {}
 | `italic`    | `boolean`                                                             | `false`     |  否  | `font-style: italic`                                                                        |
 | `highlight` | `string \| string[]`                                                  | —           |  否  | 不区分大小写、全局匹配；关键词先去首尾空格，空字符串被过滤；正则元字符自动转义，按原文写即可 |
 
-`as` 五档预设（源码 `style.scss` 固定值）：
+`as` 五档预设（字号走 `--um-*` 移动端密度 token，正文主字号 16px，标题层级靠字重区分）：
 
-| 预设         | 字号 | 字重 | 颜色 token                   |
-| ------------ | ---- | ---- | ---------------------------- |
-| `main-title` | 18px | 600  | `--u-text-color-title`       |
-| `title`      | 16px | 600  | `--u-text-color-main`        |
-| `sub-title`  | 16px | 500  | `--u-text-color-placeholder` |
-| `content`    | 14px | 300  | `--u-text-color-second`      |
-| `additional` | 12px | 300  | `--u-text-color-assist`      |
+| 预设         | 字号                             | 字重 | 颜色 token                   |
+| ------------ | -------------------------------- | ---- | ---------------------------- |
+| `main-title` | 20px（`main × 1.25`）            | 700  | `--u-text-color-title`       |
+| `title`      | 16px（`--um-font-size-main`）    | 600  | `--u-text-color-main`        |
+| `sub-title`  | 16px（`--um-font-size-main`）    | 500  | `--u-text-color-placeholder` |
+| `content`    | 16px（`--um-font-size-main`）    | 400  | `--u-text-color-second`      |
+| `additional` | 12px（`--um-font-size-auxiliary`） | 400 | `--u-text-color-assist`      |
 
 根元素固定 `margin: 0`、`line-height: 1.5`（移动端阅读密度）。
 

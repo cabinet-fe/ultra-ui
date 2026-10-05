@@ -1,6 +1,6 @@
 import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 
-/** 文本域组件属性（与 @veltra/desktop UTextarea 对齐） */
+/** 文本域组件属性（API 与 @veltra/desktop UTextarea 对齐；字号 16px、行高与内边距走移动端 token） */
 export interface TextareaProps extends FormComponentProps {
   /**
    * 文本域的值
@@ -40,7 +40,7 @@ export interface TextareaProps extends FormComponentProps {
    */
   maxlength?: number
   /**
-   * 是否显示字符数
+   * 是否显示字符数统计（当前字数/最大字数，展示在文本域右下角）
    */
   showCount?: boolean
   /**

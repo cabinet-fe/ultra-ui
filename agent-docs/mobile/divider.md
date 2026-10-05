@@ -23,7 +23,7 @@ keywords:
 
 # UDivider 分割线（@veltra/mobile 移动端）
 
-`@veltra/mobile` 导出分割线组件 `UDivider`（`packages/mobile/src/index.ts` 具名导出）：渲染一条区分相邻内容区块的分割线，根元素带 `role="separator"` 与 `aria-orientation`。水平方向可嵌套文字（默认插槽），文字支持左 / 中 / 右对齐；垂直方向是行内元素，用于一行内多个元素的间隔。没有事件、插槽属性与暴露方法。
+`@veltra/mobile` 导出分割线组件 `UDivider`（`packages/mobile/src/index.ts` 具名导出）：渲染一条区分相邻内容区块的分割线，根元素带 `role="separator"` 与 `aria-orientation`。默认插槽可嵌套文字，插槽内容不区分方向一律渲染，文字支持左 / 中 / 右对齐；垂直方向是行内元素，用于一行内多个元素的间隔。没有事件、插槽属性与暴露方法。
 
 ## 快速上手
 
@@ -54,7 +54,7 @@ export interface DividerProps {
   /** 是否为虚线，默认 false */
   dashed?: boolean
 
-  /** 嵌套文字的对齐位置，仅水平方向且默认插槽非空时生效，默认 'center' */
+  /** 嵌套文字的对齐位置，默认插槽非空时生效（不区分方向），默认 'center' */
   align?: 'left' | 'center' | 'right'
 }
 
@@ -62,15 +62,15 @@ export interface DividerProps {
 export interface DividerEmits {}
 ```
 
-默认插槽渲染嵌套文字 / 内容（仅水平方向有布局意义）；`DividerEmits` 为空，组件无事件。
+默认插槽渲染嵌套文字 / 内容（不区分方向一律渲染；垂直方向传插槽会渲染出带两侧横线的文字布局）；`DividerEmits` 为空，组件无事件。
 
 ## 参数说明
 
 | 参数        | 类型                            | 默认           | 必填 | 约束                                                          |
 | ----------- | ------------------------------- | -------------- | :--: | ------------------------------------------------------------- |
-| `direction` | `'horizontal' \| 'vertical'`    | `'horizontal'` |  否  | `vertical` 时渲染为行内元素，高 `1em`、左右边距 `--u-gap`      |
+| `direction` | `'horizontal' \| 'vertical'`    | `'horizontal'` |  否  | `vertical` 时渲染为行内元素，高 `1em`、左右边距 `--um-spacing-sm` |
 | `dashed`    | `boolean`                       | `false`        |  否  | 实线改虚线；水平与垂直、嵌套文字形态下的两侧线全部生效        |
-| `align`     | `'left' \| 'center' \| 'right'` | `'center'`     |  否  | 仅 `direction="horizontal"` 且插槽非空时生效；收窄侧线宽为 5% |
+| `align`     | `'left' \| 'center' \| 'right'` | `'center'`     |  否  | 插槽非空时生效（不区分方向）；收窄侧线宽为 5%                |
 
 ## 典型示例
 
@@ -139,16 +139,16 @@ import '@veltra/mobile/components/text/style'
 > [!WARNING]
 >
 > - 本库方向属性是 `direction`，不是 AntD 的 `type`；文字对齐属性是 `align`，不是 AntD 的 `orientation`；不支持 `orientationMargin` 与 `plain`，需要文字边距 / 弱化样式时在插槽内容或外层自行设置。
-> - 垂直分割线不渲染插槽内容布局（无嵌套文字形态）；需要带文字的分割只能用水平方向。
+> - 插槽内容不区分方向一律渲染：垂直分割线传插槽会渲染出带两侧横线的文字布局（`is-with-text` 的 `display: flex` 覆盖 `vertical` 的行内布局）；需要纯竖线做间隔时不要传插槽。
 > - 分割线颜色取 `--u-border-color`、文字取 `--u-text-color-main`；入口未调用 `loadTheme()` 时无颜色。
-> - 组件根元素是块级 `div`（垂直时为行内块），上下外边距 `--u-gap-large` 由组件样式给出，需要紧凑排布时在外层覆盖 `margin`。
+> - 组件根元素是块级 `div`（垂直时为行内块），上下外边距 `--um-spacing-lg`（16px）由组件样式给出，需要紧凑排布时在外层覆盖 `margin`。
 > - 组件样式按需引入 `@veltra/mobile/components/divider/style`，仅 `import { UDivider } from '@veltra/mobile'` 不带入样式。
 
 ## 常见问题
 
 ### 分割线上下空白过大
 
-原因：水平分割线自带上下外边距 `--u-gap-large`（light 主题 12px）。修复：在外层覆盖 `margin`：
+原因：水平分割线自带上下外边距 `--um-spacing-lg`（16px）。修复：在外层覆盖 `margin`：
 
 ```vue
 <script setup lang="ts">

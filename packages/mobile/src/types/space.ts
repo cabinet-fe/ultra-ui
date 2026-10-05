@@ -3,7 +3,7 @@ import type { ComponentSize } from '@veltra/utils'
 /** 间距容器组件属性 */
 export interface SpaceProps {
   /**
-   * 间距：档位走主题 gap token（small / default / large）；
+   * 间距：档位走 `--um-*` 间距刻度 token（small 8px / default 12px / large 16px）；
    * 数字为固定间距（px）；二元组为 [水平间距, 垂直间距]（px）。默认 'default'
    */
   size?: ComponentSize | number | [number, number]

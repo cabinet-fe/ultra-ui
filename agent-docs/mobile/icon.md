@@ -25,7 +25,7 @@ keywords:
 
 # UIcon 图标（@veltra/mobile 移动端）
 
-`@veltra/mobile` 导出图标容器 `UIcon`（`packages/mobile/src/index.ts` 具名导出）。`@veltra/icons` 包里的图标是渲染裸 `<svg>` 的 Vue SFC，本身不带尺寸样式；`UIcon` 用一个 `1em × 1em` 的行内容器包裹它们，`size` 写入 `font-size` 控制大小，颜色经 `currentColor` 继承父级 `color`。行为与桌面端 `UIcon` 一致，仅来源包不同。
+`@veltra/mobile` 导出图标容器 `UIcon`（`packages/mobile/src/index.ts` 具名导出）。`@veltra/icons` 包里的图标是渲染裸 `<svg>` 的 Vue SFC，本身不带尺寸样式；`UIcon` 用一个 `1em × 1em` 的行内容器包裹它们，`size` 写入 `font-size` 控制大小，颜色经 `currentColor` 继承父级 `color`。与桌面端的差异：移动端默认字号取 `--um-font-size-main`（16px，对齐移动端主字号体系），桌面端是 `font-size: inherit` 跟随父级。
 
 ## 快速上手
 
@@ -71,11 +71,11 @@ export interface IconExposed {}
 
 | 参数   | 类型                            | 默认 | 必填 | 约束                                                                                                                                                                               |
 | ------ | ------------------------------- | ---- | :--: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `size` | `` `${number}px` `` \| `number` | —    |  否  | 由 `withUnit(size, 'px')` 处理：`number` 与纯数字字符串追加 `px`（`:size="16"` 等价 `size="16px"`）；非纯数字字符串原样写入 `font-size`。未传时不写入内联字号，容器 `font-size: inherit`，跟随父级 |
+| `size` | `` `${number}px` `` \| `number` | —    |  否  | 由 `withUnit(size, 'px')` 处理：`number` 与纯数字字符串追加 `px`（`:size="16"` 等价 `size="16px"`）；非纯数字字符串原样写入 `font-size`。未传时容器默认 `var(--um-font-size-main, 16px)`，不再跟随父级字号 |
 
 插槽：默认插槽放 `@veltra/icons` 导出的图标组件。事件：`IconEmits` 为空。暴露：`IconExposed` 为空对象。
 
-容器根元素为 `<i class="um-icon">`：`width`/`height`/`line-height` 均为 `1em`，`inline-flex` 居中，内部 `svg` 同样被约束为 `1em × 1em`。
+容器根元素为 `<i class="um-icon">`：`width`/`height`/`line-height` 均为 `1em`，`inline-flex` 居中，内部 `svg` 同样被约束为 `1em × 1em`；默认字号 `var(--um-font-size-main, 16px)`，即默认渲染 16px 图标。
 
 ## 典型示例
 
@@ -131,13 +131,13 @@ const loading = shallowRef(true)
 <script setup lang="ts">
 import { shallowRef } from 'vue'
 import { UIcon } from '@veltra/mobile'
-import { Home, User } from '@veltra/icons/normal'
+import { HouseFilled, User } from '@veltra/icons/normal'
 import '@veltra/mobile/components/icon/style'
 
 const active = shallowRef<'home' | 'user'>('home')
 
 const items = [
-  { key: 'home', label: '首页', icon: Home },
+  { key: 'home', label: '首页', icon: HouseFilled },
   { key: 'user', label: '我的', icon: User }
 ] as const
 </script>

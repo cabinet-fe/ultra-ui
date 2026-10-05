@@ -13,7 +13,10 @@
           <p class="panel">面板 C</p>
         </template>
       </UTabs>
-      <p class="note">当前激活：{{ active }}</p>
+      <p class="note">
+        当前激活：{{ active }}。默认下划线风格：激活项主题色 + 底部下划线，按压非激活项有反馈；标签
+        B 为禁用项（压暗、不可点）。
+      </p>
     </section>
 
     <section>

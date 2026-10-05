@@ -2,7 +2,7 @@
   <div class="demo">
     <section>
       <h3>基础分段选择</h3>
-      <p class="tip">当前选中：{{ segmentValue }}</p>
+      <p class="tip">当前选中：{{ segmentValue }}；按住分段项有按压反馈</p>
       <USegment :items="items" v-model="segmentValue" block />
     </section>
 

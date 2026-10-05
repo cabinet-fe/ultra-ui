@@ -5,11 +5,16 @@ export interface CheckTagProps {
   modelValue?: boolean
 
   checked?: boolean
+
+  /** 是否禁用；禁用后点击不切换选中态、不触发任何事件 */
+  disabled?: boolean
 }
 
 /** check-tag组件定义的事件 */
 export interface CheckTagEmits {
   (e: 'update:modelValue', value: boolean): void
+
+  (e: 'change', value: boolean): void
 }
 
 /** check-tag组件暴露的属性和方法(组件内部使用) */

@@ -1,8 +1,23 @@
+@use 'sass:map';
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
 @use 'pkg:@veltra/styles/vars';
+@use '../../styles/tokens' as t;
 
 $root-name: tag;
+
+// 密度走 --um-*：小档辅助字号 / 默认档次字号 / 大档主字号；高度 = 字号 × 2（24 / 28 / 32）
+$size-font: (
+  small: font-size-auxiliary,
+  default: font-size-secondary,
+  large: font-size-main
+);
+
+$size-padding: (
+  small: spacing-xs,
+  default: spacing-sm,
+  large: spacing-md
+);
 
 // 进入缩放动画（与 desktop tag 一致）
 @keyframes um-tag-zoom-in {
@@ -43,24 +58,32 @@ $root-name: tag;
       position: absolute;
       left: 50%;
       top: 50%;
-      width: 44px;
-      height: 44px;
+      width: t.use-var(touch-target);
+      height: t.use-var(touch-target);
       transform: translate(-50%, -50%);
     }
   }
 
   @include m.size using ($size) {
-    height: var(--u-tag-#{$size});
-    font-size: fn.use-var(font-size-main, $size);
-    padding: 0 fn.use-var(gap, $size);
+    $font: t.use-var(map.get($size-font, $size));
+
+    height: calc(#{$font} * 2);
+    font-size: $font;
+    padding: 0 t.use-var(map.get($size-padding, $size));
     border-radius: fn.use-var(radius, $size);
 
     @include m.bem($root-name, icon-close) {
-      margin-left: calc(fn.use-var(gap, $size) / 2);
+      margin-left: calc(#{t.use-var(spacing-xs)} / 2);
+
+      // 视觉尺寸跟随标签档位字号（覆盖 UIcon 的 16px 默认字号）
+      &.um-icon {
+        font-size: $font;
+      }
     }
 
     @include m.is(round) {
-      border-radius: calc(var(--u-tag-#{$size}) / 2);
+      // 圆角半径 = 高度的一半 = 字号
+      border-radius: $font;
     }
   }
 

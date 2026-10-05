@@ -44,7 +44,7 @@ import '@veltra/mobile/components/button/style'
 </template>
 ```
 
-前置条件：入口已 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则档位间距的 `--u-gap-*` token 为空。组件样式按需引入 `@veltra/mobile/components/space/style`，仅导入组件不带入样式。
+前置条件：入口已 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()` 初始化配色。间距档位走 `--um-spacing-*` 密度 token（带编译期回退值，不依赖主题注入即生效）。组件样式按需引入 `@veltra/mobile/components/space/style`，仅导入组件不带入样式。
 
 ## API 签名
 
@@ -54,7 +54,7 @@ import type { ComponentSize } from '@veltra/utils'
 /** 间距容器组件属性 */
 export interface SpaceProps {
   /**
-   * 间距：档位走主题 gap token（small / default / large）；
+   * 间距：档位走 `--um-*` 间距刻度 token（small 8px / default 12px / large 16px）；
    * 数字为固定间距（px）；二元组为 [水平间距, 垂直间距]（px）。默认 'default'
    */
   size?: ComponentSize | number | [number, number]
@@ -79,7 +79,7 @@ export interface SpaceEmits {}
 
 | 参数        | 类型                                          | 默认          | 必填 | 约束                                                                   |
 | ----------- | --------------------------------------------- | ------------- | :--: | ---------------------------------------------------------------------- |
-| `size`      | `ComponentSize \| number \| [number, number]` | `'default'`   |  否  | 档位值由主题 `--u-gap-*` 决定（light 预设 6 / 8 / 12px）；数字与二元组为 px |
+| `size`      | `ComponentSize \| number \| [number, number]` | `'default'`   |  否  | 档位走 `--um-spacing-*` 密度刻度（small 8px / default 12px / large 16px，可在宿主覆盖变量）；数字与二元组为 px |
 | `direction` | `'horizontal' \| 'vertical'`                  | `'horizontal'` |  否  | `vertical` 时 `flex-direction: column`                                 |
 | `align`     | `'start' \| 'center' \| 'end' \| 'baseline'`  | `'center'`    |  否  | 对应 `align-items`；不支持 `stretch`                                   |
 | `wrap`      | `boolean`                                     | `false`       |  否  | `flex-wrap: wrap`；垂直方向下无效                                      |
@@ -171,7 +171,7 @@ import '@veltra/mobile/components/tag/style'
 > - `align` 不支持 `stretch`；需要拉伸子元素时在外层自行写 `align-items: stretch`。
 > - 根元素是 `inline-flex`：不占满父级宽度，垂直排列多行内容时给根元素设 `display: flex` 或 `width: 100%`，否则整体宽度由最宽子元素决定。
 > - `wrap` 仅水平方向生效；移动端窄屏标签流必须开 `wrap`，否则横向溢出。
-> - 档位间距依赖主题 token；数字与二元组间距不受主题影响，深浅色主题下数值不变。
+> - 档位间距走 `--um-spacing-*` 密度 token（带编译期回退，不随主题切换变化）；数字与二元组间距不受主题影响，深浅色主题下数值不变。
 > - 页面级栅格分栏不用 `USpace`；`USpace` 只做行内元素的等距排列。
 > - 组件样式按需引入 `@veltra/mobile/components/space/style`，仅 `import { USpace } from '@veltra/mobile'` 不带入样式。
 

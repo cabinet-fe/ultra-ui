@@ -6,6 +6,17 @@
     </section>
 
     <section>
+      <h3>嵌入表单行</h3>
+      <UFormItem label="姓名">
+        <UInput v-model="rowName" placeholder="行式形态：去边框占满控件区" />
+      </UFormItem>
+      <UFormItem label="金额" :label-width="88">
+        <UInput v-model="rowAmount" prefix="¥" suffix="元" />
+      </UFormItem>
+      <p class="tip">嵌入 UFormItem 后呈行式形态（透明底、占满控件区、清除热区 44px）</p>
+    </section>
+
+    <section>
       <h3>清除</h3>
       <UInput v-model="clearableText" placeholder="输入后出现清除按钮" />
       <UInput v-model="noClearText" :clearable="false" placeholder="不可清除" />
@@ -41,8 +52,9 @@
 </template>
 
 <script lang="ts" setup>
-import { UInput } from '@veltra/mobile'
+import { UFormItem, UInput } from '@veltra/mobile'
 import { shallowRef } from 'vue'
+import '@veltra/mobile/components/form-item/style'
 import '@veltra/mobile/components/input/style'
 
 const text = shallowRef('')
@@ -53,6 +65,8 @@ const domain = shallowRef('')
 const phone = shallowRef('')
 const remark = shallowRef('')
 const keyword = shallowRef('')
+const rowName = shallowRef('')
+const rowAmount = shallowRef('')
 </script>
 
 <style lang="scss" scoped>

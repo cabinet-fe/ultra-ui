@@ -18,7 +18,7 @@ keywords:
     rules,
     移动端文本域,
     字数统计,
-    剩余字数,
+    当前字数,
     自适应高度,
     清空按钮,
     iOS 缩放,
@@ -160,7 +160,7 @@ export type TextareaExposed = Record<string, never>
 | `v-model` / `modelValue` | `string`                                       | `undefined` |  否  | 双向绑定的值                                                                        |
 | `placeholder`            | `string`                                       | `'请输入'`  |  否  | —                                                                                   |
 | `maxlength`              | `number`                                       | —           |  否  | 最大字数；超出时触发 `update:modelValue` 前先截断到 `maxlength`                     |
-| `showCount`              | `boolean`                                      | `false`     |  否  | 必须同时设置 `maxlength` 才渲染计数；显示格式为「剩余字数/上限」                    |
+| `showCount`              | `boolean`                                      | `false`     |  否  | 必须同时设置 `maxlength` 才渲染计数；显示格式为「当前字数/上限」（右下角）           |
 | `autosize`               | `boolean`                                      | `false`     |  否  | `true` 时高度随内容自适应，无需再设 `height`                                        |
 | `resize`                 | `boolean`                                      | `true`      |  否  | 移动端样式固定 `resize: none`，本属性任何取值都不改变渲染                           |
 | `rows`                   | `number`                                       | 原生默认    |  否  | 原生 `rows` 属性                                                                    |
@@ -203,7 +203,7 @@ const remark = shallowRef('')
 </script>
 
 <template>
-  <!-- 计数格式是「剩余字数/上限」：输入 1 个字显示 199/200；清空按钮有值即常显 -->
+  <!-- 计数格式是「当前字数/上限」：输入 1 个字显示 1/200；清空按钮有值即常显 -->
   <u-textarea v-model="remark" :maxlength="200" show-count clearable placeholder="请输入备注" />
 </template>
 ```
@@ -261,9 +261,8 @@ const form = reactive({ description: '' })
 >
 > - 移动端是 `<textarea>` 固定 `resize: none`，任何情况下都禁止拖拽缩放（触屏没有拖拽手柄），`resize` 属性仅保留 API 兼容；桌面端默认 `resize: vertical` 可纵向拖拽。
 > - 移动端是清空按钮固定在右上角、有值 + 非禁用即常显，热区 44×44；桌面端是悬停文本域才显示。
-> - 移动端是文本域 `min-height` 取 `max(--u-form-component-height-*, 44px)` 保底 44px，桌面端最小高度直接取 token。
-> - 移动端是原生 `<textarea>` 字号 `max(--u-font-size-main-*, 16px)` 保底 16px，防止 iOS Safari 聚焦时自动缩放视口。
-> - 字数统计格式是「剩余字数/上限」，不是「已输入字数/上限」；输入 1 个字、上限 200 时显示 `199/200`。
+> - 移动端密度全部取 `--um-*` token：`min-height` 取 `max(--um-control-height-*, --um-touch-target)`（44px 保底）、圆角 `--um-control-radius-*`、原生字号 `--um-font-size-main`（16px）、行高 `--um-text-line-height`、内边距 `--um-spacing-*`。
+> - 字数统计格式是「当前字数/上限」，展示在文本域右下角，计数区占位 44px 热区且不拦截触摸；输入 1 个字、上限 200 时显示 `1/200`。
 > - `showCount` 必须与 `maxlength` 同时设置，只写 `show-count` 不显示计数。
 > - 本库的固定行数参数是 `rows`，`height` 参数在类型中声明但当前实现未使用，传了不生效。
 > - 在 `UForm` 内必须用 `field` 绑定值，禁止同时写 `v-model`；`label` / `field` / `rules` / `tips` / `span` 仅在表单内生效。
@@ -273,9 +272,9 @@ const form = reactive({ description: '' })
 
 ## 常见问题
 
-### 计数显示的数字越输越小
+### 计数想显示「剩余字数」而不是「当前字数」
 
-这不是 bug：计数显示的是剩余可输入字数（`maxlength - 当前长度`），不是已输入字数。要展示已输入字数，用 `remark.value.length` 自行渲染。
+本组件计数固定为「当前字数/上限」。要展示剩余字数，用 `maxlength - model.length` 自行渲染。
 
 ### 传了 `show-count` 但不显示计数
 

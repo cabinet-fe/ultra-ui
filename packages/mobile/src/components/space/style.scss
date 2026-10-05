@@ -1,12 +1,12 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
-@use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
 // 方便拼接
 $root-name: space;
 
 @include m.b($root-name) {
   display: inline-flex;
-  gap: fn.use-var(gap, default);
+  gap: t.use-var(spacing-md);
   align-items: center;
 
   @include m.m(vertical) {
@@ -17,13 +17,13 @@ $root-name: space;
     flex-wrap: wrap;
   }
 
-  // 间距档：走主题 gap token
+  // 间距档：走 --um-* 间距刻度 token
   @include m.m(small) {
-    gap: fn.use-var(gap, small);
+    gap: t.use-var(spacing-sm);
   }
 
   @include m.m(large) {
-    gap: fn.use-var(gap, large);
+    gap: t.use-var(spacing-lg);
   }
 
   // 交叉轴对齐

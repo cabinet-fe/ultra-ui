@@ -1,6 +1,6 @@
 ---
 title: 'USkeleton 骨架屏（@veltra/mobile 移动端）'
-description: '@veltra/mobile 导出的骨架屏组件：内容加载前渲染占位块，标题 / 段落 / 头像 / 按钮形态可组合，loading 为 false 时切换渲染插槽内的实际内容，支持胶囊圆角与呼吸动画；占位尺寸按移动端触控密度放大（头像 44px）。'
+description: '@veltra/mobile 导出的骨架屏组件：内容加载前渲染占位块，标题 / 段落 / 头像 / 按钮形态可组合，loading 为 false 时切换渲染插槽内的实际内容，支持胶囊圆角与呼吸动画；占位尺寸走 --um-* 密度 token（头像 40px 默认档）。'
 aliases: [USkeleton, Skeleton, 骨架屏, 骨架, 占位, 加载占位, 移动端骨架]
 keywords:
   [
@@ -92,11 +92,11 @@ export interface SkeletonEmits {}
 | 参数        | 类型      | 默认     | 必填 | 约束                                                          |
 | ----------- | --------- | -------- | :--: | ------------------------------------------------------------- |
 | `loading`   | `boolean` | `true`   |  否  | `true` 渲染 `.um-skeleton` 根元素；`false` 直接渲染插槽内容     |
-| `avatar`    | `boolean` | `false`  |  否  | 44px 圆形占位，位于内容左侧，始终为圆形（不受 `round` 影响）   |
-| `title`     | `boolean` | `true`   |  否  | 高 18px、宽 33% 的占位条                                      |
-| `paragraph` | `boolean` | `true`   |  否  | 高 15px 的占位条；最后一行固定宽 60% 模拟自然段落             |
+| `avatar`    | `boolean` | `false`  |  否  | 40px 圆形占位（`--um-avatar-size-default` 档），位于内容左侧，始终为圆形（不受 `round` 影响） |
+| `title`     | `boolean` | `true`   |  否  | 高 20px（主字号 + 4px）、宽 33% 的占位条                      |
+| `paragraph` | `boolean` | `true`   |  否  | 高 18px（辅助字号 + 4px）的占位条；最后一行固定宽 60% 模拟自然段落 |
 | `rows`      | `number`  | `3`      |  否  | 段落行数，取值 ≥ 1；`paragraph` 为 `false` 时无效             |
-| `button`    | `boolean` | `false`  |  否  | 宽 88px、高 `--u-form-component-height-default` 的按钮形态占位 |
+| `button`    | `boolean` | `false`  |  否  | 宽 88px（触控热区两倍）、高 `--um-control-height-default`（40px）的按钮形态占位 |
 | `round`     | `boolean` | `false`  |  否  | 标题 / 段落 / 按钮占位条圆角改为 `--u-radius-large` 胶囊形    |
 | `animated`  | `boolean` | `false`  |  否  | 占位块 1.4s 周期呼吸明暗（opacity 1 → 0.4 → 1）               |
 
@@ -111,7 +111,7 @@ import '@veltra/mobile/components/skeleton/style'
 </script>
 
 <template>
-  <!-- 卡片式占位：44px 圆形头像 + 2 行段落 -->
+  <!-- 卡片式占位：40px 圆形头像 + 2 行段落 -->
   <USkeleton avatar :rows="2" animated />
 
   <!-- 纯按钮占位：关闭标题与段落后只剩按钮块 -->
@@ -172,7 +172,7 @@ const loading = shallowRef(true)
 >
 > - 本库形态开关是扁平布尔 props（`avatar` / `title` / `paragraph` / `button` / `rows`），不是 AntD 的对象写法（`paragraph={{ rows: 4 }}`）；也没有独立的 `SkeletonButton` / `SkeletonAvatar` / `SkeletonImage` 子组件，按钮形态用 `button` prop。
 > - 动画开关叫 `animated`，不是 AntD 的 `active`。
-> - 移动端占位尺寸按触控密度放大：头像 44px（桌面端 40px）、标题高 18px（桌面端 16px）、段落高 15px（桌面端 14px）、按钮宽 88px（桌面端 80px）；布局与桌面端一致，按移动端视觉密度对齐。
+> - 移动端占位尺寸走 `--um-*` 密度 token：头像 40px（`--um-avatar-size-default` 档，桌面端 40px 同值但取桌面 token）、标题高 20px（主字号 + 4px）、段落高 18px（辅助字号 + 4px）、按钮宽 88px（触控热区两倍）× 高 40px（控件默认档）；行间距走 `--um-spacing-md`（12px）。
 > - `loading === false` 时插槽内容直接作为组件根渲染，无包裹元素；禁止给 `USkeleton` 传 `class` / `style` 等透传属性，多根形态下无法自动继承。需要限宽时套一层容器。
 > - 占位块填充色取 `--u-bg-color-hover`，标题 / 段落宽度是百分比；占位块行高与实际内容行高不一致时切换瞬间会有轻微跳动，需精确保位时按实际内容行数传 `rows`。
 > - 移动端按需样式路径是 `@veltra/mobile/components/skeleton/style`，不是 `@veltra/desktop/components/skeleton/style`。

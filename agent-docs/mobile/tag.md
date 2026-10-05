@@ -93,7 +93,7 @@ export interface TagExposed {}
 | `round`    | `boolean`                                                   | `false`     |  否  | 圆角胶囊形，圆角半径为标签高度的一半                              |
 | `dark`     | `boolean`                                                   | `false`     |  否  | 深色实底变体，文字反白                                            |
 
-三档高度取 `--u-tag-small` / `--u-tag-default` / `--u-tag-large`（light 主题 20px / 24px / 28px）。
+三档密度走 `--um-*` 移动端 token：字号 `small` 12px / `default` 14px / `large` 16px（`--um-font-size-*`），高度为字号的 2 倍（24px / 28px / 32px），内边距 4 / 8 / 12px（`--um-spacing-*`）；`round` 圆角半径等于字号（高度的一半）。
 
 插槽：默认插槽放标签文案。暴露：`TagExposed` 为空对象，无可用方法或属性。
 
@@ -171,9 +171,9 @@ import '@veltra/mobile/components/tag/style'
 </script>
 
 <template>
-  <u-tag size="small" type="info">小尺寸 20px</u-tag>
-  <u-tag size="default" type="info">默认尺寸 24px</u-tag>
-  <u-tag size="large" round type="success">大尺寸 28px</u-tag>
+  <u-tag size="small" type="info">小尺寸 24px</u-tag>
+  <u-tag size="default" type="info">默认尺寸 28px</u-tag>
+  <u-tag size="large" round type="success">大尺寸 32px</u-tag>
 </template>
 ```
 

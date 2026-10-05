@@ -85,17 +85,17 @@ export type CardExposed = {}
 | ----------- | --------------------------------- | ----------- | :--: | --------------------------------------------------------------------------------------- |
 | `width`     | `string \| number`                | —           |  否  | `320` / `'320'` 均渲染为 `320px`；`'100%'` 等非纯数字字符串原样生效。未传时撑满父容器   |
 | `integrate` | `boolean`                         | `false`     |  否  | 去掉阴影；嵌进页面已有底色或作为列表分区容器时使用                                      |
-| `size`      | `'small' \| 'default' \| 'large'` | `'default'` |  否  | 同时决定根节点字号与内边距密度，见下表                                                  |
+| `size`      | `'small' \| 'default' \| 'large'` | `'default'` |  否  | 决定内边距密度；根节点字号统一 16px（`--um-font-size-main`），见下表                     |
 
-`size` 三档实际取值（`--u-card-padding-*` 为 light 主题值，随主题变化）：
+`size` 三档内边距走 `--um-spacing-*` 移动端间距刻度（4px 基）：
 
 | `size`      | 内容内边距 | 根节点字号 |
 | ----------- | ---------- | ---------- |
-| `'small'`   | 8px        | 12px       |
-| `'default'` | 12px       | 14px       |
+| `'small'`   | 8px        | 16px       |
+| `'default'` | 12px       | 16px       |
 | `'large'`   | 16px       | 16px       |
 
-内边距 token（`--u-card-padding-*`）未定义时，回退链走主题 gap token 并抬档：`small` 档用 `--u-gap-default`、`default` 与 `large` 档用 `--u-gap-large`。
+自定义内边距仍可经组件级 token `--u-card-padding-<size>` 覆盖；未定义时取上表的 `--um-spacing-*` 回退值。
 
 卡片外观默认值（light 主题，随 `loadTheme()` 变化）：背景 `var(--u-bg-color-top)`、无边框、圆角 `var(--u-card-radius)`（`--u-radius-large`）、阴影 `var(--u-shadow-sm)`、`overflow: hidden`、`backdrop-filter: var(--u-bg-filter)`。
 
@@ -175,7 +175,7 @@ import '@veltra/mobile/components/text/style'
 
   <u-card size="large">
     <u-text as="title">large 密度</u-text>
-    <u-text>更大的内边距（16px）与字号（16px），适合首屏内容卡片。</u-text>
+    <u-text>更大的内边距（16px），字号保持 16px 正文密度，适合首屏内容卡片。</u-text>
   </u-card>
 </template>
 ```

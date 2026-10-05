@@ -6,6 +6,13 @@
     </section>
 
     <section>
+      <h3>嵌入表单行</h3>
+      <UFormItem label="密码">
+        <UPasswordInput v-model="rowPwd" placeholder="行式形态：明文切换热区 44px" />
+      </UFormItem>
+    </section>
+
+    <section>
       <h3>可清除</h3>
       <UPasswordInput v-model="clearablePwd" clearable placeholder="输入后出现清除按钮" />
     </section>
@@ -25,12 +32,14 @@
 </template>
 
 <script lang="ts" setup>
-import { UPasswordInput } from '@veltra/mobile'
+import { UFormItem, UPasswordInput } from '@veltra/mobile'
 import { shallowRef } from 'vue'
+import '@veltra/mobile/components/form-item/style'
 import '@veltra/mobile/components/password-input/style'
 
 const pwd = shallowRef('')
 const clearablePwd = shallowRef('secret')
+const rowPwd = shallowRef('')
 </script>
 
 <style lang="scss" scoped>

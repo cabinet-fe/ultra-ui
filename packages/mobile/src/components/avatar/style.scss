@@ -1,7 +1,16 @@
+@use 'sass:map';
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
 $root-name: avatar;
+
+// 尺寸档位走移动端密度 token（32 / 40 / 48），不再沿用桌面 24/32/40 表单控件高度
+$size-tier: (
+  small: avatar-size-small,
+  default: avatar-size-default,
+  large: avatar-size-large
+);
 
 @include m.b($root-name) {
   display: inline-flex;
@@ -16,9 +25,12 @@ $root-name: avatar;
   user-select: none;
 
   @include m.size using ($size) {
-    width: fn.use-var(form-component-height, $size);
-    height: fn.use-var(form-component-height, $size);
-    font-size: fn.use-var(font-size-main, $size);
+    $side: t.use-var(map.get($size-tier, $size));
+
+    width: $side;
+    height: $side;
+    // 回退文字对齐主字号体系，各档同字号，层级交给尺寸本身
+    font-size: t.use-var(font-size-main);
   }
 
   @include m.is(round) {

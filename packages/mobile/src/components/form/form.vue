@@ -1,5 +1,9 @@
 <template>
   <form ref="formRef" :class="[cls.b, bem.is('readonly', readonly)]" @submit.prevent>
+    <div v-if="props.title || $slots.header" :class="cls.e('title')">
+      <slot name="header">{{ props.title }}</slot>
+    </div>
+
     <template
       v-for="{ node, isFormItem, formItemProps, field, modelValue, renderKey } of getSlotsNodes()"
       :key="renderKey"
@@ -38,6 +42,12 @@ defineOptions({ name: 'UForm' })
 const props = withDefaults(defineProps<FormProps>(), { modifiedLabel: '变更前：' })
 
 const emit = defineEmits<FormEmits>()
+
+defineSlots<{
+  /** 分组标题插槽，优先于 title prop */
+  header?: () => any
+  default?: () => any
+}>()
 
 const cls = bem('form')
 const formItemCls = bem('form-item')

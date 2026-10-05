@@ -16,7 +16,7 @@
       ref="textareaRef"
     />
     <span v-if="props.maxlength && props.showCount" :class="cls.m('count')">
-      {{ initNum }}/{{ props.maxlength }}
+      {{ model?.length ?? 0 }}/{{ props.maxlength }}
     </span>
     <Transition name="zoom-in">
       <button
@@ -101,11 +101,6 @@ const handleInput = (e: Event) => {
     emit('update:modelValue', value)
   }
 }
-
-const initNum = computed(() => {
-  if (!props.maxlength) return 0
-  return props.maxlength - (model.value?.length ?? 0)
-})
 
 const handleClear = () => {
   model.value = ''

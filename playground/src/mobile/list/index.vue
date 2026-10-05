@@ -27,7 +27,10 @@
           {{ item.title }}
         </UListItem>
       </UList>
-      <p class="note">已选：{{ selected === null ? '未选择' : `列表项${selected}` }}</p>
+      <p class="note">
+        已选：{{ selected === null ? '未选择' : `列表项${selected}` }}；绑定 @click
+        的行自带整行按压反馈（热区 ≥44px）
+      </p>
     </section>
   </div>
 </template>

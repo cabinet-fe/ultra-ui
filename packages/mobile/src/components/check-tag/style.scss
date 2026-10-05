@@ -23,8 +23,8 @@
     border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
     color fn.use-var(transition, fast) fn.use-var(transition, ease);
 
-  // 移动端无 hover，用 :active 提供触控反馈
-  &:active {
+  // 移动端无 hover，用 :active 提供触控反馈；禁用态无按压反馈
+  &:active:not(.is-disabled) {
     background-color: fn.use-var(color, primary, light-7);
   }
 
@@ -33,8 +33,13 @@
     border-color: fn.use-var(color, primary, dark-3);
     background-color: fn.use-var(color, primary, dark-3);
 
-    &:active {
+    &:active:not(.is-disabled) {
       background-color: fn.use-var(color, primary, dark-5);
     }
+  }
+
+  @include m.is(disabled) {
+    cursor: not-allowed;
+    opacity: 0.5;
   }
 }

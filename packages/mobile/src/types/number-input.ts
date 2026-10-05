@@ -1,6 +1,6 @@
 import type { InputProps } from './input'
 
-/** 数字输入组件属性（与 @veltra/desktop UNumberInput 对齐） */
+/** 数字输入组件属性（API 与 @veltra/desktop UNumberInput 对齐；步进按钮外置右侧、44px 触控热区为移动端形态） */
 export interface NumberInputProps extends Omit<InputProps, 'modelValue'> {
   modelValue?: number
   /** 是否为货币模式 */

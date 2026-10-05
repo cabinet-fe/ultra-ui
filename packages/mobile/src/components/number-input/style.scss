@@ -1,5 +1,6 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
 $root-name: number-input;
 
@@ -7,7 +8,7 @@ $root-name: number-input;
   display: flex;
   align-items: center;
   width: 100%;
-  gap: fn.use-var(gap-small);
+  gap: t.use-var('spacing-xs');
 
   @include m.e(field) {
     flex: 1;
@@ -29,7 +30,7 @@ $root-name: number-input;
 
   @include m.e(clear) {
     // 清除按钮：宽度 44px、高度撑满输入行内容盒（行高 ≥44px）
-    min-width: 44px;
+    min-width: t.use-var('touch-target');
     align-self: stretch;
     display: inline-flex;
     align-items: center;
@@ -39,7 +40,7 @@ $root-name: number-input;
     padding: 0;
     background-color: transparent;
     color: fn.use-var(text-color, second);
-    font-size: inherit;
+    font-size: t.use-var('font-size-main');
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
 
@@ -65,15 +66,15 @@ $root-name: number-input;
     flex-shrink: 0;
 
     button {
-      width: 44px;
-      height: 44px;
+      width: t.use-var('touch-target');
+      height: t.use-var('touch-target');
       display: inline-flex;
       align-items: center;
       justify-content: center;
       border: fn.use-var(border-muted);
       background-color: fn.component-var(number-input, step-bg, fn.use-var(bg-color, middle));
       color: fn.use-var(text-color, main);
-      font-size: fn.use-var(font-size-main, default);
+      font-size: t.use-var('font-size-main');
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
       transition:
@@ -101,16 +102,16 @@ $root-name: number-input;
       }
 
       &:first-child {
-        border-radius: fn.use-var(radius, default) 0 0 fn.use-var(radius, default);
+        border-radius: t.use-var('control-radius-default') 0 0 t.use-var('control-radius-default');
       }
 
       &:last-child {
         border-left: none;
-        border-radius: 0 fn.use-var(radius, default) fn.use-var(radius, default) 0;
+        border-radius: 0 t.use-var('control-radius-default') t.use-var('control-radius-default') 0;
       }
 
       &:only-child {
-        border-radius: fn.use-var(radius, default);
+        border-radius: t.use-var('control-radius-default');
       }
     }
   }

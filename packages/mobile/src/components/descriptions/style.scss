@@ -1,15 +1,30 @@
+@use 'sass:map';
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
 $root-name: descriptions;
 
+// 小档用次字号，默认 / 大档主字号 16；行内边距走移动端间距刻度（4 / 8 / 12）
+$size-font: (
+  small: font-size-secondary,
+  default: font-size-main,
+  large: font-size-main
+);
+
+$size-row-padding: (
+  small: spacing-xs,
+  default: spacing-sm,
+  large: spacing-md
+);
+
 @include m.b($root-name) {
-  font-size: fn.use-var(font-size-main, default);
+  font-size: t.use-var(font-size-main);
   line-height: 1.6;
   color: fn.use-var(text-color, main);
 
   @include m.e(header) {
-    margin-bottom: fn.use-var(gap, default);
+    margin-bottom: t.use-var(spacing-sm);
     font-weight: 600;
     color: fn.use-var(text-color, main);
   }
@@ -24,7 +39,7 @@ $root-name: descriptions;
   @include m.e(row) {
     display: flex;
     align-items: baseline;
-    gap: fn.use-var(gap, default);
+    gap: t.use-var(spacing-md);
   }
 
   @include m.e(label) {
@@ -45,10 +60,10 @@ $root-name: descriptions;
   }
 
   @include m.size using ($size) {
-    font-size: fn.use-var(font-size, main, $size);
+    font-size: t.use-var(map.get($size-font, $size));
 
     .um-#{$root-name}__row {
-      padding: fn.use-var(gap, $size) fn.use-var(gap, default);
+      padding: t.use-var(map.get($size-row-padding, $size)) 0;
     }
   }
 
@@ -57,7 +72,7 @@ $root-name: descriptions;
     .um-#{$root-name}__row {
       flex-direction: column;
       align-items: stretch;
-      gap: fn.use-var(gap, small);
+      gap: t.use-var(spacing-sm);
     }
 
     .um-#{$root-name}__content {

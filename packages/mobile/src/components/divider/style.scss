@@ -1,5 +1,6 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
 // 方便拼接
 $root-name: divider;
@@ -10,7 +11,7 @@ $short-line-width: 5%;
 @include m.b($root-name) {
   // 水平分割线（默认形态）：单独使用时由上边框划线
   border-top: 1px solid fn.use-var(border-color);
-  margin: fn.use-var(gap, large) 0;
+  margin: t.use-var(spacing-lg) 0;
 
   // 虚线
   @include m.is(dashed) {
@@ -23,7 +24,7 @@ $short-line-width: 5%;
     border-top: none;
     border-left: 1px solid fn.use-var(border-color);
     height: 1em;
-    margin: 0 fn.use-var(gap);
+    margin: 0 t.use-var(spacing-sm);
     vertical-align: middle;
 
     @include m.is(dashed) {
@@ -36,7 +37,7 @@ $short-line-width: 5%;
     display: flex;
     align-items: center;
     border-top: none;
-    margin: fn.use-var(gap, large) 0;
+    margin: t.use-var(spacing-lg) 0;
 
     &::before,
     &::after {
@@ -46,11 +47,11 @@ $short-line-width: 5%;
     }
 
     &::before {
-      margin-right: fn.use-var(gap);
+      margin-right: t.use-var(spacing-sm);
     }
 
     &::after {
-      margin-left: fn.use-var(gap);
+      margin-left: t.use-var(spacing-sm);
     }
 
     // 虚线作用于两侧伪元素线
@@ -84,8 +85,7 @@ $short-line-width: 5%;
 
   @include m.e(text) {
     color: fn.use-var(text-color, main);
-    // 档位型 token 须带尺寸后缀；desktop 引用的 --u-font-size-main 并不存在
-    font-size: fn.use-var(font-size-main, default);
+    font-size: t.use-var(font-size-main);
     white-space: nowrap;
   }
 }

@@ -1,6 +1,6 @@
 ---
 title: 'USteps 步骤条（@veltra/mobile 移动端）'
-description: '@veltra/mobile 导出的步骤条组件：按 items 渲染线性流程，current 控制当前步（索引或 currentKey 指定的业务键），索引之前的步骤显示对勾并按 finishedStepType 着色；横向形态窄屏不压缩、溢出触屏横向滚动，步骤项触控热区不小于 44px。'
+description: '@veltra/mobile 导出的步骤条组件：按 items 渲染线性流程，current 控制当前步（索引或 currentKey 指定的业务键），索引之前的步骤显示对勾并按 finishedStepType 着色；横向形态窄屏不压缩、溢出触屏横向滚动，可点步骤项带 :active 按压高亮，图标/文案密度与字号走 --um-* 移动端 token（触控热区不小于 44px）。'
 aliases: [USteps, Steps, 步骤条, 分步条, 向导, 步骤导航, 移动端步骤]
 keywords:
   [
@@ -219,7 +219,7 @@ const items = Array.from({ length: 6 }, (_, i) => ({ label: `步骤 ${i + 1}` })
 >
 > - 移动端没有 `tip` 悬浮提示插槽（桌面端 `USteps` 有 `#tip`，悬浮圆点弹出提示）；移动端交互以触屏为主，无指针悬浮，需要补充说明时把内容写进 `#content` 插槽。
 > - 移动端横向形态窄屏不压缩步骤：每项 `min-width: 104px`（桌面端 150px），容器溢出后触屏横向滑动滚动、滚动条隐藏；桌面端不滚动、由宽度分摊压缩。
-> - 移动端步骤项触控热区 `min-height: 44px`、圆圈直径下限 40px（`max(--u-form-component-height-<size>, 40px)`）；桌面端无此触控下限。
+> - 移动端可点步骤项带 `:active` 按压高亮（无 hover 依赖）；图标/文案密度走 `--um-*` 移动端 token：步骤项热区 `--um-touch-target`（44px）、圆圈直径 `max(--um-control-height-<size>, 40px)`、序号与文案字号 `--um-font-size-main`（16px）；桌面端无按压态与触控下限。
 > - 本库步骤数据是 `items` prop 数组，不是 Element Plus 的 `<el-step>` 子组件模式。
 > - 没有每步独立的 `status`（`error` / `process` / `wait`）字段：已完成 / 当前步的配色只能整体通过 `finishedStepType` / `currentStepType` 控制，单个步骤不能单独标红。
 > - 未指定 `currentKey` 时 `current` 必须是数字索引；传业务字符串会被忽略，全部步骤渲染为已完成（这是「不传 `current` = 全部完成」的同一行为）。

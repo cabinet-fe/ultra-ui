@@ -32,6 +32,14 @@
         <span class="hint">最近操作：{{ lastAction || '无' }}</span>
       </div>
     </section>
+
+    <section>
+      <h3>背景滚动锁定</h3>
+      <div class="row">
+        <UButton size="small" @click="showLockDemo">打开确认框</UButton>
+        <span class="hint">打开期间页面不可滚动，关闭后回到原滚动位置</span>
+      </div>
+    </section>
   </div>
 </template>
 
@@ -87,6 +95,14 @@ function showWithPromise() {
       lastAction.value = action
     }
   )
+}
+
+function showLockDemo() {
+  messageConfirm({
+    title: '滚动锁定',
+    message: '确认框打开期间背景滚动被锁定，关闭后恢复原滚动位置。',
+    cancelButtonText: '取消'
+  })
 }
 </script>
 

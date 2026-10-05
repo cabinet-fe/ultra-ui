@@ -1,21 +1,45 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
 $root-name: form-item;
 
+// 嵌入控件区后呈行式形态的控件类（与 form-item 联动的表单控件名单）
+$form-controls: (
+  '.um-input',
+  '.um-number-input',
+  '.um-password-input',
+  '.um-select',
+  '.um-multi-select',
+  '.um-date-picker',
+  '.um-time-picker'
+);
+
 @include m.b($root-name) {
-  // 移动端默认标签在控件上方，纵向堆叠
+  // 列表行式：label 左、控件区占右侧剩余宽度，整行热区 ≥44px（行高 48px）
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
   width: 100%;
+  min-height: t.use-var('form-row-height');
+  padding: 0 t.use-var('spacing-lg');
+  background-color: fn.use-var(bg-color);
+
+  // 相邻行细分隔线
+  & + & {
+    border-top: fn.use-var(border-muted);
+  }
 
   @include m.e(label) {
-    padding-bottom: fn.use-var(gap, small);
-    color: fn.use-var(text-color, second);
-    font-size: fn.use-var(font-size, assist, default);
-    line-height: 1.4;
+    flex-shrink: 0;
+    // 超长 label 封顶控件区一半宽度，避免挤压输入区
+    max-width: 60%;
+    color: fn.use-var(text-color, main);
+    font-size: t.use-var('font-size-main');
+    line-height: t.use-var('text-line-height');
+    padding-right: t.use-var('spacing-md');
 
-    @include m.flex($align: flex-start);
+    @include m.flex($align: center);
 
     @include m.is(required) {
       &::before {
@@ -32,53 +56,47 @@ $root-name: form-item;
   }
 
   @include m.e(content) {
-    flex-grow: 1;
-    word-break: break-all;
     @include m.flex($wrap: wrap, $align: center);
+    width: 100%;
   }
 
-  // 错误提示按移动端密度呈现：出现时才占位，长文案允许换行
+  // 错误提示按移动端惯例展示在行内下方：出现时才占位，长文案允许换行
   @include m.e(error-text) {
     display: block;
-    margin-top: fn.use-var(gap, small);
+    margin-top: t.use-var('spacing-xs');
     color: fn.use-var(color, danger);
-    font-size: fn.use-var(font-size, assist, default);
+    font-size: t.use-var('font-size-secondary');
     line-height: 1.4;
   }
 
-  // 错误态把控件描红：is-focus 与错误态同权重，按源序分胜负，故显式列出
-  @include m.is(error) {
-    .um-input,
-    .um-textarea,
-    .um-number-input,
-    .um-password-input,
-    .um-select,
-    .um-multi-select,
-    .um-date-picker,
-    .um-time-picker {
-      &,
-      &.is-focus {
-        border-color: fn.use-var(color, danger);
-      }
-
-      &.is-focus {
-        box-shadow: fn.use-var(focus-ring, danger);
-      }
-    }
-  }
-
-  // 标签在左侧时退化为水平排列
-  @include m.is(label-left) {
-    flex-direction: row;
-    align-items: flex-start;
+  // label 在控件上方：长控件（文本域等）纵向堆叠
+  @include m.is(label-top) {
+    flex-direction: column;
+    align-items: stretch;
+    padding: t.use-var('spacing-sm') t.use-var('spacing-lg');
 
     @include m.bem($root-name, label) {
-      padding-bottom: 0;
-      padding-right: fn.use-var(gap, default);
-      text-align: right;
-      color: fn.use-var(text-color, main);
-      justify-content: flex-end;
+      max-width: none;
+      padding: 0 0 t.use-var('spacing-xs');
     }
+  }
+}
+
+// 行式嵌入态：卡片行自身就是控件容器，嵌入控件去边框、透明底、占满控件区。
+// 块级限定选择器（三层）确保覆盖控件自身尺寸档与聚焦态，不受样式引入顺序影响
+.um-form-item .um-form-item__content {
+  #{$form-controls} {
+    height: auto;
+    min-height: t.use-var('touch-target');
+    border-color: transparent;
+    background-color: transparent;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .um-number-input__step button {
+    border-color: transparent;
+    background-color: transparent;
   }
 }
 

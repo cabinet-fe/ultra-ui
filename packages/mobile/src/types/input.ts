@@ -1,7 +1,7 @@
 import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 import type { ShallowRef } from 'vue'
 
-/** 输入框组件属性（与 @veltra/desktop UInput 对齐） */
+/** 输入框组件属性（API 与 @veltra/desktop UInput 对齐；字号 16px、44px 触控热区为移动端形态） */
 export interface InputProps extends FormComponentProps {
   /** modelValue */
   modelValue?: string
@@ -11,7 +11,7 @@ export interface InputProps extends FormComponentProps {
   prefix?: string
   /** 后缀 */
   suffix?: string
-  /** 是否可清除 */
+  /** 是否可清除（移动端有值即展示清除按钮，不依赖 hover），默认 true */
   clearable?: boolean
   /** 原生只读 */
   nativeReadonly?: boolean

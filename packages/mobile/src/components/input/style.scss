@@ -1,5 +1,6 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
 $root-name: input;
 
@@ -19,19 +20,18 @@ $root-name: input;
   @include m.flex($display: inline-flex);
 
   @include m.size using ($size) {
-    // 触控热区：输入高度不小于 44px
-    $touch-size: max(fn.use-var(form-component-height, $size), 44px);
-
-    height: $touch-size;
-    border-radius: fn.use-var(radius, $size);
-    padding: 0 fn.use-var(gap, $size);
+    // 密度全部取移动端 token：高度不小于 44px 触控热区，字号 16px（iOS 聚焦防缩放）
+    height: max(t.control-height($size), t.use-var('touch-target'));
+    border-radius: t.control-radius($size);
+    padding: 0 t.use-var('spacing-md');
 
     @include m.bem($root-name, native) {
-      // iOS 聚焦字号小于 16px 会触发视口缩放，正文取值与 16px 取大
-      font-size: max(fn.use-var(font-size-main, $size), 16px);
+      font-size: t.use-var('font-size-main');
+      line-height: t.use-var('text-line-height');
     }
   }
 
+  // 聚焦态：移动端高亮惯例（主色描边 + 焦点环）
   @include m.is(focus) {
     border-color: fn.use-var(color, primary);
     box-shadow: fn.use-var(focus-ring);
@@ -61,7 +61,7 @@ $root-name: input;
   }
 
   @include m.e(prefix, suffix) {
-    font-size: inherit;
+    font-size: t.use-var('font-size-main');
     color: fn.use-var(text-color, main);
     flex-shrink: 0;
     height: 100%;
@@ -70,14 +70,14 @@ $root-name: input;
 
     // 前后缀可点击时保证 44px 宽热区
     @include m.is(clickable) {
-      min-width: 44px;
+      min-width: t.use-var('touch-target');
       cursor: pointer;
     }
   }
 
   @include m.e(clear) {
     // 清除按钮：宽度 44px、高度撑满输入行内容盒（行高 ≥44px）
-    min-width: 44px;
+    min-width: t.use-var('touch-target');
     align-self: stretch;
     border: none;
     margin: 0;
@@ -87,7 +87,7 @@ $root-name: input;
     align-items: center;
     justify-content: center;
     color: fn.use-var(text-color, second);
-    font-size: inherit;
+    font-size: t.use-var('font-size-main');
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
 

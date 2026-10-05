@@ -278,8 +278,9 @@ const form = reactive({ username: '' })
 >
 > - 移动端是清除按钮「有值 + 非禁用」即常显，桌面端是悬停输入框才显示；不需要清除时显式传 `:clearable="false"`。
 > - 移动端是 `inputmode` / `enterkeyhint` / `maxlength` 三个原生属性透传到内部 `<input>`，桌面端没有该透传机制；本组件没有控制软键盘的专门 prop，直接在标签上写这三个属性。
-> - 移动端是输入行高度 `max(--u-form-component-height-*, 44px)` 保底 44px 触控热区，桌面端高度等于 `--u-form-component-height-*`。
-> - 移动端是原生 `<input>` 字号 `max(--u-font-size-main-*, 16px)` 保底 16px，防止 iOS Safari 聚焦时自动缩放视口；桌面端字号直接取 token。
+> - 移动端密度全部取 `--um-*` token：输入行高度 `max(--um-control-height-*, --um-touch-target)`（44px 保底）、圆角 `--um-control-radius-*`、原生 `<input>` 字号 `--um-font-size-main`（16px）、内边距 `--um-spacing-md`；桌面端走 `--u-form-component-height-*` 等桌面 token。
+> - 嵌入 `UFormItem` 控件区后自动呈行式形态：去边框、透明底、占满控件区（清除/前后缀热区仍 44px）；独立使用时为带边框的盒式输入。
+> - 聚焦态为移动端高亮惯例：主色描边 + 焦点环（`--u-color-primary` / `--u-focus-ring`）。
 > - 前缀/后缀仅在绑定了 `@prefix:click` / `@suffix:click` 时获得 44px 最小宽度热区；清除按钮最小宽度 44px 且撑满输入行高度。
 > - 在 `UForm` 内必须用 `field` 绑定值，禁止同时写 `v-model`；`label` / `field` / `rules` / `tips` / `span` 仅在 `UForm`（或 `UFormItem` 包裹）内生效，独立使用时传入无效。
 > - 本库的只读分两级：`readonly` 把整个组件渲染为纯文本，`nativeReadonly` 只给原生 `<input>` 加 `readonly` 属性，两者不是一回事。
@@ -300,4 +301,4 @@ const form = reactive({ username: '' })
 
 ### iOS 上点击输入框页面发生缩放
 
-原因：原生 `<input>` 字号低于 16px 时 iOS Safari 聚焦自动放大视口。本组件已内置 `max(字号 token, 16px)` 保底；若仍复现，检查全局样式是否覆盖了输入框字号并把 16px 保底挤掉。
+原因：原生 `<input>` 字号低于 16px 时 iOS Safari 聚焦自动放大视口。本组件字号取 `--um-font-size-main`（编译期回退 16px）；若仍复现，检查全局样式是否把它覆盖到了 16px 以下。

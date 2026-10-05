@@ -74,7 +74,7 @@ export interface ProgressEmits {}
 | `type`       | `ColorType \| ((percentage: number) => ColorType)` | —                   |  是  | 枚举 `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'`；函数入参是夹紧到 0~100 后的百分比 |
 | `percentage` | `number`                                           | `0`                 |  否  | 自动夹紧到 0~100：小于 0 按 0 渲染，大于 100 按 100 渲染                                            |
 | `circle`     | `boolean`                                          | `false`             |  否  | `false` 渲染条形，`true` 渲染环形                                                                   |
-| `size`       | `number \| string`                                 | `100`（CSS 固定值） |  否  | 仅 `circle: true` 时生效；`number` 追加 `px`，字符串原样使用；不传时环形尺寸为 CSS 固定的 100px      |
+| `size`       | `number \| string`                                 | `100`（token 兜底） |  否  | 仅 `circle: true` 时生效；`number` 追加 `px`，字符串原样使用；不传时环形直径取 `--um-progress-circle` 密度 token（默认 100px）      |
 
 插槽：默认插槽，作用域 `{ percentage: number; type: ColorType }`。条形模式下插槽内容渲染在填充条内部（文字颜色为白色），环形模式下渲染在圆心；不传插槽时显示 `{{ percentage }}%`。
 
@@ -156,7 +156,7 @@ onBeforeUnmount(() => clearInterval(timer))
 > - 本库的百分比参数是 `percentage`，不是 Ant Design Progress 的 `percent`；文字始终渲染在填充条 / 圆心内，无外部文案模式。
 > - `percentage` 会被夹紧到 0~100：传入 `150` 按 `100` 渲染，传入 `-10` 按 `0` 渲染；`type` 函数收到的同样是夹紧后的值。
 > - 移动端轨道色走主题 token：条形轨道与环形轨道底色均为 `--u-bg-color-hover`，五种语义色的填充 / 环线也由 token 类上色，暗色主题自动切换；桌面端环形轨道是写死的 `#f5f8fa`，不随主题变化——跨端视觉以移动端 token 行为为准。
-> - 条形进度条高度为 `1.4em`（桌面端 `1.3em`），基准字号取 `--u-font-size-main-small` 档；宽度占满父容器（块级元素），`size` 对条形无效。
+> - 条形进度条高度为 `1.4em`（桌面端 `1.3em`），基准字号取 `--um-font-size-secondary` 辅助字号档（14px）；宽度占满父容器（块级元素），`size` 对条形无效。
 > - `ColorType` 从 `@veltra/utils` 导入，`@veltra/mobile` 未再导出该类型；写 `import type { ColorType } from '@veltra/mobile'` 会得到 `undefined` 类型导入报错。
 > - 移动端按需样式路径是 `@veltra/mobile/components/progress/style`，不是 `@veltra/desktop/components/progress/style`。
 

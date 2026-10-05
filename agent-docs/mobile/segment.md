@@ -260,7 +260,7 @@ const periodItems = [
 
 > [!WARNING]
 >
-> - 移动端是每个分段的 `min-width` / `min-height` 取 `max(--u-form-component-height-<size> - 4px, 44px)` 保底 44×44（短标签也不小于 44px 宽）；桌面端分段高度直接取 `--u-form-component-height-<size> - 4px`，无 44px 保底。
+> - 移动端每个分段的 `min-width` / `min-height` 取 `max(--um-control-height-<size> - 4px, --um-touch-target)`（视觉高度 ≥32px、触控热区保底 44×44，短标签也不小于 44px 宽），字号走 `--um-font-size-main`（16px）；桌面端分段高度直接取 `--u-form-component-height-<size> - 4px`，无 44px 保底。
 > - 移动端 `block` 形态下选项以 `flex: 1 1 0%` + `min-width: 0` 弹性均分容器宽度；桌面端 `block` 仅撑满容器。选项文案过长时标签省略号截断（`ellipsis`）。
 > - 移动端没有 hover，按压反馈走 `:active`（非激活分段浅色高亮）；桌面端反馈走 `:hover`。
 > - 本库选项数据是 `items` prop 数组（`SegmentItem`），不是 Element Plus `ElSegmented` 的 `options` prop 名，也不是 `<el-segmented-option>` 子组件模式。

@@ -60,7 +60,7 @@ export interface AvatarProps extends ComponentProps {
   alt?: string
   /** 形状，默认 'circle' */
   shape?: AvatarShape
-  /** 组件尺寸，默认 'default'（light 主题 32px；small 24px / large 40px，随主题 token） */
+  /** 组件尺寸，默认 'default'；宽高取移动端密度 token `--um-avatar-size-*`（small 32px / default 40px / large 48px） */
   size?: ComponentSize
 }
 
@@ -81,7 +81,7 @@ export type AvatarExposed = {}
 | `src`   | `string`                                   | —           |  否  | 图片地址；传后优先渲染 `img`，加载失败回退插槽内容；切换时重置失败态 |
 | `alt`   | `string`                                   | —           |  否  | 仅作 `img` 的 `alt`，不参与回退文案                                 |
 | `shape` | `'circle' \| 'round'`                      | `'circle'`  |  否  | `circle` 圆形（`border-radius: 50%`），`round` 圆角方形（`--u-radius-large`） |
-| `size`  | `'small' \| 'default' \| 'large'`          | `'default'` |  否  | 三档，宽高取 `--u-form-component-height-<size>`（light 主题 24 / 32 / 40px） |
+| `size`  | `'small' \| 'default' \| 'large'`          | `'default'` |  否  | 三档，宽高取 `--um-avatar-size-<size>`（32 / 40 / 48px，编译期回退值），不再沿用桌面 24/32/40 |
 
 插槽：默认插槽放回退内容（文字或图标）。回退容器 `white-space: nowrap`，长文本会溢出裁切，放一至两个字符。
 
@@ -157,7 +157,7 @@ const users = ['吴', '李', '张', '王']
 >
 > - 移动端不导出 `UAvatarGroup`（桌面端导出，支持 `max` 溢出收成 `+N`）；移动端头像组需求自行循环渲染，溢出 `+N` 项自行实现。
 > - 本库 `shape` 取值是 `'circle' | 'round'`，不是 Ant Design Avatar 的 `'circle' | 'square'`。
-> - `size` 只支持 `'small' | 'default' | 'large'` 三档（light 主题 24 / 32 / 40px，随主题 token），不支持数字像素尺寸。
+> - `size` 只支持 `'small' | 'default' | 'large'` 三档（移动端密度 32 / 40 / 48px，取 `--um-avatar-size-*` token，宿主可用同名 CSS 变量覆盖），不支持数字像素尺寸。
 > - 本库无 `icon` 属性：图标回退直接在默认插槽放内容（如 `<u-avatar><u-icon><User /></u-icon></u-avatar>`）。
 > - `UAvatar` 是展示组件，未绑定点击事件；需要「点头像进个人页」时自行在外层包可点击元素并保证触控热区不小于 44×44。
 > - 插槽回退内容放一至两个字符：回退容器不折行，长文本被 `overflow: hidden` 裁切。

@@ -6,13 +6,14 @@
       <div :class="cls.e('content')">{{ message }}</div>
       <div :class="cls.e('footer')">
         <UButton
-          plain
-          :class="cls.em('footer', 'btn')"
+          text
+          :class="[cls.em('footer', 'btn'), cls.em('footer', 'cancel')]"
           v-if="cancelButtonText"
           @click="emit('close', 'cancel')"
           >{{ cancelButtonText }}</UButton
         >
         <UButton
+          text
           :type="confirmButtonType"
           :class="cls.em('footer', 'btn')"
           @click="emit('close', 'confirm')"

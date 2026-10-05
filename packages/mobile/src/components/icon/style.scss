@@ -1,4 +1,5 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
+@use '../../styles/tokens' as t;
 
 @keyframes um-icon-rotating {
   0% {
@@ -16,7 +17,8 @@
   @include m.flex(inline-flex, center, center);
   position: relative;
   fill: currentColor;
-  font-size: inherit;
+  // 默认尺寸对齐移动端 16px 主字号体系；显式 size 经内联 font-size 覆盖
+  font-size: t.use-var(font-size-main);
   color: inherit;
   vertical-align: middle;
   user-select: none;

@@ -23,10 +23,24 @@ $values: (
   'control-height-small': 32px,
   'control-height-default': 40px,
   'control-height-large': 48px,
+  // 输入类控件圆角档（small / default / large）
+  'control-radius-small': 4px,
+  'control-radius-default': 6px,
+  'control-radius-large': 8px,
+  // 输入类正文行高
+  'text-line-height': 1.5,
   // 头像等组件尺寸档：整体上移的移动端密度，最小档 ≥32px
   'avatar-size-small': 32px,
   'avatar-size-default': 40px,
   'avatar-size-large': 48px,
+  // 展示组件密度基准：加载指示器边长（ring / dual-ring 直径，dot / bars 推导基准）、
+  // 环形进度兜底直径（progress 的 size 未传时生效）
+  'loading-indicator': 36px,
+  'progress-circle': 100px,
+  // 开关轨道高度档（宽度为高度两倍，手柄随轨道推导）
+  'switch-track-small': 24px,
+  'switch-track-default': 28px,
+  'switch-track-large': 32px,
   // 间距刻度（4px 基）
   'spacing-xs': 4px,
   'spacing-sm': 8px,
@@ -44,4 +58,52 @@ $values: (
   }
 
   @return var(--#{$namespace}-#{$name}, #{map.get($values, $name)});
+}
+
+// 按组件尺寸取控件高度：small / default / large → --um-control-height-*
+@function control-height($size) {
+  @return use-var(map.get(
+    (
+      small: 'control-height-small',
+      default: 'control-height-default',
+      large: 'control-height-large'
+    ),
+    $size
+  ));
+}
+
+// 按组件尺寸取输入类控件圆角：small / default / large → --um-control-radius-*
+@function control-radius($size) {
+  @return use-var(map.get(
+    (
+      small: 'control-radius-small',
+      default: 'control-radius-default',
+      large: 'control-radius-large'
+    ),
+    $size
+  ));
+}
+
+// 按组件尺寸取间距：small / default / large → --um-spacing-sm / md / lg
+@function spacing($size) {
+  @return use-var(map.get(
+    (
+      small: 'spacing-sm',
+      default: 'spacing-md',
+      large: 'spacing-lg'
+    ),
+    $size
+  ));
+}
+
+// 按组件尺寸取开关轨道高度：small / default / large → --um-switch-track-*
+@function switch-track($size) {
+  @return use-var(map.get(
+    (
+      small: 'switch-track-small',
+      default: 'switch-track-default',
+      large: 'switch-track-large'
+    ),
+    $size
+  ));
 }

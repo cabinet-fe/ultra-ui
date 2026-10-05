@@ -283,7 +283,8 @@ async function handleSubmit() {
 > - 移动端是步进按钮（`-` / `+`）外置在输入框右侧、各 44×44 触控热区，桌面端是输入框后缀内的上下箭头图标；开关步进按钮的属性都是 `step`，不是 Element `el-input-number` 的 `controls`，本库没有 `controls` 属性。
 > - 移动端是内部 `<input>` 固定 `inputmode="decimal"` 弹出数字键盘，用户传入的 `inputmode` 会被覆盖；桌面端无此设置。`enterkeyhint` / `maxlength` 等其余透传属性经内部 `UInput` 继续落到原生 `<input>` 上。
 > - 移动端是清除按钮有输入即常显，桌面端是悬停显示；清除按钮最小宽度 44px 且撑满输入行高度。
-> - 移动端输入行继承 `UInput` 的 44px 高度保底与 16px 字号保底（防 iOS 聚焦缩放）。
+> - 移动端密度取 `--um-*` token：输入行继承 `UInput` 的 `max(--um-control-height-*, --um-touch-target)` 高度与 `--um-font-size-main`（16px，防 iOS 聚焦缩放），步进按钮圆角 `--um-control-radius-default`。
+> - 嵌入 `UFormItem` 控件区后占满控件区，步进与清除按钮热区仍各 44px，步进按钮转透明形态（去边框）。
 > - `UForm` 内用 `field` 绑定 model，**禁止**再写 `v-model`，两者并用以 `v-model` 为准并产生两份状态；独立于 `UForm` 使用时才走 `v-model`。
 > - `min` / `max` 是**即时钳制**（输入越界立即改值），不产生校验提示；要「允许输入但校验报错」用 `rules` 的 `min` / `max`。
 > - `min` / `max` / `step` 作用于除以 `multiple` 后的值；`modelValue` 是乘回 `multiple` 后的实际值。

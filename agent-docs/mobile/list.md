@@ -23,7 +23,7 @@ keywords:
 
 # UList / UListItem 列表（@veltra/mobile 移动端）
 
-`@veltra/mobile` 导出列表 `UList` 与列表项 `UListItem`。`UList` 是数据驱动的：`data` 数组有几项，默认插槽就渲染几次，插槽作用域暴露 `{ item, index }`，根元素是原生 `<ul>`，不内置滚动包装。`UListItem` 渲染 `<li>` 行容器，本身没有任何属性，行高保底 44px 触控热区。
+`@veltra/mobile` 导出列表 `UList` 与列表项 `UListItem`。`UList` 是数据驱动的：`data` 数组有几项，默认插槽就渲染几次，插槽作用域暴露 `{ item, index }`，根元素是原生 `<ul>`，不内置滚动包装。`UListItem` 渲染 `<li>` 行容器，本身没有任何属性，行高保底 44px 触控热区；绑定 `@click` 即为可点行，自带整行按压反馈。
 
 ## 快速上手
 
@@ -73,11 +73,13 @@ export type ListExposed = {}
 | 参数   | 类型                              | 默认        | 必填 | 约束                                                                     |
 | ------ | --------------------------------- | ----------- | :--: | ------------------------------------------------------------------------ |
 | `data` | `Record<string, any>[]`           | —           |  是  | 数据驱动的唯一来源；每项触发一次默认插槽渲染                             |
-| `size` | `'small' \| 'default' \| 'large'` | `'default'` |  否  | 移动端未传时固定 `'default'`，不读取全局配置；影响行内边距、圆角与字号   |
+| `size` | `'small' \| 'default' \| 'large'` | `'default'` |  否  | 移动端未传时固定 `'default'`，不读取全局配置；影响行高（控件高度档）与横向内边距（间距刻度），字号恒为主字号 16px |
 
-插槽：默认插槽，作用域 `{ item: Record<string, any>, index: number }`；插槽内容就是一行的内容。`UListItem` 无属性、无事件，仅渲染 `<li>`。
+插槽：默认插槽，作用域 `{ item: Record<string, any>, index: number }`；插槽内容就是一行的内容。`UListItem` 无属性、无事件，仅渲染 `<li>`；绑定 `@click` 即视为可点行。
 
-行高触控热区：每个 `u-list-item` 的 `min-height` 为 `max(--u-form-component-height-<size>, 44px)`，三档尺寸下行可点击区域均不小于 44×44。
+密度 token：行字号取 `--um-font-size-main`（16px），行高 `min-height` 为 `max(--um-control-height-<size>, --um-touch-target)`，三档尺寸下行热区均不小于 44×44；横向内边距走 `--um-spacing-md / lg / xl`（12 / 16 / 24px）。
+
+可点行按压态：给 `u-list-item` 绑定 `@click`（或任意点击监听）时自动获得 `is-clickable` 类——移动端无 hover，点按用 `:active` 背景反馈，并去掉系统点按高亮；点击事件本身经 attrs 透传到 `<li>`，无需额外配置。
 
 ## 典型示例
 
@@ -159,7 +161,7 @@ const data = [
 > [!WARNING]
 >
 > - 移动端是原生 `<ul>` 直接承载滚动，没有桌面端的内建滚动包装层（桌面端容器默认 100% 高、自带滚动条）；移动端要滚动必须自己给列表或父容器设 `overflow-y: auto`，不设则随页面滚动。
-> - 移动端行高保底 44px 触控热区（`min-height: max(--u-form-component-height-<size>, 44px)`），桌面端无行高下限、仅按内边距撑高。
+> - 移动端行高保底 44px 触控热区（`min-height: max(--um-control-height-<size>, --um-touch-target)`，密度值走 `--um-*` token），桌面端无行高下限、仅按内边距撑高。
 > - 移动端 `size` 未传时固定 `'default'`，不读取全局尺寸配置；桌面端回退链是「自身 `size` > 全局配置 > `'default'`」。
 > - 本库是数据驱动 + 作用域插槽（`v-slot="{ item, index }"`），不是在 `UList` 默认插槽里手写 `<u-list-item v-for>`；不传 `data` 就一行都不渲染。
 > - `data` 是必填属性；空数组渲染为空白，本库不渲染空态提示——需要空态时在列表外自行用 `UEmpty` 处理。

@@ -1,5 +1,6 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
 // 方便拼接
 $root-name: message-confirm;
@@ -9,7 +10,7 @@ $root-name: message-confirm;
   inset: 0;
   box-sizing: border-box;
   // 两侧留白保证确认框在窄视口内不贴边
-  padding: fn.use-var(gap, large);
+  padding: t.use-var(spacing-lg);
   // 根元素平时即有 transition：transition-group 靠 computed transition
   // 判定有无过渡，只在过渡类上声明会读不到 → after-leave 同步触发
   transition: opacity fn.use-var(transition, normal) fn.use-var(transition, ease);
@@ -27,7 +28,8 @@ $root-name: message-confirm;
     transition: opacity fn.use-var(transition, normal) fn.use-var(transition, ease);
   }
 
-  // 居中卡片复用 dialog 形态：表层背景、大圆角、投影
+  // 居中卡片复用 dialog 形态：表层背景、大圆角、投影；
+  // 宽度上限是布局约束（非密度刻度），保持窄视口内不贴边
   @include m.e(box) {
     position: relative;
     display: flex;
@@ -35,8 +37,8 @@ $root-name: message-confirm;
     box-sizing: border-box;
     width: 100%;
     max-width: 320px;
-    padding: fn.use-var(gap, large);
-    gap: fn.use-var(gap, default);
+    padding: t.use-var(spacing-lg);
+    gap: t.use-var(spacing-md);
     border-radius: fn.use-var(radius, large);
     background-color: fn.use-var(bg-color, top);
     box-shadow: fn.use-var(shadow, lg);
@@ -46,6 +48,7 @@ $root-name: message-confirm;
   }
 
   @include m.e(header) {
+    font-size: t.use-var(font-size-main);
     font-weight: 600;
     text-align: center;
     @include m.ellipsis;
@@ -57,23 +60,39 @@ $root-name: message-confirm;
     word-break: break-word;
   }
 
+  // 移动端惯例按钮组：顶部细分隔线横贯卡片、按钮等宽铺满且以细分隔线相隔
   @include m.e(footer) {
     display: flex;
-    gap: fn.use-var(gap, default);
+    margin: t.use-var(spacing-sm) calc(-1 * #{t.use-var(spacing-lg)});
+    border-top: 1px solid fn.use-var(border-muted-color);
 
-    // 按钮等宽铺满，保证充分的触控热区
     &--btn {
       flex: 1;
+      border-radius: 0;
+      font-size: t.use-var(font-size-main);
+      font-weight: 500;
+    }
+
+    // 取消按钮：次级灰文本（确认按钮为主题色文本）
+    &--cancel {
+      color: fn.use-var(text-color, second);
+    }
+
+    &--btn + &--btn {
+      border-left: 1px solid fn.use-var(border-muted-color);
     }
   }
 
+  // 尺寸档只影响正文字号：small 用辅助档，default / large 用主字号
   @include m.size using ($size) {
-    @include m.bem($root-name, header) {
-      font-size: fn.use-var(font-size-title, $size);
+    $content-font: t.use-var(font-size-main);
+
+    @if $size == small {
+      $content-font: t.use-var(font-size-secondary);
     }
 
     @include m.bem($root-name, content) {
-      font-size: fn.use-var(font-size-main, $size);
+      font-size: $content-font;
     }
   }
 }
