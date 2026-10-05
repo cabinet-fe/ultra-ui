@@ -1,5 +1,11 @@
 # @veltra/vite
 
+## 4.0.3
+
+### Patch Changes
+
+- e1caa6c: - 组件解析表同步 @veltra/desktop 新增的 13 个通用组件（anchor / alert / rate / avatar / back-top / divider / space / skeleton / transfer / carousel / time-picker / descriptions / timeline）
+
 ## 4.0.2
 
 ### Patch Changes
