@@ -1,6 +1,6 @@
 ---
 title: 'UCheckboxGroup 复选框组（移动端）'
-description: '从 `@veltra/mobile` 导出的复选框组，用 items 渲染一组 UCheckbox 并把选中的 value 收集为数组；行距大于列距便于拇指扫选，readonly 态渲染为 UTag 标签列表；支持自定义 label/value 字段名、整组禁用、块级排列，可在 UForm 内用 field 绑定。'
+description: '从 `@veltra/mobile` 导出的复选框组，用 items 渲染一组行式 UCheckbox（左侧圆形勾选指示器、整行热区 ≥44px、行高对齐 48px）并把选中的 value 收集为数组；选项纵向排列占满整行，divider 可开行间细分隔线，readonly 态渲染为 UTag 标签列表；支持自定义 label/value 字段名、整组禁用，可在 UForm 内用 field 绑定。'
 aliases: [checkbox-group, u-checkbox-group, 移动端复选框组, 多选组, 勾选组, CheckboxGroup]
 keywords:
   [
@@ -8,7 +8,7 @@ keywords:
     items,
     labelKey,
     valueKey,
-    block,
+    divider,
     field,
     rules,
     'update:modelValue',
@@ -26,7 +26,7 @@ keywords:
 
 # UCheckboxGroup 复选框组（移动端）
 
-`@veltra/mobile` 导出 `UCheckboxGroup`。它按 `items` 渲染一组移动端 `UCheckbox`，把选中项的 `value` 收集为**数组**写入 `modelValue`；需要单个布尔勾选（同意条款、独立开关型确认）时用 `UCheckbox`（见 `agent-docs/mobile/checkbox.md`）。API 与 `@veltra/desktop` 的 `UCheckboxGroup` 同名同默认值，交互形态按触屏适配。
+`@veltra/mobile` 导出 `UCheckboxGroup`。它按 `items` 渲染一组移动端 `UCheckbox`，选项呈**列表行式**（纵向排列、每项占满整行、左侧圆形勾选指示器），把选中项的 `value` 收集为**数组**写入 `modelValue`；需要单个布尔勾选（同意条款、独立开关型确认）时用 `UCheckbox`（见 `agent-docs/mobile/checkbox.md`）。与 `@veltra/desktop` 的 `UCheckboxGroup` 同名，但移动端移除了 `block`（默认就是纵向行式）、新增 `divider`。
 
 ## 快速上手
 
@@ -103,7 +103,7 @@ export interface FormComponentProps extends ComponentProps {
   rules?: ValidateRule
 }
 
-/** 复选框组组件属性（与 @veltra/desktop UCheckboxGroup 对齐，v-model 为选中值数组） */
+/** 复选框组组件属性（移动端列表行式：选项纵向排列占满整行，v-model 为选中值数组） */
 export interface CheckboxGroupProps extends FormComponentProps {
   /** 选中项 value 组成的数组 */
   modelValue?: Array<any>
@@ -113,8 +113,8 @@ export interface CheckboxGroupProps extends FormComponentProps {
   labelKey?: string
   /** 值的 key。默认 'value'；空串按 'value' 处理；项的该字段值必须为 truthy */
   valueKey?: string
-  /** 块级显示（纵向排列）。默认 false（横向排列） */
-  block?: boolean
+  /** 选项行间细分隔线。默认 false */
+  divider?: boolean
 }
 
 /** 复选框组组件定义的事件 */
@@ -131,7 +131,7 @@ export interface CheckboxGroupEmits {
 | `items`                  | `Array<Record<string, any>>`                               | —           |  是  | 选项列表；每项必须有 `valueKey` 指向的字段，且其值必须为 truthy          |
 | `labelKey`               | `string`                                                   | `'label'`   |  否  | 选项文本字段名；空串按 `'label'` 处理                                    |
 | `valueKey`               | `string`                                                   | `'value'`   |  否  | 选项值字段名；空串按 `'value'` 处理                                      |
-| `block`                  | `boolean`                                                  | `false`     |  否  | `true` 时选项纵向排列，`false` 时横向排列                                |
+| `divider`                | `boolean`                                                  | `false`     |  否  | `true` 时选项行间显示细分隔线；行式选项始终纵向排列，无横向排列开关      |
 | `size`                   | `ComponentSize`                                            | `'default'` |  否  | `'small'` \| `'default'` \| `'large'`；未设置时继承 `<u-form>` 的 `size` |
 | `label`                  | `string`                                                   | —           |  否  | 表单标签文字；仅在 `UForm` / `UFormItem` 内生效                          |
 | `field`                  | `string`                                                   | —           |  否  | `UForm` 字段名；在 `UForm` 内必须用 `field` 绑定，禁止再写 `v-model`     |
@@ -151,7 +151,7 @@ export interface CheckboxGroupEmits {
 
 ## 典型示例
 
-### 自定义字段名与纵向排列
+### 自定义字段名与行间分隔线
 
 ```vue
 <script setup lang="ts">
@@ -169,8 +169,8 @@ const users = [
 <template>
   <u-checkbox-group v-model="checked" :items="users" label-key="name" value-key="id" />
   <!-- => 勾选「张三」后 checked 为 [1] -->
-  <u-checkbox-group v-model="checked" :items="users" label-key="name" value-key="id" block />
-  <!-- => block 时选项纵向排列 -->
+  <u-checkbox-group v-model="checked" :items="users" label-key="name" value-key="id" divider />
+  <!-- => divider 时选项行间显示细分隔线 -->
 </template>
 ```
 
@@ -242,8 +242,8 @@ const hobbyList = [
 
 > [!WARNING]
 >
-> - 移动端是选项行间距为列间距的两倍（`row-gap: gap×2`、`column-gap: gap×3`），便于拇指纵向扫选；桌面端纵横间距统一为 `gap×2`。
-> - 移动端每个选项继承 `UCheckbox` 的 44×44 最小触控热区与 20px 最小指示器；桌面端无这两条保底。
+> - 移动端选项呈**列表行式**：纵向排列、每项占满整行、行高对齐 `--um-form-row-height`（48px）、整行热区保底 `--um-touch-target`（44px）、文本 16px（`--um-font-size-main`）、左侧圆形勾选指示器；嵌入 `UFormItem` 时整组占满控件区。
+> - 桌面端仍是横向 flex-wrap 排列（纵横间距统一 `gap×2`），无 44px 热区保底；两端正交的排列开关只有移动端的 `divider`（行间细分隔线，默认关闭）。
 > - `readonly` 态渲染为 `UTag` 标签列表（虚线描边），无选中值时显示 `-`；此形态不是禁用外观的复选框。
 > - 选项的值字段（`valueKey` 指向的字段）取值必须为 truthy：`0`、`''`、`null` 无法勾选也无法回显选中状态。
 > - `modelValue` 是数组，不是单个布尔值；禁止把布尔值绑给 `UCheckboxGroup`。
@@ -277,6 +277,10 @@ const items = [
 </template>
 ```
 
-### 横向排列时选项在窄屏上挤成一团
+### 选项之间需要分隔线
 
-原因：默认横向排列（`block` 为 `false`）且选项较多。修复：传 `block` 让选项纵向排列，每个选项独占一行，保持 44px 触控热区。
+移动端选项默认纵向行式排列、行与行紧贴；需要视觉分隔时传 `divider` 打开行间细分隔线，不要自行用 CSS 给选项加边框（会与 `--u-border-muted-color` 主题 token 脱钩）：
+
+```vue
+<u-checkbox-group v-model="checked" :items="items" divider />
+```

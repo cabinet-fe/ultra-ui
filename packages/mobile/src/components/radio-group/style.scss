@@ -1,27 +1,29 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
 $root-name: radio-group;
 
 @include m.b($root-name) {
   vertical-align: middle;
-  @include m.flex($display: inline-flex, $align: center, $wrap: wrap);
+  // 列表行式：选项纵向排列，整组占满可用宽度（表单内占满控件区）
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
 
   @include m.bem(radio) {
     margin: 0;
+    display: flex;
+    min-height: t.use-var(form-row-height);
   }
 
-  @include m.size using ($size) {
-    // 移动端行间距大于列间距，便于拇指扫选
-    row-gap: calc(fn.use-var(gap, $size) * 2);
-    column-gap: calc(fn.use-var(gap, $size) * 3);
-  }
-
-  @include m.is(block) {
-    display: inline-block;
-
+  // 行间细分隔线可选
+  @include m.is(divider) {
     @include m.bem(radio) {
-      display: flex;
+      &:not(:last-of-type) {
+        border-bottom: 1px solid fn.use-var(border, muted-color);
+      }
     }
   }
 }

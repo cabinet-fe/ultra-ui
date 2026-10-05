@@ -22,7 +22,7 @@ ultra-ui/
 │   ├── ofd-core/             # @veltra/ofd-core 零依赖 OFD 解析渲染内核，不发版（打包进 desktop）
 │   ├── icons/                # @veltra/icons（vue/ 为生成物）
 │   ├── vite/                 # @veltra/vite resolver
-│   └── mobile/               # @veltra/mobile 移动端组件库（与 desktop 同 API），private 不发版
+│   └── mobile/               # @veltra/mobile 移动端组件库（同名组件为主、API 按 NutUI 惯例可分叉），private 不发版
 ├── playground/               # 预览应用 + 参考服务
 │   ├── src/                  # desktop / mobile / icons / ai / sheet 演示页
 │   └── server/               # 填报存取 + DeepSeek 代理（同端口 8787）
@@ -48,7 +48,7 @@ ultra-ui/
 | ofd-core     | `packages/ofd-core`     | 零依赖 OFD（GB/T 33190）解析渲染内核，SVG 页面输出；private 不发版，打包进 desktop         | `src/index.ts`                                                        |
 | icons        | `packages/icons`        | SVG → Vue 图标                                                                             | `src/index.ts`、`src/normal.ts`、`src/colorful.ts`                    |
 | vite         | `packages/vite`         | VeltraUIResolver 与生成组件表                                                              | `src/resolver.ts`、`src/components.gen.ts`                            |
-| mobile       | `packages/mobile`       | 移动端组件库，与 desktop 同名组件 API 对齐、移动端密度/触控适配；private、changeset ignore | `src/index.ts`                                                        |
+| mobile       | `packages/mobile`       | 移动端组件库，同名组件为主、API 按 NutUI 移动惯例允许分叉，做移动端密度/触控适配；private、changeset ignore | `src/index.ts`                                                        |
 | playground   | `playground`            | 预览 SPA（desktop / mobile 演示）+ 填报/AI 参考实现                                        | `main.ts`、`playground/server/dev.ts`                                 |
 | scripts      | `scripts`               | resolver 生成、docs 推送、release、setup-git                                               | `gen-vite-resolver.ts`、`push-docs.mjs`、`release.ts`、`setup-git.ts` |
 | agent-docs   | `agent-docs`            | 面向 docs-mcp 的检索文档，docs-gen 技能撰写、`push-docs.mjs` 推送                          | `index.md`、各包目录 `*.md`                                           |

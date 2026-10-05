@@ -1,6 +1,6 @@
 ---
 title: 'USwitch 开关（移动端）'
-description: '从 `@veltra/mobile` 导出的开关控件，绑定布尔值表示开/关状态：拨杆热区 ≥44×44、滑轨随尺寸放大（28/30/36px）、支持开/关两侧文案；可在 UForm 内用 field 绑定表单字段。'
+description: '从 `@veltra/mobile` 导出的开关控件，绑定布尔值表示开/关状态：拨杆热区 ≥44×44、轨道尺寸走 `--um-switch-track-*` 移动档（24/28/32px）、嵌入表单行时热区与 48px 行高对齐、支持开/关两侧文案；可在 UForm 内用 field 绑定表单字段。'
 aliases: [switch, u-switch, 移动端开关, 切换开关, Switch, 拨动开关]
 keywords:
   [
@@ -95,7 +95,7 @@ export interface FormComponentProps extends ComponentProps {
   rules?: ValidateRule
 }
 
-/** 开关组件属性（与 @veltra/desktop USwitch 对齐） */
+/** 开关组件属性（与 @veltra/desktop USwitch 同名；轨道/手柄尺寸走 `--um-*` 移动档） */
 export interface SwitchProps extends FormComponentProps {
   /** 开关状态。默认 false */
   modelValue?: boolean
@@ -206,8 +206,8 @@ const formData = reactive({ enabled: true, notification: false })
 
 > [!WARNING]
 >
-> - 移动端是整个 `<label>` 为拨动热区，最小 `max(--u-form-component-height-*, 44px)` 保底 44×44；桌面端热区高度直接取 `--u-form-component-height-*`，无 44px 保底。
-> - 移动端是滑轨高度取 `max(--u-switch-height-<size> × 1.5, 28px)`（small 28px / default 30px / large 36px），宽度为高度两倍；桌面端滑轨高度直接取 `--u-switch-height-<size>`（small 18px / default 20px / large 24px）。
+> - 移动端是整个 `<label>` 为拨动热区，最小 `max(--um-control-height-<size>, --um-touch-target)`（44px）保底 44×44；嵌入 `UFormItem` 控件区时热区拉满 `--um-form-row-height`（48px），与列表行式表单对齐；桌面端热区高度直接取 `--u-form-component-height-*`，无 44px 保底。
+> - 移动端轨道高度走 `--um-switch-track-<size>` 移动档（small 24px / default 28px / large 32px），宽度为高度两倍、手柄随轨道推导（轨道 − 4px）；密度不再读 `--u-switch-height-*` 桌面值。
 > - 移动端没有 hover，按压反馈走 `:active`（滑轨变色加深）；焦点环由视觉隐藏的原生 `<input>` 驱动（`:focus-visible`）。
 > - `modelValue` 是布尔值。本库没有 `activeValue` / `inactiveValue`（不是 Element Plus 的自定义开/关值）；非布尔的两态切换用 `URadioGroup`。
 > - 本库没有 `show-text` 属性：文案是否显示由 `activeText` / `inactiveText` 是否设置决定，两个属性互不依赖。
@@ -241,4 +241,4 @@ const formData = reactive({ enabled: true })
 
 ### 开关尺寸改小后点不中
 
-移动端热区有 44×44 保底，`size="small"` 只缩小滑轨（28px）不缩小热区；点不中的原因不是尺寸，而是 `disabled` / `readonly` 或事件未绑在 `@change` / `v-model` 上。
+移动端热区有 44×44 保底，`size="small"` 只缩小滑轨（24px）不缩小热区；点不中的原因不是尺寸，而是 `disabled` / `readonly` 或事件未绑在 `@change` / `v-model` 上。

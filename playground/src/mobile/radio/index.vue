@@ -1,8 +1,8 @@
 <template>
   <div class="demo">
     <section>
-      <h3>基础</h3>
-      <div class="row">
+      <h3>基础（行式，选中标记在行右）</h3>
+      <div class="list">
         <URadio v-model="picked" :value="1" label="选项一" />
         <URadio v-model="picked" :value="2" label="选项二" />
       </div>
@@ -11,7 +11,7 @@
 
     <section>
       <h3>插槽内容</h3>
-      <div class="row">
+      <div class="list">
         <URadio v-model="slotPicked" :value="'a'">插槽 A</URadio>
         <URadio v-model="slotPicked" :value="'b'">插槽 B</URadio>
       </div>
@@ -19,16 +19,16 @@
 
     <section>
       <h3>尺寸</h3>
-      <div class="row">
+      <div class="list">
         <URadio v-model="picked" :value="1" size="small">小</URadio>
-        <URadio v-model="picked" :value="1">默认</URadio>
+        <URadio v-model="picked" :value="2">默认</URadio>
         <URadio v-model="picked" :value="1" size="large">大</URadio>
       </div>
     </section>
 
     <section>
       <h3>禁用</h3>
-      <div class="row">
+      <div class="list">
         <URadio v-model="picked" :value="1" disabled>选中禁用</URadio>
         <URadio v-model="picked" :value="2" disabled>未选禁用</URadio>
       </div>
@@ -60,11 +60,10 @@ const slotPicked = shallowRef<string>('a')
   }
 }
 
-.row {
+// 行式选项按列表纵向排布，更贴近表单场景
+.list {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 12px;
+  flex-direction: column;
 }
 
 .tip {

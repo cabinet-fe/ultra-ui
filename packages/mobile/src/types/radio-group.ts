@@ -1,6 +1,6 @@
 import type { FormComponentProps } from '@veltra/utils'
 
-/** 单选框组组件属性（与 @veltra/desktop URadioGroup 对齐） */
+/** 单选框组组件属性（移动端列表行式：选项纵向排列占满整行，选中标记在行右侧） */
 export interface RadioGroupProps extends FormComponentProps {
   /** 值 */
   modelValue?: any
@@ -20,8 +20,8 @@ export interface RadioGroupProps extends FormComponentProps {
   disabled?: boolean
   /** 禁用的选项 */
   disabledItem?: (item: Record<string, any>) => boolean
-  /** 块级布局 */
-  block?: boolean
+  /** 选项行间细分隔线。默认 false */
+  divider?: boolean
 }
 
 /** 单选框组组件定义的事件 */

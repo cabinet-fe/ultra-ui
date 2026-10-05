@@ -1,6 +1,6 @@
 ---
 title: 'URadioGroup 单选框组（移动端）'
-description: '从 `@veltra/mobile` 导出的单选框组，用 items 渲染一组 URadio 并把选中项的 value 写入 modelValue；行距大于列距便于拇指扫选，支持按项禁用、整组禁用、块级排列，可在 UForm 内用 field 绑定表单字段。'
+description: '从 `@veltra/mobile` 导出的单选框组，用 items 渲染一组行式 URadio（文本在左、圆形选中标记在行右、整行热区 ≥44px、行高对齐 48px）并把选中项的 value 写入 modelValue；选项纵向排列占满整行，divider 可开行间细分隔线，支持按项禁用、整组禁用，可在 UForm 内用 field 绑定表单字段。'
 aliases: [radio-group, u-radio-group, 移动端单选框组, 选项组, 单选按钮组, RadioGroup]
 keywords:
   [
@@ -9,7 +9,7 @@ keywords:
     labelKey,
     valueKey,
     disabledItem,
-    block,
+    divider,
     change,
     field,
     rules,
@@ -25,7 +25,7 @@ keywords:
 
 # URadioGroup 单选框组（移动端）
 
-`@veltra/mobile` 导出 `URadioGroup`。它按 `items` 渲染一组移动端 `URadio`，选中项的 `value` 写入 `modelValue`（单值，不是数组）；单个单选框的自定义布局用 `URadio`（见 `agent-docs/mobile/radio.md`），表单和常规选项组一律用 `URadioGroup`。API 与 `@veltra/desktop` 的 `URadioGroup` 同名同默认值，交互形态按触屏适配。
+`@veltra/mobile` 导出 `URadioGroup`。它按 `items` 渲染一组移动端 `URadio`，选项呈**列表行式**（纵向排列、每项占满整行、文本在左、圆形选中标记在行右），选中项的 `value` 写入 `modelValue`（单值，不是数组）；单个单选框的自定义布局用 `URadio`（见 `agent-docs/mobile/radio.md`），表单和常规选项组一律用 `URadioGroup`。与 `@veltra/desktop` 的 `URadioGroup` 同名，但移动端移除了 `block`（默认就是纵向行式）、新增 `divider`。
 
 ## 快速上手
 
@@ -105,7 +105,7 @@ export interface FormComponentProps extends ComponentProps {
   rules?: ValidateRule
 }
 
-/** 单选框组组件属性（与 @veltra/desktop URadioGroup 对齐） */
+/** 单选框组组件属性（移动端列表行式：选项纵向排列占满整行，选中标记在行右侧） */
 export interface RadioGroupProps extends FormComponentProps {
   /** 绑定值，等于选中项的 value */
   modelValue?: any
@@ -117,10 +117,10 @@ export interface RadioGroupProps extends FormComponentProps {
   labelKey?: string
   /** 整组禁用 */
   disabled?: boolean
-  /** 按项禁用：返回 true 的项被禁用 */
+  /** 禁用的选项：返回 true 的项被禁用 */
   disabledItem?: (item: Record<string, any>) => boolean
-  /** 块级布局（纵向排列）。默认 false（横向排列） */
-  block?: boolean
+  /** 选项行间细分隔线。默认 false */
+  divider?: boolean
 }
 
 /** 单选框组组件定义的事件 */
@@ -142,7 +142,7 @@ export interface RadioGroupEmits {
 | `labelKey`               | `string`                                                   | `'label'`   |  否  | 选项文本字段名；空串按 `'label'` 处理                                    |
 | `disabled`               | `boolean`                                                  | `false`     |  否  | 整组禁用；未设置时继承 `<u-form>` 的 `disabled`                          |
 | `disabledItem`           | `(item: Record<string, any>) => boolean`                   | —           |  否  | 按项禁用；与 `disabled` 同时设置时两项任一为真即禁用                     |
-| `block`                  | `boolean`                                                  | `false`     |  否  | `true` 时选项纵向排列，`false` 时横向排列                                |
+| `divider`                | `boolean`                                                  | `false`     |  否  | `true` 时选项行间显示细分隔线；行式选项始终纵向排列，无横向排列开关      |
 | `size`                   | `ComponentSize`                                            | `'default'` |  否  | `'small'` \| `'default'` \| `'large'`；未设置时继承 `<u-form>` 的 `size` |
 | `label`                  | `string`                                                   | —           |  否  | 表单标签文字；仅在 `UForm` / `UFormItem` 内生效                          |
 | `field`                  | `string`                                                   | —           |  否  | `UForm` 字段名；在 `UForm` 内必须用 `field` 绑定，禁止再写 `v-model`     |
@@ -162,7 +162,7 @@ export interface RadioGroupEmits {
 
 ## 典型示例
 
-### 自定义字段名、按项禁用与纵向排列
+### 自定义字段名、按项禁用与行间分隔线
 
 ```vue
 <script setup lang="ts">
@@ -189,10 +189,10 @@ function handleChange(item: Record<string, any>) {
     label-key="name"
     value-key="id"
     :disabled-item="(item) => item.id === 3"
-    block
+    divider
     @change="handleChange"
   />
-  <!-- => 「王五」被禁用；点选「李四」后 selected 为 2，change 收到整个 { name: '李四', id: 2 } -->
+  <!-- => 「王五」被禁用；divider 打开行间分隔线；点选「李四」后 selected 为 2，change 收到整个 { name: '李四', id: 2 } -->
 </template>
 ```
 
@@ -245,8 +245,8 @@ const items = [
 
 > [!WARNING]
 >
-> - 移动端是选项行间距为列间距的两倍（`row-gap: gap×2`、`column-gap: gap×3`），便于拇指纵向扫选；桌面端只有列间距（`gap×2`）、无行间距。
-> - 移动端每个选项继承 `URadio` 的 44×44 最小触控热区与 20px 最小指示器；桌面端无这两条保底。
+> - 移动端选项呈**列表行式**：纵向排列、每项占满整行、行高对齐 `--um-form-row-height`（48px）、整行热区保底 `--um-touch-target`（44px）、文本 16px（`--um-font-size-main`）、圆形选中标记在行右；嵌入 `UFormItem` 时整组占满控件区。
+> - 桌面端仍是横向排列（列间距 `gap×2`、无行间距），无 44px 热区保底；两端正交的排列开关只有移动端的 `divider`（行间细分隔线，默认关闭）。
 > - `modelValue` 是单值（选中项的 `value`），不是数组；收集多个值用 `UCheckboxGroup`。
 > - 本库 `change` 事件的 payload 是**完整选项对象**，不是 value；取值用 `item[valueKey]`。
 > - 选中判定是全等：`modelValue` 与 `valueKey` 字段值类型不一致（如 `'1'` 与 `1`）时无法回显选中。
@@ -278,6 +278,10 @@ const items = [
 </template>
 ```
 
-### 横向排列时选项在窄屏上挤成一团
+### 选项之间需要分隔线
 
-原因：默认横向排列（`block` 为 `false`）且选项较多。修复：传 `block` 让选项纵向排列，保持 44px 触控热区。
+移动端选项默认纵向行式排列、行与行紧贴；需要视觉分隔时传 `divider` 打开行间细分隔线，不要自行用 CSS 给选项加边框（会与 `--u-border-muted-color` 主题 token 脱钩）：
+
+```vue
+<u-radio-group v-model="selected" :items="items" divider />
+```

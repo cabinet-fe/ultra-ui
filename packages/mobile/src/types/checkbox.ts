@@ -1,6 +1,6 @@
 import type { FormComponentProps } from '@veltra/utils'
 
-/** 复选框组件属性（与 @veltra/desktop UCheckbox 对齐） */
+/** 复选框组件属性（与 @veltra/desktop UCheckbox 同名；呈移动端列表行式选项形态） */
 export interface CheckboxProps extends FormComponentProps {
   /** 部分选中 */
   indeterminate?: boolean

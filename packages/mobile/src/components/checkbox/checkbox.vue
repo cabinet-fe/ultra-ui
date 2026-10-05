@@ -8,7 +8,7 @@
       @click="handleInput"
     />
 
-    <span :class="cls.e('wrap')">
+    <span :class="cls.e('indicator')">
       <transition name="zoom-in" mode="out-in">
         <svg viewBox="0 0 64 64" v-if="checked" fill="currentColor">
           <path

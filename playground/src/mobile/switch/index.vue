@@ -46,18 +46,28 @@
         <span>切换 {{ changed }} 次</span>
       </div>
     </section>
+
+    <section>
+      <h3>表单行内</h3>
+      <UForm :model="form">
+        <USwitch label="消息推送" field="push" />
+        <USwitch label="仅 Wi-Fi 下载" field="wifiOnly" />
+      </UForm>
+    </section>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { USwitch } from '@veltra/mobile'
-import { shallowRef } from 'vue'
+import { UForm, USwitch } from '@veltra/mobile'
+import { reactive, shallowRef } from 'vue'
+import '@veltra/mobile/components/form/style'
 import '@veltra/mobile/components/switch/style'
 
 const on = shallowRef(true)
 const textOn = shallowRef(false)
 const eventOn = shallowRef(false)
 const changed = shallowRef(0)
+const form = reactive({ push: true, wifiOnly: false })
 </script>
 
 <style lang="scss" scoped>

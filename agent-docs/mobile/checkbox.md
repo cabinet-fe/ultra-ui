@@ -1,6 +1,6 @@
 ---
 title: 'UCheckbox 复选框（移动端）'
-description: '从 `@veltra/mobile` 导出的复选框，为单个布尔勾选提供独立绑定：整个 label 是 ≥44×44 触控热区、指示器最小 20px、支持半选状态；可在 UForm 内用 field 绑定表单字段。移动端只导出 UCheckbox，没有按钮形态。'
+description: '从 `@veltra/mobile` 导出的复选框，为单个布尔勾选提供独立绑定：列表行式选项形态（左侧圆形勾选指示器 + 16px 文本、整行 ≥44px 触控热区、按压整行反馈）、支持半选状态；嵌入 UFormItem 时占满控件区。可在 UForm 内用 field 绑定表单字段。移动端只导出 UCheckbox，没有按钮形态。'
 aliases: [checkbox, u-checkbox, 移动端复选框, 勾选框, 多选框, Checkbox]
 keywords:
   [
@@ -25,7 +25,7 @@ keywords:
 
 # UCheckbox 复选框（移动端）
 
-`@veltra/mobile` 导出复选框 `UCheckbox`。它绑定一个布尔值，表示**单个**选项的勾选状态；需要把多个选项收集成一个值数组时用 `UCheckboxGroup`（见 `agent-docs/mobile/checkbox-group.md`）。API 与 `@veltra/desktop` 的 `UCheckbox` 同名同默认值，交互形态按触屏适配。
+`@veltra/mobile` 导出复选框 `UCheckbox`。它绑定一个布尔值，表示**单个**选项的勾选状态，呈移动端列表行式选项形态（左侧圆形勾选指示器 + 右侧文本）；需要把多个选项收集成一个值数组时用 `UCheckboxGroup`（见 `agent-docs/mobile/checkbox-group.md`）。API 与 `@veltra/desktop` 的 `UCheckbox` 同名同默认值，交互形态按触屏适配。
 
 ## 快速上手
 
@@ -98,7 +98,7 @@ export interface FormComponentProps extends ComponentProps {
   rules?: ValidateRule
 }
 
-/** 复选框组件属性（与 @veltra/desktop UCheckbox 对齐） */
+/** 复选框组件属性（与 @veltra/desktop UCheckbox 同名；呈移动端列表行式选项形态） */
 export interface CheckboxProps extends FormComponentProps {
   /** 部分选中（半选）。仅影响样式，不改写 modelValue。默认 false */
   indeterminate?: boolean
@@ -217,9 +217,9 @@ const formData = reactive({ remember: false })
 
 > [!WARNING]
 >
-> - 移动端是整个 `<label>`（含文本）为触控热区，最小 `max(--u-form-component-height-*, 44px)` 保底 44×44；桌面端热区高度直接取 `--u-form-component-height-*`，无 44px 保底。
-> - 移动端是指示器（方框）边长取 `max(组件高度 / 2, 20px)` 保底 20px、标签字号保底 14px；桌面端指示器是组件高度的一半、无字号下限。
-> - 移动端没有 hover，按压反馈走 `:active`（边框变主色）；焦点环由视觉隐藏的原生 `<input>` 驱动（`:focus-visible`）。
+> - 移动端是整个 `<label>`（含文本）为触控热区，最小 `max(--um-control-height-<size>, --um-touch-target)`（44px）保底 44×44；嵌入 `UFormItem` 控件区时占满整行、热区对齐 `--um-form-row-height`（48px）；桌面端热区高度直接取 `--u-form-component-height-*`，无 44px 保底。
+> - 移动端指示器是**圆形**勾选框（移动端惯例），边长取 `max(--um-control-height-<size> / 2, 20px)` 保底 20px；文本字号走 `--um-font-size-main`（16px）。
+> - 移动端没有 hover，按压反馈走 `:active`（整行浅灰底色 + 指示器边框变主色）；焦点环由视觉隐藏的原生 `<input>` 驱动（`:focus-visible`）。
 > - `@veltra/mobile` 只导出 `UCheckbox`，不导出 `@veltra/desktop` 的 `UCheckboxButton`（按钮形态复选框）；需要按钮式多选用 `UCheckTag`。
 > - `modelValue` 是布尔值。本库没有 `trueValue` / `falseValue` 配置（不是 Element Plus 的 `true-label` / `false-label`）；勾选后要收集业务值时用 `UCheckboxGroup`。
 > - `indeterminate` 只是样式，不会改写 `modelValue`，全选逻辑必须自行计算。

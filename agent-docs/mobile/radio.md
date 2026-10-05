@@ -1,6 +1,6 @@
 ---
 title: 'URadio 单选框（移动端）'
-description: '从 `@veltra/mobile` 导出的单选框：多个 URadio 共享同一个 modelValue 并用 value 区分选项，选中项即 modelValue 的值；整个 label 是 ≥44×44 触控热区、指示器最小 20px。表单里的一组单选用 URadioGroup。'
+description: '从 `@veltra/mobile` 导出的单选框：多个 URadio 共享同一个 modelValue 并用 value 区分选项，选中项即 modelValue 的值；列表行式选项形态（文本在左、圆形选中标记在行右、整行 ≥44px 触控热区、16px 文本）。表单里的一组单选用 URadioGroup。'
 aliases: [radio, u-radio, 移动端单选框, 单选按钮, Radio, 选项框]
 keywords:
   [
@@ -22,7 +22,7 @@ keywords:
 
 # URadio 单选框（移动端）
 
-`@veltra/mobile` 导出单选框 `URadio`。多个 `URadio` 绑定同一个 `modelValue`（`any` 类型），点选某项后 `modelValue` 等于该项的 `value`；选中判定为 `modelValue === value`。渲染一组选项时用 `URadioGroup`（见 `agent-docs/mobile/radio-group.md`）。API 与 `@veltra/desktop` 的 `URadio` 同名同默认值，交互形态按触屏适配。
+`@veltra/mobile` 导出单选框 `URadio`。多个 `URadio` 绑定同一个 `modelValue`（`any` 类型），点选某项后 `modelValue` 等于该项的 `value`；选中判定为 `modelValue === value`。移动端呈列表行式选项形态：文本在左、圆形选中标记在行右。渲染一组选项时用 `URadioGroup`（见 `agent-docs/mobile/radio-group.md`）。API 与 `@veltra/desktop` 的 `URadio` 同名同默认值，交互形态按触屏适配。
 
 ## 快速上手
 
@@ -95,7 +95,7 @@ export interface FormComponentProps extends ComponentProps {
   rules?: ValidateRule
 }
 
-/** 单选框组件属性（与 @veltra/desktop URadio 对齐） */
+/** 单选框组件属性（与 @veltra/desktop URadio 同名；呈移动端列表行式选项形态，选中标记在行右侧） */
 export interface RadioProps extends FormComponentProps {
   /** 该选项的值，选中后写入 modelValue。任意类型，须在同级选项中唯一 */
   value?: any
@@ -218,9 +218,9 @@ const genderList = [
 
 > [!WARNING]
 >
-> - 移动端是整个 `<label>`（含文本）为触控热区，最小 `max(--u-form-component-height-*, 44px)` 保底 44×44；桌面端热区高度直接取 `--u-form-component-height-*`，无 44px 保底。
-> - 移动端是指示器（圆圈外框）边长取 `max(组件高度 / 2, 20px)` 保底 20px、标签字号保底 14px；桌面端指示器是组件高度的一半、无字号下限。
-> - 移动端没有 hover，按压反馈走 `:active`（边框变主色）；焦点环由视觉隐藏的原生 `<input>` 驱动（`:focus-visible`）。
+> - 移动端是整个 `<label>`（含文本）为触控热区，最小 `max(--um-control-height-<size>, --um-touch-target)`（44px）保底 44×44；嵌入 `UFormItem` 控件区时占满整行、热区对齐 `--um-form-row-height`（48px）；桌面端热区高度直接取 `--u-form-component-height-*`，无 44px 保底。
+> - 移动端选中标记是**行右侧圆形指示器**（文本占满剩余宽度把圆圈推到行尾），边长取 `max(--um-control-height-<size> / 2, 20px)` 保底 20px；文本字号走 `--um-font-size-main`（16px）。
+> - 移动端没有 hover，按压反馈走 `:active`（整行浅灰底色 + 指示器边框变主色）；焦点环由视觉隐藏的原生 `<input>` 驱动（`:focus-visible`）。
 > - `@veltra/mobile` 只导出 `URadio`，不导出 `@veltra/desktop` 的 `URadioButton`（按钮形态单选框）。
 > - `URadio` 的 `label` 是**选项文本**，不是表单标签（同名属性在表单组件里是标签文字）；选项文本优先用默认插槽。
 > - `URadio` 没有 `change` 事件，只有 `update:modelValue`。

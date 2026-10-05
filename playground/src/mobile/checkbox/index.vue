@@ -39,17 +39,26 @@
         <UCheckbox v-model="eventChecked" @change="changed++">切换 {{ changed }} 次</UCheckbox>
       </div>
     </section>
+
+    <section>
+      <h3>表单行内</h3>
+      <UForm :model="form">
+        <UCheckbox label="记住登录" field="remember">30 天内免登录</UCheckbox>
+      </UForm>
+    </section>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { UCheckbox } from '@veltra/mobile'
-import { shallowRef } from 'vue'
+import { UCheckbox, UForm } from '@veltra/mobile'
+import { reactive, shallowRef } from 'vue'
+import '@veltra/mobile/components/form/style'
 import '@veltra/mobile/components/checkbox/style'
 
 const checked = shallowRef(false)
 const eventChecked = shallowRef(false)
 const changed = shallowRef(0)
+const form = reactive({ remember: false })
 </script>
 
 <style lang="scss" scoped>

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!readonly" v-bind="$attrs" :class="[cls.b, cls.m(size), bem.is('block', block)]">
+  <div v-if="!readonly" v-bind="$attrs" :class="[cls.b, cls.m(size), bem.is('divider', divider)]">
     <UCheckbox
       v-for="item of items"
       :key="item[valueKey]"
@@ -43,7 +43,6 @@ const props = withDefaults(defineProps<CheckboxGroupProps>(), {
   disabled: undefined,
   readonly: undefined
 })
-
 defineEmits<CheckboxGroupEmits>()
 
 const model = defineModel<any[]>()

@@ -8,15 +8,15 @@
       :disabled="disabled"
     />
 
-    <!-- radio框 -->
-    <section :class="cls.e('button')">
-      <transition name="zoom-in">
-        <span :class="cls.e('inner')" v-if="radioChecked"></span>
-      </transition>
-    </section>
-
     <span :class="cls.e('label')">
       <slot>{{ label }}</slot>
+    </span>
+
+    <!-- 右侧圆形选中标记：列表行式选项的移动端惯例 -->
+    <span :class="cls.e('indicator')">
+      <transition name="zoom-in">
+        <span :class="cls.e('dot')" v-if="radioChecked"></span>
+      </transition>
     </span>
   </label>
 </template>

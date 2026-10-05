@@ -1,5 +1,6 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
 $root-name: checkbox;
 
@@ -10,38 +11,36 @@ $indicator-min: 20px;
   user-select: none;
   vertical-align: middle;
   -webkit-tap-highlight-color: transparent;
+  border-radius: fn.use-var(radius, small);
   @include m.flex(inline-flex);
+  gap: t.spacing(default);
 
   @include m.size using ($size) {
-    // 触控热区：整个 label 可点，不小于 44×44
-    $touch-size: max(fn.use-var(form-component-height, $size), 44px);
+    // 触控热区：整个 label 可点，不小于触控下限
+    min-height: max(t.control-height($size), t.use-var(touch-target));
+    min-width: t.use-var(touch-target);
 
-    min-height: $touch-size;
-    min-width: $touch-size;
-    padding-right: fn.use-var(gap, $size);
-
-    @include m.bem($root-name, wrap) {
-      $indicator: max(calc(fn.use-var(form-component-height, $size) / 2), $indicator-min);
+    @include m.bem($root-name, indicator) {
+      $indicator: max(calc(t.control-height($size) / 2), $indicator-min);
 
       height: $indicator;
       width: $indicator;
     }
 
     @include m.bem($root-name, label) {
-      font-size: max(fn.use-var(font-size-main, $size), 14px);
-      margin-left: fn.use-var(gap, $size);
+      font-size: t.use-var(font-size-main);
     }
   }
 
   @include m.is(checked) {
-    @include m.bem($root-name, wrap) {
+    @include m.bem($root-name, indicator) {
       background-color: fn.use-var(color, primary);
       border-color: fn.use-var(color, primary);
       color: fn.use-var(text-color, white);
     }
 
     @include m.is(disabled) {
-      @include m.bem($root-name, wrap) {
+      @include m.bem($root-name, indicator) {
         background-color: fn.use-var(text-color, disabled);
         border-color: fn.use-var(border, muted-color);
       }
@@ -51,8 +50,12 @@ $indicator-min: 20px;
   @include m.is(disabled) {
     cursor: not-allowed;
 
-    @include m.bem($root-name, wrap) {
+    @include m.bem($root-name, indicator) {
       background-color: fn.use-var(color, disabled);
+    }
+
+    @include m.bem($root-name, label) {
+      color: fn.use-var(text-color, disabled);
     }
   }
 
@@ -69,10 +72,11 @@ $indicator-min: 20px;
     pointer-events: none;
   }
 
-  @include m.e(wrap) {
+  @include m.e(indicator) {
     border: fn.use-var(border, width) fn.use-var(border, style)
       #{fn.component-var(checkbox, border, fn.use-var(text-color, assist))};
-    border-radius: fn.use-var(radius, small);
+    // 圆形勾选惯例：与方形桌面形态区分，贴合移动端列表行式选项
+    border-radius: 50%;
     color: fn.use-var(text-color, white);
     box-sizing: border-box;
     flex-shrink: 0;
@@ -90,21 +94,23 @@ $indicator-min: 20px;
     }
   }
 
-  // label 不可聚焦，ring 由视觉隐藏的原生 input 驱动；移动端无 hover，按压反馈走 :active
+  // label 不可聚焦，ring 由视觉隐藏的原生 input 驱动；移动端无 hover，按压反馈走 :active（整行底色）
   @include m.is-not(disabled, readonly) {
     &:active {
-      @include m.bem($root-name, wrap) {
+      background-color: fn.use-var(color, default, light-9);
+
+      @include m.bem($root-name, indicator) {
         border-color: fn.use-var(color, primary);
       }
     }
 
-    .um-#{$root-name}__native:focus-visible + .um-#{$root-name}__wrap {
+    .um-#{$root-name}__native:focus-visible + .um-#{$root-name}__indicator {
       box-shadow: fn.use-var(focus-ring);
     }
   }
 
   @include m.e(label) {
-    line-height: 1.2em;
+    line-height: 1.4;
     color: fn.use-var(text-color, main);
   }
 
@@ -115,4 +121,11 @@ $indicator-min: 20px;
     vertical-align: middle;
     display: block;
   }
+}
+
+// 嵌入表单行时占满控件区，整行热区与列表行式布局协同
+.um-form-item__content .um-#{$root-name} {
+  display: flex;
+  width: 100%;
+  min-height: t.use-var(form-row-height);
 }
