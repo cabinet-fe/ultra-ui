@@ -39,6 +39,20 @@ export { UTextarea } from './components/textarea'
 export { UTimePicker } from './components/time-picker'
 export { UTimeline, UTimelineItem } from './components/timeline'
 
+export { useScrollLock } from './shared/use-scroll-lock'
+export type { ScrollLock } from './shared/use-scroll-lock'
+export {
+  horizontalSwipeDirection,
+  shouldCloseByDrag,
+  useTouchGesture
+} from './shared/use-touch-gesture'
+export type {
+  DragDismissOptions,
+  TouchGestureHandlers,
+  TouchGestureState,
+  UseTouchGestureOptions
+} from './shared/use-touch-gesture'
+
 export type * from './types/avatar'
 export type * from './types/badge'
 export type * from './types/button'

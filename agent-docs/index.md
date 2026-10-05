@@ -249,6 +249,8 @@ createApp(App).mount('#app')
 | UTextarea                       | 多行输入：autosize、右上角 44px 清空                                   | `mobile/textarea.md`                |
 | UTimePicker                     | 时间选择：三列滚轮 scroll-snap、确定 / 取消                            | `mobile/time-picker.md`             |
 | UTimeline / UTimelineItem       | 时间线：圆点 14px、自定义节点                                          | `mobile/timeline.md`                |
+| useScrollLock                   | 滚动锁定：弹层锁 body 滚动、恢复原滚动位置、嵌套计数                   | `mobile/use-scroll-lock.md`         |
+| useTouchGesture                 | 触摸手势：拖拽跟随 + 释放关闭判定、横滑方向判定（passive 可用）        | `mobile/use-touch-gesture.md`       |
 
 ### compositions 组合式函数（@veltra/compositions）
 

@@ -1,0 +1,47 @@
+/**
+ * 移动端密度 token 层（`--um-*` 前缀，纯 SCSS，不经运行时注入）
+ *
+ * - 值表是编译期回退值的单一来源：组件样式一律经 `use-var()` 取密度值，
+ *   产出 `var(--um-<name>, 回退值)`，宿主可在任意层级用 `--um-*` 覆盖
+ * - 配色、圆角、阴影等观感 token 仍走 `@veltra/styles` 的 `--u-*` 预设体系
+ * - 本模块只提供值与函数，不产出任何 CSS；组件 SCSS 以
+ *   `@use '../../styles/tokens' as t;` 引用（下划线 partial，禁止单独编译）
+ */
+@use 'sass:map';
+
+$namespace: 'um' !default;
+
+// 密度值表：键为去掉 `--um-` 前缀的 token 名
+$values: (
+  // 字号：正文主字号 16px（正文与输入类字号不小于 16px），辅助信息 14 / 12px
+  'font-size-main': 16px,
+  'font-size-secondary': 14px,
+  'font-size-auxiliary': 12px,
+  // 列表行式表单的行高（约 48px）
+  'form-row-height': 48px,
+  // 表单 / 按钮等控件高度档（small / default / large）
+  'control-height-small': 32px,
+  'control-height-default': 40px,
+  'control-height-large': 48px,
+  // 头像等组件尺寸档：整体上移的移动端密度，最小档 ≥32px
+  'avatar-size-small': 32px,
+  'avatar-size-default': 40px,
+  'avatar-size-large': 48px,
+  // 间距刻度（4px 基）
+  'spacing-xs': 4px,
+  'spacing-sm': 8px,
+  'spacing-md': 12px,
+  'spacing-lg': 16px,
+  'spacing-xl': 24px,
+  // 触控热区下限
+  'touch-target': 44px
+);
+
+// 引用移动端密度 token：`var(--um-<name>, 编译期回退值)`
+@function use-var($name) {
+  @if not map.has-key($values, $name) {
+    @error '未知的移动端 token：--#{$namespace}-#{$name}';
+  }
+
+  @return var(--#{$namespace}-#{$name}, #{map.get($values, $name)});
+}
