@@ -83,7 +83,7 @@ function showTitled() {
 function showLong() {
   messageConfirm({
     title: '服务协议',
-    message: '长内容在 移动端视口内自动换行，卡片宽度受视口约束不会溢出屏幕边缘。'
+    message: '长内容在移动端视口内自动换行，卡片宽度受视口约束不会溢出屏幕边缘。'
   })
 }
 

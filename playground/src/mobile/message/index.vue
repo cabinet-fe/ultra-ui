@@ -60,7 +60,7 @@ function show(text: string, duration = 3000, closable = false) {
 }
 
 function showLong() {
-  message.info('顶部长文本轻提示：内容在 移动端视口内自动换行且不溢出屏幕')
+  message.info('顶部长文本轻提示：内容在移动端视口内自动换行且不溢出屏幕')
 }
 
 const closedCount = shallowRef(0)
