@@ -29,7 +29,7 @@ keywords:
 
 # UGrid / UGridItem 栅格布局
 
-`@veltra/desktop` 导出栅格布局组件 `UGrid` 与子项组件 `UGridItem`（与数据表格 `UTable` 无关）。`UGrid` 基于 CSS Grid：`cols` 决定列数（默认 24），`gap` 决定间距；`UGridItem` 的 `span` 决定跨距，支持按容器断点响应式变化与整行占满。断点由容器宽度（`ResizeObserver`）驱动，同一组件在侧栏窄容器和宽主区可以呈现不同列数。
+`@veltra/desktop` 导出栅格布局组件 `UGrid` 与子项组件 `UGridItem`（与数据表格 `UTable` 无关）。`UGrid` 基于 CSS Grid：`cols` 决定列数（可选，不传时不设置 `grid-template-columns`，表现为单列布局），`gap` 决定间距；`UGridItem` 的 `span` 决定跨距，支持按容器断点响应式变化与整行占满。断点由容器宽度（`ResizeObserver`）驱动，同一组件在侧栏窄容器和宽主区可以呈现不同列数。
 
 ## 快速上手
 
@@ -72,14 +72,14 @@ export interface BreakCols {
   lg?: number
   /** 中大尺寸，容器宽 >= 1920 */
   xl?: number
-  /** 兜底列数，当前与更高断点都未指定时使用 */
+  /** 兜底列数；仅 xl 断点读取（xl 未指定时使用），其余断点未指定时直接取 24，不读取该值 */
   default?: number
 }
 
 /** 网格布局容器属性 */
 export interface GridProps {
   /**
-   * 栅格列数，默认 24
+   * 栅格列数；可选，不传时不设置 grid-template-columns，CSS Grid 表现为单列布局
    * 数字：固定列数；对象：按容器断点取值；函数：入参 Breakpoint 返回列数
    */
   cols?: number | BreakCols | ((breakpoint: Breakpoint) => number)
@@ -125,7 +125,7 @@ export interface GridExposed {
 
 | 参数   | 类型                                                          | 默认    | 必填 | 约束                                                                                                                                           |
 | ------ | ------------------------------------------------------------- | ------- | :--: | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cols` | `number \| BreakCols \| ((breakpoint: Breakpoint) => number)` | `24`    |  否  | 列数经 `repeat(n, minmax(0px, 1fr))` 生成；对象按断点表取值，当前断点未指定时向更高断点查找，均未指定时取 `default`，`default` 也未指定时取 24 |
+| `cols` | `number \| BreakCols \| ((breakpoint: Breakpoint) => number)` | `—`     |  否  | 列数经 `repeat(n, minmax(0px, 1fr))` 生成；不传时不设置 `grid-template-columns`，表现为单列。对象按断点表取值，当前断点未指定时向更高断点查找，仍无则取 24；仅 xl 断点读取 `default` 兜底（如 `{ xs: 4, default: 8 }` 在 md 宽度下是 24 而非 8） |
 | `gap`  | `number \| string`                                            | —       |  否  | 数字单位 px；字符串按 `'行间距 列间距'` 顺序拆分，纯数字字符串补 px，带单位字符串原样使用                                                      |
 | `tag`  | `string`                                                      | `'div'` |  否  | 容器渲染的 HTML 标签                                                                                                                           |
 

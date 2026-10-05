@@ -122,12 +122,14 @@ const titleColor = cssVar('text-color-title') // => 'var(--u-text-color-title)'
 ```vue
 <!-- src/App.vue —— 切换入口 -->
 <script setup lang="ts">
-import { useTemplateRef } from 'vue'
+import { computed } from 'vue'
+import { currentTheme } from '@veltra/styles/theme'
 // 模板组件（u-button）交给 VeltraUIResolver，禁止再 import：显式 import 会让模板改用该绑定，组件 import 与样式副作用都不注入。
 import { switchSeries } from './theme'
 import ThemeDemo from './components/ThemeDemo.vue' // 本地组件不在 resolver 范围内，必须显式 import
 
-const current = useTemplateRef<'light' | 'dark'>('current')
+// 当前系列直接读运行时主题（currentTheme 是 ref，loadTheme 后自动更新）
+const current = computed(() => currentTheme.value?.series ?? 'light')
 </script>
 
 <template>

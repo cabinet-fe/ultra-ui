@@ -61,7 +61,7 @@ export type PresetRule = 'email' | 'phone' | 'num' | 'url' | 'idCard'
 export interface ValidateRule {
   /** 是否必填；传字符串时作为校验失败提示 */
   required?: boolean | string
-  /** 长度；元组第二项为失败提示 */
+  /** 声明于类型，当前校验实现未读取，写了无效果（不存在元组第二项失败提示的行为） */
   length?: number | [number, string]
   /** 最小值；元组第二项为失败提示 */
   min?: number | [number, string]

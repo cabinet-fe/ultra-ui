@@ -56,7 +56,7 @@ export interface LayoutProps {
   cols?: string[] | string
   /** 每行的轨道定义，写法同 cols */
   rows?: string[] | string
-  /** 尺寸是否可调节。默认 false；为 true 时列间距固定 10px，且至少一列宽度为固定像素才能拖拽 */
+  /** 尺寸是否可调节。默认 false；为 true 时列间距固定 10px，传入 cols 即可拖拽 */
   resizable?: boolean
   /**
    * 每列的最小宽度（px），按索引与 cols 对应，仅 resizable 拖拽时生效。
@@ -124,7 +124,7 @@ function onEnd(index: number) {
 </script>
 
 <template>
-  <!-- 至少一列是固定像素（这里是 300px）才能拖拽；三列最小宽度均为 120px -->
+  <!-- 全 fr 列同样可拖拽（拖后按实际渲染宽度改写为 px），此处 300px 只是示例写法；三列最小宽度均为 120px -->
   <ULayout
     cols="300px 1fr 300px"
     resizable
@@ -191,7 +191,7 @@ const cols = computed(() => Array.from({ length: count.value }, () => '1fr'))
 > - 列是按**直接子元素**顺序自动填充的（CSS Grid 默认 auto-placement）：把一列包进自定义组件时该组件必须是**单根**元素，包的这一层就是那一列，列宽作用在它身上，不作用在它内部。
 > - 子元素渲染出 0 个根节点（`v-if` 为假、`v-show` 为 `display: none`）或多个根节点（多根组件、`<template v-for>`）时会挤动后面的列。这种场景不要靠顺序，直接给子元素写死列位（如 `style="grid-column: 2"`）。
 > - `resizable` 只支持列宽拖拽，不支持行高拖拽。
-> - `resizable: true` 时必须至少有一列是固定像素（`200px` 这类），全部用 `fr` 时没有可调的固定轨道，拖拽不生效。
+> - `resizable: true` 且传入 `cols` 即可拖拽，全部用 `fr` 的列同样可拖：拖拽按相邻两列的实际渲染宽度计算，拖动后这两列在内部改写为 px 值。
 > - `resizable: true` 时 `gap` 失效，列间距固定 `10px`。
 > - 属性名是 `colMinSizes`（camelCase），模板里写 `:col-min-sizes`；值为 `(number | undefined)[]`，不是 `Record<string, number>`。
 > - 组件只提供轨道与拖拽，不渲染任何格子背景、边框；视觉样式由子元素自行处理。

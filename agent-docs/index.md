@@ -53,7 +53,7 @@ keywords:
 
 # Ultra UI 总览
 
-Ultra UI（npm 作用域 `@veltra/*`）是面向 Vue 3 的组件与能力库：组件从 `@veltra/desktop` 导入，移动端组件从 `@veltra/mobile` 导入（与桌面端组件名、属性、事件完全对齐，类名前缀 `um-`，双端同用不冲突），AI 对话用 `@veltra/ai`，电子表格用 `@veltra/sheet`（模型层 `@veltra/sheet-core`），icons / compositions / utils / directives / styles 分包提供，`@veltra/vite` 提供按需导入解析器。硬规则：入口必须 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色；组件样式是独立入口，走 resolver 的模板组件自动带样式，显式 import 的组件（`h()` / render / TSX 里用的）必须自己补 `import '@veltra/desktop/components/<目录>/style'`。运行时要求 Vue `>=3.5.42`；当前组件包版本 `@veltra/desktop@1.7.11`。
+Ultra UI（npm 作用域 `@veltra/*`）是面向 Vue 3 的组件与能力库：组件从 `@veltra/desktop` 导入，移动端组件从 `@veltra/mobile` 导入（与桌面端组件名、属性、事件完全对齐，类名前缀 `um-`，双端同用不冲突），AI 对话用 `@veltra/ai`，电子表格用 `@veltra/sheet`（模型层 `@veltra/sheet-core`），icons / compositions / utils / directives / styles 分包提供，`@veltra/vite` 提供按需导入解析器。硬规则：入口必须 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色；组件样式是独立入口，走 resolver 的模板组件自动带样式，显式 import 的组件（`h()` / render / TSX 里用的）必须自己补 `import '@veltra/desktop/components/<目录>/style'`。运行时要求 Vue `>=3.5.43`；当前组件包版本 `@veltra/desktop@1.8.5`。
 
 写界面结构前先用下方「模块速查」确认有没有对应组件：常见容器与排版一律用现成组件——页面区块、面板、统计卡片用 `UCard`（`desktop/card.md`），栅格与分栏用 `UGrid` / `ULayout`，文本排版用 `UText`，空态用 `UEmpty`，加载遮罩用 `vLoading`，消息与确认用 `message` / `messageConfirm`。禁止用裸 `div` 加 `--u-*` 手写这些组件的等价外观（底色 + 边框 + 圆角 + 内边距的卡面、字号字重的标题体系），手写版本不跟随主题切换且在各页面重复。
 

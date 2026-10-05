@@ -31,15 +31,15 @@ keywords:
 
 # Ultra UI 安装与初始化
 
-Ultra UI 是 npm 作用域 `@veltra/*` 下的 Vue 3 组件与能力库。本指南完成：安装 `@veltra/desktop` 与 peer 依赖、入口初始化（normalize + `loadTheme()`）、选择一种组件注册方式、按需配置 SCSS token 编译，最后用 `UButton` 验证。适用 Vue `>=3.5.42`、Vite 构建、`@veltra/desktop@1.7.11`。
+Ultra UI 是 npm 作用域 `@veltra/*` 下的 Vue 3 组件与能力库。本指南完成：安装 `@veltra/desktop` 与 peer 依赖、入口初始化（normalize + `loadTheme()`）、选择一种组件注册方式、按需配置 SCSS token 编译，最后用 `UButton` 验证。适用 Vue `>=3.5.43`、Vite 构建、`@veltra/desktop@1.8.5`。
 
 ## 前置条件
 
 - Node.js：`>=20`（`sass-embedded` 要求）。
-- Vue：`>=3.5.42`（`@veltra/desktop` 的 peerDependencies 约束）。
+- Vue：`>=3.5.43`（`@veltra/desktop` 的 peerDependencies 约束）。
 - 包管理器：本文用 `bun`，`npm` / `pnpm` / `yarn` 命令等价替换。
 - `@veltra/desktop` 的 peer 依赖必须由宿主安装（清单核自 `packages/desktop/package.json` 的 `peerDependencies`）：
-  - `vue` `>=3.5.42`
+  - `vue` `>=3.5.43`
   - `@cat-kit/core` `>=1.2.1`
   - `@cat-kit/fe` `>=1.2.1`
   - `@veltra/icons`
@@ -174,7 +174,7 @@ Ultra UI 是 npm 作用域 `@veltra/*` 下的 Vue 3 组件与能力库。本指�
    })
    ```
 
-   `pkg:` 的解析基准目录按来源分两种：写在**磁盘上的 `.scss` 文件**里时，sass 从该文件所在目录逐级向上找 `node_modules`（本库组件的 `style.scss` 都属这种，bun 把 `@veltra/*` 链接在 `packages/<包>/node_modules/` 下，因此省略参数即可解析）；写在**非磁盘来源**（`css.preprocessorOptions.scss.additionalData` 注入的字符串、把样式内容以字符串交给 sass 的自定义插件）时，sass 只从 `entryPointDirectory` 逐级向上找，省略参数时该目录取 Node 入口（dev 下的 vite 可执行文件）所在目录。此时必须显式传入「自身或其祖先目录的 `node_modules` 中含 `@veltra/styles` 的目录」。本仓库 `test/vite.config.ts` 与 `playground/vite.config.ts` 都显式传仓库根：`new NodePackageImporter(repoRoot)`。
+   `pkg:` 的解析基准目录按来源分两种：写在**磁盘上的 `.scss` 文件**里时，sass 从该文件所在目录逐级向上找 `node_modules`（本库组件的 `style.scss` 都属这种，bun 把 `@veltra/*` 链接在 `packages/<包>/node_modules/` 下，因此省略参数即可解析）；写在**非磁盘来源**（`css.preprocessorOptions.scss.additionalData` 注入的字符串、把样式内容以字符串交给 sass 的自定义插件）时，sass 只从 `entryPointDirectory` 逐级向上找，省略参数时该目录取 Node 入口（dev 下的 vite 可执行文件）所在目录。此时必须显式传入「自身或其祖先目录的 `node_modules` 中含 `@veltra/styles` 的目录」。本仓库 `playground/vite.config.ts` 显式传仓库根：`new NodePackageImporter(repoRoot)`。
 
 ## 完整示例
 
@@ -241,5 +241,5 @@ bun run dev
 > - 用 resolver 时，模板组件禁止在 `<script setup>` 里再 import 同名组件：显式 import 会让模板改用该绑定、不再产生 `_resolveComponent` 调用，resolver 既不会注入组件 import 也不会注入样式副作用。凡显式 import 的组件（`h()` / `render` 函数 / TSX 里使用的组件）必须自己补 `import '@veltra/desktop/components/<目录>/style'`。
 > - 样式副作用只随 resolver 的组件引入发生。函数式 API `message` / `messageConfirm` / `notification` 从 `@veltra/desktop` 显式 import 后，样式同样要显式引入：`import '@veltra/desktop/components/message/style'`、`import '@veltra/desktop/components/message-confirm/style'`、`import '@veltra/desktop/components/notification/style'`；或改由入口 `import '@veltra/desktop/style'` 引全量样式。
 > - 写 `<script lang="tsx">` / `.tsx` 必须在 Vite 注册 `@vitejs/plugin-vue-jsx` 并安装同名包；缺它时 Vite 用 esbuild 默认的 `react` JSX 运行时，dev 报 `Failed to resolve import "react/jsx-dev-runtime"`、build 报 `Failed to resolve import "react/jsx-runtime"`。TSX 里的组件不会被 resolver 解析，必须显式 import 并补样式。
-> - `pkg:@veltra/styles/...` SCSS 导入必须先注册 `NodePackageImporter`。磁盘上的 `.scss` 文件里写 `pkg:` 时 sass 从该文件目录向上找 `node_modules`，省略参数即可；只有 `pkg:` 出现在非磁盘来源（`additionalData` 注入的字符串等）时才必须显式传「其 `node_modules` 含 `@veltra/styles` 的目录」——该目录必须是链接所在目录，传一个不含 `@veltra/*` 链接的目录仍然解析失败。`new NodePackageImporter(repoRoot)` 是本仓库两个应用（`test/`、`playground/`）的写法。
+> - `pkg:@veltra/styles/...` SCSS 导入必须先注册 `NodePackageImporter`。磁盘上的 `.scss` 文件里写 `pkg:` 时 sass 从该文件目录向上找 `node_modules`，省略参数即可；只有 `pkg:` 出现在非磁盘来源（`additionalData` 注入的字符串等）时才必须显式传「其 `node_modules` 含 `@veltra/styles` 的目录」——该目录必须是链接所在目录，传一个不含 `@veltra/*` 链接的目录仍然解析失败。`new NodePackageImporter(repoRoot)` 是本仓库 `playground/` 应用的写法。
 > - `@veltra/sheet-core` 是 `@veltra/desktop` 的 optional peer；不装也能跑，但 `USheet` 与 Workbook 模型操作需要它，此时必须安装。

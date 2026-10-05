@@ -335,7 +335,7 @@ Sheet 核心方法参数（`Workbook.addSheet` 选项五要素——`name`：`st
 
 ### 地址与范围
 
-全部为纯函数，同步；签名见 `## API 签名`。补充约束：`cellKey` 的 `col` 必须 `< 2^20`，否则 key 冲突；`colIndexToName` 非负整数以外的入参抛 `RangeError('列号必须是非负整数: <col>')`；`colNameToIndex` / `parseAddress` / `parseRange` 非法输入返回 `null`（`'A0'` / `'1A'` / `''` 均非法）；`boundingBox` 至少传入 1 个区域。
+全部为纯函数，同步；签名见 `## API 签名`。补充约束：`cellKey` 的 `col` 必须 `< 2^20`，否则 key 冲突；`colIndexToName` 非负整数以外的入参抛 `RangeError('列号必须是非负整数: <col>')`；`colNameToIndex` 非法列名返回 `-1`；`parseAddress` / `parseRange` 非法输入返回 `null`（`'A0'` / `'1A'` / `''` 均非法）；`boundingBox` 至少传入 1 个区域。
 
 ### CellStore 与单元格数据
 
@@ -521,14 +521,14 @@ const imageId = sheet.insertImage({
   height: 80,
   fit: 'contain'
 })
-sheet.updateImage(imageId, { anchor: { from: { row: 2, col: 2 } } })
+sheet.updateImage(imageId, { anchor: { from: { row: 2, col: 2 } } }) // anchor 为整段替换，未给的 offset 字段会丢失
 
 const snap: SheetSnapshot = sheet.snapshot()
 const restored = new Workbook().activeSheet
 restored.restore(snap) // 冻结变化时发 frozen-change；其余静默还原
 console.log(restored.frozen) // => { rows: 1, cols: 0 }
 console.log(restored.getDisplayValue({ row: 0, col: 0 })) // => '表头'
-console.log(restored.getImage(imageId)?.anchor.from) // => { row: 2, col: 2, offsetX: 8, offsetY: 8 }
+console.log(restored.getImage(imageId)?.anchor.from) // => { row: 2, col: 2 }
 ```
 
 ## 注意事项

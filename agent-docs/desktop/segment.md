@@ -77,7 +77,7 @@ export interface SegmentEmits {
 }
 ```
 
-插槽：默认插槽 `item`，作用域 `{ item: SegmentItem; active: boolean }`，统一自定义每个选项的渲染。
+插槽：具名插槽 `item`（`<slot name="item" :item="item" :active="...">`），作用域 `{ item: SegmentItem; active: boolean }`，统一自定义每个选项的渲染。组件没有默认插槽出口，必须用 `<template #item="{ item, active }">`；按默认插槽写的内容不会被渲染。
 
 ## 参数说明
 
@@ -196,7 +196,7 @@ const periodItems = [
 > - `change` 的 payload 是完整选项对象 `SegmentItem`，不是裸值；裸值从 `v-model` 拿。
 > - 点击已选中项不触发 `change`，值也不会变；没有「取消选中」交互。
 > - 在 `UForm` 内必须用 `field` 绑定字段，有 `field` 时禁止再写 `v-model`；`label` / `tips` / `span` / `rules` 仅在 `UForm` / `UFormItem` 内生效。
-> - `readonly` 时组件渲染为选中项的文字标签（无选中显示 `-`），不是禁用外观；选项外观只能通过默认插槽的 `{ item, active }` 作用域整体定制，没有按激活态切换样式的属性。
+> - `readonly` 时组件渲染为选中项的文字标签（无选中显示 `-`），不是禁用外观；选项外观只能通过具名插槽 `#item` 的 `{ item, active }` 作用域整体定制，没有按激活态切换样式的属性。
 > - 组件颜色来自 `--u-*` token：应用入口必须 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则组件无颜色。
 
 ## 常见问题

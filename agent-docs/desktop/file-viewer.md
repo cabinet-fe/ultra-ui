@@ -62,8 +62,6 @@ const active = ref<string>('pdf')
 ## API 签名
 
 ```ts
-import type { ShallowRef } from 'vue'
-
 /** 预览器类别：xlsx 与 csv 归一为 sheet，ofd 为版式文档（GB/T 33190） */
 export type FileViewerKind = 'image' | 'video' | 'pdf' | 'sheet' | 'docx' | 'ofd' | 'text'
 
@@ -117,10 +115,10 @@ export interface FileViewerEmits {
   (e: 'error', err: { file: FileViewerItem; error: unknown }): void
 }
 
-/** 暴露成员经自动解构后可直接从模板 ref 访问 */
+/** 暴露成员经 DeconstructValue 解包后可直接从模板 ref 访问；activeId 解包后直接是字符串，无需再 .value */
 export interface FileViewerExposed {
-  /** 当前激活文件 id（响应式引用，.value 取值） */
-  activeId: ShallowRef<string | undefined>
+  /** 当前激活文件 id；模板 ref 上直接读 activeId，无需再 .value */
+  activeId: string | undefined
   /** 切换到指定 id 的文件；id 不存在时无效果 */
   activate: (id: string) => void
   /** 切换到下一个文件；已是最后一个时无效果 */
@@ -168,9 +166,9 @@ export interface FileViewerExposed {
 
 ### 暴露成员（模板 ref，已解构）
 
-| 成员            | 签名                              | 说明                              |
-| --------------- | --------------------------------- | --------------------------------- |
-| `activeId`      | `ShallowRef<string \| undefined>` | 当前激活 id，响应式               |
+| 成员            | 签名                  | 说明                                                         |
+| --------------- | --------------------- | ------------------------------------------------------------ |
+| `activeId`      | `string \| undefined` | 当前激活 id；解包后直接取值（`ref.activeId`），无需再 `.value` |
 | `activate`      | `(id: string) => void`            | 同步；切到指定文件并触发 `change` |
 | `next` / `prev` | `() => void`                      | 同步；越界时无效果                |
 

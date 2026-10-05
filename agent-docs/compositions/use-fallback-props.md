@@ -164,7 +164,7 @@ const { size: size2 } = useFallbackProps([props2], { size: 'large' })
 console.log(size2.value) // => 'large'，来自全局配置而非默认值
 ```
 
-`setDocumentSize(size)` 把当前 `size` 作为 class 加到 `document.documentElement` 上，旧 class 一并移除；SSR（无 `document`）下该函数直接返回。
+`setDocumentSize(size, oldSize?)` 把当前 `size` 作为 class 加到 `document.documentElement` 上，仅在显式传入第二个参数 `oldSize` 时移除旧 class，单参调用只添加不移除；SSR（无 `document`）下该函数直接返回。
 
 ### 只回退部分表单属性
 

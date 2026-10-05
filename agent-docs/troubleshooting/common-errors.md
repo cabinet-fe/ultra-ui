@@ -92,7 +92,7 @@ export default defineConfig({
 - `pkg:` 写在磁盘上的 `.scss` 文件里（本库组件样式，如 `packages/desktop/src/components/button/style.scss`）：sass 从该文件所在目录逐级向上找 `node_modules`，与 `entryPointDirectory` 无关。编译该文件时 `new NodePackageImporter()`、传仓库根、传其他目录都解析成功——这类场景省略参数即可。
 - `pkg:` 出现在非磁盘来源（`css.preprocessorOptions.scss.additionalData` 注入的字符串、把样式内容以字符串交给 sass 的插件）：`entryPointDirectory` 生效；省略参数时该目录取 Node 入口（dev 下的 vite 可执行文件）所在目录。要显式传时必须传「其 `node_modules`（或其祖先）里能解析到 `@veltra/styles` 的目录」，传一个不含该链接的目录仍报 `Can't find stylesheet to import`。
 
-本仓库根目录没有 `node_modules/@veltra`（bun 把链接放在 `packages/<包>/node_modules/@veltra/` 与 `test/node_modules/@veltra/`），所以传仓库根只对磁盘文件成立；`test/vite.config.ts`、`playground/vite.config.ts` 传 `new NodePackageImporter(resolve(import.meta.dirname, '..'))` 是仓库自身写法。构建链用 `sass-embedded`（仓库锁 `1.104.0`），`NodePackageImporter` 从 `sass-embedded` 导入。详见 `guide/scss.md`。
+本仓库根目录没有 `node_modules/@veltra`（bun 把链接放在 `packages/<包>/node_modules/@veltra/` 与 `playground/node_modules/@veltra/`），所以传仓库根只对磁盘文件成立；`playground/vite.config.ts` 传 `new NodePackageImporter(resolve(__dirname, '..'))`（`__dirname` 由 `fileURLToPath(import.meta.url)` 求得）是仓库自身写法。构建链用 `sass-embedded`（仓库锁 `1.105.0`），`NodePackageImporter` 从 `sass-embedded` 导入。详见 `guide/scss.md`。
 
 ## 症状：UForm 内控件写了 `v-model` 与 `field` 并存，值不回显或写进两份状态
 
@@ -140,7 +140,7 @@ export default defineConfig({ plugins: [vue(), Components({ resolvers: [VeltraUI
 
 2. `unplugin-vue-components` 版本低于 32：`@veltra/vite` 的 peer 约束是 `>= 32.0.0`，升级后重试。
 3. 改过 `vite.config.ts` 未重启 dev server：重启后生效。
-4. 组件名不在表内：resolver 按 `UButton` 等名字精确匹配 `components.gen.ts` 静态表（95 个组件）；仓库内新组件未入表时在仓库根重跑 `bun run resolver:gen`，下游包缺组件时升级 `@veltra/desktop`。
+4. 组件名不在表内：resolver 按 `UButton` 等名字精确匹配 `components.gen.ts` 静态表（113 个组件）；仓库内新组件未入表时在仓库根重跑 `bun run resolver:gen`，下游包缺组件时升级 `@veltra/desktop`。
 5. resolver 只管 import 与样式；`loadTheme()` 等主题初始化仍需入口显式执行。详见 `agent-docs/vite/veltra-ui-resolver.md`。
 
 ## 构建报错 `Failed to resolve import "react/jsx-runtime"` / `react/jsx-dev-runtime`（缺 @vitejs/plugin-vue-jsx）

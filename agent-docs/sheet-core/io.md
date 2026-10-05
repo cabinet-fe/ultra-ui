@@ -171,7 +171,7 @@ const bytes = await exportSheetXlsx(workbook.activeSheet, { fallbackName: 'Q3' }
 
 ### 导入后公式列全为 `#NAME?`
 
-原因：文件里的公式用了本引擎未注册的函数（内置 17 个之外），导入写入即触发重算。修复：`importXlsx` 之前先注册同名函数：
+原因：文件里的公式用了本引擎未注册的函数（内置 49 个之外），导入写入即触发重算。修复：`importXlsx` 之前先注册同名函数：
 
 ```ts
 import {

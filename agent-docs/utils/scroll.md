@@ -96,12 +96,24 @@ export function scrollIntoContainerView(
  */
 export function scrollElementIntoView(vp: HTMLElement, el: HTMLElement, offset = 8): void
 
+/** 视口滚动几何（源码已导出的接口） */
+interface OverflowNavViewport {
+  scrollLeft: number
+  scrollWidth: number
+  clientWidth: number
+}
+
+/** 结构类型（源码内部别名，未导出）：满足该结构即可传入，HTMLElement 天然满足 */
+type ScrollableElement = OverflowNavViewport & {
+  scrollTo(options: { left: number; behavior: 'smooth' }): void
+}
+
 /**
  * 箭头按钮步进滚动：scrollLeft 平滑移动 dir * clientWidth * 0.8
  * @param vp 视口，需具备 scrollLeft / scrollWidth / clientWidth 与 scrollTo({left, behavior})
  * @param dir 仅允许 1（向右）或 -1（向左）
  */
-export function scrollViewportByStep(vp: HTMLElement, dir: 1 | -1): void
+export function scrollViewportByStep(vp: ScrollableElement, dir: 1 | -1): void
 
 /**
  * 鼠标纵向滚轮驱动水平滚动；触控板横滑不拦截
@@ -145,10 +157,10 @@ export function applyWheelHorizontalScroll(e: WheelEvent, vp: HTMLElement, navAc
 
 ### scrollViewportByStep
 
-| 参数  | 类型          | 默认 | 必填 | 约束                                                              |
-| ----- | ------------- | ---- | :--: | ----------------------------------------------------------------- |
-| `vp`  | `HTMLElement` | —    |  是  | 需同时具备滚动几何与 `scrollTo({ left, behavior })`，原生元素满足 |
-| `dir` | `1 \| -1`     | —    |  是  | 仅这两个值；`1` 向右、`-1` 向左，步长固定为 `clientWidth * 0.8`   |
+| 参数  | 类型                | 默认 | 必填 | 约束                                                              |
+| ----- | ------------------- | ---- | :--: | ----------------------------------------------------------------- |
+| `vp`  | `ScrollableElement` | —    |  是  | 需同时具备滚动几何与 `scrollTo({ left, behavior })`，原生元素满足 |
+| `dir` | `1 \| -1`           | —    |  是  | 仅这两个值；`1` 向右、`-1` 向左，步长固定为 `clientWidth * 0.8`   |
 
 ### applyWheelHorizontalScroll
 

@@ -203,7 +203,8 @@ defineEmits<{ (e: 'close'): void }>()
 <template>
   <div class="mask">
     <!-- 绑在弹窗盒子而非遮罩上：点击遮罩（盒子外部）触发 close -->
-    <div class="dialog" v-click-outside="$emit('close')">
+    <!-- 必须绑定函数表达式：内联调用 $emit('close') 会在渲染期立即执行，且无返回值导致监听不注册 -->
+    <div class="dialog" v-click-outside="() => $emit('close')">
       <slot />
     </div>
   </div>

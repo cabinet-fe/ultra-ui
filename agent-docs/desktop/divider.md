@@ -127,4 +127,4 @@ import { UDivider } from '@veltra/desktop'
 > - 本库方向属性是 `direction`，不是 AntD 的 `type`；文字对齐属性是 `align`，不是 AntD 的 `orientation`；不支持 `orientationMargin` 与 `plain`，需要文字边距 / 弱化样式时在插槽内容或外层自行设置。
 > - 垂直分割线不渲染插槽内容布局（无嵌套文字形态）；需要带文字的分割只能用水平方向。
 > - 分割线颜色取 `--u-border-color`、文字取 `--u-text-color-main`；入口未调用 `loadTheme()` 时无颜色。
-> - 组件根元素是块级 `div`（垂直时为行内块），上下外边距 `12px` 由组件样式给出，需要紧凑排布时在外层覆盖 `margin`。
+> - 组件根元素是块级 `div`（垂直时为行内块），上下外边距来自 `--u-gap-large` token（light 预设 12px、midnight 预设 14px，并非固定 12px），需要紧凑排布时在外层覆盖 `margin`。

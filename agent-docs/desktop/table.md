@@ -311,7 +311,7 @@ export function defineTableColumns(
 | `#header:{key}` | `{ column }`            | 自定义 `{key}` 列的表头                                           |
 | `#row:expand`   | `TableRowSlotsScope`    | `expandable` 模式的展开行内容，占满整行                           |
 | `#foot`         | `{ columns, rows }`     | 渲染在 `tfoot`，与合计行共存                                      |
-| `#body`         | `{ columns, rows }`     | 接管整个 `tbody` 渲染                                             |
+| `#body`         | `{ columns, rows }`     | 在 `tbody` 内建行渲染之后追加内容；内建行渲染无条件执行、不会被替换，两者叠加 |
 | `#empty`        | 无                      | 无数据时的空态，默认渲染 `UEmpty`                                 |
 | `#append`       | 无                      | 渲染在 `table` 元素之后                                           |
 

@@ -64,8 +64,6 @@ async function handleSubmit() {
 ## API 签名
 
 ```ts
-import type { ShallowRef } from 'vue'
-
 export type ComponentSize = 'small' | 'default' | 'large'
 
 /** 表单组件属性 */
@@ -108,8 +106,8 @@ export interface FormEmits {
  * const formRef = shallowRef<FormExposed>() 后用 formRef.value?.validate()
  */
 export interface FormExposed {
-  /** 表单根元素（<form> 标签） */
-  el: ShallowRef<HTMLElement | null | undefined>
+  /** 表单根元素（<form> 标签）；_FormExposed.el 的 ShallowRef 已由 DeconstructValue 解包 */
+  el: HTMLElement | null | undefined
   /** 校验，异步；见「方法与事件」 */
   validate: (keys?: string[]) => Promise<boolean>
   /** 清除全部校验错误，同步 */
@@ -142,7 +140,7 @@ export interface FormExposed {
 - `validate(keys?: string[]): Promise<boolean>` — **异步**。不传 `keys` 校验全部已注册字段；传 `keys` 仅校验指定字段，列表外与不存在的字段视为通过。返回 `Promise<boolean>`，全部通过为 `true`。失败时等 `nextTick` 后把首个错误文本（`.u-form-item__error-text`）滚动到视口中央。仅声明了 `field` 且带 `rules` 的字段参与校验。字段值每次变化会自动重校验，`reset()` 期间抑制。
 - `clearValidate(): void` — **同步**。清空全部字段的错误文本。
 - `reset(): void` — **同步**。把 `model` 按字段恢复为最近一次 `props.model` **引用**变更时的快照（浅监听，替换整个 model 对象才会刷新快照；递归恢复普通对象、数组深拷贝），随后清除校验并抑制本次触发的重校验。`model` 或快照缺失时为空操作。恢复写入会触发 `field:update`。
-- `el: ShallowRef<HTMLElement | null | undefined>` — 表单根 `<form>` 元素。
+- `el: HTMLElement | null | undefined` — 表单根 `<form>` 元素；`FormExposed` 已解包，`formRef.value.el` 直接就是元素本身，无需 `.el.value`。
 
 事件：
 

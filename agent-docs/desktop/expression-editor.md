@@ -285,7 +285,7 @@ function submit() {
 
 ### 键入 @ 后面板是空的
 
-`variables` 未传或为空数组时面板显示「暂无可用变量」；传了变量但键入了过滤词时，按 `label` 包含匹配无命中也会显示为空。修复：传入 `variables`，或修改过滤词。
+`variables` 未传或为空数组时面板显示空态文案「暂无可用变量」；传了变量但键入了过滤词时，按 `label` 包含匹配无命中也会显示为空。修复：传入 `variables`，或修改过滤词。
 
 ```vue
 <u-expression-editor v-model="expression" :variables="variables" />

@@ -121,7 +121,7 @@ export interface ImageCropperChangePayload {
 
 /** 图片裁剪组件定义的事件 */
 export interface ImageCropperEmits {
-  /** 选区或图片变换变化时触发 */
+  /** 选区、图片变换（旋转 / 翻转）或缩放 / 平移变化时触发；缩放 / 平移仅在已有选区时触发 */
   (e: 'crop-change', payload: ImageCropperChangePayload): void
 }
 
@@ -157,7 +157,7 @@ export interface ImageCropperExposed {
 ### 事件 `crop-change`
 
 - 签名：`(e: 'crop-change', payload: ImageCropperChangePayload) => void`
-- 触发时机：选区（拖动 / 手柄调整 / 比例重算 / 初始化）或变换（旋转 / 翻转）变化时
+- 触发时机：选区（拖动 / 手柄调整 / 比例重算 / 初始化）、变换（旋转 / 翻转）或缩放 / 平移变化时；缩放 / 平移仅在已有选区时触发，此时 payload 的 rotation / flipX / flipY 不变
 - `payload.selection` 为图片像素坐标（非屏幕坐标）；`payload.transform` 为 `{ rotation, flipX, flipY }`
 
 ### 暴露方法 `getResult`
@@ -281,7 +281,7 @@ const src = ref<string>('/images/photo.png')
 
 > [!WARNING]
 >
-> - 导出名为 `UImageCropper`；组件内部 `name` 是 `ImageCropper`（无 `U` 前缀），按 name 递归引用时注意区分。
+> - 导出名为 `UImageCropper`；组件内部 `name` 同样是 `UImageCropper`（带 `U` 前缀），按 name 递归引用时无需改名。
 > - 宿主必须给组件高度（根元素默认 `height: 100%`），否则画布区高度为 0。
 > - URL 源以 `crossOrigin='anonymous'` 加载：图床必须返回 CORS 头，否则图片加载失败；服务器允许跨域时 `getResult()` 不会被画布污染拒绝。
 > - `getResult()` 拒绝时不静默失败，必须 `try/catch` 或 `.catch()` 处理；未加载完成时调用即拒绝。

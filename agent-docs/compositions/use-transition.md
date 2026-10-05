@@ -161,10 +161,10 @@ interface Returned {
 
 返回 `Returned`，三个方法均为同步调用、内部异步完成动画：
 
-- `toggle(active: boolean)`：`true` 播放进入，`false` 播放离开；与当前状态相同时不重复播放。传入函数 `toggle((current) => !current)` 时以当前状态求出目标状态再切换。
-- `enter()`：`toggle(true)` 别名。css 模式流程：移除全部离开类 → 加 `enter-from` → 双 `requestAnimationFrame` 后加 `enter-active`、移除 `enter-from`、加 `enter-to` → 按元素计算样式的「最长 transition 时长 + 延迟 + 50ms」定时器收尾：移除 `enter-active`（`keepEnterTo: true` 时保留 `enter-to`）并触发 `afterEnter`。
+- `toggle(active: boolean)`：`true` 播放进入，`false` 播放离开；布尔入参无条件执行状态设置并触发播放，与当前状态相同时也会重播动画，没有同状态判重。传入函数 `toggle((current) => !current)` 时以当前状态求出目标状态再切换。
+- `enter()`：`toggle(true)` 别名。css 模式流程：移除全部离开类 → 加 `enter-from` → 第一个 `requestAnimationFrame` 回调中加 `enter-active`，嵌套的第二个 `requestAnimationFrame` 中移除 `enter-from`、加 `enter-to` → 按元素计算样式的「最长 transition 时长 + 延迟 + 50ms」定时器收尾：移除 `enter-active`（`keepEnterTo: true` 时保留 `enter-to`）并触发 `afterEnter`。
 - `leave()`：`toggle(false)` 别名。css 模式流程：移除全部进入类 → 加 `leave-from`、`leave-active` → 双帧后移除 `leave-from`、加 `leave-to` → 同样定时器收尾：移除 `leave-active`、`leave-to` 并触发 `afterLeave`。
-- style 模式流程：进入时加 `enterActive`、下一帧写 `enterTo`，结束时恢复采样到的原始样式并触发 `afterEnter`；离开时加 `leaveActive`、下一帧把 `enterTo` 的 key 恢复为原始值，`transitionend` 后恢复 `leaveActive` 并触发 `afterLeave`。
+- style 模式流程：进入时加 `enterActive`、双 `requestAnimationFrame`（第 2 帧才执行）写 `enterTo`，结束（`transitionend`）时只移除 `enterActive` 的过渡声明、`enterTo` 样式保留，并触发 `afterEnter`；离开时加 `leaveActive`、双 `requestAnimationFrame`（第 2 帧才执行）把 `enterTo` 的 key 恢复为原始值，`transitionend` 后恢复 `leaveActive` 并触发 `afterLeave`。
 - 打断语义（两模式一致）：进入途中调 `leave()` 或反之，旧阶段立即作废，新阶段从零开始；旧阶段的 `afterEnter` / `afterLeave` 不触发，也没有取消回调。
 - 清理：css 模式在 `onBeforeUnmount` 清理收尾定时器；style 模式在 `onBeforeUnmount` 移除 `transitionend` 监听。均无需手动清理。
 
@@ -255,7 +255,7 @@ function launch() {
 </template>
 ```
 
-`toggle` 的函数形式以当前状态取反，适合做开关；进入结束、离开开始时元素样式回到采样原点，动画可反复播放。
+`toggle` 的函数形式以当前状态取反，适合做开关；进入结束只移除 `enterActive` 的过渡声明，`enterTo` 样式保留（元素停留在进入终态），离开开始时才恢复采样原点，动画可反复播放。
 
 ### css 模式 + keepEnterTo：最大化切换
 

@@ -108,7 +108,7 @@ export interface ButtonExposed {
 | -------------- | ----------------------------------------------------------- | ----------- | :--: | ------------------------------------------------------------ |
 | `type`         | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'` | —           |  否  | 枚举仅这五个值；不传时渲染无语义色的默认灰底按钮             |
 | `size`         | `'small' \| 'default' \| 'large'`                           | `'default'` |  否  | 三档尺寸，控制高度、字号、圆角                               |
-| `text`         | `boolean`                                                   | `false`     |  否  | 文本按钮；为 true 时无水波纹                                 |
+| `text`         | `boolean`                                                   | `false`     |  否  | 文本按钮；仍显示水波纹（无 `type` 时为默认色波纹，有 `type` 时为语义色波纹）   |
 | `plain`        | `boolean`                                                   | `false`     |  否  | 朴素描边模式；与 `type` 同用时点击水波纹使用对应语义色       |
 | `circle`       | `boolean`                                                   | `false`     |  否  | 圆形；宽度等于高度，只放图标时使用                           |
 | `loading`      | `boolean`                                                   | `false`     |  否  | 显示加载图标（替换左侧图标）并屏蔽 click                     |

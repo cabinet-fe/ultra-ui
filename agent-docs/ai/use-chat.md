@@ -398,7 +398,7 @@ export function foldSessionEvent(state: ChatFoldState, event: ChatSessionEvent):
 
 ### 对话循环与消息状态流转
 
-一轮对话：push assistant 占位（`status: 'streaming'`）→ 调 `transport(request, handlers)` → `onTextDelta` / `onReasoningDelta` 增量写入该消息 → 无 `onError` 且未中断时置 `status: 'done'`；有工具调用则按调用顺序串行执行、结果以 `role: 'tool'` 消息追加，然后递归下一轮；工具全部成功且命中 `terminal` 工具，或轮次达到 `maxToolRounds`（默认 10）时结束并发 `finish`。错误路径：transport 抛错或调 `onError` → 消息置 `status: 'error'` 并 emit `error`；中断路径：`signal.aborted` → 消息置 `status: 'aborted'`，不 emit `error`。
+一轮对话：push assistant 占位（`status: 'streaming'`）→ 调 `transport(request, handlers)` → `onTextDelta` / `onReasoningDelta` 增量写入该消息 → 无 `onError` 且未中断时置 `status: 'done'`；有工具调用则按调用顺序串行执行、结果以 `role: 'tool'` 消息追加，然后递归下一轮；`terminal` 工具调用成功即结束（同轮其它工具失败或被拒绝不影响），或轮次达到 `maxToolRounds`（默认 10）时结束并发 `finish`。错误路径：transport 抛错或调 `onError` → 消息置 `status: 'error'` 并 emit `error`；中断路径：`signal.aborted` → 消息置 `status: 'aborted'`，不 emit `error`。
 
 ### 自定义 transport 实现契约
 

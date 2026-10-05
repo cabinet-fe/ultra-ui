@@ -191,7 +191,7 @@ function onRowClick(row: Record<string, unknown>) {
 >
 > - 本库是 `@veltra/compositions` 的 `useModel`，不是 Vue 3.4 内置 `useModel`（`defineModel` 的别名）；两者签名与行为不同，禁止混用 import 来源。
 > - 本地模式下读取来自内部副本而不是 props 实时值；props 变更经 `watch` 同步副本，两次同步之间读取到的是旧值，强实时场景用 `local: false`。
-> - 写入只在 `v !== 当前值` 时 emit；对同一值重复赋值不触发事件。
+> - 写入判重仅存在于 `local: true`（本地模式）分支：`v !== 当前副本值` 时才 emit，对同一值重复赋值不触发事件；`local: false`（代理模式）setter 无条件 emit，重复赋同值也会触发事件。
 > - `shallow` 只影响 `local: true` 的内部副本，`local: false` 模式下无意义。
 > - 表单控件放进 `<u-form>` 时必须用 `field` 绑定 model，有 `field` 就禁止再写 `v-model`，二者同时存在会双重写值。
 > - 必须在组件 `setup` 中调用（本地模式内部使用 `watch`）。

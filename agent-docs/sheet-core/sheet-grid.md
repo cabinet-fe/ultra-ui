@@ -340,7 +340,7 @@ import {
 const sheet = new Workbook().activeSheet
 sheet.setCellValue({ row: 0, col: 0 }, 5) // 分数
 sheet.setCellValue({ row: 1, col: 0 }, 1234.5) // 金额
-sheet.setCellStyle({ start: { row: 1, col: 0 }, end: { row: 1, col: 0 } }, { numFmt: 'thousands' })
+sheet.setCellStyle({ start: { row: 1, col: 0 }, end: { row: 1, col: 0 } }, { numFmt: { type: 'thousands' } })
 
 // 样式 hook：基于 baseStyle（模型有效样式）叠加，返回 undefined 回落默认
 const resolveCellStyle: ResolveCellStyleHook = (addr, baseStyle) =>
@@ -357,7 +357,7 @@ const grid = new SheetGrid({
   resolveDisplayValue
 })
 sheet.getCellData({ row: 0, col: 0 })?.v // => 5（模型恒存原始值；显示为 '5 分'）
-// A2 显示为 '1,234.50'（内置 numFmt 管线，第二行不触发宿主覆盖）
+// A2 显示为 '1,234.5'（内置 numFmt 管线：整数三位分组、小数部分原样保留；第二行不触发宿主覆盖）
 ```
 
 ### 类型化编辑器与自定义列头（多维表格形态）

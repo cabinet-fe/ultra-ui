@@ -227,8 +227,8 @@ sheet2.setCellValue({ row: 0, col: 1 }, '数量')
 sheet2.setCellValue({ row: 1, col: 1 }, 42)
 
 sheet1.setCellValue({ row: 0, col: 0 }, '汇总')
-// 公式以 = 开头；跨表引用 Sheet2!B2
-sheet1.setCellFormula({ row: 0, col: 1 }, '=SUM(Sheet2!B2:B10)')
+// 公式以 = 开头；跨表引用 数据源!B2
+sheet1.setCellFormula({ row: 0, col: 1 }, '=SUM(数据源!B2:B10)')
 
 // 初始数据作为基线，不进 undo 历史
 sheet1.history.clear()

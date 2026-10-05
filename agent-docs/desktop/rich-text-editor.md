@@ -1,6 +1,6 @@
 ---
 title: URichTextEditor 富文本编辑器
-description: '基于 Lexical 0.50 封装的富文本编辑器：v-model 绑定 HTML 或 Lexical EditorState JSON 字符串，内置加粗、标题、列表、引用、链接、图片等工具栏，支持图片延迟上传（插入即时本地预览，提交时经 ref.uploadImages 统一上传换取服务器地址）、图片选中与拖拽缩放（尺寸随 HTML width/height 属性持久化）、占位文本、自定义工具栏、禁用只读与表单集成。'
+description: '基于 Lexical 0.51 封装的富文本编辑器：v-model 绑定 HTML 或 Lexical EditorState JSON 字符串，内置加粗、标题、列表、引用、链接、图片等工具栏，支持图片延迟上传（插入即时本地预览，提交时经 ref.uploadImages 统一上传换取服务器地址）、图片选中与拖拽缩放（尺寸随 HTML width/height 属性持久化）、占位文本、自定义工具栏、禁用只读与表单集成。'
 aliases: [RichTextEditor, rich-text-editor, 富文本, RTE, 所见即所得编辑器, Lexical 封装]
 keywords:
   [
@@ -40,7 +40,7 @@ keywords:
 
 # URichTextEditor 富文本编辑器
 
-`@veltra/desktop` 导出 `URichTextEditor`（基于 Lexical 0.50 封装）与类型 `RichTextFormat`、`ToolbarItem`、`RichTextImageUploader`。组件用于编辑公告、正文等富文本内容：`v-model` 绑定字符串，`format` 决定序列化格式（默认 `'html'`），`toolbar` 按数组顺序配置工具栏按钮。支持图片输入（粘贴 / 拖拽 / 工具栏按钮，`image` 属性默认开启）：插入时以本地 `blob:` URL 即时预览、不上传，最终提交前调用 ref 上的 `uploadImages(upload)` 统一上传并返回替换为服务器地址后的最终内容。
+`@veltra/desktop` 导出 `URichTextEditor`（基于 Lexical 0.51 封装）与类型 `RichTextFormat`、`ToolbarItem`、`RichTextImageUploader`。组件用于编辑公告、正文等富文本内容：`v-model` 绑定字符串，`format` 决定序列化格式（默认 `'html'`），`toolbar` 按数组顺序配置工具栏按钮。支持图片输入（粘贴 / 拖拽 / 工具栏按钮，`image` 属性默认开启）：插入时以本地 `blob:` URL 即时预览、不上传，最终提交前调用 ref 上的 `uploadImages(upload)` 统一上传并返回替换为服务器地址后的最终内容。
 
 ## 快速上手
 
@@ -308,7 +308,7 @@ function submit() {
 
 > [!WARNING]
 >
-> - 本库组件是 `URichTextEditor`，从 `@veltra/desktop` 导入；`lexical` 与 `@lexical/*`（`^0.50.0`）是 `@veltra/desktop` 的 `dependencies`，安装时自动带上，禁止手动安装其他版本的 Lexical；应用直接使用 Lexical API 时版本必须兼容 `^0.50.0`。
+> - 本库组件是 `URichTextEditor`，从 `@veltra/desktop` 导入；`lexical` 与 `@lexical/*`（`^0.51.0`）是 `@veltra/desktop` 的 `dependencies`，安装时自动带上，禁止手动安装其他版本的 Lexical；应用直接使用 Lexical API 时版本必须兼容 `^0.51.0`。
 > - 在 UForm 中必须使用 `field` 绑定 model；已有 `field` 时禁止再写 `v-model`。
 > - `format="json"` 的 `v-model` 是 Lexical EditorState 的 JSON 序列化，不是自定义 schema；HTML 字符串与 JSON 字符串禁止互灌，格式不匹配时解析失败按空内容处理（一个空段落），不抛错。
 > - 图片延迟上传：未调用 `uploadImages` 前，含待上传图片的 `v-model` 值里图片 `src` 是 `blob:` URL，仅当前页面会话内有效；持久化（存库）前必须先 `await uploadImages(...)` 并保存其返回值，直接存含 `blob:` 的值会导致回显裂图。

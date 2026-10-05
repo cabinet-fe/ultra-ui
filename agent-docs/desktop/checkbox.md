@@ -95,7 +95,7 @@ export interface CheckboxExposed {}
 | `field`                         | `string`                                                   | —           |  否  | `UForm` 字段名；在 `UForm` 内必须用 `field` 绑定，禁止再写 `v-model`                         |
 | `tips`                          | `string`                                                   | —           |  否  | 表单内提示文字；仅在 `UForm` / `UFormItem` 内生效                                            |
 | `span`                          | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }` | —           |  否  | 表单中所占列数；`'full'` 占满一行，响应式对象的 `default` 必填                               |
-| `disabled`                      | `boolean`                                                  | `false`     |  否  | 禁用；未设置时继承 `<u-form>` 的 `disabled`                                                  |
+| `disabled`                      | `boolean`                                                  | `false`     |  否  | 禁用；仅 `UCheckbox` 生效（原生 input `:disabled`），未设置时继承 `<u-form>` 的 `disabled`；对 `UCheckboxButton` 无效——点击仍翻转并触发 `change`，也无禁用样式 |
 | `readonly`                      | `boolean`                                                  | `false`     |  否  | 只读；未设置时继承 `<u-form>` 的 `readonly`。`UCheckbox` 只读时点击不更新值也不触发 `change` |
 | `rules`                         | `ValidateRule`                                             | —           |  否  | 校验规则（如 `{ required: true }`）；仅在 `UForm` 内生效                                     |
 
@@ -189,4 +189,4 @@ const formData = reactive({ remember: false, deepThink: false })
 
 ### 点击复选框没有反应
 
-两种原因：设置了 `disabled`（原生 input 被禁用），或设置了 `readonly`（点击被拦截且不触发 `change`）。修复：移除对应属性，或改由 `<u-form>` 的 `disabled` 控制整表禁用。
+两种原因：设置了 `disabled`（仅 `UCheckbox` 生效，原生 input 被禁用；对 `UCheckboxButton` 无效，点击仍会翻转并触发 `change`），或设置了 `readonly`（点击被拦截且不触发 `change`）。修复：移除对应属性，或改由 `<u-form>` 的 `disabled` 控制整表禁用（同样仅对 `UCheckbox` 生效）。

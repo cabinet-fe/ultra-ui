@@ -90,11 +90,15 @@ export declare class Ripple {
   showByEvent(e: MouseEvent | TouchEvent): void
   /** 标记当前波纹淡出，opacity 过渡结束后从 DOM 移除，同步 */
   remove(): void
-  /** 清空容器尺寸缓存；容器尺寸变化后调用，否则波纹半径计算不准 */
+  /** 预留接口，当前实现为空操作（容器矩形每次触发时实时获取），无需手动调用 */
   resetContainerRect(): void
 }
 
-export interface RippleConfig {
+/**
+ * RippleConfig 为内部类型，未从包入口导出；
+ * `import type { RippleConfig } from '@veltra/directives'` 会编译失败，构造时直接传对象字面量即可。
+ */
+interface RippleConfig {
   /** 波纹元素附加类名 */
   rippleClass?: string
   /** 波纹过渡时长（毫秒）；不传用样式默认 300ms */
@@ -123,7 +127,7 @@ export interface RippleConfig {
 - `show(centerPosition)`：`centerPosition` 为相对容器的 `x`/`y` 坐标（px），超出容器边界的按点会得到更大的波纹半径。
 - `showByEvent(e)`：接受 `MouseEvent`（用 `clientX`/`clientY`）或 `TouchEvent`（取 `touches[0]`）。
 - `remove()`：内部标记当前波纹为可移除，等 `opacity` 的 `transitionend` 或 `transitioncancel` 后从 DOM 删除；配置了 `autoRemove: true` 时无需调用。
-- `resetContainerRect()`：容器尺寸变化后调用；不调用时波纹半径按旧尺寸计算。
+- `resetContainerRect()`：预留接口，当前实现为空操作（容器矩形每次触发时实时获取），无需手动调用。
 
 ## 典型示例
 

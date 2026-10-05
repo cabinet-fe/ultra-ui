@@ -93,9 +93,8 @@ export interface SheetToolGroup {
   tools: SheetTool[]
 }
 
-/** 缺省分组名 */
-export const DEFAULT_TOOL_GROUP = 'default'
-
+// 内部实现（tools/registry.ts）：缺省分组名常量 DEFAULT_TOOL_GROUP = 'default'，
+// 未从包入口导出；缺省分组行为由 SheetTool.group 缺省值承担，外部无需引用该常量
 /** 全局默认注册表（内置工具也注册于此）；注册一次，所有 USheet 实例共享 */
 export declare const defaultToolRegistry: ToolRegistry
 
@@ -105,7 +104,10 @@ export function registerTool(tool: SheetTool): void
 /** 从默认注册表注销；id 不存在时返回 false（不触发 change） */
 export function unregisterTool(id: string): boolean
 
-export declare class ToolRegistry {
+// 内部实现（tools/registry.ts）：ToolRegistry 注册表类未从包入口导出，
+// `import { ToolRegistry } from '@veltra/sheet'` 会失败；外部一律使用导出的
+// defaultToolRegistry / registerTool / unregisterTool。以下为其方法形状：
+declare class ToolRegistry {
   register(tool: SheetTool): void
   unregister(id: string): boolean
   get(id: string): SheetTool | undefined

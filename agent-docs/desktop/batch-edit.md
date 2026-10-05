@@ -205,7 +205,7 @@ defineTableColumns([{ name: '姓名', key: 'name' }], { align: 'center', minWidt
 - `update:data(rows)` — 插入或删除后触发，参数为新行数组；用 `v-model:data` 接收。
 - `create` / `create-prev(row)` / `create-next(row)` / `create-child(row)` — 点击对应操作后、表单打开时触发；`create-child` 参数为父级行，可据此初始化表单（如写入父级编码）。
 - `update:checked(items)` / `update:selected(row)` — 左侧表格多选/单选变化时转发。
-- 继承自 `TableEmits` 的 `update:current`、`row-click`、`cell-click`、`update:rows`、`update:forest` 在 `UBatchEdit` 内部均未转发，监听不触发；编辑/查看统一由操作列「编辑」按钮触发（只读时为「查看」按钮），点击行不打开表单。
+- 继承自 `TableEmits` 的 `update:current`、`row-click`、`cell-click`、`update:rows`、`update:forest` 在 `UBatchEdit` 内部均未转发，监听不触发；编辑/查看由点击行或操作列「编辑」按钮触发（`readonly` 时点击行或「查看」按钮均进入 view 模式），点击行即可打开表单，再次点击当前行取消选中并关闭表单。
 
 内置键盘快捷键：`Esc` 关闭表单；`Ctrl/Cmd + S` 保存（仅面板模式，组件获焦时生效）。弹框模式（`formMode: 'dialog'`）不支持 `Ctrl/Cmd + S`，保存只能走底部按钮，`Esc` 在弹框打开期间生效。`readonly` 时仅 `Esc` 生效；`quickEdit` 编辑行时不响应保存。
 
@@ -405,7 +405,7 @@ function saveMethod(data: Record<string, any>, actionType: string) {
 > - `quickEdit` 编辑行不调用 `saveMethod`，也不显示保存按钮与 `Ctrl + S` 提示；新增/插入仍走完整保存流程。
 > - `formMode: 'dialog'` 时表单随弹框挂载/卸载：新增保存成功即关闭弹框，连续录入用「保存并继续」（保存插入后弹框保持打开、表单重置为初始默认值）；取消、表单关闭按钮、弹框遮罩点击都会关闭弹框且不保存，并把 `model` 恢复到初始值；弹框内不响应 `Ctrl/Cmd + S` 保存快捷键。
 > - 继承自 `TableEmits` 的 `row-click` / `cell-click` / `update:current` / `update:rows` / `update:forest` 在本组件内未转发，监听不触发。
-> - 编辑/查看统一由操作列「编辑」按钮触发（只读时为「查看」按钮），点击行不打开表单；操作列按钮顺序固定为「编辑 → 添加子级 → 删除 → 在上方插入 → 在下方插入」，正在编辑的行保持高亮。
+> - 点击行即可打开编辑/查看表单，再次点击当前行取消选中并关闭表单；`readonly` 时点击行进入 view 模式，也可用操作列「编辑」按钮（只读时为「查看」按钮）触发；操作列按钮顺序固定为「编辑 → 添加子级 → 删除 → 在上方插入 → 在下方插入」，正在编辑的行保持高亮。
 > - `view` 特性不参与任何入口判定：只读模式的「查看」按钮同样由 `update` 控制（默认开放）。
 > - 「添加子级」（`createChild`）按钮仅在 `tree` 开启时出现；树形子节点的 key 默认 `'children'`，可用 `tree="childrenKey"` 改名。
 > - 列定义辅助函数本库提供 `defineBatchEditColumns` 与 `defineTableColumns` 两个，前者仅类型标注差异，可与 UTable 文档中的 `defineTableColumns` 通用。

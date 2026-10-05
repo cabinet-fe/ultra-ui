@@ -296,7 +296,7 @@ Params 字段五要素：
 | `range`（Merge / Unmerge）         | `CellRange`          | —    |  是  | 合并与既有合并相交时取包围盒；解除只影响与 `range` 相交的合并                                           |
 | `image`（InsertImage）             | `ImageInput`         | —    |  是  | `data` / `type` / `anchor` 必填；`id` 缺省经 `createImageId()` 生成；id 已存在 = 无操作（不覆盖既有图） |
 | `id`（Remove / UpdateImage）       | `string`             | —    |  是  | 不存在 = 无操作不入历史                                                                                 |
-| `patch`（UpdateImage）             | `ImageUpdateFields`  | —    |  是  | 只更新出现的字段；`width` / `height` 传 `0` 不生效（`!= null` 判断）；锚点整段替换                      |
+| `patch`（UpdateImage）             | `ImageUpdateFields`  | —    |  是  | 只更新出现的字段；`width` / `height` 传 `0` 生效（`!= null` 判断，仅 `null` / 不传跳过）；锚点整段替换  |
 | `namespace`（Set / ClearCellMeta） | `string`             | —    |  是  | 空白字符串 = 无操作不入历史                                                                             |
 | `payload`（SetCellMeta）           | `unknown`            | —    |  是  | 必须可序列化；与既有 payload 相等（JSON 比较）= 无操作；`undefined` 等价删除                            |
 

@@ -29,7 +29,7 @@ keywords:
 
 # UTableEditor 表格编辑器
 
-`@veltra/desktop` 导出表格型编辑器组件 `UTableEditor`。它在内部渲染一个 `UTable`，用 `v-model`（`modelValue`）绑定行对象数组，自动附加序号列和带「删除 / 新增 / 复制」按钮的操作列；单元格编辑通过 `#column:{key}` 插槽把输入控件绑定到插槽作用域的 `model` 上，声明了编辑插槽的列输入控件常驻挂载，未声明的列渲染字段原始值。列配置 `rules` 后支持懒校验：控件 `change` 事件触发单元格校验，模板 ref 的 `validate()` 整表自上而下逐行校验；错误只在表头列级标红并以气泡列出行号明细，单元格内不显示任何错误样式。需要用户增删复制行、就地编辑单元格数据时用 `UTableEditor`；要复用同一套列与 `#column:{key}` 插槽做只读展示时设 `readonly`（输入控件只读、操作列与空态「添加」按钮不渲染）；不需要编辑形态时直接用 `UTable`（见 `agent-docs/desktop/table.md`）。
+`@veltra/desktop` 导出表格型编辑器组件 `UTableEditor`。它在内部渲染一个 `UTable`，用 `v-model`（`modelValue`）绑定行对象数组，自动附加序号列和带「删除 / 新增 / 复制」按钮的操作列；单元格编辑通过 `#column:{key}` 插槽把输入控件绑定到插槽作用域的 `model` 上，声明了编辑插槽的列输入控件常驻挂载，未声明的列渲染字段原始值。列配置 `rules` 后支持懒校验：控件 `change` 事件触发单元格校验，模板 ref 的 `validate()` 并行校验所有行的规则列、未通过的单元格一次全部标出；错误只在表头列级标红并以气泡列出行号明细，单元格内不显示任何错误样式。需要用户增删复制行、就地编辑单元格数据时用 `UTableEditor`；要复用同一套列与 `#column:{key}` 插槽做只读展示时设 `readonly`（输入控件只读、操作列与空态「添加」按钮不渲染）；不需要编辑形态时直接用 `UTable`（见 `agent-docs/desktop/table.md`）。
 
 ## 快速上手
 
@@ -144,7 +144,7 @@ export interface TableEditorExposed {
 列校验（`rules`）的触发与呈现：
 
 - 单元格级：配置了 `rules` 的列，控件的 `change` 事件（如输入失焦提交）触发该单元格校验，输入过程不校验（懒校验）。
-- 整表级：模板 ref 调用 `validate()`，自上而下逐行校验全部配置了 `rules` 的列，某行存在未通过项即停止校验其后的行。
+- 整表级：模板 ref 调用 `validate()`，并行校验所有行的全部配置了 `rules` 的列，不懒校验、不中途停止，未通过的单元格一次全部标出。
 - 错误只呈现在表头：`rules.required` 非空（`true` 或文案字符串）时表头列名前渲染红星 `*`；某列存在未通过项时该列表头文字标红并追加感叹号图标，悬停气泡按行展示「第 N 行：<错误文案>」明细。单元格内没有任何错误样式。
 - 行删除或数组整体替换后，已不存在行上的错误自动清理；错误出现 / 消失即时更新表头。
 
@@ -178,7 +178,7 @@ export interface TableEditorExposed {
 ## 方法与事件
 
 - `update:modelValue`（`(value: Record<string, any>[]) => void`）：非只读时删除、新增、复制、空态「添加」与单元格编辑值变化触发（`readonly: true` 下这些入口均不渲染，事件不会触发）。payload 是浅拷贝的新数组：数组是新引用，行对象保持原引用。单元格编辑先原地写回行对象（行节点与 DOM 复用，输入不丢焦点）再触发事件。
-- `validate(): Promise<boolean>`（模板 ref 方法，异步、不抛错）：自上而下逐行校验全部配置了 `rules` 的列，某行存在未通过项即停止校验其后的行（懒校验）。全部通过 resolve `true`，任一失败 resolve `false`。错误呈现见「API 签名」节的列校验规则。
+- `validate(): Promise<boolean>`（模板 ref 方法，异步、不抛错）：并行校验所有行的全部配置了 `rules` 的列（不懒校验、不中途停止），未通过的单元格一次全部标出。全部通过 resolve `true`，任一失败 resolve `false`。错误呈现见「API 签名」节的列校验规则。
 
 ```ts
 import { useTemplateRef } from 'vue'
@@ -337,7 +337,7 @@ const columns = defineTableColumns([
 > - `readonly: true` 时：插槽 `model` 携带 `readonly: true` 且不提供写回通道，输入控件值不可修改；操作列（表头与增删复制按钮）与空态「添加」按钮不渲染。
 > - `readonly` 可随时切换，切换时全部单元格重挂载（值不丢，焦点不保留）；只读态插槽作用域与 `cell-click` 回调里的 `column.key` 带 `:ro` 后缀（如 `name:ro`），按列 key 匹配的逻辑要同时兼容两种形态。
 > - 单元格编辑与增删复制行都触发 `update:modelValue`，payload 是浅拷贝新数组（行对象保持原引用）。监听单元格变化监听 `update:modelValue` 即可，不需要对 `list` 深度 `watch`。
-> - 列校验是懒校验：单元格级只在控件 `change` 事件（如失焦提交）触发，输入过程不校验；`validate()` 整表校验自上而下逐行，某行未通过即停止其后的行。错误只在表头呈现（标红 + 感叹号气泡行号明细），单元格内无错误样式，也没有程序化读取错误明细的 API。
+> - 列校验的触发：单元格级只在控件 `change` 事件（如失焦提交）触发，输入过程不校验（懒）；`validate()` 整表校验并行执行所有行的规则列，不懒校验、不中途停止，未通过的单元格一次全部标出。错误只在表头呈现（标红 + 感叹号气泡行号明细），单元格内无错误样式，也没有程序化读取错误明细的 API。
 > - 「复制」用 `JSON` 深拷贝，行数据中的函数、`undefined` 字段、`Date` 对象会丢失；需要保真复制时不要用内置复制按钮，改用 `UTable` 自定义操作列。
 > - 新增行插入的是空对象 `{}`，不含 `rowKey` 字段；依赖 `rowKey` 的受控选中要求新增后自行回填唯一键。
 > - `tree` 与 `expandable` 互斥：树形模式下展开行（`#row:expand`）不渲染，需要行展开就不要设 `tree`。
@@ -345,9 +345,9 @@ const columns = defineTableColumns([
 
 ## 常见问题
 
-### `validate()` 返回 `false` 后，后面的行没有被校验
+### `validate()` 为什么一次标出所有错误单元格
 
-这是懒校验设计：整表校验自上而下逐行执行，某行存在未通过项即停止，其后各行保持未校验状态（表头气泡里也不含其明细）。悬停表头感叹号图标查看「第 N 行：<错误文案>」明细，修复该行后重调 `validate()` 会继续校验后面的行。
+整表校验是并行执行的：`validate()` 同时校验所有行的全部规则列，不懒校验、不中途停止，任一行未通过即 resolve `false`，且所有未通过单元格的错误一次全部标出——表头气泡包含每一处「第 N 行：<错误文案>」明细。这与单元格级的懒校验（只在控件 `change` 事件触发、输入过程不校验）不同；一次修复全部问题后重调 `validate()` 即可通过。
 
 ```ts
 import { useTemplateRef } from 'vue'
@@ -355,8 +355,8 @@ import type { TableEditorExposed } from '@veltra/desktop'
 
 const editor = useTemplateRef<TableEditorExposed>('editor')
 
-const pass = await editor.value?.validate() // => false：第 2 行未通过，第 3 行起未校验
-// 修复第 2 行后重调，才会校验到第 3 行及之后
+const pass = await editor.value?.validate() // => false：所有未通过单元格已一次性全部标出
+// 修复全部错误后重调，全部通过时 resolve true
 const passAgain = await editor.value?.validate()
 ```
 

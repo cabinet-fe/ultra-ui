@@ -115,7 +115,7 @@ export interface BreadcrumbExposed {}
 ## 方法与事件
 
 - 渲染规则逐项判定（自上而下）：
-  1. `disabled: true`：不可交互。有 `href` 时仍渲染 `<a aria-disabled="true" tabindex="-1">`，点击被 `preventDefault` 阻止；无 `href` 时渲染为纯文本。
+  1. `disabled: true`：不可交互。无论有无 `href` 都不会渲染为 `<a>`，始终渲染为纯文本，不跳转、不触发 `click`。
   2. 非 `disabled` 且非末级，或末级且 `lastLinked: true`：有 `href` 渲染 `<a href>` 原生跳转（不发 `click` 事件）；无 `href` 渲染 `<span role="link" tabindex="0">`，点击或 Enter / Space 发出 `click` 事件。
   3. 末级且 `lastLinked: false`（默认）：渲染纯文本并带 `aria-current="page"`，不可交互。
 - 键盘：可交互 span 聚焦后按 Enter 或 Space 触发 `click`，其余按键忽略。
@@ -192,7 +192,7 @@ import type { BreadcrumbItem } from '@veltra/desktop'
 
 const items = shallowRef<BreadcrumbItem[]>([
   { title: '文档', href: '/docs' },
-  { title: '组件', disabled: true }, // 有 href 才渲染禁用 <a>；无 href 渲染纯文本
+  { title: '组件', disabled: true }, // disabled 项始终渲染为纯文本，不可交互
   { title: '面包屑', href: '/docs/breadcrumb' } // 末级：lastLinked 开启后可点
 ])
 </script>
@@ -209,7 +209,7 @@ const items = shallowRef<BreadcrumbItem[]>([
 >
 > - 带 `href` 的项不触发 `click` 事件：导航交给浏览器原生 `<a>` 行为。要在事件里统一接管跳转，`items` 就不要写 `href`。
 > - 末级默认不可点、不触发 `click`；需要末级可点必须设 `lastLinked: true`。
-> - `disabled: true` 的项既不跳转也不触发 `click`；有 `href` 时渲染为禁用 `<a>`（`aria-disabled="true"`），无 `href` 时渲染为纯文本。
+> - `disabled: true` 的项始终渲染为纯文本，不可交互：既不跳转也不触发 `click`，有无 `href` 都不会渲染为 `<a>`。
 > - 本库单项类型是 `BreadcrumbItem`（`title` 必填），不是 Element Plus 的 `to` / `replace` 路由对象写法；SPA 跳转由宿主在 `click` 事件里自行路由。
 > - 面包屑不消费主题 `nav` 侧栏配置，颜色跟随全局 `--u-*` 文本 token，深浅色随主题系列自动切换。
 
