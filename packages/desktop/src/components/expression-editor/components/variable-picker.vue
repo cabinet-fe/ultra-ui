@@ -66,7 +66,7 @@
             </u-scroll>
           </div>
           <div v-else :class="cls.e('empty')">
-            <UEmpty description="暂无可用变量" />
+            <UEmpty text="暂无可用变量" />
           </div>
 
           <PathPreview v-if="isFlat && activePath.length > 0" :path="activePath" />

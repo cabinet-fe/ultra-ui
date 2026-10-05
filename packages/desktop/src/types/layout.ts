@@ -37,7 +37,8 @@ export interface LayoutProps {
   /**
    * 尺寸是否可调节
    * @default false
-   * @description 注意：当为true时，gap固定且需要有一项宽度为固定像素才能够拖拽
+   * @description 注意：当为true时，列间距固定为 10px（忽略 gap）；需同时传入 cols 才会渲染拖拽手柄。
+   * 拖拽按相邻两列的实际渲染宽度计算，全部用 fr 的列同样可拖，拖动后两列改写为 px
    */
   resizable?: boolean
   /**
