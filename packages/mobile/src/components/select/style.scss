@@ -1,5 +1,6 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
 $root-name: select;
 
@@ -8,22 +9,22 @@ $root-name: select;
   align-items: center;
   width: 100%;
   box-sizing: border-box;
-  gap: fn.use-var(gap, small);
-  padding: 0 fn.use-var(gap, default);
+  gap: t.use-var('spacing-sm');
+  padding: 0 t.use-var('spacing-md');
   border: fn.use-var(border);
   border-radius: fn.use-var(radius, default);
   background-color: fn.use-var(bg-color, top);
   color: fn.use-var(text-color, main);
-  font-size: fn.use-var(font-size-main, default);
+  font-size: t.use-var('font-size-main');
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition:
     border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
     box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
 
-  // 触控热区：任何尺寸的可点击区域不小于 44×44
+  // 触控热区：任何尺寸的可点击区域不小于 44×44，高度走移动端密度 token
   @include m.size using ($size) {
-    min-height: max(fn.use-var(form-component-height, $size), 44px);
+    min-height: max(t.control-height($size), t.use-var('touch-target'));
   }
 
   &:active {
@@ -77,6 +78,7 @@ $root-name: select;
   @include m.e(icons) {
     display: inline-flex;
     align-items: center;
+    align-self: stretch;
     flex-shrink: 0;
   }
 
@@ -85,13 +87,13 @@ $root-name: select;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 44px;
-    min-height: 44px;
+    min-width: t.use-var('touch-target');
+    min-height: t.use-var('touch-target');
     margin: -8px -8px -8px 0;
     padding: 0;
     border: none;
     background: none;
-    font-size: 16px;
+    font-size: t.use-var('font-size-main');
     color: fn.use-var(text-color, second);
     cursor: pointer;
 
@@ -106,10 +108,14 @@ $root-name: select;
   }
 
   @include m.e(arrow) {
+    // 箭头热区 ≥44×44：随行高拉伸、宽度不小于触控热区下限
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    min-width: t.use-var('touch-target');
     color: fn.use-var(text-color, second);
-    font-size: 14px;
+    font-size: t.use-var('font-size-secondary');
     transition: transform fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     svg {
@@ -120,19 +126,20 @@ $root-name: select;
 
   // 面板内搜索行
   @include m.e(search) {
-    padding: fn.use-var(gap, small) 0;
+    padding: t.use-var('spacing-sm') 0;
   }
 
   @include m.e(search-input) {
+    // 字号 ≥16px（placeholder 继承同字号）：iOS Safari 聚焦不触发页面缩放
     width: 100%;
     box-sizing: border-box;
-    min-height: 44px;
-    padding: 0 fn.use-var(gap, default);
+    min-height: t.use-var('touch-target');
+    padding: 0 t.use-var('spacing-md');
     border: fn.use-var(border);
     border-radius: fn.use-var(radius, default);
     background-color: fn.use-var(bg-color, middle);
     color: fn.use-var(text-color, main);
-    font-size: fn.use-var(font-size-main, default);
+    font-size: t.use-var('font-size-main');
     outline: none;
     -webkit-appearance: none;
 
@@ -152,7 +159,7 @@ $root-name: select;
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: t.use-var('spacing-xs');
 
     @include m.is(grid) {
       display: grid;
@@ -160,12 +167,12 @@ $root-name: select;
   }
 
   @include m.e(option) {
-    // 选项热区 ≥44×44
+    // 选项整行热区 ≥44×44
     display: flex;
     align-items: center;
-    min-height: 44px;
-    gap: fn.use-var(gap, small);
-    padding: 0 fn.use-var(gap, default);
+    min-height: t.use-var('touch-target');
+    gap: t.use-var('spacing-sm');
+    padding: 0 t.use-var('spacing-md');
     border-radius: fn.use-var(radius, default);
     color: fn.use-var(text-color, main);
     user-select: none;
@@ -207,7 +214,7 @@ $root-name: select;
     align-items: center;
     flex-shrink: 0;
     color: fn.use-var(color, primary);
-    font-size: 16px;
+    font-size: t.use-var('font-size-main');
 
     svg {
       width: 1em;
@@ -216,13 +223,13 @@ $root-name: select;
   }
 
   @include m.e(empty) {
-    padding: fn.use-var(gap, large) 0;
+    padding: t.use-var('spacing-lg') 0;
     text-align: center;
     color: fn.use-var(text-color, second);
   }
 
   @include m.e(loading) {
-    padding: fn.use-var(gap, large) 0;
+    padding: t.use-var('spacing-lg') 0;
     text-align: center;
     color: fn.use-var(text-color, second);
   }

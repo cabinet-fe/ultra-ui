@@ -1,6 +1,6 @@
 ---
 title: UMultiSelect 多选选择器（@veltra/mobile 移动端）
-description: '@veltra/mobile 导出的移动端多选选择器：点击触发器弹出底部面板多选，面板内勾选结果先暂存、点确定才落盘，支持取消丢弃、全选、最大可选数 max、已选展示上限 visibilityLimit、搜索与输入创建；已选项以可关闭标签展示在触发器上。v-model 绑定选中值数组，API 与 @veltra/desktop 的 UMultiSelect 同名同默认值。'
+description: '@veltra/mobile 导出的移动端多选选择器：点击触发器弹出底部面板多选，面板内勾选结果先暂存、点确定才落盘，支持取消丢弃、全选、最大可选数 max、已选展示上限 visibilityLimit、搜索与输入创建；已选项以可关闭标签单行展示在触发器上（超出折叠为 +N、长标签省略）。v-model 绑定选中值数组，属性与 @veltra/desktop 的 UMultiSelect 同名同默认值（弹层宽度类属性已移除），触发器密度与面板内搜索框字号（≥16px 防 iOS 聚焦缩放）走 --um-* 移动端 token。'
 aliases: [MultiSelect, MultipleSelect, 多选下拉, 标签多选, 移动端多选]
 keywords:
   [
@@ -28,7 +28,7 @@ keywords:
 
 # UMultiSelect 多选选择器（@veltra/mobile 移动端）
 
-`@veltra/mobile` 导出多选组件 `UMultiSelect`。点击触发器弹出**底部面板**：面板头部固定「取消 / 标题 / 确定」三段式，面板内勾选结果**先暂存**，点「确定」才写入 `v-model` 并发出 `change`，点「取消」或遮罩丢弃暂存。触发器上已选项渲染为可关闭标签，标签关闭与清除**立即生效**（不经暂存）。属性名、类型与默认值与 `@veltra/desktop` 的 `UMultiSelect` 完全对齐。
+`@veltra/mobile` 导出多选组件 `UMultiSelect`。点击触发器弹出**底部面板**：面板头部固定「取消 / 标题 / 确定」三段式，面板内勾选结果**先暂存**，点「确定」才写入 `v-model` 并发出 `change`，点「取消」或遮罩丢弃暂存。触发器上已选项以可关闭标签**单行**展示：超出 `visibilityLimit` 折叠为 `+N` 计数、长标签省略号截断，标签关闭与清除**立即生效**（不经暂存）。属性名、类型与默认值与 `@veltra/desktop` 的 `UMultiSelect` 对齐（breaking：桌面弹层的 `width` / `minWidth` 属性已随底部面板形态移除），触发器与选项密度走 `--um-*` 移动端 token。
 
 ## 快速上手
 
@@ -116,10 +116,6 @@ export interface MultiSelectProps {
   contentStyle?: CSSProperties | string
   /** 底部面板内容容器类名 */
   contentClass?: unknown
-  /** 声明保留（与 desktop 对齐）；当前实现未作用于底部面板 */
-  minWidth?: string
-  /** 声明保留（与 desktop 对齐）；当前实现未作用于底部面板 */
-  width?: string
   /** 组件尺寸。默认 'default' */
   size?: ComponentSize
   /** UForm 内的提示文字；移动端 UForm 不渲染该提示 */
@@ -158,13 +154,11 @@ export interface MultiSelectEmits {
 | `clearable`       | `boolean`                                                                                            | `true`           |  否  | 有选中值且非禁用时触发器常显清除按钮，点击清空全部（立即生效）                                         |
 | `placeholder`     | `string`                                                                                             | `'请选择'`       |  否  | 无选中值时的触发器文案；同时作为底部面板标题                                                            |
 | `filterable`      | `boolean`                                                                                            | `false`          |  否  | 面板顶部渲染搜索框，展开后自动聚焦；本地过滤 200ms 防抖；`creatable` 或 `options` 传函数时强制开启     |
-| `visibilityLimit` | `number`                                                                                             | `3`              |  否  | 触发器最多展示的标签数，超出折叠为 `+N`；负值按 0 处理；`disabled` / `readonly` 时展示全部             |
+| `visibilityLimit` | `number`                                                                                             | `3`              |  否  | 触发器最多展示的标签数（单行呈现），超出折叠为 `+N`；负值按 0 处理；`disabled` 时展示全部，`readonly` 换行展示全部 |
 | `max`             | `number`                                                                                             | —                |  否  | 最大可选数；暂存数达到 `max` 后未选项禁用、全选不可用，计数显示 `已选 X/max`                           |
 | `creatable`       | `boolean`                                                                                            | `false`          |  否  | 面板搜索框输入后按 `Enter` 创建新选项，值与标签均为去除首尾空格后的输入串；创建项与已有选项同 label 时勾选原选项；勾选临时项立即转正 |
 | `contentStyle`    | `CSSProperties \| string`                                                                            | —                |  否  | 底部面板内容容器样式                                                                                   |
 | `contentClass`    | `unknown`                                                                                            | —                |  否  | 底部面板内容容器类名                                                                                   |
-| `minWidth`        | `string`                                                                                             | —                |  否  | 声明保留；底部面板为全宽面板，当前实现不生效                                                           |
-| `width`           | `string`                                                                                             | —                |  否  | 声明保留；底部面板为全宽面板，当前实现不生效                                                           |
 | `size`            | `ComponentSize`                                                                                      | `'default'`      |  否  | `'small' \| 'default' \| 'large'`；UForm 上设置的值兜底，组件 prop 优先                                |
 | `tips`            | `string`                                                                                             | —                |  否  | 仅 UForm（或 UFormItem）内生效；移动端不渲染悬浮提示                                                   |
 | `span`            | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }`                                           | —                |  否  | 仅 UForm 内生效；移动端单列呈现，不生效                                                                |
@@ -298,10 +292,12 @@ async function submit() {
 >
 > - 移动端是**面板内暂存 + 确定/取消**：勾选只改暂存，点「确定」才写入 `v-model` 并发出 `change`，点「取消」或遮罩丢弃暂存；桌面端是勾选即时生效的下列表。
 > - 移动端面板内提供「全选」按钮与 `已选 X/Y` 计数（全选在暂存上操作）；桌面端是下拉面板顶部的全选复选框。
-> - 移动端触发器标签关闭与清除按钮**立即生效**（不经确定）；只读态展示全部标签。
+> - 移动端触发器标签**单行**呈现：超出 `visibilityLimit` 折叠为 `+N` 计数、长标签省略号截断，不撑高表单行；只读态是纯展示，换行展示全部标签。标签关闭与清除按钮**立即生效**（不经确定）。
 > - 移动端选项列表**直接渲染、无虚拟滚动**；桌面端选项超过 80 条自动虚拟滚动。
 > - 移动端空态与加载态为面板内文本「暂无数据」「加载中...」；桌面端空态渲染 `UEmpty` 组件。
-> - `width` / `minWidth` 属性声明保留（与 desktop 对齐），当前实现中底部面板为全宽面板，二者不生效。
+> - breaking：桌面弹层的 `width` / `minWidth` 属性已移除；底部面板为全宽面板，无需宽度控制。
+> - 移动端密度全部取 `--um-*` token：触发器高度 `max(--um-control-height-*, --um-touch-target)`（44px 保底）、字号 `--um-font-size-main`（16px）、右侧箭头热区 `--um-touch-target`（≥44px）；选项行整行热区 `--um-touch-target`。面板内搜索输入框字号 `--um-font-size-main`（16px，placeholder 继承同字号），iOS Safari 聚焦不触发页面缩放。
+> - 嵌入 `UFormItem` 控件区后自动呈列表行式形态：去边框、透明底、占满控件区（整行热区 ≥44px）；独立使用时为带边框的盒式触发器。
 > - 在 UForm 中必须用 `field` 绑定，禁止再写 `v-model`；`label` / `rules` / `span` / `tips` 仅在 UForm（或 UFormItem）内生效。
 > - `v-model` 绑定的是选中值**数组**，不是选项对象数组；需要对象时监听 `@change`（payload 为选中项对象数组）。
 > - 没有 `update:text` 事件（那是 `USelect` 的），需要文案从 `@change` 的对象数组里取 `labelKey` 字段。

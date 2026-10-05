@@ -30,7 +30,7 @@
     </span>
   </div>
 
-  <!-- 底部滚轮面板（复用 P6 弹层基座，内部实现不进公开导出）：取消/确定，滚动结果暂存至确认 -->
+  <!-- 底部滚轮面板（复用 BottomSheet 弹层基座，内部实现不进公开导出）：取消/确定，滚动结果暂存至确认 -->
   <BottomSheet v-model:visible="sheetVisible">
     <template #header>
       <button :class="cls.e('cancel')" type="button" @click="sheetVisible = false">取消</button>

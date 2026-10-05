@@ -1,6 +1,6 @@
 ---
 title: USelect 单选选择器（@veltra/mobile 移动端）
-description: '@veltra/mobile 导出的移动端单选选择器：点击触发器弹出底部面板（BottomSheet 形态）单选一个值，支持本地/远程搜索、输入创建、清除、网格布局与 text 兜底回显。v-model 绑定选中项 valueKey 字段的值；API 与 @veltra/desktop 的 USelect 同名同默认值。'
+description: '@veltra/mobile 导出的移动端单选选择器：点击触发器弹出底部面板（BottomSheet 形态）单选一个值，支持本地/远程搜索、输入创建、清除、网格布局与 text 兜底回显。v-model 绑定选中项 valueKey 字段的值；属性与 @veltra/desktop 的 USelect 同名同默认值（弹层宽度类属性已移除），触发器密度与面板内搜索框字号（≥16px 防 iOS 聚焦缩放）走 --um-* 移动端 token。'
 aliases: [Select, SingleSelect, 下拉框, 移动端选择器, el-select]
 keywords:
   [
@@ -28,7 +28,7 @@ keywords:
 
 # USelect 单选选择器（@veltra/mobile 移动端）
 
-`@veltra/mobile` 导出单选组件 `USelect`。点击触发器弹出**底部面板**单选一个值，选中即落值并收起面板；`options` 接收平铺对象数组或远程搜索函数，`v-model` 绑定选中项 `valueKey` 字段的值（不是整个选项对象）。属性名、类型与默认值与 `@veltra/desktop` 的 `USelect` 完全对齐，差异只在交互形态：移动端弹底部面板、无键盘导航、无虚拟滚动。
+`@veltra/mobile` 导出单选组件 `USelect`。点击触发器弹出**底部面板**单选一个值，选中即落值并收起面板；`options` 接收平铺对象数组或远程搜索函数，`v-model` 绑定选中项 `valueKey` 字段的值（不是整个选项对象）。属性名、类型与默认值与 `@veltra/desktop` 的 `USelect` 对齐（breaking：桌面弹层的 `width` / `minWidth` 属性已随底部面板形态移除），差异在交互形态：移动端弹底部面板、无键盘导航、无虚拟滚动，触发器与选项密度走 `--um-*` 移动端 token。
 
 ## 快速上手
 
@@ -115,10 +115,6 @@ export interface SelectProps {
   contentStyle?: CSSProperties | string
   /** 底部面板内容容器类名 */
   contentClass?: unknown
-  /** 声明保留（与 desktop 对齐）；当前实现未作用于底部面板 */
-  minWidth?: string
-  /** 声明保留（与 desktop 对齐）；当前实现未作用于底部面板 */
-  width?: string
   /** 组件尺寸。默认 'default' */
   size?: ComponentSize
   /** UForm 内的提示文字；移动端 UForm 不渲染该提示 */
@@ -168,8 +164,6 @@ export interface SelectEmits {
 | `grid`         | `{ cols: number; gap?: number }`                                                                     | —                |  否  | 网格布局，`cols` 必填、`gap` 单位 px；网格模式下选中项不渲染对勾图标                                       |
 | `contentStyle` | `CSSProperties \| string`                                                                            | —                |  否  | 底部面板内容容器样式                                                                                        |
 | `contentClass` | `unknown`                                                                                            | —                |  否  | 底部面板内容容器类名                                                                                        |
-| `minWidth`     | `string`                                                                                             | —                |  否  | 声明保留；底部面板为全宽面板，当前实现不生效                                                                |
-| `width`        | `string`                                                                                             | —                |  否  | 声明保留；底部面板为全宽面板，当前实现不生效                                                                |
 | `size`         | `ComponentSize`                                                                                      | `'default'`      |  否  | `'small' \| 'default' \| 'large'`；UForm 上设置的值兜底，组件 prop 优先                                    |
 | `tips`         | `string`                                                                                             | —                |  否  | 仅 UForm（或 UFormItem）内生效；移动端不渲染悬浮提示                                                        |
 | `span`         | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }`                                           | —                |  否  | 仅 UForm 内生效；移动端单列呈现，不生效                                                                     |
@@ -330,7 +324,10 @@ async function submit() {
 > - 移动端**无键盘导航**（`ArrowDown` / `ArrowUp` / `Enter` 选中是桌面端行为），选择只能点击选项。
 > - 移动端选项列表**直接渲染、无虚拟滚动**；桌面端选项超过 80 条自动虚拟滚动。
 > - 移动端空态与加载态为面板内文本「暂无数据」「加载中...」；桌面端空态渲染 `UEmpty` 组件。
-> - `width` / `minWidth` 属性声明保留（与 desktop 对齐），当前实现中底部面板为全宽面板，二者不生效。
+> - breaking：桌面弹层的 `width` / `minWidth` 属性已移除；底部面板为全宽面板，无需宽度控制。
+> - 移动端密度全部取 `--um-*` token：触发器高度 `max(--um-control-height-*, --um-touch-target)`（44px 保底）、字号 `--um-font-size-main`（16px）、右侧箭头热区 `--um-touch-target`（≥44px）；选项行整行热区 `--um-touch-target`。
+> - 面板内搜索输入框字号 `--um-font-size-main`（16px，placeholder 继承同字号），iOS Safari 聚焦不触发页面缩放。
+> - 嵌入 `UFormItem` 控件区后自动呈列表行式形态：去边框、透明底、占满控件区（整行热区 ≥44px）；独立使用时为带边框的盒式触发器。
 > - 在 UForm 中必须用 `field` 绑定，禁止再写 `v-model`；`label` / `rules` / `span` / `tips` 仅在 UForm（或 UFormItem）内生效，且移动端 `span` 与 `tips` 不产生布局与提示效果。
 > - `v-model` 绑定的是选中项 `valueKey` 字段的值（标量），不是整个选项对象；需要对象时监听 `@change`。
 > - 展示文案由 `options` 推导，未命中选项时展示 `text` 兜底文案；同步冗余文案用 `v-model:text`（或 `@update:text`）。未命中且传了 `text` 时组件不发送该事件，未传 `text` 时发出 `undefined`；`readonly` 下一律不发送。

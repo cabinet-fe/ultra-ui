@@ -1,5 +1,6 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
 $root-name: multi-select;
 
@@ -8,19 +9,23 @@ $root-name: multi-select;
   align-items: center;
   width: 100%;
   box-sizing: border-box;
-  gap: fn.use-var(gap, small);
-  min-height: 44px;
-  padding: fn.use-var(gap, small) fn.use-var(gap, default);
+  gap: t.use-var('spacing-sm');
+  padding: 0 t.use-var('spacing-md');
   border: fn.use-var(border);
   border-radius: fn.use-var(radius, default);
   background-color: fn.use-var(bg-color, top);
   color: fn.use-var(text-color, main);
-  font-size: fn.use-var(font-size-main, default);
+  font-size: t.use-var('font-size-main');
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition:
     border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
     box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+  // 触控热区：任何尺寸的可点击区域不小于 44×44，高度走移动端密度 token
+  @include m.size using ($size) {
+    min-height: max(t.control-height($size), t.use-var('touch-target'));
+  }
 
   &:active {
     border-color: fn.use-var(color, primary);
@@ -58,28 +63,40 @@ $root-name: multi-select;
     }
   }
 
-  // 触发器标签
+  // 触发器标签：单行呈现，超出由标签省略与 +N 计数兜底，不撑高表单行
   @include m.e(tags) {
     flex: 1;
     min-width: 0;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     align-items: center;
-    gap: fn.use-var(gap, small);
+    gap: t.use-var('spacing-xs');
+    overflow: hidden;
+  }
+
+  // 只读态是纯展示（无 +N 计数兜底）：恢复换行并补纵向呼吸空间，不裁剪标签
+  &.is-readonly {
+    padding-block: t.use-var('spacing-xs');
+
+    @include m.bem($root-name, tags) {
+      flex-wrap: wrap;
+      overflow: visible;
+    }
   }
 
   @include m.e(tag) {
     display: inline-flex;
     align-items: center;
-    max-width: 100%;
+    min-width: 0;
     box-sizing: border-box;
-    padding: fn.use-var(gap, small) fn.use-var(gap, default);
+    padding: t.use-var('spacing-xs') t.use-var('spacing-sm');
     border-radius: fn.use-var(radius, small);
     background-color: fn.use-var(bg-color, middle);
     color: fn.use-var(text-color, main);
-    font-size: fn.use-var(font-size-assist, default);
+    font-size: t.use-var('font-size-secondary');
 
     @include m.is(rest) {
+      flex-shrink: 0;
       color: fn.use-var(text-color, second);
       background-color: fn.use-var(bg-color, middle);
     }
@@ -99,12 +116,12 @@ $root-name: multi-select;
     flex-shrink: 0;
     width: 20px;
     height: 20px;
-    margin-left: fn.use-var(gap, small);
+    margin-left: t.use-var('spacing-xs');
     margin-right: -4px;
     border: none;
     background: none;
     padding: 0;
-    font-size: 12px;
+    font-size: t.use-var('font-size-auxiliary');
     color: fn.use-var(text-color, second);
     cursor: pointer;
 
@@ -128,6 +145,7 @@ $root-name: multi-select;
   @include m.e(icons) {
     display: inline-flex;
     align-items: center;
+    align-self: stretch;
     flex-shrink: 0;
   }
 
@@ -136,13 +154,13 @@ $root-name: multi-select;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 44px;
-    min-height: 44px;
+    min-width: t.use-var('touch-target');
+    min-height: t.use-var('touch-target');
     margin: -8px -8px -8px 0;
     padding: 0;
     border: none;
     background: none;
-    font-size: 16px;
+    font-size: t.use-var('font-size-main');
     color: fn.use-var(text-color, second);
     cursor: pointer;
 
@@ -157,10 +175,14 @@ $root-name: multi-select;
   }
 
   @include m.e(arrow) {
+    // 箭头热区 ≥44×44：随行高拉伸、宽度不小于触控热区下限
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    min-width: t.use-var('touch-target');
     color: fn.use-var(text-color, second);
-    font-size: 14px;
+    font-size: t.use-var('font-size-secondary');
     transition: transform fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     svg {
@@ -172,13 +194,13 @@ $root-name: multi-select;
   // 面板头部（取消 / 标题 / 确定）
   @include m.e(cancel, confirm) {
     flex-shrink: 0;
-    min-width: 44px;
-    min-height: 44px;
+    min-width: t.use-var('touch-target');
+    min-height: t.use-var('touch-target');
     margin: -8px 0;
     padding: 0;
     border: none;
     background: none;
-    font-size: fn.use-var(font-size-main, default);
+    font-size: t.use-var('font-size-main');
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
   }
@@ -210,19 +232,20 @@ $root-name: multi-select;
 
   // 面板内搜索行
   @include m.e(search) {
-    padding: fn.use-var(gap, small) 0;
+    padding: t.use-var('spacing-sm') 0;
   }
 
   @include m.e(search-input) {
+    // 字号 ≥16px（placeholder 继承同字号）：iOS Safari 聚焦不触发页面缩放
     width: 100%;
     box-sizing: border-box;
-    min-height: 44px;
-    padding: 0 fn.use-var(gap, default);
+    min-height: t.use-var('touch-target');
+    padding: 0 t.use-var('spacing-md');
     border: fn.use-var(border);
     border-radius: fn.use-var(radius, default);
     background-color: fn.use-var(bg-color, middle);
     color: fn.use-var(text-color, main);
-    font-size: fn.use-var(font-size-main, default);
+    font-size: t.use-var('font-size-main');
     outline: none;
     -webkit-appearance: none;
 
@@ -240,19 +263,19 @@ $root-name: multi-select;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: fn.use-var(gap, small) 0;
+    padding: t.use-var('spacing-sm') 0;
   }
 
   @include m.e(check-all) {
     display: inline-flex;
     align-items: center;
-    gap: fn.use-var(gap, small);
-    min-height: 44px;
+    gap: t.use-var('spacing-sm');
+    min-height: t.use-var('touch-target');
     padding: 0;
     border: none;
     background: none;
     color: fn.use-var(text-color, main);
-    font-size: fn.use-var(font-size-main, default);
+    font-size: t.use-var('font-size-main');
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
 
@@ -264,7 +287,7 @@ $root-name: multi-select;
 
   @include m.e(count) {
     color: fn.use-var(text-color, second);
-    font-size: fn.use-var(font-size-assist, default);
+    font-size: t.use-var('font-size-auxiliary');
   }
 
   // 选项列表
@@ -274,16 +297,16 @@ $root-name: multi-select;
     padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: t.use-var('spacing-xs');
   }
 
   @include m.e(option) {
-    // 选项热区 ≥44×44
+    // 选项整行热区 ≥44×44
     display: flex;
     align-items: center;
-    min-height: 44px;
-    gap: fn.use-var(gap, default);
-    padding: 0 fn.use-var(gap, default);
+    min-height: t.use-var('touch-target');
+    gap: t.use-var('spacing-md');
+    padding: 0 t.use-var('spacing-md');
     border-radius: fn.use-var(radius, default);
     color: fn.use-var(text-color, main);
     user-select: none;
@@ -336,13 +359,13 @@ $root-name: multi-select;
   }
 
   @include m.e(empty) {
-    padding: fn.use-var(gap, large) 0;
+    padding: t.use-var('spacing-lg') 0;
     text-align: center;
     color: fn.use-var(text-color, second);
   }
 
   @include m.e(loading) {
-    padding: fn.use-var(gap, large) 0;
+    padding: t.use-var('spacing-lg') 0;
     text-align: center;
     color: fn.use-var(text-color, second);
   }

@@ -32,12 +32,24 @@
       <UMultiSelect v-model="base" :options="options" disabled />
       <UMultiSelect v-model="base" :options="options" readonly />
     </section>
+
+    <section>
+      <h3>表单行式（嵌入 UFormItem）</h3>
+      <UFormItem label="途经城市">
+        <UMultiSelect v-model="base" :options="options" :visibility-limit="2" />
+      </UFormItem>
+      <UFormItem label="标签">
+        <UMultiSelect v-model="searched" :options="options" filterable placeholder="搜索城市" />
+      </UFormItem>
+      <p class="tip">触发器标签单行呈现，超出 visibilityLimit 折叠为 +N 计数，长标签省略</p>
+    </section>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { UMultiSelect } from '@veltra/mobile'
+import { UFormItem, UMultiSelect } from '@veltra/mobile'
 import { shallowRef } from 'vue'
+import '@veltra/mobile/components/form-item/style'
 import '@veltra/mobile/components/multi-select/style'
 
 const options = [

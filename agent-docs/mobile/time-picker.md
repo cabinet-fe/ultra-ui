@@ -1,6 +1,6 @@
 ---
 title: UTimePicker 时间选择器（@veltra/mobile 移动端）
-description: '@veltra/mobile 导出的移动端时间选择器：点击触发器弹出底部面板，时 / 分 / 秒三列滚轮（scroll-snap 对齐）选择，滚动与点击结果先暂存、点确定才落盘，取消丢弃；绑定值支持字符串、毫秒时间戳与 Date，支持按维度禁用时段与清除。属性与 @veltra/desktop 的 UTimePicker 同名同默认值。'
+description: '@veltra/mobile 导出的移动端时间选择器：点击触发器弹出底部面板，时 / 分 / 秒三列滚轮（scroll-snap 对齐）选择，滚动与点击结果先暂存、点确定才落盘，取消丢弃；绑定值支持字符串、毫秒时间戳与 Date，支持按维度禁用时段与清除。属性与 @veltra/desktop 的 UTimePicker 同名同默认值，触发器密度与字号走 --um-* 移动端 token。'
 aliases: [time-picker, u-time-picker, TimePicker, 时间选择器, 时间滚轮]
 keywords:
   [
@@ -29,7 +29,7 @@ keywords:
 
 # UTimePicker 时间选择器（@veltra/mobile 移动端）
 
-`@veltra/mobile` 导出时间选择器 `UTimePicker`：点击触发器弹出**底部面板**，时 / 分 / 秒三列滚轮（`scroll-snap` 逐行对齐，行高 44px）选择；面板头部为「取消 / 标题 / 确定」，滚动与点击结果**先暂存**，点「确定」才写入 `v-model` 并发出 `change`，点「取消」或遮罩丢弃暂存。支持字符串 / 毫秒时间戳 / `Date` 三种绑定值类型与按维度禁用时段。属性名、类型与默认值与 `@veltra/desktop` 的 `UTimePicker` 完全对齐。
+`@veltra/mobile` 导出时间选择器 `UTimePicker`：点击触发器弹出**底部面板**，时 / 分 / 秒三列滚轮（`scroll-snap` 逐行对齐，行高 44px）选择；面板头部为「取消 / 标题 / 确定」，滚动与点击结果**先暂存**，点「确定」才写入 `v-model` 并发出 `change`，点「取消」或遮罩丢弃暂存。支持字符串 / 毫秒时间戳 / `Date` 三种绑定值类型与按维度禁用时段。属性名、类型与默认值与 `@veltra/desktop` 的 `UTimePicker` 对齐，触发器与滚轮密度走 `--um-*` 移动端 token。
 
 日期与时间的分工：选日期 / 月份 / 年份用 `UDatePicker`；仅选一天内的时间（时:分:秒）用 `UTimePicker`。
 
@@ -267,6 +267,8 @@ const form = reactive({ startAt: '', endAt: undefined as number | undefined })
 > - 移动端是**三列滚轮 + 暂存 + 确定/取消**：滚动与点击只改暂存，点「确定」才提交 `update:modelValue` 与 `change`，点「取消」或遮罩丢弃；桌面端是三列点击列表、点击列项立即提交且面板保持展开。
 > - 移动端滚轮逐行 `scroll-snap` 对齐（行高 44px、列高 5 行），滚动停稳约 100ms 落暂存；桌面端无滚轮。
 > - 移动端清除按钮在有值且 `clearable` 时**常显**（无 hover 概念），桌面端悬停触发器时才显示。
+> - 移动端密度全部取 `--um-*` token：触发器高度 `max(--um-control-height-*, --um-touch-target)`（44px 保底）、字号 `--um-font-size-main`（16px）、面板头部操作热区 `--um-touch-target`（≥44px）；滚轮行高 44px 与脚本滚动定位耦合，不走 token。
+> - 嵌入 `UFormItem` 控件区后自动呈列表行式形态：去边框、透明底、占满控件区（整行热区 ≥44px）；独立使用时为带边框的盒式触发器。
 > - 无值时打开面板三列停在 `00:00:00`；点「确定」后以今天 00:00:00 为基底提交。
 > - 滚动停在禁用项上时该列回弹到当前暂存值，禁用项不可选。
 > - 禁用回调按「面板暂存值」计算：`disabledMinutes(hour)` 的 `hour` 是暂存小时，未选值时为 `0`。

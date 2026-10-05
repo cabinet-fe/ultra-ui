@@ -40,13 +40,25 @@
       <UTimePicker v-model="base" readonly />
       <UTimePicker v-model="base" :clearable="false" />
     </section>
+
+    <section>
+      <h3>表单行式（嵌入 UFormItem）</h3>
+      <UFormItem label="开始时间">
+        <UTimePicker v-model="base" />
+      </UFormItem>
+      <UFormItem label="结束时间">
+        <UTimePicker v-model="formatted" format="HH时mm分" value-format="HH:mm" />
+      </UFormItem>
+      <p class="tip">嵌入 form-item 控件区自动去边框呈行式，面板走底部滚轮</p>
+    </section>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { date } from '@cat-kit/core'
-import { UTimePicker } from '@veltra/mobile'
+import { UFormItem, UTimePicker } from '@veltra/mobile'
 import { shallowRef } from 'vue'
+import '@veltra/mobile/components/form-item/style'
 import '@veltra/mobile/components/time-picker/style'
 
 const base = shallowRef('09:30:00')

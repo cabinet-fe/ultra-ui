@@ -48,12 +48,24 @@
       <h3>网格布局</h3>
       <USelect v-model="grid" :options="options" :grid="{ cols: 3 }" />
     </section>
+
+    <section>
+      <h3>表单行式（嵌入 UFormItem）</h3>
+      <UFormItem label="城市">
+        <USelect v-model="base" :options="options" />
+      </UFormItem>
+      <UFormItem label="目的地">
+        <USelect v-model="filtered" :options="options" filterable placeholder="搜索城市" />
+      </UFormItem>
+      <p class="tip">嵌入 form-item 控件区自动去边框呈行式，整行热区 ≥44px</p>
+    </section>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { USelect } from '@veltra/mobile'
+import { UFormItem, USelect } from '@veltra/mobile'
 import { shallowRef } from 'vue'
+import '@veltra/mobile/components/form-item/style'
 import '@veltra/mobile/components/select/style'
 
 const options = [

@@ -1,5 +1,6 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
 $root-name: time-picker;
 
@@ -8,22 +9,22 @@ $root-name: time-picker;
   align-items: center;
   width: 100%;
   box-sizing: border-box;
-  gap: fn.use-var(gap, small);
-  padding: 0 fn.use-var(gap, default);
+  gap: t.use-var('spacing-sm');
+  padding: 0 t.use-var('spacing-md');
   border: fn.use-var(border);
   border-radius: fn.use-var(radius, default);
   background-color: fn.use-var(bg-color, top);
   color: fn.use-var(text-color, main);
-  font-size: fn.use-var(font-size-main, default);
+  font-size: t.use-var('font-size-main');
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   transition:
     border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
     box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
 
-  // 触控热区：任何尺寸的可点击区域不小于 44×44
+  // 触控热区：任何尺寸的可点击区域不小于 44×44，高度走移动端密度 token
   @include m.size using ($size) {
-    min-height: max(fn.use-var(form-component-height, $size), 44px);
+    min-height: max(t.control-height($size), t.use-var('touch-target'));
   }
 
   &:active {
@@ -57,6 +58,7 @@ $root-name: time-picker;
   @include m.e(icons) {
     display: inline-flex;
     align-items: center;
+    align-self: stretch;
     flex-shrink: 0;
   }
 
@@ -65,13 +67,13 @@ $root-name: time-picker;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 44px;
-    min-height: 44px;
+    min-width: t.use-var('touch-target');
+    min-height: t.use-var('touch-target');
     margin: -8px -8px -8px 0;
     padding: 0;
     border: none;
     background: none;
-    font-size: 16px;
+    font-size: t.use-var('font-size-main');
     color: fn.use-var(text-color, second);
     cursor: pointer;
 
@@ -89,7 +91,7 @@ $root-name: time-picker;
     display: inline-flex;
     align-items: center;
     color: fn.use-var(text-color, second);
-    font-size: 16px;
+    font-size: t.use-var('font-size-main');
 
     svg {
       width: 1em;
@@ -102,11 +104,11 @@ $root-name: time-picker;
     // 操作热区 ≥44×44
     display: inline-flex;
     align-items: center;
-    min-height: 44px;
-    padding: 0 fn.use-var(gap, small);
+    min-height: t.use-var('touch-target');
+    padding: 0 t.use-var('spacing-sm');
     border: none;
     background: none;
-    font-size: fn.use-var(font-size-main, default);
+    font-size: t.use-var('font-size-main');
     color: fn.use-var(text-color, second);
     cursor: pointer;
 
@@ -129,11 +131,11 @@ $root-name: time-picker;
     // 操作热区 ≥44×44
     display: inline-flex;
     align-items: center;
-    min-height: 44px;
-    padding: 0 fn.use-var(gap, small);
+    min-height: t.use-var('touch-target');
+    padding: 0 t.use-var('spacing-sm');
     border: none;
     background: none;
-    font-size: fn.use-var(font-size-main, default);
+    font-size: t.use-var('font-size-main');
     font-weight: 600;
     color: fn.use-var(color, primary);
     cursor: pointer;
@@ -147,7 +149,7 @@ $root-name: time-picker;
   @include m.e(wheel) {
     position: relative;
     display: flex;
-    gap: fn.use-var(gap, small);
+    gap: t.use-var('spacing-sm');
   }
 
   @include m.e(highlight) {
@@ -182,7 +184,7 @@ $root-name: time-picker;
   }
 
   @include m.e(item) {
-    // 滚轮行热区 ≥44×44
+    // 滚轮行高与脚本 ITEM_HEIGHT 常量耦合（spacer/列高/highlight 同源），不取 token
     display: flex;
     align-items: center;
     justify-content: center;

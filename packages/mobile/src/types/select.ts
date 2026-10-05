@@ -1,7 +1,7 @@
 import type { FormComponentProps } from '@veltra/utils'
 import type { CSSProperties } from 'vue'
 
-/** 选择器组件属性（与 desktop 同名组件一致） */
+/** 选择器组件属性（移动端形态：面板走 BottomSheet） */
 export interface SelectProps extends FormComponentProps {
   /** 绑定值 */
   modelValue?: any
@@ -27,17 +27,10 @@ export interface SelectProps extends FormComponentProps {
   placeholder?: string
   /** 是否启用搜索功能 */
   filterable?: boolean
-  /** 内容容器样式 */
+  /** 底部面板内容容器样式 */
   contentStyle?: CSSProperties | string
-  /** 内容容器类名 */
+  /** 底部面板内容容器类名 */
   contentClass?: unknown
-  /** 弹框最小宽度 */
-  minWidth?: string
-  /**
-   * 弹框宽度
-   * @default 跟随触发元素的宽度
-   */
-  width?: string
   /** 是否允许创建新的选项 */
   creatable?: boolean
 

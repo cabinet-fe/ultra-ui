@@ -1,6 +1,6 @@
 <template>
   <!-- 只读态：纯展示标签 -->
-  <div v-if="readonly && model?.length" :class="[cls.b, cls.m(size)]">
+  <div v-if="readonly && model?.length" :class="[cls.b, cls.m(size), bem.is('readonly', true)]">
     <div :class="cls.e('tags')">
       <span v-for="option of tags" :key="getOptionField(option, valueKey)" :class="cls.e('tag')">
         {{ getOptionField(option, labelKey) }}
