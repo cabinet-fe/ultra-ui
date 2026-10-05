@@ -1,6 +1,6 @@
 <template>
   <Teleport :to="getOverlayContainer()">
-    <Transition name="um-sheet">
+    <Transition name="um-sheet" @after-leave="scrollLock.unlock">
       <div v-if="visible" :class="overlayCls" :style="{ zIndex: zIndex() }" @click.self="close">
         <section
           :class="[panelCls, contentClass]"
@@ -29,17 +29,18 @@
 <script lang="ts" setup>
 import { Close } from '@veltra/icons/normal'
 import { zIndex } from '@veltra/utils'
-import { onBeforeUnmount, watch } from 'vue'
+import { watch } from 'vue'
 import type { CSSProperties } from 'vue'
 
 import { bem } from '../../../shared/bem'
-import { getOverlayContainer } from '../overlay-container'
+import { getOverlayContainer, useOverlayScrollLock } from '../overlay-container'
 
 /**
  * 移动端底部弹层基座（内部组件，不进公开导出）
  *
  * 遮罩 + 底部面板进出场，供 select / multi-select / 后续弹层类组件复用。
- * 面板自身不做内容滚动，内容区由 `body` 槽位自行组织。
+ * 面板打开期间锁定背景滚动（body / 设备外壳视口），内容区 `body` 自身可滚，
+ * 完全关闭后恢复原滚动位置。
  */
 defineOptions({ name: 'UBottomSheet' })
 
@@ -65,23 +66,16 @@ function close() {
   emit('update:visible', false)
 }
 
-/** 面板展示期间锁定宿主容器（默认 body）滚动，避免背景跟随滚动 */
-let prevOverflow = ''
+const scrollLock = useOverlayScrollLock()
 
 watch(
   () => props.visible,
   (visible) => {
-    const host = getOverlayContainer()
     if (visible) {
-      prevOverflow = host.style.overflow
-      host.style.overflow = 'hidden'
-    } else {
-      host.style.overflow = prevOverflow
+      scrollLock.lock()
     }
-  }
+    // 解锁挂在退场过渡 after-leave：动画期间背景保持锁定
+  },
+  { immediate: true }
 )
-
-onBeforeUnmount(() => {
-  getOverlayContainer().style.overflow = prevOverflow
-})
 </script>

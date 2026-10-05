@@ -1,5 +1,6 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
 
 $root-name: drawer;
 $overlay-name: #{$root-name}-overlay;
@@ -25,20 +26,20 @@ $vertical-max-height: min(70%, 560px);
   // 松手回弹；进出滑动的 -active 类在其后声明，覆盖此过渡
   transition: transform fn.use-var(transition, normal) fn.use-var(transition, ease-out);
 
+  // 拖拽跟手期间禁用过渡，松手回弹 / 继续滑出时恢复
+  @include m.is(dragging) {
+    transition: none;
+  }
+
+  // 边缘拖拽把手：热区不小于 44x44，视觉为居中的圆角把手
   @include m.e(grabber) {
-    // 整行 44px 触控热区，视觉为居中把手
     flex-shrink: 0;
-    width: 100%;
-    height: 44px;
-    padding: 10px 0;
     box-sizing: border-box;
     touch-action: none;
     @include m.flex($display: flex, $justify: center);
 
     &::after {
       content: '';
-      width: 36px;
-      height: 4px;
       border-radius: fn.use-var(radius, small);
       background-color: fn.use-var(text-color, assist);
     }
@@ -46,29 +47,30 @@ $vertical-max-height: min(70%, 560px);
 
   @include m.e(header) {
     flex-shrink: 0;
-    min-height: 48px;
-    padding: 0 fn.use-var(gap, default);
-    gap: fn.use-var(gap, default);
+    min-height: t.use-var('form-row-height');
+    padding: 0 t.use-var('spacing-md');
+    gap: t.use-var('spacing-md');
     border-bottom: fn.use-var(border);
     @include m.flex($justify: space-between);
   }
 
   @include m.e(title) {
-    font-size: fn.use-var(font-size-title, default);
+    font-size: t.use-var('font-size-main');
     font-weight: 600;
+    color: fn.use-var(text-color, title);
     @include m.ellipsis;
   }
 
   @include m.e(close) {
     // 关闭热区不小于 44x44
     flex-shrink: 0;
-    min-width: 44px;
-    min-height: 44px;
+    min-width: t.use-var('touch-target');
+    min-height: t.use-var('touch-target');
     padding: 0;
     border: none;
     background-color: transparent;
     color: fn.use-var(text-color, second);
-    font-size: fn.use-var(font-size-main, large);
+    font-size: t.use-var('font-size-main');
     line-height: 1;
     -webkit-appearance: none;
     -webkit-tap-highlight-color: transparent;
@@ -88,7 +90,8 @@ $vertical-max-height: min(70%, 560px);
     flex-grow: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding: fn.use-var(gap, large);
+    font-size: t.use-var('font-size-main');
+    padding: t.use-var('spacing-lg');
   }
 
   @include m.is(left, right) {
@@ -96,42 +99,100 @@ $vertical-max-height: min(70%, 560px);
     bottom: 0;
     width: $side-width;
     max-height: 100%;
+
+    // 侧边形态：内沿中部 44x44 竖把手（绝对定位，不占内容流）
+    @include m.bem($root-name, grabber) {
+      position: absolute;
+      top: 50%;
+      width: t.use-var('touch-target');
+      height: t.use-var('touch-target');
+      transform: translateY(-50%);
+      z-index: 1;
+
+      &::after {
+        width: 4px;
+        height: 36px;
+      }
+    }
   }
 
   @include m.is(top, bottom) {
     left: 0;
     right: 0;
     max-height: $vertical-max-height;
+
+    // 上下形态：整行 44px 触控热区，视觉为居中横把手
+    @include m.bem($root-name, grabber) {
+      width: 100%;
+      height: t.use-var('touch-target');
+      padding: 10px 0;
+
+      &::after {
+        width: 36px;
+        height: 4px;
+      }
+    }
   }
 
+  // 各方位：贴边定位、外沿圆角，拖拽偏移挂到基础 transform 上，
+  // 松手关闭时从当前位置继续滑出（--u-drawer-drag 始终 ≥ 0，方向由此处折叠）
   @include m.is(right) {
     right: 0;
     border-radius: fn.use-var(radius, large) 0 0 fn.use-var(radius, large);
+    transform: translateX(calc(-1 * var(--u-drawer-drag, 0px)));
+
+    // 把手锚定在面板左内沿（关闭方向）
+    @include m.bem($root-name, grabber) {
+      left: 0;
+    }
+
+    &.drawer-slide-right-enter-from,
+    &.drawer-slide-right-leave-to {
+      transform: translateX(calc(-100% - var(--u-drawer-drag, 0px)));
+    }
   }
 
   @include m.is(left) {
     left: 0;
     border-radius: 0 fn.use-var(radius, large) fn.use-var(radius, large) 0;
+    transform: translateX(var(--u-drawer-drag, 0px));
+
+    // 把手锚定在面板右内沿（关闭方向）
+    @include m.bem($root-name, grabber) {
+      right: 0;
+    }
+
+    &.drawer-slide-left-enter-from,
+    &.drawer-slide-left-leave-to {
+      transform: translateX(calc(100% + var(--u-drawer-drag, 0px)));
+    }
   }
 
   @include m.is(top) {
     top: 0;
     border-radius: 0 0 fn.use-var(radius, large) fn.use-var(radius, large);
+    // 顶部形态让出刘海安全区
+    padding-top: env(safe-area-inset-top);
+    transform: translateY(calc(-1 * var(--u-drawer-drag, 0px)));
+
+    // 把手渲染在面板下边缘（关闭方向）
+    @include m.bem($root-name, grabber) {
+      order: 1;
+    }
+
+    &.drawer-slide-top-enter-from,
+    &.drawer-slide-top-leave-to {
+      transform: translateY(calc(-100% - var(--u-drawer-drag, 0px)));
+    }
   }
 
   @include m.is(bottom) {
     bottom: 0;
     border-radius: fn.use-var(radius, large) fn.use-var(radius, large) 0 0;
+    // 底部形态让出手势条安全区
     padding-bottom: env(safe-area-inset-bottom);
-
-    // 下拉偏移挂在基础 transform 上，松手关闭时从当前位置继续滑出
     transform: translateY(var(--u-drawer-drag, 0px));
 
-    &.is-dragging {
-      transition: none;
-    }
-
-    // 进出滑动起点/终点并入下拉偏移（选择器权重高于上面的基础 transform）
     &.drawer-slide-bottom-enter-from,
     &.drawer-slide-bottom-leave-to {
       transform: translateY(calc(100% + var(--u-drawer-drag, 0px)));
@@ -149,19 +210,4 @@ $vertical-max-height: min(70%, 560px);
 .drawer-slide-top-leave-active,
 .drawer-slide-bottom-leave-active {
   transition: transform fn.use-var(transition, normal) fn.use-var(transition, ease-out);
-}
-
-.drawer-slide-right-enter-from,
-.drawer-slide-right-leave-to {
-  transform: translateX(100%);
-}
-
-.drawer-slide-left-enter-from,
-.drawer-slide-left-leave-to {
-  transform: translateX(-100%);
-}
-
-.drawer-slide-top-enter-from,
-.drawer-slide-top-leave-to {
-  transform: translateY(-100%);
 }

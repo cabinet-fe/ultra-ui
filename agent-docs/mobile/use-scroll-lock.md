@@ -1,6 +1,6 @@
 ---
 title: useScrollLock 滚动锁定
-description: '@veltra/mobile 导出的 body 滚动锁定组合式函数：lock()/unlock() 成对调用，弹层打开期间锁死页面滚动、关闭后回到原滚动位置；计数嵌套，多个弹层叠加时只有最外层解锁才恢复。UDialog / UDrawer / BottomSheet 内部即用它锁定背景滚动。'
+description: '@veltra/mobile 导出的 body 滚动锁定组合式函数：lock()/unlock() 成对调用，弹层打开期间锁死页面滚动、关闭后回到原滚动位置；计数嵌套，多个弹层叠加时只有最外层解锁才恢复。UDialog / UDrawer / BottomSheet 内部经同一套锁机制锁定背景滚动（默认即 body）。'
 aliases: [ScrollLock, 锁定背景滚动, body scroll lock, 滚动锁, 页面滚动锁定]
 keywords:
   [

@@ -1,15 +1,11 @@
 @use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
 @use 'pkg:@veltra/styles/functions' as fn;
-@use 'sass:map';
+@use '../../styles/tokens' as t;
 
 $root-name: dialog;
 
-// 各尺寸卡片宽度上限；视口内不溢出由 overlay 留白 + width: 100% 保证
-$dialog-max-width: (
-  small: 320px,
-  default: 420px,
-  large: 560px
-);
+// NutUI 惯例卡片宽度上限；视口内不溢出由 overlay 留白 + width: 100% 保证
+$dialog-max-width: 320px;
 
 @include m.bem($root-name, overlay) {
   position: fixed;
@@ -35,44 +31,49 @@ $dialog-max-width: (
   flex-wrap: nowrap;
   overflow: hidden;
   width: 100%;
+  max-width: $dialog-max-width;
   max-height: 86%;
+  // NutUI 惯例：大圆角居中卡片
   border-radius: fn.use-var(radius, large);
   background-color: fn.use-var(bg-color, top);
   box-shadow: fn.use-var(shadow, lg);
 
-  @include m.size using ($size) {
-    max-width: map.get($dialog-max-width, $size);
-    font-size: fn.use-var(font-size-main, $size);
-
-    @include m.bem($root-name, header) {
-      padding: 0 fn.use-var(gap, $size);
-      font-size: fn.use-var(font-size-title, $size);
-    }
-  }
-
+  // NutUI 惯例：标题居中加粗，主字号
   @include m.e(header) {
-    min-height: 48px;
+    position: relative;
     flex-shrink: 0;
-    gap: fn.use-var(gap, default);
-    border-bottom: fn.use-var(border);
-    @include m.flex($justify: space-between);
+    min-height: 48px;
+    padding: t.use-var('spacing-lg') t.use-var('spacing-lg') 0;
+    @include m.flex($justify: center);
   }
 
   @include m.e(title) {
-    // 单行省略，长标题不换行挤压关闭按钮
-    @include m.ellipsis;
+    width: 100%;
+    font-size: t.use-var('font-size-main');
+    font-weight: 600;
+    color: fn.use-var(text-color, title);
+    line-height: 1.4;
+    text-align: center;
+    // 多行标题省略为两行，长标题不挤压正文
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
   }
 
+  // 标题居中时关闭按钮绝对定位在右上角，不挤偏标题
   @include m.e(close) {
+    position: absolute;
+    top: 0;
+    right: 0;
     // 关闭热区不小于 44x44
-    flex-shrink: 0;
-    min-width: 44px;
-    min-height: 44px;
+    min-width: t.use-var('touch-target');
+    min-height: t.use-var('touch-target');
     padding: 0;
     border: none;
     background-color: transparent;
     color: fn.use-var(text-color, second);
-    font-size: fn.use-var(font-size-main, large);
+    font-size: t.use-var('font-size-main');
     line-height: 1;
     -webkit-appearance: none;
     -webkit-tap-highlight-color: transparent;
@@ -92,15 +93,45 @@ $dialog-max-width: (
     flex-grow: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
-    padding: fn.use-var(gap, large);
+    // NutUI 惯例：正文默认居中，表单等场景经 contentAlign 切左对齐
+    text-align: center;
+    font-size: t.use-var('font-size-main');
+    color: fn.use-var(text-color, second);
+    line-height: 1.6;
+    padding: t.use-var('spacing-lg');
+    word-break: break-word;
+
+    @include m.is(align-left) {
+      text-align: left;
+    }
+
+    @include m.is(align-right) {
+      text-align: right;
+    }
   }
 
+  // 移动端惯例水平按钮组：等宽铺满、主操作（最后一个）居右，
+  // 操作区高度不小于 44px 触控下限（NutUI 惯例 48px）
   @include m.e(footer) {
     flex-shrink: 0;
-    border-top: fn.use-var(border);
-    padding: fn.use-var(gap, default) fn.use-var(gap, large);
-    gap: fn.use-var(gap, default);
-    @include m.flex($justify: flex-end);
+    gap: t.use-var('spacing-md');
+    min-height: 48px;
+    padding: t.use-var('spacing-sm') t.use-var('spacing-lg');
+    @include m.flex;
+
+    // 按钮等宽铺满，包括插槽内容
+    & > * {
+      flex: 1 1 0;
+    }
+
+    @include m.is(actions-vertical) {
+      flex-direction: column;
+
+      & > * {
+        width: 100%;
+        flex-basis: auto;
+      }
+    }
   }
 
   @include m.is(fullscreen) {
@@ -109,6 +140,15 @@ $dialog-max-width: (
     width: 100%;
     height: 100%;
     border-radius: 0;
+
+    // 全屏铺满视口时正文与按钮组让出底部安全区（手势条）
+    @include m.bem($root-name, body) {
+      padding-bottom: calc(#{t.use-var('spacing-lg')} + env(safe-area-inset-bottom));
+    }
+
+    @include m.bem($root-name, footer) {
+      padding-bottom: calc(#{t.use-var('spacing-sm')} + env(safe-area-inset-bottom));
+    }
   }
 }
 

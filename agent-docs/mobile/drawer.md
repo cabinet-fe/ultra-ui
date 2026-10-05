@@ -1,6 +1,6 @@
 ---
 title: UDrawer 抽屉（@veltra/mobile 移动端）
-description: '@veltra/mobile 导出的移动端抽屉组件：v-model 控制显隐，从上/下/左/右四个方向滑出，带遮罩与可选标题栏/关闭按钮；direction="bottom" 时呈现底部面板形态，顶部有拖拽把手，下拉超过 100px 关闭。API 与 @veltra/desktop 的 UDrawer 同名。'
+description: '@veltra/mobile 导出的移动端抽屉组件：v-model 控制显隐，placement 决定从上/下/左/右哪个方位滑出（默认 bottom 底部面板）。四个方位均支持沿关闭方向拖拽内沿把手关闭（位移 ≥100px 或甩动速度达标），打开期间背景滚动锁定、完全关闭后恢复原滚动位置。'
 aliases: [Drawer, 抽屉面板, 侧滑面板, 底部面板, 移动端抽屉]
 keywords:
   [
@@ -8,27 +8,29 @@ keywords:
     update:modelValue,
     close,
     closed,
-    direction,
+    placement,
     showClose,
     title,
     grabber,
-    DrawerDirection,
+    DrawerPlacement,
     DrawerMode,
     DrawerProps,
     标题栏,
     把手,
-    下拉关闭,
+    拖拽关闭,
+    边缘手势,
     侧滑,
     底部面板,
     遮罩层,
     关闭按钮,
+    滚动锁定,
     关闭动画结束
   ]
 ---
 
 # UDrawer 抽屉（@veltra/mobile 移动端）
 
-`@veltra/mobile` 导出的 `UDrawer` 是移动端抽屉组件：用 `v-model`（`modelValue`）控制显隐，`direction` 决定从上/下/左/右哪个方向滑出，内容通过 Teleport 渲染在 `body` 下的全屏遮罩内。`direction="bottom"`（底部面板形态）时面板顶部渲染**拖拽把手**，按住下拉超过 100px 松手即关闭；传 `title` 或 `showClose` 时内容区上方渲染标题栏。
+`@veltra/mobile` 导出的 `UDrawer` 是移动端抽屉组件：用 `v-model`（`modelValue`）控制显隐，`placement` 决定从上/下/左/右哪个方位滑出（**默认 `'bottom'`**，移动端惯例底部面板），内容通过 Teleport 渲染在 `body` 下的全屏遮罩内。四个方位的面板内沿都有**拖拽把手**，沿关闭方向拖拽跟手、松手达标即关闭；传 `title` 或 `showClose` 时内容区上方渲染标题栏。打开期间背景滚动被锁定，完全关闭后恢复原滚动位置。
 
 ## 快速上手
 
@@ -46,7 +48,7 @@ const visible = ref(false)
 <template>
   <UButton @click="visible = true">打开抽屉</UButton>
 
-  <UDrawer v-model="visible" direction="bottom" title="用户详情" show-close>
+  <UDrawer v-model="visible" title="用户详情" show-close>
     <p>底部面板内容，按住顶部把手下拉可关闭</p>
   </UDrawer>
 </template>
@@ -57,8 +59,8 @@ const visible = ref(false)
 ## API 签名
 
 ```ts
-/** 抽屉方向 */
-export type DrawerDirection = 'left' | 'right' | 'top' | 'bottom'
+/** 抽屉方位（NutUI 惯例 prop 名），决定滑出方向与对应边缘的拖拽关闭手势 */
+export type DrawerPlacement = 'left' | 'right' | 'top' | 'bottom'
 
 /** 抽屉模式。已声明，当前没有任何 prop 使用，没有 `mode` 属性 */
 export type DrawerMode = 'edge' | 'inset'
@@ -67,8 +69,8 @@ export type DrawerMode = 'edge' | 'inset'
 export interface DrawerProps {
   /** 是否显示抽屉。默认 false */
   modelValue?: boolean
-  /** 抽屉方向。默认 'right' */
-  direction?: DrawerDirection
+  /** 抽屉方位。默认 'bottom'（移动端惯例底部面板） */
+  placement?: DrawerPlacement
   /** 是否显示关闭按钮。默认 false */
   showClose?: boolean
   /** 抽屉标题；传入时（或 showClose 为 true 时）在内容区上方渲染标题栏，不传则不渲染标题栏 */
@@ -79,7 +81,7 @@ export interface DrawerProps {
 export interface DrawerEmits {
   /** 更新抽屉显示状态 */
   (e: 'update:modelValue', value: boolean): void
-  /** 开始关闭时触发（点遮罩、点关闭按钮、下拉关闭） */
+  /** 开始关闭时触发（点遮罩、点关闭按钮、拖拽关闭松手达标） */
   (e: 'close'): void
   /** 完全关闭后触发：抽屉与遮罩的退出动画结束、节点已移除时 */
   (e: 'closed'): void
@@ -94,30 +96,31 @@ export interface DrawerExposed {}
 
 ## 参数说明
 
-| 参数         | 类型                                     | 默认      | 必填 | 约束                                                                                    |
-| ------------ | ---------------------------------------- | --------- | :--: | --------------------------------------------------------------------------------------- |
-| `modelValue` | `boolean`                                | `false`   |  否  | 用 `v-model` 绑定显隐                                                                   |
-| `direction`  | `'left' \| 'right' \| 'top' \| 'bottom'` | `'right'` |  否  | 决定滑出方向与对应过渡动画 `drawer-slide-*`；`'bottom'` 时渲染拖拽把手并支持下拉关闭   |
-| `showClose`  | `boolean`                                | `false`   |  否  | 关闭按钮渲染在标题栏右侧（触控热区不小于 44x44），点击关闭                              |
+| 参数         | 类型                                     | 默认      | 必填 | 约束                                                                                     |
+| ------------ | ---------------------------------------- | --------- | :--: | ---------------------------------------------------------------------------------------- |
+| `modelValue` | `boolean`                                | `false`   |  否  | 用 `v-model` 绑定显隐                                                                    |
+| `placement`  | `'left' \| 'right' \| 'top' \| 'bottom'` | `'bottom'` |  否  | 决定滑出方位、对应过渡动画 `drawer-slide-*`、拖拽把手的形态与关闭方向                    |
+| `showClose`  | `boolean`                                | `false`   |  否  | 关闭按钮渲染在标题栏右侧（触控热区不小于 44x44），点击关闭                               |
 | `title`      | `string`                                 | —         |  否  | 传入时在内容区上方渲染标题栏（`min-height` 48px、底部一条分隔线）；不传且 `showClose` 为 `false` 时标题栏不渲染也不占位，内容全部来自默认插槽 |
 
-抽屉尺寸固定（无 `size` / `width` prop）：左右方向宽 `min(86vw, 400px)`，上下方向高上限 `min(70vh, 560px)`；`'bottom'` 方向内容区底部额外加 `env(safe-area-inset-bottom)` 安全区内边距。自定义尺寸必须覆盖样式类 `.um-drawer`。
+抽屉尺寸固定（无 `size` / `width` prop）：左右方位宽 `min(86%, 400px)`（相对弹层宿主），上下方位高上限 `min(70%, 560px)`；`'bottom'` 方位面板底部额外加 `env(safe-area-inset-bottom)` 安全区内边距，`'top'` 方位顶部加 `env(safe-area-inset-top)`。自定义尺寸必须覆盖样式类 `.um-drawer`。
 
 ## 方法与事件
 
 | 名称                | 类型                       | 触发时机                                                                                                        |
 | ------------------- | -------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | `update:modelValue` | `(value: boolean) => void` | 关闭开始时（`close()` 内同步把 `modelValue` 置 `false`），配合 `v-model` 同步；随后才播放滑出与遮罩退场动画      |
-| `close`             | `()`                       | 点遮罩、点关闭按钮或下拉关闭松手时触发一次（开始关闭的时刻，非动画结束后）                                        |
-| `closed`            | `()`                       | 退出动画全部结束后触发一次：抽屉滑出 → 遮罩淡出，遮罩与抽屉节点都已移除时                                        |
+| `close`             | `()`                       | 点遮罩、点关闭按钮或拖拽把手松手达标时触发一次（开始关闭的时刻，非动画结束后）                                    |
+| `closed`            | `()`                       | 退出动画全部结束后触发一次：抽屉滑出 → 遮罩淡出，遮罩与抽屉节点都已移除、背景滚动已恢复时                          |
 
-- 下拉关闭：仅 `direction="bottom"` 提供。把手整行 44px 触控热区，向下拖动时面板实时跟随；松手时下拉距离超过 100px 即关闭，否则回弹到原位。拖动期间禁用滑动过渡，关闭时从当前位置继续滑出。
+- **四向拖拽关闭**：每个方位的内沿都有 44x44 热区的拖拽把手——`bottom` 是面板顶部整行横把手（向下拉），`top` 是面板底部整行横把手（向上推），`left` 是面板右内沿中部的竖把手（向右拖），`right` 是面板左内沿中部的竖把手（向左拖）。拖动期间面板实时跟随（反方向拖动面板不动）；松手时沿关闭方向位移 ≥100px 或甩动速度 ≥0.3px/ms 即关闭，否则带过渡回弹到原位；来电、落到多指等手势被打断的情况一律回弹。
+- **滚动锁定**：打开期间背景（未注册弹层宿主时为 body）滚动被锁定；`closed` 触发的同时恢复原滚动位置。抽屉内容区自身照常滚动。
 - 插槽：`#default`（抽屉主体内容，内容区超出高度自动滚动，`-webkit-overflow-scrolling: touch`）。
-- `UDrawer` 没有暴露任何 ref 方法（`DrawerExposed` 为空对象）；关闭只能通过点遮罩、点关闭按钮、下拉关闭或把 `v-model` 置 `false`。
+- `UDrawer` 没有暴露任何 ref 方法（`DrawerExposed` 为空对象）；关闭只能通过点遮罩、点关闭按钮、拖拽把手或把 `v-model` 置 `false`。
 
 ## 典型示例
 
-### 底部面板 + close / closed 回调
+### 底部面板（默认方位）+ close / closed 回调
 
 ```vue
 <script setup lang="ts">
@@ -130,12 +133,12 @@ import '@veltra/mobile/components/button/style'
 const visible = ref(false)
 
 function onClose() {
-  // 点遮罩、点关闭按钮或下拉关闭松手时触发，此刻抽屉开始播放退出动画
+  // 点遮罩、点关闭按钮或拖拽关闭松手时触发，此刻抽屉开始播放退出动画
   console.log('抽屉开始关闭')
 }
 
 function onClosed() {
-  // 退出动画全部结束、节点已移除：适合在这里重置表单、销毁大对象
+  // 退出动画全部结束、节点已移除、背景滚动已恢复：适合在这里重置表单、销毁大对象
   console.log('抽屉已完全关闭')
 }
 </script>
@@ -143,13 +146,13 @@ function onClosed() {
 <template>
   <UButton type="primary" @click="visible = true">打开底部面板</UButton>
 
-  <UDrawer v-model="visible" direction="bottom" title="筛选" @close="onClose" @closed="onClosed">
+  <UDrawer v-model="visible" title="筛选" @close="onClose" @closed="onClosed">
     <p>面板内容；按住顶部把手下拉超过 100px 松手即关闭</p>
   </UDrawer>
 </template>
 ```
 
-### 四个方向与无标题形态
+### 四个方位与拖拽把手
 
 ```vue
 <script setup lang="ts">
@@ -168,20 +171,23 @@ const visible = reactive({ left: false, right: false, top: false, bottom: false,
   <UButton @click="visible.bottom = true">底部</UButton>
   <UButton @click="visible.plain = true">仅关闭按钮</UButton>
 
-  <UDrawer v-model="visible.left" direction="left" title="导航">
-    <p>从左侧滑入，宽 min(86vw, 400px)</p>
+  <!-- 左侧：按住右内沿中部竖把手向右拖关闭 -->
+  <UDrawer v-model="visible.left" placement="left" title="导航">
+    <p>从左侧滑入，宽 min(86%, 400px)</p>
   </UDrawer>
 
-  <UDrawer v-model="visible.top" direction="top" title="通知">
-    <p>从顶部滑入，高上限 min(70vh, 560px)</p>
+  <!-- 顶部：按住底部横把手向上推关闭 -->
+  <UDrawer v-model="visible.top" placement="top" title="通知">
+    <p>从顶部滑入，高上限 min(70%, 560px)</p>
   </UDrawer>
 
-  <UDrawer v-model="visible.bottom" direction="bottom" title="底部">
+  <!-- 底部（默认方位）：按住顶部横把手下拉关闭 -->
+  <UDrawer v-model="visible.bottom" placement="bottom" title="底部">
     <p>从底部滑入，带下拉关闭把手</p>
   </UDrawer>
 
   <!-- 不传 title 时标题栏不渲染；showClose 单独控制关闭按钮（此时渲染仅含按钮的标题栏） -->
-  <UDrawer v-model="visible.plain" direction="bottom" show-close>
+  <UDrawer v-model="visible.plain" placement="bottom" show-close>
     <p>无标题内容面板</p>
   </UDrawer>
 </template>
@@ -204,7 +210,7 @@ const formRef = shallowRef<FormExposed>()
 const form = reactive({ name: '初始值' })
 
 function onClosed() {
-  // 抽屉与遮罩的退出动画都结束、节点已移除后才执行收尾
+  // 抽屉与遮罩的退出动画都结束、节点已移除、背景滚动已恢复后才执行收尾
   formRef.value?.reset()
 }
 </script>
@@ -212,8 +218,8 @@ function onClosed() {
 <template>
   <UButton @click="visible = true">编辑</UButton>
 
-  <UDrawer v-model="visible" direction="bottom" title="编辑" @closed="onClosed">
-    <!-- 内容区超高自动滚动，无需自写滚动样式 -->
+  <UDrawer v-model="visible" title="编辑" @closed="onClosed">
+    <!-- 打开期间背景页面不可滚，内容区超高自动滚动 -->
     <UForm ref="formRef" :model="form">
       <UInput label="姓名" field="name" />
     </UForm>
@@ -226,22 +232,28 @@ function onClosed() {
 
 > [!WARNING]
 >
-> - 移动端 `direction="bottom"` 时**顶部渲染拖拽把手，下拉超过 100px 松手即关闭**；桌面端四个方向均无把手与下拉关闭。
-> - 移动端抽屉尺寸是左右宽 `min(86vw, 400px)`、上下高上限 `min(70vh, 560px)`；桌面端固定 320px。两者都没有 `size` / `width` prop，自定义尺寸必须覆盖 `.um-drawer` 样式。
+> - 移动端 `placement` **默认 `'bottom'`**；prop 名是 `placement`，不是桌面端的 `direction`（旧版移动端用 `direction`、默认 `'right'`，已按 NutUI 惯例重命名，旧写法不再生效）。
+> - **四个方位都支持拖拽关闭**（把手形态与关闭方向见「方法与事件」）；桌面端四个方位均无把手与拖拽关闭。
+> - **打开期间背景滚动锁定**（未注册弹层宿主时锁 body，iOS Safari 下也能锁住橡皮筋滚动），`closed` 后恢复原滚动位置；内容区自身照常滚动。
+> - 移动端抽屉尺寸是左右宽 `min(86%, 400px)`、上下高上限 `min(70%, 560px)`；桌面端固定 320px。两者都没有 `size` / `width` prop，自定义尺寸必须覆盖 `.um-drawer` 样式。
 > - 移动端关闭按钮在**标题栏内右侧**（热区不小于 44x44）；桌面端按钮在抽屉外沿外侧 52px 悬浮。
 > - 移动端 `close` 与 `update:modelValue(false)` 在关闭**开始时**同步发出，动画随后播放；桌面端 `update:modelValue(false)` 在滑出动画结束后才发出。要「动画后回调」一律用 `closed`。
 > - 标题栏渲染条件是 `title || showClose`：两者都不传时标题栏不渲染也不占位；只传 `showClose` 时渲染仅含关闭按钮的标题栏。标题栏样式不可配置，需要自定义标题区时不要传 `title`，直接在默认插槽里写。
 > - 关闭按钮的绑定名是 `showClose`，不是 `closable`；没有 `mask-closable` prop，点遮罩始终会关闭。
 > - 显隐绑定名是 `modelValue`（`v-model`），不是 `open` / `visible`。
 > - `DrawerMode`（`'edge' | 'inset'`）是已声明未使用的类型，组件没有 `mode` 属性。
-> - 内容区自带滚动（超出 `min(70vh, 560px)` 高度上限时），禁止再包一层滚动容器。
+> - 内容区自带滚动（超出高度上限时），禁止再包一层滚动容器。
 > - 示例独立成页运行时必须先初始化主题：`import '@veltra/styles/normalize'` 后调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色。
 
 ## 常见问题
 
+### 从旧版迁移：direction 不生效
+
+旧版用 `direction` prop（默认 `'right'`）。本版已重命名为 `placement`（默认 `'bottom'`）：把 `direction="left"` 改成 `placement="left"` 即可；类型 `DrawerDirection` 同步更名为 `DrawerPlacement`。不传 `placement` 时行为从右侧滑入变为底部面板。
+
 ### 关闭后需要做收尾（重置表单、销毁大对象）
 
-监听 `closed`，它在抽屉和遮罩的退出动画都结束、节点已移除后触发一次。不要在 `close` 里做收尾（那时动画刚开始、内容还在屏幕上），也不要用 `watch(visible)` 的 `false` 分支（比 `closed` 早一个遮罩淡出）。
+监听 `closed`，它在抽屉和遮罩的退出动画都结束、节点已移除、背景滚动已恢复后触发一次。不要在 `close` 里做收尾（那时动画刚开始、内容还在屏幕上），也不要用 `watch(visible)` 的 `false` 分支（比 `closed` 早一个遮罩淡出）。
 
 ```vue
 <script setup lang="ts">
@@ -260,15 +272,15 @@ function onClosed() {
 </script>
 
 <template>
-  <UDrawer v-model="visible" direction="bottom" title="详情" @closed="onClosed">
+  <UDrawer v-model="visible" title="详情" @closed="onClosed">
     <p>内容</p>
   </UDrawer>
 </template>
 ```
 
-### 下拉把手没有反应
+### 拖拽把手没有反应
 
-原因：只有 `direction="bottom"` 渲染把手（`'left'` / `'right'` / `'top'` 无把手）；或下拉距离未超过 100px 松手（此时回弹，属预期行为）。修复：确认 `direction="bottom"`，下拉超过 100px 后松手。
+确认拖的是当前方位对应的那条内沿（`bottom` 顶部横把手 / `top` 底部横把手 / `left` 右内沿竖把手 / `right` 左内沿竖把手），且拖动方向朝关闭方向（反方向拖动面板不动）；或位移未达 100px 且速度不够时松手（此时回弹，属预期行为，快速轻甩也能关闭）。
 
 ### 点遮罩没有关闭
 

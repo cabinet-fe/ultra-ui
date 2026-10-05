@@ -1,6 +1,6 @@
 <template>
   <Teleport :to="getOverlayContainer()">
-    <transition name="fade" appear @enter="onOverlayEnter" @after-leave="emit('closed')">
+    <transition name="fade" appear @enter="onOverlayEnter" @after-leave="onOverlayLeave">
       <div
         v-if="overlayVisible"
         :class="overlayCls.b"
@@ -15,14 +15,13 @@
             :style="dragStyle"
             @click.stop
           >
-            <!-- 底部形态：拖拽把手，下拉关闭 -->
+            <!-- 边缘拖拽把手：上/下为整行横把手，左/右为内沿居中的竖把手 -->
             <div
-              v-if="isBottom"
               :class="cls.e('grabber')"
-              @touchstart.passive="onDragStart"
-              @touchmove.prevent="onDragMove"
-              @touchend.passive="onDragEnd"
-              @touchcancel.passive="onDragEnd"
+              @touchstart.passive="dragHandlers.touchstart"
+              @touchmove.prevent="dragHandlers.touchmove"
+              @touchend.passive="dragHandlers.touchend"
+              @touchcancel.passive="dragHandlers.touchcancel"
             />
 
             <div v-if="title || showClose" :class="cls.e('header')">
@@ -55,12 +54,13 @@ import { zIndex } from '@veltra/utils'
 import { computed, shallowRef, watch } from 'vue'
 
 import { bem } from '../../shared/bem'
-import type { DrawerEmits, DrawerProps } from '../../types/drawer'
-import { getOverlayContainer } from '../_internal/overlay-container'
+import { shouldCloseByDrag, useTouchGesture } from '../../shared/use-touch-gesture'
+import type { DrawerEmits, DrawerPlacement, DrawerProps } from '../../types/drawer'
+import { getOverlayContainer, useOverlayScrollLock } from '../_internal/overlay-container'
 
 defineOptions({ name: 'UDrawer', inheritAttrs: false })
 
-const props = withDefaults(defineProps<DrawerProps>(), { direction: 'right' })
+const props = withDefaults(defineProps<DrawerProps>(), { placement: 'bottom' })
 
 const emit = defineEmits<DrawerEmits>()
 
@@ -73,9 +73,10 @@ const overlayVisible = shallowRef(false)
 const drawerVisible = shallowRef(false)
 const overlayZIndex = shallowRef<number>()
 
-const isBottom = computed(() => props.direction === 'bottom')
+const transitionName = computed(() => `drawer-slide-${props.placement}`)
 
-const transitionName = computed(() => `drawer-slide-${props.direction}`)
+// 打开期间锁定背景滚动（body / 设备外壳视口），完全关闭后恢复原滚动位置
+const scrollLock = useOverlayScrollLock()
 
 // 打开时盖在新一层级上；关闭链路：抽屉滑出 -> 遮罩退场 -> closed
 watch(
@@ -84,6 +85,7 @@ watch(
     if (v) {
       overlayZIndex.value = zIndex()
       resetDrag()
+      scrollLock.lock()
       overlayVisible.value = true
     } else {
       drawerVisible.value = false
@@ -100,49 +102,67 @@ function onAfterDrawerLeave() {
   overlayVisible.value = false
 }
 
+/** 遮罩退场完成即整条关闭链路结束：解锁背景滚动并通知 closed */
+function onOverlayLeave() {
+  scrollLock.unlock()
+  emit('closed')
+}
+
 /** 关闭抽屉：写回 model（emit update:modelValue），滑出经 watch 驱动 */
 const close = () => {
   visible.value = false
   emit('close')
 }
 
-// ---- 底部形态的下拉关闭（实现细节，不新增公开 API） ----
+// ---- 四向边缘拖拽关闭（实现细节，不新增公开 API） ----
 
-/** 下拉实时偏移，经 CSS 变量并入滑动过渡，松手回弹或继续滑出 */
-const dragY = shallowRef(0)
+/** 各方位沿关闭方向拖拽的轴与符号：bottom 下拉 / top 上推 / left 右拖 / right 左拖 */
+const DRAG_DISMISS: Record<DrawerPlacement, { axis: 'x' | 'y'; sign: 1 | -1 }> = {
+  bottom: { axis: 'y', sign: 1 },
+  top: { axis: 'y', sign: -1 },
+  left: { axis: 'x', sign: 1 },
+  right: { axis: 'x', sign: -1 }
+}
+
+/** 沿关闭方向的实时偏移，经 CSS 变量并入滑动过渡，松手回弹或继续滑出 */
+const dragOffset = shallowRef(0)
 const dragging = shallowRef(false)
-let dragStartY = 0
 
 const dragStyle = computed(() => {
-  return dragY.value ? { '--u-drawer-drag': `${dragY.value}px` } : undefined
+  return dragOffset.value ? { '--u-drawer-drag': `${dragOffset.value}px` } : undefined
 })
 
 const drawerClass = computed(() => {
-  return [cls.b, bem.is(props.direction), bem.is('dragging', dragging.value)]
+  return [cls.b, bem.is(props.placement), bem.is('dragging', dragging.value)]
 })
 
-function onDragStart(e: TouchEvent) {
-  dragStartY = e.touches[0]!.clientY
-  dragging.value = true
-}
-
-function onDragMove(e: TouchEvent) {
-  const dy = e.touches[0]!.clientY - dragStartY
-  // 只跟随向下拉
-  dragY.value = Math.max(0, dy)
-}
-
-function onDragEnd() {
-  dragging.value = false
-  if (dragY.value > 100) {
-    close()
-  } else {
-    dragY.value = 0
+const dragHandlers = useTouchGesture({
+  onStart() {
+    dragging.value = true
+  },
+  onMove(state) {
+    const { axis, sign } = DRAG_DISMISS[props.placement]
+    // 只跟随朝关闭方向的分量，反方向拖动面板不动
+    dragOffset.value = Math.max(0, sign * (axis === 'x' ? state.dx : state.dy))
+  },
+  onEnd(state) {
+    dragging.value = false
+    const { axis, sign } = DRAG_DISMISS[props.placement]
+    if (shouldCloseByDrag(state, { axis, sign })) {
+      close()
+    } else {
+      dragOffset.value = 0
+    }
+  },
+  onCancel() {
+    // 手势被打断（来电、落到多指等）：回弹而不是关闭
+    dragging.value = false
+    dragOffset.value = 0
   }
-}
+})
 
 function resetDrag() {
   dragging.value = false
-  dragY.value = 0
+  dragOffset.value = 0
 }
 </script>

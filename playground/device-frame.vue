@@ -27,12 +27,56 @@
     <div ref="areaRef" class="device-area">
       <div class="device-holder" :style="holderStyle">
         <div class="device" :style="deviceStyle">
-          <span class="device__island" aria-hidden="true"></span>
           <div class="device__screen">
-            <slot />
+            <!-- 状态栏占位安全区：内容从灵动岛下方开始，不与其重叠 -->
+            <div class="device__status" aria-hidden="true">
+              <span class="device__status-time">9:41</span>
+              <span class="device__status-icons">
+                <svg viewBox="0 0 17 11" width="17" height="11" fill="currentColor">
+                  <rect x="0" y="7" width="3" height="4" rx="1" />
+                  <rect x="4.7" y="5" width="3" height="6" rx="1" />
+                  <rect x="9.4" y="2.5" width="3" height="8.5" rx="1" />
+                  <rect x="14" y="0" width="3" height="11" rx="1" />
+                </svg>
+                <svg
+                  viewBox="0 0 16 11"
+                  width="16"
+                  height="11"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                  stroke-linecap="round"
+                >
+                  <path d="M1.5 3.7a9.5 9.5 0 0 1 13 0" />
+                  <path d="M4 6.3a6 6 0 0 1 8 0" />
+                  <circle cx="8" cy="9.2" r="1.4" fill="currentColor" stroke="none" />
+                </svg>
+                <svg viewBox="0 0 25 12" width="25" height="12" fill="none">
+                  <rect
+                    x="0.6"
+                    y="0.6"
+                    width="20"
+                    height="10.8"
+                    rx="3.2"
+                    stroke="currentColor"
+                    opacity="0.4"
+                  />
+                  <rect x="2" y="2" width="14" height="8" rx="1.8" fill="currentColor" />
+                  <path
+                    d="M22.5 4v4c1.1-.3 1.8-1.1 1.8-2s-.7-1.7-1.8-2z"
+                    fill="currentColor"
+                    opacity="0.4"
+                  />
+                </svg>
+              </span>
+            </div>
+            <div ref="viewportRef" class="device__viewport">
+              <slot />
+            </div>
           </div>
           <!-- 弹层挂载层：镜像屏幕内边距的兄弟节点，弹层 fixed 以它为包含块，不随内容滚动 -->
           <div ref="overlayRootRef" class="device__overlay-root"></div>
+          <span class="device__island" aria-hidden="true"></span>
           <span class="device__home" aria-hidden="true"></span>
         </div>
       </div>
@@ -91,10 +135,12 @@ const view = computed(() => ({
 // 适配缩放：按可用区域与设备视口的比例整体缩放，避免高设备溢出滚动区
 const areaRef = ref<HTMLElement>()
 const overlayRootRef = shallowRef<HTMLElement>()
+const viewportRef = shallowRef<HTMLElement>()
 
-// 把弹层挂载层注册为 mobile 弹层宿主：底部弹层 / 对话框 / 消息挂进屏幕内，随设备缩放
+// 把弹层挂载层注册为 mobile 弹层宿主：底部弹层 / 对话框 / 消息挂进屏幕内，随设备缩放；
+// 内容视口一并注册为背景滚动锁定目标（Dialog / Drawer / BottomSheet 打开期间锁定它）
 watchEffect(() => {
-  setOverlayContainer(overlayRootRef.value)
+  setOverlayContainer(overlayRootRef.value, viewportRef.value)
 })
 onScopeDispose(() => setOverlayContainer(undefined))
 
@@ -184,6 +230,8 @@ const deviceStyle = computed(() => ({
 $bezel-top: 26px;
 $bezel-x: 12px;
 $bezel-bottom: 20px;
+// 状态栏安全区高度：内容从灵动岛下方开始
+$status-height: 44px;
 
 .device {
   position: relative;
@@ -200,24 +248,61 @@ $bezel-bottom: 20px;
   transform-origin: top left;
 }
 
+// 灵动岛落在屏幕状态栏带中央（bezel-top + 状态栏高度的一半再上移半个岛高）
 .device__island {
   position: absolute;
-  top: 9px;
+  top: $bezel-top + ($status-height - 22px) / 2;
   left: 50%;
   width: 84px;
   height: 22px;
   border-radius: 999px;
   background: #05060a;
   transform: translateX(-50%);
+  z-index: 1;
 }
 
 .device__screen {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 32px;
+  background: var(--u-bg-color-bottom);
+}
+
+.device__status {
+  flex-shrink: 0;
+  height: $status-height;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px 0 28px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--u-text-color-main);
+  font-variant-numeric: tabular-nums;
+}
+
+.device__status-icons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.9;
+}
+
+.device__viewport {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  border-radius: 32px;
-  background: var(--u-bg-color-bottom);
+  // 手机屏幕不显示滚动条
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .device__overlay-root {
@@ -243,5 +328,32 @@ $bezel-bottom: 20px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.35);
   transform: translateX(-50%);
+}
+</style>
+
+<style lang="scss">
+// 移动端 demo 页统一皮肤：全部 mobile 演示页共用 .demo / section / .tip 结构，
+// 在设备壳层一处收口，替代逐页写排版。仅命中 .device__viewport 内部，不影响 desktop 演示页。
+.device__viewport {
+  .demo {
+    padding: 12px 12px 28px;
+  }
+
+  .demo section {
+    padding: 14px 14px 16px;
+    background: var(--u-bg-color-top);
+    border: 1px solid var(--u-border-mutedColor);
+    border-radius: var(--u-radius-large);
+    box-shadow: var(--u-shadow-sm);
+  }
+
+  // 选择器多一层 section，压过 demo 页 scoped 样式里 h3 的 margin
+  .demo section > h3 {
+    margin: 0 0 12px;
+  }
+
+  .demo :is(.tip, .note) {
+    margin: 12px 0 0;
+  }
 }
 </style>
