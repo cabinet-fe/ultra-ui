@@ -14,12 +14,7 @@
     "src/**/*.vue",
     "env.d.ts",
     "shim.d.ts",
-    "components.d.ts",
-    "nav-config.ts",
-    "nav-search.vue",
-    "main.ts",
-    "router.ts",
-    "App.vue"
+    "components.d.ts"
   ],
   "exclude": ["node_modules", "vite.config.ts"]
 }

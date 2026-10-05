@@ -8,22 +8,22 @@ import {
 
 import { DEFAULT_ROUTE, demoMeta } from './nav-config'
 
-const desktopModules = import.meta.glob<{ default: RouteComponent }>('./src/desktop/**/index.vue')
-const mobileModules = import.meta.glob<{ default: RouteComponent }>('./src/mobile/**/index.vue')
-const iconsModules = import.meta.glob<{ default: RouteComponent }>('./src/icons/**/index.vue')
-const aiChatModules = import.meta.glob<{ default: RouteComponent }>('./src/ai-chat/**/index.vue')
-const sheetModules = import.meta.glob<{ default: RouteComponent }>('./src/sheet/**/index.vue')
-// 顶层独立演示页（glob 首段是字面段，`./src/sheet/**` 不匹配 `sheet-big-data`）
+const desktopModules = import.meta.glob<{ default: RouteComponent }>('./desktop/**/index.vue')
+const mobileModules = import.meta.glob<{ default: RouteComponent }>('./mobile/**/index.vue')
+const iconsModules = import.meta.glob<{ default: RouteComponent }>('./icons/**/index.vue')
+const aiChatModules = import.meta.glob<{ default: RouteComponent }>('./ai-chat/**/index.vue')
+const sheetModules = import.meta.glob<{ default: RouteComponent }>('./sheet/**/index.vue')
+// 顶层独立演示页（glob 首段是字面段，`./sheet/**` 不匹配 `sheet-big-data`）
 const sheetBigDataModules = import.meta.glob<{ default: RouteComponent }>(
-  './src/sheet-big-data/index.vue'
+  './sheet-big-data/index.vue'
 )
-// 顶层独立演示页（同上，`./src/sheet/**` 不匹配 `sheet-data-entry`）
+// 顶层独立演示页（同上，`./sheet/**` 不匹配 `sheet-data-entry`）
 const sheetDataEntryModules = import.meta.glob<{ default: RouteComponent }>(
-  './src/sheet-data-entry/index.vue'
+  './sheet-data-entry/index.vue'
 )
 // 顶层独立演示页（智慧表格多维表格示例，独立于 sheet 演示）
 const smartTableModules = import.meta.glob<{ default: RouteComponent }>(
-  './src/smart-table/**/index.vue'
+  './smart-table/**/index.vue'
 )
 
 const modules = {
@@ -40,17 +40,17 @@ const paths = Object.keys(modules)
 
 /** 从模块路径提取 demo key（用于 route name / demoMeta 校验） */
 function demoKeyFromModulePath(path: string): string {
-  const desktop = path.match(/src\/desktop\/([^/]+)\/index\.vue$/)
+  const desktop = path.match(/^\.\/desktop\/([^/]+)\/index\.vue$/)
   if (desktop) return desktop[1]!
 
   // mobile 与 desktop 目录同名，key 加前缀避免路由 name 冲突
-  const mobile = path.match(/src\/mobile\/([^/]+)\/index\.vue$/)
+  const mobile = path.match(/^\.\/mobile\/([^/]+)\/index\.vue$/)
   if (mobile) return `mobile-${mobile[1]!}`
 
-  const iconsNested = path.match(/src\/icons\/(.+)\/index\.vue$/)
+  const iconsNested = path.match(/^\.\/icons\/(.+)\/index\.vue$/)
   if (iconsNested) return `icons-${iconsNested[1]!.replace(/\//g, '-')}`
 
-  const top = path.match(/src\/([^/]+)\/index\.vue$/)
+  const top = path.match(/^\.\/([^/]+)\/index\.vue$/)
   if (top) return top[1]!
 
   throw new Error(`[playground] 无法解析演示页 key: ${path}`)
@@ -70,7 +70,8 @@ if (import.meta.env.DEV) {
 export const routes: RouteRecordRaw[] = paths.map((path) => {
   const name = demoKeyFromModulePath(path)
 
-  return { name, component: modules[path]!, path: path.replace(/^\.\/src([\s\S]+)\.vue$/g, '$1') }
+  // 剥掉 `./` 前缀与 `.vue` 后缀后必须补回首斜杠，否则 vue-router 拒绝注册路由
+  return { name, component: modules[path]!, path: `/${path.replace(/^\.\/([\s\S]+)\.vue$/, '$1')}` }
 })
 
 export const router: Router = createRouter({

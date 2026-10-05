@@ -20,7 +20,7 @@ const nodePkgImporter = new NodePackageImporter(repoRoot)
 
 const config = {
   test: {
-    include: ['src/**/*.test.ts', '*.test.ts'],
+    include: ['src/**/*.test.ts'],
     globals: true,
     environment: 'node',
     passWithNoTests: true

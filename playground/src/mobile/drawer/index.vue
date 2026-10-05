@@ -31,7 +31,7 @@
           {{ placementText[dir] }}
         </UButton>
       </div>
-      <p class="hint">四个方位均可沿对应方向拖拽内沿把手关闭：下拉 / 上推 / 右拖 / 左拖。</p>
+      <p class="hint">四个方位均可沿对应方向拖拽内沿把手关闭：左拖 / 右拖 / 上推 / 下拉。</p>
 
       <UDrawer
         v-for="dir of placements"
@@ -99,8 +99,8 @@ const placementText: Record<DrawerPlacement, string> = {
 const dragHint: Record<DrawerPlacement, string> = {
   bottom: '按住顶部横把手向下拖拽关闭。',
   top: '按住底部横把手向上推关闭。',
-  left: '按住右内沿中部竖把手向右拖关闭。',
-  right: '按住左内沿中部竖把手向左拖关闭。'
+  left: '按住右内沿中部竖把手向左拖关闭。',
+  right: '按住左内沿中部竖把手向右拖关闭。'
 }
 
 function openPlacement(dir: (typeof placements)[number]) {

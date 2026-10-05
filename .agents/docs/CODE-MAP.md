@@ -49,7 +49,7 @@ ultra-ui/
 | icons        | `packages/icons`        | SVG → Vue 图标                                                                             | `src/index.ts`、`src/normal.ts`、`src/colorful.ts`                    |
 | vite         | `packages/vite`         | VeltraUIResolver 与生成组件表                                                              | `src/resolver.ts`、`src/components.gen.ts`                            |
 | mobile       | `packages/mobile`       | 移动端组件库，同名组件为主、API 按 NutUI 移动惯例允许分叉，做移动端密度/触控适配；private、changeset ignore | `src/index.ts`                                                        |
-| playground   | `playground`            | 预览 SPA（desktop / mobile 演示）+ 填报/AI 参考实现                                        | `main.ts`、`playground/server/dev.ts`                                 |
+| playground   | `playground`            | 预览 SPA（desktop / mobile 演示）+ 填报/AI 参考实现                                        | `src/main.ts`、`playground/server/dev.ts`                             |
 | scripts      | `scripts`               | resolver 生成、docs 推送、release、setup-git                                               | `gen-vite-resolver.ts`、`push-docs.mjs`、`release.ts`、`setup-git.ts` |
 | agent-docs   | `agent-docs`            | 面向 docs-mcp 的检索文档，docs-gen 技能撰写、`push-docs.mjs` 推送                          | `index.md`、各包目录 `*.md`                                           |
 

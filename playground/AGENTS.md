@@ -14,8 +14,8 @@ bun run server     # 仅参考服务（填报 + DeepSeek 代理 + 智慧表格�
 ## 导航
 
 - 侧栏使用 `UDualNav`：左轨 Icons / Desktop / Mobile / AI Chat / Sheet / Smart Table；Icons 右栏为「图标库 / 图标组合」；Desktop 右栏为「分类 → 组件」两级导航；Mobile 右栏为组件演示一级列表；AI Chat 右栏为「AI 对话」；Sheet 右栏为「基础演示 / 大数据量演示 / 在线填报」；Smart Table 右栏为「智慧表格」
-- 导航数据集中在 `nav-config.ts`（`demoMeta`、`buildPlaygroundMenus()`）
-- 新增 Desktop 演示页：在 `src/desktop/<component-name>/index.vue` 创建文件，并在 `nav-config.ts` 补充 `demoMeta`
+- 导航数据集中在 `src/nav-config.ts`（`demoMeta`、`buildPlaygroundMenus()`）
+- 新增 Desktop 演示页：在 `src/desktop/<component-name>/index.vue` 创建文件，并在 `src/nav-config.ts` 补充 `demoMeta`
 - AI Chat（`@veltra/ai`）与 Sheet（`@veltra/sheet`）为独立顶层入口，不挂在 Desktop 分类下
 
 ## 路由
@@ -31,8 +31,8 @@ bun run server     # 仅参考服务（填报 + DeepSeek 代理 + 智慧表格�
 - `src/smart-table/index.vue` → `/smart-table/index`（智慧表格：9 种类型化字段行内编辑 + 行/字段管理 + 列设置/行详情面板 + 列底统计行 + AI 字段整列流式回填 + 右侧 AI 对话面板（表格上下文答疑） + 表格/看板视图切换 + 演示表防抖整表持久化）
 
 由 `import.meta.glob` 分别扫描 `desktop`、`mobile`、`icons`、`ai-chat` 与 `sheet` 目录自动生成；
-`src/sheet-big-data/index.vue`、`src/sheet-data-entry/index.vue`、`src/smart-table/index.vue` 等因 glob 首段为字面段（`./src/sheet/**` 不匹配 `sheet-big-data`），
-需在 `router.ts` 显式 `import.meta.glob` 并入 modules
+`src/sheet-big-data/index.vue`、`src/sheet-data-entry/index.vue`、`src/smart-table/index.vue` 等因 glob 首段为字面段（`./sheet/**` 不匹配 `sheet-big-data`），
+需在 `src/router.ts` 显式 `import.meta.glob` 并入 modules
 （key 由顶层 `src/<name>/index.vue` 正则提取）。默认重定向 `/` → `/desktop/button/index`。
 
 ## Vite 要点
@@ -66,10 +66,13 @@ bun run server     # 仅参考服务（填报 + DeepSeek 代理 + 智慧表格�
 ## 结构
 
 ```
-App.vue
-main.ts           # normalize + router
-router.ts
-nav-config.ts     # 导航分类与中英文元数据
+src/main.ts            # normalize + router
+src/App.vue            # 应用壳：双栏导航 + 主题/尺寸设置 + 路由出口（mobile 页套 device-frame）
+src/router.ts
+src/nav-config.ts      # 导航分类与中英文元数据（含导航搜索匹配逻辑）
+src/nav-search.vue     # 顶栏导航搜索触发器（⌘K）
+src/nav-search-panel.vue # 导航搜索结果面板
+src/device-frame.vue   # mobile 演示页手机设备外壳
 vite.config.ts
 src/desktop/<name>/index.vue
 src/mobile/<name>/index.vue   # @veltra/mobile 组件演示（40 个示例页）

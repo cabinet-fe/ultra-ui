@@ -251,7 +251,7 @@ $status-height: 44px;
 // 灵动岛落在屏幕状态栏带中央（bezel-top + 状态栏高度的一半再上移半个岛高）
 .device__island {
   position: absolute;
-  top: $bezel-top + ($status-height - 22px) / 2;
+  top: calc(#{$bezel-top} + (#{$status-height} - 22px) / 2);
   left: 50%;
   width: 84px;
   height: 22px;
