@@ -134,6 +134,8 @@ const handlePrefixClick = () => {
 }
 
 const handleSuffixClick = () => {
+  // 占位空后缀不触发点击（与恒渲染前的行为一致）
+  if (!hasSuffixContent.value) return
   emit('suffix:click', model.value)
 }
 
@@ -159,8 +161,9 @@ const hasSuffixContent = computed(() => {
   return !!inst?.slots.suffix || !!props.suffix
 })
 
+// clearable 时后缀恒渲染占位（min-width 20px），避免 hover 出现清除图标时宽度跳变
 const hasSuffix = computed(() => {
-  return hasSuffixContent.value || showClear.value
+  return hasSuffixContent.value || props.clearable
 })
 
 const handleChange = (e: Event) => {
