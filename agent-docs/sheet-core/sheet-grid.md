@@ -241,7 +241,7 @@ export class SheetGrid {
 
 内置交互（构造时接线，`release()` 退订）：
 
-- 滚轮滚动：容器 `wheel` → 表滚动，`shift+滚轮` 换轴为横向；触控 / 惯性滚动由引擎内置。宿主不要再对同一容器自行挂 `wheel` 调滚动，会双重滚动。
+- 滚轮滚动：容器 `wheel` → 表滚动，`shift+滚轮` 换轴为横向；只在引擎确实消费了滚动（`scrollBy` 前后位置变化）时 `preventDefault`——某轴余量为 0（视口 == 内容或已到边缘）时放行事件沿滚动链冒泡给祖先原生滚动容器。触控 / 惯性滚动由引擎内置。宿主不要再对同一容器自行挂 `wheel` 调滚动，会双重滚动。
 - 键盘：`Ctrl+A` 全选（readonly 也可用）；`Delete` / `Backspace` 删除选中的浮动图片（非 readonly 且有选中时接管）；`<input>` / `<textarea>` 聚焦时不接管任何键。
 - 编辑：双击 / `Enter` 进入，提交经模型命令回写（可撤销），编辑文本上限 50000 字符；被 `Sheet.setCellReadonly` 标记的格双击 / `Enter` 均不进入编辑会话。
 - 行列 resize：拖拽落定自动写回 `sheet.setRowHeight` / `sheet.setColWidth`（不进 undo）；列宽变化联动重估该列 wrap 行高。

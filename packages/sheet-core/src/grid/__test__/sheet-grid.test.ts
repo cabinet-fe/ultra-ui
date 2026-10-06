@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vite-plus/test'
 
 import { Sheet } from '../../core/sheet'
 import { SHEET_GRID_THEME } from '../grid-theme'
-import { cellX, cellY, createGrid, fire, flushMicrotasks } from './grid-test-utils'
+import { cellX, cellY, createGrid, fire, flushMicrotasks, VIEW_H, VIEW_W } from './grid-test-utils'
 
 describe('SheetGrid 挂载与几何（happy-dom smoke）', () => {
   it('能挂载：行列头占位（drawRange 原点 = 行号列宽/列头高），列数随构造列定义', () => {
@@ -370,6 +370,77 @@ describe('SheetGrid 键盘', () => {
   })
 })
 
+describe('SheetGrid 宿主滚轮', () => {
+  /**
+   * 向容器派发滚轮事件（cancelable：引擎按「确实消费才吞事件」语义 preventDefault）。
+   * happy-dom 的 WheelEvent 不映射 init.shiftKey，换轴用例需 defineProperty 补上。
+   */
+  function fireWheel(
+    container: HTMLElement,
+    init: { deltaX?: number; deltaY?: number; shiftKey?: boolean } = {}
+  ): WheelEvent {
+    const event = new WheelEvent('wheel', {
+      bubbles: true,
+      cancelable: true,
+      deltaX: init.deltaX ?? 0,
+      deltaY: init.deltaY ?? 0
+    })
+    if (init.shiftKey) Object.defineProperty(event, 'shiftKey', { value: true })
+    container.dispatchEvent(event)
+    return event
+  }
+
+  it('内容高于视口：下滚消费滚动并吞事件（preventDefault）', () => {
+    const { grid, container, table } = createGrid({ rows: 40, cols: 6 })
+    try {
+      const event = fireWheel(container, { deltaY: 100 })
+      expect(table.getScrollTop()).toBeGreaterThan(0)
+      expect(event.defaultPrevented).toBe(true)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('视口 == 内容（宿主把 grid 定为内容全量尺寸）：滚动余量为 0 不吞事件，放行给祖先滚动链', () => {
+    const { grid, container } = createGrid({ rows: 5, cols: 6 })
+    try {
+      const event = fireWheel(container, { deltaY: 100 })
+      expect(event.defaultPrevented).toBe(false)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('已滚到纵向底缘：继续向下不吞事件（交还祖先滚动链），向上恢复吞事件', () => {
+    const { grid, container, table } = createGrid({ rows: 40, cols: 6 })
+    try {
+      table.setScrollTop(Number.MAX_SAFE_INTEGER)
+      const maxTop = table.getScrollTop()
+      const downAtEdge = fireWheel(container, { deltaY: 100 })
+      expect(downAtEdge.defaultPrevented).toBe(false)
+      expect(table.getScrollTop()).toBe(maxTop)
+
+      const upAtEdge = fireWheel(container, { deltaY: -100 })
+      expect(upAtEdge.defaultPrevented).toBe(true)
+      expect(table.getScrollTop()).toBeLessThan(maxTop)
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('shift+纵向滚轮换轴横向滚动（Chrome 不自动换轴），消费则吞事件', () => {
+    const { grid, container, table } = createGrid({ rows: 40, cols: 20 })
+    try {
+      const event = fireWheel(container, { deltaY: 60, shiftKey: true })
+      expect(table.getScrollLeft()).toBeGreaterThan(0)
+      expect(table.getScrollTop()).toBe(0)
+      expect(event.defaultPrevented).toBe(true)
+    } finally {
+      grid.release()
+    }
+  })
+})
+
 describe('SheetGrid 容器焦点', () => {
   it('容器 tabindex=-1（不进 Tab 序）且挂载即聚焦', () => {
     const { grid, container } = createGrid()
@@ -566,6 +637,74 @@ describe('SheetGrid 构造路径性能', () => {
       expect(rowKeysSpy).not.toHaveBeenCalled()
     } finally {
       grid.release()
+    }
+  })
+})
+
+/** 可手动触发回调的 ResizeObserver 桩（sheet-grid 观察单容器，取最近实例回调即可） */
+class ResizeObserverStub {
+  static lastCallback: ((...args: unknown[]) => void) | undefined
+  constructor(callback: (entries: unknown[], observer: unknown) => void) {
+    ResizeObserverStub.lastCallback = callback
+  }
+  observe(): void {}
+  disconnect(): void {}
+  unobserve(): void {}
+}
+
+describe('SheetGrid 容器 resize 自适应', () => {
+  /** 手动排程的 requestAnimationFrame：flushFrame 推进一帧（帧内新排程落入下一帧） */
+  function stubRaf(): { flushFrame: () => void } {
+    const queue: FrameRequestCallback[] = []
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback): number => {
+      queue.push(callback)
+      return queue.length
+    })
+    return {
+      flushFrame: () => {
+        const frame = queue.splice(0)
+        for (const callback of frame) callback(0)
+      }
+    }
+  }
+
+  it('布局过渡期量到 0 尺寸：跳过 resize 保留现值（不写 0 致画布塌陷自锁）', () => {
+    vi.stubGlobal('ResizeObserver', ResizeObserverStub)
+    const { flushFrame } = stubRaf()
+    const { grid, table } = createGrid()
+    try {
+      // happy-dom 无布局：clientWidth/clientHeight 恒 0，即容器未布局的过渡形态
+      const resize = vi.spyOn(table, 'resize')
+      ResizeObserverStub.lastCallback?.([], {})
+      flushFrame()
+      flushFrame()
+      expect(resize).not.toHaveBeenCalled()
+      expect(table.width).toBe(VIEW_W)
+      expect(table.height).toBe(VIEW_H)
+    } finally {
+      grid.release()
+      vi.unstubAllGlobals()
+    }
+  })
+
+  it('布局稳定后量到真实尺寸：双层 RAF 后才 resize（首帧不量取）', () => {
+    vi.stubGlobal('ResizeObserver', ResizeObserverStub)
+    const { flushFrame } = stubRaf()
+    const { grid, table, container } = createGrid()
+    try {
+      Object.defineProperty(container, 'clientWidth', { configurable: true, get: () => 940 })
+      Object.defineProperty(container, 'clientHeight', { configurable: true, get: () => 520 })
+      const resize = vi.spyOn(table, 'resize')
+      ResizeObserverStub.lastCallback?.([], {})
+      flushFrame()
+      // 首帧仅排程第二帧，量取尚未发生
+      expect(resize).not.toHaveBeenCalled()
+      flushFrame()
+      expect(resize).toHaveBeenCalledTimes(1)
+      expect(resize).toHaveBeenCalledWith(940, 520)
+    } finally {
+      grid.release()
+      vi.unstubAllGlobals()
     }
   })
 })

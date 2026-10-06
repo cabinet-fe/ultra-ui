@@ -569,7 +569,12 @@ export class SheetGrid {
     this.disposers.push(() => this.container.removeEventListener('keydown', onKeyDown))
   }
 
-  /** 宿主滚轮接线：引擎无内置滚轮；shift+deltaY→deltaX 换轴（Chrome 不自动换轴） */
+  /**
+   * 宿主滚轮接线：引擎无内置滚轮；shift+deltaY→deltaX 换轴（Chrome 不自动换轴）。
+   * 只在引擎确实消费了滚动（scrollBy 前后位置变化）时才 preventDefault：某轴余量
+   * 为 0（宿主把 grid 定为内容全量尺寸导致视口==内容，或已滚到该轴边缘）时吞掉
+   * 事件会饿死外层原生滚动容器——放行让 wheel 沿滚动链冒泡给祖先。
+   */
   private bindWheel(): void {
     const onWheel = (event: WheelEvent): void => {
       let deltaX = Number.isFinite(event.deltaX) ? event.deltaX : 0
@@ -579,8 +584,12 @@ export class SheetGrid {
         deltaY = 0
       }
       if (!deltaX && !deltaY) return
+      const beforeLeft = this.table.getScrollLeft()
+      const beforeTop = this.table.getScrollTop()
       this.table.scrollBy(deltaX, deltaY)
-      if (event.cancelable) event.preventDefault()
+      const consumed =
+        this.table.getScrollLeft() !== beforeLeft || this.table.getScrollTop() !== beforeTop
+      if (consumed && event.cancelable) event.preventDefault()
     }
     this.container.addEventListener('wheel', onWheel, { passive: false })
     this.disposers.push(() => this.container.removeEventListener('wheel', onWheel))
@@ -590,8 +599,21 @@ export class SheetGrid {
   private bindResize(): void {
     if (typeof ResizeObserver === 'undefined') return
     this.resizeObserver = new ResizeObserver(() => {
-      if (this.released) return
-      this.table.resize(this.measureContainerWidth(), this.measureContainerHeight())
+      // 回调时点容器可能仍处布局过渡（挂载同帧 / flex 未稳定）：双层 RAF 把量取
+      // 推迟到布局稳定之后，不把过渡期中间值写进引擎
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (this.released) return
+          // 读原始 clientWidth/clientHeight（不走构造兜底）：触发 resize 观察说明
+          // 布局正在变化，0 是过渡态而非「未布局」，正确动作是跳过并保留现值，
+          // 等下一次观察拿稳定尺寸。若把 0 写给引擎，画布塌陷会连带容器塌陷，
+          // 尺寸自此不再变化、观察永不再触发，只能靠手动 window resize 解锁
+          const width = this.container.clientWidth
+          const height = this.container.clientHeight
+          if (width <= 0 || height <= 0) return
+          this.table.resize(width, height)
+        })
+      })
     })
     this.resizeObserver.observe(this.container)
   }
