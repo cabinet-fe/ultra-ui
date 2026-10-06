@@ -228,7 +228,7 @@ export interface SheetContext {
   insertImage(input: ImageInput): string
   /** 删除浮动图片；不存在则无操作 */
   removeImage(id: string): void
-  /** 更新浮动图片锚点/尺寸/文案；不存在或无变更则无操作 */
+  /** 更新浮动图片锚点/尺寸/角度/文案；不存在或无变更则无操作 */
   updateImage(id: string, patch: ImageUpdateFields): void
   /** 只读图片列表（快照副本） */
   getImages(): readonly SheetImage[]

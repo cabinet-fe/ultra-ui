@@ -1,6 +1,6 @@
-import type { FloatObject, ListTable } from 'infinitable'
+import type { FloatObject, FloatTransformEndEvent, ListTable } from 'infinitable'
 
-import { cloneImageAnchor, type SheetImage, type SheetImageType } from '../core/image'
+import type { SheetImage, SheetImageAnchor, SheetImageType } from '../core/image'
 import type { Sheet } from '../core/sheet'
 
 /** MIME：模型 type → Blob type（objectURL） */
@@ -35,6 +35,7 @@ function toFloatObject(image: SheetImage, src: string): FloatObject {
     ...(image.width != null || image.height != null
       ? { size: { width: image.width ?? 0, height: image.height ?? 0 } }
       : {}),
+    ...(image.rotation != null ? { rotation: image.rotation } : {}),
     fit: image.fit ?? 'fill',
     src,
     ...(image.altText != null ? { alt: image.altText } : {}),
@@ -49,6 +50,8 @@ function toFloatObject(image: SheetImage, src: string): FloatObject {
  *   （签名判重跳过无变化项）；滚动/resize 跟随与选中/拖拽交互由引擎浮动层内置；
  * - 拖拽结束：引擎换算的新锚点写回 `sheet.updateImage`（可 undo）；模型无 to 的图
  *   不引入引擎合成的 to（保持跨度语义，尺寸走 size）；
+ * - 变换结束：缩放/旋转经 `onTransformEnd` 把新锚点 + 尺寸 + 角度一次写回
+ *   `sheet.updateImage`（同一命令，一次 undo 整体还原变换前状态）；
  * - 自然尺寸：宽高与 to 都缺失的图，加载完成后按自然尺寸回写 size（等价旧层为
  *   load 后回写路径）；
  * - 只读：选中查看可用，禁拖动（引擎 isReadonly）。
@@ -77,6 +80,7 @@ export class GridFloatImages {
     const layer = this.table.floatObjects
     this.disposers.push(
       layer.onDragEnd((event) => this.commitDrag(event.id, event.anchor)),
+      layer.onTransformEnd((event) => this.commitTransform(event)),
       this.table.imageService.onImageLoad((event) =>
         this.applyNaturalSize(event.url, event.width, event.height)
       )
@@ -136,22 +140,37 @@ export class GridFloatImages {
 
   /** 拖拽结束写模型：平移 from（格内余量写 offsetX/offsetY），有 to 则同 delta 平移保持跨度 */
   private commitDrag(id: string, anchor: FloatObject['anchor']): void {
+    const modelAnchor = this.toModelAnchor(id, anchor)
+    if (modelAnchor) this.sheet.updateImage(id, { anchor: modelAnchor })
+  }
+
+  /** 变换结束写模型：新锚点 + 变换后尺寸/角度一次写回（同一命令，一次 undo 整体还原） */
+  private commitTransform(event: FloatTransformEndEvent): void {
+    const anchor = this.toModelAnchor(event.id, event.anchor)
+    if (!anchor) return
+    this.sheet.updateImage(event.id, {
+      anchor,
+      width: event.size.width,
+      height: event.size.height,
+      rotation: event.rotation
+    })
+  }
+
+  /**
+   * 引擎锚点 → 模型锚点：平移 from（格内余量写 offsetX/offsetY）；模型有 to 时保留
+   * 引擎换算的 to，无 to 不引入引擎合成的 to（保持跨度语义）；图不存在返回 null。
+   */
+  private toModelAnchor(id: string, anchor: FloatObject['anchor']): SheetImageAnchor | null {
     const image = this.sheet.getImage(id)
-    if (!image) return
-    const current = cloneImageAnchor(image.anchor)
+    if (!image) return null
     const from = {
       row: anchor.from.row,
       col: anchor.from.col,
       ...(anchor.offsetX > 0 ? { offsetX: anchor.offsetX } : {}),
       ...(anchor.offsetY > 0 ? { offsetY: anchor.offsetY } : {})
     }
-    if (current.to) {
-      this.sheet.updateImage(id, {
-        anchor: { from, to: { row: anchor.to.row, col: anchor.to.col } }
-      })
-    } else {
-      this.sheet.updateImage(id, { anchor: { from } })
-    }
+    if (!image.anchor.to) return { from }
+    return { from, to: { row: anchor.to.row, col: anchor.to.col } }
   }
 
   /** 图片渲染 URL：src 来源直用；字节来源转 objectURL（同引用复用，换字节重建） */

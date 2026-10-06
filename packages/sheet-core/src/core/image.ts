@@ -30,6 +30,8 @@ export interface SheetImage {
   /** 渲染宽高（px，96 DPI）；缺省由渲染层取自然尺寸 */
   width?: number
   height?: number
+  /** 旋转角（顺时针度数，缺省 0）；旧快照无此字段行为不变 */
+  rotation?: number
   altText?: string
   title?: string
 }
@@ -50,6 +52,7 @@ export interface ImageInput {
   fit?: ImageFitMode
   width?: number
   height?: number
+  rotation?: number
   altText?: string
   title?: string
 }
@@ -86,6 +89,7 @@ export function cloneSheetImage(image: SheetImage): SheetImage {
     ...(image.fit != null ? { fit: image.fit } : {}),
     ...(image.width != null ? { width: image.width } : {}),
     ...(image.height != null ? { height: image.height } : {}),
+    ...(image.rotation != null ? { rotation: image.rotation } : {}),
     ...(image.altText != null ? { altText: image.altText } : {}),
     ...(image.title != null ? { title: image.title } : {})
   }

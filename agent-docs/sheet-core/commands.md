@@ -243,6 +243,7 @@ export interface ImageUpdateFields {
   anchor?: SheetImageAnchor
   width?: number
   height?: number
+  rotation?: number
   altText?: string
   title?: string
 }

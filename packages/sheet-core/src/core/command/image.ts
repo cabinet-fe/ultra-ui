@@ -34,6 +34,7 @@ export const InsertImageCommand: Command<InsertImageParams, string> = {
       ...(params.image.fit != null ? { fit: params.image.fit } : {}),
       ...(params.image.width != null ? { width: params.image.width } : {}),
       ...(params.image.height != null ? { height: params.image.height } : {}),
+      ...(params.image.rotation != null ? { rotation: params.image.rotation } : {}),
       ...(params.image.altText != null ? { altText: params.image.altText } : {}),
       ...(params.image.title != null ? { title: params.image.title } : {})
     })
@@ -73,6 +74,8 @@ export interface ImageUpdateFields {
   anchor?: SheetImageAnchor
   width?: number
   height?: number
+  /** 旋转角（顺时针度数）；与 anchor/size 同一命令提交（一次 undo 整体还原） */
+  rotation?: number
   altText?: string
   title?: string
 }
@@ -98,6 +101,7 @@ export const UpdateImageCommand: Command<UpdateImageParams> = {
     if (patch.anchor) after.anchor = cloneImageAnchor(patch.anchor)
     if (patch.width != null) after.width = patch.width
     if (patch.height != null) after.height = patch.height
+    if (patch.rotation != null) after.rotation = patch.rotation
     if (patch.altText != null) after.altText = patch.altText
     if (patch.title != null) after.title = patch.title
 
@@ -106,6 +110,7 @@ export const UpdateImageCommand: Command<UpdateImageParams> = {
     const sameMeta =
       before.width === after.width &&
       before.height === after.height &&
+      before.rotation === after.rotation &&
       before.altText === after.altText &&
       before.title === after.title
     if (sameAnchor && sameMeta) return { mutations: [] }

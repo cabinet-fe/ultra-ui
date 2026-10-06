@@ -299,6 +299,7 @@ export interface SheetImage {
   fit?: 'fill' | 'contain' // 缩放模式：fill 拉伸（默认）；contain 等比缩放完整显示于锚定区域内（不裁剪不溢出）
   width?: number // 渲染宽高（px，96 DPI）；缺省由渲染层取自然尺寸
   height?: number
+  rotation?: number // 旋转角（顺时针度数，缺省 0）；旧快照无此字段行为不变
   altText?: string
   title?: string
 }
@@ -375,7 +376,7 @@ Sheet 核心方法参数（`Workbook.addSheet` 选项五要素——`name`：`st
 - `setCellReadonly(addr, readonly = true)` / `setRangeReadonly(range, readonly = true)` / `isCellReadonly(addr)` → `boolean`：单元格只读标记，存于 namespace `'cell-readonly'`；`setRangeReadonly` 事务合并为单 undo 单元。
 - `getImages()` → `readonly SheetImage[]`（快照副本）；`getImage(id)` → `SheetImage | undefined`（副本）。
 - `insertImage(input)` → `string`：返回生成的 id；id 已存在时无操作；`removeImage(id)`：不存在则无操作。
-- `updateImage(id, patch)`：更新锚点 / 宽高 / 文案（`ImageUpdateFields`）；不存在或无变更则无操作。
+- `updateImage(id, patch)`：更新锚点 / 宽高 / 角度 / 文案（`ImageUpdateFields`）；不存在或无变更则无操作。
 - 行高列宽（不进 undo，随快照序列化）：`getRowHeight(row)` / `getColWidth(col)` → `number | undefined`（未设置返回 `undefined`）；`setRowHeight(row, height)` / `setColWidth(col, width)`（值 `<= 0` 或非有限值时清除该行/列自定义值）；`getRowHeights()` / `getColWidths()` → `ReadonlyMap<number, number>`。
 - 命令、历史与事务（详见 `sheet-core/commands.md`）：`executeCommand<R>(id, params)` → `R | undefined`（经 `defaultCommandRegistry` 执行；id 未注册抛 `Error`）；`undo()` / `redo()` → `boolean`；`canUndo` / `canRedo` getter；`beginTransaction()` / `commit()` / `rollback()` 事务内所有命令合并为一个 undo 单元（可嵌套拍平到最外层；`rollback` 还原已应用变更并放弃事务）。
 - `snapshot()` → `SheetSnapshot`：单元格 + 样式池 + 合并 + 冻结 + 选区 + 尺寸 + 行高/列宽 + 行列样式 + 图片 + meta；空数组字段不序列化。
