@@ -22,6 +22,9 @@ keywords:
     'onEditStart',
     'interceptSelection',
     'readonly',
+    'colResize',
+    'onColResizeEnd',
+    'col-resize-end',
     '类型化编辑器',
     '浮动图片',
     '冻结',
@@ -91,6 +94,10 @@ export interface SheetGridOptions {
   onEditStart?: (addr: CellAddress) => void
   /** 编辑提交 / 退出 */
   onEditEnd?: (addr: CellAddress) => void
+  /** 列宽拖拽开关：readonly 下置 true 仅放开列头 resize 手柄（行高拖拽与编辑仍关闭）；缺省 false 行为不变 */
+  colResize?: boolean
+  /** 列宽拖拽落定回调（拖拽写模型之后触发）：载荷含列索引与最终宽度 */
+  onColResizeEnd?: (event: { col: number; width: number }) => void
   /** 返回 true 时本次选区不写入模型，改回调 onSelectionIntercept */
   interceptSelection?: () => boolean
   /** 被拦截的选区范围（模型坐标） */
@@ -230,6 +237,8 @@ export class SheetGrid {
 | `editors`                   | `SheetGridEditorsOptions` | —        |  否  | 类型化编辑器机制：`editors` 注册自定义编辑器、`route` 按格路由；未命中回落统一文本编辑器；`readonly: true` 时整体忽略                                                         |
 | `onContextMenu`             | `(info) => void`          | —        |  否  | 右键时触发；`info.x` / `info.y` 为客户端坐标                                                                                                                                  |
 | `onEditStart` / `onEditEnd` | `(addr) => void`          | —        |  否  | 编辑进入 / 退出；`readonly: true` 不触发                                                                                                                                      |
+| `colResize`                 | `boolean`                 | `false`  |  否  | 列宽拖拽开关：`readonly: true` 下置 `true` 仅放开列头 resize 手柄（行高拖拽与编辑入口仍关闭），供只读预览宿主微调列宽；非 readonly 本就允许拖拽，置 `true` 无额外作用          |
+| `onColResizeEnd`            | `(event) => void`         | —        |  否  | 列宽拖拽落定回调，在拖拽写模型（`sheet.setColWidth`，不进 undo）之后触发；`event.col` 为列索引、`event.width` 为最终宽度（引擎夹取后的生效值）                                |
 | `interceptSelection`        | `() => boolean`           | —        |  否  | 返回 `true` 拦截本次选区（不写模型选区）                                                                                                                                      |
 | `onSelectionIntercept`      | `(range) => void`         | —        |  否  | 拦截发生时回调被拦截的模型区域；须与 `interceptSelection` 配对使用                                                                                                            |
 
@@ -244,7 +253,7 @@ export class SheetGrid {
 - 滚轮滚动：容器 `wheel` → 表滚动，`shift+滚轮` 换轴为横向；只在引擎确实消费了滚动（`scrollBy` 前后位置变化）时 `preventDefault`——某轴余量为 0（视口 == 内容或已到边缘）时放行事件沿滚动链冒泡给祖先原生滚动容器。触控 / 惯性滚动由引擎内置。宿主不要再对同一容器自行挂 `wheel` 调滚动，会双重滚动。
 - 键盘：`Ctrl+A` 全选（readonly 也可用）；`Delete` / `Backspace` 删除选中的浮动图片（非 readonly 且有选中时接管）；`<input>` / `<textarea>` 聚焦时不接管任何键。
 - 编辑：双击 / `Enter` 进入，提交经模型命令回写（可撤销），编辑文本上限 50000 字符；被 `Sheet.setCellReadonly` 标记的格双击 / `Enter` 均不进入编辑会话。
-- 行列 resize：拖拽落定自动写回 `sheet.setRowHeight` / `sheet.setColWidth`（不进 undo）；列宽变化联动重估该列 wrap 行高。
+- 行列 resize：拖拽落定自动写回 `sheet.setRowHeight` / `sheet.setColWidth`（不进 undo）并回调 `onColResizeEnd`（仅列宽）；列宽变化联动重估该列 wrap 行高。readonly 下行列 resize 默认关闭；`colResize: true` 仅放开列 resize（行 resize 与编辑仍关闭）。
 - 容器 resize：`ResizeObserver` 原地自适应，不重建实例，滚动位置与选区保留。
 
 回调触发时机：

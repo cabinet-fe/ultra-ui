@@ -1186,6 +1186,52 @@ describe('USheet 行高/列宽右键菜单', () => {
   })
 })
 
+describe('USheet colResize（readonly 列宽拖拽）', () => {
+  it('readonly + colResize：列头拖宽写模型并 emit col-resize-end（col + 最终宽度）', async () => {
+    const workbook = createWorkbook()
+    const events: Array<{ col: number; width: number }> = []
+    const { el } = mount(() => ({
+      workbook,
+      rows: 10,
+      cols: 6,
+      readonly: true,
+      colResize: true,
+      onColResizeEnd: (event: { col: number; width: number }) => events.push(event)
+    }))
+    await nextTick()
+
+    // 第 0 列右缘（46 + 80 = 126，±4 手柄区）列头带内拖拽：宽 = 起始 80 + 指针位移 42
+    const instance = el.querySelector<HTMLElement>('.u-sheet__grid-instance')!
+    fire(instance, 'pointerdown', { clientX: 124, clientY: 10 })
+    fire(instance, 'pointermove', { clientX: 166, clientY: 10 })
+    fire(instance, 'pointerup', { clientX: 166, clientY: 10 })
+    await nextTick()
+    expect(events).toEqual([{ col: 0, width: 122 }])
+    expect(workbook.activeSheet.getColWidth(0)).toBe(122)
+  })
+
+  it('缺省 readonly 仍禁列宽拖拽（不 emit）', async () => {
+    const workbook = createWorkbook()
+    const events: Array<{ col: number; width: number }> = []
+    const { el } = mount(() => ({
+      workbook,
+      rows: 10,
+      cols: 6,
+      readonly: true,
+      onColResizeEnd: (event: { col: number; width: number }) => events.push(event)
+    }))
+    await nextTick()
+
+    const instance = el.querySelector<HTMLElement>('.u-sheet__grid-instance')!
+    fire(instance, 'pointerdown', { clientX: 124, clientY: 10 })
+    fire(instance, 'pointermove', { clientX: 166, clientY: 10 })
+    fire(instance, 'pointerup', { clientX: 166, clientY: 10 })
+    await nextTick()
+    expect(events).toEqual([])
+    expect(workbook.activeSheet.getColWidth(0)).toBeUndefined()
+  })
+})
+
 describe('fx 选区锚点', () => {
   const A1_ANCHOR = { minCol: 0, minRow: 0, maxCol: 0, maxRow: 0 }
 

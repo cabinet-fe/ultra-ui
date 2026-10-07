@@ -111,7 +111,8 @@ const props = withDefaults(defineProps<SheetProps>(), {
   showTabs: true,
   showRowHeader: true,
   showColHeader: true,
-  readonly: false
+  readonly: false,
+  colResize: false
 })
 
 const emit = defineEmits<SheetEmits>()
@@ -215,7 +216,8 @@ const { rebuildGrid, activateGrid, pruneCache, getGrid, setSelectionAnchor } = u
   context,
   formulaBarRef,
   // 工具栏「函数」弹框打开期间与 fx 入口一致：画布点击不清除目标格高亮
-  isFunctionPopupOpen: () => popupTool.value?.popup === 'functions'
+  isFunctionPopupOpen: () => popupTool.value?.popup === 'functions',
+  onColResizeEnd: (event) => emit('col-resize-end', event)
 })
 
 const exposed: _SheetExposed = {

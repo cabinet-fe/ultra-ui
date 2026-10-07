@@ -54,6 +54,42 @@ describe('整表只读模式', () => {
     }
   })
 
+  it('readonly + colResize：列缘拖拽改宽写模型并回调 onColResizeEnd（载荷 col + 最终宽度）', async () => {
+    const events: Array<{ col: number; width: number }> = []
+    const { grid, container, table, sheet } = createGrid({
+      readonly: true,
+      colResize: true,
+      onColResizeEnd: (event) => events.push(event)
+    })
+    try {
+      fire(container, 'pointerdown', { clientX: 124, clientY: 10 })
+      fire(container, 'pointermove', { clientX: 156, clientY: 10 })
+      fire(container, 'pointerup', { clientX: 156, clientY: 10 })
+      await flushMicrotasks()
+      expect(table.getColWidth(0)).toBe(112)
+      expect(sheet.getColWidth(0)).toBe(112)
+      expect(events).toEqual([{ col: 0, width: 112 }])
+    } finally {
+      grid.release()
+    }
+  })
+
+  it('readonly + colResize 只放开列 resize：行高拖拽与编辑入口仍关闭', async () => {
+    const { grid, container, table, sheet } = createGrid({ readonly: true, colResize: true })
+    try {
+      // 第 0 行下缘（28 + 28 = 56，±4 手柄区）行号带内拖 +20
+      fire(container, 'pointerdown', { clientX: 20, clientY: 54 })
+      fire(container, 'pointermove', { clientX: 20, clientY: 76 })
+      fire(container, 'pointerup', { clientX: 20, clientY: 76 })
+      await flushMicrotasks()
+      expect(sheet.getRowHeight(0)).toBeUndefined()
+      expect(table.startEdit(0, 0)).toBe(false)
+      expect(table.isEditing()).toBe(false)
+    } finally {
+      grid.release()
+    }
+  })
+
   it('只读填充柄不写模型（onFillDragEnd 不接线）', async () => {
     const { grid, container, table, sheet } = createGrid({ readonly: true })
     try {

@@ -36,7 +36,7 @@ src/
 
 ## USheet
 
-- Props：`workbook?`、`rows?`(100)、`cols?`(26)、`showToolbar?`、`showFormulaBar?`、`showTabs?`、`showRowHeader?`(true)、`showColHeader?`(true)
+- Props：`workbook?`、`rows?`(100)、`cols?`(26)、`showToolbar?`、`showFormulaBar?`、`showTabs?`、`showRowHeader?`(true)、`showColHeader?`(true)、`colResize?`(false，readonly 下放开列头列宽拖拽；落定 emit `col-resize-end` `{col,width}`)
 - Exposed：`workbook`、`getActiveSheet()`、`getContext()`、`getGrid()`
 - 宿主需给高度（`.u-sheet` flex 列，grid `flex:1; min-height:0`）
 - 样式：`import '@veltra/sheet/components/sheet/style'`；BEM 元素用 `m.e(name)`，**不要**用单参 `m.bem` 当元素（会丢 `__grid` 等规则）

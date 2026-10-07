@@ -17,6 +17,8 @@ keywords:
     header,
     editors,
     active-sheet-change,
+    colResize,
+    col-resize-end,
     getContext,
     填报,
     只读单元格,
@@ -117,11 +119,15 @@ export interface SheetProps {
   showColHeader?: boolean
   /** 只读预览（关闭编辑回写、填充柄等写入口），默认 false */
   readonly?: boolean
+  /** 列宽拖拽（透传 SheetGrid）：readonly 下置 true 仅放开列头 resize 手柄，编辑仍关闭；默认 false */
+  colResize?: boolean
 }
 
 export interface SheetEmits {
   /** 激活 sheet 切换（点击 tab 或宿主调用 workbook.activateSheet） */
   (name: 'active-sheet-change', payload: { sheet: Sheet; index: number }): void
+  /** 列宽拖拽落定（拖拽写模型之后）：载荷含列索引与最终宽度 */
+  (name: 'col-resize-end', payload: { col: number; width: number }): void
 }
 
 /** 组件内部定义；ref 上实际是解包后的 SheetExposed 形态 */
@@ -155,6 +161,7 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 | `showRowHeader`       | `boolean`                 | `true`                  |  否  | 行号列；右键菜单含插入/删除行、行高、冻结到当前行                                                                                                                     |
 | `showColHeader`       | `boolean`                 | `true`                  |  否  | 列字母表头；右键菜单含插入/删除列、列宽、冻结到当前列                                                                                                                 |
 | `readonly`            | `boolean`                 | `false`                 |  否  | 整表只读预览；按格控制改用模型 `setCellReadonly`                                                                                                                      |
+| `colResize`           | `boolean`                 | `false`                 |  否  | 列宽拖拽透传 SheetGrid：`readonly: true` 下置 `true` 仅放开列头 resize 手柄（编辑仍关闭），供只读预览宿主微调列宽；非 readonly 本就允许拖拽；变化触发网格重建          |
 | `resolveDisplayValue` | `ResolveDisplayValue`     | —                       |  否  | `(addr, base) => CellValue \| undefined`；必须同步                                                                                                                    |
 | `resolveCellStyle`    | `ResolveCellStyleHook`    | —                       |  否  | `(addr, baseStyle?) => CellStyle \| undefined`；必须同步、O(1) 查找                                                                                                   |
 | `resolveCellRenderer` | `ResolveCellRenderer`     | —                       |  否  | `(addr, base) => CellRenderer \| undefined`；返回 undefined 回落默认渲染（类型见 `@veltra/sheet-core/grid`）                                                          |
@@ -166,6 +173,8 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 ### 事件
 
 `active-sheet-change`：payload `{ sheet: Sheet; index: number }`。工作簿活动表变化时触发——点击底部标签、宿主调用 `workbook.activateSheet()`、删除激活 sheet 后自动切换；触发前组件已完成弹层关闭与网格切换。更换 `workbook` prop 不触发本事件。
+
+`col-resize-end`：payload `{ col: number; width: number }`。列宽拖拽落定时触发（拖拽已自动写回 `sheet.setColWidth`，不进 undo）；`readonly` 下须同时 `colResize: true` 才可拖拽。
 
 ### 暴露方法（`SheetExposed`）
 

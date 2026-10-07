@@ -75,7 +75,7 @@ cell hook 是渲染扩展面（`resolveDisplayValue` / `resolveCellStyle` / `res
 
 `SheetGridOptions.readonly`（构造选项，`grid/sheet-grid.ts`），面向只读预览场景（desktop file-viewer 的 Excel/CSV 预览）：
 
-- **关闭一切写模型入口**：不注册编辑器且 `editCellOnEnter` 关闭（引擎可编三级判定不放行）、填充柄不订阅写值、行/列 resize 能力关闭（`canResizeCol/canResizeRow` 恒 false）、不绑 undo/redo 快捷键；浮动图禁拖动与 `Delete`/`Backspace` 删除（仅保留点击选中）。
+- **关闭一切写模型入口**：不注册编辑器且 `editCellOnEnter` 关闭（引擎可编三级判定不放行）、填充柄不订阅写值、行/列 resize 能力关闭（`canResizeCol/canResizeRow` 恒 false；例外——`colResize: true` 仅放开列 resize 手柄，行 resize 与编辑仍关）、不绑 undo/redo 快捷键；浮动图禁拖动与 `Delete`/`Backspace` 删除（仅保留点击选中）。
 - **保留**：渲染、选区、滚动、键盘导航、右键回调（`onContextMenu` 照常触发，菜单内容由宿主决定）。
 - **模型层不设防，仅守 grid 入口**——绕过 SheetGrid 直接调命令仍可写模型，宿主只读场景不要暴露命令入口。
 - **行列头**：`showRowHeader` / `showColHeader`（默认 true）；false 时引擎构造期归一化为零宽/零高，内容原点回落表体。

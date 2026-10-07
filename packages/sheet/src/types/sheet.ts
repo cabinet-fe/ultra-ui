@@ -57,11 +57,18 @@ export interface SheetProps {
   showColHeader?: boolean
   /** 只读预览（关闭编辑回写、填充柄等写入口） */
   readonly?: boolean
+  /**
+   * 列宽拖拽（透传 SheetGrid）：readonly 下置 true 仅放开列头 resize 手柄，编辑仍
+   * 关闭；缺省 false 行为不变。变化触发网格重建（构造期选项）
+   */
+  colResize?: boolean
 }
 
 export interface SheetEmits {
   /** 激活 sheet 切换（点击 tab 或宿主调用 workbook.activateSheet） */
   (name: 'active-sheet-change', payload: { sheet: Sheet; index: number }): void
+  /** 列宽拖拽落定（写模型之后）：载荷含列索引与最终宽度 */
+  (name: 'col-resize-end', payload: { col: number; width: number }): void
 }
 
 /** 在组件内部引用 */

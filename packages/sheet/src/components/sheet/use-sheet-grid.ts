@@ -39,6 +39,8 @@ interface UseSheetGridOptions {
   formulaBarRef: ElRef<FormulaBarMirror>
   /** 函数弹框打开中（宿主侧入口，如工具栏「函数」按钮） */
   isFunctionPopupOpen?: () => boolean
+  /** 列宽拖拽落定（SheetGrid 透传 → 宿主 emit col-resize-end） */
+  onColResizeEnd?: (event: { col: number; width: number }) => void
 }
 
 /** 缓存实例（LRU 淘汰）：每个 sheet 一个独立容器 div，非激活容器 visibility:hidden 堆叠 */
@@ -128,9 +130,11 @@ export function useSheetGrid(options: UseSheetGridOptions) {
       resolveCellRenderer: props.resolveCellRenderer,
       header: props.header,
       editors: props.editors,
+      colResize: props.colResize,
       onContextMenu: handleContextMenu,
       onEditStart: (addr) => formulaBarRef.value?.mirrorGridEdit(addr),
       onEditEnd: (addr) => formulaBarRef.value?.exitMirror(addr),
+      onColResizeEnd: options.onColResizeEnd,
       // 引用选择：不回写模型选区，序列化为 A1 / A1:B2 交给公式栏；
       // 函数弹框打开期间（fx / 工具栏两入口）同样拦截，画布点击不离开目标格
       interceptSelection: () =>
@@ -268,7 +272,8 @@ export function useSheetGrid(options: UseSheetGridOptions) {
         props.showRowHeader,
         props.showColHeader,
         props.header,
-        props.editors
+        props.editors,
+        props.colResize
       ] as const,
     ([nextRows, nextCols]) => {
       const sheet = getActiveSheet()

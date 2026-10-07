@@ -70,6 +70,14 @@ export interface SheetGridOptions {
   onContextMenu?: (info: SheetGridContextMenuInfo) => void
   onEditStart?: (addr: CellAddress) => void
   onEditEnd?: (addr: CellAddress) => void
+  /**
+   * 列宽拖拽开关：readonly 下置 true 仅放开列头 resize 手柄（行高拖拽与编辑入口
+   * 仍关闭），供只读预览宿主微调列宽；缺省 false 行为不变（readonly 禁 resize）。
+   * 非 readonly 本就允许拖拽，该选项无额外作用。
+   */
+  colResize?: boolean
+  /** 列宽拖拽落定回调（拖拽写模型之后触发；载荷含列索引与最终宽度） */
+  onColResizeEnd?: (event: { col: number; width: number }) => void
   interceptSelection?: () => boolean
   onSelectionIntercept?: (range: CellRange) => void
   readonly?: boolean
@@ -189,7 +197,8 @@ export class SheetGrid {
       frozenColCount: this.sheet.frozen.cols,
       frozenRowCount: this.sheet.frozen.rows,
       mergeCells: this.readMergeCells(),
-      canResizeCol: this.isReadonly ? () => false : undefined,
+      // colResize 仅放开列 resize（readonly 下手柄解锁）；行 resize 仍随 readonly 关闭
+      canResizeCol: this.isReadonly && options.colResize !== true ? () => false : undefined,
       canResizeRow: this.isReadonly ? () => false : undefined,
       // Excel 键位组合预设（Enter 进编辑 / 关闭 Ctrl 加选）；只读覆盖为关闭
       ...(this.isReadonly ? {} : excelKeymapPreset),
@@ -235,7 +244,7 @@ export class SheetGrid {
     this.floatImages.sync()
     this.disposers.push(() => this.floatImages.dispose())
 
-    this.bindSheetEvents()
+    this.bindSheetEvents(options.onColResizeEnd)
     this.bindKeyboard()
     this.bindWheel()
     this.bindContextMenu(options.onContextMenu)
@@ -384,7 +393,7 @@ export class SheetGrid {
 
   // ─── 事件接线 ───────────────────────────────────────────
 
-  private bindSheetEvents(): void {
+  private bindSheetEvents(onColResizeEnd?: SheetGridOptions['onColResizeEnd']): void {
     const syncWrapRow = (row: number): void => {
       if (this.released) return
       if (!this.visible) {
@@ -432,6 +441,8 @@ export class SheetGrid {
           syncWrapRow(row)
         }
         this.headerLayer?.sync()
+        // 宿主转发（写模型之后）：只读预览宿主据此做会话级列宽接管
+        onColResizeEnd?.(event)
       }),
       this.sheet.on('merge-change', () => scheduleResync()),
       this.sheet.on('content-reset', () => {
