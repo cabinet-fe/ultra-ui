@@ -28,6 +28,32 @@ export const CHROME103_MISSING_APIS: MissingApiEntry[] = [
     name: 'Set.prototype.intersection',
     usage: /\.intersection\s*\(/,
     polyfill: /Set\.prototype\.intersection\s*=/
+  },
+  {
+    name: 'Iterator 全局（iterator helpers）',
+    usage: /typeof\s+Iterator\.prototype/,
+    polyfill: /defineProperty\(globalThis,\s*['"]Iterator['"]/
+  },
+  { name: 'URL.parse 静态方法', usage: /URL\.parse\s*\(/, polyfill: /URLCtor\.parse\s*=/ },
+  {
+    name: 'Uint8Array.prototype.toHex',
+    usage: /\.toHex\(\)/,
+    polyfill: /Uint8ArrayProto\.toHex\s*=/
+  },
+  {
+    name: 'Uint8Array.prototype.toBase64',
+    usage: /\.toBase64\(\)/,
+    polyfill: /Uint8ArrayProto\.toBase64\s*=/
+  },
+  {
+    name: 'Uint8Array.fromBase64 静态方法（fromHex 同族暂未被产物使用）',
+    usage: /Uint8Array\.from(?:Base64|Hex)\s*\(/,
+    polyfill: /Uint8ArrayCtor\.fromBase64\s*=/
+  },
+  {
+    name: 'Map upsert（getOrInsert / getOrInsertComputed）',
+    usage: /\.(?:getOrInsertComputed|getOrInsert)\s*\(/,
+    polyfill: /MapProto\.getOrInsert\s*=/
   }
 ]
 

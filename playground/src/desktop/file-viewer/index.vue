@@ -58,7 +58,7 @@ const sampleTxt =
       '一个面板预览多种格式的文件：',
       '  - 图片 (<img>)',
       '  - 视频 (<video>)',
-      '  - PDF  (EmbedPDF)',
+      '  - PDF  (pdfjs-dist)',
       '  - 表格 (@veltra/sheet-core 只读预览)',
       '  - Word (docx-preview)',
       '  - OFD  (@veltra/ofd-core 自研内核)',
@@ -165,8 +165,8 @@ const sampleFiles: FileViewerItem[] = [
   },
   {
     id: 'sample-pdf',
-    name: 'ebook.pdf',
-    src: 'https://snippet.embedpdf.com/ebook.pdf',
+    name: 'ebook-32p.pdf',
+    src: new URL('./samples/ebook-32p.pdf', import.meta.url).href,
     kind: 'pdf'
   },
   { id: 'sample-csv', name: 'sales-summary.csv', src: sampleCsv, kind: 'sheet' },

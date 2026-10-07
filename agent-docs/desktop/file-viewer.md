@@ -175,7 +175,7 @@ export interface FileViewerExposed {
 ### 工具栏缩放行为（内置，不可配置）
 
 - `image`：工具栏缩放按钮 + Ctrl/⌘+滚轮缩放（步进 0.1，范围 0.5~3），缩放大于 1 后可拖拽平移，双击在 100% 与 200% 间切换
-- `pdf`：缩放由 @embedpdf 的 zoom 插件处理，工具栏同样显示百分比
+- `pdf`：缩放由预览器内部处理，默认 fit-page，工具栏缩放 + Ctrl/⌘+滚轮缩放（步进 0.1，范围 0.5~3），工具栏显示百分比，缩放后可拖拽平移
 - `ofd`：缩放由预览器内部处理（步进 0.1，范围 0.5~3），工具栏显示百分比；无滚轮/双击缩放，页面尺寸随缩放自适应
 - 其余类别不显示缩放控件
 
@@ -280,7 +280,7 @@ const files: FileViewerItem[] = [
 > - Excel/CSV 预览依赖可选 peer `@veltra/sheet-core`：已安装时以只读 `SheetGrid` 渲染（xlsx 多 sheet 显示页签，csv 单表、表名取文件名）；未安装时该类文件显示「无法预览表格：未安装 @veltra/sheet-core」空态，并向 `error` 事件抛出 `Error('未安装 @veltra/sheet-core，无法预览 Excel/CSV')`，其余格式不受影响。安装：`pnpm add @veltra/sheet-core`。
 > - OFD 预览内核 `@veltra/ofd-core` 已随包内置打包，无需安装；页面按元数据毫米尺寸以 96dpi 换算渲染 SVG，未声明尺寸的页按 A4（210×297mm）兜底；滚动到可视区上下各一屏内才渲染该页；单页渲染失败时该页空白且不再重试，错误经 `error` 事件抛出。
 > - `sheetMaxRows` 只驱动「超出预览上限」提示条，不裁剪也不截断数据；超大表格仍会全量加载，控制加载成本应在源头限制文件。
-> - PDF 预览由内置依赖 `@embedpdf/*` 渲染，Word 由 `docx-preview` 渲染，均为必装依赖，无需额外安装。
+> - PDF 预览由内置依赖 `pdfjs-dist` 渲染，Word 由 `docx-preview` 渲染，均为必装依赖，无需额外安装。
 > - 文本预览最多读取前 2MB（超出显示「文件过大，仅展示前 …」提示），按 UTF-8 解码。
 > - 二进制源（`File`/`Blob`/`ArrayBuffer`/`Uint8Array`）内部会创建 ObjectURL 并在切换/卸载时回收；`Uint8Array` 会被复制，外部后续修改不影响预览。
 > - 内嵌模式必须给组件高度；模态模式（传 `open`）不必。

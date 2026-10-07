@@ -403,8 +403,8 @@ function zoomOut() {
 
 function resetTransform() {
   if (isDelegatedZoom.value) {
+    // 重置后的回显交给预览器同步 emit 的 zoom-change（pdf 回 fit-page，ofd 回 100%）
     previewerRef.value?.resetZoom?.()
-    previewerZoomLevel.value = 1
     return
   }
   scale.value = 1
