@@ -45,6 +45,31 @@ describe('foldSessionEvent', () => {
     })
   })
 
+  it('history 的 assistant/message 不把流式消息降级为 done、不用更短快照覆盖内容', () => {
+    // 断线补拉：直播已流式输出，历史快照落后（甚至为空）
+    const lagging = foldAll([
+      { type: 'assistant/chunk', messageId: 'a1', seq: 1, delta: '命令输出' },
+      { type: 'assistant/message', messageId: 'a1', content: '', history: true }
+    ])
+    expect(lagging.messages[0]).toMatchObject({ content: '命令输出', status: 'streaming' })
+
+    // 断线期间服务端推进更多：历史快照比直播长时采用历史（直播漏了增量）
+    const ahead = foldAll([
+      { type: 'assistant/chunk', messageId: 'a1', seq: 1, delta: '命令' },
+      { type: 'assistant/message', messageId: 'a1', content: '命令输出为 slow-done', history: true }
+    ])
+    expect(ahead.messages[0]).toMatchObject({
+      content: '命令输出为 slow-done',
+      status: 'streaming'
+    })
+
+    // 已终态的消息不受 history 标记影响，正常被历史回放覆盖（首挂载播种路径）
+    const seeded = foldAll([
+      { type: 'assistant/message', messageId: 'a2', content: '历史答复', history: true }
+    ])
+    expect(seeded.messages[0]).toMatchObject({ content: '历史答复', status: 'done' })
+  })
+
   it('tool/call 追加 pending 的 ChatToolCall 并保留 view', () => {
     const view = { preview: 'ls' }
     const state = foldAll([

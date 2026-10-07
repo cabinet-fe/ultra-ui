@@ -58,14 +58,13 @@ export function createSessionRuntime(surface: SessionChatSurface) {
       fold = createFoldState()
       syncFold(fold, surface)
       let disposed = false
+      // 断线 ≠ 会话停止：不注册 onDisconnect 把 running 置 false（保持乐观，由
+      // 重连回放的 prompted / step_started / idle 帧收敛）。曾在此置 false ——
+      // 步骤间隙断线会把过程块折叠成「已完成」，重连随即又展开，消息列表在
+      // 「完成 / 思考中」之间来回跳。
       const dispose = transport.open({
         onEvent(event) {
           if (!disposed) apply(event)
-        },
-        onDisconnect() {
-          if (disposed) return
-          fold = { ...fold, running: false }
-          surface.running.value = false
         }
       })
       opened = true

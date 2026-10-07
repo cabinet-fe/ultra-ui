@@ -1,36 +1,43 @@
 import type { AskQuestionItem } from '../tools'
 import type { ChatAttachment, ChatJob, ChatQueuedMessage, ChatToolCall } from './types'
 
-/** 归一化后的服务端会话事件（协议无关） */
+/** 归一化后的服务端会话事件（协议无关）。
+ * seq 为持久帧序号：瞬态/历史回放事件省略（不参与乱序门），durable 终态事件携带。 */
 export type ChatSessionEvent =
   | {
       type: 'user/message'
       messageId: string
-      seq: number
+      seq?: number
       content: string
       attachments?: ChatAttachment[]
     }
   | {
       type: 'assistant/chunk'
       messageId: string
-      seq: number
+      seq?: number
       delta: string
       reasoningDelta?: string
     }
   | {
       type: 'assistant/message'
       messageId: string
-      seq: number
+      seq?: number
       content: string
       reasoning?: string
       toolCalls?: ChatToolCall[]
+      /**
+       * 历史回放（REST 拉取/断线补拉）来源标记。
+       * 历史快照可能落后于直播流：fold 对流式中的消息不降级为 done、不用更短的
+       * 快照覆盖内容；直播（durable 终态帧）始终是状态权威。
+       */
+      history?: boolean
     }
   | {
       type: 'tool/call'
       callId: string
       name: string
       arguments: string
-      seq: number
+      seq?: number
       view?: unknown
     }
   | {
@@ -39,7 +46,7 @@ export type ChatSessionEvent =
       status: 'success' | 'error' | 'rejected'
       result?: string
       error?: string
-      seq: number
+      seq?: number
       view?: unknown
     }
   | {

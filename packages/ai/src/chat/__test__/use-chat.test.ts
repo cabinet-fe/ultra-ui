@@ -765,7 +765,7 @@ describe('useChat session', () => {
     spy.mockRestore()
   })
 
-  it('abort 调 session.cancel；running 由事件与 onDisconnect 驱动', async () => {
+  it('abort 调 session.cancel；running 由事件驱动，断线不翻转', async () => {
     const { chat, adapter } = await setupSession()
     expect(chat.running.value).toBe(false)
 
@@ -782,11 +782,14 @@ describe('useChat session', () => {
     adapter.emit({ type: 'error', code: 'x', message: '失败' })
     expect(chat.running.value).toBe(false)
 
+    // 断线 ≠ 停止：running 保持乐观，由重连回放的 prompted / idle 收敛。
+    // 曾在此翻转 running=false，步骤间隙断线会让过程块在「已完成 / 思考中」间跳。
     adapter.emit({ type: 'running', running: true })
     adapter.disconnect()
     await vi.waitFor(() => {
-      expect(chat.running.value).toBe(false)
+      expect(adapter.fetchHistory).toHaveBeenCalled()
     })
+    expect(chat.running.value).toBe(true)
   })
 
   it('队列只认 snapshot；enqueue / startQueued / removeQueued / regenerate 为 no-op', async () => {

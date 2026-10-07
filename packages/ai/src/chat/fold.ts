@@ -161,12 +161,27 @@ export function foldSessionEvent(state: ChatFoldState, event: ChatSessionEvent):
       break
     }
     case 'assistant/message': {
+      const current = next.messages.find((m) => m.id === event.messageId)
+      if (event.history && current && current.status === 'streaming') {
+        // 历史快照命中直播流式中的消息：快照可能落后（甚至为空），不能把消息
+        // 降级为 done 或用更短内容覆盖 —— 否则断线补拉会让消息在「完成 / 思考中」
+        // 之间来回翻转；终态由直播的 durable 帧（message_text / step 收尾）落定。
+        const longer = (a: string | undefined, b: string | undefined) =>
+          (b?.length ?? 0) > (a?.length ?? 0) ? b : a
+        next.messages = patchMessage(next.messages, event.messageId, {
+          role: 'assistant',
+          content: longer(current.content, event.content),
+          reasoning: longer(current.reasoning, event.reasoning),
+          toolCalls: event.toolCalls ?? current.toolCalls
+        })
+        break
+      }
       next.messages = patchMessage(next.messages, event.messageId, {
         role: 'assistant',
         status: 'done',
         content: event.content,
         reasoning: event.reasoning,
-        toolCalls: event.toolCalls ?? next.messages.find((m) => m.id === event.messageId)?.toolCalls
+        toolCalls: event.toolCalls ?? current?.toolCalls
       })
       break
     }
