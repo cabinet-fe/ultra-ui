@@ -661,6 +661,8 @@
     position: relative;
     width: 100%;
     height: 100%;
+    // pdfjs 方案的滚动容器：原生滚动 + 隐藏滚动条（拖拽平移见 PdfViewportScroll）
+    overflow: auto;
     background: transparent;
     cursor: grab;
 
@@ -669,7 +671,7 @@
       user-select: none;
     }
 
-    // 隐藏原生滚动条，由 PdfViewportScroll 通过 u-scroll target 挂载自定义滚动条
+    // 隐藏原生滚动条
     scrollbar-width: none;
     scrollbar-color: transparent transparent;
 

@@ -20,10 +20,14 @@
     "src/style.ts",
     "src/**/style.ts",
     "src/**/*.scss",
+    "src/**/pdf-polyfill.ts",
+    "src/**/pdf-worker-wrapper.ts",
     "dist/install.js",
     "dist/style.js",
     "dist/**/style.js",
-    "dist/**/*.css"
+    "dist/**/*.css",
+    "dist/**/pdf-polyfill.js",
+    "dist/**/pdf-worker-wrapper.js"
   ],
   "exports": {
     ".": {

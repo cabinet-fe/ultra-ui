@@ -3,15 +3,14 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, inject, onBeforeUnmount, type Ref, watch } from 'vue'
+import { onBeforeUnmount, watch } from 'vue'
 
 defineOptions({ name: 'UFileViewerPdfViewportScroll' })
 
-/** EmbedPDF Viewport 向子树注入的滚动容器 ref */
-const VIEWPORT_ELEMENT_KEY = 'viewport-element'
-
-const viewportRef = inject<Ref<HTMLDivElement | null>>(VIEWPORT_ELEMENT_KEY)
-const viewportEl = computed(() => viewportRef?.value ?? null)
+const props = defineProps<{
+  /** 滚动视口容器，由 pdf-previewer 以模板 ref 传入 */
+  viewport: HTMLDivElement | null
+}>()
 
 let panState:
   | { pointerId: number; startX: number; startY: number; scrollLeft: number; scrollTop: number }
@@ -27,7 +26,7 @@ function isInteractiveTarget(target: EventTarget | null): boolean {
 function handlePointerDown(e: PointerEvent) {
   if (e.button !== 0 || isInteractiveTarget(e.target)) return
 
-  const el = viewportEl.value
+  const el = props.viewport
   if (!el) return
 
   panState = {
@@ -45,7 +44,7 @@ function handlePointerDown(e: PointerEvent) {
 function handlePointerMove(e: PointerEvent) {
   if (!panState || panState.pointerId !== e.pointerId) return
 
-  const el = viewportEl.value
+  const el = props.viewport
   if (!el) return
 
   el.scrollLeft = panState.scrollLeft - (e.clientX - panState.startX)
@@ -55,7 +54,7 @@ function handlePointerMove(e: PointerEvent) {
 function endPan(e: PointerEvent) {
   if (!panState || panState.pointerId !== e.pointerId) return
 
-  const el = viewportEl.value
+  const el = props.viewport
   if (el?.hasPointerCapture(e.pointerId)) {
     el.releasePointerCapture(e.pointerId)
   }
@@ -66,7 +65,7 @@ function endPan(e: PointerEvent) {
 let detachPan: (() => void) | undefined
 
 watch(
-  viewportEl,
+  () => props.viewport,
   (el, _, onCleanup) => {
     detachPan?.()
     detachPan = undefined
@@ -91,7 +90,7 @@ watch(
       detachPan = undefined
     })
   },
-  { immediate: true }
+  { immediate: true, flush: 'post' }
 )
 
 onBeforeUnmount(() => {
