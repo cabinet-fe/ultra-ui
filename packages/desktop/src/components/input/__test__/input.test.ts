@@ -39,12 +39,11 @@ function hover(host: HTMLElement) {
 }
 
 describe('Input', () => {
-  it('reserves suffix space before hover when clearable', () => {
+  it('renders no suffix before hover when clearable', () => {
     const { host, unmount } = mountInput({ modelValue: 'a' })
 
     try {
-      expect(host.querySelector('.u-input__suffix')).not.toBeNull()
-      expect(host.querySelector('.u-input__clear')).toBeNull()
+      expect(host.querySelector('.u-input__suffix')).toBeNull()
     } finally {
       unmount()
     }
