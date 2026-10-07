@@ -40,7 +40,7 @@
     },
     "packages/ai": {
       "name": "@veltra/ai",
-      "version": "2.2.1",
+      "version": "2.2.2",
       "dependencies": {
         "markstream-vue": "^2.0.13",
       },
@@ -55,7 +55,7 @@
     },
     "packages/compositions": {
       "name": "@veltra/compositions",
-      "version": "1.9.0",
+      "version": "1.9.1",
       "dependencies": {
         "@floating-ui/dom": "^1.8.0",
         "@formkit/drag-and-drop": "^0.6.1",
@@ -72,7 +72,7 @@
     },
     "packages/desktop": {
       "name": "@veltra/desktop",
-      "version": "1.9.0",
+      "version": "1.9.1",
       "dependencies": {
         "@embedpdf/core": "^2.15.1",
         "@embedpdf/engines": "^2.15.1",
@@ -127,7 +127,7 @@
     },
     "packages/directives": {
       "name": "@veltra/directives",
-      "version": "1.9.0",
+      "version": "1.9.1",
       "peerDependencies": {
         "@veltra/styles": "^1.7.14",
         "@veltra/utils": "^1.7.14",
@@ -162,7 +162,7 @@
     },
     "packages/sheet": {
       "name": "@veltra/sheet",
-      "version": "2.6.0",
+      "version": "2.7.0",
       "dependencies": {
         "infinitable": "^0.1.0",
       },
@@ -179,7 +179,7 @@
     },
     "packages/sheet-core": {
       "name": "@veltra/sheet-core",
-      "version": "2.6.0",
+      "version": "2.7.0",
       "dependencies": {
         "hucre": "^1.1.0",
         "infinitable": "^0.1.0",
@@ -190,7 +190,7 @@
     },
     "packages/styles": {
       "name": "@veltra/styles",
-      "version": "1.9.0",
+      "version": "1.9.1",
       "peerDependencies": {
         "@cat-kit/core": ">=1.2.1",
         "@veltra/compositions": "^1.7.14",
@@ -200,7 +200,7 @@
     },
     "packages/utils": {
       "name": "@veltra/utils",
-      "version": "1.9.0",
+      "version": "1.9.1",
       "peerDependencies": {
         "@cat-kit/core": ">=1.2.1",
         "vue": ">=3.5.43",
@@ -210,7 +210,7 @@
       "name": "@veltra/vite",
       "version": "4.0.3",
       "devDependencies": {
-        "@veltra/desktop": "1.9.0",
+        "@veltra/desktop": "1.9.1",
       },
       "peerDependencies": {
         "@veltra/ai": "^2.1.8",

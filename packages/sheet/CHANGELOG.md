@@ -1,5 +1,16 @@
 # @veltra/sheet
 
+## 2.7.0
+
+### Minor Changes
+
+- 51cd500: - sheet/sheet-core: 新增列宽拖拽开关 `SheetGridOptions.colResize`（u-sheet prop `colResize`，缺省 false 行为不变）——`readonly` 下置 `true` 仅放开列头列宽拖拽手柄，行高拖拽与单元格编辑入口仍关闭，供只读预览宿主微调列宽；非 readonly 本就允许拖拽，置 `true` 无额外作用
+  - 列宽拖拽落定新增宿主通知：`SheetGridOptions.onColResizeEnd` 回调 / u-sheet `col-resize-end` 事件，载荷 `{ col, width }`（列索引与夹取后最终宽度），在拖拽写模型（`sheet.setColWidth`，不进 undo）之后触发
+
+### Patch Changes
+
+- 351dae9: - sheet-core: grid 容器 resize 观察改为双层 requestAnimationFrame 延迟量取（等布局稳定），且量到宽或高为 0 时跳过 resize 保留现值——修复报表查看器初次挂载时画布高度被写成 0、容器随之塌陷后 ResizeObserver 不再触发的白屏死锁（此前需手动 window resize 才恢复），并补对应单测
+
 ## 2.6.0
 
 ### Minor Changes
