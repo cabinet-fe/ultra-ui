@@ -57,7 +57,8 @@ const config = {
         '@lexical/utils',
         'codemirror',
         'docx-preview',
-        'lexical'
+        'lexical',
+        'pdfjs-dist'
       ]
     },
     dts: true,

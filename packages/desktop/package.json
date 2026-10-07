@@ -65,7 +65,8 @@
     "@lexical/utils": "^0.51.0",
     "docx-preview": "^0.4.1",
     "infinitable": "^0.1.0",
-    "lexical": "^0.51.0"
+    "lexical": "^0.51.0",
+    "pdfjs-dist": "6.4.299"
   },
   "devDependencies": {
     "@codemirror/autocomplete": "6.20.3",
