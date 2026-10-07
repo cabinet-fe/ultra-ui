@@ -24,6 +24,12 @@ export interface FileViewerItem {
   size?: number
 }
 
+/** 宿主内部归一化后的文件项，保证 id/kind 必有 */
+export interface FileViewerNormalizedItem extends FileViewerItem {
+  id: string
+  kind: FileViewerKind
+}
+
 /** 文件预览组件属性 */
 export interface FileViewerProps {
   /** 待预览的文件列表 */
@@ -47,6 +53,12 @@ export interface FileViewerProps {
   closeOnClickBackdrop?: boolean
   /** 模态模式下按 ESC 是否关闭，默认 true */
   closeOnEsc?: boolean
+  /**
+   * 指向随 dist 分发的 pdfjs 资源目录，目录下需有 cmaps/、standard_fonts/、wasm/。
+   * 提供后 PDF 预览启用中文 CMap 与 JPEG2000 解码（如 `./pdfjs-resources/`，与
+   * dist 同源部署）；未提供时行为不变
+   */
+  pdfResourceUrl?: string
 }
 
 /** 文件预览组件事件 */

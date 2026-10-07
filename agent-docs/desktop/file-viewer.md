@@ -12,6 +12,10 @@ keywords:
     downloadable,
     closeOnEsc,
     closeOnClickBackdrop,
+    pdfResourceUrl,
+    CMap,
+    中文 PDF,
+    JPEG2000,
     activate,
     activeId,
     FileViewerItem,
@@ -103,6 +107,12 @@ export interface FileViewerProps {
   closeOnClickBackdrop?: boolean
   /** 模态模式下按 ESC 是否关闭。默认 true */
   closeOnEsc?: boolean
+  /**
+   * 指向随 dist 分发的 pdfjs 资源目录，目录下需有 cmaps/、standard_fonts/、wasm/。
+   * 提供后 PDF 预览启用中文 CMap 与 JPEG2000 解码（如 `./pdfjs-resources/`，与
+   * dist 同源部署）；未提供时行为不变
+   */
+  pdfResourceUrl?: string
 }
 
 /** 文件预览组件事件 */
@@ -140,6 +150,7 @@ export interface FileViewerExposed {
 | `open`                 | `boolean`                   | `undefined` |  否  | 只要显式传入（含 `v-model:open`）即进入模态模式；模态打开期间锁定 body 滚动 |
 | `closeOnClickBackdrop` | `boolean`                   | `true`      |  否  | 仅模态模式生效                                                              |
 | `closeOnEsc`           | `boolean`                   | `true`      |  否  | 仅模态模式生效                                                              |
+| `pdfResourceUrl`       | `string`                    | `undefined` |  否  | 仅 PDF 预览生效；指向含 `cmaps/`、`standard_fonts/`、`wasm/` 的目录 URL，尾斜杠可省略。中文 CMap 编码 PDF 与 JPEG2000 图片必须配置才能渲染 |
 
 `kind` 后缀推断规则（`kind` 显式传入时以传入值为准）：
 
@@ -162,7 +173,7 @@ export interface FileViewerExposed {
 | `update:modelValue` | `id: string`                               | 激活文件变化（点侧栏、调 `activate`/`next`/`prev`、内部自动激活）                                                             |
 | `update:open`       | `value: boolean`                           | 模态模式下点背景、按 ESC、点关闭按钮时变为 `false`                                                                            |
 | `change`            | `file: FileViewerItem`                     | 激活文件切换且 id 与之前不同                                                                                                  |
-| `error`             | `{ file: FileViewerItem; error: unknown }` | URL fetch 失败（`Fetch failed: <status> <statusText>`）、sheet-core 缺失、文本/表格解析失败、OFD 解析或单页渲染失败、下载失败 |
+| `error`             | `{ file: FileViewerItem; error: unknown }` | URL fetch 失败（`Fetch failed: <status> <statusText>`）、PDF 文档加载失败（含 worker 构造失败与首页读取失败，预览区显示「PDF 加载失败」）、sheet-core 缺失、文本/表格解析失败、OFD 解析或单页渲染失败、下载失败 |
 
 ### 暴露成员（模板 ref，已解构）
 
@@ -280,7 +291,8 @@ const files: FileViewerItem[] = [
 > - Excel/CSV 预览依赖可选 peer `@veltra/sheet-core`：已安装时以只读 `SheetGrid` 渲染（xlsx 多 sheet 显示页签，csv 单表、表名取文件名）；未安装时该类文件显示「无法预览表格：未安装 @veltra/sheet-core」空态，并向 `error` 事件抛出 `Error('未安装 @veltra/sheet-core，无法预览 Excel/CSV')`，其余格式不受影响。安装：`pnpm add @veltra/sheet-core`。
 > - OFD 预览内核 `@veltra/ofd-core` 已随包内置打包，无需安装；页面按元数据毫米尺寸以 96dpi 换算渲染 SVG，未声明尺寸的页按 A4（210×297mm）兜底；滚动到可视区上下各一屏内才渲染该页；单页渲染失败时该页空白且不再重试，错误经 `error` 事件抛出。
 > - `sheetMaxRows` 只驱动「超出预览上限」提示条，不裁剪也不截断数据；超大表格仍会全量加载，控制加载成本应在源头限制文件。
-> - PDF 预览由内置依赖 `pdfjs-dist` 渲染，Word 由 `docx-preview` 渲染，均为必装依赖，无需额外安装。
+> - PDF 预览由内置依赖 `pdfjs-dist` 渲染，Word 由 `docx-preview` 渲染，均为必装依赖，无需额外安装。pdfjs 的 `cmaps/`、`standard_fonts/`、`wasm/` 资源目录随 `@veltra/desktop` 的 dist 一起发布在 `dist/components/file-viewer/previewers/` 下；需要中文 CMap 或 JPEG2000 支持时，把该目录部署到同源静态服务并给 `pdfResourceUrl` 传其 URL。
+> - PDF 加载失败（URL 不可达、文件损坏、worker 被 CSP 拦截）时预览区显示「PDF 加载失败」并触发 `error`，不会停留在加载态。
 > - 文本预览最多读取前 2MB（超出显示「文件过大，仅展示前 …」提示），按 UTF-8 解码。
 > - 二进制源（`File`/`Blob`/`ArrayBuffer`/`Uint8Array`）内部会创建 ObjectURL 并在切换/卸载时回收；`Uint8Array` 会被复制，外部后续修改不影响预览。
 > - 内嵌模式必须给组件高度；模态模式（传 `open`）不必。
@@ -299,6 +311,10 @@ pnpm add @veltra/sheet-core
 ### OFD 文件预览触发 `error` 事件
 
 原因：文件损坏、加密或不是有效 OFD（GB/T 33190）时整本解析失败，`error` 收到解析错误；个别页渲染失败时仅该页空白，`error` 收到该页的渲染错误。修复：确认文件为未损坏、未加密的有效 OFD；切走再切回该文件会重新解析，单页失败不影响其余页浏览。
+
+### 中文 PDF 页面渲染失败并触发 `error`
+
+原因：该 PDF 使用预定义 CMap 编码（GBK-EUC-H、UniGB-UCS2-H 等，常见于中文扫描/导出文档）或内嵌 JPEG2000 图片，pdfjs 需要对应的 `cmaps/` / `wasm/` 资源文件；未配置 `pdfResourceUrl` 时此类文档无法解码。修复：把 `node_modules/@veltra/desktop/dist/components/file-viewer/previewers/` 下的 `cmaps/`、`standard_fonts/`、`wasm/` 部署到同源静态目录，并传入 `pdf-resource-url="/pdfjs-resources/"`（目录下需含这三个子目录）。
 
 ### 预览 URL 文件时 `error` 事件收到 `Fetch failed: 404 Not Found`
 

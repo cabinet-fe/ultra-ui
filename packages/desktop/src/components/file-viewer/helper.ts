@@ -106,6 +106,43 @@ export function toBlobUrl(
   return { url, revoke: () => URL.revokeObjectURL(url) }
 }
 
+/** 缩放下限（与工具栏 MIN/MAX 联动） */
+export const ZOOM_MIN = 0.5
+
+/** 缩放上限 */
+export const ZOOM_MAX = 3
+
+/** 每次缩放固定增减 10% */
+export const ZOOM_STEP = 0.1
+
+/** clampZoom 的取整精度：两位小数 */
+const ZOOM_PRECISION = 100
+
+/** 将缩放级别收敛到 [ZOOM_MIN, ZOOM_MAX] 区间并保留两位小数 */
+export function clampZoom(level: number): number {
+  return Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(level * ZOOM_PRECISION) / ZOOM_PRECISION))
+}
+
+/** Chrome canvas 物理尺寸上限：单边最大像素数 */
+const RENDER_MAX_SIDE = 32767
+
+/** Chrome canvas 物理尺寸上限：最大面积（像素数） */
+const RENDER_MAX_AREA = 2 ** 28
+
+/**
+ * 计算渲染降采样系数：单位尺寸 width/height 按 scale 放大后若超出
+ * Chrome canvas 上限（单边 32767、面积 2^28），返回 (0, 1) 的降采样系数，
+ * 实际渲染 scale 应为 `scale * 返回值`；未超限时返回 1。纯函数。
+ */
+export function clampRenderScale(width: number, height: number, scale: number): number {
+  return Math.min(
+    1,
+    RENDER_MAX_SIDE / (width * scale),
+    RENDER_MAX_SIDE / (height * scale),
+    Math.sqrt(RENDER_MAX_AREA / (width * scale * height * scale))
+  )
+}
+
 export function formatBytes(bytes?: number): string {
   if (bytes === undefined || bytes === null || Number.isNaN(bytes)) return '-'
   if (bytes < 1024) return `${bytes} B`

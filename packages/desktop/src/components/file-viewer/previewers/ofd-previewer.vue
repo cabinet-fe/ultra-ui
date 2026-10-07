@@ -11,7 +11,7 @@
           height: page.heightPx * zoomLevel + 'px'
         }"
       >
-        <div v-if="page.svg" :class="cls.e('ofd-page-body')" v-html="page.svg" />
+        <div v-if="page.svg" v-html="page.svg" />
       </div>
       <div v-if="!pages.length && !loading" :class="cls.e('empty')">
         <u-empty text="该文件没有可预览的页面" :size="32" />
@@ -27,7 +27,7 @@ import { nextTick, onBeforeUnmount, ref, useTemplateRef, watch } from 'vue'
 
 import type { FileViewerItem } from '../../../types/file-viewer'
 import { UEmpty } from '../../empty'
-import { toArrayBuffer } from '../helper'
+import { ZOOM_STEP, clampZoom, toArrayBuffer } from '../helper'
 
 defineOptions({ name: 'UFileViewerOfdPreviewer' })
 
@@ -39,10 +39,6 @@ type OfdZip = import('@veltra/ofd-core').OfdZip
 /** OFD 毫米 → CSS 像素（96dpi），与内核 SVG 输出的换算一致 */
 const PX_PER_MM = 96 / 25.4
 
-const MIN_ZOOM = 0.5
-const MAX_ZOOM = 3
-/** 每次缩放固定增减 10%，对齐 pdf 缩放配置 */
-const ZOOM_STEP = 0.1
 /** 可视区上下各预渲染一个视口高度的页 */
 const RENDER_MARGIN = '100% 0px'
 
@@ -80,10 +76,6 @@ let activeContainer: OfdContainer | undefined
 const scheduledPages = new Set<number>()
 
 // ---- 缩放：作用于页面容器尺寸，滚动高度随之自适应 ----
-
-function clampZoom(value: number): number {
-  return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, Math.round(value * 100) / 100))
-}
 
 function setZoom(value: number) {
   const next = clampZoom(value)
@@ -206,7 +198,7 @@ async function load() {
   }
 }
 
-watch(() => props.file, load, { immediate: true })
+watch(() => props.file.src, load, { immediate: true })
 
 onBeforeUnmount(() => {
   controller?.abort()

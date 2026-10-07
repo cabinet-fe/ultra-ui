@@ -40,9 +40,7 @@ type SheetCoreModule = typeof import('@veltra/sheet-core') &
 type Sheet = InstanceType<SheetCoreModule['Sheet']>
 type SheetGrid = InstanceType<SheetCoreModule['SheetGrid']>
 
-const props = withDefaults(defineProps<{ file: FileViewerItem; maxRows?: number }>(), {
-  maxRows: 50_000
-})
+const { file, maxRows = 50_000 } = defineProps<{ file: FileViewerItem; maxRows?: number }>()
 
 const emit = defineEmits<{ (e: 'error', err: unknown): void }>()
 
@@ -109,7 +107,7 @@ function renderActive() {
   // 故 maxRows 只驱动截断提示，不裁模型
   const total = sheet.rowCount
   totalRows.value = total
-  truncated.value = props.maxRows > 0 && total > props.maxRows
+  truncated.value = maxRows > 0 && total > maxRows
 
   grid = new sheetCore.SheetGrid({ container: el, sheet, readonly: true })
 }
@@ -134,7 +132,7 @@ async function load() {
     }
     unavailable.value = false
 
-    const parsed = await parseFile(core, props.file, controller.signal)
+    const parsed = await parseFile(core, file, controller.signal)
     if (token !== loadToken) return
     sheets.value = parsed
     renderActive()
@@ -147,7 +145,8 @@ async function load() {
   }
 }
 
-watch(() => props.file, load, { immediate: true })
+// 只盯 src：宿主重算出的同内容新 file 对象不应触发重载（重新解析 zip 开销大）
+watch(() => file.src, load, { immediate: true })
 watch(activeSheetIndex, renderActive)
 
 onBeforeUnmount(() => {

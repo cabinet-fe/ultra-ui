@@ -1,3 +1,4 @@
+import { cpSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 import vue from '@vitejs/plugin-vue'
@@ -5,9 +6,23 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import { NodePackageImporter } from 'sass-embedded'
 import unpluginVueJsx from 'unplugin-vue-jsx/rolldown'
 import unpluginVue from 'unplugin-vue/rolldown'
+import type { Plugin } from 'vite'
 import { defineConfig } from 'vite-plus'
 
 const repoRoot = resolve(import.meta.dirname, '../..')
+
+/** 拷贝 pdfjs 的 CMap / 标准字体 / wasm 解码资源到 worker 产物同级目录，随 dist 分发；
+ *  使用方经 `pdfResourceUrl` 指向该目录即可启用中文 CMap 与 JPEG2000 解码（离线环境不可用 CDN） */
+const copyPdfjsAssets = (): Plugin => ({
+  name: 'copy-pdfjs-assets',
+  writeBundle() {
+    const pdfjsDir = resolve(import.meta.dirname, 'node_modules/pdfjs-dist')
+    const outDir = resolve(import.meta.dirname, 'dist/components/file-viewer/previewers')
+    for (const dir of ['cmaps', 'standard_fonts', 'wasm']) {
+      cpSync(resolve(pdfjsDir, dir), resolve(outDir, dir), { recursive: true })
+    }
+  }
+})
 
 const config = {
   // 仅供 Vitest 编译 SFC；`vp pack` 使用下方 pack.plugins。
@@ -80,7 +95,8 @@ const config = {
       treeshake: {
         moduleSideEffects: [{ test: /pdf-(polyfill|worker-wrapper)/, sideEffects: true }]
       },
-      deps: { alwaysBundle: [/^pdfjs-dist\//, 'pdfjs-dist'], onlyBundle: false }
+      deps: { alwaysBundle: [/^pdfjs-dist\//, 'pdfjs-dist'], onlyBundle: false },
+      plugins: [copyPdfjsAssets()]
     }
   ]
 }

@@ -48,8 +48,9 @@ function onVideoError(e: Event) {
   emit('error', e)
 }
 
+// 只盯 src：宿主重算出的同内容新 file 对象不应触发重载（播放位置丢失）
 watch(
-  () => props.file,
+  () => props.file.src,
   () => load(),
   { immediate: true }
 )

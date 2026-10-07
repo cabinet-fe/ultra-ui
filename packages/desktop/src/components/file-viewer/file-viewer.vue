@@ -36,138 +36,35 @@
           </aside>
 
           <section :class="cls.e('stage')">
-            <header :class="cls.e('stage-head')">
-              <div :class="cls.e('stage-title')">
-                <span v-if="activeFile" :class="[cls.e('badge'), cls.em('badge', activeFile.kind)]">
-                  {{ label(activeFile.kind) }}
-                </span>
-                <span :class="cls.e('stage-copy')">
-                  <span :class="cls.e('stage-name')" :title="activeFile?.name">
-                    {{ activeFile?.name ?? '—' }}
-                  </span>
-                  <span v-if="activeFile" :class="cls.e('stage-sub')">
-                    <span>{{ activeIndexLabel }}</span>
-                    <span v-if="activeFile.size">{{ formatBytes(activeFile.size) }}</span>
-                  </span>
-                </span>
-              </div>
-              <div :class="cls.e('stage-actions')">
-                <span :class="cls.e('action-group')">
-                  <button
-                    :class="[cls.e('action'), cls.em('action', 'icon')]"
-                    :disabled="!hasPrev"
-                    type="button"
-                    aria-label="上一个"
-                    title="上一个"
-                    @click="prev"
-                  >
-                    <u-icon :size="15">
-                      <ArrowLeft />
-                    </u-icon>
-                  </button>
-                  <button
-                    :class="[cls.e('action'), cls.em('action', 'icon')]"
-                    :disabled="!hasNext"
-                    type="button"
-                    aria-label="下一个"
-                    title="下一个"
-                    @click="next"
-                  >
-                    <u-icon :size="15">
-                      <ArrowRight />
-                    </u-icon>
-                  </button>
-                </span>
-                <span v-if="isZoomable" :class="cls.e('action-group')">
-                  <button
-                    :class="[cls.e('action'), cls.em('action', 'icon')]"
-                    :disabled="zoomOutDisabled"
-                    type="button"
-                    aria-label="缩小"
-                    title="缩小"
-                    @click="zoomOut"
-                  >
-                    <u-icon :size="15">
-                      <ZoomOut />
-                    </u-icon>
-                  </button>
-                  <span :class="cls.e('zoom-value')">{{ zoomPercent }}</span>
-                  <button
-                    :class="[cls.e('action'), cls.em('action', 'icon')]"
-                    :disabled="zoomInDisabled"
-                    type="button"
-                    aria-label="放大"
-                    title="放大"
-                    @click="zoomIn"
-                  >
-                    <u-icon :size="15">
-                      <ZoomIn />
-                    </u-icon>
-                  </button>
-                  <button
-                    :class="[cls.e('action'), cls.em('action', 'icon')]"
-                    :disabled="isTransformReset"
-                    type="button"
-                    aria-label="重置视图"
-                    title="重置视图"
-                    @click="resetTransform"
-                  >
-                    <u-icon :size="15">
-                      <Refresh />
-                    </u-icon>
-                  </button>
-                </span>
-                <button
-                  v-if="downloadable && activeFile"
-                  :class="[cls.e('action'), cls.em('action', 'primary'), cls.em('action', 'icon')]"
-                  type="button"
-                  aria-label="下载"
-                  title="下载"
-                  @click="download"
-                >
-                  <u-icon :size="15">
-                    <Download />
-                  </u-icon>
-                </button>
-                <button
-                  v-if="isModal"
-                  :class="[cls.e('action'), cls.em('action', 'icon')]"
-                  type="button"
-                  aria-label="关闭预览"
-                  title="关闭"
-                  @click="handleClose"
-                >
-                  <u-icon :size="16">
-                    <Close />
-                  </u-icon>
-                </button>
-              </div>
-            </header>
+            <UFileViewerToolbar
+              :file="activeFile"
+              :index-label="activeIndexLabel"
+              :has-prev="hasPrev"
+              :has-next="hasNext"
+              :zoomable="isZoomable"
+              :zoom-percent="zoomPercent"
+              :zoom-in-disabled="zoomInDisabled"
+              :zoom-out-disabled="zoomOutDisabled"
+              :transform-reset="isTransformReset"
+              :downloadable="downloadable"
+              :modal="isModal"
+              @prev="prev"
+              @next="next"
+              @zoom-in="zoomIn"
+              @zoom-out="zoomOut"
+              @reset="resetTransform"
+              @download="download"
+              @close="handleClose"
+            />
             <div :class="cls.e('body')">
               <transition name="u-file-viewer-fade" mode="out-in">
-                <div
-                  v-if="activeFile"
-                  :key="activeFile.id"
-                  :class="[
-                    cls.e('viewport'),
-                    bem.is('transformable', isTransformable),
-                    bem.is('pannable', canPan),
-                    bem.is('dragging', isDragging)
-                  ]"
-                  @pointerdown.capture="handleViewportPointerDown"
-                  @pointermove.capture="handleViewportPointerMove"
-                  @pointerup.capture="handleViewportPointerEnd"
-                  @pointercancel.capture="handleViewportPointerEnd"
-                  @wheel="handleViewportWheel"
-                  @dblclick="handleViewportDblclick"
-                >
+                <div v-if="activeFile" :key="activeFile.id" :class="cls.e('viewport')">
                   <component
                     :is="PreviewerMap[activeFile.kind]"
                     ref="previewerRef"
                     :file="activeFile"
+                    :resource-url="activeFile.kind === 'pdf' ? pdfResourceUrl : undefined"
                     :max-rows="sheetMaxRows"
-                    :class="isTransformable ? cls.e('previewer') : undefined"
-                    :style="previewerStyle"
                     @error="handleChildError"
                     @zoom-change="handlePreviewerZoomChange"
                   />
@@ -185,84 +82,58 @@
 </template>
 
 <script lang="ts" setup>
-import {
-  ArrowLeft,
-  ArrowRight,
-  Close,
-  Download,
-  Refresh,
-  ZoomIn,
-  ZoomOut
-} from '@veltra/icons/normal'
 import { bem, withUnit } from '@veltra/utils'
-import {
-  computed,
-  defineAsyncComponent,
-  nextTick,
-  onBeforeUnmount,
-  ref,
-  shallowRef,
-  watch
-} from 'vue'
-import type { CSSProperties } from 'vue'
+import { computed, defineAsyncComponent, nextTick, ref, useTemplateRef, watch } from 'vue'
 
 import type {
   _FileViewerExposed,
   FileViewerEmits,
-  FileViewerItem,
   FileViewerKind,
+  FileViewerNormalizedItem,
   FileViewerProps
 } from '../../types/file-viewer'
 import { UEmpty } from '../empty'
-import { UIcon } from '../icon'
 import { UScroll } from '../scroll'
-import { FILE_VIEWER_KIND_LABEL, downloadFile, formatBytes, inferKind } from './helper'
+import UFileViewerToolbar from './file-viewer-toolbar.vue'
+import {
+  FILE_VIEWER_KIND_LABEL,
+  ZOOM_MAX,
+  ZOOM_MIN,
+  downloadFile,
+  formatBytes,
+  inferKind
+} from './helper'
 
+// 根为 Teleport，无 fallthrough 落点，关闭 attrs 继承
 defineOptions({ name: 'UFileViewer', inheritAttrs: false })
 
-const props = withDefaults(defineProps<FileViewerProps>(), {
-  modelValue: undefined,
-  sidebarWidth: '280px',
-  sheetMaxRows: 50_000,
-  downloadable: true,
-  open: undefined,
-  closeOnClickBackdrop: true,
-  closeOnEsc: true
-})
+const {
+  files,
+  sidebarWidth = '280px',
+  sheetMaxRows = 50_000,
+  downloadable = true,
+  closeOnClickBackdrop = true,
+  closeOnEsc = true
+} = defineProps<FileViewerProps>()
 
 const emit = defineEmits<FileViewerEmits>()
 
 const cls = bem('file-viewer')
 
-const MIN_SCALE = 0.5
-const MAX_SCALE = 3
-/** 每次缩放固定增减 10% */
-const SCALE_STEP = 0.1
-/** 使用 CSS transform 缩放的类型（PDF / OFD 由各自 previewer 内部缩放） */
-const TRANSFORMABLE_KINDS = new Set<FileViewerKind>(['image'])
-/** 工具栏显示缩放控件的类型 */
+/** 工具栏显示缩放控件的类型；缩放一律由 previewer 内部实现，宿主只透传命令并回显级别 */
 const ZOOMABLE_KINDS = new Set<FileViewerKind>(['image', 'pdf', 'ofd'])
-/** 缩放由 previewer 内部实现、组件只透传命令并回显级别的类型 */
-const DELEGATED_ZOOM_KINDS = new Set<FileViewerKind>(['pdf', 'ofd'])
 
 const activeId = defineModel<string | undefined>('modelValue', { default: undefined })
 const openModel = defineModel<boolean | undefined>('open', { default: undefined })
 
-const rootRef = shallowRef<HTMLDivElement>()
-const previewerRef = shallowRef<{
+const rootRef = useTemplateRef<HTMLDivElement>('rootRef')
+const previewerRef = useTemplateRef<{
   zoomIn?: () => void
   zoomOut?: () => void
   resetZoom?: () => void
-}>()
-const scale = ref(1)
+}>('previewerRef')
+/** 预览器上报的缩放级别，驱动工具栏回显与禁用态 */
 const previewerZoomLevel = ref(1)
-const offsetX = ref(0)
-const offsetY = ref(0)
-const isDragging = ref(false)
-
-let dragState:
-  | { pointerId: number; startX: number; startY: number; originX: number; originY: number }
-  | undefined
 
 const PreviewerMap: Record<FileViewerKind, ReturnType<typeof defineAsyncComponent>> = {
   image: defineAsyncComponent(() => import('./previewers/image-previewer.vue')),
@@ -274,16 +145,11 @@ const PreviewerMap: Record<FileViewerKind, ReturnType<typeof defineAsyncComponen
   text: defineAsyncComponent(() => import('./previewers/text-previewer.vue'))
 }
 
-interface NormalizedFile extends FileViewerItem {
-  id: string
-  kind: FileViewerKind
-}
-
-const normalizedFiles = computed<NormalizedFile[]>(() =>
-  props.files.map((f, i) => ({ ...f, id: f.id ?? `file-${i}`, kind: inferKind(f.name, f.kind) }))
+const normalizedFiles = computed<FileViewerNormalizedItem[]>(() =>
+  files.map((f, i) => ({ ...f, id: f.id ?? `file-${i}`, kind: inferKind(f.name, f.kind) }))
 )
 
-const activeFile = computed<NormalizedFile | undefined>(() =>
+const activeFile = computed<FileViewerNormalizedItem | undefined>(() =>
   normalizedFiles.value.find((f) => f.id === activeId.value)
 )
 
@@ -294,12 +160,11 @@ const hasNext = computed(
   () => activeIndex.value >= 0 && activeIndex.value < normalizedFiles.value.length - 1
 )
 
-const showSidebar = computed(() => props.sidebarWidth !== false && props.sidebarWidth !== 0)
+const showSidebar = computed(() => sidebarWidth !== false && sidebarWidth !== 0)
 
 const sidebarWidthCss = computed(() => {
-  const w = props.sidebarWidth
-  if (w === false || w === 0) return undefined
-  return withUnit(w ?? '280px', 'px')
+  if (sidebarWidth === false || sidebarWidth === 0) return undefined
+  return withUnit(sidebarWidth ?? '280px', 'px')
 })
 
 /** 是否启用模态模式：只要父组件显式传入 open（含 v-model:open），即进入模态 */
@@ -309,41 +174,15 @@ const activeIndexLabel = computed(() =>
   activeIndex.value >= 0 ? `${activeIndex.value + 1} / ${normalizedFiles.value.length}` : ''
 )
 
-const isTransformable = computed(
-  () => !!activeFile.value && TRANSFORMABLE_KINDS.has(activeFile.value.kind)
-)
-
 const isZoomable = computed(() => !!activeFile.value && ZOOMABLE_KINDS.has(activeFile.value.kind))
 
-const isDelegatedZoom = computed(
-  () => !!activeFile.value && DELEGATED_ZOOM_KINDS.has(activeFile.value.kind)
-)
+const zoomPercent = computed(() => `${Math.round(previewerZoomLevel.value * 100)}%`)
 
-const canPan = computed(() => isTransformable.value && scale.value > 1)
+const zoomInDisabled = computed(() => !isZoomable.value || previewerZoomLevel.value >= ZOOM_MAX)
 
-const displayZoomLevel = computed(() =>
-  isDelegatedZoom.value ? previewerZoomLevel.value : scale.value
-)
+const zoomOutDisabled = computed(() => !isZoomable.value || previewerZoomLevel.value <= ZOOM_MIN)
 
-const zoomPercent = computed(() => `${Math.round(displayZoomLevel.value * 100)}%`)
-
-const zoomInDisabled = computed(() => !isZoomable.value || displayZoomLevel.value >= MAX_SCALE)
-
-const zoomOutDisabled = computed(() => !isZoomable.value || displayZoomLevel.value <= MIN_SCALE)
-
-const isTransformReset = computed(() => {
-  if (isDelegatedZoom.value) {
-    return Math.abs(previewerZoomLevel.value - 1) < 0.02
-  }
-  return scale.value === 1 && offsetX.value === 0 && offsetY.value === 0
-})
-
-const previewerStyle = computed<CSSProperties | undefined>(() => {
-  if (!isTransformable.value) return undefined
-  return {
-    transform: `translate3d(${offsetX.value}px, ${offsetY.value}px, 0) scale(${scale.value})`
-  }
-})
+const isTransformReset = computed(() => Math.abs(previewerZoomLevel.value - 1) < 0.02)
 
 function label(kind: FileViewerKind): string {
   return FILE_VIEWER_KIND_LABEL[kind]
@@ -370,112 +209,21 @@ function next() {
   if (target) activate(target.id)
 }
 
-function normalizeScale(value: number): number {
-  const clamped = Math.min(MAX_SCALE, Math.max(MIN_SCALE, value))
-  return Math.round(clamped * 100) / 100
-}
-
-function setScale(value: number) {
-  scale.value = normalizeScale(value)
-  if (scale.value <= 1) {
-    offsetX.value = 0
-    offsetY.value = 0
-  }
-}
-
 function zoomIn() {
-  if (!isZoomable.value) return
-  if (isDelegatedZoom.value) {
-    previewerRef.value?.zoomIn?.()
-    return
-  }
-  setScale(scale.value + SCALE_STEP)
+  previewerRef.value?.zoomIn?.()
 }
 
 function zoomOut() {
-  if (!isZoomable.value) return
-  if (isDelegatedZoom.value) {
-    previewerRef.value?.zoomOut?.()
-    return
-  }
-  setScale(scale.value - SCALE_STEP)
+  previewerRef.value?.zoomOut?.()
 }
 
 function resetTransform() {
-  if (isDelegatedZoom.value) {
-    // 重置后的回显交给预览器同步 emit 的 zoom-change（pdf 回 fit-page，ofd 回 100%）
-    previewerRef.value?.resetZoom?.()
-    return
-  }
-  scale.value = 1
-  offsetX.value = 0
-  offsetY.value = 0
-  dragState = undefined
-  isDragging.value = false
+  // 重置后的回显交给预览器同步 emit 的 zoom-change（image 回 100%，pdf 回 fit-page，ofd 回 100%）
+  previewerRef.value?.resetZoom?.()
 }
 
 function handlePreviewerZoomChange(level: number) {
   previewerZoomLevel.value = level
-}
-
-function isZoomWheel(e: WheelEvent): boolean {
-  return e.ctrlKey || e.metaKey
-}
-
-function handleViewportWheel(e: WheelEvent) {
-  if (!activeFile.value || activeFile.value.kind !== 'image') return
-  if (!isZoomWheel(e)) return
-  if (isInteractiveTarget(e.target)) return
-  e.preventDefault()
-  const delta = e.deltaY > 0 ? -SCALE_STEP : SCALE_STEP
-  setScale(scale.value + delta)
-}
-
-function isInteractiveTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) return false
-  return !!target.closest('button, a, input, textarea, select, video, [contenteditable="true"]')
-}
-
-function handleViewportPointerDown(e: PointerEvent) {
-  if (!canPan.value || e.button !== 0 || isInteractiveTarget(e.target)) return
-
-  dragState = {
-    pointerId: e.pointerId,
-    startX: e.clientX,
-    startY: e.clientY,
-    originX: offsetX.value,
-    originY: offsetY.value
-  }
-  isDragging.value = true
-  const el = e.currentTarget as HTMLElement
-  el.setPointerCapture(e.pointerId)
-  e.preventDefault()
-}
-
-function handleViewportPointerMove(e: PointerEvent) {
-  if (!dragState || dragState.pointerId !== e.pointerId) return
-  offsetX.value = dragState.originX + e.clientX - dragState.startX
-  offsetY.value = dragState.originY + e.clientY - dragState.startY
-}
-
-function handleViewportPointerEnd(e: PointerEvent) {
-  if (!dragState || dragState.pointerId !== e.pointerId) return
-  const el = e.currentTarget as HTMLElement
-  if (el.hasPointerCapture(e.pointerId)) {
-    el.releasePointerCapture(e.pointerId)
-  }
-  dragState = undefined
-  isDragging.value = false
-}
-
-function handleViewportDblclick() {
-  if (isDelegatedZoom.value) return
-  if (!isTransformable.value) return
-  if (scale.value === 1) {
-    setScale(2)
-  } else {
-    resetTransform()
-  }
 }
 
 async function download() {
@@ -500,14 +248,14 @@ function handleClose() {
 function handleWindowKeydown(e: KeyboardEvent) {
   if (e.key !== 'Escape') return
   if (!isModal.value || !openModel.value) return
-  if (props.closeOnEsc === false) return
+  if (closeOnEsc === false) return
   e.stopPropagation()
   handleClose()
 }
 
 function handleBackdropMousedown() {
   if (!isModal.value) return
-  if (props.closeOnClickBackdrop === false) return
+  if (closeOnClickBackdrop === false) return
   handleClose()
 }
 
@@ -525,12 +273,11 @@ watch(
   { immediate: true }
 )
 
+// 切文件时 out-in 模式下新预览器全新挂载并自行回初始级别，这里同步回显即可
 watch(
   () => activeFile.value?.id,
-  async () => {
+  () => {
     previewerZoomLevel.value = 1
-    await nextTick()
-    resetTransform()
   }
 )
 
@@ -553,7 +300,14 @@ function unlockBody() {
 
 watch(
   [isModal, openModel],
-  ([modal, open]) => {
+  ([modal, open], _, onCleanup) => {
+    // 依赖重跑前与作用域销毁时统一解锁 + 摘除 keydown 监听
+    onCleanup(() => {
+      unlockBody()
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('keydown', handleWindowKeydown, true)
+      }
+    })
     if (modal && open) {
       lockBody()
       nextTick(() => {
@@ -564,20 +318,10 @@ watch(
       }
     } else {
       unlockBody()
-      if (typeof window !== 'undefined') {
-        window.removeEventListener('keydown', handleWindowKeydown, true)
-      }
     }
   },
   { immediate: true }
 )
-
-onBeforeUnmount(() => {
-  unlockBody()
-  if (typeof window !== 'undefined') {
-    window.removeEventListener('keydown', handleWindowKeydown, true)
-  }
-})
 
 defineExpose<_FileViewerExposed>({ activeId, activate, next, prev })
 </script>

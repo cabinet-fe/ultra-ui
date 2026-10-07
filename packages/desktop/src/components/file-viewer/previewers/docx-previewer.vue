@@ -11,6 +11,7 @@ import { onBeforeUnmount, ref, useAttrs, useTemplateRef, watch } from 'vue'
 
 import type { FileViewerItem } from '../../../types/file-viewer'
 import { UScroll } from '../../scroll'
+import { toArrayBuffer } from '../helper'
 
 defineOptions({ name: 'UFileViewerDocxPreviewer', inheritAttrs: false })
 
@@ -33,10 +34,7 @@ async function load() {
   loading.value = true
 
   try {
-    const [{ toArrayBuffer }, docx] = await Promise.all([
-      import('../helper'),
-      import('docx-preview')
-    ])
+    const docx = await import('docx-preview')
 
     const buf = await toArrayBuffer(props.file.src, signal)
     if (signal.aborted) return
@@ -66,8 +64,9 @@ async function load() {
   }
 }
 
+// 只盯 src：宿主重算出的同内容新 file 对象不应触发重载
 watch(
-  () => props.file,
+  () => props.file.src,
   () => load(),
   { immediate: true }
 )

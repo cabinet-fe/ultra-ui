@@ -1,11 +1,67 @@
 @use 'pkg:@veltra/styles/mixins' as m;
 @use 'pkg:@veltra/styles/functions' as fn;
 
+/**
+ * 文件查看器样式
+ *
+ * 预览区为「恒暗」设计：无论亮暗主题，画布始终深色、纸面（图片/PDF/OFD/DOCX 页面）
+ * 始终恒白，不随主题切换；模态模式整体为深色沉浸层，同理在两套主题下观感一致。
+ * 因此画布 / 纸面 / 模态表面的色值不能引用会随主题切换的 token，统一收敛到
+ * 下方文件头变量块并注明设计意图（待 styles 包扩充深色中性阶 / overlay 类 token 后可替换）。
+ */
+
 @include m.b(file-viewer) {
+  // ── 恒暗画布：预览区背景与画布上的加载/失败遮罩（无对应深色中性 token，不随主题切换）──
   --u-file-viewer-canvas: #101114;
   --u-file-viewer-canvas-soft: #17191f;
   --u-file-viewer-canvas-overlay: rgba(16, 17, 20, 0.74);
+
+  // ── 恒定亮面：纸面与模态主按钮的恒白表面及墨色（画布恒暗的配对设计）──
+  --u-file-viewer-light-surface: #fff;
+  --u-file-viewer-light-ink: #222;
+
+  // 纸张投影：三级阴影 token 按浅底设计，在恒暗画布上几乎不可见，故保留定制重投影
   --u-file-viewer-page-shadow: 0 24px 72px rgba(0, 0, 0, 0.34);
+  // 模态纸张投影：重投影 + 白色发丝描边的组合阴影，三级阴影 token 无法等价表达
+  --u-file-viewer-page-shadow-modal:
+    0 38px 110px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+
+  // ── 模态沉浸层恒暗表面（不随主题切换；styles 包暂无 mask/overlay 类 token，待扩充后收敛）──
+  --u-file-viewer-modal-backdrop: linear-gradient(
+    180deg,
+    rgba(5, 7, 11, 0.78),
+    rgba(4, 5, 8, 0.94)
+  );
+  --u-file-viewer-modal-sidebar: linear-gradient(
+    90deg,
+    rgba(8, 10, 15, 0.76),
+    rgba(8, 10, 15, 0.58) 78%,
+    rgba(8, 10, 15, 0.34)
+  );
+  --u-file-viewer-modal-stage-head: linear-gradient(
+    180deg,
+    rgba(9, 11, 16, 0.72),
+    rgba(9, 11, 16, 0.28) 72%,
+    transparent
+  );
+  --u-file-viewer-modal-body: linear-gradient(
+    180deg,
+    rgba(13, 16, 23, 0.58),
+    rgba(5, 6, 10, 0.82)
+  );
+  --u-file-viewer-modal-surface: rgba(8, 10, 14, 0.82);
+  --u-file-viewer-modal-panel: rgba(10, 12, 18, 0.78);
+  --u-file-viewer-modal-text: rgba(5, 7, 10, 0.76);
+
+  // ── kind badge 彩色：pink/violet 无对应色板 token（包内仅 primary/success/warning/danger/info），
+  //    待 styles 包扩充色板后收敛 ──
+  --u-file-viewer-kind-video: #db2777;
+  --u-file-viewer-kind-video-border: rgba(219, 39, 119, 0.28);
+  --u-file-viewer-kind-video-bg: rgba(219, 39, 119, 0.1);
+  --u-file-viewer-kind-ofd: #7c3aed;
+  --u-file-viewer-kind-ofd-border: rgba(124, 58, 237, 0.28);
+  --u-file-viewer-kind-ofd-bg: rgba(124, 58, 237, 0.1);
 
   position: relative;
   display: flex;
@@ -17,7 +73,8 @@
   border: 1px solid fn.use-var(border, color);
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 18px 54px rgba(15, 23, 42, 0.08);
+  // 大尺寸查看器面板按浮层级投影处理
+  box-shadow: fn.use-var(shadow, lg);
 
   @include m.e(inner) {
     display: contents;
@@ -45,20 +102,16 @@
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(180deg, rgba(5, 7, 11, 0.78), rgba(4, 5, 8, 0.94)),
+      var(--u-file-viewer-modal-backdrop),
       linear-gradient(
         90deg,
-        rgba(255, 255, 255, 0.06),
+        fn.color-a(text-color, 5, white),
         transparent 24%,
         transparent 76%,
-        rgba(255, 255, 255, 0.035)
+        fn.color-a(text-color, 4, white)
       );
     backdrop-filter: fn.use-var(bg-filter);
     -webkit-backdrop-filter: fn.use-var(bg-filter);
-  }
-
-  &.is-modal &__inner {
-    display: contents;
   }
 
   &.is-modal &__sidebar,
@@ -76,21 +129,15 @@
     max-width: 380px;
     min-height: 0;
     background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 34%),
+      linear-gradient(180deg, fn.color-a(text-color, 4, white), transparent 34%),
       fn.use-var(bg-color, middle);
     border-right: 1px solid fn.use-var(border, color);
   }
 
   &.is-modal &__sidebar {
-    color: rgba(255, 255, 255, 0.82);
-    background: linear-gradient(
-      90deg,
-      rgba(8, 10, 15, 0.76),
-      rgba(8, 10, 15, 0.58) 78%,
-      rgba(8, 10, 15, 0.34)
-    );
-    border-right: 1px solid rgba(255, 255, 255, 0.055);
-    box-shadow: none;
+    color: fn.color-a(text-color, 86, white);
+    background: var(--u-file-viewer-modal-sidebar);
+    border-right: 1px solid fn.color-a(text-color, 5, white);
     backdrop-filter: fn.use-var(bg-filter);
     -webkit-backdrop-filter: fn.use-var(bg-filter);
   }
@@ -105,7 +152,7 @@
   }
 
   &.is-modal &__sidebar-head {
-    color: rgba(255, 255, 255, 0.68);
+    color: fn.color-a(text-color, 70, white);
   }
 
   @include m.e(sidebar-title) {
@@ -123,7 +170,7 @@
 
   &.is-modal &__sidebar-count,
   &.is-modal &__item-size {
-    color: rgba(255, 255, 255, 0.48);
+    color: fn.color-a(text-color, 50, white);
   }
 
   @include m.e(list) {
@@ -151,8 +198,8 @@
     border-radius: 6px;
     cursor: pointer;
     transition:
-      background 0.18s ease,
-      color 0.18s ease;
+      background fn.use-var(transition, fast) fn.use-var(transition, ease),
+      color fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     &::before {
       position: absolute;
@@ -166,8 +213,8 @@
       opacity: 0;
       transform: scaleY(0.45);
       transition:
-        opacity 0.18s ease,
-        transform 0.18s ease;
+        opacity fn.use-var(transition, fast) fn.use-var(transition, ease),
+        transform fn.use-var(transition, fast) fn.use-var(transition, ease);
     }
 
     &:hover {
@@ -185,18 +232,18 @@
   }
 
   &.is-modal &__item {
-    color: rgba(255, 255, 255, 0.78);
+    color: fn.color-a(text-color, 70, white);
 
     &:hover {
-      background: rgba(255, 255, 255, 0.055);
+      background: fn.color-a(text-color, 5, white);
     }
 
     @include m.is(active) {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.07);
+      color: fn.use-var(text-color, white);
+      background: fn.color-a(text-color, 8, white);
 
       &::before {
-        background: rgba(255, 255, 255, 0.82);
+        background: fn.color-a(text-color, 86, white);
       }
     }
   }
@@ -219,7 +266,7 @@
   }
 
   &.is-modal &__item-name {
-    color: rgba(255, 255, 255, 0.86);
+    color: fn.color-a(text-color, 86, white);
   }
 
   @include m.e(item-size) {
@@ -239,17 +286,17 @@
   }
 
   &.is-modal &__item-kind {
-    color: rgba(255, 255, 255, 0.38);
+    color: fn.color-a(text-color, 40, white);
   }
 
   &.is-modal &__item.is-active &__item-kind {
-    color: rgba(255, 255, 255, 0.68);
+    color: fn.color-a(text-color, 70, white);
   }
 
   @include m.e(badge) {
     --u-file-viewer-kind: #{fn.use-var(text-color, second)};
-    --u-file-viewer-kind-border: fn.color-a(text-color, 28, second);
-    --u-file-viewer-kind-bg: fn.color-a(text-color, 10, second);
+    --u-file-viewer-kind-border: #{fn.color-a(text-color, 28, second)};
+    --u-file-viewer-kind-bg: #{fn.color-a(text-color, 10, second)};
 
     display: inline-flex;
     align-items: center;
@@ -266,46 +313,42 @@
     line-height: 1;
   }
 
+  // image 用 info、pdf 用 danger、docx 用 primary、sheet 用 success：与色板 token 同色相
   @include m.em(badge, image) {
-    --u-file-viewer-kind: #0891b2;
-    --u-file-viewer-kind-border: rgba(8, 145, 178, 0.28);
-    --u-file-viewer-kind-bg: rgba(8, 145, 178, 0.1);
+    --u-file-viewer-kind: #{fn.use-var(color, info)};
+    --u-file-viewer-kind-border: #{fn.color-a(color, 28, info)};
+    --u-file-viewer-kind-bg: #{fn.color-a(color, 10, info)};
   }
 
   @include m.em(badge, video) {
-    --u-file-viewer-kind: #db2777;
-    --u-file-viewer-kind-border: rgba(219, 39, 119, 0.28);
-    --u-file-viewer-kind-bg: rgba(219, 39, 119, 0.1);
+    --u-file-viewer-kind: var(--u-file-viewer-kind-video);
+    --u-file-viewer-kind-border: var(--u-file-viewer-kind-video-border);
+    --u-file-viewer-kind-bg: var(--u-file-viewer-kind-video-bg);
   }
 
   @include m.em(badge, pdf) {
-    --u-file-viewer-kind: #dc2626;
-    --u-file-viewer-kind-border: rgba(220, 38, 38, 0.28);
-    --u-file-viewer-kind-bg: rgba(220, 38, 38, 0.1);
+    --u-file-viewer-kind: #{fn.use-var(color, danger)};
+    --u-file-viewer-kind-border: #{fn.color-a(color, 28, danger)};
+    --u-file-viewer-kind-bg: #{fn.color-a(color, 10, danger)};
   }
 
   @include m.em(badge, sheet) {
-    --u-file-viewer-kind: #15803d;
-    --u-file-viewer-kind-border: rgba(21, 128, 61, 0.28);
-    --u-file-viewer-kind-bg: rgba(21, 128, 61, 0.1);
+    --u-file-viewer-kind: #{fn.use-var(color, success)};
+    --u-file-viewer-kind-border: #{fn.color-a(color, 28, success)};
+    --u-file-viewer-kind-bg: #{fn.color-a(color, 10, success)};
   }
 
   @include m.em(badge, docx) {
-    --u-file-viewer-kind: #2563eb;
-    --u-file-viewer-kind-border: rgba(37, 99, 235, 0.28);
-    --u-file-viewer-kind-bg: rgba(37, 99, 235, 0.1);
+    --u-file-viewer-kind: #{fn.use-var(color, primary)};
+    --u-file-viewer-kind-border: #{fn.color-a(color, 28, primary)};
+    --u-file-viewer-kind-bg: #{fn.color-a(color, 10, primary)};
   }
 
-  @include m.em(badge, text) {
-    --u-file-viewer-kind: #64748b;
-    --u-file-viewer-kind-border: rgba(100, 116, 139, 0.28);
-    --u-file-viewer-kind-bg: rgba(100, 116, 139, 0.1);
-  }
-
+  // text 徽章即中性灰默认态（text-color.second），与 --u-file-viewer-kind 系列默认值一致，无需单独分支
   @include m.em(badge, ofd) {
-    --u-file-viewer-kind: #7c3aed;
-    --u-file-viewer-kind-border: rgba(124, 58, 237, 0.28);
-    --u-file-viewer-kind-bg: rgba(124, 58, 237, 0.1);
+    --u-file-viewer-kind: var(--u-file-viewer-kind-ofd);
+    --u-file-viewer-kind-border: var(--u-file-viewer-kind-ofd-border);
+    --u-file-viewer-kind-bg: var(--u-file-viewer-kind-ofd-bg);
   }
 
   @include m.e(stage) {
@@ -319,7 +362,7 @@
 
   &.is-modal &__stage {
     position: relative;
-    color: rgba(255, 255, 255, 0.86);
+    color: fn.color-a(text-color, 86, white);
     background: transparent;
   }
 
@@ -331,22 +374,16 @@
     min-height: 66px;
     padding: 12px 14px 12px 18px;
     background:
-      linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent), fn.use-var(bg-color, top);
+      linear-gradient(180deg, fn.color-a(text-color, 4, white), transparent), fn.use-var(bg-color, top);
     border-bottom: 1px solid fn.use-var(border, color);
     flex-shrink: 0;
   }
 
   &.is-modal &__stage-head {
     min-height: 64px;
-    color: rgba(255, 255, 255, 0.9);
-    background: linear-gradient(
-      180deg,
-      rgba(9, 11, 16, 0.72),
-      rgba(9, 11, 16, 0.28) 72%,
-      transparent
-    );
+    color: fn.color-a(text-color, 86, white);
+    background: var(--u-file-viewer-modal-stage-head);
     border-bottom-color: transparent;
-    box-shadow: none;
     backdrop-filter: fn.use-var(bg-filter);
     -webkit-backdrop-filter: fn.use-var(bg-filter);
   }
@@ -375,7 +412,7 @@
   }
 
   &.is-modal &__stage-name {
-    color: rgba(255, 255, 255, 0.94);
+    color: fn.color-a(text-color, 86, white);
   }
 
   @include m.e(stage-sub) {
@@ -407,7 +444,7 @@
   }
 
   &.is-modal &__stage-sub {
-    color: rgba(255, 255, 255, 0.52);
+    color: fn.color-a(text-color, 52, white);
   }
 
   @include m.e(stage-actions) {
@@ -431,9 +468,10 @@
   }
 
   &.is-modal &__action-group {
-    border-color: rgba(255, 255, 255, 0.08);
-    background: rgba(255, 255, 255, 0.055);
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.055) inset;
+    border-color: fn.color-a(text-color, 8, white);
+    background: fn.color-a(text-color, 5, white);
+    // 内侧白色发丝高光（非海拔投影，不适用三级阴影 token）
+    box-shadow: 0 1px 0 fn.color-a(text-color, 5, white) inset;
   }
 
   @include m.e(action) {
@@ -450,10 +488,10 @@
     line-height: 1;
     cursor: pointer;
     transition:
-      background 0.16s ease,
-      border-color 0.16s ease,
-      color 0.16s ease,
-      transform 0.16s ease;
+      background fn.use-var(transition, fast) fn.use-var(transition, ease),
+      border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     &:not(:disabled):hover {
       color: fn.use-var(color, primary);
@@ -468,14 +506,18 @@
       opacity: 0.38;
       cursor: not-allowed;
     }
+
+    &:focus-visible {
+      box-shadow: fn.use-var(focus-ring);
+    }
   }
 
   &.is-modal &__action {
-    color: rgba(255, 255, 255, 0.68);
+    color: fn.color-a(text-color, 70, white);
 
     &:not(:disabled):hover {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.1);
+      color: fn.use-var(text-color, white);
+      background: fn.color-a(text-color, 10, white);
     }
   }
 
@@ -485,24 +527,24 @@
   }
 
   @include m.em(action, primary) {
-    color: #fff;
+    color: fn.use-var(text-color, white);
     background: fn.use-var(color, primary);
     border-color: fn.use-var(color, primary);
 
     &:not(:disabled):hover {
-      color: #fff;
+      color: fn.use-var(text-color, white);
       background: fn.use-var(color, primary, light, 1);
     }
   }
 
   &.is-modal &__action--primary {
-    color: #06111d;
-    background: rgba(255, 255, 255, 0.92);
-    border-color: rgba(255, 255, 255, 0.92);
+    color: var(--u-file-viewer-light-ink);
+    background: fn.color-a(text-color, 86, white);
+    border-color: fn.color-a(text-color, 86, white);
 
     &:not(:disabled):hover {
-      color: #06111d;
-      background: #fff;
+      color: var(--u-file-viewer-light-ink);
+      background: var(--u-file-viewer-light-surface);
     }
   }
 
@@ -516,7 +558,7 @@
   }
 
   &.is-modal &__zoom-value {
-    color: rgba(255, 255, 255, 0.84);
+    color: fn.color-a(text-color, 86, white);
   }
 
   @include m.e(body) {
@@ -531,15 +573,14 @@
 
   &.is-modal &__body {
     background:
-      linear-gradient(180deg, rgba(13, 16, 23, 0.58), rgba(5, 6, 10, 0.82)),
+      var(--u-file-viewer-modal-body),
       linear-gradient(
         90deg,
-        rgba(255, 255, 255, 0.035),
+        fn.color-a(text-color, 4, white),
         transparent 22%,
         transparent 78%,
-        rgba(255, 255, 255, 0.025)
+        fn.color-a(text-color, 4, white)
       );
-    box-shadow: none;
   }
 
   @include m.e(viewport) {
@@ -551,32 +592,13 @@
     justify-content: center;
   }
 
-  @include m.e(previewer) {
-    transform-origin: center center;
-    transition: transform 0.18s ease;
-    will-change: transform;
-  }
-
-  &__viewport.is-pannable {
-    cursor: grab;
-    touch-action: none;
-  }
-
-  &__viewport.is-dragging {
-    cursor: grabbing;
-  }
-
-  &__viewport.is-dragging &__previewer {
-    transition: none;
-  }
-
   @include m.e(empty) {
     width: 100%;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255, 255, 255, 0.68);
+    color: fn.color-a(text-color, 70, white);
   }
 
   @include m.e(image) {
@@ -587,13 +609,28 @@
     justify-content: center;
     padding: clamp(20px, 3vw, 44px);
     user-select: none;
+    // 图片缩放/拖拽的 transform 直接写在本元素 style 上（见 image-previewer 的 applyTransform）
+    transform-origin: center center;
+    transition: transform fn.use-var(transition, fast) fn.use-var(transition, ease);
+    will-change: transform;
+
+    &.is-pannable {
+      cursor: grab;
+      touch-action: none;
+    }
+
+    &.is-dragging {
+      cursor: grabbing;
+      // 拖拽期间禁用过渡保证跟手
+      transition: none;
+    }
 
     img {
       max-width: 100%;
       max-height: 100%;
       object-fit: contain;
       border-radius: 6px;
-      background: #fff;
+      background: var(--u-file-viewer-light-surface);
       box-shadow: var(--u-file-viewer-page-shadow);
     }
   }
@@ -602,11 +639,9 @@
     padding: clamp(18px, 4vw, 64px);
 
     img {
-      background: rgba(255, 255, 255, 0.02);
+      background: fn.color-a(text-color, 4, white);
       border-radius: 4px;
-      box-shadow:
-        0 38px 110px rgba(0, 0, 0, 0.52),
-        0 0 0 1px rgba(255, 255, 255, 0.08);
+      box-shadow: var(--u-file-viewer-page-shadow-modal);
     }
   }
 
@@ -616,7 +651,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #000;
+    background: fn.use-var(bg-color, black);
 
     video {
       max-width: 100%;
@@ -632,18 +667,18 @@
   @include m.e(text) {
     position: absolute;
     inset: 0;
-    background: #111318;
+    background: var(--u-file-viewer-canvas);
   }
 
   &.is-modal &__text {
-    background: rgba(5, 7, 10, 0.76);
+    background: var(--u-file-viewer-modal-text);
   }
 
   @include m.e(text-pre) {
     min-width: max-content;
     margin: 0;
     padding: 22px 26px;
-    color: rgba(255, 255, 255, 0.86);
+    color: fn.color-a(text-color, 86, white);
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 12.5px;
     line-height: 1.65;
@@ -661,7 +696,7 @@
     position: relative;
     width: 100%;
     height: 100%;
-    // pdfjs 方案的滚动容器：原生滚动 + 隐藏滚动条（拖拽平移见 PdfViewportScroll）
+    // pdfjs 方案的滚动容器：原生滚动 + 隐藏滚动条（pointer capture 拖拽平移见 pdf-previewer）
     overflow: auto;
     background: transparent;
     cursor: grab;
@@ -673,7 +708,6 @@
 
     // 隐藏原生滚动条
     scrollbar-width: none;
-    scrollbar-color: transparent transparent;
 
     &::-webkit-scrollbar {
       width: 0;
@@ -683,15 +717,33 @@
 
   @include m.e(pdf-page) {
     margin: 24px auto;
-    background: #fff;
+    background: var(--u-file-viewer-light-surface);
     box-shadow: var(--u-file-viewer-page-shadow);
+
+    // 物理分辨率与 CSS 尺寸解耦：canvas 固定铺满占位块（超限降采样时由 CSS 拉伸）
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
   }
 
   &.is-modal &__pdf-page {
     margin: clamp(24px, 3vw, 44px) auto;
-    box-shadow:
-      0 38px 110px rgba(0, 0, 0, 0.5),
-      0 0 0 1px rgba(255, 255, 255, 0.04);
+    box-shadow: var(--u-file-viewer-page-shadow-modal);
+  }
+
+  // 加载失败的错误态，视觉与 loading 一致（覆盖整个画布的居中提示），文案用 danger 语义色
+  @include m.e(pdf-failed) {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: fn.use-var(color, danger);
+    background: var(--u-file-viewer-canvas-overlay);
+    font-size: 13px;
+    pointer-events: none;
   }
 
   @include m.e(ofd) {
@@ -707,7 +759,7 @@
 
   @include m.e(ofd-page) {
     margin: 24px auto;
-    background: #fff;
+    background: var(--u-file-viewer-light-surface);
     box-shadow: var(--u-file-viewer-page-shadow);
 
     svg {
@@ -734,8 +786,8 @@
 
   @include m.e(docx-doc) {
     margin: 0 auto;
-    color: #222;
-    background: #fff;
+    color: var(--u-file-viewer-light-ink);
+    background: var(--u-file-viewer-light-surface);
     box-shadow: var(--u-file-viewer-page-shadow);
   }
 
@@ -744,9 +796,7 @@
   }
 
   &.is-modal &__docx-doc {
-    box-shadow:
-      0 38px 110px rgba(0, 0, 0, 0.5),
-      0 0 0 1px rgba(255, 255, 255, 0.04);
+    box-shadow: var(--u-file-viewer-page-shadow-modal);
   }
 
   @include m.e(sheet) {
@@ -758,7 +808,7 @@
   }
 
   &.is-modal &__sheet {
-    background: rgba(8, 10, 14, 0.82);
+    background: var(--u-file-viewer-modal-surface);
   }
 
   @include m.e(sheet-note) {
@@ -773,9 +823,9 @@
 
   &.is-modal &__sheet-note,
   &.is-modal &__sheet-tabs {
-    color: rgba(255, 255, 255, 0.62);
-    background: rgba(10, 12, 18, 0.78);
-    border-bottom-color: rgba(255, 255, 255, 0.08);
+    color: fn.color-a(text-color, 60, white);
+    background: var(--u-file-viewer-modal-panel);
+    border-bottom-color: fn.color-a(text-color, 8, white);
   }
 
   @include m.e(sheet-tabs) {
@@ -799,9 +849,9 @@
     font-size: 12px;
     cursor: pointer;
     transition:
-      background 0.18s ease,
-      border-color 0.18s ease,
-      color 0.18s ease;
+      background fn.use-var(transition, fast) fn.use-var(transition, ease),
+      border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      color fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     &:hover {
       background: fn.use-var(bg-color, hover);
@@ -813,20 +863,24 @@
       background: fn.color-a(color, 11, primary);
       border-color: fn.color-a(color, 22, primary);
     }
+
+    &:focus-visible {
+      box-shadow: fn.use-var(focus-ring);
+    }
   }
 
   &.is-modal &__sheet-tab {
-    color: rgba(255, 255, 255, 0.58);
+    color: fn.color-a(text-color, 60, white);
 
     &:hover {
-      color: rgba(255, 255, 255, 0.88);
-      background: rgba(255, 255, 255, 0.07);
+      color: fn.color-a(text-color, 86, white);
+      background: fn.color-a(text-color, 8, white);
     }
 
     @include m.is(active) {
-      color: #fff;
-      background: rgba(255, 255, 255, 0.1);
-      border-color: rgba(255, 255, 255, 0.13);
+      color: fn.use-var(text-color, white);
+      background: fn.color-a(text-color, 10, white);
+      border-color: fn.color-a(text-color, 11, white);
     }
   }
 
@@ -842,7 +896,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgba(255, 255, 255, 0.72);
+    color: fn.color-a(text-color, 70, white);
     background: var(--u-file-viewer-canvas-overlay);
     font-size: 13px;
     pointer-events: none;
@@ -866,7 +920,7 @@
     }
 
     &.is-modal &__sidebar {
-      border-bottom-color: rgba(255, 255, 255, 0.08);
+      border-bottom-color: fn.color-a(text-color, 8, white);
       border-right: none;
     }
 
@@ -885,8 +939,8 @@
 .u-file-viewer-fade-enter-active,
 .u-file-viewer-fade-leave-active {
   transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
+    opacity fn.use-var(transition, normal) fn.use-var(transition, ease),
+    transform fn.use-var(transition, normal) fn.use-var(transition, ease);
 }
 
 .u-file-viewer-fade-enter-from,
@@ -897,7 +951,7 @@
 
 .u-file-viewer-modal-enter-active,
 .u-file-viewer-modal-leave-active {
-  transition: opacity 0.18s ease;
+  transition: opacity fn.use-var(transition, normal) fn.use-var(transition, ease);
   will-change: opacity;
 }
 
