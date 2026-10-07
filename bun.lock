@@ -149,10 +149,10 @@
       "version": "1.0.0",
       "peerDependencies": {
         "@cat-kit/core": ">=1.2.1",
-        "@veltra/compositions": "workspace:^",
-        "@veltra/icons": "workspace:^",
-        "@veltra/styles": "workspace:^",
-        "@veltra/utils": "workspace:^",
+        "@veltra/compositions": "^1.8.5",
+        "@veltra/icons": "^1.5.0",
+        "@veltra/styles": "^1.8.5",
+        "@veltra/utils": "^1.8.5",
         "vue": ">=3.5.43",
       },
     },
@@ -932,7 +932,7 @@
 
     "import-meta-resolve": ["import-meta-resolve@4.2.0", "https://mirrors.tencent.com/npm/import-meta-resolve/-/import-meta-resolve-4.2.0.tgz", {}, "sha512-Iqv2fzaTQN28s/FwZAoFq0ZSs/7hMAHJVX+w8PZl3cY19Pxk6jFFalxQoIfW2826i/fDLXv8IiEZRIT0lDuWcg=="],
 
-    "infinitable": ["infinitable@0.1.0", "https://mirrors.tencent.com/npm/infinitable/-/infinitable-0.1.0.tgz", { "dependencies": { "@cat-kit/core": "^1.2.1" } }, "sha512-SF54UrRRvngSM8ZaQCEzVftQN1qVmN1itRRgHXdjn9o9IXXykeDM3vcLqnMP1N6wJxk/Xm+eNdKiiMc5AbZelQ=="],
+    "infinitable": ["infinitable@0.1.1", "https://mirrors.tencent.com/npm/infinitable/-/infinitable-0.1.1.tgz", { "dependencies": { "@cat-kit/core": "^1.2.1" } }, "sha512-jFIL69jjliBk/Wd58VbMRDw/4B+Ou2A9hgUMrPK4xkvGw1XB3WfSKGrG7sdFIRUu30xOa3sA555zH72TspQ9kA=="],
 
     "inherits": ["inherits@2.0.4", "https://mirrors.tencent.com/npm/inherits/-/inherits-2.0.4.tgz", {}, "sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ=="],
 
