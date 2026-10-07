@@ -7,7 +7,7 @@
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
 
-vi.mock('/Users/whj/codes/bedrock/web/src/api/http', () => {
+vi.mock('./fixtures/bedrock/http', () => {
   return {
     getAccessToken: () => 'test-token',
     http: {
@@ -18,15 +18,11 @@ vi.mock('/Users/whj/codes/bedrock/web/src/api/http', () => {
 })
 
 // eslint-disable-next-line import/first
-import {
-  createHarnessSessionAdapter,
-  type HarnessFrame
-} from '/Users/whj/codes/bedrock/web/src/api/harness'
-
-// eslint-disable-next-line import/first
 import { createFoldState, foldSessionEvent, type ChatFoldState } from '../fold'
 // eslint-disable-next-line import/first
 import { createServerTransport } from '../session'
+// eslint-disable-next-line import/first
+import { createHarnessSessionAdapter, type HarnessFrame } from './fixtures/bedrock/harness'
 
 // ---- mock 网络层 ----
 
