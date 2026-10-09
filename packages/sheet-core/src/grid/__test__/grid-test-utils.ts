@@ -1,16 +1,24 @@
 import type { ListTable, SelectionSnapshot } from 'infinitable'
 
 import { Sheet } from '../../core/sheet'
-import { SHEET_HEADER_HEIGHT, SHEET_ROW_HEADER_WIDTH } from '../grid-theme'
 import { SheetGrid, type SheetGridOptions } from '../sheet-grid'
 
 /** 测试视口尺寸（显式给定，绕开 happy-dom 无布局测量） */
 export const VIEW_W = 800
 export const VIEW_H = 600
 
+/**
+ * 几何常量（随 grid 实现上游化，官方 `infinitable/sheet` 未公开导出，
+ * 按其 grid-theme 取值内联）：行号列宽 46、列头高 28、列宽 80、行高 28
+ */
+export const ROW_HEADER_WIDTH = 46
+export const HEADER_HEIGHT = 28
+export const DEFAULT_COL_WIDTH = 80
+export const DEFAULT_ROW_HEIGHT = 28
+
 /** 数据格 (col, row) 的层坐标（几何：行号列 46、列头 28、列宽 80、行高 28） */
-export const cellX = (col: number) => SHEET_ROW_HEADER_WIDTH + col * 80 + 5
-export const cellY = (row: number) => SHEET_HEADER_HEIGHT + row * 28 + 5
+export const cellX = (col: number) => ROW_HEADER_WIDTH + col * DEFAULT_COL_WIDTH + 5
+export const cellY = (row: number) => HEADER_HEIGHT + row * DEFAULT_ROW_HEIGHT + 5
 
 export interface CreatedGrid {
   grid: SheetGrid

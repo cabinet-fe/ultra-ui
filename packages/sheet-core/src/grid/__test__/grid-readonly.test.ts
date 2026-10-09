@@ -1,7 +1,13 @@
 import { describe, expect, it, vi } from 'vite-plus/test'
 
-import { SHEET_DEFAULT_COL_WIDTH } from '../grid-theme'
-import { cellX, cellY, createGrid, fire, flushMicrotasks } from './grid-test-utils'
+import {
+  cellX,
+  cellY,
+  createGrid,
+  DEFAULT_COL_WIDTH,
+  fire,
+  flushMicrotasks
+} from './grid-test-utils'
 
 describe('整表只读模式', () => {
   it('不注册编辑器：startEdit 拒绝、双击/Enter 无编辑会话', () => {
@@ -47,7 +53,7 @@ describe('整表只读模式', () => {
       fire(container, 'pointermove', { clientX: 156, clientY: 10 })
       fire(container, 'pointerup', { clientX: 156, clientY: 10 })
       await flushMicrotasks()
-      expect(table.getColWidth(0)).toBe(SHEET_DEFAULT_COL_WIDTH)
+      expect(table.getColWidth(0)).toBe(DEFAULT_COL_WIDTH)
       expect(sheet.getColWidth(0)).toBeUndefined()
     } finally {
       grid.release()

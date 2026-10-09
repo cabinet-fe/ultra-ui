@@ -131,6 +131,7 @@ export function useSheetGrid(options: UseSheetGridOptions) {
       header: props.header,
       editors: props.editors,
       colResize: props.colResize,
+      scrollbar: props.scrollbar,
       onContextMenu: handleContextMenu,
       onEditStart: (addr) => formulaBarRef.value?.mirrorGridEdit(addr),
       onEditEnd: (addr) => formulaBarRef.value?.exitMirror(addr),
@@ -273,7 +274,8 @@ export function useSheetGrid(options: UseSheetGridOptions) {
         props.showColHeader,
         props.header,
         props.editors,
-        props.colResize
+        props.colResize,
+        props.scrollbar
       ] as const,
     ([nextRows, nextCols]) => {
       const sheet = getActiveSheet()

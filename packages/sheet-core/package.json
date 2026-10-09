@@ -34,8 +34,8 @@
     }
   },
   "dependencies": {
-    "hucre": "^1.1.0",
-    "infinitable": "^0.1.0"
+    "hucre": "^1.2.0",
+    "infinitable": "^0.1.2"
   },
   "peerDependencies": {
     "@cat-kit/core": ">=1.2.1"

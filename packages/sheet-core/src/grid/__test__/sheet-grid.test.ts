@@ -2,7 +2,6 @@ import type { CellRenderer } from 'infinitable'
 import { describe, expect, it, vi } from 'vite-plus/test'
 
 import { Sheet } from '../../core/sheet'
-import { SHEET_GRID_THEME } from '../grid-theme'
 import { cellX, cellY, createGrid, fire, flushMicrotasks, VIEW_H, VIEW_W } from './grid-test-utils'
 
 describe('SheetGrid 挂载与几何（happy-dom smoke）', () => {
@@ -612,9 +611,7 @@ describe('SheetGrid 命中与资源释放', () => {
 })
 
 describe('SheetGrid 主题（溢出渲染）', () => {
-  it('body 主题不携带显式 textOverflow（引擎缺省溢出走廊生效），header 保留 ellipsis', () => {
-    expect('textOverflow' in SHEET_GRID_THEME.body).toBe(false)
-
+  it('生效主题 body 无显式 textOverflow（引擎缺省溢出走廊），header 保留 ellipsis', () => {
     const { grid, table } = createGrid()
     try {
       // 引擎生效主题：body 缺省继承 defaultTheme.body（无 textOverflow），header 覆盖仍为 ellipsis

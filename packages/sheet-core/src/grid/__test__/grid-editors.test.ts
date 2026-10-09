@@ -1,9 +1,14 @@
 import { describe, expect, it, vi } from 'vite-plus/test'
 
 import { Sheet } from '../../core/sheet'
-import type { GridCellEditor, GridEditorSession } from '../grid-editors'
-import { SHEET_HEADER_HEIGHT, SHEET_ROW_HEADER_WIDTH } from '../grid-theme'
-import { createGrid } from './grid-test-utils'
+import type { GridCellEditor, GridEditorSession } from '../index'
+import {
+  createGrid,
+  DEFAULT_COL_WIDTH,
+  DEFAULT_ROW_HEIGHT,
+  HEADER_HEIGHT,
+  ROW_HEADER_WIDTH
+} from './grid-test-utils'
 
 /** 记录 open 会话的 spy 编辑器 */
 function spyEditor(name: string): GridCellEditor & { sessions: GridEditorSession[] } {
@@ -36,10 +41,10 @@ describe('类型化编辑器机制（grid-editors）', () => {
       expect(session.container).toBe(container)
       // 锚定矩形与几何常量对齐（行号列 46 / 列头 28 / 列宽 80 / 行高 28）
       expect(session.rect).toEqual({
-        x: SHEET_ROW_HEADER_WIDTH + 80,
-        y: SHEET_HEADER_HEIGHT,
-        width: 80,
-        height: 28
+        x: ROW_HEADER_WIDTH + DEFAULT_COL_WIDTH,
+        y: HEADER_HEIGHT,
+        width: DEFAULT_COL_WIDTH,
+        height: DEFAULT_ROW_HEIGHT
       })
     } finally {
       grid.release()
@@ -169,9 +174,9 @@ describe('列头机制（grid-header）', () => {
       expect(table.options.columns[1]?.title).toBe('B')
       expect(el.parentElement).not.toBeNull()
       // 第 0 列几何：行号列宽 46 起、列宽 80、列头高 28
-      expect(el.style.left).toBe(`${SHEET_ROW_HEADER_WIDTH}px`)
-      expect(el.style.width).toBe('80px')
-      expect(el.style.height).toBe(`${SHEET_HEADER_HEIGHT}px`)
+      expect(el.style.left).toBe(`${ROW_HEADER_WIDTH}px`)
+      expect(el.style.width).toBe(`${DEFAULT_COL_WIDTH}px`)
+      expect(el.style.height).toBe(`${HEADER_HEIGHT}px`)
       // 覆盖层挂进表格容器
       expect(container.contains(el)).toBe(true)
       // 每列至多回调一次（构造期列装配 + 覆盖层同步共用缓存）

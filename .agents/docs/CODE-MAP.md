@@ -14,7 +14,7 @@ ultra-ui/
 │   ├── desktop/              # @veltra/desktop 桌面组件主包
 │   │   └── src/components/   # 一目录一组件（index.ts + style.ts）
 │   ├── sheet-core/           # @veltra/sheet-core
-│   │   └── src/{core,grid}/  # 纯 TS 模型 vs 引擎适配（infinitable）
+│   │   └── src/{core,grid}/  # 纯 TS 模型 vs 官方引擎桥接（infinitable/sheet）
 │   ├── sheet/                # @veltra/sheet Vue 电子表格编辑器
 │   │   └── src/{components,tools,types}/
 │   ├── ai/                   # @veltra/ai
@@ -42,7 +42,7 @@ ultra-ui/
 | compositions | `packages/compositions` | Vue 组合式函数（useModel / usePop / useConfig 等）                                         | `src/index.ts`（各 `use-*`）                                          |
 | directives   | `packages/directives`   | `vFocus` / `vClickOutside` / `vRipple`                                                     | `src/index.ts`                                                        |
 | desktop      | `packages/desktop`      | 桌面端 UI 主包；`install` 全局注册                                                         | `src/index.ts`、`src/install.ts`                                      |
-| sheet-core   | `packages/sheet-core`   | 表格模型/命令/公式/IO + SheetGrid                                                          | `src/index.ts`、`src/grid/index.ts`                                   |
+| sheet-core   | `packages/sheet-core`   | 表格模型/命令/公式/IO + SheetGrid（grid 层为官方 `infinitable/sheet` 的 re-export 桥，仅 Sheet 类型收口在本地） | `src/index.ts`、`src/grid/index.ts`                                   |
 | sheet        | `packages/sheet`        | USheet、工具系统                                                                           | `src/index.ts`                                                        |
 | ai           | `packages/ai`           | UAiChat / useChat / transport                                                              | `src/index.ts`                                                        |
 | ofd-core     | `packages/ofd-core`     | 零依赖 OFD（GB/T 33190）解析渲染内核，SVG 页面输出；private 不发版，打包进 desktop         | `src/index.ts`                                                        |

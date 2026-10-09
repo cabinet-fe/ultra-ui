@@ -62,6 +62,11 @@ export interface SheetProps {
    * 关闭；缺省 false 行为不变。变化触发网格重建（构造期选项）
    */
   colResize?: boolean
+  /**
+   * 画布滚动条（透传 SheetGrid → 引擎内建）：内容溢出的轴在画布右/下缘绘制滚动条
+   * （可拖拽 / 点按跳转）；缺省 true。变化触发网格重建（构造期选项）
+   */
+  scrollbar?: boolean
 }
 
 export interface SheetEmits {

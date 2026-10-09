@@ -84,6 +84,19 @@ afterEach(() => {
 })
 
 describe('USheet 组件', () => {
+  it('scrollbar 透传引擎内建滚动条（缺省开启，false 关闭并触发重建）', async () => {
+    const exposedOn: { value: SheetExposed | undefined } = { value: undefined }
+    mount(() => ({}), exposedOn)
+    await nextTick()
+    // 引擎缺省 true（undefined 即开启），无需显式下发
+    expect(exposedOn.value!.getGrid()!.getTable().options.scrollbar).toBeUndefined()
+
+    const exposedOff: { value: SheetExposed | undefined } = { value: undefined }
+    mount(() => ({ scrollbar: false }), exposedOff)
+    await nextTick()
+    expect(exposedOff.value!.getGrid()!.getTable().options.scrollbar).toBe(false)
+  })
+
   it('挂载后默认选区 A1：名称框显示 A1、fx 输入栏可用', async () => {
     const workbook = createWorkbook()
     const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))

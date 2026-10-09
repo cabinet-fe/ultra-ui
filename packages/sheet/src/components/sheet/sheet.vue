@@ -112,7 +112,8 @@ const props = withDefaults(defineProps<SheetProps>(), {
   showRowHeader: true,
   showColHeader: true,
   readonly: false,
-  colResize: false
+  colResize: false,
+  scrollbar: true
 })
 
 const emit = defineEmits<SheetEmits>()
