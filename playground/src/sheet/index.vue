@@ -2,17 +2,47 @@
   <div class="sheet-demo">
     <!-- 滚动条形态切换：缺省原生档（独立 gutter 不遮挡最底行/最右列）；对象形态经
          computed 持稳定引用（构造期选项，引用更替触发网格重建） -->
-    <div class="sheet-demo__scrollbar" role="group" aria-label="滚动条形态">
+    <div class="sheet-demo__seg" role="group" aria-label="滚动条形态">
       <button
         v-for="mode in SCROLLBAR_MODES"
         :key="mode.value"
         type="button"
-        class="sheet-demo__scrollbar-btn"
+        class="sheet-demo__seg-btn"
         :class="{ 'is-active': scrollbarMode === mode.value }"
         @click="scrollbarMode = mode.value"
       >
         {{ mode.label }}
       </button>
+    </div>
+
+    <!-- 报表合计演示：合计公式先配置（I13 SUM）→ 批量填充（setCells 单 undo 单元）
+         合计自动出现 → 修改被引用明细格（I9）合计自动重算；状态行读模型显示值 -->
+    <div class="sheet-demo__seg sheet-demo__report" role="group" aria-label="报表合计演示">
+      <button
+        type="button"
+        class="sheet-demo__seg-btn sheet-demo__report-btn--formula"
+        title="经 SheetContext.setCellFormula 写入 =SUM(I9:I12)"
+        @click="writeReportTotal"
+      >
+        1. 写入合计公式 I13
+      </button>
+      <button
+        type="button"
+        class="sheet-demo__seg-btn sheet-demo__report-btn--fill"
+        title="SheetContext.setCells 批量写入 H8:I13（一次调用 = 单 undo 单元）"
+        @click="fillReportData"
+      >
+        2. 批量填充数据
+      </button>
+      <button
+        type="button"
+        class="sheet-demo__seg-btn sheet-demo__report-btn--bump"
+        title="SheetContext.setCellValue 修改被 SUM 引用的明细格，合计增量重算"
+        @click="bumpReportCell"
+      >
+        3. 修改被引用格 I9 +100
+      </button>
+      <span class="sheet-demo__report-total">I13 合计：{{ reportTotalText }}</span>
     </div>
 
     <u-sheet
@@ -310,8 +340,14 @@
 import { $n } from '@cat-kit/core'
 import { type SheetExposed } from '@veltra/sheet'
 import { formulaError, registerFormulaFunction } from 'infinitable'
-import type { ScrollbarOptions } from 'infinitable/sheet'
-import { Workbook, formatAddress, formatRange } from 'infinitable/sheet'
+import type { CellAddress, CellValue, ScrollbarOptions, SetCellValueItem } from 'infinitable/sheet'
+import {
+  Workbook,
+  formatAddress,
+  formatRange,
+  inferCellType,
+  normalizeInputValue
+} from 'infinitable/sheet'
 import { computed, onBeforeUnmount, ref, shallowRef, useTemplateRef } from 'vue'
 
 /**
@@ -415,6 +451,71 @@ const scrollbarMode = ref<(typeof SCROLLBAR_MODES)[number]['value']>('native')
 const scrollbarOption = computed<boolean | ScrollbarOptions>(() =>
   scrollbarMode.value === 'off' ? false : { mode: scrollbarMode.value }
 )
+
+// ─── 报表合计演示（公式能力可操作验证）─────────────────────────
+// 演示区 H8:I13（col 7/8）：表头 H8/I8，明细 H9:I12（数量列 I 被 SUM 引用），
+// 合计行 H13 标签 + I13 公式。三步对应 meta 报表消费场景：先配置合计公式 →
+// 批量填充明细（setCells 单命令，合计自动出现）→ 修改被引用格（增量重算）。
+// 全部经 SheetContext（与工具栏工具同一门面，写入走命令系统、可撤销）。
+
+/** 合计公式落点 I13 */
+const REPORT_TOTAL_ADDR: CellAddress = { row: 12, col: 8 }
+/** 被引用明细格 I9（首个数量格；步骤 3 修改它验证依赖重算） */
+const REPORT_BUMP_ADDR: CellAddress = { row: 8, col: 8 }
+
+/** 明细数据（数量列 12 + 8 + 15 + 20 = 55；合计行标签落 H13，公式落 I13） */
+const REPORT_ITEMS: { addr: CellAddress; value: CellValue }[] = [
+  { addr: { row: 7, col: 7 }, value: '产品' },
+  { addr: { row: 7, col: 8 }, value: '数量' },
+  { addr: { row: 8, col: 7 }, value: '键盘' },
+  { addr: { row: 8, col: 8 }, value: 12 },
+  { addr: { row: 9, col: 7 }, value: '鼠标' },
+  { addr: { row: 9, col: 8 }, value: 8 },
+  { addr: { row: 10, col: 7 }, value: '显示器' },
+  { addr: { row: 10, col: 8 }, value: 15 },
+  { addr: { row: 11, col: 7 }, value: '硬盘' },
+  { addr: { row: 11, col: 8 }, value: 20 },
+  { addr: { row: 12, col: 7 }, value: '合计' }
+]
+
+const reportTotalText = ref('—（未写入公式）')
+
+/** 状态行读模型：公式格显示值即引擎增量重算的缓存值 */
+function refreshReportTotal(): void {
+  const value = sheetRef.value?.getActiveSheet().getDisplayValue(REPORT_TOTAL_ADDR)
+  reportTotalText.value =
+    value === undefined || value === null || value === '' ? '—（未写入公式）' : String(value)
+}
+
+/** 步骤 1：写入 SUM 合计公式（经 SheetContext.setCellFormula；空区域 SUM = 0） */
+function writeReportTotal(): void {
+  sheetRef.value?.getContext().setCellFormula(REPORT_TOTAL_ADDR, '=SUM(I9:I12)')
+  refreshReportTotal()
+}
+
+/** 步骤 2：批量填充明细（一次 setCells = 单命令 = 单 undo 单元；公式自动重算） */
+function fillReportData(): void {
+  sheetRef.value?.getContext().setCells(
+    REPORT_ITEMS.map(({ addr, value }) => {
+      const normalized = normalizeInputValue(value)
+      return {
+        addr,
+        data: { v: normalized, t: inferCellType(normalized) }
+      } satisfies SetCellValueItem
+    })
+  )
+  refreshReportTotal()
+}
+
+/** 步骤 3：修改被引用明细格 I9（+100；引擎依赖图增量重算合计） */
+function bumpReportCell(): void {
+  const ctx = sheetRef.value?.getContext()
+  if (!ctx) return
+  const current = ctx.getDisplayValue(REPORT_BUMP_ADDR)
+  const base = typeof current === 'number' ? current : 0
+  ctx.setCellValue(REPORT_BUMP_ADDR, $n.plus(base, 100))
+  refreshReportTotal()
+}
 
 // 观察区默认收起，点击头部展开/收起
 const collapsed = ref(true)
@@ -596,15 +697,16 @@ onBeforeUnmount(() => {
   color: var(--u-text-color-second);
 }
 
-/* ─── 滚动条形态切换（分段按钮组）────────────────────────────── */
+/* ─── 分段按钮组（滚动条形态 / 报表合计演示共用）────────────── */
 
-.sheet-demo__scrollbar {
+.sheet-demo__seg {
   display: flex;
+  align-items: center;
   gap: 0;
   margin-bottom: 12px;
 }
 
-.sheet-demo__scrollbar-btn {
+.sheet-demo__seg-btn {
   padding: 4px 14px;
   border: 1px solid var(--u-border-muted-color);
   background: var(--u-bg-color-top);
@@ -616,32 +718,42 @@ onBeforeUnmount(() => {
     color 0.15s ease;
 }
 
-.sheet-demo__scrollbar-btn:first-child {
+.sheet-demo__seg-btn:first-child {
   border-radius: 4px 0 0 4px;
 }
 
-.sheet-demo__scrollbar-btn:last-child {
+/* 报表组最后一个子元素是状态 span，末按钮圆角按 :last-of-type 取 */
+.sheet-demo__seg-btn:last-of-type {
   border-radius: 0 4px 4px 0;
 }
 
 /* 相邻按钮合并边框 */
-.sheet-demo__scrollbar-btn + .sheet-demo__scrollbar-btn {
+.sheet-demo__seg-btn + .sheet-demo__seg-btn {
   margin-left: -1px;
 }
 
-.sheet-demo__scrollbar-btn:hover {
+.sheet-demo__seg-btn:hover {
   background: var(--u-bg-color-hover);
 }
 
-.sheet-demo__scrollbar-btn.is-active {
+.sheet-demo__seg-btn.is-active {
   border-color: var(--u-color-primary);
   background: color-mix(in srgb, var(--u-color-primary) 10%, var(--u-bg-color-top));
   color: var(--u-color-primary);
 }
 
+/* ─── 报表合计演示（组内最后一个不是按钮，右侧补边距 + 合计状态行） ── */
+
+.sheet-demo__report-total {
+  margin-left: 12px;
+  font-size: 12px;
+  color: var(--u-color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
 .sheet-demo__sheet {
-  /* 154px 为原有布局预留，+34px 让位滚动条形态切换控件 */
-  height: calc(100vh - 188px);
+  /* 154px 为原有布局预留，+64px 让位滚动条形态切换与报表合计演示两行控件 */
+  height: calc(100vh - 218px);
 }
 
 /* ─── 数据结构观察区 ─────────────────────────────── */
