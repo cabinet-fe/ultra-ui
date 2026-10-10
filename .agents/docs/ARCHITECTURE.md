@@ -7,7 +7,7 @@ Ultra UI 是 Vue 3 组件与能力库。主用户是 cabinet-fe 内部业务前�
 核心域：
 
 - 桌面 UI：`@veltra/desktop` 及底层 utils / styles / compositions / directives / icons
-- 电子表格：`@veltra/sheet-core`（模型/公式/IO/网格）+ `@veltra/sheet`（USheet）
+- 电子表格：`@veltra/sheet`（USheet）；模型/公式/IO/网格来自 npm 包 `infinitable`（`/sheet` 子路径）
 - 版式文档：`@veltra/ofd-core`（零依赖 OFD 解析渲染内核，SVG 页面输出；desktop `u-file-viewer` 的 ofd 预览只做组件壳）
 - AI 对话：`@veltra/ai`（UAiChat、useChat、可插拔 transport）
 
@@ -28,9 +28,9 @@ Ultra UI 是 Vue 3 组件与能力库。主用户是 cabinet-fe 内部业务前�
 
 分层（库内）：
 
-- 无框架核心：`sheet-core/core`（纯 TS）、`utils`（无 Vue 组件）、`ofd-core`（零依赖 OFD 解析渲染）
+- 无框架核心：`utils`（无 Vue 组件）、`ofd-core`（零依赖 OFD 解析渲染）
 - Vue 能力：compositions、directives、desktop/ai/sheet 组件
-- 渲染适配：`sheet-core/grid`（npm 统一入口包 `infinitable` 的 ListTable 引擎适配）；desktop 的 Excel 预览把 sheet-core 当 optional peer
+- 渲染适配：`infinitable/sheet`（npm 统一入口包 `infinitable` 的 ListTable 引擎 + sheet 模型层，自包含不携带 hucre 运行时依赖）；desktop 的 Excel 预览经动态 import 按需分包
 - 构建辅助：`@veltra/vite` 的 `VeltraUIResolver`（扫描 desktop / ai / sheet 的组件目录生成表）
 - 主题：`@veltra/styles` 的 SCSS token + `@veltra/styles/theme`（运行时依赖 compositions 的 `useConfig`；compositions 不得 re-export theme）
 
@@ -45,7 +45,7 @@ CI：`.github/workflows/release.yml`。`bun run release` 在 `dev` 分支落版�
 | 语言 / runtime          | TypeScript ^6、Bun（packageManager bun@1.4）                       | 库代码 ESM                                                        |
 | 框架                    | Vue 3.5+（Composition API + `<script setup>`）                     | peer；playground 另用 vue-router                                  |
 | 样式                    | SCSS（sass-embedded）+ BEM + CSS 变量                              | `@use 'pkg:@veltra/styles/...'`，构建需 `NodePackageImporter`     |
-| 表格渲染 / IO           | `infinitable`（npm 统一入口，re-export 引擎四层）、hucre           | 引擎在 sheet-core；sheet 亦直连                                   |
+| 表格渲染 / IO           | `infinitable`（npm 统一入口：`/sheet` 子路径 + 主入口公式 API，自包含） | sheet / desktop / playground 直连                                 |
 | 富文本 / PDF / Markdown | Lexical、pdfjs-dist（desktop）；markstream-vue（ai）               | 见各包 dependencies                                               |
 | 版式文档 OFD            | 自研 `@veltra/ofd-core`（DecompressionStream + DOMParser，零依赖） | desktop file-viewer 组件壳调用                                    |
 | 构建 / 包管理           | Vite+（`vp`）、workspaces `packages/*` + `playground`              | 根 `vite.config.ts` 只管 test/lint/fmt/run/staged；库 pack 在包内 |

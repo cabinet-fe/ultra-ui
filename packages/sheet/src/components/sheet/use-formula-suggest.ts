@@ -1,7 +1,4 @@
-import {
-  listFormulaFunctions,
-  type FormulaFunctionMeta
-} from '@veltra/sheet-core/core/formula/functions.js'
+import { listFormulaFunctions, type FormulaFunctionInfo } from 'infinitable'
 
 /** 补全候选上限 */
 export const FORMULA_SUGGEST_LIMIT = 10
@@ -26,7 +23,7 @@ export const COMMON_FORMULA_NAMES = [
 /**
  * 函数弹框分类导航固定集合（顺序即展示顺序）。
  * 「常用」「全部」是导航概念（非注册表分类）：常用 = COMMON_FORMULA_NAMES 固定清单，
- * 全部 = 全部已注册函数；其余与 sheet-core `FormulaFunctionCategory` 对应。
+ * 全部 = 全部已注册函数；其余与公式注册表 `FormulaFunctionCategory` 对应。
  */
 export const FUNCTION_POPUP_CATEGORIES = [
   '常用',
@@ -131,12 +128,13 @@ export function filterFormulaSuggestions(prefix: string): FormulaSuggestItem[] {
   return items
 }
 
-function toSuggestItem(fn: { name: string } & FormulaFunctionMeta): FormulaSuggestItem {
+function toSuggestItem(fn: FormulaFunctionInfo): FormulaSuggestItem {
+  const params = fn.params.map((p) => p.name)
   return {
     name: fn.name,
-    params: fn.params,
+    params,
     description: fn.description,
-    signature: formatFunctionSignature(fn.name, fn.params)
+    signature: formatFunctionSignature(fn.name, params)
   }
 }
 

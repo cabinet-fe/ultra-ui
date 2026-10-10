@@ -1,6 +1,6 @@
-import type { CellRange } from '@veltra/sheet-core/core/address.js'
-import type { SetAxisStyleItem } from '@veltra/sheet-core/core/command/set-axis-style.js'
-import type { CellStylePatch } from '@veltra/sheet-core/core/style/types.js'
+import type { CellRange } from 'infinitable/sheet'
+import type { SetAxisStyleItem } from 'infinitable/sheet'
+import type { CellStylePatch } from 'infinitable/sheet'
 
 /** 样式写入目标：整行 / 整列默认样式，或逐格 */
 export type SelectionStyleTarget = 'row' | 'col' | 'cell'

@@ -1,6 +1,6 @@
 import type { ContextmenuItem } from '@veltra/desktop'
-import { createRange, type CellAddress, type CellRange } from '@veltra/sheet-core/core/address.js'
-import type { NumFmt } from '@veltra/sheet-core/core/style/types.js'
+import { createRange, type CellAddress, type CellRange } from 'infinitable/sheet'
+import type { NumFmt } from 'infinitable/sheet'
 import { defineComponent, h } from 'vue'
 
 import type { SheetContext } from '../../tools/context'
@@ -20,7 +20,7 @@ export const DECIMAL_PLACES_MAX = 10
 /** 行高/列宽数值项输入上限（下限复用门面 MIN_ROW_COL_SIZE，对齐引擎 resize 最小值） */
 export const AXIS_SIZE_MAX = 1000
 
-/** 数值项默认值回落：未设置自定义尺寸时展示引擎默认行高/列宽（对齐 sheet-core grid-theme） */
+/** 数值项默认值回落：未设置自定义尺寸时展示引擎默认行高/列宽（对齐引擎 grid-theme） */
 export const FALLBACK_ROW_HEIGHT = 28
 export const FALLBACK_COL_WIDTH = 80
 
@@ -247,7 +247,7 @@ export function buildColHeaderMenus(
 
 /**
  * 对当前选区应用 numFmt（经 applyStyle → 命令系统，天然可 undo/redo）。
- * 仅影响显示，单元格恒存原始值（见 sheet-core `core/format.ts`）。
+ * 仅影响显示，单元格恒存原始值（引擎 numFmt 显示约定）。
  */
 export function applyNumFmtToSelection(ctx: SheetContext, numFmt: NumFmt): void {
   for (const range of ctx.getSelection().ranges) ctx.applyStyle(range, { numFmt })

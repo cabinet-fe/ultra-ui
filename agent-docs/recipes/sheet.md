@@ -1,6 +1,6 @@
 ---
 title: Ultra UI 电子表格接入场景
-description: 端到端接入 USheet 电子表格：宿主给高度的基础接入、填报只读（setCellReadonly / setRangeReadonly + 隐藏工具栏公式栏）、registerTool 自定义工具，模型操作全部走 @veltra/sheet-core。
+description: 端到端接入 USheet 电子表格：宿主给高度的基础接入、填报只读（setCellReadonly / setRangeReadonly + 隐藏工具栏公式栏）、registerTool 自定义工具，模型操作全部走 infinitable/sheet。
 aliases: [电子表格, 在线表格, 填报, USheet, Sheet, spreadsheet]
 keywords:
   [
@@ -28,17 +28,17 @@ keywords:
 
 # Ultra UI 电子表格接入场景
 
-Ultra UI（`@veltra/*`）的电子表格方案：`@veltra/sheet` 的 `USheet` 负责 UI（工具栏、公式栏、网格、sheet 标签），数据模型全部在 `@veltra/sheet-core` 的 `Workbook` / `Sheet` 上。本方案覆盖基础接入、填报只读与自定义工具栏工具。
+Ultra UI（`@veltra/*`）的电子表格方案：`@veltra/sheet` 的 `USheet` 负责 UI（工具栏、公式栏、网格、sheet 标签），数据模型全部在 `infinitable/sheet` 的 `Workbook` / `Sheet` 上。本方案覆盖基础接入、填报只读与自定义工具栏工具。
 
 ## 场景
 
 - 何时用本方案：需要类 Excel 的在线表格（填报模板、报表录入、数据查看），或要在表格上做只读权限与自定义工具。
-- 何时不用：普通行列数据列表——用 `UTable`（见 `recipes/pages.md`）；工作簿模型、公式、导入导出的细节——查 `sheet-core/model.md`、`sheet-core/commands.md`、`sheet-core/io.md`。
+- 何时不用：普通行列数据列表——用 `UTable`（见 `recipes/pages.md`）；工作簿模型、公式、导入导出的细节——查 `infinite-table` 库文档（docs-search 检索 slug `infinite-table`）。
 
 ## 完整示例
 
 ```bash
-bun add @veltra/sheet @veltra/sheet-core
+bun add @veltra/sheet
 ```
 
 ```ts
@@ -58,12 +58,12 @@ createApp(App).mount('#app')
 <script setup lang="ts">
 import { USheet, registerTool, unregisterTool } from '@veltra/sheet'
 import type { SheetContext, SheetExposed } from '@veltra/sheet'
-import { Workbook, createRange, type CellAddress } from '@veltra/sheet-core'
-import type { ResolveCellStyleHook } from '@veltra/sheet-core/grid'
+import { Workbook, createRange, type CellAddress } from 'infinitable/sheet'
+import type { ResolveCellStyleHook } from 'infinitable/sheet'
 import '@veltra/sheet/components/sheet/style'
 import { onBeforeUnmount, useTemplateRef } from 'vue'
 
-// ---- 1. 建工作簿与模板（模型操作走 @veltra/sheet-core）----
+// ---- 1. 建工作簿与模板（模型操作走 infinitable/sheet）----
 const workbook = new Workbook()
 const sheet = workbook.activeSheet
 // 坐标 0-based：{ row: 0, col: 0 } 即 A1
@@ -130,10 +130,10 @@ function lockAll(): void {
 
 ## 要点说明
 
-- 基础接入四件事：装 `@veltra/sheet` + `@veltra/sheet-core`；入口 `loadTheme()`；样式 `import '@veltra/sheet/components/sheet/style'`（或 `VeltraUIResolver` 自动引入）；宿主给组件明确高度——grid 区是 `flex: 1`，根元素高度塌陷为 0 时表格不可见。
+- 基础接入四件事：装 `@veltra/sheet`（引擎 `infinitable` 随包安装）；入口 `loadTheme()`；样式 `import '@veltra/sheet/components/sheet/style'`（或 `VeltraUIResolver` 自动引入）；宿主给组件明确高度——grid 区是 `flex: 1`，根元素高度塌陷为 0 时表格不可见。
 - 不传 `workbook` 时组件内部自建单 sheet 空工作簿；多表、跨表公式、模板预置必须由宿主创建 `Workbook` 传入。`workbook.activeSheet` 即默认表（名为 `Sheet1`），`workbook.addSheet('名')` 加表。
-- 坐标一律 0-based `{ row, col }`，不是 `'A1'` 字符串；A1 互转用 `@veltra/sheet-core` 的 `parseAddress` / `formatAddress`。
-- 填报只读三件套（`Sheet` 模型方法，`from '@veltra/sheet-core'`）：`setCellReadonly(addr, readonly = true)` 单格、`setRangeReadonly(range, readonly = true)` 区域批量（单 undo 单元）、`isCellReadonly(addr)` 查询（合并格解析锚点）。拦截发生在 grid 层：双击、Enter、回写、填充柄都被拦。
+- 坐标一律 0-based `{ row, col }`，不是 `'A1'` 字符串；A1 互转用 `infinitable/sheet` 的 `parseAddress` / `formatAddress`。
+- 填报只读三件套（`Sheet` 模型方法，`from 'infinitable/sheet'`）：`setCellReadonly(addr, readonly = true)` 单格、`setRangeReadonly(range, readonly = true)` 区域批量（单 undo 单元）、`isCellReadonly(addr)` 查询（合并格解析锚点）。拦截发生在 grid 层：双击、Enter、回写、填充柄都被拦。
 - 隐藏写入口硬规则：填报页必须 `:show-toolbar="false"` 且 `:show-formula-bar="false"`——工具栏和公式栏不经 grid 守卫，留着就能绕过只读直接改合计格。
 - `resolveCellStyle` 用于填写格高亮：视口渲染时叠加样式补丁，不写模型、不进快照；hook 必须同步、按地址 O(1) 查找，禁止在回调里扫全表。
 - 模板初始化后调 `sheet.history.clear()`，让预置数据成为基线而不进 undo 历史。
@@ -144,7 +144,7 @@ function lockAll(): void {
 
 > [!WARNING]
 >
-> - 模型与命令从 `@veltra/sheet-core` 导入，`@veltra/sheet` 不 re-export：`Workbook` / `Sheet` / `setCellReadonly` / `setRangeReadonly` 一律 `from '@veltra/sheet-core'`；`ResolveCellStyleHook` 等 hook 类型从 `@veltra/sheet-core/grid` 深导入。
+> - 模型与命令从 `infinitable/sheet` 导入，`@veltra/sheet` 不 re-export：`Workbook` / `Sheet` / `setCellReadonly` / `setRangeReadonly` 一律 `from 'infinitable/sheet'`；`ResolveCellStyleHook` 等 hook 类型同入口。
 > - 本库坐标是 0-based `{ row, col }`，不是 `'A1'` 字符串。
 > - `readonly` prop 是整表只读预览（关编辑回写与填充柄），不是填报锁格；按格控制用 `setCellReadonly` / `setRangeReadonly`，且模型层不设防——直接调 `sheet.setCellValue` 仍能写入只读格。
 > - `registerTool` 的注册表是全局共享的，不是组件实例级；组件卸载时记得 `unregisterTool`。

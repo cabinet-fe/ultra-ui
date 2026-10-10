@@ -1,4 +1,4 @@
-import { TypedEventEmitter } from '@veltra/sheet-core/core/events.js'
+import { TypedEventEmitter } from 'infinitable/sheet'
 
 import type { SheetContext } from './context'
 

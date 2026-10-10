@@ -69,8 +69,8 @@
 
 <script lang="ts" setup>
 import { UInput } from '@veltra/desktop'
-import type { Sheet } from '@veltra/sheet-core/core/sheet.js'
 import { bem } from '@veltra/utils'
+import type { Sheet } from 'infinitable/sheet'
 
 import type { SheetContext } from '../../../tools/context'
 import { useFindReplace } from '../use-find-replace'

@@ -13,8 +13,6 @@ ultra-ui/
 │   ├── directives/           # @veltra/directives
 │   ├── desktop/              # @veltra/desktop 桌面组件主包
 │   │   └── src/components/   # 一目录一组件（index.ts + style.ts）
-│   ├── sheet-core/           # @veltra/sheet-core
-│   │   └── src/{core,grid}/  # 纯 TS 模型 vs 官方引擎桥接（infinitable/sheet）
 │   ├── sheet/                # @veltra/sheet Vue 电子表格编辑器
 │   │   └── src/{components,tools,types}/
 │   ├── ai/                   # @veltra/ai
@@ -42,8 +40,7 @@ ultra-ui/
 | compositions | `packages/compositions` | Vue 组合式函数（useModel / usePop / useConfig 等）                                         | `src/index.ts`（各 `use-*`）                                          |
 | directives   | `packages/directives`   | `vFocus` / `vClickOutside` / `vRipple`                                                     | `src/index.ts`                                                        |
 | desktop      | `packages/desktop`      | 桌面端 UI 主包；`install` 全局注册                                                         | `src/index.ts`、`src/install.ts`                                      |
-| sheet-core   | `packages/sheet-core`   | 表格模型/命令/公式/IO + SheetGrid（grid 层为官方 `infinitable/sheet` 的 re-export 桥，仅 Sheet 类型收口在本地） | `src/index.ts`、`src/grid/index.ts`                                   |
-| sheet        | `packages/sheet`        | USheet、工具系统                                                                           | `src/index.ts`                                                        |
+| sheet        | `packages/sheet`        | USheet、工具系统（模型/命令/公式/IO/SheetGrid 直取 npm 包 `infinitable` 的 `/sheet` 子路径） | `src/index.ts`                                                        |
 | ai           | `packages/ai`           | UAiChat / useChat / transport                                                              | `src/index.ts`                                                        |
 | ofd-core     | `packages/ofd-core`     | 零依赖 OFD（GB/T 33190）解析渲染内核，SVG 页面输出；private 不发版，打包进 desktop         | `src/index.ts`                                                        |
 | icons        | `packages/icons`        | SVG → Vue 图标                                                                             | `src/index.ts`、`src/normal.ts`、`src/colorful.ts`                    |
@@ -64,7 +61,6 @@ graph TD
   directives["directives"]
   icons["icons"]
   desktop["desktop"]
-  sheetCore["sheet-core"]
   sheet["sheet"]
   ai["ai"]
   ofdCore["ofd-core"]
@@ -86,13 +82,8 @@ graph TD
   desktop --> directives
   desktop --> icons
   desktop --> catkit
-  desktop -.-> sheetCore
   desktop --> ofdCore
   desktop --> infTable["infinitable"]
-  sheetCore --> hucre["hucre"]
-  sheetCore --> infTable
-  sheetCore --> catkit
-  sheet --> sheetCore
   sheet --> infTable
   sheet --> desktop
   sheet --> icons
@@ -116,7 +107,6 @@ graph TD
   playground --> mobile
   playground --> ai
   playground --> sheet
-  playground --> sheetCore
   playground --> infTable
   playground --> vitePkg
   agentDocs -.-> desktop
@@ -124,7 +114,7 @@ graph TD
   agentDocs -.-> sheet
 ```
 
-虚线：optional peer（desktop→sheet-core；vite→ai/sheet）或生成/文档依赖（skill、agent-docs）。
+虚线：optional peer（vite→ai/sheet）或生成/文档依赖（skill、agent-docs）。
 
 ## 关键路径
 

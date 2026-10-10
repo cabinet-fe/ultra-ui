@@ -18,14 +18,14 @@ const config = {
 
   test: {
     include: ['src/**/*.test.ts'],
-    // canvas mock 等测试环境初始化已随 grid 迁至 sheet-core，跨包引用其 setup
-    setupFiles: ['../sheet-core/src/grid/__test__/setup.ts'],
+    setupFiles: ['src/components/sheet/__test__/grid-setup.ts'],
     globals: true,
     environment: 'happy-dom',
     server: {
       deps: {
-        // 经 veltra-dev 拉入 sheet-core 源码后同样需要 inline infinitable，
-        // 原因见 sheet-core/vite.config.ts 同名配置的注释
+        // infinitable inline 进 vitest 模块图：externalize 时由 worker node 以
+        // --conditions development 解析其传递依赖 @cat-kit/core，会命中
+        // "development" → src/index.ts 导出条件，node_modules 下 TS 不可执行
         inline: ['infinitable']
       }
     }
@@ -58,7 +58,7 @@ const config = {
         'vue',
         '@veltra/desktop',
         '@veltra/icons',
-        '@veltra/sheet-core',
+        /^infinitable(\/|$)/,
         '@veltra/styles',
         '@veltra/utils'
       ]

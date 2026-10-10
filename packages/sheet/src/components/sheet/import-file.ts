@@ -1,12 +1,8 @@
 import { message, messageConfirm } from '@veltra/desktop'
-import {
-  importCsv,
-  importXlsx,
-  replaceWorkbookWithSnapshots
-} from '@veltra/sheet-core/core/io/import.js'
-import type { Sheet, SheetSnapshot } from '@veltra/sheet-core/core/sheet.js'
-import type { Workbook } from '@veltra/sheet-core/core/workbook.js'
 import { nextFrame } from '@veltra/utils'
+import { importCsv, importXlsx, replaceWorkbookWithSnapshots } from 'infinitable/sheet'
+import type { Sheet, SheetSnapshot } from 'infinitable/sheet'
+import type { Workbook } from 'infinitable/sheet'
 import type { Ref } from 'vue'
 
 import type { ImportWorkerResponse } from './popups/import.worker'

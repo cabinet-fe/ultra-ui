@@ -8,14 +8,14 @@
  * - { type: 'done', ok: true, sheets: [{ name, snapshot }], activeIndex }（快照为
  *   纯数据，可结构化克隆）；失败 { type: 'done', ok: false, error }。
  *
- * 解析与构建经 sheet-core importXlsx 完成（hucre 仅由 sheet-core 依赖）；
+ * 解析与构建经 infinitable/sheet importXlsx 完成（hucre 已内联进引擎统一包）；
  * 名字唯一化与活动表对齐在 worker 内完成，主线程直接把快照替换进目标
  * （无 undo 历史——替换语义由确认后的 replaceWorkbookWithSnapshots 负责）。
  *
  * 注意：必须用**运行时动态 import**——worker 顶层静态 import 在 vite dev 的
  * worker 上下文中会因模块图加载顺序导致 `Workbook is not defined`（实测）。
  */
-import type { SheetSnapshot } from '@veltra/sheet-core/core/sheet.js'
+import type { SheetSnapshot } from 'infinitable/sheet'
 
 export type ImportWorkerResponse =
   | { type: 'progress'; done: number; total: number }
@@ -31,7 +31,7 @@ self.onmessage = (e: MessageEvent<{ buffer: ArrayBuffer }>): void => {
   const { buffer } = e.data
   void (async () => {
     try {
-      const { importXlsx } = await import('@veltra/sheet-core/core/io/import.js')
+      const { importXlsx } = await import('infinitable/sheet')
       // 分片构建：按 10% 粒度回报进度（避免 196 条/秒的消息风暴与文字跳变过快；
       // 模型构建段约 1s，10 次更新肉眼可见数字推进）
       let lastPercent = -1

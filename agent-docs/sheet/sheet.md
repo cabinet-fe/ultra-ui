@@ -1,6 +1,6 @@
 ---
 title: USheet 电子表格组件
-description: USheet 电子表格组件：一个组件渲染工具栏、公式栏、网格与底部 sheet 标签栏，数据模型为 @veltra/sheet-core 工作簿；支持填报只读（setCellReadonly / setRangeReadonly）、动态单元格样式、自定义工具栏工具、列头定制（header）与类型化编辑器（editors 按格路由）。
+description: USheet 电子表格组件：一个组件渲染工具栏、公式栏、网格与底部 sheet 标签栏，数据模型为 infinitable/sheet 工作簿；支持填报只读（setCellReadonly / setRangeReadonly）、动态单元格样式、自定义工具栏工具、列头定制（header）与类型化编辑器（editors 按格路由）。
 aliases: [USheet, Sheet, 电子表格, spreadsheet, 表格编辑器]
 keywords:
   [
@@ -32,13 +32,13 @@ keywords:
 
 # USheet 电子表格组件
 
-`@veltra/sheet` 导出电子表格组件 `USheet` 与类型 `SheetProps` / `SheetEmits` / `SheetExposed`。`USheet` 负责 UI 与工具栏：工具栏（24 个内置工具）、公式栏（名称框 + fx 输入栏）、虚拟滚动网格、底部 sheet 标签栏与右键菜单。数据模型来自 peer 包 `@veltra/sheet-core` 的 `Workbook` / `Sheet`——本包不 re-export，`Workbook`、`setCellReadonly` 等模型与命令 API 一律 `from '@veltra/sheet-core'` 导入。
+`@veltra/sheet` 导出电子表格组件 `USheet` 与类型 `SheetProps` / `SheetEmits` / `SheetExposed`。`USheet` 负责 UI 与工具栏：工具栏（24 个内置工具）、公式栏（名称框 + fx 输入栏）、虚拟滚动网格、底部 sheet 标签栏与右键菜单。数据模型来自 npm 包 `infinitable`（`/sheet` 子路径，`@veltra/sheet` 的 dependency）的 `Workbook` / `Sheet`——本包不 re-export，`Workbook`、`setCellReadonly` 等模型与命令 API 一律 `from 'infinitable/sheet'` 导入。
 
 ## 快速上手
 
 前置条件（缺一不可）：
 
-1. 安装 peer 依赖 `@veltra/sheet-core`（数据模型）与 `@veltra/desktop`（右键菜单、弹层依赖）。
+1. 安装 `@veltra/sheet`（peer `@veltra/desktop` 提供右键菜单、弹层依赖；引擎 `infinitable` 随包自动安装）。
 2. 应用入口初始化主题：`import '@veltra/styles/normalize'` 后调用 `@veltra/styles/theme` 的 `loadTheme()`；不初始化则 `--u-*` token 为空、组件无颜色。
 3. 样式二选一：手动 `import '@veltra/sheet/components/sheet/style'`；或经 `unplugin-vue-components` 配 `VeltraUIResolver`（`@veltra/vite` 导出）自动引入样式。
 4. 宿主必须给组件明确高度：grid 区是 `flex: 1`，根元素高度塌陷为 0 时表格不可见。
@@ -46,7 +46,7 @@ keywords:
 ```vue
 <script setup lang="ts">
 import { USheet } from '@veltra/sheet'
-import { Workbook } from '@veltra/sheet-core'
+import { Workbook } from 'infinitable/sheet'
 import '@veltra/sheet/components/sheet/style'
 
 const workbook = new Workbook()
@@ -68,7 +68,7 @@ sheet.setCellValue({ row: 1, col: 1 }, 200)
 从 `@veltra/sheet` 导出的组件与类型（工具注册 API `registerTool` 等见 `agent-docs/sheet/sheet-tools.md`）：
 
 ```ts
-import type { Sheet, Workbook } from '@veltra/sheet-core'
+import type { Sheet, Workbook } from 'infinitable/sheet'
 import type {
   ResolveCellRenderer,
   ResolveCellStyleHook,
@@ -76,7 +76,7 @@ import type {
   SheetGrid,
   SheetGridEditorsOptions,
   SheetGridHeaderOptions
-} from '@veltra/sheet-core/grid'
+} from 'infinitable/sheet'
 import type { ComputedRef } from 'vue'
 
 export type DeconstructValue<E extends Record<string, any>> = {
@@ -164,8 +164,8 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 | `colResize`           | `boolean`                 | `false`                 |  否  | 列宽拖拽透传 SheetGrid：`readonly: true` 下置 `true` 仅放开列头 resize 手柄（编辑仍关闭），供只读预览宿主微调列宽；非 readonly 本就允许拖拽；变化触发网格重建          |
 | `resolveDisplayValue` | `ResolveDisplayValue`     | —                       |  否  | `(addr, base) => CellValue \| undefined`；必须同步                                                                                                                    |
 | `resolveCellStyle`    | `ResolveCellStyleHook`    | —                       |  否  | `(addr, baseStyle?) => CellStyle \| undefined`；必须同步、O(1) 查找                                                                                                   |
-| `resolveCellRenderer` | `ResolveCellRenderer`     | —                       |  否  | `(addr, base) => CellRenderer \| undefined`；返回 undefined 回落默认渲染（类型见 `@veltra/sheet-core/grid`）                                                          |
-| `header`              | `SheetGridHeaderOptions`  | —                       |  否  | 列头机制透传 SheetGrid：`resolveTitle` 按列覆盖标题、`resolveHeader` 按列自定义表头 DOM；机制签名与行为见 `agent-docs/sheet-core/sheet-grid.md`；引用更替触发网格重建 |
+| `resolveCellRenderer` | `ResolveCellRenderer`     | —                       |  否  | `(addr, base) => CellRenderer \| undefined`；返回 undefined 回落默认渲染（类型见 `infinitable/sheet`）                                                          |
+| `header`              | `SheetGridHeaderOptions`  | —                       |  否  | 列头机制透传 SheetGrid：`resolveTitle` 按列覆盖标题、`resolveHeader` 按列自定义表头 DOM；机制签名与行为见 `infinite-table` 库文档（docs-search）；引用更替触发网格重建 |
 | `editors`             | `SheetGridEditorsOptions` | —                       |  否  | 类型化编辑器机制透传 SheetGrid：`editors` 注册自定义编辑器、`route` 按格路由，未命中回落统一文本编辑器；`readonly` 时忽略；引用更替触发网格重建                       |
 
 ## 方法与事件
@@ -187,10 +187,10 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 | `getContext`     | `(): SheetContext`           | 工具上下文，成员清单见下                                                              |
 | `getGrid`        | `(): SheetGrid \| undefined` | 底层网格实例（调试/测试用），未挂载时 `undefined`；模型变更自动同步视图，无需手动刷新 |
 
-`getActiveSheet()` 返回的 `Sheet` 来自 `@veltra/sheet-core`。填报只读控制的三个模型方法签名（本包不 re-export）：
+`getActiveSheet()` 返回的 `Sheet` 来自 `infinitable/sheet`。填报只读控制的三个模型方法签名（本包不 re-export）：
 
 ```ts
-import type { CellAddress, CellRange } from '@veltra/sheet-core'
+import type { CellAddress, CellRange } from 'infinitable/sheet'
 // CellAddress = { row: number; col: number }
 // CellRange = { start: CellAddress; end: CellAddress }（闭区间，start 恒为左上角）
 
@@ -223,7 +223,7 @@ sheet.isCellReadonly(addr: CellAddress): boolean // 合并格解析锚点后判�
 <script setup lang="ts">
 import { USheet } from '@veltra/sheet'
 import type { SheetExposed } from '@veltra/sheet'
-import { Workbook, type Sheet } from '@veltra/sheet-core'
+import { Workbook, type Sheet } from 'infinitable/sheet'
 import '@veltra/sheet/components/sheet/style'
 import { useTemplateRef } from 'vue'
 
@@ -269,8 +269,8 @@ function onSheetChange(payload: { sheet: Sheet; index: number }): void {
 ```vue
 <script setup lang="ts">
 import { USheet } from '@veltra/sheet'
-import { Workbook, createRange, type CellAddress } from '@veltra/sheet-core'
-import type { ResolveCellStyleHook } from '@veltra/sheet-core/grid'
+import { Workbook, createRange, type CellAddress } from 'infinitable/sheet'
+import type { ResolveCellStyleHook } from 'infinitable/sheet'
 import '@veltra/sheet/components/sheet/style'
 
 const workbook = new Workbook()
@@ -313,7 +313,7 @@ const resolveCellStyle: ResolveCellStyleHook = (addr, base) =>
 <script setup lang="ts">
 import { USheet, registerTool, unregisterTool } from '@veltra/sheet'
 import type { SheetContext } from '@veltra/sheet'
-import { Workbook } from '@veltra/sheet-core'
+import { Workbook } from 'infinitable/sheet'
 import { onBeforeUnmount } from 'vue'
 import '@veltra/sheet/components/sheet/style'
 
@@ -350,11 +350,11 @@ workbook.activeSheet.setCellValue({ row: 0, col: 0 }, '选中格子后点工具�
 
 > [!WARNING]
 >
-> - 模型与命令从 `@veltra/sheet-core` 导入，本包不 re-export：`Workbook` / `Sheet` / `setCellReadonly` / `setRangeReadonly` / `exportWorkbookXlsx` 等一律 `from '@veltra/sheet-core'`；`ResolveCellStyleHook` 等 hook 类型从 `@veltra/sheet-core/grid` 深导入。
+> - 模型与命令从 `infinitable/sheet` 导入，本包不 re-export：`Workbook` / `Sheet` / `setCellReadonly` / `setRangeReadonly` / `exportWorkbookXlsx` 等一律 `from 'infinitable/sheet'`；`ResolveCellStyleHook` 等 hook 类型同入口。
 > - 宿主必须给 `.u-sheet` 明确高度（如 `style="height: 480px"`）；本库不是自动撑满父容器。
 > - 填报锁格必须同时 `:show-toolbar="false"` 与 `:show-formula-bar="false"`：公式栏可绕过只读标记写任意格。
 > - 组件 prop `readonly` 是整表只读预览，不是填报锁格；按格控制用 `setCellReadonly` / `setRangeReadonly`，且模型层不设防——直接调用 `sheet.setCellValue` 仍能写入只读格。
-> - 坐标一律 0-based `{ row, col }`，不是 `'A1'` 字符串；A1 互转用 sheet-core 的 `parseAddress` / `formatAddress`。
+> - 坐标一律 0-based `{ row, col }`，不是 `'A1'` 字符串；A1 互转用 `infinitable/sheet` 的 `parseAddress` / `formatAddress`。
 > - `header` / `editors` 按引用更替判定变化（变化即重建网格）：用 `computed` 持稳定引用，勿在模板内联对象字面量——每次渲染产生新引用会逐渲染重建网格。
 > - `registerTool` 的注册表是全局共享的（`defaultToolRegistry`），不是组件实例级的。
 

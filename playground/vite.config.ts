@@ -15,7 +15,6 @@ import { REPORT_SERVER_PORT } from './server/port'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(__dirname, '..')
-const hucreRoot = resolve(repoRoot, 'packages/sheet-core/node_modules/hucre')
 const nodePkgImporter = new NodePackageImporter(repoRoot)
 
 const config = {
@@ -30,14 +29,7 @@ const config = {
 
   css: { preprocessorOptions: { scss: { importers: [nodePkgImporter] } } },
 
-  resolve: {
-    extensions: ['.ts', '.js', '.json', '.tsx'],
-    conditions: ['dev', 'veltra-dev'],
-    alias: {
-      'hucre/xlsx': resolve(hucreRoot, 'dist/xlsx.mjs'),
-      'hucre/csv': resolve(hucreRoot, 'dist/csv.mjs')
-    }
-  },
+  resolve: { extensions: ['.ts', '.js', '.json', '.tsx'], conditions: ['dev', 'veltra-dev'] },
 
   // Components 返回 Plugin & { api: PublicPluginAPI }，与 vue()/vueJsx() 的 Plugin 在数组联合推断时递归超栈深，收窄断言规避
   plugins: [vue(), vueJsx(), Components({ resolvers: [VeltraUIResolver()], dts: true }) as Plugin],

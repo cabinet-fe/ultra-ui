@@ -1,7 +1,7 @@
 <template>
   <div :class="cls.e('sheet')">
     <div v-if="unavailable" :class="cls.e('empty')">
-      <u-empty text="无法预览表格：未安装 @veltra/sheet-core" :size="32" />
+      <u-empty text="无法预览表格：未安装 infinitable" :size="32" />
     </div>
     <template v-else>
       <div v-if="truncated" :class="cls.e('sheet-note')">
@@ -34,9 +34,8 @@ import { getExtension, toArrayBuffer } from '../helper'
 
 defineOptions({ name: 'UFileViewerSheetPreviewer' })
 
-/** 仅类型查询；运行时通过动态 import 加载，未安装时不炸主入口 */
-type SheetCoreModule = typeof import('@veltra/sheet-core') &
-  typeof import('@veltra/sheet-core/grid')
+/** 仅类型查询；运行时通过动态 import 加载（保持 sheet 层按需分包，不打进主产物） */
+type SheetCoreModule = typeof import('infinitable/sheet')
 type Sheet = InstanceType<SheetCoreModule['Sheet']>
 type SheetGrid = InstanceType<SheetCoreModule['SheetGrid']>
 
@@ -64,15 +63,11 @@ function releaseGrid() {
   grid = undefined
 }
 
-/** 动态加载 sheet-core；未安装 optional peer 时返回 undefined */
+/** 动态加载电子表格层（infinitable/sheet）；加载失败（缺依赖）时返回 undefined */
 async function resolveSheetCore(): Promise<SheetCoreModule | undefined> {
   if (sheetCore) return sheetCore
   try {
-    const [core, grid] = await Promise.all([
-      import('@veltra/sheet-core'),
-      import('@veltra/sheet-core/grid')
-    ])
-    sheetCore = { ...core, ...grid }
+    sheetCore = await import('infinitable/sheet')
     return sheetCore
   } catch {
     return undefined
@@ -127,7 +122,7 @@ async function load() {
     if (token !== loadToken) return
     if (!core) {
       unavailable.value = true
-      emit('error', new Error('未安装 @veltra/sheet-core，无法预览 Excel/CSV'))
+      emit('error', new Error('未安装 infinitable，无法预览 Excel/CSV'))
       return
     }
     unavailable.value = false

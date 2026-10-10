@@ -1,5 +1,5 @@
-import type { Sheet } from '@veltra/sheet-core/core/sheet.js'
-import { Workbook } from '@veltra/sheet-core/core/workbook.js'
+import type { Sheet } from 'infinitable/sheet'
+import { Workbook } from 'infinitable/sheet'
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 import { ref } from 'vue'
 
@@ -36,11 +36,15 @@ const EMPTY_SNAPSHOT = {
 
 vi.mock('@veltra/desktop', () => ({ message: mocks.message, messageConfirm: mocks.messageConfirm }))
 
-vi.mock('@veltra/sheet-core/core/io/import.js', () => ({
-  importCsv: mocks.importCsv,
-  importXlsx: mocks.importXlsx,
-  replaceWorkbookWithSnapshots: mocks.replaceWorkbookWithSnapshots
-}))
+vi.mock('infinitable/sheet', async (importActual) => {
+  const actual = await importActual<typeof import('infinitable/sheet')>()
+  return {
+    ...actual,
+    importCsv: mocks.importCsv,
+    importXlsx: mocks.importXlsx,
+    replaceWorkbookWithSnapshots: mocks.replaceWorkbookWithSnapshots
+  }
+})
 
 function makeOptions(
   overrides: {

@@ -95,16 +95,16 @@
 
 <script lang="ts" setup>
 import { message, UDropdown } from '@veltra/desktop'
+import { bem } from '@veltra/utils'
 import {
   formatAddress,
   formatRange,
   parseRange,
   type CellAddress,
   type CellRange
-} from '@veltra/sheet-core/core/address.js'
-import type { SelectionState } from '@veltra/sheet-core/core/selection.js'
-import type { Sheet } from '@veltra/sheet-core/core/sheet.js'
-import { bem } from '@veltra/utils'
+} from 'infinitable/sheet'
+import type { SelectionState } from 'infinitable/sheet'
+import type { Sheet } from 'infinitable/sheet'
 import {
   computed,
   nextTick,

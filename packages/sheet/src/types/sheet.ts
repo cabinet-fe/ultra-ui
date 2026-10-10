@@ -1,5 +1,6 @@
-import type { Sheet } from '@veltra/sheet-core/core/sheet.js'
-import type { Workbook } from '@veltra/sheet-core/core/workbook.js'
+import type { DeconstructValue } from '@veltra/utils'
+import type { Sheet } from 'infinitable/sheet'
+import type { Workbook } from 'infinitable/sheet'
 import type {
   ResolveCellRenderer,
   ResolveCellStyleHook,
@@ -7,8 +8,7 @@ import type {
   SheetGrid,
   SheetGridEditorsOptions,
   SheetGridHeaderOptions
-} from '@veltra/sheet-core/grid'
-import type { DeconstructValue } from '@veltra/utils'
+} from 'infinitable/sheet'
 import type { ComputedRef } from 'vue'
 
 import type { SheetContext } from '../tools/context'
@@ -31,7 +31,7 @@ export interface SheetProps {
   resolveCellStyle?: ResolveCellStyleHook
   /**
    * 动态单元格渲染（ADR-0004）：视口布局时按格自定义渲染形态（返回引擎
-   * `CellRenderer`，见 `@veltra/sheet-core/grid`），返回 undefined 回落默认渲染；
+   * `CellRenderer`，见 `infinitable/sheet`），返回 undefined 回落默认渲染；
    * 不写模型、不进快照
    */
   resolveCellRenderer?: ResolveCellRenderer

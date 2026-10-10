@@ -15,7 +15,6 @@ export default defineConfig({
       'packages/styles',
       'packages/utils',
       'packages/compositions',
-      'packages/sheet-core',
       'packages/sheet',
       'packages/ofd-core',
       'playground'

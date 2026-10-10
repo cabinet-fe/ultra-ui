@@ -54,8 +54,8 @@ import {
   type CellAddress,
   type CellValue,
   type Sheet
-} from '@veltra/sheet-core'
-import type { ResolveCellStyleHook } from '@veltra/sheet-core/grid'
+} from 'infinitable/sheet'
+import type { ResolveCellStyleHook } from 'infinitable/sheet'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 
 /**

@@ -28,9 +28,7 @@
             @click="emit('select', fn.name)"
             @mouseenter="activeIndex = index"
           >
-            <span :class="cls.e('functions-signature')">{{
-              formatFunctionSignature(fn.name, fn.params)
-            }}</span>
+            <span :class="cls.e('functions-signature')">{{ fn.signature }}</span>
             <span v-if="fn.description" :class="cls.e('functions-description')">{{
               fn.description
             }}</span>
@@ -44,16 +42,12 @@
 
 <script lang="ts" setup>
 import { UInput, UScroll } from '@veltra/desktop'
-import {
-  listFormulaFunctions,
-  type FormulaFunctionMeta
-} from '@veltra/sheet-core/core/formula/functions.js'
 import { bem } from '@veltra/utils'
+import { listFormulaFunctions, type FormulaFunctionInfo } from 'infinitable'
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
 
 import {
   COMMON_FORMULA_NAMES,
-  formatFunctionSignature,
   FUNCTION_POPUP_CATEGORIES,
   moveSuggestIndex,
   type FunctionPopupCategory
@@ -68,7 +62,7 @@ defineOptions({ name: 'USheetFunctionsPopup' })
  * 弹框随 v-if 挂载 / 销毁，每次打开都是全新状态（关键词清空、回到「常用」）。
  */
 
-type FunctionItem = { name: string } & FormulaFunctionMeta
+type FunctionItem = FormulaFunctionInfo
 
 const emit = defineEmits<{ select: [name: string] }>()
 

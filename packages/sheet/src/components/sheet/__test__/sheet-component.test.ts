@@ -1,14 +1,14 @@
-import { createRange } from '@veltra/sheet-core/core/address.js'
-import { Workbook } from '@veltra/sheet-core/core/workbook.js'
+import { createRange } from 'infinitable/sheet'
+import { Workbook } from 'infinitable/sheet'
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 import { createApp, h, nextTick, ref, type App, type Component } from 'vue'
 
-// 引擎指针事件模拟与画布几何（cellX/cellY）：setup 已跨包引用同目录 setup.ts
-import { cellX, cellY, fire } from '../../../../../sheet-core/src/grid/__test__/grid-test-utils'
 import { USheet } from '../../../index'
 import { registerTool, unregisterTool } from '../../../tools/registry'
 import type { SheetExposed } from '../../../types'
 import { buildColHeaderMenus, buildRowHeaderMenus } from '../sheet-context-menu'
+// 引擎指针事件模拟与画布几何（cellX/cellY）：setup 已跨包引用同目录 setup.ts
+import { cellX, cellY, fire } from './grid-test-utils'
 
 const apps: App[] = []
 const containers: HTMLElement[] = []

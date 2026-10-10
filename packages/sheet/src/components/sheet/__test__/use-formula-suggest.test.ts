@@ -1,4 +1,4 @@
-import { registerFormulaFunction } from '@veltra/sheet-core/core/formula/functions.js'
+import { registerFormulaFunction } from 'infinitable'
 import { describe, expect, it } from 'vite-plus/test'
 
 import {

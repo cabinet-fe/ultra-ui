@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 /**
- * XLSX 导出 Worker：sheet-core exportWorkbookXlsx（模型序列化 + ZIP 压缩，
+ * XLSX 导出 Worker：infinitable/sheet exportWorkbookXlsx（模型序列化 + ZIP 压缩，
  * 大工作簿为秒级同步重活）移到独立线程，主线程保持空闲。
  *
  * 协议：主线程 postMessage({ sheets: [{ name, snapshot }], activeIndex }）
@@ -12,7 +12,7 @@
  * 静态 import 在 vite dev 的 worker 上下文中会因模块图加载顺序导致
  * `Workbook is not defined`（实测）。
  */
-import type { SheetSnapshot } from '@veltra/sheet-core/core/sheet.js'
+import type { SheetSnapshot } from 'infinitable/sheet'
 
 export interface ExportWorkerPayload {
   sheets: { name: string; snapshot: SheetSnapshot }[]
@@ -26,17 +26,14 @@ export interface ExportWorkerResponse {
 }
 
 self.onmessage = (e: MessageEvent<ExportWorkerPayload>): void => {
-  void Promise.all([
-    import('@veltra/sheet-core/core/io/export.js'),
-    import('@veltra/sheet-core/core/workbook.js')
-  ])
+  void Promise.all([import('infinitable/sheet'), import('infinitable/sheet')])
     .then(([{ exportWorkbookXlsx }, { Workbook }]) => {
       const wb = new Workbook()
       const sheets = e.data.sheets
       for (let i = 0; i < sheets.length; i++) {
         const { name, snapshot } = sheets[i]!
         // 首个 sheet 复用 Workbook 自带的默认表：先改名对齐（空名/重名保持原名，
-        // 导出侧 sheet-core 的 writeXlsx 会校验表名合法性）
+        // 导出侧引擎的 writeXlsx 会校验表名合法性）
         const sheet = i === 0 ? wb.activeSheet : wb.addSheet(name)
         if (i === 0 && sheet.name !== name) wb.renameSheet(sheet.name, name)
         sheet.restore(snapshot)

@@ -1,4 +1,4 @@
-import { Sheet } from '@veltra/sheet-core/core/sheet.js'
+import { Sheet } from 'infinitable/sheet'
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 import { createApp, h, type App } from 'vue'
 

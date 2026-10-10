@@ -20,7 +20,8 @@ keywords:
     activeId,
     FileViewerItem,
     FileViewerKind,
-    sheet-core,
+    infinitable,
+    xlsx 预览引擎,
     ofd,
     OFD 预览,
     版式文档,
@@ -173,7 +174,7 @@ export interface FileViewerExposed {
 | `update:modelValue` | `id: string`                               | 激活文件变化（点侧栏、调 `activate`/`next`/`prev`、内部自动激活）                                                             |
 | `update:open`       | `value: boolean`                           | 模态模式下点背景、按 ESC、点关闭按钮时变为 `false`                                                                            |
 | `change`            | `file: FileViewerItem`                     | 激活文件切换且 id 与之前不同                                                                                                  |
-| `error`             | `{ file: FileViewerItem; error: unknown }` | URL fetch 失败（`Fetch failed: <status> <statusText>`）、PDF 文档加载失败（含 worker 构造失败与首页读取失败，预览区显示「PDF 加载失败」）、sheet-core 缺失、文本/表格解析失败、OFD 解析或单页渲染失败、下载失败 |
+| `error`             | `{ file: FileViewerItem; error: unknown }` | URL fetch 失败（`Fetch failed: <status> <statusText>`）、PDF 文档加载失败（含 worker 构造失败与首页读取失败，预览区显示「PDF 加载失败」）、表格引擎模块（`infinitable/sheet`）动态加载失败、文本/表格解析失败、OFD 解析或单页渲染失败、下载失败 |
 
 ### 暴露成员（模板 ref，已解构）
 
@@ -288,7 +289,7 @@ const files: FileViewerItem[] = [
 
 > [!WARNING]
 >
-> - Excel/CSV 预览依赖可选 peer `@veltra/sheet-core`：已安装时以只读 `SheetGrid` 渲染（xlsx 多 sheet 显示页签，csv 单表、表名取文件名）；未安装时该类文件显示「无法预览表格：未安装 @veltra/sheet-core」空态，并向 `error` 事件抛出 `Error('未安装 @veltra/sheet-core，无法预览 Excel/CSV')`，其余格式不受影响。安装：`pnpm add @veltra/sheet-core`。
+> - Excel/CSV 预览经动态 `import('infinitable/sheet')` 加载（`infinitable` 是 `@veltra/desktop` 的 dependency，随包自动安装，无需单独装）：以只读 `SheetGrid` 渲染（xlsx 多 sheet 显示页签，csv 单表、表名取文件名），并保持 sheet 层按需分包；动态加载失败时该类文件显示「无法预览表格：未安装 infinitable」空态，并向 `error` 事件抛 `Error('未安装 infinitable，无法预览 Excel/CSV')`，其余格式不受影响。
 > - OFD 预览内核 `@veltra/ofd-core` 已随包内置打包，无需安装；页面按元数据毫米尺寸以 96dpi 换算渲染 SVG，未声明尺寸的页按 A4（210×297mm）兜底；滚动到可视区上下各一屏内才渲染该页；单页渲染失败时该页空白且不再重试，错误经 `error` 事件抛出。
 > - `sheetMaxRows` 只驱动「超出预览上限」提示条，不裁剪也不截断数据；超大表格仍会全量加载，控制加载成本应在源头限制文件。
 > - PDF 预览由内置依赖 `pdfjs-dist` 渲染，Word 由 `docx-preview` 渲染，均为必装依赖，无需额外安装。pdfjs 的 `cmaps/`、`standard_fonts/`、`wasm/` 资源目录随 `@veltra/desktop` 的 dist 一起发布在 `dist/components/file-viewer/previewers/` 下；需要中文 CMap 或 JPEG2000 支持时，把该目录部署到同源静态服务并给 `pdfResourceUrl` 传其 URL。
@@ -300,13 +301,9 @@ const files: FileViewerItem[] = [
 
 ## 常见问题
 
-### 表格文件显示「无法预览表格：未安装 @veltra/sheet-core」
+### 表格文件显示「无法预览表格：未安装 infinitable」
 
-原因：宿主工程未安装可选 peer `@veltra/sheet-core`。修复：
-
-```bash
-pnpm add @veltra/sheet-core
-```
+原因：动态 `import('infinitable/sheet')` 失败——通常是宿主 bundler 把该外部依赖排除后未随产物部署，或 CDN/离线环境不可达。修复：确认 `infinitable`（`@veltra/desktop` 的 dependency）已安装且未被 bundler 错误外置丢弃，产物同源可访问后重试。
 
 ### OFD 文件预览触发 `error` 事件
 

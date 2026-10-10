@@ -26,7 +26,6 @@ keywords:
     '@veltra/mobile',
     '@veltra/ai',
     '@veltra/sheet',
-    '@veltra/sheet-core',
     '@veltra/compositions',
     '@veltra/utils',
     '@veltra/directives',
@@ -53,7 +52,7 @@ keywords:
 
 # Ultra UI 总览
 
-Ultra UI（npm 作用域 `@veltra/*`）是面向 Vue 3 的组件与能力库：组件从 `@veltra/desktop` 导入，移动端组件从 `@veltra/mobile` 导入（与桌面端组件名、属性、事件完全对齐，类名前缀 `um-`，双端同用不冲突），AI 对话用 `@veltra/ai`，电子表格用 `@veltra/sheet`（模型层 `@veltra/sheet-core`），icons / compositions / utils / directives / styles 分包提供，`@veltra/vite` 提供按需导入解析器。硬规则：入口必须 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色；组件样式是独立入口，走 resolver 的模板组件自动带样式，显式 import 的组件（`h()` / render / TSX 里用的）必须自己补 `import '@veltra/desktop/components/<目录>/style'`。运行时要求 Vue `>=3.5.43`；当前组件包版本 `@veltra/desktop@1.8.5`。
+Ultra UI（npm 作用域 `@veltra/*`）是面向 Vue 3 的组件与能力库：组件从 `@veltra/desktop` 导入，移动端组件从 `@veltra/mobile` 导入（与桌面端组件名、属性、事件完全对齐，类名前缀 `um-`，双端同用不冲突），AI 对话用 `@veltra/ai`，电子表格用 `@veltra/sheet`（模型层 `Workbook` / `Sheet` 与引擎 `SheetGrid` 来自 npm 包 `infinitable` 的 `/sheet` 子路径，随包自动安装），icons / compositions / utils / directives / styles 分包提供，`@veltra/vite` 提供按需导入解析器。硬规则：入口必须 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色；组件样式是独立入口，走 resolver 的模板组件自动带样式，显式 import 的组件（`h()` / render / TSX 里用的）必须自己补 `import '@veltra/desktop/components/<目录>/style'`。运行时要求 Vue `>=3.5.43`；当前组件包版本 `@veltra/desktop@1.8.5`。
 
 写界面结构前先用下方「模块速查」确认有没有对应组件：常见容器与排版一律用现成组件——页面区块、面板、统计卡片用 `UCard`（`desktop/card.md`），栅格与分栏用 `UGrid` / `ULayout`，文本排版用 `UText`，空态用 `UEmpty`，加载遮罩用 `vLoading`，消息与确认用 `message` / `messageConfirm`。禁止用裸 `div` 加 `--u-*` 手写这些组件的等价外观（底色 + 边框 + 圆角 + 内边距的卡面、字号字重的标题体系），手写版本不跟随主题切换且在各页面重复。
 
@@ -61,7 +60,7 @@ Ultra UI（npm 作用域 `@veltra/*`）是面向 Vue 3 的组件与能力库：�
 
 ```bash
 bun add @veltra/desktop @veltra/styles @veltra/utils @veltra/compositions @veltra/directives @veltra/icons @cat-kit/core @cat-kit/fe
-# 按需加：bun add @veltra/ai ｜ bun add @veltra/sheet @veltra/sheet-core ｜ 移动端：bun add @veltra/mobile
+# 按需加：bun add @veltra/ai ｜ bun add @veltra/sheet ｜ 移动端：bun add @veltra/mobile
 # 按需自动导入：bun add -D @veltra/vite unplugin-vue-components
 # 写 <script lang="tsx"> 或 .tsx：bun add -D @vitejs/plugin-vue-jsx
 ```
@@ -303,15 +302,7 @@ createApp(App).mount('#app')
 | USheet                   | 电子表格组件：工具栏 / 公式栏 / 网格 / sheet 标签，填报只读与动态样式 | `sheet/sheet.md`       |
 | SheetTool / SheetContext | 工具栏扩展：registerTool / unregisterTool 自定义工具与操作门面        | `sheet/sheet-tools.md` |
 
-### sheet-core 表格模型（@veltra/sheet-core）
-
-| 模块      | 用途                                            | 文档路径                   |
-| --------- | ----------------------------------------------- | -------------------------- |
-| model     | 底层数据模型：Workbook / Sheet 与单元格存储操作 | `sheet-core/model.md`      |
-| commands  | 命令系统：操作派发与 Undo / Redo 历史撤销重做   | `sheet-core/commands.md`   |
-| formula   | 公式引擎：解析求值与函数扩展                    | `sheet-core/formula.md`    |
-| io        | 文件导入导出：XLSX / CSV                        | `sheet-core/io.md`         |
-| SheetGrid | 渲染网格：引擎适配层（infinitable）             | `sheet-core/sheet-grid.md` |
+> 表格模型 / 命令 / 公式 / IO / SheetGrid 引擎在 npm 包 `infinitable`（`/sheet` 子路径），不在本仓库文档范围；细节用 docs-search 检索 `infinite-table` 库。
 
 ### styles 样式与主题（@veltra/styles）
 

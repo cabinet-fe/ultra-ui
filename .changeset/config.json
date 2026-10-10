@@ -9,10 +9,6 @@
       "@veltra/compositions",
       "@veltra/directives",
       "@veltra/desktop"
-    ],
-    [
-      "@veltra/sheet",
-      "@veltra/sheet-core"
     ]
   ],
   "linked": [],

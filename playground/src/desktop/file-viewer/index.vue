@@ -59,7 +59,7 @@ const sampleTxt =
       '  - 图片 (<img>)',
       '  - 视频 (<video>)',
       '  - PDF  (pdfjs-dist)',
-      '  - 表格 (@veltra/sheet-core 只读预览)',
+      '  - 表格 (infinitable/sheet 只读预览)',
       '  - Word (docx-preview)',
       '  - OFD  (@veltra/ofd-core 自研内核)',
       '  - 纯文本',

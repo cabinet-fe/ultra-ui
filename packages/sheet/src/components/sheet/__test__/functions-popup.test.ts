@@ -1,7 +1,4 @@
-import {
-  listFormulaFunctions,
-  registerFormulaFunction
-} from '@veltra/sheet-core/core/formula/functions.js'
+import { listFormulaFunctions, registerFormulaFunction } from 'infinitable'
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 import { createApp, h, nextTick, type App } from 'vue'
 
@@ -97,7 +94,7 @@ describe('USheetFunctionsPopup', () => {
 
   it('「全部」列出全部已注册函数；分类项只列声明该分类的函数', async () => {
     registerFormulaFunction('MYTESTFN', {
-      meta: { params: ['value'], description: '测试未分类自定义函数' },
+      meta: { params: [{ name: 'value' }], description: '测试未分类自定义函数' },
       impl: () => 1
     })
     const { el } = mountPopup()
@@ -110,8 +107,11 @@ describe('USheetFunctionsPopup', () => {
     await clickCategory(el, '数学')
     const expected = listFormulaFunctions().filter((fn) => fn.category === '数学')
     expect(items(el).length).toBe(expected.length)
-    expect(signatures(el)).toContain('SUM(number1, number2, ...)')
     expect(signatures(el)).not.toContain('MYTESTFN(value)')
+
+    // SUM 在官方注册表归「常用」分类
+    await clickCategory(el, '常用')
+    expect(signatures(el)).toContain('SUM(number1, [number2], ...)')
 
     // 「常用」也不含未分类自定义函数
     await clickCategory(el, '常用')
@@ -120,7 +120,7 @@ describe('USheetFunctionsPopup', () => {
 
   it('搜索跨分类（含未分类函数）：名称 / 描述大小写不敏感；无匹配显空态', async () => {
     registerFormulaFunction('MYTESTFN', {
-      meta: { params: ['value'], description: '测试未分类自定义函数' },
+      meta: { params: [{ name: 'value' }], description: '测试未分类自定义函数' },
       impl: () => 1
     })
     const { el } = mountPopup()

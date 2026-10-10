@@ -1,6 +1,6 @@
 # AGENTS.md — @veltra/sheet
 
-基于 `@veltra/sheet-core` 的 Vue 电子表格编辑器（USheet）。数据模型 / 渲染内核（原 `src/core`、`src/grid`）已迁至 `@veltra/sheet-core`（见 `packages/sheet-core/AGENTS.md`），本包只做工具系统与 Vue UI 编排。core 符号**不做 re-export**（sheet-core 独立发包，消费方直导，见「引用 sheet-core」）。
+Vue 电子表格编辑器（USheet）。数据模型 / 命令 / 公式 / IO / 渲染内核全部来自 npm 包 `infinitable`（`/sheet` 子路径），本包只做工具系统与 Vue UI 编排，不 re-export 引擎符号（消费方直导 `infinitable/sheet`）。
 
 ## 目录结构
 
@@ -13,7 +13,7 @@ src/
 └── types/                # SheetProps / SheetEmits / SheetExposed
 ```
 
-模型、命令、公式、IO、SheetGrid 等 core/grid 内容全部在 `packages/sheet-core/src/`（`core/`、`grid/`），其分层约定、核心语义、引擎适配要点、性能要点与已知限制见 `packages/sheet-core/AGENTS.md`，本文件不再重复。
+模型、命令、公式、IO、SheetGrid 等 core/grid 内容全部在 npm 包 `infinitable`（其分层约定、核心语义、引擎适配要点与已知限制见上游 `infinite-table` 仓库文档，可经 docs-search 检索 slug `infinite-table`），本文件不再重复。
 
 ## 分层约定
 
@@ -28,11 +28,11 @@ src/
 - 内置工具副作用注册必须挂在包入口（`src/index.ts`）；放组件层会被 pack treeshake 丢掉。
 - `components/<name>/` 是 `@veltra/vite` 眼中的组件目录（`index.ts` + `style.ts`）：其 `index.ts` 增删 `U*` 导出后，在仓库根运行 `bun run resolver:gen` 刷新组件表。
 
-## 引用 sheet-core
+## 引用 infinitable
 
-- 模型 / 命令 / 公式 / IO 走主入口（`from '@veltra/sheet-core'`）。`SheetGrid` / `resolveCellRenderer` 及 hooks 类型走 `@veltra/sheet-core/grid`。本包主入口**不 re-export** sheet-core 符号——sheet-core 独立发包，消费方（含 playground）直导；不要为图省事把 core 符号挂回 `@veltra/sheet`。
-- 白名单外符号（io 转换函数、内部类型等）深导入 `@veltra/sheet-core/core/*` 必须带 `.js` 后缀（如 `@veltra/sheet-core/core/io/import.js`）：exports 的 `./*` 把请求原样映射到 `./dist/*`，不做扩展名补全，漏写后缀 tsc 报 TS2307。已在主入口导出的符号（`Sheet` / `Workbook` / `CellRange` 等）直接走主入口，不必深导入。
-- 类成员方法（`Sheet.setCell` / `setCellStyles` / `CellStore.setCellValue` 等）为内部便捷写入口，非公开承诺 API——见 `packages/sheet-core/AGENTS.md`「核心语义」注。
+- 模型 / 命令 / 公式 / IO / `SheetGrid` / hooks 类型统一走 `from 'infinitable/sheet'`；公式注册表 API（`registerFormulaFunction` / `listFormulaFunctions` / `formulaError` 等）走主入口 `from 'infinitable'`。本包主入口不 re-export 引擎符号——消费方直导。
+- `infinitable` 无深路径导出（exports 仅 `.` 与 `./sheet`），不要试图深导入；官方未导出的符号属于内部实现。
+- 类成员方法（`Sheet.setCell` / `setCellStyles` 等）为引擎内部便捷写入口，非公开承诺 API；写操作一律走命令系统。
 
 ## USheet
 
@@ -43,46 +43,47 @@ src/
 - 工具栏组序：`history | cell | text | edit | insert | file`；行列插入/删除、冻结在**右键菜单**（非工具栏）；edit 组含查找与「函数」弹框（与公式栏 fx 按钮同一组件 `functions-popup.vue`：分类导航 + 搜索 + 可选择，含宿主经 `registerFormulaFunction` 注册的自定义函数；选中仅 emit select → 公式栏 `insertFunction(name)` 进入编辑态输出 `=NAME()`，模型写入待 fx 提交，不参与事务）
 - **右键菜单分区**：body 为合并/取消合并、设置数据格式（子菜单：日期 / 千分位金额 / 大写金额 / 小数位数，经 `applyNumFmtToSelection` → `applyStyle` 写 `numFmt`，可 undo）、插入图片；**插入/删除行列仅在行号/列头**（行号：上下插入行/删除行 + 行高 + 冻结；列头：左右插入列/删除列 + 列宽 + 冻结；行高/列宽数值项经门面批量应用到选区，不进 undo，readonly 禁用）
 - SheetGrid 按 sheet **LRU 缓存**（容量 3）：命中只翻可见性；`structure-change` / 尺寸变化 / 导入替换则重建
-- **单元格级只读**（填报场景）：经 sheet 模型 API `setCellReadonly` / `setRangeReadonly` / `isCellReadonly` 标记（见 `packages/sheet-core/AGENTS.md`「单元格级只读」），SheetGrid 自动拦截只读格编辑；工具栏 / 公式栏不经 grid 守卫，填报宿主应全部隐藏（playground `sheet-data-entry` 演示页为参考实现）
+- **单元格级只读**（填报场景）：经 sheet 模型 API `setCellReadonly` / `setRangeReadonly` / `isCellReadonly` 标记，SheetGrid 自动拦截只读格编辑；工具栏 / 公式栏不经 grid 守卫，填报宿主应全部隐藏（playground `sheet-data-entry` 演示页为参考实现）
 - 弹层打开用 `setTimeout(0)`，不要用 `queueMicrotask`（否则同一次 click 冒泡会立刻关掉面板）。
 
 ## 浮动图片门面与 UI 入口
 
 - **SheetContext 门面**：`insertImage(input)` / `removeImage(id)` / `updateImage(id, patch)` / `getImages()` / `onImageChange(handler)`（读写走命令/事件，不暴露 Sheet）。
 - **UI 入口**：工具栏 `insert-image`（组 `insert`，弹层 `UFilePicker` 本地文件 + URL 输入并存）；右键「插入图片」直接拉起系统文件框；共享逻辑 `components/sheet/insert-image.ts`（`insertImageFromFile` / `insertImageFromUrl`）。
-- 叠层渲染与拖动交互在 sheet-core `grid/grid-float-images.ts`，见其 AGENTS.md。
+- 叠层渲染与拖动交互为官方 `infinitable/sheet` 浮动层内置能力。
 
 ## 导入导出
 
 - UI：工具栏 `import` 点击直接系统文件选择（`components/sheet/import-file.ts`）；`export` 仍为弹层选
   xlsx / csv。解析进度遮罩由 sheet.vue 持有的 `parsing` / `parseProgress` 驱动
-- 大 xlsx 在 Web Worker 解析（`components/sheet/popups/import.worker.ts`：动态 import 深导入
-  `@veltra/sheet-core/core/io/import` 的 `importXlsx(buffer, onProgress)` 完成解析 + 分片构建）：
+- 大 xlsx 在 Web Worker 解析（`components/sheet/popups/import.worker.ts`：动态 import
+  `infinitable/sheet` 的 `importXlsx(buffer, onProgress)` 完成解析 + 分片构建）：
   worker 返回快照数组，主线程**不再 restore 重建临时工作簿**——
-  确认后快照直接替换进目标；导出对称地在 Worker 序列化（`tools/export.worker.ts`，
-  `tools/download.ts` 采集快照发起，失败回退主线程）；worker 均须列入 pack entry。
+  确认后快照直接替换进目标（`replaceWorkbookWithSnapshots`）；导出对称地在 Worker 序列化
+  （`tools/export.worker.ts`，`tools/download.ts` 采集快照发起，失败回退主线程）；
+  worker 均须列入 pack entry。
   行高随 `SheetSnapshot.rowHeights?` 跨 worker / 持久化传输
 - worker 分片构建按 10% 粒度回报进度；sheet 自绘「遮罩+动画+文字」覆盖层
   （`.u-sheet__loading-mask`，动画上文字下同层），不动 desktop Loading 组件
-- IO 实现与保真度约定（快照整表替换、批量合并、hucre 表名校验等）在 sheet-core
-  `core/io`，见其 AGENTS.md
+- IO 实现与保真度约定（快照整表替换、批量合并、表名校验等）在 `infinitable/sheet`
+  的 core/io（自包含，无 hucre 运行时依赖）
 
 ## 依赖
 
-- **dependencies**：`infinitable`（npm 包的 grid 引擎，暂未被源码消费；xlsx/csv IO 仍由 `@veltra/sheet-core` 承担，hucre 仅是它的 dependency）
-- **peer**：`@cat-kit/core`（查找防抖 `debounce`）、`@cat-kit/fe`（`saveBlob` 下载）、`vue`、`@veltra/desktop`、`@veltra/icons`、`@veltra/sheet-core`、`@veltra/utils`、`@veltra/styles`
+- **dependencies**：`infinitable`（引擎统一包：`/sheet` 子路径 + 主入口公式 API，自包含不携带 hucre）
+- **peer**：`@cat-kit/core`（查找防抖 `debounce`）、`@cat-kit/fe`（`saveBlob` 下载）、`vue`、`@veltra/desktop`、`@veltra/icons`、`@veltra/utils`、`@veltra/styles`
 - **被依赖**：playground
 
 ## 构建与测试配置
 
 - **pack entry**：`src/index.ts`、`src/components/sheet/style.ts`、`src/components/sheet/popups/import.worker.ts`、`src/tools/export.worker.ts`（worker 经 `new Worker(new URL())` 引用，非 import 可达——unbundle 模式下必须显式列为 entry 才会编译进 dist）
-- **neverBundle**：全部 peer（含 `@veltra/sheet-core`）；treeshake `moduleSideEffects` 保留 `components/*/style.ts` 与 `tools/builtin.ts`
-- **测试**：happy-dom；canvas mock 等测试环境初始化已随 grid 迁至 sheet-core，`setupFiles` 跨包引用 `../sheet-core/src/grid/__test__/setup.ts`
+- **neverBundle**：peer + `infinitable`（正则匹配 `/^infinitable(\/|$)/`，覆盖子路径导入）；treeshake `moduleSideEffects` 保留 `components/*/style.ts` 与 `tools/builtin.ts`
+- **测试**：happy-dom；canvas mock 在 `src/components/sheet/__test__/`（`grid-setup.ts` 挂 `canvas-mock.ts`），`setupFiles` 指向它；`server.deps.inline: ['infinitable']`（externalize 时 worker node 会把 `@cat-kit/core` 解析到 TS 源码）
 
 ## 已知限制
 
 - 公式栏补全 / 引用选择仅 fx 输入栏，网格内编辑器无同等能力。
-- 其余模型 / 渲染层限制（undo 分栈、替换语义、浮动图片、xlsx round-trip 等）见 `packages/sheet-core/AGENTS.md`。
+- 其余模型 / 渲染层限制（undo 分栈、替换语义、浮动图片、xlsx round-trip 等）随 `infinitable/sheet`，见上游文档。
 
 ## 验证
 

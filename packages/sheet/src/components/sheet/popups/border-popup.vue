@@ -35,15 +35,15 @@
 
 <script lang="ts" setup>
 import { UPalette } from '@veltra/desktop'
-import type { SetCellStyleItem } from '@veltra/sheet-core/core/command/set-cell-style.js'
-import { buildBorderPresetItems } from '@veltra/sheet-core/core/style/border-presets.js'
+import { bem } from '@veltra/utils'
+import type { SetCellStyleItem } from 'infinitable/sheet'
+import { buildBorderPresetItems } from 'infinitable/sheet'
 import {
   BORDER_STYLE_WIDTH,
   type BorderEdge,
   type BorderLineStyle,
   type CellStylePatch
-} from '@veltra/sheet-core/core/style/types.js'
-import { bem } from '@veltra/utils'
+} from 'infinitable/sheet'
 import { ref } from 'vue'
 
 import type { SheetContext } from '../../../tools/context'

@@ -1,6 +1,6 @@
 ---
 title: 'Ultra UI 常见报错排障'
-description: 'Ultra UI 全库高频构建期与运行时报错的修复手册：主题未初始化与显式 import 导致的裸样式、SCSS pkg: 与 NodePackageImporter entryPointDirectory 解析规则、缺 @vitejs/plugin-vue-jsx 时 react/jsx-runtime 解析失败、渲染函数里的 ReferenceError: UTag is not defined、函数式 API 缺样式、UForm 的 field 与 v-model 冲突、VeltraUIResolver 未生效、sheet-core 子路径与深导入后缀、v-focus 警告、USelect 回显失败、图标包体积与 Workbook/AI 传输层真实报错。'
+description: 'Ultra UI 全库高频构建期与运行时报错的修复手册：主题未初始化与显式 import 导致的裸样式、SCSS pkg: 与 NodePackageImporter entryPointDirectory 解析规则、缺 @vitejs/plugin-vue-jsx 时 react/jsx-runtime 解析失败、渲染函数里的 ReferenceError: UTag is not defined、函数式 API 缺样式、UForm 的 field 与 v-model 冲突、VeltraUIResolver 未生效、v-focus 警告、USelect 回显失败、图标包体积与 Workbook/AI 传输层真实报错。'
 aliases: [FAQ, 排错, troubleshooting, 常见问题, 报错, 常见错误]
 keywords:
   [
@@ -255,30 +255,15 @@ notification.success('同步完成')
 
 目录名以 `packages/vite/src/components.gen.ts` 为准：`UMessage` → `components/message/style`，`UMessageConfirm` → `components/message-confirm/style`，`UNotification` → `components/notification/style`。DevTools 判定：弹层 DOM 已插入、class 前缀在（`u-message` / `u-message-confirm` / `u-notification`），但 Styles 面板没有对应规则。详见 `agent-docs/vite/veltra-ui-resolver.md`。
 
-## 报错 `Does not provide an export named 'SheetGrid'`（从 `@veltra/sheet-core` 主入口导入渲染层符号）
+## 报错 `TS2307: Cannot find module 'infinitable/xxx'`（引擎深路径导入不存在）
 
-原因：`SheetGrid` 及渲染 hook 类型刻意只从子路径 `@veltra/sheet-core/grid` 导出，主入口不 re-export——避免无头 API（`Workbook` / `Sheet`）把引擎（`infinitable`）类型图拉进 TS 程序。修复：渲染层符号固定从子路径导入：
-
-```ts
-// 错误：import { SheetGrid } from '@veltra/sheet-core'
-import { SheetGrid, type SheetGridOptions } from '@veltra/sheet-core/grid'
-import { Workbook } from '@veltra/sheet-core' // 模型/命令/IO 走主入口
-```
-
-子路径可用的符号：`SheetGrid` 与类型 `SheetGridOptions` / `SheetGridContextMenuKind` / `SheetGridContextMenuInfo` / `CellRenderer` / `CellRenderTarget` / `ResolveCellRenderer` / `ResolveDisplayValue` / `ResolveCellStyleHook` / `SheetGridHeaderOptions` / `SheetGridEditorsOptions` / `GridCellEditor` / `GridEditorSession` / `GridEditorRect`。详见 `agent-docs/sheet-core/sheet-grid.md`。
-
-## 报错 `TS2307: Cannot find module '@veltra/sheet-core/core/xxx'`（深导入 `core/*` 漏写 `.js` 后缀）
-
-原因：`@veltra/sheet-core` 的 `exports` 只有 `.`、`./grid` 与 `./*`；`./*` 把请求原样映射到 `./dist/*`，不带扩展名补全。写 `@veltra/sheet-core/core/address` 时 tsc 会去找无扩展名的 `dist/core/address`，解析失败。修复：深导入 `core/*` 一律补 `.js` 后缀；`Sheet` / `Workbook` 等已在主入口导出的符号直接走主入口：
+原因：npm 包 `infinitable` 的 `exports` 只有 `.` 与 `./sheet` 两个入口，没有 `infinitable/core/*`、`infinitable/sheet/core/*` 等深路径（历史上 `@veltra/sheet-core` 的 `core/*.js` 深导入通道已随该包下线）。修复：模型 / 命令 / 公式 / IO / `SheetGrid` 及 hook 类型统一 `from 'infinitable/sheet'`，公式注册表 API（`registerFormulaFunction` / `listFormulaFunctions` / `formulaError` 等）走主入口 `from 'infinitable'`：
 
 ```ts
-// 错误：import type { CellRange } from '@veltra/sheet-core/core/address'
-import type { CellRange } from '@veltra/sheet-core/core/address.js'
-import type { Sheet, Workbook } from '@veltra/sheet-core' // 主入口已有，不必深导入
+// 错误：import { Sheet } from 'infinitable/sheet/core/sheet'
+import { Sheet, Workbook, SheetGrid } from 'infinitable/sheet'
+import { registerFormulaFunction } from 'infinitable'
 ```
-
-> [!WARNING]
-> 深导入 `core/*` 是白名单外通道（io 转换函数、内部类型等），不属公开承诺 API；能用主入口或 `@veltra/sheet-core/grid` 就不要深导入。
 
 ## 控制台警告 `v-focus 指令需要一个 input 元素`
 
@@ -343,7 +328,7 @@ import { Excel } from '@veltra/icons/colorful' // 多色图标
 原因：`endBatch()` 与 `beginBatch()` 不配对——没调过 `beginBatch()`、`beginBatch()` 抛错后仍执行了 `endBatch()`，或同一批调用了多余的 `endBatch()`。修复：`try/finally` 保证配对：
 
 ```ts
-import { Workbook } from '@veltra/sheet-core'
+import { Workbook } from 'infinitable/sheet'
 
 const wb = new Workbook()
 
@@ -390,7 +375,7 @@ const chat = useChat({ props: { transport } })
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { USheet } from '@veltra/sheet'
-import { Workbook } from '@veltra/sheet-core'
+import { Workbook } from 'infinitable/sheet'
 
 const ready = ref(false)
 const workbook = new Workbook()

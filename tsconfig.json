@@ -6,8 +6,6 @@
     { "path": "./packages/compositions/tsconfig.json" },
     { "path": "./packages/directives/tsconfig.json" },
     { "path": "./packages/desktop/tsconfig.json" },
-    { "path": "./packages/sheet-core/tsconfig.json" },
-    { "path": "./packages/sheet-core/tsconfig.grid.json" },
     { "path": "./packages/ofd-core/tsconfig.json" },
     { "path": "./packages/sheet/tsconfig.json" },
     { "path": "./packages/ai/tsconfig.json" },

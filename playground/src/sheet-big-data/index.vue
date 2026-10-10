@@ -96,7 +96,7 @@ import {
   type CellValue,
   type SetCellValueItem,
   type Sheet
-} from '@veltra/sheet-core'
+} from 'infinitable/sheet'
 import '@veltra/sheet/components/sheet/style'
 import { nextTick, ref, shallowRef, computed } from 'vue'
 

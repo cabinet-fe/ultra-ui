@@ -48,7 +48,7 @@ registerTool({
 ## API 签名
 
 ```ts
-import type { CellAddress, CellRange, Sheet, Workbook } from '@veltra/sheet-core'
+import type { CellAddress, CellRange, Sheet, Workbook } from 'infinitable/sheet'
 
 /** 弹层型工具类型：vue 层按类型渲染弹层面板，面板交互走 SheetContext 命令入口 */
 export type SheetToolPopupType =
@@ -242,7 +242,7 @@ export interface SheetContext {
 }
 ```
 
-`SelectionState` / `CellData` / `CellValue` / `CellStylePatch` / `ImageInput` 等类型从 `@veltra/sheet-core` 主入口导入。
+`SelectionState` / `CellData` / `CellValue` / `CellStylePatch` / `ImageInput` 等类型从 `infinitable/sheet` 导入。
 
 ## 参数说明
 
@@ -334,7 +334,7 @@ registerTool(clearSheetTool)
 ```ts
 import { registerTool, unregisterTool, defaultToolRegistry } from '@veltra/sheet'
 import type { SheetContext } from '@veltra/sheet'
-import { exportWorkbookXlsx } from '@veltra/sheet-core'
+import { exportWorkbookXlsx } from 'infinitable/sheet'
 
 // 覆盖内置 export：点击直接导出 xlsx，不再弹选择面板
 // （同 id 替换保留原位置；新定义若用 popup 必须是 8 个内置类型之一）
@@ -374,7 +374,7 @@ console.log(defaultToolRegistry.has('strikethrough')) // => false
 
 ```ts
 import { createSheetContext } from '@veltra/sheet'
-import { Workbook } from '@veltra/sheet-core'
+import { Workbook } from 'infinitable/sheet'
 
 const workbook = new Workbook()
 const sheet = workbook.activeSheet
@@ -402,7 +402,7 @@ console.log(sheet.getDisplayValue({ row: 0, col: 0 })) // => undefined（值已�
 > - `popup` 仅接受 8 个内置类型值，自定义字符串无法让 USheet 渲染面板；需要自定义面板时用普通按钮 + 宿主自己的弹层。
 > - `activeCell` 的类型是 `CellAddress | null`（未选中为 `null`），不是 `undefined`；判断用 `!== null`。
 > - 注册表是模块级单例：`registerTool` 在模块顶层执行即完成注册（内置工具由包入口 `import './tools/builtin'` 引入），禁止在多实例组件的 setup 里重复注册。
-> - 本包不 re-export `@veltra/sheet-core` 的任何符号；`Workbook` / `exportWorkbookXlsx` / `exportSheetCsv` 等一律从 `@veltra/sheet-core` 导入。
+> - 本包不 re-export 引擎的任何符号；`Workbook` / `exportWorkbookXlsx` / `exportSheetCsv` 等一律从 `infinitable/sheet` 导入。
 
 ## 常见问题
 

@@ -55,7 +55,7 @@ const config = {
           '@veltra/directives',
           '@veltra/styles',
           '@veltra/icons',
-          /^@veltra\/sheet-core/,
+          /^infinitable(\/|$)/,
           '@cat-kit/core',
           '@lexical/history',
           '@lexical/html',

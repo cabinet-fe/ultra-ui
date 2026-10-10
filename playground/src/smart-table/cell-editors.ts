@@ -1,12 +1,12 @@
 import { message } from '@veltra/desktop'
-import type { CellValue as SheetCellValue } from '@veltra/sheet-core'
-import type { GridCellEditor, GridEditorRect, GridEditorSession } from '@veltra/sheet-core/grid'
+import type { CellValue as SheetCellValue } from 'infinitable/sheet'
+import type { GridCellEditor, GridEditorRect, GridEditorSession } from 'infinitable/sheet'
 
 import { parseMultiValue, serializeMultiValue } from './cell-renderers'
 import type { FieldType, TableField } from './types'
 
 /**
- * 9 种字段类型的行内编辑器（挂 sheet-core 编辑器机制，编辑 UI 为原生 DOM）：
+ * 9 种字段类型的行内编辑器（挂引擎编辑器机制，编辑 UI 为原生 DOM）：
  * - text / number / progress / date / member / image：格内输入框（date 用原生日期
  *   选择，member / image 逗号分隔多值），Enter 或点击格外出提交、Esc 取消；
  * - select：下拉单选面板；multi-select：多选面板（确定提交）；Enter / Esc 同上；

@@ -47,8 +47,7 @@ Ultra UI 是 npm 作用域 `@veltra/*` 下的 Vue 3 组件与能力库。本指�
   - `@veltra/utils`
   - `@veltra/compositions`
   - `@veltra/directives`
-  - `@veltra/sheet-core`（optional peer；仅使用 `USheet` 或模型操作时必须安装）
-- 使用 AI 对话时安装 `@veltra/ai`；使用电子表格时安装 `@veltra/sheet`（`@veltra/sheet` 自身依赖 `@veltra/sheet-core`）。
+- 使用 AI 对话时安装 `@veltra/ai`；使用电子表格时安装 `@veltra/sheet`（引擎 `infinitable` 是它的 dependency，自动安装，无需单独装）。
 - 走按需自动导入时，开发依赖需 `@veltra/vite` 与 `unplugin-vue-components`。
 - 写 `<script lang="tsx">` 的 SFC 或 `.tsx` 文件时，开发依赖必须加 `@vitejs/plugin-vue-jsx`（仓库锁 `^5.1.6`），并在 `vite.config.ts` 的 `plugins` 里注册 `vueJsx()`。缺它时 Vite 用 esbuild 的默认 JSX 运行时（`react`）：dev 启动日志报 `Failed to resolve import "react/jsx-dev-runtime"`，build 报 `Failed to resolve import "react/jsx-runtime"`。类型检查还需 `tsconfig.json` 的 `"jsx": "preserve"`。
 
@@ -64,7 +63,7 @@ Ultra UI 是 npm 作用域 `@veltra/*` 下的 Vue 3 组件与能力库。本指�
 
    ```bash
    bun add @veltra/ai          # AI 对话：UAiChat / useChat
-   bun add @veltra/sheet @veltra/sheet-core   # 电子表格：USheet + Workbook 模型
+   bun add @veltra/sheet                      # 电子表格：USheet（模型/引擎在 infinitable/sheet）
    ```
 
 2. 初始化入口，写入 `src/main.ts`。`import '@veltra/styles/normalize'` 与 `loadTheme()` 必须在组件挂载前执行；不调用 `loadTheme()` 时 `html` 上没有任何 `--u-*` 变量，组件没有颜色：
@@ -242,4 +241,3 @@ bun run dev
 > - 样式副作用只随 resolver 的组件引入发生。函数式 API `message` / `messageConfirm` / `notification` 从 `@veltra/desktop` 显式 import 后，样式同样要显式引入：`import '@veltra/desktop/components/message/style'`、`import '@veltra/desktop/components/message-confirm/style'`、`import '@veltra/desktop/components/notification/style'`；或改由入口 `import '@veltra/desktop/style'` 引全量样式。
 > - 写 `<script lang="tsx">` / `.tsx` 必须在 Vite 注册 `@vitejs/plugin-vue-jsx` 并安装同名包；缺它时 Vite 用 esbuild 默认的 `react` JSX 运行时，dev 报 `Failed to resolve import "react/jsx-dev-runtime"`、build 报 `Failed to resolve import "react/jsx-runtime"`。TSX 里的组件不会被 resolver 解析，必须显式 import 并补样式。
 > - `pkg:@veltra/styles/...` SCSS 导入必须先注册 `NodePackageImporter`。磁盘上的 `.scss` 文件里写 `pkg:` 时 sass 从该文件目录向上找 `node_modules`，省略参数即可；只有 `pkg:` 出现在非磁盘来源（`additionalData` 注入的字符串等）时才必须显式传「其 `node_modules` 含 `@veltra/styles` 的目录」——该目录必须是链接所在目录，传一个不含 `@veltra/*` 链接的目录仍然解析失败。`new NodePackageImporter(repoRoot)` 是本仓库 `playground/` 应用的写法。
-> - `@veltra/sheet-core` 是 `@veltra/desktop` 的 optional peer；不装也能跑，但 `USheet` 与 Workbook 模型操作需要它，此时必须安装。

@@ -1,8 +1,8 @@
-import { createRange } from '@veltra/sheet-core/core/address.js'
+import { createRange } from 'infinitable/sheet'
 
 import '../builtin'
-import { Sheet } from '@veltra/sheet-core/core/sheet.js'
-import { Workbook } from '@veltra/sheet-core/core/workbook.js'
+import { Sheet } from 'infinitable/sheet'
+import { Workbook } from 'infinitable/sheet'
 import { describe, expect, it, vi } from 'vite-plus/test'
 
 import { createSheetContext } from '../context'
@@ -122,7 +122,7 @@ describe('内置工具（dogfood 扩展机制）', () => {
     }
   })
 
-  it('导出 xlsx：sheet 名含 Excel 非法字符时 reject（sheet-core 写入校验，错误传播给调用方）', async () => {
+  it('导出 xlsx：sheet 名含 Excel 非法字符时 reject（引擎写入校验，错误传播给调用方）', async () => {
     const workbook = new Workbook()
     workbook.renameSheet('Sheet1', 'a:b')
     const ctx = createSheetContext(workbook.activeSheet, workbook)

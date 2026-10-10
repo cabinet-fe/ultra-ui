@@ -1,4 +1,4 @@
-import type { CellRenderer, CellRenderTarget } from '@veltra/sheet-core/grid'
+import type { CellRenderer, CellRenderTarget } from 'infinitable/sheet'
 
 import type { TableField } from './types'
 
@@ -6,7 +6,7 @@ import type { TableField } from './types'
  * 9 种字段类型的网格渲染：checkbox / progress / select / multi-select / member /
  * image 经 `resolveCellRenderer` 接管画布绘制；text / number / date 沿用引擎
  * 默认文本管线（值即显示文本），工厂返回 undefined 即回落。
- * 画布读不到 CSS token，颜色与 sheet-core grid-theme 同理取固定色板。
+ * 画布读不到 CSS token，颜色与引擎 grid-theme 同理取固定色板。
  */
 
 /** 多值字段（multi-select / member / image）在网格内的存储格式：JSON 字符串 */

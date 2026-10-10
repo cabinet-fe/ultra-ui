@@ -1,6 +1,6 @@
 # 开发规范
 
-包内细节以各包 `AGENTS.md` 为准（desktop / sheet / sheet-core / ai 等），本文件只写仓库级约定。
+包内细节以各包 `AGENTS.md` 为准（desktop / sheet / ai 等），本文件只写仓库级约定。
 
 ## 命名
 
@@ -34,20 +34,20 @@
 
 ## 测试
 
-- 单测：包内 `__test__/` 或 `*.test.ts`，Vitest，环境 happy-dom（sheet-core grid 另有 canvas mock）。
+- 单测：包内 `__test__/` 或 `*.test.ts`，Vitest，环境 happy-dom（sheet 的 SheetGrid 测试挂 canvas mock）。
 - 根 `bun run test`（`vp test`）；单包 `cd packages/<pkg> && vp test`。
-- 根 `test.projects`：desktop、ai、styles、utils、compositions、sheet-core、sheet、playground。未列入的包当前无统一 test 项目。
+- 根 `test.projects`：desktop、ai、styles、utils、compositions、sheet、playground。未列入的包当前无统一 test 项目。
 - 改公开行为或修 bug 应补/更新测试。没有「每个 PR 必须新增用例」的额外门禁；CI `ci:verify` 会跑全量测试。
 
 ## 接口
 
-- 对宿主的契约是各包 `exports`（含 `veltra-dev` → src、`import` → dist）。不要把未导出的类成员方法当公开 API（sheet-core 已标明内部写入口）。
+- 对宿主的契约是各包 `exports`（含 `veltra-dev` → src、`import` → dist）。不要把未导出的类成员方法当公开 API。
 - 内部 `@veltra/*` peer 用 `workspace:^`，**不要改回 `workspace:*`**（changesets 会把范围内升级连锁成 major）。
-- `@veltra/sheet-core` 对 desktop 是 optional peer（仅 file-viewer 的 Excel/CSV 预览）。sheet 主入口不 re-export sheet-core。
+- 电子表格模型/引擎统一取 npm 包 `infinitable`：模型与 SheetGrid 走 `/sheet` 子路径，公式注册表 API（`registerFormulaFunction` / `listFormulaFunctions` 等）走主入口。
 
 ## 版本与发布
 
-- changesets：`vp changeset` / `bun run changeset`。`fixed` 两组同版本——核心 `utils/styles/compositions/directives/desktop`，表格 `sheet/sheet-core`；`ai` / `icons` / `vite` 独立版本线。
+- changesets：`vp changeset` / `bun run changeset`。`fixed` 一组同版本——核心 `utils/styles/compositions/directives/desktop`；`sheet` / `ai` / `icons` / `vite` 独立版本线。
 - `ignore`：`@veltra/mobile`、`playground`。
 - `___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH.onlyUpdatePeerDependentsWhenOutOfRange` 已开。
 - 发版：在 `dev` 上 `bun run release`（见 `scripts/release.ts`），CI 测完构建并 publish。

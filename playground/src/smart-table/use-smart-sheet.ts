@@ -16,14 +16,14 @@ import {
   type CellAddress,
   type CellValue as SheetCellValue,
   type SetCellValueItem
-} from '@veltra/sheet-core'
+} from 'infinitable/sheet'
 import type {
   CellRenderer,
   ResolveCellRenderer,
   SheetGrid,
   SheetGridEditorsOptions,
   SheetGridHeaderOptions
-} from '@veltra/sheet-core/grid'
+} from 'infinitable/sheet'
 import {
   computed,
   h,

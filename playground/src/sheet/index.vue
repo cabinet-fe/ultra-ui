@@ -287,14 +287,8 @@
 <script lang="ts" setup>
 import { $n } from '@cat-kit/core'
 import { type SheetExposed } from '@veltra/sheet'
-import {
-  Workbook,
-  coerceToNumber,
-  formatAddress,
-  formatRange,
-  isFormulaError,
-  registerFormulaFunction
-} from '@veltra/sheet-core'
+import { formulaError, registerFormulaFunction } from 'infinitable'
+import { Workbook, formatAddress, formatRange } from 'infinitable/sheet'
 import { computed, onBeforeUnmount, ref, shallowRef, useTemplateRef } from 'vue'
 
 /**
@@ -304,10 +298,11 @@ import { computed, onBeforeUnmount, ref, shallowRef, useTemplateRef } from 'vue'
 registerFormulaFunction('DOUBLE', {
   minArgs: 1,
   maxArgs: 1,
-  meta: { params: ['number'], description: '返回数字的两倍（自定义函数示例）' },
+  meta: { params: [{ name: 'number' }], description: '返回数字的两倍（自定义函数示例）' },
   impl(args) {
-    const value = coerceToNumber(args[0]!)
-    if (isFormulaError(value)) return value
+    const raw = args[0]
+    const value = typeof raw === 'number' ? raw : typeof raw === 'string' ? Number(raw) : NaN
+    if (Number.isNaN(value)) return formulaError('#VALUE!')
     return Number($n.mul(value, 2))
   }
 })

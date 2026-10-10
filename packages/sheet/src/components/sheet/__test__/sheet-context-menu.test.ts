@@ -1,5 +1,5 @@
-import { createRange } from '@veltra/sheet-core/core/address.js'
-import { Sheet } from '@veltra/sheet-core/core/sheet.js'
+import { createRange } from 'infinitable/sheet'
+import { Sheet } from 'infinitable/sheet'
 import { describe, expect, it } from 'vite-plus/test'
 
 import { createSheetContext } from '../../../tools/context'

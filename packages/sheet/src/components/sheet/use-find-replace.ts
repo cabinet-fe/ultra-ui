@@ -1,17 +1,13 @@
 import { debounce } from '@cat-kit/core'
-import {
-  inferCellType,
-  normalizeInputValue,
-  type CellData
-} from '@veltra/sheet-core/core/cell-store.js'
+import { inferCellType, normalizeInputValue, type CellData } from 'infinitable/sheet'
 import {
   findAll,
   findNextFrom,
   findPrevFrom,
   type FindMatch,
   type FindOptions
-} from '@veltra/sheet-core/core/find.js'
-import type { Sheet } from '@veltra/sheet-core/core/sheet.js'
+} from 'infinitable/sheet'
+import type { Sheet } from 'infinitable/sheet'
 import { computed, ref, shallowRef, watch } from 'vue'
 
 import type { SheetContext } from '../../tools/context'
