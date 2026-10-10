@@ -1,11 +1,12 @@
 ---
 title: USheet 电子表格组件
-description: USheet 电子表格组件：一个组件渲染工具栏、公式栏、网格与底部 sheet 标签栏，数据模型为 infinitable/sheet 工作簿；支持填报只读（setCellReadonly / setRangeReadonly）、动态单元格样式、自定义工具栏工具、列头定制（header）与类型化编辑器（editors 按格路由）。
+description: USheet 电子表格组件：一个组件渲染工具栏、公式栏、网格与底部 sheet 标签栏，数据模型为 infinitable/sheet 工作簿；支持公式合计（setCellFormula 写入 / getCellData().f 读取 / 数据填充自动重算 / registerFormulaFunction 自定义函数）、原生滚动条缺省（scrollbar 全形态透传）、填报只读（setCellReadonly / setRangeReadonly）、动态单元格样式、自定义工具栏工具、列头定制（header）与类型化编辑器（editors 按格路由）。
 aliases: [USheet, Sheet, 电子表格, spreadsheet, 表格编辑器]
 keywords:
   [
     SheetProps,
     SheetExposed,
+    SheetContextOptions,
     showToolbar,
     showFormulaBar,
     showTabs,
@@ -16,10 +17,18 @@ keywords:
     resolveCellRenderer,
     header,
     editors,
+    scrollbar,
+    ScrollbarOptions,
+    setCellFormula,
+    registerFormulaFunction,
     active-sheet-change,
     colResize,
     col-resize-end,
     getContext,
+    导出面,
+    公式,
+    自动重算,
+    自定义函数,
     填报,
     只读单元格,
     工具栏,
@@ -65,7 +74,7 @@ sheet.setCellValue({ row: 1, col: 1 }, 200)
 
 ## API 签名
 
-从 `@veltra/sheet` 导出的组件与类型（工具注册 API `registerTool` 等见 `agent-docs/sheet/sheet-tools.md`）：
+从 `@veltra/sheet` 导出的组件与类型（工具注册 API `registerTool` / `createSheetContext` 等见 `agent-docs/sheet/sheet-tools.md`；导出面逐项结论见下方「导出面清单」）：
 
 ```ts
 import type { Sheet, Workbook } from 'infinitable/sheet'
@@ -73,6 +82,7 @@ import type {
   ResolveCellRenderer,
   ResolveCellStyleHook,
   ResolveDisplayValue,
+  ScrollbarOptions,
   SheetGrid,
   SheetGridEditorsOptions,
   SheetGridHeaderOptions
@@ -121,6 +131,15 @@ export interface SheetProps {
   readonly?: boolean
   /** 列宽拖拽（透传 SheetGrid）：readonly 下置 true 仅放开列头 resize 手柄，编辑仍关闭；默认 false */
   colResize?: boolean
+  /**
+   * 滚动条（透传 SheetGrid → 引擎内建，构造期选项）：false 整体关闭（不显示任何
+   * 滚动条）；缺省原生档 `{ mode: 'native' }`——浏览器原生滚动条在独立 gutter
+   * 渲染、不遮挡最底行/最右列；true 与对象形态按引擎语义透传（对象可配
+   * `mode: 'canvas'` 回画布悬浮滚动条，及 visibility / hideDelay / reserve 等
+   * canvas 档显示策略）。对象形态引用更替触发网格重建——沿用 header / editors
+   * 的稳定引用约定，宿主勿在模板内联对象字面量
+   */
+  scrollbar?: boolean | ScrollbarOptions
 }
 
 export interface SheetEmits {
@@ -148,6 +167,27 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 
 `SheetExposed` 经 `DeconstructValue` 解包：模板 ref 上 `sheetRef.value.workbook` 直接是 `Workbook`，不是 `ComputedRef<Workbook>`。`SheetContext` 类型见 `agent-docs/sheet/sheet-tools.md`。
 
+### 导出面清单（逐项结论）
+
+`@veltra/sheet` 主入口（`src/index.ts`）导出面逐项审计结论。入口同时执行内置工具副作用注册（`import './tools/builtin'`，pack treeshake 已按 sideEffects 保留）。
+
+| 符号 | 导出 | 理由 |
+| ------------------------------ | :--: | ------------------------------------------------------------------------------------------------------------------ |
+| `USheet` | 是 | 组件本体；下游（如 meta report）经模板使用的唯一组件入口 |
+| `SheetProps` / `SheetEmits` | 是 | 组件 props / emits 类型，宿主类型标注必需 |
+| `SheetExposed` | 是 | 模板 ref 类型（meta report 现用法）；经 `DeconstructValue` 解包后的形态 |
+| `createSheetContext` / `SheetContext` | 是 | 无头 imperative API（脚本、测试、自组 UI 场景），见 `agent-docs/sheet/sheet-tools.md` |
+| `SheetContextOptions` | 是 | `createSheetContext` 第三参类型：导出函数签名引用的稳定类型须随函数可达（无头宿主引用 `resolveGridSize` / `syncAxisSizes` 配置） |
+| `registerTool` / `unregisterTool` / `defaultToolRegistry` | 是 | 工具栏扩展注册 API（全局注册表入口） |
+| `SheetTool` / `SheetToolGroup` / `SheetToolPopupType` | 是 | 注册 API 的定义类型，下游编写自定义工具必需 |
+| 内部 hooks（`use-tool-popup` / `use-sheet-grid` / `use-formula-suggest` 等） | 否 | 组件内部实现细节，签名与行为不构成稳定承诺 |
+| popup 子组件（`functions-popup.vue` / 各弹层面板） | 否 | UI 编排细节；交互经工具栏工具与公式栏入口触达 |
+| `apply-style` 内部函数（`axisStyleItemsForRange` / `classifySelectionStyleTarget`） | 否 | `SheetContext.applyStyle` 门面内部实现 |
+| `ToolRegistry` 类 / `DEFAULT_TOOL_GROUP` / `MIN_ROW_COL_SIZE` | 否 | 外部一律用 `defaultToolRegistry` 实例与 `registerTool` / `unregisterTool`；缺省分组与尺寸下限由字段缺省值 / 门面钳制承担 |
+| 引擎符号（`Workbook` / `Sheet` / `ScrollbarOptions` / `SetCellValueItem` / `registerFormulaFunction` 等） | 否 | 「不 re-export 引擎符号」约定：模型与类型从 `infinitable/sheet` 直导，公式注册表 API 从 `infinitable` 主入口直导 |
+
+判定口径：稳定公共 API（组件、props/emits/exposed 类型、imperative 门面及其配置类型、工具注册函数与定义类型）导出；内部实现（hooks、popup 子组件、门面内部函数、常量）与引擎符号不导出。
+
 ## 参数说明
 
 | 参数                  | 类型                      | 默认                    | 必填 | 约束                                                                                                                                                                  |
@@ -162,6 +202,7 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 | `showColHeader`       | `boolean`                 | `true`                  |  否  | 列字母表头；右键菜单含插入/删除列、列宽、冻结到当前列                                                                                                                 |
 | `readonly`            | `boolean`                 | `false`                 |  否  | 整表只读预览；按格控制改用模型 `setCellReadonly`                                                                                                                      |
 | `colResize`           | `boolean`                 | `false`                 |  否  | 列宽拖拽透传 SheetGrid：`readonly: true` 下置 `true` 仅放开列头 resize 手柄（编辑仍关闭），供只读预览宿主微调列宽；非 readonly 本就允许拖拽；变化触发网格重建          |
+| `scrollbar`           | `boolean \| ScrollbarOptions` | `{ mode: 'native' }` | 否 | 滚动条透传 SheetGrid：`false` 整体关闭（不显示任何滚动条）；缺省原生档——浏览器原生滚动条独立 gutter 渲染、不遮挡最底行/最右列；`true` 画布悬浮滚动条；对象形态按引擎语义透传（`mode: 'canvas'` 回画布档，含 `visibility` / `hideDelay` / `reserve`）。`ScrollbarOptions` 从 `infinitable/sheet` 导入；对象为构造期选项，引用更替触发网格重建（勿在模板内联对象字面量） |
 | `resolveDisplayValue` | `ResolveDisplayValue`     | —                       |  否  | `(addr, base) => CellValue \| undefined`；必须同步                                                                                                                    |
 | `resolveCellStyle`    | `ResolveCellStyleHook`    | —                       |  否  | `(addr, baseStyle?) => CellStyle \| undefined`；必须同步、O(1) 查找                                                                                                   |
 | `resolveCellRenderer` | `ResolveCellRenderer`     | —                       |  否  | `(addr, base) => CellRenderer \| undefined`；返回 undefined 回落默认渲染（类型见 `infinitable/sheet`）                                                          |
@@ -346,6 +387,75 @@ workbook.activeSheet.setCellValue({ row: 0, col: 0 }, '选中格子后点工具�
 
 `SheetTool` 全部字段、弹层型工具（`popup`）、覆盖内置工具与无头 `createSheetContext` 见 `agent-docs/sheet/sheet-tools.md`。
 
+### 公式合计：写公式 / 读公式 / 数据填充自动重算 / 自定义函数（meta 报表场景）
+
+公式能力四个入口全部经 `SheetContext`（`sheetRef.value.getContext()`）与 `infinitable` 主入口触达；求值与依赖重算为引擎内建——写命令执行后自动增量重算，宿主无需手动刷新：
+
+- **写公式**：`ctx.setCellFormula(addr, '=SUM(B1:B3)')`；`ctx.setCellValue(addr, '=SUM(B1:B3)')` 的 `'='` 前缀同样进公式通道。
+- **读公式**：`ctx.getCellData(addr)?.f` 返回公式原文（**不含 `'='` 前缀**，如 `'SUM(B1:B3)'`）；`ctx.getDisplayValue(addr)` 返回计算值。
+- **求值与重算**：写入即求值；批量 `ctx.setCells([...])` 填充被引用区域、或 `setCellValue` 修改被引用格后，公式格 `getDisplayValue` 自动更新（一次 `setCells` 调用 = 一个 undo 单元）。公式解析失败显示 `#ERROR!`。
+- **自定义函数**：`registerFormulaFunction(name, def)` 从 **`infinitable` 主入口**导入（`@veltra/sheet` 不转售）；注册后内置函数弹框（工具栏「函数」/公式栏 fx）、fx 补全列表与公式求值全部可用。`def.impl(args)` 收到求值后的参数（区域为数值数组）；`def.meta` 提供描述 / 分类 / 参数表，缺省 meta 的函数只出现在弹框「全部」与搜索结果。
+
+```vue
+<script setup lang="ts">
+import { USheet } from '@veltra/sheet'
+import type { SheetExposed } from '@veltra/sheet'
+// 引擎直导：模型走 infinitable/sheet；公式注册表走 infinitable 主入口（宿主 package.json 须显式声明 infinitable 依赖）
+import { Workbook } from 'infinitable/sheet'
+import { registerFormulaFunction } from 'infinitable'
+import '@veltra/sheet/components/sheet/style'
+import { useTemplateRef } from 'vue'
+
+// 自定义合计函数：注册一次，函数弹框 / fx 补全 / 求值即包含它
+registerFormulaFunction('REPORTTOTAL', {
+  meta: {
+    params: [{ name: 'number1' }, { name: '...' }],
+    description: '报表数值合计（跳过非数值）',
+    category: '统计'
+  },
+  impl(args) {
+    let total = 0
+    for (const arg of args) {
+      if (Array.isArray(arg)) {
+        for (const item of arg) if (typeof item === 'number') total += item
+      } else if (typeof arg === 'number') total += arg
+    }
+    return total
+  }
+})
+
+const workbook = new Workbook()
+const sheet = workbook.activeSheet
+sheet.setCellValue({ row: 0, col: 0 }, '项目')
+sheet.setCellValue({ row: 0, col: 1 }, '数量')
+// 先写合计公式：被引用区域为空 → SUM 为 0
+sheet.setCellFormula({ row: 3, col: 1 }, '=SUM(B2:B3)')
+sheet.history.clear() // 模板与公式作为基线，不进 undo
+
+const sheetRef = useTemplateRef<SheetExposed>('sheetRef')
+
+function fillReportData(): void {
+  // 报表数据填充：一次 setCells = 一个 undo 单元；填充后合计自动重算
+  const ctx = sheetRef.value!.getContext()
+  ctx.setCells([
+    { addr: { row: 1, col: 0 }, data: { v: 'A4 纸', t: 's' } },
+    { addr: { row: 1, col: 1 }, data: { v: 200, t: 'n' } },
+    { addr: { row: 2, col: 0 }, data: { v: '打印机', t: 's' } },
+    { addr: { row: 2, col: 1 }, data: { v: 12, t: 'n' } }
+  ])
+  ctx.getDisplayValue({ row: 3, col: 1 }) // => 212（自动重算，无需手动刷新）
+  ctx.getCellData({ row: 3, col: 1 })?.f // => 'SUM(B2:B3)'（公式原文，不含 =）
+}
+</script>
+
+<template>
+  <u-sheet ref="sheetRef" :workbook="workbook" style="height: 480px" />
+  <button type="button" @click="fillReportData">填充报表数据</button>
+</template>
+```
+
+修改被引用单元格（如 `ctx.setCellValue({ row: 1, col: 1 }, 300)`）后合计同样自动重算。从已删除的 `@veltra/sheet-core` 迁移的宿主：`Workbook` / `Sheet` / `setCellFormula`（Sheet 实例方法）等模型符号改从 `infinitable/sheet` 导入，`registerFormulaFunction` / `listFormulaFunctions` 改从 `infinitable` 主入口导入；`@veltra/sheet` 的 `infinitable` 依赖只保证自身运行，宿主使用引擎符号须在自己的 `package.json` 显式声明 `infinitable`。
+
 ## 注意事项
 
 > [!WARNING]
@@ -357,6 +467,8 @@ workbook.activeSheet.setCellValue({ row: 0, col: 0 }, '选中格子后点工具�
 > - 坐标一律 0-based `{ row, col }`，不是 `'A1'` 字符串；A1 互转用 `infinitable/sheet` 的 `parseAddress` / `formatAddress`。
 > - `header` / `editors` 按引用更替判定变化（变化即重建网格）：用 `computed` 持稳定引用，勿在模板内联对象字面量——每次渲染产生新引用会逐渲染重建网格。
 > - `registerTool` 的注册表是全局共享的（`defaultToolRegistry`），不是组件实例级的。
+> - `scrollbar` 缺省 v3.0 起为原生档 `{ mode: 'native' }`：浏览器原生滚动条在独立 gutter 渲染，不遮挡最底行 / 最右列单元格。旧缺省是画布悬浮滚动条（等价 `true`）；要保留旧观感显式传 `:scrollbar="true"`。`scrollbar: false` 整体关闭语义不变；对象形态引用更替触发网格重建，勿在模板内联对象字面量（同 `header` / `editors`）。
+> - 公式原文 `CellData.f` 不含 `'='` 前缀（写入 `'=SUM(B1:B3)'`、读回 `'SUM(B1:B3)'`）；`registerFormulaFunction` 只在 `infinitable` 主入口，`@veltra/sheet` 不转售。
 
 交互事实补充：网格编辑拦截面覆盖双击、Enter、回写与填充柄；行高拖拽、冻结、选区不进 undo 历史；`Ctrl/Cmd+F` 在焦点落入本实例时打开查找条（不劫持容器外浏览器原生查找）；右键菜单分三套（body：合并 / 数据格式 / 插入图片；行号 / 列头：插入删除、行高 / 列宽、冻结）。10 万行 × 12 列经 `setCells` 批量写入 + 虚拟滚动渲染可用（官方 playground `sheet-big-data` 场景）。
 

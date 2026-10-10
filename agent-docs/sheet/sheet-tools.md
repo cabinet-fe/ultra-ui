@@ -11,6 +11,7 @@ keywords:
     SheetToolGroup,
     SheetToolPopupType,
     SheetContext,
+    SheetContextOptions,
     createSheetContext,
     executeCommand,
     applyStyle,
