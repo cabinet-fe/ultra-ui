@@ -1,6 +1,6 @@
 {
   "name": "@veltra/compositions",
-  "version": "1.9.2",
+  "version": "1.10.0",
   "homepage": "https://github.com/cabinet-fe/ultra-ui#readme",
   "bugs": {
     "url": "https://github.com/cabinet-fe/ultra-ui/issues"
@@ -18,7 +18,6 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "veltra-dev": "./src/index.ts",
       "import": "./dist/index.js"
     }
   },

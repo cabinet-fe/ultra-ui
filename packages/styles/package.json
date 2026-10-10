@@ -1,6 +1,6 @@
 {
   "name": "@veltra/styles",
-  "version": "1.9.2",
+  "version": "1.10.0",
   "homepage": "https://github.com/cabinet-fe/ultra-ui#readme",
   "bugs": {
     "url": "https://github.com/cabinet-fe/ultra-ui/issues"
@@ -27,29 +27,24 @@
   ],
   "exports": {
     "./animations": {
-      "veltra-dev": "./src/animations/index.ts",
       "import": "./dist/animations/index.js",
       "default": "./dist/animations/index.js"
     },
     "./transitions": {
-      "veltra-dev": "./src/transitions/index.ts",
       "import": "./dist/transitions/index.js",
       "default": "./dist/transitions/index.js"
     },
     "./normalize": {
-      "veltra-dev": "./src/normalize/index.ts",
       "import": "./dist/normalize/index.js",
       "default": "./dist/normalize/index.js"
     },
     "./theme": {
       "types": "./dist/theme/index.d.ts",
-      "veltra-dev": "./src/theme/index.ts",
       "import": "./dist/theme/index.js",
       "default": "./dist/theme/index.js"
     },
     "./*": {
       "sass": "./src/*",
-      "veltra-dev": "./src/*",
       "import": "./dist/*",
       "default": "./dist/*"
     }
