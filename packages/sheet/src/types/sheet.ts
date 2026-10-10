@@ -72,6 +72,12 @@ export interface SheetProps {
    * 的稳定引用约定，宿主勿在模板内联对象字面量
    */
   scrollbar?: boolean | ScrollbarOptions
+  /**
+   * 滚动近端动态增长（透传 SheetGrid，构造期选项）：滚动缓冲末端触到当前行列数
+   * 时模型与引擎同步扩容（引擎缺省 true）；false 为固定尺寸网格——内容定尺寸的
+   * 报表 / 表单宿主置 false 后不再滚入空白增长区。变化触发网格重建
+   */
+  growOnScroll?: boolean
 }
 
 export interface SheetEmits {

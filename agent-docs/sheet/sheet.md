@@ -19,6 +19,7 @@ keywords:
     editors,
     scrollbar,
     ScrollbarOptions,
+    growOnScroll,
     setCellFormula,
     registerFormulaFunction,
     active-sheet-change,
@@ -140,6 +141,13 @@ export interface SheetProps {
    * 的稳定引用约定，宿主勿在模板内联对象字面量
    */
   scrollbar?: boolean | ScrollbarOptions
+  /**
+   * 滚动近端动态增长（透传 SheetGrid，构造期选项）：滚动缓冲末端触到当前行列数
+   * 时模型与引擎同步扩容（缺省 true，对齐引擎当前缺省）；false 为固定尺寸网格
+   * ——内容定尺寸的报表 / 表单宿主置 false 后不再滚入空白增长区。变化触发网格
+   * 重建
+   */
+  growOnScroll?: boolean
 }
 
 export interface SheetEmits {
@@ -203,6 +211,7 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 | `readonly`            | `boolean`                 | `false`                 |  否  | 整表只读预览；按格控制改用模型 `setCellReadonly`                                                                                                                      |
 | `colResize`           | `boolean`                 | `false`                 |  否  | 列宽拖拽透传 SheetGrid：`readonly: true` 下置 `true` 仅放开列头 resize 手柄（编辑仍关闭），供只读预览宿主微调列宽；非 readonly 本就允许拖拽；变化触发网格重建          |
 | `scrollbar`           | `boolean \| ScrollbarOptions` | `{ mode: 'native' }` | 否 | 滚动条透传 SheetGrid：`false` 整体关闭（不显示任何滚动条）；缺省原生档——浏览器原生滚动条独立 gutter 渲染、不遮挡最底行/最右列；`true` 画布悬浮滚动条；对象形态按引擎语义透传（`mode: 'canvas'` 回画布档，含 `visibility` / `hideDelay` / `reserve`）。`ScrollbarOptions` 从 `infinitable/sheet` 导入；对象为构造期选项，引用更替触发网格重建（勿在模板内联对象字面量） |
+| `growOnScroll`        | `boolean`                  | `true`（对齐引擎缺省）  |  否  | 滚动近端动态增长透传 SheetGrid：滚动缓冲末端触到当前行列数时模型与引擎同步扩容（WPS 式无限表格）；`false` 为固定尺寸网格——内容定尺寸的报表 / 表单宿主置 `false` 后不再滚入空白增长区；构造期选项，变化触发网格重建 |
 | `resolveDisplayValue` | `ResolveDisplayValue`     | —                       |  否  | `(addr, base) => CellValue \| undefined`；必须同步                                                                                                                    |
 | `resolveCellStyle`    | `ResolveCellStyleHook`    | —                       |  否  | `(addr, baseStyle?) => CellStyle \| undefined`；必须同步、O(1) 查找                                                                                                   |
 | `resolveCellRenderer` | `ResolveCellRenderer`     | —                       |  否  | `(addr, base) => CellRenderer \| undefined`；返回 undefined 回落默认渲染（类型见 `infinitable/sheet`）                                                          |
