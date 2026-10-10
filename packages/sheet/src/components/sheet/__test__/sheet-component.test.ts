@@ -8,7 +8,7 @@ import { registerTool, unregisterTool } from '../../../tools/registry'
 import type { SheetExposed } from '../../../types'
 import { buildColHeaderMenus, buildRowHeaderMenus } from '../sheet-context-menu'
 // 引擎指针事件模拟与画布几何（cellX/cellY）：setup 已跨包引用同目录 setup.ts
-import { cellX, cellY, fire } from './grid-test-utils'
+import { cellX, cellY, fire, gridEventTarget } from './grid-test-utils'
 
 const apps: App[] = []
 const containers: HTMLElement[] = []
@@ -84,18 +84,8 @@ afterEach(() => {
 })
 
 describe('USheet 组件', () => {
-  it('scrollbar 透传引擎内建滚动条（缺省开启，false 关闭并触发重建）', async () => {
-    const exposedOn: { value: SheetExposed | undefined } = { value: undefined }
-    mount(() => ({}), exposedOn)
-    await nextTick()
-    // 引擎缺省 true（undefined 即开启），无需显式下发
-    expect(exposedOn.value!.getGrid()!.getTable().options.scrollbar).toBeUndefined()
-
-    const exposedOff: { value: SheetExposed | undefined } = { value: undefined }
-    mount(() => ({ scrollbar: false }), exposedOff)
-    await nextTick()
-    expect(exposedOff.value!.getGrid()!.getTable().options.scrollbar).toBe(false)
-  })
+  // scrollbar 形态与语义（缺省原生档 / false / true / 对象透传 / watch 重建）见
+  // 同目录 sheet-scrollbar.test.ts
 
   it('挂载后默认选区 A1：名称框显示 A1、fx 输入栏可用', async () => {
     const workbook = createWorkbook()
@@ -1214,7 +1204,7 @@ describe('USheet colResize（readonly 列宽拖拽）', () => {
     await nextTick()
 
     // 第 0 列右缘（46 + 80 = 126，±4 手柄区）列头带内拖拽：宽 = 起始 80 + 指针位移 42
-    const instance = el.querySelector<HTMLElement>('.u-sheet__grid-instance')!
+    const instance = gridEventTarget(el)
     fire(instance, 'pointerdown', { clientX: 124, clientY: 10 })
     fire(instance, 'pointermove', { clientX: 166, clientY: 10 })
     fire(instance, 'pointerup', { clientX: 166, clientY: 10 })
@@ -1235,7 +1225,7 @@ describe('USheet colResize（readonly 列宽拖拽）', () => {
     }))
     await nextTick()
 
-    const instance = el.querySelector<HTMLElement>('.u-sheet__grid-instance')!
+    const instance = gridEventTarget(el)
     fire(instance, 'pointerdown', { clientX: 124, clientY: 10 })
     fire(instance, 'pointermove', { clientX: 166, clientY: 10 })
     fire(instance, 'pointerup', { clientX: 166, clientY: 10 })
@@ -1277,7 +1267,7 @@ describe('fx 选区锚点', () => {
     fxInput.value = '=SUM('
     fxInput.setSelectionRange(5, 5)
     fxInput.dispatchEvent(new Event('input', { bubbles: true }))
-    const instance = el.querySelector<HTMLElement>('.u-sheet__grid-instance')!
+    const instance = gridEventTarget(el)
     fire(instance, 'pointerdown', { clientX: cellX(1), clientY: cellY(1) })
     fire(instance, 'pointermove', { clientX: cellX(3), clientY: cellY(3) })
     fire(instance, 'pointerup', { clientX: cellX(3), clientY: cellY(3) })

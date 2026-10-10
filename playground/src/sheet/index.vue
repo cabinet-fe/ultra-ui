@@ -1,6 +1,28 @@
 <template>
   <div class="sheet-demo">
-    <u-sheet ref="sheetRef" :workbook="workbook" :rows="30" class="sheet-demo__sheet" />
+    <!-- 滚动条形态切换：缺省原生档（独立 gutter 不遮挡最底行/最右列）；对象形态经
+         computed 持稳定引用（构造期选项，引用更替触发网格重建） -->
+    <div class="sheet-demo__scrollbar" role="group" aria-label="滚动条形态">
+      <button
+        v-for="mode in SCROLLBAR_MODES"
+        :key="mode.value"
+        type="button"
+        class="sheet-demo__scrollbar-btn"
+        :class="{ 'is-active': scrollbarMode === mode.value }"
+        @click="scrollbarMode = mode.value"
+      >
+        {{ mode.label }}
+      </button>
+    </div>
+
+    <u-sheet
+      ref="sheetRef"
+      :workbook="workbook"
+      :rows="60"
+      :cols="40"
+      :scrollbar="scrollbarOption"
+      class="sheet-demo__sheet"
+    />
 
     <!-- 数据结构观察区（仅演示页，非组件内部）：实时展示活动表模型 -->
     <div class="sheet-demo__inspector">
@@ -288,6 +310,7 @@
 import { $n } from '@cat-kit/core'
 import { type SheetExposed } from '@veltra/sheet'
 import { formulaError, registerFormulaFunction } from 'infinitable'
+import type { ScrollbarOptions } from 'infinitable/sheet'
 import { Workbook, formatAddress, formatRange } from 'infinitable/sheet'
 import { computed, onBeforeUnmount, ref, shallowRef, useTemplateRef } from 'vue'
 
@@ -380,6 +403,18 @@ function createDemoPngBytes(): Uint8Array {
 }
 
 const sheetRef = useTemplateRef<SheetExposed>('sheetRef')
+
+// ─── 滚动条形态切换（原生缺省 / 画布 / 关闭）──────────────────────
+// 对象形态经 computed 持稳定引用：scrollbar 是构造期选项，引用更替触发网格重建
+const SCROLLBAR_MODES = [
+  { value: 'native', label: '原生滚动条' },
+  { value: 'canvas', label: '画布滚动条' },
+  { value: 'off', label: '关闭' }
+] as const
+const scrollbarMode = ref<(typeof SCROLLBAR_MODES)[number]['value']>('native')
+const scrollbarOption = computed<boolean | ScrollbarOptions>(() =>
+  scrollbarMode.value === 'off' ? false : { mode: scrollbarMode.value }
+)
 
 // 观察区默认收起，点击头部展开/收起
 const collapsed = ref(true)
@@ -561,8 +596,52 @@ onBeforeUnmount(() => {
   color: var(--u-text-color-second);
 }
 
+/* ─── 滚动条形态切换（分段按钮组）────────────────────────────── */
+
+.sheet-demo__scrollbar {
+  display: flex;
+  gap: 0;
+  margin-bottom: 12px;
+}
+
+.sheet-demo__scrollbar-btn {
+  padding: 4px 14px;
+  border: 1px solid var(--u-border-muted-color);
+  background: var(--u-bg-color-top);
+  color: var(--u-text-color-second);
+  font-size: 12px;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.sheet-demo__scrollbar-btn:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.sheet-demo__scrollbar-btn:last-child {
+  border-radius: 0 4px 4px 0;
+}
+
+/* 相邻按钮合并边框 */
+.sheet-demo__scrollbar-btn + .sheet-demo__scrollbar-btn {
+  margin-left: -1px;
+}
+
+.sheet-demo__scrollbar-btn:hover {
+  background: var(--u-bg-color-hover);
+}
+
+.sheet-demo__scrollbar-btn.is-active {
+  border-color: var(--u-color-primary);
+  background: color-mix(in srgb, var(--u-color-primary) 10%, var(--u-bg-color-top));
+  color: var(--u-color-primary);
+}
+
 .sheet-demo__sheet {
-  height: calc(100vh - 154px);
+  /* 154px 为原有布局预留，+34px 让位滚动条形态切换控件 */
+  height: calc(100vh - 188px);
 }
 
 /* ─── 数据结构观察区 ─────────────────────────────── */

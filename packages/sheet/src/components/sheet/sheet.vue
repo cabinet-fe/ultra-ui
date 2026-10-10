@@ -1,6 +1,6 @@
 <template>
   <div ref="rootRef" :class="cls.b">
-    <div :class="cls.e('toolbar-wrap')">
+    <div ref="toolbarWrapRef" :class="cls.e('toolbar-wrap')">
       <u-sheet-toolbar v-if="showToolbar" :groups="toolGroups" @tool-click="handleToolClick" />
 
       <!-- 弹层型工具面板（填充/边框/字体色/字号/查找/函数/插入图片/导出）：UDropdown（Teleport 到
@@ -113,7 +113,10 @@ const props = withDefaults(defineProps<SheetProps>(), {
   showColHeader: true,
   readonly: false,
   colResize: false,
-  scrollbar: true
+  // 缺省原生档：引擎在 grid 容器内装配真实 DOM 滚动容器（原生滚动条独立
+  // gutter，不遮挡单元格），画布悬浮滚动条不再绘制。对象缺省被所有实例共享，
+  // 只读透传不改动
+  scrollbar: { mode: 'native' }
 })
 
 const emit = defineEmits<SheetEmits>()
@@ -122,6 +125,9 @@ const cls = bem('sheet')
 
 /** 根容器 ref：Ctrl/Cmd+F 判定焦点是否在本实例内（#6，避免劫持浏览器查找） */
 const rootRef = useTemplateRef<HTMLElement>('rootRef')
+
+/** 工具栏容器 ref：工具栏隐藏（showToolbar=false）时查找弹层的回退锚点（0 高贴 sheet 顶） */
+const toolbarWrapRef = useTemplateRef<HTMLElement>('toolbarWrapRef')
 
 // ─── 状态源（workbook / sheet 列表 / 活动 sheet / 工具上下文）────────
 // hooks 引用的 closePopup / rebuildGrid 由下方组合提供：箭头函数在事件触发时才
@@ -144,7 +150,7 @@ const {
   popupAnchor,
   closePopup,
   handleToolClick: openOrRunTool
-} = useToolPopup(context, rootRef)
+} = useToolPopup(context, rootRef, () => toolbarWrapRef.value ?? null)
 // xlsx 解析中（worker）：grid 容器显示自绘覆盖层（import-file 写入 parsing /
 // parseProgress；遮罩 + 动画 + 文字同层——动画在上、文字在下）
 const parsing = ref(false)

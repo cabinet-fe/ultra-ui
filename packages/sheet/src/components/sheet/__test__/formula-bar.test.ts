@@ -8,6 +8,7 @@ import { USheet } from '../../../index'
 import { createSheetContext } from '../../../tools/context'
 import type { SheetExposed } from '../../../types'
 import UFormulaBar from '../formula-bar.vue'
+import { gridEventTarget } from './grid-test-utils'
 
 const apps: App[] = []
 const containers: HTMLElement[] = []
@@ -552,10 +553,11 @@ describe('USheet 公式栏：函数补全与引用选择', () => {
 
     // 画布数据格点选（引擎选区事件管线）→ 引用插入 + blur 挂起（引用选择）；
     // 引用拾取为手势收敛语义（按下起手记录、抬手一次回交，见引擎
-    // grid-selection），故插入断言在 pointerup 之后。pointerdown 监听绑定在
-    // 实例容器（LRU 缓存）。画布几何口径与引擎 grid-theme 一致
-    // （行号列 46、列头 28、列宽 80、行高 28）→ (51, 117) 命中 A4
-    const gridEl = el.querySelector('.u-sheet__grid-instance')!
+    // grid-selection），故插入断言在 pointerup 之后。指针事件派发到 body 层
+    // 画布（canvas 档与原生档的事件源后代，见 gridEventTarget）。画布几何口径
+    // 与引擎 grid-theme 一致（行号列 46、列头 28、列宽 80、行高 28）→
+    // (51, 117) 命中 A4
+    const gridEl = gridEventTarget(el)
     gridEl.dispatchEvent(
       new PointerEvent('pointerdown', { clientX: 51, clientY: 117, bubbles: true })
     )

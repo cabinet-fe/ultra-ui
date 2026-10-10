@@ -31,7 +31,15 @@ function joinsTransaction(tool: SheetTool): boolean {
  * 函数面板选中只进入公式栏编辑态（无直接模型写入），与查找 / 导出一样不参与事务。
  * 导入在 sheet.vue 特殊处理（直接系统文件选择），不经弹层。
  */
-export function useToolPopup(context: SheetContext, rootEl: ElRef) {
+export function useToolPopup(
+  context: SheetContext,
+  rootEl: ElRef,
+  /**
+   * 查找弹层回退锚点（工具栏隐藏时 find 按钮不可达，取 sheet 顶部容器：
+   * 0 高贴 sheet 顶，bottom-start 定位下弹层自 sheet 左上角展开，落在 sheet 视口内）
+   */
+  getFallbackAnchor?: () => HTMLElement | null | undefined
+) {
   /** 当前打开的弹层工具（null = 未打开） */
   const popupTool = shallowRef<SheetTool | null>(null)
   /** 触发按钮元素（打开时的 currentTarget；用于面板 left 对齐按钮） */
@@ -104,6 +112,18 @@ export function useToolPopup(context: SheetContext, rootEl: ElRef) {
     closePopup()
   }
 
+  /**
+   * Ctrl/Cmd+F 的锚点解析：优先工具栏「查找与替换」按钮（与按钮入口完全同锚点，
+   * 弹层同样锚定按钮下方）；按钮不可达（showToolbar 隐藏）时回退 sheet 顶部容器。
+   */
+  function resolveFindAnchor(): HTMLElement | null {
+    const root = rootEl.value
+    if (!root) return null
+    const button = root.querySelector<HTMLElement>('[data-tool-id="find"]')
+    if (button) return button
+    return getFallbackAnchor?.() ?? null
+  }
+
   /** Ctrl/Cmd+F 打开 / 关闭查找条（与工具按钮同一 toggle 逻辑） */
   function onGlobalKeydown(event: KeyboardEvent): void {
     if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'f') return
@@ -131,7 +151,7 @@ export function useToolPopup(context: SheetContext, rootEl: ElRef) {
       closePopup()
       return
     }
-    scheduleOpen(findTool)
+    scheduleOpen(findTool, resolveFindAnchor())
   }
 
   onMounted(() => {

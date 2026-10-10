@@ -5,6 +5,7 @@ import type {
   ResolveCellRenderer,
   ResolveCellStyleHook,
   ResolveDisplayValue,
+  ScrollbarOptions,
   SheetGrid,
   SheetGridEditorsOptions,
   SheetGridHeaderOptions
@@ -63,10 +64,14 @@ export interface SheetProps {
    */
   colResize?: boolean
   /**
-   * 画布滚动条（透传 SheetGrid → 引擎内建）：内容溢出的轴在画布右/下缘绘制滚动条
-   * （可拖拽 / 点按跳转）；缺省 true。变化触发网格重建（构造期选项）
+   * 滚动条（透传 SheetGrid → 引擎内建，构造期选项）：false 整体关闭（不显示任何
+   * 滚动条）；缺省原生档 `{ mode: 'native' }`——浏览器原生滚动条在独立 gutter
+   * 渲染、不遮挡最底行/最右列；true 与对象形态按引擎语义透传（对象可配
+   * `mode: 'canvas'` 回画布悬浮滚动条，及 visibility / hideDelay / reserve 等
+   * canvas 档显示策略）。对象形态引用更替触发网格重建——沿用 header / editors
+   * 的稳定引用约定，宿主勿在模板内联对象字面量
    */
-  scrollbar?: boolean
+  scrollbar?: boolean | ScrollbarOptions
 }
 
 export interface SheetEmits {
