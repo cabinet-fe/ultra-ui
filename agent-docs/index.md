@@ -287,6 +287,7 @@ createApp(App).mount('#app')
 | animation  | 动画与帧工具                     | `utils/animation.md`  |
 | reactive   | 响应式与上下文辅助               | `utils/reactive.md`   |
 | text-nav   | 文本高亮、溢出导航与通用类型工具 | `utils/text-nav.md`   |
+| ai-request | OpenAI 兼容 AI 文本请求与 SSE 解析 | `utils/ai-request.md` |
 
 ### ai AI 对话（@veltra/ai）
 
