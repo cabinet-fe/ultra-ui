@@ -42,13 +42,31 @@ afterEach(() => {
   while (containers.length) containers.pop()!.remove()
 })
 
-describe('USheet scrollbar（缺省原生档，全形态透传）', () => {
-  it('缺省：原生档配置下发引擎，usesNativeScrollbar 为 true，grid 区装配原生滚动容器', async () => {
+describe('USheet scrollbar（缺省画布常驻档，全形态透传）', () => {
+  it('缺省：画布常驻档 true 下发引擎，不装配原生滚动容器', async () => {
     const { exposed, el } = mount(() => ({ workbook: new Workbook(), rows: 10, cols: 6 }))
     await nextTick()
 
     const table = exposed.value!.getGrid()!.getTable()
-    expect(table.options.scrollbar).toEqual({ mode: 'native' })
+    // 组件缺省 true：引擎归一化为 canvas always + reserve，滚动条常驻画在画布内
+    expect(table.options.scrollbar).toBe(true)
+    expect(table.usesNativeScrollbar).toBe(false)
+    expect(nativeScrollHost(el)).toBeNull()
+  })
+
+  it('显式 { mode: native }：仍切原生档，grid 区装配原生滚动容器', async () => {
+    const nativeOption = { mode: 'native' } as const
+    const { exposed, el } = mount(() => ({
+      workbook: new Workbook(),
+      rows: 10,
+      cols: 6,
+      scrollbar: nativeOption
+    }))
+    await nextTick()
+
+    const table = exposed.value!.getGrid()!.getTable()
+    // 引用透传：引擎收到宿主的同一对象
+    expect(table.options.scrollbar).toBe(nativeOption)
     expect(table.usesNativeScrollbar).toBe(true)
     // DOM 断言：引擎在挂载容器内装配真实 overflow 滚动容器（scrollbar-gutter: stable）
     expect(nativeScrollHost(el)).not.toBeNull()

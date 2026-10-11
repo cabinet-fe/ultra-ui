@@ -65,11 +65,13 @@ export interface SheetProps {
   colResize?: boolean
   /**
    * 滚动条（透传 SheetGrid → 引擎内建，构造期选项）：false 整体关闭（不显示任何
-   * 滚动条）；缺省原生档 `{ mode: 'native' }`——浏览器原生滚动条在独立 gutter
-   * 渲染、不遮挡最底行/最右列；true 与对象形态按引擎语义透传（对象可配
-   * `mode: 'canvas'` 回画布悬浮滚动条，及 visibility / hideDelay / reserve 等
-   * canvas 档显示策略）。对象形态引用更替触发网格重建——沿用 header / editors
-   * 的稳定引用约定，宿主勿在模板内联对象字面量
+   * 滚动条）；缺省 true 画布常驻档——引擎归一化 canvas always + reserve，滚动条
+   * 常驻画在画布内（reserve 只在画布内预留轨道，不占页面布局、不遮挡单元格）；
+   * 显式传 `{ mode: 'native' }` 切原生档（浏览器原生滚动条独立 gutter 渲染）；
+   * 对象形态按引擎语义透传（`mode: 'canvas'` 回画布悬浮滚动条，及
+   * visibility / hideDelay / reserve 等 canvas 档显示策略）。对象形态引用更替
+   * 触发网格重建——沿用 header / editors 的稳定引用约定，宿主勿在模板内联对象
+   * 字面量
    */
   scrollbar?: boolean | ScrollbarOptions
   /**

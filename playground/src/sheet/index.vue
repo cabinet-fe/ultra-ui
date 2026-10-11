@@ -1,7 +1,7 @@
 <template>
   <div class="sheet-demo">
-    <!-- 滚动条形态切换：缺省原生档（独立 gutter 不遮挡最底行/最右列）；对象形态经
-         computed 持稳定引用（构造期选项，引用更替触发网格重建） -->
+    <!-- 滚动条形态切换：缺省画布常驻档（canvas 映射 true，与组件缺省一致）；
+         对象形态经 computed 持稳定引用（构造期选项，引用更替触发网格重建） -->
     <div class="sheet-demo__seg" role="group" aria-label="滚动条形态">
       <button
         v-for="mode in SCROLLBAR_MODES"
@@ -440,17 +440,21 @@ function createDemoPngBytes(): Uint8Array {
 
 const sheetRef = useTemplateRef<SheetExposed>('sheetRef')
 
-// ─── 滚动条形态切换（原生缺省 / 画布 / 关闭）──────────────────────
-// 对象形态经 computed 持稳定引用：scrollbar 是构造期选项，引用更替触发网格重建
+// ─── 滚动条形态切换（画布缺省 / 原生 / 关闭）──────────────────────
+// canvas 档映射 true（与组件缺省一致，切到该档与未传 prop 行为相同）；
+// native 档保留可切换（供验证 A1 光标修复）。对象形态经 computed 持稳定引用：
+// scrollbar 是构造期选项，引用更替触发网格重建
 const SCROLLBAR_MODES = [
-  { value: 'native', label: '原生滚动条' },
   { value: 'canvas', label: '画布滚动条' },
+  { value: 'native', label: '原生滚动条' },
   { value: 'off', label: '关闭' }
 ] as const
-const scrollbarMode = ref<(typeof SCROLLBAR_MODES)[number]['value']>('native')
-const scrollbarOption = computed<boolean | ScrollbarOptions>(() =>
-  scrollbarMode.value === 'off' ? false : { mode: scrollbarMode.value }
-)
+const scrollbarMode = ref<(typeof SCROLLBAR_MODES)[number]['value']>('canvas')
+const scrollbarOption = computed<boolean | ScrollbarOptions>(() => {
+  if (scrollbarMode.value === 'canvas') return true
+  if (scrollbarMode.value === 'off') return false
+  return { mode: scrollbarMode.value }
+})
 
 // ─── 报表合计演示（公式能力可操作验证）─────────────────────────
 // 演示区 H8:I13（col 7/8）：表头 H8/I8，明细 H9:I12（数量列 I 被 SUM 引用），

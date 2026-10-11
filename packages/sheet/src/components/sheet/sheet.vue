@@ -113,10 +113,10 @@ const props = withDefaults(defineProps<SheetProps>(), {
   showColHeader: true,
   readonly: false,
   colResize: false,
-  // 缺省原生档：引擎在 grid 容器内装配真实 DOM 滚动容器（原生滚动条独立
-  // gutter，不遮挡单元格），画布悬浮滚动条不再绘制。对象缺省被所有实例共享，
-  // 只读透传不改动
-  scrollbar: { mode: 'native' },
+  // 缺省画布常驻档：true 经引擎归一化为 canvas always + reserve——滚动条常驻
+  // 画在画布内，reserve 只在画布内预留轨道（不占页面布局、不遮挡单元格）；
+  // 需浏览器原生滚动条时显式传 { mode: 'native' }
+  scrollbar: true,
   // 显式对齐引擎当前缺省（true 近边增长）：boolean prop 不写 default 会被
   // Vue 铸成 false，把引擎缺省翻成固定尺寸网格
   growOnScroll: true
