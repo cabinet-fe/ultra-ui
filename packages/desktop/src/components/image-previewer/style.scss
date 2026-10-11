@@ -1,0 +1,188 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+/**
+ * 图片预览 lightbox 样式
+ *
+ * modal（默认）：Teleport 到 body 的全屏遮罩 + 关闭按钮 + 底部缩放工具；
+ * 非 modal（file-viewer 等宿主内嵌）：根节点 display: contents 透传，预览面
+ * 绝对定位铺满宿主的定位容器，视觉规则与 file-viewer 画布一致。
+ */
+
+@include m.b(image-previewer) {
+  // ── 恒定亮面：透明图的白色衬底（恒白不随主题，同 file-viewer 纸面策略，
+  //    待 styles 包扩充深色中性阶 token 后可替换）──
+  --u-image-previewer-paper: #fff;
+
+  @include m.is-not(modal) {
+    // 内嵌模式根节点不参与布局，预览面直接铺满宿主容器
+    display: contents;
+  }
+
+  @include m.is(modal) {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    // 近黑半透明遮罩 + 轻模糊，聚焦图片本身
+    background: fn.color-a(bg-color, 70, black);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  @include m.e(stage) {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(20px, 3vw, 44px);
+    user-select: none;
+    // 图片缩放/拖拽的 transform 直接写在本元素 style 上（见 applyTransform）
+    transform-origin: center center;
+    transition: transform fn.use-var(transition, fast) fn.use-var(transition, ease);
+    will-change: transform;
+
+    &.is-pannable {
+      cursor: grab;
+      touch-action: none;
+    }
+
+    &.is-dragging {
+      cursor: grabbing;
+      // 拖拽期间禁用过渡保证跟手
+      transition: none;
+    }
+
+    img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 6px;
+      background: var(--u-image-previewer-paper);
+    }
+  }
+
+  // 加载中 / 加载失败覆盖层：内嵌时浅色蒙层对齐 file-viewer 画布，modal 时遮罩已是深色底
+  @include m.e(loading) {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: fn.use-var(text-color, second);
+    background: fn.color-a(bg-color, 70, bottom);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    pointer-events: none;
+  }
+
+  &.is-modal &__loading {
+    color: fn.use-var(text-color, white);
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  @include m.e(close) {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 10px;
+    color: fn.use-var(text-color, white);
+    background: fn.color-a(text-color, 10, white);
+    cursor: pointer;
+    transition:
+      background fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    &:hover {
+      background: fn.color-a(text-color, 22, white);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+
+    &:focus-visible {
+      box-shadow: fn.use-var(focus-ring);
+    }
+  }
+
+  @include m.e(toolbar) {
+    position: absolute;
+    left: 50%;
+    bottom: 26px;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    height: 38px;
+    padding: 3px;
+    border: none;
+    border-radius: 10px;
+    color: fn.use-var(text-color, white);
+    background: fn.color-a(text-color, 10, white);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  @include m.e(tool) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 7px;
+    color: inherit;
+    background: transparent;
+    cursor: pointer;
+    transition: background fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    &:not(:disabled):hover {
+      background: fn.color-a(text-color, 22, white);
+    }
+
+    &:disabled {
+      opacity: 0.38;
+      cursor: not-allowed;
+    }
+
+    &:focus-visible {
+      box-shadow: fn.use-var(focus-ring);
+    }
+  }
+
+  @include m.e(zoom-value) {
+    min-width: 48px;
+    color: fn.use-var(text-color, white);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+    user-select: none;
+  }
+}
+
+.u-image-previewer-fade-enter-active,
+.u-image-previewer-fade-leave-active {
+  transition: opacity fn.use-var(transition, normal) fn.use-var(transition, ease);
+  will-change: opacity;
+}
+
+.u-image-previewer-fade-enter-from,
+.u-image-previewer-fade-leave-to {
+  opacity: 0;
+}
+
+.u-image-previewer-fade-leave-active {
+  pointer-events: none;
+}

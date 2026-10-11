@@ -87,6 +87,7 @@ export const demoMeta: Record<string, DemoMeta> = {
   'group-nav': { zh: '分组导航', en: 'GroupNav', category: 'nav' },
   icon: { zh: '图标容器', en: 'Icon', category: 'basic' },
   'image-cropper': { zh: '图片裁剪', en: 'ImageCropper', category: 'other' },
+  'image-previewer': { zh: '图片预览', en: 'ImagePreviewer', category: 'other' },
   input: { zh: '输入框', en: 'Input', category: 'form' },
   kanban: { zh: '看板', en: 'Kanban', category: 'data' },
   kbd: { zh: '键盘', en: 'Kbd', category: 'basic' },

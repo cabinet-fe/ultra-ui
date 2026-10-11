@@ -156,6 +156,8 @@ export * from './segment'
 
 export * from './image-cropper'
 
+export * from './image-previewer'
+
 export * from './kanban'
 
 export * from './anchor'

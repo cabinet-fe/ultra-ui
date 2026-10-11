@@ -69,6 +69,7 @@ export const VELTRA_COMPONENT_PACKAGES: VeltraComponentPackage[] = [
       UGroupNav: 'components/group-nav/style',
       UIcon: 'components/icon/style',
       UImageCropper: 'components/image-cropper/style',
+      UImagePreviewer: 'components/image-previewer/style',
       UInput: 'components/input/style',
       UKanban: 'components/kanban/style',
       UKbd: 'components/kbd/style',
