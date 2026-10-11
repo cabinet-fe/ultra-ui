@@ -85,7 +85,7 @@
       :active-index="activeIndex"
     />
 
-    <!-- 单元格超链接配置弹窗（body 右键菜单拉起；confirm 写 setCellLink） -->
+    <!-- 单元格/图片超链接配置弹窗（右键菜单拉起；confirm 按模式路由写入） -->
     <u-sheet-hyperlink-popup
       v-if="hyperlinkPopup"
       :mode="hyperlinkPopup.mode"
@@ -93,11 +93,19 @@
       @confirm="handleHyperlinkConfirm"
       @close="hyperlinkPopup = null"
     />
+
+    <!-- 图片 lightbox 预览（浮动图/嵌入图右键「预览」拉起；关闭卸载 → objectURL 由组件回收） -->
+    <u-image-previewer
+      v-if="imagePreview"
+      :src="imagePreview.src ?? imagePreview.data"
+      :mime="imagePreview.mime"
+      @close="imagePreview = null"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { UDropdown } from '@veltra/desktop'
+import { UDropdown, UImagePreviewer } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
 import type { CellAddress, CellLinkPayload } from 'infinitable/sheet'
 import { computed, ref, shallowRef, useTemplateRef, watch } from 'vue'
@@ -106,7 +114,12 @@ import type { SheetTool } from '../../tools/registry'
 import type { SheetEmits, SheetProps, _SheetExposed } from '../../types'
 import UFormulaBar from './formula-bar.vue'
 import { pickAndImportFile } from './import-file'
-import type { HyperlinkConfirmPayload, HyperlinkPopupMode } from './popup-helpers'
+import type {
+  HyperlinkConfirmPayload,
+  HyperlinkImageTarget,
+  HyperlinkPopupMode,
+  ImagePreviewSource
+} from './popup-helpers'
 import USheetBorderPopup from './popups/border-popup.vue'
 import USheetExportPopup from './popups/export-popup.vue'
 import USheetFillColorPopup from './popups/fill-color-popup.vue'
@@ -236,13 +249,14 @@ function handlePopupVisible(visible: boolean): void {
 
 const toolGroups = useToolGroups(context, stateTick)
 
-// ─── 单元格超链接 UI（右键菜单 → 配置弹窗 → setCellLink；悬停 tooltip）──
+// ─── 单元格超链接 / 图片 UI（右键菜单 → 配置弹窗 → 写入；悬停 tooltip；lightbox）──
 
-/** 超链接配置弹层状态（右键菜单拉起）：mode + 编辑回填 + 目标格（cell 模式） */
+/** 超链接配置弹层状态（右键菜单拉起）：mode + 编辑回填 + 写入目标（cell 格 / image 浮动图或嵌入图） */
 const hyperlinkPopup = shallowRef<{
   mode: HyperlinkPopupMode
   initial?: CellLinkPayload
   addr?: CellAddress
+  imageTarget?: HyperlinkImageTarget
 } | null>(null)
 
 /** 悬停 tooltip 状态机（引擎 cell link hover/leave 事件驱动，层坐标换算见 use-cell-link-tooltip） */
@@ -252,26 +266,49 @@ const {
   onCellLinkLeave: hideCellLinkTooltip
 } = useCellLinkTooltip()
 
-/** body 右键菜单超链接项句柄：记录目标格并拉起弹窗（编辑回填原 url/text） */
-function openHyperlinkPopup(mode: HyperlinkPopupMode, initial?: CellLinkPayload): void {
+/** 右键菜单超链接项句柄：记录写入目标并拉起弹窗（编辑回填原 url/text） */
+function openHyperlinkPopup(
+  mode: HyperlinkPopupMode,
+  initial?: CellLinkPayload,
+  imageTarget?: HyperlinkImageTarget
+): void {
   hyperlinkPopup.value = {
     mode,
     initial,
-    addr: mode === 'cell' ? (context.getSelection().activeCell ?? undefined) : undefined
+    addr: mode === 'cell' ? (context.getSelection().activeCell ?? undefined) : undefined,
+    imageTarget: mode === 'image' ? imageTarget : undefined
   }
 }
 
 /**
- * 弹窗确认：关弹层并写目标格链接。一次 setCellLink = 一个 undo 单元；
- * 显示文本留空不写入 text → 单元格沿用自身内容作为链接显示。
+ * 弹窗确认：关弹层并写目标链接，一次写入 = 一个 undo 单元。
+ * cell：setCellLink（显示文本留空不写入 text → 单元格沿用自身内容显示）；
+ * 浮动图：updateImage（link 字段）；嵌入图：insertCellImage 覆盖写（其余载荷保留）。
  */
 function handleHyperlinkConfirm(payload: HyperlinkConfirmPayload): void {
   const current = hyperlinkPopup.value
   hyperlinkPopup.value = null
-  if (current?.mode === 'cell' && current.addr) {
-    context.setCellLink(current.addr, payload)
+  if (current?.mode === 'cell') {
+    if (current.addr) context.setCellLink(current.addr, payload)
+    return
   }
-  // image 模式（嵌入图/浮动图 link 写入）在 P4 接线
+  const target = current?.imageTarget
+  if (target?.kind === 'float') {
+    context.updateImage(target.id, { link: payload.url })
+    return
+  }
+  if (target?.kind === 'cell') {
+    const existing = context.getCellImage(target.addr)
+    if (existing) context.insertCellImage(target.addr, { ...existing, link: payload.url })
+  }
+}
+
+/** lightbox 预览状态（右键「预览」拉起）：URL 或字节 + MIME；关闭置 null 卸载（objectURL 由 UImagePreviewer 回收） */
+const imagePreview = shallowRef<ImagePreviewSource | null>(null)
+
+/** 右键「预览」句柄：浮动图 / 嵌入图菜单共用 */
+function openImagePreview(source: ImagePreviewSource): void {
+  imagePreview.value = source
 }
 
 // ─── grid 生命周期（重建 / 右键菜单 / 公式栏编辑镜像）────────────────
@@ -301,8 +338,9 @@ const { rebuildGrid, activateGrid, pruneCache, getGrid, setSelectionAnchor } = u
   onCellLinkClick: (event) => emit('cell-link-click', event),
   onImageLinkClick: (event) => emit('image-link-click', event),
   onFloatContextMenu: (event) => emit('float-context-menu', event),
-  // body 右键菜单超链接项 → 拉起配置弹窗
-  openHyperlinkPopup
+  // body 菜单超链接项 → 拉起配置弹窗；右键「预览」→ 打开 lightbox
+  openHyperlinkPopup,
+  openImagePreview
 })
 
 const exposed: _SheetExposed = {

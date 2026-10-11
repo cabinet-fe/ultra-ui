@@ -54,7 +54,7 @@ defineOptions({ name: 'USheetHyperlinkPopup' })
  * 自绘遮罩 + 居中面板，对齐 loading-mask 自绘先例）：
  * - 地址必填：空提交拦截并 message.error，弹窗不关
  * - 显示文本可留空：留空不写入 text（单元格沿用自身内容作为显示）
- * - mode="cell" 两字段；mode="image" 仅地址（图片超链接复用，P4 接线）
+ * - mode="cell" 两字段；mode="image" 仅地址（图片超链接复用，写入目标由宿主收口）
  * - 确认仅 emit confirm；关闭（取消/Esc/遮罩点击）emit close，均由宿主收口
  */
 const props = defineProps<{

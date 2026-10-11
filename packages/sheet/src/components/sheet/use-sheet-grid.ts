@@ -14,7 +14,8 @@ import { onBeforeUnmount, onMounted, watch } from 'vue'
 
 import type { SheetContext } from '../../tools/context'
 import type { FloatContextMenuPayload, SheetProps } from '../../types'
-import type { OpenHyperlinkPopup } from './popup-helpers'
+import { popFloatImageMenu } from './float-image-menu'
+import type { ImagePreviewSource, OpenHyperlinkPopup } from './popup-helpers'
 import {
   buildBodyMenus,
   buildColHeaderMenus,
@@ -62,6 +63,8 @@ interface UseSheetGridOptions {
   onFloatContextMenu?: (event: FloatContextMenuPayload) => void
   /** body 菜单超链接项拉起配置弹窗的句柄（sheet.vue 挂载的弹层状态） */
   openHyperlinkPopup?: OpenHyperlinkPopup
+  /** 右键「预览」打开 lightbox 的句柄（sheet.vue 挂载的 UImagePreviewer 状态） */
+  openImagePreview?: (source: ImagePreviewSource) => void
 }
 
 /** 缓存实例（LRU 淘汰）：每个 sheet 一个独立容器 div，非激活容器 visibility:hidden 堆叠 */
@@ -140,7 +143,8 @@ export function useSheetGrid(options: UseSheetGridOptions) {
           ? buildColHeaderMenus(context, { readonly: props.readonly, col: info.col })
           : buildBodyMenus(context, {
               readonly: props.readonly,
-              openHyperlinkPopup: options.openHyperlinkPopup
+              openHyperlinkPopup: options.openHyperlinkPopup,
+              openImagePreview: options.openImagePreview
             })
 
     // 最小宽度兜底；实际宽度由最长菜单项撑开（勿固定 240 导致空白过大）
@@ -216,10 +220,22 @@ export function useSheetGrid(options: UseSheetGridOptions) {
       table.floatObjects.onContextMenu((event) => {
         // 层坐标 → 页面视口坐标（层坐标 + grid 容器偏移，与 body 右键菜单同口径）
         const rect = el.getBoundingClientRect()
-        options.onFloatContextMenu?.({
+        const payload: FloatContextMenuPayload = {
           ...event,
           clientX: rect.left + event.x,
           clientY: rect.top + event.y
+        }
+        options.onFloatContextMenu?.(payload)
+        // 产品侧浮动图独立菜单（预览 / 超链接 / 删除）；与宿主 emit 并存，
+        // 不穿透到格菜单由引擎保证（floatObjects 命中即不派发单元格右键）
+        popFloatImageMenu({
+          ctx: context,
+          event: payload,
+          handles: {
+            openImagePreview: options.openImagePreview,
+            openHyperlinkPopup: options.openHyperlinkPopup
+          },
+          readonly: props.readonly
         })
       })
     ]

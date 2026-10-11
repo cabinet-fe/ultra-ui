@@ -41,7 +41,7 @@ src/
 - 宿主需给高度（`.u-sheet` flex 列，grid `flex:1; min-height:0`）
 - 样式：`import '@veltra/sheet/components/sheet/style'`；BEM 元素用 `m.e(name)`，**不要**用单参 `m.bem` 当元素（会丢 `__grid` 等规则）
 - 工具栏组序：`history | cell | text | edit | insert | file`；行列插入/删除、冻结在**右键菜单**（非工具栏）；edit 组含查找与「函数」弹框（与公式栏 fx 按钮同一组件 `functions-popup.vue`：分类导航 + 搜索 + 可选择，含宿主经 `registerFormulaFunction` 注册的自定义函数；选中仅 emit select → 公式栏 `insertFunction(name)` 进入编辑态输出 `=NAME()`，模型写入待 fx 提交，不参与事务）
-- **右键菜单分区**：body 为合并/取消合并、设置数据格式（子菜单：日期 / 千分位金额 / 大写金额 / 小数位数，经 `applyNumFmtToSelection` → `applyStyle` 写 `numFmt`，可 undo）、超链接（按目标格状态：无链接「插入超链接」、有链接「编辑超链接 / 取消超链接」；插入/编辑经注入句柄拉起 `popups/hyperlink-popup.vue` 配置弹窗——地址必填 + 显示文本留空沿用单元格内容，confirm 写 `setCellLink`；readonly 禁用）、插入图片；悬停链接格 tooltip（`use-cell-link-tooltip.ts`，引擎 hover/leave 事件驱动，DOM 浮层 `__link-tooltip`）；**插入/删除行列仅在行号/列头**（行号：上下插入行/删除行 + 行高 + 冻结；列头：左右插入列/删除列 + 列宽 + 冻结；行高/列宽数值项经门面批量应用到选区，不进 undo，readonly 禁用）
+- **右键菜单分区**：body 为合并/取消合并、设置数据格式（子菜单：日期 / 千分位金额 / 大写金额 / 小数位数，经 `applyNumFmtToSelection` → `applyStyle` 写 `numFmt`，可 undo）、超链接（按目标格状态：无链接「插入超链接」、有链接「编辑超链接 / 取消超链接」；插入/编辑经注入句柄拉起 `popups/hyperlink-popup.vue` 配置弹窗——地址必填 + 显示文本留空沿用单元格内容，confirm 写 `setCellLink`；readonly 禁用）、插入图片、嵌入图项（目标格含嵌入图时附加：预览 / 图片超链接 / 取消超链接（按 `getCellImage` link 状态）/ 移除图片——超链接复用同一弹窗 `mode="image"` 仅地址字段，confirm 覆盖写 `insertCellImage`（清除写 `link: undefined`）、移除走 `removeCellImage`，均可 undo）；悬停链接格 tooltip（`use-cell-link-tooltip.ts`，引擎 hover/leave 事件驱动，DOM 浮层 `__link-tooltip`）；**插入/删除行列仅在行号/列头**（行号：上下插入行/删除行 + 行高 + 冻结；列头：左右插入列/删除列 + 列宽 + 冻结；行高/列宽数值项经门面批量应用到选区，不进 undo，readonly 禁用）
 - SheetGrid 按 sheet **LRU 缓存**（容量 3）：命中只翻可见性；`structure-change` / 尺寸变化 / 导入替换则重建
 - **单元格级只读**（填报场景）：经 sheet 模型 API `setCellReadonly` / `setRangeReadonly` / `isCellReadonly` 标记，SheetGrid 自动拦截只读格编辑；工具栏 / 公式栏不经 grid 守卫，填报宿主应全部隐藏（playground `sheet-data-entry` 演示页为参考实现）
 - 弹层打开用 `setTimeout(0)`，不要用 `queueMicrotask`（否则同一次 click 冒泡会立刻关掉面板）。
@@ -50,6 +50,7 @@ src/
 
 - **SheetContext 门面**：`insertImage(input)` / `removeImage(id)` / `updateImage(id, patch)` / `getImages()` / `onImageChange(handler)`（读写走命令/事件，不暴露 Sheet）。
 - **UI 入口**：工具栏 `insert-image`（组 `insert`，弹层 `UFilePicker` 本地文件 + URL 输入并存）；右键「插入图片」直接拉起系统文件框；共享逻辑 `components/sheet/insert-image.ts`（`insertImageFromFile` / `insertImageFromUrl`）。
+- **浮动图右键独立菜单**：`float-image-menu.ts` 消费引擎 `floatObjects.onContextMenu`，经 `contextmenu.pop` 弹 预览 / 设置超链接 / 取消超链接（无链接不出现）/ 删除图片（不穿透格菜单由引擎保证）；超链接走同一弹窗 `mode="image"`（confirm 写 `updateImage(id, { link })`、清除 `link: null`）；右键「预览」（浮动图/嵌入图共用）打开 sheet.vue 挂载的 `@veltra/desktop` `UImagePreviewer` lightbox（`popup-helpers.ts` 的 `imagePreviewSource` 归一 src/data 源，关闭卸载回收 objectURL）。
 - 叠层渲染与拖动交互为官方 `infinitable/sheet` 浮动层内置能力。
 
 ## 导入导出

@@ -8,7 +8,8 @@ import { MIN_ROW_COL_SIZE } from '../../tools/context'
 import { defaultToolRegistry } from '../../tools/registry'
 import InsertCountMenuItem from './insert-count-menu-item.vue'
 import { pickAndInsertImage } from './insert-image'
-import type { OpenHyperlinkPopup } from './popup-helpers'
+import type { ImagePreviewSource, OpenHyperlinkPopup } from './popup-helpers'
+import { imageLinkInitial, imagePreviewSource } from './popup-helpers'
 
 /** 插入数量钳制范围（对齐 univer） */
 export const INSERT_COUNT_MIN = 1
@@ -264,12 +265,14 @@ export function applyNumFmtToSelection(ctx: SheetContext, numFmt: NumFmt): void 
   for (const range of ctx.getSelection().ranges) ctx.applyStyle(range, { numFmt })
 }
 
-/** body 格右键菜单选项（超链接项行为注入） */
+/** body 格右键菜单选项（超链接 / 图片预览项行为注入） */
 export interface BodyMenuOptions {
-  /** 只读模式：超链接写入项禁用（对齐行高/列宽 readonly 禁用约定） */
+  /** 只读模式：超链接与嵌入图写入项禁用（对齐行高/列宽 readonly 禁用约定） */
   readonly?: boolean
   /** 拉起超链接配置弹窗的句柄（缺省时插入/编辑项禁用，保持 build 纯函数可测） */
   openHyperlinkPopup?: OpenHyperlinkPopup
+  /** 打开 lightbox 预览的句柄（缺省时嵌入图「预览」项禁用） */
+  openImagePreview?: (source: ImagePreviewSource) => void
 }
 
 /**
@@ -299,11 +302,53 @@ function cellLinkMenuItems(
   ]
 }
 
-/** body 格右键菜单：合并/取消合并 + 设置数据格式 + 超链接 + 插入图片（行列插入/删除仅行号/列头菜单） */
+/**
+ * body 菜单嵌入图项：目标格含嵌入图时附加——预览 / 图片超链接 / 取消超链接
+ * （按载荷 link 状态出项）/ 移除图片。设置走 hyperlink 弹窗 image 模式（确认后
+ * 由宿主覆盖写 `insertCellImage(addr, { ...payload, link })`）；取消直写覆盖
+ * `link: undefined`（引擎 CellImagePayload 清除约定，其余字段保留）；移除走
+ * `removeCellImage`（命令系统，可 undo）。无嵌入图返回空数组（不出现图片项）。
+ */
+function cellImageMenuItems(
+  ctx: SheetContext,
+  active: CellAddress | null | undefined,
+  options?: BodyMenuOptions
+): ContextmenuItem[] {
+  if (!active || !ctx.hasCellImage(active)) return []
+  const payload = ctx.getCellImage(active)
+  if (!payload) return []
+  const handle = options?.openHyperlinkPopup
+  const readonly = options?.readonly === true
+  const items: ContextmenuItem[] = [
+    {
+      label: '预览',
+      disabled: !options?.openImagePreview,
+      callback: () => options?.openImagePreview?.(imagePreviewSource(payload))
+    },
+    {
+      label: '图片超链接',
+      disabled: readonly || !handle,
+      callback: () =>
+        handle?.('image', imageLinkInitial(payload.link), { kind: 'cell', addr: active })
+    }
+  ]
+  if (payload.link) {
+    items.push({
+      label: '取消超链接',
+      disabled: readonly,
+      callback: () => ctx.insertCellImage(active, { ...payload, link: undefined })
+    })
+  }
+  items.push({ label: '移除图片', disabled: readonly, callback: () => ctx.removeCellImage(active) })
+  return items
+}
+
+/** body 格右键菜单：合并/取消合并 + 设置数据格式 + 超链接 + 插入图片（+ 嵌入图四项；行列插入/删除仅行号/列头菜单） */
 export function buildBodyMenus(ctx: SheetContext, options?: BodyMenuOptions): ContextmenuItem[] {
   const mergeTool = defaultToolRegistry.get('merge')
   const unmergeTool = defaultToolRegistry.get('unmerge')
   const active = ctx.getSelection().activeCell
+  const imageItems = cellImageMenuItems(ctx, active, options)
 
   return [
     {
@@ -339,7 +384,8 @@ export function buildBodyMenus(ctx: SheetContext, options?: BodyMenuOptions): Co
       ]
     },
     ...cellLinkMenuItems(ctx, active, options),
-    { label: '插入图片', disabled: !active, callback: () => pickAndInsertImage(ctx) }
+    { label: '插入图片', disabled: !active, callback: () => pickAndInsertImage(ctx) },
+    ...(imageItems.length > 0 ? [{ divider: true } as const, ...imageItems] : [])
   ]
 }
 

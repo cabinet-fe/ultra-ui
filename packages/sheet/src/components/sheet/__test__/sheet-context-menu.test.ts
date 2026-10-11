@@ -439,3 +439,138 @@ describe('buildBodyMenus 超链接项（按目标格链接状态出项）', () =
     expect(readonlyEdit.find((m) => m.label === '取消超链接')?.callback).toBeTruthy()
   })
 })
+
+describe('buildBodyMenus 嵌入图项（按目标格嵌入图状态出项）', () => {
+  const ADDR = { row: 1, col: 2 }
+
+  /** 弹窗句柄 spy（含图片目标记录） */
+  function popupSpy() {
+    const calls: Array<{
+      mode: 'image'
+      initial?: { url: string }
+      target?: { kind: 'cell'; addr: { row: number; col: number } }
+    }> = []
+    return {
+      calls,
+      open: (
+        mode: 'image',
+        initial?: { url: string },
+        target?: { kind: 'cell'; addr: { row: number; col: number } }
+      ): void => {
+        calls.push({ mode, initial, target })
+      }
+    }
+  }
+
+  /** 预览句柄 spy */
+  function previewSpy() {
+    const previews: unknown[] = []
+    return { previews, open: (source: unknown): void => previews.push(source) }
+  }
+
+  it('无嵌入图：不出现图片项', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    sheet.selectCell(ADDR)
+    const labels = buildBodyMenus(ctx).map((m) => m.label ?? (m.divider ? '---' : ''))
+    expect(labels).toHaveLength(6)
+    for (const label of ['预览', '图片超链接', '取消超链接', '移除图片']) {
+      expect(labels).not.toContain(label)
+    }
+  })
+
+  it('无链接嵌入图：divider + 预览 / 图片超链接 / 移除图片（无取消超链接）', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    ctx.insertCellImage(ADDR, { src: 'https://example.com/a.png' })
+    sheet.selectCell(ADDR)
+    const popup = popupSpy()
+    const preview = previewSpy()
+
+    const menus = buildBodyMenus(ctx, {
+      openHyperlinkPopup: popup.open,
+      openImagePreview: preview.open
+    })
+    expect(menus.map((m) => m.label ?? (m.divider ? '---' : ''))).toEqual([
+      '合并单元格',
+      '取消合并单元格',
+      '---',
+      '设置数据格式',
+      '插入超链接',
+      '插入图片',
+      '---',
+      '预览',
+      '图片超链接',
+      '移除图片'
+    ])
+
+    menus.find((m) => m.label === '预览')!.callback!()
+    expect(preview.previews).toEqual([{ src: 'https://example.com/a.png' }])
+    menus.find((m) => m.label === '图片超链接')!.callback!()
+    expect(popup.calls).toEqual([
+      { mode: 'image', initial: undefined, target: { kind: 'cell', addr: ADDR } }
+    ])
+  })
+
+  it('有链接嵌入图：含取消超链接；图片超链接回填 url；取消清 link 保其余字段且 undo 还原', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    ctx.insertCellImage(ADDR, { src: 'https://example.com/a.png', link: 'https://example.com' })
+    sheet.selectCell(ADDR)
+    const popup = popupSpy()
+
+    const menus = buildBodyMenus(ctx, { openHyperlinkPopup: popup.open })
+    expect(menus.map((m) => m.label)).toContain('取消超链接')
+
+    menus.find((m) => m.label === '图片超链接')!.callback!()
+    expect(popup.calls).toEqual([
+      {
+        mode: 'image',
+        initial: { url: 'https://example.com' },
+        target: { kind: 'cell', addr: ADDR }
+      }
+    ])
+
+    menus.find((m) => m.label === '取消超链接')!.callback!()
+    expect(ctx.getCellImage(ADDR)).toEqual({ src: 'https://example.com/a.png' })
+    expect(ctx.undo()).toBe(true)
+    expect(ctx.getCellImage(ADDR)).toEqual({
+      src: 'https://example.com/a.png',
+      link: 'https://example.com'
+    })
+  })
+
+  it('移除图片：hasCellImage false 且 undo 还原', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    ctx.insertCellImage(ADDR, { src: 'https://example.com/a.png' })
+    sheet.selectCell(ADDR)
+
+    buildBodyMenus(ctx).find((m) => m.label === '移除图片')!.callback!()
+    expect(ctx.hasCellImage(ADDR)).toBe(false)
+    expect(ctx.undo()).toBe(true)
+    expect(ctx.hasCellImage(ADDR)).toBe(true)
+  })
+
+  it('readonly：图片超链接/取消超链接/移除图片禁用、预览可用；句柄缺省：预览/图片超链接禁用', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    ctx.insertCellImage(ADDR, { src: 'https://example.com/a.png', link: 'https://e.com' })
+    sheet.selectCell(ADDR)
+
+    const readonly = buildBodyMenus(ctx, {
+      readonly: true,
+      openHyperlinkPopup: () => {},
+      openImagePreview: () => {}
+    })
+    expect(readonly.find((m) => m.label === '预览')?.disabled).toBeFalsy()
+    expect(readonly.find((m) => m.label === '图片超链接')?.disabled).toBe(true)
+    expect(readonly.find((m) => m.label === '取消超链接')?.disabled).toBe(true)
+    expect(readonly.find((m) => m.label === '移除图片')?.disabled).toBe(true)
+
+    const noHandles = buildBodyMenus(ctx)
+    expect(noHandles.find((m) => m.label === '预览')?.disabled).toBe(true)
+    expect(noHandles.find((m) => m.label === '图片超链接')?.disabled).toBe(true)
+    expect(noHandles.find((m) => m.label === '移除图片')?.disabled).toBeFalsy()
+  })
+})

@@ -94,6 +94,46 @@ function menuItem(text: string): HTMLLIElement | undefined {
     : undefined
 }
 
+/** body 格右键（真实 SheetGrid → handleContextMenu → contextmenu.pop 链路） */
+function popBodyContextMenu(
+  exposed: { value: SheetExposed | undefined },
+  row: number,
+  col: number
+): void {
+  const table = exposed.value!.getGrid()!.getTable()
+  const event = {
+    cell: { row, col },
+    region: 'body',
+    x: 100,
+    y: 40,
+    originalEvent: new MouseEvent('contextmenu')
+  }
+  for (const listener of table.contextMenuListeners) {
+    listener(event as Parameters<typeof listener>[0])
+  }
+}
+
+/** 弹窗（Teleport 到 body）内按文案取按钮 */
+function dialogButton(text: string): HTMLButtonElement | undefined {
+  const dialog = document.body.querySelector<HTMLElement>('.u-sheet__link-dialog')
+  return dialog
+    ? [...dialog.querySelectorAll<HTMLButtonElement>('button')].find((btn) =>
+        btn.textContent?.includes(text)
+      )
+    : undefined
+}
+
+/** 弹窗第 index 个输入框（真实 UInput → .u-input__native）写入并同步 v-model */
+async function setDialogInput(index: number, value: string): Promise<void> {
+  const dialog = document.body.querySelector<HTMLElement>('.u-sheet__link-dialog')!
+  const input = dialog.querySelectorAll<HTMLInputElement>('.u-sheet__link-dialog-input input')[
+    index
+  ]!
+  input.value = value
+  input.dispatchEvent(new Event('input', { bubbles: true }))
+  await nextTick()
+}
+
 afterEach(() => {
   while (apps.length) apps.pop()!.unmount()
   while (containers.length) containers.pop()!.remove()
@@ -1365,46 +1405,6 @@ describe('USheet 引擎链接 / 图片事件透传', () => {
 })
 
 describe('USheet 单元格超链接 UI（右键菜单 → 配置弹窗 → 写入；悬停 tooltip）', () => {
-  /** body 格右键（真实 SheetGrid → handleContextMenu → contextmenu.pop 链路） */
-  function popBodyContextMenu(
-    exposed: { value: SheetExposed | undefined },
-    row: number,
-    col: number
-  ): void {
-    const table = exposed.value!.getGrid()!.getTable()
-    const event = {
-      cell: { row, col },
-      region: 'body',
-      x: 100,
-      y: 40,
-      originalEvent: new MouseEvent('contextmenu')
-    }
-    for (const listener of table.contextMenuListeners) {
-      listener(event as Parameters<typeof listener>[0])
-    }
-  }
-
-  /** 弹窗（Teleport 到 body）内按文案取按钮 */
-  function dialogButton(text: string): HTMLButtonElement | undefined {
-    const dialog = document.body.querySelector<HTMLElement>('.u-sheet__link-dialog')
-    return dialog
-      ? [...dialog.querySelectorAll<HTMLButtonElement>('button')].find((btn) =>
-          btn.textContent?.includes(text)
-        )
-      : undefined
-  }
-
-  /** 弹窗第 index 个输入框（真实 UInput → .u-input__native）写入并同步 v-model */
-  async function setDialogInput(index: number, value: string): Promise<void> {
-    const dialog = document.body.querySelector<HTMLElement>('.u-sheet__link-dialog')!
-    const input = dialog.querySelectorAll<HTMLInputElement>('.u-sheet__link-dialog-input input')[
-      index
-    ]!
-    input.value = value
-    input.dispatchEvent(new Event('input', { bubbles: true }))
-    await nextTick()
-  }
-
   it('body 右键按状态出项：无链接「插入」→ 弹窗确认写入 cell link；有链接「编辑/取消」→ 取消后可 undo', async () => {
     const workbook = createWorkbook()
     const exposed: { value: SheetExposed | undefined } = { value: undefined }
@@ -1492,6 +1492,204 @@ describe('USheet 单元格超链接 UI（右键菜单 → 配置弹窗 → 写�
     }
     await nextTick()
     expect(tooltip()).toBeNull()
+  })
+})
+
+describe('USheet 图片 UI（浮动图右键独立菜单 / 嵌入图 body 菜单项 / lightbox 预览）', () => {
+  /** 浮动层右键：向引擎 floatObjects 派发 contextmenu（P1 同链路） */
+  function dispatchFloatContextMenu(
+    exposed: { value: SheetExposed | undefined },
+    id: string
+  ): void {
+    exposed
+      .value!.getGrid()!
+      .getTable()
+      .floatObjects.dispatchContextMenu(
+        { id } as FloatObject,
+        {
+          type: 'contextmenu',
+          target: null,
+          x: 120,
+          y: 88,
+          deltaX: 0,
+          deltaY: 0,
+          key: undefined,
+          shiftKey: false,
+          ctrlKey: false,
+          metaKey: false,
+          originalEvent: new MouseEvent('contextmenu')
+        } as SceneEvent
+      )
+  }
+
+  /** 插入一张浮动图（URL 来源），返回 id */
+  function insertFloatImage(exposed: { value: SheetExposed | undefined }, src?: string): string {
+    return exposed
+      .value!.getContext()
+      .insertImage({
+        data: new Uint8Array([1, 2, 3]),
+        type: 'png',
+        anchor: { from: { row: 0, col: 0 } },
+        src
+      })
+  }
+
+  /** lightbox 根节点（UImagePreviewer Teleport 到 body 的 modal） */
+  function lightbox(): HTMLElement | null {
+    return document.body.querySelector<HTMLElement>('.u-image-previewer')
+  }
+
+  it('浮动图右键弹独立菜单：预览 / 设置超链接 / 删除图片；无链接无取消项；不弹 body 菜单', async () => {
+    const workbook = createWorkbook()
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
+    await nextTick()
+    const id = insertFloatImage(exposed, 'https://example.com/float.png')
+
+    dispatchFloatContextMenu(exposed, id)
+    await nextTick()
+
+    expect(menuItem('预览')!.classList.contains('is-disabled')).toBe(false)
+    expect(menuItem('设置超链接')).toBeTruthy()
+    expect(menuItem('删除图片')).toBeTruthy()
+    expect(menuItem('取消超链接')).toBeUndefined()
+    // 独立菜单：最新弹层不含 body 菜单项（引擎保证右键不穿透到格）
+    expect(menuItem('合并单元格')).toBeUndefined()
+    expect(menuItem('插入图片')).toBeUndefined()
+  })
+
+  it('浮动图菜单：设置超链接（弹窗仅地址字段，确认写 updateImage）；取消清 link；删除可 undo', async () => {
+    const workbook = createWorkbook()
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
+    await nextTick()
+    const ctx = exposed.value!.getContext()
+    const id = insertFloatImage(exposed)
+    const linkOf = (): string | undefined => ctx.getImages().find((img) => img.id === id)?.link
+
+    // 设置超链接 → 弹窗 image 模式仅地址一个输入 → 确认写入 link
+    dispatchFloatContextMenu(exposed, id)
+    await nextTick()
+    menuItem('设置超链接')!.click()
+    await nextTick()
+    const dialog = document.body.querySelector<HTMLElement>('.u-sheet__link-dialog')!
+    expect(dialog).toBeTruthy()
+    expect(dialog.querySelectorAll('.u-sheet__link-dialog-input')).toHaveLength(1)
+    await setDialogInput(0, 'https://example.com')
+    dialogButton('确定')!.click()
+    await nextTick()
+    expect(linkOf()).toBe('https://example.com')
+
+    // 有链接：取消超链接 → updateImage(id, { link: null }) 清除，undo 还原
+    dispatchFloatContextMenu(exposed, id)
+    await nextTick()
+    menuItem('取消超链接')!.click()
+    await nextTick()
+    expect(linkOf()).toBeUndefined()
+    expect(ctx.undo()).toBe(true)
+    expect(linkOf()).toBe('https://example.com')
+
+    // 删除图片 → getImages 不含该 id，undo 还原
+    dispatchFloatContextMenu(exposed, id)
+    await nextTick()
+    menuItem('删除图片')!.click()
+    await nextTick()
+    expect(ctx.getImages().some((img) => img.id === id)).toBe(false)
+    expect(ctx.undo()).toBe(true)
+    expect(ctx.getImages().some((img) => img.id === id)).toBe(true)
+  })
+
+  it('嵌入图 body 菜单四项：预览 / 图片超链接 / 取消超链接 / 移除图片；移除可 undo、link 覆盖写', async () => {
+    const workbook = createWorkbook()
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
+    await nextTick()
+    const ctx = exposed.value!.getContext()
+    const addr = { row: 0, col: 0 }
+    ctx.insertCellImage(addr, { src: 'https://example.com/cell.png' })
+    ctx.selectCell(addr)
+
+    // 无链接：预览 / 图片超链接 / 移除图片，无取消项
+    popBodyContextMenu(exposed, 0, 0)
+    await nextTick()
+    expect(menuItem('预览')).toBeTruthy()
+    expect(menuItem('图片超链接')).toBeTruthy()
+    expect(menuItem('移除图片')).toBeTruthy()
+    expect(menuItem('取消超链接')).toBeUndefined()
+
+    // 图片超链接 → 弹窗确认 → 覆盖写 link（src 保留）
+    menuItem('图片超链接')!.click()
+    await nextTick()
+    await setDialogInput(0, 'https://example.com')
+    dialogButton('确定')!.click()
+    await nextTick()
+    expect(ctx.getCellImage(addr)).toEqual({
+      src: 'https://example.com/cell.png',
+      link: 'https://example.com'
+    })
+
+    // 有链接：取消超链接 → link 清除（src 保留），undo 还原
+    popBodyContextMenu(exposed, 0, 0)
+    await nextTick()
+    menuItem('取消超链接')!.click()
+    await nextTick()
+    expect(ctx.getCellImage(addr)).toEqual({ src: 'https://example.com/cell.png' })
+    expect(ctx.undo()).toBe(true)
+    expect(ctx.getCellImage(addr)).toEqual({
+      src: 'https://example.com/cell.png',
+      link: 'https://example.com'
+    })
+
+    // 移除图片 → hasCellImage false；菜单不再出现图片项；undo 还原
+    popBodyContextMenu(exposed, 0, 0)
+    await nextTick()
+    menuItem('移除图片')!.click()
+    await nextTick()
+    expect(ctx.hasCellImage(addr)).toBe(false)
+    popBodyContextMenu(exposed, 0, 0)
+    await nextTick()
+    expect(menuItem('移除图片')).toBeUndefined()
+    expect(ctx.undo()).toBe(true)
+    expect(ctx.hasCellImage(addr)).toBe(true)
+  })
+
+  it('右键「预览」打开 lightbox 显示对应图片（浮动图 src / 嵌入图 data），关闭卸载', async () => {
+    const workbook = createWorkbook()
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
+    await nextTick()
+    const ctx = exposed.value!.getContext()
+
+    // 浮动图（URL 来源）
+    const floatId = insertFloatImage(exposed, 'https://example.com/float.png')
+    dispatchFloatContextMenu(exposed, floatId)
+    await nextTick()
+    menuItem('预览')!.click()
+    await nextTick()
+    expect(lightbox()).not.toBeNull()
+    expect(lightbox()!.querySelector('img')!.getAttribute('src')).toBe(
+      'https://example.com/float.png'
+    )
+    lightbox()!.querySelector<HTMLElement>('[aria-label="关闭"]')!.click()
+    await vi.waitFor(() => {
+      expect(lightbox()).toBeNull()
+    })
+
+    // 嵌入图（data 字节 → objectURL）
+    const addr = { row: 0, col: 0 }
+    ctx.insertCellImage(addr, { data: new Uint8Array([1, 2, 3]), type: 'png' })
+    ctx.selectCell(addr)
+    popBodyContextMenu(exposed, 0, 0)
+    await nextTick()
+    menuItem('预览')!.click()
+    await nextTick()
+    expect(lightbox()).not.toBeNull()
+    const embeddedSrc = lightbox()!.querySelector('img')!.getAttribute('src')!
+    expect(embeddedSrc.startsWith('blob:')).toBe(true)
+    lightbox()!.querySelector<HTMLElement>('[aria-label="关闭"]')!.click()
+    await vi.waitFor(() => {
+      expect(lightbox()).toBeNull()
+    })
   })
 })
 

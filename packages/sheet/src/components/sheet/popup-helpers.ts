@@ -1,6 +1,11 @@
-import type { CellLinkPayload, CellRange } from 'infinitable/sheet'
+import type { CellAddress, CellLinkPayload, CellRange } from 'infinitable/sheet'
 import type { BorderPreset } from 'infinitable/sheet'
-import { BORDER_STYLE_WIDTH, type BorderLineStyle } from 'infinitable/sheet'
+import {
+  BORDER_STYLE_WIDTH,
+  IMAGE_MIME,
+  type BorderLineStyle,
+  type SheetImageType
+} from 'infinitable/sheet'
 
 import type { SheetContext } from '../../tools/context'
 
@@ -12,7 +17,7 @@ export function currentRange(context: SheetContext): CellRange | null {
 
 // ─── 超链接配置弹窗共享类型（hyperlink-popup.vue 与菜单/宿主接线共用） ──
 
-/** 弹窗模式：cell = 单元格链接（地址 + 显示文本）；image = 图片链接（仅地址，P4 接线） */
+/** 弹窗模式：cell = 单元格链接（地址 + 显示文本）；image = 图片链接（仅地址） */
 export type HyperlinkPopupMode = 'cell' | 'image'
 
 /**
@@ -27,8 +32,49 @@ export interface HyperlinkConfirmPayload {
 /**
  * 拉起超链接配置弹窗的句柄：右键菜单 build 函数经 options 注入
  * （保持纯函数可测，不直接 import 组件状态）；编辑时回填原链接载荷。
+ * image 模式必须携带写入目标（浮动图 id / 嵌入图格），confirm 据此路由写入。
  */
-export type OpenHyperlinkPopup = (mode: HyperlinkPopupMode, initial?: CellLinkPayload) => void
+export type OpenHyperlinkPopup = (
+  mode: HyperlinkPopupMode,
+  initial?: CellLinkPayload,
+  imageTarget?: HyperlinkImageTarget
+) => void
+
+/** image 模式链接写入目标：浮动图（按 id，updateImage）或嵌入图（按格，覆盖写） */
+export type HyperlinkImageTarget =
+  | { kind: 'float'; id: string }
+  | { kind: 'cell'; addr: CellAddress }
+
+/** 图片链接 → 弹窗回填载荷（无链接 → undefined 插入态；浮动图与嵌入图共用） */
+export function imageLinkInitial(link: string | undefined): CellLinkPayload | undefined {
+  return link ? { url: link } : undefined
+}
+
+// ─── 图片 lightbox 预览（右键「预览」拉起，sheet.vue 挂 UImagePreviewer） ──
+
+/** lightbox 预览源：URL 或图片字节 + MIME 提示（字节转 objectURL 由预览组件回收） */
+export interface ImagePreviewSource {
+  /** URL 来源（浮动图 src / 嵌入图 src，优先于字节） */
+  src?: string
+  /** 图片字节（SheetImage.data / CellImagePayload.data） */
+  data?: Uint8Array
+  /** 字节源的 MIME 提示（引擎 type → IMAGE_MIME） */
+  mime?: string
+}
+
+/**
+ * 图片载荷 → 预览源归一：src 优先（URL 来源直接引用）；否则取字节 + 模型 type
+ * 映射 MIME（type 缺省按 png，同引擎嵌入图渲染约定）。浮动图（type 必填）与
+ * 嵌入图（type 可选）共用。
+ */
+export function imagePreviewSource(payload: {
+  src?: string
+  data?: Uint8Array
+  type?: SheetImageType
+}): ImagePreviewSource {
+  if (payload.src) return { src: payload.src }
+  return { data: payload.data, mime: IMAGE_MIME[payload.type ?? 'png'] }
+}
 
 // ─── 边框面板常量 ────────────────────────────────────────────
 
