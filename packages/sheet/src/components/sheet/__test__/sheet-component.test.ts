@@ -79,6 +79,21 @@ function tabs(el: HTMLElement): HTMLButtonElement[] {
   return [...el.querySelectorAll<HTMLButtonElement>('.u-sheet__tab')]
 }
 
+/**
+ * 最新弹出菜单中含指定文案的菜单项。
+ * happy-dom 无 transition：close 的 leave 不结束，旧弹层不卸载而在 body 累积，
+ * 断言只认 body 中最后一份（每次 pop 追加新根节点）。
+ */
+function menuItem(text: string): HTMLLIElement | undefined {
+  const roots = document.body.querySelectorAll<HTMLElement>('.u-contextmenu')
+  const latest = roots[roots.length - 1]
+  return latest
+    ? [...latest.querySelectorAll<HTMLLIElement>('.u-contextmenu__item')].find((item) =>
+        item.textContent?.includes(text)
+      )
+    : undefined
+}
+
 afterEach(() => {
   while (apps.length) apps.pop()!.unmount()
   while (containers.length) containers.pop()!.remove()
@@ -1063,21 +1078,6 @@ describe('USheet 行高/列宽右键菜单', () => {
     }
   }
 
-  /**
-   * 最新弹出菜单中含指定文案的菜单项。
-   * happy-dom 无 transition：close 的 leave 不结束，旧弹层不卸载而在 body 累积，
-   * 断言只认 body 中最后一份（每次 pop 追加新根节点）。
-   */
-  function menuItem(text: string): HTMLLIElement | undefined {
-    const roots = document.body.querySelectorAll<HTMLElement>('.u-contextmenu')
-    const latest = roots[roots.length - 1]
-    return latest
-      ? [...latest.querySelectorAll<HTMLLIElement>('.u-contextmenu__item')].find((item) =>
-          item.textContent?.includes(text)
-        )
-      : undefined
-  }
-
   /** 数值输入项内输入并确认（UInput @input 同步 model，InsertCountMenuItem 点击本体提交） */
   async function confirmMenuNumber(root: HTMLElement, value: number): Promise<void> {
     const input = root.querySelector<HTMLInputElement>('input')!
@@ -1361,6 +1361,137 @@ describe('USheet 引擎链接 / 图片事件透传', () => {
       .insertCellImage({ row: 0, col: 0 }, { src: 'https://example.com/a.png' })
     await nextTick()
     expect(events).toEqual([{ addr: { row: 0, col: 0 } }])
+  })
+})
+
+describe('USheet 单元格超链接 UI（右键菜单 → 配置弹窗 → 写入；悬停 tooltip）', () => {
+  /** body 格右键（真实 SheetGrid → handleContextMenu → contextmenu.pop 链路） */
+  function popBodyContextMenu(
+    exposed: { value: SheetExposed | undefined },
+    row: number,
+    col: number
+  ): void {
+    const table = exposed.value!.getGrid()!.getTable()
+    const event = {
+      cell: { row, col },
+      region: 'body',
+      x: 100,
+      y: 40,
+      originalEvent: new MouseEvent('contextmenu')
+    }
+    for (const listener of table.contextMenuListeners) {
+      listener(event as Parameters<typeof listener>[0])
+    }
+  }
+
+  /** 弹窗（Teleport 到 body）内按文案取按钮 */
+  function dialogButton(text: string): HTMLButtonElement | undefined {
+    const dialog = document.body.querySelector<HTMLElement>('.u-sheet__link-dialog')
+    return dialog
+      ? [...dialog.querySelectorAll<HTMLButtonElement>('button')].find((btn) =>
+          btn.textContent?.includes(text)
+        )
+      : undefined
+  }
+
+  /** 弹窗第 index 个输入框（真实 UInput → .u-input__native）写入并同步 v-model */
+  async function setDialogInput(index: number, value: string): Promise<void> {
+    const dialog = document.body.querySelector<HTMLElement>('.u-sheet__link-dialog')!
+    const input = dialog.querySelectorAll<HTMLInputElement>('.u-sheet__link-dialog-input input')[
+      index
+    ]!
+    input.value = value
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    await nextTick()
+  }
+
+  it('body 右键按状态出项：无链接「插入」→ 弹窗确认写入 cell link；有链接「编辑/取消」→ 取消后可 undo', async () => {
+    const workbook = createWorkbook()
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
+    await nextTick()
+    const ctx = exposed.value!.getContext()
+    ctx.selectCell({ row: 0, col: 0 })
+
+    // 无链接：仅「插入超链接」，无编辑/取消项
+    popBodyContextMenu(exposed, 0, 0)
+    await nextTick()
+    expect(menuItem('插入超链接')!.classList.contains('is-disabled')).toBe(false)
+    expect(menuItem('编辑超链接')).toBeUndefined()
+    expect(menuItem('取消超链接')).toBeUndefined()
+
+    // 点插入项 → 弹窗挂载（cell 模式两字段）；填地址确认 → setCellLink 写入、弹窗关闭
+    menuItem('插入超链接')!.click()
+    await nextTick()
+    const dialog = document.body.querySelector<HTMLElement>('.u-sheet__link-dialog')!
+    expect(dialog).toBeTruthy()
+    expect(dialog.querySelectorAll('.u-sheet__link-dialog-input')).toHaveLength(2)
+    await setDialogInput(0, 'https://example.com')
+    dialogButton('确定')!.click()
+    await nextTick()
+    expect(ctx.getCellLink({ row: 0, col: 0 })).toEqual({ url: 'https://example.com' })
+    expect(document.body.querySelector('.u-sheet__link-dialog')).toBeNull()
+
+    // 有链接：编辑 + 取消项
+    popBodyContextMenu(exposed, 0, 0)
+    await nextTick()
+    expect(menuItem('编辑超链接')).toBeTruthy()
+    const clear = menuItem('取消超链接')!
+    expect(clear.classList.contains('is-disabled')).toBe(false)
+
+    // 取消 → getCellLink undefined 且 undo 还原
+    clear.click()
+    await nextTick()
+    expect(ctx.getCellLink({ row: 0, col: 0 })).toBeUndefined()
+    expect(ctx.undo()).toBe(true)
+    expect(ctx.getCellLink({ row: 0, col: 0 })).toEqual({ url: 'https://example.com' })
+  })
+
+  it('readonly：body 菜单超链接项禁用（不拉起弹窗）', async () => {
+    const workbook = createWorkbook()
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    mount(() => ({ workbook, rows: 10, cols: 6, readonly: true }), exposed)
+    await nextTick()
+
+    popBodyContextMenu(exposed, 0, 0)
+    await nextTick()
+    const insert = menuItem('插入超链接')!
+    expect(insert.classList.contains('is-disabled')).toBe(true)
+    insert.click()
+    await nextTick()
+    expect(document.body.querySelector('.u-sheet__link-dialog')).toBeNull()
+  })
+
+  it('悬停链接格：引擎 hover → tooltip 浮层挂载并显示 URL；leave → 卸载', async () => {
+    const workbook = createWorkbook()
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
+    await nextTick()
+    const table = exposed.value!.getGrid()!.getTable()
+    const tooltip = (): HTMLElement | null =>
+      el.querySelector<HTMLElement>('.u-sheet__link-tooltip')
+
+    expect(tooltip()).toBeNull()
+
+    for (const listener of table.cellLinkHoverListeners) {
+      listener({
+        col: 0,
+        row: 0,
+        url: 'https://example.com',
+        x: 51,
+        y: 33,
+        originalEvent: new MouseEvent('pointermove')
+      })
+    }
+    await nextTick()
+    expect(tooltip()).not.toBeNull()
+    expect(tooltip()!.textContent).toBe('https://example.com')
+
+    for (const listener of table.cellLinkLeaveListeners) {
+      listener({ col: 0, row: 0 })
+    }
+    await nextTick()
+    expect(tooltip()).toBeNull()
   })
 })
 

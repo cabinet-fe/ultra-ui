@@ -8,6 +8,7 @@ import { MIN_ROW_COL_SIZE } from '../../tools/context'
 import { defaultToolRegistry } from '../../tools/registry'
 import InsertCountMenuItem from './insert-count-menu-item.vue'
 import { pickAndInsertImage } from './insert-image'
+import type { OpenHyperlinkPopup } from './popup-helpers'
 
 /** 插入数量钳制范围（对齐 univer） */
 export const INSERT_COUNT_MIN = 1
@@ -263,8 +264,43 @@ export function applyNumFmtToSelection(ctx: SheetContext, numFmt: NumFmt): void 
   for (const range of ctx.getSelection().ranges) ctx.applyStyle(range, { numFmt })
 }
 
-/** body 格右键菜单：合并/取消合并 + 设置数据格式 + 插入图片（行列插入/删除仅行号/列头菜单） */
-export function buildBodyMenus(ctx: SheetContext): ContextmenuItem[] {
+/** body 格右键菜单选项（超链接项行为注入） */
+export interface BodyMenuOptions {
+  /** 只读模式：超链接写入项禁用（对齐行高/列宽 readonly 禁用约定） */
+  readonly?: boolean
+  /** 拉起超链接配置弹窗的句柄（缺省时插入/编辑项禁用，保持 build 纯函数可测） */
+  openHyperlinkPopup?: OpenHyperlinkPopup
+}
+
+/**
+ * body 菜单超链接项：按目标格链接状态出项——
+ * 无链接「插入超链接」；有链接「编辑超链接」（回填原 url/text）+「取消超链接」。
+ * 取消直走 clearCellLink（可 undo）；插入/编辑经注入句柄拉起弹窗。
+ */
+function cellLinkMenuItems(
+  ctx: SheetContext,
+  active: CellAddress | null | undefined,
+  options?: BodyMenuOptions
+): ContextmenuItem[] {
+  if (!active) return [{ label: '插入超链接', disabled: true }]
+  const handle = options?.openHyperlinkPopup
+  const disabled = options?.readonly === true || !handle
+  const link = ctx.getCellLink(active)
+  if (!link) {
+    return [{ label: '插入超链接', disabled, callback: () => handle?.('cell') }]
+  }
+  return [
+    { label: '编辑超链接', disabled, callback: () => handle?.('cell', link) },
+    {
+      label: '取消超链接',
+      disabled: options?.readonly === true,
+      callback: () => ctx.clearCellLink(active)
+    }
+  ]
+}
+
+/** body 格右键菜单：合并/取消合并 + 设置数据格式 + 超链接 + 插入图片（行列插入/删除仅行号/列头菜单） */
+export function buildBodyMenus(ctx: SheetContext, options?: BodyMenuOptions): ContextmenuItem[] {
   const mergeTool = defaultToolRegistry.get('merge')
   const unmergeTool = defaultToolRegistry.get('unmerge')
   const active = ctx.getSelection().activeCell
@@ -302,6 +338,7 @@ export function buildBodyMenus(ctx: SheetContext): ContextmenuItem[] {
         }
       ]
     },
+    ...cellLinkMenuItems(ctx, active, options),
     { label: '插入图片', disabled: !active, callback: () => pickAndInsertImage(ctx) }
   ]
 }

@@ -220,17 +220,18 @@ describe('build*Menus', () => {
     expect(readonlyCol.render).toBeUndefined()
   })
 
-  it('body 菜单：合并/取消合并 + 设置数据格式子菜单 + 插入图片，不含行列插入删除', () => {
+  it('body 菜单：合并/取消合并 + 设置数据格式子菜单 + 插入超链接 + 插入图片，不含行列插入删除', () => {
     const sheet = new Sheet()
     const ctx = createSheetContext(sheet)
     sheet.selectCell({ row: 0, col: 0 })
     const menus = buildBodyMenus(ctx)
-    expect(menus).toHaveLength(5)
+    expect(menus).toHaveLength(6)
     expect(menus.map((m) => m.label ?? (m.divider ? '---' : ''))).toEqual([
       '合并单元格',
       '取消合并单元格',
       '---',
       '设置数据格式',
+      '插入超链接',
       '插入图片'
     ])
     const insertImage = menus.find((m) => m.label === '插入图片')!
@@ -329,6 +330,8 @@ describe('build*Menus', () => {
     const menus = buildBodyMenus(ctx)
     expect(menus.find((m) => m.label === '插入图片')?.disabled).toBe(true)
     expect(menus.find((m) => m.label === '设置数据格式')?.disabled).toBe(true)
+    // 无活动格：超链接项同样禁用
+    expect(menus.find((m) => m.label === '插入超链接')?.disabled).toBe(true)
   })
 
   it('行号/列头菜单仍含插入删除行列', () => {
@@ -362,5 +365,77 @@ describe('build*Menus', () => {
     ctx.insertRows(3, 2) // 下方 endRow+1
     expect(sheet.getDisplayValue({ row: 7, col: 0 })).toBe('keep')
     expect(menus[0]?.keepOpen).toBe(true)
+  })
+})
+
+describe('buildBodyMenus 超链接项（按目标格链接状态出项）', () => {
+  /** 记录句柄调用的简单 spy（mode + 编辑回填载荷） */
+  function popupSpy() {
+    const calls: Array<{ mode: string; initial?: { url: string; text?: string } }> = []
+    const open = (mode: 'cell', initial?: { url: string; text?: string }): void => {
+      calls.push({ mode, initial })
+    }
+    return { calls, open }
+  }
+
+  it('无链接格：仅「插入超链接」，callback 经句柄以 cell 模式拉起弹窗（无回填）', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    sheet.selectCell({ row: 0, col: 0 })
+    const spy = popupSpy()
+    const menus = buildBodyMenus(ctx, { openHyperlinkPopup: spy.open })
+    const item = menus.find((m) => m.label === '插入超链接')!
+    expect(item.disabled).toBeFalsy()
+    expect(menus.some((m) => m.label === '编辑超链接')).toBe(false)
+    expect(menus.some((m) => m.label === '取消超链接')).toBe(false)
+    item.callback!()
+    expect(spy.calls).toEqual([{ mode: 'cell', initial: undefined }])
+  })
+
+  it('有链接格：「编辑超链接」回填原 url/text；「取消超链接」clearCellLink 后 getCellLink undefined 且 undo 还原', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    const addr = { row: 1, col: 2 }
+    sheet.selectCell(addr)
+    sheet.setCellLink(addr, { url: 'https://example.com', text: '示例' })
+    const spy = popupSpy()
+    const menus = buildBodyMenus(ctx, { openHyperlinkPopup: spy.open })
+
+    expect(menus.some((m) => m.label === '插入超链接')).toBe(false)
+    const edit = menus.find((m) => m.label === '编辑超链接')!
+    expect(edit.disabled).toBeFalsy()
+    edit.callback!()
+    expect(spy.calls).toEqual([
+      { mode: 'cell', initial: { url: 'https://example.com', text: '示例' } }
+    ])
+
+    const clear = menus.find((m) => m.label === '取消超链接')!
+    expect(clear.disabled).toBeFalsy()
+    clear.callback!()
+    expect(ctx.getCellLink(addr)).toBeUndefined()
+    expect(ctx.undo()).toBe(true)
+    expect(ctx.getCellLink(addr)).toEqual({ url: 'https://example.com', text: '示例' })
+  })
+
+  it('readonly：插入/编辑/取消项禁用；句柄缺省：插入/编辑项禁用', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    sheet.selectCell({ row: 0, col: 0 })
+
+    // 句柄缺省（无宿主接线，如直接调用 build）：插入禁用
+    const noHandle = buildBodyMenus(ctx)
+    expect(noHandle.find((m) => m.label === '插入超链接')?.disabled).toBe(true)
+
+    // readonly：插入禁用
+    const readonlyInsert = buildBodyMenus(ctx, { readonly: true, openHyperlinkPopup: () => {} })
+    expect(readonlyInsert.find((m) => m.label === '插入超链接')?.disabled).toBe(true)
+
+    // readonly + 有链接：编辑/取消均禁用
+    sheet.setCellLink({ row: 0, col: 0 }, { url: 'https://example.com' })
+    const readonlyEdit = buildBodyMenus(ctx, { readonly: true, openHyperlinkPopup: () => {} })
+    expect(readonlyEdit.find((m) => m.label === '编辑超链接')?.disabled).toBe(true)
+    expect(readonlyEdit.find((m) => m.label === '取消超链接')?.disabled).toBe(true)
+    // readonly 不产生模型写入
+    expect(readonlyEdit.find((m) => m.label === '取消超链接')?.callback).toBeTruthy()
   })
 })

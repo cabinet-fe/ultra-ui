@@ -1,4 +1,4 @@
-import type { CellRange } from 'infinitable/sheet'
+import type { CellLinkPayload, CellRange } from 'infinitable/sheet'
 import type { BorderPreset } from 'infinitable/sheet'
 import { BORDER_STYLE_WIDTH, type BorderLineStyle } from 'infinitable/sheet'
 
@@ -9,6 +9,26 @@ export function currentRange(context: SheetContext): CellRange | null {
   const { activeCell, ranges } = context.getSelection()
   return ranges[0] ?? (activeCell ? { start: activeCell, end: activeCell } : null)
 }
+
+// ─── 超链接配置弹窗共享类型（hyperlink-popup.vue 与菜单/宿主接线共用） ──
+
+/** 弹窗模式：cell = 单元格链接（地址 + 显示文本）；image = 图片链接（仅地址，P4 接线） */
+export type HyperlinkPopupMode = 'cell' | 'image'
+
+/**
+ * 弹窗确认载荷：显示文本留空时不含 text（不写入链接文本覆盖 →
+ * 单元格沿用自身内容作为显示，见 spec「显示文本留空提交沿用原显示文本」）
+ */
+export interface HyperlinkConfirmPayload {
+  url: string
+  text?: string
+}
+
+/**
+ * 拉起超链接配置弹窗的句柄：右键菜单 build 函数经 options 注入
+ * （保持纯函数可测，不直接 import 组件状态）；编辑时回填原链接载荷。
+ */
+export type OpenHyperlinkPopup = (mode: HyperlinkPopupMode, initial?: CellLinkPayload) => void
 
 // ─── 边框面板常量 ────────────────────────────────────────────
 

@@ -14,6 +14,7 @@ import { onBeforeUnmount, onMounted, watch } from 'vue'
 
 import type { SheetContext } from '../../tools/context'
 import type { FloatContextMenuPayload, SheetProps } from '../../types'
+import type { OpenHyperlinkPopup } from './popup-helpers'
 import {
   buildBodyMenus,
   buildColHeaderMenus,
@@ -59,6 +60,8 @@ interface UseSheetGridOptions {
   onImageLinkClick?: (event: ImageLinkClickEvent) => void
   /** 浮动图右键（引擎透传 → 宿主 emit float-context-menu；右键不穿透到 body 菜单） */
   onFloatContextMenu?: (event: FloatContextMenuPayload) => void
+  /** body 菜单超链接项拉起配置弹窗的句柄（sheet.vue 挂载的弹层状态） */
+  openHyperlinkPopup?: OpenHyperlinkPopup
 }
 
 /** 缓存实例（LRU 淘汰）：每个 sheet 一个独立容器 div，非激活容器 visibility:hidden 堆叠 */
@@ -135,7 +138,10 @@ export function useSheetGrid(options: UseSheetGridOptions) {
         ? buildRowHeaderMenus(context, { readonly: props.readonly, row: info.row })
         : info.kind === 'col-header'
           ? buildColHeaderMenus(context, { readonly: props.readonly, col: info.col })
-          : buildBodyMenus(context)
+          : buildBodyMenus(context, {
+              readonly: props.readonly,
+              openHyperlinkPopup: options.openHyperlinkPopup
+            })
 
     // 最小宽度兜底；实际宽度由最长菜单项撑开（勿固定 240 导致空白过大）
     contextmenu.pop({ mousePosition: { x: info.x, y: info.y }, width: 'max-content', menus })

@@ -724,6 +724,72 @@
     visibility: hidden;
   }
 
+  /* 悬停链接格 tooltip：引擎 cell link hover/leave 事件驱动挂载/卸载，
+     层坐标 + 偏移后绝对定位于 grid 区；pointer-events: none 避免浮层
+     自身命中指针触发 leave 抖动（DOM 顺序在画布之后，天然盖在画布上） */
+  @include m.e(link-tooltip) {
+    position: absolute;
+    z-index: 10;
+    max-width: 320px;
+    padding: 2px 8px;
+    border: fn.use-var(border);
+    border-radius: fn.use-var(radius, small);
+    background-color: fn.use-var(bg-color, top);
+    box-shadow: fn.use-var(shadow, sm);
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-main, small);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    pointer-events: none;
+  }
+
+  /* ── 超链接配置弹窗（右键菜单拉起，无工具栏锚点：自绘遮罩 + 居中面板，
+     对齐 loading-mask 自绘先例；遮罩半透明黑与 desktop dialog overlay 同口径） ── */
+
+  @include m.e(link-dialog-mask) {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba($color: #000000, $alpha: 0.32);
+  }
+
+  @include m.e(link-dialog) {
+    display: flex;
+    flex-direction: column;
+    gap: fn.use-var(gap, small);
+    width: min(380px, 90vw);
+    padding: fn.use-var(gap, default);
+    border-radius: fn.use-var(radius, large);
+    background-color: fn.use-var(bg-color, top);
+    box-shadow: fn.use-var(shadow, lg);
+  }
+
+  @include m.e(link-dialog-title) {
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-title, default);
+    font-weight: 600;
+  }
+
+  @include m.e(link-dialog-body) {
+    display: flex;
+    flex-direction: column;
+    gap: fn.use-var(gap, small);
+  }
+
+  @include m.e(link-dialog-input) {
+    flex: 1;
+    min-width: 0;
+  }
+
+  @include m.e(link-dialog-footer) {
+    display: flex;
+    justify-content: flex-end;
+    gap: fn.use-var(gap, small);
+  }
+
   @include m.e(tabs) {
     display: flex;
     align-items: center;

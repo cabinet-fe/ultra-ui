@@ -66,6 +66,16 @@
         <div :class="cls.e('loading-spinner')"></div>
         <div :class="cls.e('loading-text')">{{ parseText }}</div>
       </div>
+
+      <!-- 悬停链接格 tooltip：引擎 cell link hover/leave 事件驱动挂载/卸载，
+           层坐标 + 偏移后绝对定位于 grid 区（不遮指针；pointer-events: none） -->
+      <div
+        v-if="cellLinkTooltip"
+        :class="cls.e('link-tooltip')"
+        :style="{ left: `${cellLinkTooltip.left}px`, top: `${cellLinkTooltip.top}px` }"
+      >
+        {{ cellLinkTooltip.url }}
+      </div>
     </div>
 
     <u-sheet-tabs
@@ -74,18 +84,29 @@
       :sheet-list="sheetList"
       :active-index="activeIndex"
     />
+
+    <!-- 单元格超链接配置弹窗（body 右键菜单拉起；confirm 写 setCellLink） -->
+    <u-sheet-hyperlink-popup
+      v-if="hyperlinkPopup"
+      :mode="hyperlinkPopup.mode"
+      :initial="hyperlinkPopup.initial"
+      @confirm="handleHyperlinkConfirm"
+      @close="hyperlinkPopup = null"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
 import { UDropdown } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
-import { computed, ref, useTemplateRef, watch } from 'vue'
+import type { CellAddress, CellLinkPayload } from 'infinitable/sheet'
+import { computed, ref, shallowRef, useTemplateRef, watch } from 'vue'
 
 import type { SheetTool } from '../../tools/registry'
 import type { SheetEmits, SheetProps, _SheetExposed } from '../../types'
 import UFormulaBar from './formula-bar.vue'
 import { pickAndImportFile } from './import-file'
+import type { HyperlinkConfirmPayload, HyperlinkPopupMode } from './popup-helpers'
 import USheetBorderPopup from './popups/border-popup.vue'
 import USheetExportPopup from './popups/export-popup.vue'
 import USheetFillColorPopup from './popups/fill-color-popup.vue'
@@ -93,9 +114,11 @@ import USheetFindPopup from './popups/find-popup.vue'
 import USheetFontColorPopup from './popups/font-color-popup.vue'
 import USheetFontSizePopup from './popups/font-size-popup.vue'
 import USheetFunctionsPopup from './popups/functions-popup.vue'
+import USheetHyperlinkPopup from './popups/hyperlink-popup.vue'
 import USheetInsertImagePopup from './popups/insert-image-popup.vue'
 import USheetTabs from './sheet-tabs.vue'
 import USheetToolbar from './sheet-toolbar.vue'
+import { useCellLinkTooltip } from './use-cell-link-tooltip'
 import { useSheetGrid } from './use-sheet-grid'
 import { useSheetState } from './use-sheet-state'
 import { useToolGroups } from './use-tool-groups'
@@ -213,6 +236,44 @@ function handlePopupVisible(visible: boolean): void {
 
 const toolGroups = useToolGroups(context, stateTick)
 
+// ─── 单元格超链接 UI（右键菜单 → 配置弹窗 → setCellLink；悬停 tooltip）──
+
+/** 超链接配置弹层状态（右键菜单拉起）：mode + 编辑回填 + 目标格（cell 模式） */
+const hyperlinkPopup = shallowRef<{
+  mode: HyperlinkPopupMode
+  initial?: CellLinkPayload
+  addr?: CellAddress
+} | null>(null)
+
+/** 悬停 tooltip 状态机（引擎 cell link hover/leave 事件驱动，层坐标换算见 use-cell-link-tooltip） */
+const {
+  tooltip: cellLinkTooltip,
+  onCellLinkHover: showCellLinkTooltip,
+  onCellLinkLeave: hideCellLinkTooltip
+} = useCellLinkTooltip()
+
+/** body 右键菜单超链接项句柄：记录目标格并拉起弹窗（编辑回填原 url/text） */
+function openHyperlinkPopup(mode: HyperlinkPopupMode, initial?: CellLinkPayload): void {
+  hyperlinkPopup.value = {
+    mode,
+    initial,
+    addr: mode === 'cell' ? (context.getSelection().activeCell ?? undefined) : undefined
+  }
+}
+
+/**
+ * 弹窗确认：关弹层并写目标格链接。一次 setCellLink = 一个 undo 单元；
+ * 显示文本留空不写入 text → 单元格沿用自身内容作为链接显示。
+ */
+function handleHyperlinkConfirm(payload: HyperlinkConfirmPayload): void {
+  const current = hyperlinkPopup.value
+  hyperlinkPopup.value = null
+  if (current?.mode === 'cell' && current.addr) {
+    context.setCellLink(current.addr, payload)
+  }
+  // image 模式（嵌入图/浮动图 link 写入）在 P4 接线
+}
+
 // ─── grid 生命周期（重建 / 右键菜单 / 公式栏编辑镜像）────────────────
 
 const gridRef = useTemplateRef<HTMLElement>('gridRef')
@@ -227,12 +288,21 @@ const { rebuildGrid, activateGrid, pruneCache, getGrid, setSelectionAnchor } = u
   // 工具栏「函数」弹框打开期间与 fx 入口一致：画布点击不清除目标格高亮
   isFunctionPopupOpen: () => popupTool.value?.popup === 'functions',
   onColResizeEnd: (event) => emit('col-resize-end', event),
-  // 引擎链接 / 浮动图事件透传（打开行为仍归引擎 openCellLinkOnClick 默认）
-  onCellLinkHover: (event) => emit('cell-link-hover', event),
-  onCellLinkLeave: (event) => emit('cell-link-leave', event),
+  // 引擎链接 / 浮动图事件透传（打开行为仍归引擎 openCellLinkOnClick 默认）；
+  // hover/leave 同时喂给 tooltip 状态机（与组件 emit 同源）
+  onCellLinkHover: (event) => {
+    emit('cell-link-hover', event)
+    showCellLinkTooltip(event)
+  },
+  onCellLinkLeave: (event) => {
+    emit('cell-link-leave', event)
+    hideCellLinkTooltip(event)
+  },
   onCellLinkClick: (event) => emit('cell-link-click', event),
   onImageLinkClick: (event) => emit('image-link-click', event),
-  onFloatContextMenu: (event) => emit('float-context-menu', event)
+  onFloatContextMenu: (event) => emit('float-context-menu', event),
+  // body 右键菜单超链接项 → 拉起配置弹窗
+  openHyperlinkPopup
 })
 
 const exposed: _SheetExposed = {
