@@ -134,6 +134,49 @@ describe('build*Menus', () => {
     expect(menus.find((m) => m.label === '取消冻结')?.disabled).toBe(false)
   })
 
+  it('冻结以右键命中行列为准，不放大整行/整列残留选区（先冻行再冻列不失效）', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    // 用户路径：右键行号 2 冻结到第 3 行 → 残留整行选区（行 2 × 全部列 0..5）
+    sheet.selectRange(wholeRowRange(2, 6))
+    sheet.setFrozen(3, 0)
+    // 随后右键列头 col 1：落点在整行选区内 → ensureContextMenuSelection 保留选区，
+    // 冻结列必须用命中的 col=1 而非选区末端 col=5（否则冻结全部列，视觉不生效）
+    ensureContextMenuSelection(
+      ctx,
+      { kind: 'col-header', addr: null, col: 1 },
+      { rows: 10, cols: 6 }
+    )
+    expect(ctx.getSelection().ranges[0]).toEqual(wholeRowRange(2, 6))
+    const menus = buildColHeaderMenus(ctx, { col: 1 })
+    menus.find((m) => m.label === '冻结到当前列')!.callback!()
+    expect(sheet.frozen).toEqual({ rows: 3, cols: 2 })
+
+    // 对称路径：先冻列 → 残留整列选区（全部行 0..9 × col 1）→ 右键行号 4 冻结到第 5 行
+    sheet.setFrozen(0, 0)
+    sheet.selectRange(wholeColRange(1, 10))
+    sheet.setFrozen(0, 2)
+    ensureContextMenuSelection(
+      ctx,
+      { kind: 'row-header', addr: null, row: 4 },
+      { rows: 10, cols: 6 }
+    )
+    const rowMenus = buildRowHeaderMenus(ctx, { row: 4 })
+    rowMenus.find((m) => m.label === '冻结到当前行')!.callback!()
+    expect(sheet.frozen).toEqual({ rows: 5, cols: 2 })
+  })
+
+  it('冻结项未传命中行列时回落选区末端（旧调用方兼容）', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    sheet.selectRange(createRange({ row: 0, col: 0 }, { row: 2, col: 5 }))
+    buildRowHeaderMenus(ctx).find((m) => m.label === '冻结到当前行')!.callback!()
+    expect(sheet.frozen.rows).toBe(3)
+    sheet.setFrozen(0, 0)
+    buildColHeaderMenus(ctx).find((m) => m.label === '冻结到当前列')!.callback!()
+    expect(sheet.frozen.cols).toBe(6)
+  })
+
   it('列头菜单对称', () => {
     const sheet = new Sheet()
     const ctx = createSheetContext(sheet)

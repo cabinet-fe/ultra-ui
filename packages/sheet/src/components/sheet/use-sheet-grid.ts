@@ -116,9 +116,9 @@ export function useSheetGrid(options: UseSheetGridOptions) {
 
     const menus =
       info.kind === 'row-header'
-        ? buildRowHeaderMenus(context, { readonly: props.readonly })
+        ? buildRowHeaderMenus(context, { readonly: props.readonly, row: info.row })
         : info.kind === 'col-header'
-          ? buildColHeaderMenus(context, { readonly: props.readonly })
+          ? buildColHeaderMenus(context, { readonly: props.readonly, col: info.col })
           : buildBodyMenus(context)
 
     // 最小宽度兜底；实际宽度由最长菜单项撑开（勿固定 240 导致空白过大）

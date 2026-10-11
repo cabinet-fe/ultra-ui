@@ -106,6 +106,10 @@ function insertCountRender(options: {
 export interface HeaderMenuOptions {
   /** 只读模式：行高/列宽项禁用（尺寸写入属编辑操作） */
   readonly?: boolean
+  /** 右键命中的行号（行头菜单）：冻结以点击行为准，缺省回落选区末端 */
+  row?: number
+  /** 右键命中的列号（列头菜单）：冻结以点击列为准，缺省回落选区末端 */
+  col?: number
 }
 
 /**
@@ -148,7 +152,11 @@ export function buildRowHeaderMenus(
   const rowCount = defaultInsertCount(range, 'row')
   const deleteCount = range ? endRow - startRow + 1 : 1
   const frozen = ctx.frozen
-  const freezeActive = frozen.rows === endRow + 1
+  // 冻结目标 = 右键命中的行；缺省回落选区末端。不能直接用选区末端：先冻结行的
+  // 整行选区横跨全部列，随后列头右键判定「在选区内」保留选区，选区末端列会把
+  // 冻结列放大到全部列（反之亦然），表现为冻结不生效
+  const freezeRow = (options?.row ?? endRow) + 1
+  const freezeActive = frozen.rows === freezeRow
 
   return [
     {
@@ -181,7 +189,7 @@ export function buildRowHeaderMenus(
     { divider: true },
     {
       label: freezeActive ? '✓ 冻结到当前行' : '冻结到当前行',
-      callback: () => ctx.setFrozen(endRow + 1, frozen.cols)
+      callback: () => ctx.setFrozen(freezeRow, frozen.cols)
     },
     {
       label: '取消冻结',
@@ -202,7 +210,9 @@ export function buildColHeaderMenus(
   const colCount = defaultInsertCount(range, 'col')
   const deleteCount = range ? endCol - startCol + 1 : 1
   const frozen = ctx.frozen
-  const freezeActive = frozen.cols === endCol + 1
+  // 冻结目标 = 右键命中的列（同 buildRowHeaderMenus：整行/整列选区残留时选区末端会放大冻结范围）
+  const freezeCol = (options?.col ?? endCol) + 1
+  const freezeActive = frozen.cols === freezeCol
 
   return [
     {
@@ -235,7 +245,7 @@ export function buildColHeaderMenus(
     { divider: true },
     {
       label: freezeActive ? '✓ 冻结到当前列' : '冻结到当前列',
-      callback: () => ctx.setFrozen(frozen.rows, endCol + 1)
+      callback: () => ctx.setFrozen(frozen.rows, freezeCol)
     },
     {
       label: '取消冻结',
