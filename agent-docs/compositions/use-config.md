@@ -1,6 +1,6 @@
 ---
 title: useConfig 全局配置
-description: 读写 Ultra UI 全局配置的组合式函数：返回只读 config 与深合并写入的 setConfig，可配置全局动画开关、组件尺寸、表单标签宽度与分页器默认值；首次调用后 config.size 变化自动同步尺寸 class 到 html 根节点，适用于管理后台全局紧凑度与字号切换。
+description: 读写 Ultra UI 全局配置的组合式函数：返回只读 config 与深合并写入的 setConfig，可配置全局动画开关、组件尺寸、表单标签宽度、分页器默认值与 AI 服务商兜底配置；首次调用后 config.size 变化自动同步尺寸 class 到 html 根节点，适用于管理后台全局紧凑度与字号切换。
 aliases: [use-config, setConfig, setDocumentSize, 组件库全局配置, 全局设置]
 keywords:
   [
@@ -12,18 +12,22 @@ keywords:
     labelWidth,
     pageSize,
     pageSizeOptions,
+    ai,
+    AiProviderConfig,
+    apiKey,
     ComponentSize,
     全局尺寸,
     深合并,
     紧凑模式,
     全局默认值,
+    AI 服务商,
     html class
   ]
 ---
 
 # useConfig 全局配置
 
-`@veltra/compositions` 导出 `useConfig` 与 `setDocumentSize`。`useConfig` 返回全局配置的只读对象 `config` 与深合并写入函数 `setConfig`，配置为模块级单例，任意位置调用共享同一份数据；首次调用后 `config.size` 变化会自动把尺寸 class 同步到 `<html>` 根节点。桌面组件用 `config.form.labelWidth`、`config.paginator.pageSize` 等作为未显式传参时的全局默认值。
+`@veltra/compositions` 导出 `useConfig` 与 `setDocumentSize`。`useConfig` 返回全局配置的只读对象 `config` 与深合并写入函数 `setConfig`，配置为模块级单例，任意位置调用共享同一份数据；首次调用后 `config.size` 变化会自动把尺寸 class 同步到 `<html>` 根节点。桌面组件用 `config.form.labelWidth`、`config.paginator.pageSize` 等作为未显式传参时的全局默认值；AI 组件用 `config.ai` 作为服务商配置的全局兜底，多个组件共用一份。
 
 ## 快速上手
 
@@ -48,7 +52,7 @@ console.log(config.paginator.pageSizeOptions) // => [40, 100, 200, 500, 1000] �
 ## API 签名
 
 ```ts
-import type { ComponentSize } from '@veltra/utils'
+import type { AiProviderConfig, ComponentSize } from '@veltra/utils'
 
 interface State {
   /** 是否开启动画；机器性能差时可置 false */
@@ -62,6 +66,8 @@ interface State {
   }
   /** 分页器全局配置 */
   paginator: { pageSize: number; pageSizeOptions: number[] }
+  /** AI 服务商全局兜底配置（OpenAI 兼容），与组件实例 prop 字段级合并 */
+  ai: Partial<AiProviderConfig>
 }
 
 export function useConfig(): {
@@ -86,8 +92,11 @@ export function setDocumentSize(size: ComponentSize, oldSize?: ComponentSize): v
 | `form.labelWidth`           | `number \| string`                | `100`                       |  否  | `UFormItem` 未显式传 `labelWidth` 时使用   |
 | `paginator.pageSize`        | `number`                          | `40`                        |  否  | `UPaginator` 未传 `pageSize` 时使用        |
 | `paginator.pageSizeOptions` | `number[]`                        | `[40, 100, 200, 500, 1000]` |  否  | `UPaginator` 未传 `pageSizeOptions` 时使用 |
+| `ai`                        | `Partial<AiProviderConfig>`       | `{}`                        |  否  | AI 服务商全局兜底配置，各字段全可选        |
 
-`setConfig` 深合并规则：`state` 中为对象的字段（`form`、`paginator`）递归合并，未提到的键保持原值；若给对象字段传了非对象值，控制台告警 `extend['<key>']应该是一个对象` 并忽略该键。
+`ai` 各字段约束见 `@veltra/utils` 的 `AiProviderConfig`：`url` 为 OpenAI 兼容 chat/completions 完整请求地址，`apiKey` 为 Bearer Token（缺省不带 `Authorization` 头），`model` 为模型 id，`reasoningLevel` 为推理等级，`stream` 控制流式返回（缺省 `false`）。
+
+`setConfig` 深合并规则：`state` 中为对象的字段（`form`、`paginator`、`ai`）递归合并，未提到的键保持原值；若给对象字段传了非对象值，控制台告警 `extend['<key>']应该是一个对象` 并忽略该键。
 
 ## 方法与事件
 
@@ -113,7 +122,13 @@ const { setConfig } = useConfig()
 setConfig({
   size: 'large', // 全局大尺寸
   form: { labelWidth: 140 },
-  paginator: { pageSize: 100, pageSizeOptions: [50, 100, 200] }
+  paginator: { pageSize: 100, pageSizeOptions: [50, 100, 200] },
+  // AI 服务商全局兜底配置；后续再 setConfig({ ai: { model: '...' } }) 只改 model，其余字段保留
+  ai: {
+    url: 'https://api.example.com/v1/chat/completions',
+    apiKey: '<token>',
+    model: 'gpt-4o'
+  }
 })
 ```
 
@@ -162,6 +177,7 @@ setDocumentSize('large')
 > - `config` 是只读代理，禁止直接 `config.size = 'small'` 赋值，写入必须走 `setConfig`。
 > - `setConfig` 是深合并不是整体替换；想重置 `paginator.pageSizeOptions` 必须显式传完整数组。
 > - `form` 只有 `labelWidth`，没有 `labelPosition` 等字段；标签位置由 `UForm` 组件自身属性控制，写进 `setConfig` 不会生效。
+> - `ai` 只承载配置值，`setConfig({ ai: ... })` 不发起请求、不做字段校验；各字段约束以 `@veltra/utils` 的 `AiProviderConfig` 为准，清空某字段需显式传 `undefined`。
 > - `<html>` 上的尺寸 class 是 size 原值（`small` / `default` / `large`），不是 `u-size-small` 形式。
 > - 尺寸 class 的同步 `watch` 在首次调用 `useConfig()` 时建立、模块级仅建立一次；从不调用 `useConfig` 就不会有同步，直接改 `document.documentElement.classList` 也不会联动组件默认值。
 > - SSR 安全：`useConfig` 与 `setDocumentSize` 内部都有 `typeof document === 'undefined'` 守卫，服务端调用不报错、不操作 DOM。

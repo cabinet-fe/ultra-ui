@@ -1,5 +1,5 @@
 import { isObj } from '@cat-kit/core'
-import type { ComponentSize } from '@veltra/utils'
+import type { AiProviderConfig, ComponentSize } from '@veltra/utils'
 import { reactive, readonly, watch } from 'vue'
 
 interface State {
@@ -13,13 +13,16 @@ interface State {
     labelWidth?: number | string
   }
   paginator: { pageSize: number; pageSizeOptions: number[] }
+  /** AI 服务商全局兜底配置，与组件实例 prop 字段级合并 */
+  ai: Partial<AiProviderConfig>
 }
 
 const state = reactive<State>({
   animation: true,
   size: 'default',
   form: { labelWidth: 100 },
-  paginator: { pageSize: 40, pageSizeOptions: [40, 100, 200, 500, 1000] }
+  paginator: { pageSize: 40, pageSizeOptions: [40, 100, 200, 500, 1000] },
+  ai: {}
 })
 
 export function setDocumentSize(size: ComponentSize, oldSize?: ComponentSize): void {
