@@ -4,55 +4,16 @@
 /**
  * 文件查看器样式
  *
- * 预览区为「恒暗」设计：无论亮暗主题，画布始终深色、纸面（图片/PDF/OFD/DOCX 页面）
- * 始终恒白，不随主题切换；模态模式整体为深色沉浸层，同理在两套主题下观感一致。
- * 因此画布 / 纸面 / 模态表面的色值不能引用会随主题切换的 token，统一收敛到
- * 下方文件头变量块并注明设计意图（待 styles 包扩充深色中性阶 / overlay 类 token 后可替换）。
+ * 画布与模态均跟随主题：内嵌与模态共用同一套主题表面（bg-color.bottom 做画布底、
+ * bg-color.middle 做顶部微亮渐变），模态仅以全屏接管 + 入场动画表达层级，与 dialog
+ * 的遮罩/表面策略保持一致。纸面（图片/PDF/OFD/DOCX 页面）始终恒白，不随主题切换，
+ * 其色值收敛到下方文件头变量块（待 styles 包扩充深色中性阶 token 后可替换）。
  */
 
 @include m.b(file-viewer) {
-  // ── 恒暗画布：预览区背景与画布上的加载/失败遮罩（无对应深色中性 token，不随主题切换）──
-  --u-file-viewer-canvas: #101114;
-  --u-file-viewer-canvas-soft: #17191f;
-  --u-file-viewer-canvas-overlay: rgba(16, 17, 20, 0.74);
-
-  // ── 恒定亮面：纸面与模态主按钮的恒白表面及墨色（画布恒暗的配对设计）──
+  // ── 恒定亮面：纸面的恒白表面及墨色（画布随主题的配对设计）──
   --u-file-viewer-light-surface: #fff;
   --u-file-viewer-light-ink: #222;
-
-  // 纸张投影：三级阴影 token 按浅底设计，在恒暗画布上几乎不可见，故保留定制重投影
-  --u-file-viewer-page-shadow: 0 24px 72px rgba(0, 0, 0, 0.34);
-  // 模态纸张投影：重投影 + 白色发丝描边的组合阴影，三级阴影 token 无法等价表达
-  --u-file-viewer-page-shadow-modal:
-    0 38px 110px rgba(0, 0, 0, 0.5),
-    0 0 0 1px rgba(255, 255, 255, 0.04);
-
-  // ── 模态沉浸层恒暗表面（不随主题切换；styles 包暂无 mask/overlay 类 token，待扩充后收敛）──
-  --u-file-viewer-modal-backdrop: linear-gradient(
-    180deg,
-    rgba(5, 7, 11, 0.78),
-    rgba(4, 5, 8, 0.94)
-  );
-  --u-file-viewer-modal-sidebar: linear-gradient(
-    90deg,
-    rgba(8, 10, 15, 0.76),
-    rgba(8, 10, 15, 0.58) 78%,
-    rgba(8, 10, 15, 0.34)
-  );
-  --u-file-viewer-modal-stage-head: linear-gradient(
-    180deg,
-    rgba(9, 11, 16, 0.72),
-    rgba(9, 11, 16, 0.28) 72%,
-    transparent
-  );
-  --u-file-viewer-modal-body: linear-gradient(
-    180deg,
-    rgba(13, 16, 23, 0.58),
-    rgba(5, 6, 10, 0.82)
-  );
-  --u-file-viewer-modal-surface: rgba(8, 10, 14, 0.82);
-  --u-file-viewer-modal-panel: rgba(10, 12, 18, 0.78);
-  --u-file-viewer-modal-text: rgba(5, 7, 10, 0.76);
 
   // ── kind badge 彩色：pink/violet 无对应色板 token（包内仅 primary/success/warning/danger/info），
   //    待 styles 包扩充色板后收敛 ──
@@ -101,17 +62,8 @@
   &.is-modal &__backdrop {
     position: absolute;
     inset: 0;
-    background:
-      var(--u-file-viewer-modal-backdrop),
-      linear-gradient(
-        90deg,
-        fn.color-a(text-color, 5, white),
-        transparent 24%,
-        transparent 76%,
-        fn.color-a(text-color, 4, white)
-      );
-    backdrop-filter: fn.use-var(bg-filter);
-    -webkit-backdrop-filter: fn.use-var(bg-filter);
+    // 全屏接管的主题底色：侧栏与舞台均不透明，遮罩只作为兜底表面（与 dialog 表面策略一致）
+    background: fn.use-var(bg-color, bottom);
   }
 
   &.is-modal &__sidebar,
@@ -134,14 +86,6 @@
     border-right: 1px solid fn.use-var(border, color);
   }
 
-  &.is-modal &__sidebar {
-    color: fn.color-a(text-color, 86, white);
-    background: var(--u-file-viewer-modal-sidebar);
-    border-right: 1px solid fn.color-a(text-color, 5, white);
-    backdrop-filter: fn.use-var(bg-filter);
-    -webkit-backdrop-filter: fn.use-var(bg-filter);
-  }
-
   @include m.e(sidebar-head) {
     display: flex;
     align-items: center;
@@ -149,10 +93,6 @@
     gap: 12px;
     padding: 14px 12px 6px;
     color: fn.use-var(text-color, title);
-  }
-
-  &.is-modal &__sidebar-head {
-    color: fn.color-a(text-color, 70, white);
   }
 
   @include m.e(sidebar-title) {
@@ -166,11 +106,6 @@
     font-size: 11px;
     font-variant-numeric: tabular-nums;
     color: fn.use-var(text-color, second);
-  }
-
-  &.is-modal &__sidebar-count,
-  &.is-modal &__item-size {
-    color: fn.color-a(text-color, 50, white);
   }
 
   @include m.e(list) {
@@ -192,10 +127,10 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    min-height: 42px;
-    padding: 7px 8px 7px 12px;
+    min-height: 44px;
+    padding: 7px 8px 7px 14px;
     margin: 0;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     transition:
       background fn.use-var(transition, fast) fn.use-var(transition, ease),
@@ -203,9 +138,9 @@
 
     &::before {
       position: absolute;
-      left: 0;
-      top: 8px;
-      bottom: 8px;
+      left: 4px;
+      top: 10px;
+      bottom: 10px;
       width: 2px;
       border-radius: 999px;
       background: fn.use-var(color, primary);
@@ -231,23 +166,6 @@
     }
   }
 
-  &.is-modal &__item {
-    color: fn.color-a(text-color, 70, white);
-
-    &:hover {
-      background: fn.color-a(text-color, 5, white);
-    }
-
-    @include m.is(active) {
-      color: fn.use-var(text-color, white);
-      background: fn.color-a(text-color, 8, white);
-
-      &::before {
-        background: fn.color-a(text-color, 86, white);
-      }
-    }
-  }
-
   @include m.e(item-meta) {
     display: flex;
     flex: 1;
@@ -265,10 +183,6 @@
     @include m.ellipsis;
   }
 
-  &.is-modal &__item-name {
-    color: fn.color-a(text-color, 86, white);
-  }
-
   @include m.e(item-size) {
     font-size: 11px;
     line-height: 1;
@@ -283,14 +197,6 @@
     font-weight: 720;
     line-height: 1;
     text-align: right;
-  }
-
-  &.is-modal &__item-kind {
-    color: fn.color-a(text-color, 40, white);
-  }
-
-  &.is-modal &__item.is-active &__item-kind {
-    color: fn.color-a(text-color, 70, white);
   }
 
   @include m.e(badge) {
@@ -360,32 +266,17 @@
     background: fn.use-var(bg-color, top);
   }
 
-  &.is-modal &__stage {
-    position: relative;
-    color: fn.color-a(text-color, 86, white);
-    background: transparent;
-  }
-
   @include m.e(stage-head) {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    min-height: 66px;
-    padding: 12px 14px 12px 18px;
+    min-height: 58px;
+    padding: 10px 14px 10px 16px;
     background:
       linear-gradient(180deg, fn.color-a(text-color, 4, white), transparent), fn.use-var(bg-color, top);
     border-bottom: 1px solid fn.use-var(border, color);
     flex-shrink: 0;
-  }
-
-  &.is-modal &__stage-head {
-    min-height: 64px;
-    color: fn.color-a(text-color, 86, white);
-    background: var(--u-file-viewer-modal-stage-head);
-    border-bottom-color: transparent;
-    backdrop-filter: fn.use-var(bg-filter);
-    -webkit-backdrop-filter: fn.use-var(bg-filter);
   }
 
   @include m.e(stage-title) {
@@ -409,10 +300,6 @@
     line-height: 1.25;
 
     @include m.ellipsis;
-  }
-
-  &.is-modal &__stage-name {
-    color: fn.color-a(text-color, 86, white);
   }
 
   @include m.e(stage-sub) {
@@ -443,10 +330,6 @@
     }
   }
 
-  &.is-modal &__stage-sub {
-    color: fn.color-a(text-color, 52, white);
-  }
-
   @include m.e(stage-actions) {
     display: flex;
     align-items: center;
@@ -463,15 +346,10 @@
     height: 34px;
     padding: 2px;
     border: 1px solid fn.color-a(border, 86, color);
-    border-radius: 8px;
+    border-radius: 10px;
     background: fn.use-var(bg-color, middle);
-  }
-
-  &.is-modal &__action-group {
-    border-color: fn.color-a(text-color, 8, white);
-    background: fn.color-a(text-color, 5, white);
-    // 内侧白色发丝高光（非海拔投影，不适用三级阴影 token）
-    box-shadow: 0 1px 0 fn.color-a(text-color, 5, white) inset;
+    // 顶部内侧发丝高光，让按钮组有一点胶囊体积感
+    box-shadow: 0 1px 0 fn.color-a(text-color, 4, white) inset;
   }
 
   @include m.e(action) {
@@ -512,15 +390,6 @@
     }
   }
 
-  &.is-modal &__action {
-    color: fn.color-a(text-color, 70, white);
-
-    &:not(:disabled):hover {
-      color: fn.use-var(text-color, white);
-      background: fn.color-a(text-color, 10, white);
-    }
-  }
-
   @include m.em(action, icon) {
     width: 30px;
     padding: 0;
@@ -537,17 +406,6 @@
     }
   }
 
-  &.is-modal &__action--primary {
-    color: var(--u-file-viewer-light-ink);
-    background: fn.color-a(text-color, 86, white);
-    border-color: fn.color-a(text-color, 86, white);
-
-    &:not(:disabled):hover {
-      color: var(--u-file-viewer-light-ink);
-      background: var(--u-file-viewer-light-surface);
-    }
-  }
-
   @include m.e(zoom-value) {
     min-width: 48px;
     color: fn.use-var(text-color, title);
@@ -557,30 +415,15 @@
     user-select: none;
   }
 
-  &.is-modal &__zoom-value {
-    color: fn.color-a(text-color, 86, white);
-  }
-
   @include m.e(body) {
     position: relative;
     flex: 1;
     min-height: 0;
     overflow: hidden;
+    // 顶部微亮的径向渐变给画布一点纵深，画布底用 bg-color 最深一档与纸面拉开层次
     background:
-      linear-gradient(180deg, var(--u-file-viewer-canvas-soft), var(--u-file-viewer-canvas)),
-      var(--u-file-viewer-canvas);
-  }
-
-  &.is-modal &__body {
-    background:
-      var(--u-file-viewer-modal-body),
-      linear-gradient(
-        90deg,
-        fn.color-a(text-color, 4, white),
-        transparent 22%,
-        transparent 78%,
-        fn.color-a(text-color, 4, white)
-      );
+      radial-gradient(120% 80% at 50% 0%, fn.use-var(bg-color, middle), transparent 62%),
+      fn.use-var(bg-color, bottom);
   }
 
   @include m.e(viewport) {
@@ -598,7 +441,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: fn.color-a(text-color, 70, white);
+    color: fn.use-var(text-color, second);
   }
 
   @include m.e(image) {
@@ -631,7 +474,6 @@
       object-fit: contain;
       border-radius: 6px;
       background: var(--u-file-viewer-light-surface);
-      box-shadow: var(--u-file-viewer-page-shadow);
     }
   }
 
@@ -639,9 +481,7 @@
     padding: clamp(18px, 4vw, 64px);
 
     img {
-      background: fn.color-a(text-color, 4, white);
       border-radius: 4px;
-      box-shadow: var(--u-file-viewer-page-shadow-modal);
     }
   }
 
@@ -667,18 +507,14 @@
   @include m.e(text) {
     position: absolute;
     inset: 0;
-    background: var(--u-file-viewer-canvas);
-  }
-
-  &.is-modal &__text {
-    background: var(--u-file-viewer-modal-text);
+    // 透明继承 __body 的主题画布底色
   }
 
   @include m.e(text-pre) {
     min-width: max-content;
     margin: 0;
     padding: 22px 26px;
-    color: fn.color-a(text-color, 86, white);
+    color: fn.use-var(text-color, main);
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 12.5px;
     line-height: 1.65;
@@ -716,9 +552,8 @@
   }
 
   @include m.e(pdf-page) {
-    margin: 24px auto;
+    margin: 28px auto;
     background: var(--u-file-viewer-light-surface);
-    box-shadow: var(--u-file-viewer-page-shadow);
 
     // 物理分辨率与 CSS 尺寸解耦：canvas 固定铺满占位块（超限降采样时由 CSS 拉伸）
     canvas {
@@ -730,7 +565,6 @@
 
   &.is-modal &__pdf-page {
     margin: clamp(24px, 3vw, 44px) auto;
-    box-shadow: var(--u-file-viewer-page-shadow-modal);
   }
 
   // 加载失败的错误态，视觉与 loading 一致（覆盖整个画布的居中提示），文案用 danger 语义色
@@ -741,7 +575,9 @@
     align-items: center;
     justify-content: center;
     color: fn.use-var(color, danger);
-    background: var(--u-file-viewer-canvas-overlay);
+    background: fn.color-a(bg-color, 70, bottom);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     font-size: 13px;
     pointer-events: none;
   }
@@ -758,9 +594,8 @@
   }
 
   @include m.e(ofd-page) {
-    margin: 24px auto;
+    margin: 28px auto;
     background: var(--u-file-viewer-light-surface);
-    box-shadow: var(--u-file-viewer-page-shadow);
 
     svg {
       display: block;
@@ -788,15 +623,10 @@
     margin: 0 auto;
     color: var(--u-file-viewer-light-ink);
     background: var(--u-file-viewer-light-surface);
-    box-shadow: var(--u-file-viewer-page-shadow);
   }
 
   &.is-modal &__docx-body {
     padding: clamp(24px, 4vw, 64px);
-  }
-
-  &.is-modal &__docx-doc {
-    box-shadow: var(--u-file-viewer-page-shadow-modal);
   }
 
   @include m.e(sheet) {
@@ -805,10 +635,6 @@
     display: flex;
     flex-direction: column;
     background: fn.use-var(bg-color, top);
-  }
-
-  &.is-modal &__sheet {
-    background: var(--u-file-viewer-modal-surface);
   }
 
   @include m.e(sheet-note) {
@@ -821,21 +647,22 @@
     flex-shrink: 0;
   }
 
-  &.is-modal &__sheet-note,
-  &.is-modal &__sheet-tabs {
-    color: fn.color-a(text-color, 60, white);
-    background: var(--u-file-viewer-modal-panel);
-    border-bottom-color: fn.color-a(text-color, 8, white);
-  }
-
   @include m.e(sheet-tabs) {
     display: flex;
     gap: 6px;
     padding: 9px 12px;
-    border-bottom: 1px solid fn.use-var(border, color);
+    // 表签条位于预览区下方，分隔线朝上
+    border-top: 1px solid fn.use-var(border, color);
     background: fn.use-var(bg-color, top);
     flex-shrink: 0;
     overflow-x: auto;
+    // 表签条横向滚动时隐藏原生滚动条，保持胶囊观感
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      width: 0;
+      height: 0;
+    }
   }
 
   @include m.e(sheet-tab) {
@@ -869,21 +696,6 @@
     }
   }
 
-  &.is-modal &__sheet-tab {
-    color: fn.color-a(text-color, 60, white);
-
-    &:hover {
-      color: fn.color-a(text-color, 86, white);
-      background: fn.color-a(text-color, 8, white);
-    }
-
-    @include m.is(active) {
-      color: fn.use-var(text-color, white);
-      background: fn.color-a(text-color, 10, white);
-      border-color: fn.color-a(text-color, 11, white);
-    }
-  }
-
   @include m.e(sheet-stage) {
     flex: 1;
     min-height: 0;
@@ -896,9 +708,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: fn.color-a(text-color, 70, white);
-    background: var(--u-file-viewer-canvas-overlay);
+    color: fn.use-var(text-color, second);
+    background: fn.color-a(bg-color, 70, bottom);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     font-size: 13px;
+    letter-spacing: 0.02em;
     pointer-events: none;
   }
 
@@ -917,11 +732,6 @@
       height: 164px;
       border-right: none;
       border-bottom: 1px solid fn.use-var(border, color);
-    }
-
-    &.is-modal &__sidebar {
-      border-bottom-color: fn.color-a(text-color, 8, white);
-      border-right: none;
     }
 
     @include m.e(stage-head) {
@@ -953,6 +763,15 @@
 .u-file-viewer-modal-leave-active {
   transition: opacity fn.use-var(transition, normal) fn.use-var(transition, ease);
   will-change: opacity;
+}
+
+// 打开时舞台自下而上轻微上浮，与背景淡入配合出纵深（参考 Drive / flyfish file-viewer 的入场）
+.u-file-viewer-modal-enter-active .u-file-viewer__stage {
+  transition: transform fn.use-var(transition, normal) fn.use-var(transition, ease);
+}
+
+.u-file-viewer-modal-enter-from .u-file-viewer__stage {
+  transform: translateY(10px) scale(0.99);
 }
 
 .u-file-viewer-modal-leave-active {

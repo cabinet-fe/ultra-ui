@@ -8,6 +8,7 @@
         共 {{ totalRows.toLocaleString() }} 行，超出预览上限
         {{ maxRows.toLocaleString() }} 行，已全量加载
       </div>
+      <div ref="container" :class="cls.e('sheet-stage')" />
       <div v-if="sheets.length > 1" :class="cls.e('sheet-tabs')">
         <button
           v-for="(s, i) in sheets"
@@ -18,7 +19,6 @@
           {{ s.name }}
         </button>
       </div>
-      <div ref="container" :class="cls.e('sheet-stage')" />
       <div v-if="loading" :class="cls.e('loading')">加载中…</div>
     </template>
   </div>
