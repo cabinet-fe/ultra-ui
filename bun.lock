@@ -81,7 +81,7 @@
         "@lexical/selection": "^0.52.0",
         "@lexical/utils": "^0.52.0",
         "docx-preview": "^0.4.1",
-        "infinitable": "^0.1.5",
+        "infinitable": "^0.1.7",
         "lexical": "^0.52.0",
         "pdfjs-dist": "6.4.299",
       },
@@ -152,7 +152,7 @@
       "name": "@veltra/sheet",
       "version": "3.0.0",
       "dependencies": {
-        "infinitable": "^0.1.6",
+        "infinitable": "^0.1.7",
       },
       "peerDependencies": {
         "@cat-kit/core": ">=1.2.1",
@@ -213,7 +213,7 @@
         "@veltra/sheet": "workspace:*",
         "@veltra/styles": "workspace:*",
         "@veltra/utils": "workspace:*",
-        "infinitable": "^0.1.6",
+        "infinitable": "^0.1.7",
         "vue": "^3.5.43",
         "vue-router": "^5.4.0",
       },
@@ -887,7 +887,7 @@
 
     "import-meta-resolve": ["import-meta-resolve@4.2.0", "https://mirrors.tencent.com/npm/import-meta-resolve/-/import-meta-resolve-4.2.0.tgz", {}, "sha512-Iqv2fzaTQN28s/FwZAoFq0ZSs/7hMAHJVX+w8PZl3cY19Pxk6jFFalxQoIfW2826i/fDLXv8IiEZRIT0lDuWcg=="],
 
-    "infinitable": ["infinitable@0.1.6", "https://mirrors.tencent.com/npm/infinitable/-/infinitable-0.1.6.tgz", { "peerDependencies": { "@cat-kit/core": "^1.2.1" } }, "sha512-2Kr5dT5AqYhBuVlobewPYgW4QuIDDvv3TZm64KZ060RzDWj8r7gwzJv5AuUHJLPrXzGJhSYIsuY24U5l/jujsw=="],
+    "infinitable": ["infinitable@0.1.7", "https://mirrors.tencent.com/npm/infinitable/-/infinitable-0.1.7.tgz", { "peerDependencies": { "@cat-kit/core": "^1.2.1" } }, "sha512-g9FTJgmqKNryurWLJbHNwgs8KFs4RE59th8xNMiSrUwpCG5YaxqCcVBqas8swAgSRzi9yZ15AEG73eScrx/E3w=="],
 
     "inherits": ["inherits@2.0.4", "https://mirrors.tencent.com/npm/inherits/-/inherits-2.0.4.tgz", {}, "sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ=="],
 
