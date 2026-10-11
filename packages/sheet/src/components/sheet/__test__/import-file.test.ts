@@ -16,7 +16,9 @@ const mocks = vi.hoisted(() => {
     importCsv: vi.fn(),
     importXlsx: vi.fn(() =>
       Promise.resolve({
-        getSheets: () => [{ name: 'S1', snapshot: () => EMPTY_SNAPSHOT }],
+        getSheets: (): MockSheet[] => [
+          { name: 'S1', snapshot: () => EMPTY_SNAPSHOT, defaultRowHeight: 20, defaultColWidth: 64 }
+        ],
         activeSheetIndex: 0
       })
     ),
@@ -32,6 +34,14 @@ const EMPTY_SNAPSHOT = {
   frozen: { rows: 0, cols: 0 },
   rows: 0,
   cols: 0
+}
+
+/** importXlsx mock 的 sheet 形状（默认尺寸可选：不写即未声明 → 不透传路径） */
+type MockSheet = {
+  name: string
+  snapshot: () => typeof EMPTY_SNAPSHOT
+  defaultRowHeight?: number
+  defaultColWidth?: number
 }
 
 vi.mock('@veltra/desktop', () => ({ message: mocks.message, messageConfirm: mocks.messageConfirm }))
@@ -110,7 +120,7 @@ describe('importFromFile 导入确认兜底', () => {
     expect(mocks.replaceWorkbookWithSnapshots).toHaveBeenCalledTimes(1)
     expect(mocks.replaceWorkbookWithSnapshots).toHaveBeenCalledWith(
       expect.anything(),
-      [{ name: 'S1', snapshot: EMPTY_SNAPSHOT }],
+      [{ name: 'S1', snapshot: EMPTY_SNAPSHOT, defaultRowHeight: 20, defaultColWidth: 64 }],
       0
     )
     expect(replaced).toHaveBeenCalledTimes(1)
@@ -170,6 +180,27 @@ describe('importFromFile 导入确认兜底', () => {
     expect(mocks.message.success).toHaveBeenCalledWith(
       expect.stringContaining('已从 data.csv 导入')
     )
+  })
+})
+
+describe('importFromFile 默认行列尺寸透传', () => {
+  it('文件未声明默认尺寸：条目不携带两字段（目标保持现状）', async () => {
+    mocks.importXlsx.mockImplementationOnce(() =>
+      Promise.resolve({
+        getSheets: () => [{ name: 'S1', snapshot: () => EMPTY_SNAPSHOT }],
+        activeSheetIndex: 0
+      })
+    )
+    const options = makeOptions()
+    await triggerXlsxAndAwait(options)
+    const onClosed = getOnClosed()
+    await onClosed('confirm')
+
+    expect(mocks.replaceWorkbookWithSnapshots).toHaveBeenCalledTimes(1)
+    const [entry] = mocks.replaceWorkbookWithSnapshots.mock.calls[0]![1]
+    expect(entry).toEqual({ name: 'S1', snapshot: EMPTY_SNAPSHOT })
+    expect(entry).not.toHaveProperty('defaultRowHeight')
+    expect(entry).not.toHaveProperty('defaultColWidth')
   })
 })
 

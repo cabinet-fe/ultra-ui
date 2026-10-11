@@ -24,7 +24,18 @@ export interface ImportFileOptions {
   onWorkbookReplaced?: () => void
 }
 
-type ParsedXlsx = { sheets: { name: string; snapshot: SheetSnapshot }[]; activeIndex: number }
+/** worker done 载荷 / 主线程降级解析共用的条目形状（结构化可赋给 SheetReplaceItem） */
+type ParsedXlsx = {
+  sheets: {
+    name: string
+    snapshot: SheetSnapshot
+    /** 默认行高 px（模型未声明则不携带） */
+    defaultRowHeight?: number
+    /** 默认列宽 px（模型未声明则不携带） */
+    defaultColWidth?: number
+  }[]
+  activeIndex: number
+}
 
 /**
  * xlsx 解析（worker 优先）：importXlsx 是同步重活，主线程直接跑会冻结 UI。
@@ -79,7 +90,13 @@ async function parseXlsxAsync(
 
 function toSnapshotArray(wb: Workbook): ParsedXlsx {
   return {
-    sheets: wb.getSheets().map((s) => ({ name: s.name, snapshot: s.snapshot() })),
+    sheets: wb.getSheets().map((s) => ({
+      name: s.name,
+      snapshot: s.snapshot(),
+      // 模型未声明默认尺寸不序列化（口径同 snapshot() 的条件字段写法）
+      ...(s.defaultRowHeight !== undefined ? { defaultRowHeight: s.defaultRowHeight } : {}),
+      ...(s.defaultColWidth !== undefined ? { defaultColWidth: s.defaultColWidth } : {})
+    })),
     activeIndex: wb.activeSheetIndex
   }
 }

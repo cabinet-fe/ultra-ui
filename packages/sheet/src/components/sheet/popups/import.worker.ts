@@ -5,8 +5,9 @@
  *
  * 协议：主线程 postMessage({ buffer: ArrayBuffer }) → worker 返回
  * - { type: 'progress', done, total }（模型分片构建进度，xlsx 解析段无进度）
- * - { type: 'done', ok: true, sheets: [{ name, snapshot }], activeIndex }（快照为
- *   纯数据，可结构化克隆）；失败 { type: 'done', ok: false, error }。
+ * - { type: 'done', ok: true, sheets: [{ name, snapshot, defaultRowHeight?,
+ *   defaultColWidth? }], activeIndex }（快照为纯数据，可结构化克隆；默认行列
+ *   尺寸未声明不携带）；失败 { type: 'done', ok: false, error }。
  *
  * 解析与构建经 infinitable/sheet importXlsx 完成（hucre 已内联进引擎统一包）；
  * 名字唯一化与活动表对齐在 worker 内完成，主线程直接把快照替换进目标
@@ -22,7 +23,14 @@ export type ImportWorkerResponse =
   | {
       type: 'done'
       ok: true
-      sheets: { name: string; snapshot: SheetSnapshot }[]
+      sheets: {
+        name: string
+        snapshot: SheetSnapshot
+        /** 默认行高 px（模型未声明则不携带；形状同上游 SheetReplaceItem 对应字段） */
+        defaultRowHeight?: number
+        /** 默认列宽 px（模型未声明则不携带；形状同上游 SheetReplaceItem 对应字段） */
+        defaultColWidth?: number
+      }[]
       activeIndex: number
     }
   | { type: 'done'; ok: false; error: string }
@@ -43,7 +51,13 @@ self.onmessage = (e: MessageEvent<{ buffer: ArrayBuffer }>): void => {
           ;(self as unknown as Worker).postMessage(progress)
         }
       })
-      const sheets = wb.getSheets().map((s) => ({ name: s.name, snapshot: s.snapshot() }))
+      const sheets = wb.getSheets().map((s) => ({
+        name: s.name,
+        snapshot: s.snapshot(),
+        // 模型未声明默认尺寸不序列化（口径同 snapshot() 的条件字段写法）
+        ...(s.defaultRowHeight !== undefined ? { defaultRowHeight: s.defaultRowHeight } : {}),
+        ...(s.defaultColWidth !== undefined ? { defaultColWidth: s.defaultColWidth } : {})
+      }))
       const response: ImportWorkerResponse = {
         type: 'done',
         ok: true,
