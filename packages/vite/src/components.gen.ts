@@ -13,6 +13,7 @@ export const VELTRA_COMPONENT_PACKAGES: VeltraComponentPackage[] = [
     components: {
       UAction: 'components/action/style',
       UActionGroup: 'components/action/style',
+      UAiButton: 'components/ai-button/style',
       UAlert: 'components/alert/style',
       UAnchor: 'components/anchor/style',
       UAnchorItem: 'components/anchor/style',

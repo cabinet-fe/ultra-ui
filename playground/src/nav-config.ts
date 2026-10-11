@@ -43,6 +43,7 @@ export const demoMeta: Record<string, DemoMeta> = {
   icons: { zh: '图标', en: 'Icons', category: 'other' },
   action: { zh: '操作按钮', en: 'Action', category: 'other' },
   'ai-chat': { zh: 'AI 对话', en: 'AiChat', category: 'data' },
+  'ai-button': { zh: 'AI 按钮', en: 'AiButton', category: 'form' },
   sheet: { zh: '电子表格', en: 'Sheet', category: 'data' },
   'sheet-big-data': { zh: '大数据量演示', en: 'BigData', category: 'data' },
   'sheet-data-entry': { zh: '在线填报', en: 'DataEntry', category: 'data' },
