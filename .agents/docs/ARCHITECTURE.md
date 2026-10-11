@@ -34,7 +34,7 @@ Ultra UI 是 Vue 3 组件与能力库。主用户是 cabinet-fe 内部业务前�
 - 构建辅助：`@veltra/vite` 的 `VeltraUIResolver`（扫描 desktop / ai / sheet 的组件目录生成表）
 - 主题：`@veltra/styles` 的 SCSS token + `@veltra/styles/theme`（运行时依赖 compositions 的 `useConfig`；compositions 不得 re-export theme）
 
-CI：`.github/workflows/release.yml`。`bun run release` 在 `dev` 分支落版本并推送，远端负责测试、构建、npm publish。
+CI：`.github/workflows/release.yml`（发版流水线，流程统一见发版技能 `.agents/skills/release`）。
 
 ### 技术栈
 

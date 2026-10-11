@@ -50,7 +50,7 @@
 - changesets：`vp changeset` / `bun run changeset`。`fixed` 一组同版本——核心 `utils/styles/compositions/directives/desktop`；`sheet` / `ai` / `icons` / `vite` 独立版本线。
 - `ignore`：`@veltra/mobile`、`playground`。
 - `___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH.onlyUpdatePeerDependentsWhenOutOfRange` 已开。
-- 发版：在 `dev` 上 `bun run release`（见 `scripts/release.ts`），CI 测完构建并 publish。
+- 发版：统一走发版技能 `.agents/skills/release`（dev 分支 `bun run release`，CI publish）。
 - commit：`simple-git-hooks` → `cat-cli verify-commit`，格式 `<type>[(<scope>)][!]: <subject>`。pre-commit：`vp staged`。提交前本地应过 `bun run lint`。
 - 编码后宣称完成前：`bun run lint`、`bun run test`、`bun run build`。
 - 若改动触及公共导出/API，宣称完成前须使用 `docs-gen` 技能增量同步 `agent-docs/` 文档。

@@ -120,5 +120,5 @@ graph TD
 
 1. **宿主按需组件**：Vite 配 `VeltraUIResolver` → 读 `packages/vite/src/components.gen.ts` → 解析 `U*` 到对应包 `components/<name>` 与 `style.ts`。增删组件后必须 `bun run resolver:gen`。
 2. **playground 启动**：`cd playground && bun run dev` 同时拉起前端 7788 与参考服务 8787（填报 + `/ai`）。
-3. **发版**：changeset → `bun run release`（`dev` 分支）→ GitHub Actions publish。
+3. **发版**：统一走发版技能 `.agents/skills/release`（changeset → `bun run release` → CI publish）。
 4. **检索文档同步**：`agent-docs/` 由 docs-gen 技能按源码现状撰写，用 `node scripts/push-docs.mjs` 全量推送到 docs 服务。
