@@ -2,6 +2,7 @@
   <div
     ref="trigger"
     class="playground-nav-search"
+    v-bind="$attrs"
     @focusin="onFocusIn"
     @focusout="onFocusOut"
     @click="onTriggerClick"
@@ -56,7 +57,8 @@ import { useRouter } from 'vue-router'
 import { flattenPlaygroundNavItems, isNavGroupPath, searchNavItems } from './nav-config'
 import NavSearchPanel from './nav-search-panel.vue'
 
-defineOptions({ name: 'UNavSearch' })
+// 多根（触发器 + Teleport）无法自动继承 attrs，手动绑到触发器，消除 UNavSearch class 警告
+defineOptions({ name: 'UNavSearch', inheritAttrs: false })
 
 const props = defineProps<{ menus: NavItem[] }>()
 
