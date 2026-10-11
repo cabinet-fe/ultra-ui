@@ -1,4 +1,6 @@
 import { contextmenu } from '@veltra/desktop'
+import { currentTheme } from '@veltra/styles/theme'
+import type { ThemeOverride } from 'infinitable'
 import type { CellAddress, CellRange } from 'infinitable/sheet'
 import type { Sheet } from 'infinitable/sheet'
 import { SheetGrid, type SheetGridContextMenuInfo } from 'infinitable/sheet'
@@ -62,6 +64,34 @@ interface CachedGrid {
  * 每实例持有一组 [data-layer-kind] 分层画布，容量即内存上限（含隐藏实例的渲染开销）。
  */
 const GRID_CACHE_CAPACITY = 3
+
+/**
+ * 画布主题映射：读 grid 宿主元素上生效的 `--u-*` CSS 变量（loadTheme 注入 html、
+ * 继承到宿主），换算为引擎 `ThemeOverride`——画布底色 / 表头 / 文字 / 网格线 /
+ * 冻结分隔线跟随 UI 主题。rowHeader / corner 由引擎随生效 header 派生，无需单写。
+ *
+ * 任一变量为空（未 loadTheme）返回 `undefined`：SheetGrid 不传 theme、保持引擎
+ * 缺省白底，不破坏无主题环境。
+ */
+export function resolveCanvasThemeOverride(el: HTMLElement): ThemeOverride | undefined {
+  const style = getComputedStyle(el)
+  const bgColorTop = style.getPropertyValue('--u-bg-color-top').trim()
+  const bgColorBottom = style.getPropertyValue('--u-bg-color-bottom').trim()
+  const textColorMain = style.getPropertyValue('--u-text-color-main').trim()
+  const borderColor = style.getPropertyValue('--u-border-color').trim()
+  const borderMutedColor = style.getPropertyValue('--u-border-muted-color').trim()
+  if (!bgColorTop || !bgColorBottom || !textColorMain || !borderColor || !borderMutedColor) {
+    return undefined
+  }
+  return {
+    // 底色与 .u-sheet 外层同底；underlay 是数据区外空白处直接可见的底
+    body: { background: bgColorTop, color: textColorMain, borderColor },
+    header: { background: bgColorBottom, color: textColorMain, borderColor },
+    underlayBackgroundColor: bgColorTop,
+    interaction: { freezeDividerColor: borderMutedColor },
+    frameStyle: { color: borderColor }
+  }
+}
 
 /**
  * SheetGrid 生命周期与网格右键菜单（LRU 实例缓存）：
@@ -133,6 +163,9 @@ export function useSheetGrid(options: UseSheetGridOptions) {
       colResize: props.colResize,
       scrollbar: props.scrollbar,
       growOnScroll: props.growOnScroll,
+      // 画布跟随 UI 主题：loadTheme 注入的 CSS 变量换算为引擎 override
+      //（未 loadTheme 时为 undefined，引擎保持缺省白底）
+      theme: resolveCanvasThemeOverride(host),
       onContextMenu: handleContextMenu,
       onEditStart: (addr) => formulaBarRef.value?.mirrorGridEdit(addr),
       onEditEnd: (addr) => formulaBarRef.value?.exitMirror(addr),
@@ -290,6 +323,23 @@ export function useSheetGrid(options: UseSheetGridOptions) {
   onBeforeUnmount(() => {
     invalidateAll()
   })
+
+  // 主题切换换肤：loadTheme 换实例（ref 替换）或主题 token 原地改（deep）后，
+  // 等 UITheme 把 CSS 变量渲染进 html（flush: 'post' 晚于其渲染）再重读映射，
+  // 对缓存中所有实例原地 updateTheme——零重建，滚动 / 选区 / 冻结等运行时状态
+  // 不受影响；未 loadTheme（解析为 undefined）时不动，保持引擎缺省白底
+  watch(
+    [() => currentTheme.value?.theme, currentTheme],
+    () => {
+      const host = gridRef.value
+      const override = host ? resolveCanvasThemeOverride(host) : undefined
+      if (!override) return
+      for (const item of cache.values()) {
+        item.grid.updateTheme(override)
+      }
+    },
+    { deep: true, flush: 'post' }
+  )
 
   /** fx 引用拾取会话置/清选区锚点（公式栏 → 活动实例透传；无活动实例时静默） */
   function setSelectionAnchor(addr: CellAddress | null): void {
