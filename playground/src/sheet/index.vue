@@ -27,8 +27,43 @@
       >
         3. 修改被引用格 I9 +100
       </button>
-      <span class="sheet-demo__report-total">I13 合计：{{ reportTotalText }}</span>
+      <span class="sheet-demo__seg-status">I13 合计：{{ reportTotalText }}</span>
     </div>
+
+    <!-- 超链接与图片演示：右键链路可操作验证（预置按钮 = 重置器，右键操作全项见 hint） -->
+    <div class="sheet-demo__seg" role="group" aria-label="超链接与图片演示">
+      <button
+        type="button"
+        class="sheet-demo__seg-btn"
+        title="经 SheetContext.setCellLink 重置 E7 链接（取消超链接后重新预置，验证插入→编辑→取消循环）"
+        @click="presetLinkCell"
+      >
+        预置链接格 E7
+      </button>
+      <button
+        type="button"
+        class="sheet-demo__seg-btn"
+        title="经 SheetContext.insertCellImage 重置 E8 嵌入图（带链接，四项全可见；移除图片后重新预置）"
+        @click="presetCellImage"
+      >
+        预置嵌入图 E8
+      </button>
+      <button
+        type="button"
+        class="sheet-demo__seg-btn"
+        title="经 SheetContext.insertImage 在 G7 重新插入浮动图（删除图片后重新预置，预置带链接）"
+        @click="presetFloatImage"
+      >
+        预置浮动图
+      </button>
+      <span class="sheet-demo__seg-status">{{ linkDemoStatus }}</span>
+    </div>
+    <p class="sheet-demo__hint">
+      右键空白格「插入超链接」弹窗配置、右键链接格「编辑 / 取消超链接」、悬停链接格显示 URL
+      tooltip；右键嵌入图格 E8 出图片项（预览 / 图片超链接 / 取消超链接 /
+      移除图片），右键浮动图出独立菜单（预览 / 设置超链接 / 取消超链接 / 删除图片）；「预览」打开
+      lightbox：Ctrl/⌘+滚轮缩放、双击 100%/200% 切换、放大后拖拽平移、Esc / 遮罩 / 右上角按钮关闭
+    </p>
 
     <u-sheet ref="sheetRef" :workbook="workbook" :rows="60" :cols="40" class="sheet-demo__sheet" />
 
@@ -326,7 +361,7 @@ import {
   inferCellType,
   normalizeInputValue
 } from 'infinitable/sheet'
-import { computed, onBeforeUnmount, ref, shallowRef, useTemplateRef } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef, useTemplateRef } from 'vue'
 
 /**
  * 自定义函数示例：注册全局函数 DOUBLE（名称大小写不敏感、同名覆盖，重复挂载安全）。
@@ -343,6 +378,17 @@ registerFormulaFunction('DOUBLE', {
     return Number($n.mul(value, 2))
   }
 })
+
+// ─── 超链接与图片演示（右键链路可操作验证）─────────────────
+// 演示区 D7:G8（靠左，初始视口内）：E7 链接格（悬停 tooltip / 右键 编辑·取消）、
+// E8 嵌入图格（右键图片四项）、G7 起浮动图（右键独立菜单全项、lightbox 预览）。
+
+/** 链接格 E7 */
+const LINK_CELL_ADDR: CellAddress = { row: 6, col: 4 }
+/** 嵌入图格 E8 */
+const LINK_IMAGE_CELL_ADDR: CellAddress = { row: 7, col: 4 }
+/** 演示浮动图锚点 G7 */
+const FLOAT_IMAGE_ANCHOR = { from: { row: 6, col: 6 } }
 
 // 工作簿：两个 sheet 共享公式依赖图（跨表引用与联动重算的中枢）
 const workbook = new Workbook()
@@ -388,6 +434,27 @@ sheet1.insertImage({
   height: 48,
   altText: 'demo',
   title: 'playground demo'
+})
+// 预置超链接与图片演示数据（初始基线不进 undo；按钮重置走门面命令可 undo）
+sheet1.setCellValue({ row: 6, col: 3 }, '链接格')
+sheet1.setCellValue(LINK_CELL_ADDR, '官方站点')
+sheet1.setCellLink(LINK_CELL_ADDR, { url: 'https://example.com' })
+sheet1.setCellValue({ row: 7, col: 3 }, '嵌入图格')
+sheet1.insertCellImage(LINK_IMAGE_CELL_ADDR, {
+  data: createDemoPngBytes(),
+  type: 'png',
+  link: 'https://example.com'
+})
+sheet1.setCellValue({ row: 6, col: 5 }, '浮动图→')
+sheet1.insertImage({
+  data: createDemoPngBytes(),
+  type: 'png',
+  anchor: FLOAT_IMAGE_ANCHOR,
+  width: 64,
+  height: 48,
+  altText: 'demo',
+  title: 'link demo',
+  link: 'https://example.com'
 })
 // 预置数据作为初始状态，不进入 undo 历史
 sheet1.history.clear()
@@ -481,6 +548,57 @@ function bumpReportCell(): void {
   const base = typeof current === 'number' ? current : 0
   ctx.setCellValue(REPORT_BUMP_ADDR, $n.plus(base, 100))
   refreshReportTotal()
+}
+
+// ─── 超链接与图片演示段 ─────────────────────────────────────
+// 三个预置按钮 = 重置器（经门面写入，可 undo）：右键「取消超链接 / 移除图片 /
+// 删除图片」破坏预置后点按即可循环验证；状态行读门面与右键链路同源。
+
+const linkDemoStatus = ref('E7 链接：— · E8 嵌入图：— · 浮动图：—')
+
+/** 刷新状态行（getCellLink / hasCellImage / getImages 均为门面读方法） */
+function refreshLinkDemoStatus(): void {
+  const ctx = sheetRef.value?.getContext()
+  if (!ctx) return
+  const link = ctx.getCellLink(LINK_CELL_ADDR)
+  linkDemoStatus.value = `E7 链接：${link ? link.url : '无'} · E8 嵌入图：${
+    ctx.hasCellImage(LINK_IMAGE_CELL_ADDR) ? '有' : '无'
+  } · 浮动图：${ctx.getImages().length} 张`
+}
+
+/** 重置 E7 单元格超链接（右键「取消超链接」后重新预置） */
+function presetLinkCell(): void {
+  sheetRef.value?.getContext().setCellLink(LINK_CELL_ADDR, { url: 'https://example.com' })
+  refreshLinkDemoStatus()
+}
+
+/** 重置 L8 按格嵌入图（带链接，右键图片四项全可见；「移除图片」后重新预置） */
+function presetCellImage(): void {
+  sheetRef.value
+    ?.getContext()
+    .insertCellImage(LINK_IMAGE_CELL_ADDR, {
+      data: createDemoPngBytes(),
+      type: 'png',
+      link: 'https://example.com'
+    })
+  refreshLinkDemoStatus()
+}
+
+/** 在 G7 重新插入浮动图（带链接，右键独立菜单全项可点） */
+function presetFloatImage(): void {
+  sheetRef.value
+    ?.getContext()
+    .insertImage({
+      data: createDemoPngBytes(),
+      type: 'png',
+      anchor: FLOAT_IMAGE_ANCHOR,
+      width: 64,
+      height: 48,
+      altText: 'demo',
+      title: 'link demo',
+      link: 'https://example.com'
+    })
+  refreshLinkDemoStatus()
 }
 
 // 观察区默认收起，点击头部展开/收起
@@ -651,6 +769,9 @@ function highlight(value: unknown): string {
   getSheet: () => sheetRef.value
 }
 
+// 挂载后填充超链接/图片演示状态行（初始预置已在模型中）
+onMounted(refreshLinkDemoStatus)
+
 onBeforeUnmount(() => {
   delete (window as unknown as Record<string, unknown>).__sheetDemo
 })
@@ -702,9 +823,9 @@ onBeforeUnmount(() => {
   background: var(--u-bg-color-hover);
 }
 
-/* ─── 报表合计演示（组内最后一个不是按钮，右侧补边距 + 合计状态行） ── */
+/* ─── 分段演示状态行（报表合计 / 超链接与图片共用） ── */
 
-.sheet-demo__report-total {
+.sheet-demo__seg-status {
   margin-left: 12px;
   font-size: 12px;
   color: var(--u-color-primary);
@@ -712,8 +833,8 @@ onBeforeUnmount(() => {
 }
 
 .sheet-demo__sheet {
-  /* 154px 为原有布局预留，+30px 让位报表合计演示控件 */
-  height: calc(100vh - 184px);
+  /* 154px 为原有布局预留；+30px 报表合计演示控件；+66px 超链接与图片演示段与操作提示 */
+  height: calc(100vh - 250px);
 }
 
 /* ─── 数据结构观察区 ─────────────────────────────── */
