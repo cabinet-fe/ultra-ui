@@ -1,0 +1,19 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use 'pkg:@veltra/styles/vars';
+
+// 方便拼接
+$root-name: ai-button;
+
+@include m.b($root-name) {
+  @include m.e(main) {
+    max-width: 280px;
+    width: max-content;
+  }
+
+  @include m.e(action) {
+    margin-top: fn.use-var(gap, default);
+    @include m.flex($justify: flex-end);
+    gap: fn.use-var(gap, small);
+  }
+}
