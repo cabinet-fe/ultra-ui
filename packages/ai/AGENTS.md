@@ -15,7 +15,7 @@ src/
 │   ├── fold.ts                 # 历史回放与实时 onEvent 共用的纯函数 fold
 │   ├── use-chat.ts             # useChat 状态机：按 isServerTransport 分流；函数 transport 走工具循环，session 走 fold + session API
 │   ├── transports/
-│   │   └── openai.ts           # createOpenAITransport（多 Provider，按 model 路由；OpenAI 兼容 SSE；解析 usage / 缓存字段）
+│   │   └── openai.ts           # createOpenAITransport（多 Provider，按 model 路由；请求体构造 / SSE 解析 / 错误处理复用 @veltra/utils 通用层）
 │   └── __test__/
 ├── tools/                      # 内置工具注册域（UAiChat 自动注入；工厂不对外导出；可依赖 components/）
 │   ├── index.ts                # createBuiltinTools 注册表（新增内置工具在此注册）
@@ -55,7 +55,7 @@ src/
 - 组件遵循 `packages/desktop/AGENTS.md` 的模式（BEM + token 样式、types 目录、style.ts 副作用入口）。
 - **新增/删除 `components/<name>/`（含 `index.ts` + `style.ts`）后，在仓库根运行 `bun run resolver:gen`** 刷新 `@veltra/vite` 组件表，否则宿主无法按需解析 `<u-ai-chat>` 这类标签。
 - 跨包导入 desktop 组件用包名：`import { UButton } from '@veltra/desktop'`；样式副作用用子路径 `'@veltra/desktop/components/<dir>/style'`。
-- transport 不引入 ai-sdk 等第三方依赖；OpenAI 兼容 SSE 手写解析，工厂放 `chat/transports/`。服务端会话走 `chat/session.ts` 的 `createServerTransport`，不要在本包加 `createBedrockTransport`。
+- transport 不引入 ai-sdk 等第三方依赖；OpenAI 兼容协议实现（请求体构造 + SSE 解析 + 错误处理）复用 `@veltra/utils` 的通用模块，工厂放 `chat/transports/`。服务端会话走 `chat/session.ts` 的 `createServerTransport`，不要在本包加 `createBedrockTransport`。
 - 工具串行执行（保持结果消息与调用顺序一致）；循环/泵取一律用递归或 Promise 链，禁止 await-in-loop（lint 硬性约束，不允许 disable 注释）。
 - **工具循环收敛**：`maxToolRounds`（props，默认 10）限制单次发送的最大生成轮次，超限即 finish 停止；`ChatTool.terminal` 工具执行成功后对话终结（结果仍入消息历史，失败/拒绝照常回灌），配合 `render` 实现"工具 UI 即答复"。两类结束都会发出 `finish`。
 - **侧边面板工具**：`ChatTool.renderTo: 'panel'` 把 render 组件渲染到对话区右侧的侧边面板（side-panel.vue），契约同卡片 render（`ChatToolRenderProps`，随 toolCall 状态实时更新）；新的面板调用自动打开并聚焦，工具卡片 body 仅留「查看面板」入口（经 DI `openPanel` 切换聚焦，可切回历史调用）；布局基于 `ULayout`（`cols = 1fr + 面板宽度`，`colMinSizes` 约束会话区 ≥360px、面板 ≥320px，`useResizeObserver` 跟踪拖拽后的实际宽度）；`ChatTool.panelWidth` 可指定该工具面板的默认宽度（聚焦其调用时应用；缺省取「容器宽 - 860」，即面板默认尽可能大、会话区保留 860px）；`ChatTool.panelTitle`（字符串或按 toolCall 动态生成的函数）给出业务化面板标题（「业务对象 + 动作」），缺省取 label ?? name。组件根背景为 bg-color-bottom，消息/队列/输入区限宽 800px 居中（面板开合时排版不形变），卡片类元素（输入区、面板卡、欢迎气泡）用 bg-color-top + 阴影而非边框区分层级。空会话（无可见消息）时主列挂 `is-empty`：列表区与末尾弹性占位均分剩余空间使输入区垂直居中；空闲欢迎区钉在 UScroll 外、贴于输入框上方（有消息后布局回落到底部，欢迎区仍在输入框上方）；工作开始时活体球立即跳到列表末尾，结束后跳回。
