@@ -1,5 +1,15 @@
 # @veltra/vite
 
+## 4.0.5
+
+### Patch Changes
+
+- Updated dependencies [d32074a]
+- Updated dependencies [d32074a]
+- Updated dependencies [d32074a]
+- Updated dependencies [2d8bed1]
+  - @veltra/sheet@4.0.0
+
 ## 4.0.4
 
 ### Patch Changes

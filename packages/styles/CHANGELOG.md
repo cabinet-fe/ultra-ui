@@ -1,5 +1,11 @@
 # @veltra/styles
 
+## 1.11.0
+
+### Patch Changes
+
+- d32074a: isHexColor 接受 3 位 hex，修复预设主题漏掉 alpha token 推导
+
 ## 1.10.0
 
 No changes in this release.

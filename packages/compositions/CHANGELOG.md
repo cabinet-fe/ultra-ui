@@ -1,5 +1,11 @@
 # @veltra/compositions
 
+## 1.11.0
+
+### Minor Changes
+
+- d32074a: useConfig 新增全局 ai 配置键
+
 ## 1.10.0
 
 No changes in this release.

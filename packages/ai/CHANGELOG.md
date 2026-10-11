@@ -1,5 +1,11 @@
 # @veltra/ai
 
+## 2.2.3
+
+### Patch Changes
+
+- d32074a: openai transport 复用 @veltra/utils 通用请求层，消除重复实现
+
 ## 2.2.2
 
 ### Patch Changes

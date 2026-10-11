@@ -39,7 +39,7 @@
     },
     "packages/ai": {
       "name": "@veltra/ai",
-      "version": "2.2.2",
+      "version": "2.2.3",
       "dependencies": {
         "markstream-vue": "^2.0.17",
       },
@@ -54,7 +54,7 @@
     },
     "packages/compositions": {
       "name": "@veltra/compositions",
-      "version": "1.10.0",
+      "version": "1.11.0",
       "dependencies": {
         "@floating-ui/dom": "^1.8.0",
         "@formkit/drag-and-drop": "^0.6.1",
@@ -71,7 +71,7 @@
     },
     "packages/desktop": {
       "name": "@veltra/desktop",
-      "version": "1.10.0",
+      "version": "1.11.0",
       "dependencies": {
         "@lexical/history": "^0.52.0",
         "@lexical/html": "^0.52.0",
@@ -115,7 +115,7 @@
     },
     "packages/directives": {
       "name": "@veltra/directives",
-      "version": "1.10.0",
+      "version": "1.11.0",
       "peerDependencies": {
         "@veltra/styles": "^1.7.14",
         "@veltra/utils": "^1.7.14",
@@ -150,7 +150,7 @@
     },
     "packages/sheet": {
       "name": "@veltra/sheet",
-      "version": "3.0.0",
+      "version": "4.0.0",
       "dependencies": {
         "infinitable": "^0.1.7",
       },
@@ -166,7 +166,7 @@
     },
     "packages/styles": {
       "name": "@veltra/styles",
-      "version": "1.10.0",
+      "version": "1.11.0",
       "peerDependencies": {
         "@cat-kit/core": ">=1.2.1",
         "@veltra/compositions": "^1.7.14",
@@ -176,7 +176,7 @@
     },
     "packages/utils": {
       "name": "@veltra/utils",
-      "version": "1.10.0",
+      "version": "1.11.0",
       "peerDependencies": {
         "@cat-kit/core": ">=1.2.1",
         "vue": ">=3.5.43",
@@ -184,14 +184,14 @@
     },
     "packages/vite": {
       "name": "@veltra/vite",
-      "version": "4.0.4",
+      "version": "4.0.5",
       "devDependencies": {
-        "@veltra/desktop": "1.10.0",
+        "@veltra/desktop": "1.11.0",
       },
       "peerDependencies": {
         "@veltra/ai": "^2.1.8",
         "@veltra/desktop": "^1.7.14",
-        "@veltra/sheet": "^3.0.0",
+        "@veltra/sheet": "^4.0.0",
         "unplugin-vue-components": ">=32.0.0",
       },
       "optionalPeers": [

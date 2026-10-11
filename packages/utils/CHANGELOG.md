@@ -1,5 +1,11 @@
 # @veltra/utils
 
+## 1.11.0
+
+### Minor Changes
+
+- d32074a: 新增 OpenAI 兼容 AI 文本请求层
+
 ## 1.10.0
 
 No changes in this release.

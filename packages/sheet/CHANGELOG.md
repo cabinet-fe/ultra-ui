@@ -1,5 +1,31 @@
 # @veltra/sheet
 
+## 4.0.0
+
+### Major Changes
+
+- d32074a: USheet 移除原生滚动条档，`scrollbar` 回退 boolean 形态
+  
+  - `SheetProps.scrollbar` 类型从 `boolean | ScrollbarOptions` 收窄为 `boolean`：`{ mode: 'native' }` 原生档与对象形态（`mode: 'canvas'` 及 `visibility` / `hideDelay` / `reserve` 显示策略）不再从组件暴露。引擎 `infinitable` 的原生滚动条能力不受影响，确有需要的宿主可直连 `SheetGrid` 配置
+  - 缺省 `true`（画布常驻档）与 `false`（整体关闭）语义不变；变化触发网格重建
+  - 历史沿革：对象形态由原生缺省档提交（scrollbar 扩为全形态透传）引入，组件内除切换原生档外无使用方，随原生档一并移除
+- 2d8bed1: USheet 缺省滚动条切回画布常驻档（true）
+  
+  - `SheetProps.scrollbar` 缺省从原生档 `{ mode: 'native' }` 改为 `true`——引擎归一化为画布常驻档（canvas always + reserve）：滚动条常驻画在画布内，`reserve` 只在画布内预留轨道，不占页面布局、不遮挡单元格
+  - 需浏览器原生滚动条（独立 gutter 渲染、不遮挡最底行/最右列）的宿主显式传 `:scrollbar="{ mode: 'native' }"`
+  - `scrollbar: false` 整体关闭、`true` 与对象形态（`mode: 'canvas'` 回画布档，含 `visibility` / `hideDelay` / `reserve` 显示策略）透传语义不变；对象形态仍为构造期选项，引用更替触发网格重建（勿在模板内联对象字面量）
+
+### Patch Changes
+
+- d32074a: 修复先冻结行再冻结列（或反序）时另一轴冻结范围被放大到全部行/列的问题
+  
+  - 行头/列头右键菜单的「冻结到当前行/列」改以**右键命中的行/列**为准（未传命
+    中坐标时回落选区末端，兼容旧调用方）：此前冻结目标取自活动选区末端，而先冻
+    结一轴会残留整行/整列选区（横跨全部列/行），另一轴表头右键判定「落点在选区
+    内」保留选区，冻结即被放大到全部列/行——冻结线远在视口外，表现为冻结不生效
+  - 插入/删除/行高列宽等其余菜单项仍按既有「作用于选区」语义不变
+- d32074a: 升级 infinitable 至 0.1.7：引擎新增单元格超链接（自动外观/悬停手型/单击打开）、图片嵌入单元格（随格缩放/行列平移）、图片超链接、浮动图片右键不穿透能力，USheet 经 SheetGrid 自动接线生效
+
 ## 3.0.0
 
 ### Major Changes
