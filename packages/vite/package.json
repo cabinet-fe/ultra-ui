@@ -1,6 +1,6 @@
 {
   "name": "@veltra/vite",
-  "version": "4.0.3",
+  "version": "4.0.4",
   "description": "Vite helpers for Veltra UI (e.g. unplugin-vue-components resolver for @veltra/desktop, @veltra/ai and @veltra/sheet)",
   "homepage": "https://github.com/cabinet-fe/ultra-ui#readme",
   "bugs": {
@@ -23,12 +23,12 @@
     }
   },
   "devDependencies": {
-    "@veltra/desktop": "1.9.2"
+    "@veltra/desktop": "1.10.0"
   },
   "peerDependencies": {
     "@veltra/ai": "^2.1.8",
     "@veltra/desktop": "^1.7.14",
-    "@veltra/sheet": "^2.5.7",
+    "@veltra/sheet": "^3.0.0",
     "unplugin-vue-components": ">=32.0.0"
   },
   "peerDependenciesMeta": {
