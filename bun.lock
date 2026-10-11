@@ -28,7 +28,6 @@
         "@vitejs/plugin-vue-jsx": "^5.1.6",
         "happy-dom": "^20.14.5",
         "sass-embedded": "1.105.0",
-        "simple-git-hooks": "^2.14.0",
         "typescript": "^6.0.3",
         "unplugin-vue": "^7.2.0",
         "unplugin-vue-components": "^32.1.0",
@@ -1089,8 +1088,6 @@
     "shell-quote": ["shell-quote@1.12.0", "https://mirrors.tencent.com/npm/shell-quote/-/shell-quote-1.12.0.tgz", {}, "sha512-PcByqNyT/38F2kDNi006HAMRJaULuBzq/FOsw3qdZvX/GA9W/jamDaRskgHjubHiftXK5sIFxLNkvrXUwcof6Q=="],
 
     "siginfo": ["siginfo@2.0.0", "https://mirrors.tencent.com/npm/siginfo/-/siginfo-2.0.0.tgz", {}, "sha512-ybx0WO1/8bSBLEWXZvEd7gMW3Sn3JFlW3TvX1nREbDLRNQNaeNN8WK0meBwPdAaOI7TtRRRJn/Es1zhrrCHu7g=="],
-
-    "simple-git-hooks": ["simple-git-hooks@2.14.0", "https://mirrors.tencent.com/npm/simple-git-hooks/-/simple-git-hooks-2.14.0.tgz", { "bin": { "simple-git-hooks": "cli.js" } }, "sha512-kkTORPAuxQz2g1QUuN0J8yGWT28tjGBfPOdJ4xT7Vbeu30veKUZQIoID2qGgCDAakaQn59UeZJJ4cFGB8PVP2A=="],
 
     "sirv": ["sirv@3.0.2", "https://mirrors.tencent.com/npm/sirv/-/sirv-3.0.2.tgz", { "dependencies": { "@polka/url": "^1.0.0-next.24", "mrmime": "^2.0.0", "totalist": "^3.0.0" } }, "sha512-2wcC/oGxHis/BoHkkPwldgiPSYcpZK3JU28WoMVv55yHJgcZ8rlXvuG9iZggz+sU1d4bRgIGASwyWqjxu3FM0g=="],
 
