@@ -52,6 +52,8 @@ describe('UITheme', () => {
     expect(decls.some((d) => d.startsWith('--u-color-primary-a-8:'))).toBe(true)
     expect(decls.some((d) => d.startsWith('--u-border-color-a-52:'))).toBe(true)
     expect(decls.some((d) => d.startsWith('--u-text-color-second-a-28:'))).toBe(true)
+    // 3 位 hex（如预设里的 white: '#fff'）同样要推导 alpha token，缺失会导致引用它的整条声明失效
+    expect(decls.some((d) => d.startsWith('--u-text-color-white-a-86:'))).toBe(true)
   })
 
   it('renderComponentMixTokens emits batch-edit and kbd vars', () => {

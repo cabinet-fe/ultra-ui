@@ -64,9 +64,9 @@ export function hexRgbOnly(hex: string): `#${string}` {
   return hex as `#${string}`
 }
 
-/** 校验是否为 `#RRGGBB` 形式的 6 位 hex 颜色 */
+/** 校验是否为 hex 颜色（`#RGB` 或 `#RRGGBB`；3 位由 HEXToRGB 归一化，避免预设漏掉 alpha token 推导） */
 export function isHexColor(value: string): value is `#${string}` {
-  return /^#[0-9a-fA-F]{6}$/.test(value)
+  return /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(value)
 }
 
 export function defineBySize(
