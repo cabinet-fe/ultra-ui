@@ -1,7 +1,15 @@
 import type { DeconstructValue } from '@veltra/utils'
+import type {
+  CellLinkClickEvent,
+  CellLinkHoverEvent,
+  CellLinkLeaveEvent,
+  FloatContextMenuEvent,
+  ImageLinkClickEvent
+} from 'infinitable'
 import type { Sheet } from 'infinitable/sheet'
 import type { Workbook } from 'infinitable/sheet'
 import type {
+  CellAddress,
   ResolveCellRenderer,
   ResolveCellStyleHook,
   ResolveDisplayValue,
@@ -77,11 +85,58 @@ export interface SheetProps {
   growOnScroll?: boolean
 }
 
+/**
+ * 浮动图右键事件载荷：引擎 `FloatContextMenuEvent` 关键字段 + 页面坐标。
+ *
+ * 右键命中浮动图时引擎不穿透到单元格右键（body 菜单不弹），宿主经
+ * `float-context-menu` 自行弹浮动图菜单（预览 / 超链接 / 删除等）。
+ */
+export interface FloatContextMenuPayload {
+  /** 命中的浮动对象 id */
+  id: string
+  /** 层坐标（CSS 像素，相对 grid 实例容器） */
+  x: number
+  y: number
+  /** 页面视口坐标（层坐标 + grid 容器偏移；与 body 右键菜单同口径，供菜单定位） */
+  clientX: number
+  clientY: number
+  /** 引擎原始右键事件（最小 DOM 事件结构） */
+  originalEvent: FloatContextMenuEvent['originalEvent']
+}
+
 export interface SheetEmits {
   /** 激活 sheet 切换（点击 tab 或宿主调用 workbook.activateSheet） */
   (name: 'active-sheet-change', payload: { sheet: Sheet; index: number }): void
   /** 列宽拖拽落定（写模型之后）：载荷含列索引与最终宽度 */
   (name: 'col-resize-end', payload: { col: number; width: number }): void
+  /**
+   * 单元格超链接悬停（引擎 `CellLinkHoverEvent` 形态：格坐标 + URL/显示文本 +
+   * 落点层坐标）；tooltip 由宿主渲染，ultra-ui 不接管
+   */
+  (name: 'cell-link-hover', payload: CellLinkHoverEvent): void
+  /** 单元格超链接离开（引擎 `CellLinkLeaveEvent` 形态：刚离开的链接格坐标） */
+  (name: 'cell-link-leave', payload: CellLinkLeaveEvent): void
+  /**
+   * 单元格超链接单击（引擎 `CellLinkClickEvent` 形态：真实指针 down+up 命中
+   * 同一链接格；框选拖拽/键盘选中不触发）。单击打开仍由引擎
+   * `openCellLinkOnClick` 默认处理，ultra-ui 不接管
+   */
+  (name: 'cell-link-click', payload: CellLinkClickEvent): void
+  /**
+   * 图片链接单击（引擎 `ImageLinkClickEvent`，`kind` 区分 `cell` 嵌入图 /
+   * `float` 浮动图）；默认打开行为同上由引擎处理
+   */
+  (name: 'image-link-click', payload: ImageLinkClickEvent): void
+  /**
+   * 按格嵌入图变化（`{ addr?: CellAddress }` 定向语义：单格变更带 addr，
+   * 结构平移/整表替换时缺省）；仅当前活动 sheet 的事件被透传
+   */
+  (name: 'cell-image-change', payload: { addr?: CellAddress }): void
+  /**
+   * 浮动图右键（载荷见 {@link FloatContextMenuPayload}；右键不穿透到
+   * 单元格 body 菜单，宿主据此弹浮动图独立菜单）
+   */
+  (name: 'float-context-menu', payload: FloatContextMenuPayload): void
 }
 
 /** 在组件内部引用 */

@@ -1,3 +1,4 @@
+import type { FloatObject, SceneEvent } from 'infinitable'
 import { createRange } from 'infinitable/sheet'
 import { Workbook } from 'infinitable/sheet'
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
@@ -5,7 +6,7 @@ import { createApp, h, nextTick, ref, type App, type Component } from 'vue'
 
 import { USheet } from '../../../index'
 import { registerTool, unregisterTool } from '../../../tools/registry'
-import type { SheetExposed } from '../../../types'
+import type { FloatContextMenuPayload, SheetExposed } from '../../../types'
 import { buildColHeaderMenus, buildRowHeaderMenus } from '../sheet-context-menu'
 // 引擎指针事件模拟与画布几何（cellX/cellY）：setup 已跨包引用同目录 setup.ts
 import { cellX, cellY, fire, gridEventTarget } from './grid-test-utils'
@@ -1232,6 +1233,134 @@ describe('USheet colResize（readonly 列宽拖拽）', () => {
     await nextTick()
     expect(events).toEqual([])
     expect(workbook.activeSheet.getColWidth(0)).toBeUndefined()
+  })
+})
+
+describe('USheet 引擎链接 / 图片事件透传', () => {
+  /**
+   * 直接向引擎 table 的监听集合派发事件（happy-dom 无法驱动画布指针命中的
+   * 链接判定），断言 USheet 订阅后以同名 emit 透出且载荷原样。
+   */
+  it('cell link hover/leave/click 与图片链接点击（嵌入/浮动）：引擎事件 → 组件 emit 同名事件与载荷', async () => {
+    const workbook = createWorkbook()
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    const hover: unknown[] = []
+    const leave: unknown[] = []
+    const click: unknown[] = []
+    const imageClick: unknown[] = []
+    mount(
+      () => ({
+        workbook,
+        rows: 10,
+        cols: 6,
+        onCellLinkHover: (event: unknown) => hover.push(event),
+        onCellLinkLeave: (event: unknown) => leave.push(event),
+        onCellLinkClick: (event: unknown) => click.push(event),
+        onImageLinkClick: (event: unknown) => imageClick.push(event)
+      }),
+      exposed
+    )
+    await nextTick()
+
+    const table = exposed.value!.getGrid()!.getTable()
+
+    const hoverEvent = {
+      col: 0,
+      row: 0,
+      url: 'https://example.com',
+      text: '示例',
+      x: 51,
+      y: 33,
+      originalEvent: new MouseEvent('pointermove')
+    }
+    for (const listener of table.cellLinkHoverListeners) listener(hoverEvent)
+    expect(hover).toEqual([hoverEvent])
+
+    const leaveEvent = { col: 0, row: 0 }
+    for (const listener of table.cellLinkLeaveListeners) listener(leaveEvent)
+    expect(leave).toEqual([leaveEvent])
+
+    const clickEvent = {
+      col: 0,
+      row: 0,
+      url: 'https://example.com',
+      text: '示例',
+      originalEvent: new MouseEvent('pointerup')
+    }
+    for (const listener of table.cellLinkClickListeners) listener(clickEvent)
+    expect(click).toEqual([clickEvent])
+
+    // 图片链接点击：kind 区分嵌入图（cell）与浮动图（float）
+    const cellImageLink = {
+      kind: 'cell',
+      col: 1,
+      row: 1,
+      url: 'https://example.com/cell.png',
+      originalEvent: new MouseEvent('pointerup')
+    }
+    const floatImageLink = {
+      kind: 'float',
+      id: 'img-1',
+      url: 'https://example.com/float.png',
+      originalEvent: new MouseEvent('pointerup')
+    }
+    for (const listener of table.imageLinkClickListeners) {
+      listener(cellImageLink)
+      listener(floatImageLink)
+    }
+    expect(imageClick).toEqual([cellImageLink, floatImageLink])
+  })
+
+  it('浮动图右键：引擎 floatObjects.onContextMenu → float-context-menu emit（层坐标 + 页面坐标）', async () => {
+    const workbook = createWorkbook()
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    const menus: FloatContextMenuPayload[] = []
+    mount(
+      () => ({ workbook, rows: 10, cols: 6, onFloatContextMenu: (event) => menus.push(event) }),
+      exposed
+    )
+    await nextTick()
+
+    exposed
+      .value!.getGrid()!
+      .getTable()
+      .floatObjects.dispatchContextMenu(
+        { id: 'img-1' } as FloatObject,
+        {
+          type: 'contextmenu',
+          target: null,
+          x: 120,
+          y: 88,
+          deltaX: 0,
+          deltaY: 0,
+          key: undefined,
+          shiftKey: false,
+          ctrlKey: false,
+          metaKey: false,
+          originalEvent: new MouseEvent('contextmenu')
+        } as SceneEvent
+      )
+
+    expect(menus).toHaveLength(1)
+    // happy-dom 无布局：grid 容器 rect 为 0 → 页面坐标 = 层坐标
+    expect(menus[0]).toMatchObject({ id: 'img-1', x: 120, y: 88, clientX: 120, clientY: 88 })
+  })
+
+  it('cell-image-change：活动 sheet 嵌入图变化 → 组件 emit（addr 定向载荷）', async () => {
+    const workbook = createWorkbook()
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    const events: Array<{ addr?: { row: number; col: number } }> = []
+    mount(
+      () => ({ workbook, rows: 10, cols: 6, onCellImageChange: (event) => events.push(event) }),
+      exposed
+    )
+    await nextTick()
+
+    exposed
+      .value!.getActiveSheet()
+      .insertCellImage({ row: 0, col: 0 }, { src: 'https://example.com/a.png' })
+    await nextTick()
+    expect(events).toEqual([{ addr: { row: 0, col: 0 } }])
   })
 })
 

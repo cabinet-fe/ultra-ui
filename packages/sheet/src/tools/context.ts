@@ -9,6 +9,7 @@ import type { SelectionState } from 'infinitable/sheet'
 import type { FrozenState, Sheet } from 'infinitable/sheet'
 import type { CellStyle, CellStylePatch } from 'infinitable/sheet'
 import type { Workbook } from 'infinitable/sheet'
+import type { CellImagePayload, CellLinkPayload } from 'infinitable/sheet'
 
 import { axisStyleItemsForRange, classifySelectionStyleTarget } from './apply-style'
 
@@ -128,10 +129,28 @@ export interface SheetContext {
   insertImage(input: ImageInput): string
   /** 删除浮动图片；不存在则无操作 */
   removeImage(id: string): void
-  /** 更新浮动图片锚点/尺寸/文案；不存在或无变更则无操作 */
+  /** 更新浮动图片锚点/尺寸/文案/链接（link 传 null 清除）；不存在或无变更则无操作 */
   updateImage(id: string, patch: ImageUpdateFields): void
   /** 只读图片列表（快照副本） */
   getImages(): readonly SheetImage[]
+
+  // ─── 单元格超链接（写入经 cell-link 命令，可 undo） ─────────
+  /** 写入单元格超链接；link 为 null 时清除该格链接（合并格解析锚点） */
+  setCellLink(addr: CellAddress, link: CellLinkPayload | null): void
+  /** 读取单元格超链接载荷（副本）；无链接返回 undefined（合并格解析锚点） */
+  getCellLink(addr: CellAddress): CellLinkPayload | undefined
+  /** 清除单元格超链接；无链接则无操作（合并格解析锚点） */
+  clearCellLink(addr: CellAddress): void
+
+  // ─── 按格嵌入图（写入经 cell-image 命令，可 undo） ─────────
+  /** 插入（或覆盖）按格嵌入图；相同载荷视为无操作（合并格解析锚点） */
+  insertCellImage(addr: CellAddress, image: CellImagePayload): void
+  /** 移除按格嵌入图；无图时无操作（合并格解析锚点） */
+  removeCellImage(addr: CellAddress): void
+  /** 读取按格嵌入图载荷（副本）；无图返回 undefined（合并格解析锚点） */
+  getCellImage(addr: CellAddress): CellImagePayload | undefined
+  /** 该格是否有嵌入图（供右键菜单等判定；合并格解析锚点） */
+  hasCellImage(addr: CellAddress): boolean
 
   // ─── 事件订阅（订阅时绑定到当前活动 sheet；tab 切换后需重新订阅） ──
   onSelectionChange(handler: (state: SelectionState) => void): () => void
@@ -139,6 +158,8 @@ export interface SheetContext {
   onFrozenChange(handler: (state: FrozenState) => void): () => void
   /** 图片集合变化（单图带 id；整表替换时 id 缺省） */
   onImageChange(handler: (payload: { id?: string }) => void): () => void
+  /** 按格嵌入图变化（单格带 addr；结构平移/整表替换时缺省） */
+  onCellImageChange(handler: (payload: { addr?: CellAddress }) => void): () => void
 }
 
 /** createSheetContext 可选配置 */
@@ -273,6 +294,15 @@ export function createSheetContext(
     updateImage: (id, patch) => sheet().updateImage(id, patch),
     getImages: () => sheet().getImages(),
 
+    setCellLink: (addr, link) => sheet().setCellLink(addr, link),
+    getCellLink: (addr) => sheet().getCellLink(addr),
+    clearCellLink: (addr) => sheet().clearCellLink(addr),
+
+    insertCellImage: (addr, image) => sheet().insertCellImage(addr, image),
+    removeCellImage: (addr) => sheet().removeCellImage(addr),
+    getCellImage: (addr) => sheet().getCellImage(addr),
+    hasCellImage: (addr) => sheet().hasCellImage(addr),
+
     beginTransaction: () => sheet().beginTransaction(),
     commit: () => sheet().commit(),
     rollback: () => sheet().rollback(),
@@ -289,6 +319,7 @@ export function createSheetContext(
     onSelectionChange: (handler) => sheet().on('selection-change', handler),
     onHistoryChange: (handler) => sheet().on('history-change', handler),
     onFrozenChange: (handler) => sheet().on('frozen-change', handler),
-    onImageChange: (handler) => sheet().on('image-change', handler)
+    onImageChange: (handler) => sheet().on('image-change', handler),
+    onCellImageChange: (handler) => sheet().on('cell-image-change', handler)
   }
 }

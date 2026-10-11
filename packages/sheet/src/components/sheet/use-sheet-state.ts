@@ -1,4 +1,4 @@
-import type { Sheet } from 'infinitable/sheet'
+import type { CellAddress, Sheet } from 'infinitable/sheet'
 import { Workbook } from 'infinitable/sheet'
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
 
@@ -25,7 +25,10 @@ export interface SheetStateHooks {
   syncAxisSizes: (axis: 'row' | 'col', indexes: number[]) => void
 }
 
-type Emit = (event: 'active-sheet-change', payload: { sheet: Sheet; index: number }) => void
+type Emit = {
+  (event: 'active-sheet-change', payload: { sheet: Sheet; index: number }): void
+  (event: 'cell-image-change', payload: { addr?: CellAddress }): void
+}
 
 /**
  * USheet 的状态源（单一数据源，其余状态由此推导）：
@@ -86,6 +89,9 @@ export function useSheetState(props: SheetProps, emit: Emit, hooks: SheetStateHo
       sheet.on('cell-change', bump),
       sheet.on('merge-change', bump),
       sheet.on('frozen-change', bump),
+      // 按格嵌入图变化 → 宿主 emit cell-image-change（随活动 sheet 重绑，
+      // 非活动 sheet 的嵌入图变更不透传）
+      sheet.on('cell-image-change', (payload) => emit('cell-image-change', payload)),
       // 整表内容替换（导入 / undo/redo 回放）：restore 静默不发 cell-change，
       // 状态源需 bump（grid 层自行订阅 content-reset 全量刷新，此处不重建）
       sheet.on('content-reset', scheduleBump),

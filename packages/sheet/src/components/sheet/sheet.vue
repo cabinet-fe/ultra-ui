@@ -226,7 +226,13 @@ const { rebuildGrid, activateGrid, pruneCache, getGrid, setSelectionAnchor } = u
   formulaBarRef,
   // 工具栏「函数」弹框打开期间与 fx 入口一致：画布点击不清除目标格高亮
   isFunctionPopupOpen: () => popupTool.value?.popup === 'functions',
-  onColResizeEnd: (event) => emit('col-resize-end', event)
+  onColResizeEnd: (event) => emit('col-resize-end', event),
+  // 引擎链接 / 浮动图事件透传（打开行为仍归引擎 openCellLinkOnClick 默认）
+  onCellLinkHover: (event) => emit('cell-link-hover', event),
+  onCellLinkLeave: (event) => emit('cell-link-leave', event),
+  onCellLinkClick: (event) => emit('cell-link-click', event),
+  onImageLinkClick: (event) => emit('image-link-click', event),
+  onFloatContextMenu: (event) => emit('float-context-menu', event)
 })
 
 const exposed: _SheetExposed = {

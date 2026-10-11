@@ -1,13 +1,19 @@
 import { contextmenu } from '@veltra/desktop'
 import { currentTheme } from '@veltra/styles/theme'
-import type { ThemeOverride } from 'infinitable'
+import type {
+  CellLinkClickEvent,
+  CellLinkHoverEvent,
+  CellLinkLeaveEvent,
+  ImageLinkClickEvent,
+  ThemeOverride
+} from 'infinitable'
 import type { CellAddress, CellRange } from 'infinitable/sheet'
 import type { Sheet } from 'infinitable/sheet'
 import { SheetGrid, type SheetGridContextMenuInfo } from 'infinitable/sheet'
 import { onBeforeUnmount, onMounted, watch } from 'vue'
 
 import type { SheetContext } from '../../tools/context'
-import type { SheetProps } from '../../types'
+import type { FloatContextMenuPayload, SheetProps } from '../../types'
 import {
   buildBodyMenus,
   buildColHeaderMenus,
@@ -43,6 +49,16 @@ interface UseSheetGridOptions {
   isFunctionPopupOpen?: () => boolean
   /** 列宽拖拽落定（SheetGrid 透传 → 宿主 emit col-resize-end） */
   onColResizeEnd?: (event: { col: number; width: number }) => void
+  /** 单元格超链接悬停（引擎透传 → 宿主 emit cell-link-hover） */
+  onCellLinkHover?: (event: CellLinkHoverEvent) => void
+  /** 单元格超链接离开（引擎透传 → 宿主 emit cell-link-leave） */
+  onCellLinkLeave?: (event: CellLinkLeaveEvent) => void
+  /** 单元格超链接单击（引擎透传 → 宿主 emit cell-link-click；打开行为仍归引擎默认） */
+  onCellLinkClick?: (event: CellLinkClickEvent) => void
+  /** 图片链接单击（引擎透传 → 宿主 emit image-link-click；kind 区分嵌入/浮动） */
+  onImageLinkClick?: (event: ImageLinkClickEvent) => void
+  /** 浮动图右键（引擎透传 → 宿主 emit float-context-menu；右键不穿透到 body 菜单） */
+  onFloatContextMenu?: (event: FloatContextMenuPayload) => void
 }
 
 /** 缓存实例（LRU 淘汰）：每个 sheet 一个独立容器 div，非激活容器 visibility:hidden 堆叠 */
@@ -183,8 +199,27 @@ export function useSheetGrid(options: UseSheetGridOptions) {
     const offStructureChange = sheet.on('structure-change', () => {
       dirty = true
     })
+    // 引擎链接 / 浮动图事件透传：与 structure-change 订阅同生命周期，release 时解绑
+    //（LRU 多实例各持各的订阅，淘汰 / 重建不残留）
+    const table = grid.getTable()
+    const offEngineEvents = [
+      table.onCellLinkHover((event) => options.onCellLinkHover?.(event)),
+      table.onCellLinkLeave((event) => options.onCellLinkLeave?.(event)),
+      table.onCellLinkClick((event) => options.onCellLinkClick?.(event)),
+      table.onImageLinkClick((event) => options.onImageLinkClick?.(event)),
+      table.floatObjects.onContextMenu((event) => {
+        // 层坐标 → 页面视口坐标（层坐标 + grid 容器偏移，与 body 右键菜单同口径）
+        const rect = el.getBoundingClientRect()
+        options.onFloatContextMenu?.({
+          ...event,
+          clientX: rect.left + event.x,
+          clientY: rect.top + event.y
+        })
+      })
+    ]
     const release = (): void => {
       offStructureChange()
+      for (const off of offEngineEvents) off()
       grid.release()
       el.remove()
     }

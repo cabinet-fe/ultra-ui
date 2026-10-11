@@ -278,4 +278,93 @@ describe('SheetContext', () => {
     expect(ctx.getImages()).toHaveLength(0)
     expect(onImage).not.toHaveBeenCalled()
   })
+
+  it('updateImage 写/清 SheetImage.link（null 清除），经命令可 undo', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    const id = ctx.insertImage({
+      data: new Uint8Array([1]),
+      type: 'png',
+      anchor: { from: { row: 0, col: 0 } }
+    })
+
+    ctx.updateImage(id, { link: 'https://example.com' })
+    expect(ctx.getImages()[0]?.link).toBe('https://example.com')
+
+    ctx.updateImage(id, { link: null })
+    expect(ctx.getImages()[0]?.link).toBeUndefined()
+
+    // undo 一次还原清除前的链接
+    expect(ctx.undo()).toBe(true)
+    expect(ctx.getImages()[0]?.link).toBe('https://example.com')
+  })
+
+  it('cell link 门面：写入 → 读取 → 清除 → undo 还原，均经命令可 undo', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    const addr = { row: 0, col: 0 }
+    const link = { url: 'https://example.com', text: '示例' }
+
+    ctx.setCellLink(addr, link)
+    expect(ctx.getCellLink(addr)).toEqual(link)
+    expect(ctx.canUndo).toBe(true)
+
+    // null 即清除
+    ctx.setCellLink(addr, null)
+    expect(ctx.getCellLink(addr)).toBeUndefined()
+
+    // undo 还原写入的链接
+    expect(ctx.undo()).toBe(true)
+    expect(ctx.getCellLink(addr)).toEqual(link)
+
+    ctx.clearCellLink(addr)
+    expect(ctx.getCellLink(addr)).toBeUndefined()
+
+    // undo 还原 clear
+    expect(ctx.undo()).toBe(true)
+    expect(ctx.getCellLink(addr)).toEqual(link)
+  })
+
+  it('cell image 门面：插入 → get/has → 移除 → undo 还原，经命令可 undo', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    const addr = { row: 1, col: 2 }
+    const payload = { src: 'https://example.com/a.png' }
+
+    expect(ctx.hasCellImage(addr)).toBe(false)
+    expect(ctx.getCellImage(addr)).toBeUndefined()
+
+    ctx.insertCellImage(addr, payload)
+    expect(ctx.hasCellImage(addr)).toBe(true)
+    expect(ctx.getCellImage(addr)).toEqual(payload)
+
+    ctx.removeCellImage(addr)
+    expect(ctx.hasCellImage(addr)).toBe(false)
+    expect(ctx.getCellImage(addr)).toBeUndefined()
+
+    // undo 还原移除的嵌入图
+    expect(ctx.undo()).toBe(true)
+    expect(ctx.hasCellImage(addr)).toBe(true)
+    expect(ctx.getCellImage(addr)).toEqual(payload)
+  })
+
+  it('onCellImageChange 订阅/退订：单格变更带 addr 定向载荷', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    const onCellImage = vi.fn()
+    const off = ctx.onCellImageChange(onCellImage)
+
+    const addr = { row: 0, col: 0 }
+    ctx.insertCellImage(addr, { src: 'https://example.com/a.png' })
+    expect(onCellImage).toHaveBeenCalledWith({ addr })
+
+    ctx.removeCellImage(addr)
+    expect(onCellImage).toHaveBeenCalledTimes(2)
+
+    // 退订后不再回调
+    off()
+    onCellImage.mockClear()
+    ctx.insertCellImage(addr, { src: 'https://example.com/b.png' })
+    expect(onCellImage).not.toHaveBeenCalled()
+  })
 })
