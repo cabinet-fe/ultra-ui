@@ -1,6 +1,6 @@
 {
   "name": "@veltra/sheet",
-  "version": "2.8.1",
+  "version": "3.0.0",
   "homepage": "https://github.com/cabinet-fe/ultra-ui#readme",
   "bugs": {
     "url": "https://github.com/cabinet-fe/ultra-ui/issues"
@@ -26,12 +26,10 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "veltra-dev": "./src/index.ts",
       "import": "./dist/index.js"
     },
     "./*": {
       "types": "./dist/*",
-      "veltra-dev": "./src/*",
       "import": "./dist/*"
     }
   },

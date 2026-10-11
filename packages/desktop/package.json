@@ -1,6 +1,6 @@
 {
   "name": "@veltra/desktop",
-  "version": "1.9.2",
+  "version": "1.10.0",
   "homepage": "https://github.com/cabinet-fe/ultra-ui#readme",
   "bugs": {
     "url": "https://github.com/cabinet-fe/ultra-ui/issues"
@@ -32,22 +32,18 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "veltra-dev": "./src/index.ts",
       "import": "./dist/index.js"
     },
     "./install": {
       "types": "./dist/install.d.ts",
-      "veltra-dev": "./src/install.ts",
       "import": "./dist/install.js"
     },
     "./style": {
       "types": "./dist/style.d.ts",
-      "veltra-dev": "./src/style.ts",
       "import": "./dist/style.js"
     },
     "./*": {
       "types": "./dist/*",
-      "veltra-dev": "./src/*",
       "import": "./dist/*"
     }
   },
@@ -79,7 +75,7 @@
     "@codemirror/state": "6.7.1",
     "@codemirror/theme-one-dark": "6.1.3",
     "@codemirror/view": "6.43.9",
-    "@veltra/ofd-core": "workspace:*"
+    "@veltra/ofd-core": "1.0.1"
   },
   "peerDependencies": {
     "@cat-kit/core": ">=1.2.1",
