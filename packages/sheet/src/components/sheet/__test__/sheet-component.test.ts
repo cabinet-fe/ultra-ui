@@ -84,8 +84,8 @@ afterEach(() => {
 })
 
 describe('USheet 组件', () => {
-  // scrollbar 形态与语义（缺省画布常驻档 / false / true / 对象透传 / watch 重建）见
-  // 同目录 sheet-scrollbar.test.ts
+  // scrollbar 形态与语义（缺省画布常驻档 / false / watch 重建）见同目录
+  // sheet-scrollbar.test.ts
 
   it('挂载后默认选区 A1：名称框显示 A1、fx 输入栏可用', async () => {
     const workbook = createWorkbook()

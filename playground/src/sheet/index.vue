@@ -1,20 +1,5 @@
 <template>
   <div class="sheet-demo">
-    <!-- 滚动条形态切换：缺省画布常驻档（canvas 映射 true，与组件缺省一致）；
-         对象形态经 computed 持稳定引用（构造期选项，引用更替触发网格重建） -->
-    <div class="sheet-demo__seg" role="group" aria-label="滚动条形态">
-      <button
-        v-for="mode in SCROLLBAR_MODES"
-        :key="mode.value"
-        type="button"
-        class="sheet-demo__seg-btn"
-        :class="{ 'is-active': scrollbarMode === mode.value }"
-        @click="scrollbarMode = mode.value"
-      >
-        {{ mode.label }}
-      </button>
-    </div>
-
     <!-- 报表合计演示：合计公式先配置（I13 SUM）→ 批量填充（setCells 单 undo 单元）
          合计自动出现 → 修改被引用明细格（I9）合计自动重算；状态行读模型显示值 -->
     <div class="sheet-demo__seg sheet-demo__report" role="group" aria-label="报表合计演示">
@@ -45,14 +30,7 @@
       <span class="sheet-demo__report-total">I13 合计：{{ reportTotalText }}</span>
     </div>
 
-    <u-sheet
-      ref="sheetRef"
-      :workbook="workbook"
-      :rows="60"
-      :cols="40"
-      :scrollbar="scrollbarOption"
-      class="sheet-demo__sheet"
-    />
+    <u-sheet ref="sheetRef" :workbook="workbook" :rows="60" :cols="40" class="sheet-demo__sheet" />
 
     <!-- 数据结构观察区（仅演示页，非组件内部）：实时展示活动表模型 -->
     <div class="sheet-demo__inspector">
@@ -340,7 +318,7 @@
 import { $n } from '@cat-kit/core'
 import { type SheetExposed } from '@veltra/sheet'
 import { formulaError, registerFormulaFunction } from 'infinitable'
-import type { CellAddress, CellValue, ScrollbarOptions, SetCellValueItem } from 'infinitable/sheet'
+import type { CellAddress, CellValue, SetCellValueItem } from 'infinitable/sheet'
 import {
   Workbook,
   formatAddress,
@@ -439,22 +417,6 @@ function createDemoPngBytes(): Uint8Array {
 }
 
 const sheetRef = useTemplateRef<SheetExposed>('sheetRef')
-
-// ─── 滚动条形态切换（画布缺省 / 原生 / 关闭）──────────────────────
-// canvas 档映射 true（与组件缺省一致，切到该档与未传 prop 行为相同）；
-// native 档保留可切换（供验证 A1 光标修复）。对象形态经 computed 持稳定引用：
-// scrollbar 是构造期选项，引用更替触发网格重建
-const SCROLLBAR_MODES = [
-  { value: 'canvas', label: '画布滚动条' },
-  { value: 'native', label: '原生滚动条' },
-  { value: 'off', label: '关闭' }
-] as const
-const scrollbarMode = ref<(typeof SCROLLBAR_MODES)[number]['value']>('canvas')
-const scrollbarOption = computed<boolean | ScrollbarOptions>(() => {
-  if (scrollbarMode.value === 'canvas') return true
-  if (scrollbarMode.value === 'off') return false
-  return { mode: scrollbarMode.value }
-})
 
 // ─── 报表合计演示（公式能力可操作验证）─────────────────────────
 // 演示区 H8:I13（col 7/8）：表头 H8/I8，明细 H9:I12（数量列 I 被 SUM 引用），
@@ -701,7 +663,7 @@ onBeforeUnmount(() => {
   color: var(--u-text-color-second);
 }
 
-/* ─── 分段按钮组（滚动条形态 / 报表合计演示共用）────────────── */
+/* ─── 分段按钮组（报表合计演示）────────────── */
 
 .sheet-demo__seg {
   display: flex;
@@ -740,12 +702,6 @@ onBeforeUnmount(() => {
   background: var(--u-bg-color-hover);
 }
 
-.sheet-demo__seg-btn.is-active {
-  border-color: var(--u-color-primary);
-  background: color-mix(in srgb, var(--u-color-primary) 10%, var(--u-bg-color-top));
-  color: var(--u-color-primary);
-}
-
 /* ─── 报表合计演示（组内最后一个不是按钮，右侧补边距 + 合计状态行） ── */
 
 .sheet-demo__report-total {
@@ -756,8 +712,8 @@ onBeforeUnmount(() => {
 }
 
 .sheet-demo__sheet {
-  /* 154px 为原有布局预留，+64px 让位滚动条形态切换与报表合计演示两行控件 */
-  height: calc(100vh - 218px);
+  /* 154px 为原有布局预留，+30px 让位报表合计演示控件 */
+  height: calc(100vh - 184px);
 }
 
 /* ─── 数据结构观察区 ─────────────────────────────── */

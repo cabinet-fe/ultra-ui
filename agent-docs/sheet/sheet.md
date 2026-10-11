@@ -1,6 +1,6 @@
 ---
 title: USheet 电子表格组件
-description: USheet 电子表格组件：一个组件渲染工具栏、公式栏、网格与底部 sheet 标签栏，数据模型为 infinitable/sheet 工作簿；支持公式合计（setCellFormula 写入 / getCellData().f 读取 / 数据填充自动重算 / registerFormulaFunction 自定义函数）、画布常驻滚动条缺省（scrollbar 全形态透传）、填报只读（setCellReadonly / setRangeReadonly）、动态单元格样式、自定义工具栏工具、列头定制（header）与类型化编辑器（editors 按格路由）。
+description: USheet 电子表格组件：一个组件渲染工具栏、公式栏、网格与底部 sheet 标签栏，数据模型为 infinitable/sheet 工作簿；支持公式合计（setCellFormula 写入 / getCellData().f 读取 / 数据填充自动重算 / registerFormulaFunction 自定义函数）、画布常驻滚动条缺省（scrollbar 布尔开关）、填报只读（setCellReadonly / setRangeReadonly）、动态单元格样式、自定义工具栏工具、列头定制（header）与类型化编辑器（editors 按格路由）。
 aliases: [USheet, Sheet, 电子表格, spreadsheet, 表格编辑器]
 keywords:
   [
@@ -18,7 +18,6 @@ keywords:
     header,
     editors,
     scrollbar,
-    ScrollbarOptions,
     growOnScroll,
     setCellFormula,
     registerFormulaFunction,
@@ -83,7 +82,6 @@ import type {
   ResolveCellRenderer,
   ResolveCellStyleHook,
   ResolveDisplayValue,
-  ScrollbarOptions,
   SheetGrid,
   SheetGridEditorsOptions,
   SheetGridHeaderOptions
@@ -135,14 +133,10 @@ export interface SheetProps {
   /**
    * 滚动条（透传 SheetGrid → 引擎内建，构造期选项）：false 整体关闭（不显示任何
    * 滚动条）；缺省 true 画布常驻档——引擎归一化 canvas always + reserve，滚动条
-   * 常驻画在画布内（reserve 只在画布内预留轨道，不占页面布局、不遮挡单元格）；
-   * 显式传 `{ mode: 'native' }` 切原生档（浏览器原生滚动条独立 gutter 渲染）；
-   * 对象形态按引擎语义透传（`mode: 'canvas'` 回画布悬浮滚动条，及
-   * visibility / hideDelay / reserve 等 canvas 档显示策略）。对象形态引用更替
-   * 触发网格重建——沿用 header / editors 的稳定引用约定，宿主勿在模板内联对象
-   * 字面量
+   * 常驻画在画布内（reserve 只在画布内预留轨道，不占页面布局、不遮挡单元格）。
+   * 变化触发网格重建
    */
-  scrollbar?: boolean | ScrollbarOptions
+  scrollbar?: boolean
   /**
    * 滚动近端动态增长（透传 SheetGrid，构造期选项）：滚动缓冲末端触到当前行列数
    * 时模型与引擎同步扩容（缺省 true，对齐引擎当前缺省）；false 为固定尺寸网格
@@ -194,7 +188,7 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 | popup 子组件（`functions-popup.vue` / 各弹层面板） | 否 | UI 编排细节；交互经工具栏工具与公式栏入口触达 |
 | `apply-style` 内部函数（`axisStyleItemsForRange` / `classifySelectionStyleTarget`） | 否 | `SheetContext.applyStyle` 门面内部实现 |
 | `ToolRegistry` 类 / `DEFAULT_TOOL_GROUP` / `MIN_ROW_COL_SIZE` | 否 | 外部一律用 `defaultToolRegistry` 实例与 `registerTool` / `unregisterTool`；缺省分组与尺寸下限由字段缺省值 / 门面钳制承担 |
-| 引擎符号（`Workbook` / `Sheet` / `ScrollbarOptions` / `SetCellValueItem` / `registerFormulaFunction` 等） | 否 | 「不 re-export 引擎符号」约定：模型与类型从 `infinitable/sheet` 直导，公式注册表 API 从 `infinitable` 主入口直导 |
+| 引擎符号（`Workbook` / `Sheet` / `SetCellValueItem` / `registerFormulaFunction` 等） | 否 | 「不 re-export 引擎符号」约定：模型与类型从 `infinitable/sheet` 直导，公式注册表 API 从 `infinitable` 主入口直导 |
 
 判定口径：稳定公共 API（组件、props/emits/exposed 类型、imperative 门面及其配置类型、工具注册函数与定义类型）导出；内部实现（hooks、popup 子组件、门面内部函数、常量）与引擎符号不导出。
 
@@ -212,7 +206,7 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 | `showColHeader`       | `boolean`                 | `true`                  |  否  | 列字母表头；右键菜单含插入/删除列、列宽、冻结到当前列                                                                                                                 |
 | `readonly`            | `boolean`                 | `false`                 |  否  | 整表只读预览；按格控制改用模型 `setCellReadonly`                                                                                                                      |
 | `colResize`           | `boolean`                 | `false`                 |  否  | 列宽拖拽透传 SheetGrid：`readonly: true` 下置 `true` 仅放开列头 resize 手柄（编辑仍关闭），供只读预览宿主微调列宽；非 readonly 本就允许拖拽；变化触发网格重建          |
-| `scrollbar`           | `boolean \| ScrollbarOptions` | `true` | 否 | 滚动条透传 SheetGrid：`false` 整体关闭（不显示任何滚动条）；缺省 `true` 画布常驻档——引擎归一化 canvas always + reserve，滚动条常驻画在画布内（`reserve` 只在画布内预留轨道、不占页面布局、不遮挡单元格）；`{ mode: 'native' }` 显式切原生档——浏览器原生滚动条独立 gutter 渲染、不遮挡最底行/最右列；对象形态按引擎语义透传（`mode: 'canvas'` 回画布档，含 `visibility` / `hideDelay` / `reserve`）。`ScrollbarOptions` 从 `infinitable/sheet` 导入；对象为构造期选项，引用更替触发网格重建（勿在模板内联对象字面量） |
+| `scrollbar`           | `boolean` | `true` | 否 | 滚动条透传 SheetGrid：`false` 整体关闭（不显示任何滚动条）；缺省 `true` 画布常驻档——引擎归一化 canvas always + reserve，滚动条常驻画在画布内（`reserve` 只在画布内预留轨道、不占页面布局、不遮挡单元格）。变化触发网格重建 |
 | `growOnScroll`        | `boolean`                  | `true`（对齐引擎缺省）  |  否  | 滚动近端动态增长透传 SheetGrid：滚动缓冲末端触到当前行列数时模型与引擎同步扩容（WPS 式无限表格）；`false` 为固定尺寸网格——内容定尺寸的报表 / 表单宿主置 `false` 后不再滚入空白增长区；构造期选项，变化触发网格重建 |
 | `resolveDisplayValue` | `ResolveDisplayValue`     | —                       |  否  | `(addr, base) => CellValue \| undefined`；必须同步                                                                                                                    |
 | `resolveCellStyle`    | `ResolveCellStyleHook`    | —                       |  否  | `(addr, baseStyle?) => CellStyle \| undefined`；必须同步、O(1) 查找                                                                                                   |
@@ -478,7 +472,7 @@ function fillReportData(): void {
 > - 坐标一律 0-based `{ row, col }`，不是 `'A1'` 字符串；A1 互转用 `infinitable/sheet` 的 `parseAddress` / `formatAddress`。
 > - `header` / `editors` 按引用更替判定变化（变化即重建网格）：用 `computed` 持稳定引用，勿在模板内联对象字面量——每次渲染产生新引用会逐渲染重建网格。
 > - `registerTool` 的注册表是全局共享的（`defaultToolRegistry`），不是组件实例级的。
-> - `scrollbar` 缺省 v4.0 起为画布常驻档 `true`：滚动条常驻画在画布内（引擎归一化 canvas always + reserve，`reserve` 只在画布内预留轨道、不占页面布局）；v3.0 曾短暂缺省原生档。需浏览器原生滚动条（独立 gutter 渲染、不遮挡最底行 / 最右列单元格）显式传 `:scrollbar="{ mode: 'native' }"`。`scrollbar: false` 整体关闭语义不变；对象形态引用更替触发网格重建，勿在模板内联对象字面量（同 `header` / `editors`）。
+> - `scrollbar` v4.0 起为画布常驻档 `true` 并收窄为 `boolean`：滚动条常驻画在画布内（引擎归一化 canvas always + reserve，`reserve` 只在画布内预留轨道、不占页面布局）。v3.0 的原生档 `{ mode: 'native' }` 与对象形态（`mode: 'canvas'` 及 `visibility` / `hideDelay` / `reserve`）自 v4.0 起移除——需原生滚动条等引擎高级配置时直连 `SheetGrid` 配置。`scrollbar: false` 整体关闭语义不变；变化触发网格重建。
 > - 公式原文 `CellData.f` 不含 `'='` 前缀（写入 `'=SUM(B1:B3)'`、读回 `'SUM(B1:B3)'`）；`registerFormulaFunction` 只在 `infinitable` 主入口，`@veltra/sheet` 不转售。
 
 交互事实补充：网格编辑拦截面覆盖双击、Enter、回写与填充柄；行高拖拽、冻结、选区不进 undo 历史；`Ctrl/Cmd+F` 在焦点落入本实例时打开查找条（不劫持容器外浏览器原生查找）；右键菜单分三套（body：合并 / 数据格式 / 插入图片；行号 / 列头：插入删除、行高 / 列宽、冻结）。10 万行 × 12 列经 `setCells` 批量写入 + 虚拟滚动渲染可用（官方 playground `sheet-big-data` 场景）。

@@ -13,9 +13,8 @@ export const cellX = (col: number) => ROW_HEADER_WIDTH + col * DEFAULT_COL_WIDTH
 export const cellY = (row: number) => HEADER_HEIGHT + row * DEFAULT_ROW_HEIGHT + 5
 
 /**
- * 引擎指针事件派发目标：body 层画布。引擎事件源在 canvas 档是挂载容器、
- * 原生档（scrollbar.mode: 'native'）是滚动容器内的 sticky 视口——body 画布
- * 在两档下都是其后代，从它派发（冒泡）对两种形态都到达引擎监听。
+ * 引擎指针事件派发目标：body 层画布。引擎事件源是挂载容器，body 画布
+ * 是其后代，从它派发（冒泡）到达引擎监听。
  */
 export function gridEventTarget(root: HTMLElement): HTMLElement {
   return root.querySelector<HTMLElement>(".u-sheet__grid-instance canvas[data-layer-kind='body']")!
