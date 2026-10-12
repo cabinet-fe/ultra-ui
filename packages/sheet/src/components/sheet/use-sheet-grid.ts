@@ -55,9 +55,9 @@ interface UseSheetGridOptions {
   onCellLinkHover?: (event: CellLinkHoverEvent) => void
   /** 单元格超链接离开（引擎透传 → 宿主 emit cell-link-leave） */
   onCellLinkLeave?: (event: CellLinkLeaveEvent) => void
-  /** 单元格超链接单击（引擎透传 → 宿主 emit cell-link-click；打开行为仍归引擎默认） */
+  /** 单元格超链接单击（引擎透传 → 宿主 emit cell-link-click；打开由 sheet.vue 直开接管） */
   onCellLinkClick?: (event: CellLinkClickEvent) => void
-  /** 图片链接单击（引擎透传 → 宿主 emit image-link-click；kind 区分嵌入/浮动） */
+  /** 图片链接单击（引擎透传 → 宿主 emit image-link-click；打开由 sheet.vue 确认后接管） */
   onImageLinkClick?: (event: ImageLinkClickEvent) => void
   /** 浮动图右键（引擎透传 → 宿主 emit float-context-menu；右键不穿透到 body 菜单） */
   onFloatContextMenu?: (event: FloatContextMenuPayload) => void
@@ -192,6 +192,8 @@ export function useSheetGrid(options: UseSheetGridOptions) {
       // 画布跟随 UI 主题：loadTheme 注入的 CSS 变量换算为引擎 override
       //（未 loadTheme 时为 undefined，引擎保持缺省白底）
       theme: resolveCanvasThemeOverride(host),
+      // 关闭引擎默认打开：链接格单击直开、图片链接单击确认后开（sheet.vue 接管）
+      openCellLinkOnClick: false,
       onContextMenu: handleContextMenu,
       onEditStart: (addr) => formulaBarRef.value?.mirrorGridEdit(addr),
       onEditEnd: (addr) => formulaBarRef.value?.exitMirror(addr),

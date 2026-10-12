@@ -1,13 +1,13 @@
 import type { ContextmenuItem } from '@veltra/desktop'
 import { createRange, type CellAddress, type CellRange } from 'infinitable/sheet'
-import type { NumFmt } from 'infinitable/sheet'
+import type { ImageInput, NumFmt } from 'infinitable/sheet'
 import { defineComponent, h } from 'vue'
 
 import type { SheetContext } from '../../tools/context'
 import { MIN_ROW_COL_SIZE } from '../../tools/context'
 import { defaultToolRegistry } from '../../tools/registry'
 import InsertCountMenuItem from './insert-count-menu-item.vue'
-import { pickAndInsertImage } from './insert-image'
+import { pickAndEmbedCellImage, pickAndInsertImage } from './insert-image'
 import type { ImagePreviewSource, OpenHyperlinkPopup } from './popup-helpers'
 import { imageLinkInitial, imagePreviewSource } from './popup-helpers'
 
@@ -303,11 +303,37 @@ function cellLinkMenuItems(
 }
 
 /**
- * body 菜单嵌入图项：目标格含嵌入图时附加——预览 / 图片超链接 / 取消超链接
- * （按载荷 link 状态出项）/ 移除图片。设置走 hyperlink 弹窗 image 模式（确认后
- * 由宿主覆盖写 `insertCellImage(addr, { ...payload, link })`）；取消直写覆盖
- * `link: undefined`（引擎 CellImagePayload 清除约定，其余字段保留）；移除走
- * `removeCellImage`（命令系统，可 undo）。无嵌入图返回空数组（不出现图片项）。
+ * 按格嵌入图转为浮动图片（对齐 Excel「放置到单元格上」/ WPS 反向切换）：浮动图
+ * 落在嵌入图锚点格、尺寸取该格宽高（视觉等价还原），fit 缺省 contain（对齐嵌入图
+ * 渲染约定，避免浮动图缺省 fill 拉伸变形），src/data/type/link 随载荷迁移。事务内
+ * insertImage + removeCellImage——一次转换 = 一个 undo 单元。
+ */
+export function cellImageToFloat(ctx: SheetContext, addr: CellAddress): void {
+  const payload = ctx.getCellImage(addr)
+  if (!payload) return
+  const anchor = ctx.getCellInfo(addr).anchor
+  const input: ImageInput = {
+    data: payload.data ?? new Uint8Array(),
+    type: payload.type ?? 'png',
+    anchor: { from: { row: anchor.row, col: anchor.col } },
+    width: ctx.getColWidth(anchor.col) ?? FALLBACK_COL_WIDTH,
+    height: ctx.getRowHeight(anchor.row) ?? FALLBACK_ROW_HEIGHT,
+    fit: payload.fit ?? 'contain'
+  }
+  if (payload.src) input.src = payload.src
+  if (payload.link) input.link = payload.link
+  ctx.beginTransaction()
+  ctx.insertImage(input)
+  ctx.removeCellImage(addr)
+  ctx.commit()
+}
+
+/**
+ * body 菜单嵌入图项：预览 / 图片超链接 / 取消超链接（按载荷 link 状态出项）/
+ * 转为浮动图片 / 替换图片 / 移除图片。设置走 hyperlink 弹窗 image 模式（确认后由宿主覆盖写
+ * `insertCellImage(addr, { ...payload, link })`）；取消直写覆盖 `link: undefined`
+ * （引擎 CellImagePayload 清除约定，其余字段保留）；转换/替换/移除分别走
+ * `cellImageToFloat`、`insertCellImage` 覆盖与 `removeCellImage`（命令系统，可 undo）。
  */
 function cellImageMenuItems(
   ctx: SheetContext,
@@ -339,16 +365,26 @@ function cellImageMenuItems(
       callback: () => ctx.insertCellImage(active, { ...payload, link: undefined })
     })
   }
-  items.push({ label: '移除图片', disabled: readonly, callback: () => ctx.removeCellImage(active) })
+  items.push(
+    { label: '转为浮动图片', disabled: readonly, callback: () => cellImageToFloat(ctx, active) },
+    { label: '替换图片', disabled: readonly, callback: () => pickAndEmbedCellImage(ctx) },
+    { label: '移除图片', disabled: readonly, callback: () => ctx.removeCellImage(active) }
+  )
   return items
 }
 
-/** body 格右键菜单：合并/取消合并 + 设置数据格式 + 超链接 + 插入图片（+ 嵌入图四项；行列插入/删除仅行号/列头菜单） */
+/**
+ * body 格右键菜单。目标格含嵌入图时出**纯图片菜单**（预览 / 超链接 / 转浮动 /
+ * 替换 / 移除）——图片盖住整格，右键语义是「图片」而非「单元格」，不出合并 /
+ * 数据格式 / 超链接等普通格项（对齐 Excel 图片右键约定）。普通格：合并 / 取消合并 +
+ * 设置数据格式 + 超链接 + 插入图片（浮动）+ 嵌入图片（入格）；行列插入/删除仅行号/列头菜单。
+ */
 export function buildBodyMenus(ctx: SheetContext, options?: BodyMenuOptions): ContextmenuItem[] {
+  const active = ctx.getSelection().activeCell
+  if (active && ctx.hasCellImage(active)) return cellImageMenuItems(ctx, active, options)
+
   const mergeTool = defaultToolRegistry.get('merge')
   const unmergeTool = defaultToolRegistry.get('unmerge')
-  const active = ctx.getSelection().activeCell
-  const imageItems = cellImageMenuItems(ctx, active, options)
 
   return [
     {
@@ -385,7 +421,7 @@ export function buildBodyMenus(ctx: SheetContext, options?: BodyMenuOptions): Co
     },
     ...cellLinkMenuItems(ctx, active, options),
     { label: '插入图片', disabled: !active, callback: () => pickAndInsertImage(ctx) },
-    ...(imageItems.length > 0 ? [{ divider: true } as const, ...imageItems] : [])
+    { label: '嵌入图片', disabled: !active, callback: () => pickAndEmbedCellImage(ctx) }
   ]
 }
 

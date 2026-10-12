@@ -36,7 +36,7 @@
     }
   },
   "dependencies": {
-    "infinitable": "^0.1.7"
+    "infinitable": "^0.1.8"
   },
   "peerDependencies": {
     "@cat-kit/core": ">=1.2.1",

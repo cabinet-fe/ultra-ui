@@ -6,7 +6,9 @@ import '@veltra/desktop/components/palette/style'
 import '@veltra/desktop/components/scroll/style'
 import '@veltra/desktop/components/tip/style'
 import '@veltra/desktop/components/loading/style' // v-loading（sheet.vue grid 容器）
-import '@veltra/desktop/components/message/style' // message / messageConfirm（弹层、tabs、公式栏）
+import '@veltra/desktop/components/message/style' // message（弹层、tabs、公式栏）
+import '@veltra/desktop/components/message-confirm/style' // messageConfirm（导入替换 / 图片链接打开确认）
+import '@veltra/desktop/components/image-previewer/style' // UImagePreviewer（右键「预览」lightbox）
 import '@veltra/desktop/components/input/style' // UInput（find-popup / insert-image-popup）
 import '@veltra/desktop/components/file-picker/style' // UFilePicker（insert-image-popup）
 import '@veltra/desktop/components/button/style' // UButton（insert-image-popup URL 插入）

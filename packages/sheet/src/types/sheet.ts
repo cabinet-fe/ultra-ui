@@ -118,13 +118,14 @@ export interface SheetEmits {
   (name: 'cell-link-leave', payload: CellLinkLeaveEvent): void
   /**
    * 单元格超链接单击（引擎 `CellLinkClickEvent` 形态：真实指针 down+up 命中
-   * 同一链接格；框选拖拽/键盘选中不触发）。单击打开仍由引擎
-   * `openCellLinkOnClick` 默认处理，ultra-ui 不接管
+   * 同一链接格；框选拖拽/键盘选中不触发）。组件已接管打开：emit 后直接新标签
+   * 打开（引擎 `openCellLinkOnClick` 已关闭）
    */
   (name: 'cell-link-click', payload: CellLinkClickEvent): void
   /**
    * 图片链接单击（引擎 `ImageLinkClickEvent`，`kind` 区分 `cell` 嵌入图 /
-   * `float` 浮动图）；默认打开行为同上由引擎处理
+   * `float` 浮动图）。组件已接管打开：emit 后弹确认框，确认才新标签打开
+   * （防误触跳转；引擎 `openCellLinkOnClick` 已关闭）
    */
   (name: 'image-link-click', payload: ImageLinkClickEvent): void
   /**

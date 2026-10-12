@@ -1,6 +1,6 @@
 ---
 title: USheet 电子表格组件
-description: USheet 电子表格组件：一个组件渲染工具栏、公式栏、网格与底部 sheet 标签栏，数据模型为 infinitable/sheet 工作簿；支持公式合计（setCellFormula 写入 / getCellData().f 读取 / 数据填充自动重算 / registerFormulaFunction 自定义函数）、单元格超链接（右键插入/编辑/取消 + 悬停 URL tooltip + 配置弹窗，setCellLink/getCellLink/clearCellLink）、图片（按格嵌入图 insertCellImage 四项右键、浮动图独立右键菜单、updateImage link、lightbox 大图预览）、画布常驻滚动条缺省（scrollbar 布尔开关）、填报只读（setCellReadonly / setRangeReadonly）、动态单元格样式、自定义工具栏工具、列头定制（header）与类型化编辑器（editors 按格路由）。
+description: USheet 电子表格组件：一个组件渲染工具栏、公式栏、网格与底部 sheet 标签栏，数据模型为 infinitable/sheet 工作簿；支持公式合计（setCellFormula 写入 / getCellData().f 读取 / 数据填充自动重算 / registerFormulaFunction 自定义函数）、单元格超链接（右键插入/编辑/取消 + 悬停 URL tooltip + 配置弹窗，setCellLink/getCellLink/clearCellLink）、图片（右键「嵌入图片」入格、嵌入图格纯图片右键菜单（预览/图片超链接/转为浮动图片/替换/移除）、浮动图独立右键菜单（含「嵌入单元格」转按格嵌入图）、updateImage link、图片链接确认后打开、lightbox 大图预览）、画布常驻滚动条缺省（scrollbar 布尔开关）、填报只读（setCellReadonly / setRangeReadonly）、动态单元格样式、自定义工具栏工具、列头定制（header）与类型化编辑器（editors 按格路由）。
 aliases: [USheet, Sheet, 电子表格, spreadsheet, 表格编辑器]
 keywords:
   [
@@ -210,13 +210,14 @@ export interface SheetEmits {
   (name: 'cell-link-leave', payload: CellLinkLeaveEvent): void
   /**
    * 单元格超链接单击（引擎 `CellLinkClickEvent` 形态：真实指针 down+up 命中
-   * 同一链接格；框选拖拽/键盘选中不触发）。单击打开由引擎
-   * `openCellLinkOnClick` 默认处理，ultra-ui 不接管
+   * 同一链接格；框选拖拽/键盘选中不触发）。USheet 已接管打开：emit 后直接
+   * 新标签打开（引擎 `openCellLinkOnClick` 已关闭）
    */
   (name: 'cell-link-click', payload: CellLinkClickEvent): void
   /**
    * 图片链接单击（引擎 `ImageLinkClickEvent`，`kind` 区分 `cell` 嵌入图 /
-   * `float` 浮动图）；默认打开行为同上由引擎处理
+   * `float` 浮动图）。USheet 已接管打开：emit 后弹确认框，确认才新标签打开
+   * （防误触跳转；引擎 `openCellLinkOnClick` 已关闭）
    */
   (name: 'image-link-click', payload: ImageLinkClickEvent): void
   /**
@@ -306,10 +307,10 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 | -------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `cell-link-hover`    | `CellLinkHoverEvent`：`{ row, col, url, text?, x, y }` | 指针悬停到含链接格（层坐标 `x/y` 相对 grid 容器）；USheet 内置 URL tooltip 与本事件同源驱动，宿主无需重复渲染浮层                                                          |
 | `cell-link-leave`    | `CellLinkLeaveEvent`：`{ row, col }`               | 指针离开链接格（内置 tooltip 随之卸载）                                                                                                                                               |
-| `cell-link-click`    | `CellLinkClickEvent`：`{ row, col, url, text?, originalEvent }` | 真实指针 down+up 命中同一链接格（框选拖拽/键盘选中不触发）；单击打开由引擎 `openCellLinkOnClick` 默认处理（ultra-ui 不接管、不注册覆盖逻辑）                          |
-| `image-link-click`   | `ImageLinkClickEvent`：`{ kind: 'cell' \| 'float', url, originalEvent, … }`（`cell` 带命中格 `addr`，`float` 带命中对象 `id`） | 单击含链接的嵌入图 / 浮动图；默认打开行为同上由引擎处理                                                                                                                    |
+| `cell-link-click`    | `CellLinkClickEvent`：`{ row, col, url, text?, originalEvent }` | 真实指针 down+up 命中同一链接格（框选拖拽/键盘选中不触发）；USheet 已接管打开——emit 后直接新标签打开（引擎 `openCellLinkOnClick` 已关闭）                          |
+| `image-link-click`   | `ImageLinkClickEvent`：`{ kind: 'cell' \| 'float', url, originalEvent, … }`（`cell` 带命中格 `addr`，`float` 带命中对象 `id`） | 单击含链接的嵌入图 / 浮动图；USheet 已接管打开——emit 后弹确认框，确认才新标签打开，取消不跳转（防误触；引擎 `openCellLinkOnClick` 已关闭）                                   |
 | `cell-image-change`  | `{ addr?: CellAddress }`                           | 按格嵌入图变化（插入/移除/覆盖单格带 `addr`；行列结构平移、整表替换时缺省）；仅当前活动 sheet 的事件被透传                                                                               |
-| `float-context-menu` | `FloatContextMenuPayload`：`{ id, x, y, clientX, clientY, originalEvent }` | 右键命中浮动图（引擎保证不穿透到格，body 菜单不弹）；USheet 已内置浮动图独立菜单（预览 / 设置超链接 / 取消超链接 / 删除图片）并弹出，宿主可经本事件联动自有 UI                |
+| `float-context-menu` | `FloatContextMenuPayload`：`{ id, x, y, clientX, clientY, originalEvent }` | 右键命中浮动图（引擎保证不穿透到格，body 菜单不弹）；USheet 已内置浮动图独立菜单（预览 / 设置超链接 / 取消超链接 / 嵌入单元格 / 删除图片）并弹出，宿主可经本事件联动自有 UI                |
 
 ### 暴露方法（`SheetExposed`）
 
@@ -566,7 +567,7 @@ function fillReportData(): void {
 > - `scrollbar` v4.0 起为画布常驻档 `true` 并收窄为 `boolean`：滚动条常驻画在画布内（引擎归一化 canvas always + reserve，`reserve` 只在画布内预留轨道、不占页面布局）。v3.0 的原生档 `{ mode: 'native' }` 与对象形态（`mode: 'canvas'` 及 `visibility` / `hideDelay` / `reserve`）自 v4.0 起移除——需原生滚动条等引擎高级配置时直连 `SheetGrid` 配置。`scrollbar: false` 整体关闭语义不变；变化触发网格重建。
 > - 公式原文 `CellData.f` 不含 `'='` 前缀（写入 `'=SUM(B1:B3)'`、读回 `'SUM(B1:B3)'`）；`registerFormulaFunction` 只在 `infinitable` 主入口，`@veltra/sheet` 不转售。
 
-交互事实补充：网格编辑拦截面覆盖双击、Enter、回写与填充柄；行高拖拽、冻结、选区不进 undo 历史；`Ctrl/Cmd+F` 在焦点落入本实例时打开查找条（不劫持容器外浏览器原生查找）；右键菜单分四套——body：合并 / 数据格式 / 超链接（按目标格状态：无链接「插入超链接」、有链接「编辑超链接 / 取消超链接」，经配置弹窗写入或 `clearCellLink`）/ 插入图片，目标格含嵌入图时再附图片四项（预览 / 图片超链接 / 取消超链接 / 移除图片，按载荷 link 状态出项）；浮动图独立菜单（右键命中浮动图不穿透到格，含 预览 / 设置超链接 / 取消超链接 / 删除图片，删除走 `removeImage` 可 undo）；行号 / 列头：插入删除、行高 / 列宽、冻结。悬停链接格显示 URL tooltip（引擎 hover/leave 事件驱动的 DOM 浮层，USheet 内置）；「预览」打开全局 lightbox 大图（`@veltra/desktop` 的 `UImagePreviewer`，缩放/平移/关闭见其文档）；单击链接格/图片默认打开由引擎 `openCellLinkOnClick` 处理，ultra-ui 不注册接管逻辑。10 万行 × 12 列经 `setCells` 批量写入 + 虚拟滚动渲染可用（官方 playground `sheet-big-data` 场景）。
+交互事实补充：网格编辑拦截面覆盖双击、Enter、回写与填充柄；行高拖拽、冻结、选区不进 undo 历史；`Ctrl/Cmd+F` 在焦点落入本实例时打开查找条（不劫持容器外浏览器原生查找）；右键菜单分四套——body：目标格含嵌入图时出纯图片菜单（预览 / 图片超链接 / 取消超链接 / 转为浮动图片 / 替换图片 / 移除图片，按载荷 link 状态出项；不出合并 / 数据格式等普通格项；「转为浮动图片」把嵌入图转回锚点格上的浮动图——事务内 `insertImage` + `removeCellImage` 单 undo 单元，尺寸取格宽高、fit 保 contain，src/data/type/link 随迁），普通格出 合并 / 数据格式 / 超链接（按目标格状态：无链接「插入超链接」、有链接「编辑超链接 / 取消超链接」，经配置弹窗写入或 `clearCellLink`）/ 插入图片（浮动图）/ 嵌入图片（`insertCellImage` 入活动格，格内已有则整体覆盖，可 undo）；浮动图独立菜单（右键命中浮动图不穿透到格，含 预览 / 设置超链接 / 取消超链接 / 嵌入单元格 / 删除图片，删除走 `removeImage` 可 undo；「嵌入单元格」把浮动图转为锚点格嵌入图——事务内 `insertCellImage` + `removeImage` 合并为单 undo 单元，src 优先迁移、type/link 随迁）；行号 / 列头：插入删除、行高 / 列宽、冻结。悬停链接格显示 URL tooltip（引擎 hover/leave 事件驱动的 DOM 浮层，USheet 内置）；「预览」打开全局 lightbox 大图（`@veltra/desktop` 的 `UImagePreviewer`，缩放/平移/关闭见其文档）；链接打开由 USheet 接管（引擎 `openCellLinkOnClick` 已关闭）：单击链接格直接新标签打开，单击带链接图片（浮动 / 嵌入）先弹确认框，确认才打开。10 万行 × 12 列经 `setCells` 批量写入 + 虚拟滚动渲染可用（官方 playground `sheet-big-data` 场景）。
 
 ## 常见问题
 

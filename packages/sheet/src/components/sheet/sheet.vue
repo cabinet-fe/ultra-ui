@@ -105,9 +105,14 @@
 </template>
 
 <script lang="ts" setup>
-import { UDropdown, UImagePreviewer } from '@veltra/desktop'
+import { UDropdown, UImagePreviewer, messageConfirm } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
-import type { CellAddress, CellLinkPayload } from 'infinitable/sheet'
+import type {
+  CellAddress,
+  CellLinkClickEvent,
+  CellLinkPayload,
+  ImageLinkClickEvent
+} from 'infinitable/sheet'
 import { computed, ref, shallowRef, useTemplateRef, watch } from 'vue'
 
 import type { SheetTool } from '../../tools/registry'
@@ -311,6 +316,33 @@ function openImagePreview(source: ImagePreviewSource): void {
   imagePreview.value = source
 }
 
+// ─── 链接打开（引擎 openCellLinkOnClick=false，打开行为由组件接管）────────
+
+/** 新标签打开外链（对齐引擎默认打开语义：noopener） */
+function openExternal(url: string): void {
+  window.open(url, '_blank', 'noopener,noreferrer')
+}
+
+/** 链接格单击：emit 后直开（保持引擎原默认行为） */
+function handleCellLinkClick(event: CellLinkClickEvent): void {
+  emit('cell-link-click', event)
+  openExternal(event.url)
+}
+
+/** 图片链接单击（浮动图/嵌入图）：emit 后确认再开——点击即跳转易误触 */
+function handleImageLinkClick(event: ImageLinkClickEvent): void {
+  emit('image-link-click', event)
+  messageConfirm({
+    title: '打开图片链接',
+    message: `即将打开图片链接：${event.url}`,
+    confirmButtonText: '打开',
+    cancelButtonText: '取消',
+    onClose: (action) => {
+      if (action === 'confirm') openExternal(event.url)
+    }
+  })
+}
+
 // ─── grid 生命周期（重建 / 右键菜单 / 公式栏编辑镜像）────────────────
 
 const gridRef = useTemplateRef<HTMLElement>('gridRef')
@@ -325,7 +357,7 @@ const { rebuildGrid, activateGrid, pruneCache, getGrid, setSelectionAnchor } = u
   // 工具栏「函数」弹框打开期间与 fx 入口一致：画布点击不清除目标格高亮
   isFunctionPopupOpen: () => popupTool.value?.popup === 'functions',
   onColResizeEnd: (event) => emit('col-resize-end', event),
-  // 引擎链接 / 浮动图事件透传（打开行为仍归引擎 openCellLinkOnClick 默认）；
+  // 引擎链接 / 浮动图事件透传（openCellLinkOnClick=false：链接格直开、图片链接确认后开）；
   // hover/leave 同时喂给 tooltip 状态机（与组件 emit 同源）
   onCellLinkHover: (event) => {
     emit('cell-link-hover', event)
@@ -335,8 +367,8 @@ const { rebuildGrid, activateGrid, pruneCache, getGrid, setSelectionAnchor } = u
     emit('cell-link-leave', event)
     hideCellLinkTooltip(event)
   },
-  onCellLinkClick: (event) => emit('cell-link-click', event),
-  onImageLinkClick: (event) => emit('image-link-click', event),
+  onCellLinkClick: (event) => handleCellLinkClick(event),
+  onImageLinkClick: (event) => handleImageLinkClick(event),
   onFloatContextMenu: (event) => emit('float-context-menu', event),
   // body 菜单超链接项 → 拉起配置弹窗；右键「预览」→ 打开 lightbox
   openHyperlinkPopup,

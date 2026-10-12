@@ -1,5 +1,6 @@
 import type { ContextmenuItem } from '@veltra/desktop'
 import { contextmenu } from '@veltra/desktop'
+import type { CellImagePayload } from 'infinitable/sheet'
 
 import type { SheetContext } from '../../tools/context'
 import type { FloatContextMenuPayload } from '../../types'
@@ -15,10 +16,30 @@ export interface FloatImageMenuHandles {
 }
 
 /**
- * 浮动图右键独立菜单：预览 / 设置超链接 / 取消超链接（无链接不出现）/ 删除图片。
- * 设置走 hyperlink 弹窗 image 模式（确认 `updateImage(id, { link })`）；取消直写
- * `updateImage(id, { link: null })`（null 清除，可 undo）；删除走 `removeImage`
- * （命令系统，可 undo）。命中 id 不存在（并发删除）返回空数组，调用方不弹菜单。
+ * 浮动图转为按格嵌入图（对齐 WPS/Excel「放置在单元格中」）：落点为图片锚点格
+ * （anchor.from，即图片左上角所在格），src/data/type/link 随载荷迁移。事务内
+ * insertCellImage + removeImage——一次转换 = 一个 undo 单元。
+ */
+export function embedFloatImageToCell(ctx: SheetContext, id: string): void {
+  const image = ctx.getImages().find((item) => item.id === id)
+  if (!image) return
+  const payload: CellImagePayload = image.src
+    ? { src: image.src, type: image.type }
+    : { data: image.data, type: image.type }
+  if (image.link) payload.link = image.link
+  ctx.beginTransaction()
+  ctx.insertCellImage(image.anchor.from, payload)
+  ctx.removeImage(id)
+  ctx.commit()
+}
+
+/**
+ * 浮动图右键独立菜单：预览 / 设置超链接 / 取消超链接（无链接不出现）/
+ * 嵌入单元格 / 删除图片。设置走 hyperlink 弹窗 image 模式（confirm
+ * `updateImage(id, { link })`）；取消直写 `updateImage(id, { link: null })`
+ * （null 清除，可 undo）；嵌入单元格走 `embedFloatImageToCell`（事务合并单 undo）；
+ * 删除走 `removeImage`（命令系统，可 undo）。命中 id 不存在（并发删除）返回空数组，
+ * 调用方不弹菜单。
  */
 export function buildFloatImageMenus(
   ctx: SheetContext,
@@ -50,6 +71,7 @@ export function buildFloatImageMenus(
           }
         ]
       : []),
+    { label: '嵌入单元格', disabled: readonly, callback: () => embedFloatImageToCell(ctx, id) },
     { label: '删除图片', disabled: readonly, callback: () => ctx.removeImage(id) }
   ]
   return items

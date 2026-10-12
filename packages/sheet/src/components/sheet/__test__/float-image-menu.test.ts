@@ -2,7 +2,7 @@ import { Sheet } from 'infinitable/sheet'
 import { describe, expect, it } from 'vite-plus/test'
 
 import { createSheetContext } from '../../../tools/context'
-import { buildFloatImageMenus } from '../float-image-menu'
+import { buildFloatImageMenus, embedFloatImageToCell } from '../float-image-menu'
 import type { ImagePreviewSource } from '../popup-helpers'
 
 /** 插入一张浮动图（data 字节 + 可选 src/link），返回 id */
@@ -43,14 +43,14 @@ function handlesSpy() {
 }
 
 describe('buildFloatImageMenus（浮动图右键独立菜单）', () => {
-  it('无链接浮动图：预览 / 设置超链接 / 删除图片（无取消超链接）；预览源 src 优先', () => {
+  it('无链接浮动图：预览 / 设置超链接 / 嵌入单元格 / 删除图片（无取消超链接）；预览源 src 优先', () => {
     const sheet = new Sheet()
     const ctx = createSheetContext(sheet)
     const id = insertFloatImage(sheet, { src: 'https://example.com/a.png' })
     const spy = handlesSpy()
 
     const menus = buildFloatImageMenus(ctx, id, spy.handles)
-    expect(menus.map((m) => m.label)).toEqual(['预览', '设置超链接', '删除图片'])
+    expect(menus.map((m) => m.label)).toEqual(['预览', '设置超链接', '嵌入单元格', '删除图片'])
 
     menus.find((m) => m.label === '预览')!.callback!()
     expect(spy.previews).toEqual([{ src: 'https://example.com/a.png' }])
@@ -78,7 +78,13 @@ describe('buildFloatImageMenus（浮动图右键独立菜单）', () => {
     const spy = handlesSpy()
 
     const menus = buildFloatImageMenus(ctx, id, spy.handles)
-    expect(menus.map((m) => m.label)).toEqual(['预览', '设置超链接', '取消超链接', '删除图片'])
+    expect(menus.map((m) => m.label)).toEqual([
+      '预览',
+      '设置超链接',
+      '取消超链接',
+      '嵌入单元格',
+      '删除图片'
+    ])
 
     menus.find((m) => m.label === '设置超链接')!.callback!()
     expect(spy.popups).toEqual([
@@ -109,7 +115,65 @@ describe('buildFloatImageMenus（浮动图右键独立菜单）', () => {
     expect(buildFloatImageMenus(ctx, 'missing', handlesSpy().handles)).toEqual([])
   })
 
-  it('readonly：设置/取消/删除禁用、预览可用；句柄缺省：预览/设置禁用', () => {
+  it('嵌入单元格：浮动图转锚点格嵌入图（src 优先 / data 字节两形态，link 随迁），单 undo 还原', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    const addr = { row: 2, col: 3 }
+    const id = sheet.insertImage({
+      data: new Uint8Array([1, 2, 3]),
+      type: 'png',
+      anchor: { from: addr },
+      src: 'https://example.com/a.png',
+      link: 'https://example.com'
+    })
+
+    embedFloatImageToCell(ctx, id)
+    // 浮动图消失，锚点格出现同源嵌入图（src 优先于字节），link 随迁
+    expect(ctx.getImages().some((img) => img.id === id)).toBe(false)
+    expect(ctx.getCellImage(addr)).toEqual({
+      src: 'https://example.com/a.png',
+      type: 'png',
+      link: 'https://example.com'
+    })
+
+    // 事务合并：一次 undo 同时还原浮动图、清掉嵌入图
+    expect(ctx.undo()).toBe(true)
+    expect(ctx.getImages().some((img) => img.id === id)).toBe(true)
+    expect(ctx.hasCellImage(addr)).toBe(false)
+  })
+
+  it('嵌入单元格：data 字节图迁字节；目标格已有嵌入图则覆盖；id 不存在无操作', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    const addr = { row: 1, col: 1 }
+    const id = sheet.insertImage({
+      data: new Uint8Array([1, 2, 3]),
+      type: 'png',
+      anchor: { from: addr }
+    })
+
+    embedFloatImageToCell(ctx, id)
+    expect(ctx.getCellImage(addr)).toEqual({ data: new Uint8Array([1, 2, 3]), type: 'png' })
+
+    // 目标格已有嵌入图 → 覆盖（undo 一次仍回到转换前）
+    const other = insertFloatImage(sheet)
+    sheet.updateImage(other, { anchor: { from: { row: 5, col: 5 } } })
+    embedFloatImageToCell(ctx, other)
+    expect(ctx.hasCellImage({ row: 5, col: 5 })).toBe(true)
+    expect(ctx.getCellImage({ row: 5, col: 5 })).toEqual({
+      data: new Uint8Array([1, 2, 3]),
+      type: 'png'
+    })
+    expect(ctx.undo()).toBe(true)
+    expect(ctx.hasCellImage({ row: 5, col: 5 })).toBe(false)
+    expect(ctx.getImages().some((img) => img.id === other)).toBe(true)
+
+    // id 不存在（并发删除）：无操作
+    embedFloatImageToCell(ctx, 'missing')
+    expect(ctx.getImages().some((img) => img.id === other)).toBe(true)
+  })
+
+  it('readonly：设置/取消/删除/嵌入单元格禁用、预览可用；句柄缺省：预览/设置禁用', () => {
     const sheet = new Sheet()
     const ctx = createSheetContext(sheet)
     const id = insertFloatImage(sheet, { link: 'https://example.com' })
@@ -118,13 +182,15 @@ describe('buildFloatImageMenus（浮动图右键独立菜单）', () => {
     expect(readonly.find((m) => m.label === '预览')?.disabled).toBeFalsy()
     expect(readonly.find((m) => m.label === '设置超链接')?.disabled).toBe(true)
     expect(readonly.find((m) => m.label === '取消超链接')?.disabled).toBe(true)
+    expect(readonly.find((m) => m.label === '嵌入单元格')?.disabled).toBe(true)
     expect(readonly.find((m) => m.label === '删除图片')?.disabled).toBe(true)
 
     const noHandles = buildFloatImageMenus(ctx, id)
     expect(noHandles.find((m) => m.label === '预览')?.disabled).toBe(true)
     expect(noHandles.find((m) => m.label === '设置超链接')?.disabled).toBe(true)
-    // 取消/删除只依赖 ctx，句柄缺省仍可用
+    // 取消/嵌入/删除只依赖 ctx，句柄缺省仍可用
     expect(noHandles.find((m) => m.label === '取消超链接')?.disabled).toBeFalsy()
+    expect(noHandles.find((m) => m.label === '嵌入单元格')?.disabled).toBeFalsy()
     expect(noHandles.find((m) => m.label === '删除图片')?.disabled).toBeFalsy()
   })
 })

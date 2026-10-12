@@ -8,6 +8,7 @@ import {
   buildBodyMenus,
   buildColHeaderMenus,
   buildRowHeaderMenus,
+  cellImageToFloat,
   defaultInsertCount,
   ensureContextMenuSelection,
   isColInSelection,
@@ -220,23 +221,27 @@ describe('build*Menus', () => {
     expect(readonlyCol.render).toBeUndefined()
   })
 
-  it('body 菜单：合并/取消合并 + 设置数据格式子菜单 + 插入超链接 + 插入图片，不含行列插入删除', () => {
+  it('body 菜单：合并/取消合并 + 设置数据格式子菜单 + 插入超链接 + 插入/嵌入图片，不含行列插入删除', () => {
     const sheet = new Sheet()
     const ctx = createSheetContext(sheet)
     sheet.selectCell({ row: 0, col: 0 })
     const menus = buildBodyMenus(ctx)
-    expect(menus).toHaveLength(6)
+    expect(menus).toHaveLength(7)
     expect(menus.map((m) => m.label ?? (m.divider ? '---' : ''))).toEqual([
       '合并单元格',
       '取消合并单元格',
       '---',
       '设置数据格式',
       '插入超链接',
-      '插入图片'
+      '插入图片',
+      '嵌入图片'
     ])
     const insertImage = menus.find((m) => m.label === '插入图片')!
     expect(insertImage.disabled).toBeFalsy()
     expect(insertImage.callback).toBeTruthy()
+    const embedImage = menus.find((m) => m.label === '嵌入图片')!
+    expect(embedImage.disabled).toBeFalsy()
+    expect(embedImage.callback).toBeTruthy()
     const labels = menus.map((m) => m.label).join()
     expect(labels).not.toContain('插入行')
     expect(labels).not.toContain('插入列')
@@ -323,12 +328,13 @@ describe('build*Menus', () => {
     expect(ctx.canUndo).toBe(false)
   })
 
-  it('body 插入图片 / 设置数据格式：无活动格时禁用', () => {
+  it('body 插入图片 / 嵌入图片 / 设置数据格式：无活动格时禁用', () => {
     const sheet = new Sheet()
     const ctx = createSheetContext(sheet)
     sheet.selection.clear()
     const menus = buildBodyMenus(ctx)
     expect(menus.find((m) => m.label === '插入图片')?.disabled).toBe(true)
+    expect(menus.find((m) => m.label === '嵌入图片')?.disabled).toBe(true)
     expect(menus.find((m) => m.label === '设置数据格式')?.disabled).toBe(true)
     // 无活动格：超链接项同样禁用
     expect(menus.find((m) => m.label === '插入超链接')?.disabled).toBe(true)
@@ -468,18 +474,26 @@ describe('buildBodyMenus 嵌入图项（按目标格嵌入图状态出项）', (
     return { previews, open: (source: unknown): void => previews.push(source) }
   }
 
-  it('无嵌入图：不出现图片项', () => {
+  it('无嵌入图：不出现图片项（普通格菜单 + 嵌入图片入口）', () => {
     const sheet = new Sheet()
     const ctx = createSheetContext(sheet)
     sheet.selectCell(ADDR)
     const labels = buildBodyMenus(ctx).map((m) => m.label ?? (m.divider ? '---' : ''))
-    expect(labels).toHaveLength(6)
-    for (const label of ['预览', '图片超链接', '取消超链接', '移除图片']) {
+    expect(labels).toHaveLength(7)
+    expect(labels).toContain('嵌入图片')
+    for (const label of [
+      '预览',
+      '图片超链接',
+      '取消超链接',
+      '转为浮动图片',
+      '替换图片',
+      '移除图片'
+    ]) {
       expect(labels).not.toContain(label)
     }
   })
 
-  it('无链接嵌入图：divider + 预览 / 图片超链接 / 移除图片（无取消超链接）', () => {
+  it('嵌入图格出纯图片菜单：不含合并/数据格式/超链接/插入图片等普通格项（无链接）', () => {
     const sheet = new Sheet()
     const ctx = createSheetContext(sheet)
     ctx.insertCellImage(ADDR, { src: 'https://example.com/a.png' })
@@ -491,18 +505,23 @@ describe('buildBodyMenus 嵌入图项（按目标格嵌入图状态出项）', (
       openHyperlinkPopup: popup.open,
       openImagePreview: preview.open
     })
-    expect(menus.map((m) => m.label ?? (m.divider ? '---' : ''))).toEqual([
+    expect(menus.map((m) => m.label)).toEqual([
+      '预览',
+      '图片超链接',
+      '转为浮动图片',
+      '替换图片',
+      '移除图片'
+    ])
+    for (const label of [
       '合并单元格',
       '取消合并单元格',
-      '---',
       '设置数据格式',
       '插入超链接',
       '插入图片',
-      '---',
-      '预览',
-      '图片超链接',
-      '移除图片'
-    ])
+      '嵌入图片'
+    ]) {
+      expect(menus.find((m) => m.label === label)).toBeUndefined()
+    }
 
     menus.find((m) => m.label === '预览')!.callback!()
     expect(preview.previews).toEqual([{ src: 'https://example.com/a.png' }])
@@ -520,7 +539,14 @@ describe('buildBodyMenus 嵌入图项（按目标格嵌入图状态出项）', (
     const popup = popupSpy()
 
     const menus = buildBodyMenus(ctx, { openHyperlinkPopup: popup.open })
-    expect(menus.map((m) => m.label)).toContain('取消超链接')
+    expect(menus.map((m) => m.label)).toEqual([
+      '预览',
+      '图片超链接',
+      '取消超链接',
+      '转为浮动图片',
+      '替换图片',
+      '移除图片'
+    ])
 
     menus.find((m) => m.label === '图片超链接')!.callback!()
     expect(popup.calls).toEqual([
@@ -552,7 +578,57 @@ describe('buildBodyMenus 嵌入图项（按目标格嵌入图状态出项）', (
     expect(ctx.hasCellImage(ADDR)).toBe(true)
   })
 
-  it('readonly：图片超链接/取消超链接/移除图片禁用、预览可用；句柄缺省：预览/图片超链接禁用', () => {
+  it('转为浮动图片：锚点格落浮动图（格宽高定尺寸、contain 保比例），link 随迁，单 undo 还原', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    sheet.setRowHeight(ADDR.row, 64)
+    sheet.setColWidth(ADDR.col, 120)
+    ctx.insertCellImage(ADDR, {
+      src: 'https://example.com/a.png',
+      type: 'png',
+      link: 'https://example.com'
+    })
+    sheet.selectCell(ADDR)
+
+    buildBodyMenus(ctx).find((m) => m.label === '转为浮动图片')!.callback!()
+    // 嵌入图消失，浮动图落在锚点格：尺寸取格宽高，src/link 随迁，fit 对齐嵌入图缺省 contain
+    expect(ctx.hasCellImage(ADDR)).toBe(false)
+    const floats = ctx.getImages()
+    expect(floats).toHaveLength(1)
+    expect(floats[0]?.anchor.from).toEqual(ADDR)
+    expect(floats[0]?.width).toBe(120)
+    expect(floats[0]?.height).toBe(64)
+    expect(floats[0]?.fit).toBe('contain')
+    expect(floats[0]?.src).toBe('https://example.com/a.png')
+    expect(floats[0]?.link).toBe('https://example.com')
+
+    // 事务合并：一次 undo 同时还原嵌入图、清掉浮动图
+    expect(ctx.undo()).toBe(true)
+    expect(ctx.hasCellImage(ADDR)).toBe(true)
+    expect(ctx.getImages()).toHaveLength(0)
+  })
+
+  it('转为浮动图片：data 字节图迁字节；无嵌入图无操作', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    const addr = { row: 3, col: 4 }
+    ctx.insertCellImage(addr, { data: new Uint8Array([7, 8]), type: 'gif' })
+
+    cellImageToFloat(ctx, addr)
+    const floats = ctx.getImages()
+    expect(floats).toHaveLength(1)
+    expect([...floats[0]!.data]).toEqual([7, 8])
+    expect(floats[0]!.type).toBe('gif')
+    expect(floats[0]!.src).toBeUndefined()
+
+    // 无嵌入图：无操作（不产生浮动图、不新增 undo 单元）
+    const undoSizeBefore = sheet.history.undoSize
+    cellImageToFloat(ctx, { row: 0, col: 0 })
+    expect(ctx.getImages()).toHaveLength(1)
+    expect(sheet.history.undoSize).toBe(undoSizeBefore)
+  })
+
+  it('readonly：图片超链接/取消超链接/转浮动/替换/移除禁用、预览可用；句柄缺省：预览/图片超链接禁用', () => {
     const sheet = new Sheet()
     const ctx = createSheetContext(sheet)
     ctx.insertCellImage(ADDR, { src: 'https://example.com/a.png', link: 'https://e.com' })
@@ -566,11 +642,14 @@ describe('buildBodyMenus 嵌入图项（按目标格嵌入图状态出项）', (
     expect(readonly.find((m) => m.label === '预览')?.disabled).toBeFalsy()
     expect(readonly.find((m) => m.label === '图片超链接')?.disabled).toBe(true)
     expect(readonly.find((m) => m.label === '取消超链接')?.disabled).toBe(true)
+    expect(readonly.find((m) => m.label === '转为浮动图片')?.disabled).toBe(true)
+    expect(readonly.find((m) => m.label === '替换图片')?.disabled).toBe(true)
     expect(readonly.find((m) => m.label === '移除图片')?.disabled).toBe(true)
 
     const noHandles = buildBodyMenus(ctx)
     expect(noHandles.find((m) => m.label === '预览')?.disabled).toBe(true)
     expect(noHandles.find((m) => m.label === '图片超链接')?.disabled).toBe(true)
+    expect(noHandles.find((m) => m.label === '转为浮动图片')?.disabled).toBeFalsy()
     expect(noHandles.find((m) => m.label === '移除图片')?.disabled).toBeFalsy()
   })
 })

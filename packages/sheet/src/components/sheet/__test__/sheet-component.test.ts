@@ -1288,6 +1288,8 @@ describe('USheet 引擎链接 / 图片事件透传', () => {
     const leave: unknown[] = []
     const click: unknown[] = []
     const imageClick: unknown[] = []
+    // 链接打开已由组件接管（直开 / 确认后开），stub 掉 window.open 隔离浏览器行为
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null)
     mount(
       () => ({
         workbook,
@@ -1329,6 +1331,8 @@ describe('USheet 引擎链接 / 图片事件透传', () => {
     }
     for (const listener of table.cellLinkClickListeners) listener(clickEvent)
     expect(click).toEqual([clickEvent])
+    // 单元格链接：组件接管直开（保持引擎原默认行为）
+    expect(openSpy).toHaveBeenCalledWith('https://example.com', '_blank', 'noopener,noreferrer')
 
     // 图片链接点击：kind 区分嵌入图（cell）与浮动图（float）
     const cellImageLink = {
@@ -1349,6 +1353,58 @@ describe('USheet 引擎链接 / 图片事件透传', () => {
       listener(floatImageLink)
     }
     expect(imageClick).toEqual([cellImageLink, floatImageLink])
+    openSpy.mockRestore()
+  })
+
+  it('图片链接单击不直接打开：弹确认框，确认后 window.open、取消不打开', async () => {
+    const workbook = createWorkbook()
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
+    await nextTick()
+
+    const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null)
+    const table = exposed.value!.getGrid()!.getTable()
+    const event = {
+      kind: 'float' as const,
+      id: 'img-1',
+      url: 'https://example.com/float.png',
+      originalEvent: new MouseEvent('pointerup')
+    }
+    // happy-dom 无 transition：关闭动画不结束，旧确认框残留在 body，断言只认最后一份
+    const latestConfirmBox = (): HTMLElement => {
+      const boxes = document.body.querySelectorAll<HTMLElement>('.u-message-confirm')
+      return boxes[boxes.length - 1]!
+    }
+    const confirmButtons = (): HTMLButtonElement[] => [
+      ...latestConfirmBox().querySelectorAll<HTMLButtonElement>('.u-message-confirm__footer button')
+    ]
+
+    // 点击 → 不直接打开，弹确认框
+    for (const listener of table.imageLinkClickListeners) listener(event)
+    await nextTick()
+    expect(openSpy).not.toHaveBeenCalled()
+    expect(latestConfirmBox().textContent).toContain('https://example.com/float.png')
+
+    // 取消 → 不打开
+    confirmButtons()
+      .find((btn) => btn.textContent?.includes('取消'))!
+      .click()
+    await nextTick()
+    expect(openSpy).not.toHaveBeenCalled()
+
+    // 再点 → 确认「打开」→ window.open 新标签
+    for (const listener of table.imageLinkClickListeners) listener(event)
+    await nextTick()
+    confirmButtons()
+      .find((btn) => btn.textContent?.includes('打开'))!
+      .click()
+    await nextTick()
+    expect(openSpy).toHaveBeenCalledWith(
+      'https://example.com/float.png',
+      '_blank',
+      'noopener,noreferrer'
+    )
+    openSpy.mockRestore()
   })
 
   it('浮动图右键：引擎 floatObjects.onContextMenu → float-context-menu emit（层坐标 + 页面坐标）', async () => {
@@ -1539,7 +1595,7 @@ describe('USheet 图片 UI（浮动图右键独立菜单 / 嵌入图 body 菜单
     return document.body.querySelector<HTMLElement>('.u-image-previewer')
   }
 
-  it('浮动图右键弹独立菜单：预览 / 设置超链接 / 删除图片；无链接无取消项；不弹 body 菜单', async () => {
+  it('浮动图右键弹独立菜单：预览 / 设置超链接 / 嵌入单元格 / 删除图片；无链接无取消项；不弹 body 菜单', async () => {
     const workbook = createWorkbook()
     const exposed: { value: SheetExposed | undefined } = { value: undefined }
     mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
@@ -1551,6 +1607,7 @@ describe('USheet 图片 UI（浮动图右键独立菜单 / 嵌入图 body 菜单
 
     expect(menuItem('预览')!.classList.contains('is-disabled')).toBe(false)
     expect(menuItem('设置超链接')).toBeTruthy()
+    expect(menuItem('嵌入单元格')).toBeTruthy()
     expect(menuItem('删除图片')).toBeTruthy()
     expect(menuItem('取消超链接')).toBeUndefined()
     // 独立菜单：最新弹层不含 body 菜单项（引擎保证右键不穿透到格）
@@ -1599,7 +1656,7 @@ describe('USheet 图片 UI（浮动图右键独立菜单 / 嵌入图 body 菜单
     expect(ctx.getImages().some((img) => img.id === id)).toBe(true)
   })
 
-  it('嵌入图 body 菜单四项：预览 / 图片超链接 / 取消超链接 / 移除图片；移除可 undo、link 覆盖写', async () => {
+  it('嵌入图 body 菜单：纯图片项（预览 / 图片超链接 / 取消超链接 / 转浮动 / 替换 / 移除），无普通格项；移除可 undo、link 覆盖写', async () => {
     const workbook = createWorkbook()
     const exposed: { value: SheetExposed | undefined } = { value: undefined }
     mount(() => ({ workbook, rows: 10, cols: 6 }), exposed)
@@ -1609,13 +1666,21 @@ describe('USheet 图片 UI（浮动图右键独立菜单 / 嵌入图 body 菜单
     ctx.insertCellImage(addr, { src: 'https://example.com/cell.png' })
     ctx.selectCell(addr)
 
-    // 无链接：预览 / 图片超链接 / 移除图片，无取消项
+    // 无链接：预览 / 图片超链接 / 替换图片 / 移除图片，无取消项；
+    // 不出合并 / 数据格式 / 超链接 / 插入图片等普通格项（右键语义是图片）
     popBodyContextMenu(exposed, 0, 0)
     await nextTick()
     expect(menuItem('预览')).toBeTruthy()
     expect(menuItem('图片超链接')).toBeTruthy()
+    expect(menuItem('转为浮动图片')).toBeTruthy()
+    expect(menuItem('替换图片')).toBeTruthy()
     expect(menuItem('移除图片')).toBeTruthy()
     expect(menuItem('取消超链接')).toBeUndefined()
+    expect(menuItem('合并单元格')).toBeUndefined()
+    expect(menuItem('设置数据格式')).toBeUndefined()
+    expect(menuItem('插入超链接')).toBeUndefined()
+    expect(menuItem('插入图片')).toBeUndefined()
+    expect(menuItem('嵌入图片')).toBeUndefined()
 
     // 图片超链接 → 弹窗确认 → 覆盖写 link（src 保留）
     menuItem('图片超链接')!.click()

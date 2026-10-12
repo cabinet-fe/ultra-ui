@@ -4,8 +4,10 @@ import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 import { createSheetContext } from '../../../tools/context'
 import {
   INSERT_IMAGE_ACCEPT,
+  insertCellImageFromFile,
   insertImageFromFile,
   insertImageFromUrl,
+  pickAndEmbedCellImage,
   pickAndInsertImage,
   resolveImageType
 } from '../insert-image'
@@ -135,6 +137,64 @@ describe('insertImageFromUrl', () => {
     expect(insertImageFromUrl(ctx, 'https://example.com/a.png')).toBeUndefined()
     expect(ctx.getImages()).toHaveLength(0)
     expect(mocks.message.error).toHaveBeenCalledWith('请先选择单元格')
+  })
+})
+
+describe('insertCellImageFromFile / pickAndEmbedCellImage', () => {
+  it('支持格式 → 嵌入活动格（insertCellImage 字节载荷）', async () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    ctx.selectCell({ row: 3, col: 4 })
+    const bytes = [9, 8, 7]
+    await insertCellImageFromFile(ctx, makeFile('logo.png', 'image/png', bytes))
+    expect(ctx.hasCellImage({ row: 3, col: 4 })).toBe(true)
+    const payload = ctx.getCellImage({ row: 3, col: 4 })!
+    expect(payload.type).toBe('png')
+    expect([...payload.data!]).toEqual(bytes)
+    expect(mocks.message.error).not.toHaveBeenCalled()
+  })
+
+  it('格内已有嵌入图 → 整体覆盖替换', async () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    const addr = { row: 1, col: 1 }
+    ctx.insertCellImage(addr, { src: 'https://example.com/old.png' })
+    ctx.selectCell(addr)
+    await insertCellImageFromFile(ctx, makeFile('new.gif', 'image/gif', [1, 2]))
+    const payload = ctx.getCellImage(addr)!
+    expect(payload.src).toBeUndefined()
+    expect(payload.type).toBe('gif')
+    expect([...payload.data!]).toEqual([1, 2])
+  })
+
+  it('不支持格式 → message.error，不写入', async () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    ctx.selectCell({ row: 0, col: 0 })
+    await insertCellImageFromFile(ctx, makeFile('x.bmp', 'image/bmp'))
+    expect(ctx.hasCellImage({ row: 0, col: 0 })).toBe(false)
+    expect(mocks.message.error).toHaveBeenCalledWith(expect.stringContaining('不支持的图片格式'))
+  })
+
+  it('无活动格 → message.error，不写入', async () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    sheet.selection.clear()
+    await insertCellImageFromFile(ctx, makeFile('a.png', 'image/png'))
+    expect(mocks.message.error).toHaveBeenCalledWith('请先选择单元格')
+  })
+
+  it('pickAndEmbedCellImage：创建隐藏 file input（同一 accept）并 click', () => {
+    const sheet = new Sheet()
+    const ctx = createSheetContext(sheet)
+    const click = vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(() => {})
+    pickAndEmbedCellImage(ctx)
+    const input = document.body.querySelector<HTMLInputElement>('input[type="file"]')
+    expect(input).toBeTruthy()
+    expect(input!.accept).toBe(INSERT_IMAGE_ACCEPT)
+    expect(input!.hidden).toBe(true)
+    expect(click).toHaveBeenCalled()
+    click.mockRestore()
   })
 })
 

@@ -88,9 +88,9 @@ export function insertImageFromUrl(ctx: SheetContext, url: string): string | und
 
 /**
  * 拉起系统文件选择框（右键菜单用；不用 UFilePicker——无编程式打开 API）。
- * 选中文件后走 insertImageFromFile。
+ * 选中文件后交给 onPick；取消选择时清理节点。
  */
-export function pickAndInsertImage(ctx: SheetContext): void {
+function pickImageFile(onPick: (file: File) => void): void {
   const input = document.createElement('input')
   input.type = 'file'
   input.accept = INSERT_IMAGE_ACCEPT
@@ -101,7 +101,7 @@ export function pickAndInsertImage(ctx: SheetContext): void {
   input.addEventListener('change', () => {
     const file = input.files?.[0]
     cleanup()
-    if (file) void insertImageFromFile(ctx, file)
+    if (file) onPick(file)
   })
   // 取消选择时也清理节点（focus 回窗口后延迟判定）
   window.addEventListener(
@@ -115,4 +115,33 @@ export function pickAndInsertImage(ctx: SheetContext): void {
   )
   document.body.appendChild(input)
   input.click()
+}
+
+/** 拉起系统文件选择框，选中后插入浮动图片 */
+export function pickAndInsertImage(ctx: SheetContext): void {
+  pickImageFile((file) => void insertImageFromFile(ctx, file))
+}
+
+/**
+ * 从本地 File 嵌入图片到活动格：读字节 → 映射类型 → ctx.insertCellImage
+ * （格内已有嵌入图时整体覆盖）。不支持的格式 / 无活动格时 message.error 提示。
+ */
+export async function insertCellImageFromFile(ctx: SheetContext, file: File): Promise<void> {
+  const type = resolveImageType(file)
+  if (!type) {
+    message.error('不支持的图片格式，请选择 png / jpeg / gif / svg / webp')
+    return
+  }
+  const active = ctx.getSelection().activeCell
+  if (!active) {
+    message.error('请先选择单元格')
+    return
+  }
+  const buffer = await file.arrayBuffer()
+  ctx.insertCellImage(active, { data: new Uint8Array(buffer), type })
+}
+
+/** 拉起系统文件选择框，选中后嵌入图片到活动格（已有嵌入图时覆盖替换） */
+export function pickAndEmbedCellImage(ctx: SheetContext): void {
+  pickImageFile((file) => void insertCellImageFromFile(ctx, file))
 }
