@@ -1,5 +1,11 @@
 # @veltra/ai
 
+## 2.2.4
+
+### Patch Changes
+
+- 9f80298: chore(deps): @veltra/ai 升级 markstream-vue ^2.0.19；@veltra/desktop 升级 infinitable ^0.1.8
+
 ## 2.2.3
 
 ### Patch Changes

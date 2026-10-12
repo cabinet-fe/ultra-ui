@@ -1,5 +1,11 @@
 # @veltra/sheet
 
+## 4.1.1
+
+### Patch Changes
+
+- 9f80298: feat: 浮动图与按格嵌入图互转——浮动图右键「嵌入单元格」、嵌入图右键「转为浮动图片」、空白格右键「嵌入图片」入活动格；链接打开由组件接管：单元格链接单击直开新标签、图片链接单击确认后打开（引擎 `openCellLinkOnClick` 已关闭）；依赖 infinitable 升级至 ^0.1.8
+
 ## 4.1.0
 
 ### Minor Changes
