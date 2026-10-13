@@ -155,7 +155,6 @@ import { useOptions } from './use-options'
 defineOptions({ name: 'USelect', inheritAttrs: false })
 
 const props = withDefaults(defineProps<SelectProps>(), {
-  labelKey: 'label',
   valueKey: 'value',
   placeholder: '请选择',
   clearable: true,
@@ -181,6 +180,11 @@ const valueKey = computed(() => fieldKey(props.valueKey, 'value'))
 function renderOptionLabel(option: Record<string, any> | undefined) {
   if (!option) return undefined
   return renderLabelTemplate(props.labelTemplate, option) ?? o(option).get(labelKey.value)
+}
+
+/** update:text 回发文案：显式配置 labelKey 时取原始取值；未配置时模板渲染结果即标签，与展示文案一致 */
+function optionEmitText(option: Record<string, any>) {
+  return props.labelKey === undefined ? renderOptionLabel(option) : o(option).get(labelKey.value)
 }
 
 const optionClass = cls.e('option')
@@ -275,11 +279,11 @@ function handleTriggerClickCapture(e: MouseEvent) {
 
 const { userAction, isUserActive } = useUserAction()
 
-/** 更新内部文案；值变化时 emit update:text（readonly 纯展示，不通知父级） */
-function setLabel(next?: string) {
+/** 更新内部文案；值变化时 emit update:text（readonly 纯展示，不通知父级）。next：展示文案（模板渲染结果）；text：回发文案（见 optionEmitText），缺省同 next */
+function setLabel(next?: string, text: string | undefined = next) {
   if (label.value === next) return
   label.value = next
-  if (!readonly.value) emit('update:text', next)
+  if (!readonly.value) emit('update:text', text)
 }
 
 /** 按 modelValue 与完整选项列表同步高亮索引、选中项与显示标签（外部回显用，O(n)） */
@@ -298,7 +302,7 @@ function syncSelected(modelValue: any, sourceOptions: Record<string, any>[] | un
     )
     selected.value = currentIndex.value >= 0 ? sourceOptions[currentIndex.value] : undefined
     if (selected.value) {
-      setLabel(renderOptionLabel(selected.value))
+      setLabel(renderOptionLabel(selected.value), optionEmitText(selected.value))
     } else if (props.text) {
       // 未命中但有 text 兜底：文案以父级为准，不回发
       label.value = undefined
@@ -407,7 +411,7 @@ const handleSelect = userAction((option: Record<string, any>, _index: number) =>
   selected.value = option
 
   emit('update:modelValue', value)
-  setLabel(renderOptionLabel(option))
+  setLabel(renderOptionLabel(option), optionEmitText(option))
   emit('change', option)
   if (option.__isTemp) {
     // 转正延迟到面板关闭后：动画期间保持过滤列表，避免列表瞬间恢复全量导致面板变长闪烁

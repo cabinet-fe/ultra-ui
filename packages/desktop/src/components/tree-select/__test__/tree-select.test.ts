@@ -312,7 +312,7 @@ describe('UTreeSelect labelTemplate', () => {
 
     try {
       await nextTick()
-      // 回显与 update:text 均为模板渲染结果
+      // 未配置 labelKey：展示与 update:text 均为模板渲染结果（模板即标签）
       expect(texts.at(-1)).toBe('北京（BJ）')
       expect(host.querySelector('input')!.value).toBe('北京（BJ）')
 
@@ -322,11 +322,36 @@ describe('UTreeSelect labelTemplate', () => {
       // 缺 code 的节点回退纯 label
       expect(nodeTexts.some((t) => t === '上海')).toBe(true)
 
-      // 选中缺 code 的节点：文案与回发同为回退结果
+      // 选中缺 code 的节点：渲染回退纯 label，展示与回发同为回退结果
       await clickNodeByLabel('上海')
       expect(model.value).toBe('shanghai')
       expect(host.querySelector('input')!.value).toBe('上海')
       expect(texts.at(-1)).toBe('上海')
+
+      // 选中命中模板的节点：展示与回发同为模板渲染结果
+      await openDropdown(host)
+      await clickNodeByLabel('北京（BJ）')
+      expect(model.value).toBe('beijing')
+      expect(host.querySelector('input')!.value).toBe('北京（BJ）')
+      expect(texts.at(-1)).toBe('北京（BJ）')
+    } finally {
+      unmount()
+    }
+  })
+
+  it('emits the raw labelKey value when labelKey is explicitly configured', async () => {
+    const { host, texts, unmount } = mountTreeSelect({
+      modelValue: 'beijing',
+      labelKey: 'label',
+      labelTemplate: '{label}（{code}）',
+      data: templateData
+    })
+
+    try {
+      await nextTick()
+      // 展示为模板渲染结果；显式配置 labelKey 时 update:text 回发原始取值
+      expect(host.querySelector('input')!.value).toBe('北京（BJ）')
+      expect(texts.at(-1)).toBe('北京')
     } finally {
       unmount()
     }

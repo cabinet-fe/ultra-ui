@@ -14,13 +14,18 @@ export interface SelectProps extends FormComponentProps {
     | ((qs: string) => Promise<Record<string, any>[]> | Record<string, any>[])
   /** 值字段 */
   valueKey?: string
-  /** 标签字段 */
+  /**
+   * 标签字段
+   * @default 'label'
+   * @description 显式配置时 update:text 回发 `row[labelKey]` 原始取值；未配置时回发展示文案（labelTemplate 渲染结果）
+   */
   labelKey?: string
   /**
    * 标签展示模板
    * @description `{fieldKey}` 占位符按选项行字段插值（支持嵌套路径取值），
    * 模板引用的字段在行中取不到时整体回退 `row[labelKey]`；
-   * 配置后下拉选项、选中回显、update:text 等展示文案统一渲染模板结果
+   * 配置后下拉选项与选中回显等展示文案统一渲染模板结果；
+   * update:text 回发显式配置的 `labelKey` 原始取值，未配置 labelKey 时回发模板渲染结果
    * @example '{label}（{code}）'
    */
   labelTemplate?: string

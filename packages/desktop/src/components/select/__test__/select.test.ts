@@ -380,7 +380,7 @@ describe('USelect labelTemplate', () => {
 
     try {
       await nextTick()
-      // 回显与 update:text 均为模板渲染结果
+      // 未配置 labelKey：展示与 update:text 均为模板渲染结果（模板即标签）
       expect(host.querySelector('input')!.value).toBe('启用（ENABLED）')
       expect(texts.at(-1)).toBe('启用（ENABLED）')
 
@@ -388,11 +388,36 @@ describe('USelect labelTemplate', () => {
       await openDropdown(host)
       expect(queryOptions().map((el) => el.textContent)).toEqual(['启用（ENABLED）', '禁用'])
 
-      // 选中缺 code 的选项：文案与回发同为回退结果
+      // 选中缺 code 的选项：渲染回退纯 label，展示与回发同为回退结果
       await clickOption(queryOptions().find((el) => el.textContent === '禁用')!)
       expect(model.value).toBe('disabled')
       expect(host.querySelector('input')!.value).toBe('禁用')
       expect(texts.at(-1)).toBe('禁用')
+
+      // 选中命中模板的选项：展示与回发同为模板渲染结果
+      await openDropdown(host)
+      await clickOption(queryOptions().find((el) => el.textContent === '启用（ENABLED）')!)
+      expect(model.value).toBe('enabled')
+      expect(host.querySelector('input')!.value).toBe('启用（ENABLED）')
+      expect(texts.at(-1)).toBe('启用（ENABLED）')
+    } finally {
+      unmount()
+    }
+  })
+
+  it('emits the raw labelKey value when labelKey is explicitly configured', async () => {
+    const { host, texts, unmount } = mountSelect({
+      modelValue: 'enabled',
+      labelKey: 'label',
+      labelTemplate: '{label}（{code}）',
+      options: templateOptions
+    })
+
+    try {
+      await nextTick()
+      // 展示为模板渲染结果；显式配置 labelKey 时 update:text 回发原始取值
+      expect(host.querySelector('input')!.value).toBe('启用（ENABLED）')
+      expect(texts.at(-1)).toBe('启用')
     } finally {
       unmount()
     }

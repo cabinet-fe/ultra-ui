@@ -91,7 +91,6 @@ import type { TreeSlotsScope } from '../tree/di'
 defineOptions({ name: 'UTreeSelect', inheritAttrs: false })
 
 const props = withDefaults(defineProps<TreeSelectProps>(), {
-  labelKey: 'label',
   valueKey: 'value',
   placeholder: '请选择',
   expandAll: false,
@@ -137,6 +136,11 @@ const valueKey = computed(() => fieldKey(props.valueKey, 'value'))
 function renderNodeLabel(data: Record<string, any> | undefined | null) {
   if (!data) return undefined
   return renderLabelTemplate(props.labelTemplate, data) ?? o(data).get(labelKey.value)
+}
+
+/** update:text 回发文案：显式配置 labelKey 时取原始取值；未配置时模板渲染结果即标签，与展示文案一致 */
+function nodeEmitText(data: Record<string, any>) {
+  return props.labelKey === undefined ? renderNodeLabel(data) : o(data).get(labelKey.value)
 }
 
 /** 是否可搜索：显式声明或数据源为远程函数 */
@@ -212,11 +216,11 @@ const querying = shallowRef(false)
 
 const inputRef = useTemplateRef<InputExposed>('inputRef')
 
-/** 更新内部文案；值变化时 emit update:text（readonly 纯展示，不通知父级） */
-function setLabel(next?: string) {
+/** 更新内部文案；值变化时 emit update:text（readonly 纯展示，不通知父级）。next：展示文案（模板渲染结果）；text：回发文案（见 nodeEmitText），缺省同 next */
+function setLabel(next?: string, text: string | undefined = next) {
   if (label.value === next) return
   label.value = next
-  if (!readonly.value) emit('update:text', next)
+  if (!readonly.value) emit('update:text', text)
 }
 
 /** 触发输入框的值：查询态下承载查询串，否则展示选中标签 */
@@ -299,6 +303,7 @@ watch(
     if (!data?.length) return
 
     let nextLabel: string | undefined
+    let nextText: string | undefined
     const childrenKey = props.childrenKey ?? 'children'
     data.some((item) => {
       let founded = false
@@ -307,6 +312,7 @@ watch(
         (v) => {
           if (v[valueKey.value] === modelVal) {
             nextLabel = renderNodeLabel(v)
+            nextText = nodeEmitText(v)
             founded = true
             return true
           }
@@ -317,7 +323,7 @@ watch(
       return founded
     })
     if (nextLabel !== undefined) {
-      setLabel(nextLabel)
+      setLabel(nextLabel, nextText)
     } else if (props.text) {
       // 未命中但有 text 兜底：文案以父级为准，不回发
       label.value = undefined
@@ -335,7 +341,7 @@ const handleSelect = userAction(
     model.value = selected ?? ''
 
     if (selectedData) {
-      setLabel(renderNodeLabel(selectedData))
+      setLabel(renderNodeLabel(selectedData), nodeEmitText(selectedData))
     } else {
       setLabel(undefined)
     }
