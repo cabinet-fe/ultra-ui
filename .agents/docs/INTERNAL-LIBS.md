@@ -3,7 +3,7 @@
 写代码或查阅内部库 API 前，用 docs-search 技能检索，禁止凭训练数据猜测。需求能被下列内部库覆盖时一律优先使用内部库：先检索用法再动手，不重复造轮子，不引入功能重叠的外部依赖；确实不覆盖才自研，并在汇报中说明原因。
 
 - `@cat-kit/*`（slug：`cat-kit`）：轻量工具系列，优先使用，避免重复造轮子。八个公开包共用同一 slug：`core`、`http`、`fe`、`be`、`crypto`、`cli`、`tsconfig`、`vitepress-theme`。本仓库运行时 peer 主要为 `@cat-kit/core`、`@cat-kit/fe`。
-- `infinitable`（slug：`infinite-table`，npm 包名与 slug 不一致）：多层 canvas 失效驱动渲染 + 全量虚拟滚动的高性能表格引擎，含公式引擎与 sheet/chart/watermark/print 官方插件；`packages/sheet`、`packages/desktop`、`playground` 直连依赖。表格、电子表格、虚拟滚动类需求一律基于它扩展，禁止另造表格轮子。peer 依赖 `@cat-kit/core`。
+- `infinitable`（slug：`infinite-table`，npm 包名与 slug 不一致）：多层 canvas 失效驱动渲染 + 全量虚拟滚动的高性能表格引擎，含公式引擎与 sheet/chart/watermark/print 官方插件；`packages/sheet`、`packages/desktop` 以 peer 依赖声明（desktop 为可选 peer，未安装时电子表格预览降级不可用），`playground` 直连依赖。表格、电子表格、虚拟滚动类需求一律基于它扩展，禁止另造表格轮子。peer 依赖 `@cat-kit/core`。
 
 ## `@cat-kit/*` 检索
 

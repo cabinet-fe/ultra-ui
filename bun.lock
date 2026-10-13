@@ -81,7 +81,6 @@
         "@lexical/selection": "^0.52.0",
         "@lexical/utils": "^0.52.0",
         "docx-preview": "^0.4.1",
-        "infinitable": "^0.2.1",
         "lexical": "^0.52.0",
         "pdfjs-dist": "6.4.299",
       },
@@ -110,8 +109,12 @@
         "@veltra/icons": "^1.5.0",
         "@veltra/styles": "^1.7.14",
         "@veltra/utils": "^1.7.14",
+        "infinitable": "^0.2.2",
         "vue": ">=3.5.43",
       },
+      "optionalPeers": [
+        "infinitable",
+      ],
     },
     "packages/directives": {
       "name": "@veltra/directives",
@@ -151,9 +154,6 @@
     "packages/sheet": {
       "name": "@veltra/sheet",
       "version": "4.1.1",
-      "dependencies": {
-        "infinitable": "^0.2.1",
-      },
       "peerDependencies": {
         "@cat-kit/core": ">=1.2.1",
         "@cat-kit/fe": ">=1.2.1",
@@ -161,6 +161,7 @@
         "@veltra/icons": "^1.5.0",
         "@veltra/styles": "^1.7.14",
         "@veltra/utils": "^1.7.14",
+        "infinitable": "^0.2.2",
         "vue": ">=3.5.43",
       },
     },
@@ -213,7 +214,7 @@
         "@veltra/sheet": "workspace:*",
         "@veltra/styles": "workspace:*",
         "@veltra/utils": "workspace:*",
-        "infinitable": "^0.2.1",
+        "infinitable": "^0.2.2",
         "vue": "^3.5.43",
         "vue-router": "^5.4.0",
       },
@@ -887,7 +888,7 @@
 
     "import-meta-resolve": ["import-meta-resolve@4.2.0", "https://mirrors.tencent.com/npm/import-meta-resolve/-/import-meta-resolve-4.2.0.tgz", {}, "sha512-Iqv2fzaTQN28s/FwZAoFq0ZSs/7hMAHJVX+w8PZl3cY19Pxk6jFFalxQoIfW2826i/fDLXv8IiEZRIT0lDuWcg=="],
 
-    "infinitable": ["infinitable@0.2.1", "", { "peerDependencies": { "@cat-kit/core": "^1.2.1" } }, "sha512-JH7/B7oAil1B6Re98HDHPjC6P12WrdOa4oVuNVS5qIfutC395hD6++3ovQAGcPkiWNwQrfVl1WWl36ohibeZag=="],
+    "infinitable": ["infinitable@0.2.2", "https://mirrors.tencent.com/npm/infinitable/-/infinitable-0.2.2.tgz", { "peerDependencies": { "@cat-kit/core": "^1.2.1" } }, "sha512-0+uDb12+i1gyqehas/r+ov5h7+IpNb/AcufGvGZYwh2Ve3yS+HFsanalBKZlykHTT+9VKpY74iNDfvJHkkciUQ=="],
 
     "inherits": ["inherits@2.0.4", "https://mirrors.tencent.com/npm/inherits/-/inherits-2.0.4.tgz", {}, "sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ=="],
 

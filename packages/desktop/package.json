@@ -60,7 +60,6 @@
     "@lexical/selection": "^0.52.0",
     "@lexical/utils": "^0.52.0",
     "docx-preview": "^0.4.1",
-    "infinitable": "^0.2.1",
     "lexical": "^0.52.0",
     "pdfjs-dist": "6.4.299"
   },
@@ -89,6 +88,12 @@
     "@veltra/icons": "^1.5.0",
     "@veltra/styles": "^1.7.14",
     "@veltra/utils": "^1.7.14",
+    "infinitable": "^0.2.2",
     "vue": ">=3.5.43"
+  },
+  "peerDependenciesMeta": {
+    "infinitable": {
+      "optional": true
+    }
   }
 }
