@@ -1,4 +1,5 @@
 import type { Forest } from '@cat-kit/core'
+import { renderLabelTemplate } from '@veltra/utils'
 import type { ShallowRef } from 'vue'
 
 import type { TreeNode } from './tree-node'
@@ -6,6 +7,8 @@ import type { TreeNode } from './tree-node'
 interface Options {
   forest: ShallowRef<Forest<Record<string, unknown>, any>>
   getFlattedNodes: () => void
+  /** labelTemplate 取值器：配置后字符串过滤同时匹配模板渲染结果 */
+  labelTemplate?: () => string | undefined
 }
 
 interface UseFilterReturned {
@@ -13,7 +16,7 @@ interface UseFilterReturned {
 }
 
 export function useFilter(options: Options): UseFilterReturned {
-  const { forest, getFlattedNodes } = options
+  const { forest, getFlattedNodes, labelTemplate } = options
 
   /**
    * 追踪缓存
@@ -26,7 +29,9 @@ export function useFilter(options: Options): UseFilterReturned {
 
   function defaultFilter(node: TreeNode, qs: string) {
     if (!qs) return true
-    return node.label.includes(qs)
+    // 原始 label 与模板渲染结果任一命中即匹配
+    if (node.label.includes(qs)) return true
+    return renderLabelTemplate(labelTemplate?.(), node.data)?.includes(qs) ?? false
   }
 
   /**

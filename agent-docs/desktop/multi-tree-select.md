@@ -13,6 +13,7 @@ keywords:
     clearable,
     expandAll,
     childrenKey,
+    labelTemplate,
     field,
     data,
     全选,
@@ -121,6 +122,14 @@ export interface MultiTreeSelectProps extends FormComponentProps {
     Record<string, any>[] | ((qs: string) => Promise<Record<string, any>[]> | Record<string, any>[])
   /** 标签字段名，默认 'label' */
   labelKey?: string
+  /**
+   * 标签展示模板
+   * @description `{fieldKey}` 占位符按节点数据字段插值（支持嵌套路径取值），
+   * 模板引用的字段在节点数据中取不到时整体回退 `node[labelKey]`；
+   * 配置后树节点文本与已选标签统一渲染模板结果
+   * @example '{label}（{code}）'
+   */
+  labelTemplate?: string
   /** 值字段名，默认 'value' */
   valueKey?: string
   /** 子级字段名，默认 'children' */
@@ -175,7 +184,8 @@ export type MultiTreeSelectExposed = {}
 | ------------------- | ---------------------------------------------------------------------------------------------------- | ---------------- | :--: | -------------------------------------------------------------------------------------------------------------------------------- |
 | `v-model`           | `(string \| number)[]`                                                                               | `[]`             |  否  | 每个元素必须等于 `data` 中某节点的 `valueKey` 字段值；匹配不到的值在回显时被忽略                                                 |
 | `data`              | `Record<string, any>[] \| ((qs: string) => Promise<Record<string, any>[]> \| Record<string, any>[])` | `[]`             |  否  | 数组为本地数据，须一次性传入全部层级；传函数时启用远程搜索，`filterable` 强制开启，初始以空串调用一次，输入变化以 200ms 防抖调用 |
-| `labelKey`          | `string`                                                                                             | `'label'`        |  否  | 标签文案读取该字段                                                                                                               |
+| `labelKey`          | `string`                                                                                             | `'label'`        |  否  | 标签文案读取该字段；配置 `labelTemplate` 时为模板渲染结果，模板字段缺失整体回退该字段                                                                                                               |
+| `labelTemplate`     | `string`                                                                                             | —                | 否   | 标签展示模板：`{fieldKey}` 占位符按节点数据字段插值（支持嵌套路径）；任一占位字段缺失 / `null` / 空串时整体回退 `labelKey` 取值。配置后树节点文本与已选标签（含 `readonly` 纯标签态）统一渲染模板结果 |
 | `valueKey`          | `string`                                                                                             | `'value'`        |  否  | 值比对与提交读取该字段                                                                                                           |
 | `childrenKey`       | `string`                                                                                             | `'children'`     |  否  | 子级数组字段名                                                                                                                   |
 | `expandAll`         | `boolean`                                                                                            | `false`          |  否  | 初始展开全部节点；面板内有「展开全部 / 收起全部」按钮                                                                            |
@@ -185,7 +195,7 @@ export type MultiTreeSelectExposed = {}
 | `checkOnClickNode`  | `boolean`                                                                                            | `true`           |  否  | 点击节点文本即切换勾选；`false` 时仅点击 checkbox                                                                                |
 | `placeholder`       | `string`                                                                                             | `'请选择'`       |  否  | 无选中值时的占位文字                                                                                                             |
 | `clearable`         | `boolean`                                                                                            | `true`           |  否  | 悬停且已有勾选时显示清除按钮；清空后值为 `[]`                                                                                    |
-| `filterable`        | `boolean`                                                                                            | `false`          |  否  | 开启后标签区出现输入框，按节点 `label` 做子串匹配（区分大小写），命中节点的祖先自动展开；`data` 传函数时强制开启（无需设置）     |
+| `filterable`        | `boolean`                                                                                            | `false`          |  否  | 开启后标签区出现输入框，按节点 `label` 做子串匹配（区分大小写；配置 `labelTemplate` 后同时匹配模板渲染结果），命中节点的祖先自动展开；`data` 传函数时强制开启（无需设置）     |
 | `visibilityLimit`   | `number`                                                                                             | `3`              |  否  | 可见标签上限，超出折叠为 `+N`；负数按 `0`；禁用/只读时显示全部                                                                   |
 | `minWidth`          | `string`                                                                                             | `'280px'`        |  否  | 面板最小宽度                                                                                                                     |
 | `width`             | `string`                                                                                             | 跟随触发元素宽度 |  否  | 面板宽度                                                                                                                         |
@@ -376,6 +386,34 @@ async function searchOrg(qs: string) {
 
 远程搜索返回的树应保留命中节点的祖先链（返回的是子树，组件按返回结果整棵替换展示，并把结果自动展开）。
 
+### 节点文本模板（labelTemplate）
+
+```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { UMultiTreeSelect } from '@veltra/desktop'
+
+const selected = ref<(string | number)[]>([])
+
+const data = [
+  {
+    label: '研发中心',
+    code: 'RD',
+    value: 'rd',
+    children: [
+      { label: '前端组', code: 'FE', value: 'fe' },
+      { label: '后端组', value: 'be' } // 缺 code：节点与标签回退展示 labelKey 字段「后端组」
+    ]
+  }
+]
+</script>
+
+<template>
+  <!-- 树节点与已选标签都展示「研发中心（RD）」 -->
+  <UMultiTreeSelect v-model="selected" :data="data" label-template="{label}（{code}）" />
+</template>
+```
+
 ## 注意事项
 
 > [!WARNING]
@@ -388,6 +426,7 @@ async function searchOrg(qs: string) {
 > - `data` 传数组时没有懒加载：必须一次性传入全部层级，本库不存在 `load` / `lazy` 属性；需要按查询词从服务端取数时把 `data` 写成函数。
 > - `data` 传函数时初始以空串 `''` 调用一次，函数必须能处理空串；搜索请求期间面板内显示加载态，组件内置竞态守卫，慢的旧响应不会覆盖新查询的结果（自 1.8.0 起）。
 > - 标签折叠是本组件内置的 `+N`（由 `visibilityLimit` 控制），不是其他组件库的 `collapse-tags` 属性。
+> - 配置 `labelTemplate` 后（自 1.13.0 起）：树节点文本与已选标签（含 `readonly` 纯标签态）统一渲染模板结果；模板引用字段任一缺失 / `null` / 空串时整体回退 `labelKey` 取值；`filterable` 本地过滤对原始 `label` 与模板渲染结果任一 `includes` 命中即匹配；提供默认插槽时插槽内容优先于模板。
 
 ## 常见问题
 

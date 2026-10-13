@@ -76,7 +76,7 @@
 import { debounce, dfs, o } from '@cat-kit/core'
 import { useFormFallbackProps, useUserAction } from '@veltra/compositions'
 import { ArrowDown, Close } from '@veltra/icons/normal'
-import { bem, fieldKey, FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { bem, fieldKey, FORM_EMPTY_CONTENT, renderLabelTemplate } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
 import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
 
@@ -132,6 +132,12 @@ const cls = bem('tree-select')
 
 const labelKey = computed(() => fieldKey(props.labelKey, 'label'))
 const valueKey = computed(() => fieldKey(props.valueKey, 'value'))
+
+/** 节点展示文案：labelTemplate 渲染结果优先，未配置模板或引用字段缺失时回退 labelKey 取值 */
+function renderNodeLabel(data: Record<string, any> | undefined | null) {
+  if (!data) return undefined
+  return renderLabelTemplate(props.labelTemplate, data) ?? o(data).get(labelKey.value)
+}
 
 /** 是否可搜索：显式声明或数据源为远程函数 */
 const filterable = computed(() => props.filterable || typeof props.data === 'function')
@@ -300,7 +306,7 @@ watch(
         item,
         (v) => {
           if (v[valueKey.value] === modelVal) {
-            nextLabel = v[labelKey.value]
+            nextLabel = renderNodeLabel(v)
             founded = true
             return true
           }
@@ -329,7 +335,7 @@ const handleSelect = userAction(
     model.value = selected ?? ''
 
     if (selectedData) {
-      setLabel(o(selectedData).get(labelKey.value))
+      setLabel(renderNodeLabel(selectedData))
     } else {
       setLabel(undefined)
     }

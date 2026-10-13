@@ -9,7 +9,6 @@ $root-name: drawer;
 $overlay-name: #{$root-name}-overlay;
 
 $edge-offset: 4px;
-$drawer-size: 320px;
 $close-size: 48px;
 
 $directions: (right, left, top, bottom);
@@ -22,6 +21,8 @@ $direction-map: (
 );
 @include m.b($root-name) {
   position: absolute;
+  display: flex;
+  flex-direction: column;
   border-radius: fn.use-var(radius, large);
   background-color: fn.use-var(bg-color, top);
   backdrop-filter: fn.use-var(bg-filter);
@@ -55,11 +56,17 @@ $direction-map: (
     line-height: 1em;
   }
 
+  @include m.e(body) {
+    flex: 1;
+    overflow: auto;
+    padding: fn.use-var(gap, default);
+  }
+
   @include m.is(right, left) {
     top: $edge-offset;
     bottom: $edge-offset;
     height: calc(100% - $edge-offset * 2);
-    width: $drawer-size;
+    width: fn.component-var(drawer, size, 320px);
 
     @include m.bem($root-name, close) {
       top: 0;
@@ -72,7 +79,7 @@ $direction-map: (
     left: $edge-offset;
     right: $edge-offset;
     width: calc(100% - $edge-offset * 2);
-    height: $drawer-size;
+    height: fn.component-var(drawer, size, 320px);
 
     @include m.bem($root-name, close) {
       left: 0;

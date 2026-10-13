@@ -28,7 +28,7 @@
           size="small"
           @close="handleClose(option)"
         >
-          {{ option[labelKey] }}
+          {{ renderOptionLabel(option) }}
         </u-tag>
         <u-tag v-if="restTag" size="small"> {{ restTag }}+ </u-tag>
 
@@ -118,7 +118,7 @@
             :checked="checkedSet.has(option)"
           >
             <slot v-bind="{ option, index }">
-              {{ chainObj(option).get(labelKey) }}
+              {{ renderOptionLabel(option) }}
             </slot>
           </u-multi-select-option>
         </template>
@@ -133,7 +133,7 @@
   <div v-else-if="model?.length" :class="[cls.m(size), cls.e('readonly-tags')]">
     <div :class="cls.e('tags')">
       <u-tag v-for="option of tags" :key="option[valueKey]" size="small">
-        {{ option[labelKey] }}
+        {{ renderOptionLabel(option) }}
       </u-tag>
     </div>
   </div>
@@ -147,7 +147,7 @@
 import { o as chainObj } from '@cat-kit/core'
 import { useFormFallbackProps, useVirtualizer } from '@veltra/compositions'
 import { ArrowDown, Close } from '@veltra/icons/normal'
-import { bem, fieldKey, FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { bem, fieldKey, FORM_EMPTY_CONTENT, renderLabelTemplate } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
 import {
   computed,
@@ -195,6 +195,12 @@ const cls = bem('multi-select')
 
 const labelKey = computed(() => fieldKey(props.labelKey, 'label'))
 const valueKey = computed(() => fieldKey(props.valueKey, 'value'))
+
+/** 选项展示文案：labelTemplate 渲染结果优先，未配置模板或引用字段缺失时回退 labelKey 取值 */
+function renderOptionLabel(option: Record<string, any> | undefined) {
+  if (!option) return undefined
+  return renderLabelTemplate(props.labelTemplate, option) ?? chainObj(option).get(labelKey.value)
+}
 
 const { formProps } = injectFormContext()
 
@@ -257,7 +263,7 @@ const virtualOptions = computed(() => {
       val,
       key: v.index,
       offset: v.start,
-      label: chainObj(option).get(labelKey.value)
+      label: renderOptionLabel(option)
     }
   })
 })

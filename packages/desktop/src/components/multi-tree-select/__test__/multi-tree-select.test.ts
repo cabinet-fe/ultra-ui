@@ -220,3 +220,30 @@ describe('UMultiTreeSelect check-strictly and ctrl-key behavior', () => {
     }
   })
 })
+
+describe('UMultiTreeSelect labelTemplate', () => {
+  const templateData = [
+    { label: '启用', value: 'enabled', code: 'ENABLED' },
+    { label: '禁用', value: 'disabled' }
+  ]
+
+  it('renders checked tags with the template, falling back to label', async () => {
+    const { host, model, unmount } = mountMultiTreeSelect({
+      labelTemplate: '{label}（{code}）',
+      data: templateData
+    })
+
+    try {
+      await openDropdown(host)
+      await clickNodeByLabel('启用（ENABLED）')
+      await clickNodeByLabel('禁用')
+      expect(model.value).toEqual(['enabled', 'disabled'])
+
+      // 标签：命中字段渲染模板结果，缺 code 的行回退纯 label
+      const tagTexts = [...host.querySelectorAll('.u-tag')].map((el) => el.textContent)
+      expect(tagTexts).toEqual(['启用（ENABLED）', '禁用'])
+    } finally {
+      unmount()
+    }
+  })
+})

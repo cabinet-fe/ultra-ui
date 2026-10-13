@@ -1,5 +1,5 @@
 <template>
-  <span :class="cls.b">
+  <span :class="[cls.b, bem.is('block', block)]">
     <u-icon :size="size"> <Empty /> </u-icon>
     <div>{{ text }}</div>
   </span>
@@ -14,7 +14,7 @@ import { UIcon } from '../icon'
 
 defineOptions({ name: 'UEmpty' })
 
-withDefaults(defineProps<EmptyProps>(), { size: 48, text: '暂无数据' })
+withDefaults(defineProps<EmptyProps>(), { size: 48, text: '暂无数据', block: false })
 
 const cls = bem('empty')
 </script>

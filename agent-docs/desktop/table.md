@@ -312,7 +312,7 @@ export function defineTableColumns(
 | `#row:expand`   | `TableRowSlotsScope`    | `expandable` 模式的展开行内容，占满整行                           |
 | `#foot`         | `{ columns, rows }`     | 渲染在 `tfoot`，与合计行共存                                      |
 | `#body`         | `{ columns, rows }`     | 在 `tbody` 内建行渲染之后追加内容；内建行渲染无条件执行、不会被替换，两者叠加 |
-| `#empty`        | 无                      | 无数据时的空态，默认渲染 `UEmpty`                                 |
+| `#empty`        | 无                      | 无数据时的空态，默认渲染 `UEmpty`。插槽内容统一渲染在 `u-table__empty` 容器内，已内置水平居中（表格横向滚动时保持可视区居中），使用方无需自备居中容器                                 |
 | `#append`       | 无                      | 渲染在 `table` 元素之后                                           |
 
 ## 方法与事件

@@ -99,11 +99,11 @@
             :class="[optionClass, bem.is('selected', index === currentIndex)]"
             @click="handleSelect(option, index)"
             :data-index="index"
-            :title="o(option).get(labelKey)"
+            :title="renderOptionLabel(option)"
             :key="o(option).get(valueKey)"
           >
             <slot v-bind="{ option, index }">
-              {{ o(option).get(labelKey) }}
+              {{ renderOptionLabel(option) }}
             </slot>
           </li>
         </template>
@@ -124,7 +124,14 @@
 import { o } from '@cat-kit/core'
 import { useFormFallbackProps, useUserAction, useVirtualizer } from '@veltra/compositions'
 import { ArrowDown, Close } from '@veltra/icons/normal'
-import { bem, fieldKey, FORM_EMPTY_CONTENT, scrollIntoContainerView, withUnit } from '@veltra/utils'
+import {
+  bem,
+  fieldKey,
+  FORM_EMPTY_CONTENT,
+  renderLabelTemplate,
+  scrollIntoContainerView,
+  withUnit
+} from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
 import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
 
@@ -170,6 +177,12 @@ const cls = bem('select')
 const labelKey = computed(() => fieldKey(props.labelKey, 'label'))
 const valueKey = computed(() => fieldKey(props.valueKey, 'value'))
 
+/** 选项展示文案：labelTemplate 渲染结果优先，未配置模板或引用字段缺失时回退 labelKey 取值 */
+function renderOptionLabel(option: Record<string, any> | undefined) {
+  if (!option) return undefined
+  return renderLabelTemplate(props.labelTemplate, option) ?? o(option).get(labelKey.value)
+}
+
 const optionClass = cls.e('option')
 
 const { formProps } = injectFormContext()
@@ -187,7 +200,7 @@ const selected = shallowRef<Record<string, any>>()
 const displayedValue = computed(() => {
   if (label.value) return label.value
 
-  if (selected.value) return o(selected.value).get(labelKey.value)
+  if (selected.value) return renderOptionLabel(selected.value)
   // 未命中选项：优先展示 text 兜底文案，避免露出不可读的编码
   return props.text ?? String(props.modelValue ?? '')
 })
@@ -285,7 +298,7 @@ function syncSelected(modelValue: any, sourceOptions: Record<string, any>[] | un
     )
     selected.value = currentIndex.value >= 0 ? sourceOptions[currentIndex.value] : undefined
     if (selected.value) {
-      setLabel(o(selected.value).get(labelKey.value))
+      setLabel(renderOptionLabel(selected.value))
     } else if (props.text) {
       // 未命中但有 text 兜底：文案以父级为准，不回发
       label.value = undefined
@@ -334,7 +347,7 @@ const virtualOptions = computed(() => {
     return {
       option,
       index: item.index,
-      label: o(option).get(labelKey.value),
+      label: renderOptionLabel(option),
       val: o(option).get(valueKey.value),
       key: item.index,
       offset: item.start
@@ -394,7 +407,7 @@ const handleSelect = userAction((option: Record<string, any>, _index: number) =>
   selected.value = option
 
   emit('update:modelValue', value)
-  setLabel(option?.[labelKey.value])
+  setLabel(renderOptionLabel(option))
   emit('change', option)
   if (option.__isTemp) {
     // 转正延迟到面板关闭后：动画期间保持过滤列表，避免列表瞬间恢复全量导致面板变长闪烁

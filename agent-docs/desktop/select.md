@@ -8,6 +8,7 @@ keywords:
     options,
     valueKey,
     labelKey,
+    labelTemplate,
     text,
     filterable,
     creatable,
@@ -100,6 +101,14 @@ export interface SelectProps {
   valueKey?: string
   /** 标签字段名。默认 'label' */
   labelKey?: string
+  /**
+   * 标签展示模板
+   * @description `{fieldKey}` 占位符按选项行字段插值（支持嵌套路径取值），
+   * 模板引用的字段在行中取不到时整体回退 `row[labelKey]`；
+   * 配置后下拉选项、选中回显、update:text 等展示文案统一渲染模板结果
+   * @example '{label}（{code}）'
+   */
+  labelTemplate?: string
   /** 兜底展示文案：modelValue 未命中选项时展示，命中时展示选项 label */
   text?: string
   /** 是否可清除。默认 true */
@@ -165,7 +174,8 @@ export interface SelectExposed {
 | `modelValue`   | `any`                                                                                                | —                |  否  | 选中项 `valueKey` 字段的值；清除后为 `undefined`。回显按 `===` 与选项严格匹配，类型必须一致                                  |
 | `options`      | `Record<string, any>[] \| ((qs: string) => Promise<Record<string, any>[]> \| Record<string, any>[])` | —                |  是  | 数组为本地数据；传函数时 `filterable` 强制开启，初始以空串 `''` 调用一次，输入变化以 200ms 防抖调用                          |
 | `valueKey`     | `string`                                                                                             | `'value'`        |  否  | 选项对象取值字段名                                                                                                           |
-| `labelKey`     | `string`                                                                                             | `'label'`        |  否  | 选项对象展示字段名；本地过滤仅按该字段 `includes` 匹配                                                                       |
+| `labelKey`     | `string`                                                                                             | `'label'`        |  否  | 选项对象展示字段名；本地过滤仅按该字段 `includes` 匹配（配置 `labelTemplate` 后同时匹配模板渲染结果）                                                                       |
+| `labelTemplate` | `string`                                                                                             | —                | 否   | 标签展示模板：`{fieldKey}` 占位符按选项行字段插值（支持嵌套路径）；任一占位字段缺失 / `null` / 空串时整体回退 `labelKey` 取值。配置后下拉选项、选中回显与 `update:text` 文案统一渲染模板结果 |
 | `text`         | `string`                                                                                             | —                |  否  | 兜底展示文案：`modelValue` 未命中选项时展示（如回显数据对应选项已删除），命中时展示选项 label                                |
 | `clearable`    | `boolean`                                                                                            | `true`           |  否  | 悬停触发器且存在选中值时显示清除图标（替代下拉箭头）                                                                         |
 | `placeholder`  | `string`                                                                                             | `'请选择'`       |  否  | 无选中值时显示                                                                                                               |
@@ -189,7 +199,7 @@ export interface SelectExposed {
 
 - `update:modelValue` — payload 为选中项 `valueKey` 字段的值（`any`）；清除时 payload 为 `undefined`。`v-model` 即绑定此事件。
 - `change` — payload `(option?: Record<string, any>)`：用户选择时为**整个选项对象**，清除时为 `undefined`。仅用户操作触发；在 `UFormItem` 内会冒泡为 Item 的 `change`。
-- `update:text` — payload `(text?: string)`：选中项展示文案。触发时机与取值：用户选择 / `modelValue` 回显命中 / 异步 `options` 到达后完成回显时发出 label；清空时发出 `undefined`；未命中选项时，传了 `text` 兜底则**不发出**（父级文案即事实来源，避免冗余回写），未传 `text` 时发出 `undefined`；`readonly` 下一律不发出。可直接 `v-model:text` 绑定冗余字段。
+- `update:text` — payload `(text?: string)`：选中项展示文案。触发时机与取值：用户选择 / `modelValue` 回显命中 / 异步 `options` 到达后完成回显时发出 label；清空时发出 `undefined`；未命中选项时，传了 `text` 兜底则**不发出**（父级文案即事实来源，避免冗余回写），未传 `text` 时发出 `undefined`；`readonly` 下一律不发出。配置 `labelTemplate` 时发出的文案为模板渲染结果。可直接 `v-model:text` 绑定冗余字段。
 - 键盘：`ArrowDown` / `ArrowUp` 移动高亮，`Enter` 选中当前高亮项。
 - 插槽：`prefix`（输入框前缀）；`default` 作用域插槽 `{ option, index }` 自定义选项渲染。
 
@@ -322,6 +332,30 @@ async function submit() {
 </template>
 ```
 
+### 标签展示模板（labelTemplate）
+
+```vue
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+
+import { USelect } from '@veltra/desktop'
+
+const status = shallowRef<string>()
+
+const statuses = [
+  { label: '启用', code: 'ENABLED', value: 'enabled' },
+  { label: '停用', code: 'DISABLED', value: 'disabled' },
+  { label: '草稿', value: 'draft' } // 缺 code：该选项整体回退展示 labelKey 字段「草稿」
+]
+</script>
+
+<template>
+  <!-- 选项与选中回显展示「启用（ENABLED）」；过滤输入 ENABLED 也能命中启用项 -->
+  <u-select v-model="status" :options="statuses" label-template="{label}（{code}）" filterable />
+  <!-- 选中「启用」后：status => 'enabled'，回显与 update:text 文案 => '启用（ENABLED）' -->
+</template>
+```
+
 ## 注意事项
 
 > [!WARNING]
@@ -334,7 +368,8 @@ async function submit() {
 > - 本库 `options` 是平铺数组，没有选项分组能力（不是 Element Plus 的 `el-option-group` 模式）。
 > - 选项数超过 80 自动启用虚拟滚动；设置 `grid` 后虚拟滚动失效，禁止将 `grid` 用于大量数据。
 > - `SelectExposed.infoText` 仅在类型中声明，当前源码未调用 `defineExpose`，模板 ref 上取不到该值；需要文案时用 `@update:text`。
-> - 本地搜索只匹配 `labelKey` 字段的 `includes`，不匹配 `valueKey` 与其他字段。
+> - 本地搜索只匹配 `labelKey` 字段的 `includes`，不匹配 `valueKey` 与其他字段；配置 `labelTemplate` 后，模板渲染结果同样参与 `includes` 匹配。
+> - 配置 `labelTemplate` 后（自 1.13.0 起）：下拉选项、选中回显与 `update:text` 文案统一渲染模板结果；模板引用字段任一缺失 / `null` / 空串时整体回退 `labelKey` 取值，不会渲染出残缺文案；提供默认插槽时插槽内容优先于模板。
 > - 面板内选项列表为空（数据为空、过滤无结果、远程返回空数组）时渲染内置空态组件 `UEmpty`。
 > - 清除选中会同时清空 `creatable` 产生的历史创建项。
 

@@ -171,10 +171,13 @@ $root-name: table;
     }
   }
 
+  // 空态包装层：sticky + translate 让空态始终随可视区水平居中（表格横向滚动时也保持可见）
   @include m.e(empty) {
     position: sticky;
     left: 50%;
-    transform: translate(-50%);
+    width: fit-content;
+    transform: translateX(-50%);
+    @include m.flex($justify: center);
   }
 
   @include m.e(foot) {

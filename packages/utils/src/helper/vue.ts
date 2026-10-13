@@ -1,3 +1,4 @@
+import { o } from '@cat-kit/core'
 import {
   Text,
   Fragment,
@@ -81,6 +82,37 @@ export function extractNormalVNodes(nodes: VNodeArrayChildren, results: VNode[] 
 /** 字段名：空串 / null / undefined 时回退默认值 */
 export function fieldKey(key: string | null | undefined, fallback: string): string {
   return key ? key : fallback
+}
+
+/** labelTemplate 占位符：{fieldKey}，支持嵌套路径 */
+const LABEL_TEMPLATE_RE = /\{([^{}]+)\}/g
+
+/**
+ * 按 labelTemplate 渲染选项展示文案
+ * @description `{fieldKey}` 占位符按行字段取值（链式取值，支持嵌套路径），
+ * 取不到值（字段缺失 / null / 空串）的占位符按空串处理；
+ * 只要有字段未命中即返回 undefined，由调用方回退 `row[labelKey]`，
+ * 避免「文本（）」这类残缺展示。渲染期格式化，不改写行数据。
+ * @param template 模板串，如 `{label}（{code}）`；空值直接返回 undefined
+ * @param row 选项行数据
+ */
+export function renderLabelTemplate(
+  template: string | undefined,
+  row: Record<string, any> | undefined | null
+): string | undefined {
+  if (!template || !row) return undefined
+
+  let missing = false
+  const text = template.replace(LABEL_TEMPLATE_RE, (_, key: string) => {
+    const value = o(row).get(key)
+    if (value === undefined || value === null || value === '') {
+      missing = true
+      return ''
+    }
+    return String(value)
+  })
+
+  return missing ? undefined : text
 }
 
 export function shallowComputed<T>(getter: () => T): ShallowRef<T> {

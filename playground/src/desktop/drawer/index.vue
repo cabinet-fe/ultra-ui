@@ -8,10 +8,6 @@
       <u-drawer v-model="basicVisible" title="基础抽屉">
         <p>这是抽屉的内容区域。</p>
         <p>您可以在这里放置任何内容。</p>
-        <template #footer>
-          <u-button @click="basicVisible = false">取消</u-button>
-          <u-button type="primary" @click="basicVisible = false">确定</u-button>
-        </template>
       </u-drawer>
     </div>
 
@@ -46,21 +42,15 @@
       <u-drawer
         v-model="customVisible"
         :size="500"
-        :mask-closable="false"
-        :closable="false"
-        title="自定义抽屉"
+        :show-close="false"
+        title="自定义抽屉（size: 500）"
       >
-        <template #header>
-          <div style="color: #1890ff; font-weight: bold">自定义头部内容</div>
-        </template>
-
         <div>
           <p>这是一个自定义配置的抽屉：</p>
           <ul>
             <li>宽度设置为 500px</li>
-            <li>点击遮罩层不会关闭</li>
             <li>不显示关闭按钮</li>
-            <li>自定义头部内容</li>
+            <li>内容区自带留白，多段内容不贴边</li>
           </ul>
         </div>
       </u-drawer>
@@ -77,10 +67,7 @@ const leftVisible = ref(false)
 const rightVisible = ref(false)
 const topVisible = ref(false)
 const bottomVisible = ref(false)
-const edgeVisible = ref(false)
-const insetVisible = ref(false)
 const customVisible = ref(false)
-const noModalVisible = ref(false)
 </script>
 
 <style scoped>

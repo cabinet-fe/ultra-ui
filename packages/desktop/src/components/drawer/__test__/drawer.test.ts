@@ -73,6 +73,48 @@ describe('UDrawer title', () => {
   })
 })
 
+describe('UDrawer size', () => {
+  it('左右方向映射为宽度，数字按 px 处理', async () => {
+    const ctx = mountDrawer({ size: 640 })
+    await openDrawer(ctx)
+
+    expect(ctx.panel()!.style.width).toBe('640px')
+
+    ctx.unmount()
+  })
+
+  it('上下方向映射为高度，支持字符串', async () => {
+    const ctx = mountDrawer({ direction: 'bottom', size: '50vh' })
+    await openDrawer(ctx)
+
+    expect(ctx.panel()!.style.height).toBe('50vh')
+    expect(ctx.panel()!.style.width).toBe('')
+
+    ctx.unmount()
+  })
+
+  it('不传 size 时不输出内联尺寸，走主题 token', async () => {
+    const ctx = mountDrawer()
+    await openDrawer(ctx)
+
+    expect(ctx.panel()!.style.width).toBe('')
+
+    ctx.unmount()
+  })
+})
+
+describe('UDrawer body', () => {
+  it('默认插槽内容渲染在 body 容器内', async () => {
+    const ctx = mountDrawer({ title: '详情' })
+    await openDrawer(ctx)
+
+    const body = ctx.panel()!.querySelector('.u-drawer__body')
+    expect(body?.textContent).toBe('抽屉内容')
+
+    ctx.unmount()
+  })
+})
+
 describe('UDrawer closed', () => {
   it('关闭动画结束后触发 closed，且晚于 close', async () => {
     const order: string[] = []

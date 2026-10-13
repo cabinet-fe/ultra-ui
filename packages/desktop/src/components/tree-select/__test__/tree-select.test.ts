@@ -296,3 +296,63 @@ describe('UTreeSelect', () => {
     }
   })
 })
+
+describe('UTreeSelect labelTemplate', () => {
+  const templateData = [
+    { label: '北京', value: 'beijing', code: 'BJ' },
+    { label: '上海', value: 'shanghai' }
+  ]
+
+  it('renders node text and echo with the template, falling back to label', async () => {
+    const { host, model, texts, unmount } = mountTreeSelect({
+      modelValue: 'beijing',
+      labelTemplate: '{label}（{code}）',
+      data: templateData
+    })
+
+    try {
+      await nextTick()
+      // 回显与 update:text 均为模板渲染结果
+      expect(texts.at(-1)).toBe('北京（BJ）')
+      expect(host.querySelector('input')!.value).toBe('北京（BJ）')
+
+      await openDropdown(host)
+      const nodeTexts = queryNodeContents().map((el) => el.textContent)
+      expect(nodeTexts.some((t) => t === '北京（BJ）')).toBe(true)
+      // 缺 code 的节点回退纯 label
+      expect(nodeTexts.some((t) => t === '上海')).toBe(true)
+
+      // 选中缺 code 的节点：文案与回发同为回退结果
+      await clickNodeByLabel('上海')
+      expect(model.value).toBe('shanghai')
+      expect(host.querySelector('input')!.value).toBe('上海')
+      expect(texts.at(-1)).toBe('上海')
+    } finally {
+      unmount()
+    }
+  })
+
+  it('filters tree nodes by the rendered template result', async () => {
+    const { host, unmount } = mountTreeSelect({
+      filterable: true,
+      labelTemplate: '{label}（{code}）',
+      data: templateData
+    })
+
+    try {
+      await openDropdown(host)
+      // 按编码搜索命中
+      await typeQuery(host, 'BJ')
+      let nodeTexts = queryNodeContents().map((el) => el.textContent)
+      expect(nodeTexts.some((t) => t?.includes('北京（BJ）'))).toBe(true)
+      expect(nodeTexts.some((t) => t?.includes('上海'))).toBe(false)
+
+      // 按原始 label 搜索仍然命中
+      await typeQuery(host, '上海')
+      nodeTexts = queryNodeContents().map((el) => el.textContent)
+      expect(nodeTexts.some((t) => t?.includes('上海'))).toBe(true)
+    } finally {
+      unmount()
+    }
+  })
+})

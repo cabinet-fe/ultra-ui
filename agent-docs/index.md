@@ -122,7 +122,7 @@ createApp(App).mount('#app')
 | UDialog                          | 对话框：模态弹窗，v-model 控制显隐，#footer 放操作按钮                       | `desktop/dialog.md`             |
 | UDescriptions / UDescriptionsItem | 描述列表：键值对详情，多列、边框模式、水平 / 垂直布局                        | `desktop/descriptions.md`       |
 | UDivider                         | 分割线：水平 / 垂直方向、虚线与嵌套文字对齐                                  | `desktop/divider.md`            |
-| UDrawer                          | 抽屉：四方向滑出面板，固定 320px 尺寸                                        | `desktop/drawer.md`             |
+| UDrawer                          | 抽屉：四方向滑出面板，size 自定义尺寸（默认 320px）                          | `desktop/drawer.md`             |
 | UDropdown                        | 下拉菜单：触发器弹出菜单项                                                   | `desktop/dropdown.md`           |
 | UDualNav                         | 双栏导航：左轨应用 + 右栏子菜单的两层导航，currentPath 受控                  | `desktop/dual-nav.md`           |
 | UEmpty                           | 空状态：无数据占位插画与文案                                                 | `desktop/empty.md`              |

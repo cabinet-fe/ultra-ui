@@ -28,7 +28,7 @@
           :closable="!disabled"
           @close="handleRemove(index)"
         >
-          {{ tag[labelKey] }}
+          {{ renderNodeLabel(tag) }}
         </u-tag>
         <u-tag v-if="hiddenCount > 0">+{{ hiddenCount }}</u-tag>
 
@@ -93,7 +93,7 @@
   <div v-else-if="model.length" :class="[cls.m(size), cls.e('readonly-tags')]">
     <div :class="cls.e('tags')">
       <u-tag v-for="option of tags" :key="option[valueKey]">
-        {{ option[labelKey] }}
+        {{ renderNodeLabel(option) }}
       </u-tag>
     </div>
   </div>
@@ -107,7 +107,7 @@
 import { debounce, dfs, o } from '@cat-kit/core'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { ArrowDown, Close } from '@veltra/icons/normal'
-import { bem, fieldKey, FORM_EMPTY_CONTENT } from '@veltra/utils'
+import { bem, fieldKey, FORM_EMPTY_CONTENT, renderLabelTemplate } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
 import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
 
@@ -143,6 +143,12 @@ const props = withDefaults(defineProps<MultiTreeSelectProps>(), {
 
 const labelKey = computed(() => fieldKey(props.labelKey, 'label'))
 const valueKey = computed(() => fieldKey(props.valueKey, 'value'))
+
+/** 节点展示文案：labelTemplate 渲染结果优先，未配置模板或引用字段缺失时回退 labelKey 取值 */
+function renderNodeLabel(data: Record<string, any> | undefined | null) {
+  if (!data) return undefined
+  return renderLabelTemplate(props.labelTemplate, data) ?? o(data).get(labelKey.value)
+}
 
 const treeProps = computed(() => {
   return o(props as Record<string, any>).omit([

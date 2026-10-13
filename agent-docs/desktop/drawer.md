@@ -1,6 +1,6 @@
 ---
 title: UDrawer 抽屉
-description: '从 @veltra/desktop 导入的抽屉组件：v-model 控制显隐，从上/下/左/右四个方向滑出，带半透明遮罩与可选关闭按钮，可选 title 标题栏，点遮罩或关闭按钮关闭，closed 在退出动画全部结束后回调。'
+description: '从 @veltra/desktop 导入的抽屉组件：v-model 控制显隐，从上/下/左/右四个方向滑出，带半透明遮罩与可选关闭按钮，可选 title 标题栏，size 自定义尺寸（左右为宽、上下为高），内容区自带留白与滚动，点遮罩或关闭按钮关闭，closed 在退出动画全部结束后回调。'
 aliases: [Drawer, 抽屉面板, 侧滑面板, SlidePanel, 侧边抽屉]
 keywords:
   [
@@ -9,6 +9,7 @@ keywords:
     close,
     closed,
     direction,
+    size,
     showClose,
     title,
     DrawerDirection,
@@ -29,7 +30,7 @@ keywords:
 
 # UDrawer 抽屉
 
-`@veltra/desktop` 导出的 `UDrawer` 是抽屉组件：用 `v-model`（`modelValue`）控制显隐，`direction` 决定从上/下/左/右哪个方向滑出，内容通过 Teleport 渲染在 `body` 下的全屏遮罩内；传 `title` 时内容区上方多一条标题栏。
+`@veltra/desktop` 导出的 `UDrawer` 是抽屉组件：用 `v-model`（`modelValue`）控制显隐，`direction` 决定从上/下/左/右哪个方向滑出，内容通过 Teleport 渲染在 `body` 下的全屏遮罩内；传 `title` 时内容区上方多一条标题栏，默认插槽内容渲染在自带留白与滚动的 `u-drawer__body` 容器里。
 
 ## 快速上手
 
@@ -45,7 +46,7 @@ const visible = ref(false)
   <UButton @click="visible = true">打开抽屉</UButton>
 
   <UDrawer v-model="visible" title="用户详情" show-close>
-    <p>右侧抽屉内容，默认 direction 为 'right'</p>
+    <p>右侧抽屉内容，默认 direction 为 'right'，内容区自带留白</p>
   </UDrawer>
 </template>
 ```
@@ -65,6 +66,11 @@ export interface DrawerProps {
   modelValue?: boolean
   /** 抽屉方向。默认 'right' */
   direction?: DrawerDirection
+  /**
+   * 抽屉尺寸；左右方向为宽度，上下方向为高度，数字按 px 处理
+   * 不传时走主题 token `--u-drawer-size`（默认 320px）
+   */
+  size?: number | string
   /** 是否显示关闭按钮。默认 false */
   showClose?: boolean
   /** 抽屉标题；传入时在内容区上方渲染标题栏，不传则不渲染标题栏 */
@@ -94,8 +100,9 @@ export interface DrawerExposed {}
 | ------------ | ---------------------------------------- | --------- | :--: | --------------------------------------------------------------------------------------- |
 | `modelValue` | `boolean`                                | `false`   |  否  | 用 `v-model` 绑定显隐                                                                   |
 | `direction`  | `'left' \| 'right' \| 'top' \| 'bottom'` | `'right'` |  否  | 决定滑出方向与对应过渡动画 `drawer-slide-*`                                             |
+| `size`       | `number \| string`                       | —         |  否  | 左右方向映射为宽度、上下方向映射为高度；数字按 px，字符串原样输出（如 `'40vh'`）；内联样式，优先级高于 `--u-drawer-size` token |
 | `showClose`  | `boolean`                                | `false`   |  否  | 关闭按钮渲染在抽屉外沿一侧（距边缘外侧 52px 处），点击关闭                              |
-| `title`      | `string`                                 | —         |  否  | 传入时在内容区上方渲染标题栏（高 `48px`、底部一条分隔线）；不传则整块内容都来自默认插槽 |
+| `title`      | `string`                                 | —         |  否  | 传入时在内容区上方渲染标题栏（高 `48px`、底部一条分隔线）；不传则不渲染标题栏           |
 
 ## 方法与事件
 
@@ -133,14 +140,12 @@ function onClosed() {
   <UButton type="primary" @click="visible = true">查看详情</UButton>
 
   <UDrawer v-model="visible" title="用户详情" show-close @close="onClose" @closed="onClosed">
-    <div style="padding: 16px">
-      <p>这里是抽屉主体内容</p>
-    </div>
+    <p>这里是抽屉主体内容</p>
   </UDrawer>
 </template>
 ```
 
-### 左侧导航抽屉与底部面板
+### 左侧导航抽屉与底部面板（size 自定义尺寸）
 
 ```vue
 <script setup lang="ts">
@@ -155,8 +160,9 @@ const panelVisible = ref(false)
   <UButton @click="navVisible = true">菜单</UButton>
   <UButton @click="panelVisible = true">面板</UButton>
 
-  <UDrawer v-model="navVisible" direction="left" show-close>
-    <nav style="padding: 16px">
+  <!-- 左右方向：size 是宽度 -->
+  <UDrawer v-model="navVisible" direction="left" show-close :size="400">
+    <nav>
       <ul>
         <li>首页</li>
         <li>关于</li>
@@ -164,11 +170,10 @@ const panelVisible = ref(false)
     </nav>
   </UDrawer>
 
-  <UDrawer v-model="panelVisible" direction="bottom">
-    <div style="padding: 16px">
-      <p>选项 A</p>
-      <p>选项 B</p>
-    </div>
+  <!-- 上下方向：size 是高度，支持字符串 -->
+  <UDrawer v-model="panelVisible" direction="bottom" size="40vh">
+    <p>选项 A</p>
+    <p>选项 B</p>
   </UDrawer>
 </template>
 ```
@@ -177,9 +182,10 @@ const panelVisible = ref(false)
 
 > [!WARNING]
 >
-> - 抽屉尺寸固定：左右方向宽 `320px`，上下方向高 `320px`，四周留 `4px` 边距；当前没有 `size` / `width` prop，自定义尺寸必须覆盖样式类 `.u-drawer`。
+> - 默认尺寸左右方向为宽、上下方向为高，走主题 token `--u-drawer-size`（默认 `320px`，全局可在 html 上覆盖该变量）；要按实例定制传 `size`（数字按 px，字符串原样）。四周固定留 `4px` 边距不随 `size` 变化。
+> - 默认插槽内容渲染在 `u-drawer__body` 容器内：`flex: 1` 占满剩余高度、`overflow: auto` 内容过长时滚动、内边距为 `--u-gap-default`（light 主题 `8px`）。自己再包一层 `padding` 容器通常多余；需要内容贴边时用 `:deep(.u-drawer__body) { padding: 0 }` 覆盖。
 > - 关闭按钮的绑定名是 `showClose`，不是 `closable`；没有 `mask-closable` prop，点遮罩始终会关闭。
-> - `title` 传入即在内容区上方渲染标题栏（高 `48px`、底部一条分隔线，文字 `font-weight: 600`）；不传时标题栏不渲染也不占位，内容全部来自默认插槽。标题栏样式不可配置，需要自定义标题区（图标、按钮）时不要传 `title`，直接在默认插槽里写。
+> - `title` 传入即在内容区上方渲染标题栏（高 `48px`、底部一条分隔线，文字 `font-weight: 600`）；不传时标题栏不渲染也不占位。标题栏样式不可配置，需要自定义标题区（图标、按钮）时不要传 `title`，直接在默认插槽里写。
 > - 三个时机按顺序发生：`close`（点遮罩/按钮）→ 抽屉滑出约 `300ms` 后 `v-model` 变 `false` → 遮罩再淡出约 `250ms` 后 `closed`。要「动画后回调」用 `closed`，不要用 `v-model` 变 `false` 的时机（那会早一个遮罩淡出）。
 > - 显隐绑定名是 `modelValue`（`v-model`），不是 `open` / `visible`。
 > - 示例独立成页运行时必须先初始化主题：`import '@veltra/styles/normalize'` 后调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色。

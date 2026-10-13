@@ -10,6 +10,7 @@ keywords:
     clearable,
     disabledNode,
     labelKey,
+    labelTemplate,
     valueKey,
     childrenKey,
     expandAll,
@@ -119,6 +120,14 @@ export interface TreeSelectProps extends FormComponentProps {
     Record<string, any>[] | ((qs: string) => Promise<Record<string, any>[]> | Record<string, any>[])
   /** 标签字段名，默认 'label' */
   labelKey?: string
+  /**
+   * 标签展示模板
+   * @description `{fieldKey}` 占位符按节点数据字段插值（支持嵌套路径取值），
+   * 模板引用的字段在节点数据中取不到时整体回退 `node[labelKey]`；
+   * 配置后树节点文本、选中回显与 update:text 统一渲染模板结果
+   * @example '{label}（{code}）'
+   */
+  labelTemplate?: string
   /** 值字段名，默认 'value' */
   valueKey?: string
   /** 子级字段名，默认 'children' */
@@ -171,7 +180,8 @@ export type TreeSelectExposed = {}
 | `v-model`           | `string \| number`                                                                                   | —                |  否  | 必须等于 `data` 中某节点的 `valueKey` 字段值；清空后写入 `''`；不在 `data` 中时展示 `text` 兜底文案                              |
 | `data`              | `Record<string, any>[] \| ((qs: string) => Promise<Record<string, any>[]> \| Record<string, any>[])` | `[]`             |  否  | 数组为本地数据，须一次性传入全部层级；传函数时启用远程搜索，`filterable` 强制开启，初始以空串调用一次，输入变化以 200ms 防抖调用 |
 | `text`              | `string`                                                                                             | —                |  否  | 兜底展示文案：`modelValue` 未命中节点时展示（如回显数据对应节点已删除），命中时展示节点 label                                    |
-| `labelKey`          | `string`                                                                                             | `'label'`        |  否  | 回显文案读取该字段                                                                                                               |
+| `labelKey`          | `string`                                                                                             | `'label'`        |  否  | 回显文案读取该字段；配置 `labelTemplate` 时为模板渲染结果，模板字段缺失整体回退该字段                                                                                                               |
+| `labelTemplate`     | `string`                                                                                             | —                | 否   | 标签展示模板：`{fieldKey}` 占位符按节点数据字段插值（支持嵌套路径）；任一占位字段缺失 / `null` / 空串时整体回退 `labelKey` 取值。配置后树节点文本、选中回显与 `update:text` 文案统一渲染模板结果 |
 | `valueKey`          | `string`                                                                                             | `'value'`        |  否  | 值比对与提交读取该字段                                                                                                           |
 | `childrenKey`       | `string`                                                                                             | `'children'`     |  否  | 子级数组字段名                                                                                                                   |
 | `expandAll`         | `boolean`                                                                                            | `false`          |  否  | 初始展开全部节点                                                                                                                 |
@@ -179,7 +189,7 @@ export type TreeSelectExposed = {}
 | `disabledNode`      | `(item, node) => boolean`                                                                            | —                |  否  | 返回 `true` 的节点置灰且不可选中                                                                                                 |
 | `placeholder`       | `string`                                                                                             | `'请选择'`       |  否  | 无选中值时的占位文字                                                                                                             |
 | `clearable`         | `boolean`                                                                                            | `true`           |  否  | 悬停且已有选中值时显示清除按钮                                                                                                   |
-| `filterable`        | `boolean`                                                                                            | `false`          |  否  | 开启后可输入关键字，按节点 `label` 做子串匹配（区分大小写），命中节点的祖先自动展开；`data` 传函数时强制开启（无需设置）         |
+| `filterable`        | `boolean`                                                                                            | `false`          |  否  | 开启后可输入关键字，按节点 `label` 做子串匹配（区分大小写；配置 `labelTemplate` 后同时匹配模板渲染结果），命中节点的祖先自动展开；`data` 传函数时强制开启（无需设置）         |
 | `minWidth`          | `string`                                                                                             | `'280px'`        |  否  | 面板最小宽度                                                                                                                     |
 | `width`             | `string`                                                                                             | 跟随触发元素宽度 |  否  | 面板宽度                                                                                                                         |
 | `contentStyle`      | `CSSProperties \| string`                                                                            | —                |  否  | 面板容器内联样式                                                                                                                 |
@@ -199,7 +209,7 @@ export type TreeSelectExposed = {}
 | ------------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `update:modelValue` | `value?: string \| number`           | 点选节点或清空；清空时为 `''`                                                                                                                                         |
 | `change`            | `selectedData?: Record<string, any>` | 点选节点（payload 为节点完整数据对象）或清空（payload 为 `undefined`）                                                                                                |
-| `update:text`       | `text?: string`                      | 命中节点时为节点 `labelKey` 字段值；清空时为 `undefined`；未命中且传了 `text` 时不发出（父级文案即事实来源），未传 `text` 时发出 `undefined`；`readonly` 下一律不发出 |
+| `update:text`       | `text?: string`                      | 命中节点时为节点展示文案（配置 `labelTemplate` 时为模板渲染结果）；清空时为 `undefined`；未命中且传了 `text` 时不发出（父级文案即事实来源），未传 `text` 时发出 `undefined`；`readonly` 下一律不发出 |
 | `clear`             | —                                    | 点击清除按钮                                                                                                                                                          |
 
 组件 ref 上没有可调用的暴露方法。
@@ -330,6 +340,34 @@ async function searchRegion(qs: string) {
 
 远程搜索返回的树应保留命中节点的祖先链（返回的是子树，组件按返回结果整棵替换展示，并把结果自动展开）。
 
+### 节点文本模板（labelTemplate）
+
+```vue
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+import { UTreeSelect } from '@veltra/desktop'
+
+const deptId = shallowRef<string | number>()
+
+const departments = [
+  {
+    label: '研发中心',
+    code: 'RD',
+    value: 'rd',
+    children: [
+      { label: '前端组', code: 'FE', value: 'fe' },
+      { label: '后端组', value: 'be' } // 缺 code：节点整体回退展示 labelKey 字段「后端组」
+    ]
+  }
+]
+</script>
+
+<template>
+  <!-- 节点与选中回显展示「研发中心（RD）」；过滤输入 RD 可命中 -->
+  <UTreeSelect v-model="deptId" :data="departments" label-template="{label}（{code}）" filterable />
+</template>
+```
+
 ## 注意事项
 
 > [!WARNING]
@@ -343,6 +381,7 @@ async function searchRegion(qs: string) {
 > - 字段名用顶层 `labelKey` / `valueKey` / `childrenKey` 属性配置，不是 Ant Design 的 `fieldNames` 对象，也不是 `el-tree` 的 `props="{ label, children }"` 对象。
 > - `data` 传数组时 `filterable` 是对已传入数据的本地过滤（`label` 子串匹配、区分大小写）；本库没有 `remote-method` 属性，远程搜索用 `data` 传函数（自 1.8.0 起）。
 > - `data` 传函数时初始以空串 `''` 调用一次，函数必须能处理空串；搜索请求期间面板内显示加载态，组件内置竞态守卫，慢的旧响应不会覆盖新查询的结果（自 1.8.0 起）。
+> - 配置 `labelTemplate` 后（自 1.13.0 起）：树节点文本、选中回显与 `update:text` 文案统一渲染模板结果；模板引用字段任一缺失 / `null` / 空串时整体回退 `labelKey` 取值；`filterable` 本地过滤对原始 `label` 与模板渲染结果任一 `includes` 命中即匹配；提供默认插槽时插槽内容优先于模板。
 
 ## 常见问题
 

@@ -8,9 +8,11 @@
     <!-- 空 -->
     <tr v-if="!rows.length" :class="emptyRowCls">
       <td :colspan="leafColumns.length">
-        <slot name="empty">
-          <UEmpty :class="emptyCls" />
-        </slot>
+        <div :class="emptyCls">
+          <slot name="empty">
+            <UEmpty />
+          </slot>
+        </div>
       </td>
     </tr>
 

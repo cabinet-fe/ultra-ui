@@ -32,7 +32,7 @@
 
 <script lang="ts" setup>
 import { useFormFallbackProps, useVirtualizer } from '@veltra/compositions'
-import { bem, nextFrame, scrollIntoContainerView } from '@veltra/utils'
+import { bem, nextFrame, renderLabelTemplate, scrollIntoContainerView } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
 import { computed, provide, shallowRef, useSlots, watch, watchEffect, type VNode } from 'vue'
 
@@ -83,7 +83,11 @@ defineSlots<{ default: (props: TreeSlotsScope) => any }>()
 const slots = useSlots()
 
 function getTreeSlotsNode(ctx: TreeSlotsScope): VNode[] | string | undefined {
-  return (props.slots?.default ?? slots.default)?.(ctx) ?? ctx.node.label
+  return (
+    (props.slots?.default ?? slots.default)?.(ctx) ??
+    renderLabelTemplate(props.labelTemplate, ctx.node.data) ??
+    ctx.node.label
+  )
 }
 
 const { nodes, forest, getFlattedNodes, nodeDict } = useTreeNodes({ props })
@@ -98,7 +102,7 @@ watch(
   { immediate: true }
 )
 
-const { filter } = useFilter({ forest, getFlattedNodes })
+const { filter } = useFilter({ forest, getFlattedNodes, labelTemplate: () => props.labelTemplate })
 
 const { handleSelect, selectedData } = useSelect({ props, emit, nodeDict, getFlattedNodes })
 

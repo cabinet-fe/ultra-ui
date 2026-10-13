@@ -16,7 +16,9 @@
             <span :class="cls.e('close')" @click="close" v-if="showClose">
               <u-icon><Close /></u-icon>
             </span>
-            <slot />
+            <div :class="cls.e('body')">
+              <slot />
+            </div>
           </div>
         </transition>
       </div>
@@ -55,11 +57,14 @@ const drawerClass = computed(() => {
   return [cls.b, bem.is(props.direction)]
 })
 
-// 计算抽屉样式
+// 计算抽屉样式：size 左右方向映射为宽度、上下方向映射为高度
 const drawerStyle = computed(() => {
-  const style: Record<string, string> = {}
+  const { size, direction } = props
+  if (size == null) return null
 
-  return style
+  const dimension = typeof size === 'number' ? `${size}px` : size
+  const axis = direction === 'top' || direction === 'bottom' ? 'height' : 'width'
+  return { [axis]: dimension }
 })
 
 const onEnter = () => {

@@ -13,6 +13,14 @@ export interface MultiSelectProps extends FormComponentProps {
   valueKey?: string
   /** 标签字段 */
   labelKey?: string
+  /**
+   * 标签展示模板
+   * @description `{fieldKey}` 占位符按选项行字段插值（支持嵌套路径取值），
+   * 模板引用的字段在行中取不到时整体回退 `row[labelKey]`；
+   * 配置后下拉选项、已选标签等展示文案统一渲染模板结果
+   * @example '{label}（{code}）'
+   */
+  labelTemplate?: string
   /** 是否可清除 */
   clearable?: boolean
   /** 占位符 */

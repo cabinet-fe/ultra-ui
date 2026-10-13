@@ -7,6 +7,12 @@ export interface EmptyProps {
 
   /** 空文本 */
   text?: string
+
+  /**
+   * 块级模式：撑满父容器并将内容水平垂直居中
+   * @description 默认 inline-block，是否居中取决于父容器
+   */
+  block?: boolean
 }
 
 /** 空内容组件定义的事件 */

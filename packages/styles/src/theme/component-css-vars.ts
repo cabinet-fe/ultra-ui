@@ -44,6 +44,7 @@ export const componentCssVarsLight: Record<string, string> = {
   '--u-breadcrumb-small': '20px',
   '--u-breadcrumb-default': '22px',
   '--u-breadcrumb-large': '24px',
+  '--u-drawer-size': '320px',
 
   // ─── Button (default & plain states) ───
   '--u-button-default-bg': T('bg-color', 'top'),

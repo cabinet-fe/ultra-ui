@@ -364,3 +364,79 @@ describe('USelect', () => {
     }
   })
 })
+
+describe('USelect labelTemplate', () => {
+  const templateOptions = [
+    { label: '启用', code: 'ENABLED', value: 'enabled' },
+    { label: '禁用', value: 'disabled' }
+  ]
+
+  it('renders the template in options and echo, falling back to label when fields are missing', async () => {
+    const { host, model, texts, unmount } = mountSelect({
+      modelValue: 'enabled',
+      labelTemplate: '{label}（{code}）',
+      options: templateOptions
+    })
+
+    try {
+      await nextTick()
+      // 回显与 update:text 均为模板渲染结果
+      expect(host.querySelector('input')!.value).toBe('启用（ENABLED）')
+      expect(texts.at(-1)).toBe('启用（ENABLED）')
+
+      // 下拉选项：命中字段渲染模板，缺 code 的行回退纯 label
+      await openDropdown(host)
+      expect(queryOptions().map((el) => el.textContent)).toEqual(['启用（ENABLED）', '禁用'])
+
+      // 选中缺 code 的选项：文案与回发同为回退结果
+      await clickOption(queryOptions().find((el) => el.textContent === '禁用')!)
+      expect(model.value).toBe('disabled')
+      expect(host.querySelector('input')!.value).toBe('禁用')
+      expect(texts.at(-1)).toBe('禁用')
+    } finally {
+      unmount()
+    }
+  })
+
+  it('matches filter queries against the rendered template result', async () => {
+    const { host, unmount } = mountSelect({
+      filterable: true,
+      labelTemplate: '{label}（{code}）',
+      options: templateOptions
+    })
+
+    try {
+      await openDropdown(host)
+      // 按编码搜索命中
+      await typeQuery(host, 'ENABLED')
+      expect(queryOptions().map((el) => el.textContent)).toEqual(['启用（ENABLED）'])
+
+      // 按原始 label 搜索仍然命中
+      await typeQuery(host, '启用')
+      expect(queryOptions().map((el) => el.textContent)).toEqual(['启用（ENABLED）'])
+    } finally {
+      unmount()
+    }
+  })
+
+  it('renders created temp options via the same fallback', async () => {
+    const { host, model, unmount } = mountSelect({
+      filterable: true,
+      creatable: true,
+      labelTemplate: '{label}（{code}）',
+      options: templateOptions
+    })
+
+    try {
+      await openDropdown(host)
+      await typeQuery(host, '新选项')
+      // 临时选项缺 code 字段：回退纯文本，而不是「新选项（）」
+      expect(queryOptions().some((el) => el.textContent === '新选项')).toBe(true)
+      await clickOption(queryOptions().find((el) => el.textContent === '新选项')!)
+      expect(model.value).toBe('新选项')
+      expect(host.querySelector('input')!.value).toBe('新选项')
+    } finally {
+      unmount()
+    }
+  })
+})

@@ -13,6 +13,12 @@ export interface DrawerProps {
   /** 抽屉方向 */
   direction?: DrawerDirection
 
+  /**
+   * 抽屉尺寸；左右方向为宽度，上下方向为高度，数字按 px 处理
+   * @description 不传时走主题 token `--u-drawer-size`（默认 320px）
+   */
+  size?: number | string
+
   /** 是否显示关闭按钮 */
   showClose?: boolean
   /**

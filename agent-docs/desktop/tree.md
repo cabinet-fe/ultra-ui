@@ -13,6 +13,7 @@ keywords:
     checkOnClickNode,
     expandOnClickNode,
     labelKey,
+    labelTemplate,
     valueKey,
     childrenKey,
     disabledNode,
@@ -75,6 +76,14 @@ export interface TreeProps {
   expandOnClickNode?: boolean
   /** 节点标题字段名。默认 'label' */
   labelKey?: string
+  /**
+   * 标签展示模板
+   * @description `{fieldKey}` 占位符按节点数据字段插值（支持嵌套路径取值），
+   * 模板引用的字段在节点数据中取不到时整体回退 `node[labelKey]`；
+   * 配置后节点文本与字符串过滤统一按模板结果渲染 / 匹配
+   * @example '{label}（{code}）'
+   */
+  labelTemplate?: string
   /** 节点值字段名。默认 'value' */
   valueKey?: string
   /** 子节点数组字段名。默认 'children' */
@@ -161,8 +170,8 @@ export interface TreeExposed {
   /** 滚动到扁平节点数组（nodes）的第 index 项，垂直居中对齐 */
   scrollTo: (index: number) => void
   /**
-   * 过滤树节点。传字符串按 label 包含匹配；传函数返回 true 显示。
-   * 传空字符串恢复全部。禁止在 watchEffect 中调用！
+   * 过滤树节点。传字符串按 label 包含匹配（配置 `labelTemplate` 后同时匹配模板渲染结果）；
+   * 传函数返回 true 显示。传空字符串恢复全部。禁止在 watchEffect 中调用！
    */
   filter(filter: string | ((node: TreeNode) => boolean)): void
   /** 森林实例（已解包） */
@@ -191,7 +200,8 @@ export interface TreeExposed {
 | 参数                | 类型                              | 默认         |   必填   | 约束                                                                                                                                       |
 | ------------------- | --------------------------------- | ------------ | :------: | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | `data`              | `Record<string, any>[]`           | `[]`         | 实际必填 | 必须一次性全量传入；运行期整体替换会重建整棵树，展开/勾选等运行时状态丢失后由 `checked`/`selected` 重新回显                                |
-| `labelKey`          | `string`                          | `'label'`    |    否    | 节点显示文本取 `data[labelKey]`                                                                                                            |
+| `labelKey`          | `string`                          | `'label'`    |    否    | 节点显示文本取 `data[labelKey]`；配置 `labelTemplate` 时为模板渲染结果，模板字段缺失整体回退该字段                                                                                                            |
+| `labelTemplate`     | `string`                          | —            | 否       | 标签展示模板：`{fieldKey}` 占位符按节点数据字段插值（支持嵌套路径）；任一占位字段缺失 / `null` / 空串时整体回退 `labelKey` 取值。配置后节点文本渲染模板结果；`filter` 字符串过滤同时匹配原始 label 与渲染结果 |
 | `valueKey`          | `string`                          | `'value'`    |    否    | 节点唯一键与选中值取 `data[valueKey]`；整棵树内必须唯一                                                                                    |
 | `childrenKey`       | `string`                          | `'children'` |    否    | 子节点数组字段名                                                                                                                           |
 | `expandAll`         | `boolean`                         | `false`      |    否    | 仅控制初始展开；运行期改值会重建树                                                                                                         |
@@ -207,7 +217,7 @@ export interface TreeExposed {
 | `scrollToView`      | `boolean`                         | `false`      |    否    | 需 `selectable` 或 `checkable`；`selected`/`checked` 同步后自动把选中项滚动进视口                                                          |
 | `size`              | `'small' \| 'default' \| 'large'` | `'default'`  |    否    | 影响节点行高（虚拟滚动估算基准 32/36/44px）与字号；回退链：自身 > UForm 上下文 > 全局配置 > `'default'`                                    |
 
-插槽：默认插槽，作用域 `{ node: TreeNode, data: Record<string, any> }`；不提供时渲染 `node.label`。
+插槽：默认插槽，作用域 `{ node: TreeNode, data: Record<string, any> }`；提供插槽时插槽内容优先于 `labelTemplate`；不提供时渲染 `labelTemplate` 渲染结果，未配置模板或模板字段缺失时回退 `node.label`。
 
 ## 方法与事件
 
@@ -365,6 +375,38 @@ watch(keyword, (val) => {
 </template>
 ```
 
+### 节点文本模板（labelTemplate）
+
+```vue
+<script setup lang="ts">
+import { UTree } from '@veltra/desktop'
+import { ref } from 'vue'
+
+const selected = ref<string>()
+
+const data = [
+  {
+    label: '启用',
+    code: 'ENABLED',
+    value: 'enabled',
+    children: [{ label: '停用', code: 'DISABLED', value: 'disabled' }]
+  },
+  { label: '草稿', value: 'draft' } // 缺 code：节点整体回退展示 labelKey 字段「草稿」
+]
+</script>
+
+<template>
+  <!-- 节点展示「启用（ENABLED）」；filter 输入 ENABLED 也能命中启用节点 -->
+  <u-tree
+    v-model:selected="selected"
+    :data="data"
+    selectable
+    label-template="{label}（{code}）"
+    style="height: 300px"
+  />
+</template>
+```
+
 ## 注意事项
 
 > [!WARNING]
@@ -378,6 +420,7 @@ watch(keyword, (val) => {
 > - 虚拟滚动无需配置：扁平可见节点数 **大于 80** 自动启用（估算行高 32/36/44px 按尺寸、间距 2px，ResizeObserver 实测回填）；80 及以下为普通渲染。
 > - 树容器必须限高（`style="height: …"`），否则内容全部展开、没有滚动区。
 > - `node-contextmenu` 不会自动 `preventDefault()`，浏览器默认菜单会弹出。
+> - 配置 `labelTemplate` 后（自 1.13.0 起）：无默认插槽时节点文本渲染模板结果；模板引用字段任一缺失 / `null` / 空串时整体回退 `labelKey` 取值；`filter` 字符串过滤对原始 `label` 与模板渲染结果任一 `includes` 命中即匹配；提供默认插槽时插槽内容优先于模板。
 
 ## 常见问题
 

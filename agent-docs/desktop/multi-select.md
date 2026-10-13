@@ -8,6 +8,7 @@ keywords:
     options,
     valueKey,
     labelKey,
+    labelTemplate,
     filterable,
     creatable,
     clearable,
@@ -104,6 +105,14 @@ export interface MultiSelectProps {
   valueKey?: string
   /** 标签字段名。默认 'label' */
   labelKey?: string
+  /**
+   * 标签展示模板
+   * @description `{fieldKey}` 占位符按选项行字段插值（支持嵌套路径取值），
+   * 模板引用的字段在行中取不到时整体回退 `row[labelKey]`；
+   * 配置后下拉选项、已选标签等展示文案统一渲染模板结果
+   * @example '{label}（{code}）'
+   */
+  labelTemplate?: string
   /** 是否可清除。默认 true */
   clearable?: boolean
   /** 占位符。默认 '请选择' */
@@ -159,7 +168,8 @@ export type MultiSelectExposed = Record<string, never>
 | `modelValue`      | `Array<any>`                                                                                         | —                |  否  | 元素为各选中项 `valueKey` 字段的值；回显按 Map 键严格匹配（`===`），元素类型必须与选项值一致           |
 | `options`         | `Record<string, any>[] \| ((qs: string) => Promise<Record<string, any>[]> \| Record<string, any>[])` | —                |  否  | 数组为本地数据；传函数时 `filterable` 强制开启，初始以空串 `''` 调用一次，输入变化以 200ms 防抖调用    |
 | `valueKey`        | `string`                                                                                             | `'value'`        |  否  | 选项对象取值字段名                                                                                     |
-| `labelKey`        | `string`                                                                                             | `'label'`        |  否  | 选项对象展示字段名；本地过滤仅按该字段 `includes` 匹配                                                 |
+| `labelKey`        | `string`                                                                                             | `'label'`        |  否  | 选项对象展示字段名；本地过滤仅按该字段 `includes` 匹配（配置 `labelTemplate` 后同时匹配模板渲染结果）                                                 |
+| `labelTemplate`   | `string`                                                                                             | —                | 否   | 标签展示模板：`{fieldKey}` 占位符按选项行字段插值（支持嵌套路径）；任一占位字段缺失 / `null` / 空串时整体回退 `labelKey` 取值。配置后下拉选项与已选标签（含 `readonly` 纯标签态）统一渲染模板结果 |
 | `clearable`       | `boolean`                                                                                            | `true`           |  否  | 悬停触发器且存在选中值时显示清除图标，点击清空全部                                                     |
 | `placeholder`     | `string`                                                                                             | `'请选择'`       |  否  | 无选中值且未开启搜索时显示                                                                             |
 | `filterable`      | `boolean`                                                                                            | `false`          |  否  | 触发器内嵌查询输入框；本地过滤 200ms 防抖；`creatable` 或 `options` 传函数时强制开启                   |
@@ -292,6 +302,34 @@ async function submit() {
 </template>
 ```
 
+### 标签展示模板（labelTemplate）
+
+```vue
+<script setup lang="ts">
+import { shallowRef } from 'vue'
+
+import { UMultiSelect } from '@veltra/desktop'
+
+const picked = shallowRef<string[]>([])
+
+const options = [
+  { label: '启用', code: 'ENABLED', value: 'enabled' },
+  { label: '停用', code: 'DISABLED', value: 'disabled' },
+  { label: '草稿', value: 'draft' } // 缺 code：该选项的标签回退展示 labelKey 字段「草稿」
+]
+</script>
+
+<template>
+  <!-- 下拉选项与已选标签都展示「启用（ENABLED）」；过滤输入 ENABLED 可命中启用项 -->
+  <u-multi-select
+    v-model="picked"
+    :options="options"
+    label-template="{label}（{code}）"
+    filterable
+  />
+</template>
+```
+
 ## 注意事项
 
 > [!WARNING]
@@ -307,6 +345,7 @@ async function submit() {
 > - 清除、取消勾选、全选取消会同步移除 `creatable` 产生的创建项。
 > - 选项数超过 80 自动启用虚拟滚动。
 > - 面板内选项列表为空（数据为空、过滤无结果、远程返回空数组）时渲染内置空态组件 `UEmpty`；面板顶部的全选栏始终渲染。
+> - 配置 `labelTemplate` 后（自 1.13.0 起）：下拉选项与已选标签（含 `readonly` 纯标签态）统一渲染模板结果；模板引用字段任一缺失 / `null` / 空串时整体回退 `labelKey` 取值；`filterable` 本地过滤对原始 label 与模板渲染结果任一 `includes` 命中即匹配；提供默认插槽时插槽内容优先于模板。
 > - 类型 JSDoc 中 `width` 标注默认 `'220px'`，实际源码默认的是 `minWidth: '220px'`，`width` 未传时面板跟随触发元素宽度。
 
 ## 常见问题

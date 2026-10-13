@@ -17,6 +17,14 @@ export interface SelectProps extends FormComponentProps {
   /** 标签字段 */
   labelKey?: string
   /**
+   * 标签展示模板
+   * @description `{fieldKey}` 占位符按选项行字段插值（支持嵌套路径取值），
+   * 模板引用的字段在行中取不到时整体回退 `row[labelKey]`；
+   * 配置后下拉选项、选中回显、update:text 等展示文案统一渲染模板结果
+   * @example '{label}（{code}）'
+   */
+  labelTemplate?: string
+  /**
    * 兜底展示文案
    * @description modelValue 未命中选项时展示 text（如回显数据已不在选项中），命中时展示选项 label
    */

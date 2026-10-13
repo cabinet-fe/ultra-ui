@@ -1,5 +1,5 @@
 import { debounce, o as chainObj } from '@cat-kit/core'
-import { fieldKey } from '@veltra/utils'
+import { fieldKey, renderLabelTemplate } from '@veltra/utils'
 import { computed, shallowRef, watch, type ShallowRef, type ComputedRef } from 'vue'
 
 import type { SelectProps } from '../../types'
@@ -124,7 +124,9 @@ export function useOptions(o: Options): UseOptionsReturned {
     }
 
     const _filteredOptions = sourceOptions.filter((item) => {
-      return chainObj(item).get(labelKey)?.includes(qs) ?? false
+      if (chainObj(item).get(labelKey)?.includes(qs)) return true
+      // labelTemplate 渲染结果同样参与匹配（如按编码搜索）
+      return renderLabelTemplate(props.labelTemplate, item)?.includes(qs) ?? false
     })
 
     setTempOption(qs, _filteredOptions)

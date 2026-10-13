@@ -32,6 +32,14 @@ export interface TreeProps {
   expandOnClickNode?: boolean
   /** label键 */
   labelKey?: string
+  /**
+   * 标签展示模板
+   * @description `{fieldKey}` 占位符按节点数据字段插值（支持嵌套路径取值），
+   * 模板引用的字段在节点数据中取不到时整体回退 `node[labelKey]`；
+   * 配置后节点文本与字符串过滤统一按模板结果渲染 / 匹配
+   * @example '{label}（{code}）'
+   */
+  labelTemplate?: string
   /** value键 */
   valueKey?: string
   /** 子节点键 */

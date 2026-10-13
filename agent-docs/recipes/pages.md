@@ -314,7 +314,7 @@ query()
 - `UCard` 划分页面区块：搜索条、表格、详情内容各放一张 `UCard`，标题走 `UCardHeader`、正文走 `UCardContent`。禁止用裸 `div` 加 `background: var(--u-bg-color-top)`、`border`、`border-radius`、`padding: 16px` 手搓等价面板——那种写法不跟随 `loadTheme()` 的深浅色主题，且每个页面重复一遍。抽屉内没有页面底色，用 `integrate` 去掉卡片阴影与边框。
 - `UPaginator`：`v-model:page-number` / `v-model:page-size` 双向绑定，`total` 计算总页数；重新拉数据监听 `@change:page-number` 与 `@change:page-size` 两个事件——改每页条数会把页码重置为 1 且只触发 `change:pageSize`。
 - `messageConfirm(...).onClosed`：Promise 兑现 `'confirm' | 'cancel'`，含关闭动画结束后兑现、从不 reject；删除类确认用 `confirmButtonType: 'danger'`，取消按钮必须传 `cancelButtonText`（默认 `''` 时不渲染）。
-- `UDrawer`：`v-model` 控制显隐，默认从右侧滑出，宽 `320px`；没有 `size` / `width` prop，自定义尺寸须覆盖 `.u-drawer` 样式类。
+- `UDrawer`：`v-model` 控制显隐，默认从右侧滑出；默认尺寸走 `--u-drawer-size` token（`320px`），按实例定制传 `size`（数字按 px，字符串原样；左右方向为宽、上下方向为高），内容区自带留白与滚动，不要再包一层 `padding` 容器。
 - `UDialog`：标题栏与关闭按钮由组件提供；操作按钮放 `#footer`，插槽参数含 `close()`，保存成功后调 `close()` 关闭。
 - `UDualNav`：`current-path` + `@item-click` 受控，没有 `v-model:current-path`；不内置 vue-router，跳转在 `item-click` 回调里自己做。
 - `vLoading` 指令：未走 `app.use(UltraUI)` 全量注册时必须从 `@veltra/desktop` 显式导入（`VeltraUIResolver` 不处理指令），并补 `import '@veltra/desktop/components/loading/style'`。
