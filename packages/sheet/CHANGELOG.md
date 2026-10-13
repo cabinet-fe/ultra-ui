@@ -1,5 +1,15 @@
 # @veltra/sheet
 
+## 4.1.2
+
+### Patch Changes
+
+- 74b668e: refactor(deps): infinitable 转为对等依赖由宿主统一提供。@veltra/sheet 声明非可选 peer（`^0.2.2`）；@veltra/desktop 声明可选 peer（`peerDependenciesMeta.optional`），未安装 infinitable 时文件预览的电子表格预览按既有降级逻辑显示不可用，宿主不再被强制安装表格引擎，也避免宿主直连 infinitable 时出现双副本
+- 8937c82: feat(sheet): 公式引用拾取对齐 Excel Point mode——拾取会话中点击画布任意格替换上次插入的引用且编辑不中断（此前会失焦提交残缺公式），shift+点选扩展与普通点选同路径替换（`A1` → 点 `C5` 变 `C5`，shift 点 `C5` 变 `A1:C5`）；点选被编辑格自身忽略（防循环引用）。新增画布引用染色框：编辑公式时按文本扫描逐引用上框（蓝/绿/红按出现顺序循环），手输/拾取/替换实时跟随、提交即清除（引擎 `SheetGrid.setHighlightRanges` 通道 + `scanFormulaReferences`）。依赖引擎 infinitable 0.2.1
+- 8937c82: feat(sheet): 函数参数格支持 shift+点选批量扩展——引用拾取期点选后按住 shift 点击其它格，上次插入的引用被替换为「首次拾取锚点 → 点击格」的范围（A1 → shift 点 C5 → A1:C5，可连续扩展）；输入任意字符即结束延续。依赖引擎 infinitable 0.2.0（`resolveShiftSelectAnchor` 锚点 hook 与 `SelectionInterceptMeta` 回交元信息）
+  
+  fix(sheet): 修复单元格嵌入图替换或移除后再嵌入始终显示第一张图（引擎 `refreshImageCell` 换 URL / 移除时同步失效 cell 级位图缓存）
+
 ## 4.1.1
 
 ### Patch Changes

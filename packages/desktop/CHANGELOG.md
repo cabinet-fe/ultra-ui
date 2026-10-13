@@ -1,5 +1,16 @@
 # @veltra/desktop
 
+## 1.13.0
+
+### Minor Changes
+
+- c112768: feat(desktop): UEmpty 新增 `block` 属性撑满父容器并水平垂直居中；UTable `#empty` 插槽内置居中（自定义插槽内容不再需要自备居中容器）；UDrawer 新增 `size` 属性（左右方向为宽度、上下方向为高度，数字按 px）并默认走 `--u-drawer-size` 主题 token，默认插槽内容改由 `u-drawer__body` 容器承载并自带留白与滚动
+- c112768: feat(desktop): USelect / UMultiSelect / UTreeSelect / UMultiTreeSelect 新增 `labelTemplate` 属性，选项展示文案支持 `{fieldKey}` 占位符按行字段插值（沿用 `o(option).get` 链式取值，支持嵌套路径），模板引用的字段未命中时整体回退 `row[labelKey]`；下拉选项、选中回显、已选标签、树节点文本与 `update:text` 回发统一渲染模板结果，filterable 对原始 label 与模板渲染结果任一 includes 命中即匹配。@veltra/utils 新增 `renderLabelTemplate` 工具函数
+
+### Patch Changes
+
+- 74b668e: refactor(deps): infinitable 转为对等依赖由宿主统一提供。@veltra/sheet 声明非可选 peer（`^0.2.2`）；@veltra/desktop 声明可选 peer（`peerDependenciesMeta.optional`），未安装 infinitable 时文件预览的电子表格预览按既有降级逻辑显示不可用，宿主不再被强制安装表格引擎，也避免宿主直连 infinitable 时出现双副本
+
 ## 1.12.1
 
 ### Patch Changes
