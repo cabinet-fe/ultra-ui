@@ -57,6 +57,7 @@
       :sheet="activeSheet"
       :context="context"
       :set-selection-anchor="setSelectionAnchor"
+      :set-ref-highlights="setRefHighlights"
     />
 
     <div ref="gridRef" :class="cls.e('grid')">
@@ -348,32 +349,33 @@ function handleImageLinkClick(event: ImageLinkClickEvent): void {
 const gridRef = useTemplateRef<HTMLElement>('gridRef')
 const formulaBarRef = useTemplateRef<InstanceType<typeof UFormulaBar>>('formulaBarRef')
 
-const { rebuildGrid, activateGrid, pruneCache, getGrid, setSelectionAnchor } = useSheetGrid({
-  props,
-  gridRef,
-  getActiveSheet: () => activeSheet.value,
-  context,
-  formulaBarRef,
-  // 工具栏「函数」弹框打开期间与 fx 入口一致：画布点击不清除目标格高亮
-  isFunctionPopupOpen: () => popupTool.value?.popup === 'functions',
-  onColResizeEnd: (event) => emit('col-resize-end', event),
-  // 引擎链接 / 浮动图事件透传（openCellLinkOnClick=false：链接格直开、图片链接确认后开）；
-  // hover/leave 同时喂给 tooltip 状态机（与组件 emit 同源）
-  onCellLinkHover: (event) => {
-    emit('cell-link-hover', event)
-    showCellLinkTooltip(event)
-  },
-  onCellLinkLeave: (event) => {
-    emit('cell-link-leave', event)
-    hideCellLinkTooltip(event)
-  },
-  onCellLinkClick: (event) => handleCellLinkClick(event),
-  onImageLinkClick: (event) => handleImageLinkClick(event),
-  onFloatContextMenu: (event) => emit('float-context-menu', event),
-  // body 菜单超链接项 → 拉起配置弹窗；右键「预览」→ 打开 lightbox
-  openHyperlinkPopup,
-  openImagePreview
-})
+const { rebuildGrid, activateGrid, pruneCache, getGrid, setSelectionAnchor, setRefHighlights } =
+  useSheetGrid({
+    props,
+    gridRef,
+    getActiveSheet: () => activeSheet.value,
+    context,
+    formulaBarRef,
+    // 工具栏「函数」弹框打开期间与 fx 入口一致：画布点击不清除目标格高亮
+    isFunctionPopupOpen: () => popupTool.value?.popup === 'functions',
+    onColResizeEnd: (event) => emit('col-resize-end', event),
+    // 引擎链接 / 浮动图事件透传（openCellLinkOnClick=false：链接格直开、图片链接确认后开）；
+    // hover/leave 同时喂给 tooltip 状态机（与组件 emit 同源）
+    onCellLinkHover: (event) => {
+      emit('cell-link-hover', event)
+      showCellLinkTooltip(event)
+    },
+    onCellLinkLeave: (event) => {
+      emit('cell-link-leave', event)
+      hideCellLinkTooltip(event)
+    },
+    onCellLinkClick: (event) => handleCellLinkClick(event),
+    onImageLinkClick: (event) => handleImageLinkClick(event),
+    onFloatContextMenu: (event) => emit('float-context-menu', event),
+    // body 菜单超链接项 → 拉起配置弹窗；右键「预览」→ 打开 lightbox
+    openHyperlinkPopup,
+    openImagePreview
+  })
 
 const exposed: _SheetExposed = {
   workbook,

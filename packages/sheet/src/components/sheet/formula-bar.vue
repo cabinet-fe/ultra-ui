@@ -96,6 +96,7 @@
 <script lang="ts" setup>
 import { message, UDropdown } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
+import { scanFormulaReferences, type ScannedReference } from 'infinitable'
 import {
   formatAddress,
   formatRange,
@@ -119,7 +120,12 @@ import {
 import type { SheetContext } from '../../tools/context'
 import UFormulaSuggestList from './formula-suggest-list.vue'
 import USheetFunctionsPopup from './popups/functions-popup.vue'
-import { insertRefText, isRefSelectContext } from './use-formula-ref-select'
+import {
+  REF_HIGHLIGHT_COLORS,
+  insertRefText,
+  isRefSelectContext,
+  replaceRefText
+} from './use-formula-ref-select'
 import {
   applySuggest,
   filterFormulaSuggestions,
@@ -145,6 +151,8 @@ const props = defineProps<{
   context: SheetContext
   /** fx 编辑会话置/清引擎选区锚点（use-sheet-grid 经活动实例透传；缺省静默） */
   setSelectionAnchor?: (addr: CellAddress | null) => void
+  /** 公式引用染色框同步（use-sheet-grid 经活动实例透传；空数组清除；缺省静默） */
+  setRefHighlights?: (items: { range: CellRange; color: string }[]) => void
 }>()
 
 const cls = bem('sheet')
@@ -182,30 +190,105 @@ function isRefSelecting(): boolean {
   return editing.value && !mirroring.value && isRefSelectContext(fxDraft.value, fxCursor.value)
 }
 
-/** 网格 pointerdown（capture）→ 挂起即将到来的 blur 提交 */
+/** 上次引用插入的文本区间（fxDraft 内 [start, end)）：插入引用后光标离开触发位、
+ * isRefSelectContext 判定失效，拾取会话延续依赖它维持 blur 抑制与替换/扩展语义 */
+let lastRefInsert: { start: number; end: number } | null = null
+
+function clearRefInsert(): void {
+  lastRefInsert = null
+}
+
+/** 引用拾取延续中（上次插入的引用可被后续点选替换/扩展，点击画布不退出编辑） */
+function hasRefInsert(): boolean {
+  return lastRefInsert !== null
+}
+
+/** 网格 pointerdown（capture）→ 挂起即将到来的 blur 提交；拾取会话延续中
+ * （上次插入的引用未被打断）同样挂起——任意点击都消费为引用替换/扩展 */
 function beginBlurSuppress(): void {
-  if (!isRefSelecting()) return
+  if (!isRefSelecting() && !lastRefInsert) return
   suppressBlurCommit = true
 }
 
-/** 选区拦截回调：插入 A1 / A1:B2 到光标处（仅引用选择模式；弹框打开但非引用上下文时不插入） */
+/** 选区拦截回调：插入 A1 / A1:B2 到光标处（仅引用选择模式；弹框打开但非引用上下文时不插入）。
+ * 拾取会话延续（lastRefInsert 存在）：替换上次插入的引用——shift 扩展回交（Excel 锚点
+ * 恒定连续扩展）与普通点选（Point mode 换目标）同走此路径，编辑不中断 */
 function handleRefSelect(range: CellRange): void {
-  if (!isRefSelecting()) return
+  // 延续拾取放行：插入后光标离开触发位、isRefSelectContext 失效，延续回交
+  // 靠 lastRefInsert 而非光标上下文成立
+  if (!isRefSelecting() && !lastRefInsert) return
+  // 被编辑格自身不可拾取为引用（Excel 语义：避免循环引用；点中目标格视作无操作）
+  if (
+    editAddr &&
+    range.start.row === range.end.row &&
+    range.start.col === range.end.col &&
+    range.start.row === editAddr.row &&
+    range.start.col === editAddr.col
+  ) {
+    return
+  }
   const rangeText = formatRange(range)
-  const el = fxRef.value
-  const selEnd = el?.selectionEnd ?? fxCursor.value
-  const result = insertRefText(fxDraft.value, fxCursor.value, rangeText, selEnd)
-  fxDraft.value = result.text
-  fxCursor.value = result.cursor
+  if (lastRefInsert) {
+    const { start } = lastRefInsert
+    const result = replaceRefText(fxDraft.value, start, lastRefInsert.end, rangeText)
+    fxDraft.value = result.text
+    fxCursor.value = result.cursor
+    lastRefInsert = { start, end: result.cursor }
+  } else {
+    const el = fxRef.value
+    const selEnd = el?.selectionEnd ?? fxCursor.value
+    const result = insertRefText(fxDraft.value, fxCursor.value, rangeText, selEnd)
+    fxDraft.value = result.text
+    fxCursor.value = result.cursor
+    lastRefInsert = { start: result.cursor - rangeText.length, end: result.cursor }
+  }
   closeSuggest()
   void nextTick(() => {
     const input = fxRef.value
     if (!input) return
     input.focus()
-    input.setSelectionRange(result.cursor, result.cursor)
+    input.setSelectionRange(fxCursor.value, fxCursor.value)
     autosizeFx()
   })
 }
+
+// ─── 引用染色框（画布视觉反馈） ────────────────────────────
+
+/** 公式文本扫描 → 画布染色框：编辑中且 `=` 开头时逐引用上框（颜色按出现顺序循环），
+ * 手输/点选/扩展一视同仁（对齐 Excel：编辑公式即染色全部引用）；其余状态清除 */
+function syncRefHighlights(): void {
+  if (!editing.value || mirroring.value || !fxDraft.value.startsWith('=')) {
+    props.setRefHighlights?.([])
+    return
+  }
+  props.setRefHighlights?.(scanFormulaReferences(fxDraft.value).map(refToHighlight))
+}
+
+/** 扫描结果 → 染色框条目（RangeRef 展开为区域，单格引用同形） */
+function refToHighlight(
+  scanned: ScannedReference,
+  index: number
+): { range: CellRange; color: string } {
+  const color = REF_HIGHLIGHT_COLORS[index % REF_HIGHLIGHT_COLORS.length]!
+  const ref = scanned.ref
+  if (scanned.isRange) {
+    return {
+      range: {
+        start: { row: ref.startRow, col: ref.startCol },
+        end: { row: ref.endRow, col: ref.endCol }
+      },
+      color
+    }
+  }
+  return {
+    range: { start: { row: ref.row, col: ref.col }, end: { row: ref.row, col: ref.col } },
+    color
+  }
+}
+
+// 草稿/编辑态/镜像态任一变化即重扫（拾取回交改稿、手输、会话结束都经这三者；
+// 提交同文提交时 fxDraft 不变但 editing 翻转，watch 仍触发完成清除）
+watch([fxDraft, editing, mirroring], syncRefHighlights)
 
 // ─── 显示文本 ──────────────────────────────────────────────
 
@@ -316,6 +399,8 @@ function syncFxCursor(): void {
 }
 
 function handleFxInput(): void {
+  // 用户手动编辑使上次插入区间失效（shift 扩展只对未经编辑的插入文本有效）
+  clearRefInsert()
   syncFxCursor()
   autosizeFx()
 }
@@ -350,6 +435,7 @@ function confirmSuggest(item?: FormulaSuggestItem): void {
   const result = applySuggest(fxDraft.value, ctx.start, ctx.end, pick.name)
   fxDraft.value = result.text
   fxCursor.value = result.cursor
+  clearRefInsert()
   closeSuggest()
   void nextTick(() => {
     const el = fxRef.value
@@ -466,8 +552,9 @@ function commitEdit(): void {
   editing.value = false
   editAddr = null
   suppressBlurCommit = false
-  // 会话结束清锚点（Enter / ✓ / 失焦同路径）
+  // 会话结束清锚点（Enter / ✓ / 失焦同路径）与引用插入延续状态
   props.setSelectionAnchor?.(null)
+  clearRefInsert()
   closeSuggest()
   if (addr) {
     props.context.setCellValue(addr, fxDraft.value)
@@ -485,8 +572,9 @@ function cancelEdit(): void {
   editing.value = false
   editAddr = null
   suppressBlurCommit = false
-  // 会话结束清锚点（Esc / ✗）
+  // 会话结束清锚点（Esc / ✗）与引用插入延续状态
   props.setSelectionAnchor?.(null)
+  clearRefInsert()
   closeSuggest()
   refreshFx()
 }
@@ -524,6 +612,7 @@ function mirrorGridEdit(addr: CellAddress): void {
   mirroring.value = true
   mirrorAddr = addr
   fxDraft.value = cellText(addr)
+  clearRefInsert()
   closeSuggest()
 }
 
@@ -601,7 +690,8 @@ function insertFunction(name: string): void {
   fxDraft.value = text
   fxCursor.value = cursor
   suppressBlurCommit = false
-  // 插入函数即进入引用拾取会话：目标格置选区锚点
+  // 插入函数即进入引用拾取会话：目标格置选区锚点，新会话清引用插入延续状态
+  clearRefInsert()
   props.setSelectionAnchor?.(addr)
   closeSuggest()
   void nextTick(() => {
@@ -621,6 +711,7 @@ defineExpose({
   mirrorGridEdit,
   exitMirror,
   isRefSelecting,
+  hasRefInsert,
   isFunctionPopupOpen: () => functionsOpen.value,
   beginBlurSuppress,
   handleRefSelect,
@@ -647,6 +738,7 @@ watch(
     mirroring.value = false
     mirrorAddr = null
     suppressBlurCommit = false
+    clearRefInsert()
     functionsOpen.value = false
     closeSuggest()
     bindSheet(sheet)

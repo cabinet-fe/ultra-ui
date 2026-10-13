@@ -631,6 +631,78 @@ describe('USheet 公式栏：函数补全与引用选择', () => {
     expect(fxInput(el).value).toBe('=A1+B1')
   })
 
+  it('shift 扩展：替换上次插入的引用（extend 回交），连续扩展锚点不重置', async () => {
+    const sheet = new Workbook().activeSheet
+    const { el, exposed } = mountFormulaBar(sheet)
+    await nextTick()
+    sheet.selectCell({ row: 2, col: 0 })
+    await nextTick()
+
+    setFxText(el, '=SUM(')
+    await nextTick()
+    exposed.value!.handleRefSelect(parseRange('A1'))
+    await nextTick()
+    expect(fxInput(el).value).toBe('=SUM(A1')
+    // 插入后光标离开触发位（上下文断裂），拾取延续仍成立
+    expect(exposed.value!.hasRefInsert()).toBe(true)
+
+    // shift+点选扩展（引擎 extend 回交）：A1 被替换为 A1:C3 而非追加
+    exposed.value!.handleRefSelect(parseRange('A1:C3'))
+    await nextTick()
+    expect(fxInput(el).value).toBe('=SUM(A1:C3')
+    expect(fxInput(el).selectionStart).toBe('=SUM(A1:C3'.length)
+
+    // 连续扩展：引擎锚点恒为首次拾取锚点，A1:C3 整体替换为 A1:D5
+    exposed.value!.handleRefSelect(parseRange('A1:D5'))
+    await nextTick()
+    expect(fxInput(el).value).toBe('=SUM(A1:D5')
+  })
+
+  it('shift 扩展无上次插入（无 extend 上下文）时按普通插入处理', async () => {
+    const sheet = new Workbook().activeSheet
+    const { el, exposed } = mountFormulaBar(sheet)
+    await nextTick()
+    sheet.selectCell({ row: 2, col: 0 })
+    await nextTick()
+
+    setFxText(el, '=SUM(')
+    await nextTick()
+    exposed.value!.handleRefSelect(parseRange('B2'))
+    await nextTick()
+    expect(fxInput(el).value).toBe('=SUM(B2')
+  })
+
+  it('用户手动输入 / 提交后引用拾取延续终止：extend 不再替换', async () => {
+    const sheet = new Workbook().activeSheet
+    const { el, exposed } = mountFormulaBar(sheet)
+    await nextTick()
+    sheet.selectCell({ row: 2, col: 0 })
+    await nextTick()
+
+    setFxText(el, '=SUM(')
+    await nextTick()
+    exposed.value!.handleRefSelect(parseRange('A1'))
+    await nextTick()
+    expect(exposed.value!.hasRefInsert()).toBe(true)
+
+    // 用户输入逗号（input 事件）：延续状态清除，回到光标上下文判定
+    const input = fxInput(el)
+    input.value = '=SUM(A1,'
+    input.setSelectionRange(9, 9)
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+    await nextTick()
+    expect(exposed.value!.hasRefInsert()).toBe(false)
+    exposed.value!.handleRefSelect(parseRange('B2'))
+    await nextTick()
+    // 光标在逗号后处于引用上下文 → 普通插入 B2，而非替换 A1
+    expect(fxInput(el).value).toBe('=SUM(A1,B2')
+
+    // Enter 提交：会话结束，延续状态随编辑态一并清除
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    await nextTick()
+    expect(exposed.value!.hasRefInsert()).toBe(false)
+  })
+
   it('多行文本：默认保持单行高度，鼠标进入展开，移出后收起', async () => {
     const workbook = new Workbook()
     const sheet = workbook.activeSheet
@@ -658,6 +730,137 @@ describe('USheet 公式栏：函数补全与引用选择', () => {
     await nextTick()
     expect(panel.classList.contains('is-expanded')).toBe(false)
     expect(input.style.height).toBe('')
+  })
+})
+
+describe('USheet 公式栏：Point mode 拾取会话（Excel 语义）', () => {
+  it('拾取会话中普通点选画布：替换上次引用、编辑不中断、blur 不提交；Enter 提交替换后公式', async () => {
+    const workbook = new Workbook()
+    const sheet = workbook.activeSheet
+    const exposed: { value: SheetExposed | undefined } = { value: undefined }
+    const { el } = mount(() => ({ workbook, rows: 20, cols: 8 }), exposed)
+    await nextTick()
+    sheet.selectCell({ row: 2, col: 0 })
+    await nextTick()
+
+    const input = setFxText(el, '=SUM(')
+    await nextTick()
+
+    // 首拾取 A4（引擎选区事件管线：pointerdown 起手 → pointerup 收敛回交）
+    const gridEl = gridEventTarget(el)
+    const pick = (x: number, y: number) => {
+      gridEl.dispatchEvent(
+        new PointerEvent('pointerdown', { clientX: x, clientY: y, bubbles: true })
+      )
+      gridEl.dispatchEvent(new PointerEvent('pointerup', { clientX: x, clientY: y, bubbles: true }))
+    }
+    pick(51, 117)
+    await nextTick()
+    expect(input.value).toBe('=SUM(A4')
+
+    // 普通点选 C3（画布几何：行号列 46、列头 28、列宽 80、行高 28）→ 替换 A4 而非追加
+    pick(211, 89)
+    await nextTick()
+    expect(input.value).toBe('=SUM(C3')
+
+    // 编辑未中断：模型未写入（真实 blur 已在第二次 pointerdown 时被挂起并消费）
+    expect(sheet.getCellData({ row: 2, col: 0 })).toBeUndefined()
+    expect(input.value).toBe('=SUM(C3')
+
+    // Enter 提交替换后的公式
+    input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    await nextTick()
+    expect(sheet.getCellData({ row: 2, col: 0 })).toMatchObject({ f: 'SUM(C3' })
+  })
+
+  it('拾取会话中点选被编辑格自身：忽略不替换（防循环引用），会话延续', async () => {
+    const sheet = new Workbook().activeSheet
+    const { el, exposed } = mountFormulaBar(sheet)
+    await nextTick()
+    sheet.selectCell({ row: 2, col: 0 })
+    await nextTick()
+
+    setFxText(el, '=SUM(')
+    await nextTick()
+    exposed.value!.handleRefSelect(parseRange('A1'))
+    await nextTick()
+    expect(fxInput(el).value).toBe('=SUM(A1')
+
+    // 被编辑格 = A3：拾取视作无操作
+    exposed.value!.handleRefSelect(parseRange('A3'))
+    await nextTick()
+    expect(fxInput(el).value).toBe('=SUM(A1')
+    expect(exposed.value!.hasRefInsert()).toBe(true)
+  })
+})
+
+describe('USheet 公式栏：引用染色框（画布视觉反馈）', () => {
+  function mountFormulaBarWithHighlights(
+    sheet: Workbook['activeSheet'],
+    onHighlights: (items: { range: ReturnType<typeof parseRange>; color: string }[]) => void
+  ) {
+    const el = document.createElement('div')
+    document.body.appendChild(el)
+    containers.push(el)
+    const exposed: { value: InstanceType<typeof UFormulaBar> | undefined } = { value: undefined }
+    const app = createApp({
+      render: () =>
+        h(UFormulaBar, {
+          sheet,
+          context: createSheetContext(sheet),
+          setRefHighlights: onHighlights,
+          ref: (value: unknown) => {
+            exposed.value = value as InstanceType<typeof UFormulaBar> | undefined
+          }
+        })
+    })
+    app.mount(el)
+    apps.push(app)
+    return { el, exposed }
+  }
+
+  it('公式编辑中按文本扫描逐引用上框（出现顺序循环取色）；手输/拾取替换/会话结束同步', async () => {
+    const sheet = new Workbook().activeSheet
+    const highlights: { range: ReturnType<typeof parseRange>; color: string }[][] = []
+    const { el, exposed } = mountFormulaBarWithHighlights(sheet, (items) => highlights.push(items))
+    await nextTick()
+    sheet.selectCell({ row: 5, col: 5 })
+    await nextTick()
+
+    // 手输多引用：蓝 / 绿按出现顺序（B2:C4 → (1,1)-(3,2)）
+    setFxText(el, '=SUM(A1,B2:C4)')
+    await nextTick()
+    expect(highlights.at(-1)).toEqual([
+      { range: { start: { row: 0, col: 0 }, end: { row: 0, col: 0 } }, color: '#2563eb' },
+      { range: { start: { row: 1, col: 1 }, end: { row: 3, col: 2 } }, color: '#16a34a' }
+    ])
+
+    // 非公式文本：清除
+    setFxText(el, 'plain')
+    await nextTick()
+    expect(highlights.at(-1)).toEqual([])
+
+    // 拾取会话：插入 B2:C4 → 染色；普通点选 D1 替换 → 染色跟随（仍单引用、蓝色）
+    setFxText(el, '=SUM(')
+    await nextTick()
+    expect(highlights.at(-1)).toEqual([])
+    exposed.value!.handleRefSelect(parseRange('B2:C4'))
+    await nextTick()
+    expect(highlights.at(-1)).toEqual([
+      { range: { start: { row: 1, col: 1 }, end: { row: 3, col: 2 } }, color: '#2563eb' }
+    ])
+    exposed.value!.handleRefSelect(parseRange('D1'))
+    await nextTick()
+    expect(fxInput(el).value).toBe('=SUM(D1')
+    expect(highlights.at(-1)).toEqual([
+      { range: { start: { row: 0, col: 3 }, end: { row: 0, col: 3 } }, color: '#2563eb' }
+    ])
+
+    // 提交（编辑态结束）：清除
+    expect(highlights.at(-1)).toHaveLength(1)
+    fxInput(el).dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+    await nextTick()
+    expect(highlights.at(-1)).toEqual([])
   })
 })
 

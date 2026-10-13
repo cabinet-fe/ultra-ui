@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vite-plus/test'
 
-import { insertRefText, isRefSelectContext } from '../use-formula-ref-select'
+import { insertRefText, isRefSelectContext, replaceRefText } from '../use-formula-ref-select'
 
 describe('isRefSelectContext', () => {
   it('运算符 / ( / , / = 之后可插入引用', () => {
@@ -31,5 +31,16 @@ describe('insertRefText', () => {
 
   it('有选区时覆盖选区', () => {
     expect(insertRefText('=SUM(XX)', 5, 'A1', 7)).toEqual({ text: '=SUM(A1)', cursor: 7 })
+  })
+})
+
+describe('replaceRefText', () => {
+  it('替换区间为引用文本，光标落替换文本后（shift 扩展语义）', () => {
+    expect(replaceRefText('=SUM(A1', 5, 7, 'A1:C3')).toEqual({ text: '=SUM(A1:C3', cursor: 10 })
+    expect(replaceRefText('=SUM(A1:C3', 5, 10, 'A1:D5')).toEqual({ text: '=SUM(A1:D5', cursor: 10 })
+  })
+
+  it('区间收缩为空等价插入', () => {
+    expect(replaceRefText('=SUM(', 5, 5, 'B2')).toEqual({ text: '=SUM(B2', cursor: 7 })
   })
 })

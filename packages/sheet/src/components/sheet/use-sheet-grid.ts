@@ -10,6 +10,7 @@ import type {
 import type { CellAddress, CellRange } from 'infinitable/sheet'
 import type { Sheet } from 'infinitable/sheet'
 import { SheetGrid, type SheetGridContextMenuInfo } from 'infinitable/sheet'
+import type { SheetGridHighlight } from 'infinitable/sheet'
 import { onBeforeUnmount, onMounted, watch } from 'vue'
 
 import type { SheetContext } from '../../tools/context'
@@ -33,11 +34,13 @@ export interface FormulaBarMirror {
   exitMirror: (addr: CellAddress) => void
   /** fx 编辑中且处于可插入引用位置 */
   isRefSelecting: () => boolean
+  /** 引用拾取延续中（上次插入的引用可被点选替换/扩展） */
+  hasRefInsert: () => boolean
   /** 函数弹框打开中（fx 入口）——画布点击不清除目标格高亮 */
   isFunctionPopupOpen: () => boolean
-  /** 网格 pointerdown → 挂起 blur 提交 */
+  /** 网格 pointerdown → 挂起 blur 提交（引用选择或拾取会话延续中） */
   beginBlurSuppress: () => void
-  /** 画布选区 → 插入引用文本 */
+  /** 画布选区 → 插入/替换引用文本（拾取会话延续中替换上次插入的引用） */
   handleRefSelect: (range: CellRange) => void
 }
 
@@ -198,10 +201,13 @@ export function useSheetGrid(options: UseSheetGridOptions) {
       onEditStart: (addr) => formulaBarRef.value?.mirrorGridEdit(addr),
       onEditEnd: (addr) => formulaBarRef.value?.exitMirror(addr),
       onColResizeEnd: options.onColResizeEnd,
-      // 引用选择：不回写模型选区，序列化为 A1 / A1:B2 交给公式栏；
-      // 函数弹框打开期间（fx / 工具栏两入口）同样拦截，画布点击不离开目标格
+      // 引用选择：不回写模型选区，序列化为 A1 / A1:B2 交给公式栏；函数弹框打开期间
+      // （fx / 工具栏两入口）同样拦截，画布点击不离开目标格；拾取会话延续中（上次插入
+      // 的引用未被打断）任何点击都拦截——Excel Point mode：普通点选替换上次引用、
+      // shift 点选以上次锚点扩展，编辑不中断
       interceptSelection: () =>
         (formulaBarRef.value?.isRefSelecting() ?? false) ||
+        (formulaBarRef.value?.hasRefInsert() ?? false) ||
         (formulaBarRef.value?.isFunctionPopupOpen() ?? false) ||
         (options.isFunctionPopupOpen?.() ?? false),
       onSelectionIntercept: (range) => formulaBarRef.value?.handleRefSelect(range)
@@ -305,10 +311,11 @@ export function useSheetGrid(options: UseSheetGridOptions) {
     const sheet = getActiveSheet()
     const host = gridRef.value
     if (!host) return
-    // 换实例前清旧实例的选区锚点：fx 编辑会话随切 sheet 结束（公式栏同步复位
-    // 编辑态），缓存实例复用时不得残留上次会话的高亮
+    // 换实例前清旧实例的编辑会话视图态（选区锚点 + 引用染色框）：fx 编辑会话随切
+    // sheet 结束（公式栏同步复位编辑态），缓存实例复用时不得残留上次会话的高亮
     if (active && active.sheet !== sheet) {
       active.grid.setSelectionAnchor(null)
+      active.grid.setHighlightRanges([])
     }
     const cached = cache.get(sheet)
     if (cached && !cached.dirty) {
@@ -405,5 +412,17 @@ export function useSheetGrid(options: UseSheetGridOptions) {
     active?.grid.setSelectionAnchor(addr)
   }
 
-  return { rebuildGrid, activateGrid, pruneCache, getGrid: () => active?.grid, setSelectionAnchor }
+  /** 公式引用染色框同步（公式栏 → 活动实例透传；空数组清除；无活动实例时静默） */
+  function setRefHighlights(items: readonly SheetGridHighlight[]): void {
+    active?.grid.setHighlightRanges(items)
+  }
+
+  return {
+    rebuildGrid,
+    activateGrid,
+    pruneCache,
+    getGrid: () => active?.grid,
+    setSelectionAnchor,
+    setRefHighlights
+  }
 }
