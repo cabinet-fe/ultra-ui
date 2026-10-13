@@ -39,6 +39,6 @@
     "@veltra/icons": "^1.5.0",
     "@veltra/styles": "^1.8.5",
     "@veltra/utils": "^1.8.5",
-    "vue": ">=3.5.43"
+    "vue": ">=3.5.44"
   }
 }
