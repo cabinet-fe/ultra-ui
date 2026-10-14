@@ -80,7 +80,7 @@ src/
 
 - **pack entry**：`src/index.ts`、`src/components/sheet/style.ts`、`src/components/sheet/popups/import.worker.ts`、`src/tools/export.worker.ts`（worker 经 `new Worker(new URL())` 引用，非 import 可达——unbundle 模式下必须显式列为 entry 才会编译进 dist）
 - **neverBundle**：peer + `infinitable`（正则匹配 `/^infinitable(\/|$)/`，覆盖子路径导入）；treeshake `moduleSideEffects` 保留 `components/*/style.ts` 与 `tools/builtin.ts`
-- **测试**：happy-dom；canvas mock 在 `src/components/sheet/__test__/`（`grid-setup.ts` 挂 `canvas-mock.ts`），`setupFiles` 指向它；`server.deps.inline: ['infinitable']`（externalize 时 worker node 会把 `@cat-kit/core` 解析到 TS 源码）
+- **测试**：默认 node，需要 DOM 的测试文件在文件头加 `// @vitest-environment happy-dom`；canvas mock 在 `src/components/sheet/__test__/`（`grid-setup.ts` 挂 `canvas-mock.ts`，node 环境自动跳过），`setupFiles` 指向它；`server.deps.inline: ['infinitable']`（externalize 时 worker node 会把 `@cat-kit/core` 解析到 TS 源码）
 
 ## 已知限制
 

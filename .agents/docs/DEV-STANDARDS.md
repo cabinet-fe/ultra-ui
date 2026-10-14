@@ -34,10 +34,11 @@
 
 ## 测试
 
-- 单测：包内 `__test__/` 或 `*.test.ts`，Vitest，环境 happy-dom（sheet 的 SheetGrid 测试挂 canvas mock）。
-- 根 `bun run test`（`vp test`）；单包 `cd packages/<pkg> && vp test`。
+- 单测：包内 `__test__/` 或 `*.test.ts`，Vitest；测试环境默认 node，需要 DOM 的文件在文件头加 `// @vitest-environment happy-dom`（sheet 的 SheetGrid 测试挂 canvas mock，node 环境自动跳过）。
+- 根 `bun run test`（`vp test`）；单包 `cd packages/<pkg> && vp test`；增量 `bun run test:changed`（`scripts/test-changed.ts` 按 git 改动映射受影响包，根级文件回退全量，纯文档改动跳过）。
 - 根 `test.projects`：desktop、ai、styles、utils、compositions、sheet、playground。未列入的包当前无统一 test 项目。
 - 改公开行为或修 bug 应补/更新测试。没有「每个 PR 必须新增用例」的额外门禁；CI `ci:verify` 会跑全量测试。
+- 任务收尾：`bun run lint` 全过 + `bun run test:changed` 绿；全量留给 `ci:verify` 与发版前。
 
 ## 接口
 
@@ -52,7 +53,7 @@
 - `___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH.onlyUpdatePeerDependentsWhenOutOfRange` 已开。
 - 发版：统一走发版技能 `.agents/skills/release`（dev 分支 `bun run release`，CI publish）。
 - commit：`simple-git-hooks` → `cat-cli verify-commit`，格式 `<type>[(<scope>)][!]: <subject>`。pre-commit：`vp staged`。提交前本地应过 `bun run lint`。
-- 编码后宣称完成前：`bun run lint`、`bun run test`、`bun run build`。
+- 编码后宣称完成前：`bun run lint`、`bun run test:changed`、`bun run build`。
 - 若改动触及公共导出/API，宣称完成前须使用 `docs-gen` 技能增量同步 `agent-docs/` 文档。
 
 ## 明确禁止
