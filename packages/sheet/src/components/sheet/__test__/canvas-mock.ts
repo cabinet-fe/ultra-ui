@@ -33,8 +33,10 @@ function createContext2dMock(canvas: HTMLCanvasElement): Context2dMock {
   })
 }
 
-/** 补丁 HTMLCanvasElement，使 getContext('2d') 返回可用 mock */
+/** 补丁 HTMLCanvasElement，使 getContext('2d') 返回可用 mock；node 环境无该全局，直接跳过 */
 export function setupCanvasMock(): void {
+  if (typeof HTMLCanvasElement === 'undefined') return
+
   const getContext = function (this: HTMLCanvasElement, contextId: string): unknown {
     if (contextId !== '2d') return null
     return createContext2dMock(this)

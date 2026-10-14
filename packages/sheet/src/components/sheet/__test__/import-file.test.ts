@@ -1,3 +1,5 @@
+// @vitest-environment happy-dom
+
 import type { Sheet } from 'infinitable/sheet'
 import { Workbook } from 'infinitable/sheet'
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test'

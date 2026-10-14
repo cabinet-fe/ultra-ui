@@ -1,3 +1,5 @@
+// @vitest-environment happy-dom
+
 import { parseRange } from 'infinitable/sheet'
 import { Workbook } from 'infinitable/sheet'
 import type { SheetGrid } from 'infinitable/sheet'

@@ -1,3 +1,5 @@
+// @vitest-environment happy-dom
+
 import { ContextmenuRootDIKey } from '@veltra/desktop'
 import { describe, expect, it, vi } from 'vite-plus/test'
 import { createApp, h, nextTick } from 'vue'

@@ -1,3 +1,5 @@
+// @vitest-environment happy-dom
+
 import { createEditor, type LexicalEditor } from 'lexical'
 import { afterAll, beforeAll, describe, expect, it } from 'vite-plus/test'
 

@@ -1,3 +1,5 @@
+// @vitest-environment happy-dom
+
 import { Workbook } from 'infinitable/sheet'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 import { createApp, h, nextTick, ref, type App } from 'vue'

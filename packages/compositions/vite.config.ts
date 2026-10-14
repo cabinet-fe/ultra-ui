@@ -1,7 +1,8 @@
 import { defineConfig } from 'vite-plus'
 
 export default defineConfig({
-  test: { include: ['src/**/*.test.ts'], globals: true, environment: 'happy-dom' },
+  // 默认 node；需要 DOM 的测试文件在文件头加 // @vitest-environment happy-dom
+  test: { include: ['src/**/*.test.ts'], globals: true, environment: 'node', fsModuleCache: true },
 
   run: { tasks: { build: { command: 'vp pack', cache: { output: ['dist/**'] } } } },
 

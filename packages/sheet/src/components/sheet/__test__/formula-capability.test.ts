@@ -1,3 +1,5 @@
+// @vitest-environment happy-dom
+
 /**
  * 公式能力可达性（spec 第 4 项 / 下游 meta 报表合计场景）：
  * 写公式（setCellFormula / setCellValue '=' 前缀）、读公式（getCellData().f）、

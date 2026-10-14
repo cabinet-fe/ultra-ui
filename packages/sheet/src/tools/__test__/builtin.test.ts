@@ -1,3 +1,5 @@
+// @vitest-environment happy-dom
+
 import { createRange } from 'infinitable/sheet'
 
 import '../builtin'

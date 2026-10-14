@@ -1,3 +1,5 @@
+// @vitest-environment happy-dom
+
 import { useConfig } from '@veltra/compositions'
 import type { AiProviderConfig } from '@veltra/utils'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'

@@ -1,3 +1,5 @@
+// @vitest-environment happy-dom
+
 import type { FloatObject, SceneEvent } from 'infinitable'
 import { createRange } from 'infinitable/sheet'
 import { Workbook } from 'infinitable/sheet'

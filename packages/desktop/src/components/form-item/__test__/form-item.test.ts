@@ -1,3 +1,5 @@
+// @vitest-environment happy-dom
+
 import { describe, expect, it } from 'vite-plus/test'
 import { createApp, h, nextTick, reactive, ref } from 'vue'
 

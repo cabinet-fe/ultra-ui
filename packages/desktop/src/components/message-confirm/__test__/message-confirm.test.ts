@@ -1,3 +1,5 @@
+// @vitest-environment happy-dom
+
 import { zIndex } from '@veltra/utils'
 import { afterEach, describe, expect, it } from 'vite-plus/test'
 import { nextTick } from 'vue'

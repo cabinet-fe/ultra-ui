@@ -20,7 +20,9 @@ const config = {
     include: ['src/**/*.test.ts'],
     setupFiles: ['src/components/sheet/__test__/grid-setup.ts'],
     globals: true,
-    environment: 'happy-dom',
+    // 默认 node；需要 DOM 的测试文件在文件头加 // @vitest-environment happy-dom
+    environment: 'node',
+    fsModuleCache: true,
     server: {
       deps: {
         // infinitable inline 进 vitest 模块图：externalize 时由 worker node 以

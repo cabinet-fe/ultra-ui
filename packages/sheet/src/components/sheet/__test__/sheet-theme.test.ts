@@ -1,3 +1,5 @@
+// @vitest-environment happy-dom
+
 import { currentTheme, lightTheme } from '@veltra/styles/theme'
 import { Workbook } from 'infinitable/sheet'
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test'

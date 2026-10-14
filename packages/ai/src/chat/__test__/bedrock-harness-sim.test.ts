@@ -1,3 +1,5 @@
+// @vitest-environment happy-dom
+
 /**
  * 复现床架(bedrock/opencode)会话面板「消息数量跳变 / 完成与思考中来回翻转」的仿真测试。
  *

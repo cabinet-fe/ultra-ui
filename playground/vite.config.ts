@@ -22,6 +22,7 @@ const config = {
     include: ['src/**/*.test.ts'],
     globals: true,
     environment: 'node',
+    fsModuleCache: true,
     passWithNoTests: true
   },
 
