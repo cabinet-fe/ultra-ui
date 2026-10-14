@@ -31,7 +31,7 @@
     "fmt": "vp fmt",
     "dev": "vp run -r dev",
     "test": "vp test",
-    "test:changed": "vp test run --changed",
+    "test:changed": "bun scripts/test-changed.ts",
     "postinstall": "vp config --no-agent && bun run scripts/setup-git.ts",
     "changeset": "changeset",
     "version-packages": "changeset version",
