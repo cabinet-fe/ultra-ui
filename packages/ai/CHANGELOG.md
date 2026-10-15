@@ -1,5 +1,11 @@
 # @veltra/ai
 
+## 2.2.5
+
+### Patch Changes
+
+- 7d8ddb0: 修复 `UAiChat` 在输入法组合态按回车确认候选词时误发送消息，现在组合态回车只上屏不发送。
+
 ## 2.2.4
 
 ### Patch Changes
