@@ -1,1 +1,5 @@
-{ "docs_server_url": "https://agent-docs.dev.szyzh.cc", "docs_push_lib_name": "veltra-ui" }
+{
+  "release_mode": "public",
+  "docs_server_url": "https://agent-docs.dev.szyzh.cc",
+  "docs_push_lib_name": "veltra-ui"
+}

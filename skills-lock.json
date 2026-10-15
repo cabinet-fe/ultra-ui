@@ -43,6 +43,12 @@
       "skillPath": ".agents/skills/markstream-vue/SKILL.md",
       "computedHash": "89edeaa7cde779c6c3b299dc1dcf7a991d0eb52a371ff3478f44076df85f5e9e"
     },
+    "release": {
+      "source": "cabinet-fe/prompt-engineering",
+      "sourceType": "github",
+      "skillPath": "skills/tools/release/SKILL.md",
+      "computedHash": "dd2aa7d7957e2117c3aef5303bf04c1c711509f80ef7842d03edfd37818b3064"
+    },
     "vue": {
       "source": "cabinet-fe/prompt-engineering",
       "sourceType": "github",
