@@ -101,4 +101,51 @@ describe('UPalette', () => {
       unmount()
     }
   })
+
+  it('初始化与外部回显不回写 model，保持原始值', async () => {
+    const { model, setModel, unmount } = mountPalette('#1890ff')
+
+    try {
+      await nextTick()
+      await nextTick()
+      // 挂载时 color → HSV 同步会触发回写 watch，不能把规范化后的 #1890FF 写回
+      expect(model.value).toBe('#1890ff')
+
+      setModel('#00ff00')
+      await nextTick()
+      await nextTick()
+      expect(model.value).toBe('#00ff00')
+    } finally {
+      await unmount()
+    }
+  })
+
+  it('用户拖动 SV 面板仍回写 model', async () => {
+    const { host, model, unmount } = mountPalette('#1890ff')
+
+    // happy-dom 未实现 MouseEvent.x/y（浏览器里是 clientX 的别名），use-drag 依赖它们
+    function dragEvent(type: string, x: number, y: number, bubbles = false) {
+      const ev = new MouseEvent(type, { bubbles, button: 0, clientX: x, clientY: y })
+      Object.defineProperty(ev, 'x', { value: x })
+      Object.defineProperty(ev, 'y', { value: y })
+      return ev
+    }
+
+    try {
+      await openPanel(host)
+
+      const sv = document.body.querySelector<HTMLElement>('.u-palette__sv')
+      expect(sv).not.toBeNull()
+      sv!.dispatchEvent(dragEvent('mousedown', 100, 100, true))
+      document.dispatchEvent(dragEvent('mousemove', 60, 60))
+      document.dispatchEvent(dragEvent('mouseup', 60, 60))
+
+      await nextTick()
+      await nextTick()
+      // 拖到左上角：s = 0、v = 1 → 白色；用户动作驱动的回写不受影响
+      expect(model.value).toBe('#FFFFFF')
+    } finally {
+      await unmount()
+    }
+  })
 })

@@ -81,6 +81,11 @@ watch([alpha, RGB], ([alpha, RGB]) => {
     skipColorUpdate = false
     return
   }
+
+  // 仅用户操作（拖动取色/色相/透明度）驱动回写。初始化与外部回显也会走一遍
+  // color → HSV 同步，不能把规范化后的值（如 #1890ff → #1890FF）写回 model
+  if (!isUserActive()) return
+
   color.value = `#${RGB2HEX(RGB, alpha)}`
 })
 
