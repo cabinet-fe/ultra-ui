@@ -22,64 +22,29 @@
     }
   }
 
+  // 变更前：值条内换行的次级说明文字。只读副本控件渲染纯文本，无需剥盒
   @include m.e(data-before) {
+    flex-basis: 100%;
+    min-width: 0;
     display: flex;
     align-items: center;
     gap: 4px;
-    flex-wrap: wrap;
-    margin-top: 4px;
-    padding: 2px 8px;
-    border-left: 2px solid fn.use-var(color, info);
-    background-color: fn.color-a(color, 8, info);
-    border-radius: 2px;
-    width: fit-content;
-    max-width: 100%;
+    margin-top: 2px;
+    color: fn.use-var(text-color, second);
     line-height: 1.4;
     font-size: fn.use-var(font-size, assist, default);
 
-    // 文本类控件保持全宽，便于展示较长内容
-    &:has(#{fn.bem(input)}),
-    &:has(#{fn.bem(textarea)}),
-    &:has(#{fn.bem(select)}),
-    &:has(#{fn.bem(multi-select)}),
-    &:has(#{fn.bem(multi-tree-select)}),
-    &:has(#{fn.bem(auto-complete)}),
-    &:has(#{fn.bem(cascade)}),
-    &:has(#{fn.bem(date-picker)}),
-    &:has(#{fn.bem(date-range-picker)}),
-    &:has(#{fn.bem(number-input)}),
-    &:has(#{fn.bem(tree-select)}) {
-      width: 100%;
-    }
-
-    // 让内部只读控件更像辅助说明，减少「第二个输入框」感
-    @include m.bem(form-item, content) {
-      background: transparent;
-      padding: 0;
-    }
-
-    #{fn.bem(input)},
-    #{fn.bem(textarea)},
-    #{fn.bem(select)},
-    #{fn.bem(multi-select)},
-    #{fn.bem(multi-tree-select)},
-    #{fn.bem(auto-complete)},
-    #{fn.bem(cascade)},
-    #{fn.bem(date-picker)},
-    #{fn.bem(date-range-picker)} {
-      border: none;
-      box-shadow: none;
-      background: transparent;
-      min-height: auto;
-      height: auto;
-      padding: 0;
+    // 色板无只读文本态，副本缩到文字高度，避免 32px 大色块撑高说明行
+    #{fn.bem(palette)} {
+      width: 14px;
+      height: 14px;
+      cursor: default;
     }
   }
 
   @include m.e(changed-tag) {
-    color: fn.use-var(color, info);
-    font-size: fn.use-var(font-size, assist, default);
-    font-style: normal;
     flex-shrink: 0;
+    color: fn.use-var(color, info);
+    font-style: normal;
   }
 }
