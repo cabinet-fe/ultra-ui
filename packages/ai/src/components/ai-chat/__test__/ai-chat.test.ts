@@ -827,6 +827,87 @@ describe('UAiChat', () => {
     unmount()
   })
 
+  it('输入法组合态回车不发送：isComposing / keyCode 229 的 Enter 被忽略', async () => {
+    const { host, unmount } = mountAiChat({ transport: () => {} })
+    const textarea = host.querySelector<HTMLTextAreaElement>('textarea.u-ai-chat__input')!
+
+    // 已输入 "AB" 后进入 IME 组合态（v-model 不含组合文本），回车仅为上屏拼音
+    textarea.value = 'AB'
+    textarea.dispatchEvent(new Event('input', { bubbles: true }))
+    textarea.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true }))
+    textarea.value = 'ABnihao'
+
+    // Chromium 顺序：compositionend 之前发 isComposing=true 的 keydown
+    const composing = new KeyboardEvent('keydown', {
+      key: 'Enter',
+      bubbles: true,
+      cancelable: true
+    })
+    Object.defineProperty(composing, 'isComposing', { value: true })
+    Object.defineProperty(composing, 'keyCode', { value: 229 })
+    textarea.dispatchEvent(composing)
+    await nextTick()
+
+    expect(host.querySelector('.u-ai-chat__message--user')).toBeFalsy()
+    expect(textarea.value).toBe('ABnihao')
+    expect(composing.defaultPrevented).toBe(false)
+
+    // Safari 顺序：compositionend 之后补发 keyCode=229 的幻影 keydown
+    textarea.dispatchEvent(new CompositionEvent('compositionend', { data: 'nihao', bubbles: true }))
+    const phantom = new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true })
+    Object.defineProperty(phantom, 'keyCode', { value: 229 })
+    textarea.dispatchEvent(phantom)
+    await nextTick()
+
+    expect(host.querySelector('.u-ai-chat__message--user')).toBeFalsy()
+    expect(textarea.value).toBe('ABnihao')
+    unmount()
+  })
+
+  it('组合上屏后的正常回车才发送上屏内容', async () => {
+    const { host, unmount } = mountAiChat({
+      transport: (_req, handlers) => handlers.onTextDelta('收到')
+    })
+    const textarea = host.querySelector<HTMLTextAreaElement>('textarea.u-ai-chat__input')!
+
+    textarea.dispatchEvent(new CompositionEvent('compositionstart', { bubbles: true }))
+    textarea.value = '你好'
+    textarea.dispatchEvent(new Event('input', { bubbles: true }))
+    textarea.dispatchEvent(new CompositionEvent('compositionend', { data: '你好', bubbles: true }))
+
+    textarea.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true })
+    )
+    await nextTick()
+
+    const bubble = host.querySelector('.u-ai-chat__message--user .u-ai-chat__message-text')
+    expect(bubble?.textContent).toBe('你好')
+    expect(textarea.value).toBe('')
+    unmount()
+  })
+
+  it('空白输入（空格/换行）回车与发送按钮均不可发送', async () => {
+    const { host, unmount } = mountAiChat({ transport: () => {} })
+    const textarea = host.querySelector<HTMLTextAreaElement>('textarea.u-ai-chat__input')!
+
+    textarea.value = '  \n\t '
+    textarea.dispatchEvent(new Event('input', { bubbles: true }))
+    await nextTick()
+
+    const sendBtn = host.querySelector<HTMLElement>('.u-ai-chat__input-toolbar-right > .u-button')!
+    expect(sendBtn.classList.contains('is-disabled')).toBe(true)
+
+    textarea.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, cancelable: true })
+    )
+    await nextTick()
+
+    expect(host.querySelector('.u-ai-chat__message--user')).toBeFalsy()
+    // 内容不因回车被清空
+    expect(textarea.value).toBe('  \n\t ')
+    unmount()
+  })
+
   it('受控 v-model:messages 绑定下流式回复正常渲染', async () => {
     const messages = ref<ChatMessage[]>([])
     const chatRef = ref<AiChatExposed>()

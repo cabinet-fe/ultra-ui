@@ -19,7 +19,7 @@
       :class="cls.e('input')"
       :placeholder="placeholderText"
       rows="1"
-      @keydown.enter.exact.prevent="handleSend"
+      @keydown.enter.exact="handleSend"
       @input="autoResize"
     />
 
@@ -272,7 +272,14 @@ watch(placeholderText, () => {
   void nextTick(autoResize)
 })
 
-const handleSend = () => {
+const handleSend = (e?: Event) => {
+  // 输入法组合态的回车只是确认上屏，不发送：Chromium 在 compositionend 前发
+  // isComposing=true 的 keydown；Safari 在 compositionend 后补发 keyCode 229 的
+  // keydown。不过滤会把组合前的旧输入提前发出（串消息），或上屏即误发送。
+  if (e instanceof KeyboardEvent) {
+    if (e.isComposing || e.keyCode === 229) return
+    e.preventDefault()
+  }
   if (!hasContent.value) return
   emit('send', text.value.trim(), attachments.value)
   text.value = ''
