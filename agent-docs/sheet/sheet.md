@@ -252,7 +252,7 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 
 ### 导出面清单（逐项结论）
 
-`@veltra/sheet` 主入口（`src/index.ts`）导出面逐项审计结论。入口同时执行内置工具副作用注册（`import './tools/builtin'`，pack treeshake 已按 sideEffects 保留）。
+`@veltra/sheet` 主入口（`src/index.ts`）导出面逐项审计结论。入口只做 re-export，没有副作用。内置工具是纯数据，`defaultToolRegistry` 构造时装入；导入 `USheet` 或 `registerTool` 即得到已装入内置工具的注册表。
 
 | 符号 | 导出 | 理由 |
 | ------------------------------ | :--: | ------------------------------------------------------------------------------------------------------------------ |

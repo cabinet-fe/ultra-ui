@@ -48,10 +48,7 @@ const config = {
     sourcemap: false,
     clean: true,
     treeshake: {
-      moduleSideEffects: [
-        { test: /\/components\/sheet\/style\.ts$/, sideEffects: true },
-        { test: /\/tools\/builtin\.ts$/, sideEffects: true }
-      ]
+      moduleSideEffects: [{ test: /\/components\/sheet\/style\.ts$/, sideEffects: true }]
     },
     deps: {
       neverBundle: [

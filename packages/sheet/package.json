@@ -18,10 +18,8 @@
   "sideEffects": [
     "src/**/style.ts",
     "src/**/*.scss",
-    "src/tools/builtin.ts",
     "dist/**/style.js",
-    "dist/**/*.css",
-    "dist/tools/builtin.js"
+    "dist/**/*.css"
   ],
   "exports": {
     ".": {

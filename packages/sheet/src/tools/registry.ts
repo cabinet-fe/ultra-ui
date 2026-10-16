@@ -1,5 +1,6 @@
 import { TypedEventEmitter } from 'infinitable/sheet'
 
+import { BUILTIN_TOOLS } from './builtin'
 import type { SheetContext } from './context'
 
 /**
@@ -68,6 +69,11 @@ export class ToolRegistry {
   private seq = 0
   private emitter = new TypedEventEmitter<ToolRegistryEvents>()
 
+  /** 装入初始工具（仍经 register 校验）；缺省空表 */
+  constructor(tools: readonly SheetTool[] = []) {
+    for (const tool of tools) this.register(tool)
+  }
+
   /** 注册工具；同 id 重复注册 = 替换定义并保留原注册位置 */
   register(tool: SheetTool): void {
     if (!tool.id) throw new Error('工具注册失败：id 不能为空')
@@ -129,10 +135,10 @@ export class ToolRegistry {
 }
 
 /**
- * 全局默认注册表（USheet 默认渲染这里的工具；内置工具也注册于此）。
+ * 全局默认注册表（USheet 默认渲染这里的工具；内置工具在构造时装入）。
  * 工具是应用级扩展：注册一次，所有 USheet 实例共享。
  */
-export const defaultToolRegistry = new ToolRegistry()
+export const defaultToolRegistry = new ToolRegistry(BUILTIN_TOOLS)
 
 /** 注册工具到默认注册表 */
 export function registerTool(tool: SheetTool): void {

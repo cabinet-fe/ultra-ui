@@ -1,8 +1,6 @@
 // @vitest-environment happy-dom
 
 import { createRange } from 'infinitable/sheet'
-
-import '../builtin'
 import { Sheet } from 'infinitable/sheet'
 import { Workbook } from 'infinitable/sheet'
 import { describe, expect, it, vi } from 'vite-plus/test'

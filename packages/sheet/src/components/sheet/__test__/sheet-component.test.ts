@@ -6,9 +6,10 @@ import { Workbook } from 'infinitable/sheet'
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 import { createApp, h, nextTick, ref, type App, type Component } from 'vue'
 
-import { USheet } from '../../../index'
 import { registerTool, unregisterTool } from '../../../tools/registry'
 import type { FloatContextMenuPayload, SheetExposed } from '../../../types'
+// 从组件目录导入：内置工具由注册表构造时装入，不依赖包入口副作用
+import { USheet } from '../index'
 import { buildColHeaderMenus, buildRowHeaderMenus } from '../sheet-context-menu'
 // 引擎指针事件模拟与画布几何（cellX/cellY）：setup 已跨包引用同目录 setup.ts
 import { cellX, cellY, fire, gridEventTarget } from './grid-test-utils'

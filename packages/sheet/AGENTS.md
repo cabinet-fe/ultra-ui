@@ -6,7 +6,7 @@ Vue 电子表格编辑器（USheet）。数据模型 / 命令 / 公式 / IO / �
 
 ```
 src/
-├── index.ts              # 聚合导出：仅 sheet 自有能力（USheet / tools / types）；内置工具注册（import './tools/builtin'）
+├── index.ts              # 聚合导出：仅 sheet 自有能力（USheet / tools / types）；纯 re-export，无副作用
 ├── components/           # 组件目录（对齐 desktop 模式，Vue 只在这一层；resolver 按目录扫描 index.ts + style.ts）
 │   └── sheet/            # USheet 组件（insert-image 弹层 / 右键）
 ├── tools/                # 工具扩展（不 import 组件层）；SheetContext 门面
@@ -25,7 +25,7 @@ src/
 - **写操作一律走命令**：`setCellValue` / `setCells` / `setCellFormula` / `setCellStyle` / `setRowStyle` / `setColStyle` / `mergeCells` / `insertRows` / `insertImage` / `removeImage` / `updateImage` 等经 `defaultCommandRegistry` → `sheet.history`；`Sheet.applyPatch` 是唯一变更通道。
 - **工具只经 `SheetContext`**：不暴露 `Sheet` 实例；扩展天然可 undo。样式工具栏优先 `applyStyle`（整行选区 → `rowStyles`，整列 → `colStyles`，局部 → 逐格）；读外观用 `getEffectiveStyle`。
 - **工作簿结构操作**（增删改名 sheet）走 `Workbook`，**不进 undo**，也不经 `SheetContext`；tabs UI 直接调 `Workbook`。
-- 内置工具副作用注册必须挂在包入口（`src/index.ts`）；放组件层会被 pack treeshake 丢掉。
+- 内置工具是纯数据（`BUILTIN_TOOLS`），`defaultToolRegistry` 构造时装入。禁止用 side-effect-only import 做注册：入口被宿主打包器判定为无副作用时，整段注册会被跳过，工具栏为空。
 - `components/<name>/` 是 `@veltra/vite` 眼中的组件目录（`index.ts` + `style.ts`）：其 `index.ts` 增删 `U*` 导出后，在仓库根运行 `bun run resolver:gen` 刷新组件表。
 
 ## 引用 infinitable
@@ -79,7 +79,7 @@ src/
 ## 构建与测试配置
 
 - **pack entry**：`src/index.ts`、`src/components/sheet/style.ts`、`src/components/sheet/popups/import.worker.ts`、`src/tools/export.worker.ts`（worker 经 `new Worker(new URL())` 引用，非 import 可达——unbundle 模式下必须显式列为 entry 才会编译进 dist）
-- **neverBundle**：peer + `infinitable`（正则匹配 `/^infinitable(\/|$)/`，覆盖子路径导入）；treeshake `moduleSideEffects` 保留 `components/*/style.ts` 与 `tools/builtin.ts`
+- **neverBundle**：peer + `infinitable`（正则匹配 `/^infinitable(\/|$)/`，覆盖子路径导入）；treeshake `moduleSideEffects` 保留 `components/sheet/style.ts`
 - **测试**：默认 node，需要 DOM 的测试文件在文件头加 `// @vitest-environment happy-dom`；canvas mock 在 `src/components/sheet/__test__/`（`grid-setup.ts` 挂 `canvas-mock.ts`，node 环境自动跳过），`setupFiles` 指向它；`server.deps.inline: ['infinitable']`（externalize 时 worker node 会把 `@cat-kit/core` 解析到 TS 源码）
 
 ## 已知限制
