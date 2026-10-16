@@ -27,9 +27,9 @@
 2. **升版本**
    - changesets：有待消费 changeset → `changeset version`；没有 → 输出「没有待发布的改动」，退出码 1
    - 无工具：`<版本>` 写入 `package.json`；根 `CHANGELOG.md` 必须已有该版本一节，否则中止
-   - 之后执行 `<pm> install` 更新 lockfile
+   - 之后执行 `<pm> install` 更新 lockfile（bun / pnpm 修改版本或 catalog 后必须同步 lockfile）
 3. **版本占用检查**：`npm view <包>@<新版本> version` 输出该版本号即已被占用 → 中止，换版本号
-4. **构建与测试**：运行与 CI 发布 job 相同的构建、测试命令，在本地拦下坏提交
+4. **构建与测试**：运行与 CI 发布 job 相同的构建、测试命令（含协议展开校验或 `<pm> pack` 演练），在本地拦下坏提交与未定义的 catalog 项
 5. **提交**：起点干净，因此暂存全部改动；打印暂存文件清单；提交信息按 [release-content.md](release-content.md)
 6. **推送**：`git push origin HEAD:<发版分支>`；不推 tag（tag 由 CI 在发布成功后创建）
 
@@ -43,7 +43,7 @@
 - 权限：顶层 `permissions: {}`；发布 job 只给 `contents: write`（tag、Release）与 `id-token: write`（trusted publishing）。
 - 串行：`concurrency: { group: release, cancel-in-progress: false }`。
 - 环境：`actions/checkout@v7` 设 `persist-credentials: false`；`actions/setup-node@v7` + Node 24（自带 npm ≥ 11.5.1，trusted publishing 的下限）+ `package-manager-cache: false`。
-- 步骤：冻结 lockfile 安装 → 测试 → 构建 →（需要时）协议改写 → 发布未发布的版本 → 打 tag → 建 GitHub Release。
+- 步骤：冻结 lockfile 安装 → 测试 → 构建 →（需要时）协议改写或打包展开 → 发布未发布的版本 → 打 tag → 建 GitHub Release。
 - 幂等：已发布的版本跳过，tag、Release 已存在则跳过，失败后可直接重跑。
 - 凭证：trusted publishing 不注入任何 token。不要同时配置 `NODE_AUTH_TOKEN`：OIDC 交换失败时 npm 只打 verbose 日志、静默回退到 token，报出误导性的 E404 / ENEEDAUTH。
 - 发布命令：npm、pnpm 原生支持 OIDC 并自动生成 provenance；Yarn 需 ≥ 4.10，且 provenance 要显式开启（`.yarnrc.yml` 设 `npmPublishProvenance: true`）；`bun publish` 不支持 OIDC 与 provenance，bun 项目发布一律用 `npm publish`。
@@ -53,18 +53,33 @@
 - changesets 项目：[tools/changesets.md](tools/changesets.md)「发布 workflow 模板」。
 - 无版本工具的单包：下文模板。
 
-### 协议改写（bun / npm 仓库）
+### 协议处理（`workspace:` / `catalog:`）
 
-`changeset publish` 在 bun、npm 仓库里调用 `npm publish`，不会替换 `workspace:` / `catalog:`。待发布包的依赖字段含这两种协议时，CI 在发布前改写待发布包的 `package.json`（不提交）：
+monorepo 内部包之间的依赖必须用 `workspace:`，禁止放进 `catalog` 用 `catalog:` 引用（`changeset` 遇到内部包使用 `catalog:` 会报错退出）。外部依赖使用 `catalog:` / `catalog:<名>` 时，各包管理器定义位置：
 
-| 原值 | 改写为 |
-| --- | --- |
-| `workspace:^` / `workspace:~` | `^<该包版本>` / `~<该包版本>` |
-| `workspace:*` / `workspace:` | `<该包版本>` |
-| `workspace:<范围>` | `<范围>` |
-| `catalog:` / `catalog:<名>` | 根配置中默认 / 具名 catalog 里该依赖的范围 |
+- **pnpm**：根 `pnpm-workspace.yaml` 的 `catalog`（对应 `catalog:` / `catalog:default`）与 `catalogs.<名>`（对应 `catalog:<名>`）。
+- **bun**：根 `package.json` 的 `catalog` 或 `workspaces.catalog`（对应 `catalog:` / `catalog:default`），以及 `catalogs.<名>` 或 `workspaces.catalogs.<名>`（对应 `catalog:<名>`）。
+- **npm**：不支持 `catalog:`。
 
-改写覆盖 `dependencies`、`peerDependencies`、`optionalDependencies`；改写后任何依赖字段仍残留协议即失败退出。pnpm、yarn 仓库无需改写。
+按发版方式处理协议展开：
+
+1. **无版本工具（直接用 `npm publish` 发布）**：先用项目包管理器打包（`pnpm pack --pack-destination <dir>`、`bun pm pack --destination <dir>`、`npm pack --pack-destination <dir>`），由包管理器原生把 `workspace:` 与 `catalog:` 展开进 tarball，再执行 `npm publish <tarball>`（对 tarball 执行 `npm publish` 同样完整支持 OIDC 与 provenance）。禁止对含 `workspace:` / `catalog:` 的目录直接跑 `npm publish`。
+2. **changesets + pnpm / yarn**：`changeset publish` 分别调用 `pnpm publish --no-git-checks` 与 `yarn npm publish`，发布时自动替换 `workspace:` 与 `catalog:`，无需额外改写。
+3. **changesets + bun / npm**：`changeset publish` 调用 `npm publish <包目录>`，不会替换 `workspace:` / `catalog:`。待发布包的依赖字段（含 `devDependencies`）使用这两种协议时，CI 在构建测试后、`changeset publish` 前改写待发布包的 `package.json`（不提交），任选一种实现：
+   - **借 `bun pm pack` 展开（bun 仓库推荐）**：对每个待发布包执行 `bun pm pack --ignore-scripts --destination <临时目录>`，将 `tar -xzOf <tarball> package/package.json` 写回该包 `package.json`（`bun pm pack` 按 `bun.lock` 原生展开全部 `workspace:` 与 `catalog:` / `catalog:<名>`），再删除 `devDependencies`（或删除其中指向仓库内 `private: true` 包的项），最后清理临时目录。
+   - **按规则改写**：
+
+     | 原值 | 改写为 |
+     | --- | --- |
+     | `workspace:^` / `workspace:~` | `^<该包版本>` / `~<该包版本>` |
+     | `workspace:*` / `workspace:` | `<该包版本>` |
+     | `workspace:<范围>` | `<范围>` |
+     | `catalog:` / `catalog:default` | 根 `package.json` 的 `catalog.<依赖>` 或 `workspaces.catalog.<依赖>` |
+     | `catalog:<名>` | 根 `package.json` 的 `catalogs.<名>.<依赖>` 或 `workspaces.catalogs.<名>.<依赖>` |
+
+     改写覆盖 `dependencies`、`peerDependencies`、`optionalDependencies`、`devDependencies`（`devDependencies` 可整体删除，或删除其中指向仓库内 `private: true` 未发布包的项，避免写入不存在的 `0.0.0` 依赖）。
+
+   改写后校验待发布包的上述四个依赖字段，任何字段仍残留 `workspace:` 或 `catalog:` 即失败退出。
 
 ### 无版本工具的单包模板
 
@@ -99,7 +114,8 @@ jobs:
         with:
           node-version: 24
           package-manager-cache: false
-      - run: npm ci # 按包管理器替换安装、测试、构建命令；发布保持 npm publish
+      # 非 npm 项目在此装包管理器：oven-sh/setup-bun@v2 / pnpm/action-setup@v6
+      - run: npm ci # bun install --frozen-lockfile / pnpm install --frozen-lockfile
       - run: npm test
       - run: npm run build
       - name: 发布到 npm
@@ -113,7 +129,9 @@ jobs:
           fi
           tag=latest
           case "$version" in *-*) tag=$(echo "${version#*-}" | cut -d. -f1) ;; esac
-          npm publish --access public --tag "$tag"
+          pack_dir=$(mktemp -d)
+          npm pack --pack-destination "$pack_dir" # pnpm pack --pack-destination "$pack_dir" / bun pm pack --destination "$pack_dir"
+          npm publish "$pack_dir"/*.tgz --access public --tag "$tag"
       - name: 建 GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}

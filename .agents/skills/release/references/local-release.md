@@ -52,7 +52,7 @@
    - changesets：有待消费 changeset → `changeset version`
    - 无工具：`<版本>` 与当前版本不同 → 写入所有可发布包的 `version`，并同步其他包里指向它们的非 `workspace:` 依赖范围；根 `CHANGELOG.md` 必须已有该版本一节，否则中止
    - 没有待升版本时进入**续发**：`HEAD` 是发版提交（信息以 `chore(release):` 开头）且有版本尚未发布 → 跳过升版本与提交，未推送就先推送，然后从第 3 步继续；否则输出「没有待发布的改动」，退出码 1
-   - 升版本后执行 `<pm> install` 更新 lockfile。bun 必须做：`bun pm pack` 按 `bun.lock` 替换 `workspace:`，lockfile 过期会打进旧版本号
+   - 升版本后执行 `<pm> install` 更新 lockfile。bun 必须保证 lockfile 与根配置同步：`bun pm pack` 从 `bun.lock`（而非 `package.json`）读取并替换 `workspace:` 与 `catalog:` / `catalog:<名>`，lockfile 过期会把旧版本号或旧 catalog 范围打进 tarball
 3. **构建**：运行项目的构建与测试命令
 4. **打包校验**：见下节。`--dry-run` 到此结束：打印发布计划（包、版本、`<源>`、dist-tag、tarball 大小与文件数），恢复工作区（`git restore --staged --worktree .` 加 `git clean -fd`，禁止 `-x`），删除临时目录
 5. **提交并推送**：暂存全部改动（起点干净，改动只来自本次发版），打印暂存文件清单，提交信息按 [release-content.md](release-content.md)；`git push origin HEAD:<发版分支>`
@@ -72,23 +72,23 @@
 
 ## 打包校验
 
-每个待发布包在包目录用项目包管理器打包到临时目录（包管理器会替换 `workspace:` / `catalog:`；直接对含这两种协议的目录跑 `npm publish` 会原样发出去）：
+每个待发布包在包目录用项目包管理器打包到临时目录。包管理器会在生成的 tarball 内原生将 `workspace:` 与 `catalog:` / `catalog:<名>` 替换为真实版本范围，不改动工作区 `package.json`（直接对含这两种协议的目录跑 `npm publish` 会原样发出去；禁止在本地手写脚本临时改写工作区 `package.json` 再还原，也禁止直接用 `bun publish` 跳过 tarball 校验与 `--@<scope>:registry`）：
 
-| 包管理器 | 命令 |
-| --- | --- |
-| npm | `npm pack --pack-destination <dir>` |
-| pnpm | `pnpm pack --pack-destination <dir>` |
-| yarn（Berry） | `yarn pack --out <dir>/%s-%v.tgz` |
-| bun | `bun pm pack --destination <dir>` |
+| 包管理器 | 命令 | catalog 定义位置 |
+| --- | --- | --- |
+| npm | `npm pack --pack-destination <dir>` | 不支持 `catalog:` |
+| pnpm | `pnpm pack --pack-destination <dir>` | 根 `pnpm-workspace.yaml` 的 `catalog` / `catalogs.<名>` |
+| yarn（Berry） | `yarn pack --out <dir>/%s-%v.tgz` | 根 `.yarnrc.yml` 的 `catalog` / `catalogs.<名>` |
+| bun | `bun pm pack --destination <dir>` | 根 `package.json` 的 `catalog` / `catalogs.<名>`（或 `workspaces.catalog` / `workspaces.catalogs.<名>`） |
 
-用 `tar -xzOf <tarball> package/package.json` 读 manifest、`tar -tzf <tarball>` 读文件列表，逐项校验，任一项不过即中止：
+用 `tar -xzOf <tarball> package/package.json` 读 manifest、`tar -tzf <tarball>` 读文件列表（按 `/\r?\n/` 切行以兼容 Windows tar 的 CRLF），逐项校验，任一项不过即中止：
 
 - 依赖字段（`dependencies`、`peerDependencies`、`optionalDependencies`、`devDependencies`）不含 `workspace:`、`catalog:`
-- 内部依赖的版本范围覆盖本次新版本（防 lockfile 过期写入旧版本号）
+- 内部依赖的版本范围覆盖本次新版本；源 `package.json` 中写成 `catalog:` / `catalog:<名>` 的依赖，在 tarball 中的范围与当前根配置的 catalog 定义一致（防 `bun.lock` 等 lockfile 过期打入旧值）。内部包之间的依赖必须用 `workspace:`，禁止用 `catalog:`
 - `exports`、`main`、`module`、`types`、`bin` 指向的文件都在包内
 - 不含 `.env*`、`.npmrc`
 - `<包>@<版本>` 在 `<源>` 上尚不存在（续发时已存在的标记为跳过）
-- 实际目标源正确：`npm publish <tarball> --dry-run` 加第 6 步的全部参数，输出必须含 `Publishing to <源>`（这一步验证的是 `.npmrc`、scope 配置叠加后的真实去向，不能代替 `npm ping` / `npm whoami`）
+- 实际目标源正确：对尚未发布的版本执行 `npm publish <tarball> --dry-run` 加第 6 步的全部参数（必须传 `--dry-run`，否则会真实发包；已发布的版本跳过此项，因 npm 会在打印目标源前报版本已存在），输出必须含 `Publishing to <源>`（这一步验证的是 `.npmrc`、scope 配置叠加后的真实去向，不能代替 `npm ping` / `npm whoami`）
 
 项目已装 `publint` 或 `@arethetypeswrong/cli` 时，再对 tarball 运行 `publint <tarball> --strict`、`attw <tarball>`。
 
@@ -116,7 +116,7 @@
 | E404（view 或 publish） | 包不存在，或账号无该 scope 权限 | 先确认 whoami；再查源的权限配置 |
 | E403 / E409 版本已存在 | 版本号被占用 | 续发会自动跳过；若是他人发布的同号版本 → 升版本 |
 | 包出现在别的源 | `.npmrc` 中 `@scope:registry` 覆盖了目标 | 发布命令带 `--@<scope>:registry=<源>` |
-| tarball 含 `workspace:` / 旧版本号 | 打包前没更新 lockfile，或用了 `npm pack` 打包 pnpm / bun 仓库 | 升版本后先 `<pm> install`，用项目包管理器打包 |
+| tarball 含 `workspace:` / `catalog:`，或展开的版本范围仍是旧值 | 打包前没更新 lockfile（`bun pm pack` 从 `bun.lock` 读 `workspace:` 和 `catalog:`），或用了 `npm pack` 打包 pnpm / bun 仓库 | 先 `<pm> install` 同步 lockfile，再用项目包管理器打包 |
 | 推送被拒（远端有新提交） | 发版期间有人推送 | `git pull --rebase` 后重跑 `release`（续发）；禁止 force push |
 | 部分包发布失败 | 网络、权限、OTP 过期 | 修复后直接重跑 `release`（续发） |
 

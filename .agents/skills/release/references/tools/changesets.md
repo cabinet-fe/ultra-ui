@@ -93,7 +93,7 @@ changelog 生成器：
 - 范围：非 private、未被 ignore 的包中，本地版本号在 registry 上不存在的那些。已发布的自动跳过，所以中途失败后修复原因直接重跑即可。
 - 顺序：按内部依赖分批，被依赖的先发；批内并发。
 - 实际发布命令随包管理器：pnpm → `pnpm publish --no-git-checks`；yarn Berry → `yarn npm publish`；npm、bun 及其他 → `npm publish`。
-- `workspace:` / `catalog:` 协议：pnpm、yarn 发布时自动替换为真实版本；**bun 与 npm 仓库走 `npm publish`，不会替换**，`changeset pack` 同样用 `npm pack`。CI 发布前按 [public-release.md](../public-release.md)「协议改写」处理（不提交）。
+- `workspace:` / `catalog:` 协议：pnpm、yarn 发布时自动替换为真实版本（pnpm 读 `pnpm-workspace.yaml`，yarn 读 `.yarnrc.yml`）；**bun 与 npm 仓库走 `npm publish`，不会替换**，`changeset pack` 同样用 `npm pack`。CI 发布前按 [public-release.md](../public-release.md)「协议处理」展开（不提交，含 `devDependencies`）。monorepo 内部包之间的依赖必须用 `workspace:`，禁止用 `catalog:`（否则 `changeset` 构建依赖图时直接报错退出）。
 - registry：npm 路径遵循各包 `publishConfig.registry` 与 `publishConfig["@scope:registry"]`；pnpm 项目查询已发布状态时忽略这两项，私有源要配在 `.npmrc`。
 - dist-tag：默认 `latest`；`--tag` 可自定义，预发布模式下不允许再加。
 - 2FA：交互终端会走网页 / OTP 验证；非交互环境需 `--otp` 或 `NPM_CONFIG_OTP`。失败按包报告，已成功的包照常打 tag，命令以退出码 1 结束。
@@ -184,7 +184,7 @@ jobs:
       - run: bun install --frozen-lockfile # npm ci / pnpm install --frozen-lockfile / yarn install --immutable
       - run: bun run test
       - run: bun run build
-      # 仅 bun / npm 仓库且待发布包含 workspace: / catalog: 依赖时，在此改写 manifest（不提交）
+      # 仅 bun / npm 仓库且待发布包含 workspace: / catalog: 依赖时，按 public-release.md「协议处理」展开 manifest（不提交）
       - uses: changesets/action/publish@v2
 ```
 
@@ -196,7 +196,8 @@ jobs:
 
 - 公开 scoped 包没设 `access: public` → 发布被拒。
 - 提交信息带 `[skip ci]` → 发布 workflow 不运行。
-- `changeset version` 后没跑 `<pm> install` → lockfile 里的 workspace 版本过期，CI `--frozen-lockfile` 失败。
+- `changeset version` 或修改 `catalog` 后没跑 `<pm> install` → lockfile 里的 workspace / catalog 版本过期，CI `--frozen-lockfile` 失败，或 `bun pm pack` 打进旧版本。
+- `bun` 仓库 CI 改写协议时漏处理 `devDependencies` 中的 `catalog:` / 私有 `workspace:` 包 → 残留协议检查失败或把 `catalog:` 原样发进 registry manifest。
 - 3.x 中 peer 依赖升级只让依赖方 patch；确属破坏性时手写 `major` changeset。
 - 改了 `baseBranch` 以外的分支发版 → `status --since`、`add` 的改动检测失真。
 

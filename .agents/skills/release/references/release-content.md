@@ -1,10 +1,10 @@
 # 发版内容规范
 
-发版内容写给库的使用者：这次升级带来什么、要不要改代码、怎么改。内容只写一次，按顺序流转：changeset（无版本工具时直接写 CHANGELOG）→ CHANGELOG → GitHub Release 正文，后两处原样引用前一处。
+发版内容写给使用者：这次升级带来什么、要不要改用法、怎么改。库看公共 API；Go 应用看命令、配置、接口和数据格式。内容只写一次，按顺序流转：changeset（无版本工具时直接写 CHANGELOG）→ CHANGELOG → GitHub Release 正文，后两处原样引用前一处。Go 没有 changeset，直接写 CHANGELOG。
 
 ## 收集改动
 
-1. 范围：上一个发版 tag 到 `HEAD`（`git log <上个 tag>..HEAD --no-merges`），结合 PR 描述与 diff。
+1. 范围：上一个发版 tag 到 `HEAD`（`git log <上个 tag>..HEAD --no-merges`），结合 PR 描述与 diff。没有任何发版 tag 时，用 `交互式提问` 确认第一条说明覆盖哪些提交，不要默认写进全部历史。
 2. 只保留使用者能感知的改动：公共导出、类型声明、默认值、报错文案、运行时与 peer 依赖要求、产物格式。内部重构、测试、CI、开发依赖不进发版内容。
 3. changesets 项目：逐条对照待消费的 changeset，漏写的补上，写错幅度的改掉。
 
@@ -20,6 +20,16 @@
 - 0.y.z 阶段用 major 会直接升到 1.0.0，只在决定发布稳定版时使用。
 - 判断不了是否破坏性时按破坏性处理，并用 `交互式提问` 向用户确认一次。
 - 预发布版本号：`x.y.z-<标识>.<n>`，标识用 `alpha`、`beta`、`rc` 或 `next`，`n` 从 0 递增。
+
+### Go
+
+幅度仍用上一张表，把「使用者能感知的改动」换成 Go 的发布物：
+
+- 破坏性：模块导出的函数、类型、方法、字段被删除、重命名、改签名或改默认行为；提高 `go` 行（使用者必须换工具链）；应用的命令、配置、对外接口、磁盘数据格式、已发布产物文件名发生不兼容变化。
+- 新增：新的导出 API、命令、配置项、接口。
+- v0、v1 的模块路径不加版本后缀。v2 及以上路径必须以 `/vN` 结尾，且 N 与主版本一致；这是发版前的代码改动。升到 1.0.0 不加 `/v1`。
+- 预发布写成 tag `vX.Y.Z-rc.1`。Go 没有 dist-tag；模块的 `@latest` 不会选中带 `-` 的版本。
+- 只改 `internal/`、测试、CI，且使用者无感知：不发版。
 
 ## 条目写法
 
@@ -86,5 +96,5 @@ createClient({ timeout: 5000 })
 - 提交信息（中文，不加 `[skip ci]`）：
   - 单包或整仓同版本：`chore(release): 发布 v1.3.0`
   - 多包：`chore(release): 发布 @scope/core@1.3.0, @scope/utils@0.4.1`；超过 3 个包时标题写 `chore(release): 发布 5 个包`，正文逐行列出 `<包>@<版本>`
-- tag：单包或整仓同版本 `v<版本>`；changesets 多包 `<包名>@<版本>`。都用附注 tag，只在发布成功后创建。
-- dist-tag：正式版 `latest`；预发布版取标识（`next`、`beta`、`rc`、`alpha`），禁止用 `latest`；给旧大版本发补丁用 `latest-<major>`（如 `latest-1`），对应的 GitHub Release 不标 Latest（`gh release create --latest=false`）——npm 11+ 拒绝把低于当前 `latest` 的版本隐式标为 `latest`。
+- tag：单包或整仓同版本 `v<版本>`；changesets 多包 `<包名>@<版本>`。都用附注 tag。npm 在发布成功后创建。Go 一律 `v<版本>`（模块索引要求这个前缀），时序见 [go-release.md](go-release.md)：本地检查通过并推送发版提交之后打 tag。多模块仓库的子模块 tag 是 `<目录>/v<版本>`；本技能的脚本契约只覆盖仓库根的一个模块。
+- dist-tag（仅 npm）：正式版 `latest`；预发布版取标识（`next`、`beta`、`rc`、`alpha`），禁止用 `latest`；给旧大版本发补丁用 `latest-<major>`（如 `latest-1`），对应的 GitHub Release 不标 Latest（`gh release create --latest=false`）——npm 11+ 拒绝把低于当前 `latest` 的版本隐式标为 `latest`。Go 没有 dist-tag。
