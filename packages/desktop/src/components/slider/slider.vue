@@ -116,7 +116,7 @@ watch(
     if (sliderSize.value === 0) return
 
     if (props.range) {
-      const next = v.map(sliderOffset2Value).toSorted((a, b) => a - b) as [number, number]
+      const next = v.map(sliderOffset2Value).sort((a, b) => a - b) as [number, number]
       const current = props.modelValue as [number, number] | undefined
       if (current) {
         const [a, b] = [...current].sort((x, y) => x - y)
