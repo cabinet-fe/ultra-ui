@@ -10,6 +10,7 @@ keywords:
     RippleConfig,
     showByEvent,
     u-ripple,
+    u-ripple__layer,
     '@veltra/directives',
     duration,
     rippleClass,
@@ -25,7 +26,7 @@ keywords:
 
 # vRipple 波纹指令
 
-`@veltra/directives` 导出 `vRipple`（模板写法 `v-ripple`）与 `Ripple` 辅助类。指令在元素上监听鼠标左键 `mousedown`，从按下坐标扩散一个覆盖整个容器的圆形波纹，`mouseup` 或 `mouseleave` 时淡出移除；绑定值为字符串时给波纹元素加自定义类名，`:时长` 参数指定动画毫秒数，`false` 动态禁用。使用前必须引入波纹样式。
+`@veltra/directives` 导出 `vRipple`（模板写法 `v-ripple`）与 `Ripple` 辅助类。指令在元素上监听鼠标左键 `mousedown`，从按下坐标扩散一个覆盖整个容器的圆形波纹，`mouseup` 或 `mouseleave` 时淡出移除；绑定值为字符串时给波纹元素加自定义类名，`:时长` 参数指定动画毫秒数，`false` 动态禁用。波纹渲染在元素内部的波纹层 `u-ripple__layer` 中，指令不修改宿主 `overflow`、不参与布局尺寸，可在 flex/grid 工具栏等紧凑布局中安全使用；使用前必须引入波纹样式。
 
 ## 快速上手
 
@@ -116,9 +117,9 @@ interface RippleConfig {
 | 指令参数 | `v-ripple:<毫秒数>`              | `300`       |  否  | `v-ripple:600` 表示过渡时长 600ms；值为 `0` 或空时按默认 300ms；时长同时作用于扩散与淡出过渡                                                                                      |
 | 修饰符   | 无                               | —           |  —   | 不支持任何修饰符                                                                                                                                                                  |
 | 触发时机 | `mousedown`                      | —           |  —   | 仅鼠标左键（`e.button === 0`）；右键、中键、纯触摸不触发                                                                                                                          |
-| 清理行为 | —                                | —           |  —   | `mouseup` / `mouseleave` 时波纹淡出（加 `is-removing` 类，`opacity` 过渡结束或取消后从 DOM 移除；未收到过渡事件时在动画时长 + 100ms 后兜底移除）；`unmounted` 时注销事件并移除未结束的波纹                                       |
+| 清理行为 | —                                | —           |  —   | `mouseup` / `mouseleave` 时波纹淡出（加 `is-removing` 类，`opacity` 过渡结束或取消后从 DOM 移除；未收到过渡事件时在动画时长 + 100ms 后兜底移除）；最后一个波纹移除时一并移除内部波纹层；`unmounted` 时注销事件并移除未结束的波纹                                       |
 
-运行期间指令对容器样式的管理：容器 `position` 为 `static` 时临时改为 `relative`、`overflow` 为 `visible` 时临时改为 `hidden`（通过 dataset 引用计数，多实例协作），最后一个波纹移除后恢复为修改前的值。
+运行期间的 DOM 与样式管理：首个波纹创建时在宿主内追加内部波纹层 `<span class="u-ripple__layer">`，所有波纹元素都渲染在该层内，由层（`position: absolute; inset: 0; overflow: hidden; pointer-events: none; border-radius: inherit`）负责定位与裁剪，指令不再修改宿主 `overflow`。仅在宿主计算样式 `position` 为 `static` 时临时内联 `position: relative` 作为层的包含块（不改变布局尺寸，flex/grid item 的自动最小尺寸不受影响）；最后一个波纹移除时移除波纹层并把宿主定位恢复为修改前的值。引用计数写在宿主 `dataset` 上，多实例可安全协作。
 
 ## 方法与事件
 
@@ -163,9 +164,8 @@ const brandRipple = 'brand-ripple'
 
 <style scoped>
 button {
-  position: relative;
+  /* 宿主无需设置 position 或 overflow：波纹层由指令按需创建并裁剪 */
   padding: 8px 16px;
-  overflow: hidden;
 }
 
 .brand-ripple {
@@ -278,8 +278,9 @@ onBeforeUnmount(() => {
 > - 自定义类名与 `:时长` 参数在 `mounted` 时写入元素 `dataset`，`updated` 不再更新：挂载后修改字符串或参数不生效；挂载时值为 `false`、之后才切换为类名字符串的元素也带不上自定义类名。需要更换时用 `:key` 重建元素。
 > - 禁用条件是绑定值精确等于 `false`；`v-ripple="0"`、`v-ripple="''"` 都不会禁用波纹。
 > - 省略绑定值（裸写 `v-ripple`）时波纹元素会额外携带一个字面量为 `undefined` 的类名，无样式定义、无视觉影响。
-> - 动画期间指令会临时改容器内联样式：`position: static` 改为 `relative`、`overflow: visible` 改为 `hidden`，波纹结束后精确恢复。禁止在动画进行中依赖这两个内联值。
-> - 波纹元素类名：默认 `u-ripple`，淡出阶段追加 `is-removing`；自定义样式类写在这两者之外。
+> - 波纹渲染在元素内部的 `u-ripple__layer` 层内，指令**不再修改宿主 `overflow`**，也不改变宿主的布局尺寸；因此可以安全用于 flex/grid 工具栏等紧凑布局（`overflow` 非 `visible` 会把 flex/grid item 的自动最小尺寸压成 0，导致相邻项抖动）。
+> - 运行期指令只可能临时改一个内联样式：宿主计算样式 `position` 为 `static` 时改为 `relative`（作为绝对定位波纹层的包含块，不影响布局尺寸），最后一个波纹结束后恢复。禁止在动画进行中依赖该内联值。
+> - 波纹元素类名：默认 `u-ripple`，淡出阶段追加 `is-removing`；外层波纹层类名 `u-ripple__layer`。二者都只由指令维护，自定义样式类写在这两者之外。
 
 ## 常见问题
 

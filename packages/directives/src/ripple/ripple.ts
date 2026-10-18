@@ -24,8 +24,10 @@ interface RippleConfig {
 
 /** 数据集 key，用于标记 Ripple 修改过的样式 */
 const PositionKey = 'uRipplePosition'
-const OverflowKey = 'uRippleOverflow'
 const CountKey = 'uRippleActiveCount'
+
+/** 波纹层类名，波纹元素统一渲染在该层内 */
+const LayerClass = bem('ripple').e('layer')
 
 /**
  * 波纹效果类
@@ -33,10 +35,10 @@ const CountKey = 'uRippleActiveCount'
  * 支持鼠标点击和触摸事件触发的波纹动画
  *
  * 样式管理策略：
- * - 只在容器 position 为 static 时设置 relative
- * - 只在容器 overflow 为 visible 时设置 hidden
+ * - 波纹统一渲染在内部波纹层 `.u-ripple__layer` 中，由层负责裁剪与定位，宿主不再需要 overflow: hidden
+ * - 只在容器 position 为 static 时设置 relative，作为波纹层的包含块，不改变布局尺寸
  * - 使用 dataset 做引用计数，多实例可安全协作
- * - 最后一个波纹移除时，精确恢复到修改前的状态
+ * - 最后一个波纹移除时，移除波纹层并精确恢复容器样式
  */
 export class Ripple {
   /** 波纹样式类名生成器 */
@@ -52,23 +54,6 @@ export class Ripple {
 
   /** 波纹配置 */
   private config?: RippleConfig
-
-  /** 波纹元素数量（私有） */
-  private _amount = 0
-
-  /**
-   * 设置波纹元素数量
-   * 当数量为 0 时自动重置容器样式
-   */
-  private set amount(amount: number) {
-    this._amount = amount
-    amount === 0 && this.resetContainerStyle()
-  }
-
-  /** 获取当前波纹元素数量 */
-  private get amount(): number {
-    return this._amount
-  }
 
   /**
    * 构造函数
@@ -99,6 +84,30 @@ export class Ripple {
     const rect = this.container.getBoundingClientRect()
     this.containerRect = rect
     return this.containerRect
+  }
+
+  /**
+   * 获取已有波纹层
+   * 只查找直接子级，避免嵌套的波纹容器层被误取
+   * @returns 波纹层元素或 null
+   */
+  private getLayer(): HTMLElement | null {
+    return this.container.querySelector<HTMLElement>(`:scope > .${LayerClass}`)
+  }
+
+  /**
+   * 获取或创建波纹层
+   * 波纹元素统一挂载到该层，由层裁剪，宿主无需再设置 overflow: hidden
+   * @returns 波纹层元素
+   */
+  private getOrCreateLayer(): HTMLElement {
+    const layer = this.getLayer()
+    if (layer) return layer
+
+    const el = document.createElement('span')
+    el.classList.add(LayerClass)
+    this.container.appendChild(el)
+    return el
   }
 
   /**
@@ -144,17 +153,21 @@ export class Ripple {
   }
 
   /**
-   * 设置容器样式
+   * 设置容器样式并准备好波纹层
    * 使用引用计数 + dataset 标记，确保多实例协作安全
+   * @returns 波纹元素应挂载到的波纹层
    */
-  private setContainerStyle() {
+  private setContainerStyle(): HTMLElement {
     const { container } = this
     const count = Number(container.dataset[CountKey] || 0)
     container.dataset[CountKey] = String(count + 1)
 
-    // 已经有其他波纹在运行，样式已设置，直接返回
-    if (count > 0) return
+    const layer = this.getOrCreateLayer()
 
+    // 已经有其他波纹在运行，宿主样式已设置，直接复用波纹层
+    if (count > 0) return layer
+
+    // 波纹层是绝对定位，宿主需作为其包含块；static 提升为 relative 不影响布局尺寸
     const computed = window.getComputedStyle(container)
 
     if (computed.position === 'static') {
@@ -162,37 +175,31 @@ export class Ripple {
       container.style.position = 'relative'
     }
 
-    if (computed.overflow === 'visible') {
-      container.dataset[OverflowKey] = 'visible'
-      container.style.overflow = 'hidden'
-    }
+    return layer
   }
 
   /**
-   * 重置容器样式
+   * 重置容器样式并移除波纹层
    * 根据 dataset 标记精确恢复，避免误删其他内联样式
    */
   private resetContainerStyle() {
     const { container } = this
     const count = Number(container.dataset[CountKey] || 0)
 
-    if (count <= 1) {
-      // 最后一个波纹，执行恢复
-      if (container.dataset[PositionKey] === 'static') {
-        container.style.position = ''
-        delete container.dataset[PositionKey]
-      }
-
-      if (container.dataset[OverflowKey] === 'visible') {
-        container.style.overflow = ''
-        delete container.dataset[OverflowKey]
-      }
-
-      delete container.dataset[CountKey]
-    } else {
-      // 还有其他波纹在运行，只减计数
+    // 还有其他波纹在运行，只减计数
+    if (count > 1) {
       container.dataset[CountKey] = String(count - 1)
+      return
     }
+
+    // 最后一个波纹：恢复容器定位，并移除空波纹层
+    if (container.dataset[PositionKey] === 'static') {
+      container.style.position = ''
+      delete container.dataset[PositionKey]
+    }
+
+    this.getLayer()?.remove()
+    delete container.dataset[CountKey]
   }
 
   /**
@@ -203,8 +210,12 @@ export class Ripple {
   private createRipple(centerPosition: RipplePosition) {
     const { config } = this
 
-    // 必须在创建ripple元素之前调用
-    this.setContainerStyle()
+    // 上一个波纹可能仍在动画中（同一容器快速连按）：先标记移除，
+    // 否则它会成为没有回收者的孤儿波纹，计数无法归零、波纹层永远删不掉
+    this.remove()
+
+    // 必须在创建 ripple 元素之前调用，确保波纹层与宿主定位就绪
+    const layer = this.setContainerStyle()
 
     const rippleEl = document.createElement('span')
     this.currentRippleEl = rippleEl
@@ -241,8 +252,7 @@ export class Ripple {
 
     rippleEl.addEventListener('transitionend', transitionEndHandler)
 
-    this.container.appendChild(rippleEl)
-    this.amount++
+    layer.appendChild(rippleEl)
 
     // 如果配置了自动移除，标记为可移除
     if (config?.autoRemove) {
@@ -276,7 +286,7 @@ export class Ripple {
       rippleEl.removeEventListener('transitionend', transitionEndOrCancelHandler)
       rippleEl.removeEventListener('transitioncancel', transitionEndOrCancelHandler)
       rippleEl.remove()
-      this.amount--
+      this.resetContainerStyle()
     }
 
     const transitionEndOrCancelHandler = (e: TransitionEvent) => {

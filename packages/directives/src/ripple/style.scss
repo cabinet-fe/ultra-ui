@@ -17,4 +17,13 @@
   @include m.is(removing) {
     opacity: 0 !important;
   }
+
+  // 波纹层：定位与裁剪波纹的独立容器，宿主不再需要 overflow: hidden；继承宿主圆角以裁切波纹
+  @include m.e(layer) {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    border-radius: inherit;
+  }
 }
