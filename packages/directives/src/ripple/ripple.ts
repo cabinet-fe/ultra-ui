@@ -266,18 +266,30 @@ export class Ripple {
     // 只有在过渡结束且标记为可移除时才执行移除
     if (transitionend !== 'true' || removable !== 'true') return
 
-    const transitionEndOrCancelHandler = (e: TransitionEvent) => {
-      if (e.propertyName !== 'opacity') return
+    let removed = false
+    let fallbackTimer: ReturnType<typeof setTimeout> | undefined
 
+    const cleanup = () => {
+      if (removed) return
+      removed = true
+      clearTimeout(fallbackTimer)
       rippleEl.removeEventListener('transitionend', transitionEndOrCancelHandler)
       rippleEl.removeEventListener('transitioncancel', transitionEndOrCancelHandler)
       rippleEl.remove()
       this.amount--
     }
 
+    const transitionEndOrCancelHandler = (e: TransitionEvent) => {
+      if (e.propertyName !== 'opacity') return
+      cleanup()
+    }
+
     rippleEl.addEventListener('transitionend', transitionEndOrCancelHandler)
     rippleEl.addEventListener('transitioncancel', transitionEndOrCancelHandler)
     rippleEl.classList.add(bem.is('removing'))
+
+    // 兜底：元素被裁剪/隐藏时 transitionend 可能不触发，超时强制回收，避免内联样式长期残留
+    fallbackTimer = setTimeout(cleanup, (this.config?.duration ?? 300) + 100)
   }
 
   /**

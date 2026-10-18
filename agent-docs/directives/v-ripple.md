@@ -112,11 +112,11 @@ interface RippleConfig {
 
 | 参数     | 类型                             | 默认        | 必填 | 约束                                                                                                                                                                              |
 | -------- | -------------------------------- | ----------- | :--: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 绑定值   | `string \| boolean \| undefined` | `undefined` |  否  | `string`：波纹元素附加该类名（本库组件传 BEM 元素类，如 `u-option__ripple`）；`false`：禁用（仅精确等于 `false` 生效，`0`、`''`、`null`、`undefined` 都不禁用）；省略：仅默认样式 |
+| 绑定值   | `string \| boolean \| undefined` | `undefined` |  否  | `string`：波纹元素附加该类名（本库组件传 BEM 元素类，如 `u-option__ripple`）；`true`：启用波纹，波纹元素不附加类名；`false`：禁用（仅精确等于 `false` 生效，`0`、`''`、`null`、`undefined` 都不禁用）；省略：仅默认样式 |
 | 指令参数 | `v-ripple:<毫秒数>`              | `300`       |  否  | `v-ripple:600` 表示过渡时长 600ms；值为 `0` 或空时按默认 300ms；时长同时作用于扩散与淡出过渡                                                                                      |
 | 修饰符   | 无                               | —           |  —   | 不支持任何修饰符                                                                                                                                                                  |
 | 触发时机 | `mousedown`                      | —           |  —   | 仅鼠标左键（`e.button === 0`）；右键、中键、纯触摸不触发                                                                                                                          |
-| 清理行为 | —                                | —           |  —   | `mouseup` / `mouseleave` 时波纹淡出（加 `is-removing` 类，`opacity` 过渡结束或取消后从 DOM 移除）；`unmounted` 时注销事件并移除未结束的波纹                                       |
+| 清理行为 | —                                | —           |  —   | `mouseup` / `mouseleave` 时波纹淡出（加 `is-removing` 类，`opacity` 过渡结束或取消后从 DOM 移除；未收到过渡事件时在动画时长 + 100ms 后兜底移除）；`unmounted` 时注销事件并移除未结束的波纹                                       |
 
 运行期间指令对容器样式的管理：容器 `position` 为 `static` 时临时改为 `relative`、`overflow` 为 `visible` 时临时改为 `hidden`（通过 dataset 引用计数，多实例协作），最后一个波纹移除后恢复为修改前的值。
 
@@ -126,7 +126,7 @@ interface RippleConfig {
 
 - `show(centerPosition)`：`centerPosition` 为相对容器的 `x`/`y` 坐标（px），超出容器边界的按点会得到更大的波纹半径。
 - `showByEvent(e)`：接受 `MouseEvent`（用 `clientX`/`clientY`）或 `TouchEvent`（取 `touches[0]`）。
-- `remove()`：内部标记当前波纹为可移除，等 `opacity` 的 `transitionend` 或 `transitioncancel` 后从 DOM 删除；配置了 `autoRemove: true` 时无需调用。
+- `remove()`：内部标记当前波纹为可移除，等 `opacity` 的 `transitionend` 或 `transitioncancel` 后从 DOM 删除，未收到过渡事件时在动画时长 + 100ms 后兜底删除；配置了 `autoRemove: true` 时无需调用。
 - `resetContainerRect()`：预留接口，当前实现为空操作（容器矩形每次触发时实时获取），无需手动调用。
 
 ## 典型示例

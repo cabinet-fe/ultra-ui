@@ -59,7 +59,8 @@ export { Ripple }
 
 export const vRipple: ObjectDirective<HTMLElement> = {
   mounted: (el, binding) => {
-    if (binding.value !== false) {
+    // 仅字符串是波纹类名；布尔 true 只表示启用，不能写成 dataset 类名
+    if (typeof binding.value === 'string' && binding.value) {
       el.dataset.rippleClass = binding.value
     }
 

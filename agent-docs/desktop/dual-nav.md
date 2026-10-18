@@ -12,6 +12,8 @@ keywords:
   - description
   - findFirstLeaf
   - 左轨
+  - 内部滚动
+  - 左轨滚动
   - 右栏
   - 应用切换
   - 应用菜单
@@ -24,7 +26,7 @@ keywords:
 
 # UDualNav 双栏导航
 
-`@veltra/desktop` 导出 `UDualNav`（双栏导航）。左轨是 `menus` 根级应用（图标或图标 + 名称），右栏展示当前应用的子菜单；点击左轨把右栏切到对应应用并发出 `item-click`（payload 为该应用深度优先的第一个叶子项）。选中由 `currentPath` 受控，**不内置 vue-router**。分工规则：需要「应用 → 子菜单」两层工作区结构用 `UDualNav`；需要不限层级多级菜单用 `UNav`；菜单是「分组标题 + 一层叶子」扁平结构用 `UGroupNav`。
+`@veltra/desktop` 导出 `UDualNav`（双栏导航）。左轨是 `menus` 根级应用（图标或图标 + 名称），右栏展示当前应用的子菜单；点击左轨把右栏切到对应应用并发出 `item-click`（payload 为该应用深度优先的第一个叶子项）。一级应用总高超过左轨可视高度时左轨内部滚动（隐藏滚动条）。选中由 `currentPath` 受控，**不内置 vue-router**。分工规则：需要「应用 → 子菜单」两层工作区结构用 `UDualNav`；需要不限层级多级菜单用 `UNav`；菜单是「分组标题 + 一层叶子」扁平结构用 `UGroupNav`。
 
 ## 快速上手
 
@@ -269,7 +271,7 @@ function onItemClick(item: NavItem) {
 > - 点击左轨后 `currentPath` 不会自动变化：`item-click` 发出的是应用第一个叶子的 `NavItem`，宿主必须拿它跳路由（或更新 `currentPath`），否则左轨只呈现 selected 悬停态而非激活态。
 > - 本库是受控组件（`currentPath` + `@item-click`），不是 `v-model`，也不内置 vue-router。
 > - 左轨名称最多显示 4 个字（`title.slice(0, 4)`），需要完整名称时写进 `description` 由 tooltip 展示。
-> - 组件整体没有默认尺寸，宿主必须给宽高（如 `320px × 480px`）；右栏菜单区域内部自带滚动。
+> - 组件整体没有默认尺寸，宿主必须给宽高（如 `320px × 480px`）；右栏菜单区域与左轨（一级应用溢出时）均内部滚动，左轨隐藏滚动条。
 > - 根级应用与各级菜单的 `path` 必须整树唯一，`currentPath` 反查与激活判定都依赖它。
 
 自定义侧栏外观示例（应用入口执行一次）：

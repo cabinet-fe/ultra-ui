@@ -20,7 +20,13 @@ $root-name: dual-nav;
     align-items: center;
     gap: 4px;
     padding: 8px 6px;
+    overflow-y: auto;
     background-color: var(--u-nav-rail-bg);
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   @include m.m(labeled) {
@@ -123,6 +129,9 @@ $root-name: dual-nav;
   }
 
   @include m.e(app) {
+    // ripple 会在 mousedown 时给按钮写内联 overflow: hidden，
+    // 溢出轨道里若不锁定高度，按钮会被 flex 收缩到 0 导致图标消失、后续按钮位移
+    flex-shrink: 0;
     width: 100%;
     aspect-ratio: 1;
     max-width: calc(var(--u-nav-rail-width) - 12px);

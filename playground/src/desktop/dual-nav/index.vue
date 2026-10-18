@@ -6,6 +6,10 @@
         <input v-model="labeled" type="checkbox" />
         labeled 左轨（图标 + 名称）
       </label>
+      <label class="demo-toggle">
+        <input v-model="overflowDemo" type="checkbox" />
+        20 个一级应用（溢出滚动）
+      </label>
     </div>
 
     <u-dual-nav
@@ -29,8 +33,9 @@ const router = useRouter()
 
 const currentPath = computed(() => route.query.currentPath as string | undefined)
 const labeled = shallowRef(false)
+const overflowDemo = shallowRef(false)
 
-const menus = shallowRef<DualNavRootItem[]>([
+const baseMenus: DualNavRootItem[] = [
   {
     title: '工作台',
     icon: HouseFilled,
@@ -67,7 +72,23 @@ const menus = shallowRef<DualNavRootItem[]>([
     ]
   },
   { title: '帮助文档', icon: Cart, path: '/dual-nav/help', description: '产品使用说明与常见问题' }
-])
+]
+
+/** 溢出演示：4 个基础应用 + 16 个模拟应用，共 20 个一级应用，320×480 容器下左轨内部滚动 */
+const overflowMenus: DualNavRootItem[] = Array.from({ length: 16 }, (_, index) => {
+  const no = index + 1
+  return {
+    title: `应用 ${no}`,
+    path: `/dual-nav/extra-${no}`,
+    description: `模拟应用 ${no}`,
+    children: [
+      { title: `功能 ${no}-1`, path: `/dual-nav/extra-${no}/one` },
+      { title: `功能 ${no}-2`, path: `/dual-nav/extra-${no}/two` }
+    ]
+  }
+})
+
+const menus = computed(() => (overflowDemo.value ? [...baseMenus, ...overflowMenus] : baseMenus))
 
 function handleItemClick(item: DualNavRootItem | NavItem) {
   router.replace({ path: route.path, query: { currentPath: item.path } })
