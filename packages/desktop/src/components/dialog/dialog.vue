@@ -7,19 +7,21 @@
         :class="[cls.e('overlay'), bem.is('modal', modal)]"
         ref="overlayRef"
         @mousedown="modal && close()"
-        @keyup.esc="close"
-        tabindex="0"
       >
         <transition :name="transition" @after-leave="onAfterDialogLeave">
           <div
             v-if="dialogVisible"
-            v-bind="$attrs"
-            :class="className"
             ref="dialogRef"
+            :class="className"
+            role="dialog"
+            :aria-modal="modal ? 'true' : undefined"
+            :aria-labelledby="hasTitle ? titleId : undefined"
+            tabindex="-1"
             @mousedown.stop="handleIncreaseZIndex"
+            v-bind="$attrs"
           >
             <section :class="headerCls" ref="headerRef" @transitionend.stop @transitioncancel.stop>
-              <div :class="cls.e('title')" @mousedown.stop>
+              <div :id="titleId" :class="cls.e('title')" @mousedown.stop>
                 <slot name="header">
                   {{ header || title }}
                 </slot>
@@ -75,8 +77,9 @@
 import { useDrag, useFallbackProps } from '@veltra/compositions'
 import { Close, Maximum, Recover } from '@veltra/icons/normal'
 import { bem, extractNormalVNodes, setStyles, zIndex } from '@veltra/utils'
-import { shallowRef, watch, computed, provide, nextTick } from 'vue'
+import { shallowRef, watch, computed, provide, nextTick, useId } from 'vue'
 
+import { useOverlay } from '../../composables/use-overlay'
 import type { DialogProps, DialogEmits, DialogExposed, ComponentSize } from '../../types'
 import { UIcon } from '../icon'
 import { UNodeRender } from '../node-render'
@@ -90,7 +93,9 @@ const props = withDefaults(defineProps<DialogProps>(), {
   modal: true,
   modelValue: true,
   autoScroll: true,
-  transition: 'fade-scale'
+  transition: 'fade-scale',
+  closeOnEsc: true,
+  lockScroll: true
 })
 const emit = defineEmits<DialogEmits>()
 
@@ -108,6 +113,12 @@ const cls = bem('dialog')
 const headerCls = [cls.e('header')]
 const footerCls = [cls.e('footer')]
 
+/** 标题元素 id，供 aria-labelledby 引用 */
+const titleId = useId()
+
+/** 是否渲染了标题，用于决定 aria-labelledby */
+const hasTitle = computed(() => Boolean(props.title || props.header || slots.header))
+
 const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
 const overlayRef = shallowRef<HTMLDivElement>()
@@ -120,8 +131,9 @@ const headerRef = shallowRef<HTMLDivElement>()
 
 const visible = defineModel<boolean>({ default: false })
 
-const overlayVisible = shallowRef(false)
-const dialogVisible = shallowRef(false)
+// 初始即打开时没有进入过渡钩子，直接按打开状态渲染（初始挂载不播进入动画）
+const overlayVisible = shallowRef(visible.value)
+const dialogVisible = shallowRef(visible.value)
 
 watch(visible, (v) => {
   if (v) {
@@ -153,27 +165,32 @@ const className = computed(() => {
   return [cls.b, cls.m(size.value)]
 })
 
+/** dialog位移的位置 */
+const translated = { x: 0, y: 0 }
+
 /**
  * 是否弹出过, 用于控制下一次弹出时是否采用v-show的方式
  */
 let opened = false
 
-watch(visible, (v) => {
-  if (!v) return
+watch(
+  visible,
+  (v) => {
+    if (!v) return
 
-  if (!opened) opened = true
+    if (!opened) opened = true
 
-  // 初始化位置偏移量
-  translated.x = 0
-  translated.y = 0
+    // 初始化位置偏移量
+    translated.x = 0
+    translated.y = 0
 
-  nextTick(() => {
-    setStyles(overlayRef.value!, { zIndex: zIndex() })
-  })
-})
-
-/** dialog位移的位置 */
-const translated = { x: 0, y: 0 }
+    nextTick(() => {
+      const overlay = overlayRef.value
+      if (overlay) setStyles(overlay, { zIndex: zIndex() })
+    })
+  },
+  { immediate: true }
+)
 
 /**
  * 更新弹框位置
@@ -224,6 +241,17 @@ function handleIncreaseZIndex() {
 const close = () => {
   visible.value = false
 }
+
+// 通用遮罩行为：Esc 关闭、body 滚动锁、焦点圈与焦点恢复
+// 非模态弹框不锁滚动、不做焦点圈，避免页面无法滚动或键盘无法离开弹框
+useOverlay({
+  visible: () => visible.value,
+  panel: () => dialogRef.value,
+  onClose: close,
+  closeOnEsc: () => props.closeOnEsc,
+  lockScroll: () => props.lockScroll && props.modal,
+  trapFocus: () => props.modal
+})
 
 provide(DialogDIKey, { visible })
 

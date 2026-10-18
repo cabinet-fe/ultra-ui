@@ -1,6 +1,6 @@
 ---
 title: UDrawer 抽屉
-description: '从 @veltra/desktop 导入的抽屉组件：v-model 控制显隐，从上/下/左/右四个方向滑出，带半透明遮罩与可选关闭按钮，可选 title 标题栏，size 自定义尺寸（左右为宽、上下为高），内容区自带留白与滚动，点遮罩或关闭按钮关闭，closed 在退出动画全部结束后回调。'
+description: '从 @veltra/desktop 导入的抽屉组件：v-model 控制显隐，从上/下/左/右四个方向滑出，带半透明遮罩与可选关闭按钮，可选 title 标题栏，size 自定义尺寸（左右为宽、上下为高），内容区自带留白与滚动，点遮罩、关闭按钮或按 Esc（closeOnEsc）关闭；打开时默认锁定 body 滚动（lockScroll），焦点圈在抽屉内、关闭后还原，面板带 role="dialog" 与 aria-modal，closed 在退出动画全部结束后回调。'
 aliases: [Drawer, 抽屉面板, 侧滑面板, SlidePanel, 侧边抽屉]
 keywords:
   [
@@ -12,6 +12,8 @@ keywords:
     size,
     showClose,
     title,
+    closeOnEsc,
+    lockScroll,
     DrawerDirection,
     DrawerMode,
     DrawerProps,
@@ -23,6 +25,11 @@ keywords:
     遮罩层,
     侧边栏,
     关闭按钮,
+    Esc 关闭,
+    滚动锁定,
+    焦点圈,
+    焦点恢复,
+    aria-modal,
     顶部通知条,
     底部面板
   ]
@@ -31,6 +38,8 @@ keywords:
 # UDrawer 抽屉
 
 `@veltra/desktop` 导出的 `UDrawer` 是抽屉组件：用 `v-model`（`modelValue`）控制显隐，`direction` 决定从上/下/左/右哪个方向滑出，内容通过 Teleport 渲染在 `body` 下的全屏遮罩内；传 `title` 时内容区上方多一条标题栏，默认插槽内容渲染在自带留白与滚动的 `u-drawer__body` 容器里。
+
+除点遮罩与关闭按钮外，抽屉默认支持按 Esc 关闭（`closeOnEsc`），打开时锁定 `body` 滚动（`lockScroll`）并把焦点圈在面板内，关闭后焦点回到打开前的位置；面板带 `role="dialog"` 与 `aria-modal="true"`。
 
 ## 快速上手
 
@@ -75,6 +84,10 @@ export interface DrawerProps {
   showClose?: boolean
   /** 抽屉标题；传入时在内容区上方渲染标题栏，不传则不渲染标题栏 */
   title?: string
+  /** 是否允许按 Esc 关闭抽屉。默认 true */
+  closeOnEsc?: boolean
+  /** 打开时是否锁定 body 滚动。默认 true */
+  lockScroll?: boolean
 }
 
 /** 抽屉组件定义的事件 */
@@ -103,16 +116,18 @@ export interface DrawerExposed {}
 | `size`       | `number \| string`                       | —         |  否  | 左右方向映射为宽度、上下方向映射为高度；数字按 px，字符串原样输出（如 `'40vh'`）；内联样式，优先级高于 `--u-drawer-size` token |
 | `showClose`  | `boolean`                                | `false`   |  否  | 关闭按钮渲染在抽屉外沿一侧（距边缘外侧 52px 处），点击关闭                              |
 | `title`      | `string`                                 | —         |  否  | 传入时在内容区上方渲染标题栏（高 `48px`、底部一条分隔线）；不传则不渲染标题栏           |
+| `closeOnEsc` | `boolean`                                | `true`    |  否  | 按 Esc 关闭抽屉；为 `false` 时 Esc 不触发关闭                                           |
+| `lockScroll` | `boolean`                                | `true`    |  否  | 打开时锁定 `body` 滚动并补偿滚动条宽度，关闭后恢复原内联样式；多个遮罩叠加按计数恢复    |
 
 ## 方法与事件
 
 | 名称                | 类型                       | 触发时机                                                                                         |
 | ------------------- | -------------------------- | ------------------------------------------------------------------------------------------------ |
 | `update:modelValue` | `(value: boolean) => void` | 抽屉滑出动画结束后发出 `false`，配合 `v-model` 同步；此后遮罩才开始淡出                          |
-| `close`             | `()`                       | 点遮罩或点关闭按钮时触发一次（开始关闭的时刻，非动画结束后）                                     |
+| `close`             | `()`                       | 点遮罩、点关闭按钮或按 Esc 时触发一次（开始关闭的时刻，非动画结束后）                             |
 | `closed`            | `()`                       | 退出动画全部结束后触发一次：抽屉滑出 → `v-model` 变 `false` → 遮罩淡出，遮罩与抽屉节点都已移除时 |
 
-`UDrawer` 没有暴露任何 ref 方法（`DrawerExposed` 为空对象）；关闭只能通过点遮罩、点关闭按钮或把 `v-model` 置 `false`。
+`UDrawer` 没有暴露任何 ref 方法（`DrawerExposed` 为空对象）；关闭入口是点遮罩、点关闭按钮、按 Esc（`closeOnEsc` 默认开启）或把 `v-model` 置 `false`。
 
 ## 典型示例
 
@@ -178,6 +193,14 @@ const panelVisible = ref(false)
 </template>
 ```
 
+## 无障碍与交互约定
+
+- 面板带 `role="dialog"`、`aria-modal="true"` 与 `tabindex="-1"`；传 `title` 时标题元素带 id、面板用 `aria-labelledby` 关联，不传时可通过透传的 `aria-label` 补充名称。
+- 打开后焦点移入抽屉：优先第一个可聚焦元素，没有则聚焦面板自身；`Tab` / `Shift+Tab` 在面板内循环。关闭后焦点回到打开前的元素。
+- Esc 监听挂在 `document` 上，不要求焦点在遮罩或抽屉内；多层遮罩叠加时只关闭最上层。`closeOnEsc: false` 可禁用。
+- 打开时默认锁定 `body` 滚动（`overflow: hidden`，并按滚动条宽度补偿 `padding-right`），关闭或卸载后恢复原有内联样式；多个遮罩叠加时按引用计数恢复。
+- `class` / `style` / `role` / `aria-*` 等透传属性落在抽屉面板上，可覆盖默认的无障碍属性。
+
 ## 注意事项
 
 > [!WARNING]
@@ -186,7 +209,7 @@ const panelVisible = ref(false)
 > - 默认插槽内容渲染在 `u-drawer__body` 容器内：`flex: 1` 占满剩余高度、`overflow: auto` 内容过长时滚动、内边距为 `--u-gap-default`（light 主题 `8px`）。自己再包一层 `padding` 容器通常多余；需要内容贴边时用 `:deep(.u-drawer__body) { padding: 0 }` 覆盖。
 > - 关闭按钮的绑定名是 `showClose`，不是 `closable`；没有 `mask-closable` prop，点遮罩始终会关闭。
 > - `title` 传入即在内容区上方渲染标题栏（高 `48px`、底部一条分隔线，文字 `font-weight: 600`）；不传时标题栏不渲染也不占位。标题栏样式不可配置，需要自定义标题区（图标、按钮）时不要传 `title`，直接在默认插槽里写。
-> - 三个时机按顺序发生：`close`（点遮罩/按钮）→ 抽屉滑出约 `300ms` 后 `v-model` 变 `false` → 遮罩再淡出约 `250ms` 后 `closed`。要「动画后回调」用 `closed`，不要用 `v-model` 变 `false` 的时机（那会早一个遮罩淡出）。
+> - 三个时机按顺序发生：`close`（点遮罩/按钮/按 Esc）→ 抽屉滑出约 `300ms` 后 `v-model` 变 `false` → 遮罩再淡出约 `250ms` 后 `closed`。要「动画后回调」用 `closed`，不要用 `v-model` 变 `false` 的时机（那会早一个遮罩淡出）。
 > - 显隐绑定名是 `modelValue`（`v-model`），不是 `open` / `visible`。
 > - 示例独立成页运行时必须先初始化主题：`import '@veltra/styles/normalize'` 后调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色。
 

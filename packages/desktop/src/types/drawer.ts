@@ -26,6 +26,10 @@ export interface DrawerProps {
    * @description 不传则不渲染标题栏，内容仍全部来自默认插槽
    */
   title?: string
+  /** 是否允许按 Esc 关闭抽屉，默认 true */
+  closeOnEsc?: boolean
+  /** 打开时是否锁定 body 滚动，默认 true */
+  lockScroll?: boolean
 }
 
 /** 抽屉组件定义的事件 */

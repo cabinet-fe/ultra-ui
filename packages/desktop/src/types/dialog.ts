@@ -19,6 +19,10 @@ export interface DialogProps {
   fullscreen?: boolean
   /** 弹框过渡动画，默认为 spring */
   transition?: DialogTransition
+  /** 是否允许按 Esc 关闭弹框，默认 true */
+  closeOnEsc?: boolean
+  /** 打开时是否锁定 body 滚动，默认 true */
+  lockScroll?: boolean
 }
 
 /** 对话框组件定义的事件 */

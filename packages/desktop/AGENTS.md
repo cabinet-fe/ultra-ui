@@ -17,6 +17,7 @@ src/
 │   │   ├── use-*.ts      # 可选
 │   │   └── di.ts         # 可选 InjectionKey
 │   └── index.ts
+├── composables/          # 内部组合式函数（不从包入口导出）
 └── types/
     ├── index.ts
     └── <name>.ts         # Props / Emits / Exposed

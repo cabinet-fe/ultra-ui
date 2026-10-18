@@ -1,6 +1,6 @@
 ---
 title: UDialog 对话框
-description: '从 @veltra/desktop 导入的模态对话框组件：v-model 或 trigger 插槽控制显隐，带遮罩、标题栏拖拽与最大化/还原。默认插槽内容已在自带滚动容器内，超过高度自动滚动；最大化时通过作用域参数把内容高度设为 100% 铺满，无需自写高度与滚动样式。'
+description: '从 @veltra/desktop 导入的模态对话框组件：v-model 或 trigger 插槽控制显隐，带遮罩、标题栏拖拽与最大化/还原。模态时默认按 Esc 关闭（closeOnEsc）、锁定 body 滚动（lockScroll）并把焦点圈在弹框内、关闭后还原焦点；面板带 role="dialog"、模态时带 aria-modal。默认插槽内容已在自带滚动容器内，超过高度自动滚动；最大化时通过作用域参数把内容高度设为 100% 铺满，无需自写高度与滚动样式。'
 aliases: [Dialog, Modal, 弹窗, 模态框, modal]
 keywords:
   [
@@ -14,6 +14,8 @@ keywords:
     footer,
     trigger,
     modal,
+    closeOnEsc,
+    lockScroll,
     ComponentSize,
     Esc 关闭,
     点击遮罩关闭,
@@ -23,6 +25,10 @@ keywords:
     内容滚动,
     表单弹窗,
     多层弹窗叠加,
+    焦点圈,
+    焦点恢复,
+    滚动锁定,
+    aria-modal,
     z-index
   ]
 ---
@@ -30,6 +36,8 @@ keywords:
 # UDialog 对话框
 
 `@veltra/desktop` 导出的 `UDialog` 是模态对话框组件：用 `v-model`（`modelValue`）或 `#trigger` 插槽控制显隐，内容渲染在 `body` 下，带遮罩、标题栏拖拽、最大化/还原按钮与 `footer` 按钮区插槽。
+
+模态弹框默认支持按 Esc 关闭（不依赖焦点位置）、锁定 `body` 滚动，并把焦点移入弹框、`Tab` 在弹框内循环，关闭后焦点回到打开前的位置；面板带 `role="dialog"`，模态时带 `aria-modal="true"`。非模态弹框（`modal: false`）不锁滚动、不做焦点圈，避免页面无法滚动或键盘无法离开弹框。
 
 对话框**自带滚动容器**：`#default` 插槽内容放在内部 `UScroll` 中，弹框高度受 `max-height: 90vh` 限制（最大化时 100vh），内容超出高度时自动滚动。因此**不要**在内容里再写 `height` / `max-height` / `overflow: auto`，也不要自己包滚动容器——只设置内容本身需要的布局样式即可。最大化时用 `#default` 的作用域参数 `maximized` 把内容高度设为 `100%` 即可跟随铺满。详见「典型示例 · 最大化时内容铺满」。
 
@@ -82,6 +90,10 @@ export interface DialogProps {
   fullscreen?: boolean
   /** 过渡动画。默认 'fade-scale'，当前仅此一个取值 */
   transition?: DialogTransition
+  /** 是否允许按 Esc 关闭弹框。默认 true */
+  closeOnEsc?: boolean
+  /** 打开时是否锁定 body 滚动。默认 true，仅模态弹框生效 */
+  lockScroll?: boolean
 }
 
 /** 对话框组件定义的事件 */
@@ -113,6 +125,8 @@ export interface DialogExposed {
 | `modal`      | `boolean`                         | `true`         |  否  | `true` 时显示遮罩且点遮罩关闭；`false` 时遮罩 `pointer-events: none`，点击外部不关闭 |
 | `fullscreen` | `boolean`                         | —              |  否  | 已声明但当前版本未实现任何行为                                                       |
 | `transition` | `'fade-scale'`                    | `'fade-scale'` |  否  | 当前仅接受 `'fade-scale'`                                                            |
+| `closeOnEsc` | `boolean`                         | `true`         |  否  | 按 Esc 关闭（document 级监听，不要求焦点在弹框内）；为 `false` 时 Esc 不触发关闭      |
+| `lockScroll` | `boolean`                         | `true`         |  否  | 打开时锁定 `body` 滚动并补偿滚动条宽度，关闭后恢复原内联样式；非模态弹框不生效        |
 
 ## 方法与事件
 
@@ -130,6 +144,15 @@ export interface DialogExposed {
 - `#header`：无作用域；替换标题文字区域，标题栏拖拽与右侧按钮保留。
 
 `#default` 插槽内容渲染在组件内部的 `UScroll` 中：弹框高度上限为 `90vh`（最大化时 `100vh`），内容超出即自动出现滚动条，标题栏与 `footer` 始终吸顶/吸底。因此内容里禁止再写 `height`、`max-height`、`overflow` 或自建滚动容器。
+
+## 无障碍与交互约定
+
+- 面板带 `role="dialog"` 与 `tabindex="-1"`；`modal` 为 `true` 时输出 `aria-modal="true"`，为 `false` 时不输出该属性。
+- 有 `title` / `header`（含 `#header` 插槽）时，标题元素带 id、面板用 `aria-labelledby` 关联；没有标题时可通过透传的 `aria-label` 补充可访问名称。
+- 模态弹框打开后焦点移入面板（优先第一个可聚焦元素，没有则聚焦面板自身），`Tab` / `Shift+Tab` 在面板内循环，关闭后焦点回到打开前的元素；非模态弹框不抢焦点、不做焦点圈。
+- Esc 监听挂在 `document` 上，不要求焦点位于遮罩层；多层弹框叠加时只关闭最上层。`closeOnEsc: false` 可禁用。
+- 模态弹框打开时默认锁定 `body` 滚动（`overflow: hidden`，并按滚动条宽度补偿 `padding-right`），关闭或卸载后恢复原有内联样式；多个遮罩叠加时按引用计数恢复。非模态弹框不锁滚动。
+- `class` / `style` / `role` / `aria-*` 等透传属性落在弹框面板上，可覆盖默认的无障碍属性。
 
 ## 典型示例
 
@@ -256,10 +279,11 @@ const visible = ref(false)
 > - 组件不会自带宽度：必须通过 `style` 或 `class` 设置宽度（如 `style="width: 480px"`）；高度不要手写，交给 `max-height` 限制与内部滚动。
 > - 最大化时用 `#default` 的作用域参数 `maximized` 把内容高度设为 `100%` 铺满；不要用 `position: fixed` 或 `100vw/100vh` 自写全屏样式。
 > - 显隐绑定名是 `modelValue`（`v-model`），不是 `open` 或 `visible`。
+> - 初始即传 `modelValue: true` 时弹框直接渲染（初始挂载不播放进入动画）；后续通过 `v-model` 切换时仍走 `fade-scale` 过渡。
 > - `fullscreen` prop 已声明但当前版本没有对应行为；全屏效果用标题栏最大化按钮，弹框会过渡到 `100vw × 100vh`。
 > - `title` 与 `header` 都是标题文字且 `header` 优先；要自定义标题结构用 `#header` 插槽，而不是传对象。
 > - 没有拦截关闭的钩子（没有 `before-close`）：点遮罩、按 Esc、点关闭按钮都会直接关闭；需要校验通过才能关闭的流程，把关闭逻辑放进 footer 自己的回调里控制 `v-model`。
-> - 按下 Esc 关闭要求焦点位于遮罩层上（遮罩带 `tabindex="0"`，点击遮罩即聚焦）。
+> - Esc 关闭不依赖焦点位置（`document` 级监听）；`closeOnEsc: false` 可禁用，多层弹框叠加时只关闭最上层。
 > - 每次关闭后弹框内容即卸载，重新打开会重新挂载；需要保留的表单数据必须放在弹框组件外部。
 > - 多个弹框叠加时按打开顺序自动递增 `z-index`，后开的在上层；非模态弹框内按下鼠标会把自身提到最前。
 > - 示例独立成页运行时必须先初始化主题：`import '@veltra/styles/normalize'` 后调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色。
