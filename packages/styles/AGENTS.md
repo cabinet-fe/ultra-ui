@@ -49,7 +49,12 @@ src/
 
 `@veltra/styles/theme` 运行时依赖 `@veltra/compositions` 的 `useConfig`。**compositions 不得 re-export theme**，避免与 styles 循环依赖。
 
-侧栏导航（nav / dual-nav / group-nav）外观：主题 `nav.variant`（`dark` 深底浅字 / `light` 浅底深字，默认 `dark`）选择 `component-css-vars.ts` 中「变体 × 系列」内置 token 组，主题 `nav` 的其余键作为 `--u-nav-*` 覆盖追加在最后（优先级最高）；preset 可用该机制定义侧栏个性色（如 sakura 深酒红）。
+侧栏导航（nav / dual-nav / group-nav）外观：主题 `nav.variant`（`dark` 深底浅字 / `light` 浅底深字，默认 `dark`）从 `component-css-vars.ts` 的「变体 × 系列」内置 token 组取外观，再叠加主题覆盖：
+
+- `nav` 顶层字符串键：对两个变体都生效；
+- `nav.variants[variant]`：只对该变体生效、优先级最高（preset 的个性色写在这里，如 sakura 深酒红，避免泄漏到另一个变体）。
+
+`UITheme.render()` 同时注入容器级变体规则 `html[data-theme] [data-nav-variant]`（同一主题内任意子树可切菜单深浅，无需重建主题）、`html[data-nav-surface]`（实际底色色调）与一组 `--u-nav-surface-*` 表面装饰 token（叠层/描边/chip/选中态/滚动条，供应用壳使用）。新 API：`withNavVariant()`、`navSidebarColors()`、`navSurfaceTone()`、`navSurfaceTokens()`。
 
 ## 依赖
 

@@ -25,7 +25,7 @@ export const ancientTheme = lightTheme.new({
   radius: { small: 4, default: 8, large: 12 },
   shadow: { color: 'rgba(64, 54, 32, 0.14)', x: 0, y: 4, blur: 16, spread: -2 },
   nav: {
-    // 松烟墨侧栏：黛墨 + 松烟绿调和
-    'bg-color': mixColor('#2b2a26', '#3d6b58', 0.28)
+    // 松烟墨侧栏（深变体）：黛墨 + 松烟绿调和；浅变体回落到主题宣纸底（bg middle）
+    variants: { dark: { 'bg-color': mixColor('#2b2a26', '#3d6b58', 0.28) } }
   }
 })

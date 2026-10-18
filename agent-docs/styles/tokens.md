@@ -6,6 +6,11 @@ keywords:
   [
     --u-color-primary,
     --u-nav-bg-color,
+    --u-nav-surface-overlay,
+    --u-nav-surface-active-gradient,
+    data-nav-variant,
+    data-nav-surface,
+    navSurfaceTone,
     --u-focus-ring,
     --u-border,
     --u-shadow,
@@ -21,6 +26,7 @@ keywords:
     阴影,
     暗色模式,
     侧栏导航,
+    菜单深浅,
     主题定制,
     自定义样式,
     面板样式,
@@ -169,7 +175,7 @@ loadTheme()
 
 ### nav 组（nav / dual-nav / group-nav 专用）
 
-分两类。尺寸与资源类固定值，不随 variant 变：
+分三类。尺寸与资源类固定值，不随 variant 变：
 
 | 变量                                                | 默认           |
 | --------------------------------------------------- | -------------- |
@@ -177,7 +183,27 @@ loadTheme()
 | `--u-nav-rail-width` / `--u-nav-rail-labeled-width` | 56 / 72px      |
 | `--u-nav-bg-image`                                  | `none`         |
 
-外观类随「主题系列 × `nav.variant`」注入（`variant` 默认 `'dark'`），共 10 个：`--u-nav-bg-color`、`--u-nav-color`、`--u-nav-hover-bg`、`--u-nav-hover-color`、`--u-nav-active-bg`、`--u-nav-active-color`、`--u-nav-strong-color`、`--u-nav-second-color`、`--u-nav-sub-border-color`、`--u-nav-rail-bg`。主题 `nav` 的其余键写在同名列之后，覆盖内置值（`styles/theme.md`）。
+**外观类**随「主题系列 × `nav.variant`」注入（`variant` 默认 `'dark'`），共 10 个：`--u-nav-bg-color`、`--u-nav-color`、`--u-nav-hover-bg`、`--u-nav-hover-color`、`--u-nav-active-bg`、`--u-nav-active-color`、`--u-nav-strong-color`、`--u-nav-second-color`、`--u-nav-sub-border-color`、`--u-nav-rail-bg`。主题 `nav` 顶层键写在同名列之后覆盖内置值；`nav.variants[variant]` 只对该变体生效、优先级最高（`styles/theme.md`）。
+
+外观类同时有两套注入位置：`html` 上是主题默认变体；`[data-nav-variant='dark'|'light']` 容器上是对应变体 → 任意子树加 `data-nav-variant` 即可切换菜单深浅，不需要重建主题。
+
+**表面装饰类（应用壳专用，`--u-nav-surface-*`）**：随外观一起注入，值按菜单**实际底色色调**（`navSurfaceTone(series, variant)`：深色系列的任何变体都是深底）配套，供应用壳绘制侧栏容器，避免自己写 `[data-theme]` 分支：
+
+| 变量                                 | 用途                                   |
+| ------------------------------------ | -------------------------------------- |
+| `--u-nav-surface-overlay`            | 侧栏容器叠层渐变（垫在 nav 底色之上）  |
+| `--u-nav-surface-hairline`           | 侧栏与内容列的分隔描边                 |
+| `--u-nav-surface-chip-bg`            | 侧栏内 chip 底色（机构切换、用户卡等） |
+| `--u-nav-surface-chip-border`        | chip 描边                              |
+| `--u-nav-surface-chip-hover-bg`      | chip 悬浮底色                          |
+| `--u-nav-surface-mark-ring`          | 品牌标记的外环                       |
+| `--u-nav-surface-active-gradient`    | 菜单选中项渐变底                       |
+| `--u-nav-surface-active-ring`        | 菜单选中项内描边                       |
+| `--u-nav-surface-accent`             | 菜单选中项左侧光条 / 强调色            |
+| `--u-nav-surface-scrollbar`          | 侧栏滚动条                             |
+| `--u-nav-surface-scrollbar-hover`    | 侧栏滚动条悬浮                         |
+
+`html[data-nav-surface='dark'|'light']` 同步当前主题默认变体的实际底色色调，可用于容器级样式分支（也可用 `navSurfaceTone(series, variant)` 在 JS 侧判断）。
 
 ## 典型示例
 

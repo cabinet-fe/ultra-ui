@@ -182,12 +182,18 @@ export type Theme = {
   }
   /**
    * 侧栏导航（nav / dual-nav / group-nav）组件级变量。
-   * variant 选择深/浅侧栏外观，其余键覆盖同名 `--u-nav-*` token
-   * （如 `'bg-color'` → `--u-nav-bg-color`），覆盖优先级高于 variant 内置值。
+   * `variant` 选择默认深/浅侧栏外观；顶层其余字符串键对所有变体生效并覆盖同名
+   * `--u-nav-*` token（如 `'bg-color'` → `--u-nav-bg-color`）；
+   * `variants` 可为两个变体分别定制外观，只在该变体生效且优先级最高。
    */
   nav?: {
-    /** 侧栏外观：dark 深底浅字 / light 浅底深字，默认 dark */
+    /** 侧栏默认外观：dark 深底浅字 / light 浅底深字，默认 dark */
     variant?: 'dark' | 'light'
+    /**
+     * 按变体定制的外观覆盖，键同 nav 顶层（如 `'bg-color'`）。
+     * 未声明的变体回落到内置「主题系列 × 变体」token。
+     */
+    variants?: Partial<Record<'dark' | 'light', Record<string, string>>>
     [key: string]: any
   }
   /** 折叠面板组件级变量 */

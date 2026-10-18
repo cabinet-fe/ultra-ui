@@ -1,6 +1,6 @@
 ---
 title: loadTheme 运行时主题
-description: "从 '@veltra/styles/theme' 导入 loadTheme 与 9 个预设主题：向 html 注入全局与组件级 --u-* CSS 变量并写入 data-theme，支持预设派生自定义主题、深浅色切换与运行时热替换。"
+description: "从 '@veltra/styles/theme' 导入 loadTheme 与 9 个预设主题：向 html 注入全局与组件级 --u-* CSS 变量并写入 data-theme，支持预设派生自定义主题、深浅色切换、容器级菜单深浅变体与运行时热替换。"
 aliases: [theme, UITheme, 主题切换, 暗色模式, 主题定制, 皮肤]
 keywords:
   [
@@ -11,7 +11,14 @@ keywords:
     glassTheme,
     series,
     nav.variant,
+    nav.variants,
     navSidebarTokens,
+    navSidebarColors,
+    navSurfaceTone,
+    navSurfaceTokens,
+    withNavVariant,
+    data-nav-variant,
+    data-nav-surface,
     data-theme,
     --u-,
     深色模式,
@@ -20,6 +27,7 @@ keywords:
     热替换,
     设计令牌,
     侧栏外观,
+    菜单深浅,
     换肤
   ]
 ---
@@ -27,6 +35,11 @@ keywords:
 # loadTheme 运行时主题
 
 `@veltra/styles/theme` 导出主题加载函数 `loadTheme`、9 个预设主题（`UITheme` 实例）与主题工具函数。`loadTheme` 把主题对象编译成 `html { --u-*: ... }` 声明注入文档，并按主题 `series` 写入 `html[data-theme]`（`'light'` 或 `'dark'`）；组件样式只消费 `--u-*` token，业务代码不做 `[data-theme]` 分支。
+
+除全局 token 外，主题还注入：
+
+- **容器级菜单变体**：`html[data-theme] [data-nav-variant='dark'|'light']` 两套规则，任意子树加 `data-nav-variant` 即可切换菜单深浅，**无需重建主题**；
+- **菜单实际底色色调**：`html[data-nav-surface='dark'|'light']`，深色系列的任何变体都是深底（light 变体只是提亮一档），供应用壳按底色选描边/叠层。见 [tokens.md](tokens.md) 的 nav 组。
 
 ## 快速上手
 
@@ -68,18 +81,47 @@ export class UITheme {
   readonly theme: Theme
   series: ThemeSeries
   constructor(theme: Theme, options?: UIThemeOptions)
-  /** 注入主题：全局 token + 与 series 匹配的组件级 token + nav 侧栏外观，并写 html[data-theme]。同步、无返回值 */
+  /**
+   * 注入主题：全局 token + 与 series 匹配的组件级 token + nav 侧栏外观，并写 html[data-theme]；
+   * 同时注入容器级菜单变体规则（[data-nav-variant]）与实际底色色调（html[data-nav-surface]）。同步、无返回值
+   */
   render(): void
   /**
    * 派生新主题：customTheme 与基主题深合并，空值（''、null、undefined）字段被剔除，0 保留；
    * 继承基主题的 reactive 与 series（options.series 可覆盖）。同步，返回新 UITheme，不修改基主题
    */
   new(customTheme?: RecursivePartial<Theme>, options?: { series?: ThemeSeries }): UITheme
-  /** nav 侧栏外观声明列表：按 nav.variant（默认 'dark'）取内置 token，nav 其余字符串键追加在最后 */
-  navSidebarDecls(theme: Theme): string[]
+  /**
+   * nav 侧栏外观声明列表：默认按 nav.variant（未声明时 'dark'）取内置 token；
+   * nav 顶层字符串键对所有变体生效，nav.variants[variant] 只对该变体生效（优先级最高）。
+   * @param variant 显式指定变体（容器级/预览取色用）
+   */
+  navSidebarDecls(theme: Theme, variant?: 'dark' | 'light'): string[]
+  /** 派生指定菜单变体的主题（等价 new({ nav: { variant } })，变体专属外观由 nav.variants 声明） */
+  withNavVariant(variant: 'dark' | 'light'): UITheme
+  /**
+   * 解析当前主题某菜单变体的具体色值（键为去掉 --u-nav- 前缀的 token 名，
+   * 如 'bg-color' / 'active-color' / 'surface-hairline'），用于主题选择器预览等场景
+   */
+  navSidebarColors(variant?: 'dark' | 'light'): Record<string, string>
   /** 主题变量声明列表（--u-* 自定义属性），含色阶、alpha、简写等派生 token */
   themeToDeclarationList(theme: Theme): string[]
 }
+
+/** 某主题系列 + 菜单变体下侧栏的实际底色色调（深色系列任何变体都是 dark） */
+export function navSurfaceTone(series: ThemeSeries, variant: 'dark' | 'light'): 'dark' | 'light'
+
+/** 某主题系列 + 菜单变体下的 nav 外观 token（--u-nav-*，含表面装饰） */
+export function navSidebarTokens(
+  series: ThemeSeries,
+  variant: 'dark' | 'light'
+): Record<string, string>
+
+/** 某主题系列 + 菜单变体下的 nav 表面装饰 token（--u-nav-surface-*） */
+export function navSurfaceTokens(
+  series: ThemeSeries,
+  variant: 'dark' | 'light'
+): Record<string, string>
 
 /** 当前已加载主题。loadTheme 之前为 undefined */
 export const currentTheme: ShallowRef<UITheme | undefined>
@@ -152,8 +194,15 @@ export type Theme = {
   breakpoint: { xs: number; sm: number; md: number; lg: number }
   /** 组件级扩展键：路径转 kebab 后即 --u-* token（button['default-bg'] → --u-button-default-bg） */
   button?: { 'default-bg'?: string; [key: string]: any }
-  /** 侧栏导航（nav / dual-nav / group-nav）：variant 选深浅外观，其余键覆盖同名 --u-nav-* */
-  nav?: { variant?: 'dark' | 'light'; [key: string]: any }
+  /**
+   * 侧栏导航（nav / dual-nav / group-nav）组件级变量。
+   * variant 是默认外观；variants 可为两个变体分别定制；顶层其余字符串键对所有变体生效并覆盖同名 --u-nav-*
+   */
+  nav?: {
+    variant?: 'dark' | 'light'
+    variants?: Partial<Record<'dark' | 'light', Record<string, string>>>
+    [key: string]: any
+  }
   collapse?: { 'title-color'?: string; [key: string]: any }
   [key: string]: any
 }
@@ -189,6 +238,8 @@ import {
 | `midnightTheme` | `dark`  | 靛蓝 + 深空底，宽松间距、舒缓过渡                                     |
 | `neonTheme`     | `dark`  | 品红 + 夜紫底 + 辉光阴影，小圆角                                      |
 
+预设的个性化侧栏色写在 `nav.variants[variant]`（如古风/樱花/海盐的深墨侧栏），因此切到另一个变体时会自动回落到该主题系列的内置浅/深外观，不会出现「浅变体套深墨底」的串色。
+
 ### 主题工具函数（同入口导出）
 
 ```ts
@@ -202,7 +253,9 @@ import {
   defineBySize, // (<T extends { small: number; default: number; large: number }>(v: T) => T)
   cssVar, // (prop: string) => string；cssVar('text-color-title') === 'var(--u-text-color-title)'
   themeTokenVar, // (basename: string, ...nodes: Array<string | number>) => string
-  navSidebarTokens, // (series: 'light' | 'dark', variant: 'dark' | 'light') => Record<string, string>
+  navSidebarTokens, // (series, variant) => Record<string, string>，含 --u-nav-* 外观 + 表面装饰
+  navSurfaceTokens, // (series, variant) => Record<string, string>，仅 --u-nav-surface-*
+  navSurfaceTone, // (series, variant) => 'dark' | 'light'，侧栏实际底色色调
   resolveNavSidebarDecls // (series, variant) => string[]
 } from '@veltra/styles/theme'
 ```
@@ -222,7 +275,7 @@ import {
 1. 写入 `currentTheme.value`
 2. 无 `document`（SSR）时到此为止，直接返回
 3. 读取 `useConfig().config.size`，在 `html` 上移除其余尺寸 class、添加当前 class（`small` / `default` / `large`，normalize 据此切三档正文字号）
-4. 执行 `theme.render()` 注入声明并写 `html[data-theme]`
+4. 执行 `theme.render()` 注入声明、写 `html[data-theme]` 与 `html[data-nav-surface]`，并注入容器级菜单变体规则（`[data-nav-variant]`）
 
 ### UITheme 构造参数
 
@@ -296,27 +349,58 @@ loadTheme(brandDark) // => html[data-theme="dark"]，表格、按钮等按深色
 
 预设及其派生主题 `reactive` 为 `false`：运行中直接改 `theme.xxx` 不会自动重渲染，改完再调一次 `loadTheme(theme)`。需要响应式主题时用 `new UITheme(theme)`（默认 `reactive: true`，deep watch，改字段即自动 `render()`）。
 
-### 侧栏导航外观（nav.variant 与覆盖）
+### 侧栏导航外观（菜单深浅）
 
-```ts
-import { ancientTheme, loadTheme, navSidebarTokens } from '@veltra/styles/theme'
+每个主题都有「主题系列 × 菜单变体」两套内置 nav 外观：深色变体（深底浅字）与浅色变体（浅底深字）。深色系列主题的 light 变体是「比内容区提亮一档的深色面板」，前景仍为浅色。
 
-// variant: 'dark' 深底浅字 / 'light' 浅底深字，默认 'dark'
-// 其余字符串键覆盖同名 --u-nav-*（'bg-color' → --u-nav-bg-color），写在内置值之后、优先级最高
-loadTheme(ancientTheme.new({ nav: { variant: 'light', 'bg-color': '#f1ede0' } }))
+**方式一：容器级变体（推荐，不重建主题）** —— 任意子树加 `data-nav-variant`，随主题自动取对应系列的内置 token：
+
+```vue
+<!-- 侧栏容器：整个侧栏（含品牌、菜单、用户区）都继承这套 nav token -->
+<aside class="app-sidebar" data-nav-variant="light">
+  <u-nav :menus="menus" current-path="/workbench" />
+</aside>
 ```
 
-要把整组侧栏外观换成「当前系列 × 某变体」的内置值，用 `navSidebarTokens` 展开：
+`loadTheme` 会为四种组合注入规则（`html[data-theme='light'] [data-nav-variant='dark']` 等），所以同一页面里可以并存不同深浅的导航区域；切换变体只改属性，不用重新 `loadTheme`。
+
+**方式二：派生主题（整页统一）** —— 用 `withNavVariant` 派生，切换时重新加载：
 
 ```ts
-import { ancientTheme, loadTheme, navSidebarTokens } from '@veltra/styles/theme'
+import { ancientTheme, loadTheme } from '@veltra/styles/theme'
 
-const nav: Record<string, string> = { variant: 'light' }
-for (const [name, value] of Object.entries(navSidebarTokens(ancientTheme.series, 'light'))) {
-  nav[name.replace(/^--u-nav-/, '')] = value // 键名去掉 --u-nav- 前缀即为覆盖键
-}
-loadTheme(ancientTheme.new({ nav }))
+loadTheme(ancientTheme.withNavVariant('light'))
 ```
+
+**为预设定制某个变体的颜色**：写在 `nav.variants[variant]`，只在该变体生效（预设个性的深侧栏色因此不会泄漏到浅变体）；`nav` 顶层字符串键仍然对所有变体生效：
+
+```ts
+import { loadTheme, lightTheme } from '@veltra/styles/theme'
+
+loadTheme(
+  lightTheme.new({
+    nav: {
+      'hover-bg': 'rgba(0, 0, 0, 0.05)', // 两个变体都生效
+      variants: {
+        dark: { 'bg-color': '#101418' }, // 只有深色菜单生效
+        light: { 'bg-color': '#f5f6f8' } // 只有浅色菜单生效
+      }
+    }
+  })
+)
+```
+
+**取具体色值（主题选择器预览）**：`navSidebarColors(variant?)` 把内置 token 的 `var()` 引用解析成当前主题下的具体色值，不依赖该主题是否已加载到 DOM：
+
+```ts
+const theme = ancientTheme // UITheme 实例
+theme.navSidebarColors()['bg-color'] // 默认（深）变体的侧栏底色，如 '#303c34'
+theme.navSidebarColors('light')['bg-color'] // 浅变体的侧栏底色，如 '#f7f4ea'
+theme.navSidebarColors('light')['active-color'] // 选中项文字色（已解析为 hex）
+```
+
+> [!TIP]
+> 应用壳绘制侧栏容器（叠层渐变、分隔线、chip、品牌标记环、选中态、滚动条）不需要自己算深浅：内置 `--u-nav-surface-*` token 已按实际底色色调（`dark` / `light`）给出配套值；色调也可用 `navSurfaceTone(series, variant)` 或 `html[data-nav-surface]` 获取。token 清单见 [tokens.md](tokens.md) 的 nav 组。
 
 ## 注意事项
 
@@ -326,7 +410,8 @@ loadTheme(ancientTheme.new({ nav }))
 > - `theme` 运行时依赖 `@veltra/compositions` 的 `useConfig`（`loadTheme` 读取 `config.size` 同步 `html` 尺寸 class）；`@veltra/compositions` 禁止 re-export `theme`，否则两个包循环依赖。主题 API 一律从 `@veltra/styles/theme` 导入，不从 compositions 导入。
 > - 本库的深浅色切换是「换一个带目标 `series` 的主题」，不是给 `html` 加 `dark` 类；组件 SCSS 暗色分支用 `@include m.dark`（匹配 `html[data-theme='dark']`），但优先换 token 而不是写分支。
 > - 深色派生必须写 `{ series: 'dark' }`；不写时全局色变了，但表格斑马纹、按钮 plain 等组件级 token 仍按浅色注入。
-> - `nav` 只改 `'bg-color'` 不改 `variant` 不联动前景：浅底必须同时 `variant: 'light'`，否则出现浅底白字。
+> - **菜单深浅不要只改 `nav['bg-color']`**：只改底色不联动前景会出现浅底白字。要么用容器级 `data-nav-variant`（推荐），要么 `withNavVariant()` 派生；预设定制色写在 `nav.variants[variant]`，避免泄漏到另一个变体。
+> - `html[data-nav-surface]` 是当前主题默认菜单变体的**实际底色色调**，深色系列恒为 `dark`；`data-nav-variant` 的切换不改变它（容器级变体由 `--u-nav-surface-*` token 覆盖）。
 > - 值为 `''`、`null`、`undefined` 的字段在 `new()` 派生时被剔除，`0` 保留；数字 token 写入时自动补 `px`。
 > - 非 hex 颜色（如 glassTheme 的 `rgba()` 背景）不生成对应 alpha / 混合派生 token，需要时在主题里用扩展键显式声明（glassTheme 的 `kbd` / `batch-edit` 就是这种写法）。
 

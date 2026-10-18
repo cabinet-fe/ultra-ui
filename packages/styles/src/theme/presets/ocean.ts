@@ -34,7 +34,7 @@ export const oceanTheme = lightTheme.new({
   },
   transition: { fast: '0.12s', ease: 'cubic-bezier(0.22, 1, 0.36, 1)' },
   nav: {
-    // 深海礁侧栏：深礁 + 松石青调和
-    'bg-color': mixColor('#16302e', '#0d9488', 0.25)
+    // 深海礁侧栏（深变体）：深礁 + 松石青调和；浅变体回落到主题雾白底（bg middle）
+    variants: { dark: { 'bg-color': mixColor('#16302e', '#0d9488', 0.25) } }
   }
 })

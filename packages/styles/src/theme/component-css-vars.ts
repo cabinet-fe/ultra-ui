@@ -236,9 +236,67 @@ export const componentCssVarsDarkDecls: string[] = recordToDeclList(componentCss
 
 // ─── Nav 侧栏外观：深/浅变体 × 明/暗主题系列 ───
 // 由 UITheme 按主题 `nav.variant`（默认 dark）选择注入，主题 `nav` 的其余键可逐项覆盖。
+// 同时注入实际底色色调（surface tone）与一组 `--u-nav-surface-*` 装饰 token：
+// 深色系列的任何变体、浅色系列的 dark 变体都是深底，应用壳绘制侧栏容器
+// （叠层渐变、分隔线、chip、品牌标记环、选中态、滚动条）可直接消费，无需写 [data-theme] 分支。
 
 /** 侧栏外观变体：dark 深底浅字 / light 浅底深字 */
 export type NavSidebarVariant = 'dark' | 'light'
+
+/** 侧栏实际底色色调：dark 深底 / light 浅底 */
+export type NavSurfaceTone = 'dark' | 'light'
+
+/**
+ * 某主题系列 + 菜单变体下侧栏的实际底色色调。
+ * 深色系列主题的两个变体都是深底（light 变体只是比内容区提亮一档）。
+ */
+export function navSurfaceTone(
+  series: 'light' | 'dark',
+  variant: NavSidebarVariant
+): NavSurfaceTone {
+  return series === 'dark' || variant === 'dark' ? 'dark' : 'light'
+}
+
+/** 深底侧栏的表面装饰 token */
+const navSurfaceDarkTone: Record<string, string> = {
+  '--u-nav-surface-overlay': `radial-gradient(120% 70% at 0% 0%, ${T('color', 'primary', 'a', '16')}, transparent 62%), linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.3))`,
+  '--u-nav-surface-hairline': 'rgba(255, 255, 255, 0.07)',
+  '--u-nav-surface-chip-bg': 'rgba(255, 255, 255, 0.055)',
+  '--u-nav-surface-chip-border': 'rgba(255, 255, 255, 0.08)',
+  '--u-nav-surface-chip-hover-bg': 'rgba(255, 255, 255, 0.09)',
+  '--u-nav-surface-mark-ring': 'rgba(255, 255, 255, 0.14)',
+  '--u-nav-surface-active-gradient': `linear-gradient(90deg, ${T('color', 'primary', 'a', '35')}, ${T('color', 'primary', 'a', '5')})`,
+  '--u-nav-surface-active-ring': T('color', 'primary', 'a', '16'),
+  '--u-nav-surface-accent': T('color', 'primary', 'light', '5'),
+  '--u-nav-surface-scrollbar': 'rgba(255, 255, 255, 0.22)',
+  '--u-nav-surface-scrollbar-hover': 'rgba(255, 255, 255, 0.4)'
+}
+
+/** 浅底侧栏的表面装饰 token */
+const navSurfaceLightTone: Record<string, string> = {
+  '--u-nav-surface-overlay': `radial-gradient(120% 70% at 0% 0%, ${T('color', 'primary', 'a', '8')}, transparent 62%), linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(0, 0, 0, 0.02))`,
+  '--u-nav-surface-hairline': T('border', 'color'),
+  '--u-nav-surface-chip-bg': 'rgba(15, 23, 42, 0.04)',
+  '--u-nav-surface-chip-border': T('border', 'color'),
+  '--u-nav-surface-chip-hover-bg': 'rgba(15, 23, 42, 0.07)',
+  '--u-nav-surface-mark-ring': 'rgba(15, 23, 42, 0.1)',
+  '--u-nav-surface-active-gradient': `linear-gradient(90deg, ${T('color', 'primary', 'a', '16')}, ${T('color', 'primary', 'a', '4')})`,
+  '--u-nav-surface-active-ring': T('color', 'primary', 'a', '8'),
+  '--u-nav-surface-accent': T('color', 'primary'),
+  '--u-nav-surface-scrollbar': T('text-color', 'assist', 'a', '40'),
+  '--u-nav-surface-scrollbar-hover': T('text-color', 'assist', 'a', '60')
+}
+
+/** 给内置外观 token 补上与其实际底色色调匹配的表面装饰 token */
+function withNavSurface(
+  appearance: Record<string, string>,
+  series: 'light' | 'dark',
+  variant: NavSidebarVariant
+): Record<string, string> {
+  const surface =
+    navSurfaceTone(series, variant) === 'dark' ? navSurfaceDarkTone : navSurfaceLightTone
+  return { ...appearance, ...surface }
+}
 
 /** 深侧栏 · 浅色主题下：深底（text-color.title）+ 浅前景，与浅色内容区拉开区分度 */
 const navSidebarDarkInLight: Record<string, string> = {
@@ -254,14 +312,14 @@ const navSidebarDarkInLight: Record<string, string> = {
   '--u-nav-rail-bg': 'rgba(0, 0, 0, 0.2)'
 }
 
-/** 浅侧栏 · 浅色主题下：比内容区 top 低一档的浅底 + 深前景 */
+/** 浅侧栏 · 浅色主题下：比内容区 top 低一档的浅底 + 深前景；选中文字加深，保证 13px 正文的对比度 */
 const navSidebarLightInLight: Record<string, string> = {
   '--u-nav-bg-color': T('bg-color', 'middle'),
   '--u-nav-color': T('text-color', 'title'),
   '--u-nav-hover-bg': T('text-color', 'title', 'a', '8'),
   '--u-nav-hover-color': T('text-color', 'title'),
   '--u-nav-active-bg': T('color', 'primary', 'a', '10'),
-  '--u-nav-active-color': T('color', 'primary', 'dark', '1'),
+  '--u-nav-active-color': T('color', 'primary', 'dark', '3'),
   '--u-nav-strong-color': T('text-color', 'title'),
   '--u-nav-second-color': T('text-color', 'second'),
   '--u-nav-sub-border-color': T('border', 'color', 'a', '52'),
@@ -282,14 +340,14 @@ const navSidebarDarkInDark: Record<string, string> = {
   '--u-nav-rail-bg': T('bg-color', 'bottom')
 }
 
-/** 浅侧栏 · 深色主题下：提亮侧栏（与深色内容区反向对比） */
+/** 浅侧栏 · 深色主题下：提亮侧栏（与深色内容区反向对比）；表面仍是深底，选中文字用白色保证对比度 */
 const navSidebarLightInDark: Record<string, string> = {
   '--u-nav-bg-color': T('bg-color', 'top'),
   '--u-nav-color': T('text-color', 'title'),
   '--u-nav-hover-bg': T('text-color', 'title', 'a', '8'),
   '--u-nav-hover-color': T('text-color', 'title'),
   '--u-nav-active-bg': T('color', 'primary', 'a', '22'),
-  '--u-nav-active-color': T('color', 'primary'),
+  '--u-nav-active-color': T('text-color', 'white'),
   '--u-nav-strong-color': T('text-color', 'title'),
   '--u-nav-second-color': T('text-color', 'second'),
   '--u-nav-sub-border-color': T('border', 'color', 'a', '52'),
@@ -300,11 +358,17 @@ const navSidebarCssVars: Record<
   'light' | 'dark',
   Record<NavSidebarVariant, Record<string, string>>
 > = {
-  light: { dark: navSidebarDarkInLight, light: navSidebarLightInLight },
-  dark: { dark: navSidebarDarkInDark, light: navSidebarLightInDark }
+  light: {
+    dark: withNavSurface(navSidebarDarkInLight, 'light', 'dark'),
+    light: withNavSurface(navSidebarLightInLight, 'light', 'light')
+  },
+  dark: {
+    dark: withNavSurface(navSidebarDarkInDark, 'dark', 'dark'),
+    light: withNavSurface(navSidebarLightInDark, 'dark', 'light')
+  }
 }
 
-/** 某主题系列 + 侧栏变体下的 nav 外观 token（键为 `--u-nav-*`） */
+/** 某主题系列 + 侧栏变体下的 nav token（外观 + 表面装饰，键为 `--u-nav-*`） */
 export function navSidebarTokens(
   series: 'light' | 'dark',
   variant: NavSidebarVariant
@@ -312,7 +376,17 @@ export function navSidebarTokens(
   return { ...navSidebarCssVars[series][variant] }
 }
 
-/** 解析某主题系列 + 侧栏变体下的 nav 外观 token 声明列表 */
+/** 某主题系列 + 侧栏变体下的 nav 表面装饰 token（键为 `--u-nav-surface-*`） */
+export function navSurfaceTokens(
+  series: 'light' | 'dark',
+  variant: NavSidebarVariant
+): Record<string, string> {
+  const surface =
+    navSurfaceTone(series, variant) === 'dark' ? navSurfaceDarkTone : navSurfaceLightTone
+  return { ...surface }
+}
+
+/** 解析某主题系列 + 侧栏变体下的 nav token 声明列表 */
 export function resolveNavSidebarDecls(
   series: 'light' | 'dark',
   variant: NavSidebarVariant

@@ -36,7 +36,7 @@ export const sakuraTheme = lightTheme.new({
   },
   transition: { easeOut: 'cubic-bezier(0.34, 1.56, 0.64, 1)' },
   nav: {
-    // 深酒红侧栏：樱墨 + 樱粉调和
-    'bg-color': mixColor('#43272f', '#e64980', 0.22)
+    // 深酒红侧栏（深变体）：樱墨 + 樱粉调和；浅变体回落到主题樱粉底（bg middle）
+    variants: { dark: { 'bg-color': mixColor('#43272f', '#e64980', 0.22) } }
   }
 })

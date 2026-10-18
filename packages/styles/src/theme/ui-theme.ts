@@ -5,6 +5,7 @@ import { reactive, toRaw, watch } from 'vue'
 import {
   componentCssVarsDarkDecls,
   componentCssVarsLightDecls,
+  navSurfaceTone,
   resolveNavSidebarDecls,
   type NavSidebarVariant
 } from './component-css-vars'
@@ -243,18 +244,94 @@ export class UITheme {
     return decls.join(';')
   }
 
+  /** 主题的默认菜单变体（未声明时为 dark） */
+  private navSidebarVariant(theme: Theme): NavSidebarVariant {
+    return theme.nav?.variant === 'light' ? 'light' : 'dark'
+  }
+
   /**
-   * nav 侧栏外观声明：按主题 `nav.variant`（默认 dark）取内置深/浅侧栏 token，
-   * 主题 `nav` 的其余键作为 `--u-nav-*` 覆盖追加在最后（同规则后者生效）。
+   * 主题 nav 覆盖声明：顶层字符串键对所有变体生效；
+   * `nav.variants[variant]` 只对该变体生效，追加在最后（同规则后者生效）。
    */
-  navSidebarDecls(theme: Theme): string[] {
+  private navOverrideDecls(theme: Theme, variant: NavSidebarVariant): string[] {
     const nav = theme.nav ?? {}
-    const variant: NavSidebarVariant = nav.variant === 'light' ? 'light' : 'dark'
-    const decls = resolveNavSidebarDecls(this.series, variant)
-    const overrides = Object.keys(nav)
-      .filter((key) => key !== 'variant' && typeof nav[key] === 'string' && nav[key])
-      .map((key) => `--u-nav-${str(key).kebabCase()}: ${nav[key]}`)
-    return [...decls, ...overrides]
+    const toDecls = (record: Record<string, any> | undefined) =>
+      Object.keys(record ?? {})
+        .filter((key) => typeof record![key] === 'string' && record![key])
+        .map((key) => `--u-nav-${str(key).kebabCase()}: ${record![key]}`)
+
+    const topLevel: Record<string, any> = { ...nav }
+    delete topLevel.variant
+    delete topLevel.variants
+
+    return [...toDecls(topLevel), ...toDecls(nav.variants?.[variant])]
+  }
+
+  /** 指定系列 + 变体的 nav 声明（内置 token + 主题覆盖），供 html 级与容器级注入共用 */
+  private navSeriesDecls(theme: Theme, series: ThemeSeries, variant: NavSidebarVariant): string[] {
+    return [...resolveNavSidebarDecls(series, variant), ...this.navOverrideDecls(theme, variant)]
+  }
+
+  /**
+   * nav 侧栏外观声明：默认按主题 `nav.variant` 取内置深/浅侧栏 token，
+   * 主题 `nav` 的其余键作为 `--u-nav-*` 覆盖追加在最后（同规则后者生效）。
+   * @param variant 显式指定变体（容器级/预览取色用），不传取主题默认变体
+   */
+  navSidebarDecls(theme: Theme, variant?: NavSidebarVariant): string[] {
+    return this.navSeriesDecls(theme, this.series, variant ?? this.navSidebarVariant(theme))
+  }
+
+  /**
+   * 派生指定菜单变体的主题。变体专属外观由 `nav.variants` 声明，
+   * 切换时不再需要手动展开 `navSidebarTokens` 覆盖预设个性色。
+   */
+  withNavVariant(variant: NavSidebarVariant): UITheme {
+    return this.new({ nav: { variant } })
+  }
+
+  private static toVariableMap(decls: string[]): Map<string, string> {
+    const map = new Map<string, string>()
+    for (const decl of decls) {
+      const index = decl.indexOf(':')
+      if (index < 0) continue
+      map.set(decl.slice(0, index).trim(), decl.slice(index + 1).trim())
+    }
+    return map
+  }
+
+  /** 把 token 值里的 `var(--u-*)` 递归解析成具体色值（供主题预览/取色） */
+  private static resolveVarValue(value: string, ...maps: Array<Map<string, string>>): string {
+    let resolved = value
+    // token 引用链通常只有一层（nav → 语义 token），限制次数避免异常数据死循环
+    for (let depth = 0; depth < 6 && resolved.includes('var(--u-'); depth += 1) {
+      const next = resolved.replace(/var\((--u-[\w-]+)\)/g, (raw, name: string) => {
+        for (const map of maps) {
+          const hit = map.get(name)
+          if (hit !== undefined) return hit
+        }
+        return raw
+      })
+      if (next === resolved) break
+      resolved = next
+    }
+    return resolved
+  }
+
+  /**
+   * 解析当前主题某菜单变体的具体色值（键为去掉 `--u-nav-` 前缀的 token 名，
+   * 如 `'bg-color'`、`'active-color'`、`'surface-hairline'`）。
+   * 用于主题选择器预览等「主题未加载到 DOM 也要取色」的场景。
+   */
+  navSidebarColors(variant?: NavSidebarVariant): Record<string, string> {
+    const raw = toRaw(this.theme) as Theme
+    const target = variant ?? this.navSidebarVariant(raw)
+    const themeVars = UITheme.toVariableMap(this.themeToDeclarationList(raw))
+    const navVars = UITheme.toVariableMap(this.navSeriesDecls(raw, this.series, target))
+    const colors: Record<string, string> = {}
+    for (const [name, value] of navVars) {
+      colors[name.replace(/^--u-nav-/, '')] = UITheme.resolveVarValue(value, themeVars, navVars)
+    }
+    return colors
   }
 
   private static removeExistingStyleTag(doc: Document): void {
@@ -292,21 +369,32 @@ export class UITheme {
     }
   }
 
-  /** 注入主题：全局 token + 与主题系列匹配的组件级 token + nav 侧栏外观，并写入 html[data-theme] */
+  /**
+   * 注入主题：全局 token + 与主题系列匹配的组件级 token + nav 侧栏外观，写入 html[data-theme]；
+   * 同时注入容器级菜单变体规则（`[data-nav-variant]`）与实际底色色调 `html[data-nav-surface]`。
+   */
   render(): void {
     const componentDecls =
       this.series === 'dark' ? componentCssVarsDarkDecls : componentCssVarsLightDecls
     const raw = toRaw(this.theme)
+    const activeVariant = this.navSidebarVariant(raw)
     const decls = [
       ...this.themeToDeclarationList(raw),
       ...componentDecls,
-      ...this.navSidebarDecls(raw)
+      ...this.navSeriesDecls(raw, this.series, activeVariant)
     ]
     const block = UITheme.declarationBlock(decls)
-    const css = `html { ${block} }`
-    UITheme.applyGlobalCSS(css)
+    // 容器级变体：同一主题下任意子树加 data-nav-variant 即可切换菜单深浅，无需重建主题
+    const variantRules = (['light', 'dark'] as const).flatMap((series) =>
+      (['dark', 'light'] as const).map((variant) => {
+        const variantBlock = UITheme.declarationBlock(this.navSeriesDecls(raw, series, variant))
+        return `html[data-theme="${series}"] [data-nav-variant="${variant}"] { ${variantBlock} }`
+      })
+    )
+    UITheme.applyGlobalCSS([`html { ${block} }`, ...variantRules].join('\n'))
     if (typeof document !== 'undefined') {
       document.documentElement.dataset.theme = this.series
+      document.documentElement.dataset.navSurface = navSurfaceTone(this.series, activeVariant)
     }
   }
 

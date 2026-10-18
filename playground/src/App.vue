@@ -1,5 +1,5 @@
 <template>
-  <div class="container1" :data-theme-preset="themePreset">
+  <div class="container1" :data-theme-preset="themePreset" :data-nav-variant="navVariantAttr">
     <u-dual-nav
       :menus="menus"
       class="aside"
@@ -113,7 +113,6 @@ import {
   lightTheme,
   loadTheme,
   midnightTheme,
-  navSidebarTokens,
   neonTheme,
   oceanTheme,
   sakuraTheme,
@@ -226,6 +225,12 @@ function readInitialNavVariant(): NavVariant {
 
 const navVariant = ref<NavVariant>(readInitialNavVariant())
 
+// 菜单深浅改由容器级 data-nav-variant 切换（主题级 nav variant 不再重建主题），
+// 覆盖范围是整个 playground 容器，切换即时生效、无需 loadTheme
+const navVariantAttr = computed(() =>
+  navVariant.value === 'follow' ? undefined : navVariant.value
+)
+
 const effectiveTheme = computed(() => {
   let base = themeItem.value.theme
   if (radiusMode.value === 'sharp') {
@@ -235,22 +240,17 @@ const effectiveTheme = computed(() => {
     const r = base.theme.radius
     base = base.new({ radius: { small: r.small + 2, default: r.default + 6, large: r.large + 8 } })
   }
-  if (navVariant.value !== 'follow') {
-    // 强制变体：展开整套变体 token 覆盖预设侧栏个性（如樱花深酒红底），保证前景/底色配套
-    const nav: Record<string, string> = { variant: navVariant.value }
-    for (const [name, value] of Object.entries(navSidebarTokens(base.series, navVariant.value))) {
-      nav[name.replace(/^--u-nav-/, '')] = value
-    }
-    base = base.new({ nav })
-  }
   return base
 })
 
-watch([themePreset, radiusMode, navVariant], () => {
+watch([themePreset, radiusMode], () => {
   localStorage.setItem('themePreset', themePreset.value)
   localStorage.setItem('themeRadius', radiusMode.value)
-  localStorage.setItem('navVariant', navVariant.value)
   loadTheme(effectiveTheme.value)
+})
+
+watch(navVariant, (value) => {
+  localStorage.setItem('navVariant', value)
 })
 
 loadTheme(effectiveTheme.value)
@@ -271,9 +271,12 @@ const sizeLabel = computed(() => {
 
 function previewVars(item: ThemeItem) {
   const t = item.theme.theme
+  const variant = navVariant.value === 'follow' ? undefined : navVariant.value
+  // 预览侧栏取「当前菜单深浅」下的真实 nav 底色（navSidebarColors 解析成具体色值）
+  const navColors = item.theme.navSidebarColors(variant)
   return {
     '--tp-bg': t.bg.color.bottom,
-    '--tp-surface': t.bg.color.top,
+    '--tp-surface': navColors['bg-color'] ?? t.bg.color.top,
     '--tp-primary': t.color.primary,
     '--tp-border': t.border.mutedColor,
     '--tp-text': t['text-color'].second,
@@ -314,10 +317,11 @@ $width: 320px;
 .aside {
   width: $width;
   height: 100%;
-  border-right: 1px solid use-var(border, color);
   flex-shrink: 0;
   backdrop-filter: var(--u-bg-filter);
-  background-color: var(--u-nav-bg-color);
+  // 侧栏容器：nav 底色 + 按实际底色色调配套的叠层渐变/分隔描边（--u-nav-surface-*）
+  background: var(--u-nav-surface-overlay), var(--u-nav-bg-color);
+  box-shadow: inset -1px 0 0 var(--u-nav-surface-hairline);
 }
 
 .main {

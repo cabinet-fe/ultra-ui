@@ -2,7 +2,13 @@
 
 import { describe, expect, it } from 'vite-plus/test'
 
-import { componentCssVarsDark, componentCssVarsLight } from '../component-css-vars'
+import {
+  componentCssVarsDark,
+  componentCssVarsLight,
+  navSidebarTokens,
+  navSurfaceTokens,
+  navSurfaceTone
+} from '../component-css-vars'
 import {
   ancientTheme,
   darkTheme,
@@ -169,5 +175,98 @@ describe('UITheme', () => {
         expect(d).not.toContain('NaN')
       }
     }
+  })
+
+  it('nav.variants overrides apply only to their own variant', () => {
+    const t = ancientTheme.new({ nav: { variants: { light: { 'bg-color': '#f1ede0' } } } })
+    // 深变体（预设自带松烟墨）不受 light 变体覆盖影响
+    const darkDecls = t.navSidebarDecls(t.theme)
+    expect(darkDecls).toContain('--u-nav-bg-color: #303c34')
+    expect(darkDecls).not.toContain('--u-nav-bg-color: #f1ede0')
+    // 浅变体使用 variants.light 覆盖
+    const lightDecls = t.navSidebarDecls(t.theme, 'light')
+    expect(lightDecls).toContain('--u-nav-bg-color: #f1ede0')
+    expect(lightDecls).not.toContain('--u-nav-bg-color: #303c34')
+  })
+
+  it('nav top-level overrides still apply to every variant and lose to variants', () => {
+    const t = lightTheme.new({
+      nav: { 'hover-bg': '#111111', variants: { light: { 'hover-bg': '#222222' } } }
+    })
+    expect(t.navSidebarDecls(t.theme)).toContain('--u-nav-hover-bg: #111111')
+    const lightDecls = t.navSidebarDecls(t.theme, 'light')
+    expect(lightDecls).toContain('--u-nav-hover-bg: #111111')
+    expect(lightDecls).toContain('--u-nav-hover-bg: #222222')
+  })
+
+  it('withNavVariant derives a theme with the requested menu variant', () => {
+    const lightVariant = lightTheme.withNavVariant('light')
+    const lightDecls = lightVariant.navSidebarDecls(lightVariant.theme)
+    expect(lightDecls).toContain('--u-nav-bg-color: var(--u-bg-color-middle)')
+    // 浅底选中文字用更深的 primary，保证 13px 正文对比度
+    expect(lightDecls).toContain('--u-nav-active-color: var(--u-color-primary-dark-3)')
+    // hero 默认 light 变体，派生 dark 变体后回落到深墨侧栏
+    const heroDark = heroTheme.withNavVariant('dark')
+    expect(heroDark.navSidebarDecls(heroDark.theme)).toContain(
+      '--u-nav-bg-color: var(--u-text-color-title)'
+    )
+  })
+
+  it('nav surface tone reflects the real surface luminance', () => {
+    expect(navSurfaceTone('light', 'dark')).toBe('dark')
+    expect(navSurfaceTone('light', 'light')).toBe('light')
+    expect(navSurfaceTone('dark', 'dark')).toBe('dark')
+    // 深色系列的 light 变体只是提亮一档，表面仍是深底
+    expect(navSurfaceTone('dark', 'light')).toBe('dark')
+  })
+
+  it('nav tokens carry surface decoration tokens matching the surface tone', () => {
+    expect(navSidebarTokens('light', 'dark')['--u-nav-surface-hairline']).toBe(
+      'rgba(255, 255, 255, 0.07)'
+    )
+    expect(navSidebarTokens('light', 'light')['--u-nav-surface-hairline']).toBe(
+      'var(--u-border-color)'
+    )
+    // dark 系列的 light 变体表面仍是深底，装饰沿用深底那套
+    expect(navSidebarTokens('dark', 'light')['--u-nav-surface-hairline']).toBe(
+      'rgba(255, 255, 255, 0.07)'
+    )
+    expect(navSurfaceTokens('light', 'light')['--u-nav-surface-accent']).toBe(
+      'var(--u-color-primary)'
+    )
+  })
+
+  it('render emits container-level variant rules and html surface tone', () => {
+    if (typeof document === 'undefined') return
+    lightTheme.render()
+    const adopted = [...document.adoptedStyleSheets]
+      .flatMap((sheet) => sheet.cssRules.map((rule) => rule.cssText))
+      .join('\n')
+    const fallback = document.getElementById('ultra-ui-theme')?.textContent ?? ''
+    const css = adopted || fallback
+    expect(css).toContain('html[data-theme="light"] [data-nav-variant="dark"]')
+    expect(css).toContain('html[data-theme="dark"] [data-nav-variant="light"]')
+    // lightTheme 默认 dark 菜单：html 级实际底色色调为深底
+    expect(document.documentElement.dataset.navSurface).toBe('dark')
+    darkTheme.render()
+    expect(document.documentElement.dataset.navSurface).toBe('dark')
+  })
+
+  it('navSidebarColors resolves concrete colors for theme previews', () => {
+    const lightColors = lightTheme.navSidebarColors()
+    expect(lightColors['bg-color']).toBe('#18181b')
+    expect(lightColors['color']).toBe('rgba(255, 255, 255, 0.72)')
+    expect(lightColors['surface-hairline']).toBe('rgba(255, 255, 255, 0.07)')
+
+    const lightMenu = lightTheme.navSidebarColors('light')
+    expect(lightMenu['bg-color']).toBe('#fafafa')
+    expect(lightMenu['color']).toBe('#18181b')
+    expect(lightMenu['active-color']).toMatch(/^#[0-9a-f]{6}$/i)
+
+    // 预设个性侧栏色按变体隔离
+    expect(ancientTheme.navSidebarColors()['bg-color']).toBe('#303c34')
+    expect(ancientTheme.navSidebarColors('light')['bg-color']).toBe('#f7f4ea')
+    expect(heroTheme.navSidebarColors()['bg-color']).toBe('#fafafa')
+    expect(heroTheme.navSidebarColors('dark')['bg-color']).toBe('#11181C')
   })
 })
