@@ -94,12 +94,13 @@ function measure() {
     thumbOn.value = false
     return
   }
-  const trackBox = track.getBoundingClientRect()
-  const box = active.getBoundingClientRect()
-  thumbX.value = box.left - trackBox.left
-  thumbY.value = box.top - trackBox.top
-  thumbW.value = box.width
-  thumbH.value = box.height
+  // 用布局坐标（offset*）：thumb 是 track 内的绝对定位元素，需要的正是 track 坐标系内的
+  // 位置与尺寸。getBoundingClientRect 是视觉坐标，祖先链上有 transform: scale（如演示用
+  // 设备壳）时会把缩放差引入 translate，导致滑块越偏离原点偏移越大。
+  thumbX.value = active.offsetLeft
+  thumbY.value = active.offsetTop
+  thumbW.value = active.offsetWidth
+  thumbH.value = active.offsetHeight
   thumbRadius.value = getComputedStyle(active).borderRadius
   thumbOn.value = true
 }
