@@ -123,9 +123,9 @@ export interface DrawerExposed {}
 
 | 名称                | 类型                       | 触发时机                                                                                         |
 | ------------------- | -------------------------- | ------------------------------------------------------------------------------------------------ |
-| `update:modelValue` | `(value: boolean) => void` | 抽屉滑出动画结束后发出 `false`，配合 `v-model` 同步；此后遮罩才开始淡出                          |
-| `close`             | `()`                       | 点遮罩、点关闭按钮或按 Esc 时触发一次（开始关闭的时刻，非动画结束后）                             |
-| `closed`            | `()`                       | 退出动画全部结束后触发一次：抽屉滑出 → `v-model` 变 `false` → 遮罩淡出，遮罩与抽屉节点都已移除时 |
+| `update:modelValue` | `(value: boolean) => void` | 点遮罩、关闭按钮或按 Esc 时立刻发出 `false`，与 `close` 同一时刻；父级直接把 `v-model` 置 `false` 时只走这条，不触发 `close` |
+| `close`             | `()`                       | 点遮罩、点关闭按钮或按 Esc 时触发一次（开始关闭的时刻，非动画结束后）。父级直接把 `v-model` 置 `false` 不触发 |
+| `closed`            | `()`                       | 面板滑出与遮罩淡出都结束后触发一次（`200ms`），此时遮罩与抽屉节点都已移除。退出过程中再次打开则不触发 |
 
 `UDrawer` 没有暴露任何 ref 方法（`DrawerExposed` 为空对象）；关闭入口是点遮罩、点关闭按钮、按 Esc（`closeOnEsc` 默认开启）或把 `v-model` 置 `false`。
 
@@ -209,7 +209,7 @@ const panelVisible = ref(false)
 > - 默认插槽内容渲染在 `u-drawer__body` 容器内：`flex: 1` 占满剩余高度、`overflow: auto` 内容过长时滚动、内边距为 `--u-gap-default`（light 主题 `8px`）。自己再包一层 `padding` 容器通常多余；需要内容贴边时用 `:deep(.u-drawer__body) { padding: 0 }` 覆盖。
 > - 关闭按钮的绑定名是 `showClose`，不是 `closable`；没有 `mask-closable` prop，点遮罩始终会关闭。
 > - `title` 传入即在内容区上方渲染标题栏（高 `48px`、底部一条分隔线，文字 `font-weight: 600`）；不传时标题栏不渲染也不占位。标题栏样式不可配置，需要自定义标题区（图标、按钮）时不要传 `title`，直接在默认插槽里写。
-> - 三个时机按顺序发生：`close`（点遮罩/按钮/按 Esc）→ 抽屉滑出约 `300ms` 后 `v-model` 变 `false` → 遮罩再淡出约 `250ms` 后 `closed`。要「动画后回调」用 `closed`，不要用 `v-model` 变 `false` 的时机（那会早一个遮罩淡出）。
+> - 点遮罩、关闭按钮或按 Esc：`close` 与 `v-model` 变为 `false` 同时发生，随后面板滑出与遮罩淡出并行，`200ms` 后 `closed`。退出过程中把 `v-model` 再设为 `true` 会取消退出并重新打开，且不触发 `closed`。收尾放在 `closed`：`close` 与 `watch(v-model)` 的 `false` 分支时面板还在屏幕上。
 > - 显隐绑定名是 `modelValue`（`v-model`），不是 `open` / `visible`。
 > - 示例独立成页运行时必须先初始化主题：`import '@veltra/styles/normalize'` 后调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色。
 
@@ -246,7 +246,7 @@ function onClosed() {
 </template>
 ```
 
-不要在 `close` 里做收尾（那时动画刚开始、内容还在屏幕上），也不要用 `watch(visible)` 的 `false` 分支（比 `closed` 早一个遮罩淡出，遮罩上还能看到内容一瞬）。
+不要在 `close` 里做收尾（那时动画刚开始、内容还在屏幕上），也不要用 `watch(visible)` 的 `false` 分支（与 `close` 同时，面板滑出和遮罩淡出都还没结束）。
 
 ### 关闭按钮出现在抽屉外侧
 

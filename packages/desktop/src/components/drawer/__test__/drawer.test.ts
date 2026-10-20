@@ -13,14 +13,15 @@ function mountDrawer(
   const host = document.createElement('div')
   document.body.appendChild(host)
 
-  const model = ref(false)
+  const { modelValue = false, ...rest } = props
+  const model = ref(modelValue === true)
   const closedCount = ref(0)
   const app = createApp({
     render: () =>
       h(
         UDrawer,
         {
-          ...props,
+          ...rest,
           modelValue: model.value,
           'onUpdate:modelValue': (value: boolean) => {
             model.value = value
@@ -135,6 +136,10 @@ describe('UDrawer closed', () => {
     await openDrawer(ctx)
 
     ctx.panel()!.querySelector<HTMLElement>('.u-drawer__close')!.click()
+    // v-model 在开始关闭时就同步，closed 要等退出动画结束
+    expect(ctx.model.value).toBe(false)
+    expect(order).toEqual(['close'])
+
     await vi.waitFor(() => {
       expect(order).toContain('closed')
     })
@@ -142,6 +147,22 @@ describe('UDrawer closed', () => {
     expect(order).toEqual(['close', 'closed'])
     // 完全关闭后遮罩与抽屉都已移除
     expect(ctx.overlay()).toBeNull()
+
+    ctx.unmount()
+  })
+
+  it('关闭过程中再次打开不会停在关掉的状态', async () => {
+    const ctx = mountDrawer({ showClose: true })
+    await openDrawer(ctx)
+
+    ctx.panel()!.querySelector<HTMLElement>('.u-drawer__close')!.click()
+    expect(ctx.model.value).toBe(false)
+
+    ctx.model.value = true
+    await nextTick()
+
+    expect(ctx.panel()).toBeTruthy()
+    expect(ctx.model.value).toBe(true)
 
     ctx.unmount()
   })

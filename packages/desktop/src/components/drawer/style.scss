@@ -1,8 +1,6 @@
 @use 'pkg:@veltra/styles/mixins' as m;
 @use 'pkg:@veltra/styles/functions' as fn;
 @use 'pkg:@veltra/styles/vars';
-@use 'sass:map';
-@use 'sass:string';
 
 // 方便拼接
 $root-name: drawer;
@@ -10,17 +8,20 @@ $overlay-name: #{$root-name}-overlay;
 
 $edge-offset: 4px;
 $close-size: 48px;
+// 关闭按钮悬浮在面板外沿的距离
+$close-offset: $close-size + 4px;
 
 $directions: (right, left, top, bottom);
 
+// 只多走贴边间距。外置关闭按钮不计入行程，进出时单独淡入淡出
 $direction-map: (
-  right: translateX(100%),
-  left: translateX(-100%),
-  top: translateY(-100%),
-  bottom: translateY(100%)
+  right: translateX(calc(100% + #{$edge-offset})),
+  left: translateX(calc(-100% - #{$edge-offset})),
+  top: translateY(calc(-100% - #{$edge-offset})),
+  bottom: translateY(calc(100% + #{$edge-offset}))
 );
 @include m.b($root-name) {
-  position: absolute;
+  position: fixed;
   display: flex;
   flex-direction: column;
   border-radius: fn.use-var(radius, large);
@@ -92,7 +93,7 @@ $direction-map: (
     right: $edge-offset;
 
     @include m.bem($root-name, close) {
-      left: -($close-size + 4px);
+      left: -$close-offset;
     }
   }
 
@@ -100,7 +101,7 @@ $direction-map: (
     left: $edge-offset;
 
     @include m.bem($root-name, close) {
-      right: -($close-size + 4px);
+      right: -$close-offset;
     }
   }
 
@@ -108,7 +109,7 @@ $direction-map: (
     top: $edge-offset;
 
     @include m.bem($root-name, close) {
-      bottom: -($close-size + 4px);
+      bottom: -$close-offset;
     }
   }
 
@@ -116,7 +117,7 @@ $direction-map: (
     bottom: $edge-offset;
 
     @include m.bem($root-name, close) {
-      top: -($close-size + 4px);
+      top: -$close-offset;
     }
   }
 }
@@ -128,61 +129,70 @@ $direction-map: (
   width: 100vw;
   height: 100vh;
   background-color: rgba($color: #000000, $alpha: 0.32);
-  overflow: hidden;
+}
 
-  // 确保遮罩淡入淡出不受外部 fade 样式（如 transform）影响
-  &.fade-enter-active,
-  &.fade-leave-active {
-    transition: opacity 0.25s linear;
+// 位移不跟主题时长和 ease-out：slow 偏长，部分主题的 ease-out 会过冲
+$enter-duration: 0.28s;
+$leave-duration: 0.2s;
+$enter-ease: cubic-bezier(0.16, 1, 0.3, 1);
+$leave-ease: cubic-bezier(0.4, 0, 1, 1);
+
+// 遮罩只淡透明度，不跟面板的位移曲线
+.drawer-fade-enter-active,
+.drawer-fade-leave-active {
+  transition: opacity $leave-duration linear;
+}
+
+.drawer-fade-enter-from,
+.drawer-fade-leave-to {
+  opacity: 0;
+}
+
+@each $direction in $directions {
+  .drawer-slide-#{$direction}-enter-active,
+  .drawer-slide-#{$direction}-leave-active {
+    will-change: transform;
+    // 模糊滤镜和 transform 在同一层会掉帧，动画期间关掉，结束后回到主题滤镜
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+
+    #{fn.bem($root-name, close)} {
+      transition: opacity $leave-duration linear;
+    }
   }
 
-  &.fade-enter-from,
-  &.fade-leave-to {
-    opacity: 0;
-    transform: none;
-    filter: none;
+  .drawer-slide-#{$direction}-enter-active {
+    transition: transform $enter-duration $enter-ease;
+  }
+
+  .drawer-slide-#{$direction}-leave-active {
+    transition: transform $leave-duration $leave-ease;
   }
 }
 
-// 动画
+@each $direction, $transform in $direction-map {
+  .drawer-slide-#{$direction}-enter-from,
+  .drawer-slide-#{$direction}-leave-to {
+    transform: $transform;
 
-@function get-selector($direction, $type) {
-  @return '.' + drawer-slide-#{$direction}-#{$type}-active;
+    #{fn.bem($root-name, close)} {
+      opacity: 0;
+    }
+  }
 }
 
-// 获取激活状态选择器
-@function get-active($type) {
-  $active: '';
+// 减弱动态效果：面板不位移，只随遮罩淡入淡出
+@media (prefers-reduced-motion: reduce) {
   @each $direction in $directions {
-    $active: $active + ',' + get-selector($direction, $type);
+    .drawer-slide-#{$direction}-enter-active,
+    .drawer-slide-#{$direction}-leave-active {
+      transition-property: opacity;
+    }
+
+    .drawer-slide-#{$direction}-enter-from,
+    .drawer-slide-#{$direction}-leave-to {
+      transform: none;
+      opacity: 0;
+    }
   }
-  @return string.slice($active, 2, -1);
-}
-
-#{get-active(enter)} {
-  transition: transform 0.3s cubic-bezier(0.46, 1.29, 0.46, 1.04);
-}
-
-#{get-active(leave)} {
-  transition: transform 0.3s ease-in-out;
-}
-
-.drawer-slide-right-enter-from,
-.drawer-slide-right-leave-to {
-  transform: #{map.get($direction-map, right)};
-}
-
-.drawer-slide-left-enter-from,
-.drawer-slide-left-leave-to {
-  transform: #{map.get($direction-map, left)};
-}
-
-.drawer-slide-top-enter-from,
-.drawer-slide-top-leave-to {
-  transform: #{map.get($direction-map, top)};
-}
-
-.drawer-slide-bottom-enter-from,
-.drawer-slide-bottom-leave-to {
-  transform: #{map.get($direction-map, bottom)};
 }
