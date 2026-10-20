@@ -133,3 +133,50 @@ describe('UMultiSelect labelTemplate', () => {
     }
   })
 })
+
+describe('UMultiSelect dropdown opening', () => {
+  const options = [
+    { label: '启用', code: 'ENABLED', value: 'enabled' },
+    { label: '禁用', value: 'disabled' }
+  ]
+
+  it('does not open the panel when the filter input is focused programmatically', async () => {
+    const { host, unmount } = mountMultiSelect({ filterable: true, options })
+
+    try {
+      const input = host.querySelector<HTMLInputElement>('.u-multi-select__input')!
+      expect(input).toBeTruthy()
+
+      // 模态弹框打开时会把焦点移入面板内第一个可聚焦元素（即本输入框），不应连带展开面板
+      input.dispatchEvent(new FocusEvent('focus'))
+      for (let attempt = 0; attempt < 6; attempt++) {
+        await nextTick()
+        await sleep(25)
+      }
+      expect(queryOptions().length).toBe(0)
+    } finally {
+      unmount()
+    }
+  })
+
+  it('opens the panel when typing into the filter input', async () => {
+    const { host, unmount } = mountMultiSelect({ filterable: true, options })
+
+    try {
+      const input = host.querySelector<HTMLInputElement>('.u-multi-select__input')!
+      input.value = '启'
+      input.dispatchEvent(
+        new InputEvent('input', { bubbles: true, data: '启', inputType: 'insertText' })
+      )
+
+      for (let attempt = 0; attempt < 20; attempt++) {
+        await nextTick()
+        await sleep(25)
+        if (queryOptions().length > 0) break
+      }
+      expect(queryOptions().map((el) => el.textContent)).toEqual(['启用'])
+    } finally {
+      unmount()
+    }
+  })
+})
