@@ -249,3 +249,44 @@ describe('UMultiTreeSelect labelTemplate', () => {
     }
   })
 })
+
+describe('UMultiTreeSelect dropdown opening', () => {
+  it('does not open the panel when the filter input is focused programmatically', async () => {
+    const { host, unmount } = mountMultiTreeSelect({ filterable: true })
+
+    try {
+      const input = host.querySelector<HTMLInputElement>('.u-multi-tree-select__input')!
+      expect(input).toBeTruthy()
+
+      // 模态弹框打开时会把焦点移入面板内第一个可聚焦元素（即本输入框），不应连带展开面板
+      input.dispatchEvent(new FocusEvent('focus'))
+      for (let attempt = 0; attempt < 6; attempt++) {
+        await nextTick()
+        await sleep(25)
+      }
+      expect(queryNodeContents().length).toBe(0)
+    } finally {
+      unmount()
+    }
+  })
+
+  it('opens the panel and keeps the first-keystroke filter when typing into the input', async () => {
+    const { host, unmount } = mountMultiTreeSelect({ filterable: true })
+
+    try {
+      const input = host.querySelector<HTMLInputElement>('.u-multi-tree-select__input')!
+      input.value = '亚'
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+
+      // 面板懒渲染：键入后自动展开，且首字符过滤在展开后补一次，不被丢失
+      for (let attempt = 0; attempt < 20; attempt++) {
+        await nextTick()
+        await sleep(25)
+        if (queryNodeContents().length > 0) break
+      }
+      expect(queryNodeContents().map((el) => el.textContent)).toEqual(['亚洲'])
+    } finally {
+      unmount()
+    }
+  })
+})

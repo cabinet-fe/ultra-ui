@@ -41,7 +41,7 @@
           :placeholder="tags.length ? '' : placeholder"
           :disabled="disabled"
           @click.stop="handleInputClick"
-          @focus="handleInputFocus"
+          @input="handleInput"
         />
       </div>
       <!-- 清空 icon -->
@@ -385,7 +385,16 @@ const handleInputClick = () => {
   if (!dropdownVisible.value) dropdownRef.value?.open()
 }
 
-const handleInputFocus = () => {
-  if (!dropdownVisible.value) dropdownRef.value?.open()
+/**
+ * 键入过滤词时确保面板展开。不监听 focus：模态弹框打开时会把焦点移入面板内
+ * 第一个可聚焦元素（正是本输入框），监听 focus 会让下拉随弹框打开而自动展开。
+ * 面板为懒渲染，展开后需补一次过滤，否则首字符的过滤条件会丢失。
+ */
+const handleInput = () => {
+  if (dropdownVisible.value) return
+  dropdownRef.value?.open()
+  if (qs.value && typeof props.data !== 'function') {
+    nextTick(() => treeRef.value?.filter(qs.value))
+  }
 }
 </script>
