@@ -82,7 +82,10 @@ $root-name: switch;
     border-radius: 100px;
     background-color: fn.use-var(bg-color, bottom);
     border: 1px solid fn.use-var(border, muted-color);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition:
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
     padding: 2px;
     flex-shrink: 0;
   }

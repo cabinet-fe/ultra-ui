@@ -14,8 +14,8 @@ $root-name: tag;
   border: 1px solid fn.use-var(text-color, main);
   @include m.flex(inline-flex, flex-start, center);
 
-  // 进入动画
-  animation: tag-zoom-in 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  // 进入动画：从 0.96 淡入，不从 0 放大
+  animation: tag-zoom-in 0.25s cubic-bezier(0.23, 1, 0.32, 1);
 
   @include m.e(content) {
     overflow: hidden;
@@ -75,11 +75,11 @@ $root-name: tag;
 @keyframes tag-zoom-in {
   0% {
     opacity: 0;
-    transform: scale3d(0, 0, 1);
+    transform: scale(0.96);
   }
 
   100% {
     opacity: 1;
-    transform: scale3d(1, 1, 1);
+    transform: scale(1);
   }
 }

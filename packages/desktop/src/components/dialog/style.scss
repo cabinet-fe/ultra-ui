@@ -150,15 +150,3 @@ $root-name: dialog;
     }
   }
 }
-
-// 弹框最大化动画激活时的类
-.#{$root-name}-maximize-enter-active,
-.#{$root-name}-maximize-leave-active {
-  transition-property: width, height, translate;
-  transition-duration: 0.25s;
-}
-
-// 移除动画激活时保证最大高度为100vh
-.#{$root-name}-maximize-leave-active {
-  max-height: 100vh;
-}

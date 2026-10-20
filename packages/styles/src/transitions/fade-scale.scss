@@ -4,23 +4,37 @@
 .fade-scale-enter-active {
   will-change: scale, opacity;
   transition:
-    scale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-    opacity 0.35s ease;
+    scale 200ms cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 200ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .fade-scale-leave-active {
   will-change: scale, opacity;
   transition:
-    scale 0.2s ease-in,
-    opacity 0.15s ease-in;
+    scale 160ms cubic-bezier(0.23, 1, 0.32, 1),
+    opacity 160ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .fade-scale-enter-from {
-  scale: 0.8;
+  scale: 0.96;
   opacity: 0;
 }
 
 .fade-scale-leave-to {
-  scale: 0.9;
+  scale: 0.98;
   opacity: 0;
+}
+
+// 减弱动态效果：不缩放，只保留透明度
+@media (prefers-reduced-motion: reduce) {
+  .fade-scale-enter-active,
+  .fade-scale-leave-active {
+    transition-property: opacity;
+  }
+
+  .fade-scale-enter-from,
+  .fade-scale-leave-to {
+    scale: 1;
+    opacity: 0;
+  }
 }

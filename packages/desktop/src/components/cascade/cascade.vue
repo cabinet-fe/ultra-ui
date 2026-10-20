@@ -53,17 +53,15 @@
           <u-tag v-if="restTag"> {{ restTag }}+ </u-tag>
         </div>
 
-        <transition name="zoom-in" mode="out-in">
-          <u-icon
-            v-if="clearable && modelValue?.length && hovered && !disabled"
-            :class="cls.e('clear')"
-            @click.stop="handleClear"
-          >
-            <Close />
-          </u-icon>
+        <u-icon
+          v-if="clearable && modelValue?.length && hovered && !disabled"
+          :class="cls.e('clear')"
+          @click.stop="handleClear"
+        >
+          <Close />
+        </u-icon>
 
-          <u-icon :class="cls.e('arrow')" v-else><ArrowDown /></u-icon>
-        </transition>
+        <u-icon :class="cls.e('arrow')" v-else><ArrowDown /></u-icon>
       </template>
     </template>
 

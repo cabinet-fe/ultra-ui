@@ -23,12 +23,12 @@ $size-padding: (
 @keyframes um-tag-zoom-in {
   0% {
     opacity: 0;
-    transform: scale3d(0, 0, 1);
+    transform: scale(0.96);
   }
 
   100% {
     opacity: 1;
-    transform: scale3d(1, 1, 1);
+    transform: scale(1);
   }
 }
 
@@ -40,7 +40,7 @@ $size-padding: (
   border: 1px solid fn.use-var(text-color, main);
   @include m.flex(inline-flex, flex-start, center);
 
-  animation: um-tag-zoom-in fn.use-var(transition, normal) fn.use-var(transition, ease);
+  animation: um-tag-zoom-in 0.25s cubic-bezier(0.23, 1, 0.32, 1);
 
   @include m.e(content) {
     @include m.ellipsis;

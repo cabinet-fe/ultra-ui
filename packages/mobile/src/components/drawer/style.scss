@@ -211,3 +211,29 @@ $vertical-max-height: min(70%, 560px);
 .drawer-slide-bottom-leave-active {
   transition: transform fn.use-var(transition, normal) fn.use-var(transition, ease-out);
 }
+
+// 减弱动态效果：面板不位移，只淡入淡出。拖拽跟手不在这里处理。
+@media (prefers-reduced-motion: reduce) {
+  .drawer-slide-right-enter-active,
+  .drawer-slide-left-enter-active,
+  .drawer-slide-top-enter-active,
+  .drawer-slide-bottom-enter-active,
+  .drawer-slide-right-leave-active,
+  .drawer-slide-left-leave-active,
+  .drawer-slide-top-leave-active,
+  .drawer-slide-bottom-leave-active {
+    transition-property: opacity;
+  }
+
+  .drawer-slide-right-enter-from,
+  .drawer-slide-right-leave-to,
+  .drawer-slide-left-enter-from,
+  .drawer-slide-left-leave-to,
+  .drawer-slide-top-enter-from,
+  .drawer-slide-top-leave-to,
+  .drawer-slide-bottom-enter-from,
+  .drawer-slide-bottom-leave-to {
+    transform: none;
+    opacity: 0;
+  }
+}

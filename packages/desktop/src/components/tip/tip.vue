@@ -9,7 +9,7 @@
         v-if="tipVisible"
         :is="contentTag"
         :class="contentClass"
-        :style="[style, { zIndex: zIndex() }]"
+        :style="[contentStyle, { zIndex: zIndex() }]"
         ref="contentRef"
         @mouseenter="eventsHandlers.onMouseenter"
         @mouseleave="eventsHandlers.onMouseleave"
@@ -169,6 +169,32 @@ const triggerDom = computed(() => {
   return props.triggerDom || triggerRef.value?.$el
 })
 
+type TipSide = 'top' | 'bottom' | 'left' | 'right'
+
+const placementSide = shallowRef<TipSide>(props.direction)
+
+function originFor(side: TipSide): string {
+  if (side === 'top') return 'center bottom'
+  if (side === 'bottom') return 'center top'
+  if (side === 'left') return 'right center'
+  return 'left center'
+}
+
+const contentStyle = computed(() => {
+  const origin = { transformOrigin: originFor(placementSide.value) }
+  const base = props.style
+  if (base == null || base === '') return origin
+  if (typeof base === 'string') return [base, origin]
+  return [base, origin]
+})
+
+watch(
+  () => props.direction,
+  (side) => {
+    placementSide.value = side
+  }
+)
+
 const { update, popperContainerId } = usePop({
   triggerRef: triggerDom,
   contentRef,
@@ -177,6 +203,12 @@ const { update, popperContainerId } = usePop({
   alignment: toRef(() => props.alignment),
   onTriggerPositionChange() {
     close()
+  },
+  onPop(position) {
+    const side = position.placement.split('-')[0] as TipSide
+    if (side === 'top' || side === 'bottom' || side === 'left' || side === 'right') {
+      placementSide.value = side
+    }
   }
 })
 

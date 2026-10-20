@@ -24,12 +24,10 @@
       @close="onClose"
     />
 
-    <transition name="fade" mode="out-in">
-      <KeepAlive v-if="keepAlive">
-        <component :key="model" :is="renderSlots()" />
-      </KeepAlive>
-      <component v-else :key="model" :is="renderSlots()" />
-    </transition>
+    <KeepAlive v-if="keepAlive">
+      <component :key="model" :is="renderSlots()" />
+    </KeepAlive>
+    <component v-else :key="model" :is="renderSlots()" />
   </div>
 </template>
 

@@ -1,0 +1,91 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use 'pkg:@veltra/styles/vars';
+
+$root-name: chip;
+
+@include m.b($root-name) {
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  vertical-align: middle;
+  @include m.flex($display: inline-flex, $align: center);
+
+  @include m.size using ($size) {
+    @include m.bem($root-name, face) {
+      height: fn.use-var(form-component-height, $size);
+      padding: 0 calc(fn.use-var(gap, $size) * 1.5);
+      font-size: fn.use-var(font-size-main, $size);
+    }
+  }
+
+  @include m.e(native) {
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    margin: 0;
+    pointer-events: none;
+  }
+
+  @include m.e(face) {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    border: fn.use-var(border, width) fn.use-var(border, style) fn.use-var(border, color);
+    background-color: fn.use-var(bg-color, top);
+    color: fn.use-var(text-color, main);
+    white-space: nowrap;
+  }
+
+  @include m.e(label) {
+    line-height: 1;
+  }
+
+  @include m.is(checked) {
+    @include m.bem($root-name, face) {
+      color: fn.use-var(color, primary);
+      border-color: fn.use-var(color, primary);
+      background-color: fn.color-a(color, 10, primary);
+    }
+  }
+
+  @include m.is-not(disabled) {
+    &:hover {
+      @include m.bem($root-name, face) {
+        border-color: fn.use-var(color, primary);
+      }
+    }
+
+    &:hover:not(.is-checked) {
+      @include m.bem($root-name, face) {
+        background-color: fn.color-a(color, 5, primary);
+      }
+    }
+
+    // label 不可聚焦，ring 由视觉隐藏的原生 input 驱动
+    #{fn.bem($root-name, native)}:focus-visible + #{fn.bem($root-name, face)} {
+      box-shadow: fn.use-var(focus-ring);
+    }
+  }
+
+  @include m.is(disabled) {
+    cursor: not-allowed;
+
+    @include m.bem($root-name, face) {
+      color: fn.use-var(text-color, disabled);
+      background-color: fn.use-var(color, disabled);
+      border-color: fn.use-var(border, muted-color);
+    }
+
+    // 禁用时仍要看得出哪一项是当前值
+    @include m.is(checked) {
+      @include m.bem($root-name, face) {
+        color: fn.use-var(text-color, second);
+        background-color: fn.use-var(bg-color, middle);
+        border-color: fn.use-var(text-color, disabled);
+      }
+    }
+  }
+}

@@ -87,3 +87,18 @@ $root-name: message;
   position: absolute;
   width: max-content;
 }
+
+// 减弱动态效果：不位移、不缩放，堆叠重排也不滑动，只保留透明度
+@media (prefers-reduced-motion: reduce) {
+  .message-move,
+  .message-enter-active,
+  .message-leave-active {
+    transition-property: opacity;
+  }
+
+  .message-enter-from,
+  .message-leave-to {
+    transform: none;
+    opacity: 0;
+  }
+}

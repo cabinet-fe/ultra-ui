@@ -29,22 +29,20 @@
     />
 
     <span :class="suffixClass" v-if="hasSuffix">
-      <Transition name="zoom-in" mode="out-in">
-        <UIcon
-          v-if="showClear"
-          :class="cls.e('clear')"
-          title="清除"
-          @click.stop="clearModelValue"
-          key="clear"
-        >
-          <Close />
-        </UIcon>
+      <UIcon
+        v-if="showClear"
+        :class="cls.e('clear')"
+        title="清除"
+        @click.stop="clearModelValue"
+        key="clear"
+      >
+        <Close />
+      </UIcon>
 
-        <span v-else :class="cls.e('suffix-content')" @click="handleSuffixClick" key="suffix">
-          {{ suffix }}
-          <slot name="suffix"></slot>
-        </span>
-      </Transition>
+      <span v-else :class="cls.e('suffix-content')" @click="handleSuffixClick" key="suffix">
+        {{ suffix }}
+        <slot name="suffix"></slot>
+      </span>
     </span>
   </div>
 

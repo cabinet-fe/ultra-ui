@@ -71,15 +71,15 @@ const visible = ref(true)
 | 过渡名           | 效果                                                               | 时长与曲线                                                                              | 源文件            |
 | ---------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------- | ----------------- |
 | `fade`           | 淡入淡出（仅 opacity）                                             | 0.25s linear                                                                            | `fade.scss`       |
-| `fade-scale`     | 淡入 + 缩放：enter 从 `scale 0.8`、leave 到 `scale 0.9`            | enter 0.3s `cubic-bezier(0.34, 1.56, 0.64, 1)` + opacity 0.35s ease；leave 0.2s ease-in | `fade-scale.scss` |
-| `slide-down`     | 自上而下滑入（enter-from `translateY(-10px)`）                     | 0.2s `cubic-bezier(0, 0, 0.2, 1)`                                                       | `slide.scss`      |
-| `slide-up`       | 自下而上升入（enter-from `translateY(10px)`）                      | 0.2s `cubic-bezier(0, 0, 0.2, 1)`                                                       | `slide.scss`      |
+| `fade-scale`     | 淡入 + 缩放：enter 从 `scale 0.96`、leave 到 `scale 0.98`          | enter 200ms、leave 160ms，均为 `cubic-bezier(0.23, 1, 0.32, 1)`                        | `fade-scale.scss` |
+| `slide-down`     | 自上而下滑入（enter-from `translateY(-10px)`）                     | 0.2s `cubic-bezier(0.23, 1, 0.32, 1)`                                                   | `slide.scss`      |
+| `slide-up`       | 自下而上升入（enter-from `translateY(10px)`）                      | 0.2s `cubic-bezier(0.23, 1, 0.32, 1)`                                                   | `slide.scss`      |
 | `spring`         | 弹性缩放：enter 跑 `spring-in` keyframes（0 → 1.1 → 1 → 1.02 → 1） | enter 0.5s ease-in-out；leave 0.4s `cubic-bezier(0.64, -0.32, 0.66, 1.06)`              | `spring.scss`     |
-| `zoom-in`        | 中心缩放（`scale 0.8`）                                            | 0.15s，enter ease-in / leave ease-out                                                   | `zoom-in.scss`    |
-| `zoom-in-left`   | 从左侧锚点横向缩放（`scaleX 0.8`，origin left center）             | 0.15s，enter ease-in / leave ease-out                                                   | `zoom-in.scss`    |
-| `zoom-in-right`  | 从右侧锚点横向缩放（origin right center）                          | 0.15s，enter ease-in / leave ease-out                                                   | `zoom-in.scss`    |
-| `zoom-in-top`    | 从顶部锚点纵向缩放（`scaleY 0.8`，origin center top）              | 0.15s，enter ease-in / leave ease-out                                                   | `zoom-in.scss`    |
-| `zoom-in-bottom` | 从底部锚点纵向缩放（origin center bottom）                         | 0.15s，enter ease-in / leave ease-out                                                   | `zoom-in.scss`    |
+| `zoom-in`        | 中心缩放（`scale 0.8`）                                            | 0.15s `cubic-bezier(0.23, 1, 0.32, 1)`                                                  | `zoom-in.scss`    |
+| `zoom-in-left`   | 从左侧锚点横向缩放（`scaleX 0.8`，origin left center）             | 0.15s `cubic-bezier(0.23, 1, 0.32, 1)`                                                  | `zoom-in.scss`    |
+| `zoom-in-right`  | 从右侧锚点横向缩放（origin right center）                          | 0.15s `cubic-bezier(0.23, 1, 0.32, 1)`                                                  | `zoom-in.scss`    |
+| `zoom-in-top`    | 从顶部锚点纵向缩放（`scaleY 0.8`，origin center top）              | 0.15s `cubic-bezier(0.23, 1, 0.32, 1)`                                                  | `zoom-in.scss`    |
+| `zoom-in-bottom` | 从底部锚点纵向缩放（origin center bottom）                         | 0.15s `cubic-bezier(0.23, 1, 0.32, 1)`                                                  | `zoom-in.scss`    |
 
 `UDialog` 的默认过渡就是 `fade-scale`（组件自带引入该文件，业务里再对其他元素使用时需自行引入）。
 
@@ -174,3 +174,4 @@ const open = ref(false)
 > - `u-shine` 的颜色来自主题 token：未调用 `loadTheme` 时 `--u-text-color-*` 为空，扫光退化为不可见渐变。
 > - 过渡名与 CSS 类强绑定（如 `spring-enter-active`），自造名字或改写这些类名都不会有动画；要调时长请在自己的样式里覆盖对应类的 `transition` / `animation`。
 > - `fade-scale` 已被 `UDialog` 默认引入并对弹层使用；在同一页面给其他元素用 `fade-scale` 不冲突，但禁止重复全局引入同一文件后依赖加载顺序。
+> - `prefers-reduced-motion: reduce` 时，`fade-scale`、`slide-down`、`slide-up`、`zoom-in` 及其四个方向变体只过渡 `opacity`，不再缩放或位移。

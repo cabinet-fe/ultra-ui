@@ -46,10 +46,9 @@ $root-name: scroll;
   // 滚动条背景色
   $bar-color: fn.use-var(text-color, assist);
 
-  // 滚动条默认尺寸(宽度)
+  // 滚动条默认厚度。悬停变厚走 ::before 的 scale，避免动画 width/height，
+  // 也避免和 scroll-bar.vue 的内联 translate 抢 transform。
   $bar-size: 6px;
-  // 滚动条滚动或者悬浮时的尺寸
-  $bar-active-size: $bar-size + 4px;
 
   // 滚动条
   @include m.e(bar-x, bar-y) {
@@ -57,25 +56,32 @@ $root-name: scroll;
     cursor: default;
     position: absolute;
     border-radius: $bar-size;
-    background-color: fn.color-a(text-color, 40, assist);
+    background-color: transparent;
     will-change: transform;
-    transition:
-      opacity 0.3s ease-in,
-      background-color 0.3s ease-in,
-      height 0.15s ease-in,
-      width 0.15s ease-in;
-
+    transition: opacity 160ms cubic-bezier(0.23, 1, 0.32, 1);
     z-index: 1;
 
-    &:hover {
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background-color: fn.color-a(text-color, 40, assist);
+      transition:
+        transform 150ms cubic-bezier(0.23, 1, 0.32, 1),
+        background-color 160ms cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    &:hover::before {
       background-color: fn.color-a(text-color, 60, assist);
-      border-radius: $bar-active-size;
     }
 
     @include m.is(active) {
       opacity: 1;
-      background-color: $bar-color;
-      border-radius: $bar-active-size;
+
+      &::before {
+        background-color: $bar-color;
+      }
     }
   }
 
@@ -91,12 +97,18 @@ $root-name: scroll;
     top: 0;
     right: 0;
 
-    &:hover {
-      width: $bar-active-size;
+    &::before {
+      transform-origin: right center;
+    }
+
+    &:hover::before {
+      transform: scaleX(calc(10 / 6));
     }
 
     @include m.is(active) {
-      width: $bar-active-size;
+      &::before {
+        transform: scaleX(calc(10 / 6));
+      }
     }
   }
 
@@ -105,11 +117,18 @@ $root-name: scroll;
     bottom: 0;
     left: 0;
 
-    &:hover {
-      height: $bar-active-size;
+    &::before {
+      transform-origin: center bottom;
     }
+
+    &:hover::before {
+      transform: scaleY(calc(10 / 6));
+    }
+
     @include m.is(active) {
-      height: $bar-active-size;
+      &::before {
+        transform: scaleY(calc(10 / 6));
+      }
     }
   }
 }

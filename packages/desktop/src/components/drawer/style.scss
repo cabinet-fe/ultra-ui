@@ -135,7 +135,7 @@ $direction-map: (
 $enter-duration: 0.28s;
 $leave-duration: 0.2s;
 $enter-ease: cubic-bezier(0.16, 1, 0.3, 1);
-$leave-ease: cubic-bezier(0.4, 0, 1, 1);
+$leave-ease: cubic-bezier(0.16, 1, 0.3, 1);
 
 // 遮罩只淡透明度，不跟面板的位移曲线
 .drawer-fade-enter-active,

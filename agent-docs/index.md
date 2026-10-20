@@ -112,6 +112,8 @@ createApp(App).mount('#app')
 | UCheckTag                        | 可选中标签：标签形态的勾选项                                                 | `desktop/check-tag.md`          |
 | UCheckbox / UCheckboxButton      | 复选框：单勾选与按钮形态                                                     | `desktop/checkbox.md`           |
 | UCheckboxGroup                   | 复选框组：多选值绑定与全选                                                   | `desktop/checkbox-group.md`     |
+| UChip                            | 胶囊单选：单个胶囊纸片，语义同 URadio                                        | `desktop/chip.md`               |
+| UChipGroup                       | 胶囊单选组：单行纸片，溢出横向滚动后点选                                     | `desktop/chip-group.md`         |
 | UCodeEditor                      | 代码编辑器：CodeMirror 封装，多语言高亮                                      | `desktop/code-editor.md`        |
 | UCollapse / UCollapseItem        | 折叠面板：分组展开收起                                                       | `desktop/collapse.md`           |
 | UConditionEditor                 | 条件编辑器：可视化组合查询条件                                               | `desktop/condition-editor.md`   |
@@ -196,7 +198,7 @@ createApp(App).mount('#app')
 | 导航         | `UDualNav` 双栏导航、`UNav` 多级侧边导航、`UGroupNav` 分组导航、`UBreadcrumb` 面包屑、`USteps` 步骤条、`UProgressNodes` 进度节点、`UFloatButton` 浮动按钮、`UBackTop` 回到顶部                                                                                                          |
 | 文本与图标   | `UText` 文本排版（五档字号字重）、`UIcon` 图标、`UKbd` 按键、`UBadge` 徽标、`UTag` 标签、`UAvatar` / `UAvatarGroup` 头像、`UNodeRender` 节点渲染、`UWatermark` 水印                                                                                                                     |
 | 按钮与操作   | `UButton` / `UButtonGroup` 按钮、`UAction` / `UActionGroup` 表格行内操作、`USegment` 分段控制器、`UCheckTag` 可选中标签、`UDropdown` 下拉菜单、`UContextmenu` 右键菜单                                                                                                                  |
-| 表单与输入   | `UForm` 表单容器、`UFormItem` 表单项、`UInput`、`UTextarea`、`UPasswordInput`、`UNumberInput`、`UNumberRangeInput`、`UAutoComplete`、`UGroupInput`、`UGridInput`、`USwitch`、`UCheckbox` / `UCheckboxButton`、`UCheckboxGroup`、`URadio`、`URadioGroup`、`USlider`、`URate` 评分        |
+| 表单与输入   | `UForm` 表单容器、`UFormItem` 表单项、`UInput`、`UTextarea`、`UPasswordInput`、`UNumberInput`、`UNumberRangeInput`、`UAutoComplete`、`UGroupInput`、`UGridInput`、`USwitch`、`UCheckbox` / `UCheckboxButton`、`UCheckboxGroup`、`URadio`、`URadioGroup`、`UChip`、`UChipGroup`、`USlider`、`URate` 评分        |
 | 选择器与日期 | `USelect`、`UMultiSelect`、`UTransfer` 穿梭框、`UTreeSelect`、`UMultiTreeSelect`、`UCascade`、`UTree`、`UDatePicker`、`UTimePicker` 时间选择器、`UDateRangePicker`、`UDatePanel`、`UCalendar`、`UPalette`                                                                               |
 | 数据展示     | `UTable` 数据表格、`UTableEditor` 可编辑表格、`UKanban` 看板、`UPaginator` 分页器（含「共 N 条」文案）、`UNumber` 数字格式化与补间、`UEmpty` 空状态、`UGanttChart` 甘特图、`UCarousel` / `UCarouselItem` 走马灯                                                                  |
 | 反馈与浮层   | `message` / `UMessage` 轻提示、`notification` / `UNotification` 通知、`messageConfirm` / `UMessageConfirm` 确认框、`UPopConfirm` 气泡确认、`UTip` 文字提示、`UDialog` 对话框、`UDrawer` 抽屉、`ULoading` / `vLoading` 加载、`USkeleton` 骨架屏、`UProgress` 进度条、`UAlert` 行内提示条 |

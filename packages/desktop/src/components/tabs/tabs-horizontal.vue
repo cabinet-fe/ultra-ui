@@ -21,6 +21,7 @@
 
     <div ref="viewportRef" :class="cls.e('viewport')">
       <div ref="listRef" :class="cls.e('list')">
+        <div :class="cls.e('indicator')" :style="indicatorStyle" aria-hidden="true" />
         <button
           type="button"
           role="tab"
@@ -99,7 +100,7 @@ const listRef = shallowRef<HTMLElement>()
 
 const itemsRef = computed(() => props.items)
 
-const { showNav, canPrev, canNext, scrollByStep } = useTabsBar({
+const { showNav, canPrev, canNext, scrollByStep, indicatorStyle } = useTabsBar({
   viewportRef,
   listRef,
   items: itemsRef,

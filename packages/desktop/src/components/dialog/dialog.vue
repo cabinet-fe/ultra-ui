@@ -139,6 +139,7 @@ watch(visible, (v) => {
   if (v) {
     overlayVisible.value = true
   } else {
+    cancelMaximizeMotion()
     dialogVisible.value = false
   }
 })
@@ -159,7 +160,7 @@ function onAfterDialogLeave() {
   overlayVisible.value = false
 }
 
-const { toggleMaximize, maximized } = useMaximum({ dialogRef, cls })
+const { toggleMaximize, maximized, cancelMaximizeMotion } = useMaximum({ dialogRef, cls })
 
 const className = computed(() => {
   return [cls.b, cls.m(size.value)]

@@ -39,6 +39,8 @@ export const VELTRA_COMPONENT_PACKAGES: VeltraComponentPackage[] = [
       UCheckboxButton: 'components/checkbox/style',
       UCheckboxGroup: 'components/checkbox-group/style',
       UCheckTag: 'components/check-tag/style',
+      UChip: 'components/chip/style',
+      UChipGroup: 'components/chip-group/style',
       UCodeEditor: 'components/code-editor/style',
       UCollapse: 'components/collapse/style',
       UCollapseItem: 'components/collapse/style',

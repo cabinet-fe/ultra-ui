@@ -34,12 +34,10 @@
       </div>
     </div>
 
-    <transition name="fade" mode="out-in">
-      <KeepAlive v-if="keepAlive">
-        <component :key="model" :is="renderContent()" />
-      </KeepAlive>
-      <component v-else :key="model" :is="renderContent()" />
-    </transition>
+    <KeepAlive v-if="keepAlive">
+      <component :key="model" :is="renderContent()" />
+    </KeepAlive>
+    <component v-else :key="model" :is="renderContent()" />
   </div>
 </template>
 

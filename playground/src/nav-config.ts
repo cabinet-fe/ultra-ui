@@ -62,6 +62,7 @@ export const demoMeta: Record<string, DemoMeta> = {
   carousel: { zh: '走马灯', en: 'Carousel', category: 'data' },
   cascade: { zh: '级联选择器', en: 'Cascade', category: 'form' },
   checkbox: { zh: '复选框', en: 'Checkbox', category: 'form' },
+  chip: { zh: '胶囊单选', en: 'Chip', category: 'form' },
   'code-editor': { zh: '代码编辑器', en: 'CodeEditor', category: 'editor' },
   collapse: { zh: '折叠面板', en: 'Collapse', category: 'layout' },
   'condition-editor': { zh: '条件编辑器', en: 'ConditionEditor', category: 'editor' },

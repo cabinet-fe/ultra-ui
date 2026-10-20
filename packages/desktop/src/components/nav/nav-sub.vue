@@ -22,28 +22,21 @@
       </u-icon>
     </div>
 
-    <!-- @vue-ignore -->
-    <transition
-      @enter="(el: Element) => expandTransition.enter(el as HTMLElement)"
-      @after-enter="(el: Element) => expandTransition.afterEnter(el as HTMLElement)"
-      @before-leave="(el: Element) => expandTransition.beforeLeave(el as HTMLElement)"
-      @leave="(el: Element) => expandTransition.leave(el as HTMLElement)"
-      @after-leave="(el: Element) => expandTransition.afterLeave(el as HTMLElement)"
-    >
-      <ul :class="[cls.e('sub-list'), bem.is('has-active', branchActive)]" v-show="expanded">
+    <div ref="wrapperEl" :aria-hidden="expanded ? undefined : 'true'">
+      <ul :class="[cls.e('sub-list'), bem.is('has-active', branchActive)]">
         <template v-for="(child, index) of item.children!" :key="getKey(index, parentKey)">
           <UNavItem v-if="!child.children?.length" :item="child" :depth="depth + 1" />
           <NavSub v-else :item="child" :parent-key="getKey(index, parentKey)" :depth="depth + 1" />
         </template>
       </ul>
-    </transition>
+    </div>
   </li>
 </template>
 
 <script setup lang="ts">
 import { ArrowRight } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
-import { computed, inject } from 'vue'
+import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import type { NavItem } from '../../types'
 import { UIcon } from '../icon'
@@ -59,6 +52,24 @@ const props = defineProps<{ item: NavItem; parentKey: string; depth: number }>()
 const { cls, expandedPath, navProps, expandTransition } = inject(NavDIKey)!
 
 const expanded = computed(() => expandedPath.has(props.item.path))
+
+const wrapperEl = ref<HTMLElement>()
+
+onMounted(() => {
+  if (!wrapperEl.value) return
+  expandTransition.setExpanded(wrapperEl.value, expanded.value)
+})
+
+watch(expanded, (open) => {
+  if (!wrapperEl.value) return
+  if (open) expandTransition.expand(wrapperEl.value)
+  else expandTransition.collapse(wrapperEl.value)
+})
+
+onBeforeUnmount(() => {
+  if (!wrapperEl.value) return
+  expandTransition.cancel(wrapperEl.value)
+})
 
 const branchActive = computed(() => {
   const currentPath = navProps.currentPath

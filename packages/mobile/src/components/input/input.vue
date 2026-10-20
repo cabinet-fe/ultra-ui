@@ -24,23 +24,21 @@
     />
 
     <span :class="suffixClass" v-if="hasSuffix">
-      <Transition name="zoom-in" mode="out-in">
-        <button
-          v-if="showClear"
-          :class="cls.e('clear')"
-          type="button"
-          aria-label="清除"
-          @click.stop="clearModelValue"
-          key="clear"
-        >
-          <Close />
-        </button>
+      <button
+        v-if="showClear"
+        :class="cls.e('clear')"
+        type="button"
+        aria-label="清除"
+        @click.stop="clearModelValue"
+        key="clear"
+      >
+        <Close />
+      </button>
 
-        <span v-else :class="cls.e('suffix-content')" @click="handleSuffixClick" key="suffix">
-          {{ suffix }}
-          <slot name="suffix"></slot>
-        </span>
-      </Transition>
+      <span v-else :class="cls.e('suffix-content')" @click="handleSuffixClick" key="suffix">
+        {{ suffix }}
+        <slot name="suffix"></slot>
+      </span>
     </span>
   </div>
 

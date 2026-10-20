@@ -8,8 +8,8 @@
   &-enter-active,
   &-leave-active {
     transition:
-      transform 0.2s cubic-bezier(0, 0, 0.2, 1),
-      opacity 0.2s cubic-bezier(0, 0, 0.2, 1);
+      transform 0.2s cubic-bezier(0.23, 1, 0.32, 1),
+      opacity 0.2s cubic-bezier(0.23, 1, 0.32, 1);
   }
 }
 
@@ -24,5 +24,23 @@
   &-enter-from,
   &-leave-to {
     transform: translateY(10px);
+  }
+}
+
+// 减弱动态效果：不位移，只保留透明度
+@media (prefers-reduced-motion: reduce) {
+  .slide-down-enter-active,
+  .slide-down-leave-active,
+  .slide-up-enter-active,
+  .slide-up-leave-active {
+    transition-property: opacity;
+  }
+
+  .slide-down-enter-from,
+  .slide-down-leave-to,
+  .slide-up-enter-from,
+  .slide-up-leave-to {
+    transform: none;
+    opacity: 0;
   }
 }

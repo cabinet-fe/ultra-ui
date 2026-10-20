@@ -10,9 +10,7 @@
 
     <!-- radio框 -->
     <section :class="cls.e('button')">
-      <transition name="zoom-in">
-        <span :class="cls.e('inner')" v-if="radioChecked"></span>
-      </transition>
+      <span :class="cls.e('inner')" v-if="radioChecked"></span>
     </section>
 
     <span :class="cls.e('label')">

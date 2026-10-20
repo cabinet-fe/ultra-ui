@@ -29,18 +29,16 @@
         readonly
       />
 
-      <Transition name="zoom-in" mode="out-in">
-        <UIcon
-          v-if="clearable && (modelValue?.length || currentRangeDate) && hovered && !disabled"
-          :class="[cls.e('icon'), cls.e('clear')]"
-          title="清除"
-          @click.stop="handleClear"
-        >
-          <Close />
-        </UIcon>
+      <UIcon
+        v-if="clearable && (modelValue?.length || currentRangeDate) && hovered && !disabled"
+        :class="[cls.e('icon'), cls.e('clear')]"
+        title="清除"
+        @click.stop="handleClear"
+      >
+        <Close />
+      </UIcon>
 
-        <u-icon :class="cls.e('icon')" v-else><Calendar /></u-icon>
-      </Transition>
+      <u-icon :class="cls.e('icon')" v-else><Calendar /></u-icon>
     </template>
 
     <template #content>

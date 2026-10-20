@@ -1,0 +1,72 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use 'pkg:@veltra/styles/vars';
+
+// 与 reveal.ts 的 CHIP_EDGE_FADE 保持一致
+$edge-fade: 30px;
+
+@include m.b(chip-group) {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  vertical-align: middle;
+
+  @include m.size using ($size) {
+    @include m.bem(chip-group, track) {
+      gap: fn.use-var(gap, $size);
+    }
+  }
+
+  @include m.e(viewport) {
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    // 上下留出 focus-ring，避免被 overflow 裁切
+    padding-block: 4px;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    @include m.is(dragging) {
+      cursor: grabbing;
+      user-select: none;
+
+      // 禁用项继续用纸片自己的 not-allowed
+      .u-chip:not(.is-disabled) {
+        cursor: grabbing;
+      }
+    }
+
+    &.is-mask-start {
+      mask-image: linear-gradient(90deg, transparent, #000 $edge-fade);
+    }
+
+    &.is-mask-end {
+      mask-image: linear-gradient(270deg, transparent, #000 $edge-fade);
+    }
+
+    &.is-mask-start.is-mask-end {
+      mask-image: linear-gradient(
+        90deg,
+        transparent,
+        #000 $edge-fade,
+        #000 calc(100% - #{$edge-fade}),
+        transparent
+      );
+    }
+  }
+
+  @include m.e(track) {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    width: max-content;
+  }
+
+  @include m.bem(chip) {
+    flex-shrink: 0;
+  }
+}

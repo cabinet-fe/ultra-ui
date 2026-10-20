@@ -124,6 +124,10 @@ export * from './form-item'
 
 export * from './radio-group'
 
+export * from './chip'
+
+export * from './chip-group'
+
 export * from './checkbox-group'
 
 export * from './file-viewer'

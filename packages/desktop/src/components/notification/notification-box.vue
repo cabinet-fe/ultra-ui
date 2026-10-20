@@ -73,6 +73,8 @@ function observeItem(el: Element | null, key: string) {
 
 onBeforeUnmount(() => observer.disconnect())
 
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+
 /** 数组末尾为最新通知, 位于堆叠最前 */
 function cardStyle(index: number): CSSProperties {
   const items = props.notifications
@@ -86,15 +88,16 @@ function cardStyle(index: number): CSSProperties {
     }
     return {
       transform: `translateY(${direction.value * offset}px) scale(1)`,
-      opacity: 1,
+      ...(reduceMotion.matches ? {} : { opacity: 1 }),
       pointerEvents: 'auto'
     }
   }
 
   const clamped = Math.min(stackIndex, MAX_VISIBLE - 1)
+  const hidden = stackIndex >= MAX_VISIBLE
   return {
     transform: `translateY(${direction.value * clamped * PEEK}px) scale(${1 - clamped * 0.05})`,
-    opacity: stackIndex >= MAX_VISIBLE ? 0 : 1,
+    ...(hidden ? { opacity: 0 } : reduceMotion.matches ? {} : { opacity: 1 }),
     pointerEvents: stackIndex === 0 ? 'auto' : 'none'
   }
 }

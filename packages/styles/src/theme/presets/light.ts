@@ -68,7 +68,7 @@ export const lightTheme: UITheme = new UITheme(
       normal: '0.25s',
       slow: '0.35s',
       ease: 'cubic-bezier(0.4, 0, 0.2, 1)',
-      easeOut: 'cubic-bezier(0, 0, 0.2, 1)'
+      easeOut: 'cubic-bezier(0.23, 1, 0.32, 1)'
     },
 
     gap: defineBySize({ small: 6, default: 8, large: 12 }),

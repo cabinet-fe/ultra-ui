@@ -90,7 +90,10 @@ $root-name: theme;
     border-radius: 999px;
     color: fn.use-var(text-color, second);
     background: rgba(148, 163, 184, 0.12);
-    transition: all 0.22s ease;
+    transition:
+      background-color 0.22s ease,
+      color 0.22s ease,
+      box-shadow 0.22s ease;
 
     &:hover {
       background: rgba(148, 163, 184, 0.18);
@@ -130,12 +133,23 @@ $root-name: theme;
     border-radius: fn.use-var(radius, default);
     background: fn.use-var(bg-color, top);
     border: 1px solid rgba(148, 163, 184, 0.12);
-    transition: all 0.22s ease;
+    transition:
+      background-color 0.22s ease,
+      border-color 0.22s ease,
+      box-shadow 0.22s ease,
+      opacity 0.22s ease,
+      transform 0.22s ease;
 
     &:hover {
-      transform: translateY(-1px);
       background: fn.use-var(bg-color, hover);
       border-color: rgba(30, 136, 229, 0.16);
+    }
+
+    // 触摸屏不抬起，避免点按误触发 hover 位移
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        transform: translateY(-1px);
+      }
     }
 
     @include m.is(active) {
@@ -221,7 +235,10 @@ $root-name: theme;
     border-radius: fn.use-var(radius, default);
     background: fn.use-var(bg-color, top);
     border: 1px solid rgba(148, 163, 184, 0.14);
-    transition: all 0.22s ease;
+    transition:
+      border-color 0.22s ease,
+      box-shadow 0.22s ease,
+      background-color 0.22s ease;
 
     &:hover {
       border-color: rgba(30, 136, 229, 0.16);
@@ -373,7 +390,10 @@ $root-name: theme;
     background: fn.use-var(bg-color, top);
     border: 1px solid rgba(148, 163, 184, 0.16);
     color: fn.use-var(text-color, main);
-    transition: all 0.22s ease;
+    transition:
+      background-color 0.22s ease,
+      border-color 0.22s ease,
+      color 0.22s ease;
 
     &:hover {
       border-color: rgba(30, 136, 229, 0.18);

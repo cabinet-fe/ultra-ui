@@ -23,15 +23,13 @@
     <span v-if="props.maxlength && props.showCount" :class="cls.m('count')">
       {{ initNum }}/{{ props.maxlength }}
     </span>
-    <Transition name="zoom-in" mode="out-in">
-      <u-icon
-        v-if="props.clearable && model! && hovered && !disabled && !readonly"
-        :class="cls.m('clear')"
-        @click.stop="handleClear"
-      >
-        <Close />
-      </u-icon>
-    </Transition>
+    <u-icon
+      v-if="props.clearable && model! && hovered && !disabled && !readonly"
+      :class="cls.m('clear')"
+      @click.stop="handleClear"
+    >
+      <Close />
+    </u-icon>
   </div>
 
   <span v-else style="white-space: pre-wrap">

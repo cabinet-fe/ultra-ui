@@ -63,16 +63,16 @@ $root-name: tip;
 }
 
 .#{$root-name}-enter-active {
-  transition-timing-function: ease;
-  transition-duration: 0.25s;
+  transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  transition-duration: 160ms;
 }
 .#{$root-name}-leave-active {
-  transition-timing-function: ease-out;
-  transition-duration: 0.15s;
+  transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  transition-duration: 120ms;
 }
 
 .#{$root-name}-enter-from,
 .#{$root-name}-leave-to {
   opacity: 0;
-  transform: scale(0.9);
+  transform: scale(0.96);
 }

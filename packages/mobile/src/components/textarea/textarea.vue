@@ -18,17 +18,15 @@
     <span v-if="props.maxlength && props.showCount" :class="cls.m('count')">
       {{ model?.length ?? 0 }}/{{ props.maxlength }}
     </span>
-    <Transition name="zoom-in">
-      <button
-        v-if="props.clearable && model && !disabled"
-        :class="cls.m('clear')"
-        type="button"
-        aria-label="清空"
-        @click.stop="handleClear"
-      >
-        <Close />
-      </button>
-    </Transition>
+    <button
+      v-if="props.clearable && model && !disabled"
+      :class="cls.m('clear')"
+      type="button"
+      aria-label="清空"
+      @click.stop="handleClear"
+    >
+      <Close />
+    </button>
   </div>
 
   <span v-else :class="cls.m('readonly')">

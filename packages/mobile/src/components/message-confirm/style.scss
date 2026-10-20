@@ -119,3 +119,17 @@ $root-name: message-confirm;
     transform: translateY(-40px);
   }
 }
+
+// 减弱动态效果：确认框不位移，只保留透明度。根上的 opacity 过渡不能删。
+@media (prefers-reduced-motion: reduce) {
+  @include m.bem($root-name, box) {
+    transition-property: opacity;
+  }
+
+  .#{$root-name}-enter-from,
+  .#{$root-name}-leave-to {
+    @include m.bem($root-name, box) {
+      transform: none;
+    }
+  }
+}

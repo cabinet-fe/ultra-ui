@@ -132,3 +132,21 @@ $stack-positions: (
   opacity: 0;
   transform: translateY(-100%);
 }
+
+// 减弱动态效果：进入/离开不滑移。堆叠用的内联 transform 不再被动画。
+@media (prefers-reduced-motion: reduce) {
+  .notification-bottom-enter-active,
+  .notification-bottom-leave-active,
+  .notification-top-enter-active,
+  .notification-top-leave-active {
+    transition-property: opacity;
+  }
+
+  .notification-bottom-enter-from,
+  .notification-bottom-leave-to,
+  .notification-top-enter-from,
+  .notification-top-leave-to {
+    transform: none;
+    opacity: 0;
+  }
+}

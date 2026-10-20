@@ -51,7 +51,7 @@ $root-name: ai-chat;
     animation: u-ai-chat-panel-in 0.2s ease-out;
 
     @media (prefers-reduced-motion: reduce) {
-      animation: none;
+      animation: u-ai-chat-panel-fade 160ms cubic-bezier(0.23, 1, 0.32, 1);
     }
   }
 
@@ -74,6 +74,28 @@ $root-name: ai-chat;
 
     to {
       transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  // 仅减少动态效果时使用：只淡入透明度
+  @keyframes u-ai-chat-panel-fade {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  // 仅减少动态效果时使用：只淡入透明度
+  @keyframes u-ai-chat-orb-fade {
+    from {
+      opacity: 0;
+    }
+
+    to {
       opacity: 1;
     }
   }
@@ -358,12 +380,13 @@ $root-name: ai-chat;
   @media (prefers-reduced-motion: reduce) {
     .u-#{$root-name}__welcome.is-enter .u-ai-orb,
     .u-#{$root-name}__working .u-ai-orb {
-      animation: none;
+      animation: u-ai-chat-orb-fade 160ms cubic-bezier(0.23, 1, 0.32, 1) both;
     }
 
     .u-#{$root-name}__welcome.is-leaving .u-ai-orb,
     .u-#{$root-name}__working.is-leaving .u-ai-orb {
-      transition: none;
+      transform: none;
+      transition: opacity 160ms cubic-bezier(0.23, 1, 0.32, 1);
     }
   }
 

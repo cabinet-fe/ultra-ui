@@ -8,16 +8,11 @@
     opacity: 0;
   }
 
-  &-enter-active {
-    transition:
-      opacity 0.15s ease-in,
-      transform 0.15s ease-in;
-  }
-
+  &-enter-active,
   &-leave-active {
     transition:
-      opacity 0.15s ease-out,
-      transform 0.15s ease-out;
+      opacity 0.15s cubic-bezier(0.23, 1, 0.32, 1),
+      transform 0.15s cubic-bezier(0.23, 1, 0.32, 1);
   }
 }
 
@@ -69,5 +64,35 @@
   &-enter-active,
   &-leave-active {
     transform-origin: center bottom;
+  }
+}
+
+// 减弱动态效果：不缩放，只保留透明度
+@media (prefers-reduced-motion: reduce) {
+  .zoom-in-enter-active,
+  .zoom-in-leave-active,
+  .zoom-in-left-enter-active,
+  .zoom-in-left-leave-active,
+  .zoom-in-right-enter-active,
+  .zoom-in-right-leave-active,
+  .zoom-in-top-enter-active,
+  .zoom-in-top-leave-active,
+  .zoom-in-bottom-enter-active,
+  .zoom-in-bottom-leave-active {
+    transition-property: opacity;
+  }
+
+  .zoom-in-enter-from,
+  .zoom-in-leave-to,
+  .zoom-in-left-enter-from,
+  .zoom-in-left-leave-to,
+  .zoom-in-right-enter-from,
+  .zoom-in-right-leave-to,
+  .zoom-in-top-enter-from,
+  .zoom-in-top-leave-to,
+  .zoom-in-bottom-enter-from,
+  .zoom-in-bottom-leave-to {
+    transform: none;
+    opacity: 0;
   }
 }

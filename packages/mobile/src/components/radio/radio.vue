@@ -14,9 +14,7 @@
 
     <!-- 右侧圆形选中标记：列表行式选项的移动端惯例 -->
     <span :class="cls.e('indicator')">
-      <transition name="zoom-in">
-        <span :class="cls.e('dot')" v-if="radioChecked"></span>
-      </transition>
+      <span :class="cls.e('dot')" v-if="radioChecked"></span>
     </span>
   </label>
 </template>

@@ -45,16 +45,14 @@
         />
       </div>
       <!-- 清空 icon -->
-      <transition name="zoom-in" mode="out-in">
-        <u-icon v-if="showClear" :class="cls.e('clear')" @click.stop="handleClear">
-          <Close />
-        </u-icon>
+      <u-icon v-if="showClear" :class="cls.e('clear')" @click.stop="handleClear">
+        <Close />
+      </u-icon>
 
-        <!-- 下拉 icon -->
-        <u-icon :class="cls.e(`arrow`)" v-else-if="!readonly">
-          <ArrowDown />
-        </u-icon>
-      </transition>
+      <!-- 下拉 icon -->
+      <u-icon :class="cls.e(`arrow`)" v-else-if="!readonly">
+        <ArrowDown />
+      </u-icon>
     </template>
     <template #content>
       <div :class="[cls.e('content-header'), cls.m(size)]">

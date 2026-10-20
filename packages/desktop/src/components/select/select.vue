@@ -34,20 +34,18 @@
         </template>
 
         <template #suffix>
-          <transition name="zoom-in" mode="out-in">
-            <u-icon
-              v-if="showClear"
-              :class="cls.e('clear')"
-              title="清除"
-              key="clear"
-              @click.stop="handleClear"
-            >
-              <Close />
-            </u-icon>
-            <u-icon v-else :class="cls.e('arrow')" key="arrow">
-              <ArrowDown />
-            </u-icon>
-          </transition>
+          <u-icon
+            v-if="showClear"
+            :class="cls.e('clear')"
+            title="清除"
+            key="clear"
+            @click.stop="handleClear"
+          >
+            <Close />
+          </u-icon>
+          <u-icon v-else :class="cls.e('arrow')" key="arrow">
+            <ArrowDown />
+          </u-icon>
         </template>
       </u-input>
     </template>
