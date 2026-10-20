@@ -263,16 +263,23 @@ const showClear = computed(() => {
 })
 
 /**
- * 过滤模式下拦截输入区域的点击：
- * 阻止 dropdown 的 trigger 开合切换，保持面板展开以不中断输入。
- * 非输入区域（箭头、留白）放行，维持原开合行为。
+ * 点击输入框时在 capture 阶段完成开合。
+ * 过滤模式只打开、不关闭，避免打断输入；非过滤模式切换开合。
+ * 箭头和留白仍交给 dropdown 的 click。
  */
 function handleTriggerClickCapture(e: MouseEvent) {
-  if (!filterable.value || disabled.value) return
+  if (disabled.value) return
   if (!(e.target instanceof HTMLInputElement)) return
 
+  // capture 与 dropdown 的 bubble click 会在同一毫秒内先后绑定。
+  // Vue 会丢掉后绑定的那个，非过滤模式下面板就打不开。开合放在先执行的 capture 里。
   e.stopPropagation()
-  if (!dropdownVisible.value) dropdownRef.value?.open()
+  if (filterable.value) {
+    if (!dropdownVisible.value) dropdownRef.value?.open()
+    return
+  }
+  if (dropdownVisible.value) dropdownRef.value?.close()
+  else dropdownRef.value?.open()
 }
 
 const { userAction, isUserActive } = useUserAction()
