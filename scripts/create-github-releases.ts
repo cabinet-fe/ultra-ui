@@ -201,12 +201,24 @@ async function buildReleaseSpecs(
   if (fixedPackages.length > 0) {
     const versions = new Set(fixedPackages.map((pkg) => pkg.version))
 
-    if (fixedPackages.length !== coreFixedGroup.length || versions.size !== 1) {
+    if (versions.size !== 1) {
       const summary = fixedPackages.map((pkg) => `${pkg.name}@${pkg.version}`).join(', ')
       throw new Error(`fixed 组发布结果不完整，拒绝创建聚合 release: ${summary}`)
     }
 
     const version = fixedPackages[0]!.version
+
+    // 重跑时 changesets 只回报本次新发出的包。组内其余包若已是同一版本，仍做一条聚合 Release。
+    if (fixedPackages.length !== coreFixedGroup.length) {
+      const workspace = await collectWorkspacePackages()
+      const byName = new Map(workspace.map((pkg) => [pkg.name, pkg.version]))
+      const sameVersion = coreFixedGroup.every((name) => byName.get(name) === version)
+
+      if (!sameVersion) {
+        const summary = fixedPackages.map((pkg) => `${pkg.name}@${pkg.version}`).join(', ')
+        throw new Error(`fixed 组发布结果不完整，拒绝创建聚合 release: ${summary}`)
+      }
+    }
     const sections = await Promise.all(
       coreFixedGroup.map(async (packageName) => ({
         packageName,
