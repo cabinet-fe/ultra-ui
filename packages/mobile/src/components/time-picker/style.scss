@@ -166,6 +166,10 @@ $root-name: time-picker;
   }
 
   @include m.e(column) {
+    // 提到高亮带之上：highlight 画在普通流元素上方，不透明浅底会盖住数字，
+    // 列自身无背景，提升层级后文字浮在带上、带透出作选中底色
+    position: relative;
+    z-index: 1;
     flex: 1;
     min-width: 0;
     height: 220px;
