@@ -26,7 +26,8 @@ $transition-normal: 0.24s $ease;
   @include m.e(item) {
     border: fn.use-var(border-muted);
     border-radius: t.control-radius(default);
-    background-color: fn.use-var(bg-color, middle);
+    // 填充式灰卡（light #f4f4f5 / dark #26262c，dark 下取比 top 亮的 hover 档）
+    background-color: fn.use-var(bg-color, hover);
     overflow: hidden;
 
     & + .um-#{$root-name}__item {
@@ -55,16 +56,19 @@ $transition-normal: 0.24s $ease;
     outline: none;
     -webkit-tap-highlight-color: transparent;
     transition: background-color $transition-fast;
+    // 展开时显形为 hairline：常驻占位避免展开瞬间 1px 跳动
+    border-bottom: 1px solid transparent;
     border-radius: 0;
 
     &:focus-visible {
       box-shadow: inset 0 0 0 2px fn.use-var(color, primary);
     }
 
-    // 移动端无 hover：按压与展开态提供触控反馈
+    // 移动端无 hover：按压与展开态提供触控反馈。
+    // 按压压暗主题无关，中性 bg 无更深一档 token，直接 rgba（同遮罩先例）
     @include m.is-not(disabled) {
       &:active {
-        background-color: fn.use-var(bg-color, hover);
+        background-color: rgba(0, 0, 0, 0.08);
       }
     }
 
@@ -74,7 +78,8 @@ $transition-normal: 0.24s $ease;
     }
 
     @include m.is(active) {
-      background-color: fn.use-var(bg-color, hover);
+      // 灰白交接 hairline：只在展开态显形
+      border-bottom-color: fn.use-var(border-color);
 
       .um-#{$root-name}__icon {
         transform: rotate(180deg);
@@ -98,7 +103,9 @@ $transition-normal: 0.24s $ease;
     align-items: center;
     justify-content: center;
     flex: 0 0 auto;
-    color: fn.use-var(text-color, assist);
+    // 比正文字号大一号 + 中灰，保证可辨识（assist 档在灰底上过浅）
+    font-size: t.use-var(font-size-title);
+    color: fn.use-var(text-color, second);
     transition: transform 0.2s $ease;
     will-change: transform;
 
@@ -113,7 +120,7 @@ $transition-normal: 0.24s $ease;
   @include m.e(content-wrapper) {
     overflow: hidden;
     height: 0;
-    background-color: transparent;
+    background-color: fn.use-var(bg-color, top);
     transition: height $transition-normal;
   }
 
