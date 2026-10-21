@@ -11,7 +11,7 @@
       direction="vertical"
       @resize="handleResize($event, index)"
       @resize-start="handleStartResize(index)"
-      @resize-end="emit('resize-end', index)"
+      @resize-end="handleEndResize(index)"
     >
     </ULayoutResizer>
 
@@ -115,6 +115,8 @@ function syncResizers() {
 
 let prevSize = 0
 let nextSize = 0
+// 拖拽起点的把手位置（左侧列的右边界），量取口径与 getResizeOffsets 一致
+let startOffset = 0
 const handleStartResize = (index: number) => {
   const container = containerRef.value
   if (!container) return
@@ -125,6 +127,7 @@ const handleStartResize = (index: number) => {
   const nextDom = container.children[index + 1] as HTMLElement | undefined
   prevSize = prevDom ? prevDom.getBoundingClientRect().width : 0
   nextSize = nextDom ? nextDom.getBoundingClientRect().width : 0
+  startOffset = prevDom ? prevDom.offsetLeft + prevDom.offsetWidth : 0
   emit('resize-start', index)
 }
 const handleResize = (offset: number, index: number) => {
@@ -135,6 +138,19 @@ const handleResize = (offset: number, index: number) => {
   const clamped = Math.max(minPrev - prevSize, Math.min(nextSize - minNext, offset))
   templateCols.value[index] = `${prevSize + clamped}px`
   templateCols.value[index + 1] = `${nextSize - clamped}px`
+  // 增量被钳制时把手不能继续跟随鼠标，否则会脱离两列交界线（把手位置由列宽决定，
+  // resizer 自身的 offset 只是鼠标位移的镜像，松手后由 handleEndResize 回正）
+  if (clamped !== offset) {
+    resizerRefs.value[index]!.update(startOffset + clamped)
+  }
+}
+
+/** 拖拽期间容器尺寸不变、props 也不变，ResizeObserver 与 watch 都不会触发，需手动回正把手 */
+const handleEndResize = (index: number) => {
+  emit('resize-end', index)
+  nextTick(() => {
+    syncResizers()
+  })
 }
 
 provide(LayoutDIKey, { cls })
