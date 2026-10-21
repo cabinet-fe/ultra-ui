@@ -74,10 +74,9 @@ $tail-width: 2px;
       }
     }
 
-    // 自定义节点（#dot 插槽）：隐藏默认圆点，插槽内容在首行行盒内垂直居中
+    // 自定义节点（#dot 插槽）：隐藏默认圆点；保持圆点直径的盒宽，
+    // 超宽插槽内容以竖线为轴向两侧对称溢出，与尾线保持同心
     @include m.is(custom) {
-      width: auto;
-
       &::before {
         display: none;
       }
