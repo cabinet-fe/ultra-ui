@@ -12,7 +12,8 @@ $vertical-max-height: min(70%, 560px);
 @include m.b($overlay-name) {
   position: fixed;
   inset: 0;
-  background-color: fn.color-a(color, 35, black);
+  // 遮罩压暗主题无关，black 不在 theme.color 表内、无 alpha token，直接写 rgba
+  background-color: rgba(0, 0, 0, 0.32);
   overflow: hidden;
 }
 
