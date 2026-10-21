@@ -339,7 +339,9 @@ $status-height: 44px;
     padding: 12px 12px 28px;
   }
 
-  .demo section {
+  // 仅命中 demo 页自身的顶层 section（> 限定）：
+  // 裸 section 会泄漏进组件内部的 section（如 UFormItem 的 __wrapper），挤占控件区宽度
+  .demo > section {
     padding: 14px 14px 16px;
     background: var(--u-bg-color-top);
     border: 1px solid var(--u-border-mutedColor);
@@ -348,7 +350,7 @@ $status-height: 44px;
   }
 
   // 选择器多一层 section，压过 demo 页 scoped 样式里 h3 的 margin
-  .demo section > h3 {
+  .demo > section > h3 {
     margin: 0 0 12px;
   }
 

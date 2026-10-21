@@ -22,7 +22,7 @@
       {{ placeholder }}
     </span>
 
-    <div v-if="model?.length" :class="cls.e('tags')">
+    <div v-if="model?.length" ref="tagsRef" :class="cls.e('tags')">
       <span v-for="option of tags" :key="getOptionField(option, valueKey)" :class="cls.e('tag')">
         <span :class="cls.e('tag-label')">
           {{ getOptionField(option, labelKey) }}
@@ -128,6 +128,7 @@
 </template>
 
 <script lang="ts" setup>
+import { useResizeObserver } from '@veltra/compositions'
 import { ArrowDown, Check, Close, Minus } from '@veltra/icons/normal'
 import { FORM_EMPTY_CONTENT, injectFormContext } from '@veltra/utils'
 import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
@@ -340,19 +341,62 @@ function emitChange() {
   emit('change', (model.value ?? []).map((v) => optionsMap.value.get(v)).filter(Boolean))
 }
 
+/** 触发器标签数量上限：禁用/只读时显示全部（与 desktop 行为一致） */
+const maxVisible = computed(() => {
+  let limit = props.visibilityLimit
+  if (limit < 0) {
+    limit = 0
+  }
+
+  if (disabled.value || readonly.value) {
+    limit = model.value?.length ?? 0
+  }
+
+  return limit
+})
+
+/** 当前宽度内放得下的标签数：初值不设限（与 visibilityLimit 行为一致），挂载后按宽度收敛 */
+const fitCount = shallowRef(Number.POSITIVE_INFINITY)
+
+const tagsRef = useTemplateRef<HTMLDivElement>('tagsRef')
+
+let measuring = false
+
+/** 是否存在被省略号截断的标签文本（此时折叠进 +N，保留完整可读的标签） */
+function hasTruncatedLabel(el: HTMLElement) {
+  return [...el.querySelectorAll<HTMLElement>('.um-multi-select__tag-label')].some(
+    (label) => label.scrollWidth > label.clientWidth + 1
+  )
+}
+
+/** 收敛可见标签数：先放开到上限，再逐个折叠到标签完整可读；空间不足时保底 1 个（+N 兜底计数） */
+async function measureFit() {
+  const el = tagsRef.value
+  if (!el || measuring) return
+  measuring = true
+  try {
+    if (fitCount.value !== maxVisible.value) {
+      fitCount.value = maxVisible.value
+      await nextTick()
+    }
+    while (hasTruncatedLabel(el) && fitCount.value > 1) {
+      fitCount.value -= 1
+      await nextTick()
+    }
+  } finally {
+    measuring = false
+  }
+}
+
+useResizeObserver({ targets: tagsRef, onResize: () => measureFit() })
+
+watch([model, options, size, disabled, readonly, () => props.visibilityLimit], () =>
+  nextTick(measureFit)
+)
+
 const tags = computed(() => {
   const tags: Record<string, any>[] = []
-  let { visibilityLimit } = props
-  if (visibilityLimit < 0) {
-    visibilityLimit = 0
-  }
-
-  // 禁用/只读时显示全部（与 desktop 行为一致）
-  if (disabled.value || readonly.value) {
-    visibilityLimit = model.value?.length ?? 0
-  }
-
-  model.value?.slice(0, visibilityLimit).forEach((k) => {
+  model.value?.slice(0, Math.min(maxVisible.value, fitCount.value)).forEach((k) => {
     const option = optionsMap.value.get(k)
     option && tags.push(option)
   })
