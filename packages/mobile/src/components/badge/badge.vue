@@ -7,7 +7,7 @@
 
 <script lang="ts" setup>
 import { setStyles, zIndex } from '@veltra/utils'
-import { computed, nextTick, onMounted, shallowRef, watch } from 'vue'
+import { computed, nextTick, shallowRef, watch } from 'vue'
 
 import { bem } from '../../shared/bem'
 import type { BadgeProps } from '../../types/badge'
@@ -49,16 +49,11 @@ const setPosition = () => {
   }
 }
 
-watch(
-  () => props.size,
-  () => {
-    nextTick(() => {
-      setPosition()
-    })
-  }
-)
-
-onMounted(() => {
-  setPosition()
+// sup 因 hidden 切换而销毁重建、或 size/dot 改变自身尺寸时，重新写入偏移
+watch([supRef, () => props.size, () => props.dot], ([el]) => {
+  if (!el) return
+  nextTick(() => {
+    setPosition()
+  })
 })
 </script>
