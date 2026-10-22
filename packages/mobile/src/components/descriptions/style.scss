@@ -80,31 +80,40 @@ $size-row-padding: (
     }
   }
 
-  // 边框模式：列表整体描边，行间分隔线，键名底色块（对应 desktop 单元格描边语义）
+  // 边框模式：列表整体描边、纯白底，行间分隔线，键名灰底块（对应 desktop 单元格描边语义）
   @include m.is(bordered) {
     .um-#{$root-name}__list {
       border: fn.use-var(border-muted);
       border-radius: t.control-radius(default);
+      background-color: fn.use-var(bg-color, top);
       overflow: hidden;
     }
 
     .um-#{$root-name}__row {
+      gap: 0;
+
       & + & {
         border-top: fn.use-var(border-muted);
       }
     }
 
     .um-#{$root-name}__label {
-      background-color: fn.use-var(bg-color, middle);
       max-width: none;
       flex: 0 0 38%;
       align-self: stretch;
+      padding-inline: t.use-var(spacing-sm);
     }
 
-    // 垂直布局下键名独占一行，不做列宽限制
-    @include m.m(vertical) {
+    .um-#{$root-name}__content {
+      padding-inline: t.use-var(spacing-sm);
+    }
+
+    // 垂直布局下键名独占一行：保留灰底块作行分组头
+    // 此处不能用 m.m()：嵌套在 is(bordered) 下会拼出 .is-bordered--vertical 的失效复合选择器
+    &.um-#{$root-name}--vertical {
       .um-#{$root-name}__label {
         flex-basis: auto;
+        background-color: fn.use-var(bg-color, middle);
       }
     }
   }
