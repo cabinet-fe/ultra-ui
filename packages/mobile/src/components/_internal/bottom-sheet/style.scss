@@ -1,4 +1,6 @@
-@use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
+@use 'pkg:@veltra/styles/mixins' as m with (
+  $namespace: um
+);
 @use 'pkg:@veltra/styles/functions' as fn;
 @use '../../../styles/tokens' as t;
 
@@ -31,10 +33,11 @@ $root-name: sheet;
   }
 
   @include m.e(header) {
+    // 关闭钮绝对定位后，标题占满整行宽度，文字才能真正水平居中
+    position: relative;
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: fn.use-var(gap, default);
     min-height: t.use-var('form-row-height');
     padding: fn.use-var(gap, small) fn.use-var(gap, default) 0;
@@ -51,12 +54,13 @@ $root-name: sheet;
   }
 
   @include m.e(close) {
-    // 头部操作热区 ≥44×44（高度受头部行高约束，用外扩补足宽度）
-    flex-shrink: 0;
+    // 头部操作热区 ≥44×44；不参与文档流，避免挤压标题的居中基准
+    position: absolute;
+    right: fn.use-var(gap, small);
+    top: 50%;
+    transform: translateY(-50%);
     min-width: t.use-var('touch-target');
     min-height: t.use-var('touch-target');
-    // 热区外扩量（spacing-sm）：补偿关闭钮居中图标的两侧留白
-    margin: calc(-1 * #{t.use-var('spacing-sm')}) calc(-1 * #{t.use-var('spacing-sm')}) calc(-1 * #{t.use-var('spacing-sm')}) 0;
     padding: 0;
     display: inline-flex;
     align-items: center;
