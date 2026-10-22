@@ -3,10 +3,6 @@
 
 $root-name: collapse;
 
-$ease: cubic-bezier(0.4, 0, 0.2, 1);
-$transition-fast: 0.18s $ease;
-$transition-normal: 0.24s $ease;
-
 @include m.b($root-name) {
   width: 100%;
   font-size: fn.use-var(font-size-main, default);
@@ -42,7 +38,9 @@ $transition-normal: 0.24s $ease;
     color: fn.use-var(text-color, main);
     user-select: none;
     outline: none;
-    transition: background-color $transition-fast;
+    transition:
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
     border-radius: 0;
 
     &:focus-visible {
@@ -52,6 +50,10 @@ $transition-normal: 0.24s $ease;
     @include m.is-not(disabled) {
       &:hover {
         background-color: fn.use-var(bg-color, hover);
+      }
+
+      &:active {
+        transform: scale(0.98);
       }
     }
 
@@ -86,7 +88,8 @@ $transition-normal: 0.24s $ease;
     justify-content: center;
     flex: 0 0 auto;
     color: fn.use-var(text-color, assist);
-    transition: transform 0.2s $ease;
+    // 与高度动画（JS 驱动 0.24s）保持同步感：normal（0.25s）+ ease
+    transition: transform fn.use-var(transition, normal) fn.use-var(transition, ease);
     will-change: transform;
   }
 
@@ -95,7 +98,7 @@ $transition-normal: 0.24s $ease;
     overflow: hidden;
     height: 0;
     background-color: transparent;
-    transition: height $transition-normal;
+    transition: height fn.use-var(transition, normal) fn.use-var(transition, ease);
   }
 
   @include m.e(content) {

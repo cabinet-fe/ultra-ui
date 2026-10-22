@@ -183,6 +183,7 @@ const formData = reactive({ remember: false, deepThink: false })
 > - 复选框的可见文本来自默认插槽；`label` 是表单标签，仅在 `UForm` / `UFormItem` 内生效。
 > - 在 `UForm` 内必须用 `field` 绑定字段，有 `field` 时禁止再写 `v-model`。
 > - `UCheckboxButton` 的 `readonly` 形态渲染为标签（选中“是”/未选“否”），不可点击。
+> - v1.15.1 起，`UCheckboxButton` 根元素带 `role="checkbox"` 与 `aria-checked`，可获得键盘焦点，`Enter` / `Space` 与点击等效切换（`readonly` 标签形态无此行为）。
 > - 组件颜色来自 `--u-*` token：应用入口必须 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则组件无颜色。
 
 ## 常见问题

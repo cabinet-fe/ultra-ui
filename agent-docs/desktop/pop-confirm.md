@@ -66,7 +66,7 @@ export interface PopConfirmProps {
   title?: string
   /** 图标组件。默认 QuestionFilled（@veltra/icons/normal） */
   icon?: Component
-  /** 图标颜色。默认 '#ffc107' */
+  /** 图标颜色。默认空字符串：为空时取主题 warning 色 */
   iconColor?: string
   /** 确认按钮文字。默认 '确认' */
   confirmText?: string
@@ -92,7 +92,7 @@ export interface PopConfirmExposed {}
 | ------------- | ---------------------------------------- | ---------------- | :--: | ----------------------------------------------------------------------- |
 | `title`       | `string`                                 | —                |  否  | 确认文案，纯文本渲染；要换行/富文本时本组件不支持，改用 UTip 自定义内容 |
 | `icon`        | `Component`                              | `QuestionFilled` |  否  | 文案左侧图标，尺寸固定 16px                                             |
-| `iconColor`   | `string`                                 | `'#ffc107'`      |  否  | 图标颜色，写入内联 `color`                                              |
+| `iconColor`   | `string`                                 | `''`             |  否  | 图标颜色，非空时写入内联 `color`；为空时图标颜色取主题 `warning` 色（v1.15.1 前默认 `'#ffc107'`） |
 | `confirmText` | `string`                                 | `'确认'`         |  否  | 确认按钮文字（primary 实心小按钮）                                      |
 | `cancelText`  | `string`                                 | `'取消'`         |  否  | 取消按钮文字（text 小按钮）                                             |
 | `trigger`     | `'hover' \| 'click'`                     | `'click'`        |  否  | `click` 时点击外部也关闭；`hover` 时移出触发元素/气泡关闭               |
@@ -196,7 +196,7 @@ function handleDelete() {
 > - `trigger='click'` 时点击气泡外部关闭；`trigger='hover'` 时移出触发元素或气泡关闭，没有点击外部关闭。
 > - 点击确认或取消按钮后气泡一定关闭；要在确认回调里做异步校验后再关闭的需求无法实现（关闭先于异步完成），此类场景用 `UDialog` + footer 按钮。
 > - 本组件的尺寸跟随所在 `UForm` 的 `size`（表单上下文），不在表单内时为 `'default'`；没有独立 `size` prop。
-> - `title` 是纯文本；图标尺寸固定 16px，颜色用 `iconColor` 覆盖。
+> - `title` 是纯文本；图标尺寸固定 16px，颜色默认取主题 `warning` 色，可用 `iconColor` 覆盖。
 > - 示例独立成页运行时必须先初始化主题：`import '@veltra/styles/normalize'` 后调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色。
 
 ## 常见问题

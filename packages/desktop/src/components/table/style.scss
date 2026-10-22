@@ -90,7 +90,7 @@ $root-name: table;
     margin-right: fn.use-var(gap, small);
 
     & > i {
-      transition: transform 0.25s;
+      transition: transform fn.use-var(transition, normal) fn.use-var(transition, ease);
     }
   }
 
@@ -121,7 +121,8 @@ $root-name: table;
   @include m.e(head) {
     position: sticky;
     top: 0;
-    z-index: 1;
+    // 高于固定列单元格（z-index: 1）：否则竖向滚动时固定列按 DOM 序反超、盖住表头
+    z-index: 2;
     user-select: none;
 
     @include m.bem($root-name, cell) {
@@ -147,6 +148,13 @@ $root-name: table;
     right: 0px;
     top: 0;
     cursor: col-resize;
+    transition: background-color fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    // 悬浮/按压给出一侧指示条，弥补仅有 cursor 的弱交互暗示
+    &:hover,
+    &:active {
+      background-color: fn.use-var(color, primary);
+    }
   }
 
   @include m.e(resize-line) {
@@ -160,8 +168,6 @@ $root-name: table;
   }
 
   @include m.e(body) {
-    will-change: transform;
-
     @include m.bem($root-name, row) {
       &:last-child {
         @include m.bem($root-name, cell) {
@@ -184,6 +190,8 @@ $root-name: table;
     position: sticky;
     left: 0;
     bottom: 0;
+    // 同表头：高于固定列单元格，防竖向滚动时被盖
+    z-index: 2;
 
     // 表脚与表体之间的分隔线，使用负边距避免叠加
     @include m.bem($root-name, cell) {
@@ -201,6 +209,8 @@ $root-name: table;
 
     position: relative;
     line-height: 1;
+    // 行 hover / 条纹 / 选中态之间切换背景色时的平滑过渡
+    transition: background-color fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     @each $position in (left, center, right) {
       @include m.is($position) {
@@ -214,31 +224,45 @@ $root-name: table;
     }
 
     @include m.is(fixed-left) {
+      // 阴影伪元素恒渲染 + opacity 过渡：滚动触达时由 last-fixed 类只切透明度，
+      // 避免伪元素挂载/卸载导致阴影瞬现瞬灭。
+      &::after {
+        content: '';
+        position: absolute;
+        right: -10px;
+        top: 0;
+        width: 10px;
+        height: 100%;
+        pointer-events: none;
+        box-shadow: 10px 0 10px -10px fn.use-var(shadow-color) inset;
+        opacity: 0;
+        transition: opacity fn.use-var(transition, fast) fn.use-var(transition, ease);
+      }
+
       @include m.is(last-fixed) {
         &::after {
-          content: '';
-          position: absolute;
-          right: -10px;
-          top: 0;
-          width: 10px;
-          height: 100%;
-          pointer-events: none;
-          box-shadow: 10px 0 10px -10px fn.use-var(shadow-color) inset;
+          opacity: 1;
         }
       }
     }
 
     @include m.is(fixed-right) {
+      &::before {
+        content: '';
+        position: absolute;
+        left: -10px;
+        top: 0;
+        width: 10px;
+        height: 100%;
+        pointer-events: none;
+        box-shadow: -10px 0 10px -10px fn.use-var(shadow-color) inset;
+        opacity: 0;
+        transition: opacity fn.use-var(transition, fast) fn.use-var(transition, ease);
+      }
+
       @include m.is(first-fixed) {
         &::before {
-          content: '';
-          position: absolute;
-          left: -10px;
-          top: 0;
-          width: 10px;
-          height: 100%;
-          pointer-events: none;
-          box-shadow: -10px 0 10px -10px fn.use-var(shadow-color) inset;
+          opacity: 1;
         }
       }
     }

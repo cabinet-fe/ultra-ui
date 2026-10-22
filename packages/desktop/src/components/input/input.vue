@@ -29,17 +29,11 @@
     />
 
     <span :class="suffixClass" v-if="hasSuffix">
-      <UIcon
-        v-if="showClear"
-        :class="cls.e('clear')"
-        title="清除"
-        @click.stop="clearModelValue"
-        key="clear"
-      >
+      <UIcon v-if="showClear" :class="cls.e('clear')" title="清除" @click.stop="clearModelValue">
         <Close />
       </UIcon>
 
-      <span v-else :class="cls.e('suffix-content')" @click="handleSuffixClick" key="suffix">
+      <span v-else :class="cls.e('suffix-content')" @click="handleSuffixClick">
         {{ suffix }}
         <slot name="suffix"></slot>
       </span>

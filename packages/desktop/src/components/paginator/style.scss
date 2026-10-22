@@ -36,6 +36,9 @@ $root-name: paginator;
     margin: 0;
     list-style: none;
     cursor: pointer;
+    transition:
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      color fn.use-var(transition, fast) fn.use-var(transition, ease);
     @include m.flex($justify: center);
 
     &:hover {

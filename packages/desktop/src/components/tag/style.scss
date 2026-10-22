@@ -28,6 +28,23 @@ $root-name: tag;
     cursor: pointer;
     flex-shrink: 0;
     border-radius: 50%;
+    // 默认透明边框占位，hover 只变边框色，避免凭空加边框引起的布局抖动
+    border: 1px solid transparent;
+    transition:
+      border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+
+    // 中性底色 hover，无 type 的默认标签也有可见反馈
+    &:hover {
+      background-color: fn.color-a(text-color, 8, title);
+    }
+
+    // 点击即移除标签，过渡来不及显示——按下瞬间缩到位，松手回弹才走过渡
+    &:active {
+      transform: scale(0.92);
+      transition-duration: 0s;
+    }
   }
 
   @include m.size using ($size) {
@@ -63,7 +80,7 @@ $root-name: tag;
 
       @include m.bem($root-name, icon-close) {
         &:hover {
-          border: 1px solid fn.use-var(color, $type);
+          border-color: fn.use-var(color, $type);
           // background-color: #ddd;
         }
       }

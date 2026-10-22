@@ -15,9 +15,10 @@ $root-name: 'float-button';
 
   @include m.e(item) {
     box-shadow: fn.use-var(shadow, lg);
-    transition-property: transform, opacity;
-    transition-duration: 0.2s;
-    transform: scale(0.4);
+    transition:
+      transform fn.use-var(transition, normal) fn.use-var(transition, ease-out),
+      opacity fn.use-var(transition, normal) fn.use-var(transition, ease-out);
+    transform: scale(0.9);
     opacity: 0;
     display: none;
 

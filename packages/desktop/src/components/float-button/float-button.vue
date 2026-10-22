@@ -14,7 +14,7 @@
         :size="size"
         :type="item.type ?? 'primary'"
         ref="itemsRef"
-        :style="{ transitionDelay: index * 0.1 + 's' }"
+        :style="{ transitionDelay: hovered ? index * 0.1 + 's' : '0s' }"
         @transitionend="handleTransitionEnd(index, $event)"
         @click="emit('click', item.key)"
         :title="item.name ?? item.key"

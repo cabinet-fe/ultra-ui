@@ -22,10 +22,16 @@ $root-name: number-input;
     flex-shrink: 0;
     width: 20px;
     border-radius: fn.use-var(radius, default);
-    transition: color 0.25s;
+    transition:
+      color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
 
     &:hover {
       color: fn.use-var(color, primary);
+    }
+
+    &:active {
+      transform: scale(0.92);
     }
 
     @include m.is(hidden) {
@@ -42,7 +48,7 @@ $root-name: number-input;
 
     @include m.bem(icon) {
       cursor: pointer;
-      transition: color 0.25s;
+      transition: color fn.use-var(transition, fast) fn.use-var(transition, ease);
       width: 20px;
       border-radius: fn.use-var(radius, default);
 

@@ -110,10 +110,15 @@ $root-name: dialog;
     width: 16px;
     height: 16px;
     cursor: pointer;
+    transition: transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+
+    &:active {
+      transform: scale(0.92);
+    }
 
     & > svg {
       opacity: 0;
-      transition: opacity 0.25s;
+      transition: opacity fn.use-var(transition, normal);
     }
 
     &:hover {

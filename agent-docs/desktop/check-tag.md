@@ -136,3 +136,4 @@ watch([onlyMine, onlyStar], ([a, b]) => {
 > - 本库是 `UCheckTag`（点击整枚标签切换），不是 Ant Design 的 `Tag.CheckableTag` 写法。
 > - 事件只有 `update:modelValue`，没有 `change` 事件；`v-model` 即可覆盖全部需求。
 > - 非表单控件：没有 `field` 属性，在 UForm 内也不会被表单接管，直接用 `v-model`。
+> - v1.15.1 起，根元素带 `role="checkbox"` 与 `aria-checked`，可获得键盘焦点，`Enter` / `Space` 与点击等效切换。

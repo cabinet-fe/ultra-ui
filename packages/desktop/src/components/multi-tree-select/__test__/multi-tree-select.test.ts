@@ -144,11 +144,13 @@ describe('UMultiTreeSelect check-strictly and ctrl-key behavior', () => {
       await openDropdown(host)
       await clickNodeByLabel('中国')
 
-      // 父节点「亚洲」不应有半选状态
+      // 父节点「亚洲」不应有半选状态（半选条常驻渲染，仅 is-on 时可见）
       const asiaNodeContent = queryNodeContents().find((el) => el.textContent?.includes('亚洲'))
       const asiaCheckbox = asiaNodeContent?.closest('.u-tree__node')?.querySelector('.u-checkbox')
       expect(asiaCheckbox?.classList.contains('is-indeterminate')).toBe(false)
-      expect(asiaCheckbox?.querySelector('.u-checkbox--indeterminate')).toBeNull()
+      expect(
+        asiaCheckbox?.querySelector('.u-checkbox--indeterminate')?.classList.contains('is-on')
+      ).toBe(false)
     } finally {
       unmount()
     }

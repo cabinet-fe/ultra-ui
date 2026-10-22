@@ -46,6 +46,7 @@ function invert(from: Rect, to: Rect): string {
 export function useMaximum(options: Options): Returned {
   const { dialogRef } = options
   const maximized = shallowRef(false)
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
   let flipToken = 0
   let flipTimer: ReturnType<typeof setTimeout> | undefined
 
@@ -106,6 +107,13 @@ export function useMaximum(options: Options): Returned {
     maximized.value = maxim
     const dom = dialogRef.value
     if (!dom) return
+
+    // 减弱动态效果：跳过 FLIP 位移动画，清掉内联 transform 后随类切换直接到位
+    if (reduceMotion.matches) {
+      cancelMaximizeMotion()
+      dom.classList.toggle(ENTER_TO, maxim)
+      return
+    }
 
     const from = readRect(dom)
     clearFlip(dom)

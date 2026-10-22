@@ -18,7 +18,7 @@ $root-name: password-input;
     flex-shrink: 0;
     width: 20px;
     border-radius: fn.use-var(radius, default);
-    transition: color 0.25s;
+    transition: color fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     &:hover {
       color: fn.use-var(color, primary);
@@ -28,5 +28,19 @@ $root-name: password-input;
   @include m.e(visibility-toggle) {
     cursor: pointer;
     flex-shrink: 0;
+    color: fn.use-var(text-color, main);
+    transition:
+      color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+
+    &:hover {
+      color: fn.use-var(color, primary);
+    }
+
+    // 高频小图标：按下瞬间缩到位，松手回弹走过渡
+    &:active {
+      transform: scale(0.92);
+      transition-duration: 0s;
+    }
   }
 }

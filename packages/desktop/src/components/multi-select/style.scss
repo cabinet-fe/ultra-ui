@@ -118,6 +118,7 @@ $root-name: multi-select;
     cursor: pointer;
     user-select: none;
     @include m.flex($align: center);
+    transition: background-color fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     &:hover {
       background-color: fn.use-var(bg-color, hover);
@@ -176,4 +177,17 @@ $root-name: multi-select;
     @include m.flex($justify: center, $align: center);
     min-height: 240px;
   }
+}
+
+// 标签离场：纯 opacity 淡出（出场快于入场的 zoom-in）；其余标签经 -move 过渡平滑收拢
+.u-multi-select-tags-leave-active {
+  transition: opacity fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+}
+
+.u-multi-select-tags-leave-to {
+  opacity: 0;
+}
+
+.u-multi-select-tags-move {
+  transition: transform fn.use-var(transition, normal) fn.use-var(transition, ease);
 }

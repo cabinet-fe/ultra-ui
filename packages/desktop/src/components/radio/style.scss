@@ -38,12 +38,18 @@ $root-name: radio;
     overflow: hidden;
     transition:
       border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
-      box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
+      box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
   }
 
   @include m.is(checked) {
     @include m.bem($root-name, button) {
       border-color: fn.use-var(color, primary);
+    }
+
+    @include m.bem($root-name, inner) {
+      transform: scale(1);
+      opacity: 1;
     }
   }
 
@@ -65,12 +71,24 @@ $root-name: radio;
     border-radius: 50%;
     display: block;
     height: 100%;
+    // 常驻渲染，选中态靠 scale + opacity 平滑过渡
+    transform: scale(0.5);
+    opacity: 0;
+    transition:
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out),
+      opacity fn.use-var(transition, fast) fn.use-var(transition, ease-out);
   }
 
   @include m.is-not(disabled) {
     &:hover {
       @include m.bem($root-name, button) {
         border-color: fn.use-var(color, primary);
+      }
+    }
+
+    &:active {
+      @include m.bem($root-name, button) {
+        transform: scale(0.92);
       }
     }
 

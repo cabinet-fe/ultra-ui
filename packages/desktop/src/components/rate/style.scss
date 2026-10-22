@@ -25,6 +25,14 @@ $root-name: rate;
     &:focus-visible {
       box-shadow: fn.use-var(focus-ring);
     }
+
+    @include m.bem($root-name, item) {
+      transition: transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+
+      &:active {
+        transform: scale(0.9);
+      }
+    }
   }
 
   @include m.e(item) {
@@ -47,5 +55,6 @@ $root-name: rate;
     white-space: nowrap;
     pointer-events: none;
     color: fn.component-var(rate, active-color, fn.use-var(color, warning));
+    transition: width fn.use-var(transition, fast) fn.use-var(transition, ease);
   }
 }

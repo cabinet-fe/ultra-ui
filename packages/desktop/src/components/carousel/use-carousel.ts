@@ -56,6 +56,9 @@ export function useCarousel({ model, count, autoplay, interval, loop }: UseCarou
 
   let timer: ReturnType<typeof setInterval> | undefined
 
+  /** 悬停暂停标记：暂停期间 watch 触发的重启一律忽略，离开后才恢复 */
+  let hoverPaused = false
+
   const stopAutoplay = () => {
     if (timer !== undefined) {
       clearInterval(timer)
@@ -65,13 +68,25 @@ export function useCarousel({ model, count, autoplay, interval, loop }: UseCarou
 
   const startAutoplay = () => {
     stopAutoplay()
-    if (!toValue(autoplay) || pageCount() < 2) return
+    if (hoverPaused || !toValue(autoplay) || pageCount() < 2) return
     timer = setInterval(() => step(1), toValue(interval))
+  }
+
+  /** 悬停暂停自动播放 */
+  const pauseAutoplay = () => {
+    hoverPaused = true
+    stopAutoplay()
+  }
+
+  /** 离开后恢复自动播放：重建定时器重置整个间隔，不立即跳帧 */
+  const resumeAutoplay = () => {
+    hoverPaused = false
+    startAutoplay()
   }
 
   watch([autoplay, count, interval, current], startAutoplay)
 
   onScopeDispose(stopAutoplay)
 
-  return { current, canPrev, canNext, goTo, prev, next }
+  return { current, canPrev, canNext, goTo, prev, next, pauseAutoplay, resumeAutoplay }
 }

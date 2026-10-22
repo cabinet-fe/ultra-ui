@@ -73,18 +73,28 @@ $body-height: 240px;
   }
 
   @include m.e(body) {
-    flex: 1;
+    // 两栏共用固定高度（flex: 1 的 0% 基准会让高度退化成随条目数变化，两栏不等高）
+    flex: none;
     height: $body-height;
     margin: 0;
     padding: 0;
     list-style: none;
     overflow-y: auto;
+    position: relative;
   }
 
   @include m.e(item) {
     cursor: pointer;
     user-select: none;
     @include m.flex;
+    transition: background-color fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    // 行按压即时反馈：临时压上 hover 底色
+    @include m.is-not(disabled) {
+      &:active {
+        background-color: fn.use-var(bg-color, hover);
+      }
+    }
 
     &:hover {
       background-color: fn.use-var(bg-color, hover);
@@ -102,6 +112,26 @@ $body-height: 240px;
 
   @include m.e(item-label) {
     @include m.ellipsis;
+  }
+
+  // TransitionGroup：项目淡入淡出；离场项脱流（绝对定位）让兄弟项立即让位并经 -move FLIP 平滑滑动
+  .u-#{$list-name}-enter-active,
+  .u-#{$list-name}-leave-active {
+    transition: opacity fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+  }
+
+  .u-#{$list-name}-enter-from,
+  .u-#{$list-name}-leave-to {
+    opacity: 0;
+  }
+
+  .u-#{$list-name}-leave-active {
+    position: absolute;
+    width: 100%;
+  }
+
+  .u-#{$list-name}-move {
+    transition: transform fn.use-var(transition, normal) fn.use-var(transition, ease);
   }
 
   @include m.e(empty) {

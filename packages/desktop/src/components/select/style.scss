@@ -15,6 +15,17 @@ $root-name: select;
     }
   }
 
+  // 下拉可见（壳 .is-focus 由 dropdownVisible 驱动）时箭头翻转作为状态回声
+  @include m.e(arrow) {
+    transition: transform fn.use-var(transition, normal) fn.use-var(transition, ease-out);
+  }
+
+  @include m.is(focus) {
+    @include m.bem($root-name, arrow) {
+      transform: rotate(180deg);
+    }
+  }
+
   @include m.e(clear) {
     cursor: pointer;
   }
@@ -35,6 +46,8 @@ $root-name: select;
           position: absolute;
           top: 0;
           left: 0;
+          // 虚拟项位移由内联 translateY 命令式写入，排除 transform 过渡避免滚动跟手性被拖慢
+          transition-property: background-color, color;
         }
       }
     }
@@ -58,9 +71,17 @@ $root-name: select;
     color: fn.use-var(text-color, main);
     transition:
       background-color 0.15s ease,
-      color 0.15s ease;
+      color 0.15s ease,
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
 
     @include m.ellipsis;
+
+    // 按压反馈；虚拟模式下 translateY 定位由内联样式接管，transform 过渡/缩放不生效
+    @include m.is-not(disabled) {
+      &:active {
+        transform: scale(0.98);
+      }
+    }
 
     &:hover {
       background-color: fn.component-var(select, option-hover-bg, fn.use-var(bg-color, hover));

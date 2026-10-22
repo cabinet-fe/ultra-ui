@@ -46,9 +46,7 @@ $root-name: batch-edit;
     flex-direction: column;
     background-color: fn.use-var(bg-color, top);
     border-radius: var(--u-batch-edit-form-radius);
-    box-shadow:
-      0 1px 2px fn.color-a(shadow, 40, color),
-      0 12px 32px -16px fn.color-a(shadow, 50, color);
+    box-shadow: fn.use-var(shadow, lg);
     overflow: hidden;
     isolation: isolate;
     min-height: 0;
@@ -190,4 +188,42 @@ $root-name: batch-edit;
   #{fn.bem(dialog, header)} {
     display: none;
   }
+}
+
+// ---------- 侧栏进出过渡 ----------
+// 入场从右轻移淡入（normal/ease-out），离场快速纯淡出（出场快于入场）；
+// 弹框模式的显隐由弹框外壳负责，排除 is-dialog
+#{fn.bem($root-name, form)}:not(.is-dialog) {
+  &.u-batch-edit-form-enter-active {
+    transition:
+      opacity fn.use-var(transition, normal) fn.use-var(transition, ease-out),
+      transform fn.use-var(transition, normal) fn.use-var(transition, ease-out);
+  }
+
+  &.u-batch-edit-form-leave-active {
+    transition:
+      opacity fn.use-var(transition, fast) fn.use-var(transition, ease-out),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+  }
+
+  &.u-batch-edit-form-enter-from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+
+  &.u-batch-edit-form-leave-to {
+    opacity: 0;
+  }
+}
+
+// ---------- 表单内容快速淡入 ----------
+// 替代全局 fade（250ms + out-in 空窗）：本地 fast，无 out-in
+.u-batch-edit-fade-enter-active,
+.u-batch-edit-fade-leave-active {
+  transition: opacity fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+}
+
+.u-batch-edit-fade-enter-from,
+.u-batch-edit-fade-leave-to {
+  opacity: 0;
 }

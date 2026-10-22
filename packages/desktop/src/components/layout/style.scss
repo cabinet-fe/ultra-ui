@@ -10,16 +10,41 @@
     position: absolute;
     left: 0;
     top: 0;
+    z-index: 1;
     cursor: col-resize;
-    // background-color: fn.use-var(bg-color, middle);
-    // box-shadow: fn.use-var(shadow);
     height: 100%;
     width: 10px;
     @include m.flex($align: center, $justify: center);
+    transition: background-color fn.use-var(transition, fast) fn.use-var(transition, ease);
 
-    // @include m.is(horizontal) {
-    //   height: 6px;
-    //   width: 100%;
-    // }
+    // 常驻把手图标弱化显示，hover / 拖拽时点亮，避免整条把手长期抢视线
+    @include m.bem(icon) {
+      color: fn.use-var(text-color, assist);
+      opacity: 0.45;
+      transition:
+        color fn.use-var(transition, fast) fn.use-var(transition, ease),
+        opacity fn.use-var(transition, fast) fn.use-var(transition, ease);
+    }
+
+    &:hover,
+    &:active {
+      background-color: fn.color-a(color, 8, primary);
+
+      @include m.bem(icon) {
+        color: fn.use-var(color, primary);
+        opacity: 1;
+      }
+    }
+
+    // 拖拽中：整条把手保持高亮指示
+    @include m.is(dragging) {
+      background-color: fn.color-a(color, 16, primary);
+    }
+
+    @include m.is(horizontal) {
+      height: 10px;
+      width: 100%;
+      cursor: row-resize;
+    }
   }
 }

@@ -1,10 +1,15 @@
 <template>
   <Teleport to="body" :disabled="!modal">
-    <transition :name="modal ? 'u-image-previewer-fade' : ''">
+    <transition :name="modal ? 'fade-scale' : ''">
       <div v-if="!modal || open" :class="[cls.b, bem.is('modal', modal)]">
         <div
           ref="stage"
-          :class="[cls.e('stage'), bem.is('pannable', scale > 1), bem.is('dragging', isDragging)]"
+          :class="[
+            cls.e('stage'),
+            bem.is('pannable', scale > 1),
+            bem.is('dragging', isDragging),
+            bem.is('wheeling', isWheeling)
+          ]"
           v-bind="attrs"
           @mousedown.self="onBackdropMousedown"
           @pointerdown="onPointerDown"
@@ -126,6 +131,8 @@ const failed = ref(false)
 const scale = ref(1)
 /** 拖拽起止各写一次，仅驱动 grabbing 光标 */
 const isDragging = ref(false)
+/** ctrl+wheel 连续缩放期间置位：stage 禁用 transform 过渡保证逐档跟手 */
+const isWheeling = ref(false)
 
 const zoomPercent = computed(() => `${Math.round(scale.value * 100)}%`)
 
@@ -199,9 +206,19 @@ function onPointerEnd(e: PointerEvent) {
   isDragging.value = false
 }
 
+/** wheel 序列防抖计时：滚动停止约一个 fast 过渡时长后恢复过渡 */
+let wheelStopTimer: ReturnType<typeof setTimeout> | undefined
+
 function onWheel(e: WheelEvent) {
   if (!(e.ctrlKey || e.metaKey)) return
   e.preventDefault()
+  // 连续缩放档位间不做过渡（每档 0.15s 过渡叠加会迟滞）；停止滚动后再恢复
+  if (!isWheeling.value) isWheeling.value = true
+  clearTimeout(wheelStopTimer)
+  wheelStopTimer = setTimeout(() => {
+    isWheeling.value = false
+    wheelStopTimer = undefined
+  }, 150)
   setScale(scale.value + (e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP))
 }
 
@@ -308,6 +325,7 @@ watch(
 )
 
 onBeforeUnmount(() => {
+  clearTimeout(wheelStopTimer)
   revoke?.()
   url.value = ''
 })

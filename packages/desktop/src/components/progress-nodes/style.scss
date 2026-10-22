@@ -37,8 +37,8 @@ $root-name: progress-nodes;
     color: inherit;
     flex: 0 0 auto;
     transition:
-      background-color 0.2s,
-      color 0.2s;
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      color fn.use-var(transition, fast) fn.use-var(transition, ease);
     border-radius: fn.use-var(radius, default);
 
     &:hover {
@@ -77,8 +77,8 @@ $root-name: progress-nodes;
     background-color: fn.use-var(bg-color, top);
     box-sizing: border-box;
     transition:
-      background-color 0.2s,
-      border-color 0.2s;
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      border-color fn.use-var(transition, fast) fn.use-var(transition, ease);
     z-index: 1;
     @include m.flex($align: center, $justify: center);
 
@@ -91,7 +91,7 @@ $root-name: progress-nodes;
   @include m.e(label) {
     font-size: fn.use-var(font-size-assist, small);
     color: fn.use-var(text-color, second);
-    transition: color 0.2s;
+    transition: color fn.use-var(transition, fast) fn.use-var(transition, ease);
     @include m.ellipsis;
   }
 

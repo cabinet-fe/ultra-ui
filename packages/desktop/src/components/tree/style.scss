@@ -131,11 +131,16 @@ $indent-width: 20px;
     font-size: $indent-width;
     border-radius: 50%;
     transition:
-      transform 0.15s cubic-bezier(0.4, 0, 0.2, 1),
-      background-color 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease),
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     &:hover {
       background-color: fn.use-var(bg-color, hover);
+    }
+
+    // transform 已被展开 rotate 占用，按压反馈用背景加深一档表达
+    &:active {
+      background-color: fn.use-var(bg-color, middle);
     }
   }
 
@@ -156,7 +161,7 @@ $indent-width: 20px;
     overflow: hidden;
     user-select: none;
     word-break: break-word;
-    transition: background-color 0.2s ease;
+    transition: background-color fn.use-var(transition, fast) fn.use-var(transition, ease);
     @include m.flex($align: center);
   }
 

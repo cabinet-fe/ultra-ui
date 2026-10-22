@@ -38,9 +38,9 @@ $root-name: grid-input;
           }
         }
 
+        // 已输入数字保持静态主色，呼吸只作用于光标
         @include m.bem($root-name, item, text) {
           color: fn.use-var(color, primary);
-          animation: fade 1s linear infinite alternate;
         }
 
         @include m.bem($root-name, item, cursor) {
@@ -53,6 +53,11 @@ $root-name: grid-input;
           left: 50%;
           transform: translate(-50%, -50%);
           animation: fade 1s linear infinite alternate;
+
+          // 降级：光标常亮，不闪烁
+          @media (prefers-reduced-motion: reduce) {
+            animation: none;
+          }
         }
       }
     }

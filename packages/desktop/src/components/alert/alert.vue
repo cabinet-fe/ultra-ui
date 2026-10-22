@@ -1,23 +1,25 @@
 <template>
-  <div v-if="visible" :class="className" role="alert">
-    <u-icon v-if="showIcon" :class="cls.e('icon')">
-      <component :is="typeIcons[type]" />
-    </u-icon>
+  <transition name="fade">
+    <div v-if="visible" :class="className" role="alert">
+      <u-icon v-if="showIcon" :class="cls.e('icon')">
+        <component :is="typeIcons[type]" />
+      </u-icon>
 
-    <div :class="cls.e('content')">
-      <div v-if="$slots.title || title" :class="cls.e('title')">
-        <slot name="title">{{ title }}</slot>
+      <div :class="cls.e('content')">
+        <div v-if="$slots.title || title" :class="cls.e('title')">
+          <slot name="title">{{ title }}</slot>
+        </div>
+
+        <div v-if="$slots.default || description" :class="cls.e('description')">
+          <slot>{{ description }}</slot>
+        </div>
       </div>
 
-      <div v-if="$slots.default || description" :class="cls.e('description')">
-        <slot>{{ description }}</slot>
-      </div>
+      <u-icon v-if="closable" :class="cls.e('close')" @click.stop="handleClose">
+        <Close />
+      </u-icon>
     </div>
-
-    <u-icon v-if="closable" :class="cls.e('close')" @click.stop="handleClose">
-      <Close />
-    </u-icon>
-  </div>
+  </transition>
 </template>
 
 <script lang="ts" setup>

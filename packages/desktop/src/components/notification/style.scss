@@ -68,9 +68,16 @@ $stack-positions: (
       position: absolute;
       right: fn.use-var(gap, $size);
       top: fn.use-var(gap, $size);
+      transition: transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
 
       &:hover {
         color: fn.use-var(color, primary, 'dark-9');
+      }
+
+      // 点击即关闭，过渡来不及显示——按下瞬间缩到位
+      &:active {
+        transform: scale(0.9);
+        transition-duration: 0s;
       }
     }
   }
@@ -119,6 +126,12 @@ $stack-positions: (
   transition:
     opacity fn.use-var(transition, normal) fn.use-var(transition, ease),
     transform fn.use-var(transition, normal) fn.use-var(transition, ease-out);
+}
+
+/* 出场比入场快 */
+.#{$root-name}-bottom-leave-active,
+.#{$root-name}-top-leave-active {
+  transition-duration: fn.use-var(transition, fast);
 }
 
 .#{$root-name}-bottom-enter-from,

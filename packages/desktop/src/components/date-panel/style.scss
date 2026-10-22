@@ -64,6 +64,17 @@ $root-name: date-panel;
   @include m.e(cell) {
     padding: 2px;
     cursor: pointer;
+    // 与 cell-value 的背景过渡对齐：in-range 挂在 cell 上，进出同一节奏渐变
+    transition: background-color fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    // 非禁用日期按压反馈：cell-value 缩小回弹
+    @include m.is-not(disabled) {
+      &:active {
+        @include m.bem($root-name, cell-value) {
+          transform: scale(0.92);
+        }
+      }
+    }
 
     &:hover {
       @include m.bem($root-name, cell-value) {
@@ -107,7 +118,9 @@ $root-name: date-panel;
   @include m.e(cell-value) {
     display: inline-block;
     text-align: center;
-    transition: background-color 0.15s;
+    transition:
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
     border-radius: 99px;
   }
 
@@ -129,8 +142,16 @@ $root-name: date-panel;
     @include m.bem(icon) {
       cursor: pointer;
       font-size: 18px;
+      transition:
+        color fn.use-var(transition, fast) fn.use-var(transition, ease),
+        transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+
       &:hover {
         color: fn.use-var(color, primary);
+      }
+
+      &:active {
+        transform: scale(0.94);
       }
     }
   }

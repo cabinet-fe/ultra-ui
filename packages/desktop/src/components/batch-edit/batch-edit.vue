@@ -15,7 +15,12 @@
     <BatchEditList :slots="slots" />
 
     <!-- 编辑表单 -->
-    <BatchEditForm v-if="props.formMode === 'panel'" ref="form" v-slot="scoped">
+    <BatchEditForm
+      v-if="props.formMode === 'panel'"
+      ref="form"
+      v-slot="scoped"
+      @after-leave="formColumnActive = false"
+    >
       <slot name="form" v-bind="scoped" />
     </BatchEditForm>
   </u-layout>
@@ -36,7 +41,7 @@
 
 <script lang="ts" setup>
 import { bem } from '@veltra/utils'
-import { computed, provide, useTemplateRef } from 'vue'
+import { computed, provide, shallowRef, useTemplateRef, watch } from 'vue'
 
 import type { BatchEditEmits, BatchEditProps, BatchEditSlots, FormExposed } from '../../types'
 import { UDialog } from '../dialog'
@@ -78,8 +83,18 @@ const { handleFocusIn, handleFocusOut, handleKeydown, focused } = useShortcutKey
   state
 })
 
+/** 表单列占位：出现立即占位，收起待离场淡出结束（after-leave）再释放，避免淡出期间侧栏掉到第二行 */
+const formColumnActive = shallowRef(false)
+
+watch(
+  () => state.formVisible,
+  (visible) => {
+    if (visible) formColumnActive.value = true
+  }
+)
+
 const cols = computed(() => {
-  return props.formMode === 'panel' && state.formVisible ? props.cols : undefined
+  return props.formMode === 'panel' && formColumnActive.value ? props.cols : undefined
 })
 
 provide(BatchEditDIKey, {

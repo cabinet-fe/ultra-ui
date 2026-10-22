@@ -26,8 +26,8 @@ $root-name: code-editor;
   box-shadow: fn.use-var(shadow, emboss);
   overflow: hidden;
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color fn.use-var(transition, normal) fn.use-var(transition, ease),
+    box-shadow fn.use-var(transition, normal) fn.use-var(transition, ease);
 
   &:hover,
   &:focus-within {
@@ -62,10 +62,16 @@ $root-name: code-editor;
     cursor: pointer;
     font-size: 14px;
     color: var(--u-code-editor-gutter-fg);
-    transition: color fn.use-var(transition, fast) fn.use-var(transition, ease);
+    transition:
+      color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
 
     &:hover {
       color: fn.use-var(color, primary);
+    }
+
+    &:not(.is-disabled):active {
+      transform: scale(0.94);
     }
 
     @include m.is(disabled) {
@@ -99,9 +105,21 @@ $root-name: code-editor;
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: rgba(0, 0, 0, 0.32);
+      background-color: fn.color-a(bg-color, 35, black);
       // 遮罩主动聚焦承接 Esc（对齐 dialog 遮罩），不显示焦点框
       outline: none;
+
+      // 进出放大用 animation：display: contents ↔ fixed 翻转时 transition 无法起跳。
+      // 曲线/时长对齐共享 fade-scale（ease-out + scale 0.96→1 / 收尾 0.98→消隐）。
+      // 不能改用 <Transition> 条件渲染：编辑器根 DOM / EditorView 实例要求跨 zoom 复用。
+      animation: u-code-editor-zoom-in fn.use-var(transition, normal)
+        fn.use-var(transition, ease-out) both;
+
+      @include m.is(zoom-leave) {
+        animation: u-code-editor-zoom-out fn.use-var(transition, fast)
+          fn.use-var(transition, ease-out) both;
+        pointer-events: none;
+      }
     }
   }
 
@@ -204,6 +222,38 @@ $root-name: code-editor;
     &:hover,
     &:focus-within {
       border-color: var(--u-code-editor-border);
+    }
+  }
+}
+
+// 放大进出场（见 __zoom-wrap.is-zoomed 内注释）
+@keyframes u-code-editor-zoom-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@keyframes u-code-editor-zoom-out {
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+// 减弱动态效果：保留淡入淡出，去掉缩放位移
+@media (prefers-reduced-motion: reduce) {
+  @keyframes u-code-editor-zoom-in {
+    from {
+      opacity: 0;
+      transform: none;
+    }
+  }
+
+  @keyframes u-code-editor-zoom-out {
+    to {
+      opacity: 0;
+      transform: none;
     }
   }
 }

@@ -134,7 +134,8 @@
     cursor: pointer;
     transition:
       background fn.use-var(transition, fast) fn.use-var(transition, ease),
-      color fn.use-var(transition, fast) fn.use-var(transition, ease);
+      color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     &::before {
       position: absolute;
@@ -154,6 +155,10 @@
 
     &:hover {
       background: fn.use-var(bg-color, hover);
+    }
+
+    &:active {
+      transform: translateY(1px);
     }
 
     @include m.is(active) {
@@ -647,11 +652,16 @@
     transition:
       background fn.use-var(transition, fast) fn.use-var(transition, ease),
       border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
-      color fn.use-var(transition, fast) fn.use-var(transition, ease);
+      color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     &:hover {
       background: fn.use-var(bg-color, hover);
       color: fn.use-var(text-color, main);
+    }
+
+    &:active {
+      transform: translateY(1px);
     }
 
     @include m.is(active) {

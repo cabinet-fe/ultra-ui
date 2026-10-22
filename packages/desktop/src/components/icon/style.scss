@@ -22,12 +22,13 @@
   color: inherit;
   vertical-align: middle;
   user-select: none;
-  will-change: transform;
 
   // 加载转圈
   @include m.is(loading) {
     transform-origin: center;
     animation: rotating 2s linear infinite;
+    // 仅旋转期间需要合成层提示，避免全局常驻提层
+    will-change: transform;
   }
 
   svg {

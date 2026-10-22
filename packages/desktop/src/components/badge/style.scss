@@ -18,7 +18,10 @@ $root-name: badge;
     align-items: center;
     background: fn.use-var(color, danger);
     border-radius: 18px;
-    color: #fff;
+    color: fn.use-var(text-color, white);
+    // 向左上角偏移半个自身（与原 JS 内联 translate(-50%,-50%) 等价），
+    // 常驻 CSS 化后过渡类的 scale 可与位移叠加
+    transform: translate(-50%, -50%);
 
     @include m.is(dot) {
       height: 8px;
@@ -46,5 +49,21 @@ $root-name: badge;
     @if ($size ==large) {
       height: 26px;
     }
+  }
+}
+
+// 徽标出现/消失：从 scale(0.9) + 透明淡入/淡出，位移保持不变
+@include m.b(#{$root-name}-fade) {
+  &-enter-active,
+  &-leave-active {
+    transition:
+      opacity fn.use-var(transition, fast) fn.use-var(transition, ease-out),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+  }
+
+  &-enter-from,
+  &-leave-to {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
   }
 }

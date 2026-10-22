@@ -139,6 +139,20 @@ $root-name: form-item;
 .#{$root-name}-tips-enter-active,
 .#{$root-name}-tips-leave-active {
   transition:
-    transform 0.15s cubic-bezier(0.23, 1, 0.32, 1),
-    opacity 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+    transform fn.use-var(transition, fast) fn.use-var(transition, ease-out),
+    opacity fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+}
+
+// 弱动效：只保留透明度过渡，去掉位移
+@media (prefers-reduced-motion: reduce) {
+  .#{$root-name}-tips-enter-from,
+  .#{$root-name}-tips-leave-to {
+    transform: none;
+    opacity: 0;
+  }
+
+  .#{$root-name}-tips-enter-active,
+  .#{$root-name}-tips-leave-active {
+    transition: opacity fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+  }
 }

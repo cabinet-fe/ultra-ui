@@ -10,7 +10,7 @@
 
     <!-- radio框 -->
     <section :class="cls.e('button')">
-      <span :class="cls.e('inner')" v-if="radioChecked"></span>
+      <span :class="cls.e('inner')"></span>
     </section>
 
     <span :class="cls.e('label')">

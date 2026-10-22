@@ -23,7 +23,8 @@ $root-name: button;
     background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
     border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
     color fn.use-var(transition, fast) fn.use-var(transition, ease),
-    box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
+    box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease),
+    transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
   -webkit-tap-highlight-color: transparent; /* For some Androids */
   gap: fn.use-var(gap-small);
 
@@ -38,8 +39,9 @@ $root-name: button;
     border-color: fn.component-var(button, default-hover-border, transparent);
   }
 
-  &:active {
+  &:active:not(.is-disabled):not(.is-loading) {
     box-shadow: none;
+    transform: scale(0.97);
   }
 
   @include m.is(disabled, loading) {

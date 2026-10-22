@@ -35,10 +35,15 @@ const emit = defineEmits<{
 const { cls } = inject(LayoutDIKey)!
 
 const className = computed(() => {
-  return [cls.e('resizer'), bem.is('horizontal', props.horizontal)]
+  return [
+    cls.e('resizer'),
+    bem.is('horizontal', props.horizontal),
+    bem.is('dragging', dragging.value)
+  ]
 })
 
 const resizerRef = shallowRef<HTMLDivElement>()
+const dragging = shallowRef(false)
 
 let offset = props.offset ?? 0
 const offsets = shallowReactive({
@@ -49,6 +54,7 @@ let currentOffset = 0
 useDrag({
   target: resizerRef,
   onDragStart() {
+    dragging.value = true
     currentOffset = offset
     emit('resize-start')
   },
@@ -64,6 +70,7 @@ useDrag({
     }
   },
   onDragEnd() {
+    dragging.value = false
     emit('resize-end')
   }
 })

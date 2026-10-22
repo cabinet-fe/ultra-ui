@@ -15,6 +15,7 @@ $collapsed-nav: collapsed-nav;
   }
 
   @include m.e(item, sub-content) {
+    position: relative;
     width: 100%;
     cursor: pointer;
     gap: 8px;
@@ -23,7 +24,8 @@ $collapsed-nav: collapsed-nav;
     color: inherit;
     transition:
       background-color 0.15s ease,
-      color 0.15s ease;
+      color 0.15s ease,
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
 
     @include m.flex;
 
@@ -32,35 +34,57 @@ $collapsed-nav: collapsed-nav;
       color: var(--u-nav-hover-color);
     }
 
+    // active 左侧指示条：默认纵向收起且透明，激活时展开淡入
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 3px;
+      height: 56%;
+      min-height: 10px;
+      border-radius: 9999px;
+      background-color: fn.use-var(color, primary);
+      transform: translateY(-50%) scaleY(0);
+      opacity: 0;
+      pointer-events: none;
+      transition:
+        transform fn.use-var(transition, fast) fn.use-var(transition, ease-out),
+        opacity fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+    }
+
     @include m.is(expanded, branch-active) {
       color: var(--u-nav-strong-color);
     }
 
     @include m.is(active) {
-      position: relative;
       background-color: var(--u-nav-active-bg);
       color: var(--u-nav-active-color);
 
       &::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 50%;
-        width: 3px;
-        height: 56%;
-        min-height: 10px;
-        border-radius: 9999px;
-        background-color: fn.use-var(color, primary);
-        transform: translateY(-50%);
-        pointer-events: none;
+        transform: translateY(-50%) scaleY(1);
+        opacity: 1;
       }
     }
   }
 
   @include m.e(item) {
+    @include m.is-not(disabled) {
+      &:active {
+        transform: scale(0.97);
+      }
+    }
+
     @include m.is(disabled) {
       opacity: 0.55;
       cursor: not-allowed;
+    }
+  }
+
+  // 分组标题（可点击展开/收起，无禁用态）
+  @include m.e(sub-content) {
+    &:active {
+      transform: scale(0.97);
     }
   }
 

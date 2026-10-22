@@ -54,6 +54,8 @@ function makeConfig(): VueParentConfig<Record<string, any>> {
     dragHandle: `.${cls.e('card-handle')}`,
     draggable: (el) => el.classList.contains(cls.e('card')),
     draggingClass: 'is-dragging',
+    // formkit 拖起后下一帧把原位元素换成 placeholder 类；跟随鼠标的是原生拖拽快照
+    dragPlaceholderClass: 'is-drag-placeholder',
     dropZoneClass: 'is-dropzone',
     disabled: ctx.kanbanProps.disabled,
     // 排序/转移数据已由 onReorder 写回，这里只负责对外发 change 通知

@@ -39,7 +39,8 @@
     user-select: none;
     // 图片缩放/拖拽的 transform 直接写在本元素 style 上（见 applyTransform）
     transform-origin: center center;
-    transition: transform fn.use-var(transition, fast) fn.use-var(transition, ease);
+    // 缩放是操作反馈：ease-out 起步快，指尖/滚轮动作即时可见
+    transition: transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
     will-change: transform;
 
     &.is-pannable {
@@ -50,6 +51,11 @@
     &.is-dragging {
       cursor: grabbing;
       // 拖拽期间禁用过渡保证跟手
+      transition: none;
+    }
+
+    // ctrl+wheel 连续缩放期间禁用过渡：每档 0.15s 过渡叠加会让缩放迟滞
+    &.is-wheeling {
       transition: none;
     }
 
@@ -146,10 +152,16 @@
     color: inherit;
     background: transparent;
     cursor: pointer;
-    transition: background fn.use-var(transition, fast) fn.use-var(transition, ease);
+    transition:
+      background fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     &:not(:disabled):hover {
       background: fn.color-a(text-color, 22, white);
+    }
+
+    &:not(:disabled):active {
+      transform: translateY(1px);
     }
 
     &:disabled {
@@ -172,17 +184,8 @@
   }
 }
 
-.u-image-previewer-fade-enter-active,
-.u-image-previewer-fade-leave-active {
-  transition: opacity fn.use-var(transition, normal) fn.use-var(transition, ease);
-  will-change: opacity;
-}
-
-.u-image-previewer-fade-enter-from,
-.u-image-previewer-fade-leave-to {
-  opacity: 0;
-}
-
-.u-image-previewer-fade-leave-active {
+// 开/关过渡复用共享 fade-scale 类（同 dialog）。共享类不带 pointer-events 防护，
+// 离开期间在组件作用域内补一层，避免关闭动画中误触背衬关闭。
+#{fn.bem(image-previewer)}.fade-scale-leave-active {
   pointer-events: none;
 }

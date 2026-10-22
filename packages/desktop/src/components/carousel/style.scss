@@ -48,6 +48,10 @@ $root-name: carousel;
       transform: translateY(-50%) scale(1.08);
     }
 
+    &:active:not(:disabled) {
+      transform: translateY(-50%) scale(0.95);
+    }
+
     &:focus-visible {
       box-shadow: fn.use-var(focus-ring);
     }
@@ -90,10 +94,15 @@ $root-name: carousel;
     background-color: fn.color-a(text-color, 40, white);
     transition:
       width fn.use-var(transition, fast) fn.use-var(transition, ease),
-      background-color fn.use-var(transition, fast) fn.use-var(transition, ease);
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
 
     &:hover {
       background-color: fn.color-a(text-color, 70, white);
+    }
+
+    &:active {
+      transform: scale(0.9);
     }
 
     &:focus-visible {

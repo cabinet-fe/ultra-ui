@@ -14,8 +14,19 @@
   border: 1px solid fn.use-var(color-primary);
   border-radius: fn.use-var(radius-default);
   background: fn.use-var(color-primary-light-9);
+  transition:
+    color fn.use-var(transition, fast) fn.use-var(transition, ease),
+    background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+    border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+    transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+
   &:hover {
     background-color: fn.use-var(color-primary-light-7);
+  }
+
+  // 根元素可聚焦（tabindex 驱动），ring 直接落在根上
+  &:focus-visible {
+    box-shadow: fn.use-var(focus-ring);
   }
 
   @include m.is(checked) {
@@ -25,9 +36,19 @@
     background-color: fn.use-var(color-primary-dark-3);
   }
 
+  @include m.is-not(disabled) {
+    &:active {
+      transform: scale(0.97);
+    }
+  }
+
   @include m.is(disabled) {
     cursor: not-allowed;
     color: fn.use-var(text-color, disabled);
     background-color: fn.use-var(color, disabled);
+
+    &:hover {
+      background-color: fn.use-var(color, disabled);
+    }
   }
 }

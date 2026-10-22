@@ -58,10 +58,18 @@ $line-ratio: 1.6;
     cursor: pointer;
     align-self: center;
     opacity: 0.6;
-    transition: opacity fn.use-var(transition, fast) fn.use-var(transition, ease);
+    transition:
+      opacity fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
 
     &:hover {
       opacity: 1;
+    }
+
+    // 点击即关闭，过渡来不及显示——按下瞬间缩到位
+    &:active {
+      transform: scale(0.9);
+      transition-duration: 0s;
     }
   }
 }

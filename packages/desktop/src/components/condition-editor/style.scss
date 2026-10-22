@@ -75,9 +75,13 @@ $connector-width: 56px;
     cursor: pointer;
     user-select: none;
     transition:
-      background-color 0.15s ease,
-      color 0.15s ease,
-      transform 0.15s ease;
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+
+    &:active {
+      transform: scale(0.96);
+    }
 
     @include m.m(and) {
       color: fn.use-var(color, primary);
@@ -141,11 +145,16 @@ $connector-width: 56px;
     font-size: 12px;
     cursor: pointer;
     transition:
-      background-color 0.15s ease,
-      color 0.15s ease;
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     &:hover {
       background-color: fn.use-var(color, primary, light-9);
+    }
+
+    &:not(:disabled):active {
+      transform: translateY(1px);
     }
 
     &:disabled {
@@ -196,7 +205,7 @@ $connector-width: 56px;
     color: fn.use-var(text-color, main);
     background-color: fn.use-var(bg-color, top);
     outline: none;
-    transition: border-color 0.15s ease;
+    transition: border-color fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     &::placeholder {
       color: fn.use-var(text-color, placeholder);
@@ -239,8 +248,8 @@ $connector-width: 56px;
     cursor: pointer;
     user-select: none;
     transition:
-      background-color 0.15s ease,
-      border-color 0.15s ease;
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      border-color fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     &:hover {
       background-color: fn.use-var(color, primary, light-7);
@@ -271,12 +280,17 @@ $connector-width: 56px;
     opacity: 0.7;
     border-radius: 50%;
     transition:
-      opacity 0.15s ease,
-      background-color 0.15s ease;
+      opacity fn.use-var(transition, fast) fn.use-var(transition, ease),
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     &:hover {
       opacity: 1;
       background-color: fn.use-var(color, primary, light-7);
+    }
+
+    &:active {
+      transform: translateY(1px);
     }
   }
 
@@ -295,12 +309,17 @@ $connector-width: 56px;
     cursor: pointer;
     font-size: 14px;
     transition:
-      color 0.15s ease,
-      background-color 0.15s ease;
+      color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
 
     &:hover {
       color: fn.use-var(color, danger);
       background-color: fn.use-var(color, danger, light-9);
+    }
+
+    &:not(:disabled):active {
+      transform: scale(0.92);
     }
 
     &:disabled {
@@ -316,6 +335,10 @@ $connector-width: 56px;
     @include m.bem($root-name, connector) {
       cursor: not-allowed;
       opacity: 0.6;
+
+      &:active {
+        transform: none;
+      }
     }
 
     @include m.bem($root-name, action-btn) {
@@ -327,6 +350,10 @@ $connector-width: 56px;
   @include m.is(readonly) {
     @include m.bem($root-name, connector) {
       cursor: default;
+
+      &:active {
+        transform: none;
+      }
     }
   }
 }

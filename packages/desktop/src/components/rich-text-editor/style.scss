@@ -9,7 +9,7 @@ $root-name: rich-text-editor;
   border: 1px solid fn.use-var(border, muted-color);
   border-radius: fn.use-var(radius, default);
   background-color: fn.use-var(bg-color, top);
-  transition: border-color 0.25s ease;
+  transition: border-color fn.use-var(transition, normal) fn.use-var(transition, ease);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -53,14 +53,19 @@ $root-name: rich-text-editor;
     color: fn.use-var(text-color, main);
     cursor: pointer;
     transition:
-      background-color 0.15s ease,
-      color 0.15s ease,
-      opacity 0.15s ease;
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      opacity fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
     padding: 0;
 
     @include m.is-not(disabled) {
       &:hover {
         background-color: fn.use-var(bg-color, hover);
+      }
+
+      &:active {
+        transform: scale(0.94);
       }
     }
 
@@ -112,8 +117,8 @@ $root-name: rich-text-editor;
     cursor: pointer;
     outline: none;
     transition:
-      border-color 0.15s ease,
-      opacity 0.15s ease;
+      border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      opacity fn.use-var(transition, fast) fn.use-var(transition, ease);
     // Custom arrow
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
     background-repeat: no-repeat;

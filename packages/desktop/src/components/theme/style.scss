@@ -14,11 +14,11 @@ $root-name: theme;
   border: fn.use-var(border);
   border-radius: fn.use-var(radius, large);
   background:
-    radial-gradient(circle at top right, rgba(30, 136, 229, 0.14), transparent 36%),
+    radial-gradient(circle at top right, fn.color-a(color, 16, primary), transparent 36%),
     linear-gradient(180deg, fn.use-var(bg-color, top) 0%, fn.use-var(bg-color, middle) 100%);
   box-shadow:
-    0 18px 48px rgba(15, 23, 42, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    fn.use-var(shadow, lg),
+    inset 0 1px 0 fn.color-a(text-color, 70, white);
   backdrop-filter: fn.use-var(bg-filter);
   -webkit-backdrop-filter: fn.use-var(bg-filter);
   overflow: hidden;
@@ -51,7 +51,7 @@ $root-name: theme;
     height: 24px;
     padding: 0 10px;
     border-radius: 999px;
-    background: rgba(30, 136, 229, 0.08);
+    background: fn.color-a(color, 8, primary);
     color: fn.use-var(color, primary);
     font-size: 12px;
     font-weight: 700;
@@ -89,21 +89,26 @@ $root-name: theme;
     padding: 0 14px;
     border-radius: 999px;
     color: fn.use-var(text-color, second);
-    background: rgba(148, 163, 184, 0.12);
+    background: fn.color-a(border, 11, color);
     transition:
-      background-color 0.22s ease,
-      color 0.22s ease,
-      box-shadow 0.22s ease;
+      background-color fn.use-var(transition, normal) fn.use-var(transition, ease),
+      color fn.use-var(transition, normal) fn.use-var(transition, ease),
+      box-shadow fn.use-var(transition, normal) fn.use-var(transition, ease),
+      transform fn.use-var(transition, normal) fn.use-var(transition, ease-out);
 
     &:hover {
-      background: rgba(148, 163, 184, 0.18);
+      background: fn.color-a(border, 16, color);
       color: fn.use-var(text-color, title);
     }
 
+    &:active {
+      transform: translateY(0) scale(0.98);
+    }
+
     @include m.is(active) {
-      background: rgba(30, 136, 229, 0.12);
+      background: fn.color-a(color, 11, primary);
       color: fn.use-var(color, primary);
-      box-shadow: inset 0 0 0 1px rgba(30, 136, 229, 0.18);
+      box-shadow: inset 0 0 0 1px fn.color-a(color, 16, primary);
     }
   }
 
@@ -121,7 +126,7 @@ $root-name: theme;
     }
     &::-webkit-scrollbar-thumb {
       border-radius: 4px;
-      background: rgba(148, 163, 184, 0.2);
+      background: fn.color-a(border, 22, color);
     }
   }
 
@@ -132,17 +137,17 @@ $root-name: theme;
     text-align: left;
     border-radius: fn.use-var(radius, default);
     background: fn.use-var(bg-color, top);
-    border: 1px solid rgba(148, 163, 184, 0.12);
+    border: 1px solid fn.color-a(border, 11, color);
     transition:
-      background-color 0.22s ease,
-      border-color 0.22s ease,
-      box-shadow 0.22s ease,
-      opacity 0.22s ease,
-      transform 0.22s ease;
+      background-color fn.use-var(transition, normal) fn.use-var(transition, ease),
+      border-color fn.use-var(transition, normal) fn.use-var(transition, ease),
+      box-shadow fn.use-var(transition, normal) fn.use-var(transition, ease),
+      opacity fn.use-var(transition, normal) fn.use-var(transition, ease),
+      transform fn.use-var(transition, normal) fn.use-var(transition, ease-out);
 
     &:hover {
       background: fn.use-var(bg-color, hover);
-      border-color: rgba(30, 136, 229, 0.16);
+      border-color: fn.color-a(color, 16, primary);
     }
 
     // 触摸屏不抬起，避免点按误触发 hover 位移
@@ -152,10 +157,22 @@ $root-name: theme;
       }
     }
 
+    // 按压自抬升位回落；禁用项不参与
+    @include m.is-not(disabled) {
+      &:active {
+        transform: translateY(0) scale(0.98);
+      }
+    }
+
     @include m.is(active) {
-      background: linear-gradient(135deg, rgba(30, 136, 229, 0.14), fn.use-var(bg-color, top));
-      border-color: rgba(30, 136, 229, 0.22);
-      box-shadow: 0 8px 20px rgba(30, 136, 229, 0.12);
+      background: linear-gradient(
+        135deg,
+        fn.color-a(color, 16, primary),
+        fn.use-var(bg-color, top)
+      );
+      border-color: fn.color-a(color, 22, primary);
+      // 主色光晕没有等价阴影 token，几何保持、色值走主色 alpha token
+      box-shadow: 0 8px 20px fn.color-a(color, 11, primary);
     }
 
     @include m.is(disabled) {
@@ -180,7 +197,7 @@ $root-name: theme;
     min-height: 0;
     border-radius: fn.use-var(radius, large);
     background: linear-gradient(180deg, fn.use-var(bg-color, top), fn.use-var(bg-color, middle));
-    border: 1px solid rgba(148, 163, 184, 0.16);
+    border: 1px solid fn.color-a(border, 16, color);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -192,7 +209,7 @@ $root-name: theme;
     justify-content: space-between;
     gap: 12px;
     padding: 14px 14px 12px;
-    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+    border-bottom: 1px solid fn.color-a(border, 10, color);
   }
 
   @include m.e(panel-title) {
@@ -212,7 +229,7 @@ $root-name: theme;
     flex-shrink: 0;
     padding: 4px 10px;
     border-radius: 999px;
-    background: rgba(30, 136, 229, 0.08);
+    background: fn.color-a(color, 8, primary);
     color: fn.use-var(color, primary);
     font-size: fn.use-var(font-size-assist, default);
     font-weight: 700;
@@ -234,20 +251,20 @@ $root-name: theme;
     padding: 12px;
     border-radius: fn.use-var(radius, default);
     background: fn.use-var(bg-color, top);
-    border: 1px solid rgba(148, 163, 184, 0.14);
+    border: 1px solid fn.color-a(border, 16, color);
     transition:
-      border-color 0.22s ease,
-      box-shadow 0.22s ease,
-      background-color 0.22s ease;
+      border-color fn.use-var(transition, normal) fn.use-var(transition, ease),
+      box-shadow fn.use-var(transition, normal) fn.use-var(transition, ease),
+      background-color fn.use-var(transition, normal) fn.use-var(transition, ease);
 
     &:hover {
-      border-color: rgba(30, 136, 229, 0.16);
-      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+      border-color: fn.color-a(color, 16, primary);
+      box-shadow: fn.use-var(shadow, sm);
     }
 
     @include m.is(changed) {
-      background: linear-gradient(135deg, rgba(30, 136, 229, 0.08), fn.use-var(bg-color, top));
-      border-color: rgba(30, 136, 229, 0.18);
+      background: linear-gradient(135deg, fn.color-a(color, 8, primary), fn.use-var(bg-color, top));
+      border-color: fn.color-a(color, 16, primary);
     }
   }
 
@@ -297,7 +314,7 @@ $root-name: theme;
     flex-shrink: 0;
     padding: 2px 8px;
     border-radius: 999px;
-    background: rgba(30, 136, 229, 0.1);
+    background: fn.color-a(color, 10, primary);
     color: fn.use-var(color, primary);
     font-size: 11px;
     font-weight: 700;
@@ -323,7 +340,7 @@ $root-name: theme;
 
     .u-palette {
       flex-shrink: 0;
-      box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.06);
+      box-shadow: 0 0 0 1px fn.color-a(border, 5, color);
     }
 
     .u-input {
@@ -388,17 +405,22 @@ $root-name: theme;
     padding: 0 12px;
     border-radius: fn.use-var(radius, default);
     background: fn.use-var(bg-color, top);
-    border: 1px solid rgba(148, 163, 184, 0.16);
+    border: 1px solid fn.color-a(border, 16, color);
     color: fn.use-var(text-color, main);
     transition:
-      background-color 0.22s ease,
-      border-color 0.22s ease,
-      color 0.22s ease;
+      background-color fn.use-var(transition, normal) fn.use-var(transition, ease),
+      border-color fn.use-var(transition, normal) fn.use-var(transition, ease),
+      color fn.use-var(transition, normal) fn.use-var(transition, ease),
+      transform fn.use-var(transition, normal) fn.use-var(transition, ease-out);
 
     &:hover {
-      border-color: rgba(30, 136, 229, 0.18);
+      border-color: fn.color-a(color, 16, primary);
       color: fn.use-var(color, primary);
       background: fn.use-var(bg-color, hover);
+    }
+
+    &:active {
+      transform: translateY(0) scale(0.98);
     }
   }
 

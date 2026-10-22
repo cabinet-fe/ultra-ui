@@ -62,8 +62,16 @@ onMounted(() => {
 
 watch(expanded, (open) => {
   if (!wrapperEl.value) return
-  if (open) expandTransition.expand(wrapperEl.value)
-  else expandTransition.collapse(wrapperEl.value)
+  if (open) {
+    // 内容淡入：ExpandTransition 的 opacity 选项不作用于 expand() 路径，
+    // 此处手动驱动（enterTransition 已含 opacity 时长）
+    wrapperEl.value.style.opacity = '0'
+    expandTransition.expand(wrapperEl.value)
+    wrapperEl.value.style.opacity = '1'
+  } else {
+    expandTransition.collapse(wrapperEl.value)
+    wrapperEl.value.style.opacity = '0'
+  }
 })
 
 onBeforeUnmount(() => {

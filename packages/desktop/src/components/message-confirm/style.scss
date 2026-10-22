@@ -82,6 +82,19 @@ $root-name: message-confirm;
   transition-property: opacity;
 }
 
+/* 出场比入场快：根 / mask / box（含 box 的 transform 过渡）同步缩短 */
+.#{$root-name}-leave-active {
+  transition-duration: fn.use-var(transition, fast);
+
+  @include m.bem($root-name, mask) {
+    transition-duration: fn.use-var(transition, fast);
+  }
+
+  @include m.bem($root-name, box) {
+    transition-duration: fn.use-var(transition, fast);
+  }
+}
+
 .#{$root-name}-enter-from,
 .#{$root-name}-leave-to {
   opacity: 0;

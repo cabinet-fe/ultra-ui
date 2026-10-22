@@ -6,7 +6,11 @@
     :class="[cls.b, bem.is('block', block), bem.is('disabled', disabled), cls.m(size)]"
     role="radiogroup"
   >
-    <div :class="cls.e('thumb')" :style="thumbStyle" aria-hidden="true" />
+    <div
+      :class="[cls.e('thumb'), bem.is('ready', thumbReady)]"
+      :style="thumbStyle"
+      aria-hidden="true"
+    />
     <div
       v-for="item of items"
       :key="item[valueKey]"
@@ -76,6 +80,8 @@ const thumbW = shallowRef(0)
 const thumbH = shallowRef(0)
 const thumbRadius = shallowRef('0px')
 const thumbOn = shallowRef(false)
+// 首次定位完成（且已渲染一帧）后才允许 thumb 过渡，避免从 (0,0) 滑入
+const thumbReady = shallowRef(false)
 
 const thumbStyle = computed(() => ({
   width: `${thumbW.value}px`,
@@ -101,6 +107,12 @@ function measure() {
   thumbH.value = box.height
   thumbRadius.value = getComputedStyle(active).borderRadius
   thumbOn.value = true
+
+  if (!thumbReady.value) {
+    requestAnimationFrame(() => {
+      thumbReady.value = true
+    })
+  }
 }
 
 useResizeObserver({ targets: trackRef, onResize: () => measure() })

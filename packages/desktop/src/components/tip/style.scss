@@ -76,3 +76,16 @@ $root-name: tip;
   opacity: 0;
   transform: scale(0.96);
 }
+
+// 减弱动态效果：不缩放，只保留透明度过渡
+@media (prefers-reduced-motion: reduce) {
+  .#{$root-name}-enter-active,
+  .#{$root-name}-leave-active {
+    transition-property: opacity;
+  }
+
+  .#{$root-name}-enter-from,
+  .#{$root-name}-leave-to {
+    transform: none;
+  }
+}

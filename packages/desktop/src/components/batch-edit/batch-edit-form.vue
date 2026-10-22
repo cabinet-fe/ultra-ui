@@ -1,93 +1,100 @@
 <template>
   <!-- 面板模式：表单常驻挂载（快照只在挂载时对传入的 model 拍一次），仅用 v-show 控制显隐；
        弹框模式：表单随弹框挂载 / 卸载，model 初始快照由 use-edit-state 维护 -->
-  <aside
-    :class="[cls.e('form'), bem.is('dialog', props.formMode === 'dialog')]"
-    v-if="!!props.model"
-    v-show="state.formVisible"
-  >
-    <header :class="cls.e('form-header')">
-      <span :class="[cls.e('form-icon'), iconToneCls]">
-        <u-icon>
-          <component :is="headerInfo.icon" />
-        </u-icon>
-      </span>
-      <div :class="cls.e('form-title')">
-        <h3 :class="cls.e('form-title-text')">{{ headerInfo.title }}</h3>
-      </div>
-      <u-button
-        :class="cls.e('form-close')"
-        :icon="Close"
-        text
-        circle
-        size="small"
-        title="关闭"
-        @click="handleClose"
-      />
-    </header>
-
-    <u-scroll always :class="cls.e('form-body')">
-      <transition name="fade" appear mode="out-in">
-        <u-form
-          ref="formComponentRef"
-          :model="props.model"
-          :readonly="props.readonly"
-          :label-width="props.labelWidth"
-          @field:update="handleFieldUpdate"
-        >
-          <slot
-            v-bind="{
-              row: state.row,
-              parentRow: state.parentRow,
-              formActionType: state.formActionType,
-              depth: state.depth,
-              indexes: state.indexPath,
-              index: state.row?.index
-            }"
-          />
-        </u-form>
-      </transition>
-    </u-scroll>
-
-    <footer :class="cls.e('form-footer')">
-      <span :class="cls.e('form-hint')">
-        <template v-if="props.readonly"> 只读模式 </template>
-
-        <span :class="{ [bem.is('concealed')]: !shortcutActive }">
-          <template
-            v-if="
-              props.formMode === 'panel' && !(state.formActionType === 'update' && props.quickEdit)
-            "
-          >
-            <u-kbd>Ctrl + S</u-kbd> 保存 ·
-          </template>
-          <u-kbd>Esc</u-kbd> 关闭
+  <!-- 侧栏进出过渡：入场从右轻移淡入、离场快速淡出；离场结束后通知父级释放表单列 -->
+  <Transition name="u-batch-edit-form" @after-leave="emit('after-leave')">
+    <aside
+      :class="[cls.e('form'), bem.is('dialog', props.formMode === 'dialog')]"
+      v-if="!!props.model"
+      v-show="state.formVisible"
+    >
+      <header :class="cls.e('form-header')">
+        <span :class="[cls.e('form-icon'), iconToneCls]">
+          <u-icon>
+            <component :is="headerInfo.icon" />
+          </u-icon>
         </span>
-      </span>
-
-      <div :class="cls.e('form-actions')">
-        <u-button size="small" text :loading="state.loading" @click="handleClose"> 取消 </u-button>
+        <div :class="cls.e('form-title')">
+          <h3 :class="cls.e('form-title-text')">{{ headerInfo.title }}</h3>
+        </div>
         <u-button
-          v-if="showSaveContinueBtn"
+          :class="cls.e('form-close')"
+          :icon="Close"
+          text
+          circle
           size="small"
-          title="保存并继续"
-          :loading="state.loading"
-          @click="handleSave(true)"
-        >
-          保存并继续
-        </u-button>
-        <u-button
-          v-if="showSaveBtn"
-          type="primary"
-          size="small"
-          title="保存"
-          :icon="Save"
-          :loading="state.loading"
-          @click="handleSave()"
+          title="关闭"
+          @click="handleClose"
         />
-      </div>
-    </footer>
-  </aside>
+      </header>
+
+      <u-scroll always :class="cls.e('form-body')">
+        <!-- 本地快速淡入（fast）：替代全局 fade（250ms）+ out-in 的空窗 -->
+        <transition name="u-batch-edit-fade" appear>
+          <u-form
+            ref="formComponentRef"
+            :model="props.model"
+            :readonly="props.readonly"
+            :label-width="props.labelWidth"
+            @field:update="handleFieldUpdate"
+          >
+            <slot
+              v-bind="{
+                row: state.row,
+                parentRow: state.parentRow,
+                formActionType: state.formActionType,
+                depth: state.depth,
+                indexes: state.indexPath,
+                index: state.row?.index
+              }"
+            />
+          </u-form>
+        </transition>
+      </u-scroll>
+
+      <footer :class="cls.e('form-footer')">
+        <span :class="cls.e('form-hint')">
+          <template v-if="props.readonly"> 只读模式 </template>
+
+          <span :class="{ [bem.is('concealed')]: !shortcutActive }">
+            <template
+              v-if="
+                props.formMode === 'panel' &&
+                !(state.formActionType === 'update' && props.quickEdit)
+              "
+            >
+              <u-kbd>Ctrl + S</u-kbd> 保存 ·
+            </template>
+            <u-kbd>Esc</u-kbd> 关闭
+          </span>
+        </span>
+
+        <div :class="cls.e('form-actions')">
+          <u-button size="small" text :loading="state.loading" @click="handleClose">
+            取消
+          </u-button>
+          <u-button
+            v-if="showSaveContinueBtn"
+            size="small"
+            title="保存并继续"
+            :loading="state.loading"
+            @click="handleSave(true)"
+          >
+            保存并继续
+          </u-button>
+          <u-button
+            v-if="showSaveBtn"
+            type="primary"
+            size="small"
+            title="保存"
+            :icon="Save"
+            :loading="state.loading"
+            @click="handleSave()"
+          />
+        </div>
+      </footer>
+    </aside>
+  </Transition>
 </template>
 
 <script lang="ts" setup>
@@ -107,6 +114,11 @@ import { FORM_ACTION_HEADER_MAP } from './form-action-header'
 import { useDialogEffect } from './use-dialog-effect'
 
 defineOptions({ name: 'UBatchEditForm' })
+
+const emit = defineEmits<{
+  /** 侧栏离场过渡结束（仅面板模式用于释放布局列） */
+  (e: 'after-leave'): void
+}>()
 
 const batchEditCtx = inject(BatchEditDIKey)!
 

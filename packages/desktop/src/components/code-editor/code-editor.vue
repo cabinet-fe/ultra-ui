@@ -5,7 +5,7 @@
   <Teleport to="body" :disabled="!zoomed">
     <div
       ref="zoomWrap"
-      :class="[cls.e('zoom-wrap'), bem.is('zoomed', zoomed)]"
+      :class="[cls.e('zoom-wrap'), bem.is('zoomed', zoomed), bem.is('zoom-leave', zoomLeaving)]"
       :style="zoomed ? { zIndex: zoomZIndex } : undefined"
       tabindex="-1"
       @keyup.esc="exitZoom"
@@ -106,6 +106,15 @@ const { disabled, readonly } = useFormFallbackProps([formProps ?? {}, props], {
 /** 放大状态：复用同一组件根 DOM / 同一 EditorView 实例，Teleport 移入 body 全屏遮罩 */
 const zoomed = shallowRef(false)
 
+/**
+ * 退出放大的离场标记：遮罩先播放离场动画（is-zoom-leave，时长对齐 fast token），
+ * 动画结束后再切回 display: contents，避免放大↔内联硬切。
+ * 根 DOM 不能条件渲染（EditorView 复用），故离场不能交给 <Transition>。
+ */
+const zoomLeaving = shallowRef(false)
+const ZOOM_LEAVE_MS = 150
+let zoomLeaveTimer: ReturnType<typeof setTimeout> | undefined
+
 /** 放大期间原位置占位的高度（取放大前组件根高度） */
 const placeholderHeight = shallowRef('')
 
@@ -150,6 +159,12 @@ const hasToolbar = computed(
 
 function enterZoom() {
   if (disabled.value || zoomed.value) return
+  // 离场途中再次进入：取消未完成的退出，直接回到放大态
+  if (zoomLeaveTimer) {
+    clearTimeout(zoomLeaveTimer)
+    zoomLeaveTimer = undefined
+    zoomLeaving.value = false
+  }
   const root = rootRef.value
   if (root) placeholderHeight.value = `${root.offsetHeight}px`
   zoomZIndex.value = zIndex()
@@ -166,8 +181,13 @@ function enterZoom() {
 }
 
 function exitZoom() {
-  if (!zoomed.value) return
-  zoomed.value = false
+  if (!zoomed.value || zoomLeaving.value) return
+  zoomLeaving.value = true
+  zoomLeaveTimer = setTimeout(() => {
+    zoomLeaveTimer = undefined
+    zoomLeaving.value = false
+    zoomed.value = false
+  }, ZOOM_LEAVE_MS)
 }
 
 /** 放大期间锁定 body 滚动，退出后恢复原值 */
@@ -405,6 +425,7 @@ watch(
 )
 
 onBeforeUnmount(() => {
+  clearTimeout(zoomLeaveTimer)
   destroyEditor()
   if (zoomed.value) document.body.style.overflow = prevBodyOverflow
 })

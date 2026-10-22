@@ -87,13 +87,18 @@ $arrow-size: 12px;
     border-radius: calc(fn.use-var(radius, default) + 1px);
     transition:
       background-color 0.15s ease,
-      color 0.15s ease;
+      color 0.15s ease,
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
     @include m.flex($align: center);
 
     #{$b}__item:not(.is-disabled):not(.is-loading) > & {
       &:hover {
         background-color: fn.component-var(contextmenu, item-hover-bg, fn.use-var(bg-color, hover));
         color: fn.component-var(contextmenu, item-hover-color, fn.use-var(text-color, title));
+      }
+
+      &:active {
+        transform: scale(0.98);
       }
     }
   }
@@ -150,4 +155,15 @@ $arrow-size: 12px;
       border-radius: calc(fn.use-var(radius, $size) + 1px);
     }
   }
+}
+
+// 子菜单高频开合：纯 opacity 淡入淡出，不做位移/缩放
+.#{$root-name}-sub-enter-active,
+.#{$root-name}-sub-leave-active {
+  transition: opacity fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+}
+
+.#{$root-name}-sub-enter-from,
+.#{$root-name}-sub-leave-to {
+  opacity: 0;
 }

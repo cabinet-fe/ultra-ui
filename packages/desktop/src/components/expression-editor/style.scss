@@ -72,7 +72,7 @@ $root-name: expression-editor;
     color: fn.use-var(text-color, placeholder);
     pointer-events: none;
     user-select: none;
-    transition: opacity 0.2s ease;
+    transition: opacity fn.use-var(transition, fast) fn.use-var(transition, ease);
     font-weight: 400;
   }
 
@@ -153,8 +153,9 @@ $root-name: expression-editor;
     cursor: pointer;
     user-select: none;
     transition:
-      background-color 0.12s ease,
-      box-shadow 0.12s ease;
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
 
     &:hover {
       color: fn.component-var(expression-editor, chip-color, fn.use-var(color, primary));
@@ -164,6 +165,10 @@ $root-name: expression-editor;
         fn.use-var(color, primary, light-7)
       );
       box-shadow: 0 1px 4px fn.use-var(shadow, color);
+    }
+
+    &:active {
+      transform: scale(0.97);
     }
 
     &.is-focused {
@@ -228,8 +233,13 @@ $root-name: expression-editor;
     cursor: pointer;
     user-select: none;
     transition:
-      background-color 0.15s ease,
-      color 0.15s ease;
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      color fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    // 列表行不缩放（整行 scale 会横向抖动），按压用背景加深一档
+    &:active {
+      background-color: fn.color-a(text-color, 11, title);
+    }
 
     @include m.is(active) {
       background-color: fn.use-var(bg-color, hover);
@@ -255,12 +265,16 @@ $root-name: expression-editor;
     border-radius: fn.use-var(radius, small);
     cursor: pointer;
     transition:
-      color 0.15s ease,
-      background-color 0.15s ease;
+      color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     &:hover {
       color: fn.use-var(color, primary);
       background-color: fn.use-var(bg-color, hover);
+    }
+
+    &:active {
+      background-color: fn.color-a(text-color, 11, title);
     }
   }
 
@@ -313,12 +327,16 @@ $root-name: expression-editor;
     border-radius: fn.use-var(radius, small);
     cursor: pointer;
     transition:
-      color 0.15s ease,
-      background-color 0.15s ease;
+      color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     &:hover {
       color: fn.use-var(color, primary);
       background-color: fn.use-var(bg-color, hover);
+    }
+
+    &:active {
+      background-color: fn.color-a(text-color, 11, title);
     }
 
     &--active {

@@ -25,13 +25,15 @@
       <i v-else :class="cls.e('arrow-place')"></i>
     </div>
 
-    <UContextmenuPanel
-      v-show="subVisible"
-      :menus="menu.children!"
-      :class="[cls.e('sub'), bem.is('flip-x', flipX)]"
-      @mouseenter="cancelClose"
-      @mouseleave="scheduleClose"
-    />
+    <transition name="contextmenu-sub">
+      <UContextmenuPanel
+        v-show="subVisible"
+        :menus="menu.children!"
+        :class="[cls.e('sub'), bem.is('flip-x', flipX)]"
+        @mouseenter="cancelClose"
+        @mouseleave="scheduleClose"
+      />
+    </transition>
   </li>
 </template>
 

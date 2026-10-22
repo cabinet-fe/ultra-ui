@@ -19,13 +19,27 @@ $edge-offset: 10px;
   &-enter-active,
   &-leave-active {
     transition:
-      opacity fn.use-var(transition, normal) fn.use-var(transition, ease),
-      transform fn.use-var(transition, normal) fn.use-var(transition, ease);
+      opacity fn.use-var(transition, fast) fn.use-var(transition, ease-out),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
   }
 
   &-enter-from,
   &-leave-to {
     opacity: 0;
-    transform: scale(0.4);
+    transform: scale(0.9);
+  }
+
+  // 降级：只保留 opacity 淡入，不做 scale 位移
+  @media (prefers-reduced-motion: reduce) {
+    &-enter-active,
+    &-leave-active {
+      transition: opacity fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+    }
+
+    &-enter-from,
+    &-leave-to {
+      opacity: 0;
+      transform: none;
+    }
   }
 }

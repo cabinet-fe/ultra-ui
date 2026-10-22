@@ -40,6 +40,11 @@ $direction-map: (
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+
+    &:active {
+      transform: scale(0.95);
+    }
   }
 
   // 标题栏：传入 title 时渲染在内容区上方，其余行为与把标题写进默认插槽一致

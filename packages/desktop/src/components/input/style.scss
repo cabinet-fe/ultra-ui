@@ -54,7 +54,7 @@ $root-name: input;
     font-family: fn.use-var(font-family);
 
     &:-webkit-autofill {
-      color: #fff !important;
+      color: fn.use-var(text-color, white) !important;
       background-color: transparent;
     }
 
@@ -74,12 +74,30 @@ $root-name: input;
 
     @include m.is(clickable) {
       cursor: pointer;
+      transition: background-color fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+      &:hover {
+        background-color: fn.color-a(color, 5, primary);
+      }
     }
   }
 
   @include m.e(clear) {
     cursor: pointer;
     color: fn.use-var(text-color, main);
+    transition:
+      color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+
+    &:hover {
+      color: fn.use-var(color, primary);
+    }
+
+    // 高频小图标：按下瞬间缩到位，松手回弹走过渡
+    &:active {
+      transform: scale(0.92);
+      transition-duration: 0s;
+    }
   }
 
   @include m.e(suffix-content) {

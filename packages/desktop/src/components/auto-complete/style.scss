@@ -30,6 +30,9 @@ $root-name: auto-complete;
     margin: 2px 0;
     user-select: none;
     color: fn.use-var(text-color, main);
+    transition:
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      color fn.use-var(transition, fast) fn.use-var(transition, ease);
     @include m.ellipsis;
 
     &:hover {

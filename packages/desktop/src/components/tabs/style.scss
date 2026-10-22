@@ -116,7 +116,12 @@ $active-shadow: fn.use-var(shadow, sm);
     transition:
       color 0.22s cubic-bezier(0.4, 0, 0.2, 1),
       background-color 0.22s cubic-bezier(0.4, 0, 0.2, 1),
-      box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+
+    &:active:not(.is-disabled) {
+      transform: scale(0.97);
+    }
 
     @include m.is-not(active, disabled) {
       &:hover {
@@ -229,12 +234,17 @@ $active-shadow: fn.use-var(shadow, sm);
       color 0.2s ease,
       background-color 0.2s ease,
       box-shadow 0.2s ease,
-      opacity 0.2s ease;
+      opacity 0.2s ease,
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
 
     &:hover:not(:disabled) {
       color: fn.use-var(text-color, title);
       background-color: $active-bg;
       box-shadow: $active-shadow;
+    }
+
+    &:active:not(:disabled) {
+      transform: scale(0.95);
     }
 
     &:disabled {
@@ -299,7 +309,10 @@ $active-shadow: fn.use-var(shadow, sm);
       border-radius: $item-radius;
       background-color: $active-bg;
       box-shadow: $active-shadow;
-      transition: transform 200ms cubic-bezier(0.77, 0, 0.175, 1);
+      // 宽度（激活项宽窄变化）与位移同曲线过渡，避免 width 内联直变导致的瞬跳
+      transition:
+        transform 200ms cubic-bezier(0.77, 0, 0.175, 1),
+        width 200ms cubic-bezier(0.77, 0, 0.175, 1);
 
       @media (prefers-reduced-motion: reduce) {
         transition: none;

@@ -59,6 +59,7 @@ $root-name: checkbox;
   }
 
   @include m.e(wrap) {
+    position: relative;
     border: fn.use-var(border, width) fn.use-var(border, style)
       #{fn.component-var(checkbox, border, fn.use-var(text-color, assist))};
     border-radius: fn.use-var(radius, small);
@@ -66,14 +67,39 @@ $root-name: checkbox;
     transition:
       background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
       border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
-      box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
+      box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
     @include m.flex(inline-flex, center);
+  }
+
+  // 对勾与半选条常驻渲染、绝对定位叠放，靠 scale + opacity 互斥过渡
+  @include m.e(check) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: scale(0.6);
+    opacity: 0;
+    transition:
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out),
+      opacity fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+
+    @include m.is(on) {
+      transform: scale(1);
+      opacity: 1;
+    }
   }
 
   @include m.is-not(disabled, readonly) {
     &:hover {
       @include m.bem($root-name, wrap) {
         border-color: fn.use-var(color, primary);
+      }
+    }
+
+    &:active {
+      @include m.bem($root-name, wrap) {
+        transform: scale(0.9);
       }
     }
 
@@ -88,10 +114,22 @@ $root-name: checkbox;
   }
 
   @include m.m(indeterminate) {
+    position: absolute;
+    inset: 0;
+    margin: auto;
     background-color: fn.component-var(checkbox, color, #fff);
     width: 10px;
     height: 2px;
-    vertical-align: middle;
+    transform: scale(0.6);
+    opacity: 0;
+    transition:
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out),
+      opacity fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+
+    @include m.is(on) {
+      transform: scale(1);
+      opacity: 1;
+    }
   }
 }
 
@@ -104,9 +142,20 @@ $button-name: checkbox-button;
   cursor: pointer;
   user-select: none;
   padding: 0 0.8em;
+  transition:
+    background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+    border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+    color fn.use-var(transition, fast) fn.use-var(transition, ease),
+    transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
 
   &:focus-visible {
     box-shadow: fn.use-var(focus-ring);
+  }
+
+  @include m.is-not(disabled) {
+    &:active {
+      transform: scale(0.97);
+    }
   }
 
   @include m.size using ($size) {

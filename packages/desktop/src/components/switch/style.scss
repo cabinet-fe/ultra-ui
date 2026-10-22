@@ -48,6 +48,12 @@ $root-name: switch;
       }
     }
 
+    &:active {
+      @include m.bem($root-name, button) {
+        transform: scale(0.98);
+      }
+    }
+
     // label 不可聚焦，ring 由视觉隐藏的原生 input 驱动
     #{fn.bem($root-name, native)}:focus-visible ~ #{fn.bem($root-name, button)} {
       box-shadow: fn.use-var(focus-ring);
@@ -85,7 +91,8 @@ $root-name: switch;
     transition:
       background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
       border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
-      box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
+      box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
     padding: 2px;
     flex-shrink: 0;
   }
@@ -94,9 +101,13 @@ $root-name: switch;
     display: block;
     background-color: fn.use-var(bg-color, top);
     border-radius: 50%;
-    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: fn.use-var(shadow, sm);
     transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     pointer-events: none;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
   }
 
   @include m.e(text) {

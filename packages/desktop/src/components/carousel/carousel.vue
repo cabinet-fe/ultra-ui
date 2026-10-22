@@ -1,5 +1,11 @@
 <template>
-  <div :class="cls.b" role="region" aria-roledescription="carousel">
+  <div
+    :class="cls.b"
+    role="region"
+    aria-roledescription="carousel"
+    @mouseenter="pauseAutoplay"
+    @mouseleave="resumeAutoplay"
+  >
     <div :class="cls.e('track')" :style="trackStyle">
       <slot />
     </div>
@@ -77,7 +83,7 @@ const unregister = (uid: number) => {
   if (index > -1) itemUids.value.splice(index, 1)
 }
 
-const { current, canPrev, canNext, goTo, prev, next } = useCarousel({
+const { current, canPrev, canNext, goTo, prev, next, pauseAutoplay, resumeAutoplay } = useCarousel({
   model,
   count: () => itemUids.value.length,
   autoplay: () => autoplay,

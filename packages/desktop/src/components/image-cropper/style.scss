@@ -46,7 +46,8 @@ $root-name: image-cropper;
     cursor: pointer;
     transition:
       background fn.use-var(transition, fast) fn.use-var(transition, ease),
-      color fn.use-var(transition, fast) fn.use-var(transition, ease);
+      color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     &:hover {
       color: fn.use-var(color, primary);
@@ -56,6 +57,10 @@ $root-name: image-cropper;
     &.is-active {
       color: fn.use-var(color, primary);
       background: fn.color-a(color, 16, primary);
+    }
+
+    &:active {
+      transform: translateY(1px);
     }
 
     &:focus-visible {

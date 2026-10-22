@@ -2,7 +2,8 @@
 // 避免动画与拖拽内联样式互相覆盖、动画结束瞬间内联 transform 反扑导致跳帧
 @keyframes spring-in {
   0% {
-    scale: 0;
+    scale: 0.9;
+    opacity: 0;
   }
   40% {
     scale: 1.1;
@@ -34,8 +35,26 @@
 }
 
 .spring-leave-to {
-  scale: 0;
+  scale: 0.96;
   // 离开时归位到中心 (即便此前被拖拽过), 与原行为一致; !important 用于覆盖拖拽内联样式
   translate: 0 0 !important;
   opacity: 0;
+}
+
+// 减弱动态效果：不缩放，只保留透明度
+@media (prefers-reduced-motion: reduce) {
+  .spring-enter-active {
+    animation: none;
+    transition: opacity 0.2s ease;
+  }
+
+  .spring-leave-active {
+    transition-property: opacity;
+  }
+
+  .spring-enter-from,
+  .spring-leave-to {
+    scale: 1;
+    opacity: 0;
+  }
 }

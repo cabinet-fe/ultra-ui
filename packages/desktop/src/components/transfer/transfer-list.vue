@@ -23,21 +23,24 @@
     </div>
 
     <ul v-if="filtered.length" :class="cls.e('body')">
-      <li
-        v-for="option of filtered"
-        :key="option.key"
-        :class="[cls.e('item'), bem.is('disabled', disabled || option.disabled)]"
-        @click="handleItemClick(option)"
-      >
-        <u-checkbox
-          :model-value="checkedKeys.has(option.key)"
-          :disabled="disabled || option.disabled"
-          @update:model-value="emit('check', option.key, $event)"
-          @click.stop
-        />
+      <!-- 两栏间移动：离场/入场带方向位移，-move FLIP 让位；过滤增删同样受益 -->
+      <TransitionGroup :name="cls.b">
+        <li
+          v-for="option of filtered"
+          :key="option.key"
+          :class="[cls.e('item'), bem.is('disabled', disabled || option.disabled)]"
+          @click="handleItemClick(option)"
+        >
+          <u-checkbox
+            :model-value="checkedKeys.has(option.key)"
+            :disabled="disabled || option.disabled"
+            @update:model-value="emit('check', option.key, $event)"
+            @click.stop
+          />
 
-        <span :class="cls.e('item-label')">{{ option.label }}</span>
-      </li>
+          <span :class="cls.e('item-label')">{{ option.label }}</span>
+        </li>
+      </TransitionGroup>
     </ul>
 
     <div v-else :class="cls.e('empty')">

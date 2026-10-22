@@ -3,7 +3,7 @@
     v-if="!readonly"
     v-bind="$attrs"
     trigger="click"
-    :class="[cls.b, bem.is('disabled', disabled)]"
+    :class="[cls.b, bem.is('disabled', disabled), bem.is('focus', dropdownVisible)]"
     ref="dropdownRef"
     v-model:visible="dropdownVisible"
     :content-class="[cls.e('panel'), cls.em('panel', size), contentClass]"

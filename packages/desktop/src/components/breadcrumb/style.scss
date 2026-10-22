@@ -42,11 +42,15 @@ $root-name: breadcrumb;
     text-decoration: none;
     cursor: pointer;
     border-radius: fn.use-var(radius, small);
-    transition: color 0.15s ease;
+    transition: color fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     @include m.is-not(disabled) {
       &:hover {
         color: fn.use-var(color, primary);
+      }
+
+      &:active {
+        opacity: 0.7;
       }
     }
 

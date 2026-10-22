@@ -29,8 +29,16 @@ $root-name: steps;
 
   /** 步骤项 */
   @include m.e(item) {
+    cursor: pointer;
     font-weight: 600;
     color: fn.use-var(text-color, placeholder);
+    transition:
+      color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+
+    &:active {
+      transform: scale(0.98);
+    }
   }
 
   @include m.e(node) {
@@ -87,14 +95,20 @@ $root-name: steps;
     background-color: fn.use-var(bg-color, top);
     position: relative;
     z-index: 1;
-    transition: opacity 0.3s ease;
+    transition:
+      opacity 0.3s ease,
+      color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      border-color fn.use-var(transition, fast) fn.use-var(transition, ease);
   }
 
   @include m.bem($root-name, item) {
     @include m.is(current) {
       @include m.bem($root-name, icon) {
         animation: steps-icon-breathing 2s ease-in-out infinite;
-        will-change: opacity;
+
+        @media (prefers-reduced-motion: reduce) {
+          animation: none;
+        }
       }
     }
   }
@@ -125,6 +139,10 @@ $root-name: steps;
           );
           background-size: 10px 2px;
           animation: steps-link-flow-horizontal 1s linear infinite;
+
+          @media (prefers-reduced-motion: reduce) {
+            animation: none;
+          }
         }
       }
     }
@@ -165,9 +183,13 @@ $root-name: steps;
             transparent 50%,
             transparent 100%
           );
-          background-size: 2px 10px;
-          animation: steps-link-flow-vertical 1s linear infinite;
-        }
+            background-size: 2px 10px;
+            animation: steps-link-flow-vertical 1s linear infinite;
+
+            @media (prefers-reduced-motion: reduce) {
+              animation: none;
+            }
+          }
       }
     }
 

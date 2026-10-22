@@ -101,6 +101,10 @@ $menu-name: $root-name + '-panel-item';
   max-width: 200px;
   flex-grow: 1;
 
+  // 新列随「从左往右钻取」语义从右侧轻移淡入；纯 CSS 动画不阻塞连续下钻
+  animation: cascade-panel-item-enter fn.use-var(transition, fast) fn.use-var(transition, ease-out)
+    both;
+
   &:not(:last-child) {
     border-right: fn.use-var(border);
   }
@@ -111,6 +115,16 @@ $menu-name: $root-name + '-panel-item';
     user-select: none;
     gap: 4px;
     @include m.flex($justify: space-between);
+    transition:
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+
+    @include m.is-not(disabled) {
+      &:active {
+        transform: scale(0.98);
+      }
+    }
 
     &:hover {
       background-color: fn.use-var(bg-color, hover);
@@ -150,5 +164,18 @@ $menu-name: $root-name + '-panel-item';
 
   @include m.e(option-expand, option-checkbox) {
     flex-shrink: 0;
+  }
+}
+
+// 新子面板列入场：透明 + 右移 8px 归位（fast，钻取方向从左往右）
+@keyframes cascade-panel-item-enter {
+  from {
+    opacity: 0;
+    transform: translateX(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
   }
 }

@@ -90,7 +90,7 @@ export interface CarouselItemProps {}
 | 参数           | 类型      | 默认      | 必填 | 约束                                                                  |
 | -------------- | --------- | --------- | :--: | --------------------------------------------------------------------- |
 | `activeIndex`  | `number`  | `0`       |  否  | `v-model:active-index` 双向绑定；有效范围 `0` 到页数减 1，越界按边界收敛展示 |
-| `autoplay`     | `boolean` | `false`   |  否  | 页数小于 2 时不启动自动播放                                           |
+| `autoplay`     | `boolean` | `false`   |  否  | 页数小于 2 时不启动自动播放；指针悬停在轮播上时暂停，移开后恢复 |
 | `interval`     | `number`  | `3000`    |  否  | 自动播放间隔毫秒数；自动播放开关、间隔、页数、当前页任一变化后重新计时，手动切换同样重新计时 |
 | `loop`         | `boolean` | `true`    |  否  | `false` 时切换停在首 / 末页，对应箭头禁用                             |
 | `arrows`       | `boolean` | `false`   |  否  | 显示左右两个悬浮圆钮箭头                                              |
@@ -216,3 +216,4 @@ import { UCarousel, UCarouselItem } from '@veltra/desktop'
 > - 组件不定高：各页高度不一致时以最高页撑开容器，矮页内容顶部对齐。
 > - 切换动画时长与缓动取主题 token（`--u-transition-slow` 与 `--u-transition-ease-out`），没有 `duration` / `easing` 属性；改主题即改全局轮播动效。
 > - 页数小于 2 时自动播放不启动；`activeIndex` 越界时展示按边界收敛，回写值仍为传入值。
+> - v1.15.1 起，开启 `autoplay` 时指针悬停在轮播区域会暂停自动播放，移开后恢复；恢复时重建计时，按完整 `interval` 重新计，不会在移开瞬间立即切换。

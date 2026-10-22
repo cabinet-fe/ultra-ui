@@ -22,8 +22,10 @@ const emit = defineEmits<CollapseEmits>()
 
 const cls = bem('collapse')
 
+// 高度与 opacity 同一 transition 串：expand()/collapse() 路径的淡入由 collapse-item 手动驱动
 const expandTransition = new ExpandTransition({
-  transition: 'height 0.24s cubic-bezier(0.4, 0, 0.2, 1)'
+  transition:
+    'height 0.24s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.18s cubic-bezier(0.4, 0, 0.2, 1)'
 })
 
 const { size } = useFormFallbackProps([props], { size: 'default' })

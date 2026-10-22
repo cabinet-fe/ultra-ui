@@ -106,12 +106,17 @@ $root-name: dual-nav;
     color: var(--u-nav-second-color);
     cursor: pointer;
     transition:
-      background-color 0.15s ease,
-      color 0.15s ease;
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
 
     &:hover {
       background-color: var(--u-nav-hover-bg);
       color: var(--u-nav-hover-color);
+    }
+
+    &:active {
+      transform: scale(0.95);
     }
   }
 
@@ -145,8 +150,8 @@ $root-name: dual-nav;
     color: var(--u-nav-second-color);
     cursor: pointer;
     transition:
-      background-color 0.15s ease,
-      color 0.15s ease;
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      color fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     &:hover:not(:disabled) {
       background-color: var(--u-nav-hover-bg);

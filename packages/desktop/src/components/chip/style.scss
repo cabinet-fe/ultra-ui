@@ -37,6 +37,11 @@ $root-name: chip;
     background-color: fn.use-var(bg-color, top);
     color: fn.use-var(text-color, main);
     white-space: nowrap;
+    transition:
+      border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
   }
 
   @include m.e(label) {
@@ -61,6 +66,12 @@ $root-name: chip;
     &:hover:not(.is-checked) {
       @include m.bem($root-name, face) {
         background-color: fn.color-a(color, 5, primary);
+      }
+    }
+
+    &:active {
+      @include m.bem($root-name, face) {
+        transform: scale(0.97);
       }
     }
 

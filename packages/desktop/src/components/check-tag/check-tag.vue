@@ -1,5 +1,13 @@
 <template>
-  <div :class="classList" @click="handleChange">
+  <div
+    :class="classList"
+    role="checkbox"
+    :aria-checked="currentValue"
+    tabindex="0"
+    @click="handleChange"
+    @keydown.enter.prevent="handleChange"
+    @keydown.space.prevent="handleChange"
+  >
     <slot />
   </div>
 </template>
@@ -18,11 +26,13 @@ const props = withDefaults(defineProps<CheckTagProps>(), {})
 
 const emits = defineEmits<CheckTagEmits>()
 
+const currentValue = computed(() => props.modelValue ?? props.checked ?? false)
+
 const classList = computed(() => {
-  return [cls.b, bem.is('checked', props.modelValue ?? props.checked)]
+  return [cls.b, bem.is('checked', currentValue.value)]
 })
 
 const handleChange = () => {
-  emits('update:modelValue', !(props.modelValue ?? props.checked))
+  emits('update:modelValue', !currentValue.value)
 }
 </script>

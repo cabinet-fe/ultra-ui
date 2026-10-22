@@ -28,7 +28,7 @@ $root-name: loading;
       border: 3px solid fn.color-a(color, 22, primary);
       border-top-color: currentColor;
       position: relative;
-      animation: loading-spin 0.8s linear infinite;
+      animation: loading-spin 0.6s linear infinite;
 
       &::after {
         content: '';
@@ -37,7 +37,7 @@ $root-name: loading;
         border-radius: 50%;
         border: 2px solid fn.color-a(color, 22, primary);
         border-bottom-color: currentColor;
-        animation: loading-spin 1.2s linear infinite reverse;
+        animation: loading-spin 0.9s linear infinite reverse;
       }
     }
   }
@@ -90,13 +90,13 @@ $root-name: loading;
       border-radius: 50%;
       border: 3px solid fn.color-a(color, 22, primary);
       border-top-color: currentColor;
-      animation: loading-spin 0.9s linear infinite;
+      animation: loading-spin 0.7s linear infinite;
     }
   }
 
   // ============================================================
   // bars — 三条音频跳动
-  // 三根竖条以容器中心为基准上下对称伸缩
+  // 三根竖条固定 26px 高，以中心为基准 scaleY 对称伸缩（纯合成器动画，不动布局）
   // ============================================================
   @include m.e(bars) {
     @include m.bem($root-name, loader) {
@@ -105,15 +105,16 @@ $root-name: loading;
       background: currentColor;
       border-radius: 3px;
       position: relative;
+      transform-origin: center;
       animation: loading-bars 1s ease-in-out infinite;
       animation-delay: 0.15s;
 
+      // 伪元素与主条等高：top: 0 即垂直居中，不再占用 transform
       &::before,
       &::after {
         content: '';
         position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
+        top: 0;
         width: 6px;
         height: 26px;
         background: currentColor;
@@ -158,9 +159,39 @@ $root-name: loading;
 @keyframes loading-bars {
   0%,
   100% {
-    height: 10px;
+    transform: scaleY(0.38);
   }
   50% {
-    height: 26px;
+    transform: scaleY(1);
+  }
+}
+
+// 减弱动态效果下仍保留的透明度呼吸（参照 skeleton-pulse 思路）
+@keyframes loading-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+// 减弱动态效果：旋转 spinner 改为 opacity 呼吸，去掉持续旋转
+@media (prefers-reduced-motion: reduce) {
+  @include m.bem($root-name, dual-ring) {
+    @include m.bem($root-name, loader) {
+      animation: loading-breathe 1.2s ease-in-out infinite;
+
+      &::after {
+        animation: loading-breathe 1.2s ease-in-out infinite reverse;
+      }
+    }
+  }
+
+  @include m.bem($root-name, ring) {
+    @include m.bem($root-name, loader) {
+      animation: loading-breathe 1.2s ease-in-out infinite;
+    }
   }
 }

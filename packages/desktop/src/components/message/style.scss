@@ -35,6 +35,13 @@ $root-name: message;
 
   @include m.e(close) {
     cursor: pointer;
+    transition: transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+
+    // 点击即关闭，过渡来不及显示——按下瞬间缩到位
+    &:active {
+      transform: scale(0.9);
+      transition-duration: 0s;
+    }
   }
 
   @include m.size using ($size) {
@@ -70,9 +77,20 @@ $root-name: message;
 .#{$root-name}-move, /* 对移动中的元素应用的过渡 */
 .#{$root-name}-enter-active,
 .#{$root-name}-leave-active {
-  transition-duration: 0.3s;
-  transition-timing-function: ease;
+  transition-duration: fn.use-var(transition, normal);
+  transition-timing-function: fn.use-var(transition, ease-out);
   transition-property: opacity, transform;
+}
+
+/* 出场比入场快 */
+.#{$root-name}-leave-active {
+  transition-duration: fn.use-var(transition, fast);
+}
+
+/* 列表重排为屏内位移：用 ease 更自然。leave(fast) 先于 move(normal) 结束，
+  离场项淡出后堆叠仍在缓收，不会出现悬空空档或骤停 */
+.#{$root-name}-move {
+  transition-timing-function: fn.use-var(transition, ease);
 }
 
 .#{$root-name}-enter-from,

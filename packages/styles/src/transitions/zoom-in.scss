@@ -8,11 +8,17 @@
     opacity: 0;
   }
 
-  &-enter-active,
-  &-leave-active {
+  &-enter-active {
     transition:
       opacity 0.15s cubic-bezier(0.23, 1, 0.32, 1),
       transform 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  // 出场比入场快
+  &-leave-active {
+    transition:
+      opacity 0.12s cubic-bezier(0.23, 1, 0.32, 1),
+      transform 0.12s cubic-bezier(0.23, 1, 0.32, 1);
   }
 }
 
@@ -20,7 +26,7 @@
 .zoom-in-right {
   &-enter-from,
   &-leave-to {
-    transform: scaleX(0.8);
+    transform: scaleX(0.9);
   }
 }
 
@@ -28,14 +34,14 @@
 .zoom-in-bottom {
   &-enter-from,
   &-leave-to {
-    transform: scaleY(0.8);
+    transform: scaleY(0.9);
   }
 }
 
 .zoom-in {
   &-enter-from,
   &-leave-to {
-    transform: scale(0.8);
+    transform: scale(0.9);
   }
 }
 

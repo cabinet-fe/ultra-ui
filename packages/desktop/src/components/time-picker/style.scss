@@ -58,7 +58,15 @@ $root-name: time-picker;
     cursor: pointer;
     user-select: none;
     color: fn.use-var(text-color, main);
-    transition: background-color fn.use-var(transition, fast) fn.use-var(transition, ease);
+    transition:
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+
+    @include m.is-not(disabled) {
+      &:active {
+        transform: scale(0.97);
+      }
+    }
 
     &:hover {
       background-color: fn.use-var(bg-color, hover);

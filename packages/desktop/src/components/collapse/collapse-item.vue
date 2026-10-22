@@ -81,7 +81,10 @@ const headerClassList = computed(() => [
 
 const expandTransition =
   context?.expandTransition ??
-  new ExpandTransition({ transition: 'height 0.24s cubic-bezier(0.4, 0, 0.2, 1)' })
+  new ExpandTransition({
+    transition:
+      'height 0.24s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.18s cubic-bezier(0.4, 0, 0.2, 1)'
+  })
 
 const handleClick = () => {
   if (props.disabled) return
@@ -118,7 +121,12 @@ watch(isActive, async (active) => {
       await nextTick()
     }
     if (!wrapperEl.value || !isActive.value) return
+    // 内容淡入：ExpandTransition 的 opacity 选项不作用于 expand()/collapse() 路径，
+    // 此处手动驱动（transition 串已含 opacity 时长），与高度动画同步；
+    // expand() 内部强制 reflow 后再恢复 opacity，过渡才会生效
+    wrapperEl.value.style.opacity = '0'
     expandTransition.expand(wrapperEl.value)
+    wrapperEl.value.style.opacity = '1'
     return
   }
   if (!wrapperEl.value) return
@@ -126,6 +134,7 @@ watch(isActive, async (active) => {
   expandTransition.collapse(wrapperEl.value, () => {
     if (!isActive.value && props.destroyOnCollapse) contentMounted.value = false
   })
+  wrapperEl.value.style.opacity = '0'
 })
 
 onBeforeUnmount(() => {

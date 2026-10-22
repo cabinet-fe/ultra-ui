@@ -1,7 +1,9 @@
 <template>
   <div :class="cls.b">
     <slot />
-    <sup :class="classList" ref="supRef" v-if="!hidden">{{ badgeValue }}</sup>
+    <Transition :name="transitionName">
+      <sup :class="classList" ref="supRef" v-if="!hidden">{{ badgeValue }}</sup>
+    </Transition>
   </div>
 </template>
 
@@ -15,6 +17,7 @@ import type { BadgeProps, ComponentSize } from '../../types'
 defineOptions({ name: 'UBadge' })
 
 const cls = bem('badge')
+const transitionName = cls.create('fade').b
 
 const props = withDefaults(defineProps<BadgeProps>(), { max: 99 })
 
@@ -41,12 +44,8 @@ const supRef = shallowRef<HTMLElement>()
 
 const setPosition = () => {
   if (supRef.value) {
-    const { width, height } = supRef.value.getBoundingClientRect()
-    setStyles(supRef.value, {
-      transform: `translate(-${width / 2}px, -${height / 2}px)`,
-      backgroundColor: props.color,
-      zIndex: zIndex()
-    })
+    // 角标位移（-50%,-50%）由 style.scss 常驻提供，此处仅注入运行时样式
+    setStyles(supRef.value, { backgroundColor: props.color, zIndex: zIndex() })
   }
 }
 

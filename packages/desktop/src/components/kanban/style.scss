@@ -56,6 +56,8 @@
     // 空列也保持可拖入的目标高度
     min-height: 64px;
     padding: 2px;
+    // 拖入目标态背景色平滑淡入，避免瞬现瞬灭
+    transition: background-color fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     &.is-dropzone {
       background-color: fn.color-a(color, 4, primary);
@@ -80,8 +82,12 @@
       box-shadow: fn.use-var(shadow);
     }
 
-    &.is-dragging {
-      opacity: 0.6;
+    // 拖拽中原位卡片整体隐形（is-dragging 只存在一帧，随后换 is-drag-placeholder），
+    // 跟随鼠标的是浏览器原生拖拽快照——呈现"一直被抓着"的效果；不加 scale/阴影，
+    // formkit animations 插件会在节点上写内联 transform。
+    &.is-dragging,
+    &.is-drag-placeholder {
+      opacity: 0;
     }
   }
 
@@ -91,9 +97,11 @@
     color: fn.use-var(text-color, assist);
     cursor: grab;
     user-select: none;
+    transition: transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
 
     &:active {
       cursor: grabbing;
+      transform: scale(0.94);
     }
   }
 
@@ -118,6 +126,7 @@
 
       &:active {
         cursor: not-allowed;
+        transform: none;
       }
     }
   }

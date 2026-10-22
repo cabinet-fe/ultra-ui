@@ -121,6 +121,14 @@ async function clickRow(host: HTMLElement, index: number) {
   await nextTick()
 }
 
+/** 侧栏离场走 Transition：display 落为 none 要等离场帧结束（v-show 由过渡接管后不再瞬时隐藏） */
+async function nextFrames(count: number) {
+  for (let i = 0; i < count; i++) {
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+  }
+  await nextTick()
+}
+
 async function clickEditRow(host: HTMLElement, index: number) {
   const btn = queryEditButton(host, index)
   expect(btn, `第 ${index} 行的编辑按钮应存在`).toBeTruthy()
@@ -167,6 +175,8 @@ describe('UBatchEdit quick-edit 切换编辑行', () => {
 
     // 再次点击当前行：取消选中并关闭表单，model 恢复初始值
     await clickRow(host, 0)
+    // 侧栏离场过渡结束后 display 才落为 none
+    await nextFrames(2)
     expect(aside.style.display).toBe('none')
     expect(model.label).toBe('')
 

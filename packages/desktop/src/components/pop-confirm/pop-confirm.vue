@@ -51,7 +51,7 @@ withDefaults(defineProps<PopConfirmProps>(), {
   trigger: 'click',
   icon: QuestionFilled,
   direction: 'bottom',
-  iconColor: '#ffc107',
+  iconColor: '',
   confirmText: '确认',
   cancelText: '取消'
 })

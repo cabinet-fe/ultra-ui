@@ -1,5 +1,15 @@
 <template>
-  <div v-if="!readonly" v-bind="$attrs" :class="className" @click="handleInput">
+  <div
+    v-if="!readonly"
+    v-bind="$attrs"
+    :class="className"
+    role="checkbox"
+    :aria-checked="!!checked"
+    tabindex="0"
+    @click="handleInput"
+    @keydown.enter.prevent="handleInput"
+    @keydown.space.prevent="handleInput"
+  >
     <slot />
   </div>
 

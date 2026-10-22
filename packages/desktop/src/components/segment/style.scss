@@ -19,9 +19,15 @@
     pointer-events: none;
     background-color: fn.use-var(bg-color, top);
     box-shadow: fn.use-var(shadow, sm);
-    transition:
-      transform 200ms cubic-bezier(0.77, 0, 0.175, 1),
-      opacity 200ms cubic-bezier(0.77, 0, 0.175, 1);
+    // 透明度始终过渡（首次出现原地淡入）
+    transition: opacity 200ms cubic-bezier(0.77, 0, 0.175, 1);
+
+    // 首次定位完成前不加位移过渡，避免 thumb 从 (0,0) 滑入
+    @include m.is(ready) {
+      transition:
+        transform 200ms cubic-bezier(0.77, 0, 0.175, 1),
+        opacity 200ms cubic-bezier(0.77, 0, 0.175, 1);
+    }
 
     @media (prefers-reduced-motion: reduce) {
       transition: none;
@@ -61,6 +67,10 @@
     &:hover:not(.is-active):not(.is-disabled) {
       color: fn.use-var(text-color, title);
       background-color: fn.color-a(color, 5, primary);
+    }
+
+    &:active:not(.is-disabled) {
+      background-color: fn.color-a(color, 8, primary);
     }
 
     @include m.is(active) {
