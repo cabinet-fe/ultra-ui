@@ -16,7 +16,14 @@ $root-name: checkbox-group;
   @include m.bem(checkbox) {
     margin: 0;
     display: flex;
-    min-height: t.use-var(form-row-height);
+  }
+
+  // 行高按尺寸收敛（不用 48px 表单行高）：组内项内容小，行高过大显得间隔稀疏；
+  // 仍保留 44px 触控热区下限
+  @include m.size using ($size) {
+    @include m.bem(checkbox) {
+      min-height: max(t.control-height($size), t.use-var(touch-target));
+    }
   }
 
   // 行间细分隔线可选

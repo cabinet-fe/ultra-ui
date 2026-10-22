@@ -123,8 +123,9 @@ $indicator-min: 20px;
   }
 }
 
-// 嵌入表单行时占满控件区，整行热区与列表行式布局协同
-.um-form-item__content .um-#{$root-name} {
+// 嵌入表单行时占满控件区，整行热区与列表行式布局协同。
+// :where 降特异性：checkbox-group 内的行高由组规则收敛，此规则只约束单个复选框
+.um-form-item__content :where(.um-#{$root-name}) {
   display: flex;
   width: 100%;
   min-height: t.use-var(form-row-height);
