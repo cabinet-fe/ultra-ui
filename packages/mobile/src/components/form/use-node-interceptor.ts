@@ -1,4 +1,3 @@
-import { o } from '@cat-kit/core'
 import { extractNormalVNodes } from '@veltra/utils'
 import { useSlots, type VNode } from 'vue'
 
@@ -17,6 +16,35 @@ function getVNodeTypeName(node: VNode): string {
   if (typeof type === 'string') return type
   if (typeof type === 'object' && type) return type.name || type.__name || ''
   return ''
+}
+
+/** 裸控件 → 自动生成的 UFormItem 透传的属性白名单 */
+const FORM_ITEM_KEYS = [
+  'label',
+  'labelPosition',
+  'labelWidth',
+  'rules',
+  'span',
+  'tips',
+  'readonly',
+  'field'
+] as const
+
+/**
+ * 从裸控件 vnode 的 props 中挑出表单项属性。
+ * 模板 kebab 写法（label-position）在 vnode 原始 props 里不转驼峰，
+ * 因此驼峰 / kebab 双向取值，缺失的键不进入结果。
+ */
+function pickFormItemProps(raw: Record<string, any>): Record<string, any> {
+  const result: Record<string, any> = {}
+
+  for (const key of FORM_ITEM_KEYS) {
+    const kebab = key.replace(/[A-Z]/g, (ch) => `-${ch.toLowerCase()}`)
+    const value = raw[key] ?? raw[kebab]
+    if (value !== undefined) result[key] = value
+  }
+
+  return result
 }
 
 /**
@@ -44,14 +72,7 @@ export function useNodeInterceptor(): { getSlotsNodes: () => SlotRenderItem[] | 
       const field = props?.field as string | undefined
       const isFormItem = (type as any)?.name === 'UFormItem'
 
-      const formItemProps = o((props ?? {}) as Record<string, any>).pick([
-        'label',
-        'rules',
-        'span',
-        'tips',
-        'readonly',
-        'field'
-      ]) as Record<string, any>
+      const formItemProps = pickFormItemProps((props ?? {}) as Record<string, any>)
 
       let renderKey: string | number | symbol
       if (node.key != null) {
