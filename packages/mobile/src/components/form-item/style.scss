@@ -15,7 +15,8 @@ $form-controls: (
   '.um-multi-select',
   '.um-cascade',
   '.um-date-picker',
-  '.um-time-picker'
+  '.um-time-picker',
+  '.um-textarea'
 );
 
 @include m.b($root-name) {
@@ -95,6 +96,11 @@ $form-controls: (
     background-color: transparent;
     box-shadow: none;
     padding: 0;
+  }
+
+  // 文本域嵌入后与输入行左缘对齐：去原生左侧内边距，纵向保留行内呼吸空间
+  .um-textarea__native {
+    padding-left: 0;
   }
 
   .um-number-input__step button {
