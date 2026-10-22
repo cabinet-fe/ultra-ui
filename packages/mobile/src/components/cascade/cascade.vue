@@ -28,7 +28,7 @@
           {{ placeholder }}
         </span>
 
-        <div v-if="modelValues.length" :class="cls.e('tags')">
+        <div v-if="modelValues.length" ref="tagsRef" :class="cls.e('tags')">
           <span v-for="tag of tags" :key="tag.value" :class="cls.e('tag')">
             <span :class="cls.e('tag-label')">{{ tag.label }}</span>
 
@@ -188,6 +188,7 @@
 
 <script lang="ts" setup>
 import { Forest, dfs, o } from '@cat-kit/core'
+import { useResizeObserver } from '@veltra/compositions'
 import { ArrowDown, ArrowRight, Check, Close } from '@veltra/icons/normal'
 import { FORM_EMPTY_CONTENT, fieldKey, injectFormContext } from '@veltra/utils'
 import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
@@ -330,7 +331,46 @@ const allTagNodes = computed(() => {
     .filter((node): node is CascadeItem => !!node)
 })
 
-const tags = computed(() => allTagNodes.value.slice(0, maxVisible.value))
+/** 当前宽度内放得下的标签数：初值不设限，挂载后按实际宽度收敛 */
+const fitCount = shallowRef(Number.POSITIVE_INFINITY)
+
+const tagsRef = useTemplateRef<HTMLDivElement>('tagsRef')
+
+let measuring = false
+
+/** 是否存在被省略号截断的标签文本（截断则折叠进 +N，保证标签完整可读） */
+function hasTruncatedLabel(el: HTMLElement) {
+  return [...el.querySelectorAll<HTMLElement>('.um-cascade__tag-label')].some(
+    (label) => label.scrollWidth > label.clientWidth + 1
+  )
+}
+
+/** 先放开到上限，再逐个折叠到标签完整可读；空间不足时保底 1 个，其余计入 +N */
+async function measureFit() {
+  const el = tagsRef.value
+  if (!el || measuring) return
+  measuring = true
+  try {
+    if (fitCount.value !== maxVisible.value) {
+      fitCount.value = maxVisible.value
+      await nextTick()
+    }
+    while (hasTruncatedLabel(el) && fitCount.value > 1) {
+      fitCount.value -= 1
+      await nextTick()
+    }
+  } finally {
+    measuring = false
+  }
+}
+
+useResizeObserver({ targets: tagsRef, onResize: () => measureFit() })
+
+watch([allTagNodes, maxVisible, size, disabled, readonly, () => props.visibilityLimit], () =>
+  nextTick(measureFit)
+)
+
+const tags = computed(() => allTagNodes.value.slice(0, Math.min(maxVisible.value, fitCount.value)))
 
 const restTag = computed(() => modelValues.value.length - tags.value.length)
 

@@ -103,7 +103,14 @@ const multiple = shallowRef<string[]>(['330106', '330108'])
 const searched = shallowRef('')
 const leafOnly = shallowRef('330106')
 const form = shallowRef('320000/320100/320104')
-const formMultiple = shallowRef<string[]>(['330203'])
+const formMultiple = shallowRef<string[]>([
+  '330203',
+  '330205',
+  '330212',
+  '320102',
+  '320104',
+  '320106'
+])
 
 function onChange(item?: Record<string, any>, label?: string) {
   console.log('change', item, label)
