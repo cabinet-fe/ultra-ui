@@ -101,6 +101,7 @@ export const demoMeta: Record<string, DemoMeta> = {
   'mobile-badge': { zh: '徽标', en: 'Badge', category: 'mobile' },
   'mobile-button': { zh: '按钮', en: 'Button', category: 'mobile' },
   'mobile-card': { zh: '卡片', en: 'Card', category: 'mobile' },
+  'mobile-cascade': { zh: '级联选择器', en: 'Cascade', category: 'mobile' },
   'mobile-check-tag': { zh: '可选标签', en: 'CheckTag', category: 'mobile' },
   'mobile-checkbox': { zh: '复选框', en: 'Checkbox', category: 'mobile' },
   'mobile-checkbox-group': { zh: '复选框组', en: 'CheckboxGroup', category: 'mobile' },

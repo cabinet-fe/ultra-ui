@@ -1,0 +1,87 @@
+import type { TreeNode } from '@cat-kit/core'
+import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
+import type { CSSProperties } from 'vue'
+
+export interface CascadeNode<
+  Data extends Record<string, any> = Record<string, any>
+> extends TreeNode<Data, CascadeNode<Data>> {
+  visible: boolean
+  value: string
+  label: string
+}
+
+/** 级联选择器组件属性（移动端形态：面包屑 Tab + 底部面板） */
+export interface CascadeProps extends FormComponentProps {
+  /**
+   * 分隔符
+   * @default '/'
+   */
+  separator?: string
+  /** 数据值 */
+  modelValue?: string[] | string
+  /** 级联数据项的标签字段 */
+  labelKey?: string
+  /**
+   * 兜底展示文案
+   * @description 单选 modelValue 未命中数据时展示 text（如回显路径已不在选项中），命中时展示节点 label 路径
+   */
+  text?: string
+  /** 级联数据项的值字段 */
+  valueKey?: string
+  /** 占位符 */
+  placeholder?: string
+  /** 是否可清除 */
+  clearable?: boolean
+  /** 子级字段 */
+  childrenKey?: string
+  /** 严格模式：仅叶子节点提交，非叶子点击只展开下级 */
+  strict?: boolean
+  /**
+   * 是否展示/提交完整路径
+   * @default true
+   * false 时显示、modelValue、update:label 均只体现选中叶子节点
+   */
+  showFullPath?: boolean
+  /**
+   * 数据项
+   */
+  data?: Record<string, any>[]
+  /**
+   * 多选
+   */
+  multiple?: boolean
+  /**
+   * 搜索
+   */
+  filterable?: boolean
+  /** 触发器上最多展示的标签数，超出折叠为 +N */
+  visibilityLimit?: number
+  /** 底部面板内容容器样式 */
+  contentStyle?: CSSProperties | string
+  /** 底部面板内容容器类名 */
+  contentClass?: unknown
+}
+
+/** 级联选择器组件定义的事件 */
+export interface CascadeEmits {
+  /** 触发更新 label 事件 */
+  (e: 'update:label', label?: string | string[]): void
+  (e: 'update:modelValue', value?: string | string[]): void
+  (
+    e: 'change',
+    items: (Record<string, any> & { fullLabel?: string })[],
+    fullLabels?: string[]
+  ): void
+  (
+    e: 'change',
+    item: (Record<string, any> & { fullLabel?: string }) | undefined,
+    fullLabel?: string
+  ): void
+  (e: 'clear'): void
+}
+
+/** 级联选择器组件暴露的属性和方法(组件内部使用) */
+export interface _CascadeExposed {}
+
+/** 级联选择器组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
+export type CascadeExposed = DeconstructValue<_CascadeExposed>

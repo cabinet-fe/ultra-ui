@@ -1,0 +1,424 @@
+@use 'pkg:@veltra/styles/mixins' as m with (
+  $namespace: um
+);
+@use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
+
+$root-name: cascade;
+
+@include m.b($root-name) {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  gap: t.use-var('spacing-sm');
+  padding: 0 t.use-var('spacing-md');
+  border: fn.use-var(border);
+  border-radius: t.control-radius(default);
+  background-color: fn.use-var(bg-color, top);
+  color: fn.use-var(text-color, main);
+  font-size: t.use-var('font-size-main');
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+    box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+  // 触控热区：任何尺寸的可点击区域不小于 44×44，高度走移动端密度 token
+  @include m.size using ($size) {
+    min-height: max(t.control-height($size), t.use-var('touch-target'));
+  }
+
+  &:active {
+    border-color: fn.use-var(color, primary);
+  }
+
+  &:focus-visible {
+    box-shadow: fn.use-var(focus-ring);
+  }
+
+  @include m.is(active) {
+    border-color: fn.use-var(color, primary);
+
+    @include m.bem($root-name, arrow) {
+      transform: rotate(180deg);
+    }
+  }
+
+  @include m.is(disabled) {
+    cursor: not-allowed;
+    color: fn.use-var(text-color, disabled);
+    background-color: fn.use-var(bg-color, middle);
+
+    @include m.bem($root-name, arrow) {
+      color: fn.use-var(text-color, disabled);
+    }
+  }
+
+  @include m.e(value) {
+    flex: 1;
+    min-width: 0;
+    @include m.ellipsis;
+
+    @include m.is(placeholder) {
+      color: fn.use-var(text-color, placeholder);
+    }
+  }
+
+  // 触发器标签：单行呈现，超出由标签省略与 +N 计数兜底，不撑高表单行
+  @include m.e(tags) {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: t.use-var('spacing-xs');
+    overflow: hidden;
+  }
+
+  // 只读态是纯展示（无 +N 计数兜底）：恢复换行并补纵向呼吸空间，不裁剪标签
+  &.is-readonly {
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: default;
+
+    @include m.bem($root-name, tags) {
+      flex-wrap: wrap;
+      overflow: visible;
+      padding-block: t.use-var('spacing-xs');
+    }
+  }
+
+  @include m.e(tag) {
+    display: inline-flex;
+    align-items: center;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: t.use-var('spacing-xs') t.use-var('spacing-sm');
+    border-radius: t.control-radius(small);
+    background-color: fn.use-var(bg-color, middle);
+    color: fn.use-var(text-color, main);
+    font-size: t.use-var('font-size-secondary');
+
+    @include m.is(rest) {
+      flex-shrink: 0;
+      color: fn.use-var(text-color, second);
+      background-color: fn.use-var(bg-color, middle);
+    }
+  }
+
+  @include m.e(tag-label) {
+    min-width: 0;
+    @include m.ellipsis;
+  }
+
+  @include m.e(tag-close) {
+    // 关闭热区外扩补足（≥44×44 过大会挤占标签，取折中值并扩大点击域）
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    margin-left: t.use-var('spacing-xs');
+    // 外扩量与 spacing-xs 同源，收回关闭钮在标签内边距中的占位
+    margin-right: calc(-1 * #{t.use-var('spacing-xs')});
+    border: none;
+    background: none;
+    padding: 0;
+    font-size: t.use-var('font-size-auxiliary');
+    color: fn.use-var(text-color, second);
+    cursor: pointer;
+
+    // 扩大点击域，不占据布局空间
+    &::before {
+      content: '';
+      position: absolute;
+      inset: -12px;
+    }
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+
+    &:active {
+      color: fn.use-var(text-color, title);
+    }
+  }
+
+  @include m.e(icons) {
+    display: inline-flex;
+    align-items: center;
+    align-self: stretch;
+    flex-shrink: 0;
+  }
+
+  @include m.e(clear) {
+    // 清除热区 ≥44×44（高度受行高约束，用外扩补足）
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: t.use-var('touch-target');
+    min-height: t.use-var('touch-target');
+    // 热区外扩量（spacing-sm）：补偿清除钮居中图标的两侧留白，不挤压视觉边距
+    margin: calc(-1 * #{t.use-var('spacing-sm')}) calc(-1 * #{t.use-var('spacing-sm')})
+      calc(-1 * #{t.use-var('spacing-sm')}) 0;
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: t.use-var('font-size-main');
+    color: fn.use-var(text-color, second);
+    cursor: pointer;
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+
+    &:active {
+      color: fn.use-var(text-color, title);
+    }
+  }
+
+  @include m.e(arrow) {
+    // 箭头热区 ≥44×44：随行高拉伸、宽度不小于触控热区下限
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    min-width: t.use-var('touch-target');
+    color: fn.use-var(text-color, second);
+    font-size: t.use-var('font-size-secondary');
+    transition: transform fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  // 面板头部（取消 / 标题 / 确定）：操作钮热区外扩量与 spacing-sm 同源
+  @include m.e(cancel, confirm) {
+    flex-shrink: 0;
+    min-width: t.use-var('touch-target');
+    min-height: t.use-var('touch-target');
+    margin: calc(-1 * #{t.use-var('spacing-sm')}) 0;
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: t.use-var('font-size-main');
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  @include m.e(cancel) {
+    margin-left: calc(-1 * #{t.use-var('spacing-sm')});
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(confirm) {
+    margin-right: calc(-1 * #{t.use-var('spacing-sm')});
+    font-weight: 600;
+    color: fn.use-var(color, primary);
+  }
+
+  @include m.e(title) {
+    flex: 1;
+    min-width: 0;
+    font-size: t.use-var('font-size-title');
+    font-weight: 600;
+    color: fn.use-var(text-color, title);
+    text-align: center;
+    @include m.ellipsis;
+  }
+
+  // 面板内搜索行
+  @include m.e(search) {
+    padding: t.use-var('spacing-sm') 0;
+  }
+
+  @include m.e(search-input) {
+    // 字号 ≥16px（placeholder 继承同字号）：iOS Safari 聚焦不触发页面缩放
+    width: 100%;
+    box-sizing: border-box;
+    min-height: t.use-var('touch-target');
+    padding: 0 t.use-var('spacing-md');
+    border: fn.use-var(border);
+    border-radius: t.control-radius(default);
+    background-color: fn.use-var(bg-color, middle);
+    color: fn.use-var(text-color, main);
+    font-size: t.use-var('font-size-main');
+    outline: none;
+    -webkit-appearance: none;
+
+    &::placeholder {
+      color: fn.use-var(text-color, placeholder);
+    }
+
+    &:focus {
+      border-color: fn.use-var(color, primary);
+    }
+  }
+
+  // 面包屑层级：可横向滚动，点任意一级回跳
+  @include m.e(tabs) {
+    display: flex;
+    align-items: stretch;
+    gap: t.use-var('spacing-sm');
+    margin-bottom: t.use-var('spacing-sm');
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  @include m.e(tab) {
+    position: relative;
+    flex-shrink: 0;
+    min-height: t.use-var('touch-target');
+    padding: 0;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: fn.use-var(text-color, second);
+    font-size: t.use-var('font-size-main');
+    white-space: nowrap;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    @include m.is(active) {
+      border-bottom-color: fn.use-var(color, primary);
+      color: fn.use-var(color, primary);
+      font-weight: 600;
+    }
+  }
+
+  // 选项列表
+  @include m.e(options) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: t.use-var('spacing-xs');
+  }
+
+  @include m.e(option) {
+    // 选项整行热区 ≥44×44
+    display: flex;
+    align-items: center;
+    min-height: t.use-var('touch-target');
+    gap: t.use-var('spacing-md');
+    padding: 0 t.use-var('spacing-md');
+    border-radius: t.control-radius(default);
+    color: fn.use-var(text-color, main);
+    user-select: none;
+    cursor: pointer;
+
+    &:active {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    // 选中态：底色强调 + 对钩
+    @include m.is(active) {
+      color: fn.component-var(cascade, option-selected-color, fn.use-var(color, primary));
+      font-weight: 600;
+      background-color: fn.component-var(
+        cascade,
+        option-selected-bg,
+        fn.use-var(color, primary, light-9)
+      );
+
+      &:active {
+        background-color: fn.use-var(color, primary, light-7);
+      }
+    }
+  }
+
+  @include m.e(option-main) {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    padding-block: t.use-var('spacing-sm');
+  }
+
+  @include m.e(option-label) {
+    flex: 1;
+    min-width: 0;
+    @include m.ellipsis;
+  }
+
+  @include m.e(option-path) {
+    min-width: 0;
+    color: fn.use-var(text-color, second);
+    font-size: t.use-var('font-size-auxiliary');
+    font-weight: 400;
+    @include m.ellipsis;
+  }
+
+  // 勾选框视觉（内部实现，非 checkbox 组件）：20px 下限与 checkbox 指示器同规格
+  @include m.e(checkbox) {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border: 1px solid fn.use-var(border-color);
+    border-radius: t.control-radius(small);
+    color: fn.use-var(text-color, white);
+    font-size: t.use-var('font-size-secondary');
+    transition:
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      border-color fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: -12px;
+    }
+
+    @include m.is(checked) {
+      border-color: fn.use-var(color, primary);
+      background-color: fn.use-var(color, primary);
+    }
+  }
+
+  @include m.e(arrow-right, check) {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    font-size: t.use-var('font-size-main');
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  @include m.e(arrow-right) {
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(check) {
+    color: fn.use-var(color, primary);
+  }
+
+  @include m.e(empty) {
+    padding: t.use-var('spacing-lg') 0;
+    text-align: center;
+    color: fn.use-var(text-color, second);
+  }
+}
