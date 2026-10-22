@@ -25,6 +25,8 @@ $size-font: (
     display: inline-flex;
     justify-content: center;
     align-items: center;
+    // sup 不在全局 border-box 名单内，需自带，min-width 才能含左右 padding 计入宽度
+    box-sizing: border-box;
     background-color: fn.use-var(color, danger);
     // 胶囊圆角：远大于自身高度，保证两端全圆
     border-radius: 999px;
@@ -33,6 +35,8 @@ $size-font: (
     @include m.is(dot) {
       height: t.use-var(spacing-sm);
       width: t.use-var(spacing-sm);
+      // 尺寸档的 min-width 会让圆点撑成椭圆，圆点固定宽高需归零
+      min-width: 0;
       padding: 0;
       border-radius: 50%;
     }
@@ -51,6 +55,8 @@ $size-font: (
     font-size: $font;
     // 高度随字号伸缩：字号 + 上下合计 8px 呼吸空间
     height: calc(#{$font} + #{t.use-var(spacing-sm)});
+    // 个位数角标呈正圆：最小宽度等于高度；多位数向两侧撑开为胶囊
+    min-width: calc(#{$font} + #{t.use-var(spacing-sm)});
     padding: 0 t.use-var(spacing-xs);
   }
 }
