@@ -1,11 +1,5 @@
 # @veltra/sheet
 
-## 4.1.4
-
-### Patch Changes
-
-- ab74627: 更新 `infinitable` 依赖至 `^0.3.4`。
-
 ## 4.1.3
 
 ### Patch Changes

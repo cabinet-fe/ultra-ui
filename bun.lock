@@ -109,7 +109,7 @@
         "@veltra/icons": "^1.5.0",
         "@veltra/styles": "^1.7.14",
         "@veltra/utils": "^1.7.14",
-        "infinitable": "^0.3.4",
+        "infinitable": "^0.2.4",
         "vue": ">=3.5.44",
       },
       "optionalPeers": [
@@ -153,7 +153,7 @@
     },
     "packages/sheet": {
       "name": "@veltra/sheet",
-      "version": "4.1.4",
+      "version": "4.1.3",
       "peerDependencies": {
         "@cat-kit/core": ">=1.2.1",
         "@cat-kit/fe": ">=1.2.1",
@@ -161,7 +161,7 @@
         "@veltra/icons": "^1.5.0",
         "@veltra/styles": "^1.7.14",
         "@veltra/utils": "^1.7.14",
-        "infinitable": "^0.3.4",
+        "infinitable": "^0.2.4",
         "vue": ">=3.5.44",
       },
     },
@@ -214,7 +214,7 @@
         "@veltra/sheet": "workspace:*",
         "@veltra/styles": "workspace:*",
         "@veltra/utils": "workspace:*",
-        "infinitable": "^0.3.4",
+        "infinitable": "^0.2.4",
         "vue": "^3.5.44",
         "vue-router": "^5.4.0",
       },
@@ -864,7 +864,7 @@
 
     "import-meta-resolve": ["import-meta-resolve@4.2.0", "https://mirrors.tencent.com/npm/import-meta-resolve/-/import-meta-resolve-4.2.0.tgz", {}, "sha512-Iqv2fzaTQN28s/FwZAoFq0ZSs/7hMAHJVX+w8PZl3cY19Pxk6jFFalxQoIfW2826i/fDLXv8IiEZRIT0lDuWcg=="],
 
-    "infinitable": ["infinitable@0.3.4", "https://mirrors.tencent.com/npm/infinitable/-/infinitable-0.3.4.tgz", { "peerDependencies": { "@cat-kit/core": "^1.2.1" } }, "sha512-xO7K3Cq1Id+185Lak4x0WcN2YiDQlYiIDSD7sHCuvkKE2AzB7HcorhxdNK1QUC8z3wsmslylyyk1MpfYWw0erg=="],
+    "infinitable": ["infinitable@0.2.4", "https://mirrors.tencent.com/npm/infinitable/-/infinitable-0.2.4.tgz", { "peerDependencies": { "@cat-kit/core": "^1.2.1" } }, "sha512-sqzY2je60cf/UVBTgyaRNDUYYCe8TH38uGr76kqMLNlKPswiqIp/1emL9ztkgHhrPCddJHOiFLjyo8h7UWdJng=="],
 
     "inherits": ["inherits@2.0.4", "https://mirrors.tencent.com/npm/inherits/-/inherits-2.0.4.tgz", {}, "sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ=="],
 
