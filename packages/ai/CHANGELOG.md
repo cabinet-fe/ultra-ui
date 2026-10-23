@@ -1,5 +1,11 @@
 # @veltra/ai
 
+## 2.3.1
+
+### Patch Changes
+
+- ab74627: 更新 `markstream-vue` 依赖至 `^2.0.20`。
+
 ## 2.3.0
 
 ### Minor Changes

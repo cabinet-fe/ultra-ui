@@ -1,5 +1,9 @@
 # @veltra/styles
 
+## 1.15.2
+
+No changes in this release.
+
 ## 1.15.1
 
 ### Patch Changes
