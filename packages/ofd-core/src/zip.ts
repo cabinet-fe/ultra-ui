@@ -1,4 +1,5 @@
 import { OfdParseError } from './error'
+import { inflateRaw as inflateRawSync } from './inflate'
 
 const EOCD_SIGNATURE = 0x06054b50
 const CEN_SIGNATURE = 0x02014b50
@@ -105,7 +106,7 @@ function readEntry(
   const start = entryDataStart(data, view, record)
   const compressed = data.subarray(start, start + record.compressedSize)
   if (record.method === STORED_METHOD) return Promise.resolve(compressed)
-  if (record.method === DEFLATE_METHOD) return inflateRaw(compressed, name)
+  if (record.method === DEFLATE_METHOD) return inflateRaw(compressed, name, record.size)
   return Promise.reject(
     new OfdParseError(
       'unsupported-compression',
@@ -134,8 +135,38 @@ function entryDataStart(data: Uint8Array, view: DataView, record: ZipEntryRecord
   return start
 }
 
-/** 用原生 DecompressionStream 解压 deflate-raw 数据 */
-async function inflateRaw(compressed: Uint8Array, name: string): Promise<Uint8Array> {
+/** DecompressionStream('deflate-raw') 可用性结果缓存 */
+let nativeRawSupported: boolean | undefined
+
+function supportsNativeRawInflate(): boolean {
+  if (nativeRawSupported === undefined) {
+    nativeRawSupported = false
+    if (typeof DecompressionStream === 'function') {
+      try {
+        // 构造即校验：Chrome 102 及以下对 deflate-raw 直接抛 TypeError（gzip/deflate 不受影响）
+        new DecompressionStream('deflate-raw')
+        nativeRawSupported = true
+      } catch {
+        // 走内置解码
+      }
+    }
+  }
+  return nativeRawSupported
+}
+
+/** 解压 deflate-raw 条目：优先原生 DecompressionStream（Chrome 103+），否则内置解码兜底 */
+async function inflateRaw(
+  compressed: Uint8Array,
+  name: string,
+  sizeHint: number
+): Promise<Uint8Array> {
+  if (!supportsNativeRawInflate()) {
+    try {
+      return inflateRawSync(compressed, sizeHint)
+    } catch (cause) {
+      throw new OfdParseError('truncated', `条目 ${name} 的 deflate 数据无法解压`, { cause })
+    }
+  }
   try {
     const stream = new ReadableStream({
       start(controller) {

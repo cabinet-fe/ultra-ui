@@ -149,6 +149,7 @@ async function renderPage(index: number, token: number) {
   } catch (err) {
     if (token !== loadToken) return
     pages.value[index] = { ...page, svg: '' }
+    console.error('UFileViewer OFD 页面渲染失败：', err)
     emit('error', err)
   }
 }
@@ -192,6 +193,7 @@ async function load() {
   } catch (err) {
     if (token !== loadToken) return
     if ((err as { name?: string })?.name === 'AbortError') return
+    console.error('UFileViewer OFD 解析失败：', err)
     emit('error', err)
   } finally {
     if (token === loadToken) loading.value = false
