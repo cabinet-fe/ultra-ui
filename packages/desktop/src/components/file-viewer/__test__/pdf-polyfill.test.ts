@@ -14,6 +14,10 @@ describe('pdf-polyfill', () => {
     expect(typeof (Uint8Array as unknown as { fromBase64?: unknown }).fromBase64).toBe('function')
     expect(typeof Map.prototype.getOrInsert).toBe('function')
     expect(typeof Map.prototype.getOrInsertComputed).toBe('function')
+    expect(typeof WeakMap.prototype.getOrInsert).toBe('function')
+    expect(typeof WeakMap.prototype.getOrInsertComputed).toBe('function')
+    expect(typeof Math.sumPrecise).toBe('function')
+    expect(typeof ArrayBuffer.prototype.transferToFixedLength).toBe('function')
   })
 
   describe('Promise.withResolvers', () => {
@@ -169,6 +173,85 @@ describe('pdf-polyfill', () => {
       expect(first).toBe(second)
       expect(first).toEqual(['k'])
       expect(calls).toEqual(['k'])
+    })
+  })
+
+  describe('WeakMap upsert', () => {
+    it('getOrInsert 已有键返回旧值，新键插入并返回', () => {
+      const weak = new WeakMap<object, number>()
+      const a = { id: 'a' }
+      const b = { id: 'b' }
+      expect(weak.getOrInsert(a, 1)).toBe(1)
+      expect(weak.getOrInsert(a, 2)).toBe(1)
+      expect(weak.getOrInsert(b, 3)).toBe(3)
+      expect(weak.get(a)).toBe(1)
+    })
+
+    it('getOrInsertComputed 仅在新键时调用回调', () => {
+      const weak = new WeakMap<object, number[]>()
+      const key = { id: 'k' }
+      const calls: object[] = []
+      const first = weak.getOrInsertComputed(key, (k) => {
+        calls.push(k)
+        return [k]
+      })
+      const second = weak.getOrInsertComputed(key, (k) => {
+        calls.push(k)
+        return [k]
+      })
+      expect(first).toBe(second)
+      expect(first).toEqual([key])
+      expect(calls).toEqual([key])
+    })
+  })
+
+  describe('Math.sumPrecise', () => {
+    // TS 6.0 lib 尚无 Math.sumPrecise 类型，按本文件 URL.parse 先例 cast 调用
+    const sumPrecise = (Math as unknown as { sumPrecise: (numbers: Iterable<number>) => number })
+      .sumPrecise
+
+    it('整数求和（pdfjs 字节长度场景）', () => {
+      expect(sumPrecise([12, 34, 56])).toBe(102)
+      expect(sumPrecise(new Set([1, 2, 3]))).toBe(6)
+      expect(sumPrecise([])).toBe(-0)
+    })
+
+    it('补偿求和修正大数吃小数', () => {
+      // 朴素累加得 0，规范（含补偿实现）应为 1
+      expect(sumPrecise([1e16, 1, -1e16])).toBe(1)
+    })
+
+    it('NaN 随求和传播', () => {
+      expect(sumPrecise([1, Number.NaN])).toBeNaN()
+    })
+
+    it('非 number 值抛 TypeError', () => {
+      expect(() => sumPrecise(['1' as unknown as number])).toThrow(TypeError)
+    })
+  })
+
+  describe('ArrayBuffer.prototype.transferToFixedLength', () => {
+    it('收缩到指定长度并保留前缀内容', () => {
+      const source = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]).buffer
+      const transferred = source.transferToFixedLength(4)
+      expect(transferred.byteLength).toBe(4)
+      expect([...new Uint8Array(transferred)]).toEqual([1, 2, 3, 4])
+    })
+
+    it('省略 newLength 时保持原长度', () => {
+      const transferred = new Uint8Array([9, 8, 7]).buffer.transferToFixedLength()
+      expect(transferred.byteLength).toBe(3)
+      expect([...new Uint8Array(transferred)]).toEqual([9, 8, 7])
+    })
+
+    it('newLength 大于当前长度时补零扩张', () => {
+      const transferred = new Uint8Array([1, 2]).buffer.transferToFixedLength(4)
+      expect(transferred.byteLength).toBe(4)
+      expect([...new Uint8Array(transferred)]).toEqual([1, 2, 0, 0])
+    })
+
+    it('负数 newLength 抛 RangeError', () => {
+      expect(() => new ArrayBuffer(8).transferToFixedLength(-1)).toThrow(RangeError)
     })
   })
 })

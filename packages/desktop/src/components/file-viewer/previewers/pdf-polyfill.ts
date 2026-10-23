@@ -1,5 +1,5 @@
 /**
- * Chrome 103 缺失 API 的手写 shim（cooking spec 决策 4）。
+ * 目标内核 Chrome 102 缺失 API 的手写 shim（cooking spec 决策 4）。
  * 仅供 import 副作用：须先于 pdfjs-dist 代码求值（主线程 chunk 顶部 / worker wrapper 首条 import）。
  * 各 API 已存在时不覆盖，可安全重复引入。
  */
@@ -45,7 +45,7 @@ if (typeof Set.prototype.intersection !== 'function') {
 }
 
 // Iterator 全局：Chrome 122 随 iterator helpers 落地。pdfjs-dist 产物顶层执行
-// typeof Iterator.prototype.join，Chrome 103 无该全局会直接 ReferenceError。
+// typeof Iterator.prototype.join，Chrome 102 无该全局会直接 ReferenceError。
 // 原型取内建 %IteratorPrototype%，pdfjs 追加的原型方法对全部内建迭代器可见；
 // Chrome 122+ 存在原生 Iterator，本 shim 为空操作。
 if ((globalThis as { Iterator?: unknown }).Iterator === undefined) {
@@ -124,8 +124,9 @@ if (typeof Uint8ArrayCtor.fromBase64 !== 'function') {
   }
 }
 
-// Map upsert（getOrInsert / getOrInsertComputed）：Chrome 139 引入。
-// pdfjs-dist 在主线程与 worker 中大量使用，以回调惰性初始化缓存 Map。
+// Map / WeakMap upsert（getOrInsert / getOrInsertComputed）：Chrome 139 引入。
+// pdfjs-dist 在主线程与 worker 中大量使用，以回调惰性初始化缓存；
+// worker 产物里 systemFontCache 一类缓存建立在 WeakMap 上，两个原型都要补。
 const MapProto = Map.prototype as unknown as {
   getOrInsert?: <K, V>(this: Map<K, V>, key: K, value: V) => V
   getOrInsertComputed?: <K, V>(this: Map<K, V>, key: K, callbackfn: (key: K) => V) => V
@@ -146,5 +147,85 @@ if (typeof MapProto.getOrInsertComputed !== 'function') {
   ): V {
     if (!this.has(key)) this.set(key, callbackfn(key))
     return this.get(key) as V
+  }
+}
+
+const WeakMapProto = WeakMap.prototype as unknown as {
+  getOrInsert?: <K extends object, V>(this: WeakMap<K, V>, key: K, value: V) => V
+  getOrInsertComputed?: <K extends object, V>(
+    this: WeakMap<K, V>,
+    key: K,
+    callbackfn: (key: K) => V
+  ) => V
+}
+
+if (typeof WeakMapProto.getOrInsert !== 'function') {
+  WeakMapProto.getOrInsert = function getOrInsert<K extends object, V>(
+    this: WeakMap<K, V>,
+    key: K,
+    value: V
+  ): V {
+    if (!this.has(key)) this.set(key, value)
+    return this.get(key) as V
+  }
+}
+
+if (typeof WeakMapProto.getOrInsertComputed !== 'function') {
+  WeakMapProto.getOrInsertComputed = function getOrInsertComputed<K extends object, V>(
+    this: WeakMap<K, V>,
+    key: K,
+    callbackfn: (key: K) => V
+  ): V {
+    if (!this.has(key)) this.set(key, callbackfn(key))
+    return this.get(key) as V
+  }
+}
+
+// Math.sumPrecise：Chrome 138 引入，对可迭代数字做高精度求和。pdfjs-dist 在字体
+// 编译路径（compileFontInfo 等）用它累计结构化 buffer 的字节长度，Chrome 102 上
+// 该路径 TypeError 会让整页 GetOperatorList 失败。Neumaier 补偿求值在整数与常规
+// 浮点输入上与规范一致；极端浮点分布至多 1 ulp 偏差，对字节长度求和无影响。
+const MathCtor = Math as unknown as { sumPrecise?: (numbers: Iterable<number>) => number }
+
+if (typeof MathCtor.sumPrecise !== 'function') {
+  MathCtor.sumPrecise = function sumPrecise(numbers: Iterable<number>): number {
+    let sum = 0
+    let compensation = 0
+    let count = 0
+    for (const value of numbers) {
+      if (typeof value !== 'number') {
+        throw new TypeError('Math.sumPrecise: values must be numbers')
+      }
+      const next = sum + value
+      if (Math.abs(sum) >= Math.abs(value)) compensation += sum - next + value
+      else compensation += value - next + sum
+      sum = next
+      count++
+    }
+    return count === 0 ? -0 : sum + compensation
+  }
+}
+
+// ArrayBuffer.prototype.transferToFixedLength：Chrome 114 引入，把缓冲收缩（或补零
+// 扩张）到指定长度并返回新 buffer。pdfjs-dist 字体编译收尾（compileFontInfo /
+// compileSystemFontInfo）用它把估算容量收敛为实际长度，Chrome 102 上缺失同样导致
+// GetOperatorList 整页失败。用 slice 模拟，内容等价；差异是原 buffer 不会被
+// detach（pdf.js 只消费返回值，原 buffer 随即不可达，仅延迟一份内存回收）。
+const ArrayBufferProto = ArrayBuffer.prototype as unknown as {
+  transferToFixedLength?: (newLength?: number) => ArrayBuffer
+}
+
+if (typeof ArrayBufferProto.transferToFixedLength !== 'function') {
+  ArrayBufferProto.transferToFixedLength = function transferToFixedLength(
+    this: ArrayBuffer,
+    newLength?: number
+  ): ArrayBuffer {
+    const target = newLength ?? this.byteLength
+    if (target < 0) throw new RangeError('transferToFixedLength: newLength is negative')
+    if (target <= this.byteLength) return this.slice(0, target)
+    // newLength 大于当前长度：新缓冲多出的部分按规范补零
+    const grown = new ArrayBuffer(target)
+    new Uint8Array(grown).set(new Uint8Array(this))
+    return grown
   }
 }

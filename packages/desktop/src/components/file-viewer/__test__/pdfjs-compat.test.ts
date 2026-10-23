@@ -3,18 +3,18 @@ import { fileURLToPath } from 'node:url'
 
 import { describe, expect, it } from 'vite-plus/test'
 
-/** Chrome 103 缺失且 pdfjs-dist 可能使用的 API 条目 */
+/** 目标内核 Chrome 102 缺失且 pdfjs-dist 可能使用的 API 条目 */
 export interface MissingApiEntry {
   /** API 名，用于失败信息 */
   name: string
   /** 产物文本中检测「是否使用」的模式 */
   usage: RegExp
-  /** polyfill 源码中检测「是否已覆盖」的模式 */
-  polyfill: RegExp
+  /** polyfill 源码中检测「是否已覆盖」的模式；多条时须全部命中 */
+  polyfill: RegExp | RegExp[]
 }
 
 /**
- * 已知 Chrome 103 缺失的 API 清单（cooking spec 决策 4/7）。
+ * 已知 Chrome 102 缺失的 API 清单（cooking spec 决策 4/7）。
  * 升级 pdfjs-dist 后重跑本扫描；追加新条目时须同步在 pdf-polyfill.ts 补 shim。
  */
 export const CHROME103_MISSING_APIS: MissingApiEntry[] = [
@@ -51,9 +51,15 @@ export const CHROME103_MISSING_APIS: MissingApiEntry[] = [
     polyfill: /Uint8ArrayCtor\.fromBase64\s*=/
   },
   {
-    name: 'Map upsert（getOrInsert / getOrInsertComputed）',
+    name: 'Map / WeakMap upsert（getOrInsert / getOrInsertComputed）',
     usage: /\.(?:getOrInsertComputed|getOrInsert)\s*\(/,
-    polyfill: /MapProto\.getOrInsert\s*=/
+    polyfill: [/MapProto\.getOrInsert\s*=/, /WeakMapProto\.getOrInsert\s*=/]
+  },
+  { name: 'Math.sumPrecise', usage: /Math\.sumPrecise\s*\(/, polyfill: /MathCtor\.sumPrecise\s*=/ },
+  {
+    name: 'ArrayBuffer.prototype.transferToFixedLength',
+    usage: /\.transferToFixedLength\s*\(/,
+    polyfill: /ArrayBufferProto\.transferToFixedLength\s*=/
   }
 ]
 
@@ -80,13 +86,16 @@ const artifacts = [
 ]
 const polyfillSource = readText('../previewers/pdf-polyfill.ts')
 
-describe('pdfjs Chrome 103 API 兼容扫描', () => {
+describe('pdfjs Chrome 102 API 兼容扫描', () => {
   it('清单中每个 API 均已被 pdf-polyfill 覆盖', () => {
     for (const api of CHROME103_MISSING_APIS) {
-      expect(
-        polyfillSource,
-        `${api.name} 未被 pdf-polyfill 覆盖：清单条目须与 polyfill shim 同步维护`
-      ).toMatch(api.polyfill)
+      const patterns = Array.isArray(api.polyfill) ? api.polyfill : [api.polyfill]
+      for (const pattern of patterns) {
+        expect(
+          polyfillSource,
+          `${api.name} 未被 pdf-polyfill 覆盖：清单条目须与 polyfill shim 同步维护`
+        ).toMatch(pattern)
+      }
     }
   })
 
@@ -96,10 +105,13 @@ describe('pdfjs Chrome 103 API 兼容扫描', () => {
         .filter((artifact) => api.usage.test(artifact.text))
         .map((artifact) => artifact.label)
       if (usedIn.length === 0) continue
-      expect(
-        polyfillSource,
-        `${api.name} 被产物使用（${usedIn.join('、')}）但未被 polyfill 覆盖`
-      ).toMatch(api.polyfill)
+      const patterns = Array.isArray(api.polyfill) ? api.polyfill : [api.polyfill]
+      for (const pattern of patterns) {
+        expect(
+          polyfillSource,
+          `${api.name} 被产物使用（${usedIn.join('、')}）但未被 polyfill 覆盖`
+        ).toMatch(pattern)
+      }
     }
   })
 

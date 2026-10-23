@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts" setup>
-// 懒加载 chunk 首条 import：保证 polyfill 先于 pdfjs 主线程代码求值（Chrome 103）
+// 懒加载 chunk 首条 import：保证 polyfill 先于 pdfjs 主线程代码求值（Chrome 102）
 import './pdf-polyfill'
 import { bem, withUnit } from '@veltra/utils'
 import { getDocument, PDFWorker, RenderingCancelledException } from 'pdfjs-dist'
@@ -401,7 +401,7 @@ function load() {
   let pw: PDFWorker
   let task: PDFDocumentLoadingTask
   try {
-    // worker 产物由构建工具随 dist 分发（首模块为 Chrome 103 polyfill + 内联 pdf.worker）
+    // worker 产物由构建工具随 dist 分发（首模块为 Chrome 102 polyfill + 内联 pdf.worker）
     w = new Worker(new URL('./pdf-worker-wrapper.js', import.meta.url), { type: 'module' })
     pw = new PDFWorker({ port: w })
     task = getDocument({ url: r.url, worker: pw, ...assets })
