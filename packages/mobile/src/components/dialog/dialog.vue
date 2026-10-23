@@ -3,7 +3,7 @@
     <transition name="fade" appear @enter="onOverlayEnter" @after-leave="onOverlayLeave">
       <div
         v-if="overlayVisible"
-        :class="[cls.e('overlay'), bem.is('modal', modal)]"
+        :class="[cls.e('overlay'), bem.is('modal', modal), bem.is('fullscreen', fullscreen)]"
         :style="{ zIndex: overlayZIndex }"
         @click="modal && close()"
       >

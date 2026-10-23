@@ -22,6 +22,11 @@ $dialog-max-width: 320px;
     background-color: rgba(0, 0, 0, 0.32);
     pointer-events: auto;
   }
+
+  @include m.is(fullscreen) {
+    // 全屏去留白：卡片铺满到屏幕边缘，方角由设备屏幕圆角（真机硬件 / 外壳）裁剪
+    padding: 0;
+  }
 }
 
 @include m.b($root-name) {
