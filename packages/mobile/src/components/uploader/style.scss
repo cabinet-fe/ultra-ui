@@ -1,0 +1,220 @@
+@use 'pkg:@veltra/styles/mixins' as m with ($namespace: um);
+@use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
+
+$root-name: uploader;
+
+@include m.b($root-name) {
+  @include m.size using ($size) {
+    @include m.bem($root-name, item) {
+      width: t.uploader-size($size);
+      height: t.uploader-size($size);
+    }
+  }
+
+  @include m.e(list) {
+    @include m.flex;
+    flex-wrap: wrap;
+    gap: t.use-var('spacing-sm');
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @include m.e(item) {
+    position: relative;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    border-radius: t.control-radius(default);
+    overflow: hidden;
+  }
+
+  @include m.e(thumb) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    cursor: pointer;
+  }
+
+  @include m.e(file) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: t.use-var('spacing-xs');
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: t.use-var('spacing-xs');
+    background-color: fn.use-var(color, default, light-9);
+    cursor: pointer;
+  }
+
+  @include m.e(file-badge) {
+    @include m.flex(inline-flex);
+    justify-content: center;
+    padding: 1px t.use-var('spacing-xs');
+    border-radius: t.control-radius(small);
+    color: fn.use-var(text-color, white);
+    font-size: t.use-var('font-size-auxiliary');
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  @include m.e(file-name) {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: fn.use-var(text-color, second);
+    font-size: t.use-var('font-size-auxiliary');
+    line-height: 1.2;
+  }
+
+  @include m.is(failed) {
+    @include m.bem($root-name, file) {
+      border: fn.use-var(border, width) fn.use-var(border, style) fn.use-var(color, danger);
+    }
+  }
+
+  @include m.e(mask) {
+    // 上传中遮罩压暗主题无关，直接写 rgba（同 dialog overlay 处理）
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.45);
+  }
+
+  @include m.e(spinner) {
+    width: calc(#{t.use-var('loading-indicator')} / 2);
+    aspect-ratio: 1;
+    box-sizing: border-box;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: rgba(255, 255, 255, 0.95);
+    border-radius: 50%;
+    animation: um-uploader-spin 0.8s linear infinite;
+  }
+
+  @include m.e(remove) {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: t.use-var('spacing-xl');
+    height: t.use-var('spacing-xl');
+    padding: 0;
+    border: none;
+    border-bottom-left-radius: t.control-radius(small);
+    background-color: rgba(0, 0, 0, 0.55);
+    color: fn.use-var(text-color, white);
+    font-size: t.use-var('font-size-auxiliary');
+    line-height: 1;
+    cursor: pointer;
+
+    & > svg {
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  @include m.e(trigger) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 0;
+    border: fn.use-var(border, width) dashed fn.use-var(border, muted-color);
+    border-radius: t.control-radius(default);
+    background-color: fn.use-var(color, default, light-9);
+    color: fn.use-var(text-color, assist);
+    font-size: t.use-var('font-size-title');
+    cursor: pointer;
+    transition:
+      border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      color fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    &:active {
+      border-color: fn.use-var(color, primary);
+      color: fn.use-var(color, primary);
+    }
+
+    & > svg {
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  @include m.is(disabled) {
+    @include m.bem($root-name, trigger) {
+      border-color: fn.use-var(border, muted-color);
+      background-color: fn.use-var(color, disabled);
+      color: fn.use-var(text-color, disabled);
+      cursor: not-allowed;
+    }
+  }
+
+  @include m.is(readonly) {
+    @include m.bem($root-name, thumb) {
+      cursor: default;
+    }
+
+    @include m.bem($root-name, file) {
+      cursor: default;
+    }
+  }
+
+  @include m.e(native) {
+    display: none;
+  }
+
+  // 内置图片大图预览：挂 overlay 容器（设备外壳内随壳定位）
+  @include m.e(previewer) {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.85);
+  }
+
+  @include m.e(previewer-image) {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  @include m.e(previewer-close) {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: t.use-var('touch-target');
+    height: t.use-var('touch-target');
+    padding: 0;
+    border: none;
+    background: none;
+    color: fn.use-var(text-color, white);
+    font-size: t.use-var('font-size-title');
+    cursor: pointer;
+
+    & > svg {
+      width: 1em;
+      height: 1em;
+    }
+  }
+}
+
+@keyframes um-uploader-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -45,6 +45,10 @@ $values: (
   'switch-track-small': 24px,
   'switch-track-default': 28px,
   'switch-track-large': 32px,
+  // 上传组件瓦片尺寸档（375 视口默认档约三列 + 间距）
+  'uploader-size-small': 64px,
+  'uploader-size-default': 80px,
+  'uploader-size-large': 96px,
   // 间距刻度（4px 基）
   'spacing-xs': 4px,
   'spacing-sm': 8px,
@@ -107,6 +111,18 @@ $values: (
       small: 'switch-track-small',
       default: 'switch-track-default',
       large: 'switch-track-large'
+    ),
+    $size
+  ));
+}
+
+// 按组件尺寸取上传瓦片尺寸：small / default / large → --um-uploader-size-*
+@function uploader-size($size) {
+  @return use-var(map.get(
+    (
+      small: 'uploader-size-small',
+      default: 'uploader-size-default',
+      large: 'uploader-size-large'
     ),
     $size
   ));

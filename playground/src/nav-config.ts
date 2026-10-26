@@ -138,6 +138,7 @@ export const demoMeta: Record<string, DemoMeta> = {
   'mobile-textarea': { zh: '文本域', en: 'Textarea', category: 'mobile' },
   'mobile-time-picker': { zh: '时间选择器', en: 'TimePicker', category: 'mobile' },
   'mobile-timeline': { zh: '时间线', en: 'Timeline', category: 'mobile' },
+  'mobile-uploader': { zh: '上传', en: 'Uploader', category: 'mobile' },
   'multi-select': { zh: '多选选择器', en: 'MultiSelect', category: 'form' },
   'multi-tree-select': { zh: '多选树形选择器', en: 'MultiTreeSelect', category: 'form' },
   nav: { zh: '导航', en: 'Nav', category: 'nav' },

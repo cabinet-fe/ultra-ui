@@ -16,7 +16,8 @@ $form-controls: (
   '.um-cascade',
   '.um-date-picker',
   '.um-time-picker',
-  '.um-textarea'
+  '.um-textarea',
+  '.um-uploader'
 );
 
 @include m.b($root-name) {
