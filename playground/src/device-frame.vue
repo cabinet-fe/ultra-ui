@@ -110,9 +110,9 @@ const deviceOptions = DEVICES.map(({ value, label }) => ({ value, label }))
 
 function readStored<T extends string | boolean>(key: string, fallback: T): T {
   const stored = localStorage.getItem(key)
-  return stored !== null && (typeof fallback === 'boolean' ? stored === 'true' : true)
-    ? (stored as T)
-    : fallback
+  if (stored === null) return fallback
+  // 布尔回退时必须把存储字符串转换为布尔值，原样返回会让 v-model 拿到 "true"/"false" 字符串
+  return typeof fallback === 'boolean' ? ((stored === 'true') as T) : (stored as T)
 }
 
 const deviceId = ref(readStored('mobileDevice', 'iphone-14'))
