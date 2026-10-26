@@ -218,7 +218,7 @@ describe('SheetContext', () => {
     expect(ctx.getColWidth(4)).toBe(MIN_ROW_COL_SIZE)
 
     // 空选区：无写入目标，不产生任何尺寸
-    sheet.selection.clear()
+    sheet.selection.restoreState({ activeCell: null, ranges: [] })
     ctx.setRowHeightBySelection(60)
     ctx.setColWidthBySelection(200)
     expect(ctx.getRowHeight(0)).toBeUndefined()
@@ -238,7 +238,7 @@ describe('SheetContext', () => {
 
     // 空选区：模型无写入，同步钩子不触发
     syncAxisSizes.mockClear()
-    sheet.selection.clear()
+    sheet.selection.restoreState({ activeCell: null, ranges: [] })
     ctx.setRowHeightBySelection(60)
     ctx.setColWidthBySelection(60)
     expect(syncAxisSizes).not.toHaveBeenCalled()

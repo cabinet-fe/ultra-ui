@@ -81,7 +81,7 @@ describe('insertImageFromFile', () => {
   it('无活动格 → message.error，不写入', async () => {
     const sheet = new Sheet()
     const ctx = createSheetContext(sheet)
-    sheet.selection.clear()
+    sheet.selection.restoreState({ activeCell: null, ranges: [] })
     const id = await insertImageFromFile(ctx, makeFile('a.png', 'image/png'))
     expect(id).toBeUndefined()
     expect(ctx.getImages()).toHaveLength(0)
@@ -135,7 +135,7 @@ describe('insertImageFromUrl', () => {
   it('无活动格 → message.error，不写入', () => {
     const sheet = new Sheet()
     const ctx = createSheetContext(sheet)
-    sheet.selection.clear()
+    sheet.selection.restoreState({ activeCell: null, ranges: [] })
     expect(insertImageFromUrl(ctx, 'https://example.com/a.png')).toBeUndefined()
     expect(ctx.getImages()).toHaveLength(0)
     expect(mocks.message.error).toHaveBeenCalledWith('请先选择单元格')
@@ -181,7 +181,7 @@ describe('insertCellImageFromFile / pickAndEmbedCellImage', () => {
   it('无活动格 → message.error，不写入', async () => {
     const sheet = new Sheet()
     const ctx = createSheetContext(sheet)
-    sheet.selection.clear()
+    sheet.selection.restoreState({ activeCell: null, ranges: [] })
     await insertCellImageFromFile(ctx, makeFile('a.png', 'image/png'))
     expect(mocks.message.error).toHaveBeenCalledWith('请先选择单元格')
   })

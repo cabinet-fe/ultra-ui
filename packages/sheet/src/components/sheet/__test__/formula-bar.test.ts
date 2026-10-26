@@ -363,12 +363,13 @@ async function flushPopup(): Promise<void> {
 describe('USheet 公式栏：fx 函数弹框', () => {
   it('fx 渲染为可点击 button；无活动单元格时禁用且不打开弹框', async () => {
     const sheet = new Workbook().activeSheet
+    // 清空选区（Sheet 构造默认选 A1）：与 fx 输入框同一禁用条件。
+    // 0.3 起 SelectionModel 移除 clear()，restoreState 静默不发事件，
+    // 组件只认挂载时的模型选区，故在挂载前置空
+    sheet.selection.restoreState({ activeCell: null, ranges: [] })
     const { el } = mountFormulaBar(sheet)
     await nextTick()
 
-    // 清空选区（Sheet 构造默认选 A1）：与 fx 输入框同一禁用条件
-    sheet.selection.clear()
-    await nextTick()
     const button = fxButton(el)
     expect(button.tagName).toBe('BUTTON')
     expect(button.disabled).toBe(true)

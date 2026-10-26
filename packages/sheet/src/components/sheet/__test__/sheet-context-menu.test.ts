@@ -319,7 +319,7 @@ describe('build*Menus', () => {
     const sheet = new Sheet()
     const ctx = createSheetContext(sheet)
     sheet.setCellValue({ row: 0, col: 0 }, 1)
-    sheet.selection.clear()
+    sheet.selection.restoreState({ activeCell: null, ranges: [] })
     applyNumFmtToSelection(ctx, { type: 'date' })
     expect(ctx.getCellStyle({ row: 0, col: 0 })).toBeUndefined()
     // undo 直接回滚到 setCellValue 之前，证明未新增 undo 单元
@@ -331,7 +331,7 @@ describe('build*Menus', () => {
   it('body 插入图片 / 嵌入图片 / 设置数据格式：无活动格时禁用', () => {
     const sheet = new Sheet()
     const ctx = createSheetContext(sheet)
-    sheet.selection.clear()
+    sheet.selection.restoreState({ activeCell: null, ranges: [] })
     const menus = buildBodyMenus(ctx)
     expect(menus.find((m) => m.label === '插入图片')?.disabled).toBe(true)
     expect(menus.find((m) => m.label === '嵌入图片')?.disabled).toBe(true)

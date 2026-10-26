@@ -139,7 +139,7 @@ describe('内置工具（dogfood 扩展机制）', () => {
     expect(border.popup).toBe('border')
     // 默认 A1 有选区 → 可用
     expect(fill.disabled?.(ctx)).toBe(false)
-    sheet.selection.clear()
+    sheet.selection.restoreState({ activeCell: null, ranges: [] })
     expect(fill.disabled?.(ctx)).toBe(true)
     expect(border.disabled?.(ctx)).toBe(true)
   })
@@ -229,7 +229,7 @@ describe('内置工具（dogfood 扩展机制）', () => {
     expect(tool.popup).toBe('insert-image')
     expect(tool.group).toBe('insert')
     expect(tool.disabled?.(ctx)).toBe(false)
-    sheet.selection.clear()
+    sheet.selection.restoreState({ activeCell: null, ranges: [] })
     expect(tool.disabled?.(ctx)).toBe(true)
   })
 
