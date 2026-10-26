@@ -34,7 +34,7 @@
     <section>
       <h3>状态</h3>
       <UNumberInput v-model="count" disabled :step="1" placeholder="禁用" />
-      <UNumberInput model-value="66.60" readonly placeholder="只读" />
+      <UNumberInput :model-value="66.6" readonly placeholder="只读" />
     </section>
   </div>
 </template>
