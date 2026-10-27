@@ -1,5 +1,11 @@
 # @veltra/desktop
 
+## 1.15.3
+
+### Patch Changes
+
+- bbe7500: 更新 `infinitable` 依赖至 `^0.3.4`。
+
 ## 1.15.2
 
 ### Patch Changes
