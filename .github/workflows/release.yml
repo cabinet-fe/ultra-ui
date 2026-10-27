@@ -52,9 +52,10 @@ jobs:
           run-install: true
 
       # exports 已无 veltra-dev 条件，lint/test 的类型与运行时解析都指向
-      # dist，必须先全量构建，再并行执行 lint 与 test
+      # dist，必须先全量构建，再并行执行 lint 与 test。禁止排除任何包：
+      # 被跳过构建的包会以 src-only tarball 发布（mobile 1.1.0 事故根因）
       - name: 全量构建
-        run: vp run --filter '@veltra/*' --filter '!@veltra/mobile' build
+        run: vp run --filter '@veltra/*' build
 
       - name: 代码校验与测试
         run: |
@@ -70,6 +71,10 @@ jobs:
 
       - name: 规范化待发布 package.json
         run: bun run scripts/normalize-release-manifests.ts
+
+      # 在 normalize 之后跑，保证校验的 exports 与最终发布的 manifest 一致
+      - name: 校验发布 tarball
+        run: bun run scripts/verify-release-tarballs.ts
 
       - name: 发布到 npm 并收集发布数据
         id: changesets

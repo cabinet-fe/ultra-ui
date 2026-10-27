@@ -26,7 +26,7 @@
   "scripts": {
     "build": "vp run --concurrency-limit 2 -r build",
     "build:packages": "vp run --concurrency-limit 2 --filter '@veltra/*' build",
-    "ci:verify": "bun run resolver:gen -- --check && vp run --concurrency-limit 2 --filter '@veltra/*' build && vp lint && vp test",
+    "ci:verify": "bun run resolver:gen -- --check && vp run --concurrency-limit 2 --filter '@veltra/*' build && vp lint && vp test && bun run scripts/verify-release-tarballs.ts",
     "lint": "vp lint",
     "fmt": "vp fmt",
     "dev": "vp run -r dev",
