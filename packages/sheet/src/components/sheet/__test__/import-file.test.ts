@@ -7,6 +7,34 @@ import { ref } from 'vue'
 
 import { IMPORT_FILE_ACCEPT, importFromFile, pickAndImportFile } from '../import-file'
 
+/**
+ * worker 替身：happy-dom 自带 Worker（构造成功但 URL 不可加载，异步才触发
+ * onerror），使回退时机不确定、既有用例偶发拿到空 danger 调用——统一替换为
+ * 可编程替身。默认脚本为同步 onerror（worker 不可用 → 主线程回退），单测可
+ * 按 scenario 覆写响应（如 { ok: false }）。
+ */
+type FakeMessageEvent = { data: unknown }
+class FakeWorker {
+  static script: (worker: FakeWorker) => void = (worker) => {
+    queueMicrotask(() => worker.onerror?.(new Error('worker unavailable')))
+  }
+  static instances: FakeWorker[] = []
+  onmessage: ((e: FakeMessageEvent) => void) | null = null
+  onerror: ((e: unknown) => void) | null = null
+  terminated = false
+  constructor() {
+    FakeWorker.instances.push(this)
+  }
+  postMessage(): void {
+    queueMicrotask(() => FakeWorker.script(this))
+  }
+  terminate(): void {
+    this.terminated = true
+  }
+}
+const defaultWorkerScript = FakeWorker.script
+globalThis.Worker = FakeWorker as unknown as typeof Worker
+
 const mocks = vi.hoisted(() => {
   const message = vi.fn(() => ({ close: vi.fn(), id: 'loading', onClosed: Promise.resolve() }))
   for (const type of ['success', 'warn', 'info', 'error', 'default']) {
@@ -77,7 +105,7 @@ function makeOptions(
   }
 }
 
-/** 触发 xlsx 导入并等异步链（arrayBuffer → importXlsx → danger）完成 */
+/** 触发 xlsx 导入并等解析回退链完成（worker 替身 → 主线程 importXlsx → 确认弹层） */
 async function triggerXlsxAndAwait(
   options: ReturnType<typeof makeOptions>,
   name = 'test.xlsx'
@@ -88,9 +116,7 @@ async function triggerXlsxAndAwait(
     text: () => Promise.resolve('')
   } as File
   importFromFile(file, options)
-  await Promise.resolve()
-  await Promise.resolve()
-  await Promise.resolve()
+  await vi.waitFor(() => expect(mocks.messageConfirm.danger).toHaveBeenCalledTimes(1))
 }
 
 /** 取 messageConfirm.danger 注册的 onClosed 回调 */
@@ -102,6 +128,8 @@ function getOnClosed(): (action: string) => void {
 }
 
 afterEach(() => {
+  FakeWorker.script = defaultWorkerScript
+  FakeWorker.instances = []
   vi.clearAllMocks()
   document.body.querySelectorAll('input[type="file"]').forEach((el) => el.remove())
 })
@@ -216,5 +244,30 @@ describe('pickAndImportFile', () => {
     expect(input!.hidden).toBe(true)
     expect(click).toHaveBeenCalled()
     click.mockRestore()
+  })
+})
+
+describe('worker { ok: false } 主线程回退', () => {
+  it('worker 内部失败：不 reject，回退主线程 importXlsx 并照常进入确认', async () => {
+    FakeWorker.script = (worker) => {
+      worker.onmessage?.({ data: { type: 'done', ok: false, error: 'bare specifier boom' } })
+    }
+    const replaced = vi.fn()
+    const options = makeOptions({ onWorkbookReplaced: replaced })
+    await triggerXlsxAndAwait(options)
+
+    // 主线程回退确实发生：importXlsx 被调用、worker 已终止，且其结果进入确认 → 替换
+    expect(mocks.importXlsx).toHaveBeenCalledTimes(1)
+    expect(FakeWorker.instances[0]!.terminated).toBe(true)
+    expect(mocks.message.error).not.toHaveBeenCalled()
+
+    const onClosed = getOnClosed()
+    await onClosed('confirm')
+    expect(mocks.replaceWorkbookWithSnapshots).toHaveBeenCalledWith(
+      expect.anything(),
+      [{ name: 'S1', snapshot: EMPTY_SNAPSHOT, defaultRowHeight: 20, defaultColWidth: 64 }],
+      0
+    )
+    expect(replaced).toHaveBeenCalledTimes(1)
   })
 })

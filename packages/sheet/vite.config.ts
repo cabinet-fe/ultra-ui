@@ -14,7 +14,14 @@ const config = {
   css: { preprocessorOptions: { scss: { importers: [new NodePackageImporter(repoRoot)] } } },
   resolve: { conditions: ['veltra-dev', 'module', 'import', 'browser', 'default'] },
 
-  run: { tasks: { build: { command: 'vp pack', cache: { output: ['dist/**'] } } } },
+  run: {
+    tasks: {
+      // 主构建（unbundle）负责全量 dist 与 worker 的 .d.ts；worker 产物随后由
+      // scripts/build-workers.ts 重打包为自包含文件（inline infinitable，
+      // 消除裸说明符——宿主生产构建只拷贝 worker 不做依赖解析）
+      build: { command: 'vp pack && bun scripts/build-workers.ts', cache: { output: ['dist/**'] } }
+    }
+  },
 
   test: {
     include: ['src/**/*.test.ts'],
@@ -36,7 +43,8 @@ const config = {
   pack: {
     // import.worker.ts / export.worker.ts：xlsx 解析 / 序列化 worker（经
     // new Worker(new URL()) 引用，非 import 可达——unbundle 模式下必须显式
-    // 列为 entry 才会编译进 dist）
+    // 列为 entry 才会编译进 dist；此处产物含裸说明符，构建后由
+    // scripts/build-workers.ts 重打包为自包含 worker）
     entry: [
       'src/index.ts',
       'src/components/sheet/style.ts',

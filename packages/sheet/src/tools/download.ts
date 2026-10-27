@@ -29,22 +29,26 @@ async function exportWorkbookXlsxAsync(workbook: Workbook): Promise<Uint8Array> 
   }
   return await new Promise<Uint8Array>((resolve, reject) => {
     let settled = false
-    // worker 加载/启动失败（如打包产物缺文件）→ 降级主线程导出
+    // worker 加载/启动失败（如打包产物缺文件）或内部失败 → 降级主线程导出
     const fallback = (): void => {
       if (settled) return
       settled = true
       worker!.terminate()
-      resolve(exportWorkbookXlsx(workbook))
+      try {
+        resolve(exportWorkbookXlsx(workbook))
+      } catch (err) {
+        reject(err)
+      }
     }
     worker!.onmessage = (e: MessageEvent<ExportWorkerResponse>) => {
       if (settled) return
-      settled = true
-      worker!.terminate()
       const data = e.data
       if (!data.ok || !data.buffer) {
-        reject(new Error(data.error ?? 'worker 导出失败'))
+        fallback()
         return
       }
+      settled = true
+      worker!.terminate()
       resolve(data.buffer)
     }
     worker!.onerror = () => fallback()

@@ -72,12 +72,12 @@ async function parseXlsxAsync(
         return
       }
       if (settled) return
-      settled = true
+      // worker 内部失败（解析异常 / 产物缺依赖）与加载失败同口径：降级主线程
       if (!data.ok) {
-        worker!.terminate()
-        reject(new Error(data.error ?? 'worker 解析失败'))
+        fallback()
         return
       }
+      settled = true
       worker!.terminate()
       resolve({ sheets: data.sheets ?? [], activeIndex: data.activeIndex ?? 0 })
     }

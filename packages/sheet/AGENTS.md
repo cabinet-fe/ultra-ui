@@ -79,6 +79,14 @@ src/
 ## 构建与测试配置
 
 - **pack entry**：`src/index.ts`、`src/components/sheet/style.ts`、`src/components/sheet/popups/import.worker.ts`、`src/tools/export.worker.ts`（worker 经 `new Worker(new URL())` 引用，非 import 可达——unbundle 模式下必须显式列为 entry 才会编译进 dist）
+- **worker 自包含构建**：build 任务 = `vp pack && bun scripts/build-workers.ts`。主构建的 worker 产物含
+  `import('infinitable/sheet')` 裸说明符（infinitable 是 peer），而宿主生产构建只把 worker 当静态资源拷贝、
+  不做依赖解析，浏览器原生执行必失败；`build-workers.ts` 对两个 worker 入口各跑一次无 external 打包，
+  把 `infinitable` + `@cat-kit/core` inline 进 `dist/**/import.worker.js`、`dist/tools/export.worker.js`
+  （文件名与相对位置不变，各约 170KB gzip——worker 只用 importXlsx / exportWorkbookXlsx，但引擎 dist
+  是预打包单文件，无法按导出裁剪）。主构建仍负责 worker 的 .d.ts。
+- 主线程侧 worker `{ ok: false }` 与 onerror 同口径回退主线程（import-file.ts / download.ts），worker
+  产物在任何宿主环境下最多退化为一次主线程卡顿。
 - **neverBundle**：peer + `infinitable`（正则匹配 `/^infinitable(\/|$)/`，覆盖子路径导入）；treeshake `moduleSideEffects` 保留 `components/sheet/style.ts`
 - **测试**：默认 node，需要 DOM 的测试文件在文件头加 `// @vitest-environment happy-dom`；canvas mock 在 `src/components/sheet/__test__/`（`grid-setup.ts` 挂 `canvas-mock.ts`，node 环境自动跳过），`setupFiles` 指向它；`server.deps.inline: ['infinitable']`（externalize 时 worker node 会把 `@cat-kit/core` 解析到 TS 源码）
 
