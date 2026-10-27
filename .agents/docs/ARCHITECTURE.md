@@ -10,8 +10,9 @@ Ultra UI 是 Vue 3 组件与能力库。主用户是 cabinet-fe 内部业务前�
 - 电子表格：`@veltra/sheet`（USheet）；模型/公式/IO/网格来自 npm 包 `infinitable`（`/sheet` 子路径）
 - 版式文档：`@veltra/ofd-core`（零依赖 OFD 解析渲染内核，SVG 页面输出；desktop `u-file-viewer` 的 ofd 预览只做组件壳）
 - AI 对话：`@veltra/ai`（UAiChat、useChat、可插拔 transport）
+- 移动 UI：`@veltra/mobile`（`um-` BEM 前缀，API 与 desktop 同名组件对齐、按 NutUI 移动惯例允许分叉）
 
-对外交付：npm 包。文档站 `ultra-ui-doc` 在本仓库外。`@veltra/mobile` 长期占位，不纳入交付与发版。`playground` 不发布，但是官方参考实现：组件预览，以及填报单元格存取、DeepSeek AI 代理，宿主可对照接入。
+对外交付：npm 包。文档站 `ultra-ui-doc` 在本仓库外。`playground` 不发布，但是官方参考实现：组件预览，以及填报单元格存取、DeepSeek AI 代理，宿主可对照接入。
 
 库本身无账号、无服务端状态；业务数据由宿主管。
 
@@ -51,9 +52,5 @@ CI：`.github/workflows/release.yml`（发版流水线，流程统一见发版�
 | 构建 / 包管理           | Vite+（`vp`）、workspaces `packages/*` + `playground`              | 根 `vite.config.ts` 只管 test/lint/fmt/run/staged；库 pack 在包内 |
 | 测试                    | Vitest（`vp test`）、happy-dom                                     | 根 test.projects 列出参与包                                       |
 | 校验 / 格式化           | Oxlint + tsgolint + Oxfmt                                          | `vp lint` 含 typeCheck；`vp fmt`                                  |
-| 发布                    | @changesets/cli、access public                                     | 见「版本」；ignore `@veltra/mobile`、`playground`                 |
+| 发布                    | @changesets/cli、access public                                     | 见「版本」；ignore `playground`                                    |
 | 关键 peer               | `@cat-kit/core`、`@cat-kit/fe`、`@veltra/icons`、vue               | 宿主安装；内部 `@veltra/*` peer 用 `workspace:^`                  |
-
-## 未决
-
-- `@veltra/mobile` 启动时机（当前按长期占位，不发版）
