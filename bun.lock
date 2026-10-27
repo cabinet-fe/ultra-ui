@@ -137,7 +137,7 @@
     },
     "packages/mobile": {
       "name": "@veltra/mobile",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "peerDependencies": {
         "@cat-kit/core": ">=1.2.1",
         "@veltra/compositions": "^1.8.5",
