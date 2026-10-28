@@ -89,12 +89,12 @@ export function useTabsBar(options: UseTabsBarOptions) {
       indicatorOn.value = false
       return
     }
-    const listBox = list.getBoundingClientRect()
-    const box = el.getBoundingClientRect()
-    indicatorX.value = box.left - listBox.left
-    indicatorY.value = box.top - listBox.top
-    indicatorW.value = box.width
-    indicatorH.value = box.height
+    // offset 几何不含 transform：点击瞬间的 :active 按压缩放（scale 0.97）
+    // 不会混进测量值；指示器不带过渡、测量后直接就位
+    indicatorX.value = el.offsetLeft
+    indicatorY.value = el.offsetTop
+    indicatorW.value = el.offsetWidth
+    indicatorH.value = el.offsetHeight
     indicatorOn.value = true
   }
 
