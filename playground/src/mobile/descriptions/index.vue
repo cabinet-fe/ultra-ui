@@ -39,12 +39,27 @@
         <UDescriptionsItem label="备注">数据源为上月增量日志</UDescriptionsItem>
       </UDescriptions>
     </section>
+
+    <section>
+      <h3>v-for 渲染（数据驱动）</h3>
+      <UDescriptions title="环境变量">
+        <UDescriptionsItem v-for="env of envs" :key="env.label" :label="env.label">
+          {{ env.value }}
+        </UDescriptionsItem>
+      </UDescriptions>
+    </section>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { UDescriptions, UDescriptionsItem } from '@veltra/mobile'
 import '@veltra/mobile/components/descriptions/style'
+
+const envs = [
+  { label: 'NODE_ENV', value: 'production' },
+  { label: 'REGION', value: 'cn-hangzhou' },
+  { label: 'BUILD_ID', value: '20261029.1' }
+]
 </script>
 
 <style lang="scss" scoped>

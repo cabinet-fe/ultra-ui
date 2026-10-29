@@ -3,7 +3,7 @@
     <div v-if="title" :class="cls.e('header')">{{ title }}</div>
 
     <ul v-if="items.length" :class="cls.e('list')">
-      <li v-for="(item, i) of items" :key="i" :class="cls.e('row')">
+      <li v-for="(item, i) of items" :key="item.vnode.key ?? i" :class="cls.e('row')">
         <div :class="cls.e('label')">{{ item.label }}</div>
         <div :class="cls.e('content')">
           <component :is="item.vnode" />
@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, useSlots, type VNode } from 'vue'
+import { computed, useSlots, Fragment, isVNode, type VNode, type VNodeChild } from 'vue'
 
 import { bem } from '../../shared/bem'
 import type { DescriptionsProps } from '../../types/descriptions'
@@ -33,10 +33,19 @@ interface DescriptionItem {
   vnode: VNode
 }
 
+// v-for / template 包裹产生的 Fragment 嵌在插槽顶层，递归展开后才能按组件类型过滤
+function flattenVNodes(children: VNodeChild[]): VNode[] {
+  return children.flatMap((child) => {
+    if (!isVNode(child)) return []
+    if (child.type !== Fragment) return [child]
+    return Array.isArray(child.children) ? flattenVNodes(child.children as VNodeChild[]) : []
+  })
+}
+
 // 插槽 vnode 须在渲染路径读取：插槽内容读取的响应式数据经调用链追踪，内容变化时重新计算。
 // 移动端单列形态不按 column 分组，逐项纵向堆叠（column 语义保留，不影响窄屏布局）
 const items = computed<DescriptionItem[]>(() => {
-  return (slots.default?.() ?? [])
+  return flattenVNodes(slots.default?.() ?? [])
     .filter((vnode) => vnode.type === UDescriptionsItem)
     .map((vnode) => ({ label: vnode.props?.label as string | undefined, vnode }))
 })
