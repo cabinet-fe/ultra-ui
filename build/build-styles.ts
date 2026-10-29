@@ -8,6 +8,17 @@ import type { Plugin } from 'rolldown'
 const compiledScssMap = new Map<string, { css: string; outputPath: string }>()
 
 /**
+ * 将路径分隔符统一为 POSIX 的 `/`
+ *
+ * 这些相对路径会作为 external module id 交给 Rolldown，最终被写进 `import "..."` 语句。
+ * Windows 下 `path.relative()` 返回的是 `..\components\message\style.js`，
+ * Rolldown 生成代码时会把反斜杠当作字符串转义符吃掉：
+ * `\c` / `\m` / `\s` 直接丢弃，`\n` / `\r` 变成真实换行回车，
+ * 于是产出 `..componentsmessagestyle.js` 这类不存在的路径。
+ */
+const toPosix = (p: string) => p.replace(/\\/g, '/')
+
+/**
  * SCSS 优化插件
  *
  * 利用 resolveId 钩子拦截样式相关导入：
@@ -63,9 +74,8 @@ function scssPlugin(): Plugin {
           }
 
           // 将导入重写为相对路径的 .css
-          let relativePath = relative(
-            dirname(importer),
-            absolutePath.replace(/\.scss$/, '.css')
+          let relativePath = toPosix(
+            relative(dirname(importer), absolutePath.replace(/\.scss$/, '.css'))
           )
           if (!relativePath.startsWith('.')) relativePath = './' + relativePath
           return { id: relativePath, external: true }
@@ -80,7 +90,7 @@ function scssPlugin(): Plugin {
           targetPath += '.js'
         }
 
-        let relativePath = relative(dirname(importer), targetPath)
+        let relativePath = toPosix(relative(dirname(importer), targetPath))
         if (!relativePath.startsWith('.')) relativePath = './' + relativePath
 
         return {

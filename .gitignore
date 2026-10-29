@@ -109,3 +109,4 @@ dist/*
 .idea
 .history
 .vscode
+.workbuddy
