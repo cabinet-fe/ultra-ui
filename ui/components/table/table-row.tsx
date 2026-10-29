@@ -16,8 +16,6 @@ export const UTableRow: DefineComponent<{ row: ITableRow }> = defineComponent({
   props: ['row'],
 
   setup(props) {
-    const { row } = props
-
     const {
       cls,
       columnConfig,
@@ -33,6 +31,10 @@ export const UTableRow: DefineComponent<{ row: ITableRow }> = defineComponent({
     const { columns, expandColumn } = columnConfig
 
     return () => {
+      // 必须在渲染函数内取 row：行节点的 vnode key 取 row.uid（业务主键），
+      // 数据刷新前后 uid 不变，Vue 会复用组件实例、不重跑 setup。
+      // 若在 setup 中提前解构，闭包会永远持有首次的 row 对象，导致单元格一直渲染旧数据。
+      const { row } = props
       const _expandColumn = expandColumn.value
 
       let expandCell: JSX.Element | null = null
