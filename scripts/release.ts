@@ -188,7 +188,8 @@ function compareSemver(a: string, b: string): number {
 function packageJsonPath(packageName: string): string {
   const shortName = packageName.replace(/^@veltra\//, '')
 
-  return join(REPO_ROOT, 'packages', shortName, 'package.json')
+  // git show 的 pathspec 要求正斜杠；Windows 本地 fs 同样接受正斜杠
+  return join(REPO_ROOT, 'packages', shortName, 'package.json').replaceAll('\\', '/')
 }
 
 function changelogPath(packageName: string): string {
