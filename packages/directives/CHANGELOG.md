@@ -1,5 +1,9 @@
 # @veltra/directives
 
+## 1.15.4
+
+No changes in this release.
+
 ## 1.15.3
 
 No changes in this release.
