@@ -184,7 +184,9 @@ $collapsed-nav: collapsed-nav;
 
     @include m.is(expanded) {
       transform: rotate(90deg);
-      color: fn.use-var(text-color, title);
+      // 强调色取 nav 变体 token：深侧栏（浅色主题）底色近黑，全局 text-color/title
+      // 会让图标变黑失去对比度；--u-nav-strong-color 各变体下均与展开行强调色一致
+      color: var(--u-nav-strong-color);
       transition:
         transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
         color 0.18s ease;
