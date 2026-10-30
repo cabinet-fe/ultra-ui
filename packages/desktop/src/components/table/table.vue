@@ -9,7 +9,9 @@
     ]"
     ref="scrollRef"
     :content-class="cls.e('content')"
-    @scroll="handleScroll"
+    @scroll="handleTableScroll"
+    @mouseover="handleCellMouseover"
+    @mouseleave="handleCellMouseleave"
   >
     <table :class="cls.e('wrap')">
       <colgroup ref="colgroupRef">
@@ -60,7 +62,16 @@
 
     <div v-if="showResizeLine" :class="cls.e('resize-line')" ref="resizeLineRef"></div>
 
-    <!-- <u-tip v-if="textEllipsis" ref="tip"> </u-tip> -->
+    <!-- 单元格文本溢出提示：整表仅一个实例，由 useCellTip 按需驱动 -->
+    <u-tip
+      v-if="textEllipsis"
+      :visible="cellTipVisible"
+      :trigger-dom="cellTipTrigger"
+      :content="cellTipContent"
+      :alignment="cellTipAlign"
+      :class="cls.e('tip')"
+      direction="top"
+    />
   </u-scroll>
 </template>
 
@@ -79,13 +90,14 @@ import type {
   TableRowSlotsScope
 } from '../../types'
 import { UScroll } from '../scroll'
+import { UTip } from '../tip'
 import { TableDIKey } from './di'
 import type { ColumnNode } from './node/col'
 import type { TableRowNode } from './node/row'
 import UTableBody from './table-body.vue'
 import UTableFoot from './table-foot.vue'
-// import { UTip } from '../tip'
 import UTableHead from './table-head'
+import { useCellTip } from './use-cell-tip'
 import { useCheck } from './use-check'
 import { useColResize } from './use-col-resize'
 import { useColumns } from './use-columns'
@@ -98,7 +110,6 @@ defineOptions({ name: 'UTable' })
 const props = withDefaults(defineProps<TableProps>(), {
   tree: false,
   stripe: true,
-  textOverflow: 'line-break',
   virtualThreshold: 80
 })
 const emit = defineEmits<TableEmits>()
@@ -152,6 +163,35 @@ const columnConfig = useColumns({
 const { leafColumns } = columnConfig
 
 const { handleScroll, leftFixed, rightFixed } = useFixedColumns()
+
+/**
+ * 滚动时收起提示：虚拟滚动会把滚出视口的行卸载，触发元素随之失效；
+ * 同时滚动中继续挂着提示也不符合交互惯例。
+ */
+const handleTableScroll: typeof handleScroll = (e) => {
+  handleCellMouseleave()
+  handleScroll(e)
+}
+
+/**
+ * 省略号模式下的溢出提示。
+ *
+ * 整表只挂一个 tip（见模板），这里只负责「哪个单元格被截断」的判定。
+ * 事件委托在根节点，单元格本身零成本；滚动时立即收起，避免提示跟随已回收的行。
+ */
+const {
+  visible: cellTipVisible,
+  trigger: cellTipTrigger,
+  content: cellTipContent,
+  align: cellTipAlign,
+  handleMouseover: handleCellMouseover,
+  handleMouseleave: handleCellMouseleave
+} = useCellTip({
+  cellSelector: `.${cls.e('cell')}`,
+  enabled: () => props.textEllipsis === true,
+  // 快速掠过表格时不打扰，停留片刻才提示
+  delay: 200
+})
 
 const {
   getColumnSlotsNode,
@@ -210,8 +250,6 @@ watch(
   }
 )
 
-// const tipRef = useTemplateRef('tip')
-
 provide(TableDIKey, {
   tableProps: props,
   tableSlots: slots,
@@ -227,7 +265,6 @@ provide(TableDIKey, {
   getCellClass,
   getCellCtx,
   getHeaderCellClass,
-  // tipRef,
   toggleTreeRowExpand,
   virtualList: items,
   virtualEnabled,

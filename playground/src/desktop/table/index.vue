@@ -31,6 +31,19 @@
         />
       </u-card-content>
     </u-card>
+
+    <u-card style="margin-top: 24px">
+      <u-card-header>省略号 + 悬浮提示</u-card-header>
+      <u-card-content>
+        <u-table
+          style="height: 360px"
+          :data="noteData"
+          :columns="noteColumns"
+          text-ellipsis
+          show-index
+        />
+      </u-card-content>
+    </u-card>
   </div>
 </template>
 
@@ -175,4 +188,27 @@ const treeColumns = defineTableColumns([
   { key: 'role', name: '角色', align: 'center' },
   { key: 'headcount', name: '人数', align: 'center' }
 ])
+
+// ── 省略号 + 悬浮提示 ──
+
+const noteColumns = defineTableColumns([
+  { key: 'title', name: '标题（左）', width: 140 },
+  { key: 'owner', name: '负责人（中）', width: 90, align: 'center' },
+  { key: 'score', name: '评分（右）', width: 80, align: 'right' },
+  { key: 'remark', name: '备注（左）' },
+  { key: 'link', name: '链接（左）' }
+])
+
+const noteData = Array.from({ length: 12 }).map((_, i) => ({
+  title: `第 ${i + 1} 条待办：${['接口联调', '样式走查', '回归测试', '文档补全'][i % 4]}`,
+  owner: ['张三', '李四', '王五'][i % 3],
+  score: `${88 + i} 分（很长的评分说明文本）`,
+  remark:
+    i % 3 === 0
+      ? '短备注'
+      : `这是一段很长很长的备注文本，用来验证省略号截断之后悬浮单元格能完整展示全部内容（第 ${
+          i + 1
+        } 条）。`,
+  link: i % 2 === 0 ? 'https://example.com/very/long/path/to/resource' : '短链接'
+}))
 </script>

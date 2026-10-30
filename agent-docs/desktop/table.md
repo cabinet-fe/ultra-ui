@@ -212,7 +212,7 @@ export interface TableProps {
   expandable?: boolean
   /** 树形模式下默认展开全部节点 */
   defaultExpandAll?: boolean
-  /** 文本溢出省略 */
+  /** 文本溢出省略；悬浮被截断的单元格时弹出完整文本 */
   textEllipsis?: boolean
 }
 
@@ -282,7 +282,7 @@ export function defineTableColumns(
 | `current`          | `TableRow`                                   | —           |  否  | `v-model:current`；值来自 `row-click` / `update:current` 的行节点                                               |
 | `mergeCell`        | `(ctx) => { rowspan, colspan } \| undefined` | —           |  否  | 返回 `{ rowspan, colspan }` 按跨度渲染；`rowspan` 或 `colspan` 为 `0` 时隐藏该单元格；返回 `undefined` 正常渲染 |
 | `slots`            | `Readonly<Slots>`                            | —           |  否  | 仅函数式组件包裹 `UTable` 时使用，传 `$slots`                                                                   |
-| `textEllipsis`     | `boolean`                                    | `false`     |  否  | —                                                                                                               |
+| `textEllipsis`     | `boolean`                                    | `false`     |  否  | 单元格文本单行省略；悬浮被截断的单元格时弹出完整文本（整表仅一个 tip 实例，延迟 200ms 显示，滚动即收起）          |
 
 ### TableColumn 列定义
 
