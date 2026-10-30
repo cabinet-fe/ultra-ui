@@ -1,5 +1,9 @@
 # @veltra/utils
 
+## 1.15.5
+
+No changes in this release.
+
 ## 1.15.4
 
 No changes in this release.

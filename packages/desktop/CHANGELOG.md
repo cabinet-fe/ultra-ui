@@ -1,5 +1,20 @@
 # @veltra/desktop
 
+## 1.15.5
+
+### Patch Changes
+
+- bfab394: 修复 `UExpressionEditor` 手动按 Enter 换行丢失的问题。
+  
+  - 浏览器对 contenteditable 的 Enter 默认行为是插入 `<br>`，而组件从 DOM 反推模型时只读取 `textContent`，`<br>` 无文本内容导致换行被静默丢弃（粘贴多行文本走 `onPaste` 保留 `\n`，故不受影响）。
+  - 现拦截 Enter（含 Shift+Enter）改为在光标处插入 `\n` 文本节点，与粘贴路径行为一致；IME 合成中用于确认候选词的 Enter 不拦截，mention / 重选面板打开时 Enter 仍优先由面板处理。
+- e620bce: 修复 `URate` 彩色层图标错位与半星裁剪变形。
+  
+  - `.u-rate__overlay` 改为 flex 定位并与灰色底层同样居中：原来绝对定位容器里的图标按行内基线对齐，被 `line-height` 下移约 6px 后又被 `overflow: hidden` 裁掉，彩色星只剩上方针尖碎片。
+  - 半星裁剪时彩色层子元素 `flex: none`，避免 50% 宽度把图标压扁。
+  - `character` 字符包一层 `.u-rate__symbol`，与图标层盒模型一致，半星裁剪和字符基线与图标对齐。
+  - 根节点补 `vertical-align: middle`，与并排文本基线居中对齐。
+
 ## 1.15.4
 
 ### Patch Changes
