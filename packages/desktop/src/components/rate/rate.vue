@@ -19,12 +19,12 @@
     >
       <span :class="cls.e('base')">
         <u-icon v-if="!character"><StarFilled /></u-icon>
-        <template v-else>{{ character }}</template>
+        <span v-else :class="cls.e('symbol')">{{ character }}</span>
       </span>
 
       <span :class="cls.e('overlay')" :style="{ width: overlayWidth(star) }">
         <u-icon v-if="!character"><StarFilled /></u-icon>
-        <template v-else>{{ character }}</template>
+        <span v-else :class="cls.e('symbol')">{{ character }}</span>
       </span>
     </div>
   </div>

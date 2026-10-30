@@ -7,6 +7,7 @@ $root-name: rate;
   @include m.flex(inline-flex, flex-start, center);
   gap: fn.use-var(gap, small);
   font-size: fn.use-var(font-size, main, large);
+  vertical-align: middle;
   outline: none;
   border-radius: fn.use-var(radius, small);
 
@@ -38,23 +39,42 @@ $root-name: rate;
   @include m.e(item) {
     position: relative;
     display: inline-flex;
+    line-height: 1;
   }
 
   @include m.e(base) {
     display: inline-flex;
+    align-items: center;
+    line-height: 1;
     color: fn.use-var(text-color, placeholder);
   }
 
-  // 彩色层按分值裁剪宽度，叠在灰色底星上
+  // character 自定义字符：包一层，保证与图标层同样的盒模型，半星裁剪时也不被压扁
+  @include m.e(symbol) {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+  }
+
+  // 彩色层按分值裁剪宽度，叠在灰色底星上。
+  // 必须与 base 同为 flex 定位，否则图标走行内基线对齐，会被下移后裁掉
   @include m.e(overlay) {
     position: absolute;
     top: 0;
     left: 0;
     height: 100%;
+    display: flex;
+    align-items: center;
+    line-height: 1;
     overflow: hidden;
     white-space: nowrap;
     pointer-events: none;
     color: fn.component-var(rate, active-color, fn.use-var(color, warning));
     transition: width fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    // 半星裁剪时不允许图标被压缩变形
+    > * {
+      flex: none;
+    }
   }
 }
