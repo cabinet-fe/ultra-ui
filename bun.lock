@@ -54,7 +54,7 @@
     },
     "packages/compositions": {
       "name": "@veltra/compositions",
-      "version": "1.15.6",
+      "version": "1.15.7",
       "dependencies": {
         "@floating-ui/dom": "^1.8.0",
         "@formkit/drag-and-drop": "^0.6.1",
@@ -71,7 +71,7 @@
     },
     "packages/desktop": {
       "name": "@veltra/desktop",
-      "version": "1.15.6",
+      "version": "1.15.7",
       "dependencies": {
         "@lexical/history": "^0.52.0",
         "@lexical/html": "^0.52.0",
@@ -118,7 +118,7 @@
     },
     "packages/directives": {
       "name": "@veltra/directives",
-      "version": "1.15.6",
+      "version": "1.15.7",
       "peerDependencies": {
         "@veltra/styles": "^1.7.14",
         "@veltra/utils": "^1.7.14",
@@ -167,7 +167,7 @@
     },
     "packages/styles": {
       "name": "@veltra/styles",
-      "version": "1.15.6",
+      "version": "1.15.7",
       "peerDependencies": {
         "@cat-kit/core": ">=1.2.1",
         "@veltra/compositions": "^1.7.14",
@@ -177,7 +177,7 @@
     },
     "packages/utils": {
       "name": "@veltra/utils",
-      "version": "1.15.6",
+      "version": "1.15.7",
       "peerDependencies": {
         "@cat-kit/core": ">=1.2.1",
         "vue": ">=3.5.44",
@@ -187,7 +187,7 @@
       "name": "@veltra/vite",
       "version": "4.0.5",
       "devDependencies": {
-        "@veltra/desktop": "1.15.6",
+        "@veltra/desktop": "1.15.7",
       },
       "peerDependencies": {
         "@veltra/ai": "^2.1.8",
