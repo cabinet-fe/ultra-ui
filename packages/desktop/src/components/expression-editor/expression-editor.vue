@@ -223,6 +223,14 @@ function onKeydown(e: KeyboardEvent) {
       closePicker()
     }
   }
+
+  // 浏览器对 Enter 的默认行为是插 <br>，而模型反推只读 textContent，换行会被丢弃
+  // （粘贴的多行文本走 onPaste 保留 \n 所以正常）。这里改为在光标处插入 \n 文本节点，
+  // 与粘贴路径对齐；IME 合成中用于确认候选词的 Enter 不拦。
+  if (e.key === 'Enter' && !e.isComposing) {
+    e.preventDefault()
+    editorRef.value?.insertText('\n')
+  }
 }
 
 function onBlur() {

@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import { describe, expect, it } from 'vite-plus/test'
+import { describe, expect, it, vi } from 'vite-plus/test'
 import { createApp, defineComponent, h, nextTick, ref } from 'vue'
 
 import { UForm } from '../../form'
@@ -121,6 +121,43 @@ describe('UExpressionEditor 在 UForm 中的状态下发', () => {
 
     expect(ctx.shell()?.className).toContain('is-disabled')
 
+    ctx.unmount()
+  })
+})
+
+describe('UExpressionEditor 换行输入', () => {
+  /** 挂载编辑器并把光标落到首个 text span 的指定偏移处 */
+  async function mountWithCaret(modelValue: string, caret: number) {
+    const onUpdate = vi.fn()
+    const ctx = await mountEditor({ modelValue, 'onUpdate:modelValue': onUpdate })
+    const container = ctx.host.querySelector('.u-expression-editor__container') as HTMLElement
+    const textNode = container.querySelector('[data-seg="text"]')!.firstChild!
+    const range = document.createRange()
+    range.setStart(textNode, caret)
+    range.collapse(true)
+    const sel = document.getSelection()!
+    sel.removeAllRanges()
+    sel.addRange(range)
+    return { ...ctx, container, onUpdate }
+  }
+
+  it('Enter 在光标处插入 \\n 并同步到 modelValue（而不是插 <br> 被丢弃）', async () => {
+    const ctx = await mountWithCaret('ab', 1)
+
+    ctx.container.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
+
+    expect(ctx.onUpdate).toHaveBeenCalledWith('a\nb')
+    ctx.unmount()
+  })
+
+  it('IME 合成中的 Enter 用于确认候选词，不插入换行', async () => {
+    const ctx = await mountWithCaret('ab', 1)
+
+    ctx.container.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Enter', bubbles: true, isComposing: true })
+    )
+
+    expect(ctx.onUpdate).not.toHaveBeenCalled()
     ctx.unmount()
   })
 })
