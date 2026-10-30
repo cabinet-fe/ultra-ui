@@ -90,9 +90,6 @@ $active-shadow: fn.use-var(shadow, sm);
     display: inline-flex;
     flex-wrap: nowrap;
     flex-shrink: 0;
-    // 定位是测量基准：__item 的 offsetLeft/offsetWidth 以 __list 为 offsetParent
-    // （useTabsBar 的指示器几何测量依赖这一约束）
-    position: relative;
     width: max-content;
     margin: 0;
     padding: 0;
@@ -286,10 +283,6 @@ $active-shadow: fn.use-var(shadow, sm);
     @include m.bem(tabs-bar, nav) {
       border-radius: 9999px;
     }
-
-    @include m.bem(tabs-bar, indicator) {
-      border-radius: 9999px;
-    }
   }
 
   @include m.m(horizontal) {
@@ -298,26 +291,32 @@ $active-shadow: fn.use-var(shadow, sm);
     }
   }
 
+  // 指示器内嵌在 __item 中：宽度随 item（含 hover 关闭按钮展开）由布局天然同步，
+  // 无需 JS 测量重摆；激活切换用 opacity 交叉淡入淡出，节奏与 __item 色彩过渡一致
   @include m.m(horizontal) {
-    @include m.bem(tabs-bar, indicator) {
-      position: absolute;
-      left: 0;
-      top: 0;
-      z-index: 0;
-      pointer-events: none;
-      border-radius: $item-radius;
-      background-color: $active-bg;
-      box-shadow: $active-shadow;
-      // 不做滑动过渡：hover 时关闭按钮展开（width/margin 布局动画）会与固定时长的
-      // 位移过渡互相打断，观感生硬；切换时测量后直接就位
-    }
-
     @include m.bem(tabs-bar, item) {
-      z-index: 1;
+      // 建立 stacking context：z-index: -1 的指示器衬在文字之下、容器底色之上
+      isolation: isolate;
+
+      @include m.bem(tabs-bar, indicator) {
+        position: absolute;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        border-radius: inherit;
+        background-color: $active-bg;
+        box-shadow: $active-shadow;
+        opacity: 0;
+        transition: opacity 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      }
 
       @include m.is(active) {
         background-color: transparent;
         box-shadow: none;
+
+        @include m.bem(tabs-bar, indicator) {
+          opacity: 1;
+        }
       }
     }
   }
