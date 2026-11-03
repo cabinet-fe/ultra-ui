@@ -6,11 +6,9 @@ import {
   scrollViewportByStep
 } from '@veltra/utils'
 import {
-  type CSSProperties,
   type ModelRef,
   type Ref,
   type ShallowRef,
-  computed,
   nextTick,
   onBeforeUnmount,
   onMounted,
@@ -68,36 +66,6 @@ export function useTabsBar(options: UseTabsBarOptions) {
     scrollElementIntoView(vp, el)
   }
 
-  const indicatorX = shallowRef(0)
-  const indicatorY = shallowRef(0)
-  const indicatorW = shallowRef(0)
-  const indicatorH = shallowRef(0)
-  const indicatorOn = shallowRef(false)
-
-  const indicatorStyle = computed<CSSProperties>(() => ({
-    width: `${indicatorW.value}px`,
-    height: `${indicatorH.value}px`,
-    transform: `translate(${indicatorX.value}px, ${indicatorY.value}px)`,
-    opacity: indicatorOn.value ? '1' : '0'
-  }))
-
-  function measureIndicator() {
-    const list = listRef.value
-    if (!list) return
-    const el = list.querySelector<HTMLElement>('[role="tab"].is-active')
-    if (!el) {
-      indicatorOn.value = false
-      return
-    }
-    // offset 几何不含 transform：点击瞬间的 :active 按压缩放（scale 0.97）
-    // 不会混进测量值；指示器不带过渡、测量后直接就位
-    indicatorX.value = el.offsetLeft
-    indicatorY.value = el.offsetTop
-    indicatorW.value = el.offsetWidth
-    indicatorH.value = el.offsetHeight
-    indicatorOn.value = true
-  }
-
   /** 鼠标滚轮（纵向）驱动水平滚动；触控板横滑（已有 deltaX）不拦截 */
   const handleWheel = (e: WheelEvent) => {
     const vp = viewportRef.value
@@ -105,18 +73,11 @@ export function useTabsBar(options: UseTabsBarOptions) {
     applyWheelHorizontalScroll(e, vp, showNav.value)
   }
 
-  useResizeObserver({
-    targets: [viewportRef, listRef],
-    onResize: () => {
-      updateNavState()
-      measureIndicator()
-    }
-  })
+  useResizeObserver({ targets: [viewportRef, listRef], onResize: () => updateNavState() })
 
   watch(model, async () => {
     await nextTick()
     ensureActiveVisible()
-    measureIndicator()
   })
 
   watch(
@@ -125,7 +86,6 @@ export function useTabsBar(options: UseTabsBarOptions) {
       await nextTick()
       updateNavState()
       ensureActiveVisible()
-      measureIndicator()
     },
     { deep: false }
   )
@@ -136,10 +96,7 @@ export function useTabsBar(options: UseTabsBarOptions) {
     vp.addEventListener('wheel', handleWheel, { passive: false })
     vp.addEventListener('scroll', updateNavState, { passive: true })
     updateNavState()
-    nextTick(() => {
-      ensureActiveVisible()
-      measureIndicator()
-    })
+    nextTick(ensureActiveVisible)
   })
 
   onBeforeUnmount(() => {
@@ -149,13 +106,5 @@ export function useTabsBar(options: UseTabsBarOptions) {
     vp.removeEventListener('scroll', updateNavState)
   })
 
-  return {
-    showNav,
-    canPrev,
-    canNext,
-    updateNavState,
-    scrollByStep,
-    ensureActiveVisible,
-    indicatorStyle
-  }
+  return { showNav, canPrev, canNext, updateNavState, scrollByStep, ensureActiveVisible }
 }

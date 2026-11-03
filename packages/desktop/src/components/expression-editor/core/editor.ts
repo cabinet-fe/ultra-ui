@@ -60,6 +60,8 @@ export interface EditorAPI {
   replaceRangeWithVar(start: number, end: number, variable: EditorVariableInfo): void
   /** 替换指定段下标对应的 var chip 为新变量（必须是 var 段）。 */
   replaceVarAt(segIndex: number, variable: EditorVariableInfo): void
+  /** 在光标处插入纯文本（不产生 chip；光标不在编辑器内时忽略） */
+  insertText(text: string): void
   /** 卸载所有事件监听（不会销毁 container DOM） */
   dispose(): void
   /** 强制根据当前模型重渲染 DOM（光标位置尽量保留） */
@@ -540,6 +542,7 @@ export function createEditor(opts: EditorOptions): EditorAPI {
     getRectAtOffset,
     replaceRangeWithVar,
     replaceVarAt,
+    insertText: insertPlainTextAtCaret,
     rerender: () => render(),
     dispose: () => {
       container.removeEventListener('input', onInput)

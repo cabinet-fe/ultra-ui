@@ -281,3 +281,15 @@ $root-name: table;
     }
   }
 }
+
+// 单元格溢出提示的内容层。
+// 该节点被 teleport 到 pop-container，不在 .u-table 后代里，因此不能写在块内；
+// tip 默认 width: max-content，长文本需显式限宽并允许换行。
+// 注意类名前缀：$root-name 是 'table'，块级混入才会补 'u-'，这里需手写完整类名。
+.u-#{$root-name}__tip {
+  max-width: 360px;
+  // 纯展示，不拦截鼠标：否则提示会盖住相邻单元格，用户无法直接移过去
+  pointer-events: none;
+  white-space: normal;
+  word-break: break-all;
+}
