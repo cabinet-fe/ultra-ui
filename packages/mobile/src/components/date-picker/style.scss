@@ -122,16 +122,15 @@ $root-name: date-picker;
     border: none;
     background: none;
     font-size: t.use-var('font-size-main');
-    color: fn.use-var(text-color, main);
+    color: fn.use-var(color, primary);
     cursor: pointer;
 
     svg {
       width: 1em;
       height: 1em;
-    }
-
-    &:active {
-      color: fn.use-var(color, primary);
+      // 图标为填充路径，同色描边让箭头视觉加粗
+      stroke: currentColor;
+      stroke-width: 0.5px;
     }
   }
 
