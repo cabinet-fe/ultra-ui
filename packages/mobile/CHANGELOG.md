@@ -1,5 +1,11 @@
 # @veltra/mobile
 
+## 1.1.3
+
+### Patch Changes
+
+- 修复 `UButton` 加载状态图标旋转动画不生效：模板上的 `is-loading` 修饰类与样式选择器不匹配，改为 `m.bem($root-name, icon)` 生成 `.um-button__icon` 后动画与尺寸规则恢复；同时将日期选择器翻页箭头调整为主题主色加粗。
+
 ## 1.1.2
 
 ### Patch Changes
