@@ -17,6 +17,7 @@ keywords:
     valueKey,
     childrenKey,
     disabledNode,
+    showCheckbox,
     filter,
     getChecked,
     node-contextmenu,
@@ -92,6 +93,13 @@ export interface TreeProps {
   data?: Record<string, any>[]
   /** 返回 true 的节点禁用（不可单选/不可勾选）；整棵树构建完成后调用，可安全访问 node.children / node.isLeaf */
   disabledNode?: (item: Record<string, any>, node: TreeNode) => boolean
+  /**
+   * 是否渲染某个节点的复选框，签名与 disabledNode 一致，整棵树构建完成后调用。
+   * 返回 false 的节点不渲染 checkbox，且不参与勾选：级联勾选、向上冒泡、全选、
+   * update:checked 与 checked 回显都跳过它；其后代各自判定，不受影响。
+   * 默认不传时每个节点都渲染复选框。
+   */
+  showCheckbox?: (item: Record<string, any>, node: TreeNode) => boolean
   /** 开启多选（节点前渲染 checkbox） */
   checkable?: boolean
   /**
@@ -145,6 +153,8 @@ export interface TreeNode<Data extends Record<string, any> = Record<string, any>
   checked: boolean
   /** 是否禁用 */
   disabled: boolean
+  /** 是否渲染复选框（由 showCheckbox 判定，默认 true） */
+  showCheckbox: boolean
   /** 过滤后是否可见（可写） */
   visible: boolean
   loading: boolean
@@ -213,6 +223,7 @@ export interface TreeExposed {
 | `selected`          | `any`                             | —            |    否    | 节点的 `valueKey` 值；外部赋值会自动展开其祖先链并发出 `selected-synced`                                                                   |
 | `checked`           | `any[]`                           | —            |    否    | 节点 `valueKey` 值数组；外部赋值做差集回显并自动展开相关祖先链                                                                             |
 | `disabledNode`      | `(item, node) => boolean`         | —            |    否    | 整棵树构建完成后 DFS 调用；禁用节点不可单选、不可被级联勾选，checkbox 呈禁用态。父组件每次重渲染生成新函数会触发整棵树重建，复杂函数应缓存 |
+| `showCheckbox`      | `(item, node) => boolean`         | —            |    否    | 整棵树构建完成后 DFS 调用，签名与 `disabledNode` 一致。返回 `false` 的节点不渲染 checkbox，且不作为勾选值：级联勾选、向上冒泡、`checkAll`、`update:checked` 与 `checked` 回显都跳过它；子节点全选时也不会把它写进 `checkedData`。后代各自判定，不受影响。不传时每个节点都渲染复选框；运行期改值会重建整棵树 |
 | `slots`             | `Record<string, any>`             | —            |    否    | 供包装组件透传插槽；业务直接使用时写模板插槽即可                                                                                           |
 | `scrollToView`      | `boolean`                         | `false`      |    否    | 需 `selectable` 或 `checkable`；`selected`/`checked` 同步后自动把选中项滚动进视口                                                          |
 | `size`              | `'small' \| 'default' \| 'large'` | `'default'`  |    否    | 影响节点行高（虚拟滚动估算基准 32/36/44px）与字号；回退链：自身 > UForm 上下文 > 全局配置 > `'default'`                                    |
@@ -327,6 +338,45 @@ function onContextMenu(e: MouseEvent, node: TreeNode) {
     @node-contextmenu="onContextMenu"
     style="height: 300px"
   />
+</template>
+```
+
+### 只给部分节点渲染复选框（showCheckbox）
+
+```vue
+<script setup lang="ts">
+import { UTree } from '@veltra/desktop'
+import type { TreeNode } from '@veltra/desktop'
+import { ref } from 'vue'
+
+const checked = ref<string[]>([])
+
+const data = [
+  {
+    label: '亚洲',
+    value: 'asia',
+    children: [
+      { label: '中国', value: 'cn' },
+      { label: '日本', value: 'jp' }
+    ]
+  }
+]
+
+// 只有叶子节点渲染 checkbox；父节点仍可展开、可点击，但不是勾选值
+function showCheckbox(item: Record<string, any>, node: TreeNode) {
+  return node.isLeaf
+}
+</script>
+
+<template>
+  <u-tree
+    v-model:checked="checked"
+    :data="data"
+    checkable
+    :show-checkbox="showCheckbox"
+    style="height: 300px"
+  />
+  <!-- 勾选「中国」「日本」后：checked = ['cn', 'jp']，父节点 asia 不会进入 -->
 </template>
 ```
 

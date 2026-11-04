@@ -17,6 +17,8 @@ export interface TreeNode<Data extends Record<string, any> = Record<string, any>
   checked: boolean
   indeterminate: boolean
   disabled: boolean
+  /** 是否渲染复选框，由 `showCheckbox` 在整棵树构建完成后判定，默认 true */
+  showCheckbox: boolean
   label: string
   key: string | number
   childrenCheckCount: number
@@ -51,6 +53,13 @@ export interface TreeProps {
    * 在整棵树构建完成后调用，可安全访问 `node.children` / `node.isLeaf`。
    */
   disabledNode?: (item: Record<string, any>, node: TreeNode) => boolean
+  /**
+   * 是否渲染某个节点的复选框。返回 `false` 的节点不渲染 checkbox，也不作为勾选值参与
+   * 级联勾选、向上冒泡、全选与 `update:checked`；其后代各自判定，不受影响。
+   * 在整棵树构建完成后调用，可安全访问 `node.children` / `node.isLeaf`。
+   * @default 不传时每个节点都渲染复选框
+   */
+  showCheckbox?: (item: Record<string, any>, node: TreeNode) => boolean
   /** 可多选 */
   checkable?: boolean
   /**

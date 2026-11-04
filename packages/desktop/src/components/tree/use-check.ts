@@ -49,6 +49,8 @@ export function useCheck(options: Options): UseCheckReturned {
   let lastDict: Map<any, TreeNode> | null = null
 
   function checkNode(node: TreeNode): void {
+    // 不渲染复选框的节点不是勾选值：不选中自身，也不参与向上计数
+    if (!node.showCheckbox) return
     if (node.checked) return
     node.checked = true
     if (!props.checkStrictly && node.parent) {
@@ -58,12 +60,29 @@ export function useCheck(options: Options): UseCheckReturned {
   }
 
   function uncheckNode(node: TreeNode): void {
+    if (!node.showCheckbox) return
     if (!node.checked) return
     node.checked = false
     if (!props.checkStrictly && node.parent) {
       node.parent.childrenCheckCount--
     }
     checkedData.delete(node.data)
+  }
+
+  /** 父节点是否视为已全选：分母只统计渲染了复选框的子节点 */
+  function isAllChildrenChecked(parent: TreeNode): boolean {
+    const count = parent.checkableChildrenCount
+    return count > 0 && parent.childrenCheckCount === count
+  }
+
+  /**
+   * 按子节点勾选情况同步父节点状态。
+   * @description 没有可勾选子节点时无法由子节点状态推导父节点，保持父节点自身状态，
+   * 否则点击父节点自身会被立即回滚。
+   */
+  function syncParentChecked(parent: TreeNode): void {
+    if (!parent.checkableChildrenCount) return
+    isAllChildrenChecked(parent) ? checkNode(parent) : uncheckNode(parent)
   }
 
   /**
@@ -152,9 +171,7 @@ export function useCheck(options: Options): UseCheckReturned {
         const { parent } = node
 
         if (parent) {
-          const parentChecked = parent.childrenCheckCount === parent.children!.length
-
-          parentChecked ? checkNode(parent) : uncheckNode(parent)
+          syncParentChecked(parent)
         }
       })
     }

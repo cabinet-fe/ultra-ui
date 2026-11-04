@@ -1,13 +1,21 @@
 import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 import type { CSSProperties } from 'vue'
 
-import type { TreeProps } from './tree'
+import type { TreeProps, TreeNode } from './tree'
 /** 树形多选组件组件属性 */
 export interface MultiTreeSelectProps
   extends
     FormComponentProps,
     Omit<TreeProps, 'selected' | 'checked' | 'selectable' | 'checkable' | 'data'> {
   modelValue?: (string | number)[]
+
+  /**
+   * 是否渲染某个节点的复选框，签名与 `UTree` 一致，返回值原样透传给内部树。
+   * @description 返回 `false` 的节点不渲染 checkbox，也不会作为勾选值：头部全选总数、
+   * 标签回显与 `modelValue` 联动都跳过它；其后代各自判定，不受影响。
+   * @default 不传时每个节点都渲染复选框
+   */
+  showCheckbox?: (item: Record<string, any>, node: TreeNode) => boolean
 
   /**
    * 树数据

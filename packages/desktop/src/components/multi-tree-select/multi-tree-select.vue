@@ -23,10 +23,10 @@
       <!-- 选择的数据项 -->
       <div v-if="tags.length || filterable" :class="cls.e('tags')">
         <u-tag
-          v-for="(tag, index) in visibleTags"
+          v-for="tag in visibleTags"
           :key="tag[valueKey]"
           :closable="!disabled"
-          @close="handleRemove(index)"
+          @close="handleRemove(tag[valueKey])"
         >
           {{ renderNodeLabel(tag) }}
         </u-tag>
@@ -109,7 +109,7 @@ import { bem, fieldKey, FORM_EMPTY_CONTENT, renderLabelTemplate } from '@veltra/
 import { injectFormContext } from '@veltra/utils'
 import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'
 
-import type { MultiTreeSelectProps, MultiTreeSelectEmits, TreeExposed } from '../../types'
+import type { MultiTreeSelectProps, MultiTreeSelectEmits, TreeExposed, TreeNode } from '../../types'
 import type { DropdownExposed } from '../../types'
 import { UButton } from '../button'
 import { UCheckbox } from '../checkbox'
@@ -119,6 +119,7 @@ import { ULoading } from '../loading'
 import { UTag } from '../tag'
 import { UTree } from '../tree'
 import type { TreeSlotsScope } from '../tree/di'
+import { createTreeForest } from '../tree/forest'
 
 defineOptions({ name: 'UMultiTreeSelect', inheritAttrs: false })
 
@@ -222,6 +223,37 @@ watch(
 
 const model = defineModel<(string | number)[]>({ default: () => [] })
 
+/**
+ * 渲染了复选框的节点 value 集合。
+ * @description 与 UTree 内部同源（共用 `createTreeForest`）：`showCheckbox` 返回 false 的节点
+ * 不在集合内。未配置 `showCheckbox` 时为 undefined，完全跳过过滤以保持原有行为。
+ * 面板为懒渲染（挂载前 treeRef 为空），因此按数据单独构建一次，供头部计数与标签回显使用。
+ */
+const checkableValues = computed<Set<string | number> | undefined>(() => {
+  const { showCheckbox } = props
+  if (!showCheckbox) return undefined
+
+  const values = new Set<string | number>()
+  createTreeForest({
+    data: treeData.value as Record<string, any>[],
+    childrenKey: props.childrenKey,
+    valueKey: props.valueKey,
+    labelKey: props.labelKey,
+    disabledNode: props.disabledNode,
+    showCheckbox
+  }).dfs((node) => {
+    const tn = node as unknown as TreeNode
+    if (tn.showCheckbox) values.add(tn.key)
+  })
+  return values
+})
+
+/** 模型中的有效选中值：配了 showCheckbox 时剔除隐藏复选框的节点 */
+const effectiveModel = computed<(string | number)[]>(() => {
+  const values = checkableValues.value
+  return values ? model.value.filter((v) => values.has(v)) : model.value
+})
+
 const hovered = shallowRef(false)
 
 const tags = shallowRef<Record<string, any>[]>([])
@@ -247,12 +279,14 @@ function markEvent() {
 
 /**是否全选 */
 const allChecked = computed(() => {
+  const values = checkableValues.value
+  if (values) return values.size > 0 && effectiveModel.value.length === values.size
   return model.value?.length === treeRef.value?.forest.size
 })
 
 /**部分 */
 const indeterminate = computed(() => {
-  return model.value.length! > 0 && !allChecked.value
+  return effectiveModel.value.length > 0 && !allChecked.value
 })
 
 /** 全选*/
@@ -272,10 +306,10 @@ const handleCheck = (checked: (string | number)[], checkedData: Record<string, a
 }
 
 /**删除 */
-const handleRemove = (index: number) => {
+const handleRemove = (value: string | number) => {
   markEvent()
-  tags.value = tags.value.filter((_, i) => i !== index)
-  model.value = model.value.filter((_, i) => i !== index)
+  tags.value = tags.value.filter((tag) => tag[valueKey.value] !== value)
+  model.value = model.value.filter((v) => v !== value)
   emit('change', tags.value)
 }
 
@@ -312,7 +346,7 @@ watch(
 )
 
 watch(
-  [keyDicts, model],
+  [keyDicts, model, checkableValues],
   ([keyDicts, model]) => {
     if (changedByEvent) return
 
@@ -321,7 +355,8 @@ watch(
       return
     }
 
-    tags.value = model.filter((v) => keyDicts.has(v)).map((v) => keyDicts.get(v)!)
+    // 隐藏了复选框的节点不作为已选标签回显
+    tags.value = effectiveModel.value.filter((v) => keyDicts.has(v)).map((v) => keyDicts.get(v)!)
   },
   { immediate: true }
 )

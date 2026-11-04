@@ -1,9 +1,9 @@
-import { Forest } from '@cat-kit/core'
-import { fieldKey } from '@veltra/utils'
+import type { Forest } from '@cat-kit/core'
 import { computed, shallowRef, triggerRef, watch, type ShallowRef, type ComputedRef } from 'vue'
 
 import type { TreeProps } from '../../types'
-import { TreeNode } from './tree-node'
+import { createTreeForest } from './forest'
+import type { TreeNode } from './tree-node'
 
 interface Options {
   props: TreeProps
@@ -25,53 +25,21 @@ export function useTreeNodes(options: Options): UseTreeNodesReturned {
   // - computed 会因为任一 prop 变化（尤其是内联 disabledNode 函数）而整棵重建，
   //   丢失 expanded/checked/visible 等运行时状态；
   // - 显式 watch 仅在真正影响结构的输入变化时才重建，行为可控、可测量。
-  const forestRef = shallowRef<Forest<Record<string, unknown>, any>>(
-    new Forest<Record<string, unknown>, any>({
-      data: [],
-      childrenKey: props.childrenKey ?? 'children'
-    })
-  )
+  const forestRef = shallowRef<Forest<Record<string, unknown>, any>>(createTreeForest({ data: [] }))
 
   const nodeDictRef = shallowRef<Map<string | number, TreeNode>>(new Map())
 
   const nodes = shallowRef<TreeNode[]>([])
 
-  function buildForest(): Forest<Record<string, unknown>, any> {
-    const { expandAll = false } = props
-    const childrenKey = props.childrenKey ?? 'children'
-    const valueKey = fieldKey(props.valueKey, 'value')
-    const labelKey = fieldKey(props.labelKey, 'label')
-
-    return new Forest<Record<string, unknown>, any>({
-      data: (props.data ?? []) as Record<string, unknown>[],
-      childrenKey,
-      createNode: (data, index, depth, _f, parent) => {
-        const node = new TreeNode({
-          data: data as Record<string, any>,
-          index,
-          depth,
-          parent: parent as TreeNode | undefined,
-          valueKey,
-          labelKey
-        })
-        node.expanded = expandAll
-        return node
-      }
-    })
-  }
-
   function rebuildForest(): void {
-    const nextForest = buildForest()
+    const nextForest = createTreeForest(props)
     const nextDict = new Map<string | number, TreeNode>()
-    const { disabledNode } = props
 
-    // Forest 的 createNode 返回时 children 尚未挂载，因此 disabledNode 必须在
-    // 整棵树构建完成后再调用，才能安全访问 node.children / node.isLeaf。
+    // 整棵树构建完成后节点才是完整的，disabledNode / showCheckbox 由 createTreeForest
+    // 在此之后统一判定，这里只需收集节点字典。
     nextForest.dfs((node) => {
-      if (disabledNode && node.data) {
-        node.disabled = disabledNode(node.data as Record<string, any>, node) ?? false
-      }
-      nextDict.set(node.key, node)
+      const tn = node as unknown as TreeNode
+      nextDict.set(tn.key, tn)
     })
 
     forestRef.value = nextForest
@@ -112,6 +80,7 @@ export function useTreeNodes(options: Options): UseTreeNodesReturned {
     [
       () => props.data,
       () => props.disabledNode,
+      () => props.showCheckbox,
       () => props.childrenKey,
       () => props.valueKey,
       () => props.labelKey,

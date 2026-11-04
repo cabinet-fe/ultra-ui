@@ -9,6 +9,7 @@ keywords:
     checkOnClickNode,
     visibilityLimit,
     disabledNode,
+    showCheckbox,
     filterable,
     clearable,
     expandAll,
@@ -141,6 +142,13 @@ export interface MultiTreeSelectProps extends FormComponentProps {
   /** 返回 true 的节点不可勾选；node 为构建后的树节点，可访问 node.children / node.isLeaf */
   disabledNode?: (item: Record<string, any>, node: TreeNode) => boolean
   /**
+   * 是否渲染某个节点的复选框，签名与 disabledNode 一致。
+   * 返回 false 的节点不渲染 checkbox，且不作为勾选值（级联勾选、向上冒泡、全选、
+   * update:modelValue 与标签回显都跳过它）；其后代各自判定，不受影响。
+   * 默认不传时每个节点都渲染复选框。
+   */
+  showCheckbox?: (item: Record<string, any>, node: TreeNode) => boolean
+  /**
    * 严格勾选：true 时父子勾选互不关联。
    * 默认 false：勾选父级级联勾选全部未禁用子孙，子级全选时父级自动勾选
    */
@@ -191,6 +199,7 @@ export type MultiTreeSelectExposed = {}
 | `expandAll`         | `boolean`                                                                                            | `false`          |  否  | 初始展开全部节点；面板内有「展开全部 / 收起全部」按钮                                                                            |
 | `expandOnClickNode` | `boolean`                                                                                            | `false`          |  否  | 点击节点文本是否展开/收缩                                                                                                        |
 | `disabledNode`      | `(item, node) => boolean`                                                                            | —                |  否  | 返回 `true` 的节点不可勾选                                                                                                       |
+| `showCheckbox`      | `(item, node) => boolean`                                                                            | —                |  否  | 返回 `false` 的节点不渲染 checkbox，也不作为勾选值：勾选父级不会把它写入 `modelValue`，子级全选时也不会勾选它；面板头部「全选」总数只统计本函数未返回 `false` 的节点；`modelValue` 中已含此类节点的值时不作为标签回显。后代各自判定，不受影响；不传时每个节点都渲染复选框 |
 | `checkStrictly`     | `boolean`                                                                                            | `false`          |  否  | 父子勾选策略，见「方法与事件」                                                                                                   |
 | `checkOnClickNode`  | `boolean`                                                                                            | `true`           |  否  | 点击节点文本即切换勾选；`false` 时仅点击 checkbox                                                                                |
 | `placeholder`       | `string`                                                                                             | `'请选择'`       |  否  | 无选中值时的占位文字                                                                                                             |
@@ -274,6 +283,53 @@ function handleChange(checked: Record<string, any>[]) {
     clearable
     @change="handleChange"
   />
+</template>
+```
+
+### 只给叶子节点显示复选框（showCheckbox）
+
+```vue
+<script setup lang="ts">
+import type { TreeNode } from '@veltra/desktop'
+import { UMultiTreeSelect } from '@veltra/desktop'
+import { ref } from 'vue'
+
+const selected = ref<(string | number)[]>(['cn'])
+
+const data = [
+  {
+    label: '亚洲',
+    value: 'asia',
+    children: [
+      { label: '中国', value: 'cn' },
+      { label: '日本', value: 'jp' }
+    ]
+  },
+  {
+    label: '欧洲',
+    value: 'europe',
+    children: [
+      { label: '英国', value: 'uk' },
+      { label: '法国', value: 'fr' }
+    ]
+  }
+]
+
+// 父节点不渲染 checkbox，也不会被写进 modelValue；叶子照常勾选
+function showLeafCheckbox(item: Record<string, any>, node: TreeNode) {
+  return node.isLeaf
+}
+</script>
+
+<template>
+  <UMultiTreeSelect
+    v-model="selected"
+    :data="data"
+    expand-all
+    :show-checkbox="showLeafCheckbox"
+  />
+  <!-- 勾选全部叶子后 selected = ['cn', 'jp', 'uk', 'fr']，不含 asia / europe -->
+  <!-- 头部「全选」总数 4，只统计复选框可见的节点 -->
 </template>
 ```
 

@@ -15,6 +15,8 @@ export class TreeNode<Val extends Record<string, any> = Record<string, any>> ext
   /** 多选是否选中 */
   checked = false
   disabled = false
+  /** 是否渲染复选框；`showCheckbox` 返回 false 的节点置为 false */
+  showCheckbox = true
   visible = true
   /** 子节点选中数量 */
   childrenCheckCount = 0
@@ -27,6 +29,15 @@ export class TreeNode<Val extends Record<string, any> = Record<string, any>> ext
     )
   }
 
+  /** 可勾选的子节点数量：父节点全选判定用，隐藏复选框的子节点不参与 */
+  get checkableChildrenCount(): number {
+    if (!this.children) return 0
+    let count = 0
+    for (const child of this.children) {
+      if (child.showCheckbox) count++
+    }
+    return count
+  }
   labelKey: string
   valueKey: string
 
