@@ -71,15 +71,15 @@ const visible = ref(true)
 | 过渡名           | 效果                                                               | 时长与曲线                                                                              | 源文件            |
 | ---------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------- | ----------------- |
 | `fade`           | 淡入淡出（仅 opacity）                                             | 0.25s linear                                                                            | `fade.scss`       |
-| `fade-scale`     | 淡入 + 缩放：enter 从 `scale 0.96`、leave 到 `scale 0.98`          | enter 200ms、leave 160ms，均为 `cubic-bezier(0.23, 1, 0.32, 1)`                        | `fade-scale.scss` |
-| `slide-down`     | 自上而下滑入（enter-from `translateY(-10px)`）                     | enter 0.2s、leave 0.15s，均为 `cubic-bezier(0.23, 1, 0.32, 1)`                          | `slide.scss`      |
-| `slide-up`       | 自下而上升入（enter-from `translateY(10px)`）                      | enter 0.2s、leave 0.15s，均为 `cubic-bezier(0.23, 1, 0.32, 1)`                          | `slide.scss`      |
+| `fade-scale`     | 淡入 + 缩放：enter 从 `scale 0.96`、leave 到 `scale 0.98`          | enter 200ms、leave 160ms，均为 `cubic-bezier(0.33, 1, 0.68, 1)`                        | `fade-scale.scss` |
+| `slide-down`     | 自上而下滑入（enter-from `translateY(-10px)`）                     | enter 0.2s、leave 0.15s，均为 `cubic-bezier(0.33, 1, 0.68, 1)`                          | `slide.scss`      |
+| `slide-up`       | 自下而上升入（enter-from `translateY(10px)`）                      | enter 0.2s、leave 0.15s，均为 `cubic-bezier(0.33, 1, 0.68, 1)`                          | `slide.scss`      |
 | `spring`         | 弹性缩放：enter 跑 `spring-in` keyframes（0.9 且透明 → 1.1 → 1 → 1.02 → 1），leave 到 `scale 0.96` | enter 0.5s ease-in-out；leave 0.4s `cubic-bezier(0.64, -0.32, 0.66, 1.06)` | `spring.scss` |
-| `zoom-in`        | 中心缩放（`scale 0.9`）                                            | enter 0.15s、leave 0.12s，均为 `cubic-bezier(0.23, 1, 0.32, 1)`                         | `zoom-in.scss`    |
-| `zoom-in-left`   | 从左侧锚点横向缩放（`scaleX 0.9`，origin left center）             | enter 0.15s、leave 0.12s，均为 `cubic-bezier(0.23, 1, 0.32, 1)`                         | `zoom-in.scss`    |
-| `zoom-in-right`  | 从右侧锚点横向缩放（origin right center）                          | enter 0.15s、leave 0.12s，均为 `cubic-bezier(0.23, 1, 0.32, 1)`                         | `zoom-in.scss`    |
-| `zoom-in-top`    | 从顶部锚点纵向缩放（`scaleY 0.9`，origin center top）              | enter 0.15s、leave 0.12s，均为 `cubic-bezier(0.23, 1, 0.32, 1)`                         | `zoom-in.scss`    |
-| `zoom-in-bottom` | 从底部锚点纵向缩放（origin center bottom）                         | enter 0.15s、leave 0.12s，均为 `cubic-bezier(0.23, 1, 0.32, 1)`                         | `zoom-in.scss`    |
+| `zoom-in`        | 中心缩放（`scale 0.9`）                                            | enter 0.15s、leave 0.12s，均为 `cubic-bezier(0.33, 1, 0.68, 1)`                         | `zoom-in.scss`    |
+| `zoom-in-left`   | 从左侧锚点横向缩放（`scaleX 0.9`，origin left center）             | enter 0.15s、leave 0.12s，均为 `cubic-bezier(0.33, 1, 0.68, 1)`                         | `zoom-in.scss`    |
+| `zoom-in-right`  | 从右侧锚点横向缩放（origin right center）                          | enter 0.15s、leave 0.12s，均为 `cubic-bezier(0.33, 1, 0.68, 1)`                         | `zoom-in.scss`    |
+| `zoom-in-top`    | 从顶部锚点纵向缩放（`scaleY 0.9`，origin center top）              | enter 0.15s、leave 0.12s，均为 `cubic-bezier(0.33, 1, 0.68, 1)`                         | `zoom-in.scss`    |
+| `zoom-in-bottom` | 从底部锚点纵向缩放（origin center bottom）                         | enter 0.15s、leave 0.12s，均为 `cubic-bezier(0.33, 1, 0.68, 1)`                         | `zoom-in.scss`    |
 
 `UDialog` 的默认过渡就是 `fade-scale`（组件自带引入该文件，业务里再对其他元素使用时需自行引入）。
 

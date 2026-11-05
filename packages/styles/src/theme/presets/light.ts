@@ -68,7 +68,9 @@ export const lightTheme: UITheme = new UITheme(
       normal: '0.25s',
       slow: '0.35s',
       ease: 'cubic-bezier(0.4, 0, 0.2, 1)',
-      easeOut: 'cubic-bezier(0.23, 1, 0.32, 1)'
+      // 入场缓动：快但不瞬移。原 0.23/1/0.32/1 在 15ms 就走了 40%，
+      // 150ms 级的微交互几乎看不到过程；改到 easeOutCubic 邻近区间。
+      easeOut: 'cubic-bezier(0.33, 1, 0.68, 1)'
     },
 
     gap: defineBySize({ small: 6, default: 8, large: 12 }),

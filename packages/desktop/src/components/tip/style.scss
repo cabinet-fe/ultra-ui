@@ -63,11 +63,11 @@ $root-name: tip;
 }
 
 .#{$root-name}-enter-active {
-  transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  transition-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
   transition-duration: 160ms;
 }
 .#{$root-name}-leave-active {
-  transition-timing-function: cubic-bezier(0.23, 1, 0.32, 1);
+  transition-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
   transition-duration: 120ms;
 }
 

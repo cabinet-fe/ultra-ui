@@ -58,7 +58,8 @@ $root-name: scroll;
     border-radius: $bar-size;
     background-color: transparent;
     will-change: transform;
-    transition: opacity fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+    // 出现/隐藏用 normal：fast 的 0.15s 对淡入淡出偏短，几乎看不出过程
+    transition: opacity fn.use-var(transition, normal) fn.use-var(transition, ease-out);
     z-index: 1;
 
     &::before {

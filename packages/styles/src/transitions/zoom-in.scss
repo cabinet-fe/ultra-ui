@@ -10,15 +10,15 @@
 
   &-enter-active {
     transition:
-      opacity 0.15s cubic-bezier(0.23, 1, 0.32, 1),
-      transform 0.15s cubic-bezier(0.23, 1, 0.32, 1);
+      opacity 0.15s cubic-bezier(0.33, 1, 0.68, 1),
+      transform 0.15s cubic-bezier(0.33, 1, 0.68, 1);
   }
 
   // 出场比入场快
   &-leave-active {
     transition:
-      opacity 0.12s cubic-bezier(0.23, 1, 0.32, 1),
-      transform 0.12s cubic-bezier(0.23, 1, 0.32, 1);
+      opacity 0.12s cubic-bezier(0.33, 1, 0.68, 1),
+      transform 0.12s cubic-bezier(0.33, 1, 0.68, 1);
   }
 }
 

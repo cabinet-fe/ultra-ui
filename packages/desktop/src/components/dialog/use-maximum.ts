@@ -24,7 +24,7 @@ interface Rect {
 
 const ENTER_TO = 'dialog-maximize-enter-to'
 const FLIP_MS = 250
-const FLIP_TRANSITION = 'transform 250ms cubic-bezier(0.23, 1, 0.32, 1)'
+const FLIP_TRANSITION = 'transform 250ms cubic-bezier(0.33, 1, 0.68, 1)'
 
 function readRect(dom: HTMLElement): Rect {
   const r = dom.getBoundingClientRect()

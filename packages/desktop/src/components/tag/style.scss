@@ -15,7 +15,7 @@ $root-name: tag;
   @include m.flex(inline-flex, flex-start, center);
 
   // 进入动画：从 0.96 淡入，不从 0 放大
-  animation: tag-zoom-in 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+  animation: tag-zoom-in 0.25s cubic-bezier(0.33, 1, 0.68, 1);
 
   @include m.e(content) {
     overflow: hidden;
