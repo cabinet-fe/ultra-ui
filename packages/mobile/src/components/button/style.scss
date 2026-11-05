@@ -13,7 +13,8 @@ $size-font: (
   large: font-size-main
 );
 
-// 控件高度档 32 / 40 / 48，热区另有 44px 下限兜底
+// 控件高度档 32 / 40 / 48；视觉高度按档生效，
+// 不足 44px 触控热区的档位由 ::after 外扩补足命中区域
 $size-height: (
   small: control-height-small,
   default: control-height-default,
@@ -57,21 +58,35 @@ $size-padding: (
   gap: t.use-var(spacing-sm);
 
   @include m.flex($display: inline-flex, $justify: center);
+  position: relative;
 
-  // 触控热区：任何尺寸的可点击区域不小于 44×44
+  // 视觉高度按档生效；触控热区不足 44×44 时用 ::after
+  // 向外扩展命中区域，不抬高视觉高度
   @include m.size using ($size) {
-    $touch-size: max(
-      #{t.use-var(map.get($size-height, $size))},
-      #{t.use-var(touch-target)}
-    );
+    $height: t.use-var(map.get($size-height, $size));
+    $hit-offset: calc((#{t.use-var(touch-target)} - #{$height}) / -2);
 
-    min-height: $touch-size;
+    min-height: $height;
     font-size: t.use-var(map.get($size-font, $size));
     padding: 0 t.use-var(map.get($size-padding, $size));
     border-radius: t.control-radius($size);
 
+    &::after {
+      content: '';
+      position: absolute;
+      top: $hit-offset;
+      bottom: $hit-offset;
+      left: 0;
+      right: 0;
+    }
+
     @include m.is(circle) {
-      min-width: $touch-size;
+      min-width: $height;
+
+      &::after {
+        left: $hit-offset;
+        right: $hit-offset;
+      }
     }
   }
 
