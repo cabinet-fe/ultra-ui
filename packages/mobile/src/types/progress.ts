@@ -3,7 +3,7 @@ import type { ColorType, DeconstructValue } from '@veltra/utils'
 /** progress组件属性 */
 export interface ProgressProps {
   /** 类型 */
-  type: ColorType | ((percentage: number) => ColorType)
+  type?: ColorType | ((percentage: number) => ColorType)
   /** 圆形进度条尺寸 */
   size?: number | string
   /** 进度百分比 */

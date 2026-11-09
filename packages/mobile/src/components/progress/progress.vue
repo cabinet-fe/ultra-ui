@@ -52,7 +52,7 @@ import type { ProgressProps } from '../../types/progress'
 
 defineOptions({ name: 'UProgress' })
 
-const props = defineProps<ProgressProps>()
+const props = withDefaults(defineProps<ProgressProps>(), { type: 'primary' })
 
 defineSlots<{
   default: (props: {
