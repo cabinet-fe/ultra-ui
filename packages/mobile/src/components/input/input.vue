@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!readonly" v-bind="rootAttrs" :class="inputClass">
+  <div v-if="!readonly" v-bind="rootAttrs" :class="inputClass" @click="el?.focus()">
     <span v-if="$slots.prefix || prefix" :class="prefixClass" @click="handlePrefixClick">
       {{ prefix }}
       <slot name="prefix"></slot>

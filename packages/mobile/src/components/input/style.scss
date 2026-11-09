@@ -14,16 +14,30 @@ $root-name: input;
   transition:
     border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
     box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
-  overflow: hidden;
   width: 100%;
 
   @include m.flex($display: inline-flex);
 
   @include m.size using ($size) {
-    // 密度全部取移动端 token：高度不小于 44px 触控热区，字号 16px（iOS 聚焦防缩放）
-    height: max(t.control-height($size), t.use-var('touch-target'));
+    // 视觉高度按档生效；字号 16px（iOS 聚焦防缩放）
+    $height: t.control-height($size);
+    $hit-offset: calc((#{t.use-var('touch-target')} - #{$height}) / -2);
+
+    position: relative;
+    height: $height;
     border-radius: t.control-radius($size);
     padding: 0 t.use-var('spacing-md');
+
+    // 触控热区不足 44px 时由 ::before 上下外扩补足命中区域，不抬高视觉高度
+    // （伪元素位于子元素之下，不拦截前后缀 / 清除等内部可点元素）
+    &::before {
+      content: '';
+      position: absolute;
+      top: $hit-offset;
+      bottom: $hit-offset;
+      left: 0;
+      right: 0;
+    }
 
     @include m.bem($root-name, native) {
       font-size: t.use-var('font-size-main');
@@ -68,15 +82,28 @@ $root-name: input;
     text-align: center;
     @include m.flex(inline-flex, $justify: center, $align: center);
 
-    // 前后缀可点击时保证 44px 宽热区
+    // 前后缀可点击时保证 44px 热区
     @include m.is(clickable) {
+      position: relative;
       min-width: t.use-var('touch-target');
       cursor: pointer;
+
+      // 垂直居中的 44px 命中层：行高随密度档变化时热区高度不塌缩
+      &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        height: t.use-var('touch-target');
+        transform: translateY(-50%);
+        left: 0;
+        right: 0;
+      }
     }
   }
 
   @include m.e(clear) {
-    // 清除按钮：宽度 44px、高度撑满输入行内容盒（行高 ≥44px）
+    // 清除按钮：宽度 44px；高度撑满输入行内容盒
+    position: relative;
     min-width: t.use-var('touch-target');
     align-self: stretch;
     border: none;
@@ -90,6 +117,17 @@ $root-name: input;
     font-size: t.use-var('font-size-main');
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+
+    // 垂直居中的 44px 命中层：行高随密度档变化时热区高度不塌缩
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      height: t.use-var('touch-target');
+      transform: translateY(-50%);
+      left: 0;
+      right: 0;
+    }
 
     svg {
       width: 1em;

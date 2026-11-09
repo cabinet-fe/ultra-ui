@@ -34,13 +34,25 @@
     border-radius: t.control-radius($size);
 
     @include m.bem(segment, item) {
-      // 密度走移动端 token：视觉高度 ≥32px、触控热区 ≥44×44
+      // 视觉尺寸按档生效（容器内缩 4px）；触控热区不足 44px 时由 ::before
+      // 上下外扩补足命中区域，不抬高视觉高度
       // （block 形态由更高特异性保持 min-width: 0 的弹性分配）
-      min-height: max(calc(#{t.control-height($size)} - 4px), t.use-var('touch-target'));
-      min-width: max(calc(#{t.control-height($size)} - 4px), t.use-var('touch-target'));
+      $hit-offset: calc((#{t.use-var('touch-target')} - (#{t.control-height($size)} - 4px)) / -2);
+
+      min-height: calc(#{t.control-height($size)} - 4px);
+      min-width: calc(#{t.control-height($size)} - 4px);
       padding: 0 calc(#{t.spacing($size)} * 1.5);
       border-radius: calc(#{t.control-radius($size)} - 2px);
       font-size: t.use-var('font-size-main');
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: $hit-offset;
+        bottom: $hit-offset;
+        left: 0;
+        right: 0;
+      }
     }
   }
 

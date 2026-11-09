@@ -4,9 +4,6 @@
 
 $root-name: checkbox;
 
-// 移动端复选框指示器下限：过小难以辨认勾选状态
-$indicator-min: 20px;
-
 @include m.b($root-name) {
   user-select: none;
   vertical-align: middle;
@@ -16,12 +13,27 @@ $indicator-min: 20px;
   gap: t.spacing(default);
 
   @include m.size using ($size) {
-    // 触控热区：整个 label 可点，不小于触控下限
-    min-height: max(t.control-height($size), t.use-var(touch-target));
+    // 视觉高度按档生效；触控热区不足 44px 时由 ::before 上下外扩补足命中区域
+    // （根是 label，外扩区点击照常勾选；伪元素位于子元素之下不拦截点击）
+    $height: t.control-height($size);
+    $hit-offset: calc((#{t.use-var(touch-target)} - #{$height}) / -2);
+
+    position: relative;
+    min-height: $height;
     min-width: t.use-var(touch-target);
 
+    &::before {
+      content: '';
+      position: absolute;
+      top: $hit-offset;
+      bottom: $hit-offset;
+      left: 0;
+      right: 0;
+    }
+
     @include m.bem($root-name, indicator) {
-      $indicator: max(calc(t.control-height($size) / 2), $indicator-min);
+      // 指示器按高度档的一半缩放（16 / 20 / 24），不设下限避免 small 与 default 等大
+      $indicator: calc(t.control-height($size) / 2);
 
       height: $indicator;
       width: $indicator;

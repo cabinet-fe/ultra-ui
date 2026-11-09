@@ -6,9 +6,6 @@
 // 方便拼接
 $root-name: steps;
 
-// 触控可读的下限：圆圈直径与点击热区不小于该值
-$icon-min: 40px;
-
 @include m.b($root-name) {
   padding: 0;
   margin: 0;
@@ -224,8 +221,10 @@ $icon-min: 40px;
   @include m.size using ($size) {
     @include m.bem($root-name, icon) {
       font-size: t.use-var('font-size-main');
-      width: max(t.control-height($size), $icon-min);
-      height: max(t.control-height($size), $icon-min);
+      // 圆圈直径按高度档生效（32 / 40 / 48）；点击热区由整个 item 保证 ≥44px，
+      // 图标本身不承担热区职责，不设下限避免 small 与 default 等大
+      width: t.control-height($size);
+      height: t.control-height($size);
     }
   }
 }

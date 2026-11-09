@@ -249,13 +249,26 @@ $indicator-height: 3px;
     align-self: stretch;
   }
 
-  // 触控热区：任何尺寸的标签可点击区域不小于 44×44，字号 / 高度走移动端密度 token
+  // 视觉高度按档生效；触控热区不足 44px 时由 ::before 上下外扩补足命中区域，
+  // 不抬高视觉高度（::after 已被激活下划线占用，热区伪元素用 ::before）
   @include m.size using ($size) {
     @include m.bem(tabs-bar, item) {
-      min-height: max(t.control-height($size), t.use-var('touch-target'));
+      $height: t.control-height($size);
+      $hit-offset: calc((#{t.use-var('touch-target')} - #{$height}) / -2);
+
+      min-height: $height;
       min-width: t.use-var('touch-target');
       padding: 0 t.spacing($size);
       font-size: t.use-var('font-size-main');
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: $hit-offset;
+        bottom: $hit-offset;
+        left: 0;
+        right: 0;
+      }
     }
   }
 

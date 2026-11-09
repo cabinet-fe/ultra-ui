@@ -13,12 +13,24 @@ $root-name: switch;
   gap: t.spacing(default);
 
   @include m.size using ($size) {
-    // 拨动热区：整个 label 可点，不小于触控下限；轨道尺寸走 --um-* 移动档
-    $touch-size: max(t.control-height($size), t.use-var(touch-target));
+    // 视觉行高按档生效；触控热区不足 44px 时由 ::before 上下外扩补足命中区域
+    // （整个 label 可点，根是 label 外扩区点击照常切换；轨道尺寸走 --um-* 移动档）
+    $height: t.control-height($size);
     $track: t.switch-track($size);
+    $hit-offset: calc((#{t.use-var(touch-target)} - #{$height}) / -2);
 
-    min-height: $touch-size;
+    position: relative;
+    min-height: $height;
     min-width: t.use-var(touch-target);
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: $hit-offset;
+      bottom: $hit-offset;
+      left: 0;
+      right: 0;
+    }
 
     @include m.bem($root-name, button) {
       height: $track;

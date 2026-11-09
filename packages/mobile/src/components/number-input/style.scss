@@ -29,7 +29,8 @@ $root-name: number-input;
   }
 
   @include m.e(clear) {
-    // 清除按钮：宽度 44px、高度撑满输入行内容盒（行高 ≥44px）
+    // 清除按钮：宽度 44px；高度撑满输入行内容盒
+    position: relative;
     min-width: t.use-var('touch-target');
     align-self: stretch;
     display: inline-flex;
@@ -43,6 +44,17 @@ $root-name: number-input;
     font-size: t.use-var('font-size-main');
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+
+    // 垂直居中的 44px 命中层：行高随密度档变化时热区高度不塌缩
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      height: t.use-var('touch-target');
+      transform: translateY(-50%);
+      left: 0;
+      right: 0;
+    }
 
     svg {
       width: 1em;

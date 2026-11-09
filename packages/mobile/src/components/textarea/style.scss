@@ -14,17 +14,26 @@ $root-name: textarea;
   transition:
     border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
     box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
-  overflow: hidden;
   vertical-align: middle;
 
   @include m.size using ($size) {
     border-radius: t.control-radius($size);
 
+    // 触控热区不足 44px 时由 ::before 上下外扩补足命中区域，不抬高视觉高度
+    &::before {
+      content: '';
+      position: absolute;
+      top: calc((#{t.use-var('touch-target')} - #{t.control-height($size)}) / -2);
+      bottom: calc((#{t.use-var('touch-target')} - #{t.control-height($size)}) / -2);
+      left: 0;
+      right: 0;
+    }
+
     @include m.bem($root-name, native) {
       // 行高、内边距走移动端 token；右侧让位计数/清除 44px 热区
       padding: t.spacing($size) t.use-var('touch-target') t.spacing($size) t.spacing($size);
-      // 触控热区：文本域高度不小于 44px；字号 16px（iOS 聚焦防视口缩放）
-      min-height: max(t.control-height($size), t.use-var('touch-target'));
+      // 视觉高度按档生效；字号 16px（iOS 聚焦防视口缩放）
+      min-height: t.control-height($size);
       font-size: t.use-var('font-size-main');
       line-height: t.use-var('text-line-height');
     }

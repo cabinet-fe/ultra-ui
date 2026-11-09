@@ -6,7 +6,7 @@ $root-name: list;
 $item-name: $root-name + '-item';
 
 // 移动端列表：无滚动包装层，原生 ul/li 直接承载滚动；
-// 行高、字号、行间距走 --um-* 密度 token，行高保底 44px 触控热区
+// 行高、字号、行间距走 --um-* 密度 token，行高按控件高度档生效
 @include m.b($root-name) {
   margin: 0;
   padding: 0;
@@ -29,7 +29,8 @@ $item-name: $root-name + '-item';
     }
   }
 
-  // 尺寸档：行高取控件高度档并保底 44px，横向内边距走间距刻度
+  // 尺寸档：行高按控件高度档生效，不足 44px 触控热区由 ::before 上下外扩
+  // 补足命中区域，不抬高视觉行高
   @include m.size using ($size) {
     @include m.bem($item-name) {
       $padding: t.use-var(spacing-lg);
@@ -42,9 +43,23 @@ $item-name: $root-name + '-item';
         $padding: t.use-var(spacing-xl);
       }
 
+      $height: t.control-height($size);
+      $hit-offset: calc((#{t.use-var(touch-target)} - #{$height}) / -2);
+
+      position: relative;
       padding: 0 $padding;
       border-radius: t.control-radius($size);
-      min-height: max(t.control-height($size), t.use-var(touch-target));
+      min-height: $height;
+
+      // 伪元素位于子元素之下，不拦截行内可点元素
+      &::before {
+        content: '';
+        position: absolute;
+        top: $hit-offset;
+        bottom: $hit-offset;
+        left: 0;
+        right: 0;
+      }
     }
   }
 }

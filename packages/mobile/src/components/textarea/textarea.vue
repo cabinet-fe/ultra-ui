@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!readonly" :class="textareaClass">
+  <div v-if="!readonly" :class="textareaClass" @click="textareaRef?.focus()">
     <textarea
       :class="cls.e('native')"
       :placeholder="placeholder"

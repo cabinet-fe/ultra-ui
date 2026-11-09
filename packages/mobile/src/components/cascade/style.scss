@@ -24,9 +24,23 @@ $root-name: cascade;
     border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
     box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
 
-  // 触控热区：任何尺寸的可点击区域不小于 44×44，高度走移动端密度 token
+  // 视觉高度按档生效；触控热区不足 44px 时由 ::before 上下外扩补足命中区域，
+  // 不抬高视觉高度（伪元素位于子元素之下，不拦截清除 / 箭头等内部可点元素）
   @include m.size using ($size) {
-    min-height: max(t.control-height($size), t.use-var('touch-target'));
+    $height: t.control-height($size);
+    $hit-offset: calc((#{t.use-var('touch-target')} - #{$height}) / -2);
+
+    position: relative;
+    min-height: $height;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: $hit-offset;
+      bottom: $hit-offset;
+      left: 0;
+      right: 0;
+    }
   }
 
   &:active {

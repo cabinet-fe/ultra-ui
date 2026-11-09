@@ -19,10 +19,10 @@ $root-name: checkbox-group;
   }
 
   // 行高按尺寸收敛（不用 48px 表单行高）：组内项内容小，行高过大显得间隔稀疏；
-  // 仍保留 44px 触控热区下限
+  // 不足 44px 的触控热区由 checkbox 自身的 ::before 外扩补足
   @include m.size using ($size) {
     @include m.bem(checkbox) {
-      min-height: max(t.control-height($size), t.use-var(touch-target));
+      min-height: t.control-height($size);
     }
   }
 
