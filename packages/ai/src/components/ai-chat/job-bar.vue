@@ -9,7 +9,7 @@
     <div v-if="expanded" :class="cls.e('job-bar-list')">
       <div v-for="job in jobs" :key="job.id" :class="cls.e('job-bar-item')">
         <UIcon :class="cls.e('job-bar-icon')">
-          <component :is="resolveToolIcon(job.kind)" />
+          <component :is="resolveToolIcon(job.kind, di?.toolIcons?.value)" />
         </UIcon>
         <span :class="[cls.e('job-bar-label'), job.status === 'running' && 'u-shine']">
           {{ job.label }}

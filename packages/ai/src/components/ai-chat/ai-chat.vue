@@ -156,8 +156,18 @@ const clearable = computed(
   () => messages.value.length > 0 || queue.value.length > 0 || running.value
 )
 
+/** 任一工具声明 renderTo: 'panel'：绝大多数会话没有面板工具，
+ * 先短路避免流式期间每个 delta 都全量扫描消息找面板调用 */
+const hasPanelTools = computed(() =>
+  Object.values(toolMap.value).some((t) => t?.renderTo === 'panel')
+)
+
+/** 短路时的共享空数组：引用稳定，下游 watch(panelCalls) 不因流式 delta 反复触发 */
+const NO_PANEL_CALLS: ChatToolCall[] = []
+
 /** 所有 renderTo: 'panel' 的工具调用（按消息顺序，面板内容的来源） */
-const panelCalls = computed(() => {
+const panelCalls = computed<ChatToolCall[]>(() => {
+  if (!hasPanelTools.value) return NO_PANEL_CALLS
   const calls: ChatToolCall[] = []
   for (const msg of messages.value) {
     if (msg.role !== 'assistant' || !msg.toolCalls) continue

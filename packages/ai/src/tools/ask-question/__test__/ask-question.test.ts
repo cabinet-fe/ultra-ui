@@ -69,12 +69,12 @@ function createAskTransport(rounds: ChatMessage[][]) {
 
 const click = (el: HTMLElement) => el.dispatchEvent(new MouseEvent('click', { bubbles: true }))
 
-/** 最终答案输出后过程消息收进「已完成」折叠块：点击展开并等待过程 DOM 挂载 */
-async function expandProcess(host: HTMLElement) {
+/** 轮次落定后过程步骤收进步骤行：等待行出现并点击展开全部已执行步骤 */
+async function expandStepLine(host: HTMLElement) {
   await vi.waitFor(() => {
-    expect(host.querySelector('.u-ai-chat__process-header')).toBeTruthy()
+    expect(host.querySelector('.u-ai-chat__step-line-bar')).toBeTruthy()
   })
-  click(host.querySelector<HTMLElement>('.u-ai-chat__process-header')!)
+  click(host.querySelector<HTMLElement>('.u-ai-chat__step-line-bar')!)
   await nextTick()
 }
 
@@ -180,8 +180,8 @@ describe('内置提问工具', () => {
       ]
     })
 
-    // 第二轮文本输出后，提问工具卡片收进「已完成」过程块，先展开过程块
-    await expandProcess(host)
+    // 第二轮文本输出后，提问工具卡片收进步骤行，先展开步骤行
+    await expandStepLine(host)
 
     // 工具卡片终态默认折叠且卸载内容 DOM，手动展开后才挂载摘要视图
     await expandToolCard(host)
@@ -214,7 +214,11 @@ describe('内置提问工具', () => {
 
     chat.value?.abort()
 
-    // 中止后调用进入终态：卡片默认折叠并卸载内容 DOM，展开后显示状态
+    // 中止后轮次落定（消息在工具执行前置为 done）：展开步骤行后工具卡片进入错误终态
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('已完成 1 个步骤')
+    })
+    await expandStepLine(host)
     await vi.waitFor(() => {
       expect(host.querySelector('.u-ai-chat__tool-call.is-error')).toBeTruthy()
     })

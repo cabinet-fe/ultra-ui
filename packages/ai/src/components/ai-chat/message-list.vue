@@ -8,43 +8,52 @@
       @wheel.passive="handleWheel"
     >
       <template v-for="turn in turns" :key="turn.key">
-        <MessageItem
-          v-if="turn.userMsg"
-          :message="turn.userMsg"
-          :is-last="false"
-          :renderer-props="rendererProps"
-          @respond="(id, approved) => emit('respond', id, approved)"
-          @regenerate="emit('regenerate')"
-        />
-
-        <!-- 本轮落定（结束 / 失败 / 中止）后，之前的思考/工具调用过程收进「已完成」折叠块 -->
-        <TurnProcess
-          v-if="turn.processCollapsed"
-          :messages="turn.processMsgs"
-          :renderer-props="rendererProps"
-          @respond="(id, approved) => emit('respond', id, approved)"
-        />
-        <template v-else>
+        <!-- 轮次容器：导航指示器按 data-turn 定位与跳转，本身不产生视觉影响 -->
+        <div :data-turn="turn.key">
           <MessageItem
-            v-for="msg in turn.processMsgs"
-            :key="msg.id"
-            :message="msg"
+            v-if="turn.userMsg"
+            :message="turn.userMsg"
             :is-last="false"
             :renderer-props="rendererProps"
-            @respond="(id, approved) => emit('respond', id, approved)"
             @regenerate="emit('regenerate')"
           />
-        </template>
 
-        <MessageItem
-          v-if="turn.answerMsg"
-          :message="turn.answerMsg"
-          :is-last="turn.isLast"
-          :duration="turnDurations.get(turn.key)"
-          :renderer-props="rendererProps"
-          @respond="(id, approved) => emit('respond', id, approved)"
-          @regenerate="emit('regenerate')"
-        />
+          <!-- 过程按文字回答切段：每段一个步骤行 + 段末回答；出现文字回答该段即闭合。
+               段 key 优先取段内首步 key（段内天然稳定）：闭合瞬间首步 key 不变，
+               段（含 StepLine 的展开状态）不会因首条 content 到达而重挂；content-only 段退回答 id -->
+          <template
+            v-for="(segment, segIndex) in turn.segments"
+            :key="segment.steps[0]?.key ?? segment.answerMsg?.id ?? segIndex"
+          >
+            <StepLine
+              v-if="segment.steps.length"
+              :steps="segment.steps"
+              :live="turn.live && segIndex === turn.segments.length - 1 && !segment.answerMsg"
+              :end-status="segIndex === turn.segments.length - 1 ? turn.tailEndStatus : undefined"
+              @respond="(id, approved) => emit('respond', id, approved)"
+            />
+            <MessageItem
+              v-if="segment.answerMsg"
+              :message="segment.answerMsg"
+              :is-last="turn.isLast && turn.finalMsg === segment.answerMsg"
+              :duration="
+                turn.finalMsg === segment.answerMsg ? turnDurations.get(turn.key) : undefined
+              "
+              :renderer-props="rendererProps"
+              @regenerate="emit('regenerate')"
+            />
+          </template>
+
+          <!-- 末条消息无正文且终态为出错/中止：状态行与操作区的载体 -->
+          <MessageItem
+            v-if="turn.tailStatusMsg"
+            :message="turn.tailStatusMsg"
+            :is-last="turn.isLast"
+            :duration="turnDurations.get(turn.key)"
+            :renderer-props="rendererProps"
+            @regenerate="emit('regenerate')"
+          />
+        </div>
       </template>
 
       <!-- 工作中：活体球从输入框上方跳到最新会话下面；结束停留后再跳回 -->
@@ -100,10 +109,19 @@
         <UIcon><ArrowDown /></UIcon>
       </button>
     </Transition>
+
+    <!-- 会话导航：贴消息区左缘的刻度条，hover 展开目录，点击跳到该轮 -->
+    <SessionNavigator
+      :items="navigatorItems"
+      :active-key="activeTurnKey"
+      :scrollable="navigatorVisible"
+      @jump="jumpToTurn"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
+import { useResizeObserver } from '@veltra/compositions'
 import { UIcon, UScroll } from '@veltra/desktop'
 import type { ScrollPosition } from '@veltra/desktop'
 import { ArrowDown } from '@veltra/icons/normal'
@@ -125,7 +143,12 @@ import UAiOrb from '../ai-orb/ai-orb.vue'
 import { AiChatDIKey } from './di'
 import { formatDuration } from './format-duration'
 import MessageItem from './message-item.vue'
-import TurnProcess from './turn-process.vue'
+import type { NavigatorItem } from './navigator-item'
+import SessionNavigator from './session-navigator.vue'
+import StepLine from './step-line.vue'
+import { clipText } from './tool-format'
+import type { TurnStep } from './turn-step'
+import { useStickScroll } from './use-stick-scroll'
 
 defineOptions({ name: 'UAiChatMessageList' })
 
@@ -166,18 +189,28 @@ const cls = di?.cls ?? bem('ai-chat')
 /** tool 消息不单独渲染，其内容体现在工具卡片的结果区 */
 const visibleMessages = computed(() => props.messages.filter((msg) => msg.role !== 'tool'))
 
-/** 一轮对话：以 user 消息为界，含本轮全部 assistant 消息（每次工具循环产生一条） */
+/** 一段：两次文字回答之间的全部步骤；出现文字回答即闭合该段 */
+interface TurnSegment {
+  steps: TurnStep[]
+  /** 段末文字回答（content 非空的消息） */
+  answerMsg?: ChatMessage
+}
+
+/** 一轮对话：以 user 消息为界，assistant 过程按文字回答切成若干段 */
 interface ChatTurn {
   /** 轮次 key（取用户消息或首条 assistant 消息 id） */
   key: string
   userMsg?: ChatMessage
-  /** 最终答案之前的过程消息（思考 + 中间文本 + 工具卡片） */
-  processMsgs: ChatMessage[]
-  /** 本轮最终答案（最后一条 assistant 消息） */
-  answerMsg?: ChatMessage
-  /** 过程消息是否收进「已完成」折叠块 */
-  processCollapsed: boolean
-  /** answerMsg 是否为全局最后一条可见消息 */
+  segments: TurnSegment[]
+  /** 本轮最后一条 assistant 无 content 且已终态时的状态/操作载体 */
+  tailStatusMsg?: ChatMessage
+  /** 步骤行完成态摘要的终态标注（error / aborted；done 时为 undefined） */
+  tailEndStatus?: 'error' | 'aborted'
+  /** 末段（未闭合的开放段）是否 live（流式进行中，行内实时展示当前步骤） */
+  live: boolean
+  /** duration 与 is-last 的承载消息（最后一条 answerMsg 或 tailStatusMsg） */
+  finalMsg?: ChatMessage
+  /** finalMsg 是否为全局最后一条可见消息 */
   isLast: boolean
 }
 
@@ -197,22 +230,51 @@ const turns = computed<ChatTurn[]>(() => {
     else grouped.push({ key: msg.id, assistants: [msg] })
   }
   return grouped.map((turn, index) => {
-    const processMsgs = turn.assistants.slice(0, -1)
-    const answerMsg = turn.assistants[turn.assistants.length - 1]
+    // 按流式顺序切段：思考归属当前段；出现文字回答即闭合该段、开启新段，
+    // 其后的工具调用落进新段（同一条消息 content + toolCalls 会拆成两段）
+    const segments: TurnSegment[] = []
+    let current: TurnSegment = { steps: [] }
+    for (const msg of turn.assistants) {
+      if (msg.reasoning) {
+        current.steps.push({ key: `${msg.id}:reasoning`, kind: 'reasoning', message: msg })
+      }
+      if (msg.content) {
+        current.answerMsg = msg
+        segments.push(current)
+        current = { steps: [] }
+      }
+      for (const call of msg.toolCalls ?? []) {
+        current.steps.push({ key: call.id, kind: 'tool', message: msg, toolCall: call })
+      }
+    }
+    if (current.steps.length) segments.push(current)
+
     const isLastTurn = index === grouped.length - 1
-    // 该轮落定（非最后一轮 / 停跑且末条消息进入终态）才折叠过程，运行中始终展开。
-    // 不能以 answerMsg.content 判断：工具循环每步追加一条空 assistant 消息，answerMsg
-    // 指随后移使 content 空/非空交替，折叠态会来回翻转；断连时 running 短暂变 false
-    // 但消息仍是 streaming，不会误折叠；regenerate 删除本轮 assistant 重跑，条件自然复位
-    const processCollapsed =
-      processMsgs.length > 0 && (!isLastTurn || (!props.running && isFinalStatus(answerMsg)))
+    const lastMsg = turn.assistants[turn.assistants.length - 1]
+    // 末段 live 判定沿用原折叠防抖思路：running 或末消息未进终态都算进行中——
+    // 断连时 running 短暂变 false 但消息仍是 streaming，不会让行在「进行中 / 已完成」
+    // 之间来回翻转；regenerate 删除本轮 assistant 重跑，条件自然复位
+    const live = isLastTurn && (props.running || !isFinalStatus(lastMsg))
+    // 末条消息无正文（terminal「UI 即答复」工具轮 / 出错 / 中止）：作为状态行与操作区
+    // （重新生成）的载体渲染，MarkdownRender 因 content 为空不产出正文
+    const tailStatusMsg =
+      lastMsg && !lastMsg.content && isFinalStatus(lastMsg) ? lastMsg : undefined
+    /** 步骤行完成态摘要的终态标注：仅出错/中止着危险色，done 走普通完成态 */
+    const tailEndStatus =
+      tailStatusMsg && (tailStatusMsg.status === 'error' || tailStatusMsg.status === 'aborted')
+        ? tailStatusMsg.status
+        : undefined
+    const lastAnswer = segments.findLast((segment) => segment.answerMsg)?.answerMsg
+    const finalMsg = tailStatusMsg ?? lastAnswer
     return {
       key: turn.key,
       userMsg: turn.userMsg,
-      processMsgs,
-      answerMsg,
-      processCollapsed,
-      isLast: isLastTurn && !!answerMsg
+      segments,
+      tailStatusMsg,
+      tailEndStatus,
+      live,
+      finalMsg,
+      isLast: isLastTurn && !!finalMsg
     }
   })
 })
@@ -302,23 +364,32 @@ const workingOrbRef = useTemplateRef<AiOrbExposed>('workingOrb')
 /** 工具调用失败的 id 去重集合：同一次失败只播一次沮丧表情 */
 const reactedToolErrorIds = new Set<string>()
 
-const toolErrorIds = computed(() => {
-  const ids: string[] = []
+/** 工具调用失败的轻量指纹（错误数 + 最后一个错误 id）：流式期间消息数组逐事件更换，
+ * 用指纹做 watch 源可以避免每个 delta 都分配/比较完整 id 列表 */
+const toolErrorFingerprint = computed(() => {
+  let count = 0
+  let lastId = ''
   for (const msg of props.messages) {
     if (msg.role !== 'assistant' || !msg.toolCalls) continue
     for (const call of msg.toolCalls) {
-      if (call.status === 'error') ids.push(call.id)
+      if (call.status === 'error') {
+        count += 1
+        lastId = call.id
+      }
     }
   }
-  return ids
+  return `${count}|${lastId}`
 })
 
-// 工具调用失败 → 工作球闭眼摇头（frustrated）
-watch(toolErrorIds, (ids) => {
-  for (const id of ids) {
-    if (reactedToolErrorIds.has(id)) continue
-    reactedToolErrorIds.add(id)
-    workingOrbRef.value?.react('frustrated')
+// 工具调用失败 → 工作球闭眼摇头（frustrated）；仅指纹变化时进回调，同一失败只 react 一次
+watch(toolErrorFingerprint, () => {
+  for (const msg of props.messages) {
+    if (msg.role !== 'assistant' || !msg.toolCalls) continue
+    for (const call of msg.toolCalls) {
+      if (call.status !== 'error' || reactedToolErrorIds.has(call.id)) continue
+      reactedToolErrorIds.add(call.id)
+      workingOrbRef.value?.react('frustrated')
+    }
   }
 })
 
@@ -427,40 +498,147 @@ watch(
   { immediate: true }
 )
 
-onBeforeUnmount(() => {
-  stopWelcomeRotation()
-  clearJumpTimers()
-  stopTick()
-})
+const scrollRef = shallowRef<{
+  scrollTo: (position: ScrollPosition) => void
+  /** 滚动容器元素（UScroll 暴露的 ref 经 proxyRefs 解包） */
+  containerRef?: HTMLElement
+}>()
 
-const scrollRef = shallowRef<{ scrollTo: (position: ScrollPosition) => void }>()
-/** 是否吸附底部（用户上翻浏览历史时取消吸附） */
-const stickToBottom = ref(true)
-/** 上一次滚动位置：用于区分用户上翻与自动吸底触发的 scroll 事件 */
-let lastScrollY = 0
+/** 流式吸底内核：消息列表内容在尾部增长，吸底 scroll 事件位置滞后，需按方向识别用户上翻 */
+const {
+  stuck: stickToBottom,
+  handleScroll: handleStickScroll,
+  handleWheel,
+  scrollToBottomIfStuck
+} = useStickScroll({
+  getScroller: () => scrollRef.value,
+  bottomThreshold: 60,
+  directionAware: true
+})
 
 /** 上翻阅读时展示回到底部的悬浮按钮 */
 const showToLatest = computed(() => !stickToBottom.value && visibleMessages.value.length > 0)
 
-const handleScroll = (position: Required<ScrollPosition>) => {
-  const atBottom = position.sh - position.ch - position.y < 60
-  if (atBottom) {
-    stickToBottom.value = true
-  } else if (position.y < lastScrollY) {
-    // 只有「向上滚」才算用户离开底部的意图：自动吸底的 scroll 事件可能滞后于
-    // 流式内容增长（sh 已变大、y 仍是旧底部），按位置判断会误判成未吸底
-    stickToBottom.value = false
+/** 会话导航项：每轮取用户提问作标题，权重按该轮内容量归一化到 0~1 */
+const navigatorItems = computed<NavigatorItem[]>(() => {
+  const list = turns.value
+  const sizes = list.map((turn) => {
+    const userText = turn.userMsg?.content ?? ''
+    const answerText = turn.finalMsg?.content ?? ''
+    // 过程步骤（思考/工具卡片）没有正文长度可比，按固定当量计入
+    const stepCount = turn.segments.reduce((sum, segment) => sum + segment.steps.length, 0)
+    return userText.length + answerText.length + stepCount * 80
+  })
+  const max = Math.max(...sizes, 1)
+  return list.map((turn, index) => {
+    const raw = turn.userMsg?.content?.trim() || turn.finalMsg?.content?.trim() || '（无提问）'
+    return {
+      key: turn.key,
+      index,
+      title: clipText(raw, 42),
+      weight: Math.min((sizes[index] ?? 0) / max, 1)
+    }
+  })
+})
+
+/** 当前视口顶部所在的轮次：滚动时实时高亮导航项 */
+const activeTurnKey = ref<string>()
+
+/** 列表是否真的溢出可滚：不溢出时导航没有意义，避免短对话出现多余刻度 */
+const scrollable = ref(false)
+/** 列表宽度是否够放导航：窄列里刻度会压到正文，此时不出现 */
+const wideEnough = ref(false)
+
+/** 导航是否可用：轮次够多 + 内容溢出 + 有横向留白 */
+const navigatorVisible = computed(() => scrollable.value && wideEnough.value)
+
+/** 同步可滚状态（内容高度超过可视高度才出现导航） */
+const updateScrollable = (position?: Required<ScrollPosition>) => {
+  const { sh, ch } = position ?? {}
+  const container = scrollRef.value?.containerRef
+  const scrollHeight = sh ?? container?.scrollHeight
+  const clientHeight = ch ?? container?.clientHeight
+  // 尚未布局（高度为 0）时不下结论，避免首帧把导航误判成不需要
+  if (!scrollHeight || !clientHeight) return
+  scrollable.value = scrollHeight - clientHeight > 8
+}
+
+/** 导航需要内容列两侧的留白：列宽不足 880px（800 内容列 + 两侧各 40）时收起，避免刻度压住正文 */
+const NAVIGATOR_MIN_WIDTH = 880
+
+const updateWideEnough = () => {
+  const width = scrollRef.value?.containerRef?.clientWidth
+  if (!width) return
+  wideEnough.value = width >= NAVIGATOR_MIN_WIDTH
+}
+
+useResizeObserver({
+  targets: computed(() => scrollRef.value?.containerRef ?? undefined),
+  onResize(entries) {
+    const width = entries[0]?.contentRect?.width
+    if (width == null) return
+    wideEnough.value = width >= NAVIGATOR_MIN_WIDTH
   }
-  lastScrollY = position.y
+})
+
+/** 计算视口顶部落在一轮对话的哪一项（容器顶部 + 判定偏移作为基准线） */
+const updateActiveTurn = () => {
+  const container = scrollRef.value?.containerRef
+  if (!container) return
+  const nodes = [...container.querySelectorAll<HTMLElement>('[data-turn]')]
+  if (!nodes.length) return
+  const line = container.getBoundingClientRect().top + 24
+  let current = nodes[0]?.dataset.turn
+  for (const node of nodes) {
+    if (node.getBoundingClientRect().top > line) break
+    current = node.dataset.turn
+  }
+  activeTurnKey.value = current
+}
+
+/** updateActiveTurn 涉及 querySelectorAll + getBoundingClientRect 批量测量，
+ * 滚动事件高频触发时合帧到 rAF，同帧多次滚动只测一次 */
+let activeTurnRafId: number | undefined
+
+const scheduleUpdateActiveTurn = () => {
+  if (activeTurnRafId != null) return
+  activeTurnRafId = requestAnimationFrame(() => {
+    activeTurnRafId = undefined
+    updateActiveTurn()
+  })
 }
 
 /**
- * 用户向上滚动轮 = 明确的离开底部意图，立即取消吸附。
- * 不能等 scroll 事件再按方向判断：流式期间每个 chunk 都会排一次吸底滚动，
- * 滞后的 scrollTo 会把用户拉回底部并触发 atBottom 重新吸附，导致「上滚动不了」
+ * 点击导航项：滚到该轮顶部并取消吸底，避免流式输出把用户拉回底部。
+ * 直接算相对容器的偏移再 scrollTo——scrollIntoView 会连带滚动外层容器，
+ * 在嵌套布局里会把整个页面也带走。
  */
-const handleWheel = (e: WheelEvent) => {
-  if (e.deltaY < 0) stickToBottom.value = false
+const jumpToTurn = (key: string) => {
+  const container = scrollRef.value?.containerRef
+  const target = container?.querySelector<HTMLElement>(`[data-turn="${CSS.escape(key)}"]`)
+  if (!container || !target) return
+  stickToBottom.value = false
+  const offset = target.getBoundingClientRect().top - container.getBoundingClientRect().top
+  container.scrollTo({ top: container.scrollTop + offset, behavior: 'smooth' })
+}
+
+// 轮次增删 / 内容增长后重新定位高亮项与可滚状态（布局稳定后测量）
+watch(
+  () => [turns.value.length, visibleMessages.value.length],
+  async () => {
+    await nextTick()
+    updateActiveTurn()
+    updateScrollable()
+    updateWideEnough()
+  },
+  { immediate: true }
+)
+
+const handleScroll = (position: Required<ScrollPosition>) => {
+  handleStickScroll(position)
+  // 宽度判定交给 useResizeObserver（滚动不改变容器宽度）；测量类更新合帧到 rAF
+  scheduleUpdateActiveTurn()
+  updateScrollable(position)
 }
 
 /** 点击悬浮按钮：恢复吸附并回到底部 */
@@ -470,7 +648,7 @@ const scrollToLatest = async () => {
   scrollRef.value?.scrollTo({ y: Number.MAX_SAFE_INTEGER })
 }
 
-// 消息数量或流式内容变化时，若处于吸附状态则滚动到底部
+// 消息数量或流式内容变化时，若处于吸附状态则滚动到底部（滚动前二次确认，见内核）
 watch(
   () => {
     const list = visibleMessages.value
@@ -487,15 +665,19 @@ watch(
     // 用户刚发出消息时强制回到底部（无论之前是否在上翻）
     const list = visibleMessages.value
     if (list[list.length - 1]?.role === 'user') stickToBottom.value = true
-    if (!stickToBottom.value) return
-    await nextTick()
-    // 等待 DOM 更新期间用户可能已上滚，滚动前重新确认吸附状态，避免把用户拉回底部
-    if (!stickToBottom.value) return
-    scrollRef.value?.scrollTo({ y: Number.MAX_SAFE_INTEGER })
+    await scrollToBottomIfStuck()
   }
 )
 
 let trailingScrollTimer: ReturnType<typeof setTimeout> | undefined
+
+onBeforeUnmount(() => {
+  stopWelcomeRotation()
+  clearJumpTimers()
+  stopTick()
+  clearTimeout(trailingScrollTimer)
+  if (activeTurnRafId != null) cancelAnimationFrame(activeTurnRafId)
+})
 
 // 生成收尾时动作区出现 / markdown 终态渲染 / 思考块折叠会再次改变高度，
 // 同帧滚动可能够不到最终底部，追加一次延迟兜底滚动
@@ -504,15 +686,10 @@ watch(
   async (running) => {
     if (running) return
     clearTimeout(trailingScrollTimer)
-    if (!stickToBottom.value) return
-    await nextTick()
-    if (!stickToBottom.value) return
-    scrollRef.value?.scrollTo({ y: Number.MAX_SAFE_INTEGER })
+    if (!(await scrollToBottomIfStuck())) return
     trailingScrollTimer = setTimeout(() => {
       if (stickToBottom.value) scrollRef.value?.scrollTo({ y: Number.MAX_SAFE_INTEGER })
     }, 150)
   }
 )
-
-onBeforeUnmount(() => clearTimeout(trailingScrollTimer))
 </script>

@@ -14,7 +14,15 @@
       <UScroll :class="cls.e('panel-body')">
         <!-- render 组件与工具卡片同一契约（ChatToolRenderProps），可随 toolCall 状态实时更新 -->
         <component :is="tool.render" v-if="tool?.render" :tool-call="toolCall" />
-        <pre v-else :class="cls.e('panel-fallback')">{{ fallbackResult }}</pre>
+        <div v-else :class="cls.e('panel-fallback')">
+          <ToolData
+            v-if="fallbackRaw"
+            :title="toolCall.status === 'error' ? '错误' : '结果'"
+            :node="fallbackNode"
+            :raw="fallbackRaw"
+            :tone="toolCall.status === 'error' ? 'error' : 'default'"
+          />
+        </div>
       </UScroll>
     </div>
   </aside>
@@ -28,7 +36,9 @@ import { computed, inject } from 'vue'
 
 import type { ChatToolCall } from '../../chat/types'
 import { AiChatDIKey } from './di'
-import { resolveToolIcon } from './tool-icons'
+import { resolveToolHeaderIcon, toolStatusClass } from './tool-call-brief'
+import ToolData from './tool-data.vue'
+import { toToolNode } from './tool-format'
 
 defineOptions({ name: 'UAiChatSidePanel' })
 
@@ -42,21 +52,10 @@ const cls = di?.cls ?? bem('ai-chat')
 /** 当前调用对应的工具定义（解析 icon/label/render） */
 const tool = computed(() => di?.tools.value[props.toolCall.name])
 
-const STATUS_CLASS: Record<string, string> = {
-  pending: 'is-active',
-  running: 'is-active',
-  'awaiting-confirm': 'is-warning',
-  success: 'is-success',
-  error: 'is-danger',
-  rejected: 'is-danger'
-}
-
-const statusClass = computed(() => STATUS_CLASS[props.toolCall.status] ?? '')
+const statusClass = computed(() => toolStatusClass(props.toolCall.status))
 
 /** 头部图标：meta.icon > 宿主覆盖 > 内置名称规则 > 兜底；状态点走 status class */
-const headerIcon = computed(
-  () => tool.value?.icon ?? resolveToolIcon(props.toolCall.name, di?.toolIcons?.value)
-)
+const headerIcon = computed(() => resolveToolHeaderIcon(props.toolCall, tool.value, di))
 
 /** 面板标题：优先工具定义的 panelTitle（业务对象 + 动作），缺省回落到 label ?? name */
 const panelTitle = computed(() => {
@@ -67,12 +66,7 @@ const panelTitle = computed(() => {
 })
 
 /** 未提供 render 时的兜底展示（面板工具通常都应提供 render） */
-const fallbackResult = computed(() => {
-  const raw = props.toolCall.error ?? props.toolCall.result ?? ''
-  try {
-    return JSON.stringify(JSON.parse(raw), null, 2)
-  } catch {
-    return raw
-  }
-})
+const fallbackRaw = computed(() => props.toolCall.error ?? props.toolCall.result)
+
+const fallbackNode = computed(() => toToolNode(fallbackRaw.value))
 </script>

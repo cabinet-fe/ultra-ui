@@ -93,13 +93,26 @@ function patchMessage(
   return replaceAt(messages, idx, { ...messages[idx]!, ...patch })
 }
 
+/** tool-host 合成消息（无 chunk 跟随、为收拢调用而造的宿主）的 id 前缀 */
+const TOOL_HOST_PREFIX = 'tool-host:'
+
 function appendToolCall(messages: ChatMessage[], call: ChatToolCall): ChatMessage[] {
-  const idx = messages.findLastIndex((m) => m.role === 'assistant')
+  // 从尾部向前找挂载目标：最近的 assistant 消息；遇到 user 即止——
+  // 新一轮的调用不得跨过 user 挂到上一轮的 assistant 上
+  let idx = -1
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const m = messages[i]!
+    if (m.role === 'user') break
+    if (m.role === 'assistant') {
+      idx = i
+      break
+    }
+  }
   if (idx < 0) {
     return [
       ...messages,
       {
-        id: `tool-host:${call.id}`,
+        id: `${TOOL_HOST_PREFIX}${call.id}`,
         role: 'assistant',
         content: '',
         status: 'streaming',
@@ -109,6 +122,27 @@ function appendToolCall(messages: ChatMessage[], call: ChatToolCall): ChatMessag
   }
   const target = messages[idx]!
   return replaceAt(messages, idx, { ...target, toolCalls: [...(target.toolCalls ?? []), call] })
+}
+
+/**
+ * finish / error 收尾：无 chunk 跟随的 tool-host 合成消息没有自己的终态帧，
+ * 永远停在 streaming，统一在此落定；普通 assistant 消息（有自己的 message 帧）不受影响。
+ */
+function settleToolHostMessages(messages: ChatMessage[], status: 'done' | 'error'): ChatMessage[] {
+  let changed = false
+  const next = messages.map((m) => {
+    if (
+      m.role !== 'assistant' ||
+      m.status !== 'streaming' ||
+      m.content ||
+      !m.id.startsWith(TOOL_HOST_PREFIX)
+    ) {
+      return m
+    }
+    changed = true
+    return { ...m, status }
+  })
+  return changed ? next : messages
 }
 
 function updateToolCall(
@@ -230,10 +264,12 @@ export function foldSessionEvent(state: ChatFoldState, event: ChatSessionEvent):
     }
     case 'finish': {
       next.running = false
+      next.messages = settleToolHostMessages(next.messages, 'done')
       break
     }
     case 'error': {
       next.running = false
+      next.messages = settleToolHostMessages(next.messages, 'error')
       next.error = { code: event.code, message: event.message }
       break
     }

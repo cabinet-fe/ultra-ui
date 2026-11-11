@@ -9,10 +9,9 @@
       <UIcon :class="[cls.e('tool-call-status'), statusClass]">
         <component :is="headerIcon" />
       </UIcon>
-      <span :class="[cls.e('tool-call-name'), isActive && 'u-shine']">
-        {{ tool?.label ?? toolCall.name }}
-      </span>
+      <span :class="[cls.e('tool-call-name'), isActive && 'u-shine']">{{ toolTitle }}</span>
       <span v-if="summary" :class="cls.e('tool-call-summary')">{{ summary }}</span>
+      <span v-if="durationText" :class="cls.e('tool-call-duration')">{{ durationText }}</span>
 
       <span
         v-if="toolCall.status === 'awaiting-confirm'"
@@ -37,9 +36,20 @@
     <component :is="tool.render" v-else-if="tool?.render" :tool-call="toolCall" />
     <component :is="slotBody" v-else-if="slotBody && hasResult" />
     <template v-else>
-      <ToolJson v-if="prettyArguments" title="参数" :text="prettyArguments" />
-      <ToolJson v-if="hasResult" :title="resultTitle" :text="displayResult" />
-      <ToolJson v-if="prettyView" title="视图" :text="prettyView" />
+      <ToolData
+        v-if="showParamsSection"
+        title="参数"
+        :node="argumentNode"
+        :raw="toolCall.arguments"
+      />
+      <ToolData
+        v-if="resultSectionVisible"
+        :title="resultTitle"
+        :node="displayResultNode"
+        :raw="resultRaw"
+        :tone="toolCall.status === 'error' ? 'error' : 'default'"
+      />
+      <ToolData v-if="viewNode" title="视图" :node="viewNode" :raw="viewRaw" />
     </template>
   </UCollapseItem>
 </template>
@@ -51,8 +61,14 @@ import { computed, inject, ref, watch } from 'vue'
 
 import type { ChatToolCall } from '../../chat/types'
 import { AiChatDIKey } from './di'
-import { resolveToolIcon } from './tool-icons'
-import ToolJson from './tool-json.vue'
+import { isSettledStatus, nodeOf, toolNeedsInteraction, useToolCallBrief } from './tool-call-brief'
+import ToolData from './tool-data.vue'
+import {
+  dropEchoedFields,
+  isSummarizedInHeader,
+  toToolNode,
+  unwrapSingleValue
+} from './tool-format'
 
 defineOptions({ name: 'UAiChatToolCall' })
 
@@ -63,25 +79,17 @@ const emit = defineEmits<{ (e: 'respond', approved: boolean): void }>()
 const di = inject(AiChatDIKey)
 const cls = di?.cls ?? bem('ai-chat')
 
-/** 把未知值格式成可读 JSON，循环引用等异常时退回 String，不得 throw */
-function formatUnknown(value: unknown): string {
-  if (value == null) return ''
-  if (typeof value === 'string') {
-    try {
-      return JSON.stringify(JSON.parse(value), null, 2)
-    } catch {
-      return value
-    }
-  }
-  try {
-    return JSON.stringify(value, null, 2) ?? String(value)
-  } catch {
-    return String(value)
-  }
-}
-
-/** 当前调用对应的工具定义或渲染元信息（session 下忽略 execute / needsConfirm / terminal） */
-const tool = computed(() => di?.tools.value[props.toolCall.name])
+/** 头部摘要共用视图模型（图标/标题/摘要/耗时/状态色），与步骤行共享 */
+const {
+  tool,
+  isActive,
+  statusClass,
+  headerIcon,
+  toolTitle,
+  parsedArguments,
+  summary,
+  durationText
+} = useToolCallBrief(() => props.toolCall)
 
 const isExpanded = ref(false)
 /** 用户手动切换过后，不再随 status 自动展开/折叠 */
@@ -101,23 +109,69 @@ const isAnswerTool = computed(() => {
   return !!(t && 'terminal' in t && t.terminal)
 })
 
-/** 内联自定义 body（render / tool-<name> 插槽）：进行中可能是提问表单等交互 UI，需展开可见 */
-const hasInlineBody = computed(
-  () => !isPanelTool.value && !!(tool.value?.render || di?.slots[`tool-${props.toolCall.name}`])
-)
-
 /** 完成后是否自动折叠：缺省一律折叠；「UI 即答复」的终结工具缺省保持展开 */
 const autoCollapse = computed(() => tool.value?.autoCollapse ?? !isAnswerTool.value)
 
-/** 需要用户交互/展示的进行中状态：待确认（看参数再决策）、有内联自定义 body（提问表单等） */
-const needsInteraction = computed(() => {
-  if (props.toolCall.status === 'awaiting-confirm') return true
-  const active = props.toolCall.status === 'pending' || props.toolCall.status === 'running'
-  return active && hasInlineBody.value
+/** 参数区：结构化字段视图，原始串留作降级入口 */
+const argumentNode = computed(() => nodeOf(props.toolCall.arguments))
+
+/** 单标量参数已被头部摘要逐字覆盖，body 再列「参数」纯属重复，直接省去该区 */
+const showParamsSection = computed(() => {
+  const node = argumentNode.value
+  return !!node && !isSummarizedInHeader(node)
 })
 
-const isSettledStatus = (status: ChatToolCall['status']) =>
-  status === 'success' || status === 'error' || status === 'rejected'
+const hasResult = computed(() => {
+  return props.toolCall.result != null || props.toolCall.error != null
+})
+
+const resultTitle = computed(() => (props.toolCall.status === 'error' ? '错误' : '结果'))
+
+const resultRaw = computed(() => props.toolCall.error ?? props.toolCall.result)
+
+/**
+ * 结果展示管线：先剔除回显入参的字段（工具结果复述参数不携带新信息），
+ * 剩下单个通用键的标量时直出值本身（如 `{result: 5888}` → `5,888`）。
+ */
+const displayResultNode = computed(() => {
+  const node = nodeOf(resultRaw.value)
+  if (!node) return undefined
+  return unwrapSingleValue(dropEchoedFields(node, parsedArguments.value))
+})
+
+/** 结果全部是入参回显 / 空内容时没有可展示的东西，整区省去 */
+const resultSectionVisible = computed(
+  () => displayResultNode.value != null && displayResultNode.value.type !== 'empty'
+)
+
+/** 服务端下发的 view，格式化为结构化视图；不得丢弃、不得 throw */
+const viewRaw = computed(() => {
+  const view = props.toolCall.view
+  if (view == null) return undefined
+  if (typeof view === 'string') return view
+  try {
+    return JSON.stringify(view, null, 2)
+  } catch {
+    return String(view)
+  }
+})
+
+const viewNode = computed(() => {
+  const view = props.toolCall.view
+  return view == null ? undefined : toToolNode(view)
+})
+
+/** 使用方通过 tool-<name> 插槽自定义该工具的展示（有结果时替换整个 body） */
+const slotBody = computed(() => {
+  const slot = di?.slots[`tool-${props.toolCall.name}`]
+  return slot ? () => slot({ toolCall: props.toolCall }) : undefined
+})
+
+/** 需要用户交互/展示的进行中状态：待确认（有 body 可看时）、有内联自定义 body（提问表单等） */
+const needsInteraction = computed(() => toolNeedsInteraction(props.toolCall, di))
+
+/** 终态（成功/失败/拒绝） */
+const isSettled = computed(() => isSettledStatus(props.toolCall.status))
 
 // 默认折叠（含进行中）；仅交互/答复类自动展开，用户手动切换过后不再自动变化
 watch(
@@ -133,80 +187,7 @@ watch(
   { immediate: true }
 )
 
-const STATUS_CLASS: Record<string, string> = {
-  pending: 'is-active',
-  running: 'is-active',
-  'awaiting-confirm': 'is-warning',
-  success: 'is-success',
-  error: 'is-danger',
-  rejected: 'is-danger'
-}
-
-const statusClass = computed(() => STATUS_CLASS[props.toolCall.status] ?? '')
-
-/** 进行中（pending/running）：工具名带扫光效果 */
-const isActive = computed(() => {
-  return props.toolCall.status === 'pending' || props.toolCall.status === 'running'
-})
-
-/** 终态（成功/失败/拒绝） */
-const isSettled = computed(() => isSettledStatus(props.toolCall.status))
-
-/**
- * 折叠后卸载内容 DOM：仅终态且非面板工具时启用——
- * 进行中/待确认要保留内容状态（确认按钮、表单），面板工具的 body 是「查看面板」入口必须可达
- */
+/** 折叠后卸载内容 DOM：仅终态且非面板工具时启用——
+ * 进行中/待确认要保留内容状态（确认按钮、表单），面板工具的 body 是「查看面板」入口必须可达 */
 const destroyOnCollapse = computed(() => isSettled.value && !isPanelTool.value)
-
-/** 头部图标：meta.icon > 宿主覆盖 > 内置名称规则 > 兜底；状态点走 status class */
-const headerIcon = computed(
-  () => tool.value?.icon ?? resolveToolIcon(props.toolCall.name, di?.toolIcons?.value)
-)
-
-const parsedArguments = computed<Record<string, unknown> | null>(() => {
-  if (!props.toolCall.arguments) return null
-  try {
-    return JSON.parse(props.toolCall.arguments)
-  } catch {
-    return null
-  }
-})
-
-/** 折叠态参数摘要：取第一个字符串参数值 */
-const summary = computed(() => {
-  const args = parsedArguments.value
-  if (!args) return ''
-  for (const value of Object.values(args)) {
-    if (typeof value === 'string' && value) {
-      return value.length > 40 ? `${value.slice(0, 40)}…` : value
-    }
-  }
-  return ''
-})
-
-const prettyArguments = computed(() => {
-  const args = parsedArguments.value
-  if (args) return JSON.stringify(args, null, 2)
-  return props.toolCall.arguments || ''
-})
-
-const hasResult = computed(() => {
-  return props.toolCall.result != null || props.toolCall.error != null
-})
-
-const resultTitle = computed(() => (props.toolCall.status === 'error' ? '错误' : '结果'))
-
-const displayResult = computed(() => formatUnknown(props.toolCall.error ?? props.toolCall.result))
-
-/** 服务端下发的 view，格式化为 JSON；不得丢弃、不得 throw */
-const prettyView = computed(() => {
-  if (props.toolCall.view == null) return ''
-  return formatUnknown(props.toolCall.view)
-})
-
-/** 使用方通过 tool-<name> 插槽自定义该工具的展示（有结果时替换整个 body） */
-const slotBody = computed(() => {
-  const slot = di?.slots[`tool-${props.toolCall.name}`]
-  return slot ? () => slot({ toolCall: props.toolCall }) : undefined
-})
 </script>

@@ -103,6 +103,47 @@ describe('foldSessionEvent', () => {
     })
   })
 
+  it('finish 把无正文的 tool-host 合成消息置 done，普通流式消息不受影响', () => {
+    const state = foldAll([
+      { type: 'tool/call', callId: 'c1', name: 'bash', arguments: '{}', seq: 1 },
+      { type: 'assistant/chunk', messageId: 'a1', seq: 2, delta: '正文' },
+      { type: 'finish' }
+    ])
+    // 无 chunk 跟随的 tool-host 没有自己的终态帧，由 finish 统一落定
+    expect(state.messages.find((m) => m.id === 'tool-host:c1')).toMatchObject({
+      status: 'done',
+      content: '',
+      toolCalls: [{ id: 'c1', status: 'pending' }]
+    })
+    // 有自己 chunk 流的普通 assistant 消息不被 finish 落定
+    expect(state.messages.find((m) => m.id === 'a1')?.status).toBe('streaming')
+  })
+
+  it('error 事件把无正文的 tool-host 合成消息置 error', () => {
+    const state = foldAll([
+      { type: 'tool/call', callId: 'c1', name: 'bash', arguments: '{}', seq: 1 },
+      { type: 'error', code: 'boom', message: '出错了' }
+    ])
+    expect(state.messages.find((m) => m.id === 'tool-host:c1')).toMatchObject({
+      status: 'error',
+      content: ''
+    })
+  })
+
+  it('新 user 轮的 tool/call 不跨过 user 挂到上一轮 assistant', () => {
+    const state = foldAll([
+      { type: 'assistant/chunk', messageId: 'a1', seq: 1, delta: '第一轮答复' },
+      { type: 'user/message', messageId: 'u1', seq: 2, content: '再问一次' },
+      { type: 'tool/call', callId: 'c2', name: 'bash', arguments: '{}', seq: 3 }
+    ])
+    // 上一轮 assistant 不收编新一轮的调用
+    expect(state.messages.find((m) => m.id === 'a1')?.toolCalls).toBeUndefined()
+    // 新调用落进本轮自己的 tool-host 合成消息
+    expect(state.messages.find((m) => m.id === 'tool-host:c2')?.toolCalls).toEqual([
+      expect.objectContaining({ id: 'c2', status: 'pending' })
+    ])
+  })
+
   it('queue/snapshot 与 jobs/snapshot 整体替换', () => {
     const state = foldAll([
       { type: 'queue/snapshot', items: [{ id: 'q1', content: '旧' }] },

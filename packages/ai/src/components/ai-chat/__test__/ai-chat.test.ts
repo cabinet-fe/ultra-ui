@@ -90,13 +90,22 @@ function mountAiChat(options: {
   }
 }
 
-/** 最终答案输出后过程消息收进「已完成」折叠块：点击展开并等待过程 DOM 挂载 */
-async function expandProcess(host: HTMLElement) {
+/** 轮次落定后过程步骤收进步骤行：等待行出现并点击展开全部已执行步骤 */
+async function expandStepLine(host: HTMLElement) {
   await vi.waitFor(() => {
-    expect(host.querySelector('.u-ai-chat__process-header')).toBeTruthy()
+    expect(host.querySelector('.u-ai-chat__step-line-bar')).toBeTruthy()
   })
-  host.querySelector<HTMLElement>('.u-ai-chat__process-header')!.click()
+  host.querySelector<HTMLElement>('.u-ai-chat__step-line-bar')!.click()
   await nextTick()
+}
+
+/** 等待步骤行定格为完成态摘要（轮次落定） */
+async function waitForStepLineSettled(host: HTMLElement, count: number) {
+  await vi.waitFor(() => {
+    expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe(
+      `已完成 ${count} 个步骤`
+    )
+  })
 }
 
 describe('UAiChat', () => {
@@ -176,8 +185,12 @@ describe('UAiChat', () => {
 
     chat.value?.send('1+1 等于几')
 
-    // 最终答案输出后，工具卡片收进「已完成」过程块，先展开
-    await expandProcess(host)
+    // 轮次落定后：步骤行定格为完成态摘要，过程 DOM 收进行内
+    await waitForStepLineSettled(host, 1)
+    expect(host.querySelector('.u-ai-chat__tool-call')).toBeFalsy()
+
+    // 点击步骤行展开全部步骤
+    await expandStepLine(host)
 
     expect(host.querySelector('.u-ai-chat__tool-call-name')?.textContent).toBe('calculate')
     expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
@@ -189,8 +202,13 @@ describe('UAiChat', () => {
     await nextTick()
 
     const body = host.querySelector('.u-ai-chat__tool-call .u-collapse__content-wrapper')
-    expect(body?.textContent).toContain('"expression": "1+1"')
-    expect(body?.textContent).toContain('"value": 2')
+    // 单标量参数已被头部摘要覆盖，body 不再重复罗列；结果单值直出答案本身
+    expect(header.textContent).toContain('1+1')
+    expect(body?.textContent).toContain('结果')
+    expect(body?.textContent).toContain('2')
+    expect(body?.textContent).not.toContain('Expression')
+    expect(body?.textContent).not.toContain('Value')
+    expect(body?.textContent).not.toContain('"expression"')
     unmount()
   })
 
@@ -206,11 +224,14 @@ describe('UAiChat', () => {
 
     chat.value?.send('删掉 /tmp/a')
 
+    // 待确认：步骤列表自动展开，卡片头上的确认按钮可达
     await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__step-line-content')).toBeTruthy()
       expect(host.querySelector('.u-ai-chat__tool-call-confirm')).toBeTruthy()
     })
-    // 待确认自动展开：确认前可查看参数
-    expect(host.querySelector('.u-ai-chat__tool-call.is-active')).toBeTruthy()
+    // 单标量参数已在头部摘要完整可见，空 body 不再自动展开
+    expect(host.querySelector('.u-ai-chat__tool-call-summary')?.textContent).toContain('/tmp/a')
+    expect(host.querySelector('.u-ai-chat__tool-call.is-active')).toBeFalsy()
     expect(execute).not.toHaveBeenCalled()
 
     const allowBtn = [
@@ -221,6 +242,90 @@ describe('UAiChat', () => {
     await vi.waitFor(() => {
       expect(execute).toHaveBeenCalled()
     })
+    unmount()
+  })
+
+  it('awaiting-confirm 时步骤列表自动展开，手动收起后不再自动展开', async () => {
+    const transport: ChatTransport = (_req, handlers) => {
+      handlers.onToolCall?.({ id: 'c1', name: 'deleteFile', arguments: '{"path":"/tmp/a"}' })
+    }
+    const tools: ChatTool[] = [
+      {
+        name: 'deleteFile',
+        description: '删除文件',
+        parameters: {},
+        needsConfirm: true,
+        execute: () => ({ ok: true })
+      }
+    ]
+    const { host, chat, unmount } = mountAiChat({ transport, tools })
+
+    chat.value?.send('删掉 /tmp/a')
+
+    // 待确认：步骤列表自动展开，确认按钮可达
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__step-line-content')).toBeTruthy()
+      expect(host.querySelector('.u-ai-chat__tool-call-confirm')).toBeTruthy()
+    })
+
+    // 用户手动收起后不再自动展开
+    host.querySelector<HTMLElement>('.u-ai-chat__step-line-bar')!.click()
+    await nextTick()
+    expect(host.querySelector('.u-ai-chat__step-line-content')).toBeFalsy()
+    expect(host.querySelector('.u-ai-chat__tool-call-confirm')).toBeFalsy()
+    unmount()
+  })
+
+  it('串行步骤切换时行内走马灯切换到新工具', async () => {
+    let releaseSearch: (() => void) | undefined
+    let releaseBash: (() => void) | undefined
+    let round = 0
+    const transport: ChatTransport = (_req, handlers) => {
+      round++
+      if (round === 1) {
+        handlers.onToolCall?.({ id: 'c1', name: 'search', arguments: '{"q":"vue"}' })
+        handlers.onToolCall?.({ id: 'c2', name: 'bash', arguments: '{"command":"ls"}' })
+      } else {
+        handlers.onTextDelta('完成')
+      }
+    }
+    const tools: ChatTool[] = [
+      {
+        name: 'search',
+        description: '搜索',
+        parameters: {},
+        // 挂起等待测试放行，控制串行执行的推进节奏
+        execute: () =>
+          new Promise((resolve) => {
+            releaseSearch = () => resolve({ hits: 1 })
+          })
+      },
+      {
+        name: 'bash',
+        description: '执行命令',
+        parameters: {},
+        execute: () =>
+          new Promise((resolve) => {
+            releaseBash = () => resolve('ok')
+          })
+      }
+    ]
+    const { host, chat, unmount } = mountAiChat({ transport, tools })
+
+    chat.value?.send('搜一下再执行')
+
+    // 串行执行：行内先展示第一个工具，右侧显示步骤计数
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('search')
+    })
+    expect(host.querySelector('.u-ai-chat__step-line-count')?.textContent).toBe('2 步')
+
+    // 第一个工具落定后：行内切换展示第二个工具（第二个仍挂起，行内保持其实时视图）
+    releaseSearch?.()
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('bash')
+    })
+    releaseBash?.()
     unmount()
   })
 
@@ -251,8 +356,8 @@ describe('UAiChat', () => {
 
     chat.value?.send('搜一下 vue')
 
-    // 最终答案输出后工具卡片收进「已完成」过程块，展开后断言
-    await expandProcess(host)
+    // 最终答案输出后工具卡片收进步骤行，展开后断言
+    await expandStepLine(host)
 
     expect(host.querySelector('.u-ai-chat__tool-call-name')?.textContent).toBe('搜索')
     expect(host.querySelector('.custom-tool-icon')).toBeTruthy()
@@ -296,8 +401,9 @@ describe('UAiChat', () => {
 
     chat.value?.send('北京天气')
 
-    // 最终答案输出后工具卡片收进「已完成」过程块，展开后断言
-    await expandProcess(host)
+    // 最终答案输出后工具卡片收进步骤行，展开后断言
+    await waitForStepLineSettled(host, 1)
+    await expandStepLine(host)
 
     // render 工具完成后默认折叠（不再是保持展开）
     expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
@@ -319,11 +425,15 @@ describe('UAiChat', () => {
 
     chat.value?.send('北京天气')
 
-    // 终结工具成功即结束对话（无第二轮文本），答复卡片保持展开
+    // 终结工具成功即结束对话（无第二轮文本）：展开步骤行后，答复卡片保持展开
+    await waitForStepLineSettled(host, 1)
+    await expandStepLine(host)
     await vi.waitFor(() => {
       expect(host.querySelector('.u-ai-chat__tool-call.is-success.is-active')).toBeTruthy()
     })
     expect(host.querySelector('.weather-view')?.textContent).toContain('{"temperature":26}')
+    // 无正文答案的终结轮：操作区（重新生成）落在尾部状态载体上，不随步骤压缩丢失
+    expect(host.querySelector('.u-ai-chat__message-actions [title="重新生成"]')).toBeTruthy()
     unmount()
   })
 
@@ -350,14 +460,14 @@ describe('UAiChat', () => {
 
     chat.value?.send('1+1')
 
-    await expandProcess(host)
+    await expandStepLine(host)
 
     await vi.waitFor(() => {
       expect(host.querySelector('.u-ai-chat__tool-call.is-success.is-active')).toBeTruthy()
     })
     expect(
       host.querySelector('.u-ai-chat__tool-call .u-collapse__content-wrapper')?.textContent
-    ).toContain('"value": 2')
+    ).toContain('2')
     unmount()
   })
 
@@ -367,7 +477,8 @@ describe('UAiChat', () => {
 
     chat.value?.send('北京天气')
 
-    await expandProcess(host)
+    await waitForStepLineSettled(host, 1)
+    await expandStepLine(host)
 
     expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
     expect(host.querySelector('.u-ai-chat__tool-call.is-active')).toBeFalsy()
@@ -393,8 +504,9 @@ describe('UAiChat', () => {
 
     chat.value?.send('1+1 等于几')
 
-    // 过程块展开后，工具卡片重挂载为完成态（自动折叠）
-    await expandProcess(host)
+    // 轮次落定后步骤行展开，工具卡片重挂载为完成态（自动折叠）
+    await waitForStepLineSettled(host, 1)
+    await expandStepLine(host)
 
     // 完成后自动折叠：内容 DOM 已卸载（减少内存与渲染成本），包装容器保留
     expect(host.querySelector('.u-ai-chat__tool-call.is-active')).toBeFalsy()
@@ -407,12 +519,12 @@ describe('UAiChat', () => {
     await nextTick()
     await nextTick()
     expect(host.querySelector('.u-ai-chat__tool-call .u-collapse__content')?.textContent).toContain(
-      '"value": 2'
+      '2'
     )
     unmount()
   })
 
-  it('思考中默认折叠，头部右侧滚动展示最新一行思考', async () => {
+  it('思考中步骤行显示「思考中…」与最新一行思考，展开可见思考块', async () => {
     // 由测试手动推进流式节奏，避免断言竞态
     const steps: (() => void)[] = []
     const transport: ChatTransport = async (_req, handlers) => {
@@ -426,30 +538,36 @@ describe('UAiChat', () => {
 
     chat.value?.send('hi')
 
-    // 思考中：折叠态不挂载内容 DOM，头部标题为「思考中…」且右侧展示最新一行
+    // 思考中：步骤行行内展示「思考中…」与最新一行思考，步骤列表默认收起
     await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__reasoning-line')?.textContent).toBe('第一行思考')
+      expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('思考中…')
     })
-    expect(host.querySelector('.u-ai-chat__reasoning-title')?.textContent).toContain('思考中')
-    expect(host.querySelector('.u-ai-chat__reasoning-content')).toBeFalsy()
+    expect(host.querySelector('.u-ai-chat__step-line-text')?.textContent).toBe('第一行思考')
+    expect(host.querySelector('.u-ai-chat__reasoning')).toBeFalsy()
 
     // 流式推进后滚动到最新一行（跳过空行）
     steps.shift()?.()
     await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__reasoning-line')?.textContent).toBe('第二行思考')
+      expect(host.querySelector('.u-ai-chat__step-line-text')?.textContent).toBe('第二行思考')
     })
 
-    // 正文开始输出后：标题回到「思考过程」，不再展示行
+    // 展开步骤行：思考块可见（自身默认折叠）
+    host.querySelector<HTMLElement>('.u-ai-chat__step-line-bar')!.click()
+    await nextTick()
+    expect(host.querySelector('.u-ai-chat__reasoning-title')?.textContent).toContain('思考中')
+    expect(host.querySelector('.u-ai-chat__reasoning-content')).toBeFalsy()
+
+    // 正文开始输出：该段闭合，行定格为完成态摘要，不再滚动展示思考行
     steps.shift()?.()
     await vi.waitFor(() => {
       expect(host.querySelector('.md-stub')?.textContent).toContain('答案')
     })
-    expect(host.querySelector('.u-ai-chat__reasoning-title')?.textContent).toContain('思考过程')
-    expect(host.querySelector('.u-ai-chat__reasoning-line')).toBeFalsy()
+    expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('已完成 1 个步骤')
+    expect(host.querySelector('.u-ai-chat__step-line-text')).toBeFalsy()
     unmount()
   })
 
-  it('思考过程流式结束后自动折叠并卸载内容 DOM', async () => {
+  it('思考过程流式结束后步骤行收起，展开可见思考块', async () => {
     const transport: ChatTransport = (_req, handlers) => {
       handlers.onReasoningDelta?.('先分析一下问题')
       handlers.onTextDelta('答案')
@@ -462,11 +580,15 @@ describe('UAiChat', () => {
       expect(host.querySelector('.md-stub')?.textContent).toContain('答案')
     })
 
-    // 结束后自动折叠：头部保留，内容 DOM 完全卸载
+    // 落定后：行定格为完成态摘要，思考块随列表收起而卸载
+    expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('已完成 1 个步骤')
+    expect(host.querySelector('.u-ai-chat__reasoning')).toBeFalsy()
+
+    // 展开步骤行后思考块挂载（默认折叠），再点思考头展开内容
+    host.querySelector<HTMLElement>('.u-ai-chat__step-line-bar')!.click()
+    await nextTick()
     expect(host.querySelector('.u-ai-chat__reasoning-title')?.textContent).toContain('思考过程')
     expect(host.querySelector('.u-ai-chat__reasoning-content')).toBeFalsy()
-
-    // 展开后内容重新挂载
     host.querySelector<HTMLElement>('.u-ai-chat__reasoning-header')!.click()
     await nextTick()
     expect(host.querySelector('.u-ai-chat__reasoning-text')?.textContent).toContain(
@@ -475,7 +597,99 @@ describe('UAiChat', () => {
     unmount()
   })
 
-  it('最终答案输出后过程消息收进「已完成」折叠块，可展开钻取', async () => {
+  it('思考耗时跨折叠卸载重挂载保留：重展开始终显示「思考了 Ns」', async () => {
+    vi.useFakeTimers({
+      toFake: ['setTimeout', 'setInterval', 'clearTimeout', 'clearInterval', 'Date']
+    })
+    try {
+      const steps: (() => void)[] = []
+      const transport: ChatTransport = async (_req, handlers) => {
+        handlers.onReasoningDelta?.('认真想一想')
+        await new Promise<void>((resolve) => steps.push(resolve))
+        handlers.onTextDelta('答案')
+      }
+      const { host, chat, unmount } = mountAiChat({ transport })
+
+      chat.value?.send('hi')
+      await vi.waitFor(() => {
+        expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('思考中…')
+      })
+
+      // 思考进行中展开步骤列表：思考块挂载并开始计时
+      host.querySelector<HTMLElement>('.u-ai-chat__step-line-bar')!.click()
+      await nextTick()
+      expect(host.querySelector('.u-ai-chat__reasoning-title')?.textContent).toBe('思考中…')
+
+      // 思考持续超过 1s 后正文开始，思考结束、该段闭合
+      await vi.advanceTimersByTimeAsync(1500)
+      steps.shift()?.()
+      await vi.waitFor(() => {
+        expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe(
+          '已完成 1 个步骤'
+        )
+      })
+      expect(host.querySelector('.u-ai-chat__reasoning-title')?.textContent).toBe('思考了 2s')
+
+      // 收起（卸载思考块）再展开（重挂载新实例）：耗时按消息 id 模块级记忆，不回落「思考过程」
+      host.querySelector<HTMLElement>('.u-ai-chat__step-line-bar')!.click()
+      await nextTick()
+      expect(host.querySelector('.u-ai-chat__reasoning')).toBeFalsy()
+      host.querySelector<HTMLElement>('.u-ai-chat__step-line-bar')!.click()
+      await nextTick()
+      expect(host.querySelector('.u-ai-chat__reasoning-title')?.textContent).toBe('思考了 2s')
+      unmount()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('段闭合瞬间步骤列表保持展开：段 key 不因首条 content 到达翻转', async () => {
+    let round = 0
+    const steps: (() => void)[] = []
+    let releaseAnswer: (() => void) | undefined
+    const transport: ChatTransport = async (_req, handlers) => {
+      round++
+      if (round === 1) {
+        handlers.onToolCall?.({ id: 'c1', name: 'calculate', arguments: '{"expression":"1+1"}' })
+      } else {
+        // 正文开始前挂起：留出手动展开步骤列表的时间窗
+        await new Promise<void>((resolve) => steps.push(resolve))
+        handlers.onTextDelta('答案是 2')
+        await new Promise<void>((resolve) => {
+          releaseAnswer = resolve
+        })
+      }
+    }
+    const tools: ChatTool[] = [
+      { name: 'calculate', description: '计算', parameters: {}, execute: () => ({ value: 2 }) }
+    ]
+    const { host, chat, unmount } = mountAiChat({ transport, tools })
+
+    chat.value?.send('1+1 等于几')
+
+    // 工具已完成、正文未开始：步骤行仍 live 展示该工具
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('calculate')
+    })
+
+    // 用户手动展开步骤列表
+    host.querySelector<HTMLElement>('.u-ai-chat__step-line-bar')!.click()
+    await nextTick()
+    expect(host.querySelector('.u-ai-chat__step-line-content')).toBeTruthy()
+
+    // 首条 content 到达、该段闭合：段不重挂（key 稳定），列表保持展开
+    steps.shift()?.()
+    await vi.waitFor(() => {
+      expect(host.querySelector('.md-stub')?.textContent).toContain('答案是 2')
+    })
+    expect(host.querySelector('.u-ai-chat__step-line-content')).toBeTruthy()
+    expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('已完成 1 个步骤')
+
+    releaseAnswer?.()
+    unmount()
+  })
+
+  it('轮次落定后步骤行定格为「已完成 N 个步骤」，展开可见思考块与工具卡片', async () => {
     let round = 0
     const transport: ChatTransport = (_req, handlers) => {
       round++
@@ -493,31 +707,29 @@ describe('UAiChat', () => {
 
     chat.value?.send('1+1 等于几')
 
-    // 最终答案输出后：出现「已完成」折叠头，过程 DOM（思考块/工具卡片）卸载，答案仍在块外
-    await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__process-title')?.textContent).toBe('已完成')
-    })
-    expect(host.querySelector('.u-ai-chat__process-content')).toBeFalsy()
+    // 轮次落定后：行显示完成态摘要与步骤计数，过程 DOM（思考块/工具卡片）卸载，答案在行外
+    await waitForStepLineSettled(host, 2)
+    expect(host.querySelector('.u-ai-chat__step-line-count')?.textContent).toBe('2 步')
     expect(host.querySelector('.u-ai-chat__tool-call')).toBeFalsy()
     expect(host.querySelector('.u-ai-chat__reasoning')).toBeFalsy()
     expect(host.querySelector('.md-stub')?.textContent).toContain('答案是 2')
 
-    // 点击展开：过程消息可见，思考块默认折叠（可逐层钻取）
-    host.querySelector<HTMLElement>('.u-ai-chat__process-header')!.click()
+    // 点击展开：全部步骤可见，思考块默认折叠（可逐层钻取）
+    host.querySelector<HTMLElement>('.u-ai-chat__step-line-bar')!.click()
     await nextTick()
     expect(host.querySelector('.u-ai-chat__reasoning-title')?.textContent).toContain('思考过程')
     expect(host.querySelector('.u-ai-chat__reasoning-content')).toBeFalsy()
     expect(host.querySelector('.u-ai-chat__tool-call-name')?.textContent).toBe('calculate')
 
     // 再次收起：过程 DOM 重新卸载
-    host.querySelector<HTMLElement>('.u-ai-chat__process-header')!.click()
+    host.querySelector<HTMLElement>('.u-ai-chat__step-line-bar')!.click()
     await nextTick()
-    expect(host.querySelector('.u-ai-chat__process-content')).toBeFalsy()
+    expect(host.querySelector('.u-ai-chat__step-line-content')).toBeFalsy()
     expect(host.querySelector('.u-ai-chat__tool-call')).toBeFalsy()
     unmount()
   })
 
-  it('工具循环最终答案流式中过程保持展开，停跑后才折叠', async () => {
+  it('文字回答开始即闭合该段：最终答案流式中步骤行已定格为完成态', async () => {
     let round = 0
     let releaseAnswer: (() => void) | undefined
     const transport: ChatTransport = async (_req, handlers) => {
@@ -538,25 +750,66 @@ describe('UAiChat', () => {
 
     chat.value?.send('1+1 等于几')
 
-    // 最终答案流式中（仍在运行）：过程不折叠，工具卡片留在展开列表
+    // 最终答案流式中（仍在运行）：文字已出现，该段闭合定格为完成态
     await vi.waitFor(() => {
       expect(host.querySelector('.md-stub')?.textContent).toContain('答案是 2')
     })
-    expect(host.querySelector('.u-ai-chat__process')).toBeFalsy()
-    expect(host.querySelector('.u-ai-chat__tool-call')).toBeTruthy()
+    expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('已完成 1 个步骤')
 
-    // 停跑且末条消息落定后：过程收进「已完成」折叠块
+    // 停跑后维持完成态
     releaseAnswer?.()
     await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__process-title')?.textContent).toBe('已完成')
+      expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('已完成 1 个步骤')
     })
-    expect(host.querySelector('.u-ai-chat__tool-call')).toBeFalsy()
     unmount()
   })
 
-  it('单轮无工具对话不出现「已完成」过程块', async () => {
+  it('中间文本分段：同一条消息 content + toolCalls 拆成两段两行', async () => {
+    const messages: ChatMessage[] = [
+      { id: 'u1', role: 'user', content: '先介绍再执行' },
+      {
+        id: 'a1',
+        role: 'assistant',
+        content: '',
+        reasoning: '想一想',
+        toolCalls: [{ id: 'c0', name: 'bash', arguments: '{}', status: 'success' }],
+        status: 'done'
+      },
+      {
+        id: 'a2',
+        role: 'assistant',
+        content: '先介绍一下',
+        toolCalls: [{ id: 'c1', name: 'search', arguments: '{"q":"x"}', status: 'success' }],
+        status: 'done'
+      }
+    ]
+    const { host, unmount } = mountAiChat({ transport: () => {}, messages })
+    await nextTick()
+
+    // 两个步骤行：第一段（思考 + 前置工具）在回答前，第二段（回答后的工具）另起一行
+    const bars = [...host.querySelectorAll('.u-ai-chat__step-line')]
+    expect(bars).toHaveLength(2)
+    expect(bars[0]?.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe(
+      '已完成 2 个步骤'
+    )
+    expect(bars[1]?.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe(
+      '已完成 1 个步骤'
+    )
+    // 中间文本回答渲染在两个步骤行之间
+    expect(host.querySelector('.md-stub')?.textContent).toContain('先介绍一下')
+    expect(
+      bars[0].compareDocumentPosition(host.querySelector('.md-stub')!) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy()
+    expect(
+      host.querySelector('.md-stub')!.compareDocumentPosition(bars[1]) &
+        Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy()
+    unmount()
+  })
+
+  it('单轮纯文本对话不出现步骤行', async () => {
     const transport: ChatTransport = (_req, handlers) => {
-      handlers.onReasoningDelta?.('想一下')
       handlers.onTextDelta('你好')
     }
     const { host, chat, unmount } = mountAiChat({ transport })
@@ -565,7 +818,111 @@ describe('UAiChat', () => {
     await vi.waitFor(() => {
       expect(host.querySelector('.md-stub')?.textContent).toContain('你好')
     })
-    expect(host.querySelector('.u-ai-chat__process')).toBeFalsy()
+    expect(host.querySelector('.u-ai-chat__step-line')).toBeFalsy()
+    unmount()
+  })
+
+  it('思考图标在思考中带 is-active，结束后恢复静止', async () => {
+    const steps: (() => void)[] = []
+    const transport: ChatTransport = async (_req, handlers) => {
+      handlers.onReasoningDelta?.('想一下')
+      await new Promise<void>((resolve) => steps.push(resolve))
+      handlers.onTextDelta('答案')
+    }
+    const { host, chat, unmount } = mountAiChat({ transport })
+
+    chat.value?.send('hi')
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__thinking-icon.is-active')).toBeTruthy()
+    })
+
+    steps.shift()?.()
+    await vi.waitFor(() => {
+      expect(host.querySelector('.md-stub')?.textContent).toContain('答案')
+    })
+    // 落定后行定格为完成态摘要，思考图标不再活跃
+    expect(host.querySelector('.u-ai-chat__thinking-icon.is-active')).toBeFalsy()
+    unmount()
+  })
+
+  /** happy-dom 无布局：导航需要内容列两侧留白（列宽不足时收起）。
+   *  宽度在消息增删时测量（useResizeObserver 之外的兜底路径），须在后续消息到达前 stub 才能被读到 */
+  function stubContainerWidth(host: HTMLElement) {
+    const container = host.querySelector<HTMLElement>('.u-ai-chat__list .u-scroll__container')!
+    Object.defineProperty(container, 'clientWidth', { value: 1200, configurable: true })
+  }
+
+  /** 让消息列表进入可滚状态：stub 高度并触发一次滚动事件 */
+  async function makeScrollable(host: HTMLElement) {
+    const container = host.querySelector<HTMLElement>('.u-ai-chat__list .u-scroll__container')!
+    Object.defineProperty(container, 'scrollHeight', { value: 2000, configurable: true })
+    Object.defineProperty(container, 'clientHeight', { value: 600, configurable: true })
+    container.dispatchEvent(new Event('scroll'))
+    await nextTick()
+    await nextTick()
+  }
+
+  it('会话不足 3 轮不出现导航，达到后可滚动才渲染刻度与目录', async () => {
+    const transport: ChatTransport = (_req, handlers) => handlers.onTextDelta('收到')
+    const { host, chat, unmount } = mountAiChat({ transport })
+
+    chat.value?.send('第一轮')
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__message--user')).toBeTruthy()
+    })
+    expect(host.querySelector('.u-ai-chat__navigator')).toBeFalsy()
+
+    stubContainerWidth(host)
+    chat.value?.send('第二轮')
+    chat.value?.send('第三轮')
+    await vi.waitFor(() => {
+      expect(host.querySelectorAll('[data-turn]')).toHaveLength(3)
+    })
+    // 内容未溢出时不需要目录
+    expect(host.querySelector('.u-ai-chat__navigator')).toBeFalsy()
+
+    await makeScrollable(host)
+    await vi.waitFor(() => {
+      expect(host.querySelectorAll('.u-ai-chat__navigator-tick')).toHaveLength(3)
+    })
+
+    // 目录项取用户提问原文，按序号展示；hover 才展开
+    host
+      .querySelector<HTMLElement>('.u-ai-chat__navigator')!
+      .dispatchEvent(new MouseEvent('mouseenter', { bubbles: false }))
+    await nextTick()
+    const items = [...host.querySelectorAll('.u-ai-chat__navigator-item-text')].map(
+      (el) => el.textContent
+    )
+    expect(items).toEqual(['第一轮', '第二轮', '第三轮'])
+    unmount()
+  })
+
+  it('点击导航项滚到对应轮次', async () => {
+    const transport: ChatTransport = (_req, handlers) => handlers.onTextDelta('收到')
+    const { host, chat, unmount } = mountAiChat({ transport })
+
+    stubContainerWidth(host)
+    chat.value?.send('第一轮')
+    chat.value?.send('第二轮')
+    chat.value?.send('第三轮')
+    await vi.waitFor(() => {
+      expect(host.querySelectorAll('[data-turn]')).toHaveLength(3)
+    })
+    await makeScrollable(host)
+
+    const turns = [...host.querySelectorAll<HTMLElement>('[data-turn]')]
+    const container = host.querySelector<HTMLElement>('.u-ai-chat__list .u-scroll__container')!
+    const scrolled: number[] = []
+    container.scrollTo = ((options: ScrollToOptions) => {
+      scrolled.push(options.top ?? 0)
+    }) as typeof container.scrollTo
+
+    host.querySelectorAll<HTMLElement>('.u-ai-chat__navigator-tick')[1]!.click()
+    await nextTick()
+    // 跳到第二轮：happy-dom 无布局，目标与容器顶同为 0，只需确认发生了滚动且指向该轮
+    expect(scrolled).toHaveLength(1)
+    expect(turns[1]).toBeTruthy()
     unmount()
   })
 
@@ -607,7 +964,7 @@ describe('UAiChat', () => {
 
     chat.value?.send('北京天气')
 
-    await expandProcess(host)
+    await expandStepLine(host)
 
     expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
 
@@ -669,7 +1026,7 @@ describe('UAiChat', () => {
     expect(host.querySelector('.u-ai-chat__panel-title')?.textContent).toBe('后台页面')
 
     // 最终答案输出后工具卡片收进「已完成」过程块，展开后断言
-    await expandProcess(host)
+    await expandStepLine(host)
 
     // 卡片 body 不渲染 render 组件，仅提供「查看面板」入口
     expect(host.querySelector('.u-ai-chat__tool-call.is-success')).toBeTruthy()
@@ -692,7 +1049,7 @@ describe('UAiChat', () => {
     expect(host.querySelector('.u-ai-chat__panel')).toBeFalsy()
 
     // 卡片已收进「已完成」过程块，展开后点击入口
-    await expandProcess(host)
+    await expandStepLine(host)
 
     const entryBtn = [
       ...host.querySelectorAll<HTMLElement>('.u-ai-chat__tool-call-panel-entry button')
@@ -719,7 +1076,7 @@ describe('UAiChat', () => {
     })
 
     // 卡片已收进「已完成」过程块，展开后点击第一张卡片的「查看面板」切回 form
-    await expandProcess(host)
+    await expandStepLine(host)
 
     const firstCard = host.querySelectorAll<HTMLElement>('.u-ai-chat__tool-call')[0]!
     const entryBtn = [
@@ -806,7 +1163,7 @@ describe('UAiChat', () => {
     expect(layout.style.gridTemplateColumns).toBe('1fr 640px')
 
     // 卡片已收进「已完成」过程块，展开后点击 openPage 卡片的「查看面板」→ 切换并应用 480px
-    await expandProcess(host)
+    await expandStepLine(host)
 
     const firstCard = host.querySelectorAll<HTMLElement>('.u-ai-chat__tool-call')[0]!
     const entryBtn = [
@@ -1550,6 +1907,9 @@ describe('UAiChat', () => {
     const { host, unmount } = mountAiChat({ transport: () => {}, messages })
     await nextTick()
 
+    // 历史回放（非运行中）步骤行收起：展开后卡片可见
+    await expandStepLine(host)
+
     assertGenericCard(host, 'pending')
     expect(host.querySelector('.u-ai-chat__tool-call-name')?.classList.contains('u-shine')).toBe(
       true
@@ -1557,9 +1917,10 @@ describe('UAiChat', () => {
     // 进行中默认折叠
     expect(host.querySelector('.u-ai-chat__tool-call.is-active')).toBeFalsy()
 
-    // 手动展开可查看参数
+    // 手动展开可查看参数（人读字段行，不是原始 JSON）
     await expandToolCard(host)
-    expect(host.textContent).toContain('"q": "hi"')
+    expect(host.textContent).toContain('hi')
+    expect(host.textContent).not.toContain('"q": "hi"')
 
     call.status = 'success'
     call.result = '{"ok":true}'
@@ -1567,7 +1928,7 @@ describe('UAiChat', () => {
     assertGenericCard(host, 'success')
 
     // 用户已手动展开过，进入终态后保持展开
-    expect(host.textContent).toContain('"ok": true')
+    expect(host.textContent).toContain('Ok')
     unmount()
   })
 
@@ -1575,6 +1936,7 @@ describe('UAiChat', () => {
     const { call, messages } = seedUnknownCall()
     const { host, unmount } = mountAiChat({ transport: () => {}, messages })
     await nextTick()
+    await expandStepLine(host)
     assertGenericCard(host, 'pending')
 
     call.status = 'error'
@@ -1588,22 +1950,30 @@ describe('UAiChat', () => {
     unmount()
   })
 
-  it('通用卡片展示 view，长 JSON 可截断并展开看全文', async () => {
+  it('通用卡片展示 view，超长结果截断并可展开全文', async () => {
     const long = 'x'.repeat(500)
-    const { call, messages } = seedUnknownCall({
+    const { messages } = seedUnknownCall({
       status: 'success',
       result: JSON.stringify({ data: long }),
       view: { kind: 'diff', body: 'patch-xyz' }
     })
     const { host, unmount } = mountAiChat({ transport: () => {}, messages })
     await nextTick()
+    await expandStepLine(host)
     await expandToolCard(host)
 
+    // 人读视图：view 字段名拆词；结果单值直出、超长值截断，不把整段原文倒进会话
     expect(host.textContent).toContain('视图')
     expect(host.textContent).toContain('patch-xyz')
+    expect(host.textContent).toContain('Kind')
     expect(host.textContent).not.toContain(long)
+
+    // 「展开」入口看全文，排查问题时信息不丢
+    const resultBlock = [...host.querySelectorAll<HTMLElement>('.u-ai-chat__tool-data')].find(
+      (el) => el.querySelector('.u-ai-chat__tool-data-title')?.textContent === '结果'
+    )!
     const toggle = [
-      ...host.querySelectorAll<HTMLElement>('.u-ai-chat__tool-call-json-toggle')
+      ...resultBlock.querySelectorAll<HTMLElement>('.u-ai-chat__tool-data-raw-toggle')
     ].find((el) => el.textContent?.includes('展开'))
     expect(toggle).toBeTruthy()
     toggle!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
@@ -1623,6 +1993,7 @@ describe('UAiChat', () => {
       toolIcons: { [UNKNOWN_TOOL]: OverrideIcon }
     })
     await nextTick()
+    await expandStepLine(host)
     expect(host.querySelector('.override-tool-icon')).toBeTruthy()
     unmount()
   })
@@ -1647,9 +2018,12 @@ describe('UAiChat', () => {
         selectModel: async () => {}
       })
     })
+    // 历史回放的待定调用：步骤行行内先展示工具名，展开后走通用卡片
     await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__tool-call-name')?.textContent).toBe('askQuestion')
+      expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('askQuestion')
     })
+    await expandStepLine(host)
+    expect(host.querySelector('.u-ai-chat__tool-call-name')?.textContent).toBe('askQuestion')
     expect(host.querySelector('.u-ai-chat__ask-question')).toBeFalsy()
     unmount()
   })

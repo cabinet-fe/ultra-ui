@@ -7,7 +7,6 @@ import '@veltra/desktop/components/layout/style'
 import '@veltra/desktop/components/message/style'
 import '@veltra/desktop/components/pop-confirm/style'
 import '@veltra/desktop/components/scroll/style'
-import '@veltra/desktop/components/select/style'
 import '@veltra/styles/animations/shine.scss'
 import 'markstream-vue/index.css'
 // 活体球为 ai-chat 内部组件，样式随 ai-chat 一并加载

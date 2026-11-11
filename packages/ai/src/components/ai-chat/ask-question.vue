@@ -46,7 +46,7 @@
             ]"
             aria-hidden="true"
           />
-          <span :class="cls.e('ask-question-opt-text')">{{ option }}</span>
+          <span>{{ option }}</span>
         </button>
       </div>
 

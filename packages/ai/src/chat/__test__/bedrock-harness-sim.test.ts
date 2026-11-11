@@ -98,7 +98,7 @@ class MockWebSocket implements MockSocket {
   }
 }
 
-// ---- message-list 的 turns 分组(照抄 message-list.vue) ----
+// ---- message-list 的 turns 分组(照抄 message-list.vue 的段模型) ----
 
 interface ChatMessageLike {
   id: string
@@ -112,7 +112,7 @@ interface ChatMessageLike {
 const isFinalStatus = (msg?: ChatMessageLike) =>
   msg?.status === 'done' || msg?.status === 'error' || msg?.status === 'aborted'
 
-/** 返回 UI 可见结构: 每轮 { user, processCount | 已完成fold, answer } */
+/** 返回 UI 可见结构: 每轮 { user, steps(段) | answer | tail } */
 function uiSnapshot(messages: ChatMessageLike[], running: boolean) {
   const visible = messages.filter((m) => m.role !== 'tool')
   const grouped: { key: string; userMsg?: ChatMessageLike; assistants: ChatMessageLike[] }[] = []
@@ -128,23 +128,44 @@ function uiSnapshot(messages: ChatMessageLike[], running: boolean) {
   let visibleItems = 0
   const parts: string[] = []
   grouped.forEach((turn, index) => {
-    const processMsgs = turn.assistants.slice(0, -1)
-    const answerMsg = turn.assistants[turn.assistants.length - 1]
-    const isLastTurn = index === grouped.length - 1
-    const processCollapsed =
-      processMsgs.length > 0 && (!isLastTurn || (!running && isFinalStatus(answerMsg)))
-    if (turn.userMsg) visibleItems += 1
-    if (processCollapsed) {
-      visibleItems += 1
-      parts.push(`fold(${processMsgs.length})`)
-    } else {
-      visibleItems += processMsgs.length
-      parts.push(...processMsgs.map((m) => `proc:${m.status}`))
+    // 按流式顺序切段: 思考/工具归属当前段, 出现文字回答即闭合该段(其后工具落进新段)
+    const segments: { steps: number; answer?: ChatMessageLike }[] = []
+    let current: { steps: number; answer?: ChatMessageLike } = { steps: 0 }
+    for (const msg of turn.assistants) {
+      if (msg.reasoning) current.steps += 1
+      if (msg.content) {
+        current.answer = msg
+        segments.push(current)
+        current = { steps: 0 }
+      }
+      current.steps += msg.toolCalls?.length ?? 0
     }
-    if (answerMsg) {
+    if (current.steps) segments.push(current)
+
+    const isLastTurn = index === grouped.length - 1
+    const lastMsg = turn.assistants[turn.assistants.length - 1]
+    const live = isLastTurn && (running || !isFinalStatus(lastMsg))
+
+    if (turn.userMsg) visibleItems += 1
+    segments.forEach((segment, segIndex) => {
+      if (segment.steps) {
+        visibleItems += 1
+        // 步骤行: 末段未闭合(无回答)且轮次进行中 → live; 否则定格为已完成
+        const segLive = live && segIndex === segments.length - 1 && !segment.answer
+        parts.push(segLive ? `steps(${segment.steps},live)` : `steps(${segment.steps},已完成)`)
+      }
+      if (segment.answer) {
+        visibleItems += 1
+        parts.push(`answer:${segment.answer.status}`)
+      }
+    })
+    if (
+      lastMsg &&
+      !lastMsg.content &&
+      (lastMsg.status === 'error' || lastMsg.status === 'aborted')
+    ) {
       visibleItems += 1
-      const thinking = answerMsg.status === 'streaming' && !answerMsg.content
-      parts.push(`answer:${answerMsg.status}${thinking ? '(思考中…)' : ''}`)
+      parts.push(`tail:${lastMsg.status}`)
     }
   })
   return { running, visibleItems, parts }
@@ -333,11 +354,15 @@ describe('bedrock harness 会话面板仿真', () => {
     ws.serverPush(statusFrame('idle'))
     record('idle')
 
-    // 健康路径: idle 前不应出现 fold(已完成) 与 running=false
+    // 健康路径: idle 前不出现 running=false; 步骤段一旦定格为「已完成」不得翻回 live
     const beforeIdle = flips.slice(0, -1)
     for (const line of beforeIdle) {
       expect(line).not.toMatch(/running=false/)
-      expect(line).not.toMatch(/fold/)
+    }
+    const firstSettled = beforeIdle.findIndex((line) => line.includes('已完成'))
+    expect(firstSettled).toBeGreaterThanOrEqual(0)
+    for (const line of beforeIdle.slice(firstSettled)) {
+      expect(line).not.toMatch(/,live\)/)
     }
   })
 
