@@ -7,10 +7,10 @@ playground 本地参考服务：在线填报单元格存取（SQLite）+ DeepSee
 
 ## 启动
 
-- **推荐（完整演示）**：`cd playground && bun run dev` — 并行拉起参考服务（Bun，默认 8787，含填报与 `/ai`）与前端（7788）。
+- **推荐（完整演示）**：`cd playground && bun run dev` — 并行拉起参考服务（Bun，默认 7799，含填报与 `/ai`）与前端（7788）。
 - **仅参考服务**：`bun run server`（`server/dev.ts`，Bun 运行；启动时加载 playground/.env）。
 - **仅前端**：`bun run dev:web`；填报 / AI 演示需另开 `bun run server`，或改用 `bun run dev`。
-- 端口：`REPORT_SERVER_PORT` 覆盖参考服务（默认 8787）。
+- 端口：`REPORT_SERVER_PORT` 覆盖参考服务（默认 7799）。
 
 ## DeepSeek AI 代理
 
@@ -36,12 +36,12 @@ playground 本地参考服务：在线填报单元格存取（SQLite）+ DeepSee
 
 ```bash
 # 直接冒烟（请先在 playground/.env 配置 DEEPSEEK_API_KEY）
-curl -N -X POST http://localhost:8787/ai/chat/completions \
+curl -N -X POST http://localhost:7799/ai/chat/completions \
   -H "Content-Type: application/json" \
   -d '{"model":"deepseek-v4-flash","messages":[{"role":"user","content":"你好"}]}'
 
 # 模型列表
-curl http://localhost:8787/ai/models
+curl http://localhost:7799/ai/models
 ```
 
 ## 在线填报

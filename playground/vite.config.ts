@@ -17,6 +17,13 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const repoRoot = resolve(__dirname, '..')
 const nodePkgImporter = new NodePackageImporter(repoRoot)
 
+/**
+ * 参考服务只监听 127.0.0.1（见 server/dev.ts 的 hostname），代理目标必须写死 IPv4。
+ * 用 `localhost` 时本机常先解析到 ::1：同端口若有别的服务占着 IPv6，请求会被它接走并 404，
+ * 看起来像 AI 接口挂了。
+ */
+const REFERENCE_SERVER = `http://127.0.0.1:${REPORT_SERVER_PORT}`
+
 const config = {
   test: {
     include: ['src/**/*.test.ts'],
@@ -41,17 +48,17 @@ const config = {
     proxy: {
       // 前端填报演示经 /report-api → 参考服务（去前缀转发）
       '/report-api': {
-        target: `http://localhost:${REPORT_SERVER_PORT}`,
+        target: REFERENCE_SERVER,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/report-api/, '')
       },
       // AI 会话代理：只匹配 /ai 与 /ai/*，避免把 /ai-chat SPA 路由也代理走。
       // Vite 字符串上下文是前缀匹配，必须用正则锁定边界。
-      '^/ai(?:/|$)': { target: `http://localhost:${REPORT_SERVER_PORT}`, changeOrigin: true },
+      '^/ai(?:/|$)': { target: REFERENCE_SERVER, changeOrigin: true },
       // 智慧表格演示：/smart-table-api → 参考服务 /smart-table。
       // 前缀含 -api 后与 SPA 路由 /smart-table 不同串，字符串前缀匹配不会误代理页面路由。
       '/smart-table-api': {
-        target: `http://localhost:${REPORT_SERVER_PORT}`,
+        target: REFERENCE_SERVER,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/smart-table-api/, '/smart-table')
       }
