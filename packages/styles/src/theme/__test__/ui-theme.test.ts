@@ -10,7 +10,6 @@ import {
   navSurfaceTone
 } from '../component-css-vars'
 import {
-  ancientTheme,
   darkTheme,
   glassTheme,
   heroTheme,
@@ -18,7 +17,8 @@ import {
   midnightTheme,
   neonTheme,
   oceanTheme,
-  sakuraTheme
+  sakuraTheme,
+  xuanzhiTheme
 } from '../presets'
 import { UITheme } from '../ui-theme'
 
@@ -46,7 +46,7 @@ describe('UITheme', () => {
     expect(darkTheme.series).toBe('dark')
     expect(glassTheme.series).toBe('dark')
     expect(heroTheme.series).toBe('light')
-    expect(ancientTheme.series).toBe('light')
+    expect(xuanzhiTheme.series).toBe('light')
     expect(sakuraTheme.series).toBe('light')
     expect(oceanTheme.series).toBe('light')
     expect(midnightTheme.series).toBe('dark')
@@ -151,10 +151,10 @@ describe('UITheme', () => {
     expect(decls.some((d) => d.startsWith('--u-nav-'))).toBe(false)
   })
 
-  it('sakura / ocean / ancient have themed dark sidebar colors', () => {
+  it('sakura / ocean / xuanzhi have themed dark sidebar colors', () => {
     expect(sakuraTheme.navSidebarDecls(sakuraTheme.theme)).toContain('--u-nav-bg-color: #662e40')
     expect(oceanTheme.navSidebarDecls(oceanTheme.theme)).toContain('--u-nav-bg-color: #134944')
-    expect(ancientTheme.navSidebarDecls(ancientTheme.theme)).toContain('--u-nav-bg-color: #303c34')
+    expect(xuanzhiTheme.navSidebarDecls(xuanzhiTheme.theme)).toContain('--u-nav-bg-color: #303c34')
   })
 
   it('no preset emits invalid NaN declarations', () => {
@@ -163,7 +163,7 @@ describe('UITheme', () => {
       darkTheme,
       heroTheme,
       glassTheme,
-      ancientTheme,
+      xuanzhiTheme,
       sakuraTheme,
       oceanTheme,
       midnightTheme,
@@ -178,7 +178,7 @@ describe('UITheme', () => {
   })
 
   it('nav.variants overrides apply only to their own variant', () => {
-    const t = ancientTheme.new({ nav: { variants: { light: { 'bg-color': '#f1ede0' } } } })
+    const t = xuanzhiTheme.new({ nav: { variants: { light: { 'bg-color': '#f1ede0' } } } })
     // 深变体（预设自带松烟墨）不受 light 变体覆盖影响
     const darkDecls = t.navSidebarDecls(t.theme)
     expect(darkDecls).toContain('--u-nav-bg-color: #303c34')
@@ -264,8 +264,8 @@ describe('UITheme', () => {
     expect(lightMenu['active-color']).toMatch(/^#[0-9a-f]{6}$/i)
 
     // 预设个性侧栏色按变体隔离
-    expect(ancientTheme.navSidebarColors()['bg-color']).toBe('#303c34')
-    expect(ancientTheme.navSidebarColors('light')['bg-color']).toBe('#f7f4ea')
+    expect(xuanzhiTheme.navSidebarColors()['bg-color']).toBe('#303c34')
+    expect(xuanzhiTheme.navSidebarColors('light')['bg-color']).toBe('#f7f4ea')
     expect(heroTheme.navSidebarColors()['bg-color']).toBe('#fafafa')
     expect(heroTheme.navSidebarColors('dark')['bg-color']).toBe('#11181C')
   })

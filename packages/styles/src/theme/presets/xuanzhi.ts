@@ -1,8 +1,8 @@
 import { mixColor } from '../helper'
 import { lightTheme } from './light'
 
-/** 古风（松烟绿 + 宣纸底），天生适合浅色 */
-export const ancientTheme = lightTheme.new({
+/** 宣纸（松烟绿 + 宣纸底），天生适合浅色 */
+export const xuanzhiTheme = lightTheme.new({
   color: {
     primary: '#3d6b58' // 松烟绿
   },

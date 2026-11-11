@@ -216,7 +216,7 @@ export type Theme = {
 import {
   lightTheme,
   heroTheme,
-  ancientTheme,
+  xuanzhiTheme,
   sakuraTheme,
   oceanTheme,
   darkTheme,
@@ -230,7 +230,7 @@ import {
 | --------------- | ------- | --------------------------------------------------------------------- |
 | `lightTheme`    | `light` | 默认浅色基座，`reactive: false`                                       |
 | `heroTheme`     | `light` | HeroUI 风格：紫 `#7828c8`、2px 边框、浮雕阴影、`nav.variant: 'light'` |
-| `ancientTheme`  | `light` | 松烟绿 + 宣纸底，侧栏松烟墨                                           |
+| `xuanzhiTheme`  | `light` | 宣纸：松烟绿 + 宣纸底，侧栏松烟墨                                     |
 | `sakuraTheme`   | `light` | 柔粉 + 花瓣底、大圆角、弹性缓动，侧栏深酒红                           |
 | `oceanTheme`    | `light` | 松石青 + 冷白底，侧栏深海礁                                           |
 | `darkTheme`     | `dark`  | 默认深色基座                                                          |
@@ -238,7 +238,7 @@ import {
 | `midnightTheme` | `dark`  | 靛蓝 + 深空底，宽松间距、舒缓过渡                                     |
 | `neonTheme`     | `dark`  | 品红 + 夜紫底 + 辉光阴影，小圆角                                      |
 
-预设的个性化侧栏色写在 `nav.variants[variant]`（如古风/樱花/海盐的深墨侧栏），因此切到另一个变体时会自动回落到该主题系列的内置浅/深外观，不会出现「浅变体套深墨底」的串色。
+预设的个性化侧栏色写在 `nav.variants[variant]`（如宣纸/樱花/海盐的深墨侧栏），因此切到另一个变体时会自动回落到该主题系列的内置浅/深外观，不会出现「浅变体套深墨底」的串色。
 
 ### 主题工具函数（同入口导出）
 
@@ -367,9 +367,9 @@ loadTheme(brandDark) // => html[data-theme="dark"]，表格、按钮等按深色
 **方式二：派生主题（整页统一）** —— 用 `withNavVariant` 派生，切换时重新加载：
 
 ```ts
-import { ancientTheme, loadTheme } from '@veltra/styles/theme'
+import { loadTheme, xuanzhiTheme } from '@veltra/styles/theme'
 
-loadTheme(ancientTheme.withNavVariant('light'))
+loadTheme(xuanzhiTheme.withNavVariant('light'))
 ```
 
 **为预设定制某个变体的颜色**：写在 `nav.variants[variant]`，只在该变体生效（预设个性的深侧栏色因此不会泄漏到浅变体）；`nav` 顶层字符串键仍然对所有变体生效：
@@ -393,7 +393,7 @@ loadTheme(
 **取具体色值（主题选择器预览）**：`navSidebarColors(variant?)` 把内置 token 的 `var()` 引用解析成当前主题下的具体色值，不依赖该主题是否已加载到 DOM：
 
 ```ts
-const theme = ancientTheme // UITheme 实例
+const theme = xuanzhiTheme // UITheme 实例
 theme.navSidebarColors()['bg-color'] // 默认（深）变体的侧栏底色，如 '#303c34'
 theme.navSidebarColors('light')['bg-color'] // 浅变体的侧栏底色，如 '#f7f4ea'
 theme.navSidebarColors('light')['active-color'] // 选中项文字色（已解析为 hex）

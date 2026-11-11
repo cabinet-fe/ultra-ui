@@ -106,7 +106,6 @@ import { useConfig } from '@veltra/compositions'
 import type { ComponentSize, NavItem } from '@veltra/desktop'
 import { Check, Setting } from '@veltra/icons/normal'
 import {
-  ancientTheme,
   darkTheme,
   glassTheme,
   heroTheme,
@@ -116,6 +115,7 @@ import {
   neonTheme,
   oceanTheme,
   sakuraTheme,
+  xuanzhiTheme,
   type UITheme
 } from '@veltra/styles/theme'
 import { computed, ref, shallowRef, watch, watchEffect } from 'vue'
@@ -156,7 +156,7 @@ const themeGroups: { label: string; items: ThemeItem[] }[] = [
     items: [
       { label: '默认', value: 'light', theme: lightTheme },
       { label: 'Hero', value: 'hero', theme: heroTheme },
-      { label: '古风', value: 'ancient', theme: ancientTheme },
+      { label: '宣纸', value: 'xuanzhi', theme: xuanzhiTheme },
       { label: '樱花', value: 'sakura', theme: sakuraTheme },
       { label: '海盐', value: 'ocean', theme: oceanTheme }
     ]

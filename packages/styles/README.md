@@ -50,7 +50,7 @@ loadTheme(heroTheme) // 应用指定预设
 
 预设主题按系列组织，应用主题即确定明暗（`html[data-theme]` 同步写入）：
 
-- 浅色系：`lightTheme`、`heroTheme`、`ancientTheme`
+- 浅色系：`lightTheme`、`heroTheme`、`xuanzhiTheme`
 - 深色系：`darkTheme`、`glassTheme`
 
 基于预设派生自定义主题：

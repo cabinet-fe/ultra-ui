@@ -141,7 +141,7 @@ const current = computed(() => currentTheme.value?.series ?? 'light')
 ## 要点说明
 
 - `loadTheme(theme?)`：同步、无返回值、不抛错；默认 `lightTheme`。重复调用以最后一次为准——这就是热替换：注入的声明块整体替换，颜色立即生效。SSR 必须在 `onMounted` 中调用。
-- 预设主题 9 个，每个自带 `series`，不成对切换：light 系 `lightTheme` / `heroTheme` / `ancientTheme` / `sakuraTheme` / `oceanTheme`；dark 系 `darkTheme` / `glassTheme` / `midnightTheme` / `neonTheme`。切深色就是 `loadTheme(darkTheme)` 这类换主题动作。
+- 预设主题 9 个，每个自带 `series`，不成对切换：light 系 `lightTheme` / `heroTheme` / `xuanzhiTheme` / `sakuraTheme` / `oceanTheme`；dark 系 `darkTheme` / `glassTheme` / `midnightTheme` / `neonTheme`。切深色就是 `loadTheme(darkTheme)` 这类换主题动作。
 - 深浅色硬规则：`series` 决定注入哪套组件级 token 并写 `html[data-theme]`（`'light'` 或 `'dark'`）。从浅色基主题派生深色必须显式 `new(customTheme, { series: 'dark' })`；不写时全局色变了，表格斑马纹、按钮 plain 等组件级 token 仍是浅色套。
 - 品牌色覆盖：`lightTheme.new({ color: { primary: '#ff6600' } })` 派生新 `UITheme`，主色及全部色阶、alpha token 同步派生；空值（`''` / `null` / `undefined`）字段被剔除，`0` 保留；数字 token 自动补 `px`。派生继承基主题 `series`（`options.series` 可覆盖），不修改基主题。
 - `nav.variant` 硬规则：`'dark'` 深底浅字 / `'light'` 浅底深字，默认 `'dark'`（浅色主题的默认侧栏也是深底）。只改 `'bg-color'` 不改 `variant` 不联动前景，浅底必须同时 `variant: 'light'`。`nav` 其余字符串键逐项覆盖同名 `--u-nav-*`（`'bg-color'` → `--u-nav-bg-color`）。整组换内置值用 `navSidebarTokens(series, variant)`。
