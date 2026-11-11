@@ -16,7 +16,6 @@
           bem.is('active', item.key === activeKey),
           bem.is('read', item.index < activeIndex)
         ]"
-        :style="tickStyle(item)"
         :title="item.title"
         @click="emit('jump', item.key)"
       >
@@ -83,10 +82,4 @@ const activeIndex = computed(() => {
   const index = props.items.findIndex((item) => item.key === props.activeKey)
   return index === -1 ? -1 : index
 })
-
-/** 刻度宽度映射内容量：最短 8px、最长 20px，读长对话时能看出哪里是密集区 */
-const tickStyle = (item: NavigatorItem) => {
-  const width = 8 + Math.round(item.weight * 12)
-  return { width: `${width}px` }
-}
 </script>

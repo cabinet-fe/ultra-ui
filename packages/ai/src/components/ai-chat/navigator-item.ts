@@ -6,6 +6,4 @@ export interface NavigatorItem {
   index: number
   /** 目录标题（用户提问的单行摘要） */
   title: string
-  /** 相对权重（0~1）：该轮内容量占全文的比例，用于刻度长度 */
-  weight: number
 }

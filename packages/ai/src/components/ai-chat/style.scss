@@ -40,6 +40,25 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   box-sizing: border-box;
 }
 
+/** 面板头部图标按钮配方：全屏切换 / 关闭共用（尺寸、hover 背景、过渡一致） */
+@mixin panel-header-btn {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: fn.use-var(text-color, assist);
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+  @include m.flex(flex, center, center);
+
+  &:hover {
+    color: fn.use-var(text-color, main);
+    background-color: fn.use-var(bg-color, hover);
+  }
+}
+
 @include m.b($root-name) {
   height: 100%;
   min-height: 0;
@@ -86,6 +105,26 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     box-sizing: border-box;
     animation: u-ai-chat-panel-in 0.2s ease-out;
 
+    // 全屏：铺满整个组件区域（含输入区，盖住主列与拖拽手柄）。
+    // .u-ai-chat 根即 ULayout 根（自带 position: relative），inset 0 恰为组件区域
+    @include m.is(fullscreen) {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      padding: 0;
+      // 退出全屏时 animation-name 回落 panel-in 会重放，形成退出过渡
+      animation: u-ai-chat-panel-full-in 0.2s ease-out;
+
+      // 全幅卡片：去圆角与悬浮留白，仍保留头部与卡片配色
+      .u-#{$root-name}__panel-card {
+        border-radius: 0;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        animation: u-ai-chat-panel-fade 160ms cubic-bezier(0.33, 1, 0.68, 1);
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       animation: u-ai-chat-panel-fade 160ms cubic-bezier(0.33, 1, 0.68, 1);
     }
@@ -111,6 +150,19 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     to {
       transform: translateX(0);
       opacity: 1;
+    }
+  }
+
+  // 全屏进入：轻缩放 + 淡入（退出经 panel-in 重放反向过渡）
+  @keyframes u-ai-chat-panel-full-in {
+    from {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+
+    to {
+      opacity: 1;
+      transform: scale(1);
     }
   }
 
@@ -178,22 +230,13 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     color: fn.use-var(text-color, title);
   }
 
-  @include m.e(panel-close) {
-    flex-shrink: 0;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    cursor: pointer;
-    color: fn.use-var(text-color, assist);
-    transition:
-      color 0.15s ease,
-      background-color 0.15s ease;
-    @include m.flex(flex, center, center);
+  // 头部「全屏 / 还原」切换：与关闭按钮同款图标按钮
+  @include m.e(panel-fullscreen) {
+    @include panel-header-btn;
+  }
 
-    &:hover {
-      color: fn.use-var(text-color, main);
-      background-color: fn.use-var(bg-color, hover);
-    }
+  @include m.e(panel-close) {
+    @include panel-header-btn;
   }
 
   @include m.e(panel-body) {
@@ -783,14 +826,15 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
   }
 
-  // 行本体：固定高度（与 __reasoning-header 协调），hover 反馈出可点击
+  // 行本体：固定高度（与 __reasoning-header 协调），hover 反馈出可点击。
+  // 左缘不另加内边距：容器已有的 16px 横向 padding 与 __message 一致，
+  // 行内图标与下方回答正文左对齐
   @include m.e(step-line-bar) {
     position: relative;
     overflow: hidden;
     @include m.flex(flex, flex-start, center);
     gap: 4px;
     height: 30px;
-    padding: 0 6px;
     border-radius: fn.use-var(radius, default);
     cursor: pointer;
     user-select: none;
@@ -832,13 +876,6 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     color: fn.use-var(text-color, assist);
   }
 
-  // 行内耗时：等宽数字避免跳动
-  @include m.e(step-line-duration) {
-    flex-shrink: 0;
-    color: fn.use-var(text-color, assist);
-    font-variant-numeric: tabular-nums;
-  }
-
   // 步骤计数（多于一步时展示）
   @include m.e(step-line-count) {
     flex-shrink: 0;
@@ -863,7 +900,6 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   @include m.em(step-line, 'swap-leave-active') {
     position: absolute;
     inset: 0;
-    padding: 0 6px;
     transition:
       transform 0.2s cubic-bezier(0.33, 1, 0.68, 1),
       opacity 0.2s cubic-bezier(0.33, 1, 0.68, 1);
@@ -929,14 +965,6 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     min-width: 0;
     @include m.ellipsis;
     color: fn.use-var(text-color, assist);
-  }
-
-  // 工具调用耗时：终态定格、进行中跳动，等宽数字避免抖动
-  @include m.e(tool-call-duration) {
-    flex-shrink: 0;
-    color: fn.use-var(text-color, assist);
-    font-size: fn.use-var(font-size-main, small);
-    font-variant-numeric: tabular-nums;
   }
 
   @include m.e(tool-call-confirm) {
@@ -1151,20 +1179,24 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     transition: background-color 0.2s ease;
   }
 
-  // 刻度是横线：长度映射该轮内容量，一眼看出长对话的密集区
+  // 刻度是横线：默认短刻度，激活与悬停项变长（宽度过渡），当前项一眼可辨
   @include m.e(navigator-tick) {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    height: 6px;
-    padding: 0;
+    width: 8px;
+    // 横线本体仅 2px 高，纵向 padding 撑大命中区（横向不外扩，避免压到正文）
+    padding: 5px 0;
     border: none;
     background: none;
     cursor: pointer;
+    transition: width 0.2s ease;
 
-    // 悬停与当前项：转主题色并加深，当前项一眼可辨
+    // 悬停与当前项：变长并转主题色
     &:hover,
     &.is-active {
+      width: 20px;
+
       .u-#{$root-name}__navigator-tick-line {
         background-color: fn.use-var(color, primary);
         opacity: 1;
@@ -1174,6 +1206,11 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     // 已读项略淡，形成「读到哪了」的进度感
     &.is-read .u-#{$root-name}__navigator-tick-line {
       opacity: 0.4;
+    }
+
+    // 减少动态效果时：长度直接切换，不做宽度动画
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
     }
   }
 

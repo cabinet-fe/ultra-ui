@@ -1,10 +1,9 @@
-import { computed, inject, onScopeDispose, ref, toValue, watch } from 'vue'
+import { computed, inject, toValue } from 'vue'
 import type { Component, MaybeRefOrGetter } from 'vue'
 
 import type { ChatTool, ChatToolCall, ChatToolMeta } from '../../chat/types'
 import { AiChatDIKey } from './di'
 import type { AiChatContext } from './di'
-import { formatDuration } from './format-duration'
 import {
   dropEchoedFields,
   isSummarizedInHeader,
@@ -94,65 +93,7 @@ export function useToolCallBrief(call: MaybeRefOrGetter<ChatToolCall | undefined
   /** 折叠态摘要：取最能说明「这次调用了什么」的参数值 */
   const summary = computed(() => summarizeArguments(parsedArguments.value))
 
-  /** 调用耗时：进行中按 100ms 跳动，进入终态后定格 */
-  const startedAt = ref<number>()
-  const settledMs = ref<number>()
-  let tickTimer: ReturnType<typeof setInterval> | undefined
-  const now = ref(0)
-
-  const stopTick = () => {
-    clearInterval(tickTimer)
-    tickTimer = undefined
-  }
-
-  watch(current, (next, prev) => {
-    if (next === prev) return
-    // 步骤行走马灯换步会切换跟踪的调用：清掉上一调用的计时，避免耗时串台
-    startedAt.value = undefined
-    settledMs.value = undefined
-    stopTick()
-  })
-
-  watch(
-    () => current.value?.status,
-    (status) => {
-      if (status === 'pending' || status === 'running') {
-        if (startedAt.value == null) startedAt.value = Date.now()
-        stopTick()
-        tickTimer = setInterval(() => {
-          now.value = Date.now()
-        }, 100)
-        return
-      }
-      stopTick()
-      if (status && isSettledStatus(status) && startedAt.value != null && settledMs.value == null) {
-        settledMs.value = Date.now() - startedAt.value
-      }
-    },
-    { immediate: true }
-  )
-
-  onScopeDispose(stopTick)
-
-  /** 调用耗时：进行中按 100ms 跳动，进入终态后定格；亚秒级调用不显示，避免「0s」噪声 */
-  const durationText = computed(() => {
-    const ms =
-      settledMs.value ??
-      (isActive.value && startedAt.value != null ? now.value - startedAt.value : undefined)
-    if (ms == null || ms < 1000) return ''
-    return formatDuration(ms)
-  })
-
-  return {
-    tool,
-    isActive,
-    statusClass,
-    headerIcon,
-    toolTitle,
-    parsedArguments,
-    summary,
-    durationText
-  }
+  return { tool, isActive, statusClass, headerIcon, toolTitle, parsedArguments, summary }
 }
 
 /** 展开态 body 是否有内容：自定义渲染 / 参数未被头部摘要覆盖 / 结果非纯回显 / 有视图 */

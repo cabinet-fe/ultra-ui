@@ -519,25 +519,11 @@ const {
 /** 上翻阅读时展示回到底部的悬浮按钮 */
 const showToLatest = computed(() => !stickToBottom.value && visibleMessages.value.length > 0)
 
-/** 会话导航项：每轮取用户提问作标题，权重按该轮内容量归一化到 0~1 */
+/** 会话导航项：每轮取用户提问作单行标题（无提问时回落末段回答） */
 const navigatorItems = computed<NavigatorItem[]>(() => {
-  const list = turns.value
-  const sizes = list.map((turn) => {
-    const userText = turn.userMsg?.content ?? ''
-    const answerText = turn.finalMsg?.content ?? ''
-    // 过程步骤（思考/工具卡片）没有正文长度可比，按固定当量计入
-    const stepCount = turn.segments.reduce((sum, segment) => sum + segment.steps.length, 0)
-    return userText.length + answerText.length + stepCount * 80
-  })
-  const max = Math.max(...sizes, 1)
-  return list.map((turn, index) => {
+  return turns.value.map((turn, index) => {
     const raw = turn.userMsg?.content?.trim() || turn.finalMsg?.content?.trim() || '（无提问）'
-    return {
-      key: turn.key,
-      index,
-      title: clipText(raw, 42),
-      weight: Math.min((sizes[index] ?? 0) / max, 1)
-    }
+    return { key: turn.key, index, title: clipText(raw, 42) }
   })
 })
 

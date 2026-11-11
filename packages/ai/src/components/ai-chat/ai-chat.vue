@@ -262,10 +262,12 @@ watch(activePanelCall, (call, prevCall) => {
   panelWidth.value = clampPanelWidth(width)
 })
 
-// 跟踪面板实际宽度（含用户拖拽结果）：面板关闭重开、切换到未指定宽度的工具时保持
+// 跟踪面板实际宽度（含用户拖拽结果）：面板关闭重开、切换到未指定宽度的工具时保持。
+// 全屏态下面板铺满容器，宽度并非拖拽结果，跳过回写以免破坏还原后的列宽
 useResizeObserver({
   targets: computed(() => (panelRef.value?.$el as HTMLElement | undefined) ?? undefined),
   onResize(entries) {
+    if (panelRef.value?.fullscreen) return
     // borderBoxSize 随通知携带（含边框、零布局开销），不读 offsetWidth/clientWidth
     const inlineSize = entries[0]?.borderBoxSize?.[0]?.inlineSize
     if (!inlineSize) return

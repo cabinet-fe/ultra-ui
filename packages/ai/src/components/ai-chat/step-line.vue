@@ -19,9 +19,6 @@
             </UIcon>
             <span :class="[cls.e('step-line-title'), isActive && 'u-shine']">{{ toolTitle }}</span>
             <span v-if="summary" :class="cls.e('step-line-text')">{{ summary }}</span>
-            <span v-if="durationText" :class="cls.e('step-line-duration')">
-              {{ durationText }}
-            </span>
           </template>
         </div>
         <!-- 落定：完成态摘要 -->
@@ -103,8 +100,7 @@ const currentToolCall = computed(() => {
   return step?.kind === 'tool' ? step.toolCall : undefined
 })
 
-const { isActive, statusClass, headerIcon, toolTitle, summary, durationText } =
-  useToolCallBrief(currentToolCall)
+const { isActive, statusClass, headerIcon, toolTitle, summary } = useToolCallBrief(currentToolCall)
 
 /** 行内右侧滚动展示的最新一行思考：取最后一行非空文本，随流式输出持续刷新 */
 const latestReasoningLine = computed(() => {

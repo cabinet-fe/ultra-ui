@@ -11,7 +11,6 @@
       </UIcon>
       <span :class="[cls.e('tool-call-name'), isActive && 'u-shine']">{{ toolTitle }}</span>
       <span v-if="summary" :class="cls.e('tool-call-summary')">{{ summary }}</span>
-      <span v-if="durationText" :class="cls.e('tool-call-duration')">{{ durationText }}</span>
 
       <span
         v-if="toolCall.status === 'awaiting-confirm'"
@@ -79,17 +78,9 @@ const emit = defineEmits<{ (e: 'respond', approved: boolean): void }>()
 const di = inject(AiChatDIKey)
 const cls = di?.cls ?? bem('ai-chat')
 
-/** 头部摘要共用视图模型（图标/标题/摘要/耗时/状态色），与步骤行共享 */
-const {
-  tool,
-  isActive,
-  statusClass,
-  headerIcon,
-  toolTitle,
-  parsedArguments,
-  summary,
-  durationText
-} = useToolCallBrief(() => props.toolCall)
+/** 头部摘要共用视图模型（图标/标题/摘要/状态色），与步骤行共享 */
+const { tool, isActive, statusClass, headerIcon, toolTitle, parsedArguments, summary } =
+  useToolCallBrief(() => props.toolCall)
 
 const isExpanded = ref(false)
 /** 用户手动切换过后，不再随 status 自动展开/折叠 */

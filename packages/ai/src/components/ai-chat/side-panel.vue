@@ -1,11 +1,19 @@
 <template>
-  <aside :class="cls.e('panel')">
+  <aside :class="[cls.e('panel'), bem.is('fullscreen', fullscreen)]">
     <div :class="cls.e('panel-card')">
       <div :class="cls.e('panel-header')">
         <UIcon :class="[cls.e('panel-icon'), statusClass]">
           <component :is="headerIcon" />
         </UIcon>
         <span :class="cls.e('panel-title')">{{ panelTitle }}</span>
+        <UIcon
+          :class="cls.e('panel-fullscreen')"
+          :title="fullscreen ? '还原' : '全屏'"
+          @click="fullscreen = !fullscreen"
+        >
+          <Recover v-if="fullscreen" />
+          <Maximum v-else />
+        </UIcon>
         <UIcon :class="cls.e('panel-close')" title="关闭面板" @click="emit('close')">
           <Close />
         </UIcon>
@@ -30,9 +38,9 @@
 
 <script lang="ts" setup>
 import { UIcon, UScroll } from '@veltra/desktop'
-import { Close } from '@veltra/icons/normal'
+import { Close, Maximum, Recover } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
-import { computed, inject } from 'vue'
+import { computed, inject, ref, watch } from 'vue'
 
 import type { ChatToolCall } from '../../chat/types'
 import { AiChatDIKey } from './di'
@@ -48,6 +56,17 @@ const emit = defineEmits<{ (e: 'close'): void }>()
 
 const di = inject(AiChatDIKey)
 const cls = di?.cls ?? bem('ai-chat')
+
+/** 全屏态：面板铺满整个组件区域（含输入区）；关闭面板由父级卸载组件，无需重置 */
+const fullscreen = ref(false)
+
+// 切换聚焦的工具调用时退出全屏：新内容从常规面板重新看起
+watch(
+  () => props.toolCall.id,
+  () => {
+    fullscreen.value = false
+  }
+)
 
 /** 当前调用对应的工具定义（解析 icon/label/render） */
 const tool = computed(() => di?.tools.value[props.toolCall.name])
@@ -69,4 +88,7 @@ const panelTitle = computed(() => {
 const fallbackRaw = computed(() => props.toolCall.error ?? props.toolCall.result)
 
 const fallbackNode = computed(() => toToolNode(fallbackRaw.value))
+
+// 供父级宽度观测跳过全屏态（铺满容器时的宽度不是用户拖拽结果）
+defineExpose({ fullscreen })
 </script>

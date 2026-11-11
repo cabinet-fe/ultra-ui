@@ -886,6 +886,11 @@ describe('UAiChat', () => {
       expect(host.querySelectorAll('.u-ai-chat__navigator-tick')).toHaveLength(3)
     })
 
+    // 激活刻度带 is-active（happy-dom 无布局，视口判定落在最后一轮），其前的刻度已读变淡
+    const ticks = [...host.querySelectorAll('.u-ai-chat__navigator-tick')]
+    expect(ticks[2]!.classList.contains('is-active')).toBe(true)
+    expect(ticks[0]!.classList.contains('is-read')).toBe(true)
+
     // 目录项取用户提问原文，按序号展示；hover 才展开
     host
       .querySelector<HTMLElement>('.u-ai-chat__navigator')!
@@ -1173,6 +1178,54 @@ describe('UAiChat', () => {
     await nextTick()
     expect(host.querySelector('.u-ai-chat__panel .page-view')).toBeTruthy()
     expect(layout.style.gridTemplateColumns).toBe('1fr 480px')
+    unmount()
+  })
+
+  it('面板可全屏与还原，切换聚焦调用时退出全屏', async () => {
+    const tools = [pageTool({ render: createArgsView('page-view'), renderTo: 'panel' })]
+    const transport = createPageTransport([
+      { id: 'c1', arguments: '{"page":"form"}' },
+      { id: 'c2', arguments: '{"page":"list"}' }
+    ])
+    const { host, chat, unmount } = mountAiChat({ transport, tools })
+
+    chat.value?.send('打开表单页和列表页')
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__panel .page-view')).toBeTruthy()
+    })
+    const layout = host.querySelector<HTMLElement>('.u-ai-chat')!
+    expect(layout.style.gridTemplateColumns).toBe('1fr 420px')
+
+    // 点全屏按钮 → 面板挂 is-fullscreen，图标切换为还原语义，关闭按钮仍可达
+    const fullscreenBtn = host.querySelector<HTMLElement>('.u-ai-chat__panel-fullscreen')!
+    expect(fullscreenBtn.title).toBe('全屏')
+    fullscreenBtn.click()
+    await nextTick()
+    expect(host.querySelector('.u-ai-chat__panel.is-fullscreen')).toBeTruthy()
+    expect(fullscreenBtn.title).toBe('还原')
+    expect(host.querySelector('.u-ai-chat__panel-close')).toBeTruthy()
+
+    // 点还原 → 移除 is-fullscreen，列宽不被全屏态污染
+    fullscreenBtn.click()
+    await nextTick()
+    expect(host.querySelector('.u-ai-chat__panel.is-fullscreen')).toBeFalsy()
+    expect(host.querySelector('.u-ai-chat__panel')).toBeTruthy()
+    expect(layout.style.gridTemplateColumns).toBe('1fr 420px')
+
+    // 再次全屏后切换聚焦的调用 → 自动退出全屏
+    fullscreenBtn.click()
+    await nextTick()
+    expect(host.querySelector('.u-ai-chat__panel.is-fullscreen')).toBeTruthy()
+
+    await expandStepLine(host)
+    const firstCard = host.querySelectorAll<HTMLElement>('.u-ai-chat__tool-call')[0]!
+    const entryBtn = [
+      ...firstCard.querySelectorAll<HTMLElement>('.u-ai-chat__tool-call-panel-entry button')
+    ].find((btn) => btn.textContent?.includes('查看面板'))!
+    entryBtn.click()
+    await nextTick()
+    expect(host.querySelector('.u-ai-chat__panel.is-fullscreen')).toBeFalsy()
+    expect(host.querySelector('.u-ai-chat__panel .page-view')?.textContent).toContain('form')
     unmount()
   })
 
