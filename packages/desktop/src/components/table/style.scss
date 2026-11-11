@@ -167,13 +167,12 @@ $root-name: table;
     background-color: var(--u-table-border-color);
   }
 
-  // 末行单元格不画下边框的两种情况（否则与相邻线叠成 2px）：
-  // - is-has-foot：表脚自带 border-top 作为表体/表脚分隔线（虚拟滚动时窗口末行
-  //   与表脚之间还有占位空白，不适用，故虚拟模式不挂该类）；
-  // - is-bottom-flush：内容已贴到表格底部（滚动到底/恰好填满），末行边框与容器
-  //   底边框相邻。反之（固定高度下行数不足）末行悬空，保留分隔线。
-  // is-bottom-flush 由组件按滚动位置维护（见 table.vue）。
-  @include m.is(has-foot, bottom-flush) {
+  // 表脚自带 border-top 作为表体/表脚分隔线：其存在时末行单元格不画下边框，
+  // 避免相邻叠加成 2px（同 Element Plus 的 has-footer 处理；虚拟滚动时窗口末行
+  // 与表脚之间还有占位空白、并不相邻，组件不会挂该类，末行保留下边框）。
+  // 其余场景末行恒有下边框——固定高度行数不足时悬空可见、border 网格闭合；
+  // 代价是内容贴底（滚动到底/自适应）时与容器底边框相邻呈 2px，与 Element Plus 一致。
+  @include m.is(has-foot) {
     @include m.bem($root-name, body) {
       @include m.bem($root-name, row) {
         &:last-child {
