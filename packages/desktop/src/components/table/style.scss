@@ -167,11 +167,19 @@ $root-name: table;
     background-color: var(--u-table-border-color);
   }
 
-  @include m.e(body) {
-    @include m.bem($root-name, row) {
-      &:last-child {
-        @include m.bem($root-name, cell) {
-          border-bottom: none;
+  // 末行单元格不画下边框的两种情况（否则与相邻线叠成 2px）：
+  // - is-has-foot：表脚自带 border-top 作为表体/表脚分隔线（虚拟滚动时窗口末行
+  //   与表脚之间还有占位空白，不适用，故虚拟模式不挂该类）；
+  // - is-bottom-flush：内容已贴到表格底部（滚动到底/恰好填满），末行边框与容器
+  //   底边框相邻。反之（固定高度下行数不足）末行悬空，保留分隔线。
+  // is-bottom-flush 由组件按滚动位置维护（见 table.vue）。
+  @include m.is(has-foot, bottom-flush) {
+    @include m.bem($root-name, body) {
+      @include m.bem($root-name, row) {
+        &:last-child {
+          @include m.bem($root-name, cell) {
+            border-bottom: none;
+          }
         }
       }
     }

@@ -4,6 +4,8 @@
       cls.b,
       cls.m(size),
       bem.is('border', border),
+      bem.is('has-foot', hasFoot && !virtualEnabled),
+      bem.is('bottom-flush', isBottomFlush),
       bem.is('all-expanded', allExpanded),
       bem.is('text-ellipsis', textEllipsis)
     ]"
@@ -13,7 +15,7 @@
     @mouseover="handleCellMouseover"
     @mouseleave="handleCellMouseleave"
   >
-    <table :class="cls.e('wrap')">
+    <table :class="cls.e('wrap')" ref="wrapRef">
       <colgroup ref="colgroupRef">
         <col
           v-for="column of leafColumns"
@@ -76,7 +78,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useFallbackProps, useVirtualizer } from '@veltra/compositions'
+import { useFallbackProps, useResizeObserver, useVirtualizer } from '@veltra/compositions'
 import { bem, withUnit } from '@veltra/utils'
 import { computed, provide, shallowRef, toRef, useTemplateRef, watch } from 'vue'
 
@@ -134,6 +136,9 @@ const scrollRef = shallowRef<ScrollExposed>()
 const beforeSpacerRef = useTemplateRef<HTMLElement>('beforeSpacerRef')
 const afterSpacerRef = useTemplateRef<HTMLElement>('afterSpacerRef')
 
+// 表格元素：内容高度（数据增删、树形展开等）变化时重判贴底状态
+const wrapRef = useTemplateRef<HTMLElement>('wrapRef')
+
 // 行（useRows / useFixedColumns 需要 isScrolling，而虚拟化 hook 又依赖 rows.length；
 // 先用中继占位，下方 isScrolling 到位后 watch 回灌）。
 const isScrollingRelay = shallowRef(false)
@@ -162,7 +167,34 @@ const columnConfig = useColumns({
 
 const { leafColumns } = columnConfig
 
+/**
+ * 是否渲染表脚（与 table-foot 的 tfoot v-if 条件保持一致）。
+ * 表脚自带 border-top 作为表体/表脚分隔线，因此表体末行不再画下边框，
+ * 否则两线相邻叠加成 2px。虚拟滚动时窗口末行与表脚之间还有占位空白，
+ * 末行不与表脚相邻（由 is-bottom-flush 在滚到底时去线），故不挂 is-has-foot。
+ */
+const hasFoot = computed(() => !!slots.foot || leafColumns.value.some((col) => !!col.data.summary))
+
 const { handleScroll, leftFixed, rightFixed } = useFixedColumns()
+
+/**
+ * 内容是否贴到表格底部（滚动到底 / 恰好填满 / 无滚动）。
+ * 贴底时末行边框与容器底边框相邻，需去掉末行下边框避免叠成 2px；
+ * 固定高度下行数不足时末行悬空，保留分隔线。样式按 is-bottom-flush 处理。
+ */
+const isBottomFlush = shallowRef(false)
+
+/** 1px 容差：末行线自身 1px，距底不足一条线宽即视为贴底（规避亚像素误差） */
+function syncBottomFlush() {
+  const el = scrollRef.value?.containerRef
+  const wrap = wrapRef.value
+  if (!el || !wrap) return
+  const { scrollTop, clientHeight, scrollHeight } = el
+  // scrollHeight 最小为 clientHeight，内容矮于视口（行数不足）与恰好填满在它上面无法区分，
+  // 用 wrap 实际高度区分：不足时末行悬空不算贴底，填满及以上才可能贴底。
+  const flush = wrap.offsetHeight >= clientHeight && scrollTop + clientHeight >= scrollHeight - 1
+  if (flush !== isBottomFlush.value) isBottomFlush.value = flush
+}
 
 /**
  * 滚动时收起提示：虚拟滚动会把滚出视口的行卸载，触发元素随之失效；
@@ -171,6 +203,7 @@ const { handleScroll, leftFixed, rightFixed } = useFixedColumns()
 const handleTableScroll: typeof handleScroll = (e) => {
   handleCellMouseleave()
   handleScroll(e)
+  syncBottomFlush()
 }
 
 /**
@@ -218,6 +251,13 @@ const { virtualizer, items, isScrolling } = useVirtualizer({
 const virtualEnabled = computed(() => {
   const t = props.virtualThreshold
   return t ? rows.value.length > t : true
+})
+
+// 数据增删 / 展开行（wrap 高度变化）或外部调整表格高度（container 尺寸变化）
+// 时重判贴底状态。RO 开始观察时会回报一次当前尺寸，初始同步随之完成。
+useResizeObserver({
+  targets: [wrapRef, computed(() => scrollRef.value?.containerRef)],
+  onResize: syncBottomFlush
 })
 
 // 把虚拟化 isScrolling 回灌到中继，供 useRows / useFixedColumns 读取。
