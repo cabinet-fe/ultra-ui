@@ -2,11 +2,7 @@
 
 ## 2.0.0
 
-### Patch Changes
-
-- Updated dependencies [bf4bcdd]
-  - @veltra/styles@2.0.0
-  - @veltra/utils@2.0.0
+2026-05-08 的历史发布，版本号已被该次发布占用；该版本内容对应仓库早期状态，与 2.0.x 当前内容不一致，请使用 2.0.1 及以上版本。
 
 ## 1.16.1
 
