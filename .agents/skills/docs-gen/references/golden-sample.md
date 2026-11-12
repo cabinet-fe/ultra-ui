@@ -64,38 +64,38 @@ console.log(user.name) // => 'Alice'
 ## API 签名
 
 ```ts
-import type { AxiosRequestConfig } from 'axios'
+import type { AxiosRequestConfig } from 'axios';
 
 export interface AuthBridgeOptions {
   /** SSO 服务源，用于 401 时刷新 token。必填 */
-  ssoOrigin: string
+  ssoOrigin: string;
 }
 
 /** 绑定 SSO，必须在任何请求之前调用一次；重复调用抛出 Error('initAuthBridge called twice') */
-export function initAuthBridge(options: AuthBridgeOptions): void
+export function initAuthBridge(options: AuthBridgeOptions): void;
 
 export interface RequestConfig extends AxiosRequestConfig {
   /** 为 true 时业务错误不弹全局提示，仅抛出 BusinessError。默认 false */
-  skipErrorHandler?: boolean
+  skipErrorHandler?: boolean;
   /** 网络超时或 502/503 时的自动重试次数，取值 0~3，仅 GET 生效。默认 0 */
-  retryTimes?: number
+  retryTimes?: number;
 }
 
 export interface HttpClient {
-  get<T>(url: string, config?: RequestConfig): Promise<T>
-  post<T>(url: string, data?: unknown, config?: RequestConfig): Promise<T>
-  put<T>(url: string, data?: unknown, config?: RequestConfig): Promise<T>
-  delete<T>(url: string, config?: RequestConfig): Promise<T>
+  get<T>(url: string, config?: RequestConfig): Promise<T>;
+  post<T>(url: string, data?: unknown, config?: RequestConfig): Promise<T>;
+  put<T>(url: string, data?: unknown, config?: RequestConfig): Promise<T>;
+  delete<T>(url: string, config?: RequestConfig): Promise<T>;
 }
 
 export class BusinessError extends Error {
   /** 接口返回的业务码，非 0 */
-  readonly code: number
+  readonly code: number;
   /** 接口返回的原始 data */
-  readonly data: unknown
+  readonly data: unknown;
 }
 
-export const request: HttpClient
+export const request: HttpClient;
 ```
 
 ## 参数说明
