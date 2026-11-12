@@ -74,6 +74,19 @@ $form-controls: (
     line-height: 1.4;
   }
 
+  // 文本域行（label 左置）：文本域首行从顶部开始，行改为顶对齐、label 与首行文本
+  // （含 placeholder）对齐，避免占位符相对垂直居中的 label 视觉上“上浮”；
+  // label-top 形态由下方 is(label-top) 接管，此处排除
+  @include m.size using ($size) {
+    &:not(.is-label-top):has(.um-textarea) {
+      align-items: flex-start;
+
+      @include m.bem($root-name, label) {
+        padding-top: t.spacing($size);
+      }
+    }
+  }
+
   // label 在控件上方：长控件（文本域等）纵向堆叠
   @include m.is(label-top) {
     flex-direction: column;
@@ -93,7 +106,9 @@ $form-controls: (
   #{$form-controls} {
     height: auto;
     min-height: t.use-var('touch-target');
-    border-color: transparent;
+    // border: none 而非 border-color: transparent：保留边框宽度会把文本域 native
+    // 顶下来不足 1px，导致 label 与首行文本（placeholder）差半像素对不齐
+    border: none;
     background-color: transparent;
     box-shadow: none;
     padding: 0;

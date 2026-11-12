@@ -29,7 +29,6 @@
         <UTextarea
           field="remark"
           label="备注"
-          label-position="top"
           placeholder="选填"
           :rules="{ maxLen: [30, '备注最多 30 字'] }"
         />
