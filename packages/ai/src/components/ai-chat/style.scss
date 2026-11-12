@@ -1868,18 +1868,15 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     flex-shrink: 0;
     padding: 3px;
     border: none;
-    border-radius: 50%;
+    border-radius: fn.use-var(radius, default);
     background: transparent;
     cursor: pointer;
     transition: background-color 0.15s ease;
 
+    // hover 只给方形淡背景提示可点；环（底轨 + 占比）保持原色——
+    // 加深底轨会让整个环看起来像上下文已占满
     &:hover {
-      background-color: fn.use-var(bg-color, hover);
-
-      // hover 背景与底轨同为浅灰系（bg-hover 对 border-color），底轨同步加深保持可辨
-      .u-#{$root-name}__usage-ring-track {
-        stroke: fn.use-var(text-color, second);
-      }
+      background-color: fn.color-a(text-color, 8, main);
     }
   }
 
@@ -1893,7 +1890,6 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     fill: none;
     stroke: fn.use-var(border-color);
     stroke-width: 8;
-    transition: stroke 0.15s ease;
   }
 
   @include m.e(usage-ring-value) {
