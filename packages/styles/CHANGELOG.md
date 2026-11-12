@@ -1,5 +1,12 @@
 # @veltra/styles
 
+## 2.1.0
+
+### Minor Changes
+
+- f999744: 新增 `guochaoTheme`、`wildTheme`、`newspaperTheme`、`xuanmoTheme`、`metalTheme` 五个预设主题，预设总数增至 12 个。
+- f999744: 移除 `oceanTheme` 与 `sakuraTheme` 预设主题：仍在使用时改为导入其余预设主题，或基于现有预设经 `loadTheme` 派生自定义主题。
+
 ## 2.0.1
 
 ### Patch Changes
