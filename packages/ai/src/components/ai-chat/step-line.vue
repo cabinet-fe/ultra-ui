@@ -1,5 +1,5 @@
 <template>
-  <div :class="[cls.e('step-line'), bem.is('expanded', expanded)]">
+  <div :class="[cls.e('step-line'), bem.is('expanded', expanded), bem.is('settled', !live)]">
     <!-- 步骤行：固定高度，实时展示当前步骤；点击展开下方全部已执行步骤 -->
     <div :class="cls.e('step-line-bar')" @click="toggle">
       <!-- 走马灯：新步骤从下方进入、旧步骤向上离开；同一步骤内部更新原地响应不触发切换 -->
@@ -115,7 +115,7 @@ const latestReasoningLine = computed(() => {
 const settledTitle = computed(() => {
   if (props.endStatus === 'error') return '出错了'
   if (props.endStatus === 'aborted') return '已停止'
-  return `已完成 ${props.steps.length} 个步骤`
+  return `执行了 ${props.steps.length} 个步骤`
 })
 
 const expanded = ref(false)

@@ -103,7 +103,7 @@ async function expandStepLine(host: HTMLElement) {
 async function waitForStepLineSettled(host: HTMLElement, count: number) {
   await vi.waitFor(() => {
     expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe(
-      `已完成 ${count} 个步骤`
+      `执行了 ${count} 个步骤`
     )
   })
 }
@@ -562,7 +562,7 @@ describe('UAiChat', () => {
     await vi.waitFor(() => {
       expect(host.querySelector('.md-stub')?.textContent).toContain('答案')
     })
-    expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('已完成 1 个步骤')
+    expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('执行了 1 个步骤')
     expect(host.querySelector('.u-ai-chat__step-line-text')).toBeFalsy()
     unmount()
   })
@@ -581,7 +581,7 @@ describe('UAiChat', () => {
     })
 
     // 落定后：行定格为完成态摘要，思考块随列表收起而卸载
-    expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('已完成 1 个步骤')
+    expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('执行了 1 个步骤')
     expect(host.querySelector('.u-ai-chat__reasoning')).toBeFalsy()
 
     // 展开步骤行后思考块挂载（默认折叠），再点思考头展开内容
@@ -625,7 +625,7 @@ describe('UAiChat', () => {
       steps.shift()?.()
       await vi.waitFor(() => {
         expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe(
-          '已完成 1 个步骤'
+          '执行了 1 个步骤'
         )
       })
       expect(host.querySelector('.u-ai-chat__reasoning-title')?.textContent).toBe('思考了 2s')
@@ -683,13 +683,13 @@ describe('UAiChat', () => {
       expect(host.querySelector('.md-stub')?.textContent).toContain('答案是 2')
     })
     expect(host.querySelector('.u-ai-chat__step-line-content')).toBeTruthy()
-    expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('已完成 1 个步骤')
+    expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('执行了 1 个步骤')
 
     releaseAnswer?.()
     unmount()
   })
 
-  it('轮次落定后步骤行定格为「已完成 N 个步骤」，展开可见思考块与工具卡片', async () => {
+  it('轮次落定后步骤行定格为「执行了 N 个步骤」，展开可见思考块与工具卡片', async () => {
     let round = 0
     const transport: ChatTransport = (_req, handlers) => {
       round++
@@ -754,12 +754,12 @@ describe('UAiChat', () => {
     await vi.waitFor(() => {
       expect(host.querySelector('.md-stub')?.textContent).toContain('答案是 2')
     })
-    expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('已完成 1 个步骤')
+    expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('执行了 1 个步骤')
 
     // 停跑后维持完成态
     releaseAnswer?.()
     await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('已完成 1 个步骤')
+      expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('执行了 1 个步骤')
     })
     unmount()
   })
@@ -790,10 +790,10 @@ describe('UAiChat', () => {
     const bars = [...host.querySelectorAll('.u-ai-chat__step-line')]
     expect(bars).toHaveLength(2)
     expect(bars[0]?.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe(
-      '已完成 2 个步骤'
+      '执行了 2 个步骤'
     )
     expect(bars[1]?.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe(
-      '已完成 1 个步骤'
+      '执行了 1 个步骤'
     )
     // 中间文本回答渲染在两个步骤行之间
     expect(host.querySelector('.md-stub')?.textContent).toContain('先介绍一下')
@@ -1030,7 +1030,7 @@ describe('UAiChat', () => {
     })
     expect(host.querySelector('.u-ai-chat__panel-title')?.textContent).toBe('后台页面')
 
-    // 最终答案输出后工具卡片收进「已完成」过程块，展开后断言
+    // 最终答案输出后工具卡片收进步骤行，展开后断言
     await expandStepLine(host)
 
     // 卡片 body 不渲染 render 组件，仅提供「查看面板」入口
@@ -1053,7 +1053,7 @@ describe('UAiChat', () => {
     await nextTick()
     expect(host.querySelector('.u-ai-chat__panel')).toBeFalsy()
 
-    // 卡片已收进「已完成」过程块，展开后点击入口
+    // 卡片已收进步骤行，展开后点击入口
     await expandStepLine(host)
 
     const entryBtn = [
@@ -1080,7 +1080,7 @@ describe('UAiChat', () => {
       expect(host.querySelector('.u-ai-chat__panel .page-view')?.textContent).toContain('list')
     })
 
-    // 卡片已收进「已完成」过程块，展开后点击第一张卡片的「查看面板」切回 form
+    // 卡片已收进步骤行，展开后点击第一张卡片的「查看面板」切回 form
     await expandStepLine(host)
 
     const firstCard = host.querySelectorAll<HTMLElement>('.u-ai-chat__tool-call')[0]!
@@ -1167,7 +1167,7 @@ describe('UAiChat', () => {
     const layout = host.querySelector<HTMLElement>('.u-ai-chat')!
     expect(layout.style.gridTemplateColumns).toBe('1fr 640px')
 
-    // 卡片已收进「已完成」过程块，展开后点击 openPage 卡片的「查看面板」→ 切换并应用 480px
+    // 卡片已收进步骤行，展开后点击 openPage 卡片的「查看面板」→ 切换并应用 480px
     await expandStepLine(host)
 
     const firstCard = host.querySelectorAll<HTMLElement>('.u-ai-chat__tool-call')[0]!

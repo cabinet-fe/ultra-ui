@@ -31,7 +31,7 @@ src/
     │   ├── message-item.vue    # 单条消息（user 右对齐气泡；assistant 只渲染 MarkdownRender 正文 + error/aborted 状态行 + 末条操作区「用时 Xs / 复制 / 重新生成」——思考块与工具卡片由步骤行承载）
     │   ├── thinking-icon.vue   # 思考图标（内联 SVG 四角星 + 副星；active 时 CSS 动画，prefers-reduced-motion 关闭）
     │   ├── format-duration.ts  # 工作时长格式化（整秒：<60s Xs、≥60s Xm Ys；message-list 计时、message-item 总用时与 reasoning-block 思考耗时共用）
-    │   ├── step-line.vue       # 步骤行（一段的思考/工具过程压缩为固定高度行：live 行内实时展示当前步骤——「思考中…」+ 最新一行思考 / 工具名 + 参数摘要，步骤切换走马灯从下往上换步、prefers-reduced-motion 退化为淡入；落定定格「已完成 N 个步骤」，段末 error/aborted 显「出错了 / 已停止」；点击行展开全部步骤（ReasoningBlock + 工具卡片），默认收起；awaiting-confirm 与内联 render 进行中自动展开列表，用户手动切换过后不再自动）
+    │   ├── step-line.vue       # 步骤行（一段的思考/工具过程压缩为固定高度行：live 行内实时展示当前步骤——「思考中…」+ 最新一行思考 / 工具名 + 参数摘要，步骤切换走马灯从下往上换步、prefers-reduced-motion 退化为淡入；落定定格「执行了 N 个步骤」（落定态无 hover 高亮、展开箭头紧跟文案），段末 error/aborted 显「出错了 / 已停止」；点击行展开全部步骤（ReasoningBlock + 工具卡片），默认收起；awaiting-confirm 与内联 render 进行中自动展开列表，用户手动切换过后不再自动）
     │   ├── reasoning-block.vue # 思考折叠块（默认折叠含流式进行中，折叠时 v-if 卸载内容 DOM；标题「思考中… / 思考了 Ns / 思考过程」亚秒不报耗时，计时经 WeakMap 按消息记忆以跨折叠重挂载还原；思考中头部右侧滚动展示最新一行思考；展开态 UScroll 限高 220px + 区内上翻取消内部吸底 + ArrowRight 折叠箭头）
     │   ├── turn-step.ts        # TurnStep 类型（key/kind/message/toolCall：一次思考或一次工具调用，message-list 切段产出、step-line 消费）
     │   ├── tool-call-brief.ts  # 工具头部摘要共用 composable（icon / label / summarizeArguments 摘要 / 状态色；toolNeedsInteraction 判定待确认 / 内联 render 的自动展开条件；tool-call 卡片头部与 step-line 行内视图共用）

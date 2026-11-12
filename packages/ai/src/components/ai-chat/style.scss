@@ -824,6 +824,24 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
         transform: rotate(90deg);
       }
     }
+
+    // 落定态：静态摘要而非进行中的实时视图——去掉 hover 高亮，
+    // 摘要文本自适应宽度使展开箭头紧跟文本，步数已写进文案、右侧计数省去
+    @include m.is(settled) {
+      @include m.bem($root-name, 'step-line-bar') {
+        &:hover {
+          background-color: transparent;
+        }
+      }
+
+      @include m.bem($root-name, 'step-line-view') {
+        flex: 0 1 auto;
+      }
+
+      @include m.bem($root-name, 'step-line-count') {
+        display: none;
+      }
+    }
   }
 
   // 行本体：固定高度（与 __reasoning-header 协调），hover 反馈出可点击。

@@ -216,7 +216,7 @@ describe('内置提问工具', () => {
 
     // 中止后轮次落定（消息在工具执行前置为 done）：展开步骤行后工具卡片进入错误终态
     await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('已完成 1 个步骤')
+      expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('执行了 1 个步骤')
     })
     await expandStepLine(host)
     await vi.waitFor(() => {
