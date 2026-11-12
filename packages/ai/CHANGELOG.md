@@ -1,5 +1,23 @@
 # @veltra/ai
 
+## 2.4.0
+
+### Minor Changes
+
+- d6ba097: `UAiChat` 内 markstream 渲染的代码块、行内代码、表格等派生变量映射 `--u-*` 主题 token：亮暗色随宿主主题自动翻转，暗色主题下代码块不再恒为白底。
+- d6ba097: `UAiChat` 消息编排重构为步骤行：思考、工具调用等过程步骤压缩为固定高度步骤行，行内实时展示当前步骤，出现文字回答后闭合定格为「已完成 N 个步骤」，后续步骤另起一行；点击行可展开全部步骤列表（思考块 + 工具卡片），出现待确认或内联 UI 时自动展开。
+- d6ba097: 工具 `renderTo` 新增 `'reply'` 档：自定义渲染卡片作为消息块常驻回复流（该段步骤行之后、段末文字回答之前），live 期间实时渲染进度与错误，落定后不再随步骤行折叠。适合天气卡片这类「UI 即答案」的常驻结果卡片。
+
+### Patch Changes
+
+- d6ba097: `UAiChat` 用量环 hover 高亮改为圆角方形淡色底，不再加深环底轨，占比读数在 hover 下保持原色。
+- Updated dependencies [d6ba097]
+- Updated dependencies [bf4bcdd]
+  - @veltra/desktop@2.0.0
+  - @veltra/styles@2.0.0
+  - @veltra/compositions@2.0.0
+  - @veltra/utils@2.0.0
+
 ## 2.3.2
 
 ### Patch Changes

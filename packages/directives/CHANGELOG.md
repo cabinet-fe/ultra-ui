@@ -1,5 +1,13 @@
 # @veltra/directives
 
+## 2.0.0
+
+### Patch Changes
+
+- Updated dependencies [bf4bcdd]
+  - @veltra/styles@2.0.0
+  - @veltra/utils@2.0.0
+
 ## 1.16.1
 
 No changes in this release.

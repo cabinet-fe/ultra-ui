@@ -1,5 +1,25 @@
 # @veltra/styles
 
+## 2.0.0
+
+### Major Changes
+
+- bf4bcdd: 古风主题更名「宣纸」（breaking）：导出 `ancientTheme` → `xuanzhiTheme`，preset 文件 `ancient.ts` → `xuanzhi.ts`。迁移方式：代码里引用 `ancientTheme` 的地方改为 `xuanzhiTheme`：
+  
+  ```ts
+  // 旧
+  import { ancientTheme } from '@veltra/styles'
+  // 新
+  import { xuanzhiTheme } from '@veltra/styles'
+  ```
+  
+  主题配色不变（松烟绿 + 宣纸底），仅名字调整；与 `sakura` 等命名惯例对齐采用拼音 `xuanzhi`。
+
+### Patch Changes
+
+- @veltra/compositions@2.0.0
+  - @veltra/utils@2.0.0
+
 ## 1.16.1
 
 ### Patch Changes

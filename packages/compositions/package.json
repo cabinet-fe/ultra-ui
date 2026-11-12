@@ -1,6 +1,6 @@
 {
   "name": "@veltra/compositions",
-  "version": "1.16.1",
+  "version": "2.0.0",
   "homepage": "https://github.com/cabinet-fe/ultra-ui#readme",
   "bugs": {
     "url": "https://github.com/cabinet-fe/ultra-ui/issues"
@@ -32,7 +32,7 @@
   "peerDependencies": {
     "@cat-kit/core": ">=1.2.1",
     "@cat-kit/fe": ">=1.2.1",
-    "@veltra/utils": "^1.7.14",
+    "@veltra/utils": "^2.0.0",
     "vue": ">=3.5.44"
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@veltra/mobile",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "homepage": "https://github.com/cabinet-fe/ultra-ui#readme",
   "bugs": {
     "url": "https://github.com/cabinet-fe/ultra-ui/issues"
@@ -35,10 +35,10 @@
   },
   "peerDependencies": {
     "@cat-kit/core": ">=1.2.1",
-    "@veltra/compositions": "^1.8.5",
+    "@veltra/compositions": "^2.0.0",
     "@veltra/icons": "^1.5.0",
-    "@veltra/styles": "^1.8.5",
-    "@veltra/utils": "^1.8.5",
+    "@veltra/styles": "^2.0.0",
+    "@veltra/utils": "^2.0.0",
     "vue": ">=3.5.44"
   }
 }

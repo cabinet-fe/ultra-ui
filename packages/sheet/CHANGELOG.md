@@ -1,5 +1,15 @@
 # @veltra/sheet
 
+## 4.1.5
+
+### Patch Changes
+
+- Updated dependencies [d6ba097]
+- Updated dependencies [bf4bcdd]
+  - @veltra/desktop@2.0.0
+  - @veltra/styles@2.0.0
+  - @veltra/utils@2.0.0
+
 ## 4.1.4
 
 ### Patch Changes

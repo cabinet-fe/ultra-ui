@@ -1,5 +1,15 @@
 # @veltra/mobile
 
+## 1.1.7
+
+### Patch Changes
+
+- d6ba097: 修复 `UForm` 行式表单（label 左置）中文本域行的对齐：label 改为与文本域首行文本（含 placeholder）顶对齐，占位符不再相对 label 视觉上浮；`label-position="top"` 形态不受影响。
+- Updated dependencies [bf4bcdd]
+  - @veltra/styles@2.0.0
+  - @veltra/compositions@2.0.0
+  - @veltra/utils@2.0.0
+
 ## 1.1.6
 
 ### Patch Changes
