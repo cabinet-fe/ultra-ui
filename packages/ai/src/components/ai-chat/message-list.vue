@@ -634,7 +634,14 @@ const scrollToLatest = async () => {
   scrollRef.value?.scrollTo({ y: Number.MAX_SAFE_INTEGER })
 }
 
-// 消息数量或流式内容变化时，若处于吸附状态则滚动到底部（滚动前二次确认，见内核）
+let trailingScrollTimer: ReturnType<typeof setTimeout> | undefined
+
+/** 上一次吸底 watch 触发时的 running：识别「本次触发是否为生成收尾」 */
+let prevRunning = props.running
+
+// 消息数量或流式内容变化时，若处于吸附状态则滚动到底部（滚动前二次确认，见内核）。
+// running 也是依赖之一，生成收尾（true → false）同样走这里：终态渲染会再次改变高度，
+// 同帧滚动可能够不到最终底部，追加一次延迟兜底滚动
 watch(
   () => {
     const list = visibleMessages.value
@@ -652,10 +659,16 @@ watch(
     const list = visibleMessages.value
     if (list[list.length - 1]?.role === 'user') stickToBottom.value = true
     await scrollToBottomIfStuck()
+    const finished = prevRunning && !props.running
+    prevRunning = props.running
+    if (!finished) return
+    clearTimeout(trailingScrollTimer)
+    if (!(await scrollToBottomIfStuck())) return
+    trailingScrollTimer = setTimeout(() => {
+      if (stickToBottom.value) scrollRef.value?.scrollTo({ y: Number.MAX_SAFE_INTEGER })
+    }, 150)
   }
 )
-
-let trailingScrollTimer: ReturnType<typeof setTimeout> | undefined
 
 onBeforeUnmount(() => {
   stopWelcomeRotation()
@@ -664,18 +677,4 @@ onBeforeUnmount(() => {
   clearTimeout(trailingScrollTimer)
   if (activeTurnRafId != null) cancelAnimationFrame(activeTurnRafId)
 })
-
-// 生成收尾时动作区出现 / markdown 终态渲染 / 思考块折叠会再次改变高度，
-// 同帧滚动可能够不到最终底部，追加一次延迟兜底滚动
-watch(
-  () => props.running,
-  async (running) => {
-    if (running) return
-    clearTimeout(trailingScrollTimer)
-    if (!(await scrollToBottomIfStuck())) return
-    trailingScrollTimer = setTimeout(() => {
-      if (stickToBottom.value) scrollRef.value?.scrollTo({ y: Number.MAX_SAFE_INTEGER })
-    }, 150)
-  }
-)
 </script>

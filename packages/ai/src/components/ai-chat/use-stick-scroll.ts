@@ -1,15 +1,5 @@
 import { nextTick, ref } from 'vue'
 
-/** 吸附滚动内核消费的滚动位置（UScroll scroll 事件载荷的子集） */
-export interface StickScrollPosition {
-  /** 纵向位置 */
-  y: number
-  /** 纵向滚动高度 */
-  sh: number
-  /** 纵向可视高度 */
-  ch: number
-}
-
 export interface UseStickScrollOptions {
   /** 滚动控制器（UScroll 暴露实例等带 scrollTo 的对象） */
   getScroller: () => { scrollTo: (position: { y: number }) => void } | undefined
@@ -37,7 +27,7 @@ export function useStickScroll(options: UseStickScrollOptions) {
   let lastY = 0
 
   /** scroll 事件处理：触底恢复吸附；directionAware 时仅向上滚解除吸附 */
-  const handleScroll = (position: StickScrollPosition) => {
+  const handleScroll = (position: { y: number; sh: number; ch: number }) => {
     const { y, sh, ch } = position
     if (sh - ch - y < bottomThreshold) {
       stuck.value = true

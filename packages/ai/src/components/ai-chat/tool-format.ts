@@ -1,7 +1,7 @@
 /**
  * 工具调用数据的人读化：把模型给的任意 JSON 值整理成「字段 / 列表 / 文本」结构，
  * 交给 tool-data.vue 渲染成字段行而不是一整块 JSON。
- * 纯函数，任何输入都不得 throw。
+ * 纯函数，任何输入都不得 throw；步骤行与思考块共用的文本小工具（clipText 等）也在此。
  */
 
 /** 标量的展示语气（数字对齐、布尔着色、空值弱化） */
@@ -93,6 +93,22 @@ export function humanizeKey(key: string): string {
 export function clipText(text: string, limit: number): string {
   const flat = text.replace(/\s+/g, ' ').trim()
   return flat.length > limit ? `${flat.slice(0, limit)}…` : flat
+}
+
+/**
+ * 取最后一行非空文本（步骤行 / 思考块折叠态的滚动展示）。
+ * 从尾部经 lastIndexOf 反向扫描，不为长文本建行数组，随流式 delta 高频调用无压力。
+ */
+export function lastNonEmptyLine(text: string): string {
+  let end = text.length
+  while (end > 0) {
+    const start = text.lastIndexOf('\n', end - 1) + 1
+    const line = text.slice(start, end).trim()
+    if (line) return line
+    if (start === 0) return ''
+    end = start - 1
+  }
+  return ''
 }
 
 /** 纯文本预览的截断上限档位：tool-data 区块级与 tool-node 嵌套字段级各一档 */

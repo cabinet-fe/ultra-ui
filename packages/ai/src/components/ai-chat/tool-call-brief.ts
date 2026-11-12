@@ -35,6 +35,25 @@ export const isSettledStatus = (status: ChatToolCall['status']) =>
 /** 任意原始串 → 展示节点；空串 / 解析失败时退回纯文本节点，不得 throw（卡片视图管线共用） */
 export const nodeOf = (raw: string | undefined) => (raw ? toToolNode(raw) : undefined)
 
+/** 参数串容错解析：解析失败退回原始串（brief 与展开判定的参数视图共用） */
+const parseLooseArgs = (raw: string | undefined): unknown => {
+  if (!raw) return undefined
+  try {
+    return JSON.parse(raw)
+  } catch {
+    return raw
+  }
+}
+
+/**
+ * 结果展示管线：先剔除回显入参的字段（工具结果复述参数不携带新信息），
+ * 剩下单个通用键的标量时直出值本身（如 `{result: 5888}` → `5,888`）。
+ */
+export function resultDisplayNode(raw: string | undefined, args: unknown) {
+  const node = nodeOf(raw)
+  return node ? unwrapSingleValue(dropEchoedFields(node, args)) : undefined
+}
+
 /** 头部图标：meta.icon > 宿主覆盖 > 内置名称规则 > 兜底（卡片 / 步骤行 / 侧面板共用） */
 export function resolveToolHeaderIcon(
   call: ChatToolCall,
@@ -80,15 +99,7 @@ export function useToolCallBrief(call: MaybeRefOrGetter<ChatToolCall | undefined
   /** 头部标题：工具显示名，缺省取工具名（技术标识原样展示，便于对日志） */
   const toolTitle = computed(() => tool.value?.label ?? current.value?.name ?? '')
 
-  const parsedArguments = computed<unknown>(() => {
-    const raw = current.value?.arguments
-    if (!raw) return undefined
-    try {
-      return JSON.parse(raw)
-    } catch {
-      return raw
-    }
-  })
+  const parsedArguments = computed(() => parseLooseArgs(current.value?.arguments))
 
   /** 折叠态摘要：取最能说明「这次调用了什么」的参数值 */
   const summary = computed(() => summarizeArguments(parsedArguments.value))
@@ -107,13 +118,7 @@ function cardHasBody(
   if (argumentNode && !isSummarizedInHeader(argumentNode)) return true
   const resultRaw = call.error ?? call.result
   if (resultRaw != null) {
-    let parsedArgs: unknown
-    try {
-      parsedArgs = call.arguments ? JSON.parse(call.arguments) : undefined
-    } catch {
-      parsedArgs = call.arguments
-    }
-    const display = unwrapSingleValue(dropEchoedFields(toToolNode(resultRaw), parsedArgs))
+    const display = resultDisplayNode(resultRaw, parseLooseArgs(call.arguments))
     if (display != null && display.type !== 'empty') return true
   }
   return call.view != null

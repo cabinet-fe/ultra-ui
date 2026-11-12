@@ -79,7 +79,6 @@ const cls = di?.cls ?? bem('ai-chat')
 const open = ref(false)
 
 const activeIndex = computed(() => {
-  const index = props.items.findIndex((item) => item.key === props.activeKey)
-  return index === -1 ? -1 : index
+  return props.items.findIndex((item) => item.key === props.activeKey)
 })
 </script>

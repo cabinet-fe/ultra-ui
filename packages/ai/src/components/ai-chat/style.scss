@@ -40,6 +40,22 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   box-sizing: border-box;
 }
 
+/** 工具栏触发器配方：模型 / 推理等级切换按钮共用（配色、hover 反馈与宽度约束各自补） */
+@mixin toolbar-trigger {
+  @include m.flex(flex, flex-start, center);
+  gap: 4px;
+  padding: 2px fn.use-var(gap, small);
+  border: none;
+  border-radius: fn.use-var(radius, default);
+  background: transparent;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
 /** 面板头部图标按钮配方：全屏切换 / 关闭共用（尺寸、hover 背景、过渡一致） */
 @mixin panel-header-btn {
   flex-shrink: 0;
@@ -230,12 +246,9 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     color: fn.use-var(text-color, title);
   }
 
-  // 头部「全屏 / 还原」切换：与关闭按钮同款图标按钮
-  @include m.e(panel-fullscreen) {
-    @include panel-header-btn;
-  }
-
-  @include m.e(panel-close) {
+  // 头部「全屏 / 还原」切换与关闭按钮：同款图标按钮
+  #{fn.bem($root-name, 'panel-fullscreen')},
+  #{fn.bem($root-name, 'panel-close')} {
     @include panel-header-btn;
   }
 
@@ -312,14 +325,6 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
     @include m.is(leaving) {
       pointer-events: none;
-
-      .u-ai-orb {
-        opacity: 0;
-        transform: scale(0);
-        transition:
-          opacity 0.28s ease,
-          transform 0.38s ease;
-      }
 
       .u-#{$root-name}__welcome-item-wrap {
         opacity: 0;
@@ -404,6 +409,8 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     gap: fn.use-var(gap, small);
     padding: 0 0 fn.use-var(gap, small);
     width: fit-content;
+    // 状态文本与计时的小号字号在父级统一给出，子元素经继承取值
+    font-size: fn.use-var(font-size-main, small);
 
     // 工作开始：立即从 0 放大（无延时），与输入框上方缩小形成对向跳
     .u-ai-orb {
@@ -413,25 +420,22 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
     @include m.is(leaving) {
       pointer-events: none;
-
-      .u-ai-orb {
-        animation: none;
-        opacity: 0;
-        transform: scale(0);
-        transition:
-          opacity 0.28s ease,
-          transform 0.38s ease;
-      }
     }
   }
 
-  @include m.e(working-text) {
-    font-size: fn.use-var(font-size-main, small);
+  // 离场共享：两处活体球同步缩小退出（工作球需同时叫停进场动画；enter 与 leaving 互斥）
+  .u-#{$root-name}__welcome.is-leaving .u-ai-orb,
+  .u-#{$root-name}__working.is-leaving .u-ai-orb {
+    animation: none;
+    opacity: 0;
+    transform: scale(0);
+    transition:
+      opacity 0.28s ease,
+      transform 0.38s ease;
   }
 
-  // 工作计时 / 收尾停留期间的总用时
+  // 工作计时 / 收尾停留期间的总用时（字号继承 __working）
   @include m.e(working-time) {
-    font-size: fn.use-var(font-size-main, small);
     color: fn.use-var(text-color, assist);
     font-variant-numeric: tabular-nums;
   }
@@ -784,14 +788,7 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     line-height: 1.5;
   }
 
-  // 折叠态头部右侧滚动展示的最新一行思考
-  @include m.e(reasoning-line) {
-    flex: 1;
-    min-width: 0;
-    @include m.ellipsis;
-    line-height: 1.5;
-    color: fn.use-var(text-color, assist);
-  }
+  // 折叠态头部右侧滚动展示的最新一行思考（样式与下方 __step-line-text 合并定义）
 
   @include m.e(reasoning-chevron) {
     @include collapse-chevron;
@@ -885,8 +882,9 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     line-height: 1.5;
   }
 
-  // 行内右侧：工具参数摘要或最新一行思考
-  @include m.e(step-line-text) {
+  // 滚动展示的最新一行思考 / 工具参数摘要：reasoning 折叠头与步骤行行内共用
+  #{fn.bem($root-name, 'reasoning-line')},
+  #{fn.bem($root-name, 'step-line-text')} {
     flex: 1;
     min-width: 0;
     @include m.ellipsis;
@@ -1071,12 +1069,9 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
   }
 
+  // 字段行：行布局与下方列表项共用，这里只补较松的行高（长内容在值区折行）
   @include m.e(tool-data-field) {
-    display: flex;
-    align-items: baseline;
-    gap: fn.use-var(gap, small);
     line-height: 1.6;
-    min-width: 0;
   }
 
   @include m.e(tool-data-key) {
@@ -1153,7 +1148,9 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     list-style: none;
   }
 
-  @include m.e(tool-data-list-item) {
+  // 字段行与列表项共用：基线对齐的紧凑单行布局
+  #{fn.bem($root-name, 'tool-data-field')},
+  #{fn.bem($root-name, 'tool-data-list-item')} {
     display: flex;
     align-items: baseline;
     gap: fn.use-var(gap, small);
@@ -1572,8 +1569,9 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     color: fn.use-var(text-color, assist);
   }
 
-  // 待发送队列（生成中提交的消息在此排队）
-  @include m.e(queue) {
+  // 待发送队列（生成中提交的消息在此排队）与作业条：同款浅底紧凑容器
+  #{fn.bem($root-name, 'queue')},
+  #{fn.bem($root-name, 'job-bar')} {
     @include bounded-column;
     margin-bottom: 4px;
     border-radius: fn.use-var(radius, default);
@@ -1587,18 +1585,24 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     color: fn.use-var(text-color, assist);
   }
 
-  @include m.e(queue-item) {
+  // 队列项与作业项：同款单行布局（队列项多 hover 反馈，作业项仅静态展示）
+  #{fn.bem($root-name, 'queue-item')},
+  #{fn.bem($root-name, 'job-bar-item')} {
     @include m.flex(flex, flex-start, center);
     gap: 6px;
     padding: 3px 6px;
     border-radius: fn.use-var(radius, small);
+  }
 
+  @include m.e(queue-item) {
     &:hover {
       background-color: fn.use-var(bg-color, hover);
     }
   }
 
-  @include m.e(queue-text) {
+  // 队列项与作业项的主文案
+  #{fn.bem($root-name, 'queue-text')},
+  #{fn.bem($root-name, 'job-bar-label')} {
     flex: 1;
     min-width: 0;
     @include m.ellipsis;
@@ -1637,16 +1641,7 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
   }
 
-  // 作业条：有 jobs 时出现在输入区上方
-  @include m.e(job-bar) {
-    @include bounded-column;
-    margin-bottom: 4px;
-    border-radius: fn.use-var(radius, default);
-    background-color: fn.use-var(bg-color, middle);
-    padding: 4px;
-    font-size: fn.use-var(font-size-main, small);
-  }
-
+  // 作业条：有 jobs 时出现在输入区上方（容器样式与队列共用，见上方合并组）
   @include m.e(job-bar-head) {
     @include m.flex(flex, space-between, center);
     width: 100%;
@@ -1672,24 +1667,10 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     flex-direction: column;
   }
 
-  @include m.e(job-bar-item) {
-    @include m.flex(flex, flex-start, center);
-    gap: 6px;
-    padding: 3px 6px;
-    border-radius: fn.use-var(radius, small);
-  }
-
   @include m.e(job-bar-icon) {
     flex-shrink: 0;
     font-size: 13px;
     color: fn.use-var(text-color, second);
-  }
-
-  @include m.e(job-bar-label) {
-    flex: 1;
-    min-width: 0;
-    @include m.ellipsis;
-    color: fn.use-var(text-color, main);
   }
 
   @include m.e(job-bar-dot) {
@@ -1808,18 +1789,9 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 
   @include m.e(model-trigger) {
-    @include m.flex(flex, flex-start, center);
-    gap: 4px;
+    @include toolbar-trigger;
     max-width: 220px;
-    padding: 2px fn.use-var(gap, small);
-    border: none;
-    border-radius: fn.use-var(radius, default);
-    background: transparent;
     color: fn.use-var(text-color, main);
-    font-family: inherit;
-    font-size: inherit;
-    cursor: pointer;
-    transition: background-color 0.15s ease;
 
     &:hover {
       background-color: fn.use-var(bg-color, hover);
@@ -1830,27 +1802,10 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     @include m.ellipsis;
   }
 
-  @include m.e(model-trigger-arrow) {
-    flex-shrink: 0;
-    font-size: 12px;
-    color: fn.use-var(text-color, assist);
-  }
-
   @include m.e(reasoning-trigger) {
-    @include m.flex(flex, flex-start, center);
-    gap: 4px;
+    @include toolbar-trigger;
     flex-shrink: 0;
-    padding: 2px fn.use-var(gap, small);
-    border: none;
-    border-radius: fn.use-var(radius, default);
-    background: transparent;
     color: fn.use-var(text-color, assist);
-    font-family: inherit;
-    font-size: inherit;
-    cursor: pointer;
-    transition:
-      background-color 0.15s ease,
-      color 0.15s ease;
 
     &:hover {
       background-color: fn.use-var(bg-color, hover);
@@ -1863,7 +1818,9 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     max-width: 72px;
   }
 
-  @include m.e(reasoning-trigger-arrow) {
+  // 触发器尾部箭头：模型 / 推理等级切换共用
+  #{fn.bem($root-name, 'model-trigger-arrow')},
+  #{fn.bem($root-name, 'reasoning-trigger-arrow')} {
     flex-shrink: 0;
     font-size: 12px;
     color: fn.use-var(text-color, assist);

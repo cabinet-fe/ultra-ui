@@ -56,10 +56,10 @@ import { computed, inject, ref, watch } from 'vue'
 
 import { AiChatDIKey } from './di'
 import ReasoningBlock from './reasoning-block.vue'
-import { lastNonEmptyLine } from './text'
 import ThinkingIcon from './thinking-icon.vue'
 import { toolNeedsInteraction, useToolCallBrief } from './tool-call-brief'
 import ToolCallCard from './tool-call.vue'
+import { lastNonEmptyLine } from './tool-format'
 import type { TurnStep } from './turn-step'
 
 defineOptions({ name: 'UAiChatStepLine' })

@@ -44,8 +44,8 @@ import { computed, inject, ref, useTemplateRef, watch } from 'vue'
 import type { ChatMessage } from '../../chat/types'
 import { AiChatDIKey } from './di'
 import { formatDuration } from './format-duration'
-import { lastNonEmptyLine } from './text'
 import ThinkingIcon from './thinking-icon.vue'
+import { lastNonEmptyLine } from './tool-format'
 import { useStickScroll } from './use-stick-scroll'
 
 defineOptions({ name: 'UAiChatReasoningBlock' })

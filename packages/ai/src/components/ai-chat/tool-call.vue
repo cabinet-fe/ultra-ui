@@ -60,14 +60,15 @@ import { computed, inject, ref, watch } from 'vue'
 
 import type { ChatToolCall } from '../../chat/types'
 import { AiChatDIKey } from './di'
-import { isSettledStatus, nodeOf, toolNeedsInteraction, useToolCallBrief } from './tool-call-brief'
-import ToolData from './tool-data.vue'
 import {
-  dropEchoedFields,
-  isSummarizedInHeader,
-  toToolNode,
-  unwrapSingleValue
-} from './tool-format'
+  isSettledStatus,
+  nodeOf,
+  resultDisplayNode,
+  toolNeedsInteraction,
+  useToolCallBrief
+} from './tool-call-brief'
+import ToolData from './tool-data.vue'
+import { isSummarizedInHeader, toToolNode } from './tool-format'
 
 defineOptions({ name: 'UAiChatToolCall' })
 
@@ -120,15 +121,8 @@ const resultTitle = computed(() => (props.toolCall.status === 'error' ? '错误'
 
 const resultRaw = computed(() => props.toolCall.error ?? props.toolCall.result)
 
-/**
- * 结果展示管线：先剔除回显入参的字段（工具结果复述参数不携带新信息），
- * 剩下单个通用键的标量时直出值本身（如 `{result: 5888}` → `5,888`）。
- */
-const displayResultNode = computed(() => {
-  const node = nodeOf(resultRaw.value)
-  if (!node) return undefined
-  return unwrapSingleValue(dropEchoedFields(node, parsedArguments.value))
-})
+/** 结果展示管线（回显剔除 + 单值直出），共享实现见 tool-call-brief 的 resultDisplayNode */
+const displayResultNode = computed(() => resultDisplayNode(resultRaw.value, parsedArguments.value))
 
 /** 结果全部是入参回显 / 空内容时没有可展示的东西，整区省去 */
 const resultSectionVisible = computed(
