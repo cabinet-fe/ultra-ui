@@ -437,6 +437,72 @@ describe('UAiChat', () => {
     unmount()
   })
 
+  it('renderTo: reply 的卡片渲染在回复流，落定后不随步骤行折叠', async () => {
+    const tools = [
+      weatherTool({ render: createResultView('weather-view'), renderTo: 'reply', terminal: true })
+    ]
+    const { host, chat, unmount } = mountAiChat({ transport: createWeatherTransport(), tools })
+
+    chat.value?.send('北京天气')
+
+    // 轮次落定（步骤行收起为完成态摘要）后，卡片仍常驻回复流——不展开步骤行即可见
+    await waitForStepLineSettled(host, 1)
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__reply-tool .weather-view')?.textContent).toContain(
+        'result:{"temperature":26}'
+      )
+    })
+
+    // 步骤行仍保留过程条目：展开后是默认参数/结果视图，不重复渲染自定义卡片
+    await expandStepLine(host)
+    expect(host.querySelector('.u-ai-chat__step-line-content .u-ai-chat__tool-call')).toBeTruthy()
+    expect(host.querySelector('.u-ai-chat__step-line-content .weather-view')).toBeFalsy()
+
+    // 无正文答案的终结轮：操作区（重新生成）仍落在尾部状态载体上
+    expect(host.querySelector('.u-ai-chat__message-actions [title="重新生成"]')).toBeTruthy()
+    unmount()
+  })
+
+  it('renderTo: reply 的卡片 live 期间实时渲染在回复流', async () => {
+    const transport: ChatTransport = (_req, handlers) => {
+      handlers.onToolCall?.({ id: 'c1', name: 'getWeather', arguments: '{"city":"北京"}' })
+    }
+    const tools = [
+      weatherTool({
+        render: createResultView('weather-view'),
+        renderTo: 'reply',
+        // execute 挂起：停留在 running，验证 live 期回复流卡片常驻
+        execute: () => new Promise(() => {})
+      })
+    ]
+    const { host, chat, unmount } = mountAiChat({ transport, tools })
+
+    chat.value?.send('北京天气')
+
+    // live 期卡片即在回复流渲染（无结果），步骤行走马灯同步展示当前工具步
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-chat__reply-tool .weather-view')).toBeTruthy()
+    })
+    expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toContain('getWeather')
+    unmount()
+  })
+
+  it('renderTo: reply 未提供 render 时兜底标准工具卡片', async () => {
+    const tools = [weatherTool({ renderTo: 'reply' })]
+    const { host, chat, unmount } = mountAiChat({ transport: createWeatherTransport(), tools })
+
+    chat.value?.send('北京天气')
+
+    await waitForStepLineSettled(host, 1)
+    // 无自定义渲染：回复流兜底渲染标准工具卡片（完成态）
+    await vi.waitFor(() => {
+      expect(
+        host.querySelector('.u-ai-chat__reply-tool .u-ai-chat__tool-call.is-success')
+      ).toBeTruthy()
+    })
+    unmount()
+  })
+
   it('autoCollapse: false 的普通工具完成后保持展开', async () => {
     let round = 0
     const transport: ChatTransport = (_req, handlers) => {

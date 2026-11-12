@@ -939,6 +939,11 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
   }
 
+  // reply 工具的回复流卡片容器：与消息同层的横向留白（自定义渲染组件自带卡片视觉）
+  @include m.e(reply-tool) {
+    padding: 4px fn.use-var(gap, default);
+  }
+
   // 工具调用卡片（复用 UCollapseItem：背景/边框走组件原生配色，#header 只自定义标题区）
   @include m.e(tool-call) {
     margin: 4px 0;

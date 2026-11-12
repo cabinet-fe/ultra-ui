@@ -166,6 +166,8 @@ const clientTools: ChatTool[] = [
     label: '查天气',
     icon: Sun,
     render: WeatherCard,
+    // 回复流工具：天气卡片作为消息块直接渲染在回复中，落定后不随步骤行折叠
+    renderTo: 'reply',
     // 终结工具：卡片即最终答复，执行成功后不再回灌模型生成额外文字
     terminal: true,
     parameters: {

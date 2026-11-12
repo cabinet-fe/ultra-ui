@@ -223,8 +223,8 @@ export interface ChatTool<A = any> {
   label?: string
   /** 自定义卡片内容渲染组件，props 为 ChatToolRenderProps；优先级高于 tool-<name> 插槽 */
   render?: Component
-  /** 渲染位置：缺省 'inline'（会话内卡片）；'panel' 为右侧侧边面板 */
-  renderTo?: 'inline' | 'panel'
+  /** 渲染位置：缺省 'inline'（会话内卡片）；'reply' 为回复流消息块；'panel' 为右侧侧边面板 */
+  renderTo?: 'inline' | 'reply' | 'panel'
   /** 侧边面板默认宽度（px，最小 320），仅 renderTo: 'panel' 时生效 */
   panelWidth?: number
   /** 侧边面板标题，仅 renderTo: 'panel'；缺省取 label ?? name */
@@ -243,7 +243,7 @@ export interface ChatToolMeta {
   icon?: Component
   label?: string
   render?: Component
-  renderTo?: 'inline' | 'panel'
+  renderTo?: 'inline' | 'reply' | 'panel'
   panelWidth?: number
   panelTitle?: string | ((toolCall: ChatToolCall) => string)
   autoCollapse?: boolean
@@ -366,9 +366,9 @@ export type ChatTransport = (
 - 生成中活体球跳到列表末尾，结束后停留 2500ms 跳回；工具调用失败自动播 `frustrated` 表情，收尾按终态播表情（`done` → `happy`，`error` → `frustrated`，中断只停留）。
 - 工作计时：生成中列表末尾「工作中…」旁逐秒跳动计时；结束后在该轮答案的复制 / 重新生成操作区左侧显示「用时 Xs」（整秒，≥60s 显示 `Xm Ys`）。仅实时生成的轮次有计时，历史回放不显示；重新生成后更新为本轮新用时。
 - 流式输出默认吸底滚动；用户上翻立即取消吸底，此时列表下方出现圆形向下箭头悬浮按钮，点击回到底部。
-- 过程编排（步骤行）：一轮对话中文字回答之前的思考与工具调用压缩为一个固定高度（30px）的「步骤行」。生成中行内实时展示当前执行中的步骤——思考步显示四角星图标 + `思考中…` + 最新一行思考预览，工具步显示工具图标 + 工具名 + 参数摘要；开始新步骤时行内视图以走马灯效果从下往上切换。一旦出现文字回答，该段即闭合定格为完成态（`执行了 N 个步骤`，落定态无 hover 高亮、展开箭头紧跟文案，出错 / 中止分别为 `出错了` / `已停止`，着危险色），之后的步骤在新一行继续。点击步骤行展开该段全部步骤列表（思考块 + 工具卡片），再点收起；当前工具待确认（`awaiting-confirm`）或有内联 `render` / `tool-<name>` 插槽 UI（如内置提问表单）时自动展开，用户手动切换过后不再自动变化。轮内最后一条 assistant 无正文且已终态时，状态行与复制 / 重新生成操作区落在步骤行下方。
+- 过程编排（步骤行）：一轮对话中文字回答之前的思考与工具调用压缩为一个固定高度（30px）的「步骤行」。生成中行内实时展示当前执行中的步骤——思考步显示四角星图标 + `思考中…` + 最新一行思考预览，工具步显示工具图标 + 工具名 + 参数摘要；开始新步骤时行内视图以走马灯效果从下往上切换。一旦出现文字回答，该段即闭合定格为完成态（`执行了 N 个步骤`，落定态无 hover 高亮、展开箭头紧跟文案，出错 / 中止分别为 `出错了` / `已停止`，着危险色），之后的步骤在新一行继续。点击步骤行展开该段全部步骤列表（思考块 + 工具卡片），再点收起；当前工具待确认（`awaiting-confirm`）或有内联 `render` / `tool-<name>` 插槽 UI（如内置提问表单）时自动展开，用户手动切换过后不再自动变化。轮内最后一条 assistant 无正文且已终态时，状态行与复制 / 重新生成操作区落在步骤行下方。`renderTo: 'reply'` 的工具：自定义渲染（`render` / `tool-<name>` 插槽）作为消息块渲染在该段步骤行之后、段末文字回答之前，live 期间实时渲染进度 / 错误，落定后不随步骤行折叠；步骤行仍保留其过程条目，展开列表只回溯默认参数 / 结果视图（不重复渲染自定义内容）；未提供 `render` / 插槽时回复流兜底渲染标准工具卡片（有结果后才出现）。
 - 思考过程折叠块（在展开的步骤列表内）：折叠头是四角星图标（思考中主星呼吸旋转 + 副星错相闪烁，静止为干净四角星）+ 标题（`思考中…` / `思考了 12s` / `思考过程`，亚秒级不报耗时；耗时按消息 id 记忆，折叠卸载重挂载不丢失）+ 最新一行思考；点击头部展开完整内容（限高 220px，区内可滚动）。
-- 工具卡片默认折叠（含进行中）：折叠头为「图标 + 工具名 + 参数摘要（如 `src/a.ts`、`git status`）」。展开后的参数 / 结果 / `view` 走人读视图而不是原始 JSON——对象逐行「人读键名 + 值」、标量数组压成 chips、对象数组带序号、字符串里的 JSON 自动展开、路径 / 命令 / 多行文本用等宽。去噪规则：单标量参数已被头部摘要完整覆盖时省去「参数」区；结果里同键同值回显入参的字段剔除（如计算器返回 `{expression, result}` 只显示 `result`）；剩余单个通用值键（`result` / `output` / `value` / `data` 等）的标量结果直出值本身，不再罗列键名行；结果全部是回显或空内容时整区省去。降级入口：每块右上角「原始」可切回模型原文（纯文本超长改「展开」看全文）。自动展开的例外：`awaiting-confirm` 待确认且 body 有内容、有内联 `render` 或 `tool-<name>` 插槽的进行中调用（如内置提问表单）、`terminal` 终结工具（答复 UI 即卡片内容）。用户手动切换过折叠态后不再随状态自动变化。侧边面板（`renderTo: 'panel'`）头部带全屏放大 / 还原按钮：全屏时铺满整个组件区域（含输入区），还原回到右侧列，切换聚焦的调用时自动退出全屏。
+- 工具卡片默认折叠（含进行中）：折叠头为「图标 + 工具名 + 参数摘要（如 `src/a.ts`、`git status`）」。展开后的参数 / 结果 / `view` 走人读视图而不是原始 JSON——对象逐行「人读键名 + 值」、标量数组压成 chips、对象数组带序号、字符串里的 JSON 自动展开、路径 / 命令 / 多行文本用等宽。去噪规则：单标量参数已被头部摘要完整覆盖时省去「参数」区；结果里同键同值回显入参的字段剔除（如计算器返回 `{expression, result}` 只显示 `result`）；剩余单个通用值键（`result` / `output` / `value` / `data` 等）的标量结果直出值本身，不再罗列键名行；结果全部是回显或空内容时整区省去。降级入口：每块右上角「原始」可切回模型原文（纯文本超长改「展开」看全文）。自动展开的例外：`awaiting-confirm` 待确认且 body 有内容、有内联 `render` 或 `tool-<name>` 插槽的进行中调用（如内置提问表单；`renderTo` 为 `reply` / `panel` 的自定义渲染不在卡片 body 内，不触发自动展开）、`terminal` 终结工具（答复 UI 即卡片内容）。用户手动切换过折叠态后不再随状态自动变化。侧边面板（`renderTo: 'panel'`）头部带全屏放大 / 还原按钮：全屏时铺满整个组件区域（含输入区），还原回到右侧列，切换聚焦的调用时自动退出全屏。
 - 消息渲染基于 markstream-vue（`MarkdownRender`，`mode="chat"`），代码块 / 行内代码 / 表格 / 引用 / 链接等配色已映射到 `@veltra/styles` 的 `--u-*` 主题 token，跟随宿主亮暗主题自动切换；`rendererProps` 可继续透传 markstream-vue 的其余 props。
 - 会话导航：会话达到 3 轮且消息列表真的溢出可滚动时，在内容列左缘出现一列横线刻度（当前视口所在轮次的刻度变长，hover 的刻度也临时变长并带过渡动画）；当前视口所在轮次高亮、已读轮次变淡；hover 展开「会话导航 · N 轮」目录卡片，点击任一项滚动到该轮顶部并取消吸底。
 - 消息、队列、输入区限宽 800px 居中，纵向滚动条悬浮于会话主列右缘（不贴 800px 内容区）；空会话（只有 tool 消息视为空）时输入区垂直居中。token 展示：数字 <1000 原样，≥1000 用 K、≥100 万用 M（最多 1 位小数，整数不带 `.0`，如 1500 → 1.5K）。
@@ -418,10 +418,12 @@ const tools: ChatTool[] = [
     }
   },
   {
-    // 终结工具：天气卡片即最终答复，执行成功后不再回灌模型
+    // 终结 + 回复流工具：天气卡片直接渲染在回复中，
+    // 执行成功后不再回灌模型，落定后也不随步骤行折叠
     name: 'getWeather',
     description: '查询城市实时天气，结果以卡片直接展示，无需再用文字复述',
     terminal: true,
+    renderTo: 'reply',
     parameters: {
       type: 'object',
       properties: { city: { type: 'string', description: '城市名' } },
@@ -448,7 +450,8 @@ const onFinish = (message: { content: string }) => console.log('本轮结束：'
       @finish="onFinish"
       @error="(error: Error) => console.error(error)"
     >
-      <!-- 工具定义了 render 时此插槽不生效；本例 getWeather 未定义 render -->
+      <!-- 工具定义了 render 时此插槽不生效；本例 getWeather 未定义 render，
+           renderTo: 'reply' 时插槽渲染在回复流消息块（有结果后出现） -->
       <template #tool-getWeather="{ toolCall }">
         <pre v-if="toolCall.result">{{ toolCall.result }}</pre>
         <span v-else-if="toolCall.status === 'error'">查询失败：{{ toolCall.error }}</span>

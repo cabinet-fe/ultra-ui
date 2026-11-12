@@ -31,9 +31,10 @@
         查看面板
       </UButton>
     </div>
-    <!-- 自定义渲染：meta.render / tool-<name> 插槽优先于通用工具视图 -->
-    <component :is="tool.render" v-else-if="tool?.render" :tool-call="toolCall" />
-    <component :is="slotBody" v-else-if="slotBody && hasResult" />
+    <!-- 自定义渲染：meta.render / tool-<name> 插槽优先于通用工具视图；
+         reply 工具的自定义渲染在回复流，卡片 body 只留默认参数/结果（展开列表用于回溯过程） -->
+    <component :is="tool.render" v-else-if="tool?.render && !isReplyTool" :tool-call="toolCall" />
+    <component :is="slotBody" v-else-if="slotBody && !isReplyTool && hasResult" />
     <template v-else>
       <ToolData
         v-if="showParamsSection"
@@ -94,6 +95,9 @@ const markUserToggled = () => {
 
 /** 面板工具：render 展示在右侧侧边面板，卡片 body 仅保留「查看面板」入口 */
 const isPanelTool = computed(() => tool.value?.renderTo === 'panel')
+
+/** reply 工具：render 展示在回复流（消息块），卡片 body 不再重复渲染自定义内容 */
+const isReplyTool = computed(() => tool.value?.renderTo === 'reply')
 
 /** 「UI 即答复」的终结工具（session 元信息无 terminal，恒为 false） */
 const isAnswerTool = computed(() => {

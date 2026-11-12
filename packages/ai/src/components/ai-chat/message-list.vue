@@ -32,6 +32,13 @@
               :end-status="segIndex === turn.segments.length - 1 ? turn.tailEndStatus : undefined"
               @respond="(id, approved) => emit('respond', id, approved)"
             />
+            <!-- reply 工具：自定义渲染作为消息块渲染在回复流，live 期间实时展示、落定后不折叠 -->
+            <ReplyToolCard
+              v-for="step in segment.replySteps"
+              :key="step.key"
+              :tool-call="step.toolCall"
+              @respond="(approved) => emit('respond', step.toolCall!.id, approved)"
+            />
             <MessageItem
               v-if="segment.answerMsg"
               :message="segment.answerMsg"
@@ -137,13 +144,14 @@ import {
   watch
 } from 'vue'
 
-import type { ChatMessage } from '../../chat/types'
+import type { ChatMessage, ChatToolCall } from '../../chat/types'
 import type { AiOrbExposed, AiOrbReaction, AiOrbStatus } from '../../types/ai-orb'
 import UAiOrb from '../ai-orb/ai-orb.vue'
 import { AiChatDIKey } from './di'
 import { formatDuration } from './format-duration'
 import MessageItem from './message-item.vue'
 import type { NavigatorItem } from './navigator-item'
+import ReplyToolCard from './reply-tool.vue'
 import SessionNavigator from './session-navigator.vue'
 import StepLine from './step-line.vue'
 import { clipText } from './tool-format'
@@ -186,12 +194,17 @@ defineSlots<{
 const di = inject(AiChatDIKey)
 const cls = di?.cls ?? bem('ai-chat')
 
+/** renderTo: 'reply' 的调用：自定义渲染作为消息块进回复流（steps 中仍保留过程条目） */
+const isReplyTool = (call: ChatToolCall) => di?.tools.value[call.name]?.renderTo === 'reply'
+
 /** tool 消息不单独渲染，其内容体现在工具卡片的结果区 */
 const visibleMessages = computed(() => props.messages.filter((msg) => msg.role !== 'tool'))
 
 /** 一段：两次文字回答之间的全部步骤；出现文字回答即闭合该段 */
 interface TurnSegment {
   steps: TurnStep[]
+  /** renderTo: 'reply' 的工具步：渲染在回复流（步骤行之后、段末回答之前），不随步骤行折叠 */
+  replySteps: TurnStep[]
   /** 段末文字回答（content 非空的消息） */
   answerMsg?: ChatMessage
 }
@@ -233,7 +246,7 @@ const turns = computed<ChatTurn[]>(() => {
     // 按流式顺序切段：思考归属当前段；出现文字回答即闭合该段、开启新段，
     // 其后的工具调用落进新段（同一条消息 content + toolCalls 会拆成两段）
     const segments: TurnSegment[] = []
-    let current: TurnSegment = { steps: [] }
+    let current: TurnSegment = { steps: [], replySteps: [] }
     for (const msg of turn.assistants) {
       if (msg.reasoning) {
         current.steps.push({ key: `${msg.id}:reasoning`, kind: 'reasoning', message: msg })
@@ -241,10 +254,12 @@ const turns = computed<ChatTurn[]>(() => {
       if (msg.content) {
         current.answerMsg = msg
         segments.push(current)
-        current = { steps: [] }
+        current = { steps: [], replySteps: [] }
       }
       for (const call of msg.toolCalls ?? []) {
-        current.steps.push({ key: call.id, kind: 'tool', message: msg, toolCall: call })
+        const step: TurnStep = { key: call.id, kind: 'tool', message: msg, toolCall: call }
+        current.steps.push(step)
+        if (isReplyTool(call)) current.replySteps.push(step)
       }
     }
     if (current.steps.length) segments.push(current)

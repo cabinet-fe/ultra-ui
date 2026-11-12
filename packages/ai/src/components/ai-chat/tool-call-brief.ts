@@ -113,7 +113,11 @@ function cardHasBody(
   tool: ChatTool | ChatToolMeta | undefined,
   di?: AiChatContext
 ): boolean {
-  if (tool?.renderTo === 'panel' || tool?.render || di?.slots[`tool-${call.name}`]) return true
+  // 面板工具的卡片 body 恒为「查看面板」入口；reply 工具的自定义渲染在回复流，
+  // 卡片 body 只看默认参数/结果视图（展开列表用于回溯过程，不重复渲染卡片）
+  const customInCard =
+    tool?.renderTo !== 'reply' && !!(tool?.render || di?.slots[`tool-${call.name}`])
+  if (tool?.renderTo === 'panel' || customInCard) return true
   const argumentNode = nodeOf(call.arguments)
   if (argumentNode && !isSummarizedInHeader(argumentNode)) return true
   const resultRaw = call.error ?? call.result
@@ -140,7 +144,8 @@ export function toolNeedsInteraction(
     return opts?.expandOnConfirm || cardHasBody(call, tool, di)
   }
   if (call.status !== 'pending' && call.status !== 'running') return false
-  const isPanelTool = tool?.renderTo === 'panel'
-  const hasInlineBody = !isPanelTool && !!(tool?.render || di?.slots[`tool-${call.name}`])
+  // panel / reply 工具的自定义渲染都不在卡片 body 内，不构成「内联可见」的展开理由
+  const external = tool?.renderTo === 'panel' || tool?.renderTo === 'reply'
+  const hasInlineBody = !external && !!(tool?.render || di?.slots[`tool-${call.name}`])
   return hasInlineBody
 }

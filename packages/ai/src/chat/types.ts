@@ -97,16 +97,19 @@ export interface ChatTool<A = any> {
   /**
    * 自定义工具卡片内容渲染（组件或渲染函数），props 为 ChatToolRenderProps。
    * 设置后替换卡片 body 的默认参数/结果展示；优先级高于 tool-<name> 插槽。
-   * renderTo 为 'panel' 时改为在右侧侧边面板中渲染。
+   * renderTo 为 'reply' 时改为渲染在回复流中，'panel' 时渲染在右侧侧边面板。
    */
   render?: Component
   /**
    * 渲染位置。缺省 'inline'：render 组件展示在会话内的工具卡片中；
+   * 'reply'：render 组件作为消息块渲染在回复流中（该段步骤行之后、段末文字回答之前），
+   * live 期间实时渲染进度/错误，落定后不随步骤行折叠隐藏（步骤行仍保留过程条目，
+   * 展开仅回溯参数/结果）。适合天气卡片这类「UI 即答案」、需要常驻展示的结果卡片；
    * 'panel'：render 组件展示在对话区右侧的侧边面板（新调用自动打开面板，
    * 工具卡片内仅保留「查看面板」入口，面板与会话区宽度可拖拽调节）。
    * 适合打开后台页面、表单、图表、列表等需要较大交互区域的工具。
    */
-  renderTo?: 'inline' | 'panel'
+  renderTo?: 'inline' | 'reply' | 'panel'
   /**
    * 侧边面板默认宽度（px，最小 320），仅 renderTo: 'panel' 时生效。
    * 聚焦到该工具的调用时应用；缺省时面板打开取「容器宽 - 860」（即默认尽可能大，
@@ -145,7 +148,7 @@ export interface ChatToolMeta {
   /** 自定义卡片/面板渲染，props 为 ChatToolRenderProps */
   render?: Component
   /** 渲染位置，语义同 ChatTool.renderTo */
-  renderTo?: 'inline' | 'panel'
+  renderTo?: 'inline' | 'reply' | 'panel'
   /** 侧边面板默认宽度，语义同 ChatTool.panelWidth */
   panelWidth?: number
   /** 侧边面板标题，语义同 ChatTool.panelTitle */
