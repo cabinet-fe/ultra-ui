@@ -108,13 +108,16 @@ import { Check, Setting } from '@veltra/icons/normal'
 import {
   darkTheme,
   glassTheme,
+  guochaoTheme,
   heroTheme,
   lightTheme,
   loadTheme,
+  metalTheme,
   midnightTheme,
   neonTheme,
-  oceanTheme,
-  sakuraTheme,
+  newspaperTheme,
+  wildTheme,
+  xuanmoTheme,
   xuanzhiTheme,
   type UITheme
 } from '@veltra/styles/theme'
@@ -157,8 +160,9 @@ const themeGroups: { label: string; items: ThemeItem[] }[] = [
       { label: '默认', value: 'light', theme: lightTheme },
       { label: 'Hero', value: 'hero', theme: heroTheme },
       { label: '宣纸', value: 'xuanzhi', theme: xuanzhiTheme },
-      { label: '樱花', value: 'sakura', theme: sakuraTheme },
-      { label: '海盐', value: 'ocean', theme: oceanTheme }
+      { label: '国潮', value: 'guochao', theme: guochaoTheme },
+      { label: '狂野', value: 'wild', theme: wildTheme },
+      { label: '报刊', value: 'newspaper', theme: newspaperTheme }
     ]
   },
   {
@@ -167,7 +171,9 @@ const themeGroups: { label: string; items: ThemeItem[] }[] = [
       { label: '默认深色', value: 'dark', theme: darkTheme },
       { label: '玻璃', value: 'glass', theme: glassTheme },
       { label: '午夜', value: 'midnight', theme: midnightTheme },
-      { label: '霓虹', value: 'neon', theme: neonTheme }
+      { label: '霓虹', value: 'neon', theme: neonTheme },
+      { label: '玄墨', value: 'xuanmo', theme: xuanmoTheme },
+      { label: '金属', value: 'metal', theme: metalTheme }
     ]
   }
 ]

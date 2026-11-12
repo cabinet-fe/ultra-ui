@@ -311,7 +311,7 @@ createApp(App).mount('#app')
 
 | 模块         | 用途                                                                                      | 文档路径               |
 | ------------ | ----------------------------------------------------------------------------------------- | ---------------------- |
-| loadTheme    | 运行时主题：9 个预设、派生、深浅色热替换与 nav 外观                                       | `styles/theme.md`      |
+| loadTheme    | 运行时主题：12 个预设、派生、深浅色热替换与 nav 外观                                      | `styles/theme.md`      |
 | --u-* tokens | 设计令牌 CSS 变量参考                                                                     | `styles/tokens.md`     |
 | SCSS         | pkg:@veltra/styles 的 vars / functions / mixins 与 NodePackageImporter 的解析基准目录规则 | `guide/scss.md`        |
 | animations   | 动画与过渡 CSS 类参考                                                                     | `styles/animations.md` |

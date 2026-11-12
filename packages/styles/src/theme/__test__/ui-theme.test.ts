@@ -12,12 +12,15 @@ import {
 import {
   darkTheme,
   glassTheme,
+  guochaoTheme,
   heroTheme,
   lightTheme,
+  metalTheme,
   midnightTheme,
   neonTheme,
-  oceanTheme,
-  sakuraTheme,
+  newspaperTheme,
+  wildTheme,
+  xuanmoTheme,
   xuanzhiTheme
 } from '../presets'
 import { UITheme } from '../ui-theme'
@@ -47,10 +50,13 @@ describe('UITheme', () => {
     expect(glassTheme.series).toBe('dark')
     expect(heroTheme.series).toBe('light')
     expect(xuanzhiTheme.series).toBe('light')
-    expect(sakuraTheme.series).toBe('light')
-    expect(oceanTheme.series).toBe('light')
+    expect(guochaoTheme.series).toBe('light')
+    expect(wildTheme.series).toBe('light')
+    expect(newspaperTheme.series).toBe('light')
     expect(midnightTheme.series).toBe('dark')
     expect(neonTheme.series).toBe('dark')
+    expect(xuanmoTheme.series).toBe('dark')
+    expect(metalTheme.series).toBe('dark')
     expect(lightTheme.new({}).series).toBe('light')
     expect(lightTheme.new({}, { series: 'dark' }).series).toBe('dark')
   })
@@ -147,13 +153,16 @@ describe('UITheme', () => {
   })
 
   it('renderBase skips the nav subtree (handled by navSidebarDecls)', () => {
-    const decls = sakuraTheme.themeToDeclarationList(sakuraTheme.theme)
+    const decls = guochaoTheme.themeToDeclarationList(guochaoTheme.theme)
     expect(decls.some((d) => d.startsWith('--u-nav-'))).toBe(false)
   })
 
-  it('sakura / ocean / xuanzhi have themed dark sidebar colors', () => {
-    expect(sakuraTheme.navSidebarDecls(sakuraTheme.theme)).toContain('--u-nav-bg-color: #662e40')
-    expect(oceanTheme.navSidebarDecls(oceanTheme.theme)).toContain('--u-nav-bg-color: #134944')
+  it('guochao / wild / newspaper / xuanzhi have themed dark sidebar colors', () => {
+    expect(guochaoTheme.navSidebarDecls(guochaoTheme.theme)).toContain('--u-nav-bg-color: #59251e')
+    expect(wildTheme.navSidebarDecls(wildTheme.theme)).toContain('--u-nav-bg-color: #311a4e')
+    expect(newspaperTheme.navSidebarDecls(newspaperTheme.theme)).toContain(
+      '--u-nav-bg-color: #2e1915'
+    )
     expect(xuanzhiTheme.navSidebarDecls(xuanzhiTheme.theme)).toContain('--u-nav-bg-color: #303c34')
   })
 
@@ -164,10 +173,13 @@ describe('UITheme', () => {
       heroTheme,
       glassTheme,
       xuanzhiTheme,
-      sakuraTheme,
-      oceanTheme,
+      guochaoTheme,
+      wildTheme,
+      newspaperTheme,
       midnightTheme,
-      neonTheme
+      neonTheme,
+      xuanmoTheme,
+      metalTheme
     ]
     for (const t of themes) {
       const decls = t.themeToDeclarationList(t.theme)

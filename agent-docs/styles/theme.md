@@ -1,6 +1,6 @@
 ---
 title: loadTheme 运行时主题
-description: "从 '@veltra/styles/theme' 导入 loadTheme 与 9 个预设主题：向 html 注入全局与组件级 --u-* CSS 变量并写入 data-theme，支持预设派生自定义主题、深浅色切换、容器级菜单深浅变体与运行时热替换。"
+description: "从 '@veltra/styles/theme' 导入 loadTheme 与 12 个预设主题：向 html 注入全局与组件级 --u-* CSS 变量并写入 data-theme，支持预设派生自定义主题、深浅色切换、容器级菜单深浅变体与运行时热替换。"
 aliases: [theme, UITheme, 主题切换, 暗色模式, 主题定制, 皮肤]
 keywords:
   [
@@ -9,6 +9,11 @@ keywords:
     lightTheme,
     darkTheme,
     glassTheme,
+    xuanmoTheme,
+    metalTheme,
+    guochaoTheme,
+    wildTheme,
+    newspaperTheme,
     series,
     nav.variant,
     nav.variants,
@@ -34,7 +39,7 @@ keywords:
 
 # loadTheme 运行时主题
 
-`@veltra/styles/theme` 导出主题加载函数 `loadTheme`、9 个预设主题（`UITheme` 实例）与主题工具函数。`loadTheme` 把主题对象编译成 `html { --u-*: ... }` 声明注入文档，并按主题 `series` 写入 `html[data-theme]`（`'light'` 或 `'dark'`）；组件样式只消费 `--u-*` token，业务代码不做 `[data-theme]` 分支。
+`@veltra/styles/theme` 导出主题加载函数 `loadTheme`、12 个预设主题（`UITheme` 实例）与主题工具函数。`loadTheme` 把主题对象编译成 `html { --u-*: ... }` 声明注入文档，并按主题 `series` 写入 `html[data-theme]`（`'light'` 或 `'dark'`）；组件样式只消费 `--u-*` token，业务代码不做 `[data-theme]` 分支。
 
 除全局 token 外，主题还注入：
 
@@ -210,35 +215,41 @@ export type Theme = {
 
 ### 预设主题
 
-9 个预设按系列组织，每个自带 `series`，不成对切换——选哪个主题就是哪种明暗：
+12 个预设按系列组织，每个自带 `series`，不成对切换——选哪个主题就是哪种明暗：
 
 ```ts
 import {
   lightTheme,
   heroTheme,
   xuanzhiTheme,
-  sakuraTheme,
-  oceanTheme,
+  guochaoTheme,
+  wildTheme,
+  newspaperTheme,
   darkTheme,
   glassTheme,
   midnightTheme,
-  neonTheme
+  neonTheme,
+  xuanmoTheme,
+  metalTheme
 } from '@veltra/styles/theme'
 ```
 
-| 导出            | series  | 特征（源码注释）                                                      |
-| --------------- | ------- | --------------------------------------------------------------------- |
-| `lightTheme`    | `light` | 默认浅色基座，`reactive: false`                                       |
-| `heroTheme`     | `light` | HeroUI 风格：紫 `#7828c8`、2px 边框、浮雕阴影、`nav.variant: 'light'` |
-| `xuanzhiTheme`  | `light` | 宣纸：松烟绿 + 宣纸底，侧栏松烟墨                                     |
-| `sakuraTheme`   | `light` | 柔粉 + 花瓣底、大圆角、弹性缓动，侧栏深酒红                           |
-| `oceanTheme`    | `light` | 松石青 + 冷白底，侧栏深海礁                                           |
-| `darkTheme`     | `dark`  | 默认深色基座                                                          |
-| `glassTheme`    | `dark`  | 玻璃拟态：rgba 背景 + `blur(20px)`，显式声明 kbd / batch-edit 扩展键  |
-| `midnightTheme` | `dark`  | 靛蓝 + 深空底，宽松间距、舒缓过渡                                     |
-| `neonTheme`     | `dark`  | 品红 + 夜紫底 + 辉光阴影，小圆角                                      |
+| 导出             | series  | 特征（源码注释）                                                                          |
+| ---------------- | ------- | ----------------------------------------------------------------------------------------- |
+| `lightTheme`     | `light` | 默认浅色基座，`reactive: false`                                                           |
+| `heroTheme`      | `light` | HeroUI 风格：紫 `#7828c8`、2px 边框、浮雕阴影、`nav.variant: 'light'`                     |
+| `xuanzhiTheme`   | `light` | 宣纸：松烟绿 + 宣纸底，侧栏松烟墨                                                         |
+| `guochaoTheme`   | `light` | 国潮：绛红 `#C2332D` + 绢帛米底、鎏金描边，圆角 6/10/14，侧栏宫墙深红                     |
+| `wildTheme`      | `light` | 狂野：牛皮纸底 + 2px 碳黑粗描边 + 电光紫 `#6C2BD9`，零圆角、emboss 硬偏移阴影 `3px 3px 0` |
+| `newspaperTheme` | `light` | 报刊：新闻纸米白底 + 油墨黑主色、报头红危险色，零圆角、浮层 1px 墨线压边                  |
+| `darkTheme`      | `dark`  | 默认深色基座                                                                              |
+| `glassTheme`     | `dark`  | 玻璃拟态：rgba 背景 + `blur(20px)`，显式声明 kbd / batch-edit 扩展键                      |
+| `midnightTheme`  | `dark`  | 靛蓝 + 深空底，宽松间距、舒缓过渡                                                         |
+| `neonTheme`      | `dark`  | 品红 + 夜紫底 + 辉光阴影，小圆角                                                          |
+| `xuanmoTheme`    | `dark`  | 玄墨：玄黑底 + 宣纸白文字 + 朱砂主色 `#A8443A`，圆角 3/6/10，晕染式缓动                   |
+| `metalTheme`     | `dark`  | 金属：枪铁蓝灰底 + 熔钢橙 `#EE6C2B`、黄铜警告色，机加工圆角 2/4/6、emboss 金属倒角浮雕    |
 
-预设的个性化侧栏色写在 `nav.variants[variant]`（如宣纸/樱花/海盐的深墨侧栏），因此切到另一个变体时会自动回落到该主题系列的内置浅/深外观，不会出现「浅变体套深墨底」的串色。
+预设的个性化侧栏色写在 `nav.variants[variant]`（如宣纸/国潮/狂野的深色侧栏），因此切到另一个变体时会自动回落到该主题系列的内置浅/深外观，不会出现「浅变体套深墨底」的串色。
 
 ### 主题工具函数（同入口导出）
 
