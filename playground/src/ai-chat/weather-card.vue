@@ -22,6 +22,7 @@
       </div>
     </template>
 
+    <div v-else-if="isStopped" class="weather-card__tip">已停止查询天气</div>
     <div v-else-if="toolCall.status === 'error'" class="weather-card__tip">
       查询失败：{{ toolCall.error }}
     </div>
@@ -61,6 +62,12 @@ const data = computed<WeatherResult | null>(() => {
     return null
   }
 })
+
+const isStopped = computed(
+  () =>
+    props.toolCall.status === 'rejected' ||
+    (props.toolCall.status === 'error' && !!props.toolCall.error?.includes('Abort'))
+)
 
 /** WMO 天气码 → emoji */
 function wmoEmoji(code: number): string {
@@ -159,23 +166,23 @@ const weatherEmoji = computed(() => (data.value ? wmoEmoji(data.value.code) : '�
   display: inline-block;
   background: linear-gradient(
     100deg,
-    rgb(255 255 255 / 60%) 30%,
+    rgb(255 255 255 / 60%) 35%,
     #fff 50%,
-    rgb(255 255 255 / 60%) 70%
+    rgb(255 255 255 / 60%) 65%
   );
   background-size: 200% 100%;
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: weather-card-shine 1.4s linear infinite;
+  animation: weather-card-shine 3.2s linear infinite;
 }
 
 @keyframes weather-card-shine {
   from {
-    background-position: 200% 0;
+    background-position: 100% 0;
   }
   to {
-    background-position: -200% 0;
+    background-position: -100% 0;
   }
 }
 </style>

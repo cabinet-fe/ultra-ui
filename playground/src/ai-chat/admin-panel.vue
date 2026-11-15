@@ -2,6 +2,10 @@
   <div class="admin-panel">
     <!-- 工具执行中：模拟后台页面加载 -->
     <div v-if="loading" class="admin-panel__loading">页面打开中…</div>
+    <div v-else-if="stopped" class="admin-panel__loading">已停止打开页面</div>
+    <div v-else-if="toolCall.status === 'error'" class="admin-panel__loading">
+      打开失败：{{ toolCall.error }}
+    </div>
 
     <!-- 用户编辑表单 -->
     <template v-else-if="page === 'user-form'">
@@ -64,8 +68,16 @@ const page = computed(() => {
   }
 })
 
-/** 工具执行完成前展示加载态（result 就绪即页面就绪） */
-const loading = computed(() => props.toolCall.status !== 'success')
+/** 工具执行中展示加载态；终态不再继续显示加载中 */
+const loading = computed(() =>
+  ['pending', 'running', 'awaiting-confirm'].includes(props.toolCall.status)
+)
+
+const stopped = computed(
+  () =>
+    props.toolCall.status === 'rejected' ||
+    (props.toolCall.status === 'error' && !!props.toolCall.error?.includes('Abort'))
+)
 
 // ---------------- 用户编辑表单 ----------------
 const formRef = useTemplateRef<FormExposed>('formRef')

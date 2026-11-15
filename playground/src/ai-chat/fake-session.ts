@@ -34,6 +34,7 @@ export function createFakeSessionAdapter(): ChatSessionAdapter {
   let seq = 0
   let ids = 0
   let gen = 0
+  let pendingCallId: string | undefined
   const waiters = new Map<
     string,
     { kind: 'question' | 'approval'; approvalId?: string; done: () => void }
@@ -43,6 +44,10 @@ export function createFakeSessionAdapter(): ChatSessionAdapter {
   const nextId = (prefix: string) => `${prefix}-${++ids}`
 
   const emit = (event: ChatSessionEvent) => {
+    if (event.type === 'tool/call') pendingCallId = event.callId
+    else if (event.type === 'tool/result' && event.callId === pendingCallId) {
+      pendingCallId = undefined
+    }
     listener?.onEvent(event)
   }
 
@@ -128,7 +133,21 @@ export function createFakeSessionAdapter(): ChatSessionAdapter {
           type: 'question/requested',
           rpcId,
           questions: [
-            { question: '接下来更关心哪一块？', options: ['工具卡片', '审批横幅', '作业条'] }
+            {
+              header: '下一步演示',
+              question: '接下来更关心哪一块？',
+              options: [
+                { label: '工具卡片 (推荐)', description: '查看结构化工具参数与结果视图' },
+                { label: '审批横幅', description: '模拟高危操作二次确认' },
+                '作业条'
+              ]
+            },
+            {
+              header: '交互细节',
+              question: '希望保留哪些展示能力？（多选）',
+              multiple: true,
+              options: ['数字序号单选', '回车提交自定义输入', '常驻问答摘要']
+            }
           ]
         }
       },
@@ -249,12 +268,19 @@ export function createFakeSessionAdapter(): ChatSessionAdapter {
     async send(content) {
       gen += 1
       const token = gen
+      pendingCallId = undefined
       invalidate()
       void runSteps(token, buildSteps(content))
     },
     async cancel() {
       gen += 1
       invalidate()
+      if (pendingCallId) {
+        const callId = pendingCallId
+        pendingCallId = undefined
+        emit({ type: 'tool/result', callId, status: 'rejected', error: '已取消', seq: nextSeq() })
+      }
+      emit({ type: 'jobs/snapshot', jobs: [] })
       emit({ type: 'running', running: false })
       emit({ type: 'finish' })
     },

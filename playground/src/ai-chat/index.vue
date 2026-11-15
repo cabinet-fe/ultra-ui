@@ -175,10 +175,11 @@ const clientTools: ChatTool[] = [
       properties: { city: { type: 'string', description: '城市名' } },
       required: ['city']
     },
-    execute: async ({ city }: { city: string }) => {
+    execute: async ({ city }: { city: string }, { signal }) => {
       // 真实数据：Open-Meteo 地理编码 + 实时天气（免费公开 API，无需密钥）
       const geo: GeocodingResponse = await fetch(
-        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=zh`
+        `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=zh`,
+        { signal }
       ).then((res) => res.json())
       const place = geo.results?.[0]
       if (!place) throw new Error(`未找到城市「${city}」，请换个写法`)
@@ -186,7 +187,8 @@ const clientTools: ChatTool[] = [
       const forecast: ForecastResponse = await fetch(
         `https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}` +
           '&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m' +
-          '&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1'
+          '&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1',
+        { signal }
       ).then((res) => res.json())
 
       const { current, daily } = forecast
@@ -230,7 +232,7 @@ const clientTools: ChatTool[] = [
     icon: Monitor,
     render: AdminPanel,
     // 面板工具：render 组件渲染在右侧侧边面板，与会话区宽度可拖拽调节。
-    // 未指定 panelWidth：打开时默认尽可能大（会话区保留 860px），也可经 panelWidth 指定默认宽
+    // 未指定 panelWidth：打开时默认平分容器宽度（各占一半），也可经 panelWidth 指定默认宽
     renderTo: 'panel',
     // 面板标题按调用参数给出「业务对象 + 动作」，而不是干巴巴的工具名
     panelTitle: (toolCall) => {

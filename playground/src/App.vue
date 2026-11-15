@@ -106,10 +106,12 @@ import { useConfig } from '@veltra/compositions'
 import type { ComponentSize, NavItem } from '@veltra/desktop'
 import { Check, Setting } from '@veltra/icons/normal'
 import {
+  auroraTheme,
+  celadonTheme,
   darkTheme,
-  glassTheme,
+  gildedTheme,
   guochaoTheme,
-  heroTheme,
+  irisTheme,
   lightTheme,
   loadTheme,
   metalTheme,
@@ -117,8 +119,6 @@ import {
   neonTheme,
   newspaperTheme,
   wildTheme,
-  xuanmoTheme,
-  xuanzhiTheme,
   type UITheme
 } from '@veltra/styles/theme'
 import { computed, ref, shallowRef, watch, watchEffect } from 'vue'
@@ -158,8 +158,8 @@ const themeGroups: { label: string; items: ThemeItem[] }[] = [
     label: '浅色系',
     items: [
       { label: '默认', value: 'light', theme: lightTheme },
-      { label: 'Hero', value: 'hero', theme: heroTheme },
-      { label: '宣纸', value: 'xuanzhi', theme: xuanzhiTheme },
+      { label: '鸢尾', value: 'iris', theme: irisTheme },
+      { label: '天青', value: 'celadon', theme: celadonTheme },
       { label: '国潮', value: 'guochao', theme: guochaoTheme },
       { label: '狂野', value: 'wild', theme: wildTheme },
       { label: '报刊', value: 'newspaper', theme: newspaperTheme }
@@ -169,10 +169,10 @@ const themeGroups: { label: string; items: ThemeItem[] }[] = [
     label: '深色系',
     items: [
       { label: '默认深色', value: 'dark', theme: darkTheme },
-      { label: '玻璃', value: 'glass', theme: glassTheme },
+      { label: '极光', value: 'aurora', theme: auroraTheme },
       { label: '午夜', value: 'midnight', theme: midnightTheme },
       { label: '霓虹', value: 'neon', theme: neonTheme },
-      { label: '玄墨', value: 'xuanmo', theme: xuanmoTheme },
+      { label: '黑金', value: 'gilded', theme: gildedTheme },
       { label: '金属', value: 'metal', theme: metalTheme }
     ]
   }
@@ -382,18 +382,6 @@ $width: 320px;
   }
 }
 
-.container1[data-theme-preset='glass'] {
-  --playground-grid-color: rgba(15, 23, 42, 0.1);
-}
-
-.container1[data-theme-preset='glass'] .content-backdrop::before {
-  background:
-    radial-gradient(ellipse 74% 60% at 14% 24%, rgba(59, 130, 246, 0.42), transparent 58%),
-    radial-gradient(ellipse 66% 56% at 86% 16%, rgba(236, 72, 153, 0.3), transparent 56%),
-    radial-gradient(ellipse 64% 64% at 54% 88%, rgba(6, 182, 212, 0.34), transparent 60%),
-    linear-gradient(135deg, rgba(248, 250, 252, 0.92), rgba(226, 232, 240, 0.7));
-}
-
 html[data-theme='dark'] .container1 {
   --playground-grid-color: rgba(255, 255, 255, 0.08);
 }
@@ -404,18 +392,6 @@ html[data-theme='dark'] .content-backdrop::before {
     radial-gradient(ellipse 64% 56% at 86% 18%, rgba(236, 72, 153, 0.3), transparent 56%),
     radial-gradient(ellipse 62% 62% at 52% 88%, rgba(14, 165, 233, 0.34), transparent 60%),
     linear-gradient(135deg, rgba(2, 6, 23, 0.98), rgba(15, 23, 42, 0.86));
-}
-
-html[data-theme='dark'] .container1[data-theme-preset='glass'] {
-  --playground-grid-color: rgba(255, 255, 255, 0.1);
-}
-
-html[data-theme='dark'] .container1[data-theme-preset='glass'] .content-backdrop::before {
-  background:
-    radial-gradient(ellipse 76% 60% at 14% 24%, rgba(99, 102, 241, 0.5), transparent 58%),
-    radial-gradient(ellipse 66% 58% at 86% 18%, rgba(236, 72, 153, 0.36), transparent 56%),
-    radial-gradient(ellipse 64% 64% at 52% 88%, rgba(14, 165, 233, 0.42), transparent 60%),
-    linear-gradient(135deg, rgba(2, 6, 23, 0.98), rgba(15, 23, 42, 0.82));
 }
 
 .control-bar {
