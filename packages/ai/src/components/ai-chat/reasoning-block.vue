@@ -19,7 +19,7 @@
         @scroll="handleReasoningScroll"
         @wheel.passive="handleReasoningWheel"
       >
-        <div :class="cls.e('reasoning-text')">{{ message.reasoning }}</div>
+        <div :class="cls.e('reasoning-text')">{{ renderedReasoning }}</div>
       </UScroll>
     </div>
   </div>
@@ -47,6 +47,7 @@ import { formatDuration } from './format-duration'
 import ThinkingIcon from './thinking-icon.vue'
 import { lastNonEmptyLine } from './tool-format'
 import { useStickScroll } from './use-stick-scroll'
+import { useStreamThrottle } from './use-stream-throttle'
 
 defineOptions({ name: 'UAiChatReasoningBlock' })
 
@@ -61,6 +62,11 @@ const cls = di?.cls ?? bem('ai-chat')
 const isStreaming = computed(() => props.message.status === 'streaming')
 /** 思考中：流式且正文还未开始输出 */
 const isThinking = computed(() => isStreaming.value && !props.message.content)
+
+const renderedReasoning = useStreamThrottle(
+  () => props.message.reasoning ?? '',
+  () => isThinking.value
+)
 
 /** 思考默认折叠（含流式进行中），用户点击头部展开 */
 const reasoningExpanded = ref(false)
@@ -92,10 +98,10 @@ const reasoningTitle = computed(() => {
   return '思考过程'
 })
 
-/** 折叠时头部右侧滚动展示的最新一行思考：取最后一行非空文本，随流式输出持续刷新 */
+/** 折叠时头部右侧滚动展示的最新一行思考：取最后一行非空文本，随流式输出节流刷新 */
 const latestReasoningLine = computed(() => {
   if (!isThinking.value || reasoningExpanded.value) return ''
-  return lastNonEmptyLine(props.message.reasoning ?? '')
+  return lastNonEmptyLine(renderedReasoning.value)
 })
 
 /** 思考内容滚动区：展开且流式输出时吸附底部，始终展示最新思考 */
@@ -117,11 +123,8 @@ const toggleReasoning = async () => {
   await scrollToBottomIfStuck()
 }
 
-watch(
-  () => props.message.reasoning,
-  async () => {
-    if (!isThinking.value || !reasoningExpanded.value) return
-    await scrollToBottomIfStuck()
-  }
-)
+watch(renderedReasoning, async () => {
+  if (!isThinking.value || !reasoningExpanded.value) return
+  await scrollToBottomIfStuck()
+})
 </script>

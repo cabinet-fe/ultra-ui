@@ -188,6 +188,52 @@ describe('useChat', () => {
     expect(emit).not.toHaveBeenCalledWith('finish', expect.anything())
   })
 
+  it('abort 可立即打断未监听 signal 的挂起工具，并收口消息与工具状态', async () => {
+    const emit = createEmit()
+
+    const transport: ChatTransport = (_req, handlers) => {
+      handlers.onToolCall?.({ id: 'call-1', name: 'getWeather', arguments: '{"city":"北京"}' })
+      handlers.onToolCall?.({ id: 'call-2', name: 'getWeather', arguments: '{"city":"上海"}' })
+    }
+
+    const tools: ChatTool[] = [
+      {
+        name: 'getWeather',
+        description: '查天气',
+        parameters: {},
+        // 刻意不监听 signal：模拟未透传 signal 的慢请求一直挂起
+        execute: () => new Promise(() => {})
+      }
+    ]
+
+    const chat = useChat({ props: { transport, tools }, emit })
+    chat.send('北京上海天气')
+
+    await vi.waitFor(() => {
+      expect(chat.messages.value[1]?.toolCalls?.[0]?.status).toBe('running')
+    })
+
+    chat.abort()
+    await vi.waitFor(() => {
+      expect(chat.running.value).toBe(false)
+    })
+
+    expect(chat.messages.value[1]?.status).toBe('aborted')
+    expect(chat.messages.value[1]?.toolCalls?.[0]).toMatchObject({
+      status: 'error',
+      error: 'Aborted'
+    })
+    expect(chat.messages.value[1]?.toolCalls?.[1]).toMatchObject({
+      status: 'error',
+      error: 'Aborted'
+    })
+    expect(chat.messages.value.filter((m) => m.role === 'tool')).toEqual([
+      expect.objectContaining({ role: 'tool', toolCallId: 'call-1', content: 'Error: Aborted' }),
+      expect.objectContaining({ role: 'tool', toolCallId: 'call-2', content: 'Error: Aborted' })
+    ])
+    expect(emit).not.toHaveBeenCalledWith('finish', expect.anything())
+  })
+
   it('transport 报错时标记 error 并发出 error 事件', async () => {
     const emit = createEmit()
     const failure = new Error('网络错误')

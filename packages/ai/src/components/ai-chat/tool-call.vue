@@ -36,20 +36,12 @@
     <component :is="tool.render" v-else-if="tool?.render && !isReplyTool" :tool-call="toolCall" />
     <component :is="slotBody" v-else-if="slotBody && !isReplyTool && hasResult" />
     <template v-else>
-      <ToolData
-        v-if="showParamsSection"
-        title="参数"
-        :node="argumentNode"
-        :raw="toolCall.arguments"
-      />
-      <ToolData
-        v-if="resultSectionVisible"
-        :title="resultTitle"
-        :node="displayResultNode"
-        :raw="resultRaw"
-        :tone="toolCall.status === 'error' ? 'error' : 'default'"
-      />
-      <ToolData v-if="viewNode" title="视图" :node="viewNode" :raw="viewRaw" />
+      <pre v-if="showParamsSection" :class="cls.e('tool-data')">{{ toolCall.arguments }}</pre>
+      <pre
+        v-if="resultRaw"
+        :class="[cls.e('tool-data'), bem.is('error', toolCall.status === 'error')]"
+        >{{ resultRaw }}</pre>
+      <pre v-if="viewRaw" :class="cls.e('tool-data')">{{ viewRaw }}</pre>
     </template>
   </UCollapseItem>
 </template>
@@ -61,15 +53,8 @@ import { computed, inject, ref, watch } from 'vue'
 
 import type { ChatToolCall } from '../../chat/types'
 import { AiChatDIKey } from './di'
-import {
-  isSettledStatus,
-  nodeOf,
-  resultDisplayNode,
-  toolNeedsInteraction,
-  useToolCallBrief
-} from './tool-call-brief'
-import ToolData from './tool-data.vue'
-import { isSummarizedInHeader, toToolNode } from './tool-format'
+import { isSettledStatus, toolNeedsInteraction, useToolCallBrief } from './tool-call-brief'
+import { isSummarizedInHeader } from './tool-format'
 
 defineOptions({ name: 'UAiChatToolCall' })
 
@@ -108,46 +93,27 @@ const isAnswerTool = computed(() => {
 /** 完成后是否自动折叠：缺省一律折叠；「UI 即答复」的终结工具缺省保持展开 */
 const autoCollapse = computed(() => tool.value?.autoCollapse ?? !isAnswerTool.value)
 
-/** 参数区：结构化字段视图，原始串留作降级入口 */
-const argumentNode = computed(() => nodeOf(props.toolCall.arguments))
-
-/** 单标量参数已被头部摘要逐字覆盖，body 再列「参数」纯属重复，直接省去该区 */
-const showParamsSection = computed(() => {
-  const node = argumentNode.value
-  return !!node && !isSummarizedInHeader(node)
-})
+/** 单标量参数已被头部摘要逐字覆盖（或本身为空），body 不再重复展示参数块 */
+const showParamsSection = computed(() => !isSummarizedInHeader(parsedArguments.value))
 
 const hasResult = computed(() => {
   return props.toolCall.result != null || props.toolCall.error != null
 })
 
-const resultTitle = computed(() => (props.toolCall.status === 'error' ? '错误' : '结果'))
-
-const resultRaw = computed(() => props.toolCall.error ?? props.toolCall.result)
-
-/** 结果展示管线（回显剔除 + 单值直出），共享实现见 tool-call-brief 的 resultDisplayNode */
-const displayResultNode = computed(() => resultDisplayNode(resultRaw.value, parsedArguments.value))
-
-/** 结果全部是入参回显 / 空内容时没有可展示的东西，整区省去 */
-const resultSectionVisible = computed(
-  () => displayResultNode.value != null && displayResultNode.value.type !== 'empty'
+const resultRaw = computed(
+  () => (props.toolCall.error ?? props.toolCall.result)?.trim() || undefined
 )
 
-/** 服务端下发的 view，格式化为结构化视图；不得丢弃、不得 throw */
+/** 服务端下发的 view，直接以原始文本/紧凑 JSON 展示；不得丢弃、不得 throw */
 const viewRaw = computed(() => {
   const view = props.toolCall.view
   if (view == null) return undefined
-  if (typeof view === 'string') return view
+  if (typeof view === 'string') return view.trim() || undefined
   try {
-    return JSON.stringify(view, null, 2)
+    return JSON.stringify(view)
   } catch {
     return String(view)
   }
-})
-
-const viewNode = computed(() => {
-  const view = props.toolCall.view
-  return view == null ? undefined : toToolNode(view)
 })
 
 /** 使用方通过 tool-<name> 插槽自定义该工具的展示（有结果时替换整个 body） */

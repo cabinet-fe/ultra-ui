@@ -56,7 +56,7 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     color 0.15s ease;
 }
 
-/** 面板头部图标按钮配方：全屏切换 / 关闭共用（尺寸、hover 背景、过渡一致） */
+/** 面板头部图标按钮配方：刷新 / 全屏切换 / 关闭共用（尺寸、hover 背景、过渡一致） */
 @mixin panel-header-btn {
   flex-shrink: 0;
   width: 22px;
@@ -116,6 +116,8 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   // 圆角卡片仅靠底层背景对比与阴影区分；面板元素始终保持整轨宽度，避免宽度观测回环
   @include m.e(panel) {
     min-width: 0;
+    // 网格项默认 min-height: auto，超高内容会撑大 1fr 行、把左列输入区顶出可视区
+    min-height: 0;
     padding: fn.use-var(gap, small);
     padding-left: calc(fn.use-var(gap, small) / 2);
     box-sizing: border-box;
@@ -193,30 +195,6 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
   }
 
-  // 仅减少动态效果时使用：只淡入透明度
-  @keyframes u-ai-chat-orb-fade {
-    from {
-      opacity: 0;
-    }
-
-    to {
-      opacity: 1;
-    }
-  }
-
-  // 活体球在输入框上方 ↔ 列表末尾对向缩放（时长与 JUMP_MS 一致）
-  @keyframes u-ai-chat-orb-jump-in {
-    from {
-      opacity: 0;
-      transform: scale(0);
-    }
-
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
   // 面板头部：无下分割线，靠留白与卡片边界区分内容区
   @include m.e(panel-header) {
     flex: none;
@@ -246,7 +224,8 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     color: fn.use-var(text-color, title);
   }
 
-  // 头部「全屏 / 还原」切换与关闭按钮：同款图标按钮
+  // 头部刷新、「全屏 / 还原」切换与关闭按钮：同款图标按钮
+  #{fn.bem($root-name, 'panel-refresh')},
   #{fn.bem($root-name, 'panel-fullscreen')},
   #{fn.bem($root-name, 'panel-close')} {
     @include panel-header-btn;
@@ -301,7 +280,7 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     min-height: 0;
   }
 
-  // 空闲欢迎：钉在滚动容器外、输入框上方；高度锁 48px（球 + 快捷提问）。
+  // 吉祥物常驻栏：固定在滚动容器外、输入框上方；高度锁 48px（球 + 欢迎语或工作态）。
   // 与 bounded-column 不完全同构（无 box-sizing、锁高 48px），保留独立写法
   @include m.e(welcome) {
     flex-shrink: 0;
@@ -312,25 +291,6 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     @include m.flex(flex, flex-start, center);
     color: fn.use-var(text-color, assist);
     padding: 0 fn.use-var(gap, default);
-
-    .u-ai-orb {
-      transform-origin: center;
-    }
-
-    @include m.is(enter) {
-      .u-ai-orb {
-        animation: u-ai-chat-orb-jump-in 0.38s ease both;
-      }
-    }
-
-    @include m.is(leaving) {
-      pointer-events: none;
-
-      .u-#{$root-name}__welcome-item-wrap {
-        opacity: 0;
-        transition: opacity 0.2s ease;
-      }
-    }
   }
 
   @include m.e(welcome-inner) {
@@ -366,7 +326,7 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
     &:hover {
       color: fn.use-var(color, primary);
-      background-color: fn.use-var(color, primary, 'light-9');
+      background-color: fn.color-a(color, 11, primary);
     }
 
     &:disabled {
@@ -403,54 +363,17 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     transform: translateY(-6px);
   }
 
-  // 生成中的统一工作状态指示（列表末尾）；横向定位由 __list-content 的 padding 提供
+  // 工作态指示（与空闲欢迎语同处一栏，待在原位不进消息列表）
   @include m.e(working) {
     @include m.flex(flex, flex-start, center);
     gap: fn.use-var(gap, small);
-    padding: 0 0 fn.use-var(gap, small);
-    width: fit-content;
-    // 状态文本与计时的小号字号在父级统一给出，子元素经继承取值
     font-size: fn.use-var(font-size-main, small);
-
-    // 工作开始：立即从 0 放大（无延时），与输入框上方缩小形成对向跳
-    .u-ai-orb {
-      transform-origin: center;
-      animation: u-ai-chat-orb-jump-in 0.38s ease both;
-    }
-
-    @include m.is(leaving) {
-      pointer-events: none;
-    }
-  }
-
-  // 离场共享：两处活体球同步缩小退出（工作球需同时叫停进场动画；enter 与 leaving 互斥）
-  .u-#{$root-name}__welcome.is-leaving .u-ai-orb,
-  .u-#{$root-name}__working.is-leaving .u-ai-orb {
-    animation: none;
-    opacity: 0;
-    transform: scale(0);
-    transition:
-      opacity 0.28s ease,
-      transform 0.38s ease;
   }
 
   // 工作计时 / 收尾停留期间的总用时（字号继承 __working）
   @include m.e(working-time) {
     color: fn.use-var(text-color, assist);
     font-variant-numeric: tabular-nums;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .u-#{$root-name}__welcome.is-enter .u-ai-orb,
-    .u-#{$root-name}__working .u-ai-orb {
-      animation: u-ai-chat-orb-fade 160ms cubic-bezier(0.33, 1, 0.68, 1) both;
-    }
-
-    .u-#{$root-name}__welcome.is-leaving .u-ai-orb,
-    .u-#{$root-name}__working.is-leaving .u-ai-orb {
-      transform: none;
-      transition: opacity 160ms cubic-bezier(0.33, 1, 0.68, 1);
-    }
   }
 
   // 回到底部悬浮按钮：上翻浏览时出现于列表下方，点击回到底部
@@ -513,7 +436,7 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     max-width: 80%;
     padding: fn.use-var(gap, small) fn.use-var(gap, default);
     border-radius: fn.use-var(radius, large);
-    background-color: fn.use-var(color, primary, 'light-9');
+    background-color: fn.color-a(color, 16, primary);
     color: fn.use-var(text-color, main);
     overflow: hidden;
   }
@@ -535,6 +458,22 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     max-height: 160px;
     border-radius: fn.use-var(radius, default);
     display: block;
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+
+    &:hover {
+      opacity: 0.9;
+    }
+  }
+
+  @include m.e(message-attachment-file) {
+    @include m.flex(flex, flex-start, center);
+    gap: fn.use-var(gap, small);
+    max-width: 220px;
+    padding: 6px fn.use-var(gap, small);
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, top);
+    box-sizing: border-box;
   }
 
   // 信息密度必须写在 .markstream-vue 上：该库把 --ms-flow-* / --ms-text-* 定义在根节点，
@@ -562,6 +501,7 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     --ms-flow-list-indent: 1.3em;
     --ms-flow-codeblock-y: 0.7em;
     --ms-flow-blockquote-y: 0.55em;
+    --ms-flow-blockquote-indent: 0.9em;
     --ms-flow-table-y: 0.7em;
     --ms-flow-hr-y: 0.9em;
     --ms-flow-admonition-y: 0.7em;
@@ -572,6 +512,12 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       margin-top: var(--ms-flow-list-y);
       margin-bottom: var(--ms-flow-list-y);
       padding-left: var(--ms-flow-list-indent);
+    }
+
+    // markstream 假定宿主有 Preflight，只覆写了 margin-top/bottom；浏览器默认给 blockquote
+    // 加 40px margin-inline，导致左竖线相对正文整体右移。归零水平外边距，仅保留左 padding 缩进
+    .blockquote {
+      margin-inline: 0;
     }
 
     // ===== markstream-vue 主题 token 适配 =====
@@ -994,64 +940,13 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     gap: 4px;
   }
 
-  // 工具数据区（参数 / 结果 / 视图）：人读视图，字段行而不是整块 JSON
+  // 工具数据块（参数 / 结果 / 视图）：浅底圆角等宽文本块
   @include m.e(tool-data) {
-    & + & {
-      margin-top: fn.use-var(gap, small);
-    }
-
-    @include m.is(error) {
-      .u-#{$root-name}__tool-data-title {
-        color: fn.use-var(color, danger);
-      }
-    }
-  }
-
-  @include m.e(tool-data-head) {
-    @include m.flex(flex, flex-start, center);
-    gap: 6px;
-    margin-bottom: 4px;
-  }
-
-  @include m.e(tool-data-title) {
-    color: fn.use-var(text-color, assist);
-    flex-shrink: 0;
-  }
-
-  // 结构量级提示（3 项 / 12 行）：一眼看出结果规模
-  @include m.e(tool-data-shape) {
-    flex-shrink: 0;
-    color: fn.use-var(text-color, placeholder);
-    font-variant-numeric: tabular-nums;
-  }
-
-  @include m.e(tool-data-raw-toggle) {
-    flex-shrink: 0;
-    margin-left: auto;
-    padding: 0 4px;
-    border: none;
-    border-radius: fn.use-var(radius, small);
-    background: none;
-    color: fn.use-var(text-color, assist);
-    font-family: inherit;
-    font-size: inherit;
-    line-height: 1.6;
-    cursor: pointer;
-    transition:
-      color 0.15s ease,
-      background-color 0.15s ease;
-
-    &:hover {
-      color: fn.use-var(color, primary);
-      background-color: fn.use-var(color, primary, 'light-9');
-    }
-  }
-
-  @include m.e(tool-data-raw) {
     margin: 0;
     padding: 4px fn.use-var(gap, small);
     border-radius: fn.use-var(radius, small);
     background-color: fn.use-var(bg-color, bottom);
+    color: fn.use-var(text-color, main);
     font-family: $mono-font;
     font-size: fn.use-var(font-size-main, small);
     line-height: 1.5;
@@ -1059,300 +954,114 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     word-break: break-all;
     max-height: 200px;
     overflow: auto;
-  }
 
-  // 字段行：标签左对齐定宽、值占右侧，长内容在值区折行
-  @include m.e(tool-data-fields) {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+    & + & {
+      margin-top: fn.use-var(gap, small);
+    }
 
-    // 嵌套字段加一条极淡引导线，层级不靠缩进硬撑
-    @include m.is(nested) {
-      padding-left: fn.use-var(gap, small);
-      border-left: 1px solid fn.use-var(border-color);
+    @include m.is(error) {
+      color: fn.use-var(color, danger);
     }
   }
 
-  // 字段行：行布局与下方列表项共用，这里只补较松的行高（长内容在值区折行）
-  @include m.e(tool-data-field) {
-    line-height: 1.6;
-  }
-
-  @include m.e(tool-data-key) {
-    flex-shrink: 0;
-    max-width: 40%;
-    @include m.ellipsis;
-    color: fn.use-var(text-color, assist);
-  }
-
-  @include m.e(tool-data-field-value) {
-    flex: 1;
-    min-width: 0;
-    color: fn.use-var(text-color, main);
-    word-break: break-word;
-  }
-
-  @include m.e(tool-data-value) {
-    color: fn.use-var(text-color, main);
-
-    @include m.is(muted) {
-      color: fn.use-var(text-color, placeholder);
-    }
-
-    @include m.is(number) {
-      font-variant-numeric: tabular-nums;
-    }
-
-    @include m.is(bool) {
-      color: fn.use-var(text-color, second);
-    }
-  }
-
-  // 纯文本值：多行内容保留换行，路径/命令按等宽展示
-  @include m.e(tool-data-text) {
-    margin: 0;
-    font-family: inherit;
-    font-size: inherit;
-    line-height: 1.6;
-    white-space: pre-wrap;
-    word-break: break-word;
-    color: fn.use-var(text-color, main);
-
-    @include m.is(code) {
-      font-family: $mono-font;
-      font-size: fn.use-var(font-size-main, small);
-    }
-  }
-
-  // 标量数组（文件列表、标签等）压成 chips，比逐行列表省一半高度
-  @include m.e(tool-data-chips) {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-  }
-
-  @include m.e(tool-data-chip) {
-    max-width: 100%;
-    @include m.ellipsis;
-    padding: 0 6px;
-    border-radius: fn.use-var(radius, small);
-    background-color: fn.use-var(bg-color, bottom);
-    color: fn.use-var(text-color, second);
-    font-size: fn.use-var(font-size-main, small);
-    line-height: 1.7;
-  }
-
-  // 对象数组：序号 + 内容，避免 [0] / [1] 这类下标噪声
-  @include m.e(tool-data-list) {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  // 字段行与列表项共用：基线对齐的紧凑单行布局
-  #{fn.bem($root-name, 'tool-data-field')},
-  #{fn.bem($root-name, 'tool-data-list-item')} {
-    display: flex;
-    align-items: baseline;
-    gap: fn.use-var(gap, small);
-    min-width: 0;
-  }
-
-  @include m.e(tool-data-list-index) {
-    flex-shrink: 0;
-    min-width: 14px;
-    color: fn.use-var(text-color, placeholder);
-    font-size: fn.use-var(font-size-main, small);
-    font-variant-numeric: tabular-nums;
-    text-align: right;
-  }
-
-  @include m.e(tool-data-list-body) {
-    flex: 1;
-    min-width: 0;
-  }
-
-  // 会话导航：贴消息区左缘的刻度条，平时只有细刻度，hover 展开目录
+  // 会话导航：贴消息区左缘的圆点指示器，hover 单点展示该轮问答摘要
   @include m.e(navigator) {
     position: absolute;
     top: 50%;
-    // 落在 800px 内容列左侧的留白里：留出刻度条自身宽度与间距，避免压住正文
-    left: max(0px, calc(50% - 400px - 44px));
+    // 宽列落在 800px 内容列左侧留白；窄列贴在 16px 内边距内侧，不压住正文
+    left: max(2px, calc(50% - 400px - 22px));
     transform: translateY(-50%);
     z-index: 2;
     display: flex;
-    align-items: center;
-  }
-
-  @include m.e(navigator-rail) {
-    display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 3px;
-    padding: 6px 5px;
-    border-radius: 999px;
-    background-color: transparent;
-    transition: background-color 0.2s ease;
-  }
-
-  // 刻度是横线：默认短刻度，激活与悬停项变长（宽度过渡），当前项一眼可辨
-  @include m.e(navigator-tick) {
-    display: flex;
     align-items: center;
-    justify-content: flex-start;
-    width: 8px;
-    // 横线本体仅 2px 高，纵向 padding 撑大命中区（横向不外扩，避免压到正文）
-    padding: 5px 0;
-    border: none;
-    background: none;
-    cursor: pointer;
-    transition: width 0.2s ease;
-
-    // 悬停与当前项：变长并转主题色
-    &:hover,
-    &.is-active {
-      width: 20px;
-
-      .u-#{$root-name}__navigator-tick-line {
-        background-color: fn.use-var(color, primary);
-        opacity: 1;
-      }
-    }
-
-    // 已读项略淡，形成「读到哪了」的进度感
-    &.is-read .u-#{$root-name}__navigator-tick-line {
-      opacity: 0.4;
-    }
-
-    // 减少动态效果时：长度直接切换，不做宽度动画
-    @media (prefers-reduced-motion: reduce) {
-      transition: none;
-    }
-  }
-
-  @include m.e(navigator-tick-line) {
-    display: block;
-    width: 100%;
-    height: 2px;
-    border-radius: 999px;
-    background-color: fn.use-var(text-color, assist);
-    opacity: 0.65;
-    transition:
-      background-color 0.18s ease,
-      opacity 0.18s ease;
-  }
-
-  // 展开目录：出现在刻度右侧，卡片形态与侧面板一致
-  @include m.e(navigator-panel) {
-    position: absolute;
-    left: 100%;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 248px;
-    margin-left: 4px;
-    padding: 6px;
-    border-radius: fn.use-var(radius, large);
-    background-color: fn.use-var(bg-color, top);
-    box-shadow: fn.use-var(shadow, lg);
-  }
-
-  @include m.e(navigator-panel-head) {
-    @include m.flex(flex, space-between, center);
-    padding: 2px 6px 6px;
-    color: fn.use-var(text-color, assist);
-    font-size: fn.use-var(font-size-main, small);
-  }
-
-  @include m.e(navigator-panel-title) {
-    color: fn.use-var(text-color, second);
-    font-weight: 500;
-  }
-
-  @include m.e(navigator-panel-count) {
-    font-variant-numeric: tabular-nums;
-  }
-
-  @include m.e(navigator-list) {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    max-height: 320px;
-    overflow: auto;
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    scrollbar-width: none;
-
-    &::-webkit-scrollbar {
-      width: 0;
-    }
+    gap: 2px;
   }
 
   @include m.e(navigator-item) {
-    @include m.flex(flex, flex-start, center);
-    gap: 6px;
-    width: 100%;
-    padding: 4px 6px;
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  @include m.e(navigator-dot) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    padding: 0;
     border: none;
-    border-radius: fn.use-var(radius, small);
     background: none;
-    color: fn.use-var(text-color, second);
-    font-family: inherit;
-    font-size: fn.use-var(font-size-main, small);
-    text-align: left;
     cursor: pointer;
-    transition:
-      background-color 0.15s ease,
-      color 0.15s ease;
 
-    &:hover {
-      background-color: fn.use-var(bg-color, hover);
-      color: fn.use-var(text-color, main);
+    &::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: fn.use-var(text-color, assist);
+      opacity: 0.5;
+      transition:
+        background-color 0.15s ease,
+        opacity 0.15s ease;
     }
 
-    @include m.is(active) {
-      color: fn.use-var(color, primary);
-      background-color: fn.use-var(color, primary, 'light-9');
+    &:hover::before,
+    &:focus-visible::before,
+    &.is-active::before {
+      background-color: fn.use-var(color, primary);
+      opacity: 1;
+    }
+
+    // 已读轮次略淡，保留轻量的阅读进度感
+    &.is-read::before {
+      opacity: 0.28;
     }
   }
 
-  @include m.e(navigator-item-index) {
-    flex-shrink: 0;
-    min-width: 12px;
-    color: fn.use-var(text-color, placeholder);
-    font-variant-numeric: tabular-nums;
+  // 单点悬浮摘要：紧贴圆点右侧显示该轮提问与回答的前面部分
+  @include m.e(navigator-tooltip) {
+    position: absolute;
+    left: calc(100% + 6px);
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    width: max-content;
+    max-width: 240px;
+    padding: 6px 10px;
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, top);
+    box-shadow: fn.use-var(shadow, lg);
+    font-size: fn.use-var(font-size-main, small);
+    line-height: 1.45;
   }
 
-  @include m.e(navigator-item-text) {
-    flex: 1;
+  @include m.e(navigator-tooltip-row) {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
     min-width: 0;
-    @include m.ellipsis;
   }
 
-  @include m.em(navigator, 'fade-enter-active') {
-    transition:
-      opacity 0.16s ease,
-      transform 0.16s ease;
+  @include m.e(navigator-tooltip-label) {
+    flex-shrink: 0;
+    color: fn.use-var(text-color, placeholder);
   }
 
-  @include m.em(navigator, 'fade-leave-active') {
-    transition:
-      opacity 0.1s ease,
-      transform 0.1s ease;
+  @include m.e(navigator-tooltip-q) {
+    min-width: 0;
+    color: fn.use-var(text-color, main);
+    word-break: break-word;
   }
 
-  @include m.em(navigator, 'fade-enter-from') {
-    opacity: 0;
-    transform: translateY(-50%) translateX(-4px);
-  }
-
-  @include m.em(navigator, 'fade-leave-to') {
-    opacity: 0;
-    transform: translateY(-50%) translateX(-4px);
+  @include m.e(navigator-tooltip-a) {
+    min-width: 0;
+    color: fn.use-var(text-color, second);
+    word-break: break-word;
   }
 
   // 思考图标：主星呼吸 + 副星错相闪烁；静止时是干净的四角星
@@ -1418,12 +1127,24 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
   }
 
-  // 提问工具（分页向导）
+  // 提问工具（外层回复流独立卡片：作答与已提交摘要均常驻可见）
   @include m.e(ask-question) {
     display: flex;
     flex-direction: column;
     gap: fn.use-var(gap, small);
+    padding: fn.use-var(gap, default);
+    border-radius: fn.use-var(radius, large);
+    background-color: fn.use-var(bg-color, top);
+    box-shadow: fn.use-var(shadow, sm);
     font-size: fn.use-var(font-size-main, small);
+    outline: none;
+
+    .u-#{$root-name}__tool-call & {
+      padding: 0;
+      border-radius: 0;
+      background-color: transparent;
+      box-shadow: none;
+    }
   }
 
   @include m.e(ask-question-progress) {
@@ -1451,110 +1172,217 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
 
     @include m.is(current) {
-      box-shadow: 0 0 0 3px fn.use-var(color, primary, 'light-7');
+      box-shadow: 0 0 0 3px fn.color-a(color, 28, primary);
     }
   }
 
   @include m.e(ask-question-q) {
     @include m.flex(flex, flex-start, center);
-    gap: fn.use-var(gap, small);
+    flex-wrap: wrap;
+    gap: 6px;
     color: fn.use-var(text-color, title);
     font-weight: 500;
     line-height: 1.5;
   }
 
-  @include m.e(ask-question-no) {
+  // 题号徽标（作答题干与结果摘要共用）
+  #{fn.bem($root-name, 'ask-question-no')},
+  #{fn.bem($root-name, 'ask-question-result-no')} {
     flex-shrink: 0;
     width: 18px;
     height: 18px;
-    border-radius: 50%;
+    border-radius: fn.use-var(radius, small);
     @include m.flex(flex, center, center);
-    background-color: fn.use-var(color, primary, 'light-9');
+    background-color: fn.color-a(color, 11, primary);
     color: fn.use-var(color, primary);
     font-size: 11px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  // 分类标签 / 多选标注 / 推荐徽标：共用紧凑胶囊样式
+  #{fn.bem($root-name, 'ask-question-tag')},
+  #{fn.bem($root-name, 'ask-question-mode')},
+  #{fn.bem($root-name, 'ask-question-badge')} {
+    flex-shrink: 0;
+    padding: 0 6px;
+    border-radius: fn.use-var(radius, small);
+    background-color: fn.color-a(color, 11, primary);
+    color: fn.use-var(color, primary);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.65;
+  }
+
+  @include m.e(ask-question-tag) {
+    background-color: fn.use-var(bg-color, bottom);
+    color: fn.use-var(text-color, second);
   }
 
   @include m.e(ask-question-options) {
     display: flex;
     flex-direction: column;
-    gap: fn.use-var(gap, small);
+    gap: 6px;
   }
 
   @include m.e(ask-question-opt) {
-    @include m.flex(flex, flex-start, center);
+    @include m.flex(flex, flex-start, flex-start);
     gap: fn.use-var(gap, small);
+    width: 100%;
     padding: fn.use-var(gap, small) fn.use-var(gap, default);
-    border: fn.use-var(border-muted);
+    border: none;
     border-radius: fn.use-var(radius, default);
-    background: none;
+    background-color: fn.use-var(bg-color, bottom);
     cursor: pointer;
     text-align: left;
     color: fn.use-var(text-color, main);
     font-size: inherit;
     font-family: inherit;
     line-height: 1.5;
-    transition:
-      border-color 0.2s,
-      background-color 0.2s;
+    outline: none;
+    transition: background-color 0.15s ease;
 
     &:hover {
-      border-color: fn.use-var(color, primary);
+      background-color: fn.use-var(bg-color, hover);
     }
 
     @include m.is(selected) {
-      border-color: fn.use-var(color, primary);
-      background-color: fn.use-var(color, primary, 'light-9');
+      background-color: fn.color-a(color, 16, primary);
+    }
+
+    .u-checkbox {
+      flex-shrink: 0;
+      height: 20px;
+      align-items: center;
     }
   }
 
-  @include m.e(ask-question-glyph) {
+  // 单选序号（1, 2, 3, 4）
+  @include m.e(ask-question-num) {
     flex-shrink: 0;
-    position: relative;
-    width: 14px;
-    height: 14px;
-    border-radius: 50%;
-    border: fn.use-var(border-muted);
-    transition: border-color 0.2s;
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    border-radius: fn.use-var(radius, small);
+    background-color: fn.use-var(bg-color, middle);
+    color: fn.use-var(text-color, second);
+    font-size: 11px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    @include m.flex(flex, center, center);
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
 
     @include m.is(selected) {
-      border-color: fn.use-var(color, primary);
-
-      &::after {
-        content: '';
-        position: absolute;
-        inset: 3px;
-        border-radius: 50%;
-        background-color: fn.use-var(color, primary);
-      }
+      background-color: fn.use-var(color, primary);
+      color: fn.use-var(text-color, white);
     }
+  }
+
+  @include m.e(ask-question-opt-body) {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  @include m.e(ask-question-opt-title) {
+    @include m.flex(flex, flex-start, center);
+    flex-wrap: wrap;
+    gap: 6px;
+    color: fn.use-var(text-color, main);
+    font-weight: 500;
+  }
+
+  @include m.e(ask-question-opt-desc) {
+    color: fn.use-var(text-color, assist);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  // 内联自定义输入行：无边框浅底，聚焦或非空时背景反馈
+  @include m.e(ask-question-custom) {
+    @include m.flex(flex, flex-start, center);
+    gap: fn.use-var(gap, small);
+    padding: 5px fn.use-var(gap, default);
+    border: none;
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, bottom);
+    transition: background-color 0.15s ease;
+
+    &:focus-within {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    @include m.is(active) {
+      background-color: fn.color-a(color, 16, primary);
+    }
+
+    .u-checkbox {
+      flex-shrink: 0;
+      height: 20px;
+      align-items: center;
+    }
+  }
+
+  @include m.e(ask-question-input) {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: fn.use-var(text-color, main);
+    font-family: inherit;
+    font-size: inherit;
+    line-height: 1.5;
+
+    &::placeholder {
+      color: fn.use-var(text-color, placeholder);
+    }
+  }
+
+  @include m.e(ask-question-enter-hint) {
+    flex-shrink: 0;
+    color: fn.use-var(color, primary);
+    font-size: 11px;
   }
 
   @include m.e(ask-question-actions) {
-    @include m.flex(flex, flex-end, center);
+    @include m.flex(flex, flex-start, center);
     gap: fn.use-var(gap, small);
+  }
+
+  @include m.e(ask-question-actions-spacer) {
+    flex: 1;
+  }
+
+  @include m.e(ask-question-head) {
+    @include m.flex(flex, flex-start, center);
+    gap: 6px;
+    color: fn.use-var(text-color, assist);
+    font-weight: 500;
+  }
+
+  @include m.e(ask-question-head-icon) {
+    color: fn.use-var(color, primary);
+    font-size: 14px;
   }
 
   @include m.e(ask-question-result) {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    padding: 6px fn.use-var(gap, small);
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, bottom);
   }
 
   @include m.e(ask-question-result-q) {
     @include m.flex(flex, flex-start, center);
+    flex-wrap: wrap;
     gap: 6px;
-    color: fn.use-var(text-color, assist);
-  }
-
-  @include m.e(ask-question-result-no) {
-    flex-shrink: 0;
-    width: 16px;
-    height: 16px;
-    border-radius: 50%;
-    @include m.flex(flex, center, center);
-    background-color: fn.use-var(color, primary, 'light-9');
-    color: fn.use-var(color, primary);
-    font-size: 11px;
+    color: fn.use-var(text-color, second);
   }
 
   @include m.e(ask-question-result-a) {
@@ -1562,12 +1390,8 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     line-height: 1.5;
   }
 
-  @include m.e(ask-question-chip) {
-    display: inline-block;
-    padding: 2px fn.use-var(gap, small);
-    border-radius: fn.use-var(radius, default);
-    background-color: fn.use-var(color, primary, 'light-9');
-    color: fn.use-var(color, primary);
+  @include m.e(ask-question-skipped) {
+    color: fn.use-var(text-color, placeholder);
   }
 
   @include m.e(ask-question-status) {
@@ -1638,7 +1462,7 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
     &:hover {
       color: fn.use-var(color, primary);
-      background-color: fn.use-var(color, primary, 'light-9');
+      background-color: fn.color-a(color, 11, primary);
     }
 
     @include m.m(primary) {
@@ -1698,14 +1522,10 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
   }
 
-  // session 提问：与输入区同宽卡片
+  // session 提问：与输入区同宽卡片（卡片视觉由内部 ask-question 统一承担）
   @include m.e(session-question) {
     @include bounded-column;
     margin-bottom: 4px;
-    border-radius: fn.use-var(radius, default);
-    background-color: fn.use-var(bg-color, top);
-    box-shadow: fn.use-var(shadow, sm);
-    padding: fn.use-var(gap, small);
   }
 
   // 无 callId 的审批横幅（浮动确认卡）
@@ -1831,13 +1651,24 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     color: fn.use-var(text-color, assist);
   }
 
-  @include m.e(input-attach) {
-    color: fn.use-var(text-color, assist);
-    cursor: pointer;
-    font-size: 18px;
+  @include m.e(plus-trigger) {
+    @include m.flex(inline-flex, center, center);
     flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background-color: fn.use-var(bg-color, middle);
+    color: fn.use-var(text-color, second);
+    font-size: 15px;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
 
     &:hover {
+      background-color: fn.use-var(bg-color, hover);
       color: fn.use-var(color, primary);
     }
   }
@@ -1916,28 +1747,110 @@ $mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   @include m.e(input-attachment) {
     position: relative;
-    width: 48px;
     height: 48px;
     border-radius: fn.use-var(radius, default);
     overflow: hidden;
     border: fn.use-var(border-muted);
+    box-sizing: border-box;
 
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
+    @include m.is(image) {
+      width: 48px;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        cursor: pointer;
+        transition: opacity 0.15s ease;
+
+        &:hover {
+          opacity: 0.88;
+        }
+      }
     }
+
+    @include m.is(file) {
+      @include m.flex(flex, flex-start, center);
+      gap: fn.use-var(gap, small);
+      max-width: 220px;
+      padding: 0 22px 0 fn.use-var(gap, small);
+      background-color: fn.use-var(bg-color, bottom);
+    }
+  }
+
+  @include m.e(attachment-file-icon) {
+    flex-shrink: 0;
+    font-size: 24px;
+  }
+
+  @include m.e(attachment-file-meta) {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  @include m.e(attachment-file-name) {
+    @include m.ellipsis;
+    font-size: fn.use-var(font-size-main, small);
+    color: fn.use-var(text-color, main);
+    line-height: 1.25;
+  }
+
+  @include m.e(attachment-file-size) {
+    font-size: 11px;
+    color: fn.use-var(text-color, assist);
+    line-height: 1.2;
   }
 
   @include m.e(input-attachment-remove) {
     position: absolute;
-    top: 0;
-    right: 0;
+    top: 2px;
+    right: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
     background-color: fn.color-a(shadow, 52, color);
     color: fn.use-var(text-color, white);
     cursor: pointer;
-    font-size: 12px;
+    font-size: 11px;
+    @include m.flex(inline-flex, center, center);
+  }
+}
+
+// 加号选项面板经 teleport 挂载到 popper 容器，需独立定义
+.u-#{$root-name}__plus-panel {
+  padding: 4px;
+  user-select: none;
+
+  .u-file-picker {
+    display: block;
+  }
+
+  .u-#{$root-name}__plus-option {
+    @include m.flex(flex, flex-start, center);
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: calc(fn.use-var(radius, default) + 1px);
+    font-size: fn.use-var(font-size-main, small);
+    color: fn.use-var(text-color, main);
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+    }
+  }
+
+  .u-#{$root-name}__plus-option-icon {
+    flex-shrink: 0;
+    font-size: 15px;
+    color: fn.use-var(text-color, second);
   }
 }
 

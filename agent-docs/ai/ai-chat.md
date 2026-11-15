@@ -1,6 +1,6 @@
 ---
 title: UAiChat AI 对话组件
-description: '@veltra/ai 的 AI 对话组件：必填 transport 接入任意 OpenAI 兼容或自定义后端，内置流式打字机消息列表、工具调用卡片与侧边面板、待发送队列、模型/推理等级选择器、图片附件与 token 用量展示。'
+description: '@veltra/ai 的 AI 对话组件：必填 transport 接入任意 OpenAI 兼容或自定义后端，内置流式打字机消息列表、工具调用卡片与侧边面板、待发送队列、模型/推理等级选择器、多类型附件上传（图片预览/粘贴与本地文本解析）与 token 用量展示。'
 aliases: [AiChat, ai-chat, AI 对话, 聊天组件, Chat]
 keywords:
   [
@@ -19,7 +19,9 @@ keywords:
     待发送队列,
     needsConfirm,
     welcome,
-    图片附件,
+    附件上传,
+    图片预览,
+    剪贴板粘贴,
     模型选择,
     推理等级,
     reasoningLevel,
@@ -31,7 +33,7 @@ keywords:
 
 # UAiChat AI 对话组件
 
-`@veltra/ai` 导出 Vue 组件 `UAiChat`：一层完整对话 UI，覆盖消息列表、流式打字机输出、思考过程展示、工具调用编排（确认、侧边面板）、待发送队列、模型/推理等级选择器与图片附件。`transport` 必填。自绘 UI 的无头场景改用同包 `useChat`（见 `use-chat.md`），`UAiChat` 内部即调用它。
+`@veltra/ai` 导出 Vue 组件 `UAiChat`：一层完整对话 UI，覆盖消息列表、流式打字机输出、思考过程展示、工具调用编排（确认、侧边面板）、待发送队列、模型/推理等级选择器与多类型附件上传（图片发送、点击预览与剪贴板粘贴，非图片本地读取解析）。`transport` 必填。自绘 UI 的无头场景改用同包 `useChat`（见 `use-chat.md`），`UAiChat` 内部即调用它。
 
 ## 快速上手
 
@@ -64,8 +66,8 @@ const transport = createOpenAITransport({
 ## API 签名
 
 ```ts
-import type { Component } from 'vue'
 import type { ChatSessionTransport } from '@veltra/ai'
+import type { Component } from 'vue'
 
 export interface AiChatProps {
   /** 传输层（必填）；函数型 ChatTransport 或 kind: 'session' 会话对象 */
@@ -88,7 +90,7 @@ export interface AiChatProps {
   welcome?: string | string[]
   /** 输入框占位文本 */
   placeholder?: string
-  /** 附件 accept 类型，默认 'image/*' */
+  /** 附件 accept 类型（缺省不限制文件类型） */
   accept?: string
   /** 单个附件最大字节数，默认 10485760（10MB） */
   maxAttachmentSize?: number
@@ -118,7 +120,7 @@ export interface AiChatEmits {
 }
 
 // 插槽（defineSlots 内联声明，无同名导出类型）：
-//   #welcome       —— 空闲欢迎区插槽（工作中活体球跳到列表末尾），无作用域参数
+//   #welcome       —— 空闲欢迎区插槽（工作中自动切换原位工作态），无作用域参数
 //   #tool-<工具名> —— 自定义工具结果展示，作用域槽参数 { toolCall: ChatToolCall }
 
 /** 模板引用上可直接访问的暴露成员；defineExpose 的 Ref 已解包（chatRef.value?.tokenUsage 即值，无需再 .value） */
@@ -163,12 +165,13 @@ export interface ChatMessage {
   status?: 'streaming' | 'done' | 'error' | 'aborted'
 }
 
-/** 聊天附件（首版仅支持图片）：dataUrl 为 base64 data URL */
+/** 聊天附件（支持图片与任意文件）：图片带 dataUrl；非图片在本地解析 textContent，dataUrl 为空串 */
 export interface ChatAttachment {
   name: string
   mimeType: string
   size: number
   dataUrl: string
+  textContent?: string
 }
 
 /** 队列中的待发送消息 */
@@ -191,7 +194,13 @@ export interface ChatTokenUsage {
 }
 
 /** 工具调用状态 */
-export type ToolCallStatus = 'pending' | 'awaiting-confirm' | 'running' | 'success' | 'error' | 'rejected'
+export type ToolCallStatus =
+  | 'pending'
+  | 'awaiting-confirm'
+  | 'running'
+  | 'success'
+  | 'error'
+  | 'rejected'
 
 /** 一次工具调用 */
 export interface ChatToolCall {
@@ -231,6 +240,8 @@ export interface ChatTool<A = any> {
   panelTitle?: string | ((toolCall: ChatToolCall) => string)
   /** 执行完成后是否自动折叠（缺省规则见本节末尾） */
   autoCollapse?: boolean
+  /** 是否从可折叠步骤行（「执行了 N 个步骤」）中隐藏；适合已用 renderTo: 'reply' 外层交互渲染的工具 */
+  hideInSteps?: boolean
   /** 终结工具：执行成功后对话即结束（发 finish），结果不再回灌模型；失败/被拒绝仍回灌 */
   terminal?: boolean
   /** 工具实现；args 为 JSON.parse(arguments)，返回值 JSON 序列化后回灌模型 */
@@ -247,6 +258,7 @@ export interface ChatToolMeta {
   panelWidth?: number
   panelTitle?: string | ((toolCall: ChatToolCall) => string)
   autoCollapse?: boolean
+  hideInSteps?: boolean
 }
 
 /** render 组件 / tool-<name> 插槽收到的 props：toolCall 含 status/arguments/result/error，实时更新 */
@@ -326,7 +338,7 @@ export type ChatTransport = (
 | `reasoningLevel`    | `string`                                | —                                            |  否  | `v-model:reasoning-level`；切换模型时校正：无 levels 清空，非法值落到 `defaultReasoningLevel` 或首项                                                                 |
 | `welcome`           | `string \| string[]`                    | —                                            |  否  | 字符串按单项处理；未传或为空时仅显示活体球，不带快捷提问                                                                                                             |
 | `placeholder`       | `string`                                | `'输入消息，Enter 发送，Shift + Enter 换行'` |  否  | 生成中占位文案固定为「会话进行中，发送的消息将进入待发送队列」                                                                                                       |
-| `accept`            | `string`                                | `'image/*'`                                  |  否  | 透传文件选择的 accept，仅支持图片附件                                                                                                                                |
+| `accept`            | `string`                                | `—`（不限制）                                |  否  | 透传文件选择的 accept，缺省支持任意附件；图片读取为 dataUrl 并可点击预览，非图片在本地提取文本上下文                                                                 |
 | `maxAttachmentSize` | `number`                                | `10485760`                                   |  否  | 字节；超限忽略该文件并 `console.warn('[UAiChat] 附件 <name> 超过大小限制，已忽略')`                                                                                  |
 | `rendererProps`     | `Record<string, unknown>`               | —                                            |  否  | 透传 markstream-vue 的 `MarkdownRender`（mermaid/katex 等需宿主自装 peer 并经此打开）                                                                                |
 | `tokenUsageDetail`  | `boolean`                               | `false`                                      |  否  | 为 true 时用量环明细面板再列有数据的缓存命中/未命中；接口无 usage 时不显示用量环                                                                                     |
@@ -362,15 +374,15 @@ export type ChatTransport = (
 - 模型与推理：输入栏右簇的模型选择器为扁平列表，面板向上弹出（适配输入框贴底布局），列表超高时内部滚动。当前模型可选推理等级 ≥2 档时，模型选择器旁显示独立的推理等级选择器；切换模型时等级自动校正（无等级清空、非法值落 `defaultReasoningLevel` 或首档）。
 - 清除：输入栏左侧清除按钮带 `UPopConfirm` 二次确认（文案「清空当前对话？进行中的生成将被中止。」）；仅在有消息、有队列或生成中可点。
 - 重新生成：最后一条 assistant 进入 `done` / `error` / `aborted` 终态后，在其下方提供复制 / 重新生成操作。
-- 欢迎区：默认为活体球 + 快捷提问；多条每 4000ms 轮换，点文案即发送，点球立即换下一条并重置计时。
-- 生成中活体球跳到列表末尾，结束后停留 2500ms 跳回；工具调用失败自动播 `frustrated` 表情，收尾按终态播表情（`done` → `happy`，`error` → `frustrated`，中断只停留）。
-- 工作计时：生成中列表末尾「工作中…」旁逐秒跳动计时；结束后在该轮答案的复制 / 重新生成操作区左侧显示「用时 Xs」（整秒，≥60s 显示 `Xm Ys`）。仅实时生成的轮次有计时，历史回放不显示；重新生成后更新为本轮新用时。
+- 欢迎区 / 吉祥物状态：活体球常驻在列表外、输入框上方待在原位（不进入对话列表）；空闲时展示快捷提问（多条每 4000ms 轮换，点文案即发送，点球立即换下一条并重置计时）。生成中原位切换为工作态（`thinking` / `speaking` 状态与「工作中…」提示），工具调用失败自动播 `frustrated` 表情，结束后在原位停留 2500ms 播完终态表情（`done` → `happy`，`error` → `frustrated`，中断只停留）再恢复欢迎语。
+- 工作计时：生成中吉祥物旁「工作中…」逐秒跳动计时；结束后除在原位停留期间展示用时外，同时在该轮答案的复制 / 重新生成操作区左侧显示「用时 Xs」（整秒，≥60s 显示 `Xm Ys`）。仅实时生成的轮次有计时，历史回放不显示；重新生成后更新为本轮新用时。
 - 流式输出默认吸底滚动；用户上翻立即取消吸底，此时列表下方出现圆形向下箭头悬浮按钮，点击回到底部。
-- 过程编排（步骤行）：一轮对话中文字回答之前的思考与工具调用压缩为一个固定高度（30px）的「步骤行」。生成中行内实时展示当前执行中的步骤——思考步显示四角星图标 + `思考中…` + 最新一行思考预览，工具步显示工具图标 + 工具名 + 参数摘要；开始新步骤时行内视图以走马灯效果从下往上切换。一旦出现文字回答，该段即闭合定格为完成态（`执行了 N 个步骤`，落定态无 hover 高亮、展开箭头紧跟文案，出错 / 中止分别为 `出错了` / `已停止`，着危险色），之后的步骤在新一行继续。点击步骤行展开该段全部步骤列表（思考块 + 工具卡片），再点收起；当前工具待确认（`awaiting-confirm`）或有内联 `render` / `tool-<name>` 插槽 UI（如内置提问表单）时自动展开，用户手动切换过后不再自动变化。轮内最后一条 assistant 无正文且已终态时，状态行与复制 / 重新生成操作区落在步骤行下方。`renderTo: 'reply'` 的工具：自定义渲染（`render` / `tool-<name>` 插槽）作为消息块渲染在该段步骤行之后、段末文字回答之前，live 期间实时渲染进度 / 错误，落定后不随步骤行折叠；步骤行仍保留其过程条目，展开列表只回溯默认参数 / 结果视图（不重复渲染自定义内容）；未提供 `render` / 插槽时回复流兜底渲染标准工具卡片（有结果后才出现）。
+- 过程编排（步骤行）：一轮对话中文字回答之前的思考与工具调用压缩为一个固定高度（30px）的「步骤行」。生成中行内实时展示当前执行中的步骤——思考步显示四角星图标 + `思考中…` + 最新一行思考预览，工具步显示工具图标 + 工具名 + 参数摘要；开始新步骤时行内视图以走马灯效果从下往上切换。一旦出现文字回答，该段即闭合定格为完成态（`执行了 N 个步骤`，落定态无 hover 高亮、展开箭头紧跟文案，出错 / 中止分别为 `出错了` / `已停止`，着危险色），之后的步骤在新一行继续。点击步骤行展开该段全部步骤列表（思考块 + 工具卡片），再点收起；当前工具待确认（`awaiting-confirm`）或有卡片内内联 `render` / `tool-<name>` 插槽 UI 时自动展开，用户手动切换过后不再自动变化。轮内最后一条 assistant 无正文且已终态时，状态行与复制 / 重新生成操作区落在步骤行下方。`renderTo: 'reply'` 的工具：自定义渲染（`render` / `tool-<name>` 插槽）作为消息块直接渲染在回复流外层（步骤行之后、段末文字回答之前），live 期间实时渲染进度 / 表单，落定后不随步骤行折叠；默认步骤行仍保留过程条目（展开回溯默认参数 / 结果视图），若同时设 `hideInSteps: true`（如内置 `askQuestion` 提问工具），则不进入步骤行列表，避免与外层回复流重复展示；未提供 `render` / 插槽时回复流兜底渲染标准工具卡片（有结果后才出现）。
 - 思考过程折叠块（在展开的步骤列表内）：折叠头是四角星图标（思考中主星呼吸旋转 + 副星错相闪烁，静止为干净四角星）+ 标题（`思考中…` / `思考了 12s` / `思考过程`，亚秒级不报耗时；耗时按消息 id 记忆，折叠卸载重挂载不丢失）+ 最新一行思考；点击头部展开完整内容（限高 220px，区内可滚动）。
-- 工具卡片默认折叠（含进行中）：折叠头为「图标 + 工具名 + 参数摘要（如 `src/a.ts`、`git status`）」。展开后的参数 / 结果 / `view` 走人读视图而不是原始 JSON——对象逐行「人读键名 + 值」、标量数组压成 chips、对象数组带序号、字符串里的 JSON 自动展开、路径 / 命令 / 多行文本用等宽。去噪规则：单标量参数已被头部摘要完整覆盖时省去「参数」区；结果里同键同值回显入参的字段剔除（如计算器返回 `{expression, result}` 只显示 `result`）；剩余单个通用值键（`result` / `output` / `value` / `data` 等）的标量结果直出值本身，不再罗列键名行；结果全部是回显或空内容时整区省去。降级入口：每块右上角「原始」可切回模型原文（纯文本超长改「展开」看全文）。自动展开的例外：`awaiting-confirm` 待确认且 body 有内容、有内联 `render` 或 `tool-<name>` 插槽的进行中调用（如内置提问表单；`renderTo` 为 `reply` / `panel` 的自定义渲染不在卡片 body 内，不触发自动展开）、`terminal` 终结工具（答复 UI 即卡片内容）。用户手动切换过折叠态后不再随状态自动变化。侧边面板（`renderTo: 'panel'`）头部带全屏放大 / 还原按钮：全屏时铺满整个组件区域（含输入区），还原回到右侧列，切换聚焦的调用时自动退出全屏。
+- 工具卡片默认折叠（含进行中）：折叠头为「图标 + 工具名 + 参数摘要（如 `src/a.ts`、`git status`、提问首题文案）」。展开后的参数 / 结果 / 错误 / `view` 直接以浅底圆角等宽文本块展示原始数据（不渲染「参数 / 结果 / 错误 / 视图」标题行，错误块着危险色）；单标量参数或空参数已被头部摘要完整覆盖时省去参数块。自动展开的例外：`awaiting-confirm` 待确认且 body 有内容、有卡片内 `render` 或 `tool-<name>` 插槽的进行中调用（`renderTo` 为 `reply` / `panel` 的自定义渲染不在卡片 body 内，不触发自动展开）、`terminal` 终结工具（答复 UI 即卡片内容）。用户手动切换过折叠态后不再随状态自动变化。侧边面板（`renderTo: 'panel'`）头部带刷新、全屏放大 / 还原与关闭按钮：点击刷新可重新挂载渲染面板内组件；全屏时铺满整个组件区域（含输入区），还原回到右侧列，切换聚焦的调用时自动退出全屏。
+- 内置提问表单交互：无边框浅底选项，单选左侧使用 `1, 2, 3, 4` 数字序号徽标且点击预设选项后（非最后一题）自动跳转到下一题，多选（`multiple: true`）直接复用内部 `UCheckbox` 组件（多选时勾选预设项与自定义输入可共存）；支持 `header` 分类短标签与结构化选项 `{ label, description }`（`label` 含 `(推荐)` / `(Recommended)` 自动剥离并渲染「推荐」徽标）；支持内联自定义输入与回车确认（规避 IME 组合选词误触），底部提供「跳过」，非输入框聚焦时支持数字键 `1`–`9` 选选项、`Enter` 前进/提交与 `←`/`→` 切换题目；提交后仅在回复流外层常驻展示问答摘要，不再收入步骤行。
 - 消息渲染基于 markstream-vue（`MarkdownRender`，`mode="chat"`），代码块 / 行内代码 / 表格 / 引用 / 链接等配色已映射到 `@veltra/styles` 的 `--u-*` 主题 token，跟随宿主亮暗主题自动切换；`rendererProps` 可继续透传 markstream-vue 的其余 props。
-- 会话导航：会话达到 3 轮且消息列表真的溢出可滚动时，在内容列左缘出现一列横线刻度（当前视口所在轮次的刻度变长，hover 的刻度也临时变长并带过渡动画）；当前视口所在轮次高亮、已读轮次变淡；hover 展开「会话导航 · N 轮」目录卡片，点击任一项滚动到该轮顶部并取消吸底。
+- 会话导航：会话达到 3 轮且消息列表溢出可滚动时，在内容列左缘出现一列圆点指示器（当前视口所在轮次高亮、已读轮次变淡）；鼠标悬停单个圆点时在其右侧浮现该轮的提问与回答前缀摘要，点击圆点滚动到该轮顶部并取消吸底。
 - 消息、队列、输入区限宽 800px 居中，纵向滚动条悬浮于会话主列右缘（不贴 800px 内容区）；空会话（只有 tool 消息视为空）时输入区垂直居中。token 展示：数字 <1000 原样，≥1000 用 K、≥100 万用 M（最多 1 位小数，整数不带 `.0`，如 1500 → 1.5K）。
 - 队列：生成中提交的消息进入「待发送队列」条，可「立即开始」（中断当前会话插队）、取回输入框编辑（按原锚点插回）、移出。
 

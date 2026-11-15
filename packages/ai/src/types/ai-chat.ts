@@ -44,7 +44,7 @@ export interface AiChatProps {
   welcome?: string | string[]
   /** 输入框占位文本 */
   placeholder?: string
-  /** 附件 accept 类型，默认 image/* */
+  /** 附件 accept 类型（缺省不限制文件类型） */
   accept?: string
   /** 单个附件最大字节数，默认 10MB */
   maxAttachmentSize?: number

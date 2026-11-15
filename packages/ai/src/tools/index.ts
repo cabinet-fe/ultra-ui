@@ -2,6 +2,7 @@ import type { ChatTool } from '../chat/types'
 import { createAskQuestionTool } from './ask-question'
 
 export type {
+  AskQuestionOption,
   AskQuestionItem,
   AskQuestionAnswer,
   AskQuestionArgs,

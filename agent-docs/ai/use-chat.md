@@ -81,8 +81,7 @@ const send = () => {
 ## API 签名
 
 ```ts
-import type { Ref } from 'vue'
-import type { AskQuestionItem } from '@veltra/ai'
+import type { AskQuestionItem, AskQuestionOption } from '@veltra/ai'
 import type {
   ChatAttachment,
   ChatJob,
@@ -95,6 +94,7 @@ import type {
   ChatSessionTransport,
   ChatModelOption
 } from '@veltra/ai'
+import type { Ref } from 'vue'
 
 /** useChat 入参：与 UAiChat 的 props / emit 同形 */
 export interface UseChatOptions {
@@ -241,6 +241,21 @@ export function createServerTransport(adapter: ChatSessionAdapter): ChatSessionT
 export function isServerTransport(t: unknown): t is ChatSessionTransport
 
 /** 协议无关的归一化会话事件 */
+export interface AskQuestionOption {
+  /** 选项展示文案（含 `(推荐)` / `(Recommended)` 时自动渲染推荐徽标） */
+  label: string
+  /** 选项补充说明 */
+  description?: string
+}
+
+export interface AskQuestionItem {
+  question: string
+  header?: string
+  options?: (string | AskQuestionOption)[]
+  multiple?: boolean
+  placeholder?: string
+}
+
 export type ChatSessionEvent =
   | {
       type: 'user/message'
@@ -345,7 +360,7 @@ export function foldSessionEvent(state: ChatFoldState, event: ChatSessionEvent):
 ### 请求形态（内置 OpenAI transport）
 
 - 请求：`POST <provider.endpoint>`，`Content-Type: application/json`，有 `apiKey` 时带 `Authorization: Bearer <apiKey>`；请求体固定 `model`、`stream: true`、`stream_options: { include_usage: true }`、`messages`（`systemPrompt` 转为首条 `system` 消息），有 `tools` 时带 `tools`（OpenAI function 形态）。
-- 用户附件转成 `image_url` 内容分片；`reasoningLevel` 经 `applyReasoning` 写入请求体（缺省 `reasoning_effort`）。
+- 用户图片附件转成 `image_url` 内容分片，非图片附件不传 `image_url`（将本地提取的 `textContent` 或文件名并入用户文本）；`reasoningLevel` 经 `applyReasoning` 写入请求体（缺省 `reasoning_effort`）。
 - 响应：按 SSE 逐行解析 `data:` 帧，兼容 `reasoning_content`（DeepSeek）与 `reasoning`（部分 OpenAI 兼容端点）；`usage` 从流式末包解析。
 - 错误：模型 id 找不到 Provider 时回调 `onError(new Error('未找到模型 "<id>" 对应的 Provider'))`；非 2xx 包装为 `请求失败（<status>）：<响应文本>`；无响应体报 `响应不包含可读取的流`；网络失败与解析异常原样 `onError`（`signal.aborted` 后不再报）。
 

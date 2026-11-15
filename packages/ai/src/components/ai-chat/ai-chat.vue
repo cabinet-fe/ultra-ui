@@ -59,6 +59,12 @@
         @abort="abort"
         @clear="clear"
       />
+
+      <UImagePreviewer
+        v-model:open="previewOpen"
+        :src="previewTarget?.src"
+        :alt="previewTarget?.alt"
+      />
     </div>
 
     <!-- 侧边面板（renderTo: 'panel' 的工具渲染区），与会话区宽度经 ULayout 拖拽手柄调节 -->
@@ -73,9 +79,9 @@
 
 <script lang="ts" setup>
 import { useResizeObserver } from '@veltra/compositions'
-import { ULayout } from '@veltra/desktop'
+import { UImagePreviewer, ULayout } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
-import { computed, provide, ref, useSlots, useTemplateRef, watch } from 'vue'
+import { computed, provide, ref, shallowRef, useSlots, useTemplateRef, watch } from 'vue'
 
 import { isServerTransport } from '../../chat/session'
 import type { ChatAttachment, ChatTool, ChatToolCall, ChatToolMeta } from '../../chat/types'
@@ -215,7 +221,16 @@ const closePanel = () => {
   activePanelCallId.value = null
 }
 
-provide(AiChatDIKey, { cls, slots, tools: toolMap, toolIcons, openPanel })
+const previewOpen = ref(false)
+const previewTarget = shallowRef<{ src: string; alt?: string } | null>(null)
+
+const previewImage = (src: string, alt?: string) => {
+  if (!src) return
+  previewTarget.value = { src, alt }
+  previewOpen.value = true
+}
+
+provide(AiChatDIKey, { cls, slots, tools: toolMap, toolIcons, openPanel, previewImage })
 
 /**
  * 面板宽度：经 ULayout 列轨施加（cols = 1fr + 面板宽度），
@@ -223,8 +238,6 @@ provide(AiChatDIKey, { cls, slots, tools: toolMap, toolIcons, openPanel })
  */
 const PANEL_MIN_WIDTH = 320
 const MAIN_MIN_WIDTH = 360
-/** 面板打开时默认给会话区留的宽度（即面板默认尽可能大） */
-const MAIN_DEFAULT_WIDTH = 860
 
 const layoutRef = useTemplateRef<InstanceType<typeof ULayout>>('layoutRef')
 const panelRef = useTemplateRef<InstanceType<typeof SidePanel>>('panelRef')
@@ -237,10 +250,10 @@ const layoutCols = computed(() => {
 
 const containerWidth = () => (layoutRef.value?.$el as HTMLElement | undefined)?.clientWidth ?? 0
 
-/** 面板默认宽度：容器宽减去会话区默认保留宽度（缺省给会话区留 MAIN_DEFAULT_WIDTH） */
+/** 面板默认宽度：平分容器宽度（容器宽度未知时回退 420px） */
 const defaultPanelWidth = () => {
   const width = containerWidth()
-  return width ? width - MAIN_DEFAULT_WIDTH : 420
+  return width ? Math.round(width / 2) : 420
 }
 
 /** 钳位面板宽度在 [PANEL_MIN_WIDTH, 容器宽 - MAIN_MIN_WIDTH] 区间 */
@@ -253,7 +266,7 @@ const clampPanelWidth = (width: number) => {
 }
 
 // 聚焦到指定了 panelWidth 的工具调用时应用其宽度；面板从关闭到打开且工具未指定宽度时
-// 应用默认宽（会话区留 860px）；面板已打开时切换聚焦保持当前宽度（含用户拖拽结果）
+// 应用默认宽（平分容器宽度）；面板已打开时切换聚焦保持当前宽度（含用户拖拽结果）
 watch(activePanelCall, (call, prevCall) => {
   if (!call) return
   const toolWidth = toolMap.value[call.name]?.panelWidth

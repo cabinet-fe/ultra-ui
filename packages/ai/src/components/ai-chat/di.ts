@@ -14,6 +14,8 @@ export interface AiChatContext {
   toolIcons: ComputedRef<Record<string, Component> | undefined>
   /** 打开右侧面板并聚焦到指定工具调用（renderTo: 'panel' 工具的「查看面板」入口） */
   openPanel: (toolCallId: string) => void
+  /** 打开图片全屏预览（输入框待发送图片与用户消息图片共用） */
+  previewImage: (src: string, alt?: string) => void
 }
 
 export const AiChatDIKey: InjectionKey<AiChatContext> = Symbol('AiChatDIKey')

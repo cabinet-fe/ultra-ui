@@ -4,13 +4,7 @@ import type { Component, MaybeRefOrGetter } from 'vue'
 import type { ChatTool, ChatToolCall, ChatToolMeta } from '../../chat/types'
 import { AiChatDIKey } from './di'
 import type { AiChatContext } from './di'
-import {
-  dropEchoedFields,
-  isSummarizedInHeader,
-  summarizeArguments,
-  toToolNode,
-  unwrapSingleValue
-} from './tool-format'
+import { isSummarizedInHeader, summarizeArguments } from './tool-format'
 import { FALLBACK_TOOL_ICON, resolveToolIcon } from './tool-icons'
 
 /** 头部状态点配色：状态 → status class */
@@ -32,9 +26,6 @@ export function toolStatusClass(status: ChatToolCall['status']): string {
 export const isSettledStatus = (status: ChatToolCall['status']) =>
   status === 'success' || status === 'error' || status === 'rejected'
 
-/** 任意原始串 → 展示节点；空串 / 解析失败时退回纯文本节点，不得 throw（卡片视图管线共用） */
-export const nodeOf = (raw: string | undefined) => (raw ? toToolNode(raw) : undefined)
-
 /** 参数串容错解析：解析失败退回原始串（brief 与展开判定的参数视图共用） */
 const parseLooseArgs = (raw: string | undefined): unknown => {
   if (!raw) return undefined
@@ -43,15 +34,6 @@ const parseLooseArgs = (raw: string | undefined): unknown => {
   } catch {
     return raw
   }
-}
-
-/**
- * 结果展示管线：先剔除回显入参的字段（工具结果复述参数不携带新信息），
- * 剩下单个通用键的标量时直出值本身（如 `{result: 5888}` → `5,888`）。
- */
-export function resultDisplayNode(raw: string | undefined, args: unknown) {
-  const node = nodeOf(raw)
-  return node ? unwrapSingleValue(dropEchoedFields(node, args)) : undefined
 }
 
 /** 头部图标：meta.icon > 宿主覆盖 > 内置名称规则 > 兜底（卡片 / 步骤行 / 侧面板共用） */
@@ -107,7 +89,7 @@ export function useToolCallBrief(call: MaybeRefOrGetter<ChatToolCall | undefined
   return { tool, isActive, statusClass, headerIcon, toolTitle, parsedArguments, summary }
 }
 
-/** 展开态 body 是否有内容：自定义渲染 / 参数未被头部摘要覆盖 / 结果非纯回显 / 有视图 */
+/** 展开态 body 是否有内容：自定义渲染 / 参数未被头部摘要覆盖 / 非空结果 / 有视图 */
 function cardHasBody(
   call: ChatToolCall,
   tool: ChatTool | ChatToolMeta | undefined,
@@ -118,13 +100,9 @@ function cardHasBody(
   const customInCard =
     tool?.renderTo !== 'reply' && !!(tool?.render || di?.slots[`tool-${call.name}`])
   if (tool?.renderTo === 'panel' || customInCard) return true
-  const argumentNode = nodeOf(call.arguments)
-  if (argumentNode && !isSummarizedInHeader(argumentNode)) return true
+  if (call.arguments && !isSummarizedInHeader(call.arguments)) return true
   const resultRaw = call.error ?? call.result
-  if (resultRaw != null) {
-    const display = resultDisplayNode(resultRaw, parseLooseArgs(call.arguments))
-    if (display != null && display.type !== 'empty') return true
-  }
+  if (resultRaw != null && resultRaw.trim() !== '') return true
   return call.view != null
 }
 

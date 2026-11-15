@@ -3,11 +3,34 @@
     <div v-if="attachments.length" :class="cls.e('input-attachments')">
       <div
         v-for="(att, index) in attachments"
-        :key="att.dataUrl"
-        :class="cls.e('input-attachment')"
+        :key="`${att.name}-${att.size}-${index}`"
+        :class="[
+          cls.e('input-attachment'),
+          bem.is('image', isImageAttachment(att)),
+          bem.is('file', !isImageAttachment(att))
+        ]"
       >
-        <img :src="att.dataUrl" :alt="att.name" />
-        <UIcon :class="cls.e('input-attachment-remove')" @click="attachments.splice(index, 1)">
+        <img
+          v-if="isImageAttachment(att)"
+          :src="att.dataUrl"
+          :alt="att.name"
+          :title="att.name"
+          @click="di?.previewImage(att.dataUrl, att.name)"
+        />
+        <template v-else>
+          <UIcon :class="cls.e('attachment-file-icon')">
+            <component :is="getAttachmentIcon(att)" />
+          </UIcon>
+          <div :class="cls.e('attachment-file-meta')">
+            <span :class="cls.e('attachment-file-name')" :title="att.name">{{ att.name }}</span>
+            <span :class="cls.e('attachment-file-size')">{{ formatAttachmentSize(att.size) }}</span>
+          </div>
+        </template>
+        <UIcon
+          :class="cls.e('input-attachment-remove')"
+          title="移除附件"
+          @click.stop="attachments.splice(index, 1)"
+        >
           <Close />
         </UIcon>
       </div>
@@ -21,15 +44,46 @@
       rows="1"
       @keydown.enter.exact="handleSend"
       @input="autoResize"
+      @paste="handlePaste"
     />
 
     <div :class="cls.e('input-toolbar')">
       <div :class="cls.e('input-toolbar-left')">
-        <UFilePicker multiple :accept="accept ?? 'image/*'" @pick="handlePick">
-          <UIcon :class="cls.e('input-attach')" title="添加图片">
-            <Attach />
-          </UIcon>
-        </UFilePicker>
+        <UDropdown
+          ref="plusDropdownRef"
+          trigger="click"
+          direction="top"
+          alignment="start"
+          width="auto"
+          min-width="140px"
+          :content-class="cls.e('plus-panel')"
+        >
+          <template #trigger>
+            <button
+              type="button"
+              :class="cls.e('plus-trigger')"
+              title="更多选项"
+              aria-label="更多选项"
+            >
+              <UIcon>
+                <Plus />
+              </UIcon>
+            </button>
+          </template>
+
+          <template #content>
+            <div :class="cls.e('plus-list')">
+              <UFilePicker multiple :accept="accept" @pick="handlePick">
+                <div :class="cls.e('plus-option')">
+                  <UIcon :class="cls.e('plus-option-icon')">
+                    <Attach />
+                  </UIcon>
+                  <span>上传附件</span>
+                </div>
+              </UFilePicker>
+            </div>
+          </template>
+        </UDropdown>
 
         <span :class="[cls.e('input-clear-wrap'), bem.is('disabled', !clearable)]">
           <UPopConfirm
@@ -125,12 +179,18 @@
 
 <script lang="ts" setup>
 import { UButton, UDropdown, UFilePicker, UIcon, UPopConfirm } from '@veltra/desktop'
-import { Attach, Clear, Close, Up } from '@veltra/icons/normal'
+import { Attach, Clear, Close, Plus, Up } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
-import { computed, inject, nextTick, ref, shallowRef, watch } from 'vue'
+import { computed, inject, nextTick, ref, shallowRef, useTemplateRef, watch } from 'vue'
 
 import type { ChatAttachment, ChatTokenUsage } from '../../chat/types'
 import type { ChatModelOption } from '../../providers'
+import {
+  formatAttachmentSize,
+  getAttachmentIcon,
+  isImageAttachment,
+  readFileAsAttachment
+} from './attachment'
 import { AiChatDIKey } from './di'
 import ModelPicker from './model-picker.vue'
 import ReasoningPicker from './reasoning-picker.vue'
@@ -178,6 +238,7 @@ const cls = di?.cls ?? bem('ai-chat')
 const text = ref('')
 const attachments = ref<ChatAttachment[]>([])
 const textareaRef = shallowRef<HTMLTextAreaElement>()
+const plusDropdownRef = useTemplateRef('plusDropdownRef')
 
 const hasContent = computed(() => !!text.value.trim() || attachments.value.length > 0)
 
@@ -301,25 +362,64 @@ const getContent = () => text.value
 
 defineExpose({ setContent, getContent })
 
-/** 将拾取的文件转为 dataUrl 附件（超限忽略） */
+/** 将拾取的文件按类型本地处理后加入附件列表（超限忽略） */
 const handlePick = (files: File[]) => {
+  plusDropdownRef.value?.close()
   const maxSize = props.maxAttachmentSize ?? 10 * 1024 * 1024
+  const validFiles: File[] = []
 
   for (const file of files) {
     if (file.size > maxSize) {
       console.warn(`[UAiChat] 附件 ${file.name} 超过大小限制，已忽略`)
       continue
     }
-    const reader = new FileReader()
-    reader.onload = () => {
-      attachments.value.push({
-        name: file.name,
-        mimeType: file.type,
-        size: file.size,
-        dataUrl: String(reader.result)
-      })
-    }
-    reader.readAsDataURL(file)
+    validFiles.push(file)
   }
+
+  if (!validFiles.length) return
+  void Promise.allSettled(validFiles.map((file) => readFileAsAttachment(file))).then((results) => {
+    for (const result of results) {
+      if (result.status === 'fulfilled') {
+        attachments.value.push(result.value)
+      } else {
+        console.warn('[UAiChat] 附件读取失败，已忽略', result.reason)
+      }
+    }
+  })
+}
+
+/** 从剪贴板提取图片文件（支持截图与复制图片） */
+const handlePaste = (e: ClipboardEvent) => {
+  const clipboard = e.clipboardData
+  if (!clipboard) return
+
+  const imageFiles: File[] = []
+  if (clipboard.items?.length) {
+    for (const item of Array.from(clipboard.items)) {
+      if (item.kind === 'file' && item.type.startsWith('image/')) {
+        const file = item.getAsFile()
+        if (file) imageFiles.push(file)
+      }
+    }
+  } else if (clipboard.files?.length) {
+    for (const file of Array.from(clipboard.files)) {
+      if (isImageAttachment({ name: file.name, mimeType: file.type })) {
+        imageFiles.push(file)
+      }
+    }
+  }
+
+  if (!imageFiles.length) return
+  if (!clipboard.getData('text/plain')) {
+    e.preventDefault()
+  }
+  const normalized = imageFiles.map((file, index) => {
+    if (file.name) return file
+    const ext = file.type.split('/')[1]?.replace('+xml', '') || 'png'
+    return new File([file], `image-${Date.now()}-${index}.${ext}`, {
+      type: file.type || 'image/png'
+    })
+  })
+  handlePick(normalized)
 }
 </script>

@@ -228,17 +228,41 @@ export function useChat(options: UseChatOptions) {
     void runConversation()
   }
 
+  const createAbortError = () => {
+    const error = new Error('Aborted')
+    error.name = 'AbortError'
+    return error
+  }
+
+  const appendToolResultMessage = (toolCallId: string, content: string) => {
+    messages.value.push(reactive<ChatMessage>({ id: uid(), role: 'tool', toolCallId, content }))
+  }
+
+  /** 将已中止轮次的 assistant 消息与未落定工具调用统一收口为终态 */
+  const settleAbortedAssistant = (assistant: ChatMessage) => {
+    assistant.status = 'aborted'
+    for (const call of assistant.toolCalls ?? []) {
+      if (
+        call.status === 'pending' ||
+        call.status === 'running' ||
+        call.status === 'awaiting-confirm'
+      ) {
+        call.status = 'error'
+        call.error = 'Aborted'
+      }
+      if (!messages.value.some((m) => m.role === 'tool' && m.toolCallId === call.id)) {
+        appendToolResultMessage(call.id, 'Error: Aborted')
+      }
+    }
+  }
+
   /** 执行单个工具调用（含确认门控），结果以 tool 消息追加 */
   const executeToolCall = async (
     toolCall: ChatToolCall,
     signal: AbortSignal,
     tools: ChatTool[]
   ) => {
-    const appendToolMessage = (content: string) => {
-      messages.value.push(
-        reactive<ChatMessage>({ id: uid(), role: 'tool', toolCallId: toolCall.id, content })
-      )
-    }
+    const appendToolMessage = (content: string) => appendToolResultMessage(toolCall.id, content)
 
     const tool = tools.find((t) => t.name === toolCall.name)
 
@@ -264,17 +288,44 @@ export function useChat(options: UseChatOptions) {
       }
     }
 
+    if (signal.aborted) {
+      toolCall.status = 'error'
+      toolCall.error = 'Aborted'
+      appendToolMessage('Error: Aborted')
+      return
+    }
+
     toolCall.status = 'running'
+    let onAbort: (() => void) | undefined
     try {
       const args = toolCall.arguments ? JSON.parse(toolCall.arguments) : {}
-      const result = await tool.execute(args, { toolCall, signal })
+      // 与 abort 信号竞速：即便工具实现未透传 signal（如慢请求挂起），点击停止也能立即脱困
+      const resultPromise = Promise.resolve(tool.execute(args, { toolCall, signal }))
+      const abortPromise = new Promise<never>((_, reject) => {
+        if (signal.aborted) {
+          reject(createAbortError())
+          return
+        }
+        onAbort = () => reject(createAbortError())
+        signal.addEventListener('abort', onAbort, { once: true })
+      })
+      const result = await Promise.race([resultPromise, abortPromise])
+      if (signal.aborted) throw createAbortError()
       toolCall.status = 'success'
       toolCall.result = serializeResult(result)
       appendToolMessage(toolCall.result)
     } catch (error) {
+      if (signal.aborted) {
+        toolCall.status = 'error'
+        toolCall.error = 'Aborted'
+        appendToolMessage('Error: Aborted')
+        return
+      }
       toolCall.status = 'error'
       toolCall.error = error instanceof Error ? error.message : String(error)
       appendToolMessage(`Error: ${toolCall.error}`)
+    } finally {
+      if (onAbort) signal.removeEventListener('abort', onAbort)
     }
   }
 
@@ -362,7 +413,7 @@ export function useChat(options: UseChatOptions) {
     }
 
     if (signal.aborted) {
-      assistant.status = 'aborted'
+      settleAbortedAssistant(assistant)
       return
     }
 
@@ -388,7 +439,10 @@ export function useChat(options: UseChatOptions) {
     )
     snapshot()
 
-    if (signal.aborted) return
+    if (signal.aborted) {
+      settleAbortedAssistant(assistant)
+      return
+    }
 
     // 终结工具执行成功：工具 UI 即最终答复，不再回灌模型生成文字
     const hitTerminal = toolCalls.some(

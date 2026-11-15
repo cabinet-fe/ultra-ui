@@ -4,13 +4,30 @@
     <template v-if="message.role === 'user'">
       <div :class="cls.e('message-bubble')">
         <div v-if="message.attachments?.length" :class="cls.e('message-attachments')">
-          <img
-            v-for="att in message.attachments"
-            :key="att.dataUrl"
-            :src="att.dataUrl"
-            :alt="att.name"
-            :class="cls.e('message-attachment')"
-          />
+          <template
+            v-for="(att, index) in message.attachments"
+            :key="`${att.name}-${att.size}-${index}`"
+          >
+            <img
+              v-if="isImageAttachment(att)"
+              :src="att.dataUrl"
+              :alt="att.name"
+              :title="att.name"
+              :class="cls.e('message-attachment')"
+              @click="di?.previewImage(att.dataUrl, att.name)"
+            />
+            <div v-else :class="cls.e('message-attachment-file')" :title="att.name">
+              <UIcon :class="cls.e('attachment-file-icon')">
+                <component :is="getAttachmentIcon(att)" />
+              </UIcon>
+              <div :class="cls.e('attachment-file-meta')">
+                <span :class="cls.e('attachment-file-name')">{{ att.name }}</span>
+                <span :class="cls.e('attachment-file-size')">{{
+                  formatAttachmentSize(att.size)
+                }}</span>
+              </div>
+            </div>
+          </template>
         </div>
         <div v-if="message.content" :class="cls.e('message-text')">{{ message.content }}</div>
       </div>
@@ -19,9 +36,9 @@
     <!-- assistant 消息：思考与工具调用由步骤行承载，这里只渲染正文 / 状态 / 操作 -->
     <template v-else>
       <MarkdownRender
-        v-if="message.content || isStreaming"
+        v-if="renderedContent || isStreaming"
         mode="chat"
-        :content="message.content"
+        :content="renderedContent"
         :final="!isStreaming"
         :fade="false"
         v-bind="rendererProps"
@@ -61,15 +78,17 @@
 </template>
 
 <script lang="ts" setup>
-import { message as toast, UButton } from '@veltra/desktop'
+import { message as toast, UButton, UIcon } from '@veltra/desktop'
 import { CircleCheck, Copy, Refresh } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import MarkdownRender from 'markstream-vue'
 import { computed, inject, onBeforeUnmount, ref } from 'vue'
 
 import type { ChatMessage } from '../../chat/types'
+import { formatAttachmentSize, getAttachmentIcon, isImageAttachment } from './attachment'
 import { AiChatDIKey } from './di'
 import { formatDuration } from './format-duration'
+import { useStreamThrottle } from './use-stream-throttle'
 
 defineOptions({ name: 'UAiChatMessageItem' })
 
@@ -89,6 +108,11 @@ const di = inject(AiChatDIKey)
 const cls = di?.cls ?? bem('ai-chat')
 
 const isStreaming = computed(() => props.message.status === 'streaming')
+
+const renderedContent = useStreamThrottle(
+  () => props.message.content,
+  () => isStreaming.value
+)
 
 const showActions = computed(() => {
   if (props.message.role !== 'assistant' || !props.isLast) return false

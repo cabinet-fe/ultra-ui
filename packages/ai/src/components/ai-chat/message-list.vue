@@ -5,6 +5,7 @@
       :content-class="cls.e('list-content')"
       ref="scrollRef"
       @scroll="handleScroll"
+      @resize="handleScrollResize"
       @wheel.passive="handleWheel"
     >
       <template v-for="turn in turns" :key="turn.key">
@@ -23,7 +24,12 @@
                段（含 StepLine 的展开状态）不会因首条 content 到达而重挂；content-only 段退回答 id -->
           <template
             v-for="(segment, segIndex) in turn.segments"
-            :key="segment.steps[0]?.key ?? segment.answerMsg?.id ?? segIndex"
+            :key="
+              segment.steps[0]?.key ??
+              segment.replySteps[0]?.key ??
+              segment.answerMsg?.id ??
+              segIndex
+            "
           >
             <StepLine
               v-if="segment.steps.length"
@@ -62,46 +68,44 @@
           />
         </div>
       </template>
-
-      <!-- 工作中：活体球从输入框上方跳到最新会话下面；结束停留后再跳回 -->
-      <div v-if="showWorking" :class="[cls.e('working'), bem.is('leaving', workingLeaving)]">
-        <UAiOrb ref="workingOrb" :size="ORB_SIZE" :status="workingOrbStatus" />
-        <template v-if="running">
-          <span :class="[cls.e('working-text'), 'u-shine']">工作中…</span>
-          <span :class="cls.e('working-time')">{{ formatDuration(elapsedMs) }}</span>
-        </template>
-        <span v-else-if="lastTurnDuration != null" :class="cls.e('working-time')">
-          用时 {{ formatDuration(lastTurnDuration) }}
-        </span>
-      </div>
     </UScroll>
 
-    <!-- 空闲：始终钉在滚动容器外、输入框上方；工作开始时缩小离开、结束后放大回来 -->
-    <div
-      v-if="showIdleWelcome"
-      :class="[cls.e('welcome'), bem.is('leaving', idleLeaving), bem.is('enter', idleEnter)]"
-    >
-      <slot name="welcome">
-        <div :class="cls.e('welcome-inner')">
-          <UAiOrb :size="ORB_SIZE" @click="cycleWelcome" />
-          <!-- 快捷提问逐条展示在球右侧并自动轮换：点文案发送，点球立即换下一条。
-               固定锚点布局：球位置钉死不动，气泡只向右延展，避免轮换时水平瞬移 -->
-          <div v-if="welcomeItems.length" :class="cls.e('welcome-item-wrap')">
-            <Transition :name="cls.em('welcome', 'swap')" mode="out-in">
-              <button
-                v-if="currentWelcomeItem"
-                :key="welcomeIndex"
-                type="button"
-                :class="cls.e('welcome-item')"
-                :disabled="readonly"
-                @click="!readonly && emit('welcome-click', currentWelcomeItem)"
-              >
-                {{ currentWelcomeItem }}
-              </button>
-            </Transition>
-          </div>
+    <!-- 吉祥物栏：固定在滚动容器外、输入框上方，待在原位不进入对话列表 -->
+    <div :class="[cls.e('welcome'), bem.is('working', isWorking)]">
+      <slot v-if="!isWorking && $slots.welcome" name="welcome" />
+      <div v-else :class="cls.e('welcome-inner')">
+        <UAiOrb
+          ref="orb"
+          :size="ORB_SIZE"
+          :status="orbStatus"
+          @click="!isWorking && cycleWelcome()"
+        />
+        <!-- 工作中 / 收尾停留：原位展示状态与用时 -->
+        <div v-if="isWorking" :class="cls.e('working')">
+          <template v-if="running">
+            <span :class="[cls.e('working-text'), 'u-shine']">工作中…</span>
+            <span :class="cls.e('working-time')">{{ formatDuration(elapsedMs) }}</span>
+          </template>
+          <span v-else-if="lastTurnDuration != null" :class="cls.e('working-time')">
+            用时 {{ formatDuration(lastTurnDuration) }}
+          </span>
         </div>
-      </slot>
+        <!-- 空闲：逐条轮换快捷提问，点击发送 -->
+        <div v-else-if="welcomeItems.length" :class="cls.e('welcome-item-wrap')">
+          <Transition :name="cls.em('welcome', 'swap')" mode="out-in">
+            <button
+              v-if="currentWelcomeItem"
+              :key="welcomeIndex"
+              type="button"
+              :class="cls.e('welcome-item')"
+              :disabled="readonly"
+              @click="!readonly && emit('welcome-click', currentWelcomeItem)"
+            >
+              {{ currentWelcomeItem }}
+            </button>
+          </Transition>
+        </div>
+      </div>
     </div>
 
     <!-- 用户上翻浏览时悬浮入口：一键回到最新消息 -->
@@ -117,18 +121,17 @@
       </button>
     </Transition>
 
-    <!-- 会话导航：贴消息区左缘的刻度条，hover 展开目录，点击跳到该轮 -->
+    <!-- 会话导航：贴消息区左缘的圆点指示器，hover 单点展示该轮问答摘要，点击跳到该轮 -->
     <SessionNavigator
       :items="navigatorItems"
       :active-key="activeTurnKey"
-      :scrollable="navigatorVisible"
+      :scrollable="scrollable"
       @jump="jumpToTurn"
     />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { useResizeObserver } from '@veltra/compositions'
 import { UIcon, UScroll } from '@veltra/desktop'
 import type { ScrollPosition } from '@veltra/desktop'
 import { ArrowDown } from '@veltra/icons/normal'
@@ -157,15 +160,14 @@ import StepLine from './step-line.vue'
 import { clipText } from './tool-format'
 import type { TurnStep } from './turn-step'
 import { useStickScroll } from './use-stick-scroll'
+import { useStreamThrottle } from './use-stream-throttle'
 
 defineOptions({ name: 'UAiChatMessageList' })
 
-/** 空闲欢迎 / 工作指示共用活体球直径（px） */
+/** 活体球直径（px） */
 const ORB_SIZE = 48
-/** 生成结束 / 失败后工作球停留再跳回输入框上方 */
+/** 生成结束 / 失败后工作态短暂停留，播完表情与耗时再恢复欢迎语 */
 const WORKING_LINGER_MS = 2500
-/** 两处活体球对向缩放的时长（与样式中的 jump 过渡一致） */
-const JUMP_MS = 380
 
 const props = defineProps<{
   messages: ChatMessage[]
@@ -187,15 +189,18 @@ const emit = defineEmits<{
 }>()
 
 defineSlots<{
-  /** 空闲欢迎区插槽（输入框上方；工作中跳到列表末尾） */
+  /** 空闲欢迎区插槽（工作中自动切换为原位工作态），无作用域参数 */
   welcome(): any
 }>()
 
 const di = inject(AiChatDIKey)
 const cls = di?.cls ?? bem('ai-chat')
 
-/** renderTo: 'reply' 的调用：自定义渲染作为消息块进回复流（steps 中仍保留过程条目） */
+/** renderTo: 'reply' 的调用：自定义渲染作为消息块进回复流 */
 const isReplyTool = (call: ChatToolCall) => di?.tools.value[call.name]?.renderTo === 'reply'
+
+/** 从步骤行（「执行了 N 个步骤」）隐藏的工具（例如已在回复流外层渲染的提问工具） */
+const isHiddenInSteps = (call: ChatToolCall) => di?.tools.value[call.name]?.hideInSteps === true
 
 /** tool 消息不单独渲染，其内容体现在工具卡片的结果区 */
 const visibleMessages = computed(() => props.messages.filter((msg) => msg.role !== 'tool'))
@@ -258,11 +263,11 @@ const turns = computed<ChatTurn[]>(() => {
       }
       for (const call of msg.toolCalls ?? []) {
         const step: TurnStep = { key: call.id, kind: 'tool', message: msg, toolCall: call }
-        current.steps.push(step)
+        if (!isHiddenInSteps(call)) current.steps.push(step)
         if (isReplyTool(call)) current.replySteps.push(step)
       }
     }
-    if (current.steps.length) segments.push(current)
+    if (current.steps.length || current.replySteps.length) segments.push(current)
 
     const isLastTurn = index === grouped.length - 1
     const lastMsg = turn.assistants[turn.assistants.length - 1]
@@ -332,22 +337,10 @@ const cycleWelcome = () => {
   startWelcomeRotation()
 }
 
-/** 回答完毕 / 失败后工作球短暂停留，播完表情再跳回输入框上方 */
+/** 回答完毕 / 失败后工作态短暂停留，播完表情再恢复欢迎语 */
 const finishing = ref(false)
-/** 列表中的球正在缩小离开 */
-const workingLeaving = ref(false)
-/** 输入框上方的球正在缩小离开 */
-const idleLeaving = ref(false)
-/** 输入框上方的球从工作位放大回来（首屏出现不播） */
-const idleEnter = ref(false)
 
 let finishTimer: ReturnType<typeof setTimeout> | undefined
-let jumpTimer: ReturnType<typeof setTimeout> | undefined
-
-const clearJumpTimers = () => {
-  clearTimeout(finishTimer)
-  clearTimeout(jumpTimer)
-}
 
 /** 工作计时的起算时间戳（running 升起时记录） */
 let workStartAt = 0
@@ -369,12 +362,10 @@ const lastTurnDuration = computed(() => {
   return last ? turnDurations.value.get(last.key) : undefined
 })
 
-/** 列表末尾的工作球：生成中 / 收尾停留 / 跳回过渡 */
-const showWorking = computed(() => !!(props.running || finishing.value || workingLeaving.value))
-/** 输入框上方的空闲欢迎：含工作开始时的缩小离开帧 */
-const showIdleWelcome = computed(() => (!props.running && !finishing.value) || idleLeaving.value)
+/** 吉祥物处于工作/收尾停留态（待在原位切换文案与计时） */
+const isWorking = computed(() => !!(props.running || finishing.value))
 
-const workingOrbRef = useTemplateRef<AiOrbExposed>('workingOrb')
+const orbRef = useTemplateRef<AiOrbExposed>('orb')
 
 /** 工具调用失败的 id 去重集合：同一次失败只播一次沮丧表情 */
 const reactedToolErrorIds = new Set<string>()
@@ -396,21 +387,21 @@ const toolErrorFingerprint = computed(() => {
   return `${count}|${lastId}`
 })
 
-// 工具调用失败 → 工作球闭眼摇头（frustrated）；仅指纹变化时进回调，同一失败只 react 一次
+// 工具调用失败 → 活体球闭眼摇头（frustrated）；仅指纹变化时进回调，同一失败只 react 一次
 watch(toolErrorFingerprint, () => {
   for (const msg of props.messages) {
     if (msg.role !== 'assistant' || !msg.toolCalls) continue
     for (const call of msg.toolCalls) {
       if (call.status !== 'error' || reactedToolErrorIds.has(call.id)) continue
       reactedToolErrorIds.add(call.id)
-      workingOrbRef.value?.react('frustrated')
+      orbRef.value?.react('frustrated')
     }
   }
 })
 
-/** 工作球状态：收尾停留 → idle；正文输出中 → speaking；其余生成阶段 → thinking */
-const workingOrbStatus = computed<AiOrbStatus>(() => {
-  if (finishing.value) return 'idle'
+/** 活体球状态：空闲或收尾停留 → idle；正文输出中 → speaking；其余生成阶段 → thinking */
+const orbStatus = computed<AiOrbStatus>(() => {
+  if (!props.running) return 'idle'
   const last = visibleMessages.value[visibleMessages.value.length - 1]
   if (last?.role === 'assistant' && last.status === 'streaming' && last.content) {
     return 'speaking'
@@ -422,8 +413,8 @@ watch(
   () => props.running,
   (running, prev) => {
     if (running) {
-      // 工作开始：立即从输入框上方跳到列表，无停留
-      clearJumpTimers()
+      clearTimeout(finishTimer)
+      finishing.value = false
       // 工作计时开始：100ms 跳动刷新已逝时长
       workStartAt = Date.now()
       elapsedMs.value = 0
@@ -431,18 +422,6 @@ watch(
       tickTimer = setInterval(() => {
         elapsedMs.value = Date.now() - workStartAt
       }, 100)
-      const idleWasVisible = !prev && !finishing.value && !workingLeaving.value
-      finishing.value = false
-      workingLeaving.value = false
-      idleEnter.value = false
-      if (idleWasVisible) {
-        idleLeaving.value = true
-        jumpTimer = setTimeout(() => {
-          idleLeaving.value = false
-        }, JUMP_MS)
-      } else {
-        idleLeaving.value = false
-      }
       return
     }
     if (!prev) return
@@ -456,17 +435,13 @@ watch(
       turnDurations.value = next
     }
 
-    // 清除会话后列表已空：跳过结束停留，立刻回到欢迎区
+    // 清除会话后列表已空：跳过结束停留，立刻恢复欢迎语
     if (visibleMessages.value.length === 0) {
       finishing.value = false
-      workingLeaving.value = false
-      idleLeaving.value = false
-      idleEnter.value = false
       return
     }
 
     finishing.value = true
-    idleLeaving.value = false
     const last = visibleMessages.value[visibleMessages.value.length - 1]
     let reaction: AiOrbReaction | undefined
     if (last?.role === 'assistant') {
@@ -474,40 +449,30 @@ watch(
       else if (last.status === 'error') reaction = 'frustrated'
     }
     if (reaction) {
-      nextTick(() => workingOrbRef.value?.react(reaction))
+      nextTick(() => orbRef.value?.react(reaction))
     }
-    // 停留结束 → 列表中缩小、输入框上方放大
     finishTimer = setTimeout(() => {
       finishing.value = false
-      workingLeaving.value = true
-      idleEnter.value = true
-      jumpTimer = setTimeout(() => {
-        workingLeaving.value = false
-        idleEnter.value = false
-      }, JUMP_MS)
     }, WORKING_LINGER_MS)
   }
 )
 
-// 消息被清空（clear）：立刻收掉工作球，欢迎区恢复
+// 消息被清空（clear）：立刻收掉工作态，欢迎语恢复
 watch(
   () => visibleMessages.value.length,
   (len) => {
     if (len > 0) return
-    clearJumpTimers()
+    clearTimeout(finishTimer)
     turnDurations.value = new Map()
     finishing.value = false
-    workingLeaving.value = false
-    idleLeaving.value = false
-    idleEnter.value = false
   }
 )
 
-// 空闲欢迎区展示期间自动轮换；跳到工作位后停止
+// 空闲欢迎语展示期间自动轮换；进入工作态后停止
 watch(
-  () => [welcomeItems.value.length, showIdleWelcome.value] as const,
+  () => [welcomeItems.value.length, isWorking.value] as const,
   () => {
-    if (showIdleWelcome.value) startWelcomeRotation()
+    if (!isWorking.value) startWelcomeRotation()
     else stopWelcomeRotation()
   },
   { immediate: true }
@@ -534,24 +499,27 @@ const {
 /** 上翻阅读时展示回到底部的悬浮按钮 */
 const showToLatest = computed(() => !stickToBottom.value && visibleMessages.value.length > 0)
 
-/** 会话导航项：每轮取用户提问作单行标题（无提问时回落末段回答） */
+/** 会话导航项：每轮取用户提问与首段文字回答的前面部分作 hover 预览 */
 const navigatorItems = computed<NavigatorItem[]>(() => {
   return turns.value.map((turn, index) => {
-    const raw = turn.userMsg?.content?.trim() || turn.finalMsg?.content?.trim() || '（无提问）'
-    return { key: turn.key, index, title: clipText(raw, 42) }
+    const rawQuestion = turn.userMsg?.content?.trim()
+    const rawAnswer = turn.segments
+      .find((s) => s.answerMsg?.content?.trim())
+      ?.answerMsg?.content?.trim()
+    return {
+      key: turn.key,
+      index,
+      question: rawQuestion ? clipText(rawQuestion, 36) : '（无提问）',
+      answer: rawAnswer ? clipText(rawAnswer, 48) : undefined
+    }
   })
 })
 
 /** 当前视口顶部所在的轮次：滚动时实时高亮导航项 */
 const activeTurnKey = ref<string>()
 
-/** 列表是否真的溢出可滚：不溢出时导航没有意义，避免短对话出现多余刻度 */
+/** 列表是否真的溢出可滚：不溢出时导航没有意义，避免短对话出现多余圆点 */
 const scrollable = ref(false)
-/** 列表宽度是否够放导航：窄列里刻度会压到正文，此时不出现 */
-const wideEnough = ref(false)
-
-/** 导航是否可用：轮次够多 + 内容溢出 + 有横向留白 */
-const navigatorVisible = computed(() => scrollable.value && wideEnough.value)
 
 /** 同步可滚状态（内容高度超过可视高度才出现导航） */
 const updateScrollable = (position?: Required<ScrollPosition>) => {
@@ -563,24 +531,6 @@ const updateScrollable = (position?: Required<ScrollPosition>) => {
   if (!scrollHeight || !clientHeight) return
   scrollable.value = scrollHeight - clientHeight > 8
 }
-
-/** 导航需要内容列两侧的留白：列宽不足 880px（800 内容列 + 两侧各 40）时收起，避免刻度压住正文 */
-const NAVIGATOR_MIN_WIDTH = 880
-
-const updateWideEnough = () => {
-  const width = scrollRef.value?.containerRef?.clientWidth
-  if (!width) return
-  wideEnough.value = width >= NAVIGATOR_MIN_WIDTH
-}
-
-useResizeObserver({
-  targets: computed(() => scrollRef.value?.containerRef ?? undefined),
-  onResize(entries) {
-    const width = entries[0]?.contentRect?.width
-    if (width == null) return
-    wideEnough.value = width >= NAVIGATOR_MIN_WIDTH
-  }
-})
 
 /** 计算视口顶部落在一轮对话的哪一项（容器顶部 + 判定偏移作为基准线） */
 const updateActiveTurn = () => {
@@ -630,14 +580,19 @@ watch(
     await nextTick()
     updateActiveTurn()
     updateScrollable()
-    updateWideEnough()
   },
   { immediate: true }
 )
 
+/** 容器或内容高度变化时同步可滚状态与当前高亮轮次（覆盖流式撑高 / 异步渲染） */
+const handleScrollResize = () => {
+  updateScrollable()
+  scheduleUpdateActiveTurn()
+}
+
 const handleScroll = (position: Required<ScrollPosition>) => {
   handleStickScroll(position)
-  // 宽度判定交给 useResizeObserver（滚动不改变容器宽度）；测量类更新合帧到 rAF
+  // 测量类更新合帧到 rAF
   scheduleUpdateActiveTurn()
   updateScrollable(position)
 }
@@ -654,17 +609,33 @@ let trailingScrollTimer: ReturnType<typeof setTimeout> | undefined
 /** 上一次吸底 watch 触发时的 running：识别「本次触发是否为生成收尾」 */
 let prevRunning = props.running
 
+const lastVisibleMessage = computed(() => {
+  const list = visibleMessages.value
+  return list[list.length - 1]
+})
+
+const throttledContentLen = useStreamThrottle(
+  () => lastVisibleMessage.value?.content.length ?? 0,
+  () => lastVisibleMessage.value?.status === 'streaming'
+)
+
+const throttledReasoningLen = useStreamThrottle(
+  () => lastVisibleMessage.value?.reasoning?.length ?? 0,
+  () => lastVisibleMessage.value?.status === 'streaming' && !lastVisibleMessage.value.content
+)
+
 // 消息数量或流式内容变化时，若处于吸附状态则滚动到底部（滚动前二次确认，见内核）。
 // running 也是依赖之一，生成收尾（true → false）同样走这里：终态渲染会再次改变高度，
 // 同帧滚动可能够不到最终底部，追加一次延迟兜底滚动
 watch(
   () => {
     const list = visibleMessages.value
-    const last = list[list.length - 1]
+    const last = lastVisibleMessage.value
     return [
       list.length,
-      last?.content.length ?? 0,
-      last?.reasoning?.length ?? 0,
+      last?.id ?? '',
+      throttledContentLen.value,
+      throttledReasoningLen.value,
       last?.toolCalls?.length ?? 0,
       props.running
     ].join('|')
@@ -687,7 +658,7 @@ watch(
 
 onBeforeUnmount(() => {
   stopWelcomeRotation()
-  clearJumpTimers()
+  clearTimeout(finishTimer)
   stopTick()
   clearTimeout(trailingScrollTimer)
   if (activeTurnRafId != null) cancelAnimationFrame(activeTurnRafId)

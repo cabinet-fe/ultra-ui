@@ -61,6 +61,7 @@ import { toolNeedsInteraction, useToolCallBrief } from './tool-call-brief'
 import ToolCallCard from './tool-call.vue'
 import { lastNonEmptyLine } from './tool-format'
 import type { TurnStep } from './turn-step'
+import { useStreamThrottle } from './use-stream-throttle'
 
 defineOptions({ name: 'UAiChatStepLine' })
 
@@ -102,15 +103,6 @@ const currentToolCall = computed(() => {
 
 const { isActive, statusClass, headerIcon, toolTitle, summary } = useToolCallBrief(currentToolCall)
 
-/** 行内右侧滚动展示的最新一行思考：取最后一行非空文本，随流式输出持续刷新 */
-const latestReasoningLine = computed(() => {
-  const step = currentStep.value
-  if (!step || step.kind !== 'reasoning' || expanded.value) return ''
-  const msg = step.message
-  if (msg.status !== 'streaming' || msg.content) return ''
-  return lastNonEmptyLine(msg.reasoning ?? '')
-})
-
 /** 落定后的完成态摘要 */
 const settledTitle = computed(() => {
   if (props.endStatus === 'error') return '出错了'
@@ -145,4 +137,20 @@ watch(
   },
   { immediate: true }
 )
+
+const rawReasoning = computed(() => {
+  const step = currentStep.value
+  if (!step || step.kind !== 'reasoning' || expanded.value) return ''
+  const msg = step.message
+  if (msg.status !== 'streaming' || msg.content) return ''
+  return msg.reasoning ?? ''
+})
+
+const throttledReasoning = useStreamThrottle(
+  () => rawReasoning.value,
+  () => !!rawReasoning.value
+)
+
+/** 行内右侧滚动展示的最新一行思考：取最后一行非空文本，随流式输出节流刷新 */
+const latestReasoningLine = computed(() => lastNonEmptyLine(throttledReasoning.value))
 </script>

@@ -1,6 +1,6 @@
 import type { Component } from 'vue'
 
-/** 聊天附件（首版仅支持图片） */
+/** 聊天附件（支持图片与任意文件） */
 export interface ChatAttachment {
   /** 文件名 */
   name: string
@@ -8,8 +8,10 @@ export interface ChatAttachment {
   mimeType: string
   /** 字节大小 */
   size: number
-  /** base64 data URL */
+  /** base64 data URL（图片附件必有；非图片附件为空串） */
   dataUrl: string
+  /** 非图片文本附件在本地提取的文本内容 */
+  textContent?: string
 }
 
 /** 工具调用状态 */
@@ -112,8 +114,8 @@ export interface ChatTool<A = any> {
   renderTo?: 'inline' | 'reply' | 'panel'
   /**
    * 侧边面板默认宽度（px，最小 320），仅 renderTo: 'panel' 时生效。
-   * 聚焦到该工具的调用时应用；缺省时面板打开取「容器宽 - 860」（即默认尽可能大，
-   * 给会话区保留 860px）；面板已打开时切换聚焦保持当前宽度（含用户拖拽结果）。
+   * 聚焦到该工具的调用时应用；缺省时面板打开平分容器宽度（各占一半）；
+   * 面板已打开时切换聚焦保持当前宽度（含用户拖拽结果）。
    */
   panelWidth?: number
   /**
@@ -124,6 +126,8 @@ export interface ChatTool<A = any> {
   panelTitle?: string | ((toolCall: ChatToolCall) => string)
   /** 执行完成后是否自动折叠。缺省：renderTo 为 'panel' 时为 true；否则设置了 render 时为 false，否则为 true */
   autoCollapse?: boolean
+  /** 是否从可折叠步骤行（「执行了 N 个步骤」）中隐藏，适合已在回复流外层单独渲染的交互工具（如 askQuestion） */
+  hideInSteps?: boolean
   /**
    * 终结工具：执行成功后对话即结束，结果不再回灌模型生成额外文字（工具 UI 即最终答复）。
    * 适合天气卡片这类"UI 即答案"的工具，需配合 render 或 tool-<name> 插槽提供完整结果 UI。
@@ -155,6 +159,8 @@ export interface ChatToolMeta {
   panelTitle?: string | ((toolCall: ChatToolCall) => string)
   /** 执行完成后是否自动折叠 */
   autoCollapse?: boolean
+  /** 是否从可折叠步骤行（「执行了 N 个步骤」）中隐藏 */
+  hideInSteps?: boolean
 }
 
 /** 作业条项状态：至少区分进行中与终态 */

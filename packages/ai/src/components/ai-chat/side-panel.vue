@@ -6,6 +6,9 @@
           <component :is="headerIcon" />
         </UIcon>
         <span :class="cls.e('panel-title')">{{ panelTitle }}</span>
+        <UIcon :class="cls.e('panel-refresh')" title="刷新" @click="refreshKey++">
+          <Refresh />
+        </UIcon>
         <UIcon
           :class="cls.e('panel-fullscreen')"
           :title="fullscreen ? '还原' : '全屏'"
@@ -21,15 +24,12 @@
 
       <UScroll :class="cls.e('panel-body')">
         <!-- render 组件与工具卡片同一契约（ChatToolRenderProps），可随 toolCall 状态实时更新 -->
-        <component :is="tool.render" v-if="tool?.render" :tool-call="toolCall" />
+        <component :is="tool.render" v-if="tool?.render" :key="refreshKey" :tool-call="toolCall" />
         <div v-else :class="cls.e('panel-fallback')">
-          <ToolData
+          <pre
             v-if="fallbackRaw"
-            :title="toolCall.status === 'error' ? '错误' : '结果'"
-            :node="fallbackNode"
-            :raw="fallbackRaw"
-            :tone="toolCall.status === 'error' ? 'error' : 'default'"
-          />
+            :class="[cls.e('tool-data'), bem.is('error', toolCall.status === 'error')]"
+            >{{ fallbackRaw }}</pre>
         </div>
       </UScroll>
     </div>
@@ -38,15 +38,13 @@
 
 <script lang="ts" setup>
 import { UIcon, UScroll } from '@veltra/desktop'
-import { Close, Maximum, Recover } from '@veltra/icons/normal'
+import { Close, Maximum, Recover, Refresh } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { computed, inject, ref, watch } from 'vue'
 
 import type { ChatToolCall } from '../../chat/types'
 import { AiChatDIKey } from './di'
 import { resolveToolHeaderIcon, toolStatusClass } from './tool-call-brief'
-import ToolData from './tool-data.vue'
-import { toToolNode } from './tool-format'
 
 defineOptions({ name: 'UAiChatSidePanel' })
 
@@ -59,6 +57,8 @@ const cls = di?.cls ?? bem('ai-chat')
 
 /** 全屏态：面板铺满整个组件区域（含输入区）；关闭面板由父级卸载组件，无需重置 */
 const fullscreen = ref(false)
+/** 刷新计数：递增时强制重建面板内 render 组件实例 */
+const refreshKey = ref(0)
 
 // 切换聚焦的工具调用时退出全屏：新内容从常规面板重新看起
 watch(
@@ -86,8 +86,6 @@ const panelTitle = computed(() => {
 
 /** 未提供 render 时的兜底展示（面板工具通常都应提供 render） */
 const fallbackRaw = computed(() => props.toolCall.error ?? props.toolCall.result)
-
-const fallbackNode = computed(() => toToolNode(fallbackRaw.value))
 
 // 供父级宽度观测跳过全屏态（铺满容器时的宽度不是用户拖拽结果）
 defineExpose({ fullscreen })

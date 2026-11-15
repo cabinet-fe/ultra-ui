@@ -33,6 +33,7 @@ const config = {
       neverBundle: [
         'vue',
         'markstream-vue',
+        '@cat-kit/core',
         '@veltra/utils',
         '@veltra/compositions',
         '@veltra/desktop',

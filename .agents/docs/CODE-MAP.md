@@ -95,6 +95,7 @@ graph TD
   ai --> styles
   ai --> utils
   ai --> compositions
+  ai --> catkit
   mobile --> utils
   mobile --> styles
   mobile --> icons
