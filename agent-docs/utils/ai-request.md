@@ -1,7 +1,17 @@
 ---
 title: requestAiText AI 文本请求与 SSE 解析
 description: OpenAI 兼容 chat/completions 请求层：requestAiText 用单份服务商配置发系统/用户提示词并流式或一次性取回文本；buildOpenAIBody 构造请求体，parseOpenAISSEStream / parseOpenAICompletionText 解析流式与非流式响应，requestOpenAIStream 发送流式请求。
-aliases: [requestAiText, requestOpenAIStream, buildOpenAIBody, parseOpenAISSEStream, parseOpenAICompletionText, AiProviderConfig, OpenAI transport, AI 请求]
+aliases:
+  [
+    requestAiText,
+    requestOpenAIStream,
+    buildOpenAIBody,
+    parseOpenAISSEStream,
+    parseOpenAICompletionText,
+    AiProviderConfig,
+    OpenAI transport,
+    AI 请求
+  ]
 keywords:
   [
     requestAiText,
@@ -80,12 +90,22 @@ export interface AiToolCall {
   arguments: string
 }
 
+/** 请求侧用户消息携带的附件 */
+export interface AiAttachment {
+  name?: string
+  mimeType?: string
+  size?: number
+  dataUrl: string
+  /** 非图片附件在本地提取的文本内容 */
+  textContent?: string
+}
+
 /** 请求侧消息的最小结构；@veltra/ai 的 ChatMessage 满足该形状 */
 export interface AiMessage {
   role: 'user' | 'assistant' | 'tool'
   content: string
-  /** 用户消息图片附件（转 OpenAI image_url 内容分片） */
-  attachments?: ReadonlyArray<{ dataUrl: string }>
+  /** 用户消息附件（图片转 OpenAI image_url 内容分片，非图片附件转本地文本上下文） */
+  attachments?: ReadonlyArray<AiAttachment>
   toolCalls?: ReadonlyArray<AiToolCall>
   toolCallId?: string
 }
@@ -191,15 +211,15 @@ export function requestOpenAIStream(
 
 ### requestAiText
 
-| 参数           | 类型                | 默认 | 必填 | 约束                                                                 |
-| -------------- | ------------------- | ---- | :--: | -------------------------------------------------------------------- |
-| `config`       | `AiProviderConfig`  | —    |  是  | `url` / `model` 必填；`stream` 缺省 `false`                           |
-| `prompt`       | `string`            | —    |  是  | 作为 user 消息                                                       |
-| `systemPrompt` | `string`            | —    |  否  | 存在（非空串）时作为首条 system 消息                                 |
-| `signal`       | `AbortSignal`       | —    |  否  | 中断后不触发任何回调（静默）                                         |
-| `onDelta`      | `(delta) => void`   | —    |  否  | 仅 `config.stream === true` 时逐段触发                               |
-| `onSuccess`    | `(text) => void`    | —    |  否  | 流式为全部增量拼接；非流式为完整响应文本                             |
-| `onError`      | `(error) => void`   | —    |  否  | 网络 / 非 2xx / 流中断 / 响应缺可解析文本                            |
+| 参数           | 类型               | 默认 | 必填 | 约束                                        |
+| -------------- | ------------------ | ---- | :--: | ------------------------------------------- |
+| `config`       | `AiProviderConfig` | —    |  是  | `url` / `model` 必填；`stream` 缺省 `false` |
+| `prompt`       | `string`           | —    |  是  | 作为 user 消息                              |
+| `systemPrompt` | `string`           | —    |  否  | 存在（非空串）时作为首条 system 消息        |
+| `signal`       | `AbortSignal`      | —    |  否  | 中断后不触发任何回调（静默）                |
+| `onDelta`      | `(delta) => void`  | —    |  否  | 仅 `config.stream === true` 时逐段触发      |
+| `onSuccess`    | `(text) => void`   | —    |  否  | 流式为全部增量拼接；非流式为完整响应文本    |
+| `onError`      | `(error) => void`  | —    |  否  | 网络 / 非 2xx / 流中断 / 响应缺可解析文本   |
 
 请求行为：
 
@@ -211,16 +231,16 @@ export function requestOpenAIStream(
 
 ### buildOpenAIBody
 
-| 参数             | 类型                            | 默认 | 必填 | 约束                                                       |
-| ---------------- | ------------------------------- | ---- | :--: | ---------------------------------------------------------- |
-| `model`          | `string`                        | —    |  是  | 写入请求体 `model`                                         |
-| `messages`       | `readonly AiMessage[]`          | —    |  是  | 转 wire 格式：附件转 `image_url` 分片、toolCalls 转 `tool_calls` |
-| `systemPrompt`   | `string`                        | —    |  否  | 存在时作为首条 system 消息                                 |
-| `tools`          | `readonly AiTool[]`             | —    |  否  | 非空才写 `tools` 字段                                      |
-| `stream`         | `boolean`                       | 否   |  否  | 写入请求体 `stream`；`true` 时附 `stream_options.include_usage` |
-| `reasoningLevel` | `string`                        | —    |  否  | 提供时由 `applyReasoning` 写入，缺省写 `reasoning_effort`   |
-| `applyReasoning` | `(level, body) => void`         | —    |  否  | 自定义推理等级写入字段                                     |
-| `extraBody`      | `Record<string, unknown>`       | —    |  否  | 展开在最前；其 `stream_options` 与 `include_usage` 合并保留 |
+| 参数             | 类型                      | 默认 | 必填 | 约束                                                                                         |
+| ---------------- | ------------------------- | ---- | :--: | -------------------------------------------------------------------------------------------- |
+| `model`          | `string`                  | —    |  是  | 写入请求体 `model`                                                                           |
+| `messages`       | `readonly AiMessage[]`    | —    |  是  | 转 wire 格式：图片附件转 `image_url` 分片，非图片附件并入文本内容，toolCalls 转 `tool_calls` |
+| `systemPrompt`   | `string`                  | —    |  否  | 存在时作为首条 system 消息                                                                   |
+| `tools`          | `readonly AiTool[]`       | —    |  否  | 非空才写 `tools` 字段                                                                        |
+| `stream`         | `boolean`                 | 否   |  否  | 写入请求体 `stream`；`true` 时附 `stream_options.include_usage`                              |
+| `reasoningLevel` | `string`                  | —    |  否  | 提供时由 `applyReasoning` 写入，缺省写 `reasoning_effort`                                    |
+| `applyReasoning` | `(level, body) => void`   | —    |  否  | 自定义推理等级写入字段                                                                       |
+| `extraBody`      | `Record<string, unknown>` | —    |  否  | 展开在最前；其 `stream_options` 与 `include_usage` 合并保留                                  |
 
 ## 方法与事件
 

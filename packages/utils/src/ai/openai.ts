@@ -1,4 +1,4 @@
-import type { AiMessage, AiStreamHandlers, AiTokenUsage, AiTool } from './types'
+import type { AiAttachment, AiMessage, AiStreamHandlers, AiTokenUsage, AiTool } from './types'
 
 /** 请求体构造选项 */
 export interface OpenAIBodyOptions {
@@ -28,6 +28,20 @@ interface OpenAIMessage {
   tool_call_id?: string
 }
 
+function isImageAttachment(att: AiAttachment): boolean {
+  if (att.mimeType?.startsWith('image/')) return true
+  if (att.dataUrl.startsWith('data:image/')) return true
+  return false
+}
+
+function formatFileAttachmentText(att: AiAttachment): string {
+  const name = att.name || 'attachment'
+  if (att.textContent != null && att.textContent !== '') {
+    return `[附件: ${name}]\n\`\`\`\n${att.textContent}\n\`\`\``
+  }
+  return `[附件: ${name}]`
+}
+
 function toOpenAIMessages(messages: readonly AiMessage[], systemPrompt?: string): OpenAIMessage[] {
   const result: OpenAIMessage[] = []
 
@@ -35,28 +49,65 @@ function toOpenAIMessages(messages: readonly AiMessage[], systemPrompt?: string)
     result.push({ role: 'system', content: systemPrompt })
   }
 
-  for (const msg of messages) {
+  for (let i = 0; i < messages.length; i++) {
+    const msg = messages[i]!
     if (msg.role === 'user') {
       if (msg.attachments?.length) {
-        const parts: unknown[] = []
-        if (msg.content) parts.push({ type: 'text', text: msg.content })
+        const imageAttachments: AiAttachment[] = []
+        const textBlocks: string[] = []
         for (const att of msg.attachments) {
-          parts.push({ type: 'image_url', image_url: { url: att.dataUrl } })
+          if (isImageAttachment(att)) {
+            imageAttachments.push(att)
+          } else {
+            textBlocks.push(formatFileAttachmentText(att))
+          }
         }
-        result.push({ role: 'user', content: parts })
+        if (msg.content) textBlocks.push(msg.content)
+        const combinedText = textBlocks.join('\n\n')
+
+        if (imageAttachments.length) {
+          const parts: unknown[] = []
+          if (combinedText) parts.push({ type: 'text', text: combinedText })
+          for (const att of imageAttachments) {
+            parts.push({ type: 'image_url', image_url: { url: att.dataUrl } })
+          }
+          result.push({ role: 'user', content: parts })
+        } else {
+          result.push({ role: 'user', content: combinedText })
+        }
       } else {
         result.push({ role: 'user', content: msg.content })
       }
     } else if (msg.role === 'assistant') {
+      const toolCalls = msg.toolCalls
+      // 跳过无内容且无工具调用的空 assistant 占位（如中止或失败轮次遗留），避免干扰后续对话
+      if (!msg.content && !toolCalls?.length) continue
+
       const item: OpenAIMessage = { role: 'assistant', content: msg.content || '' }
-      if (msg.toolCalls?.length) {
-        item.tool_calls = msg.toolCalls.map((call) => ({
+      if (toolCalls?.length) {
+        item.tool_calls = toolCalls.map((call) => ({
           id: call.id,
           type: 'function',
           function: { name: call.name, arguments: call.arguments }
         }))
       }
       result.push(item)
+
+      if (toolCalls?.length) {
+        const answered = new Set<string>()
+        while (i + 1 < messages.length && messages[i + 1]!.role === 'tool') {
+          i++
+          const toolMsg = messages[i]!
+          if (toolMsg.toolCallId) answered.add(toolMsg.toolCallId)
+          result.push({ role: 'tool', tool_call_id: toolMsg.toolCallId, content: toolMsg.content })
+        }
+        // 为缺少对应 tool 响应的 call_id 补齐兜底结果，避免 OpenAI/DeepSeek 报 400
+        for (const call of toolCalls) {
+          if (!answered.has(call.id)) {
+            result.push({ role: 'tool', tool_call_id: call.id, content: 'Error: Aborted' })
+          }
+        }
+      }
     } else if (msg.role === 'tool') {
       result.push({ role: 'tool', tool_call_id: msg.toolCallId, content: msg.content })
     }
@@ -274,7 +325,7 @@ export async function parseOpenAISSEStream(
     reader.releaseLock()
   }
 
-  flushToolCalls()
+  if (!signal?.aborted) flushToolCalls()
 }
 
 /**

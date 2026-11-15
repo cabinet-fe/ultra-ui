@@ -25,6 +25,20 @@ export interface AiToolCall {
   arguments: string
 }
 
+/** 请求侧用户消息携带的附件 */
+export interface AiAttachment {
+  /** 文件名 */
+  name?: string
+  /** MIME 类型 */
+  mimeType?: string
+  /** 字节大小 */
+  size?: number
+  /** base64 data URL（图片附件使用） */
+  dataUrl: string
+  /** 非图片附件在本地提取的文本内容 */
+  textContent?: string
+}
+
 /**
  * 请求侧消息的最小结构（内部消息模型转 wire 格式的入参形状）。
  * @veltra/ai 的 ChatMessage 满足该形状，可直接传入。
@@ -32,8 +46,8 @@ export interface AiToolCall {
 export interface AiMessage {
   role: 'user' | 'assistant' | 'tool'
   content: string
-  /** 用户消息图片附件（转 OpenAI image_url 内容分片） */
-  attachments?: ReadonlyArray<{ dataUrl: string }>
+  /** 用户消息附件（图片转 OpenAI image_url 内容分片，非图片附件转本地文本上下文） */
+  attachments?: ReadonlyArray<AiAttachment>
   /** assistant 消息上的工具调用列表 */
   toolCalls?: ReadonlyArray<AiToolCall>
   /** role 为 tool 时关联的工具调用 id */

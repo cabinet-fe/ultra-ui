@@ -110,6 +110,94 @@ describe('buildOpenAIBody', () => {
       }
     ])
   })
+
+  it('非图片附件不发送 image_url，将本地提取文本或文件元信息并入用户文本', () => {
+    const messages: AiMessage[] = [
+      {
+        role: 'user',
+        content: '总结这两个文件',
+        attachments: [
+          {
+            name: 'notes.md',
+            mimeType: 'text/markdown',
+            size: 12,
+            dataUrl: '',
+            textContent: '# Hello'
+          },
+          { name: 'archive.zip', mimeType: 'application/zip', size: 2048, dataUrl: '' }
+        ]
+      },
+      {
+        role: 'user',
+        content: '对照截图和代码',
+        attachments: [
+          {
+            name: 'code.ts',
+            mimeType: 'text/typescript',
+            size: 20,
+            dataUrl: '',
+            textContent: 'const x = 1'
+          },
+          {
+            name: 'screen.png',
+            mimeType: 'image/png',
+            size: 100,
+            dataUrl: 'data:image/png;base64,img1'
+          }
+        ]
+      }
+    ]
+
+    const body = buildOpenAIBody({ model: 'm', messages })
+
+    expect(body.messages).toEqual([
+      {
+        role: 'user',
+        content: '[附件: notes.md]\n```\n# Hello\n```\n\n[附件: archive.zip]\n\n总结这两个文件'
+      },
+      {
+        role: 'user',
+        content: [
+          { type: 'text', text: '[附件: code.ts]\n```\nconst x = 1\n```\n\n对照截图和代码' },
+          { type: 'image_url', image_url: { url: 'data:image/png;base64,img1' } }
+        ]
+      }
+    ])
+  })
+
+  it('过滤空 assistant 占位并为缺少响应的 tool_calls 补齐 Error: Aborted', () => {
+    const messages: AiMessage[] = [
+      { role: 'user', content: '打开图表' },
+      {
+        role: 'assistant',
+        content: '',
+        toolCalls: [{ id: 'c1', name: 'openAdminPage', arguments: '{"page":"sales-chart"}' }]
+      },
+      { role: 'user', content: '算一下 1+1' },
+      { role: 'assistant', content: '', toolCalls: [] },
+      { role: 'user', content: '北京天气' }
+    ]
+
+    const body = buildOpenAIBody({ model: 'm', messages })
+
+    expect(body.messages).toEqual([
+      { role: 'user', content: '打开图表' },
+      {
+        role: 'assistant',
+        content: '',
+        tool_calls: [
+          {
+            id: 'c1',
+            type: 'function',
+            function: { name: 'openAdminPage', arguments: '{"page":"sales-chart"}' }
+          }
+        ]
+      },
+      { role: 'tool', tool_call_id: 'c1', content: 'Error: Aborted' },
+      { role: 'user', content: '算一下 1+1' },
+      { role: 'user', content: '北京天气' }
+    ])
+  })
 })
 
 describe('parseOpenAISSEStream', () => {
@@ -226,6 +314,30 @@ describe('parseOpenAISSEStream', () => {
     )
 
     expect(handlers.onTextDelta).not.toHaveBeenCalled()
+  })
+
+  it('tool_calls 流式中途被中断时不刷出未完成的工具调用', async () => {
+    const handlers = baseHandlers()
+    const controller = new AbortController()
+    const encoder = new TextEncoder()
+
+    const stream = new ReadableStream<Uint8Array>({
+      start(ctrl) {
+        ctrl.enqueue(
+          encoder.encode(
+            'data: {"choices":[{"delta":{"tool_calls":[{"index":0,"id":"call_1","function":{"name":"getWeather","arguments":"{\\"ci"}}]}}]}\n\n'
+          )
+        )
+        setTimeout(() => {
+          controller.abort()
+          ctrl.enqueue(encoder.encode('data: {"choices":[{"delta":{}}]}\n\n'))
+          ctrl.close()
+        }, 0)
+      }
+    })
+
+    await parseOpenAISSEStream(stream, controller.signal, handlers)
+    expect(handlers.onToolCall).not.toHaveBeenCalled()
   })
 })
 
