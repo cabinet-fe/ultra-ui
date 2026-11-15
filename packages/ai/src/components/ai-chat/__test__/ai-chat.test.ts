@@ -653,10 +653,16 @@ describe('UAiChat', () => {
     expect(host.querySelector('.u-ai-chat__reasoning')).toBeFalsy()
 
     // 流式推进后滚动到最新一行（跳过空行）
-    steps.shift()?.()
     await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__step-line-text')?.textContent).toBe('第二行思考')
+      expect(steps.length).toBeGreaterThan(0)
     })
+    steps.shift()?.()
+    await vi.waitFor(
+      () => {
+        expect(host.querySelector('.u-ai-chat__step-line-text')?.textContent).toBe('第二行思考')
+      },
+      { timeout: 3000 }
+    )
 
     // 展开步骤行：思考块可见（自身默认折叠）
     host.querySelector<HTMLElement>('.u-ai-chat__step-line-bar')!.click()
@@ -665,6 +671,9 @@ describe('UAiChat', () => {
     expect(host.querySelector('.u-ai-chat__reasoning-content')).toBeFalsy()
 
     // 正文开始输出：该段闭合，行定格为完成态摘要，不再滚动展示思考行
+    await vi.waitFor(() => {
+      expect(steps.length).toBeGreaterThan(0)
+    })
     steps.shift()?.()
     await vi.waitFor(() => {
       expect(host.querySelector('.md-stub')?.textContent).toContain('答案')
