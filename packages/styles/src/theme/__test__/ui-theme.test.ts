@@ -10,18 +10,18 @@ import {
   navSurfaceTone
 } from '../component-css-vars'
 import {
+  auroraTheme,
+  celadonTheme,
   darkTheme,
-  glassTheme,
+  gildedTheme,
   guochaoTheme,
-  heroTheme,
+  irisTheme,
   lightTheme,
   metalTheme,
   midnightTheme,
   neonTheme,
   newspaperTheme,
-  wildTheme,
-  xuanmoTheme,
-  xuanzhiTheme
+  wildTheme
 } from '../presets'
 import { UITheme } from '../ui-theme'
 
@@ -47,15 +47,15 @@ describe('UITheme', () => {
 
   it('derived themes inherit series unless overridden', () => {
     expect(darkTheme.series).toBe('dark')
-    expect(glassTheme.series).toBe('dark')
-    expect(heroTheme.series).toBe('light')
-    expect(xuanzhiTheme.series).toBe('light')
+    expect(auroraTheme.series).toBe('dark')
+    expect(irisTheme.series).toBe('light')
+    expect(celadonTheme.series).toBe('light')
     expect(guochaoTheme.series).toBe('light')
     expect(wildTheme.series).toBe('light')
     expect(newspaperTheme.series).toBe('light')
     expect(midnightTheme.series).toBe('dark')
     expect(neonTheme.series).toBe('dark')
-    expect(xuanmoTheme.series).toBe('dark')
+    expect(gildedTheme.series).toBe('dark')
     expect(metalTheme.series).toBe('dark')
     expect(lightTheme.new({}).series).toBe('light')
     expect(lightTheme.new({}, { series: 'dark' }).series).toBe('dark')
@@ -77,12 +77,22 @@ describe('UITheme', () => {
     expect(decls.some((d) => d.startsWith('--u-collapse-item-bg:'))).toBe(false)
   })
 
-  it('glass declares kbd and batch-edit vars explicitly (non-hex bg skips mix tokens)', () => {
-    const decls = glassTheme.themeToDeclarationList(glassTheme.theme)
-    expect(decls.some((d) => d.startsWith('--u-kbd-inset-shadow:'))).toBe(true)
-    expect(decls.some((d) => d.startsWith('--u-kbd-border-shadow:'))).toBe(true)
-    expect(decls.some((d) => d.startsWith('--u-kbd-drop-shadow:'))).toBe(true)
-    expect(decls.some((d) => d.startsWith('--u-batch-edit-form-header-bg:'))).toBe(true)
+  it('non-hex bg skips mix tokens without NaN and preset special tokens emit properly', () => {
+    const rgbaTheme = lightTheme.new({ bg: { color: { top: 'rgba(15, 23, 42, 0.75)' } } })
+    const rgbaDecls = rgbaTheme.themeToDeclarationList(rgbaTheme.theme)
+    expect(rgbaDecls.some((d) => d.startsWith('--u-kbd-inset-shadow:'))).toBe(false)
+    expect(rgbaDecls.some((d) => d.includes('NaN'))).toBe(false)
+
+    const gildedDecls = gildedTheme.themeToDeclarationList(gildedTheme.theme)
+    expect(gildedDecls).toContain('--u-button-primary-text-color: #191512')
+
+    const auroraDecls = auroraTheme.themeToDeclarationList(auroraTheme.theme)
+    expect(auroraDecls).toContain('--u-bg-filter: blur(16px) saturate(180%)')
+
+    const neonDecls = neonTheme.themeToDeclarationList(neonTheme.theme)
+    expect(
+      neonDecls.some((d) => d.startsWith('--u-shadow-emboss:') && d.includes('192, 38, 211'))
+    ).toBe(true)
   })
 
   it('emits elevation and motion tokens', () => {
@@ -139,8 +149,8 @@ describe('UITheme', () => {
     expect(decls).toContain('--u-nav-color: var(--u-text-color-title)')
   })
 
-  it('hero preset defaults to light sidebar variant', () => {
-    const decls = heroTheme.navSidebarDecls(heroTheme.theme)
+  it('iris preset defaults to light sidebar variant', () => {
+    const decls = irisTheme.navSidebarDecls(irisTheme.theme)
     expect(decls).toContain('--u-nav-bg-color: var(--u-bg-color-middle)')
   })
 
@@ -157,28 +167,28 @@ describe('UITheme', () => {
     expect(decls.some((d) => d.startsWith('--u-nav-'))).toBe(false)
   })
 
-  it('guochao / wild / newspaper / xuanzhi have themed dark sidebar colors', () => {
+  it('guochao / wild / newspaper / celadon have themed dark sidebar colors', () => {
     expect(guochaoTheme.navSidebarDecls(guochaoTheme.theme)).toContain('--u-nav-bg-color: #59251e')
     expect(wildTheme.navSidebarDecls(wildTheme.theme)).toContain('--u-nav-bg-color: #311a4e')
     expect(newspaperTheme.navSidebarDecls(newspaperTheme.theme)).toContain(
       '--u-nav-bg-color: #2e1915'
     )
-    expect(xuanzhiTheme.navSidebarDecls(xuanzhiTheme.theme)).toContain('--u-nav-bg-color: #303c34')
+    expect(celadonTheme.navSidebarDecls(celadonTheme.theme)).toContain('--u-nav-bg-color: #1c3b3c')
   })
 
   it('no preset emits invalid NaN declarations', () => {
     const themes = [
       lightTheme,
       darkTheme,
-      heroTheme,
-      glassTheme,
-      xuanzhiTheme,
+      irisTheme,
+      auroraTheme,
+      celadonTheme,
       guochaoTheme,
       wildTheme,
       newspaperTheme,
       midnightTheme,
       neonTheme,
-      xuanmoTheme,
+      gildedTheme,
       metalTheme
     ]
     for (const t of themes) {
@@ -190,15 +200,15 @@ describe('UITheme', () => {
   })
 
   it('nav.variants overrides apply only to their own variant', () => {
-    const t = xuanzhiTheme.new({ nav: { variants: { light: { 'bg-color': '#f1ede0' } } } })
-    // 深变体（预设自带松烟墨）不受 light 变体覆盖影响
+    const t = celadonTheme.new({ nav: { variants: { light: { 'bg-color': '#e6efef' } } } })
+    // 深变体（预设自带深黛青）不受 light 变体覆盖影响
     const darkDecls = t.navSidebarDecls(t.theme)
-    expect(darkDecls).toContain('--u-nav-bg-color: #303c34')
-    expect(darkDecls).not.toContain('--u-nav-bg-color: #f1ede0')
+    expect(darkDecls).toContain('--u-nav-bg-color: #1c3b3c')
+    expect(darkDecls).not.toContain('--u-nav-bg-color: #e6efef')
     // 浅变体使用 variants.light 覆盖
     const lightDecls = t.navSidebarDecls(t.theme, 'light')
-    expect(lightDecls).toContain('--u-nav-bg-color: #f1ede0')
-    expect(lightDecls).not.toContain('--u-nav-bg-color: #303c34')
+    expect(lightDecls).toContain('--u-nav-bg-color: #e6efef')
+    expect(lightDecls).not.toContain('--u-nav-bg-color: #1c3b3c')
   })
 
   it('nav top-level overrides still apply to every variant and lose to variants', () => {
@@ -217,9 +227,9 @@ describe('UITheme', () => {
     expect(lightDecls).toContain('--u-nav-bg-color: var(--u-bg-color-middle)')
     // 浅底选中文字用更深的 primary，保证 13px 正文对比度
     expect(lightDecls).toContain('--u-nav-active-color: var(--u-color-primary-dark-3)')
-    // hero 默认 light 变体，派生 dark 变体后回落到深墨侧栏
-    const heroDark = heroTheme.withNavVariant('dark')
-    expect(heroDark.navSidebarDecls(heroDark.theme)).toContain(
+    // iris 默认 light 变体，派生 dark 变体后回落到深墨侧栏
+    const irisDark = irisTheme.withNavVariant('dark')
+    expect(irisDark.navSidebarDecls(irisDark.theme)).toContain(
       '--u-nav-bg-color: var(--u-text-color-title)'
     )
   })
@@ -276,9 +286,9 @@ describe('UITheme', () => {
     expect(lightMenu['active-color']).toMatch(/^#[0-9a-f]{6}$/i)
 
     // 预设个性侧栏色按变体隔离
-    expect(xuanzhiTheme.navSidebarColors()['bg-color']).toBe('#303c34')
-    expect(xuanzhiTheme.navSidebarColors('light')['bg-color']).toBe('#f7f4ea')
-    expect(heroTheme.navSidebarColors()['bg-color']).toBe('#fafafa')
-    expect(heroTheme.navSidebarColors('dark')['bg-color']).toBe('#11181C')
+    expect(celadonTheme.navSidebarColors()['bg-color']).toBe('#1c3b3c')
+    expect(celadonTheme.navSidebarColors('light')['bg-color']).toBe('#F0F6F6')
+    expect(irisTheme.navSidebarColors()['bg-color']).toBe('#F6F6FC')
+    expect(irisTheme.navSidebarColors('dark')['bg-color']).toBe('#181430')
   })
 })

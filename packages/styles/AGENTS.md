@@ -16,7 +16,7 @@ src/
     ├── index.ts
     ├── load-theme.ts
     ├── ui-theme.ts
-    └── presets/          # light、dark、hero、glass（深色）、xuanzhi、guochao、wild、newspaper、midnight（深色）、neon（深色）、xuanmo（深色）、metal（深色）
+    └── presets/          # light、dark、iris、celadon、guochao、wild、newspaper、aurora（深色）、midnight（深色）、neon（深色）、gilded（深色）、metal（深色）
 ```
 
 ## 导出子路径
@@ -31,7 +31,7 @@ src/
 
 动画工具类为全局类，按需引入单个文件（如 `import '@veltra/styles/animations/shine.scss'`）：
 
-- `u-shine`：文字扫光（background-clip: text，`--u-shine-duration` 可覆盖时长，默认 2.4s，含 prefers-reduced-motion 降级）
+- `u-shine`：文字扫光（background-clip: text，`--u-shine-duration` 可覆盖时长，默认 3.2s，含 prefers-reduced-motion 降级）
 
 ## Sass 用法
 

@@ -62,9 +62,7 @@ loadTheme()
 .brand-block {
   color: fn.use-var(text-color, title); // var(--u-text-color-title)
   background: fn.use-var(bg-color, top); // var(--u-bg-color-top)
-  border-bottom: fn.use-var(
-    border
-  ); // var(--u-border-color) var(--u-border-width) var(--u-border-style)
+  border-bottom: fn.use-var(border); // var(--u-border-color) var(--u-border-width) var(--u-border-style)
 }
 ```
 
@@ -84,7 +82,7 @@ loadTheme()
 - 数字（含数字字符串）写入时自动补 `px`；其余字符串原样写入。值为 `''` / `null` / `undefined` 的字段不产出声明，`0` 保留。
 - 色阶只生成 `light` / `dark` × `1 3 5 7 9`；alpha 只生成上表列出的档位，`color-a` / `-a-{n}` 传入其他数字会得到不存在的变量。
 - 派生 token（色阶、alpha、`--u-border`、`--u-shadow`、`--u-bg-filter`、混合 token）由 `loadTheme` 自动计算，业务侧禁止手写这些值。
-- 非 hex 颜色（`rgba()` 等）不生成 alpha / 混合派生 token；glassTheme 等靠主题扩展键显式声明补齐。
+- 非 hex 颜色（`rgba()` 等）不生成 alpha / 混合派生 token，需靠主题扩展键显式声明补齐。
 
 ## 参数说明
 
@@ -189,19 +187,19 @@ loadTheme()
 
 **表面装饰类（应用壳专用，`--u-nav-surface-*`）**：随外观一起注入，值按菜单**实际底色色调**（`navSurfaceTone(series, variant)`：深色系列的任何变体都是深底）配套，供应用壳绘制侧栏容器，避免自己写 `[data-theme]` 分支：
 
-| 变量                                 | 用途                                   |
-| ------------------------------------ | -------------------------------------- |
-| `--u-nav-surface-overlay`            | 侧栏容器叠层渐变（垫在 nav 底色之上）  |
-| `--u-nav-surface-hairline`           | 侧栏与内容列的分隔描边                 |
-| `--u-nav-surface-chip-bg`            | 侧栏内 chip 底色（机构切换、用户卡等） |
-| `--u-nav-surface-chip-border`        | chip 描边                              |
-| `--u-nav-surface-chip-hover-bg`      | chip 悬浮底色                          |
-| `--u-nav-surface-mark-ring`          | 品牌标记的外环                       |
-| `--u-nav-surface-active-gradient`    | 菜单选中项渐变底                       |
-| `--u-nav-surface-active-ring`        | 菜单选中项内描边                       |
-| `--u-nav-surface-accent`             | 菜单选中项左侧光条 / 强调色            |
-| `--u-nav-surface-scrollbar`          | 侧栏滚动条                             |
-| `--u-nav-surface-scrollbar-hover`    | 侧栏滚动条悬浮                         |
+| 变量                              | 用途                                   |
+| --------------------------------- | -------------------------------------- |
+| `--u-nav-surface-overlay`         | 侧栏容器叠层渐变（垫在 nav 底色之上）  |
+| `--u-nav-surface-hairline`        | 侧栏与内容列的分隔描边                 |
+| `--u-nav-surface-chip-bg`         | 侧栏内 chip 底色（机构切换、用户卡等） |
+| `--u-nav-surface-chip-border`     | chip 描边                              |
+| `--u-nav-surface-chip-hover-bg`   | chip 悬浮底色                          |
+| `--u-nav-surface-mark-ring`       | 品牌标记的外环                         |
+| `--u-nav-surface-active-gradient` | 菜单选中项渐变底                       |
+| `--u-nav-surface-active-ring`     | 菜单选中项内描边                       |
+| `--u-nav-surface-accent`          | 菜单选中项左侧光条 / 强调色            |
+| `--u-nav-surface-scrollbar`       | 侧栏滚动条                             |
+| `--u-nav-surface-scrollbar-hover` | 侧栏滚动条悬浮                         |
 
 `html[data-nav-surface='dark'|'light']` 同步当前主题默认变体的实际底色色调，可用于容器级样式分支（也可用 `navSurfaceTone(series, variant)` 在 JS 侧判断）。
 

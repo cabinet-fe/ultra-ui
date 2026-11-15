@@ -41,22 +41,23 @@ Ultra UI（`@veltra/*`）的颜色全部来自 `loadTheme()` 注入的 `--u-*` t
 构建配置 + 入口初始化 + 主题切换模块 + 消费 token 的业务组件：
 
 ```ts
-// vite.config.ts
-import { defineConfig } from 'vite'
+import { VeltraUIResolver } from '@veltra/vite'
 import vue from '@vitejs/plugin-vue'
 import Components from 'unplugin-vue-components/vite'
-import { VeltraUIResolver } from '@veltra/vite'
+// vite.config.ts
+import { defineConfig } from 'vite'
 
 // VeltraUIResolver 重写模板编译产物里的 _resolveComponent("<组件名>")，注入组件 import 与样式副作用
 export default defineConfig({ plugins: [vue(), Components({ resolvers: [VeltraUIResolver()] })] })
 ```
 
 ```ts
+import { loadTheme } from '@veltra/styles/theme'
 // src/main.ts —— 主题必须初始化，否则 --u-* 为空、组件无颜色
 import { createApp } from 'vue'
-import App from './App.vue'
 import '@veltra/styles/normalize'
-import { loadTheme } from '@veltra/styles/theme'
+
+import App from './App.vue'
 import { brandTheme } from './theme'
 
 loadTheme(brandTheme) // 不传参时应用 lightTheme
@@ -141,7 +142,7 @@ const current = computed(() => currentTheme.value?.series ?? 'light')
 ## 要点说明
 
 - `loadTheme(theme?)`：同步、无返回值、不抛错；默认 `lightTheme`。重复调用以最后一次为准——这就是热替换：注入的声明块整体替换，颜色立即生效。SSR 必须在 `onMounted` 中调用。
-- 预设主题 12 个，每个自带 `series`，不成对切换：light 系 `lightTheme` / `heroTheme` / `xuanzhiTheme` / `guochaoTheme` / `wildTheme` / `newspaperTheme`；dark 系 `darkTheme` / `glassTheme` / `midnightTheme` / `neonTheme` / `xuanmoTheme` / `metalTheme`。切深色就是 `loadTheme(darkTheme)` 这类换主题动作。
+- 预设主题 12 个，每个自带 `series`，不成对切换：light 系 `lightTheme` / `irisTheme` / `celadonTheme` / `guochaoTheme` / `wildTheme` / `newspaperTheme`；dark 系 `darkTheme` / `auroraTheme` / `midnightTheme` / `neonTheme` / `gildedTheme` / `metalTheme`。切深色就是 `loadTheme(darkTheme)` 这类换主题动作。
 - 深浅色硬规则：`series` 决定注入哪套组件级 token 并写 `html[data-theme]`（`'light'` 或 `'dark'`）。从浅色基主题派生深色必须显式 `new(customTheme, { series: 'dark' })`；不写时全局色变了，表格斑马纹、按钮 plain 等组件级 token 仍是浅色套。
 - 品牌色覆盖：`lightTheme.new({ color: { primary: '#ff6600' } })` 派生新 `UITheme`，主色及全部色阶、alpha token 同步派生；空值（`''` / `null` / `undefined`）字段被剔除，`0` 保留；数字 token 自动补 `px`。派生继承基主题 `series`（`options.series` 可覆盖），不修改基主题。
 - `nav.variant` 硬规则：`'dark'` 深底浅字 / `'light'` 浅底深字，默认 `'dark'`（浅色主题的默认侧栏也是深底）。只改 `'bg-color'` 不改 `variant` 不联动前景，浅底必须同时 `variant: 'light'`。`nav` 其余字符串键逐项覆盖同名 `--u-nav-*`（`'bg-color'` → `--u-nav-bg-color`）。整组换内置值用 `navSidebarTokens(series, variant)`。
@@ -150,8 +151,8 @@ const current = computed(() => currentTheme.value?.series ?? 'light')
 - 组件样式与显式 import 成对出现：`u-button` 写在模板里时由 `VeltraUIResolver` 注入组件 import 与样式副作用（`components/button/style`），`<script setup>` 里禁止写 `import { UButton } from '@veltra/desktop'`。resolver 只重写模板里没有同名绑定的 `_resolveComponent("<组件名>")` 调用；显式 import 的组件不再产生该调用，必须自己补样式子路径：
 
   ```ts
-  import { h } from 'vue'
   import { UButton } from '@veltra/desktop'
+  import { h } from 'vue'
   import '@veltra/desktop/components/button/style' // 漏写：class 是 u-button 但 .u-button 规则不加载
 
   const themeSwitch = () => h(UButton, { type: 'primary' }, () => '深浅切换')
@@ -168,6 +169,6 @@ const current = computed(() => currentTheme.value?.series ?? 'light')
 > - 主题 API 一律从 `@veltra/styles/theme` 导入；`@veltra/compositions` 不 re-export 主题。
 > - 预设及其派生主题 `reactive` 为 `false`：运行中直接改 `theme.xxx` 不会自动重渲染，改完字段必须再调一次 `loadTheme(theme)`；需要响应式主题时用 `new UITheme(theme)`（默认 `reactive: true`）。
 > - `pkg:` 前缀必须写：`@use '@veltra/styles/mixins'`（不带 `pkg:`）报 `Can't find stylesheet to import`。
-> - 非 hex 颜色（如 glassTheme 的 `rgba()` 背景）不生成对应 alpha / 混合派生 token。
+> - 非 hex 颜色（如自定义 `rgba()` 背景）不生成对应 alpha / 混合派生 token。
 > - `mixColor(color1, color2, ratio)` 的 `ratio > 1` 时抛 `Error('ratio的值在0-1之间')`。
 > - 显式 import 的组件必须补 `import '@veltra/desktop/components/<目录>/style'`：resolver 只处理模板里没有同名绑定的组件，写了 `import { UButton } from '@veltra/desktop'` 就必须写 `import '@veltra/desktop/components/button/style'`，否则模板结构正确但渲染成裸样式。`h()` / `render` 里的组件永不被 resolver 解析，必须显式 import，漏写报 `ReferenceError: UTag is not defined`。

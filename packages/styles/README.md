@@ -42,16 +42,16 @@ import '@veltra/styles/transitions/fade.css'
 从 `@veltra/styles/theme` 导入预设主题，在入口（SSR 则在 `onMounted`）调用 `loadTheme`：
 
 ```ts
-import { loadTheme, lightTheme, heroTheme, glassTheme } from '@veltra/styles/theme'
+import { loadTheme, lightTheme, irisTheme, auroraTheme } from '@veltra/styles/theme'
 
 loadTheme() // 默认 lightTheme
-loadTheme(heroTheme) // 应用指定预设
+loadTheme(irisTheme) // 应用指定预设
 ```
 
 预设主题按系列组织，应用主题即确定明暗（`html[data-theme]` 同步写入）：
 
-- 浅色系：`lightTheme`、`heroTheme`、`xuanzhiTheme`
-- 深色系：`darkTheme`、`glassTheme`
+- 浅色系：`lightTheme`、`irisTheme`、`celadonTheme`、`guochaoTheme`、`wildTheme`、`newspaperTheme`
+- 深色系：`darkTheme`、`auroraTheme`、`midnightTheme`、`neonTheme`、`gildedTheme`、`metalTheme`
 
 基于预设派生自定义主题：
 

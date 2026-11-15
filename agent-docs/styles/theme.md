@@ -8,8 +8,10 @@ keywords:
     currentTheme,
     lightTheme,
     darkTheme,
-    glassTheme,
-    xuanmoTheme,
+    irisTheme,
+    celadonTheme,
+    auroraTheme,
+    gildedTheme,
     metalTheme,
     guochaoTheme,
     wildTheme,
@@ -220,36 +222,36 @@ export type Theme = {
 ```ts
 import {
   lightTheme,
-  heroTheme,
-  xuanzhiTheme,
+  irisTheme,
+  celadonTheme,
   guochaoTheme,
   wildTheme,
   newspaperTheme,
   darkTheme,
-  glassTheme,
+  auroraTheme,
   midnightTheme,
   neonTheme,
-  xuanmoTheme,
+  gildedTheme,
   metalTheme
 } from '@veltra/styles/theme'
 ```
 
-| 导出             | series  | 特征（源码注释）                                                                          |
-| ---------------- | ------- | ----------------------------------------------------------------------------------------- |
-| `lightTheme`     | `light` | 默认浅色基座，`reactive: false`                                                           |
-| `heroTheme`      | `light` | HeroUI 风格：紫 `#7828c8`、2px 边框、浮雕阴影、`nav.variant: 'light'`                     |
-| `xuanzhiTheme`   | `light` | 宣纸：松烟绿 + 宣纸底，侧栏松烟墨                                                         |
-| `guochaoTheme`   | `light` | 国潮：绛红 `#C2332D` + 绢帛米底、鎏金描边，圆角 6/10/14，侧栏宫墙深红                     |
-| `wildTheme`      | `light` | 狂野：牛皮纸底 + 2px 碳黑粗描边 + 电光紫 `#6C2BD9`，零圆角、emboss 硬偏移阴影 `3px 3px 0` |
-| `newspaperTheme` | `light` | 报刊：新闻纸米白底 + 油墨黑主色、报头红危险色，零圆角、浮层 1px 墨线压边                  |
-| `darkTheme`      | `dark`  | 默认深色基座                                                                              |
-| `glassTheme`     | `dark`  | 玻璃拟态：rgba 背景 + `blur(20px)`，显式声明 kbd / batch-edit 扩展键                      |
-| `midnightTheme`  | `dark`  | 靛蓝 + 深空底，宽松间距、舒缓过渡                                                         |
-| `neonTheme`      | `dark`  | 品红 + 夜紫底 + 辉光阴影，小圆角                                                          |
-| `xuanmoTheme`    | `dark`  | 玄墨：玄黑底 + 宣纸白文字 + 朱砂主色 `#A8443A`，圆角 3/6/10，晕染式缓动                   |
-| `metalTheme`     | `dark`  | 金属：枪铁蓝灰底 + 熔钢橙 `#EE6C2B`、黄铜警告色，机加工圆角 2/4/6、emboss 金属倒角浮雕    |
+| 导出             | series  | 特征（源码注释）                                                                                    |
+| ---------------- | ------- | --------------------------------------------------------------------------------------------------- |
+| `lightTheme`     | `light` | 默认浅色基座，`reactive: false`                                                                     |
+| `irisTheme`      | `light` | 鸢尾：微紫云雾底 + 电光鸢尾紫 `#635BFF`、圆角 8/12/16、双层内高光软立体浮雕、`nav.variant: 'light'` |
+| `celadonTheme`   | `light` | 天青：汝窑青釉 `#2B7A78` + 天青雾白底、瓷釉高光浮雕，圆角 6/10/14，侧栏深黛青                       |
+| `guochaoTheme`   | `light` | 国潮：绛红 `#C2332D` + 绢帛米底、鎏金描边，圆角 6/10/14，侧栏宫墙深红                               |
+| `wildTheme`      | `light` | 狂野：牛皮纸底 + 2px 碳黑粗描边 + 电光紫 `#6C2BD9`，零圆角、emboss 硬偏移阴影 `3px 3px 0`           |
+| `newspaperTheme` | `light` | 报刊：新闻纸米白底 + 油墨黑主色、报头红危险色，零圆角、浮层 1px 墨线压边                            |
+| `darkTheme`      | `dark`  | 默认深色基座                                                                                        |
+| `auroraTheme`    | `dark`  | 极光：极夜深林底 + 极光青翠 `#14B8A6`、冰晶折光 emboss 浮雕与 `blur(16px)` 毛玻璃滤镜               |
+| `midnightTheme`  | `dark`  | 靛蓝 + 深空底，宽松间距、舒缓过渡                                                                   |
+| `neonTheme`      | `dark`  | 品红 + 夜紫底 + 辉光阴影与品红微辉光 emboss 浮雕，小圆角                                            |
+| `gildedTheme`    | `dark`  | 黑金：暖黑曜石底 + 香槟流金 `#D99B26`、流金内高光 emboss、主按钮黑字高对比                          |
+| `metalTheme`     | `dark`  | 金属：枪铁蓝灰底 + 熔钢橙 `#EE6C2B`、黄铜警告色，机加工圆角 2/4/6、emboss 金属倒角浮雕              |
 
-预设的个性化侧栏色写在 `nav.variants[variant]`（如宣纸/国潮/狂野的深色侧栏），因此切到另一个变体时会自动回落到该主题系列的内置浅/深外观，不会出现「浅变体套深墨底」的串色。
+预设的个性化侧栏色写在 `nav.variants[variant]`（如天青/国潮/狂野的深色侧栏），因此切到另一个变体时会自动回落到该主题系列的内置浅/深外观，不会出现「浅变体套深墨底」的串色。
 
 ### 主题工具函数（同入口导出）
 
@@ -378,9 +380,9 @@ loadTheme(brandDark) // => html[data-theme="dark"]，表格、按钮等按深色
 **方式二：派生主题（整页统一）** —— 用 `withNavVariant` 派生，切换时重新加载：
 
 ```ts
-import { loadTheme, xuanzhiTheme } from '@veltra/styles/theme'
+import { celadonTheme, loadTheme } from '@veltra/styles/theme'
 
-loadTheme(xuanzhiTheme.withNavVariant('light'))
+loadTheme(celadonTheme.withNavVariant('light'))
 ```
 
 **为预设定制某个变体的颜色**：写在 `nav.variants[variant]`，只在该变体生效（预设个性的深侧栏色因此不会泄漏到浅变体）；`nav` 顶层字符串键仍然对所有变体生效：
@@ -404,9 +406,11 @@ loadTheme(
 **取具体色值（主题选择器预览）**：`navSidebarColors(variant?)` 把内置 token 的 `var()` 引用解析成当前主题下的具体色值，不依赖该主题是否已加载到 DOM：
 
 ```ts
-const theme = xuanzhiTheme // UITheme 实例
-theme.navSidebarColors()['bg-color'] // 默认（深）变体的侧栏底色，如 '#303c34'
-theme.navSidebarColors('light')['bg-color'] // 浅变体的侧栏底色，如 '#f7f4ea'
+import { celadonTheme } from '@veltra/styles/theme'
+
+const theme = celadonTheme // UITheme 实例
+theme.navSidebarColors()['bg-color'] // 默认（深）变体的侧栏底色，如 '#1c3b3c'
+theme.navSidebarColors('light')['bg-color'] // 浅变体的侧栏底色，如 '#F0F6F6'
 theme.navSidebarColors('light')['active-color'] // 选中项文字色（已解析为 hex）
 ```
 
@@ -424,7 +428,7 @@ theme.navSidebarColors('light')['active-color'] // 选中项文字色（已解�
 > - **菜单深浅不要只改 `nav['bg-color']`**：只改底色不联动前景会出现浅底白字。要么用容器级 `data-nav-variant`（推荐），要么 `withNavVariant()` 派生；预设定制色写在 `nav.variants[variant]`，避免泄漏到另一个变体。
 > - `html[data-nav-surface]` 是当前主题默认菜单变体的**实际底色色调**，深色系列恒为 `dark`；`data-nav-variant` 的切换不改变它（容器级变体由 `--u-nav-surface-*` token 覆盖）。
 > - 值为 `''`、`null`、`undefined` 的字段在 `new()` 派生时被剔除，`0` 保留；数字 token 写入时自动补 `px`。
-> - 非 hex 颜色（如 glassTheme 的 `rgba()` 背景）不生成对应 alpha / 混合派生 token，需要时在主题里用扩展键显式声明（glassTheme 的 `kbd` / `batch-edit` 就是这种写法）。
+> - 非 hex 颜色（如自定义 `rgba()` 背景）不生成对应 alpha / 混合派生 token，需要时在主题里用扩展键显式声明（如 `kbd` / `batch-edit`）。
 
 ## 常见问题
 

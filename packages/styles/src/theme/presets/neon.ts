@@ -37,7 +37,7 @@ export const neonTheme = darkTheme.new({
     y: 0,
     blur: 12,
     spread: 0,
-    emboss: 'none',
+    emboss: '0 0 10px 0 rgba(192, 38, 211, 0.2), inset 0 1px 0 0 rgba(246, 239, 255, 0.12)',
     sm: '0 1px 2px 0 rgba(0, 0, 0, 0.5)',
     lg: '0 0 24px 0 rgba(192, 38, 211, 0.25), 0 8px 24px 0 rgba(0, 0, 0, 0.5)'
   },
