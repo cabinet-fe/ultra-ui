@@ -1,5 +1,15 @@
 # @veltra/ai
 
+## 2.5.0
+
+### Minor Changes
+
+- 58a1e35: 新增 `AiChat` 任意文件附件上传与本地文本提取（`accept` 缺省不再限制类型）、流式输出节流及 `AskQuestionOption` 导出；`ChatTool` 新增 `hideInSteps` 选项且 `panelWidth` 缺省平分容器宽度；新增 `@cat-kit/core >= 1.2.1` peer 依赖。
+
+### Patch Changes
+
+- 58a1e35: 修复 ai-chat 侧边面板缺少最小高度限制的问题：面板内容超出高度时不再撑大布局导致输入框被顶出可视区。
+
 ## 2.4.0
 
 ### Minor Changes
