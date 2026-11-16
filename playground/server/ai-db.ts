@@ -26,6 +26,8 @@ export interface ColumnDef {
 
 export interface TableDef {
   name: string
+  /** 所属中文业务模块名（如「商品」「采购」「会员」），缺省即未分组 */
+  module?: string
   columns: ColumnDef[]
 }
 
@@ -127,13 +129,21 @@ function findColumn(table: TableDef, name: string): ColumnDef | undefined {
   return table.columns.find((column) => column.name === name)
 }
 
-/** 校验表定义形状（表名 + 列名唯一 + 类型枚举 + 至多一个主键） */
+/** 校验表定义形状（表名 + 可选中文模块名 + 列名唯一 + 类型枚举 + 至多一个主键） */
 export function validateTableDef(
   input: unknown
 ): { ok: true; value: TableDef } | { ok: false; error: ConnectorError } {
   if (!isRecord(input)) return { ok: false, error: invalid('请求体必须是 JSON 对象') }
   const name = isName(input.name)
   if (!name) return { ok: false, error: invalid(`表名必须是 1~${MAX_NAME_LENGTH} 字符`) }
+  let moduleName: string | undefined
+  if (input.module !== undefined) {
+    const module = isName(input.module)
+    if (!module) {
+      return { ok: false, error: invalid(`module 必须是 1~${MAX_NAME_LENGTH} 字符`) }
+    }
+    moduleName = module
+  }
   if (!Array.isArray(input.columns) || input.columns.length === 0) {
     return { ok: false, error: invalid('columns 必须是非空数组') }
   }
@@ -190,7 +200,9 @@ export function validateTableDef(
     names.add(columnName)
     columns.push(column)
   }
-  return { ok: true, value: { name, columns } }
+  const table: TableDef = { name, columns }
+  if (moduleName !== undefined) table.module = moduleName
+  return { ok: true, value: table }
 }
 
 /** 校验批量行数据：未知列 / 类型不符 / 不可空列缺值 / 主键值重复均 400 */

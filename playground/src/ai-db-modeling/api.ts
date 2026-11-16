@@ -24,6 +24,8 @@ export interface ColumnDef {
 
 export interface TableDef {
   name: string
+  /** 所属中文业务模块名（如「商品」「采购」「会员」），缺省即未分组 */
+  module?: string
   columns: ColumnDef[]
 }
 

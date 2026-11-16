@@ -274,6 +274,69 @@ describe('表增删改查与校验', () => {
     expect((await post(app, '/tables', [1, 2])).status).toBe(400)
   })
 
+  it('可选 module：合法中文模块名 trim 后落库并在 GET /tables 透出；缺省时响应不含该字段', async () => {
+    const app = createAiDbApp()
+    const columns = [{ name: 'id', type: 'number', primaryKey: true }]
+
+    const created = await post(app, '/tables', { name: 'products', module: '  商品  ', columns })
+    expect(created.status).toBe(200)
+    expect(await created.json()).toEqual({
+      ok: true,
+      table: { name: 'products', module: '商品', columns }
+    })
+
+    const updated = await put(app, '/tables/products', {
+      name: 'products',
+      module: '采购',
+      columns: [...columns, { name: 'title', type: 'string' }]
+    })
+    expect(updated.status).toBe(200)
+
+    const listed = await app.request('/tables')
+    expect(await listed.json()).toEqual({
+      ok: true,
+      tables: [
+        {
+          name: 'products',
+          module: '采购',
+          columns: [...columns, { name: 'title', type: 'string' }]
+        }
+      ]
+    })
+
+    // PUT 不带 module 即整体替换，module 被移除
+    const ungrouped = await put(app, '/tables/products', {
+      name: 'products',
+      columns: [...columns, { name: 'title', type: 'string' }]
+    })
+    expect(ungrouped.status).toBe(200)
+    const ungroupedBody = (await ungrouped.json()) as { table: Record<string, unknown> }
+    expect('module' in ungroupedBody.table).toBe(false)
+
+    // 不带 module 的建表响应同样不含该字段
+    const plain = await post(app, '/tables', { name: 'members', columns })
+    expect(plain.status).toBe(200)
+    const plainBody = (await plain.json()) as { table: Record<string, unknown> }
+    expect('module' in plainBody.table).toBe(false)
+  })
+
+  it('module 非法回 400：空串 / 纯空白 / 超长 / 非字符串（POST 与 PUT 同规则）', async () => {
+    const app = createAiDbApp()
+    const columns = [{ name: 'id', type: 'number', primaryKey: true }]
+    expect((await post(app, '/tables', { name: 'products', columns })).status).toBe(200)
+
+    for (const module of ['', '   ', '模'.repeat(65), 123, null, ['商品']]) {
+      expect((await post(app, '/tables', { name: 't1', module, columns })).status).toBe(400)
+      expect(
+        (await put(app, '/tables/products', { name: 'products', module, columns })).status
+      ).toBe(400)
+    }
+    // trim 后 64 字符（含中文）仍在界内
+    expect(
+      (await post(app, '/tables', { name: 't2', module: ` ${'模'.repeat(64)} `, columns })).status
+    ).toBe(200)
+  })
+
   it('PUT /tables/:name 更新列定义；body.name 不同即改名并级联更新关系引用', async () => {
     const app = await seedTables()
     await put(app, '/relationships', {
