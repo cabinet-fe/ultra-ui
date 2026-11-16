@@ -23,7 +23,7 @@
     }
   },
   "devDependencies": {
-    "@veltra/desktop": "2.2.0"
+    "@veltra/desktop": "2.3.0"
   },
   "peerDependencies": {
     "@veltra/ai": "^2.1.8",
