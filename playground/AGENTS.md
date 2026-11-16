@@ -25,7 +25,7 @@ bun run server     # 仅参考服务（填报 + DeepSeek 代理 + 智慧表格 +
 - `src/icons/index.vue` → `/icons/index`
 - `src/icons/combo/index.vue` → `/icons/combo/index`
 - `src/ai-chat/index.vue` → `/ai-chat/index`
-- `src/ai-db-modeling/index.vue` → `/ai-db-modeling/index`（AI 数据库建模会话页：模糊需求经内置 askQuestion 追问（单选/多选）后建表落关系，9 个 ChatTool 走 `/ai-db-api` 内存库，删表需确认）
+- `src/ai-db-modeling/index.vue` → `/ai-db-modeling/index`（AI 数据库建模会话页：模糊需求经内置 askQuestion 追问（单选/多选）后建表落关系，9 个 ChatTool 走 `/ai-db-api` 内存库，删表需确认；统计分析结果以回复流卡片渲染 Chart.js 图表 + 明细表；页内「会话 / ER 图」切换，ER 视图经 erd-viewer 只读渲染库内全部表与关系连线）
 - `src/sheet/index.vue` → `/sheet/index`
 - `src/sheet-big-data/index.vue` → `/sheet-big-data/index`（大数据量演示 + 性能基线）
 - `src/sheet-data-entry/index.vue` → `/sheet-data-entry/index`（在线填报：单元格级只读 + 按单元格持久化演示）
@@ -41,6 +41,7 @@ bun run server     # 仅参考服务（填报 + DeepSeek 代理 + 智慧表格 +
 - SCSS：`NodePackageImporter`（仓库根）解析 `pkg:@veltra/styles/...`
 - `VeltraUIResolver`（`@veltra/vite`）：desktop / ai / sheet 的 `U*` 组件 + 对应 `style.ts`
 - `@veltra/vite` 为本 playground 的 devDependency
+- vue 插件 `isCustomElement` 标记 `erd-viewer`（`src/ai-db-modeling/er-view.vue` 运行时注册的自定义元素）
 - `server/`：参考服务（填报存取 + DeepSeek `/ai` 代理 + `/smart-table` 智慧表格 + `/ai-db` AI 建模内存库，默认 7799）由 `bun run dev` 并行拉起；`vp build` 不依赖该服务
 
 ## 参考服务
@@ -82,7 +83,7 @@ src/icons/index.vue           # 图标库预览
 src/icons/combo/index.vue     # 图标组合预览
 src/ai-chat/index.vue         # @veltra/ai 对话组件预览：同一页切换客户端驱动（OpenAI + Open-Meteo 天气终结工具 weather-card.vue + 右侧面板 admin-panel.vue + 待发送队列）与服务端驱动（createServerTransport + fake-session.ts 页内 fake adapter，演示未知工具卡 / 提问 / 审批横幅 / 作业条，不接真实 DSH）
 src/ai-chat/fake-session.ts   # 页内 ChatSessionAdapter，不发真实 session HTTP/WS
-src/ai-db-modeling/           # AI 数据库建模演示（UAiChat 客户端驱动：index.vue 会话页（systemPrompt 建模引导 + 欢迎语，transport 走 /ai DeepSeek 代理），api.ts /ai-db-api REST 封装（9 端点契约类型 + 错误透出），tools.ts 9 个 ChatTool（获取/写入/更新/删除表（needsConfirm）、写入/查询数据、统计分析、获取/更新实体关系，execute 全走 api.ts））
+src/ai-db-modeling/           # AI 数据库建模演示（UAiChat 客户端驱动：index.vue 会话页（systemPrompt 建模引导 + 欢迎语 + 会话/ER 图视图切换，transport 走 /ai DeepSeek 代理），api.ts /ai-db-api REST 封装（9 端点契约类型 + 错误透出），tools.ts 9 个 ChatTool（获取/写入/更新/删除表（needsConfirm）、写入/查询数据、统计分析（StatsCard 回复流卡片）、获取/更新实体关系，execute 全走 api.ts），stats-card.vue 统计卡片（Chart.js 柱状/折线（单维日期序列走折线，多聚合挂副轴）+ 明细表），er-view.vue ER 图视图（动态 import @dineug/erd-editor/erd-viewer.js 只读 viewer，v-if 重挂载重拉最新库内数据），erd-document.ts 表+关系 → erd-editor v3 storage 文档转换（viewer 只认该格式，DBML/SQL 不支持），erd-document.test.ts 转换单测）
 src/sheet/index.vue           # @veltra/sheet 电子表格预览（数据结构观察区 JSON 区块懒渲染 + 超 1 万行截断：避免 65 万 span 的整页布局/绘制秒级卡顿；完整数据走复制/放大，不受截断影响）
 src/sheet-big-data/index.vue  # @veltra/sheet 大数据量演示（Phase 6：10 万行写入/渲染/查找/导出 + 样式池去重）
 src/sheet-data-entry/index.vue # 在线填报演示（年度预算：多 sheet 走内置标签栏；明细表为「编制项目 × 部门金额」矩阵 + 行列合计公式，汇总页跨表公式联动；提交前校验标红定位 + 提交后整表锁定；单元格级只读 setRangeReadonly/setCellReadonly；按「sheet+格」防抖保存到 /report-api/data-entry）
@@ -95,7 +96,7 @@ src/smart-table/               # 智慧表格演示（多维表格示例：index
 
 ## 依赖
 
-- **dependencies**：`@cat-kit/core`、`@cat-kit/fe`、`infinitable`、`@veltra/ai`、`@veltra/compositions`、`@veltra/desktop`、`@veltra/directives`、`@veltra/icons`、`@veltra/mobile`、`@veltra/sheet`、`@veltra/styles`、`@veltra/utils`、`vue`、`vue-router`
+- **dependencies**：`@cat-kit/core`、`@cat-kit/fe`、`@dineug/erd-editor`（ER 图只读 viewer，erd-viewer 子路径动态 import）、`chart.js`（统计卡片图表）、`infinitable`、`@veltra/ai`、`@veltra/compositions`、`@veltra/desktop`、`@veltra/directives`、`@veltra/icons`、`@veltra/mobile`、`@veltra/sheet`、`@veltra/styles`、`@veltra/utils`、`vue`、`vue-router`
 - **devDependencies**：`@veltra/vite`；参考服务：`hono`、`@hono/node-server`
 
 ## 验证

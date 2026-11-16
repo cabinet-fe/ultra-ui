@@ -35,6 +35,7 @@ import {
   type StatsQuery,
   type TableDef
 } from './api'
+import StatsCard from './stats-card.vue'
 
 /** 列定义 JSON Schema 片段（写入表 / 更新表共用） */
 const columnsSchema = {
@@ -149,9 +150,12 @@ export const dbTools: ChatTool[] = [
   {
     name: 'analyzeStats',
     description:
-      '统计分析：对指定表按过滤条件筛选后，可按维度列分组并做聚合。聚合函数 count 可省列，sum/avg/min/max 必须指定 number 列。返回分组序列与明细行。',
+      '统计分析：对指定表按过滤条件筛选后，可按维度列分组并做聚合。聚合函数 count 可省列，sum/avg/min/max 必须指定 number 列。结果以图表卡片直接展示给用户（图表 + 明细表），无需再用文字复述全部数字。',
     label: '统计分析',
     icon: ChartPie,
+    render: StatsCard,
+    // 回复流工具：图表卡片常驻展示在回复中，不随步骤行折叠
+    renderTo: 'reply',
     parameters: {
       type: 'object',
       properties: {

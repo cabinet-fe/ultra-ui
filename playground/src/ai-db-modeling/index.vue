@@ -1,6 +1,10 @@
 <template>
   <div class="ai-db-modeling-page">
-    <div class="ai-db-modeling-page__chat">
+    <div class="ai-db-modeling-page__bar">
+      <u-segment v-model="view" :items="VIEW_ITEMS" />
+    </div>
+    <!-- 会话区 v-show 保活（切看 ER 图不丢上下文）；ER 图 v-if 每次挂载重拉最新库内数据 -->
+    <div v-show="view === 'chat'" class="ai-db-modeling-page__chat">
       <u-ai-chat
         v-model:model="model"
         :transport="transport"
@@ -10,6 +14,7 @@
         :welcome="WELCOME"
       />
     </div>
+    <er-view v-if="view === 'er'" class="ai-db-modeling-page__er" />
   </div>
 </template>
 
@@ -18,6 +23,7 @@ import { UAiChat, createOpenAITransport } from '@veltra/ai'
 import '@veltra/ai/style'
 import { ref } from 'vue'
 
+import ErView from './er-view.vue'
 import { dbTools } from './tools'
 
 /**
@@ -49,6 +55,13 @@ const transport = createOpenAITransport({
 const models = transport.models
 const model = ref(transport.defaultModel)
 
+/** 页面视图：会话 / ER 图 */
+const VIEW_ITEMS = [
+  { label: '会话', value: 'chat' },
+  { label: 'ER 图', value: 'er' }
+]
+const view = ref('chat')
+
 /** 建模流程引导：信息不足先追问，产出表 + 关系后落库 */
 const SYSTEM_PROMPT = [
   '你是数据库建模助手，帮用户把（可能模糊的）业务需求变成可落库的表结构与表间关系。',
@@ -79,9 +92,19 @@ const WELCOME = [
   min-height: 0;
 }
 
+.ai-db-modeling-page__bar {
+  flex: none;
+  margin-bottom: 10px;
+}
+
 .ai-db-modeling-page__chat {
   flex: 1;
   min-height: 0;
   overflow: hidden;
+}
+
+.ai-db-modeling-page__er {
+  flex: 1;
+  min-height: 0;
 }
 </style>

@@ -108,8 +108,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   return data as T
 }
 
-function jsonBody(body: unknown): RequestInit {
-  return { method: 'PUT', body: JSON.stringify(body) }
+function jsonBody(body: unknown, method: 'POST' | 'PUT' = 'PUT'): RequestInit {
+  return { method, body: JSON.stringify(body) }
 }
 
 /** GET /tables — 全部表（含列定义） */
@@ -145,8 +145,7 @@ export function deleteTable(name: string, signal?: AbortSignal) {
 /** POST /tables/:name/rows — 批量插入行数据 */
 export function insertRows(name: string, rows: RowData[], signal?: AbortSignal) {
   return request<{ inserted: number; total: number }>(`/tables/${encodeURIComponent(name)}/rows`, {
-    method: 'POST',
-    body: JSON.stringify({ rows }),
+    ...jsonBody({ rows }, 'POST'),
     signal
   })
 }
@@ -165,7 +164,7 @@ export function queryRows(name: string, filter?: Record<string, RowValue>, signa
 
 /** POST /stats — 统计分析（过滤 + 分组维度 + 聚合，返回分组序列与明细行） */
 export function analyzeStats(query: StatsQuery, signal?: AbortSignal) {
-  return request<StatsResult>('/stats', { ...jsonBody(query), signal })
+  return request<StatsResult>('/stats', { ...jsonBody(query, 'POST'), signal })
 }
 
 /** GET /relationships — 全部实体关系 */
