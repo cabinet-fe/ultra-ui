@@ -1,8 +1,8 @@
 <template>
   <div class="stats-report">
     <template v-if="input">
-      <!-- 导出目标：内容区（摘要 + 图表），不含下方导出入口 -->
-      <div ref="contentRef" class="stats-report__content">
+      <!-- 导出目标：内容区（摘要 + 图表）外加内边距，不含下方导出入口 -->
+      <div ref="captureRef" class="stats-report__capture">
         <p class="stats-report__summary">{{ input.summary }}</p>
         <div v-for="(chart, index) in input.charts" :key="index" class="stats-report__chart">
           <div v-if="chart.title" class="stats-report__chart-title">{{ chart.title }}</div>
@@ -127,22 +127,57 @@ watch(
 )
 onBeforeUnmount(destroyCharts)
 
-/** 导出目标（内容区 ref）；导出中禁用入口防重复触发，失败就地提示不静默 */
-const contentRef = ref<HTMLElement | null>(null)
+/** 导出目标（带内边距的内容区 ref）；导出中禁用入口防重复触发，失败就地提示不静默 */
+const captureRef = ref<HTMLElement | null>(null)
 const exporting = ref(false)
 const exportError = ref('')
 
-/** 生成报告内容区 PNG dataURL；html-to-image 仅在导出点击时动态 import（不进首屏 chunk） */
+/** 导出采样倍数：3 倍下贴到 A4 内容宽约 300 DPI */
+const EXPORT_PIXEL_RATIO = 3
+
+/** 等两个 rAF：Chart 重绘经 animator 在 rAF 调度，确保截图拿到新位图 */
+function nextFrame(): Promise<void> {
+  return new Promise((resolve) =>
+    requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
+  )
+}
+
+/**
+ * 以导出采样倍数重灌图表位图并执行截图，导出完还原设备 DPR。
+ * devicePixelRatio 必须写入 chart.config.options（原始配置）再 update+resize
+ * 重建 backing store——直接写 chart.options 会被 resolved 代理在 update 时丢弃。
+ */
+async function captureWithChartDensity(capture: () => Promise<string>): Promise<string> {
+  for (const chart of charts) {
+    if (chart.config.options) chart.config.options.devicePixelRatio = EXPORT_PIXEL_RATIO
+  }
+  try {
+    for (const chart of charts) chart.update()
+    for (const chart of charts) chart.resize()
+    await nextFrame()
+    return await capture()
+  } finally {
+    for (const chart of charts) {
+      if (chart.config.options) chart.config.options.devicePixelRatio = window.devicePixelRatio
+    }
+    for (const chart of charts) chart.update()
+    for (const chart of charts) chart.resize()
+  }
+}
+
+/** 生成报告快照 PNG dataURL；html-to-image 仅在导出点击时动态 import（不进首屏 chunk） */
 async function captureReport(): Promise<string> {
   const { toPng } = await import('html-to-image')
-  const content = contentRef.value
-  if (!content) throw new Error('报告内容尚未渲染')
-  const card = content.parentElement
-  return toPng(content, {
-    // 内容区自身无背景，跟随卡片背景色（暗色主题导出同为暗底）
-    backgroundColor: card ? getComputedStyle(card).backgroundColor : undefined,
-    pixelRatio: 2
-  })
+  const capture = captureRef.value
+  if (!capture) throw new Error('报告内容尚未渲染')
+  const card = capture.parentElement
+  return captureWithChartDensity(() =>
+    toPng(capture, {
+      // 内容区自身无背景，跟随卡片背景色（暗色主题导出同为暗底）
+      backgroundColor: card ? getComputedStyle(card).backgroundColor : undefined,
+      pixelRatio: EXPORT_PIXEL_RATIO
+    })
+  )
 }
 
 function downloadDataUrl(dataUrl: string, filename: string) {
@@ -168,18 +203,36 @@ async function exportPng() {
   }
 }
 
+/** PDF 版式：A4 纵向 + 四周页边距，内容按页宽等比贴图，超出一页纵向切片分页 */
+const PDF_PAGE = { widthMm: 210, heightMm: 297, marginMm: 15 }
+
 async function exportPdf() {
   exporting.value = true
   exportError.value = ''
   try {
     const dataUrl = await captureReport()
-    // 先解码取图片像素尺寸，jsPDF 按像素建单页贴图（jspdf 仅在导出点击时动态 import）
+    // 先解码取图片像素尺寸，再换算毫米贴图坐标（jspdf 仅在导出点击时动态 import）
     const image = new Image()
     image.src = dataUrl
     await image.decode()
+    const { widthMm, heightMm, marginMm } = PDF_PAGE
+    const contentWidthMm = widthMm - marginMm * 2
+    const contentHeightMm = heightMm - marginMm * 2
+    // 一页可容纳的源图像素高，超出部分切到后续页
+    const pageSourceHeightPx = Math.floor((image.naturalWidth * contentHeightMm) / contentWidthMm)
     const { jsPDF } = await import('jspdf')
-    const pdf = new jsPDF({ unit: 'px', format: [image.naturalWidth, image.naturalHeight] })
-    pdf.addImage(dataUrl, 'PNG', 0, 0, image.naturalWidth, image.naturalHeight)
+    const pdf = new jsPDF({ unit: 'mm', format: 'a4' })
+    for (let offset = 0; offset < image.naturalHeight; offset += pageSourceHeightPx) {
+      const sliceHeightPx = Math.min(pageSourceHeightPx, image.naturalHeight - offset)
+      const canvas = document.createElement('canvas')
+      canvas.width = image.naturalWidth
+      canvas.height = sliceHeightPx
+      canvas.getContext('2d')?.drawImage(image, 0, -offset)
+      if (offset > 0) pdf.addPage()
+      const sliceHeightMm = (sliceHeightPx / image.naturalWidth) * contentWidthMm
+      // jsPDF 直收 canvas 元素，省每页 toDataURL 的内存峰值
+      pdf.addImage(canvas, 'PNG', marginMm, marginMm, contentWidthMm, sliceHeightMm)
+    }
     pdf.save('统计报告.pdf')
   } catch (error) {
     exportError.value = `导出 PDF 失败：${errorMessage(error)}`
@@ -196,6 +249,10 @@ async function exportPdf() {
   border: 1px solid var(--u-border-color);
   padding: 12px 14px;
   background: var(--u-bg-color-top);
+}
+
+.stats-report__capture {
+  padding: 16px;
 }
 
 .stats-report__summary {
