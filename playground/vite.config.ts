@@ -26,7 +26,7 @@ const REFERENCE_SERVER = `http://127.0.0.1:${REPORT_SERVER_PORT}`
 
 const config = {
   test: {
-    include: ['src/**/*.test.ts'],
+    include: ['src/**/*.test.ts', 'server/**/*.test.ts'],
     globals: true,
     environment: 'node',
     fsModuleCache: true,
@@ -61,6 +61,13 @@ const config = {
         target: REFERENCE_SERVER,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/smart-table-api/, '/smart-table')
+      },
+      // AI 数据库建模演示：/ai-db-api → 参考服务 /ai-db（内存数据库）。
+      // 前缀含 -api 后与 SPA 路由 /ai-db-modeling 不同串，不会误代理页面路由。
+      '/ai-db-api': {
+        target: REFERENCE_SERVER,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/ai-db-api/, '/ai-db')
       }
     }
   }

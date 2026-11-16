@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 
 import { serve } from '@hono/node-server'
 
+import { aiDbApp } from './ai-db'
 import { playgroundApp } from './app'
 import { deepseekApp } from './deepseek'
 import { REPORT_SERVER_PORT } from './port'
@@ -21,8 +22,11 @@ playgroundApp.route('/ai', deepseekApp)
 playgroundApp.route('/smart-table', smartTableApp)
 playgroundApp.route('/smart-table/ai', smartTableAiApp)
 
+// AI 数据库建模演示：内存数据库（进程重启即空），前端经 /ai-db-api 代理访问
+playgroundApp.route('/ai-db', aiDbApp)
+
 serve({ fetch: playgroundApp.fetch, port: REPORT_SERVER_PORT, hostname: '127.0.0.1' }, (info) => {
   console.log(
-    `[playground-server] 已启动 http://localhost:${info.port}（data-entry + /ai + /smart-table）`
+    `[playground-server] 已启动 http://localhost:${info.port}（data-entry + /ai + /smart-table + /ai-db）`
   )
 })

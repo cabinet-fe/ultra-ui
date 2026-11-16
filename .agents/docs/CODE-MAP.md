@@ -23,7 +23,7 @@ ultra-ui/
 │   └── mobile/               # @veltra/mobile 移动端组件库（同名组件为主、API 按 NutUI 惯例可分叉）
 ├── playground/               # 预览应用 + 参考服务
 │   ├── src/                  # desktop / mobile / icons / ai / sheet 演示页
-│   └── server/               # 填报存取 + DeepSeek 代理（同端口 8787）
+│   └── server/               # 填报存取 + DeepSeek 代理 + 智慧表格 + AI 建模内存库（同端口 7799）
 ├── scripts/                  # 发版、resolver 生成、docs-mcp 推送、git 本地配置
 ├── agent-docs/               # 面向 docs-mcp 的检索文档，docs-gen 技能撰写、push-docs.mjs 推送
 ├── .agents/                  # Agent 文档与工程脚本

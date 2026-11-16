@@ -1,6 +1,6 @@
-# playground dev services（data-entry + DeepSeek AI proxy + smart-table）
+# playground dev services（data-entry + DeepSeek AI proxy + smart-table + ai-db）
 
-playground 本地参考服务：在线填报单元格存取（SQLite）+ DeepSeek AI 会话代理 + 智慧表格演示（表格持久化 + AI 代理）。报表 DataConnector 已迁至下游，本服务不再提供 `test` / `describe` / `query`。
+playground 本地参考服务：在线填报单元格存取（SQLite）+ DeepSeek AI 会话代理 + 智慧表格演示（表格持久化 + AI 代理）+ AI 数据库建模内存库。报表 DataConnector 已迁至下游，本服务不再提供 `test` / `describe` / `query`。
 
 - 只存在于 playground（devDependencies），**不进任何发布产物**。
 - 前端经 vite proxy 访问：填报走 `/report-api`（vite dev 自动转发到本服务）。
@@ -69,3 +69,22 @@ curl http://localhost:7799/ai/models
 - 存储：SQLite 表 `smart_table_docs`（`doc_key` 主键 + `doc_json` 全量文档 + `updated_at`），复用 `server/db.ts` 连接。
 - 服务商配置复用 `DEEPSEEK_*` 变量族（见上方「DeepSeek AI 代理」节）；API Key 仅服务端持有。
 - 前端经 vite proxy `/smart-table-api` 访问（rewrite 到 `/smart-table`，前缀与 SPA 路由区分）。
+
+## AI 数据库建模（ai-db）
+
+`server/ai-db.ts`：内存数据库（表 / 列定义 / 1-1·1-n·n-n 关系 / 行数据，进程重启即空，无任何持久化），由 `server/dev.ts` 挂到 `/ai-db`。数据模型与校验均为纯函数 + Hono 子应用，单测见 `server/ai-db.test.ts`。
+
+| 端点                            | 请求体                                                                  | 成功                                 | 说明                                                                               |
+| ------------------------------- | ----------------------------------------------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------- |
+| `GET /ai-db/tables`             | —                                                                       | `{ ok, tables }`                     | 全部表（含列定义）                                                                 |
+| `POST /ai-db/tables`            | `{ name, columns: [{ name, type, primaryKey?, nullable?, comment? }] }` | `{ ok, table }`                      | 新建表；`type` 为 string/number/boolean/date，一表至多一个主键                     |
+| `PUT /ai-db/tables/:name`       | 同 POST 请求体                                                          | `{ ok, table, prunedRelationships }` | 更新表定义；`body.name` 不同于路径即改名（级联更新关系引用），列变更裁剪历史行     |
+| `DELETE /ai-db/tables/:name`    | —                                                                       | `{ ok, removedRelationships }`       | 删除表，连带行数据与引用它的关系                                                   |
+| `POST /ai-db/tables/:name/rows` | `{ rows: [{ 列: 值 }] }`                                                | `{ ok, inserted, total }`            | 批量插入；列不匹配 / 类型不符 / 主键重复回 400                                     |
+| `GET /ai-db/tables/:name/rows`  | —（`?filter={"列":值}` 受控等值过滤，null 匹配空值）                    | `{ ok, rows, total }`                | 查询行数据                                                                         |
+| `POST /ai-db/stats`             | `{ table, filter?, groupBy?, aggregations }`                            | `{ ok, groups, rows }`               | 统计：count/sum/avg/min/max 聚合 + 分组序列 + 明细行；sum/avg/min/max 需 number 列 |
+| `GET /ai-db/relationships`      | —                                                                       | `{ ok, relationships }`              | 全部实体关系（初始为空数组）                                                       |
+| `PUT /ai-db/relationships`      | `{ relationships: [{ type, from: { table, column }, to }] }`            | `{ ok, relationships }`              | 全量覆盖；`type` 为 1-1/1-n/n-n，两端表列必须已存在                                |
+
+- 形状 / 引用非法（列类型枚举外、关系引用不存在的表或列、行数据列不匹配等）回 400，错误结构沿用 `server/errors.ts` 的 `ConnectorError`；路径资源（表）不存在回 404。
+- 前端经 vite proxy `/ai-db-api` 访问（rewrite 到 `/ai-db`，前缀与 SPA 路由 `/ai-db-modeling` 区分）。
