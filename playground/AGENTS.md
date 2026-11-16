@@ -25,7 +25,7 @@ bun run server     # 仅参考服务（填报 + DeepSeek 代理 + 智慧表格 +
 - `src/icons/index.vue` → `/icons/index`
 - `src/icons/combo/index.vue` → `/icons/combo/index`
 - `src/ai-chat/index.vue` → `/ai-chat/index`
-- `src/ai-db-modeling/index.vue` → `/ai-db-modeling/index`（AI 数据库建模会话页：模糊需求经内置 askQuestion 追问（单选/多选）后建表落关系，9 个 ChatTool 走 `/ai-db-api` 内存库，删表需确认；统计分析结果以回复流卡片渲染 Chart.js 图表 + 明细表；页内「会话 / ER 图」切换，ER 视图经 erd-viewer 只读渲染库内全部表与关系连线）
+- `src/ai-db-modeling/index.vue` → `/ai-db-modeling/index`（AI 数据库建模会话页：模糊需求经内置 askQuestion 追问（单选/多选）后建表落关系，10 个 ChatTool 走 `/ai-db-api` 内存库——建表 / 更新表带可选 `module` 中文业务模块，删表需确认；统计分析结果以回复流卡片渲染 Chart.js 图表 + 明细表；页面为单一会话视图，`renderErDiagram` 纯渲染工具在右侧面板打开可交互 ER 图（完整 erd-editor，可拖拽 / 缩放 / 模块 chip 过滤），卡片「查看面板」入口可再次打开）
 - `src/sheet/index.vue` → `/sheet/index`
 - `src/sheet-big-data/index.vue` → `/sheet-big-data/index`（大数据量演示 + 性能基线）
 - `src/sheet-data-entry/index.vue` → `/sheet-data-entry/index`（在线填报：单元格级只读 + 按单元格持久化演示）
@@ -41,7 +41,8 @@ bun run server     # 仅参考服务（填报 + DeepSeek 代理 + 智慧表格 +
 - SCSS：`NodePackageImporter`（仓库根）解析 `pkg:@veltra/styles/...`
 - `VeltraUIResolver`（`@veltra/vite`）：desktop / ai / sheet 的 `U*` 组件 + 对应 `style.ts`
 - `@veltra/vite` 为本 playground 的 devDependency
-- vue 插件 `isCustomElement` 标记 `erd-viewer`（`src/ai-db-modeling/er-view.vue` 运行时注册的自定义元素）
+- vue 插件 `isCustomElement` 标记 `erd-editor`（`src/ai-db-modeling/er-view.vue` 运行时注册的自定义元素，经 `er-panel.vue` 渲染在 UAiChat 右侧面板）
+- `optimizeDeps` 纳入 `@dineug/erd-editor > elkjs/lib/elk.bundled.js`（erd-editor 自动布局 worker 引 elk 预打包产物，dev 不预打包则 Flow / tree 自动布局失败）
 - `server/`：参考服务（填报存取 + DeepSeek `/ai` 代理 + `/smart-table` 智慧表格 + `/ai-db` AI 建模内存库，默认 7799）由 `bun run dev` 并行拉起；`vp build` 不依赖该服务
 
 ## 参考服务
@@ -50,7 +51,7 @@ bun run server     # 仅参考服务（填报 + DeepSeek 代理 + 智慧表格 +
 
 - **在线填报端点**（`src/sheet-data-entry` 演示页使用）：`GET /data-entry/forms/:formId/cells` 读取、`PUT /data-entry/forms/:formId/cells` 批量 upsert（空值删除），SQLite 表 `data_entry_cells` 按 `(form_id, sheet_key, row_index, col_index)` 主键稀疏存储多 sheet 填报数据（`server/data-entry.ts`）
 - **智慧表格端点**（`server/smart-table.ts` + `server/smart-table-ai.ts`）：`GET /smart-table/table` 读取演示表全量文档（首次访问写入示例数据）、`PUT /smart-table/table` 校验 fields/rows 形状后全量 upsert（非法 400），SQLite 表 `smart_table_docs` 按 doc_key 存整表 JSON；AI 代理挂 `/smart-table/ai`，按 bedrock `chat_proxy.go` 同款实现——`GET /smart-table/ai/models` 模型目录、`POST /smart-table/ai/chat/completions` 强制流式 SSE 逐行透传（model 匹配模型目录、合并模型默认参数与 `reasoning_effort`、上游错误透传、未配 Key 回 503；服务商配置复用 `DEEPSEEK_*` 变量族）；前端经 vite proxy `/smart-table-api` 访问（rewrite 到 `/smart-table`，前缀与 SPA 路由 `/smart-table` 区分）
-- **AI 数据库建模端点**（`server/ai-db.ts`）：内存数据库（表/列定义/1-1·1-n·n-n 关系/行数据，进程重启即空），9 个端点挂 `/ai-db`——`GET/POST /ai-db/tables`、`PUT/DELETE /ai-db/tables/:name`（PUT 改名级联更新关系引用，DELETE 连带行数据与关系）、`POST/GET /ai-db/tables/:name/rows`（GET 支持 `?filter={"列":值}` 受控等值过滤，响应含 `display` 展示投影）、`POST /ai-db/stats`（过滤 + groupBy 分组 + count/sum/avg/min/max 聚合，返回分组序列、明细行与 `display` 展示投影——展示列用 comment 中文标题、主键列剔除、外键解析为关联名称、维度/聚合中文标签）、`GET/PUT /ai-db/relationships`（全量覆盖，两端表列引用必须已存在）；形状/引用非法回 400（错误结构同 `errors.ts` 的 `ConnectorError`），路径资源不存在回 404；前端经 vite proxy `/ai-db-api` 访问（rewrite 到 `/ai-db`，前缀与 SPA 路由 `/ai-db-modeling` 区分）；单测见 `server/ai-db.test.ts`（`vp test` 经 `test.include` 覆盖 `server/**/*.test.ts`）
+- **AI 数据库建模端点**（`server/ai-db.ts`）：内存数据库（表（含可选 `module` 中文业务模块，trim 后 1~64 字符）/列定义/1-1·1-n·n-n 关系/行数据，进程重启即空），9 个端点挂 `/ai-db`——`GET/POST /ai-db/tables`、`PUT/DELETE /ai-db/tables/:name`（PUT 改名级联更新关系引用，DELETE 连带行数据与关系）、`POST/GET /ai-db/tables/:name/rows`（GET 支持 `?filter={"列":值}` 受控等值过滤，响应含 `display` 展示投影）、`POST /ai-db/stats`（过滤 + groupBy 分组 + count/sum/avg/min/max 聚合，返回分组序列、明细行与 `display` 展示投影——展示列用 comment 中文标题、主键列剔除、外键解析为关联名称、维度/聚合中文标签）、`GET/PUT /ai-db/relationships`（全量覆盖，两端表列引用必须已存在）；形状/引用非法回 400（错误结构同 `errors.ts` 的 `ConnectorError`），路径资源不存在回 404；前端经 vite proxy `/ai-db-api` 访问（rewrite 到 `/ai-db`，前缀与 SPA 路由 `/ai-db-modeling` 区分）；单测见 `server/ai-db.test.ts`（`vp test` 经 `test.include` 覆盖 `server/**/*.test.ts`）
 - `bun run dev` 并行启动本服务（默认 7799，含 `/ai`）与前端；亦可 `bun run server` 单独启动（`REPORT_SERVER_PORT` 覆盖）
 - 前端经 vite proxy `/report-api` 访问填报端点
 - 详见 `server/README.md`
@@ -83,7 +84,7 @@ src/icons/index.vue           # 图标库预览
 src/icons/combo/index.vue     # 图标组合预览
 src/ai-chat/index.vue         # @veltra/ai 对话组件预览：同一页切换客户端驱动（OpenAI + Open-Meteo 天气终结工具 weather-card.vue + 右侧面板 admin-panel.vue + 待发送队列）与服务端驱动（createServerTransport + fake-session.ts 页内 fake adapter，演示未知工具卡 / 提问 / 审批横幅 / 作业条，不接真实 DSH）
 src/ai-chat/fake-session.ts   # 页内 ChatSessionAdapter，不发真实 session HTTP/WS
-src/ai-db-modeling/           # AI 数据库建模演示（UAiChat 客户端驱动：index.vue 会话页（systemPrompt 建模引导 + 欢迎语 + 会话/ER 图视图切换，transport 走 /ai DeepSeek 代理），api.ts /ai-db-api REST 封装（9 端点契约类型 + 错误透出），tools.ts 9 个 ChatTool（获取/写入/更新/删除表（needsConfirm）、写入/查询数据、统计分析（StatsCard 回复流卡片）、获取/更新实体关系，execute 全走 api.ts），stats-card.vue 统计卡片（Chart.js 柱状/折线（单维日期序列走折线，多聚合挂副轴）+ 明细表），er-view.vue ER 图视图（动态 import @dineug/erd-editor/erd-viewer.js 只读 viewer，v-if 重挂载重拉最新库内数据），erd-document.ts 表+关系 → erd-editor v3 storage 文档转换（viewer 只认该格式，DBML/SQL 不支持），erd-document.test.ts 转换单测）
+src/ai-db-modeling/           # AI 数据库建模演示（UAiChat 客户端驱动：index.vue 单一会话页（systemPrompt 建模引导 + 欢迎语，transport 走 /ai DeepSeek 代理，ER 图经会话工具卡片 + 右侧面板访问），api.ts /ai-db-api REST 封装（9 端点契约类型 + 错误透出），tools.ts 10 个 ChatTool（获取/写入/更新/删除表（needsConfirm，表定义带可选 module 中文业务模块）、写入/查询数据、renderStats 统计报告（回复流卡片）、获取/更新实体关系、renderErDiagram 纯渲染面板工具（execute 仅本地校验 summary，不发请求）），query-card.vue 查询结果卡片（明细 / 聚合按 display 投影分流），stats-report.vue 统计报告卡片（Chart.js bar/line/pie，第二系列起挂副轴 + 明细表），er-panel.vue renderErDiagram 的右侧面板渲染组件（按 toolCall 状态分流后复用 ER 画布），er-view.vue ER 画布（模块 chip 过滤 + 完整 erd-editor，动态 import @dineug/erd-editor/erd-editor.js，挂载时拉最新库内数据），erd-document.ts 表+关系 → erd-editor v3 storage 文档转换（按模块分区块 + 区块内网格初始布局），erd-document.test.ts 转换单测）
 src/sheet/index.vue           # @veltra/sheet 电子表格预览（数据结构观察区 JSON 区块懒渲染 + 超 1 万行截断：避免 65 万 span 的整页布局/绘制秒级卡顿；完整数据走复制/放大，不受截断影响）
 src/sheet-big-data/index.vue  # @veltra/sheet 大数据量演示（Phase 6：10 万行写入/渲染/查找/导出 + 样式池去重）
 src/sheet-data-entry/index.vue # 在线填报演示（年度预算：多 sheet 走内置标签栏；明细表为「编制项目 × 部门金额」矩阵 + 行列合计公式，汇总页跨表公式联动；提交前校验标红定位 + 提交后整表锁定；单元格级只读 setRangeReadonly/setCellReadonly；按「sheet+格」防抖保存到 /report-api/data-entry）
@@ -96,7 +97,7 @@ src/smart-table/               # 智慧表格演示（多维表格示例：index
 
 ## 依赖
 
-- **dependencies**：`@cat-kit/core`、`@cat-kit/fe`、`@dineug/erd-editor`（ER 图只读 viewer，erd-viewer 子路径动态 import）、`chart.js`（统计卡片图表）、`infinitable`、`@veltra/ai`、`@veltra/compositions`、`@veltra/desktop`、`@veltra/directives`、`@veltra/icons`、`@veltra/mobile`、`@veltra/sheet`、`@veltra/styles`、`@veltra/utils`、`vue`、`vue-router`
+- **dependencies**：`@cat-kit/core`、`@cat-kit/fe`、`@dineug/erd-editor`（ER 图交互编辑器，erd-editor.js 子路径动态 import）、`chart.js`（统计卡片图表）、`infinitable`、`@veltra/ai`、`@veltra/compositions`、`@veltra/desktop`、`@veltra/directives`、`@veltra/icons`、`@veltra/mobile`、`@veltra/sheet`、`@veltra/styles`、`@veltra/utils`、`vue`、`vue-router`
 - **devDependencies**：`@veltra/vite`；参考服务：`hono`、`@hono/node-server`
 
 ## 验证

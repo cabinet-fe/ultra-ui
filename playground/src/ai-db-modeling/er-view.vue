@@ -14,7 +14,7 @@
       <erd-editor ref="editor" class="er-view__canvas"></erd-editor>
     </template>
     <div v-else class="er-view__tip">
-      库内暂无表——先在会话中让 AI 完成建模落库，再切换回这里查看 ER 图
+      库内暂无表——先在会话中让 AI 完成建模落库，再打开 ER 图查看
     </div>
   </div>
 </template>
@@ -88,7 +88,7 @@ watch(selectedModule, () => {
 onMounted(async () => {
   loading.value = true
   try {
-    // erd-editor 包体大：只在打开 ER 视图时动态加载（构建产物落按需 chunk，不进首屏）
+    // erd-editor 包体大：只在 ER 画布挂载（会话卡片打开右侧面板）时动态加载（构建产物落按需 chunk，不进首屏）
     const [tablesRes, relationshipsRes] = await Promise.all([
       getTables(),
       getRelationships(),

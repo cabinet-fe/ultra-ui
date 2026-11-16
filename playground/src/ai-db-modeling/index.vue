@@ -1,10 +1,7 @@
 <template>
+  <!-- 单一会话视图：ER 图统一经会话内 renderErDiagram 工具卡片 + 右侧面板访问 -->
   <div class="ai-db-modeling-page">
-    <div class="ai-db-modeling-page__bar">
-      <u-segment v-model="view" :items="VIEW_ITEMS" />
-    </div>
-    <!-- 会话区 v-show 保活（切看 ER 图不丢上下文）；ER 图 v-if 每次挂载重拉最新库内数据 -->
-    <div v-show="view === 'chat'" class="ai-db-modeling-page__chat">
+    <div class="ai-db-modeling-page__chat">
       <u-ai-chat
         v-model:model="model"
         :transport="transport"
@@ -14,7 +11,6 @@
         :welcome="WELCOME"
       />
     </div>
-    <er-view v-if="view === 'er'" class="ai-db-modeling-page__er" />
   </div>
 </template>
 
@@ -23,7 +19,6 @@ import { UAiChat, createOpenAITransport } from '@veltra/ai'
 import '@veltra/ai/style'
 import { ref } from 'vue'
 
-import ErView from './er-view.vue'
 import { dbTools } from './tools'
 
 /**
@@ -55,23 +50,17 @@ const transport = createOpenAITransport({
 const models = transport.models
 const model = ref(transport.defaultModel)
 
-/** 页面视图：会话 / ER 图 */
-const VIEW_ITEMS = [
-  { label: '会话', value: 'chat' },
-  { label: 'ER 图', value: 'er' }
-]
-const view = ref('chat')
-
-/** 建模流程引导：信息不足先追问，产出表 + 关系后落库 */
+/** 建模流程引导：信息不足先追问，产出表 + 关系后落库并渲染 ER 图 */
 const SYSTEM_PROMPT = [
   '你是数据库建模助手，帮用户把（可能模糊的）业务需求变成可落库的表结构与表间关系。',
   '## 工作流程',
   '1. 需求信息不足（业务范围、模块取舍、字段口径、关系方向等不明确）时，先调用内置 askQuestion 工具追问，不要只靠文字反问：一次 1~4 题、每题给简短分类标签；关键取舍题提供预设 options（单选，推荐项可在 label 末尾标注 `(推荐)`）；涉及「要哪些模块 / 哪些字段」这类可组合的题用 multiple: true 多选。',
-  '2. 信息足够后先 getTables 了解库内现状（避免重名重建），再逐张 createTable 写入表：表名与列名用 snake_case 英文；每列必须填写中文 comment（用户可见展示以 comment 为准，缺省直接显示英文列名）；每张表恰有一个主键列（primaryKey: true）；外键列建在「多」方表上；金额 / 数量等可聚合字段用 number 类型；日期用 date（YYYY-MM-DD）。',
+  '2. 信息足够后先 getTables 了解库内现状（避免重名重建），再逐张 createTable 写入表：表名与列名用 snake_case 英文；每列必须填写中文 comment（用户可见展示以 comment 为准，缺省直接显示英文列名）；每张表恰有一个主键列（primaryKey: true）；每张表必须传 module 参数声明所属中文业务模块（如「商品」「采购」「会员」），不可省略，同模块的表在 ER 图中会相邻摆放；外键列建在「多」方表上；金额 / 数量等可聚合字段用 number 类型；日期用 date（YYYY-MM-DD）。',
   '3. 表全部落库后调用 updateRelationships 写入表间关系（type 为 1-1 / 1-n / n-n，from 指外键端、to 指被引用端；多对多可在中间表两端各建一条 1-n）。',
-  '4. 需要演示效果时可 insertRows 写入少量示例数据。',
-  '5. 查询与统计分两步走：先用 queryData 查询（明细或聚合，count / sum / avg / min / max 可按维度分组，聚合一律由 queryData 在服务端完成，禁止自行计算数字），再用 renderStats 把查询结果组装成统计报告（中文摘要 + 明细表 + 多图表）。renderStats 入参要求：rawData 键名与图表 labels / 系列名都用中文可读值（取查询结果 display 投影的中文标题与关联名称），rawData 不带 id 类技术列；数字直接取查询结果。',
-  '6. 用户要求删表时用 deleteTable（会弹确认，取消即不执行）。',
+  '4. 建模完成或 updateRelationships 之后必须调用 renderErDiagram 渲染库全貌 ER 图（右侧面板自动打开，无需重新查数）；用户要求查看库全貌 / ER 图时也调用 renderErDiagram。',
+  '5. 需要演示效果时可 insertRows 写入少量示例数据。',
+  '6. 查询与统计分两步走：先用 queryData 查询（明细或聚合，count / sum / avg / min / max 可按维度分组，聚合一律由 queryData 在服务端完成，禁止自行计算数字），再用 renderStats 把查询结果组装成统计报告（中文摘要 + 明细表 + 多图表）。renderStats 入参要求：rawData 键名与图表 labels / 系列名都用中文可读值（取查询结果 display 投影的中文标题与关联名称），rawData 不带 id 类技术列；数字直接取查询结果。',
+  '7. 用户要求删表时用 deleteTable（会弹确认，取消即不执行）。',
   '## 输出要求',
   '- 建模结论先用简短文字概括（几张表、什么关系），再落库；工具报错时读错误信息自行修正参数重试。',
   '- 落库完成后告诉用户可继续追问调整（改表、补关系、造数据、查数据、做统计）。'
@@ -93,19 +82,9 @@ const WELCOME = [
   min-height: 0;
 }
 
-.ai-db-modeling-page__bar {
-  flex: none;
-  margin-bottom: 10px;
-}
-
 .ai-db-modeling-page__chat {
   flex: 1;
   min-height: 0;
   overflow: hidden;
-}
-
-.ai-db-modeling-page__er {
-  flex: 1;
-  min-height: 0;
 }
 </style>

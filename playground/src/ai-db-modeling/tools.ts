@@ -1,10 +1,11 @@
 /**
- * AI 数据库建模的 9 个对话工具：8 个映射 `/ai-db-api` REST 端点（见 api.ts），
- * renderStats 为纯渲染工具（入参来自此前 queryData 的结果，execute 不发起任何请求）。
+ * AI 数据库建模的 10 个对话工具：8 个映射 `/ai-db-api` REST 端点（见 api.ts），
+ * renderStats / renderErDiagram 为纯渲染工具（execute 只做本地校验，不发起任何请求，
+ * 图表 / ER 图数据分别来自此前 queryData 的结果与面板打开时的最新拉取）。
  * execute 全部走 api.ts 或本地校验，错误文案由服务端 400/404 响应透出后回灌模型自行修正。
  * 追问工具 askQuestion 由 UAiChat 内置注入，此处不重复注册。
  */
-import type { ChatTool } from '@veltra/ai'
+import type { ChatTool, ChatToolCall } from '@veltra/ai'
 import {
   ChartPie,
   CirclePlus,
@@ -13,6 +14,7 @@ import {
   Edit,
   Link,
   List,
+  Relativity,
   Search,
   Share
 } from '@veltra/icons/normal'
@@ -34,6 +36,7 @@ import {
   type RowData,
   type TableDef
 } from './api'
+import ErPanel from './er-panel.vue'
 import QueryCard from './query-card.vue'
 import { CHART_TYPES, validateRenderStatsInput, type RenderStatsInput } from './render-stats-input'
 import StatsReport from './stats-report.vue'
@@ -55,11 +58,15 @@ const columnsSchema = {
   }
 }
 
-/** 表定义入参（写入表 / 更新表共用）：name + columns */
+/** 表定义入参（写入表 / 更新表共用）：name + columns + 可选 module */
 const tableSchema = {
   type: 'object',
   properties: {
     name: { type: 'string', description: '表名（snake_case 英文，如 user_order）' },
+    module: {
+      type: 'string',
+      description: '所属中文业务模块名（如「商品」「采购」「会员」），可选；缺省即未分组'
+    },
     columns: columnsSchema
   },
   required: ['name', 'columns']
@@ -291,5 +298,43 @@ export const dbTools: ChatTool[] = [
     },
     execute: (args: { relationships: RelationshipDef[] }, { signal }) =>
       replaceRelationships(args.relationships, signal)
+  },
+  {
+    name: 'renderErDiagram',
+    description:
+      '渲染库全貌 ER 图（纯渲染，不查数据、不发起请求）：在右侧面板打开可交互 ER 图，面板自动拉取库内最新表与关系，支持拖拽表节点、缩放与按模块过滤。建模完成、updateRelationships 落库关系之后，或用户要求查看库全貌 / ER 图时调用；summary 用一句中文概括本次展示内容。',
+    label: '查看 ER 图',
+    icon: Relativity,
+    render: ErPanel,
+    // 面板工具：render 组件渲染在右侧侧边面板，新调用自动打开，卡片保留「查看面板」入口
+    renderTo: 'panel',
+    // ER 图需要大画布，默认面板宽于最小值（320），面板可拖拽调节
+    panelWidth: 720,
+    panelTitle: erPanelTitle,
+    parameters: {
+      type: 'object',
+      properties: {
+        summary: {
+          type: 'string',
+          description: '中文一句话摘要（如「进销存系统 8 张表全貌」，作卡片与面板标题）'
+        }
+      },
+      required: ['summary']
+    },
+    execute: (args: { summary?: unknown }) => {
+      const summary = typeof args.summary === 'string' ? args.summary.trim() : ''
+      if (!summary) throw new Error('summary 必须是非空中文一句话')
+      return { rendered: true }
+    }
   }
 ]
+
+/** ER 图面板标题：取本次调用的 summary 入参（流式参数不完整时解析失败，回落固定标题） */
+function erPanelTitle(toolCall: ChatToolCall): string {
+  try {
+    const summary = (JSON.parse(toolCall.arguments || '{}') as { summary?: string }).summary?.trim()
+    return summary ? `ER 图：${summary}` : '库全貌 ER 图'
+  } catch {
+    return '库全貌 ER 图'
+  }
+}
