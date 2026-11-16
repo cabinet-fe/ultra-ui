@@ -295,7 +295,7 @@ export const dbTools: ChatTool[] = [
   {
     name: 'renderErDiagram',
     description:
-      '渲染库全貌 ER 图（纯渲染，不查数据、不发起请求）：在右侧面板打开可交互 ER 图，面板自动拉取库内最新表与关系，支持拖拽表节点、缩放与按模块过滤。建模完成、updateRelationships 落库关系之后，或用户要求查看库全貌 / ER 图时调用；summary 用一句中文概括本次展示内容。',
+      '渲染库全貌 ER 图（纯渲染，不查数据、不发起请求）：在右侧面板打开可交互 ER 图，面板自动拉取库内最新表与关系，支持拖拽表节点、缩放与按模块过滤。仅在建模刚完成（首次交付全部表 + 关系）或用户主动要求查看库全貌 / ER 图时调用，统计分析、查询、造数据、改表等流程不要调用；summary 用一句中文概括本次展示内容。',
     label: '查看 ER 图',
     icon: Relativity,
     render: ErPanel,
