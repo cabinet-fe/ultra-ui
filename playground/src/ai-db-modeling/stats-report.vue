@@ -1,12 +1,24 @@
 <template>
   <div class="stats-report">
     <template v-if="input">
-      <p class="stats-report__summary">{{ input.summary }}</p>
-      <div v-for="(chart, index) in input.charts" :key="index" class="stats-report__chart">
-        <div v-if="chart.title" class="stats-report__chart-title">{{ chart.title }}</div>
-        <div class="stats-report__chart-body">
-          <canvas :ref="(el) => setCanvas(index, el)"></canvas>
+      <!-- 导出目标：内容区（摘要 + 图表），不含下方导出入口 -->
+      <div ref="contentRef" class="stats-report__content">
+        <p class="stats-report__summary">{{ input.summary }}</p>
+        <div v-for="(chart, index) in input.charts" :key="index" class="stats-report__chart">
+          <div v-if="chart.title" class="stats-report__chart-title">{{ chart.title }}</div>
+          <div class="stats-report__chart-body">
+            <canvas :ref="(el) => setCanvas(index, el)"></canvas>
+          </div>
         </div>
+      </div>
+      <div class="stats-report__actions">
+        <button type="button" class="stats-report__export" :disabled="exporting" @click="exportPng">
+          导出 PNG
+        </button>
+        <button type="button" class="stats-report__export" :disabled="exporting" @click="exportPdf">
+          导出 PDF
+        </button>
+        <span v-if="exportError" class="stats-report__error">{{ exportError }}</span>
       </div>
     </template>
 
@@ -21,7 +33,7 @@
 import type { ChatToolCall } from '@veltra/ai'
 import Chart from 'chart.js/auto'
 import type { ChartConfiguration } from 'chart.js/auto'
-import { computed, nextTick, onBeforeUnmount, onMounted, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import type { ChartSpec, RenderStatsInput } from './render-stats-input'
 
@@ -114,6 +126,67 @@ watch(
   () => nextTick(renderCharts)
 )
 onBeforeUnmount(destroyCharts)
+
+/** 导出目标（内容区 ref）；导出中禁用入口防重复触发，失败就地提示不静默 */
+const contentRef = ref<HTMLElement | null>(null)
+const exporting = ref(false)
+const exportError = ref('')
+
+/** 生成报告内容区 PNG dataURL；html-to-image 仅在导出点击时动态 import（不进首屏 chunk） */
+async function captureReport(): Promise<string> {
+  const { toPng } = await import('html-to-image')
+  const content = contentRef.value
+  if (!content) throw new Error('报告内容尚未渲染')
+  const card = content.parentElement
+  return toPng(content, {
+    // 内容区自身无背景，跟随卡片背景色（暗色主题导出同为暗底）
+    backgroundColor: card ? getComputedStyle(card).backgroundColor : undefined,
+    pixelRatio: 2
+  })
+}
+
+function downloadDataUrl(dataUrl: string, filename: string) {
+  const link = document.createElement('a')
+  link.download = filename
+  link.href = dataUrl
+  link.click()
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error)
+}
+
+async function exportPng() {
+  exporting.value = true
+  exportError.value = ''
+  try {
+    downloadDataUrl(await captureReport(), '统计报告.png')
+  } catch (error) {
+    exportError.value = `导出 PNG 失败：${errorMessage(error)}`
+  } finally {
+    exporting.value = false
+  }
+}
+
+async function exportPdf() {
+  exporting.value = true
+  exportError.value = ''
+  try {
+    const dataUrl = await captureReport()
+    // 先解码取图片像素尺寸，jsPDF 按像素建单页贴图（jspdf 仅在导出点击时动态 import）
+    const image = new Image()
+    image.src = dataUrl
+    await image.decode()
+    const { jsPDF } = await import('jspdf')
+    const pdf = new jsPDF({ unit: 'px', format: [image.naturalWidth, image.naturalHeight] })
+    pdf.addImage(dataUrl, 'PNG', 0, 0, image.naturalWidth, image.naturalHeight)
+    pdf.save('统计报告.pdf')
+  } catch (error) {
+    exportError.value = `导出 PDF 失败：${errorMessage(error)}`
+  } finally {
+    exporting.value = false
+  }
+}
 </script>
 
 <style scoped lang="scss">
@@ -143,6 +216,39 @@ onBeforeUnmount(destroyCharts)
 
 .stats-report__chart-body {
   height: 240px;
+}
+
+.stats-report__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.stats-report__export {
+  padding: 3px 12px;
+  border: 1px solid var(--u-border-color);
+  border-radius: var(--u-radius-default);
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 20px;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    color: var(--u-color-primary);
+    border-color: var(--u-color-primary);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.stats-report__error {
+  color: var(--u-color-danger);
+  font-size: 12px;
 }
 
 .stats-report__tip {
