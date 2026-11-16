@@ -177,11 +177,16 @@ export const dbTools: ChatTool[] = [
   {
     name: 'renderStats',
     description:
-      '渲染统计报告（纯渲染，不查数据、不发起请求）：把此前 queryData 的查询结果组装为「中文摘要 + 多图表」卡片。summary 为中文结论；charts 可多张（bar/line/pie），labels 与系列名用中文（取查询结果 display 投影的中文标题与关联名称）；所有数字取自查询结果，不要自行计算。',
+      '渲染统计报告（纯渲染，不查数据、不发起请求）：把此前 queryData 的查询结果组装为「中文摘要 + 多图表」报告，在右侧面板打开。summary 为中文结论；charts 可多张（bar/line/pie），labels 与系列名用中文（取查询结果 display 投影的中文标题与关联名称）；所有数字取自查询结果，不要自行计算。',
     label: '统计报告',
     icon: ChartPie,
     render: StatsReport,
-    renderTo: 'reply',
+    // 面板工具：统计报告渲染在右侧侧边面板（生成中 / 失败态由 stats-report.vue 分流），
+    // 新调用自动打开聚焦，卡片保留「查看面板」入口切回历史调用
+    renderTo: 'panel',
+    // 图表需要横向空间，与 renderErDiagram 同宽（面板可拖拽调节）
+    panelWidth: 720,
+    panelTitle: statsPanelTitle,
     parameters: {
       type: 'object',
       properties: {
@@ -317,12 +322,23 @@ export const dbTools: ChatTool[] = [
   }
 ]
 
-/** ER 图面板标题：取本次调用的 summary 入参（流式参数不完整时解析失败，回落固定标题） */
-function erPanelTitle(toolCall: ChatToolCall): string {
+/** 从工具调用入参解析 summary（流式参数不完整时解析失败，回落空串） */
+function summaryArg(toolCall: ChatToolCall): string {
   try {
-    const summary = (JSON.parse(toolCall.arguments || '{}') as { summary?: string }).summary?.trim()
-    return summary ? `ER 图：${summary}` : '库全貌 ER 图'
+    return (JSON.parse(toolCall.arguments || '{}') as { summary?: string }).summary?.trim() ?? ''
   } catch {
-    return '库全貌 ER 图'
+    return ''
   }
+}
+
+/** ER 图面板标题：取本次调用的 summary 入参，缺省回落固定标题 */
+function erPanelTitle(toolCall: ChatToolCall): string {
+  const summary = summaryArg(toolCall)
+  return summary ? `ER 图：${summary}` : '库全貌 ER 图'
+}
+
+/** 统计报告面板标题：取本次调用的 summary 入参，缺省回落固定标题 */
+function statsPanelTitle(toolCall: ChatToolCall): string {
+  const summary = summaryArg(toolCall)
+  return summary ? `统计报告：${summary}` : '统计报告'
 }

@@ -1,13 +1,19 @@
 <template>
   <div class="stats-report">
-    <template v-if="input">
-      <!-- 导出目标：内容区（摘要 + 图表）外加内边距，不含下方导出入口 -->
-      <div ref="captureRef" class="stats-report__capture">
-        <p class="stats-report__summary">{{ input.summary }}</p>
-        <div v-for="(chart, index) in input.charts" :key="index" class="stats-report__chart">
-          <div v-if="chart.title" class="stats-report__chart-title">{{ chart.title }}</div>
-          <div class="stats-report__chart-body">
-            <canvas :ref="(el) => setCanvas(index, el)"></canvas>
+    <div v-if="toolCall.status === 'error'" class="stats-report__tip">
+      统计报告生成失败：{{ toolCall.error }}
+    </div>
+    <div v-else-if="!input" class="stats-report__tip">正在生成统计报告…</div>
+    <template v-else>
+      <div class="stats-report__scroll">
+        <!-- 导出目标：内容区（摘要 + 图表）外加内边距与底色，不含底部导出入口 -->
+        <div ref="captureRef" class="stats-report__capture">
+          <p class="stats-report__summary">{{ input.summary }}</p>
+          <div v-for="(chart, index) in input.charts" :key="index" class="stats-report__chart">
+            <div v-if="chart.title" class="stats-report__chart-title">{{ chart.title }}</div>
+            <div class="stats-report__chart-body">
+              <canvas :ref="(el) => setCanvas(index, el)"></canvas>
+            </div>
           </div>
         </div>
       </div>
@@ -21,16 +27,11 @@
         <span v-if="exportError" class="stats-report__error">{{ exportError }}</span>
       </div>
     </template>
-
-    <div v-else-if="toolCall.status === 'error'" class="stats-report__tip">
-      统计报告生成失败：{{ toolCall.error }}
-    </div>
-    <div v-else class="stats-report__tip">正在生成统计报告…</div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import type { ChatToolCall } from '@veltra/ai'
+import type { ChatToolRenderProps } from '@veltra/ai'
 import Chart from 'chart.js/auto'
 import type { ChartConfiguration } from 'chart.js/auto'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
@@ -39,7 +40,7 @@ import type { ChartSpec, RenderStatsInput } from './render-stats-input'
 
 defineOptions({ name: 'StatsReport' })
 
-const props = defineProps<{ toolCall: ChatToolCall }>()
+const props = defineProps<ChatToolRenderProps>()
 
 /**
  * 渲染载荷在工具入参（非结果）里，由 AI 按查询结果组装；
@@ -120,6 +121,8 @@ function renderCharts() {
   }
 }
 
+// 面板头部刷新按钮经 refreshKey 重挂载本组件，onMounted 重建图表；
+// 面板切换聚焦到另一次调用时 arguments 变化，watch 重灌对应图表
 onMounted(renderCharts)
 watch(
   () => props.toolCall.arguments,
@@ -127,7 +130,7 @@ watch(
 )
 onBeforeUnmount(destroyCharts)
 
-/** 导出目标（带内边距的内容区 ref）；导出中禁用入口防重复触发，失败就地提示不静默 */
+/** 导出目标（带内边距与底色的内容区 ref）；导出中禁用入口防重复触发，失败就地提示不静默 */
 const captureRef = ref<HTMLElement | null>(null)
 const exporting = ref(false)
 const exportError = ref('')
@@ -170,14 +173,8 @@ async function captureReport(): Promise<string> {
   const { toPng } = await import('html-to-image')
   const capture = captureRef.value
   if (!capture) throw new Error('报告内容尚未渲染')
-  const card = capture.parentElement
-  return captureWithChartDensity(() =>
-    toPng(capture, {
-      // 内容区自身无背景，跟随卡片背景色（暗色主题导出同为暗底）
-      backgroundColor: card ? getComputedStyle(card).backgroundColor : undefined,
-      pixelRatio: EXPORT_PIXEL_RATIO
-    })
-  )
+  // 内容区自身带面板卡片同款底色（CSS），导出随浅 / 暗色主题
+  return captureWithChartDensity(() => toPng(capture, { pixelRatio: EXPORT_PIXEL_RATIO }))
 }
 
 function downloadDataUrl(dataUrl: string, filename: string) {
@@ -243,16 +240,25 @@ async function exportPdf() {
 </script>
 
 <style scoped lang="scss">
+// 面板体是 UScroll 的内容层（高度 auto），height: 100% 不生效；
+// 绝对定位挂到 UScroll 根（position: relative）铺满面板体，面板拖宽 / 全屏均自适应
 .stats-report {
-  overflow: hidden;
-  border-radius: var(--u-radius-large);
-  border: 1px solid var(--u-border-color);
-  padding: 12px 14px;
-  background: var(--u-bg-color-top);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.stats-report__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .stats-report__capture {
   padding: 16px;
+  // 导出底色：面板卡片同款 token，导出随浅 / 暗色主题与面板观感一致
+  background: var(--u-bg-color-top);
 }
 
 .stats-report__summary {
@@ -279,7 +285,8 @@ async function exportPdf() {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 12px;
+  flex-shrink: 0;
+  padding: 10px 16px 12px;
 }
 
 .stats-report__export {
@@ -309,6 +316,9 @@ async function exportPdf() {
 }
 
 .stats-report__tip {
+  padding: 24px;
+  color: var(--u-text-color-second);
   font-size: 13px;
+  text-align: center;
 }
 </style>
