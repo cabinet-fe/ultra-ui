@@ -1,7 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 
 import { buildOpenAIBody } from '../openai'
-import { requestAiText, requestOpenAIStream } from '../request'
+import {
+  postOpenAI,
+  requestAiText,
+  requestOpenAIResponsesStream,
+  requestOpenAIStream
+} from '../request'
 import type { AiProviderConfig } from '../types'
 
 afterEach(() => {
@@ -215,5 +220,112 @@ describe('requestOpenAIStream', () => {
 
     expect(completed).toBe(false)
     expect(handlers.onError).toHaveBeenCalledWith(new Error('响应不包含可读取的流'))
+  })
+})
+
+describe('postOpenAI', () => {
+  it('非 2xx 时返回原 Response（不读 body、不报错），由调用方决定报错或降级', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response('not found', { status: 404 }))
+    )
+
+    const onError = vi.fn()
+    const response = await postOpenAI({ url: '/api/chat', body: {} }, onError)
+
+    expect(response).toBeInstanceOf(Response)
+    expect(response!.status).toBe(404)
+    expect(onError).not.toHaveBeenCalled()
+  })
+
+  it('网络错误返回 null（已报 onError）；signal 中断静默返回 null', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => {
+        throw new TypeError('fetch failed')
+      })
+    )
+
+    const onError = vi.fn()
+    expect(await postOpenAI({ url: '/api/chat', body: {} }, onError)).toBeNull()
+    expect(onError).toHaveBeenCalledTimes(1)
+
+    const controller = new AbortController()
+    controller.abort()
+    const silent = vi.fn()
+    expect(
+      await postOpenAI({ url: '/api/chat', body: {}, signal: controller.signal }, silent)
+    ).toBeNull()
+    expect(silent).not.toHaveBeenCalled()
+  })
+})
+
+describe('requestOpenAIResponsesStream', () => {
+  it('解析 responses 事件流：文本增量 + completed usage，完整读取返回 true', async () => {
+    const sse =
+      'event: response.output_text.delta\n' +
+      'data: {"type":"response.output_text.delta","delta":"你好"}\n\n' +
+      'event: response.completed\n' +
+      'data: {"type":"response.completed","response":{"usage":{"input_tokens":10,"output_tokens":5,"total_tokens":15,"input_tokens_details":{"cached_tokens":4}}}}\n\n'
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => sseResponse(sse))
+    )
+
+    const handlers = { onTextDelta: vi.fn(), onUsage: vi.fn(), onError: vi.fn() }
+    const completed = await requestOpenAIResponsesStream(
+      { url: '/api/responses', body: {} },
+      handlers
+    )
+
+    expect(completed).toBe(true)
+    expect(handlers.onTextDelta).toHaveBeenCalledWith('你好')
+    expect(handlers.onUsage).toHaveBeenCalledWith({
+      promptTokens: 10,
+      completionTokens: 5,
+      totalTokens: 15,
+      cacheHitTokens: 4,
+      cacheMissTokens: 6
+    })
+    expect(handlers.onError).not.toHaveBeenCalled()
+  })
+
+  it('非 2xx 经 onError 报错（含状态码与响应体）并返回 false', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response('bad request', { status: 400 }))
+    )
+
+    const handlers = { onTextDelta: vi.fn(), onError: vi.fn() }
+    const completed = await requestOpenAIResponsesStream(
+      { url: '/api/responses', body: {} },
+      handlers
+    )
+
+    expect(completed).toBe(false)
+    expect(handlers.onError).toHaveBeenCalledTimes(1)
+    expect(handlers.onError).toHaveBeenCalledWith(
+      expect.objectContaining({ message: expect.stringMatching(/400.*bad request/) })
+    )
+  })
+
+  it('response.failed 事件经 onError 报错并返回 false', async () => {
+    const sse =
+      'data: {"type":"response.failed","response":{"error":{"code":"server_error","message":"内部错误"}}}\n\n'
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => sseResponse(sse))
+    )
+
+    const handlers = { onTextDelta: vi.fn(), onError: vi.fn() }
+    const completed = await requestOpenAIResponsesStream(
+      { url: '/api/responses', body: {} },
+      handlers
+    )
+
+    expect(completed).toBe(false)
+    expect(handlers.onError).toHaveBeenCalledWith(
+      expect.objectContaining({ message: expect.stringContaining('内部错误') })
+    )
   })
 })

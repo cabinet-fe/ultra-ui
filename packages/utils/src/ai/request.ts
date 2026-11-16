@@ -1,9 +1,10 @@
 import { buildOpenAIBody, parseOpenAICompletionText, parseOpenAISSEStream } from './openai'
+import { parseOpenAIResponsesSSEStream } from './openai-responses'
 import type { AiStreamHandlers, AiTextRequestOptions } from './types'
 
-/** OpenAI 兼容请求的发送选项（body 用 buildOpenAIBody 构造） */
+/** OpenAI 兼容请求的发送选项（body 用 buildOpenAIBody / buildOpenAIResponsesBody 构造） */
 export interface OpenAIRequestOptions {
-  /** OpenAI 兼容 chat/completions 完整请求地址 */
+  /** OpenAI 兼容完整请求地址 */
   url: string
   /** Bearer Token，缺省不带 Authorization 头 */
   apiKey?: string
@@ -23,9 +24,10 @@ export interface OpenAIStreamCallbacks extends AiStreamHandlers {
 
 /**
  * 发送 OpenAI 兼容 POST 并统一错误处理。
- * 返回 null 表示失败（错误已报给 onError）或已中断（静默）。
+ * 网络错误时返回 null（错误已报给 onError），signal 中断时静默返回 null；
+ * 非 2xx 时**返回该 Response 本身**（不读 body、不报错），由调用方决定报错还是降级重试。
  */
-async function postOpenAI(
+export async function postOpenAI(
   options: OpenAIRequestOptions,
   onError?: (error: Error) => void
 ): Promise<Response | null> {
@@ -50,13 +52,13 @@ async function postOpenAI(
     return null
   }
 
-  if (!response.ok) {
-    const text = await response.text().catch(() => '')
-    onError?.(new Error(`请求失败（${response.status}）：${text || response.statusText}`))
-    return null
-  }
-
   return response
+}
+
+/** 非 2xx 响应转统一错误信息（读取 body 文本，失败退化为 statusText） */
+export async function toOpenAIHttpError(response: Response): Promise<Error> {
+  const text = await response.text().catch(() => '')
+  return new Error(`请求失败（${response.status}）：${text || response.statusText}`)
 }
 
 /**
@@ -72,6 +74,11 @@ export async function requestOpenAIStream(
   const response = await postOpenAI(options, callbacks.onError)
   if (!response) return false
 
+  if (!response.ok) {
+    callbacks.onError?.(await toOpenAIHttpError(response))
+    return false
+  }
+
   if (!response.body) {
     callbacks.onError?.(new Error('响应不包含可读取的流'))
     return false
@@ -79,6 +86,41 @@ export async function requestOpenAIStream(
 
   try {
     await parseOpenAISSEStream(response.body, options.signal, callbacks)
+  } catch (error) {
+    if (!options.signal?.aborted) {
+      callbacks.onError?.(error instanceof Error ? error : new Error(String(error)))
+    }
+    return false
+  }
+
+  return true
+}
+
+/**
+ * OpenAI Responses API（/v1/responses）流式请求：fetch + 逐事件 SSE 解析。
+ * 错误（含 response.failed / error 事件）经 onError 报告，signal 中断静默。
+ *
+ * @returns 流是否完整读取（false 表示失败或已中断）
+ */
+export async function requestOpenAIResponsesStream(
+  options: OpenAIRequestOptions,
+  callbacks: OpenAIStreamCallbacks
+): Promise<boolean> {
+  const response = await postOpenAI(options, callbacks.onError)
+  if (!response) return false
+
+  if (!response.ok) {
+    callbacks.onError?.(await toOpenAIHttpError(response))
+    return false
+  }
+
+  if (!response.body) {
+    callbacks.onError?.(new Error('响应不包含可读取的流'))
+    return false
+  }
+
+  try {
+    await parseOpenAIResponsesSSEStream(response.body, options.signal, callbacks)
   } catch (error) {
     if (!options.signal?.aborted) {
       callbacks.onError?.(error instanceof Error ? error : new Error(String(error)))
@@ -128,6 +170,11 @@ export async function requestAiText(options: AiTextRequestOptions): Promise<void
     onError
   )
   if (!response) return
+
+  if (!response.ok) {
+    onError?.(await toOpenAIHttpError(response))
+    return
+  }
 
   let json: unknown
   try {

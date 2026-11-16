@@ -1,4 +1,11 @@
-import type { AiAttachment, AiMessage, AiStreamHandlers, AiTokenUsage, AiTool } from './types'
+import {
+  formatFileAttachmentText,
+  isImageAttachment,
+  isRecord,
+  parseOpenAIUsage,
+  pumpSSEData
+} from './shared'
+import type { AiAttachment, AiMessage, AiStreamHandlers, AiTool } from './types'
 
 /** 请求体构造选项 */
 export interface OpenAIBodyOptions {
@@ -26,20 +33,6 @@ interface OpenAIMessage {
   content?: unknown
   tool_calls?: unknown[]
   tool_call_id?: string
-}
-
-function isImageAttachment(att: AiAttachment): boolean {
-  if (att.mimeType?.startsWith('image/')) return true
-  if (att.dataUrl.startsWith('data:image/')) return true
-  return false
-}
-
-function formatFileAttachmentText(att: AiAttachment): string {
-  const name = att.name || 'attachment'
-  if (att.textContent != null && att.textContent !== '') {
-    return `[附件: ${name}]\n\`\`\`\n${att.textContent}\n\`\`\``
-  }
-  return `[附件: ${name}]`
 }
 
 function toOpenAIMessages(messages: readonly AiMessage[], systemPrompt?: string): OpenAIMessage[] {
@@ -128,58 +121,6 @@ function defaultApplyReasoning(level: string, body: Record<string, unknown>) {
   body.reasoning_effort = level
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
-
-/** 非负有限整数；非法或缺省返回 undefined（不把缺失当成 0） */
-function readCount(value: unknown): number | undefined {
-  if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) return undefined
-  return Math.floor(value)
-}
-
-/**
- * 从 OpenAI 兼容 usage 对象解析。
- * 缓存字段只在源数据出现时写入；未命中可在「有命中 + prompt」时由差值得出。
- */
-function parseOpenAIUsage(raw: unknown): AiTokenUsage | null {
-  if (!isRecord(raw)) return null
-
-  const promptTokens = readCount(raw.prompt_tokens) ?? readCount(raw.input_tokens)
-  const completionTokens = readCount(raw.completion_tokens) ?? readCount(raw.output_tokens)
-  if (promptTokens == null && completionTokens == null) return null
-
-  const prompt = promptTokens ?? 0
-  const completion = completionTokens ?? 0
-  const usage: AiTokenUsage = {
-    promptTokens: prompt,
-    completionTokens: completion,
-    totalTokens: readCount(raw.total_tokens) ?? prompt + completion
-  }
-
-  const details = isRecord(raw.prompt_tokens_details) ? raw.prompt_tokens_details : undefined
-  const inputDetails = isRecord(raw.input_tokens_details) ? raw.input_tokens_details : undefined
-  const cacheHitTokens =
-    readCount(details?.cached_tokens) ??
-    readCount(inputDetails?.cached_tokens) ??
-    readCount(raw.prompt_cache_hit_tokens) ??
-    readCount(raw.cache_read_input_tokens) ??
-    readCount(raw.cached_tokens)
-  if (cacheHitTokens != null) usage.cacheHitTokens = cacheHitTokens
-
-  const cacheMissTokens =
-    readCount(raw.prompt_cache_miss_tokens) ??
-    (cacheHitTokens != null && promptTokens != null
-      ? Math.max(0, promptTokens - cacheHitTokens)
-      : undefined)
-  if (cacheMissTokens != null) usage.cacheMissTokens = cacheMissTokens
-
-  const cacheCreationTokens = readCount(raw.cache_creation_input_tokens)
-  if (cacheCreationTokens != null) usage.cacheCreationTokens = cacheCreationTokens
-
-  return usage
-}
-
 interface AccumulatedToolCall {
   id: string
   name: string
@@ -228,10 +169,6 @@ export async function parseOpenAISSEStream(
   signal: AbortSignal | undefined,
   handlers: AiStreamHandlers
 ): Promise<void> {
-  const reader = body.getReader()
-  const decoder = new TextDecoder()
-  let buffer = ''
-
   // 按 OpenAI 流式协议中 tool_calls 的 index 累积参数片段
   const accumulated = new Map<number, AccumulatedToolCall>()
   let lastIndex = -1
@@ -296,34 +233,7 @@ export async function parseOpenAISSEStream(
     }
   }
 
-  try {
-    // 递归泵取代替 while 循环，避免 await-in-loop
-    const pump = async (): Promise<void> => {
-      const { done, value } = await reader.read()
-      if (done || signal?.aborted) return
-
-      buffer += decoder.decode(value, { stream: true })
-
-      let newlineIndex: number
-      while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
-        const line = buffer.slice(0, newlineIndex).trim()
-        buffer = buffer.slice(newlineIndex + 1)
-        if (line.startsWith('data:')) {
-          handleData(line.slice(5).trim())
-        }
-      }
-
-      return pump()
-    }
-
-    await pump()
-
-    if (buffer.trim().startsWith('data:')) {
-      handleData(buffer.trim().slice(5).trim())
-    }
-  } finally {
-    reader.releaseLock()
-  }
+  await pumpSSEData(body, signal, handleData)
 
   if (!signal?.aborted) flushToolCalls()
 }

@@ -1,12 +1,15 @@
 ---
 title: useChat 对话状态机与传输层
-description: '@veltra/ai 的无头对话状态机 useChat 与传输层：createOpenAITransport（OpenAI 兼容 SSE）、自定义 ChatTransport 实现契约、createServerTransport 服务端会话；覆盖发送、中断、重新生成、清空、待发送队列与 token 统计。'
+description: '@veltra/ai 的无头对话状态机 useChat 与传输层：createOpenAITransport（OpenAI Responses API 优先、chat/completions 兜底）、自定义 ChatTransport 实现契约、createServerTransport 服务端会话；覆盖发送、中断、重新生成、清空、待发送队列与 token 统计。'
 aliases: [use-chat, 对话状态机, Chat Hook, AI 对话 Hook]
 keywords:
   [
     UAiChat,
     createOpenAITransport,
     createServerTransport,
+    ChatProvider,
+    mode,
+    responses,
     ChatTransport,
     ChatSessionEvent,
     SSE,
@@ -29,7 +32,7 @@ keywords:
 
 # useChat 对话状态机与传输层
 
-`@veltra/ai` 导出与 UI 解耦的对话状态机 `useChat`，以及三种互斥的传输层形态：内置 `createOpenAITransport`（OpenAI 兼容 `chat/completions` SSE）、自定义函数 `ChatTransport`、服务端会话 `createServerTransport(adapter)`。`UAiChat` 内部即调用 `useChat`；自绘 UI 的无头场景直接使用本篇 API。
+`@veltra/ai` 导出与 UI 解耦的对话状态机 `useChat`，以及三种互斥的传输层形态：内置 `createOpenAITransport`（OpenAI Responses API 优先、`chat/completions` 兜底，经 `ChatProvider.mode` 控制）、自定义函数 `ChatTransport`、服务端会话 `createServerTransport(adapter)`。`UAiChat` 内部即调用 `useChat`；自绘 UI 的无头场景直接使用本篇 API。
 
 ## 快速上手
 
@@ -201,11 +204,18 @@ export interface ChatProvider {
   label?: string
   /** 完整 http(s) URL 或相对路径，如 /api/ai/chat */
   endpoint: string
+  /**
+   * 请求协议模式：'responses'（Responses API，endpoint 原样使用）| 'chat'（chat/completions，endpoint 原样使用）；
+   * 缺省 'auto'：endpoint 以 /responses 结尾用 responses、以 /chat/completions 结尾用 chat，
+   * 其余视为 base URL，优先请求 <base>/responses，返回 404 / 405 时依次回退
+   * <base>/chat/completions 与 endpoint 原地址（chat 格式）；探测命中（2xx）后记忆直连
+   */
+  mode?: 'responses' | 'chat' | 'auto'
   /** API Key（有则带 Authorization: Bearer；相对路径代理场景可省略，走 cookie/headers） */
   apiKey?: string
   /** Provider 级额外请求头 */
   headers?: Record<string, string>
-  /** 将选中推理等级写入 body；缺省 body.reasoning_effort = level */
+  /** 将选中推理等级写入 body；缺省 chat 模式写 body.reasoning_effort、responses 模式写 body.reasoning.effort */
   applyReasoning?: (level: string, body: Record<string, unknown>) => void
   /** 至少一个模型，否则创建时抛错 */
   models: ChatModel[]
@@ -349,20 +359,32 @@ export function foldSessionEvent(state: ChatFoldState, event: ChatSessionEvent):
 | 参数                         | 类型                      | 默认                               | 必填 | 约束                                                                                                                                                                                                            |
 | ---------------------------- | ------------------------- | ---------------------------------- | :--: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `providers`                  | `ChatProvider[]`          | —                                  |  是  | 至少 1 个，空数组抛 `Error('[createOpenAITransport] providers 不能为空')`                                                                                                                                       |
-| `providers[].endpoint`       | `string`                  | —                                  |  是  | 完整 http(s) URL 或相对路径；请求固定 `POST <endpoint>`                                                                                                                                                         |
+| `providers[].endpoint`       | `string`                  | —                                  |  是  | 完整 http(s) URL 或相对路径；`mode` 为 `'responses'` / `'chat'` 或后缀可识别时请求固定 `POST <endpoint>`，裸 base URL 时自动拼子路径（见 `mode` 行）                                                             |
+| `providers[].mode`           | `'responses' \| 'chat' \| 'auto'` | `'auto'`                   |  否  | `'responses'`：Responses API，endpoint 原样使用；`'chat'`：chat/completions，endpoint 原样使用；`'auto'`：endpoint 以 `/responses` / `/chat/completions` 结尾按后缀识别，其余视为 base URL（不含查询串）——优先 `POST <base>/responses`，返回 404 / 405 依次回退 `POST <base>/chat/completions`、`POST <endpoint>`（均为 chat 格式，末级兼容「裸地址即 chat 端点」的历史配置）；探测命中（2xx）后记忆该地址，后续请求直连 |
 | `providers[].apiKey`         | `string`                  | —                                  |  否  | 有则带 `Authorization: Bearer <apiKey>`；相对路径代理场景可省略                                                                                                                                                 |
 | `providers[].headers`        | `Record<string, string>`  | —                                  |  否  | 与全局 `headers` 合并，Provider 优先                                                                                                                                                                            |
-| `providers[].applyReasoning` | `(level, body) => void`   | 写 `body.reasoning_effort = level` |  否  | 仅在请求带 `reasoningLevel` 时调用                                                                                                                                                                              |
+| `providers[].applyReasoning` | `(level, body) => void`   | chat 写 `body.reasoning_effort`；responses 写 `body.reasoning.effort` |  否  | 仅在请求带 `reasoningLevel` 时调用                                                                                                                                                        |
 | `providers[].models`         | `ChatModel[]`             | —                                  |  是  | 至少 1 个，否则抛 `Error('[createOpenAITransport] Provider "<id>" 未配置 models')`；`models[].id` 跨 Provider 全局唯一，重复抛 `Error('[createOpenAITransport] 模型 id "<id>" 重复（跨 Provider 须全局唯一）')` |
 | `headers`                    | `Record<string, string>`  | —                                  |  否  | 全局请求头，叠加在 `Content-Type` 与 `Authorization` 之后（可覆盖）                                                                                                                                             |
-| `body`                       | `Record<string, unknown>` | —                                  |  否  | 全局额外请求体字段；`body.stream_options` 会被合并且强制 `include_usage: true`                                                                                                                                  |
+| `body`                       | `Record<string, unknown>` | —                                  |  否  | 全局额外请求体字段（两种模式都展开在最前）；chat 模式下 `body.stream_options` 会被合并且强制 `include_usage: true`                                                                                              |
 
 ### 请求形态（内置 OpenAI transport）
 
-- 请求：`POST <provider.endpoint>`，`Content-Type: application/json`，有 `apiKey` 时带 `Authorization: Bearer <apiKey>`；请求体固定 `model`、`stream: true`、`stream_options: { include_usage: true }`、`messages`（`systemPrompt` 转为首条 `system` 消息），有 `tools` 时带 `tools`（OpenAI function 形态）。
+按 `ChatProvider.mode` 解析协议（见参数表）；两种模式都 `POST` JSON、有 `apiKey` 时带 `Authorization: Bearer <apiKey>`、`stream: true`。
+
+chat 模式（`chat/completions`）：
+
+- 请求体固定 `model`、`stream: true`、`stream_options: { include_usage: true }`、`messages`（`systemPrompt` 转为首条 `system` 消息），有 `tools` 时带 `tools`（OpenAI function 形态 `{ type: 'function', function: { ... } }`）。
 - 用户图片附件转成 `image_url` 内容分片，非图片附件不传 `image_url`（将本地提取的 `textContent` 或文件名并入用户文本）；`reasoningLevel` 经 `applyReasoning` 写入请求体（缺省 `reasoning_effort`）。
 - 响应：按 SSE 逐行解析 `data:` 帧，兼容 `reasoning_content`（DeepSeek）与 `reasoning`（部分 OpenAI 兼容端点）；`usage` 从流式末包解析。
-- 错误：模型 id 找不到 Provider 时回调 `onError(new Error('未找到模型 "<id>" 对应的 Provider'))`；非 2xx 包装为 `请求失败（<status>）：<响应文本>`；无响应体报 `响应不包含可读取的流`；网络失败与解析异常原样 `onError`（`signal.aborted` 后不再报）。
+
+responses 模式（Responses API，优先）：
+
+- 请求体固定 `model`、`stream: true`、`input`（消息历史转 input 项：图片附件 `{ type: 'input_image', image_url: <dataUrl> }`、工具调用 `function_call` / `function_call_output`）、`instructions`（`systemPrompt` 存在时），`tools` 为扁平结构 `{ type: 'function', name, description, parameters }`；`reasoningLevel` 缺省写 `reasoning: { effort: level }`。
+- 响应：逐事件解析——`response.output_text.delta` → `onTextDelta`；`response.reasoning_summary_text.delta` / `response.reasoning_text.delta` → `onReasoningDelta`；`function_call` 以 `response.output_item.done` 完整 item 触发 `onToolCall`；`response.completed` / `response.incomplete` 的 `usage`（`input_tokens` / `output_tokens` 风格）触发 `onUsage`。
+- auto 裸 base URL 时先 `POST <base>/responses`，返回 404 / 405 依次改发 `POST <base>/chat/completions`、`POST <endpoint>`（chat 请求体，兼容裸地址即 chat 端点的历史配置）；其它非 2xx 不回退。探测命中（2xx）后按 Provider 记忆该地址，后续请求直连不再探测。
+
+两种模式共有的错误行为：模型 id 找不到 Provider 时回调 `onError(new Error('未找到模型 "<id>" 对应的 Provider'))`；非 2xx 包装为 `请求失败（<status>）：<响应文本>`；无响应体报 `响应不包含可读取的流`；网络失败与解析异常原样 `onError`；responses 模式的 `response.failed` / `error` 事件取其 `message` 经 `onError` 上报（`signal.aborted` 后不再报）。
 
 ### useChat 返回值
 
@@ -494,6 +516,32 @@ const transport = createOpenAITransport({
 
 console.log(transport.models) // => ChatModelOption[]，含 providerId / providerLabel
 console.log(transport.defaultModel) // => 'deepseek-chat'（首个 Provider 的首个模型）
+```
+
+### Responses API（优先模式）
+
+```ts
+import { createOpenAITransport } from '@veltra/ai'
+
+// 裸 base URL：优先请求 https://api.openai.com/v1/responses，
+// 返回 404 / 405 时依次回退 .../v1/chat/completions 与 endpoint 原地址（chat 格式），
+// 探测命中后记忆直连地址（同一 transport 实例内不再重复探测）
+const transport = createOpenAITransport({
+  providers: [
+    {
+      id: 'openai',
+      endpoint: 'https://api.openai.com/v1',
+      apiKey: 'sk-<your-key>', // 生产环境改走服务端代理（相对路径），Key 不下发浏览器
+      models: [{ id: 'gpt-5', contextWindow: 400000 }]
+    }
+  ]
+})
+
+// 显式指定时 endpoint 原样使用：
+// - mode: 'responses'：endpoint 即 /responses 地址（如 '/api/my-responses'）
+// - mode: 'chat'：endpoint 即 chat/completions 地址（兼容旧配置）
+// - endpoint 已以 /responses 或 /chat/completions 结尾时 auto 按后缀识别，不改写地址
+console.log(transport.defaultModel) // => 'gpt-5'
 ```
 
 ### 无头 useChat：确认工具、停止与重新生成

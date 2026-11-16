@@ -289,14 +289,14 @@ createApp(App).mount('#app')
 | animation  | 动画与帧工具                     | `utils/animation.md`  |
 | reactive   | 响应式与上下文辅助               | `utils/reactive.md`   |
 | text-nav   | 文本高亮、溢出导航与通用类型工具 | `utils/text-nav.md`   |
-| ai-request | OpenAI 兼容 AI 文本请求与 SSE 解析 | `utils/ai-request.md` |
+| ai-request | OpenAI 兼容 AI 文本请求与 SSE 解析（chat/completions 与 Responses API） | `utils/ai-request.md` |
 
 ### ai AI 对话（@veltra/ai）
 
 | 模块    | 用途                                                           | 文档路径         |
 | ------- | -------------------------------------------------------------- | ---------------- |
 | UAiChat | 对话组件：流式消息列表、工具调用卡片、模型选择、附件           | `ai/ai-chat.md`  |
-| useChat | 无头对话状态机与三种传输层（OpenAI SSE / 自定义 / 服务端会话） | `ai/use-chat.md` |
+| useChat | 无头对话状态机与三种传输层（OpenAI Responses 优先 / chat SSE / 自定义 / 服务端会话） | `ai/use-chat.md` |
 
 ### sheet 电子表格 UI（@veltra/sheet）
 

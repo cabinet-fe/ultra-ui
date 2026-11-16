@@ -7,7 +7,7 @@
 ```
 src/
 ├── index.ts              # 聚合导出 utils + shared + types
-├── ai/                   # OpenAI 兼容请求层（SSE 解析、请求体构造、requestAiText）
+├── ai/                   # OpenAI 兼容请求层（chat/completions 与 Responses API：请求体构造、SSE 解析、requestAiText；shared.ts 为内部共享实现不导出）
 ├── utils/                # 工具函数
 │   ├── dom/              # class-name, highlight, position, style, z-index
 │   ├── form/validate     # 表单校验
@@ -46,7 +46,7 @@ src/
 | `helper/frame`    | `frame` | rAF 封装     |
 | `dom/z-index`     | —       | z-index 管理 |
 | `form/validate`   | —       | 表单校验     |
-| `ai`              | `requestAiText()`、`buildOpenAIBody()`、`parseOpenAISSEStream()` | OpenAI 兼容请求 + SSE 解析 |
+| `ai`              | `requestAiText()`、`buildOpenAIBody()`、`parseOpenAISSEStream()`、`buildOpenAIResponsesBody()`、`parseOpenAIResponsesSSEStream()`、`requestOpenAIResponsesStream()`、`postOpenAI()` | OpenAI 兼容请求 + SSE 解析（chat/completions 与 Responses API） |
 
 ## 依赖
 

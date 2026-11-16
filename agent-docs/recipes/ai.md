@@ -29,7 +29,7 @@ keywords:
 
 # Ultra UI AI 对话集成场景
 
-Ultra UI（`@veltra/*`）的 AI 对话方案：`@veltra/ai` 的 `UAiChat` 提供完整对话 UI，`createOpenAITransport` 对接 OpenAI 兼容 `chat/completions` SSE。生产环境 `endpoint` 用相对路径指向自建服务端代理，API Key 只存在服务端环境变量，不下发浏览器；自绘 UI 时改用无头 `useChat`。
+Ultra UI（`@veltra/*`）的 AI 对话方案：`@veltra/ai` 的 `UAiChat` 提供完整对话 UI，`createOpenAITransport` 对接 OpenAI 兼容接口——Responses API 优先、`chat/completions` 兜底（`ChatProvider.mode` 控制，缺省按 endpoint 自动识别）。生产环境 `endpoint` 用相对路径指向自建服务端代理，API Key 只存在服务端环境变量，不下发浏览器；自绘 UI 时改用无头 `useChat`。
 
 ## 场景
 
@@ -151,7 +151,7 @@ const tools: ChatTool[] = [
 
 ## 要点说明
 
-- `transport` 是 `UAiChat` / `useChat` 的必填 prop。OpenAI 兼容 SSE 用 `createOpenAITransport({ providers })`；每个 Provider 至少一个 `models`，空数组抛 `Error('[createOpenAITransport] providers 不能为空')`；模型 `id` 必须**跨 Provider 全局唯一**，重复抛 `Error('[createOpenAITransport] 模型 id "<id>" 重复（跨 Provider 须全局唯一）')`。
+- `transport` 是 `UAiChat` / `useChat` 的必填 prop。OpenAI 兼容 SSE 用 `createOpenAITransport({ providers })`；endpoint 以 `/responses` 或 `/chat/completions` 结尾按后缀选协议，裸地址（如 `/api/ai/chat`）先探测 `<base>/responses`，404 / 405 时回退 chat 地址（最终落回 endpoint 原地址，历史代理配置不受影响）；每个 Provider 至少一个 `models`，空数组抛 `Error('[createOpenAITransport] providers 不能为空')`；模型 `id` 必须**跨 Provider 全局唯一**，重复抛 `Error('[createOpenAITransport] 模型 id "<id>" 重复（跨 Provider 须全局唯一）')`。
 - Key 不下发浏览器：浏览器端 `endpoint` 写相对路径（如 `/api/ai/chat`），不传 `apiKey`；代理端从环境变量读 Key、注入 `Authorization: Bearer`、把 SSE 原样转发。`apiKey` 字段仅限本机调试。
 - `transport.models`（扁平模型列表）与 `transport.defaultModel`（首个 Provider 的首个模型）可直接交给 `UAiChat` 的 `:models` / `v-model:model`。
 - 工具编排：传入 `tools` 后组件内部跑 tool_calls → 执行 `execute` → 结果（非 string 则 `JSON.stringify`）以 `role: 'tool'` 消息回灌 → 继续生成，直到无工具调用、命中 `terminal: true` 的工具或达到 `maxToolRounds`（默认 10）。禁止自己写工具循环。

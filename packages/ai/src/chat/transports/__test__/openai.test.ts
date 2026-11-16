@@ -70,7 +70,7 @@ describe('createOpenAITransport', () => {
 
     const transport = createOpenAITransport({
       providers: [
-        { id: 'proxy', endpoint: '/api/ai/chat', models: [{ id: 'proxy-model' }] },
+        { id: 'proxy', endpoint: '/api/ai/chat/completions', models: [{ id: 'proxy-model' }] },
         {
           id: 'remote',
           endpoint: 'https://api.example.com/v1/chat/completions',
@@ -108,7 +108,7 @@ describe('createOpenAITransport', () => {
       handlers
     )
 
-    expect(fetchMock.mock.calls[1]![0]).toBe('/api/ai/chat')
+    expect(fetchMock.mock.calls[1]![0]).toBe('/api/ai/chat/completions')
     const proxyInit = fetchMock.mock.calls[1]![1] as RequestInit
     expect((proxyInit.headers as Record<string, string>).Authorization).toBeUndefined()
   })
@@ -123,7 +123,9 @@ describe('createOpenAITransport', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     const transport = createOpenAITransport({
-      providers: [{ id: 'local', endpoint: '/api/chat', models: [{ id: 'local-model' }] }]
+      providers: [
+        { id: 'local', endpoint: '/api/chat/completions', models: [{ id: 'local-model' }] }
+      ]
     })
 
     await transport(
@@ -190,7 +192,7 @@ describe('createOpenAITransport', () => {
       providers: [
         {
           id: 'custom',
-          endpoint: 'https://custom.example/chat',
+          endpoint: 'https://custom.example/v1/chat/completions',
           applyReasoning: (level, body) => {
             body.thinking = { budget: level }
           },
@@ -220,7 +222,9 @@ describe('createOpenAITransport', () => {
     const handlers = baseHandlers()
 
     const transport = createOpenAITransport({
-      providers: [{ id: 'a', endpoint: 'https://a.example/chat', models: [{ id: 'known' }] }]
+      providers: [
+        { id: 'a', endpoint: 'https://a.example/v1/chat/completions', models: [{ id: 'known' }] }
+      ]
     })
 
     await transport(
@@ -254,7 +258,9 @@ data: [DONE]
     )
 
     const transport = createOpenAITransport({
-      providers: [{ id: 'a', endpoint: 'https://a.example/chat', models: [{ id: 'm' }] }]
+      providers: [
+        { id: 'a', endpoint: 'https://a.example/v1/chat/completions', models: [{ id: 'm' }] }
+      ]
     })
     const handlers = baseHandlers()
 
@@ -291,7 +297,9 @@ data: [DONE]
     )
 
     const transport = createOpenAITransport({
-      providers: [{ id: 'a', endpoint: 'https://a.example/chat', models: [{ id: 'm' }] }]
+      providers: [
+        { id: 'a', endpoint: 'https://a.example/v1/chat/completions', models: [{ id: 'm' }] }
+      ]
     })
     const handlers = baseHandlers()
 
@@ -326,7 +334,9 @@ data: [DONE]
     vi.stubGlobal('fetch', fetchMock)
 
     const transport = createOpenAITransport({
-      providers: [{ id: 'a', endpoint: 'https://a.example/chat', models: [{ id: 'm' }] }]
+      providers: [
+        { id: 'a', endpoint: 'https://a.example/v1/chat/completions', models: [{ id: 'm' }] }
+      ]
     })
     await transport(
       {
@@ -355,7 +365,9 @@ data: [DONE]
     )
 
     const transport = createOpenAITransport({
-      providers: [{ id: 'a', endpoint: 'https://a.example/chat', models: [{ id: 'm' }] }]
+      providers: [
+        { id: 'a', endpoint: 'https://a.example/v1/chat/completions', models: [{ id: 'm' }] }
+      ]
     })
     const handlers = baseHandlers()
     await transport(
@@ -393,7 +405,9 @@ data: [DONE]
     vi.stubGlobal('fetch', fetchMock)
 
     const transport = createOpenAITransport({
-      providers: [{ id: 'a', endpoint: 'https://a.example/chat', models: [{ id: 'm' }] }]
+      providers: [
+        { id: 'a', endpoint: 'https://a.example/v1/chat/completions', models: [{ id: 'm' }] }
+      ]
     })
 
     const withCacheHandlers = baseHandlers()
@@ -434,7 +448,9 @@ data: [DONE]
     )
 
     const transport = createOpenAITransport({
-      providers: [{ id: 'a', endpoint: 'https://a.example/chat', models: [{ id: 'm' }] }]
+      providers: [
+        { id: 'a', endpoint: 'https://a.example/v1/chat/completions', models: [{ id: 'm' }] }
+      ]
     })
     const handlers = baseHandlers()
     await transport(
@@ -453,5 +469,291 @@ data: [DONE]
       cacheMissTokens: 5,
       cacheCreationTokens: 3
     })
+  })
+})
+
+describe('createOpenAITransport · responses 模式', () => {
+  it('auto 裸 base URL：优先请求 <base>/responses，请求体为 Responses 格式并解析事件流', async () => {
+    const sse =
+      'event: response.output_text.delta\n' +
+      'data: {"type":"response.output_text.delta","delta":"你好"}\n\n' +
+      'event: response.completed\n' +
+      'data: {"type":"response.completed","response":{"usage":{"input_tokens":10,"output_tokens":5,"total_tokens":15}}}\n\n'
+    const fetchMock = vi.fn(async () => new Response(sse, { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const transport = createOpenAITransport({
+      providers: [
+        {
+          id: 'openai',
+          endpoint: 'https://api.openai.com/v1',
+          apiKey: 'sk-test',
+          models: [{ id: 'gpt-5' }]
+        }
+      ]
+    })
+    const handlers = baseHandlers()
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        systemPrompt: 'sys',
+        reasoningLevel: 'high',
+        signal: new AbortController().signal
+      },
+      handlers
+    )
+
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+    expect(fetchMock.mock.calls[0]![0]).toBe('https://api.openai.com/v1/responses')
+    expect(JSON.parse(String(fetchMock.mock.calls[0]![1]!.body))).toMatchObject({
+      model: 'gpt-5',
+      stream: true,
+      instructions: 'sys',
+      reasoning: { effort: 'high' },
+      input: [{ role: 'user', content: 'hi' }]
+    })
+    expect(handlers.onTextDelta).toHaveBeenCalledWith('你好')
+    expect(handlers.onUsage).toHaveBeenCalledWith({
+      promptTokens: 10,
+      completionTokens: 5,
+      totalTokens: 15
+    })
+    expect(handlers.onError).not.toHaveBeenCalled()
+  })
+
+  it('auto base URL 以斜杠结尾时归一化拼 /responses；mode responses 原样使用 endpoint', async () => {
+    const fetchMock = vi.fn(async () => new Response('', { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const transport = createOpenAITransport({
+      providers: [
+        { id: 'a', endpoint: 'https://a.example/v1/', models: [{ id: 'm1' }] },
+        { id: 'b', mode: 'responses', endpoint: '/api/custom-responses', models: [{ id: 'm2' }] }
+      ]
+    })
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        model: 'm1',
+        signal: new AbortController().signal
+      },
+      baseHandlers()
+    )
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        model: 'm2',
+        signal: new AbortController().signal
+      },
+      baseHandlers()
+    )
+
+    expect(fetchMock.mock.calls[0]![0]).toBe('https://a.example/v1/responses')
+    expect(fetchMock.mock.calls[1]![0]).toBe('/api/custom-responses')
+  })
+
+  it('endpoint 以 /responses 结尾时 auto 直接用 responses（不去改写地址）', async () => {
+    const fetchMock = vi.fn(async () => new Response('', { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const transport = createOpenAITransport({
+      providers: [{ id: 'a', endpoint: '/api/ai/responses', models: [{ id: 'm' }] }]
+    })
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        signal: new AbortController().signal
+      },
+      baseHandlers()
+    )
+
+    expect(fetchMock.mock.calls[0]![0]).toBe('/api/ai/responses')
+    const body = JSON.parse(String(fetchMock.mock.calls[0]![1]!.body))
+    expect(body.input).toEqual([{ role: 'user', content: 'hi' }])
+    expect(body.messages).toBeUndefined()
+  })
+
+  it('responses 收到 404 / 405 时自动回退 <base>/chat/completions 并改用 chat 请求体', async () => {
+    const chatSse = 'data: {"choices":[{"delta":{"content":"ok"}}]}\n\ndata: [DONE]\n\n'
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response('not found', { status: 404 }))
+      .mockResolvedValueOnce(new Response(chatSse, { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const transport = createOpenAITransport({
+      providers: [{ id: 'proxy', endpoint: '/api/ai', models: [{ id: 'm' }] }]
+    })
+    const handlers = baseHandlers()
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        signal: new AbortController().signal
+      },
+      handlers
+    )
+
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(fetchMock.mock.calls[0]![0]).toBe('/api/ai/responses')
+    expect(fetchMock.mock.calls[1]![0]).toBe('/api/ai/chat/completions')
+    const fallbackBody = JSON.parse(String(fetchMock.mock.calls[1]![1]!.body))
+    expect(fallbackBody).toMatchObject({
+      model: 'm',
+      stream: true,
+      messages: [{ role: 'user', content: 'hi' }],
+      stream_options: { include_usage: true }
+    })
+    expect(fallbackBody.input).toBeUndefined()
+    expect(handlers.onTextDelta).toHaveBeenCalledWith('ok')
+    expect(handlers.onError).not.toHaveBeenCalled()
+
+    // 405 同样回退（换新 transport：上一个已记忆直连地址）
+    fetchMock
+      .mockReset()
+      .mockResolvedValueOnce(new Response('', { status: 405 }))
+      .mockResolvedValueOnce(new Response('data: [DONE]\n\n', { status: 200 }))
+    const transport405 = createOpenAITransport({
+      providers: [{ id: 'proxy', endpoint: '/api/ai', models: [{ id: 'm' }] }]
+    })
+    await transport405(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        signal: new AbortController().signal
+      },
+      baseHandlers()
+    )
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+    expect(fetchMock.mock.calls[0]![0]).toBe('/api/ai/responses')
+    expect(fetchMock.mock.calls[1]![0]).toBe('/api/ai/chat/completions')
+  })
+
+  it('两级派生地址都 404 时回退 endpoint 原地址（chat 格式，兼容历史配置）', async () => {
+    const chatSse = 'data: {"choices":[{"delta":{"content":"legacy"}}]}\n\ndata: [DONE]\n\n'
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response('', { status: 404 }))
+      .mockResolvedValueOnce(new Response('', { status: 404 }))
+      .mockResolvedValueOnce(new Response(chatSse, { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const transport = createOpenAITransport({
+      providers: [{ id: 'legacy', endpoint: '/api/ai/chat', models: [{ id: 'm' }] }]
+    })
+    const handlers = baseHandlers()
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        signal: new AbortController().signal
+      },
+      handlers
+    )
+
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+    expect(fetchMock.mock.calls[0]![0]).toBe('/api/ai/chat/responses')
+    expect(fetchMock.mock.calls[1]![0]).toBe('/api/ai/chat/chat/completions')
+    expect(fetchMock.mock.calls[2]![0]).toBe('/api/ai/chat')
+    const body = JSON.parse(String(fetchMock.mock.calls[2]![1]!.body))
+    expect(body.messages).toEqual([{ role: 'user', content: 'hi' }])
+    expect(handlers.onTextDelta).toHaveBeenCalledWith('legacy')
+    expect(handlers.onError).not.toHaveBeenCalled()
+  })
+
+  it('探测命中后记忆直连地址：第二次发送不再逐级探测', async () => {
+    const chatSse = 'data: {"choices":[{"delta":{"content":"ok"}}]}\n\ndata: [DONE]\n\n'
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(new Response('', { status: 404 }))
+      .mockResolvedValueOnce(new Response(chatSse, { status: 200 }))
+      .mockResolvedValueOnce(new Response(chatSse, { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const transport = createOpenAITransport({
+      providers: [{ id: 'proxy', endpoint: '/api/ai', models: [{ id: 'm' }] }]
+    })
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        signal: new AbortController().signal
+      },
+      baseHandlers()
+    )
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        signal: new AbortController().signal
+      },
+      baseHandlers()
+    )
+
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+    expect(fetchMock.mock.calls[2]![0]).toBe('/api/ai/chat/completions')
+  })
+
+  it('responses 流的 function_call 解析为完整 onToolCall，response.failed 经 onError 报错', async () => {
+    const sse =
+      'data: {"type":"response.output_item.added","item":{"id":"fc_1","type":"function_call","call_id":"call_1","name":"get_weather","arguments":""}}\n\n' +
+      'data: {"type":"response.function_call_arguments.delta","item_id":"fc_1","delta":"{\\"city\\":\\"北京\\"}"}\n\n' +
+      'data: {"type":"response.output_item.done","item":{"id":"fc_1","type":"function_call","call_id":"call_1","name":"get_weather","arguments":"{\\"city\\":\\"北京\\"}"}}\n\n' +
+      'data: {"type":"response.completed","response":{}}\n\n'
+    const fetchMock = vi.fn(async () => new Response(sse, { status: 200 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const transport = createOpenAITransport({
+      providers: [{ id: 'a', mode: 'responses', endpoint: '/api/responses', models: [{ id: 'm' }] }]
+    })
+    const handlers = baseHandlers()
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        tools: [
+          {
+            name: 'get_weather',
+            description: '查天气',
+            parameters: { type: 'object' },
+            execute: () => ({})
+          }
+        ],
+        signal: new AbortController().signal
+      },
+      handlers
+    )
+
+    // 工具为 Responses 扁平结构
+    const body = JSON.parse(String(fetchMock.mock.calls[0]![1]!.body))
+    expect(body.tools).toEqual([
+      {
+        type: 'function',
+        name: 'get_weather',
+        description: '查天气',
+        parameters: { type: 'object' }
+      }
+    ])
+    expect(handlers.onToolCall).toHaveBeenCalledTimes(1)
+    expect(handlers.onToolCall).toHaveBeenCalledWith({
+      id: 'call_1',
+      name: 'get_weather',
+      arguments: '{"city":"北京"}'
+    })
+
+    // response.failed → onError
+    fetchMock
+      .mockReset()
+      .mockResolvedValue(
+        new Response(
+          'data: {"type":"response.failed","response":{"error":{"code":"server_error","message":"内部错误"}}}\n\n',
+          { status: 200 }
+        )
+      )
+    const failHandlers = baseHandlers()
+    await transport(
+      {
+        messages: [{ id: '1', role: 'user', content: 'hi' }],
+        signal: new AbortController().signal
+      },
+      failHandlers
+    )
+    expect(failHandlers.onError).toHaveBeenCalledWith(
+      expect.objectContaining({ message: expect.stringContaining('内部错误') })
+    )
   })
 })
