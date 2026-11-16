@@ -79,6 +79,42 @@ export interface StatsResult {
   rows: RowData[]
 }
 
+/** 展示列：name 原列名，label 中文标题（comment 缺省回退列名） */
+export interface DisplayColumn {
+  name: string
+  label: string
+}
+
+/** 行查询展示投影（镜像 server/ai-db.ts）：columns 不含主键列，外键列的值为关联名称 */
+export interface QueryDisplay {
+  columns: DisplayColumn[]
+  rows: RowData[]
+}
+
+/** 统计展示投影（镜像 server/ai-db.ts）：中文标签 + 分组展示行 + 明细行投影 */
+export interface StatsDisplay {
+  /** 维度列名 → 中文标题 */
+  dimensionLabels: Record<string, string>
+  /** 聚合键（count / sum__列 …）→ 中文标签 */
+  aggregationLabels: Record<string, string>
+  /** 每组一行的展示对象，键为中文（维度标题 + 聚合标签），维度值为外键时已解析 */
+  groupRows: RowData[]
+  /** 明细行的展示投影 */
+  detail: QueryDisplay
+}
+
+/** GET /tables/:name/rows 响应（display 为用户可见展示投影） */
+export interface RowsResponse {
+  rows: RowData[]
+  total: number
+  display: QueryDisplay
+}
+
+/** POST /stats 响应（聚合在服务端完成，display 为用户可见展示投影） */
+export interface StatsResponse extends StatsResult {
+  display: StatsDisplay
+}
+
 /** 响应壳：ok 时携带数据字段，失败时 error.message 透出给调用方（工具错误会回灌模型） */
 interface DbEnvelope {
   ok: boolean
@@ -150,21 +186,41 @@ export function insertRows(name: string, rows: RowData[], signal?: AbortSignal) 
   })
 }
 
-/** GET /tables/:name/rows — 查询行数据（受控等值过滤，null 匹配空值） */
-export function queryRows(name: string, filter?: Record<string, RowValue>, signal?: AbortSignal) {
-  const query =
-    filter && Object.keys(filter).length > 0
-      ? `?filter=${encodeURIComponent(JSON.stringify(filter))}`
-      : ''
-  return request<{ rows: RowData[]; total: number }>(
-    `/tables/${encodeURIComponent(name)}/rows${query}`,
-    { signal }
-  )
+/** queryData 入参：明细查询（table + filter）或聚合查询（再带 groupBy / aggregations） */
+export interface QueryDataParams {
+  table: string
+  /** 受控等值过滤（列名 → 值，null 匹配空值） */
+  filter?: Record<string, RowValue>
+  /** 分组维度列 */
+  groupBy?: string[]
+  /** 聚合列表（聚合计算在服务端完成） */
+  aggregations?: AggregationSpec[]
 }
 
-/** POST /stats — 统计分析（过滤 + 分组维度 + 聚合，返回分组序列与明细行） */
-export function analyzeStats(query: StatsQuery, signal?: AbortSignal) {
-  return request<StatsResult>('/stats', { ...jsonBody(query, 'POST'), signal })
+/**
+ * 查询数据：带 groupBy / aggregations 时走 `POST /stats`（服务端聚合，返回 StatsResponse），
+ * 否则走 `GET /tables/:name/rows`（明细查询，返回 RowsResponse）。前端不做任何聚合计算。
+ */
+export function queryData(
+  params: QueryDataParams,
+  signal?: AbortSignal
+): Promise<RowsResponse | StatsResponse> {
+  if (params.groupBy?.length || params.aggregations?.length) {
+    const query: StatsQuery = {
+      table: params.table,
+      filter: params.filter,
+      groupBy: params.groupBy,
+      aggregations: params.aggregations ?? []
+    }
+    return request<StatsResponse>('/stats', { ...jsonBody(query, 'POST'), signal })
+  }
+  const search =
+    params.filter && Object.keys(params.filter).length > 0
+      ? `?filter=${encodeURIComponent(JSON.stringify(params.filter))}`
+      : ''
+  return request<RowsResponse>(`/tables/${encodeURIComponent(params.table)}/rows${search}`, {
+    signal
+  })
 }
 
 /** GET /relationships — 全部实体关系 */

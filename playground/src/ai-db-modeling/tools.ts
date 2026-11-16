@@ -1,6 +1,7 @@
 /**
- * AI 数据库建模的 9 个对话工具，逐一映射 `/ai-db-api` REST 端点（见 api.ts）。
- * execute 全部走 api.ts，错误文案由服务端 400/404 响应透出后回灌模型自行修正。
+ * AI 数据库建模的 9 个对话工具：8 个映射 `/ai-db-api` REST 端点（见 api.ts），
+ * renderStats 为纯渲染工具（入参来自此前 queryData 的结果，execute 不发起任何请求）。
+ * execute 全部走 api.ts 或本地校验，错误文案由服务端 400/404 响应透出后回灌模型自行修正。
  * 追问工具 askQuestion 由 UAiChat 内置注入，此处不重复注册。
  */
 import type { ChatTool } from '@veltra/ai'
@@ -18,24 +19,24 @@ import {
 
 import {
   AGGREGATION_FUNCS,
-  analyzeStats,
   COLUMN_TYPES,
   createTable,
   deleteTable,
   getRelationships,
   getTables,
   insertRows,
-  queryRows,
+  queryData,
   RELATIONSHIP_TYPES,
   replaceRelationships,
   updateTable,
+  type QueryDataParams,
   type RelationshipDef,
   type RowData,
-  type RowValue,
-  type StatsQuery,
   type TableDef
 } from './api'
-import StatsCard from './stats-card.vue'
+import QueryCard from './query-card.vue'
+import { CHART_TYPES, validateRenderStatsInput, type RenderStatsInput } from './render-stats-input'
+import StatsReport from './stats-report.vue'
 
 /** 列定义 JSON Schema 片段（写入表 / 更新表共用） */
 const columnsSchema = {
@@ -131,30 +132,13 @@ export const dbTools: ChatTool[] = [
       insertRows(args.table, args.rows, signal)
   },
   {
-    name: 'queryRows',
+    name: 'queryData',
     description:
-      '查询指定表的行数据。filter 为受控等值过滤（列名 → 值，null 匹配空值），不支持模糊或范围查询；缺省返回全部行。',
+      '查询单表数据：不带 groupBy/aggregations 时返回明细行（filter 为受控等值过滤，null 匹配空值）；带 groupBy 或 aggregations 时做聚合统计，聚合计算在服务端完成——所有数字统计一律用本工具，禁止自行计算。响应含 display 展示投影（列标题为中文 comment、外键值已解析为关联名称、不含主键列），可直接用于组装 renderStats 的入参。',
     label: '查询数据',
     icon: Search,
-    parameters: {
-      type: 'object',
-      properties: {
-        table: { type: 'string', description: '目标表名' },
-        filter: { type: 'object', description: '等值过滤条件（可选，键为列名）' }
-      },
-      required: ['table']
-    },
-    execute: (args: { table: string; filter?: Record<string, RowValue> }, { signal }) =>
-      queryRows(args.table, args.filter, signal)
-  },
-  {
-    name: 'analyzeStats',
-    description:
-      '统计分析：对指定表按过滤条件筛选后，可按维度列分组并做聚合。聚合函数 count 可省列，sum/avg/min/max 必须指定 number 列。结果以图表卡片直接展示给用户（图表 + 明细表），无需再用文字复述全部数字。',
-    label: '统计分析',
-    icon: ChartPie,
-    render: StatsCard,
-    // 回复流工具：图表卡片常驻展示在回复中，不随步骤行折叠
+    render: QueryCard,
+    // 回复流工具：结果卡片常驻展示在回复中，不随步骤行折叠
     renderTo: 'reply',
     parameters: {
       type: 'object',
@@ -163,25 +147,98 @@ export const dbTools: ChatTool[] = [
         filter: { type: 'object', description: '等值过滤条件（可选，键为列名）' },
         groupBy: {
           type: 'array',
-          description: '分组维度列（可选，缺省整表一组）',
+          description: '分组维度列（可选；聚合查询用）',
           items: { type: 'string' }
         },
         aggregations: {
           type: 'array',
-          description: '聚合列表（至少一项）',
+          description: '聚合列表（可选；带 groupBy 时必须至少一项）',
           items: {
             type: 'object',
             properties: {
               func: { type: 'string', enum: [...AGGREGATION_FUNCS], description: '聚合函数' },
-              column: { type: 'string', description: '聚合列（count 可省略）' }
+              column: {
+                type: 'string',
+                description: '聚合列（count 可省略；sum/avg/min/max 用 number 列）'
+              }
             },
             required: ['func']
           }
         }
       },
-      required: ['table', 'aggregations']
+      required: ['table']
     },
-    execute: (args: StatsQuery, { signal }) => analyzeStats(args, signal)
+    execute: (args: QueryDataParams, { signal }) => queryData(args, signal)
+  },
+  {
+    name: 'renderStats',
+    description:
+      '渲染统计报告（纯渲染，不查数据、不发起请求）：把此前 queryData 的查询结果组装为「中文摘要 + 明细表 + 多图表」卡片。summary 为中文结论；rawData 键名用中文可读值（取查询结果 display 投影的中文标题与关联名称），不带 id 类技术列；charts 可多张（bar/line/pie），labels 与系列名用中文；所有数字取自查询结果，不要自行计算。',
+    label: '统计报告',
+    icon: ChartPie,
+    render: StatsReport,
+    renderTo: 'reply',
+    parameters: {
+      type: 'object',
+      properties: {
+        summary: { type: 'string', description: '中文统计结论摘要（非空）' },
+        rawData: {
+          type: 'array',
+          description: '明细行列表（键用中文可读值，不含 id 类技术列）',
+          items: { type: 'object', description: '一行数据（中文键 → 标量值）' }
+        },
+        charts: {
+          type: 'array',
+          description: '图表列表（可多张，可为空数组）',
+          items: {
+            type: 'object',
+            properties: {
+              type: { type: 'string', enum: [...CHART_TYPES], description: '图表类型' },
+              title: { type: 'string', description: '图表标题（可选）' },
+              data: {
+                type: 'object',
+                description: '图表数据',
+                properties: {
+                  labels: {
+                    type: 'array',
+                    description: '分类轴标签（中文）',
+                    items: { type: 'string' }
+                  },
+                  series: {
+                    type: 'array',
+                    description: '数据系列（至少一个）',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        name: { type: 'string', description: '系列名（中文）' },
+                        values: {
+                          type: 'array',
+                          description: '数值数组（与 labels 等长）',
+                          items: { type: 'number' }
+                        }
+                      },
+                      required: ['name', 'values']
+                    }
+                  }
+                },
+                required: ['labels', 'series']
+              }
+            },
+            required: ['type', 'data']
+          }
+        }
+      },
+      required: ['summary', 'rawData', 'charts']
+    },
+    execute: (args: RenderStatsInput) => {
+      const result = validateRenderStatsInput(args)
+      if (!result.ok) throw new Error(result.error)
+      return {
+        rendered: true,
+        charts: result.value.charts.length,
+        rows: result.value.rawData.length
+      }
+    }
   },
   {
     name: 'getRelationships',
