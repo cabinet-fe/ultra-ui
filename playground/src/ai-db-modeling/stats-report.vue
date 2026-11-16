@@ -2,7 +2,6 @@
   <div class="stats-report">
     <template v-if="input">
       <p class="stats-report__summary">{{ input.summary }}</p>
-      <result-table v-if="rawColumns.length" :columns="rawColumns" :rows="rawRows" />
       <div v-for="(chart, index) in input.charts" :key="index" class="stats-report__chart">
         <div v-if="chart.title" class="stats-report__chart-title">{{ chart.title }}</div>
         <div class="stats-report__chart-body">
@@ -24,9 +23,7 @@ import Chart from 'chart.js/auto'
 import type { ChartConfiguration } from 'chart.js/auto'
 import { computed, nextTick, onBeforeUnmount, onMounted, watch } from 'vue'
 
-import type { DisplayColumn, RowData } from './api'
 import type { ChartSpec, RenderStatsInput } from './render-stats-input'
-import ResultTable from './result-table.vue'
 
 defineOptions({ name: 'StatsReport' })
 
@@ -43,20 +40,6 @@ const input = computed<RenderStatsInput | null>(() => {
     return null
   }
 })
-
-/** 明细表列：按首个出现的顺序取全量行的键并集（键已由 AI 用中文可读值组装） */
-const rawColumns = computed<DisplayColumn[]>(() => {
-  const ordered: string[] = []
-  for (const row of input.value?.rawData ?? []) {
-    for (const key of Object.keys(row)) {
-      if (!ordered.includes(key)) ordered.push(key)
-    }
-  }
-  return ordered.map((key) => ({ name: key, label: key }))
-})
-
-/** AI 组装的 rawData 值约定为标量（空 / 布尔 / 字符串 / 数字），按行数据渲染 */
-const rawRows = computed(() => (input.value?.rawData ?? []) as RowData[])
 
 /** 图表画布：v-for 函数 ref 按 index 收集（更新时重灌、卸载时销毁 Chart 实例） */
 const canvases: (HTMLCanvasElement | null)[] = []

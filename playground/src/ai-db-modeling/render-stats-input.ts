@@ -20,10 +20,9 @@ export interface ChartSpec {
   data: { labels: string[]; series: ChartSeries[] }
 }
 
-/** renderStats 入参契约：摘要 + 明细行 + 多图表 */
+/** renderStats 入参契约：摘要 + 多图表 */
 export interface RenderStatsInput {
   summary: string
-  rawData: Record<string, unknown>[]
   charts: ChartSpec[]
 }
 
@@ -67,8 +66,9 @@ function checkChart(input: unknown, at: string): string | null {
 }
 
 /**
- * 校验 renderStats 入参：summary 必填非空字符串；rawData 为对象数组；
+ * 校验 renderStats 入参：summary 必填非空字符串；
  * charts 为数组且每项 type 受限、labels 为字符串数组、series 非空且 values 与 labels 等长。
+ * 未知键（如历史会话残留的 rawData）直接忽略，不报错。
  */
 export function validateRenderStatsInput(
   input: unknown
@@ -76,9 +76,6 @@ export function validateRenderStatsInput(
   if (!isRecord(input)) return { ok: false, error: '入参必须是 JSON 对象' }
   if (typeof input.summary !== 'string' || input.summary.trim() === '') {
     return { ok: false, error: 'summary 必须是非空字符串' }
-  }
-  if (!Array.isArray(input.rawData) || !input.rawData.every((row) => isRecord(row))) {
-    return { ok: false, error: 'rawData 必须是对象数组' }
   }
   if (!Array.isArray(input.charts)) return { ok: false, error: 'charts 必须是数组' }
   for (const [index, chart] of input.charts.entries()) {

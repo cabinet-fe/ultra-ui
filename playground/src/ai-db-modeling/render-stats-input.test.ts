@@ -5,10 +5,6 @@ import { validateRenderStatsInput } from './render-stats-input'
 /** 合法载荷：bar 多系列 + line + pie（title 可选省略） */
 const validInput = {
   summary: '按会员等级统计订单金额',
-  rawData: [
-    { 会员: '张三', 订单数: 3, 是否活跃: true },
-    { 会员: '李四', 订单数: 1, 是否活跃: false }
-  ],
   charts: [
     {
       type: 'bar',
@@ -66,13 +62,11 @@ describe('validateRenderStatsInput', () => {
     )
   })
 
-  it('rawData 非数组或含非对象项返回中文错误', () => {
-    expect(validateError(patchInput((input) => (input.rawData = 'rows')))).toBe(
-      'rawData 必须是对象数组'
-    )
-    expect(validateError(patchInput((input) => (input.rawData[1] = 42)))).toBe(
-      'rawData 必须是对象数组'
-    )
+  it('入参多出 rawData 键不报错且被忽略（历史会话旧入参兼容）', () => {
+    const input = patchInput((draft) => {
+      draft.rawData = [{ 会员: '张三', 订单数: 3 }]
+    })
+    expect(validateRenderStatsInput(input)).toEqual({ ok: true, value: input })
   })
 
   it('charts 缺失或非数组返回中文错误', () => {

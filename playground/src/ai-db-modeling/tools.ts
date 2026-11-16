@@ -37,7 +37,6 @@ import {
   type TableDef
 } from './api'
 import ErPanel from './er-panel.vue'
-import QueryCard from './query-card.vue'
 import { CHART_TYPES, validateRenderStatsInput, type RenderStatsInput } from './render-stats-input'
 import StatsReport from './stats-report.vue'
 
@@ -144,9 +143,7 @@ export const dbTools: ChatTool[] = [
       '查询单表数据：不带 groupBy/aggregations 时返回明细行（filter 为受控等值过滤，null 匹配空值）；带 groupBy 或 aggregations 时做聚合统计，聚合计算在服务端完成——所有数字统计一律用本工具，禁止自行计算。响应含 display 展示投影（列标题为中文 comment、外键值已解析为关联名称、不含主键列），可直接用于组装 renderStats 的入参。',
     label: '查询数据',
     icon: Search,
-    render: QueryCard,
-    // 回复流工具：结果卡片常驻展示在回复中，不随步骤行折叠
-    renderTo: 'reply',
+    // 无 render：查询结果只作 AI 中间数据，步骤条仍显示（展开可见参数与结果），不渲染结果表卡片
     parameters: {
       type: 'object',
       properties: {
@@ -180,7 +177,7 @@ export const dbTools: ChatTool[] = [
   {
     name: 'renderStats',
     description:
-      '渲染统计报告（纯渲染，不查数据、不发起请求）：把此前 queryData 的查询结果组装为「中文摘要 + 明细表 + 多图表」卡片。summary 为中文结论；rawData 键名用中文可读值（取查询结果 display 投影的中文标题与关联名称），不带 id 类技术列；charts 可多张（bar/line/pie），labels 与系列名用中文；所有数字取自查询结果，不要自行计算。',
+      '渲染统计报告（纯渲染，不查数据、不发起请求）：把此前 queryData 的查询结果组装为「中文摘要 + 多图表」卡片。summary 为中文结论；charts 可多张（bar/line/pie），labels 与系列名用中文（取查询结果 display 投影的中文标题与关联名称）；所有数字取自查询结果，不要自行计算。',
     label: '统计报告',
     icon: ChartPie,
     render: StatsReport,
@@ -189,11 +186,6 @@ export const dbTools: ChatTool[] = [
       type: 'object',
       properties: {
         summary: { type: 'string', description: '中文统计结论摘要（非空）' },
-        rawData: {
-          type: 'array',
-          description: '明细行列表（键用中文可读值，不含 id 类技术列）',
-          items: { type: 'object', description: '一行数据（中文键 → 标量值）' }
-        },
         charts: {
           type: 'array',
           description: '图表列表（可多张，可为空数组）',
@@ -235,16 +227,12 @@ export const dbTools: ChatTool[] = [
           }
         }
       },
-      required: ['summary', 'rawData', 'charts']
+      required: ['summary', 'charts']
     },
     execute: (args: RenderStatsInput) => {
       const result = validateRenderStatsInput(args)
       if (!result.ok) throw new Error(result.error)
-      return {
-        rendered: true,
-        charts: result.value.charts.length,
-        rows: result.value.rawData.length
-      }
+      return { rendered: true, charts: result.value.charts.length }
     }
   },
   {

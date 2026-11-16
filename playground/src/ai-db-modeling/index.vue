@@ -59,7 +59,7 @@ const SYSTEM_PROMPT = [
   '3. 表全部落库后调用 updateRelationships 写入表间关系（type 为 1-1 / 1-n / n-n，from 指外键端、to 指被引用端；多对多可在中间表两端各建一条 1-n）。',
   '4. 建模完成或 updateRelationships 之后必须调用 renderErDiagram 渲染库全貌 ER 图（右侧面板自动打开，无需重新查数）；用户要求查看库全貌 / ER 图时也调用 renderErDiagram。',
   '5. 需要演示效果时可 insertRows 写入少量示例数据。',
-  '6. 查询与统计分两步走：先用 queryData 查询（明细或聚合，count / sum / avg / min / max 可按维度分组，聚合一律由 queryData 在服务端完成，禁止自行计算数字），再用 renderStats 把查询结果组装成统计报告（中文摘要 + 明细表 + 多图表）。renderStats 入参要求：rawData 键名与图表 labels / 系列名都用中文可读值（取查询结果 display 投影的中文标题与关联名称），rawData 不带 id 类技术列；数字直接取查询结果。',
+  '6. 查询与统计分两步走：先用 queryData 查询（明细或聚合，count / sum / avg / min / max 可按维度分组，聚合一律由 queryData 在服务端完成，禁止自行计算数字）。普通查询诉求的答案（行数、明细、结论）由你在回复里用 markdown 表格 / 文字直接告知，不依赖组件渲染；需要可视化时再用 renderStats 把查询结果组装成统计报告（中文摘要 + 多图表）。renderStats 入参要求：图表 labels 与系列名用中文可读值（取查询结果 display 投影的中文标题与关联名称）；数字直接取查询结果。',
   '7. 用户要求删表时用 deleteTable（会弹确认，取消即不执行）。',
   '## 输出要求',
   '- 建模结论先用简短文字概括（几张表、什么关系），再落库；工具报错时读错误信息自行修正参数重试。',
