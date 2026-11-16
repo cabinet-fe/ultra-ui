@@ -678,7 +678,8 @@ describe('UAiChat', () => {
     await vi.waitFor(() => {
       expect(host.querySelector('.md-stub')?.textContent).toContain('答案')
     })
-    expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('执行了 1 个步骤')
+    // 落定渲染与正文渲染可能相差一拍（慢速 CI 尤甚），轮询等待而非同步断言
+    await waitForStepLineSettled(host, 1)
     expect(host.querySelector('.u-ai-chat__step-line-text')).toBeFalsy()
     unmount()
   })
