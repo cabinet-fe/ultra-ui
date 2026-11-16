@@ -23,16 +23,27 @@ const DATA_TYPES: Record<ColumnType, string> = {
   date: 'DATE'
 }
 
-/** 表格布局：每行列数与列间距（viewer 自动 fit，只需保证不重叠） */
-const GRID_COLUMNS = 3
-const GRID_GAP_X = 420
-const GRID_GAP_Y = 60
-/** 单表估算高度：表头 + 列行高 */
+/** 模块分区布局：区块内网格每行列数；区块自身也按网格排布（每行区块数） */
+const BLOCK_TABLE_COLUMNS = 3
+const BLOCK_COLUMNS = 3
+/** 区块内表间距与区块间距（独立常量，区块间距明显更大以分隔模块） */
+const TABLE_GAP_X = 100
+const TABLE_GAP_Y = 60
+const BLOCK_GAP_X = 480
+const BLOCK_GAP_Y = 360
+/** 无 module 表归属的区块名 */
+const UNGROUPED_MODULE = '未分组'
+/** 单表估算尺寸：宽 = 基础宽 + 最长行文本（表名 / 列名+类型）字符宽，高 = 表头 + 列行高 */
+const TABLE_BASE_WIDTH = 140
+const CHAR_WIDTH = 9
 const TABLE_BASE_HEIGHT = 60
 const COLUMN_ROW_HEIGHT = 30
 
 const tableId = (name: string) => `t:${name}`
 const columnId = (tableName: string, columnName: string) => `c:${tableName}:${columnName}`
+
+/** 画布坐标 */
+type Position = { x: number; y: number }
 
 /**
  * 关系类型 + 外键可空性 → end 端基数：
@@ -50,31 +61,80 @@ function endCardinality(
   return nullable ? CARDINALITY.zeroN : CARDINALITY.oneN
 }
 
-/** 表格网格坐标：行高取该行最高表，避免列数悬殊的表重叠 */
-function gridPositions(tables: TableDef[]): Array<{ x: number; y: number }> {
-  const rowCount = Math.ceil(tables.length / GRID_COLUMNS)
-  const rowHeights = Array.from({ length: rowCount }, (_, row) => {
-    const columnsInRow = tables
-      .filter((_, index) => Math.floor(index / GRID_COLUMNS) === row)
-      .reduce((max, table) => Math.max(max, table.columns.length), 0)
-    return TABLE_BASE_HEIGHT + columnsInRow * COLUMN_ROW_HEIGHT
-  })
+/** 单表估算尺寸：宽按最长行文本（表名 / 列名+类型），高按表头 + 列行高 */
+export function tableSize(table: TableDef): { width: number; height: number } {
+  const textLength = Math.max(
+    table.name.length,
+    ...table.columns.map((column) => column.name.length + DATA_TYPES[column.type].length + 1)
+  )
+  return {
+    width: TABLE_BASE_WIDTH + textLength * CHAR_WIDTH,
+    height: TABLE_BASE_HEIGHT + table.columns.length * COLUMN_ROW_HEIGHT
+  }
+}
 
-  const rowOffsets = [0]
-  for (let row = 1; row < rowCount; row++) {
-    rowOffsets.push(rowOffsets[row - 1]! + rowHeights[row - 1]! + GRID_GAP_Y)
+/** 区块内网格摆放：列间距按表估算宽度推进，行推进取该行最高表；返回各表坐标与区块尺寸 */
+function layoutBlock(tables: TableDef[]): {
+  positions: Map<string, Position>
+  size: { width: number; height: number }
+} {
+  const positions = new Map<string, Position>()
+  let y = 0
+  let width = 0
+  for (let row = 0; row * BLOCK_TABLE_COLUMNS < tables.length; row++) {
+    const rowTables = tables.slice(row * BLOCK_TABLE_COLUMNS, (row + 1) * BLOCK_TABLE_COLUMNS)
+    let x = 0
+    let rowHeight = 0
+    for (const table of rowTables) {
+      const { width: tableWidth, height: tableHeight } = tableSize(table)
+      positions.set(table.name, { x, y })
+      x += tableWidth + TABLE_GAP_X
+      rowHeight = Math.max(rowHeight, tableHeight)
+    }
+    width = Math.max(width, x - TABLE_GAP_X)
+    y += rowHeight + TABLE_GAP_Y
+  }
+  return { positions, size: { width, height: y - TABLE_GAP_Y } }
+}
+
+/**
+ * 模块分区布局：按 module 分桶（缺省归未分组），同模块表在同一区块内网格摆放，
+ * 区块按网格排布且区块间距明显大于区块内表间距——「有关联的表放一起」由同模块相邻实现。
+ */
+function modulePositions(tables: TableDef[]): Position[] {
+  const buckets = new Map<string, TableDef[]>()
+  for (const table of tables) {
+    const moduleName = table.module?.trim() || UNGROUPED_MODULE
+    const bucket = buckets.get(moduleName)
+    if (bucket) bucket.push(table)
+    else buckets.set(moduleName, [table])
   }
 
-  return tables.map((_, index) => ({
-    x: (index % GRID_COLUMNS) * GRID_GAP_X,
-    y: rowOffsets[Math.floor(index / GRID_COLUMNS)] ?? 0
-  }))
+  const blocks = [...buckets.values()].map((bucket) => layoutBlock(bucket))
+  const positions = new Map<string, Position>()
+  let x = 0
+  let y = 0
+  let rowHeight = 0
+  blocks.forEach((block, index) => {
+    if (index > 0 && index % BLOCK_COLUMNS === 0) {
+      x = 0
+      y += rowHeight + BLOCK_GAP_Y
+      rowHeight = 0
+    }
+    for (const [name, position] of block.positions) {
+      positions.set(name, { x: x + position.x, y: y + position.y })
+    }
+    x += block.size.width + BLOCK_GAP_X
+    rowHeight = Math.max(rowHeight, block.size.height)
+  })
+
+  return tables.map((table) => positions.get(table.name)!)
 }
 
 /** 转成 viewer `value` 可直接消费的文档字符串；空库产出空文档（viewer 渲染空画布） */
 export function toErdDocumentValue(tables: TableDef[], relationships: RelationshipDef[]): string {
   const tablesByName = new Map(tables.map((table) => [table.name, table]))
-  const positions = gridPositions(tables)
+  const positions = modulePositions(tables)
 
   const tableEntities: Record<string, unknown> = {}
   const tableColumnEntities: Record<string, unknown> = {}
