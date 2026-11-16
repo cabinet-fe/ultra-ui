@@ -12,6 +12,10 @@ const desktopModules = import.meta.glob<{ default: RouteComponent }>('./desktop/
 const mobileModules = import.meta.glob<{ default: RouteComponent }>('./mobile/**/index.vue')
 const iconsModules = import.meta.glob<{ default: RouteComponent }>('./icons/**/index.vue')
 const aiChatModules = import.meta.glob<{ default: RouteComponent }>('./ai-chat/**/index.vue')
+// 顶层独立演示页（glob 首段是字面段，`./ai-chat/**` 不匹配 `ai-db-modeling`）
+const aiDbModelingModules = import.meta.glob<{ default: RouteComponent }>(
+  './ai-db-modeling/**/index.vue'
+)
 const sheetModules = import.meta.glob<{ default: RouteComponent }>('./sheet/**/index.vue')
 // 顶层独立演示页（glob 首段是字面段，`./sheet/**` 不匹配 `sheet-big-data`）
 const sheetBigDataModules = import.meta.glob<{ default: RouteComponent }>(
@@ -31,6 +35,7 @@ const modules = {
   ...mobileModules,
   ...iconsModules,
   ...aiChatModules,
+  ...aiDbModelingModules,
   ...sheetModules,
   ...sheetBigDataModules,
   ...sheetDataEntryModules,

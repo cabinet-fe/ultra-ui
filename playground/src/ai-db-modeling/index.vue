@@ -1,0 +1,87 @@
+<template>
+  <div class="ai-db-modeling-page">
+    <div class="ai-db-modeling-page__chat">
+      <u-ai-chat
+        v-model:model="model"
+        :transport="transport"
+        :tools="dbTools"
+        :models="models"
+        :system-prompt="SYSTEM_PROMPT"
+        :welcome="WELCOME"
+      />
+    </div>
+  </div>
+</template>
+
+<script lang="ts" setup>
+import { UAiChat, createOpenAITransport } from '@veltra/ai'
+import '@veltra/ai/style'
+import { ref } from 'vue'
+
+import { dbTools } from './tools'
+
+/**
+ * 客户端驱动 transport，走既有 /ai DeepSeek 代理（providers/model 配置同 src/ai-chat/index.vue）。
+ */
+const transport = createOpenAITransport({
+  providers: [
+    {
+      id: 'deepseek',
+      label: 'DeepSeek',
+      endpoint: '/ai/chat/completions',
+      models: [
+        {
+          id: 'deepseek-flash',
+          label: 'deepseek-flash',
+          description: '快速通用对话，低延迟高吞吐',
+          contextWindow: 1000000,
+          reasoningLevels: [
+            { value: 'high', label: '高' },
+            { value: 'max', label: '极致' }
+          ],
+          defaultReasoningLevel: 'high'
+        }
+      ]
+    }
+  ]
+})
+
+const models = transport.models
+const model = ref(transport.defaultModel)
+
+/** 建模流程引导：信息不足先追问，产出表 + 关系后落库 */
+const SYSTEM_PROMPT = [
+  '你是数据库建模助手，帮用户把（可能模糊的）业务需求变成可落库的表结构与表间关系。',
+  '## 工作流程',
+  '1. 需求信息不足（业务范围、模块取舍、字段口径、关系方向等不明确）时，先调用内置 askQuestion 工具追问，不要只靠文字反问：一次 1~4 题、每题给简短分类标签；关键取舍题提供预设 options（单选，推荐项可在 label 末尾标注 `(推荐)`）；涉及「要哪些模块 / 哪些字段」这类可组合的题用 multiple: true 多选。',
+  '2. 信息足够后先 getTables 了解库内现状（避免重名重建），再逐张 createTable 写入表：表名与列名用 snake_case 英文；每张表恰有一个主键列（primaryKey: true）；外键列建在「多」方表上；金额 / 数量等可聚合字段用 number 类型；日期用 date（YYYY-MM-DD）。',
+  '3. 表全部落库后调用 updateRelationships 写入表间关系（type 为 1-1 / 1-n / n-n，from 指外键端、to 指被引用端；多对多可在中间表两端各建一条 1-n）。',
+  '4. 需要演示效果时可 insertRows 写入少量示例数据，随后可用 queryRows 查询、analyzeStats 统计（count / sum / avg / min / max，可按维度分组）。',
+  '5. 用户要求删表时用 deleteTable（会弹确认，取消即不执行）。',
+  '## 输出要求',
+  '- 建模结论先用简短文字概括（几张表、什么关系），再落库；工具报错时读错误信息自行修正参数重试。',
+  '- 落库完成后告诉用户可继续追问调整（改表、补关系、造数据、做统计）。'
+].join('\n')
+
+const WELCOME = [
+  '帮我设计一个博客系统：文章、作者、评论、标签（先问我具体需求）',
+  '做一个进销存数据库：商品、供应商、采购单，要能按月统计采购金额',
+  '健身工作室预约：会员、教练、课程、预约记录，不确定的地方先追问我',
+  '看看现在库里有哪些表和关系'
+]
+</script>
+
+<style scoped lang="scss">
+.ai-db-modeling-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 90px);
+  min-height: 0;
+}
+
+.ai-db-modeling-page__chat {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+</style>
