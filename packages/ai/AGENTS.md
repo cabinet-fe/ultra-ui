@@ -19,14 +19,14 @@ src/
 │   └── __test__/
 ├── tools/                      # 内置工具注册域（UAiChat 自动注入；工厂不对外导出；可依赖 components/）
 │   ├── index.ts                # createBuiltinTools 注册表（新增内置工具在此注册）
-│   ├── ask-question/           # 提问工具实现（deferred 挂起等待用户作答；renderTo: 'reply' + hideInSteps: true 仅在回复流外层渲染，不进步骤行列表，支持单选序号/多选/推荐徽标/分类标签/跳过/Enter 确认）
+│   ├── ask-question/           # 提问工具实现（deferred 挂起等待用户作答；renderTo: 'reply' + hideInSteps: true 仅在回复流外层渲染——当前思考段内、段末正文之前，不进步骤行列表，支持单选序号/多选/推荐徽标/分类标签/跳过/Enter 确认）
 ├── types/ai-chat.ts            # 组件类型：AiChatProps / AiChatEmits / AiChatExposed
 ├── types/ai-orb.ts             # 活体球内部类型（不对外导出）：AiOrbProps / AiOrbEmits / AiOrbStatus / AiOrbReaction / AiOrbExposed
 └── components/
     ├── ai-chat/
     │   ├── ai-chat.vue         # UAiChat 主组件（useChat + provide DI；toolMap 含内置工具元信息；renderTo: 'panel' 调用的面板状态；ULayout 分列与面板宽度；UImagePreviewer 图片全屏预览）
     │   ├── attachment.ts       # 附件分类、彩色文件图标映射、大小格式化与本地读取（图片转 dataUrl，非图片本地提取 UTF-8 文本，dataUrl 置空）
-    │   ├── message-list.vue    # UScroll 消息列表（滚动条不常驻、贴主列右缘：list-wrap 负边距吃掉主列横向 padding 顶到容器边缘，800px 限宽下沉到 UScroll 内容层 __list-content）：按轮次分组渲染（user 消息为界，每轮包一层 data-turn 容器供导航定位；assistant 过程按文字回答切段——出现 content 即闭合该段、其后步骤落进新段，每段一个 step-line 步骤行 + 段末回答 MessageItem，末段 live = isLast &&（running || 末消息未终态）防断连翻转；hideInSteps 工具（含 askQuestion）不进步骤行，仅当 renderTo: 'reply' 时渲染在回复流；末条消息无正文且 error/aborted 时以 tailStatusMsg 渲染状态行，duration 与 is-last 传给最后一条 answerMsg 或 tailStatusMsg）；会话导航（≥3 轮且列表溢出可滚时出现，通过 UScroll resize 与滚动同步可滚状态；贴内容列左缘的圆点指示器，当前视口轮次高亮、已读项变淡，hover 单点展示该轮提问与回答前缀、点击滚到该轮并取消吸底）；流式吸底（滚轮上翻立即取消吸附 + 方向感知兜底 + 列表下方纯箭头回底悬浮按钮一键回底；吸底滚动前二次确认吸附状态，避免流式期间把上翻用户拉回底部）；吉祥物栏（48px 活体球）常驻在 UScroll 外、输入框上方待在原位不进消息列表：空闲展示逐条轮换的快捷提问（点文案发送，点球立即换一条并重置计时；球位置钉死，气泡向右延展）；生成中原位切换工作态（thinking / speaking 动画 + 「工作中…」与逐秒跳动计时），结束 / 失败原位停留约 2.5s（成功播 happy、出错播 frustrated；工具调用失败亦播 frustrated，显示末轮总用时）后切回欢迎语；turnDurations 按轮次 key 记录并透传给承载消息的 MessageItem（仅 live 轮次，历史回放无计时数据）
+    │   ├── message-list.vue    # UScroll 消息列表（滚动条不常驻、贴主列右缘：list-wrap 负边距吃掉主列横向 padding 顶到容器边缘，800px 限宽下沉到 UScroll 内容层 __list-content）：按轮次分组渲染（user 消息为界，每轮包一层 data-turn 容器供导航定位；assistant 过程按文字回答切段——renderTo: 'reply' 的工具面板挂入正文闭段前的当前段（同消息 content + 提问工具不拆段，渲染顺序「步骤行 → 提问面板 → 段末正文」，多轮追问待答面板紧跟本轮思考），出现 content 即闭合该段、其后的普通工具步骤落进新段，每段一个 step-line 步骤行 + 段末回答 MessageItem，末段 live = isLast &&（running || 末消息未终态）防断连翻转；hideInSteps 工具（含 askQuestion）不进步骤行，仅当 renderTo: 'reply' 时渲染在回复流；末条消息无正文且 error/aborted 时以 tailStatusMsg 渲染状态行，duration 与 is-last 传给最后一条 answerMsg 或 tailStatusMsg）；会话导航（≥3 轮且列表溢出可滚时出现，通过 UScroll resize 与滚动同步可滚状态；贴内容列左缘的圆点指示器，当前视口轮次高亮、已读项变淡，hover 单点展示该轮提问与回答前缀、点击滚到该轮并取消吸底）；流式吸底（滚轮上翻立即取消吸附 + 方向感知兜底 + 列表下方纯箭头回底悬浮按钮一键回底；吸底滚动前二次确认吸附状态，避免流式期间把上翻用户拉回底部）；吉祥物栏（48px 活体球）常驻在 UScroll 外、输入框上方待在原位不进消息列表：空闲展示逐条轮换的快捷提问（点文案发送，点球立即换一条并重置计时；球位置钉死，气泡向右延展）；生成中原位切换工作态（thinking / speaking 动画 + 「工作中…」与逐秒跳动计时），结束 / 失败原位停留约 2.5s（成功播 happy、出错播 frustrated；工具调用失败亦播 frustrated，显示末轮总用时）后切回欢迎语；turnDurations 按轮次 key 记录并透传给承载消息的 MessageItem（仅 live 轮次，历史回放无计时数据）
     │   ├── session-navigator.vue # 会话导航指示器（≥3 轮且 scrollable 才渲染；纯圆点指示器，无宽度过渡；当前轮次高亮、已读变淡；hover 单点浮现该轮「问 / 答」前缀卡片，点击 emit jump；项数据由 message-list 从 turns 计算）
     │   ├── navigator-item.ts   # 导航项类型（key / index / question / answer）
     │   ├── message-item.vue    # 单条消息（user 右对齐气泡：图片缩略图支持点击预览 + 非图片文件卡片展示；assistant 只渲染 MarkdownRender 正文 + error/aborted 状态行 + 末条操作区「用时 Xs / 复制 / 重新生成」——思考块与工具卡片由步骤行承载）

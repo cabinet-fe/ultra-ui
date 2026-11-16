@@ -248,23 +248,30 @@ const turns = computed<ChatTurn[]>(() => {
     else grouped.push({ key: msg.id, assistants: [msg] })
   }
   return grouped.map((turn, index) => {
-    // 按流式顺序切段：思考归属当前段；出现文字回答即闭合该段、开启新段，
-    // 其后的工具调用落进新段（同一条消息 content + toolCalls 会拆成两段）
+    // 按流式顺序切段：思考归属当前段；出现文字回答即闭合该段、开启新段。
+    // renderTo: 'reply' 的工具面板挂入正文闭段前的当前段（同一条消息 content + 提问工具
+    // 不再拆开：面板渲染在该段步骤行之后、段末正文之前）；普通工具调用仍落进正文后的新段
     const segments: TurnSegment[] = []
     let current: TurnSegment = { steps: [], replySteps: [] }
     for (const msg of turn.assistants) {
       if (msg.reasoning) {
         current.steps.push({ key: `${msg.id}:reasoning`, kind: 'reasoning', message: msg })
       }
+      const calls = msg.toolCalls ?? []
+      for (const call of calls) {
+        if (!isReplyTool(call)) continue
+        const step: TurnStep = { key: call.id, kind: 'tool', message: msg, toolCall: call }
+        if (!isHiddenInSteps(call)) current.steps.push(step)
+        current.replySteps.push(step)
+      }
       if (msg.content) {
         current.answerMsg = msg
         segments.push(current)
         current = { steps: [], replySteps: [] }
       }
-      for (const call of msg.toolCalls ?? []) {
-        const step: TurnStep = { key: call.id, kind: 'tool', message: msg, toolCall: call }
-        if (!isHiddenInSteps(call)) current.steps.push(step)
-        if (isReplyTool(call)) current.replySteps.push(step)
+      for (const call of calls) {
+        if (isReplyTool(call) || isHiddenInSteps(call)) continue
+        current.steps.push({ key: call.id, kind: 'tool', message: msg, toolCall: call })
       }
     }
     if (current.steps.length || current.replySteps.length) segments.push(current)
