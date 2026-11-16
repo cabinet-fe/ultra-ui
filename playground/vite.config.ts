@@ -37,12 +37,20 @@ const config = {
 
   css: { preprocessorOptions: { scss: { importers: [nodePkgImporter] } } },
 
+  // erd-editor 布局 worker 引 elk 预打包产物，dev 需纳入预打包，否则 Flow / tree 自动布局失败
+  // （见 erd-editor README 的 Vite 节；本仓库 vite 8 无需 exclude）
+  optimizeDeps: { include: ['@dineug/erd-editor > elkjs/lib/elk.bundled.js'] },
+
   resolve: { extensions: ['.ts', '.js', '.json', '.tsx'], conditions: ['dev', 'veltra-dev'] },
 
   // Components 返回 Plugin & { api: PublicPluginAPI }，与 vue()/vueJsx() 的 Plugin 在数组联合推断时递归超栈深，收窄断言规避
-  // erd-viewer 是 er-view.vue 运行时注册的自定义元素，标记 isCustomElement 避免 Vue 按组件解析
+  // erd-editor / erd-viewer 是 er-view.vue 运行时注册的自定义元素，标记 isCustomElement 避免 Vue 按组件解析（erd-viewer 待 P4 移除）
   plugins: [
-    vue({ template: { compilerOptions: { isCustomElement: (tag) => tag === 'erd-viewer' } } }),
+    vue({
+      template: {
+        compilerOptions: { isCustomElement: (tag) => tag === 'erd-editor' || tag === 'erd-viewer' }
+      }
+    }),
     vueJsx(),
     Components({ resolvers: [VeltraUIResolver()], dts: true }) as Plugin
   ],
