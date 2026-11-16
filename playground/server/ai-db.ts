@@ -492,6 +492,151 @@ export function computeStats(allRows: RowData[], query: StatsQuery): StatsResult
   return { groups, rows }
 }
 
+/** 展示列：name 原列名，label 中文标题（comment 缺省回退列名） */
+export interface DisplayColumn {
+  name: string
+  label: string
+}
+
+/** 行查询展示投影：columns 不含主键列；rows 与查询结果行一一对齐，外键列的值为关联名称，缺键归一为 null */
+export interface QueryDisplay {
+  columns: DisplayColumn[]
+  rows: RowData[]
+}
+
+/** 统计展示投影：分组与聚合的中文标签 + 分组展示行 + 明细行投影 */
+export interface StatsDisplay {
+  /** 维度列名 → 中文标题 */
+  dimensionLabels: Record<string, string>
+  /** 聚合键（count / sum__列 …）→ 中文标签 */
+  aggregationLabels: Record<string, string>
+  /** 每组一行的展示对象，键为中文（维度标题 + 聚合标签），维度值为外键时已解析 */
+  groupRows: RowData[]
+  /** 明细行的展示投影 */
+  detail: QueryDisplay
+}
+
+/** 展示标题：列 comment 缺省回退列名 */
+function columnLabel(table: TableDef | undefined, columnName: string): string {
+  return table?.columns.find((column) => column.name === columnName)?.comment ?? columnName
+}
+
+/** 外键规则：查询表的列作为某条 relationship 的 from 端即为外键列，值按 to 端解析 */
+export interface ForeignKeyRule {
+  /** 外键列名（from 端列） */
+  column: string
+  /** 被引端点（to 端表 + 列） */
+  target: RelationshipEndpoint
+}
+
+/** 收集表的外键规则：作为某条 relationship from 端的列（同一列多条关系取首条） */
+export function collectForeignKeyRules(db: AiDb, tableName: string): ForeignKeyRule[] {
+  const seen = new Set<string>()
+  const rules: ForeignKeyRule[] = []
+  for (const rel of db.relationships) {
+    if (rel.from.table !== tableName || seen.has(rel.from.column)) continue
+    seen.add(rel.from.column)
+    rules.push({ column: rel.from.column, target: rel.to })
+  }
+  return rules
+}
+
+/**
+ * 外键值 → 展示值：在 to 端表行数据中找 `row[to.column] === 值` 的行，
+ * 展示值取目标行首个 string 且非主键且非外键列的值；空值 / 无候选列 / 无匹配行回退原值。
+ */
+export function resolveForeignKeyValue(db: AiDb, rule: ForeignKeyRule, value: RowValue): RowValue {
+  if (value === null) return null
+  const targetTable = db.tables.get(rule.target.table)
+  if (!targetTable) return value
+  const targetForeignKeys = new Set(
+    collectForeignKeyRules(db, rule.target.table).map((r) => r.column)
+  )
+  const displayColumn = targetTable.columns.find(
+    (column) =>
+      column.type === 'string' && !column.primaryKey && !targetForeignKeys.has(column.name)
+  )
+  if (!displayColumn) return value
+  const matched = (db.rows.get(rule.target.table) ?? []).find(
+    (row) => row[rule.target.column] === value
+  )
+  if (!matched) return value
+  return matched[displayColumn.name] ?? null
+}
+
+/** 行查询展示投影：展示列去主键、label 取 comment（缺省列名），外键列解析为关联名称，其余原值 */
+function buildQueryDisplay(db: AiDb, tableName: string, rows: RowData[]): QueryDisplay {
+  const columns: DisplayColumn[] = (db.tables.get(tableName)?.columns ?? [])
+    .filter((column) => !column.primaryKey)
+    .map((column) => ({ name: column.name, label: column.comment ?? column.name }))
+  const foreignKeys = new Map(
+    collectForeignKeyRules(db, tableName).map((rule) => [rule.column, rule])
+  )
+  const displayRows = rows.map((row) => {
+    const displayRow: RowData = {}
+    for (const column of columns) {
+      const value = row[column.name] ?? null
+      const rule = foreignKeys.get(column.name)
+      displayRow[column.name] = rule ? resolveForeignKeyValue(db, rule, value) : value
+    }
+    return displayRow
+  })
+  return { columns, rows: displayRows }
+}
+
+/** 聚合函数 → 中文标签：count → 计数，其余与列标题拼为 总和(标题) 形式 */
+const AGGREGATION_FUNC_LABELS: Record<AggregationFunc, string> = {
+  count: '计数',
+  sum: '总和',
+  avg: '平均',
+  min: '最小',
+  max: '最大'
+}
+
+/** 聚合键中文标签：count → 计数；sum/avg/min/max → 总和(标题) 等（标题 = comment 缺省列名） */
+function aggregationLabel(table: TableDef | undefined, spec: AggregationSpec): string {
+  const prefix = AGGREGATION_FUNC_LABELS[spec.func]
+  return spec.column ? `${prefix}(${columnLabel(table, spec.column)})` : prefix
+}
+
+/** 统计展示投影：维度 / 聚合中文标签、分组展示行（维度外键解析）、明细行投影 */
+function buildStatsDisplay(db: AiDb, query: StatsQuery, stats: StatsResult): StatsDisplay {
+  const table = db.tables.get(query.table)
+  const dims = query.groupBy ?? []
+
+  const dimEntries = dims.map((dim) => [dim, columnLabel(table, dim)] as const)
+  const dimensionLabels: Record<string, string> = Object.fromEntries(dimEntries)
+
+  const aggregationLabels: Record<string, string> = {}
+  for (const spec of query.aggregations) {
+    const key = spec.column ? `${spec.func}__${spec.column}` : spec.func
+    aggregationLabels[key] = aggregationLabel(table, spec)
+  }
+
+  const foreignKeys = new Map(
+    collectForeignKeyRules(db, query.table).map((rule) => [rule.column, rule])
+  )
+  const groupRows = stats.groups.map((group) => {
+    const displayRow: RowData = {}
+    for (const [dim, label] of dimEntries) {
+      const value = group.key[dim] ?? null
+      const rule = foreignKeys.get(dim)
+      displayRow[label] = rule ? resolveForeignKeyValue(db, rule, value) : value
+    }
+    for (const [key, label] of Object.entries(aggregationLabels)) {
+      displayRow[label] = group.values[key] ?? null
+    }
+    return displayRow
+  })
+
+  return {
+    dimensionLabels,
+    aggregationLabels,
+    groupRows,
+    detail: buildQueryDisplay(db, query.table, stats.rows)
+  }
+}
+
 function isEndpointValid(db: AiDb, endpoint: RelationshipEndpoint): boolean {
   return (
     db.tables.get(endpoint.table)?.columns.some((column) => column.name === endpoint.column) ??
@@ -653,7 +798,7 @@ export function createAiDbApp(db: AiDb = createAiDb()): Hono {
     })
   })
 
-  /** GET /tables/:name/rows — 查询行数据（?filter={"列":值} 受控等值过滤） */
+  /** GET /tables/:name/rows — 查询行数据（?filter={"列":值} 受控等值过滤，响应含 display 展示投影） */
   app.get('/tables/:name/rows', (c) => {
     const name = c.req.param('name')
     const table = db.tables.get(name)
@@ -672,17 +817,27 @@ export function createAiDbApp(db: AiDb = createAiDb()): Hono {
       filter = result.value
     }
     const rows = (db.rows.get(name) ?? []).filter((row) => matchesFilter(row, filter))
-    return c.json({ ok: true, rows, total: rows.length })
+    return c.json({
+      ok: true,
+      rows,
+      total: rows.length,
+      display: buildQueryDisplay(db, name, rows)
+    })
   })
 
-  /** POST /stats — 统计分析（过滤 + 分组维度 + 聚合，返回分组序列与明细行） */
+  /** POST /stats — 统计分析（过滤 + 分组维度 + 聚合，返回分组序列、明细行与 display 展示投影） */
   app.post('/stats', async (c) => {
     const body = await readJsonBody(c)
     if (!body.ok) return body.response
     const result = validateStatsQuery(db, body.value)
     if (!result.ok) return c.json({ ok: false, error: result.error }, 400)
     const stats = computeStats(db.rows.get(result.value.table) ?? [], result.value)
-    return c.json({ ok: true, groups: stats.groups, rows: stats.rows })
+    return c.json({
+      ok: true,
+      groups: stats.groups,
+      rows: stats.rows,
+      display: buildStatsDisplay(db, result.value, stats)
+    })
   })
 
   /** GET /relationships — 全部实体关系 */

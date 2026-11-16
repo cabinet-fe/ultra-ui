@@ -45,6 +45,21 @@ const orderRows = {
   ]
 }
 
+/** orders 行查询的展示投影（无关系登记：无外键解析，缺键的 discount 归一为 null） */
+const ordersDisplay = {
+  columns: [
+    { name: 'amount', label: '金额' },
+    { name: 'status', label: 'status' },
+    { name: 'paid_at', label: 'paid_at' },
+    { name: 'discount', label: 'discount' }
+  ],
+  rows: [
+    { amount: 100, status: 'paid', paid_at: '2026-01-01', discount: null },
+    { amount: 50, status: 'paid', paid_at: null, discount: null },
+    { amount: 200, status: 'pending', paid_at: null, discount: null }
+  ]
+}
+
 /** 建好 orders + customers 两张表（含行数据，可选） */
 async function seedTables(withRows = false): Promise<Hono> {
   const app = createAiDbApp()
@@ -54,6 +69,124 @@ async function seedTables(withRows = false): Promise<Hono> {
     expect((await post(app, '/tables/orders/rows', orderRows)).status).toBe(200)
   }
   return app
+}
+
+const deptsTable = {
+  name: 'depts',
+  columns: [
+    { name: 'code', type: 'string', primaryKey: true },
+    { name: 'title', type: 'string', comment: '名称' }
+  ]
+}
+
+const staffTable = {
+  name: 'staff',
+  columns: [
+    { name: 'id', type: 'number', primaryKey: true },
+    { name: 'dept_id', type: 'string', nullable: true, comment: '部门' },
+    { name: 'name', type: 'string', comment: '姓名' }
+  ]
+}
+
+const walletsTable = {
+  name: 'wallets',
+  columns: [
+    { name: 'id', type: 'number', primaryKey: true },
+    { name: 'balance', type: 'number', comment: '余额' }
+  ]
+}
+
+const visitsTable = {
+  name: 'visits',
+  columns: [
+    { name: 'id', type: 'number', primaryKey: true },
+    { name: 'staff_id', type: 'number', comment: '员工' },
+    { name: 'wallet_id', type: 'number', nullable: true, comment: '钱包' },
+    { name: 'score', type: 'number', comment: '评分' }
+  ]
+}
+
+/** 外键关系：from 端为外键列（staff.dept_id → depts.code、visits.staff_id → staff.id、visits.wallet_id → wallets.id） */
+const visitRelationships = {
+  relationships: [
+    {
+      type: '1-n',
+      from: { table: 'staff', column: 'dept_id' },
+      to: { table: 'depts', column: 'code' }
+    },
+    {
+      type: '1-n',
+      from: { table: 'visits', column: 'staff_id' },
+      to: { table: 'staff', column: 'id' }
+    },
+    {
+      type: '1-n',
+      from: { table: 'visits', column: 'wallet_id' },
+      to: { table: 'wallets', column: 'id' }
+    }
+  ]
+}
+
+/** 建好 depts + staff + wallets + visits 四张表（含行数据与外键关系） */
+async function seedVisitTables(): Promise<Hono> {
+  const app = createAiDbApp()
+  for (const table of [deptsTable, staffTable, walletsTable, visitsTable]) {
+    expect((await post(app, '/tables', table)).status).toBe(200)
+  }
+  expect(
+    (
+      await post(app, '/tables/depts/rows', {
+        rows: [
+          { code: 'd1', title: '销售部' },
+          { code: 'd2', title: '研发部' }
+        ]
+      })
+    ).status
+  ).toBe(200)
+  expect(
+    (
+      await post(app, '/tables/staff/rows', {
+        rows: [
+          { id: 1, dept_id: 'd1', name: '张三' },
+          { id: 2, dept_id: null, name: '李四' }
+        ]
+      })
+    ).status
+  ).toBe(200)
+  expect(
+    (await post(app, '/tables/wallets/rows', { rows: [{ id: 1, balance: 100 }] })).status
+  ).toBe(200)
+  expect(
+    (
+      await post(app, '/tables/visits/rows', {
+        rows: [
+          { id: 1, staff_id: 1, wallet_id: 1, score: 5 },
+          { id: 2, staff_id: 99, wallet_id: null, score: 3 },
+          { id: 3, staff_id: 2, wallet_id: 99, score: 4 }
+        ]
+      })
+    ).status
+  ).toBe(200)
+  expect((await put(app, '/relationships', visitRelationships)).status).toBe(200)
+  return app
+}
+
+/**
+ * visits 行查询的展示投影期望：
+ * staff_id 解析到 staff.name（目标首个 string 且非主键且非外键列，跳过外键列 dept_id）；
+ * wallet_id 目标表 wallets 无 string 候选列回退原值，无匹配行 / 空值同样回退。
+ */
+const visitsDisplay = {
+  columns: [
+    { name: 'staff_id', label: '员工' },
+    { name: 'wallet_id', label: '钱包' },
+    { name: 'score', label: '评分' }
+  ],
+  rows: [
+    { staff_id: '张三', wallet_id: 1, score: 5 },
+    { staff_id: 99, wallet_id: null, score: 3 },
+    { staff_id: '李四', wallet_id: 99, score: 4 }
+  ]
 }
 
 describe('AI 数据库内存库：初始状态', () => {
@@ -336,7 +469,12 @@ describe('行数据写入与过滤查询', () => {
     expect(await inserted.json()).toEqual({ ok: true, inserted: 3, total: 3 })
 
     const queried = await app.request('/tables/orders/rows')
-    expect(await queried.json()).toEqual({ ok: true, rows: orderRows.rows, total: 3 })
+    expect(await queried.json()).toEqual({
+      ok: true,
+      rows: orderRows.rows,
+      total: 3,
+      display: ordersDisplay
+    })
   })
 
   it('非法行数据回 400：未知列 / 类型不符 / 不可空列缺值或为空 / 主键重复 / 日期格式错', async () => {
@@ -396,7 +534,8 @@ describe('行数据写入与过滤查询', () => {
     expect(await byStatus.json()).toEqual({
       ok: true,
       rows: [orderRows.rows[0], orderRows.rows[1]],
-      total: 2
+      total: 2,
+      display: { columns: ordersDisplay.columns, rows: ordersDisplay.rows.slice(0, 2) }
     })
 
     const byNullable = await app.request(
@@ -554,5 +693,95 @@ describe('统计聚合', () => {
         })
       ).status
     ).toBe(400)
+  })
+})
+
+describe('展示投影：行查询', () => {
+  it('display 列标题取 comment（缺省回退列名）、主键列不进展示列、外键列解析为关联名称', async () => {
+    const app = await seedVisitTables()
+
+    const queried = await app.request('/tables/visits/rows')
+    expect(queried.status).toBe(200)
+    const body = (await queried.json()) as { display: unknown }
+    expect(body.display).toEqual(visitsDisplay)
+  })
+
+  it('未登记关系的 *_id 列按普通列展示，不做名称猜测', async () => {
+    const app = await seedTables()
+    expect(
+      (
+        await post(app, '/tables/customers/rows', {
+          rows: [
+            { id: 1, name: '甲', order_id: 10 },
+            { id: 2, name: '乙', order_id: null }
+          ]
+        })
+      ).status
+    ).toBe(200)
+
+    const queried = await app.request('/tables/customers/rows')
+    const body = (await queried.json()) as { display: unknown }
+    expect(body.display).toEqual({
+      columns: [
+        { name: 'name', label: 'name' },
+        { name: 'order_id', label: 'order_id' }
+      ],
+      rows: [
+        { name: '甲', order_id: 10 },
+        { name: '乙', order_id: null }
+      ]
+    })
+  })
+})
+
+describe('展示投影：统计', () => {
+  it('display 含维度外键解析、聚合键中文标签与明细投影', async () => {
+    const app = await seedVisitTables()
+
+    const stats = await post(app, '/stats', {
+      table: 'visits',
+      groupBy: ['staff_id'],
+      aggregations: [
+        { func: 'count' },
+        { func: 'sum', column: 'score' },
+        { func: 'avg', column: 'score' }
+      ]
+    })
+    expect(stats.status).toBe(200)
+    const body = (await stats.json()) as { display: unknown }
+    expect(body.display).toEqual({
+      dimensionLabels: { staff_id: '员工' },
+      aggregationLabels: { count: '计数', sum__score: '总和(评分)', avg__score: '平均(评分)' },
+      groupRows: [
+        { 员工: '张三', 计数: 1, '总和(评分)': 5, '平均(评分)': 5 },
+        { 员工: 99, 计数: 1, '总和(评分)': 3, '平均(评分)': 3 },
+        { 员工: '李四', 计数: 1, '总和(评分)': 4, '平均(评分)': 4 }
+      ],
+      detail: visitsDisplay
+    })
+  })
+
+  it('维度标题与聚合标签在无 comment 时回退列名', async () => {
+    const app = await seedTables(true)
+
+    const stats = await post(app, '/stats', {
+      table: 'orders',
+      groupBy: ['status'],
+      aggregations: [
+        { func: 'min', column: 'amount' },
+        { func: 'max', column: 'amount' }
+      ]
+    })
+    const body = (await stats.json()) as {
+      display: {
+        dimensionLabels: Record<string, string>
+        aggregationLabels: Record<string, string>
+      }
+    }
+    expect(body.display.dimensionLabels).toEqual({ status: 'status' })
+    expect(body.display.aggregationLabels).toEqual({
+      min__amount: '最小(金额)',
+      max__amount: '最大(金额)'
+    })
   })
 })

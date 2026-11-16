@@ -74,17 +74,18 @@ curl http://localhost:7799/ai/models
 
 `server/ai-db.ts`：内存数据库（表 / 列定义 / 1-1·1-n·n-n 关系 / 行数据，进程重启即空，无任何持久化），由 `server/dev.ts` 挂到 `/ai-db`。数据模型与校验均为纯函数 + Hono 子应用，单测见 `server/ai-db.test.ts`。
 
-| 端点                            | 请求体                                                                  | 成功                                 | 说明                                                                               |
-| ------------------------------- | ----------------------------------------------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------- |
-| `GET /ai-db/tables`             | —                                                                       | `{ ok, tables }`                     | 全部表（含列定义）                                                                 |
-| `POST /ai-db/tables`            | `{ name, columns: [{ name, type, primaryKey?, nullable?, comment? }] }` | `{ ok, table }`                      | 新建表；`type` 为 string/number/boolean/date，一表至多一个主键                     |
-| `PUT /ai-db/tables/:name`       | 同 POST 请求体                                                          | `{ ok, table, prunedRelationships }` | 更新表定义；`body.name` 不同于路径即改名（级联更新关系引用），列变更裁剪历史行     |
-| `DELETE /ai-db/tables/:name`    | —                                                                       | `{ ok, removedRelationships }`       | 删除表，连带行数据与引用它的关系                                                   |
-| `POST /ai-db/tables/:name/rows` | `{ rows: [{ 列: 值 }] }`                                                | `{ ok, inserted, total }`            | 批量插入；列不匹配 / 类型不符 / 主键重复回 400                                     |
-| `GET /ai-db/tables/:name/rows`  | —（`?filter={"列":值}` 受控等值过滤，null 匹配空值）                    | `{ ok, rows, total }`                | 查询行数据                                                                         |
-| `POST /ai-db/stats`             | `{ table, filter?, groupBy?, aggregations }`                            | `{ ok, groups, rows }`               | 统计：count/sum/avg/min/max 聚合 + 分组序列 + 明细行；sum/avg/min/max 需 number 列 |
-| `GET /ai-db/relationships`      | —                                                                       | `{ ok, relationships }`              | 全部实体关系（初始为空数组）                                                       |
-| `PUT /ai-db/relationships`      | `{ relationships: [{ type, from: { table, column }, to }] }`            | `{ ok, relationships }`              | 全量覆盖；`type` 为 1-1/1-n/n-n，两端表列必须已存在                                |
+| 端点                            | 请求体                                                                  | 成功                                 | 说明                                                                                           |
+| ------------------------------- | ----------------------------------------------------------------------- | ------------------------------------ | ---------------------------------------------------------------------------------------------- |
+| `GET /ai-db/tables`             | —                                                                       | `{ ok, tables }`                     | 全部表（含列定义）                                                                             |
+| `POST /ai-db/tables`            | `{ name, columns: [{ name, type, primaryKey?, nullable?, comment? }] }` | `{ ok, table }`                      | 新建表；`type` 为 string/number/boolean/date，一表至多一个主键                                 |
+| `PUT /ai-db/tables/:name`       | 同 POST 请求体                                                          | `{ ok, table, prunedRelationships }` | 更新表定义；`body.name` 不同于路径即改名（级联更新关系引用），列变更裁剪历史行                 |
+| `DELETE /ai-db/tables/:name`    | —                                                                       | `{ ok, removedRelationships }`       | 删除表，连带行数据与引用它的关系                                                               |
+| `POST /ai-db/tables/:name/rows` | `{ rows: [{ 列: 值 }] }`                                                | `{ ok, inserted, total }`            | 批量插入；列不匹配 / 类型不符 / 主键重复回 400                                                 |
+| `GET /ai-db/tables/:name/rows`  | —（`?filter={"列":值}` 受控等值过滤，null 匹配空值）                    | `{ ok, rows, total, display }`       | 查询行数据，含展示投影                                                                         |
+| `POST /ai-db/stats`             | `{ table, filter?, groupBy?, aggregations }`                            | `{ ok, groups, rows, display }`      | 统计：count/sum/avg/min/max 聚合 + 分组序列 + 明细行，含展示投影；sum/avg/min/max 需 number 列 |
+| `GET /ai-db/relationships`      | —                                                                       | `{ ok, relationships }`              | 全部实体关系（初始为空数组）                                                                   |
+| `PUT /ai-db/relationships`      | `{ relationships: [{ type, from: { table, column }, to }] }`            | `{ ok, relationships }`              | 全量覆盖；`type` 为 1-1/1-n/n-n，两端表列必须已存在                                            |
 
 - 形状 / 引用非法（列类型枚举外、关系引用不存在的表或列、行数据列不匹配等）回 400，错误结构沿用 `server/errors.ts` 的 `ConnectorError`；路径资源（表）不存在回 404。
+- `display` 展示投影（行查询与统计两个端点共有，供前端直接渲染中文表格）：`columns` 为展示列（`label` = 列 comment 缺省回退列名，主键列不进展示列）；行查询的 `display.rows` 与 `rows` 一一对齐，外键列（作为某条关系 from 端的列）的值解析为关联表可读名称——按 to 端行数据匹配 `row[to.column] === 值`，展示值取目标行首个「string 且非主键且非外键」列的值，空值 / 无候选列 / 无匹配行回退原值；未登记关系的列按普通列展示。统计的 `display` 另含 `dimensionLabels`（维度列名 → 中文标题）、`aggregationLabels`（`count` → `计数`，`sum__x` 等 → `总和(标题)` / `平均(标题)` / `最小(标题)` / `最大(标题)`）、`groupRows`（每组一行，键为中文，维度值为外键时已解析）与 `detail`（明细行的展示投影）。
 - 前端经 vite proxy `/ai-db-api` 访问（rewrite 到 `/ai-db`，前缀与 SPA 路由 `/ai-db-modeling` 区分）。
