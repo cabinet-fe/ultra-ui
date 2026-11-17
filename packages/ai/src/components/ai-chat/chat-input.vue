@@ -18,9 +18,7 @@
           @click="di?.previewImage(att.dataUrl, att.name)"
         />
         <template v-else>
-          <UIcon :class="cls.e('attachment-file-icon')">
-            <component :is="getAttachmentIcon(att)" />
-          </UIcon>
+          <span :class="cls.e('attachment-file-ext')">{{ getAttachmentExtBadge(att) }}</span>
           <div :class="cls.e('attachment-file-meta')">
             <span :class="cls.e('attachment-file-name')" :title="att.name">{{ att.name }}</span>
             <span :class="cls.e('attachment-file-size')">{{ formatAttachmentSize(att.size) }}</span>
@@ -187,7 +185,7 @@ import type { ChatAttachment, ChatTokenUsage } from '../../chat/types'
 import type { ChatModelOption } from '../../providers'
 import {
   formatAttachmentSize,
-  getAttachmentIcon,
+  getAttachmentExtBadge,
   isImageAttachment,
   readFileAsAttachment
 } from './attachment'

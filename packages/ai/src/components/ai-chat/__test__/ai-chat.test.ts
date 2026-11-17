@@ -1684,7 +1684,7 @@ describe('UAiChat', () => {
     unmount()
   })
 
-  it('支持上传图片与任意非图片附件：图片可预览，非图片本地提取文本且展示为文件卡片', async () => {
+  it('支持上传图片与任意非图片附件：图片可预览，非图片本地提取文本且文件卡片以扩展名徽标标识', async () => {
     let sentAttachments: ChatMessage['attachments']
     const transport: ChatTransport = (req, handlers) => {
       const userMsg = req.messages.find((m) => m.role === 'user')
@@ -1710,23 +1710,35 @@ describe('UAiChat', () => {
     const zipFile = new File([new Uint8Array([0x50, 0x4b, 0x03, 0x04, 0x00])], 'data.zip', {
       type: 'application/zip'
     })
+    const dwgFile = new File([new Uint8Array([0x41, 0x43, 0x00, 0x31])], 'drawing.dwg', {
+      type: 'application/acad'
+    })
+    const noExtFile = new File(['build:'], 'Makefile')
 
     Object.defineProperty(pickerInput, 'files', {
-      value: [imgFile, mdFile, zipFile],
+      value: [imgFile, mdFile, zipFile, dwgFile, noExtFile],
       configurable: true
     })
     pickerInput.dispatchEvent(new Event('change', { bubbles: true }))
 
     await vi.waitFor(() => {
-      expect(host.querySelectorAll('.u-ai-chat__input-attachment').length).toBe(3)
+      expect(host.querySelectorAll('.u-ai-chat__input-attachment').length).toBe(5)
     })
 
     const inputImgs = host.querySelectorAll('.u-ai-chat__input-attachment.is-image img')
     const inputFiles = host.querySelectorAll('.u-ai-chat__input-attachment.is-file')
     expect(inputImgs.length).toBe(1)
-    expect(inputFiles.length).toBe(2)
+    expect(inputFiles.length).toBe(4)
     expect(inputFiles[0]?.textContent).toContain('notes.md')
     expect(inputFiles[1]?.textContent).toContain('data.zip')
+    expect(inputFiles[2]?.textContent).toContain('drawing.dwg')
+    expect(inputFiles[3]?.textContent).toContain('Makefile')
+
+    // 扩展名徽标统一大写；未收录扩展名原样大写；无扩展名兜底 FILE
+    const inputBadges = Array.from(
+      host.querySelectorAll('.u-ai-chat__input-attachment .u-ai-chat__attachment-file-ext')
+    ).map((el) => el.textContent)
+    expect(inputBadges).toEqual(['MD', 'ZIP', 'DWG', 'FILE'])
 
     // 点击输入区图片缩略图触发 UImagePreviewer 预览
     ;(inputImgs[0] as HTMLElement).click()
@@ -1754,7 +1766,7 @@ describe('UAiChat', () => {
       expect(host.querySelector('.u-ai-chat__message--user')).toBeTruthy()
     })
 
-    expect(sentAttachments?.length).toBe(3)
+    expect(sentAttachments?.length).toBe(5)
     expect(sentAttachments?.[0]?.dataUrl).toMatch(/^data:image\/png/)
     expect(sentAttachments?.[1]?.name).toBe('notes.md')
     expect(sentAttachments?.[1]?.dataUrl).toBe('')
@@ -1762,6 +1774,10 @@ describe('UAiChat', () => {
     expect(sentAttachments?.[2]?.name).toBe('data.zip')
     expect(sentAttachments?.[2]?.dataUrl).toBe('')
     expect(sentAttachments?.[2]?.textContent).toBeUndefined()
+    expect(sentAttachments?.[3]?.name).toBe('drawing.dwg')
+    expect(sentAttachments?.[3]?.textContent).toBeUndefined()
+    expect(sentAttachments?.[4]?.name).toBe('Makefile')
+    expect(sentAttachments?.[4]?.textContent).toBe('build:')
 
     const msgImg = host.querySelector<HTMLElement>(
       '.u-ai-chat__message--user .u-ai-chat__message-attachment'
@@ -1770,9 +1786,17 @@ describe('UAiChat', () => {
       '.u-ai-chat__message--user .u-ai-chat__message-attachment-file'
     )
     expect(msgImg).toBeTruthy()
-    expect(msgFiles.length).toBe(2)
+    expect(msgFiles.length).toBe(4)
     expect(msgFiles[0]?.textContent).toContain('notes.md')
     expect(msgFiles[1]?.textContent).toContain('data.zip')
+    expect(msgFiles[2]?.textContent).toContain('drawing.dwg')
+    expect(msgFiles[3]?.textContent).toContain('Makefile')
+
+    // 消息气泡徽标与输入区口径一致
+    const msgBadges = Array.from(
+      host.querySelectorAll('.u-ai-chat__message--user .u-ai-chat__attachment-file-ext')
+    ).map((el) => el.textContent)
+    expect(msgBadges).toEqual(inputBadges)
 
     // 点击已发送消息气泡中的图片同样唤起 UImagePreviewer 预览
     msgImg!.click()

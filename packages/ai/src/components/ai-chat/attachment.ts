@@ -1,63 +1,6 @@
-import {
-  Archive,
-  Excel,
-  Pdf,
-  PowerPoint,
-  Txt,
-  UnknownFile,
-  Video,
-  Word
-} from '@veltra/icons/colorful'
-import type { Component } from 'vue'
-
 import type { ChatAttachment } from '../../chat/types'
 
 const IMAGE_EXTS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg', 'avif', 'ico'])
-const WORD_EXTS = new Set(['doc', 'docx'])
-const EXCEL_EXTS = new Set(['xls', 'xlsx', 'xlsm', 'xlsb', 'csv'])
-const PPT_EXTS = new Set(['ppt', 'pptx'])
-const ARCHIVE_EXTS = new Set(['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz', 'tgz'])
-const VIDEO_EXTS = new Set(['mp4', 'webm', 'mov', 'm4v', 'ogv', 'mkv', 'avi'])
-const TEXT_EXTS = new Set([
-  'txt',
-  'log',
-  'md',
-  'markdown',
-  'json',
-  'yml',
-  'yaml',
-  'xml',
-  'js',
-  'mjs',
-  'cjs',
-  'ts',
-  'mts',
-  'cts',
-  'tsx',
-  'jsx',
-  'vue',
-  'css',
-  'scss',
-  'sass',
-  'less',
-  'html',
-  'htm',
-  'ini',
-  'toml',
-  'sh',
-  'bash',
-  'zsh',
-  'env',
-  'sql',
-  'py',
-  'go',
-  'rs',
-  'java',
-  'c',
-  'cpp',
-  'h',
-  'hpp'
-])
 
 /** 读取非图片文本附件时允许提取的最大字节数（512KB） */
 const MAX_TEXT_BYTES = 512 * 1024
@@ -76,43 +19,15 @@ export function isImageAttachment(
   return att.name ? IMAGE_EXTS.has(getExtension(att.name)) : false
 }
 
-/** 按文件扩展名或 MIME 类型返回彩色文件图标 */
-export function getAttachmentIcon(
-  att: Pick<ChatAttachment, 'name'> & { mimeType?: string }
-): Component {
-  const ext = getExtension(att.name)
-  const mime = att.mimeType ?? ''
+/** 无扩展名附件的徽标兜底文案 */
+const NO_EXT_BADGE = 'FILE'
 
-  if (ext === 'pdf' || mime === 'application/pdf') return Pdf
-  if (WORD_EXTS.has(ext) || mime.includes('wordprocessingml') || mime === 'application/msword') {
-    return Word
-  }
-  if (
-    EXCEL_EXTS.has(ext) ||
-    mime.includes('spreadsheetml') ||
-    mime === 'application/vnd.ms-excel'
-  ) {
-    return Excel
-  }
-  if (
-    PPT_EXTS.has(ext) ||
-    mime.includes('presentationml') ||
-    mime === 'application/vnd.ms-powerpoint'
-  ) {
-    return PowerPoint
-  }
-  if (ARCHIVE_EXTS.has(ext)) return Archive
-  if (VIDEO_EXTS.has(ext) || mime.startsWith('video/')) return Video
-  if (
-    TEXT_EXTS.has(ext) ||
-    mime.startsWith('text/') ||
-    mime === 'application/json' ||
-    mime === 'application/xml' ||
-    mime === 'application/javascript'
-  ) {
-    return Txt
-  }
-  return UnknownFile
+/** 附件扩展名徽标文案：输入区与消息气泡共用（notes.md → MD、data.zip → ZIP） */
+export function getAttachmentExtBadge(att: Pick<ChatAttachment, 'name'>): string {
+  const idx = att.name.lastIndexOf('.')
+  // 无扩展名：没有点、点在开头（.gitignore 类隐藏文件）或结尾（archive.）
+  if (idx <= 0 || idx === att.name.length - 1) return NO_EXT_BADGE
+  return att.name.slice(idx + 1).toUpperCase()
 }
 
 /** 格式化文件字节大小 */

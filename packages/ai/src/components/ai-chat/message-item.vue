@@ -17,9 +17,7 @@
               @click="di?.previewImage(att.dataUrl, att.name)"
             />
             <div v-else :class="cls.e('message-attachment-file')" :title="att.name">
-              <UIcon :class="cls.e('attachment-file-icon')">
-                <component :is="getAttachmentIcon(att)" />
-              </UIcon>
+              <span :class="cls.e('attachment-file-ext')">{{ getAttachmentExtBadge(att) }}</span>
               <div :class="cls.e('attachment-file-meta')">
                 <span :class="cls.e('attachment-file-name')">{{ att.name }}</span>
                 <span :class="cls.e('attachment-file-size')">{{
@@ -78,14 +76,14 @@
 </template>
 
 <script lang="ts" setup>
-import { message as toast, UButton, UIcon } from '@veltra/desktop'
+import { message as toast, UButton } from '@veltra/desktop'
 import { CircleCheck, Copy, Refresh } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import MarkdownRender from 'markstream-vue'
 import { computed, inject, onBeforeUnmount, ref } from 'vue'
 
 import type { ChatMessage } from '../../chat/types'
-import { formatAttachmentSize, getAttachmentIcon, isImageAttachment } from './attachment'
+import { formatAttachmentSize, getAttachmentExtBadge, isImageAttachment } from './attachment'
 import { AiChatDIKey } from './di'
 import { formatDuration } from './format-duration'
 import { useStreamThrottle } from './use-stream-throttle'
