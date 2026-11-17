@@ -1,6 +1,7 @@
 /**
- * 库内表 + 关系 → erd-editor 只读 viewer 的 v3 storage 文档（JSON 字符串）。
- * viewer 的 value 只认该格式（DBML / SQL 仅为编辑器导入格式，viewer 不解析），
+ * 库内表 + 关系 → erd-editor 的 v3 storage 文档（JSON 字符串）。
+ * er-view.vue 以完整 erd-editor 消费（不设 readonly，允许拖拽调整，编辑不回写服务端），
+ * value 只认该格式（DBML / SQL 仅为编辑器导入格式，不经本模块），
  * 契约镜像 @dineug/erd-editor v5 内置的 erd-editor-schema（未单独发 npm 包）。
  */
 import type { ColumnType, RelationshipDef, TableDef } from './api'
