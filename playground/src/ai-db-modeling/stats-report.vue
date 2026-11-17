@@ -37,6 +37,7 @@ import type { ChartConfiguration } from 'chart.js/auto'
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import type { ChartSpec, RenderStatsInput } from './render-stats-input'
+import { exportStatsPdf } from './stats-pdf-export'
 
 defineOptions({ name: 'StatsReport' })
 
@@ -184,6 +185,16 @@ function downloadDataUrl(dataUrl: string, filename: string) {
   link.click()
 }
 
+function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.download = filename
+  link.href = url
+  link.click()
+  // 延迟回收：click 触发的下载需先拿到 blob 引用，立即 revoke 在部分浏览器会截断下载
+  setTimeout(() => URL.revokeObjectURL(url), 2000)
+}
+
 function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }
@@ -200,37 +211,24 @@ async function exportPng() {
   }
 }
 
-/** PDF 版式：A4 纵向 + 四周页边距，内容按页宽等比贴图，超出一页纵向切片分页 */
-const PDF_PAGE = { widthMm: 210, heightMm: 297, marginMm: 15 }
-
+/** PDF 导出：pdf-lib 原生文字 + 图表 JPEG 位图混排（A4 版式 / 页边距 / 分页见 stats-pdf-layout 与 stats-pdf-export） */
 async function exportPdf() {
   exporting.value = true
   exportError.value = ''
   try {
-    const dataUrl = await captureReport()
-    // 先解码取图片像素尺寸，再换算毫米贴图坐标（jspdf 仅在导出点击时动态 import）
-    const image = new Image()
-    image.src = dataUrl
-    await image.decode()
-    const { widthMm, heightMm, marginMm } = PDF_PAGE
-    const contentWidthMm = widthMm - marginMm * 2
-    const contentHeightMm = heightMm - marginMm * 2
-    // 一页可容纳的源图像素高，超出部分切到后续页
-    const pageSourceHeightPx = Math.floor((image.naturalWidth * contentHeightMm) / contentWidthMm)
-    const { jsPDF } = await import('jspdf')
-    const pdf = new jsPDF({ unit: 'mm', format: 'a4' })
-    for (let offset = 0; offset < image.naturalHeight; offset += pageSourceHeightPx) {
-      const sliceHeightPx = Math.min(pageSourceHeightPx, image.naturalHeight - offset)
-      const canvas = document.createElement('canvas')
-      canvas.width = image.naturalWidth
-      canvas.height = sliceHeightPx
-      canvas.getContext('2d')?.drawImage(image, 0, -offset)
-      if (offset > 0) pdf.addPage()
-      const sliceHeightMm = (sliceHeightPx / image.naturalWidth) * contentWidthMm
-      // jsPDF 直收 canvas 元素，省每页 toDataURL 的内存峰值
-      pdf.addImage(canvas, 'PNG', marginMm, marginMm, contentWidthMm, sliceHeightMm)
-    }
-    pdf.save('统计报告.pdf')
+    const capture = captureRef.value
+    const payload = input.value
+    if (!capture || !payload) throw new Error('报告内容尚未渲染')
+    // 底色 / 文字色取内容区 computed style（面板 token），导出随浅 / 暗色主题
+    const style = getComputedStyle(capture)
+    const blob = await exportStatsPdf({
+      input: payload,
+      charts,
+      canvases,
+      backgroundColor: style.backgroundColor,
+      textColor: style.color
+    })
+    downloadBlob(blob, '统计报告.pdf')
   } catch (error) {
     exportError.value = `导出 PDF 失败：${errorMessage(error)}`
   } finally {
