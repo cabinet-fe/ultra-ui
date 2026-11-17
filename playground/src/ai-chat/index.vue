@@ -38,7 +38,7 @@ const modeItems = [
 ]
 const modeHint = computed(() =>
   mode.value === 'client'
-    ? 'createOpenAITransport + /ai/chat/completions（DeepSeek 代理）'
+    ? 'createOpenAITransport + /ai（DeepSeek 代理，auto 默认优先 /responses，失败回退 /chat/completions）'
     : 'createServerTransport + 页内 fake adapter（不请求 DSH / session HTTP）'
 )
 
@@ -67,7 +67,7 @@ const openaiTransport = createOpenAITransport({
     {
       id: 'deepseek',
       label: 'DeepSeek',
-      endpoint: '/ai/chat/completions',
+      endpoint: '/ai',
       models: [
         {
           id: 'deepseek-flash',

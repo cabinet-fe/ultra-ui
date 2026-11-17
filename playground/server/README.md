@@ -24,7 +24,7 @@ playground 本地参考服务：在线填报单元格存取（SQLite）+ DeepSee
 | `DEEPSEEK_V4_FLASH_MODEL` | `deepseek-v4-flash`        | 前端 id `deepseek-v4-flash` 映射到的上游模型         |
 | `DEEPSEEK_V4_PRO_MODEL`   | `deepseek-v4-pro`          | 前端 id `deepseek-v4-pro` 映射到的上游模型           |
 
-- 浏览器端 transport 使用相对路径 `/ai/chat/completions`，vite proxy 原样转发到参考服务。
+- 浏览器端 transport 使用裸 base `/ai`（auto 模式默认优先探测 `/ai/responses`，失败回退 `/ai/chat/completions`），vite proxy 原样转发到参考服务。
 - 代理按 OpenAI 兼容协议转发 `content` / `reasoning_content` / `tool_calls`，因此 `createOpenAITransport()` 无需改协议。
 - 端点不接收、也不返回 API Key；密钥只在服务端拼 `Authorization: Bearer` 时从环境变量读取。
 
@@ -32,6 +32,7 @@ playground 本地参考服务：在线填报单元格存取（SQLite）+ DeepSee
 | --------------------------- | --------------------------------- | --------------------------------- | --------------------------------------------------------------- |
 | `GET /ai`                   | —                                 | 服务文档（不含密钥）              | 会话代理活体文档                                                |
 | `GET /ai/models`            | —                                 | `{ object: "list", data: [...] }` | `deepseek-v4-flash` / `deepseek-v4-pro`，含低 / 中 / 高推理等级 |
+| `POST /ai/responses`        | OpenAI Responses API 兼容 JSON    | SSE 或 JSON                       | 校验 `input` / `stream` / `model` 后转发 DeepSeek `/responses`  |
 | `POST /ai/chat/completions` | OpenAI chat.completions 兼容 JSON | SSE 或 JSON                       | 校验 `messages` / `stream` / `model` 后转发 DeepSeek            |
 
 ```bash

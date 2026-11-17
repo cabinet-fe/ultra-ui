@@ -29,7 +29,7 @@ const transport = createOpenAITransport({
     {
       id: 'deepseek',
       label: 'DeepSeek',
-      endpoint: '/ai/chat/completions',
+      endpoint: '/ai',
       models: [
         {
           id: 'deepseek-flash',

@@ -3,7 +3,7 @@ import type { Context } from 'hono'
 
 /**
  * DeepSeek 会话代理（playground dev-only）。
- * 浏览器只访问同源相对路径 `/ai/chat/completions`，API Key 只存在服务端环境变量，
+ * 浏览器只访问同源相对路径 `/ai/responses`、`/ai/chat/completions`，API Key 只存在服务端环境变量，
  * 避免像 `VITE_*` 变量一样被编译进前端产物。
  *
  * 模型 id 默认直接透传 `deepseek-v4-flash` / `deepseek-v4-pro`；
@@ -108,18 +108,16 @@ async function readJsonObject(
   return { ok: true, value: parsed }
 }
 
-function validateChatCompletionsBody(
+/** 请求体校验结果：通过则给出补齐 model / stream 后的上游请求体 */
+type UpstreamBodyValidation =
+  | { ok: true; upstreamBody: JsonObject }
+  | { ok: false; message: string }
+
+/** 回填 model / stream：model 未传用默认值并按 modelMap 映射上游模型，stream 缺省 true */
+function applyModelAndStream(
   body: JsonObject,
   config: DeepSeekProxyConfig
-): { ok: true; upstreamBody: JsonObject; model: string } | { ok: false; message: string } {
-  const { messages } = body
-  if (!Array.isArray(messages) || messages.length === 0) {
-    return { ok: false, message: 'messages 必须是非空数组' }
-  }
-  if (!messages.every(isChatMessage)) {
-    return { ok: false, message: 'messages 中存在不合法消息（缺少合法 role/content）' }
-  }
-
+): UpstreamBodyValidation {
   if ('stream' in body && typeof body.stream !== 'boolean') {
     return { ok: false, message: 'stream 必须是布尔值' }
   }
@@ -133,13 +131,40 @@ function validateChatCompletionsBody(
   }
 
   const model = typeof requestedModel === 'string' ? requestedModel : config.defaultModel
-  const upstreamBody = {
-    ...body,
-    model: config.modelMap[model] ?? model,
-    stream: body.stream ?? true
+  return {
+    ok: true,
+    upstreamBody: { ...body, model: config.modelMap[model] ?? model, stream: body.stream ?? true }
+  }
+}
+
+function validateChatCompletionsBody(
+  body: JsonObject,
+  config: DeepSeekProxyConfig
+): UpstreamBodyValidation {
+  const { messages } = body
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return { ok: false, message: 'messages 必须是非空数组' }
+  }
+  if (!messages.every(isChatMessage)) {
+    return { ok: false, message: 'messages 中存在不合法消息（缺少合法 role/content）' }
   }
 
-  return { ok: true, upstreamBody, model }
+  return applyModelAndStream(body, config)
+}
+
+/** Responses API 只额外校验 input：非空字符串或非空数组，其余字段原样透传 */
+function validateResponsesBody(
+  body: JsonObject,
+  config: DeepSeekProxyConfig
+): UpstreamBodyValidation {
+  const { input } = body
+  const hasInput =
+    (typeof input === 'string' && input !== '') || (Array.isArray(input) && input.length > 0)
+  if (!hasInput) {
+    return { ok: false, message: 'input 必须是非空字符串或非空数组' }
+  }
+
+  return applyModelAndStream(body, config)
 }
 
 /** AI 会话代理 Hono 子应用：由 server/dev.ts 挂到 `/ai` */
@@ -152,6 +177,13 @@ deepseekApp.get('/', (c) => {
     models: DEFAULT_FRONTEND_MODELS,
     endpoints: {
       models: { method: 'GET', path: '/ai/models' },
+      responses: {
+        method: 'POST',
+        path: '/ai/responses',
+        request:
+          'OpenAI Responses API 兼容请求体；model 可选 deepseek-v4-flash / deepseek-v4-pro，stream 默认 true',
+        note: 'transport 裸 base（/ai）auto 模式优先探测本端点，上游为 DeepSeek /responses'
+      },
       chatCompletions: {
         method: 'POST',
         path: '/ai/chat/completions',
@@ -175,8 +207,12 @@ deepseekApp.get('/models', (c) => {
   return c.json({ object: 'list', data: DEFAULT_FRONTEND_MODELS })
 })
 
-/** POST /ai/chat/completions — OpenAI 兼容 SSE 转发到 DeepSeek */
-deepseekApp.post('/chat/completions', async (c) => {
+/** 通用转发：校验请求体后 POST 到 DeepSeek 上游；上游错误透传，SSE / JSON 按流式标记回传 */
+async function proxyToDeepSeek(
+  c: Context,
+  upstreamPath: string,
+  validate: (body: JsonObject, config: DeepSeekProxyConfig) => UpstreamBodyValidation
+): Promise<Response> {
   const config = resolveDeepSeekProxyConfig()
   if (!config.apiKey) {
     return c.json(
@@ -195,7 +231,7 @@ deepseekApp.post('/chat/completions', async (c) => {
   const body = await readJsonObject(c)
   if (!body.ok) return body.response
 
-  const prepared = validateChatCompletionsBody(body.value, config)
+  const prepared = validate(body.value, config)
   if (!prepared.ok) {
     return invalidRequest(c, prepared.message)
   }
@@ -204,7 +240,7 @@ deepseekApp.post('/chat/completions', async (c) => {
 
   let upstream: Response
   try {
-    upstream = await fetch(`${config.baseUrl}/chat/completions`, {
+    upstream = await fetch(`${config.baseUrl}${upstreamPath}`, {
       method: 'POST',
       signal: c.req.raw.signal,
       headers: {
@@ -246,4 +282,12 @@ deepseekApp.post('/chat/completions', async (c) => {
       ...(isStream ? { 'Cache-Control': 'no-cache' } : {})
     }
   })
-})
+}
+
+/** POST /ai/chat/completions — OpenAI 兼容 SSE 转发到 DeepSeek */
+deepseekApp.post('/chat/completions', (c) =>
+  proxyToDeepSeek(c, '/chat/completions', validateChatCompletionsBody)
+)
+
+/** POST /ai/responses — OpenAI Responses API 转发；transport 裸 base（/ai）auto 模式优先探测 */
+deepseekApp.post('/responses', (c) => proxyToDeepSeek(c, '/responses', validateResponsesBody))
