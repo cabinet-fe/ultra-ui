@@ -1,5 +1,12 @@
 # @veltra/ai
 
+## 2.7.0
+
+### Minor Changes
+
+- 17dafa7: 修复 `renderTo: 'reply'` 工具面板被同消息正文压到其后的问题：面板挂入正文闭段前的当前段，渲染顺序变为「思考步骤行 → 提问面板 → 段末正文」，多轮追问时新一轮待答面板紧跟本轮思考、不再堆在上一轮已答摘要之后（内置 askQuestion 同步受益）。
+- 2fc5869: 组件样式改为随组件模块自身按需加载：组件 SFC 的 script 首部 `import './style'`，宿主显式 `import { UButton } from '@veltra/desktop'` 即可获得对应样式（依赖组件样式一并带出），不再需要 `@veltra/vite` resolver 或手动 `import '@veltra/desktop/components/<name>/style'`。未用到的组件与样式保持同粒度 tree-shake。`@veltra/vite` 已废弃并在 npm 标记 deprecate；全量样式入口 `@veltra/<pkg>/style` 与 `install` 全局注册不受影响。
+
 ## 2.6.0
 
 ### Minor Changes

@@ -38,7 +38,7 @@
     },
     "packages/ai": {
       "name": "@veltra/ai",
-      "version": "2.6.0",
+      "version": "2.7.0",
       "dependencies": {
         "markstream-vue": "^2.0.20",
       },
@@ -54,7 +54,7 @@
     },
     "packages/compositions": {
       "name": "@veltra/compositions",
-      "version": "2.3.0",
+      "version": "2.4.0",
       "dependencies": {
         "@floating-ui/dom": "^1.8.0",
         "@formkit/drag-and-drop": "^0.6.1",
@@ -71,7 +71,7 @@
     },
     "packages/desktop": {
       "name": "@veltra/desktop",
-      "version": "2.3.0",
+      "version": "2.4.0",
       "dependencies": {
         "@lexical/history": "^0.52.0",
         "@lexical/html": "^0.52.0",
@@ -118,7 +118,7 @@
     },
     "packages/directives": {
       "name": "@veltra/directives",
-      "version": "2.3.0",
+      "version": "2.4.0",
       "peerDependencies": {
         "@veltra/styles": "^2.0.0",
         "@veltra/utils": "^2.0.0",
@@ -137,7 +137,7 @@
     },
     "packages/mobile": {
       "name": "@veltra/mobile",
-      "version": "1.1.7",
+      "version": "1.2.0",
       "peerDependencies": {
         "@cat-kit/core": ">=1.2.1",
         "@veltra/compositions": "^2.0.0",
@@ -153,7 +153,7 @@
     },
     "packages/sheet": {
       "name": "@veltra/sheet",
-      "version": "4.1.5",
+      "version": "4.2.0",
       "peerDependencies": {
         "@cat-kit/core": ">=1.2.1",
         "@cat-kit/fe": ">=1.2.1",
@@ -167,7 +167,7 @@
     },
     "packages/styles": {
       "name": "@veltra/styles",
-      "version": "2.3.0",
+      "version": "2.4.0",
       "peerDependencies": {
         "@cat-kit/core": ">=1.2.1",
         "@veltra/compositions": "^2.0.0",
@@ -177,7 +177,7 @@
     },
     "packages/utils": {
       "name": "@veltra/utils",
-      "version": "2.3.0",
+      "version": "2.4.0",
       "peerDependencies": {
         "@cat-kit/core": ">=1.2.1",
         "vue": ">=3.5.44",
