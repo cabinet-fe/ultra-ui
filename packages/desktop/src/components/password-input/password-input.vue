@@ -31,6 +31,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { o } from '@cat-kit/core'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { Close, Hide, View } from '@veltra/icons/normal'

@@ -104,6 +104,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { date, Dater } from '@cat-kit/core'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { Calendar, Close, Left, Right } from '@veltra/icons/normal'

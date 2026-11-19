@@ -28,6 +28,7 @@
 </template>
 
 <script lang="tsx" setup>
+import './style'
 import { o } from '@cat-kit/core'
 import { bem } from '@veltra/utils'
 import { provideFormContext } from '@veltra/utils'

@@ -91,6 +91,16 @@
 
 <script setup lang="ts">
 import type { TabItem } from '@veltra/desktop'
+import {
+  UButton,
+  UCheckbox,
+  UDialog,
+  UInput,
+  URadioGroup,
+  UTabs,
+  UTabsHorizontal,
+  UTabsVertical
+} from '@veltra/desktop'
 import { computed, reactive, ref, shallowRef } from 'vue'
 
 const items = shallowRef<TabItem[]>([

@@ -40,6 +40,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { vRipple } from '@veltra/directives'
 import { ArrowRight, Dot } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'

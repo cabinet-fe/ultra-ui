@@ -31,6 +31,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { ArrowRight } from '@veltra/icons/normal'
 import { bem, scrollIntoContainerView } from '@veltra/utils'
 import { inject, onMounted, shallowRef, useTemplateRef } from 'vue'

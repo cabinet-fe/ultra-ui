@@ -36,6 +36,7 @@
 </template>
 
 <script lang="ts" setup>
+import { UPasswordInput } from '@veltra/desktop'
 import { shallowRef } from 'vue'
 
 const password = shallowRef('secret')

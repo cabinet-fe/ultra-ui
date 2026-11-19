@@ -43,6 +43,7 @@
 </template>
 
 <script setup lang="ts">
+import { UButton, UPopConfirm } from '@veltra/desktop'
 import { Word } from '@veltra/icons/colorful'
 
 import CustomCard from '../card/custom-card.vue'

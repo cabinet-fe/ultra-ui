@@ -25,6 +25,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useFallbackProps } from '@veltra/compositions'
 import { bem, zIndex } from '@veltra/utils'
 

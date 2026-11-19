@@ -36,6 +36,7 @@
 </template>
 
 <script setup lang="ts">
+import { UBackTop } from '@veltra/desktop'
 import { useTemplateRef } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

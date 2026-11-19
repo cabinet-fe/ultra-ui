@@ -24,6 +24,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useFormFallbackProps, useUserAction } from '@veltra/compositions'
 import { bem } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'

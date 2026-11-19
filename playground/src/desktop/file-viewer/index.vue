@@ -46,6 +46,7 @@
 
 <script lang="ts" setup>
 import type { FileViewerItem, FileViewerKind } from '@veltra/desktop'
+import { UButton, UFilePicker, UFileViewer } from '@veltra/desktop'
 import { computed, ref, shallowRef } from 'vue'
 
 const sampleTxt =

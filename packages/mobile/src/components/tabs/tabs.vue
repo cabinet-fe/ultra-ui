@@ -42,6 +42,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { Close } from '@veltra/icons/normal'
 import { computed, createVNode, nextTick, onMounted, shallowRef, watch } from 'vue'
 

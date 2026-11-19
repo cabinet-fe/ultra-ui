@@ -58,6 +58,7 @@
 
 <script lang="ts" setup>
 import type { ColorType } from '@veltra/desktop'
+import { UIcon, UNumberInput, UProgress, URadioGroup } from '@veltra/desktop'
 import { Warning } from '@veltra/icons/normal'
 import { shallowReactive } from 'vue'
 

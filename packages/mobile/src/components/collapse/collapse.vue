@@ -5,6 +5,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { ExpandTransition } from '@veltra/utils'
 import { computed, provide, ref } from 'vue'
 

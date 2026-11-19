@@ -15,6 +15,8 @@
 </template>
 
 <script lang="ts" setup>
+import { UList, UListItem } from '@veltra/desktop'
+
 import CustomCard from '../card/custom-card.vue'
 
 const listData = Array.from({ length: 50 }).map((_, i) => ({ title: `列表项${i}` }))

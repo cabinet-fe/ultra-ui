@@ -72,6 +72,7 @@
 
 <script lang="ts" setup>
 import { o } from '@cat-kit/core'
+import { UExpressionEditor } from '@veltra/desktop'
 import { computed, shallowRef } from 'vue'
 
 const expression = shallowRef(

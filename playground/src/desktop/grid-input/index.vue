@@ -70,6 +70,7 @@
 
 <script lang="ts" setup>
 import type { GridInputExposed } from '@veltra/desktop'
+import { UButton, UGridInput } from '@veltra/desktop'
 import { shallowRef, useTemplateRef } from 'vue'
 
 const basic = shallowRef('')

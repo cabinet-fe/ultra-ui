@@ -5,6 +5,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { computed, inject } from 'vue'
 
 import { CardDIKey } from './di'

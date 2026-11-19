@@ -24,6 +24,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useConfig } from '@veltra/compositions'
 import { Sparkles } from '@veltra/icons'
 import { bem, requestAiText } from '@veltra/utils'

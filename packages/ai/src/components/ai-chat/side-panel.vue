@@ -37,6 +37,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { UIcon, UScroll } from '@veltra/desktop'
 import { Close, Maximum, Recover, Refresh } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'

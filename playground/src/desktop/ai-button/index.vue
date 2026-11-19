@@ -49,6 +49,7 @@
 <script lang="ts" setup>
 import { useConfig } from '@veltra/compositions'
 import { message } from '@veltra/desktop'
+import { UAiButton, UInput, USwitch } from '@veltra/desktop'
 import { ref } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

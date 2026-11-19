@@ -49,6 +49,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { Close } from '@veltra/icons/normal'
 import { zIndex } from '@veltra/utils'
 import { computed, shallowRef, watch } from 'vue'

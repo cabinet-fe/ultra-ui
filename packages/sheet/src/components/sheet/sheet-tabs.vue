@@ -52,6 +52,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { contextmenu, message, messageConfirm, UIcon } from '@veltra/desktop'
 import { ArrowLeft, ArrowRight } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'

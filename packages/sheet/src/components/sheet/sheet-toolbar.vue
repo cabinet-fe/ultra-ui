@@ -56,6 +56,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { UIcon, UTip } from '@veltra/desktop'
 import { ArrowLeft, ArrowRight } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'

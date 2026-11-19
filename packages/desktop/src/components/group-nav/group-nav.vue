@@ -16,6 +16,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { bem } from '@veltra/utils'
 
 import type { GroupNavEmits, GroupNavProps } from '../../types/group-nav'

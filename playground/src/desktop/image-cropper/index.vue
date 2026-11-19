@@ -40,6 +40,7 @@ import type {
   ImageCropperExposed,
   ImageCropperResult
 } from '@veltra/desktop'
+import { UButton, UCheckbox, UFilePicker, UImageCropper, USegment } from '@veltra/desktop'
 import { ref, shallowRef, useTemplateRef } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

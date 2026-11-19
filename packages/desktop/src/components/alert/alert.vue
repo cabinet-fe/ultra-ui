@@ -23,6 +23,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import {
   CircleCheckFilled,
   CircleClose,

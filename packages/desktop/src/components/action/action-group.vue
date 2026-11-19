@@ -3,6 +3,7 @@
 </template>
 
 <script lang="tsx" setup>
+import './style'
 import { MoreFilled } from '@veltra/icons/normal'
 import { bem, extractNormalVNodes } from '@veltra/utils'
 import { cloneVNode, provide, shallowRef, type VNode } from 'vue'

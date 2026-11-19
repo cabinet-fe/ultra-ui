@@ -85,6 +85,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { ArrowDown, Check, Close } from '@veltra/icons/normal'
 import { FORM_EMPTY_CONTENT, injectFormContext } from '@veltra/utils'
 import { computed, nextTick, shallowRef, useTemplateRef, watch } from 'vue'

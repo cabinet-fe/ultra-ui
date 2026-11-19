@@ -17,6 +17,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { inject } from 'vue'
 
 import { UButton } from '../button'

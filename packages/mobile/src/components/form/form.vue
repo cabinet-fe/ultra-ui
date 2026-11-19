@@ -26,6 +26,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { o } from '@cat-kit/core'
 import { FORM_EMPTY_CONTENT, provideFormContext } from '@veltra/utils'
 import { nextTick, toRef, useTemplateRef } from 'vue'

@@ -40,6 +40,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { bem } from '@veltra/utils'
 import { computed, provide, shallowRef, useTemplateRef, watch } from 'vue'
 

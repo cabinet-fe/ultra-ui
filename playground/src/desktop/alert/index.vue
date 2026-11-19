@@ -30,6 +30,7 @@
 
 <script lang="ts" setup>
 import type { AlertType } from '@veltra/desktop'
+import { UAlert } from '@veltra/desktop'
 import { shallowRef } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

@@ -32,6 +32,7 @@
 </template>
 
 <script lang="ts" setup>
+import { UCheckbox, UNumberInput } from '@veltra/desktop'
 import { shallowRef } from 'vue'
 
 const number = shallowRef(2.999)

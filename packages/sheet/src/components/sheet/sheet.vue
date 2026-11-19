@@ -106,6 +106,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { UDropdown, UImagePreviewer, messageConfirm } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
 import type {

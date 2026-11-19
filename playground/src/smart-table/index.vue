@@ -76,7 +76,9 @@
 </template>
 
 <script lang="ts" setup>
+import { UButton, USegment } from '@veltra/desktop'
 import type { SheetExposed } from '@veltra/sheet'
+import { USheet } from '@veltra/sheet'
 import { computed, nextTick, onMounted, reactive, ref, useTemplateRef, watch } from 'vue'
 
 import AiChatPanel from './ai-chat-panel.vue'

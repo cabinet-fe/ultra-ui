@@ -62,6 +62,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { $n, n, o, isUndef } from '@cat-kit/core'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { vRipple } from '@veltra/directives'

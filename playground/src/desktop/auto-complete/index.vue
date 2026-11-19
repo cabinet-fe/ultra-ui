@@ -15,6 +15,7 @@
 </template>
 
 <script setup lang="ts">
+import { UAutoComplete } from '@veltra/desktop'
 import { shallowRef } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

@@ -41,6 +41,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link'
 import { INSERT_ORDERED_LIST_COMMAND, INSERT_UNORDERED_LIST_COMMAND, ListNode } from '@lexical/list'
 import { $createHeadingNode, $isHeadingNode, type HeadingTagType } from '@lexical/rich-text'

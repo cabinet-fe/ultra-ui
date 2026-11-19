@@ -19,6 +19,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { fieldKey, FORM_EMPTY_CONTENT, injectFormContext } from '@veltra/utils'
 import { computed } from 'vue'

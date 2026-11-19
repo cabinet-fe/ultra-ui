@@ -5,6 +5,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { type CSSProperties, computed, inject } from 'vue'
 
 import type { CardActionProps } from '../../types'

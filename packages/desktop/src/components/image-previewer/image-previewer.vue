@@ -90,6 +90,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { Close, Refresh, ZoomIn, ZoomOut } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { computed, onBeforeUnmount, ref, shallowRef, useAttrs, useTemplateRef, watch } from 'vue'

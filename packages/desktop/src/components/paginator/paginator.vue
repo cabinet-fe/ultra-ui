@@ -79,6 +79,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { n } from '@cat-kit/core'
 import { useConfig, useFallbackProps } from '@veltra/compositions'
 import { vRipple } from '@veltra/directives'

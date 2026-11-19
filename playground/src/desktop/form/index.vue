@@ -210,6 +210,37 @@
 <script lang="ts" setup>
 import { copy } from '@cat-kit/core'
 import type { FormExposed } from '@veltra/desktop'
+import {
+  UAutoComplete,
+  UButton,
+  UCard,
+  UCardContent,
+  UCardHeader,
+  UCascade,
+  UCheckbox,
+  UCheckboxGroup,
+  UCodeEditor,
+  UDatePicker,
+  UDateRangePicker,
+  UExpressionEditor,
+  UForm,
+  UFormItem,
+  UGroupInput,
+  UInput,
+  UMultiSelect,
+  UMultiTreeSelect,
+  UNumberInput,
+  UNumberRangeInput,
+  UPalette,
+  UPasswordInput,
+  URadioGroup,
+  URichTextEditor,
+  USelect,
+  USlider,
+  USwitch,
+  UTextarea,
+  UTreeSelect
+} from '@veltra/desktop'
 import { reactive, shallowRef } from 'vue'
 
 const labelPosition = shallowRef<'left' | 'top'>('left')

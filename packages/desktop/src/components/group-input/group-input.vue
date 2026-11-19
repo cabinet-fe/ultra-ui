@@ -40,7 +40,12 @@
   </template>
 </template>
 
-<script lang="ts" setup generic="GroupItem extends Record<string, any>">
+<script
+  lang="ts"
+  setup
+  generic="GroupItem extends Record<string, any>
+import './style'"
+>
 import { useFormFallbackProps } from '@veltra/compositions'
 import { Minus, Plus } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'

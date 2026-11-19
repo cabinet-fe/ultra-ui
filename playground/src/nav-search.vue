@@ -48,6 +48,7 @@
 <script lang="ts" setup>
 import { usePop } from '@veltra/compositions'
 import type { InputExposed, NavItem } from '@veltra/desktop'
+import { UIcon, UInput } from '@veltra/desktop'
 import { vClickOutside } from '@veltra/directives'
 import { Search } from '@veltra/icons/normal'
 import { zIndex, setStyles } from '@veltra/utils'

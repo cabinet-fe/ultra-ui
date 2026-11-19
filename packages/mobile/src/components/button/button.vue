@@ -20,6 +20,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { Loading } from '@veltra/icons'
 import { withUnit } from '@veltra/utils'
 import { computed, shallowRef } from 'vue'

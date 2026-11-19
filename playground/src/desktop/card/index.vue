@@ -41,6 +41,15 @@
 <script setup lang="ts">
 import { useComponentProps } from '@veltra/compositions'
 import type { ButtonProps } from '@veltra/desktop'
+import {
+  UButton,
+  UCard,
+  UCardAction,
+  UCardContent,
+  UCardCover,
+  UCardHeader,
+  UText
+} from '@veltra/desktop'
 import { Lock, MoreFilled, Star } from '@veltra/icons/normal'
 import { shallowRef } from 'vue'
 

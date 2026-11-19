@@ -30,6 +30,7 @@
 <script setup lang="ts">
 import { message } from '@veltra/desktop'
 import type { MessageType } from '@veltra/desktop'
+import { UButton, UCheckbox, UNumberInput, URadioGroup } from '@veltra/desktop'
 import { reactive } from 'vue'
 
 const config = reactive({

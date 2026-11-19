@@ -8,6 +8,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { computed, shallowRef, watch } from 'vue'
 
 import { bem } from '../../shared/bem'

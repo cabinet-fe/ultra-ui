@@ -30,6 +30,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { $n } from '@cat-kit/core'
 import { withUnit, type RenderReturn } from '@veltra/utils'
 import { computed, inject } from 'vue'

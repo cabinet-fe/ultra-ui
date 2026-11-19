@@ -99,6 +99,7 @@
 
 <script setup lang="ts">
 import { contextmenu, message, type ContextmenuItem } from '@veltra/desktop'
+import { UCheckbox, UContextmenu } from '@veltra/desktop'
 import { Copy, Delete, Edit } from '@veltra/icons/normal'
 import { shallowRef } from 'vue'
 

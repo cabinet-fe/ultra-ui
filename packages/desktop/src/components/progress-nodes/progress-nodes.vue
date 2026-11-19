@@ -32,6 +32,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { o } from '@cat-kit/core'
 import { useDrag, useResizeObserver } from '@veltra/compositions'
 import { bem, fieldKey } from '@veltra/utils'

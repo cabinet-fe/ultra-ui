@@ -21,6 +21,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { UIcon } from '@veltra/desktop'
 import { ArrowRight } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'

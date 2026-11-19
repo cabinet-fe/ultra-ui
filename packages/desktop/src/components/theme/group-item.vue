@@ -11,6 +11,7 @@
 </template>
 
 <script setup lang="ts">
+import './style'
 import { inject } from 'vue'
 
 import { ThemeDIKey } from './di'

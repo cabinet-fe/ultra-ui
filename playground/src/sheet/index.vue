@@ -353,7 +353,9 @@
 
 <script lang="ts" setup>
 import { $n } from '@cat-kit/core'
+import { UDialog } from '@veltra/desktop'
 import { type SheetExposed } from '@veltra/sheet'
+import { USheet } from '@veltra/sheet'
 import { formulaError, registerFormulaFunction } from 'infinitable'
 import type { CellAddress, CellValue, SetCellValueItem } from 'infinitable/sheet'
 import {

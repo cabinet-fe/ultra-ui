@@ -5,6 +5,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { computed, useAttrs } from 'vue'
 
 import { bem } from '../../shared/bem'

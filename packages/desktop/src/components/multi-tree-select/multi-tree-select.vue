@@ -102,6 +102,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { debounce, dfs, o } from '@cat-kit/core'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { ArrowDown, Close } from '@veltra/icons/normal'

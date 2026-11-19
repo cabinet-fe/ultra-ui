@@ -187,6 +187,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { Forest, dfs, o } from '@cat-kit/core'
 import { useResizeObserver } from '@veltra/compositions'
 import { ArrowDown, ArrowRight, Check, Close } from '@veltra/icons/normal'

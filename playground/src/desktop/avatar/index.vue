@@ -49,6 +49,8 @@
 </template>
 
 <script setup lang="ts">
+import { UAvatar, UAvatarGroup } from '@veltra/desktop'
+
 import CustomCard from '../card/custom-card.vue'
 
 // 内联 SVG 头像图，避免演示页依赖外部图片地址

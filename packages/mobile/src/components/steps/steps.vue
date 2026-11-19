@@ -34,6 +34,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { Check } from '@veltra/icons/normal'
 import { fieldKey } from '@veltra/utils'
 import { computed, useTemplateRef, watch } from 'vue'

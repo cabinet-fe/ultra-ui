@@ -38,6 +38,7 @@
 </template>
 
 <script lang="ts" setup>
+import { UCheckboxGroup, UProgressNodes } from '@veltra/desktop'
 import { ref } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

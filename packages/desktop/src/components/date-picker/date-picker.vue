@@ -36,6 +36,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { date, Dater } from '@cat-kit/core'
 import { useFormFallbackProps, useUserAction } from '@veltra/compositions'
 import { Calendar } from '@veltra/icons/normal'

@@ -49,6 +49,7 @@
 
 <script lang="ts" setup>
 import { message } from '@veltra/desktop'
+import { UButton, UDialog, UInput, USelect, UTextarea } from '@veltra/desktop'
 import { reactive, ref, watch } from 'vue'
 
 import { AI_SCENARIOS, fetchAiModels, type AiFieldInput, type AiScenario } from './ai-field'

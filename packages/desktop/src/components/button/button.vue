@@ -20,6 +20,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useFallbackProps } from '@veltra/compositions'
 import { vRipple } from '@veltra/directives'
 import { Loading } from '@veltra/icons'

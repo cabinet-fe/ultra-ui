@@ -33,6 +33,7 @@
 </template>
 
 <script lang="ts" setup>
+import { USkeleton, USpace, USwitch } from '@veltra/desktop'
 import { shallowRef } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

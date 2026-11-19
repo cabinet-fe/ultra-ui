@@ -44,6 +44,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { UDropdown, UIcon, UScroll } from '@veltra/desktop'
 import { ArrowDown, Check } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'

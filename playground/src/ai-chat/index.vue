@@ -22,6 +22,7 @@
 <script lang="ts" setup>
 import { UAiChat, createOpenAITransport, createServerTransport, type ChatTool } from '@veltra/ai'
 import '@veltra/ai/style'
+import { USegment } from '@veltra/desktop'
 import { Delete, Monitor, Sun } from '@veltra/icons/normal'
 import { computed, ref } from 'vue'
 

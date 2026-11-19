@@ -81,6 +81,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { Close, Plus } from '@veltra/icons/normal'
 import { injectFormContext, zIndex } from '@veltra/utils'

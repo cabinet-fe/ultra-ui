@@ -13,6 +13,8 @@
 </template>
 
 <script lang="ts" setup>
+import { UEmpty } from '@veltra/desktop'
+
 import CustomCard from '../card/custom-card.vue'
 </script>
 

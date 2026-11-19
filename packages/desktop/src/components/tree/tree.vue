@@ -31,6 +31,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useFormFallbackProps, useVirtualizer } from '@veltra/compositions'
 import { bem, nextFrame, renderLabelTemplate, scrollIntoContainerView } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'

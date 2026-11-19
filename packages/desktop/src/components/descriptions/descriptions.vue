@@ -32,6 +32,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useFallbackProps } from '@veltra/compositions'
 import { bem } from '@veltra/utils'
 import { computed, useSlots, type VNode } from 'vue'

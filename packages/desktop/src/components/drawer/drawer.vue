@@ -30,6 +30,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { Close } from '@veltra/icons/normal'
 import { bem, zIndex } from '@veltra/utils'
 import { computed, shallowRef, useId, useTemplateRef, watch } from 'vue'

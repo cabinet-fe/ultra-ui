@@ -22,6 +22,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { debounce } from '@cat-kit/core'
 import { useResizeObserver } from '@veltra/compositions'
 import { bem, withUnit } from '@veltra/utils'

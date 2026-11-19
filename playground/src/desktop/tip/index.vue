@@ -57,6 +57,7 @@
 
 <script setup lang="ts">
 import type { TipAlign, TipDirection, TipType } from '@veltra/desktop'
+import { UButton, UNumberInput, URadioGroup, UTextarea, UTip } from '@veltra/desktop'
 import { shallowRef, useTemplateRef } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

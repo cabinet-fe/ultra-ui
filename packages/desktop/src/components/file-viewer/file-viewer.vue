@@ -82,6 +82,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { bem, withUnit } from '@veltra/utils'
 import { computed, defineAsyncComponent, nextTick, ref, useTemplateRef, watch } from 'vue'
 

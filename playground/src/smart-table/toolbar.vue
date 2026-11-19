@@ -105,6 +105,8 @@
 </template>
 
 <script lang="ts">
+import { UButton, UCheckbox, UDropdown, UInput, USegment, USelect } from '@veltra/desktop'
+
 import type { FieldType } from './types'
 
 /** 筛选操作符：匹配语义见 index.vue 的视图管线 */

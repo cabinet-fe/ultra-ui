@@ -49,6 +49,7 @@
 
 <script lang="ts" setup>
 import { defineTableColumns } from '@veltra/desktop'
+import { UAction, UActionGroup, UCard, UCardContent, UCardHeader, UTable } from '@veltra/desktop'
 import { shallowRef } from 'vue'
 
 const seeds = [

@@ -15,6 +15,7 @@
 </template>
 
 <script lang="ts" setup>
+import { UWatermark } from '@veltra/desktop'
 const list = [] as any
 for (var i = 0; i <= 100; i++) {
   list.push(

@@ -27,6 +27,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { n, $n, o } from '@cat-kit/core'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'

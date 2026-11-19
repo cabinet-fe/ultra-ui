@@ -8,6 +8,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { getHighlightChunks, isTextNode, withUnit } from '@veltra/utils'
 import { type CSSProperties, computed, useSlots } from 'vue'
 

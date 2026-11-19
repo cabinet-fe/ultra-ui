@@ -24,6 +24,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { UScroll } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
 import { computed, nextTick, watch } from 'vue'

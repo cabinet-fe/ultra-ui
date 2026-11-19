@@ -23,3 +23,7 @@
     </section>
   </div>
 </template>
+
+<script lang="ts" setup>
+import { UKbd } from '@veltra/desktop'
+</script>

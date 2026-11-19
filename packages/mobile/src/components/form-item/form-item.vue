@@ -26,6 +26,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { o } from '@cat-kit/core'
 import { useFallbackProps } from '@veltra/compositions'
 import { extractNormalVNodes, injectFormContext, withUnit } from '@veltra/utils'

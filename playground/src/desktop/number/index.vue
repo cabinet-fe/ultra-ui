@@ -26,6 +26,7 @@
 </template>
 
 <script lang="ts" setup>
+import { UButton, UNumber } from '@veltra/desktop'
 import { ref } from 'vue'
 
 const number = ref(1000)

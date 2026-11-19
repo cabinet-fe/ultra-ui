@@ -16,6 +16,7 @@
 
 <script lang="ts" setup>
 import { defineTableColumns } from '@veltra/desktop'
+import { UAction, UActionGroup, UTable } from '@veltra/desktop'
 import { shallowRef } from 'vue'
 
 const columns = defineTableColumns([

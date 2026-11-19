@@ -76,6 +76,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { message as toast, UButton } from '@veltra/desktop'
 import { CircleCheck, Copy, Refresh } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'

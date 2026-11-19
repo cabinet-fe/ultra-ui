@@ -175,6 +175,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import {
   type Theme,
   UITheme,

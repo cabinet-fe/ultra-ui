@@ -38,6 +38,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { ArrowRight } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { computed, inject, nextTick, onBeforeUnmount, shallowRef } from 'vue'

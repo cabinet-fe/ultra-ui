@@ -74,6 +74,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useDrag, useFallbackProps } from '@veltra/compositions'
 import { Close, Maximum, Recover } from '@veltra/icons/normal'
 import { bem, extractNormalVNodes, setStyles, zIndex } from '@veltra/utils'

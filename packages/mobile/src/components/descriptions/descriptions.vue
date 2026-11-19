@@ -14,6 +14,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { computed, useSlots, Fragment, isVNode, type VNode, type VNodeChild } from 'vue'
 
 import { bem } from '../../shared/bem'

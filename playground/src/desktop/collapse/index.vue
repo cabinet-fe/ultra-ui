@@ -232,6 +232,7 @@
 
 <script lang="ts" setup>
 import type { CollapseModelValue } from '@veltra/desktop'
+import { UButton, UCollapse, UCollapseItem, UIcon } from '@veltra/desktop'
 import { Bell, Plus, Setting, User } from '@veltra/icons/normal'
 import type { ComponentSize } from '@veltra/utils'
 import { ref } from 'vue'

@@ -23,6 +23,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { bem } from '@veltra/utils'
 import { shallowRef, ref } from 'vue'
 

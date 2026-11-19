@@ -30,6 +30,7 @@
 </template>
 
 <script setup lang="ts">
+import './style'
 import { vRipple } from '@veltra/directives'
 import { bem } from '@veltra/utils'
 import { computed, shallowRef } from 'vue'

@@ -94,6 +94,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { message, UDropdown } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
 import { scanFormulaReferences, type ScannedReference } from 'infinitable'

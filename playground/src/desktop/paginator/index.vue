@@ -31,6 +31,7 @@
 </template>
 
 <script lang="ts" setup>
+import { UCheckbox, UPaginator, URadioGroup } from '@veltra/desktop'
 import { reactive } from 'vue'
 
 const pageState = reactive({ current: 3, size: 40 })

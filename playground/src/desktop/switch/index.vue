@@ -49,6 +49,7 @@
 </template>
 
 <script lang="ts" setup>
+import { UForm, USwitch } from '@veltra/desktop'
 import { reactive, ref } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

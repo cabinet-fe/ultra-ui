@@ -20,6 +20,7 @@
 </template>
 
 <script setup lang="ts">
+import { UCheckbox, UNav } from '@veltra/desktop'
 import { Cart, HouseFilled, Lock, UserGroup } from '@veltra/icons/normal'
 import { shallowRef, ref, reactive, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'

@@ -59,6 +59,7 @@
 </template>
 
 <script setup lang="ts">
+import { UButton, UDrawer } from '@veltra/desktop'
 import { ref } from 'vue'
 
 // 各种抽屉的显示状态

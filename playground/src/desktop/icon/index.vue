@@ -48,6 +48,17 @@
 </template>
 
 <script lang="ts" setup>
+import {
+  UCard,
+  UCardContent,
+  UCardHeader,
+  UCheckbox,
+  UForm,
+  UIcon,
+  UNumberInput,
+  USelect,
+  USlider
+} from '@veltra/desktop'
 import { Search } from '@veltra/icons/normal'
 import { computed, reactive } from 'vue'
 

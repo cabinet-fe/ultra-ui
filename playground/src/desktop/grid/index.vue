@@ -38,6 +38,7 @@
 </template>
 
 <script lang="ts" setup>
+import { UCard, UCardContent, UCardHeader, UGrid, UGridItem, UNumberInput } from '@veltra/desktop'
 import { ref } from 'vue'
 
 const cols = ref(8)

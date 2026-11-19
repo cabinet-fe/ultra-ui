@@ -51,6 +51,8 @@
 </template>
 
 <script lang="ts" setup>
+import { UButton, USpace, UTag } from '@veltra/desktop'
+
 import CustomCard from '../card/custom-card.vue'
 </script>
 

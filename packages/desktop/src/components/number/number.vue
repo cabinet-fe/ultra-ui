@@ -3,6 +3,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { $n } from '@cat-kit/core'
 import { Tween } from '@veltra/utils'
 import { computed, reactive, watch } from 'vue'

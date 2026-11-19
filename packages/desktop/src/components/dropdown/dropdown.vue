@@ -19,6 +19,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useModel, usePop, useTransition } from '@veltra/compositions'
 import { vClickOutside } from '@veltra/directives'
 import { bem, extractNormalVNodes, setStyles, zIndex } from '@veltra/utils'

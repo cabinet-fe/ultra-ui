@@ -47,6 +47,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { Compartment, EditorState, type Extension, type Text } from '@codemirror/state'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { EditorView, tooltips } from '@codemirror/view'

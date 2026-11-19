@@ -67,6 +67,7 @@
 </template>
 
 <script setup lang="ts">
+import './style'
 import { o } from '@cat-kit/core'
 import {
   AddChild,

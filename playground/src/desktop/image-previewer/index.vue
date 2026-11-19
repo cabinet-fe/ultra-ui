@@ -31,6 +31,7 @@
 </template>
 
 <script lang="ts" setup>
+import { UButton, UCheckbox, UFilePicker, UImagePreviewer } from '@veltra/desktop'
 import { ref, shallowRef } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

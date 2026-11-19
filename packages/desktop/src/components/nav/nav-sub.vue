@@ -34,6 +34,7 @@
 </template>
 
 <script setup lang="ts">
+import './style'
 import { ArrowRight } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { computed, inject, onBeforeUnmount, onMounted, ref, watch } from 'vue'

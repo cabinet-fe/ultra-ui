@@ -27,6 +27,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useModel } from '@veltra/compositions'
 import { ArrowDown } from '@veltra/icons/normal'
 import { bem, ExpandTransition } from '@veltra/utils'

@@ -71,6 +71,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { date, Dater } from '@cat-kit/core'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { Close, Time } from '@veltra/icons/normal'

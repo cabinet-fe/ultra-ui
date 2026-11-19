@@ -85,6 +85,7 @@
 </template>
 
 <script lang="ts" setup>
+import { UButton, USelect, USwitch } from '@veltra/desktop'
 import { RotateRight } from '@veltra/icons/normal'
 import { setOverlayContainer } from '@veltra/mobile/components/_internal/overlay-container'
 import { computed, onScopeDispose, ref, shallowRef, watchEffect } from 'vue'

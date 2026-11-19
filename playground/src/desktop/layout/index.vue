@@ -32,7 +32,9 @@
   </div>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import { ULayout } from '@veltra/desktop'
+</script>
 
 <style lang="scss" scoped>
 .l-nav,

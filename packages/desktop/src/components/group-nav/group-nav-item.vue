@@ -12,6 +12,7 @@
 </template>
 
 <script setup lang="ts">
+import './style'
 import { bem } from '@veltra/utils'
 
 import type { NavItem } from '../../types/nav'

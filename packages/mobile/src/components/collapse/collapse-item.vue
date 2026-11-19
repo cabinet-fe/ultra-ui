@@ -27,6 +27,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { ArrowDown } from '@veltra/icons/normal'
 import { ExpandTransition } from '@veltra/utils'
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'

@@ -5,6 +5,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { bem } from '../../shared/bem'
 import type { TimelineProps } from '../../types/timeline'
 

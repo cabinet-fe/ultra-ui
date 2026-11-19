@@ -9,6 +9,7 @@
 </template>
 
 <script lang="ts" setup>
+import { UCard, UCardContent, UCardHeader } from '@veltra/desktop'
 defineProps<{ title?: string; height?: string }>()
 </script>
 

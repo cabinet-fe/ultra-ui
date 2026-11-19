@@ -7,5 +7,7 @@
 </template>
 
 <script lang="ts" setup>
+import { UCalendar } from '@veltra/desktop'
+
 import CustomCard from '../card/custom-card.vue'
 </script>

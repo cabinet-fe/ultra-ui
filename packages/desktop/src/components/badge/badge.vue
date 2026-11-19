@@ -8,6 +8,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useFallbackProps } from '@veltra/compositions'
 import { bem, setStyles, zIndex } from '@veltra/utils'
 import { computed, nextTick, onMounted, shallowRef, watch } from 'vue'

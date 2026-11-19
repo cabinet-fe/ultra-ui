@@ -65,6 +65,7 @@
 <script lang="ts" setup>
 import { evaluateConditionExpression } from '@veltra/desktop'
 import type { ConditionExpression, ConditionField, VariableItem } from '@veltra/desktop'
+import { UConditionEditor } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
 import { computed, ref, shallowRef } from 'vue'
 

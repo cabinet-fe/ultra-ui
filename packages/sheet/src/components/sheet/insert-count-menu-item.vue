@@ -21,6 +21,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { ContextmenuRootDIKey, UNumberInput } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
 import { inject, ref } from 'vue'

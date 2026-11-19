@@ -9,6 +9,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { bem } from '@veltra/utils'
 import { computed, inject } from 'vue'
 

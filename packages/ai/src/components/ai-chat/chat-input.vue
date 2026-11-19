@@ -176,6 +176,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { UButton, UDropdown, UFilePicker, UIcon, UPopConfirm } from '@veltra/desktop'
 import { Attach, Clear, Close, Plus, Up } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'

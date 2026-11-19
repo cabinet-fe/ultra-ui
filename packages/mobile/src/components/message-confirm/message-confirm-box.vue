@@ -11,6 +11,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import type { MessageConfirmAction, MessageConfirmOptions } from '../../types/message-confirm'
 import UMessageConfirm from './message-confirm.vue'
 

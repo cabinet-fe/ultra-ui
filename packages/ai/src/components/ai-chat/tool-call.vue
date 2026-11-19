@@ -47,6 +47,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { UButton, UCollapseItem, UIcon } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
 import { computed, inject, ref, watch } from 'vue'

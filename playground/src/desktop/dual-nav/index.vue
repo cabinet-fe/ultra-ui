@@ -24,6 +24,7 @@
 
 <script setup lang="ts">
 import type { DualNavRootItem, NavItem } from '@veltra/desktop'
+import { UDualNav } from '@veltra/desktop'
 import { Cart, HouseFilled, Lock, Setting, UserGroup } from '@veltra/icons/normal'
 import { computed, shallowRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'

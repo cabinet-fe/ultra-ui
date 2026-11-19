@@ -36,6 +36,7 @@
 
 <script setup lang="ts">
 import { notification, type NotificationPosition } from '@veltra/desktop'
+import { UButton, UCheckbox, UInput, UNumberInput, URadioGroup } from '@veltra/desktop'
 import { reactive, ref } from 'vue'
 
 const config = reactive({

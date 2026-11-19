@@ -78,6 +78,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useResizeObserver } from '@veltra/compositions'
 import { UImagePreviewer, ULayout } from '@veltra/desktop'
 import { bem } from '@veltra/utils'

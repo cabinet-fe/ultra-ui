@@ -109,6 +109,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { Forest, o } from '@cat-kit/core'
 import { useFormFallbackProps, useUserAction } from '@veltra/compositions'
 import { ArrowDown, Close, Search } from '@veltra/icons/normal'

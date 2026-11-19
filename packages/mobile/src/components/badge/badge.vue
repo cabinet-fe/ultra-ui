@@ -6,6 +6,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { setStyles, zIndex } from '@veltra/utils'
 import { computed, nextTick, shallowRef, watch } from 'vue'
 

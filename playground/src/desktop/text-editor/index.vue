@@ -25,6 +25,7 @@
   </div>
 </template>
 <script lang="ts" setup>
+import { UButton, URichTextEditor } from '@veltra/desktop'
 import { shallowRef, useTemplateRef } from 'vue'
 
 const modelValue = shallowRef()

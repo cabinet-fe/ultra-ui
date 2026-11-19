@@ -4,12 +4,8 @@ import { fileURLToPath } from 'node:url'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import { NodePackageImporter } from 'sass-embedded'
-import Components from 'unplugin-vue-components/vite'
-import type { Plugin } from 'vite'
 import { defineConfig } from 'vite-plus'
 
-// vp run 加载配置时用 Node 解析模块，不走 veltra-dev；@veltra/vite 的 import 指向 dist，dist 缺失时 vp run 会在构建前失败
-import { VeltraUIResolver } from '../packages/vite/src/resolver'
 // 参考服务（data-entry + DeepSeek，同一端口）：前端经 /report-api、/ai 代理访问
 import { REPORT_SERVER_PORT } from './server/port'
 
@@ -43,12 +39,10 @@ const config = {
 
   resolve: { extensions: ['.ts', '.js', '.json', '.tsx'], conditions: ['dev', 'veltra-dev'] },
 
-  // Components 返回 Plugin & { api: PublicPluginAPI }，与 vue()/vueJsx() 的 Plugin 在数组联合推断时递归超栈深，收窄断言规避
   // erd-editor 是 er-view.vue 运行时注册的自定义元素，标记 isCustomElement 避免 Vue 按组件解析
   plugins: [
     vue({ template: { compilerOptions: { isCustomElement: (tag) => tag === 'erd-editor' } } }),
-    vueJsx(),
-    Components({ resolvers: [VeltraUIResolver()], dts: true }) as Plugin
+    vueJsx()
   ],
 
   server: {

@@ -46,6 +46,7 @@
 <script lang="ts" setup>
 import { UAiChat } from '@veltra/ai'
 import '@veltra/ai/style'
+import { UButton } from '@veltra/desktop'
 import { Close } from '@veltra/icons/normal'
 import { computed, onMounted, ref } from 'vue'
 

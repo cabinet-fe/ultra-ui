@@ -77,6 +77,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useFallbackProps, useVirtualizer } from '@veltra/compositions'
 import { bem, withUnit } from '@veltra/utils'
 import { computed, provide, shallowRef, toRef, useTemplateRef, watch } from 'vue'

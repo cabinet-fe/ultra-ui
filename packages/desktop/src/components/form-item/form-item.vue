@@ -35,6 +35,7 @@
 </template>
 
 <script lang="tsx" setup>
+import './style'
 import { o } from '@cat-kit/core'
 import { useConfig, useFallbackProps } from '@veltra/compositions'
 import { bem, extractNormalVNodes, withUnit } from '@veltra/utils'

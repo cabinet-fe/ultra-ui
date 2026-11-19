@@ -98,6 +98,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { o } from '@cat-kit/core'
 import { Close, Save } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'

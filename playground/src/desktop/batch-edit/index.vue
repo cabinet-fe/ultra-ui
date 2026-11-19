@@ -212,6 +212,22 @@
 import { date, sleep } from '@cat-kit/core'
 import { defineTableColumns, message } from '@veltra/desktop'
 import type { BatchEditFeature, CollapseModelValue, TableRow } from '@veltra/desktop'
+import {
+  UBatchEdit,
+  UCascade,
+  UCheckbox,
+  UCheckboxGroup,
+  UCodeEditor,
+  UCollapse,
+  UCollapseItem,
+  UDatePicker,
+  UInput,
+  UNumberInput,
+  URadioGroup,
+  USelect,
+  USlider,
+  UTextarea
+} from '@veltra/desktop'
 import { computed, reactive, ref, shallowRef } from 'vue'
 
 const readonly = shallowRef(false)

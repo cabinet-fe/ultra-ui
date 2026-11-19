@@ -77,6 +77,7 @@
 
 <script lang="ts" setup>
 import { sleep } from '@cat-kit/core'
+import { UCheckbox, UForm, UIcon, UInput, USelect } from '@veltra/desktop'
 import { reactive, shallowRef, watchEffect } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

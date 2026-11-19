@@ -48,6 +48,7 @@
 
 <script lang="ts" setup>
 import type { NumberRangeTuple } from '@veltra/desktop'
+import { UNumberRangeInput } from '@veltra/desktop'
 import { ref } from 'vue'
 
 const range = ref<NumberRangeTuple>([undefined, undefined])

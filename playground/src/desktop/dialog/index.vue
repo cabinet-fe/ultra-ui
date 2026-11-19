@@ -65,6 +65,15 @@
 <script lang="ts" setup>
 import { useTransition } from '@veltra/compositions'
 import type { ButtonExposed, DialogTransition } from '@veltra/desktop'
+import {
+  UButton,
+  UCard,
+  UCardCover,
+  UCheckbox,
+  UDialog,
+  UPopConfirm,
+  URadioGroup
+} from '@veltra/desktop'
 import { setStyles } from '@veltra/utils'
 import { computed, nextTick, shallowRef, watch } from 'vue'
 

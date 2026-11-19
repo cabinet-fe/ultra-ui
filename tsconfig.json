@@ -11,7 +11,6 @@
     { "path": "./packages/ai/tsconfig.json" },
     { "path": "./packages/mobile/tsconfig.json" },
     { "path": "./packages/icons/tsconfig.json" },
-    { "path": "./packages/vite/tsconfig.json" },
     { "path": "./tsconfig.node.json" },
     { "path": "./playground/tsconfig.json" }
   ]

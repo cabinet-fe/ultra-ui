@@ -163,6 +163,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { UButton, UCheckbox, UIcon } from '@veltra/desktop'
 import { QuestionFilled } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'

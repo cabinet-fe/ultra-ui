@@ -32,6 +32,7 @@
 
 <script lang="ts" setup>
 import type { ScrollExposed } from '@veltra/desktop'
+import { UButton, UDropdown, UScroll } from '@veltra/desktop'
 import { shallowRef } from 'vue'
 
 const scrollbarRef = shallowRef<ScrollExposed>()

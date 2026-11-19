@@ -26,6 +26,7 @@
 
 <script setup lang="ts">
 import { messageConfirm } from '@veltra/desktop'
+import { UButton, UInput, URadioGroup } from '@veltra/desktop'
 import { reactive } from 'vue'
 
 const config = reactive({

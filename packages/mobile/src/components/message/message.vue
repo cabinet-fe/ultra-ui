@@ -22,6 +22,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { Close } from '@veltra/icons/normal'
 import { onBeforeUnmount, onMounted } from 'vue'
 

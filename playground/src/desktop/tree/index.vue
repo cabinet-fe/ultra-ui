@@ -57,6 +57,7 @@
 
 <script lang="ts" setup>
 import type { TreeExposed } from '@veltra/desktop'
+import { UInput, USwitch, UTree } from '@veltra/desktop'
 import { shallowReactive, shallowRef, watch } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

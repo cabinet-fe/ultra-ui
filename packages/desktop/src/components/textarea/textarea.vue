@@ -38,6 +38,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useFocus, useFormFallbackProps } from '@veltra/compositions'
 import { Close } from '@veltra/icons/normal'
 import { bem, FORM_EMPTY_CONTENT } from '@veltra/utils'

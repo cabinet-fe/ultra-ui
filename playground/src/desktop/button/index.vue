@@ -92,6 +92,7 @@
 </template>
 
 <script lang="ts" setup>
+import { UButton, UButtonGroup } from '@veltra/desktop'
 import { Edit, Refresh } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { shallowRef } from 'vue'

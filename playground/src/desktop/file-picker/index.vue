@@ -45,6 +45,7 @@
 </template>
 
 <script lang="ts" setup>
+import { UButton, UFilePicker, UIcon } from '@veltra/desktop'
 import { Upload } from '@veltra/icons/normal'
 import { shallowRef } from 'vue'
 

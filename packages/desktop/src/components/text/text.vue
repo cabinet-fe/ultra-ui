@@ -5,6 +5,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { bem, withUnit, isTextNode, getHighlightChunks } from '@veltra/utils'
 import { type CSSProperties, type VNode, computed, useSlots, h, createTextVNode } from 'vue'
 

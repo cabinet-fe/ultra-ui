@@ -13,6 +13,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useFallbackProps } from '@veltra/compositions'
 import { vClickOutside } from '@veltra/directives'
 import { bem, withUnit, zIndex } from '@veltra/utils'

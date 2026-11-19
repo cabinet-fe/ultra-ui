@@ -13,6 +13,7 @@
 </template>
 
 <script setup lang="ts">
+import { UButton, UTextarea } from '@veltra/desktop'
 import { shallowRef } from 'vue'
 import { ref } from 'vue'
 

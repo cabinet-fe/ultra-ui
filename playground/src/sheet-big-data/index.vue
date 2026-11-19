@@ -87,7 +87,9 @@
 </template>
 
 <script lang="ts" setup>
+import { UButton, UInput, URadioGroup } from '@veltra/desktop'
 import { USheet } from '@veltra/sheet'
+import '@veltra/sheet/components/sheet/style'
 import {
   Workbook,
   exportWorkbookXlsx,
@@ -97,7 +99,6 @@ import {
   type SetCellValueItem,
   type Sheet
 } from 'infinitable/sheet'
-import '@veltra/sheet/components/sheet/style'
 import { nextTick, ref, shallowRef, computed } from 'vue'
 
 /** 列数固定 12（A..L） */

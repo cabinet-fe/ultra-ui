@@ -25,6 +25,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { bem, injectFormContext } from '@veltra/utils'
 import { computed, shallowRef, useTemplateRef, watch } from 'vue'

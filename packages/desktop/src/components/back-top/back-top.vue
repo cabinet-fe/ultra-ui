@@ -16,6 +16,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { ArrowUp } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { onBeforeUnmount, onMounted, shallowRef, watch } from 'vue'

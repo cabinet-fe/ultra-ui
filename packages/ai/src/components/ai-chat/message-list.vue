@@ -132,6 +132,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { UIcon, UScroll } from '@veltra/desktop'
 import type { ScrollPosition } from '@veltra/desktop'
 import { ArrowDown } from '@veltra/icons/normal'

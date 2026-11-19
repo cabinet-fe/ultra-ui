@@ -52,6 +52,17 @@
 <script lang="ts" setup>
 import type { ChatToolRenderProps } from '@veltra/ai'
 import { defineTableColumns, message, type FormExposed } from '@veltra/desktop'
+import {
+  UButton,
+  UEmpty,
+  UForm,
+  UFormItem,
+  UInput,
+  UNumberInput,
+  USelect,
+  UTable,
+  UTextarea
+} from '@veltra/desktop'
 import { computed, reactive, useTemplateRef } from 'vue'
 
 /**

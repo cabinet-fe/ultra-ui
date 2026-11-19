@@ -46,6 +46,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { ArrowLeft, ArrowRight } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { computed, provide, ref, watch } from 'vue'

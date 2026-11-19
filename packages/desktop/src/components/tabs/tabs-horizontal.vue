@@ -67,6 +67,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useFallbackProps } from '@veltra/compositions'
 import { ArrowLeft, ArrowRight, Close } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'

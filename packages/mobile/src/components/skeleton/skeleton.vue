@@ -13,6 +13,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { computed } from 'vue'
 
 import { bem } from '../../shared/bem'

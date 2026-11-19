@@ -48,6 +48,7 @@
 
 <script lang="ts" setup>
 import { type SheetExposed } from '@veltra/sheet'
+import { USheet } from '@veltra/sheet'
 import {
   Workbook,
   formatAddress,

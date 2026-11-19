@@ -5,6 +5,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { bem, removeStyles, setStyles, withUnit } from '@veltra/utils'
 import { type CSSProperties, provide, watch, useTemplateRef, computed } from 'vue'
 

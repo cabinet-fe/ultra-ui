@@ -33,6 +33,7 @@
 
 <script lang="ts" setup>
 import { date } from '@cat-kit/core'
+import { UTimePicker } from '@veltra/desktop'
 import { shallowRef } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

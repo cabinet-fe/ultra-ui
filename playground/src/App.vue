@@ -104,6 +104,7 @@
 <script lang="tsx" setup>
 import { useConfig } from '@veltra/compositions'
 import type { ComponentSize, NavItem } from '@veltra/desktop'
+import { UButton, UDrawer, UDualNav, UIcon, UScroll, USegment, UWatermark } from '@veltra/desktop'
 import { Check, Setting } from '@veltra/icons/normal'
 import {
   auroraTheme,

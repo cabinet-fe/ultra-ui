@@ -21,6 +21,7 @@
 
 <script setup lang="ts">
 import type { BreadcrumbItem } from '@veltra/desktop'
+import { UBreadcrumb, UIcon } from '@veltra/desktop'
 import { ArrowRight } from '@veltra/icons/normal'
 import { shallowRef } from 'vue'
 

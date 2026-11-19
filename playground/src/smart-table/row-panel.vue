@@ -57,6 +57,18 @@
 </template>
 
 <script lang="ts" setup>
+import {
+  UCheckbox,
+  UDatePicker,
+  UDrawer,
+  UInput,
+  UMultiSelect,
+  UNumberInput,
+  USelect,
+  USlider,
+  UTextarea
+} from '@veltra/desktop'
+
 import type { CellValue, TableField, TableRow } from './types'
 
 /**

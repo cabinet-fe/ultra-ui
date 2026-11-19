@@ -58,6 +58,15 @@
 </template>
 
 <script lang="tsx" setup>
+import {
+  UCard,
+  UCardContent,
+  UCardHeader,
+  UCheckbox,
+  UForm,
+  UNumberInput,
+  USlider
+} from '@veltra/desktop'
 import { reactive, ref } from 'vue'
 
 const config = reactive({

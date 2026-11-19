@@ -128,6 +128,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useResizeObserver } from '@veltra/compositions'
 import { ArrowDown, Check, Close, Minus } from '@veltra/icons/normal'
 import { FORM_EMPTY_CONTENT, injectFormContext } from '@veltra/utils'

@@ -19,6 +19,7 @@
 </template>
 
 <script setup lang="ts">
+import './style'
 import { bem } from '@veltra/utils'
 import { useTemplateRef } from 'vue'
 

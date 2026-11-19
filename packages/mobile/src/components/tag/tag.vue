@@ -11,6 +11,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { Close } from '@veltra/icons/normal'
 import { injectFormContext } from '@veltra/utils'
 import { computed } from 'vue'

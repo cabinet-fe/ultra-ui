@@ -2,6 +2,7 @@
   <div ref="thumb" :class="cls.e('thumb')" :style :tabindex="disabled ? -1 : 0"></div>
 </template>
 <script lang="ts" setup>
+import './style'
 import { useDrag, useUserAction } from '@veltra/compositions'
 import { computed, inject, useTemplateRef, watch } from 'vue'
 

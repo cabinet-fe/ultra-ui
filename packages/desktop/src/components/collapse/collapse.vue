@@ -5,6 +5,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useFormFallbackProps, useModel } from '@veltra/compositions'
 import { bem, ExpandTransition } from '@veltra/utils'
 import { computed, provide, ref } from 'vue'

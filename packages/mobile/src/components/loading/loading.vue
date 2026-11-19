@@ -7,6 +7,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { zIndex } from '@veltra/utils'
 import { computed } from 'vue'
 

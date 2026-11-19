@@ -5,6 +5,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { bem, withUnit } from '@veltra/utils'
 import { type CSSProperties, computed } from 'vue'
 

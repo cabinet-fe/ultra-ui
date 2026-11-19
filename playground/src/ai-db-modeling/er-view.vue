@@ -21,6 +21,7 @@
 
 <script lang="ts" setup>
 import type { ErdEditorElement } from '@dineug/erd-editor'
+import { UChipGroup } from '@veltra/desktop'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 
 import type { RelationshipDef, TableDef } from './api'

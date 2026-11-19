@@ -51,6 +51,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { n, o } from '@cat-kit/core'
 import { useFallbackProps } from '@veltra/compositions'
 import { Check } from '@veltra/icons/normal'

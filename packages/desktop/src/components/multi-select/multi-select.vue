@@ -145,6 +145,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { o as chainObj } from '@cat-kit/core'
 import { useFormFallbackProps, useVirtualizer } from '@veltra/compositions'
 import { ArrowDown, Close } from '@veltra/icons/normal'

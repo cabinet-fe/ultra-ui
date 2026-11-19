@@ -43,6 +43,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { ArrowLeft, ArrowRight } from '@veltra/icons/normal'
 import { bem, injectFormContext } from '@veltra/utils'

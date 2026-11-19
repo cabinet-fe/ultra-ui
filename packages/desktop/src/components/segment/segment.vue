@@ -39,6 +39,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useFormFallbackProps, useResizeObserver } from '@veltra/compositions'
 import { bem, fieldKey, FORM_EMPTY_CONTENT, injectFormContext } from '@veltra/utils'
 import { computed, nextTick, onMounted, shallowRef, watch } from 'vue'

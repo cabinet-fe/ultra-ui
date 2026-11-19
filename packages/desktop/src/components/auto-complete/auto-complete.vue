@@ -73,6 +73,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useFormFallbackProps } from '@veltra/compositions'
 import { vRipple } from '@veltra/directives'
 import { bem, FORM_EMPTY_CONTENT, scrollIntoContainerView } from '@veltra/utils'

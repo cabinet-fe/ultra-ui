@@ -8,6 +8,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { Empty } from '@veltra/icons/normal'
 import { withUnit } from '@veltra/utils'
 

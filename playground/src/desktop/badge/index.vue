@@ -21,7 +21,9 @@
   </div>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { UBadge, UButton } from '@veltra/desktop'
+</script>
 
 <style lang="scss" scoped>
 .badge-demo {

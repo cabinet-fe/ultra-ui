@@ -9,6 +9,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { computed, inject, provide } from 'vue'
 
 import type { ContextmenuItem } from '../../types'

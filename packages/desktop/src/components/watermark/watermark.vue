@@ -9,6 +9,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { debounce } from '@cat-kit/core'
 import { bem, setStyles, zIndex } from '@veltra/utils'
 import { onBeforeUnmount, onMounted, reactive, useTemplateRef } from 'vue'

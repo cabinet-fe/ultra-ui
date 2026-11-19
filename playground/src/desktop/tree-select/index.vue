@@ -92,6 +92,7 @@
 
 <script setup lang="ts">
 import { sleep } from '@cat-kit/core'
+import { UButton, UCardAction, UTreeSelect } from '@veltra/desktop'
 import { reactive, shallowRef } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

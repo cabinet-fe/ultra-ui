@@ -5,6 +5,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { bem } from '@veltra/utils'
 
 import type { TimelineProps } from '../../types'

@@ -49,6 +49,7 @@
 
 <script setup lang="ts">
 import type { KanbanColumnItem } from '@veltra/desktop'
+import { UKanban, UTag } from '@veltra/desktop'
 import { computed, ref } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

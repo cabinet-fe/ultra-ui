@@ -105,6 +105,7 @@
 </template>
 
 <script lang="ts" setup>
+import { UButton, UIcon, UInput, UNumberInput, UPalette, USelect } from '@veltra/desktop'
 import { ArrowDown } from '@veltra/icons/normal'
 import { UITheme, currentTheme, lightTheme, type Theme } from '@veltra/styles/theme'
 import { computed, reactive, shallowRef } from 'vue'

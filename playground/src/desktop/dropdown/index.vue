@@ -65,6 +65,7 @@
 
 <script setup lang="ts">
 import type { DropdownExposed } from '@veltra/desktop'
+import { UButton, UDropdown, URadioGroup } from '@veltra/desktop'
 import { shallowRef } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

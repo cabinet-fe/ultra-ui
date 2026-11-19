@@ -133,6 +133,7 @@
 </template>
 
 <script lang="ts" setup>
+import { UCheckbox, UCheckboxGroup, UCodeEditor, UForm, UNumberInput } from '@veltra/desktop'
 import type { CodeEditorLang } from '@veltra/desktop/types'
 import { computed, reactive, ref } from 'vue'
 

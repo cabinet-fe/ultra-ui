@@ -16,6 +16,7 @@
 </template>
 
 <script lang="ts" setup>
+import { UIcon, UInput } from '@veltra/desktop'
 import { Search } from '@veltra/icons/normal'
 import { shallowRef } from 'vue'
 

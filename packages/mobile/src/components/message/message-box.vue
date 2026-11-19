@@ -11,6 +11,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import type { MessageOptions } from '../../types/message'
 import UMessage from './message.vue'
 

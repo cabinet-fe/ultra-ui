@@ -4,6 +4,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import type { DescriptionsItemProps } from '../../types'
 
 defineOptions({ name: 'UDescriptionsItem' })

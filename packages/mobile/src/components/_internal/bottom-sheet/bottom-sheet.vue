@@ -27,6 +27,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { Close } from '@veltra/icons/normal'
 import { zIndex } from '@veltra/utils'
 import { watch } from 'vue'

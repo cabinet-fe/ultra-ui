@@ -28,6 +28,7 @@
 </template>
 
 <script lang="ts" setup>
+import { UGroupInput, UInput } from '@veltra/desktop'
 import { computed, shallowRef } from 'vue'
 
 // === CSS 对象 ===

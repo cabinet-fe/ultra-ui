@@ -33,7 +33,6 @@
   },
   "devDependencies": {
     "@hono/node-server": "^2.1.5",
-    "@veltra/vite": "workspace:*",
     "hono": "^4.13.13"
   }
 }

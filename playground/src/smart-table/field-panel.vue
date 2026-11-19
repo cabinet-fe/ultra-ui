@@ -50,6 +50,7 @@
 
 <script lang="ts" setup>
 import { message } from '@veltra/desktop'
+import { UButton, UDialog, UInput, USelect } from '@veltra/desktop'
 import { reactive, watch } from 'vue'
 
 import { FIELD_TYPES, FIELD_TYPE_LABELS, isOptionsField, type TableField } from './types'

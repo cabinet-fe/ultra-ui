@@ -33,6 +33,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { o } from '@cat-kit/core'
 import { bem } from '@veltra/utils'
 import { computed, inject } from 'vue'

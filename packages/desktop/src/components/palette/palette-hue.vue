@@ -5,6 +5,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useDrag } from '@veltra/compositions'
 import { inject, onMounted } from 'vue'
 import { shallowRef, computed } from 'vue'

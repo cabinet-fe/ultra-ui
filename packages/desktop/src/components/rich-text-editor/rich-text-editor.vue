@@ -20,6 +20,7 @@
 </template>
 
 <script lang="ts">
+import './style'
 import type { ToolbarItem } from '../../types'
 
 const LEXICAL_THEME = {

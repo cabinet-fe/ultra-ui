@@ -16,6 +16,7 @@
 
 <script setup lang="ts">
 import type { GroupNavGroup, NavItem } from '@veltra/desktop'
+import { UGroupNav } from '@veltra/desktop'
 import { Cart, HouseFilled, Lock, Setting } from '@veltra/icons/normal'
 import { computed, shallowRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'

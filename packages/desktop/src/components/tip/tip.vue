@@ -27,6 +27,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useFallbackProps, usePop } from '@veltra/compositions'
 import { vClickOutside } from '@veltra/directives'
 import { bem, extractNormalVNodes, zIndex } from '@veltra/utils'

@@ -25,6 +25,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { animations, useDnD, type VueParentConfig } from '@veltra/compositions'
 import { computed, inject, watch } from 'vue'
 

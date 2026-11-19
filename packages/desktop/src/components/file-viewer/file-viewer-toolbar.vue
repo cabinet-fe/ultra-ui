@@ -109,6 +109,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import {
   ArrowLeft,
   ArrowRight,

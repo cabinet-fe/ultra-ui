@@ -9,6 +9,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useDrag } from '@veltra/compositions'
 import { Move } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'

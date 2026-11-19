@@ -387,6 +387,33 @@
 </template>
 
 <script setup lang="ts">
+import {
+  UBadge,
+  UButton,
+  UCard,
+  UCheckTag,
+  UCheckbox,
+  UCollapse,
+  UCollapseItem,
+  UDatePicker,
+  UEmpty,
+  UIcon,
+  UInput,
+  UNumberInput,
+  UPaginator,
+  UProgress,
+  URadioGroup,
+  USelect,
+  USlider,
+  USteps,
+  USwitch,
+  UTable,
+  UTabs,
+  UTag,
+  UTextarea,
+  UTip,
+  UTree
+} from '@veltra/desktop'
 import { CreditCard, Wallet, Bell, User, Setting } from '@veltra/icons/normal'
 import { ref } from 'vue'
 

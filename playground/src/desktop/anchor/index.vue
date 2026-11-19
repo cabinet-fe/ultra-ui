@@ -56,6 +56,7 @@
 </template>
 
 <script setup lang="ts">
+import { UAnchor, UAnchorItem } from '@veltra/desktop'
 import { shallowRef, useTemplateRef } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'

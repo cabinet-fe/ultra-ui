@@ -50,6 +50,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import type { ComponentSize } from '@veltra/utils'
 import { bem } from '@veltra/utils'
 import { computed, ref } from 'vue'

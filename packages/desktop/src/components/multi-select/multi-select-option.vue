@@ -20,6 +20,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { Ripple } from '@veltra/directives'
 import { inject, onBeforeUnmount, shallowRef } from 'vue'
 

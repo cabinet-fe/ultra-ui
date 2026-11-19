@@ -18,6 +18,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import type { DatePanelEmits, DatePanelProps } from '../../types'
 import DayHeader from './headers/day.vue'
 import MonthHeader from './headers/month.vue'

@@ -24,6 +24,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { useFallbackProps } from '@veltra/compositions'
 import { bem, ExpandTransition } from '@veltra/utils'
 import type { ComponentSize } from '@veltra/utils'

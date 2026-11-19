@@ -5,6 +5,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { withUnit } from '@veltra/utils'
 import { computed } from 'vue'
 

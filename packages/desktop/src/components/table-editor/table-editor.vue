@@ -51,6 +51,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { o } from '@cat-kit/core'
 import { Copy, Minus, Plus, Warning } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'

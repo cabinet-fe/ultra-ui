@@ -34,6 +34,7 @@
 
 <script lang="ts" setup>
 import type { KanbanColumnItem } from '@veltra/desktop'
+import { UKanban, USelect } from '@veltra/desktop'
 import { computed, ref, watch } from 'vue'
 
 import { cellText, type CellValue, type TableField, type TableRow } from './types'

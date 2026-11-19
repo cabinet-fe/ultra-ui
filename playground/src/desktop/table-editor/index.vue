@@ -29,6 +29,16 @@
 
 <script lang="ts" setup>
 import type { TableEditorColumn, TableEditorExposed } from '@veltra/desktop'
+import {
+  UButton,
+  UCard,
+  UCardContent,
+  UCardHeader,
+  UInput,
+  UNumberInput,
+  USwitch,
+  UTableEditor
+} from '@veltra/desktop'
 import { ref, shallowRef, useTemplateRef } from 'vue'
 
 const columns: TableEditorColumn[] = [

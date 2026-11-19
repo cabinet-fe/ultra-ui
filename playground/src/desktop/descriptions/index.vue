@@ -61,6 +61,8 @@
 </template>
 
 <script setup lang="ts">
+import { UDescriptions, UDescriptionsItem } from '@veltra/desktop'
+
 import CustomCard from '../card/custom-card.vue'
 </script>
 

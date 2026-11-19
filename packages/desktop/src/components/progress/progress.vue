@@ -37,6 +37,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { n } from '@cat-kit/core'
 import { bem, withUnit } from '@veltra/utils'
 import { computed } from 'vue'

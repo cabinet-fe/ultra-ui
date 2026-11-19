@@ -26,7 +26,7 @@
   "scripts": {
     "build": "vp run --concurrency-limit 2 -r build",
     "build:packages": "vp run --concurrency-limit 2 --filter '@veltra/*' build",
-    "ci:verify": "bun run resolver:gen -- --check && vp run --concurrency-limit 2 --filter '@veltra/*' build && vp lint && vp test && bun run scripts/verify-release-tarballs.ts",
+    "ci:verify": "bun run style:check && vp run --concurrency-limit 2 --filter '@veltra/*' build && vp lint && vp test && bun run scripts/verify-release-tarballs.ts",
     "lint": "vp lint",
     "fmt": "vp fmt",
     "dev": "vp run -r dev",
@@ -36,7 +36,7 @@
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "bun run scripts/release.ts",
-    "resolver:gen": "bun run scripts/gen-vite-resolver.ts"
+    "style:check": "bun run scripts/check-component-styles.ts"
   },
   "devDependencies": {
     "@cat-kit/cli": "^1.0.6",
@@ -64,7 +64,6 @@
     "sass-embedded": "1.106.1",
     "typescript": "^6.0.3",
     "unplugin-vue": "^8.0.1",
-    "unplugin-vue-components": "^32.1.0",
     "unplugin-vue-jsx": "^0.10.0",
     "vite": "catalog:",
     "vite-plus": "catalog:",

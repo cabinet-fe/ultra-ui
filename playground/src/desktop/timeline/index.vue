@@ -62,6 +62,8 @@
 </template>
 
 <script setup lang="ts">
+import { UTimeline, UTimelineItem } from '@veltra/desktop'
+
 import CustomCard from '../card/custom-card.vue'
 </script>
 
