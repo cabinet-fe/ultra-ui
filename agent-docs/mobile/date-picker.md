@@ -39,7 +39,6 @@ keywords:
 import { shallowRef } from 'vue'
 
 import { UDatePicker } from '@veltra/mobile'
-import '@veltra/mobile/components/date-picker/style'
 
 const birthday = shallowRef('2026-09-01')
 </script>
@@ -118,7 +117,9 @@ export interface DatePickerProps {
   tips?: string
   /** 所占列数；移动端 UForm 单列呈现，该属性不生效 */
   span?:
-    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    | number
+    | 'full'
+    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字，仅 UForm 内生效 */
   label?: string
   /** UForm 内绑定的 model 字段。设置后禁止再写 v-model */
@@ -153,7 +154,7 @@ export interface DatePickerExposed {}
 | `dataType`               | `'string' \| 'date' \| 'timestamp'`            | `'string'`                                         |  否  | 绑定值类型；非 `'string'` 时 `valueFormat` 不生效                                  |
 | `disabledDate`           | `(date: Dater, raw: Date) => boolean`          | —                                                  |  否  | 返回 `true` 的日期不可选；月格以月末 23:59:59、年格以年末 12-31 23:59:59 参与判定  |
 | `clearable`              | `boolean`                                      | `true`                                             |  否  | 有值且非禁用时触发器常显清除按钮（无 hover 概念）                                  |
-| `placeholder`            | `string`                                       | `'选择日期'`                                       |  否  | 无值时的触发器文案；同时作为底部面板标题                                            |
+| `placeholder`            | `string`                                       | `'选择日期'`                                       |  否  | 无值时的触发器文案；同时作为底部面板标题                                           |
 | `field`                  | `string`                                       | —                                                  |  否  | 表单内生效。绑定 `<UForm :model>` 的字段；有 `field` 禁止再写 `v-model`            |
 | `label`                  | `string`                                       | —                                                  |  否  | 表单内生效。表单标签文字                                                           |
 | `rules`                  | `ValidateRule`                                 | —                                                  |  否  | 表单内生效。结构见 `## API 签名` 的 `ValidateRule`                                 |
@@ -181,7 +182,6 @@ export interface DatePickerExposed {}
 import { shallowRef } from 'vue'
 
 import { UDatePicker } from '@veltra/mobile'
-import '@veltra/mobile/components/date-picker/style'
 
 const day = shallowRef('2026-09-01')
 const month = shallowRef('2026-09')
@@ -208,7 +208,6 @@ import type { Dater } from '@cat-kit/core'
 import { shallowRef } from 'vue'
 
 import { UDatePicker } from '@veltra/mobile'
-import '@veltra/mobile/components/date-picker/style'
 
 const joinAt = shallowRef<number>()
 
@@ -240,8 +239,6 @@ function handleChange(d?: Date) {
 import { reactive } from 'vue'
 
 import { UDatePicker, UForm } from '@veltra/mobile'
-import '@veltra/mobile/components/form/style'
-import '@veltra/mobile/components/date-picker/style'
 
 const form = reactive({ birthday: '', hiredAt: undefined as number | undefined })
 </script>
@@ -287,7 +284,6 @@ const form = reactive({ birthday: '', hiredAt: undefined as number | undefined }
 import { shallowRef } from 'vue'
 
 import { UDatePicker } from '@veltra/mobile'
-import '@veltra/mobile/components/date-picker/style'
 
 // valueFormat="yyyyMMdd" 时初值必须是 8 位数字串
 const day = shallowRef('20260901') // 正确，显示 2026-09-01

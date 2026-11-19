@@ -65,7 +65,7 @@ src/
 - **协议模式（responses 优先）**：`ChatProvider.mode` 显式指定 `'responses'`（OpenAI Responses API，endpoint 原样使用）或 `'chat'`（chat/completions）；缺省 auto——endpoint 以 `/responses` / `/chat/completions` 结尾按后缀识别，裸 base URL（如 `https://api.openai.com/v1`）**优先**请求 `<base>/responses`，返回 404 / 405 时依次回退 `<base>/chat/completions` 与 endpoint 原地址（chat 格式；探测链命中 2xx 后按 Provider 记忆直连，用 WeakMap 存于 transport 闭包）。responses 模式：systemPrompt 写 `instructions`、消息转 `input` 项（附件 `input_text`/`input_image`、工具调用 `function_call`/`function_call_output`）、工具为扁平结构、缺省推理等级写 `body.reasoning.effort`；`response.failed` / `error` 事件与流异常统一经 `onError` 上报。
 - **模型/推理选择**：`AiChatProps.models` 有值时输入栏展示自定义模型选择器（`model-picker.vue`，基于 `UDropdown`，面板向上弹出）；当前模型有 ≥2 档推理等级时，模型选择器旁另出现独立的推理等级选择器（`reasoning-picker.vue`，同为向上弹出的 `UDropdown`）。`ChatModel.description` 为面板副标题。选中值经 `ChatTransportRequest.model` / `reasoningLevel` 逐轮下发；切换模型时自动校正推理等级。
 - 组件遵循 `packages/desktop/AGENTS.md` 的模式（BEM + token 样式、types 目录、style.ts 副作用入口）。
-- **新增/删除 `components/<name>/`（含 `index.ts` + `style.ts`）后，在仓库根运行 `bun run resolver:gen`** 刷新 `@veltra/vite` 组件表，否则宿主无法按需解析 `<u-ai-chat>` 这类标签。
+- 组件目录一级 `*.vue` 的 script 首部写 `import './style'`，样式经 sideEffects 随显式导入的组件按需加载（`@veltra/vite` resolver 已废弃，仓库根 `bun run style:check` 校验约定）。
 - 跨包导入 desktop 组件用包名：`import { UButton } from '@veltra/desktop'`；样式副作用用子路径 `'@veltra/desktop/components/<dir>/style'`。
 - transport 不引入 ai-sdk 等第三方依赖；OpenAI 兼容协议实现（请求体构造 + SSE 解析 + 错误处理）复用 `@veltra/utils` 的通用模块，工厂放 `chat/transports/`。服务端会话走 `chat/session.ts` 的 `createServerTransport`，不要在本包加 `createBedrockTransport`。
 - 工具串行执行（保持结果消息与调用顺序一致）；循环/泵取一律用递归或 Promise 链，禁止 await-in-loop（lint 硬性约束，不允许 disable 注释）。

@@ -33,7 +33,6 @@ keywords:
 <script setup lang="ts">
 import { URadioGroup } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/radio-group/style'
 
 const gender = shallowRef('')
 const items = [
@@ -92,7 +91,9 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    | number
+    | 'full'
+    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段；有 field 时禁止再写 v-model */
@@ -168,7 +169,6 @@ export interface RadioGroupEmits {
 <script setup lang="ts">
 import { URadioGroup } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/radio-group/style'
 
 const selected = shallowRef(2)
 const users = [
@@ -202,7 +202,6 @@ function handleChange(item: Record<string, any>) {
 <script setup lang="ts">
 import { UForm, URadioGroup } from '@veltra/mobile'
 import { reactive } from 'vue'
-import '@veltra/mobile/components/radio-group/style'
 
 const formData = reactive({ choice: '' })
 const options = [
@@ -226,7 +225,6 @@ const options = [
 <script setup lang="ts">
 import { URadioGroup } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/radio-group/style'
 
 const picked = shallowRef('b')
 const items = [
@@ -252,7 +250,7 @@ const items = [
 > - 选中判定是全等：`modelValue` 与 `valueKey` 字段值类型不一致（如 `'1'` 与 `1`）时无法回显选中。
 > - 表单里禁止给多个 `URadio` 写同一个 `field`，一组单选必须用 `URadioGroup` + `field`；有 `field` 时禁止再写 `v-model`。
 > - `label` / `tips` / `span` / `rules` 仅在 `UForm` / `UFormItem` 内生效。
-> - 按需引入样式必须走 `import '@veltra/mobile/components/radio-group/style'`；独立页面使用前必须初始化主题：`import '@veltra/styles/normalize'`、`import { loadTheme } from '@veltra/styles/theme'` 后调用 `loadTheme()`，否则组件无颜色。
+> - 样式随组件 import 自动加载（v2.4.0 起，旧版需 `import '@veltra/mobile/components/radio-group/style'`）；独立页面使用前必须初始化主题：`import '@veltra/styles/normalize'`、`import { loadTheme } from '@veltra/styles/theme'` 后调用 `loadTheme()`，否则组件无颜色。
 
 ## 常见问题
 
@@ -264,7 +262,6 @@ const items = [
 <script setup lang="ts">
 import { URadioGroup } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/radio-group/style'
 
 const selected = shallowRef(2) // 必须是数字 2，写成 '2' 无法回显
 const items = [

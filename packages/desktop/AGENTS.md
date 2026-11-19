@@ -47,7 +47,7 @@ const cls = bem('xxx')
 
 1. `components/<name>/`：`*.vue`、`index.ts`、`style.scss`、`style.ts`
 2. `types/<name>.ts`，并在 `types/index.ts`、`components/index.ts` 导出
-3. 在仓库根运行 `bun run resolver:gen` 刷新 `@veltra/vite` 组件表（否则 playground/宿主无法按需解析 `<u-xxx>`）
+3. 一级 `*.vue` 的 script 首部写 `import './style'`（样式经 sideEffects 随组件按需加载；仓库根 `bun run style:check` 校验）
 4. `playground/src/desktop/<name>/index.vue` 演示页（自动路由，需在 `nav-config.ts` 登记）
 
 ## 样式约定

@@ -31,7 +31,6 @@ keywords:
 <script setup lang="ts">
 import { USwitch } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/switch/style'
 
 const enabled = shallowRef(false)
 </script>
@@ -82,7 +81,9 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    | number
+    | 'full'
+    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段；有 field 时禁止再写 v-model */
@@ -145,7 +146,6 @@ export interface SwitchEmits {
 <script setup lang="ts">
 import { USwitch } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/switch/style'
 
 const notification = shallowRef(false)
 
@@ -166,7 +166,6 @@ function handleToggle(value: boolean) {
 <script setup lang="ts">
 import { USwitch } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/switch/style'
 
 const enabled = shallowRef(true)
 </script>
@@ -188,7 +187,6 @@ const enabled = shallowRef(true)
 <script setup lang="ts">
 import { UForm, USwitch } from '@veltra/mobile'
 import { reactive } from 'vue'
-import '@veltra/mobile/components/switch/style'
 
 const formData = reactive({ enabled: true, notification: false })
 </script>
@@ -214,7 +212,7 @@ const formData = reactive({ enabled: true, notification: false })
 > - `activeText` 渲染在开关右侧，`inactiveText` 渲染在开关左侧；文案不随状态切换隐藏，两侧都设置时同时可见。
 > - `readonly` 仅阻止交互，不改变渲染形态。
 > - 在 `UForm` 内必须用 `field` 绑定字段，有 `field` 时禁止再写 `v-model`；`label` / `tips` / `span` / `rules` 仅在 `UForm` / `UFormItem` 内生效。
-> - 按需引入样式必须走 `import '@veltra/mobile/components/switch/style'`；独立页面使用前必须初始化主题：`import '@veltra/styles/normalize'`、`import { loadTheme } from '@veltra/styles/theme'` 后调用 `loadTheme()`，否则组件无颜色。
+> - 样式随组件 import 自动加载（v2.4.0 起，旧版需 `import '@veltra/mobile/components/switch/style'`）；独立页面使用前必须初始化主题：`import '@veltra/styles/normalize'`、`import { loadTheme } from '@veltra/styles/theme'` 后调用 `loadTheme()`，否则组件无颜色。
 
 ## 常见问题
 
@@ -226,7 +224,6 @@ const formData = reactive({ enabled: true, notification: false })
 <script setup lang="ts">
 import { UForm, USwitch } from '@veltra/mobile'
 import { reactive } from 'vue'
-import '@veltra/mobile/components/switch/style'
 
 const formData = reactive({ enabled: true })
 </script>

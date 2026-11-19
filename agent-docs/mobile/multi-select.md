@@ -37,7 +37,6 @@ keywords:
 import { shallowRef } from 'vue'
 
 import { UMultiSelect } from '@veltra/mobile'
-import '@veltra/mobile/components/multi-select/style'
 
 // 绑定值是数组，元素为各选中项 valueKey 字段的值
 const selected = shallowRef<(string | number)[]>(['beijing'])
@@ -51,7 +50,13 @@ const cities = [
 </script>
 
 <template>
-  <UMultiSelect v-model="selected" :options="cities" placeholder="请选择城市" clearable filterable />
+  <UMultiSelect
+    v-model="selected"
+    :options="cities"
+    placeholder="请选择城市"
+    clearable
+    filterable
+  />
   <!-- 面板内勾选上海、广州后点确定：selected => ['beijing', 'shanghai', 'guangzhou'] -->
 </template>
 ```
@@ -95,7 +100,8 @@ export interface MultiSelectProps {
   modelValue?: Array<any>
   /** 列表选项。传入函数时 filterable 被强制启用，且初始会以空串调用一次 */
   options?:
-    Record<string, any>[] | ((qs: string) => Promise<Record<string, any>[]> | Record<string, any>[])
+    | Record<string, any>[]
+    | ((qs: string) => Promise<Record<string, any>[]> | Record<string, any>[])
   /** 值字段名。默认 'value' */
   valueKey?: string
   /** 标签字段名。默认 'label' */
@@ -122,7 +128,9 @@ export interface MultiSelectProps {
   tips?: string
   /** 所占列数；移动端 UForm 单列呈现，该属性不生效 */
   span?:
-    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    | number
+    | 'full'
+    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字，仅 UForm 内生效 */
   label?: string
   /** UForm 内绑定的 model 字段。设置后禁止再写 v-model */
@@ -145,28 +153,28 @@ export interface MultiSelectEmits {
 
 ## 参数说明
 
-| 参数              | 类型                                                                                                 | 默认             | 必填 | 约束                                                                                                   |
-| ----------------- | ---------------------------------------------------------------------------------------------------- | ---------------- | :--: | ------------------------------------------------------------------------------------------------------ |
-| `modelValue`      | `Array<any>`                                                                                         | —                |  否  | 元素为各选中项 `valueKey` 字段的值；回显按 Map 键严格匹配（`===`），元素类型必须与选项值一致           |
-| `options`         | `Record<string, any>[] \| ((qs: string) => Promise<Record<string, any>[]> \| Record<string, any>[])` | —                |  是  | 数组为本地数据；传函数时 `filterable` 强制开启，初始以空串 `''` 调用一次，输入变化以 200ms 防抖调用    |
-| `valueKey`        | `string`                                                                                             | `'value'`        |  否  | 选项对象取值字段名，支持 `a.b` 链式取值                                                                |
-| `labelKey`        | `string`                                                                                             | `'label'`        |  否  | 选项对象展示字段名；本地过滤仅按该字段 `includes` 匹配                                                 |
-| `clearable`       | `boolean`                                                                                            | `true`           |  否  | 有选中值且非禁用时触发器常显清除按钮，点击清空全部（立即生效）                                         |
-| `placeholder`     | `string`                                                                                             | `'请选择'`       |  否  | 无选中值时的触发器文案；同时作为底部面板标题                                                            |
-| `filterable`      | `boolean`                                                                                            | `false`          |  否  | 面板顶部渲染搜索框，展开后自动聚焦；本地过滤 200ms 防抖；`creatable` 或 `options` 传函数时强制开启     |
-| `visibilityLimit` | `number`                                                                                             | `3`              |  否  | 触发器最多展示的标签数（单行呈现），超出折叠为 `+N`；负值按 0 处理；`disabled` 时展示全部，`readonly` 换行展示全部 |
-| `max`             | `number`                                                                                             | —                |  否  | 最大可选数；暂存数达到 `max` 后未选项禁用、全选不可用，计数显示 `已选 X/max`                           |
-| `creatable`       | `boolean`                                                                                            | `false`          |  否  | 面板搜索框输入后按 `Enter` 创建新选项，值与标签均为去除首尾空格后的输入串；创建项与已有选项同 label 时勾选原选项；勾选临时项立即转正 |
-| `contentStyle`    | `CSSProperties \| string`                                                                            | —                |  否  | 底部面板内容容器样式                                                                                   |
-| `contentClass`    | `unknown`                                                                                            | —                |  否  | 底部面板内容容器类名                                                                                   |
-| `size`            | `ComponentSize`                                                                                      | `'default'`      |  否  | `'small' \| 'default' \| 'large'`；UForm 上设置的值兜底，组件 prop 优先                                |
-| `tips`            | `string`                                                                                             | —                |  否  | 仅 UForm（或 UFormItem）内生效；移动端不渲染悬浮提示                                                   |
-| `span`            | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }`                                           | —                |  否  | 仅 UForm 内生效；移动端单列呈现，不生效                                                                |
-| `label`           | `string`                                                                                             | —                |  否  | 仅 UForm 内生效，生成 UFormItem 标签                                                                   |
-| `field`           | `string`                                                                                             | —                |  否  | UForm 按该路径读写 `model`；设置后禁止再写 `v-model`                                                   |
-| `disabled`        | `boolean`                                                                                            | `false`          |  否  | 禁用交互；标签不可关闭                                                                                 |
-| `readonly`        | `boolean`                                                                                            | `false`          |  否  | 渲染为纯标签，不渲染触发器与面板；无选中时显示 `-`                                                     |
-| `rules`           | `ValidateRule`                                                                                       | —                |  否  | 仅 UForm 内生效；枚举见 API 签名                                                                       |
+| 参数              | 类型                                                                                                 | 默认        | 必填 | 约束                                                                                                                                 |
+| ----------------- | ---------------------------------------------------------------------------------------------------- | ----------- | :--: | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `modelValue`      | `Array<any>`                                                                                         | —           |  否  | 元素为各选中项 `valueKey` 字段的值；回显按 Map 键严格匹配（`===`），元素类型必须与选项值一致                                         |
+| `options`         | `Record<string, any>[] \| ((qs: string) => Promise<Record<string, any>[]> \| Record<string, any>[])` | —           |  是  | 数组为本地数据；传函数时 `filterable` 强制开启，初始以空串 `''` 调用一次，输入变化以 200ms 防抖调用                                  |
+| `valueKey`        | `string`                                                                                             | `'value'`   |  否  | 选项对象取值字段名，支持 `a.b` 链式取值                                                                                              |
+| `labelKey`        | `string`                                                                                             | `'label'`   |  否  | 选项对象展示字段名；本地过滤仅按该字段 `includes` 匹配                                                                               |
+| `clearable`       | `boolean`                                                                                            | `true`      |  否  | 有选中值且非禁用时触发器常显清除按钮，点击清空全部（立即生效）                                                                       |
+| `placeholder`     | `string`                                                                                             | `'请选择'`  |  否  | 无选中值时的触发器文案；同时作为底部面板标题                                                                                         |
+| `filterable`      | `boolean`                                                                                            | `false`     |  否  | 面板顶部渲染搜索框，展开后自动聚焦；本地过滤 200ms 防抖；`creatable` 或 `options` 传函数时强制开启                                   |
+| `visibilityLimit` | `number`                                                                                             | `3`         |  否  | 触发器最多展示的标签数（单行呈现），超出折叠为 `+N`；负值按 0 处理；`disabled` 时展示全部，`readonly` 换行展示全部                   |
+| `max`             | `number`                                                                                             | —           |  否  | 最大可选数；暂存数达到 `max` 后未选项禁用、全选不可用，计数显示 `已选 X/max`                                                         |
+| `creatable`       | `boolean`                                                                                            | `false`     |  否  | 面板搜索框输入后按 `Enter` 创建新选项，值与标签均为去除首尾空格后的输入串；创建项与已有选项同 label 时勾选原选项；勾选临时项立即转正 |
+| `contentStyle`    | `CSSProperties \| string`                                                                            | —           |  否  | 底部面板内容容器样式                                                                                                                 |
+| `contentClass`    | `unknown`                                                                                            | —           |  否  | 底部面板内容容器类名                                                                                                                 |
+| `size`            | `ComponentSize`                                                                                      | `'default'` |  否  | `'small' \| 'default' \| 'large'`；UForm 上设置的值兜底，组件 prop 优先                                                              |
+| `tips`            | `string`                                                                                             | —           |  否  | 仅 UForm（或 UFormItem）内生效；移动端不渲染悬浮提示                                                                                 |
+| `span`            | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }`                                           | —           |  否  | 仅 UForm 内生效；移动端单列呈现，不生效                                                                                              |
+| `label`           | `string`                                                                                             | —           |  否  | 仅 UForm 内生效，生成 UFormItem 标签                                                                                                 |
+| `field`           | `string`                                                                                             | —           |  否  | UForm 按该路径读写 `model`；设置后禁止再写 `v-model`                                                                                 |
+| `disabled`        | `boolean`                                                                                            | `false`     |  否  | 禁用交互；标签不可关闭                                                                                                               |
+| `readonly`        | `boolean`                                                                                            | `false`     |  否  | 渲染为纯标签，不渲染触发器与面板；无选中时显示 `-`                                                                                   |
+| `rules`           | `ValidateRule`                                                                                       | —           |  否  | 仅 UForm 内生效；枚举见 API 签名                                                                                                     |
 
 ## 方法与事件
 
@@ -186,7 +194,6 @@ export interface MultiSelectEmits {
 import { shallowRef } from 'vue'
 
 import { UMultiSelect } from '@veltra/mobile'
-import '@veltra/mobile/components/multi-select/style'
 
 const users = shallowRef<string[]>([])
 
@@ -219,7 +226,6 @@ const userList = [
 import { shallowRef } from 'vue'
 
 import { UMultiSelect } from '@veltra/mobile'
-import '@veltra/mobile/components/multi-select/style'
 
 const tags = shallowRef<(string | number)[]>([])
 
@@ -252,9 +258,6 @@ async function searchTags(qs: string) {
 import { reactive, useTemplateRef } from 'vue'
 
 import { UButton, UForm, UMultiSelect } from '@veltra/mobile'
-import '@veltra/mobile/components/form/style'
-import '@veltra/mobile/components/multi-select/style'
-import '@veltra/mobile/components/button/style'
 
 // UForm 按 field 路径读写 model；控件上禁止再写 v-model
 const form = reactive({ tags: [] as string[] })
@@ -322,7 +325,6 @@ async function submit() {
 import { shallowRef } from 'vue'
 
 import { UMultiSelect } from '@veltra/mobile'
-import '@veltra/mobile/components/multi-select/style'
 
 // 选项为 { label: '设计', value: 1 } 时，初值元素必须是 number
 const selected = shallowRef<number[]>([1, 2]) // 正确
@@ -330,7 +332,13 @@ const selected = shallowRef<number[]>([1, 2]) // 正确
 </script>
 
 <template>
-  <UMultiSelect v-model="selected" :options="[{ label: '设计', value: 1 }, { label: '研发', value: 2 }]" />
+  <UMultiSelect
+    v-model="selected"
+    :options="[
+      { label: '设计', value: 1 },
+      { label: '研发', value: 2 }
+    ]"
+  />
 </template>
 ```
 

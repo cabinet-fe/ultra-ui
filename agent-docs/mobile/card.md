@@ -32,10 +32,6 @@ keywords:
 ```vue
 <script setup lang="ts">
 import { UButton, UCard, UText, USpace } from '@veltra/mobile'
-import '@veltra/mobile/components/card/style'
-import '@veltra/mobile/components/text/style'
-import '@veltra/mobile/components/space/style'
-import '@veltra/mobile/components/button/style'
 </script>
 
 <template>
@@ -81,11 +77,11 @@ export type CardExposed = {}
 
 ## 参数说明
 
-| 参数        | 类型                              | 默认        | 必填 | 约束                                                                                    |
-| ----------- | --------------------------------- | ----------- | :--: | --------------------------------------------------------------------------------------- |
-| `width`     | `string \| number`                | —           |  否  | `320` / `'320'` 均渲染为 `320px`；`'100%'` 等非纯数字字符串原样生效。未传时撑满父容器   |
-| `integrate` | `boolean`                         | `false`     |  否  | 去掉阴影；嵌进页面已有底色或作为列表分区容器时使用                                      |
-| `size`      | `'small' \| 'default' \| 'large'` | `'default'` |  否  | 决定内边距密度；根节点字号统一 16px（`--um-font-size-main`），见下表                     |
+| 参数        | 类型                              | 默认        | 必填 | 约束                                                                                  |
+| ----------- | --------------------------------- | ----------- | :--: | ------------------------------------------------------------------------------------- |
+| `width`     | `string \| number`                | —           |  否  | `320` / `'320'` 均渲染为 `320px`；`'100%'` 等非纯数字字符串原样生效。未传时撑满父容器 |
+| `integrate` | `boolean`                         | `false`     |  否  | 去掉阴影；嵌进页面已有底色或作为列表分区容器时使用                                    |
+| `size`      | `'small' \| 'default' \| 'large'` | `'default'` |  否  | 决定内边距密度；根节点字号统一 16px（`--um-font-size-main`），见下表                  |
 
 `size` 三档内边距走 `--um-spacing-*` 移动端间距刻度（4px 基）：
 
@@ -110,9 +106,6 @@ export type CardExposed = {}
 ```vue
 <script setup lang="ts">
 import { UCard, UText, USpace } from '@veltra/mobile'
-import '@veltra/mobile/components/card/style'
-import '@veltra/mobile/components/text/style'
-import '@veltra/mobile/components/space/style'
 
 const orders = [
   { id: 'A1024', status: '配送中', amount: '¥39.90' },
@@ -137,11 +130,6 @@ const orders = [
 ```vue
 <script setup lang="ts">
 import { UButton, UCard, UDivider, USpace, UText } from '@veltra/mobile'
-import '@veltra/mobile/components/card/style'
-import '@veltra/mobile/components/divider/style'
-import '@veltra/mobile/components/space/style'
-import '@veltra/mobile/components/text/style'
-import '@veltra/mobile/components/button/style'
 </script>
 
 <template>
@@ -162,8 +150,6 @@ import '@veltra/mobile/components/button/style'
 ```vue
 <script setup lang="ts">
 import { UCard, UText } from '@veltra/mobile'
-import '@veltra/mobile/components/card/style'
-import '@veltra/mobile/components/text/style'
 </script>
 
 <template>
@@ -200,7 +186,6 @@ import '@veltra/mobile/components/text/style'
 ```vue
 <script setup lang="ts">
 import { UCard } from '@veltra/mobile'
-import '@veltra/mobile/components/card/style'
 </script>
 
 <template>
@@ -215,8 +200,6 @@ import '@veltra/mobile/components/card/style'
 ```vue
 <script setup lang="ts">
 import { UCard, UText } from '@veltra/mobile'
-import '@veltra/mobile/components/card/style'
-import '@veltra/mobile/components/text/style'
 </script>
 
 <template>

@@ -1,6 +1,6 @@
 ---
 title: Ultra UI 表单场景
-description: 端到端实现 Ultra UI 表单：UForm + field 绑定 model、非 field 场景（开关值转换 / 多控件组合字段）用 UFormItem、ValidateRule 校验（required/minLen/preset/validator）、field:update 监听写入、showModified 变更前展示与 reset 重置；模板组件交给 VeltraUIResolver 注入组件 import 与样式副作用，显式 import 的组件必须补 components/<目录>/style，漏写时渲染成裸样式。
+description: 端到端实现 Ultra UI 表单：UForm + field 绑定 model、非 field 场景（开关值转换 / 多控件组合字段）用 UFormItem、ValidateRule 校验（required/minLen/preset/validator）、field:update 监听写入、showModified 变更前展示与 reset 重置；组件显式 import，样式随组件自动按需加载。
 aliases: [表单, 表单校验, UForm, Form]
 keywords:
   [
@@ -18,10 +18,7 @@ keywords:
     表单校验,
     值转换,
     开关字段,
-    VeltraUIResolver,
-    components/button/style,
-    裸样式,
-    样式副作用
+    样式按需
   ]
 ---
 
@@ -41,21 +38,19 @@ Ultra UI（`@veltra/*`）的表单方案：`UForm` 拦截默认插槽里带 `fie
 构建配置、入口与表单页：
 
 ```ts
-// vite.config.ts
-import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import Components from 'unplugin-vue-components/vite'
-import { VeltraUIResolver } from '@veltra/vite'
+// vite.config.ts —— 组件按需无需任何插件，样式随组件模块自动加载
+import { defineConfig } from 'vite'
 
-// VeltraUIResolver 重写模板编译产物里的 _resolveComponent("<组件名>")，注入组件 import 与样式副作用
-export default defineConfig({ plugins: [vue(), Components({ resolvers: [VeltraUIResolver()] })] })
+export default defineConfig({ plugins: [vue()] })
 ```
 
 ```ts
+import { loadTheme } from '@veltra/styles/theme'
+import '@veltra/styles/normalize'
 // src/main.ts —— 主题必须初始化，否则 --u-* 为空、组件无颜色
 import { createApp } from 'vue'
-import '@veltra/styles/normalize'
-import { loadTheme } from '@veltra/styles/theme'
+
 import UserForm from './views/UserForm.vue'
 
 loadTheme() // 不传参时应用 lightTheme
@@ -66,8 +61,8 @@ createApp(UserForm).mount('#app')
 ```vue
 <!-- src/views/UserForm.vue -->
 <script setup lang="ts">
-// 模板组件（u-form / u-input / u-number-input / u-select / u-button）交给 VeltraUIResolver，禁止再 import：
-// 显式 import 会让模板改用该绑定，不再产生 _resolveComponent 调用，组件 import 与样式副作用都不注入。
+// 模板组件显式 import，样式随组件自动按需加载
+import { UButton, UForm, UInput, UNumberInput, USelect } from '@veltra/desktop'
 import type { FormExposed } from '@veltra/desktop'
 import { reactive, shallowRef } from 'vue'
 
@@ -156,17 +151,14 @@ function handleReset() {
 - `showModified`：开启后字段当前值与基准不同时，在控件下方展示「变更前」（文案由 `modifiedLabel` 定，默认 `'变更前：'`）。基准优先取 `initialModel`，未传时取最近一次 `model` 引用变更的快照（与 `reset` 同源）。变更判定：`null`、`undefined`、`''` 视为相同；对象与数组经 `JSON.stringify` 比较。
 - `validate()` 异步返回 `Promise<boolean>`，失败滚动到首个错误项；`validate(['username'])` 只校验指定字段，列表外与不存在的字段视为通过。字段值每次变化自动重校验。
 - `reset()` 同步：把 `model` 恢复为最近一次 `props.model` **引用**变更时的快照（替换整个 model 对象才刷新快照），清除校验并抑制本次重校验；恢复写入触发 `field:update`。`clearValidate()` 只清错误文本。
-- 组件样式与显式 import 成对出现：`u-form` / `u-input` / `u-number-input` / `u-select` / `u-button` 写在模板里时由 `VeltraUIResolver` 注入组件 import 与样式副作用（`components/form/style`、`components/input/style`、`components/number-input/style`、`components/select/style`、`components/button/style`），`<script setup>` 里禁止写这些组件的 import。resolver 只重写模板里没有同名绑定的 `_resolveComponent("<组件名>")` 调用；显式 import 的组件不再产生该调用，必须自己补样式子路径：
+- 组件样式随组件模块自动按需加载（v2.4.0 起）：模板、`h()` / render 函数、函数式 API 一律显式 import 组件，样式自动跟随，无需任何插件或样式子路径（`@veltra/vite` resolver 已废弃）。`h()` / `render` 函数里的组件漏写 import 时运行时报 `ReferenceError: UButton is not defined`：
 
   ```ts
-  import { h } from 'vue'
   import { UButton } from '@veltra/desktop'
-  import '@veltra/desktop/components/button/style' // 漏写：class 是 u-button 但 .u-button 规则不加载
+  import { h } from 'vue'
 
   const submitButton = () => h(UButton, { type: 'primary' }, () => '提交')
   ```
-
-  同目录多组件共用一条样式子路径（`UButton` 与 `UButtonGroup` 都用 `components/button/style`），或在入口写一次 `import '@veltra/desktop/style'` 引全量样式。`h()` / `render` 函数里的组件不经过模板编译，resolver 永不解析，必须显式 import；漏写时运行时报 `ReferenceError: UButton is not defined`。
 
 ## 注意事项
 
@@ -179,4 +171,4 @@ function handleReset() {
 > - `reset()` 恢复的是 model 引用变更时的快照，不是清空；需要「清空」语义时自己 `Object.assign(formData, 空值对象)` 后调 `clearValidate()`。
 > - `initialModel` 与 `reset()` 快照是两个来源：传不同对象时，`reset()` 后字段值与「变更前」展示值可以不同；把 `initialModel` 与 `model` 初始值保持一致即可对齐两者。
 > - 独立使用控件（不在 `u-form` 内）时才用 `v-model`；不要把控件文档的「基础用法」原样搬进表单。
-> - 显式 import 的组件必须补 `import '@veltra/desktop/components/<目录>/style'`：resolver 只处理模板里没有同名绑定的组件，写了 `import { UButton } from '@veltra/desktop'` 就必须写 `import '@veltra/desktop/components/button/style'`，否则模板结构正确但渲染成裸样式。`h()` / `render` 里的组件永不被 resolver 解析，必须显式 import，漏写报 `ReferenceError: UTag is not defined`。
+> - 样式随组件 import 自动加载（v2.4.0 起）：不需要任何样式子路径导入或按需插件；`h()` / `render` 里的组件必须显式 import，漏写报 `ReferenceError: UTag is not defined`。旧版（< v2.4.0）包上仍需 `import '@veltra/desktop/components/<目录>/style'`，升级依赖即可消除。

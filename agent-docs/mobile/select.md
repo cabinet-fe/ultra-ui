@@ -37,7 +37,6 @@ keywords:
 import { shallowRef } from 'vue'
 
 import { USelect } from '@veltra/mobile'
-import '@veltra/mobile/components/select/style'
 
 const city = shallowRef<string>()
 
@@ -94,7 +93,8 @@ export interface SelectProps {
   modelValue?: any
   /** 列表选项。传入函数时 filterable 被强制启用，且初始会以空串调用一次 */
   options?:
-    Record<string, any>[] | ((qs: string) => Promise<Record<string, any>[]> | Record<string, any>[])
+    | Record<string, any>[]
+    | ((qs: string) => Promise<Record<string, any>[]> | Record<string, any>[])
   /** 值字段名。默认 'value' */
   valueKey?: string
   /** 标签字段名。默认 'label' */
@@ -121,7 +121,9 @@ export interface SelectProps {
   tips?: string
   /** 所占列数；移动端 UForm 单列呈现，该属性不生效 */
   span?:
-    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    | number
+    | 'full'
+    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字，仅 UForm 内生效 */
   label?: string
   /** UForm 内绑定的 model 字段。设置后禁止再写 v-model */
@@ -150,28 +152,28 @@ export interface SelectEmits {
 
 ## 参数说明
 
-| 参数           | 类型                                                                                                 | 默认             | 必填 | 约束                                                                                                        |
-| -------------- | ---------------------------------------------------------------------------------------------------- | ---------------- | :--: | ----------------------------------------------------------------------------------------------------------- |
-| `modelValue`   | `any`                                                                                                | —                |  否  | 选中项 `valueKey` 字段的值；清除后为 `undefined`。回显按 `===` 与选项严格匹配，类型必须一致                 |
-| `options`      | `Record<string, any>[] \| ((qs: string) => Promise<Record<string, any>[]> \| Record<string, any>[])` | —                |  是  | 数组为本地数据；传函数时 `filterable` 强制开启，初始以空串 `''` 调用一次，输入变化以 200ms 防抖调用         |
-| `valueKey`     | `string`                                                                                             | `'value'`        |  否  | 选项对象取值字段名，支持 `a.b` 链式取值                                                                     |
-| `labelKey`     | `string`                                                                                             | `'label'`        |  否  | 选项对象展示字段名；本地过滤仅按该字段 `includes` 匹配                                                      |
-| `text`         | `string`                                                                                             | —                |  否  | 兜底展示文案：`modelValue` 未命中选项时展示（如回显数据对应选项已删除），命中时展示选项 label               |
-| `clearable`    | `boolean`                                                                                            | `true`           |  否  | 有选中值且非禁用时触发器常显清除按钮（替代箭头图标），点击清除                                             |
-| `placeholder`  | `string`                                                                                             | `'请选择'`       |  否  | 无选中值时的触发器文案；同时作为底部面板标题                                                                |
-| `filterable`   | `boolean`                                                                                            | `false`          |  否  | 面板展开后自动聚焦搜索框即时过滤；本地过滤 200ms 防抖                                                      |
-| `creatable`    | `boolean`                                                                                            | `false`          |  否  | 面板内输入串无同 `labelKey` 精确匹配项时置顶临时选项（label=value=输入串），点击选中并收起面板时转正为创建项；清除选中会清空全部创建项 |
-| `grid`         | `{ cols: number; gap?: number }`                                                                     | —                |  否  | 网格布局，`cols` 必填、`gap` 单位 px；网格模式下选中项不渲染对勾图标                                       |
-| `contentStyle` | `CSSProperties \| string`                                                                            | —                |  否  | 底部面板内容容器样式                                                                                        |
-| `contentClass` | `unknown`                                                                                            | —                |  否  | 底部面板内容容器类名                                                                                        |
-| `size`         | `ComponentSize`                                                                                      | `'default'`      |  否  | `'small' \| 'default' \| 'large'`；UForm 上设置的值兜底，组件 prop 优先                                    |
-| `tips`         | `string`                                                                                             | —                |  否  | 仅 UForm（或 UFormItem）内生效；移动端不渲染悬浮提示                                                        |
-| `span`         | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }`                                           | —                |  否  | 仅 UForm 内生效；移动端单列呈现，不生效                                                                     |
-| `label`        | `string`                                                                                             | —                |  否  | 仅 UForm 内生效，生成 UFormItem 标签                                                                       |
-| `field`        | `string`                                                                                             | —                |  否  | UForm 按该路径读写 `model`；设置后禁止再写 `v-model`                                                        |
-| `disabled`     | `boolean`                                                                                            | `false`          |  否  | 禁用交互（不弹面板、不可清除）                                                                              |
-| `readonly`     | `boolean`                                                                                            | `false`          |  否  | 渲染为纯文本，不渲染触发器与面板；无选中时显示 `-`                                                          |
-| `rules`        | `ValidateRule`                                                                                       | —                |  否  | 仅 UForm 内生效；枚举见 API 签名                                                                            |
+| 参数           | 类型                                                                                                 | 默认        | 必填 | 约束                                                                                                                                   |
+| -------------- | ---------------------------------------------------------------------------------------------------- | ----------- | :--: | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `modelValue`   | `any`                                                                                                | —           |  否  | 选中项 `valueKey` 字段的值；清除后为 `undefined`。回显按 `===` 与选项严格匹配，类型必须一致                                            |
+| `options`      | `Record<string, any>[] \| ((qs: string) => Promise<Record<string, any>[]> \| Record<string, any>[])` | —           |  是  | 数组为本地数据；传函数时 `filterable` 强制开启，初始以空串 `''` 调用一次，输入变化以 200ms 防抖调用                                    |
+| `valueKey`     | `string`                                                                                             | `'value'`   |  否  | 选项对象取值字段名，支持 `a.b` 链式取值                                                                                                |
+| `labelKey`     | `string`                                                                                             | `'label'`   |  否  | 选项对象展示字段名；本地过滤仅按该字段 `includes` 匹配                                                                                 |
+| `text`         | `string`                                                                                             | —           |  否  | 兜底展示文案：`modelValue` 未命中选项时展示（如回显数据对应选项已删除），命中时展示选项 label                                          |
+| `clearable`    | `boolean`                                                                                            | `true`      |  否  | 有选中值且非禁用时触发器常显清除按钮（替代箭头图标），点击清除                                                                         |
+| `placeholder`  | `string`                                                                                             | `'请选择'`  |  否  | 无选中值时的触发器文案；同时作为底部面板标题                                                                                           |
+| `filterable`   | `boolean`                                                                                            | `false`     |  否  | 面板展开后自动聚焦搜索框即时过滤；本地过滤 200ms 防抖                                                                                  |
+| `creatable`    | `boolean`                                                                                            | `false`     |  否  | 面板内输入串无同 `labelKey` 精确匹配项时置顶临时选项（label=value=输入串），点击选中并收起面板时转正为创建项；清除选中会清空全部创建项 |
+| `grid`         | `{ cols: number; gap?: number }`                                                                     | —           |  否  | 网格布局，`cols` 必填、`gap` 单位 px；网格模式下选中项不渲染对勾图标                                                                   |
+| `contentStyle` | `CSSProperties \| string`                                                                            | —           |  否  | 底部面板内容容器样式                                                                                                                   |
+| `contentClass` | `unknown`                                                                                            | —           |  否  | 底部面板内容容器类名                                                                                                                   |
+| `size`         | `ComponentSize`                                                                                      | `'default'` |  否  | `'small' \| 'default' \| 'large'`；UForm 上设置的值兜底，组件 prop 优先                                                                |
+| `tips`         | `string`                                                                                             | —           |  否  | 仅 UForm（或 UFormItem）内生效；移动端不渲染悬浮提示                                                                                   |
+| `span`         | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }`                                           | —           |  否  | 仅 UForm 内生效；移动端单列呈现，不生效                                                                                                |
+| `label`        | `string`                                                                                             | —           |  否  | 仅 UForm 内生效，生成 UFormItem 标签                                                                                                   |
+| `field`        | `string`                                                                                             | —           |  否  | UForm 按该路径读写 `model`；设置后禁止再写 `v-model`                                                                                   |
+| `disabled`     | `boolean`                                                                                            | `false`     |  否  | 禁用交互（不弹面板、不可清除）                                                                                                         |
+| `readonly`     | `boolean`                                                                                            | `false`     |  否  | 渲染为纯文本，不渲染触发器与面板；无选中时显示 `-`                                                                                     |
+| `rules`        | `ValidateRule`                                                                                       | —           |  否  | 仅 UForm 内生效；枚举见 API 签名                                                                                                       |
 
 ## 方法与事件
 
@@ -191,7 +193,6 @@ export interface SelectEmits {
 import { shallowRef } from 'vue'
 
 import { USelect } from '@veltra/mobile'
-import '@veltra/mobile/components/select/style'
 
 const userId = shallowRef<number>()
 
@@ -224,7 +225,6 @@ const users = [
 import { shallowRef } from 'vue'
 
 import { USelect } from '@veltra/mobile'
-import '@veltra/mobile/components/select/style'
 
 const productId = shallowRef<number>()
 
@@ -255,7 +255,6 @@ async function searchProducts(qs: string) {
 import { reactive } from 'vue'
 
 import { USelect } from '@veltra/mobile'
-import '@veltra/mobile/components/select/style'
 
 // 编辑回显：后端存了 code 与冗余文案；当前 options 已不含 A121（如数据权限收窄）
 const form = reactive({ makerCode: 'A121', makerText: '张三（已离职）' })
@@ -279,9 +278,6 @@ const makers = [
 import { reactive, useTemplateRef } from 'vue'
 
 import { UButton, UForm, USelect } from '@veltra/mobile'
-import '@veltra/mobile/components/form/style'
-import '@veltra/mobile/components/select/style'
-import '@veltra/mobile/components/button/style'
 
 // UForm 按 field 路径读写 model；控件上禁止再写 v-model
 const form = reactive({ grade: undefined as number | undefined, gradeText: '' })
@@ -350,7 +346,6 @@ async function submit() {
 import { shallowRef } from 'vue'
 
 import { USelect } from '@veltra/mobile'
-import '@veltra/mobile/components/select/style'
 
 // 原因 1：选项为 { label: '一年级', value: 1 } 时，初值必须是 number
 const grade = shallowRef<number>(1) // 正确

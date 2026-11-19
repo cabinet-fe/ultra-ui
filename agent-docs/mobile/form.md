@@ -40,9 +40,6 @@ keywords:
 import type { FormExposed } from '@veltra/mobile'
 import { UButton, UForm, UInput } from '@veltra/mobile'
 import { reactive, shallowRef } from 'vue'
-import '@veltra/mobile/components/form/style'
-import '@veltra/mobile/components/input/style'
-import '@veltra/mobile/components/button/style'
 
 const formRef = shallowRef<FormExposed>()
 const formData = reactive({ username: '', email: '' })
@@ -131,20 +128,20 @@ export interface FormExposed {
 
 ## 参数说明
 
-| 参数            | 类型                              | 默认         |        必填        | 约束                                                                       |
-| --------------- | --------------------------------- | ------------ | :----------------: | -------------------------------------------------------------------------- |
-| `model`         | `Record<string, any>`             | —            | 是（field 绑定时） | 必须传 `reactive` 对象；不传时 `field` 绑定与 `field:update` 均不工作      |
-| `cols`          | `number`                          | —            |         否         | 声明保留（与 desktop 对齐）；移动端固定单列呈现，不生效                    |
-| `size`          | `'small' \| 'default' \| 'large'` | `'default'`  |         否         | 下发到控件；控件自身 `size` 优先                                           |
-| `title`         | `string`                          | —            |         否         | 分组标题，渲染在卡片列表顶部；与 `#header` 插槽二选一，插槽优先           |
-| `showModified`  | `boolean`                         | `false`      |         否         | 开启后逐字段对比当前值与基准值，不同则在控件下方以**纯文本**展示基准值     |
-| `modifiedLabel` | `string`                          | `'变更前：'` |         否         | 仅 `showModified` 开启时渲染                                               |
-| `initialModel`  | `Record<string, any>`             | model 引用快照 |        否         | 变更判定基准，优先于 reset 快照；结构须与 `model` 字段对应               |
-| `labelWidth`    | `string \| number`                | 内容自适应   |         否         | number 单位 px；传了固定宽对齐，未传时 label 按内容自适应（不再回退全局配置 100px） |
-| `labelPosition` | `'top' \| 'left'`                 | `'left'`     |         否         | 默认 `'left'` 行式（label 左、控件右、行高约 48px、行间细分隔线）；`'top'` 时 label 在控件上方 |
-| `noTips`        | `boolean`                         | `false`      |         否         | `true` 时隐藏全部校验错误文本                                              |
-| `readonly`      | `boolean`                         | `false`      |         否         | 下发控件并显示只读态；错误提示区隐藏                                       |
-| `disabled`      | `boolean`                         | `false`      |         否         | 下发控件；控件自身 `disabled` 优先                                         |
+| 参数            | 类型                              | 默认           |        必填        | 约束                                                                                           |
+| --------------- | --------------------------------- | -------------- | :----------------: | ---------------------------------------------------------------------------------------------- |
+| `model`         | `Record<string, any>`             | —              | 是（field 绑定时） | 必须传 `reactive` 对象；不传时 `field` 绑定与 `field:update` 均不工作                          |
+| `cols`          | `number`                          | —              |         否         | 声明保留（与 desktop 对齐）；移动端固定单列呈现，不生效                                        |
+| `size`          | `'small' \| 'default' \| 'large'` | `'default'`    |         否         | 下发到控件；控件自身 `size` 优先                                                               |
+| `title`         | `string`                          | —              |         否         | 分组标题，渲染在卡片列表顶部；与 `#header` 插槽二选一，插槽优先                                |
+| `showModified`  | `boolean`                         | `false`        |         否         | 开启后逐字段对比当前值与基准值，不同则在控件下方以**纯文本**展示基准值                         |
+| `modifiedLabel` | `string`                          | `'变更前：'`   |         否         | 仅 `showModified` 开启时渲染                                                                   |
+| `initialModel`  | `Record<string, any>`             | model 引用快照 |         否         | 变更判定基准，优先于 reset 快照；结构须与 `model` 字段对应                                     |
+| `labelWidth`    | `string \| number`                | 内容自适应     |         否         | number 单位 px；传了固定宽对齐，未传时 label 按内容自适应（不再回退全局配置 100px）            |
+| `labelPosition` | `'top' \| 'left'`                 | `'left'`       |         否         | 默认 `'left'` 行式（label 左、控件右、行高约 48px、行间细分隔线）；`'top'` 时 label 在控件上方 |
+| `noTips`        | `boolean`                         | `false`        |         否         | `true` 时隐藏全部校验错误文本                                                                  |
+| `readonly`      | `boolean`                         | `false`        |         否         | 下发控件并显示只读态；错误提示区隐藏                                                           |
+| `disabled`      | `boolean`                         | `false`        |         否         | 下发控件；控件自身 `disabled` 优先                                                             |
 
 ## 方法与事件
 
@@ -168,10 +165,6 @@ export interface FormExposed {
 import type { FormExposed } from '@veltra/mobile'
 import { UButton, UForm, UInput, UNumberInput } from '@veltra/mobile'
 import { reactive, shallowRef } from 'vue'
-import '@veltra/mobile/components/form/style'
-import '@veltra/mobile/components/input/style'
-import '@veltra/mobile/components/number-input/style'
-import '@veltra/mobile/components/button/style'
 
 const formRef = shallowRef<FormExposed>()
 const formData = reactive({ username: '', email: '', age: 18 })
@@ -218,9 +211,6 @@ function handleReset() {
 <script setup lang="ts">
 import { UForm, UInput, USelect } from '@veltra/mobile'
 import { reactive } from 'vue'
-import '@veltra/mobile/components/form/style'
-import '@veltra/mobile/components/input/style'
-import '@veltra/mobile/components/select/style'
 
 const formData = reactive({ account: '', role: undefined as string | undefined })
 
@@ -247,10 +237,6 @@ const roles = [
 import type { FormExposed } from '@veltra/mobile'
 import { UButton, UForm, UInput, UMultiSelect } from '@veltra/mobile'
 import { reactive, shallowRef } from 'vue'
-import '@veltra/mobile/components/form/style'
-import '@veltra/mobile/components/input/style'
-import '@veltra/mobile/components/multi-select/style'
-import '@veltra/mobile/components/button/style'
 
 const formRef = shallowRef<FormExposed>()
 // 基准数据与 model 初始值保持一致
@@ -307,8 +293,6 @@ function handleReset() {
 <script setup lang="ts">
 import { UForm, UInput } from '@veltra/mobile'
 import { reactive } from 'vue'
-import '@veltra/mobile/components/form/style'
-import '@veltra/mobile/components/input/style'
 
 const formData = reactive({ name: '' })
 </script>

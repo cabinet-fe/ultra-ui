@@ -35,7 +35,6 @@ keywords:
 import { ref } from 'vue'
 import { UTabs } from '@veltra/mobile'
 import type { TabItem } from '@veltra/mobile'
-import '@veltra/mobile/components/tabs/style'
 
 const active = ref('home')
 const items: TabItem[] = [
@@ -54,7 +53,7 @@ const items: TabItem[] = [
 </template>
 ```
 
-视觉初始化前提：应用入口需要 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色。组件样式按需引入：`import '@veltra/mobile/components/tabs/style'`。
+视觉初始化前提：应用入口需要 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色。组件样式随 import 自动加载。
 
 ## API 签名
 
@@ -114,16 +113,16 @@ export interface TabsEmits {
 
 ## 参数说明
 
-| 参数                      | 类型                                     | 默认        | 必填 | 约束                                                       |
-| ------------------------- | ---------------------------------------- | ----------- | :--: | ---------------------------------------------------------- |
-| `v-model`（`modelValue`） | `string`                                 | —           |  否  | 值必须是 `items` 中某项的 `key`；点击页签时写回该 `key`    |
-| `items`                   | `TabItem[]`                              | —           |  是  | 每项必须有 `key`；`name` 缺省时标题显示 `key`              |
-| `closable`                | `boolean`                                | `false`     |  否  | 组件级默认；`TabItem.closable` 优先级更高                  |
-| `block`                   | `boolean`                                | `false`     |  否  | 仅 `position` 为 `top`/`bottom` 生效；标签栏占满父容器宽度（胶囊形态时背景同步铺满），页签自身宽度不变 |
+| 参数                      | 类型                                     | 默认        | 必填 | 约束                                                                                                               |
+| ------------------------- | ---------------------------------------- | ----------- | :--: | ------------------------------------------------------------------------------------------------------------------ |
+| `v-model`（`modelValue`） | `string`                                 | —           |  否  | 值必须是 `items` 中某项的 `key`；点击页签时写回该 `key`                                                            |
+| `items`                   | `TabItem[]`                              | —           |  是  | 每项必须有 `key`；`name` 缺省时标题显示 `key`                                                                      |
+| `closable`                | `boolean`                                | `false`     |  否  | 组件级默认；`TabItem.closable` 优先级更高                                                                          |
+| `block`                   | `boolean`                                | `false`     |  否  | 仅 `position` 为 `top`/`bottom` 生效；标签栏占满父容器宽度（胶囊形态时背景同步铺满），页签自身宽度不变             |
 | `rounded`                 | `boolean`                                | `false`     |  否  | 胶囊卡片风格：标签栏带底色、激活项卡片高亮（覆盖默认下划线指示）；水平布局时容器也变胶囊，垂直布局容器保持常规圆角 |
-| `position`                | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'`     |  否  | 四向布局；`bottom` 时标签栏在内容下方                      |
-| `keepAlive`               | `boolean`                                | `false`     |  否  | `true` 时面板包在 `KeepAlive` 中，切走再切回保留内部状态   |
-| `size`                    | `'small' \| 'default' \| 'large'`        | `'default'` |  否  | 移动端未传时固定 `'default'`，不读取全局配置               |
+| `position`                | `'top' \| 'bottom' \| 'left' \| 'right'` | `'top'`     |  否  | 四向布局；`bottom` 时标签栏在内容下方                                                                              |
+| `keepAlive`               | `boolean`                                | `false`     |  否  | `true` 时面板包在 `KeepAlive` 中，切走再切回保留内部状态                                                           |
+| `size`                    | `'small' \| 'default' \| 'large'`        | `'default'` |  否  | 移动端未传时固定 `'default'`，不读取全局配置                                                                       |
 
 ## 方法与事件
 
@@ -155,7 +154,6 @@ export interface TabsEmits {
 import { ref } from 'vue'
 import { UTabs } from '@veltra/mobile'
 import type { TabItem } from '@veltra/mobile'
-import '@veltra/mobile/components/tabs/style'
 
 const active = ref('t1')
 let seq = 3
@@ -183,9 +181,7 @@ function onClose(item: TabItem, index: number) {
 <template>
   <button @click="addTab">新增页签</button>
   <u-tabs v-model="active" :items="items" closable @close="onClose">
-    <template v-for="item in items" :key="item.key" #[item.key]>
-      {{ item.name }} 面板
-    </template>
+    <template v-for="item in items" :key="item.key" #[item.key]> {{ item.name }} 面板 </template>
   </u-tabs>
 </template>
 ```
@@ -197,7 +193,6 @@ function onClose(item: TabItem, index: number) {
 import { ref } from 'vue'
 import { UTabs } from '@veltra/mobile'
 import type { TabItem } from '@veltra/mobile'
-import '@veltra/mobile/components/tabs/style'
 
 const active = ref('feed')
 const items: TabItem[] = [
@@ -224,7 +219,6 @@ const items: TabItem[] = [
 import { ref } from 'vue'
 import { UTabs } from '@veltra/mobile'
 import type { TabItem } from '@veltra/mobile'
-import '@veltra/mobile/components/tabs/style'
 
 const active = ref('home')
 const items: TabItem[] = [
@@ -276,7 +270,6 @@ const items: TabItem[] = [
 import { ref } from 'vue'
 import { UTabs } from '@veltra/mobile'
 import type { TabItem } from '@veltra/mobile'
-import '@veltra/mobile/components/tabs/style'
 
 const active = ref('a')
 const items = ref<TabItem[]>([

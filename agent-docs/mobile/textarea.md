@@ -36,7 +36,6 @@ keywords:
 <script setup lang="ts">
 import { UTextarea } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/textarea/style'
 
 const text = shallowRef('')
 </script>
@@ -92,7 +91,9 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    | number
+    | 'full'
+    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段；有 field 时禁止再写 v-model */
@@ -160,7 +161,7 @@ export type TextareaExposed = Record<string, never>
 | `v-model` / `modelValue` | `string`                                       | `undefined` |  否  | 双向绑定的值                                                                        |
 | `placeholder`            | `string`                                       | `'请输入'`  |  否  | —                                                                                   |
 | `maxlength`              | `number`                                       | —           |  否  | 最大字数；超出时触发 `update:modelValue` 前先截断到 `maxlength`                     |
-| `showCount`              | `boolean`                                      | `false`     |  否  | 必须同时设置 `maxlength` 才渲染计数；显示格式为「当前字数/上限」（右下角）           |
+| `showCount`              | `boolean`                                      | `false`     |  否  | 必须同时设置 `maxlength` 才渲染计数；显示格式为「当前字数/上限」（右下角）          |
 | `autosize`               | `boolean`                                      | `false`     |  否  | `true` 时高度随内容自适应，无需再设 `height`                                        |
 | `resize`                 | `boolean`                                      | `true`      |  否  | 移动端样式固定 `resize: none`，本属性任何取值都不改变渲染                           |
 | `rows`                   | `number`                                       | 原生默认    |  否  | 原生 `rows` 属性                                                                    |
@@ -179,13 +180,13 @@ export type TextareaExposed = Record<string, never>
 
 ## 方法与事件
 
-| 事件                | payload         | 触发时机                                                                                  |
-| ------------------- | --------------- | ----------------------------------------------------------------------------------------- |
-| `update:modelValue` | `value: string` | 每次输入持续触发；值超过 `maxlength` 时先截断再触发                                       |
-| `change`            | `value: string` | 失焦或按 Enter 提交值变化时（原生 `change`）                                              |
-| `focus`             | 无              | 获得焦点                                                                                  |
-| `blur`              | 无              | 失去焦点                                                                                  |
-| `clear`             | 无              | 点击清空按钮；先置 `modelValue` 为 `''`（触发一次 `update:modelValue`），再触发 `clear`   |
+| 事件                | payload         | 触发时机                                                                                |
+| ------------------- | --------------- | --------------------------------------------------------------------------------------- |
+| `update:modelValue` | `value: string` | 每次输入持续触发；值超过 `maxlength` 时先截断再触发                                     |
+| `change`            | `value: string` | 失焦或按 Enter 提交值变化时（原生 `change`）                                            |
+| `focus`             | 无              | 获得焦点                                                                                |
+| `blur`              | 无              | 失去焦点                                                                                |
+| `clear`             | 无              | 点击清空按钮；先置 `modelValue` 为 `''`（触发一次 `update:modelValue`），再触发 `clear` |
 
 无暴露成员：`TextareaExposed` 解包后为空，组件 `ref` 上无可访问的属性或方法。
 
@@ -197,7 +198,6 @@ export type TextareaExposed = Record<string, never>
 <script setup lang="ts">
 import { UTextarea } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/textarea/style'
 
 const remark = shallowRef('')
 </script>
@@ -214,7 +214,6 @@ const remark = shallowRef('')
 <script setup lang="ts">
 import { UTextarea } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/textarea/style'
 
 const content = shallowRef('')
 </script>
@@ -233,7 +232,6 @@ const content = shallowRef('')
 <script setup lang="ts">
 import { UForm, UTextarea } from '@veltra/mobile'
 import { reactive } from 'vue'
-import '@veltra/mobile/components/textarea/style'
 
 const form = reactive({ description: '' })
 </script>
@@ -268,7 +266,7 @@ const form = reactive({ description: '' })
 > - 在 `UForm` 内必须用 `field` 绑定值，禁止同时写 `v-model`；`label` / `field` / `rules` / `tips` / `span` 仅在表单内生效。
 > - 本库的只读分两级：`readonly` 把整个组件渲染为纯文本，`nativeReadonly` 只给原生 `<textarea>` 加 `readonly` 属性。
 > - 本组件没有插槽，自定义前后缀用 `UInput`。
-> - 按需引入样式必须走 `import '@veltra/mobile/components/textarea/style'`；独立页面使用前必须初始化主题：`import '@veltra/styles/normalize'`、`import { loadTheme } from '@veltra/styles/theme'` 后调用 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色。
+> - 样式随组件 import 自动加载（v2.4.0 起，旧版需 `import '@veltra/mobile/components/textarea/style'`）；独立页面使用前必须初始化主题：`import '@veltra/styles/normalize'`、`import { loadTheme } from '@veltra/styles/theme'` 后调用 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色。
 
 ## 常见问题
 

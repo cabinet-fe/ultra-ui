@@ -32,7 +32,6 @@ keywords:
 ```vue
 <script setup lang="ts">
 import { UAvatar } from '@veltra/mobile'
-import '@veltra/mobile/components/avatar/style'
 </script>
 
 <template>
@@ -76,12 +75,12 @@ export type AvatarExposed = {}
 
 ## 参数说明
 
-| 参数    | 类型                                       | 默认        | 必填 | 约束                                                                |
-| ------- | ------------------------------------------ | ----------- | :--: | ------------------------------------------------------------------- |
-| `src`   | `string`                                   | —           |  否  | 图片地址；传后优先渲染 `img`，加载失败回退插槽内容；切换时重置失败态 |
-| `alt`   | `string`                                   | —           |  否  | 仅作 `img` 的 `alt`，不参与回退文案                                 |
-| `shape` | `'circle' \| 'round'`                      | `'circle'`  |  否  | `circle` 圆形（`border-radius: 50%`），`round` 圆角方形（`--u-radius-large`） |
-| `size`  | `'small' \| 'default' \| 'large'`          | `'default'` |  否  | 三档，宽高取 `--um-avatar-size-<size>`（32 / 40 / 48px，编译期回退值），不再沿用桌面 24/32/40 |
+| 参数    | 类型                              | 默认        | 必填 | 约束                                                                                          |
+| ------- | --------------------------------- | ----------- | :--: | --------------------------------------------------------------------------------------------- |
+| `src`   | `string`                          | —           |  否  | 图片地址；传后优先渲染 `img`，加载失败回退插槽内容；切换时重置失败态                          |
+| `alt`   | `string`                          | —           |  否  | 仅作 `img` 的 `alt`，不参与回退文案                                                           |
+| `shape` | `'circle' \| 'round'`             | `'circle'`  |  否  | `circle` 圆形（`border-radius: 50%`），`round` 圆角方形（`--u-radius-large`）                 |
+| `size`  | `'small' \| 'default' \| 'large'` | `'default'` |  否  | 三档，宽高取 `--um-avatar-size-<size>`（32 / 40 / 48px，编译期回退值），不再沿用桌面 24/32/40 |
 
 插槽：默认插槽放回退内容（文字或图标）。回退容器 `white-space: nowrap`，长文本会溢出裁切，放一至两个字符。
 
@@ -98,7 +97,6 @@ export type AvatarExposed = {}
 ```vue
 <script setup lang="ts">
 import { UAvatar } from '@veltra/mobile'
-import '@veltra/mobile/components/avatar/style'
 </script>
 
 <template>
@@ -115,7 +113,6 @@ import '@veltra/mobile/components/avatar/style'
 <script setup lang="ts">
 import { UAvatar } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/avatar/style'
 
 const failed = shallowRef(false)
 
@@ -138,8 +135,6 @@ function onError(ev: Event) {
 ```vue
 <script setup lang="ts">
 import { UAvatar, USpace } from '@veltra/mobile'
-import '@veltra/mobile/components/avatar/style'
-import '@veltra/mobile/components/space/style'
 
 const users = ['吴', '李', '张', '王']
 </script>
@@ -172,7 +167,6 @@ const users = ['吴', '李', '张', '王']
 ```vue
 <script setup lang="ts">
 import { UAvatar } from '@veltra/mobile'
-import '@veltra/mobile/components/avatar/style'
 </script>
 
 <template>

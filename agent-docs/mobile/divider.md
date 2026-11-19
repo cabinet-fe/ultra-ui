@@ -30,7 +30,6 @@ keywords:
 ```vue
 <script setup lang="ts">
 import { UDivider } from '@veltra/mobile'
-import '@veltra/mobile/components/divider/style'
 </script>
 
 <template>
@@ -66,11 +65,11 @@ export interface DividerEmits {}
 
 ## 参数说明
 
-| 参数        | 类型                            | 默认           | 必填 | 约束                                                          |
-| ----------- | ------------------------------- | -------------- | :--: | ------------------------------------------------------------- |
+| 参数        | 类型                            | 默认           | 必填 | 约束                                                              |
+| ----------- | ------------------------------- | -------------- | :--: | ----------------------------------------------------------------- |
 | `direction` | `'horizontal' \| 'vertical'`    | `'horizontal'` |  否  | `vertical` 时渲染为行内元素，高 `1em`、左右边距 `--um-spacing-sm` |
-| `dashed`    | `boolean`                       | `false`        |  否  | 实线改虚线；水平与垂直、嵌套文字形态下的两侧线全部生效        |
-| `align`     | `'left' \| 'center' \| 'right'` | `'center'`     |  否  | 插槽非空时生效（不区分方向）；收窄侧线宽为 5%                |
+| `dashed`    | `boolean`                       | `false`        |  否  | 实线改虚线；水平与垂直、嵌套文字形态下的两侧线全部生效            |
+| `align`     | `'left' \| 'center' \| 'right'` | `'center'`     |  否  | 插槽非空时生效（不区分方向）；收窄侧线宽为 5%                     |
 
 ## 典型示例
 
@@ -79,7 +78,6 @@ export interface DividerEmits {}
 ```vue
 <script setup lang="ts">
 import { UDivider } from '@veltra/mobile'
-import '@veltra/mobile/components/divider/style'
 </script>
 
 <template>
@@ -99,8 +97,6 @@ import '@veltra/mobile/components/divider/style'
 ```vue
 <script setup lang="ts">
 import { UButton, UDivider } from '@veltra/mobile'
-import '@veltra/mobile/components/divider/style'
-import '@veltra/mobile/components/button/style'
 </script>
 
 <template>
@@ -119,9 +115,6 @@ import '@veltra/mobile/components/button/style'
 ```vue
 <script setup lang="ts">
 import { UCard, UDivider, UText } from '@veltra/mobile'
-import '@veltra/mobile/components/card/style'
-import '@veltra/mobile/components/divider/style'
-import '@veltra/mobile/components/text/style'
 </script>
 
 <template>
@@ -153,7 +146,6 @@ import '@veltra/mobile/components/text/style'
 ```vue
 <script setup lang="ts">
 import { UDivider } from '@veltra/mobile'
-import '@veltra/mobile/components/divider/style'
 </script>
 
 <template>

@@ -34,7 +34,6 @@ keywords:
 <script setup lang="ts">
 import { USegment } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/segment/style'
 
 const view = shallowRef('list')
 const items = [
@@ -89,7 +88,9 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    | number
+    | 'full'
+    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段；有 field 时禁止再写 v-model */
@@ -139,22 +140,22 @@ export type SegmentExposed = Record<string, never>
 
 ## 参数说明
 
-| 参数                     | 类型                                                       | 默认        | 必填 | 约束                                                                                                |
-| ------------------------ | ---------------------------------------------------------- | ----------- | :--: | --------------------------------------------------------------------------------------------------- |
+| 参数                      | 类型                                                       | 默认        | 必填 | 约束                                                                                                |
+| ------------------------- | ---------------------------------------------------------- | ----------- | :--: | --------------------------------------------------------------------------------------------------- |
 | `v-model`（`modelValue`） | `any`                                                      | —           |  否  | 值为选中项的 `item[valueKey]`；初始不匹配任何项时不高亮任何选项                                     |
-| `items`                  | `SegmentItem[]`                                            | `[]`        |  是  | 选项按数组顺序横排渲染                                                                              |
-| `valueKey`               | `string`                                                   | `'value'`   |  否  | 取 `item[valueKey]` 作为选项值，也是列表渲染的 key                                                  |
-| `labelKey`               | `string`                                                   | `'label'`   |  否  | 取 `item[labelKey]` 作为选项文案                                                                    |
-| `disabledItem`           | `(item: SegmentItem) => boolean`                           | —           |  否  | 返回 `true` 的选项禁用；禁用项点击与回车/空格均无效                                                 |
-| `block`                  | `boolean`                                                  | `false`     |  否  | `true` 时组件撑满父容器宽度，选项弹性均分                                                          |
-| `size`                   | `ComponentSize`                                            | `'default'` |  否  | `'small'` \| `'default'` \| `'large'`；未设置时继承 `<u-form>` 的 `size`                            |
-| `label`                  | `string`                                                   | —           |  否  | 表单标签文字；仅在 `UForm` / `UFormItem` 内生效                                                     |
-| `field`                  | `string`                                                   | —           |  否  | `UForm` 字段名；在 `UForm` 内必须用 `field` 绑定，禁止再写 `v-model`                                |
-| `tips`                   | `string`                                                   | —           |  否  | 表单内提示文字；仅在 `UForm` / `UFormItem` 内生效                                                   |
-| `span`                   | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }` | —           |  否  | 表单中所占列数；`'full'` 占满一行，响应式对象的 `default` 必填                                      |
-| `disabled`               | `boolean`                                                  | `false`     |  否  | 禁用整组；未设置时继承 `<u-form>` 的 `disabled`                                                     |
-| `readonly`               | `boolean`                                                  | `false`     |  否  | 只读时不可交互，且渲染为选中项文案的文字（无选中时显示 `-`）；未设置时继承 `<u-form>` 的 `readonly` |
-| `rules`                  | `ValidateRule`                                             | —           |  否  | 校验规则；仅在 `UForm` 内生效                                                                       |
+| `items`                   | `SegmentItem[]`                                            | `[]`        |  是  | 选项按数组顺序横排渲染                                                                              |
+| `valueKey`                | `string`                                                   | `'value'`   |  否  | 取 `item[valueKey]` 作为选项值，也是列表渲染的 key                                                  |
+| `labelKey`                | `string`                                                   | `'label'`   |  否  | 取 `item[labelKey]` 作为选项文案                                                                    |
+| `disabledItem`            | `(item: SegmentItem) => boolean`                           | —           |  否  | 返回 `true` 的选项禁用；禁用项点击与回车/空格均无效                                                 |
+| `block`                   | `boolean`                                                  | `false`     |  否  | `true` 时组件撑满父容器宽度，选项弹性均分                                                           |
+| `size`                    | `ComponentSize`                                            | `'default'` |  否  | `'small'` \| `'default'` \| `'large'`；未设置时继承 `<u-form>` 的 `size`                            |
+| `label`                   | `string`                                                   | —           |  否  | 表单标签文字；仅在 `UForm` / `UFormItem` 内生效                                                     |
+| `field`                   | `string`                                                   | —           |  否  | `UForm` 字段名；在 `UForm` 内必须用 `field` 绑定，禁止再写 `v-model`                                |
+| `tips`                    | `string`                                                   | —           |  否  | 表单内提示文字；仅在 `UForm` / `UFormItem` 内生效                                                   |
+| `span`                    | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }` | —           |  否  | 表单中所占列数；`'full'` 占满一行，响应式对象的 `default` 必填                                      |
+| `disabled`                | `boolean`                                                  | `false`     |  否  | 禁用整组；未设置时继承 `<u-form>` 的 `disabled`                                                     |
+| `readonly`                | `boolean`                                                  | `false`     |  否  | 只读时不可交互，且渲染为选中项文案的文字（无选中时显示 `-`）；未设置时继承 `<u-form>` 的 `readonly` |
+| `rules`                   | `ValidateRule`                                             | —           |  否  | 校验规则；仅在 `UForm` 内生效                                                                       |
 
 ## 方法与事件
 
@@ -176,7 +177,6 @@ export type SegmentExposed = Record<string, never>
 <script setup lang="ts">
 import { USegment } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/segment/style'
 
 const view = shallowRef('board')
 const items = [
@@ -202,7 +202,6 @@ function onChange(item: (typeof items)[number]) {
 <script setup lang="ts">
 import { USegment } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/segment/style'
 
 const mode = shallowRef('fast')
 // 选项字段名不是 label / value 时用 labelKey / valueKey 指定
@@ -238,7 +237,6 @@ const items = [
 <script setup lang="ts">
 import { UForm, USegment } from '@veltra/mobile'
 import { reactive } from 'vue'
-import '@veltra/mobile/components/segment/style'
 
 const formData = reactive({ period: 'monthly' })
 const periodItems = [
@@ -268,7 +266,7 @@ const periodItems = [
 > - 点击已选中项不触发 `change`，值也不会变；没有「取消选中」交互。
 > - 在 `UForm` 内必须用 `field` 绑定字段，有 `field` 时禁止再写 `v-model`；`label` / `tips` / `span` / `rules` 仅在 `UForm` / `UFormItem` 内生效。
 > - `readonly` 时组件渲染为选中项的文字标签（无选中显示 `-`），不是禁用外观；选项外观只能通过 `#item` 插槽的 `{ item, active }` 作用域整体定制，没有按激活态切换样式的属性。
-> - 按需引入样式必须走 `import '@veltra/mobile/components/segment/style'`；独立页面使用前必须初始化主题：`import '@veltra/styles/normalize'`、`import { loadTheme } from '@veltra/styles/theme'` 后调用 `loadTheme()`，否则组件无颜色。
+> - 样式随组件 import 自动加载（v2.4.0 起，旧版需 `import '@veltra/mobile/components/segment/style'`）；独立页面使用前必须初始化主题：`import '@veltra/styles/normalize'`、`import { loadTheme } from '@veltra/styles/theme'` 后调用 `loadTheme()`，否则组件无颜色。
 
 ## 常见问题
 
@@ -280,7 +278,6 @@ const periodItems = [
 <script setup lang="ts">
 import { UForm, USegment } from '@veltra/mobile'
 import { reactive } from 'vue'
-import '@veltra/mobile/components/segment/style'
 
 const formData = reactive({ view: 'list' })
 const items = [
@@ -305,7 +302,6 @@ const items = [
 <script setup lang="ts">
 import { USegment } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/segment/style'
 
 const level = shallowRef(1) // 数字；若 items 的 value 是字符串 '1'，这里必须是 '1'
 const items = [

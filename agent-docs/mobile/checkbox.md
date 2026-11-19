@@ -33,7 +33,6 @@ keywords:
 <script setup lang="ts">
 import { UCheckbox } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/checkbox/style'
 
 const agreed = shallowRef(false)
 </script>
@@ -85,7 +84,9 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    | number
+    | 'full'
+    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段；有 field 时禁止再写 v-model */
@@ -116,26 +117,26 @@ export interface CheckboxEmits {
 
 ## 参数说明
 
-| 参数                            | 类型                                                       | 默认        | 必填 | 约束                                                                                         |
-| ------------------------------- | ---------------------------------------------------------- | ----------- | :--: | -------------------------------------------------------------------------------------------- |
-| `v-model` / `modelValue`        | `boolean`                                                  | `false`     |  否  | 仅 `true` / `false`；本库没有 `trueValue` / `falseValue` 配置                                |
-| `indeterminate`                 | `boolean`                                                  | `false`     |  否  | `true` 时显示半选样式，不改写 `modelValue`                                                   |
-| `size`                          | `ComponentSize`                                            | `'default'` |  否  | `'small'` \| `'default'` \| `'large'`；未设置时继承 `<u-form>` 的 `size`                     |
-| `label`                         | `string`                                                   | —           |  否  | 表单标签文字；仅在 `UForm` / `UFormItem` 内生效。勾选文本不是它，是默认插槽                  |
-| `field`                         | `string`                                                   | —           |  否  | `UForm` 字段名；在 `UForm` 内必须用 `field` 绑定，禁止再写 `v-model`                         |
-| `tips`                          | `string`                                                   | —           |  否  | 表单内提示文字；仅在 `UForm` / `UFormItem` 内生效                                            |
-| `span`                          | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }` | —           |  否  | 表单中所占列数；`'full'` 占满一行，响应式对象的 `default` 必填                               |
-| `disabled`                      | `boolean`                                                  | `false`     |  否  | 禁用；未设置时继承 `<u-form>` 的 `disabled`                                                  |
-| `readonly`                      | `boolean`                                                  | `false`     |  否  | 只读；未设置时继承 `<u-form>` 的 `readonly`。只读时点击不更新值也不触发 `change`             |
-| `rules`                         | `ValidateRule`                                             | —           |  否  | 校验规则（如 `{ required: true }`）；仅在 `UForm` 内生效                                     |
+| 参数                     | 类型                                                       | 默认        | 必填 | 约束                                                                             |
+| ------------------------ | ---------------------------------------------------------- | ----------- | :--: | -------------------------------------------------------------------------------- |
+| `v-model` / `modelValue` | `boolean`                                                  | `false`     |  否  | 仅 `true` / `false`；本库没有 `trueValue` / `falseValue` 配置                    |
+| `indeterminate`          | `boolean`                                                  | `false`     |  否  | `true` 时显示半选样式，不改写 `modelValue`                                       |
+| `size`                   | `ComponentSize`                                            | `'default'` |  否  | `'small'` \| `'default'` \| `'large'`；未设置时继承 `<u-form>` 的 `size`         |
+| `label`                  | `string`                                                   | —           |  否  | 表单标签文字；仅在 `UForm` / `UFormItem` 内生效。勾选文本不是它，是默认插槽      |
+| `field`                  | `string`                                                   | —           |  否  | `UForm` 字段名；在 `UForm` 内必须用 `field` 绑定，禁止再写 `v-model`             |
+| `tips`                   | `string`                                                   | —           |  否  | 表单内提示文字；仅在 `UForm` / `UFormItem` 内生效                                |
+| `span`                   | `number \| 'full' \| { default, xs?, sm?, md?, lg?, xl? }` | —           |  否  | 表单中所占列数；`'full'` 占满一行，响应式对象的 `default` 必填                   |
+| `disabled`               | `boolean`                                                  | `false`     |  否  | 禁用；未设置时继承 `<u-form>` 的 `disabled`                                      |
+| `readonly`               | `boolean`                                                  | `false`     |  否  | 只读；未设置时继承 `<u-form>` 的 `readonly`。只读时点击不更新值也不触发 `change` |
+| `rules`                  | `ValidateRule`                                             | —           |  否  | 校验规则（如 `{ required: true }`）；仅在 `UForm` 内生效                         |
 
 插槽：默认插槽承载勾选文本。
 
 ## 方法与事件
 
-| 事件                | payload                             | 触发时机                                                    |
-| ------------------- | ----------------------------------- | ----------------------------------------------------------- |
-| `update:modelValue` | `checked: boolean`                  | 勾选状态变化时                                              |
+| 事件                | payload                             | 触发时机                                                       |
+| ------------------- | ----------------------------------- | -------------------------------------------------------------- |
+| `update:modelValue` | `checked: boolean`                  | 勾选状态变化时                                                 |
 | `change`            | `(checked: boolean, e: MouseEvent)` | 点击复选框时；`readonly` 时值不变且不触发，`disabled` 时不触发 |
 
 组件未 `defineExpose` 任何成员，模板 `ref` 上无可调用的属性或方法。
@@ -148,8 +149,6 @@ export interface CheckboxEmits {
 <script setup lang="ts">
 import { UCheckbox, UCheckboxGroup } from '@veltra/mobile'
 import { computed, shallowRef } from 'vue'
-import '@veltra/mobile/components/checkbox/style'
-import '@veltra/mobile/components/checkbox-group/style'
 
 const options = ['苹果', '香蕉', '橙子']
 const checkedItems = shallowRef<string[]>([])
@@ -179,7 +178,6 @@ function handleCheckAll(checked: boolean) {
 <script setup lang="ts">
 import { UCheckbox } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/checkbox/style'
 
 const checked = shallowRef(false)
 </script>
@@ -200,7 +198,6 @@ const checked = shallowRef(false)
 <script setup lang="ts">
 import { UCheckbox, UForm } from '@veltra/mobile'
 import { reactive } from 'vue'
-import '@veltra/mobile/components/checkbox/style'
 
 const formData = reactive({ remember: false })
 </script>
@@ -225,7 +222,7 @@ const formData = reactive({ remember: false })
 > - `indeterminate` 只是样式，不会改写 `modelValue`，全选逻辑必须自行计算。
 > - 复选框的可见文本来自默认插槽；`label` 是表单标签，仅在 `UForm` / `UFormItem` 内生效。
 > - 在 `UForm` 内必须用 `field` 绑定字段，有 `field` 时禁止再写 `v-model`。
-> - 按需引入样式必须走 `import '@veltra/mobile/components/checkbox/style'`；独立页面使用前必须初始化主题：`import '@veltra/styles/normalize'`、`import { loadTheme } from '@veltra/styles/theme'` 后调用 `loadTheme()`，否则组件无颜色。
+> - 样式随组件 import 自动加载（v2.4.0 起，旧版需 `import '@veltra/mobile/components/checkbox/style'`）；独立页面使用前必须初始化主题：`import '@veltra/styles/normalize'`、`import { loadTheme } from '@veltra/styles/theme'` 后调用 `loadTheme()`，否则组件无颜色。
 
 ## 常见问题
 
@@ -237,7 +234,6 @@ const formData = reactive({ remember: false })
 <script setup lang="ts">
 import { UCheckbox, UForm } from '@veltra/mobile'
 import { reactive } from 'vue'
-import '@veltra/mobile/components/checkbox/style'
 
 const formData = reactive({ agreed: false })
 </script>

@@ -72,7 +72,7 @@ keywords:
 
 1. 安装 `@veltra/sheet`（peer `@veltra/desktop` 提供右键菜单、弹层依赖；引擎 `infinitable` 随包自动安装）。
 2. 应用入口初始化主题：`import '@veltra/styles/normalize'` 后调用 `@veltra/styles/theme` 的 `loadTheme()`；不初始化则 `--u-*` token 为空、组件无颜色。
-3. 样式二选一：手动 `import '@veltra/sheet/components/sheet/style'`；或经 `unplugin-vue-components` 配 `VeltraUIResolver`（`@veltra/vite` 导出）自动引入样式。
+3. 组件样式随 `import { USheet } from '@veltra/sheet'` 自动加载（v2.4.0 起；旧版需手动 `import '@veltra/sheet/components/sheet/style'`）。
 4. 宿主必须给组件明确高度：grid 区是 `flex: 1`，根元素高度塌陷为 0 时表格不可见。
 
 ```vue
@@ -100,8 +100,6 @@ sheet.setCellValue({ row: 1, col: 1 }, 200)
 从 `@veltra/sheet` 导出的组件与类型（工具注册 API `registerTool` / `createSheetContext` 等见 `agent-docs/sheet/sheet-tools.md`；导出面逐项结论见下方「导出面清单」）：
 
 ```ts
-import type { Sheet, Workbook } from 'infinitable/sheet'
-import type { CellAddress } from 'infinitable/sheet'
 import type {
   CellLinkClickEvent,
   CellLinkHoverEvent,
@@ -109,6 +107,8 @@ import type {
   FloatContextMenuEvent,
   ImageLinkClickEvent
 } from 'infinitable'
+import type { Sheet, Workbook } from 'infinitable/sheet'
+import type { CellAddress } from 'infinitable/sheet'
 import type {
   ResolveCellRenderer,
   ResolveCellStyleHook,
@@ -254,44 +254,44 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 
 `@veltra/sheet` 主入口（`src/index.ts`）导出面逐项审计结论。入口只做 re-export，没有副作用。内置工具是纯数据，`defaultToolRegistry` 构造时装入；导入 `USheet` 或 `registerTool` 即得到已装入内置工具的注册表。
 
-| 符号 | 导出 | 理由 |
-| ------------------------------ | :--: | ------------------------------------------------------------------------------------------------------------------ |
-| `USheet` | 是 | 组件本体；下游（如 meta report）经模板使用的唯一组件入口 |
-| `SheetProps` / `SheetEmits` | 是 | 组件 props / emits 类型，宿主类型标注必需 |
-| `SheetExposed` | 是 | 模板 ref 类型（meta report 现用法）；经 `DeconstructValue` 解包后的形态 |
-| `createSheetContext` / `SheetContext` | 是 | 无头 imperative API（脚本、测试、自组 UI 场景），见 `agent-docs/sheet/sheet-tools.md` |
-| `SheetContextOptions` | 是 | `createSheetContext` 第三参类型：导出函数签名引用的稳定类型须随函数可达（无头宿主引用 `resolveGridSize` / `syncAxisSizes` 配置） |
-| `registerTool` / `unregisterTool` / `defaultToolRegistry` | 是 | 工具栏扩展注册 API（全局注册表入口） |
-| `SheetTool` / `SheetToolGroup` / `SheetToolPopupType` | 是 | 注册 API 的定义类型，下游编写自定义工具必需 |
-| 内部 hooks（`use-tool-popup` / `use-sheet-grid` / `use-formula-suggest` 等） | 否 | 组件内部实现细节，签名与行为不构成稳定承诺 |
-| popup 子组件（`functions-popup.vue` / 各弹层面板） | 否 | UI 编排细节；交互经工具栏工具与公式栏入口触达 |
-| `apply-style` 内部函数（`axisStyleItemsForRange` / `classifySelectionStyleTarget`） | 否 | `SheetContext.applyStyle` 门面内部实现 |
-| `ToolRegistry` 类 / `DEFAULT_TOOL_GROUP` / `MIN_ROW_COL_SIZE` | 否 | 外部一律用 `defaultToolRegistry` 实例与 `registerTool` / `unregisterTool`；缺省分组与尺寸下限由字段缺省值 / 门面钳制承担 |
-| 引擎符号（`Workbook` / `Sheet` / `SetCellValueItem` / `registerFormulaFunction` 等） | 否 | 「不 re-export 引擎符号」约定：模型与类型从 `infinitable/sheet` 直导，公式注册表 API 从 `infinitable` 主入口直导 |
+| 符号                                                                                 | 导出 | 理由                                                                                                                             |
+| ------------------------------------------------------------------------------------ | :--: | -------------------------------------------------------------------------------------------------------------------------------- |
+| `USheet`                                                                             |  是  | 组件本体；下游（如 meta report）经模板使用的唯一组件入口                                                                         |
+| `SheetProps` / `SheetEmits`                                                          |  是  | 组件 props / emits 类型，宿主类型标注必需                                                                                        |
+| `SheetExposed`                                                                       |  是  | 模板 ref 类型（meta report 现用法）；经 `DeconstructValue` 解包后的形态                                                          |
+| `createSheetContext` / `SheetContext`                                                |  是  | 无头 imperative API（脚本、测试、自组 UI 场景），见 `agent-docs/sheet/sheet-tools.md`                                            |
+| `SheetContextOptions`                                                                |  是  | `createSheetContext` 第三参类型：导出函数签名引用的稳定类型须随函数可达（无头宿主引用 `resolveGridSize` / `syncAxisSizes` 配置） |
+| `registerTool` / `unregisterTool` / `defaultToolRegistry`                            |  是  | 工具栏扩展注册 API（全局注册表入口）                                                                                             |
+| `SheetTool` / `SheetToolGroup` / `SheetToolPopupType`                                |  是  | 注册 API 的定义类型，下游编写自定义工具必需                                                                                      |
+| 内部 hooks（`use-tool-popup` / `use-sheet-grid` / `use-formula-suggest` 等）         |  否  | 组件内部实现细节，签名与行为不构成稳定承诺                                                                                       |
+| popup 子组件（`functions-popup.vue` / 各弹层面板）                                   |  否  | UI 编排细节；交互经工具栏工具与公式栏入口触达                                                                                    |
+| `apply-style` 内部函数（`axisStyleItemsForRange` / `classifySelectionStyleTarget`）  |  否  | `SheetContext.applyStyle` 门面内部实现                                                                                           |
+| `ToolRegistry` 类 / `DEFAULT_TOOL_GROUP` / `MIN_ROW_COL_SIZE`                        |  否  | 外部一律用 `defaultToolRegistry` 实例与 `registerTool` / `unregisterTool`；缺省分组与尺寸下限由字段缺省值 / 门面钳制承担         |
+| 引擎符号（`Workbook` / `Sheet` / `SetCellValueItem` / `registerFormulaFunction` 等） |  否  | 「不 re-export 引擎符号」约定：模型与类型从 `infinitable/sheet` 直导，公式注册表 API 从 `infinitable` 主入口直导                 |
 
 判定口径：稳定公共 API（组件、props/emits/exposed 类型、imperative 门面及其配置类型、工具注册函数与定义类型）导出；内部实现（hooks、popup 子组件、门面内部函数、常量）与引擎符号不导出。
 
 ## 参数说明
 
-| 参数                  | 类型                      | 默认                    | 必填 | 约束                                                                                                                                                                  |
-| --------------------- | ------------------------- | ----------------------- | :--: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `workbook`            | `Workbook`                | 内部自建单 sheet 工作簿 |  否  | 运行期更换引用触发整表重建（tabs、网格、事件重绑）                                                                                                                    |
-| `rows`                | `number`                  | `100`                   |  否  | 渲染行数；只决定可视区尺寸，不限制模型写入范围                                                                                                                        |
-| `cols`                | `number`                  | `26`                    |  否  | 渲染列数（A..Z）                                                                                                                                                      |
-| `showToolbar`         | `boolean`                 | `true`                  |  否  | `false` 时工具栏整体不渲染                                                                                                                                            |
-| `showFormulaBar`      | `boolean`                 | `true`                  |  否  | 公式栏含名称框与 fx 输入栏；填报页必须设 `false`                                                                                                                      |
-| `showTabs`            | `boolean`                 | `true`                  |  否  | 底部标签栏：点击切换、末尾「+」新增、右键重命名/删除                                                                                                                  |
-| `showRowHeader`       | `boolean`                 | `true`                  |  否  | 行号列；右键菜单含插入/删除行、行高、冻结到当前行                                                                                                                     |
-| `showColHeader`       | `boolean`                 | `true`                  |  否  | 列字母表头；右键菜单含插入/删除列、列宽、冻结到当前列                                                                                                                 |
-| `readonly`            | `boolean`                 | `false`                 |  否  | 整表只读预览；按格控制改用模型 `setCellReadonly`                                                                                                                      |
-| `colResize`           | `boolean`                 | `false`                 |  否  | 列宽拖拽透传 SheetGrid：`readonly: true` 下置 `true` 仅放开列头 resize 手柄（编辑仍关闭），供只读预览宿主微调列宽；非 readonly 本就允许拖拽；变化触发网格重建          |
-| `scrollbar`           | `boolean` | `true` | 否 | 滚动条透传 SheetGrid：`false` 整体关闭（不显示任何滚动条）；缺省 `true` 画布常驻档——引擎归一化 canvas always + reserve，滚动条常驻画在画布内（`reserve` 只在画布内预留轨道、不占页面布局、不遮挡单元格）。变化触发网格重建 |
-| `growOnScroll`        | `boolean`                  | `true`（对齐引擎缺省）  |  否  | 滚动近端动态增长透传 SheetGrid：滚动缓冲末端触到当前行列数时模型与引擎同步扩容（WPS 式无限表格）；`false` 为固定尺寸网格——内容定尺寸的报表 / 表单宿主置 `false` 后不再滚入空白增长区；构造期选项，变化触发网格重建 |
-| `resolveDisplayValue` | `ResolveDisplayValue`     | —                       |  否  | `(addr, base) => CellValue \| undefined`；必须同步                                                                                                                    |
-| `resolveCellStyle`    | `ResolveCellStyleHook`    | —                       |  否  | `(addr, baseStyle?) => CellStyle \| undefined`；必须同步、O(1) 查找                                                                                                   |
-| `resolveCellRenderer` | `ResolveCellRenderer`     | —                       |  否  | `(addr, base) => CellRenderer \| undefined`；返回 undefined 回落默认渲染（类型见 `infinitable/sheet`）                                                          |
-| `header`              | `SheetGridHeaderOptions`  | —                       |  否  | 列头机制透传 SheetGrid：`resolveTitle` 按列覆盖标题、`resolveHeader` 按列自定义表头 DOM；机制签名与行为见 `infinite-table` 库文档（docs-search）；引用更替触发网格重建 |
-| `editors`             | `SheetGridEditorsOptions` | —                       |  否  | 类型化编辑器机制透传 SheetGrid：`editors` 注册自定义编辑器、`route` 按格路由，未命中回落统一文本编辑器；`readonly` 时忽略；引用更替触发网格重建                       |
+| 参数                  | 类型                      | 默认                    | 必填 | 约束                                                                                                                                                                                                                       |
+| --------------------- | ------------------------- | ----------------------- | :--: | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `workbook`            | `Workbook`                | 内部自建单 sheet 工作簿 |  否  | 运行期更换引用触发整表重建（tabs、网格、事件重绑）                                                                                                                                                                         |
+| `rows`                | `number`                  | `100`                   |  否  | 渲染行数；只决定可视区尺寸，不限制模型写入范围                                                                                                                                                                             |
+| `cols`                | `number`                  | `26`                    |  否  | 渲染列数（A..Z）                                                                                                                                                                                                           |
+| `showToolbar`         | `boolean`                 | `true`                  |  否  | `false` 时工具栏整体不渲染                                                                                                                                                                                                 |
+| `showFormulaBar`      | `boolean`                 | `true`                  |  否  | 公式栏含名称框与 fx 输入栏；填报页必须设 `false`                                                                                                                                                                           |
+| `showTabs`            | `boolean`                 | `true`                  |  否  | 底部标签栏：点击切换、末尾「+」新增、右键重命名/删除                                                                                                                                                                       |
+| `showRowHeader`       | `boolean`                 | `true`                  |  否  | 行号列；右键菜单含插入/删除行、行高、冻结到当前行                                                                                                                                                                          |
+| `showColHeader`       | `boolean`                 | `true`                  |  否  | 列字母表头；右键菜单含插入/删除列、列宽、冻结到当前列                                                                                                                                                                      |
+| `readonly`            | `boolean`                 | `false`                 |  否  | 整表只读预览；按格控制改用模型 `setCellReadonly`                                                                                                                                                                           |
+| `colResize`           | `boolean`                 | `false`                 |  否  | 列宽拖拽透传 SheetGrid：`readonly: true` 下置 `true` 仅放开列头 resize 手柄（编辑仍关闭），供只读预览宿主微调列宽；非 readonly 本就允许拖拽；变化触发网格重建                                                              |
+| `scrollbar`           | `boolean`                 | `true`                  |  否  | 滚动条透传 SheetGrid：`false` 整体关闭（不显示任何滚动条）；缺省 `true` 画布常驻档——引擎归一化 canvas always + reserve，滚动条常驻画在画布内（`reserve` 只在画布内预留轨道、不占页面布局、不遮挡单元格）。变化触发网格重建 |
+| `growOnScroll`        | `boolean`                 | `true`（对齐引擎缺省）  |  否  | 滚动近端动态增长透传 SheetGrid：滚动缓冲末端触到当前行列数时模型与引擎同步扩容（WPS 式无限表格）；`false` 为固定尺寸网格——内容定尺寸的报表 / 表单宿主置 `false` 后不再滚入空白增长区；构造期选项，变化触发网格重建         |
+| `resolveDisplayValue` | `ResolveDisplayValue`     | —                       |  否  | `(addr, base) => CellValue \| undefined`；必须同步                                                                                                                                                                         |
+| `resolveCellStyle`    | `ResolveCellStyleHook`    | —                       |  否  | `(addr, baseStyle?) => CellStyle \| undefined`；必须同步、O(1) 查找                                                                                                                                                        |
+| `resolveCellRenderer` | `ResolveCellRenderer`     | —                       |  否  | `(addr, base) => CellRenderer \| undefined`；返回 undefined 回落默认渲染（类型见 `infinitable/sheet`）                                                                                                                     |
+| `header`              | `SheetGridHeaderOptions`  | —                       |  否  | 列头机制透传 SheetGrid：`resolveTitle` 按列覆盖标题、`resolveHeader` 按列自定义表头 DOM；机制签名与行为见 `infinite-table` 库文档（docs-search）；引用更替触发网格重建                                                     |
+| `editors`             | `SheetGridEditorsOptions` | —                       |  否  | 类型化编辑器机制透传 SheetGrid：`editors` 注册自定义编辑器、`route` 按格路由，未命中回落统一文本编辑器；`readonly` 时忽略；引用更替触发网格重建                                                                            |
 
 ## 方法与事件
 
@@ -303,14 +303,14 @@ export type SheetExposed = DeconstructValue<_SheetExposed>
 
 超链接与图片六个事件（载荷类型从 `infinitable` 主入口导入，`CellAddress` 从 `infinitable/sheet` 导入）：
 
-| 事件                 | payload                                            | 触发时机                                                                                                                                                                              |
-| -------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cell-link-hover`    | `CellLinkHoverEvent`：`{ row, col, url, text?, x, y }` | 指针悬停到含链接格（层坐标 `x/y` 相对 grid 容器）；USheet 内置 URL tooltip 与本事件同源驱动，宿主无需重复渲染浮层                                                          |
-| `cell-link-leave`    | `CellLinkLeaveEvent`：`{ row, col }`               | 指针离开链接格（内置 tooltip 随之卸载）                                                                                                                                               |
-| `cell-link-click`    | `CellLinkClickEvent`：`{ row, col, url, text?, originalEvent }` | 真实指针 down+up 命中同一链接格（框选拖拽/键盘选中不触发）；USheet 已接管打开——emit 后直接新标签打开（引擎 `openCellLinkOnClick` 已关闭）                          |
-| `image-link-click`   | `ImageLinkClickEvent`：`{ kind: 'cell' \| 'float', url, originalEvent, … }`（`cell` 带命中格 `addr`，`float` 带命中对象 `id`） | 单击含链接的嵌入图 / 浮动图；USheet 已接管打开——emit 后弹确认框，确认才新标签打开，取消不跳转（防误触；引擎 `openCellLinkOnClick` 已关闭）                                   |
-| `cell-image-change`  | `{ addr?: CellAddress }`                           | 按格嵌入图变化（插入/移除/覆盖单格带 `addr`；行列结构平移、整表替换时缺省）；仅当前活动 sheet 的事件被透传                                                                               |
-| `float-context-menu` | `FloatContextMenuPayload`：`{ id, x, y, clientX, clientY, originalEvent }` | 右键命中浮动图（引擎保证不穿透到格，body 菜单不弹）；USheet 已内置浮动图独立菜单（预览 / 设置超链接 / 取消超链接 / 嵌入单元格 / 删除图片）并弹出，宿主可经本事件联动自有 UI                |
+| 事件                 | payload                                                                                                                        | 触发时机                                                                                                                                                                    |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cell-link-hover`    | `CellLinkHoverEvent`：`{ row, col, url, text?, x, y }`                                                                         | 指针悬停到含链接格（层坐标 `x/y` 相对 grid 容器）；USheet 内置 URL tooltip 与本事件同源驱动，宿主无需重复渲染浮层                                                           |
+| `cell-link-leave`    | `CellLinkLeaveEvent`：`{ row, col }`                                                                                           | 指针离开链接格（内置 tooltip 随之卸载）                                                                                                                                     |
+| `cell-link-click`    | `CellLinkClickEvent`：`{ row, col, url, text?, originalEvent }`                                                                | 真实指针 down+up 命中同一链接格（框选拖拽/键盘选中不触发）；USheet 已接管打开——emit 后直接新标签打开（引擎 `openCellLinkOnClick` 已关闭）                                   |
+| `image-link-click`   | `ImageLinkClickEvent`：`{ kind: 'cell' \| 'float', url, originalEvent, … }`（`cell` 带命中格 `addr`，`float` 带命中对象 `id`） | 单击含链接的嵌入图 / 浮动图；USheet 已接管打开——emit 后弹确认框，确认才新标签打开，取消不跳转（防误触；引擎 `openCellLinkOnClick` 已关闭）                                  |
+| `cell-image-change`  | `{ addr?: CellAddress }`                                                                                                       | 按格嵌入图变化（插入/移除/覆盖单格带 `addr`；行列结构平移、整表替换时缺省）；仅当前活动 sheet 的事件被透传                                                                  |
+| `float-context-menu` | `FloatContextMenuPayload`：`{ id, x, y, clientX, clientY, originalEvent }`                                                     | 右键命中浮动图（引擎保证不穿透到格，body 菜单不弹）；USheet 已内置浮动图独立菜单（预览 / 设置超链接 / 取消超链接 / 嵌入单元格 / 删除图片）并弹出，宿主可经本事件联动自有 UI |
 
 ### 暴露方法（`SheetExposed`）
 
@@ -585,7 +585,7 @@ function fillReportData(): void {
 
 ### 组件渲染了但没有颜色
 
-主题未初始化或样式未引入。修复：入口执行 `import '@veltra/styles/normalize'` + `loadTheme()`，并 `import '@veltra/sheet/components/sheet/style'`（或配 `VeltraUIResolver`）。
+主题未初始化或样式未加载。修复：入口执行 `import '@veltra/styles/normalize'` + `loadTheme()`；v2.4.0 起样式随 `import { USheet } from '@veltra/sheet'` 自动加载，仍无样式时升级依赖（旧版需手动 `import '@veltra/sheet/components/sheet/style'`）。
 
 ### 设置了 `setCellReadonly` 的格仍被改写
 

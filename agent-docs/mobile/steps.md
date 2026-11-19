@@ -34,7 +34,6 @@ keywords:
 <script setup lang="ts">
 import { ref } from 'vue'
 import { USteps } from '@veltra/mobile'
-import '@veltra/mobile/components/steps/style'
 
 const current = ref(0)
 const items = [{ label: '填写信息' }, { label: '确认订单' }, { label: '支付' }]
@@ -46,7 +45,7 @@ const items = [{ label: '填写信息' }, { label: '确认订单' }, { label: '�
 </template>
 ```
 
-视觉初始化前提：应用入口需要 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、步骤条无颜色。组件样式按需引入：`import '@veltra/mobile/components/steps/style'`。
+视觉初始化前提：应用入口需要 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、步骤条无颜色。组件样式随 import 自动加载。
 
 ## API 签名
 
@@ -99,17 +98,17 @@ export interface StepsEmits {
 
 ## 参数说明
 
-| 参数                           | 类型                         | 默认           | 必填 | 约束                                                                                                                    |
-| ------------------------------ | ---------------------------- | -------------- | :--: | ----------------------------------------------------------------------------------------------------------------------- |
-| `v-model:current`（`current`） | `string \| number`           | —              |  否  | 未指定 `currentKey` 时必须是数字索引，传字符串会被忽略（全部步骤渲染为已完成）；索引超出收敛到 `[0, items.length - 1]`   |
-| `items`                        | `Record<string, any>[]`      | —              |  是  | 步骤数据，顺序即流程顺序                                                                                                |
-| `labelKey`                     | `string`                     | `'label'`      |  否  | 步骤文案取 `item[labelKey]`                                                                                             |
-| `currentKey`                   | `string`                     | —              |  否  | 指定后 `current` 与 `item[currentKey]` 匹配；点击步骤时 `update:current` 的 payload 也改为 `item[currentKey]`           |
-| `direction`                    | `'horizontal' \| 'vertical'` | `'horizontal'` |  否  | 纵向时步骤垂直排列（窄屏主形态）                                                                                        |
-| `alignCenter`                  | `boolean`                    | `false`        |  否  | 居中对齐（横向形态下内容与节点居中）                                                                                    |
-| `currentStepType`              | `ColorType`                  | —              |  否  | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'`；当前步圆点与连线的颜色                                     |
+| 参数                           | 类型                         | 默认           | 必填 | 约束                                                                                                                   |
+| ------------------------------ | ---------------------------- | -------------- | :--: | ---------------------------------------------------------------------------------------------------------------------- |
+| `v-model:current`（`current`） | `string \| number`           | —              |  否  | 未指定 `currentKey` 时必须是数字索引，传字符串会被忽略（全部步骤渲染为已完成）；索引超出收敛到 `[0, items.length - 1]` |
+| `items`                        | `Record<string, any>[]`      | —              |  是  | 步骤数据，顺序即流程顺序                                                                                               |
+| `labelKey`                     | `string`                     | `'label'`      |  否  | 步骤文案取 `item[labelKey]`                                                                                            |
+| `currentKey`                   | `string`                     | —              |  否  | 指定后 `current` 与 `item[currentKey]` 匹配；点击步骤时 `update:current` 的 payload 也改为 `item[currentKey]`          |
+| `direction`                    | `'horizontal' \| 'vertical'` | `'horizontal'` |  否  | 纵向时步骤垂直排列（窄屏主形态）                                                                                       |
+| `alignCenter`                  | `boolean`                    | `false`        |  否  | 居中对齐（横向形态下内容与节点居中）                                                                                   |
+| `currentStepType`              | `ColorType`                  | —              |  否  | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'`；当前步圆点与连线的颜色                                    |
 | `finishedStepType`             | `ColorType`                  | `'success'`    |  否  | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'`；已完成项的对勾与连线用该颜色                              |
-| `size`                         | `ComponentSize`              | `'default'`    |  否  | `'small'` \| `'default'` \| `'large'`；移动端未传时固定 `'default'`，不读取全局配置                                     |
+| `size`                         | `ComponentSize`              | `'default'`    |  否  | `'small'` \| `'default'` \| `'large'`；移动端未传时固定 `'default'`，不读取全局配置                                    |
 
 ## 方法与事件
 
@@ -131,7 +130,6 @@ export interface StepsEmits {
 <script setup lang="ts">
 import { ref } from 'vue'
 import { USteps } from '@veltra/mobile'
-import '@veltra/mobile/components/steps/style'
 
 const current = ref(0)
 const items = [{ label: '填写资料' }, { label: '上传附件' }, { label: '提交审核' }]
@@ -161,7 +159,6 @@ function next() {
 import { ref } from 'vue'
 import { USteps } from '@veltra/mobile'
 import { Edit, Loading, Check } from '@veltra/icons/normal'
-import '@veltra/mobile/components/steps/style'
 
 const current = ref('upload')
 const items = [
@@ -201,7 +198,6 @@ function onItemClick(item: (typeof items)[number], index: number) {
 <script setup lang="ts">
 import { shallowRef } from 'vue'
 import { USteps } from '@veltra/mobile'
-import '@veltra/mobile/components/steps/style'
 
 const current = shallowRef(3)
 const items = Array.from({ length: 6 }, (_, i) => ({ label: `步骤 ${i + 1}` }))
@@ -238,7 +234,6 @@ const items = Array.from({ length: 6 }, (_, i) => ({ label: `步骤 ${i + 1}` })
 <script setup lang="ts">
 import { ref } from 'vue'
 import { USteps } from '@veltra/mobile'
-import '@veltra/mobile/components/steps/style'
 
 const current = ref('review')
 const items = [
@@ -262,7 +257,6 @@ const items = [
 <script setup lang="ts">
 import { ref } from 'vue'
 import { USteps } from '@veltra/mobile'
-import '@veltra/mobile/components/steps/style'
 
 const current = ref(0)
 const items = [{ label: '第一步' }, { label: '第二步' }]

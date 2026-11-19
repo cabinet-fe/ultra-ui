@@ -33,8 +33,6 @@ keywords:
 
 ```ts
 import { messageConfirm } from '@veltra/desktop'
-// 样式是独立入口，必须显式引入；宿主模板里出现过 UMessageConfirm 并由 VeltraUIResolver 自动引入时可省
-import '@veltra/desktop/components/message-confirm/style'
 
 // 字符串简写，等价于 messageConfirm({ message: '确认提交吗？' })
 const instance = messageConfirm({
@@ -245,5 +243,5 @@ function handleClose(action: MessageConfirmAction) {
 > - 快捷方法是 `warning` / `danger`，与 `message` 的 `warn` / `error` 拼写不同。
 > - 点击遮罩不会关闭确认框，这是设计行为；只能点按钮或调用 `instance.close()` / `closeAll()`。
 > - `instance.onClosed` 是 Promise 属性，不是方法；写成 `instance.onClosed()` 会抛 `TypeError`。
-> - `messageConfirm` 是函数式 API，不经过模板编译，`VeltraUIResolver` 不会为它引入样式。只安装了组件库、未在模板里用 `UMessageConfirm` 时，必须 `import '@veltra/desktop/components/message-confirm/style'`，或在入口 `import '@veltra/desktop/style'` 引全量样式。缺少样式时的症状是遮罩与内容框都渲染出来但无颜色、无定位样式（`div.u-message-confirm__container` 没有 `position: fixed`），不是「确认框没弹出来」。
+> - `messageConfirm` 是函数式 API，样式随 `import { messageConfirm } from '@veltra/desktop'` 自动加载（v2.4.0 起；旧版需 `import '@veltra/desktop/components/message-confirm/style'`）。缺少样式时的症状是遮罩与内容框都渲染出来但无颜色、无定位样式（`div.u-message-confirm__container` 没有 `position: fixed`），不是「确认框没弹出来」。
 > - 需要主题 token：入口必须 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` 为空、确认框无颜色。

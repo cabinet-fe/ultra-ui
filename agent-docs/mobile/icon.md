@@ -33,7 +33,6 @@ keywords:
 <script setup lang="ts">
 import { UIcon } from '@veltra/mobile'
 import { Search } from '@veltra/icons/normal'
-import '@veltra/mobile/components/icon/style'
 </script>
 
 <template>
@@ -69,8 +68,8 @@ export interface IconExposed {}
 
 ## 参数说明
 
-| 参数   | 类型                            | 默认 | 必填 | 约束                                                                                                                                                                               |
-| ------ | ------------------------------- | ---- | :--: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 参数   | 类型                            | 默认 | 必填 | 约束                                                                                                                                                                                                       |
+| ------ | ------------------------------- | ---- | :--: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `size` | `` `${number}px` `` \| `number` | —    |  否  | 由 `withUnit(size, 'px')` 处理：`number` 与纯数字字符串追加 `px`（`:size="16"` 等价 `size="16px"`）；非纯数字字符串原样写入 `font-size`。未传时容器默认 `var(--um-font-size-main, 16px)`，不再跟随父级字号 |
 
 插槽：默认插槽放 `@veltra/icons` 导出的图标组件。事件：`IconEmits` 为空。暴露：`IconExposed` 为空对象。
@@ -85,7 +84,6 @@ export interface IconExposed {}
 <script setup lang="ts">
 import { UIcon } from '@veltra/mobile'
 import { Star, User } from '@veltra/icons/normal'
-import '@veltra/mobile/components/icon/style'
 </script>
 
 <template>
@@ -109,8 +107,6 @@ import '@veltra/mobile/components/icon/style'
 import { shallowRef } from 'vue'
 import { UIcon, UButton } from '@veltra/mobile'
 import { Setting } from '@veltra/icons/normal'
-import '@veltra/mobile/components/icon/style'
-import '@veltra/mobile/components/button/style'
 
 const loading = shallowRef(true)
 </script>
@@ -132,7 +128,6 @@ const loading = shallowRef(true)
 import { shallowRef } from 'vue'
 import { UIcon } from '@veltra/mobile'
 import { HouseFilled, User } from '@veltra/icons/normal'
-import '@veltra/mobile/components/icon/style'
 
 const active = shallowRef<'home' | 'user'>('home')
 
@@ -148,7 +143,9 @@ const items = [
       v-for="item in items"
       :key="item.key"
       style="display: inline-flex; flex-direction: column; align-items: center; border: none; background: none"
-      :style="{ color: active === item.key ? 'var(--u-color-primary)' : 'var(--u-text-color-second)' }"
+      :style="{
+        color: active === item.key ? 'var(--u-color-primary)' : 'var(--u-text-color-second)'
+      }"
       @click="active = item.key"
     >
       <u-icon :size="24"><component :is="item.icon" /></u-icon>
@@ -179,12 +176,13 @@ const items = [
 <script setup lang="ts">
 import { UIcon } from '@veltra/mobile'
 import { Search } from '@veltra/icons/normal'
-import '@veltra/mobile/components/icon/style'
 </script>
 
 <template>
-  <u-icon :size="24"><Search /></u-icon> <!-- 24px -->
-  <u-icon size="24"><Search /></u-icon> <!-- 纯数字字符串，同为 24px -->
+  <u-icon :size="24"><Search /></u-icon>
+  <!-- 24px -->
+  <u-icon size="24"><Search /></u-icon>
+  <!-- 纯数字字符串，同为 24px -->
 </template>
 ```
 

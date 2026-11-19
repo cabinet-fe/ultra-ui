@@ -47,7 +47,7 @@ import { UCarousel, UCarouselItem } from '@veltra/desktop'
 </template>
 ```
 
-前置条件：入口已 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则箭头、圆点与底色 token 为空。走 resolver 的模板组件自动带样式；显式 import 时必须补 `import '@veltra/desktop/components/carousel/style'`。
+前置条件：入口已 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则箭头、圆点与底色 token 为空；组件样式随 import 自动加载。
 
 ## API 签名
 
@@ -87,21 +87,21 @@ export interface CarouselItemProps {}
 
 ## 参数说明
 
-| 参数           | 类型      | 默认      | 必填 | 约束                                                                  |
-| -------------- | --------- | --------- | :--: | --------------------------------------------------------------------- |
-| `activeIndex`  | `number`  | `0`       |  否  | `v-model:active-index` 双向绑定；有效范围 `0` 到页数减 1，越界按边界收敛展示 |
-| `autoplay`     | `boolean` | `false`   |  否  | 页数小于 2 时不启动自动播放；指针悬停在轮播上时暂停，移开后恢复 |
-| `interval`     | `number`  | `3000`    |  否  | 自动播放间隔毫秒数；自动播放开关、间隔、页数、当前页任一变化后重新计时，手动切换同样重新计时 |
-| `loop`         | `boolean` | `true`    |  否  | `false` 时切换停在首 / 末页，对应箭头禁用                             |
-| `arrows`       | `boolean` | `false`   |  否  | 显示左右两个悬浮圆钮箭头                                              |
-| `dots`         | `boolean` | `true`    |  否  | 显示底部居中的指示器圆点，激活项为胶囊形态                            |
+| 参数          | 类型      | 默认    | 必填 | 约束                                                                                         |
+| ------------- | --------- | ------- | :--: | -------------------------------------------------------------------------------------------- |
+| `activeIndex` | `number`  | `0`     |  否  | `v-model:active-index` 双向绑定；有效范围 `0` 到页数减 1，越界按边界收敛展示                 |
+| `autoplay`    | `boolean` | `false` |  否  | 页数小于 2 时不启动自动播放；指针悬停在轮播上时暂停，移开后恢复                              |
+| `interval`    | `number`  | `3000`  |  否  | 自动播放间隔毫秒数；自动播放开关、间隔、页数、当前页任一变化后重新计时，手动切换同样重新计时 |
+| `loop`        | `boolean` | `true`  |  否  | `false` 时切换停在首 / 末页，对应箭头禁用                                                    |
+| `arrows`      | `boolean` | `false` |  否  | 显示左右两个悬浮圆钮箭头                                                                     |
+| `dots`        | `boolean` | `true`  |  否  | 显示底部居中的指示器圆点，激活项为胶囊形态                                                   |
 
 ## 方法与事件
 
-| 事件                 | 签名                                        | 触发条件                                                       |
-| -------------------- | ------------------------------------------- | -------------------------------------------------------------- |
-| `update:activeIndex` | `(index: number) => void`                   | 页索引变化（`v-model:active-index` 自动监听）                  |
-| `change`             | `(current: number, prev: number) => void`   | 页索引变化后触发，参数为新索引与旧索引；自动播放与手动切换都会触发 |
+| 事件                 | 签名                                      | 触发条件                                                           |
+| -------------------- | ----------------------------------------- | ------------------------------------------------------------------ |
+| `update:activeIndex` | `(index: number) => void`                 | 页索引变化（`v-model:active-index` 自动监听）                      |
+| `change`             | `(current: number, prev: number) => void` | 页索引变化后触发，参数为新索引与旧索引；自动播放与手动切换都会触发 |
 
 组件无暴露方法；需要程序化切换时直接改 `activeIndex` 绑定值。
 

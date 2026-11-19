@@ -33,7 +33,6 @@ keywords:
 import { shallowRef } from 'vue'
 // script setup 中名为 vLoading 的变量会被模板识别为 v-loading 指令
 import { vLoading } from '@veltra/mobile'
-import '@veltra/mobile/components/loading/style'
 
 const loading = shallowRef(false)
 
@@ -50,7 +49,7 @@ async function fetchData() {
 </template>
 ```
 
-视觉初始化前提：应用入口需要 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、遮罩与动画无颜色。组件样式按需引入：`import '@veltra/mobile/components/loading/style'`。
+视觉初始化前提：应用入口需要 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、遮罩与动画无颜色。组件样式随 import 自动加载。
 
 指令参数 `dual-ring` 是动画类型；省略参数时为 `dual-ring`。宿主元素尺寸必须非零，遮罩按宿主大小覆盖。
 
@@ -105,7 +104,6 @@ export const vLoading: ObjectDirective<HTMLElement>
 <script setup lang="ts">
 import { shallowRef } from 'vue'
 import { vLoading } from '@veltra/mobile'
-import '@veltra/mobile/components/loading/style'
 
 const loading = shallowRef(false)
 const type = shallowRef<'dual-ring' | 'ring'>('dual-ring')
@@ -132,7 +130,6 @@ async function reload() {
 <script setup lang="ts">
 import { shallowRef } from 'vue'
 import { vLoading } from '@veltra/mobile'
-import '@veltra/mobile/components/loading/style'
 
 const fullscreenLoading = shallowRef(false)
 
@@ -155,7 +152,6 @@ async function loadAll() {
 ```vue
 <script setup lang="ts">
 import { ULoading } from '@veltra/mobile'
-import '@veltra/mobile/components/loading/style'
 </script>
 
 <template>
@@ -189,7 +185,6 @@ import '@veltra/mobile/components/loading/style'
 ```vue
 <script setup lang="ts">
 import { vLoading } from '@veltra/mobile'
-import '@veltra/mobile/components/loading/style'
 </script>
 
 <template>

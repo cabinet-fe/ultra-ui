@@ -32,12 +32,12 @@ src/
 
 ## 字号档语义
 
-| token | 值 | 用途 |
-| --- | --- | --- |
-| `font-size-main` | 16 | 正文 / 输入类字号（不小于 16，iOS 聚焦防缩放） |
-| `font-size-secondary` | 14 | 辅助信息 / 标签 |
-| `font-size-auxiliary` | 12 | 弱信息 |
-| `font-size-title` | 18 | 底部弹层头部主标题、滚轮等大号主内容；日历面板内部标题用 main |
+| token                 | 值  | 用途                                                          |
+| --------------------- | --- | ------------------------------------------------------------- |
+| `font-size-main`      | 16  | 正文 / 输入类字号（不小于 16，iOS 聚焦防缩放）                |
+| `font-size-secondary` | 14  | 辅助信息 / 标签                                               |
+| `font-size-auxiliary` | 12  | 弱信息                                                        |
+| `font-size-title`     | 18  | 底部弹层头部主标题、滚轮等大号主内容；日历面板内部标题用 main |
 
 ## 样式约定
 
@@ -48,7 +48,7 @@ src/
 
 1. `components/<name>/`：`*.vue`、`index.ts`、`style.scss`、`style.ts`
 2. `playground/src/mobile/<name>/index.vue` 演示页，`nav-config.ts` 登记
-3. 仓库根 `bun run resolver:gen`（若需按需解析）
+3. 一级 `*.vue` 的 script 首部写 `import './style'`（样式随组件按需加载；`bun run style:check` 校验）
 
 ## 验证
 

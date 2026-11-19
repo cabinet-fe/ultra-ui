@@ -34,7 +34,6 @@ keywords:
 ```vue
 <script setup lang="ts">
 import { UText } from '@veltra/mobile'
-import '@veltra/mobile/components/text/style'
 </script>
 
 <template>
@@ -81,21 +80,21 @@ export interface TextExposed {}
 | ----------- | --------------------------------------------------------------------- | ----------- | :--: | -------------------------------------------------------------------------------------------- |
 | `as`        | `'main-title' \| 'title' \| 'sub-title' \| 'content' \| 'additional'` | `'content'` |  否  | 枚举仅这五档，对应样式见下表                                                                 |
 | `fontSize`  | `string \| number`                                                    | —           |  否  | 数字按 px 处理（`24` → `24px`）；含单位的字符串原样生效（`'1.2em'`）；优先于 `as` 的字号     |
-| `deleted`   | `boolean`                                                             | `false`     |  否  | `text-decoration: line-through`；与 `underline` 同设时被下划线覆盖                          |
-| `underline` | `boolean`                                                             | `false`     |  否  | `text-decoration: underline`；与 `deleted` 同设时覆盖删除线                                 |
-| `bold`      | `boolean`                                                             | `false`     |  否  | 覆盖 `as` 预设字重为 `bold`                                                                 |
-| `italic`    | `boolean`                                                             | `false`     |  否  | `font-style: italic`                                                                        |
+| `deleted`   | `boolean`                                                             | `false`     |  否  | `text-decoration: line-through`；与 `underline` 同设时被下划线覆盖                           |
+| `underline` | `boolean`                                                             | `false`     |  否  | `text-decoration: underline`；与 `deleted` 同设时覆盖删除线                                  |
+| `bold`      | `boolean`                                                             | `false`     |  否  | 覆盖 `as` 预设字重为 `bold`                                                                  |
+| `italic`    | `boolean`                                                             | `false`     |  否  | `font-style: italic`                                                                         |
 | `highlight` | `string \| string[]`                                                  | —           |  否  | 不区分大小写、全局匹配；关键词先去首尾空格，空字符串被过滤；正则元字符自动转义，按原文写即可 |
 
 `as` 五档预设（字号走 `--um-*` 移动端密度 token，正文主字号 16px，标题层级靠字重区分）：
 
-| 预设         | 字号                             | 字重 | 颜色 token                   |
-| ------------ | -------------------------------- | ---- | ---------------------------- |
-| `main-title` | 20px（`main × 1.25`）            | 700  | `--u-text-color-title`       |
-| `title`      | 16px（`--um-font-size-main`）    | 600  | `--u-text-color-main`        |
-| `sub-title`  | 16px（`--um-font-size-main`）    | 500  | `--u-text-color-placeholder` |
-| `content`    | 16px（`--um-font-size-main`）    | 400  | `--u-text-color-second`      |
-| `additional` | 12px（`--um-font-size-auxiliary`） | 400 | `--u-text-color-assist`      |
+| 预设         | 字号                               | 字重 | 颜色 token                   |
+| ------------ | ---------------------------------- | ---- | ---------------------------- |
+| `main-title` | 20px（`main × 1.25`）              | 700  | `--u-text-color-title`       |
+| `title`      | 16px（`--um-font-size-main`）      | 600  | `--u-text-color-main`        |
+| `sub-title`  | 16px（`--um-font-size-main`）      | 500  | `--u-text-color-placeholder` |
+| `content`    | 16px（`--um-font-size-main`）      | 400  | `--u-text-color-second`      |
+| `additional` | 12px（`--um-font-size-auxiliary`） | 400  | `--u-text-color-assist`      |
 
 根元素固定 `margin: 0`、`line-height: 1.5`（移动端阅读密度）。
 
@@ -110,7 +109,6 @@ export interface TextExposed {}
 ```vue
 <script setup lang="ts">
 import { UText } from '@veltra/mobile'
-import '@veltra/mobile/components/text/style'
 </script>
 
 <template>
@@ -132,7 +130,6 @@ import '@veltra/mobile/components/text/style'
 ```vue
 <script setup lang="ts">
 import { UText } from '@veltra/mobile'
-import '@veltra/mobile/components/text/style'
 
 const keywords = ['Vue', 'TypeScript']
 </script>
@@ -149,7 +146,6 @@ const keywords = ['Vue', 'TypeScript']
 ```vue
 <script setup lang="ts">
 import { UText } from '@veltra/mobile'
-import '@veltra/mobile/components/text/style'
 
 const query = '发布'
 const results = [
@@ -189,7 +185,6 @@ const results = [
 ```vue
 <script setup lang="ts">
 import { UText } from '@veltra/mobile'
-import '@veltra/mobile/components/text/style'
 
 const word = '重要'
 </script>
@@ -212,7 +207,6 @@ const word = '重要'
 ```vue
 <script setup lang="ts">
 import { UText } from '@veltra/mobile'
-import '@veltra/mobile/components/text/style'
 </script>
 
 <template>

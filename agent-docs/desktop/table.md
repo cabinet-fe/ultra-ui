@@ -72,7 +72,12 @@ export interface TableColumnStyle {
 }
 
 export type RenderReturn =
-  (undefined | VNode | string | null | number)[] | undefined | VNode | string | null | number
+  | (undefined | VNode | string | null | number)[]
+  | undefined
+  | VNode
+  | string
+  | null
+  | number
 
 /** 单元格渲染上下文（render 函数与 #column:{key} 插槽共用的基础字段） */
 export interface TableColumnRenderContext {
@@ -282,7 +287,7 @@ export function defineTableColumns(
 | `current`          | `TableRow`                                   | —           |  否  | `v-model:current`；值来自 `row-click` / `update:current` 的行节点                                               |
 | `mergeCell`        | `(ctx) => { rowspan, colspan } \| undefined` | —           |  否  | 返回 `{ rowspan, colspan }` 按跨度渲染；`rowspan` 或 `colspan` 为 `0` 时隐藏该单元格；返回 `undefined` 正常渲染 |
 | `slots`            | `Readonly<Slots>`                            | —           |  否  | 仅函数式组件包裹 `UTable` 时使用，传 `$slots`                                                                   |
-| `textEllipsis`     | `boolean`                                    | `false`     |  否  | 单元格文本单行省略；悬浮被截断的单元格时弹出完整文本（整表仅一个 tip 实例，延迟 200ms 显示，滚动即收起）          |
+| `textEllipsis`     | `boolean`                                    | `false`     |  否  | 单元格文本单行省略；悬浮被截断的单元格时弹出完整文本（整表仅一个 tip 实例，延迟 200ms 显示，滚动即收起）        |
 
 ### TableColumn 列定义
 
@@ -305,15 +310,15 @@ export function defineTableColumns(
 
 ### 插槽
 
-| 插槽            | 作用域                  | 说明                                                              |
-| --------------- | ----------------------- | ----------------------------------------------------------------- |
-| `#column:{key}` | `TableColumnSlotsScope` | 自定义 `{key}` 列的单元格；`model.modelValue` 写回 `rowData[key]` |
-| `#header:{key}` | `{ column }`            | 自定义 `{key}` 列的表头                                           |
-| `#row:expand`   | `TableRowSlotsScope`    | `expandable` 模式的展开行内容，占满整行                           |
-| `#foot`         | `{ columns, rows }`     | 渲染在 `tfoot`，与合计行共存                                      |
-| `#body`         | `{ columns, rows }`     | 在 `tbody` 内建行渲染之后追加内容；内建行渲染无条件执行、不会被替换，两者叠加 |
-| `#empty`        | 无                      | 无数据时的空态，默认渲染 `UEmpty`。插槽内容统一渲染在 `u-table__empty` 容器内，已内置水平居中（表格横向滚动时保持可视区居中），使用方无需自备居中容器                                 |
-| `#append`       | 无                      | 渲染在 `table` 元素之后                                           |
+| 插槽            | 作用域                  | 说明                                                                                                                                                  |
+| --------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `#column:{key}` | `TableColumnSlotsScope` | 自定义 `{key}` 列的单元格；`model.modelValue` 写回 `rowData[key]`                                                                                     |
+| `#header:{key}` | `{ column }`            | 自定义 `{key}` 列的表头                                                                                                                               |
+| `#row:expand`   | `TableRowSlotsScope`    | `expandable` 模式的展开行内容，占满整行                                                                                                               |
+| `#foot`         | `{ columns, rows }`     | 渲染在 `tfoot`，与合计行共存                                                                                                                          |
+| `#body`         | `{ columns, rows }`     | 在 `tbody` 内建行渲染之后追加内容；内建行渲染无条件执行、不会被替换，两者叠加                                                                         |
+| `#empty`        | 无                      | 无数据时的空态，默认渲染 `UEmpty`。插槽内容统一渲染在 `u-table__empty` 容器内，已内置水平居中（表格横向滚动时保持可视区居中），使用方无需自备居中容器 |
+| `#append`       | 无                      | 渲染在 `table` 元素之后                                                                                                                               |
 
 ## 方法与事件
 
@@ -496,7 +501,7 @@ const pagedData = computed(() => {
 > - `tree` 与 `expandable` 互斥：`expandable` 仅在非树形模式有效；`defaultExpandAll` 仅树形模式的初始展开生效。
 > - 数据替换时行数变化比例达到 50%（`|Δlen| / max(新旧行数) ≥ 0.5`）会自动滚回顶部；行内增删几条不会滚动复位。
 > - 纵向滚动与虚拟滚动要求容器有显式高度（如 `style="height: 500px"`），否则表格随内容撑开、不出现滚动。
-> - `render` 函数返回 VNode 时用到的组件（如 `h(UTag)`）不会被 `VeltraUIResolver` 解析：必须在 `<script setup>` 里显式 import 组件并补 `import '@veltra/desktop/components/tag/style'`，否则运行时报 `ReferenceError: UTag is not defined` 且单元格无样式。模板里的 `<u-table>` 则交给 resolver，不要再 import（显式 import 会连带失去样式副作用）。
+> - `render` 函数返回 VNode 时用到的组件（如 `h(UTag)`）必须显式 import，否则运行时报 `ReferenceError: UTag is not defined`；样式随 import 自动加载。
 
 ## 常见问题
 
@@ -512,12 +517,11 @@ const pagedData = computed(() => {
 
 先按症状分两种：
 
-**DevTools 里有 `<table class="u-table">`，但 Styles 面板搜不到 `.u-table` 规则**（结构与 class 对、呈现裸样式）：组件被显式 import 而没有引入样式副作用——`VeltraUIResolver` 只处理模板里未绑定的组件。修复：模板里的 UTable 不要 import（交给 resolver），或保留 import 并补样式子路径：
+**DevTools 里有 `<table class="u-table">`，但 Styles 面板搜不到 `.u-table` 规则**（结构与 class 对、呈现裸样式）：样式未随组件加载，多为 v2.4.0 之前的旧版包或宿主打包器关闭了 `sideEffects` 处理——升级依赖 / 恢复包内 `sideEffects` 声明。
 
 ```vue
 <script setup lang="ts">
 import { UTable, defineTableColumns } from '@veltra/desktop'
-import '@veltra/desktop/components/table/style'
 
 const columns = defineTableColumns([{ key: 'name', name: '姓名' }])
 </script>

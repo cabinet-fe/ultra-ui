@@ -1,8 +1,7 @@
 ---
 title: 'UCollapse / UCollapseItem 折叠面板（@veltra/mobile 移动端）'
 description: '@veltra/mobile 导出的折叠面板组件。UCollapse 用 v-model 管理展开项（数组多开、accordion 手风琴单开），UCollapseItem 支持禁用、自定义头部插槽、自定义展开图标与折叠后卸载内容，支持嵌套与独立使用；标题触控热区保底 44px，按压与展开态提供触控反馈。'
-aliases:
-  [UCollapse, UCollapseItem, Collapse, CollapseItem, 折叠面板, 手风琴, Accordion, 移动端折叠]
+aliases: [UCollapse, UCollapseItem, Collapse, CollapseItem, 折叠面板, 手风琴, Accordion, 移动端折叠]
 keywords:
   [
     CollapseProps,
@@ -38,7 +37,6 @@ keywords:
 import { ref } from 'vue'
 import { UCollapse, UCollapseItem } from '@veltra/mobile'
 import type { CollapseModelValue } from '@veltra/mobile'
-import '@veltra/mobile/components/collapse/style'
 
 const active = ref<CollapseModelValue>(['basic'])
 </script>
@@ -51,7 +49,7 @@ const active = ref<CollapseModelValue>(['basic'])
 </template>
 ```
 
-视觉初始化前提：应用入口需要 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、面板无颜色。组件样式按需引入：`import '@veltra/mobile/components/collapse/style'`。
+视觉初始化前提：应用入口需要 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、面板无颜色。组件样式随 import 自动加载。
 
 ## API 签名
 
@@ -120,12 +118,12 @@ export interface CollapseItemEmits {
 
 ### UCollapse
 
-| 参数                 | 类型                               | 默认        | 必填 | 约束                                                                                                        |
-| -------------------- | ---------------------------------- | ----------- | :--: | ----------------------------------------------------------------------------------------------------------- |
-| `modelValue`         | `CollapseValue \| CollapseValue[]` | —           |  否  | 手风琴模式传单值，普通模式传数组；普通模式传单值也兼容。未传或为 `undefined`/`null`/`[]` 时按 `defaultCollapseAll` 决定初始展开 |
-| `accordion`          | `boolean`                          | `false`     |  否  | 手风琴：点击新项展开并收起旧项；点击已展开项收起（modelValue 变 `[]`）                                      |
-| `defaultCollapseAll` | `boolean`                          | `false`     |  否  | `false` 且无有效初始 `modelValue` 时，子项注册后自动全部展开（手风琴只展开第一个注册项）；`true` 时初始全部折叠 |
-| `expandIcon`         | `Component`                        | `ArrowDown` |  否  | 展开图标组件（默认取 `@veltra/icons/normal` 的 `ArrowDown`），活动态自动旋转 180°；统管所有子项             |
+| 参数                 | 类型                               | 默认        | 必填 | 约束                                                                                                                                                 |
+| -------------------- | ---------------------------------- | ----------- | :--: | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `modelValue`         | `CollapseValue \| CollapseValue[]` | —           |  否  | 手风琴模式传单值，普通模式传数组；普通模式传单值也兼容。未传或为 `undefined`/`null`/`[]` 时按 `defaultCollapseAll` 决定初始展开                      |
+| `accordion`          | `boolean`                          | `false`     |  否  | 手风琴：点击新项展开并收起旧项；点击已展开项收起（modelValue 变 `[]`）                                                                               |
+| `defaultCollapseAll` | `boolean`                          | `false`     |  否  | `false` 且无有效初始 `modelValue` 时，子项注册后自动全部展开（手风琴只展开第一个注册项）；`true` 时初始全部折叠                                      |
+| `expandIcon`         | `Component`                        | `ArrowDown` |  否  | 展开图标组件（默认取 `@veltra/icons/normal` 的 `ArrowDown`），活动态自动旋转 180°；统管所有子项                                                      |
 | `size`               | `'small' \| 'default' \| 'large'`  | `'default'` |  否  | 控制标题与内容的间距密度（8 / 12 / 16px，走 `--um-spacing-*`）；字号统一 16px（`--um-font-size-main`）。移动端未传时固定 `'default'`，不读取全局配置 |
 
 ### UCollapseItem
@@ -161,7 +159,6 @@ export interface CollapseItemEmits {
 import { ref } from 'vue'
 import { UCollapse, UCollapseItem } from '@veltra/mobile'
 import type { CollapseModelValue } from '@veltra/mobile'
-import '@veltra/mobile/components/collapse/style'
 
 // accordion 模式绑定单值
 const active = ref<CollapseModelValue>('a')
@@ -192,7 +189,6 @@ import { ref } from 'vue'
 import { UCollapse, UCollapseItem } from '@veltra/mobile'
 import type { CollapseModelValue } from '@veltra/mobile'
 import { Plus } from '@veltra/icons/normal'
-import '@veltra/mobile/components/collapse/style'
 
 const active = ref<CollapseModelValue>(['account'])
 </script>
@@ -220,7 +216,6 @@ const active = ref<CollapseModelValue>(['account'])
 <script setup lang="ts">
 import { ref } from 'vue'
 import { UCollapseItem } from '@veltra/mobile'
-import '@veltra/mobile/components/collapse/style'
 
 const standalone = ref(false)
 </script>
@@ -256,7 +251,6 @@ const standalone = ref(false)
 ```vue
 <script setup lang="ts">
 import { UCollapse, UCollapseItem } from '@veltra/mobile'
-import '@veltra/mobile/components/collapse/style'
 </script>
 
 <template>

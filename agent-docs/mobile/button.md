@@ -35,7 +35,6 @@ keywords:
 ```vue
 <script setup lang="ts">
 import { UButton } from '@veltra/mobile'
-import '@veltra/mobile/components/button/style'
 
 function onSave() {
   console.log('saved') // => 点击按钮时输出 'saved'
@@ -106,20 +105,20 @@ export interface ButtonExposed {
 
 ## 参数说明
 
-| 参数           | 类型                                                        | 默认        | 必填 | 约束                                                         |
-| -------------- | ----------------------------------------------------------- | ----------- | :--: | ------------------------------------------------------------ |
-| `type`         | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'` | —           |  否  | 枚举仅这五个值；不传时渲染无语义色的默认灰底按钮             |
+| 参数           | 类型                                                        | 默认        | 必填 | 约束                                                                                                                |
+| -------------- | ----------------------------------------------------------- | ----------- | :--: | ------------------------------------------------------------------------------------------------------------------- |
+| `type`         | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'` | —           |  否  | 枚举仅这五个值；不传时渲染无语义色的默认灰底按钮                                                                    |
 | `size`         | `'small' \| 'default' \| 'large'`                           | `'default'` |  否  | 控制字号（small 14px、其余 16px，走 `--um-*` 密度 token）、圆角与档位高度；可点击热区始终不小于 44×44（见注意事项） |
-| `text`         | `boolean`                                                   | `false`     |  否  | 文本按钮：无底色、无边框、无阴影                             |
-| `plain`        | `boolean`                                                   | `false`     |  否  | 朴素模式：类型色文字 + 类型色 `light-9` 浅底 + 透明描边      |
-| `circle`       | `boolean`                                                   | `false`     |  否  | 圆形；无内边距，热区不小于 44×44，只放图标时使用             |
-| `loading`      | `boolean`                                                   | `false`     |  否  | 显示加载图标（替换左侧图标）并屏蔽 click                     |
-| `loadingIcon`  | `Component`                                                 | `Loading`   |  否  | 加载图标组件，从 `@veltra/icons` 导入                        |
-| `disabled`     | `boolean`                                                   | `false`     |  否  | 禁用；屏蔽 click、去阴影、字色变次要色                       |
-| `icon`         | `Component`                                                 | —           |  否  | 图标组件；`loading` 为 true 时左侧图标被加载图标替换         |
-| `iconSize`     | `number`                                                    | —           |  否  | 图标边长，单位 px；写入图标容器 `font-size`                  |
-| `iconPosition` | `'left' \| 'right'`                                         | `'left'`    |  否  | `right` 时图标在文字之后                                     |
-| `propagate`    | `boolean`                                                   | `true`      |  否  | `false` 时点击调用 `stopPropagation()`，事件不再冒泡到父元素 |
+| `text`         | `boolean`                                                   | `false`     |  否  | 文本按钮：无底色、无边框、无阴影                                                                                    |
+| `plain`        | `boolean`                                                   | `false`     |  否  | 朴素模式：类型色文字 + 类型色 `light-9` 浅底 + 透明描边                                                             |
+| `circle`       | `boolean`                                                   | `false`     |  否  | 圆形；无内边距，热区不小于 44×44，只放图标时使用                                                                    |
+| `loading`      | `boolean`                                                   | `false`     |  否  | 显示加载图标（替换左侧图标）并屏蔽 click                                                                            |
+| `loadingIcon`  | `Component`                                                 | `Loading`   |  否  | 加载图标组件，从 `@veltra/icons` 导入                                                                               |
+| `disabled`     | `boolean`                                                   | `false`     |  否  | 禁用；屏蔽 click、去阴影、字色变次要色                                                                              |
+| `icon`         | `Component`                                                 | —           |  否  | 图标组件；`loading` 为 true 时左侧图标被加载图标替换                                                                |
+| `iconSize`     | `number`                                                    | —           |  否  | 图标边长，单位 px；写入图标容器 `font-size`                                                                         |
+| `iconPosition` | `'left' \| 'right'`                                         | `'left'`    |  否  | `right` 时图标在文字之后                                                                                            |
+| `propagate`    | `boolean`                                                   | `true`      |  否  | `false` 时点击调用 `stopPropagation()`，事件不再冒泡到父元素                                                        |
 
 插槽：默认插槽放按钮文字内容。
 
@@ -137,7 +136,6 @@ export interface ButtonExposed {
 ```vue
 <script setup lang="ts">
 import { UButton } from '@veltra/mobile'
-import '@veltra/mobile/components/button/style'
 </script>
 
 <template>
@@ -164,7 +162,6 @@ import '@veltra/mobile/components/button/style'
 import { ref } from 'vue'
 import { UButton } from '@veltra/mobile'
 import { Edit, Refresh, Search } from '@veltra/icons/normal'
-import '@veltra/mobile/components/button/style'
 
 const saving = ref(false)
 
@@ -192,7 +189,6 @@ function onSave() {
 ```vue
 <script setup lang="ts">
 import { UButton } from '@veltra/mobile'
-import '@veltra/mobile/components/button/style'
 
 function onRowClick() {
   console.log('row') // => 点击按钮（propagate=false）时不会输出
@@ -235,7 +231,6 @@ function onAction() {
 ```vue
 <script setup lang="ts">
 import { UButton } from '@veltra/mobile'
-import '@veltra/mobile/components/button/style'
 
 function onClick() {
   console.log('clicked') // => 'clicked'

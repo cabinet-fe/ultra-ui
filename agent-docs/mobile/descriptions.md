@@ -1,8 +1,7 @@
 ---
 title: 'UDescriptions 描述列表（@veltra/mobile 移动端）'
 description: '@veltra/mobile 导出的键值对详情列表组件：UDescriptions 配 title / border / layout / size，UDescriptionsItem 提供 label 与内容插槽；移动端恒为单列纵向堆叠的键值行（键左值右或上下排布），column 属性语义保留但不参与布局，用于订单详情等信息展示。'
-aliases:
-  [UDescriptions, UDescriptionsItem, Descriptions, 描述列表, 详情列表, 键值对, 移动端详情]
+aliases: [UDescriptions, UDescriptionsItem, Descriptions, 描述列表, 详情列表, 键值对, 移动端详情]
 keywords:
   [
     title,
@@ -33,7 +32,6 @@ keywords:
 ```vue
 <script setup lang="ts">
 import { UDescriptions, UDescriptionsItem } from '@veltra/mobile'
-import '@veltra/mobile/components/descriptions/style'
 </script>
 
 <template>
@@ -46,7 +44,7 @@ import '@veltra/mobile/components/descriptions/style'
 </template>
 ```
 
-视觉初始化前提：应用入口需要 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、列表无颜色。组件样式按需引入：`import '@veltra/mobile/components/descriptions/style'`。
+视觉初始化前提：应用入口需要 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、列表无颜色。组件样式随 import 自动加载。
 
 ## API 签名
 
@@ -79,19 +77,19 @@ export interface DescriptionsItemProps {
 
 `UDescriptions`：
 
-| 参数     | 类型                 | 默认          | 必填 | 约束                                                                     |
-| -------- | -------------------- | ------------- | :--: | ------------------------------------------------------------------------ |
-| `title`  | `string`             | —             |  否  | 渲染在列表顶部的标题文本；不传不渲染标题行                               |
-| `column` | `number`             | `3`           |  否  | 移动端恒为单列堆叠，此属性不参与布局（语义保留，跨端代码可直接传）       |
-| `border` | `boolean`            | `false`       |  否  | `true` 时列表整体描边 + 圆角、行间分隔线、键名区底色块                  |
-| `layout` | `DescriptionsLayout` | `'horizontal'`|  否  | 枚举 `'horizontal' \| 'vertical'`；horizontal 键左值右同行，vertical 键上值下 |
-| `size`   | `'small' \| 'default' \| 'large'` | `'default'` | 否 | 影响字号与行内边距（走 `--um-*` 密度 token）；不接受数字像素            |
+| 参数     | 类型                              | 默认           | 必填 | 约束                                                                          |
+| -------- | --------------------------------- | -------------- | :--: | ----------------------------------------------------------------------------- |
+| `title`  | `string`                          | —              |  否  | 渲染在列表顶部的标题文本；不传不渲染标题行                                    |
+| `column` | `number`                          | `3`            |  否  | 移动端恒为单列堆叠，此属性不参与布局（语义保留，跨端代码可直接传）            |
+| `border` | `boolean`                         | `false`        |  否  | `true` 时列表整体描边 + 圆角、行间分隔线、键名区底色块                        |
+| `layout` | `DescriptionsLayout`              | `'horizontal'` |  否  | 枚举 `'horizontal' \| 'vertical'`；horizontal 键左值右同行，vertical 键上值下 |
+| `size`   | `'small' \| 'default' \| 'large'` | `'default'`    |  否  | 影响字号与行内边距（走 `--um-*` 密度 token）；不接受数字像素                  |
 
 `UDescriptionsItem`：
 
-| 参数    | 类型     | 默认 | 必填 | 约束                             |
-| ------- | -------- | ---- | :--: | -------------------------------- |
-| `label` | `string` | —    |  否  | 键名文本，渲染在键名区           |
+| 参数    | 类型     | 默认 | 必填 | 约束                   |
+| ------- | -------- | ---- | :--: | ---------------------- |
+| `label` | `string` | —    |  否  | 键名文本，渲染在键名区 |
 
 插槽：
 
@@ -107,7 +105,6 @@ export interface DescriptionsItemProps {
 ```vue
 <script setup lang="ts">
 import { UDescriptions, UDescriptionsItem } from '@veltra/mobile'
-import '@veltra/mobile/components/descriptions/style'
 </script>
 
 <template>
@@ -127,7 +124,6 @@ import '@veltra/mobile/components/descriptions/style'
 ```vue
 <script setup lang="ts">
 import { UDescriptions, UDescriptionsItem } from '@veltra/mobile'
-import '@veltra/mobile/components/descriptions/style'
 </script>
 
 <template>
@@ -146,7 +142,6 @@ import '@veltra/mobile/components/descriptions/style'
 ```vue
 <script setup lang="ts">
 import { UDescriptions, UDescriptionsItem } from '@veltra/mobile'
-import '@veltra/mobile/components/descriptions/style'
 </script>
 
 <template>
@@ -183,7 +178,6 @@ import '@veltra/mobile/components/descriptions/style'
 ```vue
 <script setup lang="ts">
 import { UDescriptions, UDescriptionsItem } from '@veltra/mobile'
-import '@veltra/mobile/components/descriptions/style'
 </script>
 
 <template>
@@ -205,7 +199,6 @@ import '@veltra/mobile/components/descriptions/style'
 ```vue
 <script setup lang="ts">
 import { UDescriptions, UDescriptionsItem } from '@veltra/mobile'
-import '@veltra/mobile/components/descriptions/style'
 </script>
 
 <template>

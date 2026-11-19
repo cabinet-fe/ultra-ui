@@ -16,10 +16,10 @@
 
 ## 目录与代码结构
 
-- 库代码在 `packages/<pkg>/src/`。desktop / ai / sheet 的可解析组件：`src/components/<name>/` 同时有 `index.ts`（导出 `U*`）与 `style.ts`。
+- 库代码在 `packages/<pkg>/src/`。组件目录：`src/components/<name>/` 同时有 `index.ts`（导出 `U*`）与 `style.ts`；一级 `*.vue` 的 script 首部 `import './style'`，样式经 sideEffects 随组件按需加载，宿主显式导入组件即可。
 - desktop 类型在 `src/types/<name>.ts`，不放组件目录。
-- 增删 desktop / ai / sheet 组件后，仓库根跑 `bun run resolver:gen`，并视情况更新 playground 演示。
-- 别名（dev）：`@veltra/<pkg>` → `packages/<pkg>/src`（各包 exports 的 `veltra-dev` 条件置于 `import` 之前，由 vite `resolve.conditions` 命中；TS 走各包 tsconfig `paths`）。`@veltra/vite` 是构建工具，不配该条件。
+- 增删组件无需生成表；仓库根 `bun run style:check` 校验样式跟随约定（已接入 `ci:verify`），并视情况更新 playground 演示。
+- 别名（dev）：`@veltra/<pkg>` → `packages/<pkg>/src`（各包 exports 的 `veltra-dev` 条件置于 `import` 之前，由 vite `resolve.conditions` 命中；TS 走各包 tsconfig `paths`）。
 - playground 演示：`playground/src/desktop/<name>/index.vue` 等，导航登记在 `nav-config.ts`。
 
 ## 代码风格
@@ -48,7 +48,7 @@
 
 ## 版本与发布
 
-- changesets：`vp changeset` / `bun run changeset`。`fixed` 一组同版本——核心 `utils/styles/compositions/directives/desktop`；`sheet` / `ai` / `icons` / `vite` 独立版本线。
+- changesets：`vp changeset` / `bun run changeset`。`fixed` 一组同版本——核心 `utils/styles/compositions/directives/desktop`；`sheet` / `ai` / `icons` 独立版本线。
 - `ignore`：`@veltra/mobile`、`playground`。
 - `___experimentalUnsafeOptions_WILL_CHANGE_IN_PATCH.onlyUpdatePeerDependentsWhenOutOfRange` 已开。
 - 发版：统一走发版技能 `.agents/skills/release`（dev 分支 `bun run release`，CI publish）。
@@ -59,7 +59,7 @@
 ## 明确禁止
 
 - cooking `spec.md` 缺少可被 `spec-files.mjs parse` 通过的「影响文件」章节
-- 手改生成物：`packages/vite/src/components.gen.ts`；`packages/icons` 的 `normal.ts` / `colorful.ts` / `vue/`
+- 手改生成物：`packages/icons` 的 `normal.ts` / `colorful.ts` / `vue/`
 - compositions re-export `@veltra/styles/theme`
 - 用 lint disable / `@ts-ignore` 绕过检查
 - 把规范全文写回根 `AGENTS.md`

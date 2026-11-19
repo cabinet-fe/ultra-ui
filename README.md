@@ -48,8 +48,9 @@ pnpm add @veltra/desktop @veltra/icons
 ### 完整引入
 
 ```ts
-import { createApp } from 'vue'
 import UltraUI from '@veltra/desktop/install'
+import { createApp } from 'vue'
+
 import App from './App.vue'
 
 const app = createApp(App)
@@ -68,8 +69,6 @@ app.mount('#app')
 <script setup lang="ts">
 import { ref } from 'vue'
 import { UButton, UInput } from '@veltra/desktop'
-import '@veltra/desktop/components/button/style'
-import '@veltra/desktop/components/input/style'
 
 const value = ref('')
 const handleClick = () => {

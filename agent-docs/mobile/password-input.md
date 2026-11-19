@@ -32,7 +32,6 @@ keywords:
 <script setup lang="ts">
 import { UPasswordInput } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/password-input/style'
 
 const password = shallowRef('')
 </script>
@@ -88,7 +87,9 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    | number
+    | 'full'
+    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段；有 field 时禁止再写 v-model */
@@ -162,7 +163,6 @@ export type PasswordInputExposed = Record<string, never>
 <script setup lang="ts">
 import { UButton, UPasswordInput } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/password-input/style'
 
 const password = shallowRef('abc123')
 
@@ -185,7 +185,6 @@ function submit() {
 <script setup lang="ts">
 import { UForm, UPasswordInput } from '@veltra/mobile'
 import { reactive } from 'vue'
-import '@veltra/mobile/components/password-input/style'
 
 const form = reactive({ password: '' })
 </script>
@@ -216,7 +215,6 @@ const form = reactive({ password: '' })
 <script setup lang="ts">
 import { UPasswordInput } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/password-input/style'
 
 const secret = shallowRef('secret-123')
 </script>
@@ -245,7 +243,7 @@ const secret = shallowRef('secret-123')
 > - `pattern`、`prefix`、`suffix`（字符串）、`nativeReadonly` 不会转发给内部 `UInput`，传入不生效；前缀用 `#prefix` 插槽，`#suffix` 插槽被显隐按钮占用。
 > - 明文/密文状态是内部状态，初始密文，无 props 与事件控制。
 > - 在 `UForm` 内必须用 `field` 绑定值，禁止同时写 `v-model`；`label` / `field` / `rules` / `tips` / `span` 仅在表单内生效。
-> - 按需引入样式必须走 `import '@veltra/mobile/components/password-input/style'`；独立页面使用前必须初始化主题：`import '@veltra/styles/normalize'`、`import { loadTheme } from '@veltra/styles/theme'` 后调用 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色。
+> - 样式随组件 import 自动加载（v2.4.0 起，旧版需 `import '@veltra/mobile/components/password-input/style'`）；独立页面使用前必须初始化主题：`import '@veltra/styles/normalize'`、`import { loadTheme } from '@veltra/styles/theme'` 后调用 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色。
 
 ## 常见问题
 
@@ -257,7 +255,6 @@ const secret = shallowRef('secret-123')
 <script setup lang="ts">
 import { UPasswordInput } from '@veltra/mobile'
 import { shallowRef, watch } from 'vue'
-import '@veltra/mobile/components/password-input/style'
 
 const password = shallowRef('')
 

@@ -26,7 +26,7 @@ src/
 - **工具只经 `SheetContext`**：不暴露 `Sheet` 实例；扩展天然可 undo。样式工具栏优先 `applyStyle`（整行选区 → `rowStyles`，整列 → `colStyles`，局部 → 逐格）；读外观用 `getEffectiveStyle`。
 - **工作簿结构操作**（增删改名 sheet）走 `Workbook`，**不进 undo**，也不经 `SheetContext`；tabs UI 直接调 `Workbook`。
 - 内置工具是纯数据（`BUILTIN_TOOLS`），`defaultToolRegistry` 构造时装入。禁止用 side-effect-only import 做注册：入口被宿主打包器判定为无副作用时，整段注册会被跳过，工具栏为空。
-- `components/<name>/` 是 `@veltra/vite` 眼中的组件目录（`index.ts` + `style.ts`）：其 `index.ts` 增删 `U*` 导出后，在仓库根运行 `bun run resolver:gen` 刷新组件表。
+- `components/<name>/` 是组件目录（`index.ts` + `style.ts`）：一级 `*.vue` 的 script 首部 `import './style'`，样式随显式导入的组件按需加载（`bun run style:check` 校验）。
 
 ## 引用 infinitable
 

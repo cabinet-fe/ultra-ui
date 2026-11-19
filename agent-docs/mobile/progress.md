@@ -30,7 +30,6 @@ keywords:
 ```vue
 <script setup lang="ts">
 import { UProgress } from '@veltra/mobile'
-import '@veltra/mobile/components/progress/style'
 </script>
 
 <template>
@@ -39,7 +38,7 @@ import '@veltra/mobile/components/progress/style'
 </template>
 ```
 
-视觉初始化前提：应用入口需要 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、进度条无颜色。组件样式按需引入：`import '@veltra/mobile/components/progress/style'`。
+视觉初始化前提：应用入口需要 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、进度条无颜色。组件样式随 import 自动加载。
 
 ## API 签名
 
@@ -69,12 +68,12 @@ export interface ProgressEmits {}
 
 ## 参数说明
 
-| 参数         | 类型                                               | 默认                | 必填 | 约束                                                                                                |
-| ------------ | -------------------------------------------------- | ------------------- | :--: | --------------------------------------------------------------------------------------------------- |
-| `type`       | `ColorType \| ((percentage: number) => ColorType)` | —                   |  是  | 枚举 `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'`；函数入参是夹紧到 0~100 后的百分比 |
-| `percentage` | `number`                                           | `0`                 |  否  | 自动夹紧到 0~100：小于 0 按 0 渲染，大于 100 按 100 渲染                                            |
-| `circle`     | `boolean`                                          | `false`             |  否  | `false` 渲染条形，`true` 渲染环形                                                                   |
-| `size`       | `number \| string`                                 | `100`（token 兜底） |  否  | 仅 `circle: true` 时生效；`number` 追加 `px`，字符串原样使用；不传时环形直径取 `--um-progress-circle` 密度 token（默认 100px）      |
+| 参数         | 类型                                               | 默认                | 必填 | 约束                                                                                                                           |
+| ------------ | -------------------------------------------------- | ------------------- | :--: | ------------------------------------------------------------------------------------------------------------------------------ |
+| `type`       | `ColorType \| ((percentage: number) => ColorType)` | —                   |  是  | 枚举 `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'`；函数入参是夹紧到 0~100 后的百分比                            |
+| `percentage` | `number`                                           | `0`                 |  否  | 自动夹紧到 0~100：小于 0 按 0 渲染，大于 100 按 100 渲染                                                                       |
+| `circle`     | `boolean`                                          | `false`             |  否  | `false` 渲染条形，`true` 渲染环形                                                                                              |
+| `size`       | `number \| string`                                 | `100`（token 兜底） |  否  | 仅 `circle: true` 时生效；`number` 追加 `px`，字符串原样使用；不传时环形直径取 `--um-progress-circle` 密度 token（默认 100px） |
 
 插槽：默认插槽，作用域 `{ percentage: number; type: ColorType }`。条形模式下插槽内容渲染在填充条内部（文字颜色为白色），环形模式下渲染在圆心；不传插槽时显示 `{{ percentage }}%`。
 
@@ -87,7 +86,6 @@ export interface ProgressEmits {}
 import { ref } from 'vue'
 import { UProgress } from '@veltra/mobile'
 import type { ColorType } from '@veltra/utils'
-import '@veltra/mobile/components/progress/style'
 
 const percentage = ref(85)
 
@@ -110,7 +108,6 @@ function statusType(p: number): ColorType {
 ```vue
 <script setup lang="ts">
 import { UProgress } from '@veltra/mobile'
-import '@veltra/mobile/components/progress/style'
 </script>
 
 <template>
@@ -130,7 +127,6 @@ import '@veltra/mobile/components/progress/style'
 <script setup lang="ts">
 import { onBeforeUnmount, ref } from 'vue'
 import { UProgress } from '@veltra/mobile'
-import '@veltra/mobile/components/progress/style'
 
 const percentage = ref(0)
 const timer = setInterval(() => {
@@ -181,7 +177,6 @@ loadTheme()
 ```vue
 <script setup lang="ts">
 import { UProgress } from '@veltra/mobile'
-import '@veltra/mobile/components/progress/style'
 </script>
 
 <template>

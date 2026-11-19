@@ -28,7 +28,6 @@ keywords:
 ```vue
 <script setup lang="ts">
 import { UEmpty } from '@veltra/mobile'
-import '@veltra/mobile/components/empty/style'
 </script>
 
 <template>
@@ -39,7 +38,7 @@ import '@veltra/mobile/components/empty/style'
 </template>
 ```
 
-视觉初始化前提：应用入口需要 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、图标与文字无颜色。组件样式按需引入：`import '@veltra/mobile/components/empty/style'`。
+视觉初始化前提：应用入口需要 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、图标与文字无颜色。组件样式随 import 自动加载。
 
 ## API 签名
 
@@ -60,10 +59,10 @@ export interface EmptyEmits {}
 
 ## 参数说明
 
-| 参数   | 类型     | 默认         | 必填 | 约束                                            |
-| ------ | -------- | ------------ | :--: | ----------------------------------------------- |
+| 参数   | 类型     | 默认         | 必填 | 约束                                                        |
+| ------ | -------- | ------------ | :--: | ----------------------------------------------------------- |
 | `size` | `number` | `48`         |  否  | 单位 px，换算为图标容器的 `font-size`；文字不随 `size` 变化 |
-| `text` | `string` | `'暂无数据'` |  否  | 纯文本，不支持 HTML 与插槽                      |
+| `text` | `string` | `'暂无数据'` |  否  | 纯文本，不支持 HTML 与插槽                                  |
 
 无事件、无暴露方法（`EmptyEmits` / `EmptyExposed` 均为空类型）。
 
@@ -75,7 +74,6 @@ export interface EmptyEmits {}
 <script setup lang="ts">
 import { ref } from 'vue'
 import { UEmpty } from '@veltra/mobile'
-import '@veltra/mobile/components/empty/style'
 
 const list = ref<string[]>([])
 </script>
@@ -96,7 +94,6 @@ const list = ref<string[]>([])
 ```vue
 <script setup lang="ts">
 import { UEmpty } from '@veltra/mobile'
-import '@veltra/mobile/components/empty/style'
 </script>
 
 <template>
@@ -111,7 +108,6 @@ import '@veltra/mobile/components/empty/style'
 ```vue
 <script setup lang="ts">
 import { UEmpty } from '@veltra/mobile'
-import '@veltra/mobile/components/empty/style'
 </script>
 
 <template>
@@ -142,7 +138,6 @@ import '@veltra/mobile/components/empty/style'
 ```vue
 <script setup lang="ts">
 import { UEmpty } from '@veltra/mobile'
-import '@veltra/mobile/components/empty/style'
 </script>
 
 <template>

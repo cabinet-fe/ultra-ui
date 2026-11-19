@@ -30,7 +30,6 @@ keywords:
 <script setup lang="ts">
 import { URadio } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/radio/style'
 
 const selected = shallowRef('a')
 </script>
@@ -82,7 +81,9 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    | number
+    | 'full'
+    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段；有 field 时禁止再写 v-model */
@@ -148,7 +149,6 @@ export interface RadioEmits {
 <script setup lang="ts">
 import { URadio } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/radio/style'
 
 const selected = shallowRef('1')
 const items = [
@@ -178,7 +178,6 @@ const items = [
 <script setup lang="ts">
 import { URadio } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/radio/style'
 
 const selected = shallowRef('a')
 </script>
@@ -197,7 +196,6 @@ const selected = shallowRef('a')
 <script setup lang="ts">
 import { UForm, URadioGroup } from '@veltra/mobile'
 import { reactive } from 'vue'
-import '@veltra/mobile/components/radio-group/style'
 
 const formData = reactive({ gender: '' })
 const genderList = [
@@ -228,7 +226,7 @@ const genderList = [
 > - 表单里的一组单选必须用 `URadioGroup` + `field`；禁止给多个 `URadio` 写同一个 `field`，也不要在 `URadio` 上同时写 `field` 和 `v-model`。
 > - 选中判定是 `modelValue === value` 全等；`modelValue` 必须等于某项 `value` 才有选中项。
 > - 独立使用（不在 `UForm` 内）时多个 `URadio` 共享同一个 `v-model`。
-> - 按需引入样式必须走 `import '@veltra/mobile/components/radio/style'`；独立页面使用前必须初始化主题：`import '@veltra/styles/normalize'`、`import { loadTheme } from '@veltra/styles/theme'` 后调用 `loadTheme()`，否则组件无颜色。
+> - 样式随组件 import 自动加载（v2.4.0 起，旧版需 `import '@veltra/mobile/components/radio/style'`）；独立页面使用前必须初始化主题：`import '@veltra/styles/normalize'`、`import { loadTheme } from '@veltra/styles/theme'` 后调用 `loadTheme()`，否则组件无颜色。
 
 ## 常见问题
 
@@ -240,7 +238,6 @@ const genderList = [
 <script setup lang="ts">
 import { URadio } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/radio/style'
 
 const selected = shallowRef('a')
 </script>

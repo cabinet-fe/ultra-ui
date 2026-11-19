@@ -30,7 +30,6 @@ keywords:
 ```vue
 <script setup lang="ts">
 import { UList, UListItem } from '@veltra/mobile'
-import '@veltra/mobile/components/list/style'
 
 const data = [
   { id: 1, title: '收件箱' },
@@ -46,7 +45,7 @@ const data = [
 </template>
 ```
 
-视觉初始化前提：应用入口需要 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、列表无颜色。组件样式按需引入：`import '@veltra/mobile/components/list/style'`。
+视觉初始化前提：应用入口需要 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、列表无颜色。组件样式随 import 自动加载。
 
 ## API 签名
 
@@ -70,9 +69,9 @@ export type ListExposed = {}
 
 ## 参数说明
 
-| 参数   | 类型                              | 默认        | 必填 | 约束                                                                     |
-| ------ | --------------------------------- | ----------- | :--: | ------------------------------------------------------------------------ |
-| `data` | `Record<string, any>[]`           | —           |  是  | 数据驱动的唯一来源；每项触发一次默认插槽渲染                             |
+| 参数   | 类型                              | 默认        | 必填 | 约束                                                                                                              |
+| ------ | --------------------------------- | ----------- | :--: | ----------------------------------------------------------------------------------------------------------------- |
+| `data` | `Record<string, any>[]`           | —           |  是  | 数据驱动的唯一来源；每项触发一次默认插槽渲染                                                                      |
 | `size` | `'small' \| 'default' \| 'large'` | `'default'` |  否  | 移动端未传时固定 `'default'`，不读取全局配置；影响行高（控件高度档）与横向内边距（间距刻度），字号恒为主字号 16px |
 
 插槽：默认插槽，作用域 `{ item: Record<string, any>, index: number }`；插槽内容就是一行的内容。`UListItem` 无属性、无事件，仅渲染 `<li>`；绑定 `@click` 即视为可点行。
@@ -90,7 +89,6 @@ export type ListExposed = {}
 ```vue
 <script setup lang="ts">
 import { UList, UListItem } from '@veltra/mobile'
-import '@veltra/mobile/components/list/style'
 
 const data = Array.from({ length: 50 }, (_, i) => ({ title: `列表项${i}` }))
 </script>
@@ -108,7 +106,6 @@ const data = Array.from({ length: 50 }, (_, i) => ({ title: `列表项${i}` }))
 <script setup lang="ts">
 import { shallowRef } from 'vue'
 import { UList, UListItem } from '@veltra/mobile'
-import '@veltra/mobile/components/list/style'
 
 const data = [
   { id: 'a', title: '任务 A' },
@@ -123,7 +120,10 @@ function onPick(row: { id: string; title: string }) {
 
 <template>
   <u-list :data="data" v-slot="{ item }">
-    <u-list-item :style="{ color: selected === item.id ? 'var(--u-color-primary)' : undefined }" @click="onPick(item)">
+    <u-list-item
+      :style="{ color: selected === item.id ? 'var(--u-color-primary)' : undefined }"
+      @click="onPick(item)"
+    >
       {{ item.title }}
     </u-list-item>
   </u-list>
@@ -135,7 +135,6 @@ function onPick(row: { id: string; title: string }) {
 ```vue
 <script setup lang="ts">
 import { UList, UListItem } from '@veltra/mobile'
-import '@veltra/mobile/components/list/style'
 
 const data = [
   { id: 1, name: '张三' },
@@ -178,7 +177,6 @@ const data = [
 ```vue
 <script setup lang="ts">
 import { UList, UListItem } from '@veltra/mobile'
-import '@veltra/mobile/components/list/style'
 
 const data = Array.from({ length: 50 }, (_, i) => ({ title: `列表项${i}` }))
 </script>

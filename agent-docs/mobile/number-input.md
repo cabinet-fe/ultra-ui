@@ -37,7 +37,6 @@ keywords:
 <script setup lang="ts">
 import { UNumberInput } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/number-input/style'
 
 const count = shallowRef<number | undefined>()
 </script>
@@ -89,7 +88,9 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小；对象形态必须含 default 键 */
   span?:
-    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    | number
+    | 'full'
+    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** UForm 内绑定 model 字段的路径 */
@@ -200,7 +201,6 @@ export interface NumberInputExposed {}
 <script setup lang="ts">
 import { UNumberInput } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/number-input/style'
 
 const weight = shallowRef<number | undefined>(1.5)
 const price = shallowRef<number | undefined>(1234567.891)
@@ -222,7 +222,6 @@ const price = shallowRef<number | undefined>(1234567.891)
 <script setup lang="ts">
 import { UNumberInput } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/number-input/style'
 
 const count = shallowRef<number | undefined>(8)
 // 以「分」为单位的金额：12345 显示为 ¥123.45
@@ -243,7 +242,6 @@ const cents = shallowRef<number | undefined>(12345)
 <script setup lang="ts">
 import { UButton, UForm, UNumberInput } from '@veltra/mobile'
 import { reactive, shallowRef } from 'vue'
-import '@veltra/mobile/components/number-input/style'
 import type { FormExposed } from '@veltra/mobile'
 
 const formRef = shallowRef<FormExposed>()
@@ -293,7 +291,7 @@ async function handleSubmit() {
 > - `pattern` 与 `nativeReadonly` 继承自 `InputProps`，但本组件未把它们透传给内部 `UInput`，写了无效果。
 > - 只声明 `update:modelValue` / `change` / `clear` 三个事件；`change` 仅失焦触发，监听实时变化用 `update:modelValue`（即 `v-model`）。
 > - 只写 `:model-value` 不监听更新时，失焦会回到旧值；必须用 `v-model` 或 `field`。
-> - 按需引入样式必须走 `import '@veltra/mobile/components/number-input/style'`；独立页面使用前必须初始化主题：`import '@veltra/styles/normalize'`、`import { loadTheme } from '@veltra/styles/theme'` 后调用 `loadTheme()`。
+> - 样式随组件 import 自动加载（v2.4.0 起，旧版需 `import '@veltra/mobile/components/number-input/style'`）；独立页面使用前必须初始化主题：`import '@veltra/styles/normalize'`、`import { loadTheme } from '@veltra/styles/theme'` 后调用 `loadTheme()`。
 
 ## 常见问题
 

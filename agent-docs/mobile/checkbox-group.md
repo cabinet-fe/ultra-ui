@@ -34,7 +34,6 @@ keywords:
 <script setup lang="ts">
 import { UCheckboxGroup } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/checkbox-group/style'
 
 const checked = shallowRef<string[]>([])
 const items = [
@@ -90,7 +89,9 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    | number
+    | 'full'
+    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段；有 field 时禁止再写 v-model */
@@ -157,7 +158,6 @@ export interface CheckboxGroupEmits {
 <script setup lang="ts">
 import { UCheckboxGroup } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/checkbox-group/style'
 
 const checked = shallowRef<number[]>([])
 const users = [
@@ -180,8 +180,6 @@ const users = [
 <script setup lang="ts">
 import { UCheckbox, UCheckboxGroup } from '@veltra/mobile'
 import { computed, shallowRef } from 'vue'
-import '@veltra/mobile/components/checkbox/style'
-import '@veltra/mobile/components/checkbox-group/style'
 
 const items = [
   { label: '阅读', value: 'reading' },
@@ -216,7 +214,6 @@ function handleCheckAll(checked: boolean) {
 <script setup lang="ts">
 import { UCheckboxGroup, UForm } from '@veltra/mobile'
 import { reactive } from 'vue'
-import '@veltra/mobile/components/checkbox-group/style'
 
 const formData = reactive({ hobbies: ['reading'] as string[] })
 const hobbyList = [
@@ -228,12 +225,7 @@ const hobbyList = [
 <template>
   <!-- 有 field 就不要再写 v-model；值写入 formData.hobbies -->
   <u-form :model="formData">
-    <u-checkbox-group
-      label="爱好"
-      field="hobbies"
-      :items="hobbyList"
-      :rules="{ required: true }"
-    />
+    <u-checkbox-group label="爱好" field="hobbies" :items="hobbyList" :rules="{ required: true }" />
   </u-form>
 </template>
 ```
@@ -250,7 +242,7 @@ const hobbyList = [
 > - 本库没有 `change` 事件，监听变化用 `@update:model-value` 或 `watch` 值数组。
 > - 需要单个布尔勾选用 `UCheckbox`；需要收集一组值用 `UCheckboxGroup`，禁止手写一组 `UCheckbox` 再各自绑定同一个数组字段。
 > - 在 `UForm` 内必须用 `field` 绑定字段，有 `field` 时禁止再写 `v-model`；`label` / `tips` / `span` / `rules` 仅在 `UForm` / `UFormItem` 内生效。
-> - 按需引入样式必须走 `import '@veltra/mobile/components/checkbox-group/style'`；独立页面使用前必须初始化主题：`import '@veltra/styles/normalize'`、`import { loadTheme } from '@veltra/styles/theme'` 后调用 `loadTheme()`，否则组件无颜色。
+> - 样式随组件 import 自动加载（v2.4.0 起，旧版需 `import '@veltra/mobile/components/checkbox-group/style'`）；独立页面使用前必须初始化主题：`import '@veltra/styles/normalize'`、`import { loadTheme } from '@veltra/styles/theme'` 后调用 `loadTheme()`，否则组件无颜色。
 
 ## 常见问题
 
@@ -262,7 +254,6 @@ const hobbyList = [
 <script setup lang="ts">
 import { UCheckboxGroup } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/checkbox-group/style'
 
 const checked = shallowRef<number[]>([])
 // id 为 0 时勾选无效，改为从 1 开始

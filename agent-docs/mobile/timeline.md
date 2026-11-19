@@ -30,7 +30,6 @@ keywords:
 ```vue
 <script setup lang="ts">
 import { UTimeline, UTimelineItem } from '@veltra/mobile'
-import '@veltra/mobile/components/timeline/style'
 </script>
 
 <template>
@@ -38,12 +37,14 @@ import '@veltra/mobile/components/timeline/style'
   <u-timeline>
     <u-timeline-item timestamp="2026-10-01 09:30">创建部署任务</u-timeline-item>
     <u-timeline-item timestamp="2026-10-02 14:12">构建产物上传完成</u-timeline-item>
-    <u-timeline-item timestamp="2026-10-03 20:05" color="success">验收通过，开始发布</u-timeline-item>
+    <u-timeline-item timestamp="2026-10-03 20:05" color="success"
+      >验收通过，开始发布</u-timeline-item
+    >
   </u-timeline>
 </template>
 ```
 
-视觉初始化前提：应用入口需要 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、圆点与文字无颜色。组件样式按需引入：`import '@veltra/mobile/components/timeline/style'`。
+视觉初始化前提：应用入口需要 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` token 为空、圆点与文字无颜色。组件样式随 import 自动加载。
 
 ## API 签名
 
@@ -73,19 +74,19 @@ export interface TimelineItemProps {
 
 `UTimelineItem`：
 
-| 参数                | 类型                | 默认        | 必填 | 约束                                                                                            |
-| ------------------- | ------------------- | ----------- | :--: | ----------------------------------------------------------------------------------------------- |
-| `color`             | `TimelineItemColor` | `'default'` |  否  | 枚举 `'default' \| 'primary' \| 'success' \| 'warning' \| 'danger'`；提供 `#dot` 插槽时不生效   |
-| `timestamp`         | `string`            | —           |  否  | 时间戳文本，渲染为内容旁的次要文字；不传不渲染                                                  |
-| `timestampPlacement` | `'top' \| 'bottom'` | `'bottom'`  |  否  | 时间戳在内容上方还是下方                                                                        |
+| 参数                 | 类型                | 默认        | 必填 | 约束                                                                                          |
+| -------------------- | ------------------- | ----------- | :--: | --------------------------------------------------------------------------------------------- |
+| `color`              | `TimelineItemColor` | `'default'` |  否  | 枚举 `'default' \| 'primary' \| 'success' \| 'warning' \| 'danger'`；提供 `#dot` 插槽时不生效 |
+| `timestamp`          | `string`            | —           |  否  | 时间戳文本，渲染为内容旁的次要文字；不传不渲染                                                |
+| `timestampPlacement` | `'top' \| 'bottom'` | `'bottom'`  |  否  | 时间戳在内容上方还是下方                                                                      |
 
 插槽：
 
-| 组件            | 插槽      | 说明                                                         |
-| --------------- | --------- | ------------------------------------------------------------ |
-| `UTimeline`     | `default` | 放一组 `UTimelineItem`                                       |
-| `UTimelineItem` | `default` | 节点内容，可放任意节点；长文本自动换行（`word-break`）       |
-| `UTimelineItem` | `dot`     | 自定义节点：替换默认圆点，取消圆形底色，尺寸由插槽内容决定   |
+| 组件            | 插槽      | 说明                                                       |
+| --------------- | --------- | ---------------------------------------------------------- |
+| `UTimeline`     | `default` | 放一组 `UTimelineItem`                                     |
+| `UTimelineItem` | `default` | 节点内容，可放任意节点；长文本自动换行（`word-break`）     |
+| `UTimelineItem` | `dot`     | 自定义节点：替换默认圆点，取消圆形底色，尺寸由插槽内容决定 |
 
 ## 典型示例
 
@@ -94,7 +95,6 @@ export interface TimelineItemProps {
 ```vue
 <script setup lang="ts">
 import { UTimeline, UTimelineItem } from '@veltra/mobile'
-import '@veltra/mobile/components/timeline/style'
 </script>
 
 <template>
@@ -102,7 +102,9 @@ import '@veltra/mobile/components/timeline/style'
     <u-timeline-item timestamp="2026-10-01 09:30" color="primary">流水线启动</u-timeline-item>
     <u-timeline-item timestamp="2026-10-02 14:12" color="warning">等待审批</u-timeline-item>
     <u-timeline-item timestamp="2026-10-03 20:05" color="success">发布完成</u-timeline-item>
-    <u-timeline-item timestamp="2026-10-04 08:00" color="danger">健康检查超时，已回滚</u-timeline-item>
+    <u-timeline-item timestamp="2026-10-04 08:00" color="danger"
+      >健康检查超时，已回滚</u-timeline-item
+    >
   </u-timeline>
 </template>
 ```
@@ -112,7 +114,6 @@ import '@veltra/mobile/components/timeline/style'
 ```vue
 <script setup lang="ts">
 import { UTimeline, UTimelineItem } from '@veltra/mobile'
-import '@veltra/mobile/components/timeline/style'
 </script>
 
 <template>
@@ -135,7 +136,6 @@ import '@veltra/mobile/components/timeline/style'
 ```vue
 <script setup lang="ts">
 import { UTimeline, UTimelineItem } from '@veltra/mobile'
-import '@veltra/mobile/components/timeline/style'
 </script>
 
 <template>
@@ -175,7 +175,6 @@ import '@veltra/mobile/components/timeline/style'
 ```vue
 <script setup lang="ts">
 import { UTimeline, UTimelineItem } from '@veltra/mobile'
-import '@veltra/mobile/components/timeline/style'
 </script>
 
 <template>

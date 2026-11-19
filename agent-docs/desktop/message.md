@@ -35,8 +35,6 @@ keywords:
 
 ```ts
 import { message } from '@veltra/desktop'
-// 样式是独立入口，必须显式引入；宿主模板里出现过 UMessage 并由 VeltraUIResolver 自动引入时可省
-import '@veltra/desktop/components/message/style'
 
 // 字符串简写，等价于 message({ message: '已保存' })
 const instance = message('已保存')
@@ -224,7 +222,7 @@ function onRouteChange() {
 >
 > - 本库快捷方法是 `warn` / `error`，不是 Element Plus / Ant Design 风格的 `warning`；`messageConfirm` 与 `notification` 的快捷方法才是 `warning` / `danger`。
 > - 消息固定出现在页面顶部居中（挂载在 `document.body` 的 `ul.u-message__container`），本库不提供 `position` / `offset` 配置，不是从右上角弹出。
-> - `message` 是函数式 API，不经过模板编译，`VeltraUIResolver` 不会为它引入样式。只安装了组件库、未在模板里用 `UMessage` 时，必须 `import '@veltra/desktop/components/message/style'`，或在入口 `import '@veltra/desktop/style'` 引全量样式。缺少样式时的症状是容器与条目都渲染出来但无颜色、无定位样式（`ul.u-message__container` 没有 `position: fixed`），不是「消息没弹出来」。
+> - `message` 是函数式 API，样式随 `import { message } from '@veltra/desktop'` 自动加载（v2.4.0 起；旧版需 `import '@veltra/desktop/components/message/style'`）。缺少样式时的症状是容器与条目都渲染出来但无颜色、无定位样式（`ul.u-message__container` 没有 `position: fixed`），不是「消息没弹出来」。
 > - `html: true` 用 `v-html` 渲染，禁止拼接用户输入，否则产生 XSS。
 > - `instance.onClosed` 是实例上的 Promise 属性，不是方法；写成 `instance.onClosed()` 会抛 `TypeError: instance.onClosed is not a function`。
 > - 函数式消息需要主题 token：入口必须 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则消息无颜色。
@@ -245,12 +243,7 @@ function onRouteChange() {
   loadTheme()
   ```
 
-- `--u-*` 变量在，但 Styles 面板搜不到 `.u-message__container` / `.u-message` 规则：样式未引入。`message` 是函数式 API，不经过模板编译，模板里没用 `UMessage` 时 resolver 不会注入样式。修复（应用入口或调用 `message` 的文件里引入）：
-
-  ```ts
-  import '@veltra/desktop/components/message/style'
-  // 或引全量样式：import '@veltra/desktop/style'
-  ```
+- `--u-*` 变量在，但 Styles 面板搜不到 `.u-message__container` / `.u-message` 规则：样式未加载。v2.4.0 起 `import { message } from '@veltra/desktop'` 自动带样式；仍命中时多为旧版包，升级依赖。
 
 ### SSR 报 `ReferenceError: document is not defined`
 

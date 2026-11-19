@@ -51,8 +51,6 @@ footer 是**水平按钮组**：不传 `#footer` 插槽时内置「取消 / 确�
 import { ref } from 'vue'
 
 import { UButton, UDialog } from '@veltra/mobile'
-import '@veltra/mobile/components/dialog/style'
-import '@veltra/mobile/components/button/style'
 
 const visible = ref(false)
 </script>
@@ -127,31 +125,31 @@ export interface DialogExposed {
 
 ## 参数说明
 
-| 参数              | 类型                                  | 默认       | 必填 | 约束                                                                                          |
-| ----------------- | ------------------------------------- | ---------- | :--: | --------------------------------------------------------------------------------------------- |
-| `modelValue`      | `boolean`                             | `false`    |  否  | 用 `v-model` 绑定；`false` 时整棵弹框 DOM 不渲染                                              |
-| `title`           | `string`                              | —          |  否  | 标题文字（居中、加粗、最多两行省略）；`header` 存在时被忽略                                   |
-| `header`          | `string`                              | —          |  否  | 标题文字，优先于 `title`；要自定义结构时改用 `#header` 插槽                                   |
-| `confirmText`     | `string`                              | `'确认'`   |  否  | 内置确认按钮文字；主操作，渲染在按钮组最右（纵向堆叠时最下）                                  |
-| `cancelText`      | `string`                              | `'取消'`   |  否  | 内置取消按钮文字                                                                               |
-| `showCancel`      | `boolean`                             | `true`     |  否  | `false` 时不渲染内置取消按钮，按钮组只剩确认                                                  |
-| `verticalActions` | `boolean`                             | `false`    |  否  | `true` 时 footer 按钮组纵向堆叠（多操作 / 长文案场景），按钮全宽                              |
-| `contentAlign`    | `'left' \| 'center' \| 'right'`       | `'center'` |  否  | 正文水平对齐；表单等左对齐内容传 `'left'`                                                     |
-| `modal`           | `boolean`                             | `true`     |  否  | `true` 时显示遮罩且点遮罩关闭；`false` 时无遮罩背景且遮罩层 `pointer-events: none`，点击外部不关闭 |
-| `fullscreen`      | `boolean`                             | `false`    |  否  | `true` 时卡片 `width` / `height` 100%、去 `max-width` / `max-height` 与圆角，铺满视口，正文与按钮组让出底部安全区 |
-| `transition`      | `'fade-scale'`                       | `'fade-scale'` |  否  | 当前仅接受 `'fade-scale'`                                                                  |
+| 参数              | 类型                            | 默认           | 必填 | 约束                                                                                                              |
+| ----------------- | ------------------------------- | -------------- | :--: | ----------------------------------------------------------------------------------------------------------------- |
+| `modelValue`      | `boolean`                       | `false`        |  否  | 用 `v-model` 绑定；`false` 时整棵弹框 DOM 不渲染                                                                  |
+| `title`           | `string`                        | —              |  否  | 标题文字（居中、加粗、最多两行省略）；`header` 存在时被忽略                                                       |
+| `header`          | `string`                        | —              |  否  | 标题文字，优先于 `title`；要自定义结构时改用 `#header` 插槽                                                       |
+| `confirmText`     | `string`                        | `'确认'`       |  否  | 内置确认按钮文字；主操作，渲染在按钮组最右（纵向堆叠时最下）                                                      |
+| `cancelText`      | `string`                        | `'取消'`       |  否  | 内置取消按钮文字                                                                                                  |
+| `showCancel`      | `boolean`                       | `true`         |  否  | `false` 时不渲染内置取消按钮，按钮组只剩确认                                                                      |
+| `verticalActions` | `boolean`                       | `false`        |  否  | `true` 时 footer 按钮组纵向堆叠（多操作 / 长文案场景），按钮全宽                                                  |
+| `contentAlign`    | `'left' \| 'center' \| 'right'` | `'center'`     |  否  | 正文水平对齐；表单等左对齐内容传 `'left'`                                                                         |
+| `modal`           | `boolean`                       | `true`         |  否  | `true` 时显示遮罩且点遮罩关闭；`false` 时无遮罩背景且遮罩层 `pointer-events: none`，点击外部不关闭                |
+| `fullscreen`      | `boolean`                       | `false`        |  否  | `true` 时卡片 `width` / `height` 100%、去 `max-width` / `max-height` 与圆角，铺满视口，正文与按钮组让出底部安全区 |
+| `transition`      | `'fade-scale'`                  | `'fade-scale'` |  否  | 当前仅接受 `'fade-scale'`                                                                                         |
 
 旧版的 `size` prop（`small` / `default` / `large` 宽度档）已移除：卡片宽度固定 `max-width: 320px`（NutUI 惯例），传 `size` 不再有任何效果。
 
 ## 方法与事件
 
-| 名称                | 类型                         | 触发时机                                                                       |
-| ------------------- | ---------------------------- | ------------------------------------------------------------------------------ |
+| 名称                | 类型                         | 触发时机                                                                                                              |
+| ------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | `update:modelValue` | `(visible: boolean) => void` | 点遮罩（`modal: true` 时）、点右上角关闭按钮、点内置取消/确认按钮或调用 `close()` 时发出，配合 `v-model` 同步外部状态 |
-| `confirm`           | `()`                         | 点击内置确认按钮时发出一次，随后自动关闭（先发事件再关闭）                      |
-| `cancel`            | `()`                         | 点击内置取消按钮时发出一次，随后自动关闭                                        |
-| `closed`            | `()`                         | 遮罩淡出过渡 `after-leave` 后触发一次，此时 DOM 已卸载、背景滚动已恢复，适合清理表单状态 |
-| `close`（ref 方法） | `() => void`，同步，无返回值 | 主动关闭，内部把 `modelValue` 置 `false`                                       |
+| `confirm`           | `()`                         | 点击内置确认按钮时发出一次，随后自动关闭（先发事件再关闭）                                                            |
+| `cancel`            | `()`                         | 点击内置取消按钮时发出一次，随后自动关闭                                                                              |
+| `closed`            | `()`                         | 遮罩淡出过渡 `after-leave` 后触发一次，此时 DOM 已卸载、背景滚动已恢复，适合清理表单状态                              |
+| `close`（ref 方法） | `() => void`，同步，无返回值 | 主动关闭，内部把 `modelValue` 置 `false`                                                                              |
 
 插槽作用域：
 
@@ -173,8 +171,6 @@ export interface DialogExposed {
 import { ref } from 'vue'
 
 import { UButton, UDialog } from '@veltra/mobile'
-import '@veltra/mobile/components/dialog/style'
-import '@veltra/mobile/components/button/style'
 
 const visible = ref(false)
 
@@ -205,8 +201,6 @@ function onConfirm() {
 import { reactive } from 'vue'
 
 import { UButton, UDialog } from '@veltra/mobile'
-import '@veltra/mobile/components/dialog/style'
-import '@veltra/mobile/components/button/style'
 
 const visible = reactive({ notice: false, vertical: false })
 </script>
@@ -234,10 +228,6 @@ const visible = reactive({ notice: false, vertical: false })
 import { reactive, ref, useTemplateRef } from 'vue'
 
 import { UButton, UDialog, UForm, UInput } from '@veltra/mobile'
-import '@veltra/mobile/components/dialog/style'
-import '@veltra/mobile/components/form/style'
-import '@veltra/mobile/components/input/style'
-import '@veltra/mobile/components/button/style'
 
 const visible = ref(false)
 const formRef = useTemplateRef<{ validate: () => Promise<boolean> }>('form')
@@ -278,8 +268,6 @@ async function handleConfirm(close: () => void) {
 import { ref } from 'vue'
 
 import { UButton, UDialog } from '@veltra/mobile'
-import '@veltra/mobile/components/dialog/style'
-import '@veltra/mobile/components/button/style'
 
 const fullscreenVisible = ref(false)
 const longVisible = ref(false)
@@ -336,8 +324,6 @@ const rows = Array.from({ length: 30 }, (_, i) => `第 ${i + 1} 行内容`)
 import { ref } from 'vue'
 
 import { UButton, UDialog } from '@veltra/mobile'
-import '@veltra/mobile/components/dialog/style'
-import '@veltra/mobile/components/button/style'
 
 const visible = ref(false)
 
@@ -367,10 +353,6 @@ async function submit(close: () => void) {
 import { reactive, ref } from 'vue'
 
 import { UButton, UDialog, UForm, UInput } from '@veltra/mobile'
-import '@veltra/mobile/components/dialog/style'
-import '@veltra/mobile/components/form/style'
-import '@veltra/mobile/components/input/style'
-import '@veltra/mobile/components/button/style'
 
 const visible = ref(false)
 const formData = reactive({ name: '' })

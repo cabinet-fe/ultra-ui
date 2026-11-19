@@ -30,8 +30,6 @@ keywords:
 ```vue
 <script setup lang="ts">
 import { UButton, USpace } from '@veltra/mobile'
-import '@veltra/mobile/components/space/style'
-import '@veltra/mobile/components/button/style'
 </script>
 
 <template>
@@ -77,12 +75,12 @@ export interface SpaceEmits {}
 
 ## 参数说明
 
-| 参数        | 类型                                          | 默认          | 必填 | 约束                                                                   |
-| ----------- | --------------------------------------------- | ------------- | :--: | ---------------------------------------------------------------------- |
-| `size`      | `ComponentSize \| number \| [number, number]` | `'default'`   |  否  | 档位走 `--um-spacing-*` 密度刻度（small 8px / default 12px / large 16px，可在宿主覆盖变量）；数字与二元组为 px |
-| `direction` | `'horizontal' \| 'vertical'`                  | `'horizontal'` |  否  | `vertical` 时 `flex-direction: column`                                 |
-| `align`     | `'start' \| 'center' \| 'end' \| 'baseline'`  | `'center'`    |  否  | 对应 `align-items`；不支持 `stretch`                                   |
-| `wrap`      | `boolean`                                     | `false`       |  否  | `flex-wrap: wrap`；垂直方向下无效                                      |
+| 参数        | 类型                                          | 默认           | 必填 | 约束                                                                                                           |
+| ----------- | --------------------------------------------- | -------------- | :--: | -------------------------------------------------------------------------------------------------------------- |
+| `size`      | `ComponentSize \| number \| [number, number]` | `'default'`    |  否  | 档位走 `--um-spacing-*` 密度刻度（small 8px / default 12px / large 16px，可在宿主覆盖变量）；数字与二元组为 px |
+| `direction` | `'horizontal' \| 'vertical'`                  | `'horizontal'` |  否  | `vertical` 时 `flex-direction: column`                                                                         |
+| `align`     | `'start' \| 'center' \| 'end' \| 'baseline'`  | `'center'`     |  否  | 对应 `align-items`；不支持 `stretch`                                                                           |
+| `wrap`      | `boolean`                                     | `false`        |  否  | `flex-wrap: wrap`；垂直方向下无效                                                                              |
 
 `size` 二元组语义是 `[水平间距, 垂直间距]`，分别落到 `column-gap` 与 `row-gap`；单数字同时作用于两个方向。
 
@@ -95,9 +93,6 @@ export interface SpaceEmits {}
 ```vue
 <script setup lang="ts">
 import { UButton, USpace, UTag } from '@veltra/mobile'
-import '@veltra/mobile/components/space/style'
-import '@veltra/mobile/components/button/style'
-import '@veltra/mobile/components/tag/style'
 </script>
 
 <template>
@@ -124,9 +119,6 @@ import '@veltra/mobile/components/tag/style'
 ```vue
 <script setup lang="ts">
 import { UButton, USpace, UText } from '@veltra/mobile'
-import '@veltra/mobile/components/space/style'
-import '@veltra/mobile/components/button/style'
-import '@veltra/mobile/components/text/style'
 </script>
 
 <template>
@@ -152,8 +144,6 @@ import '@veltra/mobile/components/text/style'
 ```vue
 <script setup lang="ts">
 import { USpace, UTag } from '@veltra/mobile'
-import '@veltra/mobile/components/space/style'
-import '@veltra/mobile/components/tag/style'
 </script>
 
 <template>
@@ -184,8 +174,6 @@ import '@veltra/mobile/components/tag/style'
 ```vue
 <script setup lang="ts">
 import { USpace, UButton } from '@veltra/mobile'
-import '@veltra/mobile/components/space/style'
-import '@veltra/mobile/components/button/style'
 </script>
 
 <template>

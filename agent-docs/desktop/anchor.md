@@ -53,9 +53,7 @@ keywords:
 
 <script setup lang="ts">
 import { useTemplateRef } from 'vue'
-// 走 VeltraUIResolver 按需导入时无需显式 import 组件；
-// 显式使用（h / TSX / 非 resolver 项目）则从 '@veltra/desktop' 导入 UAnchor / UAnchorItem，
-// 并补样式入口 import '@veltra/desktop/components/anchor/style'
+// 从 '@veltra/desktop' 导入 UAnchor / UAnchorItem（模板、h() / TSX 通用），样式随 import 自动加载
 
 const scrollRef = useTemplateRef('scrollRef')
 </script>
@@ -199,8 +197,6 @@ function onClickItem(href: string) {
 
 <script setup lang="ts">
 import { UAnchor, UAnchorItem } from '@veltra/desktop'
-// 显式 import 时必须补样式入口，否则无样式
-import '@veltra/desktop/components/anchor/style'
 </script>
 ```
 
@@ -212,7 +208,7 @@ import '@veltra/desktop/components/anchor/style'
 > - `offset` 兼作点击定位落点与滚动高亮判定边界（Element Plus 分 `offset` 与 `bound` 两个参数，本库合并为一个）。
 > - `href` 必须是 `#id` 形式选择器且目标元素存在于 `document`；目标不存在时点击无效果、滚动高亮跳过该项。
 > - `UAnchorItem` 必须放在 `UAnchor` 默认插槽内（通过依赖注入向容器注册）；独立使用不报错但不参与联动。
-> - 走 resolver 的模板组件禁止再显式 import 组件本体；`h()` / TSX 显式使用时必须补 `import '@veltra/desktop/components/anchor/style'`。
+> - `h()` / TSX 显式使用时直接 import `UAnchor` / `UAnchorItem`，样式自动跟随。
 
 ## 常见问题
 

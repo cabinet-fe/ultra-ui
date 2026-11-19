@@ -37,7 +37,6 @@ keywords:
 <script setup lang="ts">
 import { UInput } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/input/style'
 
 const keyword = shallowRef('')
 </script>
@@ -93,7 +92,9 @@ export interface FormComponentProps extends ComponentProps {
   tips?: string
   /** 所占列的大小 */
   span?:
-    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    | number
+    | 'full'
+    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字 */
   label?: string
   /** 表单项字段；有 field 时禁止再写 v-model */
@@ -154,26 +155,26 @@ export interface InputExposed {
 
 ## 参数说明
 
-| 参数                     | 类型                                           | 默认        | 必填 | 约束                                                                                |
-| ------------------------ | ---------------------------------------------- | ----------- | :--: | ----------------------------------------------------------------------------------- |
-| `v-model` / `modelValue` | `string`                                       | `undefined` |  否  | 双向绑定的值                                                                        |
-| `placeholder`            | `string`                                       | `'请输入'`  |  否  | —                                                                                   |
-| `prefix`                 | `string`                                       | —           |  否  | 前缀文字；也可用 `#prefix` 插槽，两者可同时用                                       |
-| `suffix`                 | `string`                                       | —           |  否  | 后缀文字；也可用 `#suffix` 插槽；清除按钮显示时后缀内容被替换                       |
-| `clearable`              | `boolean`                                      | `true`      |  否  | 清除按钮显示条件：有值 + 非禁用（移动端常显，无 hover 门槛）                        |
-| `nativeReadonly`         | `boolean`                                      | `false`     |  否  | 仅锁定原生 `<input>`；与 `readonly`（整体渲染为文本）不同                           |
-| `pattern`                | `RegExp`                                       | —           |  否  | 整体匹配：不匹配的键入不提交，失焦时还原显示值；指定后默认值必须匹配                |
-| `inputmode`              | `string`（透传属性）                          | —           |  否  | 非公开 prop，写在组件标签上即透传原生 `<input>`，如 `numeric` / `decimal` / `search` |
-| `enterkeyhint`           | `string`（透传属性）                          | —           |  否  | 非公开 prop，透传原生 `<input>`，控制软键盘回车键文案，如 `send` / `search` / `next` |
-| `maxlength`              | `number`（透传属性）                          | —           |  否  | 非公开 prop，透传原生 `<input>`，限制可输入长度                                     |
-| `field`                  | `string`                                       | —           |  否  | 表单内生效。绑定 `<u-form :model>` 的字段；有 `field` 禁止再写 `v-model`            |
-| `label`                  | `string`                                       | —           |  否  | 表单内生效。表单标签文字                                                            |
-| `rules`                  | `ValidateRule`                                 | —           |  否  | 表单内生效。结构见 `## API 签名` 的 `ValidateRule`                                  |
-| `tips`                   | `string`                                       | —           |  否  | 表单内生效。表单项提示文案                                                          |
-| `span`                   | `number \| 'full' \| 按 BreakpointName 的对象` | —           |  否  | 表单内生效。`'full'` 占满一行；对象形态必须含 `default` 键                          |
-| `size`                   | `ComponentSize`                                | `'default'` |  否  | 取值 `'small' \| 'default' \| 'large'`；优先级：组件 props > 表单 > 全局配置 > 默认 |
-| `disabled`               | `boolean`                                      | `false`     |  否  | 禁用时输入与清除按钮均不可用；优先级同 `size`                                       |
-| `readonly`               | `boolean`                                      | `false`     |  否  | `true` 时整个组件渲染为纯文本 `prefix + 值 + suffix`（不含插槽内容），空值显示 `-`  |
+| 参数                     | 类型                                           | 默认        | 必填 | 约束                                                                                 |
+| ------------------------ | ---------------------------------------------- | ----------- | :--: | ------------------------------------------------------------------------------------ |
+| `v-model` / `modelValue` | `string`                                       | `undefined` |  否  | 双向绑定的值                                                                         |
+| `placeholder`            | `string`                                       | `'请输入'`  |  否  | —                                                                                    |
+| `prefix`                 | `string`                                       | —           |  否  | 前缀文字；也可用 `#prefix` 插槽，两者可同时用                                        |
+| `suffix`                 | `string`                                       | —           |  否  | 后缀文字；也可用 `#suffix` 插槽；清除按钮显示时后缀内容被替换                        |
+| `clearable`              | `boolean`                                      | `true`      |  否  | 清除按钮显示条件：有值 + 非禁用（移动端常显，无 hover 门槛）                         |
+| `nativeReadonly`         | `boolean`                                      | `false`     |  否  | 仅锁定原生 `<input>`；与 `readonly`（整体渲染为文本）不同                            |
+| `pattern`                | `RegExp`                                       | —           |  否  | 整体匹配：不匹配的键入不提交，失焦时还原显示值；指定后默认值必须匹配                 |
+| `inputmode`              | `string`（透传属性）                           | —           |  否  | 非公开 prop，写在组件标签上即透传原生 `<input>`，如 `numeric` / `decimal` / `search` |
+| `enterkeyhint`           | `string`（透传属性）                           | —           |  否  | 非公开 prop，透传原生 `<input>`，控制软键盘回车键文案，如 `send` / `search` / `next` |
+| `maxlength`              | `number`（透传属性）                           | —           |  否  | 非公开 prop，透传原生 `<input>`，限制可输入长度                                      |
+| `field`                  | `string`                                       | —           |  否  | 表单内生效。绑定 `<u-form :model>` 的字段；有 `field` 禁止再写 `v-model`             |
+| `label`                  | `string`                                       | —           |  否  | 表单内生效。表单标签文字                                                             |
+| `rules`                  | `ValidateRule`                                 | —           |  否  | 表单内生效。结构见 `## API 签名` 的 `ValidateRule`                                   |
+| `tips`                   | `string`                                       | —           |  否  | 表单内生效。表单项提示文案                                                           |
+| `span`                   | `number \| 'full' \| 按 BreakpointName 的对象` | —           |  否  | 表单内生效。`'full'` 占满一行；对象形态必须含 `default` 键                           |
+| `size`                   | `ComponentSize`                                | `'default'` |  否  | 取值 `'small' \| 'default' \| 'large'`；优先级：组件 props > 表单 > 全局配置 > 默认  |
+| `disabled`               | `boolean`                                      | `false`     |  否  | 禁用时输入与清除按钮均不可用；优先级同 `size`                                        |
+| `readonly`               | `boolean`                                      | `false`     |  否  | `true` 时整个组件渲染为纯文本 `prefix + 值 + suffix`（不含插槽内容），空值显示 `-`   |
 
 插槽：`#prefix` 前缀、`#suffix` 后缀。
 
@@ -202,7 +203,6 @@ export interface InputExposed {
 <script setup lang="ts">
 import { UInput } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/input/style'
 
 const phone = shallowRef('13800138000')
 const remark = shallowRef('')
@@ -226,7 +226,6 @@ const keyword = shallowRef('')
 import { UIcon, UInput } from '@veltra/mobile'
 import { Search } from '@veltra/icons/normal'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/input/style'
 
 const keyword = shallowRef('ultra')
 
@@ -252,7 +251,6 @@ function handleSearch(value?: string) {
 <script setup lang="ts">
 import { UForm, UInput } from '@veltra/mobile'
 import { reactive } from 'vue'
-import '@veltra/mobile/components/input/style'
 
 const form = reactive({ username: '' })
 </script>
@@ -287,7 +285,7 @@ const form = reactive({ username: '' })
 > - `update:modelValue` 每次键入都触发，本库无内置防抖；需要防抖时在监听侧自行实现（如定时器合并）。
 > - 本库的输入过滤参数是 `pattern`（`RegExp`，整体匹配），不是开源库里常见的 `formatter` / `mask`；不匹配的键入被静默丢弃，不抛错。
 > - 拼音等 IME 组合输入期间 `modelValue` 不更新，组合结束后才更新一次。
-> - 按需引入样式必须走 `import '@veltra/mobile/components/input/style'`；独立页面使用前必须初始化主题：`import '@veltra/styles/normalize'`、`import { loadTheme } from '@veltra/styles/theme'` 后调用 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色。
+> - 样式随组件 import 自动加载（v2.4.0 起，旧版需 `import '@veltra/mobile/components/input/style'`）；独立页面使用前必须初始化主题：`import '@veltra/styles/normalize'`、`import { loadTheme } from '@veltra/styles/theme'` 后调用 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色。
 
 ## 常见问题
 

@@ -33,7 +33,6 @@ keywords:
 <script setup lang="ts">
 import { ref } from 'vue'
 import { USkeleton } from '@veltra/mobile'
-import '@veltra/mobile/components/skeleton/style'
 
 const loading = ref(true)
 </script>
@@ -49,7 +48,7 @@ const loading = ref(true)
 </template>
 ```
 
-前置条件：入口已 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则占位块填充色 token（`--u-bg-color-hover`）为空。组件样式按需引入：`import '@veltra/mobile/components/skeleton/style'`。
+前置条件：入口已 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则占位块填充色 token（`--u-bg-color-hover`）为空。组件样式随 import 自动加载。
 
 ## API 签名
 
@@ -89,16 +88,16 @@ export interface SkeletonEmits {}
 
 ## 参数说明
 
-| 参数        | 类型      | 默认     | 必填 | 约束                                                          |
-| ----------- | --------- | -------- | :--: | ------------------------------------------------------------- |
-| `loading`   | `boolean` | `true`   |  否  | `true` 渲染 `.um-skeleton` 根元素；`false` 直接渲染插槽内容     |
-| `avatar`    | `boolean` | `false`  |  否  | 40px 圆形占位（`--um-avatar-size-default` 档），位于内容左侧，始终为圆形（不受 `round` 影响） |
-| `title`     | `boolean` | `true`   |  否  | 高 20px（主字号 + 4px）、宽 33% 的占位条                      |
-| `paragraph` | `boolean` | `true`   |  否  | 高 18px（辅助字号 + 4px）的占位条；最后一行固定宽 60% 模拟自然段落 |
-| `rows`      | `number`  | `3`      |  否  | 段落行数，取值 ≥ 1；`paragraph` 为 `false` 时无效             |
-| `button`    | `boolean` | `false`  |  否  | 宽 88px（触控热区两倍）、高 `--um-control-height-default`（40px）的按钮形态占位 |
-| `round`     | `boolean` | `false`  |  否  | 标题 / 段落 / 按钮占位条圆角改为 `--u-radius-large` 胶囊形    |
-| `animated`  | `boolean` | `false`  |  否  | 占位块 1.4s 周期呼吸明暗（opacity 1 → 0.4 → 1）               |
+| 参数        | 类型      | 默认    | 必填 | 约束                                                                                          |
+| ----------- | --------- | ------- | :--: | --------------------------------------------------------------------------------------------- |
+| `loading`   | `boolean` | `true`  |  否  | `true` 渲染 `.um-skeleton` 根元素；`false` 直接渲染插槽内容                                   |
+| `avatar`    | `boolean` | `false` |  否  | 40px 圆形占位（`--um-avatar-size-default` 档），位于内容左侧，始终为圆形（不受 `round` 影响） |
+| `title`     | `boolean` | `true`  |  否  | 高 20px（主字号 + 4px）、宽 33% 的占位条                                                      |
+| `paragraph` | `boolean` | `true`  |  否  | 高 18px（辅助字号 + 4px）的占位条；最后一行固定宽 60% 模拟自然段落                            |
+| `rows`      | `number`  | `3`     |  否  | 段落行数，取值 ≥ 1；`paragraph` 为 `false` 时无效                                             |
+| `button`    | `boolean` | `false` |  否  | 宽 88px（触控热区两倍）、高 `--um-control-height-default`（40px）的按钮形态占位               |
+| `round`     | `boolean` | `false` |  否  | 标题 / 段落 / 按钮占位条圆角改为 `--u-radius-large` 胶囊形                                    |
+| `animated`  | `boolean` | `false` |  否  | 占位块 1.4s 周期呼吸明暗（opacity 1 → 0.4 → 1）                                               |
 
 ## 典型示例
 
@@ -107,7 +106,6 @@ export interface SkeletonEmits {}
 ```vue
 <script setup lang="ts">
 import { USkeleton } from '@veltra/mobile'
-import '@veltra/mobile/components/skeleton/style'
 </script>
 
 <template>
@@ -125,7 +123,6 @@ import '@veltra/mobile/components/skeleton/style'
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { USkeleton } from '@veltra/mobile'
-import '@veltra/mobile/components/skeleton/style'
 
 const loading = ref(true)
 const article = ref<{ title: string; body: string } | null>(null)
@@ -153,7 +150,6 @@ onMounted(async () => {
 <script setup lang="ts">
 import { shallowRef } from 'vue'
 import { USkeleton } from '@veltra/mobile'
-import '@veltra/mobile/components/skeleton/style'
 
 const loading = shallowRef(true)
 </script>
@@ -188,7 +184,6 @@ const loading = shallowRef(true)
 <script setup lang="ts">
 import { ref } from 'vue'
 import { USkeleton } from '@veltra/mobile'
-import '@veltra/mobile/components/skeleton/style'
 
 const loading = ref(true)
 

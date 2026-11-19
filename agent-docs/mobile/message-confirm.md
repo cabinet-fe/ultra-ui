@@ -34,8 +34,6 @@ keywords:
 
 ```ts
 import { messageConfirm } from '@veltra/mobile'
-// 样式是独立入口，必须显式引入；宿主模板里出现过 UMessageConfirm 并由 VeltraUIResolver 自动引入时可省
-import '@veltra/mobile/components/message-confirm/style'
 
 // 字符串简写等价于 messageConfirm({ message: '确认提交吗？' })
 const instance = messageConfirm({
@@ -126,17 +124,17 @@ export const messageConfirm: MessageConfirm
 
 `messageConfirm(options)` 选项（快捷方法第二参数 `config` 相同，但不含 `message` / `confirmButtonType`）：
 
-| 参数                | 类型                                                        | 默认                | 必填 | 约束                                                         |
-| ------------------- | ----------------------------------------------------------- | ------------------- | :--: | ------------------------------------------------------------ |
-| `message`           | `string`                                                    | `''`                |  是  | 纯文本渲染，不支持 HTML；长内容自动换行，卡片宽度受视口约束  |
-| `title`             | `string`                                                    | `''`                |  否  | 为空时不渲染标题栏                                           |
-| `confirmButtonText` | `string`                                                    | `'确定'`            |  否  | 确认按钮固定显示                                             |
-| `cancelButtonText`  | `string`                                                    | `''`                |  否  | 为空时取消按钮不渲染                                         |
-| `confirmButtonType` | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'` | `'primary'`         |  否  | 快捷方法固定该值，`config` 中不可再传                        |
+| 参数                | 类型                                                        | 默认                | 必填 | 约束                                                           |
+| ------------------- | ----------------------------------------------------------- | ------------------- | :--: | -------------------------------------------------------------- |
+| `message`           | `string`                                                    | `''`                |  是  | 纯文本渲染，不支持 HTML；长内容自动换行，卡片宽度受视口约束    |
+| `title`             | `string`                                                    | `''`                |  否  | 为空时不渲染标题栏                                             |
+| `confirmButtonText` | `string`                                                    | `'确定'`            |  否  | 确认按钮固定显示                                               |
+| `cancelButtonText`  | `string`                                                    | `''`                |  否  | 为空时取消按钮不渲染                                           |
+| `confirmButtonType` | `'primary' \| 'info' \| 'success' \| 'warning' \| 'danger'` | `'primary'`         |  否  | 快捷方法固定该值，`config` 中不可再传                          |
 | `size`              | `'small' \| 'default' \| 'large'`                           | `'default'`         |  否  | 仅影响正文字号：small 为辅助字号 14px，default / large 为 16px |
-| `zIndex`            | `number`                                                    | 全局自增（1000 起） |  否  | 容器、遮罩、内容框同值                                       |
-| `onClose`           | `(action: MessageConfirmAction) => void`                    | —                   |  否  | 点击按钮触发关闭时回调                                       |
-| `onClosed`          | `(action: MessageConfirmAction) => void`                    | —                   |  否  | 关闭动画结束后回调；`closeAll()` 关闭时 action 为 `'cancel'` |
+| `zIndex`            | `number`                                                    | 全局自增（1000 起） |  否  | 容器、遮罩、内容框同值                                         |
+| `onClose`           | `(action: MessageConfirmAction) => void`                    | —                   |  否  | 点击按钮触发关闭时回调                                         |
+| `onClosed`          | `(action: MessageConfirmAction) => void`                    | —                   |  否  | 关闭动画结束后回调；`closeAll()` 关闭时 action 为 `'cancel'`   |
 
 `UMessageConfirm` 组件（声明式）接收 `MessageConfirmProps`，事件见「方法与事件」。
 
@@ -164,7 +162,6 @@ export const messageConfirm: MessageConfirm
 
 ```ts
 import { messageConfirm } from '@veltra/mobile'
-import '@veltra/mobile/components/message-confirm/style'
 
 async function removeItem(id: string) {
   const action = await messageConfirm({
@@ -186,7 +183,6 @@ async function removeItem(id: string) {
 
 ```ts
 import { messageConfirm } from '@veltra/mobile'
-import '@veltra/mobile/components/message-confirm/style'
 
 // 快捷方法固定 confirmButtonType: 'danger'；第二参数不含 confirmButtonType
 messageConfirm.danger('此操作不可逆，确认继续？', {
@@ -203,7 +199,6 @@ messageConfirm.danger('此操作不可逆，确认继续？', {
 
 ```ts
 import { messageConfirm } from '@veltra/mobile'
-import '@veltra/mobile/components/message-confirm/style'
 
 const instance = messageConfirm({ message: '处理中，是否中断？', cancelButtonText: '取消' })
 
@@ -222,7 +217,6 @@ import type { MessageConfirmAction } from '@veltra/mobile'
 import { shallowRef } from 'vue'
 
 import { UMessageConfirm } from '@veltra/mobile'
-import '@veltra/mobile/components/message-confirm/style'
 
 const visible = shallowRef(false)
 
@@ -254,7 +248,7 @@ function handleClose(action: MessageConfirmAction) {
 > - 快捷方法是 `warning` / `danger`，与 `message` 的 `warn` / `error` 拼写不同。
 > - 点击遮罩不会关闭确认框，这是设计行为；只能点按钮或调用 `instance.close()` / `closeAll()`。
 > - `instance.onClosed` 是 Promise 属性，不是方法；写成 `instance.onClosed()` 会抛 `TypeError`。
-> - `messageConfirm` 是函数式 API，不经过模板编译，`VeltraUIResolver` 不会为它引入样式。只安装了组件库、未在模板里用 `UMessageConfirm` 时，必须 `import '@veltra/mobile/components/message-confirm/style'`。缺少样式时的症状是遮罩与内容框都渲染出来但无颜色、无定位样式（`div.um-message-confirm__container` 没有 `position: fixed`），不是「确认框没弹出来」。
+> - `messageConfirm` 是函数式 API，样式随 `import { messageConfirm } from '@veltra/mobile'` 自动加载（v2.4.0 起；旧版需 `import '@veltra/mobile/components/message-confirm/style'`）。缺少样式时的症状是遮罩与内容框都渲染出来但无颜色、无定位样式（`div.um-message-confirm__container` 没有 `position: fixed`），不是「确认框没弹出来」。
 > - 需要主题 token：入口必须 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` 为空、确认框无颜色。
 
 ## 常见问题
@@ -272,11 +266,7 @@ function handleClose(action: MessageConfirmAction) {
   loadTheme()
   ```
 
-- `--u-*` 变量在，但 Styles 面板搜不到 `.um-message-confirm__container` / `.um-message-confirm` 规则：样式未引入。修复（应用入口或调用 `messageConfirm` 的文件里引入）：
-
-  ```ts
-  import '@veltra/mobile/components/message-confirm/style'
-  ```
+- `--u-*` 变量在，但 Styles 面板搜不到 `.um-message-confirm__container` / `.um-message-confirm` 规则：样式未加载。v2.4.0 起 `import { messageConfirm } from '@veltra/mobile'` 自动带样式；仍命中时多为旧版包，升级依赖。
 
 ### 只想展示一条告知信息，不需要取消按钮
 
@@ -284,7 +274,6 @@ function handleClose(action: MessageConfirmAction) {
 
 ```ts
 import { messageConfirm } from '@veltra/mobile'
-import '@veltra/mobile/components/message-confirm/style'
 
 messageConfirm('已保存至草稿箱', { confirmButtonText: '知道了' })
 ```

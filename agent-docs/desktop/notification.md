@@ -35,8 +35,6 @@ keywords:
 
 ```ts
 import { notification } from '@veltra/desktop'
-// 样式是独立入口，必须显式引入；宿主模板里出现过 UNotification 并由 VeltraUIResolver 自动引入时可省
-import '@veltra/desktop/components/notification/style'
 
 // 字符串简写，等价于 notification({ message: '数据已保存' })
 notification('数据已保存')
@@ -259,7 +257,7 @@ function onAction(e: MouseEvent) {
 > - `offset` 与 `zIndex` 作用于整个方位容器：同一方位后弹出的通知会以最新一次调用的 `offset` / `zIndex` 更新容器。
 > - 折叠态下只有最前一条通知可交互，第 4 条起不可见但仍计入堆叠；需要查看全部要悬停展开。
 > - `instance.onClosed` 是 Promise 属性，不是方法；写成 `instance.onClosed()` 会抛 `TypeError`。
-> - `notification` 是函数式 API，不经过模板编译，`VeltraUIResolver` 不会为它引入样式。只安装了组件库、未在模板里用 `UNotification` 时，必须 `import '@veltra/desktop/components/notification/style'`，或在入口 `import '@veltra/desktop/style'` 引全量样式。缺少样式时的症状是容器与条目都渲染出来、位置也对（容器定位由 JS 内联样式写死），但条目没有宽度、边框、背景色与文字颜色，不是「通知没弹出来」。
+> - `notification` 是函数式 API，样式随 `import { notification } from '@veltra/desktop'` 自动加载（v2.4.0 起；旧版需 `import '@veltra/desktop/components/notification/style'`）。缺少样式时的症状是容器与条目都渲染出来、位置也对（容器定位由 JS 内联样式写死），但条目没有宽度、边框、背景色与文字颜色，不是「通知没弹出来」。
 > - 需要主题 token：入口必须 `import '@veltra/styles/normalize'` 并调用 `@veltra/styles/theme` 的 `loadTheme()`，否则 `--u-*` 为空、通知无颜色。
 > - 需要让通知树内组件访问应用级 `provide` / 全局注册组件时，在 `setup` 中设置 `notification._context = getCurrentInstance()?.appContext ?? null`。
 
@@ -288,9 +286,4 @@ notification({ message: '置顶显示', position: 'top-right', zIndex: 99999 })
   loadTheme()
   ```
 
-- `--u-*` 变量在，但 Styles 面板搜不到 `.u-notification` 规则：样式未引入。`notification` 是函数式 API，不经过模板编译，模板里没用 `UNotification` 时 resolver 不会注入样式；容器的 `position` / 偏移由 JS 内联写入，所以位置正常、条目本身没有宽度与配色。修复（应用入口或调用 `notification` 的文件里引入）：
-
-  ```ts
-  import '@veltra/desktop/components/notification/style'
-  // 或引全量样式：import '@veltra/desktop/style'
-  ```
+- `--u-*` 变量在，但 Styles 面板搜不到 `.u-notification` 规则：样式未加载。v2.4.0 起 `import { notification } from '@veltra/desktop'` 自动带样式；仍命中时多为旧版包，升级依赖。

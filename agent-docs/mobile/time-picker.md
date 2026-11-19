@@ -40,7 +40,6 @@ keywords:
 import { shallowRef } from 'vue'
 
 import { UTimePicker } from '@veltra/mobile'
-import '@veltra/mobile/components/time-picker/style'
 
 const startAt = shallowRef('09:30:00')
 </script>
@@ -113,7 +112,9 @@ export interface TimePickerProps {
   tips?: string
   /** 所占列数；移动端 UForm 单列呈现，该属性不生效 */
   span?:
-    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    | number
+    | 'full'
+    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 表单标签文字，仅 UForm 内生效 */
   label?: string
   /** UForm 内绑定的 model 字段。设置后禁止再写 v-model */
@@ -139,25 +140,25 @@ export interface TimePickerExposed {}
 
 ## 参数说明
 
-| 参数                     | 类型                                           | 默认              | 必填 | 约束                                                                                |
-| ------------------------ | ---------------------------------------------- | ----------------- | :--: | ----------------------------------------------------------------------------------- |
-| `v-model` / `modelValue` | `string \| number \| Date`                     | `undefined`       |  否  | 实际类型随 `dataType`；字符串先按 `valueFormat ?? format` 解析，失败再按原生规则解析，仍失败按空处理 |
-| `format`                 | `string`                                       | `'HH:mm:ss'`      |  否  | 触发器显示格式；`HH` 时、`mm` 分、`ss` 秒                                           |
-| `valueFormat`            | `string`                                       | 复用 `format`     |  否  | 仅 `dataType="string"` 时生效：决定提交的字符串格式，并用于解析传入字符串           |
-| `dataType`               | `'string' \| 'date' \| 'timestamp'`            | `'string'`        |  否  | 绑定值类型；非 `'string'` 时 `valueFormat` 不生效                                   |
-| `disabledHours`          | `() => number[]`                               | —                 |  否  | 返回的时值（0~23）在滚轮不可选                                                      |
-| `disabledMinutes`        | `(hour: number) => number[]`                   | —                 |  否  | `hour` 为暂存的小时；返回的分值（0~59）不可选                                       |
-| `disabledSeconds`        | `(hour: number, minute: number) => number[]`   | —                 |  否  | `hour` / `minute` 为暂存的小时 / 分；返回的秒值（0~59）不可选                       |
-| `clearable`              | `boolean`                                      | `true`            |  否  | 有值且非禁用时触发器常显清除按钮（无 hover 概念）                                   |
-| `placeholder`            | `string`                                       | `'选择时间'`      |  否  | 无值时的触发器文案；同时作为底部面板标题                                             |
-| `field`                  | `string`                                       | —                 |  否  | 表单内生效。绑定 `<UForm :model>` 的字段；有 `field` 禁止再写 `v-model`             |
-| `label`                  | `string`                                       | —                 |  否  | 表单内生效。表单标签文字                                                            |
-| `rules`                  | `ValidateRule`                                 | —                 |  否  | 表单内生效。结构见 `## API 签名` 的 `ValidateRule`                                  |
-| `tips`                   | `string`                                       | —                 |  否  | 表单内生效；移动端不渲染悬浮提示                                                    |
-| `span`                   | `number \| 'full' \| 按 BreakpointName 的对象` | —                 |  否  | 表单内生效；移动端单列呈现，不生效                                                  |
-| `size`                   | `ComponentSize`                                | `'default'`       |  否  | `'small' \| 'default' \| 'large'`；组件 props > 表单 > 默认                         |
-| `disabled`               | `boolean`                                      | `false`           |  否  | 禁用后不可弹出面板、不可清除                                                        |
-| `readonly`               | `boolean`                                      | `false`           |  否  | `true` 时整个组件渲染为纯文本（空值显示 `-`），不渲染触发器与面板                   |
+| 参数                     | 类型                                           | 默认          | 必填 | 约束                                                                                                 |
+| ------------------------ | ---------------------------------------------- | ------------- | :--: | ---------------------------------------------------------------------------------------------------- |
+| `v-model` / `modelValue` | `string \| number \| Date`                     | `undefined`   |  否  | 实际类型随 `dataType`；字符串先按 `valueFormat ?? format` 解析，失败再按原生规则解析，仍失败按空处理 |
+| `format`                 | `string`                                       | `'HH:mm:ss'`  |  否  | 触发器显示格式；`HH` 时、`mm` 分、`ss` 秒                                                            |
+| `valueFormat`            | `string`                                       | 复用 `format` |  否  | 仅 `dataType="string"` 时生效：决定提交的字符串格式，并用于解析传入字符串                            |
+| `dataType`               | `'string' \| 'date' \| 'timestamp'`            | `'string'`    |  否  | 绑定值类型；非 `'string'` 时 `valueFormat` 不生效                                                    |
+| `disabledHours`          | `() => number[]`                               | —             |  否  | 返回的时值（0~23）在滚轮不可选                                                                       |
+| `disabledMinutes`        | `(hour: number) => number[]`                   | —             |  否  | `hour` 为暂存的小时；返回的分值（0~59）不可选                                                        |
+| `disabledSeconds`        | `(hour: number, minute: number) => number[]`   | —             |  否  | `hour` / `minute` 为暂存的小时 / 分；返回的秒值（0~59）不可选                                        |
+| `clearable`              | `boolean`                                      | `true`        |  否  | 有值且非禁用时触发器常显清除按钮（无 hover 概念）                                                    |
+| `placeholder`            | `string`                                       | `'选择时间'`  |  否  | 无值时的触发器文案；同时作为底部面板标题                                                             |
+| `field`                  | `string`                                       | —             |  否  | 表单内生效。绑定 `<UForm :model>` 的字段；有 `field` 禁止再写 `v-model`                              |
+| `label`                  | `string`                                       | —             |  否  | 表单内生效。表单标签文字                                                                             |
+| `rules`                  | `ValidateRule`                                 | —             |  否  | 表单内生效。结构见 `## API 签名` 的 `ValidateRule`                                                   |
+| `tips`                   | `string`                                       | —             |  否  | 表单内生效；移动端不渲染悬浮提示                                                                     |
+| `span`                   | `number \| 'full' \| 按 BreakpointName 的对象` | —             |  否  | 表单内生效；移动端单列呈现，不生效                                                                   |
+| `size`                   | `ComponentSize`                                | `'default'`   |  否  | `'small' \| 'default' \| 'large'`；组件 props > 表单 > 默认                                          |
+| `disabled`               | `boolean`                                      | `false`       |  否  | 禁用后不可弹出面板、不可清除                                                                         |
+| `readonly`               | `boolean`                                      | `false`       |  否  | `true` 时整个组件渲染为纯文本（空值显示 `-`），不渲染触发器与面板                                    |
 
 ## 方法与事件
 
@@ -184,7 +185,6 @@ export interface TimePickerExposed {}
 import { shallowRef } from 'vue'
 
 import { UTimePicker } from '@veltra/mobile'
-import '@veltra/mobile/components/time-picker/style'
 
 const str = shallowRef('09:30:00')
 const ts = shallowRef<number>(Date.now())
@@ -208,7 +208,6 @@ const d = shallowRef<Date>(new Date())
 import { shallowRef } from 'vue'
 
 import { UTimePicker } from '@veltra/mobile'
-import '@veltra/mobile/components/time-picker/style'
 
 const startAt = shallowRef('08:30:30')
 
@@ -245,8 +244,6 @@ function disabledSeconds(hour: number, minute: number) {
 import { reactive } from 'vue'
 
 import { UForm, UTimePicker } from '@veltra/mobile'
-import '@veltra/mobile/components/form/style'
-import '@veltra/mobile/components/time-picker/style'
 
 const form = reactive({ startAt: '', endAt: undefined as number | undefined })
 </script>
@@ -298,7 +295,6 @@ const form = reactive({ startAt: '', endAt: undefined as number | undefined })
 import { shallowRef } from 'vue'
 
 import { UTimePicker } from '@veltra/mobile'
-import '@veltra/mobile/components/time-picker/style'
 
 // valueFormat="HH:mm" 时初值必须是对应格式的字符串
 const startAt = shallowRef('09:30') // 正确，滚轮定位到 09:30:00

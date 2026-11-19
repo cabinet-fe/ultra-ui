@@ -35,7 +35,6 @@ keywords:
 <script setup lang="ts">
 import { UCheckTag } from '@veltra/mobile'
 import { ref } from 'vue'
-import '@veltra/mobile/components/check-tag/style'
 
 const checked = ref(false)
 </script>
@@ -73,10 +72,10 @@ export type CheckTagExposed = {}
 
 ## 参数说明
 
-| 参数         | 类型      | 默认    | 必填 | 约束                                                       |
-| ------------ | --------- | ------- | :--: | ---------------------------------------------------------- |
-| `modelValue` | `boolean` | —       |  否  | 选中态的绑定值；显示优先级高于 `checked`                   |
-| `checked`    | `boolean` | —       |  否  | 仅当 `modelValue` 为 `undefined` 或 `null` 时作为显示回退  |
+| 参数         | 类型      | 默认    | 必填 | 约束                                                                    |
+| ------------ | --------- | ------- | :--: | ----------------------------------------------------------------------- |
+| `modelValue` | `boolean` | —       |  否  | 选中态的绑定值；显示优先级高于 `checked`                                |
+| `checked`    | `boolean` | —       |  否  | 仅当 `modelValue` 为 `undefined` 或 `null` 时作为显示回退               |
 | `disabled`   | `boolean` | `false` |  否  | 禁用态：整体压暗，点击不切换选中、不触发 `update:modelValue` / `change` |
 
 事件：`update:modelValue(value: boolean)` 与 `change(value: boolean)` 同次发出，值均为当前显示态取反（`!(modelValue ?? checked)`）；`change` 便于不关心绑定值、只关心切换时机的场景。
@@ -87,16 +86,16 @@ export type CheckTagExposed = {}
 
 样式形态（取主题 token）：
 
-| 状态     | 文字               | 描边 / 底色                                    |
-| -------- | ------------------ | ---------------------------------------------- |
-| 未选中   | `--u-text-color-main` | `--u-color-primary` 描边 + `light-9` 浅底   |
-| 选中     | 白色               | `--u-color-primary` 的 `dark-3` 描边 + 同色底 |
+| 状态   | 文字                  | 描边 / 底色                                   |
+| ------ | --------------------- | --------------------------------------------- |
+| 未选中 | `--u-text-color-main` | `--u-color-primary` 描边 + `light-9` 浅底     |
+| 选中   | 白色                  | `--u-color-primary` 的 `dark-3` 描边 + 同色底 |
 
 ## 方法与事件
 
-| 事件                | payload          | 触发时机                                        |
-| ------------------- | ---------------- | ----------------------------------------------- |
-| `update:modelValue` | `value: boolean` | 点击非禁用标签时发出，值为当前显示态取反        |
+| 事件                | payload          | 触发时机                                                        |
+| ------------------- | ---------------- | --------------------------------------------------------------- |
+| `update:modelValue` | `value: boolean` | 点击非禁用标签时发出，值为当前显示态取反                        |
 | `change`            | `value: boolean` | 与 `update:modelValue` 同次发出，payload 相同；禁用态点击不触发 |
 
 ## 典型示例
@@ -107,7 +106,6 @@ export type CheckTagExposed = {}
 <script setup lang="ts">
 import { UCheckTag } from '@veltra/mobile'
 import { reactive, computed } from 'vue'
-import '@veltra/mobile/components/check-tag/style'
 
 const filters = reactive([
   { label: '包邮', checked: false },
@@ -132,7 +130,6 @@ const selected = computed(() => filters.filter((f) => f.checked).map((f) => f.la
 <script setup lang="ts">
 import { UCheckTag } from '@veltra/mobile'
 import { ref, watch } from 'vue'
-import '@veltra/mobile/components/check-tag/style'
 
 const onlyMine = ref(false)
 const onlyStar = ref(false)
@@ -154,7 +151,6 @@ watch([onlyMine, onlyStar], ([a, b]) => {
 ```vue
 <script setup lang="ts">
 import { UCheckTag } from '@veltra/mobile'
-import '@veltra/mobile/components/check-tag/style'
 </script>
 
 <template>
@@ -170,7 +166,6 @@ import '@veltra/mobile/components/check-tag/style'
 <script setup lang="ts">
 import { UCheckTag } from '@veltra/mobile'
 import { ref } from 'vue'
-import '@veltra/mobile/components/check-tag/style'
 
 const agreed = ref(true)
 </script>
@@ -205,7 +200,6 @@ const agreed = ref(true)
 <script setup lang="ts">
 import { UCheckTag } from '@veltra/mobile'
 import { ref } from 'vue'
-import '@veltra/mobile/components/check-tag/style'
 
 const checked = ref(false)
 </script>

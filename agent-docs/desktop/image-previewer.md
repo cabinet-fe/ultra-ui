@@ -48,7 +48,7 @@ const open = ref(false)
 </template>
 ```
 
-样式经 `unplugin-vue-components` 配 `VeltraUIResolver` 自动引入，或手动 `import '@veltra/desktop/components/image-previewer/style'`。
+组件样式随 `import { UImagePreviewer } from '@veltra/desktop'` 自动加载。
 
 ## API 签名
 
@@ -102,34 +102,34 @@ export type ImagePreviewerExposed = DeconstructValue<_ImagePreviewerExposed>
 
 ## 参数说明
 
-| 参数                   | 类型                    | 默认   | 必填 | 约束                                                                                       |
-| ---------------------- | ----------------------- | ------ | :--: | ------------------------------------------------------------------------------------------ |
-| `src`                  | `ImagePreviewerSource`  | `—`    |  否  | `undefined` / `null` 时清空预览面；string 直接作 `<img src>`（不做 fetch）                 |
-| `alt`                  | `string`                | `图片预览` | 否 | 无障碍文本与加载失败回退                                                                   |
-| `mime`                | `string`                | `—`    |  否  | 仅二进制源生效（`Uint8Array` / `ArrayBuffer` 构造 objectURL 的类型提示）；`File` / `Blob` 自带 type |
-| `modal`                | `boolean`               | `true` |  否  | `true` lightbox（Teleport 到 body）；`false` 内嵌纯预览面                                   |
-| `open`                 | `boolean`               | `true` |  否  | lightbox 显隐，支持 `v-model:open`；仅 `modal: true` 时参与显隐控制                         |
-| `closeOnClickBackdrop` | `boolean`              | `true`  | 否  | 仅 lightbox 生效；放大后（缩放 > 100%）空白区域是平移热区，不作为关闭入口                  |
-| `closeOnEsc`           | `boolean`               | `true`  | 否  | 仅 lightbox 生效；监听挂在捕获阶段并 `stopPropagation`，不与外层 Esc 处理叠加              |
+| 参数                   | 类型                   | 默认       | 必填 | 约束                                                                                                |
+| ---------------------- | ---------------------- | ---------- | :--: | --------------------------------------------------------------------------------------------------- |
+| `src`                  | `ImagePreviewerSource` | `—`        |  否  | `undefined` / `null` 时清空预览面；string 直接作 `<img src>`（不做 fetch）                          |
+| `alt`                  | `string`               | `图片预览` |  否  | 无障碍文本与加载失败回退                                                                            |
+| `mime`                 | `string`               | `—`        |  否  | 仅二进制源生效（`Uint8Array` / `ArrayBuffer` 构造 objectURL 的类型提示）；`File` / `Blob` 自带 type |
+| `modal`                | `boolean`              | `true`     |  否  | `true` lightbox（Teleport 到 body）；`false` 内嵌纯预览面                                           |
+| `open`                 | `boolean`              | `true`     |  否  | lightbox 显隐，支持 `v-model:open`；仅 `modal: true` 时参与显隐控制                                 |
+| `closeOnClickBackdrop` | `boolean`              | `true`     |  否  | 仅 lightbox 生效；放大后（缩放 > 100%）空白区域是平移热区，不作为关闭入口                           |
+| `closeOnEsc`           | `boolean`              | `true`     |  否  | 仅 lightbox 生效；监听挂在捕获阶段并 `stopPropagation`，不与外层 Esc 处理叠加                       |
 
 ## 方法与事件
 
 ### 事件
 
-| 事件           | payload            | 触发时机                                                                 |
-| -------------- | ------------------ | ------------------------------------------------------------------------ |
-| `update:open`  | `value: boolean`   | lightbox 关闭时置 `false`（配合 `v-model:open`）                          |
-| `close`        | `—`                | lightbox 关闭（关闭按钮 / Esc / 点击图片外区域）                          |
-| `zoom-change`  | `level: number`    | 缩放级别变化（1 = 100%），工具按钮 / `Ctrl/⌘+滚轮` / 双击 / expose 方法  |
-| `error`        | `err: unknown`     | `<img>` 加载失败（URL 不可达、数据损坏），预览面显示「图片加载失败」      |
+| 事件          | payload          | 触发时机                                                                |
+| ------------- | ---------------- | ----------------------------------------------------------------------- |
+| `update:open` | `value: boolean` | lightbox 关闭时置 `false`（配合 `v-model:open`）                        |
+| `close`       | `—`              | lightbox 关闭（关闭按钮 / Esc / 点击图片外区域）                        |
+| `zoom-change` | `level: number`  | 缩放级别变化（1 = 100%），工具按钮 / `Ctrl/⌘+滚轮` / 双击 / expose 方法 |
+| `error`       | `err: unknown`   | `<img>` 加载失败（URL 不可达、数据损坏），预览面显示「图片加载失败」    |
 
 ### 暴露成员（模板 ref）
 
-| 成员        | 签名        | 说明                                                       |
-| ----------- | ----------- | ---------------------------------------------------------- |
-| `zoomIn`    | `() => void` | 放大一级（0.1 步进，收敛在 0.5~3）                        |
-| `zoomOut`   | `() => void` | 缩小一级                                                   |
-| `resetZoom` | `() => void` | 重置到 100%（平移偏移一并归零）                            |
+| 成员        | 签名         | 说明                               |
+| ----------- | ------------ | ---------------------------------- |
+| `zoomIn`    | `() => void` | 放大一级（0.1 步进，收敛在 0.5~3） |
+| `zoomOut`   | `() => void` | 缩小一级                           |
+| `resetZoom` | `() => void` | 重置到 100%（平移偏移一并归零）    |
 
 ### 缩放与平移行为（内置，不可配置）
 

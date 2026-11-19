@@ -37,10 +37,6 @@ keywords:
 <script setup lang="ts">
 import { UForm, UFormItem, UInput, UNumberInput } from '@veltra/mobile'
 import { reactive } from 'vue'
-import '@veltra/mobile/components/form/style'
-import '@veltra/mobile/components/form-item/style'
-import '@veltra/mobile/components/input/style'
-import '@veltra/mobile/components/number-input/style'
 
 const formData = reactive({
   name: '',
@@ -53,11 +49,7 @@ const formData = reactive({
     <UInput label="商品名" field="name" :rules="{ required: '商品名不能为空' }" />
 
     <!-- 两个输入组合成 priceRange 一个字段，校验与标签写在 Item 上 -->
-    <UFormItem
-      label="价格区间"
-      field="priceRange"
-      :rules="{ required: '请填写价格区间' }"
-    >
+    <UFormItem label="价格区间" field="priceRange" :rules="{ required: '请填写价格区间' }">
       <UNumberInput v-model="formData.priceRange.min" placeholder="最低" />
       <span>—</span>
       <UNumberInput v-model="formData.priceRange.max" placeholder="最高" />
@@ -114,7 +106,9 @@ export interface FormItemProps {
   tips?: string
   /** 栅格占位；移动端 UForm 单列呈现，该属性不生效 */
   span?:
-    number | 'full' | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
+    | number
+    | 'full'
+    | ({ [key in BreakpointName]?: 'full' | number } & { default: number | 'full' })
   /** 是否禁用；未传时回退 UForm 的 disabled */
   disabled?: boolean
   /** 是否只读；未传时回退 UForm 的 readonly */
@@ -141,18 +135,18 @@ export interface FormItemExposed {}
 
 ## 参数说明
 
-| 参数            | 类型                                | 默认              |         必填          | 约束                                                                                       |
-| --------------- | ----------------------------------- | ----------------- | :-------------------: | ------------------------------------------------------------------------------------------ |
-| `field`         | `string`                            | —                 | 是（需校验时）        | 支持 `a.b` 嵌套路径；缺失时字段不注册进表单，校验与 model 联动不生效；label 与必填星标不受影响（分别取决于 `label`/`#label` 插槽与 `rules.required`） |
-| `label`         | `string`                            | —                 |          否           | 与 `#label` 插槽二选一；必填星标渲染在 label 文字左侧                                       |
-| `rules`         | `ValidateRule`                      | —                 |          否           | 执行顺序：`required` 先行，其余规则按对象键序，`validator` 最后；需所在 `UForm` 的 `model`  |
-| `tips`          | `string`                            | —                 |          否           | 声明保留；移动端不渲染悬浮提示                                                             |
-| `span`          | `number \| 'full' \| BreakpointMap` | —                 |          否           | 声明保留；移动端 UForm 单列呈现，不生效                                                    |
-| `size`          | `'small' \| 'default' \| 'large'`   | `'default'`       |          否           | 回退链：自身 → UForm `size` → `'default'`                                                  |
-| `disabled`      | `boolean`                           | UForm `disabled`  |          否           | 回退链：自身 → UForm                                                                       |
-| `readonly`      | `boolean`                           | UForm `readonly`  |          否           | 只读时错误提示区隐藏                                                                       |
-| `labelWidth`    | `string \| number`                  | 内容自适应        |          否           | number 单位 px；传了固定宽对齐，未传时按内容自适应；回退链：自身 → UForm `labelWidth`；仅 `labelPosition='left'` 时生效 |
-| `labelPosition` | `'top' \| 'left'`                   | `'left'`          |          否           | 默认 `'left'` 行式（label 左、控件右）；`'top'` 时 label 在控件上方；回退链：自身 → UForm `labelPosition` |
+| 参数            | 类型                                | 默认             |      必填      | 约束                                                                                                                                                  |
+| --------------- | ----------------------------------- | ---------------- | :------------: | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `field`         | `string`                            | —                | 是（需校验时） | 支持 `a.b` 嵌套路径；缺失时字段不注册进表单，校验与 model 联动不生效；label 与必填星标不受影响（分别取决于 `label`/`#label` 插槽与 `rules.required`） |
+| `label`         | `string`                            | —                |       否       | 与 `#label` 插槽二选一；必填星标渲染在 label 文字左侧                                                                                                 |
+| `rules`         | `ValidateRule`                      | —                |       否       | 执行顺序：`required` 先行，其余规则按对象键序，`validator` 最后；需所在 `UForm` 的 `model`                                                            |
+| `tips`          | `string`                            | —                |       否       | 声明保留；移动端不渲染悬浮提示                                                                                                                        |
+| `span`          | `number \| 'full' \| BreakpointMap` | —                |       否       | 声明保留；移动端 UForm 单列呈现，不生效                                                                                                               |
+| `size`          | `'small' \| 'default' \| 'large'`   | `'default'`      |       否       | 回退链：自身 → UForm `size` → `'default'`                                                                                                             |
+| `disabled`      | `boolean`                           | UForm `disabled` |       否       | 回退链：自身 → UForm                                                                                                                                  |
+| `readonly`      | `boolean`                           | UForm `readonly` |       否       | 只读时错误提示区隐藏                                                                                                                                  |
+| `labelWidth`    | `string \| number`                  | 内容自适应       |       否       | number 单位 px；传了固定宽对齐，未传时按内容自适应；回退链：自身 → UForm `labelWidth`；仅 `labelPosition='left'` 时生效                               |
+| `labelPosition` | `'top' \| 'left'`                   | `'left'`         |       否       | 默认 `'left'` 行式（label 左、控件右）；`'top'` 时 label 在控件上方；回退链：自身 → UForm `labelPosition`                                             |
 
 `required: true` 的默认文案为「该项不能为空」；`preset` 各档默认文案：`email`「邮箱格式不正确」、`phone`「手机号格式不正确」、`num`「数字格式不正确」、`url`「链接格式不正确」、`idCard`「身份证格式不正确」。空值（`null`、`undefined`、`''`、空数组）跳过 `min` / `max` / `minLen` / `maxLen` / `match` / `preset` 校验。
 
@@ -171,9 +165,6 @@ export interface FormItemExposed {}
 <script setup lang="ts">
 import { UForm, UFormItem, UInput } from '@veltra/mobile'
 import { reactive } from 'vue'
-import '@veltra/mobile/components/form/style'
-import '@veltra/mobile/components/form-item/style'
-import '@veltra/mobile/components/input/style'
 
 const formData = reactive({ dateRange: { startDate: '', endDate: '' } })
 </script>
@@ -203,9 +194,6 @@ const formData = reactive({ dateRange: { startDate: '', endDate: '' } })
 <script setup lang="ts">
 import { UForm, UFormItem, USwitch } from '@veltra/mobile'
 import { reactive } from 'vue'
-import '@veltra/mobile/components/form/style'
-import '@veltra/mobile/components/form-item/style'
-import '@veltra/mobile/components/switch/style'
 
 // status 允许 undefined（未设置，视为开）
 const formData = reactive({ status: undefined as boolean | undefined })
@@ -230,9 +218,6 @@ const formData = reactive({ status: undefined as boolean | undefined })
 <script setup lang="ts">
 import { UCheckbox, UForm, UFormItem } from '@veltra/mobile'
 import { reactive } from 'vue'
-import '@veltra/mobile/components/form/style'
-import '@veltra/mobile/components/form-item/style'
-import '@veltra/mobile/components/checkbox/style'
 
 const formData = reactive({ agree: false })
 </script>
@@ -277,9 +262,6 @@ label 不出现的原因是没传 `label` prop 也没有 `#label` 插槽——la
 <script setup lang="ts">
 import { UForm, UFormItem, USwitch } from '@veltra/mobile'
 import { reactive } from 'vue'
-import '@veltra/mobile/components/form/style'
-import '@veltra/mobile/components/form-item/style'
-import '@veltra/mobile/components/switch/style'
 
 const formData = reactive({ enabled: false })
 </script>

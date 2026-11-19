@@ -33,7 +33,6 @@ keywords:
 <script setup lang="ts">
 import { UTag } from '@veltra/mobile'
 import { ref } from 'vue'
-import '@veltra/mobile/components/tag/style'
 
 const tags = ref(['待办', '进行中', '已完成'])
 
@@ -99,8 +98,8 @@ export interface TagExposed {}
 
 ## 方法与事件
 
-| 事件    | payload | 触发时机                                                      |
-| ------- | ------- | ------------------------------------------------------------- |
+| 事件    | payload | 触发时机                                                                            |
+| ------- | ------- | ----------------------------------------------------------------------------------- |
 | `close` | 无      | `closable` 为 `true` 时点击右侧关闭图标；点击已 `stopPropagation`，不冒泡到标签主体 |
 
 `close` 触发后组件不会卸载自己，必须由调用方在事件回调里更新数据源（如从数组中删除该项）。
@@ -113,7 +112,6 @@ export interface TagExposed {}
 <script setup lang="ts">
 import { UTag } from '@veltra/mobile'
 import type { ColorType } from '@veltra/mobile'
-import '@veltra/mobile/components/tag/style'
 
 const types: ColorType[] = ['primary', 'info', 'success', 'warning', 'danger']
 </script>
@@ -136,7 +134,6 @@ const types: ColorType[] = ['primary', 'info', 'success', 'warning', 'danger']
 import { UTag } from '@veltra/mobile'
 import type { ColorType } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/tag/style'
 
 const tags = shallowRef<Array<{ name: string; type: ColorType }>>([
   { name: 'Vue', type: 'primary' },
@@ -167,7 +164,6 @@ function handleClose(index: number) {
 ```vue
 <script setup lang="ts">
 import { UTag } from '@veltra/mobile'
-import '@veltra/mobile/components/tag/style'
 </script>
 
 <template>
@@ -200,7 +196,6 @@ import '@veltra/mobile/components/tag/style'
 <script setup lang="ts">
 import { UTag } from '@veltra/mobile'
 import { shallowRef } from 'vue'
-import '@veltra/mobile/components/tag/style'
 
 const tags = shallowRef(['待办', '进行中'])
 

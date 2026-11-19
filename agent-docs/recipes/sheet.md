@@ -42,11 +42,12 @@ bun add @veltra/sheet
 ```
 
 ```ts
+import { loadTheme } from '@veltra/styles/theme'
 // src/main.ts —— 主题必须初始化，否则网格与工具栏无颜色
 import { createApp } from 'vue'
-import App from './App.vue'
 import '@veltra/styles/normalize'
-import { loadTheme } from '@veltra/styles/theme'
+
+import App from './App.vue'
 
 loadTheme()
 
@@ -130,7 +131,7 @@ function lockAll(): void {
 
 ## 要点说明
 
-- 基础接入四件事：装 `@veltra/sheet`（引擎 `infinitable` 随包安装）；入口 `loadTheme()`；样式 `import '@veltra/sheet/components/sheet/style'`（或 `VeltraUIResolver` 自动引入）；宿主给组件明确高度——grid 区是 `flex: 1`，根元素高度塌陷为 0 时表格不可见。
+- 基础接入三件事：装 `@veltra/sheet`（引擎 `infinitable` 随包安装）；入口 `loadTheme()`；宿主给组件明确高度——grid 区是 `flex: 1`，根元素高度塌陷为 0 时表格不可见。样式随 `import { USheet } from '@veltra/sheet'` 自动加载。
 - 不传 `workbook` 时组件内部自建单 sheet 空工作簿；多表、跨表公式、模板预置必须由宿主创建 `Workbook` 传入。`workbook.activeSheet` 即默认表（名为 `Sheet1`），`workbook.addSheet('名')` 加表。
 - 坐标一律 0-based `{ row, col }`，不是 `'A1'` 字符串；A1 互转用 `infinitable/sheet` 的 `parseAddress` / `formatAddress`。
 - 填报只读三件套（`Sheet` 模型方法，`from 'infinitable/sheet'`）：`setCellReadonly(addr, readonly = true)` 单格、`setRangeReadonly(range, readonly = true)` 区域批量（单 undo 单元）、`isCellReadonly(addr)` 查询（合并格解析锚点）。拦截发生在 grid 层：双击、Enter、回写、填充柄都被拦。
