@@ -133,6 +133,9 @@ dist/*
 # playground report hub SQLite（本地 dev 持久化）
 playground/server/data/
 
+# unplugin-vue-components 自动生成的组件声明
+playground/components.d.ts
+
 docs/superpowers
 
 # agent cooking scratch
