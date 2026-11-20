@@ -1,0 +1,322 @@
+@use 'pkg:@veltra/styles/mixins' as m with (
+  $namespace: um
+);
+@use 'pkg:@veltra/styles/functions' as fn;
+@use '../../styles/tokens' as t;
+
+$root-name: tree-select;
+
+@include m.b($root-name) {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+  gap: t.use-var('spacing-sm');
+  padding: 0 t.use-var('spacing-md');
+  border: fn.use-var(border);
+  border-radius: t.control-radius(default);
+  background-color: fn.use-var(bg-color, top);
+  color: fn.use-var(text-color, main);
+  font-size: t.use-var('font-size-main');
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+    box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+  // 视觉高度按档生效；触控热区不足 44px 时由 ::before 上下外扩补足命中区域，
+  // 不抬高视觉高度（伪元素位于子元素之下，不拦截清除 / 箭头等内部可点元素）
+  @include m.size using ($size) {
+    $height: t.control-height($size);
+    $hit-offset: calc((#{t.use-var('touch-target')} - #{$height}) / -2);
+
+    position: relative;
+    min-height: $height;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: $hit-offset;
+      bottom: $hit-offset;
+      left: 0;
+      right: 0;
+    }
+  }
+
+  &:active {
+    border-color: fn.use-var(color, primary);
+  }
+
+  &:focus-visible {
+    box-shadow: fn.use-var(focus-ring);
+  }
+
+  @include m.is(active) {
+    border-color: fn.use-var(color, primary);
+
+    @include m.bem($root-name, arrow) {
+      transform: rotate(180deg);
+    }
+  }
+
+  @include m.is(disabled) {
+    cursor: not-allowed;
+    color: fn.use-var(text-color, disabled);
+    background-color: fn.use-var(bg-color, middle);
+
+    @include m.bem($root-name, arrow) {
+      color: fn.use-var(text-color, disabled);
+    }
+  }
+
+  @include m.e(prefix) {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  @include m.e(value) {
+    flex: 1;
+    min-width: 0;
+    @include m.ellipsis;
+
+    @include m.is(placeholder) {
+      color: fn.use-var(text-color, placeholder);
+    }
+  }
+
+  @include m.e(icons) {
+    display: inline-flex;
+    align-items: center;
+    align-self: stretch;
+    flex-shrink: 0;
+  }
+
+  @include m.e(clear) {
+    // 清除热区 ≥44×44（高度受行高约束，用外扩补足）
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: t.use-var('touch-target');
+    min-height: t.use-var('touch-target');
+    // 热区外扩量（spacing-sm）：补偿清除钮居中图标的两侧留白，不挤压视觉边距
+    margin: calc(-1 * #{t.use-var('spacing-sm')}) calc(-1 * #{t.use-var('spacing-sm')})
+      calc(-1 * #{t.use-var('spacing-sm')}) 0;
+    padding: 0;
+    border: none;
+    background: none;
+    font-size: t.use-var('font-size-main');
+    color: fn.use-var(text-color, second);
+    cursor: pointer;
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+
+    &:active {
+      color: fn.use-var(text-color, title);
+    }
+  }
+
+  @include m.e(arrow) {
+    // 箭头热区 ≥44×44：随行高拉伸、宽度不小于触控热区下限
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    min-width: t.use-var('touch-target');
+    color: fn.use-var(text-color, second);
+    font-size: t.use-var('font-size-secondary');
+    transition: transform fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  // 面板内搜索行
+  @include m.e(search) {
+    padding: t.use-var('spacing-sm') 0;
+  }
+
+  @include m.e(search-input) {
+    // 字号 ≥16px（placeholder 继承同字号）：iOS Safari 聚焦不触发页面缩放
+    width: 100%;
+    box-sizing: border-box;
+    min-height: t.use-var('touch-target');
+    padding: 0 t.use-var('spacing-md');
+    border: fn.use-var(border);
+    border-radius: t.control-radius(default);
+    background-color: fn.use-var(bg-color, middle);
+    color: fn.use-var(text-color, main);
+    font-size: t.use-var('font-size-main');
+    outline: none;
+    -webkit-appearance: none;
+
+    &::placeholder {
+      color: fn.use-var(text-color, placeholder);
+    }
+
+    &:focus {
+      border-color: fn.use-var(color, primary);
+    }
+  }
+
+  @include m.e(loading) {
+    padding: t.use-var('spacing-lg') 0;
+    text-align: center;
+    color: fn.use-var(text-color, second);
+  }
+
+  // 选项列表
+  @include m.e(options) {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: t.use-var('spacing-xs');
+  }
+
+  @include m.e(option) {
+    // 选项整行热区 ≥44×44；层级缩进经 --depth 行内变量展开
+    display: flex;
+    align-items: center;
+    min-height: t.use-var('touch-target');
+    gap: t.use-var('spacing-xs');
+    padding: 0 t.use-var('spacing-md');
+    padding-left: calc(#{t.use-var('spacing-md')} + var(--depth, 0) * #{t.use-var('spacing-lg')});
+    border-radius: t.control-radius(default);
+    color: fn.use-var(text-color, main);
+    user-select: none;
+    cursor: pointer;
+
+    &:active {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    // 选中态：底色强调 + 对钩
+    @include m.is(active) {
+      color: fn.component-var(tree-select, option-selected-color, fn.use-var(color, primary));
+      font-weight: 600;
+      background-color: fn.component-var(
+        tree-select,
+        option-selected-bg,
+        fn.use-var(color, primary, light-9)
+      );
+
+      &:active {
+        background-color: fn.use-var(color, primary, light-7);
+      }
+    }
+
+    // 禁用节点：置灰不可选中（源序在选中态之后，值命中禁用节点时不高亮）
+    @include m.is(disabled) {
+      color: fn.use-var(text-color, disabled);
+      font-weight: 400;
+      background-color: transparent;
+      cursor: not-allowed;
+
+      &:active {
+        background-color: transparent;
+      }
+
+      @include m.bem($root-name, check) {
+        color: fn.use-var(text-color, disabled);
+      }
+    }
+  }
+
+  @include m.e(option-main) {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    padding-block: t.use-var('spacing-sm');
+  }
+
+  @include m.e(option-label) {
+    flex: 1;
+    min-width: 0;
+    @include m.ellipsis;
+  }
+
+  @include m.e(option-path) {
+    min-width: 0;
+    color: fn.use-var(text-color, second);
+    font-size: t.use-var('font-size-auxiliary');
+    font-weight: 400;
+    @include m.ellipsis;
+  }
+
+  // 展开箭头：占位与图标同一列，保证缩进列宽稳定
+  @include m.e(expand) {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    flex-shrink: 0;
+    width: 28px;
+    border: none;
+    background: none;
+    padding: 0;
+    color: fn.use-var(text-color, second);
+    // 箭头取标题档字号：层级导航是面板主操作，视觉权重高于行内辅助图标
+    font-size: t.use-var('font-size-title');
+    -webkit-tap-highlight-color: transparent;
+
+    svg {
+      width: 1em;
+      height: 1em;
+      // 图标为 stroke 线型：CSS 覆盖 stroke-width 提升辨识度
+      stroke-width: 2.5;
+      transition: transform fn.use-var(transition, fast) fn.use-var(transition, ease);
+    }
+
+    // 箭头热区外扩补足触控下限
+    &::before {
+      content: '';
+      position: absolute;
+      inset: -8px -12px;
+    }
+
+    @include m.is(expanded) {
+      svg {
+        transform: rotate(90deg);
+      }
+    }
+
+    // 叶子节点占位：纯占列，不提供点击域
+    @include m.is(leaf) {
+      &::before {
+        content: none;
+      }
+    }
+
+    &:focus-visible {
+      box-shadow: fn.use-var(focus-ring);
+    }
+  }
+
+  @include m.e(check) {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    color: fn.use-var(color, primary);
+    font-size: t.use-var('font-size-main');
+
+    svg {
+      width: 1em;
+      height: 1em;
+    }
+  }
+
+  @include m.e(empty) {
+    padding: t.use-var('spacing-lg') 0;
+    text-align: center;
+    color: fn.use-var(text-color, second);
+  }
+}
