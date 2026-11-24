@@ -3,30 +3,20 @@ import type { DeconstructValue } from '@veltra/utils'
 import type { ActionProps } from './action'
 import type { TableColumn, TableColumnSlotsScope, TableEmits, TableProps, TableRow } from './table'
 
-/** 批量编辑列 */
 export interface BatchEditColumn extends TableColumn {}
 
 export type BatchEditFeature = 'create' | 'update' | 'delete' | 'view' | 'createChild'
 
-/** 批量编辑状态 */
 export interface BatchEditStates {
-  /** 层级 */
   depth: number
-  /** 表单可见性 */
   formVisible: boolean
-  /** 表单操作类型 */
   formActionType: 'create' | 'update' | 'view' | 'createChild'
-  /** 加载状态 */
   loading: boolean
-  /** 当前编辑行 */
   row?: TableRow
-  /** 当前编辑或者新增的父级行 */
   parentRow?: TableRow
-  /** 行索引路径， */
   indexPath: number[]
 }
 
-/** 批量编辑组件属性 */
 export interface BatchEditProps extends TableProps {
   /**
    * 表单数据
@@ -58,25 +48,18 @@ export interface BatchEditProps extends TableProps {
     data: Record<string, any>,
     parentData?: Record<string, any>
   ) => void | Promise<void>
-  /** label的宽度 */
   labelWidth?: string | number
   /**
-   * 删除方法
-   * @description 删除时调用。如果返回 false，则不删除
    * @returns 如果返回 false，则不删除
    */
   deleteMethod?: (data: Record<string, any>[]) => any
   /**
-   * 保存方法
-   * @description 保存时调用。`quick` 模式下编辑行时实时写回，不调用此方法；新增时与 `normal` 模式一致
+   * @description `quick` 模式下编辑行时实时写回，不调用此方法；新增时与 `normal` 模式一致
    * @returns 如果返回一个值，那么这个值会被插入，否则插入的为表单值
    */
   saveMethod?: (
-    /** 表单数据 */
     data: Record<string, any>,
-    /** 操作类型 */
     actionType: BatchEditStates['formActionType'],
-    /** 父级数据 */
     parentData?: Record<string, any>
   ) => any
 
@@ -115,40 +98,29 @@ export interface BatchEditProps extends TableProps {
   actionsProps?: Partial<Record<BatchEditFeature, ActionProps>>
 }
 
-/** 批量编辑组件定义的事件 */
 export interface BatchEditEmits extends TableEmits {
-  /** 更新数据 */
   (e: 'update:data', value: Record<string, any>[]): void
   /** 点击底部「新增一行」 */
   (e: 'create'): void
-  /** 点击「在上方插入」 */
   (e: 'create-prev', row: TableRow): void
-  /** 点击「在下方插入」 */
   (e: 'create-next', row: TableRow): void
-  /** 点击「添加子级」，参数为父级行 */
   (e: 'create-child', row: TableRow): void
 }
 
 export type BatchEditSlots = {
   form?: (props: {
-    /** 当前编辑的层级 */
     depth?: number
-    /** 当前编辑的行 */
     row?: TableRow
     /** 新增时的父级行（createChild / 非根同级插入） */
     parentRow?: TableRow
-    /** 当前表单操作类型 */
     formActionType?: BatchEditStates['formActionType']
-    /** 当前编辑的行索引 */
     index?: number
-    /** 操作的目标行索引路径 */
     indexes?: number[]
   }) => any
 
   header?: () => any
 } & Partial<{ [key: `column:${string}`]: (props: TableColumnSlotsScope) => any }>
 
-/** 批量编辑组件暴露的属性和方法(组件内部使用) */
 export interface _BatchEditExposed {}
 
 /** 批量编辑组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */

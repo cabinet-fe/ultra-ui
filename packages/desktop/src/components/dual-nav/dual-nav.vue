@@ -12,8 +12,6 @@
       />
     </div>
 
-    <!-- <div :class="cls.e('divider')" aria-hidden="true" /> -->
-
     <div :class="cls.e('panel')">
       <template v-if="panelApp">
         <div :class="cls.e('panel-header')">

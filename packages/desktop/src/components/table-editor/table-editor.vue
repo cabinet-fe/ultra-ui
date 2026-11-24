@@ -169,8 +169,6 @@ function headerCell(column: TableEditorColumn) {
   }
 }
 
-// --- 按列校验 ---
-
 /** 行数据（以原始对象为键）→ 列 key → 错误信息 */
 const cellErrors = shallowRef(new Map<Record<string, any>, Map<string, string>>())
 
@@ -271,8 +269,6 @@ const columnErrors = computed(() => {
   }
   return map
 })
-
-// --- 单元格渲染 ---
 
 /**
  * 声明了 `#column:key` 插槽的列调用编辑插槽（注入 model），未声明的渲染字段原始值。

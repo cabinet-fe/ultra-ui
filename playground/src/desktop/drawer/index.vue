@@ -62,7 +62,6 @@
 import { UButton, UDrawer } from '@veltra/desktop'
 import { ref } from 'vue'
 
-// 各种抽屉的显示状态
 const basicVisible = ref(false)
 const leftVisible = ref(false)
 const rightVisible = ref(false)

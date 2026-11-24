@@ -4,19 +4,15 @@ import type { AiStreamHandlers, AiTextRequestOptions } from './types'
 
 /** OpenAI 兼容请求的发送选项（body 用 buildOpenAIBody / buildOpenAIResponsesBody 构造） */
 export interface OpenAIRequestOptions {
-  /** OpenAI 兼容完整请求地址 */
   url: string
   /** Bearer Token，缺省不带 Authorization 头 */
   apiKey?: string
   /** 额外请求头（覆盖同名默认头） */
   headers?: Record<string, string>
-  /** 请求体 */
   body: Record<string, unknown>
-  /** 中断信号 */
   signal?: AbortSignal
 }
 
-/** OpenAI 兼容流式请求回调 */
 export interface OpenAIStreamCallbacks extends AiStreamHandlers {
   /** 请求错误（网络错误、非 2xx、流中断）；signal 中断时静默 */
   onError?(error: Error): void

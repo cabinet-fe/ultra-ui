@@ -106,7 +106,6 @@ describe('UMultiTreeSelect showCheckbox', () => {
     try {
       await openDropdown(host)
       expect(queryCheckboxes().length).toBe(4)
-      // 展开图标与节点文本保持不变
       expect(queryNodeContents().map((el) => el.textContent)).toEqual([
         '亚洲',
         '中国',
@@ -126,11 +125,9 @@ describe('UMultiTreeSelect showCheckbox', () => {
     try {
       await openDropdown(host)
 
-      // 点击隐藏复选框的父节点不触发勾选
       await clickNodeByLabel('亚洲')
       expect(model.value).toEqual([])
 
-      // 勾选全部叶子，父节点不进模型
       await clickNodeByLabel('中国')
       await clickNodeByLabel('日本')
       await clickNodeByLabel('英国')
@@ -163,14 +160,12 @@ describe('UMultiTreeSelect showCheckbox', () => {
     try {
       await openDropdown(host)
 
-      // 勾选一个叶子 -> 全选半选
       await clickNodeByLabel('中国')
       expect(headerCheckbox().classList.contains('is-checked')).toBe(true)
       expect(
         headerCheckbox().querySelector('.u-checkbox--indeterminate')?.classList.contains('is-on')
       ).toBe(true)
 
-      // 点击全选 -> 只勾选有复选框的节点
       const native = headerCheckbox().querySelector('.u-checkbox__native') as HTMLInputElement
       native.click()
       await settle()
@@ -180,7 +175,6 @@ describe('UMultiTreeSelect showCheckbox', () => {
         headerCheckbox().querySelector('.u-checkbox--indeterminate')?.classList.contains('is-on')
       ).toBe(false)
 
-      // 取消其中一个叶子 -> 再次半选
       await clickNodeByLabel('法国')
       expect(model.value).toEqual(['cn', 'jp', 'uk'])
       expect(
@@ -201,11 +195,9 @@ describe('UMultiTreeSelect showCheckbox', () => {
       await openDropdown(host)
       expect(model.value).toEqual(['asia', 'cn'])
 
-      // 标签只有「中国」，隐藏复选框的「亚洲」不作为已选标签
       const tagTexts = [...host.querySelectorAll('.u-tag')].map((el) => el.textContent?.trim())
       expect(tagTexts).toEqual(['中国'])
 
-      // 叶子回显为勾选
       const cnNode = queryNodeContents().find((el) => el.textContent?.includes('中国'))
       const cnCheckbox = cnNode?.closest('.u-tree__node')?.querySelector('.u-checkbox')
       expect(cnCheckbox?.classList.contains('is-checked')).toBe(true)

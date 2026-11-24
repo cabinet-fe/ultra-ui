@@ -1,6 +1,5 @@
 import { listFormulaFunctions, type FormulaFunctionInfo } from 'infinitable'
 
-/** 补全候选上限 */
 export const FORMULA_SUGGEST_LIMIT = 10
 
 /**
@@ -59,7 +58,6 @@ export interface FormulaSuggestContext {
   end: number
 }
 
-/** 格式化函数签名；无 params 时仅返回名称 */
 export function formatFunctionSignature(name: string, params: string[]): string {
   if (params.length === 0) return name
   return `${name}(${params.join(', ')})`

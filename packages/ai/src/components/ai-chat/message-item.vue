@@ -1,6 +1,5 @@
 <template>
   <div :class="[cls.e('message'), cls.em('message', message.role)]">
-    <!-- 用户消息：右对齐气泡 -->
     <template v-if="message.role === 'user'">
       <div :class="cls.e('message-bubble')">
         <div v-if="message.attachments?.length" :class="cls.e('message-attachments')">

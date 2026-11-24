@@ -50,7 +50,6 @@ const QUESTIONS: AskQuestionItem[] = [
   { question: '还有什么补充？', placeholder: '例如：需要深色模式' }
 ]
 
-/** 第一轮发起提问工具调用、第二轮输出文本的 transport；rounds 记录每轮收到的消息 */
 function createAskTransport(rounds: ChatMessage[][], questions: AskQuestionItem[] = QUESTIONS) {
   let round = 0
   const transport: ChatTransport = (req, handlers) => {
@@ -78,7 +77,6 @@ const actionButton = (host: HTMLElement, text: string) => {
   )
 }
 
-/** 当前题的选项按钮 */
 const optionButton = (host: HTMLElement, text: string) => {
   return [...host.querySelectorAll<HTMLElement>('.u-ai-chat__ask-question-opt')].find((el) =>
     el.textContent?.includes(text)
@@ -92,7 +90,6 @@ describe('内置提问工具', () => {
 
     chat.value?.send('帮我做个页面')
 
-    // 提问卡片直接挂载在回复流（.u-ai-chat__reply-tool）外层，且不在步骤行内重复出现
     await vi.waitFor(() => {
       expect(
         host.querySelector('.u-ai-chat__reply-tool .u-ai-chat__ask-question-q')?.textContent
@@ -110,14 +107,12 @@ describe('内置提问工具', () => {
     )
     expect(nums).toEqual(['1', '2', '3'])
 
-    // 点选第 1 题单选选项「开发者」：自动跳转到第 2 题
     click(optionButton(host, '开发者')!)
     await nextTick()
     expect(host.querySelector('.u-ai-chat__ask-question-q')?.textContent).toContain(
       '偏好什么风格？'
     )
 
-    // 点选第 2 题单选选项「简洁」：自动跳转到第 3 题（纯文本题），按钮变为禁用状态的「提交」
     click(optionButton(host, '简洁')!)
     await nextTick()
     expect(host.querySelector('.u-ai-chat__ask-question-q')?.textContent).toContain(
@@ -136,7 +131,6 @@ describe('内置提问工具', () => {
     )
     expect(actionButton(host, '提交')?.className).not.toContain('is-disabled')
 
-    // 「上一个」返回第 1 题，选中态保留
     click(actionButton(host, '上一个')!)
     await nextTick()
     click(actionButton(host, '上一个')!)
@@ -146,14 +140,12 @@ describe('内置提问工具', () => {
     )
     expect(optionButton(host, '开发者')?.className).toContain('is-selected')
 
-    // 回到最后提交
     click(actionButton(host, '下一个')!)
     await nextTick()
     click(actionButton(host, '下一个')!)
     await nextTick()
     click(actionButton(host, '提交')!)
 
-    // 第二轮 transport 收到含回答的 tool 消息
     await vi.waitFor(() => {
       expect(rounds.length).toBe(2)
     })
@@ -167,7 +159,6 @@ describe('内置提问工具', () => {
       ]
     })
 
-    // 第二轮文本输出落定后，问答摘要依然直接在回复流外层可见，且全程不生成包含提问的步骤行
     await vi.waitFor(() => {
       expect(host.querySelector('.md-stub')?.textContent).toContain('明白了')
     })
@@ -213,7 +204,6 @@ describe('内置提问工具', () => {
     await nextTick()
     expect(host.querySelector('.u-ai-chat__ask-question-q')?.textContent).toContain('你的名字？')
 
-    // 正常按 Enter：自动前进到第 2 题
     input1.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
     await nextTick()
     expect(host.querySelector('.u-ai-chat__ask-question-q')?.textContent).toContain('补充需求？')
@@ -259,7 +249,6 @@ describe('内置提问工具', () => {
       expect(host.querySelector('.u-ai-chat__ask-question-tag')?.textContent?.trim()).toBe('技术栈')
     })
 
-    // 推荐徽标与选项描述
     expect(host.querySelector('.u-ai-chat__ask-question-badge')?.textContent?.trim()).toBe('推荐')
     expect(host.querySelector('.u-ai-chat__ask-question-opt-desc')?.textContent).toContain(
       '使用组合式 API'
@@ -388,7 +377,6 @@ describe('内置提问工具', () => {
       expect(host.querySelector('.u-ai-chat__reply-tool .u-ai-chat__ask-question')).toBeTruthy()
     })
 
-    // 步骤行里只展示思考过程，没有「提问」工具条目
     expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('思考中…')
 
     click(optionButton(host, '蓝')!)
@@ -398,7 +386,6 @@ describe('内置提问工具', () => {
       expect(host.querySelector('.md-stub')?.textContent).toContain('好的')
     })
 
-    // 仅 1 个步骤（思考过程），展开步骤行只有思考块而没有提问工具卡片
     expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('执行了 1 个步骤')
     host.querySelector<HTMLElement>('.u-ai-chat__step-line-bar')?.click()
     await nextTick()

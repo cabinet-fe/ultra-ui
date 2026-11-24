@@ -83,8 +83,6 @@ watch(
   }
 )
 
-// ── VariablePicker ──
-
 const pickerRef = useTemplateRef<{ handleKeydown: (e: KeyboardEvent) => boolean }>('pickerRef')
 const pickerVisible = shallowRef(false)
 const pickerTriggerDom = shallowRef<HTMLElement | undefined>(undefined)

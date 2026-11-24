@@ -30,7 +30,6 @@ const styles = computed(() => {
   const { gap, cols } = props
   const result: CSSProperties = {}
 
-  // 间距
   if (typeof gap === 'number') {
     if (gap > 0) {
       result.rowGap = result.columnGap = gap + 'px'
@@ -65,7 +64,6 @@ const styles = computed(() => {
 watch([styles, gridRef], ([styles, dom]) => {
   if (!dom) return
 
-  // 重置并移除样式
   removeStyles(dom, ['gridTemplateColumns', 'columnGap', 'rowGap'])
   setStyles(dom, styles)
 })

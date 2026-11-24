@@ -159,36 +159,11 @@ export function useTable(options: Options): UseTableReturn {
   }
 
   return {
-    /**
-     * 获取列插槽VNode
-     * @param ctx 列渲染上下文
-     */
     getColumnSlotsNode,
-    /**
-     * 获取表头插槽VNode
-     * @param ctx 表头渲染上下文
-     */
     getHeaderSlotsNode,
-    /**
-     * 获取展开行插槽VNode
-     * @param ctx 展开行渲染上下文
-     */
     getExpandRowSlotsNode,
-    /**
-     * 获取单元格类名
-     * @param column 列
-     */
     getCellClass,
-    /**
-     * 获取表头单元格类名
-     * @param column 列
-     */
     getHeaderCellClass,
-    /**
-     * 获取单元格上下文
-     * @param row 行
-     * @param column 列
-     */
     getCellCtx
   }
 }

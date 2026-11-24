@@ -97,13 +97,11 @@ describe('UMultiSelect labelTemplate', () => {
 
     try {
       await nextTick()
-      // 已选标签渲染模板结果
       expect(queryTags(host).map((el) => el.textContent)).toEqual(['启用（ENABLED）'])
 
       await openDropdown(host)
       expect(queryOptions().map((el) => el.textContent)).toEqual(['启用（ENABLED）', '禁用'])
 
-      // 勾选缺 code 的选项：标签回退纯 label
       await clickOption(queryOptions().find((el) => el.textContent === '禁用')!)
       expect(model.value).toEqual(['enabled', 'disabled'])
       expect(queryTags(host).map((el) => el.textContent)).toEqual(['启用（ENABLED）', '禁用'])
@@ -121,11 +119,9 @@ describe('UMultiSelect labelTemplate', () => {
 
     try {
       await openDropdown(host)
-      // 按编码搜索命中
       await typeQuery(host, 'ENABLED')
       expect(queryOptions().map((el) => el.textContent)).toEqual(['启用（ENABLED）'])
 
-      // 按原始 label 搜索仍然命中
       await typeQuery(host, '禁用')
       expect(queryOptions().map((el) => el.textContent)).toEqual(['禁用'])
     } finally {

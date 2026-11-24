@@ -7,17 +7,13 @@ import {
 } from './shared'
 import type { AiAttachment, AiMessage, AiStreamHandlers, AiTool } from './types'
 
-/** 请求体构造选项 */
 export interface OpenAIBodyOptions {
-  /** 模型 id */
   model: string
   /** 消息历史（内部消息模型，本函数转换为 wire 格式） */
   messages: readonly AiMessage[]
   /** 系统提示词，存在时作为首条 system 消息 */
   systemPrompt?: string
-  /** 可用工具 */
   tools?: readonly AiTool[]
-  /** 是否流式，缺省 false */
   stream?: boolean
   /** 推理等级（不透明字符串，由 applyReasoning 写入请求体） */
   reasoningLevel?: string
@@ -27,7 +23,6 @@ export interface OpenAIBodyOptions {
   extraBody?: Record<string, unknown>
 }
 
-/** OpenAI 兼容 wire 消息格式 */
 interface OpenAIMessage {
   role: string
   content?: unknown
@@ -116,7 +111,6 @@ function toOpenAITools(tools: readonly AiTool[]): unknown[] {
   }))
 }
 
-/** 缺省：写入 OpenAI 兼容的 reasoning_effort */
 function defaultApplyReasoning(level: string, body: Record<string, unknown>) {
   body.reasoning_effort = level
 }

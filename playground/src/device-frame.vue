@@ -298,7 +298,6 @@ $status-height: 44px;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  // 手机屏幕不显示滚动条
   scrollbar-width: none;
 
   &::-webkit-scrollbar {

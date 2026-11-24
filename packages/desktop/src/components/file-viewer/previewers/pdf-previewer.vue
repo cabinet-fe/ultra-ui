@@ -15,7 +15,6 @@
         :class="cls.e('pdf-page')"
         :style="{ width: withUnit(size.width, 'px'), height: withUnit(size.height, 'px') }"
       >
-        <!-- 仅渲染窗口内的页面挂 canvas，节点数小于总页数即缓冲生效 -->
         <canvas v-if="inWindow(i)" :ref="canvasRef(i)" />
       </div>
     </div>
@@ -81,7 +80,6 @@ const sizes = computed<PageSize[]>(() => {
   }))
 })
 
-// ---- 每份文档的会话状态（非响应式，随文档销毁重建） ----
 /** 递增代数：切文件 / 销毁后使旧文档的异步回调全部失效 */
 let gen = 0
 let worker: Worker | null = null
@@ -167,7 +165,6 @@ function resetZoom() {
 function onWheel(e: WheelEvent) {
   if (!pdfDoc.value || !(e.ctrlKey || e.metaKey)) return
   e.preventDefault()
-  // rAF 合帧：目标级别先累积，每帧只触发一次 cancelRenders + 重渲染
   wheelZoomTarget = (wheelZoomTarget ?? zoom.value) + (e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP)
   if (wheelRafId) return
   wheelRafId = requestAnimationFrame(() => {
@@ -372,7 +369,6 @@ function cleanup() {
   isFitPage.value = true
 }
 
-/** 拼接资源子目录 URL，容忍 resourceUrl 尾斜杠差异 */
 function resourceDir(root: string, dir: string): string {
   return `${root.endsWith('/') ? root : `${root}/`}${dir}`
 }
@@ -431,7 +427,6 @@ function load() {
     })
 }
 
-// ---- 视口挂载：ResizeObserver 跟随尺寸变化 + 指针拖拽平移（原生滚动条已隐藏） ----
 let panState:
   | { pointerId: number; startX: number; startY: number; scrollLeft: number; scrollTop: number }
   | undefined
@@ -450,7 +445,6 @@ watch(
     observer.observe(el)
 
     const handlePointerDown = (e: PointerEvent) => {
-      // 已在拖拽中或非主指针（多指触控）不再进入平移
       if (panState || !e.isPrimary || e.button !== 0) return
       panState = {
         pointerId: e.pointerId,

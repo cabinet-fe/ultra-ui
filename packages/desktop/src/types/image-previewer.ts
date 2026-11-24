@@ -3,7 +3,6 @@ import type { DeconstructValue } from '@veltra/utils'
 /** 图片预览源：URL（支持 http(s):、blob:、data:）或二进制原始数据 */
 export type ImagePreviewerSource = string | File | Blob | ArrayBuffer | Uint8Array
 
-/** 图片预览组件属性 */
 export interface ImagePreviewerProps {
   /** 图片源；切换时重置缩放并回收上一张的 objectURL */
   src?: ImagePreviewerSource
@@ -25,22 +24,18 @@ export interface ImagePreviewerProps {
   closeOnEsc?: boolean
 }
 
-/** 图片预览组件事件 */
 export interface ImagePreviewerEmits {
   (e: 'update:open', value: boolean): void
   /** lightbox 关闭时触发（关闭按钮 / Esc / 点击图片外区域） */
   (e: 'close'): void
   /** 缩放级别变化（工具按钮 / 滚轮 / 双击 / expose 方法） */
   (e: 'zoom-change', level: number): void
-  /** 图片加载失败 */
   (e: 'error', err: unknown): void
 }
 
-/** 图片预览组件暴露的属性和方法(组件内部使用) */
 export interface _ImagePreviewerExposed {
   /** 放大一级（ZOOM_STEP 步进，收敛在 [ZOOM_MIN, ZOOM_MAX]） */
   zoomIn: () => void
-  /** 缩小一级 */
   zoomOut: () => void
   /** 重置到 100%（平移偏移一并归零） */
   resetZoom: () => void

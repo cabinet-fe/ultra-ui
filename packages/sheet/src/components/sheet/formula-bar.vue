@@ -168,9 +168,7 @@ let editAddr: CellAddress | null = null
 const mirroring = ref(false)
 let mirrorAddr: CellAddress | null = null
 const fxDraft = ref('')
-/** 鼠标是否悬停在公式栏输入区 */
 const fxHovered = ref(false)
-/** 输入框是否处于 focus 状态 */
 const fxFocused = ref(false)
 /** 输入面板是否因内容增高而浮出（文档流仍保持单行） */
 const fxExpanded = ref(false)
@@ -253,8 +251,6 @@ function handleRefSelect(range: CellRange): void {
   })
 }
 
-// ─── 引用染色框（画布视觉反馈） ────────────────────────────
-
 /** 公式文本扫描 → 画布染色框：编辑中且 `=` 开头时逐引用上框（颜色按出现顺序循环），
  * 手输/点选/扩展一视同仁（对齐 Excel：编辑公式即染色全部引用）；其余状态清除 */
 function syncRefHighlights(): void {
@@ -290,8 +286,6 @@ function refToHighlight(
 // 草稿/编辑态/镜像态任一变化即重扫（拾取回交改稿、手输、会话结束都经这三者；
 // 提交同文提交时 fxDraft 不变但 editing 翻转，watch 仍触发完成清除）
 watch([fxDraft, editing, mirroring], syncRefHighlights)
-
-// ─── 显示文本 ──────────────────────────────────────────────
 
 function nameText(state: SelectionState): string {
   const range = state.ranges[0]
@@ -336,7 +330,6 @@ function refreshFx(): void {
   }
 }
 
-/** 恢复单行高度并重置展开状态 */
 function collapseFx(): void {
   const el = fxRef.value
   if (!el) return
@@ -406,8 +399,6 @@ function handleFxInput(): void {
   autosizeFx()
 }
 
-// ─── 函数补全 ──────────────────────────────────────────────
-
 function closeSuggest(): void {
   suggestItems.value = []
   suggestIndex.value = 0
@@ -449,8 +440,6 @@ function confirmSuggest(item?: FormulaSuggestItem): void {
   })
 }
 
-// ─── 名称框 ────────────────────────────────────────────────
-
 function handleNameKeydown(event: KeyboardEvent): void {
   if (event.key === 'Enter') {
     event.preventDefault()
@@ -480,8 +469,6 @@ function commitName(): void {
   }
   refreshName()
 }
-
-// ─── fx 输入栏 ─────────────────────────────────────────────
 
 function handleFxFocus(): void {
   if (fxDisabled.value) return
@@ -580,8 +567,6 @@ function cancelEdit(): void {
   refreshFx()
 }
 
-// ─── 双向同步 ──────────────────────────────────────────────
-
 function handleSelectionChange(state: SelectionState): void {
   selection.value = state
   if (!nameFocused.value) refreshName()
@@ -625,8 +610,6 @@ function exitMirror(addr: CellAddress): void {
     refreshFx()
   }
 }
-
-// ─── 函数弹框（fx 按钮）────────────────────────────────────
 
 const fxLabelRef = useTemplateRef<HTMLButtonElement>('fxLabelRef')
 const functionsDropdownRef = useTemplateRef<InstanceType<typeof UDropdown>>('functionsDropdownRef')
@@ -718,8 +701,6 @@ defineExpose({
   handleRefSelect,
   insertFunction
 })
-
-// ─── 生命周期 ──────────────────────────────────────────────
 
 let dispose: (() => void)[] = []
 function bindSheet(sheet: Sheet): void {

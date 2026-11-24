@@ -137,7 +137,6 @@ describe('内置工具（dogfood 扩展机制）', () => {
 
     expect(fill.popup).toBe('fill-color')
     expect(border.popup).toBe('border')
-    // 默认 A1 有选区 → 可用
     expect(fill.disabled?.(ctx)).toBe(false)
     sheet.selection.restoreState({ activeCell: null, ranges: [] })
     expect(fill.disabled?.(ctx)).toBe(true)
@@ -149,7 +148,6 @@ describe('内置工具（dogfood 扩展机制）', () => {
     const merge = mustGet('merge')
     const unmerge = mustGet('unmerge')
 
-    // 默认 A1 单格 → 合并禁用、取消合并禁用
     expect(isDisabled(merge, sheet)).toBe(true)
     expect(isDisabled(unmerge, sheet)).toBe(true)
 
@@ -159,7 +157,6 @@ describe('内置工具（dogfood 扩展机制）', () => {
     expect(sheet.getCellInfo({ row: 0, col: 0 }).mergeRange).toEqual(
       createRange({ row: 0, col: 0 }, { row: 1, col: 1 })
     )
-    // 选区恰等于合并 → 合并禁用；取消合并可用
     expect(isDisabled(merge, sheet)).toBe(true)
     expect(isDisabled(unmerge, sheet)).toBe(false)
     unmerge.onClick(createSheetContext(sheet))
@@ -188,7 +185,6 @@ describe('内置工具（dogfood 扩展机制）', () => {
     const ctx = createSheetContext(sheet)
     sheet.mergeCells(createRange({ row: 0, col: 0 }, { row: 1, col: 1 }))
 
-    // 只在活动格位于合并区域内时可见的工具
     const tool: SheetTool = {
       id: 'merged-only',
       title: '合并格工具',
@@ -199,7 +195,6 @@ describe('内置工具（dogfood 扩展机制）', () => {
       onClick: () => {}
     }
 
-    // 默认 A1 落在合并内 → 可见；移出后不可见；再点覆盖格仍可见
     expect(tool.visible?.(ctx)).toBe(true)
     ctx.selectCell({ row: 3, col: 3 })
     expect(tool.visible?.(ctx)).toBe(false)
@@ -243,17 +238,14 @@ describe('内置工具（dogfood 扩展机制）', () => {
     expect(mustGet('font-color').popup).toBe('font-color')
     expect(mustGet('font-size').popup).toBe('font-size')
 
-    // 默认 A1：active 假；点 B → 加粗 + active
     expect(bold.active?.(ctx)).toBe(false)
     bold.onClick(ctx)
     expect(sheet.getCellStyle({ row: 0, col: 0 })?.font?.bold).toBe(true)
     expect(bold.active?.(ctx)).toBe(true)
-    // 再点 → 取消
     bold.onClick(ctx)
     expect(sheet.getCellStyle({ row: 0, col: 0 })).toBeUndefined()
     expect(bold.active?.(ctx)).toBe(false)
 
-    // 混合选区：活动格未加粗 → 全加粗
     sheet.setCellStyle(createRange({ row: 0, col: 0 }, { row: 0, col: 0 }), {
       font: { bold: true }
     })
@@ -264,7 +256,6 @@ describe('内置工具（dogfood 扩展机制）', () => {
     expect(sheet.getCellStyle({ row: 0, col: 0 })?.font?.bold).toBe(true)
     expect(sheet.getCellStyle({ row: 0, col: 1 })?.font?.bold).toBe(true)
 
-    // 对齐：点居中 → 再点清除
     alignCenter.onClick(ctx)
     expect(sheet.getCellStyle({ row: 0, col: 1 })?.align?.horizontal).toBe('center')
     expect(alignCenter.active?.(ctx)).toBe(true)

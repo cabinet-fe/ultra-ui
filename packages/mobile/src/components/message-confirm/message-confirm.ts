@@ -14,17 +14,14 @@ import UMessageConfirmBox from './message-confirm-box.vue'
 
 const cls = bem('message-confirm')
 
-/** 确认框项数据结构 */
 type ConfirmItem = MessageConfirmOptions & { key: string }
 
-/** --- 状态管理 --- */
 let container: HTMLElement | null = null
 const confirms = shallowReactive<ConfirmItem[]>([])
 
 /** 弹层存在期间锁定 body 滚动（首个弹出锁定、最后一个关闭动画结束后解锁） */
 const { lock: lockScroll, unlock: unlockScroll } = useScrollLock()
 
-/** 关闭动画结束后的回调 */
 const closedCallbacks = new Map<string, (action: MessageConfirmAction) => void>()
 
 /** 记录每项关闭时的用户操作，动画结束后随回调抛出 */
@@ -34,9 +31,6 @@ const pendingActions = new Map<string, MessageConfirmAction>()
 let activeCount = 0
 let uid = 0
 
-/** --- 内部辅助函数 --- */
-
-/** 彻底销毁容器 */
 const destroy = () => {
   if (container) {
     render(null, container)
@@ -45,7 +39,6 @@ const destroy = () => {
   }
 }
 
-/** 离开动画结束后的清理 */
 const handleClosed = (key: string) => {
   activeCount--
 
@@ -70,7 +63,6 @@ const handleClose = (key: string, action: MessageConfirmAction) => {
   if (index !== -1) confirms.splice(index, 1)
 }
 
-/** 挂载并渲染容器 */
 const ensureContainer = () => {
   // 宿主容器可能随设备外壳卸载而失效，失联时重建
   if (container?.isConnected) return container
@@ -82,7 +74,6 @@ const ensureContainer = () => {
   return container
 }
 
-/** 执行 Vue 渲染逻辑 */
 const updateView = (layer: number) => {
   const el = ensureContainer()
   setStyles(el, { zIndex: layer })
@@ -93,7 +84,6 @@ const updateView = (layer: number) => {
   render(vnode, el)
 }
 
-/** 创建确认框实例 */
 const createConfirm = (options: MessageConfirmOptions): MessageConfirmInstance => {
   const { onClosed: userOnClosed, ...confirmOptions } = options
   const id = `confirm_${uid++}`
@@ -102,7 +92,6 @@ const createConfirm = (options: MessageConfirmOptions): MessageConfirmInstance =
   // 首个确认框弹出：锁定背景滚动
   if (activeCount === 1) lockScroll()
 
-  // 生命周期 Promise
   let resolveClosed: (action: MessageConfirmAction) => void
   const onClosed = new Promise<MessageConfirmAction>((r) => (resolveClosed = r))
 
@@ -118,22 +107,18 @@ const createConfirm = (options: MessageConfirmOptions): MessageConfirmInstance =
   return { id, close: (action = 'cancel') => handleClose(id, action), onClosed }
 }
 
-/** --- 导出 API --- */
-
 export const messageConfirm = ((options) => {
   return createConfirm(typeof options === 'string' ? { message: options } : options)
 }) as MessageConfirm
 
 messageConfirm._context = null
 
-// 挂载快捷方法: messageConfirm.danger(...)
 const confirmTypes = ['primary', 'success', 'info', 'warning', 'danger'] as const
 confirmTypes.forEach((type) => {
   messageConfirm[type] = (msg, config) =>
     messageConfirm({ ...config, message: msg, confirmButtonType: type })
 })
 
-/** 关闭所有当前显示的确认框 */
 messageConfirm.closeAll = () => {
   confirms.splice(0)
 }

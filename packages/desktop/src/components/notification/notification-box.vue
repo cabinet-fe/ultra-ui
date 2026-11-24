@@ -34,7 +34,6 @@ import UNotification from './notification.vue'
 
 defineOptions({ name: 'UNotificationBox' })
 
-/** 通知项数据结构 */
 type NotificationItem = NotificationOptions & { key: string }
 
 const props = defineProps<{ notifications: NotificationItem[]; position: NotificationPosition }>()
@@ -82,7 +81,6 @@ function cardStyle(index: number): CSSProperties {
   const stackIndex = items.length - 1 - index
 
   if (hovering.value) {
-    // 展开态: 按前方卡片累计高度偏移
     let offset = 0
     for (let i = index + 1; i < items.length; i++) {
       offset += (heights[items[i]!.key] ?? 0) + GAP

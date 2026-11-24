@@ -17,22 +17,16 @@ export interface CascadeProps extends FormComponentProps {
    * @default '/'
    */
   separator?: string
-  /** 数据值 */
   modelValue?: string[] | string
-  /** 级联数据项的标签字段 */
   labelKey?: string
   /**
    * 兜底展示文案
    * @description 单选 modelValue 未命中数据时展示 text（如回显路径已不在选项中），命中时展示节点 label 路径
    */
   text?: string
-  /** 级联数据项的值字段 */
   valueKey?: string
-  /** 占位符 */
   placeholder?: string
-  /** 是否可清除 */
   clearable?: boolean
-  /** 子级字段 */
   childrenKey?: string
   /** 严格模式：仅叶子节点提交，非叶子点击只展开下级 */
   strict?: boolean
@@ -42,29 +36,16 @@ export interface CascadeProps extends FormComponentProps {
    * false 时显示、modelValue、update:label 均只体现选中叶子节点
    */
   showFullPath?: boolean
-  /**
-   * 数据项
-   */
   data?: Record<string, any>[]
-  /**
-   * 多选
-   */
   multiple?: boolean
-  /**
-   * 搜索
-   */
   filterable?: boolean
   /** 触发器上最多展示的标签数，超出折叠为 +N */
   visibilityLimit?: number
-  /** 底部面板内容容器样式 */
   contentStyle?: CSSProperties | string
-  /** 底部面板内容容器类名 */
   contentClass?: unknown
 }
 
-/** 级联选择器组件定义的事件 */
 export interface CascadeEmits {
-  /** 触发更新 label 事件 */
   (e: 'update:label', label?: string | string[]): void
   (e: 'update:modelValue', value?: string | string[]): void
   (
@@ -80,8 +61,7 @@ export interface CascadeEmits {
   (e: 'clear'): void
 }
 
-/** 级联选择器组件暴露的属性和方法(组件内部使用) */
 export interface _CascadeExposed {}
 
-/** 级联选择器组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
+/** 组件外部使用, 引用的值会被自动解构 */
 export type CascadeExposed = DeconstructValue<_CascadeExposed>

@@ -4,7 +4,6 @@ export interface NavigatorItem {
   key: string
   /** 轮次序号（0 起，展示时 +1） */
   index: number
-  /** 用户提问前缀 */
   question: string
   /** 本轮回答前缀（尚无文字回答时缺省） */
   answer?: string

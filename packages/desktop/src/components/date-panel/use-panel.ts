@@ -21,10 +21,8 @@ interface UsePanelReturned {
 export function usePanel(options: PanelOptions): UsePanelReturned {
   const { props, emit } = options
 
-  /** 组件类 */
   const cls = bem('date-panel')
 
-  /** 当前面板类型 */
   const panelType = shallowRef<PanelType>('day')
 
   watch(

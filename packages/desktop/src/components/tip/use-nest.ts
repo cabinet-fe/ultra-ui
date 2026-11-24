@@ -6,21 +6,10 @@ const TipNestDIKey: InjectionKey<{
   removeChild(visible: ShallowRef<boolean>): void
 }> = Symbol('TipNestDIKey')
 
-/**
- * tip嵌套
- * @param visible 当前tip显示变量
- * @returns
- */
 export function useNest(
   visible: Ref<boolean | undefined> | { __v_isRef: boolean; value: boolean }
 ): Ref<boolean> {
-  /**
-   * 子级提示框
-   */
   const childrenTips = shallowReactive(new Set<ShallowRef<boolean>>())
-  /**
-   * 是否有子级提示框正在显示中
-   */
   const anyChildrenVisible = computed(() => {
     return Array.from(childrenTips).some((tip) => tip.value)
   })

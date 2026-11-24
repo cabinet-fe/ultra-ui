@@ -40,7 +40,6 @@ const props = withDefaults(
     prefix: string
     /** 输入框后缀文案，如「行」 */
     suffix: string
-    /** 默认数量 */
     defaultValue?: number
     min?: number
     max?: number

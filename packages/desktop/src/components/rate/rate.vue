@@ -73,10 +73,8 @@ const className = computed(() => [
 /** color 属性经 CSS 变量注入，未传时走 token 默认值 */
 const rateStyle = computed<CSSProperties>(() => ({ '--u-rate-active-color': props.color }))
 
-/** 当前展示分值：悬浮预览优先 */
 const displayValue = computed(() => hoverValue.value ?? model.value)
 
-/** 第 star 颗星彩色层的裁剪宽度 */
 const overlayWidth = (star: number) => {
   const value = displayValue.value
   if (value >= star) return '100%'

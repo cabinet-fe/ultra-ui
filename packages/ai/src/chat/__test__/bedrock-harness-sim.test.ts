@@ -26,8 +26,6 @@ import { createServerTransport } from '../session'
 // eslint-disable-next-line import/first
 import { createHarnessSessionAdapter, type HarnessFrame } from './fixtures/bedrock/harness'
 
-// ---- mock 网络层 ----
-
 type HistoryMessage = {
   id: string
   role: string
@@ -54,8 +52,6 @@ function setHistory(list: HistoryMessage[]): void {
   historyStore.length = 0
   historyStore.push(...list)
 }
-
-// ---- mock WebSocket ----
 
 interface MockSocket {
   url: string
@@ -86,7 +82,6 @@ class MockWebSocket implements MockSocket {
     this.onclose?.()
   }
 
-  /** 测试端注入一帧 */
   serverPush(frame: HarnessFrame): void {
     this.onmessage?.({ data: JSON.stringify(frame) })
   }
@@ -224,8 +219,6 @@ function toolResult(callId: string): HarnessFrame {
     toolResult: { assistantMessageId: 'msg_A', callId, output: 'slow-done' }
   }
 }
-
-// ---- 测试驱动 ----
 
 describe('bedrock harness 会话面板仿真', () => {
   let state: ChatFoldState
@@ -456,8 +449,6 @@ describe('bedrock harness 会话面板仿真', () => {
     ws.close()
     await vi.advanceTimersByTimeAsync(50)
     record('补拉(空快照)')
-    // record 同时快照当时内容
-    // 重连后直播继续
     await vi.advanceTimersByTimeAsync(2500)
     const ws2 = sockets[1]!
     serverReplay = () => []
@@ -465,7 +456,6 @@ describe('bedrock harness 会话面板仿真', () => {
     ws2.serverPush(textDelta('msg_B', '文本'))
     record('重连续流')
 
-    // 落后空快照不得清空直播内容、不得翻转 done
     const contentAt = (i: number) => flipsContent[i]
     expect(flips[1]).toMatch(/answer:streaming/)
     expect(contentAt(1)).toBe('部分')

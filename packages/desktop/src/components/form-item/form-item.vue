@@ -22,7 +22,6 @@
         </ContentSlot>
       </div>
 
-      <!-- 只有表单控件处于非只读状态时，才显示错误提示 -->
       <section :class="cls.e('error')" v-if="!readonly && !formProps?.noTips">
         <transition name="form-item-tips" mode="out-in">
           <span :class="cls.e('error-text')" v-if="!!errorTip">
@@ -63,13 +62,8 @@ const props = withDefaults(defineProps<FormItemProps>(), { readonly: undefined }
 
 const emit = defineEmits<FormItemEmits>()
 
-defineSlots<{
-  /** 标签插槽 */
-  label?: () => any
-  default?: () => any
-}>()
+defineSlots<{ label?: () => any; default?: () => any }>()
 
-/** 表单组件上下文 */
 const { formProps, registerField, unregisterField, shouldValidate, handleFieldUpdate } =
   injectFormContext()
 
@@ -116,7 +110,6 @@ const className = computed(() => {
   ].join(' ')
 })
 
-/** label样式 */
 const labelStyles = computed<CSSProperties>(() => {
   if (labelPosition.value === 'top') return {}
   return {

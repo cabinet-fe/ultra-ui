@@ -1,15 +1,12 @@
 import type { ComponentProps } from '@veltra/utils'
 import type { Component } from 'vue'
 
-/** Collapse 项的唯一标识 */
 export type CollapseValue = string | number
 
 /** Collapse modelValue：手风琴模式为单值，普通模式为数组（也兼容传入单值） */
 export type CollapseModelValue = CollapseValue | CollapseValue[]
 
-/** Collapse 组件属性 */
 export interface CollapseProps extends ComponentProps {
-  /** 当前展开项的 value（单个或多个） */
   modelValue?: CollapseModelValue
 
   /**
@@ -33,11 +30,9 @@ export interface CollapseProps extends ComponentProps {
 
 export interface CollapseEmits {
   (e: 'update:modelValue', value: CollapseModelValue): void
-  /** 当前展开项变更时触发 */
   (e: 'change', value: CollapseModelValue): void
 }
 
-/** CollapseItem 组件属性 */
 export interface CollapseItemProps {
   /**
    * 唯一标识；在 `UCollapse` 内使用时必填。
@@ -55,7 +50,6 @@ export interface CollapseItemProps {
   /** 标题文本（也可通过 #header 插槽自定义标题区；展开图标始终保留，可用 expandIcon 替换） */
   title?: string
 
-  /** 是否禁用 */
   disabled?: boolean
 
   /**

@@ -8,7 +8,6 @@ export class TableRowNode<Data extends Record<string, any> = Record<string, any>
   Data,
   TableRowNode<Data>
 > {
-  /** 索引路径 */
   get indexes(): number[] {
     if (!this.parent) return [this.index]
     return this.parent.indexes.concat(this.index)
@@ -16,16 +15,12 @@ export class TableRowNode<Data extends Record<string, any> = Record<string, any>
 
   isExpandRow = false
 
-  /** 是否操作中 */
   operating = false
 
-  /** 是否展开 */
   expanded = false
 
-  /** 是否为当前的点击行 */
   isCurrent = false
 
-  /** 是否选中 */
   checked = false
 
   /**
@@ -41,15 +36,6 @@ export class TableRowNode<Data extends Record<string, any> = Record<string, any>
 
   override children?: TableRowNode<Data>[] = undefined
 
-  /**
-   *
-   * @param data 一个普通对象或者一个响应式对象
-   * @param index 索引值
-   * @param depth 深度（根为 0）
-   * @param parent 父行节点
-   * @param uid 行唯一标识
-   * @returns
-   */
   constructor(options: {
     data: Data
     index: number

@@ -41,7 +41,6 @@ const props = defineProps<{ toolCall: ChatToolCall }>()
 interface WeatherResult {
   city: string
   region?: string
-  /** 天气描述文本 */
   weather: string
   /** WMO 天气码 */
   code: number

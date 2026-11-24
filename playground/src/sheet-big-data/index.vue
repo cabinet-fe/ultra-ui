@@ -124,8 +124,6 @@ const frozenText = computed(() => {
   return frozen && frozen.rows > 0 ? `已冻结 ${frozen.rows} 行` : '未冻结'
 })
 
-// ─── 指标 ────────────────────────────────────────────────
-
 const cellCount = ref(0)
 const stylePoolSize = ref(0)
 const dedupeRatio = ref('0')
@@ -150,8 +148,6 @@ function fmtBytes(value: number): string {
   if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`
   return `${(value / (1024 * 1024)).toFixed(2)} MB`
 }
-
-// ─── 确定性伪随机（mulberry32）─────────────────────────────
 
 function mulberry32(seed: number): () => number {
   let state = seed >>> 0
@@ -287,8 +283,6 @@ function buildItems(sheet: Sheet, rows: number, cols: number, seed: number): Set
   return items
 }
 
-// ─── 生成 + 批量写入 + 渲染 ───────────────────────────────
-
 function parseSeed(): number {
   const parsed = Number.parseInt(seedText.value, 10)
   return Number.isFinite(parsed) ? parsed : 42
@@ -344,8 +338,6 @@ async function generate(): Promise<void> {
   renderMs.value = renderEnd - writeEnd
   busy.value = 'idle'
 }
-
-// ─── 功能冒烟：冻结 / 查找 / 导出 ─────────────────────────
 
 function freezeFirstRow(): void {
   activeSheet.value?.setFrozen(1, 0)

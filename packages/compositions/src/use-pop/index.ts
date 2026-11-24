@@ -16,42 +16,20 @@ type TipDirection = 'top' | 'bottom' | 'left' | 'right'
 type TipAlign = 'center' | 'start' | 'end'
 
 interface Options {
-  /** 触发元素 */
   triggerRef: ShallowRef<HTMLElement | undefined>
-  /** 内容元素 */
   contentRef: ShallowRef<HTMLElement | undefined>
-  /**
-   * 箭头元素，如果存在，则会在弹框的箭头位置显示箭头
-   */
   arrowRef?: ShallowRef<HTMLElement | undefined>
-  /** 方向 */
   direction?: ShallowRef<TipDirection> | TipDirection
-  /** 对齐方式 */
   alignment?: ShallowRef<TipAlign> | TipAlign
-  /**
-   * 箭头大小
-   * @default 10
-   */
   arrowSize?: number
-  /**
-   * 触发器元素位置变更时回调，
-   * 一般用于在触发器元素位置变更时更新弹框位置
-   */
   onTriggerPositionChange?: () => void
-  /** 更新元素前回调 */
   onBeforeUpdate?: (triggerEl: HTMLElement, contentEl: HTMLElement) => void
-  /** 更新元素后回调 */
   onAfterUpdate?: (position: ComputePositionReturn) => void
-  /** 弹框弹出时回调 */
   onPop?: (position: ComputePositionReturn) => void
 }
 
 interface PopResult {
-  /**
-   * 更新弹框位置
-   */
   update: () => Promise<void>
-  /** 浮框容器id */
   popperContainerId: string
 }
 
@@ -59,11 +37,6 @@ let popperContainer: HTMLElement | null = null
 
 const popperContainerId = 'pop-container'
 
-/**
- * 浮框组合式函数
- * @param options 选项
- * @returns
- */
 export function usePop(options: Options): PopResult {
   if (!popperContainer) {
     popperContainer = document.createElement('div')
@@ -84,17 +57,12 @@ export function usePop(options: Options): PopResult {
     onPop
   } = options
 
-  /** 箭头位置 */
   const arrowPlacementDict = { top: 'bottom', right: 'left', bottom: 'top', left: 'right' }
 
   function getMaybeRefValue<T>(value?: Ref<T> | T) {
     return isRef(value) ? value.value : value
   }
 
-  /**
-   * 更新浮框位置
-   * @param callbackOnPop 是否在弹出时回调
-   */
   async function update(callbackOnPop = false) {
     const triggerEl = triggerRef.value
     const contentEl = contentRef.value
@@ -105,7 +73,6 @@ export function usePop(options: Options): PopResult {
 
     onBeforeUpdate?.(triggerEl, contentEl)
 
-    // 计算位置 ↓↓↓
     const middleware = [offset(arrowRef?.value ? arrowSize : 6), flip(), shift()]
 
     if (arrowRef?.value) {
@@ -127,14 +94,12 @@ export function usePop(options: Options): PopResult {
     callbackOnPop && onPop?.(position)
     onAfterUpdate?.(position)
 
-    // 设置箭头位置 ↓↓↓
     if (middlewareData.arrow) {
       const { x: arrowX, y: arrowY } = middlewareData.arrow
 
       const arrowPlacement =
         arrowPlacementDict[placement.split('-')[0]! as keyof typeof arrowPlacementDict]
       const size = `${arrowSize}px`
-      // 箭头半径
       const arrowRadius = arrowSize / 2
 
       setStyles(arrowRef!.value!, {
@@ -145,7 +110,6 @@ export function usePop(options: Options): PopResult {
         [arrowPlacement]: `-${arrowRadius}px`
       })
     }
-    // 设置箭头位置 ↑↑↑
   }
 
   let scrollParents: HTMLElement[] = []
@@ -154,7 +118,6 @@ export function usePop(options: Options): PopResult {
   // 否则 top 仍按初始高度计算，面板底部会离触发器越来越远
   useResizeObserver({ targets: contentRef, onResize: () => update() })
 
-  /** 为触发器元素的祖先元素添加滚动事件 */
   function addScrollEvents() {
     if (!triggerRef.value) return
     if (onTriggerPositionChange) {
@@ -165,7 +128,6 @@ export function usePop(options: Options): PopResult {
     }
   }
 
-  /** 移除触发器元素祖先元素的滚动事件 */
   function removeScrollEvents() {
     if (onTriggerPositionChange) {
       scrollParents.forEach((el) => {
@@ -203,10 +165,5 @@ export function usePop(options: Options): PopResult {
     removeResizeEvents()
   })
 
-  return {
-    /** 更新浮框位置 */
-    update,
-    /** 浮框容器id */
-    popperContainerId
-  }
+  return { update, popperContainerId }
 }

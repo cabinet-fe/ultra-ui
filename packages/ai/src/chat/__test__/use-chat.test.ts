@@ -22,7 +22,6 @@ import { useChat } from '../use-chat'
 
 const createEmit = () => vi.fn() as unknown as AiChatEmits & ReturnType<typeof vi.fn>
 
-/** 文本流式 mock transport */
 const textTransport = (text: string): ChatTransport => {
   return (_req, handlers) => {
     handlers.onTextDelta(text)
@@ -96,7 +95,6 @@ describe('useChat', () => {
     expect(messages[1].toolCalls?.[0]).toMatchObject({ status: 'success', result: '3' })
     expect(messages[2]).toMatchObject({ role: 'tool', toolCallId: 'call-1', content: '3' })
 
-    // 第二轮请求的消息历史中包含工具结果
     const secondReqMessages = requests[1].messages
     expect(secondReqMessages.some((m) => m.role === 'tool' && m.toolCallId === 'call-1')).toBe(true)
   })
@@ -116,7 +114,6 @@ describe('useChat', () => {
     const chat = useChat({ props: { transport, tools }, emit })
     chat.send('删除文件')
 
-    // 等待进入待确认状态
     await vi.waitFor(() => {
       expect(chat.messages.value[1].toolCalls?.[0].status).toBe('awaiting-confirm')
     })
@@ -292,7 +289,6 @@ describe('useChat', () => {
     chat.send('第二条')
     chat.send('第三条')
 
-    // 进行中提交的消息进入队列，不直接追加为用户消息
     expect(chat.queue.value.map((q) => q.content)).toEqual(['第二条', '第三条'])
     expect(chat.messages.value.filter((m) => m.role === 'user')).toHaveLength(1)
 
@@ -338,7 +334,6 @@ describe('useChat', () => {
     const second = chat.queue.value[0]!
     chat.startQueued(second.id)
 
-    // 当前会话中断，第二条插队开始执行，第三条仍在队列
     await vi.waitFor(() => {
       const users = chat.messages.value.filter((m) => m.role === 'user').map((m) => m.content)
       expect(users).toEqual(['第一条', '第二条'])
@@ -346,7 +341,6 @@ describe('useChat', () => {
     expect(chat.messages.value[1]?.status).toBe('aborted')
     expect(chat.queue.value.map((q) => q.content)).toEqual(['第三条'])
 
-    // 第二条完成后自动接续第三条
     resolvers[1]!()
     await vi.waitFor(() => {
       expect(chat.messages.value.filter((m) => m.role === 'user')).toHaveLength(3)
@@ -528,7 +522,6 @@ describe('useChat', () => {
     chat.send('北京天气')
     await waitFinish(emit)
 
-    // 只请求一轮；工具结果仍进入消息历史
     expect(requests).toHaveLength(1)
     const messages = chat.messages.value
     expect(messages.map((m) => m.role)).toEqual(['user', 'assistant', 'tool'])
@@ -621,7 +614,6 @@ describe('useChat', () => {
 
     expect(chat.messages.value.map((m) => m.role)).toEqual(['user', 'assistant'])
     expect(chat.messages.value[1].content).toBe('回答')
-    // 最终同步给父级的快照也包含 assistant 消息
     expect(props.messages?.some((m) => m.role === 'assistant' && m.content === '回答')).toBe(true)
   })
 

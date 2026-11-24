@@ -65,10 +65,8 @@ const toggle = (value: CollapseValue) => {
   update(values)
 }
 
-// 收集子组件已注册的 values
 const registeredValues = ref<CollapseValue[]>([])
 
-// 初始捕获 modelValue 是否具有有效初值
 const hasInitialValue =
   modelValue.value !== undefined &&
   modelValue.value !== null &&
@@ -78,7 +76,7 @@ const register = (value: CollapseValue) => {
   if (!registeredValues.value.includes(value)) {
     registeredValues.value.push(value)
 
-    // 若默认展开全部（defaultCollapseAll 为 false）且外部未指定初始值，则自动展开该子项
+    // 非默认折叠全部且外部未给初值时，自动展开各子项
     if (!props.defaultCollapseAll && !hasInitialValue) {
       if (props.accordion) {
         if (registeredValues.value.length === 1) {

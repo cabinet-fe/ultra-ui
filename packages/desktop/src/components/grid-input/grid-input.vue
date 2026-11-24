@@ -51,10 +51,8 @@ const blur = ref<boolean>(false)
 
 const instance = getCurrentInstance()
 
-/** 将格子数组拼成对外 modelValue */
 const joinValue = (cells: string[]) => cells.join(props.separator)
 
-/** 按分隔符解析 modelValue 为格子内容 */
 const parseValue = (value?: string): string[] => {
   if (!value) return []
   const sep = props.separator
@@ -62,7 +60,6 @@ const parseValue = (value?: string): string[] => {
   return parts.filter((part) => part !== '').slice(0, props.length)
 }
 
-// 外部 modelValue / 分隔符变化时回填格子（支持初始值与回显）
 watch(
   () => [props.modelValue, props.separator, props.length] as const,
   () => {

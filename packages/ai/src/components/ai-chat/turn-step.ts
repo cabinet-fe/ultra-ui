@@ -5,7 +5,6 @@ export interface TurnStep {
   /** reasoning: `${msg.id}:reasoning`；tool: call.id */
   key: string
   kind: 'reasoning' | 'tool'
-  /** 来源消息 */
   message: ChatMessage
   /** kind === 'tool' 时的调用 */
   toolCall?: ChatToolCall

@@ -11,12 +11,10 @@
     >
       <UNavIcon v-if="item.icon" :icon="item.icon" :class="cls.e('icon')" />
 
-      <!-- 文本 -->
       <span :class="cls.e('sub-title')">
         {{ item.title }}
       </span>
 
-      <!-- 展开图标 -->
       <u-icon :class="[cls.e('sub-expand'), bem.is('expanded', expanded)]">
         <ArrowRight />
       </u-icon>

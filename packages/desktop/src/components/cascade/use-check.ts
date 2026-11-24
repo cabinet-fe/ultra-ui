@@ -51,7 +51,6 @@ export function useCheck(options: CheckOptions): UseCheckReturned {
       visibilityLimit = 0
     }
 
-    // 禁用时，显示全部
     if (disabled.value || readonly.value) {
       visibilityLimit = props.modelValue?.length ?? 0
     }

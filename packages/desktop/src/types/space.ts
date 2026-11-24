@@ -1,6 +1,5 @@
 import type { ComponentSize } from '@veltra/utils'
 
-/** 间距容器组件属性 */
 export interface SpaceProps {
   /**
    * 间距：档位走主题 gap token（small / default / large）；
@@ -8,15 +7,14 @@ export interface SpaceProps {
    */
   size?: ComponentSize | number | [number, number]
 
-  /** 排列方向，默认 'horizontal' */
+  /** 默认 'horizontal' */
   direction?: 'horizontal' | 'vertical'
 
-  /** 交叉轴对齐方式，默认 'center' */
+  /** 默认 'center' */
   align?: 'start' | 'center' | 'end' | 'baseline'
 
   /** 是否自动换行，仅水平方向生效，默认 false */
   wrap?: boolean
 }
 
-/** 间距容器组件定义的事件 */
 export interface SpaceEmits {}

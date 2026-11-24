@@ -1,11 +1,6 @@
 import { extractNormalVNodes } from '@veltra/utils'
 import { defineComponent, isRef, type MaybeRef, createVNode, cloneVNode, type Component } from 'vue'
 
-/**
- * 生成一个用于设置组件通用属性的组件
- * @param props 组件通用的属性
- * @returns
- */
 export function useComponentProps<T extends Record<string, any>>(
   props: MaybeRef<T & Record<string, any>>
 ): Component {

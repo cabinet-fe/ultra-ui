@@ -59,7 +59,6 @@
           :rules="{ match: [/^1[3-9]\d{9}$/, '请输入有效的手机号码'] }"
         />
 
-        <!-- 选择器类型 -->
         <u-select
           field="gender"
           label="性别"
@@ -96,7 +95,6 @@
           placeholder="请选择单位"
         />
 
-        <!-- 日期时间 -->
         <u-date-picker field="birthday" label="生日" placeholder="请选择生日" />
         <u-date-picker
           field="joinDate"
@@ -105,7 +103,6 @@
           :rules="{ required: true }"
         />
 
-        <!-- 数值输入 -->
         <u-number-input field="salary" label="薪资" :min="0" :step="100" :rules="{ min: 0 }" />
         <u-number-input
           field="score"
@@ -116,11 +113,9 @@
           :rules="{ min: 0, max: 100 }"
         />
 
-        <!-- 多行文本 -->
         <u-textarea field="address" label="地址" placeholder="请输入详细地址" span="full" />
         <u-textarea field="description" label="个人描述" placeholder="请输入个人描述" span="full" />
 
-        <!-- 复选框和单选框 -->
         <u-checkbox-group field="skills" label="技能" :items="skillOptions" span="full" />
         <u-radio-group
           field="workType"
@@ -129,7 +124,6 @@
           :rules="{ required: true }"
         />
 
-        <!-- 高级组件 -->
         <u-code-editor field="code" label="代码片段" :langs="['json']" span="full" />
         <u-slider
           field="experience"
@@ -139,7 +133,6 @@
           :rules="{ min: 0, max: 20 }"
         />
 
-        <!-- 条件显示字段 -->
         <u-input
           v-if="!model.age || model.age < 25"
           field="emergencyContact"
@@ -152,20 +145,10 @@
           label="主要编程语言"
         />
 
-        <!-- 嵌套字段 -->
         <u-input field="props.label" label="标签" />
         <u-input field="props.field" label="字段" />
         <u-input field="contact.qq" label="QQ号码" />
         <u-input field="contact.wechat" label="微信号" />
-
-        <!-- <u-cascade
-            field="cascade"
-            label="单选级联选择器"
-            :options="area.area"
-            label-key="name"
-            value-key="code"
-            filterable
-          /> -->
       </template>
     </u-batch-edit>
 
@@ -354,7 +337,6 @@ const asynchronous = shallowRef(false)
 
 const deleteMethod = async (row) => {
   await sleep(2000)
-  // message.success('删除成功')
   return Promise.reject('删除失败')
 }
 
@@ -370,12 +352,10 @@ const beforeCreate = (draft: Record<string, any>) => {
 }
 
 function onCreateChild(row: TableRow) {
-  // 点击「添加子级」时拿到父级行，可据此初始化表单
   model.parentId = row.data.id
   message.info(`create-child：父级 ${row.data.name}`)
 }
 
-// 选项数据
 const units = [
   { label: '单位1', value: '1' },
   { label: '单位2', value: '2' },

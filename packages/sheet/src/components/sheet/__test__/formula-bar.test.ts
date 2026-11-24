@@ -77,7 +77,6 @@ function fxInput(el: HTMLElement): HTMLTextAreaElement {
   return el.querySelector<HTMLTextAreaElement>('.u-sheet__fx-input')!
 }
 
-/** 名称框输入并按键（默认 Enter） */
 function typeName(el: HTMLElement, text: string, key = 'Enter'): void {
   const input = nameBox(el)
   input.value = text
@@ -85,7 +84,6 @@ function typeName(el: HTMLElement, text: string, key = 'Enter'): void {
   if (key) input.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true }))
 }
 
-/** fx 输入栏聚焦 → 输入 → 按键（key = null 时不按键，保持编辑态） */
 function typeFx(el: HTMLElement, text: string, key: string | null = null): void {
   const input = fxInput(el)
   input.dispatchEvent(new FocusEvent('focus'))
@@ -101,17 +99,14 @@ describe('USheet 公式栏（名称框 + fx 输入栏）', () => {
     const { el } = mount(() => ({ workbook, rows: 20, cols: 8 }))
     await nextTick()
 
-    // 默认选区 A1：名称框显示 A1，fx 输入栏可用
     expect(nameBox(el).value).toBe('A1')
     expect(fxInput(el).disabled).toBe(false)
     expect(fxInput(el).value).toBe('')
 
-    // 普通值 → 原始值文本
     sheet.setCellValue({ row: 0, col: 0 }, 'hello')
     await nextTick()
     expect(fxInput(el).value).toBe('hello')
 
-    // 公式格 → '=' + f 原文
     sheet.setCellFormula({ row: 0, col: 0 }, '=SUM(1,2)')
     await nextTick()
     expect(fxInput(el).value).toBe('=SUM(1,2)')
@@ -140,7 +135,6 @@ describe('USheet 公式栏（名称框 + fx 输入栏）', () => {
     sheet.selectCell({ row: 2, col: 0 })
     await nextTick()
 
-    // 公式提交：'=' 前缀自动公式路径；计算值正确；提交后显示公式原文；选区保持
     typeFx(el, '=SUM(A1:A2)', 'Enter')
     await nextTick()
     expect(sheet.getCellData({ row: 2, col: 0 })).toMatchObject({ f: 'SUM(A1:A2)', v: 3, t: 'n' })
@@ -148,12 +142,10 @@ describe('USheet 公式栏（名称框 + fx 输入栏）', () => {
     expect(fxInput(el).value).toBe('=SUM(A1:A2)')
     expect(sheet.getSelection().activeCell).toEqual({ row: 2, col: 0 })
 
-    // 普通文本原样存储（首尾空格不 trim）
     typeFx(el, '  hello  ', 'Enter')
     await nextTick()
     expect(sheet.getCellData({ row: 2, col: 0 })).toMatchObject({ v: '  hello  ', t: 's' })
 
-    // Esc 取消：不改模型，输入栏还原为模型内容
     typeFx(el, 'zzz', 'Escape')
     await nextTick()
     expect(sheet.getCellData({ row: 2, col: 0 })).toMatchObject({ v: '  hello  ' })
@@ -172,13 +164,11 @@ describe('USheet 公式栏（名称框 + fx 输入栏）', () => {
     const { el } = mount(() => ({ workbook, rows: 20, cols: 8 }))
     await nextTick()
 
-    // 单格地址 → selectCell 跳转
     typeName(el, 'B3')
     await nextTick()
     expect(sheet.getSelection().activeCell).toEqual({ row: 2, col: 1 })
     expect(nameBox(el).value).toBe('B3')
 
-    // 区域 → selectRange 跳转
     typeName(el, 'B3:D5')
     await nextTick()
     expect(sheet.getSelection().ranges[0]).toEqual({
@@ -187,7 +177,6 @@ describe('USheet 公式栏（名称框 + fx 输入栏）', () => {
     })
     expect(nameBox(el).value).toBe('B3:D5')
 
-    // 非法：不跳转、不写入，名称框还原为当前选区地址
     typeName(el, 'INVALID!')
     await nextTick()
     expect(sheet.getSelection().ranges[0]).toEqual({
@@ -196,7 +185,6 @@ describe('USheet 公式栏（名称框 + fx 输入栏）', () => {
     })
     expect(nameBox(el).value).toBe('B3:D5')
 
-    // Esc：还原显示
     typeName(el, 'X99', 'Escape')
     await nextTick()
     expect(sheet.getSelection().ranges[0]).toEqual({
@@ -217,7 +205,6 @@ describe('USheet 公式栏（名称框 + fx 输入栏）', () => {
     sheet.selectCell({ row: 2, col: 0 })
     await nextTick()
 
-    // 聚焦进入编辑态并输入（不按键）
     typeFx(el, '=SUM(A1:A2)')
     // 网格侧选区变化（编辑态锁：输入内容不被覆盖）
     sheet.selectCell({ row: 5, col: 5 })
@@ -277,7 +264,6 @@ describe('USheet 公式栏（名称框 + fx 输入栏）', () => {
     const sheet2 = workbook.getSheet('Sheet2')!
     const { el } = mount(() => ({ workbook, rows: 20, cols: 8 }))
     await nextTick()
-    // Sheet1 默认选区 A1
     expect(nameBox(el).value).toBe('A1')
 
     // Sheet2 的选区不影响公式栏（订阅的是 Sheet1）
@@ -293,7 +279,6 @@ describe('USheet 公式栏（名称框 + fx 输入栏）', () => {
     await nextTick()
     expect(fxInput(el).value).toBe('s2')
 
-    // 切回 Sheet1：公式栏跟随
     workbook.activateSheet('Sheet1')
     await nextTick()
     expect(nameBox(el).value).toBe('A1')
@@ -308,7 +293,6 @@ describe('USheet 公式栏（名称框 + fx 输入栏）', () => {
     sheet1.selectCell({ row: 0, col: 0 })
     await nextTick()
 
-    // 进入 fx 编辑态并输入草稿
     const input = fxInput(el)
     input.dispatchEvent(new Event('focus', { bubbles: true }))
     input.value = 'draft'
@@ -318,9 +302,7 @@ describe('USheet 公式栏（名称框 + fx 输入栏）', () => {
     // 切 tab → 编辑态重置（editing=false、editAddr=null）
     workbook.activateSheet('Sheet2')
     await nextTick()
-    // fx 显示新 sheet 内容（空），不再显示草稿
     expect(input.value).toBe('')
-    // Enter 提交：编辑态已重置 → 不写入
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
     await nextTick()
     expect(sheet2.getCellData({ row: 0, col: 0 })).toBeUndefined()
@@ -379,7 +361,6 @@ describe('USheet 公式栏：fx 函数弹框', () => {
     await flushPopup()
     expect(functionsPanel()).toBeNull()
 
-    // 有活动格 → 可点击
     sheet.selectCell({ row: 0, col: 0 })
     await nextTick()
     expect(button.disabled).toBe(false)
@@ -393,27 +374,22 @@ describe('USheet 公式栏：fx 函数弹框', () => {
     sheet.selectCell({ row: 2, col: 0 })
     await nextTick()
 
-    // 挂起草稿编辑（focus + 输入，不提交）
     const input = setFxText(el, 'draft')
     const button = fxButton(el)
     const selectionBefore = sheet.getSelection()
 
-    // 点击 fx → 弹框打开
     button.click()
     await flushPopup()
     expect(functionsPanel()).not.toBeNull()
-    // 开弹框不改选区 / 不写单元格 / 草稿保留
     expect(sheet.getSelection()).toEqual(selectionBefore)
     expect(sheet.getCellData({ row: 2, col: 0 })).toBeUndefined()
     expect(input.value).toBe('draft')
 
-    // 再次点击 fx → 关闭
     button.click()
     await flushPopup()
     expect(functionsPanel()).toBeNull()
     expect(input.value).toBe('draft')
 
-    // 点击弹框外 → 关闭
     button.click()
     await flushPopup()
     window.dispatchEvent(new MouseEvent('click'))
@@ -421,7 +397,6 @@ describe('USheet 公式栏：fx 函数弹框', () => {
     expect(functionsPanel()).toBeNull()
     expect(input.value).toBe('draft')
 
-    // Esc → 关闭；全程单元格未被写入
     button.click()
     await flushPopup()
     functionsPanel()!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
@@ -453,7 +428,6 @@ describe('USheet 公式栏：fx 函数弹框', () => {
     expect(document.activeElement).toBe(input)
     expect(el.querySelector('.u-sheet__fx-suggest')).toBeNull()
 
-    // 提交 → 写入进入编辑时的目标格（当前活动格 A3）
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
     await nextTick()
     expect(sheet.getCellData({ row: 2, col: 0 })).toMatchObject({ f: 'SUM()' })
@@ -475,12 +449,10 @@ describe('USheet 公式栏：fx 函数弹框', () => {
     document.querySelector<HTMLElement>('#pop-container .u-sheet__functions-item')!.click()
     await nextTick()
     await nextTick()
-    // 公式栏进入编辑态（默认选区 A1）
     const input = fxInput(el)
     expect(input.value).toBe('=SUM()')
     expect(input.selectionStart).toBe('=SUM()'.length - 1)
     expect(document.activeElement).toBe(input)
-    // 弹框随选中关闭
     expect(functionsPanel()).toBeNull()
   })
 })
@@ -534,11 +506,11 @@ describe('USheet 公式栏：函数补全与引用选择', () => {
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
     await nextTick()
     expect(suggestList(el)).toBeNull()
-    expect(input.value).toBe('=S') // 仍在编辑
+    expect(input.value).toBe('=S')
 
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))
     await nextTick()
-    expect(input.value).toBe('keep') // 取消还原
+    expect(input.value).toBe('keep')
     expect(sheet.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'keep' })
   })
 
@@ -592,7 +564,6 @@ describe('USheet 公式栏：函数补全与引用选择', () => {
     expect(barInput.value).toBe('=SUM(A1:B2')
     expect(barInput.selectionStart).toBe('=SUM(A1:B2'.length)
 
-    // 非引用选择场景失焦提交
     setFxText(el, 'plain')
     await nextTick()
     fxInput(el).dispatchEvent(new FocusEvent('blur'))
@@ -649,13 +620,11 @@ describe('USheet 公式栏：函数补全与引用选择', () => {
     // 插入后光标离开触发位（上下文断裂），拾取延续仍成立
     expect(exposed.value!.hasRefInsert()).toBe(true)
 
-    // shift+点选扩展（引擎 extend 回交）：A1 被替换为 A1:C3 而非追加
     exposed.value!.handleRefSelect(parseRange('A1:C3'))
     await nextTick()
     expect(fxInput(el).value).toBe('=SUM(A1:C3')
     expect(fxInput(el).selectionStart).toBe('=SUM(A1:C3'.length)
 
-    // 连续扩展：引擎锚点恒为首次拾取锚点，A1:C3 整体替换为 A1:D5
     exposed.value!.handleRefSelect(parseRange('A1:D5'))
     await nextTick()
     expect(fxInput(el).value).toBe('=SUM(A1:D5')
@@ -688,7 +657,6 @@ describe('USheet 公式栏：函数补全与引用选择', () => {
     await nextTick()
     expect(exposed.value!.hasRefInsert()).toBe(true)
 
-    // 用户输入逗号（input 事件）：延续状态清除，回到光标上下文判定
     const input = fxInput(el)
     input.value = '=SUM(A1,'
     input.setSelectionRange(9, 9)
@@ -700,7 +668,6 @@ describe('USheet 公式栏：函数补全与引用选择', () => {
     // 光标在逗号后处于引用上下文 → 普通插入 B2，而非替换 A1
     expect(fxInput(el).value).toBe('=SUM(A1,B2')
 
-    // Enter 提交：会话结束，延续状态随编辑态一并清除
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
     await nextTick()
     expect(exposed.value!.hasRefInsert()).toBe(false)
@@ -723,12 +690,10 @@ describe('USheet 公式栏：函数补全与引用选择', () => {
     expect(panel.classList.contains('is-expanded')).toBe(false)
     expect(input.style.height).toBe('')
 
-    // 鼠标移入公式栏编辑区：触发展开
     editor.dispatchEvent(new MouseEvent('mouseenter'))
     await nextTick()
     expect(panel.classList.contains('is-expanded')).toBe(true)
 
-    // 鼠标移出公式栏编辑区：收起为单行
     editor.dispatchEvent(new MouseEvent('mouseleave'))
     await nextTick()
     expect(panel.classList.contains('is-expanded')).toBe(false)
@@ -770,7 +735,6 @@ describe('USheet 公式栏：Point mode 拾取会话（Excel 语义）', () => {
     expect(sheet.getCellData({ row: 2, col: 0 })).toBeUndefined()
     expect(input.value).toBe('=SUM(C3')
 
-    // Enter 提交替换后的公式
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
     await nextTick()
     expect(sheet.getCellData({ row: 2, col: 0 })).toMatchObject({ f: 'SUM(C3' })
@@ -789,7 +753,6 @@ describe('USheet 公式栏：Point mode 拾取会话（Excel 语义）', () => {
     await nextTick()
     expect(fxInput(el).value).toBe('=SUM(A1')
 
-    // 被编辑格 = A3：拾取视作无操作
     exposed.value!.handleRefSelect(parseRange('A3'))
     await nextTick()
     expect(fxInput(el).value).toBe('=SUM(A1')
@@ -830,7 +793,6 @@ describe('USheet 公式栏：引用染色框（画布视觉反馈）', () => {
     sheet.selectCell({ row: 5, col: 5 })
     await nextTick()
 
-    // 手输多引用：蓝 / 绿按出现顺序（B2:C4 → (1,1)-(3,2)）
     setFxText(el, '=SUM(A1,B2:C4)')
     await nextTick()
     expect(highlights.at(-1)).toEqual([
@@ -838,12 +800,10 @@ describe('USheet 公式栏：引用染色框（画布视觉反馈）', () => {
       { range: { start: { row: 1, col: 1 }, end: { row: 3, col: 2 } }, color: '#16a34a' }
     ])
 
-    // 非公式文本：清除
     setFxText(el, 'plain')
     await nextTick()
     expect(highlights.at(-1)).toEqual([])
 
-    // 拾取会话：插入 B2:C4 → 染色；普通点选 D1 替换 → 染色跟随（仍单引用、蓝色）
     setFxText(el, '=SUM(')
     await nextTick()
     expect(highlights.at(-1)).toEqual([])
@@ -859,15 +819,12 @@ describe('USheet 公式栏：引用染色框（画布视觉反馈）', () => {
       { range: { start: { row: 0, col: 3 }, end: { row: 0, col: 3 } }, color: '#2563eb' }
     ])
 
-    // 提交（编辑态结束）：清除
     expect(highlights.at(-1)).toHaveLength(1)
     fxInput(el).dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
     await nextTick()
     expect(highlights.at(-1)).toEqual([])
   })
 })
-
-// ─── 目标格选区高亮保持（弹框打开与参数点选期间）──────────────
 
 type GridTable = ReturnType<SheetGrid['getTable']>
 
@@ -910,7 +867,6 @@ describe('USheet 公式栏：目标格选区高亮保持', () => {
       end: { col: 0, row: 2 }
     })
     expect(nameBox(el).value).toBe('A3')
-    // 未处于引用选择上下文：不插入引用文本
     expect(fxInput(el).value).toBe('')
   })
 
@@ -924,7 +880,6 @@ describe('USheet 公式栏：目标格选区高亮保持', () => {
     sheet.selectCell({ row: 2, col: 0 })
     await nextTick()
 
-    // fx 弹框选中 SUM → 编辑态 =SUM()（目标 = 活动格 A3）
     fxButton(el).click()
     await flushPopup()
     document.querySelector<HTMLElement>('#pop-container .u-sheet__functions-item')!.click()
@@ -945,7 +900,6 @@ describe('USheet 公式栏：目标格选区高亮保持', () => {
     })
     expect(nameBox(el).value).toBe('A3')
 
-    // 提交 → 写入目标格 A3，选区与名称框仍指向 A3
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
     await nextTick()
     expect(sheet.getCellData({ row: 2, col: 0 })).toMatchObject({ f: 'SUM(A1)', v: 1 })
@@ -973,7 +927,6 @@ describe('USheet 公式栏：目标格选区高亮保持', () => {
     await flushPopup()
     expect(functionsPanel()).not.toBeNull()
 
-    // 弹框打开期间点选画布 B2：目标格 A3 高亮保持、模型选区不变、不插入文本
     const table = exposed.value!.getGrid()!.getTable()
     canvasClickCell(table, 1, 1)
     expect(sheet.getSelection().activeCell).toEqual({ row: 2, col: 0 })
@@ -995,7 +948,6 @@ describe('USheet 公式栏：目标格选区高亮保持', () => {
     expect(sheet.getSelection().activeCell).toEqual({ row: 2, col: 0 })
     expect(nameBox(el).value).toBe('A3')
 
-    // 提交 → 选区与名称框仍指向目标格 A3
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
     await nextTick()
     expect(sheet.getCellData({ row: 2, col: 0 })).toMatchObject({ f: 'SUM(A1:A2)', v: 3 })
@@ -1012,14 +964,12 @@ describe('USheet 公式栏：目标格选区高亮保持', () => {
     sheet.selectCell({ row: 2, col: 0 })
     await nextTick()
 
-    // 编辑目标 A3；期间经名称框跳转到 B5（模型选区离开目标格）
     const input = setFxText(el, '=1+1')
     typeName(el, 'B5')
     await nextTick()
     expect(sheet.getSelection().activeCell).toEqual({ row: 4, col: 1 })
     expect(nameBox(el).value).toBe('B5')
 
-    // 提交 → 写入 A3，模型选区 / 名称框 / 画布高亮回推目标格
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
     await nextTick()
     expect(sheet.getCellData({ row: 2, col: 0 })).toMatchObject({ f: '1+1', v: 2 })

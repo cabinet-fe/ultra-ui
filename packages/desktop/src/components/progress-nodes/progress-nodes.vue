@@ -12,10 +12,8 @@
         @click="handleClick(node, index)"
       >
         <div :class="cls.e('node')">
-          <!-- 虚线连接 -->
           <div v-if="index !== nodes.length - 1" :class="cls.e('link')"></div>
 
-          <!-- 节点圆点 -->
           <span :class="cls.e('dot')">
             <slot name="icon" :node="node" :index="index" />
           </span>

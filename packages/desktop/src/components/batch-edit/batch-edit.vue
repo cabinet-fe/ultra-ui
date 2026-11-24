@@ -11,10 +11,8 @@
     @keydown.capture="handleKeydown"
     v-bind="$attrs"
   >
-    <!-- 编辑列表 -->
     <BatchEditList :slots="slots" />
 
-    <!-- 编辑表单 -->
     <BatchEditForm
       v-if="props.formMode === 'panel'"
       ref="form"
@@ -76,7 +74,6 @@ const { staticFeatures, dynamicFeatures } = useFeatures({ props })
 
 const handlers = useHandlers({ props, emit, state, resetState, formRef })
 
-// 快捷键处理
 const { handleFocusIn, handleFocusOut, handleKeydown, focused } = useShortcutKey({
   props,
   onSave: handlers.handleSave,

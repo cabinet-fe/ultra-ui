@@ -11,7 +11,6 @@ import { ERROR_CODES, type ConnectorError } from './errors'
  * PUT 即全量覆盖（upsert），页面刷新后数据保留。
  */
 
-/** 字段类型全集：文本、数字、单选、多选、日期、复选框、进度、成员、图片 */
 export const FIELD_TYPES = [
   'text',
   'number',

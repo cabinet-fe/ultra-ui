@@ -39,7 +39,6 @@ export function useEditState(options: Options) {
     { immediate: true }
   )
 
-  /** 重置表单数据到 model 初始快照 */
   function resetModel() {
     if (props.formMode !== 'dialog') {
       formRef.value?.reset()

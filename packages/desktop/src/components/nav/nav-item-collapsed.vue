@@ -1,5 +1,4 @@
 <template>
-  <!-- 一级导航 -->
   <u-tip v-if="depth === 0" direction="right" hide-arrow>
     <li
       :class="[
@@ -20,7 +19,6 @@
     </template>
   </u-tip>
 
-  <!-- 二级以及二级以下导航 -->
   <li
     v-else
     :class="[
@@ -33,7 +31,6 @@
   >
     <UNavIcon v-if="item.icon" :icon="item.icon" :class="collapsedCls.e('icon')" />
 
-    <!-- 文本 -->
     <span :class="collapsedCls.e('item-title')">
       {{ item.title }}
     </span>

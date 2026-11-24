@@ -76,8 +76,6 @@ const props = defineProps<{ workbook: Workbook; sheetList: Sheet[]; activeIndex:
 
 const cls = bem('sheet')
 
-// ─── 可滚动视口（导航显隐 / 步进滚动 / 活动 tab 滚入视野）────────
-
 const tabsViewportRef = useTemplateRef<HTMLElement>('tabsViewportRef')
 const tabsListRef = useTemplateRef<HTMLElement>('tabsListRef')
 const { showNav, canPrev, canNext, scrollByStep } = useSheetTabsBar({
@@ -98,8 +96,6 @@ function handleAddSheet(): void {
   const sheet = props.workbook.addSheet()
   props.workbook.activateSheet(sheet.name)
 }
-
-// ─── tab 右键菜单（重命名 / 删除）────────────────────────────
 
 /** 正在行内重命名的 tab 下标（-1 = 无） */
 const renamingIndex = ref(-1)
@@ -127,7 +123,6 @@ function handleTabContextMenu(event: MouseEvent, sheet: Sheet, index: number): v
 function startRename(index: number): void {
   renamingIndex.value = index
   renameDraft.value = props.sheetList[index]?.name ?? ''
-  // 等输入框渲染后聚焦全选
   nextTick(() => renameInputRef.value?.[0]?.select())
 }
 

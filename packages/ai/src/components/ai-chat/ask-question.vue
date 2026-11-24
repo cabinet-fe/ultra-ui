@@ -1,6 +1,5 @@
 <template>
   <div :class="cls.e('ask-question')" tabindex="-1" @keydown="onCardKeydown">
-    <!-- 作答中：分页向导 -->
     <template v-if="answering">
       <div v-if="questions.length > 1" :class="cls.e('ask-question-progress')">
         <span :class="cls.e('ask-question-count')">{{ current + 1 }} / {{ questions.length }}</span>
@@ -128,7 +127,6 @@
       </footer>
     </template>
 
-    <!-- 提交后：常驻外层的问答摘要 -->
     <template v-else-if="answers != null">
       <div :class="cls.e('ask-question-head')">
         <UIcon :class="cls.e('ask-question-head-icon')"><QuestionFilled /></UIcon>
@@ -157,7 +155,6 @@
       </div>
     </template>
 
-    <!-- 异常 / 取消 -->
     <div v-else :class="cls.e('ask-question-status')">{{ error }}</div>
   </div>
 </template>
@@ -184,7 +181,6 @@ const props = defineProps<{
   questions: AskQuestionItem[]
   /** 已提交摘要；有值则展示结果而非表单 */
   answers?: AskQuestionAnswer[]
-  /** 失败 / 取消文案 */
   error?: string
 }>()
 

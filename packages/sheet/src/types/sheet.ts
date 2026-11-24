@@ -21,13 +21,10 @@ import type { ComputedRef } from 'vue'
 
 import type { SheetContext } from '../tools/context'
 
-/** 电子表格组件属性 */
 export interface SheetProps {
   /** 工作簿实例（多 sheet / 跨表公式的载体）；缺省内部自建（单 sheet） */
   workbook?: Workbook
-  /** 渲染行数，默认 100 */
   rows?: number
-  /** 渲染列数，默认 26（A..Z） */
   cols?: number
   /**
    * 显示值覆盖（设计态 Binding Placeholder 等）：覆盖引擎视口显示文本，不写 CellData.v
@@ -53,15 +50,10 @@ export interface SheetProps {
    * 文本编辑器；readonly 下忽略；传值变化（引用更替）触发网格重建
    */
   editors?: SheetGridEditorsOptions
-  /** 是否显示工具栏，默认 true */
   showToolbar?: boolean
-  /** 是否显示顶部公式栏（名称框 + fx 输入栏），默认 true */
   showFormulaBar?: boolean
-  /** 是否显示底部 sheet 标签栏，默认 true */
   showTabs?: boolean
-  /** 是否显示行号列，默认 true */
   showRowHeader?: boolean
-  /** 是否显示列字母表头，默认 true */
   showColHeader?: boolean
   /** 只读预览（关闭编辑回写、填充柄等写入口） */
   readonly?: boolean
@@ -92,7 +84,6 @@ export interface SheetProps {
  * `float-context-menu` 自行弹浮动图菜单（预览 / 超链接 / 删除等）。
  */
 export interface FloatContextMenuPayload {
-  /** 命中的浮动对象 id */
   id: string
   /** 层坐标（CSS 像素，相对 grid 实例容器） */
   x: number
@@ -114,7 +105,6 @@ export interface SheetEmits {
    * 落点层坐标）；tooltip 由宿主渲染，ultra-ui 不接管
    */
   (name: 'cell-link-hover', payload: CellLinkHoverEvent): void
-  /** 单元格超链接离开（引擎 `CellLinkLeaveEvent` 形态：刚离开的链接格坐标） */
   (name: 'cell-link-leave', payload: CellLinkLeaveEvent): void
   /**
    * 单元格超链接单击（引擎 `CellLinkClickEvent` 形态：真实指针 down+up 命中
@@ -144,7 +134,6 @@ export interface SheetEmits {
 export interface _SheetExposed {
   /** 当前工作簿（props.workbook 缺省时为内部自建实例） */
   workbook: ComputedRef<Workbook>
-  /** 当前活动 sheet */
   getActiveSheet: () => Sheet
   /** 工具上下文（与工具栏工具同一门面；tab 切换后自动指向当前 sheet） */
   getContext: () => SheetContext
@@ -152,5 +141,4 @@ export interface _SheetExposed {
   getGrid: () => SheetGrid | undefined
 }
 
-/** 电子表格组件暴露的属性和方法 */
 export type SheetExposed = DeconstructValue<_SheetExposed>

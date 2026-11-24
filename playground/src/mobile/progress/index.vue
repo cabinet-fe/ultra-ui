@@ -61,7 +61,6 @@ const getType = (p: number): ColorType => {
 </script>
 
 <style lang="scss" scoped>
-// 手机设备外壳视口内呈现
 .demo {
   display: flex;
   flex-direction: column;

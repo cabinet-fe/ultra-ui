@@ -7,7 +7,6 @@ import type { Ref } from 'vue'
 
 import type { ImportWorkerResponse } from './popups/import.worker'
 
-/** 导入文件 accept（工具栏直接选文件） */
 export const IMPORT_FILE_ACCEPT = '.xlsx,.csv'
 
 /** 导入所需上下文（vue 层编排；tools 层不 import vue） */

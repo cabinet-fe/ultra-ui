@@ -180,7 +180,6 @@ describe('useTransform', () => {
     target.value = canvas
     await Promise.resolve()
 
-    // 适应尺寸 400×300 未超出容器：拖动不平移
     canvas.dispatchEvent(new MouseEvent('mousedown', { button: 0, clientX: 100, clientY: 100 }))
     document.dispatchEvent(new MouseEvent('mousemove', { clientX: 130, clientY: 115 }))
     document.dispatchEvent(new MouseEvent('mouseup'))
@@ -195,7 +194,6 @@ describe('useTransform', () => {
     expect(api.transform.translateX).toBeCloseTo(-170, 10)
     expect(api.transform.translateY).toBeCloseTo(-135, 10)
 
-    // 抬起后再次移动不再平移
     document.dispatchEvent(new MouseEvent('mousemove', { clientX: 200, clientY: 200 }))
     expect(api.transform.translateX).toBeCloseTo(-170, 10)
   })
@@ -223,7 +221,6 @@ describe('useTransform', () => {
     expect(api.transform.translateX).toBeCloseTo(-160, 8)
     expect(api.transform.translateY).toBeCloseTo(-120, 8)
 
-    // 缩小被钳制在适应缩放
     wheel(100)
     wheel(100)
     expect(api.transform.scale).toBe(0.5)

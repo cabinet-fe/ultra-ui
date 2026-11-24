@@ -1,5 +1,4 @@
 <template>
-  <!-- 只读态：单选纯文本，多选纯标签 -->
   <template v-if="readonly">
     <template v-if="multiple">
       <div v-if="allTagNodes.length" :class="[cls.b, cls.m(size), bem.is('readonly', true)]">
@@ -91,7 +90,6 @@
         />
       </div>
 
-      <!-- 搜索结果：平铺命中项，路径作为副标题 -->
       <template v-if="searching">
         <ul v-if="filteredNodes.length" :class="cls.e('options')">
           <li
@@ -233,10 +231,8 @@ const valueKey = computed(() => fieldKey(props.valueKey, 'value'))
 
 const multiple = computed(() => props.multiple)
 
-// 值
 const modelValues = computed(() => (Array.isArray(props.modelValue) ? props.modelValue : []))
 
-// 树
 const forest = computed(() => {
   return new Forest<Record<string, unknown>, any>({
     data: (props.data ?? []) as Record<string, unknown>[],
@@ -282,7 +278,6 @@ const currentNodes = computed(() => {
 const tabs = computed(() => [props.placeholder, ...path.value.map((node) => node.label)])
 const activeTabIndex = computed(() => path.value.length)
 
-// 搜索
 const qs = shallowRef('')
 const searching = computed(() => props.filterable && !!qs.value.trim())
 const searchRef = useTemplateRef<HTMLInputElement>('searchRef')
@@ -380,7 +375,6 @@ const showClear = computed(() => {
   return multiple.value ? modelValues.value.length > 0 : !!displayedValue.value
 })
 
-// 导航 / 选择
 function ancestorsOf(node: CascadeItem): CascadeItem[] {
   const result: CascadeItem[] = []
   let parent = node.parent

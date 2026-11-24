@@ -8,7 +8,6 @@ import {
 } from '@codemirror/state'
 import { Decoration, type DecorationSet, EditorView } from '@codemirror/view'
 
-/** 前后缀外壳配置 */
 export interface ShellConfig {
   prefix: string
   suffix: string
@@ -58,12 +57,10 @@ export function textEqualsShellDoc(doc: Text, body: string, config: ShellConfig)
   return doc.sliceString(prefix.length, doc.length - suffix.length) === body
 }
 
-/** 将正文与前后缀拼成完整 CodeMirror 文档 */
 export function buildFullDoc(body: string, config: ShellConfig): string {
   return config.prefix + body + config.suffix
 }
 
-/** 选区是否已完全落在 [lo, hi] 内 */
 function selectionWithin(selection: EditorSelection, lo: number, hi: number): boolean {
   for (const range of selection.ranges) {
     if (range.from < lo || range.to > hi) return false
@@ -71,7 +68,6 @@ function selectionWithin(selection: EditorSelection, lo: number, hi: number): bo
   return true
 }
 
-/** 将选区限制在正文区间内，并保证不超出文档长度 */
 function clampSelection(
   selection: EditorSelection,
   bodyStart: number,
@@ -187,7 +183,6 @@ export function shellExtension(config: ShellConfig): Extension {
     }),
     EditorState.transactionFilter.of((tr) => {
       const { bodyStart, bodyEnd } = getShellRanges(tr.newDoc.length, config)
-      // 选区已在正文内：无需钳制，也无需校验外壳
       if (selectionWithin(tr.newSelection, bodyStart, bodyEnd)) return tr
       // 外壳与文档不一致时不钳选区，避免 Selection points outside of document
       if (!textMatchesShell(tr.newDoc, config)) return tr

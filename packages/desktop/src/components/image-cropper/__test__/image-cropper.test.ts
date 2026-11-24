@@ -6,7 +6,6 @@ import { createApp, h, nextTick, ref, shallowRef } from 'vue'
 import type { ImageCropperChangePayload, ImageCropperExposed } from '../../../types'
 import UImageCropper from '../image-cropper.vue'
 
-/** 可控的 Image 桩，set src 后异步触发 onload / onerror */
 class MockImage {
   static instances: MockImage[] = []
   static failNext = false
@@ -206,7 +205,6 @@ describe('UImageCropper 选区交互', () => {
     await drag(sel, 50, 50)
     expect(selectionRect(host)).toEqual({ x: 130, y: 110, width: 640, height: 480 })
 
-    // 拖出左上 / 右下边界均被钳制
     await drag(sel, -9999, -9999)
     expect(selectionRect(host)).toEqual({ x: 0, y: 0, width: 640, height: 480 })
 
@@ -223,7 +221,6 @@ describe('UImageCropper 选区交互', () => {
     await drag(se, 50, 40)
     expect(selectionRect(host)).toEqual({ x: 80, y: 60, width: 690, height: 520 })
 
-    // 越界调整被钳制到图片边缘
     await drag(se, 9999, 9999)
     expect(selectionRect(host)).toEqual({ x: 80, y: 60, width: 720, height: 540 })
 
@@ -278,7 +275,6 @@ describe('UImageCropper 选区交互', () => {
     expect(selectionRect(host).width).toBe(600)
     expect(selectionRect(host).x).toBe(100)
 
-    // 恢复自由比例后选区保持现状
     await setAspectRatio(undefined)
     expect(selectionRect(host).width).toBe(600)
     unmount()
@@ -376,7 +372,6 @@ describe('UImageCropper 图片变换', () => {
     const { host, unmount } = mountCropper('https://example.com/a.png')
     await flush()
 
-    // fit 状态显示尺寸 400×300 未超出容器
     await drag(getCanvas(host), 30, 15)
     expect(stageTransform(host)).toEqual({ tx: -200, ty: -150, rotation: 0, sx: 0.5, sy: 0.5 })
     unmount()
@@ -389,7 +384,6 @@ describe('UImageCropper 图片变换', () => {
     // 放大到 0.6：显示尺寸 480×360 超出容器
     await wheel(host, -100)
 
-    // 选区外（画布空白处）拖动：平移图片
     await drag(getCanvas(host), 30, 15)
     const t = stageTransform(host)
     expect(t.tx).toBeCloseTo(-130, 8)
@@ -482,7 +476,6 @@ describe('UImageCropper 工具栏与预览', () => {
 
     toolButton(host, '自由').click()
     await nextTick()
-    // 恢复自由比例：选区保持现状，仅解除比例约束
     expect(selectionRect(host)).toEqual({ x: 100, y: 0, width: 600, height: 600 })
     expect(toolButton(host, '自由').classList.contains('is-active')).toBe(true)
     unmount()
@@ -534,7 +527,6 @@ describe('UImageCropper 工具栏与预览', () => {
     )
     await flush()
 
-    // 插槽替代内置工具：预设按钮不存在
     expect(host.querySelector('.u-image-cropper__tool')).toBeNull()
     const custom = host.querySelector('.my-rotate') as HTMLElement
     expect(custom).toBeTruthy()
@@ -594,7 +586,6 @@ describe('UImageCropper getResult 与裁剪变化事件', () => {
     vi.restoreAllMocks()
   })
 
-  /** 挂载并拿到组件暴露的 ref，同时收集 crop-change 事件载荷 */
   function mountExposed(props: Record<string, unknown> = {}) {
     const host = document.createElement('div')
     document.body.appendChild(host)

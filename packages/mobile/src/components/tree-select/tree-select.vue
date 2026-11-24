@@ -1,5 +1,4 @@
 <template>
-  <!-- 只读态：纯展示 -->
   <template v-if="readonly">{{ displayedValue || FORM_EMPTY_CONTENT }}</template>
 
   <div
@@ -35,7 +34,6 @@
     </span>
   </div>
 
-  <!-- 底部树形选择面板（内部实现，不进公开导出） -->
   <BottomSheet
     v-model:visible="sheetVisible"
     :title="placeholder"
@@ -55,7 +53,6 @@
 
     <div v-if="loading" :class="cls.e('loading')">加载中...</div>
 
-    <!-- 搜索结果：平铺命中项，路径作为副标题 -->
     <template v-else-if="searching">
       <ul v-if="filteredItems.length" :class="cls.e('options')">
         <li
@@ -83,7 +80,6 @@
       <div v-else :class="cls.e('empty')">暂无数据</div>
     </template>
 
-    <!-- 树形列表：行点击选中，展开箭头收展 -->
     <template v-else>
       <ul v-if="treeRows.length" :class="cls.e('options')">
         <li
@@ -148,10 +144,7 @@ const props = withDefaults(defineProps<TreeSelectProps>(), {
 
 const emit = defineEmits<TreeSelectEmits>()
 
-defineSlots<{
-  /** 前缀插槽 */
-  prefix?: () => any
-}>()
+defineSlots<{ prefix?: () => any }>()
 
 const cls = bem('tree-select')
 
@@ -347,7 +340,6 @@ function ancestorLabel(item: TreeItem): string {
   return labels.join('/')
 }
 
-// 展开状态
 const expandedSet = shallowRef(new Set<TreeItem>())
 
 /** 当前可见行：根始终可见，父节点展开后渲染其子级 */
@@ -439,7 +431,6 @@ function handleSelect(item: TreeItem) {
   sheetVisible.value = false
 }
 
-/** 清除选项 */
 function handleClear() {
   setLabel(undefined)
   suppressEcho = true

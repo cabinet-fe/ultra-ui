@@ -32,10 +32,6 @@ export function forkUnmountedVNode(node: VNode, extra?: Record<string, unknown>)
   return forked
 }
 
-/**
- * 虚拟node拦截
- * @returns
- */
 export function useNodeInterceptor(): { getSlotsNodes: () => SlotRenderItem[] | null } {
   const slots = useSlots()
 

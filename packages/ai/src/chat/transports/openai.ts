@@ -10,7 +10,6 @@ import {
 import type { ChatModelOption, ChatProvider } from '../../providers'
 import type { ChatTransport, ChatTransportHandlers, ChatTransportRequest } from '../types'
 
-/** createOpenAITransport 的配置项（多 Provider） */
 export interface OpenAITransportOptions {
   /** 至少一个 Provider；模型 id 须跨 Provider 全局唯一 */
   providers: ChatProvider[]
@@ -28,7 +27,6 @@ export type OpenAITransport = ChatTransport & {
   readonly defaultModel: string
 }
 
-/** 单次请求尝试：协议 + 地址 */
 interface RequestAttempt {
   kind: 'responses' | 'chat'
   url: string

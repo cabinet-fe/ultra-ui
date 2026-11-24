@@ -3,17 +3,13 @@ import type { DeconstructValue } from '@veltra/utils'
 /** 抽屉方位（NutUI 惯例 prop 名），决定滑出方向与对应边缘的拖拽关闭手势 */
 export type DrawerPlacement = 'left' | 'right' | 'top' | 'bottom'
 
-/** 抽屉模式 */
 export type DrawerMode = 'edge' | 'inset'
 
-/** 抽屉组件属性 */
 export interface DrawerProps {
-  /** 是否显示抽屉 */
   modelValue?: boolean
   /** 抽屉方位，默认 bottom（移动端惯例底部面板） */
   placement?: DrawerPlacement
 
-  /** 是否显示关闭按钮 */
   showClose?: boolean
   /**
    * 抽屉标题；传入时在内容区上方渲染标题栏
@@ -22,7 +18,6 @@ export interface DrawerProps {
   title?: string
 }
 
-/** 抽屉组件定义的事件 */
 export interface DrawerEmits {
   (e: 'update:modelValue', value: boolean): void
   /** 开始关闭时触发（点遮罩、点关闭按钮、边缘拖拽关闭） */
@@ -31,8 +26,7 @@ export interface DrawerEmits {
   (e: 'closed'): void
 }
 
-/** 抽屉组件暴露的属性和方法(组件内部使用) */
 export interface _DrawerExposed {}
 
-/** 抽屉组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
+/** 组件外部使用, 引用的值会被自动解构 */
 export type DrawerExposed = DeconstructValue<_DrawerExposed>

@@ -9,13 +9,10 @@ import { deferAskQuestion, resolveAskQuestion, takeAskQuestionDeferred } from '.
 export interface AskQuestionOption {
   /** 选项展示文案（支持标注 `(推荐)` / `(Recommended)` 自动提取为推荐徽标） */
   label: string
-  /** 选项补充说明 */
   description?: string
 }
 
-/** 单个提问项 */
 export interface AskQuestionItem {
-  /** 问题文案 */
   question: string
   /** 简短分类标签（如「鉴权方式」「技术栈」） */
   header?: string
@@ -23,19 +20,15 @@ export interface AskQuestionItem {
   options?: (string | AskQuestionOption)[]
   /** 是否允许多选（默认 false 单选） */
   multiple?: boolean
-  /** 自定义输入占位文案 */
   placeholder?: string
 }
 
-/** 一条问答结果 */
 export interface AskQuestionAnswer {
-  /** 问题文案 */
   question: string
   /** 用户回答（单选为所选值或自定义输入；多选为顿号连接的字符串） */
   answer: string
   /** 多选回答列表（多选或含多项时提供） */
   answers?: string[]
-  /** 是否跳过该题 */
   skipped?: boolean
 }
 
@@ -52,7 +45,6 @@ export interface AskQuestionResult {
 export interface CreateAskQuestionToolOptions {
   /** 工具名（传给模型），默认 askQuestion */
   name?: string
-  /** 工具描述（传给模型） */
   description?: string
   /** 工具显示名，默认「提问」 */
   label?: string

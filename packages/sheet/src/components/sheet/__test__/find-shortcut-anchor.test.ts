@@ -84,15 +84,12 @@ describe('Ctrl+F 查找弹窗锚定', () => {
 
     const event = pressCtrlF(el)
     await flushPopup()
-    // 拦截浏览器原生查找 + 查找弹层打开
     expect(event.defaultPrevented).toBe(true)
     expect(el.querySelector('.u-sheet__find-input')).not.toBeNull()
-    // 锚定 reference 非空且指向工具栏 find 按钮（HTMLElement，与按钮入口完全同锚点）
     const findButton = el.querySelector<HTMLElement>('[data-tool-id="find"]')!
     expect(findButton).not.toBeNull()
     expect(lastOpenTrigger()).toBe(findButton)
 
-    // 再按一次 Ctrl+F：toggle 关闭（不回归）
     pressCtrlF(el)
     await nextTick()
     expect(el.querySelector('.u-sheet__find-input')).toBeNull()

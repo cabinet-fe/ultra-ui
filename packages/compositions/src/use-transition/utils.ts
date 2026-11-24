@@ -1,11 +1,5 @@
 import { watch, onBeforeUnmount } from 'vue'
 
-/**
- * 监听过渡
- * @param domGetter 元素获取函数
- * @param config 配置
- * @returns
- */
 export function watchTransition(
   domGetter: () => HTMLElement | undefined,
   config: {
@@ -33,7 +27,6 @@ export function watchTransition(
   }
   const addEvent = (el: HTMLElement) => {
     el.addEventListener('transitionend', transitionEndHandler, false)
-    // el.addEventListener('transitioncancel', transitionCancelHandler, false)
   }
 
   const removeEvent = (el?: HTMLElement) => {

@@ -2,15 +2,11 @@ import type { MaybeRefOrGetter, ModelRef } from 'vue'
 import { computed, onScopeDispose, toValue, watch } from 'vue'
 
 export interface UseCarouselOptions {
-  /** 当前页索引，v-model:active-index */
   model: ModelRef<number>
-  /** 页数，取已注册页数量 */
   count: MaybeRefOrGetter<number>
-  /** 是否自动播放 */
   autoplay: MaybeRefOrGetter<boolean>
   /** 自动播放间隔（毫秒） */
   interval: MaybeRefOrGetter<number>
-  /** 是否循环切换 */
   loop: MaybeRefOrGetter<boolean>
 }
 
@@ -72,7 +68,6 @@ export function useCarousel({ model, count, autoplay, interval, loop }: UseCarou
     timer = setInterval(() => step(1), toValue(interval))
   }
 
-  /** 悬停暂停自动播放 */
   const pauseAutoplay = () => {
     hoverPaused = true
     stopAutoplay()

@@ -21,7 +21,6 @@ export interface MentionAPI {
   dismiss(): void
   /** 选中后由调用方调用，清理状态（含 dismissedAnchor），下一个 `@` 可重新激活。 */
   commit(): void
-  /** 当前状态（只读） */
   getState(): MentionState | null
 }
 
@@ -32,7 +31,6 @@ export function createMention(): MentionAPI {
   function derive(doc: Doc, caret: number | null): MentionState | null {
     if (caret === null) return null
 
-    // 找到 caret 落在哪个 text segment 以及段内偏移
     let pos = 0
     let textValue: string | null = null
     let textStart = 0

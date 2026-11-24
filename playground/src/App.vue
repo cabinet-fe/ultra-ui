@@ -40,8 +40,6 @@
       </u-scroll>
     </div>
 
-    <!-- <u-watermark text="Ultra UI" append-to-body /> -->
-
     <u-drawer v-model="showDrawer" title="设置" direction="right" width="400px" :show-close="true">
       <div class="drawer-content">
         <section class="drawer-section">
@@ -367,17 +365,9 @@ $width: 320px;
   }
 
   &::before {
-    // background:
-    //   radial-gradient(ellipse 72% 58% at 15% 22%, rgba(59, 130, 246, 0.34), transparent 58%),
-    //   radial-gradient(ellipse 64% 54% at 86% 14%, rgba(236, 72, 153, 0.24), transparent 56%),
-    //   radial-gradient(ellipse 62% 62% at 56% 88%, rgba(6, 182, 212, 0.26), transparent 60%),
-    //   linear-gradient(135deg, rgba(248, 250, 252, 0.92), rgba(226, 232, 240, 0.74));
   }
 
   &::after {
-    // background-image:
-    //   linear-gradient(to right, var(--playground-grid-color) 1px, transparent 1px),
-    //   linear-gradient(to bottom, var(--playground-grid-color) 1px, transparent 1px);
     background-size: 52px 52px;
     mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.38));
   }
@@ -595,7 +585,6 @@ html[data-theme='dark'] .content-backdrop::before {
   justify-content: flex-end;
 }
 
-// 优化页面过渡动画
 .page-fade-enter-active {
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
@@ -616,7 +605,6 @@ html[data-theme='dark'] .content-backdrop::before {
   filter: blur(1px);
 }
 
-// 路由切换时的容器动画
 .router-content {
   position: relative;
   min-height: 400px;

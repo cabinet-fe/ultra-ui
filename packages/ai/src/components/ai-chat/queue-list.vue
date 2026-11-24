@@ -57,7 +57,6 @@ const emit = defineEmits<{
   (e: 'start-now', id: string): void
   /** 编辑：取回输入框重新编辑 */
   (e: 'edit', id: string): void
-  /** 移出队列 */
   (e: 'remove', id: string): void
 }>()
 

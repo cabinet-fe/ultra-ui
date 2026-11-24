@@ -2,7 +2,6 @@
   <div class="smart-table__toolbar">
     <u-input v-model="state.keyword" placeholder="搜索关键字" class="smart-table__toolbar-search" />
 
-    <!-- 筛选：多条件组合，改动即时生效 -->
     <u-dropdown trigger="click" width="400px">
       <template #trigger>
         <u-button size="small">
@@ -57,7 +56,6 @@
       </template>
     </u-dropdown>
 
-    <!-- 排序：字段 + 升/降序 -->
     <span class="smart-table__toolbar-label">排序</span>
     <u-select
       :model-value="state.sort?.fieldId"
@@ -73,7 +71,6 @@
       @update:model-value="onSortDir"
     />
 
-    <!-- 分组：按字段分段显示 -->
     <span class="smart-table__toolbar-label">分组</span>
     <u-select
       :model-value="state.groupFieldId"
@@ -83,7 +80,6 @@
       @update:model-value="state.groupFieldId = $event ?? ''"
     />
 
-    <!-- 字段隐藏：列显隐切换（至少保留一列） -->
     <u-dropdown trigger="click" width="200px">
       <template #trigger>
         <u-button size="small">字段</u-button>
@@ -193,8 +189,6 @@ const dirItems = [
   { label: '降序', value: 'desc' }
 ]
 
-// ─── 筛选 ────────────────────────────────────────────────
-
 function fieldOf(cond: FilterCondition): TableField | undefined {
   return props.fields.find((f) => f.id === cond.fieldId)
 }
@@ -243,8 +237,6 @@ function addCondition(): void {
   props.state.filters.push({ fieldId: field.id, op: OPS_BY_TYPE[field.type]![0]!, value: '' })
 }
 
-// ─── 排序 ────────────────────────────────────────────────
-
 function onSortField(fieldId?: string): void {
   props.state.sort = fieldId ? { fieldId, dir: props.state.sort?.dir ?? 'asc' } : null
 }
@@ -252,8 +244,6 @@ function onSortField(fieldId?: string): void {
 function onSortDir(dir: unknown): void {
   if (props.state.sort) props.state.sort.dir = dir === 'desc' ? 'desc' : 'asc'
 }
-
-// ─── 字段隐藏 ────────────────────────────────────────────
 
 function toggleField(fieldId: string, visible: boolean): void {
   const hidden = props.state.hiddenFieldIds

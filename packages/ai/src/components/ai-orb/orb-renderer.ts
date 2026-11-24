@@ -10,7 +10,6 @@ interface OrbParams {
   breatheFreq: number
   /** 表面扰动幅度（相对球半径） */
   wobbleAmp: number
-  /** 表面扰动速度 */
   wobbleSpeed: number
 }
 
@@ -421,10 +420,8 @@ export function createOrbRenderer(
     if (reactionDef && reactionW > 0.45) {
       gazeTarget = reactionDef.gaze
     } else if (pointerPos) {
-      // 悬停互动：看向指针所在方位
       gazeTarget = { x: clamp(pointerPos.x, -0.18, 0.18), y: clamp(pointerPos.y, -0.1, 0.12) }
     } else if (statusLabel === 'thinking') {
-      // 思考：视线略上扬并缓慢左右扫视
       gazeTarget = { x: 0.13 * Math.sin(t * 0.7), y: -0.05 + 0.03 * Math.sin(t * 0.47) }
     } else if (statusLabel === 'speaking') {
       gazeTarget = { x: 0.03 * Math.sin(t * 1.2), y: 0.02 * Math.sin(t * 0.8) }
@@ -450,7 +447,6 @@ export function createOrbRenderer(
     let eyeMode: EyeMode = 'round'
     let mouth: MouthMode = STATUS_MOUTH[statusLabel]
     if (reactionDef && reaction) {
-      // happy 前段先睁大双眼（round），随后才切换弯眼
       const widenPhase = reaction.type === 'happy' && reactionP < HAPPY_WIDEN_RATIO
       eyeScale = lerp(1, widenPhase ? 1.2 : reactionDef.eyeScale, reactionW)
       eyeOpen = lerp(eyeOpen, 1, reactionW)

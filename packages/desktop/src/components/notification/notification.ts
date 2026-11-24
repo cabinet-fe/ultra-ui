@@ -11,10 +11,8 @@ import UNotificationBox from './notification-box.vue'
 
 const cls = bem('notification')
 
-/** 通知项数据结构 */
 type NotificationItem = NotificationOptions & { key: string }
 
-/** 单个方位的堆叠状态 */
 interface NotificationStack {
   container: HTMLElement | null
   items: NotificationItem[]
@@ -22,7 +20,6 @@ interface NotificationStack {
   activeCount: number
 }
 
-/** --- 状态管理 --- */
 const stacks: Record<NotificationPosition, NotificationStack> = {
   'top-left': { container: null, items: shallowReactive([]), activeCount: 0 },
   'top-right': { container: null, items: shallowReactive([]), activeCount: 0 },
@@ -30,14 +27,10 @@ const stacks: Record<NotificationPosition, NotificationStack> = {
   'bottom-right': { container: null, items: shallowReactive([]), activeCount: 0 }
 }
 
-/** 通知关闭后回调 */
 const closedCallbacks = new Map<string, () => void>()
 
 let uid = 0
 
-/** --- 内部辅助函数 --- */
-
-/** 彻底销毁容器 */
 const destroy = (stack: NotificationStack) => {
   if (stack.container) {
     render(null, stack.container)
@@ -46,7 +39,6 @@ const destroy = (stack: NotificationStack) => {
   }
 }
 
-/** 离开动画结束后的清理 */
 const handleClosed = (stack: NotificationStack, key: string) => {
   stack.activeCount--
 
@@ -66,7 +58,6 @@ const handleClose = (stack: NotificationStack, key: string) => {
   if (index !== -1) stack.items.splice(index, 1)
 }
 
-/** 挂载并渲染容器 */
 const updateView = (position: NotificationPosition, options: NotificationOptions) => {
   const stack = stacks[position]
 
@@ -96,14 +87,12 @@ const updateView = (position: NotificationPosition, options: NotificationOptions
   render(vnode, stack.container)
 }
 
-/** 创建通知实例 */
 const createNotification = (options: NotificationOptions): NotificationInstance => {
   const { onClosed: userOnClosed, position = 'bottom-right', ...notificationOptions } = options
   const stack = stacks[position]
   const id = `notification_${uid++}`
   stack.activeCount++
 
-  // 生命周期 Promise
   let resolveClosed: () => void
   const onClosed = new Promise<void>((r) => (resolveClosed = r))
 
@@ -118,21 +107,17 @@ const createNotification = (options: NotificationOptions): NotificationInstance 
   return { id, close: () => handleClose(stack, id), onClosed }
 }
 
-/** --- 导出 API --- */
-
 export const notification = ((options) => {
   return createNotification(typeof options === 'string' ? { message: options } : options)
 }) as Notification
 
 notification._context = null
 
-// 挂载快捷方法: notification.success(...)
 const notificationTypes = ['primary', 'success', 'info', 'warning', 'danger'] as const
 notificationTypes.forEach((type) => {
   notification[type] = (msg, config) => notification({ ...config, message: msg, type })
 })
 
-/** 关闭所有通知，可指定方位 */
 notification.closeAll = (position?: NotificationPosition) => {
   if (position) {
     stacks[position].items.splice(0)

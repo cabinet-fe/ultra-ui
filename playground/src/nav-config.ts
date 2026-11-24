@@ -30,7 +30,6 @@ export const categories: { key: DemoCategory; zh: string }[] = [
   { key: 'other', zh: '其他' }
 ]
 
-/** 默认首页路由 */
 export const DEFAULT_ROUTE = '/desktop/button/index'
 
 const DESKTOP_ROOT = '/desktop'
@@ -345,7 +344,6 @@ export interface NavSearchGroup {
   items: NavSearchResultItem[]
 }
 
-/** 查询分词：小写化并按空白切分 */
 function tokenizeQuery(query?: string): string[] {
   return (query ?? '').trim().toLowerCase().split(/\s+/).filter(Boolean)
 }

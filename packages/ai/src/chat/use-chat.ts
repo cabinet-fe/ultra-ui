@@ -107,7 +107,6 @@ export function useChat(options: UseChatOptions) {
     reasoningLevel.value = option.defaultReasoningLevel ?? levels[0]?.value
   }
 
-  // models / model 变化时：确保有合法选中模型，并校正推理等级
   watch(
     () => [props.models, model.value] as const,
     ([models, current]) => {
@@ -131,7 +130,6 @@ export function useChat(options: UseChatOptions) {
     { immediate: true }
   )
 
-  // session 且已 open 时，模型切换走 selectModel
   watch(model, (modelId) => {
     const current = session()
     if (!sessionRuntime.opened || !current || !modelId) return
@@ -186,7 +184,6 @@ export function useChat(options: UseChatOptions) {
     return item
   }
 
-  /** 消耗队首并开始新一轮会话 */
   const drainQueue = () => {
     const next = queue.value.shift()
     if (next) startUserTurn(next.content, next.attachments)
@@ -218,7 +215,6 @@ export function useChat(options: UseChatOptions) {
     return item
   }
 
-  /** 推送用户消息并启动对话循环 */
   const startUserTurn = (content: string, attachments?: ChatAttachment[]) => {
     const message = reactive<ChatMessage>({ id: uid(), role: 'user', content, attachments })
     messages.value.push(message)
@@ -489,7 +485,6 @@ export function useChat(options: UseChatOptions) {
     confirmResolvers.get(toolCallId)?.(approved)
   }
 
-  /** session 审批横幅 / 提问提交：直接 respond(rpcId) */
   const respondSession = (rpcId: string, ok: boolean, value?: unknown) => {
     const current = session()
     if (current) void current.respond(rpcId, ok, value)

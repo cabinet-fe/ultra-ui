@@ -50,7 +50,6 @@ export interface UseDnDResult<T> {
   values: Ref<T[]>
   /**
    * 运行时更新拖拽配置（整体替换，不含 `values` / `filter` / `parent` / `onReorder`）
-   * @param config 新配置
    */
   updateConfig: (config?: VueParentConfig<T>) => void
 }
@@ -149,7 +148,6 @@ export function useDnD<T>(options: UseDnDOptions<T> = {}): UseDnDResult<T> {
     }
   })
 
-  /** 当前生效的容器元素：`parent` 选项优先，否则用模板引用 */
   const resolvedParent = computed<HTMLElement | undefined>(() =>
     parentOption === undefined ? parentRef.value : toValue(parentOption)
   )

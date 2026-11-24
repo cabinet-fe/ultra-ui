@@ -174,7 +174,6 @@ const rootRef = useTemplateRef<HTMLElement>('rootRef')
 /** 工具栏容器 ref：工具栏隐藏（showToolbar=false）时查找弹层的回退锚点（0 高贴 sheet 顶） */
 const toolbarWrapRef = useTemplateRef<HTMLElement>('toolbarWrapRef')
 
-// ─── 状态源（workbook / sheet 列表 / 活动 sheet / 工具上下文）────────
 // hooks 引用的 closePopup / rebuildGrid 由下方组合提供：箭头函数在事件触发时才
 // 求值（彼时已完成全部 setup），组合声明顺序不构成循环依赖。
 
@@ -187,8 +186,6 @@ const { workbook, activeIndex, sheetList, activeSheet, context, stateTick, syncF
     // 行高/列宽菜单确认 → 活动 grid 引擎尺寸即时生效（getGrid 声明于下方，事件时才求值）
     syncAxisSizes: (axis, indexes) => getGrid()?.applyAxisSizes(axis, indexes)
   })
-
-// ─── 弹层型工具编排（打开 / 关闭 / 面板事务）─────────────────────
 
 const {
   popupTool,
@@ -229,8 +226,6 @@ function handleFunctionSelect(name: string): void {
   formulaBarRef.value?.insertFunction(name)
 }
 
-// ─── UDropdown 面板：锚点跟随触发按钮（floating-ui 定位）──────────
-
 const popupDropdownRef = useTemplateRef<InstanceType<typeof UDropdown>>('popupDropdownRef')
 
 // popupTool 变化 → 打开（传触发按钮作锚点）/ 关闭。
@@ -252,11 +247,7 @@ function handlePopupVisible(visible: boolean): void {
   if (!visible) closePopup()
 }
 
-// ─── 工具栏分组视图模型 ────────────────────────────────────────
-
 const toolGroups = useToolGroups(context, stateTick)
-
-// ─── 单元格超链接 / 图片 UI（右键菜单 → 配置弹窗 → 写入；悬停 tooltip；lightbox）──
 
 /** 超链接配置弹层状态（右键菜单拉起）：mode + 编辑回填 + 写入目标（cell 格 / image 浮动图或嵌入图） */
 const hyperlinkPopup = shallowRef<{
@@ -318,8 +309,6 @@ function openImagePreview(source: ImagePreviewSource): void {
   imagePreview.value = source
 }
 
-// ─── 链接打开（引擎 openCellLinkOnClick=false，打开行为由组件接管）────────
-
 /** 新标签打开外链（对齐引擎默认打开语义：noopener） */
 function openExternal(url: string): void {
   window.open(url, '_blank', 'noopener,noreferrer')
@@ -344,8 +333,6 @@ function handleImageLinkClick(event: ImageLinkClickEvent): void {
     }
   })
 }
-
-// ─── grid 生命周期（重建 / 右键菜单 / 公式栏编辑镜像）────────────────
 
 const gridRef = useTemplateRef<HTMLElement>('gridRef')
 const formulaBarRef = useTemplateRef<InstanceType<typeof UFormulaBar>>('formulaBarRef')

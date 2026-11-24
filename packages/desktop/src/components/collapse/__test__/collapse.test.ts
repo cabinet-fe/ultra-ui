@@ -58,7 +58,6 @@ describe('Collapse', () => {
 
     try {
       await nextTick()
-      // 默认展开全部：modelValue 应该包含所有项的 value
       expect(model.value).toEqual(['a', 'b'])
 
       const activeItems = host.querySelectorAll('.u-collapse__item.is-active')
@@ -73,7 +72,6 @@ describe('Collapse', () => {
 
     try {
       await nextTick()
-      // 全部折叠：modelValue 应该为空或未定义，没有任何项具有 is-active 样式
       expect(model.value).toBeUndefined()
 
       const activeItems = host.querySelectorAll('.u-collapse__item.is-active')
@@ -116,7 +114,6 @@ describe('Collapse', () => {
 
     try {
       await nextTick()
-      // 外部传入初始值：即使 defaultCollapseAll 为 false，也仅激活外部指定的项
       expect(model.value).toEqual(['a'])
 
       const activeItems = host.querySelectorAll('.u-collapse__item.is-active')
@@ -132,7 +129,6 @@ describe('Collapse', () => {
 
     try {
       await nextTick()
-      // 手风琴模式且没有初始值，默认只展开第一个
       expect(model.value).toBe('a')
 
       const activeItems = host.querySelectorAll('.u-collapse__item.is-active')
@@ -153,21 +149,18 @@ describe('Collapse', () => {
       const headers = host.querySelectorAll('.u-collapse__header')
       expect(headers.length).toBe(2)
 
-      // 点击第一个 header 展开它
       ;(headers[0] as HTMLElement).click()
       await nextTick()
 
       expect(model.value).toEqual(['a'])
       expect(host.querySelectorAll('.u-collapse__item.is-active').length).toBe(1)
 
-      // 点击第二个 header 展开它
       ;(headers[1] as HTMLElement).click()
       await nextTick()
 
       expect(model.value).toEqual(['a', 'b'])
       expect(host.querySelectorAll('.u-collapse__item.is-active').length).toBe(2)
 
-      // 再次点击第一个 header 收起它
       ;(headers[0] as HTMLElement).click()
       await nextTick()
 

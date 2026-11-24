@@ -142,8 +142,6 @@ const showTrigger = computed(() => {
   return (modelValue.value?.length ?? 0) < props.maxCount
 })
 
-// ===== 文件类型识别（图片缩略图，其余走扩展名徽标） =====
-
 const IMAGE_EXTS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'heic', 'heif'])
 
 function extOf(name?: string): string {
@@ -177,8 +175,6 @@ function badgeOf(file: UploaderFileItem) {
 const badgeLabel = (file: UploaderFileItem) => badgeOf(file).label
 
 const badgeColor = (file: UploaderFileItem) => badgeOf(file).color
-
-// ===== 选择与读取 =====
 
 function pick() {
   if (disabled.value || readonly.value) return
@@ -267,8 +263,6 @@ async function toItem(file: File): Promise<UploaderFileItem> {
     })
   return item
 }
-
-// ===== 操作（deletable 支持按文件控制删除按钮显隐）=====
 
 function canRemove(file: UploaderFileItem, index: number): boolean {
   return typeof props.deletable === 'function'

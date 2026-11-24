@@ -37,7 +37,6 @@ import '@veltra/mobile/components/text/style'
 </script>
 
 <style lang="scss" scoped>
-// 手机设备外壳视口内呈现，验证移动端阅读密度
 .demo {
   display: flex;
   flex-direction: column;

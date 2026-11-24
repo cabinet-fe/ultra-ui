@@ -1,12 +1,9 @@
 import { nextTick, onScopeDispose, watch } from 'vue'
 
-/** 遮罩层通用行为配置 */
 export interface UseOverlayOptions {
-  /** 当前是否处于打开状态 */
   visible: () => boolean
   /** 遮罩面板元素，用于初始聚焦与焦点圈 */
   panel: () => HTMLElement | undefined
-  /** 关闭回调 */
   onClose: () => void
   /** 是否允许按 Esc 关闭，缺省允许 */
   closeOnEsc?: () => boolean
@@ -16,7 +13,6 @@ export interface UseOverlayOptions {
   trapFocus?: () => boolean
 }
 
-/** 面板内可聚焦元素选择器 */
 const FOCUSABLE_SELECTOR = [
   'a[href]',
   'area[href]',
@@ -31,7 +27,6 @@ const FOCUSABLE_SELECTOR = [
   '[tabindex]:not([tabindex="-1"])'
 ].join(',')
 
-/** 收集面板内可聚焦元素 */
 function getFocusableElements(panel: HTMLElement): HTMLElement[] {
   return Array.from(panel.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter((el) => {
     return el.getAttribute('aria-hidden') !== 'true' && el.tabIndex >= 0
@@ -43,7 +38,6 @@ let lockCount = 0
 let originalOverflow = ''
 let originalPaddingRight = ''
 
-/** 锁定 body 滚动 */
 function lockBodyScroll(): void {
   if (typeof document === 'undefined' || typeof window === 'undefined') return
 
@@ -64,7 +58,6 @@ function lockBodyScroll(): void {
   body.style.overflow = 'hidden'
 }
 
-/** 解除 body 滚动锁 */
 function unlockBodyScroll(): void {
   if (typeof document === 'undefined' || lockCount === 0) return
 
@@ -77,7 +70,6 @@ function unlockBodyScroll(): void {
   originalPaddingRight = ''
 }
 
-/** 已打开的遮罩层栈，按打开顺序排列 */
 const overlayStack: symbol[] = []
 
 /**
@@ -169,7 +161,6 @@ export function useOverlay(options: UseOverlayOptions): void {
     listening = false
   }
 
-  /** 把焦点移入面板：优先第一个可聚焦元素，否则面板自身 */
   function focusPanel(): void {
     const panel = options.panel()
     if (!panel) return
@@ -177,7 +168,6 @@ export function useOverlay(options: UseOverlayOptions): void {
     target.focus()
   }
 
-  /** 恢复打开前的焦点 */
   function restoreFocus(): void {
     if (!previousActive) return
     const target = previousActive

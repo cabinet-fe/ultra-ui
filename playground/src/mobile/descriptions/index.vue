@@ -63,7 +63,6 @@ const envs = [
 </script>
 
 <style lang="scss" scoped>
-// 手机设备外壳视口内呈现，验证单列布局无横向溢出
 .demo {
   display: flex;
   flex-direction: column;

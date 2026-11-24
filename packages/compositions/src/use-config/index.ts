@@ -3,15 +3,10 @@ import type { AiProviderConfig, ComponentSize } from '@veltra/utils'
 import { reactive, readonly, watch } from 'vue'
 
 interface State {
-  /** 是否开启动画，机器老可以关闭动画来获得性能 */
+  /** 是否开启动画，机器老旧可以关闭动画来获得性能 */
   animation: boolean
-  /** 组件尺寸大小 */
   size: ComponentSize
-  /** 表单 */
-  form: {
-    /** 标签宽度 */
-    labelWidth?: number | string
-  }
+  form: { labelWidth?: number | string }
   paginator: { pageSize: number; pageSizeOptions: number[] }
   /** AI 服务商全局兜底配置，与组件实例 prop 字段级合并 */
   ai: Partial<AiProviderConfig>
@@ -67,12 +62,7 @@ export function useConfig(): {
 } {
   ensureDocumentSizeSync()
   return {
-    /** 全局配置 */
     config: readonly(state) as Readonly<State>,
-    /**
-     * 设置全局配置项
-     * @param conf
-     */
     setConfig(conf: Partial<State>) {
       deepSet(state, conf)
     }

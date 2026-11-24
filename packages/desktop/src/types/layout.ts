@@ -1,13 +1,10 @@
 import type { DeconstructValue } from '@veltra/utils'
 
-/** 布局组件属性 */
 export interface LayoutProps {
   /**
-   * 元素标签
    * @default "div"
    */
   tag?: string
-  /** 间距 */
   gap?: number | string
   /**
    * 每个列的布局
@@ -53,15 +50,12 @@ export interface LayoutProps {
   colMinSizes?: (number | undefined)[]
 }
 
-/** 布局组件定义的事件 */
 export interface LayoutEmits {
   /** 开始拖拽调节某条间隔（index 为间隔左侧列的索引） */
   (e: 'resize-start', index: number): void
-  /** 拖拽调节结束 */
   (e: 'resize-end', index: number): void
 }
 
-/** 布局组件暴露的属性和方法(组件内部使用) */
 export interface _LayoutExposed {}
 
 /** 布局组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */

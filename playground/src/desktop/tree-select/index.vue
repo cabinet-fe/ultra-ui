@@ -161,9 +161,7 @@ const dictTreeData = [
   { label: '上海', value: 'shanghai', children: [{ label: '浦东新区（最新）', value: 'pudong' }] }
 ]
 
-setTimeout(() => {
-  // data.value = Array.from({ length: 3000 }, (_, index) => ({ name: `烤冷面${index}`, id: index }))
-}, 1000)
+setTimeout(() => {}, 1000)
 
 const handleChange = (val, selected) => {
   console.log(val, selected)

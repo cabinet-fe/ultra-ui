@@ -22,7 +22,6 @@ export interface AiChatProps {
    * session 下可为 ChatToolMeta[]（仅渲染元信息）。ChatTool[] 仍可赋值。
    */
   tools?: (ChatTool | ChatToolMeta)[]
-  /** 系统提示词 */
   systemPrompt?: string
   /**
    * 单次发送允许的最大生成轮次（一轮 = 一次模型生成 + 可能的工具执行），默认 10。
@@ -42,7 +41,6 @@ export interface AiChatProps {
   reasoningLevel?: string
   /** 空闲时输入框上方的快捷提问（点击即发送）；字符串按单项处理 */
   welcome?: string | string[]
-  /** 输入框占位文本 */
   placeholder?: string
   /** 附件 accept 类型（缺省不限制文件类型） */
   accept?: string
@@ -66,19 +64,13 @@ export interface AiChatProps {
 }
 
 export interface AiChatEmits {
-  /** 消息列表变化 */
   (e: 'update:messages', messages: ChatMessage[]): void
-  /** 当前模型变化 */
   (e: 'update:model', model: string | undefined): void
-  /** 当前推理等级变化 */
   (e: 'update:reasoningLevel', reasoningLevel: string | undefined): void
-  /** 用户发送消息 */
   (e: 'send', message: ChatMessage): void
   /** 一轮对话完成（无更多工具调用、命中 terminal 工具或达到 maxToolRounds 上限） */
   (e: 'finish', message: ChatMessage): void
-  /** 对话出错 */
   (e: 'error', error: Error): void
-  /** 模型发起工具调用 */
   (e: 'tool-call', toolCall: ChatToolCall): void
 }
 
@@ -99,7 +91,6 @@ export interface _AiChatExposed {
   queue: Ref<ChatQueuedMessage[]>
   /** 立即执行队列中的某条：中断当前会话并插队为下一条 */
   startQueued: (id: string) => void
-  /** 从队列移除某条（返回被移除项） */
   removeQueued: (id: string) => ChatQueuedMessage | undefined
   /** 向队列插入一条消息（beforeId 插到某条之前，缺省追加尾部；空闲时自动消耗队首） */
   enqueue: (content: string, attachments?: ChatAttachment[], beforeId?: string) => ChatQueuedMessage

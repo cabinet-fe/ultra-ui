@@ -1,6 +1,5 @@
 <template>
   <div class="loading-demo">
-    <!-- ======== 全量展示：5 种加载动画一览 ======== -->
     <CustomCard title="四种加载动画">
       <div class="loading-demo__grid">
         <div
@@ -14,7 +13,6 @@
       </div>
     </CustomCard>
 
-    <!-- ======== 指令用法：表格加载覆盖 ======== -->
     <CustomCard title="v-loading 指令 — 表格加载">
       <div class="loading-demo__toolbar">
         <u-radio-group :items="items" v-model="type" />

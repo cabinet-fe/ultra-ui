@@ -71,23 +71,18 @@ const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, prop
 
 const model = defineModel<Array<string | number>>({ default: () => [] })
 
-/** 数据源，两栏共用；未传时按空列表处理 */
 const dataSource = computed(() => props.dataSource ?? [])
 
-/** 栏标题，未传时用默认文案 */
 const titles = computed<[string, string]>(() => props.titles ?? ['源列表', '目标列表'])
 
-/** 搜索框占位符，未传时用默认文案 */
 const filterPlaceholder = computed<[string, string]>(
   () => props.filterPlaceholder ?? ['请输入搜索内容', '请输入搜索内容']
 )
 
-/** 两栏共用的勾选 key 集合，移动后清空 */
 const checkedSet = shallowReactive<Set<string | number>>(new Set())
 
 const targetKeySet = computed(() => new Set(model.value))
 
-/** 两栏按 data-source 出现顺序各取一半 */
 const sourceOptions = computed(() => dataSource.value.filter((o) => !targetKeySet.value.has(o.key)))
 const targetOptions = computed(() => dataSource.value.filter((o) => targetKeySet.value.has(o.key)))
 

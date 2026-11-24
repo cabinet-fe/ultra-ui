@@ -16,7 +16,6 @@ import { getContainerBreakpoint } from './breakpoint'
 interface ResponsiveOptions {
   props: GridProps
   emit: GridEmits
-  /** 栅格容器模板引用 */
   gridRef: ShallowRef<HTMLElement | null>
 }
 

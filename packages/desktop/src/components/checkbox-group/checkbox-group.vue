@@ -62,22 +62,12 @@ const { size, disabled, readonly } = useFormFallbackProps([formProps ?? {}, prop
   readonly: false
 })
 
-/**
- * 获取checkbox的选中状态
- * @param item - 模型对象
- * @returns 模型值是否存在于model.value中
- */
 const getCheckStatus = (item: Record<string, string | number>): boolean => {
   const value = item[valueKey.value]
   if (!value || !model.value) return false
   return model.value.includes(value)
 }
 
-/**
- * 处理更新操作
- * @param  checked - 指示是否选中
- * @param item - 更新的项
- */
 const handleUpdate = (checked: boolean, item: Record<string, string | number>) => {
   const value = item[valueKey.value]
   if (!value) return

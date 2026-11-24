@@ -9,7 +9,6 @@ const TOOLTIP_OFFSET_Y = 20
 
 /** 悬停链接格 tooltip 的视图状态（url + 相对 grid 区的绝对定位坐标） */
 export interface CellLinkTooltipState {
-  /** 展示的链接 URL */
   url: string
   /** 浮层左边（层坐标 + 偏移，单位 px；grid 区内绝对定位） */
   left: number

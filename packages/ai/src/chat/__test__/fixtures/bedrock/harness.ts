@@ -13,8 +13,6 @@ import type { PageResult } from './types'
  * ChatSessionAdapter that feeds bedrock frames into @veltra/ai session mode.
  */
 
-// --- REST shapes ---
-
 export interface HarnessModelRef {
   provider: string
   id: string
@@ -148,8 +146,6 @@ export function harnessSessionEventsWSURL(sessionId: string, token: string, afte
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:'
   return `${proto}//${location.host}/ws/harness/sessions/${encodeURIComponent(sessionId)}/events?token=${encodeURIComponent(token)}&after=${after}`
 }
-
-// --- ChatSessionAdapter ---
 
 function stringifyArg(value: unknown): string {
   if (value == null) return ''

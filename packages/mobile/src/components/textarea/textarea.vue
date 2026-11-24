@@ -92,11 +92,9 @@ const textareaClass = computed(() => {
 const handleInput = (e: Event) => {
   const value = (e.target as HTMLTextAreaElement).value
   if (value.length > props.maxlength!) {
-    // 如果输入的字符数超过了最大长度，截取字符串到最大长度
     const truncatedValue = value.slice(0, props.maxlength)
     emit('update:modelValue', truncatedValue)
   } else {
-    // 如果没有超过最大长度，则正常更新模型值
     emit('update:modelValue', value)
   }
 }

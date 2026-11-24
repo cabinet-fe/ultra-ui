@@ -31,7 +31,6 @@
 import { UGroupInput, UInput } from '@veltra/desktop'
 import { computed, shallowRef } from 'vue'
 
-// === CSS 对象 ===
 const items1 = shallowRef<{ name: string; age: string }[]>([])
 
 const style1 = {
@@ -43,10 +42,8 @@ const style1 = {
   marginBottom: '8px'
 }
 
-// === CSS 字符串 ===
 const items2 = shallowRef<{ name: string; age: string }[]>([])
 
-// === 响应式 itemStyle：超过 2 条时收紧间距 ===
 const items3 = shallowRef<{ name: string; age: string }[]>([])
 
 const style3 = computed(() => ({

@@ -14,7 +14,6 @@
     :disabled="disabled"
     @update:visible="handleDropdownVisible"
   >
-    <!-- 触发 -->
     <template #trigger>
       <span :class="cls.e('placeholder')" v-if="!filterable && !model?.length">
         {{ placeholder }}
@@ -35,7 +34,6 @@
           <u-tag v-if="restTag" key="__rest__" size="small"> {{ restTag }}+ </u-tag>
         </TransitionGroup>
 
-        <!-- 内嵌查询输入框：承载过滤与回车创建 -->
         <input
           v-if="filterable"
           ref="inputRef"
@@ -60,9 +58,7 @@
       <u-icon :class="cls.e('arrow')" v-else><ArrowDown /></u-icon>
     </template>
 
-    <!-- 下拉内容 -->
     <template #content>
-      <!-- 多选栏 -->
       <div :class="cls.e('content-header')">
         <u-checkbox
           :model-value="allChecked"
@@ -76,7 +72,6 @@
         <span> 已选 {{ model?.length }}/{{ max ?? options?.length ?? 0 }} </span>
       </div>
 
-      <!-- 多选列表 -->
       <!--
         虚拟化启用时内容容器 height 由 useVirtualizer 命令式写入；
         模板不再绑定 totalSize，避免尺寸变化引起重渲染。
@@ -326,7 +321,6 @@ const tags = computed(() => {
     visibilityLimit = 0
   }
 
-  // 禁用时，显示全部
   if (disabled.value || readonly.value) {
     visibilityLimit = model.value?.length ?? 0
   }
@@ -406,7 +400,6 @@ const handleCheck = (option: Record<string, any>, checked: boolean) => {
   refocusInput()
 }
 
-/** 全选 */
 const handleCheckAll = (checked: boolean) => {
   if (checked) {
     options.value.forEach((option) => {
@@ -427,7 +420,6 @@ const handleCheckAll = (checked: boolean) => {
   dropdownRef.value?.updateDropdown()
 }
 
-/** 清除选项 */
 const handleClear = () => {
   checkedSet.clear()
   internalChange = true

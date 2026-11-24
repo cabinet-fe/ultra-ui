@@ -10,10 +10,6 @@ const points: [number, BreakpointName][] = [
   [Infinity, 'xl']
 ]
 
-/**
- * 获取容器断点
- * @param width
- */
 export function getContainerBreakpoint(width: number): Breakpoint {
   for (let i = 0; i < points.length; i++) {
     const point = points[i]!
@@ -24,11 +20,6 @@ export function getContainerBreakpoint(width: number): Breakpoint {
   return { name: 'xl', level: 5 }
 }
 
-/**
- * 获取断点对应的列数
- * @param colConf 断点配置
- * @param breakpoint 断点
- */
 export function getBreakpointCols(colConf: BreakCols, breakpoint?: Breakpoint): number {
   if (!breakpoint) return DEFAULT_COLS
   const { name, level } = breakpoint
@@ -37,7 +28,6 @@ export function getBreakpointCols(colConf: BreakCols, breakpoint?: Breakpoint): 
 
   if (level === 5) return colConf.default ?? DEFAULT_COLS
 
-  // 尝试寻找高级断点
   const highLevelPoints = points.slice(level - 1)
   for (let i = 0; i < highLevelPoints.length; i++) {
     const pointName = highLevelPoints[i]![1]

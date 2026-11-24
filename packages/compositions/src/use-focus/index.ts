@@ -1,10 +1,5 @@
 import { ref, type Ref } from 'vue'
 
-/**
- * 聚焦
- * @param cb 回调
- * @returns
- */
 export function useFocus(cb?: (focused: boolean) => void): {
   focus: Ref<boolean>
   handleBlur: () => void

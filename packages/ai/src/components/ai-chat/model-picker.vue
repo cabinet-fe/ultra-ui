@@ -55,10 +55,7 @@ import { AiChatDIKey } from './di'
 
 defineOptions({ name: 'UAiChatModelPicker' })
 
-const props = defineProps<{
-  /** 可选模型列表 */
-  models: ChatModelOption[]
-}>()
+const props = defineProps<{ models: ChatModelOption[] }>()
 
 const model = defineModel<string | undefined>('model')
 

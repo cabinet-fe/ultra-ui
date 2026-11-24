@@ -1,14 +1,12 @@
 import type { ComponentProps, DeconstructValue } from '@veltra/utils'
 import type { ShallowRef } from 'vue'
 
-/** 表单组件属性 */
 export interface FormProps extends ComponentProps {
   /**
    * 自定义表单列数
    * - 默认根据尺寸断点自动排列
    */
   cols?: number
-  /** 表单数据 */
   model?: Record<string, any>
   /** 开启后，字段当前值与基准值不同时，在控件下方展示「变更前」 */
   showModified?: boolean
@@ -16,15 +14,10 @@ export interface FormProps extends ComponentProps {
   modifiedLabel?: string
   /** 变更前基准数据；未传时回退到 model 引用首次传入时的快照（与 reset 一致） */
   initialModel?: Record<string, any>
-  /** 表单项label宽度 */
   labelWidth?: string | number
-  /** 表单项 label 位置 */
   labelPosition?: 'top' | 'left'
-  /** 是否不显示tips */
   noTips?: boolean
-  /** 是否只读 */
   readonly?: boolean
-  /** 是否禁用 */
   disabled?: boolean
 }
 

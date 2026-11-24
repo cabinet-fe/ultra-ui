@@ -193,7 +193,6 @@ describe('USheet 组件', () => {
     ])
     // 六组之间五个分隔符
     expect(el.querySelectorAll('.u-sheet__toolbar-divider')).toHaveLength(5)
-    // 图标化：每个内置工具有 icon，按钮无可见文字
     for (const button of el.querySelectorAll<HTMLButtonElement>('.u-sheet__tool')) {
       expect(button.querySelector('.u-sheet__tool-icon')).not.toBeNull()
       expect(button.textContent?.trim()).toBe('')
@@ -218,10 +217,8 @@ describe('USheet 组件', () => {
     expect(tabs(el).map((tab) => tab.textContent?.trim())).toEqual(['Sheet1', 'Sheet2'])
     expect(tabs(el)[0]!.classList.contains('is-active')).toBe(true)
 
-    // 引擎表格已挂载到 grid 容器
     expect(el.querySelector('.u-sheet__grid canvas')).not.toBeNull()
 
-    // 单行滚动结构：工具按钮全部位于滚动视口内的 list 容器
     const scroll = el.querySelector('.u-sheet__toolbar-scroll')
     const list = el.querySelector('.u-sheet__toolbar-list')
     expect(scroll).not.toBeNull()
@@ -234,7 +231,6 @@ describe('USheet 组件', () => {
     const { el } = mount(() => ({ workbook: createWorkbook(), rows: 10, cols: 6 }))
     await nextTick()
 
-    // happy-dom 下 clientWidth/scrollWidth 均为 0 → overflowing = false → 箭头不渲染
     expect(el.querySelectorAll('.u-sheet__toolbar-nav')).toHaveLength(0)
   })
 
@@ -281,12 +277,10 @@ describe('USheet 组件', () => {
     // grid 实例缓存：切换后旧实例保留（LRU，visibility:hidden），容器内有 2 个实例
     // （引擎画布为 [data-layer-kind] 分层栈，实例数以实例容器为准）
     expect(el.querySelectorAll('.u-sheet__grid-instance')).toHaveLength(2)
-    // 激活实例可见、旧实例隐藏
     const instances = el.querySelectorAll<HTMLElement>('.u-sheet__grid-instance')
     expect(instances[0]!.style.visibility).toBe('hidden')
     expect(instances[1]!.style.visibility).toBe('visible')
     expect(exposed.value?.getActiveSheet().name).toBe('Sheet2')
-    // 工具上下文（与工具按钮同一门面）指向切换后的 sheet
     expect(exposed.value?.getContext().sheetName).toBe('Sheet2')
 
     // grid 已重建到 Sheet2：写入 Sheet2 应在表格可见（引擎数据坐标 (0,0) = 模型 A1）
@@ -451,7 +445,6 @@ describe('USheet 组件', () => {
     expect(workbook.sheetCount).toBe(3)
     expect(workbook.activeSheet.name).toBe('Sheet3')
     expect(tabs(el).map((tab) => tab.textContent?.trim())).toEqual(['Sheet1', 'Sheet2', 'Sheet3'])
-    // 新表自动激活：active 样式落在新 tab 上
     expect(tabs(el)[2]!.classList.contains('is-active')).toBe(true)
   })
 
@@ -487,13 +480,11 @@ describe('USheet 组件', () => {
     })
     await nextTick()
 
-    // 两个实例都渲染该工具（注册表全局共享）
     const button1 = toolButton(first.el, 'mark-active')
     const button2 = toolButton(second.el, 'mark-active')
     expect(button1).toBeDefined()
     expect(button2).toBeDefined()
 
-    // 点击实例 2 的工具 → 只写实例 2 的 sheet（各自 SheetContext 绑定各自工作簿）
     workbook2.activeSheet.selectCell({ row: 2, col: 1 })
     await nextTick()
     button2!.click()
@@ -530,7 +521,6 @@ describe('USheet 组件', () => {
     await nextTick()
     expect(sheet.getCellInfo({ row: 1, col: 1 }).kind).toBe('merged-covered')
 
-    // 选中合并锚点 → 取消合并可用
     sheet.selectCell({ row: 0, col: 0 })
     await nextTick()
     expect(unmergeButton.disabled).toBe(false)
@@ -549,13 +539,11 @@ describe('USheet 组件', () => {
     const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
     await nextTick()
 
-    // 默认选区 A1：填充可用
     const fillButton = toolButton(el, 'fill-color')!
     expect(fillButton.disabled).toBe(false)
 
     fillButton.click()
     await flushPopup()
-    // 面板已渲染（含 UPalette 取色器）
     const popupEl = document.querySelector<HTMLElement>('#pop-container .u-sheet__popup')
     expect(popupEl).not.toBeNull()
     expect(document.querySelector('#pop-container .u-sheet__popup .u-palette')).not.toBeNull()
@@ -643,17 +631,14 @@ describe('USheet 组件', () => {
 
     presetButtons.find((button) => (button as HTMLElement).title === '所有边框')!.click()
     await nextTick()
-    // 选区内每格四边都有边框
     expect(sheet.getCellStyle({ row: 0, col: 0 })?.border?.top).toBeDefined()
     expect(sheet.getCellStyle({ row: 1, col: 1 })?.border?.bottom).toBeDefined()
     expect(sheet.getCellStyle({ row: 0, col: 1 })?.border?.left).toBeDefined()
 
-    // 无边框 → 清除边框
     presetButtons.find((button) => (button as HTMLElement).title === '无边框')!.click()
     await nextTick()
     expect(sheet.getCellStyle({ row: 0, col: 0 })?.border).toBeUndefined()
 
-    // 点击外部关闭 → 面板期间所有写入合并为一个 undo 单元
     el.querySelector('.u-sheet__grid')!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     await nextTick()
     expect(document.querySelector('#pop-container .u-sheet__popup')).toBeNull()
@@ -770,7 +755,6 @@ describe('USheet 组件', () => {
     expect(document.querySelector('#pop-container .u-sheet__popup')).not.toBeNull()
     expect(document.querySelector('#pop-container .u-sheet__find-input')).not.toBeNull()
 
-    // 输入关键词 → 定位第一个命中（A1）
     const input = document.querySelector<HTMLInputElement>(
       '#pop-container .u-sheet__find-input .u-input__native'
     )!
@@ -782,7 +766,6 @@ describe('USheet 组件', () => {
       '1 / 2'
     )
 
-    // Enter → 下一个命中（A3）
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
     await nextTick()
     expect(sheet.getSelection().activeCell).toEqual({ row: 1, col: 0 })
@@ -790,19 +773,16 @@ describe('USheet 组件', () => {
       '2 / 2'
     )
 
-    // Enter 循环回第一个
     input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
     await nextTick()
     expect(sheet.getSelection().activeCell).toEqual({ row: 0, col: 0 })
 
-    // Shift+Enter → 上一个（循环回最后一个）
     input.dispatchEvent(
       new KeyboardEvent('keydown', { key: 'Enter', shiftKey: true, bubbles: true })
     )
     await nextTick()
     expect(sheet.getSelection().activeCell).toEqual({ row: 1, col: 0 })
 
-    // 无命中 → 计数 0 / 0，导航禁用
     input.value = '不存在'
     input.dispatchEvent(new Event('input', { bubbles: true }))
     await flushFind()
@@ -813,7 +793,6 @@ describe('USheet 组件', () => {
       document.querySelector<HTMLButtonElement>('#pop-container .u-sheet__find-nav')!.disabled
     ).toBe(true)
 
-    // 关闭
     document.querySelector<HTMLButtonElement>('#pop-container .u-sheet__find-close')!.click()
     await nextTick()
     expect(document.querySelector('#pop-container .u-sheet__popup')).toBeNull()
@@ -841,7 +820,6 @@ describe('USheet 组件', () => {
       '1 / 3'
     )
 
-    // 全部替换：3 格一次写入
     const replaceInputs = [
       ...document.querySelectorAll('#pop-container .u-sheet__find-input .u-input__native')
     ]
@@ -857,7 +835,6 @@ describe('USheet 组件', () => {
     // 全部替换 = 单 undo 单元（3 次 setCellValue 初始 + 1 次替换）
     expect(sheet.history.undoSize).toBe(4)
 
-    // undo 一次 → 全部还原
     sheet.undo()
     expect(sheet.getCellData({ row: 0, col: 0 })).toMatchObject({ v: 'foo' })
     expect(sheet.getCellData({ row: 0, col: 1 })).toMatchObject({ v: 'foo' })
@@ -948,7 +925,6 @@ describe('USheet 组件', () => {
     const { el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
     await nextTick()
 
-    // 容器外（body）按 Ctrl+F：不弹查找条、不 preventDefault
     const outside = new KeyboardEvent('keydown', {
       key: 'f',
       ctrlKey: true,
@@ -993,12 +969,10 @@ describe('tabs 栏', () => {
     const addButton = el.querySelector<HTMLButtonElement>('.u-sheet__tab-add')!
     const navButtons = [...el.querySelectorAll<HTMLButtonElement>('.u-sheet__tabs-nav')]
 
-    // 「+」仍是 tabs 直接子级，不在滚动 list 内
     expect(tabsBar.contains(addButton)).toBe(true)
     expect(viewport.contains(addButton)).toBe(false)
     expect(el.querySelector('.u-sheet__tabs-list .u-sheet__tab-add')).toBeNull()
 
-    // 未溢出：nav 隐藏；DOM 顺序 viewport → next-nav →「+」，布局上「+」紧跟 tab 区
     expect(navButtons).toHaveLength(2)
     expect(navButtons[0]!.style.display).toBe('none')
     expect(navButtons[1]!.style.display).toBe('none')
@@ -1017,7 +991,6 @@ describe('tabs 栏', () => {
     expect(viewport).not.toBeNull()
     expect(list).not.toBeNull()
     expect(list.children.length).toBe(16)
-    // 「+」钉在视口外（tabs 直接子级，不在 list 内）
     expect(el.querySelector('.u-sheet__tabs > .u-sheet__tab-add')).not.toBeNull()
     expect(list.querySelector('.u-sheet__tab-add')).toBeNull()
 
@@ -1157,7 +1130,6 @@ describe('USheet 行高/列宽右键菜单', () => {
     // 预选 R1C1:R2C2（右键落点在选区内 → 选区保留，不依赖 happy-dom 画布命中）
     ctx.selectRange(createRange({ row: 0, col: 0 }, { row: 1, col: 1 }))
 
-    // 行号右键（真实链路）：菜单出现「行高」内嵌数值输入
     popHeaderContextMenu(exposed, 'row-header')
     await nextTick()
     const rowItem = menuItem('行高')!
@@ -1165,7 +1137,6 @@ describe('USheet 行高/列宽右键菜单', () => {
     expect(rowItem.querySelector('.u-contextmenu__custom')).toBeTruthy()
     expect(rowItem.querySelector('input')).toBeTruthy()
 
-    // 输入 40 确认（与弹层同一 render 组合）：应用到选区覆盖行 0..1
     await confirmMenuNumber(
       mountMenuRender(buildRowHeaderMenus(ctx).find((m) => m.label === '行高')!.render!),
       40
@@ -1189,7 +1160,6 @@ describe('USheet 行高/列宽右键菜单', () => {
     await nextTick()
     const colItem = menuItem('列宽')!
     expect(colItem.querySelector('.u-contextmenu__custom')).toBeTruthy()
-    // 输入 120 确认：应用到选区覆盖列 0..2，活动引擎即时生效
     await confirmMenuNumber(
       mountMenuRender(buildColHeaderMenus(ctx).find((m) => m.label === '列宽')!.render!),
       120
@@ -1202,7 +1172,6 @@ describe('USheet 行高/列宽右键菜单', () => {
     expect(activeTable.getColWidth(2)).toBe(120)
     expect(activeTable.getColWidth(3)).toBe(80)
 
-    // 重建 grid（props 变化触发）后从模型还原行列尺寸
     const gridBefore = exposed.value!.getGrid()
     state.value = { rows: 12, cols: 6 }
     await nextTick()
@@ -1337,7 +1306,6 @@ describe('USheet 引擎链接 / 图片事件透传', () => {
     // 单元格链接：组件接管直开（保持引擎原默认行为）
     expect(openSpy).toHaveBeenCalledWith('https://example.com', '_blank', 'noopener,noreferrer')
 
-    // 图片链接点击：kind 区分嵌入图（cell）与浮动图（float）
     const cellImageLink = {
       kind: 'cell',
       col: 1,
@@ -1382,20 +1350,17 @@ describe('USheet 引擎链接 / 图片事件透传', () => {
       ...latestConfirmBox().querySelectorAll<HTMLButtonElement>('.u-message-confirm__footer button')
     ]
 
-    // 点击 → 不直接打开，弹确认框
     for (const listener of table.imageLinkClickListeners) listener(event)
     await nextTick()
     expect(openSpy).not.toHaveBeenCalled()
     expect(latestConfirmBox().textContent).toContain('https://example.com/float.png')
 
-    // 取消 → 不打开
     confirmButtons()
       .find((btn) => btn.textContent?.includes('取消'))!
       .click()
     await nextTick()
     expect(openSpy).not.toHaveBeenCalled()
 
-    // 再点 → 确认「打开」→ window.open 新标签
     for (const listener of table.imageLinkClickListeners) listener(event)
     await nextTick()
     confirmButtons()
@@ -1581,7 +1546,6 @@ describe('USheet 图片 UI（浮动图右键独立菜单 / 嵌入图 body 菜单
       )
   }
 
-  /** 插入一张浮动图（URL 来源），返回 id */
   function insertFloatImage(exposed: { value: SheetExposed | undefined }, src?: string): string {
     return exposed
       .value!.getContext()
@@ -1627,7 +1591,6 @@ describe('USheet 图片 UI（浮动图右键独立菜单 / 嵌入图 body 菜单
     const id = insertFloatImage(exposed)
     const linkOf = (): string | undefined => ctx.getImages().find((img) => img.id === id)?.link
 
-    // 设置超链接 → 弹窗 image 模式仅地址一个输入 → 确认写入 link
     dispatchFloatContextMenu(exposed, id)
     await nextTick()
     menuItem('设置超链接')!.click()
@@ -1640,7 +1603,6 @@ describe('USheet 图片 UI（浮动图右键独立菜单 / 嵌入图 body 菜单
     await nextTick()
     expect(linkOf()).toBe('https://example.com')
 
-    // 有链接：取消超链接 → updateImage(id, { link: null }) 清除，undo 还原
     dispatchFloatContextMenu(exposed, id)
     await nextTick()
     menuItem('取消超链接')!.click()
@@ -1649,7 +1611,6 @@ describe('USheet 图片 UI（浮动图右键独立菜单 / 嵌入图 body 菜单
     expect(ctx.undo()).toBe(true)
     expect(linkOf()).toBe('https://example.com')
 
-    // 删除图片 → getImages 不含该 id，undo 还原
     dispatchFloatContextMenu(exposed, id)
     await nextTick()
     menuItem('删除图片')!.click()
@@ -1685,7 +1646,6 @@ describe('USheet 图片 UI（浮动图右键独立菜单 / 嵌入图 body 菜单
     expect(menuItem('插入图片')).toBeUndefined()
     expect(menuItem('嵌入图片')).toBeUndefined()
 
-    // 图片超链接 → 弹窗确认 → 覆盖写 link（src 保留）
     menuItem('图片超链接')!.click()
     await nextTick()
     await setDialogInput(0, 'https://example.com')
@@ -1696,7 +1656,6 @@ describe('USheet 图片 UI（浮动图右键独立菜单 / 嵌入图 body 菜单
       link: 'https://example.com'
     })
 
-    // 有链接：取消超链接 → link 清除（src 保留），undo 还原
     popBodyContextMenu(exposed, 0, 0)
     await nextTick()
     menuItem('取消超链接')!.click()
@@ -1708,7 +1667,6 @@ describe('USheet 图片 UI（浮动图右键独立菜单 / 嵌入图 body 菜单
       link: 'https://example.com'
     })
 
-    // 移除图片 → hasCellImage false；菜单不再出现图片项；undo 还原
     popBodyContextMenu(exposed, 0, 0)
     await nextTick()
     menuItem('移除图片')!.click()
@@ -1728,7 +1686,6 @@ describe('USheet 图片 UI（浮动图右键独立菜单 / 嵌入图 body 菜单
     await nextTick()
     const ctx = exposed.value!.getContext()
 
-    // 浮动图（URL 来源）
     const floatId = insertFloatImage(exposed, 'https://example.com/float.png')
     dispatchFloatContextMenu(exposed, floatId)
     await nextTick()
@@ -1783,13 +1740,10 @@ describe('fx 选区锚点', () => {
     const fxInput = fxInputOf(el)
     expect(table.selectionAnchor).toBeNull()
 
-    // fx 焦点进入编辑会话：被编辑格 A1 置锚点
     fxInput.dispatchEvent(new Event('focus'))
     await nextTick()
     expect(table.selectionAnchor).toEqual(A1_ANCHOR)
 
-    // 输入 =SUM( 进入引用拾取上下文，画布拖选 B2:D4：拾取段选区流动、
-    // 抬手引用文本插入公式，锚点仍钉在被编辑格
     fxInput.value = '=SUM('
     fxInput.setSelectionRange(5, 5)
     fxInput.dispatchEvent(new Event('input', { bubbles: true }))
@@ -1825,7 +1779,6 @@ describe('fx 选区锚点', () => {
     const commitButton = () => el.querySelectorAll<HTMLButtonElement>('.u-sheet__fx-btn')[0]!
     const cancelButton = () => el.querySelectorAll<HTMLButtonElement>('.u-sheet__fx-btn')[1]!
 
-    // Enter 提交
     fxInput.dispatchEvent(new Event('focus'))
     await nextTick()
     expect(table.selectionAnchor).toEqual(A1_ANCHOR)
@@ -1841,7 +1794,6 @@ describe('fx 选区锚点', () => {
     await nextTick()
     expect(table.selectionAnchor).toBeNull()
 
-    // 失焦提交
     fxInput.dispatchEvent(new Event('focus'))
     await nextTick()
     expect(table.selectionAnchor).toEqual(A1_ANCHOR)
@@ -1849,7 +1801,6 @@ describe('fx 选区锚点', () => {
     await nextTick()
     expect(table.selectionAnchor).toBeNull()
 
-    // Esc 取消
     fxInput.dispatchEvent(new Event('focus'))
     await nextTick()
     expect(table.selectionAnchor).toEqual(A1_ANCHOR)
@@ -1877,14 +1828,12 @@ describe('fx 选区锚点', () => {
     const sheet1Table = exposed.value!.getGrid()!.getTable()
     expect(sheet1Table.selectionAnchor).toEqual(A1_ANCHOR)
 
-    // 切到 Sheet2：新实例无锚点，旧实例锚点已清
     tabs(el)[1]!.click()
     await nextTick()
     const sheet2Table = exposed.value!.getGrid()!.getTable()
     expect(sheet2Table).not.toBe(sheet1Table)
     expect(sheet2Table.selectionAnchor).toBeNull()
 
-    // 切回 Sheet1：缓存实例复用，无残留锚点
     tabs(el)[0]!.click()
     await nextTick()
     expect(exposed.value!.getGrid()!.getTable()).toBe(sheet1Table)

@@ -94,14 +94,12 @@ describe('USelect', () => {
     })
 
     try {
-      // 创建并选择第一个选项
       await openDropdown(host)
       await typeQuery(host, '新A')
       expect(queryOptions().some((el) => el.textContent === '新A')).toBe(true)
       await clickOption(queryOptions().find((el) => el.textContent === '新A')!)
       expect(model.value).toBe('新A')
 
-      // 创建并选择第二个选项
       await openDropdown(host)
       await typeQuery(host, '新B')
       expect(queryOptions().some((el) => el.textContent === '新B')).toBe(true)
@@ -109,7 +107,6 @@ describe('USelect', () => {
       expect(model.value).toBe('新B')
       expect(host.querySelector('input')!.value).toBe('新B')
 
-      // 重新展开，高亮应落在后创建的“新B”上，而非停留在“新A”
       await openDropdown(host)
       const selected = queryOptions().filter((el) => el.classList.contains('is-selected'))
       expect(selected).toHaveLength(1)
@@ -134,8 +131,6 @@ describe('USelect', () => {
       await typeQuery(host, '上海')
       expect(queryOptions().map((el) => el.textContent)).toEqual(['上海'])
 
-      // 选择后关闭动画期间：面板仍在 DOM 中，列表必须保持过滤态，
-      // 不能瞬间恢复全量导致面板突然变长闪烁
       queryOptions()[0]!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
       await nextTick()
       expect(model.value).toBe('shanghai')
@@ -147,7 +142,6 @@ describe('USelect', () => {
       await sleep(150)
       expect(queryOptions()).toHaveLength(0)
 
-      // 重新展开：列表已恢复为完整选项
       await openDropdown(host)
       expect(queryOptions()).toHaveLength(3)
     } finally {
@@ -208,7 +202,6 @@ describe('USelect', () => {
       await nextTick()
       expect(texts.at(-1)).toBe('北京')
 
-      // 值改为不在选项中的值且无 text 兜底：如实发出 undefined
       model.value = 'removed'
       await nextTick()
       await nextTick()
@@ -232,7 +225,6 @@ describe('USelect', () => {
     try {
       await nextTick()
       await nextTick()
-      // readonly 纯展示：不触发 update:text，避免下游回写
       expect(texts).toHaveLength(0)
       expect(host.textContent).toContain('北京')
     } finally {
@@ -255,7 +247,6 @@ describe('USelect', () => {
       expect(model.value).toBe('shanghai')
       expect(texts.at(-1)).toBe('上海')
 
-      // 清除：父级清空值时回显同步发出 update:text
       model.value = undefined
       await nextTick()
       await nextTick()
@@ -352,12 +343,10 @@ describe('USelect', () => {
       await typeQuery(host, '北')
       expect(pending).toHaveLength(2)
 
-      // 新查询先返回
       pending[1]!([{ label: '北京', value: 'beijing' }])
       await sleep(20)
       expect(queryOptions().map((el) => el.textContent)).toEqual(['北京'])
 
-      // 慢的旧响应（初始空串查询）后返回，不能覆盖新结果
       pending[0]!([{ label: '旧数据', value: 'old' }])
       await sleep(20)
       expect(queryOptions().map((el) => el.textContent)).toEqual(['北京'])
@@ -386,17 +375,14 @@ describe('USelect labelTemplate', () => {
       expect(host.querySelector('input')!.value).toBe('启用（ENABLED）')
       expect(texts.at(-1)).toBe('启用（ENABLED）')
 
-      // 下拉选项：命中字段渲染模板，缺 code 的行回退纯 label
       await openDropdown(host)
       expect(queryOptions().map((el) => el.textContent)).toEqual(['启用（ENABLED）', '禁用'])
 
-      // 选中缺 code 的选项：渲染回退纯 label，展示与回发同为回退结果
       await clickOption(queryOptions().find((el) => el.textContent === '禁用')!)
       expect(model.value).toBe('disabled')
       expect(host.querySelector('input')!.value).toBe('禁用')
       expect(texts.at(-1)).toBe('禁用')
 
-      // 选中命中模板的选项：展示与回发同为模板渲染结果
       await openDropdown(host)
       await clickOption(queryOptions().find((el) => el.textContent === '启用（ENABLED）')!)
       expect(model.value).toBe('enabled')
@@ -417,7 +403,6 @@ describe('USelect labelTemplate', () => {
 
     try {
       await nextTick()
-      // 展示为模板渲染结果；显式配置 labelKey 时 update:text 回发原始取值
       expect(host.querySelector('input')!.value).toBe('启用（ENABLED）')
       expect(texts.at(-1)).toBe('启用')
     } finally {
@@ -434,11 +419,9 @@ describe('USelect labelTemplate', () => {
 
     try {
       await openDropdown(host)
-      // 按编码搜索命中
       await typeQuery(host, 'ENABLED')
       expect(queryOptions().map((el) => el.textContent)).toEqual(['启用（ENABLED）'])
 
-      // 按原始 label 搜索仍然命中
       await typeQuery(host, '启用')
       expect(queryOptions().map((el) => el.textContent)).toEqual(['启用（ENABLED）'])
     } finally {

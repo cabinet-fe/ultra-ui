@@ -30,13 +30,10 @@ for (const files of fileGroups) {
       data = optimize(input, {
         path: file,
         plugins: [
-          // 默认的优化插件
           'preset-default',
 
-          // 移除 width 和 height 属性
           { name: 'removeDimensions' },
 
-          // 移除 class 属性
           { name: 'removeAttrs', params: { attrs: ['class'] } }
         ]
       }).data

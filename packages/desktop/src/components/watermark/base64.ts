@@ -1,5 +1,4 @@
 function isImageUrl(url: string): boolean {
-  // 使用正则表达式检查URL格式
   const urlRegex = /^https?:\/\//
   return urlRegex.test(url)
 }
@@ -27,10 +26,8 @@ async function readFileAsBase64(file: File): Promise<string> {
 export async function downloadFileByBase64(urlOrFile: string | File): Promise<string> {
   let base64Data: string
   if (isImageUrl(urlOrFile as string)) {
-    // 网络图片转base64
     base64Data = await fetchImageAsBase64(urlOrFile as string)
   } else if (urlOrFile instanceof File) {
-    // 本地文件转base64
     base64Data = await readFileAsBase64(urlOrFile)
   } else {
     throw new Error('Invalid input. Expected either a URL or a File object.')

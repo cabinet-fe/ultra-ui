@@ -1,13 +1,11 @@
 <template>
   <div :class="className">
-    <!-- 条形进度条 -->
     <div :class="cls.e('bar-wrap')" v-if="!circle">
       <div :class="cls.e('bar')" :style="{ width: percentage + '%' }">
         <slot v-bind="{ percentage, type }">{{ percentage }}%</slot>
       </div>
     </div>
 
-    <!-- 环形进度条 -->
     <div
       v-else
       :class="cls.e('circle')"
@@ -48,14 +46,7 @@ defineOptions({ name: 'UProgress' })
 
 const props = withDefaults(defineProps<ProgressProps>(), { type: 'primary', circle: false })
 
-defineSlots<{
-  default: (props: {
-    /** 进度百分比 */
-    percentage: number
-    /** 样式类型 */
-    type: ColorType
-  }) => any
-}>()
+defineSlots<{ default: (props: { percentage: number; type: ColorType }) => any }>()
 
 const cls = bem('progress')
 
@@ -72,7 +63,6 @@ const className = computed(() => {
   return [cls.b, bem.is('circle', props.circle), cls.m(type.value)]
 })
 
-/** 描边 */
 const stroke = computed(() => {
   return `var(--u-color-${type.value})`
 })
@@ -81,7 +71,6 @@ const r = 44
 const c = 2 * Math.PI * r
 const offset = c / 4
 
-/** 圆周 */
 const dashArray = computed(() => {
   const dashLen = (c * percentage.value) / 100
   return `${dashLen}, ${c - dashLen}`

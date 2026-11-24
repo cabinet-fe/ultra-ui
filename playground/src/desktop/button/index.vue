@@ -21,7 +21,6 @@
       <u-button type="primary" circle :icon="Edit"></u-button>
     </div>
 
-    <!-- disabled -->
     <div class="space">
       <div>禁用</div>
       <u-button disabled>默认</u-button>
@@ -32,7 +31,6 @@
       <u-button disabled type="info">信息</u-button>
     </div>
 
-    <!-- loading -->
     <div class="space">
       <div>加载</div>
       <u-button loading :loadingIcon="Refresh">默认</u-button>
@@ -43,7 +41,6 @@
       <u-button loading type="info">信息</u-button>
     </div>
 
-    <!-- 朴素模式 -->
     <div class="space">
       <div>朴素模式</div>
       <u-button plain>默认</u-button>
@@ -64,7 +61,6 @@
       <u-button plain disabled type="info">信息</u-button>
     </div>
 
-    <!-- text -->
     <div class="space">
       <div>text</div>
       <u-button text>默认</u-button>

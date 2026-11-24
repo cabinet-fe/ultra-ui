@@ -168,8 +168,6 @@ function toStr(v: unknown): string {
   }
 }
 
-// ── 工厂 ─────────────────────────────────────────
-
 export function createEmptyGroup(): ConditionGroup {
   return { type: 'group', children: [], connectors: [] }
 }

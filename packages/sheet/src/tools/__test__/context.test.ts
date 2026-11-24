@@ -110,7 +110,6 @@ describe('SheetContext', () => {
     ctx.clearCellStyle(range)
     expect(ctx.getCellStyle({ row: 0, col: 0 })).toBeUndefined()
 
-    // 一次 undo 回退到带边框填充状态
     expect(ctx.undo()).toBe(true)
     expect(ctx.getCellStyle({ row: 0, col: 0 })?.border).toBeDefined()
     expect(ctx.getCellStyle({ row: 0, col: 0 })?.fill?.color).toBe('#FF0000')
@@ -132,7 +131,6 @@ describe('SheetContext', () => {
     expect(sheet1.getCellData({ row: 0, col: 0 })).toEqual({ v: 'one', t: 's' })
     expect(sheet2.getCellData({ row: 0, col: 0 })).toEqual({ v: 'two', t: 's' })
 
-    // undo 作用于当前活动 sheet
     expect(ctx.undo()).toBe(true)
     expect(sheet2.getCellData({ row: 0, col: 0 })).toBeUndefined()
     expect(sheet1.getCellData({ row: 0, col: 0 })).toEqual({ v: 'one', t: 's' })
@@ -155,7 +153,6 @@ describe('SheetContext', () => {
     sheet.setCellValue({ row: 0, col: 0 }, 'keep')
     sheet.history.clear()
 
-    // 第三方工具：清空选区（批量写，一个 undo 单元）
     const clearTool: SheetTool = {
       id: 'clear-selection',
       title: '清空选区',
@@ -191,18 +188,15 @@ describe('SheetContext', () => {
     ctx.selectRange(createRange({ row: 1, col: 2 }, { row: 3, col: 4 }))
     ctx.setRowHeightBySelection(40)
     ctx.setColWidthBySelection(120)
-    // 选区覆盖行 1..3 全部生效，行 0 不受影响
     expect(ctx.getRowHeight(1)).toBe(40)
     expect(ctx.getRowHeight(2)).toBe(40)
     expect(ctx.getRowHeight(3)).toBe(40)
     expect(ctx.getRowHeight(0)).toBeUndefined()
-    // 选区覆盖列 2..4 全部生效，列 5 不受影响
     expect(ctx.getColWidth(2)).toBe(120)
     expect(ctx.getColWidth(3)).toBe(120)
     expect(ctx.getColWidth(4)).toBe(120)
     expect(ctx.getColWidth(5)).toBeUndefined()
 
-    // 同 rowHeights/冻结先例：尺寸写入不进 undo 历史
     expect(ctx.canUndo).toBe(false)
   })
 
@@ -217,7 +211,6 @@ describe('SheetContext', () => {
     expect(ctx.getColWidth(3)).toBe(MIN_ROW_COL_SIZE)
     expect(ctx.getColWidth(4)).toBe(MIN_ROW_COL_SIZE)
 
-    // 空选区：无写入目标，不产生任何尺寸
     sheet.selection.restoreState({ activeCell: null, ranges: [] })
     ctx.setRowHeightBySelection(60)
     ctx.setColWidthBySelection(200)
@@ -236,7 +229,6 @@ describe('SheetContext', () => {
     ctx.setColWidthBySelection(120)
     expect(syncAxisSizes).toHaveBeenCalledWith('col', [2, 3])
 
-    // 空选区：模型无写入，同步钩子不触发
     syncAxisSizes.mockClear()
     sheet.selection.restoreState({ activeCell: null, ranges: [] })
     ctx.setRowHeightBySelection(60)
@@ -294,7 +286,6 @@ describe('SheetContext', () => {
     ctx.updateImage(id, { link: null })
     expect(ctx.getImages()[0]?.link).toBeUndefined()
 
-    // undo 一次还原清除前的链接
     expect(ctx.undo()).toBe(true)
     expect(ctx.getImages()[0]?.link).toBe('https://example.com')
   })
@@ -309,18 +300,15 @@ describe('SheetContext', () => {
     expect(ctx.getCellLink(addr)).toEqual(link)
     expect(ctx.canUndo).toBe(true)
 
-    // null 即清除
     ctx.setCellLink(addr, null)
     expect(ctx.getCellLink(addr)).toBeUndefined()
 
-    // undo 还原写入的链接
     expect(ctx.undo()).toBe(true)
     expect(ctx.getCellLink(addr)).toEqual(link)
 
     ctx.clearCellLink(addr)
     expect(ctx.getCellLink(addr)).toBeUndefined()
 
-    // undo 还原 clear
     expect(ctx.undo()).toBe(true)
     expect(ctx.getCellLink(addr)).toEqual(link)
   })
@@ -342,7 +330,6 @@ describe('SheetContext', () => {
     expect(ctx.hasCellImage(addr)).toBe(false)
     expect(ctx.getCellImage(addr)).toBeUndefined()
 
-    // undo 还原移除的嵌入图
     expect(ctx.undo()).toBe(true)
     expect(ctx.hasCellImage(addr)).toBe(true)
     expect(ctx.getCellImage(addr)).toEqual(payload)
@@ -361,7 +348,6 @@ describe('SheetContext', () => {
     ctx.removeCellImage(addr)
     expect(onCellImage).toHaveBeenCalledTimes(2)
 
-    // 退订后不再回调
     off()
     onCellImage.mockClear()
     ctx.insertCellImage(addr, { src: 'https://example.com/b.png' })

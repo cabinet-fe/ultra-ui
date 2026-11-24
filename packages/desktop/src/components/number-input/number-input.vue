@@ -112,10 +112,8 @@ const className = computed(() => {
   return [cls.b, cls.m(size.value)]
 })
 
-/** 实际值 */
 const model = defineModel<NumberInputProps['modelValue']>()
 
-// 展示值
 const displayed = shallowRef('')
 
 const focused = shallowRef(false)
@@ -137,35 +135,28 @@ const showClear = computed(() => {
   return props.clearable && !disabled.value && displayed.value !== '' && hovered.value
 })
 
-/** 步长 */
 const stepVal = computed<number>(() => {
   const { step } = props
   if (step === undefined) return 1
   return typeof step === 'boolean' ? 1 : step
 })
 
-/** 是否可增 */
 const increasable = computed(() => {
   const { max, multiple } = props
   if (isUndef(max) || isUndef(model.value)) return true
-  // 如果存在倍数，先将 model.value 除以倍数得到原始值再比较
   const rawValue = multiple ? $n.div(model.value, multiple) : model.value
   return rawValue < max
 })
 
-/** 是否可减 */
 const reducible = computed(() => {
   const { min, multiple } = props
   if (isUndef(min) || isUndef(model.value)) return true
-  // 如果存在倍数，先将 model.value 除以倍数得到原始值再比较
   const rawValue = multiple ? $n.div(model.value, multiple) : model.value
   return rawValue > min
 })
 
-// 通过值和步长值计算默认的最大精度
 const defaultMaxPrecision = computed(() => {
   const { multiple } = props
-  // 如果存在倍数，基于原始值计算精度
   const rawValue =
     multiple && model.value !== undefined ? $n.div(model.value, multiple) : model.value
   return Math.max(
@@ -174,10 +165,6 @@ const defaultMaxPrecision = computed(() => {
   )
 })
 
-/**
- * 获取展示值
- * @param num 实际值
- */
 function getDisplayed(num?: number): string {
   if (!num && num !== 0) return ''
 
@@ -185,12 +172,10 @@ function getDisplayed(num?: number): string {
     currency,
     precision,
     minPrecision,
-    // 如果没有指定最大精度那么设置默认为值和步长值中的较大值
     maxPrecision = defaultMaxPrecision.value,
     multiple
   } = props
 
-  // 如果存在倍数，先将实际值除以倍数得到原始值
   const displayValue = multiple ? $n.div(num, multiple) : num
 
   return currency
@@ -207,19 +192,12 @@ watch(
   { immediate: true }
 )
 
-/**
- * 解析展示值
- * @param str 展示值
- */
 function parseDisplayed(str: string): number | undefined {
   if (!str) return undefined
 
-  // 将货币格式去掉再转化为数字
   const number = +str.replace(/,/g, '')
   const { multiple } = props
 
-  // 如果解析失败，使用当前值作为回退
-  // 如果存在倍数，需要先将 model.value 除以倍数得到原始值
   let result: number | undefined
   if (isNaN(number)) {
     if (model.value === undefined) return undefined
@@ -234,19 +212,13 @@ function parseDisplayed(str: string): number | undefined {
 
   const fixedResult = +n(result).fixed(precision ?? { minPrecision, maxPrecision })
 
-  // 如果存在倍数，将原始值乘以倍数返回实际值
   return multiple ? $n.mul(fixedResult, multiple) : fixedResult
 }
 
-/**
- * 获取有效值
- * @param val 值
- */
 function getValidValue<T extends undefined | number>(val: T): T {
   if (val === undefined) return val
   const { min, max, multiple } = props
 
-  // 如果存在倍数，先将值除以倍数得到原始值进行验证，验证后再乘以倍数
   if (multiple) {
     const rawVal = $n.div(val, multiple)
     let validRawVal = rawVal
@@ -273,11 +245,6 @@ function handleClear(): void {
   emit('clear')
 }
 
-/**
- * 处理输入值变化的函数, 该函数仅在输入框失去焦点时触发,
- * 主要用于在输入非数字的情况下的修正处理
- * @param input 输入的值
- */
 function handleChange() {
   emit('change', model.value)
 }
@@ -320,22 +287,17 @@ function updateStepDisplay(rawFrom: number, rawTarget: number): void {
     return
   }
 
-  // tween 动画在原始值上进行
   tween.to({ n: rawTarget })
 }
 
-/** 增 */
 function increase(): void {
   if (disabled.value) return
   const { multiple } = props
   const val = model.value ?? 0
 
   if (multiple) {
-    // 如果存在倍数，先将实际值除以倍数得到原始值
     const rawVal = $n.div(val, multiple)
-    // 在原始值基础上加步长
     const newRawVal = $n.plus(rawVal, stepVal.value)
-    // 乘以倍数得到新的实际值
     const target = getValidValue($n.mul(newRawVal, multiple))
     model.value = target
     updateStepDisplay($n.div(val, multiple), $n.div(target, multiple))
@@ -346,18 +308,14 @@ function increase(): void {
   }
 }
 
-/** 减 */
 function decrease(): void {
   if (disabled.value) return
   const { multiple } = props
   const val = model.value ?? 0
 
   if (multiple) {
-    // 如果存在倍数，先将实际值除以倍数得到原始值
     const rawVal = $n.div(val, multiple)
-    // 在原始值基础上减步长
     const newRawVal = $n.minus(rawVal, stepVal.value)
-    // 乘以倍数得到新的实际值
     const target = getValidValue($n.mul(newRawVal, multiple))
     model.value = target
     updateStepDisplay($n.div(val, multiple), $n.div(target, multiple))
@@ -388,7 +346,6 @@ function handleFocus(): void {
   const { precision, maxPrecision, minPrecision, multiple } = props
 
   if (multiple) {
-    // 如果存在倍数，先除以倍数得到原始值进行精度修正，再乘以倍数
     const rawVal = $n.div(model.value, multiple)
     const fixedRawVal = +n(rawVal).fixed(precision ?? { maxPrecision, minPrecision })
     model.value = $n.mul(fixedRawVal, multiple)

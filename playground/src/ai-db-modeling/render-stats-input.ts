@@ -3,24 +3,20 @@
  * 入参由 AI 按查询结果组装，校验失败抛中文错误回灌模型自行修正。
  */
 
-/** 图表类型全集 */
 export const CHART_TYPES = ['bar', 'line', 'pie'] as const
 export type ChartType = (typeof CHART_TYPES)[number]
 
-/** 图表数据系列 */
 export interface ChartSeries {
   name: string
   values: number[]
 }
 
-/** 单个图表：类型 + 可选标题 + 分类标签与多系列数值 */
 export interface ChartSpec {
   type: ChartType
   title?: string
   data: { labels: string[]; series: ChartSeries[] }
 }
 
-/** renderStats 入参契约：摘要 + 多图表 */
 export interface RenderStatsInput {
   summary: string
   charts: ChartSpec[]

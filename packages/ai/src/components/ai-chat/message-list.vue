@@ -80,7 +80,6 @@
           :status="orbStatus"
           @click="!isWorking && cycleWelcome()"
         />
-        <!-- 工作中 / 收尾停留：原位展示状态与用时 -->
         <div v-if="isWorking" :class="cls.e('working')">
           <template v-if="running">
             <span :class="[cls.e('working-text'), 'u-shine']">工作中…</span>
@@ -90,7 +89,6 @@
             用时 {{ formatDuration(lastTurnDuration) }}
           </span>
         </div>
-        <!-- 空闲：逐条轮换快捷提问，点击发送 -->
         <div v-else-if="welcomeItems.length" :class="cls.e('welcome-item-wrap')">
           <Transition :name="cls.em('welcome', 'swap')" mode="out-in">
             <button
@@ -108,7 +106,6 @@
       </div>
     </div>
 
-    <!-- 用户上翻浏览时悬浮入口：一键回到最新消息 -->
     <Transition :name="cls.em('to-latest', 'fade')">
       <button
         v-if="showToLatest"
@@ -121,7 +118,6 @@
       </button>
     </Transition>
 
-    <!-- 会话导航：贴消息区左缘的圆点指示器，hover 单点展示该轮问答摘要，点击跳到该轮 -->
     <SessionNavigator
       :items="navigatorItems"
       :active-key="activeTurnKey"
@@ -174,9 +170,7 @@ const props = defineProps<{
   messages: ChatMessage[]
   /** 空闲时输入框上方的快捷提问；字符串按单项处理 */
   welcome?: string | string[]
-  /** 是否生成中（控制底部工作状态指示） */
   running?: boolean
-  /** 只读时欢迎语不可点击发送 */
   readonly?: boolean
   /** 透传给 MarkdownRender 的属性 */
   rendererProps?: Record<string, unknown>
@@ -185,7 +179,6 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'respond', toolCallId: string, approved: boolean): void
   (e: 'regenerate'): void
-  /** 点击欢迎项（快捷提问） */
   (e: 'welcome-click', text: string): void
 }>()
 
@@ -211,7 +204,6 @@ interface TurnSegment {
   steps: TurnStep[]
   /** renderTo: 'reply' 的工具步：渲染在回复流（步骤行之后、段末回答之前），不随步骤行折叠 */
   replySteps: TurnStep[]
-  /** 段末文字回答（content 非空的消息） */
   answerMsg?: ChatMessage
 }
 
@@ -313,10 +305,8 @@ const welcomeItems = computed(() => {
   return (Array.isArray(welcome) ? welcome : [welcome]).filter(Boolean)
 })
 
-/** 欢迎语逐条轮换：当前展示项的下标 */
 const welcomeIndex = ref(0)
 
-/** 当前展示的欢迎语 */
 const currentWelcomeItem = computed(() => {
   const items = welcomeItems.value
   return items.length ? items[welcomeIndex.value % items.length] : undefined
@@ -338,21 +328,18 @@ const startWelcomeRotation = () => {
   }
 }
 
-/** 点击欢迎球：不等自动轮换，立即换下一条，并重置计时 */
 const cycleWelcome = () => {
   if (welcomeItems.value.length <= 1) return
   welcomeIndex.value += 1
   startWelcomeRotation()
 }
 
-/** 回答完毕 / 失败后工作态短暂停留，播完表情再恢复欢迎语 */
 const finishing = ref(false)
 
 let finishTimer: ReturnType<typeof setTimeout> | undefined
 
 /** 工作计时的起算时间戳（running 升起时记录） */
 let workStartAt = 0
-/** 进行中的已逝时长（100ms 跳动刷新） */
 const elapsedMs = ref(0)
 let tickTimer: ReturnType<typeof setInterval> | undefined
 
@@ -364,13 +351,11 @@ const stopTick = () => {
   tickTimer = undefined
 }
 
-/** 收尾停留期间展示的末轮总用时 */
 const lastTurnDuration = computed(() => {
   const last = turns.value[turns.value.length - 1]
   return last ? turnDurations.value.get(last.key) : undefined
 })
 
-/** 吉祥物处于工作/收尾停留态（待在原位切换文案与计时） */
 const isWorking = computed(() => !!(props.running || finishing.value))
 
 const orbRef = useTemplateRef<AiOrbExposed>('orb')
@@ -423,7 +408,6 @@ watch(
     if (running) {
       clearTimeout(finishTimer)
       finishing.value = false
-      // 工作计时开始：100ms 跳动刷新已逝时长
       workStartAt = Date.now()
       elapsedMs.value = 0
       stopTick()
@@ -465,7 +449,6 @@ watch(
   }
 )
 
-// 消息被清空（clear）：立刻收掉工作态，欢迎语恢复
 watch(
   () => visibleMessages.value.length,
   (len) => {
@@ -476,7 +459,6 @@ watch(
   }
 )
 
-// 空闲欢迎语展示期间自动轮换；进入工作态后停止
 watch(
   () => [welcomeItems.value.length, isWorking.value] as const,
   () => {
@@ -504,7 +486,6 @@ const {
   directionAware: true
 })
 
-/** 上翻阅读时展示回到底部的悬浮按钮 */
 const showToLatest = computed(() => !stickToBottom.value && visibleMessages.value.length > 0)
 
 /** 会话导航项：每轮取用户提问与首段文字回答的前面部分作 hover 预览 */
@@ -523,13 +504,11 @@ const navigatorItems = computed<NavigatorItem[]>(() => {
   })
 })
 
-/** 当前视口顶部所在的轮次：滚动时实时高亮导航项 */
 const activeTurnKey = ref<string>()
 
 /** 列表是否真的溢出可滚：不溢出时导航没有意义，避免短对话出现多余圆点 */
 const scrollable = ref(false)
 
-/** 同步可滚状态（内容高度超过可视高度才出现导航） */
 const updateScrollable = (position?: Required<ScrollPosition>) => {
   const { sh, ch } = position ?? {}
   const container = scrollRef.value?.containerRef
@@ -600,12 +579,10 @@ const handleScrollResize = () => {
 
 const handleScroll = (position: Required<ScrollPosition>) => {
   handleStickScroll(position)
-  // 测量类更新合帧到 rAF
   scheduleUpdateActiveTurn()
   updateScrollable(position)
 }
 
-/** 点击悬浮按钮：恢复吸附并回到底部 */
 const scrollToLatest = async () => {
   stickToBottom.value = true
   await nextTick()

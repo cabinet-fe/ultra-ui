@@ -2,7 +2,6 @@ import type { ComponentSize, DeconstructValue } from '@veltra/utils'
 
 import type { VariableItem } from './expression-editor'
 
-/** 字段定义 */
 export interface ConditionField {
   label: string
   value: string
@@ -15,7 +14,6 @@ export type ConditionValue =
   | { kind: 'constant'; value: string }
   | { kind: 'variable'; name: string }
 
-/** 单行条件叶子节点 */
 export interface ConditionLeaf {
   type: 'condition'
   field: string
@@ -23,7 +21,6 @@ export interface ConditionLeaf {
   value: ConditionValue
 }
 
-/** 行间逻辑连接符 */
 export type ConditionConnector = 'and' | 'or'
 
 /** 条件组节点 —— 与叶子节点通过 children 统一编排 */
@@ -39,7 +36,6 @@ export interface ConditionGroup {
   connectors: ConditionConnector[]
 }
 
-/** 树节点：叶子或分组 */
 export type ConditionNode = ConditionLeaf | ConditionGroup
 
 /** 顶层表达式 = 根分组 */

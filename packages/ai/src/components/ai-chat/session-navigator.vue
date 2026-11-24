@@ -1,5 +1,4 @@
 <template>
-  <!-- 会话导航：贴消息区左缘的圆点指示器，hover 单个圆点展示该轮问答摘要，点击跳到该轮 -->
   <div v-if="items.length >= MIN_ITEMS && scrollable" :class="cls.e('navigator')">
     <div
       v-for="item in items"

@@ -4,9 +4,7 @@ import { drawCropToCanvas, type CropTransform } from './draw-crop'
 import type { SelectionRect } from './use-selection'
 
 interface UsePreviewOptions {
-  /** 预览画布元素 */
   canvas: ShallowRef<HTMLCanvasElement | undefined>
-  /** 舞台内的图片元素（已加载完成） */
   image: ShallowRef<HTMLImageElement | undefined>
   /** 当前选区（图片像素坐标） */
   selection: ShallowRef<SelectionRect | null>

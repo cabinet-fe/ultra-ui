@@ -85,9 +85,7 @@ describe('UTree showCheckbox', () => {
 
     try {
       await nextTick()
-      // 只有两个叶子节点渲染复选框
       expect(queryCheckboxes()).toHaveLength(2)
-      // 展开图标与节点文本保持不变
       expect(findNode('亚洲')).toBeTruthy()
       expect(document.body.querySelectorAll('.u-tree__expand-icon').length).toBe(1)
     } finally {
@@ -106,7 +104,6 @@ describe('UTree showCheckbox', () => {
       await nextTick()
       expect(checked.value).toEqual([])
 
-      // 叶子仍可单独勾选
       findNode('中国').dispatchEvent(new MouseEvent('click', { bubbles: true }))
       await nextTick()
       expect(checked.value).toEqual(['cn'])

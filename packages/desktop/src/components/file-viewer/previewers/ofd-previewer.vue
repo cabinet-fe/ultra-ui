@@ -75,8 +75,6 @@ let activeContainer: OfdContainer | undefined
 /** 已进入渲染流程（进行中或已完成）的页，防止滚动重复触发 */
 const scheduledPages = new Set<number>()
 
-// ---- 缩放：作用于页面容器尺寸，滚动高度随之自适应 ----
-
 function setZoom(value: number) {
   const next = clampZoom(value)
   if (zoomLevel.value === next) return
@@ -97,8 +95,6 @@ function resetZoom() {
 }
 
 defineExpose({ zoomIn, zoomOut, resetZoom })
-
-// ---- 解析与懒渲染 ----
 
 /** 动态加载 ofd-core chunk；首次加载后缓存模块复用 */
 async function resolveOfdCore(): Promise<OfdCoreModule> {

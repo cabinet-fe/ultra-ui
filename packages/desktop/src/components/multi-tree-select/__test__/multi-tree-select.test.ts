@@ -95,7 +95,6 @@ describe('UMultiTreeSelect check-strictly and ctrl-key behavior', () => {
       await clickNodeByLabel('亚洲')
       expect(model.value).toEqual(['asia', 'cn', 'jp'])
 
-      // 取消勾选「亚洲」时级联取消子节点
       await clickNodeByLabel('亚洲')
       expect(model.value).toEqual([])
     } finally {
@@ -108,11 +107,9 @@ describe('UMultiTreeSelect check-strictly and ctrl-key behavior', () => {
 
     try {
       await openDropdown(host)
-      // 按住 ctrl 点击「亚洲」，仅勾选「亚洲」自身
       await clickNodeByLabel('亚洲', true)
       expect(model.value).toEqual(['asia'])
 
-      // 按住 ctrl 再次点击「亚洲」，仅取消「亚洲」自身
       await clickNodeByLabel('亚洲', true)
       expect(model.value).toEqual([])
     } finally {
@@ -125,11 +122,9 @@ describe('UMultiTreeSelect check-strictly and ctrl-key behavior', () => {
 
     try {
       await openDropdown(host)
-      // 勾选父节点「亚洲」-> 把所有子节点都勾上
       await clickNodeByLabel('亚洲')
       expect(model.value).toEqual(['asia', 'cn', 'jp'])
 
-      // 取消勾选父节点「亚洲」-> 只取消自己，子节点保持勾选
       await clickNodeByLabel('亚洲')
       expect(model.value).toEqual(['cn', 'jp'])
     } finally {
@@ -161,7 +156,6 @@ describe('UMultiTreeSelect check-strictly and ctrl-key behavior', () => {
 
     try {
       await openDropdown(host)
-      // 点击全选 checkbox
       const allCheckboxInput = document.body.querySelector(
         '.u-multi-tree-select__content-header .u-checkbox__native'
       ) as HTMLInputElement
@@ -172,7 +166,6 @@ describe('UMultiTreeSelect check-strictly and ctrl-key behavior', () => {
 
       expect(model.value).toEqual(['asia', 'cn', 'jp', 'europe', 'uk', 'fr'])
 
-      // 再次点击取消全选
       allCheckboxInput.click()
       await nextTick()
       await sleep(50)
@@ -192,7 +185,6 @@ describe('UMultiTreeSelect check-strictly and ctrl-key behavior', () => {
       await openDropdown(host)
       expect(model.value).toEqual(['asia'])
 
-      // tags 只有「亚洲」
       const tags = host.querySelectorAll('.u-tag')
       expect(tags.length).toBe(1)
       expect(tags[0].textContent).toContain('亚洲')
@@ -208,13 +200,11 @@ describe('UMultiTreeSelect check-strictly and ctrl-key behavior', () => {
       await openDropdown(host)
       const checkboxes = queryCheckboxes()
       expect(checkboxes.length).toBeGreaterThan(0)
-      // 点击第一个 checkbox（亚洲）-> 勾选所有子节点
       checkboxes[0].click()
       await nextTick()
       await sleep(50)
       expect(model.value).toEqual(['asia', 'cn', 'jp'])
 
-      // 再次点击第一个 checkbox（亚洲）-> 仅取消亚洲自身
       checkboxes[0].click()
       await nextTick()
       await sleep(50)
@@ -243,7 +233,6 @@ describe('UMultiTreeSelect labelTemplate', () => {
       await clickNodeByLabel('禁用')
       expect(model.value).toEqual(['enabled', 'disabled'])
 
-      // 标签：命中字段渲染模板结果，缺 code 的行回退纯 label
       const tagTexts = [...host.querySelectorAll('.u-tag')].map((el) => el.textContent)
       expect(tagTexts).toEqual(['启用（ENABLED）', '禁用'])
     } finally {

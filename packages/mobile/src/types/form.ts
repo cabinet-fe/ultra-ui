@@ -1,7 +1,6 @@
 import type { ComponentProps, DeconstructValue } from '@veltra/utils'
 import type { ShallowRef } from 'vue'
 
-/** 表单组件属性 */
 export interface FormProps extends ComponentProps {
   /**
    * 自定义表单列数
@@ -10,7 +9,6 @@ export interface FormProps extends ComponentProps {
   cols?: number
   /** 分组标题：渲染在卡片列表顶部，与 #header 插槽二选一，插槽优先 */
   title?: string
-  /** 表单数据 */
   model?: Record<string, any>
   /** 开启后，字段当前值与基准值不同时，在控件下方展示「变更前」 */
   showModified?: boolean
@@ -26,21 +24,16 @@ export interface FormProps extends ComponentProps {
   labelWidth?: string | number
   /** 表单项 label 位置；默认 'left' 行式（label 左、控件右），'top' 时 label 在控件上方 */
   labelPosition?: 'top' | 'left'
-  /** 是否不显示tips */
   noTips?: boolean
-  /** 是否只读 */
   readonly?: boolean
-  /** 是否禁用 */
   disabled?: boolean
 }
 
-/** 表单组件定义的事件 */
 export interface FormEmits {
   /** model 字段值更新，含编程写入 */
   (e: 'field:update', field: string, value: any): void
 }
 
-/** 表单暴露的属性和方法(组件内部使用) */
 export interface _FormExposed {
   el: ShallowRef<HTMLElement | null | undefined>
   /** 校验指定字段，未传 keys 时校验全部已注册字段 */
@@ -50,5 +43,5 @@ export interface _FormExposed {
   reset: () => void
 }
 
-/** 表单暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
+/** 组件外部使用, 引用的值会被自动解构 */
 export type FormExposed = DeconstructValue<_FormExposed>

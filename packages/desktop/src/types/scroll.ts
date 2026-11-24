@@ -16,7 +16,6 @@ export type ScrollPosition = {
   ch?: number
 }
 
-/** 滚动条组件属性 */
 export interface ScrollProps {
   /**
    * 容器元素标签名
@@ -35,38 +34,23 @@ export interface ScrollProps {
    */
   always?: boolean
 
-  /**
-   * 内容样式
-   */
   contentStyle?: string | CSSProperties
 
-  /**
-   * 容器样式
-   */
   containerStyle?: string | CSSProperties
 
-  /** 内容类名 */
   contentClass?: unknown
 
-  /** 容器类名 */
   containerClass?: string | string[]
 
-  /** 拖拽防抖时间 */
   dragDebounce?: number
 }
 
 export interface ScrollEmits {
-  /** 滚动事件 */
   (e: 'scroll', position: Required<ScrollPosition>): void
-  /** 尺寸调整事件 */
   (e: 'resize', targets: HTMLElement[]): void
 }
 
 export interface _ScrollExposed {
-  /**
-   * 滚动至
-   * @param position 位置
-   */
   scrollTo(position: ScrollPosition): void
 
   /**
@@ -74,13 +58,10 @@ export interface _ScrollExposed {
    */
   update(): void
 
-  /** 滚动内容元素引用 */
   contentRef: ShallowRef<HTMLElement | undefined>
 
-  /** 滚动容器元素引用 */
   containerRef: ShallowRef<HTMLElement | undefined>
 
-  /** 滚动容器元素引用 */
   el: ShallowRef<HTMLElement | undefined>
 }
 

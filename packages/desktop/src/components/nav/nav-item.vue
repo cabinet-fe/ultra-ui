@@ -11,7 +11,6 @@
   >
     <NavIcon v-if="item.icon" :icon="item.icon" :class="cls.e('icon')" />
 
-    <!-- 文本 -->
     <span :class="cls.e('item-title')">
       {{ item.title }}
     </span>

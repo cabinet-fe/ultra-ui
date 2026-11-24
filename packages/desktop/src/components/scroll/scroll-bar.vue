@@ -18,11 +18,8 @@ const emit = defineEmits<{ drag: [offset: number, size: number] }>()
 
 /** 滚动条高度(type为x时为宽度) */
 const size = shallowRef(0)
-/** 滚动条偏移量 */
 const offset = shallowRef(0)
-/** 滚动条拖拽前偏移量 */
 let currentOffset = 0
-/** 滚动条轨道尺寸 */
 let trackSize = 0
 
 const { cls } = inject(ScrollDIKey)!
@@ -44,13 +41,11 @@ const style =
 
 const domRef = shallowRef<HTMLElement>()
 
-/** 获取拖拽偏移量 */
 const getDragOffset =
   props.type === 'x'
     ? (x: number, y: number) => currentOffset + x
     : (x: number, y: number) => currentOffset + y
 
-// 应用拖拽
 useDrag({
   target: domRef,
   onDragStart() {
@@ -77,13 +72,11 @@ useDrag({
 })
 
 defineExpose({
-  /** 更新滚动条状态 */
   update(_size: number, _offset: number): void {
     size.value = _size
     offset.value = _offset
   },
 
-  /** 设置轨道尺寸 */
   setTrackSize(size: number): void {
     trackSize = size
   }

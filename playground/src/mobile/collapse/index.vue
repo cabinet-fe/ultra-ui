@@ -83,7 +83,6 @@ const standalone = shallowRef(false)
 </script>
 
 <style lang="scss" scoped>
-// 手机设备外壳视口内呈现，验证标题触控热区高度
 .demo {
   display: flex;
   flex-direction: column;

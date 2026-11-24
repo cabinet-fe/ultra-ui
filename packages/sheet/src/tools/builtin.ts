@@ -73,8 +73,6 @@ function toggleAlign(
  * 与第三方工具走同一注册通道，可由宿主 unregisterTool 移除或同 id 覆盖。
  */
 export const BUILTIN_TOOLS: readonly SheetTool[] = [
-  // ─── history ───────────────────────────────────────────────
-
   {
     id: 'undo',
     title: '撤销',
@@ -100,8 +98,6 @@ export const BUILTIN_TOOLS: readonly SheetTool[] = [
       ctx.redo()
     }
   },
-
-  // ─── cell（边框 / 填充颜色 / 合并 / 取消合并）────────────────
 
   {
     id: 'border',
@@ -138,9 +134,7 @@ export const BUILTIN_TOOLS: readonly SheetTool[] = [
       const { activeCell, ranges } = ctx.getSelection()
       const range = ranges[0]
       if (!activeCell || !range) return true
-      // 单格无可合并
       if (range.start.row === range.end.row && range.start.col === range.end.col) return true
-      // 选区恰好等于既有合并区域 → 无操作必要
       const mergeRange = ctx.getCellInfo(activeCell).mergeRange
       return !!mergeRange && rangesEqual(mergeRange, range)
     },
@@ -169,8 +163,6 @@ export const BUILTIN_TOOLS: readonly SheetTool[] = [
       ctx.unmergeCells(ranges[0])
     }
   },
-
-  // ─── text（B/I/U/S / 字体颜色 / 字号 / 对齐×6 / 自动换行）────
 
   {
     id: 'bold',
@@ -366,8 +358,6 @@ export const BUILTIN_TOOLS: readonly SheetTool[] = [
     }
   },
 
-  // ─── edit（查找 / 函数）──────────────────────────────────────
-
   {
     id: 'find',
     title: '查找',
@@ -390,8 +380,6 @@ export const BUILTIN_TOOLS: readonly SheetTool[] = [
     onClick: () => {}
   },
 
-  // ─── insert（插入图片）─────────────────────────────────────
-
   {
     id: 'insert-image',
     title: '插入图片',
@@ -404,7 +392,6 @@ export const BUILTIN_TOOLS: readonly SheetTool[] = [
     onClick: () => {}
   },
 
-  // ─── file（导入 / 导出）────────────────────────────────────
   // 导出 = 弹层选 xlsx / csv；导入 = 点击直接系统文件选择（components/sheet/import-file.ts，
   // sheet.vue 覆盖 onClick；tools 层不 import 组件层）。
   // 下载逻辑见 tools/download.ts（core/io 保持纯 TS 无头可测）。

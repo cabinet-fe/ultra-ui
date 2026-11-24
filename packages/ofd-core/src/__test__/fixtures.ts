@@ -126,8 +126,6 @@ export async function expectParseError(run: () => unknown): Promise<OfdParseErro
   throw new Error('预期抛出 OfdParseError')
 }
 
-// ---- 自造最小 TTF（内嵌字体相关测试共用）----
-
 type Bytes = number[]
 
 /** 直角三角形轮廓：三个 on-curve 点（字体单位） */

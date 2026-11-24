@@ -33,23 +33,15 @@ function handleMouseleave(e: MouseEvent) {
 }
 
 /**
- * 注册按下事件
- * @param el
- * @param binding
  * @todo 如有必要将来可添加触摸事件
  */
 const registerEvents = (el: HTMLElement, binding: DirectiveBinding<any>) => {
-  // 如果指令绑定的值为false则不应用该事件.
   if (binding.value === false) return
 
   el.addEventListener('mousedown', handleMousedown)
   el.addEventListener('mouseleave', handleMouseleave)
 }
 
-/**
- * 注销按下事件
- * @param el 元素
- */
 const unregisterEvents = (el: HTMLElement) => {
   el.removeEventListener('mousedown', handleMousedown)
   el.removeEventListener('mouseleave', handleMouseleave)

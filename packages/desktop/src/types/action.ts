@@ -2,7 +2,6 @@ import type { ColorType, DeconstructValue } from '@veltra/utils'
 
 import type { ButtonProps } from './button'
 
-/** 操作组件属性 */
 export interface ActionProps extends ButtonProps {
   /**
    * 是否需要确认：true 时点击只弹确认气泡（UPopConfirm），点气泡里的「确认」才触发 `run`
@@ -19,9 +18,7 @@ export interface ActionProps extends ButtonProps {
   inDropdown?: boolean
 }
 
-/** 操作组组件属性 */
 export interface ActionGroupProps {
-  /** 是否加载中 */
   loading?: boolean
   /**
    * 是否为圆形按钮，适用于图标类。`hover` 模式下默认对所有子项生效
@@ -54,12 +51,10 @@ export interface ActionGroupProps {
   type?: ColorType
 }
 
-/** 操作组件定义的事件 */
 export interface ActionEmits {
   (e: 'run'): void
 }
 
-/** 操作组件暴露的属性和方法(组件内部使用) */
 export interface _ActionExposed {}
 
 export interface _ActionGroupExposed {

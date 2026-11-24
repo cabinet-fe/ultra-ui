@@ -1,10 +1,8 @@
 <template>
   <div :class="[cls.e('step-line'), bem.is('expanded', expanded), bem.is('settled', !live)]">
-    <!-- 步骤行：固定高度，实时展示当前步骤；点击展开下方全部已执行步骤 -->
     <div :class="cls.e('step-line-bar')" @click="toggle">
       <!-- 走马灯：新步骤从下方进入、旧步骤向上离开；同一步骤内部更新原地响应不触发切换 -->
       <Transition :name="cls.em('step-line', 'swap')">
-        <!-- live：当前步骤的实时视图 -->
         <div v-if="live && currentStep" :key="currentStep.key" :class="cls.e('step-line-view')">
           <template v-if="currentStep.kind === 'reasoning'">
             <ThinkingIcon active :class="cls.e('step-line-icon')" />
@@ -21,7 +19,6 @@
             <span v-if="summary" :class="cls.e('step-line-text')">{{ summary }}</span>
           </template>
         </div>
-        <!-- 落定：完成态摘要 -->
         <div v-else :key="`settled:${endStatus ?? 'done'}`" :class="cls.e('step-line-view')">
           <UIcon :class="[cls.e('step-line-icon'), endStatus ? 'is-danger' : 'is-success']">
             <CircleClose v-if="endStatus" />
@@ -34,7 +31,6 @@
       <UIcon :class="cls.e('step-line-chevron')"><ArrowRight /></UIcon>
     </div>
 
-    <!-- 展开列表：全部已执行步骤（思考块 + 工具卡片），折叠时完全卸载 -->
     <div v-if="expanded" :class="cls.e('step-line-content')">
       <template v-for="step in steps" :key="step.key">
         <ReasoningBlock v-if="step.kind === 'reasoning'" :message="step.message" />
@@ -104,7 +100,6 @@ const currentToolCall = computed(() => {
 
 const { isActive, statusClass, headerIcon, toolTitle, summary } = useToolCallBrief(currentToolCall)
 
-/** 落定后的完成态摘要 */
 const settledTitle = computed(() => {
   if (props.endStatus === 'error') return '出错了'
   if (props.endStatus === 'aborted') return '已停止'

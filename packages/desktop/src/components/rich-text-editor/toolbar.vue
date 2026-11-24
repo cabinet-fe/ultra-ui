@@ -74,7 +74,6 @@ const cls = bem('rich-text-editor')
 
 const imageInput = useTemplateRef('imageInput')
 
-// Active states
 const isBold = ref(false)
 const isItalic = ref(false)
 const isUnderline = ref(false)
@@ -108,7 +107,6 @@ function updateToolbarState(selection: RangeSelection) {
   isUnderline.value = selection.hasFormat('underline')
   isStrikethrough.value = selection.hasFormat('strikethrough')
 
-  // Check block type
   const anchorNode = selection.anchor.getNode()
   let element = anchorNode.getKey() === 'root' ? anchorNode : anchorNode.getTopLevelElementOrThrow()
 
@@ -118,7 +116,6 @@ function updateToolbarState(selection: RangeSelection) {
     activeHeading.value = 'paragraph'
   }
 
-  // Check list
   const parentList = $getNearestNodeOfType(anchorNode, ListNode)
   if (parentList) {
     const listType = (parentList as any).getListType()
@@ -129,10 +126,8 @@ function updateToolbarState(selection: RangeSelection) {
     isOrderedList.value = false
   }
 
-  // Check blockquote
   isBlockquote.value = $isQuoteNode(element)
 
-  // Check link
   const parent = anchorNode.getParent()
   isLink.value = $isLinkNode(parent)
 }
@@ -222,7 +217,6 @@ function onToolbarAction(item: ToolbarItem) {
       break
   }
 
-  // Keep focus on editor
   editorInstance.focus()
 }
 

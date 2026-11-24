@@ -15,11 +15,7 @@ interface UseSuggestionsReturned {
 export function useSuggestions(options: Options): UseSuggestionsReturned {
   const { model, props } = options
 
-  /**
-   * 动态的建议
-   */
   const dynamicSuggestions = shallowRef<string[]>([])
-  /** 过滤后的建议 */
   const filteredSuggestions = shallowRef<string[]>([])
 
   const appendedSuggestions = shallowRef<string[]>([])
@@ -34,7 +30,6 @@ export function useSuggestions(options: Options): UseSuggestionsReturned {
     return filteredSuggestions.value
   })
 
-  // 缓存的建议
   const cachedSuggestion = computed(() => {
     if (!model.value) return undefined
     return suggestions.value.includes(model.value) ? undefined : model.value

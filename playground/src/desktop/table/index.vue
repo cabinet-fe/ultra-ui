@@ -83,8 +83,6 @@ const columns = defineTableColumns([
   { key: 'action', name: '操作', align: 'center' }
 ])
 
-// ── 树形数据 ──
-
 interface OrgNode {
   id: number
   name: string
@@ -189,8 +187,6 @@ const treeColumns = defineTableColumns([
   { key: 'role', name: '角色', align: 'center' },
   { key: 'headcount', name: '人数', align: 'center' }
 ])
-
-// ── 省略号 + 悬浮提示 ──
 
 const noteColumns = defineTableColumns([
   { key: 'title', name: '标题（左）', width: 140 },

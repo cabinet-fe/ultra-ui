@@ -1,8 +1,6 @@
 import type { RGBColor } from './type'
 
-/** 实现十六进制颜色转RGB颜色，包括透明度 */
 export function HEXToRGB(color: string): RGBColor {
-  // 移除可能存在的 '#' 前缀
   let hex = color.replace(/^#/, '')
   let [r, g, b] = [0, 0, 0]
 
@@ -19,11 +17,9 @@ export function HEXToRGB(color: string): RGBColor {
 }
 
 /**
- * 混合两个颜色，并返回混合结果的十六进制表示。
  * @param color1 - 第一个颜色，格式为`#RRGGBB`。
  * @param color2 - 第二个颜色，格式为`#RRGGBB`。
  * @param ratio - 颜色混合的比例，取值范围为0到1。
- * @returns 混合结果的十六进制表示。
  */
 export function mixColor(color1: `#${string}`, color2: `#${string}`, ratio: number): string {
   if (ratio > 1) throw new Error('ratio的值在0-1之间')

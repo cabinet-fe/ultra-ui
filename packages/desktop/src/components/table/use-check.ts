@@ -39,7 +39,6 @@ export function useCheck(options: Options): UseCheckReturned {
   const checkedRows = shallowRef(new Set<TableRow>())
   const selectedRow = shallowRef<TableRow>()
 
-  /** 触发checkedRows的更新 */
   function triggerCheckedRows() {
     triggerRef(checkedRows)
   }
@@ -89,7 +88,6 @@ export function useCheck(options: Options): UseCheckReturned {
 
   let dicts: Map<string | number, TableRow> | undefined = undefined
 
-  // 设置uid -> row 字典，以便于数据重复使用
   function setDicts() {
     if (dicts || !rows.value || !props.rowKey) return
 
@@ -115,7 +113,6 @@ export function useCheck(options: Options): UseCheckReturned {
 
       changedByModel = true
 
-      // 如果没有字典，先建立字典
       rows !== oRows && setDicts()
 
       clearChecked()
@@ -145,7 +142,6 @@ export function useCheck(options: Options): UseCheckReturned {
 
       changedByModel = true
 
-      // 如果没有字典，先建立字典(懒建立)
       rows !== oRows && setDicts()
 
       if (selected) {
@@ -255,10 +251,6 @@ export function useCheck(options: Options): UseCheckReturned {
           return checkboxNode
         }
 
-        // const expandNode = createVNode('i', {
-        //   text: true,
-        //   class: cls.e('expand-space')
-        // })
         return [checkboxNode]
       },
       render(ctx) {
@@ -304,10 +296,6 @@ export function useCheck(options: Options): UseCheckReturned {
           return '单选'
         }
 
-        // const expandNode = createVNode('i', {
-        //   text: true,
-        //   class: cls.e('expand-space')
-        // })
         return [createTextVNode('单选')]
       },
 

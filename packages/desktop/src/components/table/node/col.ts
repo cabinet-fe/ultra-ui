@@ -25,19 +25,16 @@ function normalizeColumnStyle(style?: TableColumnStyle): Record<string, string> 
 export class ColumnNode extends TreeNode<TableColumn, ColumnNode> {
   declare children?: ColumnNode[] | undefined
   declare parent?: ColumnNode
-  /** 叶子节点数量 */
   leafs?: number
 
   nextNode: ColumnNode | null = null
 
-  /** 列key */
   get key(): string {
     return this.data.key
   }
   set key(val) {
     this.data.key = val
   }
-  /** 列名 */
   get name(): string {
     return this.data.name
   }
@@ -45,10 +42,6 @@ export class ColumnNode extends TreeNode<TableColumn, ColumnNode> {
     this.data.name = val
   }
 
-  /**
-   * 列对齐方式
-   * @default 'left'
-   */
   get align(): TableColumnAlign {
     return this.data.align ?? 'left'
   }
@@ -63,17 +56,14 @@ export class ColumnNode extends TreeNode<TableColumn, ColumnNode> {
     this.data.headerAlign = val
   }
 
-  /** 表体/表尾单元格样式 */
   get cellStyle(): Record<string, string> | undefined {
     return normalizeColumnStyle(this.data.style)
   }
 
-  /** 表头单元格样式 */
   get headerCellStyle(): Record<string, string> | undefined {
     return normalizeColumnStyle(this.data.headerStyle ?? this.data.style)
   }
 
-  /** 宽度 */
   get width(): number | undefined {
     const width = this.data.width ?? this.derived.allocatedWidth
     if (!width || (this.minWidth && width && width < this.minWidth)) {
@@ -102,7 +92,6 @@ export class ColumnNode extends TreeNode<TableColumn, ColumnNode> {
   set allocatedWidth(val: number | undefined) {
     this.derived.allocatedWidth = val
   }
-  /** 最小宽度 */
   get minWidth(): number | undefined {
     const minWidth = this.data.minWidth
     if (!minWidth && this.isLeaf) {
@@ -114,7 +103,6 @@ export class ColumnNode extends TreeNode<TableColumn, ColumnNode> {
     this.data.minWidth = val
   }
 
-  /** 列固定方向 */
   get fixed(): 'left' | 'right' | undefined {
     if (this.depth > 0) return
     return this.data.fixed
@@ -123,17 +111,14 @@ export class ColumnNode extends TreeNode<TableColumn, ColumnNode> {
     this.data.fixed = val
   }
 
-  /** 是否是左侧的最后一个固定列 */
   get isLastFixed(): boolean {
     return this.data.isLastFixed ?? false
   }
 
-  /** 是否是右侧的第一个固定列 */
   get isFirstFixed(): boolean {
     return this.data.isFirstFixed ?? false
   }
 
-  /** 是否是可调整宽度的列 */
   get resizable(): boolean {
     return this.data.resizable ?? true
   }

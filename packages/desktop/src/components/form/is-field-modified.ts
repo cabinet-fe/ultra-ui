@@ -1,4 +1,3 @@
-/** 判断字段当前值相对基准值是否已变更 */
 export function isFieldModified(current: unknown, initial: unknown): boolean {
   if (current === initial) return false
 

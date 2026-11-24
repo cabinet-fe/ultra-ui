@@ -13,7 +13,6 @@ export function themeTokenVar(basename: string, ...nodes: Array<string | number>
 
 const T = themeTokenVar
 
-/** 亮色（及与暗色相同的尺寸类）下组件 token */
 export const componentCssVarsLight: Record<string, string> = {
   '--u-focus-ring': `0 0 0 3px ${T('color', 'primary', 'a', '28')}`,
   '--u-focus-ring-danger': `0 0 0 3px ${T('color', 'danger', 'a', '28')}`,
@@ -28,7 +27,6 @@ export const componentCssVarsLight: Record<string, string> = {
   '--u-table-current-color': 'inherit',
   '--u-table-checked-bg': T('color', 'primary', 'light-9'),
   '--u-table-checked-color': 'inherit',
-  // ─── Nav 系列（nav / dual-nav / group-nav）尺寸与资源类；外观见文件底部 navSidebarCssVars ───
   '--u-nav-height-small': '32px',
   '--u-nav-height-default': '36px',
   '--u-nav-height-large': '40px',
@@ -46,7 +44,6 @@ export const componentCssVarsLight: Record<string, string> = {
   '--u-breadcrumb-large': '24px',
   '--u-drawer-size': '320px',
 
-  // ─── Button (default & plain states) ───
   '--u-button-default-bg': T('bg-color', 'top'),
   '--u-button-default-border': T('border', 'color'),
   '--u-button-default-color': T('text-color', 'main'),
@@ -63,48 +60,39 @@ export const componentCssVarsLight: Record<string, string> = {
   '--u-button-info-plain-bg': T('color', 'info', 'light', '9'),
   '--u-button-info-plain-shadow': T('color', 'info', 'light', '5'),
 
-  // ─── Tree selection ───
   '--u-tree-node-selected-bg': T('color', 'primary', 'light', '9'),
   '--u-tree-node-selected-color': T('color', 'primary'),
 
-  // ─── Cascade option active ───
   '--u-cascade-node-active-bg': T('color', 'primary', 'light', '9'),
   '--u-cascade-node-active-color': T('color', 'primary'),
 
-  // ─── Select option ───
   '--u-select-option-hover-bg': T('bg-color', 'hover'),
   '--u-select-option-hover-color': T('text-color', 'title'),
   '--u-select-option-selected-bg': T('color', 'primary', 'light', '9'),
   '--u-select-option-selected-color': T('color', 'primary'),
 
-  // ─── Auto Complete option ───
   '--u-auto-complete-option-hover-bg': T('bg-color', 'hover'),
   '--u-auto-complete-option-hover-color': T('text-color', 'title'),
   '--u-auto-complete-option-selected-bg': T('color', 'primary', 'light', '9'),
   '--u-auto-complete-option-selected-color': T('color', 'primary'),
 
-  // ─── Contextmenu item ───
   '--u-contextmenu-item-hover-bg': T('bg-color', 'hover'),
   '--u-contextmenu-item-hover-color': T('text-color', 'title'),
   '--u-contextmenu-item-height-small': '24px',
   '--u-contextmenu-item-height-default': '28px',
   '--u-contextmenu-item-height-large': '32px',
 
-  // ─── Expression Editor Chip ───
   '--u-expression-editor-chip-bg': T('color', 'primary', 'light', '9'),
   '--u-expression-editor-chip-color': T('color', 'primary'),
 
-  // ─── Paginator active buttons ───
   '--u-paginator-btn-hover-bg': T('color', 'primary', 'light', '9'),
   '--u-paginator-btn-hover-color': T('text-color', 'title'),
   '--u-paginator-btn-active-bg': T('color', 'primary', 'light', '9'),
   '--u-paginator-btn-active-color': T('color', 'primary'),
 
-  // ─── Tabs List background ───
   '--u-tabs-bar-bg': T('bg-color', 'hover'),
   '--u-tabs-active-bg': T('bg-color', 'top'),
 
-  // ─── Tag Component Colors ───
   '--u-tag-primary-bg': T('color', 'primary', 'light', '9'),
   '--u-tag-primary-color': T('color', 'primary'),
   '--u-tag-primary-border': T('color', 'primary'),
@@ -121,7 +109,6 @@ export const componentCssVarsLight: Record<string, string> = {
   '--u-tag-info-color': T('color', 'info'),
   '--u-tag-info-border': T('color', 'info'),
 
-  // ─── File Picker Colors ───
   '--u-file-picker-hover-bg': T('color', 'primary', 'light', '9'),
   '--u-card-header-bg': 'rgba(0, 0, 0, 0.015)',
   '--u-card-action-bg': 'rgba(0, 0, 0, 0.015)',
@@ -150,7 +137,6 @@ export const componentCssVarsDark: Record<string, string> = {
   '--u-radio-border': '#595959',
   '--u-checkbox-border': '#595959',
 
-  // ─── Button (plain & text colors in dark mode) ───
   '--u-button-primary-plain-bg': T('color', 'primary', 'dark', '9'),
   '--u-button-primary-plain-shadow': T('color', 'primary', 'dark', '7'),
   '--u-button-success-plain-bg': T('color', 'success', 'dark', '9'),
@@ -162,48 +148,39 @@ export const componentCssVarsDark: Record<string, string> = {
   '--u-button-info-plain-bg': T('color', 'info', 'dark', '9'),
   '--u-button-info-plain-shadow': T('color', 'info', 'dark', '7'),
 
-  // ─── Tree selection ───
   '--u-tree-node-selected-bg': T('color', 'primary', 'dark', '9'),
   '--u-tree-node-selected-color': T('color', 'primary'),
 
-  // ─── Cascade option active ───
   '--u-cascade-node-active-bg': T('color', 'primary', 'dark', '9'),
   '--u-cascade-node-active-color': T('color', 'primary'),
 
-  // ─── Select option ───
   '--u-select-option-hover-bg': T('bg-color', 'hover'),
   '--u-select-option-hover-color': T('text-color', 'title'),
   '--u-select-option-selected-bg': T('color', 'primary', 'dark', '9'),
   '--u-select-option-selected-color': T('color', 'primary'),
 
-  // ─── Auto Complete option ───
   '--u-auto-complete-option-hover-bg': T('bg-color', 'hover'),
   '--u-auto-complete-option-hover-color': T('text-color', 'title'),
   '--u-auto-complete-option-selected-bg': T('color', 'primary', 'dark', '9'),
   '--u-auto-complete-option-selected-color': T('color', 'primary'),
 
-  // ─── Contextmenu item ───
   '--u-contextmenu-item-hover-bg': T('bg-color', 'hover'),
   '--u-contextmenu-item-hover-color': T('text-color', 'title'),
   '--u-contextmenu-item-height-small': '24px',
   '--u-contextmenu-item-height-default': '28px',
   '--u-contextmenu-item-height-large': '32px',
 
-  // ─── Expression Editor Chip ───
   '--u-expression-editor-chip-bg': T('color', 'primary', 'dark', '9'),
   '--u-expression-editor-chip-color': T('color', 'primary'),
 
-  // ─── Paginator active buttons ───
   '--u-paginator-btn-hover-bg': T('color', 'primary', 'dark', '9'),
   '--u-paginator-btn-hover-color': T('color', 'primary'),
   '--u-paginator-btn-active-bg': T('color', 'primary', 'dark', '9'),
   '--u-paginator-btn-active-color': T('color', 'primary'),
 
-  // ─── Tabs List background (improved dark contrast) ───
   '--u-tabs-bar-bg': T('bg-color', 'bottom'),
   '--u-tabs-active-bg': T('bg-color', 'top'),
 
-  // ─── Tag Component Colors ───
   '--u-tag-primary-bg': T('color', 'primary', 'dark', '9'),
   '--u-tag-primary-color': T('color', 'primary'),
   '--u-tag-primary-border': T('color', 'primary'),
@@ -220,7 +197,6 @@ export const componentCssVarsDark: Record<string, string> = {
   '--u-tag-info-color': T('color', 'info'),
   '--u-tag-info-border': T('color', 'info'),
 
-  // ─── File Picker Colors ───
   '--u-file-picker-hover-bg': T('color', 'primary', 'dark', '9'),
   '--u-card-header-bg': 'rgba(255, 255, 255, 0.015)',
   '--u-card-action-bg': 'rgba(255, 255, 255, 0.015)'
@@ -243,7 +219,6 @@ export const componentCssVarsDarkDecls: string[] = recordToDeclList(componentCss
 /** 侧栏外观变体：dark 深底浅字 / light 浅底深字 */
 export type NavSidebarVariant = 'dark' | 'light'
 
-/** 侧栏实际底色色调：dark 深底 / light 浅底 */
 export type NavSurfaceTone = 'dark' | 'light'
 
 /**
@@ -257,7 +232,6 @@ export function navSurfaceTone(
   return series === 'dark' || variant === 'dark' ? 'dark' : 'light'
 }
 
-/** 深底侧栏的表面装饰 token */
 const navSurfaceDarkTone: Record<string, string> = {
   '--u-nav-surface-overlay': `radial-gradient(120% 70% at 0% 0%, ${T('color', 'primary', 'a', '16')}, transparent 62%), linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.3))`,
   '--u-nav-surface-hairline': 'rgba(255, 255, 255, 0.07)',
@@ -272,7 +246,6 @@ const navSurfaceDarkTone: Record<string, string> = {
   '--u-nav-surface-scrollbar-hover': 'rgba(255, 255, 255, 0.4)'
 }
 
-/** 浅底侧栏的表面装饰 token */
 const navSurfaceLightTone: Record<string, string> = {
   '--u-nav-surface-overlay': `radial-gradient(120% 70% at 0% 0%, ${T('color', 'primary', 'a', '8')}, transparent 62%), linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(0, 0, 0, 0.02))`,
   '--u-nav-surface-hairline': T('border', 'color'),
@@ -287,7 +260,6 @@ const navSurfaceLightTone: Record<string, string> = {
   '--u-nav-surface-scrollbar-hover': T('text-color', 'assist', 'a', '60')
 }
 
-/** 给内置外观 token 补上与其实际底色色调匹配的表面装饰 token */
 function withNavSurface(
   appearance: Record<string, string>,
   series: 'light' | 'dark',
@@ -386,7 +358,6 @@ export function navSurfaceTokens(
   return { ...surface }
 }
 
-/** 解析某主题系列 + 侧栏变体下的 nav token 声明列表 */
 export function resolveNavSidebarDecls(
   series: 'light' | 'dark',
   variant: NavSidebarVariant

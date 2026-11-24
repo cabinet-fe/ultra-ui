@@ -87,7 +87,6 @@ function mountTableEditor(
   }
 }
 
-/** 按文本查找表头单元格 */
 const findHeader = (host: Element, text: string) =>
   [...host.querySelectorAll('th')].find((th) => th.textContent?.includes(text))
 
@@ -100,12 +99,10 @@ describe('UTableEditor 行内编辑', () => {
 
     try {
       await nextTick()
-      // 每个数据行的编辑控件初始即挂载
       expect(host.querySelectorAll('[data-test="name-input"]')).toHaveLength(2)
       expect(host.querySelectorAll('[data-test="age-input"]')).toHaveLength(2)
 
       const [row0] = getDataRows()
-      // 未声明 #column:key 的列渲染字段原始值
       expect(row0.textContent).toContain('杭州')
     } finally {
       unmount()
@@ -197,7 +194,6 @@ describe('UTableEditor 只读模式', () => {
       await nextTick()
       const inputs = getDataRows().map((tr) => tr.querySelector('input')!)
       expect(inputs).toHaveLength(2)
-      // readonly 经插槽 model 注入到输入控件
       for (const input of inputs) expect(input.hasAttribute('readonly')).toBe(true)
     } finally {
       unmount()
@@ -215,7 +211,6 @@ describe('UTableEditor 只读模式', () => {
     try {
       await nextTick()
       const [row0] = getDataRows()
-      // u-input 收到 readonly 后按只读展示态渲染值，不再是可编辑控件
       expect(row0.querySelector('input')).toBeFalsy()
       expect(row0.textContent).toContain('Alice')
       expect(emitted).toHaveLength(0)
@@ -271,7 +266,6 @@ describe('UTableEditor 按列校验', () => {
       const nameCellError = () =>
         row0.querySelector('[data-test="name-input"]')?.parentElement?.className
 
-      // 输入过程（input 事件）不触发校验：清空后表头无错误指示，单元格无错误标记
       const input = row0.querySelector('input')!
       input.value = ''
       input.dispatchEvent(new Event('input', { bubbles: true }))
@@ -281,7 +275,6 @@ describe('UTableEditor 按列校验', () => {
       expect(findHeader(host, '姓名')?.querySelector('.u-table-editor__header-icon')).toBeFalsy()
       expect(nameCellError()).not.toContain('is-error')
 
-      // change 事件（如失焦提交）触发校验：该列表头出现错误指示，单元格挂 is-error
       input.dispatchEvent(new Event('change', { bubbles: true }))
       await nextTick()
       await nextTick()
@@ -289,7 +282,6 @@ describe('UTableEditor 按列校验', () => {
       expect(findHeader(host, '姓名')?.querySelector('.u-table-editor__header-icon')).toBeTruthy()
       expect(nameCellError()).toContain('is-error')
 
-      // 填回合法值并 change，错误消失
       input.value = 'Alice'
       input.dispatchEvent(new Event('input', { bubbles: true }))
       input.dispatchEvent(new Event('change', { bubbles: true }))
@@ -318,7 +310,6 @@ describe('UTableEditor 按列校验', () => {
       await expect(getEditor().validate()).resolves.toBe(false)
       await nextTick()
 
-      // 第 2、3 行 name 均校验失败：该列表头标红并出现感叹号图标，失败单元格全部挂 is-error
       const nameHeader = findHeader(host, '姓名')!
       expect(nameHeader.querySelector('.u-table-editor__header-text')?.className).toContain(
         'is-error'
@@ -327,7 +318,6 @@ describe('UTableEditor 按列校验', () => {
       expect(icon).toBeTruthy()
       expect(host.querySelectorAll('td .is-error')).toHaveLength(2)
 
-      // 悬停图标查看气泡：包含第 2、3 行明细
       icon.dispatchEvent(new MouseEvent('mouseenter'))
       await nextTick()
       const bubble = document.querySelector('.u-tip__content')
@@ -345,7 +335,6 @@ describe('UTableEditor 按列校验', () => {
 
     try {
       await nextTick()
-      // 仅 name 列 rules 含 required
       expect(host.querySelectorAll('.u-table-editor__required-mark')).toHaveLength(1)
 
       const mark = findHeader(host, '姓名')?.querySelector('.u-table-editor__required-mark')
@@ -389,18 +378,15 @@ describe('UTableEditor 按列校验', () => {
       const nameHeader = findHeader(host, '姓名')!
       const headerText = () => nameHeader?.querySelector('.u-table-editor__header-text')
 
-      // 初始无错误：表头无错误态、无图标
       expect(headerText()?.className).not.toContain('is-error')
       expect(nameHeader?.querySelector('.u-table-editor__header-icon')).toBeFalsy()
 
       await expect(getEditor().validate()).resolves.toBe(false)
       await nextTick()
 
-      // 该列存在未通过项：文字标红 + 感叹号图标（tip 触发器）出现
       expect(headerText()?.className).toContain('is-error')
       expect(nameHeader?.querySelector('.u-table-editor__header-icon')).toBeTruthy()
 
-      // 修正后表头恢复
       setModel([
         { name: 'Alice', age: 18, city: '杭州' },
         { name: 'Bob', age: 20, city: '上海' }
@@ -430,7 +416,6 @@ describe('UTableEditor 按列校验', () => {
       await nextTick()
       await expect(getEditor().validate()).resolves.toBe(false)
       await nextTick()
-      // validate 后失败列的表头直接出现错误指示，失败单元格挂 is-error
       const headerText = () =>
         findHeader(host, '姓名')?.querySelector('.u-table-editor__header-text')
       expect(headerText()?.className).toContain('is-error')
@@ -465,12 +450,10 @@ describe('UTableEditor 按列校验', () => {
       await nextTick()
       expect(headerText()?.className).toContain('is-error')
 
-      // 删除无错误的行，其余行的错误保留
       click(getDataRows()[1].querySelector('[title="移除"]')!)
       await nextTick()
       expect(headerText()?.className).toContain('is-error')
 
-      // 删除有错误的行，错误随之清理
       click(getDataRows()[0].querySelector('[title="移除"]')!)
       await nextTick()
       expect(headerText()?.className).not.toContain('is-error')

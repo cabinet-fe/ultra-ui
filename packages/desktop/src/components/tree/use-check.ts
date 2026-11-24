@@ -85,9 +85,6 @@ export function useCheck(options: Options): UseCheckReturned {
     isAllChildrenChecked(parent) ? checkNode(parent) : uncheckNode(parent)
   }
 
-  /**
-   * 模型值是否由事件触发
-   */
   let checkedByEvent = false
 
   // 回显
@@ -110,7 +107,6 @@ export function useCheck(options: Options): UseCheckReturned {
 
       let mutated = false
 
-      // 取消：上一轮有但本轮没有的 value
       for (const v of lastCheckedSet) {
         if (!nextSet.has(v)) {
           const node = dict.get(v)
@@ -121,7 +117,6 @@ export function useCheck(options: Options): UseCheckReturned {
         }
       }
 
-      // 新增：本轮有但上一轮没有的 value
       let ancestorsExpanded = false
       for (const v of nextSet) {
         if (!lastCheckedSet.has(v) || dictChanged) {

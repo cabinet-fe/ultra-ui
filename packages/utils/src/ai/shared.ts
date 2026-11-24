@@ -1,11 +1,9 @@
 import type { AiAttachment, AiTokenUsage } from './types'
 
-/** 是否为普通对象（非 null / 非数组） */
 export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-/** 非负有限整数；非法或缺省返回 undefined（不把缺失当成 0） */
 export function readCount(value: unknown): number | undefined {
   if (typeof value !== 'number' || !Number.isFinite(value) || value < 0) return undefined
   return Math.floor(value)

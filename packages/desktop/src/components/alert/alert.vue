@@ -47,7 +47,6 @@ const cls = bem('alert')
 
 const visible = ref(true)
 
-/** 语义类型对应的图标 */
 const typeIcons: Record<AlertType, Component> = {
   info: InfoFilled,
   success: CircleCheckFilled,

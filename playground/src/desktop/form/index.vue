@@ -188,7 +188,6 @@
         </u-group-input>
       </u-form>
 
-      <!-- 实时数据预览 -->
       <div class="form-preview">
         <strong>表单数据</strong>
         <pre>{{ JSON.stringify(formData, null, 2) }}</pre>
@@ -196,7 +195,6 @@
     </u-card-content>
 
     <u-card-content>
-      <!-- 操作按钮 -->
       <div class="form-actions">
         <u-button type="primary" @click="handleValidate">验证</u-button>
         <u-button @click="handleClearValidate">清空验证</u-button>
@@ -428,7 +426,6 @@ function handleClearValidate() {
   formRef.value?.clearValidate()
 }
 
-/** 填充示例数据，便于快速体验校验与展示 */
 function handleFillSample() {
   const sample = {
     account: { username: '张三', password: 'abc123' },

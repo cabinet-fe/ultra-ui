@@ -73,7 +73,6 @@ export interface OfdTextCode {
 export interface OfdGlyphSubstitution {
   /** 替换区间起点（字符在 TextObject 全部 TextCode 拼接流中的序号） */
   codePosition: number
-  /** 区间字符数 */
   codeCount: number
   /** 替换字形序号列表（合字时可少于字符数） */
   glyphIds: number[]

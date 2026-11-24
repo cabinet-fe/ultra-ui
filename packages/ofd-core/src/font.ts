@@ -125,10 +125,6 @@ export function glyphPathD(
     .join(' ')
 }
 
-// ----------------------------------------------------------------------------------
-// 二进制读取
-// ----------------------------------------------------------------------------------
-
 const REQUIRED_TABLES = ['glyf', 'head', 'hhea', 'hmtx', 'loca', 'maxp']
 
 interface SfntTable {
@@ -206,10 +202,6 @@ function parseTableDirectory(data: Uint8Array, source: string): Map<string, Sfnt
   }
   return tables
 }
-
-// ----------------------------------------------------------------------------------
-// cmap：字符码点 → glyph id
-// ----------------------------------------------------------------------------------
 
 function parseCmap(data: Uint8Array, table: SfntTable, source: string): Map<number, number> {
   const header = new FontReader(data, source, table.offset)
@@ -341,10 +333,6 @@ function parseCmapFormat6(view: FontReader): Map<number, number> {
 function readU16Array(view: FontReader, count: number): number[] {
   return Array.from({ length: count }, () => view.u16())
 }
-
-// ----------------------------------------------------------------------------------
-// glyf：glyph 轮廓
-// ----------------------------------------------------------------------------------
 
 const COMPONENT_WORDS_ARGS = 0x0001
 const COMPONENT_MORE = 0x0020
@@ -479,10 +467,6 @@ function readCompositeGlyph(
 function readFixed214(view: FontReader): number {
   return view.u16() / 16384
 }
-
-// ----------------------------------------------------------------------------------
-// 轮廓 → SVG path
-// ----------------------------------------------------------------------------------
 
 /**
  * TrueType 轮廓转 path：相邻 off-curve 点之间补隐式中点（on-curve），

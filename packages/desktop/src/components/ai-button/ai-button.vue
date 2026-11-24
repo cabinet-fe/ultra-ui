@@ -19,7 +19,6 @@
     </template>
   </u-tip>
 
-  <!-- 普通变体：点击即发 -->
   <u-button v-else :class="cls.b" :size="size" :icon="Sparkles" :loading="loading" @click="send" />
 </template>
 
@@ -52,7 +51,6 @@ const requestConfig = computed<AiProviderConfig>(() => ({
   ...provider
 }))
 
-/** 生成中：按钮 loading 转圈并禁用 */
 const loading = ref(false)
 
 /** 发起请求；生成中忽略重复触发 */
@@ -72,7 +70,6 @@ function send() {
   })
 }
 
-/** pre-input 气泡可见性 */
 const visible = ref(false)
 
 function confirm() {

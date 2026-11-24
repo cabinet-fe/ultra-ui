@@ -21,7 +21,6 @@ interface UsePanelDateReturned {
 export function usePanelDate(options: PanelDateOptions): UsePanelDateReturned {
   const { props } = options
 
-  /** 当前面板日期 */
   const panelDate = shallowRef<Dater>(
     date((props.date || props.rangeDate?.[0])?.timestamp ?? new Date())
   )

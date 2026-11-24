@@ -282,7 +282,6 @@ watch(
   }
 )
 
-// 模态打开时：锁定 body 滚动 + 让容器获得焦点以便接收 ESC
 let previousBodyOverflow = ''
 let isBodyLocked = false
 

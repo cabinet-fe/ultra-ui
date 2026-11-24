@@ -61,10 +61,6 @@ export function useHandlers(options: Options): EditReturned {
     return copy(props.model ?? {})
   }
 
-  /**
-   * 插入数据
-   * @param item 数据
-   */
   function insert(item: Record<string, any>) {
     const data = [...(props.data ?? [])]
 
@@ -86,9 +82,6 @@ export function useHandlers(options: Options): EditReturned {
     return item
   }
 
-  /**
-   * 点击新增按钮
-   */
   function handleCreate() {
     const { data } = props
 
@@ -154,7 +147,6 @@ export function useHandlers(options: Options): EditReturned {
     }
   }
 
-  /** 保存；keepOpen 为 true 时（「保存并继续」）新增保存后不关闭表单 */
   const handleSave = runWithLoading(async (keepOpen = false) => {
     const { model, saveMethod } = props
     const valid = await formRef.value?.validate()
@@ -162,7 +154,6 @@ export function useHandlers(options: Options): EditReturned {
 
     let item = getInsertData()
 
-    // 新增
     if (state.formActionType === 'create' || state.formActionType === 'createChild') {
       await props.beforeCreate?.(item, state.parentRow?.data)
       if (saveMethod) {
@@ -186,7 +177,6 @@ export function useHandlers(options: Options): EditReturned {
       return
     }
 
-    // 普通模式下的编辑
     if (saveMethod) {
       const result = await saveMethod(item, state.formActionType, state.parentRow?.data)
       if (result) {

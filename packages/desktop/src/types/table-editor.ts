@@ -15,9 +15,7 @@ export interface TableEditorColumn extends TableColumn {
  * 未声明编辑插槽的列渲染字段原始值。
  */
 export interface TableEditorProps extends Omit<TableProps, 'data' | 'columns'> {
-  /** 表格数据 */
   modelValue?: Record<string, any>[]
-  /** 表格列 */
   columns?: TableEditorColumn[]
   /**
    * 只读模式
@@ -27,12 +25,10 @@ export interface TableEditorProps extends Omit<TableProps, 'data' | 'columns'> {
   readonly?: boolean
 }
 
-/** 表格型编辑器组件定义的事件 */
 export interface TableEditorEmits {
   (e: 'update:modelValue', value: Record<string, any>[]): void
 }
 
-/** 表格型编辑器组件暴露的属性和方法(组件内部使用) */
 export interface _TableEditorExposed {
   /** 校验全表配置了 rules 的列，全部通过 resolve true，任一失败 resolve false */
   validate(): Promise<boolean>

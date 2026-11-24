@@ -35,7 +35,6 @@ const presetRules: Record<PresetRule, (value: string) => string | undefined> = {
   }
 }
 
-/** 预设规则 */
 const ruleTypes = {
   required(value: any, required: ValidateRule['required']): Undef<string> {
     if (required === false) return
@@ -105,13 +104,11 @@ export async function validateField(
 
   const { validator, required, ...normalRules } = rules
 
-  // 必填要先去校验
   if (required) {
     const err = ruleTypes.required(value, required)
     if (err) return err
   }
 
-  // 校验规则
   for (const ruleKey in normalRules) {
     const validate = ruleTypes[ruleKey as keyof typeof ruleTypes]
     if (!validate) continue
@@ -121,7 +118,6 @@ export async function validateField(
     if (err) return err
   }
 
-  // 自定义校验最火校验
   if (validator) {
     const err = await validator(value, formData)
     if (err) return err

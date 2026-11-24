@@ -3,7 +3,6 @@ import { inject, watch } from 'vue'
 import { DialogDIKey } from '../dialog/di'
 
 interface Options {
-  /** 关闭表单 */
   closeForm: () => void
 }
 

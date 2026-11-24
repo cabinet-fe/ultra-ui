@@ -36,13 +36,11 @@ export interface EditorOptions {
 }
 
 export interface EditorAPI {
-  /** 当前模型 */
   getDoc(): Doc
   /** 完全替换模型（会重渲染 DOM） */
   setDoc(doc: Doc): void
   /** 序列化为字符串（modelValue 形态） */
   getValue(): string
-  /** 反序列化字符串为模型并替换（可选传入 variableMap 以补齐 label/type） */
   setValue(value: string): void
   /** 当前光标偏移（无 selection 返回 null） */
   getCaretOffset(): number | null
@@ -66,7 +64,6 @@ export interface EditorAPI {
   dispose(): void
   /** 强制根据当前模型重渲染 DOM（光标位置尽量保留） */
   rerender(): void
-  /** 容器引用（只读） */
   readonly container: HTMLElement
 }
 
@@ -139,7 +136,6 @@ export function createEditor(opts: EditorOptions): EditorAPI {
     const container = opts.container
     container.innerHTML = ''
 
-    // 在边界与每两个 var 之间确保有 text span 占位
     const expanded: Segment[] = []
     let lastWasVar = false
     let first = true
@@ -215,12 +211,10 @@ export function createEditor(opts: EditorOptions): EditorAPI {
         }
         offset += childSerialLength(child)
       } else {
-        // text span 或裸 text 节点
         if (
           range.startContainer === child ||
           (child.contains(range.startContainer) && child !== opts.container)
         ) {
-          // 计算 selection 在该 child textContent 中的偏移
           const localOffset = computeTextOffsetWithin(
             child,
             range.startContainer,
@@ -298,14 +292,12 @@ export function createEditor(opts: EditorOptions): EditorAPI {
         remain -= len
       } else {
         if (remain <= len) {
-          // 落在该 text span 内
           placeWithinText(child, remain)
           return
         }
         remain -= len
       }
     }
-    // 落到末尾
     if (children.length === 0) {
       placeAt(opts.container, 0)
       return
@@ -449,7 +441,6 @@ export function createEditor(opts: EditorOptions): EditorAPI {
     syncFromDOM()
   }
 
-  // 命令：替换区间为 var chip
   function replaceRangeWithVar(start: number, end: number, variable: EditorVariableInfo) {
     const a = Math.min(start, end)
     const b = Math.max(start, end)
@@ -512,7 +503,6 @@ export function createEditor(opts: EditorOptions): EditorAPI {
     return sliceLength(d)
   }
 
-  // 绑定监听
   const container = opts.container
   container.addEventListener('input', onInput)
   container.addEventListener('compositionstart', onCompositionStart)
@@ -521,7 +511,6 @@ export function createEditor(opts: EditorOptions): EditorAPI {
   container.addEventListener('paste', onPaste)
   document.addEventListener('selectionchange', onSelectionChange)
 
-  // 初次渲染
   render()
 
   return {

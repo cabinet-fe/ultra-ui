@@ -25,35 +25,20 @@ interface DatePickerState {
 }
 
 interface DatePickerContext {
-  /** 组件类 */
   cls: BEM<'date-picker'>
-  /** 组件 props */
   pickerProps: DatePickerProps
-  /** 组件 emits */
   pickerEmit: DatePickerEmits
-  /** 组件状态 */
   state: DatePickerState
-  /** 格式化字符串 */
   formatStr: ComputedRef<string>
-  /** 显示值 */
   displayedValue: ComputedRef<string>
-  /** 关闭下拉框 */
   closeDropdown: () => void
-  /** 更新面板 */
   showNextPanel: () => void
-  /** 上一年 */
   handlePreYear: () => void
-  /** 上个月 */
   handlePreMonth: () => void
-  /** 下一年 */
   handleNextYear: () => void
-  /** 下个月 */
   handleNextMonth: () => void
-  /** 下十年 */
   handleNextTenYears: () => void
-  /** 上十年 */
   handlePreTenYears: () => void
-  /** 更新面板日期 */
   updatePanelDate: () => void
 }
 
@@ -74,7 +59,6 @@ export function useDate(type: 'provide' | 'inject', config?: DateProvideConfig):
 
   const typePanels = { date: ['year', 'month', 'day'], month: ['year', 'month'], year: ['year'] }
 
-  /** 组件类 */
   const cls = bem('date-picker')
 
   const currentDate = props.modelValue ? date(props.modelValue) : undefined
@@ -98,7 +82,6 @@ export function useDate(type: 'provide' | 'inject', config?: DateProvideConfig):
     }
   )
 
-  /** 更新展示的面板 */
   function showNextPanel() {
     const panels = typePanels[props.type!]
     const index = panels.indexOf(state.panel)

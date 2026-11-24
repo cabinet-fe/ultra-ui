@@ -25,10 +25,8 @@ export interface OfdPoint {
   y: number
 }
 
-/** 6 元素仿射矩阵 */
 export type OfdMatrix = readonly [number, number, number, number, number, number]
 
-/** 单位矩阵：不改变任何坐标 */
 export const IDENTITY_MATRIX: OfdMatrix = [1, 0, 0, 1, 0, 0]
 
 /** 矩阵乘法：`multiplyMatrix(outer, inner)` 等价于先 inner 后 outer */
@@ -45,7 +43,6 @@ export function multiplyMatrix(outer: OfdMatrix, inner: OfdMatrix): OfdMatrix {
   ]
 }
 
-/** 矩阵作用于点 */
 export function applyMatrixToPoint(matrix: OfdMatrix, x: number, y: number): OfdPoint {
   const [a, b, c, d, e, f] = matrix
   return { x: a * x + c * y + e, y: b * x + d * y + f }

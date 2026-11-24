@@ -156,7 +156,6 @@ describe('USheet 画布主题跟随', () => {
     const { exposed, el } = mount(() => ({ workbook, rows: 10, cols: 6 }))
     await nextTick()
 
-    // 切到 Sheet2 再切回：两个实例均入缓存（LRU）
     tabs(el)[1]!.click()
     await nextTick()
     const grid2 = exposed.value!.getGrid()!
@@ -166,7 +165,6 @@ describe('USheet 画布主题跟随', () => {
     expect(el.querySelectorAll('.u-sheet__grid-instance')).toHaveLength(2)
     const instancesBefore = [...el.querySelectorAll('.u-sheet__grid-instance')]
 
-    // 换主题：CSS 变量就位 + loadTheme 替换主题实例 → flush 'post' 后全实例换肤
     const restore = mockThemeVars({ ...THEME_VARS })
     try {
       currentTheme.value = lightTheme
@@ -175,14 +173,12 @@ describe('USheet 画布主题跟随', () => {
       restore()
     }
 
-    // 缓存中所有实例（含隐藏的 Sheet2 实例）都已换肤
     for (const grid of [grid1, grid2]) {
       const theme = grid.getTable().getTheme()
       expect(theme.body.background).toBe('#123456')
       expect(theme.header.background).toBe('#234567')
       expect(theme.interaction.freezeDividerColor).toBe('#654321')
     }
-    // 零重建：实例容器与激活实例都是原对象（updateTheme 原地覆盖，不重建网格）
     const instancesAfter = el.querySelectorAll('.u-sheet__grid-instance')
     expect(instancesAfter).toHaveLength(2)
     expect(instancesAfter[0]).toBe(instancesBefore[0])
@@ -200,7 +196,6 @@ describe('USheet 画布主题跟随', () => {
     await nextTick()
     expect(grid.getTable().getTheme().body.background).toBe('#FFF')
 
-    // 主题 token 原地改（reactive deep）→ 重读 CSS 变量 → updateTheme
     const restore = mockThemeVars({ ...THEME_VARS })
     try {
       lightTheme.theme.bg.color.top = '#123456'

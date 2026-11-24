@@ -15,7 +15,6 @@
     @mouseenter="hovered = true"
     @mouseleave="hovered = false"
   >
-    <!-- 触发 -->
     <template #trigger>
       <u-input
         ref="inputRef"
@@ -50,7 +49,6 @@
       </u-input>
     </template>
 
-    <!-- 下拉内容 -->
     <template #content>
       <!--
         单选列表。虚拟化启用时，内容容器 height 由 useVirtualizer 命令式写入；
@@ -164,9 +162,7 @@ const props = withDefaults(defineProps<SelectProps>(), {
 const emit = defineEmits<SelectEmits>()
 
 defineSlots<{
-  /** 前缀插槽 */
   prefix?: () => any
-  /** 默认插槽 */
   default?: (scope: { option: Record<string, any>; index: number }) => any
 }>()
 
@@ -237,7 +233,6 @@ let pendingTempPromote = false
  */
 const querying = shallowRef(false)
 
-/** 触发输入框的值：查询态下承载查询串，否则展示选中标签 */
 const inputValue = computed(() => {
   if (filterable.value && querying.value) return queryString.value
   return displayedValue.value
@@ -258,7 +253,6 @@ function handleQueryInput(value: string) {
 
 const hovered = shallowRef(false)
 
-/** 悬停且存在选中值时展示清除按钮（替代下拉箭头） */
 const showClear = computed(() => {
   return props.clearable && !disabled.value && hovered.value && !!displayedValue.value
 })
@@ -397,7 +391,6 @@ watch(dropdownVisible, (visible) => {
   if (visible) {
     // 关闭动画期间被重新打开时补一次转正，保证已选临时项落到完整列表
     promotePendingTemp()
-    // 面板展开后进入查询态并聚焦输入框，可以立即输入查询
     if (filterable.value) {
       queryString.value = ''
       querying.value = true
@@ -433,7 +426,6 @@ const handleSelect = userAction((option: Record<string, any>, _index: number) =>
   dropdownRef.value?.close()
 })
 
-/** 清除选项 */
 const handleClear = userAction(() => {
   selected.value = undefined
   currentIndex.value = -1

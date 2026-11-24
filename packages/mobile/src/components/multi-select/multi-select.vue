@@ -1,5 +1,4 @@
 <template>
-  <!-- 只读态：纯展示标签 -->
   <div v-if="readonly && model?.length" :class="[cls.b, cls.m(size), bem.is('readonly', true)]">
     <div :class="cls.e('tags')">
       <span v-for="option of tags" :key="getOptionField(option, valueKey)" :class="cls.e('tag')">
@@ -58,7 +57,7 @@
     </span>
   </div>
 
-  <!-- 底部多选面板（内部实现，不进公开导出）：确定/取消，勾选结果暂存至确认 -->
+  <!-- 底部多选面板：确定/取消，勾选结果暂存至确认 -->
   <BottomSheet
     v-model:visible="sheetVisible"
     :title="placeholder"
@@ -153,10 +152,7 @@ const props = withDefaults(defineProps<MultiSelectProps>(), {
 
 const emit = defineEmits<MultiSelectEmits>()
 
-defineSlots<{
-  /** 默认插槽 */
-  default?: (scope: { option: Record<string, any>; index: number }) => any
-}>()
+defineSlots<{ default?: (scope: { option: Record<string, any>; index: number }) => any }>()
 
 const cls = bem('multi-select')
 

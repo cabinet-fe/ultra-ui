@@ -54,7 +54,6 @@ const tags = shallowRef<Array<{ name: string; type?: ColorType }>>([
 
 const types: ColorType[] = ['primary', 'info', 'success', 'warning', 'danger']
 
-/** 可移除标签 */
 const handleClose = (index: number) => {
   tags.value = tags.value.filter((_, i) => i !== index)
 }

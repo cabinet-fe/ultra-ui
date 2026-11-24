@@ -28,11 +28,7 @@ export function useColResize(options: Options): UseColResizeReturned {
   const colgroupRef = shallowRef<HTMLElement>()
   const headerRef = shallowRef<HTMLElement>()
 
-  /**
-   * 修正列样式
-   */
   function correctColumnStyle() {
-    // 获取表格容器宽度
     const containerWidth = scrollRef.value?.containerRef?.clientWidth
 
     if (!containerWidth || !leafColumns.value.length) return

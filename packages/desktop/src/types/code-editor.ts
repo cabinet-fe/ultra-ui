@@ -24,7 +24,6 @@ export interface CodeEditorProps extends Omit<FormComponentProps, 'size'> {
   prefix?: string
   /** 不可编辑的后缀外壳（展示在编辑器内，不计入 v-model） */
   suffix?: string
-  /** 是否使用暗色主题 */
   dark?: boolean
   /** 是否显示放大按钮，默认 true；false 时不渲染放大按钮 */
   zoomable?: boolean
@@ -35,7 +34,6 @@ export interface CodeEditorProps extends Omit<FormComponentProps, 'size'> {
   defaultLines?: number
 }
 
-/** 代码编辑器组件定义的事件 */
 export interface CodeEditorEmits {
   (e: 'update:modelValue', value: string): void
   (e: 'update:lang', value: CodeEditorLang | undefined): void
@@ -43,7 +41,6 @@ export interface CodeEditorEmits {
   (e: 'change', value: string): void
 }
 
-/** 代码编辑器组件暴露的属性和方法(组件内部使用) */
 export interface _CodeEditorExposed {}
 
 /** 代码编辑器组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */

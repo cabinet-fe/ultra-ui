@@ -68,23 +68,18 @@ watch(
   { immediate: true }
 )
 
-/** 标题元素 id，供 aria-labelledby 引用 */
 const titleId = useId()
 
-/** 抽屉面板模板引用，用于初始聚焦与焦点圈 */
 const panelRef = useTemplateRef<HTMLElement>('panelRef')
 
-// 根据方向计算过渡动画名称
 const transitionName = computed(() => {
   return `drawer-slide-${props.direction}`
 })
 
-// 计算抽屉样式类
 const drawerClass = computed(() => {
   return [cls.b, bem.is(props.direction)]
 })
 
-// 计算抽屉样式：size 左右方向映射为宽度、上下方向映射为高度
 const drawerStyle = computed(() => {
   const { size, direction } = props
   if (size == null) return null

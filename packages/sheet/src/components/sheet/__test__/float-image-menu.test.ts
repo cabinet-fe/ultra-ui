@@ -5,7 +5,6 @@ import { createSheetContext } from '../../../tools/context'
 import { buildFloatImageMenus, embedFloatImageToCell } from '../float-image-menu'
 import type { ImagePreviewSource } from '../popup-helpers'
 
-/** 插入一张浮动图（data 字节 + 可选 src/link），返回 id */
 function insertFloatImage(sheet: Sheet, input: { src?: string; link?: string } = {}): string {
   return sheet.insertImage({
     data: new Uint8Array([1, 2, 3]),
@@ -16,7 +15,6 @@ function insertFloatImage(sheet: Sheet, input: { src?: string; link?: string } =
   })
 }
 
-/** 句柄 spy：记录预览源与弹窗调用（mode + 回填 + 目标） */
 function handlesSpy() {
   const previews: ImagePreviewSource[] = []
   const popups: Array<{
@@ -128,7 +126,6 @@ describe('buildFloatImageMenus（浮动图右键独立菜单）', () => {
     })
 
     embedFloatImageToCell(ctx, id)
-    // 浮动图消失，锚点格出现同源嵌入图（src 优先于字节），link 随迁
     expect(ctx.getImages().some((img) => img.id === id)).toBe(false)
     expect(ctx.getCellImage(addr)).toEqual({
       src: 'https://example.com/a.png',
@@ -136,7 +133,6 @@ describe('buildFloatImageMenus（浮动图右键独立菜单）', () => {
       link: 'https://example.com'
     })
 
-    // 事务合并：一次 undo 同时还原浮动图、清掉嵌入图
     expect(ctx.undo()).toBe(true)
     expect(ctx.getImages().some((img) => img.id === id)).toBe(true)
     expect(ctx.hasCellImage(addr)).toBe(false)
@@ -155,7 +151,6 @@ describe('buildFloatImageMenus（浮动图右键独立菜单）', () => {
     embedFloatImageToCell(ctx, id)
     expect(ctx.getCellImage(addr)).toEqual({ data: new Uint8Array([1, 2, 3]), type: 'png' })
 
-    // 目标格已有嵌入图 → 覆盖（undo 一次仍回到转换前）
     const other = insertFloatImage(sheet)
     sheet.updateImage(other, { anchor: { from: { row: 5, col: 5 } } })
     embedFloatImageToCell(ctx, other)
@@ -168,7 +163,6 @@ describe('buildFloatImageMenus（浮动图右键独立菜单）', () => {
     expect(ctx.hasCellImage({ row: 5, col: 5 })).toBe(false)
     expect(ctx.getImages().some((img) => img.id === other)).toBe(true)
 
-    // id 不存在（并发删除）：无操作
     embedFloatImageToCell(ctx, 'missing')
     expect(ctx.getImages().some((img) => img.id === other)).toBe(true)
   })

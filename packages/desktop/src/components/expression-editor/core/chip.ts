@@ -18,7 +18,6 @@ const CHIP_DATA_SEG = 'var'
 const CHIP_VALUE_ATTR = 'data-value'
 const CHIP_TYPE_ATTR = 'data-var-type'
 
-/** 判断一个 DOM 节点是否为 chip 元素（var 段渲染体） */
 export function isChipElement(node: Node | null): node is HTMLElement {
   return (
     !!node &&
@@ -27,7 +26,6 @@ export function isChipElement(node: Node | null): node is HTMLElement {
   )
 }
 
-/** 从给定 segment 创建一个 chip 元素（var 段渲染体）。 */
 export function createChip(
   segment: Extract<Segment, { kind: 'var' }>,
   opts: ChipFactoryOptions
@@ -58,17 +56,14 @@ export function createChip(
   return chip
 }
 
-/** 读取 chip 元素绑定的变量 value。 */
 export function readChipValue(el: HTMLElement): string {
   return el.getAttribute(CHIP_VALUE_ATTR) ?? ''
 }
 
-/** 读取 chip 元素绑定的可选 type。 */
 export function readChipType(el: HTMLElement): string | undefined {
   return el.getAttribute(CHIP_TYPE_ATTR) ?? undefined
 }
 
-/** 在 chip 上设置 / 取消选中（焦点）样式。 */
 export function setChipFocused(el: HTMLElement, focused: boolean): void {
   el.classList.toggle('is-focused', focused)
 }

@@ -98,7 +98,6 @@ describe('USegment', () => {
       expect(items[1]!.classList.contains('is-active')).toBe(true)
       expect(items[0]!.classList.contains('is-active')).toBe(false)
 
-      // 点击已选中项不重复触发 change
       items[1]!.click()
       await nextTick()
       expect(changes.length).toBe(1)
@@ -211,13 +210,11 @@ describe('USegment', () => {
       expect(items[1]!.classList.contains('is-disabled')).toBe(true)
       expect(items[2]!.classList.contains('is-disabled')).toBe(false)
 
-      // 点击禁用项无反应
       items[1]!.click()
       await nextTick()
       expect(model.value).toBe('a')
       expect(changes.length).toBe(0)
 
-      // 点击非禁用项正常切换
       items[2]!.click()
       await nextTick()
       expect(model.value).toBe('c')

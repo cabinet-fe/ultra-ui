@@ -55,9 +55,6 @@ const clientWelcome = [
 
 const sessionTransport = createServerTransport(createFakeSessionAdapter())
 
-/**
- * 真实 DeepSeek 接入。
- */
 const deepseekReasoningLevels = [
   { value: 'high', label: '高' },
   { value: 'max', label: '极致' }

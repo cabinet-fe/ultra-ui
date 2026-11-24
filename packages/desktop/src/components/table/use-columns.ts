@@ -8,10 +8,6 @@ import { UButton } from '../button'
 import { UIcon } from '../icon'
 import { ColumnNode } from './node/col'
 
-/**
- * 定义表格列
- * @param columns 表格列
- */
 export function defineTableColumns(
   columns: TableColumn[],
   commonProps?: Partial<Pick<TableColumn, 'align' | 'minWidth'>>
@@ -28,25 +24,15 @@ export function defineTableColumns(
 }
 
 export interface ColumnConfig {
-  /** 表头 */
   headers: ComputedRef<ColumnNode[][]>
-
-  /**
-   *  body列, 在body中使用
-   */
   columns: ShallowRef<ColumnNode[]>
-
-  /** 所有叶子列 */
   leafColumns: ShallowRef<ColumnNode[]>
-
-  /** 第一列 */
   expandColumn: ShallowRef<ColumnNode | undefined>
 }
 
 interface Options {
   props: TableProps
   cls: BEM<'table'>
-  /** 创建复选框 */
   createCheckColumn: () => TableColumn
   createSelectColumn: () => TableColumn
   toggleAllTreeRowExpand: () => void
@@ -55,7 +41,6 @@ interface Options {
 export function useColumns(options: Options): ColumnConfig {
   const { props, createCheckColumn, createSelectColumn, toggleAllTreeRowExpand, cls } = options
 
-  /** 前置列 */
   const preColumns = computed<TableColumn[]>(() => {
     const { selectable, checkable, showIndex } = props
 
@@ -107,11 +92,8 @@ export function useColumns(options: Options): ColumnConfig {
   watch(
     [preColumns, () => props.columns, () => props.tree, () => props.expandable],
     ([preColumns, columns, tree, expandable]) => {
-      /** 固定到左侧的列 */
       const fixedOnLeft: TableColumn[] = [...preColumns]
-      /** 未固定的列 */
       const unfixed: TableColumn[] = []
-      /** 固定到右侧的列 */
       const fixedOnRight: TableColumn[] = []
 
       columns?.forEach((column) => {
@@ -215,12 +197,10 @@ export function useColumns(options: Options): ColumnConfig {
   /** 除展开按钮之外的列 */
   const columns = shallowRef<ColumnNode[]>([])
 
-  /** 所有叶子节点 */
   const leafColumns = shallowRef<ColumnNode[]>([])
 
   const expandColumn = shallowRef<ColumnNode>()
 
-  // 监听列的变化
   watch(
     [columnForest, () => props.tree, () => props.expandable],
     ([forest, tree, expandable]) => {
@@ -245,14 +225,5 @@ export function useColumns(options: Options): ColumnConfig {
     { immediate: true }
   )
 
-  return {
-    /** 第一列 */
-    expandColumn,
-    /** 所有列 */
-    leafColumns,
-    /** 列 */
-    columns,
-    /** 表格头的分层展示 */
-    headers
-  }
+  return { expandColumn, leafColumns, columns, headers }
 }

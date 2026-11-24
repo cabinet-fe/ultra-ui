@@ -3,7 +3,6 @@ import type { CSSProperties } from 'vue'
 
 /** 选择器组件属性（移动端形态：面板走 BottomSheet） */
 export interface SelectProps extends FormComponentProps {
-  /** 绑定值 */
   modelValue?: any
   /**
    * 列表选项
@@ -12,26 +11,18 @@ export interface SelectProps extends FormComponentProps {
   options?:
     | Record<string, any>[]
     | ((qs: string) => Promise<Record<string, any>[]> | Record<string, any>[])
-  /** 值字段 */
   valueKey?: string
-  /** 标签字段 */
   labelKey?: string
   /**
    * 兜底展示文案
    * @description modelValue 未命中选项时展示 text（如回显数据已不在选项中），命中时展示选项 label
    */
   text?: string
-  /** 是否可清除 */
   clearable?: boolean
-  /** 占位符 */
   placeholder?: string
-  /** 是否启用搜索功能 */
   filterable?: boolean
-  /** 底部面板内容容器样式 */
   contentStyle?: CSSProperties | string
-  /** 底部面板内容容器类名 */
   contentClass?: unknown
-  /** 是否允许创建新的选项 */
   creatable?: boolean
 
   /**

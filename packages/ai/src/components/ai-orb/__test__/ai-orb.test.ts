@@ -128,7 +128,6 @@ describe('createOrbRenderer', () => {
     renderer.start()
     expect(renderer.running).toBe(true)
 
-    // 手动驱动两帧
     frames.shift()?.(16)
     frames.shift()?.(32)
     expect(ctx.calls.fill).toBeGreaterThan(0)

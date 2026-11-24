@@ -42,21 +42,10 @@ export function useFallbackProps<
 
 type FormFallbackProps = { size: ComponentSize; disabled: boolean; readonly: boolean }
 
-/**
- * 表单组件的回滚属性
- * @param propsList props列表
- * @returns
- */
 export function useFormFallbackProps(propsList: Record<string, any>[]): {
   [key in keyof FormFallbackProps]: ComputedRef<FormFallbackProps[key]>
 }
 
-/**
- * 表单组件的回滚属性
- * @param propsList props列表
- * @param fallbackProps 回滚属性，可以只指定部分表单属性
- * @returns
- */
 export function useFormFallbackProps<F extends Partial<FormFallbackProps>>(
   propsList: Record<string, any>[],
   fallbackProps: F

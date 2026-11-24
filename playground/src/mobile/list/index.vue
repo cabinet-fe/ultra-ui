@@ -48,7 +48,6 @@ const selected = shallowRef<number | null>(null)
 </script>
 
 <style lang="scss" scoped>
-// 手机设备外壳视口内呈现，验证移动端密度与触控行高
 .demo {
   display: flex;
   flex-direction: column;

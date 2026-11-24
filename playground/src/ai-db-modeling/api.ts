@@ -4,7 +4,6 @@
  * 不直接 import 服务端模块（hono 只在参考服务侧使用，不进前端产物）。
  */
 
-/** REST 基址 */
 const AI_DB_API = '/ai-db-api'
 
 /** 列类型全集（镜像 server/ai-db.ts 的 COLUMN_TYPES） */
@@ -18,7 +17,6 @@ export interface ColumnDef {
   primaryKey?: boolean
   /** 可空（默认不可空） */
   nullable?: boolean
-  /** 备注 */
   comment?: string
 }
 
@@ -150,7 +148,6 @@ function jsonBody(body: unknown, method: 'POST' | 'PUT' = 'PUT'): RequestInit {
   return { method, body: JSON.stringify(body) }
 }
 
-/** GET /tables — 全部表（含列定义） */
 export function getTables(signal?: AbortSignal) {
   return request<{ tables: TableDef[] }>('/tables', { signal })
 }
@@ -180,7 +177,6 @@ export function deleteTable(name: string, signal?: AbortSignal) {
   })
 }
 
-/** POST /tables/:name/rows — 批量插入行数据 */
 export function insertRows(name: string, rows: RowData[], signal?: AbortSignal) {
   return request<{ inserted: number; total: number }>(`/tables/${encodeURIComponent(name)}/rows`, {
     ...jsonBody({ rows }, 'POST'),
@@ -225,7 +221,6 @@ export function queryData(
   })
 }
 
-/** GET /relationships — 全部实体关系 */
 export function getRelationships(signal?: AbortSignal) {
   return request<{ relationships: RelationshipDef[] }>('/relationships', { signal })
 }

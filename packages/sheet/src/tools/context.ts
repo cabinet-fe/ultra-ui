@@ -26,7 +26,6 @@ export const MIN_ROW_COL_SIZE = 20
  * - USheet 切换 sheet tab 后，同一上下文自动指向新的活动 sheet
  */
 export interface SheetContext {
-  /** 当前活动 sheet 名 */
   readonly sheetName: string
   /**
    * 当前工作簿（导入导出等需要工作簿级操作的场景；无头/单 sheet 场景可能为 undefined）。
@@ -34,13 +33,11 @@ export interface SheetContext {
    */
   readonly workbook?: Workbook
 
-  // ─── 选区 ────────────────────────────────────────────────
   getSelection(): SelectionState
   /** 选中单格（被覆盖格自动定位锚点） */
   selectCell(addr: CellAddress): void
   selectRange(range: CellRange, active?: CellAddress): void
 
-  // ─── 读取 ────────────────────────────────────────────────
   /** 原始存储语义读取（被合并覆盖格 → undefined） */
   getCellData(addr: CellAddress): CellData | undefined
   /** 锚点解析语义读取（被覆盖格 → 锚点的值） */
@@ -92,7 +89,6 @@ export interface SheetContext {
   commit(): void
   rollback(): void
 
-  // ─── 历史 ────────────────────────────────────────────────
   undo(): boolean
   redo(): boolean
   readonly canUndo: boolean
@@ -162,7 +158,6 @@ export interface SheetContext {
   onCellImageChange(handler: (payload: { addr?: CellAddress }) => void): () => void
 }
 
-/** createSheetContext 可选配置 */
 export interface SheetContextOptions {
   /**
    * 当前渲染网格尺寸（与 SheetGrid / resolveRenderSize 一致）。

@@ -13,7 +13,6 @@ export interface ThemeFieldOption {
 export interface ThemeField {
   /** 唯一标识，同 path.join('.') */
   key: string
-  /** 中文标签 */
   label: string
   /** 在 Theme 对象上的路径 */
   path: string[]

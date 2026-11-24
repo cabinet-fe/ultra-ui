@@ -47,7 +47,6 @@ import '@veltra/mobile/components/text/style'
 </script>
 
 <style lang="scss" scoped>
-// 手机设备外壳视口内呈现，验证移动端密度（内边距、圆角走 tokens）
 .demo {
   display: flex;
   flex-direction: column;

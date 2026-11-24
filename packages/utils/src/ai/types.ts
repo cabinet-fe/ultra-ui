@@ -7,7 +7,6 @@ export interface AiProviderConfig {
   url: string
   /** Bearer Token，缺省不带 Authorization 头 */
   apiKey?: string
-  /** 模型 id */
   model: string
   /** 推理等级；缺省不写入请求体，提供时默认写 reasoning_effort */
   reasoningLevel?: string
@@ -19,19 +18,14 @@ export interface AiProviderConfig {
 export interface AiToolCall {
   /** 调用 id（由模型生成） */
   id: string
-  /** 工具名 */
   name: string
   /** 模型输出的原始 JSON 参数串 */
   arguments: string
 }
 
-/** 请求侧用户消息携带的附件 */
 export interface AiAttachment {
-  /** 文件名 */
   name?: string
-  /** MIME 类型 */
   mimeType?: string
-  /** 字节大小 */
   size?: number
   /** base64 data URL（图片附件使用） */
   dataUrl: string
@@ -61,7 +55,6 @@ export interface AiMessage {
 export interface AiTool {
   /** 工具名（传给模型，需唯一） */
   name: string
-  /** 工具描述（传给模型） */
   description: string
   /** 参数 JSON Schema（原样传给模型） */
   parameters: Record<string, unknown>
@@ -72,11 +65,8 @@ export interface AiTool {
  * 仅包含接口实际返回的字段；缓存类数字缺省为 undefined，不补 0。
  */
 export interface AiTokenUsage {
-  /** 输入 token */
   promptTokens: number
-  /** 输出 token */
   completionTokens: number
-  /** 合计 token */
   totalTokens: number
   /**
    * 缓存命中。
@@ -95,9 +85,7 @@ export interface AiTokenUsage {
 
 /** OpenAI 兼容 SSE 流事件回调（请求错误由请求层统一处理，不经此抛出） */
 export interface AiStreamHandlers {
-  /** 文本增量 */
   onTextDelta(delta: string): void
-  /** 思考内容增量 */
   onReasoningDelta?(delta: string): void
   /** 一次完整的工具调用（流式参数片段在内部累积完整后才抛出） */
   onToolCall?(call: AiToolCall): void
@@ -107,7 +95,6 @@ export interface AiStreamHandlers {
 
 /** requestAiText 的入参：面向组件的单配置请求 */
 export interface AiTextRequestOptions {
-  /** 服务商配置（url / apiKey / model / reasoningLevel / stream） */
   config: AiProviderConfig
   /** 用户提示词（作为 user 消息） */
   prompt: string

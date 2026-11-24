@@ -47,7 +47,6 @@
         </template>
       </u-table-body>
 
-      <!-- 虚拟滚动下占位（高度由 useVirtualizer 命令式写入） -->
       <tbody v-if="virtualEnabled" aria-hidden="true">
         <tr ref="afterSpacerRef">
           <td :colspan="leafColumns.length" style="padding: 0; border: none"></td>

@@ -46,8 +46,4 @@ const className = computed(() => {
     bem.is('dark', props.dark)
   ]
 })
-
-// const classRound = computed(() => {
-//   return [bem.is('round', props.round)]
-// })
 </script>

@@ -2,7 +2,6 @@
   <component :is="tag" :class="cls.b" :style="style" ref="containerRef">
     <slot />
 
-    <!-- 竖向调节 -->
     <ULayoutResizer
       v-for="(offset, index) of resizerOffsets"
       :offset="offset"
@@ -14,13 +13,6 @@
       @resize-end="handleEndResize(index)"
     >
     </ULayoutResizer>
-
-    <!-- 横向调节 -->
-    <!-- <ULayoutResizer
-      v-for="item in horizontalResizerList"
-      :key="item"
-      direction="horizontal"
-    /> -->
   </component>
 </template>
 
@@ -109,10 +101,6 @@ function syncResizers() {
     r.update(resizerOffsets.value![i]!)
   })
 }
-
-// const horizontalResizerList = []
-
-// const resizing = shallowRef(false)
 
 let prevSize = 0
 let nextSize = 0

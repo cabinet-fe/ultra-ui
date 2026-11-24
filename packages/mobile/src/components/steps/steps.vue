@@ -85,7 +85,6 @@ const currentToIndexMap = computed<Record<string, number> | undefined>(() => {
   )
 })
 
-/** 当前索引 */
 const currentIndex = computed<number | undefined>(() => {
   const { currentKey, current } = props
   if (current === undefined) return undefined
@@ -98,7 +97,6 @@ const currentIndex = computed<number | undefined>(() => {
   return Math.min(Math.max(current, 0), props.items.length - 1)
 })
 
-// 横向滚动形态下把当前步骤滚入视野
 watch(currentIndex, (index) => {
   if (index === undefined || props.direction === 'vertical') return
   const step = stepsRef.value?.children[index]
@@ -107,7 +105,6 @@ watch(currentIndex, (index) => {
   }
 })
 
-// 点击步骤项
 function handleStepClick(item: Record<string, any>, index: number) {
   emit('item-click', item, index)
   emit('update:current', props.currentKey ? item[props.currentKey] : index)

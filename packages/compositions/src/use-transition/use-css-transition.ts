@@ -3,7 +3,6 @@ import { isRef, onBeforeUnmount, computed } from 'vue'
 
 import type { Returned, CssTransitionOptions } from './type'
 
-/** 解析 CSS 时间值（s / ms）为毫秒 */
 const parseTime = (time: string): number => {
   const t = time.trim()
   if (t.endsWith('ms')) return parseFloat(t)
@@ -11,13 +10,9 @@ const parseTime = (time: string): number => {
 }
 
 /**
- * 使用css过渡
- *
  * 阶段结束不依赖 transitionend 事件：进入/离开相互打断时类共存会导致
  * 过渡不触发、end 事件丢失从而卡死。这里每个阶段开始时清理相反阶段的类，
  * 并以「计算过渡耗时 + 定时器」兜底，保证阶段必然终结。
- *
- * @param options 过渡选项
  */
 export function useCssTransition(options: CssTransitionOptions): Returned {
   const { name, target, afterEnter, afterLeave, keepEnterTo = false } = options
@@ -27,17 +22,11 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
   const classes = computed(() => {
     const _name = typeof name === 'string' ? name : name.value
     return {
-      /** 进入前的类 */
       enterFrom: `${_name}-enter-from`,
-      /** 进入后最终的类 */
       enterTo: `${_name}-enter-to`,
-      /** 【进入动画】持续时的类 */
       enterActive: `${_name}-enter-active`,
-      /** 离开前的类 */
       leaveFrom: `${_name}-leave-from`,
-      /** 离开类 */
       leaveTo: `${_name}-leave-to`,
-      /** 【离开动画】持续时的类 */
       leaveActive: `${_name}-leave-active`
     }
   })
@@ -91,7 +80,6 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
     finalizeTimer = setTimeout(() => finalize(seq, entering), duration + 50)
   }
 
-  /** 开始进入动画 */
   const startTransitionIn = () => {
     const seq = ++phaseSeq
     const { enterActive, enterTo, enterFrom, leaveFrom, leaveActive, leaveTo } = classes.value
@@ -113,7 +101,6 @@ export function useCssTransition(options: CssTransitionOptions): Returned {
     })
   }
 
-  /** 开始离开动画 */
   const startTransitionOut = () => {
     const seq = ++phaseSeq
     const { leaveTo, leaveActive, leaveFrom, enterFrom, enterActive, enterTo } = classes.value

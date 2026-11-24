@@ -73,7 +73,6 @@ const props = defineProps<{
 
 const cls = bem('sheet')
 
-/** 当前线型 / 颜色 */
 const borderLineStyle = ref<BorderLineStyle>('thin')
 const borderColor = ref('#000000')
 

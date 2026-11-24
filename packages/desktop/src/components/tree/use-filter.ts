@@ -34,10 +34,6 @@ export function useFilter(options: Options): UseFilterReturned {
     return renderLabelTemplate(labelTemplate?.(), node.data)?.includes(qs) ?? false
   }
 
-  /**
-   * 显示回溯
-   * @param node 节点
-   */
   function trace(node: TreeNode) {
     node.visible = true
     let parent = node.parent
@@ -49,7 +45,6 @@ export function useFilter(options: Options): UseFilterReturned {
       parent = parent.parent
     }
 
-    // 非叶子节点将自身堆入
     if (!node.isLeaf) {
       traceCache.add(node)
     }

@@ -10,7 +10,6 @@
   >
     <template #content>
       <div ref="root" :class="cls.e('picker')" @mousedown.prevent>
-        <!-- 面包屑：仅逐级模式且非根级显示 -->
         <div v-if="!isFlat && navPath.length > 0" :class="cls.e('breadcrumbs')">
           <span :class="cls.e('breadcrumb-item')">
             <span :class="cls.e('breadcrumb-link')" @click="navigateTo(0)">全部变量</span>
@@ -113,7 +112,6 @@ interface FlatItem extends VariableItem {
 const props = defineProps<{
   visible: boolean
   triggerDom?: HTMLElement
-  /** 顶层变量树 */
   variables?: VariableItem[]
   /** 来自编辑器 mention 状态的过滤字符串。空 = 逐级模式；非空 = 扁平模式。 */
   filter: string
@@ -145,7 +143,6 @@ function isLeaf(item: VariableItem): boolean {
   return !hasChildren(item)
 }
 
-/** 当前层级展示的列表（来源依模式而定） */
 const currentList = computed<VariableItem[]>(() => {
   const variables = props.variables ?? []
   if (isFlat.value) return flatList.value
@@ -158,7 +155,6 @@ const currentList = computed<VariableItem[]>(() => {
   return level
 })
 
-/** 扁平模式下：根据 selectableLevels 拍平 + 过滤 */
 const flatList = computed<FlatItem[]>(() => {
   const variables = props.variables ?? []
   const out: FlatItem[] = []
@@ -179,7 +175,6 @@ const flatList = computed<FlatItem[]>(() => {
   return out.filter((it) => it.label.toLowerCase().includes(q))
 })
 
-/** 当前 active 项；扁平模式下用于驱动路径预览 */
 const activePath = computed<VariableItem[]>(() => {
   if (!isFlat.value) return []
   const item = flatList.value[activeIndex.value] as FlatItem | undefined
@@ -211,7 +206,6 @@ function selectActive() {
     return
   }
 
-  // 逐级模式
   if (hasChildren(item)) {
     if (props.selectableLevels === 'any') {
       // Enter 在分支项上：选中分支本身
@@ -292,7 +286,6 @@ watch(
 watch(
   () => props.filter,
   () => {
-    // 过滤词变化：重置 active；逐级 → 扁平时清空 navPath
     activeIndex.value = 0
     if (isFlat.value) navPath.value = []
   }

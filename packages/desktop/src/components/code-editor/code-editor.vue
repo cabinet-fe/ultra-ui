@@ -116,7 +116,6 @@ const zoomLeaving = shallowRef(false)
 const ZOOM_LEAVE_MS = 150
 let zoomLeaveTimer: ReturnType<typeof setTimeout> | undefined
 
-/** 放大期间原位置占位的高度（取放大前组件根高度） */
 const placeholderHeight = shallowRef('')
 
 /** 放大遮罩的 z 轴层级，进入放大时取一次，避免渲染期反复自增 */
@@ -145,15 +144,12 @@ const langOptions = computed(() =>
   langs.value.map((value) => ({ label: value.toUpperCase(), value }))
 )
 
-/** 实际生效的语言：优先 lang model，否则回落 langs[0] */
 const activeLang = computed<CodeEditorLang | undefined>(() => lang.value ?? langs.value[0])
 
-/** 仅一种语言时，在选择器位置展示名称 */
 const langLabel = computed(() =>
   langs.value.length === 1 && activeLang.value ? activeLang.value.toUpperCase() : undefined
 )
 
-/** 语言标识或放大/关闭按钮任一存在时才渲染工具栏 */
 const hasToolbar = computed(
   () => showLangSelect.value || !!langLabel.value || props.zoomable || zoomed.value
 )
@@ -191,7 +187,6 @@ function exitZoom() {
   }, ZOOM_LEAVE_MS)
 }
 
-/** 放大期间锁定 body 滚动，退出后恢复原值 */
 let prevBodyOverflow = ''
 
 watch(zoomed, (v) => {
@@ -377,7 +372,6 @@ watch(
 
 watch(activeLang, applyLanguage)
 
-/** langs 变化时，若当前 lang 未设或不在列表中则纠正为 langs[0] */
 watch(
   langs,
   (list) => {

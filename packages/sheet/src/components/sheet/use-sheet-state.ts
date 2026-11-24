@@ -38,7 +38,6 @@ type Emit = {
  * - 工作簿 / 活动 sheet 的事件绑定（tab 切换、工作簿 prop 变更时重绑）
  */
 export function useSheetState(props: SheetProps, emit: Emit, hooks: SheetStateHooks) {
-  /** 工作簿：外部传入或内部自建（单 sheet） */
   const internalWorkbook = new Workbook()
   const workbook = computed(() => props.workbook ?? internalWorkbook)
 
@@ -117,7 +116,7 @@ export function useSheetState(props: SheetProps, emit: Emit, hooks: SheetStateHo
         bump()
       }),
       wb.on('active-sheet-change', ({ sheet, index }) => {
-        hooks.onBeforeSheetChange() // tab 切换：关闭弹层并提交面板事务
+        hooks.onBeforeSheetChange()
         activeIndex.value = index
         bindSheetEvents(sheet)
         // tab 切换走实例缓存（命中零重建）；structure-change / 工作簿替换走 rebuildGrid
@@ -156,7 +155,7 @@ export function useSheetState(props: SheetProps, emit: Emit, hooks: SheetStateHo
     () => props.workbook,
     (wb, prev) => {
       if (wb === prev) return
-      hooks.onBeforeSheetChange() // 工作簿切换：关闭弹层并提交面板事务
+      hooks.onBeforeSheetChange()
       activeIndex.value = workbook.value.activeSheetIndex
       sheetList.value = workbook.value.getSheets()
       bindWorkbookEvents(workbook.value)

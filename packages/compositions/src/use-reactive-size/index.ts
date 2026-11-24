@@ -7,11 +7,6 @@ interface ElementSize {
   height: number
 }
 
-/**
- * 响应式尺寸
- * @param targets 目标元素
- * @returns 目标元素的宽高
- */
 export function useReactiveSize(target: RefElement): ElementSize
 export function useReactiveSize(targets: RefElement[]): ElementSize[]
 export function useReactiveSize(targets: RefElement | RefElement[]): ElementSize | ElementSize[] {

@@ -51,7 +51,6 @@ export const vClickOutside: ObjectDirective<HTMLElement> = {
   mounted(el, binding) {
     if (!binding.value) return
 
-    // 为元素添加一个id， 并加入到字典中
     const id = String(uid())
     el.dataset.outsideId = id
 

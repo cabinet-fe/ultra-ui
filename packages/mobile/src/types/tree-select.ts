@@ -3,7 +3,6 @@ import type { CSSProperties } from 'vue'
 
 /** 树形选择器组件属性（移动端形态：面板走 BottomSheet） */
 export interface TreeSelectProps extends FormComponentProps {
-  /** 绑定值 */
   modelValue?: string | number
 
   /**
@@ -21,13 +20,10 @@ export interface TreeSelectProps extends FormComponentProps {
     | Record<string, any>[]
     | ((qs: string) => Promise<Record<string, any>[]> | Record<string, any>[])
 
-  /** 值字段 */
   valueKey?: string
 
-  /** 标签字段 */
   labelKey?: string
 
-  /** 子级字段 */
   childrenKey?: string
 
   /**
@@ -38,26 +34,20 @@ export interface TreeSelectProps extends FormComponentProps {
    */
   disabledNode?: string | ((data: Record<string, any>) => boolean)
 
-  /** 占位符 */
   placeholder?: string
 
-  /** 是否可清除 */
   clearable?: boolean
 
-  /** 是否启用搜索功能 */
   filterable?: boolean
 
   /** 面板展开时默认展开全部节点；false 时仅展开选中节点的祖先链 */
   expandAll?: boolean
 
-  /** 底部面板内容容器样式 */
   contentStyle?: CSSProperties | string
 
-  /** 底部面板内容容器类名 */
   contentClass?: unknown
 }
 
-/** 树形选择器组件定义的事件 */
 export interface TreeSelectEmits {
   (e: 'update:modelValue', value?: string | number): void
   /**
@@ -70,8 +60,7 @@ export interface TreeSelectEmits {
   (e: 'clear'): void
 }
 
-/** 树形选择器组件暴露的属性和方法(组件内部使用) */
 export interface _TreeSelectExposed {}
 
-/** 树形选择器组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */
+/** 组件外部使用, 引用的值会被自动解构 */
 export type TreeSelectExposed = DeconstructValue<_TreeSelectExposed>

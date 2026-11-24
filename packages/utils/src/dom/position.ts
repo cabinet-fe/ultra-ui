@@ -1,8 +1,6 @@
 /**
  * 获取可滚动的父级（纵向或横向可滚动均计入：overflow-x 容器如横向滚动条
  * 也是滚动父级，弹层需监听其 scroll 事件）
- * @param el 元素
- * @returns
  */
 export function getScrollParents(el: HTMLElement): HTMLElement[] {
   const parents: HTMLElement[] = []
@@ -17,11 +15,6 @@ export function getScrollParents(el: HTMLElement): HTMLElement[] {
   return parents
 }
 
-/**
- * 获取最近的可滚动父级（纵向或横向可滚动均计入）
- * @param el 元素
- * @returns 最近的可滚动父级
- */
 export function getNearestScrollParent(el: HTMLElement): HTMLElement | null {
   let parent = el.parentElement
   while (parent) {
@@ -36,11 +29,7 @@ export function getNearestScrollParent(el: HTMLElement): HTMLElement | null {
 type ScrollViewPosition = 'center' | 'start' | 'end'
 
 /**
- * 滚动元素到容器视图中
  * @description 用于替代 `el.scrollIntoView` 方法，因为 `el.scrollIntoView` 在某些情况下会导致外部元素滚动
- * @param el 元素
- * @param container 可滚动容器
- * @param options 滚动选项
  */
 export function scrollIntoContainerView(
   el: HTMLElement,
@@ -72,7 +61,6 @@ export function scrollIntoContainerView(
   const isHorizontalInView =
     cScrollLeft + cClientWidth > eOffsetLeft + eOffsetWidth && cScrollLeft < eOffsetLeft
 
-  // 垂直方向和水平方向都已经在视图中，则不进行滚动
   if (isVerticalInView && isHorizontalInView) return
 
   if (!isVerticalInView) {

@@ -110,7 +110,6 @@ const variables: VariableItem[] = [
   }
 ]
 
-// ── 示例 1：基础 ──
 const basicExpr = shallowRef<ConditionExpression>({
   type: 'group',
   connectors: [],
@@ -124,7 +123,6 @@ const basicExpr = shallowRef<ConditionExpression>({
   ]
 })
 
-// ── 示例 2：嵌套混合逻辑 ──
 // 表达式语义：status == open AND (priority > 3 OR tag contains "紧急")
 const nestedExpr = shallowRef<ConditionExpression>({
   type: 'group',
@@ -157,7 +155,6 @@ const nestedExpr = shallowRef<ConditionExpression>({
   ]
 })
 
-// ── 示例 3：求值 ──
 const evalExpr = shallowRef<ConditionExpression>({
   type: 'group',
   connectors: ['and'],

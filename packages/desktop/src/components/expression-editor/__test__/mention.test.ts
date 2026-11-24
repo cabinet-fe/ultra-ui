@@ -73,10 +73,8 @@ describe('mention state machine', () => {
     m.dismiss()
     expect(m.getState()).toBeNull()
 
-    // 用户继续在同一处键入字符
     doc = docFromText('hello@formx')
     expect(m.update(doc, 11)).toBeNull()
-    // 移动光标也不会重新激活
     expect(m.update(doc, 9)).toBeNull()
   })
 

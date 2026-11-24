@@ -1,8 +1,6 @@
 <template>
-  <!-- 触发 -->
   <UNodeRender v-bind="eventsHandlers" :content="renderDefaultSlotTrigger()" ref="triggerRef" />
 
-  <!-- 弹出内容 -->
   <teleport :to="`#${popperContainerId}`">
     <transition name="tip">
       <component
@@ -110,7 +108,6 @@ const eventsHandlers = computed(() => {
 const handleClickOutside = (e: MouseEvent) => {
   if (props.trigger === 'hover') return
 
-  // 点击的元素在触发元素中则啥也
   if (props.trigger === 'click' && triggerDom.value.contains(e.target as Node)) {
     return
   }
@@ -134,7 +131,6 @@ function clearCloseTimer() {
   }
 }
 
-/** 弹出 */
 const open = (e?: PointerEvent) => {
   e?.stopPropagation()
   clearCloseTimer()
@@ -152,7 +148,6 @@ const open = (e?: PointerEvent) => {
     updateVisible(true)
   }, delay)
 }
-/** 关闭 */
 const close = () => {
   clearOpenTimer()
 
@@ -222,7 +217,6 @@ watch(triggerDom, (dom) => {
   }
 })
 
-/** 外部节点 */
 const externalNode = shallowRef<any>()
 
 onBeforeUnmount(() => {

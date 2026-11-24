@@ -71,11 +71,6 @@ const handleMouseLeave = () => {
   })
 }
 
-/**
- * 动画结束回调
- * @param index 发生的元素索引
- * @param e 事件
- */
 const handleTransitionEnd = (index: number, e: TransitionEvent) => {
   if (index !== 1 || hovered.value) return
 

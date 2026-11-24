@@ -4,11 +4,9 @@ import type { ShallowRef } from 'vue'
 /** 预览器类别：xlsx 与 csv 归一为 sheet */
 export type FileViewerKind = 'image' | 'video' | 'pdf' | 'sheet' | 'docx' | 'ofd' | 'text'
 
-/** 单个预览文件定义 */
 export interface FileViewerItem {
   /** 唯一 id；未提供时组件内部按索引生成 */
   id?: string
-  /** 展示名（通常为原始文件名） */
   name: string
   /**
    * 文件源：
@@ -30,9 +28,7 @@ export interface FileViewerNormalizedItem extends FileViewerItem {
   kind: FileViewerKind
 }
 
-/** 文件预览组件属性 */
 export interface FileViewerProps {
-  /** 待预览的文件列表 */
   files: FileViewerItem[]
   /** 当前激活文件 id（配合 v-model） */
   modelValue?: string
@@ -40,7 +36,7 @@ export interface FileViewerProps {
   sidebarWidth?: string | number | false
   /** sheet 场景单文件最大渲染行数，默认 50000；0 表示不截断 */
   sheetMaxRows?: number
-  /** 是否显示下载按钮，默认 true */
+  /** 默认 true */
   downloadable?: boolean
   /**
    * 全屏模态模式开关（支持 v-model:open）。
@@ -61,7 +57,6 @@ export interface FileViewerProps {
   pdfResourceUrl?: string
 }
 
-/** 文件预览组件事件 */
 export interface FileViewerEmits {
   (e: 'update:modelValue', id: string): void
   (e: 'update:open', value: boolean): void
@@ -69,7 +64,6 @@ export interface FileViewerEmits {
   (e: 'error', err: { file: FileViewerItem; error: unknown }): void
 }
 
-/** 文件预览组件暴露的属性和方法(组件内部使用) */
 export interface _FileViewerExposed {
   activeId: ShallowRef<string | undefined>
   activate: (id: string) => void

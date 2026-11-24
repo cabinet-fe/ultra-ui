@@ -9,7 +9,6 @@ import { ERROR_CODES, type ConnectorError } from './errors'
  * 纯函数操作集 + Hono 子应用，由 server/dev.ts 挂到 /ai-db。
  */
 
-/** 列类型全集：字符串、数字、布尔、日期（YYYY-MM-DD） */
 export const COLUMN_TYPES = ['string', 'number', 'boolean', 'date'] as const
 export type ColumnType = (typeof COLUMN_TYPES)[number]
 
@@ -20,7 +19,6 @@ export interface ColumnDef {
   primaryKey?: boolean
   /** 可空（默认不可空） */
   nullable?: boolean
-  /** 备注 */
   comment?: string
 }
 
@@ -31,7 +29,6 @@ export interface TableDef {
   columns: ColumnDef[]
 }
 
-/** 关系类型全集：一对一、一对多、多对多 */
 export const RELATIONSHIP_TYPES = ['1-1', '1-n', 'n-n'] as const
 export type RelationshipType = (typeof RELATIONSHIP_TYPES)[number]
 
@@ -74,7 +71,6 @@ function isIsoDate(value: string): boolean {
   return !Number.isNaN(Date.parse(value))
 }
 
-/** 名称类字段校验：trim 后 1~64 字符 */
 function isName(value: unknown): string | null {
   if (typeof value !== 'string') return null
   const name = value.trim()
@@ -113,9 +109,7 @@ function checkFilterValue(value: unknown, column: ColumnDef): string | null {
 
 /** 内存库状态：表定义 / 行数据 / 关系（纯函数操作集的唯一可变载体） */
 export interface AiDb {
-  /** 表定义，键为表名 */
   tables: Map<string, TableDef>
-  /** 行数据，键为表名 */
   rows: Map<string, RowData[]>
   relationships: RelationshipDef[]
 }
@@ -350,7 +344,6 @@ export function validateRelationships(
   return { ok: true, value: relationships }
 }
 
-/** 聚合函数全集：计数、求和、均值、最小、最大 */
 export const AGGREGATION_FUNCS = ['count', 'sum', 'avg', 'min', 'max'] as const
 export type AggregationFunc = (typeof AGGREGATION_FUNCS)[number]
 
@@ -516,7 +509,6 @@ export interface QueryDisplay {
   rows: RowData[]
 }
 
-/** 统计展示投影：分组与聚合的中文标签 + 分组展示行 + 明细行投影 */
 export interface StatsDisplay {
   /** 维度列名 → 中文标题 */
   dimensionLabels: Record<string, string>
@@ -528,7 +520,6 @@ export interface StatsDisplay {
   detail: QueryDisplay
 }
 
-/** 展示标题：列 comment 缺省回退列名 */
 function columnLabel(table: TableDef | undefined, columnName: string): string {
   return table?.columns.find((column) => column.name === columnName)?.comment ?? columnName
 }
@@ -576,7 +567,6 @@ export function resolveForeignKeyValue(db: AiDb, rule: ForeignKeyRule, value: Ro
   return matched[displayColumn.name] ?? null
 }
 
-/** 行查询展示投影：展示列去主键、label 取 comment（缺省列名），外键列解析为关联名称，其余原值 */
 function buildQueryDisplay(db: AiDb, tableName: string, rows: RowData[]): QueryDisplay {
   const columns: DisplayColumn[] = (db.tables.get(tableName)?.columns ?? [])
     .filter((column) => !column.primaryKey)
@@ -596,7 +586,6 @@ function buildQueryDisplay(db: AiDb, tableName: string, rows: RowData[]): QueryD
   return { columns, rows: displayRows }
 }
 
-/** 聚合函数 → 中文标签：count → 计数，其余与列标题拼为 总和(标题) 形式 */
 const AGGREGATION_FUNC_LABELS: Record<AggregationFunc, string> = {
   count: '计数',
   sum: '总和',
@@ -605,13 +594,11 @@ const AGGREGATION_FUNC_LABELS: Record<AggregationFunc, string> = {
   max: '最大'
 }
 
-/** 聚合键中文标签：count → 计数；sum/avg/min/max → 总和(标题) 等（标题 = comment 缺省列名） */
 function aggregationLabel(table: TableDef | undefined, spec: AggregationSpec): string {
   const prefix = AGGREGATION_FUNC_LABELS[spec.func]
   return spec.column ? `${prefix}(${columnLabel(table, spec.column)})` : prefix
 }
 
-/** 统计展示投影：维度 / 聚合中文标签、分组展示行（维度外键解析）、明细行投影 */
 function buildStatsDisplay(db: AiDb, query: StatsQuery, stats: StatsResult): StatsDisplay {
   const table = db.tables.get(query.table)
   const dims = query.groupBy ?? []
@@ -656,7 +643,6 @@ function isEndpointValid(db: AiDb, endpoint: RelationshipEndpoint): boolean {
   )
 }
 
-/** 剪除两端引用已失效的关系，返回剪除条数 */
 function pruneRelationships(db: AiDb): number {
   const before = db.relationships.length
   db.relationships = db.relationships.filter(
@@ -747,10 +733,8 @@ async function readJsonBody(
 export function createAiDbApp(db: AiDb = createAiDb()): Hono {
   const app = new Hono()
 
-  /** GET /tables — 全部表（含列定义） */
   app.get('/tables', (c) => c.json({ ok: true, tables: [...db.tables.values()] }))
 
-  /** POST /tables — 新建表 */
   app.post('/tables', async (c) => {
     const body = await readJsonBody(c)
     if (!body.ok) return body.response
@@ -793,7 +777,6 @@ export function createAiDbApp(db: AiDb = createAiDb()): Hono {
     return c.json({ ok: true, removedRelationships })
   })
 
-  /** POST /tables/:name/rows — 批量插入行数据 */
   app.post('/tables/:name/rows', async (c) => {
     const name = c.req.param('name')
     const table = db.tables.get(name)
@@ -852,7 +835,6 @@ export function createAiDbApp(db: AiDb = createAiDb()): Hono {
     })
   })
 
-  /** GET /relationships — 全部实体关系 */
   app.get('/relationships', (c) => c.json({ ok: true, relationships: db.relationships }))
 
   /** PUT /relationships — 全量覆盖实体关系（引用的表/列必须已存在） */

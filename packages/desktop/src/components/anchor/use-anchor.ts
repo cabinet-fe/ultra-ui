@@ -1,13 +1,11 @@
 import type { MaybeRefOrGetter } from 'vue'
 import { onMounted, onScopeDispose, toValue, watch } from 'vue'
 
-/** 锚点滚动联动选项 */
 export interface UseAnchorOptions {
   /** 有序锚点列表（锚点项注册顺序） */
   items: MaybeRefOrGetter<string[]>
   /** 滚动容器：CSS 选择器或元素（含 null，缺省 window） */
   container: MaybeRefOrGetter<string | HTMLElement | null | undefined>
-  /** 定位偏移 */
   offset: MaybeRefOrGetter<number>
   /** 命中锚点变化回调 */
   onChange: (href: string) => void
@@ -28,12 +26,10 @@ function resolveContainer(target: string | HTMLElement | null | undefined): HTML
 export function useAnchor(options: UseAnchorOptions) {
   const { items, container, offset, onChange } = options
 
-  /** 锚点对应的目标元素 */
   function getTarget(href: string): HTMLElement | null {
     return document.querySelector<HTMLElement>(href)
   }
 
-  /** 点击项：平滑滚动到目标锚点 */
   function scrollTo(href: string) {
     const target = getTarget(href)
     if (!target) return
@@ -76,7 +72,6 @@ export function useAnchor(options: UseAnchorOptions) {
     onChange(hit ?? first)
   }
 
-  // 滚动监听（rAF 节流）
   let rafId = 0
   function handleScroll() {
     if (rafId) return

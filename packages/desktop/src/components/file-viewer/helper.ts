@@ -79,7 +79,6 @@ export async function toArrayBuffer(
     // 复制底层以切断共享引用，防止外部修改影响预览
     return src.slice().buffer as ArrayBuffer
   }
-  // File/Blob
   return await src.arrayBuffer()
 }
 
@@ -106,13 +105,10 @@ export function toBlobUrl(
   return { url, revoke: () => URL.revokeObjectURL(url) }
 }
 
-/** 缩放下限（与工具栏 MIN/MAX 联动） */
 export const ZOOM_MIN = 0.5
 
-/** 缩放上限 */
 export const ZOOM_MAX = 3
 
-/** 每次缩放固定增减 10% */
 export const ZOOM_STEP = 0.1
 
 /** clampZoom 的取整精度：两位小数 */
@@ -156,7 +152,6 @@ export function formatBytes(bytes?: number): string {
   return `${v.toFixed(v >= 10 ? 0 : 1)} ${units[i]}`
 }
 
-/** 触发浏览器下载 */
 export async function downloadFile(file: FileViewerItem): Promise<void> {
   let href: string
   let revoke: (() => void) | undefined

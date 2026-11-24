@@ -8,10 +8,8 @@ export interface SelectionRect {
   height: number
 }
 
-/** 手柄方位：四角 + 四边 */
 export type SelectionHandle = 'nw' | 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w'
 
-/** 全部手柄方位 */
 export const SELECTION_HANDLES: SelectionHandle[] = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w']
 
 /** 选区最小边长（图片像素） */
@@ -39,7 +37,6 @@ interface UseSelectionReturn {
   selection: ShallowRef<SelectionRect | null>
   /** 以图片居中约 80% 区域初始化选区（受宽高比约束） */
   initSelection: () => void
-  /** 清空选区 */
   clearSelection: () => void
 }
 
@@ -55,7 +52,6 @@ export function useSelection(options: UseSelectionOptions): UseSelectionReturn {
     return ratio && ratio > 0 ? ratio : undefined
   }
 
-  /** 尺寸与位置钳制在图片像素范围内 */
   function clampRect(rect: SelectionRect): SelectionRect {
     const W = imageWidth()
     const H = imageHeight()
@@ -109,7 +105,6 @@ export function useSelection(options: UseSelectionOptions): UseSelectionReturn {
     selection.value = null
   }
 
-  // 宽高比变化时以选区中心为锚按比例重算
   watch(
     () => aspectRatio(),
     () => {
@@ -118,8 +113,6 @@ export function useSelection(options: UseSelectionOptions): UseSelectionReturn {
       selection.value = applyRatio(selection.value, ratio)
     }
   )
-
-  // ---------- 拖动交互（参照 useDrag 模式：mousedown 起，document 级 move/up 收尾） ----------
 
   interface DragSession {
     /** 'move' 为整体拖动，其余为手柄方位 */
@@ -156,7 +149,6 @@ export function useSelection(options: UseSelectionOptions): UseSelectionReturn {
   function handleMousemove(e: MouseEvent) {
     if (!session) return
 
-    // 屏幕位移换算为图片像素位移（含缩放 / 旋转 / 翻转）
     const { x: dx, y: dy } = toImageDelta(e.clientX - session.startX, e.clientY - session.startY)
     selection.value =
       session.mode === 'move'

@@ -136,9 +136,7 @@ describe('foldSessionEvent', () => {
       { type: 'user/message', messageId: 'u1', seq: 2, content: '再问一次' },
       { type: 'tool/call', callId: 'c2', name: 'bash', arguments: '{}', seq: 3 }
     ])
-    // 上一轮 assistant 不收编新一轮的调用
     expect(state.messages.find((m) => m.id === 'a1')?.toolCalls).toBeUndefined()
-    // 新调用落进本轮自己的 tool-host 合成消息
     expect(state.messages.find((m) => m.id === 'tool-host:c2')?.toolCalls).toEqual([
       expect.objectContaining({ id: 'c2', status: 'pending' })
     ])

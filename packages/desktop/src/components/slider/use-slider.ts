@@ -37,11 +37,6 @@ export function useSlider(props: SliderProps<number | [number, number]>): UseSli
     }
   })
 
-  /**
-   * 将value转换为slider的offset
-   * @param value
-   * @returns
-   */
   function value2SliderOffset(value: number): number {
     const { min, max, vertical } = props
     const progress = (value - min!) / (max! - min!)
@@ -49,11 +44,6 @@ export function useSlider(props: SliderProps<number | [number, number]>): UseSli
     return vertical ? -offset : offset
   }
 
-  /**
-   * 将slider的offset转换为value
-   * @param offset
-   * @returns
-   */
   function sliderOffset2Value(offset: number): number {
     const { min, max } = props
     const progress = Math.abs(offset) / sliderSize.value

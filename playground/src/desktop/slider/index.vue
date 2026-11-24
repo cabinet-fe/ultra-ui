@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- 配置面板 -->
     <u-card class="mb-2">
       <u-card-header> 配置选项 </u-card-header>
 
@@ -40,7 +39,6 @@
       </u-card-content>
     </u-card>
 
-    <!-- 演示区域 -->
     <u-card>
       <u-card-header> 滑块演示 </u-card-header>
 

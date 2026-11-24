@@ -46,13 +46,10 @@ import { getOverlayContainer, useOverlayScrollLock } from '../overlay-container'
 defineOptions({ name: 'UBottomSheet' })
 
 const props = defineProps<{
-  /** 是否可见（v-model:visible） */
   visible?: boolean
   /** 头部标题；提供 header 插槽时忽略 */
   title?: string
-  /** 面板内容容器样式 */
   contentStyle?: CSSProperties | string
-  /** 面板内容容器类名 */
   contentClass?: unknown
 }>()
 

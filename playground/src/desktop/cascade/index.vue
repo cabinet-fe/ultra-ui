@@ -68,7 +68,6 @@ const propsModel = reactive({
 
 const data = shallowRef<any[]>([])
 
-// 模拟回显
 setTimeout(() => {}, 300)
 
 setTimeout(() => {

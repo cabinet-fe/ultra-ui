@@ -60,7 +60,6 @@ function showToast(message: string, detail?: string) {
   }, 2600)
 }
 
-// Normal icons grouping configuration
 const NORMAL_GROUPS_CONFIG = [
   {
     name: '表单控件图标',

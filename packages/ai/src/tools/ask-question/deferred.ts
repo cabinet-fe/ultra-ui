@@ -13,7 +13,6 @@ export function deferAskQuestion(toolCallId: string, deferred: AskQuestionDeferr
   pending.set(toolCallId, deferred)
 }
 
-/** 取出并移除挂起项（abort 监听用）；不存在则返回 undefined */
 export function takeAskQuestionDeferred(toolCallId: string): AskQuestionDeferred | undefined {
   const deferred = pending.get(toolCallId)
   if (!deferred) return undefined

@@ -112,7 +112,6 @@ const currentToIndexMap = computed<Record<string, number> | undefined>(() => {
   )
 })
 
-/** 当前索引 */
 const currentIndex = computed<number | undefined>(() => {
   const { currentKey, current } = props
   if (current === undefined) return undefined
@@ -133,13 +132,11 @@ watch(currentIndex, (index) => {
   }
 })
 
-// 点击步骤项
 function handleStepClick(item: Record<string, any>, index: number) {
   emit('item-click', item, index)
   emit('update:current', props.currentKey ? o(item).get(props.currentKey) : index)
 }
 
-// 提示
 const tipVisible = shallowRef(false)
 const tipTriggerDom = shallowRef<HTMLElement>()
 const tipContent = shallowRef()

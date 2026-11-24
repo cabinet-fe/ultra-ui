@@ -131,7 +131,6 @@ const currentSize = computed(() => {
   return props.pageSize ?? config.paginator.pageSize
 })
 
-/** 完整页码 */
 const totalPages = computed(() => {
   return Math.ceil(props.total / currentSize.value)
 })
@@ -142,7 +141,6 @@ const sizeOptions = computed(() => {
   })
 })
 
-/** 做多显示5个页码 */
 const pageNumbers = computed(() => {
   const startPageNum = n(pageNumber.value - 2).range(1, Math.max(totalPages.value - 4, 1))
 
@@ -189,7 +187,6 @@ function handleKeyEnter(e: KeyboardEvent) {
   }
 }
 
-/** 鼠标停留位置 */
 const hovered = reactive({ first: false, last: false })
 
 const paginatorRef = shallowRef<HTMLElement>()

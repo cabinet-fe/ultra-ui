@@ -1,18 +1,15 @@
 <template>
   <button :class="classList" type="button" ref="buttonRef" @click="handleClick">
-    <!-- 加载图标 -->
     <span v-if="loading" :class="[iconCls, bem.is('loading')]" :style="iconStyle">
       <component :is="loadingIcon" />
     </span>
 
-    <!-- 左侧图标 -->
     <span v-else-if="!!icon && iconPosition === 'left'" :class="iconCls" :style="iconStyle">
       <component :is="icon" />
     </span>
 
     <slot />
 
-    <!-- 右侧图标 -->
     <span v-if="!!icon && iconPosition === 'right'" :class="iconCls" :style="iconStyle">
       <component :is="icon" />
     </span>

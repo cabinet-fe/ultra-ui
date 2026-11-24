@@ -1,7 +1,5 @@
 <template>
   <div class="sheet-demo">
-    <!-- 报表合计演示：合计公式先配置（I13 SUM）→ 批量填充（setCells 单 undo 单元）
-         合计自动出现 → 修改被引用明细格（I9）合计自动重算；状态行读模型显示值 -->
     <div class="sheet-demo__seg sheet-demo__report" role="group" aria-label="报表合计演示">
       <button
         type="button"
@@ -30,7 +28,6 @@
       <span class="sheet-demo__seg-status">I13 合计：{{ reportTotalText }}</span>
     </div>
 
-    <!-- 超链接与图片演示：右键链路可操作验证（预置按钮 = 重置器，右键操作全项见 hint） -->
     <div class="sheet-demo__seg" role="group" aria-label="超链接与图片演示">
       <button
         type="button"
@@ -69,7 +66,6 @@
 
     <u-sheet ref="sheetRef" :workbook="workbook" :rows="60" :cols="40" class="sheet-demo__sheet" />
 
-    <!-- 数据结构观察区（仅演示页，非组件内部）：实时展示活动表模型 -->
     <div class="sheet-demo__inspector">
       <div class="sheet-demo__inspector-head" @click="collapsed = !collapsed">
         <strong class="sheet-demo__inspector-title">
@@ -321,14 +317,12 @@
       </div>
     </div>
 
-    <!-- 放大展示弹窗：desktop UDialog（modal=false 无遮罩；header 自带拖拽；Esc/关闭按钮退出） -->
     <u-dialog
       v-model="enlargedVisible"
       :modal="false"
       :title="enlarged?.title ?? ''"
       class="sheet-demo__zoom-dialog"
     >
-      <!-- default slot 的 maximized 状态：最大化时内容宽高跟随弹窗撑满 -->
       <template #default="{ maximized }">
         <div class="sheet-demo__zoom-body" :class="{ 'is-maximized': maximized }">
           <div class="sheet-demo__zoom-toolbar">
@@ -383,7 +377,6 @@ registerFormulaFunction('DOUBLE', {
   }
 })
 
-// ─── 超链接与图片演示（右键链路可操作验证）─────────────────
 // 演示区 D7:G8（靠左，初始视口内）：E7 链接格（悬停 tooltip / 右键 编辑·取消）、
 // E8 嵌入图格（右键图片四项）、G7 起浮动图（右键独立菜单全项、lightbox 预览）。
 
@@ -399,7 +392,6 @@ const workbook = new Workbook()
 const sheet1 = workbook.activeSheet // 默认 Sheet1
 const sheet2 = workbook.addSheet('Sheet2')
 
-// 预置 Sheet2 数据源
 sheet2.setCellValue({ row: 0, col: 0 }, '项目')
 sheet2.setCellValue({ row: 0, col: 1 }, '数量')
 sheet2.setCellValue({ row: 1, col: 0 }, '苹果')
@@ -409,26 +401,22 @@ sheet2.setCellValue({ row: 2, col: 1 }, 35)
 sheet2.setCellValue({ row: 3, col: 0 }, '橙子')
 sheet2.setCellValue({ row: 3, col: 1 }, 58)
 
-// 预置 Sheet1：跨表公式 + 同表联动 + 合并示例
 sheet1.setCellValue({ row: 0, col: 0 }, '跨表汇总')
 sheet1.setCellFormula({ row: 0, col: 1 }, '=SUM(Sheet2!B2:B4)')
 sheet1.setCellValue({ row: 1, col: 0 }, 'Sheet2 首项×2')
 sheet1.setCellFormula({ row: 1, col: 1 }, '=Sheet2!B2*2')
 sheet1.setCellValue({ row: 2, col: 0 }, '本表 B1÷2')
 sheet1.setCellFormula({ row: 2, col: 1 }, '=B1/2')
-// 自定义函数示例（上方 registerFormulaFunction 注册的 DOUBLE）
 sheet1.setCellValue({ row: 3, col: 0 }, '自定义函数 DOUBLE')
 sheet1.setCellFormula({ row: 3, col: 1 }, '=DOUBLE(Sheet2!B2)')
 sheet1.mergeCells({ start: { row: 4, col: 1 }, end: { row: 5, col: 2 } })
 sheet1.setCellValue({ row: 4, col: 1 }, '合并区(B5:C6)')
-// 填充柄演示：数字序列 / 文本 tile
 sheet1.setCellValue({ row: 0, col: 3 }, '序列')
 sheet1.setCellValue({ row: 1, col: 3 }, 1)
 sheet1.setCellValue({ row: 2, col: 3 }, 2)
 sheet1.setCellValue({ row: 0, col: 4 }, 'tile')
 sheet1.setCellValue({ row: 1, col: 4 }, 'a')
 sheet1.setCellValue({ row: 2, col: 4 }, 'b')
-// 预置浮动示例图（canvas 生成小 png；锚定 F2，可删除/undo 后需重新插入）
 sheet1.setCellValue({ row: 0, col: 5 }, '示例图→')
 sheet1.insertImage({
   data: createDemoPngBytes(),
@@ -439,7 +427,6 @@ sheet1.insertImage({
   altText: 'demo',
   title: 'playground demo'
 })
-// 预置超链接与图片演示数据（初始基线不进 undo；按钮重置走门面命令可 undo）
 sheet1.setCellValue({ row: 6, col: 3 }, '链接格')
 sheet1.setCellValue(LINK_CELL_ADDR, '官方站点')
 sheet1.setCellLink(LINK_CELL_ADDR, { url: 'https://example.com' })
@@ -460,7 +447,6 @@ sheet1.insertImage({
   title: 'link demo',
   link: 'https://example.com'
 })
-// 预置数据作为初始状态，不进入 undo 历史
 sheet1.history.clear()
 sheet2.history.clear()
 
@@ -489,10 +475,6 @@ function createDemoPngBytes(): Uint8Array {
 
 const sheetRef = useTemplateRef<SheetExposed>('sheetRef')
 
-// ─── 报表合计演示（公式能力可操作验证）─────────────────────────
-// 演示区 H8:I13（col 7/8）：表头 H8/I8，明细 H9:I12（数量列 I 被 SUM 引用），
-// 合计行 H13 标签 + I13 公式。三步对应 meta 报表消费场景：先配置合计公式 →
-// 批量填充明细（setCells 单命令，合计自动出现）→ 修改被引用格（增量重算）。
 // 全部经 SheetContext（与工具栏工具同一门面，写入走命令系统、可撤销）。
 
 /** 合计公式落点 I13 */
@@ -554,13 +536,11 @@ function bumpReportCell(): void {
   refreshReportTotal()
 }
 
-// ─── 超链接与图片演示段 ─────────────────────────────────────
 // 三个预置按钮 = 重置器（经门面写入，可 undo）：右键「取消超链接 / 移除图片 /
 // 删除图片」破坏预置后点按即可循环验证；状态行读门面与右键链路同源。
 
 const linkDemoStatus = ref('E7 链接：— · E8 嵌入图：— · 浮动图：—')
 
-/** 刷新状态行（getCellLink / hasCellImage / getImages 均为门面读方法） */
 function refreshLinkDemoStatus(): void {
   const ctx = sheetRef.value?.getContext()
   if (!ctx) return
@@ -570,13 +550,11 @@ function refreshLinkDemoStatus(): void {
   } · 浮动图：${ctx.getImages().length} 张`
 }
 
-/** 重置 E7 单元格超链接（右键「取消超链接」后重新预置） */
 function presetLinkCell(): void {
   sheetRef.value?.getContext().setCellLink(LINK_CELL_ADDR, { url: 'https://example.com' })
   refreshLinkDemoStatus()
 }
 
-/** 重置 L8 按格嵌入图（带链接，右键图片四项全可见；「移除图片」后重新预置） */
 function presetCellImage(): void {
   sheetRef.value
     ?.getContext()
@@ -588,7 +566,6 @@ function presetCellImage(): void {
   refreshLinkDemoStatus()
 }
 
-/** 在 G7 重新插入浮动图（带链接，右键独立菜单全项可点） */
 function presetFloatImage(): void {
   sheetRef.value
     ?.getContext()
@@ -605,7 +582,6 @@ function presetFloatImage(): void {
   refreshLinkDemoStatus()
 }
 
-// 观察区默认收起，点击头部展开/收起
 const collapsed = ref(true)
 
 /**
@@ -620,7 +596,6 @@ function toggleInspectorBlock(key: string): void {
   inspectorExpanded.value = { ...inspectorExpanded.value, [key]: !inspectorExpanded.value[key] }
 }
 
-// 代码块复制反馈：记录最近复制的区块 key，1.5s 后恢复
 const copied = ref('')
 let copyTimer: number | undefined
 async function copyJson(key: string, value: unknown): Promise<void> {
@@ -632,7 +607,6 @@ async function copyJson(key: string, value: unknown): Promise<void> {
   }, 1500)
 }
 
-// 放大展示弹窗：desktop UDialog（modal=false 无遮罩、header 自带拖拽；Esc/关闭按钮退出）
 const enlarged = ref<{ key: string; title: string } | null>(null)
 const enlargedVisible = computed({
   get: () => enlarged.value !== null,
@@ -648,7 +622,6 @@ function enlarge(key: string, title: string): void {
   enlarged.value = { key, title }
 }
 
-// ─── 数据结构观察区（演示页调试用）：手动刷新，无实时订阅 / 无响应式依赖 ──
 // 点击头部「刷新数据」按钮时快照一次当前活动表；大表场景避免每次单元格
 // 变更都序列化 JSON（曾因订阅全部模型事件导致页面卡死）。
 
@@ -668,11 +641,9 @@ interface InspectSnapshot {
 
 const inspectData = shallowRef<InspectSnapshot | null>(null)
 
-/** 手动收集当前活动表数据（一次性快照） */
 function refreshInspect(): void {
   const sheet = workbook.activeSheet
 
-  // 存储：稀疏 entries → { 'A1': CellData, ... }
   const cells: Record<string, unknown> = {}
   for (const [addr, data] of sheet.store.entries()) cells[formatAddress(addr)] = data
 
@@ -705,7 +676,6 @@ function refreshInspect(): void {
     formulaNodes: sheet.formulaGraph.nodeCount
   }
 
-  // 提交给后端：所有 sheet 快照合并为一个 workbook JSON；返回体 data 同构
   const payload = buildWorkbookPayload()
 
   inspectData.value = {
@@ -723,7 +693,6 @@ function refreshInspect(): void {
   }
 }
 
-/** 工作簿 → 提交体：{ sheets: [{ name, ...SheetSnapshot }], activeIndex } */
 function buildWorkbookPayload(): unknown {
   return {
     sheets: workbook.getSheets().map((item) => Object.assign({ name: item.name }, item.snapshot())),
@@ -754,7 +723,6 @@ function highlight(value: unknown): string {
   let html = escaped.replace(
     /("(?:\\u[a-fA-F0-9]{4}|\\[^u]|[^\\"])*")(\s*:)?/g,
     (match, str, colon) => {
-      // 带冒号的字符串 = key → 包 span 高亮；值（字符串/数字/布尔）保持纯文本
       if (colon) return `<span class="j-key">${str}</span>${colon}`
       return match
     }
@@ -765,7 +733,6 @@ function highlight(value: unknown): string {
   return html
 }
 
-// 调试句柄：浏览器控制台/自动化可直接读取模型与组件暴露
 ;(window as unknown as Record<string, unknown>).__sheetDemo = {
   workbook,
   sheet1,
@@ -773,7 +740,6 @@ function highlight(value: unknown): string {
   getSheet: () => sheetRef.value
 }
 
-// 挂载后填充超链接/图片演示状态行（初始预置已在模型中）
 onMounted(refreshLinkDemoStatus)
 
 onBeforeUnmount(() => {
@@ -787,8 +753,6 @@ onBeforeUnmount(() => {
   font-size: 13px;
   color: var(--u-text-color-second);
 }
-
-/* ─── 分段按钮组（报表合计演示）────────────── */
 
 .sheet-demo__seg {
   display: flex;
@@ -827,8 +791,6 @@ onBeforeUnmount(() => {
   background: var(--u-bg-color-hover);
 }
 
-/* ─── 分段演示状态行（报表合计 / 超链接与图片共用） ── */
-
 .sheet-demo__seg-status {
   margin-left: 12px;
   font-size: 12px;
@@ -840,8 +802,6 @@ onBeforeUnmount(() => {
   /* 154px 为原有布局预留；+30px 报表合计演示控件；+66px 超链接与图片演示段与操作提示 */
   height: calc(100vh - 250px);
 }
-
-/* ─── 数据结构观察区 ─────────────────────────────── */
 
 .sheet-demo__inspector {
   margin-top: 16px;
@@ -907,7 +867,6 @@ onBeforeUnmount(() => {
   font-size: 13px;
 }
 
-/* 实时指示点（呼吸动画） */
 .sheet-demo__inspector-dot {
   width: 8px;
   height: 8px;
@@ -967,7 +926,6 @@ onBeforeUnmount(() => {
   background: var(--u-bg-color-hover);
 }
 
-/* 展开 / 折叠指示箭头 */
 .sheet-demo__inspector-block-caret {
   flex: none;
   width: 14px;
@@ -976,7 +934,6 @@ onBeforeUnmount(() => {
   line-height: 1;
 }
 
-/* 区块标题前的彩色小竖条 */
 .sheet-demo__inspector-block-title::before {
   content: '';
   width: 3px;
@@ -1005,7 +962,6 @@ onBeforeUnmount(() => {
   background: var(--u-color-info);
 }
 
-/* 整行宽的区块（提交/返回格式） */
 .sheet-demo__inspector-block--wide {
   grid-column: 1 / -1;
 }
@@ -1076,7 +1032,6 @@ onBeforeUnmount(() => {
   scrollbar-color: color-mix(in srgb, var(--u-text-color-second) 30%, transparent) transparent;
 }
 
-/* 大 JSON 截断提示（highlight 超 HIGHLIGHT_MAX_LINES 行时追加） */
 .sheet-demo__inspector-truncated {
   display: inline-block;
   margin-top: 6px;
@@ -1087,8 +1042,6 @@ onBeforeUnmount(() => {
   font-size: 11px;
   font-style: italic;
 }
-
-/* ─── 代码块（markdown 风格：语言标签 + 来源方法 + 复制按钮） ─── */
 
 .sheet-demo__inspector-code {
   min-width: 0;
@@ -1171,11 +1124,8 @@ onBeforeUnmount(() => {
   color: #fff;
 }
 
-/* ─── 放大展示弹窗（desktop UDialog：无遮罩 + 头部拖拽） ──────── */
-
 /* 弹窗宽度与 pre 高度（UDialog body 自带 u-scroll 滚动） */
 
-/* 内容区：默认保持原始尺寸（pre max-height 66vh）；最大化时撑满弹窗 */
 .sheet-demo__zoom-body {
   display: flex;
   flex-direction: column;
@@ -1205,7 +1155,6 @@ onBeforeUnmount(() => {
   border: 1px solid var(--u-border-muted-color);
 }
 
-/* JSON 语法高亮（仅 key） */
 .sheet-demo__inspector-pre :deep(.j-key) {
   color: var(--u-color-primary);
 }

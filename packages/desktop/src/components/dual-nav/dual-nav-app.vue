@@ -50,7 +50,6 @@ const props = defineProps<{
   app: DualNavRootItem
   active: boolean
   selected: boolean
-  /** 是否在图标下方显示菜单名称 */
   labeled?: boolean
 }>()
 

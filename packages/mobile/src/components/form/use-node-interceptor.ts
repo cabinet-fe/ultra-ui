@@ -49,7 +49,6 @@ function pickFormItemProps(raw: Record<string, any>): Record<string, any> {
 
 /**
  * 虚拟node拦截：带 field 的裸控件由 UForm 包进 UFormItem，表单项与其余节点原样渲染
- * @returns
  */
 export function useNodeInterceptor(): { getSlotsNodes: () => SlotRenderItem[] | null } {
   const slots = useSlots()

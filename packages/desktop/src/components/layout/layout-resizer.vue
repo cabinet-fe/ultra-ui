@@ -20,12 +20,7 @@ import { LayoutDIKey } from './di'
 
 defineOptions({ name: 'ULayoutResizer' })
 
-const props = defineProps<{
-  /** 是否横向 */
-  horizontal?: boolean
-  /** 默认偏移量 */
-  offset?: number
-}>()
+const props = defineProps<{ horizontal?: boolean; offset?: number }>()
 
 const emit = defineEmits<{
   (e: 'resize', offset: number): void

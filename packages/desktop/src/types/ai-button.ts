@@ -1,9 +1,7 @@
 import type { AiProviderConfig, ComponentProps, DeconstructValue } from '@veltra/utils'
 
-/** AI 按钮变体 */
 export type AiButtonVariant = 'default' | 'pre-input'
 
-/** AI 图标按钮组件属性 */
 export interface AiButtonProps extends ComponentProps {
   /**
    * 服务商配置：字段级覆盖 `useConfig` 全局 `ai` 配置
@@ -23,7 +21,6 @@ export interface AiButtonProps extends ComponentProps {
   variant?: AiButtonVariant
 }
 
-/** AI 图标按钮组件定义的事件 */
 export interface AiButtonEmits {
   /** 生成成功：一次性为完整文本，流式为全部增量拼接的完整文本 */
   (event: 'success', text: string): void
@@ -37,7 +34,6 @@ export interface AiButtonEmits {
   (event: 'cancel'): void
 }
 
-/** AI 图标按钮组件暴露的属性和方法(组件内部使用) */
 export interface _AiButtonExposed {}
 
 /** AI 图标按钮组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */

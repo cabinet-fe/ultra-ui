@@ -1,4 +1,3 @@
-/** 解析失败的原因分类 */
 export type OfdParseErrorReason =
   /** 不是 ZIP 容器（找不到 End of Central Directory） */
   | 'not-zip'

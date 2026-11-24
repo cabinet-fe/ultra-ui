@@ -38,12 +38,7 @@ const props = withDefaults(defineProps<ScrollProps>(), { tag: 'div' })
 
 const emit = defineEmits<ScrollEmits>()
 
-defineSlots<{
-  /** 默认插槽 */
-  default(): any
-  /** 内容插槽 */
-  content(): any
-}>()
+defineSlots<{ default(): any; content(): any }>()
 
 const cls = bem('scroll')
 

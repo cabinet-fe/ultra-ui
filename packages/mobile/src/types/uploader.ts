@@ -14,11 +14,9 @@ export interface UploaderFileItem {
 
 /** 上传组件属性（报销填报场景：图片 / word / excel / pdf） */
 export interface UploaderProps extends FormComponentProps {
-  /** 文件列表（v-model） */
   modelValue?: UploaderFileItem[]
   /** 接受的文件类型，透传原生 input accept */
   accept?: string
-  /** 是否多选 */
   multiple?: boolean
   /** 最大文件数量，超出后隐藏上传入口 */
   maxCount?: number
@@ -37,7 +35,6 @@ export interface UploaderProps extends FormComponentProps {
   beforeRead?: (file: File) => boolean | Promise<boolean>
 }
 
-/** 上传组件定义的事件 */
 export interface UploaderEmits {
   (e: 'update:modelValue', files: UploaderFileItem[]): void
   (e: 'change', files: UploaderFileItem[]): void
@@ -46,5 +43,4 @@ export interface UploaderEmits {
   (e: 'click-file', file: UploaderFileItem, index: number): void
 }
 
-/** 上传组件暴露的对象 */
 export interface UploaderExposed {}

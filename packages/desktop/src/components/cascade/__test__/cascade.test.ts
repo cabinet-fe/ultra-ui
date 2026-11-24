@@ -83,13 +83,10 @@ describe('UCascade change event fullLabel', () => {
 
     await openDropdown(host)
 
-    // 点击第一列 "浙江省"
     await clickItemByLabel('浙江省')
 
-    // 点击第二列 "杭州市"
     await clickItemByLabel('杭州市')
 
-    // 点击第三列 "西湖区"
     await clickItemByLabel('西湖区')
 
     expect(changeResult).toBeDefined()

@@ -15,7 +15,6 @@ import { imageLinkInitial, imagePreviewSource } from './popup-helpers'
 export const INSERT_COUNT_MIN = 1
 export const INSERT_COUNT_MAX = 1000
 
-/** 小数位数钳制范围 */
 export const DECIMAL_PLACES_MIN = 0
 export const DECIMAL_PLACES_MAX = 10
 
@@ -26,7 +25,6 @@ export const AXIS_SIZE_MAX = 1000
 export const FALLBACK_ROW_HEIGHT = 28
 export const FALLBACK_COL_WIDTH = 80
 
-/** 选区覆盖行/列数 → 插入默认 N（min 1 / max 1000） */
 export function defaultInsertCount(range: CellRange | null, axis: 'row' | 'col'): number {
   if (!range) return INSERT_COUNT_MIN
   const n =
@@ -34,22 +32,18 @@ export function defaultInsertCount(range: CellRange | null, axis: 'row' | 'col')
   return Math.min(INSERT_COUNT_MAX, Math.max(INSERT_COUNT_MIN, n))
 }
 
-/** 点击行是否落在任一选区内（按行号覆盖） */
 export function isRowInSelection(ranges: CellRange[], row: number): boolean {
   return ranges.some((r) => r.start.row <= row && row <= r.end.row)
 }
 
-/** 点击列是否落在任一选区内（按列号覆盖） */
 export function isColInSelection(ranges: CellRange[], col: number): boolean {
   return ranges.some((r) => r.start.col <= col && col <= r.end.col)
 }
 
-/** 整行选区（列跨渲染宽度） */
 export function wholeRowRange(row: number, colCount: number): CellRange {
   return createRange({ row, col: 0 }, { row, col: Math.max(colCount - 1, 0) })
 }
 
-/** 整列选区（行跨渲染高度） */
 export function wholeColRange(col: number, rowCount: number): CellRange {
   return createRange({ row: 0, col }, { row: Math.max(rowCount - 1, 0), col })
 }
@@ -143,7 +137,6 @@ function primaryRange(ctx: SheetContext): CellRange | null {
   return ctx.getSelection().ranges[0] ?? null
 }
 
-/** 行号右键菜单：插入×2 / 删除 / 行高 / divider / 冻结 / 取消冻结 */
 export function buildRowHeaderMenus(
   ctx: SheetContext,
   options?: HeaderMenuOptions
@@ -201,7 +194,6 @@ export function buildRowHeaderMenus(
   ]
 }
 
-/** 列头右键菜单：插入×2 / 删除 / 列宽 / divider / 冻结 / 取消冻结 */
 export function buildColHeaderMenus(
   ctx: SheetContext,
   options?: HeaderMenuOptions
@@ -425,10 +417,6 @@ export function buildBodyMenus(ctx: SheetContext, options?: BodyMenuOptions): Co
   ]
 }
 
-/**
- * 右键落点预处理：body 格落在选区外 → 选中该格；
- * 行号/列头落在选区外 → 选中整行/整列（渲染尺寸）。
- */
 export function ensureContextMenuSelection(
   ctx: SheetContext,
   info: {

@@ -11,7 +11,6 @@
         :set-aspect-ratio="setAspectRatio"
         :aspect-ratio="currentRatio"
       >
-        <!-- 宽高比预设 -->
         <div :class="cls.e('tool-group')">
           <button
             v-for="preset in RATIO_PRESETS"
@@ -24,7 +23,6 @@
           </button>
         </div>
 
-        <!-- 缩放 / 旋转 / 翻转 / 重置 -->
         <div :class="cls.e('tool-group')">
           <button
             type="button"
@@ -98,10 +96,8 @@
         <img :class="cls.e('image')" :src="imageUrl" draggable="false" alt="" />
 
         <template v-if="selection">
-          <!-- 选区外半透明遮罩 -->
           <div v-for="(style, i) in maskStyles" :key="i" :class="cls.e('mask')" :style="style" />
 
-          <!-- 裁剪选区：整体拖动 + 8 个手柄调整大小 -->
           <div :class="cls.e('selection')" ref="selectionRef" :style="selectionStyle">
             <!-- 3×3 网格线，顺序对应 style.scss 中 nth-child 的定位 -->
             <i v-for="i in 4" :key="i" :class="cls.e('grid-line')" />
@@ -285,7 +281,6 @@ const selectionStyle = computed(() => {
   }
 })
 
-/** 选区外上 / 下 / 左 / 右四向遮罩 */
 const maskStyles = computed(() => {
   const sel = selection.value
   if (!sel) return []

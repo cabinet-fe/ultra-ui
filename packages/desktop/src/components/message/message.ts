@@ -6,23 +6,17 @@ import UMessageBox from './message-box.vue'
 
 const cls = bem('message')
 
-/** 消息项数据结构 */
 type MessageItem = MessageOptions & { key: string }
 
-/** --- 状态管理 --- */
 let container: HTMLElement | null = null
 const messages = shallowReactive<MessageItem[]>([])
 
-/** 消息关闭后回调 */
 const closedCallbacks = new Map<string, () => void>()
 
 /** 用于计数正在显示的 DOM 节点 (包含动画执行中) */
 let activeCount = 0
 let uid = 0
 
-/** --- 内部辅助函数 --- */
-
-/** 彻底销毁容器 */
 const destroy = () => {
   if (container) {
     render(null, container)
@@ -31,7 +25,6 @@ const destroy = () => {
   }
 }
 
-/** 离开动画结束后的清理 */
 const handleClosed = (id: string) => {
   activeCount--
 
@@ -51,7 +44,6 @@ const handleClose = (id: string) => {
   if (index !== -1) messages.splice(index, 1)
 }
 
-/** 挂载并渲染容器 */
 const ensureContainer = () => {
   if (container) return container
 
@@ -61,7 +53,6 @@ const ensureContainer = () => {
   return container
 }
 
-/** 执行 Vue 渲染逻辑 */
 const updateView = () => {
   const el = ensureContainer()
   setStyles(el, { zIndex: zIndex() })
@@ -76,13 +67,11 @@ const updateView = () => {
   render(vnode, el)
 }
 
-/** 创建消息实例 */
 const createMessage = (options: MessageOptions): MessageInstance => {
   const { onClosed: userOnClosed, ...messageOptions } = options
   const id = `msg_${uid++}`
   activeCount++
 
-  // 生命周期 Promise
   let resolveClosed: () => void
   const onClosed = new Promise<void>((r) => (resolveClosed = r))
 
@@ -97,8 +86,6 @@ const createMessage = (options: MessageOptions): MessageInstance => {
   return { id, close: () => handleClose(id), onClosed }
 }
 
-/** --- 导出 API --- */
-
 export const message = ((options) => {
   const mergedOptions = typeof options === 'string' ? { message: options } : options
   return createMessage(mergedOptions)
@@ -106,13 +93,11 @@ export const message = ((options) => {
 
 message._context = null
 
-// 挂载快捷方法: message.success(...)
 const messageTypes = ['success', 'warn', 'info', 'error', 'default'] as const
 messageTypes.forEach((type) => {
   message[type] = (msg, config) => message({ ...config, message: msg, type })
 })
 
-/** 关闭所有当前显示的消息 */
 message.closeAll = () => {
   messages.splice(0)
 }

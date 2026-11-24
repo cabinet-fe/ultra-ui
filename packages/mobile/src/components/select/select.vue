@@ -1,5 +1,4 @@
 <template>
-  <!-- 只读态：纯展示 -->
   <template v-if="readonly">{{ displayedValue || FORM_EMPTY_CONTENT }}</template>
 
   <div
@@ -35,7 +34,6 @@
     </span>
   </div>
 
-  <!-- 底部选择面板（内部实现，不进公开导出） -->
   <BottomSheet
     v-model:visible="sheetVisible"
     :title="placeholder"
@@ -109,9 +107,7 @@ const props = withDefaults(defineProps<SelectProps>(), {
 const emit = defineEmits<SelectEmits>()
 
 defineSlots<{
-  /** 前缀插槽 */
   prefix?: () => any
-  /** 默认插槽 */
   default?: (scope: { option: Record<string, any>; index: number }) => any
 }>()
 
@@ -260,7 +256,6 @@ function handleSelect(option: Record<string, any>) {
   sheetVisible.value = false
 }
 
-/** 清除选项 */
 function handleClear() {
   selected.value = undefined
   setLabel(undefined)

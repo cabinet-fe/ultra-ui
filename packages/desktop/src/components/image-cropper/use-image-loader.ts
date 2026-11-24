@@ -1,20 +1,14 @@
 import { onBeforeUnmount, shallowRef, watch, type ShallowRef } from 'vue'
 
 interface UseImageLoaderOptions {
-  /** 图片源（File / Blob / URL） */
   src: () => File | Blob | string | undefined
 }
 
 interface UseImageLoaderReturn {
-  /** 用于渲染的图片地址 */
   imageUrl: ShallowRef<string>
-  /** 是否加载完成 */
   loaded: ShallowRef<boolean>
-  /** 是否加载失败 */
   error: ShallowRef<boolean>
-  /** 图片原始宽度 */
   naturalWidth: ShallowRef<number>
-  /** 图片原始高度 */
   naturalHeight: ShallowRef<number>
   /** 已加载完成的图片元素，供画布绘制（预览 / getResult 输出） */
   imageEl: ShallowRef<HTMLImageElement | undefined>

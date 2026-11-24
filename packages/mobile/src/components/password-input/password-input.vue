@@ -92,7 +92,6 @@ const handleUpdatePwd = (e: Event): void => {
     return
   }
 
-  // 字符从无到有
   if (!model.value) {
     model.value = val
     return
@@ -102,7 +101,6 @@ const handleUpdatePwd = (e: Event): void => {
   let inputChar = pointIndex === 0 ? '' : val[pointIndex - 1]!
   if (inputChar === passwordChar) inputChar = ''
 
-  // 光标右侧字符数量（当前字符长度减去光标位置）
   const rightLen = val.length - pointIndex
   // 光标左侧字符数量 （当光标前的字符是刚刚输入的，则为这个字符前的所有的字符，否则为光标前的所有字符）
   const leftLen = inputChar === '' ? pointIndex : pointIndex - 1

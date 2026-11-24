@@ -7,9 +7,7 @@ interface Options {
 }
 
 interface Returned {
-  /** 是否为最大状态 */
   maximized: ShallowRef<boolean>
-  /** 切换最大状态 */
   toggleMaximize: (maxim: boolean) => void
   /** 关闭对话框时清掉 FLIP 内联 transform，避免与 fade-scale / spring 的 scale 叠乘 */
   cancelMaximizeMotion: () => void

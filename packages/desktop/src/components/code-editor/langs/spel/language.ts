@@ -73,7 +73,6 @@ function tokenIdentifier(stream: StringStream, state: SpelState): string {
   if (word === 'null') return 'null'
   if (KEYWORDS.has(word)) return 'keyword'
 
-  // T(...) 类型引用
   if (word === 'T' && stream.peek() === '(') {
     state.afterT = true
     return 'typeName'
@@ -88,7 +87,6 @@ function tokenSpel(stream: StringStream, state: SpelState): string | null {
   const ch = stream.peek()
   if (!ch) return null
 
-  // 字符串
   if (ch === "'" || ch === '"') {
     stream.next()
     state.afterDot = false
@@ -96,14 +94,12 @@ function tokenSpel(stream: StringStream, state: SpelState): string | null {
     return tokenString(stream, ch)
   }
 
-  // 数字
   if (/\d/.test(ch)) {
     state.afterDot = false
     state.afterT = false
     return tokenNumber(stream)
   }
 
-  // #变量 / #this / #root
   if (ch === '#') {
     stream.next()
     state.afterDot = false
@@ -116,7 +112,6 @@ function tokenSpel(stream: StringStream, state: SpelState): string | null {
     return 'operator'
   }
 
-  // 多字符运算符
   for (const op of OPERATORS) {
     if (stream.match(op)) {
       state.afterDot = false
@@ -125,7 +120,6 @@ function tokenSpel(stream: StringStream, state: SpelState): string | null {
     }
   }
 
-  // 单字符运算符
   if ('+-*/%^!=<>&|?:'.includes(ch)) {
     stream.next()
     state.afterDot = false
@@ -189,7 +183,6 @@ function tokenSpel(stream: StringStream, state: SpelState): string | null {
   return 'punctuation'
 }
 
-/** SpEL StreamLanguage */
 export const spelLanguage = StreamLanguage.define<SpelState>({
   name: 'spel',
   startState: () => ({ typeDepth: 0, afterDot: false, afterT: false }),

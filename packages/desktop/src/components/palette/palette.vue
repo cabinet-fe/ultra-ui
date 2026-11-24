@@ -8,16 +8,12 @@
     <span :class="className" :style="{ backgroundColor: color }"> </span>
 
     <template #content>
-      <!-- 饱和度和亮度 -->
       <PaletteSV ref="palette-sv" />
 
-      <!-- 色相 -->
       <PaletteHue ref="palette-hue" />
 
-      <!-- 透明度 -->
       <PaletteAlpha ref="palette-alpha" />
 
-      <!-- 颜色切换 -->
       <PaletteColorSwitch v-model:color="color" @clear="handleClear" />
     </template>
   </u-tip>

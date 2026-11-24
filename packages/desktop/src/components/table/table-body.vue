@@ -5,7 +5,6 @@
       <UTableRow v-else :row="row" :index="index" :class="getStripeCls(stripeIndex)" />
     </template>
 
-    <!-- 空 -->
     <tr v-if="!rows.length" :class="emptyRowCls">
       <td :colspan="leafColumns.length">
         <div :class="emptyCls">

@@ -135,7 +135,6 @@ watch(
 function handleClickSlider(e: MouseEvent) {
   if (disabled.value || props.range) return
 
-  // 获取点击位置相对于滑块的偏移量
   const rect = (e.currentTarget as HTMLElement).getBoundingClientRect()
 
   offset1.value = getOffsetByStep(e.clientX - rect.left)

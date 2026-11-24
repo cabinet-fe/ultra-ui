@@ -1,6 +1,5 @@
 <template>
   <div class="budget-entry">
-    <!-- 顶栏：标题 + 保存状态 + 提交；sheet 切换直接用 USheet 内置标签栏 -->
     <div class="budget-entry__bar">
       <span class="budget-entry__title">2026 年度预算填报</span>
       <span class="budget-entry__status" :data-state="statusState">
@@ -15,7 +14,6 @@
       </button>
     </div>
 
-    <!-- 提交前校验错误面板：点击条目跳转到对应 sheet 的出错格 -->
     <div v-if="errors.length > 0" class="budget-entry__errors">
       <div class="budget-entry__errors-title">
         提交前请修正以下 {{ errors.length }} 处问题（点击定位到单元格）：
@@ -128,14 +126,11 @@ const sheets: Record<string, Sheet> = { [SUMMARY]: workbook.activeSheet }
 for (const def of DETAIL_DEFS) sheets[def.name] = workbook.addSheet(def.name)
 const summary = sheets[SUMMARY]!
 
-/** 各明细表布局：项目行（0-based）与合计行 */
 const DETAIL_LAYOUT = DETAIL_DEFS.map((def) => ({
   name: def.name,
   itemRows: def.items.map((_, i) => FIRST_ITEM_ROW + i),
   totalRow: FIRST_ITEM_ROW + def.items.length
 }))
-
-// ─── 模板：预算明细表（编制项目 × 部门金额，行/列合计公式） ────
 
 /** 各明细表合计格引用（如 费用预算!F11），供汇总页跨表公式使用 */
 const detailTotalRefs = new Map<string, string>()
@@ -200,8 +195,6 @@ for (const def of DETAIL_DEFS) {
   detailTotalRefs.set(def.name, `F${totalRow + 1}`)
 }
 
-// ─── 模板：预算汇总（跨表公式联动，无需填写） ─────────────────
-
 const SUMMARY_FIRST_ROW = 5 // 首个「类别合计」行（0-based）
 const SUMMARY_TOTAL_ROW = SUMMARY_FIRST_ROW + DETAIL_DEFS.length
 const SUMMARY_CAP_ROW = SUMMARY_TOTAL_ROW + 1
@@ -231,7 +224,6 @@ summary.setCellStyle({ start: { row: 4, col: 0 }, end: { row: 4, col: 1 } }, HEA
 DETAIL_DEFS.forEach((def, i) => {
   const row = SUMMARY_FIRST_ROW + i
   summary.setCellValue({ row, col: 0 }, `${def.name}合计`)
-  // 跨表公式：直接引用明细表合计格
   summary.setCellFormula({ row, col: 1 }, `=${def.name}!${detailTotalRefs.get(def.name)}`)
 })
 summary.setCellValue({ row: SUMMARY_TOTAL_ROW, col: 0 }, '预算总计')
@@ -265,8 +257,6 @@ for (const row of [SUMMARY_TOTAL_ROW, SUMMARY_BALANCE_ROW]) {
 summary.setColWidth(0, 160)
 summary.setColWidth(1, 140)
 
-// ─── 单元格级只读：各表整锁后放开填写区 ─────────────────────
-
 /** 各 sheet 的可编辑格：明细表的项目名列 + 部门金额列（合计行/列与汇总页只读） */
 const EDITABLE_ADDRS: Record<string, CellAddress[]> = { [SUMMARY]: [] }
 for (const { name, itemRows } of DETAIL_LAYOUT) {
@@ -280,7 +270,6 @@ const editableKeys = new Map(
     new Set(addrs.map((addr) => `${addr.row},${addr.col}`))
   ])
 )
-/** 随填报数据持久化的格 = 可编辑格 + 提交状态格 */
 const persistableKeys = new Map(
   Object.entries(EDITABLE_ADDRS).map(([name, addrs]) => [
     name,
@@ -292,11 +281,10 @@ persistableKeys.get(SUMMARY)!.add(`${STATUS_ADDR.row},${STATUS_ADDR.col}`)
 /** 整表锁定范围 = USheet 默认渲染区（100 行 × 26 列），模板区域外也不可写 */
 const FULL_RANGE = { start: { row: 0, col: 0 }, end: { row: 99, col: 25 } }
 
-/** 整表锁定（提交后 / 已提交状态加载后） */
 function lockAll(): void {
   for (const name of SHEET_NAMES) sheets[name]!.setRangeReadonly(FULL_RANGE)
 }
-/** 放开填写区（撤回提交 / 初始模板） */
+
 function unlockEditable(): void {
   for (const name of SHEET_NAMES) {
     for (const addr of EDITABLE_ADDRS[name]!) sheets[name]!.setCellReadonly(addr, false)
@@ -305,10 +293,7 @@ function unlockEditable(): void {
 
 lockAll()
 unlockEditable()
-// 模板为基线状态，不进 undo 历史
 for (const name of SHEET_NAMES) sheets[name]!.history.clear()
-
-// ─── 动态样式：填写区高亮 / 校验出错格标红 ──────────────────
 
 const submitted = ref(false)
 /** 校验出错格（按 sheet 分组的 'row,col' 集合；随编辑逐个摘除） */
@@ -327,8 +312,6 @@ const resolveCellStyle: ResolveCellStyleHook = (addr, base) => {
   }
   return undefined
 }
-
-// ─── 按「sheet + 单元格」自动保存 ───────────────────────────
 
 interface RemoteCell {
   sheet: string
@@ -391,13 +374,11 @@ async function flushPending(): Promise<void> {
     saveState.value = 'saved'
     lastSavedAt.value = new Date().toLocaleTimeString()
   } catch {
-    // 失败回到待存队列，稍后自动重试
     for (const cell of cells) pending.set(`${cell.sheet}!${cell.row},${cell.col}`, cell)
     saveState.value = 'error'
     scheduleSave(3000)
   } finally {
     saving = false
-    // 保存期间产生的新修改继续下一轮
     if (pending.size > 0 && saveState.value !== 'error') scheduleSave(0)
   }
 }
@@ -419,8 +400,6 @@ const statusText = computed(() => {
   }
 })
 
-// ─── 提交前校验 / 提交 / 撤回 ───────────────────────────────
-
 interface BudgetError {
   sheetName: string
   addr: CellAddress
@@ -433,7 +412,6 @@ function isBlank(value: CellValue | undefined): boolean {
   return value == null || value === ''
 }
 
-/** 全量校验：编制项目必填 / 金额须为 ≥0 数字 / 每行至少一个部门金额 / 总计不超上限 */
 function validateBudget(): BudgetError[] {
   const result: BudgetError[] = []
   const push = (sheetName: string, addr: CellAddress, message: string) =>
@@ -459,7 +437,6 @@ function validateBudget(): BudgetError[] {
     }
   }
 
-  // 总额不超年度额度上限
   const total = summary.getDisplayValue({ row: SUMMARY_TOTAL_ROW, col: 1 })
   if (typeof total === 'number' && total > BUDGET_CAP) {
     push(
@@ -515,7 +492,7 @@ async function submit(): Promise<void> {
   }
   summary.setCellValue(STATUS_ADDR, '已提交') // 经 cell-change 自动持久化
   lockAll()
-  for (const name of SHEET_NAMES) sheets[name]!.history.clear() // 提交后为新基线
+  for (const name of SHEET_NAMES) sheets[name]!.history.clear()
   submitted.value = true
   await flushPending()
   refreshGridStyles() // 摘除填写区高亮（提交态变化无模型事件，需重估样式）
@@ -537,8 +514,6 @@ function jumpToError(err: BudgetError): void {
   sheets[err.sheetName]!.selectCell(err.addr)
 }
 
-// ─── sheet 切换（内置标签栏点击或宿主 activateSheet 均经此同步状态） ────
-
 function onActiveSheetChange(payload: { sheet: Sheet }): void {
   activeSheetName.value = payload.sheet.name
   // USheet 内部先建/绘 grid 再透传本事件，首帧样式可能按旧 sheet 名求值
@@ -546,8 +521,6 @@ function onActiveSheetChange(payload: { sheet: Sheet }): void {
   // （表单规模小，代价可忽略）
   void nextTick(() => refreshGridStyles())
 }
-
-// ─── 加载已存数据 ───────────────────────────────────────────
 
 onMounted(async () => {
   try {
@@ -565,9 +538,8 @@ onMounted(async () => {
           .filter((cell) => cell.value !== null && cell.value !== '')
           .map((cell) => ({ addr: { row: cell.row, col: cell.col }, data: { v: cell.value } }))
         if (items.length > 0) sheets[name]!.setCells(items)
-        sheets[name]!.history.clear() // 服务端数据同样作为基线
+        sheets[name]!.history.clear()
       }
-      // 已提交状态恢复：整表只读
       if (summary.getDisplayValue(STATUS_ADDR) === '已提交') {
         lockAll()
         submitted.value = true
@@ -581,7 +553,6 @@ onMounted(async () => {
   }
 })
 
-// 调试句柄：浏览器控制台 / 自动化可直接读写模型
 ;(window as unknown as Record<string, unknown>).__budgetDemo = {
   workbook,
   sheets,

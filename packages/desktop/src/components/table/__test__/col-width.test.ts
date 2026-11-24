@@ -87,7 +87,6 @@ describe('allocateLeafColumnWidths', () => {
     expect(first[0]!.width).toBe(1000)
     expect(first[1]!.width).toBe(1000)
 
-    // 分配结果不得污染用户的列配置对象
     expect(config[0]!.width).toBeUndefined()
     expect(config[1]!.width).toBeUndefined()
 
@@ -96,7 +95,6 @@ describe('allocateLeafColumnWidths', () => {
     const rebuilt = config.map((c, i) => new ColumnNode(c, i, 0))
     expect(rebuilt.every((node) => !node.explicitWidth)).toBe(true)
 
-    // 容器变窄后重新分配，列宽相应收缩
     allocateLeafColumnWidths(rebuilt, 800)
     expect(rebuilt[0]!.width).toBe(400)
     expect(rebuilt[1]!.width).toBe(400)

@@ -15,8 +15,6 @@ export function currentRange(context: SheetContext): CellRange | null {
   return ranges[0] ?? (activeCell ? { start: activeCell, end: activeCell } : null)
 }
 
-// ─── 超链接配置弹窗共享类型（hyperlink-popup.vue 与菜单/宿主接线共用） ──
-
 /** 弹窗模式：cell = 单元格链接（地址 + 显示文本）；image = 图片链接（仅地址） */
 export type HyperlinkPopupMode = 'cell' | 'image'
 
@@ -50,8 +48,6 @@ export function imageLinkInitial(link: string | undefined): CellLinkPayload | un
   return link ? { url: link } : undefined
 }
 
-// ─── 图片 lightbox 预览（右键「预览」拉起，sheet.vue 挂 UImagePreviewer） ──
-
 /** lightbox 预览源：URL 或图片字节 + MIME 提示（字节转 objectURL 由预览组件回收） */
 export interface ImagePreviewSource {
   /** URL 来源（浮动图 src / 嵌入图 src，优先于字节） */
@@ -75,8 +71,6 @@ export function imagePreviewSource(payload: {
   if (payload.src) return { src: payload.src }
   return { data: payload.data, mime: IMAGE_MIME[payload.type ?? 'png'] }
 }
-
-// ─── 边框面板常量 ────────────────────────────────────────────
 
 export const BORDER_LINE_STYLES: BorderLineStyle[] = ['thin', 'medium', 'thick', 'dashed', 'dotted']
 

@@ -40,12 +40,7 @@ const props = withDefaults(defineProps<DropdownProps>(), {
 
 const emit = defineEmits<DropdownEmits>()
 
-const slots = defineSlots<{
-  /** 内容 */
-  content?: () => any
-  /** 触发器 */
-  trigger?: () => any
-}>()
+const slots = defineSlots<{ content?: () => any; trigger?: () => any }>()
 
 const cls = bem('dropdown')
 
@@ -67,7 +62,6 @@ const triggerDom = computed(() => {
   return customTriggerRef.value || triggerRef.value?.$el
 })
 
-/**显示隐藏 */
 const visible = useModel({ defaultValue: false, propName: 'visible', props, emit })
 
 const dropdownVisible = useNest(visible)
@@ -89,7 +83,6 @@ function stopClose() {
   closeTimer !== undefined && clearTimeout(closeTimer)
 }
 
-/** 打开下拉框 */
 function open(config?: { trigger?: HTMLElement }) {
   stopClose()
   const { trigger } = config || {}
@@ -111,11 +104,8 @@ function close() {
   }
 }
 
-/** 点击外部 */
 function handleClickOutside(e: MouseEvent) {
   const { trigger } = props
-  // 当下拉框为点击时触发时，点击触发元素时不关闭
-  // 其他任何时候点击外部都关闭下拉器
   if (trigger === 'click' && triggerDom.value.contains(e.target as Node)) {
     return
   }

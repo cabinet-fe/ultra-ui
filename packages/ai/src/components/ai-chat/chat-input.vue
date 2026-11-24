@@ -100,7 +100,6 @@
         </span>
       </div>
 
-      <!-- 右簇：token 用量环 → 模型/推理选择 → 发送或停止（互斥） -->
       <div :class="cls.e('input-toolbar-right')">
         <UDropdown
           v-if="tokenUsage"
@@ -201,9 +200,7 @@ const props = defineProps<{
   running: boolean
   /** 可选模型列表；有值则显示选择器 */
   models?: ChatModelOption[]
-  /** 输入框占位文本 */
   placeholder?: string
-  /** 附件 accept 类型 */
   accept?: string
   /** 单个附件最大字节数 */
   maxAttachmentSize?: number
@@ -310,7 +307,6 @@ const usageRows = computed(() => {
   return rows
 })
 
-/** 生成中提示用户消息将进入队列 */
 const placeholderText = computed(() => {
   if (props.running) return '会话进行中，发送的消息将进入待发送队列'
   return props.placeholder ?? '输入消息，Enter 发送，Shift + Enter 换行'
@@ -318,7 +314,6 @@ const placeholderText = computed(() => {
 
 const MAX_INPUT_HEIGHT = 160
 
-/** 多行自适应高度，上限 160px */
 const autoResize = () => {
   const el = textareaRef.value
   if (!el) return
@@ -356,7 +351,6 @@ const setContent = (content: string) => {
   })
 }
 
-/** 读取当前输入框内容 */
 const getContent = () => text.value
 
 defineExpose({ setContent, getContent })

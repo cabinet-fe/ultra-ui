@@ -95,14 +95,12 @@ function dialogEl(): HTMLElement {
   return document.body.querySelector<HTMLElement>('.u-sheet__link-dialog')!
 }
 
-/** 按文案取弹窗内按钮（确定 / 取消） */
 function dialogButton(text: string): HTMLButtonElement {
   return [...dialogEl().querySelectorAll<HTMLButtonElement>('.hyperlink-btn-stub')].find((btn) =>
     btn.textContent?.includes(text)
   )!
 }
 
-/** 第 index 个输入框写入并同步 v-model */
 async function setInput(index: number, value: string): Promise<void> {
   const inputs = [...dialogEl().querySelectorAll<HTMLInputElement>('.hyperlink-input-stub')]
   inputs[index]!.value = value
@@ -125,7 +123,6 @@ describe('USheetHyperlinkPopup', () => {
     expect(result.confirms).toEqual([])
     expect(result.closeCount()).toBe(0)
 
-    // 填地址后提交放行
     await setInput(0, 'https://example.com')
     dialogButton('确定').click()
     expect(mocks.message.error).toHaveBeenCalledTimes(1)
@@ -139,14 +136,12 @@ describe('USheetHyperlinkPopup', () => {
     })
     await Promise.resolve()
 
-    // 编辑回填：改地址、清空显示文本
     await setInput(0, 'https://new.example.com')
     await setInput(1, '')
     dialogButton('确定').click()
     expect(result.confirms).toEqual([{ url: 'https://new.example.com' }])
     expect('text' in result.confirms[0]!).toBe(false)
 
-    // 显示文本填写时随载荷提交
     await setInput(0, 'https://example.com')
     await setInput(1, '  官网  ')
     dialogButton('确定').click()

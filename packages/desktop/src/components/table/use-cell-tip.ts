@@ -5,7 +5,6 @@ import type { TipAlign } from '../../types'
 interface Options {
   /** 单元格选择器，事件委托用 */
   cellSelector: string
-  /** 是否启用 */
   enabled: () => boolean
   /** 显示延迟（毫秒），避免鼠标快速掠过时闪烁 */
   delay?: number

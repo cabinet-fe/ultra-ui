@@ -141,21 +141,18 @@ describe('UBatchEdit quick-edit 切换编辑行', () => {
   it('切换行时先重置表单再回显，不污染行数据', async () => {
     const { host, data, model, unmount } = mountBatchEdit()
 
-    // 第一次点击第 1 行的编辑按钮：正常回显
     await clickEditRow(host, 0)
     expect(model.label).toBe('存草稿')
     expect(model.behavior).toBe('common-resource')
     expect(model.submitType).toBe('DRAFT')
     expect(model.apiMethod).toBeUndefined()
 
-    // 再点击第 2 行的编辑按钮：先重置回 model 初始快照，再回显第 2 行数据
     await clickEditRow(host, 1)
     expect(model.label).toBe('调接口')
     expect(model.behavior).toBe('api')
     expect(model.submitType).toBe('SUBMIT')
     expect(model.apiMethod).toBe('POST')
 
-    // 源数据不被默认值污染
     expect(data.value).toEqual([
       { id: '1', label: '存草稿', behavior: 'common-resource', submitType: 'DRAFT' },
       { id: '2', label: '调接口', behavior: 'api', submitType: 'SUBMIT', apiMethod: 'POST' }
@@ -173,7 +170,6 @@ describe('UBatchEdit quick-edit 切换编辑行', () => {
     expect(aside.style.display).not.toBe('none')
     expect(model.label).toBe('存草稿')
 
-    // 再次点击当前行：取消选中并关闭表单，model 恢复初始值
     await clickRow(host, 0)
     // 侧栏离场过渡结束后 display 才落为 none
     await nextFrames(2)
@@ -189,7 +185,6 @@ describe('UBatchEdit quick-edit 切换编辑行', () => {
     await clickEditRow(host, 1)
     expect(model.label).toBe('调接口')
 
-    // 点击「取消」关闭表单，model 恢复到初始快照
     clickEl(queryCancelButton(host)!)
     await nextTick()
     await nextTick()
@@ -212,7 +207,6 @@ describe('UBatchEdit quick-edit 切换编辑行', () => {
   it('表单常驻挂载（v-show 控制显隐），切换行不重建表单', async () => {
     const { host, unmount } = mountBatchEdit()
 
-    // model 存在即挂载表单，未编辑行时仅隐藏（快照只在首次挂载时拍一次）
     const aside = host.querySelector<HTMLElement>('.u-batch-edit__form')
     expect(aside).toBeTruthy()
     expect(aside!.style.display).toBe('none')
@@ -222,7 +216,6 @@ describe('UBatchEdit quick-edit 切换编辑行', () => {
     expect(aside!.style.display).not.toBe('none')
 
     await clickEditRow(host, 1)
-    // 同一 DOM 节点：表单未因切行销毁重建，初始快照不会被重新生成
     expect(host.querySelector('.u-batch-edit__form-body')).toBe(formBody)
 
     unmount()
@@ -360,13 +353,10 @@ describe('UBatchEdit formMode', () => {
 
     const dialog = queryDialog()
     expect(dialog).toBeTruthy()
-    // 表格占满整行，右列不再渲染
     expect(host.querySelector('.u-batch-edit__form')).toBeNull()
-    // 弹框内复用原表单头部 / 表单体 / 底部操作区
     expect(dialog!.querySelector('.u-batch-edit__form-header')).toBeTruthy()
     expect(dialog!.querySelector('.u-batch-edit__form-body')).toBeTruthy()
     expect(dialog!.querySelector('.u-batch-edit__form-actions')).toBeTruthy()
-    // 编辑行已回显
     expect(model.label).toBe('存草稿')
 
     unmount()
@@ -379,17 +369,14 @@ describe('UBatchEdit formMode', () => {
       labelRules: { required: true }
     })
 
-    // 打开新增弹框
     clickEl(host.querySelector<HTMLElement>('.u-batch-edit__add-btn')!)
     await waitDialogOpen()
 
-    // 必填校验失败：不调用 saveMethod，弹框保持打开
     clickEl(querySaveButton(queryDialog()!)!)
     await waitDialogSettled()
     expect(saveMethod).not.toHaveBeenCalled()
     expect(queryDialog()).toBeTruthy()
 
-    // 填写后保存：走 saveMethod 并插入数据，成功后关闭弹框
     setInputValue(queryDialog()!.querySelector<HTMLInputElement>('.u-input input')!, '新名称')
     await nextTick()
     await nextTick()
@@ -428,14 +415,12 @@ describe('UBatchEdit formMode', () => {
     clickEl(continueBtn())
     await waitDialogSettled()
 
-    // 插入一行但弹框保持打开，表单重置为初始值
     expect(data.value).toHaveLength(3)
     expect(data.value[2]).toMatchObject({ label: '第一条' })
     expect(queryDialog()).toBeTruthy()
     expect(queryDialog()!.querySelector<HTMLInputElement>('.u-input input')!.value).toBe('')
     expect(model.label).toBe('')
 
-    // 继续录入第二条后普通保存：追加到末尾并关闭弹框
     setInputValue(queryDialog()!.querySelector<HTMLInputElement>('.u-input input')!, '第二条')
     await nextTick()
     await nextTick()
@@ -480,7 +465,6 @@ describe('UBatchEdit formMode', () => {
       'Ctrl + S'
     )
 
-    // Esc 仍可关闭弹框
     queryDialog()!.dispatchEvent(
       new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true })
     )
@@ -522,7 +506,6 @@ describe('UBatchEdit formMode', () => {
       props: { formMode: 'dialog', quickEdit: false, saveMethod }
     })
 
-    // 编辑第 1 行后取消
     await clickEditRow(host, 0)
     await waitDialogOpen()
     setInputValue(queryDialog()!.querySelector<HTMLInputElement>('.u-input input')!, '改过的名称')
@@ -533,16 +516,13 @@ describe('UBatchEdit formMode', () => {
 
     expect(saveMethod).not.toHaveBeenCalled()
     expect(data.value[0]).toMatchObject({ label: '存草稿' })
-    // model 恢复初始快照，而不是残留上一行数据
     expect(model.label).toBe('')
     expect(model.submitType).toBeUndefined()
 
-    // 取消后再新增：表单应为初始值（快照不被上一行污染）
     clickEl(host.querySelector<HTMLElement>('.u-batch-edit__add-btn')!)
     await waitDialogOpen()
     expect(queryDialog()!.querySelector<HTMLInputElement>('.u-input input')!.value).toBe('')
 
-    // 表单头部的关闭按钮同样不保存
     setInputValue(queryDialog()!.querySelector<HTMLInputElement>('.u-input input')!, '随便写')
     await nextTick()
     await nextTick()
@@ -552,7 +532,6 @@ describe('UBatchEdit formMode', () => {
     expect(model.label).toBe('')
     expect(data.value).toHaveLength(2)
 
-    // 弹框自身关闭交互（点击遮罩）也不保存
     await clickEditRow(host, 1)
     await waitDialogOpen()
     setInputValue(queryDialog()!.querySelector<HTMLInputElement>('.u-input input')!, '改过的名称')

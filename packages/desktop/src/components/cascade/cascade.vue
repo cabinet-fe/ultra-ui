@@ -19,7 +19,6 @@
     @update:visible="handleDropdownVisible"
   >
     <template #trigger>
-      <!-- 单选展示 -->
       <u-input
         v-if="!multiple"
         :size="size"
@@ -35,7 +34,6 @@
         </template>
       </u-input>
 
-      <!-- 多选展示 -->
       <template v-if="multiple">
         <span :class="cls.e('placeholder')" v-show="!modelValue?.length">
           {{ placeholder }}
@@ -66,7 +64,6 @@
     </template>
 
     <template #content>
-      <!-- 过滤 -->
       <div v-if="filterable" :class="cls.e('panel-filter')">
         <u-input placeholder="输入关键字进行过滤" v-model="qs" :size="size" clearable>
           <template #suffix>
@@ -93,7 +90,6 @@
     </template>
   </u-dropdown>
 
-  <!-- 只读 -->
   <template v-else>
     <div :class="[cls.m(size)]" v-if="multiple">
       <div :class="cls.e('tags')">
@@ -235,7 +231,6 @@ function handleClear() {
   emit('clear')
 }
 
-// 过滤
 const qs = shallowRef<string>('')
 
 const dropdownVisible = shallowRef(false)

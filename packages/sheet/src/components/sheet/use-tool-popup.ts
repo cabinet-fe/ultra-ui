@@ -40,7 +40,6 @@ export function useToolPopup(
    */
   getFallbackAnchor?: () => HTMLElement | null | undefined
 ) {
-  /** 当前打开的弹层工具（null = 未打开） */
   const popupTool = shallowRef<SheetTool | null>(null)
   /** 触发按钮元素（打开时的 currentTarget；用于面板 left 对齐按钮） */
   const popupAnchor = shallowRef<HTMLElement | null>(null)
@@ -51,7 +50,6 @@ export function useToolPopup(
     closePopup()
     popupTool.value = tool
     popupAnchor.value = anchor ?? null
-    // 面板打开期间的所有写入合并为一个 undo 单元（关闭时提交）
     if (joinsTransaction(tool)) context.beginTransaction()
   }
 
@@ -89,7 +87,6 @@ export function useToolPopup(
   function handleToolClick(tool: SheetTool, event?: MouseEvent): void {
     if (tool.disabled?.(context)) return
     if (tool.popup) {
-      // 弹层工具：同 id 再点 = 关闭；否则延迟打开（见 scheduleOpen）
       if (popupTool.value?.id === tool.id) {
         closePopup()
         return
@@ -124,7 +121,6 @@ export function useToolPopup(
     return getFallbackAnchor?.() ?? null
   }
 
-  /** Ctrl/Cmd+F 打开 / 关闭查找条（与工具按钮同一 toggle 逻辑） */
   function onGlobalKeydown(event: KeyboardEvent): void {
     if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== 'f') return
     // 仅当事件源落在本实例容器内才响应（#6）：容器外不得 preventDefault，

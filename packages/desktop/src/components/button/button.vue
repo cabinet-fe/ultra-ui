@@ -1,18 +1,15 @@
 <template>
   <button :class="classList" type="button" ref="buttonRef" v-ripple="ripple" @click="handleClick">
-    <!-- 加载图标 -->
     <u-icon v-if="loading" :class="[bem.is('loading')]" :size="iconSize">
       <component :is="loadingIcon" />
     </u-icon>
 
-    <!-- 左侧图标 -->
     <u-icon v-if="!!icon && iconPosition === 'left' && !loading" :size="iconSize">
       <component :is="icon" />
     </u-icon>
 
     <slot />
 
-    <!-- 右侧图标 -->
     <u-icon v-if="!!icon && iconPosition === 'right'" :size="iconSize">
       <component :is="icon" />
     </u-icon>

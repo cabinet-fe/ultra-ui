@@ -19,7 +19,6 @@ const { container, offset = 0 } = defineProps<AnchorProps>()
 
 const emit = defineEmits<AnchorEmits>()
 
-/** 受控高亮锚点 */
 const current = defineModel<string>('current')
 
 const cls = bem('anchor')

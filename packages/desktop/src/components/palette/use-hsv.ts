@@ -15,9 +15,7 @@ interface UseHSVReturned {
 
 export function useHSV(): UseHSVReturned {
   const HSV = reactive({ h: 0, s: 1, v: 1 })
-  /** 透明度 */
   const alpha = ref(1)
-  /** 色调 RGB 值 */
   const hueRGB = computed(() => HUE2RGB(HSV.h))
 
   /**
@@ -28,10 +26,6 @@ export function useHSV(): UseHSVReturned {
     HSV.h = deg
   }
 
-  /**
-   * 更新饱和度和亮度
-   * @param sv { s: 饱和度, v: 亮度 }
-   */
   function updateSV({ s, v }: { s: number; v: number }) {
     HSV.s = s
     HSV.v = v

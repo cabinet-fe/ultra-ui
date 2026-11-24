@@ -190,8 +190,6 @@ export function useSmartSheet(options: UseSmartSheetOptions) {
   /** 各字段当前列宽（含用户拖拽调宽后的值，remap 时按字段回放，字段显隐切换不丢） */
   const colWidths = new Map<string, number>()
 
-  // ─── 列头与渲染装配 ────────────────────────────────────────
-
   /** 按列自定义表头元素：类型图标 + 字段名 + 配置入口（引用更替触发网格重建） */
   const header = shallowRef<SheetGridHeaderOptions>(buildHeaderOptions(ctx.fields))
   const renderers: (CellRenderer | undefined)[] = []
@@ -241,8 +239,6 @@ export function useSmartSheet(options: UseSmartSheetOptions) {
       return field ? FIELD_EDITOR_NAMES[field.type] : undefined
     }
   }
-
-  // ─── 视图 → Sheet 全量重装配 ──────────────────────────────
 
   function remap(nextFields: TableField[], nextItems: ViewItem[], docRowsGrew: boolean): void {
     const prevRows = ctx.items.length
@@ -306,7 +302,7 @@ export function useSmartSheet(options: UseSmartSheetOptions) {
         sheet.setColWidth(col, colWidths.get(field.id) ?? FIELD_COL_WIDTHS[field.type])
       })
 
-      sheet.history.clear() // 重装配为基线，不进 undo 历史
+      sheet.history.clear()
     } finally {
       remapping = false
     }
@@ -350,8 +346,6 @@ export function useSmartSheet(options: UseSmartSheetOptions) {
     }
   )
 
-  // ─── Sheet → doc 编辑回写 ─────────────────────────────────
-
   const offCellChange = sheet.on('cell-change', ({ addr }) => {
     if (remapping) return
     const field = ctx.fields[addr.col]
@@ -376,8 +370,6 @@ export function useSmartSheet(options: UseSmartSheetOptions) {
     sheet.setCells(v == null ? [{ addr, data: undefined }] : [{ addr, data: { v } }])
     return true
   }
-
-  // ─── 行头控件覆盖层（勾选 + 展开行详情，对齐行号列几何） ───
 
   const checkedRowIds = new Set<string>()
   /** 每条可视行一行控件（勾选 + 展开按钮），随滚动帧按行几何对齐 */

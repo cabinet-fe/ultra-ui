@@ -33,7 +33,6 @@ export class UITheme {
 
   readonly theme: Theme
 
-  /** 主题所属系列：浅色 / 深色 */
   series: ThemeSeries
 
   private readonly reactiveEnabled: boolean
@@ -244,7 +243,6 @@ export class UITheme {
     return decls.join(';')
   }
 
-  /** 主题的默认菜单变体（未声明时为 dark） */
   private navSidebarVariant(theme: Theme): NavSidebarVariant {
     return theme.nav?.variant === 'light' ? 'light' : 'dark'
   }

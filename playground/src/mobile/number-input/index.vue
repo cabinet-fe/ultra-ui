@@ -53,7 +53,6 @@ const currency = shallowRef<number | undefined>(19900)
 </script>
 
 <style lang="scss" scoped>
-// 手机设备外壳视口内呈现，验证移动端密度与触控热区
 .demo {
   display: flex;
   flex-direction: column;

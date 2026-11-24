@@ -45,8 +45,6 @@
       </u-input>
     </template>
     <template #content>
-      <!-- 菜单列表 -->
-
       <div v-if="remoteLoading" :class="cls.e('loading')">
         <ULoading type="dual-ring" />
       </div>
@@ -102,12 +100,7 @@ const props = withDefaults(defineProps<TreeSelectProps>(), {
 
 const emit = defineEmits<TreeSelectEmits>()
 
-const slots = defineSlots<{
-  /** 默认插槽 */
-  default?: (props: TreeSlotsScope) => any
-  /** 前缀插槽 */
-  prefix?: () => any
-}>()
+const slots = defineSlots<{ default?: (props: TreeSlotsScope) => any; prefix?: () => any }>()
 
 const treeProps = computed(() => {
   return o(props as Record<string, any>).omit([
@@ -142,18 +135,14 @@ function nodeEmitText(data: Record<string, any>) {
   return props.labelKey === undefined ? renderNodeLabel(data) : o(data).get(labelKey.value)
 }
 
-/** 是否可搜索：显式声明或数据源为远程函数 */
 const filterable = computed(() => props.filterable || typeof props.data === 'function')
 
-/** 过滤 */
 const qs = shallowRef('')
 
 const treeRef = shallowRef<TreeExposed>()
 
-/** 远程搜索返回的树数据 */
 const remoteData = shallowRef<Record<string, any>[]>()
 
-/** 面板渲染的树数据：data 为函数时来自远程搜索，否则为静态数据 */
 const treeData = computed(() => (typeof props.data === 'function' ? remoteData.value : props.data))
 
 const remoteLoading = shallowRef(false)
@@ -198,7 +187,6 @@ const model = defineModel<string | number>()
 /** 内部展示文案，仅由 data 推导（未命中时展示 text 兜底）；经 update:text 通知父级 */
 const label = shallowRef<string>()
 
-/** 展示文案：data 推导优先，未命中时回退 text 兜底 */
 const displayText = computed(() => {
   if (!(model.value || model.value === 0)) return undefined
   return label.value ?? props.text
@@ -222,7 +210,6 @@ function setLabel(next?: string, text: string | undefined = next) {
   if (!readonly.value) emit('update:text', text)
 }
 
-/** 触发输入框的值：查询态下承载查询串，否则展示选中标签 */
 const inputValue = computed(() => {
   if (filterable.value && querying.value) return qs.value
   return displayText.value
@@ -243,7 +230,6 @@ function handleQueryInput(value: string) {
 
 const hovered = shallowRef(false)
 
-/** 悬停且存在选中值时展示清除按钮（替代下拉箭头） */
 const showClear = computed(() => {
   if (!props.clearable || disabled.value || !hovered.value) return false
   return !!displayText.value
@@ -270,7 +256,6 @@ function handleTriggerClickCapture(e: MouseEvent) {
 
 watch(dropdownVisible, (visible) => {
   if (visible && filterable.value) {
-    // 面板展开后进入查询态并聚焦输入框，可以立即输入查询
     querying.value = true
     nextTick(() => inputRef.value?.el?.focus())
   } else if (!visible) {
@@ -286,7 +271,6 @@ const dropdownRef = shallowRef<InstanceType<typeof UDropdown>>()
 
 const { userAction, isUserActive } = useUserAction()
 
-/** 清空 */
 const handleClear = userAction(() => {
   model.value = ''
   setLabel(undefined)

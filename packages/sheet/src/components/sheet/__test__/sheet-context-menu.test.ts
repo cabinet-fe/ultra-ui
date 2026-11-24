@@ -285,7 +285,6 @@ describe('build*Menus', () => {
       ]) {
         expect(ctx.getCellStyle(addr)?.numFmt).toEqual(c.numFmt)
       }
-      // 仅样式变化，原始值不变
       expect(ctx.getCellData({ row: 0, col: 0 })?.v).toBe(45000)
       expect(ctx.getCellData({ row: 0, col: 1 })?.v).toBe(1234567.89)
       sheet.undo()
@@ -336,7 +335,6 @@ describe('build*Menus', () => {
     expect(menus.find((m) => m.label === '插入图片')?.disabled).toBe(true)
     expect(menus.find((m) => m.label === '嵌入图片')?.disabled).toBe(true)
     expect(menus.find((m) => m.label === '设置数据格式')?.disabled).toBe(true)
-    // 无活动格：超链接项同样禁用
     expect(menus.find((m) => m.label === '插入超链接')?.disabled).toBe(true)
   })
 
@@ -375,7 +373,6 @@ describe('build*Menus', () => {
 })
 
 describe('buildBodyMenus 超链接项（按目标格链接状态出项）', () => {
-  /** 记录句柄调用的简单 spy（mode + 编辑回填载荷） */
   function popupSpy() {
     const calls: Array<{ mode: string; initial?: { url: string; text?: string } }> = []
     const open = (mode: 'cell', initial?: { url: string; text?: string }): void => {
@@ -428,20 +425,16 @@ describe('buildBodyMenus 超链接项（按目标格链接状态出项）', () =
     const ctx = createSheetContext(sheet)
     sheet.selectCell({ row: 0, col: 0 })
 
-    // 句柄缺省（无宿主接线，如直接调用 build）：插入禁用
     const noHandle = buildBodyMenus(ctx)
     expect(noHandle.find((m) => m.label === '插入超链接')?.disabled).toBe(true)
 
-    // readonly：插入禁用
     const readonlyInsert = buildBodyMenus(ctx, { readonly: true, openHyperlinkPopup: () => {} })
     expect(readonlyInsert.find((m) => m.label === '插入超链接')?.disabled).toBe(true)
 
-    // readonly + 有链接：编辑/取消均禁用
     sheet.setCellLink({ row: 0, col: 0 }, { url: 'https://example.com' })
     const readonlyEdit = buildBodyMenus(ctx, { readonly: true, openHyperlinkPopup: () => {} })
     expect(readonlyEdit.find((m) => m.label === '编辑超链接')?.disabled).toBe(true)
     expect(readonlyEdit.find((m) => m.label === '取消超链接')?.disabled).toBe(true)
-    // readonly 不产生模型写入
     expect(readonlyEdit.find((m) => m.label === '取消超链接')?.callback).toBeTruthy()
   })
 })
@@ -449,7 +442,6 @@ describe('buildBodyMenus 超链接项（按目标格链接状态出项）', () =
 describe('buildBodyMenus 嵌入图项（按目标格嵌入图状态出项）', () => {
   const ADDR = { row: 1, col: 2 }
 
-  /** 弹窗句柄 spy（含图片目标记录） */
   function popupSpy() {
     const calls: Array<{
       mode: 'image'
@@ -468,7 +460,6 @@ describe('buildBodyMenus 嵌入图项（按目标格嵌入图状态出项）', (
     }
   }
 
-  /** 预览句柄 spy */
   function previewSpy() {
     const previews: unknown[] = []
     return { previews, open: (source: unknown): void => previews.push(source) }
@@ -591,7 +582,6 @@ describe('buildBodyMenus 嵌入图项（按目标格嵌入图状态出项）', (
     sheet.selectCell(ADDR)
 
     buildBodyMenus(ctx).find((m) => m.label === '转为浮动图片')!.callback!()
-    // 嵌入图消失，浮动图落在锚点格：尺寸取格宽高，src/link 随迁，fit 对齐嵌入图缺省 contain
     expect(ctx.hasCellImage(ADDR)).toBe(false)
     const floats = ctx.getImages()
     expect(floats).toHaveLength(1)
@@ -602,7 +592,6 @@ describe('buildBodyMenus 嵌入图项（按目标格嵌入图状态出项）', (
     expect(floats[0]?.src).toBe('https://example.com/a.png')
     expect(floats[0]?.link).toBe('https://example.com')
 
-    // 事务合并：一次 undo 同时还原嵌入图、清掉浮动图
     expect(ctx.undo()).toBe(true)
     expect(ctx.hasCellImage(ADDR)).toBe(true)
     expect(ctx.getImages()).toHaveLength(0)
@@ -621,7 +610,6 @@ describe('buildBodyMenus 嵌入图项（按目标格嵌入图状态出项）', (
     expect(floats[0]!.type).toBe('gif')
     expect(floats[0]!.src).toBeUndefined()
 
-    // 无嵌入图：无操作（不产生浮动图、不新增 undo 单元）
     const undoSizeBefore = sheet.history.undoSize
     cellImageToFloat(ctx, { row: 0, col: 0 })
     expect(ctx.getImages()).toHaveLength(1)

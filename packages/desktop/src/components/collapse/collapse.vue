@@ -61,7 +61,6 @@ const toggle = (value: CollapseValue) => {
   update(values)
 }
 
-// 收集子组件已注册的 values
 const registeredValues = ref<CollapseValue[]>([])
 
 // 初始捕获 modelValue 是否具有有效初值

@@ -117,7 +117,6 @@ function pickImageFile(onPick: (file: File) => void): void {
   input.click()
 }
 
-/** 拉起系统文件选择框，选中后插入浮动图片 */
 export function pickAndInsertImage(ctx: SheetContext): void {
   pickImageFile((file) => void insertImageFromFile(ctx, file))
 }
@@ -141,7 +140,6 @@ export async function insertCellImageFromFile(ctx: SheetContext, file: File): Pr
   ctx.insertCellImage(active, { data: new Uint8Array(buffer), type })
 }
 
-/** 拉起系统文件选择框，选中后嵌入图片到活动格（已有嵌入图时覆盖替换） */
 export function pickAndEmbedCellImage(ctx: SheetContext): void {
   pickImageFile((file) => void insertCellImageFromFile(ctx, file))
 }

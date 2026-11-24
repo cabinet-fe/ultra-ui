@@ -24,7 +24,6 @@
       </span>
     </template>
 
-    <!-- 面板工具：render 展示在右侧侧边面板，卡片 body 仅提供查看入口 -->
     <div v-if="isPanelTool" :class="cls.e('tool-call-panel-entry')">
       <span :class="cls.e('tool-call-panel-hint')">内容展示在右侧面板</span>
       <UButton size="small" text type="primary" @click="di?.openPanel(toolCall.id)">

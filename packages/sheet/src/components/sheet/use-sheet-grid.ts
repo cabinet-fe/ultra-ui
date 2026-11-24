@@ -28,7 +28,6 @@ import {
 /** 模板 ref（useTemplateRef 的只读形态） */
 type ElRef<T> = { readonly value: T | null | undefined }
 
-/** 公式栏暴露接口（镜像 + 引用选择） */
 export interface FormulaBarMirror {
   mirrorGridEdit: (addr: CellAddress) => void
   exitMirror: (addr: CellAddress) => void
@@ -52,11 +51,8 @@ interface UseSheetGridOptions {
   formulaBarRef: ElRef<FormulaBarMirror>
   /** 函数弹框打开中（宿主侧入口，如工具栏「函数」按钮） */
   isFunctionPopupOpen?: () => boolean
-  /** 列宽拖拽落定（SheetGrid 透传 → 宿主 emit col-resize-end） */
   onColResizeEnd?: (event: { col: number; width: number }) => void
-  /** 单元格超链接悬停（引擎透传 → 宿主 emit cell-link-hover） */
   onCellLinkHover?: (event: CellLinkHoverEvent) => void
-  /** 单元格超链接离开（引擎透传 → 宿主 emit cell-link-leave） */
   onCellLinkLeave?: (event: CellLinkLeaveEvent) => void
   /** 单元格超链接单击（引擎透传 → 宿主 emit cell-link-click；打开由 sheet.vue 直开接管） */
   onCellLinkClick?: (event: CellLinkClickEvent) => void
@@ -167,7 +163,6 @@ export function useSheetGrid(options: UseSheetGridOptions) {
     }
   }
 
-  /** 新建实例：创建独立容器 div（absolute 堆叠于 grid 区内）并构造 SheetGrid */
   function createGrid(sheet: Sheet): CachedGrid {
     const host = gridRef.value
     if (!host) throw new Error('useSheetGrid: grid 容器未挂载')
@@ -192,8 +187,6 @@ export function useSheetGrid(options: UseSheetGridOptions) {
       colResize: props.colResize,
       scrollbar: props.scrollbar,
       growOnScroll: props.growOnScroll,
-      // 画布跟随 UI 主题：loadTheme 注入的 CSS 变量换算为引擎 override
-      //（未 loadTheme 时为 undefined，引擎保持缺省白底）
       theme: resolveCanvasThemeOverride(host),
       // 关闭引擎默认打开：链接格单击直开、图片链接单击确认后开（sheet.vue 接管）
       openCellLinkOnClick: false,
@@ -275,7 +268,6 @@ export function useSheetGrid(options: UseSheetGridOptions) {
     }
   }
 
-  /** 淘汰最久未用的缓存实例（保留激活实例） */
   function evict(): void {
     while (cache.size > GRID_CACHE_CAPACITY) {
       let oldest: CachedGrid | undefined
@@ -326,7 +318,6 @@ export function useSheetGrid(options: UseSheetGridOptions) {
       return
     }
     if (cached) {
-      // 隐藏期间结构变更：实例过期，释放后重建（走下方新建路径）
       cache.delete(sheet)
       cached.release()
     }
@@ -346,7 +337,6 @@ export function useSheetGrid(options: UseSheetGridOptions) {
   function pruneCache(sheets: ReadonlyArray<Sheet>): void {
     const alive = new Set(sheets)
     for (const [sheet, item] of cache) {
-      // 存活或激活的实例保留；已删除的 sheet 释放（含事件订阅）
       if (alive.has(sheet) || item === active) continue
       cache.delete(sheet)
       item.release()

@@ -1,6 +1,5 @@
 import type { DeconstructValue } from '@veltra/utils'
 
-/** 锚点导航组件属性 */
 export interface AnchorProps {
   /**
    * 滚动容器
@@ -17,11 +16,7 @@ export interface AnchorProps {
   offset?: number
 }
 
-/** 锚点导航组件定义的事件 */
 export interface AnchorEmits {
-  /**
-   * 高亮锚点变化
-   */
   (e: 'change', current: string): void
   /**
    * 锚点项点击（点击后平滑滚动到目标锚点）
@@ -29,7 +24,6 @@ export interface AnchorEmits {
   (e: 'click-item', href: string, event: MouseEvent): void
 }
 
-/** 锚点导航项组件属性 */
 export interface AnchorItemProps {
   /**
    * 目标锚点
@@ -37,13 +31,9 @@ export interface AnchorItemProps {
    * `#id` 形式的选择器，需与页内锚点元素对应
    */
   href: string
-  /**
-   * 导航文案
-   */
   title?: string
 }
 
-/** 锚点导航组件暴露的属性和方法(组件内部使用) */
 export interface _AnchorExposed {}
 
 /** 锚点导航组件暴露的属性和方法(组件外部使用, 引用的值会被自动解构) */

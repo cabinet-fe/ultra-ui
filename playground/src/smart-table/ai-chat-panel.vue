@@ -14,7 +14,6 @@
       />
     </div>
 
-    <!-- 模型目录加载失败：面板内给出可读原因（如参考服务未启动），不白屏 -->
     <div v-if="status === 'error'" class="smart-table-chat__fallback">
       <p class="smart-table-chat__fallback-title">AI 对话暂不可用</p>
       <p class="smart-table-chat__fallback-text">{{ loadError }}</p>
@@ -22,7 +21,6 @@
 
     <div v-else class="smart-table-chat__body">
       <template v-if="transport">
-        <!-- 上游错误（如未配 key 的 503）解析出可读信息，展示在面板顶部；下次发送自动清除 -->
         <div v-if="chatError" class="smart-table-chat__error">
           <span>{{ chatError }}</span>
           <u-button size="small" text type="primary" @click="chatError = ''">知道了</u-button>

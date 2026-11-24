@@ -11,17 +11,12 @@ export interface OverflowNavViewport {
   clientWidth: number
 }
 
-/** 导航按钮状态 */
 export interface OverflowNavState {
-  /** 内容是否溢出视口 */
   overflowing: boolean
-  /** 可向前（左/上）滚动 */
   canPrev: boolean
-  /** 可向后（右/下）滚动 */
   canNext: boolean
 }
 
-/** 依据视口与内容尺寸推导滚动按钮可用状态 */
 export function computeOverflowNavState(vp: OverflowNavViewport): OverflowNavState {
   const overflowing = vp.scrollWidth - vp.clientWidth > 1
   return {
@@ -35,12 +30,10 @@ type ScrollableElement = OverflowNavViewport & {
   scrollTo(options: { left: number; behavior: 'smooth' }): void
 }
 
-/** 箭头按钮：按视口宽度 80% 的步长平滑滚动 */
 export function scrollViewportByStep(vp: ScrollableElement, dir: 1 | -1): void {
   vp.scrollTo({ left: vp.scrollLeft + dir * vp.clientWidth * 0.8, behavior: 'smooth' })
 }
 
-/** 目标元素滚入视口（左/右越界时对齐到边缘，留 offset 边距） */
 export function scrollElementIntoView(vp: HTMLElement, el: HTMLElement, offset = 8): void {
   const vpRect = vp.getBoundingClientRect()
   const elRect = el.getBoundingClientRect()

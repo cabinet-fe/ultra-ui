@@ -8,7 +8,6 @@ interface UseKeyboardConfig {
 }
 
 interface UseKeyboardReturned {
-  /** 键盘事件处理 */
   handleKeydown: (e: KeyboardEvent) => void
 }
 
@@ -45,7 +44,6 @@ export function useKeyboard(config: UseKeyboardConfig): UseKeyboardReturned {
     }
   }
 
-  /** 键盘事件处理 */
   const handleKeydown = (e: KeyboardEvent) => {
     keyHandler[e.key]?.(e)
   }

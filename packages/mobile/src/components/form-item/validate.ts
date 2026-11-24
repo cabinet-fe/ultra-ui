@@ -35,7 +35,6 @@ const presetRules: Record<PresetRule, (value: string) => string | undefined> = {
   }
 }
 
-/** 预设规则 */
 const ruleTypes = {
   required(value: any, required: ValidateRule['required']): Undef<string> {
     if (required === false) return
@@ -111,7 +110,6 @@ export async function validateField(
     if (err) return err
   }
 
-  // 校验规则
   for (const ruleKey in normalRules) {
     const validate = ruleTypes[ruleKey as keyof typeof ruleTypes]
     if (!validate) continue

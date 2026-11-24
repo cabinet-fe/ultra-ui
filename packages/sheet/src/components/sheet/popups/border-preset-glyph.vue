@@ -80,7 +80,6 @@ const props = defineProps<{ glyph: BorderPresetGlyph }>()
 
 const cls = bem('sheet')
 
-/** 田字格各线段是否高亮 */
 interface GlyphEdges {
   top: boolean
   bottom: boolean

@@ -53,25 +53,6 @@
 
       <u-select v-model="remoteSelected" :options="optionsGetter" />
     </CustomCard>
-
-    <!-- <CustomCard width="400px" title="网格布局">
-      <u-select v-model="selected" :options="options" filterable value-key="value" :grid="{ cols: 4, gap: 10 }"
-        v-slot="{ option }">
-        <div style="height: 80px; text-align: center">
-          <div>
-            <u-icon :size="30">
-              <Monitor />
-            </u-icon>
-          </div>
-          {{ option?.label }}
-        </div>
-      </u-select>
-    </CustomCard>
-
-    <u-form :model="model">
-      <u-input label="选项" field="options"></u-input>
-      <u-select label="选择" field="select" value-key="value" :clearable="false" :options="options1" />
-    </u-form> -->
   </div>
 </template>
 

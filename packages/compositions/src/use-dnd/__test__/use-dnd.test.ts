@@ -117,9 +117,7 @@ describe('useDnD 数据写回', () => {
     const [a, b] = dnd.values.value
     sortBySetter(dnd, [b!, a!])
 
-    // 返回的 values 已更新（内部响应式副本）
     expect(dnd.values.value.map((i) => i.id)).toEqual(['b', 'a'])
-    // 原数组同步
     expect(items.map((i) => i.id)).toEqual(['b', 'a'])
   })
 

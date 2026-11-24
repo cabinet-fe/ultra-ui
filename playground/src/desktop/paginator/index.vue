@@ -1,16 +1,6 @@
 <template>
   <div>
     <div class="config">
-      <!-- <u-radio-group
-        radioType="btn"
-        :items="[
-          { label: 'small', value: 'small' },
-          { label: 'default', value: 'default' },
-          { label: 'large', value: 'large' }
-        ]"
-        v-model="config.size"
-      />
-      <br /> -->
       <u-checkbox v-model="config.simple">simple</u-checkbox>
       <u-checkbox v-model="config.disabled">disabled</u-checkbox>
     </div>

@@ -1,6 +1,5 @@
 <template>
   <div class="smart-table">
-    <!-- 顶栏：标题 + 保存状态 + 视图切换 + 行/字段管理入口 -->
     <div class="smart-table__bar">
       <span class="smart-table__title">智慧表格</span>
       <u-segment v-model="view" :items="viewModeItems" />
@@ -24,7 +23,6 @@
     </div>
 
     <div class="smart-table__body">
-      <!-- 主内容（表格/看板视图）：面板打开时压缩为左列，网格仍可见 -->
       <div class="smart-table__main">
         <KanbanView
           v-if="view === 'kanban'"
@@ -33,10 +31,7 @@
           @update-cell="onKanbanUpdateCell"
         />
 
-        <!-- 网格视图：u-sheet 表格主体（虚拟滚动、选区键盘、undo/redo、拖拽调宽），
-             工具栏 / 公式栏 / sheet 标签栏在多维表格形态下全部隐藏；列底统计行贴网格底部 -->
         <template v-else>
-          <!-- 工具栏：搜索/筛选/排序/分组/字段隐藏，作用后的视图行集与列集驱动网格 -->
           <Toolbar v-if="doc" :fields="doc.fields" :state="toolbarState" />
           <div class="smart-table__grid-wrap">
             <div ref="sheetHostRef" class="smart-table__grid">
@@ -60,7 +55,6 @@
         </template>
       </div>
 
-      <!-- 右侧 AI 对话面板（非全屏遮盖，可关闭），当前 doc 注入表格上下文 -->
       <AiChatPanel v-if="chatOpen" :doc="doc" @close="chatOpen = false" />
     </div>
 
@@ -119,8 +113,6 @@ const configField = computed(
 const activeRowId = ref<string | null>(null)
 const activeRow = computed(() => doc.value?.rows.find((r) => r.id === activeRowId.value) ?? null)
 
-// ─── 工具栏视图管线（搜索/筛选/排序/分组/字段隐藏 → 视图行集与列集） ───
-
 const toolbarState = reactive<ToolbarState>({
   keyword: '',
   filters: [],
@@ -149,7 +141,7 @@ const viewItems = computed<ViewItem[]>(() => {
   for (const cond of toolbarState.filters) {
     if (!conditionReady(cond)) continue
     const field = fieldsById.get(cond.fieldId)
-    if (!field) continue // 条件引用的字段已删除：跳过
+    if (!field) continue
     rows = rows.filter((row) => matchesCondition(row.values[field.id] ?? null, cond))
   }
   const sort = toolbarState.sort
@@ -258,12 +250,10 @@ const { workbook, header, editors, resolveCellRenderer, gridRows, gridCols, bind
     getHost: () => sheetHostRef.value ?? null
   })
 
-/** 列头配置入口点击：打开该字段的列设置面板（改名 / 改类型 / 选项管理） */
 function onFieldConfig(fieldId: string): void {
   configFieldId.value = fieldId
 }
 
-/** 行头展开入口点击：打开该行的详情侧边栏 */
 function onRowExpand(rowId: string): void {
   activeRowId.value = rowId
 }
@@ -300,7 +290,6 @@ function onKanbanUpdateCell(payload: { rowId: string; fieldId: string; value: Ce
 type ViewMode = 'table' | 'kanban'
 const view = ref<ViewMode>('table')
 
-/** 右侧 AI 对话面板开关（默认收起，打开时网格压缩为左列仍可见） */
 const chatOpen = ref(false)
 const viewModeItems = [
   { label: '表格', value: 'table' },
@@ -552,7 +541,6 @@ onMounted(() => void load())
     border-color: var(--u-color-primary, #2170e7);
   }
 
-  /* 下拉/多选面板 */
   &--panel {
     display: flex;
     flex-direction: column;

@@ -123,7 +123,6 @@ describe('公式能力可达性（USheet 门面路径）', () => {
     ctx.setCellFormula({ row: 0, col: 0 }, '=SUM(B1:B3)')
     expect(ctx.getDisplayValue({ row: 0, col: 0 })).toBe(0)
 
-    // 报表数据填充：一次 setCells = 一个 undo 单元，填充后合计自动得出
     ctx.setCells([
       { addr: { row: 0, col: 1 }, data: { v: 10, t: 'n' } },
       { addr: { row: 1, col: 1 }, data: { v: 20, t: 'n' } },
@@ -131,7 +130,6 @@ describe('公式能力可达性（USheet 门面路径）', () => {
     ])
     expect(ctx.getDisplayValue({ row: 0, col: 0 })).toBe(60)
 
-    // 修改被引用单元格 → 依赖格重算
     ctx.setCellValue({ row: 1, col: 1 }, 25)
     expect(ctx.getDisplayValue({ row: 0, col: 0 })).toBe(65)
   })
@@ -139,10 +137,8 @@ describe('公式能力可达性（USheet 门面路径）', () => {
   it('registerFormulaFunction（infinitable 主入口）注册的自定义函数：fx 补全与函数弹框可达、公式求值可用', async () => {
     registerCustomTotal()
 
-    // fx 输入栏补全列表按前缀命中自定义函数
     expect(filterFormulaSuggestions('VELTRATOTA').map((item) => item.name)).toEqual(['VELTRATOTAL'])
 
-    // 函数弹框「全部」列出其签名（与内置函数同一列表）
     const popup = mountFunctionsPopup()
     await clickCategory(popup, '全部')
     const signatures = [...popup.querySelectorAll('.u-sheet__functions-signature')].map(

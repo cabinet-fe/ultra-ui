@@ -1,5 +1,4 @@
 <template>
-  <!-- 只读态：纯展示 -->
   <template v-if="readonly">{{ displayedValue || FORM_EMPTY_CONTENT }}</template>
 
   <div
@@ -30,7 +29,6 @@
     </span>
   </div>
 
-  <!-- 底部日历面板（复用 P6 弹层基座，内部实现不进公开导出） -->
   <BottomSheet v-model:visible="sheetVisible" :title="placeholder">
     <!-- 横向滑动翻页（左滑下一个、右滑上一个，与点击翻页按钮并存）；prevent 阻断滚动链 -->
     <div :class="cls.e('panel')" v-on="swipeHandlers" @touchmove.prevent>

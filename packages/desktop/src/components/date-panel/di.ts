@@ -13,22 +13,14 @@ export interface DatePanelContext {
   panelProps: DatePanelProps
   panelEmit: DatePanelEmits
 
-  /** 选择日期 */
   handleDateSelect: (date: Dater) => void
-  /** 范围日期悬停 */
   handleDateRangeHover: (date: Dater) => void
 
-  /** 上一年 */
   toPrevYear: () => void
-  /** 上个月 */
   toPrevMonth: () => void
-  /** 下一年 */
   toNextYear: () => void
-  /** 下个月 */
   toNextMonth: () => void
-  /** 下十年 */
   toNextTenYears: () => void
-  /** 上十年 */
   toPrevTenYears: () => void
 }
 

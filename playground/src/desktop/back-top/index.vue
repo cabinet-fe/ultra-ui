@@ -23,7 +23,6 @@
       长内容区块 {{ block }}：用于把演示页撑高，验证页面级回到顶部的出现与回顶。
     </section>
 
-    <!-- 容器内：元素引用 -->
     <u-back-top :target="boxRef" :visibility-height="visibilityHeight" @click="handleClick" />
 
     <!-- 页面级：playground 的页面滚动容器是内容区 u-scroll（左侧导航也有一个，选择器需 .content-container 限定） -->

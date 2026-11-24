@@ -137,7 +137,6 @@ const isWheeling = ref(false)
 
 const zoomPercent = computed(() => `${Math.round(scale.value * 100)}%`)
 
-// ---- pan 热状态：全部走普通变量，pointermove 不触发重渲染 ----
 let panState:
   | { pointerId: number; startX: number; startY: number; originX: number; originY: number }
   | undefined
@@ -270,7 +269,6 @@ function load() {
   const r = toBlobUrl(src, mime)
   url.value = r.url
   revoke = r.revoke
-  // 新图回到初始视图，并同步工具栏回显
   setScale(1)
 }
 
@@ -286,7 +284,6 @@ watch(
   { immediate: true }
 )
 
-// lightbox 打开时：锁定 body 滚动 + 挂 Esc 监听
 let previousBodyOverflow = ''
 let isBodyLocked = false
 

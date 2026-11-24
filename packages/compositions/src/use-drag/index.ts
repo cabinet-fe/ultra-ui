@@ -5,51 +5,34 @@ interface DragParams {
   x: number
   /** 本次拖动垂直距离 */
   y: number
-  /** 拖拽目标水平偏移量 */
   offsetX: number
-  /** 拖拽目标垂直偏移量 */
   offsetY: number
-  /** 鼠标事件 */
   e: MouseEvent
 }
 
 interface DragOptions {
-  /** 拖动目标 */
   target: ShallowRef<HTMLElement | undefined | null> | Ref<HTMLElement | undefined | null>
-  /** 拖动开始 */
   onDragStart?(e: MouseEvent): void
-  /** 拖动结束 */
   onDragEnd?(params: DragParams): void
-  /** 拖动时 */
   onDrag?(params: DragParams): void
-  /** 水平拖动范围 */
   rangeX?: [number, number]
-  /** 垂直拖动范围 */
   rangeY?: [number, number]
-  /** 初始偏移量 */
   initial?: { offsetX?: number; offsetY?: number }
 }
 
-/**
- * 拖动组合式方法
- * @param options 拖动选项
- */
 export function useDrag(options: DragOptions): {
   update: (options: { offsetX?: number; offsetY?: number }) => void
 } {
   const { target, onDragStart, onDrag, onDragEnd, rangeX, rangeY, initial } = options
 
-  // 鼠标拖拽前的坐标
   let originX = 0
   let originY = 0
 
   let offsetX = initial?.offsetX ?? 0
   let offsetY = initial?.offsetY ?? 0
 
-  // 拖拽参数
   const dragParams: DragParams = { x: 0, y: 0, offsetX: 0, offsetY: 0, e: null as any }
 
-  // 先取
   const onselectstart = document.onselectstart
 
   const handleMousedown = (e: MouseEvent) => {
@@ -113,7 +96,6 @@ export function useDrag(options: DragOptions): {
     cleanup()
   }
 
-  // 统一的清理函数
   const cleanup = () => {
     document.removeEventListener('mousemove', handleMousemove)
     document.removeEventListener('mouseup', handleMouseup)

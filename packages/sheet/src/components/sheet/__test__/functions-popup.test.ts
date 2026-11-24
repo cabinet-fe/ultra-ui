@@ -103,7 +103,6 @@ describe('USheetFunctionsPopup', () => {
 
     await clickCategory(el, '全部')
     expect(items(el).length).toBe(listFormulaFunctions().length)
-    // 未分类函数仅出现在「全部」
     expect(signatures(el)).toContain('MYTESTFN(value)')
 
     await clickCategory(el, '数学')
@@ -115,7 +114,6 @@ describe('USheetFunctionsPopup', () => {
     await clickCategory(el, '常用')
     expect(signatures(el)).toContain('SUM(number1, [number2], ...)')
 
-    // 「常用」也不含未分类自定义函数
     await clickCategory(el, '常用')
     expect(signatures(el)).not.toContain('MYTESTFN(value)')
   })
@@ -128,7 +126,6 @@ describe('USheetFunctionsPopup', () => {
     const { el } = mountPopup()
     await clickCategory(el, '数学')
 
-    // 在「数学」分类下搜索未分类函数名 → 仍可命中（跨分类）
     await typeKeyword(el, 'mytest')
     let names = signatures(el).map((sig) => sig?.split('(')[0])
     expect(names).toEqual(['MYTESTFN'])
@@ -138,12 +135,10 @@ describe('USheetFunctionsPopup', () => {
     names = signatures(el).map((sig) => sig?.split('(')[0])
     expect(names).toEqual(['SUM'])
 
-    // 无匹配 → 空态
     await typeKeyword(el, '不存在的关键字zzz')
     expect(el.querySelectorAll('.u-sheet__functions-item').length).toBe(0)
     expect(el.querySelector('.u-sheet__functions-empty')?.textContent).toContain('无匹配函数')
 
-    // 清空关键词 → 回到当前分类（数学）
     await typeKeyword(el, '')
     expect(items(el).length).toBe(
       listFormulaFunctions().filter((fn) => fn.category === '数学').length
@@ -163,7 +158,6 @@ describe('USheetFunctionsPopup', () => {
     const { el } = mountPopup((name) => selected.push(name))
     const panel = el.querySelector<HTMLElement>('.u-sheet__functions-panel')!
 
-    // 初始高亮第一项（SUM）
     expect(items(el)[0]!.classList.contains('is-active')).toBe(true)
 
     panel.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown' }))
@@ -173,7 +167,6 @@ describe('USheetFunctionsPopup', () => {
     panel.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter' }))
     expect(selected).toEqual(['AVERAGE'])
 
-    // ↑ 回到第一项，再 ↑ 循环到最后一项
     panel.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' }))
     await nextTick()
     expect(items(el)[0]!.classList.contains('is-active')).toBe(true)

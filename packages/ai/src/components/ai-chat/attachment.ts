@@ -10,7 +10,6 @@ function getExtension(name: string): string {
   return idx === -1 ? '' : name.slice(idx + 1).toLowerCase()
 }
 
-/** 判断附件是否为图片类型 */
 export function isImageAttachment(
   att: Pick<Partial<ChatAttachment>, 'name' | 'mimeType' | 'dataUrl'>
 ): boolean {

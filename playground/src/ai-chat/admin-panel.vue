@@ -1,13 +1,11 @@
 <template>
   <div class="admin-panel">
-    <!-- 工具执行中：模拟后台页面加载 -->
     <div v-if="loading" class="admin-panel__loading">页面打开中…</div>
     <div v-else-if="stopped" class="admin-panel__loading">已停止打开页面</div>
     <div v-else-if="toolCall.status === 'error'" class="admin-panel__loading">
       打开失败：{{ toolCall.error }}
     </div>
 
-    <!-- 用户编辑表单 -->
     <template v-else-if="page === 'user-form'">
       <u-form ref="formRef" :model="userForm" label-width="72px">
         <u-input label="姓名" field="name" :rules="{ required: true }" placeholder="请输入姓名" />
@@ -40,7 +38,6 @@
       </div>
     </template>
 
-    <!-- 订单列表 -->
     <template v-else-if="page === 'order-list'">
       <u-table :data="orders" :columns="orderColumns" style="height: 460px" />
     </template>
@@ -90,7 +87,6 @@ const stopped = computed(
     (props.toolCall.status === 'error' && !!props.toolCall.error?.includes('Abort'))
 )
 
-// ---------------- 用户编辑表单 ----------------
 const formRef = useTemplateRef<FormExposed>('formRef')
 
 const initialForm = { name: '张三', role: 'admin', age: 28, remark: '' }
@@ -110,7 +106,6 @@ const submitForm = async () => {
 
 const resetForm = () => Object.assign(userForm, initialForm)
 
-// ---------------- 销售图表 ----------------
 const sales = [
   { month: '1月', value: 42 },
   { month: '2月', value: 35 },
@@ -128,7 +123,6 @@ const sales = [
 
 const maxSale = computed(() => Math.max(...sales.map((item) => item.value)))
 
-// ---------------- 订单列表 ----------------
 const orders = Array.from({ length: 30 }).map((_, i) => ({
   id: `SO-2026${String(i + 1).padStart(3, '0')}`,
   customer: ['张三', '李四', '王五'][i % 3]!,

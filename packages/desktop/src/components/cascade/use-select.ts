@@ -53,10 +53,8 @@ interface UseSelectReturned {
 export function useSelect(options: SelectOptions): UseSelectReturned {
   const { props, emit, dataMap, isUserActive, dropdownRef, forest } = options
 
-  /** 选中的节点key */
   const selectedNodeKeys = shallowRef<string[]>([])
 
-  /** 面板数据 */
   const panelItemList = shallowRef<PanelItem[]>([])
   const uid = createIncrease()
   function createPanelItem(nodes: CascadeNode[]): PanelItem {
@@ -122,19 +120,11 @@ export function useSelect(options: SelectOptions): UseSelectReturned {
     emit('change', changeItem, targetLabel)
   }
 
-  /**
-   * 单选选择
-   *
-   * @param panelIndex 面板索引
-   * @param item 选中的节点
-   */
   function selectItem(panelIndex: number, item: CascadeNode) {
-    // 设置选中的节点
     selectedNodeKeys.value[panelIndex] = item.value
     selectedNodeKeys.value.splice(panelIndex + 1)
     triggerRef(selectedNodeKeys)
 
-    // 展开子级面板
     setPanelItem(panelIndex, item.children)
 
     nextTick(() => {

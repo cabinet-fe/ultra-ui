@@ -23,7 +23,6 @@ const props = defineProps<{
 /** 填充颜色（'' = 无填充） */
 const fillColor = ref<string>()
 
-// 打开时初始化为活动格当前填充色
 onMounted(() => {
   const active = props.context.getSelection().activeCell
   const style = active ? props.context.getEffectiveStyle(active) : undefined

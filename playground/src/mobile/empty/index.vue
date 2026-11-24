@@ -27,7 +27,6 @@ import '@veltra/mobile/components/empty/style'
 </script>
 
 <style lang="scss" scoped>
-// 手机设备外壳视口内呈现
 .demo {
   display: flex;
   flex-direction: column;

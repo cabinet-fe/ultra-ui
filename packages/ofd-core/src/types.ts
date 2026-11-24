@@ -67,7 +67,6 @@ export interface OfdLayerDecl {
   type: OfdLayerType | null
 }
 
-/** 单页结构化模型 */
 export interface OfdPage {
   /** 页序号，从 0 开始 */
   index: number

@@ -4,12 +4,6 @@ import type { CalendarDay, CalendarMonth, CalendarYear } from '../../types'
 
 export const weekDays: string[] = ['日', '一', '二', '三', '四', '五', '六']
 
-/**
- * 获取一个月的天数
- * @param d 日期
- * @param disabledDate 禁用日期
- * @returns
- */
 export function getMonthDays(
   d: Date | string | number | Dater,
   disabledDate?: (d: Dater, raw: Date) => boolean
@@ -19,7 +13,6 @@ export function getMonthDays(
     d = date(d)
   }
 
-  // 本月天数
   d.setDay(1)
   const currentMonthDays: CalendarDay[] = Array.from({ length: d.getDays() }).map((_, i) => {
     const day: CalendarDay = { date: d.calc(i, 'days'), type: 'current' }
@@ -32,7 +25,6 @@ export function getMonthDays(
 
   const nextMonthDays: CalendarDay[] = []
 
-  // 上月天数
   const firstDayWeek = d.weekDay
 
   if (firstDayWeek !== 0) {
@@ -47,7 +39,6 @@ export function getMonthDays(
     }
   }
 
-  // 下个月的天数
   const nextMonthDaysAmount = 42 - currentMonthDays.length - preMonthDays.length
 
   let j = 0
@@ -62,12 +53,6 @@ export function getMonthDays(
   return [...preMonthDays, ...currentMonthDays, ...nextMonthDays]
 }
 
-/**
- * 获取一年的月份
- * @param d 日期
- * @param disabledDate 禁用的日期
- * @returns
- */
 export function getYearMonths(
   d: Date | string | number | Dater,
   disabledDate?: (d: Dater, raw: Date) => boolean
@@ -92,12 +77,6 @@ export function getYearMonths(
   })
 }
 
-/**
- * 获取当前年份所处的10年
- * @param d 日期
- * @param disabledDate 禁用的日期
- * @returns
- */
 export function getTenYears(
   d: Date | string | number | Dater,
   disabledDate?: (d: Dater, raw: Date) => boolean

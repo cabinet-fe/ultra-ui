@@ -198,8 +198,6 @@ describe('pageToSvg', () => {
   })
 })
 
-// ---- 内嵌字体文本（P3）：声明 FontFile 时按 glyph 轮廓输出 path ----
-
 const SQUARE_CONTOUR = [
   { x: 0, y: 0, on: true },
   { x: 400, y: 0, on: true },
@@ -294,8 +292,6 @@ describe('内嵌字体文本', () => {
     expect(svg).toContain('>缺资源</text>')
   })
 })
-
-// ---- 新版数电票形态：Body 图层 PageBlock 容器、子元素颜色声明、FontFile 子元素 + 无 cmap 子集字体 CGTransform 字形替换、CTM 平移缩放定位的单位盒图片 ----
 
 /** 无 cmap 的子集字体：字形顺序被打乱（A 的轮廓挂在 gid 5），靠 CGTransform 指定字形 */
 const SHUFFLED_FONT = buildTtf({
@@ -412,8 +408,6 @@ describe('新版数电票渲染', () => {
   })
 })
 
-// ---- 真实产出形态（WPS 导出）：PhysicalBox 页尺寸、MediaFile 媒体、Type=Image、缩放 CTM、Font/Size 简写 ----
-
 async function buildWpsStyleFixture() {
   const data = await buildZip([
     { name: 'OFD.xml', data: utf8(ofdXml()) },
@@ -481,8 +475,6 @@ describe('真实产出形态渲染（WPS 导出）', () => {
     expect(svg).toContain('>WPS 导出</text>')
   })
 })
-
-// ---- 模板页渲染（数电发票形态）：Tpls/Tpl_n 与页面内容叠加合成 ----
 
 function templateDocumentXml(): string {
   return (

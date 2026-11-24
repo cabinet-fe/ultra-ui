@@ -54,7 +54,6 @@ import '@veltra/mobile/components/text/style'
 </script>
 
 <style lang="scss" scoped>
-// 手机设备外壳视口内呈现，验证 wrap 不横向溢出
 .demo {
   display: flex;
   flex-direction: column;

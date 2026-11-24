@@ -1,6 +1,5 @@
 import { onBeforeUnmount, reactive, watch, type Ref, type ShallowRef } from 'vue'
 
-/** 图片变换状态：缩放 / 平移 / 90° 步进旋转 / 翻转 */
 export interface TransformState {
   scale: number
   translateX: number
@@ -22,7 +21,6 @@ interface Point {
   y: number
 }
 
-/** 滚轮 / 按钮单次缩放步进系数 */
 const ZOOM_STEP = 1.2
 /** 最大缩放倍数（相对适应容器的缩放） */
 const MAX_ZOOM_RATIO = 10
@@ -41,7 +39,6 @@ interface UseTransformOptions {
 }
 
 interface UseTransformReturn {
-  /** 当前变换状态 */
   transform: TransformState
   /** 图片按比例适应容器并居中（按当前旋转交换宽高计算） */
   fit: () => void
@@ -57,7 +54,6 @@ interface UseTransformReturn {
   zoomTo: (scale: number, anchor?: Point) => void
   /** 90° 步进旋转，direction 为 1 顺时针、-1 逆时针 */
   rotate: (direction: 1 | -1) => void
-  /** 水平 / 垂直翻转 */
   flip: (axis: 'horizontal' | 'vertical') => void
   /** 屏幕位移换算为图片像素位移（考虑旋转 / 翻转 / 缩放） */
   toImageDelta: (dx: number, dy: number) => Point
@@ -155,7 +151,6 @@ export function useTransform(options: UseTransformOptions): UseTransformReturn {
   }
 
   function toImageDelta(dx: number, dy: number): Point {
-    // 先按旋转逆变换，再除掉带翻转符号的缩放
     let x = dx
     let y = dy
     if (transform.rotation === 90) {
@@ -174,8 +169,6 @@ export function useTransform(options: UseTransformOptions): UseTransformReturn {
     }
   }
 
-  // ---------- wheel 缩放（以指针位置为锚点） ----------
-
   function handleWheel(e: WheelEvent) {
     e.preventDefault()
     const el = target.value
@@ -185,8 +178,6 @@ export function useTransform(options: UseTransformOptions): UseTransformReturn {
     if (e.deltaY < 0) zoomIn(anchor)
     else zoomOut(anchor)
   }
-
-  // ---------- 选区外拖动平移（选区内拖动由 use-selection 拦截，不冒泡到这里） ----------
 
   /** 图片显示尺寸超出容器才允许平移 */
   function isOverflowing() {

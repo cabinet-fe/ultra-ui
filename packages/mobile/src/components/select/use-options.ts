@@ -26,9 +26,7 @@ interface Options {
 }
 
 export interface UseOptionsReturned {
-  /** 查询字符串 */
   queryString: ShallowRef<string>
-  /** 远程搜索加载中 */
   loading: ShallowRef<boolean>
   /** 选项（含待创建临时项） */
   options: ComputedRef<Record<string, any>[]>
@@ -36,7 +34,6 @@ export interface UseOptionsReturned {
   allOptions: ComputedRef<Record<string, any>[]>
   /** 将临时选项转正为已创建选项 */
   temOptionsToCreatedOptions: () => void
-  /** 清空用户创建的选项 */
   clearCreatedOptions: () => void
 }
 
@@ -48,7 +45,6 @@ export interface UseOptionsReturned {
 export function useOptions(o: Options): UseOptionsReturned {
   const { props } = o
 
-  /** 查询串 */
   const queryString = shallowRef('')
 
   const loading = shallowRef(false)
@@ -57,9 +53,7 @@ export function useOptions(o: Options): UseOptionsReturned {
 
   const remoteOptions = shallowRef<Record<string, any>[]>([])
   const filteredOptions = shallowRef<Record<string, any>[]>([])
-  // 临时选项（待创建）
   const tempOptions = shallowRef<({ __isTemp: true } & Record<string, any>)[]>([])
-  // 创建的选项
   const createdOptions = shallowRef<({ __isTemp: false } & Record<string, any>)[]>([])
 
   function getSourceOptions(propsOptions: SelectProps['options']) {

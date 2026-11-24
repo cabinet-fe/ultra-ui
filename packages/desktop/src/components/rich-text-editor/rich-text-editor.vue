@@ -157,7 +157,6 @@ let cleanupFns: (() => void)[] = []
 
 const acceptsImage = () => props.image && !isDisabled.value && !isReadonly.value
 
-// 图片选中 / 拖拽缩放交互
 useImageResize(editor, acceptsImage)
 
 function initEditor() {
@@ -175,12 +174,10 @@ function initEditor() {
 
   editorInstance.setRootElement(editorContainer.value)
 
-  // Register plugins
   cleanupFns.push(registerRichText(editorInstance))
   cleanupFns.push(registerList(editorInstance))
   cleanupFns.push(registerHistory(editorInstance, createEmptyHistoryState(), 300))
 
-  // Image input: paste & drop
   cleanupFns.push(
     editorInstance.registerCommand(
       PASTE_COMMAND,
@@ -224,7 +221,6 @@ function initEditor() {
     setEditorContent(editorInstance, model.value)
   }
 
-  // Listen for content changes
   cleanupFns.push(
     editorInstance.registerUpdateListener(({ editorState }) => {
       editorState.read(
@@ -234,7 +230,6 @@ function initEditor() {
           showPlaceholder.value =
             root.getTextContent().trim().length === 0 && imageNodes.length === 0
 
-          // 回收已从内容中移除的图片 objectURL
           gcImageObjectUrls(editorInstance, new Set(imageNodes.map((node) => node.getSrc())))
 
           if (isComposing) return
@@ -256,7 +251,6 @@ function initEditor() {
     })
   )
 
-  // Composing event listeners for IME
   const rootElement = editorInstance.getRootElement()
   if (rootElement) {
     const onCompositionStart = () => {
@@ -290,7 +284,6 @@ function setEditorContent(editorInstance: LexicalEditor, value: string) {
         root.append($createParagraphNode())
       }
     } else {
-      // HTML format
       const parser = new DOMParser()
       const dom = parser.parseFromString(value, 'text/html')
       const nodes = $generateNodesFromDOM(editorInstance, dom)
@@ -340,7 +333,6 @@ async function uploadImages(upload: RichTextImageUploader): Promise<string> {
 
 defineExpose<_RichTextEditorExposed>({ uploadImages })
 
-// Watch external model changes
 watch(model, (newVal) => {
   if (!editor.value || isComposing) return
 
@@ -358,7 +350,6 @@ watch(model, (newVal) => {
   }
 })
 
-// Watch disabled/readonly changes
 watch([isDisabled, isReadonly], () => {
   if (!editor.value) return
   editor.value.setEditable(!isDisabled.value && !isReadonly.value)

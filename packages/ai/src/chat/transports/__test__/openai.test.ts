@@ -735,7 +735,6 @@ describe('createOpenAITransport · responses 模式', () => {
       arguments: '{"city":"北京"}'
     })
 
-    // response.failed → onError
     fetchMock
       .mockReset()
       .mockResolvedValue(

@@ -1,6 +1,5 @@
 <template>
   <div class="showcase">
-    <!-- Hero Section -->
     <div class="hero">
       <div class="hero-badge">
         <u-badge :value="'v1.0'" type="primary">
@@ -17,9 +16,7 @@
       </div>
     </div>
 
-    <!-- Bento Grid -->
     <div class="bento-grid">
-      <!-- 1. Payment Method -->
       <u-card class="bento-card">
         <template #header>
           <div class="card-header">
@@ -62,7 +59,6 @@
         </div>
       </u-card>
 
-      <!-- 2. Notifications -->
       <u-card class="bento-card">
         <template #header>
           <div class="card-header">
@@ -105,7 +101,6 @@
         </div>
       </u-card>
 
-      <!-- 3. Storage -->
       <u-card class="bento-card">
         <template #header>
           <div class="card-header">
@@ -129,7 +124,6 @@
         </div>
       </u-card>
 
-      <!-- 4. Schedule -->
       <u-card class="bento-card">
         <template #header>
           <div class="card-header">
@@ -158,7 +152,6 @@
         </div>
       </u-card>
 
-      <!-- 5. Team Members (Spans 2 cols) -->
       <u-card class="bento-card col-span-2">
         <template #header>
           <div class="card-header">
@@ -207,7 +200,6 @@
         </div>
       </u-card>
 
-      <!-- 6. Profile Settings -->
       <u-card class="bento-card">
         <template #header>
           <div class="card-header">
@@ -240,7 +232,6 @@
         </div>
       </u-card>
 
-      <!-- 7. Data Table (Spans 2 cols) -->
       <u-card class="bento-card col-span-2">
         <template #header>
           <div class="card-header">
@@ -257,7 +248,6 @@
         </div>
       </u-card>
 
-      <!-- 8. System Controls -->
       <u-card class="bento-card">
         <template #header>
           <div class="card-header">
@@ -293,7 +283,6 @@
         </div>
       </u-card>
 
-      <!-- 9. File Directory -->
       <u-card class="bento-card">
         <template #header>
           <div class="card-header">
@@ -313,7 +302,6 @@
         </div>
       </u-card>
 
-      <!-- 10. Project Workflow (Spans 2 cols) -->
       <u-card class="bento-card col-span-2">
         <template #header>
           <div class="card-header">

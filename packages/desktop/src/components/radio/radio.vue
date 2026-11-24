@@ -8,7 +8,6 @@
       :disabled="disabled"
     />
 
-    <!-- radio框 -->
     <section :class="cls.e('button')">
       <span :class="cls.e('inner')"></span>
     </section>

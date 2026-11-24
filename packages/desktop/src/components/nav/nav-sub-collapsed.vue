@@ -17,7 +17,6 @@
           {{ item.title }}
         </span>
 
-        <!-- 展开图标 -->
         <u-icon :class="[collapsedCls.e('sub-expand')]">
           <ArrowRight />
         </u-icon>

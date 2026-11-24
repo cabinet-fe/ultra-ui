@@ -69,7 +69,6 @@
     </transition>
   </Teleport>
 
-  <!-- 触发 -->
   <UNodeRender @click="visible = !visible" :content="getTriggerNode()" ref="triggerRef" />
 </template>
 
@@ -104,30 +103,23 @@ const slots = defineSlots<{
   footer?: (props: { close: () => void }) => any
   trigger?: () => any
   header?: () => any
-  default?: (props: {
-    /** 弹框是否最大化了 */
-    maximized: boolean
-  }) => any
+  default?: (props: { maximized: boolean }) => any
 }>()
 
 const cls = bem('dialog')
 const headerCls = [cls.e('header')]
 const footerCls = [cls.e('footer')]
 
-/** 标题元素 id，供 aria-labelledby 引用 */
 const titleId = useId()
 
-/** 是否渲染了标题，用于决定 aria-labelledby */
 const hasTitle = computed(() => Boolean(props.title || props.header || slots.header))
 
 const { size } = useFallbackProps([props], { size: 'default' as ComponentSize })
 
 const overlayRef = shallowRef<HTMLDivElement>()
 
-/** 弹框模板引用 */
 const dialogRef = shallowRef<HTMLDivElement>()
 
-/** 弹框头部模板引用 */
 const headerRef = shallowRef<HTMLDivElement>()
 
 const visible = defineModel<boolean>({ default: false })
@@ -167,7 +159,6 @@ const className = computed(() => {
   return [cls.b, cls.m(size.value)]
 })
 
-/** dialog位移的位置 */
 const translated = { x: 0, y: 0 }
 
 /**
@@ -182,7 +173,6 @@ watch(
 
     if (!opened) opened = true
 
-    // 初始化位置偏移量
     translated.x = 0
     translated.y = 0
 
@@ -205,7 +195,6 @@ const updateDialogTransform = (x: number, y: number) => {
   setStyles(dom, { translate: `${x}px ${y}px` })
 }
 
-// 运用拖拽
 useDrag({
   target: headerRef,
 
@@ -239,7 +228,6 @@ function handleIncreaseZIndex() {
   setStyles(overlayRef.value!, { zIndex: zIndex() })
 }
 
-/** 关闭 */
 const close = () => {
   visible.value = false
 }

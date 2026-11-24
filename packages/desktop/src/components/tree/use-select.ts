@@ -16,9 +16,6 @@ interface UseSelectReturned {
   handleSelect: (node: TreeNode) => void
 }
 
-/**
- * 单选
- */
 export function useSelect(options: Options): UseSelectReturned {
   const { emit, props, nodeDict, getFlattedNodes } = options
   let selectedData = shallowRef<Record<string, any>>()

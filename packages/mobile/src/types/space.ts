@@ -1,6 +1,5 @@
 import type { ComponentSize } from '@veltra/utils'
 
-/** 间距容器组件属性 */
 export interface SpaceProps {
   /**
    * 间距：档位走 `--um-*` 间距刻度 token（small 8px / default 12px / large 16px）；
@@ -18,5 +17,4 @@ export interface SpaceProps {
   wrap?: boolean
 }
 
-/** 间距容器组件定义的事件 */
 export interface SpaceEmits {}

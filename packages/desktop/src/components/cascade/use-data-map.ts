@@ -9,7 +9,6 @@ interface DataMapOptions {
   forest: ComputedRef<Forest<Record<string, unknown>, any>>
 }
 
-/** 数据映射相关逻辑 */
 interface UseDataMapReturned {
   dataMap: ShallowRef<Map<string, CascadeNode>>
 }

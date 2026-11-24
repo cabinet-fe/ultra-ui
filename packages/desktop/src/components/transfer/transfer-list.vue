@@ -70,19 +70,12 @@ const {
   disabled = false,
   size = 'default'
 } = defineProps<{
-  /** 栏标题 */
   title?: string
-  /** 本栏选项 */
   options?: TransferOption[]
-  /** 两栏共用的勾选 key 集合 */
   checkedKeys: Set<string | number>
-  /** 是否显示搜索框 */
   filterable?: boolean
-  /** 搜索框占位符 */
   placeholder?: string
-  /** 是否禁用整栏 */
   disabled?: boolean
-  /** 组件尺寸 */
   size?: ComponentSize
 }>()
 

@@ -2,11 +2,9 @@
 export interface ChatReasoningLevel {
   /** 写入请求的值 */
   value: string
-  /** UI 文案 */
   label: string
 }
 
-/** 单个模型配置 */
 export interface ChatModel {
   /** 模型 id（跨 Provider 全局唯一） */
   id: string
@@ -22,10 +20,8 @@ export interface ChatModel {
   contextWindow?: number
 }
 
-/** 模型服务商配置（内嵌 models） */
 export interface ChatProvider {
   id: string
-  /** UI 显示名 */
   label?: string
   /** 完整 http(s) URL 或相对路径，如 /api/ai/chat */
   endpoint: string
@@ -42,7 +38,6 @@ export interface ChatProvider {
   mode?: 'responses' | 'chat' | 'auto'
   /** API Key（有则带 Bearer；相对路径场景可省略，走 cookie/`headers`） */
   apiKey?: string
-  /** Provider 级额外请求头 */
   headers?: Record<string, string>
   /**
    * 将选中的推理等级写入 body。

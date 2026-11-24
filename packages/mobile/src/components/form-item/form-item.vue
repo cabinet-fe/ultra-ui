@@ -53,13 +53,8 @@ const props = withDefaults(defineProps<FormItemProps>(), { readonly: undefined }
 
 const emit = defineEmits<FormItemEmits>()
 
-defineSlots<{
-  /** 标签插槽 */
-  label?: () => any
-  default?: () => any
-}>()
+defineSlots<{ label?: () => any; default?: () => any }>()
 
-/** 表单组件上下文 */
 const { formProps, registerField, unregisterField, shouldValidate, handleFieldUpdate } =
   injectFormContext()
 

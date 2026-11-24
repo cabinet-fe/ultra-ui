@@ -80,8 +80,6 @@ const emit = defineEmits<{ toolClick: [tool: SheetTool, event: MouseEvent] }>()
 
 const cls = bem('sheet')
 
-// ─── 溢出滚动（箭头显隐 / 步进 / 滚轮横滚）────────────────────
-
 const scrollRef = useTemplateRef<HTMLElement>('scrollRef')
 const listRef = useTemplateRef<HTMLElement>('listRef')
 const { showNav, canPrev, canNext, scrollByStep } = useToolbarScroll({

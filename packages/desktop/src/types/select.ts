@@ -1,9 +1,7 @@
 import type { DeconstructValue, FormComponentProps } from '@veltra/utils'
 import type { CSSProperties, ShallowRef } from 'vue'
 
-/** 选择器组件属性 */
 export interface SelectProps extends FormComponentProps {
-  /** 绑定值 */
   modelValue?: any
   /**
    * 列表选项
@@ -12,7 +10,6 @@ export interface SelectProps extends FormComponentProps {
   options?:
     | Record<string, any>[]
     | ((qs: string) => Promise<Record<string, any>[]> | Record<string, any>[])
-  /** 值字段 */
   valueKey?: string
   /**
    * 标签字段
@@ -34,24 +31,17 @@ export interface SelectProps extends FormComponentProps {
    * @description modelValue 未命中选项时展示 text（如回显数据已不在选项中），命中时展示选项 label
    */
   text?: string
-  /** 是否可清除 */
   clearable?: boolean
-  /** 占位符 */
   placeholder?: string
-  /** 是否启用搜索功能 */
   filterable?: boolean
-  /** 内容容器样式 */
   contentStyle?: CSSProperties | string
-  /** 内容容器类名 */
   contentClass?: unknown
-  /** 弹框最小宽度 */
   minWidth?: string
   /**
    * 弹框宽度
    * @default 跟随触发元素的宽度
    */
   width?: string
-  /** 是否允许创建新的选项 */
   creatable?: boolean
 
   /**
@@ -82,7 +72,6 @@ export interface SelectEmits {
 }
 
 export interface _SelectExposed {
-  /** 信息文本 */
   infoText: ShallowRef<string | number>
 }
 

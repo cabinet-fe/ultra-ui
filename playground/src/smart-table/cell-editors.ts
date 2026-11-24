@@ -79,8 +79,6 @@ function toInputText(type: FieldType, value: SheetCellValue | undefined): string
   return String(value)
 }
 
-// ─── 会话装配基建 ──────────────────────────────────────────
-
 /** 单次会话的 DOM/监听回收（close 时由机制驱动调用） */
 type Release = () => void
 
@@ -159,8 +157,6 @@ function placePanel(session: GridEditorSession): (root: HTMLElement, rect: GridE
     }
   }
 }
-
-// ─── 编辑器实现 ────────────────────────────────────────────
 
 /** 格内输入框编辑器（text / number / progress / date / member / image 共用骨架） */
 function createInputEditor(

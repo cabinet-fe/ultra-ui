@@ -256,7 +256,6 @@ describe('worker { ok: false } 主线程回退', () => {
     const options = makeOptions({ onWorkbookReplaced: replaced })
     await triggerXlsxAndAwait(options)
 
-    // 主线程回退确实发生：importXlsx 被调用、worker 已终止，且其结果进入确认 → 替换
     expect(mocks.importXlsx).toHaveBeenCalledTimes(1)
     expect(FakeWorker.instances[0]!.terminated).toBe(true)
     expect(mocks.message.error).not.toHaveBeenCalled()

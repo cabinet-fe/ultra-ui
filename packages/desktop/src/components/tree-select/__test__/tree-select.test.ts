@@ -148,7 +148,6 @@ describe('UTreeSelect', () => {
       await nextTick()
       expect(texts.at(-1)).toBe('北京')
 
-      // 值改为不在数据中的值且无 text 兜底：如实发出 undefined
       model.value = 'removed'
       await nextTick()
       await nextTick()
@@ -165,7 +164,6 @@ describe('UTreeSelect', () => {
     try {
       await nextTick()
       await nextTick()
-      // readonly 纯展示：不触发 update:text，避免下游回写
       expect(texts).toHaveLength(0)
       expect(host.textContent).toContain('朝阳区（最新）')
     } finally {
@@ -203,7 +201,6 @@ describe('UTreeSelect', () => {
       expect(model.value).toBe('shanghai')
       expect(texts.at(-1)).toBe('上海（最新）')
 
-      // 清除：父级清空值时回显同步发出 update:text
       model.value = undefined
       await nextTick()
       await nextTick()
@@ -284,12 +281,10 @@ describe('UTreeSelect', () => {
       await typeQuery(host, '上海')
       expect(pending).toHaveLength(2)
 
-      // 新查询先返回
       pending[1]!([treeData[1]!])
       await sleep(20)
       expect(queryNodeContents().some((el) => el.textContent?.includes('上海'))).toBe(true)
 
-      // 慢的旧响应（初始空串查询）后返回，不能覆盖新结果
       pending[0]!(treeData)
       await sleep(20)
       expect(queryNodeContents().some((el) => el.textContent?.includes('北京'))).toBe(false)
@@ -321,16 +316,13 @@ describe('UTreeSelect labelTemplate', () => {
       await openDropdown(host)
       const nodeTexts = queryNodeContents().map((el) => el.textContent)
       expect(nodeTexts.some((t) => t === '北京（BJ）')).toBe(true)
-      // 缺 code 的节点回退纯 label
       expect(nodeTexts.some((t) => t === '上海')).toBe(true)
 
-      // 选中缺 code 的节点：渲染回退纯 label，展示与回发同为回退结果
       await clickNodeByLabel('上海')
       expect(model.value).toBe('shanghai')
       expect(host.querySelector('input')!.value).toBe('上海')
       expect(texts.at(-1)).toBe('上海')
 
-      // 选中命中模板的节点：展示与回发同为模板渲染结果
       await openDropdown(host)
       await clickNodeByLabel('北京（BJ）')
       expect(model.value).toBe('beijing')
@@ -351,7 +343,6 @@ describe('UTreeSelect labelTemplate', () => {
 
     try {
       await nextTick()
-      // 展示为模板渲染结果；显式配置 labelKey 时 update:text 回发原始取值
       expect(host.querySelector('input')!.value).toBe('北京（BJ）')
       expect(texts.at(-1)).toBe('北京')
     } finally {
@@ -368,13 +359,11 @@ describe('UTreeSelect labelTemplate', () => {
 
     try {
       await openDropdown(host)
-      // 按编码搜索命中
       await typeQuery(host, 'BJ')
       let nodeTexts = queryNodeContents().map((el) => el.textContent)
       expect(nodeTexts.some((t) => t?.includes('北京（BJ）'))).toBe(true)
       expect(nodeTexts.some((t) => t?.includes('上海'))).toBe(false)
 
-      // 按原始 label 搜索仍然命中
       await typeQuery(host, '上海')
       nodeTexts = queryNodeContents().map((el) => el.textContent)
       expect(nodeTexts.some((t) => t?.includes('上海'))).toBe(true)

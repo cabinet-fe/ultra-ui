@@ -9,9 +9,7 @@
     :content-class="[cls.e('panel'), cls.em('panel', size)]"
     :disabled="disabled"
   >
-    <!-- 触发 -->
     <template #trigger>
-      <!-- 单选 -->
       <u-input
         :size="size"
         :disabled="disabled"
@@ -31,7 +29,6 @@
       </u-input>
     </template>
 
-    <!-- 下拉内容 -->
     <template #content>
       <u-scroll tag="ul" :class="cls.e('options')" ref="scrollRef">
         <li
@@ -106,7 +103,6 @@ const slots = defineSlots<{
   prefix?: () => any
 }>()
 
-// 当前输入框的值
 const model = defineModel<string>()
 
 const cls = bem('auto-complete')
@@ -201,7 +197,6 @@ watch([point, keyboardOptions], ([currentPoint, options]) => {
   }
 })
 
-/** 选中选项 */
 const handleSelect = (option: string) => {
   model.value = option
   dropdownRef.value?.close()

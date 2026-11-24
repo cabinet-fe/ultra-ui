@@ -23,7 +23,6 @@ const props = defineProps<{
 /** 字体颜色（'' = 自动/默认） */
 const fontColor = ref('')
 
-// 打开时初始化为活动格当前字体色
 onMounted(() => {
   const active = props.context.getSelection().activeCell
   const style = active ? props.context.getEffectiveStyle(active) : undefined

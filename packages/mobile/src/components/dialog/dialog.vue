@@ -42,7 +42,6 @@
     </transition>
   </Teleport>
 
-  <!-- 触发器 -->
   <span v-if="$slots.trigger" :class="cls.e('trigger')" @click="visible = !visible">
     <slot name="trigger" />
   </span>
@@ -125,7 +124,6 @@ const footerClass = computed(() => {
   return [cls.e('footer'), bem.is('actions-vertical', props.verticalActions)]
 })
 
-/** 关闭 */
 const close = () => {
   visible.value = false
 }

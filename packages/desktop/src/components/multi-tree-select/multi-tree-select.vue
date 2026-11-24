@@ -15,12 +15,10 @@
     @update:visible="handleDropdownVisible"
   >
     <template #trigger>
-      <!-- 默认展示 -->
       <span :class="cls.e('placeholder')" v-if="!filterable && !tags.length">
         {{ placeholder }}
       </span>
 
-      <!-- 选择的数据项 -->
       <div v-if="tags.length || filterable" :class="cls.e('tags')">
         <u-tag
           v-for="tag in visibleTags"
@@ -32,7 +30,6 @@
         </u-tag>
         <u-tag v-if="hiddenCount > 0">+{{ hiddenCount }}</u-tag>
 
-        <!-- 内嵌查询输入框：承载过滤 -->
         <input
           v-if="filterable"
           ref="inputRef"
@@ -44,19 +41,16 @@
           @input="handleInput"
         />
       </div>
-      <!-- 清空 icon -->
       <u-icon v-if="showClear" :class="cls.e('clear')" @click.stop="handleClear">
         <Close />
       </u-icon>
 
-      <!-- 下拉 icon -->
       <u-icon :class="cls.e(`arrow`)" v-else-if="!readonly">
         <ArrowDown />
       </u-icon>
     </template>
     <template #content>
       <div :class="[cls.e('content-header'), cls.m(size)]">
-        <!-- 全选 -->
         <u-checkbox
           :model-value="allChecked"
           :indeterminate="indeterminate"
@@ -72,7 +66,6 @@
       <div v-if="remoteLoading" :class="cls.e('loading')">
         <ULoading type="dual-ring" />
       </div>
-      <!-- 菜单列表 -->
       <u-tree
         v-else
         v-bind="treeProps"
@@ -171,18 +164,14 @@ const emit = defineEmits<MultiTreeSelectEmits>()
 
 const slots = defineSlots<{ default?: (props: TreeSlotsScope) => any }>()
 
-/** 是否可搜索：显式声明或数据源为远程函数 */
 const filterable = computed(() => props.filterable || typeof props.data === 'function')
 
-/** 过滤 */
 const qs = shallowRef('')
 
 const treeRef = shallowRef<TreeExposed>()
 
-/** 远程搜索返回的树数据 */
 const remoteData = shallowRef<Record<string, any>[]>()
 
-/** 面板渲染的树数据：data 为函数时来自远程搜索，否则为静态数据 */
 const treeData = computed(() => (typeof props.data === 'function' ? remoteData.value : props.data))
 
 const remoteLoading = shallowRef(false)
@@ -278,26 +267,22 @@ function markEvent() {
   })
 }
 
-/**是否全选 */
 const allChecked = computed(() => {
   const values = checkableValues.value
   if (values) return values.size > 0 && effectiveModel.value.length === values.size
   return model.value?.length === treeRef.value?.forest.size
 })
 
-/**部分 */
 const indeterminate = computed(() => {
   return effectiveModel.value.length > 0 && !allChecked.value
 })
 
-/** 全选*/
 const handleCheckAll = (checked: boolean) => {
   treeRef.value?.checkAll(checked)
 
   dropdownRef.value?.updateDropdown()
 }
 
-/**选中 */
 const handleCheck = (checked: (string | number)[], checkedData: Record<string, any>[]) => {
   markEvent()
   tags.value = checkedData
@@ -306,7 +291,6 @@ const handleCheck = (checked: (string | number)[], checkedData: Record<string, a
   dropdownRef.value?.updateDropdown()
 }
 
-/**删除 */
 const handleRemove = (value: string | number) => {
   markEvent()
   tags.value = tags.value.filter((tag) => tag[valueKey.value] !== value)
@@ -314,7 +298,6 @@ const handleRemove = (value: string | number) => {
   emit('change', tags.value)
 }
 
-/**清空 */
 const handleClear = () => {
   markEvent()
   tags.value = []

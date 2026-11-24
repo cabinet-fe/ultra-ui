@@ -1,6 +1,5 @@
 <template>
   <u-scroll tag="ul" :class="[navCls.b, navCls.m(size)]" :container-class="navCls.e('container')">
-    <!-- 常规 -->
     <template v-if="!collapsed">
       <template v-for="(item, index) of menus" :key="index">
         <UNavSub v-if="item.children?.length" :item="item" :parent-key="String(index)" :depth="0" />
@@ -8,7 +7,6 @@
       </template>
     </template>
 
-    <!-- 折叠 -->
     <template v-else>
       <template v-for="(item, index) of menus" :key="index">
         <UNavSubCollapsed
