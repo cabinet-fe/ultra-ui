@@ -94,33 +94,29 @@ async function copyComboCode() {
 }
 
 .icon-combo-cell__main {
-  width: 100%;
-  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
-  padding: 1.1rem 0.85rem 0.95rem;
-  border: 1px solid #e5e5e5;
-  border-radius: 12px;
-  background: #fff;
-  cursor: pointer;
-  font-family: inherit;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  padding: 16px 12px 14px;
+  border: 1px solid var(--u-border-color);
+  border-radius: var(--u-radius-large);
+  background: var(--u-bg-color-top);
   color: inherit;
+  font-family: inherit;
+  text-align: center;
+  cursor: pointer;
   transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease,
-    transform 0.12s ease;
+    border-color var(--u-transition-fast) var(--u-transition-ease),
+    box-shadow var(--u-transition-fast) var(--u-transition-ease);
 }
 
-.icon-combo-cell__main:hover {
-  border-color: #d4d4d4;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-  transform: translateY(-1px);
-}
-
-.icon-combo-cell__main:active {
-  transform: translateY(0);
+.icon-combo-cell__main:hover,
+.icon-combo-cell__main:focus-visible {
+  border-color: var(--u-border-muted-color);
+  box-shadow: var(--u-shadow-sm);
 }
 
 .icon-combo-cell__preview-row {
@@ -128,12 +124,13 @@ async function copyComboCode() {
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 0.4rem;
-  min-height: 4.25rem;
-  padding: 0.65rem 0.75rem;
-  border-radius: 8px;
-  background: #f5f5f5;
-  color: #171717;
+  gap: 6px;
+  width: 100%;
+  min-height: 68px;
+  padding: 10px 12px;
+  border-radius: var(--u-radius-default);
+  background: var(--u-bg-color-hover);
+  color: var(--u-text-color-title);
 }
 
 .icon-combo-cell__solo {
@@ -142,44 +139,44 @@ async function copyComboCode() {
   justify-content: center;
   width: 40px;
   height: 40px;
-  border-radius: 6px;
-  background: #fff;
-  box-shadow: inset 0 0 0 1px rgba(23, 23, 23, 0.08);
+  border-radius: var(--u-radius-small);
+  background: var(--u-bg-color-top);
+  box-shadow: inset 0 0 0 1px var(--u-text-color-title-a-8);
 }
 
 .icon-combo-cell__plus,
 .icon-combo-cell__eq {
-  font-size: 0.8125rem;
+  padding: 0 2px;
+  font-size: 13px;
   font-weight: 600;
-  color: #a3a3a3;
   line-height: 1;
-  padding: 0 0.15rem;
+  color: var(--u-text-color-second);
 }
 
 .icon-combo-cell__stack {
   position: relative;
   display: block;
+  flex-shrink: 0;
   width: 16px;
   height: 16px;
-  flex-shrink: 0;
-  box-shadow: inset 0 0 0 1px rgba(23, 23, 23, 0.18);
   border-radius: 2px;
-  background: #fff;
+  background: var(--u-bg-color-top);
+  box-shadow: inset 0 0 0 1px var(--u-text-color-title-a-22);
 }
 
 .icon-combo-cell__stack--lg {
   width: 48px;
   height: 48px;
-  border-radius: 4px;
+  border-radius: var(--u-radius-small);
 }
 
 .icon-combo-cell__layer {
   position: absolute;
   top: 0;
   left: 0;
+  display: block;
   width: 16px !important;
   height: 16px !important;
-  display: block;
 }
 
 .icon-combo-cell__layer--lg {
@@ -191,18 +188,18 @@ async function copyComboCode() {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 3rem;
-  height: 3rem;
-  color: #171717;
-  border-radius: 8px;
-  background: #f5f5f5;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--u-radius-default);
+  background: var(--u-bg-color-hover);
+  color: var(--u-text-color-title);
 }
 
 .icon-combo-cell__glyph--row {
-  gap: 0.35rem;
+  gap: 6px;
   width: auto;
-  min-width: 3rem;
-  padding: 0 0.5rem;
+  min-width: 48px;
+  padding: 0 8px;
 }
 
 .icon-combo-cell__svg {
@@ -212,26 +209,23 @@ async function copyComboCode() {
 }
 
 .icon-combo-cell__title {
-  font-size: 0.8125rem;
+  font-size: 13px;
   font-weight: 600;
-  color: #171717;
-  text-align: center;
+  color: var(--u-text-color-title);
 }
 
 .icon-combo-cell__desc {
-  font-size: 0.6875rem;
-  line-height: 1.35;
-  color: #737373;
-  text-align: center;
-  max-width: 20rem;
+  max-width: 320px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--u-text-color-second);
 }
 
 .icon-combo-cell__names {
-  font-size: 0.625rem;
+  font-size: 11px;
   line-height: 1.3;
-  color: #a3a3a3;
-  text-align: center;
+  color: var(--u-text-color-placeholder);
   font-variant-ligatures: none;
-  word-break: break-all;
+  overflow-wrap: anywhere;
 }
 </style>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { UIcon, UInput, USegment } from '@veltra/desktop'
 import * as ColorfulIcons from '@veltra/icons/colorful'
 import * as NormalIcons from '@veltra/icons/normal'
 import { computed, ref, shallowRef, watch } from 'vue'
@@ -31,6 +32,11 @@ const sets: Record<SetKey, IconItem[]> = {
   normal: collectIcons(NormalIcons as Record<string, unknown>),
   colorful: collectIcons(ColorfulIcons as Record<string, unknown>)
 }
+
+const SET_OPTIONS: { label: string; value: SetKey }[] = [
+  { label: 'Normal', value: 'normal' },
+  { label: 'Colorful', value: 'colorful' }
+]
 
 const activeSet = ref<SetKey>('normal')
 const query = ref('')
@@ -301,88 +307,47 @@ const groupedNormalIcons = computed<GroupedResult[]>(() => {
 </script>
 
 <template>
-  <div class="icons-demo">
-    <header class="icons-demo__header">
-      <div class="icons-demo__header-inner">
-        <div class="icons-demo__brand">
-          <h1 class="icons-demo__title">Ultra Icons</h1>
-          <p class="icons-demo__subtitle">
-            来自 <code>@veltra/icons</code> 的 Vue
-            图标组件，点击卡片或复制按钮获取组件代码，悬停可下载 SVG。
-          </p>
-        </div>
-        <div class="icons-demo__tabs" role="tablist">
-          <button
-            type="button"
-            role="tab"
-            :aria-selected="activeSet === 'normal'"
-            class="icons-demo__tab"
-            :class="{ 'icons-demo__tab--active': activeSet === 'normal' }"
-            @click="activeSet = 'normal'"
-          >
-            Normal
-          </button>
-          <button
-            type="button"
-            role="tab"
-            :aria-selected="activeSet === 'colorful'"
-            class="icons-demo__tab"
-            :class="{ 'icons-demo__tab--active': activeSet === 'colorful' }"
-            @click="activeSet = 'colorful'"
-          >
-            Colorful
-          </button>
-        </div>
-      </div>
+  <div class="icons-page">
+    <header class="icons-page__header">
+      <h1 class="icons-page__title">Ultra Icons</h1>
+      <p class="icons-page__subtitle">
+        来自 <code>@veltra/icons</code> 的 Vue 图标组件，点击卡片或复制按钮获取组件代码，悬停可下载
+        SVG。
+      </p>
     </header>
 
-    <div class="icons-demo__toolbar">
-      <div class="icons-demo__search-wrap">
-        <span class="icons-demo__search-icon" aria-hidden="true">
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.3-4.3" />
-          </svg>
-        </span>
-        <input
-          v-model="query"
-          class="icons-demo__search"
-          type="search"
-          placeholder="Search icons..."
-          autocomplete="off"
-          spellcheck="false"
-          aria-label="搜索图标"
-        />
-      </div>
-      <p class="icons-demo__count">{{ filtered.length }} icons</p>
+    <div class="icons-page__toolbar">
+      <u-input
+        v-model="query"
+        class="icons-page__search"
+        placeholder="Search icons..."
+        role="search"
+        aria-label="搜索图标"
+        clearable
+      >
+        <template #prefix>
+          <u-icon><NormalIcons.Search /></u-icon>
+        </template>
+      </u-input>
+      <p class="icons-page__count">{{ filtered.length }} icons</p>
+      <u-segment v-model="activeSet" class="icons-demo__sets" :items="SET_OPTIONS" />
     </div>
 
-    <main class="icons-demo__main">
-      <div v-if="filtered.length === 0" class="icons-demo__empty">没有匹配的图标</div>
+    <main class="icons-page__main">
+      <p v-if="filtered.length === 0" class="icons-page__empty">没有匹配的图标</p>
 
       <template v-else-if="activeSet === 'normal'">
-        <div
+        <section
           v-for="group in groupedNormalIcons"
           :key="group.name"
           class="icons-demo__group"
           :class="{ 'icons-demo__group--hot': group.isHot }"
         >
-          <div class="icons-demo__group-header">
-            <div class="icons-demo__group-title-row">
-              <span v-if="group.isHot" class="icons-demo__group-badge">NEW</span>
-              <h2 class="icons-demo__group-title">{{ group.name }}</h2>
-            </div>
+          <header class="icons-demo__group-header">
+            <span v-if="group.isHot" class="icons-demo__group-badge">NEW</span>
+            <h2 class="icons-demo__group-title">{{ group.name }}</h2>
             <p v-if="group.description" class="icons-demo__group-desc">{{ group.description }}</p>
-          </div>
+          </header>
 
           <ul class="icons-demo__grid">
             <IconCell
@@ -393,279 +358,95 @@ const groupedNormalIcons = computed<GroupedResult[]>(() => {
               @toast="showToast"
             />
           </ul>
-        </div>
+        </section>
       </template>
 
-      <ul v-else class="icons-demo__grid">
-        <IconCell
-          v-for="item in filtered"
-          :key="item.kebab"
-          :item="item"
-          :active-set="activeSet"
-          @toast="showToast"
-        />
-      </ul>
+      <section v-else class="icons-demo__group">
+        <ul class="icons-demo__grid">
+          <IconCell
+            v-for="item in filtered"
+            :key="item.kebab"
+            :item="item"
+            :active-set="activeSet"
+            @toast="showToast"
+          />
+        </ul>
+      </section>
     </main>
 
-    <Transition name="icons-demo-toast">
-      <div v-if="toastMessage" class="icons-demo__toast" role="status">
+    <Transition name="icons-page-toast">
+      <div v-if="toastMessage" class="icons-page__toast" role="status">
         {{ toastMessage }}
-        <code v-if="toastDetail" class="icons-demo__toast-code">{{ toastDetail }}</code>
+        <code v-if="toastDetail" class="icons-page__toast-code">{{ toastDetail }}</code>
       </div>
     </Transition>
   </div>
 </template>
 
-<style scoped>
-.icons-demo {
-  color: #171717;
-  font-size: 15px;
-  line-height: 1.5;
-}
-
-.icons-demo__header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  /* 仅水平负边距抵消 content-container padding，避免 margin-top 负值导致搜索栏与 header 重叠 */
-  margin: 0 -24px;
-  border-bottom: 1px solid #e5e5e5;
-  background: rgba(250, 250, 250, 0.85);
-  backdrop-filter: blur(10px);
-}
-
-.icons-demo__header-inner {
-  padding: 1.25rem 1.5rem 1rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.icons-demo__title {
-  margin: 0;
-  font-size: 1.375rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-
-.icons-demo__subtitle {
-  margin: 0.35rem 0 0;
-  font-size: 0.875rem;
-  color: #737373;
-  max-width: 36rem;
-}
-
-.icons-demo__subtitle code {
-  font-size: 0.8125rem;
-  padding: 0.1em 0.35em;
-  border-radius: 4px;
-  background: #f0f0f0;
-  color: #404040;
-}
-
-.icons-demo__tabs {
-  display: inline-flex;
-  padding: 3px;
-  border-radius: 10px;
-  background: #ececec;
-  gap: 2px;
-}
-
-.icons-demo__tab {
-  border: none;
-  margin: 0;
-  padding: 0.45rem 1rem;
-  font-size: 0.8125rem;
-  font-weight: 500;
-  font-family: inherit;
-  border-radius: 8px;
-  background: transparent;
-  color: #525252;
-  cursor: pointer;
-  transition:
-    background 0.15s ease,
-    color 0.15s ease;
-}
-
-.icons-demo__tab:hover {
-  color: #171717;
-}
-
-.icons-demo__tab--active {
-  background: #fff;
-  color: #171717;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
-}
-
-.icons-demo__toolbar {
-  padding: 1rem 0 0.75rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 1rem;
-}
-
-.icons-demo__search-wrap {
-  position: relative;
-  flex: 1;
-  min-width: min(100%, 280px);
-  max-width: 420px;
-}
-
-.icons-demo__search-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #a3a3a3;
-  display: flex;
-  pointer-events: none;
-}
-
-.icons-demo__search {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 0.55rem 0.85rem 0.55rem 2.5rem;
-  font-size: 0.875rem;
-  font-family: inherit;
-  border: 1px solid #e5e5e5;
-  border-radius: 10px;
-  background: #fff;
-  color: #171717;
-  outline: none;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-
-.icons-demo__search::placeholder {
-  color: #a3a3a3;
-}
-
-.icons-demo__search:hover {
-  border-color: #d4d4d4;
-}
-
-.icons-demo__search:focus {
-  border-color: #171717;
-  box-shadow: 0 0 0 3px rgba(23, 23, 23, 0.08);
-}
-
-.icons-demo__count {
-  margin: 0;
-  font-size: 0.8125rem;
-  color: #737373;
-}
-
-.icons-demo__main {
-  padding: 0.5rem 0 1.5rem;
+<style lang="scss" scoped>
+.icons-demo__sets {
+  margin-left: auto;
 }
 
 .icons-demo__group {
-  margin-bottom: 2.5rem;
-  padding: 1.75rem;
-  border: 1px solid #e5e5e5;
-  border-radius: 16px;
-  background: #fff;
-  transition: box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 16px 20px 20px;
+  border: 1px solid var(--u-border-color);
+  border-radius: var(--u-radius-large);
+  background-color: var(--u-bg-color-top);
+
+  & + & {
+    margin-top: 16px;
+  }
 }
 
-.icons-demo__group:hover {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.03);
-}
-
+// 热门分组：主题色描边 + 淡淡的主题色晕染
 .icons-demo__group--hot {
-  border-color: rgba(59, 130, 246, 0.25);
-  background: linear-gradient(180deg, #fbfcfd 0%, #ffffff 100%);
+  border-color: var(--u-color-primary-a-35);
+  background-image: linear-gradient(var(--u-color-primary-a-4), var(--u-color-primary-a-4));
 }
 
 .icons-demo__group-header {
-  margin-bottom: 1.25rem;
-}
-
-.icons-demo__group-title-row {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  margin-bottom: 12px;
 }
 
 .icons-demo__group-badge {
-  font-size: 0.625rem;
-  font-weight: 700;
-  color: #fff;
-  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  align-self: center;
   padding: 1px 6px;
-  border-radius: 4px;
+  border-radius: var(--u-radius-small);
+  background: var(--u-color-primary);
+  color: var(--u-text-color-white);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.5;
   letter-spacing: 0.5px;
 }
 
 .icons-demo__group-title {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 14px;
   font-weight: 600;
-  color: #171717;
+  color: var(--u-text-color-title);
 }
 
 .icons-demo__group-desc {
-  margin: 0.25rem 0 0;
-  font-size: 0.75rem;
-  color: #737373;
-}
-
-.icons-demo__empty {
-  text-align: center;
-  padding: 3rem 1rem;
-  color: #737373;
-  font-size: 0.9375rem;
+  margin: 0;
+  font-size: 12px;
+  color: var(--u-text-color-second);
 }
 
 .icons-demo__grid {
-  list-style: none;
+  display: grid;
+  // 列宽下限给悬停操作按钮留出右上角，避免压到图标
+  grid-template-columns: repeat(auto-fill, minmax(136px, 1fr));
+  gap: 8px;
   margin: 0;
   padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(6.75rem, 1fr));
-  gap: 0.5rem;
-}
-
-.icons-demo__toast {
-  position: fixed;
-  bottom: 1.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 50;
-  max-width: min(calc(100vw - 2rem), 32rem);
-  padding: 0.75rem 1rem;
-  border-radius: 10px;
-  background: #171717;
-  color: #fafafa;
-  font-size: 0.8125rem;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.icons-demo__toast-code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
-  font-size: 0.7rem;
-  opacity: 0.92;
-  word-break: break-all;
-  white-space: pre-wrap;
-}
-
-.icons-demo-toast-enter-active,
-.icons-demo-toast-leave-active {
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
-}
-
-.icons-demo-toast-enter-from,
-.icons-demo-toast-leave-to {
-  opacity: 0;
-  transform: translateX(-50%) translateY(8px);
+  list-style: none;
 }
 </style>
+
+<style lang="scss" src="./demo-page.scss"></style>

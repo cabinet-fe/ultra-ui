@@ -1,0 +1,113 @@
+// Icons 顶层页（图标库 / 图标组合）共用的页面骨架：标题区、吸顶工具栏、空态、复制反馈
+.icons-page {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--u-text-color-main);
+
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;
+  }
+
+  &__header {
+    margin-bottom: 12px;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--u-text-color-title);
+  }
+
+  &__subtitle {
+    max-width: 720px;
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: var(--u-text-color-second);
+
+    code {
+      padding: 1px 5px;
+      border-radius: var(--u-radius-small);
+      background: var(--u-bg-color-hover);
+      color: var(--u-text-color-title);
+      font-size: 12px;
+    }
+  }
+
+  // 吸顶让长列表滚动时搜索仍可用。不做通栏：滚动容器自身没有 padding，
+  // 负边距只会让左侧被裁掉、右侧撑出横向滚动
+  &__toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 12px;
+    margin-bottom: 16px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--u-border-color);
+    background: var(--u-bg-color-bottom);
+  }
+
+  &__search {
+    max-width: 320px;
+  }
+
+  &__count {
+    margin: 0;
+    font-size: 13px;
+    color: var(--u-text-color-second);
+  }
+
+  &__main {
+    padding-bottom: 16px;
+  }
+
+  &__empty {
+    margin: 0;
+    padding: 64px 16px;
+    text-align: center;
+    color: var(--u-text-color-second);
+  }
+
+  // title 与 top 两个 token 在深浅主题下互为前景/底色，反馈条因此始终与页面反色
+  &__toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    z-index: 50;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-width: min(calc(100vw - 32px), 480px);
+    padding: 10px 14px;
+    border-radius: var(--u-radius-default);
+    background: var(--u-text-color-title);
+    color: var(--u-bg-color-top);
+    font-size: 13px;
+    box-shadow: var(--u-shadow-lg);
+    transform: translateX(-50%);
+  }
+
+  &__toast-code {
+    font-size: 12px;
+    opacity: 0.88;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+}
+
+.icons-page-toast-enter-active,
+.icons-page-toast-leave-active {
+  transition:
+    opacity var(--u-transition-fast) var(--u-transition-ease),
+    transform var(--u-transition-fast) var(--u-transition-ease);
+}
+
+.icons-page-toast-enter-from,
+.icons-page-toast-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(8px);
+}

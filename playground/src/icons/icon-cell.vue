@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { UIcon } from '@veltra/desktop'
+import { Copy, Download } from '@veltra/icons/normal'
 import { ref } from 'vue'
 import type { Component } from 'vue'
 
@@ -14,14 +16,14 @@ const props = defineProps<{ item: IconItem; activeSet: IconSetKey }>()
 
 const emit = defineEmits<{ toast: [message: string, detail?: string] }>()
 
-const rootRef = ref<HTMLElement | null>(null)
+const glyphRef = ref<HTMLElement | null>(null)
 
 function buildIconCode(): string {
   return `import { ${props.item.pascal} } from '@veltra/icons/${props.activeSet}'\n\n<${props.item.pascal} />`
 }
 
 function getSvgMarkup(): string | null {
-  const svg = rootRef.value?.querySelector('svg')
+  const svg = glyphRef.value?.querySelector('svg')
   if (!svg) return null
 
   const clone = svg.cloneNode(true) as SVGSVGElement
@@ -37,7 +39,7 @@ async function copyIconCode() {
     await navigator.clipboard.writeText(code)
     emit('toast', '已复制组件代码', code)
   } catch {
-    /* clipboard unavailable */
+    emit('toast', '复制失败，请检查浏览器的剪贴板权限')
   }
 }
 
@@ -57,171 +59,137 @@ function downloadSvg() {
 </script>
 
 <template>
-  <li class="icons-demo__cell-wrap">
-    <div ref="rootRef" class="icons-demo__cell">
-      <button type="button" class="icons-demo__cell-main" @click="copyIconCode">
-        <span class="icons-demo__glyph">
-          <component :is="item.component" class="icons-demo__svg" />
-        </span>
-        <span class="icons-demo__name">{{ item.kebab }}</span>
-      </button>
+  <li class="icons-demo__cell">
+    <button type="button" class="icons-demo__cell-main" @click="copyIconCode">
+      <span ref="glyphRef" class="icons-demo__glyph">
+        <component :is="item.component" class="icons-demo__svg" />
+      </span>
+      <span class="icons-demo__name">{{ item.kebab }}</span>
+    </button>
 
-      <div class="icons-demo__actions">
-        <button
-          type="button"
-          class="icons-demo__action"
-          title="复制组件代码"
-          aria-label="复制组件代码"
-          @click.stop="copyIconCode"
-        >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-            <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-          </svg>
-        </button>
-        <button
-          type="button"
-          class="icons-demo__action"
-          title="下载 SVG"
-          aria-label="下载 SVG"
-          @click.stop="downloadSvg"
-        >
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="7 10 12 15 17 10" />
-            <line x1="12" x2="12" y1="15" y2="3" />
-          </svg>
-        </button>
-      </div>
+    <div class="icons-demo__actions">
+      <button
+        type="button"
+        class="icons-demo__action"
+        title="复制组件代码"
+        aria-label="复制组件代码"
+        @click.stop="copyIconCode"
+      >
+        <u-icon :size="14"><Copy /></u-icon>
+      </button>
+      <button
+        type="button"
+        class="icons-demo__action"
+        title="下载 SVG"
+        aria-label="下载 SVG"
+        @click.stop="downloadSvg"
+      >
+        <u-icon :size="14"><Download /></u-icon>
+      </button>
     </div>
   </li>
 </template>
 
 <style scoped>
-.icons-demo__cell-wrap {
-  margin: 0;
-}
-
 .icons-demo__cell {
   position: relative;
-  width: 100%;
-  border: 1px solid #e5e5e5;
-  border-radius: 12px;
-  background: #fff;
+  border: 1px solid var(--u-border-color);
+  border-radius: var(--u-radius-small);
   transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease,
-    transform 0.12s ease;
+    background-color var(--u-transition-fast) var(--u-transition-ease),
+    border-color var(--u-transition-fast) var(--u-transition-ease);
 }
 
 .icons-demo__cell:hover,
 .icons-demo__cell:focus-within {
-  border-color: #d4d4d4;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
-  transform: translateY(-1px);
+  border-color: var(--u-border-muted-color);
+  background: var(--u-bg-color-hover);
 }
 
 .icons-demo__cell-main {
-  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.45rem;
-  padding: 0.6rem 0.4rem 0.45rem;
+  gap: 6px;
+  width: 100%;
+  padding: 12px 8px;
   border: none;
-  background: transparent;
-  cursor: pointer;
-  font-family: inherit;
+  background: none;
   color: inherit;
-}
-
-.icons-demo__cell-main:active {
-  transform: translateY(0);
-}
-
-.icons-demo__actions {
-  display: flex;
-  justify-content: center;
-  gap: 0.25rem;
-  padding: 0 0.35rem 0.4rem;
-  opacity: 0;
-  transform: translateY(2px);
-  transition:
-    opacity 0.15s ease,
-    transform 0.15s ease;
-}
-
-.icons-demo__cell:hover .icons-demo__actions,
-.icons-demo__cell:focus-within .icons-demo__actions {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.icons-demo__action {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.625rem;
-  height: 1.625rem;
-  padding: 0;
-  border: 1px solid #e5e5e5;
-  border-radius: 6px;
-  background: #fafafa;
-  color: #525252;
+  font-family: inherit;
   cursor: pointer;
-  transition:
-    background 0.12s ease,
-    color 0.12s ease,
-    border-color 0.12s ease;
-}
-
-.icons-demo__action:hover {
-  background: #171717;
-  border-color: #171717;
-  color: #fafafa;
 }
 
 .icons-demo__glyph {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.125rem;
-  height: 2.125rem;
-  color: #171717;
+  height: 28px;
+  color: var(--u-text-color-title);
 }
 
 .icons-demo__svg {
   display: block;
-  font-size: 30px;
+  width: 28px;
+  height: 28px;
 }
 
 .icons-demo__name {
-  font-size: 0.6875rem;
-  line-height: 1.3;
-  color: #737373;
-  text-align: center;
-  word-break: break-all;
   max-width: 100%;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--u-text-color-second);
+  text-align: center;
+  /* 优先在连字符处断行，放不下才断词 */
+  overflow-wrap: anywhere;
   font-variant-ligatures: none;
+}
+
+/* 悬停操作浮在右上角，不占格子高度；隐藏期间不拦截点击 */
+.icons-demo__actions {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--u-transition-fast) var(--u-transition-ease);
+}
+
+.icons-demo__cell:hover .icons-demo__actions,
+.icons-demo__cell:focus-within .icons-demo__actions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* 触屏没有悬停，操作常显 */
+@media (hover: none) {
+  .icons-demo__actions {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.icons-demo__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--u-border-color);
+  border-radius: var(--u-radius-small);
+  background: var(--u-bg-color-top);
+  color: var(--u-text-color-second);
+  cursor: pointer;
+  transition:
+    border-color var(--u-transition-fast) var(--u-transition-ease),
+    color var(--u-transition-fast) var(--u-transition-ease);
+}
+
+.icons-demo__action:hover {
+  border-color: var(--u-color-primary);
+  color: var(--u-color-primary);
 }
 </style>
