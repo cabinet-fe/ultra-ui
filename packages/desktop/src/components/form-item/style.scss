@@ -122,10 +122,39 @@ $root-name: form-item;
     @include m.bem($root-name, label) {
       min-height: auto;
       padding-right: 0;
-      padding-bottom: 4px;
+      padding-bottom: 8px;
       text-align: left;
-      color: fn.use-var(text-color, second);
       justify-content: flex-start;
+      color: fn.use-var(text-color, main);
+      // 20 / 14 ≈ 1.4286：14px 字号对应 20px 行高，随字号等比缩放
+      line-height: calc(20 / 14);
+      font-weight: 500;
+
+      // 星号挪到文字后，必填与选填的 label 文字左缘对齐
+      @include m.is(required) {
+        &::before {
+          content: none;
+        }
+
+        &::after {
+          content: '*';
+          padding-left: 2px;
+          color: fn.use-var(color, danger);
+        }
+      }
+    }
+
+    @include m.bem($root-name, error) {
+      // 外高减行高余 2px：错误文字下移到占位底部，与控件之间留出间隙
+      padding-top: 2px;
+    }
+
+    // 只读态 label 退为次级色。form 的退级规则与本分支的 label 规则同为三个类，
+    // 生效与否取决于两份样式的加载顺序，这里提一级权重显式压住主文字色
+    #{fn.bem(form)}.is-readonly & {
+      @include m.bem($root-name, label) {
+        color: fn.use-var(text-color, second);
+      }
     }
   }
 }
