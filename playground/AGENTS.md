@@ -21,7 +21,7 @@ bun run server     # 仅参考服务（填报 + DeepSeek 代理 + 智慧表格 +
 ## 路由
 
 - `src/desktop/<component-name>/index.vue` → `/desktop/<component-name>/index`
-- `src/mobile/<name>/index.vue` → `/mobile/<name>/index`（40 个 mobile 示例页；路由 name 为 `mobile-<name>`，与 desktop 同名目录不冲突）
+- `src/mobile/<name>/index.vue` → `/mobile/<name>/index`（42 个 mobile 示例页；路由 name 为 `mobile-<name>`，与 desktop 同名目录不冲突）
 - `src/icons/index.vue` → `/icons/index`
 - `src/icons/combo/index.vue` → `/icons/combo/index`
 - `src/ai-chat/index.vue` → `/ai-chat/index`
@@ -79,7 +79,7 @@ src/nav-search-panel.vue # 导航搜索结果面板
 src/device-frame.vue   # mobile 演示页手机设备外壳
 vite.config.ts
 src/desktop/<name>/index.vue
-src/mobile/<name>/index.vue   # @veltra/mobile 组件演示（40 个示例页）
+src/mobile/<name>/index.vue   # @veltra/mobile 组件演示（42 个示例页）
 src/icons/index.vue           # 图标库预览
 src/icons/combo/index.vue     # 图标组合预览
 src/ai-chat/index.vue         # @veltra/ai 对话组件预览：同一页切换客户端驱动（OpenAI + Open-Meteo 天气终结工具 weather-card.vue + 右侧面板 admin-panel.vue + 待发送队列）与服务端驱动（createServerTransport + fake-session.ts 页内 fake adapter，演示未知工具卡 / 提问 / 审批横幅 / 作业条，不接真实 DSH）
