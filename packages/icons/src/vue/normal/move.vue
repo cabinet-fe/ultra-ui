@@ -1,4 +1,4 @@
-<!-- @veltra/icons generated sha256:9b2a38771821fe67 gen:8 source:src/svg/normal/move.svg -->
+<!-- @veltra/icons generated sha256:4a9f77477fd7d59c gen:8 source:src/svg/normal/move.svg -->
 <script setup lang="ts">
 defineOptions({ name: 'Move' })
 </script>
@@ -9,7 +9,7 @@ defineOptions({ name: 'Move' })
     stroke="currentColor"
     stroke-linecap="round"
     stroke-linejoin="round"
-    stroke-width="1.333"
+    stroke-width="2"
     viewBox="0 0 24 24"
   >
     <circle cx="9" cy="12" r="1" />
