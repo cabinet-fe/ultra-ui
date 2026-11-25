@@ -52,16 +52,16 @@
     }
   },
   "dependencies": {
-    "@lexical/history": "^0.52.0",
-    "@lexical/html": "^0.52.0",
-    "@lexical/link": "^0.52.0",
-    "@lexical/list": "^0.52.0",
-    "@lexical/rich-text": "^0.52.0",
-    "@lexical/selection": "^0.52.0",
-    "@lexical/utils": "^0.52.0",
+    "@lexical/history": "^0.53.0",
+    "@lexical/html": "^0.53.0",
+    "@lexical/link": "^0.53.0",
+    "@lexical/list": "^0.53.0",
+    "@lexical/rich-text": "^0.53.0",
+    "@lexical/selection": "^0.53.0",
+    "@lexical/utils": "^0.53.0",
     "docx-preview": "^0.4.1",
-    "lexical": "^0.52.0",
-    "pdfjs-dist": "6.4.299"
+    "lexical": "^0.53.0",
+    "pdfjs-dist": "6.5.438"
   },
   "devDependencies": {
     "@codemirror/autocomplete": "6.20.3",

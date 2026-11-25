@@ -39,7 +39,7 @@
     }
   },
   "dependencies": {
-    "markstream-vue": "^2.0.20"
+    "markstream-vue": "^2.0.32"
   },
   "peerDependencies": {
     "@cat-kit/core": ">=1.2.1",

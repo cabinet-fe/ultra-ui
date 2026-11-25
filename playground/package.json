@@ -23,16 +23,16 @@
     "@veltra/sheet": "workspace:*",
     "@veltra/styles": "workspace:*",
     "@veltra/utils": "workspace:*",
-    "chart.js": "^4.6.1",
+    "chart.js": "^4.6.2",
     "html-to-image": "^1.11.13",
     "infinitable": "^0.3.4",
     "pdf-fontkit": "^1.8.9",
     "pdf-lib": "^1.17.1",
-    "vue": "^3.5.44",
-    "vue-router": "^5.4.0"
+    "vue": "^3.5.46",
+    "vue-router": "^5.5.1"
   },
   "devDependencies": {
-    "@hono/node-server": "^2.1.5",
-    "hono": "^4.13.13"
+    "@hono/node-server": "^2.1.11",
+    "hono": "^4.13.22"
   }
 }
