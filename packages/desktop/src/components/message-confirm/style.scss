@@ -1,10 +1,14 @@
 @use 'pkg:@veltra/styles/mixins' as m;
 @use 'pkg:@veltra/styles/functions' as fn;
-@use 'pkg:@veltra/styles/vars';
-@use 'sass:map';
 
 // 方便拼接
 $root-name: message-confirm;
+
+// 确认框要「点到即现」。fast(0.15s) 配 40px 滑入仍然拖；
+// 改成短距缩放，入场 0.1s、离场 0.07s，短于主题 fast。
+$enter-duration: 0.1s;
+$leave-duration: 0.07s;
+$motion-ease: fn.use-var(transition, ease-out);
 
 @include m.b($root-name) {
   // 根元素必须「平时」就有 transition：Vue transition-group 的 hasTransition 在
@@ -13,7 +17,7 @@ $root-name: message-confirm;
   // replaceWorkbookWithSnapshots 长任务阻塞弹窗关闭）。与 message 组件对称（mask/box 同此）。
   position: fixed;
   inset: 0;
-  transition: opacity fn.use-var(transition, normal) fn.use-var(transition, ease);
+  transition: opacity $enter-duration $motion-ease;
 
   @include m.e(container) {
     position: fixed;
@@ -21,52 +25,85 @@ $root-name: message-confirm;
   }
 
   @include m.e(mask) {
-    background-color: rgba(0, 0, 0, 0.32);
+    // 只轻轻压暗再虚化，底保持亮，卡片的投影才看得出来
+    background-color: rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     position: fixed;
     top: 0;
     right: 0;
     bottom: 0;
     left: 0;
     @include m.flex($justify: center);
-    transition: opacity fn.use-var(transition, normal) fn.use-var(transition, ease);
+    transition: opacity $enter-duration $motion-ease;
   }
 
   @include m.e(box) {
     position: relative;
-    width: 420px;
+    display: flex;
+    flex-direction: column;
+    width: min(400px, calc(100vw - 48px));
     background-color: fn.use-var(bg-color, top);
-    border: fn.use-var(border);
-    box-shadow: fn.use-var(shadow, lg);
+    // lg 负责各主题下的浮起；外面再加一圈更散的投影，接近参考图的软边
+    box-shadow:
+      0 18px 40px -12px fn.color-a(shadow-color, 16),
+      fn.use-var(shadow, lg);
     transition:
-      opacity fn.use-var(transition, normal) fn.use-var(transition, ease),
-      transform fn.use-var(transition, normal) fn.use-var(transition, ease-out);
+      opacity $enter-duration $motion-ease,
+      scale $enter-duration $motion-ease,
+      translate $enter-duration $motion-ease;
   }
 
   @include m.e(header) {
-    font-weight: bold;
+    font-weight: 600;
+    line-height: 1.3;
+    color: fn.use-var(text-color, title);
   }
 
   @include m.e(content) {
+    line-height: 1.6;
+    color: fn.use-var(text-color, main);
     word-wrap: break-word;
   }
 
   @include m.e(footer) {
-    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
 
-    &--btn {
-      margin-left: 10px;
+    #{fn.bem(button)} {
+      box-shadow: none;
+      font-weight: 600;
+      border-radius: fn.use-var(radius, large);
+    }
+
+    // 取消没有类型色，主题把默认按钮底设成了表层白，会和卡片融在一起。
+    // 这里改回浅灰填充，和确认按钮的浅色底成对。
+    #{fn.bem(button)}.is-plain:not([class*='--color-']) {
+      background-color: fn.use-var(color, default);
+      color: fn.use-var(text-color, title);
+
+      &:hover {
+        background-color: fn.use-var(color, default, 'dark-1');
+      }
     }
   }
 
   @include m.size using ($size) {
     @include m.bem($root-name, box) {
-      border-radius: fn.use-var(radius, $size);
-      font-size: fn.use-var('font-size', title, $size);
-      padding: calc(fn.use-var(gap, $size) * 1.8);
+      // large(12) + 8 ≈ 图片里那张卡片的圆角
+      border-radius: calc(#{fn.use-var(radius, large)} + 8px);
+      font-size: fn.use-var(font-size-main, $size);
+      padding: calc(#{fn.use-var(gap, $size)} * 2.5);
+      gap: calc(#{fn.use-var(gap, $size)} * 1.5);
     }
 
     @include m.bem($root-name, header) {
-      font-size: fn.use-var('font-size', title, $size);
+      font-size: fn.use-var(font-size-title, $size);
+    }
+
+    @include m.bem($root-name, footer) {
+      gap: fn.use-var(gap, $size);
     }
   }
 }
@@ -77,39 +114,49 @@ $root-name: message-confirm;
    点击事件内同步执行，长任务阻塞弹窗关闭）。与 message 组件对称。 */
 .#{$root-name}-enter-active,
 .#{$root-name}-leave-active {
-  transition-duration: fn.use-var(transition, normal);
-  transition-timing-function: fn.use-var(transition, ease);
+  transition-duration: $enter-duration;
+  transition-timing-function: $motion-ease;
   transition-property: opacity;
 }
 
-/* 出场比入场快：根 / mask / box（含 box 的 transform 过渡）同步缩短 */
+/* 出场更快：根 / mask / box（含 scale、translate）一起缩短 */
 .#{$root-name}-leave-active {
-  transition-duration: fn.use-var(transition, fast);
+  transition-duration: $leave-duration;
 
   @include m.bem($root-name, mask) {
-    transition-duration: fn.use-var(transition, fast);
+    transition-duration: $leave-duration;
   }
 
   @include m.bem($root-name, box) {
-    transition-duration: fn.use-var(transition, fast);
+    transition-duration: $leave-duration;
   }
 }
 
-.#{$root-name}-enter-from,
+.#{$root-name}-enter-from {
+  @include m.bem($root-name, mask) {
+    opacity: 0;
+  }
+
+  @include m.bem($root-name, box) {
+    opacity: 0;
+    scale: 0.96;
+    translate: 0 8px;
+  }
+}
+
 .#{$root-name}-leave-to {
-  opacity: 0;
-
   @include m.bem($root-name, mask) {
     opacity: 0;
   }
 
   @include m.bem($root-name, box) {
     opacity: 0;
-    transform: translateY(-40px);
+    scale: 0.98;
+    translate: 0 4px;
   }
 }
 
-// 减弱动态效果：确认框不位移，只保留透明度。根上的 opacity 过渡不能删。
+// 减弱动态效果：确认框不位移、不缩放，只保留透明度。根上的 opacity 过渡不能删。
 @media (prefers-reduced-motion: reduce) {
   @include m.bem($root-name, box) {
     transition-property: opacity;
@@ -118,7 +165,8 @@ $root-name: message-confirm;
   .#{$root-name}-enter-from,
   .#{$root-name}-leave-to {
     @include m.bem($root-name, box) {
-      transform: none;
+      scale: 1;
+      translate: none;
     }
   }
 }

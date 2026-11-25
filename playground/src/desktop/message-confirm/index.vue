@@ -1,38 +1,54 @@
 <template>
-  <div>
-    <div class="config">
-      <u-input v-model="config.title" prefix="title:"></u-input>
-      <u-input v-model="config.message" prefix="message:"></u-input>
-      <u-input v-model="config.confirmButtonText" prefix="confirmButtonText:"></u-input>
-      <u-input v-model="config.cancelButtonText" prefix="cancelButtonText:"></u-input>
-      <u-radio-group
-        radioType="btn"
-        :items="[
-          { label: 'primary', value: 'primary' },
-          { label: 'info', value: 'info' },
-          { label: 'success', value: 'success' },
-          { label: 'warning', value: 'warning' },
-          { label: 'danger', value: 'danger' }
-        ]"
-        v-model="config.confirmButtonType"
-      ></u-radio-group>
-    </div>
-    <div class="btn">
-      <u-button type="primary" @click="showMsg">showMessageConfirm</u-button>
-      <u-button type="danger" @click="showDanger">messageConfirm.danger</u-button>
-    </div>
-  </div>
+  <u-card class="panel">
+    <u-card-header>消息确认</u-card-header>
+    <u-card-content>
+      <u-form class="fields" :model="config" :cols="2" label-position="top" no-tips>
+        <u-input label="标题" field="title" placeholder="可留空" />
+        <u-input label="内容" field="message" placeholder="确认文案" />
+        <u-input label="确认按钮" field="confirmButtonText" />
+        <u-input label="取消按钮" field="cancelButtonText" placeholder="留空则不显示" />
+        <u-radio-group
+          label="确认按钮类型"
+          field="confirmButtonType"
+          span="full"
+          :items="buttonTypes"
+        />
+      </u-form>
+    </u-card-content>
+    <u-card-action align-right>
+      <u-button plain type="danger" @click="showDanger">危险确认</u-button>
+      <u-button type="primary" @click="showMsg">打开确认框</u-button>
+    </u-card-action>
+  </u-card>
 </template>
 
 <script setup lang="ts">
-import { messageConfirm } from '@veltra/desktop'
-import { UButton, UInput, URadioGroup } from '@veltra/desktop'
+import {
+  messageConfirm,
+  UButton,
+  UCard,
+  UCardAction,
+  UCardContent,
+  UCardHeader,
+  UForm,
+  UInput,
+  URadioGroup
+} from '@veltra/desktop'
+import type { ColorType } from '@veltra/desktop'
 import { reactive } from 'vue'
 
+const buttonTypes = [
+  { label: 'primary', value: 'primary' },
+  { label: 'info', value: 'info' },
+  { label: 'success', value: 'success' },
+  { label: 'warning', value: 'warning' },
+  { label: 'danger', value: 'danger' }
+]
+
 const config = reactive({
-  confirmButtonType: 'primary' as any,
-  title: 'this is a title',
-  message: 'this is a message',
+  confirmButtonType: 'primary' as ColorType,
+  title: '确认操作',
+  message: '此操作执行后无法撤销，确定继续吗？',
   confirmButtonText: '确定',
   cancelButtonText: '取消'
 })
@@ -62,13 +78,13 @@ const showDanger = () => {
 </script>
 
 <style lang="scss" scoped>
-.config {
-  display: flex;
-  flex-direction: column;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+.panel {
+  max-width: 640px;
 }
-.btn {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+
+.fields {
+  row-gap: calc(#{fn.use-var(gap, default)} * 2);
 }
 </style>

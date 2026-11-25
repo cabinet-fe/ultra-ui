@@ -5,19 +5,12 @@
         <div :class="cls.e('header')" v-if="title">{{ title }}</div>
         <div :class="cls.e('content')">{{ message }}</div>
         <div :class="cls.e('footer')">
-          <UButton
-            plain
-            @click="emit('close', 'cancel')"
-            :class="cls.em('footer', 'btn')"
-            v-if="cancelButtonText"
-            >{{ cancelButtonText }}</UButton
-          >
-          <UButton
-            :type="confirmButtonType"
-            @click="emit('close', 'confirm')"
-            :class="cls.em('footer', 'btn')"
-            >{{ confirmButtonText }}</UButton
-          >
+          <UButton plain v-if="cancelButtonText" @click="emit('close', 'cancel')">
+            {{ cancelButtonText }}
+          </UButton>
+          <UButton plain :type="confirmButtonType" @click="emit('close', 'confirm')">
+            {{ confirmButtonText }}
+          </UButton>
         </div>
       </div>
     </div>
