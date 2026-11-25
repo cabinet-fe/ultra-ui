@@ -96,6 +96,31 @@ function patchMessage(
 /** tool-host 合成消息（无 chunk 跟随、为收拢调用而造的宿主）的 id 前缀 */
 const TOOL_HOST_PREFIX = 'tool-host:'
 
+/** 调用到达时正文已写出的长度；已有 offset 的历史调用保持原值 */
+function withContentOffset(call: ChatToolCall, contentLength: number): ChatToolCall {
+  if (call.contentOffset != null) return call
+  return { ...call, contentOffset: contentLength }
+}
+
+/** assistant/message 整表替换 toolCalls 时，按 id 保留此前 tool/call 记下的 contentOffset */
+function preserveContentOffsets(
+  incoming: ChatToolCall[] | undefined,
+  previous: ChatToolCall[] | undefined
+): ChatToolCall[] | undefined {
+  if (!incoming) return previous
+  if (!previous?.length) return incoming
+  const offsets = new Map<string, number>()
+  for (const call of previous) {
+    if (call.contentOffset != null) offsets.set(call.id, call.contentOffset)
+  }
+  if (offsets.size === 0) return incoming
+  return incoming.map((call) => {
+    const offset = offsets.get(call.id)
+    if (call.contentOffset != null || offset == null) return call
+    return { ...call, contentOffset: offset }
+  })
+}
+
 function appendToolCall(messages: ChatMessage[], call: ChatToolCall): ChatMessage[] {
   // 从尾部向前找挂载目标：最近的 assistant 消息；遇到 user 即止——
   // 新一轮的调用不得跨过 user 挂到上一轮的 assistant 上
@@ -116,12 +141,15 @@ function appendToolCall(messages: ChatMessage[], call: ChatToolCall): ChatMessag
         role: 'assistant',
         content: '',
         status: 'streaming',
-        toolCalls: [call]
+        toolCalls: [withContentOffset(call, 0)]
       }
     ]
   }
   const target = messages[idx]!
-  return replaceAt(messages, idx, { ...target, toolCalls: [...(target.toolCalls ?? []), call] })
+  return replaceAt(messages, idx, {
+    ...target,
+    toolCalls: [...(target.toolCalls ?? []), withContentOffset(call, target.content.length)]
+  })
 }
 
 /**
@@ -206,7 +234,7 @@ export function foldSessionEvent(state: ChatFoldState, event: ChatSessionEvent):
           role: 'assistant',
           content: longer(current.content, event.content),
           reasoning: longer(current.reasoning, event.reasoning),
-          toolCalls: event.toolCalls ?? current.toolCalls
+          toolCalls: preserveContentOffsets(event.toolCalls, current.toolCalls)
         })
         break
       }
@@ -215,7 +243,7 @@ export function foldSessionEvent(state: ChatFoldState, event: ChatSessionEvent):
         status: 'done',
         content: event.content,
         reasoning: event.reasoning,
-        toolCalls: event.toolCalls ?? current?.toolCalls
+        toolCalls: preserveContentOffsets(event.toolCalls, current?.toolCalls)
       })
       break
     }

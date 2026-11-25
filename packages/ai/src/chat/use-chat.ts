@@ -388,7 +388,11 @@ export function useChat(options: UseChatOptions) {
             assistant.reasoning = (assistant.reasoning ?? '') + delta
           },
           onToolCall: (call) => {
-            const toolCall = reactive<ChatToolCall>({ ...call, status: 'pending' })
+            const toolCall = reactive<ChatToolCall>({
+              ...call,
+              status: 'pending',
+              contentOffset: assistant.content.length
+            })
             assistant.toolCalls!.push(toolCall)
             emit('tool-call', toolCall)
           },

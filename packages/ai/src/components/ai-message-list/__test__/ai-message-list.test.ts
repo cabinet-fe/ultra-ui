@@ -253,3 +253,124 @@ describe('UAiMessageList', () => {
     unmount()
   })
 })
+
+const isAfter = (a: Element, b: Element) =>
+  !!(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING)
+
+describe('UAiMessageList reply 卡片相对正文的位置', () => {
+  const ReplyCard = defineComponent({
+    props: { toolCall: { type: Object as PropType<ChatToolCall>, required: true } },
+    setup: (props) => () => h('div', { class: 'reply-card' }, props.toolCall.id)
+  })
+  const tools: ChatToolMeta[] = [
+    { name: 'askQuestion', renderTo: 'reply', render: ReplyCard, hideInSteps: true }
+  ]
+
+  function mountReply(message: ChatMessage) {
+    return mountList({
+      messages: [{ id: 'u1', role: 'user', content: '帮我建模' }, message],
+      tools,
+      showWelcome: false,
+      showNavigator: false
+    })
+  }
+
+  it('mock：工具在正文之前到达，卡片在后补正文前', () => {
+    const { host, unmount } = mountReply({
+      id: 'a1',
+      role: 'assistant',
+      content: '后补的说明',
+      status: 'done',
+      toolCalls: [
+        { id: 'q1', name: 'askQuestion', arguments: '{}', status: 'pending', contentOffset: 0 }
+      ]
+    })
+    const card = host.querySelector('.u-ai-message-list__reply-tool')!
+    const answer = host.querySelector('.md-stub')!
+    expect(card.textContent).toContain('q1')
+    expect(answer.textContent).toBe('后补的说明')
+    expect(isAfter(card, answer)).toBe(true)
+    unmount()
+  })
+
+  it('mock：工具在正文写完之后到达，卡片在整段正文后', () => {
+    const { host, unmount } = mountReply({
+      id: 'a1',
+      role: 'assistant',
+      content: '已经写完的回复',
+      status: 'done',
+      toolCalls: [{ id: 'q1', name: 'askQuestion', arguments: '{}', status: 'pending' }]
+    })
+    const card = host.querySelector('.u-ai-message-list__reply-tool')!
+    const answer = host.querySelector('.md-stub')!
+    expect(answer.textContent).toBe('已经写完的回复')
+    expect(isAfter(answer, card)).toBe(true)
+    unmount()
+  })
+
+  it('mock：工具落在正文中间，同一气泡内是前文、卡片、后文，复制仍是整段', async () => {
+    const content = '先说一句再补充'
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    vi.stubGlobal('navigator', { clipboard: { writeText } })
+    const { host, unmount } = mountReply({
+      id: 'a1',
+      role: 'assistant',
+      content,
+      status: 'error',
+      toolCalls: [
+        {
+          id: 'q1',
+          name: 'askQuestion',
+          arguments: '{}',
+          status: 'pending',
+          contentOffset: '先说一句'.length
+        }
+      ]
+    })
+    const bubble = host.querySelector('.u-ai-bubble--assistant')!
+    const stubs = [...bubble.querySelectorAll('.md-stub')]
+    const card = bubble.querySelector('.u-ai-message-list__reply-tool')!
+    expect(host.querySelectorAll('.u-ai-bubble--assistant')).toHaveLength(1)
+    expect(stubs.map((el) => el.textContent)).toEqual(['先说一句', '再补充'])
+    expect(isAfter(stubs[0]!, card)).toBe(true)
+    expect(isAfter(card, stubs[1]!)).toBe(true)
+    expect(bubble.querySelectorAll('.u-ai-bubble__status')).toHaveLength(1)
+    expect(bubble.querySelector('.u-ai-bubble__status')?.textContent).toBe('生成出错')
+    expect(host.querySelectorAll('[title="复制"]')).toHaveLength(1)
+    host.querySelector<HTMLElement>('[title="复制"]')!.click()
+    await vi.waitFor(() => {
+      expect(writeText).toHaveBeenCalledWith(content)
+    })
+    vi.unstubAllGlobals()
+    unmount()
+  })
+
+  it('mock：偏移落在围栏代码块靠近块尾时，卡片放在整块代码之后', () => {
+    const content = ['开头说明', '', '```ts', 'const a = 1', '```', '', '结尾'].join('\n')
+    const { host, unmount } = mountReply({
+      id: 'a1',
+      role: 'assistant',
+      content,
+      status: 'done',
+      toolCalls: [
+        {
+          id: 'q1',
+          name: 'askQuestion',
+          arguments: '{}',
+          status: 'pending',
+          contentOffset: content.lastIndexOf('1')
+        }
+      ]
+    })
+    const bubble = host.querySelector('.u-ai-bubble--assistant')!
+    const stubs = [...bubble.querySelectorAll('.md-stub')]
+    const card = bubble.querySelector('.u-ai-message-list__reply-tool')!
+    expect(stubs).toHaveLength(2)
+    expect(stubs[0]?.textContent).toContain('const a = 1')
+    expect(stubs[0]?.textContent).toContain('```')
+    expect(stubs[1]?.textContent).toBe('\n结尾')
+    expect(isAfter(stubs[0]!, card)).toBe(true)
+    expect(isAfter(card, stubs[1]!)).toBe(true)
+    unmount()
+  })
+})

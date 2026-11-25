@@ -19,7 +19,7 @@ src/
 │   └── __test__/
 ├── tools/                      # 内置工具注册域（UAiChat 与 useChat 自动注入；工厂不对外导出；可依赖 components/）
 │   ├── index.ts                # createBuiltinTools 注册表（新增内置工具在此注册）
-│   └── ask-question/           # 提问工具实现（deferred 挂起等待用户作答；renderTo: 'reply' + hideInSteps: true 仅在回复流外层渲染——当前思考段内、段末正文之前，不进步骤行列表；内部渲染 UAiQuestionCard）
+│   └── ask-question/           # 提问工具实现（deferred 挂起等待用户作答；renderTo: 'reply' + hideInSteps: true 仅在回复流渲染——contentOffset 为 0 时卡片在后补正文前，缺省或正文写完后到达时卡片在正文后，落在中间时同一气泡切开为前文、卡片、后文，不进步骤行列表；内部渲染 UAiQuestionCard）
 ├── types/
 │   ├── index.ts                # 汇总导出 18 个公开组件的 ai-*.ts 类型
 │   ├── ai-*.ts                 # 17 个独立组件 + ai-chat 的 Props / Emits / Exposed 与条目类型（ai-approval-banner / ai-attachments / ai-bubble / ai-chat / ai-composer / ai-context-picker / ai-context-usage / ai-job-bar / ai-message-list / ai-message-queue / ai-model-picker / ai-question-card / ai-reasoning / ai-reasoning-picker / ai-session-nav / ai-side-panel / ai-step-group / ai-tool-call）

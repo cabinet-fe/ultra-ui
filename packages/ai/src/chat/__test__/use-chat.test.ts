@@ -92,7 +92,11 @@ describe('useChat', () => {
 
     const messages = chat.messages.value
     expect(messages.map((m) => m.role)).toEqual(['user', 'assistant', 'tool', 'assistant'])
-    expect(messages[1].toolCalls?.[0]).toMatchObject({ status: 'success', result: '3' })
+    expect(messages[1].toolCalls?.[0]).toMatchObject({
+      status: 'success',
+      result: '3',
+      contentOffset: 0
+    })
     expect(messages[2]).toMatchObject({ role: 'tool', toolCallId: 'call-1', content: '3' })
 
     const secondReqMessages = requests[1].messages

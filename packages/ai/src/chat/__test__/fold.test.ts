@@ -77,8 +77,31 @@ describe('foldSessionEvent', () => {
       { type: 'tool/call', callId: 'c1', name: 'bash', arguments: '{"cmd":"ls"}', seq: 2, view }
     ])
     expect(state.messages[0]?.toolCalls).toEqual([
-      { id: 'c1', name: 'bash', arguments: '{"cmd":"ls"}', status: 'pending', view }
+      {
+        id: 'c1',
+        name: 'bash',
+        arguments: '{"cmd":"ls"}',
+        status: 'pending',
+        view,
+        contentOffset: 0
+      }
     ])
+  })
+
+  it('tool/call 记下挂载时的正文长度，assistant/message 替换调用表时按 id 保留', () => {
+    const state = foldAll([
+      { type: 'assistant/chunk', messageId: 'a1', seq: 1, delta: '先说一句' },
+      { type: 'tool/call', callId: 'c1', name: 'bash', arguments: '{}', seq: 2 },
+      {
+        type: 'assistant/message',
+        messageId: 'a1',
+        seq: 3,
+        content: '先说一句',
+        toolCalls: [{ id: 'c1', name: 'bash', arguments: '{}', status: 'success' }]
+      }
+    ])
+    expect(state.messages[0]?.toolCalls?.[0]?.contentOffset).toBe('先说一句'.length)
+    expect(state.messages[0]?.toolCalls?.[0]?.status).toBe('success')
   })
 
   it('tool/result 按 callId 更新 status / result / error / view', () => {

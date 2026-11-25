@@ -537,7 +537,7 @@ describe('UAiChat', () => {
     unmount()
   })
 
-  it('同一消息思考 + 正文 + askQuestion：提问面板挂在步骤行与正文之间', async () => {
+  it('同一消息思考 + 正文 + askQuestion：未记录 offset 时提问面板在正文之后', async () => {
     const messages: ChatMessage[] = [
       { id: 'u1', role: 'user', content: '帮我建模' },
       {
@@ -559,19 +559,19 @@ describe('UAiChat', () => {
     const { host, unmount } = mountAiChat({ transport: () => {}, messages })
     await nextTick()
 
-    // 同一条消息不再拆成「正文 → 面板」两段：单个步骤行承载思考
+    // 同一条消息不拆成两段步骤行：思考仍在步骤行，提问卡片跟在正文后面
     expect(host.querySelectorAll('.u-ai-step-group')).toHaveLength(1)
     const stepLine = host.querySelector('.u-ai-step-group')!
     const panel = host.querySelector('.u-ai-message-list__reply-tool')!
     const answer = host.querySelector('.md-stub')!
     expect(panel.querySelector('.u-ai-question-card__q')?.textContent).toContain('用哪种数据库？')
     expect(answer.textContent).toContain('我先确认几个关键取舍')
-    expect(isAfter(stepLine, panel)).toBe(true)
-    expect(isAfter(panel, answer)).toBe(true)
+    expect(isAfter(stepLine, answer)).toBe(true)
+    expect(isAfter(answer, panel)).toBe(true)
     unmount()
   })
 
-  it('多轮追问：新一轮待答面板紧跟本轮步骤行，上一轮已答摘要与本轮正文不插其间', async () => {
+  it('多轮追问：每轮提问面板跟在本轮正文之后，不串到上一轮', async () => {
     const askCall = (
       id: string,
       question: string,
@@ -622,15 +622,15 @@ describe('UAiChat', () => {
     expect(panels[1]!.querySelector('.u-ai-question-card__q')?.textContent).toContain(
       '要初始数据吗？'
     )
-    expect(isAfter(bars[0]!, panels[0]!)).toBe(true)
-    expect(isAfter(panels[0]!, answers[0]!)).toBe(true)
-    expect(isAfter(answers[0]!, bars[1]!)).toBe(true)
-    expect(isAfter(bars[1]!, panels[1]!)).toBe(true)
-    expect(isAfter(panels[1]!, answers[1]!)).toBe(true)
+    expect(isAfter(bars[0]!, answers[0]!)).toBe(true)
+    expect(isAfter(answers[0]!, panels[0]!)).toBe(true)
+    expect(isAfter(panels[0]!, bars[1]!)).toBe(true)
+    expect(isAfter(bars[1]!, answers[1]!)).toBe(true)
+    expect(isAfter(answers[1]!, panels[1]!)).toBe(true)
     unmount()
   })
 
-  it('流式追问：正文之后到达的 askQuestion 面板回到思考与正文之间', async () => {
+  it('流式追问：正文之后到达的 askQuestion 面板留在正文之后', async () => {
     const transport: ChatTransport = (_req, handlers) => {
       handlers.onReasoningDelta?.('先分析需求')
       handlers.onTextDelta('我先确认几个关键取舍')
@@ -644,15 +644,64 @@ describe('UAiChat', () => {
 
     chat.value?.send('帮我建模')
 
-    // 工具调用在正文之后到达同一条消息：面板仍渲染在思考与正文之间
+    // 工具调用在正文之后到达同一条消息：面板留在这段正文之后
     await vi.waitFor(() => {
       expect(host.querySelector('.u-ai-question-card__q')?.textContent).toContain('用哪种数据库？')
     })
     const stepLine = host.querySelector('.u-ai-step-group')!
     const panel = host.querySelector('.u-ai-message-list__reply-tool')!
     const answer = host.querySelector('.md-stub')!
-    expect(isAfter(stepLine, panel)).toBe(true)
+    expect(isAfter(stepLine, answer)).toBe(true)
+    expect(isAfter(answer, panel)).toBe(true)
+    unmount()
+  })
+
+  it('流式追问：正文之前到达的 askQuestion 留在随后写出的正文前面', async () => {
+    const transport: ChatTransport = (_req, handlers) => {
+      handlers.onToolCall?.({
+        id: 'q1',
+        name: 'askQuestion',
+        arguments: JSON.stringify({ questions: [{ question: '用哪种数据库？' }] })
+      })
+      handlers.onTextDelta('补充说明')
+    }
+    const { host, chat, unmount } = mountAiChat({ transport })
+
+    chat.value?.send('帮我建模')
+
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-question-card__q')?.textContent).toContain('用哪种数据库？')
+      expect(host.querySelector('.md-stub')?.textContent).toContain('补充说明')
+    })
+    const panel = host.querySelector('.u-ai-message-list__reply-tool')!
+    const answer = host.querySelector('.md-stub')!
     expect(isAfter(panel, answer)).toBe(true)
+    unmount()
+  })
+
+  it('流式追问：正文写到一半到达的 askQuestion 留在前后文之间', async () => {
+    const transport: ChatTransport = (_req, handlers) => {
+      handlers.onTextDelta('先说一句')
+      handlers.onToolCall?.({
+        id: 'q1',
+        name: 'askQuestion',
+        arguments: JSON.stringify({ questions: [{ question: '用哪种数据库？' }] })
+      })
+      handlers.onTextDelta('再补充')
+    }
+    const { host, chat, unmount } = mountAiChat({ transport })
+
+    chat.value?.send('帮我建模')
+
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-question-card__q')?.textContent).toContain('用哪种数据库？')
+    })
+    const bubble = host.querySelector('.u-ai-bubble--assistant')!
+    const stubs = [...bubble.querySelectorAll('.md-stub')]
+    const panel = bubble.querySelector('.u-ai-message-list__reply-tool')!
+    expect(stubs.map((el) => el.textContent)).toEqual(['先说一句', '再补充'])
+    expect(isAfter(stubs[0]!, panel)).toBe(true)
+    expect(isAfter(panel, stubs[1]!)).toBe(true)
     unmount()
   })
 
