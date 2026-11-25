@@ -1,0 +1,269 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use '../_shared/mixins' as shared;
+
+$root-name: ai-bubble;
+
+@include m.b($root-name) {
+  width: 100%;
+  box-sizing: border-box;
+  padding: fn.use-var(gap, small) fn.use-var(gap, default);
+
+  @include m.m(user) {
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  @include m.e(bubble) {
+    max-width: 80%;
+    padding: fn.use-var(gap, small) fn.use-var(gap, default);
+    border-radius: fn.use-var(radius, large);
+    background-color: fn.color-a(color, 16, primary);
+    color: fn.use-var(text-color, main);
+    overflow: hidden;
+  }
+
+  @include m.e(attachments) {
+    &:not(:last-child) {
+      margin-bottom: fn.use-var(gap, small);
+    }
+  }
+
+  @include m.e(text) {
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  // 信息密度必须写在 .markstream-vue 上：该库把 --ms-flow-* / --ms-text-* 定义在根节点，
+  // 父级的 0.55em 会被同元素上的 1.5em 默认值盖掉。
+  // 选择器带 .u-ai-bubble 前缀，特异性高于库默认，不依赖 CSS 加载顺序
+  //（产物里 markstream-vue/index.css 仍排在我们的 css 之后）。
+  .markstream-vue {
+    --ms-text-body: 13px;
+    --ms-leading-body: 1.6;
+    --ms-text-h1: 1.55em;
+    --ms-text-h2: 1.35em;
+    --ms-text-h3: 1.15em;
+    --ms-text-h4: 1em;
+    --ms-text-h5: 1em;
+    --ms-text-h6: 1em;
+    --ms-flow-heading-1-mt: 0.9em;
+    --ms-flow-heading-1-mb: 0.35em;
+    --ms-flow-heading-2-mt: 0.8em;
+    --ms-flow-heading-2-mb: 0.3em;
+    --ms-flow-heading-3-mt: 0.7em;
+    --ms-flow-heading-3-mb: 0.25em;
+    --ms-flow-paragraph-y: 0.55em;
+    --ms-flow-list-y: 0.45em;
+    --ms-flow-list-item-y: 0.08em;
+    --ms-flow-list-indent: 1.3em;
+    --ms-flow-codeblock-y: 0.7em;
+    --ms-flow-blockquote-y: 0.55em;
+    --ms-flow-blockquote-indent: 0.9em;
+    --ms-flow-table-y: 0.7em;
+    --ms-flow-hr-y: 0.9em;
+    --ms-flow-admonition-y: 0.7em;
+    --ms-flow-diagram-y: 0.7em;
+
+    // markstream 在 ≤1023px 给 ul.list-disc 写死了 ~1.33em 边距，不走 --ms-flow-list-*
+    .list-disc {
+      margin-top: var(--ms-flow-list-y);
+      margin-bottom: var(--ms-flow-list-y);
+      padding-left: var(--ms-flow-list-indent);
+    }
+
+    // markstream 假定宿主有 Preflight，只覆写了 margin-top/bottom；浏览器默认给 blockquote
+    // 加 40px margin-inline，导致左竖线相对正文整体右移。归零水平外边距，仅保留左 padding 缩进
+    .blockquote {
+      margin-inline: 0;
+    }
+
+    // ===== markstream-vue 主题 token 适配 =====
+    // 库根类 .markstream-vue 上的派生 token（--code-* / --inline-code-* 等）是完整颜色值，
+    // 可整体指向 --u-* token，亮暗随宿主主题自动翻转；库自身的暗色分支依赖 .dark 类，
+    // 本组件从未挂载，不接管的话暗色主题下代码块 / 行内代码一直是亮色底。
+    // 仅映射 chat 模式真实可达的面：tooltip（chat 预设 showTooltips=false）、
+    // diff（可选 peer stream-diffs 未安装，渲染不出来）跳过；
+    // --inline-code-border / --code-action-active-* 等只在库 CSS 里定义、无消费者，同样不写。
+    // 注意：自定义属性的值不走 SassScript，函数调用必须 #{…} 插值。
+    // 字体 / 圆角 / 卡片阴影（正文与标题颜色未由库设定，直接继承宿主文本色）
+    --ms-font-sans: #{fn.use-var(font-family)};
+    // 仓库没有等宽字体 token，按惯例写死 mono 栈（与 tool-data 等宽区一致）
+    --ms-font-mono: #{shared.$mono-font};
+    --ms-radius: #{fn.use-var(radius, default)};
+    --ms-shadow-subtle: #{fn.use-var(shadow, sm)};
+
+    // 代码块：头部 / 边框 / 操作按钮经 CSS 类消费 token；
+    // 代码正文体被库的内联主题色短路，见下方 pre.code-pre-fallback 覆盖
+    --code-bg: #{fn.use-var(bg-color, middle)};
+    --code-fg: #{fn.use-var(text-color, main)};
+    --code-border: #{fn.use-var(border-color)};
+    --code-header-bg: #{fn.use-var(bg-color, hover)};
+    --code-line-number: #{fn.use-var(text-color, placeholder)};
+    --code-selection-bg: #{fn.color-a(color, 16, primary)};
+    --code-action-fg: #{fn.use-var(text-color, second)};
+    --code-action-hover-bg: #{fn.use-var(bg-color, hover)};
+    --code-action-hover-fg: #{fn.use-var(text-color, main)};
+
+    // 行内代码：primary 淡底（bg-color-hover 在亮色下与消息区底色同值，会隐形）
+    --inline-code-bg: #{fn.color-a(color, 8, primary)};
+    --inline-code-fg: #{fn.use-var(text-color, main)};
+
+    --link-color: #{fn.use-var(color, primary)};
+    --list-marker: #{fn.use-var(text-color, assist)};
+    --list-counter-marker: #{fn.use-var(text-color, assist)};
+    --hr-border: #{fn.use-var(border-color)};
+    --table-border: #{fn.use-var(border-color)};
+    --table-header-bg: #{fn.use-var(bg-color, hover)};
+    --blockquote-border: #{fn.use-var(border-color)};
+    --blockquote-fg: #{fn.use-var(text-color, second)};
+    --highlight-bg: #{fn.color-a(color, 16, warning)};
+    --focus-ring: #{fn.use-var(color, primary)};
+
+    // 流式骨架：库默认从 --ms-* 亮色三元组派生，暗色下不会翻转
+    --loading-spinner: #{fn.use-var(text-color, assist)};
+    --loading-shimmer: #{fn.color-a(text-color, 5, main)};
+
+    // admonition（::: 语法在 chat 内容中可达）：语义色对齐主题
+    --admonition-border: #{fn.use-var(border-color)};
+    --admonition-fg: #{fn.use-var(text-color, main)};
+    --admonition-note: #{fn.use-var(color, info)};
+    --admonition-tip: #{fn.use-var(color, success)};
+    --admonition-warning: #{fn.use-var(color, warning)};
+    --admonition-danger: #{fn.use-var(color, danger)};
+
+    // ---- 属性级覆盖 ----
+    // 库把裸 hsl(var(--ms-*))（亮色 HSL 三元组，暗色不翻转）直接写死在部分规则里，
+    // token 够不到，只能以 .u-ai-bubble 前缀提特异性按属性覆盖（不依赖加载顺序）。
+
+    // 回落代码块：库按解析出的内置主题（宿主未传 isDark 恒为亮色）在容器与 pre 上
+    // **内联**写入字面量（--markstream-code-fallback-*、background-color、color），
+    // 内联样式优先于一切非 important 声明——暗色下代码块会一直是白底深字。
+    // 只能 !important 压制回 token（仓库对第三方内联样式已有同款先例）：
+    // 容器着 token 底色/正文色，pre 透明透出容器底色
+    .code-block-container {
+      background-color: fn.use-var(bg-color, middle) !important;
+      color: fn.use-var(text-color, main) !important;
+    }
+
+    pre.code-pre-fallback {
+      background-color: transparent !important;
+      color: fn.use-var(text-color, main) !important;
+
+      // 字号 / 行高 / 字体是库写死的内联字面量，只能 !important 压制；
+      // 排版密度与 tool-data 等宽区一致
+      font-family: #{shared.$mono-font} !important;
+      font-size: 12.5px !important;
+      line-height: 1.65 !important;
+    }
+
+    // 行号颜色被 pre 上的内联 --markstream-code-theme-line-number 短路，改在行号元素上直接写
+    pre.code-pre-fallback .markstream-pre__line-numbers,
+    pre.code-pre-fallback .markstream-pre__logical-line::before {
+      color: fn.use-var(text-color, placeholder);
+    }
+
+    // 头部「字号 / 展开」菜单弹层：底色走 hsl(var(--ms-popover))（亮色锁死）
+    .code-more-menu {
+      background-color: fn.use-var(bg-color, top);
+      color: fn.use-var(text-color, main);
+    }
+
+    // 表格斑马纹
+    .table-node tbody tr:nth-child(2n) {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    // 任务列表勾选框
+    .checkbox-unchecked {
+      color: fn.use-var(text-color, placeholder);
+    }
+
+    .checkbox-checked {
+      color: fn.use-var(color, primary);
+    }
+
+    // 代码块流式骨架扫光：两端已走 --loading-shimmer token，中间色档仍是裸 hsl
+    .code-block-container.is-rendering .code-height-placeholder::before,
+    .skeleton-line::before {
+      background: linear-gradient(
+        90deg,
+        var(--loading-shimmer) 25%,
+        fn.color-a(text-color, 11, main) 37%,
+        var(--loading-shimmer) 63%
+      );
+    }
+
+    // 图片占位 / 加载失败兜底
+    .image-placeholder,
+    .image-shimmer {
+      background: fn.use-var(bg-color, middle);
+    }
+
+    .image-shimmer::before {
+      background: linear-gradient(
+        90deg,
+        fn.use-var(bg-color, middle),
+        fn.use-var(bg-color, top),
+        fn.use-var(bg-color, middle)
+      );
+    }
+
+    .image-error {
+      background: fn.use-var(bg-color, middle);
+      color: fn.use-var(text-color, assist);
+    }
+
+    .image-node__raw-text {
+      color: fn.use-var(text-color, assist);
+    }
+
+    // admonition 标签底（hsl(var(--ms-background)) 暗色下是白色）与容器色调
+    .admonition-legend {
+      background-color: fn.use-var(bg-color, middle);
+    }
+
+    .admonition-note,
+    .admonition-info {
+      border-color: fn.color-a(color, 28, info);
+      background-color: fn.color-a(color, 4, info);
+    }
+
+    .admonition-tip {
+      border-color: fn.color-a(color, 28, success);
+      background-color: fn.color-a(color, 4, success);
+    }
+
+    .admonition-warning,
+    .admonition-caution {
+      border-color: fn.color-a(color, 28, warning);
+      background-color: fn.color-a(color, 4, warning);
+    }
+
+    .admonition-danger,
+    .admonition-error {
+      border-color: fn.color-a(color, 28, danger);
+      background-color: fn.color-a(color, 4, danger);
+    }
+  }
+
+  @include m.e(status) {
+    margin-top: fn.use-var(gap, small);
+    color: fn.use-var(text-color, second);
+    font-size: fn.use-var(font-size-main, small);
+  }
+
+  @include m.e(actions) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: fn.use-var(gap, small);
+  }
+
+  // 答案操作区前的本轮总用时
+  @include m.e(duration) {
+    align-self: center;
+    color: fn.use-var(text-color, assist);
+    font-size: fn.use-var(font-size-main, small);
+    font-variant-numeric: tabular-nums;
+  }
+}

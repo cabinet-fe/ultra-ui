@@ -1,0 +1,72 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use '../_shared/mixins' as shared;
+
+$root-name: ai-tool-call;
+
+// 工具调用卡片（复用 UCollapseItem：背景/边框走组件原生配色，#header 只自定义标题区）
+@include m.b($root-name) {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 4px 0;
+  font-size: fn.use-var(font-size-main, small);
+
+  // 产物里 desktop collapse 样式可能晚于本文件加载；
+  // 脱离 .u-ai-chat 作用域时用 &.u-collapse__item 提高特异性
+  &.u-collapse__item + &.u-collapse__item {
+    margin-top: 4px;
+  }
+
+  // 覆盖 UCollapseItem 默认头部/内容区节奏，保持紧凑单行头
+  &.u-collapse__item .u-collapse__header {
+    gap: 6px;
+    padding: 5px fn.use-var(gap, small);
+    font-weight: 400;
+    letter-spacing: normal;
+  }
+
+  &.u-collapse__item .u-collapse__content {
+    padding: fn.use-var(gap, small);
+    line-height: 1.5;
+  }
+
+  @include m.e(status) {
+    flex-shrink: 0;
+    font-size: 13px;
+    @include shared.tool-status-color;
+  }
+
+  @include m.e(name) {
+    font-weight: 500;
+    color: fn.use-var(text-color, title);
+    flex-shrink: 0;
+  }
+
+  @include m.e(summary) {
+    flex: 1;
+    min-width: 0;
+    @include m.ellipsis;
+    color: fn.use-var(text-color, assist);
+  }
+
+  @include m.e(confirm) {
+    flex-shrink: 0;
+    @include m.flex(flex, flex-start, center);
+    gap: 4px;
+  }
+
+  // 面板工具卡片内的「查看面板」入口
+  @include m.e(panel-entry) {
+    @include m.flex(flex, flex-start, center);
+    gap: fn.use-var(gap, small);
+  }
+
+  @include m.e(panel-hint) {
+    color: fn.use-var(text-color, assist);
+  }
+
+  // 工具数据块（参数 / 结果 / 视图）：浅底圆角等宽文本块
+  @include m.e(data) {
+    @include shared.tool-data;
+  }
+}

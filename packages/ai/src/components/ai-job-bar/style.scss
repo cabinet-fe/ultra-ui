@@ -1,0 +1,80 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use '../_shared/mixins' as shared;
+
+$root-name: ai-job-bar;
+
+// 作业条：浅底紧凑容器
+@include m.b($root-name) {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: fn.use-var(radius, default);
+  background-color: fn.use-var(bg-color, middle);
+  padding: 4px;
+  font-size: fn.use-var(font-size-main, small);
+
+  @include m.e(head) {
+    @include m.flex(flex, space-between, center);
+    width: 100%;
+    border: none;
+    background: none;
+    padding: 2px 6px;
+    color: fn.use-var(text-color, assist);
+    font-size: inherit;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  @include m.e(chevron) {
+    @include shared.collapse-chevron;
+
+    @include m.is(expanded) {
+      transform: rotate(90deg);
+    }
+  }
+
+  @include m.e(list) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  @include m.e(item) {
+    @include m.flex(flex, flex-start, center);
+    gap: 6px;
+    padding: 3px 6px;
+    border-radius: fn.use-var(radius, small);
+  }
+
+  @include m.e(icon) {
+    flex-shrink: 0;
+    font-size: 13px;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(label) {
+    flex: 1;
+    min-width: 0;
+    @include m.ellipsis;
+    color: fn.use-var(text-color, main);
+  }
+
+  @include m.e(dot) {
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: fn.use-var(text-color, placeholder);
+
+    @include m.is(running) {
+      background-color: fn.use-var(color, primary);
+    }
+
+    @include m.is(done) {
+      background-color: fn.use-var(color, success);
+    }
+
+    @include m.is(error) {
+      background-color: fn.use-var(color, danger);
+    }
+  }
+}

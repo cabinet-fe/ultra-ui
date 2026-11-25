@@ -1,0 +1,98 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: ai-session-nav;
+
+// 会话导航：圆点指示器，hover 单点展示该轮问答摘要（宿主定位由外层容器负责）
+@include m.b($root-name) {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+
+  @include m.e(item) {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  @include m.e(dot) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+
+    &::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: fn.use-var(text-color, assist);
+      opacity: 0.5;
+      transition:
+        background-color 0.15s ease,
+        opacity 0.15s ease;
+    }
+
+    &:hover::before,
+    &:focus-visible::before,
+    &.is-active::before {
+      background-color: fn.use-var(color, primary);
+      opacity: 1;
+    }
+
+    // 已读轮次略淡，保留轻量的阅读进度感
+    &.is-read::before {
+      opacity: 0.28;
+    }
+  }
+
+  // 单点悬浮摘要：紧贴圆点右侧显示该轮提问与回答的前面部分
+  @include m.e(tooltip) {
+    position: absolute;
+    left: calc(100% + 6px);
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    width: max-content;
+    max-width: 240px;
+    padding: 6px 10px;
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, top);
+    box-shadow: fn.use-var(shadow, lg);
+    font-size: fn.use-var(font-size-main, small);
+    line-height: 1.45;
+  }
+
+  @include m.e(tooltip-row) {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  @include m.e(tooltip-label) {
+    flex-shrink: 0;
+    color: fn.use-var(text-color, placeholder);
+  }
+
+  @include m.e(tooltip-q) {
+    min-width: 0;
+    color: fn.use-var(text-color, main);
+    word-break: break-word;
+  }
+
+  @include m.e(tooltip-a) {
+    min-width: 0;
+    color: fn.use-var(text-color, second);
+    word-break: break-word;
+  }
+}

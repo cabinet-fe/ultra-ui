@@ -1,0 +1,90 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use '../_shared/mixins' as shared;
+
+$root-name: ai-model-picker;
+
+@include m.b($root-name) {
+  @include m.e(trigger) {
+    @include shared.toolbar-trigger;
+    max-width: 220px;
+    color: fn.use-var(text-color, main);
+
+    &:hover:not(:disabled) {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: fn.use-var(focus-ring);
+    }
+
+    @include m.is(disabled) {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  @include m.e(trigger-label) {
+    @include m.ellipsis;
+  }
+
+  @include m.e(trigger-arrow) {
+    flex-shrink: 0;
+    font-size: 12px;
+    color: fn.use-var(text-color, assist);
+  }
+}
+
+// 模型选择面板经 teleport 挂载到 popper 容器，不处于 .u-ai-model-picker 内，需顶层定义
+#{fn.bem($root-name, 'panel')} {
+  padding: 4px;
+  user-select: none;
+
+  #{fn.bem($root-name, 'panel-list')} {
+    min-width: 0;
+    max-height: 280px;
+  }
+
+  #{fn.bem($root-name, 'option-main')} {
+    padding: 6px 8px;
+    border-radius: calc(fn.use-var(radius, default) + 1px);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+    }
+  }
+
+  #{fn.bem($root-name, 'option-head')} {
+    @include m.flex(flex, flex-start, center);
+    gap: 8px;
+    min-width: 0;
+    color: fn.use-var(text-color, main);
+  }
+
+  #{fn.bem($root-name, 'option')}.is-active {
+    #{fn.bem($root-name, 'option-name')} {
+      color: fn.use-var(color, primary);
+      font-weight: 600;
+    }
+  }
+
+  #{fn.bem($root-name, 'option-name')} {
+    @include m.ellipsis;
+  }
+
+  #{fn.bem($root-name, 'option-check')} {
+    flex-shrink: 0;
+    margin-left: auto;
+    font-size: 14px;
+    color: fn.use-var(color, primary);
+  }
+
+  #{fn.bem($root-name, 'option-desc')} {
+    margin-top: 2px;
+    font-size: fn.use-var(font-size-main, small);
+    color: fn.use-var(text-color, assist);
+  }
+}

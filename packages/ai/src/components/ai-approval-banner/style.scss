@@ -1,0 +1,39 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: ai-approval-banner;
+
+// 无 callId 的审批横幅（浮动确认卡）
+@include m.b($root-name) {
+  width: 100%;
+  box-sizing: border-box;
+
+  @include m.e(card) {
+    padding: fn.use-var(gap, small);
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, top);
+    box-shadow: fn.use-var(shadow, sm);
+
+    & + & {
+      margin-top: 4px;
+    }
+  }
+
+  @include m.e(title) {
+    color: fn.use-var(text-color, title);
+    font-weight: 500;
+    font-size: fn.use-var(font-size-main, small);
+  }
+
+  @include m.e(reason) {
+    margin-top: 4px;
+    color: fn.use-var(text-color, assist);
+    font-size: fn.use-var(font-size-main, small);
+  }
+
+  @include m.e(actions) {
+    @include m.flex(flex, flex-end, center);
+    gap: fn.use-var(gap, small);
+    margin-top: fn.use-var(gap, small);
+  }
+}

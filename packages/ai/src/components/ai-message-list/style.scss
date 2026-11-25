@@ -1,0 +1,181 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: ai-message-list;
+
+@include m.b($root-name) {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: fn.use-var(gap, default) 0;
+  box-sizing: border-box;
+  font-size: fn.use-var(font-size-main, default);
+  color: fn.use-var(text-color, main);
+
+  @include m.e(scroll) {
+    flex: 1;
+    min-height: 0;
+  }
+
+  @include m.e(content) {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  // 会话导航：贴列表左缘垂直居中，支持通过 CSS 变量调整左侧偏移
+  @include m.e(nav) {
+    position: absolute;
+    top: 50%;
+    left: var(--u-ai-message-list-nav-left, 2px);
+    transform: translateY(-50%);
+    z-index: 2;
+  }
+
+  // 吉祥物常驻栏：固定在滚动容器外、列表底部；高度锁 48px（球 + 欢迎语或工作态）
+  @include m.e(welcome) {
+    flex-shrink: 0;
+    width: 100%;
+    box-sizing: border-box;
+    height: 48px;
+    padding: 0 fn.use-var(gap, default);
+    @include m.flex(flex, flex-start, center);
+    color: fn.use-var(text-color, assist);
+  }
+
+  @include m.e(welcome-inner) {
+    // 固定锚点：球钉在左侧不动，文本气泡只向右延展
+    @include m.flex(flex, flex-start, center);
+    gap: fn.use-var(gap, default);
+    width: 100%;
+  }
+
+  @include m.e(welcome-item-wrap) {
+    flex: 1;
+    min-width: 0;
+    height: 48px;
+    display: flex;
+    align-items: center;
+  }
+
+  @include m.e(welcome-item) {
+    max-width: 100%;
+    @include m.ellipsis;
+    padding: fn.use-var(gap, small) fn.use-var(gap, default);
+    border: none;
+    border-radius: fn.use-var(radius, large);
+    background-color: fn.use-var(bg-color, top);
+    color: fn.use-var(text-color, second);
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
+
+    &:hover {
+      color: fn.use-var(color, primary);
+      background-color: fn.color-a(color, 11, primary);
+    }
+
+    &:disabled {
+      cursor: default;
+      color: fn.use-var(text-color, second);
+
+      &:hover {
+        color: fn.use-var(text-color, second);
+        background-color: fn.use-var(bg-color, top);
+      }
+    }
+  }
+
+  // 欢迎语逐条轮换的切换过渡
+  @include m.em(welcome, 'swap-enter-active') {
+    transition:
+      opacity 0.18s ease,
+      transform 0.18s ease;
+  }
+
+  @include m.em(welcome, 'swap-leave-active') {
+    transition:
+      opacity 0.12s ease,
+      transform 0.12s ease;
+  }
+
+  @include m.em(welcome, 'swap-enter-from') {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  @include m.em(welcome, 'swap-leave-to') {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  // 工作态指示（与空闲欢迎语同处一栏，待在原位不进消息列表）
+  @include m.e(working) {
+    @include m.flex(flex, flex-start, center);
+    gap: fn.use-var(gap, small);
+    font-size: fn.use-var(font-size-main, small);
+  }
+
+  // 工作计时 / 收尾停留期间的总用时（字号继承 __working）
+  @include m.e(working-time) {
+    color: fn.use-var(text-color, assist);
+    font-variant-numeric: tabular-nums;
+  }
+
+  // 回到底部悬浮按钮：上翻浏览时出现于列表下方，点击回到底部
+  @include m.e(to-latest) {
+    position: absolute;
+    bottom: fn.use-var(gap, small);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    @include m.flex(flex, center, center);
+    border: none;
+    border-radius: 50%;
+    background-color: fn.use-var(bg-color, top);
+    color: fn.use-var(text-color, second);
+    font-size: 14px;
+    box-shadow: fn.use-var(shadow);
+    cursor: pointer;
+    transition: color 0.15s ease;
+
+    &:hover {
+      color: fn.use-var(color, primary);
+    }
+  }
+
+  @include m.em(to-latest, 'fade-enter-active') {
+    transition:
+      opacity 0.15s ease,
+      transform 0.15s ease;
+  }
+
+  @include m.em(to-latest, 'fade-leave-active') {
+    transition:
+      opacity 0.1s ease,
+      transform 0.1s ease;
+  }
+
+  @include m.em(to-latest, 'fade-enter-from') {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+
+  @include m.em(to-latest, 'fade-leave-to') {
+    opacity: 0;
+    transform: translateX(-50%) translateY(4px);
+  }
+
+  // reply 工具的回复流卡片容器：与消息同层的横向留白
+  @include m.e(reply-tool) {
+    padding: 4px fn.use-var(gap, default);
+  }
+}

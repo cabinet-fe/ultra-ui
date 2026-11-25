@@ -1,0 +1,89 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+/** 等宽字体栈：仓库无对应 token，按惯例写死（markstream 代码块 / tool-data 等宽区共用） */
+$mono-font: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+/** 状态色图标：panel-icon / step-line-icon / tool-call-status 的 is-* 着色一致 */
+@mixin tool-status-color {
+  @include m.is(active) {
+    color: fn.use-var(color, primary);
+  }
+
+  @include m.is(warning) {
+    color: fn.use-var(color, warning);
+  }
+
+  @include m.is(success) {
+    color: fn.use-var(color, success);
+  }
+
+  @include m.is(danger) {
+    color: fn.use-var(color, danger);
+  }
+}
+
+/** 折叠箭头：reasoning / step-line / job-bar 的 chevron 共用（小号 + 旋转过渡，旋转触发各元素自理） */
+@mixin collapse-chevron {
+  font-size: 12px;
+  transition: transform 0.2s;
+}
+
+/** 工具栏触发器配方：模型 / 推理等级切换按钮共用（配色、hover 反馈与宽度约束各自补） */
+@mixin toolbar-trigger {
+  @include m.flex(flex, flex-start, center);
+  gap: 4px;
+  padding: 2px fn.use-var(gap, small);
+  border: none;
+  border-radius: fn.use-var(radius, default);
+  background: transparent;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+/** 面板头部图标按钮配方：刷新 / 全屏切换 / 关闭共用（尺寸、hover 背景、过渡一致） */
+@mixin panel-header-btn {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: fn.use-var(text-color, assist);
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+  @include m.flex(flex, center, center);
+
+  &:hover {
+    color: fn.use-var(text-color, main);
+    background-color: fn.use-var(bg-color, hover);
+  }
+}
+
+/** 工具数据块（参数 / 结果 / 视图）：浅底圆角等宽文本块，供 tool-call 与 side-panel 复用 */
+@mixin tool-data {
+  margin: 0;
+  padding: 4px fn.use-var(gap, small);
+  border-radius: fn.use-var(radius, small);
+  background-color: fn.use-var(bg-color, bottom);
+  color: fn.use-var(text-color, main);
+  font-family: $mono-font;
+  font-size: fn.use-var(font-size-main, small);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 200px;
+  overflow: auto;
+
+  & + & {
+    margin-top: fn.use-var(gap, small);
+  }
+
+  @include m.is(error) {
+    color: fn.use-var(color, danger);
+  }
+}

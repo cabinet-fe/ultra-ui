@@ -48,6 +48,48 @@ describe('searchNavItems 匹配与排序', () => {
     expect(hitFlags).toEqual(hitFlags.slice().sort((a, b) => Number(b) - Number(a)))
   })
 
+  it('AI Chat 分区与 AI 对话同级包含 17 个独立 AI 组件且不泄漏到 Desktop 分区', () => {
+    const menus = buildPlaygroundMenus()
+    const aiSection = menus.find((item) => item.path === '/ai-chat')
+    const desktopSection = menus.find((item) => item.path === '/desktop')
+    const desktopPaths = new Set(
+      (desktopSection?.children ?? []).flatMap((cat) =>
+        (cat.children ?? []).map((leaf) => leaf.path)
+      )
+    )
+
+    const expectedAiPaths = [
+      '/ai-chat/index',
+      '/ai-db-modeling/index',
+      '/ai-chat/ai-composer/index',
+      '/ai-chat/ai-context-picker/index',
+      '/ai-chat/ai-context-usage/index',
+      '/ai-chat/ai-model-picker/index',
+      '/ai-chat/ai-reasoning-picker/index',
+      '/ai-chat/ai-attachments/index',
+      '/ai-chat/ai-message-list/index',
+      '/ai-chat/ai-bubble/index',
+      '/ai-chat/ai-step-group/index',
+      '/ai-chat/ai-tool-call/index',
+      '/ai-chat/ai-reasoning/index',
+      '/ai-chat/ai-question-card/index',
+      '/ai-chat/ai-side-panel/index',
+      '/ai-chat/ai-message-queue/index',
+      '/ai-chat/ai-job-bar/index',
+      '/ai-chat/ai-approval-banner/index',
+      '/ai-chat/ai-session-nav/index'
+    ]
+
+    expect(aiSection?.children?.map((item) => item.path)).toEqual(expectedAiPaths)
+    expect(expectedAiPaths.every((path) => !desktopPaths.has(path))).toBe(true)
+
+    const enHits = searchNavItems(navItems, 'AiComposer').find((g) => g.section === 'AI Chat')
+    expect(enHits?.items.map((item) => item.path)).toEqual(['/ai-chat/ai-composer/index'])
+
+    const zhHits = searchNavItems(navItems, '气泡').find((g) => g.section === 'AI Chat')
+    expect(zhHits?.items.map((item) => item.path)).toContain('/ai-chat/ai-bubble/index')
+  })
+
   it('无匹配查询返回空结果', () => {
     expect(searchNavItems(navItems, 'zzzzz')).toEqual([])
   })

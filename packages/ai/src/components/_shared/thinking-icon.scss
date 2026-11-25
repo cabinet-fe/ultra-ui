@@ -1,0 +1,67 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: ai-thinking-icon;
+
+// 思考图标：主星呼吸 + 副星错相闪烁；静止时是干净的四角星
+@include m.b($root-name) {
+  flex-shrink: 0;
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  color: fn.use-var(text-color, second);
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  @include m.is(active) {
+    color: fn.use-var(color, primary);
+
+    #{fn.bem($root-name, 'star')} {
+      transform-origin: 50% 50%;
+      animation: u-ai-thinking-star 1.6s ease-in-out infinite;
+    }
+
+    #{fn.bem($root-name, 'spark')} {
+      transform-origin: 78% 82%;
+      animation: u-ai-thinking-spark 1.6s ease-in-out infinite;
+    }
+  }
+}
+
+@keyframes u-ai-thinking-star {
+  0%,
+  100% {
+    transform: scale(0.86) rotate(0deg);
+    opacity: 0.75;
+  }
+
+  45% {
+    transform: scale(1) rotate(28deg);
+    opacity: 1;
+  }
+}
+
+@keyframes u-ai-thinking-spark {
+  0%,
+  100% {
+    transform: scale(0.6);
+    opacity: 0.35;
+  }
+
+  55% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #{fn.bem($root-name)}.is-active {
+    #{fn.bem($root-name, 'star')},
+    #{fn.bem($root-name, 'spark')} {
+      animation: none;
+    }
+  }
+}

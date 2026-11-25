@@ -10,28 +10,32 @@
     @resize-end="resizing = false"
   >
     <div :class="[cls.e('main'), bem.is('empty', isEmpty)]">
-      <MessageList
+      <UAiMessageList
         :messages="messages"
         :welcome="welcome"
         :running="running"
         :readonly="readonly"
+        :tools="toolMap"
+        :tool-icons="toolIcons"
         :renderer-props="rendererProps"
         @respond="respondToolCall"
         @regenerate="regenerate"
         @welcome-click="(text) => handleSend(text, [])"
+        @open-panel="openPanel"
+        @preview-image="previewImage"
       >
         <template v-if="$slots.welcome" #welcome>
           <slot name="welcome" />
         </template>
-      </MessageList>
+      </UAiMessageList>
 
       <div v-if="pendingQuestion" :class="cls.e('session-question')">
-        <AskQuestion :questions="pendingQuestion.questions" @submit="handleQuestionSubmit" />
+        <UAiQuestionCard :questions="pendingQuestion.questions" @submit="handleQuestionSubmit" />
       </div>
 
-      <ApprovalBanner :approvals="pendingApprovals" @respond="respondSession" />
+      <UAiApprovalBanner :approvals="pendingApprovals" @respond="respondSession" />
 
-      <QueueList
+      <UAiMessageQueue
         :queue="queue"
         :readonly="readonly"
         @start-now="startQueued"
@@ -39,26 +43,57 @@
         @remove="removeQueued"
       />
 
-      <JobBar :jobs="jobs" />
+      <UAiJobBar :jobs="jobs" :tool-icons="toolIcons" />
 
-      <ChatInput
+      <UAiComposer
         v-if="!readonly"
-        ref="chatInputRef"
-        v-model:model="model"
-        v-model:reasoning-level="reasoningLevel"
+        ref="composerRef"
         :running="running"
-        :models="models"
         :placeholder="placeholder"
-        :accept="accept"
         :max-attachment-size="maxAttachmentSize"
-        :clearable="clearable"
-        :token-usage="tokenUsage"
-        :last-request-usage="lastRequestUsage"
-        :token-usage-detail="tokenUsageDetail"
         @send="handleSend"
         @abort="abort"
-        @clear="clear"
-      />
+        @preview-image="previewImage"
+      >
+        <template #toolbar-left="{ addAttachments, disabled }">
+          <UAiContextPicker
+            :accept="accept"
+            :max-attachment-size="maxAttachmentSize"
+            :disabled="disabled"
+            @add-attachments="addAttachments"
+          />
+          <span :class="[cls.e('clear-wrap'), bem.is('disabled', !clearable)]">
+            <UPopConfirm
+              title="清空当前对话？进行中的生成将被中止。"
+              confirm-text="清空"
+              direction="top"
+              alignment="start"
+              @confirm="clear"
+            >
+              <template #reference>
+                <UIcon :class="cls.e('clear')" title="清除会话">
+                  <Clear />
+                </UIcon>
+              </template>
+            </UPopConfirm>
+          </span>
+        </template>
+
+        <template #toolbar-right>
+          <UAiContextUsage
+            :usage="tokenUsage"
+            :last-request-usage="lastRequestUsage"
+            :context-window="currentContextWindow"
+            :detail="tokenUsageDetail"
+          />
+          <UAiModelPicker v-if="models?.length" v-model="model" :models="models" />
+          <UAiReasoningPicker
+            v-if="models?.length"
+            v-model="reasoningLevel"
+            :levels="reasoningLevels"
+          />
+        </template>
+      </UAiComposer>
 
       <UImagePreviewer
         v-model:open="previewOpen"
@@ -68,10 +103,12 @@
     </div>
 
     <!-- 侧边面板（renderTo: 'panel' 的工具渲染区），与会话区宽度经 ULayout 拖拽手柄调节 -->
-    <SidePanel
+    <UAiSidePanel
       v-if="activePanelCall"
       ref="panelRef"
       :tool-call="activePanelCall"
+      :tool="toolMap[activePanelCall.name]"
+      :tool-icons="toolIcons"
       @close="closePanel"
     />
   </ULayout>
@@ -80,24 +117,28 @@
 <script lang="ts" setup>
 import './style'
 import { useResizeObserver } from '@veltra/compositions'
-import { UImagePreviewer, ULayout } from '@veltra/desktop'
+import { UIcon, UImagePreviewer, ULayout, UPopConfirm } from '@veltra/desktop'
+import { Clear } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 import { computed, provide, ref, shallowRef, useSlots, useTemplateRef, watch } from 'vue'
 
 import { isServerTransport } from '../../chat/session'
 import type { ChatAttachment, ChatTool, ChatToolCall, ChatToolMeta } from '../../chat/types'
 import { useChat } from '../../chat/use-chat'
-import { createBuiltinTools } from '../../tools'
-import type { AskQuestionAnswer, AskQuestionResult } from '../../tools/ask-question/ask-question'
+import { createBuiltinTools, type AskQuestionAnswer } from '../../tools'
 import type { _AiChatExposed, AiChatEmits, AiChatProps } from '../../types'
-import ApprovalBanner from './approval-banner.vue'
-import AskQuestion from './ask-question.vue'
-import ChatInput from './chat-input.vue'
-import { AiChatDIKey } from './di'
-import JobBar from './job-bar.vue'
-import MessageList from './message-list.vue'
-import QueueList from './queue-list.vue'
-import SidePanel from './side-panel.vue'
+import { AiChatDIKey } from '../_shared/di'
+import { UAiApprovalBanner } from '../ai-approval-banner'
+import { UAiComposer } from '../ai-composer'
+import { UAiContextPicker } from '../ai-context-picker'
+import { UAiContextUsage } from '../ai-context-usage'
+import { UAiJobBar } from '../ai-job-bar'
+import { UAiMessageList } from '../ai-message-list'
+import { UAiMessageQueue } from '../ai-message-queue'
+import { UAiModelPicker } from '../ai-model-picker'
+import { UAiQuestionCard } from '../ai-question-card'
+import { UAiReasoningPicker } from '../ai-reasoning-picker'
+import { UAiSidePanel } from '../ai-side-panel'
 
 defineOptions({ name: 'UAiChat' })
 
@@ -162,6 +203,10 @@ const isEmpty = computed(() => !messages.value.some((msg) => msg.role !== 'tool'
 const clearable = computed(
   () => messages.value.length > 0 || queue.value.length > 0 || running.value
 )
+
+const currentModel = computed(() => props.models?.find((m) => m.id === model.value))
+const currentContextWindow = computed(() => currentModel.value?.contextWindow)
+const reasoningLevels = computed(() => currentModel.value?.reasoningLevels ?? [])
 
 /** 任一工具声明 renderTo: 'panel'：绝大多数会话没有面板工具，
  * 先短路避免流式期间每个 delta 都全量扫描消息找面板调用 */
@@ -231,7 +276,7 @@ const previewImage = (src: string, alt?: string) => {
   previewOpen.value = true
 }
 
-provide(AiChatDIKey, { cls, slots, tools: toolMap, toolIcons, openPanel, previewImage })
+provide(AiChatDIKey, { slots, tools: toolMap, toolIcons, openPanel, previewImage })
 
 /**
  * 面板宽度：经 ULayout 列轨施加（cols = 1fr + 面板宽度），
@@ -241,7 +286,7 @@ const PANEL_MIN_WIDTH = 320
 const MAIN_MIN_WIDTH = 360
 
 const layoutRef = useTemplateRef<InstanceType<typeof ULayout>>('layoutRef')
-const panelRef = useTemplateRef<InstanceType<typeof SidePanel>>('panelRef')
+const panelRef = useTemplateRef<InstanceType<typeof UAiSidePanel>>('panelRef')
 const panelWidth = ref(PANEL_MIN_WIDTH)
 const resizing = ref(false)
 
@@ -292,7 +337,7 @@ useResizeObserver({
   }
 })
 
-const chatInputRef = useTemplateRef<InstanceType<typeof ChatInput>>('chatInputRef')
+const composerRef = useTemplateRef<InstanceType<typeof UAiComposer>>('composerRef')
 
 /**
  * 编辑中的队列项原后继 id（编辑态标记）：
@@ -310,13 +355,13 @@ const handleQueueEdit = (id: string) => {
   editingSuccessor.value = queue.value[index + 1]?.id ?? null
 
   const item = removeQueued(id)
-  if (item) chatInputRef.value?.setContent(item.content)
+  if (item) composerRef.value?.setContent(item.content)
 }
 
 /** 将输入框中未提交的编辑内容按原锚点插回队列 */
 const restoreEditing = () => {
   if (editingSuccessor.value === undefined) return
-  const content = chatInputRef.value?.getContent().trim()
+  const content = composerRef.value?.getContent().trim()
   if (content) enqueue(content, undefined, editingSuccessor.value ?? undefined)
   editingSuccessor.value = undefined
 }
@@ -332,10 +377,10 @@ const handleSend = (content: string, attachments: ChatAttachment[]) => {
   send(content, attachments)
 }
 
-const handleQuestionSubmit = (value: AskQuestionAnswer[] | AskQuestionResult) => {
+const handleQuestionSubmit = (answers: AskQuestionAnswer[]) => {
   const pending = pendingQuestion.value
   if (!pending) return
-  respondSession(pending.rpcId, true, Array.isArray(value) ? value : value.answers)
+  respondSession(pending.rpcId, true, answers)
 }
 
 defineExpose<_AiChatExposed>({

@@ -5,7 +5,7 @@ import {
   isSummarizedInHeader,
   lastNonEmptyLine,
   summarizeArguments
-} from '../tool-format'
+} from '../../_shared/tool-format'
 
 describe('summarizeArguments', () => {
   it('优先取最能说明调用的参数键', () => {

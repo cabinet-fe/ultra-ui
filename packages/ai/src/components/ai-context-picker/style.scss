@@ -1,0 +1,97 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: ai-context-picker;
+
+@include m.b($root-name) {
+  @include m.e(trigger) {
+    @include m.flex(inline-flex, center, center);
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background-color: fn.use-var(bg-color, middle);
+    color: fn.use-var(text-color, second);
+    font-size: 15px;
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+
+    &:hover:not(:disabled):not(.is-disabled) {
+      background-color: fn.use-var(bg-color, hover);
+      color: fn.use-var(color, primary);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: fn.use-var(focus-ring);
+    }
+
+    &:disabled,
+    &.is-disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// 选项面板经 teleport 挂载到 popper 容器，需写在根块之外的顶层
+#{fn.bem($root-name, panel)} {
+  padding: 4px;
+  user-select: none;
+
+  .u-file-picker {
+    display: block;
+  }
+
+  #{fn.bem($root-name, option)} {
+    @include m.flex(flex, flex-start, center);
+    gap: 8px;
+    padding: 6px 10px;
+    border-radius: calc(fn.use-var(radius, default) + 1px);
+    font-size: fn.use-var(font-size-main, small);
+    color: fn.use-var(text-color, main);
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+
+    &:hover:not(.is-disabled) {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    @include m.is(disabled) {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+  }
+
+  #{fn.bem($root-name, option-icon)} {
+    flex-shrink: 0;
+    font-size: 15px;
+    color: fn.use-var(text-color, second);
+  }
+
+  #{fn.bem($root-name, option-body)} {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  #{fn.bem($root-name, option-label)} {
+    line-height: 1.3;
+  }
+
+  #{fn.bem($root-name, option-desc)} {
+    font-size: 11px;
+    color: fn.use-var(text-color, assist);
+    line-height: 1.3;
+    white-space: normal;
+  }
+}

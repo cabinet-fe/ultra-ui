@@ -30,6 +30,7 @@ const config = {
       moduleSideEffects: [{ test: /\/components\/[^/]+\/style\.ts$/, sideEffects: true }]
     },
     deps: {
+      onlyBundle: false,
       neverBundle: [
         'vue',
         'markstream-vue',

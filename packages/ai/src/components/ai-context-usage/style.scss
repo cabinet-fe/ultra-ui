@@ -1,0 +1,70 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: ai-context-usage;
+
+@include m.b($root-name) {
+  @include m.e(trigger) {
+    @include m.flex(inline-flex, center, center);
+    flex-shrink: 0;
+    padding: 3px;
+    border: none;
+    border-radius: fn.use-var(radius, default);
+    background: transparent;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    // hover 只给方形淡背景提示可点；环（底轨 + 占比）保持原色——
+    // 加深底轨会让整个环看起来像上下文已占满
+    &:hover {
+      background-color: fn.color-a(text-color, 8, main);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: fn.use-var(focus-ring);
+    }
+  }
+
+  @include m.e(ring) {
+    display: block;
+    width: 14px;
+    height: 14px;
+  }
+
+  @include m.e(ring-track) {
+    fill: none;
+    stroke: fn.use-var(border-color);
+    stroke-width: 8;
+  }
+
+  @include m.e(ring-value) {
+    fill: none;
+    stroke: fn.use-var(color, primary);
+    stroke-width: 8;
+    transition: stroke-dasharray 0.3s ease;
+  }
+}
+
+// 用量明细面板经 teleport 挂载到 popper 容器，需写在根块之外的顶层
+#{fn.bem($root-name, panel)} {
+  padding: 6px 4px;
+  user-select: none;
+
+  #{fn.bem($root-name, row)} {
+    @include m.flex(flex, space-between, center);
+    gap: 24px;
+    padding: 3px 8px;
+    font-size: fn.use-var(font-size-main, small);
+    line-height: 1.6;
+  }
+
+  #{fn.bem($root-name, label)} {
+    color: fn.use-var(text-color, assist);
+  }
+
+  #{fn.bem($root-name, value)} {
+    color: fn.use-var(text-color, main);
+    font-variant-numeric: tabular-nums;
+  }
+}

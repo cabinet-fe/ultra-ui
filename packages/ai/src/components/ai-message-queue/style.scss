@@ -1,0 +1,69 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: ai-message-queue;
+
+// 待发送队列（生成中提交的消息在此排队）：浅底紧凑容器
+@include m.b($root-name) {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: fn.use-var(radius, default);
+  background-color: fn.use-var(bg-color, middle);
+  padding: 4px;
+  font-size: fn.use-var(font-size-main, small);
+
+  @include m.e(head) {
+    padding: 2px 6px;
+    color: fn.use-var(text-color, assist);
+  }
+
+  @include m.e(item) {
+    @include m.flex(flex, flex-start, center);
+    gap: 6px;
+    padding: 3px 6px;
+    border-radius: fn.use-var(radius, small);
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+    }
+  }
+
+  @include m.e(text) {
+    flex: 1;
+    min-width: 0;
+    @include m.ellipsis;
+    color: fn.use-var(text-color, main);
+  }
+
+  @include m.e(actions) {
+    flex-shrink: 0;
+    @include m.flex(flex, flex-start, center);
+    gap: 2px;
+  }
+
+  @include m.e(action) {
+    @include m.flex(flex, flex-start, center);
+    gap: 2px;
+    border: none;
+    background: none;
+    padding: 1px 4px;
+    border-radius: fn.use-var(radius, small);
+    color: fn.use-var(text-color, assist);
+    font-size: inherit;
+    font-family: inherit;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      background-color 0.15s ease;
+
+    &:hover {
+      color: fn.use-var(color, primary);
+      background-color: fn.color-a(color, 11, primary);
+    }
+
+    @include m.m(primary) {
+      color: fn.use-var(color, primary);
+    }
+  }
+}

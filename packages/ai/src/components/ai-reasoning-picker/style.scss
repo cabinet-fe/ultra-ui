@@ -1,0 +1,77 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use '../_shared/mixins' as shared;
+
+$root-name: ai-reasoning-picker;
+
+@include m.b($root-name) {
+  @include m.e(trigger) {
+    @include shared.toolbar-trigger;
+    flex-shrink: 0;
+    color: fn.use-var(text-color, assist);
+
+    &:hover:not(:disabled) {
+      background-color: fn.use-var(bg-color, hover);
+      color: fn.use-var(text-color, main);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: fn.use-var(focus-ring);
+    }
+
+    @include m.is(disabled) {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  @include m.e(trigger-label) {
+    @include m.ellipsis;
+    max-width: 72px;
+  }
+
+  @include m.e(trigger-arrow) {
+    flex-shrink: 0;
+    font-size: 12px;
+    color: fn.use-var(text-color, assist);
+  }
+}
+
+// 推理等级选择面板经 teleport 挂载到 popper 容器，不处于 .u-ai-reasoning-picker 内，需顶层定义
+#{fn.bem($root-name, 'panel')} {
+  padding: 4px;
+  user-select: none;
+
+  #{fn.bem($root-name, 'list')} {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #{fn.bem($root-name, 'option')} {
+    @include m.flex(flex, space-between, center);
+    gap: 12px;
+    padding: 6px 8px;
+    border-radius: calc(fn.use-var(radius, default) + 1px);
+    font-size: fn.use-var(font-size-main, small);
+    color: fn.use-var(text-color, main);
+    cursor: pointer;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    @include m.is(active) {
+      color: fn.use-var(color, primary);
+    }
+  }
+
+  #{fn.bem($root-name, 'check')} {
+    flex-shrink: 0;
+    font-size: 14px;
+    color: fn.use-var(color, primary);
+  }
+}

@@ -1,0 +1,5 @@
+import '@veltra/desktop/components/icon/style'
+import '@veltra/desktop/components/scroll/style'
+import '@veltra/styles/animations/shine.scss'
+import '../_shared/thinking-icon.scss'
+import './style.scss'

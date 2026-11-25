@@ -1,0 +1,277 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: ai-question-card;
+
+@include m.b($root-name) {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: fn.use-var(gap, small);
+  padding: fn.use-var(gap, default);
+  border-radius: fn.use-var(radius, large);
+  background-color: fn.use-var(bg-color, top);
+  box-shadow: fn.use-var(shadow, sm);
+  font-size: fn.use-var(font-size-main, small);
+  outline: none;
+
+  .u-ai-tool-call & {
+    padding: 0;
+    border-radius: 0;
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  @include m.e(progress) {
+    @include m.flex(flex, space-between, center);
+    color: fn.use-var(text-color, assist);
+  }
+
+  @include m.e(dots) {
+    @include m.flex(flex, flex-start, center);
+    gap: 6px;
+  }
+
+  @include m.e(dot) {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: fn.use-var(text-color, placeholder);
+    cursor: pointer;
+    transition:
+      background-color 0.2s,
+      box-shadow 0.2s;
+
+    @include m.is(answered) {
+      background-color: fn.use-var(color, primary);
+    }
+
+    @include m.is(current) {
+      box-shadow: fn.use-var(focus-ring);
+    }
+  }
+
+  @include m.e(q) {
+    @include m.flex(flex, flex-start, center);
+    flex-wrap: wrap;
+    gap: 6px;
+    color: fn.use-var(text-color, title);
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  // 题号徽标（作答题干与结果摘要共用）
+  @include m.e(no, result-no) {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border-radius: fn.use-var(radius, small);
+    @include m.flex(flex, center, center);
+    background-color: fn.color-a(color, 11, primary);
+    color: fn.use-var(color, primary);
+    font-size: 11px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  // 分类标签 / 多选标注 / 推荐徽标：共用紧凑胶囊样式
+  @include m.e(tag, mode, badge) {
+    flex-shrink: 0;
+    padding: 0 6px;
+    border-radius: fn.use-var(radius, small);
+    background-color: fn.color-a(color, 11, primary);
+    color: fn.use-var(color, primary);
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.65;
+  }
+
+  @include m.e(tag) {
+    background-color: fn.use-var(bg-color, bottom);
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(options) {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  @include m.e(opt) {
+    @include m.flex(flex, flex-start, flex-start);
+    gap: fn.use-var(gap, small);
+    width: 100%;
+    padding: fn.use-var(gap, small) fn.use-var(gap, default);
+    border: none;
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, bottom);
+    cursor: pointer;
+    text-align: left;
+    color: fn.use-var(text-color, main);
+    font-size: inherit;
+    font-family: inherit;
+    line-height: 1.5;
+    outline: none;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    &:focus-visible {
+      box-shadow: fn.use-var(focus-ring);
+    }
+
+    @include m.is(selected) {
+      background-color: fn.color-a(color, 16, primary);
+    }
+
+    .u-checkbox {
+      flex-shrink: 0;
+      height: 20px;
+      align-items: center;
+    }
+  }
+
+  // 单选序号（1, 2, 3, 4）
+  @include m.e(num) {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    border-radius: fn.use-var(radius, small);
+    background-color: fn.use-var(bg-color, middle);
+    color: fn.use-var(text-color, second);
+    font-size: 11px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    @include m.flex(flex, center, center);
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease;
+
+    @include m.is(selected) {
+      background-color: fn.use-var(color, primary);
+      color: fn.use-var(text-color, white);
+    }
+  }
+
+  @include m.e(opt-body) {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  @include m.e(opt-title) {
+    @include m.flex(flex, flex-start, center);
+    flex-wrap: wrap;
+    gap: 6px;
+    color: fn.use-var(text-color, main);
+    font-weight: 500;
+  }
+
+  @include m.e(opt-desc) {
+    color: fn.use-var(text-color, assist);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  // 内联自定义输入行：无边框浅底，聚焦或非空时背景反馈
+  @include m.e(custom) {
+    @include m.flex(flex, flex-start, center);
+    gap: fn.use-var(gap, small);
+    padding: 5px fn.use-var(gap, default);
+    border: none;
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, bottom);
+    transition: background-color 0.15s ease;
+
+    &:focus-within {
+      background-color: fn.use-var(bg-color, hover);
+    }
+
+    @include m.is(active) {
+      background-color: fn.color-a(color, 16, primary);
+    }
+
+    .u-checkbox {
+      flex-shrink: 0;
+      height: 20px;
+      align-items: center;
+    }
+  }
+
+  @include m.e(input) {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: fn.use-var(text-color, main);
+    font-family: inherit;
+    font-size: inherit;
+    line-height: 1.5;
+
+    &::placeholder {
+      color: fn.use-var(text-color, placeholder);
+    }
+  }
+
+  @include m.e(enter-hint) {
+    flex-shrink: 0;
+    color: fn.use-var(color, primary);
+    font-size: 11px;
+  }
+
+  @include m.e(actions) {
+    @include m.flex(flex, flex-start, center);
+    gap: fn.use-var(gap, small);
+  }
+
+  @include m.e(actions-spacer) {
+    flex: 1;
+  }
+
+  @include m.e(head) {
+    @include m.flex(flex, flex-start, center);
+    gap: 6px;
+    color: fn.use-var(text-color, assist);
+    font-weight: 500;
+  }
+
+  @include m.e(head-icon) {
+    color: fn.use-var(color, primary);
+    font-size: 14px;
+  }
+
+  @include m.e(result) {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px fn.use-var(gap, small);
+    border-radius: fn.use-var(radius, default);
+    background-color: fn.use-var(bg-color, bottom);
+  }
+
+  @include m.e(result-q) {
+    @include m.flex(flex, flex-start, center);
+    flex-wrap: wrap;
+    gap: 6px;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(result-a) {
+    color: fn.use-var(text-color, main);
+    line-height: 1.5;
+  }
+
+  @include m.e(skipped) {
+    color: fn.use-var(text-color, placeholder);
+  }
+
+  @include m.e(status) {
+    color: fn.use-var(text-color, assist);
+  }
+}

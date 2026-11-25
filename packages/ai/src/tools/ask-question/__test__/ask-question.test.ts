@@ -4,8 +4,8 @@ import { describe, expect, it, vi } from 'vite-plus/test'
 import { createApp, defineComponent, h, nextTick, ref } from 'vue'
 
 import type { ChatMessage, ChatTransport } from '../../../chat/types'
+import { summarizeArguments } from '../../../components/_shared/tool-format'
 import UAiChat from '../../../components/ai-chat/ai-chat.vue'
-import { summarizeArguments } from '../../../components/ai-chat/tool-format'
 import type { AiChatExposed } from '../../../types'
 import type { AskQuestionItem } from '../ask-question'
 
@@ -72,13 +72,13 @@ const click = (el: HTMLElement) => el.dispatchEvent(new MouseEvent('click', { bu
 
 /** 底部导航按钮（UButton disabled 体现为 is-disabled class） */
 const actionButton = (host: HTMLElement, text: string) => {
-  return [...host.querySelectorAll<HTMLElement>('.u-ai-chat__ask-question-actions button')].find(
+  return [...host.querySelectorAll<HTMLElement>('.u-ai-question-card__actions button')].find(
     (btn) => btn.textContent?.includes(text)
   )
 }
 
 const optionButton = (host: HTMLElement, text: string) => {
-  return [...host.querySelectorAll<HTMLElement>('.u-ai-chat__ask-question-opt')].find((el) =>
+  return [...host.querySelectorAll<HTMLElement>('.u-ai-question-card__opt')].find((el) =>
     el.textContent?.includes(text)
   )
 }
@@ -92,52 +92,44 @@ describe('内置提问工具', () => {
 
     await vi.waitFor(() => {
       expect(
-        host.querySelector('.u-ai-chat__reply-tool .u-ai-chat__ask-question-q')?.textContent
+        host.querySelector('.u-ai-message-list__reply-tool .u-ai-question-card__q')?.textContent
       ).toContain('目标用户是谁？')
     })
-    expect(host.querySelector('.u-ai-chat__step-line')).toBeFalsy()
-    expect(host.querySelector('.u-ai-chat__ask-question-count')?.textContent).toBe('1 / 3')
+    expect(host.querySelector('.u-ai-step-group')).toBeFalsy()
+    expect(host.querySelector('.u-ai-question-card__count')?.textContent).toBe('1 / 3')
     expect(actionButton(host, '上一个')?.className).toContain('is-disabled')
     expect(actionButton(host, '下一个')).toBeTruthy()
     expect(actionButton(host, '提交')).toBeUndefined()
 
     // 单选选项使用 1、2 序号徽标（自定义输入行接续为 3）
-    const nums = [...host.querySelectorAll('.u-ai-chat__ask-question-num')].map((el) =>
+    const nums = [...host.querySelectorAll('.u-ai-question-card__num')].map((el) =>
       el.textContent?.trim()
     )
     expect(nums).toEqual(['1', '2', '3'])
 
     click(optionButton(host, '开发者')!)
     await nextTick()
-    expect(host.querySelector('.u-ai-chat__ask-question-q')?.textContent).toContain(
-      '偏好什么风格？'
-    )
+    expect(host.querySelector('.u-ai-question-card__q')?.textContent).toContain('偏好什么风格？')
 
     click(optionButton(host, '简洁')!)
     await nextTick()
-    expect(host.querySelector('.u-ai-chat__ask-question-q')?.textContent).toContain(
-      '还有什么补充？'
-    )
+    expect(host.querySelector('.u-ai-question-card__q')?.textContent).toContain('还有什么补充？')
     expect(actionButton(host, '下一个')).toBeUndefined()
     expect(actionButton(host, '提交')?.className).toContain('is-disabled')
 
     // 自定义输入不会自动跳转，输入作答后「提交」可用
-    const input = host.querySelector<HTMLInputElement>('.u-ai-chat__ask-question-input')!
+    const input = host.querySelector<HTMLInputElement>('.u-ai-question-card__input')!
     input.value = '需要深色模式'
     input.dispatchEvent(new Event('input', { bubbles: true }))
     await nextTick()
-    expect(host.querySelector('.u-ai-chat__ask-question-q')?.textContent).toContain(
-      '还有什么补充？'
-    )
+    expect(host.querySelector('.u-ai-question-card__q')?.textContent).toContain('还有什么补充？')
     expect(actionButton(host, '提交')?.className).not.toContain('is-disabled')
 
     click(actionButton(host, '上一个')!)
     await nextTick()
     click(actionButton(host, '上一个')!)
     await nextTick()
-    expect(host.querySelector('.u-ai-chat__ask-question-q')?.textContent).toContain(
-      '目标用户是谁？'
-    )
+    expect(host.querySelector('.u-ai-question-card__q')?.textContent).toContain('目标用户是谁？')
     expect(optionButton(host, '开发者')?.className).toContain('is-selected')
 
     click(actionButton(host, '下一个')!)
@@ -162,20 +154,18 @@ describe('内置提问工具', () => {
     await vi.waitFor(() => {
       expect(host.querySelector('.md-stub')?.textContent).toContain('明白了')
     })
-    expect(host.querySelector('.u-ai-chat__step-line')).toBeFalsy()
+    expect(host.querySelector('.u-ai-step-group')).toBeFalsy()
 
     expect(
-      host.querySelectorAll('.u-ai-chat__reply-tool .u-ai-chat__ask-question-result').length
+      host.querySelectorAll('.u-ai-message-list__reply-tool .u-ai-question-card__result').length
     ).toBe(3)
     const summary = host.querySelector(
-      '.u-ai-chat__reply-tool .u-ai-chat__ask-question'
+      '.u-ai-message-list__reply-tool .u-ai-question-card'
     )!.textContent!
     expect(summary).toContain('目标用户是谁？')
     expect(summary).toContain('需要深色模式')
-    expect(host.querySelector('.u-ai-chat__ask-question-result-a')?.textContent?.trim()).toBe(
-      '开发者'
-    )
-    expect(host.querySelector('.u-ai-chat__ask-question-chip')).toBeNull()
+    expect(host.querySelector('.u-ai-question-card__result-a')?.textContent?.trim()).toBe('开发者')
+    expect(host.querySelector('.u-ai-question-card__chip')).toBeNull()
     unmount()
   })
 
@@ -189,10 +179,10 @@ describe('内置提问工具', () => {
 
     chat.value?.send('开始')
     await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__ask-question-q')?.textContent).toContain('你的名字？')
+      expect(host.querySelector('.u-ai-question-card__q')?.textContent).toContain('你的名字？')
     })
 
-    const input1 = host.querySelector<HTMLInputElement>('.u-ai-chat__ask-question-input')!
+    const input1 = host.querySelector<HTMLInputElement>('.u-ai-question-card__input')!
     input1.value = 'Charlie'
     input1.dispatchEvent(new Event('input', { bubbles: true }))
     await nextTick()
@@ -202,14 +192,14 @@ describe('内置提问工具', () => {
       new KeyboardEvent('keydown', { key: 'Enter', isComposing: true, bubbles: true })
     )
     await nextTick()
-    expect(host.querySelector('.u-ai-chat__ask-question-q')?.textContent).toContain('你的名字？')
+    expect(host.querySelector('.u-ai-question-card__q')?.textContent).toContain('你的名字？')
 
     input1.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
     await nextTick()
-    expect(host.querySelector('.u-ai-chat__ask-question-q')?.textContent).toContain('补充需求？')
+    expect(host.querySelector('.u-ai-question-card__q')?.textContent).toContain('补充需求？')
 
     // 第 2 题输入后按 Enter：直接触发提交
-    const input2 = host.querySelector<HTMLInputElement>('.u-ai-chat__ask-question-input')!
+    const input2 = host.querySelector<HTMLInputElement>('.u-ai-question-card__input')!
     input2.value = '支持键盘快捷键'
     input2.dispatchEvent(new Event('input', { bubbles: true }))
     await nextTick()
@@ -246,30 +236,30 @@ describe('内置提问工具', () => {
 
     chat.value?.send('帮我选型')
     await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__ask-question-tag')?.textContent?.trim()).toBe('技术栈')
+      expect(host.querySelector('.u-ai-question-card__tag')?.textContent?.trim()).toBe('技术栈')
     })
 
-    expect(host.querySelector('.u-ai-chat__ask-question-badge')?.textContent?.trim()).toBe('推荐')
-    expect(host.querySelector('.u-ai-chat__ask-question-opt-desc')?.textContent).toContain(
+    expect(host.querySelector('.u-ai-question-card__badge')?.textContent?.trim()).toBe('推荐')
+    expect(host.querySelector('.u-ai-question-card__opt-desc')?.textContent).toContain(
       '使用组合式 API'
     )
-    expect(host.querySelector('.u-ai-chat__ask-question-mode')?.textContent?.trim()).toBe('多选')
+    expect(host.querySelector('.u-ai-question-card__mode')?.textContent?.trim()).toBe('多选')
     // 多选直接复用内部 UCheckbox 组件
-    expect(host.querySelectorAll('.u-ai-chat__ask-question-opt .u-checkbox').length).toBe(2)
+    expect(host.querySelectorAll('.u-ai-question-card__opt .u-checkbox').length).toBe(2)
 
     // 多选可同时勾选多个预设项 + 自定义输入，且勾选选项不自动跳题
     click(optionButton(host, 'Vue 3')!)
     click(optionButton(host, 'TypeScript')!)
-    const input = host.querySelector<HTMLInputElement>('.u-ai-chat__ask-question-input')!
+    const input = host.querySelector<HTMLInputElement>('.u-ai-question-card__input')!
     input.value = 'Vitest'
     input.dispatchEvent(new Event('input', { bubbles: true }))
     await nextTick()
 
     // 卡片级快捷键 ArrowRight 跳到第 2 题，并点击「跳过」直接提交
-    const card = host.querySelector<HTMLElement>('.u-ai-chat__ask-question')!
+    const card = host.querySelector<HTMLElement>('.u-ai-question-card')!
     card.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
     await nextTick()
-    expect(host.querySelector('.u-ai-chat__ask-question-q')?.textContent).toContain(
+    expect(host.querySelector('.u-ai-question-card__q')?.textContent).toContain(
       '还有其他注意事项吗？'
     )
 
@@ -291,12 +281,10 @@ describe('内置提问工具', () => {
     })
 
     await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__ask-question-skipped')?.textContent).toBe('已跳过')
+      expect(host.querySelector('.u-ai-question-card__skipped')?.textContent).toBe('已跳过')
     })
-    expect(
-      host.querySelector('.u-ai-chat__ask-question-result .u-ai-chat__ask-question-tag')
-    ).toBeNull()
-    expect(host.querySelector('.u-ai-chat__ask-question-result-a')?.textContent?.trim()).toBe(
+    expect(host.querySelector('.u-ai-question-card__result .u-ai-question-card__tag')).toBeNull()
+    expect(host.querySelector('.u-ai-question-card__result-a')?.textContent?.trim()).toBe(
       'Vue 3、TypeScript、Vitest'
     )
     unmount()
@@ -309,10 +297,10 @@ describe('内置提问工具', () => {
     )
     chat.value?.send('挑颜色')
     await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__ask-question')).toBeTruthy()
+      expect(host.querySelector('.u-ai-question-card')).toBeTruthy()
     })
 
-    const card = host.querySelector<HTMLElement>('.u-ai-chat__ask-question')!
+    const card = host.querySelector<HTMLElement>('.u-ai-question-card')!
     card.dispatchEvent(new KeyboardEvent('keydown', { key: '2', bubbles: true }))
     await nextTick()
     expect(optionButton(host, '蓝色')?.className).toContain('is-selected')
@@ -341,7 +329,7 @@ describe('内置提问工具', () => {
     chat.value?.send('提个问')
 
     await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__reply-tool .u-ai-chat__ask-question')).toBeTruthy()
+      expect(host.querySelector('.u-ai-message-list__reply-tool .u-ai-question-card')).toBeTruthy()
     })
 
     chat.value?.abort()
@@ -349,7 +337,8 @@ describe('内置提问工具', () => {
     // 由于 renderTo: 'reply'，中止后直接在回复流外层显示「已取消」，无需展开步骤行
     await vi.waitFor(() => {
       expect(
-        host.querySelector('.u-ai-chat__reply-tool .u-ai-chat__ask-question-status')?.textContent
+        host.querySelector('.u-ai-message-list__reply-tool .u-ai-question-card__status')
+          ?.textContent
       ).toBe('已取消')
     })
     unmount()
@@ -374,10 +363,10 @@ describe('内置提问工具', () => {
 
     chat.value?.send('开始')
     await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-chat__reply-tool .u-ai-chat__ask-question')).toBeTruthy()
+      expect(host.querySelector('.u-ai-message-list__reply-tool .u-ai-question-card')).toBeTruthy()
     })
 
-    expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('思考中…')
+    expect(host.querySelector('.u-ai-step-group__title')?.textContent).toBe('思考中…')
 
     click(optionButton(host, '蓝')!)
     await nextTick()
@@ -386,11 +375,11 @@ describe('内置提问工具', () => {
       expect(host.querySelector('.md-stub')?.textContent).toContain('好的')
     })
 
-    expect(host.querySelector('.u-ai-chat__step-line-title')?.textContent).toBe('执行了 1 个步骤')
-    host.querySelector<HTMLElement>('.u-ai-chat__step-line-bar')?.click()
+    expect(host.querySelector('.u-ai-step-group__title')?.textContent).toBe('执行了 1 个步骤')
+    host.querySelector<HTMLElement>('.u-ai-step-group__bar')?.click()
     await nextTick()
-    expect(host.querySelectorAll('.u-ai-chat__step-line .u-ai-chat__reasoning')).toHaveLength(1)
-    expect(host.querySelectorAll('.u-ai-chat__step-line .u-ai-chat__tool')).toHaveLength(0)
+    expect(host.querySelectorAll('.u-ai-step-group .u-ai-reasoning')).toHaveLength(1)
+    expect(host.querySelectorAll('.u-ai-step-group .u-ai-tool-call')).toHaveLength(0)
     unmount()
   })
 

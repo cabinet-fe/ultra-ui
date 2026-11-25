@@ -1,0 +1,139 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use '../_shared/mixins' as shared;
+
+$root-name: ai-step-group;
+
+// 步骤行：一轮内思考/工具过程压缩为固定高度的行，行内实时展示当前步骤，
+// 点击展开下方全部已执行步骤
+@include m.b($root-name) {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 4px fn.use-var(gap, default);
+  color: fn.use-var(text-color, second);
+
+  @include m.is(expanded) {
+    @include m.bem($root-name, 'chevron') {
+      transform: rotate(90deg);
+    }
+  }
+
+  // 落定态：静态摘要而非进行中的实时视图——去掉 hover 高亮，
+  // 摘要文本自适应宽度使展开箭头紧跟文本，步数已写进文案、右侧计数省去
+  @include m.is(settled) {
+    @include m.bem($root-name, 'bar') {
+      &:hover {
+        background-color: transparent;
+      }
+    }
+
+    @include m.bem($root-name, 'view') {
+      flex: 0 1 auto;
+    }
+
+    @include m.bem($root-name, 'count') {
+      display: none;
+    }
+  }
+
+  // 行本体：固定高度，hover 反馈可点击
+  @include m.e(bar) {
+    position: relative;
+    overflow: hidden;
+    @include m.flex(flex, flex-start, center);
+    gap: 4px;
+    height: 30px;
+    border-radius: fn.use-var(radius, default);
+    cursor: pointer;
+    user-select: none;
+    font-size: fn.use-var(font-size-main, small);
+    transition: background-color 0.15s ease;
+
+    &:hover {
+      background-color: fn.use-var(bg-color, hover);
+    }
+  }
+
+  // 行内当前视图：占满计数/箭头以外的宽度，摘要/思考行在内部省略
+  @include m.e(view) {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    @include m.flex(flex, flex-start, center);
+    gap: 4px;
+  }
+
+  // 行内图标：状态色随步骤状态（进行中/警告/成功/危险）
+  @include m.e(icon) {
+    flex-shrink: 0;
+    font-size: 13px;
+    @include shared.tool-status-color;
+  }
+
+  @include m.e(title) {
+    flex-shrink: 0;
+    line-height: 1.5;
+  }
+
+  // 滚动展示的最新一行思考 / 工具参数摘要
+  @include m.e(text) {
+    flex: 1;
+    min-width: 0;
+    @include m.ellipsis;
+    line-height: 1.5;
+    color: fn.use-var(text-color, assist);
+  }
+
+  // 步骤计数（多于一步时展示）
+  @include m.e(count) {
+    flex-shrink: 0;
+    color: fn.use-var(text-color, assist);
+    font-variant-numeric: tabular-nums;
+  }
+
+  @include m.e(chevron) {
+    @include shared.collapse-chevron;
+  }
+
+  // 展开列表：全部已执行步骤（思考块 + 工具卡片），折叠时完全卸载
+  @include m.e(content) {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 4px;
+    padding-left: fn.use-var(gap, small);
+    border-left: fn.use-var(border-muted);
+  }
+
+  // 行内走马灯：新步骤从下方进入、旧步骤向上离开；离开元素脱离文档流防布局跳动
+  @include m.m('swap-enter-active') {
+    transition:
+      transform 0.24s cubic-bezier(0.33, 1, 0.68, 1),
+      opacity 0.24s cubic-bezier(0.33, 1, 0.68, 1);
+  }
+
+  @include m.m('swap-leave-active') {
+    position: absolute;
+    inset: 0;
+    transition:
+      transform 0.2s cubic-bezier(0.33, 1, 0.68, 1),
+      opacity 0.2s cubic-bezier(0.33, 1, 0.68, 1);
+  }
+
+  @include m.m('swap-enter-from') {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  @include m.m('swap-leave-to') {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+
+  // 减少动态效果时：走马灯退化为淡入，不做位移动画
+  @media (prefers-reduced-motion: reduce) {
+    @include m.m('swap-enter-from', 'swap-leave-to') {
+      transform: none;
+    }
+  }
+}

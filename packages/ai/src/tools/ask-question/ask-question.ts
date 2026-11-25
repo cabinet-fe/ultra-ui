@@ -2,7 +2,7 @@ import { QuestionFilled } from '@veltra/icons/normal'
 import { computed, defineComponent, h, type Component, type PropType } from 'vue'
 
 import type { ChatTool, ChatToolCall } from '../../chat/types'
-import AskQuestion from '../../components/ai-chat/ask-question.vue'
+import UAiQuestionCard from '../../components/ai-question-card/ai-question-card.vue'
 import { deferAskQuestion, resolveAskQuestion, takeAskQuestionDeferred } from './deferred'
 
 /** 预设选项项（支持纯字符串或带说明的结构化选项） */
@@ -133,13 +133,11 @@ const AskQuestionRender = defineComponent({
     const questions = computed(() => parseQuestions(props.toolCall))
     const answers = computed(() => parseAnswers(props.toolCall))
     const error = computed(() => statusError(props.toolCall))
-    const onSubmit = (value: AskQuestionAnswer[] | AskQuestionResult) => {
-      resolveAskQuestion(props.toolCall.id, {
-        answers: Array.isArray(value) ? value : value.answers
-      })
+    const onSubmit = (value: AskQuestionAnswer[]) => {
+      resolveAskQuestion(props.toolCall.id, { answers: value })
     }
     return () =>
-      h(AskQuestion, {
+      h(UAiQuestionCard, {
         questions: questions.value,
         answers: answers.value,
         error: error.value,

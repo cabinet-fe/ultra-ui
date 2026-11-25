@@ -1,0 +1,75 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+
+$root-name: ai-composer;
+
+// 独立输入卡：无边框卡片，靠浅阴影区分层级，默认铺满容器宽度
+@include m.b($root-name) {
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: fn.use-var(radius, large);
+  background-color: fn.use-var(bg-color, top);
+  box-shadow: fn.use-var(shadow, sm);
+  padding: fn.use-var(gap, small);
+
+  @include m.is(disabled) {
+    opacity: 0.65;
+    cursor: not-allowed;
+
+    @include m.bem($root-name, input) {
+      cursor: not-allowed;
+    }
+  }
+
+  @include m.e(attachments) {
+    padding: fn.use-var(gap, small);
+  }
+
+  @include m.e(input) {
+    width: 100%;
+    border: none;
+    outline: none;
+    resize: none;
+    background: transparent;
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-main, default);
+    font-family: inherit;
+    line-height: 1.6;
+    box-sizing: border-box;
+    overflow-y: hidden;
+
+    &::placeholder {
+      color: fn.use-var(text-color, placeholder);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  @include m.e(toolbar) {
+    @include m.flex(flex, space-between, center);
+    gap: fn.use-var(gap, small);
+    padding: 0 fn.use-var(gap, small);
+  }
+
+  @include m.e(toolbar-left) {
+    @include m.flex(flex, flex-start, center);
+    gap: fn.use-var(gap, small);
+    flex: 1;
+    min-width: 0;
+  }
+
+  @include m.e(toolbar-right) {
+    @include m.flex(flex, flex-end, center);
+    gap: fn.use-var(gap, small);
+    min-width: 0;
+  }
+
+  @include m.e(stop) {
+    display: block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    background-color: currentColor;
+  }
+}

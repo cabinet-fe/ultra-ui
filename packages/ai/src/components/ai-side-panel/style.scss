@@ -1,0 +1,134 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use '../_shared/mixins' as shared;
+
+$root-name: ai-side-panel;
+
+// 侧边面板：悬浮卡片形态，本体透明以留白区分相邻区域
+@include m.b($root-name) {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  padding: fn.use-var(gap, small);
+  padding-left: calc(fn.use-var(gap, small) / 2);
+  box-sizing: border-box;
+  font-size: fn.use-var(font-size-main, default);
+  color: fn.use-var(text-color, main);
+  animation: u-ai-side-panel-in 0.2s ease-out;
+
+  // 全屏：铺满定位容器（由父级 position: relative 约束）
+  @include m.is(fullscreen) {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    padding: 0;
+    // 退出全屏时 animation-name 回落 panel-in 会重放，形成退出过渡
+    animation: u-ai-side-panel-full-in 0.2s ease-out;
+
+    #{fn.bem($root-name, card)} {
+      border-radius: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      animation: u-ai-side-panel-fade 160ms cubic-bezier(0.33, 1, 0.68, 1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: u-ai-side-panel-fade 160ms cubic-bezier(0.33, 1, 0.68, 1);
+  }
+
+  @include m.e(card) {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    border-radius: fn.use-var(radius, large);
+    background-color: fn.use-var(bg-color, top);
+    box-shadow: fn.use-var(shadow, sm);
+  }
+
+  // 面板头部：无下分割线，靠留白与卡片边界区分内容区
+  @include m.e(header) {
+    flex: none;
+    @include m.flex(flex, flex-start, center);
+    gap: fn.use-var(gap, small);
+    padding: fn.use-var(gap, default);
+    padding-bottom: fn.use-var(gap, small);
+  }
+
+  // 头部图标做成圆角底托，状态色只作用于图标本身
+  @include m.e(icon) {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: fn.use-var(radius, small);
+    background-color: fn.use-var(bg-color, middle);
+    font-size: 14px;
+    @include m.flex(flex, center, center);
+    @include shared.tool-status-color;
+  }
+
+  @include m.e(title) {
+    flex: 1;
+    min-width: 0;
+    @include m.ellipsis;
+    font-weight: 600;
+    color: fn.use-var(text-color, title);
+  }
+
+  #{fn.bem($root-name, refresh)},
+  #{fn.bem($root-name, fullscreen)},
+  #{fn.bem($root-name, close)} {
+    @include shared.panel-header-btn;
+  }
+
+  @include m.e(body) {
+    flex: 1;
+    min-height: 0;
+  }
+
+  @include m.e(fallback) {
+    padding: fn.use-var(gap, default);
+  }
+
+  @include m.e(data) {
+    @include shared.tool-data;
+  }
+}
+
+@keyframes u-ai-side-panel-in {
+  from {
+    transform: translateX(16px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes u-ai-side-panel-full-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes u-ai-side-panel-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

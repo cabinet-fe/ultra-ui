@@ -12,6 +12,7 @@ export type DemoCategory =
   | 'editor'
   | 'other'
   | 'mobile'
+  | 'ai'
 
 export interface DemoMeta {
   zh: string
@@ -43,6 +44,23 @@ export const demoMeta: Record<string, DemoMeta> = {
   action: { zh: '操作按钮', en: 'Action', category: 'other' },
   'ai-chat': { zh: 'AI 对话', en: 'AiChat', category: 'data' },
   'ai-db-modeling': { zh: 'AI 数据库建模', en: 'AiDbModeling', category: 'data' },
+  'ai-composer': { zh: '输入组合区', en: 'AiComposer', category: 'ai' },
+  'ai-context-picker': { zh: '上下文拾取器', en: 'AiContextPicker', category: 'ai' },
+  'ai-context-usage': { zh: 'Token 用量环', en: 'AiContextUsage', category: 'ai' },
+  'ai-model-picker': { zh: '模型选择器', en: 'AiModelPicker', category: 'ai' },
+  'ai-reasoning-picker': { zh: '推理等级选择器', en: 'AiReasoningPicker', category: 'ai' },
+  'ai-attachments': { zh: '附件列表', en: 'AiAttachments', category: 'ai' },
+  'ai-message-list': { zh: '消息列表', en: 'AiMessageList', category: 'ai' },
+  'ai-bubble': { zh: '消息气泡', en: 'AiBubble', category: 'ai' },
+  'ai-step-group': { zh: '过程步骤行', en: 'AiStepGroup', category: 'ai' },
+  'ai-tool-call': { zh: '工具调用卡片', en: 'AiToolCall', category: 'ai' },
+  'ai-reasoning': { zh: '思考折叠块', en: 'AiReasoning', category: 'ai' },
+  'ai-question-card': { zh: '提问卡片', en: 'AiQuestionCard', category: 'ai' },
+  'ai-side-panel': { zh: '侧边面板', en: 'AiSidePanel', category: 'ai' },
+  'ai-message-queue': { zh: '待发送队列', en: 'AiMessageQueue', category: 'ai' },
+  'ai-job-bar': { zh: '作业条', en: 'AiJobBar', category: 'ai' },
+  'ai-approval-banner': { zh: '审批横幅', en: 'AiApprovalBanner', category: 'ai' },
+  'ai-session-nav': { zh: '会话圆点导航', en: 'AiSessionNav', category: 'ai' },
   'ai-button': { zh: 'AI 按钮', en: 'AiButton', category: 'form' },
   sheet: { zh: '电子表格', en: 'Sheet', category: 'data' },
   'sheet-big-data': { zh: '大数据量演示', en: 'BigData', category: 'data' },
@@ -201,12 +219,41 @@ function demosInCategory(category: DemoCategory) {
     .sort((a, b) => a.zh.localeCompare(b.zh, 'zh-CN'))
 }
 
+/** 17 个可独立使用的 AI 组件（按功能分组顺序平铺在 AI Chat 分区下） */
+const AI_COMPONENT_KEYS = [
+  'ai-composer',
+  'ai-context-picker',
+  'ai-context-usage',
+  'ai-model-picker',
+  'ai-reasoning-picker',
+  'ai-attachments',
+  'ai-message-list',
+  'ai-bubble',
+  'ai-step-group',
+  'ai-tool-call',
+  'ai-reasoning',
+  'ai-question-card',
+  'ai-side-panel',
+  'ai-message-queue',
+  'ai-job-bar',
+  'ai-approval-banner',
+  'ai-session-nav'
+] as const
+
 /** Mobile 分区叶子项：key（`mobile-<name>`）转回路由 path `/mobile/<name>/index` */
 function mobileDemos() {
   return demosInCategory('mobile').map((d) => ({
     title: `${d.zh} ${d.en}`,
     path: `${MOBILE_ROOT}/${d.key.slice(MOBILE_KEY_PREFIX.length)}/index`
   }))
+}
+
+/** 独立 AI 组件叶子项：与 AI 对话同级平铺在 AI Chat 分区下 */
+function aiComponentDemos() {
+  return AI_COMPONENT_KEYS.map((key) => {
+    const meta = demoMeta[key]!
+    return { title: `${meta.zh} ${meta.en}`, path: `/ai-chat/${key}/index` }
+  })
 }
 
 export function buildPlaygroundMenus(): NavItem[] {
@@ -244,12 +291,13 @@ export function buildPlaygroundMenus(): NavItem[] {
     },
     {
       title: 'AI Chat',
-      description: '预览 @veltra/ai 对话组件，经 Node 代理接入 DeepSeek V4 Flash / V4 Pro',
+      description: '预览 @veltra/ai 对话壳层、数据库建模与 17 个独立 AI 组件演示',
       icon: AiChat as DefineComponent,
       path: '/ai-chat',
       children: [
         { title: 'AI 对话', path: '/ai-chat/index' },
-        { title: 'AI 数据库建模', path: '/ai-db-modeling/index' }
+        { title: 'AI 数据库建模', path: '/ai-db-modeling/index' },
+        ...aiComponentDemos()
       ]
     },
     {

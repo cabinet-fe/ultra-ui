@@ -2,7 +2,7 @@ import { EditPen, Folder, Internet, QuestionFilled, Terminal, Tools } from '@vel
 import { describe, expect, it } from 'vite-plus/test'
 import { defineComponent, h } from 'vue'
 
-import { FALLBACK_TOOL_ICON, resolveToolIcon } from '../tool-icons'
+import { FALLBACK_TOOL_ICON, resolveToolIcon } from '../../_shared/tool-icons'
 
 describe('resolveToolIcon', () => {
   it('按名称子串匹配内置规则', () => {

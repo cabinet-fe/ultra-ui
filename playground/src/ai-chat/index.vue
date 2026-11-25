@@ -5,7 +5,9 @@
       <span class="ai-chat-page__hint">{{ modeHint }}</span>
     </div>
     <div class="ai-chat-page__chat">
+      <composed-demo v-if="mode === 'composed'" />
       <u-ai-chat
+        v-else
         :key="mode"
         v-model:model="model"
         v-model:reasoning-level="reasoningLevel"
@@ -27,21 +29,27 @@ import { Delete, Monitor, Sun } from '@veltra/icons/normal'
 import { computed, ref } from 'vue'
 
 import AdminPanel from './admin-panel.vue'
+import ComposedDemo from './composed-demo.vue'
 import { createFakeSessionAdapter, SESSION_WELCOME } from './fake-session'
 import WeatherCard from './weather-card.vue'
 
-type ChatMode = 'client' | 'session'
+type ChatMode = 'client' | 'session' | 'composed'
 
 const mode = ref<ChatMode>('client')
 const modeItems = [
   { label: '客户端驱动', value: 'client' },
-  { label: '服务端驱动', value: 'session' }
+  { label: '服务端驱动', value: 'session' },
+  { label: '原子组件组合', value: 'composed' }
 ]
-const modeHint = computed(() =>
-  mode.value === 'client'
-    ? 'createOpenAITransport + /ai（DeepSeek 代理，auto 默认优先 /responses，失败回退 /chat/completions）'
-    : 'createServerTransport + 页内 fake adapter（不请求 DSH / session HTTP）'
-)
+const modeHint = computed(() => {
+  if (mode.value === 'client') {
+    return 'createOpenAITransport + /ai（DeepSeek 代理，auto 默认优先 /responses，失败回退 /chat/completions）'
+  }
+  if (mode.value === 'session') {
+    return 'createServerTransport + 页内 fake adapter（不请求 DSH / session HTTP）'
+  }
+  return '脱离 UAiChat，使用独立组件自由编排（自定义上下文/用量环/模型推理/侧边面板，无清除会话按钮）'
+})
 
 const clientWelcome = [
   '算一下 128*46',
@@ -83,20 +91,6 @@ const openaiTransport = createOpenAITransport({
 const models = openaiTransport.models
 const model = ref(openaiTransport.defaultModel)
 const reasoningLevel = ref<string>()
-
-const selectedModel = computed(() => models.find((m) => m.id === model.value))
-const selectedReasoningLevel = computed(() => {
-  return selectedModel.value?.reasoningLevels?.find((level) => level.value === reasoningLevel.value)
-})
-
-const selectionSummary = computed(() => {
-  const m = selectedModel.value
-  if (!m) return model.value
-  const provider = m.providerLabel ?? m.providerId
-  const name = m.label ?? m.id
-  const level = selectedReasoningLevel.value
-  return level ? `${provider} / ${name} · 推理 ${level.label}` : `${provider} / ${name}`
-})
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 

@@ -1,0 +1,6 @@
+import '@veltra/desktop/components/icon/style'
+import '@veltra/styles/animations/shine.scss'
+import '../_shared/thinking-icon.scss'
+import '../ai-reasoning/style'
+import '../ai-tool-call/style'
+import './style.scss'

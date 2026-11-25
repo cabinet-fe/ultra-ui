@@ -55,6 +55,9 @@ function demoKeyFromModulePath(path: string): string {
   const iconsNested = path.match(/^\.\/icons\/(.+)\/index\.vue$/)
   if (iconsNested) return `icons-${iconsNested[1]!.replace(/\//g, '-')}`
 
+  const aiChatNested = path.match(/^\.\/ai-chat\/([^/]+)\/index\.vue$/)
+  if (aiChatNested) return aiChatNested[1]!
+
   const top = path.match(/^\.\/([^/]+)\/index\.vue$/)
   if (top) return top[1]!
 

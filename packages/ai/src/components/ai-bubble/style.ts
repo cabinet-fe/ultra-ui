@@ -1,0 +1,5 @@
+import '@veltra/desktop/components/button/style'
+import '@veltra/desktop/components/message/style'
+import 'markstream-vue/index.css'
+import '../ai-attachments/style'
+import './style.scss'

@@ -1,0 +1,56 @@
+@use 'pkg:@veltra/styles/mixins' as m;
+@use 'pkg:@veltra/styles/functions' as fn;
+@use '../_shared/mixins' as shared;
+
+$root-name: ai-reasoning;
+
+@include m.b($root-name) {
+  width: 100%;
+  box-sizing: border-box;
+  color: fn.use-var(text-color, second);
+
+  @include m.is(expanded) {
+    @include m.bem($root-name, 'chevron') {
+      transform: rotate(90deg);
+    }
+  }
+
+  @include m.e(header) {
+    @include m.flex(flex, flex-start, center);
+    gap: 4px;
+    cursor: pointer;
+    user-select: none;
+    font-size: fn.use-var(font-size-main, small);
+  }
+
+  @include m.e(title) {
+    flex-shrink: 0;
+    line-height: 1.5;
+  }
+
+  @include m.e(line) {
+    flex: 1;
+    min-width: 0;
+    @include m.ellipsis;
+    line-height: 1.5;
+    color: fn.use-var(text-color, assist);
+  }
+
+  @include m.e(chevron) {
+    @include shared.collapse-chevron;
+  }
+
+  @include m.e(content) {
+    margin-top: 4px;
+    padding-left: fn.use-var(gap, small);
+    border-left: fn.use-var(border-muted);
+  }
+
+  @include m.e(text) {
+    padding-right: 4px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-size: fn.use-var(font-size-main, small);
+    line-height: 1.55;
+  }
+}
