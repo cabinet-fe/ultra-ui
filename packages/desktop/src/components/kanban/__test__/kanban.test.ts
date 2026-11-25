@@ -99,7 +99,8 @@ describe('UKanban', () => {
       const cards = queryCards(host)
       expect(cards.length).toBe(3)
       expect(cards[0]!.textContent).toContain('任务 1')
-      expect(cards[0]!.querySelector('.u-kanban__card-handle')).toBeTruthy()
+      const handle = cards[0]!.querySelector('.u-kanban__card-handle')
+      expect(handle?.querySelectorAll('circle').length).toBe(6)
     } finally {
       unmount()
     }
@@ -209,6 +210,95 @@ describe('UKanban', () => {
       expect(host.querySelector('.u-kanban__empty')).toBeNull()
     } finally {
       unmount()
+    }
+  })
+
+  it('不等高卡片排序后按各自高度重排，不互相重叠', async () => {
+    const proto = HTMLElement.prototype
+    const heightDesc = Object.getOwnPropertyDescriptor(proto, 'clientHeight')
+    const OriginalRO = globalThis.ResizeObserver
+
+    Object.defineProperty(proto, 'clientHeight', {
+      configurable: true,
+      get() {
+        if (this.classList?.contains('u-scroll__container')) return 480
+        return heightDesc?.get ? heightDesc.get.call(this) : 0
+      }
+    })
+
+    class HeightObserver {
+      constructor(private cb: ResizeObserverCallback) {}
+      observe(target: Element) {
+        const card = target.classList.contains('u-kanban__card')
+        const blockSize = !card ? 0 : target.textContent?.includes('撑开') ? 80 : 40
+        const box = { inlineSize: 200, blockSize }
+        const entry = {
+          target,
+          borderBoxSize: [box],
+          contentBoxSize: [box],
+          devicePixelContentBoxSize: [box],
+          contentRect: {
+            width: 200,
+            height: blockSize,
+            top: 0,
+            left: 0,
+            bottom: blockSize,
+            right: 200,
+            x: 0,
+            y: 0,
+            toJSON() {
+              return {}
+            }
+          }
+        } as unknown as ResizeObserverEntry
+        queueMicrotask(() => this.cb([entry], this as unknown as ResizeObserver))
+      }
+      unobserve() {}
+      disconnect() {}
+    }
+    globalThis.ResizeObserver = HeightObserver as unknown as typeof ResizeObserver
+
+    const items = Array.from({ length: 12 }, (_, index) => ({
+      id: index + 1,
+      title:
+        index % 8 === 0
+          ? `需求 ${index + 1}：这是一条比较长的卡片标题，用来把行高撑开`
+          : `需求 ${index + 1}`
+    }))
+    const { host, model, unmount } = mountKanban({}, [{ key: 'todo', title: '需求', items }])
+    const top = (el: HTMLElement) => Number.parseFloat(el.style.top)
+
+    async function untilTops(ready: (tops: number[], cards: HTMLElement[]) => boolean) {
+      let last = ''
+      for (let i = 0; i < 10; i++) {
+        await nextTick()
+        const cards = queryCards(host)
+        const tops = cards.map(top)
+        last = tops.join(',')
+        if (cards.length >= 3 && ready(tops, cards)) return cards
+      }
+      throw new Error(`位置未收敛：${last}`)
+    }
+
+    try {
+      const before = await untilTops((tops) => tops[0] === 0 && tops[1]! >= 80)
+      const gap = top(before[1]!) - 80
+
+      model.value = [
+        { key: 'todo', title: '需求', items: [items[1]!, items[0]!, ...items.slice(2)] }
+      ]
+
+      const after = await untilTops(
+        (tops) => tops[1]! - tops[0]! === 40 + gap && tops[2]! - tops[1]! === 80 + gap
+      )
+      expect(after[0]!.textContent).toContain('需求 2')
+      expect(after[1]!.textContent).toContain('需求 1')
+      expect(after[2]!.textContent).toContain('需求 3')
+      expect(top(after[1]!) + 80).toBeLessThanOrEqual(top(after[2]!))
+    } finally {
+      unmount()
+      if (heightDesc) Object.defineProperty(proto, 'clientHeight', heightDesc)
+      globalThis.ResizeObserver = OriginalRO
     }
   })
 })

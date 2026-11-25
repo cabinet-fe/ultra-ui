@@ -1,9 +1,20 @@
 <template>
   <div class="box">
+    <CustomCard title="多列多卡片（列内滚动）">
+      <div class="demo-section">
+        <div class="demo-desc">
+          12 列，单列最多 72 张。看板只出横向滚动条；列撑满 480px
+          后在列内纵向滚动，视口外的卡片由虚拟列表省略
+        </div>
+        <u-kanban v-model:columns="heavyColumns" style="height: 480px" />
+      </div>
+    </CustomCard>
+
     <CustomCard title="基础看板（列内排序 + 跨列拖拽）">
       <div class="demo-section">
         <div class="demo-desc">
-          按住卡片左侧 ≡ 手柄拖拽，可列内排序或跨列转移；空列也可拖入。列超出容器宽度时看板横向滚动
+          按住卡片左侧 Move
+          手柄拖拽，可列内排序或跨列转移；空列也可拖入。列超出容器宽度时看板横向滚动
         </div>
         <u-kanban v-model:columns="columns" style="height: 420px" @change="lastChange = $event" />
       </div>
@@ -53,6 +64,35 @@ import { UKanban, UTag } from '@veltra/desktop'
 import { computed, ref } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'
+
+const heavyLanes: [string, number][] = [
+  ['需求', 48],
+  ['设计', 36],
+  ['开发', 72],
+  ['联调', 18],
+  ['测试', 54],
+  ['验收', 12],
+  ['发布', 8],
+  ['观察', 27],
+  ['修复', 41],
+  ['复盘', 15],
+  ['归档', 63],
+  ['冰盒', 0]
+]
+
+const heavyColumns = ref<KanbanColumnItem[]>(
+  heavyLanes.map(([title, count]) => ({
+    key: title,
+    title,
+    items: Array.from({ length: count }, (_, index) => ({
+      id: `${title}-${index}`,
+      title:
+        index % 8 === 0
+          ? `${title} ${index + 1}：这是一条比较长的卡片标题，用来把行高撑开`
+          : `${title} ${index + 1}`
+    }))
+  }))
+)
 
 const columns = ref<KanbanColumnItem[]>([
   {

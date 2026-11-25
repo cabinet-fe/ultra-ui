@@ -1,6 +1,6 @@
 ---
 title: UKanban 看板组件
-description: '数据驱动的看板组件：columns 一份列数据渲染全部列，卡片可列内拖拽排序与跨列转移，结果经 v-model:columns 写回，支持卡片 / 列头 / 空列插槽、计数徽标与禁用拖拽，空列可作为拖放目标。'
+description: '数据驱动的看板组件：columns 一份列数据渲染全部列，卡片可列内拖拽排序与跨列转移，结果经 v-model:columns 写回。看板横向滚动列；列撑满看板高度后在列内纵向滚动，并用虚拟列表只挂载可视区卡片。支持卡片 / 列头 / 空列插槽、计数徽标与禁用拖拽，空列可作为拖放目标。'
 aliases: ['UKanban', 'Kanban', 'KanbanBoard', '看板', '拖拽看板', '任务看板']
 keywords:
   [
@@ -21,13 +21,15 @@ keywords:
     空列占位,
     列头插槽,
     计数徽标,
+    列内滚动,
+    虚拟列表,
     useDnD
   ]
 ---
 
 # UKanban 看板组件
 
-`@veltra/desktop` 导出看板组件 `UKanban`。传入一份列数据 `columns`（每列含标题与卡片数组），按住卡片左侧 ≡ 手柄拖拽即可列内排序或跨列转移，拖拽结果自动写回数据并经 `update:columns` / `change` 事件对外通知；同页多个 `UKanban` 实例之间也可互拖。
+`@veltra/desktop` 导出看板组件 `UKanban`。传入一份列数据 `columns`（每列含标题与卡片数组），按住卡片左侧 Move 图标手柄拖拽即可列内排序或跨列转移，拖拽结果自动写回数据并经 `update:columns` / `change` 事件对外通知；同页多个 `UKanban` 实例之间也可互拖。看板本身只横向滚动；列撑满看板高度后，卡片在该列内部纵向滚动，视口外的卡片不挂载。
 
 ## 快速上手
 
@@ -57,6 +59,8 @@ const columns = ref<KanbanColumnItem[]>([
 ```
 
 拖拽结束后 `columns` 已是最新顺序：列内排序更新该列 `items`，跨列转移同时更新源列与目标列的 `items`。
+
+示例里的 `height: 400px` 是列的可视高度：列撑满这块高度，卡片超出后在列内的 `UScroll`（`u-kanban__cards`）出现纵向滚动条，看板本身不纵向滚动。列超出容器宽度时，看板的 `UScroll`（`u-kanban__board`）出现横向滚动条。滚动条悬停时显示。列内卡片走虚拟列表，只挂载当前可视区加上缓冲项；滚动条长度按整列卡片总高度计算。父级已经有确定高度时，可以不写死像素，改为 `style="height: 100%"`。
 
 ## API 签名
 
@@ -143,9 +147,11 @@ export type KanbanExposed = {}
 
 拖拽行为：
 
-- 拖拽手柄是卡片左上的 `≡` 符号（类名 `u-kanban__card-handle`），必须按住手柄发起拖拽，点击卡片本体不触发。
-- 跨列转移与列内排序对所有列生效，包括空列（空列卡片容器保留最小高度作为拖放目标）。
-- 拖拽中的卡片带 `is-dragging` 类，当前拖放目标的卡片容器带 `is-dropzone` 类。
+- 拖拽手柄是卡片左上的 Move 图标（`@veltra/icons` 的 `Move`，类名 `u-kanban__card-handle`，尺寸 14px），必须按住手柄发起拖拽，点击卡片本体不触发。
+- 跨列转移与列内排序对所有列生效，包括空列（空列的 `u-kanban__track` 仍撑满列高，可作为拖放目标）。
+- 拖拽中的卡片带 `is-dragging` 类，当前拖放目标的轨道 `u-kanban__track` 带 `is-dropzone` 类。
+- 滚动都走 `UScroll`：看板横向滚动是根节点里的 `u-kanban__board`（只在列超出宽度时出现横向条）；每一列的 `u-kanban__cards` 是列内纵向 `UScroll`。滚动条是 `UScroll` 的 `.u-scroll__bar-x` / `.u-scroll__bar-y`，悬停容器时显示。看板没有确定高度时，百分比高度按 auto 处理，列会随内容增高，滚动回到外层页面。
+- 虚拟列表：列的滚动容器量到视口高度后，只渲染可视区卡片和缓冲项，并用 `top` 定位；测量真实高度（含换行后的不等高卡片）。视口高度还没量到时退回文档流，渲染该列全部卡片。拖拽过程中冻住当前窗口，避免滚动回收节点后与拖拽数据对不齐。
 - 所有实例共用拖拽分组 `u-kanban`：同页多个 `UKanban` 的卡片可互相拖入。
 - 动画由内置 `animations` 插件提供，无配置项。
 
@@ -257,13 +263,13 @@ function addCard() {
 
 > [!WARNING]
 >
-> - 拖拽只能从卡片左上的 `≡` 手柄发起，不是整卡可拖；用 `#card` 插槽自定义内容时手柄仍由组件渲染，插槽内容不会覆盖它。
+> - 拖拽只能从卡片左上的 Move 图标手柄发起，不是整卡可拖；用 `#card` 插槽自定义内容时手柄仍由组件渲染，插槽内容不会覆盖它。
 > - 卡片数据必须含 `cardKey` 指定的唯一标识字段（默认 `id`），否则渲染 key 失效。
 > - 组件不原地修改传入的 `columns`：写回的是浅拷贝快照（列对象与 `items` 数组均为新引用）。外部更新数据须整体替换 `columns` 数组，原地改 `items` 不生效。
 > - `update:columns` 在跨列转移时会连续触发两次（源列与目标列各一次）；只想要「一次拖拽一个结果」时监听 `change`。
 > - 同页多个 `UKanban` 实例之间可互相拖入（共用拖拽分组 `u-kanban`），且各自维护独立的 `columns`；需要隔离时不要同时渲染多个实例。
 > - 列不可拖拽，仅卡片可拖；组件也没有分页、虚拟滚动，海量卡片（千级以上）场景请自行控制单列数据量。
-> - 自定义样式可用的类名：`.u-kanban`、`__column`、`__column-header`、`__column-title`、`__column-count`、`__cards`、`__card`、`__card-handle`、`__card-body`、`__empty`，状态类 `is-dragging` / `is-dropzone` / `is-disabled`。
+> - 自定义样式可用的类名：`.u-kanban`、`__board`、`__columns`、`__column`、`__column-header`、`__column-title`、`__column-count`、`__cards`、`__track`、`__card`、`__card-handle`、`__card-body`、`__empty`。`__board` 与 `__cards` 是 `UScroll` 根节点。状态类 `is-dragging` / `is-dropzone` / `is-disabled` / `is-virtual`（`is-virtual` 在 `__track` 上，表示当前按虚拟列表定位）。
 
 ## 常见问题
 
@@ -273,7 +279,11 @@ function addCard() {
 
 ### 卡片按住整卡拖不动
 
-原因：拖拽手柄固定为卡片左上的 `≡` 符号（`u-kanban__card-handle`），点击卡片其它区域不发起拖拽。修复：按住 `≡` 手柄拖拽。
+原因：拖拽手柄固定为卡片左上的 Move 图标（`u-kanban__card-handle`），点击卡片其它区域不发起拖拽。修复：按住 Move 图标手柄拖拽。
+
+### 看板整块上下滚动，列不能单独滚
+
+原因：`u-kanban` 没有确定高度。百分比高度在父级高度为 auto 时按 auto 处理，列随卡片增高，滚动发生在页面或外层容器。修复：给 `u-kanban` 写定高度（如 `style="height: 480px"`），或放进已有高度的父级并设 `style="height: 100%"`。列撑满该高度后，超出的卡片在该列的 `UScroll`（`u-kanban__cards`）内滚动。
 
 ### 外部 push 了新卡片但看板没显示
 

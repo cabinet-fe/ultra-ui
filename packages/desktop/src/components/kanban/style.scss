@@ -3,20 +3,44 @@
 @use 'pkg:@veltra/styles/vars';
 
 @include m.b(kanban) {
-  @include m.flex($align: flex-start, $wrap: nowrap);
-  gap: fn.use-var(gap, default);
+  display: flex;
+  flex-direction: column;
+  // 父级有确定高度时铺满；未指定时百分高按 auto 处理，列随内容增高
+  height: 100%;
+  min-height: 0;
   padding: fn.use-var(gap, default);
-  overflow-x: auto;
   box-sizing: border-box;
+
+  @include m.e(board) {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  @include m.e(columns) {
+    display: flex;
+    align-items: stretch;
+    flex-wrap: nowrap;
+    gap: fn.use-var(gap, default);
+    height: 100%;
+    min-height: 100%;
+    width: max-content;
+    min-width: 100%;
+    box-sizing: border-box;
+  }
 
   @include m.e(column) {
     flex: 0 0 auto;
     width: 280px;
     max-width: 100%;
+    height: 100%;
+    min-height: 0;
+    max-height: 100%;
     display: flex;
     flex-direction: column;
     gap: fn.use-var(gap, small);
     padding: fn.use-var(gap, small);
+    overflow: hidden;
     background-color: fn.use-var(bg-color, bottom);
     border-radius: fn.use-var(radius, default);
     box-sizing: border-box;
@@ -24,6 +48,7 @@
 
   @include m.e(column-header) {
     @include m.flex;
+    flex: none;
     gap: fn.use-var(gap, small);
     padding: 0 2px;
   }
@@ -50,14 +75,29 @@
   }
 
   @include m.e(cards) {
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+  }
+
+  @include m.e(track) {
+    position: relative;
+    min-height: 100%;
     display: flex;
     flex-direction: column;
     gap: fn.use-var(gap, small);
-    // 空列也保持可拖入的目标高度
-    min-height: 64px;
-    padding: 2px;
     // 拖入目标态背景色平滑淡入，避免瞬现瞬灭
     transition: background-color fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    @include m.is(virtual) {
+      display: block;
+
+      @include m.bem(kanban, card) {
+        position: absolute;
+        left: 0;
+        right: 0;
+      }
+    }
 
     &.is-dropzone {
       background-color: fn.color-a(color, 4, primary);
@@ -93,11 +133,16 @@
 
   @include m.e(card-handle) {
     flex: none;
-    line-height: 1;
+    margin-top: 2px;
     color: fn.use-var(text-color, assist);
     cursor: grab;
-    user-select: none;
-    transition: transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+    transition:
+      color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      transform fn.use-var(transition, fast) fn.use-var(transition, ease-out);
+
+    &:hover {
+      color: fn.use-var(text-color, title);
+    }
 
     &:active {
       cursor: grabbing;
@@ -124,7 +169,9 @@
     @include m.bem(kanban, card-handle) {
       cursor: not-allowed;
 
+      &:hover,
       &:active {
+        color: fn.use-var(text-color, assist);
         cursor: not-allowed;
         transform: none;
       }

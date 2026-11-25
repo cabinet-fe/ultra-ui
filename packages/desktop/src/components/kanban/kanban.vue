@@ -1,16 +1,18 @@
 <template>
   <div v-bind="$attrs" :class="[cls.b, bem.is('disabled', disabled)]">
-    <KanbanColumn v-for="column of localColumns" :key="column.key" :column="column">
-      <template #header="{ column: col, count }">
-        <slot name="header" :column="col" :count="count" />
-      </template>
-      <template #card="{ card, column: col, index }">
-        <slot name="card" :card="card" :column="col" :index="index" />
-      </template>
-      <template #empty="{ column: col }">
-        <slot name="empty" :column="col" />
-      </template>
-    </KanbanColumn>
+    <u-scroll :class="cls.e('board')" :content-class="cls.e('columns')">
+      <KanbanColumn v-for="column of localColumns" :key="column.key" :column="column">
+        <template #header="{ column: col, count }">
+          <slot name="header" :column="col" :count="count" />
+        </template>
+        <template #card="{ card, column: col, index }">
+          <slot name="card" :card="card" :column="col" :index="index" />
+        </template>
+        <template #empty="{ column: col }">
+          <slot name="empty" :column="col" />
+        </template>
+      </KanbanColumn>
+    </u-scroll>
   </div>
 </template>
 
@@ -20,6 +22,7 @@ import { bem } from '@veltra/utils'
 import { provide, ref, watch } from 'vue'
 
 import type { KanbanColumnItem, KanbanEmits, KanbanProps, KanbanSlots } from '../../types'
+import { UScroll } from '../scroll'
 import { KanbanDIKey, type KanbanContext } from './di'
 import KanbanColumn from './kanban-column.vue'
 
