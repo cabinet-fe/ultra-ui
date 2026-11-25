@@ -136,6 +136,13 @@ export const componentCssVarsDark: Record<string, string> = {
   '--u-table-checked-color': 'inherit',
   '--u-radio-border': '#595959',
   '--u-checkbox-border': '#595959',
+  // 步骤条已完成圆点：深色系列保持实色 + 白色对勾（浅色系列为浅色填充，见 steps/style.scss）
+  '--u-steps-finished-color': T('text-color', 'white'),
+  '--u-steps-primary-finished-bg': T('color', 'primary'),
+  '--u-steps-success-finished-bg': T('color', 'success'),
+  '--u-steps-warning-finished-bg': T('color', 'warning'),
+  '--u-steps-danger-finished-bg': T('color', 'danger'),
+  '--u-steps-info-finished-bg': T('color', 'info'),
 
   '--u-button-primary-plain-bg': T('color', 'primary', 'dark', '9'),
   '--u-button-primary-plain-shadow': T('color', 'primary', 'dark', '7'),

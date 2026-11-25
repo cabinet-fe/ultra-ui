@@ -1,6 +1,6 @@
 ---
 title: 'USteps 步骤条（@veltra/mobile 移动端）'
-description: '@veltra/mobile 导出的步骤条组件：按 items 渲染线性流程，current 控制当前步（索引或 currentKey 指定的业务键）。已完成步圆点实心并显示对勾，圆点与连线按 finishedStepType 着色；未设置 currentStepType 时当前步圆点为 primary。横向超出后触屏滑动，vertical 时圆点在左、文案在右。可点项带 :active 按压高亮，热区不小于 44px。'
+description: '@veltra/mobile 导出的步骤条组件：按 items 渲染线性流程，current 控制当前步（索引或 currentKey 指定的业务键）。已完成步圆点显示对勾，连线按 finishedStepType 着色：浅色系列为无边框浅色填充 + 同色对勾，深色系列为实色 + 白色对勾；未设置 currentStepType 时当前步圆点为 primary。横向超出后触屏滑动，vertical 时圆点在左、文案在右。可点项带 :active 按压高亮，热区不小于 44px。'
 aliases: [USteps, Steps, 步骤条, 分步条, 向导, 步骤导航, 移动端步骤]
 keywords:
   [
@@ -26,7 +26,7 @@ keywords:
 
 # USteps 步骤条（@veltra/mobile 移动端）
 
-`@veltra/mobile` 导出 `USteps`。它按 `items` 渲染一组线性步骤，`current` 指定进行到哪一步；索引小于当前步的项圆点实心并显示对勾，圆点与连线按 `finishedStepType` 着色，文案不跟随该颜色。未设置 `currentStepType` 时当前步圆点为 primary。`direction="vertical"` 时圆点在左、文案在右。适合下单、注册等多步流程的进度展示与步骤跳转；并列视图（无先后顺序）的切换用 `UTabs` 标签页或 `USegment` 分段控制器。
+`@veltra/mobile` 导出 `USteps`。它按 `items` 渲染一组线性步骤，`current` 指定进行到哪一步；索引小于当前步的项显示对勾，连线按 `finishedStepType` 着色：浅色系列圆点为无边框浅色填充、对勾同色，深色系列圆点为实色、对勾为白色，文案不跟随该颜色。未设置 `currentStepType` 时当前步圆点为 primary。`direction="vertical"` 时圆点在左、文案在右。适合下单、注册等多步流程的进度展示与步骤跳转；并列视图（无先后顺序）的切换用 `UTabs` 标签页或 `USegment` 分段控制器。
 
 ## 快速上手
 
@@ -217,6 +217,10 @@ const items = Array.from({ length: 6 }, (_, i) => ({ label: `步骤 ${i + 1}` })
 > - 横向步骤项不缩到圆点直径的 2.5 倍以下（default 档圆点 40px，即 100px），超出后触屏横向滑动，滚动条隐藏。桌面端下限是圆点直径的 3 倍（default 档 96px），超出后同样横向滚动。
 > - 可点步骤项 `:active` 时整项背景为 hover 色。圆点直径取 `--um-control-height-<size>`（32 / 40 / 48），热区不低于 `--um-touch-target`（44px）。圆点内序号字号 `--um-font-size-main`（16px），文案字号 `--um-font-size-secondary`（14px）。
 > - 状态色只落在圆点与连线上。已完成文案颜色为 main，当前步为 title，未达步骤为 placeholder，都不跟随 `finishedStepType` / `currentStepType`。
+> - 字重只有当前步加粗：当前步文案与圆点内序号为 600，已完成与未达步骤均为 400。
+> - 圆点各状态都不画描边，只靠填充着色。未达圆点是灰色填充（`--u-text-color-title-a-8`），序号为 placeholder 色。
+> - 已完成圆点外观按主题 `series` 区分：浅色系列为无边框浅色填充（`--u-color-{type}-light-7`，`{type}` 即 `finishedStepType`）+ 同色对勾；深色系列为实色 + 白色对勾。当前步圆点在两个系列都是实色，带向外扩 3~6px 的呼吸光环。改已完成外观时覆盖 `--u-steps-{type}-finished-bg`（填充）与 `--u-steps-finished-color`（对勾），两个系列都生效；内置值只在深色系列注入。
+> - 光环绘制在圆点盒外：组件在行首方向自带 `padding-inline-start`（`--um-spacing-sm`，默认 8px），圆点不与容器内容区左缘对齐。
 > - 本库步骤数据是 `items` prop 数组，不是 Element Plus 的 `<el-step>` 子组件模式。
 > - 没有每步独立的 `status`（`error` / `process` / `wait`）字段：已完成 / 当前步的配色只能整体通过 `finishedStepType` / `currentStepType` 控制，单个步骤不能单独标红。
 > - 未指定 `currentKey` 时 `current` 必须是数字索引；传业务字符串会被忽略，全部步骤渲染为已完成（这是「不传 `current` = 全部完成」的同一行为）。

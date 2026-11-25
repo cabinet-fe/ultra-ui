@@ -169,6 +169,7 @@ loadTheme()
 | card              | `--u-card-header-bg`、`--u-card-action-bg`、`--u-card-padding-small` / `-default` / `-large`（8 / 12 / 16px）、`--u-card-radius`                                                                    |
 | switch            | `--u-switch-height-small` / `-default` / `-large`（18 / 20 / 24px）                                                                                                                                 |
 | breadcrumb        | `--u-breadcrumb-small` / `-default` / `-large`（20 / 22 / 24px）                                                                                                                                    |
+| steps             | `--u-steps-finished-color`、`--u-steps-{type}-finished-bg`；仅 dark 注入（已完成圆点实色 + 白色对勾），light 不注入、组件内回落 `--u-color-{type}-light-7` 填充与同色对勾                           |
 | 混合 token        | `--u-batch-edit-form-header-bg`、`--u-kbd-inset-shadow` / `-border-shadow` / `-drop-shadow`（依赖色非 hex 时跳过，组件侧 fallback 接管）                                                            |
 
 ### nav 组（nav / dual-nav / group-nav 专用）

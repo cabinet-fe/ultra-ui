@@ -113,6 +113,14 @@ describe('UITheme', () => {
     expect(componentCssVarsDark['--u-focus-ring-danger']).toContain('--u-color-danger-a-35')
   })
 
+  it('emits steps finished vars only for the dark series', () => {
+    // 深色系列：已完成圆点保持实色 + 白色对勾；浅色系列不注入，回落组件内的浅色填充
+    expect(componentCssVarsDark['--u-steps-finished-color']).toBe('var(--u-text-color-white)')
+    expect(componentCssVarsDark['--u-steps-success-finished-bg']).toBe('var(--u-color-success)')
+    expect(componentCssVarsLight['--u-steps-finished-color']).toBeUndefined()
+    expect(componentCssVarsLight['--u-steps-success-finished-bg']).toBeUndefined()
+  })
+
   it('emits select, auto-complete, and contextmenu component vars', () => {
     expect(componentCssVarsLight['--u-select-option-hover-bg']).toBe('var(--u-bg-color-hover)')
     expect(componentCssVarsLight['--u-select-option-selected-bg']).toBe(

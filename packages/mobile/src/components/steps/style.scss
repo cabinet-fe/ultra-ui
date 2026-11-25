@@ -9,6 +9,8 @@ $root-name: steps;
   padding: 0;
   margin: 0;
   list-style: none;
+  // 给当前步光环留出绘制空间，避免被贴边的滚动容器裁切（纵向圆点恒在行首，横向首步同理）
+  padding-inline-start: var(--steps-gap);
   color: fn.use-var(text-color, main);
   -webkit-tap-highlight-color: transparent;
 
@@ -38,6 +40,11 @@ $root-name: steps;
         @include m.is(finished) {
           --steps-accent: #{fn.use-var(color, $type)};
           --steps-accent-soft: #{fn.color-a(color, 16, $type)};
+          --steps-finished-bg: #{fn.component-var(
+              steps,
+              #{$type}-finished-bg,
+              fn.use-var(color, $type, light-7)
+            )};
         }
       }
     }
@@ -75,20 +82,21 @@ $root-name: steps;
     border-radius: 999px;
   }
 
+  // 基础态即未达步骤：无描边的灰色填充，序号不加粗（仅当前步加粗）。
+  // 灰色取文字色的透明度而不用 --u-color-default：后者常与页面底色同值，圆面会消失
   @include m.e(icon) {
     display: flex;
     flex: none;
     box-sizing: border-box;
     width: var(--steps-icon);
     height: var(--steps-icon);
-    border: 2px solid fn.use-var(border-color);
     border-radius: 50%;
     align-items: center;
     justify-content: center;
-    font-weight: 600;
+    font-weight: 400;
     line-height: 1;
     color: fn.use-var(text-color, placeholder);
-    background-color: fn.use-var(bg-color, top);
+    background-color: fn.color-a(text-color, 8, title);
     position: relative;
     z-index: 1;
 
@@ -110,11 +118,11 @@ $root-name: steps;
   }
 
   @include m.bem($root-name, item) {
+    // 浅色系列：浅色填充 + 同色对勾；深色系列由主题 token 覆写回实色 + 白色对勾
     @include m.is(finished) {
       @include m.bem($root-name, icon) {
-        color: fn.use-var(text-color, white);
-        background-color: var(--steps-accent);
-        border-color: var(--steps-accent);
+        color: fn.component-var(steps, finished-color, var(--steps-accent));
+        background-color: var(--steps-finished-bg);
       }
 
       @include m.bem($root-name, link) {
@@ -128,9 +136,9 @@ $root-name: steps;
 
     @include m.is(current) {
       @include m.bem($root-name, icon) {
+        font-weight: 600;
         color: fn.use-var(text-color, white);
         background-color: var(--steps-accent);
-        border-color: var(--steps-accent);
         box-shadow: 0 0 0 4px var(--steps-accent-soft);
         animation: um-steps-ring 2.2s ease-in-out infinite;
       }
@@ -148,9 +156,10 @@ $root-name: steps;
     }
   }
 
+  // 文案默认常规字重，仅当前步加粗
   @include m.e(content) {
     min-width: 0;
-    font-weight: 500;
+    font-weight: 400;
     line-height: t.use-var('text-line-height');
     color: fn.use-var(text-color, second);
     word-break: break-word;
