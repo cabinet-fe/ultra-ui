@@ -1,6 +1,6 @@
 ---
 title: Ultra UI 总览
-description: Ultra UI（@veltra/*）是面向 Vue 3 的组件与能力库，包含 92 篇桌面组件文档、40 篇移动端组件文档（@veltra/mobile）、AI 对话（UAiChat / 17 个独立 AI 组件 / useChat）、电子表格（USheet / Workbook）、组合式函数、utils 工具、指令、主题系统与按需导入解析器；本篇是全部 179 篇文档的路由表。
+description: Ultra UI（@veltra/*）是面向 Vue 3 的组件与能力库，包含 91 篇桌面组件文档、39 篇移动端组件文档（@veltra/mobile）、AI 对话（UAiChat / 17 个独立 AI 组件 / useChat）、电子表格（USheet / Workbook）、组合式函数、utils 工具、指令、主题系统与按需导入解析器；本篇是全部 177 篇文档的路由表。
 aliases:
   [
     ultra-ui,
@@ -143,7 +143,6 @@ createApp(App).mount('#app')
 | UKanban                           | 看板：列内卡片拖拽排序与跨列转移，v-model:columns 写回                       | `desktop/kanban.md`             |
 | UKbd                              | 键盘按键：快捷键按键样式展示                                                 | `desktop/kbd.md`                |
 | ULayout                           | 布局：CSS Grid 分栏容器，cols / rows / resizable 拖拽调宽                    | `desktop/layout.md`             |
-| UList / UListItem                 | 列表：条目列表容器                                                           | `desktop/list.md`               |
 | ULoading / vLoading               | 加载：四种加载动画组件与元素级加载遮罩指令                                   | `desktop/loading.md`            |
 | message / UMessage                | 全局消息：页面顶部自动消失的轻提示，success / warn / info / error            | `desktop/message.md`            |
 | messageConfirm / UMessageConfirm  | 确认框：函数式阻断确认，onClosed 以 Promise 返回 confirm / cancel            | `desktop/message-confirm.md`    |
@@ -192,7 +191,7 @@ createApp(App).mount('#app')
 
 | 分类         | 组件                                                                                                                                                                                                                                                                                                    |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 布局与容器   | `ULayout` 分栏外壳、`UGrid` / `UGridItem` 栅格、`UScroll` 细滚动条容器、`UCard` 系列 页面区块 / 面板 / 统计卡片容器、`UList` / `UListItem` 列表、`UCollapse` / `UCollapseItem` 折叠、`UTabs` 系列 标签页、`USpace` 间距容器、`UDivider` 分割线                                                          |
+| 布局与容器   | `ULayout` 分栏外壳、`UGrid` / `UGridItem` 栅格、`UScroll` 细滚动条容器、`UCard` 系列 页面区块 / 面板 / 统计卡片容器、`UCollapse` / `UCollapseItem` 折叠、`UTabs` 系列 标签页、`USpace` 间距容器、`UDivider` 分割线                                                                                                |
 | 导航         | `UDualNav` 双栏导航、`UNav` 多级侧边导航、`UGroupNav` 分组导航、`UBreadcrumb` 面包屑、`USteps` 步骤条、`UProgressNodes` 进度节点、`UFloatButton` 浮动按钮、`UBackTop` 回到顶部                                                                                                                          |
 | 文本与图标   | `UText` 文本排版（五档字号字重）、`UIcon` 图标、`UKbd` 按键、`UBadge` 徽标、`UTag` 标签、`UAvatar` / `UAvatarGroup` 头像、`UNodeRender` 节点渲染、`UWatermark` 水印                                                                                                                                     |
 | 按钮与操作   | `UButton` / `UButtonGroup` 按钮、`UAction` / `UActionGroup` 表格行内操作、`USegment` 分段控制器、`UCheckTag` 可选中标签、`UDropdown` 下拉菜单、`UContextmenu` 右键菜单                                                                                                                                  |
@@ -226,7 +225,6 @@ createApp(App).mount('#app')
 | UFormItem                         | 表单项：label / rules / change 拦截转发、错误提示               | `mobile/form-item.md`         |
 | UIcon                             | 图标容器：1em 缩放、加载旋转                                    | `mobile/icon.md`              |
 | UInput                            | 输入框：inputmode / enterkeyhint 透传、清除按钮常显             | `mobile/input.md`             |
-| UList / UListItem                 | 列表：行高 44px 保底、无内建滚动                                | `mobile/list.md`              |
 | ULoading / vLoading               | 加载：指令与组件两种用法                                        | `mobile/loading.md`           |
 | message / UMessage                | 轻提示：到时即关（无 hover 挂起）、44px 关闭热区                | `mobile/message.md`           |
 | messageConfirm / UMessageConfirm  | 确认框：Promise 化函数 API、closeAll 兑现取消                   | `mobile/message-confirm.md`   |

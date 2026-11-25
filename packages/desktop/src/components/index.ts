@@ -106,8 +106,6 @@ export * from './multi-tree-select'
 
 export * from './group-input'
 
-export * from './list'
-
 export * from './rich-text-editor'
 
 export * from './nav'
