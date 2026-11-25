@@ -86,8 +86,6 @@ export * from './action'
 
 export * from './tip'
 
-export * from './transfer'
-
 export * from './textarea'
 
 export * from './button'

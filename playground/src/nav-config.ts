@@ -191,7 +191,6 @@ export const demoMeta: Record<string, DemoMeta> = {
   'time-picker': { zh: '时间选择器', en: 'TimePicker', category: 'form' },
   timeline: { zh: '时间线', en: 'Timeline', category: 'data' },
   tip: { zh: '提示', en: 'Tip', category: 'feedback' },
-  transfer: { zh: '穿梭框', en: 'Transfer', category: 'form' },
   tree: { zh: '树形控件', en: 'Tree', category: 'data' },
   'tree-select': { zh: '树形选择器', en: 'TreeSelect', category: 'form' },
   watermark: { zh: '水印', en: 'Watermark', category: 'other' }

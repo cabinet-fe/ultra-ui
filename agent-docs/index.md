@@ -1,6 +1,6 @@
 ---
 title: Ultra UI 总览
-description: Ultra UI（@veltra/*）是面向 Vue 3 的组件与能力库，包含 91 篇桌面组件文档、39 篇移动端组件文档（@veltra/mobile）、AI 对话（UAiChat / 17 个独立 AI 组件 / useChat）、电子表格（USheet / Workbook）、组合式函数、utils 工具、指令、主题系统与按需导入解析器；本篇是全部 177 篇文档的路由表。
+description: Ultra UI（@veltra/*）是面向 Vue 3 的组件与能力库，包含 90 篇桌面组件文档、39 篇移动端组件文档（@veltra/mobile）、AI 对话（UAiChat / 17 个独立 AI 组件 / useChat）、电子表格（USheet / Workbook）、组合式函数、utils 工具、指令、主题系统与按需导入解析器；本篇是全部 176 篇文档的路由表。
 aliases:
   [
     ultra-ui,
@@ -182,7 +182,6 @@ createApp(App).mount('#app')
 | UTimePicker                       | 时间选择器：弹层时 / 分 / 秒三列选择                                         | `desktop/time-picker.md`        |
 | UTimeline / UTimelineItem         | 时间线：纵向节点圆点颜色 / #dot 自定义节点、时间戳与内容                     | `desktop/timeline.md`           |
 | UTip                              | 文字提示：悬浮提示气泡                                                       | `desktop/tip.md`                |
-| UTransfer                         | 穿梭框：双栏列表勾选互移、搜索过滤与禁用项                                   | `desktop/transfer.md`           |
 | UTree                             | 树形控件：层级节点展开勾选                                                   | `desktop/tree.md`               |
 | UTreeSelect                       | 树选择器：树形下拉选择                                                       | `desktop/tree-select.md`        |
 | UWatermark                        | 水印：页面 / 容器水印                                                        | `desktop/watermark.md`          |
@@ -196,7 +195,7 @@ createApp(App).mount('#app')
 | 文本与图标   | `UText` 文本排版（五档字号字重）、`UIcon` 图标、`UKbd` 按键、`UBadge` 徽标、`UTag` 标签、`UAvatar` / `UAvatarGroup` 头像、`UNodeRender` 节点渲染、`UWatermark` 水印                                                                                                                                     |
 | 按钮与操作   | `UButton` / `UButtonGroup` 按钮、`UAction` / `UActionGroup` 表格行内操作、`USegment` 分段控制器、`UCheckTag` 可选中标签、`UDropdown` 下拉菜单、`UContextmenu` 右键菜单                                                                                                                                  |
 | 表单与输入   | `UForm` 表单容器、`UFormItem` 表单项、`UInput`、`UTextarea`、`UPasswordInput`、`UNumberInput`、`UNumberRangeInput`、`UAutoComplete`、`UGroupInput`、`UGridInput`、`USwitch`、`UCheckbox` / `UCheckboxButton`、`UCheckboxGroup`、`URadio`、`URadioGroup`、`UChip`、`UChipGroup`、`USlider`、`URate` 评分 |
-| 选择器与日期 | `USelect`、`UMultiSelect`、`UTransfer` 穿梭框、`UTreeSelect`、`UMultiTreeSelect`、`UCascade`、`UTree`、`UDatePicker`、`UTimePicker` 时间选择器、`UDateRangePicker`、`UDatePanel`、`UCalendar`、`UPalette`                                                                                               |
+| 选择器与日期 | `USelect`、`UMultiSelect`、`UTreeSelect`、`UMultiTreeSelect`、`UCascade`、`UTree`、`UDatePicker`、`UTimePicker` 时间选择器、`UDateRangePicker`、`UDatePanel`、`UCalendar`、`UPalette`                                                                                                                   |
 | 数据展示     | `UTable` 数据表格、`UTableEditor` 可编辑表格、`UKanban` 看板、`UPaginator` 分页器（含「共 N 条」文案）、`UNumber` 数字格式化与补间、`UEmpty` 空状态、`UGanttChart` 甘特图、`UCarousel` / `UCarouselItem` 走马灯                                                                                         |
 | 反馈与浮层   | `message` / `UMessage` 轻提示、`notification` / `UNotification` 通知、`messageConfirm` / `UMessageConfirm` 确认框、`UPopConfirm` 气泡确认、`UTip` 文字提示、`UDialog` 对话框、`UDrawer` 抽屉、`ULoading` / `vLoading` 加载、`USkeleton` 骨架屏、`UProgress` 进度条、`UAlert` 行内提示条                 |
 | 进阶编辑器   | `UBatchEdit` 批量编辑、`UConditionEditor` 条件编辑器、`UExpressionEditor` 表达式编辑器、`UCodeEditor` 代码编辑器、`URichTextEditor` 富文本编辑器、`UFilePicker` 文件选择、`UFileViewer` 文件预览、`UImageCropper` 图片裁剪、`UTheme` 主题编辑器                                                         |
