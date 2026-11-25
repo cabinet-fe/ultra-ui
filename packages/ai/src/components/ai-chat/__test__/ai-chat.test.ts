@@ -764,11 +764,13 @@ describe('UAiChat', () => {
       expect(steps.length).toBeGreaterThan(0)
     })
     steps.shift()?.()
+    // 节流刷新走真实 50ms 定时器；CI 122 worker 并行 + lint 抢核时事件循环
+    // 可能整体停滞数秒，给足超时余量
     await vi.waitFor(
       () => {
         expect(host.querySelector('.u-ai-step-group__text')?.textContent).toBe('第二行思考')
       },
-      { timeout: 3000 }
+      { timeout: 10000 }
     )
 
     // 展开步骤行：思考块可见（自身默认折叠）
