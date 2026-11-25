@@ -1,5 +1,5 @@
 <template>
-  <div :class="classList">
+  <div :class="classList" :style="rootStyle">
     <div v-if="title" :class="cls.e('header')">{{ title }}</div>
 
     <table v-if="rows.length" :class="cls.e('table')">
@@ -55,10 +55,15 @@ interface DescriptionItem {
   vnode: VNode
 }
 
+// 每行键值对列数。小于 1 或非整数按 1 处理，同时交给样式把各列等分
+const columnCount = computed(() => Math.max(1, Math.trunc(props.column ?? 3)))
+
+const rootStyle = computed(() => ({ '--column': String(columnCount.value) }))
+
 // 插槽 vnode 须在渲染路径读取：插槽内容读取的响应式数据经调用链追踪，内容变化时重新计算
 const rows = computed<DescriptionItem[][]>(() => {
   const items = (slots.default?.() ?? []).filter((vnode) => vnode.type === UDescriptionsItem)
-  const column = Math.max(1, Math.trunc(props.column ?? 3))
+  const column = columnCount.value
 
   const grouped: DescriptionItem[][] = []
   for (let i = 0; i < items.length; i += column) {

@@ -5,69 +5,128 @@ $root-name: descriptions;
 
 @include m.b($root-name) {
   font-size: fn.use-var(font-size-main, default);
-  line-height: 1.6;
+  line-height: 1.5;
   color: fn.use-var(text-color, main);
 
   @include m.e(header) {
-    margin-bottom: fn.use-var(gap, default);
+    margin-bottom: fn.use-var(gap, large);
+    font-size: fn.use-var(font-size-title, default);
     font-weight: 600;
-    color: fn.use-var(text-color, main);
+    line-height: 1.4;
+    color: fn.use-var(text-color, title);
   }
 
   @include m.e(table) {
     width: 100%;
     table-layout: fixed;
     border-collapse: separate;
+    border-spacing: 0;
   }
 
   @include m.e(label) {
-    padding: fn.use-var(gap, small) fn.use-var(gap, default);
+    box-sizing: border-box;
     text-align: start;
+    vertical-align: top;
     font-weight: 500;
     color: fn.use-var(text-color, second);
   }
 
   @include m.e(content) {
-    padding: fn.use-var(gap, small) fn.use-var(gap, default);
+    box-sizing: border-box;
+    vertical-align: top;
+    font-weight: 500;
     word-break: break-word;
-    color: fn.use-var(text-color, main);
+    color: fn.use-var(text-color, title);
   }
 
-  // 尺寸档位：字号随根尺寸类切换，单元格垂直内边距随档位收紧/放宽
   @include m.size using ($size) {
     font-size: fn.use-var(font-size, main, $size);
+
+    #{fn.bem($root-name, header)} {
+      font-size: fn.use-var(font-size-title, $size);
+    }
 
     #{fn.bem($root-name, label)},
     #{fn.bem($root-name, content)} {
       padding: fn.use-var(gap, $size) fn.use-var(gap, default);
     }
+
+    &.is-bordered {
+      #{fn.bem($root-name, table)} {
+        border-radius: fn.use-var(radius, $size);
+      }
+
+      #{fn.bem($root-name, label)},
+      #{fn.bem($root-name, content)} {
+        padding: fn.use-var(gap, $size) fn.use-var(gap, large);
+      }
+    }
   }
 
-  // 垂直布局：键名行与内容行上下紧贴
-  @include m.m(vertical) {
+  // 水平：键名列固定一档，值列按 --column 等分剩余宽度，各组键值对齐
+  @include m.m(horizontal) {
     #{fn.bem($root-name, label)} {
-      padding-bottom: 0;
+      width: 8em;
     }
 
     #{fn.bem($root-name, content)} {
-      padding-top: fn.use-var(gap, small);
+      width: calc(100% / var(--column, 3) - 8em);
+    }
+
+    &:not(.is-bordered) {
+      #{fn.bem($root-name, label)} {
+        padding-inline: 0 fn.use-var(gap, default);
+        text-align: end;
+
+        &:not(:empty)::after {
+          content: ':';
+        }
+      }
+
+      #{fn.bem($root-name, content)} {
+        padding-inline: 0 fn.use-var(gap, large);
+      }
     }
   }
 
-  // 边框模式：单元格描边 + 键名底色，外层表格描边合成完整网格
+  // 无边框垂直：键名与值收成一组，组与组之间留出上一行的下内边距
+  @include m.m(vertical) {
+    &:not(.is-bordered) {
+      #{fn.bem($root-name, label)} {
+        padding-bottom: fn.use-var(gap, small);
+      }
+
+      #{fn.bem($root-name, content)} {
+        padding-top: 0;
+      }
+    }
+  }
+
+  // 边框模式：外框圆角裁切，单元格只画右、下边，避免 collapse 双边
   @include m.is(bordered) {
     #{fn.bem($root-name, table)} {
-      border-collapse: collapse;
+      overflow: hidden;
       border: fn.use-var(border-muted);
+      background-color: fn.use-var(bg-color, top);
+    }
+
+    #{fn.bem($root-name, label)},
+    #{fn.bem($root-name, content)} {
+      border-style: fn.use-var(border-style);
+      border-color: fn.use-var(border-muted-color);
+      border-width: 0 fn.use-var(border-width) fn.use-var(border-width) 0;
+    }
+
+    tr > :last-child {
+      border-inline-end-width: 0;
+    }
+
+    tr:last-child > * {
+      border-bottom-width: 0;
     }
 
     #{fn.bem($root-name, label)} {
-      background-color: fn.use-var(bg-color, middle);
-      border: fn.use-var(border-muted);
-    }
-
-    #{fn.bem($root-name, content)} {
-      border: fn.use-var(border-muted);
+      background-color: fn.use-var(bg-color, hover);
     }
   }
 }
