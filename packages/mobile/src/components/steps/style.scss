@@ -3,44 +3,60 @@
 @use 'pkg:@veltra/styles/vars';
 @use '../../styles/tokens' as t;
 
-// 方便拼接
 $root-name: steps;
 
 @include m.b($root-name) {
   padding: 0;
   margin: 0;
   list-style: none;
-  font-size: t.use-var('font-size-main');
   color: fn.use-var(text-color, main);
   -webkit-tap-highlight-color: transparent;
 
-  @each $type, $_ in vars.$color-types {
+  @include m.size using ($size) {
+    --steps-icon: #{t.control-height($size)};
+    --steps-gap: #{t.use-var('spacing-sm')};
+
+    @include m.bem($root-name, icon) {
+      font-size: t.use-var('font-size-main');
+    }
+
+    @include m.bem($root-name, content) {
+      font-size: t.use-var('font-size-secondary');
+    }
+  }
+
+  @include m.bem($root-name, item) {
+    @include m.is(current) {
+      --steps-accent: #{fn.use-var(color, primary)};
+      --steps-accent-soft: #{fn.color-a(color, 16, primary)};
+    }
+  }
+
+  @each $type in vars.$color-types {
     @include m.em(finished, $type) {
       @include m.bem($root-name, item) {
         @include m.is(finished) {
-          color: fn.use-var(color, $type);
+          --steps-accent: #{fn.use-var(color, $type)};
+          --steps-accent-soft: #{fn.color-a(color, 16, $type)};
         }
       }
     }
+
     @include m.em(current, $type) {
       @include m.bem($root-name, item) {
         @include m.is(current) {
-          color: fn.use-var(color, $type);
+          --steps-accent: #{fn.use-var(color, $type)};
+          --steps-accent-soft: #{fn.color-a(color, 16, $type)};
         }
       }
     }
   }
 
-  /** 步骤项（整项可点击，热区高度不小于 44px） */
   @include m.e(item) {
-    font-weight: 600;
-    color: fn.use-var(text-color, placeholder);
     min-height: t.use-var('touch-target');
     border-radius: t.control-radius(default);
     -webkit-tap-highlight-color: transparent;
-    transition: background-color fn.use-var(transition, fast) fn.use-var(transition, ease);
 
-    // 可点项按压反馈（移动端无 hover）
     &:active {
       background-color: fn.use-var(bg-color, hover);
     }
@@ -48,60 +64,33 @@ $root-name: steps;
 
   @include m.e(node) {
     position: relative;
+    display: flex;
+    flex: none;
   }
 
   @include m.e(link) {
-    background-color: currentColor;
-    position: absolute;
-    margin: auto;
-    z-index: 0;
-  }
-
-  @keyframes um-steps-link-flow-horizontal {
-    0% {
-      background-position: 0 0;
-    }
-    100% {
-      // 位移是虚线周期（8px）的整数倍，保证流动动画首尾衔接
-      background-position: 16px 0;
-    }
-  }
-
-  @keyframes um-steps-link-flow-vertical {
-    0% {
-      background-position: 0 0;
-    }
-    100% {
-      background-position: 0 16px;
-    }
-  }
-
-  @keyframes um-steps-icon-breathing {
-    0% {
-      color: fn.use-var(text-color, placeholder);
-      border-color: fn.use-var(text-color, placeholder);
-    }
-    50% {
-      color: currentColor;
-      border-color: currentColor;
-    }
-    100% {
-      color: fn.use-var(text-color, placeholder);
-      border-color: fn.use-var(text-color, placeholder);
-    }
+    display: block;
+    flex: none;
+    background-color: fn.use-var(border-color);
+    border-radius: 999px;
   }
 
   @include m.e(icon) {
     display: flex;
-    border: 2px solid currentColor;
+    flex: none;
+    box-sizing: border-box;
+    width: var(--steps-icon);
+    height: var(--steps-icon);
+    border: 2px solid fn.use-var(border-color);
     border-radius: 50%;
     align-items: center;
     justify-content: center;
+    font-weight: 600;
+    line-height: 1;
+    color: fn.use-var(text-color, placeholder);
     background-color: fn.use-var(bg-color, top);
     position: relative;
     z-index: 1;
-    box-sizing: border-box;
-    transition: opacity 0.3s ease;
 
     svg {
       width: 1em;
@@ -110,121 +99,186 @@ $root-name: steps;
     }
   }
 
+  @keyframes um-steps-ring {
+    0%,
+    100% {
+      box-shadow: 0 0 0 3px var(--steps-accent-soft);
+    }
+    50% {
+      box-shadow: 0 0 0 6px var(--steps-accent-soft);
+    }
+  }
+
   @include m.bem($root-name, item) {
+    @include m.is(finished) {
+      @include m.bem($root-name, icon) {
+        color: fn.use-var(text-color, white);
+        background-color: var(--steps-accent);
+        border-color: var(--steps-accent);
+      }
+
+      @include m.bem($root-name, link) {
+        background-color: var(--steps-accent);
+      }
+
+      @include m.bem($root-name, content) {
+        color: fn.use-var(text-color, main);
+      }
+    }
+
     @include m.is(current) {
       @include m.bem($root-name, icon) {
-        animation: um-steps-icon-breathing 2s ease-in-out infinite;
-        will-change: opacity;
+        color: fn.use-var(text-color, white);
+        background-color: var(--steps-accent);
+        border-color: var(--steps-accent);
+        box-shadow: 0 0 0 4px var(--steps-accent-soft);
+        animation: um-steps-ring 2.2s ease-in-out infinite;
+      }
+
+      @include m.bem($root-name, content) {
+        color: fn.use-var(text-color, title);
+        font-weight: 600;
+      }
+    }
+
+    @include m.is(wait) {
+      @include m.bem($root-name, content) {
+        color: fn.use-var(text-color, placeholder);
       }
     }
   }
 
-  /** 步骤项描述 */
   @include m.e(content) {
-    padding: t.use-var('spacing-sm') 0;
+    min-width: 0;
+    font-weight: 500;
+    line-height: t.use-var('text-line-height');
+    color: fn.use-var(text-color, second);
     word-break: break-word;
   }
 
-  // 横向滚动形态：窄屏不压缩步骤，超出横向滚动
   @include m.is(horizontal) {
     display: flex;
+    align-items: flex-start;
     overflow-x: auto;
     scrollbar-width: none;
     -webkit-overflow-scrolling: touch;
+    padding-block: var(--steps-gap);
 
     &::-webkit-scrollbar {
       display: none;
     }
 
     @include m.bem($root-name, item) {
-      flex: 1 0 auto;
-      min-width: 100px;
+      flex: 1 0 calc(var(--steps-icon) * 2.5);
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
 
+    @include m.bem($root-name, node) {
+      flex-direction: row;
+      align-items: center;
+      width: 100%;
+    }
+
+    @include m.bem($root-name, link) {
+      flex: 1;
+      height: 2px;
+      margin-inline: var(--steps-gap);
+    }
+
+    @include m.bem($root-name, content) {
+      margin-top: var(--steps-gap);
+      padding-inline-end: var(--steps-gap);
+    }
+
+    @include m.bem($root-name, item) {
       @include m.is(current) {
         @include m.bem($root-name, link) {
           background-color: transparent;
           background-image: linear-gradient(
-            to right,
-            currentColor 0%,
-            currentColor 50%,
-            transparent 50%,
-            transparent 100%
+            90deg,
+            var(--steps-accent),
+            fn.use-var(border-color)
           );
-          background-size: 8px 2px;
-          animation: um-steps-link-flow-horizontal 1s linear infinite;
         }
       }
     }
 
-    @include m.bem($root-name, link) {
-      width: 100%;
-      height: 2px;
-      left: 0;
-      top: 0;
-      bottom: 0;
-    }
-
     @include m.is(align-center) {
-      @include m.bem($root-name, (content, node)) {
-        display: flex;
+      @include m.bem($root-name, item) {
         align-items: center;
+        text-align: center;
+      }
+
+      @include m.bem($root-name, node) {
         justify-content: center;
       }
 
       @include m.bem($root-name, link) {
-        left: 50%;
+        position: absolute;
+        flex: none;
+        width: auto;
+        margin: 0;
+        top: 50%;
+        left: calc(50% + var(--steps-icon) / 2 + var(--steps-gap));
+        right: calc(-50% + var(--steps-icon) / 2 + var(--steps-gap));
+        transform: translateY(-50%);
+      }
+
+      @include m.bem($root-name, content) {
+        width: 100%;
+        padding-inline: var(--steps-gap);
       }
     }
   }
 
-  // 纵向形态：窄屏主形态，节点在左、内容在右
   @include m.is(vertical) {
-    @include m.bem($root-name, item) {
-      @include m.flex($align: stretch, $wrap: nowrap);
-      gap: t.use-var('spacing-md');
-      padding-bottom: t.use-var('spacing-md');
+    display: flex;
+    flex-direction: column;
 
+    @include m.bem($root-name, item) {
+      display: flex;
+      flex-direction: row;
+      align-items: stretch;
+      gap: t.use-var('spacing-md');
+    }
+
+    @include m.bem($root-name, node) {
+      flex-direction: column;
+      align-items: center;
+      width: var(--steps-icon);
+    }
+
+    @include m.bem($root-name, link) {
+      width: 2px;
+      flex: 1 0 auto;
+      min-height: var(--steps-gap);
+    }
+
+    @include m.bem($root-name, content) {
+      flex: 1;
+      padding-top: calc((var(--steps-icon) - #{t.use-var('text-line-height')} * 1em) / 2);
+      padding-bottom: t.use-var('spacing-lg');
+    }
+
+    @include m.bem($root-name, item) {
       &:last-child {
-        padding-bottom: 0;
+        @include m.bem($root-name, content) {
+          padding-bottom: 0;
+        }
       }
 
       @include m.is(current) {
         @include m.bem($root-name, link) {
           background-color: transparent;
           background-image: linear-gradient(
-            to bottom,
-            currentColor 0%,
-            currentColor 50%,
-            transparent 50%,
-            transparent 100%
+            180deg,
+            var(--steps-accent),
+            fn.use-var(border-color)
           );
-          background-size: 2px 8px;
-          animation: um-steps-link-flow-vertical 1s linear infinite;
         }
       }
-    }
-
-    @include m.bem($root-name, link) {
-      height: 100%;
-      width: 2px;
-      top: 0;
-      left: 0;
-      right: 0;
-    }
-
-    // 长文本在窄屏换行而非撑破容器
-    @include m.bem($root-name, content) {
-      min-width: 0;
-    }
-  }
-
-  @include m.size using ($size) {
-    @include m.bem($root-name, icon) {
-      font-size: t.use-var('font-size-main');
-      // 圆圈直径按高度档生效（32 / 40 / 48）；点击热区由整个 item 保证 ≥44px，
-      // 图标本身不承担热区职责，不设下限避免 small 与 default 等大
-      width: t.control-height($size);
-      height: t.control-height($size);
     }
   }
 }

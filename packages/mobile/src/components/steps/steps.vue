@@ -6,13 +6,12 @@
       :class="[
         cls.e('item'),
         bem.is('current', index === currentIndex),
-        bem.is('finished', currentIndex === undefined || index < currentIndex)
+        bem.is('finished', currentIndex === undefined || index < currentIndex),
+        bem.is('wait', currentIndex !== undefined && index > currentIndex)
       ]"
       @click="handleStepClick(item, index)"
     >
       <div :class="cls.e('node')">
-        <i :class="cls.e('link')" v-if="index !== items.length - 1"></i>
-
         <span :class="cls.e('icon')">
           <slot name="icon" :item="item" :index="index">
             <Check v-if="currentIndex === undefined || index < currentIndex" />
@@ -22,6 +21,8 @@
             </template>
           </slot>
         </span>
+
+        <i :class="cls.e('link')" v-if="index !== items.length - 1"></i>
       </div>
 
       <div :class="cls.e('content')">
