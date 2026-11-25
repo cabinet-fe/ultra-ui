@@ -1,6 +1,6 @@
 ---
 title: Ultra UI 总览
-description: Ultra UI（@veltra/*）是面向 Vue 3 的组件与能力库，包含 92 篇桌面组件文档、40 篇移动端组件文档（@veltra/mobile）、AI 对话（UAiChat / useChat）、电子表格（USheet / Workbook）、组合式函数、utils 工具、指令、主题系统与按需导入解析器；本篇是全部 177 篇文档的路由表。
+description: Ultra UI（@veltra/*）是面向 Vue 3 的组件与能力库，包含 92 篇桌面组件文档、40 篇移动端组件文档（@veltra/mobile）、AI 对话（UAiChat / 17 个独立 AI 组件 / useChat）、电子表格（USheet / Workbook）、组合式函数、utils 工具、指令、主题系统与按需导入解析器；本篇是全部 179 篇文档的路由表。
 aliases:
   [
     ultra-ui,
@@ -240,7 +240,7 @@ createApp(App).mount('#app')
 | USelect                           | 选择器：底部面板 + 面板内搜索 / 远程选项 / 可创建               | `mobile/select.md`            |
 | USkeleton                         | 骨架屏：头像 / 标题 / 段落 / 按钮                               | `mobile/skeleton.md`          |
 | USpace                            | 间距容器：三形态 size、方向 / 对齐 / 换行                       | `mobile/space.md`             |
-| USteps                            | 步骤条：横向溢出触屏滑动、圆点下限 40px                         | `mobile/steps.md`             |
+| USteps                            | 步骤条：横向溢出滑动、纵向圆点在左                              | `mobile/steps.md`             |
 | USwitch                           | 开关：滑轨 28px 起步、行热区 44px                               | `mobile/switch.md`            |
 | UTabs                             | 标签页：单组件四向布局、触屏滑动 + scroll-snap 溢出             | `mobile/tabs.md`              |
 | UTag                              | 标签：可关闭、关闭热区 44×44                                    | `mobile/tag.md`               |
@@ -291,10 +291,12 @@ createApp(App).mount('#app')
 
 ### ai AI 对话（@veltra/ai）
 
-| 模块    | 用途                                                                                 | 文档路径         |
-| ------- | ------------------------------------------------------------------------------------ | ---------------- |
-| UAiChat | 对话组件：流式消息列表、工具调用卡片、模型选择、附件                                 | `ai/ai-chat.md`  |
-| useChat | 无头对话状态机与三种传输层（OpenAI Responses 优先 / chat SSE / 自定义 / 服务端会话） | `ai/use-chat.md` |
+| 模块                        | 用途                                                                                                                                                                                                                | 文档路径                      |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| UAiChat                     | 完整对话壳层：流式消息列表、工具调用编排、清除确认、侧边面板与默认输入栏                                                                                                                                            | `ai/ai-chat.md`               |
+| UAiComposer 等输入组合件    | 独立输入与控件：`UAiComposer` / `UAiContextPicker` / `UAiContextUsage` / `UAiModelPicker` / `UAiReasoningPicker` / `UAiAttachments` 与 `readFileAsAttachment`                                                       | `ai/ai-composer.md`           |
+| UAiMessageList 等展示编排件 | 独立展示与状态组件：`UAiMessageList` / `UAiBubble` / `UAiStepGroup` / `UAiToolCall` / `UAiReasoning` / `UAiQuestionCard` / `UAiSidePanel` / `UAiMessageQueue` / `UAiJobBar` / `UAiApprovalBanner` / `UAiSessionNav` | `ai/ai-display-components.md` |
+| useChat                     | 无头对话状态机与三种传输层（OpenAI Responses 优先 / chat SSE / 自定义 / 服务端会话）                                                                                                                                | `ai/use-chat.md`              |
 
 ### sheet 电子表格 UI（@veltra/sheet）
 

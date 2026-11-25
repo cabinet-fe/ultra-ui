@@ -1,6 +1,6 @@
 ---
 title: 'USteps 步骤条'
-description: '步骤条组件：按 items 渲染线性流程，current 控制当前步（索引或 currentKey 指定的业务键），索引之前的步骤显示对勾并按 finishedStepType 着色；支持横向/纵向、居中、自定义图标/文案/悬浮提示插槽。'
+description: '步骤条组件：按 items 渲染线性流程，current 控制当前步（索引或 currentKey 指定的业务键）。已完成步圆点实心并显示对勾，圆点与连线按 finishedStepType 着色；未设置 currentStepType 时当前步圆点为 primary。direction 支持 horizontal 与 vertical（圆点在左、文案在右）。'
 aliases: [Steps, ElSteps, 分步条, 向导, 步骤导航]
 keywords:
   - current
@@ -23,7 +23,7 @@ keywords:
 
 # USteps 步骤条
 
-`@veltra/desktop` 导出 `USteps`。它按 `items` 渲染一组线性步骤，`current` 指定进行到哪一步；索引小于当前步的项显示对勾并按 `finishedStepType` 着色。适合下单、注册等多步流程的进度展示与步骤跳转；并列视图（无先后顺序）的切换用 `UTabs` 标签页或 `USegment` 分段控制器。
+`@veltra/desktop` 导出 `USteps`。它按 `items` 渲染一组线性步骤，`current` 指定进行到哪一步；索引小于当前步的项圆点实心并显示对勾，圆点与连线按 `finishedStepType` 着色。未设置 `currentStepType` 时当前步圆点为 primary。`direction="vertical"` 时圆点在左、文案在右。适合下单、注册等多步流程的进度展示与步骤跳转；并列视图（无先后顺序）的切换用 `UTabs` 标签页或 `USegment` 分段控制器。
 
 ## 快速上手
 
@@ -60,13 +60,13 @@ export interface StepsProps {
   labelKey?: string
   /** 当前步骤项键；指定后 current 按 item[currentKey] 匹配，而不是索引 */
   currentKey?: string
-  /** 方向。默认 'horizontal' */
+  /** 方向。默认 'horizontal'。vertical 时圆点在左、文案在右，连线沿圆点中心向下 */
   direction?: 'horizontal' | 'vertical'
-  /** 是否居中对齐 */
+  /** 仅横向生效：圆点与文案在步骤格内居中，连线连接相邻圆点中心 */
   alignCenter?: boolean
-  /** 当前步骤颜色类型；不设置用默认当前步配色 */
+  /** 当前步骤颜色。不设置时圆点使用 primary */
   currentStepType?: ColorType
-  /** 已完成步骤颜色类型。默认 'success' */
+  /** 已完成步骤颜色。圆点、对勾和连线使用该颜色，文案不跟随。默认 'success' */
   finishedStepType?: ColorType
 }
 
@@ -99,10 +99,10 @@ export interface StepsEmits {
 | `items`                        | `Record<string, any>[]`      | —              |  是  | 步骤数据，顺序即流程顺序                                                                                               |
 | `labelKey`                     | `string`                     | `'label'`      |  否  | 步骤文案取 `item[labelKey]`                                                                                            |
 | `currentKey`                   | `string`                     | —              |  否  | 指定后 `current` 与 `item[currentKey]` 匹配；点击步骤时 `update:current` 的 payload 也改为 `item[currentKey]`          |
-| `direction`                    | `'horizontal' \| 'vertical'` | `'horizontal'` |  否  | 纵向时步骤垂直排列                                                                                                     |
-| `alignCenter`                  | `boolean`                    | `false`        |  否  | 居中对齐                                                                                                               |
-| `currentStepType`              | `ColorType`                  | —              |  否  | `'primary'` \| `'info'` \| `'success'` \| `'warning'` \| `'danger'`                                                    |
-| `finishedStepType`             | `ColorType`                  | `'success'`    |  否  | `'primary'` \| `'info'` \| `'success'` \| `'warning'` \| `'danger'`；已完成项的对勾与连线用该颜色                      |
+| `direction`                    | `'horizontal' \| 'vertical'` | `'horizontal'` |  否  | 纵向时圆点在左、文案在右，连线沿圆点中心向下                                                                           |
+| `alignCenter`                  | `boolean`                    | `false`        |  否  | 仅横向：圆点与文案在步骤格内居中，连线连接相邻圆点中心                                                                 |
+| `currentStepType`              | `ColorType`                  | —              |  否  | 不设置时当前步圆点为 `'primary'`。取值 `'primary'` \| `'info'` \| `'success'` \| `'warning'` \| `'danger'`             |
+| `finishedStepType`             | `ColorType`                  | `'success'`    |  否  | `'primary'` \| `'info'` \| `'success'` \| `'warning'` \| `'danger'`；已完成项的圆点、对勾与连线用该颜色，文案不跟随    |
 | `size`                         | `ComponentSize`              | `'default'`    |  否  | `'small'` \| `'default'` \| `'large'`                                                                                  |
 
 ## 方法与事件
@@ -195,6 +195,7 @@ function onItemClick(item: (typeof items)[number], index: number) {
 >
 > - 本库步骤数据是 `items` prop 数组，不是 Element Plus 的 `<el-step>` 子组件模式。
 > - 没有每步独立的 `status`（`error` / `process` / `wait`）字段：已完成/当前步的配色只能整体通过 `finishedStepType` / `currentStepType` 控制，单个步骤不能单独标红。
+> - 状态色只落在圆点与连线上。已完成文案颜色为 main，当前步为 title，未达步骤为 placeholder。横向步骤项最小宽度为圆点直径的 3 倍（default 档 96px），超出容器后横向滚动，当前步变化时平滑滚入视野。
 > - 未指定 `currentKey` 时 `current` 必须是数字索引；传业务字符串会被忽略，全部步骤渲染为已完成（这是「不传 `current` = 全部完成」的同一行为）。
 > - `current` 不传时全部步骤显示对勾（视为全部完成），没有「无当前步」的中间态。
 > - 步骤没有 `disabled` 概念，点击任何步骤都会触发 `item-click` 与 `update:current`；禁止点击的需求要在自己的处理函数里拦截。
