@@ -1,10 +1,11 @@
-import { fileURLToPath } from 'node:url'
-
-import { compile, NodePackageImporter } from 'sass-embedded'
+import { compileString, NodePackageImporter } from 'sass-embedded'
 import { describe, expect, it } from 'vite-plus/test'
 
-const css = compile(fileURLToPath(new URL('../style.scss', import.meta.url)), {
-  importers: [new NodePackageImporter(fileURLToPath(new URL('../../../../../..', import.meta.url)))]
+const css = compileString("@use '../style';", {
+  syntax: 'scss',
+  url: new URL('./__test__.scss', import.meta.url),
+  // 入口目录只用于非磁盘源码里的 pkg: 引用；这里的 pkg: 都写在磁盘上的 style.scss 里，按该文件所在目录解析
+  importers: [new NodePackageImporter('.')]
 }).css
 
 /** 取指定选择器那条规则的声明表；没有这条规则时为 undefined */
