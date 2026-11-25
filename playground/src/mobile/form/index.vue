@@ -10,6 +10,13 @@
           :rules="{ required: '请输入姓名' }"
         />
         <UInput
+          field="name"
+          label="姓名"
+          placeholder="请输入姓名"
+          :rules="{ required: '请输入姓名' }"
+          disabled
+        />
+        <UInput
           field="phone"
           label="手机号"
           inputmode="numeric"

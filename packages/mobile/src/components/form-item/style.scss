@@ -125,6 +125,22 @@ $form-controls: (
   }
 }
 
+// 字段禁用：嵌入控件透明底使控件自身的灰底禁用态无处体现，且 light 主题下
+// color.disabled 与行背景、text-color.disabled 与 placeholder 均同值，灰化
+// 对比不可见。行式列表统一以「整行降透明度」表达禁用（主题无关、空字段也
+// 可见），:has 零脚本感知字段组件的 is-disabled 状态，单字段禁用与整表禁用
+// （fallback 自 formProps）都适用。
+// 注意：逗号列表插值 #{$list}.is-disabled 只会给最后一个元素加后缀，必须
+// @each 逐个拼接，否则 :has 退化为裸控件选择器、所有行全部命中
+$disabled-controls: ();
+@each $control in $form-controls {
+  $disabled-controls: append($disabled-controls, unquote($control + '.is-disabled'), comma);
+}
+
+.um-form-item:has(#{$disabled-controls}) {
+  opacity: 0.55;
+}
+
 .#{$root-name}-tips-enter-from,
 .#{$root-name}-tips-leave-to {
   opacity: 0;
