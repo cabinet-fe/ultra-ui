@@ -220,4 +220,37 @@ describe('foldSessionEvent', () => {
     expect(skipped.messages).toEqual([{ id: 'u2', role: 'user', content: '后到的先到' }])
     expect(skipped.lastSeq).toBe(2)
   })
+
+  it('question/requested 带 callId 记录 questionCalls，cancelled 时仅将未终态调用置为已取消', () => {
+    const state = foldAll([
+      { type: 'tool/call', callId: 'c1', name: 'ask_user', arguments: '{}', seq: 1 },
+      {
+        type: 'question/requested',
+        rpcId: 'rpc-1',
+        callId: 'c1',
+        questions: [{ question: '选一个', options: ['A', 'B'] }]
+      },
+      { type: 'question/resolved', questionRpcId: 'rpc-1', outcome: 'cancelled' }
+    ])
+    expect(state.pendingQuestion).toBeNull()
+    expect(state.questionCalls.c1).toEqual([{ question: '选一个', options: ['A', 'B'] }])
+    expect(state.messages[0]?.toolCalls?.[0]).toMatchObject({
+      id: 'c1',
+      status: 'error',
+      error: '已取消'
+    })
+
+    // 已成功落定的工具调用不被晚到的 cancelled 覆盖
+    const settled = foldAll([
+      { type: 'tool/call', callId: 'c2', name: 'ask_user', arguments: '{}', seq: 1 },
+      { type: 'question/requested', rpcId: 'rpc-2', callId: 'c2', questions: [{ question: 'Q2' }] },
+      { type: 'tool/result', callId: 'c2', status: 'success', result: 'ok', seq: 2 },
+      { type: 'question/resolved', questionRpcId: 'rpc-2', outcome: 'cancelled' }
+    ])
+    expect(settled.messages[0]?.toolCalls?.[0]).toMatchObject({
+      id: 'c2',
+      status: 'success',
+      result: 'ok'
+    })
+  })
 })

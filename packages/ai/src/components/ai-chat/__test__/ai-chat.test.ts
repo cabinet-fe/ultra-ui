@@ -177,6 +177,60 @@ describe('UAiChat', () => {
     unmount()
   })
 
+  it('多轮工具调用期间不弹出复制与重新生成按钮，结束后收拢过程并仅复制最终回复', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText } })
+
+    let round = 0
+    let releaseSecondRound!: () => void
+    const transport: ChatTransport = async (_req, handlers) => {
+      round++
+      if (round === 1) {
+        handlers.onTextDelta('我先查一下库表情况。')
+        handlers.onToolCall?.({ id: 'c1', name: 'inspectDb', arguments: '{}' })
+      } else {
+        await new Promise<void>((resolve) => {
+          releaseSecondRound = resolve
+        })
+        handlers.onTextDelta('最终回复：已为你完成检查。')
+      }
+    }
+    const tools: ChatTool[] = [
+      { name: 'inspectDb', description: '检查库表', parameters: {}, execute: () => ({ tables: 0 }) }
+    ]
+    const { host, chat, unmount } = mountAiChat({ transport, tools })
+
+    chat.value?.send('检查库表')
+
+    await vi.waitFor(() => {
+      expect(host.querySelector('.md-stub')?.textContent).toContain('我先查一下库表情况。')
+      expect(host.querySelector('.u-ai-step-group')).toBeTruthy()
+    })
+    // 会话仍在运行，中间消息已 done 但不能提前出现复制和重新生成按钮
+    expect(host.querySelector('.u-ai-bubble__actions')).toBeFalsy()
+
+    releaseSecondRound()
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-bubble__actions')).toBeTruthy()
+    })
+
+    // 结束后只剩 1 个收拢的已完成容器 + 1 个最终回复气泡
+    expect(host.querySelectorAll('.u-ai-step-group')).toHaveLength(1)
+    expect(host.querySelector('.u-ai-step-group.is-settled')).toBeTruthy()
+    expect(host.querySelectorAll('.u-ai-bubble--assistant')).toHaveLength(1)
+    expect(host.querySelector('.u-ai-bubble--assistant .md-stub')?.textContent).toBe(
+      '最终回复：已为你完成检查。'
+    )
+
+    host.querySelector<HTMLElement>('[title="复制"]')!.click()
+    await vi.waitFor(() => {
+      expect(writeText).toHaveBeenCalledWith('最终回复：已为你完成检查。')
+    })
+
+    vi.unstubAllGlobals()
+    unmount()
+  })
+
   it('工具调用渲染工具卡片，可展开查看结果', async () => {
     let round = 0
     const transport: ChatTransport = (_req, handlers) => {
@@ -434,7 +488,7 @@ describe('UAiChat', () => {
     unmount()
   })
 
-  it('renderTo: reply 的卡片渲染在回复流，落定后不随步骤行折叠', async () => {
+  it('renderTo: reply 的卡片直接渲染在回复流外层，不进入步骤行', async () => {
     const tools = [
       weatherTool({ render: createResultView('weather-view'), renderTo: 'reply', terminal: true })
     ]
@@ -442,25 +496,19 @@ describe('UAiChat', () => {
 
     chat.value?.send('北京天气')
 
-    // 轮次落定（步骤行收起为完成态摘要）后，卡片仍常驻回复流——不展开步骤行即可见
-    await waitForStepLineSettled(host, 1)
     await vi.waitFor(() => {
       expect(
         host.querySelector('.u-ai-message-list__reply-tool .weather-view')?.textContent
       ).toContain('result:{"temperature":26}')
     })
 
-    // 步骤行仍保留过程条目：展开后是默认参数/结果视图，不重复渲染自定义卡片
-    await expandStepLine(host)
-    expect(host.querySelector('.u-ai-step-group__content .u-ai-tool-call')).toBeTruthy()
-    expect(host.querySelector('.u-ai-step-group__content .weather-view')).toBeFalsy()
-
+    expect(host.querySelector('.u-ai-step-group')).toBeFalsy()
     // 无正文答案的终结轮：操作区（重新生成）仍落在尾部状态载体上
     expect(host.querySelector('.u-ai-bubble__actions [title="重新生成"]')).toBeTruthy()
     unmount()
   })
 
-  it('renderTo: reply 的卡片 live 期间实时渲染在回复流', async () => {
+  it('renderTo: reply 的卡片 live 期间实时渲染在回复流且不生成步骤行', async () => {
     const transport: ChatTransport = (_req, handlers) => {
       handlers.onToolCall?.({ id: 'c1', name: 'getWeather', arguments: '{"city":"北京"}' })
     }
@@ -479,11 +527,11 @@ describe('UAiChat', () => {
     await vi.waitFor(() => {
       expect(host.querySelector('.u-ai-message-list__reply-tool .weather-view')).toBeTruthy()
     })
-    expect(host.querySelector('.u-ai-step-group__title')?.textContent).toContain('getWeather')
+    expect(host.querySelector('.u-ai-step-group')).toBeFalsy()
     unmount()
   })
 
-  it('天气工具执行中点击停止按钮后，立即退出运行态并清除扫光效果', async () => {
+  it('天气工具执行中点击停止按钮后，立即退出运行态', async () => {
     const transport: ChatTransport = (_req, handlers) => {
       handlers.onToolCall?.({ id: 'c1', name: 'getWeather', arguments: '{"city":"北京"}' })
     }
@@ -501,6 +549,30 @@ describe('UAiChat', () => {
 
     await vi.waitFor(() => {
       expect(host.querySelector('.u-ai-message-list__reply-tool .weather-view')).toBeTruthy()
+      expect(host.querySelector('button[title="停止生成"]')).toBeTruthy()
+    })
+
+    click(host.querySelector<HTMLElement>('button[title="停止生成"]')!)
+
+    await vi.waitFor(() => {
+      expect(host.querySelector('button[title="停止生成"]')).toBeFalsy()
+      expect(host.querySelector('.u-ai-bubble__status')?.textContent?.trim()).toBe('已停止生成')
+    })
+
+    expect(host.querySelector('.u-ai-step-group')).toBeFalsy()
+    unmount()
+  })
+
+  it('普通工具执行中点击停止按钮后，步骤行立即退出运行态并清除扫光效果', async () => {
+    const transport: ChatTransport = (_req, handlers) => {
+      handlers.onToolCall?.({ id: 'c1', name: 'getWeather', arguments: '{"city":"北京"}' })
+    }
+    const tools = [weatherTool({ execute: () => new Promise(() => {}) })]
+    const { host, chat, unmount } = mountAiChat({ transport, tools })
+
+    chat.value?.send('北京天气')
+
+    await vi.waitFor(() => {
       expect(host.querySelector('.u-ai-step-group__title.u-shine')).toBeTruthy()
       expect(host.querySelector('button[title="停止生成"]')).toBeTruthy()
     })
@@ -522,18 +594,18 @@ describe('UAiChat', () => {
     unmount()
   })
 
-  it('renderTo: reply 未提供 render 时兜底标准工具卡片', async () => {
-    const tools = [weatherTool({ renderTo: 'reply' })]
+  it('renderTo: reply 未提供 render 时兜底标准工具卡片且不进入步骤行', async () => {
+    const tools = [weatherTool({ renderTo: 'reply', terminal: true })]
     const { host, chat, unmount } = mountAiChat({ transport: createWeatherTransport(), tools })
 
     chat.value?.send('北京天气')
 
-    await waitForStepLineSettled(host, 1)
     await vi.waitFor(() => {
       expect(
         host.querySelector('.u-ai-message-list__reply-tool .u-ai-tool-call.is-success')
       ).toBeTruthy()
     })
+    expect(host.querySelector('.u-ai-step-group')).toBeFalsy()
     unmount()
   })
 
@@ -1026,8 +1098,8 @@ describe('UAiChat', () => {
     unmount()
   })
 
-  it('中间文本分段：同一条消息 content + toolCalls 拆成两段两行', async () => {
-    const messages: ChatMessage[] = [
+  it('中间文本分段：同一条消息 content + toolCalls 在 live 期拆成两段两行，落定后收拢为单个完成容器', async () => {
+    const messages = reactive<ChatMessage[]>([
       { id: 'u1', role: 'user', content: '先介绍再执行' },
       {
         id: 'a1',
@@ -1041,18 +1113,18 @@ describe('UAiChat', () => {
         id: 'a2',
         role: 'assistant',
         content: '先介绍一下',
-        toolCalls: [{ id: 'c1', name: 'search', arguments: '{"q":"x"}', status: 'success' }],
-        status: 'done'
+        toolCalls: [{ id: 'c1', name: 'search', arguments: '{"q":"x"}', status: 'running' }],
+        status: 'streaming'
       }
-    ]
+    ])
     const { host, unmount } = mountAiChat({ transport: () => {}, messages })
     await nextTick()
 
-    // 两个步骤行：第一段（思考 + 前置工具）在回答前，第二段（回答后的工具）另起一行
+    // live 期两个步骤行：第一段（思考 + 前置工具）在回答前，第二段（回答后的工具）另起一行
     const bars = [...host.querySelectorAll('.u-ai-step-group')]
     expect(bars).toHaveLength(2)
     expect(bars[0]?.querySelector('.u-ai-step-group__title')?.textContent).toBe('执行了 2 个步骤')
-    expect(bars[1]?.querySelector('.u-ai-step-group__title')?.textContent).toBe('执行了 1 个步骤')
+    expect(bars[1]?.querySelector('.u-ai-step-group__title')?.textContent).toBe('search')
     expect(host.querySelector('.md-stub')?.textContent).toContain('先介绍一下')
     expect(
       bars[0].compareDocumentPosition(host.querySelector('.md-stub')!) &
@@ -1062,6 +1134,18 @@ describe('UAiChat', () => {
       host.querySelector('.md-stub')!.compareDocumentPosition(bars[1]) &
         Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy()
+
+    // 落定后收拢进单个已完成容器，共 3 个步骤（思考 + bash + search）
+    messages[2]!.toolCalls![0]!.status = 'success'
+    messages[2]!.status = 'done'
+    await nextTick()
+
+    const settledBars = [...host.querySelectorAll('.u-ai-step-group')]
+    expect(settledBars).toHaveLength(1)
+    expect(settledBars[0]?.querySelector('.u-ai-step-group__title')?.textContent).toBe(
+      '执行了 3 个步骤'
+    )
+    expect(host.querySelector('.md-stub')?.textContent).toContain('先介绍一下')
     unmount()
   })
 
@@ -2892,5 +2976,184 @@ describe('UAiChat P4 作业条 / 审批 / 只读 / 提问', () => {
       ])
     })
     unmount()
+  })
+
+  it('ask-question session 关联 callId 时在流内原位渲染、切断步骤组，提交后留在流内显示摘要', async () => {
+    const { host, adapter, unmount } = await mountSession()
+    adapter.emit({ type: 'running', running: true })
+    adapter.emit({ type: 'tool/call', callId: 'c_pre', name: 'bash', arguments: '{}', seq: 1 })
+    adapter.emit({ type: 'tool/result', callId: 'c_pre', status: 'success', result: 'ok', seq: 2 })
+    adapter.emit({ type: 'tool/call', callId: 'c_q', name: 'ask_user', arguments: '{}', seq: 3 })
+    adapter.emit({
+      type: 'question/requested',
+      rpcId: 'rpc-q-linked',
+      callId: 'c_q',
+      questions: [{ question: '选方案', options: ['A', 'B'] }]
+    })
+    await nextTick()
+
+    // 关联后不渲染底部横幅，直接在回复流原位渲染提问卡片，且前置步骤段已定格完成
+    expect(host.querySelector('.u-ai-chat__session-question')).toBeFalsy()
+    expect(
+      host.querySelector('.u-ai-message-list__reply-tool .u-ai-question-card__q')?.textContent
+    ).toContain('选方案')
+    const preGroup = host.querySelector('.u-ai-step-group')!
+    expect(preGroup.classList.contains('is-settled')).toBe(true)
+    expect(preGroup.querySelector('.u-ai-step-group__title')?.textContent).toBe('执行了 1 个步骤')
+
+    click(
+      [...host.querySelectorAll<HTMLElement>('.u-ai-question-card__opt')].find((el) =>
+        el.textContent?.includes('A')
+      )!
+    )
+    await nextTick()
+    click(
+      [...host.querySelectorAll<HTMLElement>('.u-ai-question-card__actions button')].find((btn) =>
+        btn.textContent?.includes('提交')
+      )!
+    )
+    await vi.waitFor(() => {
+      expect(adapter.respond).toHaveBeenCalledWith('rpc-q-linked', true, [
+        { question: '选方案', answer: 'A' }
+      ])
+    })
+
+    adapter.emit({ type: 'question/resolved', questionRpcId: 'rpc-q-linked', outcome: 'answered' })
+    adapter.emit({ type: 'tool/result', callId: 'c_q', status: 'success', result: 'A', seq: 4 })
+    adapter.emit({ type: 'tool/call', callId: 'c_post', name: 'read', arguments: '{}', seq: 5 })
+    await nextTick()
+
+    const groups = [...host.querySelectorAll('.u-ai-step-group')]
+    const card = host.querySelector('.u-ai-message-list__reply-tool')!
+    expect(groups).toHaveLength(2)
+    expect(isAfter(groups[0]!, card)).toBe(true)
+    expect(isAfter(card, groups[1]!)).toBe(true)
+    expect(card.querySelector('.u-ai-question-card__head')?.textContent).toContain('已回答')
+    expect(card.querySelector('.u-ai-question-card__result-a')?.textContent).toContain('A')
+    unmount()
+  })
+
+  it('ask-question session 关联 callId 取消后在流内原位显示已取消', async () => {
+    const { host, adapter, unmount } = await mountSession()
+    adapter.emit({ type: 'tool/call', callId: 'c_q', name: 'ask_user', arguments: '{}', seq: 1 })
+    adapter.emit({
+      type: 'question/requested',
+      rpcId: 'rpc-q-cancel',
+      callId: 'c_q',
+      questions: [{ question: '要继续吗？', options: ['是', '否'] }]
+    })
+    await nextTick()
+    expect(host.querySelector('.u-ai-message-list__reply-tool .u-ai-question-card')).toBeTruthy()
+
+    adapter.emit({ type: 'question/resolved', questionRpcId: 'rpc-q-cancel', outcome: 'cancelled' })
+    await nextTick()
+    expect(
+      host.querySelector('.u-ai-message-list__reply-tool .u-ai-question-card__status')?.textContent
+    ).toBe('已取消')
+    unmount()
+  })
+
+  it('createQuestionToolMeta 支持 session 历史回放、自定义解析与非结构化成功结果兜底', async () => {
+    const { createQuestionToolMeta } = await import('../../../tools')
+    const history: ChatSessionEvent[] = [
+      {
+        type: 'assistant/message',
+        messageId: 'a1',
+        content: '',
+        seq: 1,
+        toolCalls: [
+          { id: 't1', name: 'bash', arguments: '{}', status: 'success' },
+          {
+            id: 'q1',
+            name: 'question',
+            arguments: JSON.stringify({ questions: [{ question: '库类型？' }] }),
+            status: 'success',
+            result: JSON.stringify([{ question: '库类型？', answer: 'PG' }])
+          },
+          { id: 't2', name: 'writeFile', arguments: '{}', status: 'success' },
+          {
+            id: 'q2',
+            name: 'question',
+            arguments: JSON.stringify({ questions: [{ question: '题1' }, { question: '题2' }] }),
+            status: 'success',
+            result: '用户已确认全部选项'
+          }
+        ]
+      }
+    ]
+    const adapter = createFakeAdapter({ history })
+    const { host, unmount } = mountAiChat({
+      transport: createServerTransport(adapter),
+      tools: [createQuestionToolMeta({ name: 'question' })]
+    })
+    await vi.waitFor(() => {
+      expect(host.querySelector('.u-ai-step-group.is-settled')).toBeTruthy()
+      expect(host.querySelectorAll('.u-ai-message-list__reply-tool')).toHaveLength(1)
+    })
+
+    // 历史回放（已落定）：外层仅留 1 个已完成容器 + 末张提问卡片 q2；展开容器可见前置工具与已回答的 q1
+    const groups = [...host.querySelectorAll('.u-ai-step-group')]
+    const outerCards = [...host.querySelectorAll('.u-ai-message-list__reply-tool')]
+    expect(groups).toHaveLength(1)
+    expect(outerCards).toHaveLength(1)
+    expect(isAfter(groups[0]!, outerCards[0]!)).toBe(true)
+
+    // 多题非结构化成功结果不回退成可提交表单，而是展示结果兜底文案
+    expect(outerCards[0]!.querySelector('.u-ai-question-card__actions')).toBeFalsy()
+    expect(outerCards[0]!.querySelector('.u-ai-question-card__status')?.textContent).toBe(
+      '用户已确认全部选项'
+    )
+
+    groups[0]!.querySelector<HTMLElement>('.u-ai-step-group__bar')!.click()
+    await nextTick()
+    const processContent = groups[0]!.querySelector('.u-ai-step-group__content')!
+    expect(processContent.querySelectorAll('.u-ai-tool-call')).toHaveLength(2)
+    const innerCard = processContent.querySelector('.u-ai-message-list__process-reply')!
+    expect(innerCard.querySelector('.u-ai-question-card__head')?.textContent).toContain('已回答')
+    expect(innerCard.querySelector('.u-ai-question-card__result-a')?.textContent).toContain('PG')
+    unmount()
+
+    // 自定义 parseQuestions / parseAnswers
+    const customAdapter = createFakeAdapter({
+      history: [
+        {
+          type: 'assistant/message',
+          messageId: 'a2',
+          content: '',
+          seq: 1,
+          toolCalls: [
+            {
+              id: 'q3',
+              name: 'customAsk',
+              arguments: JSON.stringify({ prompts: ['选颜色'] }),
+              status: 'success',
+              result: JSON.stringify({ chosen: ['蓝'] })
+            }
+          ]
+        }
+      ]
+    })
+    const customMount = mountAiChat({
+      transport: createServerTransport(customAdapter),
+      tools: [
+        createQuestionToolMeta({
+          name: 'customAsk',
+          parseQuestions: (call) => {
+            const parsed = JSON.parse(call.arguments) as { prompts: string[] }
+            return parsed.prompts.map((question) => ({ question }))
+          },
+          parseAnswers: (call) => {
+            const parsed = JSON.parse(call.result || '{}') as { chosen?: string[] }
+            return parsed.chosen?.map((answer) => ({ question: '选颜色', answer }))
+          }
+        })
+      ]
+    })
+    await vi.waitFor(() => {
+      expect(
+        customMount.host.querySelector('.u-ai-question-card__result-a')?.textContent
+      ).toContain('蓝')
+    })
+    customMount.unmount()
   })
 })

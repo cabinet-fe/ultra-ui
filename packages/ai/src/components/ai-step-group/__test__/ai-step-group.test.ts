@@ -139,6 +139,13 @@ describe('UAiStepGroup', () => {
     host.remove()
   })
 
+  it('无步骤仅包裹过程内容且已落定时显示「已完成」', () => {
+    const { host, unmount } = mountStepGroup({ steps: [], live: false })
+    expect(host.querySelector('.u-ai-step-group.is-settled')).toBeTruthy()
+    expect(host.querySelector('.u-ai-step-group__title')?.textContent).toBe('已完成')
+    unmount()
+  })
+
   it('显式 tools 与 toolIcons 映射生效，并转发 respond 与 open-panel 事件', async () => {
     const CustomIcon = defineComponent({
       setup: () => () => h('svg', { class: 'step-custom-icon' })

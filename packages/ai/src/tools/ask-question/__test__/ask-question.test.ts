@@ -344,7 +344,7 @@ describe('内置提问工具', () => {
     unmount()
   })
 
-  it('同段包含思考过程与提问时，步骤行仅保留思考过程而不重复显示提问卡片', async () => {
+  it('同段包含思考过程与提问时，思考步骤立即闭合且后续工具在提问后独立成组', async () => {
     let round = 0
     const transport: ChatTransport = (_req, handlers) => {
       round++
@@ -355,6 +355,8 @@ describe('内置提问工具', () => {
           name: 'askQuestion',
           arguments: JSON.stringify({ questions: [{ question: '选一个颜色？', options: ['蓝'] }] })
         })
+      } else if (round === 2) {
+        handlers.onToolCall?.({ id: 't1', name: 'readFile', arguments: '{"path":"a.ts"}' })
       } else {
         handlers.onTextDelta('好的')
       }
@@ -366,7 +368,10 @@ describe('内置提问工具', () => {
       expect(host.querySelector('.u-ai-message-list__reply-tool .u-ai-question-card')).toBeTruthy()
     })
 
-    expect(host.querySelector('.u-ai-step-group__title')?.textContent).toBe('思考中…')
+    // 提问卡片出现即闭合前置思考步骤，不保持「思考中…」
+    const firstGroup = host.querySelector('.u-ai-step-group')!
+    expect(firstGroup.classList.contains('is-settled')).toBe(true)
+    expect(firstGroup.querySelector('.u-ai-step-group__title')?.textContent).toBe('执行了 1 个步骤')
 
     click(optionButton(host, '蓝')!)
     await nextTick()
@@ -375,11 +380,20 @@ describe('内置提问工具', () => {
       expect(host.querySelector('.md-stub')?.textContent).toContain('好的')
     })
 
-    expect(host.querySelector('.u-ai-step-group__title')?.textContent).toBe('执行了 1 个步骤')
-    host.querySelector<HTMLElement>('.u-ai-step-group__bar')?.click()
+    const groups = [...host.querySelectorAll('.u-ai-step-group')]
+    const card = host.querySelector('.u-ai-message-list__reply-tool')!
+    expect(groups).toHaveLength(2)
+    expect(groups[0]!.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(card.compareDocumentPosition(groups[1]!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+
+    groups[0]!.querySelector<HTMLElement>('.u-ai-step-group__bar')?.click()
     await nextTick()
-    expect(host.querySelectorAll('.u-ai-step-group .u-ai-reasoning')).toHaveLength(1)
-    expect(host.querySelectorAll('.u-ai-step-group .u-ai-tool-call')).toHaveLength(0)
+    expect(groups[0]!.querySelectorAll('.u-ai-reasoning')).toHaveLength(1)
+    expect(groups[0]!.querySelectorAll('.u-ai-tool-call')).toHaveLength(0)
+
+    groups[1]!.querySelector<HTMLElement>('.u-ai-step-group__bar')?.click()
+    await nextTick()
+    expect(groups[1]!.querySelectorAll('.u-ai-tool-call')).toHaveLength(1)
     unmount()
   })
 

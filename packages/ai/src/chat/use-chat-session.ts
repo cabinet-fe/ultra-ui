@@ -5,7 +5,8 @@ import {
   createFoldState,
   foldSessionEvent,
   type ChatFoldState,
-  type ChatPendingApproval
+  type ChatPendingApproval,
+  type ChatPendingQuestion
 } from './fold'
 import type { ChatSessionEvent, ChatSessionTransport } from './session'
 import type { ChatJob, ChatMessage, ChatQueuedMessage, ChatTokenUsage } from './types'
@@ -19,7 +20,8 @@ export interface SessionChatSurface {
   title: Ref<string | null>
   running: Ref<boolean>
   pendingApprovals: Ref<ChatPendingApproval[]>
-  pendingQuestion: Ref<{ questions: AskQuestionItem[]; rpcId: string } | null>
+  pendingQuestion: Ref<ChatPendingQuestion | null>
+  questionCalls: Ref<Record<string, AskQuestionItem[]>>
 }
 
 /** 把 fold 状态同步到 useChat 的渲染面 */
@@ -33,6 +35,7 @@ function syncFold(fold: ChatFoldState, surface: SessionChatSurface) {
   surface.running.value = fold.running
   surface.pendingApprovals.value = fold.pendingApprovals
   surface.pendingQuestion.value = fold.pendingQuestion
+  surface.questionCalls.value = fold.questionCalls
 }
 
 /**

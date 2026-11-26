@@ -29,7 +29,7 @@
         </template>
       </UAiMessageList>
 
-      <div v-if="pendingQuestion" :class="cls.e('session-question')">
+      <div v-if="pendingQuestion && !hasLinkedQuestionCall" :class="cls.e('session-question')">
         <UAiQuestionCard :questions="pendingQuestion.questions" @submit="handleQuestionSubmit" />
       </div>
 
@@ -185,6 +185,7 @@ const {
   lastRequestUsage,
   pendingApprovals,
   pendingQuestion,
+  questionCalls,
   send,
   abort,
   regenerate,
@@ -276,7 +277,47 @@ const previewImage = (src: string, alt?: string) => {
   previewOpen.value = true
 }
 
-provide(AiChatDIKey, { slots, tools: toolMap, toolIcons, openPanel, previewImage })
+const resolvedQuestionAnswers = shallowRef(new Map<string, AskQuestionAnswer[]>())
+
+watch([() => props.transport, () => messages.value.length], ([transport, len], [prevTransport]) => {
+  if (transport !== prevTransport || len === 0) {
+    if (resolvedQuestionAnswers.value.size > 0) {
+      resolvedQuestionAnswers.value = new Map()
+    }
+  }
+})
+
+/** 当前挂起的 session 提问是否已关联到消息流中的 tool/call */
+const hasLinkedQuestionCall = computed(() => {
+  const callId = pendingQuestion.value?.callId
+  if (!callId) return false
+  return messages.value.some(
+    (msg) => msg.role === 'assistant' && msg.toolCalls?.some((call) => call.id === callId)
+  )
+})
+
+const handleLinkedQuestionSubmit = (
+  rpcId: string,
+  callId: string,
+  answers: AskQuestionAnswer[]
+) => {
+  const next = new Map(resolvedQuestionAnswers.value)
+  next.set(callId, answers)
+  resolvedQuestionAnswers.value = next
+  respondSession(rpcId, true, answers)
+}
+
+provide(AiChatDIKey, {
+  slots,
+  tools: toolMap,
+  toolIcons,
+  openPanel,
+  previewImage,
+  pendingQuestion,
+  questionCalls,
+  resolvedQuestionAnswers,
+  respondQuestion: handleLinkedQuestionSubmit
+})
 
 /**
  * 面板宽度：经 ULayout 列轨施加（cols = 1fr + 面板宽度），

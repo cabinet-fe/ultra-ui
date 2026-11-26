@@ -129,7 +129,7 @@ const { isActive, statusClass, headerIcon, toolTitle, summary } = useToolCallBri
 const settledTitle = computed(() => {
   if (props.endStatus === 'error') return '出错了'
   if (props.endStatus === 'aborted') return '已停止'
-  return `执行了 ${props.steps.length} 个步骤`
+  return props.steps.length ? `执行了 ${props.steps.length} 个步骤` : '已完成'
 })
 
 const expanded = ref(props.defaultExpanded ?? false)

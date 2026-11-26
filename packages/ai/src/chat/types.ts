@@ -89,16 +89,15 @@ export interface ChatTool<A = any> {
    */
   render?: Component
   /**
-   * 渲染位置。缺省 'inline'：render 组件展示在会话内的工具卡片中；
-   * 'reply'：render 组件作为消息块渲染在回复流中，位置跟 `ChatToolCall.contentOffset`：
+   * 渲染位置。缺省 'inline'：render 组件展示在步骤容器的工具卡片中；
+   * 'reply'：作为主线内容块直接渲染在回复流外层，不进入步骤容器，且天然作为步骤组边界
+   * （闭合前置步骤段、后续步骤单独成组）。与正文同属一条消息时位置跟 `ChatToolCall.contentOffset`：
    * 值为 0 且最终 content 非空时，卡片在正文前；大于等于最终长度或未设置时，卡片在整段正文后；
    * 落在中间时，同一气泡内按偏移切开为前文、卡片、后文（复制、状态行、操作区仍各一份）。
    * 偏移在围栏代码块或成对行内代码内部时，切点挪到块外：离块首更近放在块前，否则放在块后。
-   * live 期间实时渲染进度/错误，落定后不随步骤行折叠隐藏（步骤行仍保留过程条目，
-   * 展开仅回溯参数/结果）。适合天气卡片、提问卡片这类需要常驻展示的结果；
-   * 'panel'：render 组件展示在对话区右侧的侧边面板（新调用自动打开面板，
-   * 工具卡片内仅保留「查看面板」入口，面板与会话区宽度可拖拽调节）。
-   * 适合打开后台页面、表单、图表、列表等需要较大交互区域的工具。
+   * 无自定义 `render` 且无命中 `tool-<name>` 插槽时，兜底在外层渲染标准工具卡片。
+   * 'panel'：步骤容器内保留工具卡片与「查看面板」入口，render 组件展示在对话区右侧侧边面板
+   * （新调用自动打开面板，面板与会话区宽度可拖拽调节）。适合打开后台页面、表单、图表等较大交互区。
    */
   renderTo?: 'inline' | 'reply' | 'panel'
   /**
@@ -115,8 +114,6 @@ export interface ChatTool<A = any> {
   panelTitle?: string | ((toolCall: ChatToolCall) => string)
   /** 执行完成后是否自动折叠。缺省：renderTo 为 'panel' 时为 true；否则设置了 render 时为 false，否则为 true */
   autoCollapse?: boolean
-  /** 是否从可折叠步骤行（「执行了 N 个步骤」）中隐藏，适合已在回复流外层单独渲染的交互工具（如 askQuestion） */
-  hideInSteps?: boolean
   /**
    * 终结工具：执行成功后对话即结束，结果不再回灌模型生成额外文字（工具 UI 即最终答复）。
    * 适合天气卡片这类"UI 即答案"的工具，需配合 render 或 tool-<name> 插槽提供完整结果 UI。
@@ -147,8 +144,6 @@ export interface ChatToolMeta {
   /** 侧边面板标题，语义同 ChatTool.panelTitle */
   panelTitle?: string | ((toolCall: ChatToolCall) => string)
   autoCollapse?: boolean
-  /** 是否从可折叠步骤行（「执行了 N 个步骤」）中隐藏 */
-  hideInSteps?: boolean
 }
 
 /** 作业条项状态：至少区分进行中与终态 */

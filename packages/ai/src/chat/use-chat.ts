@@ -3,7 +3,7 @@ import { reactive, ref, watch, type Ref } from 'vue'
 
 import type { AskQuestionItem } from '../tools'
 import type { AiChatEmits, AiChatProps } from '../types'
-import type { ChatPendingApproval } from './fold'
+import type { ChatPendingApproval, ChatPendingQuestion } from './fold'
 import { isServerTransport, type ChatSessionTransport } from './session'
 import type {
   ChatAttachment,
@@ -68,7 +68,8 @@ export function useChat(options: UseChatOptions) {
   const projections = ref<Record<string, unknown>>({})
   const title = ref<string | null>(null)
   const pendingApprovals = ref<ChatPendingApproval[]>([])
-  const pendingQuestion = ref<{ questions: AskQuestionItem[]; rpcId: string } | null>(null)
+  const pendingQuestion = ref<ChatPendingQuestion | null>(null)
+  const questionCalls = ref<Record<string, AskQuestionItem[]>>({})
 
   const sessionRuntime = createSessionRuntime({
     messages,
@@ -79,7 +80,8 @@ export function useChat(options: UseChatOptions) {
     title,
     running,
     pendingApprovals,
-    pendingQuestion
+    pendingQuestion,
+    questionCalls
   })
 
   const session = (): ChatSessionTransport | null =>
@@ -544,6 +546,7 @@ export function useChat(options: UseChatOptions) {
     title,
     pendingApprovals,
     pendingQuestion,
+    questionCalls,
     send,
     abort,
     regenerate,

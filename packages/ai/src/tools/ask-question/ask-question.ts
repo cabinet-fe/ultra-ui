@@ -1,7 +1,8 @@
 import { QuestionFilled } from '@veltra/icons/normal'
-import { computed, defineComponent, h, type Component, type PropType } from 'vue'
+import { computed, defineComponent, h, inject, type Component, type PropType } from 'vue'
 
-import type { ChatTool, ChatToolCall } from '../../chat/types'
+import type { ChatTool, ChatToolCall, ChatToolMeta } from '../../chat/types'
+import { AiChatDIKey } from '../../components/_shared/di'
 import UAiQuestionCard from '../../components/ai-question-card/ai-question-card.vue'
 import { deferAskQuestion, resolveAskQuestion, takeAskQuestionDeferred } from './deferred'
 
@@ -108,10 +109,20 @@ function parseQuestions(toolCall: ChatToolCall): AskQuestionItem[] {
   }
 }
 
+function isAnswerItem(item: unknown): item is AskQuestionAnswer {
+  return Boolean(
+    item && typeof item === 'object' && typeof (item as AskQuestionAnswer).question === 'string'
+  )
+}
+
 function parseAnswers(toolCall: ChatToolCall): AskQuestionAnswer[] | undefined {
   if (toolCall.status !== 'success' || !toolCall.result) return undefined
   try {
-    const result = JSON.parse(toolCall.result) as Partial<AskQuestionResult>
+    const result = JSON.parse(toolCall.result) as Partial<AskQuestionResult> | unknown[]
+    if (Array.isArray(result)) {
+      const list = result.filter(isAnswerItem)
+      return list.length ? list : undefined
+    }
     return Array.isArray(result.answers) ? result.answers : undefined
   } catch {
     return undefined
@@ -119,36 +130,92 @@ function parseAnswers(toolCall: ChatToolCall): AskQuestionAnswer[] | undefined {
 }
 
 function statusError(toolCall: ChatToolCall): string | undefined {
+  if (toolCall.status === 'rejected') return '已取消'
   if (toolCall.status !== 'error') return undefined
   const err = toolCall.error ?? ''
   if (err.includes('Abort') || err.includes('取消')) return '已取消'
   return err || '提问失败'
 }
 
-/** 把 toolCall 转成提问表单的 questions / onSubmit；提交仍走 resolveAskQuestion */
-const AskQuestionRender = defineComponent({
-  name: 'AskQuestionRender',
-  props: { toolCall: { type: Object as PropType<ChatToolCall>, required: true } },
-  setup(props) {
-    const questions = computed(() => parseQuestions(props.toolCall))
-    const answers = computed(() => parseAnswers(props.toolCall))
-    const error = computed(() => statusError(props.toolCall))
-    const onSubmit = (value: AskQuestionAnswer[]) => {
-      resolveAskQuestion(props.toolCall.id, { answers: value })
-    }
-    return () =>
-      h(UAiQuestionCard, {
-        questions: questions.value,
-        answers: answers.value,
-        error: error.value,
-        onSubmit
+export interface CreateQuestionToolMetaOptions {
+  /** 服务端提问工具名（与 tool/call.name 匹配），默认 'askQuestion' */
+  name?: string
+  /** 工具显示名，默认 '提问' */
+  label?: string
+  /** 工具图标，默认 QuestionFilled */
+  icon?: Component
+  /** 自定义解析工具参数为问题列表（默认兼容 { questions }） */
+  parseQuestions?: (toolCall: ChatToolCall) => AskQuestionItem[]
+  /** 自定义解析工具结果为回答列表（默认兼容 { answers } 或 AskQuestionAnswer[]） */
+  parseAnswers?: (toolCall: ChatToolCall) => AskQuestionAnswer[] | undefined
+}
+
+export function createAskQuestionRender(options?: {
+  parseQuestions?: (toolCall: ChatToolCall) => AskQuestionItem[]
+  parseAnswers?: (toolCall: ChatToolCall) => AskQuestionAnswer[] | undefined
+}): Component {
+  const parseQ = options?.parseQuestions ?? parseQuestions
+  const parseA = options?.parseAnswers ?? parseAnswers
+
+  return defineComponent({
+    name: 'AskQuestionRender',
+    props: { toolCall: { type: Object as PropType<ChatToolCall>, required: true } },
+    setup(props) {
+      const di = inject(AiChatDIKey, undefined)
+      const linkedQuestion = computed(() =>
+        di?.pendingQuestion?.value?.callId === props.toolCall.id
+          ? di.pendingQuestion.value
+          : undefined
+      )
+      const questions = computed(() => {
+        if (linkedQuestion.value?.questions.length) return linkedQuestion.value.questions
+        const cached = di?.questionCalls?.value?.[props.toolCall.id]
+        if (cached?.length) return cached
+        return parseQ(props.toolCall)
       })
-  }
-})
+      const answers = computed<AskQuestionAnswer[] | undefined>(() => {
+        if (linkedQuestion.value) return undefined
+        const parsed = parseA(props.toolCall)
+        if (parsed) return parsed
+        const cached = di?.resolvedQuestionAnswers?.value.get(props.toolCall.id)
+        if (cached) return cached
+        if (props.toolCall.status === 'success' && questions.value.length === 1) {
+          const text = props.toolCall.result?.trim()
+          if (text) return [{ question: questions.value[0]!.question, answer: text }]
+        }
+        return undefined
+      })
+      const error = computed(() => {
+        const err = statusError(props.toolCall)
+        if (err) return err
+        if (!linkedQuestion.value && props.toolCall.status === 'success' && answers.value == null) {
+          return props.toolCall.result?.trim() || '已回答'
+        }
+        return undefined
+      })
+      const onSubmit = (value: AskQuestionAnswer[]) => {
+        if (linkedQuestion.value && di?.respondQuestion) {
+          di.respondQuestion(linkedQuestion.value.rpcId, props.toolCall.id, value)
+          return
+        }
+        resolveAskQuestion(props.toolCall.id, { answers: value })
+      }
+      return () =>
+        h(UAiQuestionCard, {
+          questions: questions.value,
+          answers: answers.value,
+          error: error.value,
+          onSubmit
+        })
+    }
+  })
+}
+
+export const AskQuestionRender = createAskQuestionRender()
 
 /**
  * 创建内置提问工具：execute 挂起等待用户在 UI 中作答，提交后结果回灌模型。
- * 通过 `renderTo: 'reply'` + `hideInSteps: true` 直接在回复流外层渲染，不重复进步骤行。
+ * 通过 `renderTo: 'reply'` 直接在回复流外层渲染，不进步骤容器。
  */
 export function createAskQuestionTool(
   options: CreateAskQuestionToolOptions = {}
@@ -168,7 +235,6 @@ export function createAskQuestionTool(
     label,
     render: AskQuestionRender,
     renderTo: 'reply',
-    hideInSteps: true,
     execute: (_args, { toolCall, signal }) =>
       new Promise<AskQuestionResult>((resolve, reject) => {
         deferAskQuestion(toolCall.id, { resolve, reject })
@@ -183,5 +249,31 @@ export function createAskQuestionTool(
           { once: true }
         )
       })
+  }
+}
+
+/**
+ * 创建服务端 Session 模式下的提问工具渲染元信息（`ChatToolMeta`）：
+ * 与客户端内置 `askQuestion` 共用 `UAiQuestionCard` 与 `renderTo: 'reply'` 外层渲染语义，
+ * 支持历史回放解析与自定义参数/结果解析。
+ */
+export function createQuestionToolMeta(options: CreateQuestionToolMetaOptions = {}): ChatToolMeta {
+  const {
+    name = 'askQuestion',
+    label = '提问',
+    icon = QuestionFilled,
+    parseQuestions: customParseQ,
+    parseAnswers: customParseA
+  } = options
+
+  return {
+    name,
+    label,
+    icon,
+    renderTo: 'reply',
+    render:
+      customParseQ || customParseA
+        ? createAskQuestionRender({ parseQuestions: customParseQ, parseAnswers: customParseA })
+        : AskQuestionRender
   }
 }

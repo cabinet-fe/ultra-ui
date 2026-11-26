@@ -14,6 +14,12 @@ export interface ChatPendingApproval {
   rpcId: string
 }
 
+export interface ChatPendingQuestion {
+  questions: AskQuestionItem[]
+  rpcId: string
+  callId?: string
+}
+
 /** 历史回放与实时 onEvent 共用的折叠状态 */
 export interface ChatFoldState {
   lastSeq: number | null
@@ -25,7 +31,8 @@ export interface ChatFoldState {
   title: string | null
   running: boolean
   pendingApprovals: ChatPendingApproval[]
-  pendingQuestion: { questions: AskQuestionItem[]; rpcId: string } | null
+  pendingQuestion: ChatPendingQuestion | null
+  questionCalls: Record<string, AskQuestionItem[]>
   error: { code: string; message: string } | null
 }
 
@@ -41,6 +48,7 @@ export function createFoldState(): ChatFoldState {
     running: false,
     pendingApprovals: [],
     pendingQuestion: null,
+    questionCalls: {},
     error: null
   }
 }
@@ -326,11 +334,35 @@ export function foldSessionEvent(state: ChatFoldState, event: ChatSessionEvent):
       break
     }
     case 'question/requested': {
-      next.pendingQuestion = { questions: event.questions, rpcId: event.rpcId }
+      next.pendingQuestion = event.callId
+        ? { questions: event.questions, rpcId: event.rpcId, callId: event.callId }
+        : { questions: event.questions, rpcId: event.rpcId }
+      if (event.callId) {
+        next.questionCalls = { ...state.questionCalls, [event.callId]: event.questions }
+      }
       break
     }
     case 'question/resolved': {
-      if (next.pendingQuestion?.rpcId === event.questionRpcId) next.pendingQuestion = null
+      const hit = next.pendingQuestion
+      if (hit?.rpcId === event.questionRpcId) {
+        next.pendingQuestion = null
+        if (hit.callId && event.outcome === 'cancelled') {
+          const target = next.messages
+            .flatMap((m) => m.toolCalls ?? [])
+            .find((c) => c.id === hit.callId)
+          if (
+            target &&
+            (target.status === 'pending' ||
+              target.status === 'running' ||
+              target.status === 'awaiting-confirm')
+          ) {
+            next.messages = updateToolCall(next.messages, hit.callId, {
+              status: 'error',
+              error: '已取消'
+            })
+          }
+        }
+      }
       break
     }
   }

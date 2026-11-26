@@ -1,7 +1,7 @@
 // @vitest-environment happy-dom
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
-import { createApp, defineComponent, h, nextTick, ref, type PropType } from 'vue'
+import { createApp, defineComponent, h, nextTick, reactive, ref, type PropType } from 'vue'
 
 import { UAiMessageList } from '..'
 import type { ChatMessage, ChatToolCall, ChatToolMeta } from '../../../chat/types'
@@ -129,7 +129,7 @@ describe('UAiMessageList', () => {
     const tools: ChatToolMeta[] = [
       { name: 'confirmTool', label: '确认工具' },
       { name: 'panelTool', label: '面板工具', renderTo: 'panel' },
-      { name: 'replyTool', renderTo: 'reply', render: ReplyCard, hideInSteps: true },
+      { name: 'replyTool', renderTo: 'reply', render: ReplyCard },
       { name: 'slotTool', label: '插槽工具' }
     ]
     const messages: ChatMessage[] = [
@@ -262,9 +262,7 @@ describe('UAiMessageList reply 卡片相对正文的位置', () => {
     props: { toolCall: { type: Object as PropType<ChatToolCall>, required: true } },
     setup: (props) => () => h('div', { class: 'reply-card' }, props.toolCall.id)
   })
-  const tools: ChatToolMeta[] = [
-    { name: 'askQuestion', renderTo: 'reply', render: ReplyCard, hideInSteps: true }
-  ]
+  const tools: ChatToolMeta[] = [{ name: 'askQuestion', renderTo: 'reply', render: ReplyCard }]
 
   function mountReply(message: ChatMessage) {
     return mountList({
@@ -371,6 +369,270 @@ describe('UAiMessageList reply 卡片相对正文的位置', () => {
     expect(stubs[1]?.textContent).toBe('\n结尾')
     expect(isAfter(stubs[0]!, card)).toBe(true)
     expect(isAfter(card, stubs[1]!)).toBe(true)
+    unmount()
+  })
+
+  it('空正文下 reply 卡片切断前后步骤组，前置步骤立即落定、后续工具单独成组', () => {
+    const { host, unmount } = mountList({
+      messages: [
+        { id: 'u1', role: 'user', content: '执行任务' },
+        {
+          id: 'a1',
+          role: 'assistant',
+          content: '',
+          status: 'done',
+          toolCalls: [{ id: 't1', name: 'read', arguments: '{}', status: 'success' }]
+        },
+        {
+          id: 'a2',
+          role: 'assistant',
+          content: '',
+          status: 'streaming',
+          toolCalls: [{ id: 'q1', name: 'askQuestion', arguments: '{}', status: 'running' }]
+        },
+        {
+          id: 'a3',
+          role: 'assistant',
+          content: '',
+          status: 'streaming',
+          toolCalls: [{ id: 't2', name: 'write', arguments: '{}', status: 'running' }]
+        }
+      ],
+      tools,
+      running: true,
+      showWelcome: false,
+      showNavigator: false
+    })
+
+    const groups = [...host.querySelectorAll('.u-ai-step-group')]
+    const card = host.querySelector('.u-ai-message-list__reply-tool')!
+    expect(groups).toHaveLength(2)
+    expect(groups[0]!.classList.contains('is-settled')).toBe(true)
+    expect(groups[1]!.classList.contains('is-settled')).toBe(false)
+    expect(isAfter(groups[0]!, card)).toBe(true)
+    expect(isAfter(card, groups[1]!)).toBe(true)
+    unmount()
+  })
+
+  it('同一空正文消息混排普通工具与 reply 工具时，live 期按调用顺序切分步骤组，落定后收拢为单个完成容器', async () => {
+    const messages = reactive<ChatMessage[]>([
+      { id: 'u1', role: 'user', content: '执行任务' },
+      {
+        id: 'a1',
+        role: 'assistant',
+        content: '',
+        status: 'streaming',
+        toolCalls: [
+          { id: 't1', name: 'read', arguments: '{}', status: 'success' },
+          { id: 'q1', name: 'askQuestion', arguments: '{}', status: 'running' },
+          { id: 't2', name: 'write', arguments: '{}', status: 'running' }
+        ]
+      }
+    ])
+    const running = ref(true)
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const app = createApp({
+      render: () =>
+        h(UAiMessageList, {
+          messages,
+          tools,
+          running: running.value,
+          showWelcome: false,
+          showNavigator: false
+        })
+    })
+    app.mount(host)
+
+    const liveGroups = [...host.querySelectorAll('.u-ai-step-group')]
+    const liveCard = host.querySelector('.u-ai-message-list__reply-tool')!
+    expect(liveGroups).toHaveLength(2)
+    expect(isAfter(liveGroups[0]!, liveCard)).toBe(true)
+    expect(isAfter(liveCard, liveGroups[1]!)).toBe(true)
+
+    // 轮次落定后（存在非终答 reply 卡片与前后步骤）：收拢进单个已完成容器
+    messages[1]!.toolCalls![1]!.status = 'success'
+    messages[1]!.toolCalls![2]!.status = 'success'
+    messages[1]!.status = 'done'
+    messages.push({ id: 'a2', role: 'assistant', content: '最终回复', status: 'done' })
+    running.value = false
+    await nextTick()
+
+    expect(host.querySelectorAll('.u-ai-step-group')).toHaveLength(1)
+    expect(host.querySelector('.u-ai-step-group.is-settled')).toBeTruthy()
+    expect(host.querySelector('.u-ai-message-list__reply-tool')).toBeFalsy()
+    expect(host.querySelector('.md-stub')?.textContent).toBe('最终回复')
+
+    app.unmount()
+    host.remove()
+  })
+
+  it('轮次未结束时不弹出操作区，完成后仅在最终回复下方展示', async () => {
+    const running = ref(true)
+    const messages = reactive<ChatMessage[]>([
+      { id: 'u1', role: 'user', content: '执行任务' },
+      { id: 'a1', role: 'assistant', content: '中间说明', status: 'done' },
+      { id: 'a2', role: 'assistant', content: '', reasoning: '继续思考中', status: 'streaming' }
+    ])
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const app = createApp({
+      render: () =>
+        h(UAiMessageList, {
+          messages,
+          running: running.value,
+          showWelcome: false,
+          showNavigator: false
+        })
+    })
+    app.mount(host)
+
+    expect(host.querySelector('.u-ai-bubble__actions')).toBeFalsy()
+
+    messages[2]!.status = 'done'
+    messages.push({ id: 'a3', role: 'assistant', content: '最终结论', status: 'done' })
+    running.value = false
+    await nextTick()
+
+    expect(host.querySelectorAll('.u-ai-bubble__actions')).toHaveLength(1)
+    expect(host.querySelector('.u-ai-bubble--assistant .md-stub')?.textContent).toBe('最终结论')
+
+    app.unmount()
+    host.remove()
+  })
+
+  it('多段轮次结束后收拢全部过程进单个已完成容器，展开按序可见，复制仅复制最终回复', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined)
+    vi.stubGlobal('navigator', { ...navigator, clipboard: { writeText } })
+
+    const running = ref(true)
+    const messages = reactive<ChatMessage[]>([
+      { id: 'u1', role: 'user', content: '帮我建表' },
+      {
+        id: 'a1',
+        role: 'assistant',
+        reasoning: '先思考方案',
+        content: '我先确认几个取舍',
+        status: 'done',
+        toolCalls: [
+          { id: 'q1', name: 'askQuestion', arguments: '{}', status: 'success', result: '已选' }
+        ]
+      },
+      {
+        id: 'a2',
+        role: 'assistant',
+        content: '',
+        status: 'done',
+        toolCalls: [{ id: 't1', name: 'bash', arguments: '{}', status: 'success' }]
+      },
+      { id: 'a3', role: 'assistant', content: '库内暂无表，开始建表', status: 'done' },
+      {
+        id: 'a4',
+        role: 'assistant',
+        content: '',
+        status: 'streaming',
+        toolCalls: [{ id: 't2', name: 'write', arguments: '{}', status: 'running' }]
+      }
+    ])
+
+    const host = document.createElement('div')
+    document.body.appendChild(host)
+    const app = createApp({
+      render: () =>
+        h(UAiMessageList, {
+          messages,
+          tools,
+          running: running.value,
+          showWelcome: false,
+          showNavigator: false
+        })
+    })
+    app.mount(host)
+
+    // live 期：按段展开可见，且不能弹出复制/重置按钮
+    expect(host.querySelector('.u-ai-bubble__actions')).toBeFalsy()
+    expect(host.querySelectorAll('.u-ai-step-group').length).toBeGreaterThanOrEqual(2)
+    expect(host.querySelectorAll('.u-ai-bubble--assistant')).toHaveLength(2)
+
+    // 轮次结束：补上最终回复并落定
+    messages[4]!.toolCalls![0]!.status = 'success'
+    messages[4]!.status = 'done'
+    messages.push({
+      id: 'a5',
+      role: 'assistant',
+      content: '已完成全部 6 张表的创建。',
+      status: 'done'
+    })
+    running.value = false
+    await nextTick()
+
+    // 外层仅保留 1 个收起的已完成容器 + 1 个最终回复气泡
+    const groups = host.querySelectorAll('.u-ai-step-group')
+    expect(groups).toHaveLength(1)
+    expect(groups[0]!.classList.contains('is-settled')).toBe(true)
+    expect(groups[0]!.classList.contains('is-expanded')).toBe(false)
+    expect(groups[0]!.querySelector('.u-ai-step-group__title')?.textContent).toBe('执行了 4 个步骤')
+
+    const outerBubbles = [...host.querySelectorAll('.u-ai-bubble--assistant')]
+    expect(outerBubbles).toHaveLength(1)
+    expect(outerBubbles[0]!.querySelector('.md-stub')?.textContent).toBe(
+      '已完成全部 6 张表的创建。'
+    )
+    expect(host.querySelector('.u-ai-message-list__reply-tool')).toBeFalsy()
+
+    // 复制只复制最终回复内容
+    host.querySelector<HTMLElement>('[title="复制"]')!.click()
+    await vi.waitFor(() => {
+      expect(writeText).toHaveBeenCalledWith('已完成全部 6 张表的创建。')
+    })
+
+    // 展开已完成容器后，按时间顺序展示思考、中间文本、中间 reply 卡片与工具调用，且过程气泡无操作区
+    groups[0]!.querySelector<HTMLElement>('.u-ai-step-group__bar')!.click()
+    await nextTick()
+
+    const content = groups[0]!.querySelector('.u-ai-step-group__content')!
+    expect(content).toBeTruthy()
+    const processItems = [...content.children]
+    expect(processItems.some((el) => el.classList.contains('u-ai-reasoning'))).toBe(true)
+    expect(content.querySelectorAll('.u-ai-bubble--assistant')).toHaveLength(2)
+    expect(content.querySelector('.u-ai-bubble__actions')).toBeFalsy()
+    expect(
+      content.querySelector('.u-ai-message-list__process-reply .reply-card')?.textContent
+    ).toBe('q1')
+    expect(content.querySelectorAll('.u-ai-tool-call')).toHaveLength(2)
+
+    const reasoningEl = content.querySelector('.u-ai-reasoning')!
+    const midText1 = content.querySelectorAll('.u-ai-bubble--assistant')[0]!
+    const tool1 = content.querySelectorAll('.u-ai-tool-call')[0]!
+    const midText2 = content.querySelectorAll('.u-ai-bubble--assistant')[1]!
+    const tool2 = content.querySelectorAll('.u-ai-tool-call')[1]!
+    expect(isAfter(reasoningEl, midText1)).toBe(true)
+    expect(isAfter(midText1, tool1)).toBe(true)
+    expect(isAfter(tool1, midText2)).toBe(true)
+    expect(isAfter(midText2, tool2)).toBe(true)
+
+    vi.unstubAllGlobals()
+    app.unmount()
+    host.remove()
+  })
+
+  it('仅含中间文本的多段轮次结束后，完成容器标题显示「已完成」', () => {
+    const { host, unmount } = mountList({
+      messages: [
+        { id: 'u1', role: 'user', content: '问题' },
+        { id: 'a1', role: 'assistant', content: '先看下情况', status: 'done' },
+        { id: 'a2', role: 'assistant', content: '这是最终结论', status: 'done' }
+      ],
+      running: false,
+      showWelcome: false,
+      showNavigator: false
+    })
+
+    const group = host.querySelector('.u-ai-step-group.is-settled')!
+    expect(group).toBeTruthy()
+    expect(group.querySelector('.u-ai-step-group__title')?.textContent).toBe('已完成')
+    expect(host.querySelectorAll('.u-ai-bubble--assistant')).toHaveLength(1)
+    expect(host.querySelector('.md-stub')?.textContent).toBe('这是最终结论')
     unmount()
   })
 })

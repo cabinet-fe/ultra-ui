@@ -21,25 +21,98 @@
             @preview-image="handlePreviewImage"
           />
 
-          <!-- 过程按文字回答切段：每段一个步骤行，其下按 contentOffset 把 reply 工具放在正文前或正文后；出现文字回答该段即闭合。
+          <!-- 过程按文字回答切段：live 期间按段展开；轮次结束后将最终回复之外的步骤、中间文本与 reply 卡片
+               收拢到单个完成态 UAiStepGroup，下方只保留最终回复。
                段 key 优先取段内首步 key（段内天然稳定）：闭合瞬间首步 key 不变，
                段（含 UAiStepGroup 的展开状态）不会因首条 content 到达而重挂；content-only 段退回答 id -->
           <template
             v-for="(segment, segIndex) in turn.segments"
             :key="
-              segment.steps[0]?.key ?? segment.blocks[0]?.key ?? segment.answerMsg?.id ?? segIndex
+              segment.key ??
+              segment.steps[0]?.key ??
+              segment.blocks[0]?.key ??
+              segment.answerMsg?.id ??
+              segIndex
             "
           >
             <UAiStepGroup
-              v-if="segment.steps.length"
+              v-if="segment.steps.length || segment.processItems?.length"
               :steps="segment.steps"
-              :live="turn.live && segIndex === turn.segments.length - 1 && !segment.answerMsg"
-              :end-status="segIndex === turn.segments.length - 1 ? turn.tailEndStatus : undefined"
+              :live="turn.live && segIndex === turn.segments.length - 1 && !segment.blocks.length"
+              :end-status="
+                segIndex === turn.segments.length - 1 && !segment.blocks.length
+                  ? turn.tailEndStatus
+                  : undefined
+              "
               :tools="toolMap"
               :tool-icons="resolvedToolIcons"
               @respond="(id, approved) => emit('respond', id, approved)"
               @open-panel="handleOpenPanel"
-            />
+            >
+              <template v-if="segment.processItems?.length" #default>
+                <template v-for="item in segment.processItems" :key="item.key">
+                  <UAiReasoning
+                    v-if="item.kind === 'reasoning'"
+                    :content="item.message.reasoning ?? ''"
+                    :thinking="false"
+                    :cache-key="item.message.id"
+                  />
+                  <UAiToolCall
+                    v-else-if="item.kind === 'tool' && item.toolCall"
+                    :tool-call="item.toolCall"
+                    :tool="toolMap[item.toolCall.name]"
+                    :tool-icons="resolvedToolIcons"
+                    @respond="(approved) => emit('respond', item.toolCall!.id, approved)"
+                    @open-panel="handleOpenPanel"
+                  />
+                  <ReplyToolCard
+                    v-else-if="item.kind === 'reply'"
+                    :class="cls.e('process-reply')"
+                    :tool-call="item.step.toolCall"
+                    :tool="toolMap[item.step.toolCall.name]"
+                    :tool-icons="resolvedToolIcons"
+                    @respond="(approved) => emit('respond', item.step.toolCall.id, approved)"
+                    @open-panel="handleOpenPanel"
+                  />
+                  <UAiBubble
+                    v-else-if="item.kind === 'text'"
+                    :class="cls.e('process-bubble')"
+                    :message="item.message"
+                    :show-actions="false"
+                    :renderer-props="rendererProps"
+                    @preview-image="handlePreviewImage"
+                  >
+                    <template v-if="hasReplyPiece(item.pieces)" #default="{ content, streaming }">
+                      <template
+                        v-for="part in shownReplyParts(content, item.pieces, streaming)"
+                        :key="part.key"
+                      >
+                        <MarkdownRender
+                          v-if="part.kind === 'text'"
+                          mode="chat"
+                          :fade="false"
+                          v-bind="rendererProps"
+                          :content="part.text"
+                          :final="part.final"
+                        />
+                        <ReplyToolCard
+                          v-else
+                          :class="cls.e('process-reply')"
+                          :tool-call="replyStepOf(item, part.id).toolCall"
+                          :tool="toolMap[replyStepOf(item, part.id).toolCall.name]"
+                          :tool-icons="resolvedToolIcons"
+                          @respond="
+                            (approved) =>
+                              emit('respond', replyStepOf(item, part.id).toolCall.id, approved)
+                          "
+                          @open-panel="handleOpenPanel"
+                        />
+                      </template>
+                    </template>
+                  </UAiBubble>
+                </template>
+              </template>
+            </UAiStepGroup>
             <!-- 有正文的 reply 卡片放进同一个气泡的插槽，复制 / 状态行 / 操作区仍只挂一次 -->
             <template v-for="block in segment.blocks" :key="block.key">
               <ReplyToolCard
@@ -56,7 +129,9 @@
                 :is-last="turn.isLast && turn.finalMsg === block.message"
                 :show-regenerate="!readonly"
                 :duration="
-                  turn.finalMsg === block.message ? turnDurations.get(turn.key) : undefined
+                  !turn.live && turn.finalMsg === block.message
+                    ? turnDurations.get(turn.key)
+                    : undefined
                 "
                 :renderer-props="rendererProps"
                 @regenerate="emit('regenerate')"
@@ -208,8 +283,10 @@ import { useStickScroll } from '../_shared/use-stick-scroll'
 import { useStreamThrottle } from '../_shared/use-stream-throttle'
 import { UAiBubble } from '../ai-bubble'
 import UAiOrb from '../ai-orb/ai-orb.vue'
+import { UAiReasoning } from '../ai-reasoning'
 import { UAiSessionNav } from '../ai-session-nav'
 import { UAiStepGroup } from '../ai-step-group'
+import { UAiToolCall } from '../ai-tool-call'
 import { replyPieces, shownReplyParts, type ReplyPiece } from './reply-flow'
 import ReplyToolCard from './reply-tool.vue'
 
@@ -301,14 +378,20 @@ provide(AiChatDIKey, {
   tools: toolMap,
   toolIcons: resolvedToolIcons,
   openPanel: handleOpenPanel,
-  previewImage: handlePreviewImage
+  previewImage: handlePreviewImage,
+  pendingQuestion: parentDi?.pendingQuestion,
+  questionCalls: parentDi?.questionCalls,
+  resolvedQuestionAnswers: parentDi?.resolvedQuestionAnswers,
+  respondQuestion: parentDi?.respondQuestion
 })
 
-/** renderTo: 'reply' 的调用：自定义渲染作为消息块进回复流 */
-const isReplyTool = (call: ChatToolCall) => toolMap.value[call.name]?.renderTo === 'reply'
+/** session 模式下由 question/requested 关联过来的提问调用 */
+const isLinkedQuestionCall = (call: ChatToolCall) =>
+  Boolean(parentDi?.questionCalls?.value?.[call.id])
 
-/** 从步骤行（「执行了 N 个步骤」）隐藏的工具（例如已在回复流外层渲染的提问工具） */
-const isHiddenInSteps = (call: ChatToolCall) => toolMap.value[call.name]?.hideInSteps === true
+/** renderTo: 'reply' 的调用（含关联的 session 提问）：作为主线块在回复流外层渲染，不进步骤行 */
+const isReplyTool = (call: ChatToolCall) =>
+  toolMap.value[call.name]?.renderTo === 'reply' || isLinkedQuestionCall(call)
 
 /** tool 消息不单独渲染，其内容体现在工具卡片的结果区 */
 const visibleMessages = computed(() => props.messages.filter((msg) => msg.role !== 'tool'))
@@ -328,14 +411,20 @@ function hasReplyPiece(pieces: ReplyPiece[]) {
   return pieces.some((piece) => piece.kind === 'reply')
 }
 
-function replyStepOf(block: SegmentBlock, id: string) {
-  if (block.kind !== 'text') return block.step
+function replyStepOf(block: Extract<SegmentBlock, { kind: 'text' }>, id: string) {
   return block.replies.find((step) => step.key === id) ?? block.replies[0]!
 }
 
+/** 收拢进已完成容器的过程项（思考 / 普通工具 / 中间 reply 卡片 / 中间说明正文） */
+type ProcessItem = AiStepItem | SegmentBlock
+
 /** 一段：两次文字回答之间的全部步骤；出现文字回答即闭合该段 */
 interface TurnSegment {
+  /** 段稳定 key（单段无过程块时沿用首步 key，多段收拢后用轮次过程容器 key） */
+  key?: string
   steps: AiStepItem[]
+  /** 轮次结束后收拢的完整过程项；仅包含中间文本或中间 reply 时存在 */
+  processItems?: ProcessItem[]
   /** 步骤行之后、按 contentOffset 与正文交错 */
   blocks: SegmentBlock[]
   answerMsg?: ChatMessage
@@ -375,9 +464,9 @@ const turns = computed<ChatTurn[]>(() => {
     else grouped.push({ key: msg.id, assistants: [msg] })
   }
   return grouped.map((turn, index) => {
-    // 按流式顺序切段：思考归属当前段；出现文字回答即闭合该段、开启新段。
-    // 有正文时 reply 工具按 contentOffset 切进同一个气泡；尚无正文时先单独挂卡片。
-    // 普通工具调用仍落进正文后的新段
+    // 按流式顺序切段：思考与普通工具归属当前段；一旦产出主线块（文字正文或 renderTo: 'reply' 外层工具），
+    // 即闭合当前段并开启新段，使前后普通工具各自独立成组、保持时间顺序。
+    // 有正文时 reply 工具按 contentOffset 切进同一个气泡，同消息非 reply 工具落在下一段。
     const segments: TurnSegment[] = []
     let current: TurnSegment = { steps: [], blocks: [] }
     for (const msg of turn.assistants) {
@@ -385,14 +474,16 @@ const turns = computed<ChatTurn[]>(() => {
         current.steps.push({ key: `${msg.id}:reasoning`, kind: 'reasoning', message: msg })
       }
       const calls = msg.toolCalls ?? []
-      const replySteps: ReplyStep[] = []
-      for (const call of calls) {
-        if (!isReplyTool(call)) continue
-        const step: ReplyStep = { key: call.id, kind: 'tool', message: msg, toolCall: call }
-        if (!isHiddenInSteps(call)) current.steps.push(step)
-        replySteps.push(step)
-      }
       if (msg.content) {
+        const replySteps: ReplyStep[] = []
+        const trailingSteps: AiStepItem[] = []
+        for (const call of calls) {
+          if (isReplyTool(call)) {
+            replySteps.push({ key: call.id, kind: 'tool', message: msg, toolCall: call })
+          } else {
+            trailingSteps.push({ key: call.id, kind: 'tool', message: msg, toolCall: call })
+          }
+        }
         current.answerMsg = msg
         current.blocks.push({
           key: `${msg.id}:text`,
@@ -405,15 +496,18 @@ const turns = computed<ChatTurn[]>(() => {
           replies: replySteps
         })
         segments.push(current)
-        current = { steps: [], blocks: [] }
+        current = { steps: trailingSteps, blocks: [] }
       } else {
-        for (const step of replySteps) {
-          current.blocks.push({ key: step.key, kind: 'reply', step })
+        for (const call of calls) {
+          if (isReplyTool(call)) {
+            const step: ReplyStep = { key: call.id, kind: 'tool', message: msg, toolCall: call }
+            current.blocks.push({ key: step.key, kind: 'reply', step })
+            segments.push(current)
+            current = { steps: [], blocks: [] }
+          } else {
+            current.steps.push({ key: call.id, kind: 'tool', message: msg, toolCall: call })
+          }
         }
-      }
-      for (const call of calls) {
-        if (isReplyTool(call) || isHiddenInSteps(call)) continue
-        current.steps.push({ key: call.id, kind: 'tool', message: msg, toolCall: call })
       }
     }
     if (current.steps.length || current.blocks.length) segments.push(current)
@@ -432,15 +526,71 @@ const turns = computed<ChatTurn[]>(() => {
         : undefined
     const lastAnswer = segments.findLast((segment) => segment.answerMsg)?.answerMsg
     const finalMsg = tailStatusMsg ?? lastAnswer
+
+    let displaySegments = segments
+    if (!live && segments.length > 0) {
+      // 轮次结束后确定外层保留的最终回复段：末段有正文/reply 块则留末段；
+      // 否则若存在 tailStatusMsg（出错/中止/无正文终结工具）则全部进过程容器；
+      // 再否则回退到最后一个有正文答复的段（如正文后还有纯步骤调用）。
+      const lastSeg = segments[segments.length - 1]!
+      const finalSegIndex =
+        lastSeg.blocks.length > 0
+          ? segments.length - 1
+          : tailStatusMsg
+            ? -1
+            : segments.findLastIndex((s) => Boolean(s.answerMsg))
+
+      const finalSeg = finalSegIndex >= 0 ? segments[finalSegIndex]! : undefined
+      const finalBlocks = finalSeg ? finalSeg.blocks : []
+      const finalAnswerMsg = finalSeg?.answerMsg
+
+      const allProcessItems: ProcessItem[] = []
+      const allProcessSteps: AiStepItem[] = []
+      let hasNonStepProcess = false
+
+      for (let i = 0; i < segments.length; i++) {
+        const seg = segments[i]!
+        allProcessItems.push(...seg.steps)
+        allProcessSteps.push(...seg.steps)
+        if (i !== finalSegIndex && seg.blocks.length > 0) {
+          hasNonStepProcess = true
+          for (const block of seg.blocks) {
+            allProcessItems.push(block)
+            if (block.kind === 'reply') {
+              allProcessSteps.push(block.step)
+            } else {
+              allProcessSteps.push(...block.replies)
+            }
+          }
+        }
+      }
+
+      if (allProcessItems.length === 0 && finalBlocks.length === 0) {
+        displaySegments = []
+      } else {
+        displaySegments = [
+          {
+            key: hasNonStepProcess
+              ? `${turn.key}:process`
+              : (allProcessSteps[0]?.key ?? finalBlocks[0]?.key ?? finalAnswerMsg?.id),
+            steps: allProcessSteps,
+            processItems: hasNonStepProcess ? allProcessItems : undefined,
+            blocks: finalBlocks,
+            answerMsg: finalAnswerMsg
+          }
+        ]
+      }
+    }
+
     return {
       key: turn.key,
       userMsg: turn.userMsg,
-      segments,
+      segments: displaySegments,
       tailStatusMsg,
       tailEndStatus,
       live,
       finalMsg,
-      isLast: isLastTurn && !!finalMsg
+      isLast: isLastTurn && !live && !!finalMsg
     }
   })
 })
@@ -629,13 +779,13 @@ const {
 
 const showToLatest = computed(() => !stickToBottom.value && visibleMessages.value.length > 0)
 
-/** 会话导航项：每轮取用户提问与首段文字回答的前面部分作 hover 预览 */
+/** 会话导航项：每轮取用户提问与最终回答（无最终回答时回退首段文字回答）的前面部分作 hover 预览 */
 const navigatorItems = computed<AiSessionNavItem[]>(() => {
   return turns.value.map((turn, index) => {
     const rawQuestion = turn.userMsg?.content?.trim()
-    const rawAnswer = turn.segments
-      .find((s) => s.answerMsg?.content?.trim())
-      ?.answerMsg?.content?.trim()
+    const rawAnswer =
+      turn.finalMsg?.content?.trim() ||
+      turn.segments.find((s) => s.answerMsg?.content?.trim())?.answerMsg?.content?.trim()
     return {
       key: turn.key,
       index,

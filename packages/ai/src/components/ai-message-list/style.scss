@@ -178,4 +178,14 @@ $root-name: ai-message-list;
   @include m.e(reply-tool) {
     padding: 4px fn.use-var(gap, default);
   }
+
+  // 收拢进已完成容器后的过程气泡与 reply 卡片：与容器左竖线齐平，避免叠加横向内边距
+  @include m.e(process-bubble) {
+    padding: 2px 0;
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(process-reply) {
+    padding: 2px 0;
+  }
 }

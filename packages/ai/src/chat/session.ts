@@ -58,7 +58,7 @@ export type ChatSessionEvent =
       rpcId: string
     }
   | { type: 'approval/resolved'; approvalId: string; outcome: string }
-  | { type: 'question/requested'; questions: AskQuestionItem[]; rpcId: string }
+  | { type: 'question/requested'; questions: AskQuestionItem[]; rpcId: string; callId?: string }
   | { type: 'question/resolved'; questionRpcId: string; outcome: 'answered' | 'cancelled' }
   | { type: 'queue/snapshot'; items: ChatQueuedMessage[] }
   | { type: 'jobs/snapshot'; jobs: ChatJob[] }
