@@ -1,6 +1,6 @@
 ---
 title: UAiComposer AI 输入与控件组合件
-description: '@veltra/ai 独立导出的输入组合件集合：包含全插槽化输入卡 UAiComposer、上下文与文件拾取器 UAiContextPicker、Token 用量环 UAiContextUsage、模型选择器 UAiModelPicker、推理等级选择器 UAiReasoningPicker、附件列表 UAiAttachments 与本地附件读取工具 readFileAsAttachment。'
+description: '@veltra/ai 独立导出的输入组合件集合：包含全插槽化输入卡 UAiComposer、上下文与文件拾取器 UAiContextPicker、Token 用量环 UAiContextUsage、模型选择器 UAiModelPicker、推理等级选择器 UAiReasoningPicker 与附件列表 UAiAttachments。'
 aliases:
   [
     AiComposer,
@@ -9,7 +9,6 @@ aliases:
     AiModelPicker,
     AiReasoningPicker,
     AiAttachments,
-    readFileAsAttachment,
     AI 输入框
   ]
 keywords:
@@ -20,7 +19,6 @@ keywords:
     UAiModelPicker,
     UAiReasoningPicker,
     UAiAttachments,
-    readFileAsAttachment,
     AiComposerExposed,
     AiContextPickerItem,
     toolbar-left,
@@ -36,7 +34,7 @@ keywords:
 
 # UAiComposer AI 输入与控件组合件
 
-`@veltra/ai` 导出 6 个可脱离 `UAiChat` 独立使用的输入与控制组件（`UAiComposer`、`UAiContextPicker`、`UAiContextUsage`、`UAiModelPicker`、`UAiReasoningPicker`、`UAiAttachments`）及本地文件读取函数 `readFileAsAttachment`。`UAiComposer` 默认仅提供自适应文本域、剪贴板图片粘贴、附件预览与发送/停止按钮，不含清除会话、上下文、用量与模型选择器，需通过 `#toolbar-left` / `#toolbar-right` 自由装配。
+`@veltra/ai` 导出 6 个可脱离 `UAiChat` 独立使用的输入与控制组件（`UAiComposer`、`UAiContextPicker`、`UAiContextUsage`、`UAiModelPicker`、`UAiReasoningPicker`、`UAiAttachments`）。`UAiComposer` 默认仅提供自适应文本域、剪贴板图片粘贴、附件预览与发送/停止按钮，不含清除会话、上下文、用量与模型选择器，需通过 `#toolbar-left` / `#toolbar-right` 自由装配。本地文件解析由 `UAiComposer.addFiles` 与 `UAiContextPicker` 的 `add-attachments` 事件完成。
 
 ## 快速上手
 
@@ -219,15 +217,13 @@ export interface AiReasoningPickerEmits {
   (e: 'change', value: string, level: ChatReasoningLevel): void
 }
 
-export type AiAttachmentsSize = 'compact' | 'default'
-
 export interface AiAttachmentsProps {
   /** 附件列表；空数组时不渲染 */
   items: ChatAttachment[]
   /** 是否允许移除附件，默认 false */
   removable?: boolean
   /** 展示尺寸，默认 'default' */
-  size?: AiAttachmentsSize
+  size?: 'compact' | 'default'
 }
 
 export interface AiAttachmentsEmits {
@@ -235,9 +231,6 @@ export interface AiAttachmentsEmits {
   /** 未监听且为图片时回落 DI previewImage */
   (e: 'preview', item: ChatAttachment, index: number): void
 }
-
-/** 图片转为 base64 dataUrl；非图片提取前 512KB UTF-8 文本（textContent），dataUrl 为 '' */
-export function readFileAsAttachment(file: File): Promise<ChatAttachment>
 ```
 
 ## 参数说明
@@ -295,8 +288,6 @@ export function readFileAsAttachment(file: File): Promise<ChatAttachment>
   - 事件：`update:modelValue(value)`、`change(value, item)`；选中后自动关闭下拉面板。
 - `UAiAttachments`
   - 事件：`remove(index, item)`、`preview(item, index)`；插槽 `#item="{ item, index, isImage, remove, preview }"`。
-- `readFileAsAttachment(file)`
-  - 异步函数，返回 `Promise<ChatAttachment>`；图片转 `dataUrl`，非图片尝试以 UTF-8 解码前 512KB 作为 `textContent`（二进制文件返回 `textContent: undefined`），`FileReader` 出错时 reject。
 
 ## 典型示例
 
@@ -308,7 +299,6 @@ import { ref, useTemplateRef } from 'vue'
 import {
   UAiComposer,
   UAiContextPicker,
-  readFileAsAttachment,
   type AiComposerExposed,
   type AiContextPickerItem,
   type ChatAttachment
@@ -339,14 +329,9 @@ const handleContextSelect = (item: AiContextPickerItem) => {
   composerRef.value?.focus()
 }
 
-// 外部自定义拖拽上传时可直接调用 readFileAsAttachment 解析文件
+// 外部拖入本地文件时，交给输入卡解析并追加
 const handleCustomDrop = async (file: File) => {
-  try {
-    const attachment = await readFileAsAttachment(file)
-    composerRef.value?.addAttachments([attachment])
-  } catch (error) {
-    console.error('文件解析失败：', error)
-  }
+  await composerRef.value?.addFiles([file])
 }
 
 const handleSend = (content: string, attachments: ChatAttachment[]) => {

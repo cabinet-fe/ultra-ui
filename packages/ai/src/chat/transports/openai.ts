@@ -10,7 +10,7 @@ import {
 import type { ChatModelOption, ChatProvider } from '../../providers'
 import type { ChatTransport, ChatTransportHandlers, ChatTransportRequest } from '../types'
 
-export interface OpenAITransportOptions {
+interface OpenAITransportOptions {
   /** 至少一个 Provider；模型 id 须跨 Provider 全局唯一 */
   providers: ChatProvider[]
   /** 全局额外请求头（与各 Provider headers 合并，Provider 优先） */

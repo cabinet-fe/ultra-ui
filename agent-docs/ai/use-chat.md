@@ -100,13 +100,12 @@ import type {
 } from '@veltra/ai'
 import type { Ref } from 'vue'
 
-/** useChat 入参：与 UAiChat 的 props / emit 同形 */
-export interface UseChatOptions {
+export function useChat(options: {
+  /** 与 UAiChat 的 props 同形 */
   props: import('@veltra/ai').AiChatProps
+  /** 与 UAiChat 的 emit 同形 */
   emit: import('@veltra/ai').AiChatEmits
-}
-
-export function useChat(options: UseChatOptions): {
+}): {
   /** 消息列表（受控：props.messages 有值时受 v-model:messages 双向绑定） */
   messages: Ref<ChatMessage[]>
   /** 当前模型 id；models 有值时自动校正为合法项 */
@@ -181,15 +180,6 @@ export type ChatTransport = (
   handlers: ChatTransportHandlers
 ) => Promise<void> | void
 
-export interface OpenAITransportOptions {
-  /** 至少一个 Provider；模型 id 须跨 Provider 全局唯一 */
-  providers: ChatProvider[]
-  /** 全局额外请求头（与各 Provider headers 合并，Provider 优先） */
-  headers?: Record<string, string>
-  /** 全局额外请求体字段，如 temperature、top_p */
-  body?: Record<string, unknown>
-}
-
 /** 带扁平模型列表元数据的 OpenAI 兼容 transport */
 export type OpenAITransport = ChatTransport & {
   /** 供 UI 使用的扁平模型列表 */
@@ -198,7 +188,14 @@ export type OpenAITransport = ChatTransport & {
   readonly defaultModel: string
 }
 
-export function createOpenAITransport(options: OpenAITransportOptions): OpenAITransport
+export function createOpenAITransport(options: {
+  /** 至少一个 Provider；模型 id 须跨 Provider 全局唯一 */
+  providers: ChatProvider[]
+  /** 全局额外请求头（与各 Provider headers 合并，Provider 优先） */
+  headers?: Record<string, string>
+  /** 全局额外请求体字段，如 temperature、top_p */
+  body?: Record<string, unknown>
+}): OpenAITransport
 
 /** 模型服务商配置（内嵌 models） */
 export interface ChatProvider {

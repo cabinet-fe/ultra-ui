@@ -149,7 +149,6 @@ export interface AiStepItem {
   message: ChatMessage
   toolCall?: ChatToolCall
 }
-export type TurnStep = AiStepItem
 
 export interface AiStepGroupProps {
   steps: AiStepItem[]

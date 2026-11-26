@@ -6,7 +6,7 @@ AI 能力包。核心是对话域：开箱即用的 `UAiChat` 组合壳层、17 
 
 ```text
 src/
-├── index.ts                    # export * from './chat' + './components'；额外导出 readFileAsAttachment 与 createQuestionToolMeta；type * from './providers'；显式 AskQuestion* / CreateQuestionToolMetaOptions 类型；type * from './types'
+├── index.ts                    # export * from './chat' + './components'；type * from './providers'；显式导出 createQuestionToolMeta 与 AskQuestionOption / AskQuestionItem / AskQuestionAnswer / AskQuestionResult / CreateQuestionToolMetaOptions；type * from './types'
 ├── style.ts                    # 全量样式入口（聚合导入 18 个导出组件样式）
 ├── providers/                  # 模型提供商域（ChatProvider / ChatModel / ChatModelOption / ChatReasoningLevel）
 ├── chat/                       # 对话核心域（UI 无关，不得 import 组件）
@@ -26,9 +26,9 @@ src/
 │   └── ai-orb.ts               # 活体球内部类型（不从 types/index.ts 导出）：AiOrbProps / AiOrbEmits / AiOrbStatus / AiOrbReaction / AiOrbExposed
 └── components/
     ├── index.ts                # 导出 17 个独立组件 + UAiChat（不导出 ai-orb / reply-tool / _shared）
-    ├── _shared/                # 组件间共享基础模块（仅 readFileAsAttachment 经 src/index.ts 导出，其余均为包内私有）
+    ├── _shared/                # 组件间共享基础模块（不从 src/index.ts 导出）
     │   ├── _mixins.scss        # 工具栏触发器 / 状态色 / 面板头部按钮 / 等宽数据块样式混入
-    │   ├── attachment.ts       # 附件分类、扩展名徽标文案、大小格式化与本地读取（readFileAsAttachment / readFilesAsAttachments）
+    │   ├── attachment.ts       # 附件分类、扩展名徽标文案、大小格式化与本地读取（readFileAsAttachment / readFilesAsAttachments，均不从包入口导出）
     │   ├── di.ts               # AiChatDIKey（slots / tools / toolIcons / openPanel / previewImage 注入）
     │   ├── format-duration.ts  # 时长格式化（<60s Xs、≥60s Xm Ys）
     │   ├── thinking-icon.vue/.scss # 四角星思考动画图标
@@ -63,8 +63,8 @@ src/
 
 ## 约定
 
-- **域划分**：`chat/` 负责类型、编排、transport；函数型 transport 下 `useChat` 注入内置工具（同名内置优先覆盖 `props.tools`），因此可依赖 `tools/`。session 下不注入内置工具、不执行 `execute`。`components/` 只放 UI，通过 `chat/` 复用核心逻辑；`tools/` 是内置工具注册域；`providers/` 放模型/服务商配置类型（与 UI/编排解耦）。内置工厂 `createBuiltinTools` / `createAskQuestionTool` 不对外导出，包入口对 tools 显式导出 `createQuestionToolMeta` 与 `AskQuestion*` / `CreateQuestionToolMetaOptions` 类型（勿用 `export type *`，否则会泄漏 `createBuiltinTools` 的类型）。新能力开新顶层域目录，不要塞进组件目录。
-- **导出边界**：主入口 `src/index.ts` 与 `src/components/index.ts` 仅导出 17 个独立组件、`UAiChat`、`readFileAsAttachment`、`createQuestionToolMeta`、`chat/` 模块与相关公开类型；**不导出** `createBuiltinTools`、`createAskQuestionTool`、`ai-orb`（`UAiOrb`）、`ai-message-list/reply-tool.vue`、`_shared` 其余内部符号与 `types/ai-orb.ts`。
+- **域划分**：`chat/` 负责类型、编排、transport；函数型 transport 下 `useChat` 注入内置工具（同名内置优先覆盖 `props.tools`），因此可依赖 `tools/`。session 下不注入内置工具、不执行 `execute`。`components/` 只放 UI，通过 `chat/` 复用核心逻辑；`tools/` 是内置工具注册域；`providers/` 放模型/服务商配置类型（与 UI/编排解耦）。内置工厂 `createBuiltinTools` / `createAskQuestionTool` 不对外导出，包入口对 tools 显式导出 `createQuestionToolMeta` 与 `AskQuestionOption` / `AskQuestionItem` / `AskQuestionAnswer` / `AskQuestionResult` / `CreateQuestionToolMetaOptions`（勿用 `export type *`，否则会泄漏 `createBuiltinTools` 的类型）。新能力开新顶层域目录，不要塞进组件目录。
+- **导出边界**：主入口 `src/index.ts` 与 `src/components/index.ts` 仅导出 17 个独立组件、`UAiChat`、`createQuestionToolMeta`、`chat/` 模块与相关公开类型；**不导出** `createBuiltinTools`、`createAskQuestionTool`、`readFileAsAttachment`、`ai-orb`（`UAiOrb`）、`ai-message-list/reply-tool.vue`、`_shared` 与 `types/ai-orb.ts`。
 - **独立组件 DI 回退约定**：17 个独立组件必须在无 `AiChatDIKey` 注入时完整独立可用；组件内统一使用 `inject(AiChatDIKey, undefined)`（带默认值防止 Vue 警告）。显式 `props` / `emits` / `slots` 优先级高于 DI 回落；对于有父级回落动作的事件（如 `open-panel`、`preview-image`、`preview`），先 `emit` 事件，仅在 `instance?.vnode.props` 未显式绑定监听器时再回落调用 `di?.xxx`，避免事件与 DI 回调重复触发。`UAiMessageList` 自身向下 `provide(AiChatDIKey, ...)` 合并后的插槽与工具配置，使其独立挂载时也能支撑内部 `UAiStepGroup` / `UAiToolCall` / `ReplyToolCard` / `UAiBubble`。
 - **Teleport 面板样式顶层定义**：凡使用 `UDropdown` 并将面板挂载至 popper Teleport 容器的组件（`ai-context-picker`、`ai-context-usage`、`ai-model-picker`、`ai-reasoning-picker`），其面板样式选择器 `#{fn.bem($root-name, panel)}` 必须定义在 `@include m.b(...)` 之外的样式文件顶层，否则无法命中 Teleport 后的 DOM。
 - **布局宽度与滚动条边界**：`800px` 居中限宽（`@mixin bounded-column`）与吃掉主列横向 padding 的负边距滚动条定位仅属 `ai-chat` 组合壳层；所有独立 L1/L2 组件默认 `width: 100%; box-sizing: border-box;`（行内触发器或浮动导航指示器除外），禁止在独立组件内写死 `max-width: 800px` 或负边距。

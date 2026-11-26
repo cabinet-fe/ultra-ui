@@ -14,9 +14,6 @@ export interface AiStepItem {
   toolCall?: ChatToolCall
 }
 
-/** 兼容旧内部命名 TurnStep */
-export type TurnStep = AiStepItem
-
 export interface AiStepGroupProps {
   /** 本段全部步骤列表 */
   steps: AiStepItem[]

@@ -6,7 +6,6 @@ export type {
   AskQuestionOption,
   AskQuestionItem,
   AskQuestionAnswer,
-  AskQuestionArgs,
   AskQuestionResult,
   CreateQuestionToolMetaOptions
 } from './ask-question'

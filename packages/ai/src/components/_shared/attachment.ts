@@ -87,7 +87,7 @@ function extractLocalText(buffer: ArrayBuffer): string | undefined {
  * - 图片文件转为 base64 dataUrl（可直传模型接口）
  * - 非图片文件在本地提取文本上下文（不传文件体，dataUrl 置空）
  */
-export async function readFileAsAttachment(file: File): Promise<ChatAttachment> {
+async function readFileAsAttachment(file: File): Promise<ChatAttachment> {
   if (isImageAttachment({ name: file.name, mimeType: file.type })) {
     const dataUrl = await readFileAsDataUrl(file)
     return { name: file.name, mimeType: file.type || 'image/png', size: file.size, dataUrl }

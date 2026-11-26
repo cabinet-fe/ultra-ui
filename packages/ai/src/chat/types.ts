@@ -11,21 +11,13 @@ export interface ChatAttachment {
   textContent?: string
 }
 
-export type ToolCallStatus =
-  | 'pending'
-  | 'awaiting-confirm'
-  | 'running'
-  | 'success'
-  | 'error'
-  | 'rejected'
-
 export interface ChatToolCall {
   /** 调用 id（由模型生成） */
   id: string
   name: string
   /** 模型输出的原始 JSON 参数串 */
   arguments: string
-  status: ToolCallStatus
+  status: 'pending' | 'awaiting-confirm' | 'running' | 'success' | 'error' | 'rejected'
   /** 序列化后的工具执行结果 */
   result?: string
   error?: string
@@ -65,7 +57,7 @@ export interface ChatQueuedMessage {
   attachments?: ChatAttachment[]
 }
 
-export interface ChatToolContext {
+interface ChatToolContext {
   toolCall: ChatToolCall
   /** 中断信号（用户点击停止时触发） */
   signal: AbortSignal
@@ -146,9 +138,6 @@ export interface ChatToolMeta {
   autoCollapse?: boolean
 }
 
-/** 作业条项状态：至少区分进行中与终态 */
-export type ChatJobStatus = 'running' | 'done' | 'error'
-
 /** 服务端下发的作业条项 */
 export interface ChatJob {
   /** 稳定 id */
@@ -156,7 +145,8 @@ export interface ChatJob {
   /** 作业类型（用于图标映射） */
   kind: string
   label: string
-  status: ChatJobStatus
+  /** 至少区分进行中与终态 */
+  status: 'running' | 'done' | 'error'
 }
 
 export interface ChatToolRenderProps {

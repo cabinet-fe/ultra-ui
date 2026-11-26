@@ -35,7 +35,7 @@ keywords:
 
 # UAiChat AI 对话组件
 
-`@veltra/ai` 导出 Vue 组件 `UAiChat`：一层完整对话 UI 组合壳层，覆盖消息列表、流式打字机输出、思考过程展示、工具调用编排（确认、侧边面板）、待发送队列、模型/推理等级选择器与多类型附件上传（图片发送、点击预览与剪贴板粘贴，非图片本地读取解析）。`transport` 必填。自绘 UI 的无头场景改用同包 `useChat`（见 `ai/use-chat.md`）；需要脱离 `UAiChat` 自由拼装局部 UI 时，使用同包拆出的 17 个独立 `UAi*` 组件与 `readFileAsAttachment`（输入与控件组合件见 `ai/ai-composer.md`，展示与编排组件见 `ai/ai-display-components.md`）。
+`@veltra/ai` 导出 Vue 组件 `UAiChat`：一层完整对话 UI 组合壳层，覆盖消息列表、流式打字机输出、思考过程展示、工具调用编排（确认、侧边面板）、待发送队列、模型/推理等级选择器与多类型附件上传（图片发送、点击预览与剪贴板粘贴，非图片本地读取解析）。`transport` 必填。自绘 UI 的无头场景改用同包 `useChat`（见 `ai/use-chat.md`）；需要脱离 `UAiChat` 自由拼装局部 UI 时，使用同包拆出的 17 个独立 `UAi*` 组件（输入与控件组合件见 `ai/ai-composer.md`，展示与编排组件见 `ai/ai-display-components.md`）。
 
 ## 快速上手
 
@@ -195,22 +195,13 @@ export interface ChatTokenUsage {
   cacheCreationTokens?: number
 }
 
-/** 工具调用状态 */
-export type ToolCallStatus =
-  | 'pending'
-  | 'awaiting-confirm'
-  | 'running'
-  | 'success'
-  | 'error'
-  | 'rejected'
-
 /** 一次工具调用 */
 export interface ChatToolCall {
   id: string
   name: string
   /** 模型输出的原始 JSON 参数串 */
   arguments: string
-  status: ToolCallStatus
+  status: 'pending' | 'awaiting-confirm' | 'running' | 'success' | 'error' | 'rejected'
   /** 序列化后的工具执行结果 */
   result?: string
   error?: string
@@ -611,7 +602,7 @@ const history: ChatMessage[] = [
 > - 发给模型的只有 `name` / `description` / `parameters`；`execute` / `needsConfirm` / `terminal` / 渲染相关字段只在本端生效。
 > - `finish` 不等于「回答成功」：达到 `maxToolRounds` 上限、terminal 工具成功也会发 `finish`；失败走 `error` 事件。
 > - 本库是 `UAiChat` 组件 + `useChat` 状态机两层，不是 Element/AntD 那类纯展示组件，也没有 `loading` prop——加载状态用暴露的 `queue` 与 `finish` / `error` 事件推导，或改用 `useChat().running`。
-> - 需要带 `800px` 居中限宽、清除会话确认与完整编排时用 `UAiChat`；需要自定义输入栏插槽、去掉清除会话按钮或单独嵌入消息列表/气泡/侧面板时，使用独立导出的 17 个 `UAi*` 组件与 `readFileAsAttachment`（见 `ai/ai-composer.md` 与 `ai/ai-display-components.md`）。
+> - 需要带 `800px` 居中限宽、清除会话确认与完整编排时用 `UAiChat`；需要自定义输入栏插槽、去掉清除会话按钮或单独嵌入消息列表/气泡/侧面板时，使用独立导出的 17 个 `UAi*` 组件（见 `ai/ai-composer.md` 与 `ai/ai-display-components.md`）。
 > - 视觉依赖主题初始化：入口 `import '@veltra/styles/normalize'` 并调用 `loadTheme()`，否则 `--u-*` token 为空、组件无颜色；显式导入组件自动加载对应按需样式，也可全量引入 `import '@veltra/ai/style'`。
 
 ## 常见问题

@@ -1,15 +1,12 @@
 import type { ChatAttachment } from '../chat/types'
 
-/** 附件列表展示尺寸 */
-export type AiAttachmentsSize = 'compact' | 'default'
-
 export interface AiAttachmentsProps {
   /** 附件列表 */
   items: ChatAttachment[]
   /** 是否允许移除附件 */
   removable?: boolean
   /** 展示尺寸，默认 'default' */
-  size?: AiAttachmentsSize
+  size?: 'compact' | 'default'
 }
 
 export interface AiAttachmentsEmits {

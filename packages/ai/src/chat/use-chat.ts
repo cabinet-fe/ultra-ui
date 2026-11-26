@@ -17,7 +17,7 @@ import type {
 import { addTokenUsage, resolveTools, serializeResult } from './use-chat-helpers'
 import { createSessionRuntime } from './use-chat-session'
 
-export interface UseChatOptions {
+interface UseChatOptions {
   props: AiChatProps
   emit: AiChatEmits
 }
