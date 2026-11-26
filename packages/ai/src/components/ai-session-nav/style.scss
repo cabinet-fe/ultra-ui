@@ -84,15 +84,16 @@ $root-name: ai-session-nav;
     color: fn.use-var(text-color, placeholder);
   }
 
-  @include m.e(tooltip-q) {
+  @include m.e(tooltip-q, tooltip-a) {
     min-width: 0;
-    color: fn.use-var(text-color, main);
     word-break: break-word;
   }
 
+  @include m.e(tooltip-q) {
+    color: fn.use-var(text-color, main);
+  }
+
   @include m.e(tooltip-a) {
-    min-width: 0;
     color: fn.use-var(text-color, second);
-    word-break: break-word;
   }
 }

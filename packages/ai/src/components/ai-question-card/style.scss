@@ -23,6 +23,12 @@ $root-name: ai-question-card;
     box-shadow: none;
   }
 
+  .u-checkbox {
+    flex-shrink: 0;
+    height: 20px;
+    align-items: center;
+  }
+
   @include m.e(progress) {
     @include m.flex(flex, space-between, center);
     color: fn.use-var(text-color, assist);
@@ -125,12 +131,6 @@ $root-name: ai-question-card;
     @include m.is(selected) {
       background-color: fn.color-a(color, 16, primary);
     }
-
-    .u-checkbox {
-      flex-shrink: 0;
-      height: 20px;
-      align-items: center;
-    }
   }
 
   // 单选序号（1, 2, 3, 4）
@@ -194,12 +194,6 @@ $root-name: ai-question-card;
 
     @include m.is(active) {
       background-color: fn.color-a(color, 16, primary);
-    }
-
-    .u-checkbox {
-      flex-shrink: 0;
-      height: 20px;
-      align-items: center;
     }
   }
 

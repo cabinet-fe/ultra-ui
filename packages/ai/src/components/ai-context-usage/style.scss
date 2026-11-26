@@ -32,16 +32,17 @@ $root-name: ai-context-usage;
     height: 14px;
   }
 
-  @include m.e(ring-track) {
+  @include m.e(ring-track, ring-value) {
     fill: none;
-    stroke: fn.use-var(border-color);
     stroke-width: 8;
   }
 
+  @include m.e(ring-track) {
+    stroke: fn.use-var(border-color);
+  }
+
   @include m.e(ring-value) {
-    fill: none;
     stroke: fn.use-var(color, primary);
-    stroke-width: 8;
     transition: stroke-dasharray 0.3s ease;
   }
 }

@@ -28,7 +28,6 @@
 
     <template #content>
       <slot
-        v-if="usage"
         :usage="usage"
         :last-request-usage="lastRequestUsage"
         :context-window="contextWindow"
@@ -53,6 +52,7 @@
 
 <script lang="ts" setup>
 import './style'
+import { n } from '@cat-kit/core'
 import { UDropdown } from '@veltra/desktop'
 import { bem } from '@veltra/utils'
 import { computed } from 'vue'
@@ -85,18 +85,15 @@ const cls = bem('ai-context-usage')
  * 用量数字：不到 1000 原样；≥1000 用 K；≥100 万用 M。
  * 最多 1 位小数，整数不写 `.0`（1000 → 1K，1500 → 1.5K）。
  */
-const formatTokenCount = (n: number) => {
-  const scaled = (value: number, unit: 'K' | 'M') => {
-    const rounded = Math.round(value * 10) / 10
-    return `${Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1)}${unit}`
-  }
-  if (n < 1000) return String(n)
-  if (n < 1_000_000) {
-    const k = Math.round((n / 1000) * 10) / 10
+const formatTokenCount = (count: number) => {
+  const scaled = (value: number, unit: 'K' | 'M') => `${n(value).fixed({ maxPrecision: 1 })}${unit}`
+  if (count < 1000) return String(count)
+  if (count < 1_000_000) {
+    const thousands = n(count / 1000).fixed({ maxPrecision: 1 })
     // 四舍五入后会变成 1000K 时改用 M
-    return k >= 1000 ? scaled(n / 1_000_000, 'M') : scaled(n / 1000, 'K')
+    return Number(thousands) >= 1000 ? scaled(count / 1_000_000, 'M') : `${thousands}K`
   }
-  return scaled(n / 1_000_000, 'M')
+  return scaled(count / 1_000_000, 'M')
 }
 
 /** 百分比：最多 1 位小数，整数不写 `.0` */
