@@ -26,7 +26,9 @@ keywords:
     reasoning_effort,
     apiKey,
     服务端代理,
-    respondToolCall
+    respondToolCall,
+    ChatPendingQuestion,
+    questionCalls
   ]
 ---
 
@@ -40,8 +42,8 @@ keywords:
 
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useChat, createOpenAITransport, type AiChatEmits } from '@veltra/ai'
+import { ref } from 'vue'
 
 // 指向服务端代理；API Key 只存在服务端
 const transport = createOpenAITransport({
@@ -72,8 +74,7 @@ const send = () => {
 <template>
   <div>
     <div v-for="msg in chat.messages.value" :key="msg.id">
-      <b>{{ msg.role }}</b
-      >：{{ msg.content }}
+      <b>{{ msg.role }}</b>：{{ msg.content }}
     </div>
     <input v-model="input" @keydown.enter="send" />
     <button v-if="chat.running.value" type="button" @click="chat.abort()">停止</button>
@@ -131,7 +132,9 @@ export function useChat(options: UseChatOptions): {
   /** session 审批数据（approval/requested 事件写入） */
   pendingApprovals: Ref<ChatPendingApproval[]>
   /** session 提问工具的待回答问题 */
-  pendingQuestion: Ref<{ questions: AskQuestionItem[]; rpcId: string } | null>
+  pendingQuestion: Ref<ChatPendingQuestion | null>
+  /** session 下按 callId 索引的关联提问列表；函数 transport 下恒为 {} */
+  questionCalls: Ref<Record<string, AskQuestionItem[]>>
   send(content: string, attachments?: ChatAttachment[]): void
   abort(): void
   regenerate(): void
@@ -315,7 +318,7 @@ export type ChatSessionEvent =
       rpcId: string
     }
   | { type: 'approval/resolved'; approvalId: string; outcome: string }
-  | { type: 'question/requested'; questions: AskQuestionItem[]; rpcId: string }
+  | { type: 'question/requested'; questions: AskQuestionItem[]; rpcId: string; callId?: string }
   | { type: 'question/resolved'; questionRpcId: string; outcome: 'answered' | 'cancelled' }
   | { type: 'queue/snapshot'; items: ChatQueuedMessage[] }
   | { type: 'jobs/snapshot'; jobs: ChatJob[] }
@@ -333,6 +336,13 @@ export interface ChatPendingApproval {
   rpcId: string
 }
 
+/** session 待回答问题项（question/requested 事件写入 pendingQuestion） */
+export interface ChatPendingQuestion {
+  questions: AskQuestionItem[]
+  rpcId: string
+  callId?: string
+}
+
 /** 历史回放与实时事件共用的折叠状态与纯函数折叠器（后到的更小/重复 seq 不覆盖已应用事件） */
 export interface ChatFoldState {
   lastSeq: number | null
@@ -344,7 +354,8 @@ export interface ChatFoldState {
   title: string | null
   running: boolean
   pendingApprovals: ChatPendingApproval[]
-  pendingQuestion: { questions: AskQuestionItem[]; rpcId: string } | null
+  pendingQuestion: ChatPendingQuestion | null
+  questionCalls: Record<string, AskQuestionItem[]>
   error: { code: string; message: string } | null
 }
 
@@ -356,17 +367,17 @@ export function foldSessionEvent(state: ChatFoldState, event: ChatSessionEvent):
 
 ### createOpenAITransport 配置
 
-| 参数                         | 类型                      | 默认                               | 必填 | 约束                                                                                                                                                                                                            |
-| ---------------------------- | ------------------------- | ---------------------------------- | :--: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `providers`                  | `ChatProvider[]`          | —                                  |  是  | 至少 1 个，空数组抛 `Error('[createOpenAITransport] providers 不能为空')`                                                                                                                                       |
-| `providers[].endpoint`       | `string`                  | —                                  |  是  | 完整 http(s) URL 或相对路径；`mode` 为 `'responses'` / `'chat'` 或后缀可识别时请求固定 `POST <endpoint>`，裸 base URL 时自动拼子路径（见 `mode` 行）                                                             |
-| `providers[].mode`           | `'responses' \| 'chat' \| 'auto'` | `'auto'`                   |  否  | `'responses'`：Responses API，endpoint 原样使用；`'chat'`：chat/completions，endpoint 原样使用；`'auto'`：endpoint 以 `/responses` / `/chat/completions` 结尾按后缀识别，其余视为 base URL（不含查询串）——优先 `POST <base>/responses`，返回 404 / 405 依次回退 `POST <base>/chat/completions`、`POST <endpoint>`（均为 chat 格式，末级兼容「裸地址即 chat 端点」的历史配置）；探测命中（2xx）后记忆该地址，后续请求直连 |
-| `providers[].apiKey`         | `string`                  | —                                  |  否  | 有则带 `Authorization: Bearer <apiKey>`；相对路径代理场景可省略                                                                                                                                                 |
-| `providers[].headers`        | `Record<string, string>`  | —                                  |  否  | 与全局 `headers` 合并，Provider 优先                                                                                                                                                                            |
-| `providers[].applyReasoning` | `(level, body) => void`   | chat 写 `body.reasoning_effort`；responses 写 `body.reasoning.effort` |  否  | 仅在请求带 `reasoningLevel` 时调用                                                                                                                                                        |
-| `providers[].models`         | `ChatModel[]`             | —                                  |  是  | 至少 1 个，否则抛 `Error('[createOpenAITransport] Provider "<id>" 未配置 models')`；`models[].id` 跨 Provider 全局唯一，重复抛 `Error('[createOpenAITransport] 模型 id "<id>" 重复（跨 Provider 须全局唯一）')` |
-| `headers`                    | `Record<string, string>`  | —                                  |  否  | 全局请求头，叠加在 `Content-Type` 与 `Authorization` 之后（可覆盖）                                                                                                                                             |
-| `body`                       | `Record<string, unknown>` | —                                  |  否  | 全局额外请求体字段（两种模式都展开在最前）；chat 模式下 `body.stream_options` 会被合并且强制 `include_usage: true`                                                                                              |
+| 参数                         | 类型                              | 默认                                                                  | 必填 | 约束                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ---------------------------- | --------------------------------- | --------------------------------------------------------------------- | :--: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `providers`                  | `ChatProvider[]`                  | —                                                                     |  是  | 至少 1 个，空数组抛 `Error('[createOpenAITransport] providers 不能为空')`                                                                                                                                                                                                                                                                                                                                                |
+| `providers[].endpoint`       | `string`                          | —                                                                     |  是  | 完整 http(s) URL 或相对路径；`mode` 为 `'responses'` / `'chat'` 或后缀可识别时请求固定 `POST <endpoint>`，裸 base URL 时自动拼子路径（见 `mode` 行）                                                                                                                                                                                                                                                                     |
+| `providers[].mode`           | `'responses' \| 'chat' \| 'auto'` | `'auto'`                                                              |  否  | `'responses'`：Responses API，endpoint 原样使用；`'chat'`：chat/completions，endpoint 原样使用；`'auto'`：endpoint 以 `/responses` / `/chat/completions` 结尾按后缀识别，其余视为 base URL（不含查询串）——优先 `POST <base>/responses`，返回 404 / 405 依次回退 `POST <base>/chat/completions`、`POST <endpoint>`（均为 chat 格式，末级兼容「裸地址即 chat 端点」的历史配置）；探测命中（2xx）后记忆该地址，后续请求直连 |
+| `providers[].apiKey`         | `string`                          | —                                                                     |  否  | 有则带 `Authorization: Bearer <apiKey>`；相对路径代理场景可省略                                                                                                                                                                                                                                                                                                                                                          |
+| `providers[].headers`        | `Record<string, string>`          | —                                                                     |  否  | 与全局 `headers` 合并，Provider 优先                                                                                                                                                                                                                                                                                                                                                                                     |
+| `providers[].applyReasoning` | `(level, body) => void`           | chat 写 `body.reasoning_effort`；responses 写 `body.reasoning.effort` |  否  | 仅在请求带 `reasoningLevel` 时调用                                                                                                                                                                                                                                                                                                                                                                                       |
+| `providers[].models`         | `ChatModel[]`                     | —                                                                     |  是  | 至少 1 个，否则抛 `Error('[createOpenAITransport] Provider "<id>" 未配置 models')`；`models[].id` 跨 Provider 全局唯一，重复抛 `Error('[createOpenAITransport] 模型 id "<id>" 重复（跨 Provider 须全局唯一）')`                                                                                                                                                                                                          |
+| `headers`                    | `Record<string, string>`          | —                                                                     |  否  | 全局请求头，叠加在 `Content-Type` 与 `Authorization` 之后（可覆盖）                                                                                                                                                                                                                                                                                                                                                      |
+| `body`                       | `Record<string, unknown>`         | —                                                                     |  否  | 全局额外请求体字段（两种模式都展开在最前）；chat 模式下 `body.stream_options` 会被合并且强制 `include_usage: true`                                                                                                                                                                                                                                                                                                       |
 
 ### 请求形态（内置 OpenAI transport）
 
@@ -388,20 +399,21 @@ responses 模式（Responses API，优先）：
 
 ### useChat 返回值
 
-| 字段                    | 类型                                                   | 默认            | 说明                                              |
-| ----------------------- | ------------------------------------------------------ | --------------- | ------------------------------------------------- |
-| `messages`              | `Ref<ChatMessage[]>`                                   | `[]`            | 消息列表；流式增量直接写入末尾 assistant 消息     |
-| `model`                 | `Ref<string \| undefined>`                             | `models[0]?.id` | `models` 有值时自动校正为合法 id                  |
-| `reasoningLevel`        | `Ref<string \| undefined>`                             | —               | 切模型时校正（无 levels 清空；非法落到默认/首项） |
-| `running`               | `Ref<boolean>`                                         | `false`         | 从发送到 finish/error/中断期间为 true             |
-| `queue`                 | `Ref<ChatQueuedMessage[]>`                             | `[]`            | 待发送队列                                        |
-| `jobs`                  | `Ref<ChatJob[]>`                                       | `[]`            | 仅 session 有值                                   |
-| `tokenUsage`            | `Ref<ChatTokenUsage \| null>`                          | `null`          | 收到 usage 才有值，多次累加                       |
-| `lastTurnUsage`         | `Ref<ChatTokenUsage \| null>`                          | `null`          | 每轮开始时清零                                    |
-| `lastRequestUsage`      | `Ref<ChatTokenUsage \| null>`                          | `null`          | 最近一次单次请求的用量，不跨轮累计                |
-| `projections` / `title` | `Ref<Record<string, unknown>>` / `Ref<string \| null>` | `{}` / `null`   | 仅 session 有值                                   |
-| `pendingApprovals`      | `Ref<ChatPendingApproval[]>`                           | `[]`            | 仅 session 有值                                   |
-| `pendingQuestion`       | `Ref<{ questions; rpcId } \| null>`                    | `null`          | 仅 session 有值                                   |
+| 字段                    | 类型                                                   | 默认            | 说明                                                          |
+| ----------------------- | ------------------------------------------------------ | --------------- | ------------------------------------------------------------- |
+| `messages`              | `Ref<ChatMessage[]>`                                   | `[]`            | 消息列表；流式增量直接写入末尾 assistant 消息                 |
+| `model`                 | `Ref<string \| undefined>`                             | `models[0]?.id` | `models` 有值时自动校正为合法 id                              |
+| `reasoningLevel`        | `Ref<string \| undefined>`                             | —               | 切模型时校正（无 levels 清空；非法落到默认/首项）             |
+| `running`               | `Ref<boolean>`                                         | `false`         | 从发送到 finish/error/中断期间为 true                         |
+| `queue`                 | `Ref<ChatQueuedMessage[]>`                             | `[]`            | 待发送队列                                                    |
+| `jobs`                  | `Ref<ChatJob[]>`                                       | `[]`            | 仅 session 有值                                               |
+| `tokenUsage`            | `Ref<ChatTokenUsage \| null>`                          | `null`          | 收到 usage 才有值，多次累加                                   |
+| `lastTurnUsage`         | `Ref<ChatTokenUsage \| null>`                          | `null`          | 每轮开始时清零                                                |
+| `lastRequestUsage`      | `Ref<ChatTokenUsage \| null>`                          | `null`          | 最近一次单次请求的用量，不跨轮累计                            |
+| `projections` / `title` | `Ref<Record<string, unknown>>` / `Ref<string \| null>` | `{}` / `null`   | 仅 session 有值                                               |
+| `pendingApprovals`      | `Ref<ChatPendingApproval[]>`                           | `[]`            | 仅 session 有值                                               |
+| `pendingQuestion`       | `Ref<ChatPendingQuestion \| null>`                     | `null`          | 仅 session 有值                                               |
+| `questionCalls`         | `Ref<Record<string, AskQuestionItem[]>>`               | `{}`            | 仅 session 有值（由带 `callId` 的 `question/requested` 写入） |
 
 ## 方法与事件
 
@@ -548,7 +560,6 @@ console.log(transport.defaultModel) // => 'gpt-5'
 
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue'
 import {
   useChat,
   createOpenAITransport,
@@ -556,6 +567,7 @@ import {
   type ChatTool,
   type ChatToolCall
 } from '@veltra/ai'
+import { ref } from 'vue'
 
 const transport = createOpenAITransport({
   providers: [
@@ -696,7 +708,7 @@ chat.send('在吗') // 走 adapter.send，回包经 subscribe 折叠进 chat.mes
 > - `onToolCall` 必须给完整 JSON 参数串，禁止分片回调；分片累积由 transport 自己完成。
 > - 接口未返回 usage 时禁止调用 `onUsage`，禁止用 0 补数；`tokenUsage` 为 `null` 即表示从未收到 usage。
 > - `signal.aborted` 后禁止再调 `onError`；`send` 空内容且无附件是空操作；`enqueue` 在 session 下只返回对象不入队（发送必须走 `send`）。
-> - 内置提问工具 `askQuestion` 自动注入且同名优先：与它同名的自定义工具会被忽略。工具工厂 `createBuiltinTools` 不对外导出。
+> - 函数型 transport 下内置提问工具 `askQuestion` 自动注入且同名优先（与它同名的自定义工具会被忽略），`createBuiltinTools` 不对外导出。Session 模式下不注入内置 `askQuestion`：`question/requested` 携带 `callId` 时写入 `questionCalls` 并关联对应 `tool/call`（`question/resolved` 且 `outcome: 'cancelled'` 时将未终态调用标为取消错误），历史回放使用 `createQuestionToolMeta` 配置提问工具元信息。
 > - 本库 `ChatTransport` 是 `(request, handlers) => void` 的回调形态，不是 fetch 包装，也不是 React AI SDK 的 `streamText`/`useChat`；流式 UI 增量只经 `handlers` 回调。
 > - `createServerTransport` 丢弃 `seq <= lastSeq` 的乱序事件并 `console.warn('[ChatSessionTransport] 丢弃乱序事件 seq=... lastSeq=...')`；`send` / `cancel` / `respond` / `selectModel` 各自做 in-flight 去重（进行中重复调用被静默忽略）。
 > - `useChat` 的 `props` 是普通对象，不需响应式：`transport` / `tools` / `systemPrompt` 等传组件 props 或静态对象均可；`messages` / `model` / `reasoningLevel` 受控走 `props.messages` + `emit('update:messages')`。

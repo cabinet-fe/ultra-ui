@@ -1,6 +1,6 @@
 ---
 title: Ultra UI 总览
-description: Ultra UI（@veltra/*）是面向 Vue 3 的组件与能力库，包含 90 篇桌面组件文档、39 篇移动端组件文档（@veltra/mobile）、AI 对话（UAiChat / 17 个独立 AI 组件 / useChat）、电子表格（USheet / Workbook）、组合式函数、utils 工具、指令、主题系统与按需导入解析器；本篇是全部 176 篇文档的路由表。
+description: Ultra UI（@veltra/*）是面向 Vue 3 的组件与能力库，包含 94 篇桌面组件文档、44 篇移动端组件文档（@veltra/mobile）、AI 对话（UAiChat / 17 个独立 AI 组件 / useChat）、电子表格（USheet / Workbook）、组合式函数、utils 工具、指令、主题系统与按需导入解析器；本篇是全部 180 篇文档的路由表。
 aliases:
   [
     ultra-ui,
@@ -94,6 +94,7 @@ createApp(App).mount('#app')
 | 模块                              | 用途                                                                         | 文档路径                        |
 | --------------------------------- | ---------------------------------------------------------------------------- | ------------------------------- |
 | UAction / UActionGroup            | 操作按钮组：紧凑的行内操作集合                                               | `desktop/action.md`             |
+| UAiButton                         | AI 按钮：点击发起一次 OpenAI 兼容文本生成，pre-input 变体先收集补充输入      | `desktop/ai-button.md`          |
 | UAlert                            | 警告提示：行内提示条，四种语义类型、标题描述与可关闭                         | `desktop/alert.md`              |
 | UAnchor / UAnchorItem             | 锚点导航：点击滚动定位页内锚点、滚动高亮当前项                               | `desktop/anchor.md`             |
 | UAutoComplete                     | 自动补全输入框：输入时下拉匹配候选项                                         | `desktop/auto-complete.md`      |
@@ -190,10 +191,10 @@ createApp(App).mount('#app')
 
 | 分类         | 组件                                                                                                                                                                                                                                                                                                    |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 布局与容器   | `ULayout` 分栏外壳、`UGrid` / `UGridItem` 栅格、`UScroll` 细滚动条容器、`UCard` 系列 页面区块 / 面板 / 统计卡片容器、`UCollapse` / `UCollapseItem` 折叠、`UTabs` 系列 标签页、`USpace` 间距容器、`UDivider` 分割线                                                                                                |
+| 布局与容器   | `ULayout` 分栏外壳、`UGrid` / `UGridItem` 栅格、`UScroll` 细滚动条容器、`UCard` 系列 页面区块 / 面板 / 统计卡片容器、`UCollapse` / `UCollapseItem` 折叠、`UTabs` 系列 标签页、`USpace` 间距容器、`UDivider` 分割线                                                                                      |
 | 导航         | `UDualNav` 双栏导航、`UNav` 多级侧边导航、`UGroupNav` 分组导航、`UBreadcrumb` 面包屑、`USteps` 步骤条、`UProgressNodes` 进度节点、`UFloatButton` 浮动按钮、`UBackTop` 回到顶部                                                                                                                          |
 | 文本与图标   | `UText` 文本排版（五档字号字重）、`UIcon` 图标、`UKbd` 按键、`UBadge` 徽标、`UTag` 标签、`UAvatar` / `UAvatarGroup` 头像、`UNodeRender` 节点渲染、`UWatermark` 水印                                                                                                                                     |
-| 按钮与操作   | `UButton` / `UButtonGroup` 按钮、`UAction` / `UActionGroup` 表格行内操作、`USegment` 分段控制器、`UCheckTag` 可选中标签、`UDropdown` 下拉菜单、`UContextmenu` 右键菜单                                                                                                                                  |
+| 按钮与操作   | `UButton` / `UButtonGroup` 按钮、`UAiButton` AI 按钮、`UAction` / `UActionGroup` 表格行内操作、`USegment` 分段控制器、`UCheckTag` 可选中标签、`UDropdown` 下拉菜单、`UContextmenu` 右键菜单                                                                                                             |
 | 表单与输入   | `UForm` 表单容器、`UFormItem` 表单项、`UInput`、`UTextarea`、`UPasswordInput`、`UNumberInput`、`UNumberRangeInput`、`UAutoComplete`、`UGroupInput`、`UGridInput`、`USwitch`、`UCheckbox` / `UCheckboxButton`、`UCheckboxGroup`、`URadio`、`URadioGroup`、`UChip`、`UChipGroup`、`USlider`、`URate` 评分 |
 | 选择器与日期 | `USelect`、`UMultiSelect`、`UTreeSelect`、`UMultiTreeSelect`、`UCascade`、`UTree`、`UDatePicker`、`UTimePicker` 时间选择器、`UDateRangePicker`、`UDatePanel`、`UCalendar`、`UPalette`                                                                                                                   |
 | 数据展示     | `UTable` 数据表格、`UTableEditor` 可编辑表格、`UKanban` 看板、`UPaginator` 分页器（含「共 N 条」文案）、`UNumber` 数字格式化与补间、`UEmpty` 空状态、`UGanttChart` 甘特图、`UCarousel` / `UCarouselItem` 走马灯                                                                                         |
@@ -210,6 +211,7 @@ createApp(App).mount('#app')
 | UBadge                            | 徽标：角标计数与 99+ 封顶、dot、hidden                          | `mobile/badge.md`             |
 | UButton                           | 按钮：语义色 / 朴素 / 文本 / 图标 / 加载，44px 触控热区         | `mobile/button.md`            |
 | UCard                             | 卡片：单容器内容区块，三档密度内边距                            | `mobile/card.md`              |
+| UCascade                          | 级联选择：底部面板面包屑逐级下钻、路径值/叶子值、多选勾选暂存   | `mobile/cascade.md`           |
 | UCheckTag                         | 可选中标签：标签形态勾选项，44×44 热区                          | `mobile/check-tag.md`         |
 | UCheckbox                         | 复选框：44px 行热区、`:active` 按压反馈                         | `mobile/checkbox.md`          |
 | UCheckboxGroup                    | 复选框组：多选绑定与 max 限制，readonly 呈现为 UTag             | `mobile/checkbox-group.md`    |
@@ -245,6 +247,8 @@ createApp(App).mount('#app')
 | UTextarea                         | 多行输入：autosize、右上角 44px 清空                            | `mobile/textarea.md`          |
 | UTimePicker                       | 时间选择：三列滚轮 scroll-snap、确定 / 取消                     | `mobile/time-picker.md`       |
 | UTimeline / UTimelineItem         | 时间线：圆点 14px、自定义节点                                   | `mobile/timeline.md`          |
+| UTreeSelect                       | 树选择：底部面板树形行单选、远程搜索函数、节点禁用与展开策略    | `mobile/tree-select.md`       |
+| UUploader                         | 文件上传：瓦片列表、自定义 upload、大小/数量限制、图片大图预览  | `mobile/uploader.md`          |
 | useScrollLock                     | 滚动锁定：弹层锁 body 滚动、恢复原滚动位置、嵌套计数            | `mobile/use-scroll-lock.md`   |
 | useTouchGesture                   | 触摸手势：拖拽跟随 + 释放关闭判定、横滑方向判定（passive 可用） | `mobile/use-touch-gesture.md` |
 
@@ -290,7 +294,7 @@ createApp(App).mount('#app')
 
 | 模块                        | 用途                                                                                                                                                                                                                | 文档路径                      |
 | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- |
-| UAiChat                     | 完整对话壳层：流式消息列表、工具调用编排、清除确认、侧边面板与默认输入栏                                                                                                                                            | `ai/ai-chat.md`               |
+| UAiChat                     | 完整对话壳层：流式消息列表、工具调用编排、`createQuestionToolMeta` 提问元信息、清除确认、侧边面板与默认输入栏                                                                                                       | `ai/ai-chat.md`               |
 | UAiComposer 等输入组合件    | 独立输入与控件：`UAiComposer` / `UAiContextPicker` / `UAiContextUsage` / `UAiModelPicker` / `UAiReasoningPicker` / `UAiAttachments` 与 `readFileAsAttachment`                                                       | `ai/ai-composer.md`           |
 | UAiMessageList 等展示编排件 | 独立展示与状态组件：`UAiMessageList` / `UAiBubble` / `UAiStepGroup` / `UAiToolCall` / `UAiReasoning` / `UAiQuestionCard` / `UAiSidePanel` / `UAiMessageQueue` / `UAiJobBar` / `UAiApprovalBanner` / `UAiSessionNav` | `ai/ai-display-components.md` |
 | useChat                     | 无头对话状态机与三种传输层（OpenAI Responses 优先 / chat SSE / 自定义 / 服务端会话）                                                                                                                                | `ai/use-chat.md`              |

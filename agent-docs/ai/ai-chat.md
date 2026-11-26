@@ -28,7 +28,8 @@ keywords:
     reasoningLevel,
     token 用量,
     contextWindow,
-    readonly
+    readonly,
+    createQuestionToolMeta
   ]
 ---
 
@@ -67,7 +68,7 @@ const transport = createOpenAITransport({
 ## API 签名
 
 ```ts
-import type { ChatSessionTransport } from '@veltra/ai'
+import type { AskQuestionAnswer, AskQuestionItem, ChatSessionTransport } from '@veltra/ai'
 import type { Component } from 'vue'
 
 export interface AiChatProps {
@@ -241,8 +242,9 @@ export interface ChatTool<A = any> {
   /** 自定义卡片内容渲染组件，props 为 ChatToolRenderProps；优先级高于 tool-<name> 插槽 */
   render?: Component
   /**
-   * 渲染位置。缺省 'inline'（会话内工具卡片）；'panel' 为右侧侧边面板。
-   * 'reply' 为回复流消息块：`contentOffset` 为 0 且同消息 content 非空时卡片在正文前；大于等于正文长度或未设置时在正文后；落在中间时同一气泡切开为前文、卡片、后文。偏移在围栏代码块或成对行内代码内部时切点挪到块外。
+   * 渲染位置。缺省 'inline'（步骤容器内工具卡片）；'panel' 为步骤容器留痕 + 右侧侧边面板；
+   * 'reply' 为回复流外层主线块，不进入步骤容器，且作为步骤组边界（闭合前置步骤段、后续步骤单独成组）。
+   * 与正文同属一条消息时按 `contentOffset` 排布：`0` 且 content 非空时在正文前，大于等于长度或未设时在正文后，中间则切开气泡为前文、卡片、后文（代码块内偏移自动挪到块外）。
    */
   renderTo?: 'inline' | 'reply' | 'panel'
   /** 侧边面板默认宽度（px，最小 320），仅 renderTo: 'panel' 时生效 */
@@ -251,8 +253,6 @@ export interface ChatTool<A = any> {
   panelTitle?: string | ((toolCall: ChatToolCall) => string)
   /** 执行完成后是否自动折叠（缺省规则见本节末尾） */
   autoCollapse?: boolean
-  /** 是否从可折叠步骤行（「执行了 N 个步骤」）中隐藏；适合已用 renderTo: 'reply' 外层交互渲染的工具 */
-  hideInSteps?: boolean
   /** 终结工具：执行成功后对话即结束（发 finish），结果不再回灌模型；失败/被拒绝仍回灌 */
   terminal?: boolean
   /** 工具实现；args 为 JSON.parse(arguments)，返回值 JSON 序列化后回灌模型 */
@@ -269,8 +269,23 @@ export interface ChatToolMeta {
   panelWidth?: number
   panelTitle?: string | ((toolCall: ChatToolCall) => string)
   autoCollapse?: boolean
-  hideInSteps?: boolean
 }
+
+export interface CreateQuestionToolMetaOptions {
+  /** 服务端提问工具名（与 tool/call.name 匹配），默认 'askQuestion' */
+  name?: string
+  /** 工具显示名，默认 '提问' */
+  label?: string
+  /** 工具图标，默认 QuestionFilled */
+  icon?: Component
+  /** 自定义解析工具参数为问题列表（默认兼容 { questions }） */
+  parseQuestions?: (toolCall: ChatToolCall) => AskQuestionItem[]
+  /** 自定义解析工具结果为回答列表（默认兼容 { answers } 或 AskQuestionAnswer[]） */
+  parseAnswers?: (toolCall: ChatToolCall) => AskQuestionAnswer[] | undefined
+}
+
+/** 创建服务端 Session 模式下的提问工具元信息（renderTo: 'reply' + UAiQuestionCard） */
+export function createQuestionToolMeta(options?: CreateQuestionToolMetaOptions): ChatToolMeta
 
 /** render 组件 / tool-<name> 插槽收到的 props：toolCall 含 status/arguments/result/error，实时更新 */
 export interface ChatToolRenderProps {
@@ -388,10 +403,10 @@ export type ChatTransport = (
 - 欢迎区 / 吉祥物状态：活体球常驻在列表外、输入框上方待在原位（不进入对话列表）；空闲时展示快捷提问（多条每 4000ms 轮换，点文案即发送，点球立即换下一条并重置计时）。生成中原位切换为工作态（`thinking` / `speaking` 状态与「工作中…」提示），工具调用失败自动播 `frustrated` 表情，结束后在原位停留 2500ms 播完终态表情（`done` → `happy`，`error` → `frustrated`，中断只停留）再恢复欢迎语。
 - 工作计时：生成中吉祥物旁「工作中…」逐秒跳动计时；结束后除在原位停留期间展示用时外，同时在该轮答案的复制 / 重新生成操作区左侧显示「用时 Xs」（整秒，≥60s 显示 `Xm Ys`）。仅实时生成的轮次有计时，历史回放不显示；重新生成后更新为本轮新用时。
 - 流式输出默认吸底滚动；用户上翻立即取消吸底，此时列表下方出现圆形向下箭头悬浮按钮，点击回到底部。
-- 过程编排（步骤行）：一轮对话中文字回答之前的思考与工具调用压缩为一个固定高度（30px）的「步骤行」。生成中行内实时展示当前执行中的步骤——思考步显示四角星图标 + `思考中…` + 最新一行思考预览，工具步显示工具图标 + 工具名 + 参数摘要；开始新步骤时行内视图以走马灯效果从下往上切换。一旦出现文字回答，该段即闭合定格为完成态（`执行了 N 个步骤`，落定态无 hover 高亮、展开箭头紧跟文案，出错 / 中止分别为 `出错了` / `已停止`，着危险色），之后的步骤在新一行继续。点击步骤行展开该段全部步骤列表（思考块 + 工具卡片），再点收起；当前工具待确认（`awaiting-confirm`）或有卡片内内联 `render` / `tool-<name>` 插槽 UI 时自动展开，用户手动切换过后不再自动变化。轮内最后一条 assistant 无正文且已终态时，状态行与复制 / 重新生成操作区落在步骤行下方。`renderTo: 'reply'` 的工具：自定义渲染（`render` / `tool-<name>` 插槽）作为消息块放在回复流，位置由该调用的 `contentOffset` 决定。`contentOffset` 为 0 且这条 assistant 消息的 `content` 非空时，卡片在该段正文之前；`contentOffset` 大于等于正文长度，或未设置 `contentOffset` 时，卡片在该段正文之后；`0 < contentOffset < content.length` 时，同一气泡内按该偏移渲染前文、卡片、后文，复制仍写入整段 `content`，状态行和操作区只出现一次。偏移落在围栏代码块或成对行内代码内部时，切点挪到该块之外：离块首更近放在块前，否则放在块后。调用与正文同属一条 assistant 消息时卡片仍留在该段，不另起步骤行。live 期间实时渲染进度 / 表单，落定后不随步骤行折叠；默认步骤行仍保留过程条目（展开回溯默认参数 / 结果视图），若同时设 `hideInSteps: true`（如内置 `askQuestion` 提问工具），则不进入步骤行列表，避免与外层回复流重复展示；未提供 `render` / 插槽时回复流兜底渲染标准工具卡片（有结果后才出现）。
+- 过程编排（步骤行）：一轮对话中主线内容块（文字回答或 `renderTo: 'reply'` 外层工具卡片）之前的思考与普通工具调用压缩为一个固定高度（30px）的「步骤行」。生成中行内实时展示当前执行中的步骤——思考步显示四角星图标 + `思考中…` + 最新一行思考预览，工具步显示工具图标 + 工具名 + 参数摘要；开始新步骤时行内视图以走马灯效果从下往上切换。一旦出现文字回答或 `renderTo: 'reply'` 工具块，该步骤段即闭合定格为完成态（`执行了 N 个步骤`，落定态无 hover 高亮、展开箭头紧跟文案，出错 / 中止分别为 `出错了` / `已停止`，着危险色），其后的思考与普通工具调用在卡片下方开启新的步骤段独立成组。点击步骤行展开该段全部步骤列表（思考块 + 工具卡片），再点收起；当前工具待确认（`awaiting-confirm`）或有卡片内内联 `render` / `tool-<name>` 插槽 UI 时自动展开，用户手动切换过后不再自动变化。轮内最后一条 assistant 无正文且已终态时，状态行与复制 / 重新生成操作区落在末尾块下方。`renderTo: 'reply'` 的工具：一律作为主线块直接渲染在回复流外层、不进入步骤容器，live 期间实时渲染进度 / 表单，落定后不随步骤行折叠；与正文同属一条 assistant 消息时位置由 `contentOffset` 决定（`0` 且 `content` 非空时在正文前；大于等于正文长度或未设置时在正文后；落在中间时同一气泡内按偏移切开为前文、卡片、后文，偏移落在代码块内部时自动挪到块外）；未提供 `render` 且无命中 `#tool-<name>` 插槽时，回复流兜底渲染标准工具卡片。
 - 思考过程折叠块（在展开的步骤列表内）：折叠头是四角星图标（思考中主星呼吸旋转 + 副星错相闪烁，静止为干净四角星）+ 标题（`思考中…` / `思考了 12s` / `思考过程`，亚秒级不报耗时；耗时按消息 id 记忆，折叠卸载重挂载不丢失）+ 最新一行思考；点击头部展开完整内容（限高 220px，区内可滚动）。
-- 工具卡片默认折叠（含进行中）：折叠头为「图标 + 工具名 + 参数摘要（如 `src/a.ts`、`git status`、提问首题文案）」。展开后的参数 / 结果 / 错误 / `view` 直接以浅底圆角等宽文本块展示原始数据（不渲染「参数 / 结果 / 错误 / 视图」标题行，错误块着危险色）；单标量参数或空参数已被头部摘要完整覆盖时省去参数块。自动展开的例外：`awaiting-confirm` 待确认且 body 有内容、有卡片内 `render` 或 `tool-<name>` 插槽的进行中调用（`renderTo` 为 `reply` / `panel` 的自定义渲染不在卡片 body 内，不触发自动展开）、`terminal` 终结工具（答复 UI 即卡片内容）。用户手动切换过折叠态后不再随状态自动变化。侧边面板（`renderTo: 'panel'`）头部带刷新、全屏放大 / 还原与关闭按钮：点击刷新可重新挂载渲染面板内组件；全屏时铺满整个组件区域（含输入区），还原回到右侧列，切换聚焦的调用时自动退出全屏。
-- 内置提问表单交互：无边框浅底选项，单选左侧使用 `1, 2, 3, 4` 数字序号徽标且点击预设选项后（非最后一题）自动跳转到下一题，多选（`multiple: true`）直接复用内部 `UCheckbox` 组件（多选时勾选预设项与自定义输入可共存）；支持 `header` 分类短标签与结构化选项 `{ label, description }`（`label` 含 `(推荐)` / `(Recommended)` 自动剥离并渲染「推荐」徽标）；支持内联自定义输入与回车确认（规避 IME 组合选词误触），底部提供「跳过」，非输入框聚焦时支持数字键 `1`–`9` 选选项、`Enter` 前进/提交与 `←`/`→` 切换题目；提交后仅在回复流外层常驻展示问答摘要，不再收入步骤行。
+- 工具卡片默认折叠（含进行中）：折叠头为「图标 + 工具名 + 参数摘要（如 `src/a.ts`、`git status`、提问首题文案）」。展开后的参数 / 结果 / 错误 / `view` 直接以浅底圆角等宽文本块展示原始数据（不渲染「参数 / 结果 / 错误 / 视图」标题行，错误块着危险色）；单标量参数或空参数已被头部摘要完整覆盖时省去参数块。自动展开的例外：`awaiting-confirm` 待确认且 body 有内容、有卡片内 `render` 或 `tool-<name>` 插槽的进行中调用（`renderTo` 为 `reply` / `panel` 的自定义渲染不在步骤内卡片 body 中，不触发自动展开）、`terminal` 终结工具（答复 UI 即卡片内容）。用户手动切换过折叠态后不再随状态自动变化。侧边面板（`renderTo: 'panel'`）头部带刷新、全屏放大 / 还原与关闭按钮：点击刷新可重新挂载渲染面板内组件；全屏时铺满整个组件区域（含输入区），还原回到右侧列，切换聚焦的调用时自动退出全屏。
+- 内置提问表单交互：无边框浅底选项，单选左侧使用 `1, 2, 3, 4` 数字序号徽标且点击预设选项后（非最后一题）自动跳转到下一题，多选（`multiple: true`）直接复用内部 `UCheckbox` 组件（多选时勾选预设项与自定义输入可共存）；支持 `header` 分类短标签与结构化选项 `{ label, description }`（`label` 含 `(推荐)` / `(Recommended)` 自动剥离并渲染「推荐」徽标）；支持内联自定义输入与回车确认（规避 IME 组合选词误触），底部提供「跳过」，非输入框聚焦时支持数字键 `1`–`9` 选选项、`Enter` 前进/提交与 `←`/`→` 切换题目；提交后仅在回复流外层常驻展示问答摘要，不再收入步骤行。Session 模式下，服务端 `question/requested` 携带 `callId` 时自动关联对应 `tool/call` 在流内原位渲染 `UAiQuestionCard` 并切断前后步骤组（不重复显示底部提问栏）；历史回放或需自定义参数/结果解析时通过 `createQuestionToolMeta` 传入 `tools`。
 - 消息渲染基于 markstream-vue（`MarkdownRender`，`mode="chat"`），代码块 / 行内代码 / 表格 / 引用 / 链接等配色已映射到 `@veltra/styles` 的 `--u-*` 主题 token，跟随宿主亮暗主题自动切换；`rendererProps` 可继续透传 markstream-vue 的其余 props。
 - 会话导航：会话达到 3 轮且消息列表溢出可滚动时，在内容列左缘出现一列圆点指示器（当前视口所在轮次高亮、已读轮次变淡）；鼠标悬停单个圆点时在其右侧浮现该轮的提问与回答前缀摘要，点击圆点滚动到该轮顶部并取消吸底。
 - 消息、队列、输入区限宽 800px 居中，纵向滚动条悬浮于会话主列右缘（不贴 800px 内容区）；空会话（只有 tool 消息视为空）时输入区垂直居中。token 展示：数字 <1000 原样，≥1000 用 K、≥100 万用 M（最多 1 位小数，整数不带 `.0`，如 1500 → 1.5K）。
@@ -474,7 +489,7 @@ const onFinish = (message: { content: string }) => console.log('本轮结束：'
       @error="(error: Error) => console.error(error)"
     >
       <!-- 工具定义了 render 时此插槽不生效；本例 getWeather 未定义 render，
-           renderTo: 'reply' 时插槽渲染在回复流消息块（有结果后出现） -->
+           renderTo: 'reply' 时进行中兜底标准工具卡片，有结果后替换为本插槽 -->
       <template #tool-getWeather="{ toolCall }">
         <pre v-if="toolCall.result">{{ toolCall.result }}</pre>
         <span v-else-if="toolCall.status === 'error'">查询失败：{{ toolCall.error }}</span>
@@ -489,8 +504,8 @@ const onFinish = (message: { content: string }) => console.log('本轮结束：'
 
 ```vue
 <script setup lang="ts">
-import { ref, useTemplateRef, watch } from 'vue'
 import { UAiChat, createOpenAITransport, type AiChatExposed, type ChatMessage } from '@veltra/ai'
+import { ref, useTemplateRef, watch } from 'vue'
 import '@veltra/ai/style'
 
 const transport = createOpenAITransport({
@@ -591,8 +606,8 @@ const history: ChatMessage[] = [
 > - 生产环境禁止把 API Key 下发到浏览器：`endpoint` 必须指向服务端代理（相对路径或同源 URL），Key 只存在服务端（参考 playground：服务端从环境变量 `DEEPSEEK_API_KEY` 读取 Key，把 `/ai/chat/completions` 的 SSE 转发给上游）。`apiKey` 字段仅限本机调试。
 > - 无头自绘 UI 用同包 `useChat`（本库的方案是 `{ props, emit }` 签名的 Vue 组合式函数，不是 React AI SDK 那个 `useChat`）。
 > - 组件不暴露 `running` / `respondToolCall`：`needsConfirm` 的「允许 / 拒绝」由工具卡片内部处理；无头场景需要确认 UI 时用 `useChat().respondToolCall`。
-> - 内置提问工具 `askQuestion` 自动注入且同名优先；禁止再传 `name: 'askQuestion'` 的工具（会被忽略）。工具工厂 `createBuiltinTools` 不对外导出。
-> - `renderTo: 'reply'` 卡片按 `ChatToolCall.contentOffset` 排布：`0` 且同消息 `content` 非空时在正文前；大于等于正文长度或未设置时在正文后；落在中间时同一气泡切开为前文、卡片、后文。偏移在围栏代码块或成对行内代码内部时，切点挪到块外（离块首更近放在块前，否则放在块后）。2.7.0 曾把同一条消息上的面板固定插在步骤行与正文之间。
+> - 函数型 transport 下内置提问工具 `askQuestion` 自动注入且同名优先（禁止再传 `name: 'askQuestion'` 的工具）；`createBuiltinTools` / `createAskQuestionTool` 不对外导出。Session 模式下不注入内置提问工具：服务端 `question/requested` 带 `callId` 时自动关联流内提问卡片，历史回放或自定义提问工具名使用 `createQuestionToolMeta({ name, ... })`。
+> - `renderTo: 'reply'` 工具一律不进入步骤容器并会切分前后步骤段；卡片在有正文时按 `ChatToolCall.contentOffset` 排布：`0` 且同消息 `content` 非空时在正文前；大于等于正文长度或未设置时在正文后；落在中间时同一气泡切开为前文、卡片、后文。偏移在围栏代码块或成对行内代码内部时，切点挪到块外（离块首更近放在块前，否则放在块后）。`hideInSteps` 已移除。
 > - 发给模型的只有 `name` / `description` / `parameters`；`execute` / `needsConfirm` / `terminal` / 渲染相关字段只在本端生效。
 > - `finish` 不等于「回答成功」：达到 `maxToolRounds` 上限、terminal 工具成功也会发 `finish`；失败走 `error` 事件。
 > - 本库是 `UAiChat` 组件 + `useChat` 状态机两层，不是 Element/AntD 那类纯展示组件，也没有 `loading` prop——加载状态用暴露的 `queue` 与 `finish` / `error` 事件推导，或改用 `useChat().running`。

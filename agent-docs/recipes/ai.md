@@ -155,7 +155,7 @@ const tools: ChatTool[] = [
 - Key 不下发浏览器：浏览器端 `endpoint` 写相对路径（如 `/api/ai/chat`），不传 `apiKey`；代理端从环境变量读 Key、注入 `Authorization: Bearer`、把 SSE 原样转发。`apiKey` 字段仅限本机调试。
 - `transport.models`（扁平模型列表）与 `transport.defaultModel`（首个 Provider 的首个模型）可直接交给 `UAiChat` 的 `:models` / `v-model:model`。
 - 工具编排：传入 `tools` 后组件内部跑 tool_calls → 执行 `execute` → 结果（非 string 则 `JSON.stringify`）以 `role: 'tool'` 消息回灌 → 继续生成，直到无工具调用、命中 `terminal: true` 的工具或达到 `maxToolRounds`（默认 10）。禁止自己写工具循环。
-- `needsConfirm: true` 的工具执行前等用户确认；`terminal: true` 的工具执行成功后对话结束（配合 `render` 做「UI 即答复」）；`renderTo: 'panel'` 把自定义组件渲染到右侧面板。内置提问工具 `askQuestion` 由 `useChat` 始终注入，用户传入的同名工具会被丢弃。
+- `needsConfirm: true` 的工具执行前等用户确认；`terminal: true` 的工具执行成功后对话结束（配合 `render` 做「UI 即答复」）；`renderTo: 'reply'` 将工具作为主线块渲染在回复流外层并切分前后步骤组；`renderTo: 'panel'` 把自定义组件渲染到右侧面板。函数型 transport 下内置提问工具 `askQuestion` 由 `useChat` 自动注入（同名工具会被丢弃）；session 模式下使用 `createQuestionToolMeta` 或通过 `question/requested.callId` 关联提问卡片。
 - 无头 `useChat` 分支：与 `UAiChat` 共用 `AiChatProps` / `AiChatEmits` 形状，返回 `messages` / `running` / `send` / `abort` / `regenerate` / `clear` / `respondToolCall` 等；适合自绘 UI。生成中再 `send` 自动进入待发送队列，正常结束 FIFO 接续；手动 `abort` / 出错时队列保留且不自动发。
 - 前置：入口 `loadTheme()`（主题硬规则）；组件样式随 `import { UAiChat } from '@veltra/ai'` 自动加载（全量样式入口 `@veltra/ai/style` 仍可用）；组件根节点 `height: 100%`，父级必须给明确高度。
 
