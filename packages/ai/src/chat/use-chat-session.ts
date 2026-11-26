@@ -1,6 +1,6 @@
 import type { Ref } from 'vue'
 
-import type { AskQuestionItem } from '../tools'
+import type { AskQuestionItem } from '../tools/ask-question/types'
 import {
   createFoldState,
   foldSessionEvent,

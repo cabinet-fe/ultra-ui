@@ -1,4 +1,4 @@
-import type { AskQuestionResult } from './ask-question'
+import type { AskQuestionResult } from './types'
 
 interface AskQuestionDeferred {
   resolve: (result: AskQuestionResult) => void

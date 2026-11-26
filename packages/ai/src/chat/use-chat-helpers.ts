@@ -1,13 +1,11 @@
+import { safeRun } from '@cat-kit/core'
+
 import { createBuiltinTools } from '../tools'
 import type { ChatTokenUsage, ChatTool } from './types'
 
 export function serializeResult(result: unknown): string {
   if (typeof result === 'string') return result
-  try {
-    return JSON.stringify(result) ?? 'null'
-  } catch {
-    return String(result)
-  }
+  return safeRun(() => JSON.stringify(result) ?? 'null') ?? String(result)
 }
 
 /** 内置工具 + 用户工具，同名时内置优先 */

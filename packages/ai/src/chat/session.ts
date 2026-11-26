@@ -1,4 +1,4 @@
-import type { AskQuestionItem } from '../tools'
+import type { AskQuestionItem } from '../tools/ask-question/types'
 import type { ChatAttachment, ChatJob, ChatQueuedMessage, ChatToolCall } from './types'
 
 /** 归一化后的服务端会话事件（协议无关）。

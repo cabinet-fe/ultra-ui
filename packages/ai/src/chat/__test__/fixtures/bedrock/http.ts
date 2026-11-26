@@ -76,17 +76,6 @@ export const bareHttp = new HTTPClient('/api/v1', {
   plugins: [envelopePlugin]
 })
 
-let onAuthExpired: (() => void) | null = null
-
-export function setOnAuthExpired(cb: (() => void) | null): void {
-  onAuthExpired = cb
-}
-
-function expireSession(): void {
-  clearTokens()
-  onAuthExpired?.()
-}
-
 /** 401 → POST /auth/refresh (cookie) → write new access_token; TokenPlugin retries the request. */
 async function refreshAccessToken(): Promise<void> {
   try {
@@ -96,7 +85,7 @@ async function refreshAccessToken(): Promise<void> {
     }
     setAccessToken(body.access_token)
   } catch (err) {
-    expireSession()
+    clearTokens()
     throw err
   }
 }

@@ -1,7 +1,7 @@
 import { useModel } from '@veltra/compositions'
 import { reactive, ref, watch, type Ref } from 'vue'
 
-import type { AskQuestionItem } from '../tools'
+import type { AskQuestionItem } from '../tools/ask-question/types'
 import type { AiChatEmits, AiChatProps } from '../types'
 import type { ChatPendingApproval, ChatPendingQuestion } from './fold'
 import { isServerTransport, type ChatSessionTransport } from './session'

@@ -1,3 +1,4 @@
+import { safeRun } from '@cat-kit/core'
 import { QuestionFilled } from '@veltra/icons/normal'
 import { computed, defineComponent, h, inject, type Component, type PropType } from 'vue'
 
@@ -5,43 +6,20 @@ import type { ChatTool, ChatToolCall, ChatToolMeta } from '../../chat/types'
 import { AiChatDIKey } from '../../components/_shared/di'
 import UAiQuestionCard from '../../components/ai-question-card/ai-question-card.vue'
 import { deferAskQuestion, resolveAskQuestion, takeAskQuestionDeferred } from './deferred'
+import type {
+  AskQuestionAnswer,
+  AskQuestionArgs,
+  AskQuestionItem,
+  AskQuestionResult
+} from './types'
 
-/** 预设选项项（支持纯字符串或带说明的结构化选项） */
-export interface AskQuestionOption {
-  /** 选项展示文案（支持标注 `(推荐)` / `(Recommended)` 自动提取为推荐徽标） */
-  label: string
-  description?: string
-}
-
-export interface AskQuestionItem {
-  question: string
-  /** 简短分类标签（如「鉴权方式」「技术栈」） */
-  header?: string
-  /** 预设选项（支持字符串或 { label, description }）；缺省为纯文本题 */
-  options?: (string | AskQuestionOption)[]
-  /** 是否允许多选（默认 false 单选） */
-  multiple?: boolean
-  placeholder?: string
-}
-
-export interface AskQuestionAnswer {
-  question: string
-  /** 用户回答（单选为所选值或自定义输入；多选为顿号连接的字符串） */
-  answer: string
-  /** 多选回答列表（多选或含多项时提供） */
-  answers?: string[]
-  skipped?: boolean
-}
-
-/** 提问工具参数（模型输出） */
-export interface AskQuestionArgs {
-  questions: AskQuestionItem[]
-}
-
-/** 提问工具结果（序列化后回灌模型，渲染层据此展示问答摘要） */
-export interface AskQuestionResult {
-  answers: AskQuestionAnswer[]
-}
+export type {
+  AskQuestionAnswer,
+  AskQuestionArgs,
+  AskQuestionItem,
+  AskQuestionOption,
+  AskQuestionResult
+} from './types'
 
 export interface CreateAskQuestionToolOptions {
   /** 工具名（传给模型），默认 askQuestion */
@@ -101,12 +79,8 @@ const QUESTIONS_SCHEMA: Record<string, unknown> = {
 }
 
 function parseQuestions(toolCall: ChatToolCall): AskQuestionItem[] {
-  try {
-    const args = JSON.parse(toolCall.arguments || '{}') as Partial<AskQuestionArgs>
-    return Array.isArray(args.questions) ? args.questions : []
-  } catch {
-    return []
-  }
+  const args = safeRun(() => JSON.parse(toolCall.arguments || '{}') as Partial<AskQuestionArgs>)
+  return Array.isArray(args?.questions) ? args.questions : []
 }
 
 function isAnswerItem(item: unknown): item is AskQuestionAnswer {
@@ -117,16 +91,15 @@ function isAnswerItem(item: unknown): item is AskQuestionAnswer {
 
 function parseAnswers(toolCall: ChatToolCall): AskQuestionAnswer[] | undefined {
   if (toolCall.status !== 'success' || !toolCall.result) return undefined
-  try {
-    const result = JSON.parse(toolCall.result) as Partial<AskQuestionResult> | unknown[]
-    if (Array.isArray(result)) {
-      const list = result.filter(isAnswerItem)
-      return list.length ? list : undefined
-    }
-    return Array.isArray(result.answers) ? result.answers : undefined
-  } catch {
-    return undefined
+  const result = safeRun(
+    () => JSON.parse(toolCall.result!) as Partial<AskQuestionResult> | unknown[]
+  )
+  if (result == null || typeof result !== 'object') return undefined
+  if (Array.isArray(result)) {
+    const list = result.filter(isAnswerItem)
+    return list.length ? list : undefined
   }
+  return Array.isArray(result.answers) ? result.answers : undefined
 }
 
 function statusError(toolCall: ChatToolCall): string | undefined {

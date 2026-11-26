@@ -2,13 +2,13 @@ import type { ChatTool } from '../chat/types'
 import { createAskQuestionTool } from './ask-question'
 
 export { createQuestionToolMeta } from './ask-question'
+export type { CreateQuestionToolMetaOptions } from './ask-question'
 export type {
   AskQuestionOption,
   AskQuestionItem,
   AskQuestionAnswer,
-  AskQuestionResult,
-  CreateQuestionToolMetaOptions
-} from './ask-question'
+  AskQuestionResult
+} from './ask-question/types'
 
 /** 内置工具列表（useChat 始终注入，不对外导出；新增内置工具在此注册） */
 export function createBuiltinTools(): ChatTool[] {
