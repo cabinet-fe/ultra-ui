@@ -1,3 +1,5 @@
+import { safeRun } from '@cat-kit/core'
+
 /**
  * 工具调用参数摘要与文本裁剪工具（纯函数，任何输入都不得 throw）。
  */
@@ -8,7 +10,7 @@ const JSON_LIKE = /^[[{]/
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 
-const isScalar = (value: unknown): boolean =>
+const isScalar = (value: unknown): value is string | number | boolean | null | undefined =>
   value == null ||
   typeof value === 'string' ||
   typeof value === 'number' ||
@@ -21,19 +23,15 @@ interface ParsedJson {
 
 function parseJsonLoose(text: string): ParsedJson {
   if (!JSON_LIKE.test(text.trim())) return { ok: false, value: undefined }
-  try {
-    return { ok: true, value: JSON.parse(text) as unknown }
-  } catch {
-    return { ok: false, value: undefined }
-  }
+  const value = safeRun(() => JSON.parse(text) as unknown)
+  return value === undefined ? { ok: false, value: undefined } : { ok: true, value }
 }
 
-function scalarText(value: unknown): string {
+function scalarText(value: string | number | boolean | null | undefined): string {
   if (value == null) return ''
   if (typeof value === 'boolean') return value ? '是' : '否'
   if (typeof value === 'number') return String(value)
-  if (typeof value === 'string') return value
-  return ''
+  return value
 }
 
 /** 单行化 + 截断，用于折叠头摘要与导航预览 */
@@ -124,7 +122,9 @@ export function summarizeArguments(value: unknown): string {
   const firstText = values.find((item) => typeof item === 'string' && item.trim())
   if (typeof firstText === 'string') return clipText(firstText, SUMMARY_LIMIT)
 
-  const scalars = values.filter((item) => isScalar(item) && item != null)
+  const scalars = values.filter(
+    (item): item is string | number | boolean => isScalar(item) && item != null
+  )
   return scalars.length === 1 ? clipText(scalarText(scalars[0]), SUMMARY_LIMIT) : ''
 }
 

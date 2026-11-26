@@ -1,3 +1,5 @@
+import { safeRun } from '@cat-kit/core'
+
 import type { ChatAttachment } from '../../chat/types'
 
 const IMAGE_EXTS = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg', 'avif', 'ico'])
@@ -74,12 +76,9 @@ function extractLocalText(buffer: ArrayBuffer): string | undefined {
   const view = new Uint8Array(buffer, 0, truncated ? MAX_TEXT_BYTES : buffer.byteLength)
   if (view.includes(0)) return undefined
 
-  try {
-    const text = new TextDecoder('utf-8', { fatal: true }).decode(view)
-    return truncated ? `${text}\n...(文件过大，已截断)` : text
-  } catch {
-    return undefined
-  }
+  const text = safeRun(() => new TextDecoder('utf-8', { fatal: true }).decode(view))
+  if (text === undefined) return undefined
+  return truncated ? `${text}\n...(文件过大，已截断)` : text
 }
 
 /**

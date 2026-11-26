@@ -1,3 +1,4 @@
+import { safeRun } from '@cat-kit/core'
 import { computed, inject, toValue } from 'vue'
 import type { Component, MaybeRefOrGetter } from 'vue'
 
@@ -45,11 +46,7 @@ export const isSettledStatus = (status: ChatToolCall['status']) =>
 /** 参数串容错解析：解析失败退回原始串（brief 与展开判定的参数视图共用） */
 const parseLooseArgs = (raw: string | undefined): unknown => {
   if (!raw) return undefined
-  try {
-    return JSON.parse(raw)
-  } catch {
-    return raw
-  }
+  return safeRun(() => JSON.parse(raw) as unknown, raw)
 }
 
 /** 头部图标：meta.icon > 显式覆盖/宿主覆盖 > 内置名称规则 > 兜底（卡片 / 步骤行 / 侧面板共用） */
