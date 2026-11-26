@@ -118,6 +118,7 @@
 </template>
 
 <script lang="ts" setup>
+import './style'
 import { debounce, o } from '@cat-kit/core'
 import { ArrowDown, ArrowRight, Check, Close } from '@veltra/icons/normal'
 import { FORM_EMPTY_CONTENT, fieldKey, injectFormContext } from '@veltra/utils'

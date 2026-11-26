@@ -154,7 +154,11 @@ describe('内置提问工具', () => {
     await vi.waitFor(() => {
       expect(host.querySelector('.md-stub')?.textContent).toContain('明白了')
     })
-    expect(host.querySelector('.u-ai-step-group')).toBeFalsy()
+    // 轮次结束后提问卡片收进完成态步骤组，展开后摘要才在 DOM 里
+    const group = host.querySelector<HTMLElement>('.u-ai-step-group')!
+    expect(group.classList.contains('is-settled')).toBe(true)
+    click(group.querySelector('.u-ai-step-group__bar')!)
+    await nextTick()
 
     expect(
       host.querySelectorAll('.u-ai-message-list__reply-tool .u-ai-question-card__result').length
@@ -281,8 +285,11 @@ describe('内置提问工具', () => {
     })
 
     await vi.waitFor(() => {
-      expect(host.querySelector('.u-ai-question-card__skipped')?.textContent).toBe('已跳过')
+      expect(host.querySelector('.u-ai-step-group.is-settled')).toBeTruthy()
     })
+    click(host.querySelector('.u-ai-step-group__bar')!)
+    await nextTick()
+    expect(host.querySelector('.u-ai-question-card__skipped')?.textContent).toBe('已跳过')
     expect(host.querySelector('.u-ai-question-card__result .u-ai-question-card__tag')).toBeNull()
     expect(host.querySelector('.u-ai-question-card__result-a')?.textContent?.trim()).toBe(
       'Vue 3、TypeScript、Vitest'
@@ -381,19 +388,17 @@ describe('内置提问工具', () => {
     })
 
     const groups = [...host.querySelectorAll('.u-ai-step-group')]
-    const card = host.querySelector('.u-ai-message-list__reply-tool')!
-    expect(groups).toHaveLength(2)
-    expect(groups[0]!.compareDocumentPosition(card) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
-    expect(card.compareDocumentPosition(groups[1]!) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(groups).toHaveLength(1)
+    const group = groups[0]!
+    const answer = host.querySelector('.md-stub')!
+    expect(group.compareDocumentPosition(answer) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
 
-    groups[0]!.querySelector<HTMLElement>('.u-ai-step-group__bar')?.click()
+    click(group.querySelector('.u-ai-step-group__bar')!)
     await nextTick()
-    expect(groups[0]!.querySelectorAll('.u-ai-reasoning')).toHaveLength(1)
-    expect(groups[0]!.querySelectorAll('.u-ai-tool-call')).toHaveLength(0)
-
-    groups[1]!.querySelector<HTMLElement>('.u-ai-step-group__bar')?.click()
-    await nextTick()
-    expect(groups[1]!.querySelectorAll('.u-ai-tool-call')).toHaveLength(1)
+    const card = group.querySelector('.u-ai-message-list__reply-tool')!
+    const tool = group.querySelector('.u-ai-tool-call')!
+    expect(group.querySelectorAll('.u-ai-reasoning')).toHaveLength(1)
+    expect(card.compareDocumentPosition(tool) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     unmount()
   })
 
