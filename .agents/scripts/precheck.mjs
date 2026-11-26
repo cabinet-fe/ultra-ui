@@ -20,7 +20,7 @@ const ROOT_AGENTS_TEMPLATE = {
   非代码: 'root-agents-non-code.md',
 };
 
-const REQUIRED_SCRIPTS = ['spec-files.mjs', 'cooking.mjs'];
+const REQUIRED_SCRIPTS = ['cooking.mjs'];
 
 const CODE_ONLY_DOCS = [
   '.agents/docs/ARCHITECTURE.md',

@@ -1,14 +1,21 @@
 # AGENTS
 
-Agent 入口索引。详细内容在 `.agents/docs/`，**按需读取，禁止一次加载全部**（标「始终读取」的除外）。可在文档表追加其它 `.agents/docs/` 文件。禁止短注、流程章、规范正文。
+Agent 入口索引。详细内容在 `.agents/docs/`，**按需读取，禁止一次加载全部**（标「始终读取」的除外）。可在文档表追加其它 `.agents/docs/` 文件。除「收尾」节外禁止短注、流程章、规范正文。
 
 ## 文档
 
 | 文件 | 何时读 | 何时更新 |
 | --- | --- | --- |
-| `.agents/docs/PROJECT.md` | 需要知道项目类别与仓库结构 | sync-docs：类别、组织结构、全栈形态变了。代码/非代码切换先 setup |
-| `.agents/docs/INSTRUCTIONS.md` | 始终读取 | 用户直接编辑；sync-docs 点名。agent 不自动写入 |
-| `.agents/docs/ARCHITECTURE.md` | 业务/技术架构、技术栈 | sync-docs：架构级变更。implement 禁止改 |
-| `.agents/docs/DEV-STANDARDS.md` | 写代码、做 review | sync-docs：规范或偏好变了。implement 禁止自行发明规范 |
-| `.agents/docs/SMELLS.md` | 写代码时按坏味道边写边收；review 对照 | sync-docs：与技能包模板不一致时原样覆写 |
-| `.agents/docs/CODE-MAP.md` | 定位模块；按模块/路径检索，禁止全文加载 | implement / sync-docs：模块表增删行，或某模块路径、入口、职责、依赖边变了。只改相关行。架构级变化先 sync-docs 改 ARCHITECTURE，再同步本文件。模块内部加文件不算。 |
+| `.agents/docs/PROJECT.md` | 需要知道项目类别与仓库结构 | 类别、组织结构、全栈形态变了。代码/非代码切换先 setup |
+| `.agents/docs/INSTRUCTIONS.md` | 始终读取 | 用户直接编辑；agent 不自动写入 |
+| `.agents/docs/ARCHITECTURE.md` | 业务/技术架构、技术栈 | 架构级变更：换栈、改分层、加删应用边界、新包、拆合包。同步改 CODE-MAP |
+| `.agents/docs/DEV-STANDARDS.md` | 写代码、做 review | 仅用户要求改规范时；不从代码推断新规范 |
+| `.agents/docs/SMELLS.md` | 写代码时按坏味道边写边收；review 对照 | 不手改；与技能包模板不一致时由 setup / sync-docs 原样覆写 |
+| `.agents/docs/CODE-MAP.md` | 定位模块；按模块/路径检索，禁止全文加载 | 模块增删，或模块路径、入口、职责、依赖边变了。只改相关行。模块内部加文件不算 |
+
+## 收尾
+
+任何会话改完文件、交付前都要做，走不走技能都一样：
+
+1. 文档：对照本次改动，按上表「何时更新」当轮改掉被说错的行；包/模块内已有的 `AGENTS.md`、`CODE-MAP.md`、README、技能正文同样适用。只改相关行，不为本次任务新建文档。
+2. 评审：非琐碎改动（改了 3 个以上文件、新增依赖，或改了对外接口 / 数据结构）派一个不带本会话历史的子代理做 git 评审（有 `review` 技能则按其 git 评审执行），不通过则修完再评；没有子代理工具则在汇报里注明「未评审」。由 rush 派发的阶段跳过本条。
