@@ -58,6 +58,7 @@
 
 <script lang="ts" setup>
 import './style'
+import { last } from '@cat-kit/core'
 import { UIcon } from '@veltra/desktop'
 import { ArrowRight, CircleCheck, CircleClose } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
@@ -112,7 +113,7 @@ const isStepSettled = (step: AiStepItem): boolean => {
 const currentStep = computed<AiStepItem | undefined>(() => {
   const list = props.steps
   if (!list.length) return undefined
-  return list.find((step) => !isStepSettled(step)) ?? list[list.length - 1]!
+  return list.find((step) => !isStepSettled(step)) ?? last(list)!
 })
 
 /** 当前工具步的调用（当前步是思考时为 undefined） */

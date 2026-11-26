@@ -164,12 +164,8 @@ $root-name: ai-message-list;
       transform 0.1s ease;
   }
 
-  @include m.em(to-latest, 'fade-enter-from') {
-    opacity: 0;
-    transform: translateX(-50%) translateY(4px);
-  }
-
-  @include m.em(to-latest, 'fade-leave-to') {
+  &__to-latest--fade-enter-from,
+  &__to-latest--fade-leave-to {
     opacity: 0;
     transform: translateX(-50%) translateY(4px);
   }

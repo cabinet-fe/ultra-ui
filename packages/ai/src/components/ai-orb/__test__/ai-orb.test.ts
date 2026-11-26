@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vite-plus/test'
+import { afterEach, describe, expect, it, vi } from 'vite-plus/test'
 import { createApp, h, nextTick } from 'vue'
 
 import UAiOrb from '../ai-orb.vue'
@@ -69,21 +69,7 @@ function createStubCanvas(ctx: ReturnType<typeof createStubContext> | null) {
   return { width: 0, height: 0, getContext: () => ctx } as unknown as HTMLCanvasElement
 }
 
-/** 桩 Path2D（happy-dom 未实现） */
-function stubPath2D() {
-  class Path2DStub {
-    moveTo() {}
-    lineTo() {}
-    closePath() {}
-  }
-  vi.stubGlobal('Path2D', Path2DStub)
-}
-
 describe('createOrbRenderer', () => {
-  beforeEach(() => {
-    stubPath2D()
-  })
-
   afterEach(() => {
     vi.unstubAllGlobals()
     vi.restoreAllMocks()

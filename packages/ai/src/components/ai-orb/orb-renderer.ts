@@ -22,7 +22,7 @@ const STATUS_PARAMS: Record<AiOrbStatus, OrbParams> = {
 /** 眼睛形态：圆眼（可眨眼 / 睁大）/ 开心弯眼 / 紧闭 >< */
 type EyeMode = 'round' | 'happy' | 'squint'
 /** 嘴部形态；none 表示无嘴（常态只有大眼睛，说话 / 表情时才出现嘴） */
-type MouthMode = 'none' | 'smile' | 'flat' | 'talk' | 'grin' | 'frown' | 'o'
+type MouthMode = 'none' | 'talk' | 'grin' | 'frown' | 'o'
 
 const STATUS_MOUTH: Record<AiOrbStatus, MouthMode> = {
   idle: 'none',
@@ -314,21 +314,6 @@ export function createOrbRenderer(
     ctx.strokeStyle = COLORS.face
 
     switch (mouth) {
-      case 'smile':
-        ctx.lineWidth = 0.05
-        ctx.beginPath()
-        ctx.moveTo(-0.15, 0.18)
-        ctx.quadraticCurveTo(0, 0.32, 0.15, 0.18)
-        ctx.stroke()
-        break
-      case 'flat':
-        // 思考：近乎平直的小嘴
-        ctx.lineWidth = 0.045
-        ctx.beginPath()
-        ctx.moveTo(-0.09, 0.24)
-        ctx.quadraticCurveTo(0, 0.255, 0.09, 0.24)
-        ctx.stroke()
-        break
       case 'talk': {
         // 说话：嘴随节奏开合
         const ry = 0.045 + 0.05 * Math.abs(Math.sin(6.5 * t))

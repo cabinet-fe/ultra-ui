@@ -246,6 +246,7 @@
 
 <script lang="ts" setup>
 import './style'
+import { last } from '@cat-kit/core'
 import { UIcon, UScroll } from '@veltra/desktop'
 import type { ScrollPosition } from '@veltra/desktop'
 import { ArrowDown } from '@veltra/icons/normal'
@@ -458,9 +459,9 @@ const turns = computed<ChatTurn[]>(() => {
       grouped.push({ key: msg.id, userMsg: msg, assistants: [] })
       continue
     }
-    const last = grouped[grouped.length - 1]
+    const previous = last(grouped)
     // 兼容 assistant 开头的历史会话：归入无用户消息的轮次
-    if (last) last.assistants.push(msg)
+    if (previous) previous.assistants.push(msg)
     else grouped.push({ key: msg.id, assistants: [msg] })
   }
   return grouped.map((turn, index) => {
@@ -513,7 +514,7 @@ const turns = computed<ChatTurn[]>(() => {
     if (current.steps.length || current.blocks.length) segments.push(current)
 
     const isLastTurn = index === grouped.length - 1
-    const lastMsg = turn.assistants[turn.assistants.length - 1]
+    const lastMsg = last(turn.assistants)
     // 末段 live 判定：running 或末消息未进终态都算进行中，防断连时行内状态来回翻转
     const live = isLastTurn && (props.running || !isFinalStatus(lastMsg))
     // 末条消息无正文（terminal「UI 即答复」工具轮 / 出错 / 中止）：作为状态行与操作区的载体渲染
@@ -532,7 +533,7 @@ const turns = computed<ChatTurn[]>(() => {
       // 轮次结束后确定外层保留的最终回复段：末段有正文/reply 块则留末段；
       // 否则若存在 tailStatusMsg（出错/中止/无正文终结工具）则全部进过程容器；
       // 再否则回退到最后一个有正文答复的段（如正文后还有纯步骤调用）。
-      const lastSeg = segments[segments.length - 1]!
+      const lastSeg = last(segments)!
       const finalSegIndex =
         lastSeg.blocks.length > 0
           ? segments.length - 1
@@ -648,8 +649,8 @@ const stopTick = () => {
 }
 
 const lastTurnDuration = computed(() => {
-  const last = turns.value[turns.value.length - 1]
-  return last ? turnDurations.value.get(last.key) : undefined
+  const latest = last(turns.value)
+  return latest ? turnDurations.value.get(latest.key) : undefined
 })
 
 const isWorking = computed(() => !!(props.running || finishing.value))
@@ -690,8 +691,8 @@ watch(toolErrorFingerprint, () => {
 /** 活体球状态：空闲或收尾停留 → idle；正文输出中 → speaking；其余生成阶段 → thinking */
 const orbStatus = computed<AiOrbStatus>(() => {
   if (!props.running) return 'idle'
-  const last = visibleMessages.value[visibleMessages.value.length - 1]
-  if (last?.role === 'assistant' && last.status === 'streaming' && last.content) {
+  const latest = last(visibleMessages.value)
+  if (latest?.role === 'assistant' && latest.status === 'streaming' && latest.content) {
     return 'speaking'
   }
   return 'thinking'
@@ -715,7 +716,7 @@ watch(
 
     stopTick()
     // 记录本轮总用时（key 同 turns：regenerate 同 key 覆盖，队列接续各自计时）
-    const lastTurn = turns.value[turns.value.length - 1]
+    const lastTurn = last(turns.value)
     if (lastTurn) {
       const next = new Map(turnDurations.value)
       next.set(lastTurn.key, Date.now() - workStartAt)
@@ -729,11 +730,11 @@ watch(
     }
 
     finishing.value = true
-    const last = visibleMessages.value[visibleMessages.value.length - 1]
+    const latest = last(visibleMessages.value)
     let reaction: AiOrbReaction | undefined
-    if (last?.role === 'assistant') {
-      if (last.status === 'done') reaction = 'happy'
-      else if (last.status === 'error') reaction = 'frustrated'
+    if (latest?.role === 'assistant') {
+      if (latest.status === 'done') reaction = 'happy'
+      else if (latest.status === 'error') reaction = 'frustrated'
     }
     if (reaction) {
       nextTick(() => orbRef.value?.react(reaction))
@@ -884,10 +885,7 @@ let trailingScrollTimer: ReturnType<typeof setTimeout> | undefined
 /** 上一次吸底 watch 触发时的 running：识别「本次触发是否为生成收尾」 */
 let prevRunning = props.running
 
-const lastVisibleMessage = computed(() => {
-  const list = visibleMessages.value
-  return list[list.length - 1]
-})
+const lastVisibleMessage = computed(() => last(visibleMessages.value))
 
 const throttledContentLen = useStreamThrottle(
   () => lastVisibleMessage.value?.content.length ?? 0,
@@ -905,20 +903,20 @@ const throttledReasoningLen = useStreamThrottle(
 watch(
   () => {
     const list = visibleMessages.value
-    const last = lastVisibleMessage.value
+    const latest = lastVisibleMessage.value
     return [
       list.length,
-      last?.id ?? '',
+      latest?.id ?? '',
       throttledContentLen.value,
       throttledReasoningLen.value,
-      last?.toolCalls?.length ?? 0,
+      latest?.toolCalls?.length ?? 0,
       props.running
     ].join('|')
   },
   async () => {
     // 用户刚发出消息时强制回到底部（无论之前是否在上翻）
     const list = visibleMessages.value
-    if (list[list.length - 1]?.role === 'user') stickToBottom.value = true
+    if (last(list)?.role === 'user') stickToBottom.value = true
     await scrollToBottomIfStuck()
     const finished = prevRunning && !props.running
     prevRunning = props.running

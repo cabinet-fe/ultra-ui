@@ -196,7 +196,8 @@ $root-name: ai-bubble;
 
     // 图片占位 / 加载失败兜底
     .image-placeholder,
-    .image-shimmer {
+    .image-shimmer,
+    .image-error {
       background: fn.use-var(bg-color, middle);
     }
 
@@ -210,7 +211,6 @@ $root-name: ai-bubble;
     }
 
     .image-error {
-      background: fn.use-var(bg-color, middle);
       color: fn.use-var(text-color, assist);
     }
 

@@ -43,10 +43,7 @@ const emit = defineEmits<{
 const cls = bem('ai-message-list')
 const di = inject(AiChatDIKey, undefined)
 
-const { tool: resolvedTool } = useToolCallBrief(() => props.toolCall, {
-  tool: () => props.tool,
-  toolIcons: () => props.toolIcons
-})
+const { tool: resolvedTool } = useToolCallBrief(() => props.toolCall, { tool: () => props.tool })
 
 const hasResult = computed(() => props.toolCall.result != null || props.toolCall.error != null)
 

@@ -116,6 +116,7 @@
 
 <script lang="ts" setup>
 import './style'
+import { last } from '@cat-kit/core'
 import { useResizeObserver } from '@veltra/compositions'
 import { UIcon, UImagePreviewer, ULayout, UPopConfirm } from '@veltra/desktop'
 import { Clear } from '@veltra/icons/normal'
@@ -243,7 +244,7 @@ const panelOpen = computed(() => activePanelCall.value != null)
 
 // 出现新的面板工具调用时自动打开并聚焦到它
 watch(
-  () => panelCalls.value[panelCalls.value.length - 1]?.id,
+  () => last(panelCalls.value)?.id,
   (id) => {
     if (id) activePanelCallId.value = id
   }
@@ -253,7 +254,7 @@ watch(
 watch(panelCalls, (calls) => {
   const id = activePanelCallId.value
   if (id && !calls.some((call) => call.id === id)) {
-    activePanelCallId.value = calls[calls.length - 1]?.id ?? null
+    activePanelCallId.value = last(calls)?.id ?? null
   }
 })
 
