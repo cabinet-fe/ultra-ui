@@ -1,3 +1,5 @@
+@use 'sass:list';
+@use 'sass:string';
 @use 'pkg:@veltra/styles/mixins' as m with (
   $namespace: um
 );
@@ -134,7 +136,7 @@ $form-controls: (
 // @each 逐个拼接，否则 :has 退化为裸控件选择器、所有行全部命中
 $disabled-controls: ();
 @each $control in $form-controls {
-  $disabled-controls: append($disabled-controls, unquote($control + '.is-disabled'), comma);
+  $disabled-controls: list.append($disabled-controls, string.unquote($control + '.is-disabled'), comma);
 }
 
 .um-form-item:has(#{$disabled-controls}) {
