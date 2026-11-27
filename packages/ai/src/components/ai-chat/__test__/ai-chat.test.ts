@@ -1180,8 +1180,8 @@ describe('UAiChat', () => {
     steps.shift()?.()
     await vi.waitFor(() => {
       expect(host.querySelector('.md-stub')?.textContent).toContain('答案')
+      expect(host.querySelector('.u-ai-thinking-icon.is-active')).toBeFalsy()
     })
-    expect(host.querySelector('.u-ai-thinking-icon.is-active')).toBeFalsy()
     unmount()
   })
 
