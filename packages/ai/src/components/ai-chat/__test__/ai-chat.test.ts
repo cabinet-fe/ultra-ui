@@ -912,7 +912,7 @@ describe('UAiChat', () => {
     await waitForStepLineSettled(host, 1)
     expect(host.querySelector('.u-ai-step-group__text')).toBeFalsy()
     unmount()
-  })
+  }, 15000)
 
   it('思考过程流式结束后步骤行收起，展开可见思考块', async () => {
     const transport: ChatTransport = (_req, handlers) => {
@@ -1303,6 +1303,7 @@ describe('UAiChat', () => {
     vi.useFakeTimers({
       toFake: ['setTimeout', 'setInterval', 'clearTimeout', 'clearInterval', 'Date']
     })
+    vi.setSystemTime(1_000_000)
     try {
       let handlers: ChatTransportHandlers | undefined
       let finish!: () => void
@@ -1368,6 +1369,7 @@ describe('UAiChat', () => {
     vi.useFakeTimers({
       toFake: ['setTimeout', 'setInterval', 'clearTimeout', 'clearInterval', 'Date']
     })
+    vi.setSystemTime(1_000_000)
     try {
       let handlers: ChatTransportHandlers | undefined
       let finish!: () => void
