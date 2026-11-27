@@ -106,6 +106,7 @@ loadTheme()
 | `--u-bg-color-{type}-alpha`                                      | 背景 hex 值叠 `aa` 透明度（固定档）                                        |
 | `--u-bg-color-{type}-a-70`                                       | 背景 alpha token，仅 `70` 一档                                             |
 | `--u-bg-filter`                                                  | `bg.filter.blur + ' ' + saturate` 合成；`blur` 为 `'none'` 时整体 `'none'` |
+| `--u-bg-surface-top` / `--u-bg-surface-middle`                   | 毛玻璃开关自动派生表面底色：关闭回落 `--u-bg-color-*`，开启转为半透明 `rgba()` |
 
 ### 文字色组
 
@@ -182,7 +183,7 @@ loadTheme()
 | `--u-nav-rail-width` / `--u-nav-rail-labeled-width` | 56 / 72px      |
 | `--u-nav-bg-image`                                  | `none`         |
 
-**外观类**随「主题系列 × `nav.variant`」注入（`variant` 默认 `'dark'`），共 10 个：`--u-nav-bg-color`、`--u-nav-color`、`--u-nav-hover-bg`、`--u-nav-hover-color`、`--u-nav-active-bg`、`--u-nav-active-color`、`--u-nav-strong-color`、`--u-nav-second-color`、`--u-nav-sub-border-color`、`--u-nav-rail-bg`。主题 `nav` 顶层键写在同名列之后覆盖内置值；`nav.variants[variant]` 只对该变体生效、优先级最高（`styles/theme.md`）。
+**外观类**随「主题系列 × `nav.variant`」注入（`variant` 默认 `'dark'`），共 11 个：`--u-nav-bg-color`、`--u-nav-bg-surface`（毛玻璃开启时自动将 `--u-nav-bg-color` 转为半透明 `rgba()`，关闭时回落 `var(--u-nav-bg-color)`）、`--u-nav-color`、`--u-nav-hover-bg`、`--u-nav-hover-color`、`--u-nav-active-bg`、`--u-nav-active-color`、`--u-nav-strong-color`、`--u-nav-second-color`、`--u-nav-sub-border-color`、`--u-nav-rail-bg`。主题 `nav` 顶层键写在同名列之后覆盖内置值；`nav.variants[variant]` 只对该变体生效、优先级最高（`styles/theme.md`）。
 
 外观类同时有两套注入位置：`html` 上是主题默认变体；`[data-nav-variant='dark'|'light']` 容器上是对应变体 → 任意子树加 `data-nav-variant` 即可切换菜单深浅，不需要重建主题。
 

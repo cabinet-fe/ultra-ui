@@ -138,7 +138,7 @@ export type CardExposed = {}
 
 内边距与标题字号绑定在同一档位，无法只改其中一个：需要 16px 内边距配 15px 标题时用 `size="large"` 并把标题写在 `UCardContent` 内自定义字号，或覆盖组件 token `--u-card-padding-large`。
 
-卡片外观默认值（亮色主题实测值，随 `loadTheme()` 的主题变化）：背景色 `var(--u-bg-color-top)`、无边框、圆角 `var(--u-card-radius)`（亮色主题 12px）、阴影 `var(--u-shadow-sm)`（`0 1px 2px 0 rgba(0, 0, 0, 0.05)`）、标题区与操作区背景 `var(--u-card-header-bg)` / `var(--u-card-action-bg)`（亮色主题 `rgba(0, 0, 0, 0.015)`）。
+卡片外观默认值（亮色主题实测值，随 `loadTheme()` 的主题变化）：背景色 `var(--u-bg-surface-top)`（毛玻璃关闭时回落 `var(--u-bg-color-top)`）、`backdrop-filter: var(--u-bg-filter)`（嵌套在弹层/卡片内部时自动关闭）、无边框、圆角 `var(--u-card-radius)`（亮色主题 12px）、阴影 `var(--u-shadow-sm)`（`0 1px 2px 0 rgba(0, 0, 0, 0.05)`）、标题区与操作区背景 `var(--u-card-header-bg)` / `var(--u-card-action-bg)`（亮色主题 `rgba(0, 0, 0, 0.015)`）。
 
 ### UCardCover
 

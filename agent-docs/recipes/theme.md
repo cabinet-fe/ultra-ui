@@ -118,10 +118,11 @@ const titleColor = cssVar('text-color-title') // => 'var(--u-text-color-title)'
 <!-- src/App.vue —— 切换入口 -->
 <script setup lang="ts">
 import { UButton } from '@veltra/desktop'
-import { computed } from 'vue'
 import { currentTheme } from '@veltra/styles/theme'
-import { switchSeries } from './theme'
+import { computed } from 'vue'
+
 import ThemeDemo from './components/ThemeDemo.vue'
+import { switchSeries } from './theme'
 
 // 当前系列直接读运行时主题（currentTheme 是 ref，loadTheme 后自动更新）
 const current = computed(() => currentTheme.value?.series ?? 'light')
@@ -135,7 +136,7 @@ const current = computed(() => currentTheme.value?.series ?? 'light')
 
 ## 要点说明
 
-- `loadTheme(theme?)`：同步、无返回值、不抛错；默认 `lightTheme`。重复调用以最后一次为准——这就是热替换：注入的声明块整体替换，颜色立即生效。SSR 必须在 `onMounted` 中调用。
+- `loadTheme(theme?, transition?)`：无返回值、不抛错；`theme` 默认 `lightTheme`，`transition` 默认 `true`。重复调用以最后一次为准——这就是热替换：注入的声明块整体替换，颜色立即生效。切换主题时默认在支持 View Transitions API 的浏览器中从视口中心播放 400ms 圆形涟漪动画（传 `false` 关闭），首屏加载、不支持的环境与 `prefers-reduced-motion: reduce` 自动降级为同步切换。SSR 必须在 `onMounted` 中调用。
 - 预设主题 12 个，每个自带 `series`，不成对切换：light 系 `lightTheme` / `irisTheme` / `celadonTheme` / `guochaoTheme` / `wildTheme` / `newspaperTheme`；dark 系 `darkTheme` / `auroraTheme` / `midnightTheme` / `neonTheme` / `gildedTheme` / `metalTheme`。切深色就是 `loadTheme(darkTheme)` 这类换主题动作。
 - 深浅色硬规则：`series` 决定注入哪套组件级 token 并写 `html[data-theme]`（`'light'` 或 `'dark'`）。从浅色基主题派生深色必须显式 `new(customTheme, { series: 'dark' })`；不写时全局色变了，表格斑马纹、按钮 plain 等组件级 token 仍是浅色套。
 - 品牌色覆盖：`lightTheme.new({ color: { primary: '#ff6600' } })` 派生新 `UITheme`，主色及全部色阶、alpha token 同步派生；空值（`''` / `null` / `undefined`）字段被剔除，`0` 保留；数字 token 自动补 `px`。派生继承基主题 `series`（`options.series` 可覆盖），不修改基主题。

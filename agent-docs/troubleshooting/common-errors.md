@@ -46,7 +46,7 @@ import { loadTheme } from '@veltra/styles/theme'
 loadTheme() // 不传参时应用 lightTheme
 ```
 
-验证：打开 DevTools 查看 `html` 元素，存在 `--u-*` 自定义属性即生效；`loadTheme` 是同步函数，重复调用以最后一次为准（热替换主题）。详见 `agent-docs/styles/theme.md`。
+验证：打开 DevTools 查看 `html` 元素，存在 `--u-*` 自定义属性即生效；重复调用 `loadTheme` 以最后一次为准（热替换主题，首次加载及 `transition = false` 或降级路径同步生效，其余切换默认播放圆形涟漪过渡）。详见 `agent-docs/styles/theme.md`。
 
 ## 症状：组件结构正确但呈裸样式（无颜色、无布局）
 
@@ -93,8 +93,8 @@ export default defineConfig({
 
 ```vue
 <script setup lang="ts">
-import { reactive } from 'vue'
 import { UButton, UForm, UInput } from '@veltra/desktop'
+import { reactive } from 'vue'
 
 const formData = reactive({ name: '', email: '' })
 
@@ -270,8 +270,8 @@ import { vFocus } from '@veltra/directives'
 
 ```vue
 <script setup lang="ts">
-import { ref } from 'vue'
 import { USelect } from '@veltra/desktop'
+import { ref } from 'vue'
 
 const options = [
   { label: '一年级', value: 1 },
@@ -352,9 +352,9 @@ const chat = useChat({ props: { transport } })
 
 ```vue
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
 import { USheet } from '@veltra/sheet'
 import { Workbook } from 'infinitable/sheet'
+import { onMounted, ref } from 'vue'
 
 const ready = ref(false)
 const workbook = new Workbook()

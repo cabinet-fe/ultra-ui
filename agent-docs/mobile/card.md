@@ -93,7 +93,7 @@ export type CardExposed = {}
 
 自定义内边距仍可经组件级 token `--u-card-padding-<size>` 覆盖；未定义时取上表的 `--um-spacing-*` 回退值。
 
-卡片外观默认值（light 主题，随 `loadTheme()` 变化）：背景 `var(--u-bg-color-top)`、无边框、圆角 `var(--u-card-radius)`（`--u-radius-large`）、阴影 `var(--u-shadow-sm)`、`overflow: hidden`、`backdrop-filter: var(--u-bg-filter)`。
+卡片外观默认值（light 主题，随 `loadTheme()` 变化）：背景 `var(--u-bg-surface-top)`（毛玻璃关闭时回落 `var(--u-bg-color-top)`）、无边框、圆角 `var(--u-card-radius)`（`--u-radius-large`）、阴影 `var(--u-shadow-sm)`、`overflow: hidden`、`backdrop-filter: var(--u-bg-filter)`（嵌套在弹层/卡片内部时自动关闭）。
 
 插槽：默认插槽放卡片全部内容。事件：`CardEmits` 为空。暴露：`CardExposed` 为空对象。
 

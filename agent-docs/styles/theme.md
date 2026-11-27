@@ -60,7 +60,7 @@ import { loadTheme } from '@veltra/styles/theme'
 loadTheme() // 不传参时应用 lightTheme
 ```
 
-`loadTheme` 是同步函数，重复调用以最后一次为准（这就是运行时热替换：注入的声明块被整体替换，颜色立即生效，无需刷新）。
+首次加载、传入 `transition = false`（或处于 SSR / 不支持的浏览器 / `prefers-reduced-motion: reduce` 降级路径）时 `loadTheme` 同步生效；后续切换默认通过 View Transitions API 从视口中心异步播放圆形涟漪过渡；重复调用以最后一次为准（这就是运行时热替换：注入的声明块被整体替换，颜色生效无需刷新）。
 
 SSR 环境必须在 `onMounted` 中调用；服务端调用不会报错（内部跳过 DOM 操作），但也不会产出样式。
 
@@ -133,13 +133,13 @@ export function navSurfaceTokens(
 /** 当前已加载主题。loadTheme 之前为 undefined */
 export const currentTheme: ShallowRef<UITheme | undefined>
 
-/** 加载主题并注入文档。默认 lightTheme；同步，无返回值，不抛错 */
-export function loadTheme(theme?: UITheme): void
+/** 加载主题并注入文档。默认 lightTheme；切换时默认从视口中心播放圆形涟漪过渡，传 false 可关闭，不抛错 */
+export function loadTheme(theme?: UITheme, transition?: boolean): void
 ```
 
 ### 主题对象 Theme
 
-组件级 `--u-*`（table、tag、nav 尺寸等）不在 `Theme` 里，由内置表随 `loadTheme` 按系列注入；`Theme` 只描述全局 token 与少量组件级扩展键：
+`Theme` 包含全量全局 token，也支持按组件键覆盖内置组件级 `--u-*` 变量（未覆盖时由内置表随 `loadTheme` 按系列注入；在 `Theme` 上显式声明的组件键会写在内置表之后并生效）：
 
 ```ts
 export type Theme = {
@@ -279,16 +279,16 @@ import {
 
 ### loadTheme
 
-| 参数    | 类型      | 默认         | 必填 | 约束                                          |
-| ------- | --------- | ------------ | :--: | --------------------------------------------- |
-| `theme` | `UITheme` | `lightTheme` |  否  | 预设实例或 `UITheme` / `UITheme#new` 的返回值 |
+| 参数         | 类型      | 默认         | 必填 | 约束                                                          |
+| ------------ | --------- | ------------ | :--: | ------------------------------------------------------------- |
+| `theme`      | `UITheme` | `lightTheme` |  否  | 预设实例或 `UITheme` / `UITheme#new` 的返回值                 |
+| `transition` | `boolean` | `true`       |  否  | 切换主题时是否从视口中心播放 400ms 圆形涟漪过渡；`false` 关闭 |
 
 调用行为（按序）：
 
-1. 写入 `currentTheme.value`
-2. 无 `document`（SSR）时到此为止，直接返回
-3. 读取 `useConfig().config.size`，在 `html` 上移除其余尺寸 class、添加当前 class（`small` / `default` / `large`，normalize 据此切三档正文字号）
-4. 执行 `theme.render()` 注入声明、写 `html[data-theme]` 与 `html[data-nav-surface]`，并注入容器级菜单变体规则（`[data-nav-variant]`）
+1. 无 `document`（SSR）时仅写入 `currentTheme.value` 并返回
+2. `transition === false`、首次加载（`currentTheme.value` 为 `undefined`）、浏览器不支持 `document.startViewTransition`、`document.visibilityState === 'hidden'` 或命中 `(prefers-reduced-motion: reduce)` 时，同步执行切换：更新 `currentTheme.value`、同步 `html` 尺寸 class（`small` / `default` / `large`），并调用 `theme.render()`
+3. 满足过渡条件时，动态注入 `::view-transition-old(root)` / `::view-transition-new(root)` 样式后调用 `document.startViewTransition`，在回调内同步更新主题并等待 `nextTick()`，在 `ready` 阶段通过 `document.documentElement.animate` 从视口中心向外执行 400ms `clipPath: circle(...)` 动画，并在最新一次过渡 `finished` 后移除临时样式
 
 ### UITheme 构造参数
 
@@ -334,14 +334,18 @@ import {
 // src/theme-toggle.ts
 import { currentTheme, darkTheme, lightTheme, loadTheme } from '@veltra/styles/theme'
 
-export function toggleScheme(): void {
+// 首次初始化（currentTheme 为 undefined，自动跳过过渡并同步生效）
+loadTheme(lightTheme)
+
+export function toggleScheme(animate = true): void {
   // currentTheme 为 ShallowRef<UITheme | undefined>，loadTheme 之前是 undefined
   const next = currentTheme.value?.series === 'dark' ? lightTheme : darkTheme
-  loadTheme(next)
+  // 默认从视口中心播放 400ms 圆形涟漪过渡；传入 false 可关闭动画
+  loadTheme(next, animate)
 }
 
 toggleScheme()
-// => html[data-theme="dark"]，全部 --u-* 换成深色系；再调一次回到 light
+// => 支持 View Transitions 的浏览器从视口中心扩散切换，html[data-theme] 变为 "dark"
 ```
 
 热替换不刷新页面：`render()` 用同一张 adopted stylesheet 整体替换声明，颜色、阴影、动效立即切换。
