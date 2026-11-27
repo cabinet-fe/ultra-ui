@@ -1,40 +1,42 @@
 <template>
-  <div
-    v-if="!readonly"
-    :class="textareaClass"
-    @mouseenter="hovered = true"
-    @mouseleave="hovered = false"
-  >
-    <textarea
-      :class="cls.e('native')"
-      :placeholder="placeholder"
-      v-model="model"
-      :maxlength="maxlength"
-      :rows="rows"
-      :cols="cols"
-      @input="handleInput"
-      @focus="handleFocus"
-      @blur="handleBlur"
-      @change="handleChange"
-      :disabled="disabled"
-      :readonly="nativeReadonly"
-      ref="textareaRef"
-    />
-    <span v-if="props.maxlength && props.showCount" :class="cls.m('count')">
-      {{ initNum }}/{{ props.maxlength }}
-    </span>
-    <u-icon
-      v-if="props.clearable && model! && hovered && !disabled && !readonly"
-      :class="cls.m('clear')"
-      @click.stop="handleClear"
+  <div v-if="!readonly" :class="cls.e('wrapper')">
+    <div :class="textareaClass" @mouseenter="hovered = true" @mouseleave="hovered = false">
+      <textarea
+        :class="cls.e('native')"
+        :placeholder="placeholder"
+        v-model="model"
+        :maxlength="maxlength"
+        :rows="rows"
+        :cols="cols"
+        @input="handleInput"
+        @focus="handleFocus"
+        @blur="handleBlur"
+        @change="handleChange"
+        :disabled="disabled"
+        :readonly="nativeReadonly"
+        ref="textareaRef"
+      />
+      <button
+        v-if="canClear"
+        :class="[cls.e('clear'), bem.is('visible', showClear)]"
+        type="button"
+        tabindex="-1"
+        aria-label="清空"
+        @mousedown.prevent
+        @click.stop="handleClear"
+      >
+        <u-icon><Close /></u-icon>
+      </button>
+    </div>
+    <div
+      v-if="maxlength && showCount"
+      :class="[cls.e('count'), bem.is('limit', count >= maxlength)]"
     >
-      <Close />
-    </u-icon>
+      {{ count }}/{{ maxlength }}
+    </div>
   </div>
 
-  <span v-else style="white-space: pre-wrap">
-    {{ model || FORM_EMPTY_CONTENT }}
-  </span>
+  <span v-else :class="cls.m('readonly')">{{ model || FORM_EMPTY_CONTENT }}</span>
 </template>
 
 <script lang="ts" setup>
@@ -82,14 +84,24 @@ const { focus, handleBlur, handleFocus } = useFocus((focused) => {
   focused ? emit('focus') : emit('blur')
 })
 
+const canClear = computed(() => props.clearable && !disabled.value && !props.nativeReadonly)
+
+const count = computed(() => model.value?.length ?? 0)
+
+/** 有内容且悬停或聚焦时才露出清空按钮 */
+const showClear = computed(() => !!model.value && (hovered.value || focus.value))
+
 const textareaClass = computed(() => {
   return [
     cls.b,
     cls.m(size.value),
-    bem.is('resize-none', !props.resize),
+    // 仅在清空按钮实际可见时预留右侧内边距，平常不浪费右侧空间
+    bem.is('clear-visible', canClear.value && showClear.value),
+    // autosize 下高度由内容决定，拖拽手柄无意义
+    bem.is('resize-none', !props.resize || props.autosize),
     bem.is('disabled', disabled.value),
-    bem.is('readonly', readonly.value),
     bem.is('focus', focus.value),
+    // form-item / table-editor 错误态描红挂在该修饰类上
     cls.m('more')
   ]
 })
@@ -103,11 +115,6 @@ const handleInput = (e: Event) => {
     emit('update:modelValue', value)
   }
 }
-
-const initNum = computed(() => {
-  if (!props.maxlength) return 0
-  return props.maxlength - (model.value?.length ?? 0)
-})
 
 const handleClear = () => {
   model.value = ''

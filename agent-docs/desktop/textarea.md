@@ -1,6 +1,6 @@
 ---
 title: UTextarea 文本域
-description: '从 `@veltra/desktop` 导出的多行文本输入框，支持字数限制与统计（maxlength / showCount）、高度自适应（autosize）、拖拽缩放开关（resize）与悬停清空；放进 UForm 时用 `field` 绑定 model 并按 `rules` 校验。'
+description: '从 `@veltra/desktop` 导出的多行文本输入框，支持字数限制与统计（maxlength / showCount）、高度自适应（autosize）、拖拽缩放开关（resize）与右上角清空按钮；放进 UForm 时用 `field` 绑定 model 并按 `rules` 校验。'
 aliases: [textarea, u-textarea, TextArea, 多行文本框, 多行输入]
 keywords:
   [
@@ -18,7 +18,7 @@ keywords:
     nativeReadonly,
     文本域,
     字数统计,
-    剩余字数,
+    已输入字数,
     自适应高度,
     清空,
     多行文本
@@ -27,7 +27,7 @@ keywords:
 
 # UTextarea 文本域
 
-`@veltra/desktop` 导出多行文本输入框 `UTextarea`：`v-model` 绑定字符串值，支持 `maxlength` 限制与 `showCount` 字数统计、`autosize` 高度自适应、`resize` 拖拽开关与悬停清空；放进 `UForm` 时改用 `field` 绑定 model 字段并按 `rules` 校验。
+`@veltra/desktop` 导出多行文本输入框 `UTextarea`：`v-model` 绑定字符串值，支持 `maxlength` 限制与 `showCount` 字数统计、`autosize` 高度自适应、`resize` 拖拽开关与右上角清空按钮；放进 `UForm` 时改用 `field` 绑定 model 字段并按 `rules` 校验。
 
 ## 快速上手
 
@@ -158,12 +158,12 @@ export type TextareaExposed = Record<string, never>
 | `v-model` / `modelValue` | `string`                                       | `undefined` |  否  | 双向绑定的值                                                                        |
 | `placeholder`            | `string`                                       | `'请输入'`  |  否  | —                                                                                   |
 | `maxlength`              | `number`                                       | —           |  否  | 最大字数；超出时触发 `update:modelValue` 前先截断到 `maxlength`                     |
-| `showCount`              | `boolean`                                      | `false`     |  否  | 必须同时设置 `maxlength` 才渲染计数；显示格式为「剩余字数/上限」                    |
-| `autosize`               | `boolean`                                      | `false`     |  否  | `true` 时高度随内容自适应，无需再设 `height`                                        |
-| `resize`                 | `boolean`                                      | `true`      |  否  | `true` 仅允许纵向拉伸；`false` 完全禁止拉伸                                         |
+| `showCount`              | `boolean`                                      | `false`     |  否  | 必须同时设置 `maxlength` 才渲染计数；显示在输入框外右下方，格式为「已输入字数/上限」，达到上限时变为警告色 |
+| `autosize`               | `boolean`                                      | `false`     |  否  | `true` 时高度随内容自适应，同时禁用拖拽拉伸（忽略 `resize`）                       |
+| `resize`                 | `boolean`                                      | `true`      |  否  | `true` 仅允许纵向拉伸；`false` 完全禁止拉伸；`autosize` 为 `true` 时始终禁止       |
 | `rows`                   | `number`                                       | 原生默认    |  否  | 原生 `rows` 属性                                                                    |
 | `cols`                   | `number`                                       | 原生默认    |  否  | 原生 `cols` 属性                                                                    |
-| `clearable`              | `boolean`                                      | `true`      |  否  | 清除图标显示条件：悬停 + 有值 + 非禁用 + 非只读                                     |
+| `clearable`              | `boolean`                                      | `true`      |  否  | 清空按钮固定在右上角并常驻占位；有值且（悬停或聚焦）时可见；`disabled` / `nativeReadonly` 时不渲染 |
 | `height`                 | `string`                                       | —           |  否  | 类型中声明，当前实现未使用；控制高度用 `rows` 或 `autosize`                         |
 | `nativeReadonly`         | `boolean`                                      | `false`     |  否  | 仅锁定原生 `<textarea>`；与 `readonly`（整体渲染为文本）不同                        |
 | `field`                  | `string`                                       | —           |  否  | 表单内生效。绑定 `<u-form :model>` 的字段；有 `field` 禁止再写 `v-model`            |
@@ -202,7 +202,7 @@ const remark = shallowRef('')
 </script>
 
 <template>
-  <!-- 计数格式是「剩余字数/上限」：输入 1 个字显示 199/200 -->
+  <!-- 计数格式是「已输入字数/上限」：输入 1 个字显示 1/200 -->
   <u-textarea v-model="remark" :maxlength="200" show-count clearable placeholder="请输入备注" />
 </template>
 ```
@@ -256,10 +256,10 @@ const form = reactive({ description: '' })
 
 > [!WARNING]
 >
-> - 字数统计格式是「剩余字数/上限」，不是「已输入字数/上限」；输入 1 个字、上限 200 时显示 `199/200`。
+> - 字数统计格式是「已输入字数/上限」，输入 1 个字、上限 200 时显示 `1/200`；2.4.0 及更早版本显示的是「剩余字数/上限」（`199/200`）。
 > - `showCount` 必须与 `maxlength` 同时设置，只写 `show-count` 不显示计数。
 > - 本库的固定行数参数是 `rows`，`height` 参数在类型中声明但当前实现未使用，传了不生效。
-> - `resize` 默认 `true` 且仅允许纵向拉伸；要完全禁止拉伸必须显式传 `:resize="false"`。
+> - `resize` 默认 `true` 且仅允许纵向拉伸；要完全禁止拉伸必须显式传 `:resize="false"`；开启 `autosize` 时自动禁止拉伸。
 > - 在 `UForm` 内必须用 `field` 绑定值，禁止同时写 `v-model`；`label` / `field` / `rules` / `tips` / `span` 仅在表单内生效。
 > - 本库的只读分两级：`readonly` 把整个组件渲染为纯文本，`nativeReadonly` 只给原生 `<textarea>` 加 `readonly` 属性。
 > - 本组件没有插槽，自定义前后缀用 `UInput`。
@@ -267,9 +267,9 @@ const form = reactive({ description: '' })
 
 ## 常见问题
 
-### 计数显示的数字越输越小
+### 需要显示剩余可输入字数
 
-这不是 bug：计数显示的是剩余可输入字数（`maxlength - 当前长度`），不是已输入字数。要展示已输入字数，用 `remark.value.length` 自行渲染。
+计数固定显示「已输入字数/上限」，没有切换剩余字数的参数。要展示剩余字数，关闭 `show-count`，在组件外自行渲染 `maxlength - remark.value.length`。
 
 ### 传了 `show-count` 但不显示计数
 
