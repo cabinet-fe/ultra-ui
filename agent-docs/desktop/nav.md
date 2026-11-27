@@ -137,7 +137,7 @@ export interface NavExposed {
 
 ## 方法与事件
 
-- 选中态完全受控：`item.path === currentPath` 的叶子项高亮（左侧 3px 主色条 + 激活底色）。组件没有 `v-model:current-path`，也没有 `update:currentPath` 事件。
+- 选中态完全受控：`item.path === currentPath` 的叶子项高亮（激活底色与文字色）。组件没有 `v-model:current-path`，也没有 `update:currentPath` 事件。
 - 自动展开：`currentPath` 或 `menus` 变化时，深度优先找到 `path === currentPath` 的节点，把其所有祖先的 `path` 加入展开集合（`immediate` 执行，首屏即展开）。
 - 自动滚动：激活项因 `currentPath` 变化（非本次点击）成为激活时，自动滚动进滚动容器可视区。
 - `disabled: true` 的项：样式半透明、`cursor: not-allowed`，点击不发出 `item-click`。

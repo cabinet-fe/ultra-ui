@@ -25,9 +25,9 @@ $line-ratio: 1.6;
 
   @each $type, $token in $color-map {
     @include m.m(#{$type}) {
-      color: fn.use-var(color, $token);
-      background-color: fn.use-var(color, $token, light-9);
-      border: 1px solid fn.use-var(color, $token, light-7);
+      color: fn.component-var(alert, #{$type}-color, fn.use-var(color, $token));
+      background-color: fn.component-var(alert, #{$type}-bg, fn.use-var(color, $token, light-9));
+      border: 1px solid fn.component-var(alert, #{$type}-border, fn.use-var(color, $token, light-7));
     }
   }
 

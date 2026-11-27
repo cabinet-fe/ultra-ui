@@ -20,19 +20,16 @@
       </span>
 
       <div v-if="model?.length || filterable" :class="cls.e('tags')">
-        <!-- 离场纯淡出 + -move 收拢；入场沿用 tag 组件自身的缩放动画 -->
-        <TransitionGroup name="u-multi-select-tags">
-          <u-tag
-            v-for="option of tags"
-            :key="option[valueKey]"
-            :closable="!disabled"
-            size="small"
-            @close="handleClose(option)"
-          >
-            {{ renderOptionLabel(option) }}
-          </u-tag>
-          <u-tag v-if="restTag" key="__rest__" size="small"> {{ restTag }}+ </u-tag>
-        </TransitionGroup>
+        <u-tag
+          v-for="option of tags"
+          :key="option[valueKey]"
+          :closable="!disabled"
+          size="small"
+          @close="handleClose(option)"
+        >
+          {{ renderOptionLabel(option) }}
+        </u-tag>
+        <u-tag v-if="restTag" key="__rest__" size="small"> {{ restTag }}+ </u-tag>
 
         <input
           v-if="filterable"

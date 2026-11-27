@@ -14,7 +14,7 @@
 
       <PaletteAlpha ref="palette-alpha" />
 
-      <PaletteColorSwitch v-model:color="color" @clear="handleClear" />
+      <PaletteColorSwitch :color="color" @update:color="handleColorInput" @clear="handleClear" />
     </template>
   </u-tip>
 </template>
@@ -26,7 +26,7 @@ import { bem } from '@veltra/utils'
 import { injectFormContext } from '@veltra/utils'
 import { computed, provide, shallowRef, useTemplateRef, watch } from 'vue'
 
-import type { PaletteProps } from '../../types'
+import type { PaletteEmits, PaletteProps } from '../../types'
 import { UTip } from '../tip'
 import { HSV2RGB, RGB2HEX, HEX2RGBA, RGB2HSV } from './color-transform'
 import { PaletteDIKey } from './di'
@@ -42,6 +42,8 @@ const props = withDefaults(defineProps<PaletteProps>(), {
   disabled: undefined,
   readonly: undefined
 })
+
+const emit = defineEmits<PaletteEmits>()
 
 const { formProps } = injectFormContext()
 
@@ -71,7 +73,13 @@ const handleClear = userAction(() => {
   color.value = ''
   rest.updateAlpha(1)
   visible.value = false
+  emit('change', '')
 })
+
+const handleColorInput = (value: string) => {
+  color.value = value
+  emit('change', value)
+}
 
 watch([alpha, RGB], ([alpha, RGB]) => {
   if (skipColorUpdate) {
@@ -83,7 +91,9 @@ watch([alpha, RGB], ([alpha, RGB]) => {
   // color → HSV 同步，不能把规范化后的值（如 #1890ff → #1890FF）写回 model
   if (!isUserActive()) return
 
-  color.value = `#${RGB2HEX(RGB, alpha)}`
+  const next = `#${RGB2HEX(RGB, alpha)}`
+  color.value = next
+  emit('change', next)
 })
 
 const paletteSVRef = useTemplateRef('palette-sv')

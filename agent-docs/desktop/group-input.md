@@ -40,10 +40,9 @@ const users = shallowRef<{ name: string; age: string }[]>([])
 
 <template>
   <u-group-input v-model="users">
-    <template #default="{ item, index }">
+    <template #default="{ item }">
       <u-input v-model="item.name" placeholder="姓名" />
       <u-input v-model="item.age" placeholder="年龄" />
-      <span>第 {{ index + 1 }} 行</span>
     </template>
   </u-group-input>
   <p>{{ JSON.stringify(users) }}</p>
@@ -205,16 +204,23 @@ import { computed, shallowRef } from 'vue'
 const items = shallowRef<{ content: string }[]>([])
 const tags = shallowRef<{ content: string }[]>([])
 
-// CSS 字符串
-const styleStr = 'padding: 12px; border: 1px solid var(--u-border-color); border-radius: 6px'
+// CSS 字符串（组件每行内置横向 flex 居中与间距，只需补充边框、内边距与背景）
+const styleStr =
+  'padding: 10px 12px; border: 1px solid var(--u-border-color); border-radius: var(--u-radius-default); background: var(--u-bg-color-top)'
 
-// 响应式对象：超过 2 条时收紧下边距
-const styleObj = computed(() => ({
-  display: 'flex',
-  gap: '12px',
-  padding: '10px',
-  marginBottom: items.value.length > 2 ? '4px' : '12px'
-}))
+// 响应式对象：超过 2 条时高亮左侧指示条并收紧内边距
+const styleObj = computed(() => {
+  const highlighted = items.value.length > 2
+  return {
+    padding: highlighted ? '8px 12px' : '12px',
+    border: '1px solid var(--u-border-color)',
+    borderLeft: highlighted
+      ? '3px solid var(--u-color-primary)'
+      : '3px solid var(--u-border-color)',
+    borderRadius: 'var(--u-radius-default)',
+    backgroundColor: 'var(--u-bg-color-top)'
+  }
+})
 </script>
 
 <template>

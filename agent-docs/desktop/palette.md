@@ -82,6 +82,7 @@ export interface PaletteProps extends FormComponentProps {
 /** 调色盘组件定义的事件 */
 export interface PaletteEmits {
   (e: 'update:modelValue', value: string): void
+  (e: 'change', value: string): void
 }
 
 /** 无暴露方法；模板 ref 上没有可调用的成员 */
@@ -108,6 +109,7 @@ export type PaletteExposed = Record<string, never>
 | 事件                | payload         | 触发时机                                                                |
 | ------------------- | --------------- | ----------------------------------------------------------------------- |
 | `update:modelValue` | `value: string` | 拖动 SV 区 / 色相条 / 透明度条、在输入框确认合法 HEX(A)、点击「清除」时 |
+| `change`            | `value: string` | 用户拖动 SV 区 / 色相条 / 透明度条、在输入框确认合法 HEX(A)、点击「清除」时（外部回显不触发） |
 
 无插槽、无暴露方法。弹出面板由内置 `UTip`（`trigger="click"`）承载。
 

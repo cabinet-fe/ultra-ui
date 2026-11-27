@@ -299,4 +299,25 @@ describe('UITheme', () => {
     expect(irisTheme.navSidebarColors()['bg-color']).toBe('#F6F6FC')
     expect(irisTheme.navSidebarColors('dark')['bg-color']).toBe('#181430')
   })
+
+  it('emits alert component vars for light and dark series', () => {
+    const types = [
+      ['info', 'info'],
+      ['success', 'success'],
+      ['warning', 'warning'],
+      ['error', 'danger']
+    ] as const
+
+    for (const [type, token] of types) {
+      expect(componentCssVarsLight[`--u-alert-${type}-bg`]).toBe(`var(--u-color-${token}-light-9)`)
+      expect(componentCssVarsLight[`--u-alert-${type}-border`]).toBe(
+        `var(--u-color-${token}-light-7)`
+      )
+      expect(componentCssVarsLight[`--u-alert-${type}-color`]).toBe(`var(--u-color-${token})`)
+
+      expect(componentCssVarsDark[`--u-alert-${type}-bg`]).toBe(`var(--u-color-${token}-a-10)`)
+      expect(componentCssVarsDark[`--u-alert-${type}-border`]).toBe(`var(--u-color-${token}-a-28)`)
+      expect(componentCssVarsDark[`--u-alert-${type}-color`]).toBe(`var(--u-color-${token})`)
+    }
+  })
 })

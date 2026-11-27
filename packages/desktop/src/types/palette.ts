@@ -22,6 +22,7 @@ export interface PaletteProps extends FormComponentProps {
 
 export interface PaletteEmits {
   (e: 'update:modelValue', value: string): void
+  (e: 'change', value: string): void
 }
 
 export interface _PaletteExposed {}

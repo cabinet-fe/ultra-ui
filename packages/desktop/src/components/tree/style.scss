@@ -81,18 +81,12 @@ $indent-width: 20px;
         );
         color: fn.component-var(tree, node-selected-color, fn.use-var(color, primary));
         font-weight: 500;
+      }
 
-        // 左侧 3px 色带，配合淡色背景共同构成选中态；
-        // 贴在节点内容（而非整行）左侧，避免与缩进 / 图标错位。
-        &::before {
-          content: '';
-          position: absolute;
-          left: 0;
-          top: 4px;
-          bottom: 4px;
-          width: 3px;
-          border-radius: 3px;
-          background-color: fn.use-var(color, primary);
+      // 叶子圆点平时是占位灰；选中后跟选中文字同色。禁用节点保持占位灰。
+      @include m.is-not(disabled) {
+        @include m.bem($root-name, leaf-icon) {
+          color: fn.component-var(tree, node-selected-color, fn.use-var(color, primary));
         }
       }
     }
@@ -153,6 +147,7 @@ $indent-width: 20px;
     font-size: $indent-width;
     color: fn.use-var(text-color, placeholder);
     pointer-events: none;
+    transition: color fn.use-var(transition, fast) fn.use-var(transition, ease);
   }
 
   @include m.e(node-content) {

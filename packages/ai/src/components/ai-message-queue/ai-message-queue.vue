@@ -10,7 +10,7 @@
           title="中断当前会话，立即执行该条"
           @click="emit('start-now', item.id)"
         >
-          <UIcon><CaretRight /></UIcon>立即开始
+          <UIcon><Send /></UIcon>立即开始
         </button>
         <button
           type="button"
@@ -36,7 +36,7 @@
 <script lang="ts" setup>
 import './style'
 import { UIcon } from '@veltra/desktop'
-import { CaretRight, Close, EditPen } from '@veltra/icons/normal'
+import { Close, EditPen, Send } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
 
 import type { AiMessageQueueEmits, AiMessageQueueProps } from '../../types'

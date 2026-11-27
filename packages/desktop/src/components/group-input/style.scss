@@ -6,6 +6,9 @@
 $root-name: group-input;
 
 @include m.b($root-name) {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   width: 100%;
 
   @include m.size using ($size) {
@@ -21,15 +24,20 @@ $root-name: group-input;
   }
 
   @include m.e(item) {
+    display: flex;
+    align-items: center;
+
     & > * {
-      flex-grow: 1;
+      flex: 1;
+      min-width: 0;
     }
   }
 
   @include m.e(actions) {
-    flex-shrink: 0;
-
-    display: flex;
+    flex: 0 0 auto;
+    min-width: auto;
+    display: inline-flex;
+    align-items: center;
     gap: fn.use-var(gap, small);
   }
 }

@@ -89,7 +89,6 @@ $root-name: select;
     }
 
     @include m.is(selected) {
-      position: relative;
       background-color: fn.component-var(
         select,
         option-selected-bg,
@@ -97,20 +96,6 @@ $root-name: select;
       );
       color: fn.component-var(select, option-selected-color, fn.use-var(color, primary));
       font-weight: 600;
-
-      &::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 50%;
-        width: 3px;
-        height: 56%;
-        min-height: 10px;
-        border-radius: 9999px;
-        background-color: fn.use-var(color, primary);
-        transform: translateY(-50%);
-        pointer-events: none;
-      }
     }
   }
 

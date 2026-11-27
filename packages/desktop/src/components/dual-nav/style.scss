@@ -13,6 +13,8 @@ $root-name: dual-nav;
   overflow: hidden;
 
   @include m.e(rail) {
+    // 作为按钮的 offsetParent，scrollIntoContainerView 才能用 offsetTop 对齐
+    position: relative;
     flex-shrink: 0;
     width: var(--u-nav-rail-width);
     display: flex;
