@@ -28,8 +28,6 @@ export * from './loading'
 
 export * from './scroll'
 
-export * from './progress-nodes'
-
 export * from './empty'
 
 export * from './auto-complete'

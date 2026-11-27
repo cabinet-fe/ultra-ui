@@ -191,4 +191,4 @@ import { UTimeline, UTimelineItem } from '@veltra/desktop'
 
 ### 想要横向步骤条 / 可点击节点选择器
 
-时间线是纵向只读展示；横向节点选择器用 `UProgressNodes`，分步流程用 `USteps`，不要用 `UTimeline` 承担交互。
+时间线是纵向只读展示；分步流程或横向步骤导航用 `USteps`，不要用 `UTimeline` 承担交互。

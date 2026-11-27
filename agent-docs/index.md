@@ -160,7 +160,6 @@ createApp(App).mount('#app')
 | UPasswordInput                    | 密码输入框：密码输入与可见性切换                                             | `desktop/password-input.md`     |
 | UPopConfirm                       | 气泡确认：点击操作的轻量二次确认气泡                                         | `desktop/pop-confirm.md`        |
 | UProgress                         | 进度条：线性 / 环形进度展示                                                  | `desktop/progress.md`           |
-| UProgressNodes                    | 进度节点：步骤式节点进度                                                     | `desktop/progress-nodes.md`     |
 | URadio                            | 单选框：单个单选项                                                           | `desktop/radio.md`              |
 | URadioGroup                       | 单选框组：单选值绑定                                                         | `desktop/radio-group.md`        |
 | URate                             | 评分：星形打分，半星 / 只读禁用 / 字符与颜色定制                             | `desktop/rate.md`               |
@@ -192,7 +191,7 @@ createApp(App).mount('#app')
 | 分类         | 组件                                                                                                                                                                                                                                                                                                    |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 布局与容器   | `ULayout` 分栏外壳、`UGrid` / `UGridItem` 栅格、`UScroll` 细滚动条容器、`UCard` 系列 页面区块 / 面板 / 统计卡片容器、`UCollapse` / `UCollapseItem` 折叠、`UTabs` 系列 标签页、`USpace` 间距容器、`UDivider` 分割线                                                                                      |
-| 导航         | `UDualNav` 双栏导航、`UNav` 多级侧边导航、`UGroupNav` 分组导航、`UBreadcrumb` 面包屑、`USteps` 步骤条、`UProgressNodes` 进度节点、`UFloatButton` 浮动按钮、`UBackTop` 回到顶部                                                                                                                          |
+| 导航         | `UDualNav` 双栏导航、`UNav` 多级侧边导航、`UGroupNav` 分组导航、`UBreadcrumb` 面包屑、`USteps` 步骤条、`UFloatButton` 浮动按钮、`UBackTop` 回到顶部                                                                                                                                                  |
 | 文本与图标   | `UText` 文本排版（五档字号字重）、`UIcon` 图标、`UKbd` 按键、`UBadge` 徽标、`UTag` 标签、`UAvatar` / `UAvatarGroup` 头像、`UNodeRender` 节点渲染、`UWatermark` 水印                                                                                                                                     |
 | 按钮与操作   | `UButton` / `UButtonGroup` 按钮、`UAiButton` AI 按钮、`UAction` / `UActionGroup` 表格行内操作、`USegment` 分段控制器、`UCheckTag` 可选中标签、`UDropdown` 下拉菜单、`UContextmenu` 右键菜单                                                                                                             |
 | 表单与输入   | `UForm` 表单容器、`UFormItem` 表单项、`UInput`、`UTextarea`、`UPasswordInput`、`UNumberInput`、`UNumberRangeInput`、`UAutoComplete`、`UGroupInput`、`UGridInput`、`USwitch`、`UCheckbox` / `UCheckboxButton`、`UCheckboxGroup`、`URadio`、`URadioGroup`、`UChip`、`UChipGroup`、`USlider`、`URate` 评分 |

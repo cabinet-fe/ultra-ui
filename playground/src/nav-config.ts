@@ -167,7 +167,6 @@ export const demoMeta: Record<string, DemoMeta> = {
   'password-input': { zh: '密码输入框', en: 'PasswordInput', category: 'form' },
   'pop-confirm': { zh: '气泡确认框', en: 'PopConfirm', category: 'feedback' },
   progress: { zh: '进度条', en: 'Progress', category: 'data' },
-  'progress-nodes': { zh: '进度节点', en: 'ProgressNodes', category: 'data' },
   radio: { zh: '单选框', en: 'Radio', category: 'form' },
   rate: { zh: '评分', en: 'Rate', category: 'form' },
   scroll: { zh: '滚动容器', en: 'Scroll', category: 'basic' },

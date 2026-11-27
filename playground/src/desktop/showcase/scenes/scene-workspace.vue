@@ -48,7 +48,7 @@
         </div>
       </u-card-header>
       <u-card-content>
-        <u-progress-nodes v-model="activeStage" :nodes="pipelineNodes" color-type="primary" />
+        <u-steps v-model:current="activeStage" :items="pipelineNodes" current-key="value" />
       </u-card-content>
     </u-card>
 
@@ -177,7 +177,6 @@ import {
   UInput,
   UKanban,
   UProgress,
-  UProgressNodes,
   URate,
   USelect,
   USteps,
