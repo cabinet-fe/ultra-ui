@@ -301,4 +301,44 @@ describe('UKanban', () => {
       globalThis.ResizeObserver = OriginalRO
     }
   })
+
+  it('跨列拖拽未放下时目标列卡片保留占位隐藏，放下后恢复显示', async () => {
+    const { host, unmount } = mountKanban()
+    await nextTick()
+    const tick = () => new Promise((resolve) => setTimeout(resolve, 0))
+    const dragEvent = (type: string) =>
+      Object.assign(new Event(type, { bubbles: true, cancelable: true }), {
+        clientX: 0,
+        clientY: 0,
+        dataTransfer: { dropEffect: 'move', effectAllowed: 'move', setData() {}, setDragImage() {} }
+      })
+
+    try {
+      const columns = queryColumns(host)
+      const sourceCard = columns[0]!.querySelector<HTMLElement>('.u-kanban__card')!
+      sourceCard
+        .querySelector<HTMLElement>('.u-kanban__card-handle')!
+        .dispatchEvent(new Event('pointerdown', { bubbles: true, cancelable: true }))
+      sourceCard.dispatchEvent(dragEvent('dragstart'))
+      await tick()
+
+      columns[1]!
+        .querySelector<HTMLElement>('.u-kanban__card')!
+        .dispatchEvent(dragEvent('dragover'))
+      await nextTick()
+      await tick()
+
+      const movedCard = [...columns[1]!.querySelectorAll<HTMLElement>('.u-kanban__card')].find(
+        (el) => el.textContent?.includes('任务 1')
+      )!
+      expect(movedCard.classList.contains('u-dnd-placeholder')).toBe(true)
+
+      columns[1]!.querySelector<HTMLElement>('.u-kanban__track')!.dispatchEvent(dragEvent('drop'))
+      await new Promise((resolve) => requestAnimationFrame(resolve))
+      await tick()
+      expect(movedCard.classList.contains('u-dnd-placeholder')).toBe(false)
+    } finally {
+      unmount()
+    }
+  })
 })

@@ -11,8 +11,10 @@
 
     <CustomCard title="拖拽手柄">
       <ul ref="handleParent" class="dnd-list">
-        <li v-for="item in handleValues" :key="item.id" class="dnd-item">
-          <span class="dnd-handle">≡</span>
+        <li v-for="item in handleValues" :key="item.id" class="dnd-item dnd-item--handle">
+          <u-icon class="dnd-handle" :size="14">
+            <Move />
+          </u-icon>
           {{ item.label }}
         </li>
       </ul>
@@ -41,32 +43,28 @@
 
     <CustomCard title="可见子集排序（filter + 动态容器）">
       <div class="dnd-fields">
-        <div v-for="item in visibleFields" :key="item.id" class="dnd-item dnd-item--field">
-          <span class="dnd-handle">≡</span>
+        <div
+          v-for="item in visibleFields"
+          :key="item.id"
+          class="dnd-item dnd-item--handle dnd-item--field"
+        >
+          <u-icon class="dnd-handle" :size="14">
+            <Move />
+          </u-icon>
           {{ item.label }}
         </div>
-        <button ref="addBtn" class="dnd-add">+ 添加字段</button>
+        <button ref="addBtn" type="button" class="dnd-add" @click="addField">+ 添加字段</button>
       </div>
       <p class="dnd-order">完整顺序（含隐藏项）：{{ fullOrder }}</p>
       <p class="dnd-tip">“字段 3”处于隐藏状态不参与拖拽；拖拽可见项，顺序自动合并回完整数组</p>
-    </CustomCard>
-
-    <CustomCard title="占位不可见（dragPlaceholderClass）">
-      <ul ref="phParent" class="dnd-list">
-        <li v-for="item in phValues" :key="item.id" class="dnd-item">
-          {{ item.label }}
-        </li>
-      </ul>
-      <p class="dnd-tip">
-        拖拽时库会把 dragPlaceholderClass
-        加到留在原位的元素上；将其设为透明后原位置直接收拢，不留下残影
-      </p>
     </CustomCard>
   </div>
 </template>
 
 <script lang="ts" setup>
 import { animations, useDnD } from '@veltra/compositions'
+import { UIcon } from '@veltra/desktop'
+import { Move } from '@veltra/icons/normal'
 import { computed, ref } from 'vue'
 
 import CustomCard from '../card/custom-card.vue'
@@ -126,6 +124,12 @@ const fields = ref<FieldItem[]>([
 ])
 
 const addBtn = ref<HTMLElement>()
+let nextFieldId = fields.value.length + 1
+
+function addField() {
+  const id = nextFieldId++
+  fields.value = [...fields.value, { id, label: `字段 ${id}` }]
+}
 
 const visibleFields = computed(() => fields.value.filter((item) => !item.hidden))
 const fullOrder = computed(() =>
@@ -139,15 +143,6 @@ useDnD<FieldItem>({
   dragHandle: '.dnd-handle',
   draggable: (el) => el.classList.contains('dnd-item--field'),
   plugins: [animations()]
-})
-
-// 占位不可见：库在拖拽时把占位 class 加到留在原位的元素上，
-// 将其隐藏后原位置直接收拢（配合 animations 平滑过渡）
-const { parentRef: phParent, values: phValues } = useDnD<DndItem>({
-  values: createItems('项目', 5),
-  plugins: [animations()],
-  dragPlaceholderClass: 'dnd-placeholder-hidden',
-  synthDragPlaceholderClass: 'dnd-placeholder-hidden'
 })
 </script>
 
@@ -170,11 +165,24 @@ const { parentRef: phParent, values: phValues } = useDnD<DndItem>({
     background-color: var(--u-bg-color);
     cursor: grab;
     user-select: none;
+
+    &--handle {
+      cursor: default;
+    }
   }
 
   .dnd-handle {
+    flex: none;
     color: var(--u-text-color-secondary);
     cursor: grab;
+
+    &:hover {
+      color: var(--u-text-color);
+    }
+
+    &:active {
+      cursor: grabbing;
+    }
   }
 
   .dnd-order {
@@ -225,10 +233,6 @@ const { parentRef: phParent, values: phValues } = useDnD<DndItem>({
     font-size: 12px;
     color: var(--u-text-color-secondary);
     opacity: 0.8;
-  }
-
-  .dnd-placeholder-hidden {
-    opacity: 0;
   }
 }
 </style>

@@ -132,7 +132,7 @@ export function useDnD<T>(options?: UseDnDOptions<T>): UseDnDResult<T>
 | `disabled`                                                 | `boolean`                                                                    | 禁用整个容器的拖拽                                              |
 | `sortable`                                                 | `boolean`                                                                    | 是否允许容器内部排序                                            |
 | `multiDrag`                                                | `boolean`                                                                    | 多选拖拽                                                        |
-| `draggingClass` / `dropZoneClass` / `dragPlaceholderClass` | `string`                                                                     | 拖拽中 / 拖放目标 / 占位的 class，占位 class 设为透明可去掉残影 |
+| `draggingClass` / `dropZoneClass` / `dragPlaceholderClass` | `string`                                                                     | 拖拽中 / 拖放目标 / 占位的 class；`useDnD` 默认已隐藏占位（`u-dnd-placeholder`），无需额外配置 |
 | `accepts`                                                  | `(targetParentData, initialParentData, currentParentData, state) => boolean` | 精细控制容器是否接受外来节点                                    |
 
 ## 方法与事件

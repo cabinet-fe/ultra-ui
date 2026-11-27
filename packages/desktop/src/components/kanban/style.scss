@@ -122,11 +122,10 @@
       box-shadow: fn.use-var(shadow);
     }
 
-    // 拖拽中原位卡片整体隐形（is-dragging 只存在一帧，随后换 is-drag-placeholder），
+    // 拖拽中原位卡片隐形（占位的不可见由 useDnD 默认处理），
     // 跟随鼠标的是浏览器原生拖拽快照——呈现"一直被抓着"的效果；不加 scale/阴影，
     // formkit animations 插件会在节点上写内联 transform。
-    &.is-dragging,
-    &.is-drag-placeholder {
+    &.is-dragging {
       opacity: 0;
     }
   }

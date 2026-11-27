@@ -1,4 +1,12 @@
-import { tearDown } from '@formkit/drag-and-drop'
+import {
+  addNodeClass,
+  isDragState,
+  isSynthDragState,
+  state,
+  tearDown,
+  type Node,
+  type ParentData
+} from '@formkit/drag-and-drop'
 import { dragAndDrop, type VueParentConfig } from '@formkit/drag-and-drop/vue'
 import {
   computed,
@@ -14,6 +22,22 @@ import {
 } from 'vue'
 
 import { mergeView } from './merge-view'
+
+const PLACEHOLDER_CLASS = 'u-dnd-placeholder'
+const PLACEHOLDER_STYLE_ID = 'veltra-dnd-placeholder-style'
+
+function ensurePlaceholderStyle() {
+  if (typeof document === 'undefined') return
+  if (document.getElementById(PLACEHOLDER_STYLE_ID)) return
+  const style = document.createElement('style')
+  style.id = PLACEHOLDER_STYLE_ID
+  style.textContent = `.${PLACEHOLDER_CLASS}{opacity:0!important;}`
+  document.head.appendChild(style)
+}
+
+function mergeClass(base: string, extra?: string): string {
+  return extra ? `${base} ${extra}` : base
+}
 
 export interface UseDnDOptions<T> extends VueParentConfig<T> {
   /**
@@ -152,8 +176,31 @@ export function useDnD<T>(options: UseDnDOptions<T> = {}): UseDnDResult<T> {
     parentOption === undefined ? parentRef.value : toValue(parentOption)
   )
 
+  function reapplyDragClasses(node: Node, parentData: ParentData<T>) {
+    if (!isDragState(state) || state.draggedNode.el !== node) return
+    const isSynth = isSynthDragState(state)
+    const { config } = parentData
+    addNodeClass([node], isSynth ? config.synthDropZoneClass : config.dropZoneClass, true)
+    addNodeClass(
+      [node],
+      isSynth ? config.synthDragPlaceholderClass : config.dragPlaceholderClass,
+      true
+    )
+  }
+
   function init(parent: HTMLElement) {
-    dragAndDrop({ parent, values: dndValues, ...currentConfig })
+    ensurePlaceholderStyle()
+    dragAndDrop({
+      parent,
+      values: dndValues,
+      ...currentConfig,
+      dragPlaceholderClass: mergeClass(PLACEHOLDER_CLASS, currentConfig.dragPlaceholderClass),
+      synthDragPlaceholderClass: mergeClass(
+        PLACEHOLDER_CLASS,
+        currentConfig.synthDragPlaceholderClass
+      ),
+      reapplyDragClasses
+    })
   }
 
   function updateConfig(newConfig: VueParentConfig<T> = {}) {

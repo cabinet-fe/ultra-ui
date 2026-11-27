@@ -173,4 +173,16 @@ describe('useDnD 数据写回', () => {
 
     expect(dnd.values.value.map((i) => i.id)).toEqual(['a', 'b'])
   })
+
+  it('初始化时默认注入不可见占位样式且不重复注入', () => {
+    const containerA = document.createElement('ul')
+    const containerB = document.createElement('ul')
+    withSetup(() => useDnD({ values: [{ id: 'a' }], parent: containerA }))
+    withSetup(() => useDnD({ values: [{ id: 'b' }], parent: containerB }))
+
+    const styles = document.head.querySelectorAll('#veltra-dnd-placeholder-style')
+    expect(styles.length).toBe(1)
+    expect(styles[0]!.textContent).toContain('.u-dnd-placeholder')
+    expect(styles[0]!.textContent).toContain('opacity:0!important')
+  })
 })
