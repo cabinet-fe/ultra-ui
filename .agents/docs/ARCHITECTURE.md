@@ -25,7 +25,7 @@ Ultra UI 是 Vue 3 组件与能力库。主用户是 cabinet-fe 内部业务前�
 | 进程                              | 端口 | 职责                                                                     |
 | --------------------------------- | ---- | ------------------------------------------------------------------------ |
 | playground 前端（Vite）           | 7788 | 组件/图标/AI/Sheet 演示                                                  |
-| playground 参考服务（Bun + Hono） | 7799 | 填报单元格存取（SQLite 仅本地）+ DeepSeek `/ai` 代理（Key 不下发浏览器）+ 智慧表格 `/smart-table`（SQLite）+ AI 建模内存库 `/ai-db`（进程重启即空） |
+| playground 参考服务（Bun + Hono） | 7799 | 填报单元格存取（SQLite 仅本地）+ DeepSeek `/ai` 代理（Key 不下发浏览器）+ AI 建模内存库 `/ai-db`（进程重启即空） |
 
 分层（库内）：
 

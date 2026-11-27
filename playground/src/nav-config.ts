@@ -1,5 +1,5 @@
 import type { NavItem } from '@veltra/desktop'
-import { AiChat, FormTable, Layers, Mobile, Monitor, PictureRounded } from '@veltra/icons/normal'
+import { AiChat, FormTable, Mobile, Monitor, PictureRounded } from '@veltra/icons/normal'
 import type { DefineComponent } from 'vue'
 
 export type DemoCategory =
@@ -65,7 +65,6 @@ export const demoMeta: Record<string, DemoMeta> = {
   sheet: { zh: '电子表格', en: 'Sheet', category: 'data' },
   'sheet-big-data': { zh: '大数据量演示', en: 'BigData', category: 'data' },
   'sheet-data-entry': { zh: '在线填报', en: 'DataEntry', category: 'data' },
-  'smart-table': { zh: '智慧表格', en: 'SmartTable', category: 'data' },
   anchor: { zh: '锚点导航', en: 'Anchor', category: 'nav' },
   alert: { zh: '警告提示', en: 'Alert', category: 'feedback' },
   'auto-complete': { zh: '自动补全', en: 'AutoComplete', category: 'form' },
@@ -203,8 +202,7 @@ const TOP_LEVEL_DEMO_KEYS = new Set([
   'ai-db-modeling',
   'sheet',
   'sheet-big-data',
-  'sheet-data-entry',
-  'smart-table'
+  'sheet-data-entry'
 ])
 
 const ICONS_ROOT = '/icons'
@@ -307,14 +305,6 @@ export function buildPlaygroundMenus(): NavItem[] {
         { title: '大数据量演示', path: '/sheet-big-data/index' },
         { title: '在线填报', path: '/sheet-data-entry/index' }
       ]
-    },
-    {
-      title: 'Smart Table 智慧表格',
-      description:
-        '多维表格示例：9 种类型化字段行内编辑、工具栏视图管线、AI 字段回填、AI 对话答疑与演示表持久化',
-      icon: Layers as DefineComponent,
-      path: '/smart-table',
-      children: [{ title: '智慧表格', path: '/smart-table/index' }]
     }
   ]
 }
@@ -326,8 +316,7 @@ export function isNavGroupPath(path: string): boolean {
     path === ICONS_ROOT ||
     path === MOBILE_ROOT ||
     path === '/sheet' ||
-    path === '/ai-chat' ||
-    path === '/smart-table'
+    path === '/ai-chat'
   ) {
     return true
   }

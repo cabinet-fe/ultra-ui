@@ -22,7 +22,7 @@ ultra-ui/
 │   └── mobile/               # @veltra/mobile 移动端组件库（同名组件为主、API 按 NutUI 惯例可分叉）
 ├── playground/               # 预览应用 + 参考服务
 │   ├── src/                  # desktop / mobile / icons / ai / sheet 演示页
-│   └── server/               # 填报存取 + DeepSeek 代理 + 智慧表格 + AI 建模内存库（同端口 7799）
+│   └── server/               # 填报存取 + DeepSeek 代理 + AI 建模内存库（同端口 7799）
 ├── scripts/                  # 发版、样式跟随校验、docs-mcp 推送、git 本地配置
 ├── agent-docs/               # 面向 docs-mcp 的检索文档，docs-gen 技能撰写、push-docs.mjs 推送
 ├── .agents/                  # Agent 文档与工程脚本
@@ -113,6 +113,6 @@ graph TD
 ## 关键路径
 
 1. **宿主按需组件**：显式 `import { U* } from '@veltra/<pkg>'`；组件 SFC 各自 `import './style'`，样式经 `sideEffects` 与组件同粒度 tree-shake（`@veltra/vite` resolver 已废弃）。仓库根 `bun run style:check` 校验约定。
-2. **playground 启动**：`cd playground && bun run dev` 同时拉起前端 7788 与参考服务 7799（填报 + `/ai` + `/smart-table` + `/ai-db`）。
+2. **playground 启动**：`cd playground && bun run dev` 同时拉起前端 7788 与参考服务 7799（填报 + `/ai` + `/ai-db`）。
 3. **发版**：统一走发版技能 `.agents/skills/release`（changeset → `bun run release` → CI publish）。
 4. **检索文档同步**：`agent-docs/` 由 docs-gen 技能按源码现状撰写，用 `node scripts/push-docs.mjs` 全量推送到 docs 服务。

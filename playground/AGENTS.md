@@ -6,14 +6,14 @@
 
 ```bash
 cd playground
-bun run dev        # 参考服务（Bun, 7799：data-entry + /ai + /smart-table + /ai-db）+ 前端（7788）
+bun run dev        # 参考服务（Bun, 7799：data-entry + /ai + /ai-db）+ 前端（7788）
 bun run dev:web    # 仅前端；演示服务需另开 bun run server
-bun run server     # 仅参考服务（填报 + DeepSeek 代理 + 智慧表格 + AI 建模内存库，同一端口）
+bun run server     # 仅参考服务（填报 + DeepSeek 代理 + AI 建模内存库，同一端口）
 ```
 
 ## 导航
 
-- 侧栏使用 `UDualNav`：左轨 Icons / Desktop / Mobile / AI Chat / Sheet / Smart Table；Icons 右栏为「图标库 / 图标组合」；Desktop 右栏为「分类 → 组件」两级导航；Mobile 右栏为组件演示一级列表；AI Chat 右栏为「AI 对话 / AI 数据库建模」；Sheet 右栏为「基础演示 / 大数据量演示 / 在线填报」；Smart Table 右栏为「智慧表格」
+- 侧栏使用 `UDualNav`：左轨 Icons / Desktop / Mobile / AI Chat / Sheet；Icons 右栏为「图标库 / 图标组合」；Desktop 右栏为「分类 → 组件」两级导航；Mobile 右栏为组件演示一级列表；AI Chat 右栏为「AI 对话 / AI 数据库建模」；Sheet 右栏为「基础演示 / 大数据量演示 / 在线填报」
 - 导航数据集中在 `src/nav-config.ts`（`demoMeta`、`buildPlaygroundMenus()`）
 - 新增 Desktop 演示页：在 `src/desktop/<component-name>/index.vue` 创建文件，并在 `src/nav-config.ts` 补充 `demoMeta`
 - AI Chat（`@veltra/ai`）与 Sheet（`@veltra/sheet`）为独立顶层入口，不挂在 Desktop 分类下
@@ -29,10 +29,9 @@ bun run server     # 仅参考服务（填报 + DeepSeek 代理 + 智慧表格 +
 - `src/sheet/index.vue` → `/sheet/index`
 - `src/sheet-big-data/index.vue` → `/sheet-big-data/index`（大数据量演示 + 性能基线）
 - `src/sheet-data-entry/index.vue` → `/sheet-data-entry/index`（在线填报：单元格级只读 + 按单元格持久化演示）
-- `src/smart-table/index.vue` → `/smart-table/index`（智慧表格：9 种类型化字段行内编辑 + 行/字段管理 + 列设置/行详情面板 + 列底统计行 + AI 字段整列流式回填 + 右侧 AI 对话面板（表格上下文答疑） + 表格/看板视图切换 + 演示表防抖整表持久化）
 
 由 `import.meta.glob` 分别扫描 `desktop`、`mobile`、`icons`、`ai-chat` 与 `sheet` 目录自动生成；
-`src/sheet-big-data/index.vue`、`src/sheet-data-entry/index.vue`、`src/smart-table/index.vue`、`src/ai-db-modeling/index.vue` 等因 glob 首段为字面段（`./sheet/**` 不匹配 `sheet-big-data`、`./ai-chat/**` 不匹配 `ai-db-modeling`），
+`src/sheet-big-data/index.vue`、`src/sheet-data-entry/index.vue`、`src/ai-db-modeling/index.vue` 等因 glob 首段为字面段（`./sheet/**` 不匹配 `sheet-big-data`、`./ai-chat/**` 不匹配 `ai-db-modeling`），
 需在 `src/router.ts` 显式 `import.meta.glob` 并入 modules
 （key 由顶层 `src/<name>/index.vue` 正则提取）。默认重定向 `/` → `/desktop/button/index`。
 
@@ -43,14 +42,13 @@ bun run server     # 仅参考服务（填报 + DeepSeek 代理 + 智慧表格 +
 - `@veltra/vite` 为本 playground 的 devDependency
 - vue 插件 `isCustomElement` 标记 `erd-editor`（`src/ai-db-modeling/er-view.vue` 运行时注册的自定义元素，经 `er-panel.vue` 渲染在 UAiChat 右侧面板）
 - `optimizeDeps` 纳入 `@dineug/erd-editor > elkjs/lib/elk.bundled.js`（erd-editor 自动布局 worker 引 elk 预打包产物，dev 不预打包则 Flow / tree 自动布局失败）
-- `server/`：参考服务（填报存取 + DeepSeek `/ai` 代理 + `/smart-table` 智慧表格 + `/ai-db` AI 建模内存库，默认 7799）由 `bun run dev` 并行拉起；`vp build` 不依赖该服务
+- `server/`：参考服务（填报存取 + DeepSeek `/ai` 代理 + `/ai-db` AI 建模内存库，默认 7799）由 `bun run dev` 并行拉起；`vp build` 不依赖该服务
 
 ## 参考服务
 
 `server/` 为 playground 本地参考服务（dev-only，不进发布产物）：
 
 - **在线填报端点**（`src/sheet-data-entry` 演示页使用）：`GET /data-entry/forms/:formId/cells` 读取、`PUT /data-entry/forms/:formId/cells` 批量 upsert（空值删除），SQLite 表 `data_entry_cells` 按 `(form_id, sheet_key, row_index, col_index)` 主键稀疏存储多 sheet 填报数据（`server/data-entry.ts`）
-- **智慧表格端点**（`server/smart-table.ts` + `server/smart-table-ai.ts`）：`GET /smart-table/table` 读取演示表全量文档（首次访问写入示例数据）、`PUT /smart-table/table` 校验 fields/rows 形状后全量 upsert（非法 400），SQLite 表 `smart_table_docs` 按 doc_key 存整表 JSON；AI 代理挂 `/smart-table/ai`，按 bedrock `chat_proxy.go` 同款实现——`GET /smart-table/ai/models` 模型目录、`POST /smart-table/ai/chat/completions` 强制流式 SSE 逐行透传（model 匹配模型目录、合并模型默认参数与 `reasoning_effort`、上游错误透传、未配 Key 回 503；服务商配置复用 `DEEPSEEK_*` 变量族）；前端经 vite proxy `/smart-table-api` 访问（rewrite 到 `/smart-table`，前缀与 SPA 路由 `/smart-table` 区分）
 - **AI 数据库建模端点**（`server/ai-db.ts`）：内存数据库（表（含可选 `module` 中文业务模块，trim 后 1~64 字符）/列定义/1-1·1-n·n-n 关系/行数据，进程重启即空），9 个端点挂 `/ai-db`——`GET/POST /ai-db/tables`、`PUT/DELETE /ai-db/tables/:name`（PUT 改名级联更新关系引用，DELETE 连带行数据与关系）、`POST/GET /ai-db/tables/:name/rows`（GET 支持 `?filter={"列":值}` 受控等值过滤，响应含 `display` 展示投影）、`POST /ai-db/stats`（过滤 + groupBy 分组 + count/sum/avg/min/max 聚合，返回分组序列、明细行与 `display` 展示投影——展示列用 comment 中文标题、主键列剔除、外键解析为关联名称、维度/聚合中文标签）、`GET/PUT /ai-db/relationships`（全量覆盖，两端表列引用必须已存在）；形状/引用非法回 400（错误结构同 `errors.ts` 的 `ConnectorError`），路径资源不存在回 404；前端经 vite proxy `/ai-db-api` 访问（rewrite 到 `/ai-db`，前缀与 SPA 路由 `/ai-db-modeling` 区分）；单测见 `server/ai-db.test.ts`（`vp test` 经 `test.include` 覆盖 `server/**/*.test.ts`）
 - `bun run dev` 并行启动本服务（默认 7799，含 `/ai`）与前端；亦可 `bun run server` 单独启动（`REPORT_SERVER_PORT` 覆盖）
 - 前端经 vite proxy `/report-api` 访问填报端点
@@ -88,7 +86,6 @@ src/ai-db-modeling/           # AI 数据库建模演示（UAiChat 客户端驱�
 src/sheet/index.vue           # @veltra/sheet 电子表格预览（数据结构观察区 JSON 区块懒渲染 + 超 1 万行截断：避免 65 万 span 的整页布局/绘制秒级卡顿；完整数据走复制/放大，不受截断影响）
 src/sheet-big-data/index.vue  # @veltra/sheet 大数据量演示（Phase 6：10 万行写入/渲染/查找/导出 + 样式池去重）
 src/sheet-data-entry/index.vue # 在线填报演示（年度预算：多 sheet 走内置标签栏；明细表为「编制项目 × 部门金额」矩阵 + 行列合计公式，汇总页跨表公式联动；提交前校验标红定位 + 提交后整表锁定；单元格级只读 setRangeReadonly/setCellReadonly；按「sheet+格」防抖保存到 /report-api/data-entry）
-src/smart-table/               # 智慧表格演示（多维表格示例：index.vue 页面编排与表格/看板视图切换，types.ts 契约类型，use-table-doc.ts 加载/防抖整表 PUT 持久化，use-smart-sheet.ts doc ↔ Sheet 装配（工具栏视图行集/列集驱动重映射）与 cell-change 回写，cell-renderers.ts 9 种字段类型渲染，cell-editors.ts 9 种字段类型行内编辑器（挂引擎编辑器机制，checkbox 点击直接切换），field-dialog.vue 新增字段对话框（可选 AI 场景），ai-field.ts AI 字段 SSE 流式逐格回填，ai-chat.ts AI 对话模型目录拉取 / transport 构建与表格上下文 system 提示，ai-chat-panel.vue 右侧 AI 对话面板（UAiChat + `/smart-table-api/ai` 代理，key 不进前端），field-panel.vue 列设置面板（改名/改类型/选项管理），row-panel.vue 行详情侧边栏，stats-bar.vue 列底统计行，toolbar.vue 工具栏五能力（搜索/筛选/排序/分组/字段隐藏），kanban-view.vue 按单选字段分组的看板视图）
 ```
 
 ## 浏览器调试

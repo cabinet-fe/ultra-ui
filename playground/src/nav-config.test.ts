@@ -17,8 +17,7 @@ describe('searchNavItems 匹配与排序', () => {
       'Desktop 组件',
       'Mobile 组件',
       'AI Chat',
-      'Sheet 电子表格',
-      'Smart Table 智慧表格'
+      'Sheet 电子表格'
     ])
     const results = groups.flatMap((group) => group.items)
     expect(results).toHaveLength(navItems.length)
