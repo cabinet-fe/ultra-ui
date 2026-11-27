@@ -39,7 +39,9 @@ import { UTimeline, UTimelineItem } from '@veltra/desktop'
   <u-timeline>
     <u-timeline-item timestamp="2026-10-01 09:30">创建部署任务</u-timeline-item>
     <u-timeline-item timestamp="2026-10-02 14:12">构建产物上传完成</u-timeline-item>
-    <u-timeline-item timestamp="2026-10-03 20:05" color="success">验收通过，开始发布</u-timeline-item>
+    <u-timeline-item timestamp="2026-10-03 20:05" color="success"
+      >验收通过，开始发布</u-timeline-item
+    >
   </u-timeline>
 </template>
 ```
@@ -72,19 +74,19 @@ export interface TimelineItemProps {
 
 `UTimelineItem`：
 
-| 参数                | 类型               | 默认      | 必填 | 约束                                                       |
-| ------------------- | ------------------ | --------- | :--: | ---------------------------------------------------------- |
-| `color`             | `TimelineItemColor` | `'default'` |  否  | 枚举 `'default' \| 'primary' \| 'success' \| 'warning' \| 'danger'`；提供 `#dot` 插槽时不生效 |
-| `timestamp`         | `string`           | —         |  否  | 时间戳文本，渲染为内容旁的次要文字；不传不渲染             |
-| `timestampPlacement` | `'top' \| 'bottom'` | `'bottom'` |  否  | 时间戳在内容上方还是下方                                    |
+| 参数                 | 类型                | 默认        | 必填 | 约束                                                                                                                                    |
+| -------------------- | ------------------- | ----------- | :--: | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `color`              | `TimelineItemColor` | `'default'` |  否  | 枚举 `'default' \| 'primary' \| 'success' \| 'warning' \| 'danger'`；提供 `#dot` 时隐藏圆点，`color` 仍会作为节点容器的文字色供图标继承 |
+| `timestamp`          | `string`            | —           |  否  | 时间戳文本，渲染为内容旁的次要文字；不传不渲染                                                                                          |
+| `timestampPlacement` | `'top' \| 'bottom'` | `'bottom'`  |  否  | 时间戳在内容上方还是下方                                                                                                                |
 
 插槽：
 
-| 组件             | 插槽      | 说明                                                             |
-| ---------------- | --------- | ---------------------------------------------------------------- |
-| `UTimeline`      | `default` | 放一组 `UTimelineItem`                                           |
-| `UTimelineItem`  | `default` | 节点内容，可放任意节点                                           |
-| `UTimelineItem`  | `dot`     | 自定义节点：替换默认圆点，取消圆形底色，尺寸由插槽内容决定       |
+| 组件            | 插槽      | 说明                                                                |
+| --------------- | --------- | ------------------------------------------------------------------- |
+| `UTimeline`     | `default` | 放一组 `UTimelineItem`                                              |
+| `UTimelineItem` | `default` | 节点内容，可放任意节点                                              |
+| `UTimelineItem` | `dot`     | 自定义节点：替换默认圆点，隐藏圆形底色，节点容器继承 `color` 语义色 |
 
 ## 方法与事件
 
@@ -104,7 +106,9 @@ import { UTimeline, UTimelineItem } from '@veltra/desktop'
     <u-timeline-item timestamp="2026-10-01 09:30" color="primary">流水线启动</u-timeline-item>
     <u-timeline-item timestamp="2026-10-02 14:12" color="warning">等待审批</u-timeline-item>
     <u-timeline-item timestamp="2026-10-03 20:05" color="success">发布完成</u-timeline-item>
-    <u-timeline-item timestamp="2026-10-04 08:00" color="danger">健康检查超时，已回滚</u-timeline-item>
+    <u-timeline-item timestamp="2026-10-04 08:00" color="danger"
+      >健康检查超时，已回滚</u-timeline-item
+    >
   </u-timeline>
 </template>
 ```
@@ -159,7 +163,7 @@ import { UTimeline, UTimelineItem } from '@veltra/desktop'
 >
 > - 本库 `UTimeline` 容器**无属性**：AntD 的 `pending` / `pendingDot` / `reverse` / `mode`、Element Plus 的 `hide-timestamp`（在 el-timeline-item 上）均不存在；需要待完成节点时直接多写一个 `UTimelineItem`。
 > - `color` 是语义枚举 `'default' | 'primary' | 'success' | 'warning' | 'danger'`，不是 AntD 的 `'blue' | 'red' | 'green' | 'gray'`，也不接受 EP 的 hsl / 十六进制自定义色。
-> - 自定义节点只有 `#dot` 插槽一种方式（AntD 的 `dot` 属性传组件、EP 的 `type` 属性均不存在）；提供 `#dot` 后 `color` 不再生效。
+> - 自定义节点只有 `#dot` 插槽一种方式（AntD 的 `dot` 属性传组件、EP 的 `type` 属性均不存在）；提供 `#dot` 时隐藏默认圆点，但 `color` 仍会作为节点容器的文字色供图标继承。
 > - `timestamp` 只接受 `string` 纯文本；时间格式由调用方自行格式化。
 > - 最后一个节点不渲染尾线（纵向连接线），这是组件行为，不需要外部处理。
 > - 节点圆点颜色、尾线颜色均走主题 token；暗色主题自动切换，组件内无 `[data-theme]` 分支。
@@ -168,7 +172,7 @@ import { UTimeline, UTimelineItem } from '@veltra/desktop'
 
 ### 圆点没有按 color 变色
 
-原因：节点同时提供了 `#dot` 插槽，自定义节点会取消圆点底色，`color` 被忽略。修复：要么只用 `color`（删掉 `#dot`），要么在 `#dot` 里放自带颜色的节点。
+原因：节点同时提供了 `#dot` 插槽，自定义节点会隐藏默认圆点。若插槽内是固定颜色（如 emoji），不会被 `color` 覆盖；若放入图标等可继承 `currentColor` 的节点，则会继承 `color` 语义色。修复：需要默认圆点时删掉 `#dot`；需要自定义节点自带颜色时在插槽内自行设置颜色。
 
 ```vue
 <script setup lang="ts">

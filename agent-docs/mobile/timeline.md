@@ -1,6 +1,6 @@
 ---
 title: 'UTimeline 时间线（@veltra/mobile 移动端）'
-description: '@veltra/mobile 导出的纵向时间线组件：UTimeline 为容器，UTimelineItem 提供节点圆点颜色、#dot 自定义节点、时间戳及其上下位置与内容插槽，用于操作记录、审批流转等按时间排列的展示；正文 16px 主字号，圆点直径按主字号推导（14px），间距走 --um-* 密度刻度。'
+description: '@veltra/mobile 导出的纵向时间线组件：UTimeline 为容器，UTimelineItem 提供节点圆点颜色、#dot 自定义节点、时间戳及其上下位置与内容插槽，用于操作记录、审批流转等按时间排列的展示；正文 16px 主字号，圆点直径 10px（带光环 20px 轨道），间距走 --um-* 密度刻度。'
 aliases:
   [UTimeline, UTimelineItem, Timeline, TimelineItem, 时间线, 时间轴, 垂直时间线, 移动端时间线]
 keywords:
@@ -74,19 +74,19 @@ export interface TimelineItemProps {
 
 `UTimelineItem`：
 
-| 参数                 | 类型                | 默认        | 必填 | 约束                                                                                          |
-| -------------------- | ------------------- | ----------- | :--: | --------------------------------------------------------------------------------------------- |
-| `color`              | `TimelineItemColor` | `'default'` |  否  | 枚举 `'default' \| 'primary' \| 'success' \| 'warning' \| 'danger'`；提供 `#dot` 插槽时不生效 |
-| `timestamp`          | `string`            | —           |  否  | 时间戳文本，渲染为内容旁的次要文字；不传不渲染                                                |
-| `timestampPlacement` | `'top' \| 'bottom'` | `'bottom'`  |  否  | 时间戳在内容上方还是下方                                                                      |
+| 参数                 | 类型                | 默认        | 必填 | 约束                                                                                                                                    |
+| -------------------- | ------------------- | ----------- | :--: | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `color`              | `TimelineItemColor` | `'default'` |  否  | 枚举 `'default' \| 'primary' \| 'success' \| 'warning' \| 'danger'`；提供 `#dot` 时隐藏圆点，`color` 仍会作为节点容器的文字色供图标继承 |
+| `timestamp`          | `string`            | —           |  否  | 时间戳文本，渲染为内容旁的次要文字；不传不渲染                                                                                          |
+| `timestampPlacement` | `'top' \| 'bottom'` | `'bottom'`  |  否  | 时间戳在内容上方还是下方                                                                                                                |
 
 插槽：
 
-| 组件            | 插槽      | 说明                                                       |
-| --------------- | --------- | ---------------------------------------------------------- |
-| `UTimeline`     | `default` | 放一组 `UTimelineItem`                                     |
-| `UTimelineItem` | `default` | 节点内容，可放任意节点；长文本自动换行（`word-break`）     |
-| `UTimelineItem` | `dot`     | 自定义节点：替换默认圆点，取消圆形底色，尺寸由插槽内容决定 |
+| 组件            | 插槽      | 说明                                                                |
+| --------------- | --------- | ------------------------------------------------------------------- |
+| `UTimeline`     | `default` | 放一组 `UTimelineItem`                                              |
+| `UTimelineItem` | `default` | 节点内容，可放任意节点；长文本自动换行（`word-break`）              |
+| `UTimelineItem` | `dot`     | 自定义节点：替换默认圆点，隐藏圆形底色，节点容器继承 `color` 语义色 |
 
 ## 典型示例
 
@@ -159,10 +159,10 @@ import { UTimeline, UTimelineItem } from '@veltra/mobile'
 >
 > - 本库 `UTimeline` 容器**无属性**：AntD 的 `pending` / `pendingDot` / `reverse` / `mode`、Element Plus 的 `hide-timestamp`（在 el-timeline-item 上）均不存在；需要待完成节点时直接多写一个 `UTimelineItem`。
 > - `color` 是语义枚举 `'default' | 'primary' | 'success' | 'warning' | 'danger'`，不是 AntD 的 `'blue' | 'red' | 'green' | 'gray'`，也不接受 EP 的 hsl / 十六进制自定义色。
-> - 自定义节点只有 `#dot` 插槽一种方式（AntD 的 `dot` 属性传组件、EP 的 `type` 属性均不存在）；提供 `#dot` 后 `color` 不再生效。
+> - 自定义节点只有 `#dot` 插槽一种方式（AntD 的 `dot` 属性传组件、EP 的 `type` 属性均不存在）；提供 `#dot` 时隐藏默认圆点，但 `color` 仍会作为节点容器的文字色供图标继承。
 > - `timestamp` 只接受 `string` 纯文本；时间格式由调用方自行格式化。
 > - 最后一个节点不渲染尾线（纵向连接线），这是组件行为，不需要外部处理。
-> - 移动端正文走 `--um-font-size-main`（16px），圆点直径按主字号推导（7/8，即 14px）、尾线宽 2px（桌面端圆点 12px）；节点与首行文字中心对齐，节点行距与内边距走 `--um-spacing-*` 刻度（行距 16px、圆点到内容 12px），时间戳为 `--um-font-size-auxiliary`（12px）。
+> - 移动端正文走 `--um-font-size-main`（16px），圆点直径 10px（配 3px 半透明光环、20px 固定轨道宽，保证默认圆点与 `#dot` 均与 2px 尾线同心）；节点与首行文字中心对齐，节点行距与内边距走 `--um-spacing-*` 刻度（节点间 `--um-spacing-xl` 24px、轨道到内容 `--um-spacing-md` 12px），时间戳为 `--um-font-size-auxiliary`（12px）。
 > - 节点圆点颜色、尾线颜色均走主题 token；暗色主题自动切换，组件内无 `[data-theme]` 分支。
 > - 移动端按需样式路径是 `@veltra/mobile/components/timeline/style`，不是 `@veltra/desktop/components/timeline/style`。
 
@@ -170,7 +170,7 @@ import { UTimeline, UTimelineItem } from '@veltra/mobile'
 
 ### 圆点没有按 color 变色
 
-原因：节点同时提供了 `#dot` 插槽，自定义节点会取消圆点底色，`color` 被忽略。修复：要么只用 `color`（删掉 `#dot`），要么在 `#dot` 里放自带颜色的节点。
+原因：节点同时提供了 `#dot` 插槽，自定义节点会隐藏默认圆点。若插槽内是固定颜色（如 emoji），不会被 `color` 覆盖；若放入图标等可继承 `currentColor` 的节点，则会继承 `color` 语义色。修复：需要默认圆点时删掉 `#dot`；需要自定义节点自带颜色时在插槽内自行设置颜色。
 
 ```vue
 <script setup lang="ts">

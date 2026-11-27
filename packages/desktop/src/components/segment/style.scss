@@ -3,36 +3,12 @@
 @use 'pkg:@veltra/styles/vars';
 
 @include m.b(segment) {
-  position: relative;
   vertical-align: middle;
   @include m.flex($display: inline-flex, $align: center);
   gap: 2px;
   padding: 2px;
   background-color: fn.use-var(bg-color, bottom);
   box-sizing: border-box;
-
-  @include m.e(thumb) {
-    position: absolute;
-    left: 0;
-    top: 0;
-    z-index: 0;
-    pointer-events: none;
-    background-color: fn.use-var(bg-color, top);
-    box-shadow: fn.use-var(shadow, sm);
-    // 透明度始终过渡（首次出现原地淡入）
-    transition: opacity 200ms cubic-bezier(0.77, 0, 0.175, 1);
-
-    // 首次定位完成前不加位移过渡，避免 thumb 从 (0,0) 滑入
-    @include m.is(ready) {
-      transition:
-        transform 200ms cubic-bezier(0.77, 0, 0.175, 1),
-        opacity 200ms cubic-bezier(0.77, 0, 0.175, 1);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      transition: none;
-    }
-  }
 
   @include m.size using ($size) {
     border-radius: fn.use-var(radius, $size);
@@ -47,7 +23,7 @@
 
   @include m.e(item) {
     position: relative;
-    z-index: 1;
+    isolation: isolate;
     margin: 0;
     display: inline-flex;
     align-items: center;
@@ -64,20 +40,44 @@
       background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
       box-shadow fn.use-var(transition, fast) fn.use-var(transition, ease);
 
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      border-radius: inherit;
+      background-color: fn.use-var(bg-color, top);
+      box-shadow: fn.use-var(shadow, sm);
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(0.85);
+      transition:
+        transform fn.use-var(transition, normal) fn.use-var(transition, ease-out),
+        opacity fn.use-var(transition, normal) fn.use-var(transition, ease);
+
+      @media (prefers-reduced-motion: reduce) {
+        transition: none;
+      }
+    }
+
     &:hover:not(.is-active):not(.is-disabled) {
       color: fn.use-var(text-color, title);
       background-color: fn.color-a(color, 5, primary);
     }
 
-    &:active:not(.is-disabled) {
+    &:active:not(.is-active):not(.is-disabled) {
       background-color: fn.color-a(color, 8, primary);
     }
 
     @include m.is(active) {
       color: fn.use-var(color, primary);
       background-color: transparent;
-      box-shadow: none;
       font-weight: 600;
+
+      &::after {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
 
     @include m.is(disabled) {
@@ -87,6 +87,7 @@
     }
 
     &:focus-visible:not(.is-disabled) {
+      z-index: 1;
       box-shadow: fn.use-var(focus-ring);
     }
   }

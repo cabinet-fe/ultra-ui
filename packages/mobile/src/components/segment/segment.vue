@@ -2,11 +2,9 @@
   <div
     v-if="!readonly"
     v-bind="$attrs"
-    ref="trackRef"
     :class="[cls.b, bem.is('block', block), bem.is('disabled', disabled), cls.m(size)]"
     role="radiogroup"
   >
-    <div :class="cls.e('thumb')" :style="thumbStyle" aria-hidden="true" />
     <div
       v-for="item of items"
       :key="item[valueKey]"
@@ -36,9 +34,9 @@
 
 <script lang="ts" setup>
 import './style'
-import { useFormFallbackProps, useResizeObserver } from '@veltra/compositions'
+import { useFormFallbackProps } from '@veltra/compositions'
 import { fieldKey, FORM_EMPTY_CONTENT, injectFormContext } from '@veltra/utils'
-import { computed, nextTick, onMounted, shallowRef, watch } from 'vue'
+import { computed } from 'vue'
 
 import { bem } from '../../shared/bem'
 import type { SegmentEmits, SegmentItem, SegmentProps } from '../../types/segment'
@@ -70,47 +68,6 @@ const cls = bem('segment')
 
 const labelKey = computed(() => fieldKey(props.labelKey, 'label'))
 const valueKey = computed(() => fieldKey(props.valueKey, 'value'))
-
-const trackRef = shallowRef<HTMLElement>()
-const thumbX = shallowRef(0)
-const thumbY = shallowRef(0)
-const thumbW = shallowRef(0)
-const thumbH = shallowRef(0)
-const thumbRadius = shallowRef('0px')
-const thumbOn = shallowRef(false)
-
-const thumbStyle = computed(() => ({
-  width: `${thumbW.value}px`,
-  height: `${thumbH.value}px`,
-  borderRadius: thumbRadius.value,
-  transform: `translate(${thumbX.value}px, ${thumbY.value}px)`,
-  opacity: thumbOn.value ? '1' : '0'
-}))
-
-function measure() {
-  const track = trackRef.value
-  if (!track) return
-  const active = track.querySelector<HTMLElement>(':scope > .is-active')
-  if (!active) {
-    thumbOn.value = false
-    return
-  }
-  // 用布局坐标（offset*）：thumb 是 track 内的绝对定位元素，需要的正是 track 坐标系内的
-  // 位置与尺寸。getBoundingClientRect 是视觉坐标，祖先链上有 transform: scale（如演示用
-  // 设备壳）时会把缩放差引入 translate，导致滑块越偏离原点偏移越大。
-  thumbX.value = active.offsetLeft
-  thumbY.value = active.offsetTop
-  thumbW.value = active.offsetWidth
-  thumbH.value = active.offsetHeight
-  thumbRadius.value = getComputedStyle(active).borderRadius
-  thumbOn.value = true
-}
-
-useResizeObserver({ targets: trackRef, onResize: () => measure() })
-
-watch([model, () => props.items, size], () => nextTick(measure), { deep: true })
-
-onMounted(() => nextTick(measure))
 
 const handleSelect = (item: SegmentItem) => {
   if (disabled.value || props.disabledItem?.(item)) return

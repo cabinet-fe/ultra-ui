@@ -64,6 +64,8 @@ describe('USegment', () => {
       const root = queryRoot(host)
       expect(root).toBeTruthy()
       expect(root.getAttribute('role')).toBe('radiogroup')
+      expect(host.querySelector('.u-segment__thumb')).toBeNull()
+      expect(root.children.length).toBe(3)
 
       const items = queryItems(host)
       expect(items.length).toBe(3)
