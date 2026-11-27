@@ -1,0 +1,95 @@
+.showcase .row {
+  display: flex;
+  align-items: center;
+}
+
+.showcase .row-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.showcase .column {
+  display: flex;
+  flex-direction: column;
+}
+
+.showcase .gap-xs {
+  gap: 6px;
+}
+
+.showcase .gap-md {
+  gap: 12px;
+}
+
+.showcase .gap-lg {
+  gap: 16px;
+}
+
+.showcase .flex-1 {
+  flex: 1;
+}
+
+.showcase .flex-wrap {
+  flex-wrap: wrap;
+}
+
+.showcase .flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.showcase .w-full {
+  width: 100%;
+}
+
+.showcase .m-0 {
+  margin: 0;
+}
+
+.showcase .mt-1 {
+  margin-top: 4px;
+}
+
+.showcase .mt-2 {
+  margin-top: 8px;
+}
+
+.showcase .mt-3 {
+  margin-top: 12px;
+}
+
+.showcase .mt-auto {
+  margin-top: auto;
+}
+
+.showcase .text-xs {
+  font-size: 12px;
+}
+
+.showcase .text-sm {
+  font-size: 13px;
+}
+
+.showcase .text-second {
+  color: var(--u-text-color-second);
+}
+
+.showcase .font-medium {
+  font-weight: 500;
+  color: var(--u-text-color-title);
+}
+
+.showcase .section-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--u-text-color-title);
+}
+
+.showcase .field-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--u-text-color-main);
+}

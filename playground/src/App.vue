@@ -434,9 +434,10 @@ html[data-theme='dark'] .content-backdrop::before {
 
 .content-container {
   flex: 1;
+  min-height: 0;
   width: 100%;
   padding: 12px;
-  overflow-y: auto;
+  overflow: hidden;
   background: transparent;
   position: relative;
   z-index: 1;
