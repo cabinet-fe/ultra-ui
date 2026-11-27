@@ -884,6 +884,8 @@ describe('UAiChat', () => {
     await vi.waitFor(() => {
       expect(steps.length).toBeGreaterThan(0)
     })
+    // throttle 为 leading-only（无 trailing 定时器），需跨过节流窗口再推入第二行思考
+    await new Promise((resolve) => setTimeout(resolve, STREAM_THROTTLE_MS + 20))
     steps.shift()?.()
     // 节流刷新走真实 50ms 定时器；CI 122 worker 并行 + lint 抢核时事件循环
     // 可能整体停滞数秒，给足超时余量
@@ -904,6 +906,8 @@ describe('UAiChat', () => {
     await vi.waitFor(() => {
       expect(steps.length).toBeGreaterThan(0)
     })
+    // throttle 为 leading-only（无 trailing 定时器），需跨过节流窗口再推入第二行思考
+    await new Promise((resolve) => setTimeout(resolve, STREAM_THROTTLE_MS + 20))
     steps.shift()?.()
     await vi.waitFor(() => {
       expect(host.querySelector('.md-stub')?.textContent).toContain('答案')
