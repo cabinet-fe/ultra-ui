@@ -1,5 +1,12 @@
 # @veltra/styles
 
+## 2.5.0
+
+### Minor Changes
+
+- 5d195a4: 补充 Alert 主题变量，`UPalette` 新增 `change` 事件，并优化 `UTimeline`、`USegmented`（移除分段滑块 DOM）、`USteps`（已完成圆点按主题系列区分填充）、`UDescriptions`、`UFormItem` 与 `UMessageConfirm` 的样式与布局。
+- 5d195a4: 新增毛玻璃表面样式与主题切换过渡支持：配置 `bg.filter.blur` 时面板与浮层组件自动应用毛玻璃效果，`loadTheme` 等主题切换支持过渡动画。
+
 ## 2.4.0
 
 No changes in this release.

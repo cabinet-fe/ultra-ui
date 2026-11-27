@@ -1,5 +1,37 @@
 # @veltra/desktop
 
+## 2.5.0
+
+### Minor Changes
+
+- 5d195a4: 补充 Alert 主题变量，`UPalette` 新增 `change` 事件，并优化 `UTimeline`、`USegmented`（移除分段滑块 DOM）、`USteps`（已完成圆点按主题系列区分填充）、`UDescriptions`、`UFormItem` 与 `UMessageConfirm` 的样式与布局。
+- 5d195a4: 新增毛玻璃表面样式与主题切换过渡支持：配置 `bg.filter.blur` 时面板与浮层组件自动应用毛玻璃效果，`loadTheme` 等主题切换支持过渡动画。
+- 5d195a4: `UKanban` 新增列内虚拟滚动支持：列有确定高度时卡片在列内滚动容器虚拟挂载，拖拽过程中冻结窗口避免数据错位。
+- 5d195a4: 移除 `UProgressNodes` 进度节点组件及其类型与样式导出，横向步骤进度场景改用 `USteps`。
+  
+  ```vue
+  <!-- 旧 -->
+  <u-progress-nodes :nodes="nodes" />
+  
+  <!-- 新 -->
+  <u-steps :steps="steps" />
+  ```
+
+### Patch Changes
+
+- 661d418: `useDnD` 默认隐藏拖拽占位元素（无需额外配置），并同步清理 `UKanban` 中冗余的占位样式配置。
+- 361945d: 移除列表组件 `UList`、`UListItem`（`<u-list>` / `<u-list-item>`）。`@veltra/desktop` 与 `@veltra/mobile` 不再导出这两个组件，以及 `ListProps`、`ListEmits`、`ListExposed`。样式入口 `@veltra/desktop/components/list/style`、`@veltra/mobile/components/list/style` 一并删除。条目行用原生 `ul` / `li`；桌面端需要细滚动条时用 `UScroll`，并设置 `tag="ul"`。
+- 8f47aec: 移除穿梭框组件 `UTransfer`（`<u-transfer>`）、其样式入口 `@veltra/desktop/components/transfer/style` 及类型导出 `TransferOption`、`TransferDirection`、`TransferProps`、`TransferEmits`、`TransferExposed`。平铺数据多选改用 `UMultiSelect`：`dataSource` 作为 `options` 传入，选项字段 `key` 通过 `value-key="key"` 映射，`v-model` 仍为已选项集合；树形数据改用 `UTreeSelect`。
+  
+  ```vue
+  <!-- 旧 -->
+  <u-transfer v-model="targetKeys" :data-source="options" />
+  
+  <!-- 新 -->
+  <u-multi-select v-model="targetKeys" value-key="key" :options="options" />
+  ```
+- 4f95c49: `UTextarea` 视觉优化：内边距与行高随尺寸调整；清空按钮移到右上角且仅在有值并悬停或聚焦时显现与预留右侧内边距，平常不浪费横向空间；字数统计移至输入框外右下方（不遮挡滚动文字、不与拖拽手柄冲突），格式由「剩余字数/上限」改为「已输入字数/上限」并在达到上限时变为警告色。修复 `:resize="false"` 不生效；开启 `autosize` 时自动禁止拖拽拉伸。
+
 ## 2.4.0
 
 ### Minor Changes

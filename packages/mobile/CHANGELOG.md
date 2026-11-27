@@ -1,5 +1,16 @@
 # @veltra/mobile
 
+## 1.4.0
+
+### Minor Changes
+
+- 5d195a4: 补充 Alert 主题变量，`UPalette` 新增 `change` 事件，并优化 `UTimeline`、`USegmented`（移除分段滑块 DOM）、`USteps`（已完成圆点按主题系列区分填充）、`UDescriptions`、`UFormItem` 与 `UMessageConfirm` 的样式与布局。
+- 5d195a4: 新增毛玻璃表面样式与主题切换过渡支持：配置 `bg.filter.blur` 时面板与浮层组件自动应用毛玻璃效果，`loadTheme` 等主题切换支持过渡动画。
+
+### Patch Changes
+
+- 361945d: 移除列表组件 `UList`、`UListItem`（`<u-list>` / `<u-list-item>`）。`@veltra/desktop` 与 `@veltra/mobile` 不再导出这两个组件，以及 `ListProps`、`ListEmits`、`ListExposed`。样式入口 `@veltra/desktop/components/list/style`、`@veltra/mobile/components/list/style` 一并删除。条目行用原生 `ul` / `li`；桌面端需要细滚动条时用 `UScroll`，并设置 `tag="ul"`。
+
 ## 1.3.1
 
 ### Patch Changes

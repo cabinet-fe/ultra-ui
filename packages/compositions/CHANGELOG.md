@@ -1,5 +1,11 @@
 # @veltra/compositions
 
+## 2.5.0
+
+### Patch Changes
+
+- 661d418: `useDnD` 默认隐藏拖拽占位元素（无需额外配置），并同步清理 `UKanban` 中冗余的占位样式配置。
+
 ## 2.4.0
 
 No changes in this release.

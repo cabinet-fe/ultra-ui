@@ -1,5 +1,11 @@
 # @veltra/icons
 
+## 1.5.1
+
+### Patch Changes
+
+- 5d195a4: 修复 `Move` 图标描边宽度与其他图标不一致的问题，统一为 `2`。
+
 ## 1.5.0
 
 ### Minor Changes
