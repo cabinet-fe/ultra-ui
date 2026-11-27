@@ -146,6 +146,29 @@ $namespace: 'u' !default;
   @return var(--#{$namespace}-breakpoint-#{$point});
 }
 
+/** 毛玻璃表面：支持降级与减弱透明偏好（--u-* 始终固定前缀，不受 mobile $namespace 影响） */
+@mixin glass-surface(
+  $bg: var(--u-bg-surface-top),
+  $fallback-bg: var(--u-bg-color-top),
+  $filter: var(--u-bg-filter)
+) {
+  background-color: $bg;
+  backdrop-filter: $filter;
+  -webkit-backdrop-filter: $filter;
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    background-color: $fallback-bg;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    background-color: $fallback-bg;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
 /** 暗色：`UITheme.render()` 按主题系列写入 html[data-theme] */
 @mixin dark {
   html[data-theme='dark'] & {

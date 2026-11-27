@@ -40,8 +40,29 @@ $root-name: dialog;
   flex-direction: column;
   max-height: 90vh;
   box-shadow: fn.use-var(shadow, lg);
+  backdrop-filter: fn.use-var(bg-filter);
+  -webkit-backdrop-filter: fn.use-var(bg-filter);
   flex-wrap: nowrap;
   overflow: hidden;
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  &.fade-scale-enter-active,
+  &.fade-scale-leave-active,
+  &.spring-enter-active,
+  &.spring-leave-active {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
   @include m.size using ($size) {
     @include m.bem($root-name, header) {
       padding: 0 fn.use-var(gap, $size);
@@ -52,8 +73,15 @@ $root-name: dialog;
   @include m.e(header, footer) {
     flex-shrink: 0;
     overflow: hidden;
-    background-color: fn.use-var(bg-color, middle);
-    backdrop-filter: fn.use-var(bg-filter);
+    background-color: fn.use-var(bg-surface, middle);
+
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+      background-color: fn.use-var(bg-color, middle);
+    }
+
+    @media (prefers-reduced-transparency: reduce) {
+      background-color: fn.use-var(bg-color, middle);
+    }
   }
 
   // 弹框头
@@ -76,9 +104,16 @@ $root-name: dialog;
   }
 
   @include m.e(body) {
-    background-color: fn.use-var(bg-color, top);
-    backdrop-filter: fn.use-var(bg-filter);
+    background-color: fn.use-var(bg-surface, top);
     flex-grow: 1;
+
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+      background-color: fn.use-var(bg-color, top);
+    }
+
+    @media (prefers-reduced-transparency: reduce) {
+      background-color: fn.use-var(bg-color, top);
+    }
 
     // padding 加在滚动内容而非 body 本身：u-scroll 的 overflow 会裁切子元素 box-shadow
     // 用子代链限定 body 自己的滚动内容，避免命中弹框内嵌套的 u-scroll

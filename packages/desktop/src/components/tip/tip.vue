@@ -8,6 +8,7 @@
         :is="contentTag"
         :class="contentClass"
         :style="[contentStyle, { zIndex: zIndex() }]"
+        :data-placement="placementSide"
         ref="contentRef"
         @mouseenter="eventsHandlers.onMouseenter"
         @mouseleave="eventsHandlers.onMouseleave"

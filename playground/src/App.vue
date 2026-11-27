@@ -324,9 +324,22 @@ $width: 320px;
   height: 100%;
   flex-shrink: 0;
   backdrop-filter: var(--u-bg-filter);
+  -webkit-backdrop-filter: var(--u-bg-filter);
   // 侧栏容器：nav 底色 + 按实际底色色调配套的叠层渐变/分隔描边（--u-nav-surface-*）
-  background: var(--u-nav-surface-overlay), var(--u-nav-bg-color);
+  background: var(--u-nav-surface-overlay), var(--u-nav-bg-surface);
   box-shadow: inset -1px 0 0 var(--u-nav-surface-hairline);
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    background: var(--u-nav-surface-overlay), var(--u-nav-bg-color);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    background: var(--u-nav-surface-overlay), var(--u-nav-bg-color);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
 
 .main {
@@ -388,8 +401,9 @@ html[data-theme='dark'] .content-backdrop::before {
 .control-bar {
   padding: 16px 20px;
   border-bottom: 1px solid use-var(border, color);
-  background: use-var(bg-color, middle);
+  background: use-var(bg-surface, middle);
   backdrop-filter: var(--u-bg-filter);
+  -webkit-backdrop-filter: var(--u-bg-filter);
   display: flex;
   align-items: center;
   gap: 16px;
@@ -397,6 +411,18 @@ html[data-theme='dark'] .content-backdrop::before {
   position: sticky;
   top: 0;
   z-index: 10;
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    background: use-var(bg-color, middle);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    background: use-var(bg-color, middle);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }
 
 .control-bar__start {

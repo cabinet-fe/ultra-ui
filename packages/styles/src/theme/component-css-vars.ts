@@ -60,20 +60,20 @@ export const componentCssVarsLight: Record<string, string> = {
   '--u-button-info-plain-bg': T('color', 'info', 'light', '9'),
   '--u-button-info-plain-shadow': T('color', 'info', 'light', '5'),
 
-  '--u-tree-node-selected-bg': T('color', 'primary', 'light', '9'),
+  '--u-tree-node-selected-bg': T('color', 'primary', 'a', '16'),
   '--u-tree-node-selected-color': T('color', 'primary'),
 
-  '--u-cascade-node-active-bg': T('color', 'primary', 'light', '9'),
+  '--u-cascade-node-active-bg': T('color', 'primary', 'a', '16'),
   '--u-cascade-node-active-color': T('color', 'primary'),
 
   '--u-select-option-hover-bg': T('bg-color', 'hover'),
   '--u-select-option-hover-color': T('text-color', 'title'),
-  '--u-select-option-selected-bg': T('color', 'primary', 'light', '9'),
+  '--u-select-option-selected-bg': T('color', 'primary', 'a', '16'),
   '--u-select-option-selected-color': T('color', 'primary'),
 
   '--u-auto-complete-option-hover-bg': T('bg-color', 'hover'),
   '--u-auto-complete-option-hover-color': T('text-color', 'title'),
-  '--u-auto-complete-option-selected-bg': T('color', 'primary', 'light', '9'),
+  '--u-auto-complete-option-selected-bg': T('color', 'primary', 'a', '16'),
   '--u-auto-complete-option-selected-color': T('color', 'primary'),
 
   '--u-contextmenu-item-hover-bg': T('bg-color', 'hover'),
@@ -168,21 +168,21 @@ export const componentCssVarsDark: Record<string, string> = {
   '--u-button-info-plain-bg': T('color', 'info', 'dark', '9'),
   '--u-button-info-plain-shadow': T('color', 'info', 'dark', '7'),
 
-  '--u-tree-node-selected-bg': T('color', 'primary', 'dark', '9'),
-  '--u-tree-node-selected-color': T('color', 'primary'),
+  '--u-tree-node-selected-bg': T('color', 'primary', 'a', '22'),
+  '--u-tree-node-selected-color': T('color', 'primary', 'light', '3'),
 
-  '--u-cascade-node-active-bg': T('color', 'primary', 'dark', '9'),
-  '--u-cascade-node-active-color': T('color', 'primary'),
+  '--u-cascade-node-active-bg': T('color', 'primary', 'a', '22'),
+  '--u-cascade-node-active-color': T('color', 'primary', 'light', '3'),
 
   '--u-select-option-hover-bg': T('bg-color', 'hover'),
   '--u-select-option-hover-color': T('text-color', 'title'),
-  '--u-select-option-selected-bg': T('color', 'primary', 'dark', '9'),
-  '--u-select-option-selected-color': T('color', 'primary'),
+  '--u-select-option-selected-bg': T('color', 'primary', 'a', '22'),
+  '--u-select-option-selected-color': T('color', 'primary', 'light', '3'),
 
   '--u-auto-complete-option-hover-bg': T('bg-color', 'hover'),
   '--u-auto-complete-option-hover-color': T('text-color', 'title'),
-  '--u-auto-complete-option-selected-bg': T('color', 'primary', 'dark', '9'),
-  '--u-auto-complete-option-selected-color': T('color', 'primary'),
+  '--u-auto-complete-option-selected-bg': T('color', 'primary', 'a', '22'),
+  '--u-auto-complete-option-selected-color': T('color', 'primary', 'light', '3'),
 
   '--u-contextmenu-item-hover-bg': T('bg-color', 'hover'),
   '--u-contextmenu-item-hover-color': T('text-color', 'title'),

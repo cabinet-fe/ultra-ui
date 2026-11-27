@@ -56,6 +56,8 @@ src/
 
 `UITheme.render()` 同时注入容器级变体规则 `html[data-theme] [data-nav-variant]`（同一主题内任意子树可切菜单深浅，无需重建主题）、`html[data-nav-surface]`（实际底色色调）与一组 `--u-nav-surface-*` 表面装饰 token（叠层/描边/chip/选中态/滚动条，供应用壳使用）。新 API：`withNavVariant()`、`navSidebarColors()`、`navSurfaceTone()`、`navSurfaceTokens()`。
 
+`loadTheme(theme, transition = true)` 切换主题时默认通过 View Transitions API 从视口中心播放圆形涟漪过渡，传 `false` 可关闭；在 SSR、`currentTheme` 尚未初始化、缺少 `startViewTransition`、页面隐藏或 `prefers-reduced-motion: reduce` 时自动降级为同步切换。
+
 ## 依赖
 
 - **peer**：`@cat-kit/core`、`@veltra/compositions`、`@veltra/utils`、`vue`

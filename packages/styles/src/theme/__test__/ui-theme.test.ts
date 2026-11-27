@@ -124,16 +124,22 @@ describe('UITheme', () => {
   it('emits select, auto-complete, and contextmenu component vars', () => {
     expect(componentCssVarsLight['--u-select-option-hover-bg']).toBe('var(--u-bg-color-hover)')
     expect(componentCssVarsLight['--u-select-option-selected-bg']).toBe(
-      'var(--u-color-primary-light-9)'
+      'var(--u-color-primary-a-16)'
     )
     expect(componentCssVarsDark['--u-select-option-selected-bg']).toBe(
-      'var(--u-color-primary-dark-9)'
+      'var(--u-color-primary-a-22)'
+    )
+    expect(componentCssVarsDark['--u-select-option-selected-color']).toBe(
+      'var(--u-color-primary-light-3)'
     )
     expect(componentCssVarsLight['--u-auto-complete-option-selected-bg']).toBe(
-      'var(--u-color-primary-light-9)'
+      'var(--u-color-primary-a-16)'
     )
     expect(componentCssVarsDark['--u-auto-complete-option-selected-bg']).toBe(
-      'var(--u-color-primary-dark-9)'
+      'var(--u-color-primary-a-22)'
+    )
+    expect(componentCssVarsDark['--u-auto-complete-option-selected-color']).toBe(
+      'var(--u-color-primary-light-3)'
     )
     expect(componentCssVarsLight['--u-contextmenu-item-hover-bg']).toBe('var(--u-bg-color-hover)')
     expect(componentCssVarsLight['--u-contextmenu-item-height-default']).toBe('28px')
@@ -319,5 +325,54 @@ describe('UITheme', () => {
       expect(componentCssVarsDark[`--u-alert-${type}-border`]).toBe(`var(--u-color-${token}-a-28)`)
       expect(componentCssVarsDark[`--u-alert-${type}-color`]).toBe(`var(--u-color-${token})`)
     }
+  })
+
+  it('glass surface tokens track bg.filter and series opacity', () => {
+    // 关闭态（none 与 blur(0px)）均回落为实色引用
+    for (const inactive of [
+      lightTheme,
+      darkTheme,
+      lightTheme.new({ bg: { filter: { blur: 'blur(0px)', saturate: 'saturate(180%)' } } })
+    ]) {
+      const decls = inactive.themeToDeclarationList(inactive.theme)
+      expect(decls).toContain('--u-bg-surface-top: var(--u-bg-color-top)')
+      expect(decls).toContain('--u-bg-surface-middle: var(--u-bg-color-middle)')
+      expect(inactive.navSidebarDecls(inactive.theme)).toContain(
+        '--u-nav-bg-surface: var(--u-nav-bg-color)'
+      )
+    }
+
+    // aurora（深色 + 16px）：top=78% / middle=74%，nav 深底=76%
+    const auroraDecls = auroraTheme.themeToDeclarationList(auroraTheme.theme)
+    expect(auroraDecls).toContain('--u-bg-surface-top: rgba(18, 38, 46, 0.78)')
+    expect(auroraDecls).toContain('--u-bg-surface-middle: rgba(12, 27, 32, 0.74)')
+    expect(auroraTheme.navSidebarDecls(auroraTheme.theme)).toContain(
+      '--u-nav-bg-surface: rgba(12, 27, 32, 0.76)'
+    )
+
+    // 浅色开启：top=82% / middle=78%；浅/深侧栏分别取 82% / 76%
+    const lightGlass = lightTheme.new({
+      bg: { filter: { blur: 'blur(8px)', saturate: 'saturate(150%)' } }
+    })
+    const lightGlassDecls = lightGlass.themeToDeclarationList(lightGlass.theme)
+    expect(lightGlassDecls).toContain('--u-bg-surface-top: rgba(255, 255, 255, 0.82)')
+    expect(lightGlassDecls).toContain('--u-bg-surface-middle: rgba(250, 250, 250, 0.78)')
+    expect(lightGlass.navSidebarDecls(lightGlass.theme, 'light')).toContain(
+      '--u-nav-bg-surface: rgba(250, 250, 250, 0.82)'
+    )
+    expect(lightGlass.navSidebarDecls(lightGlass.theme, 'dark')).toContain(
+      '--u-nav-bg-surface: rgba(24, 24, 27, 0.76)'
+    )
+
+    // 非 hex 背景开启毛玻璃时回落 var(--u-bg-color-top)，保留用户自定义透明度且无 NaN
+    const rgbaGlass = lightTheme.new({
+      bg: {
+        color: { top: 'rgba(15, 23, 42, 0.75)' },
+        filter: { blur: 'blur(16px)', saturate: 'saturate(180%)' }
+      }
+    })
+    const rgbaGlassDecls = rgbaGlass.themeToDeclarationList(rgbaGlass.theme)
+    expect(rgbaGlassDecls).toContain('--u-bg-surface-top: var(--u-bg-color-top)')
+    expect(rgbaGlassDecls.some((d) => d.includes('NaN'))).toBe(false)
   })
 })

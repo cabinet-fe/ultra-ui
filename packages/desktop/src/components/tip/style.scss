@@ -14,26 +14,40 @@ $root-name: tip;
     box-shadow: fn.use-var(shadow, lg);
     border-radius: fn.use-var(radius, default);
     color: fn.use-var(text-color, main);
-
-    &::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      height: 100%;
-      width: 100%;
-      z-index: -1;
-      background-color: fn.use-var(bg-color, top);
-      border-radius: fn.use-var(radius, default);
-    }
+    @include m.glass-surface;
   }
 
   @include m.e(arrow) {
     position: absolute;
     z-index: -1;
     box-shadow: fn.use-var(shadow, lg);
-    background-color: fn.use-var(bg-color, top);
+    background-color: fn.use-var(bg-surface, top);
     transform: rotate(45deg);
+
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+      background-color: fn.use-var(bg-color, top);
+    }
+
+    @media (prefers-reduced-transparency: reduce) {
+      background-color: fn.use-var(bg-color, top);
+    }
+
+    // 裁掉伸入弹层内部的那一半菱形，避免半透明时发暗穿透
+    [data-placement='top'] > & {
+      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+    }
+
+    [data-placement='bottom'] > & {
+      clip-path: polygon(0 0, 100% 0, 0 100%);
+    }
+
+    [data-placement='left'] > & {
+      clip-path: polygon(0 0, 100% 0, 100% 100%);
+    }
+
+    [data-placement='right'] > & {
+      clip-path: polygon(0 0, 100% 100%, 0 100%);
+    }
   }
 
   @include m.size using ($size) {
@@ -45,10 +59,9 @@ $root-name: tip;
   @each $type, $_ in vars.$color-types {
     @include m.m(color-#{$type}) {
       color: fn.use-var(text-color, white);
-
-      &::after {
-        background-color: fn.use-var(color, $type);
-      }
+      background-color: fn.use-var(color, $type);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
 
       @include m.bem($root-name, arrow) {
         background-color: fn.use-var(color, $type);

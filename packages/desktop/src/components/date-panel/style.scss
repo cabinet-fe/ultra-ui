@@ -83,7 +83,7 @@ $root-name: date-panel;
     }
 
     @include m.is(in-range) {
-      background-color: fn.use-var(color, primary, light-9);
+      background-color: fn.color-a(color, 16, primary);
     }
 
     @include m.is(disabled) {

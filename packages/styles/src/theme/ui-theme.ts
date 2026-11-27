@@ -26,6 +26,12 @@ export interface UIThemeOptions {
   series?: ThemeSeries
 }
 
+function isGlassActive(filter: Theme['bg']['filter'] | undefined): boolean {
+  const blur = filter?.blur?.trim()
+  if (!blur || blur === 'none') return false
+  return !/^blur\(\s*0(?:px)?\s*\)$/i.test(blur)
+}
+
 export class UITheme {
   static themeID = 'ultra-ui-theme'
 
@@ -210,21 +216,46 @@ export class UITheme {
   }
 
   private renderBGFilter(theme: Theme): string {
-    const { filter } = theme.bg
+    const { filter, color } = theme.bg
+    const active = isGlassActive(filter)
     const value = filter.blur === 'none' ? 'none' : `${filter.blur} ${filter.saturate}`
-    return `--u-bg-filter: ${value}`
+
+    const surfaceAlpha = this.series === 'dark' ? { top: 78, middle: 74 } : { top: 82, middle: 78 }
+    const surfaceTop =
+      active && isHexColor(color.top)
+        ? hexWithAlpha(color.top, surfaceAlpha.top)
+        : 'var(--u-bg-color-top)'
+    const surfaceMiddle =
+      active && isHexColor(color.middle)
+        ? hexWithAlpha(color.middle, surfaceAlpha.middle)
+        : 'var(--u-bg-color-middle)'
+
+    return [
+      `--u-bg-filter: ${value}`,
+      `--u-bg-surface-top: ${surfaceTop}`,
+      `--u-bg-surface-middle: ${surfaceMiddle}`
+    ].join(';')
   }
 
   /** 主题变量声明列表，均为 `--u-` 前缀的 CSS 自定义属性 */
   themeToDeclarationList(theme: Theme): string[] {
     const raw = theme as unknown as Record<string, unknown>
-    const lines: string[] = [...this.renderBase(raw)]
+    const lines: string[] = []
+    const mixChunk = this.renderComponentMixTokens(theme)
+    if (mixChunk) {
+      lines.push(
+        ...mixChunk
+          .split(';')
+          .map((s) => s.trim())
+          .filter(Boolean)
+      )
+    }
+    lines.push(...this.renderBase(raw))
     const chunks = [
       this.renderTypeColor(theme),
       this.renderShadow(theme),
       this.renderBGColorAlpha(theme),
       this.renderAlphaTokens(theme),
-      this.renderComponentMixTokens(theme),
       this.renderBGFilter(theme),
       this.renderBorder(theme)
     ]
@@ -255,8 +286,15 @@ export class UITheme {
     const nav = theme.nav ?? {}
     const toDecls = (record: Record<string, any> | undefined) =>
       Object.keys(record ?? {})
-        .filter((key) => typeof record![key] === 'string' && record![key])
-        .map((key) => `--u-nav-${str(key).kebabCase()}: ${record![key]}`)
+        .filter((key) => {
+          const val = record![key]
+          return (typeof val === 'string' && val.length > 0) || typeof val === 'number'
+        })
+        .map((key) => {
+          const val = record![key]
+          const normalized = typeof val === 'number' ? withUnit(val, 'px') : val
+          return `--u-nav-${str(key).kebabCase()}: ${normalized}`
+        })
 
     const topLevel: Record<string, any> = { ...nav }
     delete topLevel.variant
@@ -266,8 +304,31 @@ export class UITheme {
   }
 
   /** 指定系列 + 变体的 nav 声明（内置 token + 主题覆盖），供 html 级与容器级注入共用 */
-  private navSeriesDecls(theme: Theme, series: ThemeSeries, variant: NavSidebarVariant): string[] {
-    return [...resolveNavSidebarDecls(series, variant), ...this.navOverrideDecls(theme, variant)]
+  private navSeriesDecls(
+    theme: Theme,
+    series: ThemeSeries,
+    variant: NavSidebarVariant,
+    themeVars?: Map<string, string>
+  ): string[] {
+    const decls = [
+      ...resolveNavSidebarDecls(series, variant),
+      ...this.navOverrideDecls(theme, variant)
+    ]
+    if (!isGlassActive(theme.bg?.filter)) {
+      decls.push('--u-nav-bg-surface: var(--u-nav-bg-color)')
+      return decls
+    }
+
+    const navVars = UITheme.toVariableMap(decls)
+    const rawNavBg = navVars.get('--u-nav-bg-color') ?? ''
+    const resolvedThemeVars = themeVars ?? UITheme.toVariableMap(this.themeToDeclarationList(theme))
+    const resolvedNavBg = UITheme.resolveVarValue(rawNavBg, navVars, resolvedThemeVars)
+    const alpha = navSurfaceTone(series, variant) === 'dark' ? 76 : 82
+    const navSurface = isHexColor(resolvedNavBg)
+      ? hexWithAlpha(resolvedNavBg, alpha)
+      : 'var(--u-nav-bg-color)'
+    decls.push(`--u-nav-bg-surface: ${navSurface}`)
+    return decls
   }
 
   /**
@@ -324,7 +385,7 @@ export class UITheme {
     const raw = toRaw(this.theme) as Theme
     const target = variant ?? this.navSidebarVariant(raw)
     const themeVars = UITheme.toVariableMap(this.themeToDeclarationList(raw))
-    const navVars = UITheme.toVariableMap(this.navSeriesDecls(raw, this.series, target))
+    const navVars = UITheme.toVariableMap(this.navSeriesDecls(raw, this.series, target, themeVars))
     const colors: Record<string, string> = {}
     for (const [name, value] of navVars) {
       colors[name.replace(/^--u-nav-/, '')] = UITheme.resolveVarValue(value, themeVars, navVars)
@@ -376,16 +437,20 @@ export class UITheme {
       this.series === 'dark' ? componentCssVarsDarkDecls : componentCssVarsLightDecls
     const raw = toRaw(this.theme)
     const activeVariant = this.navSidebarVariant(raw)
+    const themeDecls = this.themeToDeclarationList(raw)
+    const themeVars = UITheme.toVariableMap(themeDecls)
     const decls = [
-      ...this.themeToDeclarationList(raw),
       ...componentDecls,
-      ...this.navSeriesDecls(raw, this.series, activeVariant)
+      ...themeDecls,
+      ...this.navSeriesDecls(raw, this.series, activeVariant, themeVars)
     ]
     const block = UITheme.declarationBlock(decls)
     // 容器级变体：同一主题下任意子树加 data-nav-variant 即可切换菜单深浅，无需重建主题
     const variantRules = (['light', 'dark'] as const).flatMap((series) =>
       (['dark', 'light'] as const).map((variant) => {
-        const variantBlock = UITheme.declarationBlock(this.navSeriesDecls(raw, series, variant))
+        const variantBlock = UITheme.declarationBlock(
+          this.navSeriesDecls(raw, series, variant, themeVars)
+        )
         return `html[data-theme="${series}"] [data-nav-variant="${variant}"] { ${variantBlock} }`
       })
     )

@@ -31,9 +31,9 @@ $stack-positions: (
   width: 380px;
   max-width: calc(100vw - 40px);
   border: fn.use-var(border);
-  background-color: fn.use-var(bg-color, top);
   box-shadow: fn.use-var(shadow, lg);
   color: fn.use-var(text-color, main);
+  @include m.glass-surface;
   overflow: hidden;
   transition:
     transform fn.use-var(transition, normal) fn.use-var(transition, ease),

@@ -46,7 +46,10 @@ import { loadTheme, lightTheme, irisTheme, auroraTheme } from '@veltra/styles/th
 
 loadTheme() // 默认 lightTheme
 loadTheme(irisTheme) // 应用指定预设
+loadTheme(darkTheme, false) // 关闭切换过渡动画
 ```
+
+切换主题时默认在支持的浏览器中通过 View Transitions API 从视口中心播放圆形涟漪过渡；首屏初始化、SSR、`prefers-reduced-motion: reduce` 或不支持的浏览器自动降级为同步切换。
 
 预设主题按系列组织，应用主题即确定明暗（`html[data-theme]` 同步写入）：
 

@@ -57,9 +57,11 @@ $root-name: auto-complete;
       background-color: fn.component-var(
         auto-complete,
         option-selected-bg,
-        fn.use-var(color, primary, light-9)
+        fn.color-a(color, 16, primary)
       );
       color: fn.component-var(auto-complete, option-selected-color, fn.use-var(color, primary));
+      font-weight: 600;
+      box-shadow: inset 0 0 0 1px fn.color-a(color, 28, primary);
     }
   }
 

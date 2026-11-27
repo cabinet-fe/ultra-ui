@@ -6,11 +6,18 @@
 $root-name: card;
 @include m.b($root-name) {
   border-radius: fn.component-var(card, radius, fn.use-var(radius, large));
-  background-color: fn.use-var(bg-color, top);
   box-shadow: fn.use-var(shadow, sm);
-  backdrop-filter: fn.use-var(bg-filter);
-  -webkit-backdrop-filter: fn.use-var(bg-filter);
   overflow: hidden;
+  @include m.glass-surface;
+
+  .u-card &,
+  .u-dialog &,
+  .u-drawer &,
+  .u-dropdown__content &,
+  .u-tip__content & {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 
   @include m.is(integrate) {
     box-shadow: none;

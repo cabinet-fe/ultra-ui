@@ -26,6 +26,7 @@ $slider-thumb-size: 18px;
 @include m.b($root-name) {
   border-radius: 50%;
   display: inline-block;
+  flex-shrink: 0;
   border: fn.use-var(border);
   cursor: pointer;
 

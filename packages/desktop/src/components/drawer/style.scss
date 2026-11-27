@@ -25,10 +25,8 @@ $direction-map: (
   display: flex;
   flex-direction: column;
   border-radius: fn.use-var(radius, large);
-  background-color: fn.use-var(bg-color, top);
-  backdrop-filter: fn.use-var(bg-filter);
-  -webkit-backdrop-filter: fn.use-var(bg-filter);
   box-shadow: fn.use-var(shadow, lg);
+  @include m.glass-surface;
 
   @include m.e(close) {
     position: absolute;

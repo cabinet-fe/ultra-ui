@@ -13,12 +13,20 @@ $arrow-size: 12px;
   gap: 1px;
   user-select: none;
   color: fn.use-var(text-color, main);
-  background-color: fn.use-var(bg-color, top);
-  border: 1px solid fn.use-var(border, color);
   border-radius: calc(fn.use-var(radius, default) + 2px);
-  box-shadow: fn.use-var(shadow, lg);
-  backdrop-filter: fn.use-var(bg-filter);
-  -webkit-backdrop-filter: fn.use-var(bg-filter);
+
+  // 由伪元素承载毛玻璃背景，避免父级菜单产生 Backdrop Root 阻断子菜单对页面背景采样
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    border: 1px solid fn.use-var(border, color);
+    border-radius: inherit;
+    box-shadow: fn.use-var(shadow, lg);
+    @include m.glass-surface;
+  }
 }
 
 @include m.b($root-name) {
@@ -129,6 +137,7 @@ $arrow-size: 12px;
     position: absolute;
     top: 0;
     left: 100%;
+    z-index: 1;
     margin-left: -4px;
     min-width: 120px;
     width: max-content;

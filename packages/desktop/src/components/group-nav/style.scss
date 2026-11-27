@@ -7,9 +7,7 @@
   padding: 0;
   user-select: none;
   color: var(--u-nav-color);
-  background-color: var(--u-nav-bg-color);
-  backdrop-filter: fn.use-var(bg-filter);
-  -webkit-backdrop-filter: fn.use-var(bg-filter);
+  @include m.glass-surface($bg: var(--u-nav-bg-surface), $fallback-bg: var(--u-nav-bg-color));
   background-image: var(--u-nav-bg-image);
   background-size: cover;
   background-repeat: no-repeat;

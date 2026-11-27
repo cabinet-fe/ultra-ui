@@ -105,9 +105,7 @@ $collapsed-nav: collapsed-nav;
 @include m.b($root-name) {
   margin: 0;
   padding: 0;
-  background-color: var(--u-nav-bg-color);
-  backdrop-filter: fn.use-var(bg-filter);
-  -webkit-backdrop-filter: fn.use-var(bg-filter);
+  @include m.glass-surface($bg: var(--u-nav-bg-surface), $fallback-bg: var(--u-nav-bg-color));
   background-image: var(--u-nav-bg-image);
   background-size: cover;
   background-repeat: no-repeat;
@@ -211,9 +209,7 @@ $collapsed-nav: collapsed-nav;
   @include m.e(panel) {
     min-width: 240px;
     padding: 8px !important;
-    background-color: var(--u-nav-bg-color);
-    backdrop-filter: fn.use-var(bg-filter);
-    -webkit-backdrop-filter: fn.use-var(bg-filter);
+    @include m.glass-surface($bg: var(--u-nav-bg-surface), $fallback-bg: var(--u-nav-bg-color));
     border: 1px solid fn.use-var(border, color);
     border-radius: calc(fn.use-var(radius, large) + 4px);
     box-shadow: fn.use-var(shadow, lg);

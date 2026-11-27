@@ -189,11 +189,9 @@ $root-name: expression-editor;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background-color: fn.use-var(bg-color, top);
+    background-color: transparent;
     border: fn.use-var(border);
     border-radius: fn.use-var(radius, default);
-    backdrop-filter: fn.use-var(bg-filter);
-    -webkit-backdrop-filter: fn.use-var(bg-filter);
   }
 
   @include m.e(picker-body) {
@@ -310,7 +308,7 @@ $root-name: expression-editor;
     flex-wrap: wrap;
     gap: 2px;
     padding: 6px 8px;
-    background-color: fn.use-var(bg-color, middle);
+    background-color: fn.use-var(bg-surface, middle);
     border-bottom: fn.use-var(border);
     font-size: fn.use-var(font-size-main, small);
     color: fn.use-var(text-color, second);
@@ -355,7 +353,7 @@ $root-name: expression-editor;
     flex: 0 0 200px;
     border-left: fn.use-var(border);
     padding: 8px 12px;
-    background-color: fn.use-var(bg-color, middle);
+    background-color: fn.use-var(bg-surface, middle);
     font-size: fn.use-var(font-size-main, small);
   }
 

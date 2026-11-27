@@ -77,10 +77,11 @@ $indent-width: 20px;
         background-color: fn.component-var(
           tree,
           node-selected-bg,
-          fn.use-var(color, primary, light-9)
+          fn.color-a(color, 16, primary)
         );
         color: fn.component-var(tree, node-selected-color, fn.use-var(color, primary));
         font-weight: 500;
+        box-shadow: inset 0 0 0 1px fn.color-a(color, 28, primary);
       }
 
       // 叶子圆点平时是占位灰；选中后跟选中文字同色。禁用节点保持占位灰。
