@@ -1,456 +1,286 @@
 <template>
   <div :class="cls.b">
-    <div :class="cls.e('header')">
-      <div :class="cls.e('header-copy')">
-        <strong>主题变量配置</strong>
-      </div>
-      <div :class="cls.e('tags')">
-        <span :class="cls.e('tag')">基线 {{ baselineLabel }}</span>
-        <span :class="cls.e('tag')">{{ changedFieldKeys.size }} 改动</span>
-      </div>
-    </div>
+    <header :class="cls.e('header')">
+      <u-segment v-model="activeScope" size="small" :items="scopeItems" />
 
-    <div :class="cls.e('toolbar')">
-      <u-input
-        v-model="keyword"
-        :class="cls.e('search')"
-        placeholder="搜索变量名、中文标签或分组"
-      />
+      <div :class="cls.e('filters')">
+        <u-input
+          v-model="keyword"
+          size="small"
+          clearable
+          :class="cls.e('search')"
+          placeholder="搜索配置项或组件"
+        >
+          <template #prefix>
+            <u-icon><Search /></u-icon>
+          </template>
+        </u-input>
 
-      <button
-        type="button"
-        :class="[cls.e('toggle'), bem.is('active', changedOnly)]"
-        @click="changedOnly = !changedOnly"
-      >
-        {{ changedOnly ? '查看全部' : '仅看改动' }}
-      </button>
-    </div>
+        <u-button
+          size="small"
+          :type="changedOnly ? 'primary' : 'default'"
+          :plain="changedOnly"
+          @click="changedOnly = !changedOnly"
+        >
+          仅看改动{{ changedFieldKeys.size ? ` (${changedFieldKeys.size})` : '' }}
+        </u-button>
+      </div>
+
+      <div :class="cls.e('actions')">
+        <u-select
+          size="small"
+          :class="cls.e('preset-select')"
+          :model-value="activePresetValue"
+          :options="presetOptions"
+          :clearable="false"
+          placeholder="切换预设"
+          @update:model-value="handlePresetChange"
+        />
+        <u-button size="small" :disabled="!changedFieldKeys.size" @click="resetAll">
+          重置
+        </u-button>
+        <u-button size="small" type="primary" :icon="Download" @click="exportTheme">
+          导出
+        </u-button>
+      </div>
+    </header>
 
     <div :class="cls.e('body')">
-      <div :class="cls.e('nav')">
-        <button
-          v-for="section in sectionStates"
-          :key="section.key"
-          type="button"
-          :class="[
-            cls.e('nav-item'),
-            bem.is('active', activeSection === section.key),
-            bem.is('disabled', !section.visibleFields.length)
-          ]"
-          @click="activeSection = section.key"
-        >
-          <span :class="cls.e('nav-main')">{{ section.title }}</span>
-          <span :class="cls.e('nav-meta')">
-            {{ section.visibleFields.length }}/{{ section.fields.length }}
-            <template v-if="section.changedCount"> · {{ section.changedCount }} 改动 </template>
-          </span>
-        </button>
-      </div>
+      <aside :class="cls.e('aside')">
+        <u-scroll>
+          <nav :class="cls.e('nav-list')" aria-label="主题配置分组">
+            <button
+              v-for="section in currentScopeSections"
+              :key="section.key"
+              type="button"
+              :class="[
+                cls.e('nav-item'),
+                bem.is('active', activeSection === section.key),
+                bem.is('empty', !section.visibleFieldCount)
+              ]"
+              @click="activeSection = section.key"
+            >
+              <span :class="cls.e('nav-title')">{{ section.title }}</span>
+              <u-tag
+                v-if="section.changedCount"
+                size="small"
+                type="primary"
+                round
+                :class="cls.e('nav-badge')"
+              >
+                {{ section.changedCount }}
+              </u-tag>
+              <span v-else :class="cls.e('nav-count')">{{ section.visibleFieldCount }}</span>
+            </button>
+          </nav>
+        </u-scroll>
+      </aside>
 
-      <div :class="cls.e('panel')">
-        <div v-if="activeState" :class="cls.e('panel-head')">
-          <div>
-            <h4 :class="cls.e('panel-title')">{{ activeState.title }}</h4>
-            <p :class="cls.e('panel-desc')">{{ activeState.description }}</p>
+      <main :class="cls.e('main')">
+        <template v-if="activeState && activeState.visibleGroups.length">
+          <div :class="cls.e('main-head')">
+            <div :class="cls.e('main-title-wrap')">
+              <h3 :class="cls.e('main-title')">{{ activeState.title }}</h3>
+              <p :class="cls.e('main-desc')">{{ activeState.description }}</p>
+            </div>
+            <u-button
+              v-if="activeState.changedCount"
+              text
+              size="small"
+              :icon="Rollback"
+              @click="resetSection(activeState)"
+            >
+              重置本组
+            </u-button>
           </div>
 
-          <div :class="cls.e('panel-count')">{{ activeState.visibleFields.length }} 项</div>
-        </div>
-
-        <div v-if="activeState?.visibleFields.length" :class="cls.e('list')">
-          <div
-            v-for="field in activeState.visibleFields"
-            :key="field.key"
-            :class="[cls.e('item'), bem.is('changed', isFieldChanged(field))]"
-          >
-            <div :class="cls.e('item-head')">
-              <div :class="cls.e('item-copy')">
-                <label :class="cls.e('item-label')">{{ field.label }}</label>
-                <div :class="cls.e('item-meta')">
-                  <span :class="cls.e('item-code-label')">Theme</span>
-                  <code :class="cls.e('item-code')">{{ getThemePath(field.path) }}</code>
-                </div>
-                <div :class="cls.e('item-meta')">
-                  <span :class="cls.e('item-code-label')">CSS</span>
-                  <code :class="cls.e('item-code')">{{ getCssVarName(field.path) }}</code>
-                </div>
-              </div>
-
-              <span v-if="isFieldChanged(field)" :class="cls.e('item-badge')"> 已修改 </span>
+          <u-scroll :class="cls.e('main-scroll')">
+            <div :class="cls.e('groups')">
+              <ThemeFieldGroup
+                v-for="group in activeState.visibleGroups"
+                :key="group.key"
+                :group="group"
+                :changed-keys="changedFieldKeys"
+                :glass-state="glassState"
+                :get-value="getFieldValue"
+                @update="updateField"
+                @reset="resetField"
+                @toggle-glass="toggleGlass"
+                @update-glass-blur="updateGlassBlur"
+                @update-glass-saturate="updateGlassSaturate"
+                @reset-glass="resetGlass"
+              />
             </div>
+          </u-scroll>
+        </template>
 
-            <div v-if="field.kind === 'palette'" :class="cls.e('palette-field')">
-              <template v-if="field.path[0] === 'color'">
-                <div :class="cls.e('palette-custom')">
-                  <u-palette
-                    :model-value="String(getFieldValue(field) ?? '')"
-                    @update:model-value="(value) => updateField(field, value)"
-                  />
-                  <u-input
-                    :model-value="String(getFieldValue(field) ?? '')"
-                    placeholder="例如：#1E88E5"
-                    @update:model-value="(value) => updateField(field, value)"
-                  />
-                </div>
-              </template>
-              <template v-else>
-                <div :class="cls.e('palette-custom')">
-                  <u-palette
-                    :model-value="
-                      String(getFieldValue(field) ?? '').startsWith('var')
-                        ? ''
-                        : String(getFieldValue(field) ?? '')
-                    "
-                    @update:model-value="(value) => updateField(field, value)"
-                  />
-                  <u-input
-                    :model-value="String(getFieldValue(field) ?? '')"
-                    placeholder="输入颜色或变量"
-                    @update:model-value="(value) => updateField(field, value)"
-                  />
-                </div>
-                <div :class="cls.e('palette-var')">
-                  <span :class="cls.e('palette-var-label')">或选择变量</span>
-                  <u-select
-                    :model-value="
-                      String(getFieldValue(field) ?? '').startsWith('var')
-                        ? String(getFieldValue(field) ?? '')
-                        : ''
-                    "
-                    :options="colorVarOptions"
-                    clearable
-                    placeholder="选择预设变量"
-                    @update:model-value="(value) => updateField(field, value ?? '')"
-                  >
-                    <template #default="{ option }">
-                      <div style="display: flex; align-items: center; gap: 8px">
-                        <div
-                          :style="`width: 14px; height: 14px; border-radius: 4px; background: ${option.value}`"
-                        />
-                        <span style="font-size: 13px">{{ option.label }}</span>
-                      </div>
-                    </template>
-                  </u-select>
-                </div>
-              </template>
-            </div>
-
-            <component
-              v-else
-              :is="getFieldComponent(field)"
-              :model-value="getFieldValue(field)"
-              v-bind="getFieldProps(field)"
-              @update:model-value="(value) => updateField(field, value)"
-            />
-
-            <p v-if="field.hint || field.placeholder" :class="cls.e('item-hint')">
-              {{ field.hint ?? field.placeholder }}
-            </p>
-          </div>
-        </div>
-
-        <div v-else :class="cls.e('empty')">
-          <strong>没有匹配项</strong>
-          <p>换一个关键字，或关闭“仅看改动”后再继续筛选。</p>
-        </div>
-      </div>
-    </div>
-
-    <div :class="cls.e('actions')">
-      <div :class="cls.e('preset-group')">
-        <button type="button" :class="cls.e('preset')" @click="applyPreset('light')">
-          浅色预设
-        </button>
-        <button type="button" :class="cls.e('preset')" @click="applyPreset('dark')">
-          深色预设
-        </button>
-      </div>
-
-      <u-button :class="cls.e('action-btn')" @click="handleResetTheme"> 重置 </u-button>
-      <u-button :class="cls.e('action-btn')" type="primary" @click="handleExportTheme">
-        导出
-      </u-button>
+        <u-empty v-else block :text="changedOnly ? '当前暂无已修改的配置项' : '没有匹配的配置项'" />
+      </main>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import './style'
-import {
-  type Theme,
-  UITheme,
-  currentTheme,
-  darkTheme,
-  lightTheme,
-  loadTheme
-} from '@veltra/styles/theme'
+import { Download, Rollback, Search } from '@veltra/icons/normal'
 import { bem } from '@veltra/utils'
-import { computed, shallowRef, watch, watchEffect } from 'vue'
+import { computed, shallowRef, watchEffect } from 'vue'
 
 import type { ThemeProps, _ThemeExposed } from '../../types'
 import { UButton } from '../button'
+import { UEmpty } from '../empty'
+import { UIcon } from '../icon'
 import { UInput } from '../input'
-import { UNumberInput } from '../number-input'
-import { UPalette } from '../palette'
+import { UScroll } from '../scroll'
+import { USegment } from '../segment'
 import { USelect } from '../select'
-import { THEME_SECTIONS } from './schema'
-import type { ThemeField } from './schema'
+import { UTag } from '../tag'
+import {
+  THEME_PRESETS,
+  THEME_SECTIONS,
+  getSectionFields,
+  type ThemeScope,
+  type ThemeSection,
+  type ThemeSubGroup
+} from './schema'
+import ThemeFieldGroup from './theme-field-group.vue'
+import { useThemeEditor } from './use-theme-editor'
 
 defineOptions({ name: 'UTheme' })
 
-const props = defineProps<ThemeProps>()
+const { theme: propTheme } = defineProps<ThemeProps>()
 
 const cls = bem('theme')
 
+const activeScope = shallowRef<ThemeScope>('base')
+const activeSection = shallowRef<string>(THEME_SECTIONS[0]!.key)
 const keyword = shallowRef('')
 const changedOnly = shallowRef(false)
-const activeSection = shallowRef(THEME_SECTIONS[0]!.key)
 
-const colorVarOptions = computed(() => {
-  const options: { label: string; value: string }[] = []
-  THEME_SECTIONS.forEach((section) => {
-    section.fields.forEach((field) => {
-      if (field.kind === 'palette') {
-        const varName = `var(${getCssVarName(field.path)})`
-        options.push({ label: `${field.label}`, value: varName })
-      }
-    })
-  })
-  return options
-})
+const {
+  activePresetValue,
+  changedFieldKeys,
+  glassState,
+  getFieldValue,
+  updateField,
+  toggleGlass,
+  updateGlassBlur,
+  updateGlassSaturate,
+  resetGlass,
+  resetField,
+  resetSection,
+  resetAll,
+  applyPreset,
+  applyLightPreset,
+  applyDarkPreset,
+  exportTheme
+} = useThemeEditor(() => propTheme)
 
-const editorTheme = shallowRef<UITheme>()
-const baselineTheme = shallowRef<Theme>(createThemeSnapshot(lightTheme.theme))
-const baselineLabel = shallowRef('浅色预设')
+const presetOptions = THEME_PRESETS.map((item) => ({ label: item.label, value: item.value }))
 
-const lightPreset = createThemeSnapshot(lightTheme.theme)
-const darkPreset = createThemeSnapshot(darkTheme.theme)
+function handlePresetChange(value: string | undefined) {
+  if (value) applyPreset(value)
+}
 
-const sourceTheme = computed(() => {
-  return props.theme ?? currentTheme.value ?? lightTheme
-})
+interface SectionState extends ThemeSection {
+  visibleGroups: ThemeSubGroup[]
+  visibleFieldCount: number
+  changedCount: number
+}
 
-watch(
-  sourceTheme,
-  (theme) => {
-    if (!props.theme && theme === editorTheme.value) return
-
-    const nextTheme = props.theme
-      ? theme
-      : new UITheme(createThemeSnapshot(theme.theme), { series: theme.series })
-
-    editorTheme.value = nextTheme
-    baselineTheme.value = createThemeSnapshot(nextTheme.theme)
-    baselineLabel.value =
-      theme === darkTheme
-        ? '深色预设'
-        : theme === lightTheme
-          ? '浅色预设'
-          : props.theme
-            ? '外部主题'
-            : '当前主题'
-
-    if (!props.theme && currentTheme.value !== nextTheme) {
-      loadTheme(nextTheme)
-    }
-  },
-  { immediate: true }
-)
-
-const changedFieldKeys = computed(() => {
-  const keys = new Set<string>()
-
-  THEME_SECTIONS.forEach((section) => {
-    section.fields.forEach((field) => {
-      if (
-        getByPath(editorTheme.value?.theme ?? lightTheme.theme, field.path) !==
-        getByPath(baselineTheme.value, field.path)
-      ) {
-        keys.add(field.key)
-      }
-    })
-  })
-
-  return keys
-})
-
-const sectionStates = computed(() => {
-  const normalizedKeyword = keyword.value.trim().toLowerCase()
+const sectionStates = computed<SectionState[]>(() => {
+  const kw = keyword.value.trim().toLowerCase()
 
   return THEME_SECTIONS.map((section) => {
-    const sectionMatched = `${section.title} ${section.description}`
-      .toLowerCase()
-      .includes(normalizedKeyword)
+    const sectionHit = `${section.title} ${section.description}`.toLowerCase().includes(kw)
 
-    const visibleFields = section.fields.filter((field) => {
-      const matchesKeyword =
-        !normalizedKeyword ||
-        sectionMatched ||
-        `${field.label} ${field.key} ${getThemePath(field.path)} ${getCssVarName(field.path)}`
-          .toLowerCase()
-          .includes(normalizedKeyword)
-
-      if (!matchesKeyword) return false
-
-      if (changedOnly.value && !changedFieldKeys.value.has(field.key)) {
-        return false
+    const visibleGroups: ThemeSubGroup[] = []
+    for (const group of section.groups) {
+      const groupHit = group.title.toLowerCase().includes(kw)
+      const fields = group.fields.filter((field) => {
+        const matchesKw =
+          !kw ||
+          sectionHit ||
+          groupHit ||
+          `${field.label} ${field.key} ${field.cssVar}`.toLowerCase().includes(kw)
+        if (!matchesKw) return false
+        if (changedOnly.value && !changedFieldKeys.value.has(field.key)) return false
+        return true
+      })
+      if (fields.length > 0) {
+        visibleGroups.push({ ...group, fields })
       }
+    }
 
-      return true
-    })
+    const visibleFieldCount = visibleGroups.reduce((sum, g) => sum + g.fields.length, 0)
+    const changedCount = getSectionFields(section).filter((f) =>
+      changedFieldKeys.value.has(f.key)
+    ).length
 
-    const changedCount = section.fields.filter((field) => {
-      return changedFieldKeys.value.has(field.key)
-    }).length
-
-    return { ...section, visibleFields, changedCount }
+    return {
+      key: section.key,
+      scope: section.scope,
+      title: section.title,
+      description: section.description,
+      groups: section.groups,
+      visibleGroups,
+      visibleFieldCount,
+      changedCount
+    }
   })
 })
 
+function scopeChangedCount(scope: ThemeScope): number {
+  return sectionStates.value
+    .filter((s) => s.scope === scope)
+    .reduce((sum, s) => sum + s.changedCount, 0)
+}
+
+const scopeItems = computed(() => {
+  const baseChanged = scopeChangedCount('base')
+  const compChanged = scopeChangedCount('components')
+  return [
+    { label: baseChanged ? `基础样式 (${baseChanged})` : '基础样式', value: 'base' },
+    { label: compChanged ? `组件样式 (${compChanged})` : '组件样式', value: 'components' }
+  ]
+})
+
+const currentScopeSections = computed(() => {
+  return sectionStates.value.filter((s) => s.scope === activeScope.value)
+})
+
+// 跨维度搜索或筛选时自动定位到首个有匹配项的维度与分组
 watchEffect(() => {
-  const current = sectionStates.value.find((section) => {
-    return section.key === activeSection.value && section.visibleFields.length
-  })
+  const currentList = currentScopeSections.value
+  const hasCurrentMatch = currentList.some((s) => s.visibleFieldCount > 0)
 
-  if (current) return
+  if (!hasCurrentMatch) {
+    const otherScope: ThemeScope = activeScope.value === 'base' ? 'components' : 'base'
+    const otherHit = sectionStates.value.find(
+      (s) => s.scope === otherScope && s.visibleFieldCount > 0
+    )
+    if (otherHit) {
+      activeScope.value = otherScope
+      activeSection.value = otherHit.key
+      return
+    }
+  }
 
-  activeSection.value =
-    sectionStates.value.find((section) => section.visibleFields.length)?.key ??
-    THEME_SECTIONS[0]!.key
+  const activeInScope = currentList.find((s) => s.key === activeSection.value)
+  if (!activeInScope || activeInScope.visibleFieldCount === 0) {
+    const firstHit = currentList.find((s) => s.visibleFieldCount > 0) ?? currentList[0]
+    if (firstHit) {
+      activeSection.value = firstHit.key
+    }
+  }
 })
 
 const activeState = computed(() => {
   return (
-    sectionStates.value.find((section) => section.key === activeSection.value) ??
-    sectionStates.value[0]
+    currentScopeSections.value.find((s) => s.key === activeSection.value) ??
+    currentScopeSections.value[0]
   )
 })
 
-function createThemeSnapshot(theme: Theme): Theme {
-  return JSON.parse(JSON.stringify(theme)) as Theme
-}
-
-function getByPath(source: Record<string, any>, path: string[]) {
-  return path.reduce((current, key) => current?.[key], source)
-}
-
-function setByPath(source: Record<string, any>, path: string[], value: any) {
-  let current = source
-
-  path.slice(0, -1).forEach((key) => {
-    current = current[key]
-  })
-
-  current[path[path.length - 1]!] = value
-}
-
-function getCssVarName(path: string[]) {
-  return `--u-${path.join('-')}`
-}
-
-function getThemePath(path: string[]) {
-  return path.reduce((expression, key) => {
-    if (/^[A-Za-z_$][\w$]*$/.test(key)) {
-      return `${expression}.${key}`
-    }
-
-    return `${expression}['${key}']`
-  }, 'theme')
-}
-
-function getFieldComponent(field: ThemeField) {
-  switch (field.kind) {
-    case 'number':
-      return UNumberInput
-    case 'select':
-      return USelect
-    default:
-      return UInput
-  }
-}
-
-function getFieldValue(field: ThemeField) {
-  return getByPath(editorTheme.value?.theme ?? lightTheme.theme, field.path)
-}
-
-function getFieldProps(field: ThemeField) {
-  switch (field.kind) {
-    case 'number':
-      return { min: field.min, max: field.max, step: field.step, suffix: field.suffix }
-    case 'select':
-      return { options: field.options, clearable: false, placeholder: '请选择' }
-    case 'input':
-      return { placeholder: field.placeholder }
-    default:
-      return {}
-  }
-}
-
-function updateField(field: ThemeField, value: string | number | undefined) {
-  if (!editorTheme.value) return
-
-  const normalizedValue =
-    field.kind === 'number'
-      ? typeof value === 'number'
-        ? value
-        : Number(value || 0)
-      : String(value ?? '')
-
-  setByPath(editorTheme.value.theme, field.path, normalizedValue)
-  editorTheme.value.render()
-}
-
-function isFieldChanged(field: ThemeField) {
-  return changedFieldKeys.value.has(field.key)
-}
-
-function applySnapshot(snapshot: Theme, label?: string) {
-  if (!editorTheme.value) return
-
-  Object.assign(editorTheme.value.theme, createThemeSnapshot(snapshot))
-  baselineTheme.value = createThemeSnapshot(editorTheme.value.theme)
-
-  if (label) {
-    baselineLabel.value = label
-  }
-
-  editorTheme.value.render()
-}
-
-function applyPreset(type: 'light' | 'dark') {
-  if (editorTheme.value) {
-    editorTheme.value.series = type
-  }
-  applySnapshot(
-    type === 'dark' ? darkPreset : lightPreset,
-    type === 'dark' ? '深色预设' : '浅色预设'
-  )
-}
-
-function handleResetTheme() {
-  if (!editorTheme.value) return
-
-  Object.assign(editorTheme.value.theme, createThemeSnapshot(baselineTheme.value))
-  editorTheme.value.render()
-}
-
-function handleExportTheme() {
-  if (!editorTheme.value) return
-
-  const themeConfig = JSON.stringify(createThemeSnapshot(editorTheme.value.theme), null, 2)
-  const blob = new Blob([themeConfig], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = 'theme-config.json'
-  a.click()
-  URL.revokeObjectURL(url)
-}
-
-defineExpose<_ThemeExposed>({
-  reset: handleResetTheme,
-  exportTheme: handleExportTheme,
-  applyLightPreset: () => applyPreset('light'),
-  applyDarkPreset: () => applyPreset('dark')
-})
+defineExpose<_ThemeExposed>({ reset: resetAll, exportTheme, applyLightPreset, applyDarkPreset })
 </script>

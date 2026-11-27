@@ -1,472 +1,389 @@
 @use 'pkg:@veltra/styles/mixins' as m;
 @use 'pkg:@veltra/styles/functions' as fn;
-@use 'pkg:@veltra/styles/vars';
 
 $root-name: theme;
 
 @include m.b($root-name) {
   display: flex;
   flex-direction: column;
-  gap: 12px;
   width: 100%;
-  max-height: calc(100vh - 160px);
-  padding: 14px;
+  height: 680px;
   border: fn.use-var(border);
   border-radius: fn.use-var(radius, large);
-  background:
-    radial-gradient(circle at top right, fn.color-a(color, 16, primary), transparent 36%),
-    linear-gradient(180deg, fn.use-var(bg-color, top) 0%, fn.use-var(bg-color, middle) 100%);
-  box-shadow:
-    fn.use-var(shadow, lg),
-    inset 0 1px 0 fn.color-a(text-color, 70, white);
-  backdrop-filter: fn.use-var(bg-filter);
-  -webkit-backdrop-filter: fn.use-var(bg-filter);
+  background: fn.use-var(bg-color, middle);
+  box-shadow: fn.use-var(shadow, sm);
   overflow: hidden;
 
   @include m.e(header) {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 0 4px;
-  }
-
-  @include m.e(header-copy) {
-    strong {
-      display: block;
-      font-size: 16px;
-      color: fn.use-var(text-color, title);
-    }
-  }
-
-  @include m.e(tags) {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-
-  @include m.e(tag) {
-    display: inline-flex;
-    align-items: center;
-    height: 24px;
-    padding: 0 10px;
-    border-radius: 999px;
-    background: fn.color-a(color, 8, primary);
-    color: fn.use-var(color, primary);
-    font-size: 12px;
-    font-weight: 700;
-  }
-
-  @include m.e(toolbar) {
-    display: flex;
-    align-items: center;
     gap: 12px;
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    background: fn.use-var(bg-color, top);
+    border-bottom: fn.use-var(border);
+    flex-shrink: 0;
+  }
+
+  @include m.e(filters) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 220px;
   }
 
   @include m.e(search) {
-    flex: 1;
-    min-width: 0;
+    max-width: 240px;
+    min-width: 150px;
+  }
+
+  @include m.e(actions) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  @include m.e(preset-select) {
+    width: 148px;
   }
 
   @include m.e(body) {
     display: flex;
     flex: 1;
     min-height: 0;
-    gap: 16px;
   }
 
-  @include m.e(toggle, preset, nav-item) {
-    appearance: none;
-    border: none;
-    background: none;
-    font: inherit;
-    cursor: pointer;
-  }
-
-  @include m.e(toggle) {
+  @include m.e(aside) {
+    width: 176px;
     flex-shrink: 0;
-    height: fn.use-var(form-component-height, default);
-    padding: 0 14px;
-    border-radius: 999px;
-    color: fn.use-var(text-color, second);
-    background: fn.color-a(border, 11, color);
-    transition:
-      background-color fn.use-var(transition, normal) fn.use-var(transition, ease),
-      color fn.use-var(transition, normal) fn.use-var(transition, ease),
-      box-shadow fn.use-var(transition, normal) fn.use-var(transition, ease),
-      transform fn.use-var(transition, normal) fn.use-var(transition, ease-out);
-
-    &:hover {
-      background: fn.color-a(border, 16, color);
-      color: fn.use-var(text-color, title);
-    }
-
-    &:active {
-      transform: translateY(0) scale(0.98);
-    }
-
-    @include m.is(active) {
-      background: fn.color-a(color, 11, primary);
-      color: fn.use-var(color, primary);
-      box-shadow: inset 0 0 0 1px fn.color-a(color, 16, primary);
-    }
-  }
-
-  @include m.e(nav) {
+    min-height: 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    width: 220px;
-    flex-shrink: 0;
-    overflow-y: auto;
-    padding-right: 4px;
+    background: fn.use-var(bg-color, top);
+    border-right: fn.use-var(border);
 
-    &::-webkit-scrollbar {
-      width: 4px;
+    > .u-scroll {
+      flex: 1;
+      min-height: 0;
     }
-    &::-webkit-scrollbar-thumb {
-      border-radius: 4px;
-      background: fn.color-a(border, 22, color);
-    }
+  }
+
+  @include m.e(nav-list) {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 8px;
   }
 
   @include m.e(nav-item) {
-    display: grid;
-    gap: 3px;
-    padding: 10px 12px;
-    text-align: left;
+    appearance: none;
+    border: none;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    padding: 7px 10px;
     border-radius: fn.use-var(radius, default);
-    background: fn.use-var(bg-color, top);
-    border: 1px solid fn.color-a(border, 11, color);
+    color: fn.use-var(text-color, main);
+    font-size: fn.use-var(font-size-main, small);
+    text-align: left;
     transition:
-      background-color fn.use-var(transition, normal) fn.use-var(transition, ease),
-      border-color fn.use-var(transition, normal) fn.use-var(transition, ease),
-      box-shadow fn.use-var(transition, normal) fn.use-var(transition, ease),
-      opacity fn.use-var(transition, normal) fn.use-var(transition, ease),
-      transform fn.use-var(transition, normal) fn.use-var(transition, ease-out);
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      color fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     &:hover {
       background: fn.use-var(bg-color, hover);
-      border-color: fn.color-a(color, 16, primary);
-    }
-
-    // 触摸屏不抬起，避免点按误触发 hover 位移
-    @media (hover: hover) and (pointer: fine) {
-      &:hover {
-        transform: translateY(-1px);
-      }
-    }
-
-    // 按压自抬升位回落；禁用项不参与
-    @include m.is-not(disabled) {
-      &:active {
-        transform: translateY(0) scale(0.98);
-      }
-    }
-
-    @include m.is(active) {
-      background: linear-gradient(
-        135deg,
-        fn.color-a(color, 16, primary),
-        fn.use-var(bg-color, top)
-      );
-      border-color: fn.color-a(color, 22, primary);
-      // 主色光晕没有等价阴影 token，几何保持、色值走主色 alpha token
-      box-shadow: 0 8px 20px fn.color-a(color, 11, primary);
-    }
-
-    @include m.is(disabled) {
-      opacity: 0.55;
-    }
-  }
-
-  @include m.e(nav-main) {
-    font-size: fn.use-var(font-size-main, default);
-    font-weight: 600;
-    color: fn.use-var(text-color, title);
-  }
-
-  @include m.e(nav-meta) {
-    font-size: fn.use-var(font-size-assist, default);
-    line-height: 1.4;
-    color: fn.use-var(text-color, second);
-  }
-
-  @include m.e(panel) {
-    flex: 1;
-    min-height: 0;
-    border-radius: fn.use-var(radius, large);
-    background: linear-gradient(180deg, fn.use-var(bg-color, top), fn.use-var(bg-color, middle));
-    border: 1px solid fn.color-a(border, 16, color);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-
-  @include m.e(panel-head) {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 14px 14px 12px;
-    border-bottom: 1px solid fn.color-a(border, 10, color);
-  }
-
-  @include m.e(panel-title) {
-    margin: 0;
-    font-size: 15px;
-    color: fn.use-var(text-color, title);
-  }
-
-  @include m.e(panel-desc) {
-    margin: 4px 0 0;
-    font-size: fn.use-var(font-size-assist, default);
-    line-height: 1.45;
-    color: fn.use-var(text-color, second);
-  }
-
-  @include m.e(panel-count) {
-    flex-shrink: 0;
-    padding: 4px 10px;
-    border-radius: 999px;
-    background: fn.color-a(color, 8, primary);
-    color: fn.use-var(color, primary);
-    font-size: fn.use-var(font-size-assist, default);
-    font-weight: 700;
-  }
-
-  @include m.e(list) {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 12px;
-    padding: 12px 14px 14px;
-    overflow-y: auto;
-    align-items: start;
-    align-content: start;
-  }
-
-  @include m.e(item) {
-    display: grid;
-    gap: 8px;
-    padding: 12px;
-    border-radius: fn.use-var(radius, default);
-    background: fn.use-var(bg-color, top);
-    border: 1px solid fn.color-a(border, 16, color);
-    transition:
-      border-color fn.use-var(transition, normal) fn.use-var(transition, ease),
-      box-shadow fn.use-var(transition, normal) fn.use-var(transition, ease),
-      background-color fn.use-var(transition, normal) fn.use-var(transition, ease);
-
-    &:hover {
-      border-color: fn.color-a(color, 16, primary);
-      box-shadow: fn.use-var(shadow, sm);
-    }
-
-    @include m.is(changed) {
-      background: linear-gradient(135deg, fn.color-a(color, 8, primary), fn.use-var(bg-color, top));
-      border-color: fn.color-a(color, 16, primary);
-    }
-  }
-
-  @include m.e(item-head) {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 8px;
-  }
-
-  @include m.e(item-copy) {
-    min-width: 0;
-    display: grid;
-    gap: 4px;
-  }
-
-  @include m.e(item-meta) {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-    min-width: 0;
-  }
-
-  @include m.e(item-label) {
-    font-size: fn.use-var(font-size-main, default);
-    font-weight: 600;
-    color: fn.use-var(text-color, title);
-  }
-
-  @include m.e(item-code-label) {
-    flex-shrink: 0;
-    font-size: 11px;
-    line-height: 1.3;
-    color: fn.use-var(text-color, assist);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-
-  @include m.e(item-code) {
-    font-size: 11px;
-    line-height: 1.3;
-    color: fn.use-var(text-color, second);
-    word-break: break-all;
-  }
-
-  @include m.e(item-badge) {
-    flex-shrink: 0;
-    padding: 2px 8px;
-    border-radius: 999px;
-    background: fn.color-a(color, 10, primary);
-    color: fn.use-var(color, primary);
-    font-size: 11px;
-    font-weight: 700;
-  }
-
-  @include m.e(item-hint) {
-    margin: 0;
-    font-size: fn.use-var(font-size-assist, default);
-    line-height: 1.45;
-    color: fn.use-var(text-color, second);
-  }
-
-  @include m.e(palette-field) {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  @include m.e(palette-custom) {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    .u-palette {
-      flex-shrink: 0;
-      box-shadow: 0 0 0 1px fn.color-a(border, 5, color);
-    }
-
-    .u-input {
-      flex: 1;
-      width: 0;
-    }
-  }
-
-  @include m.e(palette-var) {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-
-    .u-select {
-      flex: 1;
-      width: 0;
-    }
-  }
-
-  @include m.e(palette-var-label) {
-    font-size: fn.use-var(font-size-assist, default);
-    color: fn.use-var(text-color, second);
-    flex-shrink: 0;
-    width: 68px;
-    text-align: right;
-  }
-
-  @include m.e(empty) {
-    padding: 24px 16px;
-    text-align: center;
-
-    strong {
-      display: block;
-      margin-bottom: 6px;
       color: fn.use-var(text-color, title);
     }
 
-    p {
-      margin: 0;
-      font-size: fn.use-var(font-size-main, small);
-      color: fn.use-var(text-color, second);
+    &:focus-visible {
+      outline: none;
+      box-shadow: fn.use-var(focus-ring);
+    }
+
+    @include m.is(active) {
+      background: fn.color-a(color, 10, primary);
+      color: fn.use-var(color, primary);
+      font-weight: 600;
+    }
+
+    @include m.is(empty) {
+      opacity: 0.45;
     }
   }
 
-  @include m.e(actions) {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) repeat(2, auto);
-    gap: 8px;
-    align-items: center;
-  }
-
-  @include m.e(preset-group) {
-    display: flex;
-    gap: 8px;
+  @include m.e(nav-title) {
+    @include m.ellipsis;
     min-width: 0;
   }
 
-  @include m.e(preset) {
+  @include m.e(nav-count) {
+    flex-shrink: 0;
+    font-size: fn.use-var(font-size-assist, small);
+    color: fn.use-var(text-color, placeholder);
+  }
+
+  @include m.e(nav-badge) {
+    flex-shrink: 0;
+  }
+
+  @include m.e(main) {
     flex: 1;
     min-width: 0;
-    height: fn.use-var(form-component-height, default);
-    padding: 0 12px;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  @include m.e(main-head) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 18px 10px;
+    border-bottom: 1px solid fn.color-a(border, 52, color);
+    flex-shrink: 0;
+  }
+
+  @include m.e(main-title-wrap) {
+    min-width: 0;
+  }
+
+  @include m.e(main-title) {
+    margin: 0;
+    font-size: fn.use-var(font-size-title, default);
+    font-weight: 600;
+    color: fn.use-var(text-color, title);
+  }
+
+  @include m.e(main-desc) {
+    margin: 2px 0 0;
+    font-size: fn.use-var(font-size-assist, default);
+    color: fn.use-var(text-color, second);
+  }
+
+  @include m.e(main-scroll) {
+    flex: 1;
+    min-height: 0;
+  }
+
+  @include m.e(groups) {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px 18px 18px;
+  }
+
+  @include m.e(group-card) {
+    border: 1px solid fn.color-a(border, 70, color);
     border-radius: fn.use-var(radius, default);
     background: fn.use-var(bg-color, top);
-    border: 1px solid fn.color-a(border, 16, color);
-    color: fn.use-var(text-color, main);
+
+    > .u-card__header {
+      padding: 8px 14px;
+    }
+
+    > .u-card__content {
+      padding: 12px 14px;
+    }
+  }
+
+  @include m.e(group-head) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border-bottom: 1px solid fn.color-a(border, 40, color);
+    padding: 8px 14px;
+  }
+
+  @include m.e(group-title) {
+    font-size: fn.use-var(font-size-main, default);
+    font-weight: 600;
+    color: fn.use-var(text-color, title);
+  }
+
+  @include m.e(group-changed) {
+    font-size: fn.use-var(font-size-assist, small);
+    color: fn.use-var(color, primary);
+    font-weight: 500;
+  }
+
+  @include m.e(group-body) {
+    padding: 12px 14px;
+
+    @include m.m(color) {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(156px, 1fr));
+      gap: 8px 10px;
+    }
+
+    @include m.m(inline) {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 18px;
+    }
+  }
+
+  @include m.e(swatch-item) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding: 6px 8px;
+    border-radius: fn.use-var(radius, small);
+    border: 1px solid fn.color-a(border, 52, color);
+    background: fn.use-var(bg-color, middle);
     transition:
-      background-color fn.use-var(transition, normal) fn.use-var(transition, ease),
-      border-color fn.use-var(transition, normal) fn.use-var(transition, ease),
-      color fn.use-var(transition, normal) fn.use-var(transition, ease),
-      transform fn.use-var(transition, normal) fn.use-var(transition, ease-out);
+      border-color fn.use-var(transition, fast) fn.use-var(transition, ease),
+      background-color fn.use-var(transition, fast) fn.use-var(transition, ease);
 
     &:hover {
-      border-color: fn.color-a(color, 16, primary);
-      color: fn.use-var(color, primary);
-      background: fn.use-var(bg-color, hover);
+      border-color: fn.color-a(color, 35, primary);
     }
 
-    &:active {
-      transform: translateY(0) scale(0.98);
+    @include m.is(changed) {
+      border-color: fn.color-a(color, 50, primary);
+      background: fn.color-a(color, 5, primary);
+    }
+
+    @include m.bem($root-name, field-label) {
+      flex: 1;
+      min-width: 0;
     }
   }
 
-  @include m.e(action-btn) {
-    min-width: 74px;
+  @include m.e(inline-item) {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px;
+    border-radius: fn.use-var(radius, small);
+    transition: background-color fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    @include m.is(changed) {
+      background: fn.color-a(color, 5, primary);
+    }
   }
 
-  .u-input,
-  .u-number-input,
-  .u-select {
-    width: 100%;
+  @include m.e(glass) {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 8px 10px;
+    border-radius: fn.use-var(radius, small);
+    border: 1px solid fn.color-a(border, 40, color);
+    background: fn.use-var(bg-color, middle);
+
+    @include m.is(changed) {
+      border-color: fn.color-a(color, 50, primary);
+      background: fn.color-a(color, 5, primary);
+    }
   }
 
-  @media (max-width: 480px) {
-    padding: 12px;
+  @include m.e(glass-toggle) {
+    display: flex;
+    align-items: center;
     gap: 10px;
 
-    @include m.e(header) {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
+    @include m.bem($root-name, reset-btn) {
+      margin-left: auto;
     }
+  }
 
+  @include m.e(glass-sliders) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 28px;
+    transition: opacity fn.use-var(transition, fast) fn.use-var(transition, ease);
+
+    @include m.is(disabled) {
+      opacity: 0.45;
+    }
+  }
+
+  @include m.e(glass-row) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  @include m.e(glass-slider) {
+    width: 180px;
+    flex-shrink: 0;
+  }
+
+  @include m.e(glass-val) {
+    width: 44px;
+    font-size: fn.use-var(font-size-assist, default);
+    font-variant-numeric: tabular-nums;
+    color: fn.use-var(text-color, second);
+    text-align: right;
+  }
+
+  @include m.e(field-label) {
+    @include m.ellipsis;
+    font-size: fn.use-var(font-size-main, small);
+    color: fn.use-var(text-color, main);
+    flex-shrink: 0;
+  }
+
+  @include m.e(number-control) {
+    width: 104px;
+    flex-shrink: 0;
+
+    @include m.is(lg) {
+      width: 116px;
+    }
+  }
+
+  @include m.e(select-control) {
+    width: 168px;
+    flex-shrink: 0;
+
+    @include m.is(wide) {
+      width: 210px;
+    }
+  }
+
+  @include m.e(reset-btn) {
+    flex-shrink: 0;
+    color: fn.use-var(text-color, second);
+
+    &:hover {
+      color: fn.use-var(color, primary);
+    }
+  }
+
+  @media (max-width: 720px) {
     @include m.e(body) {
       flex-direction: column;
     }
 
-    @include m.e(nav) {
-      width: auto;
+    @include m.e(aside) {
+      width: 100%;
+      height: 50px;
+      border-right: none;
+      border-bottom: fn.use-var(border);
+    }
+
+    @include m.e(nav-list) {
       flex-direction: row;
-      overflow-x: auto;
-      overflow-y: visible;
-      padding-bottom: 4px;
+      padding: 6px 8px;
+      width: max-content;
     }
 
     @include m.e(nav-item) {
-      flex-shrink: 0;
-    }
-
-    @include m.e(toolbar) {
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    @include m.e(actions) {
-      grid-template-columns: 1fr;
+      width: auto;
+      white-space: nowrap;
     }
   }
 }
